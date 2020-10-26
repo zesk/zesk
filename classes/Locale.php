@@ -412,13 +412,13 @@ abstract class Locale extends Hookable {
 	 */
 	abstract public function possessive($owner, $object);
 
-    /**
-     * English self::pluralize, prefixes with number or "no"
-     *
-     * @param string $word
-     * @param integer $number
-     * @return mixed
-     */
+	/**
+	 * English self::pluralize, prefixes with number or "no"
+	 *
+	 * @param string $word
+	 * @param integer $number
+	 * @return mixed
+	 */
 	public function plural_word($word, $number) {
 		if (is_string($number)) {
 			$number = intval($number);

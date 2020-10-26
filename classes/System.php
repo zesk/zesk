@@ -38,8 +38,8 @@ class System {
 	private static $host_id = null;
 
 	/**
-     * Set/get the name of the host machine for use elsewhere
-     *
+	 * Set/get the name of the host machine for use elsewhere
+	 *
 	 * @param string $set Set a value for the host ID
 	 * @return string
 	 */

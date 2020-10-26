@@ -21,10 +21,10 @@ class UTF16 {
 	 * http://www.moddular.org/log/utf16-to-utf8
 	 * http://www.onicos.com/staff/iz/amuse/javascript/expert/utf.txt
 	 *
-     * @param string $str
-     * @param bool $be Return BOM encoding characters
-     * @return string
-     */
+	 * @param string $str
+	 * @param bool $be Return BOM encoding characters
+	 * @return string
+	 */
 	public static function to_utf8($str, &$be = null) {
 		$c0 = ord($str[0]);
 		$c1 = ord($str[1]);
