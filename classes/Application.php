@@ -947,7 +947,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	final public function model_singleton($class) {
 		$args = func_get_args();
 		$args[0] = $this;
-		$suffix = PHP::clean_function($desired_class = $this->objects->resolve($class));
+		$suffix = strtolower(PHP::clean_function($desired_class = $this->objects->resolve($class)));
 		$object = $this->call_hook_arguments("singleton_$suffix", $args, null);
 		if ($object instanceof $desired_class) {
 			return $object;
@@ -1963,9 +1963,10 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @param boolean $require
 	 *        	Throw exception if no session found
-	 * @throws Exception_NotFound
-	 * @return \zesk\Interface_Session
-	 */
+     * @param Request $request
+     * @param bool $require
+     * @return Interface_Session|null
+     */
 	public function session(Request $request, $require = true) {
 		if ($request->has_option(__METHOD__)) {
 			return $request->option(__METHOD__);
