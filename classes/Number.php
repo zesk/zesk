@@ -28,8 +28,10 @@ class Number {
 	);
 
 	/**
-	 *
+	 * Takes a string like "20KB" and converts it to a byte
+     *
 	 * @param string $string
+     * @return integer
 	 */
 	public static function parse_bytes($string) {
 		$matches = false;

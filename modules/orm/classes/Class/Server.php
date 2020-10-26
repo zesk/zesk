@@ -12,7 +12,7 @@ namespace zesk;
  * Class definition for Server
  */
 class Class_Server extends Class_ORM {
-    const LOCALHOST_IP = '127.0.0.1';
+	const LOCALHOST_IP = '127.0.0.1';
 
 	public $id_column = "id";
 

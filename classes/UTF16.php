@@ -21,9 +21,10 @@ class UTF16 {
 	 * http://www.moddular.org/log/utf16-to-utf8
 	 * http://www.onicos.com/staff/iz/amuse/javascript/expert/utf.txt
 	 *
-	 * @param string $str
-	 * @return string
-	 */
+     * @param string $str
+     * @param bool $be Return BOM encoding characters
+     * @return string
+     */
 	public static function to_utf8($str, &$be = null) {
 		$c0 = ord($str[0]);
 		$c1 = ord($str[1]);
@@ -41,9 +42,6 @@ class UTF16 {
 		}
 		$len = strlen($str);
 		$dec = '';
-		if ($len % 1 !== 0) {
-			$odd = 1;
-		}
 		for ($i = $found_be ? 2 : 0; $i < $len; $i += 2) {
 			$c = ($be) ? ord($str[$i]) << 8 | ord($str[$i + 1]) : ord($str[$i + 1]) << 8 | ord($str[$i]);
 			if ($c >= 0x0001 && $c <= 0x007F) {

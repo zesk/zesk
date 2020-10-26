@@ -38,8 +38,10 @@ class System {
 	private static $host_id = null;
 
 	/**
-	 *
-	 * @return unknown
+     * Set/get the name of the host machine for use elsewhere
+     *
+	 * @param string $set Set a value for the host ID
+	 * @return string
 	 */
 	public static function host_id($set = null) {
 		if ($set !== null) {

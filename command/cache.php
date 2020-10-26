@@ -35,9 +35,4 @@ class Command_Cache extends Command_Base {
 			));
 		}
 	}
-
-	private function _exec_clear() {
-		$this->log("Running: Application::cache_clear");
-		$this->application->cache_clear();
-	}
 }

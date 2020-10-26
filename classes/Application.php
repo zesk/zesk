@@ -1963,10 +1963,10 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @param boolean $require
 	 *        	Throw exception if no session found
-     * @param Request $request
-     * @param bool $require
-     * @return Interface_Session|null
-     */
+	 * @param Request $request
+	 * @param bool $require
+	 * @return Interface_Session|null
+	 */
 	public function session(Request $request, $require = true) {
 		if ($request->has_option(__METHOD__)) {
 			return $request->option(__METHOD__);

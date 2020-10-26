@@ -269,7 +269,7 @@ class StringTools {
 	 *
 	 * @param mixed $haystack
 	 *        	A string or array of strings to search
-	 * @param mmixed $needle
+	 * @param mixed $needle
 	 *        	A string or array of strings to find
 	 * @param boolean $case_insensitive
 	 *        	Case insensitive comparison
@@ -514,7 +514,7 @@ class StringTools {
 			"\t",
 		);
 		$letters = StringTools::str_split($text);
-		for ($i = count($letters) - 1; $i--; $i >= 0) {
+		for ($i = count($letters) - 1; --$i; $i >= 0) {
 			if (in_array($letters[$i], $aa)) {
 				$off = $i;
 
