@@ -782,12 +782,12 @@ class Database extends \zesk\Database {
 		extract($parts, EXTR_IF_EXISTS);
 		$args = array();
 		if ($user || $pass) {
-		    if ($this->option_bool("password-on-command-line")) {
-                $args[] = "-u $user";
-                $args[] = "-p'$pass'";
-            } else {
-                $args[] = "--defaults-extra-file=" . $this->credentials_file($user, $pass);
-            }
+			if ($this->option_bool("password-on-command-line")) {
+				$args[] = "-u $user";
+				$args[] = "-p'$pass'";
+			} else {
+				$args[] = "--defaults-extra-file=" . $this->credentials_file($user, $pass);
+			}
 		}
 		if ($host) {
 			$args[] = "-h";
