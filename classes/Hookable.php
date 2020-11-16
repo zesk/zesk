@@ -65,18 +65,18 @@ class Hookable extends Options {
 	 * Using this invocation method, you can not pass a hook callback or a result callback to
 	 * process results, so this is best used for triggers which do not require a result.
 	 *
-	 * @param string $type
+	 * @param string|array $types
 	 * @return mixed
 	 * @see Hookable::hook_array
 	 */
-	final public function call_hook(string $type) {
-		if (empty($type)) {
+	final public function call_hook($types) {
+		if (empty($types)) {
 			return $this;
 		}
 		$args = func_get_args();
 		array_shift($args);
 		$default = avalue($args, 0);
-		return $this->call_hook_arguments($type, $args, $default);
+		return $this->call_hook_arguments($types, $args, $default);
 	}
 
 	/**
