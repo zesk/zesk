@@ -25,7 +25,6 @@ class Schema_Contact_Date extends ORM_Schema {
 					),
 					'value' => array(
 						'not null' => true,
-						'default' => '0000-00-00',
 						'type' => self::type_date,
 					),
 					'created' => array(
