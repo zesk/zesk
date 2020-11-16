@@ -21,8 +21,8 @@ class Command_Schema extends Command_Base {
 		"check" => "boolean",
 		"url" => "string",
 		"name" => "string",
-        "update" => "boolean",
-        "no-hooks" => "boolean",
+		"update" => "boolean",
+		"no-hooks" => "boolean",
 		"*" => "string",
 	);
 
@@ -49,18 +49,18 @@ class Command_Schema extends Command_Base {
 	/**
 	 */
 	protected function synchronize_before() {
-	    if (!$this->option_bool("no-hooks")) {
-            $this->_synchronize_suffix("update");
-        }
+		if (!$this->option_bool("no-hooks")) {
+			$this->_synchronize_suffix("update");
+		}
 	}
 
 	/**
 	 */
 	protected function synchronize_after() {
 		if ($this->option_bool("update")) {
-            if (!$this->option_bool("no-hooks")) {
-                $this->_synchronize_suffix("updated");
-            }
+			if (!$this->option_bool("no-hooks")) {
+				$this->_synchronize_suffix("updated");
+			}
 		}
 	}
 
