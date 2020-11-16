@@ -328,21 +328,23 @@ class Database_SQL extends \zesk\Database_SQL {
 			default:
 				break;
 		}
-		if ($default === null) {
-			return " DEFAULT NULL";
-		}
 		$bt = $data_type->native_type_to_sql_type($type);
 		switch ($bt) {
-			case "integer":
+			case Database_Type::sql_type_text:
+			case Database_Type::sql_type_blob:
+				return "";
+			case Database_Type::sql_type_integer:
 				return " DEFAULT " . intval($default);
 			case "boolean":
+				// TODO This is probably not reachable
 				$sql = StringTools::from_bool($default);
-
 				break;
 			default:
 				$sql = $default;
-
 				break;
+		}
+		if ($default === null) {
+			return " DEFAULT NULL";
 		}
 		return " DEFAULT " . $this->sql_format_string($sql);
 	}

@@ -70,16 +70,16 @@ class Database_Type extends \zesk\Database_Data_Type {
 		return $this->native_type_to_sql_type($t);
 	}
 
-    /**
-     * (non-PHPdoc)
-     *
-     * @param string $native_type
-     * @param string $default_value
-     * @return string
-     * @see zesk\Database::sql_type_default()
-     */
+	/**
+	 * (non-PHPdoc)
+	 *
+	 * @param string $native_type
+	 * @param string $default_value
+	 * @return string
+	 * @see zesk\Database::sql_type_default()
+	 */
 	public function sql_type_default($native_type, $default_value = null) {
-        $type = $this->native_type_to_sql_type($native_type, $native_type);
+		$type = $this->native_type_to_sql_type($native_type, $native_type);
 		switch ($type) {
 			case self::sql_type_string:
 				return strval($default_value);
