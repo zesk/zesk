@@ -16,7 +16,14 @@ class Database_Type extends \zesk\Database_Data_Type {
 		self::sql_type_string => array(
 			"char",
 			"varchar",
+		),
+		self::sql_type_blob => array(
+			"blob",
+			"longblob",
+		),
+		self::sql_type_text => array(
 			"text",
+			"longtext",
 		),
 		self::sql_type_integer => array(
 			"bit",
@@ -68,9 +75,9 @@ class Database_Type extends \zesk\Database_Data_Type {
 	 *
 	 * @see zesk\Database::sql_type_default()
 	 */
-	public function sql_type_default($type, $default_value = null) {
+	public function sql_type_default($native_type, $default_value = null) {
 		//echo "sql_type_default($type, "._dump($default_value) . ")\n";
-		$newtype = $this->native_type_to_sql_type($type, $type);
+		$newtype = $this->native_type_to_sql_type($native_type, $native_type);
 		//echo "$newtype = $this->native_type_to_sql_type($type, $type)\n";
 		$type = $newtype;
 		switch ($type) {
