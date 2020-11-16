@@ -785,7 +785,7 @@ class Database extends \zesk\Database {
 			if ($this->option_bool("password-on-command-line")) {
 				$args[] = "-u";
 				$args[] = $user;
-				$args[] = "-p'$pass'";
+				$args[] = "-p$pass";
 			} else {
 				$args[] = "--defaults-extra-file=" . $this->credentials_file($user, $pass);
 			}
