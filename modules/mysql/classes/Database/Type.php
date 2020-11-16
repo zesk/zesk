@@ -70,16 +70,16 @@ class Database_Type extends \zesk\Database_Data_Type {
 		return $this->native_type_to_sql_type($t);
 	}
 
-	/**
-	 * (non-PHPdoc)
-	 *
-	 * @see zesk\Database::sql_type_default()
-	 */
+    /**
+     * (non-PHPdoc)
+     *
+     * @param string $native_type
+     * @param string $default_value
+     * @return string
+     * @see zesk\Database::sql_type_default()
+     */
 	public function sql_type_default($native_type, $default_value = null) {
-		//echo "sql_type_default($type, "._dump($default_value) . ")\n";
-		$newtype = $this->native_type_to_sql_type($native_type, $native_type);
-		//echo "$newtype = $this->native_type_to_sql_type($type, $type)\n";
-		$type = $newtype;
+        $type = $this->native_type_to_sql_type($native_type, $native_type);
 		switch ($type) {
 			case self::sql_type_string:
 				return strval($default_value);
@@ -90,7 +90,6 @@ class Database_Type extends \zesk\Database_Data_Type {
 				return intval($default_value);
 			case self::sql_type_double:
 				return doubleval($default_value);
-				return to_bool($default_value, false);
 			case self::sql_type_datetime:
 				if ($default_value === 0 || $default_value === "0") {
 					$invalid_dates_ok = $this->database->option_bool("invalid_dates_ok");
