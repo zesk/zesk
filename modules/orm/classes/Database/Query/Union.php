@@ -42,18 +42,27 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	/**
 	 * Create an new query
 	 *
-	 * @param string $db
-	 * @return Database_Query_Select
+	 * @param Database $db
+	 * @return Database_Query_Union
 	 */
-	public static function factory($db = null) {
+	public static function factory(Database $db = null) {
 		return new Database_Query_Union($db);
 	}
 
+	/**
+	 * @param Database_Query_Select $select
+	 * @return $this
+	 */
 	public function union(Database_Query_Select $select) {
 		$this->queries[] = $select;
 		return $this;
 	}
 
+	/**
+	 * @param $what
+	 * @return $this
+	 * @throws Exception_Parameter
+	 */
 	public function what($what) {
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
@@ -62,6 +71,11 @@ class Database_Query_Union extends Database_Query_Select_Base {
 		return $this;
 	}
 
+	/**
+	 * @param string $table
+	 * @param string $alias
+	 * @return $this
+	 */
 	public function from($table, $alias = "") {
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
@@ -70,6 +84,11 @@ class Database_Query_Union extends Database_Query_Select_Base {
 		return $this;
 	}
 
+	/**
+	 * @param string $sql
+	 * @param string $join_id
+	 * @return $this
+	 */
 	public function join($sql, $join_id = null) {
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
@@ -78,6 +97,11 @@ class Database_Query_Union extends Database_Query_Select_Base {
 		return $this;
 	}
 
+	/**
+	 * @param string|array $k
+	 * @param mixed $v
+	 * @return $this
+	 */
 	public function where($k, $v = null) {
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
@@ -86,6 +110,10 @@ class Database_Query_Union extends Database_Query_Select_Base {
 		return $this;
 	}
 
+	/**
+	 * @param string $group_by
+	 * @return $this
+	 */
 	public function group_by($group_by) {
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
@@ -94,11 +122,20 @@ class Database_Query_Union extends Database_Query_Select_Base {
 		return $this;
 	}
 
+	/**
+	 * @param string|array  $order_by
+	 * @return $this
+	 */
 	public function order_by($order_by) {
 		$this->order_by = $order_by;
 		return $this;
 	}
 
+	/**
+	 * @param int $offset
+	 * @param int $limit
+	 * @return $this
+	 */
 	public function limit($offset = 0, $limit = null) {
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
@@ -107,12 +144,17 @@ class Database_Query_Union extends Database_Query_Select_Base {
 		return $this;
 	}
 
+	/**
+	 * Convert to SQL
+	 *
+	 * @return string
+	 */
 	public function __toString() {
-		$sqls = array();
+		$sql_phrases = array();
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
-			$sqls[] = $query->__toString();
+			$sql_phrases[] = $query->__toString();
 		}
-		return implode(" UNION ", ArrayTools::wrap($sqls, "(", ")")) . $this->sql()->order_by($this->order_by);
+		return implode(" UNION ", ArrayTools::wrap($sql_phrases, "(", ")")) . $this->sql()->order_by($this->order_by);
 	}
 }

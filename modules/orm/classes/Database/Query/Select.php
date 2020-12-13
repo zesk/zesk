@@ -24,7 +24,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 
 	/**
 	 * Array of tables to query. First is main from, others are JOINed
-	 * @var unknown
+	 * @var array
 	 */
 	protected $tables = null;
 
@@ -68,7 +68,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 
 	/**
 	 * Limit
-	 * @var unknown
+	 * @var integer
 	 */
 	protected $limit = -1;
 
@@ -163,7 +163,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 
 	/**
 	 *
-	 * @param unknown $column
+	 * @param string $column
 	 * @return boolean
 	 */
 	public function valid_column($column) {
@@ -243,7 +243,8 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @param mixed $mixed
 	 * @param mixed $value
-	 * @return Database_Query_Select
+	 * @return Database_Query_Select|array
+	 * @throws Exception_Parameter
 	 */
 	public function what($mixed = null, $value = null) {
 		if ($mixed === null && $value === null) {
@@ -350,7 +351,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param string $join_id
 	 * @return Database_Query_Select
 	 */
-	public function join_object($join_type, $class, $alias = null, array $on, $table = null) {
+	public function join_object($join_type, $class, $alias, array $on, $table = null) {
 		$object = null;
 		if ($class instanceof ORM) {
 			$object = $class;

@@ -152,16 +152,13 @@ class Content_Menu extends ORM {
 	/**
 	 *
 	 * @param Request $request
-	 * @param unknown $top
-	 * @param unknown $sub
+	 * @param string $top
+	 * @param string $sub
 	 * @return boolean
 	 */
 	public static function menu_child_selected(Request $request, $top, $sub) {
 		$uri = $request->path();
 		$uri = trim($uri, "/");
-		if (!is_string($top)) {
-			backtrace();
-		}
 		$top = trim($top, "/");
 		$sub = trim($sub, "/");
 		//

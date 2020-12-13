@@ -3,6 +3,7 @@
 /**
  *
  */
+
 namespace zesk;
 
 use zesk\Test\Exception_Incomplete;
@@ -27,13 +28,7 @@ class Test extends Hookable {
 	 *
 	 * @var array
 	 */
-	public $stats = array(
-		'test' => 0,
-		'pass' => 0,
-		'fail' => 0,
-		'skip' => 0,
-		'assert' => 0,
-	);
+	public $stats = array('test' => 0, 'pass' => 0, 'fail' => 0, 'skip' => 0, 'assert' => 0, );
 
 	/**
 	 *
@@ -120,9 +115,7 @@ class Test extends Hookable {
 		$this->inherit_global_options();
 		$this->call_hook("construct");
 		if ($this->load_modules) {
-			$this->log("Loading modules: {load_modules}", array(
-				"load_modules" => $this->load_modules,
-			));
+			$this->log("Loading modules: {load_modules}", array("load_modules" => $this->load_modules, ));
 			$this->application->modules->load($this->load_modules);
 			$this->application->configured(true);
 		}
@@ -151,11 +144,7 @@ class Test extends Hookable {
 	 * @return array
 	 */
 	private function parse_doccomment($comment) {
-		return DocComment::instance($comment, array(
-			DocComment::OPTION_LIST_KEYS => array(
-				"test_module",
-			),
-		))->variables();
+		return DocComment::instance($comment, array(DocComment::OPTION_LIST_KEYS => array("test_module", ), ))->variables();
 	}
 
 	/**
@@ -168,9 +157,7 @@ class Test extends Hookable {
 	 */
 	private function begin_test(Method $test, array $arguments = array()) {
 		if ($this->test !== null) {
-			throw new Exception_Semantics("{method}({name}): Already started test {this_name}", $test->variables() + ArrayTools::kprefix($this->test->variables(), "this_") + array(
-				"method" => __METHOD__,
-			));
+			throw new Exception_Semantics("{method}({name}): Already started test {this_name}", $test->variables() + ArrayTools::kprefix($this->test->variables(), "this_") + array("method" => __METHOD__, ));
 		}
 		$this->stats['test']++;
 		$this->test = $test;
@@ -262,7 +249,7 @@ class Test extends Hookable {
 	 *
 	 * @param string $message
 	 * @param array $arguments
-	 *        	Arguments in the message
+	 *            Arguments in the message
 	 * @return self
 	 */
 	public function log($message, array $arguments = array()) {
@@ -290,18 +277,16 @@ class Test extends Hookable {
 	 * @return self
 	 */
 	protected function error($message, array $arguments = array()) {
-		return $this->log($message, array(
-			"severity" => "error",
-		) + $arguments);
+		return $this->log($message, array("severity" => "error", ) + $arguments);
 	}
 
 	/**
 	 * Check if a test should actually run, given its doccomment settings
 	 *
 	 * @param string $name
-	 *        	Test to run
+	 *            Test to run
 	 * @param array $settings
-	 *        	Doccomment settings for a test
+	 *            Doccomment settings for a test
 	 * @return boolean Whether to run or not
 	 */
 	private function _test_should_run($name, array $settings) {
@@ -465,10 +450,7 @@ class Test extends Hookable {
 
 		try {
 			$this->begin_test($method, $arguments);
-			$this->test_results[$name] = call_user_func_array(array(
-				$this,
-				$name,
-			), $arguments);
+			$this->test_results[$name] = call_user_func_array(array($this, $name, ), $arguments);
 			$this->end_test();
 		} catch (\Exception $e) {
 			$this->end_test($e);
@@ -480,9 +462,7 @@ class Test extends Hookable {
 	 */
 	final public function run() {
 		if ($this->option_bool('disabled')) {
-			$this->log("{class} is disabled", array(
-				"class" => get_class($this),
-			));
+			$this->log("{class} is disabled", array("class" => get_class($this), ));
 			$this->stats['skip']++;
 			return true;
 		}
@@ -510,37 +490,24 @@ class Test extends Hookable {
 
 			if ($this->can_run_test($name)) {
 				if ($this->option_bool("debug_test_method")) {
-					$this->log(__("# Running {class}::{name}", array(
-						'class' => get_class($this),
-						'name' => $name,
-					)));
+					$this->log(__("# Running {class}::{name}", array('class' => get_class($this), 'name' => $name, )));
 				}
 				$test->run();
 				$failed = avalue($this->test_status, $name) !== true;
 				if (!$failed) {
 					if (($offset = strpos($this->last_test_output, self::PHP_ERROR_MARIAH)) !== false) {
-						$this->log("Test output contained {mariah} at offset {n}", array(
-							"mariah" => self::PHP_ERROR_MARIAH,
-							"n" => $offset,
-						));
+						$this->log("Test output contained {mariah} at offset {n}", array("mariah" => self::PHP_ERROR_MARIAH, "n" => $offset, ));
 						$this->test_status[$name] = false;
 						$failed = true;
 					}
 				}
-				$this->log(__("# {class_test}: {status}", array(
-					'class_test' => Text::lalign("$class::$name", 80),
-					'status' => $failed ? 'FAIL' : 'OK',
-				)));
+				$this->log(__("# {class_test}: {status}", array('class_test' => Text::lalign("$class::$name", 80), 'status' => $failed ? 'FAIL' : 'OK', )));
 				if (($failed || $this->option_bool('verbose')) && !empty($this->last_test_output)) {
-					$this->application->logger->info("Last test output:\n{output}--- End of output", array(
-						"output" => "\n" . Text::indent($this->last_test_output, 1, true),
-					));
+					$this->application->logger->info("Last test output:\n{output}--- End of output", array("output" => "\n" . Text::indent($this->last_test_output, 1, true), ));
 				}
 			} elseif ($this->should_defer_test($name)) {
 				if (isset($deferred[$name])) {
-					$this->application->logger->info("Test deferred already, skipping {name}", array(
-						"name" => $name,
-					));
+					$this->application->logger->info("Test deferred already, skipping {name}", array("name" => $name, ));
 					$this->test_status[$name] = "skipped";
 					$this->stats['skip']++;
 				} else {
@@ -575,7 +542,6 @@ class Test extends Hookable {
 
 	final public function log_backtrace(array $stackframes) {
 		$their_stack = array();
-		$our_stack = array();
 		foreach ($stackframes as $frame) {
 			$file = $line = $function = $class = $type = $args = null;
 			extract($frame, EXTR_IF_EXISTS);
@@ -584,15 +550,10 @@ class Test extends Hookable {
 				$descriptor = "main";
 			}
 			$method = "$class$type$function";
-
-			$left = $descriptor;
-			$right = $method;
 			$left = $method;
 			$right = $descriptor;
 			$line = Text::lalign($left, 50) . " -- $right";
-			if ($file === __FILE__) {
-				$our_stack[] = $line;
-			} else {
+			if ($file !== __FILE__) {
 				$their_stack[] = $line;
 			}
 			if (empty($file)) {
@@ -605,11 +566,11 @@ class Test extends Hookable {
 	/**
 	 *
 	 * @param string $message
-	 *        	Why this test failed.
+	 *            Why this test failed.
 	 * @param array $arguments
-	 *        	Arguments for the test failure message
+	 *            Arguments for the test failure message
 	 *
-	 * @throws Exception_Test
+	 * @throws TestException
 	 */
 	final public function fail($message, array $arguments = array()) {
 		$this->test_result = false;
@@ -624,7 +585,7 @@ class Test extends Hookable {
 	 *
 	 * @param string $message
 	 * @param array $arguments
-	 * @throws Exception_TestIncomplete
+	 * @throws Exception_Incomplete
 	 */
 	final public function markTestIncomplete($message) {
 		$this->test_result = null;
@@ -636,7 +597,7 @@ class Test extends Hookable {
 	 *
 	 * @param string $message
 	 * @param array $arguments
-	 * @throws Exception_TestIncomplete
+	 * @throws Exception_Skipped
 	 */
 	final public function markTestSkipped($message) {
 		$this->test_result = null;
@@ -647,11 +608,11 @@ class Test extends Hookable {
 	/**
 	 *
 	 * @param boolean|string $condition
-	 *        	Boolean or string to evaluate condition
+	 *            Boolean or string to evaluate condition
 	 * @param string $message
-	 *        	What the assertion is about
+	 *            What the assertion is about
 	 * @param boolean $should_fail
-	 *        	This assertion should actually fail (test for false)
+	 *            This assertion should actually fail (test for false)
 	 * @throws TestException
 	 */
 	final public function assert($condition, $message = null, $should_fail = false) {
@@ -1002,9 +963,9 @@ class Test extends Hookable {
 	/**
 	 * Create a sandbox folder to test with
 	 *
-	 * @see self::sandbox
 	 * @param unknown $file
 	 * @param unknown $auto_delete
+	 * @see self::sandbox
 	 */
 	final protected function test_sandbox($file = null, $auto_delete = true) {
 		return $this->sandbox($file, $auto_delete);
@@ -1021,10 +982,7 @@ class Test extends Hookable {
 			$this->cache_dir = $cache_dir;
 			chmod($cache_dir, 0770);
 			if ($auto_delete) {
-				$this->application->hooks->add("exit", array(
-					$this,
-					"_test_sandbox_shutdown",
-				));
+				$this->application->hooks->add("exit", array($this, "_test_sandbox_shutdown", ));
 			}
 		}
 		return path($cache_dir, $file);
@@ -1089,10 +1047,7 @@ class Test extends Hookable {
 		$db->query("DROP TABLE IF EXISTS `$name`");
 		$db->query($create_sql);
 		if (!$this->option_bool("debug_keep_tables")) {
-			register_shutdown_function(array(
-				$db,
-				"query",
-			), "DROP TABLE IF EXISTS `$name`");
+			register_shutdown_function(array($db, "query", ), "DROP TABLE IF EXISTS `$name`");
 		}
 	}
 
@@ -1140,19 +1095,17 @@ class Test extends Hookable {
 	 * 'Test_Unit::run_class("Some_Test")'
 	 *
 	 * @param string $class
-	 *        	The class to run
+	 *            The class to run
 	 * @param null $object
-	 *        	Optional return value to get the $object created back
-	 * @throws Exception_Invalid
+	 *            Optional return value to get the $object created back
 	 * @return boolean Whether the test passed
+	 * @throws Exception_Invalid
 	 */
 	public static function run_one_class(Application $application, $class, array $options, &$object = null) {
 		$object = $application->objects->factory($class, $application);
 		/* @var $object Test_Unit */
 		if (!$object instanceof Interface_Testable) {
-			throw new Exception_Invalid("$class is not an instance of {class}", array(
-				"class" => Interface_Testable::class,
-			));
+			throw new Exception_Invalid("$class is not an instance of {class}", array("class" => Interface_Testable::class, ));
 		}
 		$object->set_option($options);
 		$object->inherit_global_options();
@@ -1166,18 +1119,16 @@ class Test extends Hookable {
 	 * 'Test_Unit::run_class("Some_Test")'
 	 *
 	 * @param string $class
-	 *        	The class to run
+	 *            The class to run
 	 * @param null $object
-	 *        	Optional return value to get the $object created back
-	 * @throws Exception_Semantics
-	 * @throws Exception_Class_NotFound
+	 *            Optional return value to get the $object created back
 	 * @return exits, never returns
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Semantics
 	 */
 	public static function run_class(Application $application, $class, &$object = null) {
 		if (empty($class)) {
-			throw new Exception_Semantics("{method}: No class specified", array(
-				"method" => __METHOD__,
-			));
+			throw new Exception_Semantics("{method}: No class specified", array("method" => __METHOD__, ));
 		}
 		$settings = self::_configuration_load($application);
 		if (!class_exists($class, false) && !$application->autoloader->load($class, true) && !self::_find_test($application, $class)) {
@@ -1243,11 +1194,7 @@ class Test extends Hookable {
 		foreach (to_list($classes) as $class) {
 			$class_object = $this->application->class_orm_registry($class);
 			$db = $class_object->database();
-			$results[$class] = $db->query($app->orm_module()->schema_synchronize($db, array(
-				$class,
-			), $options + array(
-				"follow" => true,
-			)));
+			$results[$class] = $db->query($app->orm_module()->schema_synchronize($db, array($class, ), $options + array("follow" => true, )));
 		}
 		return $results;
 	}
@@ -1265,9 +1212,7 @@ class Test extends Hookable {
 		}
 		$application->logger->debug("Loading configuration file $config");
 		$settings = array();
-		$loader = new Configuration_Loader(array(
-			$config,
-		), new Adapter_Settings_Array($settings));
+		$loader = new Configuration_Loader(array($config, ), new Adapter_Settings_Array($settings));
 
 		$loader->load();
 

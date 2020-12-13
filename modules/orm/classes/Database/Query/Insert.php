@@ -29,6 +29,13 @@ class Database_Query_Insert extends Database_Query_Edit {
 	protected $select = null;
 
 	/**
+	 * INSERT INTO {$this->into}
+	 *
+	 * @var string
+	 */
+	protected $into = null;
+
+	/**
 	 * Result
 	 *
 	 * @var mixed
@@ -47,21 +54,23 @@ class Database_Query_Insert extends Database_Query_Edit {
 	/**
 	 * Getter/setter for "into" which table
 	 *
-	 * @param string $table
-	 * @return \zesk\Database_Query_Insert|string
+	 * @param string $set Into table name, null to get
+	 * @return Database_Query_Insert|string
 	 */
-	public function into($table = null) {
-		if ($table === null) {
-			return $this->table;
+	public function into($set = null) {
+		if ($set === null) {
+			return $this->into;
 		}
-		$this->table = $table;
+		$this->table($set);
+		$this->into = $set;
 		return $this;
 	}
 
 	/**
 	 * Set to replace mode
 	 *
-	 * @return Database_Query_Insert
+	 * @param null $set
+	 * @return Database_Query_Insert|bool
 	 */
 	public function replace($set = null) {
 		if (is_bool($set)) {
@@ -84,6 +93,7 @@ class Database_Query_Insert extends Database_Query_Edit {
 	/**
 	 * Insert from a SELECT query
 	 *
+	 * @param Database_Query_Select $query
 	 * @return Database_Query_Insert
 	 */
 	public function select(Database_Query_Select $query) {
@@ -95,10 +105,11 @@ class Database_Query_Insert extends Database_Query_Edit {
 	 * Convert this query to SQL
 	 *
 	 * @return string
+	 * @throws Exception_Parameter
 	 */
 	public function __toString() {
 		$options = array(
-			'table' => $this->table,
+			'table' => $this->into,
 			'values' => $this->values,
 			'low_priority' => $this->low_priority,
 		);
@@ -113,27 +124,31 @@ class Database_Query_Insert extends Database_Query_Edit {
 		return $this->sql()->insert($options);
 	}
 
-	private function _execute($get_id) {
+	/**
+	 * @return bool|mixed
+	 * @throws Exception_Parameter
+	 */
+	private function _execute() {
 		if ($this->select) {
 			$sql = $this->__toString();
 			return $this->database()->query($sql);
 		}
 		$options = array(
-			'table' => $this->table,
+			'table' => $this->into,
 			'values' => $this->values,
 		);
 		if ($this->replace) {
 			$options['verb'] = 'REPLACE';
 		}
-		$this->result = $this->db->insert($this->table, $this->values, $options);
+		$this->result = $this->db->insert($this->into, $this->values, $options);
 		return $this->result;
 	}
 
 	/**
 	 * Execute the insert and retrieve the ID created
 	 *
-	 * @throws Exception_Semantics
 	 * @return mixed
+	 * @throws Exception_Semantics|Exception_Parameter
 	 */
 	public function id() {
 		if ($this->low_priority) {
@@ -142,23 +157,25 @@ class Database_Query_Insert extends Database_Query_Edit {
 		if ($this->select) {
 			throw new Exception_Semantics("Can not execute query as select and retrieve id: " . $this->__toString());
 		}
-		return $this->_execute(true);
+		return $this->_execute();
 	}
 
 	/**
 	 *
 	 * @return mixed
+	 * @throws Exception_Parameter
 	 */
 	public function execute() {
-		return $this->_execute(!$this->low_priority);
+		return $this->_execute();
 	}
 
 	/**
 	 *
 	 * @return self
+	 * @throws Exception_Parameter
 	 */
 	public function exec() {
-		$this->_execute(!$this->low_priority);
+		$this->_execute();
 		return $this;
 	}
 

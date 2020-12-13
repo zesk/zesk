@@ -9,6 +9,7 @@
  * @author kent
  * @see ORM
  */
+
 namespace zesk;
 
 /**
@@ -692,40 +693,7 @@ class Class_ORM extends Hookable {
 	 *
 	 */
 	public function __sleep() {
-		return array_merge(array(
-			'application_class',
-			'class',
-			'database_name',
-			'table',
-			'name',
-			'members',
-			'polymorphic',
-			'polymorphic_inherit_class',
-			'code_name',
-			'schema_file',
-			'columns',
-			'column_types',
-			'load_database_columns',
-			'column_defaults',
-			'crc_column',
-			'name_column',
-			'id_column',
-			'primary_keys',
-			'auto_column',
-			'find_keys',
-			'find_order_by',
-			'duplicate_where',
-			'duplicate_keys',
-			'utc_timestamps',
-			'dynamic_columns',
-			'getters',
-			'setters',
-			'has_many',
-			'has_one',
-			'inherit_options',
-			'column_deleted',
-			'cache_column_names',
-		), parent::__sleep());
+		return array_merge(array('application_class', 'class', 'database_name', 'table', 'name', 'members', 'polymorphic', 'polymorphic_inherit_class', 'code_name', 'schema_file', 'columns', 'column_types', 'load_database_columns', 'column_defaults', 'crc_column', 'name_column', 'id_column', 'primary_keys', 'auto_column', 'find_keys', 'find_order_by', 'duplicate_where', 'duplicate_keys', 'utc_timestamps', 'dynamic_columns', 'getters', 'setters', 'has_many', 'has_one', 'inherit_options', 'column_deleted', 'cache_column_names', ), parent::__sleep());
 	}
 
 	/**
@@ -742,9 +710,9 @@ class Class_ORM extends Hookable {
 	 *
 	 * @param string $class
 	 * @param string $member
-	 *        	Member name to use for iteration, etc.
+	 *            Member name to use for iteration, etc.
 	 * @param array $many_spec
-	 *        	Many specification
+	 *            Many specification
 	 * @throws Exception_Semantics
 	 */
 	public static function link_many($class, $member, array $many_spec) {
@@ -807,17 +775,15 @@ class Class_ORM extends Hookable {
 	 *
 	 * @param unknown $member
 	 * @param array $many_spec
-	 * @throws Exception_Semantics
 	 * @return \zesk\Class_ORM
+	 * @throws Exception_Semantics
 	 */
 	protected function _add_many($member, array $many_spec) {
 		if (!array_key_exists('class', $many_spec)) {
 			throw new Exception_Semantics("many_spec for class {class} must contain key 'class' for member {member}", compact("class", "member"));
 		}
 		$this->add_has_many_object($many_spec['class'], $member, avalue($many_spec, 'default'));
-		$this->has_many[$member] = map($many_spec, array(
-			'table' => $this->table,
-		));
+		$this->has_many[$member] = map($many_spec, array('table' => $this->table, ));
 		return $this;
 	}
 
@@ -857,17 +823,13 @@ class Class_ORM extends Hookable {
 		} elseif ($this->id_column === null) {
 			$this->id_column = $this->option('id_column_default', 'id');
 			if ($this->id_column && $this->primary_keys === null) {
-				$this->primary_keys = array(
-					$this->id_column,
-				);
+				$this->primary_keys = array($this->id_column, );
 			}
 		} elseif ($this->id_column === false) {
 			$this->primary_keys = array();
 			$this->id_column = null;
 		} else {
-			$this->primary_keys = array(
-				$this->id_column,
-			);
+			$this->primary_keys = array($this->id_column, );
 		}
 		if ($this->auto_column === null) {
 			$auto_type = avalue($this->column_types, strval($this->id_column));
@@ -883,22 +845,14 @@ class Class_ORM extends Hookable {
 		if (!empty($this->has_many)) {
 			foreach ($this->has_many as $member => $many_spec) {
 				if (!is_array($many_spec)) {
-					throw new Exception_Semantics('many_spec for class {class} must have array value for member {member}', array(
-						"class" => $this_class,
-						"member" => $member,
-					));
+					throw new Exception_Semantics('many_spec for class {class} must have array value for member {member}', array("class" => $this_class, "member" => $member, ));
 				}
 				if (!array_key_exists('class', $many_spec)) {
-					throw new Exception_Semantics('many_spec for class {class} must contain key \'class\' for member {member}', array(
-						"class" => $this_class,
-						"member" => $member,
-					));
+					throw new Exception_Semantics('many_spec for class {class} must contain key \'class\' for member {member}', array("class" => $this_class, "member" => $member, ));
 				}
 				$this->add_has_many_object($many_spec['class'], $member, avalue($many_spec, 'default'));
 			}
-			$this->has_many = map($this->has_many, array(
-				'table' => $this->table,
-			));
+			$this->has_many = map($this->has_many, array('table' => $this->table, ));
 		}
 		if (!empty($this->has_one)) {
 			$this->has_one_flip = array();
@@ -908,12 +862,7 @@ class Class_ORM extends Hookable {
 					ArrayTools::append($this->has_one_flip, $class, $member);
 				}
 				if (isset($this->column_types[$member]) && $this->column_types[$member] !== self::type_object) {
-					$this->application->logger->warning("Class {class} column {member} type is not {object} and will be overwritten: {type}", array(
-						"class" => get_class($this),
-						"member" => $member,
-						"object" => self::type_object,
-						"type" => $this->column_types[$member],
-					));
+					$this->application->logger->warning("Class {class} column {member} type is not {object} and will be overwritten: {type}", array("class" => get_class($this), "member" => $member, "object" => self::type_object, "type" => $this->column_types[$member], ));
 				}
 				$this->column_types[$member] = self::type_object;
 			}
@@ -966,13 +915,13 @@ class Class_ORM extends Hookable {
 	 * Load columns from database
 	 *
 	 * @param string $spec_columns
-	 * @throws Exception
 	 * @return boolean
+	 * @throws Exception
 	 */
 	final public function init_columns() {
 		if (!$this->load_database_columns && count($this->column_types) > 0) {
 			if (!is_array($this->primary_keys)) {
-				backtrace();
+				throw new Exception_Unimplemented("No support for database synchronized column without primary_keys defined {class}", ["class" => get_class($this)]);
 			}
 			return true;
 		}
@@ -1069,9 +1018,7 @@ class Class_ORM extends Hookable {
 			}
 			$prev_alias = aevalue($mixed, 'previous_alias', $query->alias());
 			if (!$query->find_alias($alias)) {
-				$on = array(
-					'*' . $generator->column_alias($to_object->id_column(), $alias) => $generator->column_alias($segment, $prev_alias),
-				);
+				$on = array('*' . $generator->column_alias($to_object->id_column(), $alias) => $generator->column_alias($segment, $prev_alias), );
 				$query->join_object($join_type, $to_class, $alias, $on);
 			}
 			if ($path === null) {
@@ -1095,14 +1042,10 @@ class Class_ORM extends Hookable {
 			$mid_link = $alias . "_Link";
 			if ($this->_has_many_query($object, $query, $has_many, $mid_link, $prev_alias, $join_type)) {
 				// joining on intermediate table
-				$on = array(
-					'*' . $generator->column_alias($has_many['far_key'], $mid_link) => $generator->column_alias($to_object->id_column(), $alias),
-				);
+				$on = array('*' . $generator->column_alias($has_many['far_key'], $mid_link) => $generator->column_alias($to_object->id_column(), $alias), );
 			} else {
 				// joining on intermediate table
-				$on = array(
-					'*' . $generator->column_alias($has_many['foreign_key'], $alias) => $generator->column_alias($object->id_column(), $prev_alias),
-				);
+				$on = array('*' . $generator->column_alias($has_many['foreign_key'], $alias) => $generator->column_alias($object->id_column(), $prev_alias), );
 			}
 			if (array_key_exists("on", $mixed) && is_array($add_on = $mixed['on'])) {
 				foreach ($add_on as $k => $v) {
@@ -1139,9 +1082,9 @@ class Class_ORM extends Hookable {
 	 * @param $query Database_Query_Select
 	 * @param $many_spec array
 	 * @param $alias string
-	 *        	Optional alias to use for the intermediate table
+	 *            Optional alias to use for the intermediate table
 	 * @param $reverse boolean
-	 *        	If linking from far object to this
+	 *            If linking from far object to this
 	 * @return boolean true if intermediate table is used, false if not
 	 */
 	final public function _has_many_query(ORM $this_object, Database_Query_Select $query, array $many_spec, &$alias = "J", $link_alias = null, $join_type = true, $reverse = false) {
@@ -1164,14 +1107,10 @@ class Class_ORM extends Hookable {
 			}
 			if ($reverse) {
 				$id_column = $object->id_column();
-				$on = array(
-					'*' . $gen->column_alias($far_key, $alias) => $gen->column_alias($id_column, $link_alias),
-				);
+				$on = array('*' . $gen->column_alias($far_key, $alias) => $gen->column_alias($id_column, $link_alias), );
 			} else {
 				$id_column = $this->id_column;
-				$on = array(
-					'*' . $gen->column_alias($foreign_key, $alias) => $gen->column_alias($id_column, $link_alias),
-				);
+				$on = array('*' . $gen->column_alias($foreign_key, $alias) => $gen->column_alias($id_column, $link_alias), );
 			}
 
 			$query->join_object($join_type, $object, $alias, $on, $table);
@@ -1205,9 +1144,9 @@ class Class_ORM extends Hookable {
 	 * @param $query Database_Query_Select
 	 * @param $many_spec array
 	 * @param $alias string
-	 *        	Optional alias to use for the intermediate table
+	 *            Optional alias to use for the intermediate table
 	 * @param $reverse boolean
-	 *        	If linking from far object to this
+	 *            If linking from far object to this
 	 * @return boolean true if intermediate table is used, false if not
 	 * @todo implement this
 	 */
@@ -1246,10 +1185,7 @@ class Class_ORM extends Hookable {
 	private function has_many_query(ORM $object, $member) {
 		$many_spec = $this->has_many($object, $member);
 		if ($many_spec === null) {
-			throw new Exception_Semantics("{method} on non-many column: {member}", array(
-				"method" => __METHOD__,
-				"member" => $member,
-			));
+			throw new Exception_Semantics("{method} on non-many column: {member}", array("method" => __METHOD__, "member" => $member, ));
 		}
 		$query = $many_spec['object']->query_select();
 		$query->set_factory($object);
@@ -1297,7 +1233,7 @@ class Class_ORM extends Hookable {
 	 * @param ORM $this_object
 	 * @param string $member
 	 * @param ORM $object
-	 *        	Returned object class which represents the target object type
+	 *            Returned object class which represents the target object type
 	 * @return Database_Query_Select
 	 * @throws Exception_Semantics
 	 */
@@ -1317,7 +1253,7 @@ class Class_ORM extends Hookable {
 	 * @param ORM $this_object
 	 * @param string $member
 	 * @param ORM $object
-	 *        	Returned object class which represents the target object type
+	 *            Returned object class which represents the target object type
 	 * @return Database_Query_Update
 	 * @throws Exception_Semantics
 	 */
@@ -1366,13 +1302,7 @@ class Class_ORM extends Hookable {
 		if ($table === null) {
 			$table = $this->application->object_table_name($many_spec["class"]);
 		}
-		return array(
-			'0-fk_delete-' . $table . '-' . $foreign_key => array(
-				'_fk_delete',
-				$table,
-				$foreign_key,
-			),
-		);
+		return array('0-fk_delete-' . $table . '-' . $foreign_key => array('_fk_delete', $table, $foreign_key, ), );
 	}
 
 	final public function member_foreign_add(ORM $this_object, $member, ORM $link) {
@@ -1388,37 +1318,21 @@ class Class_ORM extends Hookable {
 		$table = avalue($many_spec, 'table');
 		$foreign_key = $many_spec['foreign_key'];
 		if ($table === null) {
-			return array(
-				'1-fk_store' . $link . '-' . $foreign_key => array(
-					'_fk_store',
-					$link,
-					$foreign_key,
-				),
-			);
+			return array('1-fk_store' . $link . '-' . $foreign_key => array('_fk_store', $link, $foreign_key, ), );
 		} else {
 			$far_key = $many_spec['far_key'];
-			return array(
-				'1-fk_link_store' . $link . '-' . $foreign_key => array(
-					'_fk_link_store',
-					$link,
-					$table,
-					array(
-						$far_key => '{Far}',
-						$foreign_key => '{Foreign}',
-					),
-				),
-			);
+			return array('1-fk_link_store' . $link . '-' . $foreign_key => array('_fk_link_store', $link, $table, array($far_key => '{Far}', $foreign_key => '{Foreign}', ), ), );
 		}
 	}
 
 	/**
 	 * Ensure our has_many structure has all fields, add implied/default fields here.
 	 *
-	 * @todo Remove dependencies on "table" use "link_class" instead
 	 * @param ORM $object
 	 * @param array $has_many
-	 * @throws Exception_Semantics
 	 * @return array
+	 * @throws Exception_Semantics
+	 * @todo Remove dependencies on "table" use "link_class" instead
 	 */
 	private function has_many_init(ORM $object, array $has_many) {
 		$class = $has_many['class'];
@@ -1428,10 +1342,7 @@ class Class_ORM extends Hookable {
 			$this->application->classes->register($link_class);
 			$table = $this->application->orm_registry($link_class)->table();
 			if (!$table) {
-				throw new Exception_Configuration("$link_class::table", "Link class for {class} {link_class} table is empty", array(
-					"class" => get_class($object),
-					"link_class" => $link_class,
-				));
+				throw new Exception_Configuration("$link_class::table", "Link class for {class} {link_class} table is empty", array("class" => get_class($object), "link_class" => $link_class, ));
 			}
 			if (array_key_exists("table", $has_many)) {
 				$this->application->logger->warning("Key \"table\" is ignored in has many definition: {table}", $has_many);
@@ -1503,7 +1414,7 @@ class Class_ORM extends Hookable {
 	 * Get the schema for this object
 	 *
 	 * @param string $sql
-	 *        	Optional SQL
+	 *            Optional SQL
 	 * @return ORM_Schema
 	 */
 	final private function _database_schema(ORM $object = null, $sql = null) {
@@ -1518,11 +1429,7 @@ class Class_ORM extends Hookable {
 			if ($schema->exists() || $schema->has_sql()) {
 				return $schema;
 			}
-			$this->application->logger->warning("Can not find schema for {class} in {searches}, or schema object {exception}", array(
-				"class" => $this->class,
-				"searches" => "\n" . implode("\n\t", $schema->searches()) . "\n",
-				"exception" => $e,
-			));
+			$this->application->logger->warning("Can not find schema for {class} in {searches}, or schema object {exception}", array("class" => $this->class, "searches" => "\n" . implode("\n\t", $schema->searches()) . "\n", "exception" => $e, ));
 			return null;
 		} catch (Exception $e) {
 			$this->application->hooks->call("exception", $e);
@@ -1619,7 +1526,7 @@ class Class_ORM extends Hookable {
 	 *
 	 * @param array $data
 	 * @param boolean $insert
-	 *        	This is an insert (vs update)
+	 *            This is an insert (vs update)
 	 * @return array
 	 */
 	final public function to_database(ORM $object, array $data, $insert = false) {
@@ -1678,14 +1585,11 @@ class Class_ORM extends Hookable {
 	 *
 	 * @param ORM $object
 	 * @param string $column
-	 *        	Column which is generating this value
+	 *            Column which is generating this value
 	 * @return string
 	 */
 	protected function polymorphic_class_parse(ORM $object, $column) {
-		$class = StringTools::unprefix(get_class($object), array(
-			$this->polymorphic . "_",
-			get_class($object),
-		), true);
+		$class = StringTools::unprefix(get_class($object), array($this->polymorphic . "_", get_class($object), ), true);
 		return strtolower($class);
 	}
 
@@ -1698,8 +1602,8 @@ class Class_ORM extends Hookable {
 	 * @param string $column
 	 * @param string $type
 	 * @param array $data
-	 * @throws Exception_Semantics
 	 * @return multitype:string
+	 * @throws Exception_Semantics
 	 */
 	private function member_from_database(ORM $object, $column, $type, array &$data) {
 		$result = array();
@@ -1748,10 +1652,7 @@ class Class_ORM extends Hookable {
 			case self::type_serialize:
 				$data[$column] = $result = empty($v) ? null : @unserialize($v);
 				if ($result === false && $v !== 'b:0;') {
-					$this->application->logger->error("unserialize of {n} bytes failed: {data}", array(
-						"n" => strlen($v),
-						"data" => substr($v, 0, 100),
-					));
+					$this->application->logger->error("unserialize of {n} bytes failed: {data}", array("n" => strlen($v), "data" => substr($v, 0, 100), ));
 				}
 
 				break;
@@ -1759,11 +1660,7 @@ class Class_ORM extends Hookable {
 				try {
 					$data[$column] = empty($v) ? null : JSON::decode($v);
 				} catch (Exception_Parse $e) {
-					$this->application->logger->error("Unable to parse JSON in {class}->{column} {json}", array(
-						"class" => get_class($object),
-						"column" => $column,
-						"json" => $v,
-					));
+					$this->application->logger->error("Unable to parse JSON in {class}->{column} {json}", array("class" => get_class($object), "column" => $column, "json" => $v, ));
 				}
 
 				break;
@@ -1790,10 +1687,7 @@ class Class_ORM extends Hookable {
 			case self::type_polymorph:
 				if ($v) {
 					if ($this->polymorphic === null) {
-						$this->application->logger->error("{class} has polymorph member {column} but is not polymorphic", array(
-							'class' => get_class($this),
-							'column' => $column,
-						));
+						$this->application->logger->error("{class} has polymorph member {column} but is not polymorphic", array('class' => get_class($this), 'column' => $column, ));
 
 						break;
 					}
@@ -1822,8 +1716,8 @@ class Class_ORM extends Hookable {
 	 * @param string $column
 	 * @param string $type
 	 * @param array $data
-	 * @throws Exception_Semantics
 	 * @return multitype:string
+	 * @throws Exception_Semantics
 	 */
 	private function member_from_array(ORM $object, $column, $type, array &$data) {
 		switch ($type) {
@@ -1874,13 +1768,17 @@ class Class_ORM extends Hookable {
 	 * @param string $type
 	 * @param array $data
 	 * @param string $insert
-	 *        	- If this is an insertion
+	 *            - If this is an insertion
 	 * @throws Exception_Semantics
 	 */
 	final public function member_to_database(ORM $object, $column, $type, array &$data, $insert = false) {
 		if (!array_key_exists($column, $data)) {
-			var_dump($column, $data);
-			backtrace();
+			throw new Exception_Semantics("Can not call {orm}->member_to_database_twice on same column {column} {type} keys: {keys}", [
+				'orm' => get_class($object),
+				'column' => $column,
+				'type' => $type,
+				'keys' => array_keys($data),
+			]);
 		}
 		$gen = $this->database()->sql();
 		$v = $data[$column];
@@ -2027,14 +1925,7 @@ class Class_ORM extends Hookable {
 	 */
 	public function schema_map() {
 		// Some of these are for MySQL only. Good/bad? TODO
-		return $this->option_array("schema_map") + array(
-			'name' => $this->name,
-			'code_name' => $this->code_name,
-			'table' => $this->table,
-			"extra_keys" => "",
-			"auto_increment" => $this->auto_column ? "AUTO_INCREMENT" : "",
-			"primary_keys" => implode(",", $this->primary_keys),
-		);
+		return $this->option_array("schema_map") + array('name' => $this->name, 'code_name' => $this->code_name, 'table' => $this->table, "extra_keys" => "", "auto_increment" => $this->auto_column ? "AUTO_INCREMENT" : "", "primary_keys" => implode(",", $this->primary_keys), );
 	}
 
 	/**
@@ -2051,14 +1942,7 @@ class Class_ORM extends Hookable {
 	 * Class variables
 	 */
 	public function variables() {
-		return array(
-			"name" => $class_name = $this->application->locale->__($this->name),
-			"names" => $this->application->locale->plural($class_name),
-			"name_column" => $this->name_column,
-			"id_column" => $this->id_column,
-			"primary_keys" => $this->primary_keys,
-			"class" => get_class($this),
-		);
+		return array("name" => $class_name = $this->application->locale->__($this->name), "names" => $this->application->locale->plural($class_name), "name_column" => $this->name_column, "id_column" => $this->id_column, "primary_keys" => $this->primary_keys, "class" => get_class($this), );
 	}
 
 	/**

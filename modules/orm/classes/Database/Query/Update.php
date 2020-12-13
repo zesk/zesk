@@ -44,10 +44,10 @@ class Database_Query_Update extends Database_Query_Edit {
 	}
 
 	/**
-	 * Getter/setter for ignore contstraints flag for update
+	 * Getter/setter for ignore constraints flag for update
 	 *
 	 * @param boolean|null $set
-	 * @return \zesk\Database_Query_Update|boolean
+	 * @return $this|boolean
 	 */
 	public function ignore_constraints($set = null) {
 		if (is_bool($set)) {
@@ -61,6 +61,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	 * Convert this query to SQL
 	 *
 	 * @return string
+	 * @throws Exception_Unimplemented
 	 */
 	public function __toString() {
 		return $this->database()->sql()->update(array(
@@ -89,9 +90,10 @@ class Database_Query_Update extends Database_Query_Edit {
 	}
 
 	/**
+	 * @return self
+	 * @throws Exception_Deprecated
 	 * @deprecated 2018-02 Use "execute()->result()" instead.
 	 *
-	 * @return self
 	 */
 	public function exec() {
 		zesk()->deprecated();
@@ -101,8 +103,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	/**
 	 * Run this query
 	 *
-	 *
-	 * @return boolean
+	 * @return $this
 	 */
 	public function execute() {
 		$this->result = $this->database()->update($this->table, $this->values, $this->where, array(
@@ -118,9 +119,9 @@ class Database_Query_Update extends Database_Query_Edit {
 	 *
 	 * @trait
 	 *
-	 * @param mixed $k
-	 * @param string $v
-	 * @return Database_Query_Update
+	 * @param string|array $k
+	 * @param string|array $v
+	 * @return $this
 	 */
 	public function where($k, $v = null) {
 		if (is_array($k)) {

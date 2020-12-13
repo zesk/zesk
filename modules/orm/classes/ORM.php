@@ -1729,9 +1729,6 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 
 	public function member_remove($member) {
 		$member = to_list($member);
-		if (!is_array($member)) {
-			backtrace();
-		}
 		foreach ($member as $m) {
 			unset($this->members[$m]);
 		}

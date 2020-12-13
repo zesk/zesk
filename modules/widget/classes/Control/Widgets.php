@@ -28,7 +28,6 @@ class Control_Widgets extends Control {
 		assert($this->init_once === false);
 		if ($this->init_once) {
 			return;
-			backtrace();
 		}
 		$this->widgets = $widgets = $this->widget_factory(Control::class)->names($this->name() . "_widgets");
 		$child_widgets = $this->_widgets();

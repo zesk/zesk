@@ -571,9 +571,6 @@ class Request extends Hookable {
 			return false;
 		}
 		$this->variables[$name] = $value;
-		if ($name === "router" && $value instanceof Router) {
-			backtrace();
-		}
 		return $this->variables[$name];
 	}
 
@@ -583,20 +580,20 @@ class Request extends Hookable {
 	 * @param mixed $v
 	 * @return mixed
 	 */
-	private static function _cleanslashes($v) {
+	private static function _clean_slashes($v) {
 		if (is_string($v)) {
 			return stripslashes($v);
 		}
 		if (is_array($v)) {
 			foreach ($v as $k => $x) {
-				$v[$k] = self::_cleanslashes($x);
+				$v[$k] = self::_clean_slashes($x);
 			}
 		}
 		return $v;
 	}
 
 	/**
-	 * Get first occurrance of a value from the request variables
+	 * Get first occurrence of a value from the request variables
 	 *
 	 * @param array|string $names
 	 *        	Array or list (;) of names of variables to look at
@@ -1156,7 +1153,7 @@ class Request extends Hookable {
 	 * @return array
 	 */
 	private static function clean_gpc(array $mixed) {
-		return false ? self::_cleanslashes($mixed) : $mixed;
+		return false ? self::_clean_slashes($mixed) : $mixed;
 	}
 
 	/**

@@ -8,6 +8,8 @@
  */
 namespace zesk;
 
+use MySQL\Database_Type;
+
 /**
  *
  * @package zesk
@@ -193,7 +195,7 @@ abstract class Database extends Hookable {
 	 *
 	 * @param string $var
 	 * @param string $suffix
-	 * @return Ambigous <stdClass, object>
+	 * @return Database_Parser|Database_SQL|Database_Data_Type
 	 */
 	private function _singleton($var, $suffix) {
 		$class = ($this->singleton_prefix ? $this->singleton_prefix : get_class($this)) . $suffix;
@@ -254,12 +256,12 @@ abstract class Database extends Hookable {
 	 * @return array[]
 	 */
 	public function normalize_attributes(array $attributes) {
-		$newattrs = array();
+		$new_attributes = array();
 		foreach ($attributes as $k => $v) {
-			$k = strtolower(preg_replace("/[-_]/", " ", strtolower($k)));
-			$newattrs[$k] = $v;
+			$k = preg_replace("/[-_]/", " ", strtolower($k));
+			$new_attributes[$k] = $v;
 		}
-		return $newattrs;
+		return $new_attributes;
 	}
 
 	/**
@@ -412,11 +414,10 @@ abstract class Database extends Hookable {
 	/**
 	 * Parse a Database URL into components
 	 *
-	 * @param string $url
-	 * @param string $component
-	 *        	Optional component to return
+	 * @param string $url Database connection URL to parse
+	 * @param string $component Optional component to return. null returns an array.
 	 *
-	 * @return string
+	 * @return string|array
 	 */
 	public static function url_parse($url, $component = null) {
 		$parts = URL::parse($url);
@@ -916,7 +917,7 @@ abstract class Database extends Hookable {
 	/**
 	 * Update a table
 	 *
-	 * @param string $table
+	 * @param string|array $table
 	 * @param array $values
 	 * @param array $where
 	 * @param array $options

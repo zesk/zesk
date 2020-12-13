@@ -150,10 +150,14 @@ class Control_Pager extends Control {
 		$this->_refresh();
 	}
 
+	/**
+	 * @param Database_Query_Select $query
+	 * @throws Exception_Semantics
+	 */
 	protected function hook_query_list(Database_Query_Select $query) {
 		static $recurse = 0;
 		if ($recurse !== 0) {
-			backtrace();
+			throw new Exception_Semantics("Can not call hook_query_list recursively");
 		}
 		$recurse = 1;
 		$query->limit($this->object->offset, $this->object->limit);

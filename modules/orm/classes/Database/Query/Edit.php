@@ -52,7 +52,8 @@ abstract class Database_Query_Edit extends Database_Query {
 	/**
 	 * Get/Set the table for this query
 	 *
-	 * @param string $table
+	 * @param string $table Table to include in the query.
+	 * @param string $alias Optional alias. Blank ("") is the default table.
 	 * @return Database_Query_Edit
 	 */
 	public function table($table = null, $alias = null) {
@@ -69,7 +70,8 @@ abstract class Database_Query_Edit extends Database_Query {
 	/**
 	 * Get/Set the table for this query
 	 *
-	 * @param string $table
+	 * @param string $class ORM Class name
+	 * @param string|null $alias Optional table alias
 	 * @return Database_Query_Edit
 	 */
 	public function class_table($class, $alias = null) {
@@ -102,10 +104,10 @@ abstract class Database_Query_Edit extends Database_Query {
 	/**
 	 * Add a name/value pair to be updated in this query
 	 *
-	 * @param string $name
-	 *        	Alternately, pass an array as this value to update multiple values
-	 * @param mixed $value
+	 * @param string|array $name Alternately, pass an array as this value to update multiple values
+	 * @param mixed $value When $name is a string, this is the value set
 	 * @return Database_Query_Edit|Database_Query_Update
+	 * @throws Exception_Semantics
 	 */
 	public function value($name, $value = null) {
 		if (is_array($name)) {
@@ -122,7 +124,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	}
 
 	/**
-	 * Internal function to check a column for vaidity.
+	 * Internal function to check a column for validity.
 	 * If not, throw an exception.
 	 *
 	 * @param string $name
@@ -142,8 +144,9 @@ abstract class Database_Query_Edit extends Database_Query {
 	/**
 	 * Pass multiple values to be inserted/updated
 	 *
-	 * @param array $values
-	 * @return self
+	 * @param array $values When null, return the current values to be set (array)
+	 * @return Database_Query_Edit|Database_Query_Update|array
+	 * @throws Exception_Semantics
 	 */
 	public function values(array $values = null) {
 		if ($values === null) {
@@ -167,10 +170,12 @@ abstract class Database_Query_Edit extends Database_Query {
 	}
 
 	/**
-	 * Not sure if need this.
+	 * Saves the valid columns associated with a table alias.
+	 *
 	 * Right now just stores it.
 	 *
 	 * @param array $columns
+	 * @param string|null $alias Optional alias for the table mapping. Blank for default mapping.
 	 * @return self
 	 */
 	public function valid_columns(array $columns, $alias = null) {

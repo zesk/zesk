@@ -34,10 +34,10 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		));
 	}
 
-    /**
-     * @param Database_Query_Select_Base $from
-     * @return $this
-     */
+	/**
+	 * @param Database_Query_Select_Base $from
+	 * @return $this
+	 */
 	protected function _copy_from_base(Database_Query_Select_Base $from) {
 		parent::_copy_from_query($from);
 		$this->objects_prefixes = $from->objects_prefixes;
@@ -75,9 +75,9 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @return string
 	 */
 	public function class_alias($class = null) {
-        if ($class === null) {
-            return null;
-        }
+		if ($class === null) {
+			return null;
+		}
 		return "";
 	}
 
@@ -129,16 +129,16 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		return $this->integer($field, $default);
 	}
 
-    /**
-     * Execute query and retrieve a single field, an integer
-     *
-     * @param string|integer $field
-     *            Field to retrieve
-     * @param mixed $default
-     *            Default value to retrieve
-     * @param DateTimeZone|null $timezone
-     * @return Timestamp
-     */
+	/**
+	 * Execute query and retrieve a single field, an integer
+	 *
+	 * @param string|integer $field
+	 *            Field to retrieve
+	 * @param mixed $default
+	 *            Default value to retrieve
+	 * @param DateTimeZone|null $timezone
+	 * @return Timestamp
+	 */
 	public function one_timestamp($field = 0, $default = null, DateTimeZone $timezone = null) {
 		return $this->timestamp($field, $default, $timezone);
 	}
@@ -169,16 +169,16 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		return $this->database()->query_integer($this->__toString(), $field, $default);
 	}
 
-    /**
-     * Execute query and retrieve a single field, a Timestamp
-     *
-     * @param string|integer $field
-     *            Field to retrieve
-     * @param mixed $default
-     *            Default value to retrieve
-     * @param DateTimeZone|null $timezone
-     * @return Timestamp
-     */
+	/**
+	 * Execute query and retrieve a single field, a Timestamp
+	 *
+	 * @param string|integer $field
+	 *            Field to retrieve
+	 * @param mixed $default
+	 *            Default value to retrieve
+	 * @param DateTimeZone|null $timezone
+	 * @return Timestamp
+	 */
 	public function timestamp($field = 0, $default = null, DateTimeZone $timezone = null) {
 		$value = $this->database()->query_one($this->__toString(), $field, $default);
 		if (empty($value)) {
@@ -219,25 +219,25 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param array $options
 	 *        	Options passed to each object upon creation
 	 * @return ORMIterators
-     * @deprecated 2020-11
-     * @see $this->orm_iterators()
+	 * @deprecated 2020-11
+	 * @see $this->orm_iterators()
 	 */
-    public function orms_iterator(array $options = array()) {
-        return $this->orm_iterators($options);
-    }
+	public function orms_iterator(array $options = array()) {
+		return $this->orm_iterators($options);
+	}
 
-    /**
-     * Convert this query into an `ORMIterators` (returns multiple objects per row)
-     *
-     * @param array $options
-     *        	Options passed to each object upon creation
-     * @return ORMIterators
-     */
-    public function orm_iterators(array $options = array()) {
-        return new ORMIterators($this->class, $this, $this->objects_prefixes, $options);
-    }
+	/**
+	 * Convert this query into an `ORMIterators` (returns multiple objects per row)
+	 *
+	 * @param array $options
+	 *        	Options passed to each object upon creation
+	 * @return ORMIterators
+	 */
+	public function orm_iterators(array $options = array()) {
+		return new ORMIterators($this->class, $this, $this->objects_prefixes, $options);
+	}
 
-    /**
+	/**
 	 * Execute query and convert to a Model
 	 *
 	 * @param string $class Class of object, pass NULL to use already configured class
@@ -316,16 +316,16 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		return $this->orm($class, $options);
 	}
 
-    /**
-     * Execute query and convert to an object
-     *
-     * @param string $class
-     *            Class of object
-     * @param array $options
-     * @return Model
-     * @throws Exception_Deprecated
-     * @deprecated 2017-12
-     */
+	/**
+	 * Execute query and convert to an object
+	 *
+	 * @param string $class
+	 *            Class of object
+	 * @param array $options
+	 * @return Model
+	 * @throws Exception_Deprecated
+	 * @deprecated 2017-12
+	 */
 	public function object($class = null, array $options = array()) {
 		zesk()->deprecated();
 		return $this->model($class, $options);

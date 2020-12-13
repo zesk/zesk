@@ -106,10 +106,10 @@ class Database_Query_Delete extends Database_Query {
 	/**
 	 * Execute syntax is now identical, stop using this method, use ->execute() with new semantics
 	 *
+	 * @return Database_Query_Delete
+	 * @throws Database_Exception|Exception_Deprecated
 	 * @deprecated 2018-02
 	 * @see self::execute()
-	 * @throws Database_Exception
-	 * @return \zesk\Database_Query_Delete
 	 */
 	public function exec() {
 		zesk()->deprecated();
@@ -125,7 +125,7 @@ class Database_Query_Delete extends Database_Query {
 	}
 
 	/**
-	 * @return \zesk\Database_Query_Delete|NULL|mixed
+	 * @return Database_Query_Delete|NULL|mixed
 	 */
 	private function _execute() {
 		$db = $this->database();
@@ -146,12 +146,12 @@ class Database_Query_Delete extends Database_Query {
 	 * to ->execute later.
 	 * Use ->exec()->result() to get similar behavior in the short term
 	 *
-	 * @return \zesk\Database_Query_Delete|NULL|mixed
+	 * @return Database_Query_Delete|NULL|mixed
+	 * @throws Database_Exception
 	 */
 	public function execute() {
-		$db = $this->database();
 		if ($this->_execute() === null) {
-			throw new Database_Exception("Delete query failed: {sql}", array(
+			throw new Database_Exception($this->database(), "Delete query failed: {sql}", array(
 				"sql" => $this->__toString(),
 			));
 		}

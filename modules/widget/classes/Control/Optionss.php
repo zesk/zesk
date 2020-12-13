@@ -144,9 +144,6 @@ class Control_Optionss extends Control {
 		if (to_bool(avalue($this->options, 'optgroup'))) {
 			return $this->_has_option_group($key);
 		}
-		if (!is_array($this->control_options)) {
-			backtrace();
-		}
 		if (array_key_exists($key, $this->control_options)) {
 			return true;
 		}
@@ -166,10 +163,7 @@ class Control_Optionss extends Control {
 	}
 
 	public function theme_variables() {
-		if (!is_array($this->control_options)) {
-			dump($this->control_options);
-			backtrace();
-		}
+		assert(is_array($this->control_options));
 		return array(
 			'original_options' => $this->control_options,
 			'control_options' => $this->ellipsis_options($this->control_options),
