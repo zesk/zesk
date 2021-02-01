@@ -511,7 +511,7 @@ class Module_ORM extends Module {
 		$adapter = $this->database_adapters[$code];
 		$adapter->database_column_set_type($column);
 	}
-	
+
 	/**
 	 * Run beforehand.
 	 */

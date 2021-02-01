@@ -154,7 +154,7 @@ class Command_Loader {
 				}
 				array_unshift($args, substr($arg, 2));
 				$args = $this->handle_set($args);
- 
+
 				continue;
 			}
 			if (!class_exists('zesk\\Kernel', false)) {
