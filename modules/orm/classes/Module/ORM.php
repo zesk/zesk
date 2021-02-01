@@ -511,4 +511,14 @@ class Module_ORM extends Module {
 		$adapter = $this->database_adapters[$code];
 		$adapter->database_column_set_type($column);
 	}
+	
+	/**
+	 * Run beforehand.
+	 */
+	public function hook_cron_before() {
+		$application = $this->application;
+		$server = $application->orm_factory(Server::class);
+		/* @var $server Server */
+		$server->bury_dead_servers();
+	}
 }

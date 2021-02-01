@@ -260,7 +260,8 @@ class Database_Parser extends \zesk\Database_Parser {
 
 			if ($sql_type === "timestamp" && !isset($options['default'])) {
 				if (!avalue($options, 'not null')) {
-					$options['default'] = null;
+					// $options['default'] = null;
+					// KMD False DEFAULT NULL not compatible 2021
 				} else {
 					$options['default'] = 0;
 					// KMD Was 2020-07-13 "CURRENT_TIMESTAMP";
