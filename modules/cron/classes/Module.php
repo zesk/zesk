@@ -73,7 +73,7 @@ class Module extends \zesk\Module {
 
 	/**
 	 *
-	 * @var double
+	 * @var integer
 	 */
 	private $start = null;
 
@@ -348,7 +348,7 @@ class Module extends \zesk\Module {
 		return Timestamp::factory($object->data(self::_last_cron_variable($prefix, $unit)));
 	}
 
-	private static function _cron_ran(Interface_Data $object, $prefix = "", $unit = null, Timestamp $when) {
+	private static function _cron_ran(Interface_Data $object, $prefix, $unit, Timestamp $when) {
 		return $object->data(self::_last_cron_variable($prefix, $unit), $when->unix_timestamp());
 	}
 

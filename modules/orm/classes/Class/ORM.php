@@ -1417,7 +1417,7 @@ class Class_ORM extends Hookable {
 	 *            Optional SQL
 	 * @return ORM_Schema
 	 */
-	final private function _database_schema(ORM $object = null, $sql = null) {
+	private function _database_schema(ORM $object = null, $sql = null) {
 		try {
 			list($namespace, $class) = PHP::parse_namespace_class($this->class);
 			if ($namespace) {

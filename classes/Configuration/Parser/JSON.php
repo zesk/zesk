@@ -92,7 +92,7 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 	 * @param array $path
 	 * @param boolean $interpolate
 	 */
-	private function merge_results(array $results, array $path = array(), $interpolate) {
+	private function merge_results(array $results, array $path = array(), $interpolate = false) {
 		$dependency = $this->dependency;
 		$settings = $this->settings;
 		foreach ($results as $key => $value) {

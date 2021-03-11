@@ -913,7 +913,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @return string
 	 */
-	final private function maintenance_file() {
+	private function maintenance_file() {
 		return $this->option("maintenance_file", $this->path("etc/maintenance.json"));
 	}
 
@@ -1036,7 +1036,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param \Exception $exception
 	 * @return \zesk\Response
 	 */
-	final private function main_exception(Request $request, \Exception $exception) {
+	private function main_exception(Request $request, \Exception $exception) {
 		$response = $this->response_factory($request, Response::CONTENT_TYPE_HTML);
 
 		try {

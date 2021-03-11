@@ -73,7 +73,7 @@ class Database_Query {
 	 * @param string $type
 	 * @param Database $db
 	 */
-	public function __construct($type = "SELECT", Database $db) {
+	public function __construct($type, Database $db) {
 		$this->application = $db->application;
 		$this->db = $db;
 		$this->type = strtoupper($type);
@@ -87,7 +87,7 @@ class Database_Query {
 	 * Set the object which creates other objects
 	 *
 	 * @param Interface_Member_ORM_Factory $factory
-	 * @return \zesk\Database_Query
+	 * @return Database_Query
 	 */
 	public function set_factory(Interface_Member_Model_Factory $factory) {
 		$this->factory = $factory;
