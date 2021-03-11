@@ -143,8 +143,6 @@ class Command_Loader {
 		 * Each command handles its own arguments itself.
 		 */
 		$first_command = null;
-		$wait_set = array();
-		$wait_configs = array();
 		while (count($args) > 0) {
 			$arg = array_shift($args);
 			if (substr($arg, 0, 2) === '--') {

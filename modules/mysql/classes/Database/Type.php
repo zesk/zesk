@@ -87,9 +87,9 @@ class Database_Type extends \zesk\Database_Data_Type {
 			case self::sql_type_text:
 				return null;
 			case self::sql_type_integer:
-				return intval($default_value);
+				return is_numeric($default_value) ? intval($default_value) : null;
 			case self::sql_type_double:
-				return doubleval($default_value);
+				return is_numeric($default_value) ? floatval($default_value) : null;
 			case self::sql_type_datetime:
 				if ($default_value === 0 || $default_value === "0") {
 					$invalid_dates_ok = $this->database->option_bool("invalid_dates_ok");

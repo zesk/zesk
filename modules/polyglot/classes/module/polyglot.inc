@@ -107,9 +107,9 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	/**
 	 *
 	 * @param string $locale
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Format
 	 * @return PolyGlot_Token[]
+	 * @throws Exception_File_Format|Exception_Directory_NotFound
+	 * @throws Exception_File_NotFound
 	 */
 	public function load_locale($locale = null) {
 		$source_files = $this->option_list("source_files");
