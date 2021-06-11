@@ -60,7 +60,7 @@ class JSON {
 	 * @return string
 	 */
 	public static function encode_pretty($mixed) {
-		return json_encode($mixed, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+		return json_encode($mixed, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
 	}
 
 	/**
