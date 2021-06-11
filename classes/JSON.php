@@ -10,6 +10,10 @@ namespace zesk;
 use __PHP_Incomplete_Class;
 use stdClass;
 
+if (!defined("JSON_INVALID_UTF8_IGNORE")) {
+	define("JSON_INVALID_UTF8_IGNORE", 0);
+}
+
 /**
  *
  * @author kent
@@ -121,7 +125,7 @@ class JSON {
 	 */
 	public static function encode($mixed) {
 		if (function_exists("json_encode")) {
-			return json_encode($mixed, JSON_UNESCAPED_SLASHES);
+			return json_encode($mixed, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
 		}
 		return self::zencode($mixed);
 	}

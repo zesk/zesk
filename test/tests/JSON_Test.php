@@ -24,6 +24,12 @@ class JSON_Test extends Test_Unit {
 		JSON::decode("{");
 	}
 
+	public function test_malencode() {
+		$content = file_get_contents($this->application->path('test/test-data/json/malencode.txt'));
+		$content = array("Hello" => JSON::prepare($content));
+		$this->assert_string_begins(json_encode($content), '{"Hello":');
+	}
+
 	public function test_decode_null() {
 		$this->assert_equal(JSON::decode("null"), null);
 	}
