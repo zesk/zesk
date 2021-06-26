@@ -15,6 +15,7 @@ class Module_GitHub extends Module {
 	const API_ENDPOINT_RELEASE = "https://api.github.com/repos/{owner}/{repository}/releases?access_token={access_token}";
 
 	const MISSING_TOKEN = "*MISSING*OPTION*";
+
 	/**
 	 *
 	 * @param array $settings
