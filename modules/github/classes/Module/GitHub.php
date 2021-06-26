@@ -14,6 +14,7 @@ class Module_GitHub extends Module {
 	 */
 	const API_ENDPOINT_RELEASE = "https://api.github.com/repos/{owner}/{repository}/releases?access_token={access_token}";
 
+	const MISSING_TOKEN = "*MISSING*OPTION*";
 	/**
 	 *
 	 * @param array $settings
@@ -79,7 +80,8 @@ class Module_GitHub extends Module {
 			"draft" => false,
 			"prerelase" => false,
 		);
-		$url = map(self::API_ENDPOINT_RELEASE, $this->options);
+		$missing = self::MISSING_TOKEN;
+		$url = map(self::API_ENDPOINT_RELEASE, $this->options + array("owner" => $missing, "repository" => $missing, "access_token" => $missing));
 		$client = new Net_HTTP_Client($this->application, $url);
 		$client->method(Net_HTTP::METHOD_POST);
 		$client->data(JSON::encode($json_struct));
