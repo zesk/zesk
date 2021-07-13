@@ -67,6 +67,6 @@ The controller supports parsing `If-Modified-Since` headers if the web browser s
 
 Setting up a module share path should be done in one of the following places:
 
-- The `name.module.inc` file which is `require_once`d in PHP when your module is loaded.
-- Your module's `Module::initialize` call (called right after creation of your `Module` subclass)
-- By declaring a "share_path" setting in `your.module.conf` or `your.module.json` 
+- The `name.module.php` file which is `require_once`d in PHP when your module is loaded.
+- Your module's `zesk\Module::initialize` call (called right after creation of your `zesk\Module` subclass)
+- By declaring a "share_path" setting in `your.module.conf` or `your.module.json` at the root of your module directory

@@ -34,6 +34,13 @@ Cron will run any **static function** in any class of type `zesk\Module`, `zesk\
 - `cron_cluster_week` - Runs every week, on a single server only
 - `cron_cluster_month` - Runs every month, on a single server only
 - `cron_cluster_year` - Runs once a year (!), on a single server only
+- `cron_server` - Runs every cron run, on every server
+- `cron_server_minute` - Runs every minute, on every server
+- `cron_server_hour` - Runs every hour, on every server
+- `cron_server_day` - Runs every day, on every server
+- `cron_server_week` - Runs every week, on every server
+- `cron_server_month` - Runs every month, on every server
+- `cron_server_year` - Runs once a year (!), on every server
 
 All methods take a single parameter, the application. If you know your cron task will only run within your application, you can type your cron call to take your application type.
 
@@ -54,7 +61,7 @@ So, if I have an object, which requires regular maintenance or checking, I could
 	class Automobile extends ORM {
 		...
 		public static function cron_cluster_month(zesk\Application $application) {
-			foreach ($application->orm_registry($1)->query_select()->where("IsActive", true)->orm_iterator() as $auto) {
+			foreach ($application->orm_registry("MyObjectName")->query_select()->where("IsActive", true)->orm_iterator() as $auto) {
 				$auto->monthly_maintenance();
 			}
 		}
@@ -114,7 +121,7 @@ Similarly, you can use
 
 	zesk cron --list 
 	
-To display the cron tasks which may possibly be run each occurance. 
+To display the cron tasks which may possibly be run each occurrence.
 
 Sample output is:
 

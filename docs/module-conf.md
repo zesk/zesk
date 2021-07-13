@@ -1,16 +1,6 @@
 # Module Configuration File variables
 
-Module configuration files can be a `.conf` file or a JSON file (ending with `.json`).
-
-Note that `.conf` files, when loaded, all top-level key names are converted to lower case, so:
-
-	NAME="Module"
-   
-and
-
-    name="Module"
-
-Are equivalent.
+Module configuration files can be a `.conf` file or a JSON file (ending with `.json`); they are located at the root directory of your module; and the location also determines your module's root directory.
 
 ## `name` (string)
 
