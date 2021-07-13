@@ -157,6 +157,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			'not null',
 			'default null',
 			'default \'([^\']*)\'',
+			'default b\'([01]+)\'',
 			'default (-?[0-9:]+)',
 			'default ([a-zA-Z_]+)',
 			'default current_timestamp',
