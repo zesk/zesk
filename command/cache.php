@@ -28,11 +28,17 @@ class Command_Cache extends Command_Base {
 	protected function run_arg($arg) {
 		$method = "_exec_$arg";
 		if (method_exists($this, $method)) {
-			$this->$method();
+			return $this->$method();
 		} else {
 			$this->error("No such command {arg}", array(
 				"arg" => $arg,
 			));
+			return 1;
 		}
+	}
+
+	protected function _exec_clear() {
+		$this->application->cache_clear();
+		return 0;
 	}
 }
