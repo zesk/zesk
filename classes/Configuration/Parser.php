@@ -8,7 +8,7 @@ abstract class Configuration_Parser extends Options {
 	protected $name;
 
 	/**
-	 * @var string
+	 * @var mixed
 	 */
 	protected $content = null;
 
@@ -32,7 +32,7 @@ abstract class Configuration_Parser extends Options {
 	/**
 	 *
 	 * @param unknown $type
-	 * @param unknown $content
+	 * @param mixed $content
 	 * @param Interface_Settings $settings
 	 * @param array $options
 	 * @return Configuration_Parser
@@ -103,7 +103,7 @@ abstract class Configuration_Parser extends Options {
 
 	/**
 	 *
-	 * @param string $set
+	 * @param mixed $set
 	 * @return string|\zesk\Configuration_Parser
 	 */
 	public function content($set = null) {
