@@ -153,7 +153,7 @@ class Autoloader {
 		spl_autoload_register(array(
 			$this,
 			"php_autoloader",
-		));
+		), true);
 	}
 
 	/**
