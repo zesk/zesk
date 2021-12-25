@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -40,24 +40,24 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 			}
 		}
 
-		throw new Exception_NotFound("{class}:waitFor:{func} Element {selector} not found on page {url}", array(
+		throw new Exception_NotFound("{class}:waitFor:{func} Element {selector} not found on page {url}", [
 			"func" => $func,
 			"class" => get_class($this),
 			"method" => __METHOD__,
 			"selector" => $selector,
 			"url" => $this->getBrowserUrl(),
-		));
+		]);
 	}
 
-	protected function log($message, array $args = array()) {
+	protected function log($message, array $args = []): void {
 		fwrite(STDOUT, map($message, $args) . "\n");
 		//echo map($message, $args);
 	}
 
 	protected function browser_config_string() {
-		$name = array(
+		$name = [
 			$this->getBrowser(),
-		);
+		];
 		$caps = $this->getDesiredCapabilities();
 		foreach (to_list("os_api_name;browser_api_name;screen_resolution") as $key) {
 			if (array_key_exists($key, $caps)) {
@@ -72,14 +72,14 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 	 */
 	protected function message_details($mixed = null) {
 		if (is_string($mixed)) {
-			$mixed = array(
+			$mixed = [
 				"message" => $mixed,
-			);
+			];
 		}
-		$details = array(
+		$details = [
 			"browser" => $this->getBrowser(),
 			"url" => $this->url(),
-		);
+		];
 		if (is_array($mixed)) {
 			$details += $mixed;
 		}
@@ -104,7 +104,7 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 	 *
 	 * @param unknown $method
 	 */
-	protected function begin($method) {
+	protected function begin($method): void {
 		$this->log("Beginning $method for configuration " . $this->browser_config_string());
 	}
 
@@ -112,7 +112,7 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 	 *
 	 * @param unknown $method
 	 */
-	protected function end($method) {
+	protected function end($method): void {
 		$this->log("Completed $method for configuration " . $this->browser_config_string());
 	}
 
@@ -129,10 +129,10 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 
 	protected function check_page_source() {
 		$source = $this->source();
-		foreach (array(
+		foreach ([
 			"PHP-ERROR",
-		) as $error_string) {
-			$this->assertTrue(strpos($source, $error_string) === false, $this->message_details("$error_string found in page source"));
+		] as $error_string) {
+			$this->assertTrue(!str_contains($source, $error_string), $this->message_details("$error_string found in page source"));
 		}
 		return true;
 	}
@@ -151,13 +151,13 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 			if ($this->saved_url) {
 				return $this->saved_url;
 			}
-			return $this->saved_url = $this->__call("url", array());
+			return $this->saved_url = $this->__call("url", []);
 		} else {
 			$this->saved_url = null;
 			$this->log("Going to {url}", compact("url"));
-			$result = $this->__call("url", array(
+			$result = $this->__call("url", [
 				$url,
-			));
+			]);
 			if ($check) {
 				$this->check_page_source();
 			}
@@ -181,20 +181,20 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 	 * @param string $path Relative path to go to
 	 * @param boolean $check Check the URL after loading for page errors
 	 */
-	public function url_path($path, $check = true) {
+	public function url_path($path, $check = true): void {
 		$this->url($this->add_path($path), $check);
 	}
 
-	protected function assert_source_contains($substring) {
+	protected function assert_source_contains($substring): void {
 		$source = $this->source();
-		$this->assertTrue(strpos($source, $substring) !== false, $this->message_details("Source does not contain substring \"$substring\""));
+		$this->assertTrue(str_contains($source, $substring), $this->message_details("Source does not contain substring \"$substring\""));
 	}
 
 	/**
 	 *
 	 * @param string $path
 	 */
-	protected function assert_path($path) {
+	protected function assert_path($path): void {
 		$this->assertEquals($this->url_part("path"), $path, $this->message_details("assert_path = $path"));
 	}
 

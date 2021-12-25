@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage kernel
@@ -8,33 +8,27 @@
 namespace zesk;
 
 /**
- * 2017-10 All Hookable subclasses must pass an $application as the first parameter for __construct now.
- * to deprecate class names than method names, IMHO.
  *
  * @todo When we're in a PHP version which is trait compatible, make this a trait
  *
  * @author kent
  */
 class Hookable extends Options {
-	/**
-	 *
-	 * @var Application
-	 */
-	public $application = null;
+	public Application $application;
 
 	/**
 	 * Per-object hooks. Removed from options.
 	 *
 	 * @var array
 	 */
-	private $_hooks = [];
+	private array $_hooks = [];
 
 	/**
 	 *
 	 * @param Application $application
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = array()) {
+	public function __construct(Application $application, array $options = []) {
 		$this->application = $application;
 		parent::__construct($options);
 		// Decided to NOT place a ->initialize() call here, largely because subclasses who override
@@ -43,7 +37,7 @@ class Hookable extends Options {
 	}
 
 	/**
-	 * Save nothing herein.
+	 * Save nothing herein. (Explicitly ignores $this->application)
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Options::__sleep()
@@ -53,8 +47,9 @@ class Hookable extends Options {
 	}
 
 	/**
+	 * Problem with globals.
 	 */
-	public function __wakeup() {
+	public function __wakeup(): void {
 		$this->application = __wakeup_application();
 	}
 
@@ -65,18 +60,17 @@ class Hookable extends Options {
 	 * Using this invocation method, you can not pass a hook callback or a result callback to
 	 * process results, so this is best used for triggers which do not require a result.
 	 *
-	 * @param string|array $types
+	 * @param array|string $types
 	 * @return mixed
 	 * @see Hookable::hook_array
 	 */
-	final public function call_hook($types) {
+	final public function call_hook(array|string $types): mixed {
 		if (empty($types)) {
 			return $this;
 		}
 		$args = func_get_args();
 		array_shift($args);
-		$default = avalue($args, 0);
-		return $this->call_hook_arguments($types, $args, $default);
+		return $this->call_hook_arguments($types, $args, $args[0] ?? null);
 	}
 
 	/**
@@ -95,25 +89,25 @@ class Hookable extends Options {
 	 *
 	 * Arguments passed as an array
 	 *
-	 * @param string|array $types
+	 * @param array|string $types
 	 *        	An array of hooks to call, all hooks found are executed, and you can repeat if
 	 *        	necessary.
 	 * @param array $args
 	 *        	Optional. An array of parameters to pass to the hook.
-	 * @param mixed $default
+	 * @param mixed|null $default
 	 *        	Optional. The value to return if the final result returned by a hook is NULL.
-	 * @param callable $hook_callback
+	 * @param callable|null $hook_callback
 	 *        	Optional. A callable in the form `function ($callable, array $arguments) { ... }`
-	 * @param callable $result_callback
+	 * @param callable|null $result_callback
 	 *        	Optional. A callable in the form `function ($callable, $previous_result,
 	 *        	$new_result) { ... }`
 	 * @return mixed
 	 */
-	final public function call_hook_arguments($types, $args = array(), $default = null, $hook_callback = null, $result_callback = null) {
+	final public function call_hook_arguments(array|string $types, array $args = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null): mixed {
 		$hooks = $this->collect_hooks($types, $args);
 		$result = $default;
 		foreach ($hooks as $hook) {
-			list($callable, $arguments) = $hook;
+			[$callable, $arguments] = $hook;
 			$result = self::hook_results($result, $callable, $arguments, $hook_callback, $result_callback);
 		}
 		return $result;
@@ -135,19 +129,19 @@ class Hookable extends Options {
 	 *
 	 * Arguments passed as an array
 	 *
-	 * @param string|array $types An array of hooks to call, all hooks found are executed, and you can repeat if
+	 * @param array|string $types An array of hooks to call, all hooks found are executed, and you can repeat if
 	 *        	necessary.
 	 * @param array $args Optional. An array of parameters to pass to the hook.
 	 * @return array
 	 */
-	final public function collect_hooks($types, $args = array()) {
+	final public function collect_hooks(array|string $types, array $args = []): array {
 		if (empty($types)) {
-			return array();
+			return [];
 		}
 		if (!is_array($args)) {
-			$args = array(
+			$args = [
 				$args,
-			);
+			];
 		}
 		$types = to_list($types);
 		/*
@@ -160,28 +154,28 @@ class Hookable extends Options {
 		 * For each hook, call internal hook, then options-based hook, then system hook.
 		 */
 		$app = $this->application;
-		$hooks = array();
+		$hooks = [];
 		foreach ($types as $type) {
 			$method = Hooks::clean_name($type);
 			if ($method !== $type) {
 				$this->application->deprecated("Hook \"{type}\" cleaned to \"{method}\" - please fix", compact("method", "type"));
 			}
 			if (method_exists($this, "hook_$method")) {
-				$hooks[] = array(
-					array(
+				$hooks[] = [
+					[
 						$this,
 						"hook_$method",
-					),
+					],
 					$args,
-				);
+				];
 			}
 			$methods = $this->_hooks[$type] ?? null;
 			if (is_array($methods)) {
 				foreach ($methods as $method) {
-					$hooks[] = array(
+					$hooks[] = [
 						$method,
 						$zesk_hook_args,
-					);
+					];
 				}
 			}
 			$hook_names = ArrayTools::suffix($app->classes->hierarchy($this, __CLASS__), "::$type");
@@ -196,7 +190,7 @@ class Hookable extends Options {
 	 * @param callable $callable
 	 * @return $this
 	 */
-	final public function add_hook($type, $callable) {
+	final public function add_hook(string $type, callable $callable) {
 		$type = Hooks::clean_name($type);
 		$this->_hooks[$type][] = $callable;
 		return $this;
@@ -209,7 +203,7 @@ class Hookable extends Options {
 	 * @param boolean $object_only
 	 * @return boolean
 	 */
-	final public function has_hook($types, $object_only = false) {
+	final public function has_hook(mixed $types, bool $object_only = false): bool {
 		$hooks = $this->hook_list($types, $object_only);
 		return count($hooks) !== 0;
 	}
@@ -224,19 +218,19 @@ class Hookable extends Options {
 	 * @param boolean $object_only
 	 * @return array
 	 */
-	final public function hook_list($types, $object_only = false) {
+	final public function hook_list(string|array $types, bool $object_only = false): array {
 		$hooks = $this->application->hooks;
 		$types = to_list($types);
-		$result = array();
+		$result = [];
 		foreach ($types as $type) {
 			$method = Hooks::clean_name($type);
 			$hook_method = "hook_$method";
 			//echo get_class($this) . " checking for $hook_method\n";
 			if (method_exists($this, $hook_method)) {
-				$result[] = array(
+				$result[] = [
 					$this,
 					$hook_method,
-				);
+				];
 			}
 			$methods = $this->_hooks[$type] ?? null;
 			if (is_array($methods)) {
@@ -265,7 +259,7 @@ class Hookable extends Options {
 	 *
 	 * @param mixed $previous_result
 	 *        	Previous hook result. Default to null for first call.
-	 * @param mixed $callable
+	 * @param callable $callable
 	 *        	Function
 	 * @param array $arguments
 	 * @param callable $hook_callback
@@ -274,12 +268,12 @@ class Hookable extends Options {
 	 *        	A function to process hook results. If false, returns last result unmodified.
 	 * @return mixed
 	 */
-	final public static function hook_results($previous_result, $callable, array $arguments, $hook_callback = null, $result_callback = null) {
+	final public static function hook_results(mixed $previous_result, callable $callable, array $arguments, callable $hook_callback = null, callable $result_callback = null): mixed {
 		if ($hook_callback) {
-			call_user_func_array($hook_callback, array(
+			call_user_func_array($hook_callback, [
 				$callable,
 				$arguments,
-			));
+			]);
 		}
 		$new_result = call_user_func_array($callable, $arguments);
 		if ($result_callback !== null) {
@@ -300,7 +294,7 @@ class Hookable extends Options {
 	 * @param mixed $new_result
 	 * @return mixed
 	 */
-	public static function combine_hook_results($previous_result, $new_result) {
+	public static function combine_hook_results(mixed $previous_result, mixed $new_result): mixed {
 		// If our old result was empty/void, then return new result
 		if ($previous_result === null) {
 			return $new_result;
@@ -329,8 +323,8 @@ class Hookable extends Options {
 	 * @return array
 	 * @throws Exception_Lock
 	 */
-	private function _default_options($class) {
-		$references = array();
+	private function _default_options(string $class): array {
+		$references = [];
 		// Class hierarchy is given from child -> parent
 		$config = $this->application->configuration;
 		foreach ($this->application->classes->hierarchy($class) as $subclass) {
@@ -355,7 +349,7 @@ class Hookable extends Options {
 	 * @return array
 	 * @throws Exception_Lock
 	 */
-	public function default_options($class) {
+	public function default_options(string $class): array {
 		$class = strtolower($class);
 		// Class hierarchy is given from child -> parent
 		$config = new Configuration();
@@ -375,7 +369,7 @@ class Hookable extends Options {
 	 * @return $this
 	 * @throws Exception_Lock
 	 */
-	final public function inherit_global_options($class = null) {
+	final public function inherit_global_options(string $class = null): self {
 		if ($class === null) {
 			$class = get_class($this);
 		}

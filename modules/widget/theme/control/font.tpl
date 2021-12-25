@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 $id = $this->id;
@@ -8,10 +8,10 @@ if (empty($id)) {
 
 echo $this->theme('zesk/control/select');
 
-echo HTML::div(array(
+echo HTML::div([
 	'id' => "$id-sample",
 	'class' => 'control-font-sample-text',
-), $this->get('sample_text', __('The quick brown fox jumped over the lazy dog.')));
+], $this->get('sample_text', __('The quick brown fox jumped over the lazy dog.')));
 
 /* @var $response zesk\Response */
 $response = $this->response;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Feed_Post {
@@ -43,13 +43,13 @@ class Feed_Post {
 	 * @return string[]
 	 */
 	public function __sleep() {
-		return array(
+		return [
 			"feed",
 			"date",
 			"raw_date",
 			"link",
 			"title",
 			"description",
-		);
+		];
 	}
 }

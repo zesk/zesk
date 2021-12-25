@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage redirect
@@ -18,7 +18,7 @@ namespace zesk;
  * @author kent
  */
 class Route_Redirect extends Route {
-	protected function _execute(Response $response) {
+	protected function _execute(Response $response): void {
 		throw new Exception_Redirect($this->option('redirect'), $this->option("message"), $this->option_bool("temporary") ? [
 			Exception_Redirect::RESPONSE_STATUS_CODE => Net_HTTP::STATUS_TEMPORARY_REDIRECT,
 		] : []);

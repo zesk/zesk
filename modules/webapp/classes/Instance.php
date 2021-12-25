@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -43,10 +43,10 @@ class Instance extends ORM {
 	 */
 	public static function find_from_path(Application $application, Server $server, $webapp_path) {
 		$path = dirname($webapp_path);
-		$instance = $application->orm_factory(self::class, array(
+		$instance = $application->orm_factory(self::class, [
 			"path" => $path,
 			"server" => $server,
-		));
+		]);
 		return $instance->find();
 	}
 
@@ -73,10 +73,10 @@ class Instance extends ORM {
 	 */
 	public static function find_from_code(Application $application, Server $server, $code) {
 		$instance = $application->orm_factory(self::class);
-		return $instance->find(array(
+		return $instance->find([
 			"code" => $code,
 			"server" => $server,
-		));
+		]);
 	}
 
 	/**
@@ -94,22 +94,22 @@ class Instance extends ORM {
 		$code = $json['code'];
 
 		if (!$code) {
-			throw new Exception_Semantics("{class} JSON at {webapp_path} has no code set", array(
+			throw new Exception_Semantics("{class} JSON at {webapp_path} has no code set", [
 				"class" => __CLASS__,
 				"webapp_path" => $webapp_path,
-			));
+			]);
 		}
 		/**
 		 * @var self $instance
 		 */
-		$instance = $application->orm_factory(self::class, array(
+		$instance = $application->orm_factory(self::class, [
 			"path" => $path,
 			"server" => $server,
 			"hash" => $hash,
-		) + ArrayTools::filter($json, array(
+		] + ArrayTools::filter($json, [
 			"name",
 			"code",
-		)))->register();
+		]))->register();
 		$instance->json = $json;
 		$instance->hash = $hash;
 		$instance->code = $code;
@@ -120,15 +120,15 @@ class Instance extends ORM {
 		if (count($changes) !== 0 || !$updated instanceof Timestamp || $updated->before($mtime)) {
 			$instance->store();
 			$instance->call_hook("before_sites_changed");
-			$valid_sites = array();
+			$valid_sites = [];
 
 			foreach (to_list(avalue($json, 'sites')) as $site_members) {
 				$site = $instance->register_site($generator, $site_members);
 				$valid_sites[] = $site->id();
 			}
-			$where = array(
+			$where = [
 				"instance" => $instance,
-			);
+			];
 			if (count($valid_sites) > 0) {
 				$where['id|!=|AND'] = $valid_sites;
 			}
@@ -149,21 +149,21 @@ class Instance extends ORM {
 	public function register_site(Generator $generator, array $members) {
 		/* @var $site Site */
 		ksort($members);
-		$site = $this->application->orm_factory(Site::class, array(
+		$site = $this->application->orm_factory(Site::class, [
 			"instance" => $this,
-		));
+		]);
 		$site_member_names = $site->member_names();
 		$data = ArrayTools::remove($members, $site_member_names);
 		$members = ArrayTools::filter($members, $site_member_names);
 		if (!isset($members['code'])) {
-			throw new Exception_Semantics("{class} Site {code} {name} missing code", array(
+			throw new Exception_Semantics("{class} Site {code} {name} missing code", [
 				"class" => Site::class,
-			) + $members);
+			] + $members);
 		}
 		if (!isset($members['path'])) {
-			throw new Exception_Semantics("{class} Site {code} {name} missing path", array(
+			throw new Exception_Semantics("{class} Site {code} {name} missing path", [
 				"class" => Site::class,
-			) + $members);
+			] + $members);
 		}
 		if (!isset($members['type'])) {
 			$members['type'] = 'standard';
@@ -195,13 +195,13 @@ class Instance extends ORM {
 			throw new Exception_Directory_NotFound($path);
 		}
 		$types = Type::factory_all_types($this->application, $path);
-		$priorities = array();
+		$priorities = [];
 		foreach ($types as $index => $type) {
 			if ($type->valid()) {
-				$priorities[] = array(
+				$priorities[] = [
 					'type' => $type,
 					'weight' => $type->priority(),
-				);
+				];
 			}
 		}
 		usort($priorities, "zesk_sort_weight_array");
@@ -226,10 +226,10 @@ class Instance extends ORM {
 		if (!isset($json['repository'])) {
 			return null;
 		}
-		$members = $json['repository'] + ArrayTools::filter($json, array(
+		$members = $json['repository'] + ArrayTools::filter($json, [
 			"name",
 			"code",
-		));
+		]);
 		$this->repository = $this->application->orm_factory(Repository::class, $members)
 			->register()
 			->set_member($members)
@@ -241,21 +241,21 @@ class Instance extends ORM {
 	/**
 	 *
 	 */
-	public function remove_dead_instances() {
-		$query = $this->query_select("X")->link(Server::class, array(
+	public function remove_dead_instances(): void {
+		$query = $this->query_select("X")->link(Server::class, [
 			'alias' => 'S',
 			'require' => false,
-		))->where('s.id', null);
+		])->where('s.id', null);
 		$iterator = $query->orm_iterator();
 		foreach ($iterator as $instance) {
 			/* @var $instance self */
 			$sid = $instance->member_integer("server");
-			$this->application->logger->notice("Deleting instance #{id} {path} associated with dead server #{sid}", $instance->members(array(
+			$this->application->logger->notice("Deleting instance #{id} {path} associated with dead server #{sid}", $instance->members([
 				"id",
 				"path",
-			)) + array(
+			]) + [
 				"sid" => $sid,
-			));
+			]);
 			$instance->delete();
 		}
 	}

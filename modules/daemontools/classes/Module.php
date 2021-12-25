@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage daemontools
@@ -26,16 +26,16 @@ class Module extends \zesk\Module {
 	 * {@inheritDoc}
 	 * @see \zesk\Module::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
-		$this->application->hooks->add(Engine::class . '::command_daemontools_service', array(
+		$this->application->hooks->add(Engine::class . '::command_daemontools_service', [
 			$this,
 			"command_daemontools_service",
-		));
-		$this->application->hooks->add(Engine::class . '::command_daemontools_service_remove', array(
+		]);
+		$this->application->hooks->add(Engine::class . '::command_daemontools_service_remove', [
 			$this,
 			"command_daemontools_service_remove",
-		));
+		]);
 		$this->application->theme_path($this->path("theme/system"), "system");
 		$this->application->theme_path($this->path("theme/service"), "zesk/daemontools/service");
 	}
@@ -46,12 +46,12 @@ class Module extends \zesk\Module {
 	 * @return string[][]
 	 */
 	protected function hook_system_panel() {
-		return array(
-			"system/panel/daemontools" => array(
+		return [
+			"system/panel/daemontools" => [
 				"title" => $this->application->locale->__("DaemonTools Processes"),
 				"module_class" => __CLASS__,
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -59,17 +59,17 @@ class Module extends \zesk\Module {
 	 *
 	 * @param Engine $command
 	 */
-	public function command_daemontools_service(Engine $command, array $arguments = array(), $command_name) {
+	public function command_daemontools_service(Engine $command, array $arguments, $command_name) {
 		$source = avalue($arguments, 0);
 		if ($source === "--help") {
 			return $this->command_daemontools_service_help($command_name);
 		}
 		$service_name = avalue($arguments, 1);
 		if (!is_dir($source)) {
-			$command->error("{command_name} {source} should be a directory", array(
+			$command->error("{command_name} {source} should be a directory", [
 				"source" => $source,
 				"command_name" => $command_name,
-			));
+			]);
 			return false;
 		}
 		if (!empty($service_name)) {
@@ -78,14 +78,14 @@ class Module extends \zesk\Module {
 			$service_name = basename(trim($source, "/"));
 		}
 		$target = $this->services_path($service_name);
-		$command->verbose_log("Service target is {target}", array(
+		$command->verbose_log("Service target is {target}", [
 			"target" => $target,
-		));
+		]);
 		$changed = false;
-		foreach (array(
+		foreach ([
 			"run",
 			"log/run",
-		) as $f) {
+		] as $f) {
 			$source_file = path($source, $f);
 			$target_file = path($target, $f);
 			if (is_file($source_file)) {
@@ -105,12 +105,12 @@ class Module extends \zesk\Module {
 		}
 		if ($changed) {
 			if ($command->prompt_yes_no("Restart service $target?")) {
-				$command->exec("svc -t {target}", array(
+				$command->exec("svc -t {target}", [
 					"target" => $target,
-				));
-				$command->log("{target} restarted", array(
+				]);
+				$command->log("{target} restarted", [
 					"target" => $target,
-				));
+				]);
 			}
 			return true;
 		}
@@ -124,14 +124,14 @@ class Module extends \zesk\Module {
 	 * @return string[]
 	 */
 	public function command_daemontools_service_help($command_name) {
-		return $this->application->locale->__(array(
+		return $this->application->locale->__([
 			"command_syntax" => "$command_name source [service_name]",
-			"arguments" => array(
+			"arguments" => [
 				"source" => "Directory which contains a file \"run\" which is the service run command and optionally a log/run for logging.",
 				"service_name" => "The name of the service to create. Uses basename of source if not supplied.",
-			),
+			],
 			"description" => "Create (or update) a daemontools service",
-		));
+		]);
 	}
 
 	/**
@@ -139,17 +139,17 @@ class Module extends \zesk\Module {
 	 *
 	 * @param Engine $command
 	 */
-	public function command_daemontools_service_remove(Engine $command, array $arguments = array(), $command_name) {
+	public function command_daemontools_service_remove(Engine $command, array $arguments, $command_name) {
 		$service_name = avalue($arguments, 0);
 		if ($service_name === "--help") {
 			return $this->command_daemontools_service_remove_help($command_name);
 		}
 		$service_name = File::clean_path($service_name);
 		$target = $this->services_path($service_name);
-		$__ = array(
+		$__ = [
 			"target" => $target,
 			"command_name" => $command_name,
-		);
+		];
 		$changed = null;
 		if (!is_dir($target)) {
 			$command->verbose_log("{command_name} {target} - target does not exist, done", $__);
@@ -157,10 +157,10 @@ class Module extends \zesk\Module {
 		}
 		$locale = $this->application->locale;
 		$command->verbose_log("{command_name} {target} exists", $__);
-		foreach (array(
+		foreach ([
 			$target,
 			path($target, "log"),
-		) as $service) {
+		] as $service) {
 			if (is_dir($service)) {
 				$command->log($command->exec("svstat {target}", $__));
 				$__['service'] = $service;
@@ -186,13 +186,13 @@ class Module extends \zesk\Module {
 	 * @return string[]
 	 */
 	public function command_daemontools_service_remove_help($command_name) {
-		return $this->application->locale->__(array(
+		return $this->application->locale->__([
 			"command_syntax" => "$command_name source",
-			"arguments" => array(
+			"arguments" => [
 				"source" => "Name of service as found in /etc/service/[source]",
-			),
+			],
 			"description" => "Remove a daemontools service permanently",
-		));
+		]);
 	}
 
 	/**
@@ -210,7 +210,7 @@ class Module extends \zesk\Module {
 	 */
 	public function services() {
 		$names = $this->list_service_names();
-		$svstat_names = $unreadable_names = array();
+		$svstat_names = $unreadable_names = [];
 		foreach ($names as $name) {
 			$path = $this->services_path($name);
 			if (is_readable(path($path, "supervise/status"))) {
@@ -219,7 +219,7 @@ class Module extends \zesk\Module {
 				$unreadable_names[] = $path;
 			}
 		}
-		$services = array();
+		$services = [];
 		if (count($svstat_names) > 0) {
 			foreach ($this->application->process->execute_arguments("svstat {*}", $svstat_names) as $line) {
 				$services[] = Service::from_svstat($this->application, $line);
@@ -228,9 +228,9 @@ class Module extends \zesk\Module {
 		if (count($unreadable_names) > 0) {
 			foreach ($unreadable_names as $path) {
 				$stat_helper = path($path, ".svstat");
-				$this->application->logger->debug("Loading {path}", array(
+				$this->application->logger->debug("Loading {path}", [
 					"path" => $stat_helper,
-				));
+				]);
 				if (is_readable($stat_helper)) {
 					$services[] = Service::from_svstat($this->application, file_get_contents($stat_helper))->set_option("mtime", filemtime($stat_helper));
 				}
@@ -242,7 +242,7 @@ class Module extends \zesk\Module {
 	/**
 	 * Save data for dashboard
 	 */
-	public function hook_cron() {
+	public function hook_cron(): void {
 		$this->save_services_snapshot(Server::singleton($this->application), $this->services());
 	}
 
@@ -252,8 +252,8 @@ class Module extends \zesk\Module {
 	 * @param Server $server
 	 * @param Service[] $services
 	 */
-	public function save_services_snapshot(Server $server, array $services) {
-		$snapshot = array();
+	public function save_services_snapshot(Server $server, array $services): void {
+		$snapshot = [];
 		foreach ($services as $service) {
 			$snapshot[] = $service->variables();
 		}
@@ -265,25 +265,25 @@ class Module extends \zesk\Module {
 	 * For testing, generate some data
 	 *
 	 */
-	public function mock_server_snapshot() {
+	public function mock_server_snapshot(): void {
 		$app = $this->application;
-		$this->save_services_snapshot(Server::singleton($app), array(
-			Service::instance($app, "/etc/service/fake", array(
+		$this->save_services_snapshot(Server::singleton($app), [
+			Service::instance($app, "/etc/service/fake", [
 				"status" => "up",
 				"ok" => true,
 				"pid" => 1234,
 				"duration" => 100,
-			)),
-			Service::instance($app, "/etc/service/not-real", array(
+			]),
+			Service::instance($app, "/etc/service/not-real", [
 				"status" => "down",
 				"ok" => true,
 				"duration" => 100,
-			)),
-			Service::instance($app, "/etc/service/imaginary", array(
+			]),
+			Service::instance($app, "/etc/service/imaginary", [
 				"status" => "down",
 				"ok" => false,
-			)),
-		));
+			]),
+		]);
 	}
 
 	/**
@@ -296,7 +296,7 @@ class Module extends \zesk\Module {
 		if (!can_iterate($data)) {
 			return null;
 		}
-		$result = array();
+		$result = [];
 		foreach ($data as $variables) {
 			$result[] = Service::from_variables($this->application, $variables);
 		}
@@ -317,17 +317,17 @@ class Module extends \zesk\Module {
 	 *
 	 */
 	public function list_service_names() {
-		$files = Directory::list_recursive($this->services_path(), array(
-			"rules_file" => array(
+		$files = Directory::list_recursive($this->services_path(), [
+			"rules_file" => [
 				'#/run$#' => true,
 				false,
-			),
+			],
 			"rules_directory" => false,
-			"rules_directory_walk" => array(
+			"rules_directory_walk" => [
 				'#/\\.#' => false,
 				true,
-			),
-		));
+			],
+		]);
 		return ArrayTools::unsuffix($files, "/run");
 	}
 }

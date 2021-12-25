@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -25,7 +25,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	 *
 	 * @var array
 	 */
-	protected $javascript_paths = array();
+	protected $javascript_paths = [];
 
 	/**
 	 *
@@ -37,14 +37,14 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	 *
 	 * @var array
 	 */
-	protected $tinymce_options = array(
+	protected $tinymce_options = [
 		'menubar' => null,
 		'relative_urls' => null,
 		'selector' => 'textarea',
 		'statusbar' => true,
 		'toolbar' => null,
 		'height' => null,
-		'plugins' => array(
+		'plugins' => [
 			"advlist",
 			"autolink",
 			"lists",
@@ -63,15 +63,15 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			"table",
 			"contextmenu",
 			"paste",
-		),
-	);
+		],
+	];
 
 	/**
 	 * Insertion menu
 	 *
 	 * @var array
 	 */
-	private $insertion_menus = array();
+	private $insertion_menus = [];
 
 	/**
 	 *
@@ -83,14 +83,14 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	 *
 	 * @var array
 	 */
-	private $setup_js = array();
+	private $setup_js = [];
 
 	/**
 	 * Spelling dictionaries
 	 *
 	 * @var array of resource
 	 */
-	private $spellers = array();
+	private $spellers = [];
 
 	/**
 	 *
@@ -108,41 +108,41 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		$app = $this->application;
 		$package_json = path($this->vendor_path, "package.json");
 		if (!is_file($package_json)) {
-			$app->logger->warning("{method} missing {file} - non-versioned TinyMCE share path", array(
+			$app->logger->warning("{method} missing {file} - non-versioned TinyMCE share path", [
 				"method" => __METHOD__,
 				"file" => $package_json,
-			));
+			]);
 			return null;
 		}
 
 		try {
 			$package = JSON::decode(file_get_contents($package_json));
 			if (!is_array($package)) {
-				throw new Exception_Parse("{file} did not return an array, returned a {type}", array(
+				throw new Exception_Parse("{file} did not return an array, returned a {type}", [
 					"file" => $package_json,
 					"type" => type($package),
-				));
+				]);
 			}
 			if (!array_key_exists("version", $package)) {
-				throw new Exception_Parse("{file} does not contain a key called \"version\"", array(
+				throw new Exception_Parse("{file} does not contain a key called \"version\"", [
 					"file" => $package_json,
-				));
+				]);
 			}
 			$version = $package['version'];
 			if (is_string($version)) {
 				return $version;
 			}
 
-			throw new Exception_Parse("{file} version is not a string, returned a {type}", array(
+			throw new Exception_Parse("{file} version is not a string, returned a {type}", [
 				"file" => $package_json,
 				"type" => type($version),
-			));
+			]);
 		} catch (Exception_Parse $e) {
-			$app->logger->warning("{method} invalid JSON found in {file} - using non-versioned TinyMCE share path: {message}", array(
+			$app->logger->warning("{method} invalid JSON found in {file} - using non-versioned TinyMCE share path: {message}", [
 				"method" => __METHOD__,
 				"file" => $package_json,
 				"message" => $e->getMessage(),
-			));
+			]);
 			return null;
 		}
 	}
@@ -152,16 +152,16 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	 * {@inheritDoc}
 	 * @see \zesk\Module::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 
 		$app = $this->application;
 		$vendor_path = $app->path("vendor/tinymce/tinymce");
 		if (!is_dir($vendor_path)) {
-			$app->logger->error("{method} missing {vendor_path} directory - not initialized", array(
+			$app->logger->error("{method} missing {vendor_path} directory - not initialized", [
 				"method" => __METHOD__,
 				"vendor_path" => $vendor_path,
-			));
+			]);
 			return;
 		}
 		$this->vendor_path = $vendor_path;
@@ -174,7 +174,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		$this->share_name = "tinymce$suffix";
 
 		$this->tinymce_options['script_url'] = $script_url = "/share/" . $this->share_name . "/tinymce.min.js";
-		$this->javascript_paths[$script_url] = array();
+		$this->javascript_paths[$script_url] = [];
 
 		$app->share_path($vendor_path, $this->share_name);
 	}
@@ -192,37 +192,37 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		return parent::hook_head($request, $response, $template);
 	}
 
-	public function hook_routes(Router $router) {
+	public function hook_routes(Router $router): void {
 		if (!$this->share_name) {
 			return;
 		}
-		$router->add_route('tinymce/spellchecker', array(
-			'method' => array(
+		$router->add_route('tinymce/spellchecker', [
+			'method' => [
 				$this,
 				'action_spellchecker',
-			),
-			'arguments' => array(
+			],
+			'arguments' => [
 				'{request}',
 				'{response}',
-			),
-		));
+			],
+		]);
 	}
 
-	public function action_spellchecker(Request $request, Response $response) {
+	public function action_spellchecker(Request $request, Response $response): void {
 		$params = $request->geta('params');
 		$ll = $this->application->locale;
 		if (!is_array($params)) {
-			$response->json()->data(array(
+			$response->json()->data([
 				'error' => $ll->__('Invalid server request. Please contact an administrator.'),
-			));
+			]);
 			return;
 		}
 		$lang = avalue($params, 'lang', $this->application->locale->language());
 		$words = to_list(avalue($params, 'words'));
 		if (!function_exists('pspell_new')) {
-			$response->json()->data(array(
+			$response->json()->data([
 				'error' => $ll->__('PSpell is not installed on the server. Please contact an administrator.'),
-			));
+			]);
 			return;
 		}
 
@@ -230,33 +230,33 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			$this->spellers[$lang] = pspell_new($lang);
 		}
 		$pspell = $this->spellers[$lang];
-		$result_words = array();
+		$result_words = [];
 		$dictlink = pspell_new($this->application->locale->id());
 		foreach ($words as $word) {
 			if (!pspell_check($dictlink, $word)) {
 				$result_words[$word] = pspell_suggest($dictlink, $word);
 			}
 		}
-		$response->json()->data(array(
-			'words' => array(
-				"doog" => array(
+		$response->json()->data([
+			'words' => [
+				"doog" => [
 					'dog',
 					'god',
-				),
-			),
+				],
+			],
 			'request' => $request->variables(),
-		));
+		]);
 	}
 
 	/**
 	 */
-	protected function hook_configured() {
+	protected function hook_configured(): void {
 		$this->tinymce_options = $this->options_include(array_keys($this->tinymce_options)) + $this->tinymce_options;
 	}
 
 	/**
 	 */
-	public function hook_ready() {
+	public function hook_ready(): void {
 		if (!$this->share_name) {
 			return;
 		}
@@ -272,7 +272,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	}
 
 	public function tinymce_plugins($set = null, $append = true) {
-		$plugins = avalue($this->tinymce_options, 'plugins', array());
+		$plugins = avalue($this->tinymce_options, 'plugins', []);
 		if ($set !== null) {
 			if (!is_array($set)) {
 				$set = explode(" ", $set);
@@ -298,12 +298,12 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	 */
 	public function jquery_ready() {
 		$json = JSON::encodex(ArrayTools::clean($this->tinymce_options, null));
-		return $this->application->theme("tinymce/ready.js", array(
+		return $this->application->theme("tinymce/ready.js", [
 			"json" => $json,
 			"base_url" => "/share/" . $this->share_name,
-		), array(
+		], [
 			"no_extension" => true,
-		));
+		]);
 	}
 
 	/**
@@ -324,13 +324,13 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		return $this->tinymce_options;
 	}
 
-	public function add_insertion_menu($title, array $menu, array $options = array()) {
+	public function add_insertion_menu($title, array $menu, array $options = []): void {
 		$code = avalue($options, 'id', strtolower(PHP::clean_function($title)));
-		$this->insertion_menus[$code] = array(
+		$this->insertion_menus[$code] = [
 			'title' => $title,
 			'menu' => $menu,
 			'options' => $options,
-		);
+		];
 		$this->tinymce_toolbar = Lists::remove($this->tinymce_toolbar, $code, " ");
 		if (avalue($options, 'first')) {
 			$this->tinymce_toolbar = "$code " . $this->tinymce_toolbar;
@@ -344,7 +344,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		return $this;
 	}
 
-	private function update_options() {
+	private function update_options(): void {
 		$js = $this->setup_js;
 
 		$js[] = "editor.on('change', function () { editor.save(); });";
@@ -352,19 +352,19 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		foreach ($this->insertion_menus as $code => $settings) {
 			$title = $settings['title'];
 			$menu = $settings['menu'];
-			$mce_menu = array();
+			$mce_menu = [];
 			foreach ($menu as $substitution => $name) {
-				$mce_menu[] = array(
+				$mce_menu[] = [
 					'text' => $name,
 					'*onclick' => 'function() { editor.insertContent(' . JSON::encodex('{' . $substitution . '}') . '); }',
-				);
+				];
 			}
-			$attrs = array(
+			$attrs = [
 				'type' => 'menubutton',
 				'text' => $title,
 				'icon' => false,
 				'menu' => $mce_menu,
-			);
+			];
 			$js[] = 'editor.addButton(' . JavaScript::arguments($code, $attrs) . ");\n";
 		}
 		if (count($js) === 0) {
@@ -379,17 +379,17 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			$doc_root = $this->application->document_root();
 			$full_path = path($doc_root, $language_url_path);
 			if (!is_dir($full_path)) {
-				$this->application->logger->error("Directory {class}::language_url_path specifies {full_path} which is not a directory", array(
+				$this->application->logger->error("Directory {class}::language_url_path specifies {full_path} which is not a directory", [
 					"class" => __CLASS__,
 					"full_path" => $full_path,
-				));
+				]);
 			} else {
 				$locale = $this->application->locale;
 				$language = $locale->language();
-				foreach (array(
+				foreach ([
 					path($language_url_path, $locale->id() . ".js"),
 					path($language_url_path, $locale->language() . ".js"),
-				) as $uri) {
+				] as $uri) {
 					if (file_exists(path($doc_root, $uri))) {
 						$this->tinymce_options['language_url'] = $uri;
 						break;

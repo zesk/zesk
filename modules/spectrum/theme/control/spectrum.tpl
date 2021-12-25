@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -28,19 +28,19 @@ if (!begins($value, "#")) {
 
 $html_id = "jpicker-$id";
 
-$options = array(
+$options = [
 	"preferredFormat" => "hex6",
-);
+];
 
 $response->jquery("\$('#$html_id').spectrum(" . JSON::encodex($options) . ");");
-$response->javascript("/share/spectrum/spectrum.js", array(
+$response->javascript("/share/spectrum/spectrum.js", [
 	"share" => true,
-));
-$response->css("/share/spectrum/spectrum.css", array(
+]);
+$response->css("/share/spectrum/spectrum.css", [
 	"share" => true,
-));
+]);
 
-$attributes = array(
+$attributes = [
 	"id" => $html_id,
-);
+];
 echo HTML::input("hidden", $this->name, $value, $attributes);

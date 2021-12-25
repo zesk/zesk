@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -16,7 +16,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * @var string
 	 */
-	const option_theme_path_prefix = "theme_path_prefix";
+	public const option_theme_path_prefix = "theme_path_prefix";
 
 	/**
 	 *
@@ -30,7 +30,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @param array $options
 	 * @param Application $application
 	 */
-	public function __construct(Application $application, $mixed = null, array $options = array()) {
+	public function __construct(Application $application, $mixed = null, array $options = []) {
 		parent::__construct($application, $options);
 		if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
@@ -47,17 +47,17 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @throws Exception_Semantics
 	 * @return self
 	 */
-	public static function factory(Application $application, $class, $value = null, array $options = array()) {
+	public static function factory(Application $application, $class, $value = null, array $options = []) {
 		if (!is_string($class)) {
 			throw new Exception_Semantics("$class is not a class name");
 		}
 		$object = $application->factory($class, $application, $value, $options);
 		if (!$object instanceof Model) {
-			throw new Exception_Semantics("{method}({class}) is not a subclass of {object_class}", array(
+			throw new Exception_Semantics("{method}({class}) is not a subclass of {object_class}", [
 				"method" => __METHOD__,
 				"class" => $class,
 				"object_class" => __CLASS__,
-			));
+			]);
 		}
 		return $object->polymorphic_child();
 	}
@@ -73,7 +73,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *        	Additional options for object
 	 * @return self
 	 */
-	public function model_factory($class, $mixed = null, array $options = array()) {
+	public function model_factory(string $class, mixed $mixed = null, array $options = []): self {
 		return self::factory($this->application, $class, $mixed, $options);
 	}
 
@@ -96,9 +96,9 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 */
 	public function id($set = null) {
 		if ($set !== null) {
-			throw new Exception_Unimplemented("Model of {class} does not support setting ID", array(
+			throw new Exception_Unimplemented("Model of {class} does not support setting ID", [
 				"class" => get_class($this),
-			));
+			]);
 		}
 		return null;
 	}
@@ -118,7 +118,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @return array
 	 */
 	public function variables() {
-		$result = array();
+		$result = [];
 		foreach (get_object_vars($this) as $k => $v) {
 			if ($k[0] !== '_') {
 				$result[$k] = $v;
@@ -156,7 +156,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @param mixed $offset
 	 * @return boolean
 	 */
-	public function offsetExists($offset) {
+	public function offsetExists($offset): bool {
 		return $this->__isset($offset);
 	}
 
@@ -164,9 +164,9 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * ArrayAccess offsetGet
 	 *
 	 * @param mixed $offset
-	 * @return mixed
+	 * @return int
 	 */
-	public function offsetGet($offset) {
+	public function offsetGet($offset): int {
 		return $this->__get($offset);
 	}
 
@@ -177,7 +177,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @param mixed $value
 	 * @return void
 	 */
-	public function offsetSet($offset, $value) {
+	public function offsetSet($offset, $value): void {
 		$this->__set($offset, $value);
 	}
 
@@ -187,7 +187,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @param mixed $offset
 	 * @return void
 	 */
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset): void {
 		$this->__unset($offset);
 	}
 
@@ -219,7 +219,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 */
 	public function get($mixed = null, $default = null) {
 		if (is_array($mixed)) {
-			$result = array();
+			$result = [];
 			foreach ($mixed as $k => $v) {
 				$result[$k] = $this->get($k, $v);
 			}
@@ -281,10 +281,10 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 		} elseif (is_scalar($mixed) && !empty($mixed)) {
 			$this->__set($mixed, $value);
 		} else {
-			throw new Exception_Parameter("Model::set({mixed}, {value}) Not sure how to handle 1st parameter", array(
+			throw new Exception_Parameter("Model::set({mixed}, {value}) Not sure how to handle 1st parameter", [
 				"mixed" => JSON::encode($mixed),
 				"value" => PHP::dump($value),
-			));
+			]);
 		}
 		return $this;
 	}
@@ -296,14 +296,14 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * @see Options::__toString()
 	 */
-	public function __toString() {
+	public function __toString(): string {
 		return PHP::dump($this->options);
 	}
 
 	/*
 	 * Only place to access ->$name is here
 	 */
-	public function __get($name) {
+	public function __get($name): mixed {
 		if (isset($this->$name)) {
 			return $this->$name;
 		}
@@ -316,7 +316,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * @see Options::__set()
 	 */
-	public function __set($name, $value) {
+	public function __set($name, $value): void {
 		$this->$name = $value;
 		$this->_inited = true;
 	}
@@ -325,7 +325,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * @param string $name
 	 */
-	public function __unset($name) {
+	public function __unset($name): void {
 		unset($this->$name);
 	}
 
@@ -335,7 +335,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @param string $name
 	 * @return boolean
 	 */
-	public function __isset($name) {
+	public function __isset($name): bool {
 		return isset($this->$name);
 	}
 
@@ -352,10 +352,10 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 			}
 			return $name;
 		}
-		return strtr(strtolower($name), array(
+		return strtr(strtolower($name), [
 			"_" => "/",
 			"\\" => "/",
-		));
+		]);
 	}
 
 	/**
@@ -376,22 +376,22 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 */
 	public function theme_paths($theme_names) {
 		if ($theme_names === null) {
-			$theme_names = array(
+			$theme_names = [
 				$this->option("default_theme", "view"),
-			);
+			];
 		} elseif (is_string($theme_names)) {
 			if ($theme_names[0] === "/" || $theme_names[0] === ".") {
-				return array(
+				return [
 					$theme_names,
-				);
+				];
 			}
-			$theme_names = array(
+			$theme_names = [
 				$theme_names,
-			);
+			];
 		} elseif (!is_array($theme_names)) {
-			return array();
+			return [];
 		}
-		$result = array();
+		$result = [];
 		$hier = $this->application->classes->hierarchy(get_class($this), __CLASS__);
 		foreach ($hier as $class) {
 			$result = array_merge($result, ArrayTools::prefix($theme_names, $class . "/"));
@@ -416,17 +416,17 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @return string
 	 */
 	public function theme($theme_name = null, $variables = null, $default = "") {
-		$variables = is_string($variables) ? array(
+		$variables = is_string($variables) ? [
 			'content' => $variables,
-		) : (array) $variables;
-		$variables += array(
+		] : (array) $variables;
+		$variables += [
 			'object' => $this,
 			strtolower(get_class($this)) => $this,
-		);
-		return $this->application->theme($this->theme_paths($theme_name), $variables, array(
+		];
+		return $this->application->theme($this->theme_paths($theme_name), $variables, [
 			"default" => $default,
 			"first" => true,
-		));
+		]);
 	}
 
 	/**

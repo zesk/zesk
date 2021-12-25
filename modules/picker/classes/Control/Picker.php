@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/picker/classes/control/picker.inc $
  * @author $Author: kent $
@@ -71,14 +71,14 @@ class Control_Picker extends Control {
 	 */
 	protected $theme_item_search = null;
 
-	protected $search_columns = array();
+	protected $search_columns = [];
 
 	/**
 	 * Added to the form for the selector
 	 *
 	 * @var array
 	 */
-	public $form_attributes = array();
+	public $form_attributes = [];
 
 	/**
 	 *
@@ -91,7 +91,7 @@ class Control_Picker extends Control {
 	 *
 	 * @var array
 	 */
-	protected $data_search = array();
+	protected $data_search = [];
 
 	public function where(array $set = null) {
 		return $set ? $this->set_option('where', $set) : $this->option_array('where');
@@ -106,7 +106,7 @@ class Control_Picker extends Control {
 	}
 
 	public function picker_options(array $set = null, $add = true) {
-		$options = to_array(avalue($this->theme_variables, 'picker_options', array()));
+		$options = to_array(avalue($this->theme_variables, 'picker_options', []));
 		if ($set !== null) {
 			$this->theme_variables['picker_options'] = $add ? $set + $options : $set;
 			return $this;
@@ -114,14 +114,14 @@ class Control_Picker extends Control {
 		return $options;
 	}
 
-	protected function initialize() {
+	protected function initialize(): void {
 		$this->class = $this->application->objects->resolve($this->class);
 		parent::initialize();
 		$this->class_object = $this->application->class_orm_registry($this->class);
 		if (count($this->search_columns) === 0) {
-			$this->search_columns = array(
+			$this->search_columns = [
 				$this->class_object->name_column,
-			);
+			];
 		}
 		if (!$this->has_option('order_by') && $this->class_object->name_column) {
 			$this->set_option('order_by', "X." . $this->class_object->name_column);
@@ -169,7 +169,7 @@ class Control_Picker extends Control {
 		return $set === null ? $this->option_bool('selectable', true) : $this->set_option('selectable', to_bool($set));
 	}
 
-	public function hook_render() {
+	public function hook_render(): void {
 		if ($this->inline_picker()) {
 			$this->theme = $this->theme_item_selector;
 		}
@@ -179,7 +179,7 @@ class Control_Picker extends Control {
 		return $set === null ? $this->option_bool('single_item', $set) : $this->set_option('single_item', to_bool($set));
 	}
 
-	protected function load() {
+	protected function load(): void {
 		$object = $this->object;
 		$input_name = $object->apply_map($this->name());
 		if (!$this->request->has($input_name)) {
@@ -196,10 +196,10 @@ class Control_Picker extends Control {
 	}
 
 	public function object_class_css_class() {
-		return strtr(strtolower($this->class), array(
+		return strtr(strtolower($this->class), [
 			"\\" => "-",
 			"_" => "-",
-		));
+		]);
 	}
 
 	public function theme_variables() {
@@ -207,7 +207,7 @@ class Control_Picker extends Control {
 		$class_object = $this->application->class_orm_registry($this->class);
 		$name = $locale->lower($locale($class_object->name));
 		$names = $locale->plural($name);
-		return array(
+		return [
 			'title' => $this->option('title'),
 			'target' => $this->inline_picker() ? null : $this->request->get('target'),
 			'description' => $this->option('description'),
@@ -226,16 +226,16 @@ class Control_Picker extends Control {
 			'list_attributes' => $this->list_attributes,
 			'data_search' => $this->data_search,
 			'where' => $this->option_array('where'),
-			'label_save' => $locale('Add selected {names}', array(
+			'label_save' => $locale('Add selected {names}', [
 				'names' => $names,
-			)),
-			'label_search' => $locale('Search {names}', array(
+			]),
+			'label_search' => $locale('Search {names}', [
 				"names" => $names,
-			)),
-		) + $this->options_include(array(
+			]),
+		] + $this->options_include([
 			'item_selector_none_selected',
 			'item_selector_empty',
-		)) + parent::theme_variables();
+		]) + parent::theme_variables();
 	}
 
 	public function controller() {
@@ -243,25 +243,25 @@ class Control_Picker extends Control {
 		$action = $this->request->get('action');
 		$variables = $this->theme_variables();
 		if ($action === 'selector') {
-			$content = $this->application->theme($this->theme_item_selector, array(
+			$content = $this->application->theme($this->theme_item_selector, [
 				"value" => $this->request->geta($this->column()),
-			) + $variables, array(
+			] + $variables, [
 				"first" => true,
-			));
-			$response->json()->data(array(
+			]);
+			$response->json()->data([
 				"content" => $this->wrap_form($content),
 				"status" => true,
-			) + $response->html()->to_json());
+			] + $response->html()->to_json());
 		} elseif ($action === 'search') {
-			$response->json()->data($this->search_results($variables, $this->request->get("q")) + array(
+			$response->json()->data($this->search_results($variables, $this->request->get("q")) + [
 				"class_object_name" => $variables['class_object_name'],
 				"class_object_names" => $variables['class_object_names'],
 				"status" => true,
-			) + $response->html()->to_json());
+			] + $response->html()->to_json());
 		} elseif ($action === "submit") {
-			$response->json()->data($this->submit_results($response, $variables, $this->request->geta($this->column())) + array(
+			$response->json()->data($this->submit_results($response, $variables, $this->request->geta($this->column())) + [
 				"status" => true,
-			) + $response->html()
+			] + $response->html()
 				->to_json());
 		}
 		return null;
@@ -271,45 +271,45 @@ class Control_Picker extends Control {
 		$iter = $this->_query()->where("X." . $this->class_object->id_column, $ids)->orm_iterator();
 		$content = "";
 		foreach ($iter as $object) {
-			$content .= $this->application->theme($this->theme_item, array(
+			$content .= $this->application->theme($this->theme_item, [
 				'object' => $object,
 				"selected" => true,
 				"column" => $this->column,
-			), array(
+			], [
 				"first" => true,
-			));
+			]);
 		}
-		$response->javascript('/share/picker/js/picker.js', array(
+		$response->javascript('/share/picker/js/picker.js', [
 			'share' => true,
-		));
+		]);
 		$response->jquery('$.picker();');
-		return array(
+		return [
 			"status" => true,
 			"message" => $this->option("submit_message"),
 			"content" => $content,
-		);
+		];
 	}
 
 	public function hook_query(Database_Query_Select $query) {
 		$value = $this->request->get('q');
 		if ($value === "" || $value === null) {
-			return array();
+			return [];
 		}
 		$value = trim(preg_replace("/\s+/", " ", $value));
 		$value = explode(" ", $value);
 		$sql = $query->sql();
 		$alias = $query->class_alias();
-		$where = array();
+		$where = [];
 		foreach ($this->search_columns as $col) {
 			$where[$col . "|%|OR"] = $value;
 		}
-		$query->where(array(
+		$query->where([
 			$where,
-		));
+		]);
 		$query->where($this->where());
-		$query->condition($query->application->locale->__("match the string \"{q}\"", array(
+		$query->condition($query->application->locale->__("match the string \"{q}\"", [
 			"q" => $value,
-		)));
+		]));
 	}
 
 	private function _query() {
@@ -325,23 +325,23 @@ class Control_Picker extends Control {
 		$total = $this->application->orm_registry($this->class)->query_select();
 		$this->call_hook('query_list;query', $query);
 		$this->call_hook('query_total;query', $total);
-		$total->what(array(
+		$total->what([
 			"*total" => "COUNT(DISTINCT X." . $this->class_object->id_column . ")",
-		));
-		$results = array();
+		]);
+		$results = [];
 		foreach ($query->orm_iterator() as $id => $object) {
-			$results[$id] = $this->application->theme($this->theme_item, array(
+			$results[$id] = $this->application->theme($this->theme_item, [
 				"object" => $object,
 				"id" => $id,
-			) + $variables, array(
+			] + $variables, [
 				"first" => true,
-			));
+			]);
 		}
 		$total = $total->one_integer("total");
-		$result = array(
+		$result = [
 			"results" => $results,
 			"total" => $total,
-		);
+		];
 		if ($this->application->development()) {
 			$result['query_sql'] = strval($query);
 		}
@@ -349,10 +349,10 @@ class Control_Picker extends Control {
 	}
 
 	private function wrap_form($content) {
-		return HTML::tag('form', array(
+		return HTML::tag('form', [
 			'method' => 'post',
 			'class' => 'control-picker-selector',
 			'action' => URL::query_remove($this->request->uri(), "widget::target;action;q"),
-		) + $this->form_attributes, $content . HTML::input_hidden("action", "submit") . HTML::input_hidden("widget::target", $this->request->get('widget::target')));
+		] + $this->form_attributes, $content . HTML::input_hidden("action", "submit") . HTML::input_hidden("widget::target", $this->request->get('widget::target')));
 	}
 }

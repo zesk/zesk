@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\WebApp;
 
 use zesk\ArrayTools;
@@ -20,11 +20,11 @@ use zesk\Server;
  * @category Management
  */
 class Command_Deploy extends \zesk\Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		'backup-path' => 'dir',
-	);
+	];
 
-	public function usage($message = null, array $arguments = array()) {
+	public function usage($message = null, array $arguments = []): void {
 		parent::usage($message, $arguments);
 	}
 
@@ -59,20 +59,20 @@ class Command_Deploy extends \zesk\Command_Base {
 		$appcode = $this->get_arg("instancecode");
 		$instance = Instance::find_from_code($application, $server, $appcode);
 		if (!$instance) {
-			$this->error("Unable to find instance \"{code}\"", array(
+			$this->error("Unable to find instance \"{code}\"", [
 				"code" => $appcode,
-			));
+			]);
 			return 1;
 		}
 		$data = $instance->load_json();
-		$appinstances = to_array(avalue($data, 'instances', array()));
+		$appinstances = to_array(avalue($data, 'instances', []));
 		if (count($appinstances) > 0 && !$this->has_arg()) {
 			$appinstance = $this->get_arg("instance");
 			if (!array_key_exists($appinstance, $appinstances)) {
-				$this->error("Unknown instance type \"{appinstance}\", must be one of {appinstances}", array(
+				$this->error("Unknown instance type \"{appinstance}\", must be one of {appinstances}", [
 					"appinstance" => $appinstance,
 					"appinstances" => array_keys($appinstances),
-				));
+				]);
 				return 2;
 			}
 		}
@@ -82,9 +82,9 @@ class Command_Deploy extends \zesk\Command_Base {
 		}
 
 		$this->log("Backing up the database ...");
-		$dump = new \zesk\Command_Database_Dump($this->application, array(
+		$dump = new \zesk\Command_Database_Dump($this->application, [
 			"file" => true,
-		));
+		]);
 		$dump->run();
 
 		$this->log("Copying source code ...");
@@ -116,15 +116,15 @@ class Command_Deploy extends \zesk\Command_Base {
 		}
 	}
 
-	private function check_source_code() {
+	private function check_source_code(): void {
 	}
 
-	private function backup_source_code() {
+	private function backup_source_code(): void {
 	}
 
-	private function save_source_code_versions() {
+	private function save_source_code_versions(): void {
 	}
 
-	private function update_source_code() {
+	private function update_source_code(): void {
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -30,15 +30,15 @@ class Process {
 	 *
 	 */
 	public function __sleep() {
-		return array(
+		return [
 			"debug",
-		);
+		];
 	}
 
 	/**
 	 *
 	 */
-	public function __wakeup() {
+	public function __wakeup(): void {
 		$this->application = __wakeup_application();
 	}
 
@@ -47,10 +47,10 @@ class Process {
 	 */
 	public function __construct(Application $application) {
 		$this->application = $application;
-		$application->hooks->add(Hooks::HOOK_CONFIGURED, array(
+		$application->hooks->add(Hooks::HOOK_CONFIGURED, [
 			$this,
 			"configured",
-		));
+		]);
 	}
 
 	/**
@@ -75,11 +75,11 @@ class Process {
 	 *
 	 * @param Application $application
 	 */
-	public function configured(Application $application) {
-		$key = array(
+	public function configured(Application $application): void {
+		$key = [
 			__CLASS__,
 			"debug_execute",
-		);
+		];
 		$application->configuration->deprecated("zesk::debug_execute", $key);
 		$this->debug = $application->configuration->path_get($key);
 	}
@@ -166,14 +166,14 @@ class Process {
 	 * @return array Lines output by the command (returned by exec)
 	 * @see exec
 	 */
-	public function execute_arguments($command, array $args = array(), $passthru = false) {
+	public function execute_arguments($command, array $args = [], $passthru = false) {
 		foreach ($args as $i => $arg) {
 			$args[$i] = escapeshellarg($arg);
 		}
 		$args["*"] = implode(" ", array_values($args));
 		$raw_command = map($command, $args);
 		$result = 0;
-		$output = array();
+		$output = [];
 		if ($this->debug) {
 			$this->application->logger->debug("Running command: {raw_command}", compact("raw_command"));
 		}
@@ -184,7 +184,7 @@ class Process {
 			exec($raw_command, $output, $result);
 		}
 		if (intval($result) !== 0) {
-			throw new Exception_Command($raw_command, $result, is_array($output) ? $output : array());
+			throw new Exception_Command($raw_command, $result, is_array($output) ? $output : []);
 		}
 		return $output;
 	}

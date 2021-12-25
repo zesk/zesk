@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -12,11 +12,11 @@ namespace zesk;
 class DNS {
 	public static function host($name, $type = null, $options = null) {
 		if (is_string($options)) {
-			$options = array(
+			$options = [
 				'server' => $options,
-			);
+			];
 		} elseif (!is_array($options)) {
-			$options = array();
+			$options = [];
 		}
 		if (empty($name)) {
 			throw new Exception_Semantics("dns::host(empty name)");
@@ -24,18 +24,18 @@ class DNS {
 		return self::_lookup_shell_host($name, $type, $options);
 	}
 
-	private static function _lookup_shell_host($name, $type = null, array $options) {
+	private static function _lookup_shell_host($name, $type, array $options) {
 		if (is_string($options)) {
-			$options = array(
+			$options = [
 				'host' => $options,
-			);
+			];
 		} elseif (!is_array($options)) {
-			$options = array();
+			$options = [];
 		}
-		$append = array(
+		$append = [
 			'query' => $name,
 			'type' => $type,
-		);
+		];
 		$typearg = is_string($type) ? "-t" . preg_replace("/[^a-z0-9]/", "", $type) . " " : "-ta ";
 		$hostarg = avalue($options, "server");
 		if ($hostarg) {
@@ -45,10 +45,10 @@ class DNS {
 		$command = "host $typearg$name$hostarg";
 		exec($command, $output, $result);
 		if ($result === 0) {
-			return $append + array(
+			return $append + [
 				'result' => self::_parse_host_response($output),
 				'result_raw' => $output,
-			);
+			];
 		}
 		//		throw new Exception_? TODO
 		//		die(implode("\n", $output));
@@ -56,17 +56,17 @@ class DNS {
 	}
 
 	private static function _parse_host_response($lines) {
-		$result = array();
+		$result = [];
 		$lines = to_list($lines);
 		foreach ($lines as $line) {
-			foreach (array(
+			foreach ([
 				"mx" => "mail is handled by",
 				'aaaa' => 'has IPv6 address',
 				"a" => "has address",
 				"txt" => "descriptive text",
 				'cname' => 'is an alias for',
-			) as $type => $pattern) {
-				list($host, $value) = pair($line, $pattern, null, null);
+			] as $type => $pattern) {
+				[$host, $value] = pair($line, $pattern, null, null);
 				if ($host !== null) {
 					$host = trim($host);
 					$value = trim($value);

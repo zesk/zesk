@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -17,17 +17,17 @@ use zesk\Text;
 class Command_Cron extends \zesk\Command_Base {
 	protected $help = "Run zesk cron hooks";
 
-	protected $option_types = array(
+	protected array $option_types = [
 		'list' => 'boolean',
 		'last' => 'boolean',
 		'reset' => 'boolean',
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		'list' => 'List cron functions which would be run',
 		'last' => 'Show last run times',
 		'reset' => 'Reset all cron state information, forcing all cron tasks to run next time cron is run.',
-	);
+	];
 
 	public function run() {
 		try {

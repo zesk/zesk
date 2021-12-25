@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Net_Whois_Servers {
-	private static $servers = array(
+	private static $servers = [
 		"biz" => "whois.neulevel.biz",
 		"com" => "whois.internic.net",
 		"us" => "whois.nic.us",
@@ -42,7 +42,7 @@ class Net_Whois_Servers {
 		"org" => "whois.pir.org",
 		"aero" => "whois.information.aero",
 		"nl" => "whois.domain-registry.nl",
-	);
+	];
 
 	public static function server_from_tld($tld) {
 		return avalue(self::$servers, preg_replace('/[^a-z]/', '', strtolower(StringTools::right($tld, "."))));

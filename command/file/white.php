@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 use \SplFileInfo;
@@ -9,24 +9,24 @@ use \SplFileInfo;
  * @author kent
  */
 class Command_File_White extends Command_Iterator_File {
-	protected $extensions = array(
+	protected $extensions = [
 		"php",
 		"phpt",
 		"inc",
 		"php4",
 		"php5",
-	);
+	];
 
 	protected $parsed = 0;
 
 	protected $whites = 0;
 
-	protected function start() {
+	protected function start(): void {
 		$this->parsed = 0;
 		$this->whites = 0;
 	}
 
-	protected function process_file(SplFileInfo $file) {
+	protected function process_file(SplFileInfo $file): void {
 		$name = $file->getPathname();
 		$this->verbose_log("whitespace in $name");
 		ob_start();
@@ -38,10 +38,10 @@ class Command_File_White extends Command_Iterator_File {
 		$this->parsed++;
 	}
 
-	protected function finish() {
-		$this->log("Completed: {parsed} parsed, {whites} with whitespace", array(
+	protected function finish(): void {
+		$this->log("Completed: {parsed} parsed, {whites} with whitespace", [
 			"parsed" => $this->parsed,
 			"whites" => $this->whites,
-		));
+		]);
 	}
 }

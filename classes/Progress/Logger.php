@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -32,20 +32,20 @@ class Progress_Logger implements Interface_Progress {
 		$this->level = $level;
 	}
 
-	public function progress($status = null, $percent = null) {
-		$this->logger->log($this->level, "{status} ({percent}%)", array(
+	public function progress($status = null, $percent = null): void {
+		$this->logger->log($this->level, "{status} ({percent}%)", [
 			"status" => $status,
 			"percent" => $percent,
-		));
+		]);
 	}
 
-	public function progress_push($name) {
-		$this->logger->log($this->level, "BEGIN {name} {", array(
+	public function progress_push($name): void {
+		$this->logger->log($this->level, "BEGIN {name} {", [
 			"name" => $name,
-		));
+		]);
 	}
 
-	public function progress_pop() {
+	public function progress_pop(): void {
 		$this->logger->log($this->level, "} END");
 	}
 }

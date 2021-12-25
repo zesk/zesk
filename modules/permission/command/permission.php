@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -10,13 +10,13 @@ namespace zesk;
  * @category ORM Module
  */
 class Command_Permission extends Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		"format" => "string",
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		"format" => "Output format",
-	);
+	];
 
 	/**
 	 * @var Module_Permission
@@ -36,9 +36,9 @@ class Command_Permission extends Command_Base {
 		$this->module = $this->application->modules->object("permission");
 		$hook = "command_$command";
 		if (!$this->has_hook($hook)) {
-			$this->usage("Unknown command {command}", array(
+			$this->usage("Unknown command {command}", [
 				"command" => $command,
-			));
+			]);
 		}
 		return $this->call_hook($hook);
 	}

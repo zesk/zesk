@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -15,12 +15,12 @@ namespace zesk;
  * @author kent
  */
 class Control_Password extends Control_Text {
-	protected $render_children = false;
+	protected bool $render_children = false;
 
-	protected $options = array(
+	protected array $options = [
 		'password' => true,
 		'trim' => false,
-	);
+	];
 
 	public function encrypted_column($set = null) {
 		return $set === null ? $this->option('encrypted_column') : $this->set_option('encrypted_column', $set);
@@ -38,21 +38,21 @@ class Control_Password extends Control_Text {
 	 * (non-PHPdoc)
 	 * @see Widget::initialize($object)
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		// Set up widgets
 		if ($this->confirm) {
 			$locale = $this->application->locale;
-			$w = $this->widget_factory(self::class, array(
+			$w = $this->widget_factory(self::class, [
 				'confirm' => false,
-			))->names($this->column() . "_confirm", $this->option('label_confirm', $locale->__('Control_Password:={label} (Again)', array(
+			])->names($this->column() . "_confirm", $this->option('label_confirm', $locale->__('Control_Password:={label} (Again)', [
 				"label" => $this->label(),
-			))));
+			])));
 			$this->child($w);
 		}
 		parent::initialize();
 	}
 
-	protected function hook_initialized() {
+	protected function hook_initialized(): void {
 		$this->value("");
 	}
 
@@ -91,40 +91,40 @@ class Control_Password extends Control_Text {
 			return false;
 		}
 		$locale = $this->application->locale;
-		$requirements = array();
-		$reqs = array(
-			array(
+		$requirements = [];
+		$reqs = [
+			[
 				"password_require_alpha",
 				"/[A-Za-z]/",
 				$locale->__("at least 1 letter"),
-			),
-			array(
+			],
+			[
 				"password_require_numeric",
 				"/[0-9]/",
 				$locale->__("at least 1 digit"),
-			),
-			array(
+			],
+			[
 				"password_require_non_alphanumeric",
 				"/[^0-9A-Za-z]/",
 				$locale->__("at least 1 symbol"),
-			),
-		);
+			],
+		];
 		foreach ($reqs as $rr) {
-			list($key, $pattern, $err) = $rr;
+			[$key, $pattern, $err] = $rr;
 			if ($this->option_bool($key) && (!preg_match($pattern, $pw))) {
 				$requirements[] = $err;
 			}
 		}
 		if (count($requirements) > 0) {
-			$this->error($locale->__("Your password is required to have {0}", array($locale->conjunction($requirements, __("and")))));
+			$this->error($locale->__("Your password is required to have {0}", [$locale->conjunction($requirements, __("and"))]));
 			return false;
 		}
 		return true;
 	}
 
 	public function theme_variables() {
-		return array(
+		return [
 			'confirm' => $this->option_bool('confirm'),
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 }

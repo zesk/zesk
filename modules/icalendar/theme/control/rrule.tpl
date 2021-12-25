@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -14,9 +14,9 @@ use zesk\HTML;
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
 
-$response->javascript('/share/icalendar/js/rrule.js', array(
+$response->javascript('/share/icalendar/js/rrule.js', [
 	'share' => true,
-));
+]);
 
 $child_widgets = $this->child_widgets;
 

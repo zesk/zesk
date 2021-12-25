@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -15,24 +15,24 @@ namespace zesk\WebApp;
 class Class_Domain extends Class_ORM {
 	public $codename = "WebApp_Domain";
 
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"name" => self::type_string,
 		"type" => self::type_string,
 		"target" => self::type_object,
 		"active" => self::type_boolean,
 		"accessed" => self::type_timestamp,
-	);
+	];
 
-	public $find_keys = array(
+	public $find_keys = [
 		"name",
-	);
+	];
 
-	public $has_one = array(
+	public $has_one = [
 		"target" => "*type",
-	);
+	];
 
-	public $column_defaults = array(
+	public $column_defaults = [
 		'active' => 0,
-	);
+	];
 }

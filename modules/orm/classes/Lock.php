@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -26,23 +26,23 @@ class Lock extends ORM {
 	 *
 	 * @var array
 	 */
-	private static $locks = array();
+	private static $locks = [];
 
 	/**
 	 * Register all zesk hooks.
 	 */
-	public static function hooks(Application $application) {
-		$application->hooks->add(Server::class . '::delete', array(
+	public static function hooks(Application $application): void {
+		$application->hooks->add(Server::class . '::delete', [
 			__CLASS__,
 			'server_delete',
-		));
-		$application->hooks->add(Hooks::HOOK_RESET, function () use ($application) {
+		]);
+		$application->hooks->add(Hooks::HOOK_RESET, function () use ($application): void {
 			self::release_all($application);
 		});
-		$application->hooks->add(Hooks::HOOK_EXIT, array(
+		$application->hooks->add(Hooks::HOOK_EXIT, [
 			__CLASS__,
 			"release_all",
-		));
+		]);
 	}
 
 	/**
@@ -70,7 +70,7 @@ class Lock extends ORM {
 	/**
 	 * Once per hour, cull locks which are old
 	 */
-	public static function cron_cluster_hour(Application $application) {
+	public static function cron_cluster_hour(Application $application): void {
 		self::delete_unused_locks($application);
 	}
 
@@ -78,7 +78,7 @@ class Lock extends ORM {
 	 * Once a minute, release locks associated with processes which are dead,
 	 * or are associated with a dead server (no longer exists)
 	 */
-	public static function cron_cluster_minute(Application $application) {
+	public static function cron_cluster_minute(Application $application): void {
 		self::delete_dead_pids($application);
 		self::delete_unlinked_locks($application);
 	}
@@ -89,29 +89,29 @@ class Lock extends ORM {
 	public static function delete_unused_locks(Application $application) {
 		$n_rows = $application->orm_registry(__CLASS__)
 			->query_delete()
-			->where(array(
+			->where([
 			'used|<=' => Timestamp::now()->add_unit(-1, Timestamp::UNIT_DAY),
 			"server" => null,
 			"pid" => null,
-		))
+		])
 			->execute()
 			->affected_rows();
 		if ($n_rows > 0) {
-			$application->logger->notice("Deleted {n_rows} {locks} which were unused in the past 24 hours.", array(
+			$application->logger->notice("Deleted {n_rows} {locks} which were unused in the past 24 hours.", [
 				"n_rows" => $n_rows,
 				"locks" => $application->locale->plural(__CLASS__, $n_rows),
-			));
+			]);
 		}
 		return $n_rows;
 	}
 
-	private static function release_lock(Lock $lock, $context="") {
+	private static function release_lock(Lock $lock, $context=""): void {
 		$server_id = $lock->member_integer("server");
 		$lock->release();
-		$lock->application->logger->notice("Releasing lock #{id} {code} associated with defunct server # {server_id} (current server ids: {context})", $lock->variables() + array(
+		$lock->application->logger->notice("Releasing lock #{id} {code} associated with defunct server # {server_id} (current server ids: {context})", $lock->variables() + [
 			"server_id" => $server_id,
 			"context" => $context,
-		));
+		]);
 	}
 
 	/**
@@ -138,19 +138,19 @@ class Lock extends ORM {
 	/**
 	 * Delete Locks associated with this server which do not have a valid PID
 	 */
-	public static function delete_dead_pids(Application $application) {
+	public static function delete_dead_pids(Application $application): void {
 		$timeout_seconds = -abs($application->configuration->path_get(__CLASS__ . "::timeout_seconds", 100));
 		$you_are_dead_to_me = Timestamp::now()->add_unit($timeout_seconds, Timestamp::UNIT_SECOND);
 		$iterator = $application->orm_registry(__CLASS__)
 			->query_select()
-			->where(array(
+			->where([
 			'server' => Server::singleton($application),
 			'locked|<=' => $you_are_dead_to_me,
-		))
+		])
 			->orm_iterator();
 		/* @var $lock Lock */
 		foreach ($iterator as $lock) {
-			(function (Lock $lock) {
+			(function (Lock $lock): void {
 				if (!$lock->is_process_alive()) {
 					// Delete this way so hooks get called per dead server
 					$lock->application->logger->warning("Releasing lock {code} (#{id}), associated with dead process, locked on {locked}", $lock->members());
@@ -186,7 +186,7 @@ class Lock extends ORM {
 			$this->_is_locked();
 			return $this->_acquire_once();
 		}
-		if (!is_integer($timeout) || $timeout < 0) {
+		if (!is_int($timeout) || $timeout < 0) {
 			return null;
 		}
 		return $this->_acquire(intval($timeout));
@@ -207,28 +207,28 @@ class Lock extends ORM {
 			return $result;
 		}
 
-		throw new Exception_Lock("Unable to obtain lock {code} (timeout={timeout}", $this->members("code") + array(
+		throw new Exception_Lock("Unable to obtain lock {code} (timeout={timeout}", $this->members("code") + [
 			"timeout" => $timeout,
-		));
+		]);
 	}
 
 	/**
 	 * Release all locks from my server/process
 	 */
-	public static function release_all(Application $application) {
+	public static function release_all(Application $application): void {
 		/* @var $zesk Kernel */
-		self::$locks = array();
+		self::$locks = [];
 
 		try {
 			$query = $application->orm_registry(__CLASS__)->query_update();
-			$query->values(array(
+			$query->values([
 				'pid' => null,
 				'server' => null,
 				'locked' => null,
-			))->where(array(
+			])->where([
 				'pid' => $application->process->id(),
 				'server' => Server::singleton($application),
-			));
+			]);
 		} catch (Exception $e) {
 			// Ignore for now - likely database misconfigured
 		}
@@ -240,15 +240,15 @@ class Lock extends ORM {
 	 *
 	 * @param Server $server
 	 */
-	public static function server_delete(Server $server) {
+	public static function server_delete(Server $server): void {
 		$application = $server->application;
 		$query = $application->orm_registry(__CLASS__)->query_delete()->where('server', $server);
 		$query->execute();
 		if (($n_rows = $query->affected_rows()) > 0) {
-			$application->logger->warning("Deleted {n} {locks} associated with server {name} (#{id})", array(
+			$application->logger->warning("Deleted {n} {locks} associated with server {name} (#{id})", [
 				"n" => $n_rows,
 				"locks" => $application->locale->plural(__CLASS__, $n_rows),
-			) + $server->members());
+			] + $server->members());
 		}
 	}
 
@@ -280,14 +280,14 @@ class Lock extends ORM {
 	 */
 	public function release() {
 		$this->query_update()
-			->values(array(
+			->values([
 			'pid' => null,
 			'server' => null,
 			'locked' => null,
-		))
-			->where(array(
+		])
+			->where([
 			"id" => $this->id,
-		))
+		])
 			->execute();
 		$this->application->logger->debug("Released lock $this->code");
 		$this->pid = null;
@@ -301,9 +301,9 @@ class Lock extends ORM {
 	 * @param string $code
 	 */
 	private static function _create_lock(Application $application, $code) {
-		$lock = $application->orm_factory(__CLASS__, array(
+		$lock = $application->orm_factory(__CLASS__, [
 			'code' => $code,
-		));
+		]);
 
 		try {
 			if (!$lock->find()) {
@@ -332,10 +332,10 @@ class Lock extends ORM {
 		// Each server is responsible for keeping locks clean.
 		// Allow a hook to enable inter-server connection, later
 		if (!$this->_is_my_server()) {
-			return $this->application->hooks->call_arguments(__CLASS__ . '::server_is_locked', array(
+			return $this->application->hooks->call_arguments(__CLASS__ . '::server_is_locked', [
 				$this->member_integer('server'),
 				$this->pid,
-			), true);
+			], true);
 		}
 		if ($this->_is_my_pid()) {
 			// My process, so it's not locked
@@ -355,18 +355,18 @@ class Lock extends ORM {
 	 *
 	 * @param array $where
 	 */
-	private function _acquire_where(array $where = array()) {
+	private function _acquire_where(array $where = []) {
 		$update = $this->query_update();
 		$sql = $update->sql();
-		$update->values(array(
+		$update->values([
 			'pid' => $this->application->process->id(),
 			'server' => Server::singleton($this->application),
 			'*locked' => $sql->now(),
 			'*used' => $sql->now(),
-		))
-			->where(array(
+		])
+			->where([
 			'id' => $this->id,
-		) + $where)
+		] + $where)
 			->execute();
 		if ($this->fetch()->_is_mine()) {
 			$this->application->logger->debug("Acquired lock $this->code");
@@ -379,9 +379,9 @@ class Lock extends ORM {
 	 * Acquire an inactive lock
 	 */
 	private function _acquire_once() {
-		return $this->_acquire_where(array(
+		return $this->_acquire_where([
 			'pid' => null,
-		));
+		]);
 	}
 
 	/**
@@ -389,10 +389,10 @@ class Lock extends ORM {
 	 * acquisition
 	 */
 	private function _acquire_dead() {
-		return $this->_acquire_where(array(
+		return $this->_acquire_where([
 			"pid" => $this->pid,
 			"server" => $this->server,
-		));
+		]);
 	}
 
 	/**
@@ -427,11 +427,11 @@ class Lock extends ORM {
 				}
 			}
 			if ($timeout > 0 && $timer->elapsed() > $timeout) {
-				throw new Exception_Timeout("Waiting for Lock \"{code}\" ({timeout} seconds)", array(
+				throw new Exception_Timeout("Waiting for Lock \"{code}\" ({timeout} seconds)", [
 					"method" => __METHOD__,
 					"timeout" => $timeout,
 					"code" => $this->code,
-				));
+				]);
 			}
 		}
 		return null;

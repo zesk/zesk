@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -21,7 +21,7 @@ class Time extends Temporal {
 	 *
 	 * @var string
 	 */
-	const DEFAULT_FORMAT_STRING = "{hh}:{mm}:{ss}";
+	public const DEFAULT_FORMAT_STRING = "{hh}:{mm}:{ss}";
 
 	/**
 	 * Set up upon load
@@ -35,56 +35,56 @@ class Time extends Temporal {
 	 *
 	 * @var integer
 	 */
-	const hours_per_day = 24;
+	public const hours_per_day = 24;
 
 	/**
 	 * Maximum 0-based hour is 23
 	 *
 	 * @var integer
 	 */
-	const hour_max = 23;
+	public const hour_max = 23;
 
 	/**
 	 * Maximum 0-based second is 59
 	 *
 	 * @var integer
 	 */
-	const second_max = 59;
+	public const second_max = 59;
 
 	/**
 	 * Maximum 0-indexed minute is 59
 	 *
 	 * @var integer
 	 */
-	const minute_max = 59;
+	public const minute_max = 59;
 
 	/**
 	 * Maximum value for seconds from midnight in a day
 	 *
 	 * @var integer
 	 */
-	const seconds_max = 86399;
+	public const seconds_max = 86399;
 
 	/**
 	 * 60 seconds in a minute
 	 *
 	 * @var integer
 	 */
-	const seconds_per_minute = 60;
+	public const seconds_per_minute = 60;
 
 	/**
 	 * 3,600 seconds an hour
 	 *
 	 * @var integer
 	 */
-	const seconds_per_hour = 3600;
+	public const seconds_per_hour = 3600;
 
 	/**
 	 * 86,400 seconds in a day
 	 *
 	 * @var integer
 	 */
-	const seconds_per_day = 86400;
+	public const seconds_per_day = 86400;
 
 	/**
 	 * Integer value of seconds from midnight.
@@ -109,22 +109,22 @@ class Time extends Temporal {
 	 *
 	 * @param Kernel $kernel
 	 */
-	public static function hooks(Application $kernel) {
-		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, array(
+	public static function hooks(Application $kernel): void {
+		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, [
 			__CLASS__,
 			"configured",
-		));
+		]);
 	}
 
 	/**
 	 *
 	 * @param Application $application
 	 */
-	public static function configured(Application $application) {
-		self::$default_format_string = $application->configuration->path_get(array(
+	public static function configured(Application $application): void {
+		self::$default_format_string = $application->configuration->path_get([
 			__CLASS__,
 			"format_string",
-		), self::DEFAULT_FORMAT_STRING);
+		], self::DEFAULT_FORMAT_STRING);
 	}
 
 	/**
@@ -188,7 +188,7 @@ class Time extends Temporal {
 	 * @return Time
 	 */
 	public function set($value) {
-		if (is_integer($value)) {
+		if (is_int($value)) {
 			$this->unix_timestamp($value);
 			return $this;
 		} elseif (empty($value)) {
@@ -206,7 +206,7 @@ class Time extends Temporal {
 			return $this;
 		}
 
-		throw new Exception_Parameter(map("Time::set({0})", array(_dump($value))));
+		throw new Exception_Parameter(map("Time::set({0})", [_dump($value)]));
 	}
 
 	/**
@@ -269,9 +269,9 @@ class Time extends Temporal {
 	public function unix_timestamp($set = null) {
 		if ($set !== null) {
 			if (!is_numeric($set)) {
-				throw new Exception_Parameter(map("Time::unix_timestamp({0})", array(_dump($set))));
+				throw new Exception_Parameter(map("Time::unix_timestamp({0})", [_dump($set)]));
 			}
-			list($hours, $minutes, $seconds) = explode(" ", gmdate("G n s", $set)); // getdate doesn't support UTC
+			[$hours, $minutes, $seconds] = explode(" ", gmdate("G n s", $set)); // getdate doesn't support UTC
 			$this->hms(intval($hours), intval($minutes), intval($seconds));
 			return $this;
 		}
@@ -316,19 +316,19 @@ class Time extends Temporal {
 	 * @return Time
 	 */
 	public function parse($value) {
-		foreach (array(
-			"/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/" => array(
+		foreach ([
+			"/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/" => [
 				null,
 				"hour",
 				"minute",
 				"second",
-			),
-			"/([0-9]{1,2}):([0-9]{2})/" => array(
+			],
+			"/([0-9]{1,2}):([0-9]{2})/" => [
 				null,
 				"hour",
 				"minute",
-			),
-		) as $pattern => $assign) {
+			],
+		] as $pattern => $assign) {
 			if (preg_match($pattern, $value, $matches)) {
 				$this->hms(0, 0, 0);
 				foreach ($assign as $index => $method) {
@@ -344,7 +344,7 @@ class Time extends Temporal {
 		$ts = strtotime($value, $this->unix_timestamp());
 		date_default_timezone_set($tz);
 		if ($ts === false || $ts < 0) {
-			throw new Exception_Parameter(map("Time::parse({0}): Can't parse", array($value)));
+			throw new Exception_Parameter(map("Time::parse({0}): Can't parse", [$value]));
 		}
 		return $this->unix_timestamp($ts);
 	}
@@ -502,8 +502,8 @@ class Time extends Temporal {
 	 * @return array
 	 * @see Time::format
 	 */
-	public function formatting(Locale $locale = null, array $options = array()) {
-		$x = array();
+	public function formatting(Locale $locale = null, array $options = []) {
+		$x = [];
 		$x['h'] = $this->hour();
 		$x['12h'] = $this->hour12();
 		$x['m'] = $this->minute();
@@ -530,7 +530,7 @@ class Time extends Temporal {
 	 *        	Optional locale string
 	 * @return string
 	 */
-	public function format(Locale $locale = null, $format_string = null, array $options = array()) {
+	public function format(Locale $locale = null, $format_string = null, array $options = []) {
 		if ($format_string === null) {
 			$format_string = self::$default_format_string;
 		}
@@ -571,10 +571,10 @@ class Time extends Temporal {
 	 */
 	public function add_unit($n_units = 1, $units = self::UNIT_SECOND) {
 		if (!is_numeric($n_units)) {
-			throw new Exception_Parameter("\$n_units must be numeric {type} {value}", array(
+			throw new Exception_Parameter("\$n_units must be numeric {type} {value}", [
 				"type" => type($n_units),
 				"value" => $n_units,
-			));
+			]);
 		}
 		switch ($units) {
 			case self::UNIT_MILLISECOND:
@@ -586,11 +586,11 @@ class Time extends Temporal {
 			case self::UNIT_HOUR:
 				return $this->add($n_units);
 			default:
-				throw new Exception_Parameter("{method)({n_units}, {units}): Invalid unit", array(
+				throw new Exception_Parameter("{method)({n_units}, {units}): Invalid unit", [
 					"method" => __METHOD__,
 					"n_units" => $n_units,
 					"units" => $units,
-				));
+				]);
 		}
 	}
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -45,7 +45,7 @@ class Currency extends ORM {
 		$locale = $this->application->locale;
 		$decimals = $this->option("decimal_point", $locale->__("Currency::decimal_point:=."));
 		$thousands = $this->option('thousands_separator', $locale->__("Currency::thousands_separator:=."));
-		return map($this->format, array(
+		return map($this->format, [
 			'value_raw' => $value,
 			'value_decimal' => $intvalue = intval($value),
 			'value_fraction' => substr(strval(abs($value - $intvalue)), 2),
@@ -54,7 +54,7 @@ class Currency extends ORM {
 			'decimal' => $decimals,
 			'thousands' => $thousands,
 			'amount' => number_format($value, $this->precision, $decimals, $thousands),
-		) + $this->members());
+		] + $this->members());
 	}
 
 	public function symbol_left() {
@@ -71,7 +71,7 @@ class Currency extends ORM {
 		if ($cached) {
 			return $cached;
 		}
-		return $cached = $application->orm_factory(__CLASS__, array(
+		return $cached = $application->orm_factory(__CLASS__, [
 			'name' => 'Euro',
 			'code' => 'EUR',
 			'id' => 978,
@@ -80,7 +80,7 @@ class Currency extends ORM {
 			'precision' => 2,
 			'fractional' => 100,
 			'fractional_units' => 'cent',
-		))->register();
+		])->register();
 	}
 
 	/**
@@ -93,7 +93,7 @@ class Currency extends ORM {
 		if ($cached) {
 			return $cached;
 		}
-		return $cached = $application->orm_factory(__CLASS__, array(
+		return $cached = $application->orm_factory(__CLASS__, [
 			'name' => 'US Dollar',
 			'code' => 'USD',
 			'bank_country' => Country::find_country($application, 'us'),
@@ -103,7 +103,7 @@ class Currency extends ORM {
 			'precision' => 2,
 			'fractional' => 100,
 			'fractional_units' => 'cent',
-		))->register();
+		])->register();
 	}
 
 	public function precision() {
@@ -117,8 +117,8 @@ class Currency extends ORM {
 	 * @return Currency|null
 	 */
 	public static function from_code(Application $application, $code) {
-		return $application->orm_factory(__CLASS__)->find(array(
+		return $application->orm_factory(__CLASS__)->find([
 			'code' => $code,
-		));
+		]);
 	}
 }

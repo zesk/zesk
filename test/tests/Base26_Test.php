@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Base26_Test extends Test_Unit {
-	public function test_from_integer() {
+	public function test_from_integer(): void {
 		$i = null;
 		$nChars = null;
 		Base26::from_integer($i, $nChars);
@@ -15,7 +15,7 @@ class Base26_Test extends Test_Unit {
 		$this->assert_equal(Base26::from_integer(4649370, 5), "KENTY");
 	}
 
-	public function test_to_integer() {
+	public function test_to_integer(): void {
 		$this->assert_equal(Base26::to_integer("A"), 0);
 		$this->assert_equal(Base26::to_integer("AA"), 0);
 		$this->assert_equal(Base26::to_integer("AAAAAAAAAAAA"), 0);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -29,7 +29,7 @@ class JavaScript {
 	 */
 	public static function arguments() {
 		$args = func_get_args();
-		$json = array();
+		$json = [];
 		foreach ($args as $arg) {
 			$json[] = JSON::encodex($arg);
 		}
@@ -42,7 +42,7 @@ class JavaScript {
 	 * Depends on output buffering
 	 * @throws Exception_Semantics
 	 */
-	public static function obfuscate_begin() {
+	public static function obfuscate_begin(): void {
 		if (self::$obfuscated) {
 			throw new Exception_Semantics("Already called obfuscate_begin");
 		}
@@ -57,15 +57,15 @@ class JavaScript {
 	 * @return string
 	 * @throws Exception_Semantics
 	 */
-	public static function obfuscate_end($function_map = array()) {
+	public static function obfuscate_end($function_map = []) {
 		if (!self::$obfuscated) {
 			throw new Exception_Semantics("Need to call obfuscate_begin first");
 		}
 		self::$obfuscated = false;
 		if (!is_array($function_map)) {
-			$function_map = array();
+			$function_map = [];
 		}
-		$formatting = array(
+		$formatting = [
 			"\t" => " ",
 			"\n" => "",
 			"  " => " ",
@@ -82,7 +82,7 @@ class JavaScript {
 			") {" => "){",
 			" if(" => "if(",
 			"elseif" => "else if",
-		);
+		];
 		$js = ob_get_clean();
 		$formatting = array_merge($formatting, $function_map);
 		return str_replace(array_keys($formatting), array_values($formatting), $js);

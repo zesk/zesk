@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -17,7 +17,7 @@ class Debug {
 	 *
 	 * @var string
 	 */
-	const dump_spacer = "  ";
+	public const dump_spacer = "  ";
 
 	/**
 	 *
@@ -28,7 +28,7 @@ class Debug {
 	/**
 	 * Set up PHP errors to output on web pages
 	 */
-	public static function php_errors_configure() {
+	public static function php_errors_configure(): void {
 		error_reporting(E_ALL | E_STRICT);
 		ini_set('error_prepend_string', "\nPHP-ERROR " . str_repeat("=", 80) . "\n");
 		ini_set('error_append_string', "\n" . str_repeat("*", 80) . "\n");
@@ -59,10 +59,10 @@ class Debug {
 	 */
 	public static function output() {
 		$args = func_get_args();
-		$result = call_user_func_array(array(
+		$result = call_user_func_array([
 			'zesk\\Debug',
 			"dump",
-		), $args);
+		], $args);
 		echo $result . "\n";
 	}
 
@@ -76,7 +76,7 @@ class Debug {
 	 */
 	public static function dump() {
 		$args = func_get_args();
-		$result = array();
+		$result = [];
 		foreach ($args as $x) {
 			$result[] = self::_dump($x);
 		}
@@ -102,7 +102,7 @@ class Debug {
 		} elseif (is_resource($x)) {
 			return "(resource) $x";
 		} elseif (is_array($x)) {
-			$result = array();
+			$result = [];
 			if ($indent < self::$indent_limit) {
 				$indent++;
 				$max_len = 0;

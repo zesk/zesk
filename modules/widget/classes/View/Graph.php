@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -12,13 +12,13 @@ class View_Graph extends View {
 	public function render() {
 		$html = $this->response()->html();
 		$html->jquery();
-		$html->javascript('/share/zesk/js/zesk.js', array(
+		$html->javascript('/share/zesk/js/zesk.js', [
 			'weight' => 'first',
-		));
+		]);
 		$html->javascript('/share/zesk/jquery/flot/jquery.flot.js');
-		$html->javascript('/share/zesk/jquery/flot/excanvas.pack.js', array(
+		$html->javascript('/share/zesk/jquery/flot/excanvas.pack.js', [
 			'browser' => "ie",
-		));
+		]);
 		$html->javascript('/share/zesk/jquery/zesk.flot.js');
 		return parent::render();
 	}

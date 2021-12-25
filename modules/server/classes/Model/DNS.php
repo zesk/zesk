@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -18,7 +18,7 @@ class Model_DNS extends Model {
 
 	public $lookup = null;
 
-	public function store() {
+	public function store(): void {
 		$this->valid = true;
 	}
 }

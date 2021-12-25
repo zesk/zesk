@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,17 +10,17 @@ namespace zesk;
  *
  */
 class ORM_Schema_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
 		"ORM",
-	);
+	];
 
-	public function initialize() {
+	public function initialize(): void {
 		require_once __DIR__ . '/ORM_Schema_Test_Objects.php';
 		parent::initialize();
 	}
 
-	public function test_debug() {
+	public function test_debug(): void {
 		$value = ORM_Schema::debug();
 
 		ORM_Schema::debug(true);
@@ -36,7 +36,7 @@ class ORM_Schema_Test extends Test_Unit {
 		ORM_Schema::debug($value);
 	}
 
-	public function test_update_objects() {
+	public function test_update_objects(): void {
 		$object = $this->application->orm_factory(Test_ORM_Schema_User::class);
 		ORM_Schema::update_object($object);
 	}

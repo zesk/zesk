@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
@@ -8,9 +8,9 @@
 namespace zesk;
 
 class CSV_Reader_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"CSV",
-	);
+	];
 
 	public function sample_reader() {
 		$options = false;
@@ -24,11 +24,11 @@ class CSV_Reader_Test extends Test_Unit {
 		return $x;
 	}
 
-	public function test_main() {
+	public function test_main(): void {
 		$x = $this->sample_reader();
-		$map = array(
+		$map = [
 			"A" => "Dude",
-		);
+		];
 		$x->read_map("Hello", $map);
 
 		$x->read_map();
@@ -53,14 +53,14 @@ class CSV_Reader_Test extends Test_Unit {
 
 		$x->close();
 
-		$headers = array(
-			array(
+		$headers = [
+			[
 				"A",
 				"B",
 				"C",
 				"D",
-			),
-		);
+			],
+		];
 		$is_map = false;
 		$x->set_headers($headers, false);
 
@@ -74,12 +74,12 @@ class CSV_Reader_Test extends Test_Unit {
 	/**
 	 * @expectedException zesk\Exception_Key
 	 */
-	public function test_bad_read_map_key() {
+	public function test_bad_read_map_key(): void {
 		$x = $this->sample_reader();
 		$success = false;
-		$map = array(
+		$map = [
 			"Dude" => "X",
-		);
+		];
 		$mapTypes = null;
 		$defaultMap = null;
 		$x->read_map("Hello", $map, $mapTypes, $defaultMap);

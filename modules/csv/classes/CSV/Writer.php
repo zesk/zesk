@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -22,7 +22,7 @@ class CSV_Writer extends CSV {
 	 *
 	 * @var boolean
 	 */
-	protected $WroteHeaders;
+	protected bool $WroteHeaders;
 
 	/**
 	 * An array containing "map_name" => array("input_column" => "header_index", "input_column2" =>
@@ -35,7 +35,7 @@ class CSV_Writer extends CSV {
 	 *
 	 * @var array
 	 */
-	protected $WriteMapGroup;
+	protected array $WriteMapGroup;
 
 	/**
 	 * Default values for the write maps
@@ -44,7 +44,7 @@ class CSV_Writer extends CSV {
 	 *
 	 * @var array
 	 */
-	protected $WriteMapGroupDefault;
+	protected array $WriteMapGroupDefault;
 
 	/**
 	 * Translation tables for output
@@ -52,14 +52,14 @@ class CSV_Writer extends CSV {
 	 *
 	 * @var array
 	 */
-	protected $WriteTranslationMap;
+	protected array $WriteTranslationMap;
 
 	/**
 	 * Hooks to call on name/value pair row before writing
 	 *
 	 * @var array of callable
 	 */
-	protected $write_hooks = array();
+	protected array $write_hooks = [];
 
 	/*====================================================================================*\
 	 Instance
@@ -70,12 +70,12 @@ class CSV_Writer extends CSV {
 	 *
 	 * @param array $options
 	 */
-	public function __construct(array $options = array()) {
+	public function __construct(array $options = []) {
 		parent::__construct($options);
 		$this->WroteHeaders = false;
-		$this->WriteMapGroup = array();
-		$this->WriteMapGroupDefault = array();
-		$this->WriteTranslationMap = array();
+		$this->WriteMapGroup = [];
+		$this->WriteMapGroupDefault = [];
+		$this->WriteTranslationMap = [];
 	}
 
 	/*====================================================================================*\
@@ -125,16 +125,16 @@ class CSV_Writer extends CSV {
 			throw new Exception_Semantics("Need to set headers prior to setting a translation map ($name)");
 		}
 		$this->headers();
-		$mapGroup = array();
+		$mapGroup = [];
 		foreach ($map as $member => $column) {
 			$column = strtolower($column);
 			if (!isset($this->HeadersToIndex[$column])) {
-				throw new Exception_Key("{method}({name},...): {column} not found in headers {headers}", array(
+				throw new Exception_Key("{method}({name},...): {column} not found in headers {headers}", [
 					"method" => __METHOD__,
 					"name" => $name,
 					"headers" => JSON::encode($this->HeadersToIndex),
 					"column" => $column,
-				));
+				]);
 			} else {
 				$indexes = $this->HeadersToIndex[$column];
 				$mapGroup[strtolower($member)] = $indexes;
@@ -170,11 +170,11 @@ class CSV_Writer extends CSV {
 	 * @return CSV_Writer
 	 */
 	public function add_translation_map_boolean($column_names, $no = null, $yes = null, $null = null) {
-		$this->add_translation_map($column_names, array(
+		$this->add_translation_map($column_names, [
 			'' => $null === null ? '' : $null,
 			'0' => $no === null ? 'no' : $no,
 			'1' => $yes === null ? 'yes' : $no,
-		));
+		]);
 		return $this;
 	}
 
@@ -255,7 +255,7 @@ class CSV_Writer extends CSV {
 	 *
 	 * @param unknown_type $row
 	 */
-	public function set_row(array $row) {
+	public function set_row(array $row): void {
 		if (count($row) === 0) {
 			$this->Row = $row;
 			return;
@@ -281,11 +281,14 @@ class CSV_Writer extends CSV {
 	/**
 	 * Enter description here...
 	 *
-	 * @param unknown_type $col
+	 * @param string $col
 	 * @param unknown_type $data
-	 * @return unknown
+	 * @return bool
 	 */
-	public function set_column($col, $data) {
+	public function set_column(string $col, $data): bool {
+		if (empty($col)) {
+			return false;
+		}
 		$i = avalue($this->HeadersToIndex, strtolower($col));
 		if ($i === null) {
 			return false;
@@ -296,7 +299,7 @@ class CSV_Writer extends CSV {
 
 	/**
 	 */
-	public function write_row() {
+	public function write_row(): void {
 		$this->_check_file();
 		if (!is_array($this->Row)) {
 			throw new Exception_Semantics("CSV_Writer:writeRow: Must set row values first");
@@ -309,7 +312,7 @@ class CSV_Writer extends CSV {
 		}
 		foreach ($this->WriteTranslationMap as $k => $v) {
 			$values = to_list(strval(avalue($this->Row, $k, '')));
-			$result = array();
+			$result = [];
 			foreach ($values as $value) {
 				$result[] = avalue($v, $value, $value);
 			}
@@ -317,7 +320,7 @@ class CSV_Writer extends CSV {
 		}
 		fwrite($this->File, $this->_formatRow($this->Row));
 		$this->RowIndex += 1;
-		$this->Row = array();
+		$this->Row = [];
 	}
 
 	/**
@@ -329,7 +332,7 @@ class CSV_Writer extends CSV {
 	protected function _formatRow($row) {
 		$d = $this->Delimiter;
 		$e = $this->Enclosure;
-		$rowOut = array();
+		$rowOut = [];
 		$pattern = "/[" . preg_quote("$e$d") . '\s]/';
 		foreach ($row as $cell) {
 			if (preg_match($pattern, $cell)) {

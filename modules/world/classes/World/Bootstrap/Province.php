@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -39,7 +39,7 @@ class World_Bootstrap_Province extends Hookable {
 	 *
 	 * @param mixed $options
 	 */
-	public function __construct(Application $application, array $options = array()) {
+	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		$object = $application->modules->object("world");
 		$this->inherit_global_options($object);
@@ -65,7 +65,7 @@ class World_Bootstrap_Province extends Hookable {
 	 *
 	 * @throws Exception
 	 */
-	public function bootstrap() {
+	public function bootstrap(): void {
 		$application = $this->application;
 
 		$province_class = Province::class;
@@ -76,24 +76,24 @@ class World_Bootstrap_Province extends Hookable {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 
-		$countries = array(
+		$countries = [
 			"US" => self::_province_us(),
 			"CA" => self::_province_ca(),
-		);
+		];
 		foreach ($countries as $country_code => $map) {
-			$country = $application->orm_factory($country_class, array(
+			$country = $application->orm_factory($country_class, [
 				'code' => $country_code,
-			))->find();
+			])->find();
 			if (!$country) {
 				throw new Exception('Country: $country_code does not exist in the database. Need to bootstrap countries first.');
 			}
 			if ($this->is_included($country)) {
 				foreach ($map as $name => $code) {
-					$application->orm_factory($province_class, array(
+					$application->orm_factory($province_class, [
 						"country" => $country,
 						"code" => strtoupper($code),
 						"name" => $name,
-					))->register();
+					])->register();
 				}
 			}
 		}
@@ -101,7 +101,7 @@ class World_Bootstrap_Province extends Hookable {
 
 	private static function _province_ca() {
 		/* From: http://canadaonline.about.com/library/bl/blpabb.htm */
-		return array(
+		return [
 			"Alberta" => "AB",
 			"British Columbia" => "BC",
 			"Manitoba" => "MB",
@@ -115,11 +115,11 @@ class World_Bootstrap_Province extends Hookable {
 			"Quebec" => "QC",
 			"Saskatchewan" => "SK",
 			"Yukon" => "YT",
-		);
+		];
 	}
 
 	private static function _province_us() {
-		return array(
+		return [
 			"Alabama" => "AL",
 			"Alaska" => "AK",
 			"Arizona" => "AZ",
@@ -171,6 +171,6 @@ class World_Bootstrap_Province extends Hookable {
 			"Wisconsin" => "WI",
 			"West Virginia" => "WV",
 			"Wyoming" => "WY",
-		);
+		];
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Utility class for \DateInterval
  */
@@ -14,7 +14,7 @@ class DateInterval extends \DateInterval {
 	 * @var string
 	 * @see \DateInterval
 	 */
-	const INTERVAL_SPEC_FORMAT = "P%yY%mM%dDT%hH%iM%sS";
+	public const INTERVAL_SPEC_FORMAT = "P%yY%mM%dDT%hH%iM%sS";
 
 	/**
 	 * Convert a \DateInterval to a zesk\DateInterval

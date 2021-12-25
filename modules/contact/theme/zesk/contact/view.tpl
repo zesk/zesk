@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 $this->response->javascript('/share/zesk/jquery/jquery.overlabel.js');
@@ -16,33 +16,33 @@ $id = $contact->id();
 
 $person = $contact->Person;
 
-$sections = array(
-	'email' => array(
+$sections = [
+	'email' => [
 		'head_label' => "Email",
 		'object_class' => "Contact_Email",
-	),
-	'phone' => array(
+	],
+	'phone' => [
 		'head_label' => "Phone",
 		'object_class' => "Contact_Phone",
-	),
-	'address' => array(
+	],
+	'address' => [
 		'head_label' => "Address",
 		'object_class' => "Contact_Address",
-	),
-	'url' => array(
+	],
+	'url' => [
 		'head_label' => "Web sites",
 		'object_class' => "Contact_URL",
-	),
-	'dates' => array(
+	],
+	'dates' => [
 		'head_label' => "Dates",
 		'object_class' => "Contact_Date",
-	),
-);
+	],
+];
 if ($this->get('show_other', true)) {
-	$sections['other'] = array(
+	$sections['other'] = [
 		'head_label' => "Other",
 		'object_class' => "Contact_Other",
-	);
+	];
 }
 
 $this->response->jquery("contact_view_load()");
@@ -90,19 +90,19 @@ $label_table = ORM::class_table_name("Contact_Label");
 foreach ($sections as $section => $variables) {
 	$object_class = $head_label = null;
 	extract($variables, EXTR_IF_EXISTS);
-	$values = array();
-	$query = ORM::class_query($object_class)->link("Contact_Label", array(
+	$values = [];
+	$query = ORM::class_query($object_class)->link("Contact_Label", [
 		"alias" => "L",
-	))->what('label_name', 'L.name')->where('contact', $id);
+	])->what('label_name', 'L.name')->where('contact', $id);
 	$values = $query->to_array();
 	if (count($values) > 0) {
 		?><div class="contact-section"
 		id="contact-section-<?php echo $section?>"><?php
 		foreach ($values as $i => $data) {
 			$object = new $object_class($data);
-			echo $object->output(null, array(
+			echo $object->output(null, [
 				'show_links' => $show_links,
-			));
+			]);
 		} ?></div><?php
 	}
 }

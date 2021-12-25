@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Select Query
  *
@@ -39,14 +39,14 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * Where
 	 * @var array
 	 */
-	protected $where = array();
+	protected $where = [];
 
 	/**
 	 * Having - like where for postprocessing in database based on functions
 	 *
 	 * @var array
 	 */
-	protected $having = array();
+	protected $having = [];
 
 	/**
 	 * Order by clause
@@ -82,14 +82,14 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * Array of alias => class
 	 * @var array
 	 */
-	protected $join_objects = array();
+	protected $join_objects = [];
 
 	/**
 	 * List of locale-specific conditions for outputting to the user
 	 *
 	 * @var array
 	 */
-	protected $conditions = array();
+	protected $conditions = [];
 
 	/**
 	 * This is here solely for debugging purposes only.
@@ -121,7 +121,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @see \zesk\Database_Query_Select_Base::__sleep()
 	 */
 	public function __sleep() {
-		return array_merge(parent::__sleep(), array(
+		return array_merge(parent::__sleep(), [
 			"what",
 			"tables",
 			"alias",
@@ -134,7 +134,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			"distinct",
 			"join_objects",
 			"conditions",
-		));
+		]);
 	}
 
 	/**
@@ -167,7 +167,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @return boolean
 	 */
 	public function valid_column($column) {
-		list($alias, $column) = pair($column, ".", $this->alias, $column);
+		[$alias, $column] = pair($column, ".", $this->alias, $column);
 		if ($alias === $this->alias) {
 			$class = $this->class;
 		} else {
@@ -206,7 +206,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		if ($class === null || $this->class === $class) {
 			return $this->alias;
 		}
-		$result = avalue(ArrayTools::flip_multiple($this->join_objects), $class, array());
+		$result = avalue(ArrayTools::flip_multiple($this->join_objects), $class, []);
 		return last($result);
 	}
 
@@ -255,11 +255,11 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			return $this;
 		}
 		if ($mixed === false && $value === null) {
-			$this->what = array();
+			$this->what = [];
 			return $this;
 		}
 		if (is_string($this->what)) {
-			$this->what = array();
+			$this->what = [];
 		}
 		if (is_string($mixed)) {
 			if ($value === null) {
@@ -385,16 +385,16 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$cross_db_this = $this->database()->feature(Database::FEATURE_CROSS_DATABASE_QUERIES);
 			$cross_db_object = $object->database()->feature(Database::FEATURE_CROSS_DATABASE_QUERIES);
 			if ($cross_db_this !== true) {
-				throw new Exception_Semantics("Database {name} ({class}) does not support cross-database queries, join is not possible", array(
+				throw new Exception_Semantics("Database {name} ({class}) does not support cross-database queries, join is not possible", [
 					"name" => $this->database_name(),
 					"class" => $this->class,
-				));
+				]);
 			}
 			if ($cross_db_object !== true) {
-				throw new Exception_Semantics("Database {name} ({class}) does not support cross-database queries, join is not possible", array(
+				throw new Exception_Semantics("Database {name} ({class}) does not support cross-database queries, join is not possible", [
 					"name" => $object->database_name(),
 					"class" => get_class($object),
-				));
+				]);
 			}
 			$table_as = $sql->database_table_as($object->database()->database_name(), $table, $alias);
 		} else {
@@ -420,11 +420,11 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 */
 	public function link($class, $mixed = null) {
 		if (is_string($mixed)) {
-			$mixed = array(
+			$mixed = [
 				"path" => $mixed,
-			);
+			];
 		} elseif (!is_array($mixed)) {
-			$mixed = array();
+			$mixed = [];
 		}
 		$path = avalue($mixed, 'path', null);
 		$object = $this->orm_registry($this->class);
@@ -432,10 +432,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$target_class = $this->application->objects->resolve($class);
 			$path = $object->link_default_path_to($target_class);
 			if ($path === null) {
-				throw new Exception_Semantics("No path to {target_class} (resolved from {class}) from $this->class, specify explicitly", array(
+				throw new Exception_Semantics("No path to {target_class} (resolved from {class}) from $this->class, specify explicitly", [
 					"class" => $class,
 					"target_class" => $target_class,
-				));
+				]);
 			}
 			$mixed['path'] = $path;
 		}
@@ -477,7 +477,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		} elseif (!empty($k)) {
 			$this->where[$k] = $v;
 		} elseif ($k === false) {
-			$this->where = array();
+			$this->where = [];
 		}
 		return $this;
 	}
@@ -531,7 +531,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @return string
 	 */
 	public function __toString() {
-		return $this->generated_sql = $this->db->sql()->select(array(
+		return $this->generated_sql = $this->db->sql()->select([
 			'what' => $this->what,
 			'distinct' => $this->distinct,
 			'tables' => $this->tables,
@@ -541,7 +541,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			'order_by' => $this->order_by,
 			'offset' => $this->offset,
 			'limit' => $this->limit,
-		));
+		]);
 	}
 
 	public function condition($add = null, $id = null) {
@@ -565,10 +565,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$class_name = $this->class;
 		$locale = $this->application->locale;
 		$class = $this->application->class_orm_registry($class_name);
-		$map = array(
+		$map = [
 			"noun" => $class->name,
 			"nouns" => $locale->plural($class->name),
-		);
+		];
 		if (count($this->conditions) === 0) {
 			return $locale->__("Database_Query_Select-$class_name-title-all:=All {nouns}", $map);
 		}

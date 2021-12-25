@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -81,7 +81,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $options
 	 * @throws Exception_Lock
 	 */
-	final public function __construct(Application $app, Route $route = null, Response $response = null, array $options = array()) {
+	final public function __construct(Application $app, Route $route = null, Response $response = null, array $options = []) {
 		parent::__construct($app, $options);
 
 		$this->inherit_global_options();
@@ -92,10 +92,10 @@ class Controller extends Hookable implements Interface_Theme {
 		$this->response = $response;
 
 		if ($response) {
-			$this->application->logger->debug("{class}::__construct Response ID {id}", array(
+			$this->application->logger->debug("{class}::__construct Response ID {id}", [
 				"class" => get_class($this),
 				"id" => $response->id(),
-			));
+			]);
 		}
 
 		$this->initialize();
@@ -110,7 +110,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $options
 	 * @return string|null
 	 */
-	public function theme($types, $arguments = array(), array $options = array()) {
+	public function theme($types, $arguments = [], array $options = []) {
 		return $this->application->theme($types, $arguments, $options);
 	}
 
@@ -128,13 +128,13 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 */
 	public function class_actions() {
-		return array();
+		return [];
 	}
 
 	/**
 	 */
 	protected function hook_classes() {
-		return $this->option_list("classes", array());
+		return $this->option_list("classes", []);
 	}
 
 	/**
@@ -147,7 +147,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * </code>
 	 * May all possibly be NULL upon this function called.
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 	}
 
 	/**
@@ -169,13 +169,13 @@ class Controller extends Hookable implements Interface_Theme {
 	 *
 	 * @return void
 	 */
-	public function before() {
+	public function before(): void {
 	}
 
 	/**
 	 * @param string $action
 	 */
-	public function _action_default($action = null) {
+	public function _action_default($action = null): void {
 		$this->error_404($action ? "Action $action" : "default action");
 	}
 
@@ -184,19 +184,19 @@ class Controller extends Hookable implements Interface_Theme {
 	 *
 	 * @return void
 	 */
-	public function after() {
+	public function after(): void {
 	}
 
 	/**
 	 * Returns an array of name/value pairs for a template
 	 */
 	public function variables() {
-		return array(
+		return [
 			'application' => $this->application,
 			'controller' => $this,
 			'request' => $this->request,
 			'response' => $this->response,
-		);
+		];
 	}
 
 	/**
@@ -206,9 +206,9 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @return self
 	 */
 	public function json($mixed = null) {
-		$mixed = $this->call_hook_arguments("json", array(
+		$mixed = $this->call_hook_arguments("json", [
 			$mixed,
-		), $mixed);
+		], $mixed);
 		$this->response->json()->data($mixed);
 		return $this;
 	}
@@ -277,10 +277,10 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @return mixed
 	 */
 	final public function invoke_method($name, array $arguments) {
-		return call_user_func_array(array(
+		return call_user_func_array([
 			$this,
 			$name,
-		), $arguments);
+		], $arguments);
 	}
 
 	/**
@@ -296,10 +296,10 @@ class Controller extends Hookable implements Interface_Theme {
 			$this->method_default_arguments = $this->option('arguments method default', '_arguments_default');
 		}
 		$arguments = $this->optional_method($this->method_default_arguments, $arguments);
-		return call_user_func_array(array(
+		return call_user_func_array([
 			$this,
 			$this->method_default_action,
-		), $arguments);
+		], $arguments);
 	}
 
 	/**
@@ -310,7 +310,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @return array:
 	 */
 	public function get_route_map($action = null, $object = null, $options = null) {
-		return array();
+		return [];
 	}
 
 	/**
@@ -320,7 +320,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $options
 	 * @return Widget
 	 */
-	public function widget_factory($class, array $options = array()) {
+	public function widget_factory($class, array $options = []) {
 		$widget = $this->application->widget_factory($class, $options);
 		if ($this->response) {
 			$widget->response($this->response);
@@ -340,7 +340,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $options Creation options and initial options for model
 	 * @return Model
 	 */
-	public function model_factory($class, $mixed = null, array $options = array()) {
+	public function model_factory(string $class, mixed $mixed = null, array $options = []): Model {
 		return $this->application->model_factory($class, $mixed, $options);
 	}
 
@@ -364,18 +364,18 @@ class Controller extends Hookable implements Interface_Theme {
 				return $value->all;
 			}
 		}
-		$list_options = array(
+		$list_options = [
 			'file_include_pattern' => '/\.(inc|php)$/',
 			'directory_default' => false,
-		);
-		$found = array();
+		];
+		$found = [];
 		foreach ($paths as $path => $options) {
 			$controller_path = path($path, "controller");
 			if (is_dir($controller_path)) {
 				$class_prefix = avalue($options, "class_prefix", "");
 				$controller_incs = Directory::list_recursive($controller_path, $list_options);
 				foreach ($controller_incs as $controller_inc) {
-					if (strpos("/$controller_inc", '/.') !== false) {
+					if (str_contains("/$controller_inc", '/.')) {
 						continue;
 					}
 					$application->logger->debug("Found controller {controller_inc}", compact("controller_inc"));
@@ -388,10 +388,10 @@ class Controller extends Hookable implements Interface_Theme {
 						if (!$reflectionClass->isAbstract()) {
 							/* @var $controller Controller */
 							$controller = $reflectionClass->newInstance($application);
-							$found[$reflectionClass->getName()] = array(
+							$found[$reflectionClass->getName()] = [
 								'path' => path($controller_path, $controller_inc),
-								'classes' => $controller->call_hook('classes', array(), array()),
-							);
+								'classes' => $controller->call_hook('classes', [], []),
+							];
 						}
 					} catch (ReflectionException $e) {
 					} catch (\Exception $e) {

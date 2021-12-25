@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Test_ORM extends Test_Unit {
@@ -8,15 +8,15 @@ class Test_ORM extends Test_Unit {
 	}
 
 	public function classes_to_test() {
-		return array(
-			array(
+		return [
+			[
 				"User",
-				array(),
-			),
-		);
+				[],
+			],
+		];
 	}
 
-	public function require_tables($classes) {
+	public function require_tables($classes): void {
 		$classes = to_list($classes);
 		foreach ($classes as $class) {
 			$object = $this->application->orm_registry($class);
@@ -33,25 +33,25 @@ class Test_ORM extends Test_Unit {
 	 * @param array $options
 	 *        	@data_provider classes_to_test
 	 */
-	public function run_test_class($class, array $options = array()) {
+	public function run_test_class($class, array $options = []) {
 		return $this->run_test_an_object($this->application->orm_factory($class, $options));
 	}
 
 	/**
 	 * @not_test
 	 */
-	final public function run_test_an_object(ORM $object, $test_field = "ID") {
+	final public function run_test_an_object(ORM $object, $test_field = "ID"): void {
 		$this->log(get_class($object) . " members: " . PHP::dump($object->members()));
 
 		$table = $object->table();
 
 		$db = $object->database();
-		$options = array(
+		$options = [
 			"follow" => true,
-		);
-		$results = $this->application->orm_registry()->schema_synchronize($db, array(
+		];
+		$results = $this->application->orm_registry()->schema_synchronize($db, [
 			get_class($object),
-		), $options);
+		], $options);
 		if (count($results) > 0) {
 			$db->query($results);
 		}

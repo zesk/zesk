@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -22,13 +22,13 @@ class Database_Type extends \zesk\Database_Data_Type {
 	 *
 	 * @var unknown
 	 */
-	protected $sql_type_natives = array(
-		self::sql_type_string => array(
+	protected $sql_type_natives = [
+		self::sql_type_string => [
 			"char",
 			"varchar",
 			"text",
-		),
-		self::sql_type_integer => array(
+		],
+		self::sql_type_integer => [
 			"bit",
 			"int",
 			"tinyint",
@@ -36,21 +36,21 @@ class Database_Type extends \zesk\Database_Data_Type {
 			"mediumint",
 			"bigint",
 			"integer",
-		),
-		self::sql_type_double => array(
+		],
+		self::sql_type_double => [
 			"decimal",
-		),
-		self::sql_type_date => array(
+		],
+		self::sql_type_date => [
 			"date",
-		),
-		self::sql_type_time => array(
+		],
+		self::sql_type_time => [
 			"time",
-		),
-		self::sql_type_datetime => array(
+		],
+		self::sql_type_datetime => [
 			"datetime",
 			"timestamp",
-		),
-	);
+		],
+	];
 
 	/**
 	 * For parsing simple database types.
@@ -69,10 +69,10 @@ class Database_Type extends \zesk\Database_Data_Type {
 	public function type_set_sql_type(Database_Column $type) {
 		$type_name = $type->option("type", false);
 		if (!$type_name) {
-			throw new Exception_Semantics("{class}::type_set_sql_type(...): \"Type\" is not set! {type}", array(
+			throw new Exception_Semantics("{class}::type_set_sql_type(...): \"Type\" is not set! {type}", [
 				'class' => get_class($this),
 				'type' => _dump($type),
-			));
+			]);
 		}
 		$is_bin = $type->option_bool("binary");
 		$size = $type->option_integer("size");
@@ -134,7 +134,7 @@ class Database_Type extends \zesk\Database_Data_Type {
 			case self::sql_type_integer:
 				return intval($default_value);
 			case self::sql_type_double:
-				return doubleval($default_value);
+				return floatval($default_value);
 				return to_bool($default_value, false);
 			case self::sql_type_datetime:
 				if ($default_value === 0 || $default_value === "0") {

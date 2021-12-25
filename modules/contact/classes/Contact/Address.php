@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -30,7 +30,7 @@ class Contact_Address extends Contact_Info {
 	 *
 	 * @var unknown
 	 */
-	const earth_radius_semimajor = 6378137.0;
+	public const earth_radius_semimajor = 6378137.0;
 
 	/**
 	 *
@@ -45,13 +45,13 @@ class Contact_Address extends Contact_Info {
 		if ($this->changed('value')) {
 			$address = Contact_Address_Parser::parse($this->application, $this->value);
 			if ($address) {
-				$columns = array(
+				$columns = [
 					"street",
 					"city",
 					"province",
 					"postalCode",
 					"country",
-				);
+				];
 				foreach ($columns as $col) {
 					$this->$col = $address->$col;
 				}
@@ -82,7 +82,7 @@ class Contact_Address extends Contact_Info {
 	 * @return string[string]
 	 */
 	public static function en_lang_member_names() {
-		return array(
+		return [
 			"id" => 'ID',
 			"contact" => 'Contact',
 			"label" => 'Label',
@@ -103,7 +103,7 @@ class Contact_Address extends Contact_Info {
 			'created' => 'Created',
 			'modified' => 'Modified',
 			'data' => 'Data',
-		);
+		];
 	}
 
 	/**
@@ -127,10 +127,10 @@ class Contact_Address extends Contact_Info {
 	 * @return boolean
 	 */
 	public function has_geo() {
-		return !$this->member_is_empty(array(
+		return !$this->member_is_empty([
 			'latitude',
 			'longitude',
-		));
+		]);
 	}
 
 	/**
@@ -222,7 +222,7 @@ class Contact_Address extends Contact_Info {
 	 *
 	 * @param unknown $raw
 	 */
-	public function parse($raw) {
+	public function parse($raw): void {
 		$parser = $this->parser();
 		$parser->parse($raw);
 	}

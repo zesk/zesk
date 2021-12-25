@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,7 +10,7 @@ use zesk\ArrayTools;
  * TODO Consider merging the two to have consistency?
  *
  */
-$results = array();
+$results = [];
 $hidden = "";
 foreach ($this->children as $child) {
 	$child = clone $child;
@@ -28,10 +28,10 @@ foreach ($this->children as $child) {
 
 	$child->object($this->object);
 	$content = $child->render();
-	$label = $results[$name . '.label'] = HTML::tag('label', array(
+	$label = $results[$name . '.label'] = HTML::tag('label', [
 		'class' => $this->get('label_class', 'label label-default'),
 		'for' => $child->id(),
-	), $child->label());
+	], $child->label());
 	if ($child->option_bool('nolabel', $this->nolabel)) {
 		$label = "";
 	}

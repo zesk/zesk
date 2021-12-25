@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -25,9 +25,9 @@ class Control_Button extends Control {
 	public function submit() {
 		if (($url = $this->option('redirect_url')) !== null) {
 			$url = $this->object->apply_map($url);
-			$url = URL::query_format($url, array(
+			$url = URL::query_format($url, [
 				"ref" => $this->request->uri(),
-			));
+			]);
 
 			throw new Exception_Redirect($url, $this->object->apply_map($this->option('redirect_message')));
 		}
@@ -35,9 +35,9 @@ class Control_Button extends Control {
 	}
 
 	public function theme_variables() {
-		return parent::theme_variables() + array(
+		return parent::theme_variables() + [
 			'href' => $this->href(),
 			'button_label' => $this->button_label(),
-		);
+		];
 	}
 }

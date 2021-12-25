@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/forgot/theme/object/zesk/forgot/notify.tpl $
  * @author $Author: kent $

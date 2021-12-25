@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -24,7 +24,7 @@ class Module extends \zesk\Module {
 	 * {@inheritDoc}
 	 * @see \zesk\Module::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		$this->lib_path = $this->application->path("vendor/php-webdriver-facebook");
 		if (!is_dir($this->lib_path)) {
 			throw new Exception_Directory_NotFound($this->lib_path, "Initializing selenium/php-webdriver-facebook");

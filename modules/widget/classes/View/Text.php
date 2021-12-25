@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -54,9 +54,9 @@ class View_Text extends View {
 			$allow_show_all = $this->option_bool("allow_show_all");
 			$ellip = $this->option($is_html ? "html_ellipsis" : "text_ellipsis", '...');
 			if ($allow_show_all) {
-				$this->response()->html()->javascript("/share/zesk/js/zesk.js", array(
+				$this->response()->html()->javascript("/share/zesk/js/zesk.js", [
 					'weight' => 'first',
-				));
+				]);
 
 				$my_id = substr(md5(microtime()), 0, 8);
 				$ellip = "<a onclick=\"ellipsis_toggle('$my_id')\">$ellip</a>";

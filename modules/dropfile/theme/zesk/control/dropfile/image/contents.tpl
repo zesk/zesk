@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -18,16 +18,16 @@ if (!$this->object) {
 	echo $this->empty_string;
 	$object_id = "";
 } else {
-	echo $this->theme('content/image', array(
+	echo $this->theme('content/image', [
 		"object" => $this->object,
 		"width" => $this->width,
 		"height" => $this->height,
-	));
+	]);
 	$object_id = $this->object->id;
 }
-echo HTML::input('hidden', $this->name, $object_id, array(
+echo HTML::input('hidden', $this->name, $object_id, [
 	"id" => $this->name,
 	"class" => 'dropfile-value',
-));
+]);
 
 echo $this->theme('dropfile/overlay');

@@ -1,15 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Class_ORMX_Field extends Class_ORM {
 	public $id_column = "id";
 
-	public $find_keys = array(
+	public $find_keys = [
 		'class',
 		'column',
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"class" => self::type_string,
 		"active" => self::type_string,
@@ -19,5 +19,5 @@ class Class_ORMX_Field extends Class_ORM {
 		"type" => self::type_string,
 		"order_index" => self::type_integer,
 		"data" => self::type_serialize,
-	);
+	];
 }

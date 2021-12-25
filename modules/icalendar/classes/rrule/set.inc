@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Implementation of iCalendar RRULE
  *
@@ -31,22 +31,22 @@ class Set {
 	/**
 	 * @var Rule[]
 	 */
-	private $rrule = array();
+	private $rrule = [];
 
 	/**
 	 * @var Timestamp[]
 	 */
-	private $rdate = array();
+	private $rdate = [];
 
 	/**
 	 * @var Rule[]
 	 */
-	private $exrule = array();
+	private $exrule = [];
 
 	/**
 	 * @var Timestamp[]
 	 */
-	private $exdate = array();
+	private $exdate = [];
 
 	/**
 	 *
@@ -97,7 +97,7 @@ class Set {
 	 * @return Generator
 	 */
 	public function iterator() {
-		$rlist = array();
+		$rlist = [];
 		if ($this->dirty) {
 			usort($this->rdate, "zesk\\Timestamp::compare_callback");
 			usort($this->exdate, "zesk\\Timestamp::compare_callback");
@@ -118,10 +118,10 @@ class Set {
 					continue;
 				}
 			} elseif ($extimestamp !== null) {
-				throw new Exception_System("ExTimestamp invalid value \"{value}\" type({type})", array(
+				throw new Exception_System("ExTimestamp invalid value \"{value}\" type({type})", [
 					"value" => $extimestamp,
 					"type" => type($extimestamp),
-				));
+				]);
 			}
 			yield $timestamp;
 		}

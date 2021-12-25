@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -27,7 +27,7 @@ class Compiler {
 	 *
 	 * @var array
 	 */
-	private $vars = array();
+	private $vars = [];
 
 	/**
 	 *
@@ -37,11 +37,11 @@ class Compiler {
 		$cache_dir = $application->cache_path($application->iless_module()->option("cache_suffix", 'iless'));
 		Directory::depend($cache_dir);
 		$cache = new FileSystemCache($cache_dir);
-		$this->iless = new Parser(array(
+		$this->iless = new Parser([
 			"compress" => false,
 			"strictMath" => false,
 			"source_map" => $application->development(),
-		), $cache);
+		], $cache);
 	}
 
 	/**

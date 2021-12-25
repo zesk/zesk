@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/command/iterator/file.inc $
@@ -21,7 +21,7 @@ abstract class Command_Iterator_File extends Command_Base {
 	 *
 	 * @var array
 	 */
-	protected $extensions = array(
+	protected $extensions = [
 		"php",
 		"phpt",
 		"inc",
@@ -29,7 +29,7 @@ abstract class Command_Iterator_File extends Command_Base {
 		"php4",
 		"php5",
 		"php7",
-	);
+	];
 
 	/**
 	 *
@@ -54,14 +54,14 @@ abstract class Command_Iterator_File extends Command_Base {
 	 *
 	 * @see Command_Base::initialize()
 	 */
-	public function initialize() {
-		$this->option_types += array(
+	public function initialize(): void {
+		$this->option_types += [
 			"no-recurse" => 'boolean',
 			"directory" => "dir",
 			"include-hidden" => "boolean",
 			"show-skipped" => "boolean",
 			'*' => 'string',
-		);
+		];
 		parent::initialize();
 	}
 
@@ -70,7 +70,7 @@ abstract class Command_Iterator_File extends Command_Base {
 	 *
 	 * @see Command::run()
 	 */
-	public function run() {
+	public function run(): void {
 		if ($this->option_bool('help')) {
 			$this->usage();
 		}

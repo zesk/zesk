@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
@@ -20,43 +20,43 @@ abstract class Database extends Hookable {
 	 *
 	 * @var string
 	 */
-	const TABLE_INFO_ENGINE = "engine";
+	public const TABLE_INFO_ENGINE = "engine";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TABLE_INFO_ROW_COUNT = "row_count";
+	public const TABLE_INFO_ROW_COUNT = "row_count";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TABLE_INFO_DATA_SIZE = "data_size";
+	public const TABLE_INFO_DATA_SIZE = "data_size";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TABLE_INFO_FREE_SIZE = "free_size";
+	public const TABLE_INFO_FREE_SIZE = "free_size";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TABLE_INFO_INDEX_SIZE = "index_size";
+	public const TABLE_INFO_INDEX_SIZE = "index_size";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TABLE_INFO_CREATED = "created";
+	public const TABLE_INFO_CREATED = "created";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TABLE_INFO_UPDATED = "updated";
+	public const TABLE_INFO_UPDATED = "updated";
 
 	/**
 	 * Setting this option on a database will convert all SQL to automatically set the table names
@@ -64,34 +64,34 @@ abstract class Database extends Hookable {
 	 *
 	 * @var string
 	 */
-	const OPTION_AUTO_TABLE_NAMES = 'auto_table_names';
+	public const OPTION_AUTO_TABLE_NAMES = 'auto_table_names';
 
 	/**
 	 * Does this database support creation of other databases?
 	 *
 	 * @var string
 	 */
-	const FEATURE_CREATE_DATABASE = "create_database";
+	public const FEATURE_CREATE_DATABASE = "create_database";
 
 	/**
 	 * Does this database support listing of tables?
 	 *
 	 * @var string
 	 */
-	const FEATURE_LIST_TABLES = "list_tables";
+	public const FEATURE_LIST_TABLES = "list_tables";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const FEATURE_MAX_BLOB_SIZE = "max_blob_size";
+	public const FEATURE_MAX_BLOB_SIZE = "max_blob_size";
 
 	/**
 	 * Can this database perform queries across databases on the same connection?
 	 *
 	 * @var string
 	 */
-	const FEATURE_CROSS_DATABASE_QUERIES = "cross_database_queries";
+	public const FEATURE_CROSS_DATABASE_QUERIES = "cross_database_queries";
 
 	/**
 	 * Does the database support timestamps which are relative to a session or global time zone
@@ -99,7 +99,7 @@ abstract class Database extends Hookable {
 	 *
 	 * @var string
 	 */
-	const FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP = "time_zone_relative_timestamp";
+	public const FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP = "time_zone_relative_timestamp";
 
 	/**
 	 *
@@ -144,7 +144,7 @@ abstract class Database extends Hookable {
 	/**
 	 * Parsed URL
 	 */
-	protected $url_parts = array();
+	protected $url_parts = [];
 
 	/**
 	 * URL without password
@@ -165,21 +165,21 @@ abstract class Database extends Hookable {
 	 *
 	 * @var array of string => string
 	 */
-	private $table_name_cache = array();
+	private $table_name_cache = [];
 
 	/**
 	 * Options to be passed to new objects when generating table names.
 	 *
 	 * @var array
 	 */
-	private $auto_table_names_options = array();
+	private $auto_table_names_options = [];
 
 	/**
 	 * Construct a new Database
 	 *
 	 * @param string $url
 	 */
-	public function __construct(Application $application, $url = null, array $options = array()) {
+	public function __construct(Application $application, $url = null, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 		// TODO is this needed? Pass this in __construct and propagate
@@ -236,7 +236,7 @@ abstract class Database extends Hookable {
 	 * @return array
 	 */
 	public function column_attributes(Database_Column $column) {
-		return array();
+		return [];
 	}
 
 	/**
@@ -246,7 +246,7 @@ abstract class Database extends Hookable {
 	 * @return array
 	 */
 	public function table_attributes() {
-		return array();
+		return [];
 	}
 
 	/**
@@ -256,7 +256,7 @@ abstract class Database extends Hookable {
 	 * @return array[]
 	 */
 	public function normalize_attributes(array $attributes) {
-		$new_attributes = array();
+		$new_attributes = [];
 		foreach ($attributes as $k => $v) {
 			$k = preg_replace("/[-_]/", " ", strtolower($k));
 			$new_attributes[$k] = $v;
@@ -300,14 +300,14 @@ abstract class Database extends Hookable {
 	 * @return array
 	 */
 	public function select_one_where($table, $where, $order_by = false) {
-		$sql = $this->sql()->select(array(
+		$sql = $this->sql()->select([
 			'what' => '*',
 			'tables' => $table,
 			'where' => $where,
 			'order_by' => $order_by,
 			'limit' => 1,
 			'offset' => 0,
-		));
+		]);
 		return $this->query_one($sql);
 	}
 
@@ -316,7 +316,7 @@ abstract class Database extends Hookable {
 	 *
 	 * @param string $url
 	 */
-	private function _init_url($url) {
+	private function _init_url($url): void {
 		$this->url_parts = $parts = self::url_parse($url);
 		$this->set_option($parts);
 		self::set_option(URL::query_parse(avalue($parts, "query")), null, false);
@@ -504,11 +504,11 @@ abstract class Database extends Hookable {
 	/**
 	 * Disconnect from database
 	 */
-	public function disconnect() {
+	public function disconnect(): void {
 		if ($this->debug) {
-			$this->application->logger->debug("Disconnecting from database {url}", array(
+			$this->application->logger->debug("Disconnecting from database {url}", [
 				"url" => $this->safe_url(),
-			));
+			]);
 		}
 		$this->call_hook('disconnect');
 	}
@@ -530,7 +530,7 @@ abstract class Database extends Hookable {
 	 *
 	 * @param array $options
 	 */
-	abstract public function shell_command(array $options = array());
+	abstract public function shell_command(array $options = []);
 
 	/**
 	 * Reconnect the database
@@ -554,7 +554,7 @@ abstract class Database extends Hookable {
 	 *
 	 * @param string $url
 	 */
-	public function create_database($url, array $hosts) {
+	public function create_database(string $url, array $hosts): bool {
 		throw new Exception_Unimplemented(get_class($this) . "::create_database($url)");
 	}
 
@@ -571,10 +571,10 @@ abstract class Database extends Hookable {
 	 * @return array
 	 */
 	public function list_tables() {
-		throw new Exception_Unimplemented("{method} in {class}", array(
+		throw new Exception_Unimplemented("{method} in {class}", [
 			"method" => __METHOD__,
 			"class" => get_class($this),
-		));
+		]);
 	}
 
 	/**
@@ -586,7 +586,7 @@ abstract class Database extends Hookable {
 	 *        	Options for dumping the database - dependent on database type
 	 * @return boolean Whether the operation succeeded (true) or not (false)
 	 */
-	abstract public function dump($filename, array $options = array());
+	abstract public function dump($filename, array $options = []);
 
 	/**
 	 * Given a database file, restore the database
@@ -597,7 +597,7 @@ abstract class Database extends Hookable {
 	 *        	Options for dumping the database - dependent on database type
 	 * @return boolean Whether the operation succeeded (true) or not (false)
 	 */
-	abstract public function restore($filename, array $options = array());
+	abstract public function restore($filename, array $options = []);
 
 	/**
 	 * Switches to another database in this connection.
@@ -642,7 +642,7 @@ abstract class Database extends Hookable {
 	 *
 	 * @return mixed A resource or boolean value which represents the result of the query
 	 */
-	abstract public function query($query, array $options = array());
+	abstract public function query($query, array $options = []);
 
 	/**
 	 * Replace functionality
@@ -654,12 +654,12 @@ abstract class Database extends Hookable {
 	 *
 	 * @return integer
 	 */
-	public function replace($table, array $values, array $options = array()) {
-		$sql = $this->sql()->insert(array(
+	public function replace($table, array $values, array $options = []) {
+		$sql = $this->sql()->insert([
 			'table' => $table,
 			'values' => $values,
 			'verb' => 'REPLACE',
-		) + $options);
+		] + $options);
 		if (!$this->query($sql)) {
 			return avalue($options, 'default', null);
 		}
@@ -673,11 +673,11 @@ abstract class Database extends Hookable {
 	 *        	A SQL statement
 	 * @return mixed A resource or boolean value which represents the result of the query
 	 */
-	public function insert($table, array $columns, array $options = array()) {
-		$sql = $this->sql()->insert(array(
+	public function insert($table, array $columns, array $options = []) {
+		$sql = $this->sql()->insert([
 			'table' => $table,
 			'values' => $columns,
-		) + $options);
+		] + $options);
 		if (!$this->query($sql)) {
 			return avalue($options, 'default', null);
 		}
@@ -693,7 +693,7 @@ abstract class Database extends Hookable {
 	 * @return void
 	 * @see Database::query
 	 */
-	abstract public function free($result);
+	abstract public function free($result): void;
 
 	/**
 	 * After an insert statement, retrieves the most recent statement's insertion ID
@@ -727,7 +727,7 @@ abstract class Database extends Hookable {
 	 * @param string $default
 	 * @return string
 	 */
-	final public function query_one($sql, $field = null, $default = null, array $options = array()) {
+	final public function query_one($sql, $field = null, $default = null, array $options = []) {
 		$res = $this->query($sql, $options);
 		if ($res === null || $res === false) {
 			return $default;
@@ -774,12 +774,12 @@ abstract class Database extends Hookable {
 	 *        	Default result if query fails
 	 * @return array mixed
 	 */
-	private function _query_array($method, $sql, $k = null, $v = null, $default = array()) {
+	private function _query_array($method, $sql, $k = null, $v = null, $default = []) {
 		$res = $this->query($sql);
 		if (!$res) {
 			return $default;
 		}
-		$result = array();
+		$result = [];
 		if ($k === null || $k === false) {
 			if ($v === null || $v === false) {
 				while (is_array($row = $this->$method($res))) {
@@ -818,7 +818,7 @@ abstract class Database extends Hookable {
 	 *        	Default result if query fails
 	 * @return array mixed
 	 */
-	final public function query_array($sql, $k = null, $v = null, $default = array()) {
+	final public function query_array($sql, $k = null, $v = null, $default = []) {
 		return $this->_query_array("fetch_assoc", $sql, $k, $v, $default);
 	}
 
@@ -835,7 +835,7 @@ abstract class Database extends Hookable {
 	 *        	Default result if query fails
 	 * @return array mixed
 	 */
-	final public function query_array_index($sql, $k = null, $v = null, $default = array()) {
+	final public function query_array_index($sql, $k = null, $v = null, $default = []) {
 		return $this->_query_array("fetch_array", $sql, $k, $v, $default);
 	}
 
@@ -923,12 +923,12 @@ abstract class Database extends Hookable {
 	 * @param array $options
 	 * @return mixed
 	 */
-	public function update($table, array $values, array $where = array(), array $options = array()) {
-		$sql = $this->sql()->update(array(
+	public function update($table, array $values, array $where = [], array $options = []) {
+		$sql = $this->sql()->update([
 			"table" => $table,
 			"values" => $values,
 			"where" => $where,
-		) + $options);
+		] + $options);
 		return $this->query($sql);
 	}
 
@@ -939,11 +939,11 @@ abstract class Database extends Hookable {
 	 * @param array $where
 	 * @return mixed
 	 */
-	public function delete($table, array $where = array()) {
-		$sql = $this->sql()->delete(array(
+	public function delete($table, array $where = []) {
+		$sql = $this->sql()->delete([
 			'table' => $table,
 			'where' => $where,
-		));
+		]);
 		return $this->query($sql);
 	}
 
@@ -1007,7 +1007,7 @@ abstract class Database extends Hookable {
 	 * @param string $table
 	 * @throws Exception_Unsupported
 	 */
-	public function table_columns($table) {
+	public function table_columns(string $table): array {
 		throw new Exception_Unsupported();
 	}
 
@@ -1061,14 +1061,14 @@ abstract class Database extends Hookable {
 	 *
 	 * @param string $query
 	 */
-	final protected function _query_after($query, array $options) {
+	final protected function _query_after($query, array $options): void {
 		if (avalue($options, 'log', $this->option_bool("log"))) {
 			$elapsed = microtime(true) - $this->timer;
 			$level = ($elapsed > $this->option_integer('slow_query_seconds', 1)) ? "warning" : "debug";
-			$this->application->logger->log($level, "Elapsed: {elapsed}, SQL: {sql}", array(
+			$this->application->logger->log($level, "Elapsed: {elapsed}, SQL: {sql}", [
 				"elapsed" => $elapsed,
 				"sql" => str_replace("\n", " ", $query),
-			));
+			]);
 			$this->timer = null;
 		}
 		if ($this->change_database) {
@@ -1105,21 +1105,21 @@ abstract class Database extends Hookable {
 	 * @return string SQL with strings removed
 	 */
 	public static function unstring($sql, &$state) {
-		$unstrung = strtr($sql, array(
+		$unstrung = strtr($sql, [
 			"\\'" => chr(1),
-		));
+		]);
 		$matches = null;
 		if (!preg_match_all("/'[^']*'/s", $unstrung, $matches, PREG_PATTERN_ORDER)) {
 			return $sql;
 		}
-		$state = array();
+		$state = [];
 		// When $replace is a long string, say, 29000 characters or more, can not do array_flip
 		// PHP has a limit on the key size, so strtr inline below
 		foreach ($matches[0] as $index => $match) {
 			$search = "#\$%$index%\$#";
-			$replace = strtr($match, array(
+			$replace = strtr($match, [
 				chr(1) => "\\'",
-			));
+			]);
 			$state[$search] = $replace;
 			$sql = str_replace($replace, $search, $sql);
 		}
@@ -1172,7 +1172,7 @@ abstract class Database extends Hookable {
 	 * @param string $sql
 	 * @return string SQL with table names replaced magically
 	 */
-	public function auto_table_names_replace($sql, array $options = array()) {
+	public function auto_table_names_replace($sql, array $options = []) {
 		if (is_array($sql)) {
 			foreach ($sql as $k => $v) {
 				$sql[$k] = self::auto_table_names_replace($v, $options);
@@ -1189,7 +1189,7 @@ abstract class Database extends Hookable {
 		$options = $options + $this->auto_table_names_options;
 		$map = $this->table_name_cache;
 		foreach ($matches as $match) {
-			list($full_match, $class, $no_cache) = $match;
+			[$full_match, $class, $no_cache] = $match;
 			// Possible bug: How do we NOT cache table name replacements which are parameterized?, e.g Site_5343 - table {Site} should not cache this result, right?
 			// TODO
 			$table = $this->application->orm_registry(__CLASS__, null, $options)->table();
@@ -1211,10 +1211,10 @@ abstract class Database extends Hookable {
 	 * @throws Exception_Unsupported
 	 */
 	public function time_zone($set = null) {
-		throw new Exception_Unsupported("Database {class} does not support {feature}", array(
+		throw new Exception_Unsupported("Database {class} does not support {feature}", [
 			"class" => get_class($this),
 			"feature" => self::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP,
-		));
+		]);
 	}
 
 	/**
@@ -1231,13 +1231,13 @@ abstract class Database extends Hookable {
 	 * @return array
 	 */
 	public function variables() {
-		return $this->url_parts + array(
+		return $this->url_parts + [
 			"type" => $this->type(),
 			"url" => $this->URL,
 			"safe_url" => $this->safe_url,
 			"code" => $this->code_name(),
 			"code_name" => $this->code_name(),
-		);
+		];
 	}
 
 	/**

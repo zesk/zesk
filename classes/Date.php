@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Date
@@ -20,7 +20,7 @@ class Date extends Temporal {
 	 *
 	 * @var string
 	 */
-	const DEFAULT_FORMAT_STRING = "{YYYY}-{MM}-{DD}";
+	public const DEFAULT_FORMAT_STRING = "{YYYY}-{MM}-{DD}";
 
 	/**
 	 * Set up upon load
@@ -33,7 +33,7 @@ class Date extends Temporal {
 	 *
 	 * @var integer
 	 */
-	const seconds_in_day = 86400;
+	public const seconds_in_day = 86400;
 
 	/**
 	 * Year 2000+
@@ -74,22 +74,22 @@ class Date extends Temporal {
 	 * @param Application $kernel
 	 * @throws Exception_Semantics
 	 */
-	public static function hooks(Application $kernel) {
-		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, array(
+	public static function hooks(Application $kernel): void {
+		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, [
 			__CLASS__,
 			"configured",
-		));
+		]);
 	}
 
 	/**
 	 * @param Application $application
 	 * @throws Exception_Lock
 	 */
-	public static function configured(Application $application) {
-		self::$default_format_string = $application->configuration->path_get(array(
+	public static function configured(Application $application): void {
+		self::$default_format_string = $application->configuration->path_get([
 			__CLASS__,
 			"format_string",
-		), self::DEFAULT_FORMAT_STRING);
+		], self::DEFAULT_FORMAT_STRING);
 	}
 
 	/**
@@ -197,7 +197,7 @@ class Date extends Temporal {
 			$this->set_empty();
 			return $this;
 		}
-		if (is_integer($value)) {
+		if (is_int($value)) {
 			$this->unix_timestamp($value);
 			return $this;
 		}
@@ -205,10 +205,10 @@ class Date extends Temporal {
 			$this->parse($value);
 		}
 		if (!is_object($value)) {
-			throw new Exception_Convert("{method}({value})", array(
+			throw new Exception_Convert("{method}({value})", [
 				"method" => __METHOD__,
 				"value" => $value,
-			));
+			]);
 		}
 		if ($value instanceof Date || $value instanceof Timestamp) {
 			return $this->unix_timestamp($value->unix_timestamp());
@@ -247,7 +247,7 @@ class Date extends Temporal {
 	public function parse($value) {
 		$ts = @strtotime($value, $this->_unix_timestamp());
 		if ($ts < 0 || $ts === false) {
-			throw new Exception_Parse(map("Date::fromString({value})", array("value" => _dump($value))));
+			throw new Exception_Parse(map("Date::fromString({value})", ["value" => _dump($value)]));
 		}
 		return $this->_unix_timestamp();
 	}
@@ -344,7 +344,7 @@ class Date extends Temporal {
 			return intval($this->month);
 		}
 		if ($set < 1 || $set > 12) {
-			throw new Exception_Range(map("Date::setMonth({0})", array(_dump($set))));
+			throw new Exception_Range(map("Date::setMonth({0})", [_dump($set)]));
 		}
 		if ($this->month !== $set) {
 			$this->_year_day = $this->_weekday = null;
@@ -365,7 +365,7 @@ class Date extends Temporal {
 			return intval(($this->month - 1) / 3) + 1;
 		}
 		if ($set < 1 || $set > 4) {
-			throw new Exception_Range(map("Date::quarter({0})", array(_dump($set))));
+			throw new Exception_Range(map("Date::quarter({0})", [_dump($set)]));
 		}
 		// Convert to zero-based quarter
 		$set = abs($set - 1) % 4;
@@ -404,7 +404,7 @@ class Date extends Temporal {
 		}
 		$set = intval($set);
 		if ($set < 1 || $set > 31) {
-			throw new Exception_Range(map("Date::day({0})", array(_dump($set))));
+			throw new Exception_Range(map("Date::day({0})", [_dump($set)]));
 		}
 		if ($this->day !== $set) {
 			$this->_weekday = $this->_year_day = null;
@@ -432,7 +432,7 @@ class Date extends Temporal {
 			return $this->year;
 		}
 		if ($set < 0) {
-			throw new Exception_Range(map("Date::year({0})", array(_dump($set))));
+			throw new Exception_Range(map("Date::year({0})", [_dump($set)]));
 		}
 		if ($this->year !== $set) {
 			$this->_weekday = $this->_year_day = null;
@@ -510,7 +510,7 @@ class Date extends Temporal {
 	public static function days_in_month($month, $year) {
 		$month = intval($month);
 		$year = intval($year);
-		$daysInMonth = array(
+		$daysInMonth = [
 			1 => 31,
 			2 => 28,
 			3 => 31,
@@ -523,7 +523,7 @@ class Date extends Temporal {
 			10 => 31,
 			11 => 30,
 			12 => 31,
-		);
+		];
 		if ($month < 1 || $month > 12) {
 			return null;
 		}
@@ -683,15 +683,15 @@ class Date extends Temporal {
 				$units = 1;
 			}
 			/* Swap */
-			list($n_units, $units) = array(
+			[$n_units, $units] = [
 				$units,
 				$n_units,
-			);
-			zesk()->deprecated("{method} called with {n_units} {units} first", array(
+			];
+			zesk()->deprecated("{method} called with {n_units} {units} first", [
 				"method" => __METHOD__,
 				"n_units" => $n_units,
 				"units" => $units,
-			));
+			]);
 		}
 		switch ($units) {
 			case self::UNIT_WEEKDAY:
@@ -706,11 +706,11 @@ class Date extends Temporal {
 			case self::UNIT_YEAR:
 				return $this->add($n_units);
 			default:
-				throw new Exception_Parameter("{method)({n_units}, {units}): Invalid unit", array(
+				throw new Exception_Parameter("{method)({n_units}, {units}): Invalid unit", [
 					"method" => __METHOD__,
 					"n_units" => $n_units,
 					"units" => $units,
-				));
+				]);
 		}
 	}
 
@@ -719,7 +719,7 @@ class Date extends Temporal {
 	 *
 	 * @var array
 	 */
-	private static $months = array(
+	private static $months = [
 		1 => "January",
 		"February",
 		"March",
@@ -732,21 +732,21 @@ class Date extends Temporal {
 		"October",
 		"November",
 		"December",
-	);
+	];
 
 	/**
 	 * Month names translated
 	 *
 	 * @var array
 	 */
-	private static $translated_months = array();
+	private static $translated_months = [];
 
 	/**
 	 * Weekday names in English
 	 *
 	 * @var array
 	 */
-	private static $weekday_names = array(
+	private static $weekday_names = [
 		0 => "Sunday",
 		1 => "Monday",
 		2 => "Tuesday",
@@ -754,14 +754,14 @@ class Date extends Temporal {
 		4 => "Thursday",
 		5 => "Friday",
 		6 => "Saturday",
-	);
+	];
 
 	/**
 	 * Weekday names translated
 	 *
 	 * @var array
 	 */
-	private static $translated_weekdays = array();
+	private static $translated_weekdays = [];
 
 	/**
 	 * Return a localized list of month dates, 1-index based
@@ -776,7 +776,7 @@ class Date extends Temporal {
 		if (isset(self::$translated_months[$id][$short])) {
 			return self::$translated_months[$id][$short];
 		}
-		$locale_months = array();
+		$locale_months = [];
 		foreach (self::$months as $i => $month) {
 			$locale_months[$i] = $locale($short ? "Date-short:=" . substr($month, 0, 3) : "Date:=" . $month);
 		}
@@ -796,7 +796,7 @@ class Date extends Temporal {
 		if (isset(self::$translated_weekdays[$id][$short])) {
 			return self::$translated_weekdays[$id][$short];
 		}
-		$locale_weekdays = array();
+		$locale_weekdays = [];
 		foreach (self::$weekday_names as $k => $v) {
 			$locale_weekdays[$k] = $locale($short ? 'Date-short:=' . substr($v, 0, 3) : 'Date:=' . $v);
 		}
@@ -830,7 +830,7 @@ class Date extends Temporal {
 	 *
 	 * @see Temporal::formatting()
 	 */
-	public function formatting(Locale $locale = null, array $options = array()) {
+	public function formatting(Locale $locale = null, array $options = []) {
 		// $old_locale = setlocale(LC_TIME,0);
 		// setlocale(LC_TIME, $locale);
 		// $ts = $this->toTimestamp();
@@ -838,7 +838,7 @@ class Date extends Temporal {
 		$w = $this->weekday();
 		$d = $this->day;
 
-		$x = array();
+		$x = [];
 		$x['M'] = $m;
 		$x['D'] = $this->day;
 		$x['W'] = $w;
@@ -870,7 +870,7 @@ class Date extends Temporal {
 	 *
 	 * @see Temporal::format()
 	 */
-	public function format(Locale $locale = null, $format_string = null, array $options = array()) {
+	public function format(Locale $locale = null, $format_string = null, array $options = []) {
 		if ($format_string === null) {
 			$format_string = self::$default_format_string;
 		}
@@ -969,13 +969,13 @@ class Date extends Temporal {
 	 */
 	public function gregorian($set = null) {
 		if (self::$gregorian_offset === null) {
-			self::$gregorian_offset = gregoriantojd(1, 1, 1) - 1;
+			self::$gregorian_offset = \gregoriantojd(1, 1, 1) - 1;
 		}
 		if ($set !== null) {
-			list($month, $day, $year) = explode("/", jdtogregorian($set + self::$gregorian_offset), 3);
+			[$month, $day, $year] = explode("/", \jdtogregorian($set + self::$gregorian_offset), 3);
 			return $this->ymd(intval($year), intval($month), intval($day));
 		}
-		return gregoriantojd($this->month, $this->day, $this->year) - self::$gregorian_offset;
+		return \gregoriantojd($this->month, $this->day, $this->year) - self::$gregorian_offset;
 	}
 
 	/**

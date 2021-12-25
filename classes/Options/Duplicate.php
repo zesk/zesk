@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -18,13 +18,13 @@ class Options_Duplicate extends Options {
 	 *
 	 * @var array
 	 */
-	public $map = array();
+	public $map = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $members = array();
+	public $members = [];
 
 	/**
 	 *
@@ -91,7 +91,7 @@ class Options_Duplicate extends Options {
 	 * @throws Exception_Semantics
 	 */
 	public function process_duplicate($object) {
-		$members = array();
+		$members = [];
 		foreach ($this->members as $member => $new_value) {
 			if ($object->has_member($member)) {
 				$members[$member] = $new_value;
@@ -103,10 +103,10 @@ class Options_Duplicate extends Options {
 				$new_id = avalue($map, $id, null);
 				if ($new_id !== null) {
 					if (array_key_exists($member, $members)) {
-						throw new Exception_Semantics("Member {member} for object class {class} is already set in the member map", array(
+						throw new Exception_Semantics("Member {member} for object class {class} is already set in the member map", [
 							"member" => $member,
 							"class" => get_class($object),
-						));
+						]);
 					}
 					$members[$member] = $new_id;
 				}

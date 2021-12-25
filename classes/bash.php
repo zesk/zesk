@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -10,7 +10,7 @@ namespace zesk;
 class bash {
 	public static function substitute($value, Interface_Settings $settings, array &$dependencies = null, $lower_dependencies = false) {
 		if (!is_array($dependencies)) {
-			$dependencies = array();
+			$dependencies = [];
 		}
 		if (is_array($value)) {
 			foreach ($value as $k => $v) {
@@ -18,7 +18,7 @@ class bash {
 			}
 			return $value;
 		}
-		$matches = array();
+		$matches = [];
 		// Handle ${FOO:-default} correctly
 		if (preg_match_all('/\${([^}]+)}/', $value, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
@@ -26,12 +26,12 @@ class bash {
 				$default_value = "";
 				$found_sep = null;
 				$found_quote = null;
-				foreach (array(
+				foreach ([
 					":-",
 					":=",
-				) as $sep) {
-					if (strpos($variable, $sep) !== false) {
-						list($variable, $default_value) = explode($sep, $variable, 2);
+				] as $sep) {
+					if (str_contains($variable, $sep)) {
+						[$variable, $default_value] = explode($sep, $variable, 2);
 						$default_value = unquote($default_value, '\'\'""', $found_quote);
 						break;
 					}
@@ -43,11 +43,11 @@ class bash {
 				$dependencies[$variable] = true;
 			}
 		}
-		if (strpos($value, '$') !== false) {
-			foreach (array(
+		if (str_contains($value, '$')) {
+			foreach ([
 				'/\$([A-Za-z0-9_]+)/',
 				'/\$\{([^}]+)\}/',
-			) as $pattern) {
+			] as $pattern) {
 				// Correctly handle $FOO values within a set value (like sh or bash would support)
 				if (preg_match_all($pattern, $value, $matches, PREG_SET_ORDER)) {
 					foreach ($matches as $match) {

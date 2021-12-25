@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -16,26 +16,26 @@ namespace zesk;
  * @aliases db-reset
  */
 class Command_Database_Reset extends Command {
-	protected $option_types = array(
+	protected array $option_types = [
 		"name" => "string",
 		"yes" => "boolean",
 		"file" => "file",
 		"no-inf-fix" => "boolean",
 		"dump-directory" => "dir",
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		"name" => "Database to reset",
 		'yes' => "Do not prompt the user to overwrite current database (reply yes to any prompts)",
 		'file' => "Use the file specified as the database to restore (ignores dump-directory)",
 		'no-inf-fix' => "Do not try to fix MySQL dumps which can not handle INFINITY in mysqldump",
 		'dump-directory' => "Use alternate dump directory. Default is \"{default-dump-directory}\"",
-	);
+	];
 
 	public function __construct($argv = null) {
-		$this->option_help = map($this->option_help, array(
+		$this->option_help = map($this->option_help, [
 			'default-dump-directory' => $this->default_dump_directory(),
-		));
+		]);
 		parent::__construct($argv);
 	}
 

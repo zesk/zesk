@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_Objects extends Control_Text {
@@ -12,7 +12,7 @@ class Control_Objects extends Control_Text {
 
 	protected $controller_url = null;
 
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
 		if ($this->theme_object === null) {
 			$this->theme_object = $this->theme . "/object";
@@ -27,7 +27,7 @@ class Control_Objects extends Control_Text {
 
 	protected function load() {
 		$value = $this->request->geta($this->name());
-		$objects = array();
+		$objects = [];
 		foreach ($value as $id) {
 			try {
 				$objects[$id] = $objects = $this->application->orm_factory($this->class, $id)->fetch();
@@ -41,10 +41,10 @@ class Control_Objects extends Control_Text {
 	}
 
 	public function theme_variables() {
-		return array(
+		return [
 			'theme_object' => $this->theme_object,
 			'controller' => $this->controller,
 			'controller_url' => $this->controller_url,
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 }

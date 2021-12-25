@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -34,17 +34,17 @@ if ($maximum_objects <= 0) {
 	$maximum_objects = 100;
 }
 $template_name = "template-$column";
-echo HTML::tag_open("div", array(
+echo HTML::tag_open("div", [
 	"class" => "control-link-object",
 	"data-minimum-objects" => $minimum_objects,
 	"data-template" => $template_name,
 	"data-maximum-objects" => $maximum_objects,
-));
+]);
 
-echo HTML::tag('script', array(
+echo HTML::tag('script', [
 	'id' => $template_name,
 	"type" => "text/x-template",
-), $blank_widget = $link_widget->render());
+], $blank_widget = $link_widget->render());
 
 echo HTML::tag_open('div', '.links');
 $n_objects = 0;
@@ -73,9 +73,9 @@ if ($widget->option_bool("show_more", true)) {
 		$(".links", $parent).append($tpl);
 		return false;
 	});');
-	$add_attrs = array(
+	$add_attrs = [
 		"class" => "form-control more",
-	);
+	];
 	echo HTML::tag('div', '.more', HTML::tag("button", $add_attrs, $widget->option('label_more', __("More ..."))));
 }
 

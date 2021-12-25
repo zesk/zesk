@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $object Job */
@@ -10,14 +10,14 @@ $object->theme("scripts");
 
 $success = $this->success;
 if ($success) {
-	$success = HTML::attributes(array(
+	$success = HTML::attributes([
 		'data-success' => $success,
-	));
+	]);
 }
 if ($job->dead()) {
-	$job->progress(__('Job has failed too many times. Contact a system administrator with the following code "{code}"', array(
+	$job->progress(__('Job has failed too many times. Contact a system administrator with the following code "{code}"', [
 		'code' => $job->code,
-	)), 0);
+	]), 0);
 }
 ?>
 <div class="job-monitor panel-success"

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -26,19 +26,19 @@ try {
 				$src = URL::query_append($src, $this->image_src_query_append);
 			}
 			// 	echo HTML::tag('img', )
-			$attributes = $this->geta('attributes') + array(
+			$attributes = $this->geta('attributes') + [
 				'src' => $src,
-			) + $this->variables;
+			] + $this->variables;
 			echo HTML::div('.content-image', HTML::tag('img', ArrayTools::filter($attributes, 'id;class;src;width;height;alt;title')));
 		} else {
 			$image->sync();
 			$unique_id = $image->id . '-' . $image->data;
-			echo HTML::div('.content-image', $this->theme('image', array(
+			echo HTML::div('.content-image', $this->theme('image', [
 				'id' => $unique_id,
 				'src' => $image->path(),
 				'width' => $this->get('width', $image->width),
 				'height' => $this->get('height', $image->height),
-			) + $this->variables));
+			] + $this->variables));
 		}
 	} elseif ($this->image_missing) {
 		$missing = true;
@@ -47,9 +47,9 @@ try {
 	$missing = true;
 }
 if ($missing) {
-	echo HTML::div('.content-image missing', $this->theme('image', array(
+	echo HTML::div('.content-image missing', $this->theme('image', [
 		'src' => $this->image_missing,
 		'width' => $this->width,
 		'height' => $this->height,
-	) + $this->variables));
+	] + $this->variables));
 }

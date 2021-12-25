@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace MySQL;
 
 use zesk\Database_Table as Database_Table;
@@ -25,14 +25,14 @@ class Database_SQL extends \zesk\Database_SQL {
 	 *
 	 * @var string
 	 */
-	const SQL_FLUSH_PRIVILEGES = "FLUSH PRIVILEGES";
+	public const SQL_FLUSH_PRIVILEGES = "FLUSH PRIVILEGES";
 
 	/**
 	 * Grant pattern
 	 *
 	 * @var string
 	 */
-	const SQL_GRANT = "GRANT {privilege} ON {name}.{table} TO {user}@{from_host} IDENTIFIED BY '{pass}'";
+	public const SQL_GRANT = "GRANT {privilege} ON {name}.{table} TO {user}@{from_host} IDENTIFIED BY '{pass}'";
 
 	/**
 	 *
@@ -48,7 +48,7 @@ class Database_SQL extends \zesk\Database_SQL {
 
 	public function create_table(Database_Table $table) {
 		$columns = $table->columns();
-		$types = array();
+		$types = [];
 		foreach ($columns as $dbCol) {
 			if (!$dbCol->has_sql_type() && !$this->type_set_sql_type($dbCol)) {
 				die(__METHOD__ . ": no SQL Type for column $dbCol");
@@ -57,7 +57,7 @@ class Database_SQL extends \zesk\Database_SQL {
 			}
 		}
 		$indexes = $table->indexes();
-		$alters = array();
+		$alters = [];
 		if ($indexes) {
 			foreach ($indexes as $index) {
 				/* @var $index Database_Index */
@@ -66,7 +66,7 @@ class Database_SQL extends \zesk\Database_SQL {
 			}
 		}
 		$types = implode(",\n\t", $types);
-		$result = array();
+		$result = [];
 		$result[] = "CREATE TABLE " . $this->quote_table($table->name()) . " (\n\t$types\n) ";
 
 		return array_merge($result, $alters);
@@ -82,7 +82,7 @@ class Database_SQL extends \zesk\Database_SQL {
 			case Database_Index::Unique:
 			case Database_Index::Index:
 			case Database_Index::Primary:
-				$sqlIndexes = array();
+				$sqlIndexes = [];
 				foreach ($indexes as $k => $size) {
 					if (is_numeric($size)) {
 						$sqlIndexes[] = $this->quote_column($k) . "($size)";
@@ -100,9 +100,9 @@ class Database_SQL extends \zesk\Database_SQL {
 				return "ALTER TABLE " . $this->quote_table($table) . " ADD $indexType$name$suffix (" . implode(", ", $sqlIndexes) . ")";
 		}
 
-		throw new Exception_Invalid("{class}::sql_alter_table_index_add({table}, {indexType}, ...): Invalid index type {indexType}", compact("indexType", "table") + array(
+		throw new Exception_Invalid("{class}::sql_alter_table_index_add({table}, {indexType}, ...): Invalid index type {indexType}", compact("indexType", "table") + [
 			"class" => __CLASS__,
-		));
+		]);
 	}
 
 	public function alter_table_attributes(Database_Table $table, array $attributes) {
@@ -173,20 +173,20 @@ class Database_SQL extends \zesk\Database_SQL {
 			case Database_Index::Unique:
 			case Database_Index::Index:
 				if (empty($original_name)) {
-					throw new Exception_Semantics("{method} index for table {table} has no name, but is required", array(
+					throw new Exception_Semantics("{method} index for table {table} has no name, but is required", [
 						"method" => __METHOD__,
 						"table" => $table_name,
-					));
+					]);
 				}
 				return "ALTER TABLE $table_name DROP INDEX $name";
 			case Database_Index::Primary:
 				return "ALTER TABLE $table_name DROP PRIMARY KEY";
 			default:
-				throw new Exception_Invalid("{method}({table_name}, {index_type}, ...): Invalid index type {index_type}", array(
+				throw new Exception_Invalid("{method}({table_name}, {index_type}, ...): Invalid index type {index_type}", [
 					"method" => __METHOD__,
 					"index_type" => $index_type,
 					"table_name" => $table_name,
-				));
+				]);
 		}
 	}
 
@@ -199,7 +199,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	 */
 	public function alter_table_type($table, $newType) {
 		if (empty($newType)) {
-			return array();
+			return [];
 		}
 		return "ALTER TABLE " . $this->quote_table($table) . " ENGINE=$newType";
 	}
@@ -222,7 +222,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * MySQL update
 	 * @see Database_SQL::update()
 	 */
-	public function update(array $options = array()) {
+	public function update(array $options = []) {
 		// Support ignore
 		$ignore_constraints = avalue($options, 'ignore_constraints', false);
 		if ($ignore_constraints) {
@@ -271,7 +271,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @return array
 	 */
 	private function _sql_column_sizes_to_quoted_list(array $column_sizes) {
-		$sqlIndexes = array();
+		$sqlIndexes = [];
 		foreach ($column_sizes as $k => $size) {
 			if (is_numeric($size)) {
 				$sqlIndexes[] = $this->quote_column($k) . "($size)";
@@ -301,9 +301,9 @@ class Database_SQL extends \zesk\Database_SQL {
 
 				break;
 			default:
-				throw new Exception_Invalid("{method}($table, $name, $type, ...): Invalid index type {name}", compact("name") + array(
+				throw new Exception_Invalid("{method}($table, $name, $type, ...): Invalid index type {name}", compact("name") + [
 					"method" => __METHOD__,
-				));
+				]);
 		}
 		if ($name) {
 			$name = $this->quote_column($name) . " ";
@@ -318,8 +318,10 @@ class Database_SQL extends \zesk\Database_SQL {
 				if (is_numeric($default)) { // Default 0 or Default "0" is no longer supported 2020-09-01
 					return "";
 				}
-				if (strcasecmp($default, "null") === 0 || (strcasecmp($default, "CURRENT_TIMESTAMP") === 0)) {
-					return " DEFAULT $default";
+				if (is_string($default)) {
+					if (strcasecmp($default, "null") === 0 || (strcasecmp($default, "CURRENT_TIMESTAMP") === 0)) {
+						return " DEFAULT $default";
+					}
 				}
 				if ($default === null) {
 					return " DEFAULT NULL"; // KMD 2016-05-09 Was DEFAULT 0
@@ -535,9 +537,9 @@ class Database_SQL extends \zesk\Database_SQL {
 			$table = $table->name();
 		}
 		$table = $this->quote_table($table);
-		return array(
+		return [
 			"DROP TABLE IF EXISTS $table",
-		);
+		];
 	}
 
 	/**
@@ -552,13 +554,13 @@ class Database_SQL extends \zesk\Database_SQL {
 			}
 			return $column;
 		}
-		list($alias, $col) = pair($column, ".", null, $column);
+		[$alias, $col] = pair($column, ".", null, $column);
 		if ($alias) {
 			return $this->quote_column($alias) . "." . $this->quote_column($col);
 		}
-		return '`' . strtr($column, array(
+		return '`' . strtr($column, [
 			"`" => "``",
-		)) . '`';
+		]) . '`';
 	}
 
 	/**
@@ -583,9 +585,9 @@ class Database_SQL extends \zesk\Database_SQL {
 			}
 			return $column;
 		}
-		return strtr(unquote($column, '``'), array(
+		return strtr(unquote($column, '``'), [
 			"``" => "`",
-		));
+		]);
 	}
 
 	/**
@@ -611,11 +613,11 @@ class Database_SQL extends \zesk\Database_SQL {
 	}
 
 	public function hook_schema(array $sql_list) {
-		$alter_combine_prefixes = array(
+		$alter_combine_prefixes = [
 			"ALTER TABLE  ",
-		);
+		];
 		foreach ($alter_combine_prefixes as $alter_combine_prefix) {
-			$alters = array();
+			$alters = [];
 			foreach ($sql_list as $i => $sql) {
 				if (begins($sql, $alter_combine_prefix)) {
 					$alters[] = substr($sql, strlen($alter_combine_prefix));
@@ -639,12 +641,12 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @return array
 	 */
 	private function _permute(array $options_list, array $list, $option_key) {
-		$new_list = array();
+		$new_list = [];
 		foreach ($list as $item) {
 			foreach ($options_list as $index => $options) {
-				$options_list[$index] += array(
+				$options_list[$index] += [
 					$option_key => $item,
-				);
+				];
 			}
 			$new_list = array_merge($new_list, $options_list);
 		}
@@ -667,14 +669,14 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @return array|null
 	 */
 	public function grant(array $options) {
-		$members = array(
+		$members = [
 			"user" => null,
 			"pass" => null,
 			"from_host" => "localhost",
 			"tables" => "*",
 			"privileges" => "ALL PRIVILEGES",
 			"name" => "%",
-		);
+		];
 		foreach ($members as $key => $default) {
 			if (isset($options[$key]) && $options[$key] === self::SQL_GRANT_ALL) {
 				$options[$key] = $default;
@@ -687,20 +689,20 @@ class Database_SQL extends \zesk\Database_SQL {
 			}
 		}
 		if (!isset($options['user']) || !isset($options['pass'])) {
-			throw new Exception_Parameter("Need a user and pass option passed to {method}", array(
+			throw new Exception_Parameter("Need a user and pass option passed to {method}", [
 				"method" => __METHOD__,
-			));
+			]);
 		}
-		$permutations = array(
+		$permutations = [
 			$options,
-		);
-		foreach (array(
+		];
+		foreach ([
 			'tables' => 'table',
 			'privileges' => 'privilege',
-		) as $listable => $permute_key) {
+		] as $listable => $permute_key) {
 			$permutations = $this->_permute($permutations, to_list($options[$listable]), $permute_key);
 		}
-		$result = array();
+		$result = [];
 		foreach ($permutations as $permute_options) {
 			$result[] = map(self::SQL_GRANT, $permute_options);
 		}

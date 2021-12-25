@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -20,7 +20,7 @@ class Validate extends Hookable {
 	 *
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = array()) {
+	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 	}
@@ -45,10 +45,10 @@ class Validate extends Hookable {
 	 * @return array
 	 */
 	public function check_translation($source, $translation) {
-		list($group, $phrase) = pair($source, ":=", null, $source);
+		[$group, $phrase] = pair($source, ":=", null, $source);
 		$methods = to_list("token_names;braces");
 		if ($group !== null) {
-			$check_methods = array_change_key_case($this->option_array("group_check_methods", array()));
+			$check_methods = array_change_key_case($this->option_array("group_check_methods", []));
 			foreach ($check_methods as $check_method => $methods_list) {
 				if (beginsi($group, $check_method)) {
 					$methods = $methods_list;
@@ -57,7 +57,7 @@ class Validate extends Hookable {
 				}
 			}
 		}
-		$errors = array();
+		$errors = [];
 		foreach ($methods as $method) {
 			$full_method = "check_translation_$method";
 			if (method_exists($this, $full_method)) {
@@ -75,7 +75,7 @@ class Validate extends Hookable {
 	 * @return string[]
 	 */
 	private function extract_tokens($string) {
-		$matches = array();
+		$matches = [];
 		preg_match_all('/\{[^}]+\}/', $string, $matches, PREG_PATTERN_ORDER);
 		$matches = $matches[0];
 		sort($matches);
@@ -89,7 +89,7 @@ class Validate extends Hookable {
 	 * @return array
 	 */
 	private function extract_braces($string) {
-		$matches = array();
+		$matches = [];
 		preg_match_all('/[\[\]]/', $string, $matches, PREG_PATTERN_ORDER);
 		$matches = $matches[0];
 		return $matches;
@@ -106,17 +106,17 @@ class Validate extends Hookable {
 		$source = StringTools::right($source, ":=", $source);
 		$source_matches = $this->extract_tokens($source);
 		$translation_matches = $this->extract_tokens($translation);
-		$errors = array();
+		$errors = [];
 		$n = count($source_matches) - count($translation_matches);
 		$locale = $this->application->locale;
 		if ($n > 0) {
-			$errors[] = $locale->__("Missing {n_tokens} in translation", array(
+			$errors[] = $locale->__("Missing {n_tokens} in translation", [
 				"n_tokens" => $this->locale->plural_word("token", $n),
-			));
+			]);
 		} elseif ($n < 0) {
-			$errors[] = $locale->__("You have an additional {n_tokens} in your translation", array(
+			$errors[] = $locale->__("You have an additional {n_tokens} in your translation", [
 				"n_tokens" => $this->locale->plural_word("token", -$n),
-			));
+			]);
 		}
 		return $errors;
 	}
@@ -132,20 +132,20 @@ class Validate extends Hookable {
 		$source = StringTools::right($source, ":=", $source);
 		$source_matches = $this->extract_tokens($source);
 		$translation_matches = $this->extract_tokens($translation);
-		$errors = array();
+		$errors = [];
 		if ($translation_matches !== $source_matches) {
 			$locale = $this->application->locale;
 			$missing = array_diff($source_matches, $translation_matches);
 			if (count($missing) > 0) {
-				$errors[] = $locale->__("Target phrase is missing the following variables: {missing}", array(
+				$errors[] = $locale->__("Target phrase is missing the following variables: {missing}", [
 					"missing" => implode(", ", $missing),
-				));
+				]);
 			}
 			$extras = array_diff($translation_matches, $source_matches);
 			if (count($extras) > 0) {
-				$errors[] = $locale->__("Target phrase has extra variables it shouldn't have: {extras}", array(
+				$errors[] = $locale->__("Target phrase has extra variables it shouldn't have: {extras}", [
 					"extras" => implode(", ", $extras),
-				));
+				]);
 			}
 		}
 		return $errors;
@@ -163,7 +163,7 @@ class Validate extends Hookable {
 		$source_matches = $this->extract_braces($source);
 		$translation_matches = $this->extract_braces($translation);
 		$stack = 0;
-		$errors = array();
+		$errors = [];
 		$locale = $this->application->locale;
 		foreach ($source_matches as $index => $bracket) {
 			if ($bracket === ']' && $stack === 0) {
@@ -177,18 +177,18 @@ class Validate extends Hookable {
 			}
 			$translation_bracket = $translation_matches[$index];
 			if ($translation_bracket !== $bracket) {
-				$errors[] = $locale->__("The {nth} brace in the translation ({translation_bracket}) does not match the source string bracket ({bracket})", array(
+				$errors[] = $locale->__("The {nth} brace in the translation ({translation_bracket}) does not match the source string bracket ({bracket})", [
 					"nth" => $this->locale->ordinal($index + 1),
 					"debug" => JSON::encode($source_matches) . " " . JSON::encode($translation_matches),
-				) + compact("translation_bracket", "bracket"));
+				] + compact("translation_bracket", "bracket"));
 				return $errors;
 			}
 		}
 		if (count($translation_matches) > count($source_matches)) {
-			$errors[] = $locale->__("The translation has an extra {num_braces} than the source phrase.", array(
+			$errors[] = $locale->__("The translation has an extra {num_braces} than the source phrase.", [
 				"n" => $n = count($translation_matches) - count($source_matches),
 				"num_braces" => $this->locale->plural_word("brace", $n),
-			));
+			]);
 		}
 		return $errors;
 	}

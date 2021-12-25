@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -13,16 +13,16 @@ class Class_Language extends Class_ORM {
 
 	public $name = "Language";
 
-	public $find_keys = array(
+	public $find_keys = [
 		"code",
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"code" => self::type_string,
 		"dialect" => self::type_string,
 		"name" => self::type_string,
-	);
+	];
 
 	/**
 	 * @todo Make country ID two-letter code

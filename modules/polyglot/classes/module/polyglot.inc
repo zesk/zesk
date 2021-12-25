@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -20,12 +20,12 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	 *
 	 * @var array
 	 */
-	protected $model_classes = array(
+	protected array $model_classes = [
 		PolyGlot_Token::class,
 		PolyGlot_Update::class,
-	);
+	];
 
-	public function hook_configured() {
+	public function hook_configured(): void {
 		$this->application->configuration->deprecated("Module_PolyGlot", __CLASS__);
 	}
 
@@ -34,15 +34,15 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	 * @return array
 	 */
 	public function locale_options() {
-		$list = $this->call_hook_arguments("locale_options", array(), $this->option_array("locale_options"));
-		$options = array();
-		$where = array();
+		$list = $this->call_hook_arguments("locale_options", [], $this->option_array("locale_options"));
+		$options = [];
+		$where = [];
 		foreach ($list as $locale) {
 			$language = Locale::parse_language($locale);
 			$dialect = Locale::parse_dialect($locale);
-			$w = array(
+			$w = [
 				'code' => $language,
-			);
+			];
 			if ($dialect) {
 				$w['dialect'] = $dialect;
 			}
@@ -50,16 +50,16 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 		}
 		$query = $this->application->orm_registry(Language::class)
 			->query_select()
-			->what(array(
+			->what([
 			"code" => "code",
 			"dialect" => "dialect",
 			"name" => "name",
-		))
-			->where($where ? array(
+		])
+			->where($where ? [
 			$where,
-		) : array());
+		] : []);
 		$locales = $query->to_array();
-		$results = array();
+		$results = [];
 		foreach ($locales as $locale) {
 			$code = $dialect = $name = null;
 			extract($locale, EXTR_IF_EXISTS);
@@ -79,29 +79,29 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	 *
 	 * @see Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(Router $router) {
-		$base = array(
+	public function hook_routes(Router $router): void {
+		$base = [
 			"controller" => Controller_PolyGlot::class,
-		);
+		];
 		$router->add_route("polyglot", $base);
-		$router->add_route("polyglot/load/{dialect}", $base + array(
+		$router->add_route("polyglot/load/{dialect}", $base + [
 			"action" => "load",
-			"arguments" => array(
+			"arguments" => [
 				2,
-			),
-		));
-		$router->add_route("polyglot/token/{dialect}", $base + array(
+			],
+		]);
+		$router->add_route("polyglot/token/{dialect}", $base + [
 			"action" => "token",
-			"arguments" => array(
+			"arguments" => [
 				2,
-			),
-		));
-		$router->add_route("polyglot/update/{dialect}", $base + array(
+			],
+		]);
+		$router->add_route("polyglot/update/{dialect}", $base + [
 			"action" => "update",
-			"arguments" => array(
+			"arguments" => [
 				2,
-			),
-		));
+			],
+		]);
 	}
 
 	/**
@@ -113,7 +113,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	 */
 	public function load_locale($locale = null) {
 		$source_files = $this->option_list("source_files");
-		$table = array();
+		$table = [];
 		foreach ($source_files as $source_file) {
 			$source_file = $this->application->paths->expand($source_file);
 			if (!is_file($source_file)) {
@@ -121,9 +121,9 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 			}
 			$tt = $this->application->load($source_file);
 			if (!is_array($tt)) {
-				throw new Exception_File_Format($source_file, "Source file {basename} does not return the correct format", array(
+				throw new Exception_File_Format($source_file, "Source file {basename} does not return the correct format", [
 					"basename" => basename($source_file),
-				));
+				]);
 			}
 			$table += $tt;
 		}

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -9,9 +9,9 @@
 namespace zesk;
 
 class View_Section extends View {
-	protected $options = array(
+	protected $options = [
 		'nav' => true,
-	);
+	];
 
 	public function validate() {
 		$validate = true;
@@ -37,11 +37,11 @@ class View_Section extends View {
 		$content = $this->render();
 		if ($this->prefer_json()) {
 			$response = $this->response();
-			$response->json()->data(array(
+			$response->json()->data([
 				'status' => true,
 				'content' => $content,
 				'title' => $response->html()->title(),
-			));
+			]);
 			return;
 		}
 		return $content;

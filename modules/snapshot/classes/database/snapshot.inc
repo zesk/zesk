@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -48,16 +48,16 @@ class Database_Snapshot extends ORM {
 			$timer = new Timer();
 			$db->dump($temp);
 			$elapsed = $timer->elapsed();
-			$snap = $app->orm_factory(__CLASS__, array(
-				'name' => $app->locale->__('{db_name} snapshot saved on {date}', array(
+			$snap = $app->orm_factory(__CLASS__, [
+				'name' => $app->locale->__('{db_name} snapshot saved on {date}', [
 					'db_name' => $dbname,
 					'date' => $date,
-				)),
+				]),
 				'dbname' => $dbname,
 				'elapsed' => $elapsed,
 				'created' => $now,
 				'data' => file_get_contents($temp),
-			))->store();
+			])->store();
 			File::unlink($temp);
 			return $snap;
 		} catch (Exception $e) {
@@ -75,9 +75,9 @@ class Database_Snapshot extends ORM {
 		$snapshot = $db->application->orm_registry(__CLASS__)
 			->query_select()
 			->what_object()
-			->where(array(
+			->where([
 			"dbname" => $dbname,
-		))
+		])
 			->order_by('created DESC')
 			->limit(0, 1)
 			->one_object();
@@ -92,10 +92,10 @@ class Database_Snapshot extends ORM {
 			$db = $this->application->database_registry();
 		}
 		if ($db->database_name() !== $this->dbname) {
-			throw new Exception_Semantics("Restoring incorrect snapshot name {dbname} onto existing database name {db_database_name} - stopping", array(
+			throw new Exception_Semantics("Restoring incorrect snapshot name {dbname} onto existing database name {db_database_name} - stopping", [
 				'db_database_name' => $db->database_name(),
 				'dbname' => $this->dbname,
-			));
+			]);
 		}
 		$now = Timestamp::now();
 		$date = $now->format(null, '{YYYY}-{MM}-{DD}_{hh}-{mm}-{ss}');

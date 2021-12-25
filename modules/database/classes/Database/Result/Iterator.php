@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -163,9 +163,9 @@ class Database_Result_Iterator implements \Iterator {
 		}
 		if ($this->_value) {
 			if (!array_key_exists($this->_value, $this->_row)) {
-				throw new Exception_Semantics(__("Query result does not contain value \"{value}\"", array(
+				throw new Exception_Semantics(__("Query result does not contain value \"{value}\"", [
 					"value" => $this->_value,
-				)));
+				]));
 			}
 			return $this->_row[$this->_value];
 		}
@@ -180,9 +180,9 @@ class Database_Result_Iterator implements \Iterator {
 	public function key() {
 		if ($this->_key) {
 			if (!array_key_exists($this->_key, $this->_row)) {
-				throw new Exception_Semantics(__("Query result does not contain key {key}", array(
+				throw new Exception_Semantics(__("Query result does not contain key {key}", [
 					"key" => $this->_key,
-				)));
+				]));
 			}
 			return $this->_row[$this->_key];
 		}
@@ -194,7 +194,7 @@ class Database_Result_Iterator implements \Iterator {
 	 *
 	 * @return void
 	 */
-	protected function dbnext() {
+	protected function dbnext(): void {
 		$row = $this->db->fetch_assoc($this->resource);
 		if (is_array($row)) {
 			$this->_row_index = $this->_row_index + 1;
@@ -220,7 +220,7 @@ class Database_Result_Iterator implements \Iterator {
 	 *
 	 * @see Iterator::rewind()
 	 */
-	public function rewind() {
+	public function rewind(): void {
 		if ($this->resource) {
 			$this->db->free($this->resource);
 		}
@@ -257,7 +257,7 @@ class Database_Result_Iterator implements \Iterator {
 	 * @return array
 	 */
 	public function to_array() {
-		$result = array();
+		$result = [];
 		foreach ($this as $k => $v) {
 			$result[$k] = $v;
 		}
@@ -269,7 +269,7 @@ class Database_Result_Iterator implements \Iterator {
 	 *
 	 * @throws Exception_Semantics
 	 */
-	private function _load() {
+	private function _load(): void {
 		if ($this->_loaded) {
 			return;
 		}
@@ -279,9 +279,9 @@ class Database_Result_Iterator implements \Iterator {
 		}
 		$this->db = $this->query->database();
 		if (!$this->db) {
-			throw new Exception_Semantics("No database connection to {name}", array(
+			throw new Exception_Semantics("No database connection to {name}", [
 				"name" => $this->db->code_name(),
-			));
+			]);
 		}
 		$this->resource = $this->unbuffered ? $this->db->query_unbuffered($query) : $this->db->query($query);
 		$this->_row_index = -1;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 ?>
 <div class="modal fade" id="<?php echo $this->id; ?>" tabindex="-1"
 	role="dialog">

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 use Psr\Cache\CacheItemInterface;
@@ -26,18 +26,18 @@ class ORM_CacheItem implements CacheItemInterface {
 	 *
 	 * @var array
 	 */
-	private $depends = array();
+	private $depends = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $class_depends = array();
+	private $class_depends = [];
 
 	/**
 	 *
 	 */
-	public function __wakeup() {
+	public function __wakeup(): void {
 		$this->application = __wakeup_application();
 	}
 
@@ -46,11 +46,11 @@ class ORM_CacheItem implements CacheItemInterface {
 	 * @return string[]
 	 */
 	public function __sleep() {
-		return array(
+		return [
 			"item",
 			"depends",
 			"class_depends",
-		);
+		];
 	}
 
 	/**
@@ -158,10 +158,10 @@ class ORM_CacheItem implements CacheItemInterface {
 	public function set($value) {
 		$value = $this->get();
 		if (!is_array($value)) {
-			$value = array(
-				"depends" => array(),
-				"class_depends" => array(),
-			);
+			$value = [
+				"depends" => [],
+				"class_depends" => [],
+			];
 		}
 		if (count($this->depends) > 0) {
 			$value['depends'] = $this->compute_depends();
@@ -180,7 +180,7 @@ class ORM_CacheItem implements CacheItemInterface {
 	 */
 	private function compute_depends() {
 		/* @var $depend ORM */
-		$result = array();
+		$result = [];
 		foreach ($this->depends as $id => $depend) {
 			$result[$id] = $this->_compute_orm_state($depend);
 		}
@@ -193,7 +193,7 @@ class ORM_CacheItem implements CacheItemInterface {
 	 */
 	private function compute_class_depends() {
 		/* @var $depend Class_ORM */
-		$result = array();
+		$result = [];
 		foreach ($this->class_depends as $id => $depend) {
 			$result[$id] = $this->_compute_class_orm_state($depend);
 		}
@@ -209,9 +209,9 @@ class ORM_CacheItem implements CacheItemInterface {
 		$class_orm = $depend->class_orm();
 		$columns = $class_orm->cache_column_names;
 		sort($columns);
-		$result = ArrayTools::flatten($depend->members($columns)) + array(
+		$result = ArrayTools::flatten($depend->members($columns)) + [
 			"_columns" => $columns,
-		);
+		];
 		$result['_hash'] = md5(serialize($result));
 		return $result;
 	}
@@ -228,12 +228,12 @@ class ORM_CacheItem implements CacheItemInterface {
 		if (!is_array($info)) {
 			return null;
 		}
-		$result = ArrayTools::filter($info, array(
+		$result = ArrayTools::filter($info, [
 			Database::TABLE_INFO_CREATED,
 			Database::TABLE_INFO_DATA_SIZE,
 			Database::TABLE_INFO_ROW_COUNT,
 			Database::TABLE_INFO_UPDATED,
-		));
+		]);
 		$result = ArrayTools::trim_clean(ArrayTools::flatten($result));
 		if (count($result) === 0) {
 			return null;
@@ -285,11 +285,11 @@ class ORM_CacheItem implements CacheItemInterface {
 		$class_orm = $object->class_orm();
 		$columns = $class_orm->cache_column_names;
 		if (count($columns) === 0) {
-			throw new Exception_Semantics("{method}: {class} does not have cache_column_names set in {class_orm}", array(
+			throw new Exception_Semantics("{method}: {class} does not have cache_column_names set in {class_orm}", [
 				"method" => __METHOD__,
 				"class" => get_class($object),
 				"class_orm" => get_class($class_orm),
-			));
+			]);
 		}
 		$id = json_encode($object->id());
 		$this->depends[get_class($object) . "-" . $id] = $object;

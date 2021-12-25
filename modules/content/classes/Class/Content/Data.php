@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright 2013 &copy; Market Acumen, Inc.
  * @author kent
@@ -22,7 +22,7 @@ class Class_Content_Data extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"size" => self::type_integer,
 		'md5hash' => self::type_hex,
@@ -30,13 +30,13 @@ class Class_Content_Data extends Class_ORM {
 		'data' => self::type_serialize,
 		"checked" => self::type_timestamp,
 		"missing" => self::type_timestamp,
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $find_keys = array(
+	public $find_keys = [
 		'md5hash',
-	);
+	];
 }

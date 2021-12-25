@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Output a number plus a fractional symbol which represents the closest value to the fractional portion.
  *
@@ -30,7 +30,7 @@ $integer = intval($number);
 $decimal = $number - $integer;
 
 $integer_html = $sign . ($integer === 0 ? "" : $locale->number_format($integer));
-$map = array(
+$map = [
 	// 2 denominator
 	"&#189;" => 0.5,
 
@@ -79,7 +79,7 @@ $map = array(
 	"<sup>3</sup>&frasl;<sub>10</sub>" => 0.3,
 	"<sup>7</sup>&frasl;<sub>10</sub>" => 0.7,
 	"<sup>9</sup>&frasl;<sub>10</sub>" => 0.9,
-);
+];
 if (real_equal($decimal, 0)) {
 	echo($integer === 0 ? "0" : $integer_html);
 	return;
@@ -88,7 +88,7 @@ if (real_equal($decimal, 0)) {
 $decimals = $this->geti("decimals", 1);
 $epsilon = $this->get('epsilon');
 if (!$epsilon) {
-	$epsilon = pow(0.1, $decimals) / 2.0;
+	$epsilon = 0.1** $decimals / 2.0;
 }
 $closest = null;
 $closest_delta = 0;

@@ -14,38 +14,38 @@ class {module_class} extends \zesk\Module /* implements \zesk\Interface_Module_H
 	 * @var array
 	 */
 /*
-	protected $classes = array();
+	protected array $classes = array();
 */
 
 	/**
 	 * Override in subclasses - called upon Application::classes
 	 */
 /*
-	public function classes() {
+	public function classes(): array {
 		return $this->classes;
 	}
 */
 
 /*
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 	}
 */
 
 /*
-	protected function hook_foot(zesk\Request $request, zesk\Response $response, zesk\Template $template) {
+	protected function hook_foot(zesk\Request $request, zesk\Response $response, zesk\Template $template): void {
 	
 	}
 */
 
 /*
-	protected function hook_head(zesk\Request $request, zesk\Response $response, zesk\Template $template) {
+	protected function hook_head(zesk\Request $request, zesk\Response $response, zesk\Template $template): void {
 	
 	}
 */
 
 /*
-	public function hook_routes(zesk\Router $router) {
+	public function hook_routes(zesk\Router $router): void {
 	
 	}
 */

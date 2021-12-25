@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /* @var $this zesk\Template */
 $width = $this->geti('width', 300);
 $height = $this->geti('height', 300);
@@ -20,7 +20,7 @@ $timer_height = 12;
 
 $where = $this->get('where', 'top-right');
 
-if (!in_array($where, array(
+if (!in_array($where, [
 	'left',
 	'right',
 	'top',
@@ -29,7 +29,7 @@ if (!in_array($where, array(
 	'top-left',
 	'bottom-right',
 	'bottom-left',
-))) {
+])) {
 	$where = 'top-right';
 }
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -21,16 +21,16 @@ class Deploy extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected $skipped = array();
+	protected $skipped = [];
 
 	/**
 	 * Our options
 	 *
 	 * @var array
 	 */
-	protected $options = array(
+	protected $options = [
 		"last_tag" => "-none-",
-	);
+	];
 
 	/**
 	 *
@@ -49,7 +49,7 @@ class Deploy extends Hookable {
 	 * @param unknown $path
 	 * @param unknown $options
 	 */
-	public function __construct(Application $application, $path, array $options = array()) {
+	public function __construct(Application $application, $path, array $options = []) {
 		parent::__construct($application, $options);
 		$this->path = $path;
 		$this->call_hook('construct');
@@ -102,10 +102,10 @@ class Deploy extends Hookable {
 			//error("Deploy::reset({skip}) Empty tags found last_tag={last_tag} failed_tag={failed_tag}", compact("last_tag", "failed_tag", "skip"));
 			return null;
 		}
-		return $this->set_option(array(
+		return $this->set_option([
 			'status' => true,
 			'last_tag' => $skip ? $failed_tag : $last_tag,
-		));
+		]);
 	}
 
 	/**
@@ -123,7 +123,7 @@ class Deploy extends Hookable {
 	 * @return NULL|unknown[]|string[]
 	 */
 	private function _parse_tag($subpath) {
-		$tag = array();
+		$tag = [];
 		$filename = $extension = null;
 		extract(pathinfo($subpath), EXTR_IF_EXISTS);
 		$filename = strtolower($filename);
@@ -160,9 +160,9 @@ class Deploy extends Hookable {
 		try {
 			$subpaths = Directory::ls($this->path, null, true);
 		} catch (Exception_Directory_NotFound $e) {
-			return array();
+			return [];
 		}
-		$tags = $result = array();
+		$tags = $result = [];
 		foreach ($subpaths as $subpath) {
 			$tag = $this->_parse_tag($subpath);
 			if ($tag === null) {
@@ -188,7 +188,7 @@ class Deploy extends Hookable {
 		$logger = $this->application->logger;
 		$last_tag = $this->option('last_tag');
 		$tags = $this->load_tags();
-		$results = array();
+		$results = [];
 		if (count($this->skipped) > 0) {
 			$results['skipped'] = $this->skipped;
 		}
@@ -203,19 +203,19 @@ class Deploy extends Hookable {
 		$results['status'] = true;
 		if (count($tags) > 0) {
 			$logger->notice('Last tag succeeded was {last_tag}', $this->options);
-			$logger->notice("Processing tags: {tags}", array(
+			$logger->notice("Processing tags: {tags}", [
 				"tags" => _dump($tags),
-			));
+			]);
 			foreach ($tags as $name => $subpaths) {
 				foreach ($subpaths as $subpath => $tag) {
 					$extension = $tag['extension'];
-					$result = $this->call_hook_arguments("extension_$extension", array(
+					$result = $this->call_hook_arguments("extension_$extension", [
 						$tag,
-					), array());
+					], []);
 					if (!is_array($result) || !$result['status']) {
-						$logger->error("Tag failed: {tag} {message}", $result + array(
+						$logger->error("Tag failed: {tag} {message}", $result + [
 							"tag" => $tag,
-						));
+						]);
 						$results['failed_tag'] = $tag;
 						$results['failed_result'] = $result;
 						$results['status'] = false;
@@ -266,13 +266,13 @@ class Deploy extends Hookable {
 			$result = null;
 		}
 		$content = ob_end_clean();
-		return array(
+		return [
 			'path' => $path,
 			'type' => 'php',
 			'status' => $status,
 			'result' => $result,
 			'content' => $content,
-		);
+		];
 	}
 
 	/**
@@ -292,11 +292,11 @@ class Deploy extends Hookable {
 			$this->application->hooks->call("exception", $e);
 			$status = false;
 		}
-		return array(
+		return [
 			'type' => 'tpl',
 			'content' => $content,
 			'status' => $status,
-		);
+		];
 	}
 
 	/**
@@ -309,9 +309,9 @@ class Deploy extends Hookable {
 		$path = $tag['path'];
 		$db = $this->application->database_registry();
 		$sqls = $db->split_sql_commands(file_get_contents($path));
-		$result = array(
+		$result = [
 			'type' => 'sql',
-		);
+		];
 
 		while (count($sqls) > 0) {
 			$sql = array_shift($sqls);
@@ -328,10 +328,10 @@ class Deploy extends Hookable {
 				}
 			} catch (\Exception $e) {
 				$this->application->hooks->call("exception", $e);
-				$result['message'] = map("Exception {class}: {message}", array(
+				$result['message'] = map("Exception {class}: {message}", [
 					"class" => get_class($e),
 					"message" => $e->getMessage(),
-				));
+				]);
 				$result['exception'] = $e;
 				$result['exception_sql'] = $sql;
 				$result['status'] = false;

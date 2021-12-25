@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @test_module Widget
  * @test_module ORM
@@ -11,20 +11,20 @@ namespace zesk;
  *
  */
 class Controls_Test extends TestWidget {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
 		"Session",
 		"Widget",
-	);
+	];
 
-	public function _test_session() {
+	public function _test_session(): void {
 		$this->application->set_option("session_class", Session_Mock::class);
 	}
 
 	/**
 	 * @data_provider controls_to_test
 	 */
-	public function test_control($widget_class, $options = array()) {
+	public function test_control($widget_class, $options = []): void {
 		$this->_test_session();
 		$control = $this->application->widget_factory($widget_class, $options);
 		$this->assert_instanceof($control, Widget::class, "$widget_class is not an instanceof of zesk\\Widget (" . type($control) . ")");
@@ -32,91 +32,91 @@ class Controls_Test extends TestWidget {
 	}
 
 	public function controls_to_test() {
-		$controls = array(
-			array(
+		$controls = [
+			[
 				Control_Button::class,
-			),
-			array(
+			],
+			[
 				Control_Checkbox::class,
-			),
-			array(
+			],
+			[
 				Control_Checklist::class,
-			),
-			array(
+			],
+			[
 				Control_Color::class,
-			),
-			array(
+			],
+			[
 				Control_Email::class,
-			),
-			array(
+			],
+			[
 				Control_File::class,
-			),
-			array(
+			],
+			[
 				Control_Filter::class,
-			),
-			array(
+			],
+			[
 				Control_Hidden::class,
-			),
-			array(
+			],
+			[
 				Control_IP::class,
-			),
-			array(
+			],
+			[
 				Control_Icon::class,
-			),
-			array(
+			],
+			[
 				Control_Login::class,
-			),
-			array(
+			],
+			[
 				Control_Order::class,
-			),
-			array(
+			],
+			[
 				Control_Pager::class,
-			),
-			array(
+			],
+			[
 				Control_Password::class,
-			),
-			array(
+			],
+			[
 				Control_Phone::class,
-			),
-			array(
+			],
+			[
 				Control_Radio::class,
-			),
-			array(
+			],
+			[
 				Control_RichText::class,
-			),
-			array(
+			],
+			[
 				Control_Select::class,
-			),
-			array(
+			],
+			[
 				Control_Text::class,
-			),
-			array(
+			],
+			[
 				Control_URL::class,
-			),
-			array(
+			],
+			[
 				Control_Image_Toggle::class,
-			),
-			array(
+			],
+			[
 				Control_IP_List::class,
-			),
-			array(
+			],
+			[
 				Control_OrderBy::class,
-			),
-		);
+			],
+		];
 		return $controls;
 	}
 
-	public function test_control_object_list_tree() {
+	public function test_control_object_list_tree(): void {
 		$this->_test_session();
 		$request = $this->application->request();
 		$router = $this->application->router();
 
-		$router->add_route("*", array(
+		$router->add_route("*", [
 			"class" => "Test_COLT_Object",
-			"action" => array(
+			"action" => [
 				0,
-			),
-		));
+			],
+		]);
 
 		$object = new Test_COLT_Object($this->application);
 		$table = $object->table();
@@ -132,10 +132,10 @@ class Controls_Test extends TestWidget {
 		// 		$this->test_basics($x);
 	}
 
-	public function test_Control_Edit() {
+	public function test_Control_Edit(): void {
 		$this->_test_session();
 
-		$options = array();
+		$options = [];
 		$x = new Control_Edit($this->application, $options);
 		$object = new User($this->application);
 		$x->object($object);
@@ -143,47 +143,47 @@ class Controls_Test extends TestWidget {
 		$this->test_basics($x);
 	}
 
-	public function test_Control_Select_File() {
-		$options = array(
+	public function test_Control_Select_File(): void {
+		$options = [
 			"path" => $this->sandbox(),
-		);
+		];
 		$x = new Control_Select_File($this->application, $options);
 
 		$this->test_basics($x);
 	}
 
-	public function test_Control_Select_ORM() {
+	public function test_Control_Select_ORM(): void {
 		$this->test_table('Control_Select_Test_ORM');
 
-		$options = array(
+		$options = [
 			'table' => 'Control_Select_Test_ORM',
 			'textcolumn' => "Foo",
-		);
+		];
 		$x = new Control_Select_ORM($this->application, $options);
 		$x->object_class(__NAMESPACE__ . "\\" . "User");
 		$this->test_basics($x);
 	}
 
-	public function test_Control_Link_Object() {
+	public function test_Control_Link_Object(): void {
 		$db = $this->application->database_registry();
 		$table = "Test_LinkObject";
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query("CREATE TABLE $table ( A int(11) unsigned NOT NULL, B int(11) unsigned NOT NULL, UNIQUE ab (A,B) )");
 
-		$options = array(
+		$options = [
 			'table' => $table,
-		);
+		];
 		$testx = new Control_Link_Object($this->application, $options);
 		$text = new Control_Text($this->application);
 		$text->names('B');
 		$testx->widget($text);
 
-		$this->test_basics($testx, array(
+		$this->test_basics($testx, [
 			"column" => "A",
-			"test_object" => array(
+			"test_object" => [
 				'B' => 12,
-			),
-		));
+			],
+		]);
 
 		$db->query("DROP TABLE IF EXISTS $table");
 	}
@@ -193,10 +193,10 @@ class Class_Test_COLT_Object extends Class_ORM {
 
 	public $id_column = "ID";
 
-	public $column_types = array(
+	public $column_types = [
 		'ID' => self::type_id,
 		'Foo' => self::type_string,
-	);
+	];
 }
 class Test_COLT_Object extends ORM {
 	public function schema() {
@@ -208,10 +208,10 @@ class Class_Test_COL_Object extends Class_ORM {
 
 	public $id_column = "ID";
 
-	public $column_types = array(
+	public $column_types = [
 		'ID' => self::type_id,
 		'Foo' => self::type_string,
-	);
+	];
 }
 class Test_COL_Object extends ORM {
 }

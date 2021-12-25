@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -24,24 +24,24 @@ class Database extends Base {
 	}
 
 	private function _object_database_table(\zesk\Database $database, ORM $object, $table) {
-		$table_schema = array(
-			'columns' => array(
-				'id' => array(
+		$table_schema = [
+			'columns' => [
+				'id' => [
 					'type' => 'varbinary(16)',
-				),
-				'key' => array(
+				],
+				'key' => [
 					'type' => 'varbinary(16)',
-				),
-				'data' => array(
+				],
+				'data' => [
 					'type' => 'text',
 					'not null' => true,
-				),
-			),
-			'primary keys' => array(
+				],
+			],
+			'primary keys' => [
 				'id',
 				'key',
-			),
-		);
+			],
+		];
 		return ORM_Schema::schema_to_database_table($database, $table, $table_schema);
 	}
 
@@ -81,36 +81,36 @@ class Database extends Base {
 			return false;
 		}
 		$hash = md5($key);
-		$update = array(
+		$update = [
 			"*key" => "UNHEX(" . $database->quote_text($hash) . ")",
 			"id" => $object->id(),
-		);
+		];
 		$update['data'] = serialize($data);
-		$sql = $database->sql()->insert(array(
+		$sql = $database->sql()->insert([
 			'table' => $table,
 			'values' => $update,
 			'verb' => "REPLACE",
-		));
+		]);
 		$database->query($sql);
 	}
 
-	public function invalidate(ORM $object, $key = null) {
+	public function invalidate(ORM $object, $key = null): void {
 		$table = $this->object_table($object);
 		if (!$table) {
 			return;
 		}
 		$database = $this->cache_database($object);
-		$where = array(
+		$where = [
 			"id" => $object->id(),
-		);
+		];
 		if ($key !== null) {
 			$hash = md5($key);
 			$where['*key'] = "UNHEX(" . $database->quote_text($hash) . ")";
 		}
-		$sql = $database->sql()->delete(array(
+		$sql = $database->sql()->delete([
 			'table' => $table,
 			'where' => $where,
-		));
+		]);
 
 		$database->query($sql);
 	}

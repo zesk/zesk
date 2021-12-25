@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -19,7 +19,7 @@ $tags = $value->description();
 $keys = array_keys($tags);
 $first_key = first($keys);
 $last_key = last($keys);
-$lines = array();
+$lines = [];
 foreach ($tags as $key => $line) {
 	$class = $key === $first_key ? ".first" : "";
 	$class = $key === $last_key ? ".last" : "";
@@ -28,12 +28,12 @@ foreach ($tags as $key => $line) {
 echo HTML::tag('ul', '.selection-type', implode("\n", $lines));
 
 if ($this->show_editor) {
-	$href = URL::query_format('/selection/' . $value->id . '/list', array(
+	$href = URL::query_format('/selection/' . $value->id . '/list', [
 		"ref" => $request->uri(),
-	));
-	echo HTML::tag('a', array(
+	]);
+	echo HTML::tag('a', [
 		'class' => 'btn btn-default',
 		'data-modal-url' => $href,
 		'href' => $href,
-	), $this->get('label_button', __('Show list')));
+	], $this->get('label_button', __('Show list')));
 }

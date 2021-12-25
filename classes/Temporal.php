@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @author kent@marketacumen.com
  * @copyright 2017 Market Acumen, Inc.
@@ -15,154 +15,154 @@ abstract class Temporal {
 	 *
 	 * @var string
 	 */
-	const UNIT_YEAR = "year";
+	public const UNIT_YEAR = "year";
 
 	/*
 	 * @var string
 	 */
-	const UNIT_QUARTER = "quarter";
+	public const UNIT_QUARTER = "quarter";
 
 	/*
 	 * @var string
 	 */
-	const UNIT_MONTH = "month";
+	public const UNIT_MONTH = "month";
 
 	/*
 	 * @var string
 	 */
-	const UNIT_WEEKDAY = "weekday";
+	public const UNIT_WEEKDAY = "weekday";
 
 	/*
 	 * @var string
 	 */
-	const UNIT_WEEK = "week";
+	public const UNIT_WEEK = "week";
 
 	/*
 	 * @var string
 	 */
-	const UNIT_DAY = "day";
+	public const UNIT_DAY = "day";
 
 	/*
 	 * @var string
 	 */
-	const UNIT_HOUR = "hour";
+	public const UNIT_HOUR = "hour";
 
 	/*
 	 * @var string
 	 */
-	const UNIT_MINUTE = "minute";
+	public const UNIT_MINUTE = "minute";
 
 	/*
 	 * @var string
 	 */
-	const UNIT_SECOND = "second";
+	public const UNIT_SECOND = "second";
 
 	/*
 	 * @var string
 	 */
-	const UNIT_MILLISECOND = "millisecond";
+	public const UNIT_MILLISECOND = "millisecond";
 
 	/**
 	 * Duh.
 	 *
 	 * @var integer
 	 */
-	const MILLISECONDS_PER_SECONDS = 1000;
+	public const MILLISECONDS_PER_SECONDS = 1000;
 
 	/**
 	 * @var integer
 	 */
-	const SECONDS_PER_MINUTE = 60;
+	public const SECONDS_PER_MINUTE = 60;
 
 	/**
 	 * @var integer
 	 */
-	const MINUTES_PER_HOUR = 60;
+	public const MINUTES_PER_HOUR = 60;
 
 	/**
 	 * @var integer
 	 */
-	const HOURS_PER_DAY = 24;
+	public const HOURS_PER_DAY = 24;
 
 	/**
 	 * @var integer
 	 */
-	const DAYS_PER_YEAR = 365.25; // Leap
+	public const DAYS_PER_YEAR = 365.25; // Leap
 
 	/**
 	 * @var integer
 	 */
-	const MONTHS_PER_YEAR = 12;
+	public const MONTHS_PER_YEAR = 12;
 
 	/**
 	 * @var integer
 	 */
-	const MONTHS_PER_QUARTER = 3;
+	public const MONTHS_PER_QUARTER = 3;
 
 	/**
 	 * @var integer
 	 */
-	const DAYS_PER_WEEK = 7;
+	public const DAYS_PER_WEEK = 7;
 
 	/**
 	 *
 	 * @var integer
 	 * @todo PHP7 use calculation
 	 */
-	const DAYS_PER_QUARTER = 91.3125; // self::DAYS_PER_YEAR / 4;
+	public const DAYS_PER_QUARTER = 91.3125; // self::DAYS_PER_YEAR / 4;
 
 	/**
 	 * @var double
 	 * @todo PHP7 use calculation
 	 */
-	const DAYS_PER_MONTH = 30.4375; // self::DAYS_PER_YEAR / self::MONTHS_PER_YEAR;
+	public const DAYS_PER_MONTH = 30.4375; // self::DAYS_PER_YEAR / self::MONTHS_PER_YEAR;
 
 	/**
 	 * @var integer
 	 * @todo PHP7 use calculation
 	 */
-	const SECONDS_PER_DAY = 86400; // self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR * self::HOURS_PER_DAY;
+	public const SECONDS_PER_DAY = 86400; // self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR * self::HOURS_PER_DAY;
 
 	/**
 	 * @var integer
 	 * @todo PHP7 use calculation
 	 */
-	const SECONDS_PER_WEEK = 604800; // self::SECONDS_PER_DAY * self::DAYS_PER_WEEK;
+	public const SECONDS_PER_WEEK = 604800; // self::SECONDS_PER_DAY * self::DAYS_PER_WEEK;
 
 	/**
 	 *
 	 * @var double
 	 * @todo PHP7 use calculation
 	 */
-	const SECONDS_PER_YEAR = 31557600; // self::SECONDS_PER_DAY * self::DAYS_PER_YEAR;
+	public const SECONDS_PER_YEAR = 31557600; // self::SECONDS_PER_DAY * self::DAYS_PER_YEAR;
 
 	/**
 	 *
 	 * @todo PHP7 use calculation
 	 * @var double
 	 */
-	const SECONDS_PER_QUARTER = 7889400; // self::SECONDS_PER_DAY * self::DAYS_PER_QUARTER;
+	public const SECONDS_PER_QUARTER = 7889400; // self::SECONDS_PER_DAY * self::DAYS_PER_QUARTER;
 
 	/**
 	 *
 	 * @todo PHP7 use calculation
 	 * @var double
 	 */
-	const SECONDS_PER_MONTH = 2629800; // self::SECONDS_PER_YEAR / self::MONTHS_PER_YEAR;
+	public const SECONDS_PER_MONTH = 2629800; // self::SECONDS_PER_YEAR / self::MONTHS_PER_YEAR;
 
 	/**
 	 *
 	 * @todo PHP7 use calculation
 	 * @var double
 	 */
-	const SECONDS_PER_HOUR = 3600; // self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR;
+	public const SECONDS_PER_HOUR = 3600; // self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR;
 
 	/**
 	 * Translate units into seconds
 	 *
 	 * @var array
 	 */
-	public static $UNITS_TRANSLATION_TABLE = array(
+	public static $UNITS_TRANSLATION_TABLE = [
 		self::UNIT_YEAR => self::SECONDS_PER_YEAR,
 		self::UNIT_QUARTER => self::SECONDS_PER_QUARTER,
 		self::UNIT_MONTH => self::SECONDS_PER_MONTH, // 365*86400/12 (average 30.42 days)
@@ -172,7 +172,7 @@ abstract class Temporal {
 		self::UNIT_MINUTE => self::SECONDS_PER_MINUTE, // 60
 		self::UNIT_SECOND => 1, // 1:1
 		self::UNIT_MILLISECOND => 0.001, // 1:1000
-	);
+	];
 
 	/**
 	 * Convert to SQL format
@@ -188,7 +188,7 @@ abstract class Temporal {
 	 * @param array $options
 	 * @return string
 	 */
-	abstract public function format(Locale $locale = null, $format_string = null, array $options = array());
+	abstract public function format(Locale $locale = null, $format_string = null, array $options = []);
 
 	/**
 	 * Fetch formatting for this object
@@ -197,7 +197,7 @@ abstract class Temporal {
 	 * @param Locale|null $locale
 	 * @return array
 	 */
-	abstract public function formatting(Locale $locale = null, array $options = array());
+	abstract public function formatting(Locale $locale = null, array $options = []);
 
 	/**
 	 * Return an array of unit => seconds (integer)
@@ -223,12 +223,12 @@ abstract class Temporal {
 	public static function convert_units($seconds, $unit = "second") {
 		$seconds_in_unit = self::$UNITS_TRANSLATION_TABLE[$unit] ?? null;
 		if ($seconds_in_unit === null) {
-			throw new Exception_Parameter("Invalid unit name passed to {method}: {unit}", array(
+			throw new Exception_Parameter("Invalid unit name passed to {method}: {unit}", [
 				"method" => __METHOD__,
 				"unit" => $unit,
-			));
+			]);
 		}
-		return doubleval($seconds / $seconds_in_unit);
+		return floatval($seconds / $seconds_in_unit);
 	}
 
 	/**

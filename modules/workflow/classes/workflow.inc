@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -20,13 +20,13 @@ class Workflow extends Model {
 	 *
 	 * @var array
 	 */
-	protected $steps = array();
+	protected $steps = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $variables = array();
+	protected $variables = [];
 
 	/**
 	 * Computed from steps
@@ -71,7 +71,7 @@ class Workflow extends Model {
 	 * @param array $variables
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $variables = array(), array $options = array()) {
+	public function __construct(Application $application, array $variables = [], array $options = []) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 		$this->variable($variables);
@@ -84,7 +84,7 @@ class Workflow extends Model {
 		return 100 * ($this->steps_total === 0 ? 1 : $this->steps_completed / $this->steps_total);
 	}
 
-	protected function initialize() {
+	protected function initialize(): void {
 	}
 
 	public function hash() {
@@ -111,25 +111,25 @@ class Workflow extends Model {
 	/**
 	 * Clean the steps
 	 */
-	private function _init_steps() {
+	private function _init_steps(): void {
 		$app = $this->application;
-		$this->sorted_steps = array();
-		$steps = array();
-		$dependencies = array();
+		$this->sorted_steps = [];
+		$steps = [];
+		$dependencies = [];
 		/**
 		 * Instantiate our steps, and determine dependencies for ordering
 		 */
 		foreach ($this->steps as $id => $spec) {
 			if (is_string($spec)) {
 				$class = $spec;
-				$options = array();
+				$options = [];
 			} elseif (is_array($spec)) {
-				list($class, $options) = $spec;
+				[$class, $options] = $spec;
 			} else {
-				$app->logger->error("Workflow::_init_steps Invalid value type {type} {dump}", array(
+				$app->logger->error("Workflow::_init_steps Invalid value type {type} {dump}", [
 					"type" => type($spec),
 					"dump" => _dump($spec),
-				));
+				]);
 				continue;
 			}
 
@@ -137,9 +137,9 @@ class Workflow extends Model {
 				/* @var $step Workflow_Step */
 				$steps[$id] = $step = $app->objects->factory($class, $this, $options);
 			} catch (Exception_Class_NotFound $e) {
-				$app->logger->error("Workflow::_init_steps Class not found {class}", array(
+				$app->logger->error("Workflow::_init_steps Class not found {class}", [
 					"class" => $step,
-				));
+				]);
 			}
 		}
 		$step_ids = array_keys($steps);
@@ -165,16 +165,16 @@ class Workflow extends Model {
 				}
 			}
 			if (!$changed) {
-				$this->application->logger->error("Unable to resolve dependencies in {class}: {deps}", array(
+				$this->application->logger->error("Unable to resolve dependencies in {class}: {deps}", [
 					"class" => get_class($this),
 					"deps" => array_keys($dependencies),
-				));
+				]);
 				break;
 			}
 		}
 	}
 
-	private function _clean_completed() {
+	private function _clean_completed(): void {
 		if (!$this->dirty) {
 			return;
 		}
@@ -228,11 +228,11 @@ class Workflow extends Model {
 			return $this;
 		}
 
-		throw new Exception_Parameter("{class}::variable invalid name type {type} {dump}", array(
+		throw new Exception_Parameter("{class}::variable invalid name type {type} {dump}", [
 			"class" => get_class($this),
 			"type" => type($name),
 			"dump" => _dump($name),
-		));
+		]);
 	}
 
 	public function render($theme_name = null, $variables = null, $default = "") {
@@ -241,16 +241,16 @@ class Workflow extends Model {
 		}
 		$this->_clean_completed();
 		$themes = ArrayTools::suffix($this->application->classes->hierarchy(get_class($this), __CLASS__), "/$theme_name");
-		return $this->application->theme($themes, array(
+		return $this->application->theme($themes, [
 			'workflow' => $this,
 			'completed' => $this->completed,
 			'steps' => $this->sorted_steps,
 			'steps_completed' => $this->steps_completed,
 			'steps_total' => $this->steps_total,
-		) + to_array($variables, array()), array(
+		] + to_array($variables, []), [
 			'first' => true,
 			"default" => $default,
-		));
+		]);
 	}
 
 	public function __toString() {
@@ -264,12 +264,12 @@ class Workflow extends Model {
 		return array_key_exists($name, $this->variables) ? $this->variables[$name] : null;
 	}
 
-	public function __set($name, $value) {
+	public function __set($name, $value): void {
 		$this->variables[$name] = $value;
 		$this->_inited = true;
 	}
 
-	public function __unset($name) {
+	public function __unset($name): void {
 		unset($this->variables[$name]);
 	}
 

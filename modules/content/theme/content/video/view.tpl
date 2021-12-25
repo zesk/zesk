@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -21,9 +21,9 @@ $class = $this->class;
 $class = CSS::add_class($class, "video");
 
 /* @var $object Video */
-echo HTML::div_open(array(
+echo HTML::div_open([
 	"class" => $class,
-));
+]);
 if ($current_user && $current_user->can($object, "edit")) {
 	// TODO This is all wrong
 	echo HTML::a("/manage/video/edit.php?ID=" . $object->id(), HTML::img($application, "/share/images/actions/edit.gif"), true);

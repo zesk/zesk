@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -25,12 +25,12 @@ class Control_reCAPTCHA extends Control {
 	 *
 	 * @var array
 	 */
-	public static $error_codes = array(
+	public static $error_codes = [
 		"missing-input-secret" => "The secret parameter is missing.",
 		"invalid-input-secret" => "The secret parameter is invalid or malformed.",
 		"missing-input-response" => "The response parameter is missing.",
 		"invalid-input-response" => "The response parameter is invalid or malformed.",
-	);
+	];
 
 	/**
 	 *
@@ -38,7 +38,7 @@ class Control_reCAPTCHA extends Control {
 	 *
 	 * @see Widget::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->set_option("verified_name", $this->name() . "-verified");
 	}
@@ -73,11 +73,11 @@ class Control_reCAPTCHA extends Control {
 		$http = new Net_HTTP_Client($this->application, self::$url);
 		$http->method_post(true);
 		$ip = $this->request->ip();
-		$http->data(array(
+		$http->data([
 			"secret" => $this->option("secret_key"),
 			"response" => $this->request->get("g-recaptcha-response"),
 			"remoteip" => $ip,
-		));
+		]);
 		$result = $http->go();
 		if ($this->option_bool('debug')) {
 			$debug = "";
@@ -92,8 +92,8 @@ class Control_reCAPTCHA extends Control {
 			try {
 				$data = JSON::decode($result);
 				$success = to_bool(avalue($data, 'success'));
-				$errors = array();
-				$error_codes = avalue($data, 'error-codes', array());
+				$errors = [];
+				$error_codes = avalue($data, 'error-codes', []);
 				foreach ($error_codes as $error_code) {
 					if (array_key_exists($error_code, self::$error_codes)) {
 						$errors[] = $locale->__(self::$error_codes[$error_code]);
@@ -113,10 +113,10 @@ class Control_reCAPTCHA extends Control {
 		} else {
 			$this->error($locale->__("Unable to verify that you are not a robot. Please try again later."));
 			$message = "reCAPTCHA response type {code_type} from {ip}";
-			$message_args = array(
+			$message_args = [
 				"code_type" => $code_type,
 				"ip" => $ip,
-			);
+			];
 			$app->logger->critical($message, $message_args);
 		}
 		return false;
@@ -124,7 +124,7 @@ class Control_reCAPTCHA extends Control {
 
 	/**
 	 */
-	private function verified() {
+	private function verified(): void {
 		$now = time();
 		$name = $this->name();
 		$verified_html = "";
@@ -151,7 +151,7 @@ class Control_reCAPTCHA extends Control {
 		if (!is_numeric($time)) {
 			return null;
 		}
-		$time = doubleval($time);
+		$time = floatval($time);
 		$delta = $now - $time;
 		if ($delta < 0) {
 			$this->application->logger->error("Time submitted was before now? {now} {time} {key} Bad server time?", compact("now", "time", "key"));

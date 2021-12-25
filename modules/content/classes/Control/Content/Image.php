@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,7 +10,7 @@ namespace zesk;
  *
  */
 class Control_Content_Image extends Control {
-	public function initialize() {
+	public function initialize(): void {
 		$this->upload(true);
 		parent::initialize();
 	}
@@ -20,11 +20,11 @@ class Control_Content_Image extends Control {
 			$this->set_option("allowed_mime_types", to_list($set));
 			return $this;
 		}
-		return $this->option_array("allowed_mime_types", array(
+		return $this->option_array("allowed_mime_types", [
 			"image/jpeg",
 			"image/gif",
 			"image/png",
-		));
+		]);
 	}
 
 	protected function model() {
@@ -48,12 +48,12 @@ class Control_Content_Image extends Control {
 		return $value;
 	}
 
-	protected function load() {
+	protected function load(): void {
 		parent::load();
 		$this->value($this->normalize());
 	}
 
-	protected function defaults() {
+	protected function defaults(): void {
 		$this->value($this->normalize());
 	}
 
@@ -103,25 +103,25 @@ class Control_Content_Image extends Control {
 			$name = $type = $size = $tmp_name = null;
 			extract($data, EXTR_IF_EXISTS);
 
-			$image = Content_Image::register_from_file($this->application, $tmp_name, array(
+			$image = Content_Image::register_from_file($this->application, $tmp_name, [
 				'path' => File::name_clean($name),
-			));
+			]);
 			$this->value($image->id());
 		} catch (Exception_Upload $e) {
-			$this->application->logger->debug("Upload exception {1}, Upload dir: {0}", array(
+			$this->application->logger->debug("Upload exception {1}, Upload dir: {0}", [
 				ini_get('upload_tmp_dir'),
 				$e,
-			));
+			]);
 		}
 
 		return parent::submit();
 	}
 
 	public function theme_variables() {
-		return array(
+		return [
 			'width' => $this->option_integer('width', 200),
 			'height' => $this->option_integer('height', 200),
 			'value' => $this->normalize(),
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 }

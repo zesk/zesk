@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2017 Market Acumen, Inc.
  */
@@ -22,8 +22,8 @@ class Controller_Index extends \zesk\Controller_Theme {
 	 */
 	public function action_index() {
 		$widgets = to_list("disk;services;load;apache;php;configuration");
-		return $this->theme("body/dashboard", array(
+		return $this->theme("body/dashboard", [
 			"widgets" => $widgets,
-		));
+		]);
 	}
 }

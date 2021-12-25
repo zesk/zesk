@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -14,6 +14,6 @@ if ($this->row_widget instanceof Widget) {
 } else {
 	$children = $this->children;
 }
-echo $this->theme('zesk/control/widgets', array(
+echo $this->theme('zesk/control/widgets', [
 	"children" => $children,
-));
+]);

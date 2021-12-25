@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,12 +10,12 @@ namespace zesk;
  *
  */
 class Database_Query_Insert_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
 		"ORM",
-	);
+	];
 
-	public function test_Database_Query_Insert() {
+	public function test_Database_Query_Insert(): void {
 		/**
 		 * $URL:
 		 * https://code.marketacumen.com/zesk/trunk/classes/database/query/test/database_query_insert_test.inc
@@ -36,9 +36,9 @@ class Database_Query_Insert_Test extends Test_Unit {
 		$value = null;
 		$testx->value($name, $value);
 
-		$values = array(
+		$values = [
 			"ID" => "23",
-		);
+		];
 		$testx->values($values);
 
 		$low_priority = null;
@@ -48,9 +48,9 @@ class Database_Query_Insert_Test extends Test_Unit {
 
 		$testx->__toString();
 
-		$columns = array(
+		$columns = [
 			"ID",
-		);
+		];
 		$testx->valid_columns($columns);
 
 		$testx->database();

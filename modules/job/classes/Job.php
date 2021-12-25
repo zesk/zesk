@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -33,19 +33,19 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 *
 	 * @var integer
 	 */
-	const priority_urgent = 255;
+	public const priority_urgent = 255;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const priority_important = 240;
+	public const priority_important = 240;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const priority_normal = 0;
+	public const priority_normal = 0;
 
 	/**
 	 *
@@ -100,24 +100,24 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 * @throws Exception_Semantics
 	 * @return \zesk\Job
 	 */
-	public static function instance(Application $application, $name, $code, $hook, array $arguments = array(), $priority = self::priority_normal) {
+	public static function instance(Application $application, $name, $code, $hook, array $arguments = [], $priority = self::priority_normal) {
 		if (!is_string($hook)) {
-			throw new Exception_Parameter("Hook must be a string: {hook}", array(
+			throw new Exception_Parameter("Hook must be a string: {hook}", [
 				"hook" => _dump($hook),
-			));
+			]);
 		}
 		if (!is_callable($hook)) {
-			throw new Exception_Semantics("{hook} is not callable", array(
+			throw new Exception_Semantics("{hook} is not callable", [
 				"hook" => _dump($hook),
-			));
+			]);
 		}
-		$members = array(
+		$members = [
 			"name" => $name,
 			"code" => $code,
 			"hook" => $hook,
 			"priority" => $priority,
 			"hook_args" => $arguments,
-		);
+		];
 		$job = $application->orm_factory(__CLASS__, $members);
 		$job->find();
 		return $job->set_member($members)->store();
@@ -129,7 +129,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 * @param unknown $id
 	 * @param array $options
 	 */
-	public static function mock_run(Application $application, $id, array $options = array()) {
+	public static function mock_run(Application $application, $id, array $options = []) {
 		/* @var $job Job */
 		$job = $application->orm_factory(__CLASS__, $id)->fetch();
 		$process = new Process_Mock($application, $options);
@@ -211,9 +211,9 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			if (is_string($when)) {
 				$when = new Timestamp($when);
 			} elseif (!$when instanceof Timestamp) {
-				throw new Exception_Parameter("When needs to be a timestamp or string {when}", array(
+				throw new Exception_Parameter("When needs to be a timestamp or string {when}", [
 					"when" => _dump($when),
-				));
+				]);
 			}
 		} else {
 			$when = Timestamp::now();
@@ -240,10 +240,10 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		if ($process->done()) {
 			return null;
 		}
-		$server_pid = array(
+		$server_pid = [
 			"pid" => $pid,
 			"server" => $server,
-		);
+		];
 
 		$jobs = 0;
 		/*
@@ -253,10 +253,10 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		 */
 		$application->orm_registry(__CLASS__)
 			->query_update()
-			->values(array(
+			->values([
 			"pid" => null,
 			"server" => null,
-		))
+		])
 			->where($server_pid)
 			->execute();
 		/*
@@ -271,12 +271,12 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			$query = $application->orm_registry(__CLASS__)
 				->query_select()
 				->what_object()
-				->where(array(
+				->where([
 				"start|<=" => Timestamp::now('UTC'),
 				"pid" => null,
 				"completed" => null,
 				'died|<=' => self::retry_attempts($application),
-			))
+			])
 				->order_by("priority DESC,died,start");
 			$logger->debug($query->__toString());
 			$iterator = $query->orm_iterator();
@@ -287,10 +287,10 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 				$application->orm_registry(__CLASS__)
 					->query_update()
 					->values($server_pid)
-					->where(array(
+					->where([
 					"pid" => null,
 					"id" => $job->id(),
-				))
+				])
 					->execute();
 				// Race condition if we crash before this executes
 				if (!to_bool($application->orm_factory(__CLASS__)
@@ -306,11 +306,11 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 				$job = $application->orm_factory(__CLASS__, $job->id)->fetch();
 				if ($job) {
 					$found_job = true;
-					$logger->info("Server ID # {id}: Running Job # {job_id} - {job_name}", array(
+					$logger->info("Server ID # {id}: Running Job # {job_id} - {job_name}", [
 						"id" => $server,
 						"job_id" => $job->id,
 						"job_name" => $job->name,
-					));
+					]);
 
 					try {
 						$job->execute($process);
@@ -332,9 +332,9 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		} while (!$process->done() && $found_job === true);
 
 		if ($jobs === 0) {
-			$logger->debug("Server ID # {id}: No jobs", array(
+			$logger->debug("Server ID # {id}: No jobs", [
 				"id" => $server,
-			));
+			]);
 		}
 	}
 
@@ -344,15 +344,15 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 *
 	 * @param Server $server
 	 */
-	private static function clean_dead_pids(Application $application, Server $server) {
+	private static function clean_dead_pids(Application $application, Server $server): void {
 		foreach ($application->orm_registry(__CLASS__)
 			->query_select()
 			->what("pid", "pid")
 			->what('id', 'id')
-			->where(array(
+			->where([
 			"pid|!=" => null,
 			"server" => $server,
-		))
+		])
 			->to_array("id", "pid") as $id => $pid) {
 			if (!$application->process->alive($pid)) {
 				$application->logger->debug("Removing stale PID {pid} from Job # {id}", compact("pid", "id"));
@@ -367,20 +367,20 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		}
 	}
 
-	public function execute(Interface_Process $process) {
+	public function execute(Interface_Process $process): void {
 		$this->process = $process;
 
 		$timer = new Timer();
 
 		try {
-			list($class, $method) = pair($this->hook, "::", null, $this->hook);
+			[$class, $method] = pair($this->hook, "::", null, $this->hook);
 			if ($class && !class_exists($class, true)) {
 				throw new Exception_Class_NotFound($class);
 			}
 			$this->call_hook("execute_before");
-			$result = call_user_func_array($this->hook, array_merge(array(
+			$result = call_user_func_array($this->hook, array_merge([
 				$this,
-			), to_array($this->hook_args)));
+			], to_array($this->hook_args)));
 			$this->call_hook("execute_after;execute_success");
 		} catch (Exception_Interrupt $e) {
 			$this->call_hook("execute_after;execute_interrupt", $e);
@@ -392,10 +392,10 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			throw $e;
 		}
 		$elapsed = $timer->elapsed();
-		$values = array(
+		$values = [
 			"*updated" => $this->sql()->now_utc(),
 			"*duration" => "duration+$elapsed",
-		);
+		];
 
 		$this->process = null;
 
@@ -405,11 +405,11 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			->execute();
 	}
 
-	public function progress_push($name) {
+	public function progress_push($name): void {
 		// TODO
 	}
 
-	public function progress_pop() {
+	public function progress_pop(): void {
 		// TODO
 	}
 
@@ -421,11 +421,11 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		// 		$now = microtime(true);
 		// 		if ($this->last_progress === null || $now - $this->last_progress > 0.1) {
 		// 			$this->last_progress = $now;
-		$query = $this->query_update()->values(array(
+		$query = $this->query_update()->values([
 			"*updated" => $this->database()
 				->sql()
 				->now_utc(),
-		))
+		])
 			->where('id', $this->id());
 		if (is_numeric($percent)) {
 			$query->value('progress', $percent);
@@ -516,10 +516,10 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 */
 	private function release() {
 		$this->query_update()
-			->value(array(
+			->value([
 			"server" => null,
 			"pid" => null,
-		))
+		])
 			->where("id", $this->id())
 			->execute();
 		return $this;
@@ -548,7 +548,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 *
 	 * @see Interface_Process::terminate()
 	 */
-	public function terminate() {
+	public function terminate(): void {
 		if ($this->process) {
 			$this->process->terminate();
 		}
@@ -559,7 +559,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 *
 	 * @see Interface_Process::kill()
 	 */
-	public function kill() {
+	public function kill(): void {
 		if ($this->process) {
 			$this->process->kill();
 		}
@@ -570,7 +570,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 *
 	 * @see Interface_Process::log()
 	 */
-	public function log($message, array $args = array(), $level = null) {
+	public function log($message, array $args = [], $level = null): void {
 		if ($this->process) {
 			$this->process->log($message, $args, $level);
 		}

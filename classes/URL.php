@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -14,18 +14,18 @@ class URL {
 	 *
 	 * @var array
 	 */
-	protected static $secure_protocols = array(
+	protected static $secure_protocols = [
 		'http' => 'https',
 		'ftp' => 'sftp',
 		'telnet' => 'ssh',
-	);
+	];
 
 	/**
 	 * What's the order for items in a URL (typically http URLs)?
 	 *
 	 * @var array
 	 */
-	public static $url_ordering = array(
+	public static $url_ordering = [
 		'scheme',
 		'user',
 		'pass',
@@ -34,7 +34,7 @@ class URL {
 		'path',
 		'query',
 		'fragment',
-	);
+	];
 
 	/**
 	 * Query string parsing (case-sensitive)
@@ -48,7 +48,10 @@ class URL {
 	 * @return mixed Parsed query string
 	 */
 	public static function query_parse($qs, $name = null, $default = null) {
-		$res = array();
+		$res = [];
+		if (empty($qs)) {
+			return $res;
+		}
 		parse_str($qs, $res);
 		if (is_array($res) && is_string($name)) {
 			return avalue($res, $name, $default);
@@ -68,7 +71,7 @@ class URL {
 	 * @return mixed Parsed query string
 	 */
 	public static function query_iparse($qs, $name = null, $default = null) {
-		$res = array();
+		$res = [];
 		parse_str($qs, $res);
 		$res = array_change_key_case($res);
 		if ($name === null) {
@@ -98,12 +101,12 @@ class URL {
 			$url = StringTools::left($url, "#");
 		}
 		if (empty($url)) {
-			return array();
+			return [];
 		}
 		$tokens = explode("&", $url);
-		$urlVars = array();
+		$urlVars = [];
 		foreach ($tokens as $token) {
-			list($token, $value) = pair($token, "=", $token, "");
+			[$token, $value] = pair($token, "=", $token, "");
 			$matches = false;
 			if (!$simple && preg_match('/^([^\[]*)(\[.*\])$/', $token, $matches)) {
 				self::_query_parse_array($urlVars, $matches[1], $matches[2], $value);
@@ -129,23 +132,23 @@ class URL {
 	 * @param string $value
 	 *        	The value to place at the destination array key
 	 */
-	private static function _query_parse_array(&$result, $k, $arrayKeys, $value) {
+	private static function _query_parse_array(&$result, $k, $arrayKeys, $value): void {
 		$matches = false;
 		if (!preg_match_all('/\[([^\]]*)\]/', $arrayKeys, $matches)) {
 			return;
 		}
 		if (!isset($result[$k])) {
-			$result[urldecode($k)] = array();
+			$result[urldecode($k)] = [];
 		}
 		$temp = &$result[$k];
 		$last = urldecode(array_pop($matches[1]));
 		foreach ($matches[1] as $k) {
 			$k = urldecode($k);
 			if ($k === "") {
-				$temp[] = array();
+				$temp[] = [];
 				$temp = &$temp[count($temp) - 1];
 			} elseif (!isset($temp[$k])) {
-				$temp[$k] = array();
+				$temp[$k] = [];
 				$temp = &$temp[$k];
 			}
 		}
@@ -206,13 +209,13 @@ class URL {
 	 * @return string
 	 */
 	public static function query_format($path, $add = null, $remove = null) {
-		list($uri, $qs) = pair($path, "?", $path, null);
+		[$uri, $qs] = pair($path, "?", $path, null);
 		if ($qs === null) {
-			$qs = array();
+			$qs = [];
 		} else {
 			$qs = self::query_parse($qs);
 		}
-		$remove = to_list($remove, array());
+		$remove = to_list($remove, []);
 		foreach ($remove as $k) {
 			unset($qs[$k]);
 		}
@@ -230,7 +233,7 @@ class URL {
 	 * @return string
 	 */
 	private static function query_unparse_arr($key_name, array $qs) {
-		$item = array();
+		$item = [];
 		foreach ($qs as $k => $v) {
 			$name = urldecode($key_name) . '[' . urlencode($k) . ']';
 			if (is_array($v)) {
@@ -253,7 +256,7 @@ class URL {
 		if (count($qs) === 0) {
 			return "";
 		}
-		$item = array();
+		$item = [];
 		foreach ($qs as $k => $v) {
 			if (is_array($v)) {
 				$item[] = self::query_unparse_arr($k, $v);
@@ -277,7 +280,7 @@ class URL {
 	public static function query_append($u, $values = null) {
 		$amp = "&";
 		if (is_array($values)) {
-			$qs_append = array();
+			$qs_append = [];
 			foreach ($values as $k => $v) {
 				if (is_array($v)) {
 					$qs_append[] = self::query_unparse_arr($k, $v);
@@ -292,7 +295,7 @@ class URL {
 		if (strval($qs_append) === "") {
 			return $u;
 		}
-		$sep = (strpos($u, "?") === false) ? "?" : $amp;
+		$sep = (!str_contains($u, "?")) ? "?" : $amp;
 		return $u . $sep . $qs_append;
 	}
 
@@ -304,7 +307,7 @@ class URL {
 	 * @return A|string
 	 */
 	public static function query_remove($u, $names) {
-		list($u, $m) = pair($u, "#", $u, null);
+		[$u, $m] = pair($u, "#", $u, null);
 		$x = strpos($u, "?");
 		if ($x === false) {
 			return $u;
@@ -312,7 +315,7 @@ class URL {
 		$q = substr($u, $x + 1);
 		$newu = substr($u, 0, $x);
 		$q = explode("&", $q);
-		$nq = array();
+		$nq = [];
 		foreach ($q as $i) {
 			$kv = explode("=", $i, 2);
 			if (!Lists::contains($names, $kv[0])) {
@@ -334,7 +337,7 @@ class URL {
 	 * @return string The URL with the query string variables removed
 	 */
 	public static function query_iremove($url, $names) {
-		list($x, $m) = pair($url, "#", $url, null);
+		[$x, $m] = pair($url, "#", $url, null);
 		$m = ($m ? "#$m" : "");
 		$x = strpos($url, "?");
 		if ($x === false) {
@@ -342,7 +345,7 @@ class URL {
 		}
 		$q = substr($url, $x + 1);
 		$newu = substr($url, 0, $x);
-		$qs = array();
+		$qs = [];
 		parse_str($q, $qs);
 		$names = ArrayTools::change_value_case($names);
 		foreach ($qs as $k => $v) {
@@ -356,7 +359,7 @@ class URL {
 		if (count($qs) === 0) {
 			return $newu . $m;
 		}
-		$nq = array();
+		$nq = [];
 		foreach ($qs as $k => $v) {
 			$nq[] = "$k=" . urlencode($v);
 		}
@@ -377,17 +380,20 @@ class URL {
 	 *         parsing failed
 	 */
 	public static function parse($url, $component = null, $default = null) {
+		if ($url === null) {
+			return false;
+		}
 		$url = trim($url);
 		if (preg_match('%^[a-z][a-z0-9]*://.+|^mailto:.+@.+%', strtolower($url)) === 0) {
 			return false;
 		}
-		$result = array();
+		$result = [];
 		if (strtolower(substr($url, 0, 7)) === "file://") {
-			$result = array(
+			$result = [
 				"scheme" => "file",
 				"host" => "",
 				"path" => substr($url, 7),
-			);
+			];
 		} else {
 			$result = @parse_url($url);
 		}
@@ -400,7 +406,7 @@ class URL {
 		if (avalue($result, 'scheme') === 'mailto' && array_key_exists('path', $result)) {
 			$path = $result['path'];
 			unset($result['path']);
-			list($user, $host) = pairr($path, '@', null, $path);
+			[$user, $host] = pairr($path, '@', null, $path);
 			if ($user) {
 				$result['user'] = $user;
 			}
@@ -545,7 +551,7 @@ class URL {
 	 * @return false|integer
 	 */
 	public static function protocol_default_port($x) {
-		static $protocols = array(
+		static $protocols = [
 			"ftp" => 21,
 			"smtp" => 25,
 			"mailto" => 25,
@@ -553,7 +559,7 @@ class URL {
 			"pop" => 110,
 			"https" => 443,
 			"file" => false,
-		);
+		];
 		return avalue($protocols, strtolower($x), false);
 	}
 
@@ -620,7 +626,7 @@ class URL {
 		if (!is_array($parts)) {
 			return false;
 		}
-		$new_parts = array();
+		$new_parts = [];
 		foreach (self::$url_ordering as $part_item) {
 			if (array_key_exists($part_item, $parts)) {
 				$new_parts[$part_item] = $parts[$part_item];
@@ -674,7 +680,7 @@ class URL {
 	 * @return string Repaired URL, or false if repair failed
 	 */
 	public static function repair($u, $default = false) {
-		if (strpos($u, 'https%3A//') === 0 || strpos($u, 'http%3A//') === 0) {
+		if (str_starts_with($u, 'https%3A//')   || str_starts_with($u, 'http%3A//')) {
 			$u = urldecode($u);
 		} elseif (preg_match('|^https?:/[^/]|', $u)) {
 			$u = preg_replace('|^http(s)?:/|', 'http$1://', $u);
@@ -758,9 +764,9 @@ class URL {
 	 */
 	public static function to_https($u = null) {
 		if ($u === null) {
-			throw new Exception_Deprecated("Must pass URL to {method}", array(
+			throw new Exception_Deprecated("Must pass URL to {method}", [
 				"method" => __METHOD__,
-			));
+			]);
 			//	$u = self::current();
 		}
 		if (substr($u, 0, 7) === "http://") {

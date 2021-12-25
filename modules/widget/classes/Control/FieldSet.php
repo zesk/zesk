@@ -1,17 +1,17 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_FieldSet extends Control_Widgets {
-	protected $options = array(
+	protected $options = [
 		"nolabel" => true,
-	);
+	];
 
-	public function initialize() {
+	public function initialize(): void {
 		$this->prefix .= HTML::tag('legend', $this->label);
-		$this->wrap('fieldset', $this->attributes(array(
+		$this->wrap('fieldset', $this->attributes([
 			"class" => "control-fieldset",
 			"id" => $this->id,
-		), "fieldset"));
+		], "fieldset"));
 		parent::initialize();
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -16,26 +16,26 @@ class Class_Role extends Class_ORM {
 
 	public $name_column = "name";
 
-	public $find_keys = array(
+	public $find_keys = [
 		'code',
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"code" => self::type_string,
 		"name" => self::type_string,
 		'is_root' => self::type_boolean,
 		'is_default' => self::type_boolean,
-	);
+	];
 
-	public $has_many = array(
-		'users' => array(
+	public $has_many = [
+		'users' => [
 			'class' => 'zesk\\User',
 			'link_class' => 'zesk\\User_Role',
 			'foreign_key' => 'role',
 			'far_key' => 'user',
-		),
-	);
+		],
+	];
 
 	public $database_group = "zesk\\User";
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 abstract class Contact_Import extends Options {
@@ -24,19 +24,19 @@ abstract class Contact_Import extends Options {
 	 *
 	 * @var array
 	 */
-	private $objects = array();
+	private $objects = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $map = array();
+	private $map = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $errors = array();
+	private $errors = [];
 
 	/**
 	 *
@@ -44,7 +44,7 @@ abstract class Contact_Import extends Options {
 	 */
 	private $tag = null;
 
-	public function __construct(Interface_Process $process, $filename, array $options = array()) {
+	public function __construct(Interface_Process $process, $filename, array $options = []) {
 		parent::__construct($options);
 		$this->process = $process;
 		$this->filename = $filename;
@@ -72,7 +72,7 @@ abstract class Contact_Import extends Options {
 	 */
 	public function contact_hash($row) {
 		$keys = $this->contact_hash_keys();
-		$hash = array();
+		$hash = [];
 		foreach ($keys as $k) {
 			$hash[] = avalue($row, $k, "");
 		}
@@ -84,7 +84,7 @@ abstract class Contact_Import extends Options {
 	 * @return array
 	 */
 	public function empty_date_values() {
-		return array();
+		return [];
 	}
 
 	/**
@@ -98,7 +98,7 @@ abstract class Contact_Import extends Options {
 	 * @return boolean
 	 */
 	public function go() {
-		$this->errors = array();
+		$this->errors = [];
 		$class = $this->import_class;
 		$import_file = new $class($this->filename);
 		/* @var $import_file CSV_Reader */
@@ -120,9 +120,9 @@ abstract class Contact_Import extends Options {
 	 * @return \zesk\Import_Contact|NULL
 	 */
 	public static function factory(Interface_Process $proc, $filename, $options = null) {
-		$classes = array(
+		$classes = [
 			"Contact_Import_Outlook",
-		);
+		];
 
 		foreach ($classes as $class) {
 			$class = new $class($proc, $filename, $options);
@@ -137,8 +137,8 @@ abstract class Contact_Import extends Options {
 	/**
 	 *
 	 */
-	public function reset() {
-		$this->objects = array();
+	public function reset(): void {
+		$this->objects = [];
 	}
 
 	/**
@@ -174,7 +174,7 @@ abstract class Contact_Import extends Options {
 			if (array_key_exists($key, $map)) {
 				$handler = $map[$key];
 				if (is_string($handler)) {
-					list($object, $field) = pair($handler, ".", null, null);
+					[$object, $field] = pair($handler, ".", null, null);
 					if ($object) {
 						$this->objects[$object][0][$field] = $value;
 					}
@@ -187,18 +187,18 @@ abstract class Contact_Import extends Options {
 				}
 			}
 		}
-		$this->objects = map(array(
+		$this->objects = map([
 			'account' => $this->option_integer('account'),
 			'user' => $this->option_integer('user'),
-		), $this->objects);
+		], $this->objects);
 
 		throw new Exception_Unimplemented("Need to update this code");
 
 		$account = $this->option_integer("account");
-		$dup_contact = Contact::find_hash($contact_hash, array(
+		$dup_contact = Contact::find_hash($contact_hash, [
 			'account' => $account,
-		));
-		$contact = new Contact(avalue($this->objects, 'contact', array()));
+		]);
+		$contact = new Contact(avalue($this->objects, 'contact', []));
 		$contact->memberCanStore('*Hash');
 		$contact->set_member('*Hash', $contact_hash);
 		$contact->account = $account;
@@ -209,10 +209,10 @@ abstract class Contact_Import extends Options {
 			$contact->tags = $this->tag;
 		}
 		if (!$contact->store()) {
-			$this->errors[$row_index] = array(
+			$this->errors[$row_index] = [
 				"error" => "Can not store contact",
 				"data" => serialize($this->objects),
-			);
+			];
 			return false;
 		}
 
@@ -244,14 +244,14 @@ abstract class Contact_Import extends Options {
 		return avalue($objects, $id);
 	}
 
-	public function set_item($type, $id, $data) {
+	public function set_item($type, $id, $data): void {
 		$this->objects[$type][$id] = $data;
 	}
 
-	public function merge_item($type, $id, $data) {
+	public function merge_item($type, $id, $data): void {
 		$result = $this->has_item($type, $id);
 		if (!is_array($result)) {
-			$this->objects[$type][$id] = array();
+			$this->objects[$type][$id] = [];
 		}
 		$this->objects[$type][$id] += $data;
 	}

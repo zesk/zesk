@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -14,36 +14,36 @@ $animate_show = $this->animate_show;
 $animate_delay = $this->animate_delay;
 $message = $this->message;
 
-list($x, $y) = pair($this->position, ",", 0, 0);
+[$x, $y] = pair($this->position, ",", 0, 0);
 
-if (!StringTools::ends($x, array(
+if (!StringTools::ends($x, [
 	"em",
 	"ex",
 	"px",
 	"%",
-))) {
+])) {
 	$x .= "px";
 }
-if (!StringTools::ends($y, array(
+if (!StringTools::ends($y, [
 	"em",
 	"ex",
 	"px",
 	"%",
-))) {
+])) {
 	$y .= "px";
 }
 $width = $this->width || "20em";
 $position = "left: ${x}; top: ${y};" . (($animate_show || !$visible) ? ' display: none;' : '');
 $prefix = $suffix = "";
 $orientation = strtoupper($this->orientation || "L");
-$arrow = HTML::tag("td", array(
+$arrow = HTML::tag("td", [
 	"class" => "annotation-$orientation",
 	'valign' => 'middle',
 	'align' => 'center',
-), HTML::tag("img", array(
+], HTML::tag("img", [
 	"alt" => "",
 	"src" => $application->url("/share/zesk/widgets/annotate/arrow-$orientation.png"),
-), null));
+], null));
 switch ($orientation) {
 	case "B":
 		$suffix = '</tr><tr>' . $arrow;
@@ -60,14 +60,14 @@ switch ($orientation) {
 		break;
 }
 $ajax_id = 'annotation-' . HTML::id_counter();
-echo HTML::tag('table', array(
+echo HTML::tag('table', [
 	'class' => 'annotation',
 	'style' => $position,
 	"id" => $ajax_id,
-), HTML::tag('tr', null, $prefix . HTML::tag('td', array(
+], HTML::tag('tr', null, $prefix . HTML::tag('td', [
 	'class' => 'annotation-text',
 	'style' => "width: $width",
-), $message) . $suffix));
+], $message) . $suffix));
 if ($animate_show && $visible) {
 	if ($animate_delay > 0) {
 		$response->jquery("setTimeout(function(){\$('#$ajax_id').fadeIn('slow');},$animate_delay);");
@@ -76,6 +76,6 @@ if ($animate_show && $visible) {
 	}
 }
 $response->css('/share/zesk/widgets/annotate/annotate.css');
-$response->css('/share/zesk/widgets/annotate/annotate-ie.css', array(
+$response->css('/share/zesk/widgets/annotate/annotate-ie.css', [
 	'browser' => "ie",
-));
+]);

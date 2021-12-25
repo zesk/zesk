@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -9,28 +9,28 @@
 namespace zesk;
 
 abstract class ORM_Schema extends Hookable {
-	const type_id = Class_ORM::type_id;
+	public const type_id = Class_ORM::type_id;
 
 	/**
 	 * Plain old text data in the database
 	 *
 	 * @var string
 	 */
-	const type_text = Class_ORM::type_text;
+	public const type_text = Class_ORM::type_text;
 
 	/**
 	 *
 	 * Plain old text data in the database
 	 * @var string
 	 */
-	const type_string = Class_ORM::type_string;
+	public const type_string = Class_ORM::type_string;
 
 	/**
 	 *
 	 * Binary data in the database
 	 * @var string
 	 */
-	const type_binary = Class_ORM::type_binary;
+	public const type_binary = Class_ORM::type_binary;
 
 	/**
 	 * This column serves as text data for polymorphic objects
@@ -40,61 +40,61 @@ abstract class ORM_Schema extends Hookable {
 	 *
 	 * @var string
 	 */
-	const type_polymorph = Class_ORM::type_polymorph;
+	public const type_polymorph = Class_ORM::type_polymorph;
 
 	/**
 	 * Refers to a system object (usually by ID)
 	 *
 	 * @var string
 	 */
-	const type_object = Class_ORM::type_object;
+	public const type_object = Class_ORM::type_object;
 
 	/**
 	 * Upon initial save, set to current date
 	 *
 	 * @var string
 	 */
-	const type_created = Class_ORM::type_created;
+	public const type_created = Class_ORM::type_created;
 
 	/**
 	 * Upon all saves, updates to current date
 	 *
 	 * @var string
 	 */
-	const type_modified = Class_ORM::type_modified;
+	public const type_modified = Class_ORM::type_modified;
 
 	/**
 	 * String information called using serialize/unserialize
 	 *
 	 * @var string
 	 */
-	const type_serialize = Class_ORM::type_serialize;
+	public const type_serialize = Class_ORM::type_serialize;
 
-	const type_integer = Class_ORM::type_integer;
+	public const type_integer = Class_ORM::type_integer;
 
-	const type_real = Class_ORM::type_real;
+	public const type_real = Class_ORM::type_real;
 
-	const type_float = Class_ORM::type_float;
+	public const type_float = Class_ORM::type_float;
 
-	const type_double = Class_ORM::type_double;
+	public const type_double = Class_ORM::type_double;
 
-	const type_boolean = Class_ORM::type_boolean;
+	public const type_boolean = Class_ORM::type_boolean;
 
-	const type_timestamp = Class_ORM::type_timestamp;
+	public const type_timestamp = Class_ORM::type_timestamp;
 
-	const type_date = Class_ORM::type_date;
+	public const type_date = Class_ORM::type_date;
 
-	const type_time = Class_ORM::type_time;
+	public const type_time = Class_ORM::type_time;
 
-	const type_ip = Class_ORM::type_ip;
+	public const type_ip = Class_ORM::type_ip;
 
-	const type_ip4 = Class_ORM::type_ip4;
+	public const type_ip4 = Class_ORM::type_ip4;
 
-	const type_crc32 = Class_ORM::type_crc32;
+	public const type_crc32 = Class_ORM::type_crc32;
 
-	const type_hex32 = Class_ORM::type_hex32;
+	public const type_hex32 = Class_ORM::type_hex32;
 
-	const type_hex = Class_ORM::type_hex;
+	public const type_hex = Class_ORM::type_hex;
 
 	/**
 	 * Debugging information.
@@ -130,7 +130,7 @@ abstract class ORM_Schema extends Hookable {
 	 * @param Class_ORM $class_object
 	 * @param string $options
 	 */
-	public function __construct(Class_ORM $class_object, ORM $object = null, array $options = array()) {
+	public function __construct(Class_ORM $class_object, ORM $object = null, array $options = []) {
 		parent::__construct($class_object->application, $options);
 		$this->class_object = $class_object;
 		$this->object = $object;
@@ -140,7 +140,7 @@ abstract class ORM_Schema extends Hookable {
 	 *
 	 * @param zesk\Kernel $application
 	 */
-	public static function hooks(Application $application) {
+	public static function hooks(Application $application): void {
 		$application->hooks->add("configured", __CLASS__ . "::configured");
 		$application->configuration->path(__CLASS__);
 	}
@@ -149,11 +149,11 @@ abstract class ORM_Schema extends Hookable {
 	 *
 	 * @param zesk\Application $application
 	 */
-	public static function configured(Application $application) {
-		if ($application->configuration->debug || $application->configuration->path_get(array(
+	public static function configured(Application $application): void {
+		if ($application->configuration->debug || $application->configuration->path_get([
 			__CLASS__,
 			"debug",
-		))) {
+		])) {
 			self::$debug = true;
 		}
 	}
@@ -179,7 +179,7 @@ abstract class ORM_Schema extends Hookable {
 	 * @return array
 	 */
 	protected function schema_map() {
-		$map = $this->object ? $this->object->schema_map() : array();
+		$map = $this->object ? $this->object->schema_map() : [];
 		$map += $this->class_object->schema_map();
 		return $map;
 	}
@@ -266,7 +266,7 @@ abstract class ORM_Schema extends Hookable {
 				throw $e;
 			}
 		}
-		foreach (avalue($table_schema, 'indexes', array()) as $index => $columns) {
+		foreach (avalue($table_schema, 'indexes', []) as $index => $columns) {
 			if (!$db->valid_index_name($index)) {
 				$logger->error("Invalid index name in schema found in {table_name} in {context}: Invalid index name {index}", compact("context", "table_name", "index"));
 
@@ -279,7 +279,7 @@ abstract class ORM_Schema extends Hookable {
 			}
 			$table->index_add(new Database_Index($table, $index, $columns, Database_Index::Index));
 		}
-		foreach (avalue($table_schema, 'unique keys', array()) as $index => $columns) {
+		foreach (avalue($table_schema, 'unique keys', []) as $index => $columns) {
 			if (!$db->valid_index_name($index)) {
 				$logger->error("Invalid index name in schema found in {table_name} in {context}: Invalid index name {index}", compact("context", "table_name", "index"));
 
@@ -307,9 +307,9 @@ abstract class ORM_Schema extends Hookable {
 			if (is_array($table_schema['on create'])) {
 				$table->on_action("create", $table_schema['on create']);
 			} elseif (is_string($table_schema['on create'])) {
-				$table->on_action("create", array(
+				$table->on_action("create", [
 					$table_schema['on create'],
-				));
+				]);
 			}
 		}
 		return $table;
@@ -323,7 +323,7 @@ abstract class ORM_Schema extends Hookable {
 	public function tables() {
 		$logger = $this->application->logger;
 		$schema = $this->schema();
-		$tables = array();
+		$tables = [];
 		$db = $this->database();
 		if (is_array($schema)) {
 			foreach ($schema as $table_name => $table_schema) {
@@ -360,14 +360,14 @@ abstract class ORM_Schema extends Hookable {
 	public function __toString() {
 		$tables = $this->tables();
 
-		$result = array();
+		$result = [];
 		foreach ($tables as $table) {
 			/* @var $table Database_Table */
 			$create_sql = $table->create_sql();
 			if (!is_array($create_sql)) {
-				$create_sql = array(
+				$create_sql = [
 					$create_sql,
-				);
+				];
 			}
 			$result = array_merge($result, $create_sql);
 		}
@@ -405,11 +405,11 @@ abstract class ORM_Schema extends Hookable {
 		$object_class = get_class($object);
 		$schema = $object->database_schema();
 		if (!$schema instanceof ORM_Schema) {
-			$logger->warning("{class} did not return a ORM_Schema ({type})", array(
+			$logger->warning("{class} did not return a ORM_Schema ({type})", [
 				"class" => $object_class,
 				"type" => type($schema),
-			));
-			return array();
+			]);
+			return [];
 		}
 		return $schema->_update_object();
 	}
@@ -423,17 +423,17 @@ abstract class ORM_Schema extends Hookable {
 	protected function _update_object() {
 		$db = $this->database();
 		$tables = $this->tables();
-		$sql_results = array();
+		$sql_results = [];
 		foreach ($tables as $table_name => $table) {
 			/* @var $table Database_Table */
 			try {
 				$actual_table = $db->database_table($table->name());
 				$sql_results = array_merge($sql_results, self::update($db, $actual_table, $table));
-				$results = $this->object->call_hook_arguments("schema_update_alter", array(
+				$results = $this->object->call_hook_arguments("schema_update_alter", [
 					$this,
 					$actual_table,
 					$sql_results,
-				), $sql_results);
+				], $sql_results);
 				if (is_array($results)) {
 					$sql_results = $results;
 				}
@@ -473,9 +473,9 @@ abstract class ORM_Schema extends Hookable {
 				return $result;
 			}
 			if (is_string($result)) {
-				return array(
+				return [
 					$result,
-				);
+				];
 			}
 			return $result;
 		}
@@ -504,28 +504,28 @@ abstract class ORM_Schema extends Hookable {
 		$table = $db_table_old->name();
 		if ($db_table_new->is_similar($db_table_old, self::$debug)) {
 			if (self::$debug) {
-				$logger->debug("Tables are similar: \"{table}\":\nDatabase: \n{dbOld}\nCode:\n{dbNew}", array(
+				$logger->debug("Tables are similar: \"{table}\":\nDatabase: \n{dbOld}\nCode:\n{dbNew}", [
 					'table' => $table,
 					'dbOld' => Text::indent($db_table_old->source()),
 					'dbNew' => Text::indent($db_table_new->source()),
-				));
+				]);
 			}
-			return array();
+			return [];
 		}
 
 		if (self::$debug) {
-			$logger->debug("ORM_Schema::update: \"{table}\" tables differ:\nDatabase: \n{dbOld}\nCode:\n{dbNew}", array(
+			$logger->debug("ORM_Schema::update: \"{table}\" tables differ:\nDatabase: \n{dbOld}\nCode:\n{dbNew}", [
 				'table' => $table,
 				'dbOld' => Text::indent($db_table_old->source()),
 				'dbNew' => Text::indent($db_table_new->source()),
-			));
+			]);
 		}
 
-		$drops = array();
+		$drops = [];
 		$changes = $db_table_new->sql_alter($db_table_old);
-		$adds = array();
-		$indexes_old = array();
-		$indexes_new = array();
+		$adds = [];
+		$indexes_old = [];
+		$indexes_new = [];
 
 		$columnsOld = $db_table_old->columns();
 		$columnsNew = $db_table_new->columns();
@@ -534,8 +534,8 @@ abstract class ORM_Schema extends Hookable {
 		/* @var $dbColNew Database_Column */
 
 		$columns = array_unique(array_merge(array_keys($columnsNew), array_keys($columnsOld)));
-		$ignoreColumns = array();
-		$ignoreIndexes = array();
+		$ignoreColumns = [];
+		$ignoreIndexes = [];
 
 		/*
 		 * First do changed names, then everything else
@@ -624,15 +624,15 @@ abstract class ORM_Schema extends Hookable {
 			if (array_key_exists($index_name, $indexes_new)) {
 				$index_new = $indexes_new[$index_name];
 				if (!$index_old->is_similar($index_new, self::$debug)) {
-					$changes = array_merge(array(
+					$changes = array_merge([
 						"index_" . $index_name => $index_old->sql_index_drop(),
-					), $changes);
+					], $changes);
 					$adds["index_" . $index_name] = $index_new->sql_index_add();
 				}
 			} else {
-				$changes = array_merge(array(
+				$changes = array_merge([
 					"index_" . $index_name => $index_old->sql_index_drop(),
-				), $changes);
+				], $changes);
 			}
 		}
 		foreach ($indexes_new as $index_name => $index_new) {
@@ -649,7 +649,7 @@ abstract class ORM_Schema extends Hookable {
 		 * Change tables we need. If any step fails, then do a drop/add below (this is added above, redundantly)
 		 */
 		$success = true;
-		$sql_list = array();
+		$sql_list = [];
 		foreach ($changes as $column => $sql) {
 			$sql_list = array_merge($sql_list, to_list($sql));
 
@@ -704,9 +704,9 @@ abstract class ORM_Schema extends Hookable {
 				$result = false;
 			}
 		}
-		$sql_list = $generator->call_hook_arguments("update_alter", array(
+		$sql_list = $generator->call_hook_arguments("update_alter", [
 			$sql_list,
-		), $sql_list);
+		], $sql_list);
 		return $sql_list;
 	}
 }

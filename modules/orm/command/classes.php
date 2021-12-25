@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
@@ -11,26 +11,26 @@ namespace zesk;
  * @category Database
  */
 class Command_Classes extends Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		"format" => "string",
 		"database" => "boolean",
 		"table" => "boolean",
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		"database" => "show database related to object",
 		"table" => "show table related to object",
-	);
+	];
 
 	public function run() {
 		$application = $this->application;
 		$classes = $application->orm_module()->all_classes();
-		$objects_by_class = array();
+		$objects_by_class = [];
 		$is_table = false;
-		$rows = array();
-		$filters = array(
+		$rows = [];
+		$filters = [
 			"class",
-		);
+		];
 		if ($this->option_bool("database")) {
 			$filters[] = "database";
 		}

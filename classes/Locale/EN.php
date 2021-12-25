@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -61,7 +61,7 @@ class Locale_EN extends Locale {
 	 * @return plural string, case matched to input, or null if not an exception
 	 */
 	private function plural_en_exception($s) {
-		$exceptions = array(
+		$exceptions = [
 			"day" => "days",
 			"staff" => "staff",
 			"sheep" => "sheep",
@@ -70,7 +70,7 @@ class Locale_EN extends Locale {
 			"person" => "people",
 			"woman" => "women",
 			"man" => "men",
-		);
+		];
 		$ss = avalue($exceptions, strtolower($s));
 		if ($ss) {
 			return StringTools::case_match($ss, $s);
@@ -121,7 +121,7 @@ class Locale_EN extends Locale {
 		$check_word = strtolower($word);
 		$first_letter = substr($check_word, 0, 1);
 		$article = "a";
-		if (strpos("aeiouh", $first_letter) !== false) {
+		if (str_contains("aeiouh", $first_letter)) {
 			if (StringTools::begins($check_word, explode(";", "eur;un;uni;use;u.;one-"))) {
 				$article = "a";
 			} else { // Removed hon for honor, honest
@@ -137,17 +137,17 @@ class Locale_EN extends Locale {
 	 * @see \zesk\Locale::ordinal()
 	 */
 	public function ordinal($n) {
-		$n = doubleval($n);
+		$n = floatval($n);
 		$mod_100 = $n % 100;
 		if ($mod_100 > 10 && $mod_100 < 20) {
 			return $n . "th";
 		}
 		$mod_10 = $n % 10;
-		return $n . avalue(array(
+		return $n . avalue([
 			1 => "st",
 			2 => "nd",
 			3 => "rd",
-		), $mod_10, "th");
+		], $mod_10, "th");
 	}
 
 	/**
@@ -161,14 +161,14 @@ class Locale_EN extends Locale {
 			$preferred_prefix = "Non-";
 		}
 		$word = trim($word);
-		$negative_prefixes = array(
+		$negative_prefixes = [
 			"not-",
 			"non-",
 			"un-",
 			"not",
 			"non",
 			"un",
-		);
+		];
 		foreach ($negative_prefixes as $prefix) {
 			if (begins($word, $prefix, true)) {
 				return StringTools::case_match(trim(substr($word, strlen($prefix))), $word);

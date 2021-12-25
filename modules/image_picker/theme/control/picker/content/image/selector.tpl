@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 use zesk\User_Content_Image;
 use zesk\Content_Image;
 
@@ -40,23 +40,23 @@ $id = 'control-picker-' . $this->column . '-q';
 	?>"><?php
 	$query = $application->orm_registry(User_Content_Image::class)
 		->query_select()
-		->link(Content_Image::class, array(
+		->link(Content_Image::class, [
 		'alias' => 'ucimage',
-	))
+	])
 		->what_object(Content_Image::class)
 		->where('X.user', $this->current_user);
 	//echo $query->__toString();
 	$iterator = $query->orm_iterator(Content_Image::class);
 	foreach ($iterator as $image) {
-		echo $this->theme('control/picker/content/image/item', array(
+		echo $this->theme('control/picker/content/image/item', [
 			'object' => $image,
-		));
+		]);
 	}
 	?></div>
 <?php
-$response->response_data(array(
+$response->response_data([
 	'context_class' => 'modal-lg',
-), true);
+], true);
 
 $response->jquery("\$('#$id').image_picker();");
 

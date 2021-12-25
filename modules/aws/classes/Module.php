@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -20,7 +20,7 @@ class Module extends \zesk\Module {
 	 *
 	 * @var string
 	 */
-	const PATH_SYSTEM_HYPERVISOR_UUID_PATH = '/sys/hypervisor/uuid';
+	public const PATH_SYSTEM_HYPERVISOR_UUID_PATH = '/sys/hypervisor/uuid';
 
 	/**
 	 *
@@ -40,22 +40,20 @@ class Module extends \zesk\Module {
 	 *
 	 * @see \zesk\Module::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		if (!$this->is_ec2()) {
 			return;
 		}
 		if (!$this->option_bool("disable_server_integration")) {
-			$this->application->hooks->add(Server::class . "::initialize_names", array(
+			$this->application->hooks->add(Server::class . "::initialize_names", [
 				$this,
 				"server_initialize_names",
-			));
+			]);
 		}
 		if (!$this->option_bool("disable_uname_integration")) {
 			$self = $this;
-			$this->application->hooks->add("uname", function () use ($self) {
-				return $self->awareness()->get(Awareness::setting_mac);
-			});
+			$this->application->hooks->add("uname", fn () => $self->awareness()->get(Awareness::setting_mac));
 		}
 	}
 
@@ -64,7 +62,7 @@ class Module extends \zesk\Module {
 	 * @param array $options
 	 * @return Awareness
 	 */
-	public function awareness(array $options = array()) {
+	public function awareness(array $options = []) {
 		if ($this->awareness) {
 			return $this->awareness;
 		}
@@ -77,7 +75,7 @@ class Module extends \zesk\Module {
 	 *
 	 * @param Server $server
 	 */
-	public function server_initialize_names(Server $server) {
+	public function server_initialize_names(Server $server): void {
 		$awareness = $this->awareness();
 		if ($this->option_bool("disable_uname_integration")) {
 			$server->name = php_uname('n');

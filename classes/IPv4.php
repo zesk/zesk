@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -9,94 +9,94 @@ namespace zesk;
  * @see IPv6
  */
 class IPv4 {
-	public static $private_addresses = array(
-		array(
+	public static $private_addresses = [
+		[
 			'0.0.0.0/8',
 			0,
 			16777215,
-		),
-		array(
+		],
+		[
 			'10.0.0.0/8',
 			167772160,
 			184549375,
-		),
-		array(
+		],
+		[
 			'100.64.0.0/10',
 			1681915904,
 			1686110207,
-		),
-		array(
+		],
+		[
 			'127.0.0.0/8',
 			2130706432,
 			2147483647,
-		),
-		array(
+		],
+		[
 			'169.254.0.0/16',
 			2851995648,
 			2852061183,
-		),
-		array(
+		],
+		[
 			'172.16.0.0/12',
 			2886729728,
 			2887778303,
-		),
-		array(
+		],
+		[
 			'192.0.0.0/29',
 			3221225472,
 			3221225479,
-		),
-		array(
+		],
+		[
 			'192.0.2.0/24',
 			3221225984,
 			3221226239,
-		),
-		array(
+		],
+		[
 			'192.88.99.0/24',
 			3227017984,
 			3227018239,
-		),
-		array(
+		],
+		[
 			'192.168.0.0/16',
 			3232235520,
 			3232301055,
-		),
-		array(
+		],
+		[
 			'198.18.0.0/15',
 			3323068416,
 			3323199487,
-		),
-		array(
+		],
+		[
 			'198.51.100.0/24',
 			3325256704,
 			3325256959,
-		),
-		array(
+		],
+		[
 			'203.0.113.0/24',
 			3405803776,
 			3405804031,
-		),
-		array(
+		],
+		[
 			'224.0.0.0/4',
 			3758096384,
 			4026531839,
-		),
-		array(
+		],
+		[
 			'240.0.0.0/4',
 			4026531840,
 			4294967295,
-		),
-		array(
+		],
+		[
 			'255.255.255.255/32',
 			4294967295,
 			4294967295,
-		),
-	);
+		],
+	];
 
 	/**
 	 * Number of bits
 	 * @var integer
 	 */
-	const BITS = 32;
+	public const BITS = 32;
 
 	/**
 	 * Returns integer value of subnet
@@ -144,7 +144,7 @@ class IPv4 {
 	 * @return boolean
 	 */
 	public static function is_mask($string) {
-		list($ip, $bits) = pair($string, "/", $string, self::BITS);
+		[$ip, $bits] = pair($string, "/", $string, self::BITS);
 		if (integer_between(8, $bits, self::BITS) && self::_valid($ip)) {
 			return true;
 		}
@@ -172,12 +172,12 @@ class IPv4 {
 	 */
 	public static function mask_to_integers($string) {
 		if (!self::is_mask($string)) {
-			return array(
+			return [
 				false,
 				false,
-			);
+			];
 		}
-		list($ip, $bits) = pair($string, "/", $string, self::BITS);
+		[$ip, $bits] = pair($string, "/", $string, self::BITS);
 
 		if (is_numeric($bits) && self::_valid($ip)) {
 			$bits = clamp(8, intval($bits), self::BITS);
@@ -195,10 +195,10 @@ class IPv4 {
 			$ip = implode(".", $x);
 			$bits = $n * 8;
 		}
-		return array(
+		return [
 			self::subnet_bits(self::to_integer($ip), $bits),
 			$bits,
-		);
+		];
 	}
 
 	/**
@@ -215,7 +215,7 @@ class IPv4 {
 	 */
 	public static function mask_to_string($ip, $ip_bits = self::BITS, $star_notation = true) {
 		$ip_bits = to_integer($ip_bits, self::BITS);
-		$ip = doubleval($ip);
+		$ip = floatval($ip);
 		if ($ip_bits === self::BITS) {
 			return self::from_integer($ip);
 		}
@@ -239,14 +239,14 @@ class IPv4 {
 	 * @see self::mask_to_integers
 	 */
 	public static function network($network) {
-		list($low_ip, $n_bits) = self::mask_to_integers($network);
+		[$low_ip, $n_bits] = self::mask_to_integers($network);
 		//	echo long2ip($low_ip) . ":" . $n_bits . "\n";
 		//	echo long2ip(self::subnet_mask_not($n_bits)) . "\n";
 		$high_ip = $low_ip + self::subnet_mask_not($n_bits);
-		return array(
+		return [
 			$low_ip,
 			$high_ip,
-		);
+		];
 	}
 
 	/**
@@ -265,7 +265,7 @@ class IPv4 {
 	 */
 	public static function within_network($ip, $network) {
 		$ip = self::to_integer($ip);
-		list($low_ip, $high_ip) = self::network($network);
+		[$low_ip, $high_ip] = self::network($network);
 		return ($ip >= $low_ip && $ip <= $high_ip);
 	}
 
@@ -276,17 +276,17 @@ class IPv4 {
 	 * @return double
 	 */
 	public static function to_integer($mixed) {
-		if (is_integer($mixed)) {
+		if (is_int($mixed)) {
 			return $mixed;
 		}
-		if (is_double($mixed)) {
+		if (is_float($mixed)) {
 			return $mixed;
 		}
 		if (empty($mixed)) {
 			return null;
 		}
-		list($a, $b, $c, $d) = explode(".", $mixed, 4) + array_fill(0, 4, 0);
-		return ((((doubleval($a) * 256) + doubleval($b)) * 256 + doubleval($c)) * 256 + doubleval($d));
+		[$a, $b, $c, $d] = explode(".", $mixed, 4) + array_fill(0, 4, 0);
+		return ((((floatval($a) * 256) + floatval($b)) * 256 + floatval($c)) * 256 + floatval($d));
 	}
 
 	/**
@@ -297,7 +297,7 @@ class IPv4 {
 	 * @return string An ip address
 	 */
 	public static function from_integer($ip_integer) {
-		$ip_integer = doubleval($ip_integer);
+		$ip_integer = floatval($ip_integer);
 		$d = fmod($ip_integer, 256);
 		$ip_integer = intval($ip_integer / 256);
 		$c = $ip_integer & 0xFF;
@@ -333,7 +333,7 @@ class IPv4 {
 		if (count($x) != 4) {
 			return false;
 		}
-		list($a, $b, $c, $d) = $x;
+		[$a, $b, $c, $d] = $x;
 		return integer_between(1, $a, 255) && integer_between(0, $b, 255) && integer_between(0, $c, 255) && integer_between($low_low, $d, 255);
 	}
 

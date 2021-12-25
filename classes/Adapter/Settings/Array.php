@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -72,7 +72,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @param mixed $name A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
-	public function __set($name, $value) {
+	public function __set($name, $value): void {
 		apath_set($this->data, $name, $value, ZESK_GLOBAL_KEY_SEPARATOR);
 	}
 

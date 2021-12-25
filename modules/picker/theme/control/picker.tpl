@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -9,28 +9,28 @@ namespace zesk;
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
-$uri = URL::query_append($this->request->uri(), array(
+$uri = URL::query_append($this->request->uri(), [
 	"widget::target" => $this->column,
 	"ajax" => 1,
 	"action" => "selector",
-));
+]);
 
 $column = $this->column;
 $list_id = "$column-control-picker-items";
 
 echo HTML::tag_open('div', '.control-picker');
-echo HTML::tag('div', '.btn-group', HTML::tag('a', array(
+echo HTML::tag('div', '.btn-group', HTML::tag('a', [
 	'class' => 'btn btn-default',
 	'data-modal-url' => $uri,
 	'data-target' => "#$list_id",
-), $this->get('label_button', HTML::span('.glyphicon .glyphicon-plus', ''))));
+], $this->get('label_button', HTML::span('.glyphicon .glyphicon-plus', ''))));
 
-$results = array();
+$results = [];
 foreach ($this->objects as $object) {
-	$results[] = $this->theme($this->theme_item, array(
+	$results[] = $this->theme($this->theme_item, [
 		"object" => $object,
 		"selected" => true,
-	));
+	]);
 }
 // $n = count($results);
 // echo HTML::tag('span', '.badge', __('{n} {nouns} selected', array(

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $widget Widget */
@@ -11,12 +11,12 @@ $query = $this->query;
 foreach ($query->orm_iterator() as $key => $object) {
 	$this_row = clone $row_widget;
 
-	$this_row->set_theme_variables(array(
+	$this_row->set_theme_variables([
 		"odd" => $odd,
 		"key" => $key,
 		"object" => $object,
 		"row_index" => $total,
-	));
+	]);
 
 	$widget->children_hook("control_list_row", $object, $this_row, $this);
 
@@ -25,7 +25,7 @@ foreach ($query->orm_iterator() as $key => $object) {
 	++$total;
 }
 if ($total === 0) {
-	echo $this->theme($this->theme_empty, array(), array(
+	echo $this->theme($this->theme_empty, [], [
 		'first' => true,
-	));
+	]);
 }

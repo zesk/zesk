@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @no_buffer true
  * @author kent
@@ -12,13 +12,13 @@ namespace zesk;
  *
  */
 class Overhead_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"ORM",
-	);
+	];
 
-	public function test_usage() {
+	public function test_usage(): void {
 		$test_limit = 10 * 1024 * 1024; // 10M
-		$users = array();
+		$users = [];
 		$start = memory_get_usage();
 		$stop = $start + $test_limit;
 		// echo "Start=$start, Stop=$stop\n";
@@ -31,11 +31,11 @@ class Overhead_Test extends Test_Unit {
 			// echo "$current < $stop, " . ($current < $stop) . "\n";
 		} while ($current < $stop);
 		$nusers = count($users);
-		$this->log("{nusers} users fit in {bytes}, or {per_user} per user", array(
+		$this->log("{nusers} users fit in {bytes}, or {per_user} per user", [
 			"nusers" => $nusers,
 			"bytes" => Number::format_bytes($this->application->locale, $test_limit),
 			"per_user" => Number::format_bytes($this->application->locale, $test_limit / $nusers),
-		));
+		]);
 	}
 
 	private function run_php_sandbox($sandbox) {
@@ -49,7 +49,7 @@ class Overhead_Test extends Test_Unit {
 	/**
 	 * @no_buffer true
 	 */
-	public function test_kernel_usage() {
+	public function test_kernel_usage(): void {
 		$sandbox = $this->test_sandbox("run.php");
 		file_put_contents($sandbox, "<?php\necho memory_get_usage();");
 		$result = $this->run_php_sandbox($sandbox);

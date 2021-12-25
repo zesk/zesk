@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -64,12 +64,12 @@ class preg implements \ArrayAccess, \Iterator {
 	 *
 	 * @var array
 	 */
-	private $offsets = array();
+	private $offsets = [];
 
 	/**
 	 *
 	 */
-	private function __construct($pattern, $text, $flag = PREG_SET_ORDER, $offset) {
+	private function __construct($pattern, $text, $flag = PREG_SET_ORDER, $offset = 0) {
 		$this->pattern = $pattern;
 		$this->text = $text;
 		$this->flag = $flag;
@@ -79,7 +79,7 @@ class preg implements \ArrayAccess, \Iterator {
 		}
 		$flag |= PREG_OFFSET_CAPTURE;
 		if (!preg_match_all($pattern, $text, $this->matches, $flag, $offset)) {
-			$this->matches = array();
+			$this->matches = [];
 		}
 		/**
 		 * Make results consistent with non-offset-capture and store in parallel array
@@ -122,14 +122,14 @@ class preg implements \ArrayAccess, \Iterator {
 	/**
 	 * @param offset
 	 */
-	public function offsetGet($offset) {
+	public function offsetGet($offset): int {
 		return avalue($this->matches, $offset);
 	}
 
 	/**
 	 * @param offset
 	 */
-	public function offsetExists($offset) {
+	public function offsetExists($offset): bool {
 		return array_key_exists($offset, $this->matches);
 	}
 
@@ -137,34 +137,34 @@ class preg implements \ArrayAccess, \Iterator {
 	 * @param offset
 	 * @param value
 	 */
-	public function offsetSet($offset, $value) {
+	public function offsetSet($offset, $value): void {
 		$this->matches[$offset] = $value;
 	}
 
 	/**
 	 * @param offset
 	 */
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset): void {
 		unset($this->matches[$offset]);
 	}
 
-	public function current() {
+	public function current(): mixed {
 		return current($this->matches);
 	}
 
-	public function next() {
+	public function next(): void {
 		next($this->matches);
 	}
 
-	public function key() {
+	public function key(): mixed {
 		return key($this->matches);
 	}
 
-	public function valid() {
+	public function valid(): bool {
 		return $this->key() !== null;
 	}
 
-	public function rewind() {
+	public function rewind(): void {
 		reset($this->matches);
 	}
 }

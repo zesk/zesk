@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,7 +10,7 @@ namespace zesk;
  *
  */
 class Functions_Test extends Test_Unit {
-	public function test_path() {
+	public function test_path(): void {
 		path();
 
 		$this->assert(path("a", "b") === "a/b", path("a", "b") . " !== 'a/b'");
@@ -19,57 +19,57 @@ class Functions_Test extends Test_Unit {
 		$this->assert(path("a/", "/b") === "a/b", path("a/", "b") . " !== 'a/b'");
 		$this->assert(path("/a/", "/b") === "/a/b", path("/a/", "/b") . " !== '/a/b'");
 		$this->assert(path("/a/", "/b/") === "/a/b/", path("/a/", "/b/") . " !== '/a/b/'");
-		$result = path("/a/", "/./", array(
+		$result = path("/a/", "/./", [
 			"/./",
 			"////",
 			"/././",
-		), "/b/");
+		], "/b/");
 		$this->assert($result === "/a/b/", $result . " !== '/a/b/'");
 
-		$result = path("/publish/nfs/monitor-services", array(
+		$result = path("/publish/nfs/monitor-services", [
 			'control',
 			'ruler-reader',
-		));
+		]);
 		$this->assert($result === "/publish/nfs/monitor-services/control/ruler-reader", "$result !== /publish/nfs/monitor-services/control/ruler-reader");
 	}
 
-	public function test_aevalue() {
-		$a = array(
+	public function test_aevalue(): void {
+		$a = [
 			"a" => null,
 			"b" => 0,
 			"c" => "",
-			"d" => array(),
+			"d" => [],
 			"e" => "0",
-		);
+		];
 		$ak = array_keys($a);
 		foreach ($ak as $k) {
 			$this->assert(aevalue($a, $k, "-EMPTY-") === "-EMPTY-", aevalue($a, $k, "-EMPTY-") . " === \"-EMPTY-\"");
 		}
-		$b = array(
+		$b = [
 			"a" => "null",
 			"b" => "1",
 			"c" => " ",
-			"d" => array(
+			"d" => [
 				"a",
-			),
-		);
+			],
+		];
 		foreach ($b as $k => $v) {
 			$this->assert_equal(aevalue($b, $k, "-EMPTY-"), $v, _dump(aevalue($b, $k, "-EMPTY-")) . " === " . _dump($v) . " ($k => " . _dump($v) . ")");
 		}
 	}
 
-	public function test_avalue() {
-		$a = array();
+	public function test_avalue(): void {
+		$a = [];
 		$k = "";
 		$default = null;
 		avalue($a, $k, $default);
 
-		$a = array(
+		$a = [
 			"" => "empty",
 			"0" => "zero",
 			"A" => "a",
 			"B" => "b",
-		);
+		];
 		$this->assert(avalue($a, "") === "empty");
 		$this->assert(avalue($a, "z") === null);
 		$this->assert(avalue($a, "0") === "zero");
@@ -78,7 +78,7 @@ class Functions_Test extends Test_Unit {
 		$this->assert(avalue($a, "a", "dude") === "dude");
 	}
 
-	public function test___() {
+	public function test___(): void {
 		$phrase = null;
 		$language = "en";
 		__($phrase, $language);
@@ -88,41 +88,41 @@ class Functions_Test extends Test_Unit {
 		__($phrase, $locale);
 	}
 
-	public function test_theme() {
+	public function test_theme(): void {
 		$app = $this->application;
 		$theme_path = $app->theme_path();
 		$type = null;
 		$this->assert_equal($app->theme("microsecond", 42.512312), "42.5123");
-		$this->assert_equal($app->theme("percent", array(
+		$this->assert_equal($app->theme("percent", [
 			42.512312,
 			1,
-		)), "42.5%");
-		$this->assert_equal($app->theme("percent", array(
+		]), "42.5%");
+		$this->assert_equal($app->theme("percent", [
 			42.552312,
 			1,
-		)), "42.6%");
-		echo $app->theme("percent", array(
+		]), "42.6%");
+		echo $app->theme("percent", [
 			42.552312,
 			1,
-		)) . "\n";
-		$this->assert_equal($app->theme("percent", array(
+		]) . "\n";
+		$this->assert_equal($app->theme("percent", [
 			42.552312,
 			0,
-		)), "43%");
+		]), "43%");
 
-		echo $app->theme('control/button', array(
+		echo $app->theme('control/button', [
 			'label' => 'OK',
 			'object' => new Model($this->application),
-		));
+		]);
 	}
 
-	public function test_dump() {
+	public function test_dump(): void {
 		$x = null;
 		$html = true;
 		dump($x, $html);
 	}
 
-	public function test_backtrace() {
+	public function test_backtrace(): void {
 		$doExit = false;
 		$n = -1;
 		backtrace($doExit, $n);
@@ -132,84 +132,84 @@ class Functions_Test extends Test_Unit {
 	}
 
 	public function bad_dates() {
-		return array(
+		return [
 			'',
-		);
+		];
 	}
 
 	public function good_dates() {
-		return array(
+		return [
 			'2012-10-15',
 			'today',
 			'next Tuesday',
 			'+3 days',
 			'October 15th, 2012',
-		);
+		];
 	}
 
 	/**
 	 * @data_provider good_dates
 	 */
-	public function test_is_date($good_date) {
+	public function test_is_date($good_date): void {
 		$this->assert(is_date($good_date));
 	}
 
 	/**
 	 * @data_provider bad_dates
 	 */
-	public function test_is_date_not($bad_date) {
+	public function test_is_date_not($bad_date): void {
 		$this->assert(!is_date($bad_date));
 	}
 
 	public function is_email_data() {
-		return array(
-			array(
+		return [
+			[
 				'info@conversionruler.com',
-			),
-			array(
+			],
+			[
 				'John-Doearasdf@conversionruler.com',
-			),
-			array(
+			],
+			[
 				'John-Doe#arasdf@conversionruler.com',
-			),
-			array(
+			],
+			[
 				'John-Doe`arasdf@conversionruler.co.uk',
-			),
-			array(
+			],
+			[
 				'John-Doe`#arasdf@conversionruler.co.uk',
-			),
-		);
+			],
+		];
 	}
 
 	public function not_is_email_data() {
-		return array(
-			array(
+		return [
+			[
 				'info@conversion$ruler.com',
-			),
-			array(
+			],
+			[
 				'.NotAGoodOne@example.com',
-			),
-			array(
+			],
+			[
 				'NotAGoodOne@-example.com',
-			),
-		);
+			],
+		];
 	}
 
 	/**
 	 * @dataProvider is_email_data
 	 */
-	public function test_is_email($email) {
+	public function test_is_email($email): void {
 		$this->assertTrue(is_email($email), "is_email($email)");
 	}
 
 	/**
 	 * @dataProvider not_is_email_data
 	 */
-	public function test_is_not_email($email) {
+	public function test_is_not_email($email): void {
 		$this->assertFalse(is_email($email), "is_email($email)");
 	}
 
-	public function test_is_phone() {
+	public function test_is_phone(): void {
 		$phone = null;
 		is_phone($phone);
 
@@ -221,14 +221,14 @@ class Functions_Test extends Test_Unit {
 		$this->assert(is_phone('222.333.4444') === true);
 	}
 
-	public function test_clamp() {
+	public function test_clamp(): void {
 		$minValue = null;
 		$value = null;
 		$maxValue = null;
 		clamp($minValue, $value, $maxValue);
 	}
 
-	public function test_vartype() {
+	public function test_vartype(): void {
 		$this->assert_equal("NULL", type(null));
 		$this->assert_equal("stdClass", type(new \stdClass()));
 		$this->assert_equal("zesk\\Date", type(new Date()));
@@ -240,14 +240,14 @@ class Functions_Test extends Test_Unit {
 		$this->assert_equal("boolean", type(true));
 	}
 
-	public function test_to_list() {
+	public function test_to_list(): void {
 		$mixed = null;
 		$default = null;
 		$delimiter = ";";
 		to_list($mixed, $default, $delimiter);
 	}
 
-	public function test_to_integer() {
+	public function test_to_integer(): void {
 		$s = null;
 		$def = null;
 		to_integer($s, $def);
@@ -262,10 +262,10 @@ class Functions_Test extends Test_Unit {
 		$this->assert(to_integer(false, null) === null);
 		$this->assert(to_integer(true, null) === null);
 		$this->assert(to_integer(true, null) === null);
-		$this->assert(to_integer(array(), null) === null);
+		$this->assert(to_integer([], null) === null);
 	}
 
-	public function test_to_double() {
+	public function test_to_double(): void {
 		$s = null;
 		$def = null;
 		to_double($s, $def);
@@ -276,12 +276,12 @@ class Functions_Test extends Test_Unit {
 		$this->assert(to_double("-1", null) === -1.0);
 
 		$this->assert(to_double("e10000", null) === null);
-		$this->assert(to_double(array(), null) === null);
+		$this->assert(to_double([], null) === null);
 
 		echo basename(__FILE__) . ": success\n";
 	}
 
-	public function test_to_bool() {
+	public function test_to_bool(): void {
 		$this->assert(to_bool(true, null) === true);
 		$this->assert(to_bool(1, null) === true);
 		$this->assert(to_bool("1", null) === true);
@@ -314,7 +314,7 @@ class Functions_Test extends Test_Unit {
 		$this->assert(to_bool("", null) === false);
 
 		$this->assert(to_bool("01", null) === null);
-		$this->assert(to_bool(array(), null) === null);
+		$this->assert(to_bool([], null) === null);
 		$this->assert(to_bool(new \stdClass(), null) === null);
 	}
 
@@ -326,17 +326,17 @@ class Functions_Test extends Test_Unit {
 			return $default;
 		}
 		$value = strtolower($value);
-		if (strpos(";1;t;y;yes;on;enabled;true;", ";$value;") !== false) {
+		if (str_contains(";1;t;y;yes;on;enabled;true;", ";$value;")) {
 			return true;
 		}
-		if (strpos(";0;f;n;no;off;disabled;false;null;", ";$value;") !== false) {
+		if (str_contains(";0;f;n;no;off;disabled;false;null;", ";$value;")) {
 			return false;
 		}
 		return $default;
 	}
 
 	public static function to_bool_in_array($value, $default = false) {
-		static $tarray = array(
+		static $tarray = [
 			1,
 			't',
 			'y',
@@ -344,8 +344,8 @@ class Functions_Test extends Test_Unit {
 			'on',
 			'enabled',
 			'true',
-		);
-		static $farray = array(
+		];
+		static $farray = [
 			0,
 			'f',
 			'n',
@@ -354,7 +354,7 @@ class Functions_Test extends Test_Unit {
 			'disabled',
 			'false',
 			'null',
-		);
+		];
 		if (is_bool($value)) {
 			return $value;
 		}
@@ -378,7 +378,7 @@ class Functions_Test extends Test_Unit {
 	 *
 	 * @see \to_bool
 	 */
-	public function test_to_bool_timing() {
+	public function test_to_bool_timing(): void {
 		$value = null;
 		$default = false;
 		to_bool($value, $default);
@@ -401,51 +401,51 @@ class Functions_Test extends Test_Unit {
 		$this->assert($strpos_timing < $in_array_timing * (1 + ($diff / 100)), "strpos to_bool is more than $diff% slower than in_array implementation");
 	}
 
-	public function test_to_array() {
+	public function test_to_array(): void {
 		$mixed = null;
 		$default = null;
 		to_array($mixed, $default);
 
-		$this->assert(to_array("foo") === array(
+		$this->assert(to_array("foo") === [
 			"foo",
-		));
-		$this->assert(to_array(array(
+		]);
+		$this->assert(to_array([
 			"foo",
-		)) === array(
+		]) === [
 			"foo",
-		));
-		$this->assert(to_array(array(
+		]);
+		$this->assert(to_array([
 			"foo",
-		)) !== array(
+		]) !== [
 			"foob",
-		));
-		$this->assert(to_array(array(
+		]);
+		$this->assert(to_array([
 			1,
-		)) !== array(
+		]) !== [
 			"1",
-		));
-		$this->assert(to_array(array(
+		]);
+		$this->assert(to_array([
 			1,
-		)) !== array(
+		]) !== [
 			"1",
-		));
-		$this->assert(to_array(1) === array(
+		]);
+		$this->assert(to_array(1) === [
 			1,
-		));
-		$this->assert(to_array("1") === array(
+		]);
+		$this->assert(to_array("1") === [
 			"1",
-		));
+		]);
 
 		echo basename(__FILE__) . ": success\n";
 	}
 
-	public function test_newline() {
+	public function test_newline(): void {
 		$set = null;
 		newline($set);
 		echo basename(__FILE__) . ": success\n";
 	}
 
-	public function test_map() {
+	public function test_map(): void {
 		$test = <<<EOF
 <html>
 <body bgcolor=FFFFFF text=000000>
@@ -498,7 +498,7 @@ function MM_findObj(n, d)
     }
 EOF;
 
-		$foo = map($test, array());
+		$foo = map($test, []);
 
 		$sandbox = $this->test_sandbox();
 		// file_put_contents("$sandbox/function.map.0.txt", $foo);
@@ -506,12 +506,12 @@ EOF;
 		$this->assert($foo === $test, "Mismatch $foo");
 
 		$prefix = "dude";
-		$a = array(
+		$a = [
 			"a" => "b",
 			"b" => "c",
 			"c" => "d",
 			"d" => "e",
-		);
+		];
 		$contents = "{dudea}{a}{dudeb}{b}{duDeC}{c}{dudeD}{d}";
 		$v = map($contents, ArrayTools::kprefix($a, $prefix), true);
 		$this->assert($v === "b{a}c{b}d{c}e{d}", $v . "=== \"b{a}c{b}d{c}e{d}\"");
@@ -519,7 +519,7 @@ EOF;
 		$this->assert($v === "b{a}c{b}{duDeC}{c}{dudeD}{d}", $v . " === \"b{a}c{b}{duDeC}{c}{dudeD}{d}\"");
 	}
 
-	public function test_integer_between() {
+	public function test_integer_between(): void {
 		$min = null;
 		$x = null;
 		$max = null;
@@ -527,7 +527,7 @@ EOF;
 
 		$this->assert(integer_between(10, 10, 200) === true);
 		$this->assert(integer_between(10, 9, 200) === false);
-		$this->assert(integer_between(10, array(), 200) === false);
+		$this->assert(integer_between(10, [], 200) === false);
 		$this->assert(integer_between(10, 200, 200) === true);
 		$this->assert(integer_between(10, 201, 200) === false);
 	}

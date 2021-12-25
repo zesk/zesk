@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -16,9 +16,9 @@ echo HTML::tag_open('ol', '.exception-trace');
 $skip_frames = $request->geti("skip_frames", 10);
 $frames = $request->geti("frames", 20);
 foreach ($trace as $index => $trace_item) {
-	echo $this->theme('exception/trace-item', array(
+	echo $this->theme('exception/trace-item', [
 		"content" => $trace_item,
-	));
+	]);
 	if ($frames > 0 && $index >= $frames - 1) {
 		break;
 	}

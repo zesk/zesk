@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
@@ -35,13 +35,13 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	 * Local stat cache for "stat" call
 	 * @var array
 	 */
-	private $stat_cache = array();
+	private $stat_cache = [];
 
 	/**
 	 * Connect to the remote host
 	 * @see Net_Client::connect()
 	 */
-	public function connect() {
+	public function connect(): void {
 		if ($this->is_connected()) {
 			throw new Exception_Semantics("Already connected.");
 		}
@@ -85,7 +85,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	 */
 	public function disconnect() {
 		if ($this->is_connected()) {
-			$this->stat_cache = array();
+			$this->stat_cache = [];
 			ftp_close($this->ftp);
 			$this->ftp = null;
 			return true;
@@ -106,7 +106,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 		return $this->passive;
 	}
 
-	private function _passive() {
+	private function _passive(): void {
 		if ($this->ftp_passive !== $this->passive) {
 			ftp_pasv($this->ftp, $this->passive);
 			$this->ftp_passive = $this->passive;
@@ -116,7 +116,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	public function ls($path = null) {
 		$this->_passive();
 		$lines = ftp_rawlist($this->ftp, $path === null ? "" : $path);
-		$entries = array();
+		$entries = [];
 		foreach ($lines as $line) {
 			$entry = $this->parse_ls_line($line);
 			if (is_array($entry)) {
@@ -163,7 +163,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 		return ftp_chdir($this->ftp, $path);
 	}
 
-	public function chmod($path, $mode = 0770) {
+	public function chmod($path, $mode = 0o770) {
 		return ftp_chmod($this->ftp, $mode, $path);
 	}
 
@@ -174,10 +174,10 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 		if (!$listing) {
 			$this->stat_cache[$dir] = $listing = $this->ls($dir);
 		}
-		return avalue($listing, $file, array(
+		return avalue($listing, $file, [
 			'type' => null,
 			'name' => $file,
-		));
+		]);
 	}
 
 	public function mtime($path, Timestamp $ts) {

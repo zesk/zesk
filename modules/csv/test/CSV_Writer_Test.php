@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
@@ -8,11 +8,11 @@
 namespace zesk;
 
 class CSV_Writer_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"csv",
-	);
+	];
 
-	public function test_main() {
+	public function test_main(): void {
 		$x = new CSV_Writer();
 
 		$f = $this->test_sandbox("csv_writer.csv");
@@ -22,9 +22,9 @@ class CSV_Writer_Test extends Test_Unit {
 
 		try {
 			$name = "omap";
-			$map = array(
+			$map = [
 				"Title" => "B",
-			);
+			];
 			$x->add_object_map($name, $map);
 		} catch (Exception_Semantics $e) {
 			$success = true;
@@ -37,9 +37,9 @@ class CSV_Writer_Test extends Test_Unit {
 
 		try {
 			$name = "test";
-			$map = array(
+			$map = [
 				"Title" => "B",
-			);
+			];
 			$x->add_translation_map($name, $map);
 		} catch (Exception_Semantics $e) {
 			$success = true;
@@ -50,48 +50,48 @@ class CSV_Writer_Test extends Test_Unit {
 
 		try {
 			$name = "SomeObject";
-			$fields = array(
+			$fields = [
 				"Title" => "Name",
-			);
+			];
 			$x->set_object($name, $fields);
 		} catch (Exception_Key $e) {
 			$success = true;
 		}
 		$this->assert($success);
 
-		$set_headers = array(
+		$set_headers = [
 			"Title",
 			"CodeName",
 			"Something",
-		);
+		];
 		$this->assert_equal($x->set_headers($set_headers, false), $x);
 
 		$headers = $x->headers();
 		$this->assert_equal($headers, $set_headers);
 
 		$name = "omap";
-		$map = array(
+		$map = [
 			"B" => "Title",
-		);
+		];
 		$defaultMap = null;
 		$x->add_object_map($name, $map, $defaultMap);
 
 		$name = "CodeName";
-		$map = array(
+		$map = [
 			"Title" => "C",
-		);
+		];
 		$x->add_translation_map($name, $map);
 
 		$name = "omap";
-		$map = array(
+		$map = [
 			"B" => "Title",
-		);
+		];
 		$x->set_object($name, $fields);
 
-		$row = array();
+		$row = [];
 		$x->set_row($row);
 
-		$col = null;
+		$col = "foo";
 		$data = null;
 		$x->set_column($col, $data);
 
@@ -107,7 +107,7 @@ class CSV_Writer_Test extends Test_Unit {
 	}
 
 	public function badkeys() {
-		return array(
+		return [
 			"f!rst",
 			"2ECOND",
 			"THURD",
@@ -115,55 +115,55 @@ class CSV_Writer_Test extends Test_Unit {
 			"random",
 			"5 ",
 			"six",
-		);
+		];
 	}
 
 	public function goodkeys() {
-		return array(
+		return [
 			"first",
 			"SECOND",
 			"tHIRD",
 			"4th",
 			5,
-		);
+		];
 	}
 
 	/**
 	 * @data_provider badkeys
 	 * @expectedException zesk\Exception_Key
 	 */
-	public function test_badkey($badkey) {
+	public function test_badkey($badkey): void {
 		$x = new CSV_Writer();
-		$x->set_headers(array(
+		$x->set_headers([
 			"First",
 			"Second",
 			"Third",
 			"4th",
 			"5",
 			6,
-		), false);
+		], false);
 
-		$x->add_object_map("test", array(
+		$x->add_object_map("test", [
 			"ID" => $badkey,
-		));
+		]);
 	}
 
 	/**
 	 * @data_provider goodkeys
 	 */
-	public function test_goodkey($key) {
+	public function test_goodkey($key): void {
 		$x = new CSV_Writer();
-		$x->set_headers(array(
+		$x->set_headers([
 			"First",
 			"Second",
 			"Third",
 			"4th",
 			"5",
 			6,
-		), false);
+		], false);
 
-		$x->add_object_map("test", array(
+		$x->add_object_map("test", [
 			"ID" => $key,
-		));
+		]);
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage feed
@@ -25,7 +25,7 @@ class CachedFeed extends Feed {
 	public function execute() {
 		$cache_item = $this->application->cache->getItem(__CLASS__ . "-" . $this->url);
 		if ($cache_item->isHit()) {
-			list($this->posts, $this->last_updated) = $cache_item->get();
+			[$this->posts, $this->last_updated] = $cache_item->get();
 			foreach ($this->posts as $post) {
 				$post->feed = $this;
 			}
@@ -33,10 +33,10 @@ class CachedFeed extends Feed {
 			if (!parent::execute()) {
 				return null;
 			}
-			$cache_item->set(array(
+			$cache_item->set([
 				$this->posts,
 				Timestamp::now(),
-			));
+			]);
 			$cache_item->expiresAfter($this->option("ttl", 600));
 			$this->application->cache->saveDeferred($cache_item);
 		}

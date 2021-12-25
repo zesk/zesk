@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage inplace
@@ -51,7 +51,7 @@ abstract class Control_List_InPlace extends Control_List {
 	 *
 	 * @var array
 	 */
-	protected $widget_attributes = array();
+	protected $widget_attributes = [];
 
 	/**
 	 *
@@ -59,26 +59,26 @@ abstract class Control_List_InPlace extends Control_List {
 	 */
 	protected $list_tag = "div";
 
-	protected $list_attributes = array(
+	protected $list_attributes = [
 		"class" => "list list-inplace",
-	);
+	];
 
 	protected $total_title = null;
 
 	protected $hierarchy_column = null;
 
-	protected $row_attributes = array(
+	protected $row_attributes = [
 		"class" => "row",
 		"id" => "row-{id}",
 		"data-id" => "{id}",
-	);
+	];
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Control_List::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
 		$id = $this->id();
 		if (!$id) {
@@ -110,13 +110,13 @@ abstract class Control_List_InPlace extends Control_List {
 	 */
 	public function theme_variables() {
 		$locale = $this->application->locale;
-		return array(
+		return [
 			'hierarchy_column' => $this->hierarchy_column,
 			'total_title' => $locale->__($this->total_title),
 			'target' => $this->option('target'),
 			'dismiss_button' => $this->option_bool("dismiss_button", true),
 			'current_user' => $this->user(),
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 
 	/**

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -18,30 +18,30 @@ use zesk\TimeSpan;
  *
  */
 class Module extends \zesk\Module {
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 	}
 
 	/**
 	 * Support old class name
 	 */
-	public function hook_configured() {
+	public function hook_configured(): void {
 		$this->application->configuration->deprecated("zesk\\Module_Cleaner", self::class);
 	}
 
 	/**
 	 * Run every hour and clean things up
 	 */
-	public function hook_cron_hour() {
+	public function hook_cron_hour(): void {
 		$directories = $this->option_array("directories");
 		foreach ($directories as $code => $settings) {
 			$path = $extensions = $lifetime = null;
 			extract($settings, EXTR_IF_EXISTS);
 			if (!$path) {
-				$this->application->logger->warning("{class}::directories::{code}::path is not set, skipping entry", array(
+				$this->application->logger->warning("{class}::directories::{code}::path is not set, skipping entry", [
 					"class" => $this->class,
 					"code" => $code,
-				));
+				]);
 
 				continue;
 			}
@@ -53,12 +53,12 @@ class Module extends \zesk\Module {
 			}
 			$span = new TimeSpan($lifetime);
 			if (!$span->valid()) {
-				$this->application->logger->warning("{class}::directories::{code}::lifetime is not a valid time span value ({lifetime} is type {lifetime-type}), skipping entry", array(
+				$this->application->logger->warning("{class}::directories::{code}::lifetime is not a valid time span value ({lifetime} is type {lifetime-type}), skipping entry", [
 					"class" => __CLASS__,
 					"code" => $code,
 					"lifetime" => $lifetime,
 					"lifetime-type" => type($lifetime),
-				));
+				]);
 
 				continue;
 			}
@@ -72,16 +72,16 @@ class Module extends \zesk\Module {
 	 * @param string $extension
 	 */
 	public function clean_path($path, $extensions = null, $lifetime_seconds = 604800) {
-		$list_attributes = array(
+		$list_attributes = [
 			"rules_directory_walk" => true,
 			"rules_directory" => false,
 			"add_path" => true,
-		);
+		];
 		if (is_array($extensions) && count($extensions) > 0) {
-			$list_attributes["rules_file"] = array(
+			$list_attributes["rules_file"] = [
 				"#\.(" . implode("|", $extensions) . ")$#" => true,
 				false,
-			);
+			];
 		} else {
 			$list_attributes['rules_file'] = true;
 		}
@@ -89,27 +89,27 @@ class Module extends \zesk\Module {
 		$files = Directory::list_recursive($path, $list_attributes);
 		$now = time();
 		$modified_after = $now - $lifetime_seconds;
-		$deleted = array();
+		$deleted = [];
 		foreach ($files as $file) {
 			if (!is_file($file)) {
 				continue;
 			}
 			$filemtime = filemtime($file);
 			if ($filemtime < $modified_after) {
-				$this->application->logger->debug("Deleting old file {file} modified on {when}, more than {delta} seconds ago", array(
+				$this->application->logger->debug("Deleting old file {file} modified on {when}, more than {delta} seconds ago", [
 					"file" => $file,
 					"when" => date("Y-m-d H:i:s"),
 					"delta" => $now - $filemtime,
-				));
+				]);
 				@unlink($file);
 				$deleted[] = $file;
 			}
 		}
-		$this->application->logger->notice("Deleted {deleted} files from {path} (Expire after {expire_seconds} seconds)", array(
+		$this->application->logger->notice("Deleted {deleted} files from {path} (Expire after {expire_seconds} seconds)", [
 			"deleted" => count($deleted),
 			"path" => $path,
 			"expire_seconds" => $lifetime_seconds,
-		));
+		]);
 		return $deleted;
 	}
 }

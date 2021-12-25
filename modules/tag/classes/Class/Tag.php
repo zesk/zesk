@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk-modules
  * @subpackage tag
@@ -43,7 +43,7 @@ abstract class Class_Tag extends Class_ORM {
 	 * {@inheritDoc}
 	 * @see \zesk\Class_ORM::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		if (!$this->foreign_column) {
 			throw new Exception_Semantics("{class} is misconfigured and needs foreign_column set", [
 				'class' => get_class($this),

@@ -1344,7 +1344,7 @@ Due to the fact that `Database_Query` subclasses all depend on `ORM` and all `ze
 The `zesk\Application` is the center of your application, naturally, but it has evolved to the central point for object creation. To allow distrubution of the factory resposibilities, `zesk\Application` now allows modules (or anything) to register a central factory method. So:
 
 	class MyInvoiceModule extends \zesk\Module {
-		public function initialize() {
+		public function initialize(): void {
 			// This adds the method "invoice_factory" to the zesk\Application
 			$application->register_factory("invoice", array($this, "invoice_factory"));
 		}

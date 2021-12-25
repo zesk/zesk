@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 use zesk\HTML;
 
 /* @var $workflow Workflow */
@@ -8,8 +8,8 @@ $step = $this->step;
 
 $title = $step->title;
 if ($step->href) {
-	$title = HTML::tag('a', array(
+	$title = HTML::tag('a', [
 		'href' => $step->href,
-	), $title);
+	], $title);
 }
 echo HTML::tag('h2', $title) . HTML::etag("p", $step->description);

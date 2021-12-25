@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_Roles extends Control_Checklist_Object {
@@ -8,15 +8,15 @@ class Control_Roles extends Control_Checklist_Object {
 	 */
 	protected $class = "zesk\\Role";
 
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 
 		if (!$this->user_can("zesk\\Role::view_all")) {
-			$this->options['where'] = array(
-				"OR" => array(
+			$this->options['where'] = [
+				"OR" => [
 					"X.visibility" => 1,
-				),
-			);
+				],
+			];
 		}
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -26,13 +26,13 @@ if (is_string($menu_remain)) {
 	}
 	$html_class = strtolower($group_object->class_code_name());
 
-	echo HTML::div(array(
+	echo HTML::div([
 		"class" => "back $html_class-back",
-	), HTML::a($menu['URI'], __("Back to {0}", $object->Name)));
+	], HTML::a($menu['URI'], __("Back to {0}", $object->Name)));
 
-	echo HTML::div(array(
+	echo HTML::div([
 		"class" => $html_class,
-	), $group_object->theme());
+	], $group_object->theme());
 	return;
 }
 
@@ -48,11 +48,11 @@ if ($current_user && $current_user->can("edit", $object)) {
 	echo HTML::a($router->get_route('add', $object), __("Add {name-lower}", $group_object->class_code_name()));
 	echo HTML::tag_close("div");
 }
-echo HTML::etag("p", array(
+echo HTML::etag("p", [
 	"class" => "intro",
-), $object->Body);
-echo $object->theme(array(
+], $object->Body);
+echo $object->theme([
 	"view-item",
 	"./content/group/view-item.tpl",
-));
+]);
 echo HTML::tag_close("div");

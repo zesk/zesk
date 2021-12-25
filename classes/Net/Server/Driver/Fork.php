@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Net/Server/Driver/Fork.php $
  * @author Kent Davidson <kent@marketacumen.com>
@@ -18,7 +18,7 @@ class Net_Server_Driver_Fork extends Net_Server_Driver {
 		parent::__construct($server, $host, $port, $protocol);
 	}
 
-	public function start() {
+	public function start(): void {
 		$this->listen();
 
 		pcntl_signal(SIGCHLD, SIG_IGN);
@@ -52,12 +52,12 @@ class Net_Server_Driver_Fork extends Net_Server_Driver {
 		return true;
 	}
 
-	private function handle_request($client_id) {
+	private function handle_request($client_id): void {
 		$fd = $this->clients[$client_id];
 		while (true) {
-			$fds = array(
+			$fds = [
 				$fd,
-			);
+			];
 			$ready = $this->select($fds);
 			if ($ready === false) {
 				return;

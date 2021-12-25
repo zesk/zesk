@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -68,7 +68,7 @@ class Class_User extends Class_ORM {
 	 * @see hash
 	 * @var string
 	 */
-	public $allowed_hash_methods = array(
+	public $allowed_hash_methods = [
 		"md5",
 		"sha1",
 		"sha512",
@@ -76,14 +76,14 @@ class Class_User extends Class_ORM {
 		"ripemd128",
 		"ripemd160",
 		"ripemd320",
-	);
+	];
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Class_ORM::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		$this->column_types[$this->id_column] = self::type_id;
 		if ($this->column_login && !isset($this->column_types[$this->column_login])) {
 			$this->column_types[$this->column_login] = self::type_string;

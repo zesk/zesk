@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 use zesk\HTML;
 
 /* @var $widget Control_Radio */
@@ -25,9 +25,9 @@ $content = "";
 foreach ($opts as $k => $v) {
 	$attrs = $base_attrs;
 	if (!is_array($v)) {
-		$v = array(
+		$v = [
 			"label" => $v,
-		);
+		];
 	}
 	$label = avalue($v, "label", "");
 	unset($v['label']);
@@ -44,7 +44,7 @@ foreach ($opts as $k => $v) {
 	}
 	$content .= HTML::tag("div", ".radio", HTML::tag("label", HTML::tag("input", $attrs, null) . $label . ($debug ? " " . _dump($k) : '')));
 }
-$result = HTML::tag("div", array(
+$result = HTML::tag("div", [
 	"class" => "control-radio",
-), $content);
+], $content);
 echo $result . $suffix . ($debug ? " Selected K: " . _dump($sel_k) . ";" : "");

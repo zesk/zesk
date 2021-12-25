@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -11,43 +11,43 @@ namespace zesk;
  */
 class Schema_Contact_Date extends ORM_Schema {
 	public function schema() {
-		return $this->map(array(
-			'{table}' => array(
-				'columns' => array(
-					'id' => array(
+		return $this->map([
+			'{table}' => [
+				'columns' => [
+					'id' => [
 						'type' => self::type_id,
-					),
-					'contact' => array(
+					],
+					'contact' => [
 						'type' => self::type_object,
-					),
-					'label' => array(
+					],
+					'label' => [
 						'type' => self::type_object,
-					),
-					'value' => array(
+					],
+					'value' => [
 						'not null' => true,
 						'type' => self::type_date,
-					),
-					'created' => array(
+					],
+					'created' => [
 						'not null' => true,
 						'type' => self::type_timestamp,
 						'default' => '0000-00-00 00:00:00',
-					),
-					'modified' => array(
+					],
+					'modified' => [
 						'type' => self::type_timestamp,
 						'not null' => true,
 						'default' => '0000-00-00 00:00:00',
-					),
-				),
-				'primary keys' => array(
+					],
+				],
+				'primary keys' => [
 					'id' => true,
-				),
-				'indexes' => array(
-					'ContactDates' => array(
+				],
+				'indexes' => [
+					'ContactDates' => [
 						'contact',
 						'value',
-					),
-				),
-			),
-		));
+					],
+				],
+			],
+		]);
 	}
 }

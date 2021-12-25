@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -8,7 +8,7 @@ namespace zesk;
 class Command_Included extends Command_Base {
 	protected $help = "Display a list of all included files so far.";
 
-	public function run() {
+	public function run(): void {
 		echo implode("\n", get_included_files()) . "\n";
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Loads Zesk and allows access to all functionality.
@@ -36,9 +36,9 @@ class Loader {
 	public static function factory() {
 		global $_ZESK;
 
-		return \zesk\Kernel::factory((is_array($_ZESK) ? $_ZESK : array()) + array(
+		return \zesk\Kernel::factory((is_array($_ZESK) ? $_ZESK : []) + [
 			"init" => self::$init,
-		));
+		]);
 	}
 }
 

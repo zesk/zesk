@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
@@ -26,7 +26,7 @@ class World_Bootstrap_Language extends Hookable {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Application $application, array $options = array()) {
+	public static function factory(Application $application, array $options = []) {
 		return $application->factory(__CLASS__, $application, $options);
 	}
 
@@ -35,7 +35,7 @@ class World_Bootstrap_Language extends Hookable {
 	 *
 	 * @param mixed $options
 	 */
-	public function __construct(Application $application, array $options = array()) {
+	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options(Module_World::class);
 		$include_language = $this->option("include_language");
@@ -52,7 +52,7 @@ class World_Bootstrap_Language extends Hookable {
 		return true;
 	}
 
-	public function bootstrap() {
+	public function bootstrap(): void {
 		$application = $this->application;
 		$prefix = __NAMESPACE__ . "\\";
 		$x = $application->orm_factory($prefix . StringTools::unprefix(__CLASS__, $prefix . "World_Bootstrap_"));
@@ -61,10 +61,10 @@ class World_Bootstrap_Language extends Hookable {
 		}
 		$englishCodes = self::_language_codes_en();
 		foreach ($englishCodes as $code => $name) {
-			$x = $application->orm_factory($prefix . "Language", array(
+			$x = $application->orm_factory($prefix . "Language", [
 				'code' => strtoupper($code),
 				'name' => $name,
-			));
+			]);
 			if ($this->is_included($x)) {
 				$x->register();
 				// TODO - add English translation somewhere
@@ -73,7 +73,7 @@ class World_Bootstrap_Language extends Hookable {
 	}
 
 	private static function _language_codes_en() {
-		return array(
+		return [
 			'aa' => "Afar",
 			'ab' => "Abkhazian",
 			'af' => "Afrikaans",
@@ -210,6 +210,6 @@ class World_Bootstrap_Language extends Hookable {
 			'yo' => "Yoruba",
 			'zh' => "Chinese",
 			'zu' => "Zulu",
-		);
+		];
 	}
 }

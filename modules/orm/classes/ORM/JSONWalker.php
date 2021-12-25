@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage orm
@@ -22,9 +22,9 @@ class JSONWalker extends Walker {
 	 *
 	 * @var array
 	 */
-	private $resolve_methods = array(
+	private $resolve_methods = [
 		"json",
-	);
+	];
 
 	/**
 	 * Hook called on ORM class and object before running

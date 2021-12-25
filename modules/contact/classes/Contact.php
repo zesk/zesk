@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @version $Id: contact.inc 4481 2017-03-24 18:21:48Z kent $
@@ -29,9 +29,9 @@ class Contact extends ORM {
 		$where['*hash'] = $query->sql()->function_unhex($hash);
 		$id_column = $class_object->id_column;
 		if (!$id_column) {
-			throw new Exception_Semantics("Find hash on a contact but no ID column {class}", array(
+			throw new Exception_Semantics("Find hash on a contact but no ID column {class}", [
 				"class" => get_class($class_object),
-			));
+			]);
 		}
 		return $query->what($id_column)->where($where)->one_integer($id_column);
 	}
@@ -166,7 +166,7 @@ class Contact extends ORM {
 	}
 
 	public function has_labels($labels) {
-		$objects = array(
+		$objects = [
 			Contact_Address::class,
 			Contact_Date::class,
 			Contact_Email::class,
@@ -174,8 +174,8 @@ class Contact extends ORM {
 			Contact_Person::class,
 			Contact_Phone::class,
 			Contact_URL::class,
-		);
-		$found_labels = array();
+		];
+		$found_labels = [];
 		foreach ($objects as $object) {
 			$found_labels = array_merge($found_labels, self::class_query($object)->where("contact", $this->id())
 				->what("DISTINCT label")

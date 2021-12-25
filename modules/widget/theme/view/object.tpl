@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 use zesk\ORM;
 use zesk\HTML;
 
@@ -30,10 +30,10 @@ if (!empty($value)) {
 	}
 	if ($col_object) {
 		if ($method) {
-			echo call_user_func_array(array(
+			echo call_user_func_array([
 				$col_object,
 				$method,
-			), $method_args);
+			], $method_args);
 			return;
 		}
 		if ($format) {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -23,12 +23,12 @@ class View_Image_Text extends View {
 		$ymin = min($box[1], $box[3], $box[5], $box[7]);
 		$ymax = max($box[1], $box[3], $box[5], $box[7]);
 
-		return array(
+		return [
 			$xmin,
 			$ymin,
 			$xmax,
 			$ymax,
-		);
+		];
 	}
 
 	private static function rotate_bbox(array $bbox, $degrees) {
@@ -97,7 +97,7 @@ class View_Image_Text extends View {
 		return $this->option("angle", 0);
 	}
 
-	private function debug_log($message) {
+	private function debug_log($message): void {
 		if ($this->option_bool('debug', self::$debug)) {
 			$this->application->logger->debug($message);
 		}
@@ -127,7 +127,7 @@ class View_Image_Text extends View {
 		$obox = @imagettfbbox($font_size, 0, $font, $text);
 		$box = self::rotate_bbox($obox, -$font_angle);
 
-		list($xmin, $ymin, $xmax, $ymax) = self::bbox($box);
+		[$xmin, $ymin, $xmax, $ymax] = self::bbox($box);
 
 		$textwidth = abs($xmax - $xmin);
 		$textheight = abs($ymax - $ymin);
@@ -173,7 +173,7 @@ class View_Image_Text extends View {
 		$this->debug_log("Image: $width x $height");
 		$this->debug_log("Bounds: $textwidth x $textheight");
 
-		$params = array(
+		$params = [
 			$font,
 			$font_size,
 			$text,
@@ -184,20 +184,20 @@ class View_Image_Text extends View {
 			$height,
 			$xoff,
 			$yoff,
-		);
+		];
 
 		$cache_path = $this->option("cache_path", path($rootdir, '/cache/image-text/'));
 		$url_prefix = Directory::add_slash($this->option("url_prefix", $this->application->url('/cache/image-text')));
 		$absolute_cache_path = Directory::add_slash(Directory::undot($cache_path));
-		if (!Directory::create($absolute_cache_path, 0775)) {
+		if (!Directory::create($absolute_cache_path, 0o775)) {
 			throw new Exception_Directory_Create($absolute_cache_path);
 		}
 
 		if ($width === 0 || $height === 0) {
-			return HTML::img($this->application, '/share/images/spacer.gif', 'Zero width and height', array(
+			return HTML::img($this->application, '/share/images/spacer.gif', 'Zero width and height', [
 				"width" => 0,
 				"height" => 0,
-			));
+			]);
 		}
 		$fname = md5(implode(";", $params)) . ".png";
 		if ($debug || !file_exists($absolute_cache_path . $fname)) {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
@@ -8,12 +8,12 @@
 namespace zesk;
 
 class Database_Query_Select_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
 		"ORM",
-	);
+	];
 
-	public function test_main() {
+	public function test_main(): void {
 		$table_name = "Database_Query_Select";
 
 		$this->test_table($table_name);
@@ -82,12 +82,12 @@ class Database_Query_Select_Test extends Test_Unit {
 		$x = new Database_Query_Select($db);
 		$x->from($table_name);
 		$x->what(null, "ID");
-		$x->where("ID", array(
+		$x->where("ID", [
 			1,
 			2,
 			3,
 			4,
-		));
+		]);
 
 		$result = strval($x);
 		$valid_result = "SELECT ID FROM `Database_Query_Select` WHERE (`ID` = 1 OR `ID` = 2 OR `ID` = 3 OR `ID` = 4)";
@@ -99,12 +99,12 @@ class Database_Query_Select_Test extends Test_Unit {
 		$x = new Database_Query_Select($db);
 		$x->from($table_name);
 		$x->what(null, "ID");
-		$x->where("ID|!=|AND", array(
+		$x->where("ID|!=|AND", [
 			1,
 			2,
 			3,
 			4,
-		));
+		]);
 		$result = strval($x);
 
 		$result = strval($x);
@@ -117,12 +117,12 @@ class Database_Query_Select_Test extends Test_Unit {
 		$x = new Database_Query_Select($db);
 		$x->from($table_name);
 		$x->what(null, "ID");
-		$x->where("*SUM(Total)|!=|AND", array(
+		$x->where("*SUM(Total)|!=|AND", [
 			1,
 			2,
 			3,
 			4,
-		));
+		]);
 		$result = strval($x);
 
 		$result = strval($x);

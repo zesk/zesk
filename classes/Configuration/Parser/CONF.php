@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage Configuration
@@ -13,7 +13,7 @@ namespace zesk;
  *
  */
 class Configuration_Parser_CONF extends Configuration_Parser {
-	protected $options = array(
+	protected array $options = [
 		"overwrite" => true,
 		"trim_key" => true,
 		"separator" => '=',
@@ -22,11 +22,11 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		"lower" => true,
 		"multiline" => true,
 		"unquote" => '\'\'""',
-	);
+	];
 
 	/**
 	 */
-	public function initialize() {
+	public function initialize(): void {
 	}
 
 	/**
@@ -40,7 +40,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 * {@inheritDoc}
 	 * @see \zesk\Configuration_Parser::editor()
 	 */
-	public function editor($content = null, array $options = array()) {
+	public function editor($content = null, array $options = []) {
 		return new Configuration_Editor_CONF($content, $options);
 	}
 
@@ -71,7 +71,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 				continue;
 			}
 			$append = false;
-			list($key, $value) = $parse_result;
+			[$key, $value] = $parse_result;
 			/**
 			 * Parse and normalize key
 			 */
@@ -80,17 +80,17 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 				$append = true;
 			}
 			$found_quote = null;
-			$key = strtr($key, array(
+			$key = strtr($key, [
 				"___" => "\\",
 				"__" => "::",
-			));
+			]);
 			/**
 			 * Parse and normalize value
 			 */
 			if ($unquote) {
 				$value = unquote($value, $unquote, $found_quote);
 			}
-			$dependencies = array();
+			$dependencies = [];
 			if ($found_quote !== "'") {
 				$value = bash::substitute($value, $settings, $dependencies, $lower);
 			}
@@ -133,14 +133,14 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 * @param string $file
 	 *        	Name of additional include file
 	 */
-	private function handle_include($file) {
+	private function handle_include($file): void {
 		if (File::is_absolute($file)) {
-			$this->loader->append_files(array(
+			$this->loader->append_files([
 				$file,
-			));
+			]);
 			return;
 		}
-		$files = $missing = array();
+		$files = $missing = [];
 		$path = dirname($this->loader->current());
 		$conf_path = path($path, $file);
 		if (file_exists($conf_path)) {
@@ -157,15 +157,15 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 * @param array $lines
 	 */
 	private static function join_lines(array $lines) {
-		$result = array(
+		$result = [
 			array_shift($lines),
-		);
+		];
 		$last = 0;
 		foreach ($lines as $line) {
-			if (in_array(substr($line, 0, 1), array(
+			if (in_array(substr($line, 0, 1), [
 				"\t",
 				" ",
-			))) {
+			])) {
 				$result[$last] .= "\n$line";
 			} else {
 				$result[] = $line;
@@ -193,7 +193,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		if (preg_match('/^export\s+/', $line, $matches)) {
 			$line = substr($line, strlen($matches[0]));
 		}
-		list($key, $value) = pair($line, $separator, null, null);
+		[$key, $value] = pair($line, $separator, null, null);
 		if (!$key) {
 			return null;
 		}
@@ -206,9 +206,9 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		if ($lower) {
 			$key = strtolower($key);
 		}
-		return array(
+		return [
 			$key,
 			$value,
-		);
+		];
 	}
 }

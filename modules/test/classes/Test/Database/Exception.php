@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -17,12 +17,14 @@ class Test_Database_Exception extends Test_Unit {
 
 	/**
 	 */
-	public function test_main() {
+	public function test_main(): void {
+		$database = $this->application->database_registry();
+		$this->assertInstanceOf(zesk\Database::class, $database);
 		for ($i = 0; $i < 100; $i++) {
 			$code = 4123 + $i;
-			$x = new Database_Exception("hello {dude}", array(
+			$x = new Database_Exception($database, "hello {dude}", [
 				"dude" => "world!",
-			), $code, new Exception("previous"));
+			], $code, new Exception("previous"));
 
 			$this->_test_exception($x, "hello world!", $code);
 		}
@@ -34,7 +36,7 @@ class Test_Database_Exception extends Test_Unit {
 	 * @param unknown $expected_message
 	 * @param unknown $expected_code
 	 */
-	protected function _test_exception(Database_Exception $x, $expected_message = null, $expected_code = null) {
+	protected function _test_exception(Database_Exception $x, $expected_message = null, $expected_code = null): void {
 		$message = $x->getMessage();
 		if ($expected_message !== null) {
 			$this->assert_equal($message, $expected_message);

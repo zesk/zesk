@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Trie/Node.php $
  * @package zesk
@@ -31,7 +31,7 @@ class Node {
 	 *
 	 * @var array
 	 */
-	public $next = array();
+	public $next = [];
 
 	/**
 	 *
@@ -46,7 +46,7 @@ class Node {
 	 * @param boolean $eow End of word flag
 	 */
 	public function __construct($word = null, $eow = false) {
-		$this->next = array();
+		$this->next = [];
 		if ($word !== null) {
 			$this->add($word);
 		}
@@ -112,7 +112,7 @@ class Node {
 	/**
 	 * Clean the trie after building to remove unnecessary keys
 	 */
-	public function clean() {
+	public function clean(): void {
 		// Remove all single letter tags which map to strings
 		foreach ($this->next as $k => $v) {
 			if (strlen($k) === 1 && is_string($v)) {
@@ -199,7 +199,7 @@ class Node {
 	 * @return string[]
 	 */
 	public function to_json() {
-		$json = array();
+		$json = [];
 		foreach ($this->next as $k => $v) {
 			if ($v instanceof Node) {
 				$json[$k] = $v->to_json();
@@ -215,7 +215,7 @@ class Node {
 	 * @param callable $function
 	 * @param string $word Current word state
 	 */
-	public function walk($function, $word) {
+	public function walk($function, $word): void {
 		foreach ($this->next as $k => $v) {
 			if ($v === 1) {
 				if ($k === '$') {

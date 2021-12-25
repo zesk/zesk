@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Widget which allows selection of multiple options
  *
@@ -59,18 +59,18 @@ class Control_Optionss extends Control {
 	/**
 	 * Initialize the widget
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		$this->_init_no_pair();
 		$this->_init_control_options();
 		$this->_init_default_option();
 		parent::initialize();
 	}
 
-	private function _init_no_pair() {
+	private function _init_no_pair(): void {
 		$this->novalue = avalue($this->options, 'noname') ? strval(avalue($this->options, 'novalue', '')) : null;
 	}
 
-	private function _init_control_options() {
+	private function _init_control_options(): void {
 		if (is_array($this->control_options)) {
 			return;
 		}
@@ -78,13 +78,13 @@ class Control_Optionss extends Control {
 		if (is_array($this->control_options)) {
 			return;
 		}
-		$this->control_options = $this->call_hook_arguments('options', array(), $this->control_options);
+		$this->control_options = $this->call_hook_arguments('options', [], $this->control_options);
 		if (!is_array($this->control_options)) {
-			$this->control_options = array();
+			$this->control_options = [];
 		}
 	}
 
-	private function _init_default_option() {
+	private function _init_default_option(): void {
 		$default = avalue($this->options, 'default');
 		if ($this->has_control_option($default)) {
 			return;
@@ -103,7 +103,7 @@ class Control_Optionss extends Control {
 			return $options;
 		}
 		$ellipsis = $this->option("ellipsis", "...");
-		$new_options = array();
+		$new_options = [];
 		foreach ($options as $k => $v) {
 			if (is_array($v)) {
 				$k = StringTools::ellipsis_word($k, $show_size, $ellipsis);
@@ -164,10 +164,10 @@ class Control_Optionss extends Control {
 
 	public function theme_variables() {
 		assert(is_array($this->control_options));
-		return array(
+		return [
 			'original_options' => $this->control_options,
 			'control_options' => $this->ellipsis_options($this->control_options),
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 
 	/**

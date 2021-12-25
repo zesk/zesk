@@ -1,30 +1,30 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Module_jGrowl extends Module_JSLib {
-	protected $css_paths = array(
+	protected $css_paths = [
 		'/share/jgrowl/jquery.jgrowl.css',
-	);
+	];
 
-	protected $javascript_paths = array(
+	protected $javascript_paths = [
 		'/share/jgrowl/jquery.jgrowl.js',
-	);
+	];
 
-	protected $jquery_ready = array(
+	protected $jquery_ready = [
 		'zesk.add_hook("message", function (message, options) {
 			if (is_array(message)) {
 				message = html.tag("ul", html.tags("li", message));
 			}
 			options = $.extend(zesk.get_path("modules.jgrowl", {}), options || {}); $.jGrowl(message, options);
 		});',
-	);
+	];
 
-	protected $javascript_settings_inherit = array(
+	protected $javascript_settings_inherit = [
 		'position' => 'top-right',
 		'life' => 8000,
-	);
+	];
 
-	public function ready(Response $response) {
+	public function ready(Response $response): void {
 		parent::ready($response);
 	}
 }

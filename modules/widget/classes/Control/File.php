@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -21,7 +21,7 @@ class Control_File extends Control {
 	 * {@inheritDoc}
 	 * @see Widget::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->upload(true);
 	}
@@ -39,7 +39,7 @@ class Control_File extends Control {
 	 * {@inheritDoc}
 	 * @see Widget::defaults()
 	 */
-	public function defaults() {
+	public function defaults(): void {
 		parent::defaults();
 		$this->object->set($this->file_name_column(), $this->option('filecolumn_default', ''));
 	}
@@ -49,7 +49,7 @@ class Control_File extends Control {
 	 * {@inheritDoc}
 	 * @see Widget::load()
 	 */
-	public function load() {
+	public function load(): void {
 		$col = $this->column();
 		$name = $this->name();
 		$filecolumn = $this->file_name_column();
@@ -143,9 +143,9 @@ class Control_File extends Control {
 		$file = $this->_file();
 		if (is_array($file)) {
 			$dest_path = $this->object->apply_map($this->option("dest_path"));
-			$options = array();
-			$options['file_mode'] = $this->option_integer("file_mode", 0640);
-			$options['dir_mode'] = $this->option_integer("dir_mode", 0750);
+			$options = [];
+			$options['file_mode'] = $this->option_integer("file_mode", 0o640);
+			$options['dir_mode'] = $this->option_integer("dir_mode", 0o750);
 			$options['hash'] = $this->option_bool("hash_file", false);
 			$path = Request\File::instance($file)->migrate($this->application, $dest_path, $options);
 			$this->path($path);

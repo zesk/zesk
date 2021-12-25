@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Trie.php $
  * @package zesk
@@ -52,7 +52,7 @@ class Trie extends Options {
 	 *
 	 * @param array $options
 	 */
-	public function __construct(array $options = array()) {
+	public function __construct(array $options = []) {
 		parent::__construct($options);
 		$this->lower = $this->option_bool('lower');
 		$this->root = new Node();
@@ -61,7 +61,7 @@ class Trie extends Options {
 	/**
 	 * @param string $word
 	 */
-	public function add($word) {
+	public function add($word): void {
 		if ($this->lower) {
 			$word = strtolower($word);
 		}
@@ -110,7 +110,7 @@ class Trie extends Options {
 	/**
 	 * Walk the entire trie and call "function" on each node
 	 */
-	public function walk($function) {
+	public function walk($function): void {
 		$this->root->walk($function, '');
 	}
 }

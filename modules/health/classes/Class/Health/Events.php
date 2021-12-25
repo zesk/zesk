@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -18,16 +18,16 @@ class Class_Health_Events extends Class_ORM {
 
 	public $id_column = "id";
 
-	public $find_keys = array(
+	public $find_keys = [
 		'date',
 		'hash',
-	);
+	];
 
-	public $has_one = array(
+	public $has_one = [
 		"server" => "zesk\\Server",
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 
 		"date" => self::type_date,
@@ -46,10 +46,10 @@ class Class_Health_Events extends Class_ORM {
 		"recent_msec" => self::type_integer,
 
 		"total" => self::type_integer,
-	);
+	];
 
-	public $column_defaults = array(
+	public $column_defaults = [
 		'first_msec' => 0,
 		'recent_msec' => 0,
-	);
+	];
 }

@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_Hidden_Model extends Control_Hidden {
-	public function load() {
+	public function load(): void {
 		$x = $this->request->get($this->name());
 
 		try {

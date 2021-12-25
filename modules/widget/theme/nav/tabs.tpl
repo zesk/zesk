@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -16,18 +16,18 @@ namespace zesk;
 /* @var $widget Widget */
 $upload = $widget ? $widget->upload() : false;
 
-$form = array(
+$form = [
 	'class' => CSS::add_class('form-horizontal', $this->class),
 	'action' => $this->request->path(),
 	'method' => 'post',
 	'enctype' => $upload ? "multipart/form-data" : "",
-);
+];
 
 echo HTML::tag_open('form', $form);
 
-$prefix = array();
-$navs = array();
-$suffix = array();
+$prefix = [];
+$navs = [];
+$suffix = [];
 foreach ($this->children as $widget) {
 	if ($widget->option_bool('nav')) {
 		$navs[] = $widget;
@@ -93,17 +93,17 @@ $title = $response->html()->title();
 		$name = $widget->column();
 		$item_class = $name === $selected_tab ? 'active' : '';
 		$item_class = CSS::add_class($item_class, $widget->context_class());
-		echo HTML::tag('li', array(
+		echo HTML::tag('li', [
 			'id' => 'nav-link-' . $widget->id(),
 			'class' => CSS::add_class($item_class, count($errors) > 0 ? 'error' : ''),
-		), HTML::tag('a', array(
+		], HTML::tag('a', [
 			'href' => '#' . $name,
 			'data-toggle' => "tab",
-		), $widget->label() . HTML::etag('span', '.badge error', count($errors))));
-		$content .= HTML::tag('div', array(
+		], $widget->label() . HTML::etag('span', '.badge error', count($errors))));
+		$content .= HTML::tag('div', [
 			'id' => $name,
 			'class' => 'tab-pane' . ($name === $selected_tab ? ' active' : ''),
-		), $widget_content);
+		], $widget_content);
 		$widget->content = "";
 		$widget->content_children = "";
 	}

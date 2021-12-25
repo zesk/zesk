@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -19,35 +19,34 @@ use zesk\ORM\Walker;
 class Control_Login extends Control_Edit {
 	/**
 	 *
-	 * @var string
 	 */
-	protected $class = "User";
+	protected ?string $class = "User";
 
 	/**
 	 *
 	 * @var boolean
 	 */
-	protected $render_children = false;
+	protected bool $render_children = false;
 
 	/**
 	 * User being authenticated
 	 *
 	 * @var User
 	 */
-	public $user = null;
+	public User $user;
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $options = array(
+	protected array $options = [
 		'no_buttons' => true,
 		'form_name' => 'login_form',
 		'form_preserve_include' => 'uref',
 		'name' => 'login_button',
 		'column' => 'login_button',
 		'class' => '',
-	);
+	];
 
 	/**
 	 * Default model
@@ -63,7 +62,7 @@ class Control_Login extends Control_Edit {
 	 *
 	 * @see Control_Edit::_widgets()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		$locale = $this->locale();
 		$f = $this->widget_factory(Control_Text::class)->names("login", $this->option("label_login", $locale->__("Email")))
 			->required(true);
@@ -127,35 +126,35 @@ class Control_Login extends Control_Edit {
 		$failed = false;
 		if (!$user->authenticate($login, $object->login_password_hash, false, false)) {
 			$failed = true;
-			if ($this->call_hook_arguments("authenticate", array(
+			if ($this->call_hook_arguments("authenticate", [
 				$user,
 				$login,
 				$object->login_password_hash,
-			), false)) {
+			], false)) {
 				$failed = false;
 			}
 		}
 		if ($failed) {
 			$this->response()->status(Net_HTTP::STATUS_UNAUTHORIZED, "Unauthorized");
-			$this->application->logger->warning("User login failed for user {login}", array(
+			$this->application->logger->warning("User login failed for user {login}", [
 				"login" => $login,
 				"password_hash" => $object->login_password_hash,
-			));
+			]);
 			$this->error($locale->__("Username or password is incorrect."));
 			$this->object->user = $this->user = null;
 			$user->call_hook("login_failed", $this);
 			if ($this->prefer_json()) {
-				$this->json(array(
+				$this->json([
 					"status" => false,
 					"errors" => $this->errors(),
-				));
+				]);
 				return false;
 			}
 			return false;
 		}
-		if ($user->call_hook_arguments("login", array(
+		if ($user->call_hook_arguments("login", [
 			$this,
-		), true)) {
+		], true)) {
 			$this->user = $this->object->user = $user;
 			return true;
 		}
@@ -170,10 +169,10 @@ class Control_Login extends Control_Edit {
 		if (!$uref) {
 			$uref = $this->option('login_url', '/');
 		}
-		$this->application->logger->notice("User {user} ({uid}) logged in successfully", array(
+		$this->application->logger->notice("User {user} ({uid}) logged in successfully", [
 			"user" => $this->user,
 			"uid" => $this->user->id(),
-		));
+		]);
 		if ($this->prefer_json()) {
 			$walker = JSONWalker::factory();
 			if ($this->option_array("user_json_options")) {
@@ -196,7 +195,7 @@ class Control_Login extends Control_Edit {
 		if ($this->user instanceof User) {
 			$user = $this->user;
 			$user->authenticated($this->request(), $this->response());
-			$result = $this->call_hook_arguments("submit", array(), null);
+			$result = $this->call_hook_arguments("submit", [], null);
 			if ($result !== null) {
 				if (is_array($result)) {
 					$this->json($result);
@@ -206,7 +205,7 @@ class Control_Login extends Control_Edit {
 			return $this->default_submit();
 		}
 		// Is this reachable? I don't think so. KMD 2018
-		$result = $this->call_hook_arguments("submit_failed", array(), null);
+		$result = $this->call_hook_arguments("submit_failed", [], null);
 		if ($result !== null) {
 			if (is_array($result)) {
 				$this->json($result);

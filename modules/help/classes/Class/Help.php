@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -12,11 +12,11 @@ namespace zesk;
 class Class_Help extends Class_ORM {
 	public $id_column = 'id';
 
-	public $find_keys = array(
+	public $find_keys = [
 		'target',
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		'id' => self::type_id,
 		'target' => self::type_string,
 		'type' => self::type_string,
@@ -33,22 +33,22 @@ class Class_Help extends Class_ORM {
 		'show_first' => self::type_timestamp,
 		'show_recent' => self::type_timestamp,
 		'show_count' => self::type_integer,
-	);
+	];
 
-	public $column_defaults = array(
+	public $column_defaults = [
 		'type' => 'basic',
 		'require_user' => true,
 		'active' => true,
 		'show_count' => 0,
 		'content_url' => '',
 		'placement' => 'auto',
-	);
+	];
 
-	public $has_many = array(
-		'users' => array(
+	public $has_many = [
+		'users' => [
 			'class' => 'zesk\\Help_User',
 			'foreign_key' => 'help',
 			'far_key' => 'user',
-		),
-	);
+		],
+	];
 }

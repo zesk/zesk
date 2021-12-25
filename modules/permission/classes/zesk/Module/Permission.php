@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -31,41 +31,41 @@ class Module_Permission extends Module {
 	 *
 	 * @var array
 	 */
-	public static $hook_methods = array(
+	public static $hook_methods = [
 		"zesk\\Application::permissions",
 		"zesk\\Module::permissions",
 		"zesk\\ORM::permissions",
-	);
+	];
 
 	/**
 	 * Implement Module::classes
 	 *
 	 * @return array
 	 */
-	protected $model_classes = array(
+	protected array $model_classes = [
 		Role::class,
 		User_Role::class,
 		Permission::class,
-	);
+	];
 
-	public function initialize() {
-		$this->application->hooks->add(User::class . "::can", array(
+	public function initialize(): void {
+		$this->application->hooks->add(User::class . "::can", [
 			$this,
 			"user_can",
-		));
-		$this->application->hooks->add(User::class . "::store", array(
+		]);
+		$this->application->hooks->add(User::class . "::store", [
 			$this,
 			"user_store",
-		));
+		]);
 
 		try {
 			// Add link if not added already
-			Class_ORM::link_many(User::class, 'roles', array(
+			Class_ORM::link_many(User::class, 'roles', [
 				'link_class' => User_Role::class,
 				'far_key' => 'role',
 				'foreign_key' => 'user',
 				'class' => Role::class,
-			));
+			]);
 		} catch (Exception_Key $e) {
 		}
 		parent::initialize();
@@ -76,7 +76,7 @@ class Module_Permission extends Module {
 	 *
 	 * @param User $user
 	 */
-	public function user_store(User $user) {
+	public function user_store(User $user): void {
 		$user->_roles = null;
 	}
 
@@ -99,43 +99,43 @@ class Module_Permission extends Module {
 			return true;
 		}
 		if (!is_string($action)) {
-			throw new Exception_Semantics("{method} {type} {action} is not a string", array(
+			throw new Exception_Semantics("{method} {type} {action} is not a string", [
 				"method" => __METHOD__,
 				"action" => $action,
 				"type" => type($action),
-			));
+			]);
 		}
 		$a = self::normalize_permission($action);
 		$default_class = $context ? $this->model_permission_class($context) : null;
-		list($class, $permission) = pair($a, "::", $default_class, $a);
+		[$class, $permission] = pair($a, "::", $default_class, $a);
 		$lowclass = strtolower($class);
 
 		$cache_key = "$lowclass::$permission";
 		$user_cache = $user->object_cache("permission");
-		$user_cached_permissions = $user_cache->isHit() ? $user_cache->get() : array();
+		$user_cached_permissions = $user_cache->isHit() ? $user_cache->get() : [];
 		if (!$context && array_key_exists($cache_key, $user_cached_permissions)) {
 			return $user_cached_permissions[$cache_key];
 		}
 		$perms = $this->permissions();
 
-		$parent_classes = empty($class) ? array() : ArrayTools::change_value_case($application->classes->hierarchy($class, "Model"));
+		$parent_classes = empty($class) ? [] : ArrayTools::change_value_case($application->classes->hierarchy($class, "Model"));
 		$parent_classes[] = "*";
 		foreach ($parent_classes as $parent_class) {
-			$perm = apath($perms, array(
+			$perm = apath($perms, [
 				'class',
 				$parent_class,
 				$permission,
-			));
+			]);
 			if ($perm instanceof Permission) {
 				$result = $perm->check($user, $parent_class . "::" . $permission, $context, $options);
 				if (is_bool($result)) {
 					if ($warning && $result === false) {
-						$application->logger->warning("{user} denied {permission} (parent of {class})", array(
+						$application->logger->warning("{user} denied {permission} (parent of {class})", [
 							"user" => $user->login(),
 							"permission" => $parent_class . "::" . $permission,
 							"class" => $class,
 							"calling_function" => calling_function(2),
-						));
+						]);
 					}
 					return $result;
 				}
@@ -144,18 +144,18 @@ class Module_Permission extends Module {
 
 		$rids = $this->user_roles($user);
 		foreach ($rids as $rid) {
-			$result = apath($perms, array(
+			$result = apath($perms, [
 				'role',
 				$rid,
 				$lowclass,
 				$permission,
-			));
+			]);
 			if (is_bool($result)) {
 				if ($result === false) {
-					$application->logger->info("{user} denied {permission} (role)", array(
+					$application->logger->info("{user} denied {permission} (role)", [
 						"user" => $user->login(),
 						"permission" => $class . "::" . $permission,
-					));
+					]);
 				}
 				$user_cached_permissions[$cache_key] = $result;
 				$application->cache->saveDeferred($user_cache->set($user_cached_permissions));
@@ -164,12 +164,12 @@ class Module_Permission extends Module {
 		}
 		$result = boolval($user->option("can"));
 		if ($warning && $result === false) {
-			$application->logger->warning("{user} denied {permission} (not granted) called from {calling_function} (Roles: {roles})", array(
+			$application->logger->warning("{user} denied {permission} (not granted) called from {calling_function} (Roles: {roles})", [
 				"user" => $user->login(),
 				"permission" => $class . "::" . $permission,
 				"calling_function" => calling_function(6),
 				"roles" => $user->_roles,
-			));
+			]);
 		}
 		$user_cached_permissions[$cache_key] = $result;
 		$application->cache->saveDeferred($user_cache->set($user_cached_permissions));
@@ -180,7 +180,7 @@ class Module_Permission extends Module {
 	 *
 	 * @param User $user
 	 */
-	private function prepare_user(User $user) {
+	private function prepare_user(User $user): void {
 		if (is_array($user->_roles)) {
 			return;
 		}
@@ -194,7 +194,7 @@ class Module_Permission extends Module {
 			// Load user role settings into user before checking
 			$roles = $user->member_query("roles")->orm_iterator()->to_array("id");
 		}
-		$role_ids = array();
+		$role_ids = [];
 		/* @var $role Role */
 		foreach ($roles as $id => $role) {
 			if ($role->is_root()) {
@@ -221,14 +221,14 @@ class Module_Permission extends Module {
 			->query_select()
 			->what("Role", "Role")
 			->where("User", $user)
-			->to_array(null, "Role", array());
+			->to_array(null, "Role", []);
 		return $user->_roles;
 	}
 
 	/**
 	 * Refresh the permissions cache as often as needed
 	 */
-	public function hook_cron_minute() {
+	public function hook_cron_minute(): void {
 		$application = $this->application;
 		$cache = $this->_cache();
 		// Is there a cache? If not, don't bother - may be disabled, etc.
@@ -260,7 +260,7 @@ class Module_Permission extends Module {
 	 * Optionally save cached item
 	 * @param CacheItemInterface $item
 	 */
-	private function _cache_changed(CacheItemInterface $item) {
+	private function _cache_changed(CacheItemInterface $item): void {
 		if ($this->option_bool('disable_cache')) {
 			return;
 		}
@@ -316,18 +316,18 @@ class Module_Permission extends Module {
 			return $mixed;
 		}
 		if (is_array($mixed)) {
-			$result = array();
+			$result = [];
 			foreach ($mixed as $index => $permission) {
 				$result[self::normalize_permission($index)] = self::normalize_permission($permission);
 			}
 			return $result;
 		}
-		return strtr(strtolower($mixed), array(
+		return strtr(strtolower($mixed), [
 			" " => "_",
 			"." => "_",
 			"/" => "_",
 			"-" => "_",
-		));
+		]);
 	}
 
 	/**
@@ -352,27 +352,27 @@ class Module_Permission extends Module {
 			$lock->crack();
 			$lock->expect(10);
 		}
-		$result = array();
-		$result['class'] = $application->hooks->all_call_arguments(self::$hook_methods, array(
+		$result = [];
+		$result['class'] = $application->hooks->all_call_arguments(self::$hook_methods, [
 			$application,
-		), array(), null, array(
+		], [], null, [
 			$this,
 			'_combine_permissions',
-		));
+		]);
 		$roles = $application->orm_registry('Role')
 			->query_select('X')
-			->what(array(
+			->what([
 			"id" => "X.id",
 			"code" => "X.code",
-		))
+		])
 			->order_by("X.id")
-			->to_array("id", "code", array());
-		$options = array(
+			->to_array("id", "code", []);
+		$options = [
 			'overwrite' => true,
 			'trim' => true,
 			'lower' => true,
-			'variables' => array(),
-		);
+			'variables' => [],
+		];
 		foreach ($roles as $rid => $code) {
 			$result['role'][$rid] = $config = $this->_role_permissions($code);
 		}
@@ -387,13 +387,13 @@ class Module_Permission extends Module {
 	 */
 	private function _role_permissions($code) {
 		$application = $this->application;
-		$paths = $this->option_list('role_paths', array(
+		$paths = $this->option_list('role_paths', [
 			'./etc/role',
-		));
+		]);
 		if (count($paths) === 0) {
-			return array();
+			return [];
 		}
-		$files = array();
+		$files = [];
 		foreach ($paths as $path) {
 			foreach ([
 				'conf',
@@ -403,18 +403,18 @@ class Module_Permission extends Module {
 				$files[] = $application->paths->expand(path($path, $basename));
 			}
 		}
-		$config = array();
+		$config = [];
 		$loader = new Configuration_Loader($files, new Adapter_Settings_Array($config));
 		$loader->load();
 		$vars = $loader->variables();
 		$processed = $vars[Configuration_Loader::PROCESSED];
 		$missing = $vars[Configuration_Loader::MISSING];
 		$config = self::normalize_permission($config);
-		$application->logger->debug("Loading {processed} files resulted in {n_config} permissions (skipped missing {missing})", array(
+		$application->logger->debug("Loading {processed} files resulted in {n_config} permissions (skipped missing {missing})", [
 			"processed" => $processed,
 			"missing" => $missing,
 			"n_config" => count($config),
-		));
+		]);
 		return $config;
 	}
 
@@ -438,20 +438,20 @@ class Module_Permission extends Module {
 		$method = User::clean_permission($method);
 		// Use calling function as a hint when class not supplied (deprecated in 0.8.2)
 		$default_class = StringTools::left($method, "::");
-		$class_perms = array();
+		$class_perms = [];
 		/* @var $perm_class \zesk\Class_Permission */
 		$perm_class = $this->application->class_orm_registry(Permission::class);
 		$perm_columns = $perm_class->column_types;
 		foreach ($result as $action => $permission_options) {
 			if (is_string($permission_options)) {
-				$permission_options = array(
+				$permission_options = [
 					'title' => $permission_options,
-				);
+				];
 			} elseif (!is_array($permission_options)) {
 				throw new Exception_Semantics("Hookable::permissions() should return array of string => string, or string => array");
 			}
 			// Move extra fields into options
-			$permission_options['options'] = avalue($permission_options, 'options', array());
+			$permission_options['options'] = avalue($permission_options, 'options', []);
 			foreach ($permission_options as $perm_option => $perm_value) {
 				if (!array_key_exists($perm_option, $perm_columns)) {
 					$permission_options['options'][$perm_option] = $perm_value;
@@ -459,7 +459,7 @@ class Module_Permission extends Module {
 				}
 			}
 			$action = User::clean_permission($action);
-			list($class, $action) = pair($action, "::", $default_class, $action);
+			[$class, $action] = pair($action, "::", $default_class, $action);
 			$permission_options['name'] = $class . "::" . $action;
 			$class_perms[$action] = Permission::register_permission($this->application, $permission_options);
 		}
@@ -469,7 +469,7 @@ class Module_Permission extends Module {
 
 	/**
 	 */
-	protected function hook_cache_clear() {
+	protected function hook_cache_clear(): void {
 		$this->application->orm_registry(Permission::class)
 			->query_delete()
 			->truncate(true)

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk-lite
@@ -32,7 +32,7 @@ class Content_Image extends ORM {
 	 * @throws Exception_Invalid
 	 * @return Content_Image
 	 */
-	public static function register_from_file(Application $application, $path, array $members = array(), $copy = true, $register = true) {
+	public static function register_from_file(Application $application, $path, array $members = [], $copy = true, $register = true) {
 		File::depends($path);
 		$members['data'] = $cf = Content_Data::from_path($application, $path, $copy, true);
 		if (!array_key_exists("path", $members)) {
@@ -71,10 +71,10 @@ class Content_Image extends ORM {
 		$query = $this->query_select("X");
 		$get_data = false;
 		if ($get_data) {
-			$query->link('Content_Data', array(
+			$query->link('Content_Data', [
 				'required' => false,
 				'path' => 'data',
-			));
+			]);
 		}
 		$query->where("X." . $this->id_column(), $this->id());
 		$query->what_object(__CLASS__, null, "image_");
@@ -84,13 +84,13 @@ class Content_Image extends ORM {
 
 		$result = $query->one();
 		if (!$result) {
-			return array();
+			return [];
 		}
-		$add = array();
+		$add = [];
 		if ($get_data) {
-			$add = array(
+			$add = [
 				'data' => $this->orm_factory('Content_Data')->initialize(ArrayTools::kunprefix($result, "data_", true), true),
-			);
+			];
 		}
 		return $add + ArrayTools::kunprefix($result, "image_", true);
 	}
@@ -98,7 +98,7 @@ class Content_Image extends ORM {
 	/**
 	 * Force files to disk
 	 */
-	public function sync() {
+	public function sync(): void {
 		$this->_force_to_disk();
 	}
 
@@ -255,12 +255,12 @@ class Content_Image extends ORM {
 		if (!$t) {
 			return false;
 		}
-		$t2ext = array(
+		$t2ext = [
 			IMAGETYPE_GIF => "gif",
 			IMAGETYPE_JPEG => "jpg",
 			IMAGETYPE_PNG => "png",
 			IMAGETYPE_SWF => "swf",
-		);
+		];
 		//			IMAGETYPE_PSD => "psd",
 		//			IMAGETYPE_BMP => "bmp",
 		//			IMAGETYPE_TIFF_II => "tiff",
@@ -286,11 +286,11 @@ class Content_Image extends ORM {
 		}
 		$data = $this->data;
 		if (!$data) {
-			$this->application->logger->warning("{class} {id} has empty or missing data \"{data}\"", array(
+			$this->application->logger->warning("{class} {id} has empty or missing data \"{data}\"", [
 				"class" => get_class($this),
 				"id" => $this->id(),
 				"data" => $this->member_integer("data"),
-			));
+			]);
 			return false;
 		}
 		if ($data->matches_file($this->path())) {
@@ -456,12 +456,12 @@ class Content_Image extends ORM {
 	 * @param Application $application
 	 * @param integer $theshold
 	 */
-	public static function downscale_images(Application $application, array $options) {
+	public static function downscale_images(Application $application, array $options): void {
 		$query = $application->orm_registry(__CLASS__)->query_select("X");
 		$query->what_object(__CLASS__, "X", "image_");
-		$query->link(Content_Data::class, array(
+		$query->link(Content_Data::class, [
 			"alias" => "D",
-		));
+		]);
 		$query->what_object(Content_Data::class, "D", "data_");
 		$query->where("D.type", "path");
 		$size = avalue($options, 'size');
@@ -479,12 +479,12 @@ class Content_Image extends ORM {
 			try {
 				$image->reduce_image_dimensions($options);
 			} catch (Exception_File_Format $e) {
-				$application->logger->warning("{class} #{id} - {path} - {data_md5hash} Invalid image format", array(
+				$application->logger->warning("{class} #{id} - {path} - {data_md5hash} Invalid image format", [
 					"class" => get_class($image),
 					"id" => $image->id(),
 					"path" => $image->path,
 					'data_md5hash' => $data->md5hash,
-				));
+				]);
 			}
 		}
 	}
@@ -503,13 +503,13 @@ class Content_Image extends ORM {
 	 */
 	public function reduce_image_dimensions(array $options) {
 		$path = $this->path();
-		$__ = array(
+		$__ = [
 			'id' => $this->id(),
 			'class' => get_class($this),
 			'data_id' => $this->member_integer('data'),
 			'path' => basename($path),
 			"data_name" => $this->data->md5hash,
-		);
+		];
 		if (!$this->file_exists(true)) {
 			$this->application->logger->info("{class} #{id}: {path}: No file found {data_name}", $__);
 			return $this;
@@ -519,25 +519,25 @@ class Content_Image extends ORM {
 
 		$this->_update_sizes();
 
-		$maximum_file_size = isset($options['size']) ? $options['size'] : null;
-		$maximum_width = isset($options['width']) ? $options['width'] : null;
-		$maximum_height = isset($options['height']) ? $options['height'] : null;
-		$__ += array(
+		$maximum_file_size = $options['size'] ?? null;
+		$maximum_width = $options['width'] ?? null;
+		$maximum_height = $options['height'] ?? null;
+		$__ += [
 			'width' => $maximum_width,
 			'height' => $maximum_height,
 			'max_size' => $maximum_file_size,
 			'size' => $size,
-		);
+		];
 
 		if ($maximum_file_size === null && $maximum_width === null && $maximum_height === null) {
-			throw new Exception_Parameter("{method}: Parameter \$options must contain one of keys: size, width, height", array(
+			throw new Exception_Parameter("{method}: Parameter \$options must contain one of keys: size, width, height", [
 				'method' => __METHOD__,
-			));
+			]);
 		}
 		$new_width = $width = $this->width;
 		$new_height = $height = $this->height;
 
-		$__ = array(
+		$__ = [
 			'id' => $this->id(),
 			'class' => get_class($this),
 			'data_id' => $this->member_integer('data'),
@@ -546,7 +546,7 @@ class Content_Image extends ORM {
 			'max_size' => $maximum_file_size,
 			'size' => $size,
 			'path' => basename($path),
-		);
+		];
 
 		if (is_numeric($maximum_file_size)) {
 			$ratio = $maximum_file_size / $size;
@@ -571,17 +571,17 @@ class Content_Image extends ORM {
 			$this->application->logger->info("{class} #{id}: {path}: Size unchanged", $__);
 			return $this;
 		}
-		$__ += array(
+		$__ += [
 			'new_width' => $new_width,
 			'new_height' => $new_height,
-		);
+		];
 		$imageTool = Image_Library::factory($this->application);
 
 		try {
-			if (!$imageTool->image_scale($path, $scaled, array(
+			if (!$imageTool->image_scale($path, $scaled, [
 				"width" => $new_width,
 				"height" => $new_height,
-			))) {
+			])) {
 				$this->application->logger->error("{class} #{id} Unable to scale {path} (data {data_id}) to {new_width}x{new_height}", $__);
 
 				throw new Exception_Convert("{class} #{id} Unable to scale {path} (data {data_id}) to {new_width}x{new_height}", $__);
@@ -605,9 +605,9 @@ class Content_Image extends ORM {
 				$this->application->logger->notice("{class} #{id}: {path}: {percent} REPLACED Data: {new_data_id}, Deleting old image data: {data_id}", $__);
 				$old_data->delete();
 			} else {
-				$this->application->logger->info("{class} #{id}: {path}: {percent} REPLACED Data: {new_data_id}, Previous: {data_id}", $__ + array(
+				$this->application->logger->info("{class} #{id}: {path}: {percent} REPLACED Data: {new_data_id}, Previous: {data_id}", $__ + [
 					"new_data_id" => $new_data->id(),
-				));
+				]);
 			}
 		}
 		return $result;

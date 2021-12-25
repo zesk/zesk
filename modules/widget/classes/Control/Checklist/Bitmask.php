@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_Checklist_Bitmask extends Control_Checklist {
 	private function bitmaskToArray($value) {
 		$x = 0;
-		$result = array();
+		$result = [];
 		for ($i = 0; $i < 31; $i++) {
 			if ($value === 0) {
 				break;
@@ -23,7 +23,7 @@ class Control_Checklist_Bitmask extends Control_Checklist {
 		return $this->bitmaskToArray($value);
 	}
 
-	protected function load() {
+	protected function load(): void {
 		$name = $this->name();
 		$result = 0;
 		foreach ($this->request->geta($name) as $item) {

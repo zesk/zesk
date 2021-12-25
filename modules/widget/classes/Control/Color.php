@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
@@ -8,7 +8,7 @@
 namespace zesk;
 
 class Control_Color extends Control_Text {
-	public function initialize() {
+	public function initialize(): void {
 		$this->set_option("show_size", 7, false);
 		parent::initialize();
 	}
@@ -26,6 +26,6 @@ class Control_Color extends Control_Text {
 	}
 
 	public function targets(array $set = null) {
-		return $set === null ? $this->option_array('targets', array()) : $this->set_option('targets', $set);
+		return $set === null ? $this->option_array('targets', []) : $this->set_option('targets', $set);
 	}
 }

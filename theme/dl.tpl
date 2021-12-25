@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -24,9 +24,9 @@ foreach ($pairs as $name => $value) {
 	}
 	$class = ($index % 2 === 0) ? ".even" : ".odd";
 	$result .= HTML::tag('dt', $class, $name);
-	$result .= HTML::tag('dd', $class, is_array($value) ? $this->theme('dl', array(
+	$result .= HTML::tag('dd', $class, is_array($value) ? $this->theme('dl', [
 		'content' => $value,
-	)) : strval($value instanceof \Closure ? $locale->hooks->callable_string($value) : $value));
+	]) : strval($value instanceof \Closure ? $locale->hooks->callable_string($value) : $value));
 	$index = $index + 1;
 }
 

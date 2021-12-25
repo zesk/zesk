@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -15,13 +15,13 @@ namespace zesk;
  *
  */
 class Control_Order extends Control {
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->set_option("nowrap", "nowrap");
 		$this->set_option("ObjectListCheck", true);
 	}
 
-	protected function hook_query_list(Database_Query_Select $query) {
+	protected function hook_query_list(Database_Query_Select $query): void {
 		$query->what($this->column(), "X." . $this->column());
 		$query->order_by($this->column());
 	}
@@ -53,23 +53,23 @@ class Control_Order extends Control {
 	public function render() {
 		$ID = $this->object->id();
 
-		$u = URL::query_format(URL::query_remove($this->request->uri(), "move", false), array(
+		$u = URL::query_format(URL::query_remove($this->request->uri(), "move", false), [
 			"ID" => $ID,
-		));
+		]);
 
-		$result = array();
-		$result[] = HTML::tag("a", array(
+		$result = [];
+		$result[] = HTML::tag("a", [
 			"href" => "$u&move=top",
-		), HTML::img($this->application, "/share/zesk/images/order/move-top.gif", "Move to top"));
-		$result[] = HTML::tag("a", array(
+		], HTML::img($this->application, "/share/zesk/images/order/move-top.gif", "Move to top"));
+		$result[] = HTML::tag("a", [
 			"href" => "$u&move=up",
-		), HTML::img($this->application, "/share/zesk/images/order/move-up.gif", "Move up"));
-		$result[] = HTML::tag("a", array(
+		], HTML::img($this->application, "/share/zesk/images/order/move-up.gif", "Move up"));
+		$result[] = HTML::tag("a", [
 			"href" => "$u&move=down",
-		), HTML::img($this->application, "/share/zesk/images/order/move-down.gif", "Move down"));
-		$result[] = HTML::tag("a", array(
+		], HTML::img($this->application, "/share/zesk/images/order/move-down.gif", "Move down"));
+		$result[] = HTML::tag("a", [
 			"href" => "$u&move=bottom",
-		), HTML::img($this->application, "/share/zesk/images/order/move-bottom.gif", "Move to bottom"));
+		], HTML::img($this->application, "/share/zesk/images/order/move-bottom.gif", "Move to bottom"));
 
 		$result = implode("&nbsp;", $result);
 
@@ -80,10 +80,10 @@ class Control_Order extends Control {
 	}
 
 	private function _where() {
-		return map($this->object->apply_map($this->option_array("where", array())), $this->request->variables());
+		return map($this->object->apply_map($this->option_array("where", [])), $this->request->variables());
 	}
 
-	private function moveTopBottom($ID, $verb) {
+	private function moveTopBottom($ID, $verb): void {
 		$table = $this->option("table", "no_table");
 		$col = $this->column();
 		if ($verb == "top") {
@@ -100,7 +100,7 @@ class Control_Order extends Control {
 		$db->query("UPDATE `$table` SET `$col`=" . ($nextOrder + $delta) . " WHERE ID=$ID");
 	}
 
-	private function moveUpDown($ID, $verb) {
+	private function moveUpDown($ID, $verb): void {
 		$table = $this->option("table", "no_table");
 		$col = $this->column();
 		if ($verb == "up") {

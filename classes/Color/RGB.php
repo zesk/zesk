@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -46,7 +46,7 @@ class Color_RGB {
 		} elseif (is_string($r)) {
 			$parts = CSS::color_parse($r);
 			if (is_array($parts)) {
-				list($this->red, $this->green, $this->blue) = $parts;
+				[$this->red, $this->green, $this->blue] = $parts;
 			}
 		} elseif (is_array($r)) {
 			if (array_key_exists('r', $r)) {
@@ -54,7 +54,7 @@ class Color_RGB {
 				$this->green = $r['g'];
 				$this->blue = $r['b'];
 			} else {
-				list($this->red, $this->green, $this->blue) = $r;
+				[$this->red, $this->green, $this->blue] = $r;
 			}
 		}
 	}
@@ -65,10 +65,10 @@ class Color_RGB {
 	 * @return string
 	 */
 	public function __toString() {
-		return CSS::rgb_to_hex(array(
+		return CSS::rgb_to_hex([
 			$this->red,
 			$this->green,
 			$this->blue,
-		));
+		]);
 	}
 }

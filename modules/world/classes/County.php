@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @see Class_County
@@ -13,7 +13,7 @@ namespace zesk;
  *
  */
 class County extends ORM {
-	public function reassign($new) {
+	public function reassign($new): void {
 		$old_id = intval($this->id);
 		$new_id = empty($new) ? null : ORM::mixed_to_id($new);
 		$this->application->orm_registry(Contact_Address::class)
@@ -25,13 +25,13 @@ class County extends ORM {
 	}
 
 	public function usage_statistics() {
-		return array(
+		return [
 			'Contact_Address' => $this->application->orm_registry(Contact_Address::class)
 				->query_select()
 				->where("county", $this->id)
 				->what("*total", "COUNT(X.id)")
 				->one_integer("total"),
-		);
+		];
 	}
 
 	public static function permissions(Application $application) {

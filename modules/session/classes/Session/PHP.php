@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -26,7 +26,7 @@ class Session_PHP implements Interface_Session {
 	 * @param unknown $mixed
 	 * @param string $options
 	 */
-	public function __construct(Application $application, $mixed = null, array $options = array()) {
+	public function __construct(Application $application, $mixed = null, array $options = []) {
 		$this->application = $application;
 		$this->started = false;
 	}
@@ -41,7 +41,7 @@ class Session_PHP implements Interface_Session {
 		return $this;
 	}
 
-	public function need() {
+	public function need(): void {
 		if ($this->started) {
 			return;
 		}
@@ -50,7 +50,7 @@ class Session_PHP implements Interface_Session {
 		} else {
 			global $_SESSION;
 			if (!isset($_SESSION)) {
-				$_SESSION = array();
+				$_SESSION = [];
 			}
 		}
 		$this->started = true;
@@ -116,7 +116,7 @@ class Session_PHP implements Interface_Session {
 	 *
 	 * @see Interface_Settings::__set()
 	 */
-	public function __set($name, $value) {
+	public function __set($name, $value): void {
 		$this->need();
 		$_SESSION[$name] = $value;
 	}
@@ -127,7 +127,7 @@ class Session_PHP implements Interface_Session {
 	 *
 	 * @see Interface_Settings::set()
 	 */
-	public function set($name, $value = null) {
+	public function set($name, $value = null): void {
 		$this->__set($name, $value);
 	}
 
@@ -188,7 +188,7 @@ class Session_PHP implements Interface_Session {
 	 *
 	 * @see Interface_Session::authenticate()
 	 */
-	public function authenticate($id, $ip = false) {
+	public function authenticate($id, $ip = false): void {
 		$this->__set($this->global_session_user_id(), ORM::mixed_to_id($id));
 		$this->__set($this->global_session_user_id() . "_IP", $ip);
 	}
@@ -210,7 +210,7 @@ class Session_PHP implements Interface_Session {
 	 *
 	 * @see Interface_Session::deauthenticate()
 	 */
-	public function deauthenticate() {
+	public function deauthenticate(): void {
 		$this->__set($this->global_session_user_id(), null);
 	}
 
@@ -230,7 +230,7 @@ class Session_PHP implements Interface_Session {
 	 *
 	 * @see Interface_Session::delete()
 	 */
-	public function delete() {
+	public function delete(): void {
 		if (!$this->application->console()) {
 			session_destroy();
 		}

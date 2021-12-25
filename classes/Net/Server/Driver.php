@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @author Kent Davidson <kent@marketacumen.com>
  * @package zesk
@@ -95,21 +95,21 @@ abstract class Net_Server_Driver extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected $clients = array();
+	protected $clients = [];
 
 	/**
 	 * Clients which are empty/unused
 	 *
 	 * @var array
 	 */
-	protected $empty_clients = array();
+	protected $empty_clients = [];
 
 	/**
 	 * Array of data associated with clients
 	 *
 	 * @var array
 	 */
-	protected $client_data = array();
+	protected $client_data = [];
 
 	/**
 	 * @var Net_Server
@@ -183,7 +183,7 @@ abstract class Net_Server_Driver extends Hookable {
 	/**
 	 * Close all connections
 	 */
-	final public function shutdown() {
+	final public function shutdown(): void {
 		if (count($this->clients) === 0 && $this->socket === null) {
 			return;
 		}
@@ -195,7 +195,7 @@ abstract class Net_Server_Driver extends Hookable {
 			socket_close($this->socket);
 			$this->socket = null;
 		}
-		$this->clients = array();
+		$this->clients = [];
 		$this->message("shutdown");
 		exit();
 	}
@@ -206,7 +206,7 @@ abstract class Net_Server_Driver extends Hookable {
 	 * @param string $reuse
 	 * @throws Net_Server_Exception
 	 */
-	final protected function listen($reuse = true) {
+	final protected function listen($reuse = true): void {
 		$this->socket = @socket_create($this->protocol, SOCK_STREAM, SOL_TCP);
 		if (!$this->socket) {
 			throw new Net_Server_Exception("Could not create socket.");
@@ -214,7 +214,7 @@ abstract class Net_Server_Driver extends Hookable {
 
 		if ($reuse) {
 			//    adress may be reused
-			socket_setopt($this->socket, SOL_SOCKET, SO_REUSEADDR, 1);
+			socket_set_option($this->socket, SOL_SOCKET, SO_REUSEADDR, 1);
 		}
 
 		//    bind the socket
@@ -304,19 +304,19 @@ abstract class Net_Server_Driver extends Hookable {
 		//		socket_setopt($accept, SOL_SOCKET, SO_SNDBUF, 4096);
 		//		socket_setopt($accept, SOL_SOCKET, SO_RCVBUF, 4096);
 		//		socket_setopt($accept, SOL_SOCKET, SO_KEEPALIVE, 1);
-		socket_setopt($accept, SOL_SOCKET, SO_LINGER, array(
+		socket_set_option($accept, SOL_SOCKET, SO_LINGER, [
 			'l_onoff' => 1,
 			'l_linger' => 1,
-		));
+		]);
 		socket_set_block($accept);
 
 		$peer_host = $peer_port = "";
 		socket_getpeername($accept, $peer_host, $peer_port);
-		$this->client_data[$client_id] = array(
+		$this->client_data[$client_id] = [
 			"host" => $peer_host,
 			"port" => $peer_port,
 			"time" => time(),
-		);
+		];
 
 		$this->message("New connection #$client_id from $peer_host on port $peer_port");
 		$this->clients[$client_id] = $accept;
@@ -355,7 +355,7 @@ abstract class Net_Server_Driver extends Hookable {
 	 *
 	 * @param number $client_id
 	 */
-	final public function close_connection($client_id = 0) {
+	final public function close_connection($client_id = 0): void {
 		static $recursion = false;
 		if ($recursion) {
 			return;
@@ -472,7 +472,7 @@ abstract class Net_Server_Driver extends Hookable {
 	 * @param string $data
 	 * @throws Net_Server_Exception
 	 */
-	final public function write($client_id = 0, $data) {
+	final public function write($client_id, $data): void {
 		$fd = avalue($this->clients, $client_id);
 		if ($fd === null) {
 			throw new Net_Server_Exception("Client $client_id does not exist.");
@@ -512,10 +512,10 @@ abstract class Net_Server_Driver extends Hookable {
 		if ($this->server && method_exists($this->server, $method)) {
 			$args = func_get_args();
 			array_shift($args);
-			return call_user_func_array(array(
+			return call_user_func_array([
 				$this->server,
 				$method,
-			), $args);
+			], $args);
 		}
 		return null;
 	}
@@ -547,7 +547,7 @@ abstract class Net_Server_Driver extends Hookable {
 	 * @param resource $fd
 	 * @return string
 	 */
-	final private function last_socket_error($fd) {
+	private function last_socket_error($fd) {
 		if (!is_resource($fd)) {
 			return '';
 		}

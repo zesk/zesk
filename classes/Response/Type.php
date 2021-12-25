@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\Response;
 
 use zesk\Response;
@@ -35,13 +35,13 @@ abstract class Type {
 	/**
 	 * Output any special headers
 	 */
-	protected function headers() {
+	protected function headers(): void {
 	}
 
 	/**
 	 * Override in subclasses to extend constructor. Make sure to call parent::initialize()!
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 	}
 
 	/**
@@ -60,7 +60,7 @@ abstract class Type {
 	 * @param mixed $content
 	 * @return void
 	 */
-	abstract public function output($content);
+	abstract public function output($content): void;
 
 	/**
 	 * Convert to JSON array

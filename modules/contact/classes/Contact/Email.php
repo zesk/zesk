@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @version $Id: email.inc 4481 2017-03-24 18:21:48Z kent $
@@ -20,14 +20,14 @@ class Contact_Email extends Contact_Info {
 		return Contact_Label::LabelType_Email;
 	}
 
-	public function verified() {
+	public function verified(): void {
 		$this->verified = "now";
 		$this->store();
 	}
 
 	public static function find_email(Application $app, $email) {
-		return $app->orm_factory(__CLASS__, array(
+		return $app->orm_factory(__CLASS__, [
 			'value' => $email,
-		))->find();
+		])->find();
 	}
 }

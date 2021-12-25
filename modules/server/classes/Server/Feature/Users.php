@@ -1,45 +1,45 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Server_Feature_Users extends Server_Feature {
 	public $code = "users";
 
-	protected $commands = array(
+	protected $commands = [
 		'crontab',
-	);
+	];
 
-	protected $settings = array(
-		'users' => array(
+	protected $settings = [
+		'users' => [
 			'type' => 'user list',
 			'required' => false,
-			'default' => array(),
-		),
-		'home_parent_path' => array(
+			'default' => [],
+		],
+		'home_parent_path' => [
 			'type' => 'path',
 			'required' => false,
-		),
-	);
+		],
+	];
 
-	private $require_users = array();
+	private $require_users = [];
 
-	private $require_groups = array();
+	private $require_groups = [];
 
-	public function configure() {
+	public function configure(): void {
 		$users = $this->config->user_list("users");
 		foreach ($users as $user) {
 			$this->configure_user($user);
 		}
 	}
 
-	public function require_user($user) {
+	public function require_user($user): void {
 		$this->require_users[] = $user;
 	}
 
-	public function require_group($group) {
+	public function require_group($group): void {
 		$this->require_groups[] = $group;
 	}
 
-	private function configure_user(array $object) {
+	private function configure_user(array $object): void {
 		$user = $group = $home = $options = null;
 		extract($object, EXTR_IF_EXISTS);
 		if ($group === null) {

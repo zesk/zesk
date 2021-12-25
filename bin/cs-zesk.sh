@@ -9,6 +9,4 @@ if [ ! -x "$fixer" ]; then
 	echo "no $php_fixer found in path $PATH" 1>&2
 	exit 1
 fi
-config="$APPLICATION_ROOT/etc/zesk.php_cs"
-
-$fixer fix --allow-risky=yes --config=$config $*
+$fixer fix --allow-risky=yes

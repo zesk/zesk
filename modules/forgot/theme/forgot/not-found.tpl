@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL$
  * @author $Author: kent $
@@ -25,8 +25,8 @@ echo HTML::tag("p", $this->message);
 
 $href = $router->get_route("index", Controller_Forgot::class);
 if ($href) {
-	echo HTML::tag("p", HTML::tag("a", array(
+	echo HTML::tag("p", HTML::tag("a", [
 		"class" => "forgot-index-link",
 		"href" => $href,
-	), $locale->__("Try again")));
+	], $locale->__("Try again")));
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -9,17 +9,17 @@ namespace zesk;
  * @category Management
  */
 class Command_Password extends Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		"user" => "string",
 		"password" => "string",
 		"list" => "boolean",
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		"user" => "The user to edit",
 		"password" => "The new password",
 		"list" => "List the active users in the database",
-	);
+	];
 
 	public function _option_list() {
 		/* @var $user User */

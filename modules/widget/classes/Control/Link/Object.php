@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -19,19 +19,19 @@ class Control_Link_Object extends Control {
 	 *
 	 * @var array of Model
 	 */
-	private $models = array();
+	private $models = [];
 
 	/**
 	 *
 	 * @var array of Widget
 	 */
-	private $widgets = array();
+	private $widgets = [];
 
 	private function _list_name() {
 		return $this->name() . '_list';
 	}
 
-	public function initialize() {
+	public function initialize(): void {
 		$widget = $this->widget;
 		$list_name = $this->_list_name();
 		$widget->name($list_name . "[]");
@@ -91,13 +91,13 @@ class Control_Link_Object extends Control {
 
 	public function theme_variables() {
 		$list_name = $this->name() . "_list";
-		return array(
+		return [
 			'link_widgets' => $this->widgets,
 			'link_widget' => $this->widget,
 			'link_widget_name' => $list_name,
 			'minimum_objects' => $this->minimum_objects(),
 			'maximum_objects' => $this->maximum_objects(),
 			'link_values' => $this->object->get($list_name),
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 }

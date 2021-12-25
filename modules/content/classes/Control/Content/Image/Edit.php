@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_Edit_Content_Image extends Control_Edit {
 	public function _widgets() {
-		$spec = array();
+		$spec = [];
 
 		//		$f = $this->widget_factory("control_textarea")->names("Body", "Body", true, -1, -1);
 		//		$f->set_option("rows", 25);
@@ -27,10 +27,10 @@ class Control_Edit_Content_Image extends Control_Edit {
 		$f = $this->widget_factory("control_textarea")->names("Caption", "Caption", false);
 		$spec[$f->column()] = $f;
 
-		$clamp_values = array(
+		$clamp_values = [
 			"integer_minimum" => 20,
 			"integer_maximum" => 1000,
-		);
+		];
 		$f = $this->widget_factory("control_integer")->names("DisplayWidth", "Width", false);
 		$f->set_option($clamp_values);
 		$f->suffix("<p class=\"tiny\">Option width to scale this image. If blank, uses site default.</p>");

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Content module
  *
@@ -11,7 +11,7 @@
 namespace zesk;
 
 class Module_Content extends Module implements Interface_Module_Head {
-	private static $all_classes = array(
+	private static $all_classes = [
 		'zesk\Content_Article' => 'article',
 		'zesk\Content_Data' => 'data',
 		'zesk\Content_File' => 'file',
@@ -21,25 +21,25 @@ class Module_Content extends Module implements Interface_Module_Head {
 		'zesk\Content_Link' => 'link',
 		'zesk\Content_Menu' => 'menu',
 		'zesk\Content_Video' => 'video',
-	);
+	];
 
-	public $model_classes = array();
+	public $model_classes = [];
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see Module::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		if ($this->has_option("content_classes")) {
 			$types = ArrayTools::flip_multiple(self::$all_classes);
 			$this->model_classes = array_merge($this->model_classes, $types['data']);
 			foreach ($this->option_list("content_classes") as $type) {
 				if (!array_key_exists($type, $types)) {
-					$this->application->logger->warning("{method} Unknown content class type {type}", array(
+					$this->application->logger->warning("{method} Unknown content class type {type}", [
 						"method" => __METHOD__,
 						"type" => $type,
-					));
+					]);
 
 					continue;
 				}
@@ -56,16 +56,16 @@ class Module_Content extends Module implements Interface_Module_Head {
 	 * @param Request $request
 	 * @param Response $response
 	 */
-	public function hook_head(Request $request, Response $response, Template $template) {
-		$response->css("/share/content/css/content.css", array(
+	public function hook_head(Request $request, Response $response, Template $template): void {
+		$response->css("/share/content/css/content.css", [
 			"share" => true,
-		));
+		]);
 	}
 
 	/**
 	 * Register hooks
 	 */
-	public static function hooks(Application $zesk) {
+	public static function hooks(Application $zesk): void {
 		$zesk->hooks->add(Content_Image::class . '::stored', Controller_Content_Cache::class . "::image_changed");
 	}
 }

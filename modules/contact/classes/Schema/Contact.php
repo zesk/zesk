@@ -1,117 +1,117 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Schema_Contact extends ORM_Schema {
 	public function schema() {
-		return array(
-			'{table}' => array(
-				'columns' => array(
-					'id' => array(
+		return [
+			'{table}' => [
+				'columns' => [
+					'id' => [
 						'not null' => true,
 						'increment' => true,
 						'unsigned' => true,
 						'type' => 'integer',
 						'sql_type' => 'integer',
-					),
-					'hash' => array(
+					],
+					'hash' => [
 						'not null' => true,
 						'size' => 16,
 						'type' => 'binary(16)',
 						'sql_type' => 'binary(16)',
-					),
-					'account' => array(
+					],
+					'account' => [
 						'unsigned' => true,
 						'type' => 'integer',
 						'sql_type' => 'integer',
-					),
-					'user' => array(
+					],
+					'user' => [
 						'unsigned' => true,
 						'type' => 'integer',
 						'sql_type' => 'integer',
-					),
-					'keywords' => array(
+					],
+					'keywords' => [
 						'type' => 'text',
 						'sql_type' => 'text',
-					),
-					'person' => array(
+					],
+					'person' => [
 						'unsigned' => true,
 						'type' => 'integer',
 						'sql_type' => 'integer',
-					),
-					'email' => array(
+					],
+					'email' => [
 						'unsigned' => true,
 						'type' => 'integer',
 						'sql_type' => 'integer',
-					),
-					'address' => array(
+					],
+					'address' => [
 						'unsigned' => true,
 						'type' => 'integer',
 						'sql_type' => 'integer',
-					),
-					'phone' => array(
+					],
+					'phone' => [
 						'unsigned' => true,
 						'type' => 'integer',
 						'sql_type' => 'integer',
-					),
-					'url' => array(
+					],
+					'url' => [
 						'unsigned' => true,
 						'type' => 'integer',
 						'sql_type' => 'integer',
-					),
-					'notes' => array(
+					],
+					'notes' => [
 						'type' => 'text',
 						'sql_type' => 'text',
-					),
-					'created' => array(
+					],
+					'created' => [
 						'not null' => true,
 						'default' => '0',
 						'type' => 'timestamp',
 						'sql_type' => 'timestamp',
-					),
-					'modified' => array(
+					],
+					'modified' => [
 						'not null' => true,
 						'default' => '0',
 						'type' => 'timestamp',
 						'sql_type' => 'timestamp',
-					),
-					'connector' => array(
+					],
+					'connector' => [
 						'unsigned' => true,
 						'type' => 'integer',
 						'sql_type' => 'integer',
-					),
-					'verified' => array(
+					],
+					'verified' => [
 						'type' => 'timestamp',
 						'sql_type' => 'timestamp',
-					),
-					'verifier' => array(
+					],
+					'verifier' => [
 						'unsigned' => true,
 						'type' => 'integer',
 						'sql_type' => 'integer',
-					),
-					'duplicate' => array(
+					],
+					'duplicate' => [
 						'unsigned' => true,
 						'type' => 'integer',
 						'sql_type' => 'integer',
-					),
-				),
-				'primary keys' => array(
+					],
+				],
+				'primary keys' => [
 					'id',
-				),
-				'indexes' => array(
-					'e' => array(
+				],
+				'indexes' => [
+					'e' => [
 						'email',
-					),
-					'a' => array(
+					],
+					'a' => [
 						'address',
-					),
-					'p' => array(
+					],
+					'p' => [
 						'phone',
-					),
-					'v' => array(
+					],
+					'v' => [
 						'verifier',
-					),
-				),
-			),
-		);
+					],
+				],
+			],
+		];
 	}
 }

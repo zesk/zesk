@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -18,13 +18,13 @@ class Controller extends \zesk\Controller {
 	 *
 	 * @var string
 	 */
-	const QUERY_PARAM_TIME = "time";
+	public const QUERY_PARAM_TIME = "time";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const QUERY_PARAM_HASH = "hash";
+	public const QUERY_PARAM_HASH = "hash";
 
 	use ControllerTrait;
 
@@ -33,7 +33,7 @@ class Controller extends \zesk\Controller {
 	 */
 	public function action_scan() {
 		$timer = new Timer();
-		$result = array();
+		$result = [];
 		$result['applications'] = $this->webapp->cached_webapp_json($this->request->getb("rescan"));
 		$result['elapsed'] = $timer->elapsed();
 		return $this->json($result);
@@ -53,10 +53,10 @@ class Controller extends \zesk\Controller {
 	 */
 	public function action_configure() {
 		if ($this->authenticated()) {
-			return $this->json(array(
+			return $this->json([
 				"status" => true,
 				"payload" => ArrayTools::scalars($this->instance_factory(true)),
-			));
+			]);
 		}
 	}
 
@@ -66,10 +66,10 @@ class Controller extends \zesk\Controller {
 	public function action_generate() {
 		if ($this->authenticated()) {
 			$generator = $this->webapp->generate_configuration();
-			return $this->json(array(
+			return $this->json([
 				"success" => true,
 				"changed" => $generator->changed(),
-			));
+			]);
 		}
 	}
 
@@ -86,10 +86,10 @@ class Controller extends \zesk\Controller {
 	 */
 	private function _health_down() {
 		$this->response->status(Net_HTTP::STATUS_FORBIDDEN, "Disabled");
-		return $this->json(array(
+		return $this->json([
 			"status" => false,
 			"message" => "Disabled",
-		));
+		]);
 	}
 
 	/**
@@ -101,7 +101,7 @@ class Controller extends \zesk\Controller {
 		$appname = $request->get("app");
 		$data = $this->server->data(Module::SERVER_DATA_APP_HEALTH);
 		if (!is_array($data)) {
-			$data = array();
+			$data = [];
 		}
 		if ($appname) {
 			if (!isset($data[$appname])) {
@@ -114,10 +114,10 @@ class Controller extends \zesk\Controller {
 		if ($data['*'] === false) {
 			return $this->_health_down();
 		}
-		return $this->json(array(
+		return $this->json([
 			"status" => true,
 			"message" => "working",
-		));
+		]);
 	}
 
 	/**
@@ -125,22 +125,22 @@ class Controller extends \zesk\Controller {
 	 * {@inheritDoc}
 	 * @see \zesk\Controller::_action_default()
 	 */
-	public function _action_default($action = null) {
+	public function _action_default($action = null): void {
 		$request = $this->request;
 		$server = $this->server;
 		$authenticated = $this->check_authentication();
 
-		$result = array(
+		$result = [
 			"host" => System::uname(),
 			"ip" => $server->ip4_internal,
 			"remote" => $request->ip(),
-		);
+		];
 		if ($authenticated === true) {
-			$result += array(
+			$result += [
 				"server" => $server->id(),
 				"keygroup" => md5($this->webapp->key()),
 				"docroot" => $this->application->document_root(),
-			);
+			];
 		}
 		$this->json($result);
 	}

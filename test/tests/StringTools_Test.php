@@ -1,58 +1,58 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class StringTools_Test extends Test_Unit {
-	public function test_begins() {
+	public function test_begins(): void {
 		$haystack = null;
 		$needle = null;
 		$lower = false;
 		StringTools::begins($haystack, $needle, $lower);
 	}
 
-	public function test_capitalize() {
+	public function test_capitalize(): void {
 		$phrase = null;
 		StringTools::capitalize($phrase);
 	}
 
-	public function test_case_match() {
+	public function test_case_match(): void {
 		$string = null;
 		$pattern = null;
 		StringTools::case_match($string, $pattern);
 	}
 
-	public function test_ellipsis_word() {
+	public function test_ellipsis_word(): void {
 		$s = null;
 		$n = 20;
 		$dot_dot_dot = "...";
 		StringTools::ellipsis_word($s, $n, $dot_dot_dot);
 	}
 
-	public function test_ends() {
+	public function test_ends(): void {
 		$haystack = null;
 		$needle = null;
 		$lower = false;
 		StringTools::ends($haystack, $needle, $lower);
 	}
 
-	public function test_from_bool() {
+	public function test_from_bool(): void {
 		$bool = null;
 		StringTools::from_bool($bool);
 	}
 
-	public function test_is_ascii() {
+	public function test_is_ascii(): void {
 		$str = "string";
 		$this->assert(StringTools::is_ascii($str));
 		$str = chr(255) . chr(254) . "Hello";
 		$this->assert(!StringTools::is_ascii($str));
 	}
 
-	public function test_is_utf16() {
+	public function test_is_utf16(): void {
 		$str = null;
 		$be = null;
 		StringTools::is_utf16($str, $be);
 	}
 
-	public function test_wrap() {
+	public function test_wrap(): void {
 		$phrase = null;
 		HTML::wrap($phrase);
 
@@ -71,10 +71,10 @@ class StringTools_Test extends Test_Unit {
 		$this->assert(HTML::wrap('Nested example with [outernest [nest0] [nest1]] example', '<0>[]</0>', '<1>[]</1>', '<2>[]</2>') === 'Nested example with <2>outernest <0>nest0</0> <1>nest1</1></2> example', HTML::wrap('Nested example with [outernest [nest0] [nest1]] example', '<0>[]</0>', '<1>[]</1>', '<2>[]</2>') . ' === Nested example with <2>outernest <0>nest0</0> <1>nest1</1></2> example');
 	}
 
-	public function test_is_utf8() {
+	public function test_is_utf8(): void {
 		$test_dir = $this->application->zesk_home('test/test-data');
 
-		$files = array(
+		$files = [
 			"utf16-le-no-bom.data" => false,
 			"utf16-no-bom.data" => false,
 			"iso-latin-1.data" => true,
@@ -82,7 +82,7 @@ class StringTools_Test extends Test_Unit {
 			"utf16-le.data" => false,
 			"iso-latin-9.data" => true,
 			"utf16.data" => false,
-		);
+		];
 		$str = null;
 		$this->assert(StringTools::is_utf8('') === true);
 		$this->assert(StringTools::is_utf8('????, ???') === true);
@@ -96,14 +96,14 @@ class StringTools_Test extends Test_Unit {
 		}
 	}
 
-	public function test_left() {
+	public function test_left(): void {
 		$str = null;
 		$find = null;
 		$default = null;
 		StringTools::left($str, $find, $default);
 	}
 
-	public function test_pair() {
+	public function test_pair(): void {
 		$string = null;
 		$delim = '.';
 		$left = null;
@@ -111,7 +111,7 @@ class StringTools_Test extends Test_Unit {
 		StringTools::pair($string, $delim, $left, $right);
 	}
 
-	public function test_pairr() {
+	public function test_pairr(): void {
 		$string = null;
 		$delim = '.';
 		$left = null;
@@ -119,35 +119,35 @@ class StringTools_Test extends Test_Unit {
 		StringTools::pairr($string, $delim, $left, $right);
 	}
 
-	public function test_replace_first() {
+	public function test_replace_first(): void {
 		$search = "is";
 		$replace = "at";
 		$content = "This is a test";
 		$this->assert(StringTools::replace_first($search, $replace, $content) === "That is a test");
 	}
 
-	public function test_right() {
+	public function test_right(): void {
 		$str = null;
 		$find = null;
 		$default = null;
 		StringTools::right($str, $find, $default);
 	}
 
-	public function test_rleft() {
+	public function test_rleft(): void {
 		$str = null;
 		$find = null;
 		$default = null;
 		StringTools::rleft($str, $find, $default);
 	}
 
-	public function test_rright() {
+	public function test_rright(): void {
 		$str = null;
 		$find = null;
 		$default = null;
 		StringTools::rright($str, $find, $default);
 	}
 
-	public function test_to_bool() {
+	public function test_to_bool(): void {
 		$value = null;
 		$default = false;
 		StringTools::to_bool($value, $default);
@@ -185,23 +185,23 @@ class StringTools_Test extends Test_Unit {
 		$this->assert(StringTools::to_bool("1", null) === null);
 
 		$this->assert(StringTools::to_bool("01", null) === null);
-		$this->assert(StringTools::to_bool(array(), null) === null);
+		$this->assert(StringTools::to_bool([], null) === null);
 		$this->assert(StringTools::to_bool(new \stdClass(), null) === null);
 	}
 
-	public function test_unprefix() {
+	public function test_unprefix(): void {
 		$string = null;
 		$prefix = null;
 		StringTools::unprefix($string, $prefix);
 	}
 
-	public function test_unsuffix() {
+	public function test_unsuffix(): void {
 		$string = null;
 		$suffix = null;
 		StringTools::unsuffix($string, $suffix);
 	}
 
-	public function test_zero_pad() {
+	public function test_zero_pad(): void {
 		$s = null;
 		StringTools::zero_pad($s);
 		$this->assert_equal(StringTools::zero_pad('0'), '00');
@@ -212,7 +212,7 @@ class StringTools_Test extends Test_Unit {
 		$this->assert_equal(StringTools::zero_pad('xx', 4), '00xx');
 	}
 
-	public function test_lalign() {
+	public function test_lalign(): void {
 		$text = null;
 		$n = -1;
 		$pad = " ";
@@ -220,7 +220,7 @@ class StringTools_Test extends Test_Unit {
 		Text::lalign($text, $n, $pad, $_trim);
 	}
 
-	public function test_ralign() {
+	public function test_ralign(): void {
 		$text = null;
 		$n = -1;
 		$pad = " ";
@@ -228,57 +228,57 @@ class StringTools_Test extends Test_Unit {
 		Text::ralign($text, $n, $pad, $_trim);
 	}
 
-	public function test_filter() {
+	public function test_filter(): void {
 		$name = null;
 		$default = true;
-		$this->assert(StringTools::filter($name, array(), true) === true);
-		$this->assert(StringTools::filter($name, array(), false) === false);
-		$tests = array(
-			array(
+		$this->assert(StringTools::filter($name, [], true) === true);
+		$this->assert(StringTools::filter($name, [], false) === false);
+		$tests = [
+			[
 				'foo.php',
-				array(
+				[
 					'/.*\.php$/' => true,
-				),
+				],
 				null,
 				true,
-			),
-			array(
+			],
+			[
 				'foo.php.no',
-				array(
+				[
 					'/.*\.php$/' => true,
-				),
+				],
 				null,
 				null,
-			),
-			array(
+			],
+			[
 				'user/.svn/',
-				array(
+				[
 					'/\.svn/' => false,
 					true,
-				),
+				],
 				null,
 				false,
-			),
-			array(
+			],
+			[
 				'code/split-testing/php/.cvsignore',
-				array(
+				[
 					'/php/' => false,
-				),
+				],
 				true,
 				false,
-			),
-		);
+			],
+		];
 		foreach ($tests as $index => $test) {
-			list($name, $rules, $default, $result) = $test;
+			[$name, $rules, $default, $result] = $test;
 			$this->assert_equal(StringTools::filter($name, $rules, $default), $result, "Test #$index failed: $name");
 		}
 	}
 
-	public function test_substr() {
+	public function test_substr(): void {
 		// Never knew this'
 		$foo = "OK,";
 		$result = substr($foo, 3);
-		if (PHP_VERSION_ID > 070000) {
+		if (PHP_VERSION_ID > 0o70000) {
 			// Fixed in 7.0
 			$this->assert_equal(gettype($result), "string");
 			$this->assert_equal($result, "");
@@ -288,7 +288,7 @@ class StringTools_Test extends Test_Unit {
 		}
 	}
 
-	public function test_replace_first1() {
+	public function test_replace_first1(): void {
 		$this->assert(StringTools::replace_first("a", "b", "abracadabra") === "bbracadabra");
 		$this->assert(StringTools::replace_first("bra", "strap", "abracadabra") === "astrapcadabra");
 	}

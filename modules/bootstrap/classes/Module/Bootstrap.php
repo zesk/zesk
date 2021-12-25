@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -14,11 +14,11 @@ namespace zesk;
 class Module_Bootstrap extends Module implements Interface_Module_Foot, Interface_Module_Head {
 	/**
 	 */
-	public function initialize() {
-		$this->application->hooks->add('zesk\\Control_List::row_widget', array(
+	public function initialize(): void {
+		$this->application->hooks->add('zesk\\Control_List::row_widget', [
 			$this,
 			'_hook_list_row_widget',
-		));
+		]);
 	}
 
 	/**
@@ -26,12 +26,12 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 * @param Control $self
 	 * @param Control_Row $row
 	 */
-	public function _hook_list_row_widget(Control $self, Control_Row $row) {
+	public function _hook_list_row_widget(Control $self, Control_Row $row): void {
 		$n_columns = $self->option('list_column_count', 12);
 		$children = $row->children();
 		$child_divisor = count($children) === 0 ? 1 : count($children);
 		$n_per = max(1, intval($n_columns / $child_divisor));
-		$autos = array();
+		$autos = [];
 		$total = $n_columns;
 		foreach ($row->children() as $child) {
 			$list_column_width = $child->option('list_column_width');
@@ -58,32 +58,32 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 * @param Response $response
 	 * @param Template $template
 	 */
-	public function hook_head(Request $request, Response $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template): void {
 		// Lazy eval
 		if ($this->option_bool('enabled')) {
 			$html = $response->html();
 			if ($this->option_bool('css_enabled') || !$this->source_locations()) {
-				$response->css("/share/bootstrap/css/bootstrap.css", array(
+				$response->css("/share/bootstrap/css/bootstrap.css", [
 					'share' => true,
-				));
+				]);
 			}
 			if ($this->option_bool("responsive", true)) {
 				$html->meta("viewport", "width=device-width, initial-scale=1.0");
 			}
-			$html->meta(array(
+			$html->meta([
 				'http-equiv' => 'X-UA-Compatible',
 				'content' => "IE=edge",
-			));
-			$html->meta(array(
+			]);
+			$html->meta([
 				'charset' => 'utf-8',
-			));
+			]);
 
 			$html->jquery();
-			$html->javascript(array(
+			$html->javascript([
 				$this->application->development() ? "/share/bootstrap/js/bootstrap.js" : "/share/bootstrap/js/bootstrap.min.js",
-			), array(
+			], [
 				'share' => true,
-			));
+			]);
 		}
 	}
 
@@ -93,7 +93,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 *
 	 * @see Interface_Module_Foot::hook_foot()
 	 */
-	public function hook_foot(Request $request, Response $response, Template $template) {
+	public function hook_foot(Request $request, Response $response, Template $template): void {
 		if ($this->option_bool('responsive_size_enabled', $this->application->development())) {
 			echo $this->application->theme("bootstrap/responsive-size");
 		}
@@ -119,14 +119,14 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 */
 	private function map_variables_file($source_location) {
 		$newfilename = $this->option('variables_less_override_name', '../variables.less');
-		$tr = array(
+		$tr = [
 			"@import \"variables.less\";\n@import \"mixins.less\";" => "@import \"variables.less\";\n@import \"$newfilename\";\n@import \"mixins.less\";",
-		);
+		];
 		$bootstrap_main = path($source_location, "bootstrap.less");
 		if (!is_file($bootstrap_main)) {
-			$this->application->logger->error("Module_Bootstrap expected file to exist for modification: {file} - no action taken", array(
+			$this->application->logger->error("Module_Bootstrap expected file to exist for modification: {file} - no action taken", [
 				"file" => $bootstrap_main,
-			));
+			]);
 			return false;
 		}
 		$parent = dirname($source_location);
@@ -134,15 +134,15 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			$old = file_get_contents($bootstrap_main);
 			$new = strtr($old, $tr);
 			if ($old === $new) {
-				$this->application->logger->warning("Module_Bootstrap tried to modify {file} for custom variables.less, but didn't change it?", array(
+				$this->application->logger->warning("Module_Bootstrap tried to modify {file} for custom variables.less, but didn't change it?", [
 					"file" => $bootstrap_main,
-				));
+				]);
 				return false;
 			}
 			file_put_contents($bootstrap_main, $new);
-			$this->application->logger->notice("Module_Bootstrap modified {file} for custom variables.less", array(
+			$this->application->logger->notice("Module_Bootstrap modified {file} for custom variables.less", [
 				"file" => $bootstrap_main,
-			));
+			]);
 			return true;
 		} else {
 			$this->application->logger->warning("Module_Bootstrap - can not find import file {import_file_path}", compact('import_file_path'));
@@ -153,7 +153,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	/**
 	 * After this module is updated
 	 */
-	public function hook_updated() {
+	public function hook_updated(): void {
 		$this->handle_source_locations(__METHOD__);
 	}
 
@@ -171,21 +171,21 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 		}
 
 		if (count($source_locations) === 0) {
-			$this->application->logger->notice("{method}: No {class}::source_locations configuration option specified, using default bootstrap CSS/LESS files", array(
+			$this->application->logger->notice("{method}: No {class}::source_locations configuration option specified, using default bootstrap CSS/LESS files", [
 				"method" => __METHOD__,
 				"class" => __CLASS__,
-			));
-			return array();
+			]);
+			return [];
 		}
-		$result = array();
+		$result = [];
 		foreach ($source_locations as $source_location) {
 			if (!!Directory::is_absolute($source_location)) {
 				$source_location = $this->application->path($source_location);
 			}
-			$this->application->logger->debug("{reason}: source_location={source_location}", array(
+			$this->application->logger->debug("{reason}: source_location={source_location}", [
 				'reason' => $reason,
 				"source_location" => $source_location,
-			));
+			]);
 			$result[$source_location] = $this->handle_source_location($source_location);
 		}
 		return $result;
@@ -195,7 +195,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 *
 	 * @param string $source_location
 	 */
-	private function handle_source_location($source_location) {
+	private function handle_source_location($source_location): void {
 		if (is_dir($source_location) || is_dir(dirname($source_location))) {
 			$master = path($this->application->path(), dirname($this->option("share_path")), "less");
 			if (!is_dir($master)) {

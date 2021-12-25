@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -15,28 +15,28 @@ use zesk\Module_JSLib;
  *
  */
 class Module extends Module_JSLib {
-	protected $javascript_paths = array(
+	protected $javascript_paths = [
 		"/share/jquery-unveil/jquery.unveil.js",
-	);
+	];
 
 	/**
 	 * jQuery ready code
 	 *
 	 * @var array
 	 */
-	protected $jquery_ready = array(
+	protected $jquery_ready = [
 		"\$(\"img\").unveil();",
 		"zesk.add_hook('document::ready', function (context) {\n\t\$(\"img\", context).unveil();\n});",
-	);
+	];
 
 	/**
 	 * Register global hooks for this module
 	 */
-	public function initialize() {
-		$this->application->hooks->add(HTML::tag_attributes_alter_hook_name("img"), array(
+	public function initialize(): void {
+		$this->application->hooks->add(HTML::tag_attributes_alter_hook_name("img"), [
 			$this,
 			"img_alter",
-		));
+		]);
 		parent::initialize();
 	}
 

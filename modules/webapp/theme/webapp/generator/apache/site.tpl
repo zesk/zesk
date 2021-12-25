@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\WebApp;
 
 use zesk\ArrayTools;
@@ -39,26 +39,26 @@ if ($node_application && $application->development() && ends($path, "/build/")) 
 	$path = StringTools::unsuffix($path, "/build/") . "/public/";
 }
 
-$lines = array();
+$lines = [];
 
 echo "# Template " . __FILE__ . "\n";
 echo "# Generated from $source\n";
 
 $approot = $instance->path;
 
-$apache_directory = avalue($data, 'apache-directory', array());
+$apache_directory = avalue($data, 'apache-directory', []);
 unset($data['apache-directory']);
 
-$directories = array();
+$directories = [];
 foreach ($apache_directory as $dirpath => $dirconfig) {
 	if (is_array($lines)) {
 		$directories[path($approot, $dirpath)] = $dirconfig;
 	} else {
-		$application->logger->error("Directory {path} is not set to an array in {source}: {type}", array(
+		$application->logger->error("Directory {path} is not set to an array in {source}: {type}", [
 			"path" => $dirpath,
 			"type" => type($dirconfig),
 			"source" => $source,
-		));
+		]);
 	}
 }
 
@@ -103,9 +103,9 @@ if (is_array($indexes)) {
 $lines[] = $tab . $tab . "Options FollowSymLinks Indexes";
 $lines[] = $tab . $tab . "AllowOverride all";
 if ($type === "rewrite-index") {
-	$rewrite_content = $this->theme("webapp/generator/apache/rewrite-index", array(
+	$rewrite_content = $this->theme("webapp/generator/apache/rewrite-index", [
 		"index_file" => $index_file,
-	));
+	]);
 	$rewrite_lines = explode("\n", $rewrite_content);
 	$lines = array_merge($lines, ArrayTools::prefix($rewrite_lines, $tab . $tab));
 } else {
@@ -146,7 +146,7 @@ $cronolog = $this->getb("cronolog");
 $logging = avalue($data, 'logging');
 unset($data['logging']);
 if (is_array($logging)) {
-	$levels = $logging['levels'] ?? array();
+	$levels = $logging['levels'] ?? [];
 	$prefix = $logging['prefix'] ?? $instance->code . "-" . $site->code;
 
 	if (in_array("access", $levels)) {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $Id: summary.tpl 4481 2017-03-24 18:21:48Z kent $
  * @package fftt
@@ -27,13 +27,13 @@ $new_link = path($request->path(), $object->CodeName);
 
 echo HTML::tag_open("div", '.article-entry');
 if ($object->member_boolean("ShowDisplayDate")) {
-	echo HTML::etag("div", array(
+	echo HTML::etag("div", [
 		"class" => "article-date",
-	), $object->displayDate());
+	], $object->displayDate());
 }
-echo $object->articleImage(0, array(
+echo $object->articleImage(0, [
 	"image_size" => 150,
-));
+]);
 
 echo HTML::tag('h2', HTML::a($new_link, $object->homeTitle()));
 

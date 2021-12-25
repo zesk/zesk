@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -11,11 +11,11 @@ class Control_Duration extends Control_Select {
 		return $column !== null ? $this->set_option('relative_to', $column) : $this->option('relative_to');
 	}
 
-	public function initialize() {
+	public function initialize(): void {
 		$locale = $this->application->locale;
 		$max_duration = $this->option_integer("max_duration_minutes", 12 * 60);
 		$duration_interval = $this->option_integer("duration_interval_minutes", 15);
-		$options = array();
+		$options = [];
 		$ts = new TimeSpan();
 		for ($i = $duration_interval; $i <= $max_duration; $i += $duration_interval) {
 			$ts->seconds(0)->add($i * 60);

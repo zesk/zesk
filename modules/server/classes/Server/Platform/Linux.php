@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -14,11 +14,11 @@ class Server_Platform_Linux extends Server_Platform_Unix {
 
 	private static $users_loaded = false;
 
-	private static $users = array();
+	private static $users = [];
 
 	private static $groups_loaded = false;
 
-	private static $groups = array();
+	private static $groups = [];
 
 	private function network_restart() {
 		$this->verbose_log('Restarting network ...');
@@ -50,7 +50,7 @@ class Server_Platform_Linux extends Server_Platform_Unix {
 		return $this->has_shell_program('apt-get');
 	}
 
-	protected function linux_remove_rc(array $services) {
+	protected function linux_remove_rc(array $services): void {
 		foreach ($services as $service) {
 			$this->verbose_log("Removing /etc/init.d/$service from any startup scripts ...");
 			$this->root_exec('update-rc.d -f {0} remove', $service);
@@ -63,17 +63,17 @@ class Server_Platform_Linux extends Server_Platform_Unix {
 		}
 	}
 
-	public function hook_configure_features() {
-		$this->packager->install(array(
+	public function hook_configure_features(): void {
+		$this->packager->install([
 			"curl",
 			"rsync",
 			"unzip",
 			"bzip2",
-		));
+		]);
 		$this->network_configure();
 	}
 
-	public function restart_service($name) {
+	public function restart_service($name): void {
 		$path = path('/etc/init.d', $name);
 		if (!is_executable($path)) {
 			throw new Exception_File_NotFound($path);
@@ -81,7 +81,7 @@ class Server_Platform_Linux extends Server_Platform_Unix {
 		$this->exec("$path restart");
 	}
 
-	protected function restart_syslogd() {
+	protected function restart_syslogd(): void {
 		$this->restart_service('sysklogd');
 	}
 
@@ -116,7 +116,7 @@ class Server_Platform_Linux extends Server_Platform_Unix {
 	public function group_create($group, $members = null, $gid = null) {
 		$ma = "";
 		if ($members !== null) {
-			$members = ArrayTools::trim_clean(to_list($members, array()));
+			$members = ArrayTools::trim_clean(to_list($members, []));
 			if (count($members) > 0) {
 				foreach ($members as $member) {
 					if (!$this->group_exists($member)) {

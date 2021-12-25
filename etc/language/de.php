@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage locale
@@ -6,7 +6,7 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Thu Jan 22 12:10:40 EST 2009 12:10:40
  */
-$tt = array();
+$tt = [];
 
 $tt['today'] = 'Heute';
 $tt['yesterday'] = 'Gestern';

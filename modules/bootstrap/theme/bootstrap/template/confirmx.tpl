@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 ?><script type="text/x-zesk-template" id="template-confirmx">
 <div class="modal fade">
 	<% if (data['title']) { %>

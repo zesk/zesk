@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
@@ -36,7 +36,7 @@ class Database_Table extends Hookable {
 	 *
 	 * @var array
 	 */
-	public $columns = array();
+	public $columns = [];
 
 	/**
 	 *
@@ -48,13 +48,13 @@ class Database_Table extends Hookable {
 	 *
 	 * @var array
 	 */
-	public $indexes = array();
+	public $indexes = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $on = array();
+	public $on = [];
 
 	/**
 	 * @var string
@@ -68,7 +68,7 @@ class Database_Table extends Hookable {
 	 * @param unknown $table_name
 	 * @param string $type
 	 */
-	public function __construct(Database $db, $table_name, $type = null, array $options = array()) {
+	public function __construct(Database $db, $table_name, $type = null, array $options = []) {
 		parent::__construct($db->application, $options);
 		$this->database = $db;
 		$this->name = $table_name;
@@ -192,7 +192,7 @@ class Database_Table extends Hookable {
 	 * @return string[]
 	 */
 	public function column_names() {
-		$result = array();
+		$result = [];
 		foreach ($this->columns as $col_object) {
 			/* @var $col_object Database_Column */
 			$result[] = $col_object->name();
@@ -261,7 +261,7 @@ class Database_Table extends Hookable {
 		if (is_array($this->indexes)) {
 			return $this->indexes;
 		}
-		$indexes = array();
+		$indexes = [];
 		foreach ($this->columns as $col) {
 			$dbColName = $col->name();
 			$indexes_types = $col->indexes_types();
@@ -282,7 +282,7 @@ class Database_Table extends Hookable {
 	 *
 	 * @param Database_Index $index
 	 */
-	public function index_add(Database_Index $index) {
+	public function index_add(Database_Index $index): void {
 		$this->indexes[strtolower($index->name())] = $index;
 		if ($index->type() === Database_Index::Primary) {
 			if ($this->primary) {
@@ -301,7 +301,7 @@ class Database_Table extends Hookable {
 	 *
 	 * @param array $indexes
 	 */
-	public function set_indexes(array $indexes) {
+	public function set_indexes(array $indexes): void {
 		foreach ($indexes as $v) {
 			$this->index_add($v);
 		}
@@ -319,10 +319,10 @@ class Database_Table extends Hookable {
 			backtrace();
 		}
 		if (array_key_exists($column, $this->columns)) {
-			throw new Exception_Semantics("Database_Table::column_add({column}) already exists in {table}", array(
+			throw new Exception_Semantics("Database_Table::column_add({column}) already exists in {table}", [
 				"column" => $column,
 				"table" => $this->name,
-			));
+			]);
 		}
 		$this->call_hook("column_add", $dbCol);
 
@@ -330,18 +330,18 @@ class Database_Table extends Hookable {
 		// 			throw new Exception_Semantics("Database_Table::column_add($column): Can not set SQLType");
 		// 		}
 		if (!$dbCol->has_sql_type()) {
-			throw new Exception_Semantics("{method}: No SQL type for column {column} in table {table}\noptions: {options}", array(
+			throw new Exception_Semantics("{method}: No SQL type for column {column} in table {table}\noptions: {options}", [
 				"method" => __METHOD__,
 				"options" => json_encode($dbCol->option()),
 				"column" => $column,
 				"table" => $dbCol->table()->name(),
-			));
+			]);
 		}
 		$after_column = $dbCol->option("after_column");
 		if ($after_column) {
-			$this->columns = ArrayTools::insert($this->columns, $after_column, array(
+			$this->columns = ArrayTools::insert($this->columns, $after_column, [
 				$column => $dbCol,
-			));
+			]);
 		} else {
 			$this->columns[$column] = $dbCol;
 		}
@@ -349,9 +349,9 @@ class Database_Table extends Hookable {
 			if ($this->primary) {
 				$this->primary->column_add($column);
 			} else {
-				$this->primary = new Database_Index($this, '', array(
+				$this->primary = new Database_Index($this, '', [
 					$column => true,
-				), Database_Index::Primary);
+				], Database_Index::Primary);
 			}
 		}
 		return $this;
@@ -374,15 +374,15 @@ class Database_Table extends Hookable {
 	 * @return multitype:NULL
 	 */
 	public function sql_alter(Database_Table $old_table) {
-		$result = array();
+		$result = [];
 		$oldTableType = $old_table->type();
 		$newTableType = $this->type();
 		$tableName = $this->Name();
 
-		$this->application->logger->debug("Table sql_alter {old} {new}", array(
+		$this->application->logger->debug("Table sql_alter {old} {new}", [
 			"old" => $oldTableType,
 			"new" => $newTableType,
-		));
+		]);
 		if (!$this->table_attributes_is_similar($old_table)) {
 			$result[] = $this->database->sql()->alter_table_attributes($this, $this->option());
 		}
@@ -396,12 +396,12 @@ class Database_Table extends Hookable {
 		$that_attributes = $that->option($defaults);
 		if ($this_attributes !== $that_attributes) {
 			if ($debug) {
-				$logger->debug("Database_Table::is_similar({this_name}): Mismatched attributes: {this} != {that}", array(
+				$logger->debug("Database_Table::is_similar({this_name}): Mismatched attributes: {this} != {that}", [
 					"this" => $this_attributes,
 					"that" => $that_attributes,
 					"this_name" => $this->name,
 					"that_name" => $that->name,
-				));
+				]);
 			}
 			return false;
 		}
@@ -510,7 +510,7 @@ class Database_Table extends Hookable {
 	public function on_action($action, array $sqls = null) {
 		if (is_array($action)) {
 			assert($sqls === null);
-			$result = array();
+			$result = [];
 			foreach ($action as $_ => $sqls) {
 				$result[$_] = $this->on($_, $sqls);
 			}
@@ -520,11 +520,11 @@ class Database_Table extends Hookable {
 			throw new Exception_Semantics("Invalid action $action passed to Database_Table::on for table $this->name");
 		}
 		if ($sqls === null) {
-			return avalue($this->on, $action, array());
+			return avalue($this->on, $action, []);
 		}
 		assert(is_array($sqls));
 		if (!array_key_exists($action, $this->on)) {
-			$this->on[$action] = array();
+			$this->on[$action] = [];
 		}
 		return $this->on[$action] = array_merge($this->on[$action], $sqls);
 	}

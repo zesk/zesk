@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -19,31 +19,31 @@ class Module extends \zesk\Module_Repository {
 	 *
 	 * @var string
 	 */
-	const TYPE = "svn";
+	public const TYPE = "svn";
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Module::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		$required_class = "SimpleXMLElement";
 		if (!class_exists($required_class, false)) {
-			throw new Exception_System("{class} requires the {required_class}. See {help_url}", array(
+			throw new Exception_System("{class} requires the {required_class}. See {help_url}", [
 				"class" => get_class($this),
 				"required_class" => $required_class,
 				"help_url" => "http://php.net/manual/en/simplexml.installation.php",
-			));
+			]);
 		}
 		parent::initialize();
-		$this->register_repository(Repository::class, array(
+		$this->register_repository(Repository::class, [
 			self::TYPE,
 			"subversion",
-		));
-		$this->application->hooks->add(Engine::class . '::command_subversion', array(
+		]);
+		$this->application->hooks->add(Engine::class . '::command_subversion', [
 			$this,
 			"command_subversion",
-		));
+		]);
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Module extends \zesk\Module_Repository {
 	 * @see Engine
 	 * @param Engine $engine
 	 */
-	public function command_subversion(Engine $engine, array $arguments = array(), $command_name) {
+	public function command_subversion(Engine $engine, array $arguments, $command_name) {
 		$app = $engine->application;
 		$locale = $app->locale;
 		$url = array_shift($arguments);

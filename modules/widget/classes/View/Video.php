@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Adding support for http://www.jeroenwijering.com/extras/readme.html
  *
@@ -19,10 +19,10 @@ class View_Video extends View {
 		if (is_bool($value)) {
 			$value = StringTools::from_bool($value);
 		}
-		return HTML::tag("param", array(
+		return HTML::tag("param", [
 			"name" => $name,
 			"value" => $value,
-		), null);
+		], null);
 	}
 
 	private function fpOption($key, $default) {
@@ -50,11 +50,11 @@ class View_Video extends View {
 		$html .= "<script type=\"text/javascript\">\n";
 		$html .= "var fp$this_id = new SWFObject(\"" . $this->href("/share/zesk/widgets/video/flvplayer.swf") . "\",\"single\",\"$width\",\"$height\",\"7\");\n";
 
-		$params = array(
+		$params = [
 			"allowfullscreen" => true,
 			"wmode" => "opaque",
-		);
-		$vars = array(
+		];
+		$vars = [
 			"file" => $this->href(urlencode($path)),
 			"autostart" => false,
 			"image" => "",
@@ -63,7 +63,7 @@ class View_Video extends View {
 			"frontcolor" => "0xFFFFFF",
 			"lightcolor" => "0x557722",
 			"volume" => 80,
-		);
+		];
 		foreach ($params as $key => $default) {
 			$var = $this->fpOption($key, $default);
 			if ($var !== "") {
@@ -97,13 +97,13 @@ class View_Video extends View {
 src="' . $this->href($path) . '"
 name="MediaPlayer1"
 width="' . $width . '" height="' . $height . '" autostart="' . intval($autostart) . '" showcontrols="' . intval($showcontrols) . '" volume="' . $volume . '">';
-		$embed = HTML::tag("embed", array(
+		$embed = HTML::tag("embed", [
 			"src" => $this->href($path),
 			"width" => $width,
 			"height" => $height,
 			"ShowControls" => intval($showcontrols),
 			"ShowDisplay" => intval($ShowDisplay),
-		), "");
+		], "");
 		$result = '<object id="MediaPlayer1"
 classid="CLSID:22d6f312-b0f6-11d0-94ab-0080c74c7e95"
 codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701"
@@ -124,9 +124,9 @@ standby="' . $standby_string . '" type="application/x-oleobject" width="' . $wid
 
 		$oparams['src'] = $this->option('preview_src');
 		$oparams['href'] = $this->href($path, false);
-		foreach (array(
+		foreach ([
 			'autoplay' => false,
-		) as $k => $v) {
+		] as $k => $v) {
 			$oparams[$k] = $this->option($k, $v);
 		}
 		$oparams_content = "";

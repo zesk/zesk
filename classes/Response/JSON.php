@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\Response;
 
 use zesk\JSON as zeskJSON;
@@ -10,7 +10,7 @@ class JSON extends Type {
 	 *
 	 * @var array
 	 */
-	private $json = array();
+	private $json = [];
 
 	/**
 	 *
@@ -28,11 +28,11 @@ class JSON extends Type {
 	 *
 	 * @param \zesk\Response $response
 	 */
-	public function initialize() {
-		$this->json = array();
-		$this->json_serializer_arguments = array(
+	public function initialize(): void {
+		$this->json = [];
+		$this->json_serializer_arguments = [
 			JSONWalker::factory(),
-		);
+		];
 		$this->json_serializer_methods = null;
 	}
 
@@ -78,7 +78,7 @@ class JSON extends Type {
 	 * {@inheritDoc}
 	 * @see \zesk\Response\Type::output()
 	 */
-	public function output($content) {
+	public function output($content): void {
 		echo $this->render($content);
 	}
 }

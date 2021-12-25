@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -16,22 +16,22 @@ class Command_Class_Check extends Command_Base {
 	 *
 	 * @var array
 	 */
-	protected $option_types = array(
+	protected array $option_types = [
 		"*" => "string",
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public static $types_map = array(
+	public static $types_map = [
 		'serialize' => 'array',
 		'ip' => 'string',
 		'ip' => 'string',
 		'created' => 'Timestamp',
 		'created' => 'Timestamp',
 		'modified' => 'Timestamp',
-	);
+	];
 
 	/**
 	 *
@@ -46,9 +46,9 @@ class Command_Class_Check extends Command_Base {
 	 * {@inheritDoc}
 	 * @see \zesk\Command::run()
 	 */
-	public function run() {
+	public function run(): void {
 		$logger = $this->application->logger;
-		$classes = array();
+		$classes = [];
 		while ($this->has_arg()) {
 			$arg = $this->get_arg("class");
 			if ($arg === "all") {
@@ -61,9 +61,9 @@ class Command_Class_Check extends Command_Base {
 			$classes = $this->all_classes();
 		}
 		foreach ($classes as $class) {
-			$this->verbose_log("Checking class {class}", array(
+			$this->verbose_log("Checking class {class}", [
 				"class" => $class,
-			));
+			]);
 			/* @var $class_object Class_ORM */
 			/* @var $object \zesk\ORM */
 			$class_object = $this->application->class_orm_registry($class);
@@ -72,47 +72,47 @@ class Command_Class_Check extends Command_Base {
 
 				continue;
 			}
-			$error_args = array(
+			$error_args = [
 				"class" => $class,
 				"table" => $class_object->table,
-			);
+			];
 			$object = $this->application->orm_registry($class);
 			if (!$object) {
-				$logger->notice("Object class {class} does not have an associated object", array(
+				$logger->notice("Object class {class} does not have an associated object", [
 					"class" => $class,
-				));
+				]);
 
 				continue;
 			}
 			$schema = $object->schema();
 			if (!$schema) {
-				$logger->notice("Object class {class} does not have an associated schema", array(
+				$logger->notice("Object class {class} does not have an associated schema", [
 					"class" => $class,
-				));
+				]);
 
 				continue;
 			}
 			$schema = $schema->map($schema->schema());
 			$table = avalue($schema, $object->table());
 			if (!$table) {
-				$this->error("{class} does not have table ({table}) associated with schema: {tables} {debug}", $error_args + array(
+				$this->error("{class} does not have table ({table}) associated with schema: {tables} {debug}", $error_args + [
 					"tables" => array_keys($schema),
 					"debug" => _dump($schema),
-				));
+				]);
 
 				continue;
 			}
 			$table_columns = $table['columns'];
-			$missing = array();
+			$missing = [];
 			foreach ($table_columns as $column => $column_options) {
 				if (!array_key_exists($column, $class_object->column_types)) {
 					$missing[] = "'$column' => self::type_" . $this->guess_type($class_object->database(), $column, $column_options['type']) . ",";
 				}
 			}
 			if (count($missing)) {
-				$this->error("{class} is missing:\npublic \$column_types = array(\n\t{missing}\n);", $error_args + array(
+				$this->error("{class} is missing:\npublic \$column_types = array(\n\t{missing}\n);", $error_args + [
 					'missing' => implode("\n\t", $missing),
-				));
+				]);
 			}
 			foreach ($class_object->column_types as $column => $simple_type) {
 				if (!array_key_exists($column, $table_columns)) {
@@ -124,14 +124,14 @@ class Command_Class_Check extends Command_Base {
 					$this->error("{class} defined \$has_one[$column] but does not exist in SQL", $error_args);
 				}
 				if (!array_key_exists($column, $class_object->column_types)) {
-					$this->error("{class} defined \$has_one[{column}] but does not exist, please add it: \$column_types => \"{column}\" => self::type_object,", $error_args + array(
+					$this->error("{class} defined \$has_one[{column}] but does not exist, please add it: \$column_types => \"{column}\" => self::type_object,", $error_args + [
 						"column" => $column,
-					));
+					]);
 				} elseif ($class_object->column_types[$column] !== Class_ORM::type_object) {
-					$this->error("{class} defined \$has_one[{column}] but wrong type {type}: \$column_types => \"{column}\" => self::type_object,", $error_args + array(
+					$this->error("{class} defined \$has_one[{column}] but wrong type {type}: \$column_types => \"{column}\" => self::type_object,", $error_args + [
 						"column" => $column,
 						"type" => $class_object->column_types[$column],
-					));
+					]);
 				}
 			}
 		}
@@ -142,24 +142,24 @@ class Command_Class_Check extends Command_Base {
 	 *
 	 * @var array
 	 */
-	public static $guess_names = array(
-		'timestamp' => array(
+	public static $guess_names = [
+		'timestamp' => [
 			'created' => 'created',
 			'modified' => 'modified',
-		),
-		'integer' => array(
+		],
+		'integer' => [
 			'id' => 'id',
-		),
-	);
+		],
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public static $guess_types = array(
+	public static $guess_types = [
 		'timestamp' => 'timestamp',
 		'blob' => 'serialize',
-	);
+	];
 
 	/**
 	 *
@@ -169,7 +169,7 @@ class Command_Class_Check extends Command_Base {
 	 * @return mixed|array|mixed|string
 	 */
 	private function guess_type(Database $db, $name, $type) {
-		$schema_type = avalue(avalue(self::$guess_names, $type, array()), strtolower($name));
+		$schema_type = avalue(avalue(self::$guess_names, $type, []), strtolower($name));
 		if ($schema_type) {
 			return $schema_type;
 		}

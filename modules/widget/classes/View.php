@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -25,8 +25,8 @@ class View extends Widget {
 	}
 
 	public function theme_variables() {
-		return array(
+		return [
 			'hidden_input' => $this->hidden_input(),
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 }

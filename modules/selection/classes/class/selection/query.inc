@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -11,16 +11,16 @@ namespace zesk;
 class Class_Selection_Query extends Class_ORM {
 	public $id_column = "id";
 
-	public $has_one = array(
+	public $has_one = [
 		'type' => 'zesk\\Selection_Type',
-	);
+	];
 
-	public $find_keys = array(
+	public $find_keys = [
 		'type',
 		'code',
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		'id' => self::type_id,
 		'type' => self::type_object,
 		'code' => self::type_hex,
@@ -30,5 +30,5 @@ class Class_Selection_Query extends Class_ORM {
 		'query_list' => self::type_serialize,
 		'created' => self::type_created,
 		'add' => self::type_boolean,
-	);
+	];
 }

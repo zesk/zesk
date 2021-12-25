@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -16,7 +16,7 @@ class Database_Query_Delete extends Database_Query {
 	 *
 	 * @var array
 	 */
-	protected $where = array();
+	protected $where = [];
 
 	/**
 	 * Store affected rows after execute
@@ -51,9 +51,9 @@ class Database_Query_Delete extends Database_Query {
 		if ($set !== null) {
 			$set = to_bool($set);
 			if ($set === true && (count($this->where) > 0)) {
-				$this->application->logger->warning("Failed to add truncate with a where clause", array(
+				$this->application->logger->warning("Failed to add truncate with a where clause", [
 					"query" => $this,
-				));
+				]);
 				return null;
 			}
 			$this->truncate = $set;
@@ -78,9 +78,9 @@ class Database_Query_Delete extends Database_Query {
 			$this->where[$k] = $v;
 		}
 		if ($this->truncate) {
-			$this->application->logger->warning("Adding where clause de-activates truncate", array(
+			$this->application->logger->warning("Adding where clause de-activates truncate", [
 				"query" => $this,
-			));
+			]);
 			$this->truncate = false;
 		}
 		return $this;
@@ -92,11 +92,11 @@ class Database_Query_Delete extends Database_Query {
 	 */
 	public function __toString() {
 		$table = $this->application->orm_registry($this->class)->table();
-		return $this->sql()->delete(array(
+		return $this->sql()->delete([
 			'table' => $table,
 			'truncate' => $this->truncate,
 			'where' => $this->where,
-		));
+		]);
 	}
 
 	public function affected_rows() {
@@ -151,9 +151,9 @@ class Database_Query_Delete extends Database_Query {
 	 */
 	public function execute() {
 		if ($this->_execute() === null) {
-			throw new Database_Exception($this->database(), "Delete query failed: {sql}", array(
+			throw new Database_Exception($this->database(), "Delete query failed: {sql}", [
 				"sql" => $this->__toString(),
-			));
+			]);
 		}
 		return $this;
 	}

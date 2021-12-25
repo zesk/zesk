@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage repository
@@ -21,7 +21,7 @@ abstract class Repository extends Hookable {
 	 *
 	 * @var string
 	 */
-	const OPTION_FIND_ROOT = "find_root";
+	public const OPTION_FIND_ROOT = "find_root";
 
 	/**
 	 * File's status
@@ -30,7 +30,7 @@ abstract class Repository extends Hookable {
 	 *
 	 * @var string
 	 */
-	const ENTRY_STATUS = "status";
+	public const ENTRY_STATUS = "status";
 
 	/**
 	 * The version of a commit
@@ -39,7 +39,7 @@ abstract class Repository extends Hookable {
 	 *
 	 * @var string
 	 */
-	const ENTRY_VERSION = "version";
+	public const ENTRY_VERSION = "version";
 
 	/**
 	 * A particular commit's author
@@ -48,7 +48,7 @@ abstract class Repository extends Hookable {
 	 *
 	 * @var string
 	 */
-	const ENTRY_AUTHOR = "commit-author";
+	public const ENTRY_AUTHOR = "commit-author";
 
 	/**
 	 * A particular commit's date
@@ -57,7 +57,7 @@ abstract class Repository extends Hookable {
 	 *
 	 * @var string
 	 */
-	const ENTRY_DATE = "commit-date";
+	public const ENTRY_DATE = "commit-date";
 
 	/**
 	 * Place for errors or messages about status
@@ -66,63 +66,63 @@ abstract class Repository extends Hookable {
 	 *
 	 * @var string
 	 */
-	const ENTRY_MESSAGE = "message";
+	public const ENTRY_MESSAGE = "message";
 
 	/**
 	 * A file has not been added to the repository yet
 	 *
 	 * @var string
 	 */
-	const STATUS_UNVERSIONED = "UNVERSIONED";
+	public const STATUS_UNVERSIONED = "UNVERSIONED";
 
 	/**
 	 * File has been added but not committed
 	 *
 	 * @var string
 	 */
-	const STATUS_ADDED = "ADDED";
+	public const STATUS_ADDED = "ADDED";
 
 	/**
 	 * A file has been removed
 	 *
 	 * @var string
 	 */
-	const STATUS_REMOVED = "REMOVED";
+	public const STATUS_REMOVED = "REMOVED";
 
 	/**
 	 * Deleted in local, present in remote
 	 *
 	 * @var string
 	 */
-	const STATUS_DELETED = "DELETED";
+	public const STATUS_DELETED = "DELETED";
 
 	/**
 	 * Not present in local, present in remote
 	 *
 	 * @var string
 	 */
-	const STATUS_MISSING = "MISSING";
+	public const STATUS_MISSING = "MISSING";
 
 	/**
 	 * Status strings for entry status field
 	 *
 	 * @var string
 	 */
-	const STATUS_MODIFIED = "MODIFIED";
+	public const STATUS_MODIFIED = "MODIFIED";
 
 	/**
 	 * Each entry has a custom status which should be referred to when the status is this
 	 *
 	 * @var string
 	 */
-	const STATUS_CUSTOM = "CUSTOM";
+	public const STATUS_CUSTOM = "CUSTOM";
 
 	/**
 	 * Each entry has an unknown status due to some error
 	 *
 	 * @var string
 	 */
-	const STATUS_UNKNOWN = "UNKNOWN";
+	public const STATUS_UNKNOWN = "UNKNOWN";
 
 	/**
 	 * The current repository's URL
@@ -130,7 +130,7 @@ abstract class Repository extends Hookable {
 	 * @see Repository::info
 	 * @var string
 	 */
-	const INFO_URL = "url";
+	public const INFO_URL = "url";
 
 	/**
 	 * Override in subclasses
@@ -157,7 +157,7 @@ abstract class Repository extends Hookable {
 	 * @param string $root Path to repository root directory or a file within the repository
 	 * @param array $options
 	 */
-	final public function __construct(Application $application, $root = null, array $options = array()) {
+	final public function __construct(Application $application, $root = null, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 		if (is_string($root) && !empty($root)) {
@@ -192,11 +192,11 @@ abstract class Repository extends Hookable {
 		$final_path = Directory::is_absolute($target) ? $target : $this->path($target);
 		$final_path = realpath($final_path);
 		if (!begins($this->path, $final_path)) {
-			throw new Exception_Semantics("Passed absolute path {target} (-> {final_path}) must be a subdirectory of {path}", array(
+			throw new Exception_Semantics("Passed absolute path {target} (-> {final_path}) must be a subdirectory of {path}", [
 				"target" => $target,
 				"final_path" => $final_path,
 				"path" => $final_path,
-			));
+			]);
 		}
 		return $final_path;
 	}
@@ -213,7 +213,7 @@ abstract class Repository extends Hookable {
 	/**
 	 *
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 	}
 
 	/**
@@ -231,7 +231,7 @@ abstract class Repository extends Hookable {
 	 * @param unknown $type
 	 * @return NULL|Repository
 	 */
-	public static function factory(Application $application, $type, $root = null, array $options = array()) {
+	public static function factory(Application $application, $type, $root = null, array $options = []) {
 		try {
 			/* @var $repo Module_Repository */
 			$repo = $application->repository_module();
@@ -269,9 +269,9 @@ abstract class Repository extends Hookable {
 			}
 			$set = URL::normalize($set);
 			if (!$this->validate_url($set)) {
-				throw new Exception_Syntax("Not a valid URL {url}", array(
+				throw new Exception_Syntax("Not a valid URL {url}", [
 					"url" => $set,
-				));
+				]);
 			}
 			$this->url = $set;
 			return $this;
@@ -280,9 +280,9 @@ abstract class Repository extends Hookable {
 			return $this->url;
 		}
 		if (!$this->validate()) {
-			throw new Exception_Semantics("No repository configured, must manually set URL before calling {method}", array(
+			throw new Exception_Semantics("No repository configured, must manually set URL before calling {method}", [
 				"method" => __METHOD__,
-			));
+			]);
 		}
 		return $this->info(null, self::INFO_URL);
 	}
@@ -364,6 +364,6 @@ abstract class Repository extends Hookable {
 	 * @return string[]
 	 */
 	public function versions() {
-		return array();
+		return [];
 	}
 }

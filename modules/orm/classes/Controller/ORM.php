@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  * @package zesk
@@ -21,7 +21,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 *
 	 * @var string
 	 */
-	protected $class = null;
+	protected string $class = "";
 
 	/**
 	 * Locale-specific object class name (e.g. "Link", "Page", etc.)
@@ -31,140 +31,140 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @see $class_name_locale
 	 * @var string
 	 */
-	protected $class_name = null;
+	protected string $class_name = "";
 
 	/**
 	 * Locale of the class_name for translation
 	 *
 	 * @var string
 	 */
-	protected $class_name_locale = null;
+	protected string $class_name_locale = "";
 
 	/**
 	 * URL to redirect to if Control_${this->class}_List
 	 *
 	 * @var string
 	 */
-	protected $not_found_url = null;
+	protected string $not_found_url = "";
 
 	/**
 	 * Message to pass to failed page
 	 *
 	 * @var string
 	 */
-	protected $not_found_message = "Page not found";
+	protected string $not_found_message = "Page not found";
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $not_found_content = "Page not found";
+	protected string $not_found_content = "Page not found";
 
 	/**
 	 * Action default (override in subclasses)
 	 *
 	 * @var string
 	 */
-	protected $action_default = '';
+	protected string $action_default = '';
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $actions = array(
-		"index" => array(
+	protected array $actions = [
+		"index" => [
 			"List",
 			"Index",
-		),
-		"list" => array(
+		],
+		"list" => [
 			"List",
 			"Index",
-		),
-		"new" => array(
+		],
+		"new" => [
 			"New",
 			"Edit",
-		),
+		],
 		"edit" => "Edit",
-		"delete" => array(
+		"delete" => [
 			"Delete",
-		),
-		"duplicate" => array(
+		],
+		"duplicate" => [
 			"Edit",
-		),
-	);
+		],
+	];
 
-	protected $control_options = array();
+	protected array $control_options = [];
 
 	/**
 	 * Action which was found from ->actions above
 	 *
 	 * @var string
 	 */
-	protected $actual_action = null;
+	protected string $actual_action = "";
 
 	/**
 	 * Permissions which are required for this object to continue
 	 *
 	 * @var string
 	 */
-	protected $permission_actions = null;
+	protected string $permission_actions = "";
 
 	/**
 	 * List of widgets tried when loading controller widget
 	 *
 	 * @var array of string
 	 */
-	protected $tried_widgets = array();
+	protected array $tried_widgets = [];
 
 	/**
 	 *
 	 * @var Widget
 	 */
-	protected $widget = null;
+	protected ?Widget $widget = null;
 
 	/**
 	 * Action related to above widget
 	 *
 	 * @var string
 	 */
-	protected $widget_action = null;
+	protected string $widget_action = "";
 
 	/**
 	 *
-	 * @return multitype:
+	 * @return array:
 	 */
-	public function hook_actions() {
+	public function hook_actions(): array {
 		return array_keys($this->actions);
 	}
 
 	/**
 	 * Classes that are handled by this controller
 	 *
-	 * @return multitype:string
+	 * @return array
 	 */
-	public function hook_classes() {
-		return array(
+	public function hook_classes(): array {
+		return [
 			$this->class,
-		);
+		];
 	}
 
 	/**
 	 * Initialize a Controller_ORM
 	 *
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
 		if ($this->class === null) {
 			$controller_class = get_class($this);
-			list($ns, $cl) = pairr($controller_class, "\\", "", $controller_class);
+			[$ns, $cl] = pairr($controller_class, "\\", "", $controller_class);
 			if ($ns) {
 				$ns .= "\\";
 			}
 			$this->class = $ns . StringTools::unprefix($cl, "Controller_");
-			$this->application->logger->debug("Automatically computed ORM class name {class} from {controller_class}", array(
+			$this->application->logger->debug("Automatically computed ORM class name {class} from {controller_class}", [
 				"controller_class" => $controller_class,
 				"class" => $this->class,
-			));
+			]);
 		}
 		if (!$this->class_name) {
 			/* @var $class Class_ORM */
@@ -179,11 +179,11 @@ abstract class Controller_ORM extends Controller_Authenticated {
 
 	/**
 	 *
-	 * @param unknown $action
-	 * @param unknown $id
+	 * @param string $action
+	 * @param string $id
 	 * @return \zesk\ORM
 	 */
-	private function _action_default_arguments($action = null, $id = null) {
+	private function _action_default_arguments(string $action = null, string $id = null): array {
 		$args = func_get_args();
 		if (!empty($id)) {
 			$object = $this->controller_orm_factory($id);
@@ -221,14 +221,14 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @param unknown $message
 	 * @param array $options
 	 */
-	private function _redirect_response($redirect_url, $message, array $options) {
+	private function _redirect_response($redirect_url, $message, array $options): void {
 		$format = $this->request->get("format");
 		if ($format === "json") {
 			$this->auto_render = false;
-			$this->response->json()->data(array(
+			$this->response->json()->data([
 				"message" => $message,
 				"redirect_url" => $redirect_url,
-			) + $options);
+			] + $options);
 			return;
 		}
 		$this->response->redirect_default($redirect_url, $message);
@@ -241,13 +241,13 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 */
 	private function _arguments_load($parameter) {
 		if ($parameter instanceof ORM) {
-			return array(
+			return [
 				$parameter,
-			);
+			];
 		}
-		return array(
+		return [
 			$this->controller_orm_factory($parameter),
-		);
+		];
 	}
 
 	/**
@@ -300,11 +300,11 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		$format = $this->request->get("format");
 		if ($format === "json" || $this->request->prefer_json()) {
 			$this->auto_render = false;
-			$this->response->json()->data(array(
+			$this->response->json()->data([
 				"message" => $message,
 				"status" => $result,
 				"redirect_url" => $redirect_url,
-			));
+			]);
 			return;
 		}
 		$this->response->redirect_default($redirect_url, $message);
@@ -334,11 +334,11 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		$message = $object->words($locale->__($message));
 		$redirect_url = $this->_compute_url($object, $result ? "duplicate_next" : "duplicate_fail", "list", $this->request->get("ref"));
 		$walker = JSONWalker::factory();
-		return $this->_redirect_response($redirect_url, $message, array(
+		return $this->_redirect_response($redirect_url, $message, [
 			"status" => $result,
 			"original_object" => $object->json($walker),
 			"object" => $new_object->json($walker),
-		));
+		]);
 	}
 
 	/**
@@ -346,7 +346,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * {@inheritDoc}
 	 * @see \zesk\Controller_Template::after()
 	 */
-	public function after($result = null, $output = null) {
+	public function after($result = null, $output = null): void {
 		if ($this->request->prefer_json()) {
 			/**
 			 * @var $response Response
@@ -361,11 +361,11 @@ abstract class Controller_ORM extends Controller_Authenticated {
 					$content .= $output;
 				}
 				$output_json = $response->is_html() ? $response->html()->to_json() : $response->to_json();
-				$json = $response->response_data() + array(
+				$json = $response->response_data() + [
 					'status' => true,
 					'content' => $content,
 					'microtime' => microtime(true),
-				) + $output_json;
+				] + $output_json;
 
 				$this->json($json);
 			}
@@ -385,9 +385,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		$actual_actions = avalue($this->actions, $action);
 		$actual_actions = to_list($actual_actions);
 		/* @var $widget Widget */
-		$this->tried_widgets = array();
-		$controls = array();
-		list($namespace, $class) = pairr($this->class, "\\", "", $this->class);
+		$this->tried_widgets = [];
+		$controls = [];
+		[$namespace, $class] = pairr($this->class, "\\", "", $this->class);
 		foreach ($actual_actions as $actual_action) {
 			//			$controls[$namespace "\\Control_" . $class . "_" . $actual_action] = $actual_action;
 			$controls[$namespace . "\\Control_" . $actual_action . "_" . $class] = $actual_action;
@@ -444,9 +444,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		$locale = $this->application->locale;
 		$object = $this->application->orm_factory($class, $id);
 		$name = $object->class_orm()->name;
-		$__ = array(
+		$__ = [
 			"name" => $name,
-		);
+		];
 		if (empty($id)) {
 			throw new Exception_Parameter("Invalid {name} ID", $__);
 		}
@@ -461,9 +461,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		} catch (Exception_ORM_NotFound $e) {
 			throw new Exception_Parameter("{name} is empty", $__);
 		} catch (\Exception $e) {
-			throw new Exception_Parameter("{name} unknown error {message}", $__ + array(
+			throw new Exception_Parameter("{name} unknown error {message}", $__ + [
 				"message" => $e->getMessage(),
-			));
+			]);
 		}
 	}
 
@@ -472,7 +472,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * {@inheritDoc}
 	 * @see \zesk\Controller::_action_default()
 	 */
-	public function _action_default($action = null, $object = null, $options = array()) {
+	public function _action_default($action = null, $object = null, $options = []) {
 		$options = to_array($options);
 		$this->application->logger->debug("Controller_ORM::_action_default($action)");
 
@@ -490,10 +490,10 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				if ($query) {
 					$url .= "?$query";
 				}
-				$this->application->logger->debug("Action {action} not found in {actions}", array(
+				$this->application->logger->debug("Action {action} not found in {actions}", [
 					"action" => $action,
 					"actions" => $this->actions,
-				));
+				]);
 				$this->response->redirect($url);
 				return;
 			}
@@ -504,10 +504,10 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			}
 			$widget = $this->_action_find_widget($action);
 			if ($widget === null) {
-				throw new Exception_NotFound($this->application->locale->__("No control found for action {action}: {tried}", array(
+				throw new Exception_NotFound($this->application->locale->__("No control found for action {action}: {tried}", [
 					"action" => $action,
 					"tried" => $this->tried_widgets,
-				)));
+				]));
 			}
 
 			try {
@@ -516,9 +516,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 					$perm_action = $this->actual_action;
 				}
 				if (!$this->user) {
-					throw new Exception_Authentication("Attempting to perform {action}", array(
+					throw new Exception_Authentication("Attempting to perform {action}", [
 						"action" => $perm_action,
-					));
+					]);
 				}
 				if ($object instanceof Model) {
 					$perm_actions = $widget->option('permission_actions', $perm_action);
@@ -529,10 +529,10 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				}
 			} catch (Exception_Permission $e) {
 				if ($ajax) {
-					$this->json(array(
+					$this->json([
 						"status" => false,
 						"message" => $e->getMessage(),
-					));
+					]);
 				} else {
 					throw $e;
 					//$this->error_404($e->getMessage());
@@ -556,18 +556,18 @@ abstract class Controller_ORM extends Controller_Authenticated {
 
 			$title = $widget->option('title', $this->option('title', $this->route->option('title')));
 			if ($title) {
-				$title = map($title, array(
+				$title = map($title, [
 					"class_name" => $this->class_name,
-				));
+				]);
 			} elseif ($object) {
 				$title = $action_prefix . $this->class_name;
 			}
 			$widget->set_option("class_name", $this->class_name);
-			return $this->control($widget, $object, array(
+			return $this->control($widget, $object, [
 				'title' => $title,
 				"action" => $action,
 				"route_action" => $action,
-			));
+			]);
 		} catch (Exception_Class_NotFound $e) {
 			$this->application->hooks->call("exception", $e);
 			if ($this->not_found_url) {

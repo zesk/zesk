@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -11,55 +11,55 @@ namespace zesk;
  */
 class Schema_Contact_Email extends ORM_Schema {
 	public function schema() {
-		return array(
-			'{table}' => array(
-				'columns' => array(
-					'id' => array(
+		return [
+			'{table}' => [
+				'columns' => [
+					'id' => [
 						'type' => self::type_id,
-					),
-					'contact' => array(
+					],
+					'contact' => [
 						'type' => self::type_object,
 						'not null' => true,
-					),
-					'label' => array(
+					],
+					'label' => [
 						'type' => self::type_object,
 						'not null' => false,
-					),
-					'value' => array(
+					],
+					'value' => [
 						'not null' => true,
 						'size' => 128,
 						'sql_type' => 'varchar',
 						'type' => self::type_string,
-					),
-					'created' => array(
+					],
+					'created' => [
 						'not null' => true,
 						'default' => '0',
 						'type' => self::type_created,
-					),
-					'modified' => array(
+					],
+					'modified' => [
 						'not null' => true,
 						'default' => '0',
 						'type' => self::type_modified,
-					),
-					'verified' => array(
+					],
+					'verified' => [
 						'not null' => false,
 						'default' => 0,
 						'type' => self::type_timestamp,
-					),
-					'opt_out' => array(
+					],
+					'opt_out' => [
 						'default' => false,
 						'type' => self::type_boolean,
-					),
-				),
-				'primary keys' => array(
+					],
+				],
+				'primary keys' => [
 					'id' => true,
-				),
-				'indexes' => array(
-					'contact' => array(
+				],
+				'indexes' => [
+					'contact' => [
 						'contact',
-					),
-				),
-			),
-		);
+					],
+				],
+			],
+		];
 	}
 }

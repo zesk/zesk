@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -14,7 +14,7 @@ class Control_OrderBy extends Control {
 	 *
 	 * @var string
 	 */
-	const default_order_variable = 'o';
+	public const default_order_variable = 'o';
 
 	/**
 	 *
@@ -56,7 +56,7 @@ class Control_OrderBy extends Control {
 				return $result;
 			}
 			$list_order_by = to_list($this->list_order_by());
-			$reverse_order_by = array();
+			$reverse_order_by = [];
 			foreach ($list_order_by as $token) {
 				$lowtoken = strtolower($token);
 				if (ends($lowtoken, " desc")) {
@@ -83,26 +83,26 @@ class Control_OrderBy extends Control {
 		return $this->set_option('list_order_variable', $set);
 	}
 
-	public function hook_header(Control_Header $header) {
+	public function hook_header(Control_Header $header): void {
 		$col = $this->list_order_column();
 		$header->add_ordering($col, $this->list_order_by());
 		$header->add_ordering("-$col", $this->list_order_by_reverse());
 	}
 
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$list_order_by = $this->list_order_by();
 		if ($list_order_by === true) {
 			$this->list_order_by($this->column());
 		}
-		$cur_sort_names = ArrayTools::clean($this->request->geta($this->list_order_variable(), array(), ";"));
+		$cur_sort_names = ArrayTools::clean($this->request->geta($this->list_order_variable(), [], ";"));
 		$k = $this->list_order_column();
 		$order_var = $this->list_order_variable();
-		$new_order = array();
+		$new_order = [];
 		$new_key = null;
 		$sort_index = null;
 		$multisort = $this->option_bool("multisort");
-		$remove_order = array();
+		$remove_order = [];
 		$selected = false;
 		$ascending = true;
 		foreach ($cur_sort_names as $i => $cur_sort_name) {
@@ -144,18 +144,18 @@ class Control_OrderBy extends Control {
 		if ($multisort) {
 			$new_key = implode(";", $new_order);
 			$remove_order = implode(";", $remove_order);
-			$remove_url = URL::query_format($this->option("URI", $this->request->uri()), array(
+			$remove_url = URL::query_format($this->option("URI", $this->request->uri()), [
 				$order_var => $remove_order,
-			));
-			$sort_number = ($sort_index !== null) ? HTML::tag("div", array(
+			]);
+			$sort_number = ($sort_index !== null) ? HTML::tag("div", [
 				"class" => "list-order-index",
-			), HTML::a($remove_url, $sort_index + 1)) : "";
+			], HTML::a($remove_url, $sort_index + 1)) : "";
 		} else {
 			$sort_number = null;
 		}
-		$new_query = array(
+		$new_query = [
 			$order_var => $new_key,
-		);
+		];
 		$this->theme_variables['orderby_url'] = URL::query_format($this->option("URI", $this->request->uri()), $new_query);
 
 		$this->theme_variables['list_order_column'] = $k;

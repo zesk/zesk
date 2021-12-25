@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Base class for all exceptions in Zesk.
@@ -18,7 +18,7 @@ class Exception extends \Exception {
 	 *
 	 * @var string
 	 */
-	public $raw_message = '';
+	public string $raw_message = '';
 
 	/**
 	 * Arguments for message.
@@ -27,7 +27,7 @@ class Exception extends \Exception {
 	 * @see map()
 	 * @var array
 	 */
-	public $arguments = array();
+	public array $arguments = [];
 
 	/**
 	 * Construct a new exception
@@ -41,22 +41,18 @@ class Exception extends \Exception {
 	 * @param \Exception $previous
 	 *        	Previous exception which may have spawned this one
 	 */
-	public function __construct($message = null, $arguments = array(), $code = null, \Exception $previous = null) {
+	public function __construct(string $message = "", array $arguments = [], int $code = 0, \Exception $previous = null) {
 		/* Support previous invocation style ($message, $code, $previous) */
 		if (is_array($arguments)) {
 			$this->arguments = $arguments;
 		} else {
 			$previous = $code;
 			$code = $arguments;
-			$this->arguments = array();
+			$this->arguments = [];
 		}
 		$this->raw_message = $message;
 		$map_message = strval(map($message, $this->arguments));
-		if (PHP_VERSION_ID < 50400) {
-			parent::__construct($map_message);
-		} else {
-			parent::__construct($map_message, intval($code), $previous);
-		}
+		parent::__construct($map_message, intval($code), $previous);
 	}
 
 	/**
@@ -64,8 +60,8 @@ class Exception extends \Exception {
 	 *
 	 * @return array
 	 */
-	public function variables() {
-		return array(
+	public function variables(): array {
+		return [
 			'exception_class' => get_class($this),
 			'class' => get_class($this),
 			'code' => $this->getCode(),
@@ -77,7 +73,7 @@ class Exception extends \Exception {
 			'raw_message' => $this->raw_message,
 			'arguments' => $this->arguments,
 			'previous' => $this->getPrevious(),
-		) + $this->arguments;
+		] + $this->arguments;
 	}
 
 	/**
@@ -86,7 +82,7 @@ class Exception extends \Exception {
 	 * @see Logger::log
 	 * @return array
 	 */
-	public function log_variables() {
+	public function log_variables(): array {
 		return $this->variables();
 	}
 
@@ -96,7 +92,7 @@ class Exception extends \Exception {
 	 * @see Logger::log
 	 * @return string
 	 */
-	public function log_message() {
+	public function log_message(): string {
 		return $this->getMessage();
 	}
 
@@ -105,8 +101,8 @@ class Exception extends \Exception {
 	 * @param \Exception $e
 	 * @return array
 	 */
-	public static function exception_variables(\Exception $e) {
-		return $e instanceof self ? $e->variables() : array(
+	public static function exception_variables(\Exception $e): array {
+		return $e instanceof self ? $e->variables() : [
 			'exception_class' => get_class($e),
 			"class" => get_class($e),
 			"code" => $e->getCode(),
@@ -115,6 +111,6 @@ class Exception extends \Exception {
 			"line" => $e->getLine(),
 			"trace" => $e->getTrace(),
 			"backtrace" => $e->getTraceAsString(),
-		);
+		];
 	}
 }

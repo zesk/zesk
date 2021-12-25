@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -30,7 +30,7 @@ abstract class Controller_Theme extends Controller {
 	 *
 	 * @var string
 	 */
-	const DEFAULT_THEME = 'body/default';
+	public const DEFAULT_THEME = 'body/default';
 
 	/**
 	 *
@@ -43,7 +43,7 @@ abstract class Controller_Theme extends Controller {
 	 *
 	 * @var array
 	 */
-	protected $variables = array();
+	protected $variables = [];
 
 	/**
 	 * Create a new Controller_Template
@@ -51,12 +51,12 @@ abstract class Controller_Theme extends Controller {
 	 * @param Application $app
 	 * @param array $options
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
 		if ($this->has_option("template")) {
-			$this->application->deprecated("{class} is using option template - should not @deprecated 2017-11", array(
+			$this->application->deprecated("{class} is using option template - should not @deprecated 2017-11", [
 				"class" => get_class($this),
-			));
+			]);
 		}
 		if ($this->theme === null) {
 			$this->theme = $this->option('theme', self::DEFAULT_THEME);
@@ -103,11 +103,11 @@ abstract class Controller_Theme extends Controller {
 	 *
 	 * @param Exception $e
 	 */
-	public function exception(\Exception $e) {
+	public function exception(\Exception $e): void {
 		if ($this->auto_render && $this->theme) {
-			$this->application->logger->error("Exception in controller {this-class} {class}: {message}", array(
+			$this->application->logger->error("Exception in controller {this-class} {class}: {message}", [
 				"this-class" => get_class($this),
-			) + Exception::exception_variables($e));
+			] + Exception::exception_variables($e));
 		}
 	}
 
@@ -115,7 +115,7 @@ abstract class Controller_Theme extends Controller {
 	 * (non-PHPdoc)
 	 * @see Controller::after()
 	 */
-	public function after($result = null, $output = null) {
+	public function after($result = null, $output = null): void {
 		if ($this->auto_render) {
 			if (!$this->response->is_html()) {
 				return;
@@ -127,13 +127,13 @@ abstract class Controller_Theme extends Controller {
 				$content = $output;
 			}
 			if ($this->request->prefer_json()) {
-				$this->json(array(
+				$this->json([
 					'content' => $content,
-				) + $this->response->to_json());
+				] + $this->response->to_json());
 			} else {
-				$this->response->content = $this->theme ? $this->theme($this->theme, array(
+				$this->response->content = $this->theme ? $this->theme($this->theme, [
 					"content" => $content,
-				) + $this->variables(), $this->option_array("theme_options")) : $content;
+				] + $this->variables(), $this->option_array("theme_options")) : $content;
 			}
 		}
 	}
@@ -143,9 +143,9 @@ abstract class Controller_Theme extends Controller {
 	 * @see Controller::variables()
 	 */
 	public function variables() {
-		return array(
+		return [
 			'theme' => $this->theme,
-		) + parent::variables() + $this->variables;
+		] + parent::variables() + $this->variables;
 	}
 
 	/**
@@ -155,7 +155,7 @@ abstract class Controller_Theme extends Controller {
 	 * @param Model $object
 	 * @param array $options
 	 */
-	protected function control(Control $control, Model $object = null, array $options = array()) {
+	protected function control(Control $control, Model $object = null, array $options = []) {
 		$control->response($this->response);
 		$content = $control->execute($object);
 		$this->call_hook(avalue($options, "hook_execute", "control_execute"), $control, $object, $options);
@@ -163,11 +163,11 @@ abstract class Controller_Theme extends Controller {
 		if ($title) {
 			$this->response->title($title, false); // Do not overwrite existing values
 		}
-		$this->response->response_data(array(
+		$this->response->response_data([
 			'status' => $status = $control->status(),
 			'message' => array_values($control->messages()),
 			'error' => array_values($control->children_errors()),
-		));
+		]);
 		return $content;
 	}
 }

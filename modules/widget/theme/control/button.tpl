@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -15,10 +15,10 @@ $object = $this->object;
 
 $attrs = $this->input_attributes + $this->data_attributes;
 
-$attrs = ArrayTools::clean($attrs, array(
+$attrs = ArrayTools::clean($attrs, [
 	"",
 	null,
-));
+]);
 
 $button_tag = $this->get('button_tag', "button");
 if ($this->href) {

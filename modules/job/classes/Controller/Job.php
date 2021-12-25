@@ -1,12 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Controller_Job extends Controller {
-	public function action_monitor(Job $job) {
-		$result = array(
+	public function action_monitor(Job $job): void {
+		$result = [
 			'id' => $job->id(),
 			'message' => $job->status,
-		);
+		];
 		$progress = $job->progress;
 		if ($progress) {
 			$result['progress'] = floatval($progress);

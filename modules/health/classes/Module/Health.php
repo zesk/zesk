@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -14,33 +14,33 @@ namespace zesk;
 class Module_Health extends Module {
 	protected $path = null;
 
-	protected $classes = array(
+	protected $classes = [
 		"zesk\\Health_Event",
 		"zesk\\Health_Events",
-	);
+	];
 
 	protected $disabled = false;
 
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->disabled = $this->option_bool("disabled");
 		$this->path = $path = $this->option("event_path", $this->application->data_path("health-events"));
 		Directory::depend($path);
-		set_error_handler(array(
+		set_error_handler([
 			$this,
 			"error_handler",
-		), E_ALL | E_STRICT);
-		set_exception_handler(array(
+		], E_ALL | E_STRICT);
+		set_exception_handler([
 			$this,
 			"exception_handler",
-		));
-		$this->application->hooks->add("exception", array(
+		]);
+		$this->application->hooks->add("exception", [
 			$this,
 			"caught_exception_handler",
-		));
+		]);
 	}
 
-	private static $error_codes = array(
+	private static $error_codes = [
 		E_ERROR => "E_ERROR",
 		E_RECOVERABLE_ERROR => "E_RECOVERABLE_ERROR",
 		E_WARNING => "E_WARNING",
@@ -55,16 +55,16 @@ class Module_Health extends Module {
 		E_USER_ERROR => "E_USER_ERROR",
 		E_USER_WARNING => "E_USER_WARNING",
 		E_USER_NOTICE => "E_USER_NOTICE",
-	);
+	];
 
-	private static $fatal_errors = array(
+	private static $fatal_errors = [
 		E_ERROR => true,
 		E_RECOVERABLE_ERROR => true,
 		E_PARSE => true,
 		E_CORE_ERROR => true,
 		E_COMPILE_ERROR => true,
 		E_USER_ERROR => true,
-	);
+	];
 
 	private function clean_backtrace(array $backtrace) {
 		foreach ($backtrace as $index => $stackframe) {
@@ -106,7 +106,7 @@ class Module_Health extends Module {
 			return false;
 		}
 		$type = strtolower(StringTools::unprefix(avalue(self::$error_codes, $errno, $errno), "E_"));
-		$this->log(array(
+		$this->log([
 			"type" => $type,
 			"code" => $errno,
 			"fatal" => $fatal = avalue(self::$fatal_errors, $errno),
@@ -116,18 +116,18 @@ class Module_Health extends Module {
 			"backtrace" => $this->clean_backtrace(debug_backtrace()),
 			"_SERVER" => $_SERVER,
 			"_REQUEST" => $_REQUEST,
-		));
+		]);
 		if ($fatal) {
 			die("$type $errstr");
 		}
 		return $this->option_bool("skip_php_handler", false);
 	}
 
-	public function caught_exception_handler($exception) {
+	public function caught_exception_handler($exception): void {
 		$this->_exception_handler($exception, false);
 	}
 
-	public function exception_handler($exception) {
+	public function exception_handler($exception): void {
 		$this->_exception_handler($exception, true);
 	}
 
@@ -139,7 +139,7 @@ class Module_Health extends Module {
 		return $this;
 	}
 
-	private function _exception_handler($exception, $fatal = true) {
+	private function _exception_handler($exception, $fatal = true): void {
 		if ($this->disabled) {
 			return;
 		}
@@ -147,7 +147,7 @@ class Module_Health extends Module {
 		/* @var $exception Exception */
 		$trace = $exception->getTrace();
 		$trace0 = $trace[0];
-		$this->log(array(
+		$this->log([
 			"type" => "exception",
 			"fatal" => $fatal,
 			"exception" => $exception,
@@ -157,22 +157,22 @@ class Module_Health extends Module {
 			"line" => avalue($trace0, 'line', '-'),
 			"_SERVER" => $_SERVER,
 			"_REQUEST" => $_REQUEST,
-		));
+		]);
 	}
 
 	public function log(array $event) {
 		if ($this->disabled) {
 			return;
 		}
-		$event = $this->call_hook_arguments("log", array(
+		$event = $this->call_hook_arguments("log", [
 			$event,
-		), $event);
+		], $event);
 		$event_object = Health_Event::event_log($this->application, $event, $this->path);
 		$this->application->logger->error($event['message'], $event);
 		return $event_object;
 	}
 
-	public static function daemon(Interface_Process $process) {
+	public static function daemon(Interface_Process $process): void {
 		$app = $process->application();
 		$app->health_module()->run_daemon($process);
 	}
@@ -182,7 +182,7 @@ class Module_Health extends Module {
 	 *
 	 * @param Interface_Process $process
 	 */
-	public function run_daemon(Interface_Process $process) {
+	public function run_daemon(Interface_Process $process): void {
 		$this->disabled(true);
 
 		declare(ticks = 1) {
@@ -195,7 +195,7 @@ class Module_Health extends Module {
 		$this->disabled(false);
 	}
 
-	public function hook_cron_cluster_hour() {
+	public function hook_cron_cluster_hour(): void {
 		$purge_events_fatal_hours = $this->option_integer("purge_events_fatal_hours", -1);
 		$purge_events_non_fatal_hours = $this->option_integer("purge_events_non_fatal_hours", 24 * 7);
 
@@ -203,29 +203,29 @@ class Module_Health extends Module {
 		$this->purge_old_events('Health_Events', 'first', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
 	}
 
-	private function purge_old_events($class, $date_column, $fatal_hours, $non_fatal_hours) {
+	private function purge_old_events($class, $date_column, $fatal_hours, $non_fatal_hours): void {
 		if ($fatal_hours > 0) {
-			$this->purge_event_types($class, $date_column, array(
+			$this->purge_event_types($class, $date_column, [
 				"fatal" => true,
-			), Timestamp::now()->add_unit(-abs($fatal_hours), Timestamp::UNIT_HOUR), "fatal");
+			], Timestamp::now()->add_unit(-abs($fatal_hours), Timestamp::UNIT_HOUR), "fatal");
 		}
 		if ($non_fatal_hours > 0) {
-			$this->purge_event_types($class, $date_column, array(
+			$this->purge_event_types($class, $date_column, [
 				"fatal" => false,
-			), Timestamp::now()->add_unit(-abs($non_fatal_hours), Timestamp::UNIT_HOUR), "non-fatal");
+			], Timestamp::now()->add_unit(-abs($non_fatal_hours), Timestamp::UNIT_HOUR), "non-fatal");
 		}
 	}
 
-	private function purge_event_types($class, $date_column, array $where, Timestamp $when, $description) {
-		$delete = $this->application->orm_registry($class)->query_delete()->where($where + array(
+	private function purge_event_types($class, $date_column, array $where, Timestamp $when, $description): void {
+		$delete = $this->application->orm_registry($class)->query_delete()->where($where + [
 			"$date_column|<=" => $when,
-		));
+		]);
 		$delete->execute();
-		$this->application->logger->warning("Deleted {description} {n} {classes} older than {when}", array(
+		$this->application->logger->warning("Deleted {description} {n} {classes} older than {when}", [
 			"n" => $nrows = $delete->affected_rows(),
 			"description" => $description,
 			"classes" => $this->application->locale->plural($class, $nrows),
 			"when" => $when,
-		));
+		]);
 	}
 }

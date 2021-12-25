@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -16,7 +16,7 @@ class Class_Content_Article extends Class_ORM {
 
 	public $name_column = "title";
 
-	public $options = array(
+	public $options = [
 		'order_column' => 'order_index',
-	);
+	];
 }

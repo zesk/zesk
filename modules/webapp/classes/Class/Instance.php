@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -31,36 +31,36 @@ class Class_Instance extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $has_one = array(
+	public $has_one = [
 		"server" => Server::class,
 		"repository" => Repository::class,
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $has_many = array(
-		"sites" => array(
+	public $has_many = [
+		"sites" => [
 			"class" => Site::class,
 			"foreign_key" => "instance",
-		),
-	);
+		],
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $find_keys = array(
+	public $find_keys = [
 		"server",
 		"path",
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"server" => self::type_object,
 		"repository" => self::type_object,
@@ -73,5 +73,5 @@ class Class_Instance extends Class_ORM {
 		"hash" => self::type_hex,
 		"updated" => self::type_modified,
 		"serving" => self::type_timestamp,
-	);
+	];
 }

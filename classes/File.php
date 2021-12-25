@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  * @package zesk
@@ -18,145 +18,145 @@ class File {
 	 *
 	 * @var integer
 	 */
-	const MASK_FILE = 0100000;
+	public const MASK_FILE = 0o100000;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const MASK_SOCKET = 0140000;
+	public const MASK_SOCKET = 0o140000;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const MASK_LINK = 0120000;
+	public const MASK_LINK = 0o120000;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const MASK_BLOCK = 0060000;
+	public const MASK_BLOCK = 0o060000;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const MASK_DIR = 0040000;
+	public const MASK_DIR = 0o040000;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const MASK_CHAR = 0020000;
+	public const MASK_CHAR = 0o020000;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const MASK_FIFO = 0010000;
+	public const MASK_FIFO = 0o010000;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const MASK_FTYPE = 0170000;
+	public const MASK_FTYPE = 0o170000;
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TYPE_SOCKET = "socket";
+	public const TYPE_SOCKET = "socket";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TYPE_LINK = "link";
+	public const TYPE_LINK = "link";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TYPE_FILE = "file";
+	public const TYPE_FILE = "file";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TYPE_BLOCK = "block";
+	public const TYPE_BLOCK = "block";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TYPE_DIR = "dir";
+	public const TYPE_DIR = "dir";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TYPE_CHAR = "char";
+	public const TYPE_CHAR = "char";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TYPE_FIFO = "fifo";
+	public const TYPE_FIFO = "fifo";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TYPE_UNKNOWN = "unknown";
+	public const TYPE_UNKNOWN = "unknown";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const CHAR_SOCKET = "s";
+	public const CHAR_SOCKET = "s";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const CHAR_LINK = "l";
+	public const CHAR_LINK = "l";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const CHAR_FILE = "-";
+	public const CHAR_FILE = "-";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const CHAR_BLOCK = "b";
+	public const CHAR_BLOCK = "b";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const CHAR_DIR = "d";
+	public const CHAR_DIR = "d";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const CHAR_CHAR = "c";
+	public const CHAR_CHAR = "c";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const CHAR_FIFO = "p";
+	public const CHAR_FIFO = "p";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const CHAR_UNKNOWN = "u";
+	public const CHAR_UNKNOWN = "u";
 
 	/**
 	 * Return an absolute path given a filename and a working directory
@@ -242,10 +242,10 @@ class File {
 		if (preg_match('|[^-~/A-Za-z0-9_. ()@&]|', $x)) {
 			return false;
 		}
-		if (ArrayTools::strstr($x, array(
+		if (ArrayTools::strstr($x, [
 			"..",
 			"/./",
-		)) !== false) {
+		]) !== false) {
 			return false;
 		}
 		return true;
@@ -288,9 +288,9 @@ class File {
 	 * @return string
 	 */
 	public static function map_pathinfo($filename, $pattern) {
-		return map($pattern, pathinfo($filename) + array(
+		return map($pattern, pathinfo($filename) + [
 			'/' => DIRECTORY_SEPARATOR,
-		));
+		]);
 	}
 
 	/**
@@ -456,7 +456,7 @@ class File {
 	 * @param integer $mode
 	 * @return boolean
 	 */
-	public static function chmod($file_name, $mode = 0770) {
+	public static function chmod($file_name, $mode = 0o770) {
 		if (file_exists($file_name)) {
 			return chmod($file_name, $mode);
 		}
@@ -490,11 +490,11 @@ class File {
 	public static function append($filename, $content) {
 		$mode = file_exists($filename) ? "a" : "w";
 		if (!is_resource($f = fopen($filename, $mode))) {
-			throw new Exception_File_Permission("Can not open {filename} with mode {mode} to append {n} bytes of content", array(
+			throw new Exception_File_Permission("Can not open {filename} with mode {mode} to append {n} bytes of content", [
 				"filename" => $filename,
 				"mode" => $mode,
 				"n" => strlen($content),
-			));
+			]);
 		}
 		fwrite($f, $content);
 		fclose($f);
@@ -514,22 +514,22 @@ class File {
 	 */
 	public static function put($path, $contents) {
 		if (!is_scalar($contents)) {
-			throw new Exception_Parameter("{method}: Contents should be a scalar value {type} passed", array(
+			throw new Exception_Parameter("{method}: Contents should be a scalar value {type} passed", [
 				"method" => __METHOD__,
 				"type" => type($contents),
-			));
+			]);
 		}
 		if (!is_dir($dir = dirname($path))) {
-			throw new Exception_Directory_NotFound($dir, "Unable to write {n} bytes to file {file}", array(
+			throw new Exception_Directory_NotFound($dir, "Unable to write {n} bytes to file {file}", [
 				"file" => $path,
 				"n" => strlen($contents),
-			));
+			]);
 		}
 		if (@file_put_contents($path, $contents) === false) {
-			throw new Exception_File_Permission($path, "Unable to write {n} bytes to file {file}", array(
+			throw new Exception_File_Permission($path, "Unable to write {n} bytes to file {file}", [
 				"file" => $path,
 				"n" => strlen($contents),
-			));
+			]);
 		}
 		return true;
 	}
@@ -588,7 +588,7 @@ class File {
 	 *
 	 * @var array
 	 */
-	private static $fchars = array(
+	private static $fchars = [
 		self::MASK_FILE => self::CHAR_FILE,
 		self::MASK_SOCKET => self::CHAR_SOCKET,
 		self::MASK_LINK => self::CHAR_LINK,
@@ -597,13 +597,13 @@ class File {
 		self::MASK_CHAR => self::CHAR_CHAR,
 		self::MASK_FIFO => self::CHAR_FIFO,
 		0 => self::CHAR_UNKNOWN,
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private static $mtypes = array(
+	private static $mtypes = [
 		self::CHAR_FILE => self::MASK_FILE,
 		self::CHAR_SOCKET => self::MASK_SOCKET,
 		self::CHAR_LINK => self::MASK_LINK,
@@ -611,58 +611,58 @@ class File {
 		self::CHAR_DIR => self::MASK_DIR,
 		self::CHAR_CHAR => self::MASK_CHAR,
 		self::CHAR_FIFO => self::MASK_FIFO,
-	);
+	];
 
 	/**
 	 *
 	 * @return number[][]
 	 */
 	private static function _mode_map() {
-		return array(
+		return [
 			self::$mtypes,
-			array(
+			[
 				'r' => 0x0100,
 				'-' => 0,
-			),
-			array(
+			],
+			[
 				'w' => 0x0080,
 				'-' => 0,
-			),
-			array(
+			],
+			[
 				's' => 0x0840,
 				'x' => 0x0040,
 				'S' => 0x0800,
 				'-' => 0,
-			),
-			array(
+			],
+			[
 				'r' => 0x0020,
 				'-' => 0,
-			),
-			array(
+			],
+			[
 				'w' => 0x0010,
 				'-' => 0,
-			),
-			array(
+			],
+			[
 				's' => 0x0408,
 				'x' => 0x0008,
 				'S' => 0x0400,
 				'-' => 0,
-			),
-			array(
+			],
+			[
 				'r' => 0x0004,
 				'-' => 0,
-			),
-			array(
+			],
+			[
 				'w' => 0x0002,
 				'-' => 0,
-			),
-			array(
+			],
+			[
 				's' => 0x0201,
 				'x' => 0x0001,
 				'S' => 0x0200,
 				'-' => 0,
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -735,11 +735,11 @@ class File {
 	 * @return string
 	 */
 	public static function extension_change($file, $new_extension) {
-		list($prefix, $file) = pairr($file, "/", "", $file);
+		[$prefix, $file] = pairr($file, "/", "", $file);
 		if ($prefix) {
 			$prefix .= "/";
 		}
-		list($base) = pairr($file, ".", $file, null);
+		[$base] = pairr($file, ".", $file, null);
 		if ($new_extension) {
 			$base .= '.' . ltrim($new_extension, '.');
 		}
@@ -753,7 +753,7 @@ class File {
 	 * @return string
 	 */
 	public static function mode_to_octal($mode) {
-		return sprintf("0%o", 0777 & $mode);
+		return sprintf("0%o", 0o777 & $mode);
 	}
 
 	/**
@@ -808,7 +808,7 @@ class File {
 	public static function stat($path, $section = null) {
 		$is_res = is_resource($path);
 		if (!$is_res) {
-			clearstatcache(null, $path);
+			clearstatcache(false, $path);
 		}
 		$ss = $is_res ? @fstat($path) : @stat($path);
 		if (!$ss) {
@@ -818,62 +818,62 @@ class File {
 		$p = $ss['mode'];
 		$mode_string = self::mode_to_string($p);
 		$type = self::$fchars[$p & self::MASK_FTYPE];
-		$s = array(
-			'perms' => array(/* Permissions */
+		$s = [
+			'perms' => [/* Permissions */
 				'umask' => sprintf("%04o", @umask()),  /* umask */
 				'string' => $mode_string,  /* drwxrwxrwx */
-				'octal' => sprintf("%o", ($p & 0777)),  /* Octal without a zero prefix */
+				'octal' => sprintf("%o", ($p & 0o777)),  /* Octal without a zero prefix */
 				'octal0' => self::mode_to_octal($p),  /* Octal with a zero prefix */
-				'decimal' => intval($p) & 0777,  /* Decimal value, truncated */
+				'decimal' => intval($p) & 0o777,  /* Decimal value, truncated */
 				'fileperms' => $is_res ? null : @fileperms($path),  /* Permissions */
 				'mode' => $p, /* Raw permissions value returned by fstat */
-			),
-			'owner' => array(
+			],
+			'owner' => [
 				'uid' => $ss['uid'],
 				'gid' => $ss['gid'],
 				'fileowner' => $ss['uid'],
 				'filegroup' => $ss['gid'],
 				'owner' => self::name_from_uid($ss['uid']),
 				'group' => self::name_from_gid($ss['gid']),
-			),
-			'file' => array(
+			],
+			'file' => [
 				'filename' => $is_res ? null : $path,
 				'realpath' => $is_res ? null : realpath($path),
 				'dirname' => $is_res ? null : dirname($path),
 				'basename' => $is_res ? null : basename($path),
-			),
-			'filetype' => array(
+			],
+			'filetype' => [
 				'type' => $type,
 				'is_file' => is_file($path),
 				'is_dir' => is_dir($path),
 				'is_link' => is_link($path),
 				'is_readable' => is_readable($path),
 				'is_writable' => is_writable($path),
-			),
-			'device' => array(
+			],
+			'device' => [
 				'device' => $ss['dev'], // Device
 				'device_number' => $ss['rdev'], // Device number, if device.
 				'inode' => $ss['ino'], // File serial number
 				'link_count' => $ss['nlink'], // link count
 				'link_to' => ($type == 'link') ? @readlink($path) : '',
-			),
-			'size' => array(
+			],
+			'size' => [
 				'size' => $ss['size'], // Size of file, in bytes.
 				'blocks' => $ss['blocks'], // Number 512-byte blocks allocated
 				'block_size' => $ss['blksize'],
-			),
-			'time' => array(
+			],
+			'time' => [
 				'mtime' => $ss['mtime'], // Time of last modification
 				'atime' => $ss['atime'], // Time of last access.
 				'ctime' => $ss['ctime'], // Time of last status change
 				'accessed' => @date('Y M D H:i:s', $ss['atime']),
 				'modified' => @date('Y M D H:i:s', $ss['mtime']),
 				'created' => @date('Y M D H:i:s', $ss['ctime']),
-			),
-		);
+			],
+		];
 
 		if (!$is_res) {
-			clearstatcache(null, $path);
+			clearstatcache(false, $path);
 		}
 		if ($section !== null) {
 			return avalue($s, $section, $s);
@@ -893,11 +893,11 @@ class File {
 	 */
 	public static function trim_maximum_file_size() {
 		$app = Kernel::singleton()->application();
-		$result = to_integer($app->configuration->path_get(array(
+		$result = to_integer($app->configuration->path_get([
 			"zesk\file",
 			"trim",
 			"maximum_file_size",
-		)));
+		]));
 		if ($result) {
 			return $result;
 		}
@@ -917,11 +917,11 @@ class File {
 	 */
 	public static function trim_read_buffer_size() {
 		$app = Kernel::singleton()->application();
-		$result = to_integer($app->configuration->path_get(array(
+		$result = to_integer($app->configuration->path_get([
 			"zesk\file",
 			"trim",
 			"read_buffer_size",
-		)));
+		]));
 		if ($result) {
 			return $result;
 		}
@@ -1074,10 +1074,10 @@ class File {
 	 */
 	public static function is_absolute($f) {
 		if (!is_string($f)) {
-			throw new Exception_Parameter("{method} First parameter should be string {type} passed", array(
+			throw new Exception_Parameter("{method} First parameter should be string {type} passed", [
 				"method" => __METHOD__,
 				"type" => type($f),
-			));
+			]);
 		}
 		$f = strval($f);
 		if ($f === "") {
@@ -1115,9 +1115,9 @@ class File {
 		$target_lock = $target . ".atomic-lock";
 		$lock = fopen($target_lock, "w+b");
 		if (!$lock) {
-			throw new Exception_File_Permission("Can not create lock file {target_lock}", array(
+			throw new Exception_File_Permission("Can not create lock file {target_lock}", [
 				"target_lock" => $target_lock,
-			));
+			]);
 		}
 		if (!flock($lock, LOCK_EX)) {
 			@unlink($target_lock);
@@ -1179,11 +1179,11 @@ class File {
 		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['uid'] !== $source_owner['uid']) {
 			if (!@chown($target, $source_owner['uid'])) {
-				throw new Exception_File_Permission($target, "{method}({source}, {target}) chown({target}, {gid})", array(
+				throw new Exception_File_Permission($target, "{method}({source}, {target}) chown({target}, {gid})", [
 					"method" => __METHOD__,
 					"source" => $source,
 					"target" => $target,
-				));
+				]);
 			}
 		}
 		return $target;
@@ -1205,11 +1205,11 @@ class File {
 		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['gid'] !== $source_owner['gid']) {
 			if (!@chgrp($target, $source_owner['gid'])) {
-				throw new Exception_File_Permission($target, "{method}({source}, {target}) chgrp({target}, {gid})", array(
+				throw new Exception_File_Permission($target, "{method}({source}, {target}) chgrp({target}, {gid})", [
 					"method" => __METHOD__,
 					"source" => $source,
 					"target" => $target,
-				));
+				]);
 			}
 		}
 		return $target;
@@ -1240,9 +1240,9 @@ class File {
 			return $file;
 		}
 
-		throw new Exception_File_Permission($file, "Unable to write in {dir} {filename}", array(
+		throw new Exception_File_Permission($file, "Unable to write in {dir} {filename}", [
 			"dir" => $dir,
-		));
+		]);
 	}
 
 	/**
@@ -1287,7 +1287,7 @@ class File {
 	 * @see self::find_directory
 	 */
 	public static function find_all(array $paths, $file) {
-		$result = array();
+		$result = [];
 		if (is_array($file)) {
 			foreach ($paths as $path) {
 				foreach ($file as $f) {

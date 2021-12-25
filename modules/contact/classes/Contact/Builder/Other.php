@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage contact
@@ -25,12 +25,12 @@ class Contact_Builder_Other extends Contact_Builder_Base {
 	 * @see \zesk\Contact_Builder_Base::process()
 	 */
 	public function process(Contact_Import $import, $key, $value) {
-		$data = array(
+		$data = [
 			'value' => $value,
-		) + $this->data;
-		$data = map($data, array(
+		] + $this->data;
+		$data = map($data, [
 			'key' => $key,
-		));
+		]);
 		$clean_value = trim($value) . "." . trim($data['label']);
 		$import->merge_item($this->contact_class, $clean_value, $data);
 		return true;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -16,14 +16,14 @@ class Selection_Item extends ORM {
 	 *
 	 * @var integer
 	 */
-	const type_remove = 0;
+	public const type_remove = 0;
 
 	/**
 	 * Value in "add" for items which should be added to the query
 	 *
 	 * @var integer
 	 */
-	const type_add = 1;
+	public const type_add = 1;
 
 	/**
 	 *
@@ -43,7 +43,7 @@ class Selection_Item extends ORM {
 	 * @param unknown $new_type
 	 * @param array $mapping
 	 */
-	public static function copy_duplicate(Application $application, $old_type, $new_type, array $mapping) {
+	public static function copy_duplicate(Application $application, $old_type, $new_type, array $mapping): void {
 		/* @var $class Class_ORM */
 		$members = $application->class_orm_registry(__CLASS__)->column_types;
 		unset($members['type']);
@@ -57,10 +57,10 @@ class Selection_Item extends ORM {
 		foreach ($mapping as $old_query_id => $new_query_id) {
 			$object->query_update()
 				->value('query', $new_query_id)
-				->where(array(
+				->where([
 				'query' => $old_query_id,
 				'type' => $new_type,
-			))
+			])
 				->execute();
 		}
 	}
@@ -74,9 +74,9 @@ class Selection_Item extends ORM {
 	 * @return array
 	 */
 	protected function hook_schema_update_alter(ORM_Schema $schema, Database_Table $table, array $changes) {
-		$before_changes = array();
+		$before_changes = [];
 		foreach ($changes as $change) {
-			if (strpos($change, 'tid') !== false && strpos($change, 'UNIQUE') !== false) {
+			if (str_contains($change, 'tid')   && str_contains($change, 'UNIQUE')) {
 				$before_changes[] = "CREATE TABLE Selection_Item_UQ LIKE Selection_Item";
 				$before_changes[] = "ALTER TABLE Selection_Item_UQ DROP INDEX tid";
 				$before_changes[] = "ALTER TABLE Selection_Item_UQ ADD UNIQUE tid (`type`,`id`)";

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -19,17 +19,17 @@ class Command_File_Rename extends Command_Iterator_File {
 	 *
 	 * @var array
 	 */
-	protected $extensions = array();
+	protected $extensions = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $option_types = array(
+	protected array $option_types = [
 		'from' => 'string',
 		'to' => 'string',
 		'dry-run' => 'boolean',
-	);
+	];
 
 	/**
 	 *
@@ -63,7 +63,7 @@ class Command_File_Rename extends Command_Iterator_File {
 
 	/**
 	 */
-	protected function start() {
+	protected function start(): void {
 		if (!$this->has_option('from')) {
 			$this->set_option("from", $this->prompt(" Search? "));
 		}
@@ -81,7 +81,7 @@ class Command_File_Rename extends Command_Iterator_File {
 	 *
 	 * @param SplFileInfo $file
 	 */
-	protected function process_file(SplFileInfo $file) {
+	protected function process_file(SplFileInfo $file): void {
 		$name = $file->getFilename();
 		$newname = str_replace($this->from, $this->to, $name);
 		$this->verbose_log("$name => $newname");
@@ -107,13 +107,13 @@ class Command_File_Rename extends Command_Iterator_File {
 
 	/**
 	 */
-	protected function finish() {
-		$this->log("Completed \"{from}\" => \"{to}\": {failed} failed, {succeed} succeeded, {ignored} ignored.", array(
+	protected function finish(): void {
+		$this->log("Completed \"{from}\" => \"{to}\": {failed} failed, {succeed} succeeded, {ignored} ignored.", [
 			"failed" => $this->failed,
 			"succeed" => $this->succeed,
 			"ignored" => $this->ignored,
 			"from" => $this->from,
 			"to" => $this->to,
-		));
+		]);
 	}
 }

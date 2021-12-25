@@ -1,18 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class TestORM_Test extends Test_ORM {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
 		"ORM",
-	);
+	];
 
-	public function initialize() {
+	public function initialize(): void {
 		require_once __DIR__ . '/TestORM_Test_Objects.php';
 		parent::initialize();
 	}
 
-	public function object_tests(ORM $x) {
+	public function object_tests(ORM $x): void {
 		$x->schema();
 
 		$x->table();
@@ -161,13 +161,13 @@ class TestORM_Test extends Test_ORM {
 		$x->option_list($name, $default, $delimiter);
 	}
 
-	public function test_object() {
+	public function test_object(): void {
 		$sTable = "TestORM";
 
 		$this->test_table($sTable);
 
 		$mixed = null;
-		$options = array();
+		$options = [];
 		$x = new TestORM($this->application, $mixed, $options);
 
 		$this->object_tests($x);
@@ -181,7 +181,7 @@ class TestORM_Test extends Test_ORM {
 	 *
 	 * @param ORM $object
 	 */
-	public function test_object_ordering_fail(ORM $object) {
+	public function test_object_ordering_fail(ORM $object): void {
 		$id0 = null;
 		$id1 = null;
 		$order_column = 'OrderIndex';

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage contact
@@ -17,7 +17,7 @@ abstract class Contact_Builder_Base extends Options {
 	 *
 	 * @var array
 	 */
-	protected $data = array();
+	protected $data = [];
 
 	/**
 	 *
@@ -30,9 +30,9 @@ abstract class Contact_Builder_Base extends Options {
 	 * @param array $data
 	 * @param array $options
 	 */
-	public function __construct($data = null, array $options = array()) {
+	public function __construct($data = null, array $options = []) {
 		parent::__construct($options);
-		$this->data = is_array($data) ? $data : array();
+		$this->data = is_array($data) ? $data : [];
 	}
 
 	/**

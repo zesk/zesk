@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -44,11 +44,11 @@ class Lines extends Base {
 	 * @param string $skip_whitespace
 	 */
 	public function __construct($a, $b, $skip_whitespace = false) {
-		$this->alines = to_list($a, array(), "\n");
-		$this->blines = to_list($b, array(), "\n");
+		$this->alines = to_list($a, [], "\n");
+		$this->blines = to_list($b, [], "\n");
 
 		$this->seq = 0;
-		$this->hashtable = array();
+		$this->hashtable = [];
 
 		$a = $this->hash_lines($this->alines, $skip_whitespace);
 		$b = $this->hash_lines($this->blines, $skip_whitespace);
@@ -60,7 +60,7 @@ class Lines extends Base {
 		$this->process_results();
 	}
 
-	private function process_results() {
+	private function process_results(): void {
 		foreach ($this->diffs() as $edit) {
 			if ($edit->op === Edit::DIFF_INSERT) {
 				$edit->data = array_slice($this->blines, $edit->off, $edit->len);
@@ -69,7 +69,7 @@ class Lines extends Base {
 	}
 
 	private function hash_lines($lines, $skip_whitespace = false) {
-		$result = array();
+		$result = [];
 		foreach ($lines as $line) {
 			if ($skip_whitespace) {
 				$line = preg_replace('/\s+/', ' ', trim($line));
@@ -87,7 +87,7 @@ class Lines extends Base {
 	}
 
 	public function output() {
-		$result = array();
+		$result = [];
 		$diffs = $this->diffs();
 		foreach ($diffs as $edit) {
 			switch ($edit->op) {

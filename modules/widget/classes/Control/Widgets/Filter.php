@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage control
@@ -24,20 +24,20 @@ class Control_Widgets_Filter extends Control_Widgets {
 	 * @return array
 	 */
 	protected function hook_filters() {
-		return array();
+		return [];
 	}
 
 	/**
 	 *
 	 */
-	protected function initialize_filter() {
+	protected function initialize_filter(): void {
 		if ($this->filter === null) {
 			$filters = $this->call_hook("filters");
 			if (count($filters) > 0) {
 				$options = $this->options_include("URI;filter_preserve_include;filter_preserve_exclude;ajax_id;filter_form_id");
-				$options = ArrayTools::map_keys($options, array(
+				$options = ArrayTools::map_keys($options, [
 					"filter_form_id" => "form_id",
-				));
+				]);
 				$options['id'] = $options['column'] = "filter";
 				$this->filter = new Control_Filter($this->application, $options);
 				$this->filter->children($filters);
@@ -54,7 +54,7 @@ class Control_Widgets_Filter extends Control_Widgets {
 	 * {@inheritDoc}
 	 * @see \zesk\Control_Widgets::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		$this->initialize_filter();
 		parent::initialize();
 	}
@@ -83,9 +83,9 @@ class Control_Widgets_Filter extends Control_Widgets {
 	 * @see \zesk\Widget::theme_variables()
 	 */
 	public function theme_variables() {
-		return array(
+		return [
 			'filter' => $this->filter,
 			'show_filter' => $this->show_filter(),
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 }

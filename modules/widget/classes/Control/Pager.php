@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -18,38 +18,38 @@ class Control_Pager extends Control {
 	 *
 	 * @param Kernel $zesk
 	 */
-	public static function hooks(Application $zesk) {
-		$zesk->configuration->deprecated(array(
+	public static function hooks(Application $zesk): void {
+		$zesk->configuration->deprecated([
 			__CLASS__,
 			"pager_limit",
-		), array(
+		], [
 			__CLASS__,
 			"limit",
-		));
-		$zesk->configuration->deprecated("pager_limit", array(
+		]);
+		$zesk->configuration->deprecated("pager_limit", [
 			__CLASS__,
 			"limit",
-		));
+		]);
 	}
 
 	/**
 	 *
 	 * @var boolean
 	 */
-	protected $traverse = true;
+	protected bool $traverse = true;
 
 	/*
 	 * @var Control_Select
 	 */
-	protected $limit_widget = null;
+	protected Control_Select $limit_widget;
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $options = array(
+	protected array $options = [
 		'column' => 'pager',
-	);
+	];
 
 	/**
 	 *
@@ -63,7 +63,7 @@ class Control_Pager extends Control {
 	public function preserve_hidden($name, $value = null) {
 		$variables = avalue($this->theme_variables, 'preserve_hidden');
 		if (!is_array($variables)) {
-			$variables = array();
+			$variables = [];
 		}
 		if (is_array($name)) {
 			$variables = $name + $variables;
@@ -86,12 +86,12 @@ class Control_Pager extends Control {
 		$ajax_id = $this->option('ajax_id');
 		$onchange = $ajax_id ? "pager_limit_change.call(this,'$ajax_id')" : "this.form.submit()";
 
-		$options = array();
+		$options = [];
 		$options['options'] = $pager_limit_list;
 		$options['onchange'] = $onchange;
 		$options['default'] = $this->request->geti('limit', $this->limit_default());
 		$options['skip_query_condition'] = true;
-		$options['query_column'] = array();
+		$options['query_column'] = [];
 
 		return $this->widget_factory(Control_Select::class)
 			->names('limit')
@@ -99,19 +99,19 @@ class Control_Pager extends Control {
 			->set_option($options);
 	}
 
-	protected function initialize() {
+	protected function initialize(): void {
 		$this->set_option('max_limit', $this->_maximum_limit());
 		$this->limit_widget = $this->_limit_widget();
 		$this->child($this->limit_widget);
 		parent::initialize();
 	}
 
-	protected function defaults() {
+	protected function defaults(): void {
 		$this->children_defaults();
 		$this->object->set('offset', $this->request->geti("offset", 0));
 	}
 
-	private function _refresh() {
+	private function _refresh(): void {
 		$object = $this->object;
 		$total = to_integer($object->total, -1);
 		$off = $object->offset;
@@ -126,7 +126,7 @@ class Control_Pager extends Control {
 					$last_offset = 0;
 					$off = 0;
 				} else {
-					$last_offset = (intval(doubleval($total - 1) / $lim)) * $lim;
+					$last_offset = (intval(floatval($total - 1) / $lim)) * $lim;
 					$max_lim = $this->option('max_limit', 100);
 					if ($lim > $max_lim) {
 						$lim = $max_lim;
@@ -145,7 +145,7 @@ class Control_Pager extends Control {
 		$object->last_offset = $last_offset;
 	}
 
-	protected function hook_total($total) {
+	protected function hook_total($total): void {
 		$this->object->total = $total;
 		$this->_refresh();
 	}
@@ -154,7 +154,7 @@ class Control_Pager extends Control {
 	 * @param Database_Query_Select $query
 	 * @throws Exception_Semantics
 	 */
-	protected function hook_query_list(Database_Query_Select $query) {
+	protected function hook_query_list(Database_Query_Select $query): void {
 		static $recurse = 0;
 		if ($recurse !== 0) {
 			throw new Exception_Semantics("Can not call hook_query_list recursively");
@@ -167,19 +167,19 @@ class Control_Pager extends Control {
 			if ($child === $this->limit_widget) {
 				continue;
 			}
-			$child->children_hook_array('query_list', array(
+			$child->children_hook_array('query_list', [
 				$query,
-			));
+			]);
 		}
 		$recurse = 0;
 	}
 
-	public function hook_render() {
+	public function hook_render(): void {
 		$this->_refresh();
 		$object = $this->object;
 		$pager_limit_list = $this->limit_widget->control_options();
 
-		$ss = array();
+		$ss = [];
 		$limit = intval($object->limit);
 		$total = $object->total;
 		if ($limit < 0) {

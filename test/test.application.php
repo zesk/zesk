@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage core
@@ -12,10 +12,10 @@ $kernel = zesk\Kernel::factory();
 $kernel->autoloader->no_exception = true;
 
 $application = $kernel->create_application()->set_application_root(__DIR__);
-$files = array(
+$files = [
 	$application->path("etc/test.json"),
 	$application->path("etc/test.conf"),
 	$application->paths->uid("test.conf"),
 	$application->paths->uid("test.json"),
-);
+];
 $application->configure_include($files)->configure();

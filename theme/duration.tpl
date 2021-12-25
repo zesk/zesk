@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -20,8 +20,8 @@ foreach (Timestamp::$UNITS_TRANSLATION_TABLE as $unit => $seconds) {
 		break;
 	}
 }
-echo $locale->__("{prefix}{n} {units}", array(
+echo $locale->__("{prefix}{n} {units}", [
 	"prefix" => $prefix,
 	"n" => $duration,
 	"units" => $locale->plural($locale->__($unit), $duration),
-));
+]);

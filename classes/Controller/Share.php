@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -12,14 +12,14 @@ namespace zesk;
  * @see docs/share.md
  */
 class Controller_Share extends Controller {
-	const SHARE_PREFIX_DEFAULT = "share";
+	public const SHARE_PREFIX_DEFAULT = "share";
 
 	/**
 	 * Option to override default
 	 *
 	 * @var string
 	 */
-	const OPTION_SHARE_PREFIX = "share_prefix";
+	public const OPTION_SHARE_PREFIX = "share_prefix";
 
 	/**
 	 *
@@ -36,7 +36,7 @@ class Controller_Share extends Controller {
 	 *
 	 * @throws Exception_File_Permission
 	 */
-	public function build_directory() {
+	public function build_directory(): void {
 		$app = $this->application;
 		$share_paths = $this->application->share_path();
 		$document_root = $app->document_root();
@@ -51,7 +51,7 @@ class Controller_Share extends Controller {
 				$source = path($path, $file);
 				if (substr($base, 0, 1) !== "." && is_file($source)) {
 					$target_file = path($document_root, $this->option_share_prefix(), $name, $file);
-					Directory::depend(dirname($target_file), 0777);
+					Directory::depend(dirname($target_file), 0o777);
 					if (!copy($source, $target_file)) {
 						throw new Exception_File_Permission($target_file);
 					}
@@ -68,7 +68,7 @@ class Controller_Share extends Controller {
 	 */
 	public function path_to_file($path) {
 		$uri = StringTools::unprefix($path, "/");
-		list($ignore, $uri) = pair($uri, "/", null, $uri);
+		[$ignore, $uri] = pair($uri, "/", null, $uri);
 		$share_paths = $this->application->share_path();
 		foreach ($share_paths as $name => $path) {
 			if (empty($name) || begins($uri, "$name/")) {
@@ -87,7 +87,7 @@ class Controller_Share extends Controller {
 	 *
 	 * @see Controller::_action_default()
 	 */
-	public function _action_default($action = null) {
+	public function _action_default($action = null): void {
 		$uri = StringTools::unprefix($original_uri = $this->request->path(), "/");
 		if ($this->application->development() && $uri === "share/debug") {
 			$this->response->content = $this->share_debug();
@@ -130,15 +130,15 @@ class Controller_Share extends Controller {
 	 * @param string $path
 	 * @param string $file
 	 */
-	private function build($path, $file) {
+	private function build($path, $file): void {
 		$target = path($this->application->document_root(), $path);
-		Directory::depend(dirname($target), 0775);
+		Directory::depend(dirname($target), 0o775);
 		$status = copy($file, $target);
-		$this->application->logger->notice("Copied {file} to {target} - {status}", array(
+		$this->application->logger->notice("Copied {file} to {target} - {status}", [
 			"file" => $file,
 			"target" => $target,
 			"status" => $status ? "true" : "false",
-		));
+		]);
 	}
 
 	/**
@@ -171,23 +171,23 @@ class Controller_Share extends Controller {
 	/**
 	 * Clear the share build path upon cache clear
 	 */
-	public function hook_cache_clear() {
+	public function hook_cache_clear(): void {
 		$logger = $this->application->logger;
 		/* @var $locale \zesk\Locale */
 		$logger->debug(__METHOD__);
 		if ($this->option_bool('build')) {
 			$share_dir = path($this->application->document_root(), $this->option_share_prefix());
 			if (is_dir($share_dir)) {
-				$logger->notice('{class}::hook_cache_clear - deleting {share_dir}', array(
+				$logger->notice('{class}::hook_cache_clear - deleting {share_dir}', [
 					'class' => __CLASS__,
 					'share_dir' => $share_dir,
-				));
+				]);
 				Directory::delete($share_dir);
 			} else {
-				$logger->notice('{class}::hook_cache_clear - would delete {share_dir} but it is not found', array(
+				$logger->notice('{class}::hook_cache_clear - would delete {share_dir} but it is not found', [
 					'class' => __CLASS__,
 					'share_dir' => $share_dir,
-				));
+				]);
 			}
 		}
 	}

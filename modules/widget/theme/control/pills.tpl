@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -17,21 +17,21 @@ $active_classes = "active btn-primary";
 ?><div class="btn-group btn-group-justified"><?php
 foreach ($this->control_options as $code => $label) {
 	$button_id = $name . "-" . $code;
-	echo HTML::tag("a", array(
+	echo HTML::tag("a", [
 		"class" => "btn btn-default pill-group-$name",
 		"id" => $button_id,
 		"role" => "button",
 		"data-value" => $code,
-	), $label);
+	], $label);
 }
 $input_id = $this->id;
 if (!$input_id) {
 	$input_id = $this->column;
 }
 ?></div><?php
-echo HTML::input("hidden", $name, $value, array(
+echo HTML::input("hidden", $name, $value, [
 	"id" => $input_id,
-));
+]);
 $response->jquery("(function() {
 	var update = function () {
 		var val = \$('#$input_id').val();

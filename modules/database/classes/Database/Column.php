@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
@@ -32,7 +32,7 @@ class Database_Column extends Options {
 	 * @param unknown $name
 	 * @param unknown $options
 	 */
-	public function __construct(Database_Table $table, $name, array $options = array()) {
+	public function __construct(Database_Table $table, $name, array $options = []) {
 		parent::__construct($options);
 		$this->table = $table;
 		$this->name($name);
@@ -100,46 +100,46 @@ class Database_Column extends Options {
 		$name = $this->name();
 		$this_native_type = $this->option("sql_type", "this");
 		$that_native_type = $that->option("sql_type", "that");
-		$diffs = array();
+		$diffs = [];
 		if (!$data_type->native_types_equal($this_native_type, $that_native_type)) {
-			$diffs["type"] = array(
+			$diffs["type"] = [
 				$this_native_type,
 				$that_native_type,
-			);
+			];
 		}
 		if ($this->binary() !== $that->binary()) {
-			$diffs["binary"] = array(
+			$diffs["binary"] = [
 				$this->binary(),
 				$that->binary(),
-			);
+			];
 		}
 		$threquired = $this->required();
 		$thatRequired = $that->required();
 		if ($threquired !== $thatRequired) {
-			$diffs["required"] = array(
+			$diffs["required"] = [
 				$this->required(),
 				$that->required(),
-			);
+			];
 		}
 		$thisDefault = $data_type->native_type_default($this_native_type, $this->default_value());
 		$thatDefault = $data_type->native_type_default($that_native_type, $that->default_value());
 		if ($thisDefault !== $thatDefault) {
-			$diffs['defaults'] = array(
+			$diffs['defaults'] = [
 				$thisDefault,
 				$thatDefault,
-			);
+			];
 		}
 		if (($thisUn = $this->option_bool("unsigned")) !== ($thatUn = $that->option_bool("unsigned"))) {
-			$diffs['unsigned'] = array(
+			$diffs['unsigned'] = [
 				$thisUn,
 				$thatUn,
-			);
+			];
 		}
 		if ($this->is_increment() !== $that->is_increment()) {
-			$diffs['increment'] = array(
+			$diffs['increment'] = [
 				$this->is_increment(),
 				$that->is_increment(),
-			);
+			];
 		}
 		$result = $db->column_differences($this, $that, $diffs);
 		if (is_array($result)) {
@@ -157,7 +157,7 @@ class Database_Column extends Options {
 	public function attributes_differences(Database $db, Database_Column $that, $filter = null) {
 		$this_extras = $db->column_attributes($this);
 		$that_extras = $db->column_attributes($that);
-		$diffs = array();
+		$diffs = [];
 		if ($filter) {
 			$this_extras = ArrayTools::filter($this_extras, $filter);
 		}
@@ -165,10 +165,10 @@ class Database_Column extends Options {
 			$this_value = $this->option($extra, $default);
 			$that_value = $that->option($extra, avalue($that_extras, $extra, $default));
 			if ($this_value !== $that_value) {
-				$diffs[$extra] = array(
+				$diffs[$extra] = [
 					$this_value,
 					$that_value,
-				);
+				];
 			}
 		}
 		return $diffs;
@@ -178,10 +178,10 @@ class Database_Column extends Options {
 		$diffs = $this->differences($db, $that);
 		if (count($diffs) > 0 && $debug) {
 			$name = $this->name();
-			$this->table->application->logger->debug("Database_Column::is_similar($name): Incompatible: {dump}", array(
+			$this->table->application->logger->debug("Database_Column::is_similar($name): Incompatible: {dump}", [
 				"dump" => PHP::dump($diffs),
 				"diffs" => $diffs,
-			));
+			]);
 		}
 		return count($diffs) === 0;
 	}
@@ -254,7 +254,7 @@ class Database_Column extends Options {
 		} else {
 			throw new Exception_Unimplemented("Database_Column::index_add($name, $type): Invalid type");
 		}
-		$indexes = $this->option_list($opt, array());
+		$indexes = $this->option_list($opt, []);
 		if (in_array($name, $indexes)) {
 			return true;
 		}
@@ -264,10 +264,10 @@ class Database_Column extends Options {
 	}
 
 	final public function indexes_types() {
-		$indexNames = $this->option_list("Index", array());
-		$uniqueNames = $this->option_list("Unique", array());
+		$indexNames = $this->option_list("Index", []);
+		$uniqueNames = $this->option_list("Unique", []);
 		$isPrimary = $this->option_bool("primary_key", false);
-		$result = array();
+		$result = [];
 		foreach ($uniqueNames as $name) {
 			if (empty($name)) {
 				$name = $this->name() . "_Unique";

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  * @author kent
@@ -39,7 +39,7 @@ if (!$format) {
 }
 
 /* @var $timestamp Timestamp */
-$map = array();
+$map = [];
 $map["delta"] = $locale->now_string($timestamp, $this->get('relative_min_unit', 'second'), $this->zero_string);
 $format = map($format, $map);
 

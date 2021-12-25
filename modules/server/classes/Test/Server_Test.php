@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,16 +10,16 @@ namespace zesk;
  *
  */
 class Server_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"ORM",
 		"MySQL",
-	);
+	];
 
-	protected function initialize() {
+	protected function initialize(): void {
 		$this->schema_synchronize(Server::class);
 	}
 
-	public function test_Server() {
+	public function test_Server(): void {
 		$this->application->configuration->HOST = "localhost";
 
 		$testx = new Server($this->application);

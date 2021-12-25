@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -187,7 +187,7 @@ class PHP {
 			}
 			$indent_level = avalue($args, 1, 0);
 			$result = ($no_first_line_indent ? '' : str_repeat($this->indent_char, $indent_level * $this->indent_multiple)) . "array" . $this->array_open_parenthesis_prefix . "(" . $this->array_open_parenthesis_suffix;
-			$items = array();
+			$items = [];
 			if (ArrayTools::is_list($x)) {
 				foreach ($x as $k => $v) {
 					$items[] = str_repeat($this->indent_char, ($indent_level + 1) * $this->indent_multiple) . $this->render($v, $indent_level + 1, true);
@@ -205,7 +205,7 @@ class PHP {
 			return $result;
 		} elseif (is_string($x)) {
 			return '"' . addcslashes($x, "\$\"\\\0..\37") . '"';
-		} elseif (is_integer($x)) {
+		} elseif (is_int($x)) {
 			return "$x";
 		} elseif ($x === null) {
 			return "null";
@@ -237,8 +237,8 @@ class PHP {
 	 * @param integer $errno
 	 * @param string $errstr
 	 */
-	public static function _unserialize_handler($errno, $errstr) {
-		self::$unserialize_exception = new Exception_Syntax($errstr, array(), $errno);
+	public static function _unserialize_handler($errno, $errstr): void {
+		self::$unserialize_exception = new Exception_Syntax($errstr, [], $errno);
 	}
 
 	/**
@@ -252,10 +252,10 @@ class PHP {
 	 */
 	public static function unserialize($serialized) {
 		self::$unserialize_exception = null;
-		set_error_handler(array(
+		set_error_handler([
 			__CLASS__,
 			'_unserialize_handler',
-		));
+		]);
 		$original = unserialize($serialized);
 		restore_error_handler();
 		if (self::$unserialize_exception) {
@@ -277,21 +277,21 @@ class PHP {
 	 */
 	public static function requires($features, $die = false) {
 		$features = to_list($features);
-		$results = array();
-		$errors = array();
+		$results = [];
+		$errors = [];
 		foreach ($features as $feature) {
 			switch ($feature) {
 				case "pcntl":
 					$results[$feature] = $result = function_exists('pcntl_exec');
 					if (!$result) {
-						$errors[] = map("Need pcntl extensions for PHP\nphp.ini at {0}\n", array(get_cfg_var('cfg_file_path')));
+						$errors[] = map("Need pcntl extensions for PHP\nphp.ini at {0}\n", [get_cfg_var('cfg_file_path')]);
 					}
 
 					break;
 				case "time_limits":
 					$results[$feature] = $result = !to_bool(ini_get('safe_mode'));
 					if (!$result) {
-						$errors[] = map("PHP safe mode prevents removing time limits on pages\nphp.ini at {0}\n", array(get_cfg_var('safe_mode')));
+						$errors[] = map("PHP safe mode prevents removing time limits on pages\nphp.ini at {0}\n", [get_cfg_var('safe_mode')]);
 					}
 
 					break;
@@ -351,7 +351,7 @@ class PHP {
 	 * @see PHP::feature
 	 * @var string
 	 */
-	const FEATURE_TIME_LIMIT = 'time_limit';
+	public const FEATURE_TIME_LIMIT = 'time_limit';
 
 	/**
 	 * Constant to set the current script memory limit. Takes an integer, or a string compatible with to_bytes
@@ -360,14 +360,14 @@ class PHP {
 	 * @see PHP::feature
 	 * @var string
 	 */
-	const FEATURE_MEMORY_LIMIT = 'memory_limit';
+	public const FEATURE_MEMORY_LIMIT = 'memory_limit';
 
 	/**
 	 * Used with FEATURE_MEMORY_LIMIT to set limit to unlimited. Use with caution.
 	 *
 	 * @var integer`
 	 */
-	const MEMORY_LIMIT_UNLIMITED = -1;
+	public const MEMORY_LIMIT_UNLIMITED = -1;
 
 	/**
 	 * Is this a valid function name, syntactically?
@@ -474,7 +474,7 @@ class PHP {
 	 * @return string
 	 */
 	public static function parse_class($class) {
-		list($ignore, $cl) = self::parse_namespace_class($class);
+		[$ignore, $cl] = self::parse_namespace_class($class);
 		return $cl;
 	}
 
@@ -487,7 +487,7 @@ class PHP {
 	 * @return string
 	 */
 	public static function parse_namespace($class) {
-		list($ns) = self::parse_namespace_class($class);
+		[$ns] = self::parse_namespace_class($class);
 		return $ns;
 	}
 
@@ -508,7 +508,7 @@ class PHP {
 	 * @param string $message
 	 * @param array $arguments
 	 */
-	public static function log($message, array $arguments = array()) {
+	public static function log($message, array $arguments = []): void {
 		error_log(map($message, $arguments));
 	}
 }

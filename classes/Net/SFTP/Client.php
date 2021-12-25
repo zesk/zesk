@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
@@ -29,14 +29,14 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 	 * Stat cache for stat
 	 * @var array
 	 */
-	private $stat_cache = array();
+	private $stat_cache = [];
 
 	/**
 	 * Connect using a Process object and the sftp command
 	 */
-	public function connect() {
+	public function connect(): void {
 		$command = "sftp";
-		$arguments = array();
+		$arguments = [];
 		$pass = $user = $host = $port = null;
 		extract($this->url_parts, EXTR_IF_EXISTS);
 		if ($port !== null && $port !== 22) {
@@ -52,12 +52,12 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 		return $this->process instanceof Process;
 	}
 
-	public function disconnect() {
+	public function disconnect(): void {
 		if ($this->is_connected()) {
 			$this->command("quit");
 			$this->process->terminate();
 			$this->process = null;
-			$this->stat_cache = array();
+			$this->stat_cache = [];
 		}
 	}
 
@@ -70,7 +70,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 		if (empty($result)) {
 			return $result;
 		}
-		$matches = array();
+		$matches = [];
 		if (preg_match('/^(sftp>[^\n]*\n)/', $result, $matches)) {
 			$result = strval(substr($result, strlen($matches[0])));
 		}
@@ -96,7 +96,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 		return true;
 	}
 
-	private function lcd($path) {
+	private function lcd($path): void {
 		if (!is_dir($path)) {
 			throw new Exception_Directory_NotFound("No such path $path");
 		}
@@ -112,7 +112,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 		}
 		$lines = $this->command("ls -la");
 		$lines = explode("\n", trim($lines));
-		$entries = array();
+		$entries = [];
 		foreach ($lines as $line) {
 			$entry = $this->parse_ls_line($line);
 			if (is_array($entry)) {
@@ -164,11 +164,11 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 		return $result;
 	}
 
-	public function chmod($file, $mode = 0770) {
+	public function chmod($file, $mode = 0o770) {
 		$file = $this->quote_path($file);
 		$mode = base_convert($mode, 10, 8);
 		$result = strtolower($this->one_liner("chmod $mode $file"));
-		if (strpos($result, " denied") !== false) {
+		if (str_contains($result, " denied")) {
 			return false;
 		}
 		return true;
@@ -190,10 +190,10 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 		if (!$listing) {
 			$this->stat_cache[$dir] = $listing = $this->ls($dir);
 		}
-		return avalue($listing, $file, array(
+		return avalue($listing, $file, [
 			'type' => null,
 			'name' => $file,
-		));
+		]);
 	}
 
 	public function mtime($path, Timestamp $ts) {

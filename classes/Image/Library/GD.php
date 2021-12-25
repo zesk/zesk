@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -10,13 +10,13 @@ namespace zesk;
  *
  */
 class Image_Library_GD extends Image_Library {
-	private static $output_map = array(
+	private static $output_map = [
 		'png' => 'png',
 		'gif' => 'gif',
 		'jpeg' => 'jpeg',
 		'jpg' => 'jpeg',
 		'jpg' => 'jpeg',
-	);
+	];
 
 	/**
 	 * Background color allocated upon image create
@@ -174,16 +174,16 @@ class Image_Library_GD extends Image_Library {
 	 */
 	public function image_scale_data($data, array $options) {
 		if (empty($data)) {
-			throw new Exception_Semantics("{method} passed an empty string", array(
+			throw new Exception_Semantics("{method} passed an empty string", [
 				"method" => __METHOD__,
-			));
+			]);
 		}
 		$src = @imagecreatefromstring($data);
 		if (!is_resource($src)) {
-			throw new Exception_Semantics("{method} passed an invalid string of {n} bytes", array(
+			throw new Exception_Semantics("{method} passed an invalid string of {n} bytes", [
 				"n" => strlen($data),
 				"method" => __METHOD__,
-			));
+			]);
 		}
 		return $this->_image_scale_resource($src, null, $options);
 	}
@@ -215,11 +215,11 @@ class Image_Library_GD extends Image_Library {
 		}
 		$src = @imagecreatefromstring($contents);
 		if (!is_resource($src)) {
-			throw new Exception_Semantics("{method} passed an invalid string from {source} of {n} bytes", array(
+			throw new Exception_Semantics("{method} passed an invalid string from {source} of {n} bytes", [
 				"n" => strlen($contents),
 				"source" => $source,
 				"method" => __METHOD__,
-			));
+			]);
 		}
 		return $src;
 	}
@@ -284,19 +284,19 @@ class Image_Library_GD extends Image_Library {
 			if (ArrayTools::is_list($value)) {
 				return $value;
 			}
-			return array(
+			return [
 				$value['r'],
 				$value['g'],
 				$value['b'],
-			);
+			];
 		} elseif (is_string($value)) {
 			return CSS::color_parse($value);
 		} else {
-			return array(
+			return [
 				0,
 				0,
 				0,
-			);
+			];
 		}
 	}
 
@@ -306,12 +306,12 @@ class Image_Library_GD extends Image_Library {
 	 * {@inheritDoc}
 	 * @see \zesk\Image_Library::image_rotate()
 	 */
-	public function image_rotate($source, $destination, $degrees, array $options = array()) {
+	public function image_rotate($source, $destination, $degrees, array $options = []) {
 		$source_resource = $this->_imageload($source);
 		$bgcoloroption = avalue($options, 'background_color', 0);
 		$bgcolor = 0;
 		if ($bgcoloroption) {
-			list($r, $g, $b) = $this->parse_color($bgcoloroption);
+			[$r, $g, $b] = $this->parse_color($bgcoloroption);
 			$bgcolor = imagecolorallocate($source_resource, $r, $g, $b);
 		}
 		$rotate = imagerotate($source_resource, $degrees, $bgcolor);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -21,14 +21,14 @@ class Command_Config extends Command_Base {
 	 */
 	private $suffix = "\n\n";
 
-	protected $option_types = array(
+	protected array $option_types = [
 		'loaded' => 'boolean',
 		'not-loaded' => 'boolean',
 		'skipped' => 'boolean',
 		'externals' => 'boolean',
 		'missing-classes' => 'boolean',
 		'top-level-scalar' => 'boolean',
-	);
+	];
 
 	/**
 	 *
@@ -45,7 +45,7 @@ class Command_Config extends Command_Base {
 		$not_loaded = $variables['missing'];
 		$externals = $variables['externals'];
 		$skipped = $variables['skipped'];
-		list($missing_vars, $warning_top_levels) = $this->collect_misnamed_class_configurations();
+		[$missing_vars, $warning_top_levels] = $this->collect_misnamed_class_configurations();
 
 		$show_loaded = $show_not_loaded = $show_skipped = $show_externals = $show_missing_classes = $show_top_level_scalar = null;
 		extract($this->show_flags(), EXTR_IF_EXISTS);
@@ -74,15 +74,15 @@ class Command_Config extends Command_Base {
 	}
 
 	private function show_flags() {
-		$flags = array(
+		$flags = [
 			'loaded' => true,
 			'not_loaded' => true,
 			'skipped' => true,
 			'externals' => false,
 			'missing_classes' => false,
 			'top_level_scalar' => false,
-		);
-		$result = array();
+		];
+		$result = [];
 		foreach ($flags as $flag => $default) {
 			if ($this->option_bool($flag)) {
 				// if any value is true, return the actual values
@@ -99,7 +99,7 @@ class Command_Config extends Command_Base {
 	 */
 	public function collect_misnamed_class_configurations() {
 		$config = $this->application->configuration;
-		$missing = $warning = array();
+		$missing = $warning = [];
 		foreach ($config as $key => $next) {
 			if ($next instanceof Configuration) {
 				try {
@@ -113,10 +113,10 @@ class Command_Config extends Command_Base {
 				$warning[] = $key;
 			}
 		}
-		return array(
+		return [
 			$missing,
 			$warning,
-		);
+		];
 	}
 
 	/**

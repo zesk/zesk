@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -28,17 +28,17 @@ class Help extends ORM {
 		$query->value('*show_first', $query->sql()
 			->now())
 			->where('show_first', null)
-			->where(array(
+			->where([
 			'id' => $this->id(),
-		))
+		])
 			->execute();
 		$query = $this->query_update();
 		$query->value('*show_recent', $query->sql()
 			->now())
 			->value('*show_count', 'show_count+1')
-			->where(array(
+			->where([
 			'id' => $this->id(),
-		))
+		])
 			->execute();
 		return $this;
 	}

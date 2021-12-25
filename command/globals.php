@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -19,26 +19,26 @@ class Command_Globals extends Command_Base {
 	 *
 	 * @var array
 	 */
-	protected $option_types = array(
+	protected array $option_types = [
 		'format' => 'string',
 		'*' => 'string',
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $option_help = array(
+	protected array $option_help = [
 		'format' => "Output format: html, php, json, text, serialize",
 		"*" => "globals to output",
-	);
+	];
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see Command::run()
 	 */
-	public function run() {
+	public function run(): void {
 		PHP::dump_settings_one();
 		$globals = $this->application->configuration->to_array();
 		ksort($globals);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_Time_Zone extends Control_Select {
@@ -6,7 +6,7 @@ class Control_Time_Zone extends Control_Select {
 	 *
 	 * @var array
 	 */
-	protected $where = array();
+	protected $where = [];
 
 	/**
 	 *
@@ -35,7 +35,7 @@ class Control_Time_Zone extends Control_Select {
 	 * {@inheritDoc}
 	 * @see \zesk\Control_Select::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		$query = $this->application->orm_registry("zesk\\Time_Zone")->query_select()->where($this->where);
 		if ($this->prefixes_only()) {
 			$query->what("*Name", "DISTINCT LEFT(Name,LOCATE('/',Name)-1)");
@@ -48,9 +48,9 @@ class Control_Time_Zone extends Control_Select {
 				$query->where("Name|NOT LIKE|AND", $exclude);
 			}
 			$tzs = $query->to_array("Name", "Name");
-			$parents = array();
+			$parents = [];
 			foreach ($tzs as $tz) {
-				list($region, $name) = pair($tz, "/", "Miscellaneous", $tz);
+				[$region, $name] = pair($tz, "/", "Miscellaneous", $tz);
 				$region = strtr($region, "_", " ");
 				$parents[$region][$tz] = strtr($name, "_", " ");
 			}

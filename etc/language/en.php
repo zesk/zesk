@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage locale
@@ -6,7 +6,7 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Thu Jan 22 12:10:40 EST 2009 12:10:40
  */
-$tt = array();
+$tt = [];
 
 // @deprecated 2018-02
 $tt['plural:=day'] = "days";
@@ -16,7 +16,7 @@ $tt['Language:=es_ES'] = "Spanish (Spain)";
 $tt['Language:=fr_FR'] = "French (France)";
 $tt['Language:=de_DE'] = "German (Germany)";
 
-$tt += array(
+$tt += [
 	'Language:=Afar' => 'Afar',
 	'Language:=Abkhazian' => 'Abkhazian',
 	'Language:=Afrikaans' => 'Afrikaans',
@@ -160,6 +160,6 @@ $tt += array(
 
 	'Language:=French (Canada)' => 'French (Canada)',
 	'Language:=French (France)' => 'French (France)',
-);
+];
 
 return $tt;

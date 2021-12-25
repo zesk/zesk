@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Net/Server.php $
@@ -13,12 +13,12 @@ abstract class Net_Server {
 	/**
 	 * Net_Server_Driver_Fork
 	 */
-	const type_fork = "Fork";
+	public const type_fork = "Fork";
 
 	/**
 	 * Net_Server_Driver_Single
 	 */
-	const type_single = "Single";
+	public const type_single = "Single";
 
 	/**
 	 * Override in subclasses to set the default driver type
@@ -34,10 +34,10 @@ abstract class Net_Server {
 	 *
 	 * @var array
 	 */
-	public static $types = array(
+	public static $types = [
 		self::type_fork,
 		self::type_single,
-	);
+	];
 
 	/**
 	 * Driver for this server
@@ -63,7 +63,7 @@ abstract class Net_Server {
 		$this->driver = $application->objects->factory(__NAMESPACE__ . "\\Net_Server_Driver_$type", $this, $host, $port);
 	}
 
-	public function start() {
+	public function start(): void {
 		$this->driver->start();
 	}
 
@@ -86,7 +86,7 @@ abstract class Net_Server {
 	 */
 	abstract public function hook_receive($client_id = 0, $data = "");
 
-	protected function send($client_id, $data) {
+	protected function send($client_id, $data): void {
 		$this->driver->write($client_id, $data);
 	}
 
@@ -103,11 +103,11 @@ abstract class Net_Server {
 		return $this;
 	}
 
-	final protected function close($client_id) {
+	final protected function close($client_id): void {
 		$this->driver->close_connection($client_id);
 	}
 
-	final protected function shutdown() {
+	final protected function shutdown(): void {
 		$this->driver->shutdown();
 	}
 }

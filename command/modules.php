@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -17,14 +17,14 @@ class Command_Modules extends Command_Base {
 	 */
 	protected $help = "List all possible modules available to the current application.";
 
-	protected $option_types = array(
+	protected array $option_types = [
 		"format" => "string",
 		"loaded" => "boolean",
-	);
+	];
 
-	public function run() {
+	public function run(): void {
 		$only_loaded = $this->option_bool("loaded");
-		$loaded_modules = array();
+		$loaded_modules = [];
 		$modules = $this->application->modules->available();
 		foreach ($modules as $module => $module_data) {
 			$loaded = avalue($module_data, 'loaded') ? true : false;

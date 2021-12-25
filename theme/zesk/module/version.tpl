@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -16,9 +16,9 @@ if ($object instanceof Module) {
 	if (!$version) {
 		return;
 	}
-	echo $locale->__("{name} (<code>{codename}</code>) version {version}", array(
+	echo $locale->__("{name} (<code>{codename}</code>) version {version}", [
 		"name" => $object->name(),
 		"codename" => $object->codename(),
 		"version" => $version,
-	));
+	]);
 }

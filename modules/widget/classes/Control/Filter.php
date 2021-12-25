@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -33,59 +33,59 @@ class Control_Filter extends Control {
 	 *
 	 * @var array
 	 */
-	protected $filter_attributes = array(
+	protected $filter_attributes = [
 		"class" => "navbar-form",
 		"role" => "filter",
 		"method" => "GET",
-	);
+	];
 
 	/**
 	 * Footer theme
 	 *
-	 * @var string
+	 * @var string|iterable
 	 */
-	protected $theme_footer = "zesk/control/filter/footer";
+	protected string|iterable $theme_footer = "zesk/control/filter/footer";
 
 	/**
 	 * Suffix theme
 	 *
-	 * @var string
+	 * @var string|iterable
 	 */
-	protected $theme_suffix = "zesk/control/filter/suffix";
+	protected string|iterable $theme_suffix = "zesk/control/filter/suffix";
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $widgets = array();
+	protected array $widgets = [];
 
 	/**
 	 * Cell tag
 	 *
 	 * @var array
 	 */
-	protected $widget_tag = "div";
+	protected string $widget_tag = "div";
 
 	/**
 	 * Cell attributes
 	 *
 	 * @var array
 	 */
-	protected $widget_attributes = array(
+	protected array $widget_attributes = [
 		"class" => "form-group",
-	);
+	];
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $render_children = false;
+	protected bool $render_children = false;
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $traverse = true;
+	protected bool $traverse = true;
 
 	/**
 	 * Format theme as replacement strings
@@ -106,16 +106,16 @@ class Control_Filter extends Control {
 	/**
 	 *
 	 */
-	protected function init_defaults() {
+	protected function init_defaults(): void {
 		foreach ($this->children as $child) {
 			$name = $child->name();
 			$value = $this->request->get($name);
 			$ignore = $child->load_ignore_values();
 			if (!is_array($ignore)) {
-				$this->application->logger->warning('Child ignore values is not array: {class} {opts}', array(
+				$this->application->logger->warning('Child ignore values is not array: {class} {opts}', [
 					'class' => get_class($child),
 					'opts' => $child->option(),
-				));
+				]);
 			} elseif (!in_array($value, $ignore, true)) {
 				$child->default_value($value);
 			}
@@ -127,7 +127,7 @@ class Control_Filter extends Control {
 	 * {@inheritDoc}
 	 * @see Widget::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		if (!$this->name()) {
 			$this->names('filter', 'filter');
 		}
@@ -143,7 +143,7 @@ class Control_Filter extends Control {
 	 * @see Widget::theme_variables()
 	 */
 	public function theme_variables() {
-		return array(
+		return [
 			'theme_prefix' => $this->theme_prefix,
 			'theme_header' => $this->theme_header,
 			'filter_tag' => $this->filter_tag,
@@ -154,6 +154,6 @@ class Control_Filter extends Control {
 			'theme_widgets' => $this->theme_widgets,
 			'theme_footer' => $this->theme_footer,
 			'theme_suffix' => $this->theme_suffix,
-		) + parent::theme_variables() + $this->options;
+		] + parent::theme_variables() + $this->options;
 	}
 }

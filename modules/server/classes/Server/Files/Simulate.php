@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -15,14 +15,14 @@ class Server_Files_Simulate extends Server_Files {
 	 *
 	 * @var array
 	 */
-	private $dirs = array();
+	private $dirs = [];
 
 	/**
 	 * Internal representation of the files
 	 *
 	 * @var array
 	 */
-	private $files = array();
+	private $files = [];
 
 	/**
 	 * File pointer for root operations
@@ -58,7 +58,7 @@ class Server_Files_Simulate extends Server_Files {
 	 * @throws Exception_Configuration
 	 * @throws Exception_File_Permission
 	 */
-	private function _initialize() {
+	private function _initialize(): void {
 		if ($this->simlog) {
 			return;
 		}
@@ -66,7 +66,7 @@ class Server_Files_Simulate extends Server_Files {
 		if (!$this->simulate_path) {
 			throw new Exception_Configuration("simulate_path", "Need to configure a simulation path for configuration");
 		}
-		Directory::depend($this->simulate_path, 0770);
+		Directory::depend($this->simulate_path, 0o770);
 		$simlogpath = path($this->simulate_path, "configure.sh");
 		$this->simlog = fopen($simlogpath, "wb");
 		if (!$this->simlog) {
@@ -118,7 +118,7 @@ class Server_Files_Simulate extends Server_Files {
 		if ($this->is_dir($path)) {
 			return false;
 		}
-		$this->dirs[$path] = array();
+		$this->dirs[$path] = [];
 		$this->simlog("mkdir {0}", $path);
 		$this->chmod($path, $mode);
 		return true;
@@ -144,9 +144,9 @@ class Server_Files_Simulate extends Server_Files {
 	}
 
 	public function copy($source, $dest) {
-		$this->files[$dest] = array(
+		$this->files[$dest] = [
 			'source' => $source,
-		);
+		];
 		$this->simlog("cp {0} {1}", $source, $dest);
 		return true;
 	}
@@ -158,7 +158,7 @@ class Server_Files_Simulate extends Server_Files {
 	private function create_vfile($path, $contents) {
 		$vpath = $this->vfile_path($path);
 		$dir = dirname($vpath);
-		Directory::depend($dir, 0770);
+		Directory::depend($dir, 0o770);
 		file_put_contents($vpath, $contents);
 		return $vpath;
 	}
@@ -172,9 +172,9 @@ class Server_Files_Simulate extends Server_Files {
 	 */
 	public function file_put_contents($path, $contents) {
 		$vpath = $this->create_vfile($path, $contents);
-		$this->files[$path] = array(
+		$this->files[$path] = [
 			"content" => $contents,
-		);
+		];
 		$this->simlog("cp {0} {1}", $vpath, $path);
 	}
 

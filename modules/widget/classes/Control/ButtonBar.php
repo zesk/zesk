@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage control
@@ -8,8 +8,8 @@
 namespace zesk;
 
 class Control_ButtonBar extends Control {
-	protected function initialize() {
-		$spec = array();
+	protected function initialize(): void {
+		$spec = [];
 
 		$locale = $this->application->locale;
 		$ok_label = $this->option('label_ok', $locale->__('Save'));

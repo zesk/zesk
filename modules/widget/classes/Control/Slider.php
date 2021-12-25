@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
@@ -21,12 +21,12 @@ class Control_Slider extends Control {
 		$opts['value'] = $this->value();
 		$opts = json_encode($opts);
 		$html->jquery("var opts = $opts;\n" . "opts['slide'] = function(event,ui) { $('#${id}_value').html(ui.value); };\n" . "$('#" . $id . "').slider(opts);");
-		$result = HTML::tag("div", array(
+		$result = HTML::tag("div", [
 			"id" => $id,
 			"style" => HTML::styles($styles),
-		), "") . HTML::tag("div", array(
+		], "") . HTML::tag("div", [
 			"id" => $id . "_value",
-		), "");
+		], "");
 		return $this->render_finish($result);
 	}
 }

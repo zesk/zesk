@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -9,9 +9,9 @@ namespace zesk;
  *
  */
 class Command_Cache extends Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		"*" => "string",
-	);
+	];
 
 	protected function run() {
 		if ($this->has_arg()) {
@@ -30,9 +30,9 @@ class Command_Cache extends Command_Base {
 		if (method_exists($this, $method)) {
 			return $this->$method();
 		} else {
-			$this->error("No such command {arg}", array(
+			$this->error("No such command {arg}", [
 				"arg" => $arg,
-			));
+			]);
 			return 1;
 		}
 	}

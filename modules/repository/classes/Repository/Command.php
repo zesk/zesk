@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage repository
@@ -56,18 +56,18 @@ abstract class Repository_Command extends Repository {
 	 */
 	public function set_path($path) {
 		if (empty($path)) {
-			throw new Exception_Parameter("{method} - no path passed", array(
+			throw new Exception_Parameter("{method} - no path passed", [
 				"method" => __METHOD__,
-			));
+			]);
 		}
 		if ($this->option_bool("find_root") && $root = $this->find_root($path)) {
 			if ($root !== $path) {
-				$this->application->logger->debug("{method} {code} moved to {root} instead of {path}", array(
+				$this->application->logger->debug("{method} {code} moved to {root} instead of {path}", [
 					"method" => __METHOD__,
 					"code" => $this->code,
 					"root" => $root,
 					"path" => $path,
-				));
+				]);
 			}
 			$this->path = $root;
 		} else {
@@ -82,7 +82,7 @@ abstract class Repository_Command extends Repository {
 	 * {@inheritDoc}
 	 * @see \zesk\Repository::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		if (!$this->executable) {
 			throw new Exception_Unimplemented("Need to set ->executable to a value");
 		}
@@ -90,9 +90,9 @@ abstract class Repository_Command extends Repository {
 		$this->process = $this->application->process;
 		$this->command = $this->application->paths->which($this->executable);
 		if (!$this->command) {
-			throw new Exception_NotFound("Executable {executable} not found", array(
+			throw new Exception_NotFound("Executable {executable} not found", [
 				"executable" => $this->executable,
-			));
+			]);
 		}
 	}
 
@@ -102,7 +102,7 @@ abstract class Repository_Command extends Repository {
 	 * @param string $passthru
 	 * @return array
 	 */
-	protected function run_command($suffix, array $arguments = array(), $passthru = false) {
+	protected function run_command($suffix, array $arguments = [], $passthru = false) {
 		$had_path = !empty($this->path);
 		if ($had_path) {
 			$cwd = getcwd();
@@ -146,9 +146,9 @@ abstract class Repository_Command extends Repository {
 	 */
 	protected function find_root($directory) {
 		if (!$this->dot_directory) {
-			throw new Exception_Unimplemented("{method} does not support dot_directory setting", array(
+			throw new Exception_Unimplemented("{method} does not support dot_directory setting", [
 				"method" => __METHOD__,
-			));
+			]);
 		}
 		$directory = realpath($directory);
 		while (!empty($directory) && $directory !== ".") {
@@ -172,7 +172,7 @@ abstract class Repository_Command extends Repository {
 	 */
 	protected function rsort_versions(array $versions) {
 		$factor = 100;
-		$result = array();
+		$result = [];
 		foreach ($versions as $version) {
 			$v = explode(" ", trim(preg_replace('/[^0-9]+/', ' ', $version), ' '), 4) + array_fill(0, 4, 0);
 			$index = ((((intval($v[0]) * $factor) + intval($v[1])) * $factor + intval($v[2])) * $factor) + intval($v[3]);

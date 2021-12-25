@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /* @var $this \zesk\Template */
 /* @var $locale \zesk\Locale */
@@ -10,6 +10,6 @@
 /* @var $current_user \User */
 namespace zesk;
 
-echo $this->theme("exception", array(
+echo $this->theme("exception", [
 	"suffix" => HTML::tag("pre", _dump($application->autoloader->path())),
-));
+]);

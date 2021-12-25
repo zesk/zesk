@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Module_Contact extends Module {
-	protected $model_classes = array(
+	protected array $model_classes = [
 		'zesk\\Contact',
 		'zesk\\Contact_Label',
 		'zesk\\Contact_Address',
@@ -13,5 +13,5 @@ class Module_Contact extends Module {
 		'zesk\\Contact_Phone',
 		'zesk\\Contact_Tag',
 		'zesk\\Contact_URL',
-	);
+	];
 }

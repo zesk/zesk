@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,7 +10,7 @@ namespace zesk;
  * @category Tools
  */
 class Command_Cannon extends Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		"directory" => 'dir',
 		"dir" => 'dir',
 		"list" => 'boolean',
@@ -25,9 +25,9 @@ class Command_Cannon extends Command_Base {
 		"skip-when-matches" => "string[]",
 		"also-match" => "string[]",
 		"*" => "string",
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		"directory" => 'Directory to look for files',
 		"dir" => 'Synonym for --directory',
 		"list" => 'List files which would be scanned',
@@ -41,11 +41,11 @@ class Command_Cannon extends Command_Base {
 		"skip-when-matches" => "Skip replacements in files which contain ANY of the string(s) specified.",
 		"also-match" => "File must also match ANY of the given strings(s) in addition to the search term",
 		"*" => "Follow by Search string and Replace string",
-	);
+	];
 
-	protected $options = array(
+	protected array $options = [
 		'max_file_size' => 8388608,
-	);
+	];
 
 	/**
 	 * Set to true in subclasses to skip Application configuration until ->go
@@ -67,7 +67,7 @@ class Command_Cannon extends Command_Base {
 	/**
 	 *
 	 */
-	public function run() {
+	public function run(): void {
 		$this->configure('cannon');
 
 		$dir = $this->first_option("dir;directory");
@@ -90,16 +90,16 @@ class Command_Cannon extends Command_Base {
 				$dir = getcwd();
 			}
 			$extensions = $this->first_option("extensions;extension", "php|inc|php4|php5|tpl|html|htm|sql|phpt|module|install|conf|md|markdown|css|less|js");
-			$extensions = explode(",", strtr($extensions, array(
+			$extensions = explode(",", strtr($extensions, [
 				"|" => ",",
 				"." => "",
 				";" => ",",
-			)));
+			]));
 			$this->verbose_log("Generating file list ...");
 			$files = $this->_list_files($dir, $extensions);
-			$this->verbose_log("{count} files found", array(
+			$this->verbose_log("{count} files found", [
 				"count" => count($files),
-			));
+			]);
 		}
 		if ($list) {
 			echo implode("\n", $files) . "\n";
@@ -147,10 +147,10 @@ class Command_Cannon extends Command_Base {
 		$locale = $this->application->locale;
 		$this->log(" Search: $search (" . $locale->plural_word("character", strlen($search)) . ")");
 		$this->log("Replace: $replace (" . $locale->plural_word("character", strlen($replace)) . ")");
-		$stats = array(
+		$stats = [
 			'files' => 0,
 			'lines' => 0,
-		);
+		];
 		foreach ($files as $file) {
 			$result = $this->_replace_file($file, $search, $replace);
 			if ($result > 0) {
@@ -170,19 +170,19 @@ class Command_Cannon extends Command_Base {
 	 * List files
 	 */
 	private function _list_files($dir, array $extensions) {
-		$options = array();
-		$options['rules_file'] = array(
+		$options = [];
+		$options['rules_file'] = [
 			'#\.' . implode("|", $extensions) . '$#' => true,
 			'#.*/\.#' => true,
 			false,
-		);
-		$options['rules_directory_walk'] = array(
+		];
+		$options['rules_directory_walk'] = [
 			'#.*/\.#' => false,
 			true,
-		);
-		$options['rules_directory'] = array(
+		];
+		$options['rules_directory'] = [
 			false,
-		);
+		];
 		$options['add_path'] = true;
 
 		return Directory::list_recursive($dir, $options);
@@ -190,10 +190,10 @@ class Command_Cannon extends Command_Base {
 
 	private function _replace_file($file, $search, $replace) {
 		if (($size = filesize($file)) > $this->option_integer("max_file_size")) {
-			$this->log("Skipping {size} {file}", array(
+			$this->log("Skipping {size} {file}", [
 				"size" => Number::format_bytes($this->application->locale, $size),
 				"file" => $file,
-			));
+			]);
 			return 0;
 		}
 		$backup = $this->option_bool('backup');
@@ -201,7 +201,7 @@ class Command_Cannon extends Command_Base {
 		$show = $this->option_bool('show');
 		$dry_run = $this->option_bool('dry-run');
 		$contents = file_get_contents($file);
-		if (strpos($contents, $search) === false) {
+		if (!str_contains($contents, $search)) {
 			$this->debug_log("$file: No matches");
 			return 0;
 		}
@@ -214,32 +214,32 @@ class Command_Cannon extends Command_Base {
 		}
 
 		$rabbit = "\x01";
-		$search_tr = array(
+		$search_tr = [
 			$search => $rabbit,
-		);
-		$replace_tr = array(
+		];
+		$replace_tr = [
 			$rabbit => $replace,
-		);
+		];
 
 		$lines = explode("\n", strtr($contents, $search_tr));
 		foreach ($lines as $lineno => $line) {
-			if (strpos($line, $rabbit) === false) {
+			if (!str_contains($line, $rabbit)) {
 				unset($lines[$lineno]);
 			}
 		}
 		$locale = $this->application->locale;
 		if ($dry_run || $show) {
 			echo "$file: " . $locale->plural_word("match", count($lines)) . "\n";
-			$carrots_tr = array(
+			$carrots_tr = [
 				$rabbit => str_repeat("^", strlen($replace)),
-			);
+			];
 			foreach ($lines as $lineno => $line) {
-				$line = strtr($line, array(
+				$line = strtr($line, [
 					"\t" => "    ",
-				));
-				echo Text::ralign($lineno + 1, 4) . ": " . strtr($line, array(
+				]);
+				echo Text::ralign($lineno + 1, 4) . ": " . strtr($line, [
 					$rabbit => $search,
-				)) . "\n";
+				]) . "\n";
 				echo Text::ralign($lineno + 1, 4) . ": " . strtr($line, $replace_tr) . "\n";
 				$carrot_line = preg_replace("#[^$rabbit]#", " ", $line);
 				echo Text::ralign("", 4) . "  " . strtr($carrot_line, $carrots_tr) . "\n";
@@ -250,16 +250,16 @@ class Command_Cannon extends Command_Base {
 			$ext = File::extension($file);
 			$dupfile = File::extension_change($file, ".cannon.$ext");
 			$this->verbose_log("Writing $dupfile: " . $locale->plural_word("change", count($lines)));
-			file_put_contents($dupfile, strtr($contents, array(
+			file_put_contents($dupfile, strtr($contents, [
 				$search => $replace,
-			)));
+			]));
 		} else {
 			if ($backup) {
 				File::rotate($file, null, 3, ".old");
 			}
-			file_put_contents($file, strtr($contents, array(
+			file_put_contents($file, strtr($contents, [
 				$search => $replace,
-			)));
+			]));
 		}
 		return count($lines);
 	}

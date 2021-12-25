@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage database
@@ -30,7 +30,7 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	 *
 	 * @var array
 	 */
-	protected $what = array();
+	protected $what = [];
 
 	/**
 	 *
@@ -105,13 +105,13 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	}
 
 	public function __toString() {
-		return $this->sql()->insert_select(array(
+		return $this->sql()->insert_select([
 			"verb" => $this->verb,
 			"table" => $this->into,
 			"values" => $this->what,
 			"low_priority" => $this->low_priority,
 			"select" => parent::__toString(),
-		));
+		]);
 	}
 
 	public function execute() {

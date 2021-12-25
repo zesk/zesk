@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -7,11 +7,11 @@ namespace zesk;
  *
  */
 class Timer_Test extends Test_Unit {
-	public function test_now() {
+	public function test_now(): void {
 		Timer::now();
 	}
 
-	public function test_basics() {
+	public function test_basics(): void {
 		$initTime = false;
 		$offset = 0;
 		$x = new Timer($initTime, $offset);

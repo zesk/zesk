@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage iless
@@ -75,7 +75,7 @@ class Module extends \zesk\Module {
 	/**
 	 * CSS changed, dirty compiled less file
 	 */
-	public function css_theme_dirty() {
+	public function css_theme_dirty(): void {
 		File::unlink(path($this->application->document_root(), $this->_css_path()));
 	}
 
@@ -83,7 +83,7 @@ class Module extends \zesk\Module {
 	 *
 	 * @param array $variables
 	 */
-	public function css_theme_changed(array $variables = array()) {
+	public function css_theme_changed(array $variables = []): void {
 		$this->_compile_css_theme($variables);
 	}
 
@@ -110,7 +110,7 @@ class Module extends \zesk\Module {
 	protected function hook_process_variable_font($value, array $settings) {
 		$objects = $this->application->objects;
 		$fonts = explode(",", $value);
-		$values = array();
+		$values = [];
 		foreach ($fonts as $font) {
 			$font = unquote(trim($font));
 			$values[] = $objects->factory("ILess\\Node\\QuotedNode", "'$font'", $font);
@@ -123,7 +123,7 @@ class Module extends \zesk\Module {
 	 *
 	 * @param array $variables
 	 */
-	private function _compile_css_theme(array $variables = array()) {
+	private function _compile_css_theme(array $variables = []): void {
 		$doc_root = $this->application->document_root();
 		$site_css = $this->_css_path();
 		$full_path = $this->_full_css_path();
@@ -131,25 +131,25 @@ class Module extends \zesk\Module {
 		Directory::depend(dirname($full_path));
 		$compiler = $this->compiler();
 
-		$types = $variables + $this->call_hook_arguments("less_variables", array(), array());
-		$variables = array();
+		$types = $variables + $this->call_hook_arguments("less_variables", [], []);
+		$variables = [];
 		foreach ($types as $name => $settings) {
 			$settings['name'] = $name;
 			$type = avalue($settings, 'type', 'normal');
 			$value = $this->application->configuration->path_get($name, avalue($settings, 'default', null));
-			$variables[$name] = $this->call_hook_arguments("process_variables_$type", array(
+			$variables[$name] = $this->call_hook_arguments("process_variables_$type", [
 				$value,
 				$settings,
-			), $value);
+			], $value);
 		}
-		$this->application->logger->debug("LESS Vars: {vars}", array(
+		$this->application->logger->debug("LESS Vars: {vars}", [
 			"vars" => _dump($variables),
-		));
+		]);
 		$compiler->variables($variables);
 		$compiler->compile_file($source, $full_path);
-		$this->application->logger->notice("Write css theme {path}", array(
+		$this->application->logger->notice("Write css theme {path}", [
 			"path" => $full_path,
-		));
+		]);
 	}
 
 	/**
@@ -157,7 +157,7 @@ class Module extends \zesk\Module {
 	 *
 	 * @return string
 	 */
-	public function css_theme(array $variables = array(), array $options = array()) {
+	public function css_theme(array $variables = [], array $options = []) {
 		$this->set_option($options);
 		$default_css = $this->_default_css_path();
 		if (!$this->okay || $this->option_bool('ignore_theme')) {

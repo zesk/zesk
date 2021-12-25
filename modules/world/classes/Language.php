@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -27,17 +27,17 @@ class Language extends ORM {
 	}
 
 	public static function lang_name(Application $application, $code, Locale $locale = null) {
-		list($language, $dialect) = pair($code, "_", $code, null);
+		[$language, $dialect] = pair($code, "_", $code, null);
 		if (empty($dialect)) {
 			$dialect = null;
 		}
 		$lang_en = $application->orm_registry(__CLASS__)
 			->query_select()
 			->what("name", "name")
-			->where(array(
+			->where([
 			"code" => $language,
 			"dialect" => $dialect,
-		))
+		])
 			->one("name");
 		if ($lang_en) {
 			if (!$locale) {
@@ -52,15 +52,15 @@ class Language extends ORM {
 	 *
 	 * @param Application $application
 	 */
-	public static function clean_table(Application $application) {
+	public static function clean_table(Application $application): void {
 		$query = $application->orm_registry(__CLASS__)->query_update();
 		$query->value("dialect", null)->where("dialect", "");
 		$query->execute();
 		if ($query->affected_rows() > 0) {
-			$application->logger->warning("{method} updated {n} non-NULL rows", array(
+			$application->logger->warning("{method} updated {n} non-NULL rows", [
 				"method" => __METHOD__,
 				"n" => $query->affected_rows(),
-			));
+			]);
 		}
 	}
 }

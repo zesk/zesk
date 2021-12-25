@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
@@ -27,26 +27,26 @@ class Command_Glacier extends \zesk\Command_Base {
 	 *
 	 * @var array
 	 */
-	protected $option_types = array(
+	protected array $option_types = [
 		"store" => "file",
 		"delete" => "string",
 		"vault" => "string",
 		"list" => "string",
 		"wait" => "boolean",
 		"*" => "string",
-	);
+	];
 
 	/**
 	 * Help string associated with each option
 	 *
 	 * @var string
 	 */
-	protected $option_help = array(
+	protected array $option_help = [
 		"store" => "Name of the file to upload to the vault (requires --vault as well)",
 		"fetch" => "Name of the file to retrieve from the vault",
 		"vault" => "Specify which vault to access",
 		"list" => "List files within the specified vault",
-	);
+	];
 
 	/**
 	 * Client reference
@@ -115,7 +115,7 @@ class Command_Glacier extends \zesk\Command_Base {
 	 */
 	private function run_archive_delete() {
 		$archive_id = $this->option("delete");
-		list($vault, $archive_id) = pair($archive_id, ":", $this->option('vault'), $archive_id);
+		[$vault, $archive_id] = pair($archive_id, ":", $this->option('vault'), $archive_id);
 		if (empty($vault)) {
 			$this->usage("Need to specify a --vault");
 		}
@@ -148,7 +148,7 @@ class Command_Glacier extends \zesk\Command_Base {
 
 	/**
 	 */
-	private function run_list() {
+	private function run_list(): void {
 		$result = $this->glacier->vaults_list();
 		echo Text::format_table($result);
 	}

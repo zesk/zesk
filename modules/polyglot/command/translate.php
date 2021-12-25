@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -16,25 +16,25 @@ class Command_Translate extends Command_Base {
 	 *
 	 * @var integer
 	 */
-	const error_parameters = 1;
+	public const error_parameters = 1;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const error_service_translate = 2;
+	public const error_service_translate = 2;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const error_file_formats = 3;
+	public const error_file_formats = 3;
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $option_types = array(
+	public array $option_types = [
 		'source' => 'string',
 		'target' => 'string',
 		'interactive' => 'boolean',
@@ -42,18 +42,18 @@ class Command_Translate extends Command_Base {
 		'destination' => 'dir',
 		'language-file' => 'file',
 		'interactive' => 'boolean',
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $option_help = array(
+	public $option_help = [
 		'source' => 'Source ',
 		'target' => 'string',
 		'interactive' => 'boolean',
 		'list' => 'boolean',
-	);
+	];
 
 	/**
 	 *
@@ -104,13 +104,13 @@ class Command_Translate extends Command_Base {
 			$this->error($e->getMessage(), $e->arguments);
 			return 2;
 		}
-		$this->verbose_log("Using default service {class}", array(
+		$this->verbose_log("Using default service {class}", [
 			"class" => get_class($service_object),
-		));
+		]);
 		$target_file = path($destination, "$target_language.inc");
 
 		if (!is_file($target_file)) {
-			$target_file = file_put_contents($target_file, map('<' . "?php\n// Generated file by {class}, editing OK\n\$tt = array();\n\nreturn \$tt;\n", array("class" => $default_class)));
+			$target_file = file_put_contents($target_file, map('<' . "?php\n// Generated file by {class}, editing OK\n\$tt = array();\n\nreturn \$tt;\n", ["class" => $default_class]));
 		}
 		$target_translations = $app->load($target_file);
 		if (!is_array($target_translations)) {
@@ -127,7 +127,7 @@ class Command_Translate extends Command_Base {
 			return self::error_file_formats;
 		}
 
-		$tt = array();
+		$tt = [];
 		foreach ($translation_file as $key => $phrase) {
 			$mapping = $this->preprocess_phrase($phrase);
 			$translation = $service_object->translate($phrase);

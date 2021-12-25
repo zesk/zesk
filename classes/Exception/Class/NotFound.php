@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -29,10 +29,10 @@ class Exception_Class_NotFound extends Exception {
 	 * @param Exception $previous
 	 *        	Previous exception which may have spawned this one
 	 */
-	public function __construct($class, $message = null, $arguments = array(), \Exception $previous = null) {
-		parent::__construct("$class not found. $message", array(
+	public function __construct($class, $message = null, $arguments = [], \Exception $previous = null) {
+		parent::__construct("$class not found. $message", [
 			"class" => $class,
-		) + to_array($arguments), 0, $previous);
+		] + to_array($arguments), 0, $previous);
 		$this->class = $class;
 	}
 
@@ -42,8 +42,8 @@ class Exception_Class_NotFound extends Exception {
 	 * @return array
 	 */
 	public function variables() {
-		return parent::variables() + array(
+		return parent::variables() + [
 			"class" => $this->class,
-		);
+		];
 	}
 }

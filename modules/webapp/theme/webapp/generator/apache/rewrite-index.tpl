@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /* @var $index_file string */
 $tab = "\t";
 
-$lines = array();
+$lines = [];
 $lines[] = "<IfModule mod_rewrite.c>";
 $lines[] = $tab . "RewriteEngine On";
 $lines[] = $tab . "RewriteBase /";

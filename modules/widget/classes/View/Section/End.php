@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -9,11 +9,11 @@
 namespace zesk;
 
 class View_Section_End extends View {
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
-		$this->set_option(array(
+		$this->set_option([
 			'is_section_end' => true,
 			'is_section' => true,
-		));
+		]);
 	}
 }

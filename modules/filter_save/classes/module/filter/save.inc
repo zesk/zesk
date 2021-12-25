@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -13,45 +13,45 @@ class Module_Filter_Save extends Module_JSLib implements Interface_Module_Routes
 	 *
 	 * @var array
 	 */
-	protected $classes = array(
+	protected $classes = [
 		"zesk\\Filter_State",
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $javascript_paths = array(
+	protected $javascript_paths = [
 		'/share/filter_save/filter_save.js',
-	);
+	];
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(Router $router) {
-		$router->add_route('filter_state/new', array(
-			"method" => array(
+	public function hook_routes(Router $router): void {
+		$router->add_route('filter_state/new', [
+			"method" => [
 				$this,
 				"filter_state_new",
-			),
-			"arguments" => array(
+			],
+			"arguments" => [
 				"{request}",
 				"{response}",
-			),
-		));
-		$router->add_route('filter_state/{zesk\\Filter_State filter}/delete', array(
-			"method" => array(
+			],
+		]);
+		$router->add_route('filter_state/{zesk\\Filter_State filter}/delete', [
+			"method" => [
 				$this,
 				"filter_state_delete",
-			),
-			"arguments" => array(
+			],
+			"arguments" => [
 				"{request}",
 				"{response}",
 				1,
-			),
-		));
+			],
+		]);
 	}
 
 	/**
@@ -59,25 +59,25 @@ class Module_Filter_Save extends Module_JSLib implements Interface_Module_Routes
 	 * {@inheritDoc}
 	 * @see Module::initialize()
 	 */
-	public function initialize() {
-		$this->application->hooks->add("Control_Filter_Selector::menu_content", array(
+	public function initialize(): void {
+		$this->application->hooks->add("Control_Filter_Selector::menu_content", [
 			$this,
 			"menu_prefix",
-		));
+		]);
 	}
 
 	/**
 	 *
 	 * @param Control_Filter_Selector $widget
 	 */
-	public function menu_prefix(Control_Filter_Selector $widget) {
+	public function menu_prefix(Control_Filter_Selector $widget): void {
 		$request = $widget->request();
 		$response = $widget->response();
 	}
 
-	public function filter_state_new(Request $request, Response $response) {
+	public function filter_state_new(Request $request, Response $response): void {
 	}
 
-	public function filter_state_delete(Request $request, Response $response, Filter_State $filter) {
+	public function filter_state_delete(Request $request, Response $response, Filter_State $filter): void {
 	}
 }

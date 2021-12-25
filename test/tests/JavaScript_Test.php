@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -11,25 +11,25 @@ namespace zesk;
  *
  */
 class JavaScript_Test extends Test_Unit {
-	public function test_clean_function_name() {
+	public function test_clean_function_name(): void {
 		$x = null;
 		JavaScript::clean_function_name($x);
 	}
 
-	public function test_null() {
+	public function test_null(): void {
 		$x = null;
 		JavaScript::null($x);
 	}
 
-	public function test_obfuscate_begin() {
+	public function test_obfuscate_begin(): void {
 		JavaScript::obfuscate_begin();
-		JavaScript::obfuscate_end(array());
+		JavaScript::obfuscate_end([]);
 	}
 
 	/**
 	 * @expectedException zesk\Exception_Semantics
 	 */
-	public function test_obfuscate_begin2() {
+	public function test_obfuscate_begin2(): void {
 		JavaScript::obfuscate_begin();
 		JavaScript::obfuscate_begin();
 	}
@@ -38,13 +38,13 @@ class JavaScript_Test extends Test_Unit {
 	 * @depends test_obfuscate_begin2
 	 * @expectedException zesk\Exception_Semantics
 	 */
-	public function test_obfuscate_end() {
-		$function_map = array();
+	public function test_obfuscate_end(): void {
+		$function_map = [];
 		JavaScript::obfuscate_end($function_map);
 		JavaScript::obfuscate_end($function_map);
 	}
 
-	public function test_string() {
+	public function test_string(): void {
 		$x = null;
 		JavaScript::string($x);
 	}

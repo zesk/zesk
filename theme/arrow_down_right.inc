@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/theme/arrow_down_right.inc $

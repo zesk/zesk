@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,20 +10,20 @@ namespace zesk;
  *
  */
 class Control_Arrange extends Control_Select {
-	protected $what = array();
+	protected $what = [];
 
 	private $arrange_options = null;
 
 	private $arrange_options_dirty = true;
 
-	protected function initialize() {
+	protected function initialize(): void {
 		$this->set_option("skip_query_condition", true);
-		$this->set_option("query_column", array());
+		$this->set_option("query_column", []);
 		$this->_clean();
 		parent::initialize();
 	}
 
-	protected function defaults() {
+	protected function defaults(): void {
 		$this->children_defaults();
 		$this->value($this->request->get($this->name()));
 	}
@@ -73,7 +73,7 @@ class Control_Arrange extends Control_Select {
 		return $this;
 	}
 
-	private function _clean() {
+	private function _clean(): void {
 		if ($this->arrange_options_dirty) {
 			$this->_fix_options();
 			$this->arrange_options_dirty = false;
@@ -87,7 +87,7 @@ class Control_Arrange extends Control_Select {
 		return parent::control_options($set);
 	}
 
-	protected function hook_query_list(Database_Query_Select $query) {
+	protected function hook_query_list(Database_Query_Select $query): void {
 		$val = $this->value();
 		if ($val !== null) {
 			$order_by = $this->order_by($val);
@@ -107,8 +107,8 @@ class Control_Arrange extends Control_Select {
 		return $set === null ? $this->option_array('arrange_map') : $this->set_option('arrange_map', $set);
 	}
 
-	protected function _fix_options() {
-		$options = array();
+	protected function _fix_options(): void {
+		$options = [];
 		$map = $this->arrange_map();
 		foreach ($this->arrange_options as $key => $value) {
 			if (array_key_exists($key, $map)) {
@@ -116,11 +116,11 @@ class Control_Arrange extends Control_Select {
 
 				continue;
 			}
-			list($new_key, $order_by, $what) = explode('|', $key, 3) + array(
+			[$new_key, $order_by, $what] = explode('|', $key, 3) + [
 				$key,
 				null,
 				null,
-			);
+			];
 			if ($order_by === null) {
 				$new_key = preg_replace('/-+/', '-', trim(preg_replace('/[^a-z]/', '-', strtolower($key)), '-'));
 				$order_by = $key;
@@ -141,9 +141,9 @@ class Control_Arrange extends Control_Select {
 			}
 			if ($no_name) {
 				$this->set_option('optgroup', true);
-				$options = array(
+				$options = [
 					$no_name => $options,
-				);
+				];
 			}
 		}
 		parent::control_options($options);

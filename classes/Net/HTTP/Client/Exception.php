@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -35,11 +35,11 @@ class Net_HTTP_Client_Exception extends Exception {
 	 * @param number $errno
 	 * @param string $error_code
 	 */
-	public function __construct($message, array $arguments = array(), $errno = 0, $error_code = "") {
-		parent::__construct($message, $arguments + array(
+	public function __construct($message, array $arguments = [], $errno = 0, $error_code = "") {
+		parent::__construct($message, $arguments + [
 			"errno" => $errno,
 			"error_code" => $error_code,
-		), $errno);
+		], $errno);
 		$this->errno = $errno;
 		$this->error_code = $error_code;
 	}

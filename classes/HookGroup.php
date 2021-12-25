@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage kernel
@@ -14,11 +14,11 @@ namespace zesk;
  *
  */
 class HookGroup {
-	public $first = array();
+	public $first = [];
 
-	public $middle = array();
+	public $middle = [];
 
-	public $last = array();
+	public $last = [];
 
 	/**
 	 * Merge two groups together

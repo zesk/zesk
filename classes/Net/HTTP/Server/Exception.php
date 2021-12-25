@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Net/HTTP/Server/Exception.php $
  * @author Kent Davidson <kent@marketacumen.com>

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\NoJS;
 
 use zesk\Request;
@@ -7,7 +7,7 @@ use zesk\HTML;
 use zesk\Template;
 
 class Module extends \zesk\Module {
-	public function hook_html(Request $request, Response $response, Template $template) {
+	public function hook_html(Request $request, Response $response, Template $template): void {
 		$response->html_attributes(HTML::add_class($response->html_attributes(), "no-js"));
 	}
 

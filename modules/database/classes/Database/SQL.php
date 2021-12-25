@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -24,7 +24,7 @@ abstract class Database_SQL extends Hookable {
 	 * @see grant
 	 * @var string
 	 */
-	const SQL_GRANT_ALL = "*";
+	public const SQL_GRANT_ALL = "*";
 
 	/**
 	 *
@@ -341,7 +341,7 @@ abstract class Database_SQL extends Hookable {
 		if (is_string($tables)) {
 			return $this->quote_table($tables);
 		}
-		$sql_phrases = array();
+		$sql_phrases = [];
 		foreach ($tables as $alias => $table) {
 			$sql_phrases[] = $this->table_as($table, $alias);
 		}
@@ -395,21 +395,21 @@ abstract class Database_SQL extends Hookable {
 	 * @return array
 	 */
 	private static function parse_conjunction($key, $conjunction) {
-		foreach (array(
+		foreach ([
 			"AND",
 			"OR",
-		) as $token) {
+		] as $token) {
 			if (StringTools::ends($key, "|$token", true)) {
-				return array(
+				return [
 					substr($key, 0, -(strlen($token) + 1)),
 					$token,
-				);
+				];
 			}
 		}
-		return array(
+		return [
 			$key,
 			$conjunction === "AND" ? "OR" : "AND",
-		);
+		];
 	}
 
 	/**
@@ -475,7 +475,7 @@ abstract class Database_SQL extends Hookable {
 			$conj = "AND";
 		}
 		$prefix = empty($prefix_in) ? "" : $prefix_in . ".";
-		$result = array();
+		$result = [];
 		foreach ($arr as $k => $v) {
 			if (is_numeric($k) && is_string($v) || $k === "") {
 				$result[] = $v;
@@ -483,7 +483,7 @@ abstract class Database_SQL extends Hookable {
 				continue;
 			}
 			$new_key = $k;
-			if (strpos($new_key, ".") === false) {
+			if (!str_contains($new_key, ".")) {
 				if (substr($new_key, 0, 1) === '*') {
 					$new_key = '*' . $prefix . substr($new_key, 1);
 				} else {
@@ -496,8 +496,8 @@ abstract class Database_SQL extends Hookable {
 				} elseif (count($v) === 0) {
 					$result[] = $this->quote_column($new_key) . " IS NULL";
 				} else {
-					$conj_sql = array();
-					list($new_key, $new_conj) = $this->parse_conjunction($new_key, $conj);
+					$conj_sql = [];
+					[$new_key, $new_conj] = $this->parse_conjunction($new_key, $conj);
 					foreach ($v as $vv) {
 						$conj_sql[] = $this->pair_to_sql($new_key, $vv, true);
 					}
@@ -564,7 +564,7 @@ abstract class Database_SQL extends Hookable {
 	 */
 	private function what($what, $distinct = null) {
 		if (is_array($what)) {
-			$result = array();
+			$result = [];
 			foreach ($what as $as => $select_column) {
 				if (is_numeric($as)) {
 					$result[] = $this->quote_column($select_column);
@@ -592,17 +592,17 @@ abstract class Database_SQL extends Hookable {
 	 * @return string
 	 * @throws Exception_Unimplemented
 	 */
-	public function update(array $options = array()) {
+	public function update(array $options = []) {
 		$table = null;
-		$values = array();
-		$where = array();
+		$values = [];
+		$where = [];
 		extract($options, EXTR_IF_EXISTS);
-		$name_equals_values = array();
+		$name_equals_values = [];
 		foreach ($values as $k => $v) {
 			// TODO, This allows for | keys, which it shouldn't allow.
 			$name_equals_values[] = $this->pair_to_sql($k, $v);
 		}
-		$options += array(
+		$options += [
 			'prefix' => '',
 			'update prefix' => '',
 			'update suffix' => '',
@@ -615,7 +615,7 @@ abstract class Database_SQL extends Hookable {
 			'where prefix' => '',
 			'where suffix' => '',
 			'suffix' => '',
-		);
+		];
 		$sql = "{prefix}{update prefix}UPDATE{update suffix} {table prefix}";
 		$sql .= $this->update_tables($table) . "{table suffix} {set prefix}SET{set suffix}\n\t{values prefix}";
 		$sql .= implode(",\n\t", $name_equals_values) . "{values suffix}\t{where prefix}" . $this->where($where) . "{where suffix}{suffix}";
@@ -632,7 +632,7 @@ abstract class Database_SQL extends Hookable {
 	public function select(array $options) {
 		$what = $distinct = $tables = $where = $group_by = $order_by = null;
 		$offset = $limit = 0;
-		$having = array();
+		$having = [];
 		extract($options, EXTR_IF_EXISTS);
 		$alias = null;
 		$where = $this->where($where, null, $alias);
@@ -666,7 +666,7 @@ abstract class Database_SQL extends Hookable {
 		$verb = "INSERT";
 		$table = $values = $low_priority = null;
 		extract($options, EXTR_IF_EXISTS);
-		list($insert_names, $insert_values) = $this->_insert_to_name_values($values);
+		[$insert_names, $insert_values] = $this->_insert_to_name_values($values);
 		$low_priority = $low_priority ? " LOW_PRIORITY" : "";
 		return "$verb $low_priority INTO " . $this->quote_table($table) . " (\n\t`" . implode("`,\n\t`", $insert_names) . "`\n) VALUES (\n\t" . implode(",\n\t", $insert_values) . "\n)";
 	}
@@ -684,7 +684,7 @@ abstract class Database_SQL extends Hookable {
 		$verb = "INSERT";
 		$table = $values = $low_priority = $select = null;
 		extract($options, EXTR_IF_EXISTS);
-		list($insert_name) = $this->_insert_to_name_values($values);
+		[$insert_name] = $this->_insert_to_name_values($values);
 		$low_priority = $low_priority ? " LOW_PRIORITY" : "";
 		return "$verb $low_priority INTO " . $this->quote_table($table) . " (\n\t`" . implode("`,\n\t`", $insert_name) . "`\n) $select";
 	}
@@ -710,8 +710,8 @@ abstract class Database_SQL extends Hookable {
 	 * @return array(array("name0","name1",..."),array("value0","value1",...))
 	 */
 	private function _insert_to_name_values($arr) {
-		$insert_names = array();
-		$insert_values = array();
+		$insert_names = [];
+		$insert_values = [];
 		foreach ($arr as $k => $v) {
 			if (substr($k, 0, 1) === '*') {
 				$insert_names[] = substr($k, 1);
@@ -721,10 +721,10 @@ abstract class Database_SQL extends Hookable {
 				$insert_values[] = $this->mixed_to_sql($v);
 			}
 		}
-		return array(
+		return [
 			$insert_names,
 			$insert_values,
-		);
+		];
 	}
 
 	/**
@@ -737,11 +737,14 @@ abstract class Database_SQL extends Hookable {
 		if (is_array($s)) {
 			$s = implode(", ", $s);
 		}
-		$s = trim($s);
-		if (empty($s)) {
-			return "";
+		if (is_string($s)) {
+			$s = trim($s);
+			if (empty($s)) {
+				return "";
+			}
+			return " GROUP BY $s";
 		}
-		return " GROUP BY $s";
+		return "";
 	}
 
 	/**
@@ -756,21 +759,21 @@ abstract class Database_SQL extends Hookable {
 			return "";
 		}
 		if (is_string($s)) {
-			if (strpos($s, ";") !== false) {
+			if (str_contains($s, ";")) {
 				$s = explode(";", $s);
 			}
 		}
 		if (!is_array($s)) {
-			$s = array(
+			$s = [
 				$s,
-			);
+			];
 		}
-		$r = array();
+		$r = [];
 		foreach ($s as $oby) {
 			if ($oby[0] === '-') {
 				$oby = substr($oby, 1) . " DESC";
 			}
-			if (strpos($oby, ".") === false) {
+			if (!str_contains($oby, ".")) {
 				if (!empty($prefix)) {
 					$oby = "$prefix.$oby";
 				}
@@ -811,7 +814,7 @@ abstract class Database_SQL extends Hookable {
 	 * @throws Exception_Unimplemented
 	 */
 	protected function pair_to_sql($k, $v, $is_compare = false) {
-		list($k, $cmp) = pair($k, "|", $k, "=");
+		[$k, $cmp] = pair($k, "|", $k, "=");
 		if ($k[0] === '*') {
 			if ($v === null) {
 				return substr($k, 1) . " IS " . (($cmp === '!=') ? "NOT " : '') . "NULL";

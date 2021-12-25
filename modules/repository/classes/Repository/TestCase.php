@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Repository_TestCase extends PHPUnit_TestCase {
@@ -30,7 +30,7 @@ class Repository_TestCase extends PHPUnit_TestCase {
 	/**
 	 *
 	 */
-	protected $repository_types = array();
+	protected $repository_types = [];
 
 	/**
 	 *
@@ -48,12 +48,12 @@ class Repository_TestCase extends PHPUnit_TestCase {
 		];
 		$this->path = rtrim($this->configuration->path_get($config_path), "/");
 		$this->url = rtrim($this->configuration->path_get($config_url), "/");
-		$this->assertNotEmpty($this->path, map("Configuration {config_path} is not set up", array(
+		$this->assertNotEmpty($this->path, map("Configuration {config_path} is not set up", [
 			"config_path" => $config_path,
-		)));
-		$this->assertNotEmpty($this->url, map("Configuration {config_url} is not set up", array(
+		]));
+		$this->assertNotEmpty($this->url, map("Configuration {config_url} is not set up", [
 			"config_url" => $config_url,
-		)));
+		]));
 		return $this->path;
 	}
 

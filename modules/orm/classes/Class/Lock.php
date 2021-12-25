@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -12,20 +12,20 @@ namespace zesk;
 class Class_Lock extends Class_ORM {
 	public $id_column = "id";
 
-	public $has_one = array(
+	public $has_one = [
 		'server' => "zesk\\Server",
-	);
+	];
 
-	public $find_keys = array(
+	public $find_keys = [
 		'code',
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		'id' => self::type_id,
 		'code' => self::type_string,
 		'pid' => self::type_integer,
 		'server' => self::type_object,
 		'locked' => self::type_timestamp,
 		'used' => self::type_timestamp,
-	);
+	];
 }

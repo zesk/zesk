@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 use zesk\Diff\Lines;
@@ -23,14 +23,14 @@ class Controller_DNS extends Controller_Theme {
 	 * @return string[]
 	 */
 	private function _compare_results($old, $new, $reverse = false) {
-		$compare_result = array();
+		$compare_result = [];
 		$old_result = $old['result'];
 		$new_result = $new['result'];
 		foreach ($old_result as $old_host => $old_record_type_list) {
 			if (!array_key_exists($old_host, $new_result)) {
-				$compare_result[] = __("{server} (query {query}) does not know about {old_host}", array(
+				$compare_result[] = __("{server} (query {query}) does not know about {old_host}", [
 					'old_host' => $old_host,
-				) + $new);
+				] + $new);
 
 				continue;
 			}
@@ -38,10 +38,10 @@ class Controller_DNS extends Controller_Theme {
 			foreach ($old_record_type_list as $old_record_type => $old_records) {
 				$new_records = avalue($new_record_type_list, $old_record_type);
 				if (!is_array($new_records)) {
-					$compare_result[] = __("{server} (query {query}) does not know about {old_host}/{type}", array(
+					$compare_result[] = __("{server} (query {query}) does not know about {old_host}/{type}", [
 						'old_host' => $old_host,
 						'type' => $old_record_type,
-					) + $new);
+					] + $new);
 
 					continue;
 				}
@@ -53,10 +53,10 @@ class Controller_DNS extends Controller_Theme {
 				if ($diff->is_identical()) {
 					continue;
 				}
-				$compare_result[] = __("< {old}, > {new}: {query} (type {type}) mismatch:\n{debug}", array(
+				$compare_result[] = __("< {old}, > {new}: {query} (type {type}) mismatch:\n{debug}", [
 					'type' => $old_record_type,
 					'debug' => HTML::tag('pre', $diff->output()),
-				) + $old);
+				] + $old);
 			}
 		}
 		return $compare_result;
@@ -72,22 +72,22 @@ class Controller_DNS extends Controller_Theme {
 	 */
 	private function compare_results($old, $new, $old_name = "old", $new_name = "new") {
 		if (!is_array($old)) {
-			return array(
+			return [
 				"$old_name lookup failed.",
-			);
+			];
 		}
 		if (!is_array($new)) {
-			return array(
+			return [
 				"$new_name lookup failed.",
-			);
+			];
 		}
-		return array_merge(map(self::_compare_results($old, $new), array(
+		return array_merge(map(self::_compare_results($old, $new), [
 			"old" => $old_name,
 			"new" => $new_name,
-		)), map(self::_compare_results($new, $old, true), array(
+		]), map(self::_compare_results($new, $old, true), [
 			'old' => $new_name,
 			"new" => $old_name,
-		)));
+		]));
 	}
 
 	/**
@@ -106,7 +106,7 @@ class Controller_DNS extends Controller_Theme {
 		$result[] = HTML::tag('h1', "Comparing $old to $new");
 		$result[] = HTML::tag_open("ul");
 		foreach ($lookup as $name) {
-			list($type, $name) = pair($name, " ", null, $name);
+			[$type, $name] = pair($name, " ", null, $name);
 			$old_result = dns::host($name, $type, $old);
 			$new_result = dns::host($name, $type, $new);
 			$compare_results = self::compare_results($old_result, $new_result, $old, $new);

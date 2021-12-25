@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -56,9 +56,9 @@ $ia['class'] = CSS::add_class($class, 'form-control');
 
 $ia['placeholder'] = $this->placeholder;
 
-$ia = $object->apply_map($ia) + array(
+$ia = $object->apply_map($ia) + [
 	'value' => $value,
-);
+];
 
 $button_label = $this->button_label;
 
@@ -68,18 +68,18 @@ $html = "";
 
 $html .= HTML::div_open('.input-group-btn');
 
-$html .= HTML::tag('button', array(
+$html .= HTML::tag('button', [
 	'type' => 'button',
 	'class' => 'btn btn-default dropdown-toggle',
 	'data-toggle' => 'dropdown',
 	'data-content' => '{label} ' . HTML::span('.caret', ''),
 	'aria-expanded' => 'false',
-), $button_label . ' ' . HTML::span('.caret', ''));
+], $button_label . ' ' . HTML::span('.caret', ''));
 
-$html .= HTML::tag_open('ul', array(
+$html .= HTML::tag_open('ul', [
 	"class" => "dropdown-menu dropdown-menu-$side",
 	"role" => "menu",
-));
+]);
 
 $dropdown_value = $this->dropdown_value;
 if (!$dropdown_value) {
@@ -108,18 +108,18 @@ foreach ($this->dropdown_menu as $code => $attributes) {
 		continue;
 	}
 	if (is_string($attributes)) {
-		$attributes = array(
+		$attributes = [
 			'link_html' => $attributes,
-		);
+		];
 	}
-	$attributes += array(
+	$attributes += [
 		'data-value' => $code,
-	);
+	];
 	if (array_key_exists('list_item_attributes', $attributes)) {
 		$li_attributes = $attributes['list_item_attributes'];
 		unset($attributes['list_item_attributes']);
 	} else {
-		$li_attributes = array();
+		$li_attributes = [];
 	}
 	if (array_key_exists('link_html', $attributes)) {
 		$link_html = $attributes['link_html'];
@@ -145,9 +145,9 @@ if ($side !== "left") {
 }
 echo HTML::div_close(); // input-group
 
-echo HTML::input('hidden', $this->dropdown_name, $dropdown_value, array(
+echo HTML::input('hidden', $this->dropdown_name, $dropdown_value, [
 	'id' => $this->dropdown_id,
-));
+]);
 
 if ($this->select_behavior_enabled) {
 	ob_start(); ?><script>
@@ -185,11 +185,11 @@ if ($this->select_behavior_enabled) {
 </script>
 <?php
 	$content = HTML::extract_tag_contents('script', ob_get_clean());
-	$response->jquery(map($content, array(
+	$response->jquery(map($content, [
 		'id' => $id,
 		'dropdown_id' => $this->dropdown_id,
 		'support_plural' => JSON::encode($this->plural_behavior_enabled),
-	)));
+	]));
 }
 
 /*

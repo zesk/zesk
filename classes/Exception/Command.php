@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -29,11 +29,11 @@ class Exception_Command extends Exception {
 	 * @param array $output
 	 */
 	public function __construct($command, $resultcode, array $output) {
-		parent::__construct("{command} exited with result {resultcode}\nOUTPUT:\n{output}\nEND OUTPUT", array(
+		parent::__construct("{command} exited with result {resultcode}\nOUTPUT:\n{output}\nEND OUTPUT", [
 			"resultcode" => $resultcode,
 			"command" => strval($command),
 			"output" => $output,
-		), $resultcode);
+		], $resultcode);
 		$this->command = strval($command);
 		$this->output = $output;
 	}

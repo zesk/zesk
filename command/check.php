@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/command/check.php $
@@ -21,58 +21,58 @@ class Command_Check extends Command_Iterator_File {
 	 *
 	 * @var array
 	 */
-	protected $extensions = array(
+	protected $extensions = [
 		"php",
 		//		"phpt",
 		"inc",
 		"tpl",
 		"module",
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $prefixes = array(
-		"php" => array(
+	protected $prefixes = [
+		"php" => [
 			"<?php\n/**\n",
 			"#!{php_bin_path}\n<?php\n/**\n",
-		),
+		],
 		"inc" => "<?php\n/**\n",
 		"tpl" => "<?php\n",
 		//		"phpt" => "#!{php_bin_path}\n<?php\n"
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $prefixes_gremlins = array(
-		"php" => array(
+	protected $prefixes_gremlins = [
+		"php" => [
 			"<?php\n",
 			"<?php \n",
 			"#!{php_bin_path}\n<?php\n",
-		),
+		],
 		"tpl" => "<?php\n",
-		"inc" => array(
+		"inc" => [
 			"<?php\n",
 			"<?php \n",
-		),
+		],
 		//		"phpt" => "#!{php_bin_path}\n<?php\n"
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $log = array();
+	protected $log = [];
 
 	//	protected $debug = true;
 	protected $show = false;
 
 	protected $changed = 0;
 
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 
 		$this->option_types['prefix'] = 'string';
@@ -139,7 +139,7 @@ class Command_Check extends Command_Iterator_File {
 		$this->set_option('year', date('Y'));
 	}
 
-	protected function start() {
+	protected function start(): void {
 		$this->prefixes = map($this->prefixes, $this->options_include("php-bin-path"));
 		$this->prefixes_gremlins = map($this->prefixes_gremlins, $this->options_include("php-bin-path"));
 		if ($this->option_bool('show-package') || $this->option_bool('show-subpackage') || $this->option_bool('show-author') || $this->option_bool('show-copyright')) {
@@ -169,7 +169,7 @@ class Command_Check extends Command_Iterator_File {
 	}
 
 	private function recomment(&$contents, $term, $function, $add_function = null) {
-		$translate = array();
+		$translate = [];
 		$comment_options = $this->application->configuration->path(DocComment::class)->to_array();
 		$comments = DocComment::extract($contents, $comment_options);
 		foreach ($comments as $comment) {
@@ -203,9 +203,9 @@ class Command_Check extends Command_Iterator_File {
 	}
 
 	private function show_comments($contents, $term) {
-		$translate = array();
+		$translate = [];
 		$comments = DocComment::extract($contents);
-		$results = array();
+		$results = [];
 		foreach ($comments as $comment) {
 			/* @var $comment DocComment */
 			$items = $comment->variables();
@@ -217,7 +217,7 @@ class Command_Check extends Command_Iterator_File {
 	}
 
 	private function first_comment($contents, $term) {
-		$translate = array();
+		$translate = [];
 		$comments = DocComment::extract($contents);
 		foreach ($comments as $comment) {
 			/* @var $comment DocComment */
@@ -246,10 +246,10 @@ class Command_Check extends Command_Iterator_File {
 		$contents = ltrim($contents);
 		$author = $this->application->process->user();
 		$new_prefix = map("<?php\n/**\n * @author $author\n * @package {package}\n * @subpackage {subpackage}\n * @copyright " . $this->copyright_pattern() . "\n */\n", $this->option());
-		foreach (array(
+		foreach ([
 			'#^(<\?php)#',
 			'#^(<\?)[^=]#',
-		) as $pattern) {
+		] as $pattern) {
 			if (preg_match($pattern, $contents, $match)) {
 				$contents = implode($new_prefix, explode($match[1], $contents, 2));
 				return true;
@@ -287,33 +287,33 @@ class Command_Check extends Command_Iterator_File {
 	}
 
 	private function recopyright(&$contents) {
-		return $this->recomment($contents, 'copyright', array(
+		return $this->recomment($contents, 'copyright', [
 			$this,
 			'fix_copyright',
-		), $this->is_add() ? array(
+		], $this->is_add() ? [
 			$this,
 			'add_copyright',
-		) : null);
+		] : null);
 	}
 
 	private function reauthor(&$contents) {
-		return $this->recomment($contents, 'author', array(
+		return $this->recomment($contents, 'author', [
 			$this,
 			'fix_author',
-		), $this->is_add() ? array(
+		], $this->is_add() ? [
 			$this,
 			'doccomment_add_author',
-		) : null);
+		] : null);
 	}
 
 	private function set_package(&$contents) {
-		return $this->recomment($contents, 'package', array(
+		return $this->recomment($contents, 'package', [
 			$this,
 			'fix_package',
-		), $this->is_add() ? array(
+		], $this->is_add() ? [
 			$this,
 			'doccomment_add_option',
-		) : null);
+		] : null);
 	}
 
 	private function doccomment_add_option(array $items, $option) {
@@ -322,36 +322,36 @@ class Command_Check extends Command_Iterator_File {
 	}
 
 	private function set_subpackage(&$contents) {
-		return $this->recomment($contents, 'subpackage', array(
+		return $this->recomment($contents, 'subpackage', [
 			$this,
 			'fix_subpackage',
-		), $this->is_add() ? array(
+		], $this->is_add() ? [
 			$this,
 			'doccomment_add_option',
-		) : null);
+		] : null);
 	}
 
-	public function process_file(SplFileInfo $file) {
+	public function process_file(SplFileInfo $file): void {
 		$path = $file->getPathname();
 		if ($this->has_option('ignore')) {
 			$ignore = $this->option('ignore');
-			if (strpos($path, $ignore) !== false) {
+			if (str_contains($path, $ignore)) {
 				return;
 			}
 		}
 		$this->verbose_log("Processing $path ...");
 		$contents = file_get_contents($path);
 		$ext = pathinfo($path, PATHINFO_EXTENSION);
-		$errors = array();
+		$errors = [];
 		$changed = false;
 		$prefix = avalue($this->option_bool("gremlins") ? $this->prefixes_gremlins : $this->prefixes, $ext);
 		if ($prefix !== null) {
 			$prefix = to_array($prefix);
 			if (!StringTools::begins($contents, $prefix)) {
 				$details = substr($contents, 0, 40);
-				$this->verbose_log("Incorrect prefix: \"{details}\"\n should be one of: {prefix}", compact("details") + array(
+				$this->verbose_log("Incorrect prefix: \"{details}\"\n should be one of: {prefix}", compact("details") + [
 					"prefix" => ArrayTools::join_wrap($prefix, "\"", "\"\n"),
-				));
+				]);
 				if ($this->option_bool('fix') && $this->fix_prefix($contents)) {
 					$changed = true;
 					$this->verbose_log("Fixed prefix");
@@ -400,13 +400,13 @@ class Command_Check extends Command_Iterator_File {
 			$changed = true;
 		}
 		if ($this->show) {
-			$results = array();
-			foreach (array(
+			$results = [];
+			foreach ([
 				'show-package',
 				'show-subpackage',
 				'show-author',
 				'show-copyright',
-			) as $option) {
+			] as $option) {
 				if ($this->option_bool($option)) {
 					$results = array_merge($results, $this->show_comments($contents, StringTools::unprefix($option, 'show-', $prefix)));
 				}
@@ -465,7 +465,7 @@ class Command_Check extends Command_Iterator_File {
 		if ($verbose) {
 			echo "# " . $locale->plural_word("error", $n_found) . " found\n";
 		}
-		$results = array();
+		$results = [];
 		if ($this->option_bool("verbose")) {
 			foreach ($this->log as $f => $errors) {
 				$results[] = $prefix . $f . $suffix . " # " . implode(", ", array_keys($errors));

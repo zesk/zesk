@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -45,14 +45,14 @@ abstract class Workflow_Step extends Hookable {
 	 *
 	 * @var mixed
 	 */
-	protected $dependencies = array();
+	protected $dependencies = [];
 
 	/**
 	 *
 	 * @param Workflow $workflow
 	 * @param array $options
 	 */
-	public function __construct(Workflow $workflow, array $options = array()) {
+	public function __construct(Workflow $workflow, array $options = []) {
 		parent::__construct($workflow->application, $options);
 		$this->workflow = $workflow;
 		$this->initialize();
@@ -63,7 +63,7 @@ abstract class Workflow_Step extends Hookable {
 	 * {@inheritDoc}
 	 * @see \zesk\Hookable::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		$this->inherit_global_options();
 		if (empty($this->title)) {
 			$this->title = $this->option('title');
@@ -95,7 +95,7 @@ abstract class Workflow_Step extends Hookable {
 	/**
 	 *
 	 */
-	public function refresh() {
+	public function refresh(): void {
 		if ($this->completed === null) {
 			$this->completed = $this->is_completed();
 		}
@@ -146,11 +146,11 @@ abstract class Workflow_Step extends Hookable {
 	 * @return string
 	 */
 	public function render() {
-		return $this->application->theme($this->theme, array(
+		return $this->application->theme($this->theme, [
 			'step' => $this,
 			'workflow' => $this->workflow,
-		) + $this->workflow->variables(), array(
+		] + $this->workflow->variables(), [
 			'first' => true,
-		));
+		]);
 	}
 }

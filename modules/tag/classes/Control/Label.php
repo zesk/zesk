@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage tag
@@ -13,12 +13,12 @@ namespace zesk\Tag;
 class Control_Label extends \zesk\Control_Select_ORM {
 	protected $class = Label::class;
 
-	protected $options = array(
+	protected $options = [
 		'text_column' => 'name',
 		'id_column' => 'id',
-	);
+	];
 
-	protected function initialize() {
+	protected function initialize(): void {
 		if (!$this->has_option('noname')) {
 			$this->noname($this->application->locale->__(self::class . ':=No tag'));
 		}

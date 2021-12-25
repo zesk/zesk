@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -74,9 +74,9 @@ $(document).ready(function () {
 $response->javascript_inline(HTML::extract_tag_contents("script", ob_get_clean()));
 
 echo HTML::tag("div", "#$id .openlayers-map .openlayers-map-marker-popup", "");
-echo HTML::tag('div', array(
+echo HTML::tag('div', [
 	'id' => "$id-popup",
 	'class' => 'openlayers-map-marker-member',
 	'style' => "",
 	'data-title' => $this->title,
-), "");
+], "");

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -63,9 +63,9 @@ class View_Link extends View_Text {
 		$attrs = $object->apply_map($this->options_include("target;class;onclick;title;id"));
 		$add_ref = $this->option("add_ref", URL::query_remove($this->request->uri(), "message"));
 		if ($add_ref) {
-			$href = URL::query_format(URL::query_remove($href, "ref"), array(
+			$href = URL::query_format(URL::query_remove($href, "ref"), [
 				"ref" => $add_ref,
-			));
+			]);
 		}
 		$attrs['href'] = $href;
 		$attrs['title'] = avalue($attrs, 'title', $href);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -55,7 +55,7 @@ class CSV_Reader_Iterator extends Options implements \Iterator {
 	 */
 	private $is_valid;
 
-	public function __construct(CSV_Reader $csv, array $options = array()) {
+	public function __construct(CSV_Reader $csv, array $options = []) {
 		parent::__construct($options);
 		$this->csv = $csv;
 		$this->csv_tell = $csv->tell();
@@ -65,7 +65,7 @@ class CSV_Reader_Iterator extends Options implements \Iterator {
 		$this->is_valid = true;
 	}
 
-	public function rewind() {
+	public function rewind(): void {
 		$this->assoc = $this->option_bool('assoc', true);
 		$this->csv->seek($this->csv_tell);
 		$this->is_valid = true;
@@ -80,7 +80,7 @@ class CSV_Reader_Iterator extends Options implements \Iterator {
 		return $this->csv->rowIndex();
 	}
 
-	public function next() {
+	public function next(): void {
 		if ($this->assoc) {
 			$this->row = $this->csv->read_row_assoc();
 		} else {
@@ -105,7 +105,7 @@ class CSV_Reader_Iterator extends Options implements \Iterator {
 	 * @return array
 	 */
 	public function to_array($key_key = null, $value_key = null) {
-		$result = array();
+		$result = [];
 		foreach ($this as $index => $row) {
 			$value = $value_key === null ? $row : avalue($row, $value_key);
 			if ($key_key === null) {

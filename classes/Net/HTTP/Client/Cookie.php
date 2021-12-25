@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -72,7 +72,7 @@ class Net_HTTP_Client_Cookie {
 		return $this->secure;
 	}
 
-	public function setExpires($expires) {
+	public function setExpires($expires): void {
 		if ($expires instanceof Timestamp) {
 			$this->expires = $expires->unix_timestamp();
 		} else {
@@ -84,7 +84,7 @@ class Net_HTTP_Client_Cookie {
 		return (strcasecmp($domain, $this->domain) === 0) && (strcasecmp($path, $this->path) === 0);
 	}
 
-	public function update($value, $expires = null) {
+	public function update($value, $expires = null): void {
 		$this->value = $value;
 		if ($expires) {
 			$this->setExpires($expires);

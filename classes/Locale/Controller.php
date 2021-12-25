@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -15,13 +15,13 @@ class Controller extends \zesk\Controller {
 	/**
 	 *
 	 */
-	public function action_js() {
+	public function action_js(): void {
 		$app = $this->application;
 		$code = $this->request->get('ll');
 		if (empty($code)) {
-			$locales = array(
+			$locales = [
 				$app->locale,
-			);
+			];
 			$code = $app->locale->id();
 		} else {
 			$codes = array_unique(to_list($code));
@@ -30,12 +30,12 @@ class Controller extends \zesk\Controller {
 			}
 		}
 
-		$translations = array();
+		$translations = [];
 		foreach ($locales as $id => $locale) {
 			/* @var $locale Locale  */
 			$translations[$id] = $locale->translations();
 		}
-		$load_lines = array();
+		$load_lines = [];
 		foreach ($translations as $id => $tt) {
 			if (count($tt) > 0) {
 				$load_lines[] = 'exports.Locale.load(' . JavaScript::arguments($code, $tt) . ');';

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Ported from Markdown -- A text-to-HTML conversion tool for web writers
  *
@@ -24,9 +24,9 @@ namespace zesk;
  *
  */
 class Markdown extends Options {
-	const version = '1.0.1';
+	public const version = '1.0.1';
 
-	const default_tab_size = 4;
+	public const default_tab_size = 4;
 
 	//
 	// Global default settings:
@@ -41,7 +41,7 @@ class Markdown extends Options {
 
 	// Regex to match balanced [brackets]. See Friedl's
 	// "Mastering Regular Expressions", 2nd Ed., pp. 328-331.
-	const g_nested_brackets = '
+	public const g_nested_brackets = '
 	(?> 								# Atomic matching
 	   [^\[\]]+							# Anything other than brackets
 	 |
@@ -60,17 +60,17 @@ class Markdown extends Options {
 	public $text = null;
 
 	// Global hashes, used by various utility routines
-	private $g_urls = array();
+	private $g_urls = [];
 
-	private $g_titles = array();
+	private $g_titles = [];
 
-	private $g_html_blocks = array();
+	private $g_html_blocks = [];
 
 	// Used to track when we're inside an ordered or unordered list
 	// (see _ProcessListItems() for details):
 	private $g_list_level = 0;
 
-	public function __construct($text = null, array $options = array()) {
+	public function __construct($text = null, array $options = []) {
 		parent::__construct($options);
 		$this->text = $text;
 		$this->_initialize();
@@ -84,20 +84,20 @@ class Markdown extends Options {
 		return $this->option_integer('tab_size', self::default_tab_size);
 	}
 
-	private function _initialize() {
+	private function _initialize(): void {
 		if (self::$g_escape_table === null) {
-			$g_escape_table = array();
+			$g_escape_table = [];
 			foreach (str_split(self::$g_escape_chars) as $i => $c) {
 				self::$g_escape_table[$c] = "^@^$i@^@";
 			}
-			self::$g_unspecial = array(
+			self::$g_unspecial = [
 				'*' => self::$g_escape_table['*'],
 				'_' => self::$g_escape_table['_'],
-			);
+			];
 		}
 	}
 
-	public static function filter($text, array $options = array()) {
+	public static function filter($text, array $options = []) {
 		$x = new self($text, $options);
 		return $x->_filter();
 	}
@@ -118,8 +118,8 @@ class Markdown extends Options {
 		// from other articles when generating a page which contains more than
 		// one article (e.g. an index page that shows the N most recent
 		// articles):
-		$this->g_urls = array();
-		$this->g_html_blocks = array();
+		$this->g_urls = [];
+		$this->g_html_blocks = [];
 
 		// Standardize line endings:
 		$text = Text::set_line_breaks($text, "\n");
@@ -171,12 +171,12 @@ class Markdown extends Options {
 					@mx';
 
 		foreach (preg::matches($pattern, $text) as $match) {
-			list($match, $id, $url, $title) = $match + array(
+			[$match, $id, $url, $title] = $match + [
 				null,
 				null,
 				null,
 				null,
-			);
+			];
 			$id = strtolower($id);
 			$this->g_urls[$id] = $url;
 			if ($title) {
@@ -269,7 +269,7 @@ class Markdown extends Options {
 
 		foreach ($patterns as $index => $pattern) {
 			foreach (preg::matches("@$pattern@mx", $text) as $match) {
-				list($html) = $match;
+				[$html] = $match;
 				$key = md5($html);
 				$this->g_html_blocks[$key] = $html;
 				$text = str_replace($html, "\n\n" . $key . "\n\n", $text);
@@ -346,7 +346,7 @@ class Markdown extends Options {
 		// 	$tags_to_skip = qr!<(/?)(?:pre|code|kbd|script|math)[\s>]!;
 
 		foreach ($tokens as $cur_token) {
-			list($type, $content) = $cur_token;
+			[$type, $content] = $cur_token;
 			if ($type === "tag") {
 				// Within tags, encode * and _ so they don't conflict
 				// with their use in Markdown for italics and strong.
@@ -388,7 +388,7 @@ class Markdown extends Options {
 		)
 		@xsmi';
 		foreach (preg::matches($pattern, $text) as $match) {
-			list($whole_match, $IGNORED, $link_text, $link_id) = $match + array_fill(0, 4, null);
+			[$whole_match, $IGNORED, $link_text, $link_id] = $match + array_fill(0, 4, null);
 
 			$link_id = strtolower($link_id);
 			if (empty($link_id)) {
@@ -474,7 +474,7 @@ class Markdown extends Options {
 		@xs';
 
 		foreach (preg::matches($pattern, $text) as $match) {
-			list($whole_match, $IGNORED, $alt_text, $link_id) = $match;
+			[$whole_match, $IGNORED, $alt_text, $link_id] = $match;
 			$link_id = strtolower($link_id);
 
 			if ($link_id === "") {
@@ -645,7 +645,7 @@ class Markdown extends Options {
 
 		$whole_list = $this->g_list_level ? '@^' . $whole_list . '@mx' : '@(?:(?<=\n\n)|\A\n?)' . $whole_list . '@mx';
 		foreach (preg::matches($whole_list, $text) as $match) {
-			list($full_match, $list, $IGNORED, $list_type) = $match;
+			[$full_match, $list, $IGNORED, $list_type] = $match;
 			$list_type = preg_match("/$marker_ul/", $list_type) ? "ul" : "ol";
 			// Turn double returns into triple returns, so that we can make a
 			// paragraph for the last item in a list, if necessary:
@@ -699,7 +699,7 @@ class Markdown extends Options {
 		@mx';
 
 		foreach (preg::matches($pattern, $list_str) as $match) {
-			list($whole_string, $leading_line, $leading_space, $IGNORED, $item) = $match;
+			[$whole_string, $leading_line, $leading_space, $IGNORED, $item] = $match;
 
 			if ($leading_line || preg_match('/\n{2,}/', $item) !== 0) {
 				$item = $this->_RunBlockGamut($this->_Outdent($item));
@@ -813,13 +813,13 @@ class Markdown extends Options {
 		//    }
 
 		// Do the angle bracket song and dance:
-		$text = strtr($text, array(
+		$text = strtr($text, [
 			'<' => "&lt;",
 			'>' => '&gt;',
-		));
+		]);
 
 		// Now, escape characters that are magic in Markdown:
-		$magicals = array();
+		$magicals = [];
 		foreach (str_split('*_{}[]\\') as $char) {
 			$magicals[$char] = self::$g_escape_table[$char];
 		}
@@ -850,7 +850,7 @@ class Markdown extends Options {
 		@mx';
 
 		foreach (preg::matches($pattern, $text) as $match) {
-			list($bq) = $match;
+			[$bq] = $match;
 			$bq = preg_replace('/^[ \t]*>[ \t]?/m', '', $bq); // trim one level of quoting
 			$bq = preg_replace('/^[ \t]+$/m', '', $bq); // trim whitespace-only lines
 			$bq = $this->_RunBlockGamut($bq); // recurse
@@ -955,7 +955,7 @@ class Markdown extends Options {
 		foreach (str_split($addr) as $c) {
 			if ($c !== ':') {
 				$top = $c === '@' ? 0.9 : 1;
-				$rand = mt_rand(0, 1);
+				$rand = random_int(0, 1);
 				if ($rand < 0.45) {
 					$c = '&#x' . sprintf('%X', ord($c)) . ";";
 				} elseif ($rand <= $top) {
@@ -992,7 +992,7 @@ class Markdown extends Options {
 		//       <http://www.bradchoate.com/past/mtregex.php>
 		//
 		$len = strlen($text);
-		$tokens = array();
+		$tokens = [];
 
 		$depth = 6;
 		$nested_tags = implode('|', array_fill(0, $depth, '(?:<[a-z/!$](?:[^<>]')) . str_repeat(')*>)', $depth);
@@ -1004,10 +1004,10 @@ class Markdown extends Options {
 		$matches = null;
 		$pos = 0;
 		while (preg_match_all('@' . $pattern . '@ix', $text, $matches, PREG_OFFSET_CAPTURE, $pos) !== 0) {
-			list($open_tag, $close_tag) = $matches[0] + array(
+			[$open_tag, $close_tag] = $matches[0] + [
 				null,
 				null,
-			);
+			];
 			$tag_start = $open_tag[1];
 			if ($close_tag) {
 				$whole_tag_length = strlen($close_tag[0]) + $close_tag[1] - $tag_start;
@@ -1015,22 +1015,22 @@ class Markdown extends Options {
 				$whole_tag_length = strlen($open_tag[0]);
 			}
 			if ($pos < $tag_start) {
-				$tokens[] = array(
+				$tokens[] = [
 					'text',
 					substr($text, $pos, $tag_start - $pos),
-				);
+				];
 			}
-			$tokens[] = array(
+			$tokens[] = [
 				'tag',
 				substr($text, $tag_start, $whole_tag_length),
-			);
+			];
 			$pos = $tag_start + $whole_tag_length;
 		}
 		if ($pos < $len) {
-			$tokens[] = array(
+			$tokens[] = [
 				'text',
 				substr($text, $pos, $len - $pos),
-			);
+			];
 		}
 		return $tokens;
 	}

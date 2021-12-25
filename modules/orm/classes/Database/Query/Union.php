@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Database Query Union
  *
@@ -21,7 +21,7 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 *
 	 * @var array
 	 */
-	protected $queries = array();
+	protected $queries = [];
 
 	/**
 	 * Order by clause
@@ -150,7 +150,7 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @return string
 	 */
 	public function __toString() {
-		$sql_phrases = array();
+		$sql_phrases = [];
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
 			$sql_phrases[] = $query->__toString();

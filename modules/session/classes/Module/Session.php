@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage session
@@ -16,28 +16,28 @@ class Module_Session extends Module {
 	 *
 	 * @var array
 	 */
-	private static $aliases = array(
+	private static $aliases = [
 		"db" => "ORM",
 		"database" => "ORM",
-	);
+	];
 
 	/**
 	 *
 	 * @var Interface_Session[]
 	 */
-	private $instances = array();
+	private $instances = [];
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Module::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
-		$this->application->register_factory("session", array(
+		$this->application->register_factory("session", [
 			$this,
 			"session_factory",
-		));
+		]);
 		/**
 		 * @deprecated 2018-01
 		 */
@@ -62,9 +62,9 @@ class Module_Session extends Module {
 	private function session_class() {
 		$default_class = $this->_implementation();
 		if ($default_class) {
-			$this->application->deprecated("Session::implementation configuration value is deprecated, use {class}::session_class instead (set to \"$default_class\")", array(
+			$this->application->deprecated("Session::implementation configuration value is deprecated, use {class}::session_class instead (set to \"$default_class\")", [
 				"class" => __CLASS__,
-			));
+			]);
 			$default_class = __NAMESPACE__ . "\\" . "Session_" . $default_class;
 		} else {
 			$default_class = __NAMESPACE__ . "\\" . "Session_PHP";

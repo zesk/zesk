@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -12,28 +12,28 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 *
 	 * @var array
 	 */
-	protected $css_paths = array();
+	protected $css_paths = [];
 
 	/**
 	 * Array of options to pass to Response::css for each css_paths
 	 *
 	 * @var array
 	 */
-	protected $css_options = array();
+	protected $css_options = [];
 
 	/**
 	 * Array of options to pass to Response::javascript for each javascript_paths
 	 *
 	 * @var array
 	 */
-	protected $javascript_options = array();
+	protected $javascript_options = [];
 
 	/**
 	 * Array of strings of JS to load, or array of path (key) => $options to load
 	 *
 	 * @var array
 	 */
-	protected $javascript_paths = array();
+	protected $javascript_paths = [];
 
 	/**
 	 * Settings which will be exposed in the client browser using the key
@@ -42,7 +42,7 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 *
 	 * @var array
 	 */
-	protected $javascript_settings = array();
+	protected $javascript_settings = [];
 
 	/**
 	 * An array of key => value pairs which are set as globals for this module
@@ -61,14 +61,14 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 *
 	 * @var array
 	 */
-	protected $javascript_settings_inherit = array();
+	protected $javascript_settings_inherit = [];
 
 	/**
 	 * jQuery ready code
 	 *
 	 * @var array
 	 */
-	protected $jquery_ready = array();
+	protected $jquery_ready = [];
 
 	/**
 	 * Where the jQuery code should run (higher numbers are later)
@@ -117,39 +117,39 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 * @param Response $response
 	 * @param Template $template
 	 */
-	public function hook_head(Request $request, Response $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template): void {
 		if (!$this->option_bool("disabled")) {
 			$this->javascript_settings['enabled'] = true;
 			$this->compute_javascript_settings();
 			if ($this->javascript_settings) {
-				$response->javascript_settings(array(
-					'modules' => array(
+				$response->javascript_settings([
+					'modules' => [
 						$this->codename => $this->javascript_settings,
-					),
-				));
+					],
+				]);
 			}
 			foreach ($this->css_paths as $key => $value) {
 				if (is_string($key) && is_array($value)) {
 					$response->css($key, $value + $this->css_options);
 				} elseif (is_numeric($key) && is_string($value)) {
-					$response->css($value, $this->css_options + array(
+					$response->css($value, $this->css_options + [
 						'share' => true,
-					));
+					]);
 				} elseif (is_string($key) && is_string($value)) {
-					$response->css($key, array(
+					$response->css($key, [
 						$value => true,
-					) + $this->css_options);
+					] + $this->css_options);
 				}
 			}
 			foreach ($this->javascript_paths as $key => $value) {
 				if (is_numeric($key) && is_string($value)) {
-					$response->javascript($value, $this->javascript_options + array(
+					$response->javascript($value, $this->javascript_options + [
 						'share' => true,
-					));
+					]);
 				} elseif (is_string($key) && is_array($value)) {
-					$response->javascript($key, $value + $this->javascript_options + array(
+					$response->javascript($key, $value + $this->javascript_options + [
 						'share' => true,
-					));
+					]);
 				}
 			}
 			$this->ready($response);
@@ -161,7 +161,7 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 *
 	 * @param Response $response
 	 */
-	public function ready(Response $response) {
+	public function ready(Response $response): void {
 		$this->call_hook('ready');
 		foreach ($this->jquery_ready as $code) {
 			$response->jquery($code, $this->jquery_ready_weight);

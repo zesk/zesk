@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage theme
@@ -16,7 +16,7 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
-echo HTML::tag('h1', $locale('No results found for &ldquo;{q}&rdquo;', array(
+echo HTML::tag('h1', $locale('No results found for &ldquo;{q}&rdquo;', [
 	'q' => htmlspecialchars($this->request->get('q')),
-)));
+]));
 echo $this->theme('search/form');

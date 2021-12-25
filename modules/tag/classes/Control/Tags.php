@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage tag
@@ -77,29 +77,29 @@ class Control_Tags extends Control {
 		$locale = $this->application->locale;
 		$actions = explode(",", $value);
 		$labels = $this->_labels();
-		$result = array();
+		$result = [];
 		foreach ($actions as $action) {
 			if (empty($action)) {
 				continue;
 			}
 			if (strlen($action) < 2) {
-				$this->error($locale->__("Invalid value: {action}", array(
+				$this->error($locale->__("Invalid value: {action}", [
 					"action" => $action,
-				)), $this->name());
+				]), $this->name());
 				return null;
 			}
 			$action_prefix = $action[0];
 			if (!array_key_exists($action_prefix, self::$actions)) {
-				$this->error($locale->__("Invalid value not a valid prefix: {action}", array(
+				$this->error($locale->__("Invalid value not a valid prefix: {action}", [
 					"action" => $action,
-				)), $this->name());
+				]), $this->name());
 				return null;
 			}
 			$label_id = intval(substr($action, 1));
 			if (!array_key_exists($label_id, $labels)) {
-				$this->error($locale->__("Invalid value not a valid label: {action}", array(
+				$this->error($locale->__("Invalid value not a valid label: {action}", [
 					"action" => $action,
-				)), $this->name());
+				]), $this->name());
 				return null;
 			}
 			$result[$action_prefix][] = $labels[$label_id];
@@ -183,18 +183,16 @@ class Control_Tags extends Control {
 	 * @return \zesk\Tag\Label[]
 	 */
 	public function filter_labels($labels) {
-		$labels = $this->call_hook_arguments("filter_labels", array(
+		$labels = $this->call_hook_arguments("filter_labels", [
 			$labels,
-		), $labels);
+		], $labels);
 		$by_id = [];
 		foreach ($labels as $label) {
 			if ($label instanceof Label) {
 				$by_id[$label->id()] = $label;
 			}
 		}
-		uasort($by_id, function (Label $a, Label $b) {
-			return strcasecmp($a->name, $b->name);
-		});
+		uasort($by_id, fn (Label $a, Label $b) => strcasecmp($a->name, $b->name));
 		return $by_id;
 	}
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -23,9 +23,9 @@ class ulong {
 
 	public $short1;
 
-	const maxshort = 0xFFFF;
+	public const maxshort = 0xFFFF;
 
-	const maxlong = 0xFFFFFFFF;
+	public const maxlong = 0xFFFFFFFF;
 
 	public function __construct($x = 0) {
 		$this->set($x);

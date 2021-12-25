@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -29,7 +29,7 @@ class Generator_Apache extends Generator {
 	 *
 	 * @var array
 	 */
-	private $site_names = array();
+	private $site_names = [];
 
 	/**
 	 *
@@ -50,7 +50,7 @@ class Generator_Apache extends Generator {
 	 * @return array
 	 */
 	public function validate(array $data) {
-		return array();
+		return [];
 	}
 
 	/**
@@ -58,11 +58,11 @@ class Generator_Apache extends Generator {
 	 */
 	public function start() {
 		$this->instance = null;
-		$this->site_names = array();
+		$this->site_names = [];
 		$this->webapp = $this->application->webapp_module();
-		$this->changed = array();
+		$this->changed = [];
 		$this->vhost_path = $this->webapp->webapp_data_path("vhosts/");
-		Directory::depend($this->vhost_path, 0755);
+		Directory::depend($this->vhost_path, 0o755);
 		if ($this->option_bool("clean")) {
 			Directory::delete_contents($this->vhost_path);
 		}
@@ -100,8 +100,8 @@ class Generator_Apache extends Generator {
 			throw new Exception_Semantics("Must call instance before calling site");
 		}
 		$domains = $site->domains();
-		$cluster_names = array();
-		$site_names = array();
+		$cluster_names = [];
+		$site_names = [];
 		foreach ($domains as $domain) {
 			/* @var $domain Domain */
 			if ($domain->type === Cluster::class) {
@@ -112,14 +112,14 @@ class Generator_Apache extends Generator {
 		}
 		$app = $site->application;
 		$data = to_array($site->data);
-		$contents = $app->theme("webapp/generator/apache/site", array(
+		$contents = $app->theme("webapp/generator/apache/site", [
 			"generator" => $this,
 			"site" => $site,
 			"hostnames" => array_merge($cluster_names, $site_names),
 			"instance" => $this->instance,
 			"source" => $this->instance->path,
 			"webappbin" => $app->webapp_module()->binary(),
-		) + $site->members() + $data + $this->template_defaults() + $this->option());
+		] + $site->members() + $data + $this->template_defaults() + $this->option());
 		$filename = $this->instance->code . "-" . $site->code . ".conf";
 		$fullpath = path($this->vhost_path, $filename);
 		$this->changed += $this->replace_file($fullpath, $contents);
@@ -142,13 +142,13 @@ class Generator_Apache extends Generator {
 	}
 
 	protected function replace_file($file, $contents) {
-		$map = array();
+		$map = [];
 		$map['${LOG_PATH}'] = $this->log_path();
-		$map = ArrayTools::clean($map, array(
+		$map = ArrayTools::clean($map, [
 			"",
 			false,
 			null,
-		));
+		]);
 		return parent::replace_file($file, strtr($contents, $map));
 	}
 
@@ -157,10 +157,10 @@ class Generator_Apache extends Generator {
 	 */
 	public function finish() {
 		$fullpath = path($this->vhost_path, "@webapp.conf");
-		$contents = $this->application->theme("webapp/generator/apache/all", array(
+		$contents = $this->application->theme("webapp/generator/apache/all", [
 			"generator" => $this,
 			"includes" => $this->site_names,
-		));
+		]);
 		$this->changed += $this->replace_file($fullpath, $contents);
 		return $this;
 	}
@@ -180,19 +180,19 @@ class Generator_Apache extends Generator {
 	 * @return array
 	 */
 	public function template_defaults() {
-		return array(
+		return [
 			"node_application" => false,
 			"no_webapp" => false,
-			"hostnames" => array(),
-			"indexes" => array(
+			"hostnames" => [],
+			"indexes" => [
 				"index.php",
 				"index.html",
-			),
+			],
 			"port" => 80,
-		);
+		];
 	}
 
-	public function deploy(array $options = array()) {
+	public function deploy(array $options = []) {
 		$log_path = $this->log_path();
 		if (!empty($log_path)) {
 			Directory::depend(path($log_path, "httpd"));

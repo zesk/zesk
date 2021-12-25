@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright Copyright 2006 ThoughtWorks, Inc
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -334,7 +334,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @throws Exception_Selenium
 	 */
-	public function __construct(Application $application, array $options = array()) {
+	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 		$browser = "*chrome";
@@ -351,7 +351,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 		$this->host = $host;
 		$this->port = $port;
 		$this->timeout = $timeout;
-		$this->page_text = array();
+		$this->page_text = [];
 	}
 
 	public function setBrowser($set = null) {
@@ -378,10 +378,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return void
 	 */
 	public function start() {
-		$this->sessionId = $this->getString("getNewBrowserSession", array(
+		$this->sessionId = $this->getString("getNewBrowserSession", [
 			$this->browser,
 			$this->browserUrl,
-		));
+		]);
 		return $this->sessionId;
 	}
 
@@ -390,12 +390,12 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @return void
 	 */
-	public function stop() {
+	public function stop(): void {
 		$this->doCommand("testComplete");
 		$this->sessionId = null;
 	}
 
-	public function restart() {
+	public function restart(): void {
 		$this->stop();
 		$this->start();
 	}
@@ -408,10 +408,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $locator an element locator
 	 */
-	public function click($locator) {
-		$this->doCommand("click", array(
+	public function click($locator): void {
+		$this->doCommand("click", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -422,10 +422,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $locator an element locator
 	 */
-	public function doubleClick($locator) {
-		$this->doCommand("doubleClick", array(
+	public function doubleClick($locator): void {
+		$this->doCommand("doubleClick", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -438,11 +438,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $coordString specifies the x,y position (i.e. - 10,20) of the mouse event relative to the element
 	 *        	returned by the locator.
 	 */
-	public function clickAt($locator, $coordString) {
-		$this->doCommand("clickAt", array(
+	public function clickAt($locator, $coordString): void {
+		$this->doCommand("clickAt", [
 			$locator,
 			$coordString,
-		));
+		]);
 	}
 
 	/**
@@ -455,11 +455,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $coordString specifies the x,y position (i.e. - 10,20) of the mouse event relative to the element
 	 *        	returned by the locator.
 	 */
-	public function doubleClickAt($locator, $coordString) {
-		$this->doCommand("doubleClickAt", array(
+	public function doubleClickAt($locator, $coordString): void {
+		$this->doCommand("doubleClickAt", [
 			$locator,
 			$coordString,
-		));
+		]);
 	}
 
 	/**
@@ -469,11 +469,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $locator an element locator
 	 * @param string $eventName the event name, e.g. "focus" or "blur"
 	 */
-	public function fireEvent($locator, $eventName) {
-		$this->doCommand("fireEvent", array(
+	public function fireEvent($locator, $eventName): void {
+		$this->doCommand("fireEvent", [
 			$locator,
 			$eventName,
-		));
+		]);
 	}
 
 	/**
@@ -483,75 +483,75 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $keySequence Either be a string("\" followed by the numeric keycode of the key to be pressed,
 	 *        	normally the ASCII value of that key), or a single character. For example: "w", "\119".
 	 */
-	public function keyPress($locator, $keySequence) {
-		$this->doCommand("keyPress", array(
+	public function keyPress($locator, $keySequence): void {
+		$this->doCommand("keyPress", [
 			$locator,
 			$keySequence,
-		));
+		]);
 	}
 
 	/**
 	 * Press the shift key and hold it down until doShiftUp() is called or a new page is loaded.
 	 * @access public
 	 */
-	public function shiftKeyDown() {
-		$this->doCommand("shiftKeyDown", array());
+	public function shiftKeyDown(): void {
+		$this->doCommand("shiftKeyDown", []);
 	}
 
 	/**
 	 * Release the shift key.
 	 * @access public
 	 */
-	public function shiftKeyUp() {
-		$this->doCommand("shiftKeyUp", array());
+	public function shiftKeyUp(): void {
+		$this->doCommand("shiftKeyUp", []);
 	}
 
 	/**
 	 * Press the meta key and hold it down until doMetaUp() is called or a new page is loaded.
 	 * @access public
 	 */
-	public function metaKeyDown() {
-		$this->doCommand("metaKeyDown", array());
+	public function metaKeyDown(): void {
+		$this->doCommand("metaKeyDown", []);
 	}
 
 	/**
 	 * Release the meta key.
 	 * @access public
 	 */
-	public function metaKeyUp() {
-		$this->doCommand("metaKeyUp", array());
+	public function metaKeyUp(): void {
+		$this->doCommand("metaKeyUp", []);
 	}
 
 	/**
 	 * Press the alt key and hold it down until doAltUp() is called or a new page is loaded.
 	 * @access public
 	 */
-	public function altKeyDown() {
-		$this->doCommand("altKeyDown", array());
+	public function altKeyDown(): void {
+		$this->doCommand("altKeyDown", []);
 	}
 
 	/**
 	 * Release the alt key.
 	 * @access public
 	 */
-	public function altKeyUp() {
-		$this->doCommand("altKeyUp", array());
+	public function altKeyUp(): void {
+		$this->doCommand("altKeyUp", []);
 	}
 
 	/**
 	 * Press the control key and hold it down until doControlUp() is called or a new page is loaded.
 	 * @access public
 	 */
-	public function controlKeyDown() {
-		$this->doCommand("controlKeyDown", array());
+	public function controlKeyDown(): void {
+		$this->doCommand("controlKeyDown", []);
 	}
 
 	/**
 	 * Release the control key.
 	 * @access public
 	 */
-	public function controlKeyUp() {
-		$this->doCommand("controlKeyUp", array());
+	public function controlKeyUp(): void {
+		$this->doCommand("controlKeyUp", []);
 	}
 
 	/**
@@ -561,11 +561,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $keySequence Either be a string("\" followed by the numeric keycode of the key to be pressed,
 	 *        	normally the ASCII value of that key), or a single character. For example: "w", "\119".
 	 */
-	public function keyDown($locator, $keySequence) {
-		$this->doCommand("keyDown", array(
+	public function keyDown($locator, $keySequence): void {
+		$this->doCommand("keyDown", [
 			$locator,
 			$keySequence,
-		));
+		]);
 	}
 
 	/**
@@ -575,11 +575,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $keySequence Either be a string("\" followed by the numeric keycode of the key to be pressed,
 	 *        	normally the ASCII value of that key), or a single character. For example: "w", "\119".
 	 */
-	public function keyUp($locator, $keySequence) {
-		$this->doCommand("keyUp", array(
+	public function keyUp($locator, $keySequence): void {
+		$this->doCommand("keyUp", [
 			$locator,
 			$keySequence,
-		));
+		]);
 	}
 
 	/**
@@ -587,10 +587,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $locator an element locator
 	 */
-	public function mouseOver($locator) {
-		$this->doCommand("mouseOver", array(
+	public function mouseOver($locator): void {
+		$this->doCommand("mouseOver", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -598,10 +598,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $locator an element locator
 	 */
-	public function mouseOut($locator) {
-		$this->doCommand("mouseOut", array(
+	public function mouseOut($locator): void {
+		$this->doCommand("mouseOut", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -610,10 +610,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $locator an element locator
 	 */
-	public function mouseDown($locator) {
-		$this->doCommand("mouseDown", array(
+	public function mouseDown($locator): void {
+		$this->doCommand("mouseDown", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -624,11 +624,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $coordString specifies the x,y position (i.e. - 10,20) of the mouse event relative to the element
 	 *        	returned by the locator.
 	 */
-	public function mouseDownAt($locator, $coordString) {
-		$this->doCommand("mouseDownAt", array(
+	public function mouseDownAt($locator, $coordString): void {
+		$this->doCommand("mouseDownAt", [
 			$locator,
 			$coordString,
-		));
+		]);
 	}
 
 	/**
@@ -637,10 +637,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $locator an element locator
 	 */
-	public function mouseUp($locator) {
-		$this->doCommand("mouseUp", array(
+	public function mouseUp($locator): void {
+		$this->doCommand("mouseUp", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -651,11 +651,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $coordString specifies the x,y position (i.e. - 10,20) of the mouse event relative to the element
 	 *        	returned by the locator.
 	 */
-	public function mouseUpAt($locator, $coordString) {
-		$this->doCommand("mouseUpAt", array(
+	public function mouseUpAt($locator, $coordString): void {
+		$this->doCommand("mouseUpAt", [
 			$locator,
 			$coordString,
-		));
+		]);
 	}
 
 	/**
@@ -664,10 +664,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $locator an element locator
 	 */
-	public function mouseMove($locator) {
-		$this->doCommand("mouseMove", array(
+	public function mouseMove($locator): void {
+		$this->doCommand("mouseMove", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -678,11 +678,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $coordString specifies the x,y position (i.e. - 10,20) of the mouse event relative to the element
 	 *        	returned by the locator.
 	 */
-	public function mouseMoveAt($locator, $coordString) {
-		$this->doCommand("mouseMoveAt", array(
+	public function mouseMoveAt($locator, $coordString): void {
+		$this->doCommand("mouseMoveAt", [
 			$locator,
 			$coordString,
-		));
+		]);
 	}
 
 	/**
@@ -695,11 +695,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $locator an element locator
 	 * @param string $value the value to type
 	 */
-	public function type($locator, $value) {
-		$this->doCommand("type", array(
+	public function type($locator, $value): void {
+		$this->doCommand("type", [
 			$locator,
 			$value,
-		));
+		]);
 	}
 
 	/**
@@ -721,11 +721,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $locator an element locator
 	 * @param string $value the value to type
 	 */
-	public function typeKeys($locator, $value) {
-		$this->doCommand("typeKeys", array(
+	public function typeKeys($locator, $value): void {
+		$this->doCommand("typeKeys", [
 			$locator,
 			$value,
-		));
+		]);
 	}
 
 	/**
@@ -735,10 +735,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $value the number of milliseconds to pause after operation
 	 */
-	public function setSpeed($value) {
-		$this->doCommand("setSpeed", array(
+	public function setSpeed($value): void {
+		$this->doCommand("setSpeed", [
 			$value,
-		));
+		]);
 	}
 
 	/**
@@ -748,14 +748,14 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * See also setSpeed.
 	 * @access public
 	 */
-	public function getSpeed() {
-		$this->doCommand("getSpeed", array());
+	public function getSpeed(): void {
+		$this->doCommand("getSpeed", []);
 	}
 
-	public function checkbox($locator, $checked = true) {
-		$this->doCommand($checked ? "check" : "uncheck", array(
+	public function checkbox($locator, $checked = true): void {
+		$this->doCommand($checked ? "check" : "uncheck", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -763,10 +763,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $locator an element locator
 	 */
-	public function check($locator) {
-		$this->doCommand("check", array(
+	public function check($locator): void {
+		$this->doCommand("check", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -774,10 +774,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $locator an element locator
 	 */
-	public function uncheck($locator) {
-		$this->doCommand("uncheck", array(
+	public function uncheck($locator): void {
+		$this->doCommand("uncheck", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -833,11 +833,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $selectLocator an element locator identifying a drop-down menu
 	 * @param string $optionLocator an option locator (a label by default)
 	 */
-	public function select($selectLocator, $optionLocator) {
-		$this->doCommand("select", array(
+	public function select($selectLocator, $optionLocator): void {
+		$this->doCommand("select", [
 			$selectLocator,
 			$optionLocator,
-		));
+		]);
 	}
 
 	/**
@@ -847,11 +847,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $locator an element locator identifying a multi-select box
 	 * @param string $optionLocator an option locator (a label by default)
 	 */
-	public function addSelection($locator, $optionLocator) {
-		$this->doCommand("addSelection", array(
+	public function addSelection($locator, $optionLocator): void {
+		$this->doCommand("addSelection", [
 			$locator,
 			$optionLocator,
-		));
+		]);
 	}
 
 	/**
@@ -861,11 +861,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $locator an element locator identifying a multi-select box
 	 * @param string $optionLocator an option locator (a label by default)
 	 */
-	public function removeSelection($locator, $optionLocator) {
-		$this->doCommand("removeSelection", array(
+	public function removeSelection($locator, $optionLocator): void {
+		$this->doCommand("removeSelection", [
 			$locator,
 			$optionLocator,
-		));
+		]);
 	}
 
 	/**
@@ -873,10 +873,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $locator an element locator identifying a multi-select box
 	 */
-	public function removeAllSelections($locator) {
-		$this->doCommand("removeAllSelections", array(
+	public function removeAllSelections($locator): void {
+		$this->doCommand("removeAllSelections", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -886,10 +886,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $formLocator an element locator for the form you want to submit
 	 */
-	public function submit($formLocator) {
-		$this->doCommand("submit", array(
+	public function submit($formLocator): void {
+		$this->doCommand("submit", [
 			$formLocator,
-		));
+		]);
 	}
 
 	/**
@@ -905,10 +905,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $url the URL to open; may be relative or absolute
 	 */
-	public function open($url) {
-		$this->doCommand("open", array(
+	public function open($url): void {
+		$this->doCommand("open", [
 			$url,
-		));
+		]);
 	}
 
 	/**
@@ -926,11 +926,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $url the URL to open, which can be blank
 	 * @param string $windowID the JavaScript window ID of the window to select
 	 */
-	public function openWindow($url, $windowID) {
-		$this->doCommand("openWindow", array(
+	public function openWindow($url, $windowID): void {
+		$this->doCommand("openWindow", [
 			$url,
 			$windowID,
-		));
+		]);
 	}
 
 	/**
@@ -977,10 +977,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $windowID the JavaScript window ID of the window to select
 	 */
-	public function selectWindow($windowID) {
-		$this->doCommand("selectWindow", array(
+	public function selectWindow($windowID): void {
+		$this->doCommand("selectWindow", [
 			$windowID,
-		));
+		]);
 	}
 
 	/**
@@ -997,10 +997,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $locator an element locator identifying a frame or iframe
 	 */
-	public function selectFrame($locator) {
-		$this->doCommand("selectFrame", array(
+	public function selectFrame($locator): void {
+		$this->doCommand("selectFrame", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1018,10 +1018,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return boolean true if the new frame is this code's window
 	 */
 	public function getWhetherThisFrameMatchFrameExpression($currentFrameString, $target) {
-		return $this->getBoolean("getWhetherThisFrameMatchFrameExpression", array(
+		return $this->getBoolean("getWhetherThisFrameMatchFrameExpression", [
 			$currentFrameString,
 			$target,
-		));
+		]);
 	}
 
 	/**
@@ -1039,10 +1039,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return boolean true if the new window is this code's window
 	 */
 	public function getWhetherThisWindowMatchWindowExpression($currentWindowString, $target) {
-		return $this->getBoolean("getWhetherThisWindowMatchWindowExpression", array(
+		return $this->getBoolean("getWhetherThisWindowMatchWindowExpression", [
 			$currentWindowString,
 			$target,
-		));
+		]);
 	}
 
 	/**
@@ -1051,11 +1051,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $windowID the JavaScript window ID of the window that will appear
 	 * @param string $timeout a timeout in milliseconds, after which the action will return with an error
 	 */
-	public function waitForPopUp($windowID, $timeout) {
-		$this->doCommand("waitForPopUp", array(
+	public function waitForPopUp($windowID, $timeout): void {
+		$this->doCommand("waitForPopUp", [
 			$windowID,
 			$timeout,
-		));
+		]);
 	}
 
 	/**
@@ -1069,8 +1069,8 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * confirmation.
 	 * @access public
 	 */
-	public function chooseCancelOnNextConfirmation() {
-		$this->doCommand("chooseCancelOnNextConfirmation", array());
+	public function chooseCancelOnNextConfirmation(): void {
+		$this->doCommand("chooseCancelOnNextConfirmation", []);
 	}
 
 	/**
@@ -1085,8 +1085,8 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * confirmation.
 	 * @access public
 	 */
-	public function chooseOkOnNextConfirmation() {
-		$this->doCommand("chooseOkOnNextConfirmation", array());
+	public function chooseOkOnNextConfirmation(): void {
+		$this->doCommand("chooseOkOnNextConfirmation", []);
 	}
 
 	/**
@@ -1095,26 +1095,26 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $answer the answer to give in response to the prompt pop-up
 	 */
-	public function answerOnNextPrompt($answer) {
-		$this->doCommand("answerOnNextPrompt", array(
+	public function answerOnNextPrompt($answer): void {
+		$this->doCommand("answerOnNextPrompt", [
 			$answer,
-		));
+		]);
 	}
 
 	/**
 	 * Simulates the user clicking the "back" button on their browser.
 	 * @access public
 	 */
-	public function goBack() {
-		$this->doCommand("goBack", array());
+	public function goBack(): void {
+		$this->doCommand("goBack", []);
 	}
 
 	/**
 	 * Simulates the user clicking the "Refresh" button on their browser.
 	 * @access public
 	 */
-	public function refresh() {
-		$this->doCommand("refresh", array());
+	public function refresh(): void {
+		$this->doCommand("refresh", []);
 	}
 
 	/**
@@ -1122,8 +1122,8 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * window or tab.
 	 * @access public
 	 */
-	public function close() {
-		$this->doCommand("close", array());
+	public function close(): void {
+		$this->doCommand("close", []);
 	}
 
 	/**
@@ -1135,7 +1135,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return boolean true if there is an alert
 	 */
 	public function isAlertPresent() {
-		return $this->getBoolean("isAlertPresent", array());
+		return $this->getBoolean("isAlertPresent", []);
 	}
 
 	/**
@@ -1147,7 +1147,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return boolean true if there is a pending prompt
 	 */
 	public function isPromptPresent() {
-		return $this->getBoolean("isPromptPresent", array());
+		return $this->getBoolean("isPromptPresent", []);
 	}
 
 	/**
@@ -1159,7 +1159,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return boolean true if there is a pending confirmation
 	 */
 	public function isConfirmationPresent() {
-		return $this->getBoolean("isConfirmationPresent", array());
+		return $this->getBoolean("isConfirmationPresent", []);
 	}
 
 	/**
@@ -1181,7 +1181,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string The message of the most recent JavaScript alert
 	 */
 	public function getAlert() {
-		return $this->getString("getAlert", array());
+		return $this->getString("getAlert", []);
 	}
 
 	/**
@@ -1205,7 +1205,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the message of the most recent JavaScript confirmation dialog
 	 */
 	public function getConfirmation() {
-		return $this->getString("getConfirmation", array());
+		return $this->getString("getConfirmation", []);
 	}
 
 	/**
@@ -1227,7 +1227,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the message of the most recent JavaScript question prompt
 	 */
 	public function getPrompt() {
-		return $this->getString("getPrompt", array());
+		return $this->getString("getPrompt", []);
 	}
 
 	/**
@@ -1236,7 +1236,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the absolute URL of the current page
 	 */
 	public function getLocation() {
-		return $this->getString("getLocation", array());
+		return $this->getString("getLocation", []);
 	}
 
 	/**
@@ -1245,7 +1245,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the title of the current page
 	 */
 	public function getTitle() {
-		return $this->getString("getTitle", array());
+		return $this->getString("getTitle", []);
 	}
 
 	/**
@@ -1255,7 +1255,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 */
 	public function getBodyText($force = false) {
 		if ($this->page_body === null || $force) {
-			$this->page_body = $this->getString("getBodyText", array());
+			$this->page_body = $this->getString("getBodyText", []);
 		}
 		return $this->page_body;
 	}
@@ -1269,9 +1269,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the element value, or "on/off" for checkbox/radio elements
 	 */
 	public function getValue($locator) {
-		return $this->getString("getValue", array(
+		return $this->getString("getValue", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1285,9 +1285,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the text of the element
 	 */
 	public function getText($locator) {
-		return $this->getString("getText", array(
+		return $this->getString("getText", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1296,10 +1296,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $locator an element locator
 	 */
-	public function highlight($locator) {
-		$this->doCommand("highlight", array(
+	public function highlight($locator): void {
+		$this->doCommand("highlight", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1320,9 +1320,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the results of evaluating the snippet
 	 */
 	public function getEval($script) {
-		return $this->getString("getEval", array(
+		return $this->getString("getEval", [
 			$script,
-		));
+		]);
 	}
 
 	/**
@@ -1333,9 +1333,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return boolean true if the checkbox is checked, false otherwise
 	 */
 	public function isChecked($locator) {
-		return $this->getBoolean("isChecked", array(
+		return $this->getBoolean("isChecked", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1347,9 +1347,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the text from the specified cell
 	 */
 	public function getTable($tableCellAddress) {
-		return $this->getString("getTable", array(
+		return $this->getString("getTable", [
 			$tableCellAddress,
-		));
+		]);
 	}
 
 	/**
@@ -1359,9 +1359,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return array an array of all selected option labels in the specified select drop-down
 	 */
 	public function getSelectedLabels($selectLocator) {
-		return $this->getStringArray("getSelectedLabels", array(
+		return $this->getStringArray("getSelectedLabels", [
 			$selectLocator,
-		));
+		]);
 	}
 
 	/**
@@ -1371,9 +1371,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the selected option label in the specified select drop-down
 	 */
 	public function getSelectedLabel($selectLocator) {
-		return $this->getString("getSelectedLabel", array(
+		return $this->getString("getSelectedLabel", [
 			$selectLocator,
-		));
+		]);
 	}
 
 	/**
@@ -1383,9 +1383,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return array an array of all selected option values in the specified select drop-down
 	 */
 	public function getSelectedValues($selectLocator) {
-		return $this->getStringArray("getSelectedValues", array(
+		return $this->getStringArray("getSelectedValues", [
 			$selectLocator,
-		));
+		]);
 	}
 
 	/**
@@ -1395,9 +1395,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the selected option value in the specified select drop-down
 	 */
 	public function getSelectedValue($selectLocator) {
-		return $this->getString("getSelectedValue", array(
+		return $this->getString("getSelectedValue", [
 			$selectLocator,
-		));
+		]);
 	}
 
 	/**
@@ -1408,9 +1408,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return array an array of all selected option indexes in the specified select drop-down
 	 */
 	public function getSelectedIndexes($selectLocator) {
-		return $this->getStringArray("getSelectedIndexes", array(
+		return $this->getStringArray("getSelectedIndexes", [
 			$selectLocator,
-		));
+		]);
 	}
 
 	/**
@@ -1420,9 +1420,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the selected option index in the specified select drop-down
 	 */
 	public function getSelectedIndex($selectLocator) {
-		return $this->getString("getSelectedIndex", array(
+		return $this->getString("getSelectedIndex", [
 			$selectLocator,
-		));
+		]);
 	}
 
 	/**
@@ -1432,9 +1432,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return array an array of all selected option IDs in the specified select drop-down
 	 */
 	public function getSelectedIds($selectLocator) {
-		return $this->getStringArray("getSelectedIds", array(
+		return $this->getStringArray("getSelectedIds", [
 			$selectLocator,
-		));
+		]);
 	}
 
 	/**
@@ -1444,9 +1444,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the selected option ID in the specified select drop-down
 	 */
 	public function getSelectedId($selectLocator) {
-		return $this->getString("getSelectedId", array(
+		return $this->getString("getSelectedId", [
 			$selectLocator,
-		));
+		]);
 	}
 
 	/**
@@ -1456,9 +1456,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return boolean true if some option has been selected, false otherwise
 	 */
 	public function isSomethingSelected($selectLocator) {
-		return $this->getBoolean("isSomethingSelected", array(
+		return $this->getBoolean("isSomethingSelected", [
 			$selectLocator,
-		));
+		]);
 	}
 
 	/**
@@ -1468,9 +1468,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return array an array of all option labels in the specified select drop-down
 	 */
 	public function getSelectOptions($selectLocator) {
-		return $this->getStringArray("getSelectOptions", array(
+		return $this->getStringArray("getSelectOptions", [
 			$selectLocator,
-		));
+		]);
 	}
 
 	/**
@@ -1481,9 +1481,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the value of the specified attribute
 	 */
 	public function getAttribute($attributeLocator) {
-		return $this->getString("getAttribute", array(
+		return $this->getString("getAttribute", [
 			$attributeLocator,
-		));
+		]);
 	}
 
 	/**
@@ -1493,9 +1493,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return boolean true if the pattern matches the text, false otherwise
 	 */
 	public function isTextPresent($pattern) {
-		return $this->getBoolean("isTextPresent", array(
+		return $this->getBoolean("isTextPresent", [
 			$pattern,
-		));
+		]);
 	}
 
 	/**
@@ -1505,9 +1505,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return boolean true if the element is present, false otherwise
 	 */
 	public function isElementPresent($locator) {
-		return $this->getBoolean("isElementPresent", array(
+		return $this->getBoolean("isElementPresent", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1522,9 +1522,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return boolean true if the specified element is visible, false otherwise
 	 */
 	public function is_visible($locator) {
-		return $this->getBoolean("isVisible", array(
+		return $this->getBoolean("isVisible", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1535,9 +1535,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return boolean true if the input element is editable, false otherwise
 	 */
 	public function isEditable($locator) {
-		return $this->getBoolean("isEditable", array(
+		return $this->getBoolean("isEditable", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1549,7 +1549,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return array the IDs of all buttons on the page
 	 */
 	public function getAllButtons() {
-		return $this->getStringArray("getAllButtons", array());
+		return $this->getStringArray("getAllButtons", []);
 	}
 
 	/**
@@ -1561,7 +1561,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return array the IDs of all links on the page
 	 */
 	public function getAllLinks() {
-		return $this->getStringArray("getAllLinks", array());
+		return $this->getStringArray("getAllLinks", []);
 	}
 
 	/**
@@ -1573,7 +1573,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return array the IDs of all field on the page
 	 */
 	public function getAllFields() {
-		return $this->getStringArray("getAllFields", array());
+		return $this->getStringArray("getAllFields", []);
 	}
 
 	/**
@@ -1583,9 +1583,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return array the set of values of this attribute from all known windows.
 	 */
 	public function getAttributeFromAllWindows($attributeName) {
-		return $this->getStringArray("getAttributeFromAllWindows", array(
+		return $this->getStringArray("getAttributeFromAllWindows", [
 			$attributeName,
-		));
+		]);
 	}
 
 	/**
@@ -1595,11 +1595,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $movementsString offset in pixels from the current location to which the element should be moved,
 	 *        	e.g., "+70,-300"
 	 */
-	public function dragdrop($locator, $movementsString) {
-		$this->doCommand("dragdrop", array(
+	public function dragdrop($locator, $movementsString): void {
+		$this->doCommand("dragdrop", [
 			$locator,
 			$movementsString,
-		));
+		]);
 	}
 
 	/**
@@ -1615,10 +1615,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $pixels the number of pixels between "mousemove" events
 	 */
-	public function setMouseSpeed($pixels) {
-		$this->doCommand("setMouseSpeed", array(
+	public function setMouseSpeed($pixels): void {
+		$this->doCommand("setMouseSpeed", [
 			$pixels,
-		));
+		]);
 	}
 
 	/**
@@ -1627,7 +1627,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return number the number of pixels between "mousemove" events during dragAndDrop commands (default=10)
 	 */
 	public function getMouseSpeed() {
-		return $this->getNumber("getMouseSpeed", array());
+		return $this->getNumber("getMouseSpeed", []);
 	}
 
 	/**
@@ -1637,11 +1637,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $movementsString offset in pixels from the current location to which the element should be moved,
 	 *        	e.g., "+70,-300"
 	 */
-	public function dragAndDrop($locator, $movementsString) {
-		$this->doCommand("dragAndDrop", array(
+	public function dragAndDrop($locator, $movementsString): void {
+		$this->doCommand("dragAndDrop", [
 			$locator,
 			$movementsString,
-		));
+		]);
 	}
 
 	/**
@@ -1651,27 +1651,27 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $locatorOfDragDestinationObject an element whose location (i.e., whose center-most pixel) will be
 	 *        	the point where locatorOfObjectToBeDragged is dropped
 	 */
-	public function dragAndDropToObject($locatorOfObjectToBeDragged, $locatorOfDragDestinationObject) {
-		$this->doCommand("dragAndDropToObject", array(
+	public function dragAndDropToObject($locatorOfObjectToBeDragged, $locatorOfDragDestinationObject): void {
+		$this->doCommand("dragAndDropToObject", [
 			$locatorOfObjectToBeDragged,
 			$locatorOfDragDestinationObject,
-		));
+		]);
 	}
 
 	/**
 	 * Gives focus to the currently selected window
 	 * @access public
 	 */
-	public function windowFocus() {
-		$this->doCommand("windowFocus", array());
+	public function windowFocus(): void {
+		$this->doCommand("windowFocus", []);
 	}
 
 	/**
 	 * Resize currently selected window to take up the entire screen
 	 * @access public
 	 */
-	public function windowMaximize() {
-		$this->doCommand("windowMaximize", array());
+	public function windowMaximize(): void {
+		$this->doCommand("windowMaximize", []);
 	}
 
 	/**
@@ -1680,7 +1680,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return array the IDs of all windows that the browser knows about.
 	 */
 	public function getAllWindowIds() {
-		return $this->getStringArray("getAllWindowIds", array());
+		return $this->getStringArray("getAllWindowIds", []);
 	}
 
 	/**
@@ -1689,7 +1689,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return array the names of all windows that the browser knows about.
 	 */
 	public function getAllWindowNames() {
-		return $this->getStringArray("getAllWindowNames", array());
+		return $this->getStringArray("getAllWindowNames", []);
 	}
 
 	/**
@@ -1698,7 +1698,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return array the titles of all windows that the browser knows about.
 	 */
 	public function getAllWindowTitles() {
-		return $this->getStringArray("getAllWindowTitles", array());
+		return $this->getStringArray("getAllWindowTitles", []);
 	}
 
 	/**
@@ -1708,7 +1708,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the entire HTML source
 	 */
 	public function getHtmlSource() {
-		return $this->getString("getHtmlSource", array());
+		return $this->getString("getHtmlSource", []);
 	}
 
 	/**
@@ -1720,11 +1720,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 *        	position to the beginning of the field. You can also set the cursor to -1 to move it to the end of the
 	 *        	field.
 	 */
-	public function setCursorPosition($locator, $position) {
-		$this->doCommand("setCursorPosition", array(
+	public function setCursorPosition($locator, $position): void {
+		$this->doCommand("setCursorPosition", [
 			$locator,
 			$position,
-		));
+		]);
 	}
 
 	/**
@@ -1736,9 +1736,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return number of relative index of the element to its parent (starting from 0)
 	 */
 	public function getElementIndex($locator) {
-		return $this->getNumber("getElementIndex", array(
+		return $this->getNumber("getElementIndex", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1751,10 +1751,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return boolean true if element1 is the previous sibling of element2, false otherwise
 	 */
 	public function isOrdered($locator1, $locator2) {
-		return $this->getBoolean("isOrdered", array(
+		return $this->getBoolean("isOrdered", [
 			$locator1,
 			$locator2,
-		));
+		]);
 	}
 
 	/**
@@ -1764,9 +1764,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return number of pixels from the edge of the frame.
 	 */
 	public function getElementPositionLeft($locator) {
-		return $this->getNumber("getElementPositionLeft", array(
+		return $this->getNumber("getElementPositionLeft", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1776,9 +1776,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return number of pixels from the edge of the frame.
 	 */
 	public function getElementPositionTop($locator) {
-		return $this->getNumber("getElementPositionTop", array(
+		return $this->getNumber("getElementPositionTop", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1788,9 +1788,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return number width of an element in pixels
 	 */
 	public function getElementWidth($locator) {
-		return $this->getNumber("getElementWidth", array(
+		return $this->getNumber("getElementWidth", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1800,9 +1800,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return number height of an element in pixels
 	 */
 	public function getElementHeight($locator) {
-		return $this->getNumber("getElementHeight", array(
+		return $this->getNumber("getElementHeight", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1820,9 +1820,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return number the numerical position of the cursor in the field
 	 */
 	public function getCursorPosition($locator) {
-		return $this->getNumber("getCursorPosition", array(
+		return $this->getNumber("getCursorPosition", [
 			$locator,
-		));
+		]);
 	}
 
 	/**
@@ -1836,9 +1836,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string the value passed in
 	 */
 	public function getExpression($expression) {
-		return $this->getString("getExpression", array(
+		return $this->getString("getExpression", [
 			$expression,
-		));
+		]);
 	}
 
 	/**
@@ -1851,9 +1851,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return number the number of nodes that match the specified xpath
 	 */
 	public function getXpathCount($xpath) {
-		return $this->getNumber("getXpathCount", array(
+		return $this->getNumber("getXpathCount", [
 			$xpath,
-		));
+		]);
 	}
 
 	/**
@@ -1865,11 +1865,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $locator an element locator pointing to an element
 	 * @param string $identifier a string to be used as the ID of the specified element
 	 */
-	public function assignId($locator, $identifier) {
-		$this->doCommand("assignId", array(
+	public function assignId($locator, $identifier): void {
+		$this->doCommand("assignId", [
 			$locator,
 			$identifier,
-		));
+		]);
 	}
 
 	/**
@@ -1882,10 +1882,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $allow boolean, true means we'll prefer to use native XPath; false means we'll only use JS XPath
 	 */
-	public function allowNativeXpath($allow) {
-		$this->doCommand("allowNativeXpath", array(
+	public function allowNativeXpath($allow): void {
+		$this->doCommand("allowNativeXpath", [
 			$allow,
-		));
+		]);
 	}
 
 	/**
@@ -1902,11 +1902,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $script the JavaScript snippet to run
 	 * @param string $timeout a timeout in milliseconds, after which this command will return with an error
 	 */
-	public function waitForCondition($script, $timeout) {
-		$this->doCommand("waitForCondition", array(
+	public function waitForCondition($script, $timeout): void {
+		$this->doCommand("waitForCondition", [
 			$script,
 			$timeout,
-		));
+		]);
 	}
 
 	/**
@@ -1918,10 +1918,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $timeout a timeout in milliseconds, after which the action will return with an error
 	 */
-	public function setTimeout($timeout) {
-		$this->doCommand("setTimeout", array(
+	public function setTimeout($timeout): void {
+		$this->doCommand("setTimeout", [
 			$timeout,
-		));
+		]);
 	}
 
 	/**
@@ -1938,13 +1938,13 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $timeout a timeout in milliseconds, after which this command will return with an error
 	 */
-	public function waitForPageToLoad($timeout = "30000") {
-		$this->doCommand("waitForPageToLoad", array(
+	public function waitForPageToLoad($timeout = "30000"): void {
+		$this->doCommand("waitForPageToLoad", [
 			$timeout,
-		));
+		]);
 	}
 
-	public function waitForAjax($pattern, $timeout = 30) {
+	public function waitForAjax($pattern, $timeout = 30): void {
 		$timer = new Timer();
 		$delay = 0;
 		$html = null;
@@ -1957,7 +1957,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 				sleep($delay);
 			}
 			$delay = min($delay + 1, 3);
-		} while (strpos($html, $pattern) === false);
+		} while (!str_contains($html, $pattern));
 	}
 
 	/**
@@ -1971,11 +1971,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $frameAddress FrameAddress from the server side
 	 * @param string $timeout a timeout in milliseconds, after which this command will return with an error
 	 */
-	public function waitForFrameToLoad($frameAddress, $timeout) {
-		$this->doCommand("waitForFrameToLoad", array(
+	public function waitForFrameToLoad($frameAddress, $timeout): void {
+		$this->doCommand("waitForFrameToLoad", [
 			$frameAddress,
 			$timeout,
-		));
+		]);
 	}
 
 	/**
@@ -1984,7 +1984,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @return string all cookies of the current page under test
 	 */
 	public function getCookie() {
-		return $this->getString("getCookie", array());
+		return $this->getString("getCookie", []);
 	}
 
 	/**
@@ -1996,11 +1996,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 *        	the optionsString's format is "path=/path/, max_age=60". The order of options are irrelevant, the unit
 	 *        	of the value of 'max_age' is second.
 	 */
-	public function createCookie($nameValuePair, $optionsString) {
-		$this->doCommand("createCookie", array(
+	public function createCookie($nameValuePair, $optionsString): void {
+		$this->doCommand("createCookie", [
 			$nameValuePair,
 			$optionsString,
-		));
+		]);
 	}
 
 	/**
@@ -2009,11 +2009,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $name the name of the cookie to be deleted
 	 * @param string $path the path property of the cookie to be deleted
 	 */
-	public function deleteCookie($name, $path) {
-		$this->doCommand("deleteCookie", array(
+	public function deleteCookie($name, $path): void {
+		$this->doCommand("deleteCookie", [
 			$name,
 			$path,
-		));
+		]);
 	}
 
 	/**
@@ -2024,10 +2024,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $logLevel one of the following: "debug", "info", "warn", "error" or "off"
 	 */
-	public function setBrowserLogLevel($logLevel) {
-		$this->doCommand("setBrowserLogLevel", array(
+	public function setBrowserLogLevel($logLevel): void {
+		$this->doCommand("setBrowserLogLevel", [
 			$logLevel,
-		));
+		]);
 	}
 
 	/**
@@ -2042,10 +2042,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $script the JavaScript snippet to run
 	 */
-	public function runScript($script) {
-		$this->doCommand("runScript", array(
+	public function runScript($script): void {
+		$this->doCommand("runScript", [
 			$script,
-		));
+		]);
 	}
 
 	/**
@@ -2074,11 +2074,11 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @param string $functionDefinition a string defining the body of a function in JavaScript. For example:
 	 *        	<code>return inDocument.getElementById(locator);</code>
 	 */
-	public function addLocationStrategy($strategyName, $functionDefinition) {
-		$this->doCommand("addLocationStrategy", array(
+	public function addLocationStrategy($strategyName, $functionDefinition): void {
+		$this->doCommand("addLocationStrategy", [
 			$strategyName,
 			$functionDefinition,
-		));
+		]);
 	}
 
 	/**
@@ -2087,10 +2087,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $context the message to be sent to the browser
 	 */
-	public function setContext($context) {
-		$this->doCommand("setContext", array(
+	public function setContext($context): void {
+		$this->doCommand("setContext", [
 			$context,
-		));
+		]);
 	}
 
 	/**
@@ -2098,10 +2098,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $filename the absolute path to the file to be written, e.g. "c:\blah\screenshot.png"
 	 */
-	public function captureScreenshot($filename) {
-		$this->doCommand("captureScreenshot", array(
+	public function captureScreenshot($filename): void {
+		$this->doCommand("captureScreenshot", [
 			$filename,
-		));
+		]);
 	}
 
 	protected function http_get_fopen($url) {
@@ -2126,13 +2126,13 @@ class Test_Selenium_Legacy extends Test_Unit {
 		return $data;
 	}
 
-	protected function doCommand($verb, $args = array()) {
+	protected function doCommand($verb, $args = []) {
 		$this->clearCaches();
-		$this->application->logger->debug("{verb}({args_string})", array(
+		$this->application->logger->debug("{verb}({args_string})", [
 			"verb" => $verb,
 			"args_string" => implode(",", $args),
 			"args",
-		));
+		]);
 		$url = sprintf('http://%s:%s/selenium-server/driver/?cmd=%s', $this->host, $this->port, urlencode($verb));
 		for ($i = 0; $i < count($args); $i++) {
 			$argNum = strval($i + 1);
@@ -2149,7 +2149,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 		return $response;
 	}
 
-	private function getString($verb, $args = array()) {
+	private function getString($verb, $args = []) {
 		$result = $this->doCommand($verb, $args);
 		if (strlen($result) === 3) {
 			return "";
@@ -2157,10 +2157,10 @@ class Test_Selenium_Legacy extends Test_Unit {
 		return substr($result, 3);
 	}
 
-	private function getStringArray($verb, $args = array()) {
+	private function getStringArray($verb, $args = []) {
 		$csv = $this->getString($verb, $args);
 		$token = '';
-		$tokens = array();
+		$tokens = [];
 		$letters = preg_split('//', $csv, -1, PREG_SPLIT_NO_EMPTY);
 		for ($i = 0; $i < count($letters); $i++) {
 			$letter = $letters[$i];
@@ -2183,7 +2183,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 		return $tokens;
 	}
 
-	private function getBoolean($verb, $args = array()) {
+	private function getBoolean($verb, $args = []) {
 		$result = $this->getString($verb, $args);
 		switch ($result) {
 			case 'true':
@@ -2195,18 +2195,18 @@ class Test_Selenium_Legacy extends Test_Unit {
 		}
 	}
 
-	public function clearCaches() {
+	public function clearCaches(): void {
 		$this->page_title = null;
 		$this->page_body = null;
 		$this->page_html = null;
-		$this->text = array();
+		$this->text = [];
 	}
 
 	public function assertTitleContains($text) {
 		if ($this->page_title === null) {
 			$this->page_title = $this->getTitle();
 		}
-		if (strpos($this->page_title, $text) !== false) {
+		if (str_contains($this->page_title, $text)) {
 			return true;
 		}
 		$this->failed("Title \"$this->page_title\" doesn't contain string \"$text\"");
@@ -2223,7 +2223,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			}
 			return true;
 		}
-		return (strpos($content, $text) !== false);
+		return (str_contains($content, $text));
 	}
 
 	public function assertPageContains($text) {
@@ -2236,7 +2236,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			}
 			return true;
 		} else {
-			if (strpos($content, $text) !== false) {
+			if (str_contains($content, $text)) {
 				return true;
 			}
 			$this->failed("Body*****\n$content\n*****\ndoesn't contain string \"$text\"");
@@ -2283,7 +2283,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			}
 			return true;
 		} else {
-			if (strpos($this->page_html, $text) === false) {
+			if (!str_contains($this->page_html, $text)) {
 				return true;
 			}
 			$this->failed("HTML *****\n$this->page_html\n*****\ncontains string \"$text\"");
@@ -2301,7 +2301,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			}
 			return true;
 		} else {
-			if (strpos($content, $text) === false) {
+			if (!str_contains($content, $text)) {
 				return true;
 			}
 			$this->failed("Body\n\n$content\nEOF contains contain string \"$text\" but shouldn't");
@@ -2312,7 +2312,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function assertSelectedlabel($locator, $value, $partial = false) {
 		$site_value = $this->getSelectedLabel($locator);
 		if ($partial) {
-			if (strpos($site_value, $value) === false) {
+			if (!str_contains($site_value, $value)) {
 				$this->failed("Select $locator does not match expected value \"$value\": \"$site_value\"");
 				return false;
 			}
@@ -2325,33 +2325,33 @@ class Test_Selenium_Legacy extends Test_Unit {
 		return true;
 	}
 
-	public function assertEquals($a, $b, $message = "") {
+	public function assertEquals($a, $b, $message = ""): void {
 		if ($a !== $b) {
 			$this->failed("\"$a\" !== \"$b\": $message");
 		}
 	}
 
-	public function assertValue($locator, $value) {
+	public function assertValue($locator, $value): void {
 		$site_value = $this->getValue($locator);
 		if ($site_value !== $value) {
 			$this->failed("Element $locator does not match expected value \"$value\" (" . gettype($value) . "): \"$site_value\" (" . gettype($site_value) . ")");
 		}
 	}
 
-	public function assertConfirmationContains($pattern) {
+	public function assertConfirmationContains($pattern): void {
 		$confirmation = $this->getConfirmation();
-		if (strpos($confirmation, $pattern) === false) {
+		if (!str_contains($confirmation, $pattern)) {
 			$this->failed("Confirmation \"$confirmation\" does not contain pattern \"$pattern\"");
 		}
 	}
 
-	public function assertTrue($boolean, $message = "") {
+	public function assertTrue($boolean, $message = ""): void {
 		if (!$boolean) {
 			$this->failed($message);
 		}
 	}
 
-	public function assertFalse($boolean, $message = "") {
+	public function assertFalse($boolean, $message = ""): void {
 		if ($boolean) {
 			$this->failed($message);
 		}
@@ -2365,7 +2365,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @param string $locator an element locator
 	 */
-	public function clickAndWait($locator, $timeout = "30000") {
+	public function clickAndWait($locator, $timeout = "30000"): void {
 		$this->click($locator);
 		$this->waitForPageToLoad($timeout);
 	}

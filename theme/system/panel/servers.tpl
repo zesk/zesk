@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -19,13 +19,13 @@ $output_header = false;
 /* @var $server zesk\Server */
 foreach ($servers as $server) {
 	if (!$output_header) {
-		echo HTML::tag("div", array(
+		echo HTML::tag("div", [
 			"class" => "row header server-status server-status-header",
-		), $server->theme("status-row-header"));
+		], $server->theme("status-row-header"));
 		$output_header = true;
 	}
-	echo HTML::tag("div", array(
+	echo HTML::tag("div", [
 		"class" => "row server-status server-status-row",
 		"id" => "server-status-" . $server->id(),
-	), $server->theme("status-row"));
+	], $server->theme("status-row"));
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -20,7 +20,7 @@ class Repository extends ORM {
 	 *
 	 * @param Application $application
 	 */
-	public static function cron_hour(Application $application) {
+	public static function cron_hour(Application $application): void {
 		self::update_all_versions($application, false);
 	}
 
@@ -29,11 +29,11 @@ class Repository extends ORM {
 	 *
 	 * @param Application $application
 	 */
-	public static function cron(Application $application) {
+	public static function cron(Application $application): void {
 		self::update_all_versions($application, true);
 	}
 
-	public static function update_all_versions(Application $application, $only_if_empty = false) {
+	public static function update_all_versions(Application $application, $only_if_empty = false): void {
 		$iterator = $application->orm_registry(__CLASS__)
 			->query_select()
 			->where("active", true)

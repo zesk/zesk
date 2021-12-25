@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -9,11 +9,11 @@ namespace zesk;
 class Class_PolyGlot_Token extends Class_ORM {
 	public $id_column = "id";
 
-	public $has_one = array(
+	public $has_one = [
 		"user" => "zesk\\User",
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		'id' => self::type_id,
 		'language' => self::type_string,
 		'dialect' => self::type_string,
@@ -24,5 +24,5 @@ class Class_PolyGlot_Token extends Class_ORM {
 		'context' => self::type_string,
 		'status' => self::type_string,
 		'updated' => self::type_modified,
-	);
+	];
 }

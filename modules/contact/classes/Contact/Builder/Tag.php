@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage contact
@@ -23,10 +23,10 @@ class Contact_Builder_Tag extends Contact_Builder_Base {
 		$value = to_list($value);
 		if (is_array($value)) {
 			foreach ($value as $val) {
-				$import->merge_item($this->contact_class, $val, array(
+				$import->merge_item($this->contact_class, $val, [
 					'Name' => $val,
 					"Account" => "{account}",
-				));
+				]);
 			}
 		}
 		return true;

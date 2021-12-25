@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -7,15 +7,15 @@ namespace zesk;
  * @category Modules
  */
 class Command_Module_Version extends Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		'*' => 'string',
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		'*' => 'List of modules to get version numbers for',
-	);
+	];
 
-	public function run() {
+	public function run(): void {
 		$app = $this->application;
 		$modules = $this->arguments_remaining(true);
 		if (count($modules) === 0) {

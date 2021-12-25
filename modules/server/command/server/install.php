@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -13,9 +13,9 @@ namespace zesk;
  * @category Management
  */
 class Command_Server_Install extends Command {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		'server',
-	);
+	];
 
 	/**
 	 * Help string
@@ -29,7 +29,7 @@ class Command_Server_Install extends Command {
 	 *
 	 * @var array
 	 */
-	protected $option_types = array(
+	protected array $option_types = [
 		'awareness' => 'boolean',
 		'verbose' => 'boolean',
 		'host-path' => 'dir',
@@ -38,9 +38,9 @@ class Command_Server_Install extends Command {
 		'simulate-path' => 'dir',
 		'configure-type' => 'string',
 		'*' => 'string',
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		'awareness' => 'Use Amazon EC2 Awareness to configure',
 		'verbose' => 'Be verbose',
 		'host-name' => 'Use this host name for configuration',
@@ -49,20 +49,20 @@ class Command_Server_Install extends Command {
 		'simulate-path' => 'Local directory to output root configuration steps',
 		'configure-type' => 'One of "files" or "server"',
 		'*' => "A list of specific features to configure",
-	);
+	];
 
-	protected $option_defaults = array(
+	protected array $option_defaults = [
 		'awareness' => false,
 		'verbose' => false,
 		'simulate-path' => '/var/zesk/server/',
-	);
+	];
 
-	protected function run() {
+	protected function run(): void {
 		$this->configure('server-install');
 
-		$this->verbose_log("Running {class}", array(
+		$this->verbose_log("Running {class}", [
 			"class" => __CLASS__,
-		));
+		]);
 
 		try {
 			/* @var $platform Server_Platform */
@@ -70,13 +70,13 @@ class Command_Server_Install extends Command {
 		} catch (Exception $e) {
 			$this->usage($e->getMessage());
 		}
-		$this->verbose_log("Configuring {class}", array(
+		$this->verbose_log("Configuring {class}", [
 			"class" => get_class($platform),
-		));
+		]);
 
 		$features = null;
 		if ($this->has_arg()) {
-			$features = array();
+			$features = [];
 			do {
 				$feature = $this->get_arg("feature");
 				if ($platform->feature_exists($feature)) {

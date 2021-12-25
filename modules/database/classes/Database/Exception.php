@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage objects
@@ -24,7 +24,7 @@ class Database_Exception extends Exception {
 	 * @param Exception|null $previous
 	 * @return void
 	 */
-	public function __construct(Database $database, $message, $arguments = array(), $code = null, \Exception $previous = null) {
+	public function __construct(Database $database, $message, $arguments = [], $code = null, \Exception $previous = null) {
 		$this->database = $database;
 		parent::__construct($message, $arguments, $code, $previous);
 	}

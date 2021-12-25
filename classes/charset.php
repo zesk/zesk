@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Convert from one charset to another
  *
@@ -15,7 +15,7 @@ class charset {
 	/**
 	 *
 	 */
-	private static $tables = array();
+	private static $tables = [];
 
 	/**
 	 * Convert an array of strings or a string from the given charset to UTF-8.
@@ -26,7 +26,7 @@ class charset {
 	 * @throws Exception_Convert
 	 * @throws Exception_File_Format
 	 */
-	public static function to_utf8($data, $charset, &$missing = array()) {
+	public static function to_utf8($data, $charset, &$missing = []) {
 		if (is_array($data)) {
 			foreach ($data as $k => $v) {
 				$data[$k] = self::to_utf8($v, $charset, $missing);
@@ -78,9 +78,9 @@ class charset {
 				throw new Exception_Convert("Unknown charset $charset");
 			}
 			$lines = file($path, FILE_SKIP_EMPTY_LINES);
-			$table = array();
+			$table = [];
 			foreach ($lines as $line_number => $original_line) {
-				if (strpos($original_line, '#UNDEFINED') !== false) {
+				if (str_contains($original_line, '#UNDEFINED')) {
 					continue;
 				}
 				$line = preg_replace('/\s+/', ' ', trim(StringTools::left($original_line, "#")));
@@ -129,7 +129,7 @@ class charset {
 	 */
 	private static function list_all() {
 		$iter = new DirectoryIterator(self::charset_path());
-		$result = array();
+		$result = [];
 		foreach ($iter as $file) {
 			if ($file->isDir()) {
 				continue;

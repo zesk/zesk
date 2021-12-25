@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,23 +10,23 @@ namespace zesk;
  * @category Modules
  */
 class Command_Class_New extends Command {
-	protected $option_types = array(
+	protected array $option_types = [
 		'app' => 'boolean',
 		'zesk' => 'boolean',
 		'sql' => 'boolean',
 		'schema' => 'boolean',
 		'*' => 'string',
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		'app' => 'Create class in the application (default)',
 		'zesk' => 'Create classin zesk',
 		'sql' => 'Create SQL file instead of a Schema file (default)',
 		'schema' => 'Create Schema class instead of a SQL file',
 		'*' => "Names of the classes to create (capitalization matters)",
-	);
+	];
 
-	public function run() {
+	public function run(): void {
 		$names = $this->arguments_remaining(true);
 		if (count($names) === 0) {
 			$this->usage("Must specify class names to create");
@@ -56,7 +56,7 @@ class Command_Class_New extends Command {
 		}
 	}
 
-	public function questionnaire($class) {
+	public function questionnaire($class): void {
 		throw new Exception_Unimplemented(__METHOD__);
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
@@ -35,7 +35,7 @@ class Options implements \ArrayAccess {
 	 * Character used for space
 	 * @var string
 	 */
-	const OPTION_SPACE = "_";
+	public const OPTION_SPACE = "_";
 
 	/**
 	 * An associative array of lower-case strings pointing to mixed values. $options should
@@ -45,7 +45,7 @@ class Options implements \ArrayAccess {
 	 *
 	 * @var array
 	 */
-	protected $options = array();
+	protected array $options = [];
 
 	/**
 	 * Create a Options object.
@@ -53,7 +53,7 @@ class Options implements \ArrayAccess {
 	 * @return Options
 	 * @param array $options An array of options to set up, or false for no options.
 	 */
-	public function __construct(array $options = array()) {
+	public function __construct(array $options = []) {
 		if (count($this->options) > 0) {
 			$this->options = self::_option_key($this->options);
 		}
@@ -64,9 +64,9 @@ class Options implements \ArrayAccess {
 	 * @ignore
 	 */
 	public function __sleep() {
-		return array(
+		return [
 			"options",
-		);
+		];
 	}
 
 	/**
@@ -102,7 +102,7 @@ class Options implements \ArrayAccess {
 		if ($selected === null) {
 			return $this->options;
 		}
-		$result = array();
+		$result = [];
 		foreach (to_list($selected) as $k) {
 			$k = self::_option_key($k);
 			if (isset($this->options[$k])) {
@@ -208,9 +208,9 @@ class Options implements \ArrayAccess {
 		$name = self::_option_key($name);
 		$current_value = avalue($this->options, $name);
 		if (is_scalar($current_value) && $current_value !== null && $current_value !== false) {
-			$this->options[$name] = array(
+			$this->options[$name] = [
 				$current_value,
-			);
+			];
 		}
 		$this->options[$name][] = $value;
 		return $this;
@@ -343,17 +343,17 @@ class Options implements \ArrayAccess {
 	 */
 	final protected static function _option_key($name) {
 		if (is_array($name)) {
-			$result = array();
+			$result = [];
 			foreach ($name as $k => $v) {
 				$result[self::_option_key($k)] = $v;
 			}
 			return $result;
 		}
-		return strtolower(strtr(trim($name), array(
+		return strtolower(strtr(trim($name), [
 			"-" => self::OPTION_SPACE,
 			"_" => self::OPTION_SPACE,
 			" " => self::OPTION_SPACE,
-		)));
+		]));
 	}
 
 	/**
@@ -388,7 +388,7 @@ class Options implements \ArrayAccess {
 	public function option_double($name, $default = null) {
 		$name = self::_option_key($name);
 		if (isset($this->options[$name]) && is_numeric($this->options[$name])) {
-			return doubleval($this->options[$name]);
+			return floatval($this->options[$name]);
 		}
 		return $default;
 	}
@@ -401,7 +401,7 @@ class Options implements \ArrayAccess {
 	 * @return array The real value of the option, or $default. The default value is passed back without modification.
 	 * @see is_array()
 	 */
-	public function option_array($name, $default = array()) {
+	public function option_array($name, $default = []) {
 		$name = self::_option_key($name);
 		if (isset($this->options[$name]) && is_array($this->options[$name])) {
 			return $this->options[$name];
@@ -417,7 +417,7 @@ class Options implements \ArrayAccess {
 	 * @see is_array()
 	 */
 	public function option_path($path, $default = null, $separator = ".") {
-		$path = to_list($path, array(), $separator);
+		$path = to_list($path, [], $separator);
 		if (count($path) === 0) {
 			return $default;
 		}
@@ -464,10 +464,10 @@ class Options implements \ArrayAccess {
 	 * @return array The string exploded by $delimiter, or the array value. The default value is passed back without modification.
 	 * @see is_array(), explode()
 	 */
-	public function option_list($name, $default = array(), $delimiter = ";") {
+	public function option_list($name, $default = [], $delimiter = ";") {
 		$name = self::_option_key($name);
 		if (!isset($this->options[$name])) {
-			return to_list($default, array(), $delimiter);
+			return to_list($default, [], $delimiter);
 		}
 		return to_list($this->options[$name], $default, $delimiter);
 	}
@@ -526,16 +526,18 @@ class Options implements \ArrayAccess {
 	/**
 	 * @see ArrayAccess::offsetExists
 	 * @param offset
+	 * @return bool
 	 */
-	public function offsetExists($offset) {
+	public function offsetExists($offset): bool {
 		return array_key_exists(self::_option_key($offset), $this->options);
 	}
 
 	/**
 	 * @see ArrayAccess::offsetGet
 	 * @param offset
+	 * @return int
 	 */
-	public function offsetGet($offset) {
+	public function offsetGet($offset): int {
 		return avalue($this->options, self::_option_key($offset));
 	}
 
@@ -544,15 +546,16 @@ class Options implements \ArrayAccess {
 	 * @param offset
 	 * @param value
 	 */
-	public function offsetSet($offset, $value) {
+	public function offsetSet($offset, $value): void {
 		$this->options[self::_option_key($offset)] = $value;
 	}
 
 	/**
 	 * @see ArrayAccess::offsetUnset
 	 * @param offset
+	 * @return void
 	 */
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset): void {
 		unset($this->options[self::_option_key($offset)]);
 	}
 }

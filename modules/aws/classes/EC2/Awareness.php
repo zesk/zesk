@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -37,61 +37,61 @@ class Awareness extends Hookable {
 	 *
 	 * @var string
 	 */
-	const setting_hostname = "hostname";
+	public const setting_hostname = "hostname";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const setting_instance_id = "instance_id";
+	public const setting_instance_id = "instance_id";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const setting_instance_type = "instance_type";
+	public const setting_instance_type = "instance_type";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const setting_local_hostname = "local_hostname";
+	public const setting_local_hostname = "local_hostname";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const setting_local_ipv4 = "local_ipv4";
+	public const setting_local_ipv4 = "local_ipv4";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const setting_mac = "mac";
+	public const setting_mac = "mac";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const setting_public_hostname = "public_hostname";
+	public const setting_public_hostname = "public_hostname";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const setting_public_ipv4 = "public_ipv4";
+	public const setting_public_ipv4 = "public_ipv4";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const setting_security_groups = "security_groups";
+	public const setting_security_groups = "security_groups";
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const default_cache_expire_seconds = 600; // 10 Minutes
+	public const default_cache_expire_seconds = 600; // 10 Minutes
 
 	/**
 	 *
@@ -110,7 +110,7 @@ class Awareness extends Hookable {
 	 *
 	 * @var array
 	 */
-	private static $setting_to_suffix = array(
+	private static $setting_to_suffix = [
 		self::setting_hostname => "hostname",
 		self::setting_instance_id => "instance-id",
 		self::setting_instance_type => "instance-type",
@@ -120,14 +120,14 @@ class Awareness extends Hookable {
 		self::setting_public_hostname => "public-hostname",
 		self::setting_public_ipv4 => "public-ipv4",
 		self::setting_security_groups => "security-groups",
-	);
+	];
 
 	/**
 	 * Create a new AWS_EC2_Awareness
 	 *
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = array()) {
+	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 		$this->cache = $this->application->cache->getItem(__CLASS__);
@@ -187,7 +187,7 @@ class Awareness extends Hookable {
 			$mixed = array_keys(self::$setting_to_suffix);
 		}
 		if (is_array($mixed)) {
-			$result = array();
+			$result = [];
 			foreach ($mixed as $k) {
 				$result[$k] = $this->get($k);
 			}
@@ -219,7 +219,7 @@ class Awareness extends Hookable {
 		$ips = array_values(ArrayTools::clean(System::ip_addresses($this->application), "127.0.0.1"));
 		$macs = array_values(System::mac_addresses($this->application));
 
-		$settings = array(
+		$settings = [
 			self::setting_hostname => $host,
 			self::setting_instance_id => "i-ffffffff",
 			self::setting_instance_type => "mock",
@@ -229,7 +229,7 @@ class Awareness extends Hookable {
 			self::setting_public_hostname => $host,
 			self::setting_public_ipv4 => last($ips),
 			self::setting_security_groups => "mock-security-group",
-		);
+		];
 		foreach ($settings as $setting => $value) {
 			if ($this->has_option("mock_" . $setting)) {
 				$settings[$setting] = $this->option("mock_" . $setting);

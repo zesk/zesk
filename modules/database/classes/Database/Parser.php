@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -11,7 +11,7 @@ namespace zesk;
  *
  */
 abstract class Database_Parser extends Hookable {
-	const pattern_database_hint = '/--\s*Database:\s*(\w+)/i';
+	public const pattern_database_hint = '/--\s*Database:\s*(\w+)/i';
 
 	/**
 	 *
@@ -33,7 +33,7 @@ abstract class Database_Parser extends Hookable {
 	 * @param Database $database
 	 * @param array $options
 	 */
-	public function __construct(Database $database, array $options = array()) {
+	public function __construct(Database $database, array $options = []) {
 		$this->database = $database;
 		parent::__construct($database->application, $options);
 	}
@@ -49,7 +49,7 @@ abstract class Database_Parser extends Hookable {
 	public function parse_sql($sql, $field = null) {
 		$sql = $this->sql()->remove_comments($sql);
 		$sql = trim($sql);
-		$result = array();
+		$result = [];
 		if ($sql === "") {
 			$result['command'] = 'none';
 		} elseif (preg_match('/^(create table|insert|update|select|alter|drop table)/i', $sql, $matches)) {
@@ -71,9 +71,9 @@ abstract class Database_Parser extends Hookable {
 	 * @return array
 	 */
 	public function split_sql_commands($sql) {
-		$map = array(
+		$map = [
 			"\\'" => '*SLASH_SLASH_QUOTE*',
-		);
+		];
 		$rev_map = array_flip($map);
 		// Munge our string to make pattern matching easier
 		$sql = strtr($sql, $map);
@@ -84,9 +84,9 @@ abstract class Database_Parser extends Hookable {
 			$index++;
 			// Map BACK to the original string, not the munged one
 			$map[strtr($from, $rev_map)] = $to;
-			$sql = strtr($sql, array(
+			$sql = strtr($sql, [
 				$from => $to,
-			));
+			]);
 		}
 		$sqls = ArrayTools::trim_clean(explode(";", $sql));
 		// Now convert everything back to what it is supposed to be
@@ -103,13 +103,13 @@ abstract class Database_Parser extends Hookable {
 	public static function parse_factory(Database $db, $sql, $source) {
 		$app = $db->application;
 		if ($app->development() && empty($source)) {
-			throw new Exception_Parameter("{method} missing source {args}", array(
+			throw new Exception_Parameter("{method} missing source {args}", [
 				"method" => __METHOD__,
-				"args" => array(
+				"args" => [
 					$sql,
 					$source,
-				),
-			));
+				],
+			]);
 		}
 		$db_module = $app->database_module();
 		$matches = null;
@@ -122,9 +122,9 @@ abstract class Database_Parser extends Hookable {
 			try {
 				$db = $db_module->scheme_factory($db_scheme);
 			} catch (Exception_NotFound $e) {
-				$app->logger->error("Unable to parse SQL from {source}, halting", array(
+				$app->logger->error("Unable to parse SQL from {source}, halting", [
 					"source" => $source,
-				));
+				]);
 
 				throw $e;
 			}
@@ -152,17 +152,17 @@ abstract class Database_Parser extends Hookable {
 		if (is_array($order_by)) {
 			return $order_by;
 		}
-		$map = array();
+		$map = [];
 		/*
 		 * Remove quoted strings (simple)
 		 * Remove nested functions (two-deep)
 		 * Remove functions (one-deep)
 		 */
-		$patterns = array(
+		$patterns = [
 			"/'[^']*'/",
 			'/[a-z_][a-z0-9_]*\([^()]*\(([^)]*\)[^()]*)\)/i',
 			'/[a-z_][a-z0-9_]*\([^)]*\)/i',
-		);
+		];
 		foreach ($patterns as $pattern) {
 			foreach (preg::matches($pattern, $order_by) as $match) {
 				$map["%#" . count($map) . "#%"] = $match[0];
@@ -188,11 +188,11 @@ abstract class Database_Parser extends Hookable {
 			$was_string = true;
 			$order_by = $this->split_order_by($order_by);
 		}
-		$reversed_order_by = array();
-		$suffixes = array(
+		$reversed_order_by = [];
+		$suffixes = [
 			' ASC' => ' DESC',
 			' DESC' => ' ASC',
-		);
+		];
 		foreach ($order_by as $clause) {
 			$reversed = false;
 			foreach ($suffixes as $suffix => $reverse_suffix) {

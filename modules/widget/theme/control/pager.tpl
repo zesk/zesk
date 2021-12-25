@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -35,66 +35,66 @@ if (!$this->always_show) {
 $this->last_offset = $last_offset = $object->last_offset;
 
 $this->last_index = ($limit < 0) ? $total : min($offset + $limit, $total);
-$this->url = URL::query_format($request->uri(), array(
+$this->url = URL::query_format($request->uri(), [
 	"limit" => $limit,
-));
+]);
 
 $showing = __($total === 0 ? 'Control_Pager:=Showing none' : 'Control_Pager:=Showing {0} - {1} of {2}', ($offset + 1), $this->last_index, $total);
 $uri = $request->uri();
 
-echo HTML::tag_open('form', array(
+echo HTML::tag_open('form', [
 	"method" => 'get',
 	'action' => $uri,
-));
-echo HTML::tag_open("div", array(
+]);
+echo HTML::tag_open("div", [
 	"class" => 'control-pager btn-toolbar',
-));
+]);
 {
-	echo HTML::tag_open("div", array(
+	echo HTML::tag_open("div", [
 		"class" => ' btn-group pagination',
-	));
+	]);
 	{
 		$this->direction = -1;
 
-		echo $this->theme('zesk/control/pager/arrow', array(
+		echo $this->theme('zesk/control/pager/arrow', [
 			"icon" => "fast-backward",
 			"offset" => 0,
 			"title" => __("First page"),
 			"disabled_title" => __("Already at first page"),
-		));
-		echo $this->theme('zesk/control/pager/arrow', array(
+		]);
+		echo $this->theme('zesk/control/pager/arrow', [
 			"icon" => "step-backward",
 			"offset" => max($offset - $limit, 0),
 			"title" => __("Previous page"),
 			"disabled_title" => __("Already at first page"),
-		));
+		]);
 		$this->direction = 1;
-		echo $this->theme('zesk/control/pager/arrow', array(
+		echo $this->theme('zesk/control/pager/arrow', [
 			"icon" => "step-forward",
 			"offset" => $offset + $limit,
 			"title" => __("Next page"),
 			"disabled_title" => __("Already at last page"),
-		));
-		echo $this->theme('zesk/control/pager/arrow', array(
+		]);
+		echo $this->theme('zesk/control/pager/arrow', [
 			"icon" => "fast-forward",
 			"offset" => $last_offset,
 			"title" => __("Last page"),
 			"disabled_title" => __("Already at last page"),
-		));
+		]);
 	}
 	echo HTML::tag_close('div');
 
 	if ($this->debug) {
-		echo HTML::tag("div", array(
+		echo HTML::tag("div", [
 			"class" => "pager-debug",
-		), "$offset/$limit/$total");
+		], "$offset/$limit/$total");
 	}
 
-	echo HTML::tag("div", array(
+	echo HTML::tag("div", [
 		"class" => "pager-state btn-group",
-	), HTML::tag('a', 'btn disabled pager-text btn-pager-stage btn-sm', $showing));
+	], HTML::tag('a', 'btn disabled pager-text btn-pager-stage btn-sm', $showing));
 
-	$attrs = $this->geta("preserve_hidden", array());
+	$attrs = $this->geta("preserve_hidden", []);
 	$attrs += $request->get();
 	$children = $this->children;
 	unset($children['limit']);
@@ -103,9 +103,9 @@ echo HTML::tag_open("div", array(
 		foreach ($children as $child) {
 			/* @var $child Widget */
 			unset($attrs[$child->name()]);
-			echo HTML::tag('div', array(
+			echo HTML::tag('div', [
 				"class" => $child->context_class(),
-			), $child->render());
+			], $child->render());
 		}
 	}
 

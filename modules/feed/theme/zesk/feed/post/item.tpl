@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this Template */
@@ -10,9 +10,9 @@ namespace zesk;
 /* @var $object Feed_Post */
 $link = $object->link;
 
-$title = $link ? HTML::tag('a', array(
+$title = $link ? HTML::tag('a', [
 	'href' => $link,
-), $object->title) : $object->title;
+], $object->title) : $object->title;
 echo HTML::div_open('.feed-item');
 echo HTML::tag("h2", $title);
 echo $object->description;

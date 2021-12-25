@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -41,7 +41,7 @@ class Controller_Preference extends Controller {
 	/**
 	 *
 	 */
-	public function save_preferences() {
+	public function save_preferences(): void {
 		file_put_contents($this->_whitelist(), implode("\n", array_keys($this->whitelist)));
 	}
 
@@ -57,24 +57,24 @@ class Controller_Preference extends Controller {
 			if ($this->application->development()) {
 				// TODO Possible security hole here - if someone outside can set development, they could possibly overwrite User preferences how they wish.
 				// Possibly set a global flag instead?
-				$this->application->hooks->add("exit", array(
+				$this->application->hooks->add("exit", [
 					$this,
 					'save_preferences',
-				));
+				]);
 			}
 		}
 		if (!array_key_exists($arg, $this->whitelist)) {
 			if ($this->application->development()) {
 				$this->whitelist[$arg] = true;
 			} else {
-				return array(
+				return [
 					null,
-				);
+				];
 			}
 		}
-		return array(
+		return [
 			$arg,
-		);
+		];
 	}
 
 	/**
@@ -97,38 +97,38 @@ class Controller_Preference extends Controller {
 					'whitelist' => array_keys($this->whitelist),
 				];
 			}
-			return $this->json(array(
+			return $this->json([
 				"status" => false,
 				"message" => $locale->__("Invalid preference"),
-			) + $extras);
+			] + $extras);
 		}
 		$user = $this->application->user($this->request);
 		if (!$user || !$user->authenticated($this->request)) {
 			$this->response->status(Net_HTTP::STATUS_UNAUTHORIZED, $message_en = "Not authenticated");
-			return $this->json(array(
+			return $this->json([
 				"status" => false,
-				"actions" => array(
+				"actions" => [
 					"user-not-authenticated",
-				),
+				],
 				"message" => $locale->__($message_en),
-			));
+			]);
 		}
 		if ($this->request->is_post()) {
 			$value = PHP::autotype($this->request->get('value'));
 			if (Preference::user_set($user, $type, $value)) {
-				return $this->json(array(
+				return $this->json([
 					"status" => true,
-				));
+				]);
 			}
-			return $this->json(array(
+			return $this->json([
 				"status" => false,
-				"message" => $locale->__("Can not set preference {type}", array(
+				"message" => $locale->__("Can not set preference {type}", [
 					"type" => $type,
-				)),
-			));
+				]),
+			]);
 		}
-		return $this->json(array(
+		return $this->json([
 			"value" => Preference::user_get($user, $type),
-		));
+		]);
 	}
 }

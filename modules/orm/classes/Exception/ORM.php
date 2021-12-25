@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -23,20 +23,20 @@ abstract class Exception_ORM extends Exception {
 	 * @param integer $code error code
 	 * @param Exception $previous Previous error
 	 */
-	public function __construct($class, $message = null, $arguments = array(), Exception $previous = null) {
+	public function __construct($class, $message = null, $arguments = [], Exception $previous = null) {
 		$this->class = $class;
 		if (empty($message)) {
 			$message = "Class: {class}";
 		}
-		$arguments += array(
+		$arguments += [
 			"class" => $class,
-		);
+		];
 		parent::__construct($message, $arguments, null, $previous);
 	}
 
 	public function variables() {
-		return parent::variables() + array(
+		return parent::variables() + [
 			"class" => $this->class,
-		);
+		];
 	}
 }

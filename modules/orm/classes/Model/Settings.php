@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -10,20 +10,20 @@ namespace zesk;
  *
  */
 class Model_Settings extends Model {
-	protected $_changed = array();
+	protected $_changed = [];
 
-	protected $_accessor = array();
+	protected $_accessor = [];
 
-	protected $_access_cache = array();
+	protected $_access_cache = [];
 
-	protected $ignore_variables = array();
+	protected $ignore_variables = [];
 
 	/**
 	 * Array of key => default
 	 *
 	 * @var array $variables
 	 */
-	protected $variables = array();
+	protected $variables = [];
 
 	/**
 	 *
@@ -35,13 +35,13 @@ class Model_Settings extends Model {
 	 *
 	 * @var array
 	 */
-	protected $state = array();
+	protected $state = [];
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 */
-	public function hook_construct() {
+	public function hook_construct(): void {
 		$this->configuration = $this->application->configuration;
 		$this->inherit_global_options();
 	}
@@ -76,10 +76,10 @@ class Model_Settings extends Model {
 			if (!in_array($item, $this->variables)) {
 				$this->variables[$item] = null;
 				if ($this->option_bool("debug_variables")) {
-					$this->application->logger->debug("Adding permitted {variable} to {class}", array(
+					$this->application->logger->debug("Adding permitted {variable} to {class}", [
 						"variable" => $item,
 						"class" => get_class($this),
-					));
+					]);
 				}
 			}
 		}
@@ -108,24 +108,24 @@ class Model_Settings extends Model {
 		// Value has definitely changed
 		if (!$this->_ignore_variable($key)) {
 			if ($this->option_bool("debug_changes")) {
-				$this->application->logger->debug("{method} new value for key {key} {new_value} (old value was {old_value})", array(
+				$this->application->logger->debug("{method} new value for key {key} {new_value} (old value was {old_value})", [
 					"key" => $key,
 					"old_value" => $old,
 					"new_value" => $value,
 					"method" => __METHOD__,
-				));
+				]);
 			}
 			$this->_changed[$key] = $value;
 		} elseif (array_key_exists($key, $this->variables)) {
 			$this->configuration->path_set($key, $value);
 		} else {
 			if ($this->option_bool("debug_variables")) {
-				$this->application->logger->warning("{method} STATE ONLY value for key {key} {new_value} (old value was {old_value})", array(
+				$this->application->logger->warning("{method} STATE ONLY value for key {key} {new_value} (old value was {old_value})", [
 					"key" => $key,
 					"old_value" => $old,
 					"new_value" => $value,
 					"method" => __METHOD__,
-				));
+				]);
 			}
 			$this->state[$key] = $value;
 		}
@@ -146,10 +146,10 @@ class Model_Settings extends Model {
 			$result = $this->configuration->path_get($key);
 			return $result instanceof Configuration ? $result->to_array() : $result;
 		}
-		$this->application->logger->debug("{variable} not permitted in {class}, using local state instead", array(
+		$this->application->logger->debug("{variable} not permitted in {class}, using local state instead", [
 			"variable" => $key,
 			"class" => get_class($this),
-		));
+		]);
 		return avalue($this->state, $key);
 	}
 
@@ -165,47 +165,47 @@ class Model_Settings extends Model {
 
 	public function __get($key) {
 		if (array_key_exists($key, $this->_accessor)) {
-			return call_user_func(array(
+			return call_user_func([
 				$this,
 				$this->_accessor[$key],
-			));
+			]);
 		}
 		return $this->_internal_get($key);
 	}
 
 	public function __set($key, $value) {
 		if (array_key_exists($key, $this->_accessor)) {
-			call_user_func(array(
+			call_user_func([
 				$this,
 				$this->_accessor[$key],
-			), $value);
+			], $value);
 			return $this;
 		}
 		return $this->_internal_set($key, $value);
 	}
 
-	public function __unset($key) {
+	public function __unset($key): void {
 		$this->__set($key, null);
 	}
 
 	public function store() {
-		$this->application->logger->debug("{method} called", array(
+		$this->application->logger->debug("{method} called", [
 			"method" => __METHOD__,
-		));
+		]);
 		$settings = $this->application->model_singleton(Settings::class);
 		foreach ($this->_changed as $key => $value) {
 			if ($this->option_bool("debug_save")) {
-				$this->application->logger->debug("{method} Saving {key}={value} ({type})", array(
+				$this->application->logger->debug("{method} Saving {key}={value} ({type})", [
 					"method" => __METHOD__,
 					"key" => $key,
 					"value" => PHP::dump($value),
 					"type" => type($value),
-				));
+				]);
 			}
 			$settings->set($key, $value);
 		}
 		$this->call_hook("stored");
-		$this->_changed = array();
+		$this->_changed = [];
 		return parent::store();
 	}
 

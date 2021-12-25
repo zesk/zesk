@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -47,29 +47,29 @@ $map['target-expression'] = $widget->jquery_target_expression();
 $map['target'] = $this->target;
 $map['not_target'] = $this->not_target;
 $duration = strval($this->duration);
-$durations = array(
+$durations = [
 	'default' => '',
 	'fast' => 'fast',
 	'slow' => 'slow',
-);
+];
 if (!is_numeric($duration)) {
 	$duration = avalue($durations, $duration, $durations['default']);
 }
 $map['duration'] = JSON::encode($duration);
-$effects = array(
-	'default' => array(
+$effects = [
+	'default' => [
 		'effect-show' => 'show',
 		'effect-hide' => 'hide',
-	),
-	'fade' => array(
+	],
+	'fade' => [
 		'effect-show' => 'fadeIn',
 		'effect-hide' => 'fadeOut',
-	),
-	'slide' => array(
+	],
+	'slide' => [
 		'effect-show' => 'slideDown',
 		'effect-hide' => 'slideUp',
-	),
-);
+	],
+];
 
 $map += avalue($effects, "$this->effect", $effects['default']);
 

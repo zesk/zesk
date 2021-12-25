@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage contact
@@ -24,18 +24,18 @@ class Contact_Builder_Address extends Contact_Builder_Base {
 	 * {@inheritDoc}
 	 * @see \zesk\Contact_Builder_Base::process()
 	 */
-	public function process(Contact_Import $import, $key, $value) {
+	public function process(Contact_Import $import, $key, $value): void {
 		$data = $this->data;
-		$map = array(
+		$map = [
 			'key' => $key,
 			'value' => $value,
-		);
+		];
 		$data = map($data, $map);
 		$low_label = avalue($data, 'Label', 'home');
 		if (array_key_exists('Street_Line', $data)) {
 			$item = $import->has_item($this->contact_class, $low_label);
 			if (!is_array($item)) {
-				$item = array();
+				$item = [];
 			}
 			if (ArrayTools::has($item, 'Street')) {
 				$item .= "\n" . $data['Street_Line'];

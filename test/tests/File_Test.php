@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class File_Test extends Test_Unit {
-	private function _test_atomic_increment($path, $start) {
+	private function _test_atomic_increment($path, $start): void {
 		$this->assert(File::atomic_put($path, "$start"), "Creating initial file");
 		for ($j = 0; $j < 100; $j++) {
 			$this->assert(($result = File::atomic_increment($path)) === $start + $j + 1, "File::atomic_increment: $result !== " . ($start + $j + 1));
@@ -10,7 +10,7 @@ class File_Test extends Test_Unit {
 		$this->assert(unlink($path), "Deleting $path at end");
 	}
 
-	public function test_atomic_increment() {
+	public function test_atomic_increment(): void {
 		$path = $this->test_sandbox(__FUNCTION__);
 
 		$this->assert(!file_exists($path) || unlink($path), "Deleting $path");
@@ -27,54 +27,54 @@ class File_Test extends Test_Unit {
 		$this->_test_atomic_increment($path, 48123192);
 	}
 
-	public function test_atomic_put() {
+	public function test_atomic_put(): void {
 		$path = $this->test_sandbox("foo");
 		$data = "hello";
 		File::atomic_put($path, $data);
 	}
 
-	public function test_base() {
+	public function test_base(): void {
 		$filename = null;
 		$lower = false;
 		File::base($filename, $lower);
 	}
 
-	public function test_checksum() {
+	public function test_checksum(): void {
 		$path = null;
 		File::checksum($path);
 	}
 
-	public function test_chmod() {
+	public function test_chmod(): void {
 		$file_name = null;
 		$mode = 504;
 		File::chmod($file_name, $mode);
 	}
 
-	public function test_contents() {
+	public function test_contents(): void {
 		$filename = null;
 		$default = null;
 		File::contents($filename, $default);
 	}
 
-	public function test_extension() {
+	public function test_extension(): void {
 		$filename = null;
 		$default = false;
 		$lower = true;
 		File::extension($filename, $default, $lower);
 	}
 
-	public function test_name_clean() {
+	public function test_name_clean(): void {
 		$x = null;
 		$sep_char = "-";
 		File::name_clean($x, $sep_char);
 	}
 
-	public function test_path_check() {
+	public function test_path_check(): void {
 		$x = null;
 		File::path_check($x);
 	}
 
-	public function test_temporary() {
+	public function test_temporary(): void {
 		$ext = 'tmp';
 		File::temporary($this->application->paths->temporary(), $ext);
 	}

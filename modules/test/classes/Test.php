@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -21,34 +21,34 @@ class Test extends Hookable {
 	 *
 	 * @var string
 	 */
-	const PHP_ERROR_MARIAH = "PHP-ERROR";
+	public const PHP_ERROR_MARIAH = "PHP-ERROR";
 
 	/**
 	 * Statistics for test run
 	 *
 	 * @var array
 	 */
-	public $stats = array('test' => 0, 'pass' => 0, 'fail' => 0, 'skip' => 0, 'assert' => 0, );
+	public $stats = ['test' => 0, 'pass' => 0, 'fail' => 0, 'skip' => 0, 'assert' => 0, ];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $load_modules = array();
+	protected array $load_modules = [];
 
 	/**
 	 * Method => settings
 	 *
 	 * @var array[string]
 	 */
-	private $tests = array();
+	private $tests = [];
 
 	/**
 	 * Keys to tests/tests_status/test_results
 	 *
 	 * @var string[]
 	 */
-	private $test_queue = array();
+	private $test_queue = [];
 
 	/**
 	 * Pass/fail status
@@ -57,7 +57,7 @@ class Test extends Hookable {
 	 *
 	 * @var mixed[string]
 	 */
-	private $test_status = array();
+	private $test_status = [];
 
 	/**
 	 * Method return value storage.
@@ -67,7 +67,7 @@ class Test extends Hookable {
 	 *
 	 * @var mixed[string]
 	 */
-	private $test_results = array();
+	private $test_results = [];
 
 	/**
 	 * Current test method
@@ -109,13 +109,13 @@ class Test extends Hookable {
 	 *
 	 * @param string $options
 	 */
-	public function __construct(Application $application, array $options = array()) {
+	public function __construct(Application $application, array $options = []) {
 		self::init();
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 		$this->call_hook("construct");
 		if ($this->load_modules) {
-			$this->log("Loading modules: {load_modules}", array("load_modules" => $this->load_modules, ));
+			$this->log("Loading modules: {load_modules}", ["load_modules" => $this->load_modules, ]);
 			$this->application->modules->load($this->load_modules);
 			$this->application->configured(true);
 		}
@@ -124,7 +124,7 @@ class Test extends Hookable {
 	/**
 	 * Make sure we're initialized with basic error reporting
 	 */
-	public static function init() {
+	public static function init(): void {
 		static $inited = false;
 		if (!$inited) {
 			//echo "Error reporting enabled...";
@@ -144,7 +144,7 @@ class Test extends Hookable {
 	 * @return array
 	 */
 	private function parse_doccomment($comment) {
-		return DocComment::instance($comment, array(DocComment::OPTION_LIST_KEYS => array("test_module", ), ))->variables();
+		return DocComment::instance($comment, [DocComment::OPTION_LIST_KEYS => ["test_module", ], ])->variables();
 	}
 
 	/**
@@ -155,9 +155,9 @@ class Test extends Hookable {
 	 * @param array $arguments
 	 * @throws Exception_Semantics
 	 */
-	private function begin_test(Method $test, array $arguments = array()) {
+	private function begin_test(Method $test, array $arguments = []): void {
 		if ($this->test !== null) {
-			throw new Exception_Semantics("{method}({name}): Already started test {this_name}", $test->variables() + ArrayTools::kprefix($this->test->variables(), "this_") + array("method" => __METHOD__, ));
+			throw new Exception_Semantics("{method}({name}): Already started test {this_name}", $test->variables() + ArrayTools::kprefix($this->test->variables(), "this_") + ["method" => __METHOD__, ]);
 		}
 		$this->stats['test']++;
 		$this->test = $test;
@@ -176,7 +176,7 @@ class Test extends Hookable {
 	 * @param string $error
 	 * @throws string
 	 */
-	private function end_test($error = null) {
+	private function end_test($error = null): void {
 		$test = $this->test;
 		if ($test === null) {
 			if ($error !== null) {
@@ -235,13 +235,13 @@ class Test extends Hookable {
 	/**
 	 * Internal override method to set up a suite of tests
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 	}
 
 	/**
 	 * Internal override method to cleanup after suite of tests is completed
 	 */
-	protected function cleanup() {
+	protected function cleanup(): void {
 	}
 
 	/**
@@ -252,8 +252,9 @@ class Test extends Hookable {
 	 *            Arguments in the message
 	 * @return self
 	 */
-	public function log($message, array $arguments = array()) {
+	public function log($message, array $arguments = []) {
 		if (is_array($message)) {
+			var_dump($message);
 			$message = Text::format_pairs($message);
 		}
 		if (empty($message)) {
@@ -276,8 +277,8 @@ class Test extends Hookable {
 	 * @param array $arguments
 	 * @return self
 	 */
-	protected function error($message, array $arguments = array()) {
-		return $this->log($message, array("severity" => "error", ) + $arguments);
+	protected function error($message, array $arguments = []) {
+		return $this->log($message, ["severity" => "error", ] + $arguments);
 	}
 
 	/**
@@ -316,7 +317,7 @@ class Test extends Hookable {
 		try {
 			$reflection = new \ReflectionClass($class);
 			$methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
-			$tests = array();
+			$tests = [];
 			foreach ($methods as $method) {
 				/* @var $method \ReflectionMethod */
 				if ($method->getDeclaringClass()->getName() !== $class) {
@@ -341,7 +342,7 @@ class Test extends Hookable {
 		} catch (\ReflectionException $e) {
 			$this->application->logger->error("Unable to reflect on $class");
 			$this->application->logger->error($e->getMessage());
-			return array();
+			return [];
 		}
 	}
 
@@ -445,12 +446,12 @@ class Test extends Hookable {
 	 *
 	 * @param Method $method
 	 */
-	final public function _run_test_method(Method $method, array $arguments) {
+	final public function _run_test_method(Method $method, array $arguments): void {
 		$name = $method->name();
 
 		try {
 			$this->begin_test($method, $arguments);
-			$this->test_results[$name] = call_user_func_array(array($this, $name, ), $arguments);
+			$this->test_results[$name] = call_user_func_array([$this, $name, ], $arguments);
 			$this->end_test();
 		} catch (\Exception $e) {
 			$this->end_test($e);
@@ -462,7 +463,7 @@ class Test extends Hookable {
 	 */
 	final public function run() {
 		if ($this->option_bool('disabled')) {
-			$this->log("{class} is disabled", array("class" => get_class($this), ));
+			$this->log("{class} is disabled", ["class" => get_class($this), ]);
 			$this->stats['skip']++;
 			return true;
 		}
@@ -480,34 +481,34 @@ class Test extends Hookable {
 		}
 		$this->tests = $tests;
 		$this->test_queue = array_keys($tests);
-		$this->test_status = array();
-		$this->test_results = array();
+		$this->test_status = [];
+		$this->test_results = [];
 
-		$deferred = array();
+		$deferred = [];
 		while (count($this->test_queue) > 0) {
 			$name = array_shift($this->test_queue);
 			$test = $this->tests[$name];
 
 			if ($this->can_run_test($name)) {
 				if ($this->option_bool("debug_test_method")) {
-					$this->log(__("# Running {class}::{name}", array('class' => get_class($this), 'name' => $name, )));
+					$this->log(__("# Running {class}::{name}", ['class' => get_class($this), 'name' => $name, ]));
 				}
 				$test->run();
 				$failed = avalue($this->test_status, $name) !== true;
 				if (!$failed) {
 					if (($offset = strpos($this->last_test_output, self::PHP_ERROR_MARIAH)) !== false) {
-						$this->log("Test output contained {mariah} at offset {n}", array("mariah" => self::PHP_ERROR_MARIAH, "n" => $offset, ));
+						$this->log("Test output contained {mariah} at offset {n}", ["mariah" => self::PHP_ERROR_MARIAH, "n" => $offset, ]);
 						$this->test_status[$name] = false;
 						$failed = true;
 					}
 				}
-				$this->log(__("# {class_test}: {status}", array('class_test' => Text::lalign("$class::$name", 80), 'status' => $failed ? 'FAIL' : 'OK', )));
+				$this->log(__("# {class_test}: {status}", ['class_test' => Text::lalign("$class::$name", 80), 'status' => $failed ? 'FAIL' : 'OK', ]));
 				if (($failed || $this->option_bool('verbose')) && !empty($this->last_test_output)) {
-					$this->application->logger->info("Last test output:\n{output}--- End of output", array("output" => "\n" . Text::indent($this->last_test_output, 1, true), ));
+					$this->application->logger->info("Last test output:\n{output}--- End of output", ["output" => "\n" . Text::indent($this->last_test_output, 1, true), ]);
 				}
 			} elseif ($this->should_defer_test($name)) {
 				if (isset($deferred[$name])) {
-					$this->application->logger->info("Test deferred already, skipping {name}", array("name" => $name, ));
+					$this->application->logger->info("Test deferred already, skipping {name}", ["name" => $name, ]);
 					$this->test_status[$name] = "skipped";
 					$this->stats['skip']++;
 				} else {
@@ -529,7 +530,7 @@ class Test extends Hookable {
 	 * @param \Exception $e
 	 * @param string $result
 	 */
-	final public function report(\Exception $e, $result = "FAILED") {
+	final public function report(\Exception $e, $result = "FAILED"): void {
 		$this->log(" - Exception: " . get_class($e) . "\n");
 		$this->log(" -    Result: $result\n");
 		$code = $e->getCode();
@@ -540,8 +541,8 @@ class Test extends Hookable {
 		$this->log_backtrace($e->getTrace());
 	}
 
-	final public function log_backtrace(array $stackframes) {
-		$their_stack = array();
+	final public function log_backtrace(array $stackframes): void {
+		$their_stack = [];
 		foreach ($stackframes as $frame) {
 			$file = $line = $function = $class = $type = $args = null;
 			extract($frame, EXTR_IF_EXISTS);
@@ -572,7 +573,7 @@ class Test extends Hookable {
 	 *
 	 * @throws TestException
 	 */
-	final public function fail($message, array $arguments = array()) {
+	final public function fail($message, array $arguments = []): void {
 		$this->test_result = false;
 		if ($this->option_bool('debugger')) {
 			debugger_start_debug();
@@ -587,7 +588,7 @@ class Test extends Hookable {
 	 * @param array $arguments
 	 * @throws Exception_Incomplete
 	 */
-	final public function markTestIncomplete($message) {
+	final public function markTestIncomplete($message): void {
 		$this->test_result = null;
 
 		throw new Exception_Incomplete($message);
@@ -599,7 +600,7 @@ class Test extends Hookable {
 	 * @param array $arguments
 	 * @throws Exception_Skipped
 	 */
-	final public function markTestSkipped($message) {
+	final public function markTestSkipped($message): void {
 		$this->test_result = null;
 
 		throw new Exception_Skipped($message);
@@ -615,7 +616,7 @@ class Test extends Hookable {
 	 *            This assertion should actually fail (test for false)
 	 * @throws TestException
 	 */
-	final public function assert($condition, $message = null, $should_fail = false) {
+	final public function assert($condition, $message = null, $should_fail = false): void {
 		$this->stats['assert']++;
 		$condition_text = $condition;
 		if (is_string($condition)) {
@@ -653,7 +654,7 @@ class Test extends Hookable {
 	 *
 	 * @param unknown $modules
 	 */
-	final public function assert_modules(array $modules) {
+	final public function assert_modules(array $modules): void {
 		$app_module = $this->application->module;
 		$modules = to_list($modules);
 		foreach ($modules as $module) {
@@ -677,7 +678,7 @@ class Test extends Hookable {
 	 * @param mixed $mixed
 	 * @param string $message
 	 */
-	final public function assert_true($condition, $message = null) {
+	final public function assert_true($condition, $message = null): void {
 		$this->assert($condition, $message, false);
 	}
 
@@ -687,7 +688,7 @@ class Test extends Hookable {
 	 * @param mixed $mixed
 	 * @param string $message
 	 */
-	final public function assert_is_string($mixed, $message = null) {
+	final public function assert_is_string($mixed, $message = null): void {
 		$this->assert(is_string($mixed), "!is_string(" . type($mixed) . " $mixed) $message", false);
 	}
 
@@ -697,7 +698,7 @@ class Test extends Hookable {
 	 * @param mixed $mixed
 	 * @param string $message
 	 */
-	final public function assert_is_numeric($mixed, $message = null) {
+	final public function assert_is_numeric($mixed, $message = null): void {
 		$this->assert(is_numeric($mixed), "!is_numeric(" . type($mixed) . " $mixed) $message", false);
 	}
 
@@ -707,8 +708,8 @@ class Test extends Hookable {
 	 * @param mixed $mixed
 	 * @param string $message
 	 */
-	final public function assert_is_integer($mixed, $message = null) {
-		$this->assert(is_integer($mixed), "!is_integer(" . type($mixed) . " $mixed) $message", false);
+	final public function assert_is_integer($mixed, $message = null): void {
+		$this->assert(is_int($mixed), "!is_integer(" . type($mixed) . " $mixed) $message", false);
 	}
 
 	/**
@@ -717,7 +718,7 @@ class Test extends Hookable {
 	 * @param mixed $mixed
 	 * @param string $message
 	 */
-	final public function assert_is_array($mixed, $message = null) {
+	final public function assert_is_array($mixed, $message = null): void {
 		$this->assert(is_array($mixed), "!is_array(" . type($mixed) . ") $message", false);
 	}
 
@@ -727,11 +728,11 @@ class Test extends Hookable {
 	 * @param mixed $mixed
 	 * @param string $message
 	 */
-	final public function assert_instanceof($mixed, $instanceof, $message = null) {
+	final public function assert_instanceof($mixed, $instanceof, $message = null): void {
 		$this->assert($mixed instanceof $instanceof, "!" . type($mixed) . " instanceof $instanceof $message", false);
 	}
 
-	final public function assert_class_exists($class, $message = null) {
+	final public function assert_class_exists($class, $message = null): void {
 		$this->assert_is_string($class, "Class passed to " . __METHOD__ . " should be string");
 		$default_message = "Asserted class $class exists when it does not";
 
@@ -748,7 +749,7 @@ class Test extends Hookable {
 	 * @param mixed $mixed
 	 * @param string $message
 	 */
-	final public function assert_implements($mixed, $instanceof, $message = null) {
+	final public function assert_implements($mixed, $instanceof, $message = null): void {
 		$interfaces = class_implements($mixed);
 		$this->assert(in_array($instanceof, $interfaces), "!" . type($mixed) . " implements $instanceof (does implement " . implode(", ", $interfaces) . ") $message", false);
 	}
@@ -759,7 +760,7 @@ class Test extends Hookable {
 	 * @param mixed $mixed
 	 * @param string $message
 	 */
-	final public function assert_positive($value, $message = null) {
+	final public function assert_positive($value, $message = null): void {
 		$this->assert($value > 0, "$value > 0 : $message", false);
 	}
 
@@ -769,7 +770,7 @@ class Test extends Hookable {
 	 * @param mixed $mixed
 	 * @param string $message
 	 */
-	final public function assert_not_null($value, $message = null) {
+	final public function assert_not_null($value, $message = null): void {
 		$this->assert($value !== null, "Asserted not NULL failed: $message", false);
 	}
 
@@ -779,7 +780,7 @@ class Test extends Hookable {
 	 * @param mixed $mixed
 	 * @param string $message
 	 */
-	final public function assert_negative($value, $message = null) {
+	final public function assert_negative($value, $message = null): void {
 		$this->assert($value < 0, "$value < 0 : $message", false);
 	}
 
@@ -789,7 +790,7 @@ class Test extends Hookable {
 	 * @param mixed $mixed
 	 * @param string $message
 	 */
-	final public function assert_null($value, $message = null) {
+	final public function assert_null($value, $message = null): void {
 		$this->assert($value === null, "$value === null : $message", false);
 	}
 
@@ -801,61 +802,61 @@ class Test extends Hookable {
 	 * @param string $message
 	 * @param boolean $strict
 	 */
-	final protected function assert_arrays_equal($expected, $actual, $message = null, $strict = true) {
+	final protected function assert_arrays_equal($expected, $actual, $message = null, $strict = true): void {
 		$this->assert(is_array($actual), gettype($actual) . " is not an array");
 		$this->assert(is_array($expected), gettype($expected) . " is not an array");
 		$this->assert_equal($expected, $actual, $message, $strict);
 	}
 
-	final protected function assert_array_key_exists(array $array, $key, $message = null) {
+	final protected function assert_array_key_exists(array $array, $key, $message = null): void {
 		if ($message === null) {
 			$message = "Array does not contain key: $key (keys: " . implode(", ", array_keys($array)) . ")";
 		}
 		$this->assert(array_key_exists($key, $array), $message);
 	}
 
-	final protected function assert_array_key_not_exists(array $array, $key, $message = null) {
+	final protected function assert_array_key_not_exists(array $array, $key, $message = null): void {
 		if ($message === null) {
 			$message = "Array does contain key but should not: $key (keys: " . implode(", ", array_keys($array)) . ")";
 		}
 		$this->assert(!array_key_exists($key, $array), $message);
 	}
 
-	final protected function assert_in_array(array $array, $mixed, $message = null) {
+	final protected function assert_in_array(array $array, $mixed, $message = null): void {
 		if ($message === null) {
 			$message = "Array does not contain value: $mixed (values: " . implode(", ", array_values($array)) . ")";
 		}
 		$this->assert(in_array($mixed, $array), $message);
 	}
 
-	final protected function assert_not_in_array(array $array, $mixed, $message = null) {
+	final protected function assert_not_in_array(array $array, $mixed, $message = null): void {
 		if ($message === null) {
 			$message = "Array should not contain value: $mixed (values: " . implode(", ", array_values($array)) . ")";
 		}
 		$this->assert(!in_array($mixed, $array), $message);
 	}
 
-	final protected function assert_contains($haystack, $needle, $message = null) {
+	final protected function assert_contains($haystack, $needle, $message = null): void {
 		if ($message === null) {
 			$message = "$haystack\n=== DOES NOT CONTAIN STRING===\n$needle";
 		}
-		$this->assert(strpos($haystack, $needle) !== false, $message);
+		$this->assert(str_contains($haystack, $needle), $message);
 	}
 
-	final protected function assert_string_begins($haystack, $needle, $message = null) {
+	final protected function assert_string_begins($haystack, $needle, $message = null): void {
 		if ($message === null) {
 			$message = "$haystack\n=== DOES NOT BEGIN WITH STRING===\n$needle";
 		}
-		$this->assert(strpos($haystack, $needle) === 0, $message);
+		$this->assert(str_starts_with($haystack, $needle), $message);
 	}
 
-	final protected function assert_equal($expected, $actual, $message = null, $strict = true) {
+	final protected function assert_equal($expected, $actual, $message = null, $strict = true): void {
 		$this->stats['assert']++;
 		$message .= "\nassert_equal failed:\n";
 		$message .= "- Actual: " . gettype($actual) . ": " . $this->dump($actual) . "\n";
 		$message .= "Expected: " . gettype($expected) . ": " . $this->dump($expected);
 		if (is_scalar($actual) && is_scalar($expected)) {
-			if (is_double($actual) && is_double($expected)) {
+			if (is_float($actual) && is_float($expected)) {
 				if (abs($actual - $expected) > 0.00001) {
 					$this->fail($message);
 				}
@@ -875,7 +876,7 @@ class Test extends Hookable {
 		}
 	}
 
-	final protected function assert_not_equal($expected, $actual, $message = null, $strict = true) {
+	final protected function assert_not_equal($expected, $actual, $message = null, $strict = true): void {
 		if ($message === null) {
 			$message = gettype($actual) . ": " . $this->dump($actual) . " === " . gettype($expected) . ": " . $this->dump($expected);
 		}
@@ -886,7 +887,7 @@ class Test extends Hookable {
 		}
 	}
 
-	final public function assert_equal_object($expected, $actual, $message = "") {
+	final public function assert_equal_object($expected, $actual, $message = ""): void {
 		$this->assert(get_class($actual) === get_class($expected), $message . "get_class(" . get_class($actual) . ") === get_class(" . get_class($expected) . ")");
 		$this->assert($actual == $expected, $message . "\n" . $this->dump($actual) . " !== " . $this->dump($expected));
 	}
@@ -903,7 +904,7 @@ class Test extends Hookable {
 		return PHP::singleton()->settings_one()->render($value);
 	}
 
-	final protected function assert_equal_array($expected, $actual, $message = "", $strict = true, $order_matters = false) {
+	final protected function assert_equal_array($expected, $actual, $message = "", $strict = true, $order_matters = false): void {
 		$this->stats['assert']++;
 		if (!is_array($actual)) {
 			$this->fail("$message: \$actual is not an array: " . $this->dump($actual, false));
@@ -943,7 +944,7 @@ class Test extends Hookable {
 		}
 	}
 
-	final protected function assert_array_contains($subset, $superset, $message = "") {
+	final protected function assert_array_contains($subset, $superset, $message = ""): void {
 		if (!is_array($subset)) {
 			$this->fail("$message: \$subset is not an array: " . $this->dump($subset, false));
 		}
@@ -976,13 +977,13 @@ class Test extends Hookable {
 	final public function sandbox($file = null, $auto_delete = true) {
 		$cache_dir = $this->application->path("cache/test/" . $this->application->process->id());
 		if (!is_dir($cache_dir)) {
-			if (!mkdir($cache_dir, 0777, true)) {
+			if (!mkdir($cache_dir, 0o777, true)) {
 				$this->fail("test_sandbox: Can't create $cache_dir");
 			}
 			$this->cache_dir = $cache_dir;
-			chmod($cache_dir, 0770);
+			chmod($cache_dir, 0o770);
 			if ($auto_delete) {
-				$this->application->hooks->add("exit", array($this, "_test_sandbox_shutdown", ));
+				$this->application->hooks->add("exit", [$this, "_test_sandbox_shutdown", ]);
 			}
 		}
 		return path($cache_dir, $file);
@@ -991,7 +992,7 @@ class Test extends Hookable {
 	/**
 	 * Delete cache dir after test runs
 	 */
-	final public function _test_sandbox_shutdown() {
+	final public function _test_sandbox_shutdown(): void {
 		$cache_dir = $this->cache_dir;
 		$this->cache_dir = null;
 		echo "Deleting $cache_dir ...\n";
@@ -1007,7 +1008,7 @@ class Test extends Hookable {
 	 * @param unknown_type $extra_cols
 	 * @param unknown_type $uniq
 	 */
-	final public function test_table($name, $extra_cols = null, $uniq = true) {
+	final public function test_table($name, $extra_cols = null, $uniq = true): void {
 		$cols[] = "id int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT";
 		$cols[] = "foo int(11) NOT NULL";
 		if (is_string($extra_cols)) {
@@ -1030,7 +1031,7 @@ class Test extends Hookable {
 	 * @param unknown_type $extra_cols
 	 * @param unknown_type $uniq
 	 */
-	final protected function test_table_object(ORM $object) {
+	final protected function test_table_object(ORM $object): void {
 		$this->test_table_sql($object->table(), $object->schema());
 		$object->schema_changed();
 	}
@@ -1042,12 +1043,12 @@ class Test extends Hookable {
 	 * @param unknown_type $extra_cols
 	 * @param unknown_type $uniq
 	 */
-	final public function test_table_sql($name, $create_sql) {
+	final public function test_table_sql($name, $create_sql): void {
 		$db = $this->application->database_registry();
 		$db->query("DROP TABLE IF EXISTS `$name`");
 		$db->query($create_sql);
 		if (!$this->option_bool("debug_keep_tables")) {
-			register_shutdown_function(array($db, "query", ), "DROP TABLE IF EXISTS `$name`");
+			register_shutdown_function([$db, "query", ], "DROP TABLE IF EXISTS `$name`");
 		}
 	}
 
@@ -1057,17 +1058,17 @@ class Test extends Hookable {
 	 * @param array $match
 	 * @param string $dbname
 	 */
-	final protected function test_table_match($table, array $match = array(), $dbname = "") {
+	final protected function test_table_match($table, array $match = [], $dbname = ""): void {
 		$db = $this->application->database_registry();
 		$headers = null;
 		$header_row = null;
-		$dbrows = array();
+		$dbrows = [];
 		foreach ($match as $row) {
 			if (!$headers) {
 				$headers = $row;
 				$header_row = $row;
 			} else {
-				$mapped_row = array();
+				$mapped_row = [];
 				foreach ($headers as $k => $label) {
 					if ($label[0] === '-') {
 						continue;
@@ -1077,7 +1078,7 @@ class Test extends Hookable {
 				$dbrows[] = $mapped_row;
 			}
 		}
-		$headers = array();
+		$headers = [];
 		foreach ($header_row as $header) {
 			if ($header[0] === '-') {
 				continue;
@@ -1105,7 +1106,7 @@ class Test extends Hookable {
 		$object = $application->objects->factory($class, $application);
 		/* @var $object Test_Unit */
 		if (!$object instanceof Interface_Testable) {
-			throw new Exception_Invalid("$class is not an instance of {class}", array("class" => Interface_Testable::class, ));
+			throw new Exception_Invalid("$class is not an instance of {class}", ["class" => Interface_Testable::class, ]);
 		}
 		$object->set_option($options);
 		$object->inherit_global_options();
@@ -1128,7 +1129,7 @@ class Test extends Hookable {
 	 */
 	public static function run_class(Application $application, $class, &$object = null) {
 		if (empty($class)) {
-			throw new Exception_Semantics("{method}: No class specified", array("method" => __METHOD__, ));
+			throw new Exception_Semantics("{method}: No class specified", ["method" => __METHOD__, ]);
 		}
 		$settings = self::_configuration_load($application);
 		if (!class_exists($class, false) && !$application->autoloader->load($class, true) && !self::_find_test($application, $class)) {
@@ -1167,7 +1168,7 @@ class Test extends Hookable {
 			$class = get_class($class);
 		}
 		$refl = new \ReflectionClass($class);
-		$results = array();
+		$results = [];
 		$methods = to_list($methods);
 		foreach ($methods as $method) {
 			$cmethod = $refl->getMethod($method);
@@ -1188,13 +1189,13 @@ class Test extends Hookable {
 	 * @param array $options
 	 * @return array[classname]
 	 */
-	public function schema_synchronize($classes, array $options = array()) {
+	public function schema_synchronize($classes, array $options = []) {
 		$app = $this->application;
-		$results = array();
+		$results = [];
 		foreach (to_list($classes) as $class) {
 			$class_object = $this->application->class_orm_registry($class);
 			$db = $class_object->database();
-			$results[$class] = $db->query($app->orm_module()->schema_synchronize($db, array($class, ), $options + array("follow" => true, )));
+			$results[$class] = $db->query($app->orm_module()->schema_synchronize($db, [$class, ], $options + ["follow" => true, ]));
 		}
 		return $results;
 	}
@@ -1204,15 +1205,15 @@ class Test extends Hookable {
 	 * @return array
 	 */
 	private static function _configuration_load(Application $application) {
-		$test_command = new Command_Test($application, array());
+		$test_command = new Command_Test($application, []);
 		$configuration = $application->configuration;
 		$config = $configuration->path_get('zesk\\Test_Unit::config', $test_command->default_configuration_file('test'));
 		if (!$config) {
-			return array();
+			return [];
 		}
 		$application->logger->debug("Loading configuration file $config");
-		$settings = array();
-		$loader = new Configuration_Loader(array($config, ), new Adapter_Settings_Array($settings));
+		$settings = [];
+		$loader = new Configuration_Loader([$config, ], new Adapter_Settings_Array($settings));
 
 		$loader->load();
 

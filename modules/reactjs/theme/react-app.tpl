@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -24,21 +24,21 @@ if (file_exists($asset_manifest)) {
 		$assets = JSON::decode(File::contents($asset_manifest));
 		$src = "/" . $assets['main.js'];
 		if (isset($assets['main.css'])) {
-			$response->css($assets['main.css'], array(
+			$response->css($assets['main.css'], [
 				"root_dir" => $source,
-			));
+			]);
 		}
 	} catch (\zesk\Exception_Syntax $e) {
-		$application->logger->emergency("Unable to parse asset file {asset_manifest} {e}", array(
+		$application->logger->emergency("Unable to parse asset file {asset_manifest} {e}", [
 			"asset_manifest" => $asset_manifest,
 			"e" => $e,
-		));
+		]);
 	}
 }
-$scripts = HTML::tag("script", array(
+$scripts = HTML::tag("script", [
 	"src" => $src,
-), "");
-echo strtr(file_get_contents($source), array(
+], "");
+echo strtr(file_get_contents($source), [
 	"%PUBLIC_URL%" => "",
 	"</body>" => "$scripts</body>",
-));
+]);

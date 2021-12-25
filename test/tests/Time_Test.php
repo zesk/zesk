@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Test_Time extends Test_Unit {
-	public function test_instance() {
+	public function test_instance(): void {
 		$hh = 0;
 		$mm = 0;
 		$ss = 0;
@@ -12,12 +12,12 @@ class Test_Time extends Test_Unit {
 	/**
 	 * @expectedException zesk\Exception_Parameter
 	 */
-	public function test_invalid_set() {
+	public function test_invalid_set(): void {
 		$x = new Time();
 		$x->unix_timestamp(true);
 	}
 
-	public function test_parse() {
+	public function test_parse(): void {
 		$x = new Time();
 
 		$value = null;
@@ -31,14 +31,14 @@ class Test_Time extends Test_Unit {
 	/**
 	 * @expectedException zesk\Exception_Range
 	 */
-	public function test_parse_fail() {
+	public function test_parse_fail(): void {
 		$x = new Time();
 
 		$value = null;
 		$x->parse("23:61:19");
 	}
 
-	public function test_basics() {
+	public function test_basics(): void {
 		$value = null;
 		$x = new Time($value);
 
@@ -109,7 +109,7 @@ class Test_Time extends Test_Unit {
 	/**
 	 * @expectedException zesk\Exception_Parameter
 	 */
-	public function test_invalid_unit() {
+	public function test_invalid_unit(): void {
 		$time = new Time();
 		$time->add_unit(1, "money");
 	}

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Session object is a more powerful, multi-server, database session storage.
@@ -33,7 +33,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @var array
 	 */
-	private $original = array();
+	private $original = [];
 
 	/**
 	 * Something changed?
@@ -89,7 +89,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * Register hooks
 	 * @param Application $application
 	 */
-	public static function hooks(Application $application) {
+	public static function hooks(Application $application): void {
 		$application->hooks->add(Hooks::HOOK_CONFIGURED, __CLASS__ . '::configured');
 		$application->hooks->add('exit', __CLASS__ . '::save');
 	}
@@ -98,30 +98,30 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @param Application $application
 	 */
-	public static function configured(Application $application) {
+	public static function configured(Application $application): void {
 		// 2017-01-01
-		foreach (array(
+		foreach ([
 			"Session",
 			"zesk\\Session",
-		) as $class) {
-			$application->configuration->deprecated(array(
+		] as $class) {
+			$application->configuration->deprecated([
 				$class,
 				"cookie_name",
-			), array(
+			], [
 				"zesk\Application",
 				"session",
 				"cookie",
 				"name",
-			));
-			$application->configuration->deprecated(array(
+			]);
+			$application->configuration->deprecated([
 				$class,
 				"cookie_expire",
-			), array(
+			], [
 				"zesk\Application",
 				"session",
 				"cookie",
 				"expire",
-			));
+			]);
 		}
 		$application->configuration->deprecated("Session::cookie_expire_round");
 		$application->configuration->deprecated("zesk\\Session::cookie_expire_round");
@@ -131,7 +131,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	/**
 	 * Called before actual store
 	 */
-	public function hook_store() {
+	public function hook_store(): void {
 		$ip = $this->member("ip");
 		if (!IPv4::valid($ip)) {
 			$this->set_member("ip", "127.0.0.1");
@@ -153,7 +153,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @return string
 	 */
 	private static function _generate_cookie() {
-		return md5("" . mt_rand(0, 999999999) . microtime());
+		return md5("" . random_int(0, 999999999) . microtime());
 	}
 
 	/**
@@ -211,7 +211,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	/**
 	 * Logout expired, run hook
 	 */
-	private function logout_expire() {
+	private function logout_expire(): void {
 		try {
 			$user = $this->user();
 			if ($user) {
@@ -225,7 +225,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	/**
 	 * Run once a minute
 	 */
-	public static function cron_cluster_minute(Application $application) {
+	public static function cron_cluster_minute(Application $application): void {
 		$now = Timestamp::now();
 		$where['expires|<'] = $now;
 		$iter = $application->orm_registry(__CLASS__)
@@ -283,11 +283,11 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->set_member('cookie', $cookie_value);
 		$this->set_member('expires', $expires);
 		$this->set_member('ip', $request->ip());
-		$this->set_member('data', to_array($this->data) + array(
+		$this->set_member('data', to_array($this->data) + [
 			'uri' => $request->uri(),
-		));
+		]);
 		$cookie_options = $this->cookie_options();
-		$application->hooks->add(Response::class . "::headers", function (Response $response) use ($cookie_name, $cookie_value, $cookie_options) {
+		$application->hooks->add(Response::class . "::headers", function (Response $response) use ($cookie_name, $cookie_value, $cookie_options): void {
 			$response->cookie($cookie_name, $cookie_value, $cookie_options);
 		});
 		return $this->store();
@@ -312,10 +312,10 @@ class Session_ORM extends ORM implements Interface_Session {
 	public static function one_time_create(User $user, $expire_seconds = null) {
 		$app = $user->application;
 		if ($expire_seconds === null) {
-			$expire_seconds = to_integer($app->configuration->path_get(array(
+			$expire_seconds = to_integer($app->configuration->path_get([
 				__CLASS__,
 				"one_time_expire_seconds",
-			), 86400));
+			], 86400));
 		}
 		// Only one allowed at any time, I guess.
 		$app->orm_registry(__CLASS__)
@@ -326,13 +326,13 @@ class Session_ORM extends ORM implements Interface_Session {
 		$session = $app->orm_factory(__CLASS__);
 		$request = $user->application->request();
 		$ip = $request ? $request->ip() : null;
-		$session->set_member(array(
+		$session->set_member([
 			'cookie' => self::_generate_cookie(),
 			'is_one_time' => true,
 			'expires' => Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND),
 			'user' => $user,
 			'ip' => $ip,
-		));
+		]);
 		$session->store();
 		return $session;
 	}
@@ -347,10 +347,10 @@ class Session_ORM extends ORM implements Interface_Session {
 	public static function one_time_find(Application $application, $hash) {
 		$hash = trim($hash);
 		$onetime = $application->orm_factory(__CLASS__);
-		if ($onetime->find(array(
+		if ($onetime->find([
 			"cookie" => $hash,
 			"is_one_time" => true,
-		))) {
+		])) {
 			return $onetime;
 		}
 		return false;
@@ -386,9 +386,9 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * Get/Set session valuesfrom Object
 	 *
 	 */
-	protected function hook_initialized() {
+	protected function hook_initialized(): void {
 		if (!is_array($this->members['data'])) {
-			$this->members['data'] = array();
+			$this->members['data'] = [];
 		}
 		$this->original = $this->members['data'];
 	}
@@ -443,7 +443,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @see ORM::__set($member, $value)
 	 */
-	public function __set($name, $value) {
+	public function __set($name, $value): void {
 		if ($value === null) {
 			unset($this->members['data'][$name]);
 		} else {
@@ -455,7 +455,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		}
 	}
 
-	public function set($name, $value = null) {
+	public function set($name, $value = null): void {
 		$this->__set($name, $value);
 	}
 

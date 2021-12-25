@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -119,9 +119,9 @@ class Control_List extends Control_Widgets_Filter {
 	 *
 	 * @var array
 	 */
-	protected $list_attributes = array(
+	protected $list_attributes = [
 		"class" => "list",
-	);
+	];
 
 	/**
 	 * Row tag
@@ -133,15 +133,15 @@ class Control_List extends Control_Widgets_Filter {
 	 *
 	 * @var array
 	 */
-	protected $row_attributes = array(
+	protected $row_attributes = [
 		"class" => "row",
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $widgets = array();
+	protected $widgets = [];
 
 	/**
 	 * Cell tag
@@ -155,9 +155,9 @@ class Control_List extends Control_Widgets_Filter {
 	 *
 	 * @var array
 	 */
-	protected $widget_attributes = array(
+	protected $widget_attributes = [
 		"class" => "cell",
-	);
+	];
 
 	/**
 	 * Total of list, cached
@@ -185,14 +185,14 @@ class Control_List extends Control_Widgets_Filter {
 	 *
 	 * @var array
 	 */
-	protected $row_widgets = array();
+	protected $row_widgets = [];
 
 	/**
 	 * Widgets to execute for header
 	 *
 	 * @var array
 	 */
-	protected $header_widgets = array();
+	protected $header_widgets = [];
 
 	/**
 	 * Widgets to execute for header
@@ -256,14 +256,14 @@ class Control_List extends Control_Widgets_Filter {
 		return $set === null ? $this->option('list_default_order_by') : $this->set_option('list_default_order_by', $set);
 	}
 
-	protected function initialize() {
+	protected function initialize(): void {
 		$this->initialize_theme_paths();
 
 		$this->class_object = $this->application->class_orm_registry($this->class);
 
 		$this->row_widget = $row_widget = $this->widget_factory(Control_Row::class);
 		$row_widget->names($this->name() . '_row');
-		$row_widget->children($this->row_widgets = $this->call_hook_arguments('widgets', array(), array()));
+		$row_widget->children($this->row_widgets = $this->call_hook_arguments('widgets', [], []));
 		$row_widget->row_tag($this->row_tag);
 		$row_widget->row_attributes($this->row_attributes);
 		$row_widget->set_theme($this->theme_row);
@@ -279,7 +279,7 @@ class Control_List extends Control_Widgets_Filter {
 		parent::initialize();
 	}
 
-	protected function initialize_query() {
+	protected function initialize_query(): void {
 		$this->query = $this->_query();
 		if ($this->has_option('list_default_order_by', true)) {
 			$this->query->order_by($this->option('list_default_order_by'));
@@ -288,7 +288,7 @@ class Control_List extends Control_Widgets_Filter {
 		$this->query_hooked = false;
 	}
 
-	protected function initialize_pager() {
+	protected function initialize_pager(): void {
 		if ($this->show_pager()) {
 			$options = ArrayTools::kunprefix($this->options, "pager_", true);
 			$this->pager = $this->widget_factory(Control_Pager::class);
@@ -302,7 +302,7 @@ class Control_List extends Control_Widgets_Filter {
 	 *
 	 * @return void
 	 */
-	protected function initialize_theme_paths() {
+	protected function initialize_theme_paths(): void {
 		$hierarchy = $this->application->classes->hierarchy($this, __CLASS__);
 		foreach ($hierarchy as $index => $class) {
 			$hierarchy[$index] = strtr(strtolower($class), "_", "/") . "/";
@@ -317,9 +317,9 @@ class Control_List extends Control_Widgets_Filter {
 		}
 	}
 
-	private function initialize_header_widgets() {
+	private function initialize_header_widgets(): void {
 		$this->header_widget = $header_widget = $this->widget_factory('zesk\\Control_Header')->names($this->name() . '-header');
-		$this->header_widgets = array();
+		$this->header_widgets = [];
 		$included = to_list("list_order_column;show_size;list_order_variable;list_order_by;multisort;list_order_default_ascending;list_order_position;html;list_column_width;widget_save_result;context_class");
 		foreach ($this->row_widgets as $widget) {
 			/* @var $widget Widget */
@@ -336,7 +336,7 @@ class Control_List extends Control_Widgets_Filter {
 		$this->call_hook("header_widget", $header_widget);
 	}
 
-	private function _prepare_queries() {
+	private function _prepare_queries(): void {
 		if (!$this->query_hooked) {
 			$this->children_hook("before_query;before_query_list", $this->query);
 			$this->children_hook("before_query;before_query_total", $this->query_total);
@@ -356,14 +356,14 @@ class Control_List extends Control_Widgets_Filter {
 		}
 	}
 
-	public function hook_render() {
+	public function hook_render(): void {
 		$this->_prepare_queries();
 	}
 
 	public function theme_variables() {
 		$class_object = $this->class_object;
 		$locale = $this->application->locale;
-		return array(
+		return [
 			'query' => $this->query,
 			'sql_query' => strval($this->query),
 			'query_total' => $this->query_total,
@@ -396,7 +396,7 @@ class Control_List extends Control_Widgets_Filter {
 			'widget_tag' => $this->widget_tag,
 			'widget_attributes' => $this->widget_attributes,
 			'theme_widgets' => $this->theme_widgets,
-		) + parent::theme_variables() + $this->options;
+		] + parent::theme_variables() + $this->options;
 	}
 
 	/**
@@ -421,7 +421,7 @@ class Control_List extends Control_Widgets_Filter {
 	 */
 	private function _query_total() {
 		$query = $this->_query();
-		$query->what(array()); // Reset what
+		$query->what([]); // Reset what
 		$what = " COUNT(DISTINCT " . $this->list_what_default() . ")";
 		return $query->what("*total", $what);
 	}
@@ -473,7 +473,7 @@ class Control_List extends Control_Widgets_Filter {
 		return $this->request->is_post();
 	}
 
-	public function hook_initialized() {
+	public function hook_initialized(): void {
 		if ($this->search_query === null) {
 			return;
 		}
@@ -493,10 +493,10 @@ class Control_List extends Control_Widgets_Filter {
 	public function search($query) {
 		$this->search_query = $query;
 		if (!$this->search_widget) {
-			return array(
+			return [
 				'total' => 0,
 				'shown' => 0,
-			);
+			];
 		}
 		$force_limit = $this->option_integer('search_limit', 10);
 		$this->ready();
@@ -507,11 +507,11 @@ class Control_List extends Control_Widgets_Filter {
 			->show_filter(false)
 			->execute();
 		$total = $this->total();
-		return array(
+		return [
 			'content' => $content,
 			'total' => $total,
 			'shown' => min($total, $force_limit),
-		);
+		];
 	}
 
 	/**

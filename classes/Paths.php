@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage kernel
@@ -66,7 +66,7 @@ class Paths {
 	 *
 	 * @var array
 	 */
-	private $which_cache = array();
+	private $which_cache = [];
 
 	/**
 	 * Paths constructor.
@@ -88,10 +88,10 @@ class Paths {
 
 		$config->home = $this->home;
 
-		$zesk->hooks->add(Hooks::HOOK_CONFIGURED, array(
+		$zesk->hooks->add(Hooks::HOOK_CONFIGURED, [
 			$this,
 			"configured",
-		));
+		]);
 	}
 
 	/**
@@ -110,7 +110,7 @@ class Paths {
 	 * @param Application $application
 	 * @throws Exception_Lock
 	 */
-	public function configured(Application $application) {
+	public function configured(Application $application): void {
 		$configuration = $application->configuration;
 
 		$paths = $configuration->path(__CLASS__);
@@ -149,7 +149,7 @@ class Paths {
 	 * @param Configuration $config
 	 * @throws Exception_Lock
 	 */
-	private function _init_zesk_root(Configuration $config) {
+	private function _init_zesk_root(Configuration $config): void {
 		$zesk_root = dirname(__DIR__) . "/";
 		if (!defined('ZESK_ROOT')) {
 			define('ZESK_ROOT', $zesk_root);
@@ -169,15 +169,15 @@ class Paths {
 
 	/**
 	 */
-	private function _init_system_paths() {
-		$this->which_cache = array();
+	private function _init_system_paths(): void {
+		$this->which_cache = [];
 		$this->home = avalue($_SERVER, 'HOME');
 		$this->uid = $this->home(".zesk");
 	}
 
 	/**
 	 */
-	private function _init_app_paths() {
+	private function _init_app_paths(): void {
 		if ($this->application) {
 			$this->temporary = path($this->application, "cache/temp");
 			$this->data = path($this->application, "data");
@@ -194,7 +194,7 @@ class Paths {
 	 * @return array
 	 */
 	public function command($add = null) {
-		$command_paths = to_list(avalue($_SERVER, 'PATH'), array(), PATH_SEPARATOR);
+		$command_paths = to_list(avalue($_SERVER, 'PATH'), [], PATH_SEPARATOR);
 		if ($add !== null) {
 			$command_paths[] = $add;
 			$_SERVER['PATH'] = implode(PATH_SEPARATOR, $command_paths);
@@ -317,7 +317,7 @@ class Paths {
 	 * @return string[]
 	 */
 	public function variables() {
-		return array(
+		return [
 			'zesk' => ZESK_ROOT,
 			'application' => $this->application,
 			'temporary' => $this->temporary,
@@ -326,6 +326,6 @@ class Paths {
 			'home' => $this->home,
 			'uid' => $this->uid,
 			'command' => $this->command(),
-		);
+		];
 	}
 }

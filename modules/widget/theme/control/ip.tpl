@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $widget Control_IP */
@@ -11,7 +11,7 @@ if (is_numeric($value)) {
 } else {
 	$value = $widget->empty_string();
 }
-$attrs = array();
+$attrs = [];
 $attrs['placeholder'] = __("IP Address");
 $attrs['name'] = $name;
 $attrs['id'] = avalue($attrs, 'id', $attrs['name']);

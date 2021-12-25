@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
@@ -8,32 +8,32 @@
 namespace zesk;
 
 class Database_Query_Select_Links_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
 		"ORM",
-	);
+	];
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Test::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		require __DIR__ . "/Database_Query_Select_Links_Test_Objects.php";
 	}
 
-	public function sep() {
+	public function sep(): void {
 		echo str_repeat('-', 60) . "\n";
 	}
 
 	public function sql_normalize($sql) {
-		$sql = strtr($sql, array(
+		$sql = strtr($sql, [
 			" = " => "=",
-		));
+		]);
 		return $sql;
 	}
 
-	public function sql_test_assert($result, $test_result, $test = null) {
+	public function sql_test_assert($result, $test_result, $test = null): void {
 		$result = trim($result);
 		$test_result = trim($test_result);
 		$result = $this->sql_normalize($result);
@@ -41,7 +41,7 @@ class Database_Query_Select_Links_Test extends Test_Unit {
 		$this->assertEquals($result, $test_result);
 	}
 
-	public function test_main() {
+	public function test_main(): void {
 		$db = $this->application->database_registry();
 		$db->table_prefix("");
 
@@ -85,10 +85,10 @@ WHERE `Account`.`Cancelled` IS NULL';
 		/*==== Test ===============================================================*/
 
 		$query = $this->application->orm_registry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select();
-		$query->link('Test_Account', array(
+		$query->link('Test_Account', [
 			'path' => 'Site.Account',
 			'alias' => 'dude',
-		));
+		]);
 		$query->where('dude.Cancelled', null);
 
 		$test_result = 'SELECT `X`.* FROM `Test_SiteMonitor` AS `X`
@@ -102,10 +102,10 @@ WHERE `dude`.`Cancelled` IS NULL';
 
 		$query = $this->application->orm_registry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select();
 		$query->link(__NAMESPACE__ . '\\' . 'Test_Site');
-		$query->link(__NAMESPACE__ . '\\' . 'Test_Account', array(
+		$query->link(__NAMESPACE__ . '\\' . 'Test_Account', [
 			'path' => 'Site.Account',
 			'alias' => 'dude',
-		));
+		]);
 		$query->where('dude.Cancelled', null);
 
 		$test_result = 'SELECT `X`.* FROM `Test_SiteMonitor` AS `X`
@@ -118,13 +118,13 @@ WHERE `dude`.`Cancelled` IS NULL';
 		/*==== Test ===============================================================*/
 
 		$query = $this->application->orm_registry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select();
-		$query->link(__NAMESPACE__ . '\\' . 'Test_Site', array(
+		$query->link(__NAMESPACE__ . '\\' . 'Test_Site', [
 			'alias' => 'S',
-		));
-		$query->link(__NAMESPACE__ . '\\' . 'Test_Account', array(
+		]);
+		$query->link(__NAMESPACE__ . '\\' . 'Test_Account', [
 			'path' => 'S.Account',
 			'alias' => 'A',
-		));
+		]);
 		$query->where('A.Cancelled', null);
 
 		$test_result = 'SELECT `X`.* FROM `Test_SiteMonitor` AS `X`
@@ -136,9 +136,9 @@ WHERE `A`.`Cancelled` IS NULL';
 
 		/*==== Test ===============================================================*/
 
-		$person = new TestPerson($this->application, array(
+		$person = new TestPerson($this->application, [
 			"PersonID" => 1,
-		));
+		]);
 
 		/* @var $iterator ORMIterator */
 		$iterator = $person->Children;
@@ -150,9 +150,9 @@ WHERE `Children`.`Parent` = 1';
 
 		/*==== Test ===============================================================*/
 
-		$person = new TestPerson($this->application, array(
+		$person = new TestPerson($this->application, [
 			"PersonID" => 1,
-		));
+		]);
 
 		/* @var $iterator ORMIterator */
 		$iterator = $person->Pets;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
@@ -21,7 +21,7 @@ class Control_Radio extends Control_Optionss {
 	public function validate() {
 		$name = $this->name();
 		$v = $this->request->get($name, $this->option("default", null));
-		$opts = $this->option_array("options", array());
+		$opts = $this->option_array("options", []);
 		if (array_key_exists($v, $opts)) {
 			$this->value($v);
 		}

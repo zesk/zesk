@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -28,7 +28,7 @@ trait ControllerTrait {
 	 * {@inheritDoc}
 	 * @see \zesk\Controller_Authenticated::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->webapp = $this->application->webapp_module();
 		$this->server = $this->webapp->server();

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -22,7 +22,7 @@ ksort($attributes);
 
 $cache_file = md5(serialize($attributes)) . ".png";
 
-$path = Directory::create($cache_path, 0775);
+$path = Directory::create($cache_path, 0o775);
 if (!$path) {
 	$response->status_code = Net_HTTP::STATUS_INTERNAL_SERVER_ERROR;
 	$response->status_message = "Permission";

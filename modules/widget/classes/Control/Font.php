@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_Font extends Control_Select {
@@ -7,7 +7,7 @@ class Control_Font extends Control_Select {
 	 * {@inheritDoc}
 	 * @see \zesk\Control_Select::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		if (!$this->control_options()) {
 			$options = $this->web_font_options();
 			$this->control_options($options);
@@ -45,7 +45,7 @@ class Control_Font extends Control_Select {
 	 * @return string[]
 	 */
 	public static function web_font_options() {
-		return array(
+		return [
 			'"Source Sans Pro", Helvetica, Arial, sans-serif' => 'Source Sans Pro',
 			"Georgia, serif" => "Georgia",
 			'"Palatino Linotype", "Book Antiqua", Palatino, serif' => "Palatino",
@@ -57,7 +57,7 @@ class Control_Font extends Control_Select {
 			'Optima, Segoe, "Segoe UI", Candara, Calibri, Arial, sans-serif' => 'Optima',
 			'"Gill Sans", "Gill Sans MT", Calibri, sans-serif' => "Gill Sans",
 			'"Hoefler Text", "Baskerville old face", Garamond, "Times New Roman", serif' => "Hoefler Text",
-		);
+		];
 	}
 
 	/**

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Service extends Hookable {
@@ -19,7 +19,7 @@ class Service extends Hookable {
 	 * @param Application $application
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = array()) {
+	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 	}
@@ -50,7 +50,7 @@ class Service extends Hookable {
 		if (self::valid_type($application, $type)) {
 			return $application->classes->register(__NAMESPACE__ . "\\Service_" . $type);
 		}
-		return array();
+		return [];
 	}
 
 	/**
@@ -62,9 +62,9 @@ class Service extends Hookable {
 	 */
 	public static function factory(Application $application, $type) {
 		if (!self::valid_type($application, $type)) {
-			throw new Exception_Semantics("Invalid service type {type}", array(
+			throw new Exception_Semantics("Invalid service type {type}", [
 				"type" => $type,
-			));
+			]);
 		}
 		$args = func_get_args();
 		array_shift($args);
@@ -74,9 +74,9 @@ class Service extends Hookable {
 		if (!$class) {
 			$classes = self::service_classes($application, $type);
 			if (count($classes) === 0) {
-				throw new Exception_Semantics("No service classes for {type}", array(
+				throw new Exception_Semantics("No service classes for {type}", [
 					"type" => $type,
-				));
+				]);
 			}
 			$class = array_shift($classes);
 		}

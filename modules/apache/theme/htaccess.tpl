@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /* @var $this \zesk\Template */
 /* @var $locale \zesk\Locale */
 /* @var $application \zesk\Application */
@@ -24,6 +24,6 @@ $line[] = "</IfModule>";
 
 $content = implode("\n", $line);
 
-echo $application->hooks->call_arguments("htaccess_alter", array(
+echo $application->hooks->call_arguments("htaccess_alter", [
 	$content,
-), $content);
+], $content);

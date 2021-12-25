@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage contact
@@ -9,13 +9,13 @@ namespace zesk;
 
 class Contact_Import_Outlook extends Contact_Import {
 	public function empty_date_values() {
-		return array(
+		return [
 			'0/0/00',
-		);
+		];
 	}
 
 	public function contact_hash_keys() {
-		return array(
+		return [
 			"Title",
 			"First Name",
 			"Middle Name",
@@ -23,311 +23,311 @@ class Contact_Import_Outlook extends Contact_Import {
 			"Suffix",
 			"Mobile Phone",
 			"Primary Phone",
-		);
+		];
 	}
 
 	public function header_map() {
-		return array(
+		return [
 			"First Name" => "Contact_Person.FirstName",
 			"Middle Name" => "Contact_Person.MiddleName",
 			"Last Name" => "Contact_Person.LastName",
 			"Title" => "Contact_Person.Title",
 			"Suffix" => "Contact_Person.Suffix",
 			"Initials" => "Contact_Person.FirstName",
-			"Web Page" => new Contact_Builder_URL(array(
+			"Web Page" => new Contact_Builder_URL([
 				"URL" => "{value}",
 				"Label" => "Personal",
-			)),
-			"Gender" => new Contact_Builder_Person(array(
+			]),
+			"Gender" => new Contact_Builder_Person([
 				'Gender' => '{value}',
-			), array(
+			], [
 				'ignore_values' => "Unspecified",
-			)),
-			"Birthday" => new Contact_Builder_Date(array(
+			]),
+			"Birthday" => new Contact_Builder_Date([
 				"Value" => "{value}",
 				"Label" => "Birthday",
-			)),
-			"Anniversary" => new Contact_Builder_Date(array(
+			]),
+			"Anniversary" => new Contact_Builder_Date([
 				"Value" => "{value}",
 				"Label" => "Marriage Anniversary",
-			)),
-			"Location" => new Contact_Builder_Other(array(
+			]),
+			"Location" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Language" => new Contact_Builder_Other(array(
+			]),
+			"Language" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Internet Free Busy" => new Contact_Builder_URL(array(
+			]),
+			"Internet Free Busy" => new Contact_Builder_URL([
 				"URL" => "{value}",
 				"Label" => "{key}",
-			)),
+			]),
 			"Notes" => "Contact_Person.Notes",
 			"E-mail Address" => new Contact_Builder_Email(),
 			"E-mail 2 Address" => new Contact_Builder_Email(),
 			"E-mail 3 Address" => new Contact_Builder_Email(),
-			"Primary Phone" => new Contact_Builder_Phone(array(
+			"Primary Phone" => new Contact_Builder_Phone([
 				"Value" => "{value}",
 				"IsPrimary" => true,
-			)),
-			"Home Phone" => new Contact_Builder_Phone(array(
+			]),
+			"Home Phone" => new Contact_Builder_Phone([
 				"Value" => "{value}",
 				"Label" => "Home",
-			)),
-			"Home Phone 2" => new Contact_Builder_Phone(array(
+			]),
+			"Home Phone 2" => new Contact_Builder_Phone([
 				"Value" => "{value}",
 				"Label" => "Home",
-			)),
-			"Mobile Phone" => new Contact_Builder_Phone(array(
+			]),
+			"Mobile Phone" => new Contact_Builder_Phone([
 				"Value" => "{value}",
 				"Label" => "Mobile",
-			)),
-			"Pager" => new Contact_Builder_Phone(array(
+			]),
+			"Pager" => new Contact_Builder_Phone([
 				"Value" => "{value}",
 				"Label" => "Pager",
-			)),
-			"Home Fax" => new Contact_Builder_Phone(array(
+			]),
+			"Home Fax" => new Contact_Builder_Phone([
 				"Value" => "{value}",
 				"Label" => "Home Fax",
-			)),
+			]),
 			"Home Address" => null,
-			"Home Street" => new Contact_Builder_Address(array(
+			"Home Street" => new Contact_Builder_Address([
 				"Street_Line" => "{value}",
 				"Label" => "Home",
-			)),
-			"Home Street 2" => new Contact_Builder_Address(array(
+			]),
+			"Home Street 2" => new Contact_Builder_Address([
 				"Street_Line" => "{value}",
 				"Label" => "Home",
-			)),
-			"Home Street 3" => new Contact_Builder_Address(array(
+			]),
+			"Home Street 3" => new Contact_Builder_Address([
 				"Street_Line" => "{value}",
 				"Label" => "Home",
-			)),
-			"Home Address PO Box" => new Contact_Builder_Address(array(
+			]),
+			"Home Address PO Box" => new Contact_Builder_Address([
 				"Street_Line" => "{value}",
 				"Label" => "Home PO Box",
-			)),
-			"Home City" => new Contact_Builder_Address(array(
+			]),
+			"Home City" => new Contact_Builder_Address([
 				"City" => "{value}",
 				"Label" => "Home",
-			)),
-			"Home State" => new Contact_Builder_Address(array(
+			]),
+			"Home State" => new Contact_Builder_Address([
 				"Province" => "{value}",
 				"Label" => "Home",
-			)),
-			"Home Postal Code" => new Contact_Builder_Address(array(
+			]),
+			"Home Postal Code" => new Contact_Builder_Address([
 				"PostalCode" => "{value}",
 				"Label" => "Home",
-			)),
-			"Home Country" => new Contact_Builder_Address(array(
+			]),
+			"Home Country" => new Contact_Builder_Address([
 				"Country" => "{value}",
 				"Label" => "Home",
-			)),
+			]),
 			"Spouse" => "Contact_Person.Spouse",
 			"Children" => "Contact_Person.Children",
-			"Manager's Name" => new Contact_Builder_Other(array(
+			"Manager's Name" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Assistant's Name" => new Contact_Builder_Other(array(
+			]),
+			"Assistant's Name" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Referred By" => new Contact_Builder_Other(array(
+			]),
+			"Referred By" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Company Main Phone" => new Contact_Builder_Phone(array(
+			]),
+			"Company Main Phone" => new Contact_Builder_Phone([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Business Phone" => new Contact_Builder_Phone(array(
+			]),
+			"Business Phone" => new Contact_Builder_Phone([
 				"Value" => "{value}",
 				"Label" => "Work",
-			)),
-			"Business Phone 2" => new Contact_Builder_Phone(array(
+			]),
+			"Business Phone 2" => new Contact_Builder_Phone([
 				"Value" => "{value}",
 				"Label" => "Work",
-			)),
-			"Business Fax" => new Contact_Builder_Phone(array(
+			]),
+			"Business Fax" => new Contact_Builder_Phone([
 				"Value" => "{value}",
 				"Label" => "Work Fax",
-			)),
-			"Assistant's Phone" => new Contact_Builder_Phone(array(
+			]),
+			"Assistant's Phone" => new Contact_Builder_Phone([
 				"Value" => "{value}",
 				"Label" => "Assistant",
-			)),
+			]),
 			"Company" => "Contact_Person.Company",
-			"Job Title" => new Contact_Builder_Other(array(
+			"Job Title" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Department" => new Contact_Builder_Other(array(
+			]),
+			"Department" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Office Location" => new Contact_Builder_Other(array(
+			]),
+			"Office Location" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Organizational ID Value" => new Contact_Builder_Other(array(
+			]),
+			"Organizational ID Value" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Profession" => new Contact_Builder_Other(array(
+			]),
+			"Profession" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Account" => new Contact_Builder_Other(array(
+			]),
+			"Account" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
+			]),
 			"Business Address" => null,
-			"Business Street" => new Contact_Builder_Address(array(
+			"Business Street" => new Contact_Builder_Address([
 				"Street_Line" => "{value}",
 				"Label" => "Work",
-			)),
-			"Business Street 2" => new Contact_Builder_Address(array(
+			]),
+			"Business Street 2" => new Contact_Builder_Address([
 				"Street_Line" => "{value}",
 				"Label" => "Work",
-			)),
-			"Business Street 3" => new Contact_Builder_Address(array(
+			]),
+			"Business Street 3" => new Contact_Builder_Address([
 				"Street_Line" => "{value}",
 				"Label" => "Work",
-			)),
-			"Business Address PO Box" => new Contact_Builder_Address(array(
+			]),
+			"Business Address PO Box" => new Contact_Builder_Address([
 				"Street_Line" => "{value}",
 				"Label" => "Work PO Box",
-			)),
-			"Business City" => new Contact_Builder_Address(array(
+			]),
+			"Business City" => new Contact_Builder_Address([
 				"City" => "{value}",
 				"Label" => "Work",
-			)),
-			"Business State" => new Contact_Builder_Address(array(
+			]),
+			"Business State" => new Contact_Builder_Address([
 				"Province" => "{value}",
 				"Label" => "Work",
-			)),
-			"Business Postal Code" => new Contact_Builder_Address(array(
+			]),
+			"Business Postal Code" => new Contact_Builder_Address([
 				"PostalCode" => "{value}",
 				"Label" => "Work",
-			)),
-			"Business Country" => new Contact_Builder_Address(array(
+			]),
+			"Business Country" => new Contact_Builder_Address([
 				"Country" => "{value}",
 				"Label" => "Work",
-			)),
-			"Other Phone" => new Contact_Builder_Phone(array(
+			]),
+			"Other Phone" => new Contact_Builder_Phone([
 				"Value" => "{value}",
 				"Label" => "Other",
-			)),
-			"Other Fax" => new Contact_Builder_Phone(array(
+			]),
+			"Other Fax" => new Contact_Builder_Phone([
 				"Value" => "{value}",
 				"Label" => "Other Fax",
-			)),
+			]),
 			"Other Address" => null,
-			"Other Street" => new Contact_Builder_Address(array(
+			"Other Street" => new Contact_Builder_Address([
 				"Street_Line" => "{value}",
 				"Label" => "Other",
-			)),
-			"Other Street 2" => new Contact_Builder_Address(array(
+			]),
+			"Other Street 2" => new Contact_Builder_Address([
 				"Street_Line" => "{value}",
 				"Label" => "Other",
-			)),
-			"Other Street 3" => new Contact_Builder_Address(array(
+			]),
+			"Other Street 3" => new Contact_Builder_Address([
 				"Street_Line" => "{value}",
 				"Label" => "Other",
-			)),
-			"Other Address PO Box" => new Contact_Builder_Address(array(
+			]),
+			"Other Address PO Box" => new Contact_Builder_Address([
 				"Street_Line" => "{value}",
 				"Label" => "Other PO Box",
-			)),
-			"Other City" => new Contact_Builder_Address(array(
+			]),
+			"Other City" => new Contact_Builder_Address([
 				"City" => "{value}",
 				"Label" => "Other",
-			)),
-			"Other State" => new Contact_Builder_Address(array(
+			]),
+			"Other State" => new Contact_Builder_Address([
 				"Province" => "{value}",
 				"Label" => "Other",
-			)),
-			"Other Postal Code" => new Contact_Builder_Address(array(
+			]),
+			"Other Postal Code" => new Contact_Builder_Address([
 				"PostalCode" => "{value}",
 				"Label" => "Other",
-			)),
-			"Other Country" => new Contact_Builder_Address(array(
+			]),
+			"Other Country" => new Contact_Builder_Address([
 				"Country" => "{value}",
 				"Label" => "Other",
-			)),
-			"Callback" => new Contact_Builder_Other(array(
+			]),
+			"Callback" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Car Phone" => new Contact_Builder_Other(array(
+			]),
+			"Car Phone" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"ISDN" => new Contact_Builder_Other(array(
+			]),
+			"ISDN" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Radio Phone" => new Contact_Builder_Other(array(
+			]),
+			"Radio Phone" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"TTY/TDD Phone" => new Contact_Builder_Other(array(
+			]),
+			"TTY/TDD Phone" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Telex" => new Contact_Builder_Other(array(
+			]),
+			"Telex" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"User 1" => new Contact_Builder_Other(array(
+			]),
+			"User 1" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"User 2" => new Contact_Builder_Other(array(
+			]),
+			"User 2" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"User 3" => new Contact_Builder_Other(array(
+			]),
+			"User 3" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"User 4" => new Contact_Builder_Other(array(
+			]),
+			"User 4" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
+			]),
 			"Keywords" => "Contact.Keywords",
-			"Mileage" => new Contact_Builder_Other(array(
+			"Mileage" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Hobby" => new Contact_Builder_Other(array(
+			]),
+			"Hobby" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Billing Information" => new Contact_Builder_Other(array(
+			]),
+			"Billing Information" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Directory Server" => new Contact_Builder_URL(array(
+			]),
+			"Directory Server" => new Contact_Builder_URL([
 				"URL" => "{value}",
 				"Contact_URL.Label" => "{key}",
-			)),
-			"Sensitivity" => new Contact_Builder_Other(array(
+			]),
+			"Sensitivity" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Priority" => new Contact_Builder_Other(array(
+			]),
+			"Priority" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
-			"Private" => new Contact_Builder_Other(array(
+			]),
+			"Private" => new Contact_Builder_Other([
 				"Value" => "{value}",
 				"Label" => "{key}",
-			)),
+			]),
 			"Categories" => new Contact_Builder_Tag(),
-		);
+		];
 	}
 
 	public function can_import($file_name) {

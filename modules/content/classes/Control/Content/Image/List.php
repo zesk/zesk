@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @todo Move this to correct location
  */
@@ -10,7 +10,7 @@ namespace zesk;
  */
 class Control_List_Content_Image extends Control_List {
 	public function hook_widgets() {
-		$spec = array();
+		$spec = [];
 
 		$spec[] = $f = $this->widget_factory("zesk\View_Link")->names("Name", "Title")->format("{name}");
 

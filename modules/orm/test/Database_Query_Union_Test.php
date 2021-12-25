@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
@@ -8,12 +8,12 @@
 namespace zesk;
 
 class Database_Query_Union_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
 		"ORM",
-	);
+	];
 
-	public function test_main() {
+	public function test_main(): void {
 		$table_name = "Database_Query_Union";
 
 		$this->test_table($table_name);
@@ -54,7 +54,7 @@ class Database_Query_Union_Test extends Test_Unit {
 		$testx->iterator();
 
 		$class = "U";
-		$options = array();
+		$options = [];
 		$testx->orm_iterator($class, $options);
 
 		$field = false;

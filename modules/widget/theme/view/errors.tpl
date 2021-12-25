@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -14,7 +14,7 @@ namespace zesk;
 
 /* @var $widget View_Errors */
 /* @var $parent Widget */
-$errors = array();
+$errors = [];
 $parent = $this->parent;
 
 if ($parent) {
@@ -41,6 +41,6 @@ if (avalue($errors, "continue", false)) {
 	$class = 'danger';
 }
 
-echo HTML::etag("div", array(
+echo HTML::etag("div", [
 	'class' => CSS::add_class("alert alert-$class"),
-), HTML::tags("p", $errors));
+], HTML::tags("p", $errors));

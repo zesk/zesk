@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -39,7 +39,7 @@ class Server_Packager_APT extends Server_Packager {
 		return $this->exec("apt-show-versions -b | cut -d / -f 1");
 	}
 
-	public function configure() {
+	public function configure(): void {
 		$this->install('apt-show-versions');
 		if ($this->root_inherit_copy('apt/sources.list', '/etc/apt/sources.list')) {
 			$this->packager->update();

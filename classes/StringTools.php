@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -261,7 +261,7 @@ class StringTools {
 			}
 			return false;
 		}
-		return $case_insensitive ? (stripos($haystack, $needle) !== false ? true : false) : (strpos($haystack, $needle) !== false ? true : false);
+		return $case_insensitive ? (stripos($haystack, $needle) !== false ? true : false) : (str_contains($haystack, $needle) ? true : false);
 	}
 
 	/**
@@ -508,11 +508,11 @@ class StringTools {
 		}
 		$text = StringTools::substr($text, 0, $length);
 		$off = 0;
-		$aa = array(
+		$aa = [
 			" ",
 			"\n",
 			"\t",
-		);
+		];
 		$letters = StringTools::str_split($text);
 		for ($i = count($letters) - 1; --$i; $i >= 0) {
 			if (in_array($letters[$i], $aa)) {
@@ -560,9 +560,7 @@ class StringTools {
 			$tab_width = 4;
 		}
 		//	$text =~ s{(.*?)\t}{$1.(' ' x ($g_tab_width - length($1) % $g_tab_width))}ge;
-		return preg_replace_callback('@^(.*?)\t@m', function ($matches) use ($tab_width) {
-			return $matches[1] . str_repeat(' ', $tab_width - strlen($matches[1]) % $tab_width);
-		}, $text);
+		return preg_replace_callback('@^(.*?)\t@m', fn ($matches) => $matches[1] . str_repeat(' ', $tab_width - strlen($matches[1]) % $tab_width), $text);
 	}
 
 	/**
@@ -582,7 +580,7 @@ class StringTools {
 		if ($split_length < 1) {
 			return false;
 		}
-		$ret = array();
+		$ret = [];
 		$len = self::length($string, $encoding);
 		for ($i = 0; $i < $len; $i += $split_length) {
 			$ret[] = self::substr($string, $i, $split_length, "UTF-8");
@@ -606,7 +604,7 @@ class StringTools {
 	 * @return string A correctly quoted CSV value
 	 */
 	public static function csv_quote($x) {
-		if ((strpos($x, '"') !== false) || (strpos($x, ",") !== false) || (strpos($x, "\n") !== false)) {
+		if ((str_contains($x, '"')) || (str_contains($x, ",")) || (str_contains($x, "\n"))) {
 			return '"' . str_replace('"', '""', $x) . '"';
 		}
 		return $x;
@@ -619,7 +617,7 @@ class StringTools {
 	 * @return string
 	 */
 	public static function csv_quote_row($x) {
-		$yy = array();
+		$yy = [];
 		foreach ($x as $col) {
 			$yy[] = self::csv_quote($col);
 		}
@@ -642,9 +640,7 @@ class StringTools {
 	}
 
 	public static function from_camel_case($string) {
-		return preg_replace_callback('/[A-Z]/', function ($matches) {
-			return "_" . strtolower($matches[0]);
-		}, $string);
+		return preg_replace_callback('/[A-Z]/', fn ($matches) => "_" . strtolower($matches[0]), $string);
 	}
 
 	public static function to_camel_case($string) {
@@ -711,9 +707,9 @@ class StringTools {
 	 * @deprecated 2019-01
 	 */
 	public static function wrap($phrase) {
-		return call_user_func_array(array(
+		return call_user_func_array([
 			HTML::class,
 			"wrap",
-		), func_get_args());
+		], func_get_args());
 	}
 }

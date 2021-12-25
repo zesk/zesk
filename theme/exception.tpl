@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -20,14 +20,14 @@ if ($response->status_code === Net_HTTP::STATUS_OK) {
 $exception = $this->exception;
 $class = get_class($this->exception);
 
-$application->logger->error("Exception: {exception_class}\nMessage: {message}\nServer:\n{server}\nRequest:\n{request}\nException: {exception_class}\nBacktrace:\n{backtrace}\n{exception}", array(
+$application->logger->error("Exception: {exception_class}\nMessage: {message}\nServer:\n{server}\nRequest:\n{request}\nException: {exception_class}\nBacktrace:\n{backtrace}\n{exception}", [
 	"server" => Text::format_pairs($_SERVER),
 	"request" => Text::format_pairs($_REQUEST),
 	"exception_class" => $class,
 	"exception" => $exception,
 	"message" => $exception->getMessage(),
 	"backtrace" => $exception->getTraceAsString(),
-));
+]);
 
 $this->begin('body/exception.tpl');
 
@@ -52,9 +52,9 @@ $dev = $this->application->development();
 	echo HTML::tag('code', $message);
 	if ($dev) {
 		?><p>The call stack is:</p><?php
-		echo $this->theme('exception/trace', array(
+		echo $this->theme('exception/trace', [
 			"content" => $trace,
-		)); ?>
+		]); ?>
 	<?php
 	}
 	if ($this->suffix) {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -9,12 +9,12 @@ namespace zesk;
 class Class_Health_Event extends Class_ORM {
 	public $id_column = "id";
 
-	public $has_one = array(
+	public $has_one = [
 		"events" => "zesk\\Health_Events",
 		"server" => "zesk\\Server",
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"events" => self::type_object,
 		"when" => self::type_timestamp,
@@ -29,9 +29,9 @@ class Class_Health_Event extends Class_ORM {
 		"line" => self::type_integer,
 		"backtrace" => self::type_serialize,
 		"data" => self::type_serialize,
-	);
+	];
 
-	public $column_defaults = array(
+	public $column_defaults = [
 		'when_msec' => 0,
-	);
+	];
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -26,22 +26,22 @@ class Site extends ORM {
 	 *
 	 * @var string
 	 */
-	const HOST_TYPE_DIRECTORY_INDEX = "directory-index";
+	public const HOST_TYPE_DIRECTORY_INDEX = "directory-index";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const HOST_TYPE_DEFAULT = "default";
+	public const HOST_TYPE_DEFAULT = "default";
 
 	/**
 	 *
 	 * @var array
 	 */
-	private static $types = array(
+	private static $types = [
 		self::HOST_TYPE_DIRECTORY_INDEX => "Directory Index",
 		self::HOST_TYPE_DEFAULT => "default",
-	);
+	];
 
 	/**
 	 *
@@ -68,18 +68,18 @@ class Site extends ORM {
 		$cluster = Cluster::find_from_site($this);
 		$clusters = $cluster ? $this->application->orm_registry(Domain::class)
 			->query_select()
-			->where(array(
+			->where([
 			'type' => Cluster::class,
 			'target' => $cluster->id(),
-		))
+		])
 			->orm_iterator()
-			->to_array() : array();
+			->to_array() : [];
 		$sites = $this->application->orm_registry(Domain::class)
 			->query_select()
-			->where(array(
+			->where([
 			'type' => self::class,
 			'target' => $this->id(),
-		))
+		])
 			->orm_iterator()
 			->to_array();
 
@@ -90,7 +90,7 @@ class Site extends ORM {
 	 * Make sure it's a valid structure
 	 */
 	public function validate_structure() {
-		$errors = array();
+		$errors = [];
 		$code = $this->code;
 		if (empty($code)) {
 			$errors['code'] = "code is required";
@@ -125,21 +125,21 @@ class Site extends ORM {
 	/**
 	 *
 	 */
-	public function remove_dead_instances() {
-		$query = $this->query_select("X")->link(Instance::class, array(
+	public function remove_dead_instances(): void {
+		$query = $this->query_select("X")->link(Instance::class, [
 			'alias' => 'L',
 			'require' => false,
-		))->where('L.id', null);
+		])->where('L.id', null);
 		$iterator = $query->orm_iterator();
 		foreach ($iterator as $instance) {
 			/* @var $instance self */
 			$oldid = $instance->member_integer("instance");
-			$this->application->logger->notice("Deleting site #{id} {name} associated with dead instance #{oldid}", $instance->members(array(
+			$this->application->logger->notice("Deleting site #{id} {name} associated with dead instance #{oldid}", $instance->members([
 				"id",
 				"name",
-			)) + array(
+			]) + [
 				"oldid" => $oldid,
-			));
+			]);
 			$instance->delete();
 		}
 	}

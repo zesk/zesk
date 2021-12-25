@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Array tools
@@ -21,7 +21,7 @@ class ArrayTools {
 	 *
 	 * @var string
 	 */
-	const TRIM_WHITESPACE = " \t\r\n\0\x0B";
+	public const TRIM_WHITESPACE = " \t\r\n\0\x0B";
 
 	/**
 	 * Capitalize all values in an array
@@ -233,7 +233,7 @@ class ArrayTools {
 		if (!is_array($a)) {
 			return ltrim($a, $character_list);
 		}
-		$b = array();
+		$b = [];
 		foreach ($a as $i => $v) {
 			$b[ltrim($i, $character_list)] = $v;
 		}
@@ -254,7 +254,7 @@ class ArrayTools {
 		if (!is_array($a)) {
 			return trim($a, $character_list);
 		}
-		$b = array();
+		$b = [];
 		foreach ($a as $i => $v) {
 			$b[trim($i, $character_list)] = $v;
 		}
@@ -312,7 +312,7 @@ class ArrayTools {
 	 * @return array
 	 */
 	public static function kprefix(array $arr, $str) {
-		$result = array();
+		$result = [];
 		foreach ($arr as $k => $v) {
 			$result[$str . $k] = $v;
 		}
@@ -327,7 +327,7 @@ class ArrayTools {
 	 * @return array
 	 */
 	public static function ksuffix(array $arr, $str) {
-		$result = array();
+		$result = [];
 		foreach ($arr as $k => $v) {
 			$result[$k . $str] = $v;
 		}
@@ -343,7 +343,7 @@ class ArrayTools {
 	 * @return array
 	 */
 	public static function kwrap(array $arr, $prefix = "", $suffix = "") {
-		$result = array();
+		$result = [];
 		foreach ($arr as $k => $v) {
 			$result[$prefix . $k . $suffix] = $v;
 		}
@@ -441,7 +441,7 @@ class ArrayTools {
 	 */
 	public static function kunprefix(array $arr, $str, $remove = false) {
 		$n = strlen($str);
-		$result = array();
+		$result = [];
 		foreach ($arr as $k => $v) {
 			if (substr($k, 0, $n) === $str) {
 				$result[substr($k, $n)] = $v;
@@ -463,7 +463,7 @@ class ArrayTools {
 	 */
 	public static function kunsuffix(array $arr, $str, $remove = false) {
 		$n = strlen($str);
-		$result = array();
+		$result = [];
 		foreach ($arr as $k => $v) {
 			if (substr($k, -$n) === $str) {
 				$result[substr($k, 0, -$n)] = $v;
@@ -521,7 +521,7 @@ class ArrayTools {
 	 * @todo Is this used
 	 */
 	public static function merge() {
-		$result = array();
+		$result = [];
 		for ($i = 0, $total = func_num_args(); $i < $total; $i++) {
 			foreach (func_get_arg($i) as $key => $val) {
 				if (isset($result[$key])) {
@@ -587,7 +587,7 @@ class ArrayTools {
 	 * @return array
 	 */
 	public static function extract(array $arrays, $key_key = null, $value_key = null, $default_value = null) {
-		$result = array();
+		$result = [];
 		if ($key_key === null) {
 			foreach ($arrays as $key => $array) {
 				$result[$key] = $array[$value_key] ?? $default_value;
@@ -632,7 +632,7 @@ class ArrayTools {
 	 * @return array
 	 */
 	public static function rekey(array $keys, array $values) {
-		$result = array();
+		$result = [];
 		foreach ($keys as $i => $key) {
 			if ($key === null) {
 				continue;
@@ -658,7 +658,7 @@ class ArrayTools {
 		if (count($key_map) === 0) {
 			return $array;
 		}
-		$new_array = $skip = array();
+		$new_array = $skip = [];
 		foreach ($array as $k => $v) {
 			$new_key = $key_map[$k] ?? $k;
 			if ($new_key !== $k) {
@@ -724,9 +724,9 @@ class ArrayTools {
 	 * @return array
 	 */
 	public static function kpair(array $array, $delim = " ") {
-		$result = array();
+		$result = [];
 		foreach ($array as $k => $item) {
-			list($key, $value) = pair($item, $delim, $k, $item);
+			[$key, $value] = pair($item, $delim, $k, $item);
 			$result[$key] = $value;
 		}
 		return $result;
@@ -900,7 +900,7 @@ class ArrayTools {
 	 * @return array with values lowercase
 	 */
 	public static function change_value_case(array $arr) {
-		$r = array();
+		$r = [];
 		foreach ($arr as $k => $v) {
 			if (is_string($v)) {
 				$r[$k] = strtolower($v);
@@ -926,7 +926,7 @@ class ArrayTools {
 		if (is_string($keys)) {
 			$keys = explode(";", $keys);
 		}
-		$r = array();
+		$r = [];
 		foreach ($keys as $src_key => $dest_key) {
 			if (is_numeric($src_key)) {
 				$src_key = $dest_key;
@@ -953,7 +953,7 @@ class ArrayTools {
 		if (is_string($prefixes)) {
 			$prefixes = explode(";", $prefixes);
 		}
-		$r = array();
+		$r = [];
 		foreach ($a as $k => $v) {
 			if (StringTools::begins($k, $prefixes, $lower)) {
 				$r[$k] = $v;
@@ -991,7 +991,7 @@ class ArrayTools {
 			}
 		}
 		if (!is_bool($exclude) && !empty($exclude)) {
-			$exclude = to_list($exclude, array());
+			$exclude = to_list($exclude, []);
 			$exclude = array_flip($exclude);
 			if ($lower) {
 				$exclude = array_change_key_case($exclude);
@@ -1111,7 +1111,7 @@ class ArrayTools {
 	 *        	The value to store in the array
 	 * @see ArrayTools::prepend
 	 */
-	public static function append(&$arr, $k, $v = null) {
+	public static function append(&$arr, $k, $v = null): void {
 		if (is_array($k)) {
 			foreach ($k as $k0 => $v) {
 				ArrayTools::append($arr, $k0, $v);
@@ -1122,10 +1122,10 @@ class ArrayTools {
 			} elseif (is_array($arr[$k])) {
 				$arr[$k][] = $v;
 			} else {
-				$arr[$k] = array(
+				$arr[$k] = [
 					$arr[$k],
 					$v,
-				);
+				];
 			}
 		}
 	}
@@ -1165,7 +1165,7 @@ class ArrayTools {
 	 *        	The value to store in the array
 	 * @see ArrayTools::append
 	 */
-	public static function prepend(&$arr, $k, $v = null) {
+	public static function prepend(&$arr, $k, $v = null): void {
 		if (is_array($k)) {
 			foreach ($k as $k0 => $v) {
 				ArrayTools::append($arr, $k0, $v);
@@ -1176,10 +1176,10 @@ class ArrayTools {
 			} elseif (is_array($arr[$k])) {
 				array_unshift($arr[$k], $v);
 			} else {
-				$arr[$k] = array(
+				$arr[$k] = [
 					$v,
 					$arr[$k],
-				);
+				];
 			}
 		}
 	}
@@ -1207,7 +1207,7 @@ class ArrayTools {
 	 * @return array An array where the keys and values identical (or lowercase equivalent)
 	 */
 	public static function flip_copy($x, $lower = true) {
-		$result = array();
+		$result = [];
 		if ($lower) {
 			foreach ($x as $k) {
 				$result[strtolower($k)] = $k;
@@ -1237,14 +1237,14 @@ class ArrayTools {
 	 * @return array
 	 */
 	public static function flip_multiple(array $arr) {
-		$result = array();
+		$result = [];
 		foreach ($arr as $k => $v) {
 			if (array_key_exists($v, $result)) {
 				$result[$v][] = $k;
 			} else {
-				$result[$v] = array(
+				$result[$v] = [
 					$k,
-				);
+				];
 			}
 		}
 		return $result;
@@ -1272,7 +1272,7 @@ class ArrayTools {
 	 * @return array
 	 */
 	public static function flip_assign($x, $value = null) {
-		$result = array();
+		$result = [];
 		foreach ($x as $k) {
 			$result[$k] = $value;
 		}
@@ -1316,7 +1316,7 @@ class ArrayTools {
 	 * @return array merged
 	 */
 	public static function insert($arr1, $key, $arr2, $before = false) {
-		$result = array();
+		$result = [];
 		$key = strval($key);
 		if (!array_key_exists($key, $arr1)) {
 			return $before ? array_merge($arr2, $arr1) : array_merge($arr1, $arr2);
@@ -1417,7 +1417,7 @@ class ArrayTools {
 			}
 			return false;
 		}
-		return (strpos($haystack, $needles) !== false);
+		return (str_contains($haystack, $needles));
 	}
 
 	/**
@@ -1459,7 +1459,7 @@ class ArrayTools {
 	 * @see strstr()
 	 */
 	public static function match(array $haystack, $needles) {
-		$result = array();
+		$result = [];
 		if (is_array($needles)) {
 			foreach ($needles as $needle) {
 				$result = array_merge($result, self::match($haystack, $needle));
@@ -1467,7 +1467,7 @@ class ArrayTools {
 			return $result;
 		}
 		foreach ($haystack as $h => $v) {
-			if (strpos($v, $needles) !== false) {
+			if (str_contains($v, $needles)) {
 				$result[$h] = $v;
 			}
 		}
@@ -1484,7 +1484,7 @@ class ArrayTools {
 	 * @see strstr()
 	 */
 	public static function imatch(array $haystack, $needles) {
-		$result = array();
+		$result = [];
 		if (is_array($needles)) {
 			foreach ($needles as $needle) {
 				$result = array_merge($result, self::match($haystack, $needle));
@@ -1512,7 +1512,7 @@ class ArrayTools {
 		if (is_string($string)) {
 			return preg_quote($string, $delimiter);
 		} elseif (is_array($string)) {
-			$result = array();
+			$result = [];
 			foreach ($string as $k => $str) {
 				$result[$k] = self::preg_quote($str, $delimiter);
 			}
@@ -1529,7 +1529,7 @@ class ArrayTools {
 	 * @return array
 	 */
 	public static function transpose(array $arr) {
-		$new = array();
+		$new = [];
 		foreach ($arr as $y => $row) {
 			if (is_array($row)) {
 				foreach ($row as $x => $data) {
@@ -1612,11 +1612,11 @@ class ArrayTools {
 	 * @return array
 	 */
 	public static function kreplace(array $arr, $find, $replace) {
-		$new = array();
+		$new = [];
 		foreach ($arr as $k => $v) {
-			$new[strtr($k, array(
+			$new[strtr($k, [
 				$find => $replace,
-			))] = $v;
+			])] = $v;
 		}
 		return $new;
 	}
@@ -1751,15 +1751,15 @@ class ArrayTools {
 	 */
 	public static function filter_value(array $array, $value, $strict = true) {
 		if (is_scalar($value)) {
-			$value = array(
+			$value = [
 				$value,
-			);
+			];
 		}
 		$value = to_array($value);
 		if (count($value) === 0) {
 			return $value;
 		}
-		$result = array();
+		$result = [];
 		foreach ($array as $k => $v) {
 			if (in_array($v, $value, $strict)) {
 				$result[$k] = $v;
@@ -1776,7 +1776,7 @@ class ArrayTools {
 	 * @return array
 	 */
 	public static function filter_value_ends(array $array, $ends) {
-		$result = array();
+		$result = [];
 		foreach ($array as $k => $v) {
 			if (ends($v, $ends)) {
 				$result[$k] = $v;
@@ -1822,7 +1822,7 @@ class ArrayTools {
 	 * @return array
 	 */
 	public static function kflatten(array $array, $separator) {
-		$result = array();
+		$result = [];
 		foreach ($array as $key => $item) {
 			if (is_array($item)) {
 				$item = self::kflatten($item, $separator);

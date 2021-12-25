@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage Locale
@@ -21,7 +21,7 @@ class Reader {
 	 *
 	 * @var string
 	 */
-	const ERROR_NOT_ARRAY = "ERROR_NOT_ARRAY";
+	public const ERROR_NOT_ARRAY = "ERROR_NOT_ARRAY";
 
 	/**
 	 *
@@ -45,31 +45,31 @@ class Reader {
 	 *
 	 * @var array
 	 */
-	private $paths = array();
+	private $paths = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $extensions = array();
+	private $extensions = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $errors = array();
+	private $errors = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $loaded = array();
+	private $loaded = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $missing = array();
+	private $missing = [];
 
 	/**
 	 *
@@ -78,7 +78,7 @@ class Reader {
 	 * @param array $extensions
 	 * @return \zesk\Locale\Reader
 	 */
-	public static function factory(array $paths, $id, array $extensions = array()) {
+	public static function factory(array $paths, $id, array $extensions = []) {
 		return new self($paths, $id, $extensions);
 	}
 
@@ -89,17 +89,17 @@ class Reader {
 	 * @param unknown $dialect
 	 * @param array $extensions
 	 */
-	public function __construct(array $paths, $id, array $extensions = array()) {
+	public function __construct(array $paths, $id, array $extensions = []) {
 		$this->paths = $paths;
-		list($language, $dialect) = Locale::parse($id);
+		[$language, $dialect] = Locale::parse($id);
 		$this->id = Locale::normalize($id);
 		$this->language = $language;
 		$this->dialect = $dialect;
-		$this->extensions = count($extensions) ? $extensions : array(
+		$this->extensions = count($extensions) ? $extensions : [
 			"php",
 			"inc",
 			"json",
-		);
+		];
 	}
 
 	/**
@@ -136,7 +136,7 @@ class Reader {
 	 * @param array $options
 	 * @return Locale
 	 */
-	public function locale(Application $application, array $options = array()) {
+	public function locale(Application $application, array $options = []) {
 		return Locale::factory($application, $this->id, $options)->translations($this->execute());
 	}
 
@@ -146,10 +146,10 @@ class Reader {
 	 * @return array
 	 */
 	public function execute() {
-		$this->loaded = array();
-		$this->errors = array();
-		$this->missing = array();
-		$results = array();
+		$this->loaded = [];
+		$this->errors = [];
+		$this->missing = [];
+		$results = [];
 		foreach ($this->files() as $file) {
 			if (file_exists($file)) {
 				try {
@@ -174,12 +174,12 @@ class Reader {
 	 * @return string[]
 	 */
 	public function files() {
-		$files = array();
-		$prefixes = array(
+		$files = [];
+		$prefixes = [
 			"all",
 			$this->language,
 
-		);
+		];
 		if ($this->dialect) {
 			$prefixes[] = $this->language . "_" . $this->dialect;
 		}
@@ -202,20 +202,20 @@ class Reader {
 	 */
 	private function load($file) {
 		$extension = File::extension($file);
-		if (in_array($extension, array(
+		if (in_array($extension, [
 			"php",
 			"inc",
-		))) {
+		])) {
 			return $this->_require($file);
 		}
 		if ($extension === "json") {
 			return JSON::decode(File::contents($file));
 		}
 
-		throw new Exception_Unsupported("Locale file {file} extension {extension} not supported", array(
+		throw new Exception_Unsupported("Locale file {file} extension {extension} not supported", [
 			"file" => $file,
 			"extension" => $extension,
-		));
+		]);
 	}
 
 	/**

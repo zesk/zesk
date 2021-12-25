@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -14,7 +14,7 @@ namespace zesk;
  *
  */
 class Control_Checklist extends Control_Optionss {
-	const option_checklist_exclusive = "checklist_exclusive";
+	public const option_checklist_exclusive = "checklist_exclusive";
 
 	/**
 	 *
@@ -26,7 +26,7 @@ class Control_Checklist extends Control_Optionss {
 	 *
 	 * @var array
 	 */
-	private $checkbox_exclusives = array();
+	private $checkbox_exclusives = [];
 
 	/**
 	 * Convert value to/from a string (list)
@@ -49,7 +49,7 @@ class Control_Checklist extends Control_Optionss {
 
 	public function checkbox_exclusive($value = null, $set = null) {
 		if ($value === null) {
-			$result = array();
+			$result = [];
 			foreach ($this->children() as $child) {
 				if ($child->option_bool(self::option_checklist_exclusive) === $set) {
 					$result[] = $child;
@@ -62,14 +62,14 @@ class Control_Checklist extends Control_Optionss {
 			return $this;
 		}
 
-		throw new Exception_Parameter("{method} {name} {id} Widget not support for value {type} {value}", array(
+		throw new Exception_Parameter("{method} {name} {id} Widget not support for value {type} {value}", [
 			"method" => __METHOD__,
 			"type" => gettype($value),
 			"value" => $value,
-		) + $this->options);
+		] + $this->options);
 	}
 
-	protected function hook_control_options_changed() {
+	protected function hook_control_options_changed(): void {
 		$this->widgets_id = null;
 		$this->_init_children(to_array($this->control_options));
 	}
@@ -79,25 +79,25 @@ class Control_Checklist extends Control_Optionss {
 	 *
 	 * @see Control_Options::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		$options = $this->option('options');
 		if (is_array($options)) {
 			$this->_init_children($options);
 		} else {
-			$this->control_options = $this->call_hook_arguments('options', array(), $this->control_options);
+			$this->control_options = $this->call_hook_arguments('options', [], $this->control_options);
 			$this->call_hook("control_options_changed");
 		}
 		parent::initialize();
 	}
 
 	private function control_checkbox_factory($name, $col, $label, $value) {
-		return $this->widget_factory(Control_Checkbox::class, array(
+		return $this->widget_factory(Control_Checkbox::class, [
 			'name' => $name . "[]",
 			'column' => $col,
 			'id' => $col,
 			'label_checkbox' => $label,
 			'checked_value' => $value,
-		));
+		]);
 	}
 
 	private function _child_name($value) {
@@ -113,7 +113,7 @@ class Control_Checklist extends Control_Optionss {
 		if (is_array($this->widgets_id)) {
 			return $this->widgets_id;
 		}
-		$this->widgets_id = array();
+		$this->widgets_id = [];
 		$name = $this->name();
 		foreach ($options as $value => $label) {
 			$col = $this->_child_name($value);
@@ -130,8 +130,8 @@ class Control_Checklist extends Control_Optionss {
 	/**
 	 * Hook intialized
 	 */
-	protected function hook_initialized() {
-		$values = $this->call_hook_arguments("object_value", array(), array());
+	protected function hook_initialized(): void {
+		$values = $this->call_hook_arguments("object_value", [], []);
 		if (can_iterate($values)) {
 			foreach ($values as $value => $label) {
 				$value = strval($value);
@@ -156,7 +156,7 @@ class Control_Checklist extends Control_Optionss {
 	 */
 	protected function hook_object_value() {
 		if ($this->value_is_list()) {
-			$flip_copy = to_list($this->value(), to_list($this->default_value(), array()), $this->option_separator());
+			$flip_copy = to_list($this->value(), to_list($this->default_value(), []), $this->option_separator());
 			return ArrayTools::flip_copy($flip_copy);
 		}
 		return $this->value();
@@ -167,7 +167,7 @@ class Control_Checklist extends Control_Optionss {
 	 *
 	 * @see Widget::load()
 	 */
-	protected function load() {
+	protected function load(): void {
 		$name = $this->name();
 		$values = $this->request->geta($name);
 		foreach ($values as $value) {

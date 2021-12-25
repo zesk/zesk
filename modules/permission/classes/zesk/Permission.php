@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -121,10 +121,10 @@ class Permission extends ORM {
 			return null;
 		}
 		foreach ($before_hook as $hook => $argument) {
-			$result = $this->call_hook_arguments($hook, array(
+			$result = $this->call_hook_arguments($hook, [
 				$user,
 				$argument,
-			), null);
+			], null);
 			if (is_bool($result)) {
 				return $result;
 			}
@@ -160,10 +160,10 @@ class Permission extends ORM {
 		if ($class !== null) {
 			if (!$context instanceof $class) {
 				if (self::$debug) {
-					$this->application->logger->debug("Permission::check: {context} not instanceof {class}", array(
+					$this->application->logger->debug("Permission::check: {context} not instanceof {class}", [
 						"context" => get_class($context),
 						"class" => $class,
-					));
+					]);
 				}
 				return false;
 			}
@@ -171,25 +171,25 @@ class Permission extends ORM {
 			$result = $this->before_hook($user, $options);
 			if (is_bool($result)) {
 				if (self::$debug) {
-					$this->application->logger->debug("Permission::check: before hook for {action} returned {value}", array(
+					$this->application->logger->debug("Permission::check: before hook for {action} returned {value}", [
 						"action" => $action,
 						"value" => $result ? "true" : "false",
-					));
+					]);
 				}
 				return $result;
 			}
-			$result = $context->call_hook_arguments($hook, array(
+			$result = $context->call_hook_arguments($hook, [
 				$user,
 				$this,
 				$options,
-			), null);
+			], null);
 			if (is_bool($result)) {
 				if (self::$debug) {
-					$this->application->logger->debug("Permission::check: hook_array {hook} for {action} returned {value}", array(
+					$this->application->logger->debug("Permission::check: hook_array {hook} for {action} returned {value}", [
 						"action" => $action,
 						"value" => $result ? "true" : "false",
 						"hook" => $hook,
-					));
+					]);
 				}
 				return $result;
 			}
@@ -204,7 +204,7 @@ class Permission extends ORM {
 	 * @return Permission
 	 */
 	public static function register_permission(Application $application, array $fields) {
-		static $cache = array();
+		static $cache = [];
 		$name = $fields['name'];
 		if (array_key_exists($name, $cache)) {
 			return $cache[$name];

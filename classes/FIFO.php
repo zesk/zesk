@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2017 Zesk Foundation
  * @author kent
@@ -54,14 +54,14 @@ class FIFO {
 	 * @throws Exception_Directory_NotFound
 	 * @throws Exception_File_Permission
 	 */
-	public function __construct($path, $create = false, $mode = 0600) {
+	public function __construct($path, $create = false, $mode = 0o600) {
 		$this->path = $path;
 		if ($create) {
 			$dir = dirname($this->path);
 			if (!is_dir($dir)) {
-				throw new Exception_Directory_NotFound($dir, "Creating fifo {path}", array(
+				throw new Exception_Directory_NotFound($dir, "Creating fifo {path}", [
 					"path" => $this->path,
-				));
+				]);
 			}
 			if (file_exists($this->path)) {
 				if (!unlink($this->path)) {
@@ -128,16 +128,16 @@ class FIFO {
 	 * @return mixed
 	 */
 	public function read($timeout) {
-		$readers = array(
+		$readers = [
 			$this->r,
-		);
-		$writers = array();
+		];
+		$writers = [];
 		$sec = intval($timeout);
 		$usec = ($timeout - $sec) * 1000000;
 		if (@stream_select($readers, $writers, $except, $sec, $usec)) {
 			$n = intval(fgets($this->r));
 			if ($n === 0) {
-				return array();
+				return [];
 			}
 			return unserialize(fread($this->r, $n));
 		}
@@ -151,9 +151,9 @@ class FIFO {
 	 */
 	private function _before_write() {
 		if (!file_exists($this->path)) {
-			error_log(map("FIFO does not exist at {path}", array(
+			error_log(map("FIFO does not exist at {path}", [
 				"path" => $this->path,
-			)));
+			]));
 			return false;
 		}
 		$this->w = fopen($this->path, "wb");
@@ -168,7 +168,7 @@ class FIFO {
 	 *
 	 * @throws Exception_File_Permission
 	 */
-	private function _before_read() {
+	private function _before_read(): void {
 		$this->r = fopen($this->path, "r+b");
 		if (!$this->r) {
 			throw new Exception_File_Permission($this->path, "fopen('{filename}', 'r')");
@@ -178,7 +178,7 @@ class FIFO {
 	/**
 	 * Close read FIFO
 	 */
-	private function _close_read() {
+	private function _close_read(): void {
 		if ($this->r) {
 			fclose($this->r);
 			$this->r = null;
@@ -188,7 +188,7 @@ class FIFO {
 	/**
 	 * Close write FIFO
 	 */
-	private function _close_write() {
+	private function _close_write(): void {
 		if ($this->w) {
 			fclose($this->w);
 			$this->w = null;
@@ -198,7 +198,7 @@ class FIFO {
 	/**
 	 * Close all FIFOs
 	 */
-	public function close() {
+	public function close(): void {
 		$this->_close_read();
 		$this->_close_write();
 	}

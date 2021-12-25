@@ -1,21 +1,21 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Selenium_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"Selenium",
-	);
+	];
 
-	public function test_selenium_basics() {
-		$options = array(
+	public function test_selenium_basics(): void {
+		$options = [
 			"browser" => "*chrome",
 			"url" => "http://www.addresslock.com",
 			"host" => $host = $this->option("selenium_host", null),
-		);
+		];
 		if (!$host) {
-			$this->log("Selenium is not enabled, set {class}::selenium_host to valid IP or Domain Name", array(
+			$this->log("Selenium is not enabled, set {class}::selenium_host to valid IP or Domain Name", [
 				"class" => get_class($this),
-			));
+			]);
 			return;
 		}
 		$selenium = new Test_Selenium_Legacy($this->application, $options);
@@ -29,7 +29,7 @@ class Selenium_Test extends Test_Unit {
 		$selenium->click("link=MarketRuler");
 		$selenium->waitForPageToLoad("30000");
 
-		$this->assert(strpos($selenium->getTitle(), "Marketing Power Tools") !== false);
+		$this->assert(str_contains($selenium->getTitle(), "Marketing Power Tools"));
 
 		$selenium->stop();
 	}

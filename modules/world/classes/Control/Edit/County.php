@@ -1,12 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_Edit_County extends Control_Edit {
-	protected $options = array();
+	protected $options = [];
 
 	protected $class = __NAMESPACE__ . "\\" . "County";
 
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
 		$locale = $this->application->locale;
 		$this->options['submit_redirect_message'] = $locale->__('"{object.name}" was saved.');

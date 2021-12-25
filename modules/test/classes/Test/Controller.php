@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
@@ -27,13 +27,13 @@ class Controller extends \zesk\Controller {
 			$name = $this->request->get("name");
 		}
 		if (!is_array($name)) {
-			$name = array(
+			$name = [
 				$name,
-			);
+			];
 		}
 		return $this->json(array_reduce($name, function ($accum, $name) {
 			$accum[$name] = $this->application->configuration->path_get($name);
 			return $accum;
-		}, array()));
+		}, []));
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -9,25 +9,25 @@ namespace zesk;
  * @see Module_Permission
  */
 class Command_Permission_List extends Command_Base {
-	public $option_types = array(
+	public array $option_types = [
 		'format' => 'string',
-	);
+	];
 
 	public function run() {
 		$perms = $this->application->permissions_module()->permissions();
 		foreach ($perms['class'] as $class => $actions) {
 			foreach ($actions as $codename => $permission) {
 				assert($permission instanceof Permission);
-				apath_set($perms, array(
+				apath_set($perms, [
 					"class",
 					$class,
 					$codename,
-				), $permission->members(array(
+				], $permission->members([
 					"id",
 					"title",
 					"class",
 					"options",
-				)));
+				]));
 			}
 		}
 		$this->render_format($perms);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
@@ -8,7 +8,7 @@
 namespace zesk;
 
 class CharSet_Test extends Test_Unit {
-	public function test_supported() {
+	public function test_supported(): void {
 		$charset = null;
 		$result = charset::supported($charset);
 		$this->application->development(true);
@@ -20,7 +20,7 @@ class CharSet_Test extends Test_Unit {
 		}
 	}
 
-	public function to_utf8() {
+	public function to_utf8(): void {
 		$every_char = "";
 		for ($i = 32; $i <= 127; $i++) {
 			$every_char .= chr($i);
@@ -32,7 +32,7 @@ class CharSet_Test extends Test_Unit {
 		foreach ($all_charsets as $charset) {
 			$result = charset::to_utf8($every_char, $charset);
 			//echo Text::lalign($charset, 20) . $result . "\n";
-			if (in_array($charset, array(
+			if (in_array($charset, [
 				"CP037",
 				"CP1026",
 				"CP424",
@@ -44,27 +44,27 @@ class CharSet_Test extends Test_Unit {
 				"SYMBOL",
 				"US-ASCII-QUOTES",
 				"ZDINGBAT",
-			))) {
+			])) {
 				$this->assert($result !== $every_char, "Failed for charset $charset");
 			} else {
 				$this->assert($result === $every_char, "Failed for charset $charset");
 			}
 		}
 
-		$tests = array(
-			array(
+		$tests = [
+			[
 				chr(0xC1) . chr(0xC2) . chr(0xC3) . chr(0xC4),
 				"CP424",
 				"ABCD",
-			),
-			array(
+			],
+			[
 				chr(0xE7),
 				"ISO-8859-10",
 				UTF16::to_utf8(chr(0x01) . chr(0x2F)),
-			),
-		);
+			],
+		];
 		foreach ($tests as $test) {
-			list($data, $charset, $expect) = $test;
+			[$data, $charset, $expect] = $test;
 			$result = charset::to_utf8($data, $charset);
 			echo "$data\n";
 			echo "$charset\n";

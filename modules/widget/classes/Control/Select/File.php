@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -18,7 +18,7 @@ class Control_Select_File extends Control_Select {
 	 *
 	 * @param string $options
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->set_option("novalue", "");
 	}
@@ -29,7 +29,7 @@ class Control_Select_File extends Control_Select {
 	 */
 	public function hook_options() {
 		$map = Directory::ls($this->option("path", "/data/files/"), $this->option("filter", '/.*\.[A-Za-z0-9]+/'));
-		$opts = array();
+		$opts = [];
 
 		foreach ($map as $k) {
 			$opts[$map[$k]] = $map[$k];

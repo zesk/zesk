@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -13,7 +13,7 @@ class Hexadecimal {
 	 *
 	 * @var string
 	 */
-	const codes = "0123456789ABCDEF";
+	public const codes = "0123456789ABCDEF";
 
 	/**
 	 * Decode a hexadecimal string

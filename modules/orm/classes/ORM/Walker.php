@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage orm
@@ -51,42 +51,42 @@ class Walker {
 	 *
 	 * @var array
 	 */
-	private $members = array();
+	private $members = [];
 
 	/**
 	 * Members to explicitly exclude. If not supplied, just $members is included.
 	 *
 	 * @var array
 	 */
-	private $exclude_members = array();
+	private $exclude_members = [];
 
 	/**
 	 * List of methods to call on ORM objects, in order
 	 *
 	 * @var array
 	 */
-	private $resolve_methods = array();
+	private $resolve_methods = [];
 
 	/**
 	 * Member => function pairs to output members using callbacks
 	 *
 	 * @var array
 	 */
-	private $members_handler = array();
+	private $members_handler = [];
 
 	/**
 	 * Unique list of paths of objects to traverse
 	 *
 	 * @var array
 	 */
-	private $resolve_objects = array();
+	private $resolve_objects = [];
 
 	/**
 	 * Unique list of paths of permitted traversal paths
 	 *
 	 * @var array
 	 */
-	private $allow_resolve_objects = array();
+	private $allow_resolve_objects = [];
 
 	/**
 	 * Hook called on ORM class and object before running
@@ -267,24 +267,24 @@ class Walker {
 	 */
 	public function walk(ORM $orm) {
 		if ($this->preprocess_hook) {
-			$orm->class_orm()->call_hook_arguments($this->preprocess_hook, array(
+			$orm->class_orm()->call_hook_arguments($this->preprocess_hook, [
 				$this,
-			), null, null, false);
-			$orm->call_hook_arguments($this->preprocess_hook, array(
+			], null, null, false);
+			$orm->call_hook_arguments($this->preprocess_hook, [
 				$this,
-			), null, null, false);
+			], null, null, false);
 		}
 		$result = $this->_walk($orm);
 
 		if ($this->postprocess_hook) {
-			$result = $orm->call_hook_arguments($this->postprocess_hook, array(
+			$result = $orm->call_hook_arguments($this->postprocess_hook, [
 				$result,
 				$this,
-			), $result, null, false);
-			$result = $orm->class_orm()->call_hook_arguments($this->postprocess_hook, array(
+			], $result, null, false);
+			$result = $orm->class_orm()->call_hook_arguments($this->postprocess_hook, [
 				$result,
 				$this,
-			), $result, null, false);
+			], $result, null, false);
 		}
 		return $result;
 	}
@@ -374,13 +374,13 @@ class Walker {
 	private function process_resolve_objects(LoggerInterface $logger) {
 		$allow_resolve_objects = $this->allow_resolve_objects();
 
-		$resolve_object_match = array();
+		$resolve_object_match = [];
 
 		foreach ($this->resolve_objects() as $member_path) {
 			if (is_array($allow_resolve_objects) && count($allow_resolve_objects) !== 0 && !StringTools::begins($allow_resolve_objects, $member_path)) {
 				$logger->warning("Not allowed to traverse {member_path} as it is not included in {allow_resolve_objects}", compact("allow_resolve_objects", "member_path"));
 			} else {
-				list($member, $remaining_path) = pair($member_path, ".", $member_path, null);
+				[$member, $remaining_path] = pair($member_path, ".", $member_path, null);
 				if (!array_key_exists($member, $resolve_object_match)) {
 					$resolve_object_match[$member] = [];
 				}
@@ -401,24 +401,24 @@ class Walker {
 	 */
 	private function _walk(ORM $orm) {
 		/* Convert to JSONable structure */
-		$class_data = $this->class_info ? array(
+		$class_data = $this->class_info ? [
 			"_class" => get_class($this),
 			"_parent_class" => get_parent_class($this),
 			"_primary_keys" => $orm->members($orm->primary_keys()),
-		) : array();
+		] : [];
 		if ($this->depth === 0) {
 			$id = $orm->id();
 			if (is_scalar($id) && $this->class_info) {
-				return array(
+				return [
 					$orm->id_column() => $id,
-				) + $class_data;
+				] + $class_data;
 			}
 			return $id;
 		}
 
 		$logger = $orm->application->logger;
 
-		$members = array();
+		$members = [];
 		/* Handle "resolve_objects" list and "allow_resolve_objects" checks */
 		$resolve_object_match = $this->process_resolve_objects($logger);
 		/* Copy things to JSON */
@@ -453,7 +453,7 @@ class Walker {
 	 * @return unknown
 	 */
 	private function _walk_member(ORM $orm, $member, $value, array $resolve_object_match, LoggerInterface $logger) {
-		$handler = isset($this->members_handler[$member]) ? $this->members_handler[$member] : null;
+		$handler = $this->members_handler[$member] ?? null;
 		if (is_callable($handler) || function_exists($handler)) {
 			return $handler($value, $orm, $this);
 		}
@@ -469,7 +469,7 @@ class Walker {
 			}
 			$child_options->resolve_objects($resolve_object_match[$member]);
 			// We null out "allow_resolve_objects" as those were checked once, above and are not necessary
-			$child_options->allow_resolve_objects(array());
+			$child_options->allow_resolve_objects([]);
 			// Reset the depth to override depth restrictions above
 			// Override above depth as we are traversing along the specified path
 			$child_options->depth(1);
@@ -502,10 +502,10 @@ class Walker {
 			if (is_callable($resolve_method)) {
 				return $resolve_method($object, $member, $value, $child_options);
 			}
-			$logger->warning("Invalid resolve method passed into {class} walker: {type}", array(
+			$logger->warning("Invalid resolve method passed into {class} walker: {type}", [
 				"class" => get_class($object),
 				"type" => type($resolve_method),
-			));
+			]);
 		}
 		return $value->__toString();
 	}

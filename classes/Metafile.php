@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage metafile
@@ -29,9 +29,9 @@ abstract class Metafile extends Options {
 	 * Warnings
 	 * @var array
 	 */
-	protected $warnings = array();
+	protected $warnings = [];
 
-	public function __construct(Stream $stream, array $options = array()) {
+	public function __construct(Stream $stream, array $options = []) {
 		parent::__construct($options);
 		$this->stream = $stream;
 	}
@@ -42,7 +42,7 @@ abstract class Metafile extends Options {
 		if ($count === 0) {
 			return ord($data[0]);
 		}
-		$result = array();
+		$result = [];
 		for ($i = 0; $i < $count; $i++) {
 			$result[] = ord($data[$i]);
 		}
@@ -52,7 +52,7 @@ abstract class Metafile extends Options {
 	public function read_integer($size = 4, $count = 1) {
 		$offset = 0;
 		$data = $this->read_byte($size * $count);
-		$result = array();
+		$result = [];
 		switch ($size) {
 			case 4:
 				$remain = $count;

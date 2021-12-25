@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -15,11 +15,11 @@ namespace zesk;
 if ($response->option_bool("debug_redirect")) {
 	$original_url = $exception->url();
 	$url = $response->redirect()->process_url($original_url);
-	echo $this->theme("zesk/exception/redirect-debug", array(
+	echo $this->theme("zesk/exception/redirect-debug", [
 		'content' => HTML::a($url, $url),
 		'url' => $url,
 		'original_url' => $original_url,
-	));
+	]);
 } else {
 	$url = $response->redirect()->handle_exception($exception);
 	echo HTML::a($url, $url);

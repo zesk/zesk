@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -24,7 +24,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 *
 	 * @var array
 	 */
-	private $data = array();
+	private $data = [];
 
 	/**
 	 *
@@ -32,7 +32,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 * @param unknown $mixed
 	 * @param string $options
 	 */
-	public function __construct(Application $application, $mixed = null, array $options = array()) {
+	public function __construct(Application $application, $mixed = null, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 		$this->application = $application;
@@ -108,7 +108,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 *
 	 * @see Interface_Settings::__set()
 	 */
-	public function __set($name, $value) {
+	public function __set($name, $value): void {
 		$this->data[$name] = $value;
 	}
 
@@ -118,7 +118,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 *
 	 * @see Interface_Settings::set()
 	 */
-	public function set($name, $value = null) {
+	public function set($name, $value = null): void {
 		$this->__set($name, $value);
 	}
 
@@ -179,7 +179,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 *
 	 * @see Interface_Session::authenticate()
 	 */
-	public function authenticate($id, $ip = false) {
+	public function authenticate($id, $ip = false): void {
 		$this->__set($this->global_session_user_id(), ORM::mixed_to_id($id));
 		$this->__set($this->global_session_user_id() . "_IP", $ip);
 	}
@@ -201,7 +201,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 *
 	 * @see Interface_Session::deauthenticate()
 	 */
-	public function deauthenticate() {
+	public function deauthenticate(): void {
 		$this->__set($this->global_session_user_id(), null);
 	}
 
@@ -221,7 +221,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 *
 	 * @see Interface_Session::delete()
 	 */
-	public function delete() {
-		$this->data = array();
+	public function delete(): void {
+		$this->data = [];
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage command
@@ -13,9 +13,9 @@ use zesk\Git\Repository;
  * @author kent
  */
 class Command_Latest extends Command_Base {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"Git",
-	);
+	];
 
 	public function run() {
 		/* @var $git \zesk\Git\Module */
@@ -43,13 +43,13 @@ class Command_Latest extends Command_Base {
 			$active = "$vendor_zesk/zesk";
 
 			Directory::delete($old);
-			$this->exec("git clone https://github.com/zesk/zesk {new}", array(
+			$this->exec("git clone https://github.com/zesk/zesk {new}", [
 				"new" => $new,
-			));
+			]);
 			if (!is_dir($new)) {
-				$this->error("Unable to git clone into {new}", array(
+				$this->error("Unable to git clone into {new}", [
 					"new" => $new,
-				));
+				]);
 				return 2;
 			}
 			rename($active, $old);
@@ -67,10 +67,10 @@ class Command_Latest extends Command_Base {
 			if (realpath($repo->path()) === $zesk_home) {
 				$this->exec("git -C {0} pull origin master", $zesk_home);
 			} else {
-				$this->error("Found repo above {home} at {path}, ignoring", array(
+				$this->error("Found repo above {home} at {path}, ignoring", [
 					"home" => $zesk_home,
 					"path" => $repo->path(),
-				));
+				]);
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2017 Market Acumen, Inc.
  */
@@ -11,9 +11,9 @@ use zesk\Exception_Configuration;
  *
  */
 class TestCase extends \zesk\PHPUnit_TestCase {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"selenium/php-webdriver-facebook",
-	);
+	];
 
 	/**
 	 * Debuggin
@@ -33,9 +33,9 @@ class TestCase extends \zesk\PHPUnit_TestCase {
 	 *
 	 * @var array
 	 */
-	protected $capabilities = array(
+	protected $capabilities = [
 		'browserName' => 'firefox',
-	);
+	];
 
 	/**
 	 * Connection timeout
@@ -47,7 +47,7 @@ class TestCase extends \zesk\PHPUnit_TestCase {
 	/**
 	 *
 	 */
-	public function cleanup() {
+	public function cleanup(): void {
 		$this->close();
 	}
 
@@ -65,9 +65,9 @@ class TestCase extends \zesk\PHPUnit_TestCase {
 			if (!$webdriver_url) {
 				$host = $this->option('host');
 				if (!$host) {
-					throw new Exception_Configuration('{class}::host or ::url needs to be set to a Selenium server', array(
+					throw new Exception_Configuration('{class}::host or ::url needs to be set to a Selenium server', [
 						"class" => get_class($this),
-					));
+					]);
 				}
 				$webdriver_url = "http://$host:4444/wd/hub";
 			}

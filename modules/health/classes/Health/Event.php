@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -29,7 +29,7 @@ class Health_Event extends ORM {
 	 *
 	 * @var string
 	 */
-	const updated_file = ".updated";
+	public const updated_file = ".updated";
 
 	/**
 	 *
@@ -48,7 +48,7 @@ class Health_Event extends ORM {
 	 * @param array $event
 	 * @param unknown $path
 	 */
-	public static function event_log(Application $application, array $event, $path) {
+	public static function event_log(Application $application, array $event, $path): void {
 		$microtime = microtime(true);
 		$event['when'] = $when = gmdate("Y-m-d H:i:s", $microtime);
 		$event['when_msec'] = $msec = ($microtime - intval($microtime)) * 1000;
@@ -63,7 +63,7 @@ class Health_Event extends ORM {
 
 		/* @var $class Class_Health_Event */
 		$class = $application->class_orm_registry(__CLASS__);
-		$data = array();
+		$data = [];
 		foreach ($event as $k => $value) {
 			if (!array_key_exists($k, $class->column_types)) {
 				$data[$k] = $value;
@@ -74,9 +74,9 @@ class Health_Event extends ORM {
 
 		$hash = md5($application->process->id() . "-" . mt_rand() . "-" . $microtime);
 		$msec = Text::ralign("$msec", 3, "0");
-		$filename = strtr("$when.$msec-$hash.event", array(
+		$filename = strtr("$when.$msec-$hash.event", [
 			" " => "-",
-		));
+		]);
 		file_put_contents(path($path, $filename), serialize($event));
 		file_put_contents(path($path, self::updated_file), strval($microtime));
 	}
@@ -87,7 +87,7 @@ class Health_Event extends ORM {
 	 * @param string $file Full path to file to defer
 	 * @param string $name Name of type of event to defer (reason)
 	 */
-	public static function event_defer(Application $application, $path, $file, $name) {
+	public static function event_defer(Application $application, $path, $file, $name): void {
 		$defer_event_path = path($path, $name);
 		Directory::depend($defer_event_path);
 		rename($file, path($defer_event_path, basename($file)));
@@ -125,10 +125,10 @@ class Health_Event extends ORM {
 				$settings = unserialize($contents);
 			} catch (Exception $e) {
 				self::event_defer($application, $path, $file, "exception");
-				$application->logger->error("Exception {e} when unserializing file contents: {contents}", array(
+				$application->logger->error("Exception {e} when unserializing file contents: {contents}", [
 					"e" => $e,
 					"contents" => $contents,
-				));
+				]);
 
 				continue;
 			}
@@ -184,13 +184,13 @@ class Health_Event extends ORM {
 			$delete_query = $this->application->query_delete(__CLASS__);
 			$delete_query->where("id", $ids_to_delete);
 			$delete_query->execute();
-			$this->application->logger->notice("Deleted {n} {rows} related to health event {message} (Health Events #{id}) - total {total}", array(
+			$this->application->logger->notice("Deleted {n} {rows} related to health event {message} (Health Events #{id}) - total {total}", [
 				"n" => $nrows = $delete_query->affected_rows(),
 				"rows" => $this->application->locale->plural("row", $nrows),
 				"message" => $this->message,
 				"id" => $this->member_integer("events"),
 				"total" => $this->events->total,
-			));
+			]);
 		}
 		return $this;
 	}

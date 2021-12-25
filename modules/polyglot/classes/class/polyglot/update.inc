@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -11,11 +11,11 @@ class Class_PolyGlot_Update extends Class_ORM {
 
 	public $auto_column = false;
 
-	public $column_types = array(
+	public $column_types = [
 		"locale" => self::type_string,
 		"updated" => self::type_timestamp,
 		"user" => self::type_object,
-	);
+	];
 
 	protected $database_group = "zesk\\PolyGlot_Token";
 }

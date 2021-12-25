@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -14,13 +14,13 @@ $src = $this->src;
 $width = $this->width;
 $height = $this->height;
 $name = 'image-' . md5(microtime());
-$attributes = $this->geta('attributes', array()) + array(
+$attributes = $this->geta('attributes', []) + [
 	'class' => $this->class,
 	'query' => $this->query,
 	'name' => $name,
-) + $this->variables + array(
+] + $this->variables + [
 	'id' => $this->id,
-);
+];
 $widget = View_Image::scaled_widget($application, $width, $height, null, $attributes);
 $widget->response($response);
 

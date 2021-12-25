@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -47,10 +47,10 @@ class Locale_Default extends Locale {
 	 * @see \zesk\Locale::possessive()
 	 */
 	public function possessive($owner, $noun) {
-		return $this->__("Locale::possessive:={owner}&lsquo;s {noun}", array(
+		return $this->__("Locale::possessive:={owner}&lsquo;s {noun}", [
 			"owner" => $owner,
 			"noun" => $noun,
-		));
+		]);
 	}
 
 	/**

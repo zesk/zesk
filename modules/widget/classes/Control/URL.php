@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
@@ -31,18 +31,18 @@ class Control_URL extends Control_Text {
 		return false;
 	}
 
-	private function error_syntax() {
+	private function error_syntax(): void {
 		$this->error($this->option('error_syntax', $this->_error_default()));
 	}
 
 	private function _error_default() {
 		$protocols = ArrayTools::suffix($this->protocol_list(), "://");
-		return $this->application->locale->__('{label} must begin with {protocol_phrase}', array(
+		return $this->application->locale->__('{label} must begin with {protocol_phrase}', [
 			"protocol_phrase" => $this->application->locale->conjunction($protocols),
-		));
+		]);
 	}
 
-	private function error_protocol() {
+	private function error_protocol(): void {
 		$this->error($this->option('error_protocol', $this->_error_default()));
 	}
 
@@ -51,9 +51,9 @@ class Control_URL extends Control_Text {
 	}
 
 	protected function error_map() {
-		return parent::error_map() + array(
+		return parent::error_map() + [
 			'protocol_phrase' => $this->application->locale->conjunction($this->protocol_list()),
-		);
+		];
 	}
 
 	public function multiple($set = null) {
@@ -74,8 +74,8 @@ class Control_URL extends Control_Text {
 		if ($this->multiple()) {
 			$sep = $this->option('multiple_separator', "\n");
 			$urls = explode($sep, $value);
-			$new_value = array();
-			$error_values = array();
+			$new_value = [];
+			$error_values = [];
 			foreach ($urls as $u) {
 				$u = trim($u);
 				if (empty($u)) {

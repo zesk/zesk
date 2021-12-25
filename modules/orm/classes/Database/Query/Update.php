@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Delete
  *
@@ -20,7 +20,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	 *
 	 * @var array
 	 */
-	protected $where = array();
+	protected $where = [];
 
 	/**
 	 *
@@ -64,12 +64,12 @@ class Database_Query_Update extends Database_Query_Edit {
 	 * @throws Exception_Unimplemented
 	 */
 	public function __toString() {
-		return $this->database()->sql()->update(array(
+		return $this->database()->sql()->update([
 			'table' => $this->table,
 			'values' => $this->values,
 			'where' => $this->where,
 			'low_priority' => $this->low_priority,
-		));
+		]);
 	}
 
 	/**
@@ -106,10 +106,10 @@ class Database_Query_Update extends Database_Query_Edit {
 	 * @return $this
 	 */
 	public function execute() {
-		$this->result = $this->database()->update($this->table, $this->values, $this->where, array(
+		$this->result = $this->database()->update($this->table, $this->values, $this->where, [
 			"low_priority" => $this->low_priority,
 			"ignore_constraints" => $this->ignore_constraints,
-		));
+		]);
 		return $this;
 	}
 

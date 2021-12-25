@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -32,54 +32,54 @@ class Server extends ORM implements Interface_Data {
 	 *
 	 * @var string
 	 */
-	const DISK_UNITS_BYTES = 'b';
+	public const DISK_UNITS_BYTES = 'b';
 
 	/**
 	 * 1 = 1024^1
 	 *
 	 * @var string
 	 */
-	const DISK_UNITS_KILOBYTES = 'k';
+	public const DISK_UNITS_KILOBYTES = 'k';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const DISK_UNITS_MEGABYTES = 'm';
+	public const DISK_UNITS_MEGABYTES = 'm';
 
 	/**
 	 * 1 = 1024^2
 	 *
 	 * @var string
 	 */
-	const DISK_UNITS_GIGABYTES = 'g';
+	public const DISK_UNITS_GIGABYTES = 'g';
 
 	/**
 	 * 1 = 1024^3
 	 *
 	 * @var string
 	 */
-	const DISK_UNITS_TERABYTES = 't';
+	public const DISK_UNITS_TERABYTES = 't';
 
 	/**
 	 * 1 = 1024^4
 	 *
 	 * @var string
 	 */
-	const DISK_UNITS_PETABYTES = 'p';
+	public const DISK_UNITS_PETABYTES = 'p';
 
 	/**
 	 * 1 = 1024^5
 	 *
 	 * @var string
 	 */
-	const DISK_UNITS_EXABYTES = 'e';
+	public const DISK_UNITS_EXABYTES = 'e';
 
 	/**
 	 *
 	 * @var array
 	 */
-	private static $disk_units_list = array(
+	private static $disk_units_list = [
 		self::DISK_UNITS_BYTES,
 		self::DISK_UNITS_KILOBYTES,
 		self::DISK_UNITS_MEGABYTES,
@@ -87,32 +87,32 @@ class Server extends ORM implements Interface_Data {
 		self::DISK_UNITS_TERABYTES,
 		self::DISK_UNITS_PETABYTES,
 		self::DISK_UNITS_EXABYTES,
-	);
+	];
 
 	/**
 	 *
 	 * @var string
 	 */
-	const option_alive_update_seconds = "alive_update_seconds";
+	public const option_alive_update_seconds = "alive_update_seconds";
 
 	/**
 	 * Number of seconds after which the server status should be updated
 	 *
 	 * @var integer
 	 */
-	const default_alive_update_seconds = 30;
+	public const default_alive_update_seconds = 30;
 
 	/**
 	 *
 	 * @var string
 	 */
-	const option_timeout_seconds = "timeout_seconds";
+	public const option_timeout_seconds = "timeout_seconds";
 
 	/**
 	 *
 	 * @var unknown
 	 */
-	const default_timeout_seconds = 180;
+	public const default_timeout_seconds = 180;
 
 	/**
 	 *
@@ -124,7 +124,7 @@ class Server extends ORM implements Interface_Data {
 	 * Run once per minute per cluster.
 	 * Delete servers who are not alive after `option_timeout_seconds` old.
 	 */
-	public static function cron_cluster_minute(Application $application) {
+	public static function cron_cluster_minute(Application $application): void {
 		$server = $application->orm_factory(self::class);
 		/* @var $server Server */
 		$server->bury_dead_servers();
@@ -134,16 +134,16 @@ class Server extends ORM implements Interface_Data {
 	 *
 	 * @param Kernel $zesk
 	 */
-	public static function hooks(Application $zesk) {
-		$zesk->hooks->add(Hooks::HOOK_CONFIGURED, array(
+	public static function hooks(Application $zesk): void {
+		$zesk->hooks->add(Hooks::HOOK_CONFIGURED, [
 			__CLASS__,
 			"configured",
-		));
+		]);
 	}
 
 	/**
 	 */
-	public static function configured(Application $application) {
+	public static function configured(Application $application): void {
 		$application->configuration->deprecated("FDISK_PRIMARY", __CLASS__ . "::free_disk_volume");
 	}
 
@@ -152,7 +152,7 @@ class Server extends ORM implements Interface_Data {
 	 *
 	 * @param Application $application
 	 */
-	public static function cron_minute(Application $application) {
+	public static function cron_minute(Application $application): void {
 		$server = self::singleton($application);
 
 		try {
@@ -165,7 +165,7 @@ class Server extends ORM implements Interface_Data {
 	/**
 	 * Run intermittently once per cluster to clean away dead Server records
 	 */
-	public function bury_dead_servers() {
+	public function bury_dead_servers(): void {
 		$lock = Lock::instance($this->application, __CLASS__ . '::bury_dead_servers');
 		if ($lock->acquire() === null) {
 			return;
@@ -175,9 +175,9 @@ class Server extends ORM implements Interface_Data {
 
 		$timeout_seconds = -abs($this->option_integer('timeout_seconds', self::default_timeout_seconds));
 		$dead_to_me = Timestamp::now('UTC')->add_unit($timeout_seconds, Timestamp::UNIT_SECOND);
-		$iterator = $query->where(array(
+		$iterator = $query->where([
 			'alive|<=' => $dead_to_me,
-		))->orm_iterator();
+		])->orm_iterator();
 		/* @var $server Server */
 		foreach ($iterator as $server) {
 			// Delete this way so hooks get called per dead server
@@ -280,7 +280,7 @@ class Server extends ORM implements Interface_Data {
 	/**
 	 * Set up some reasonable defaults which define this server relative to other servers
 	 */
-	private function _initialize_names_defaults() {
+	private function _initialize_names_defaults(): void {
 		$host = self::host_default();
 		if (empty($this->name)) {
 			$this->name = $host;
@@ -321,7 +321,7 @@ class Server extends ORM implements Interface_Data {
 		}
 		$volume_info = System::volume_info();
 		$info = avalue($volume_info, $path);
-		$update = array();
+		$update = [];
 		if ($info) {
 			$units = self::$disk_units_list;
 			$free = $info['free'];
@@ -352,10 +352,10 @@ class Server extends ORM implements Interface_Data {
 	 * @return boolean
 	 */
 	private function _db_tz_is_utc($tz) {
-		return in_array(strtolower($tz), array(
+		return in_array(strtolower($tz), [
 			"utc",
 			"+00:00",
-		));
+		]);
 	}
 
 	/**
@@ -378,17 +378,17 @@ class Server extends ORM implements Interface_Data {
 		if ($old_php_tz !== 'UTC') {
 			date_default_timezone_set('UTC');
 		}
-		return array(
+		return [
 			$old_tz,
 			$old_php_tz,
-		);
+		];
 	}
 
 	/**
 	 * Restore the Database time zone state after the push_utc
 	 */
-	private function pop_utc(array $pushed) {
-		list($old_tz, $old_php_tz) = $pushed;
+	private function pop_utc(array $pushed): void {
+		[$old_tz, $old_php_tz] = $pushed;
 		$db = $this->database();
 		if ($db->can(Database::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP)) {
 			if (!$this->_db_tz_is_utc($old_tz)) {
@@ -408,9 +408,9 @@ class Server extends ORM implements Interface_Data {
 	 * @return NULL|Server_Data
 	 */
 	private function set_data($name, $value = null) {
-		$iterator = $this->member_iterator("data", array(
+		$iterator = $this->member_iterator("data", [
 			"name" => $name,
-		));
+		]);
 		/* @var $data Server_Data */
 		foreach ($iterator as $data) {
 			if ($value === null) {
@@ -423,11 +423,11 @@ class Server extends ORM implements Interface_Data {
 		if ($value === null) {
 			return null;
 		}
-		$data = new Server_Data($this->application, array(
+		$data = new Server_Data($this->application, [
 			"server" => $this,
 			"name" => $name,
 			"value" => $value,
-		));
+		]);
 		return $data->store();
 	}
 
@@ -439,9 +439,9 @@ class Server extends ORM implements Interface_Data {
 	 * @return NULL|Server_Data
 	 */
 	private function get_data($name) {
-		$iterator = $this->member_iterator("data", array(
+		$iterator = $this->member_iterator("data", [
 			"name" => $name,
-		));
+		]);
 		/* @var $data Server_Data */
 		foreach ($iterator as $data) {
 			return $data->value;
@@ -462,7 +462,7 @@ class Server extends ORM implements Interface_Data {
 		$acquired_lock = $this->database()->get_lock($lock_name, 5);
 		$result = null;
 		if (is_array($name)) {
-			$result = array();
+			$result = [];
 			foreach ($name as $k => $v) {
 				$result[$k] = $this->set_data($k, $v);
 			}
@@ -489,10 +489,10 @@ class Server extends ORM implements Interface_Data {
 	public function delete_data($name) {
 		return $this->application->orm_registry(Server_Data::class)
 			->query_delete()
-			->where(array(
+			->where([
 			"server" => $this,
 			"name" => $name,
-		))
+		])
 			->execute()
 			->affected_rows() > 0;
 	}
@@ -506,9 +506,9 @@ class Server extends ORM implements Interface_Data {
 	public function delete_all_data($name) {
 		return $this->application->orm_registry(Server_Data::class)
 			->query_delete()
-			->where(array(
+			->where([
 			"name" => $name,
-		))
+		])
 			->execute()
 			->affected_rows() > 0;
 	}
@@ -522,9 +522,9 @@ class Server extends ORM implements Interface_Data {
 	 */
 	public function data_query($name, $value = null) {
 		if (!is_array($name)) {
-			$where = array(
+			$where = [
 				$name => $value,
-			);
+			];
 		} else {
 			$where = $name;
 		}
@@ -532,15 +532,15 @@ class Server extends ORM implements Interface_Data {
 		$query->what_object();
 		foreach ($where as $name => $value) {
 			$alias = "data_$name";
-			$query->link(Server_Data::class, array(
+			$query->link(Server_Data::class, [
 				"alias" => $alias,
-				"on" => array(
+				"on" => [
 					"name" => $name,
-				),
-			));
-			$query->where(array(
+				],
+			]);
+			$query->where([
 				"$alias.value" => serialize($value),
-			));
+			]);
 		}
 		return $query;
 	}

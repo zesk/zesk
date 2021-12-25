@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class PHPUnit_Code_TestCase extends PHPUnit_TestCase {
 	protected function list_files($path, array $options) {
 		$extensions = avalue($options, 'extensions');
-		$rules_files = array();
+		$rules_files = [];
 		$exclude_patterns = avalue($options, 'exclude_patterns');
 		if ($exclude_patterns) {
 			foreach ($exclude_patterns as $exclude_pattern) {
@@ -17,14 +17,14 @@ class PHPUnit_Code_TestCase extends PHPUnit_TestCase {
 		} else {
 			$rules_files[] = true;
 		}
-		$result = Directory::list_recursive($path, array(
+		$result = Directory::list_recursive($path, [
 			"rules_file" => $rules_files,
 			"rules_directory" => false, // No directories in list
-			"rules_directory_walk" => array(
+			"rules_directory_walk" => [
 				"#/\.#" => false,
 				true,
-			),
-		));
+			],
+		]);
 		return $result;
 	}
 
@@ -34,12 +34,12 @@ class PHPUnit_Code_TestCase extends PHPUnit_TestCase {
 	 * @param string $path
 	 * @param array $extensions Defaults to ["php","inc"]
 	 */
-	protected function include_directory($path, array $options = array()) {
-		$this->application->logger->info("{method}({path}, {options})", array(
+	protected function include_directory($path, array $options = []): void {
+		$this->application->logger->info("{method}({path}, {options})", [
 			"method" => __METHOD__,
 			"path" => $path,
 			"options" => $options,
-		));
+		]);
 		$extensions = avalue($options, "extensions");
 		if ($extensions === null) {
 			$options['extensions'] = [
@@ -54,9 +54,9 @@ class PHPUnit_Code_TestCase extends PHPUnit_TestCase {
 			if (in_array($full_path, $included_files)) {
 				continue;
 			}
-			$this->application->logger->info("Including {path}", array(
+			$this->application->logger->info("Including {path}", [
 				"path" => $full_path,
-			));
+			]);
 			ob_start();
 			require_once $full_path;
 			$result = ob_get_clean();
@@ -68,18 +68,18 @@ class PHPUnit_Code_TestCase extends PHPUnit_TestCase {
 	 *
 	 * @param unknown $path
 	 */
-	protected function lint_directory($path, array $options = array()) {
-		$this->application->logger->info("{method}({path}, {options})", array(
+	protected function lint_directory($path, array $options = []): void {
+		$this->application->logger->info("{method}({path}, {options})", [
 			"method" => __METHOD__,
 			"path" => $path,
 			"options" => $options,
-		));
+		]);
 		$extensions = avalue($options, "extensions");
 		if ($extensions === null) {
-			$options['extensions'] = array(
+			$options['extensions'] = [
 				"php",
 				"inc",
-			);
+			];
 		}
 		$files = $this->list_files($path, $options);
 		$process = $this->application->process;
@@ -88,10 +88,10 @@ class PHPUnit_Code_TestCase extends PHPUnit_TestCase {
 			$full_path = path($path, $file);
 
 			try {
-				$result = $process->execute_arguments("{php} -l {file}", array(
+				$result = $process->execute_arguments("{php} -l {file}", [
 					"php" => $php,
 					"file" => $full_path,
-				));
+				]);
 			} catch (Exception_Command $e) {
 				$this->assertEquals($e->getCode(), 0, "ERROR calling php -l $full_path:\n" . implode("\n", $e->output));
 			}

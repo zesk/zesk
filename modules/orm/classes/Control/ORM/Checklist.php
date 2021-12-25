@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -12,7 +12,7 @@ namespace zesk;
 class Control_ORM_Checklist extends Control_Checklist {
 	protected $class = null;
 
-	protected $objects = array();
+	protected $objects = [];
 
 	/**
 	 *
@@ -38,8 +38,8 @@ class Control_ORM_Checklist extends Control_Checklist {
 	protected function hook_options() {
 		$object = $this->application->orm_registry($this->class);
 		$name_col = $object->name_column();
-		$this->objects = array();
-		$control_options = array();
+		$this->objects = [];
+		$control_options = [];
 		$query = $this->application->orm_registry($this->class)->query_select();
 		$query->where($this->option_array("where"));
 		$query->order_by($this->option('order_by', $name_col));
@@ -61,8 +61,8 @@ class Control_ORM_Checklist extends Control_Checklist {
 	 * @see Control_Options::theme_variables()
 	 */
 	public function theme_variables() {
-		return parent::theme_variables() + array(
+		return parent::theme_variables() + [
 			"control_objects" => $this->objects,
-		);
+		];
 	}
 }

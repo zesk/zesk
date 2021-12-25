@@ -1,29 +1,29 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Currency_Test extends Test_ORM {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"World",
 		"ORM",
 		"MySQL",
-	);
+	];
 
-	public function initialize() {
-		$this->application->orm_module()->schema_synchronize(null, array(
+	public function initialize(): void {
+		$this->application->orm_module()->schema_synchronize(null, [
 			Currency::class,
-		), array(
+		], [
 			"follow" => true,
-		));
+		]);
 		parent::initialize();
 	}
 
 	public function classes_to_test() {
-		return array(
-			array(
+		return [
+			[
 				Currency::class,
-				array(),
-			),
-		);
+				[],
+			],
+		];
 	}
 
 	/**
@@ -32,7 +32,7 @@ class Currency_Test extends Test_ORM {
 	 * @param array $options
 	 * @dataProvider classes_to_test
 	 */
-	public function test_currency($class, array $options = array()) {
+	public function test_currency($class, array $options = []): void {
 		$this->run_test_class($class, $options);
 	}
 }

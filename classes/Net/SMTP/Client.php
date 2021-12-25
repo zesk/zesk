@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -38,11 +38,11 @@ class Net_SMTP_Client extends Net_Client_Socket {
 			$headers = explode($this->EOL, $headers);
 		}
 		if (!is_array($to)) {
-			$to = array(
+			$to = [
 				$to,
-			);
+			];
 		}
-		$rcpts = array();
+		$rcpts = [];
 		foreach ($to as $recipient) {
 			if (is_email($recipient)) {
 				$rcpts[] = $recipient;
@@ -70,9 +70,9 @@ class Net_SMTP_Client extends Net_Client_Socket {
 		$this->mail($from);
 
 		if (!is_array($headers)) {
-			$headers = array(
+			$headers = [
 				$headers,
-			);
+			];
 		}
 		foreach ($rcpts as $recipient) {
 			$this->rcpt($recipient);
@@ -88,12 +88,12 @@ class Net_SMTP_Client extends Net_Client_Socket {
 		$message = false;
 		$result = $this->expect('250', $message);
 
-		$this->application->logger->debug("Sent email to {rcpts} {nbytes} bytes via {user}@{host}", array(
+		$this->application->logger->debug("Sent email to {rcpts} {nbytes} bytes via {user}@{host}", [
 			"rcpts" => $rcpts,
 			"nbytes" => strlen($body),
 			"user" => $this->url("user"),
 			"host" => $this->url("host"),
-		));
+		]);
 		return $result;
 	}
 

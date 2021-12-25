@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk-modules
@@ -31,7 +31,7 @@ class Glacier extends Hookable {
 	/**
 	 * Lazy create client
 	 */
-	private function _init() {
+	private function _init(): void {
 		if (is_object($this->glacier_client)) {
 			return;
 		}
@@ -61,10 +61,10 @@ class Glacier extends Hookable {
 	 */
 	public function vault_store_file($vault, $filename) {
 		$this->_init();
-		$result = $this->glacier_client->uploadArchive(array(
+		$result = $this->glacier_client->uploadArchive([
 			"vaultName" => $vault,
 			"sourceFile" => $filename,
-		));
+		]);
 		$archiveId = $result->get("archiveId");
 		return $archiveId;
 	}
@@ -73,39 +73,39 @@ class Glacier extends Hookable {
 		$this->_init();
 
 		try {
-			$result = $this->glacier_client->initiateJob(array(
+			$result = $this->glacier_client->initiateJob([
 				"vaultName" => $vault,
 				"Type" => "inventory-retrieval",
 				"Format" => "JSON",
 				"Description" => "Listing of $vault",
-			));
-			return array(
+			]);
+			return [
 				"job_id" => $result->get("jobId"),
 				"uri" => $result->get("location"),
-			);
+			];
 		} catch (GlacierException $e) {
 			throw new Exception_NotFound($e->getMessage());
 		}
 	}
 
-	public function jobs_list($vault) {
+	public function jobs_list($vault): void {
 	}
 
 	public function job_status($vault, $job_id) {
 		$this->_init();
-		$response = $this->glacier_client->describeJob(array(
+		$response = $this->glacier_client->describeJob([
 			"vaultName" => $vault,
 			"jobId" => $job_id,
-		));
+		]);
 		return $response->getAll();
 	}
 
 	public function vault_delete_file($vault, $archive_id) {
 		$this->_init();
-		$result = $this->glacier_client->deleteArchive(array(
+		$result = $this->glacier_client->deleteArchive([
 			'vaultName' => $vault,
 			'archiveId' => $archive_id,
-		));
+		]);
 		return true;
 	}
 }

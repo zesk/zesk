@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Module_iCalendar extends Module {
-	protected $model_classes = array(
+	protected array $model_classes = [
 		"zesk\\Schedule",
-	);
+	];
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Net/HTTP/Server/Request.php $
  * @author Kent Davidson <kent@marketacumen.com>
@@ -19,7 +19,7 @@ class Net_HTTP_Server_Request {
 
 	public $query_string;
 
-	public $headers = array();
+	public $headers = [];
 
 	public $content = '';
 
@@ -31,7 +31,7 @@ class Net_HTTP_Server_Request {
 			throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_BAD_REQUEST, null, $raw_request_line);
 		}
 
-		list($this->method, $this->raw_uri, $this->protocol) = $regs;
+		[$this->method, $this->raw_uri, $this->protocol] = $regs;
 
 		$cur_line = null;
 		while (count($lines) > 0) {
@@ -50,14 +50,14 @@ class Net_HTTP_Server_Request {
 		$this->add_header($cur_line);
 		$this->content = implode("\r\n", $lines);
 
-		list($this->uri, $this->query_string) = pair($this->raw_uri, "?", $this->raw_uri, "");
+		[$this->uri, $this->query_string] = pair($this->raw_uri, "?", $this->raw_uri, "");
 	}
 
-	private function add_header($raw_header) {
+	private function add_header($raw_header): void {
 		if ($raw_header === null) {
 			return;
 		}
-		list($name, $value) = pair($raw_header, ":", $raw_header, null);
+		[$name, $value] = pair($raw_header, ":", $raw_header, null);
 		if ($value === null) {
 			throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_BAD_REQUEST, "Bad header", $raw_header);
 		}
@@ -69,13 +69,13 @@ class Net_HTTP_Server_Request {
 		return avalue($this->headers, strtolower($name));
 	}
 
-	public function set_globals() {
+	public function set_globals(): void {
 		foreach ($this->headers as $name => $value) {
 			$_SERVER['HTTP_' . str_replace('-', '_', strtoupper($name))] = $value;
 		}
 		$host = $this->header('Host');
 		if ($host) {
-			list($_SERVER['HTTP_HOST'], $_SERVER['SERVER_PORT']) = pair($host, ':', $host, 80);
+			[$_SERVER['HTTP_HOST'], $_SERVER['SERVER_PORT']] = pair($host, ':', $host, 80);
 		}
 
 		$_SERVER['QUERY_STRING'] = $this->query_string;
@@ -83,16 +83,16 @@ class Net_HTTP_Server_Request {
 		$_SERVER['REQUEST_METHOD'] = $this->method;
 		$_SERVER['REQUEST_URI'] = $this->uri;
 
-		$_GET = array();
+		$_GET = [];
 		parse_str($this->query_string, $_GET);
 		if (count($_GET) == 0) {
 			$_SERVER['argc'] = 0;
-			$_SERVER['argv'] = array();
+			$_SERVER['argv'] = [];
 		} else {
 			$_SERVER['argc'] = 1;
-			$_SERVER['argv'] = array(
+			$_SERVER['argv'] = [
 				$this->query_string,
-			);
+			];
 		}
 	}
 }

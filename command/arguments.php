@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -14,9 +14,9 @@ namespace zesk;
  * @return unknown
  */
 class Command_Arguments extends Command {
-	public $option_types = array(
+	public array $option_types = [
 		"*" => "string",
-	);
+	];
 
 	protected function run() {
 		$arguments = $this->arguments_remaining(true);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -13,38 +13,38 @@ class JSON_Test extends Test_Unit {
 	/**
 	 * @expectedException zesk\Exception_Parameter
 	 */
-	public function test_decode() {
+	public function test_decode(): void {
 		JSON::decode(null);
 	}
 
 	/**
 	 * @expectedException zesk\Exception_Parse
 	 */
-	public function test_decode_parse() {
+	public function test_decode_parse(): void {
 		JSON::decode("{");
 	}
 
-	public function test_malencode() {
+	public function test_malencode(): void {
 		$content = file_get_contents($this->application->path('test/test-data/json/malencode.txt'));
-		$content = array("Hello" => JSON::prepare($content));
+		$content = ["Hello" => JSON::prepare($content)];
 		$this->assert_string_begins(json_encode($content), '{"Hello":');
 	}
 
-	public function test_decode_null() {
+	public function test_decode_null(): void {
 		$this->assert_equal(JSON::decode("null"), null);
 	}
 
-	public function test_encode() {
+	public function test_encode(): void {
 		$mixed = null;
 		$this->assert_equal(JSON::encode($mixed), "null");
 
-		$mixed = array(
-			array(
+		$mixed = [
+			[
 				"Hello" => "Dude",
 				"1241`2" => "odd",
 				"__2341" => 2,
 				"a459123" => new \stdClass(),
-			),
+			],
 			false,
 			true,
 			12312312,
@@ -53,22 +53,22 @@ class JSON_Test extends Test_Unit {
 			"*don't encode result" => "document.referrer",
 			null,
 			"dog" => null,
-		);
+		];
 		$expected = '{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","*don\'t encode result":"document.referrer","6":null,"dog":null}';
 		$this->assert_equal(JSON::encode($mixed), $expected);
 	}
 
-	public function test_encodex() {
+	public function test_encodex(): void {
 		$mixed = null;
 		$this->assert_equal(JSON::encodex($mixed), "null");
 	}
 
-	public function test_object_member_name_quote() {
+	public function test_object_member_name_quote(): void {
 		$name = null;
 		JSON::object_member_name_quote($name);
 	}
 
-	public function test_quote() {
+	public function test_quote(): void {
 		$m = null;
 		$this->assert(JSON::quote("this.is.a.word") === "\"this.is.a.word\"");
 		$this->assert(JSON::quote("thingy") === "\"thingy\"", "\"" . JSON::quote("thingy") . "\" === \"thingy\"");
@@ -77,7 +77,7 @@ class JSON_Test extends Test_Unit {
 		$this->assert(JSON::quote("th-ingy2") === "\"th-ingy2\"");
 	}
 
-	public function test_valid_member_name() {
+	public function test_valid_member_name(): void {
 		$name = null;
 		$this->assert_equal(JSON::valid_member_name($name), false);
 	}
@@ -85,50 +85,50 @@ class JSON_Test extends Test_Unit {
 	public function internal_values() {
 		$obj = new \stdClass();
 		$obj->foo = "foo";
-		$obj->_thing_to_save = array(
+		$obj->_thing_to_save = [
 			"1",
 			"2",
 			"5",
-		);
+		];
 		$obj->another = new \stdClass();
 
-		return array(
-			array(
+		return [
+			[
 				null,
-			),
-			array(
+			],
+			[
 				true,
-			),
-			array(
+			],
+			[
 				false,
-			),
-			array(
-				array(),
-			),
-			array(
-				array(
+			],
+			[
+				[],
+			],
+			[
+				[
 					"a" => "b",
-				),
-			),
-			array(
-				array(
-					array(
+				],
+			],
+			[
+				[
+					[
 						"hello" => "world",
 						"how" => "zit",
-					),
-				),
-			),
-			array(
+					],
+				],
+			],
+			[
 				$obj,
-			),
-		);
+			],
+		];
 	}
 
 	/**
 	 * @data_provider internal_values
 	 * @param mixed $mixed
 	 */
-	public function test_internal($mixed) {
+	public function test_internal($mixed): void {
 		$encode = JSON::encode($mixed);
 		$decode = JSON::zesk_decode($encode, false);
 		$encode2 = JSON::encode($decode);
@@ -136,14 +136,14 @@ class JSON_Test extends Test_Unit {
 	}
 
 	public function internal_expected_values() {
-		return array(
-			array(
+		return [
+			[
 				'{ "fructose.marketacumen.com": "fructose" }',
-				array(
+				[
 					'fructose.marketacumen.com' => 'fructose',
-				),
-			),
-			array(
+				],
+			],
+			[
 				'{
     "glossary": {
         "title": "example glossary",
@@ -166,50 +166,50 @@ class JSON_Test extends Test_Unit {
         }
     }
 }',
-				array(
-					"glossary" => array(
+				[
+					"glossary" => [
 						"title" => "example glossary",
-						"GlossDiv" => array(
+						"GlossDiv" => [
 							"title" => "S",
-							"GlossList" => array(
-								"GlossEntry" => array(
+							"GlossList" => [
+								"GlossEntry" => [
 									"ID" => "SGML",
 									"SortAs" => "SGML",
 									"GlossTerm" => "Standard Generalized Markup Language",
 									"Acronym" => "SGML",
 									"Abbrev" => "ISO 8879:1986",
-									"GlossDef" => array(
+									"GlossDef" => [
 										"para" => "A meta-markup language, used to create markup languages such as DocBook.",
-										"GlossSeeAlso" => array(
+										"GlossSeeAlso" => [
 											"GML",
 											"XML",
-										),
-									),
+										],
+									],
 									"GlossSee" => "markup",
-								),
-							),
-						),
-					),
-				),
-			),
-			array(
+								],
+							],
+						],
+					],
+				],
+			],
+			[
 				'{"truly":true,"falsely":false,"nullish":null,"floaty":  -5.812342e+24,"intlike":51231412,"listy":[0,1,2,3,5]}',
-				array(
+				[
 					"truly" => true,
 					"falsely" => false,
 					"nullish" => null,
 					"floaty" => -58123.42e+20,
 					"intlike" => 51231412,
-					"listy" => array(
+					"listy" => [
 						0,
 						1,
 						2,
 						3,
 						5,
-					),
-				),
-			),
-		);
+					],
+				],
+			],
+		];
 	}
 
 	/**
@@ -217,7 +217,7 @@ class JSON_Test extends Test_Unit {
 	 * @param unknown $mixed
 	 * @param unknown $expected
 	 */
-	public function test_parser($mixed, $expected) {
+	public function test_parser($mixed, $expected): void {
 		$actual = JSON::zesk_decode($mixed);
 		$this->assert_equal($actual, $expected);
 	}

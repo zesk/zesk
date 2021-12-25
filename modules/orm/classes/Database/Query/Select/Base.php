@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -20,7 +20,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *
 	 * @var array
 	 */
-	protected $objects_prefixes = array();
+	protected $objects_prefixes = [];
 
 	/**
 	 *
@@ -29,9 +29,9 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @see \zesk\Database_Query::__sleep()
 	 */
 	public function __sleep() {
-		return array_merge(parent::__sleep(), array(
+		return array_merge(parent::__sleep(), [
 			"objects_prefixes",
-		));
+		]);
 	}
 
 	/**
@@ -105,14 +105,14 @@ abstract class Database_Query_Select_Base extends Database_Query {
 			$alias = $this->class_alias($class);
 		}
 		$columns = $this->application->orm_registry($class, $object_mixed, $object_options)->columns();
-		$what = array();
+		$what = [];
 		foreach ($columns as $column) {
 			$what[$prefix . $column] = "$alias.$column";
 		}
-		$this->objects_prefixes[$prefix] = array(
+		$this->objects_prefixes[$prefix] = [
 			$alias,
 			$class,
-		);
+		];
 		return $this->what($what, true);
 	}
 
@@ -194,7 +194,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param array $default
 	 * @return array
 	 */
-	public function to_array($key = null, $value = null, $default = array()) {
+	public function to_array($key = null, $value = null, $default = []) {
 		return $this->database()->query_array($this->__toString(), $key, $value, $default);
 	}
 
@@ -208,7 +208,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param array $options Options passed to each ORM class upon creation
 	 * @return ORMIterator
 	 */
-	public function orm_iterator($class = null, array $options = array()) {
+	public function orm_iterator($class = null, array $options = []) {
 		$this->orm_class($class);
 		return new ORMIterator($this->class, $this, $this->class_options + $options);
 	}
@@ -222,7 +222,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @deprecated 2020-11
 	 * @see $this->orm_iterators()
 	 */
-	public function orms_iterator(array $options = array()) {
+	public function orms_iterator(array $options = []) {
 		return $this->orm_iterators($options);
 	}
 
@@ -233,7 +233,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *        	Options passed to each object upon creation
 	 * @return ORMIterators
 	 */
-	public function orm_iterators(array $options = array()) {
+	public function orm_iterators(array $options = []) {
 		return new ORMIterators($this->class, $this, $this->objects_prefixes, $options);
 	}
 
@@ -244,14 +244,14 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param array $options Options to pass to object creator
 	 * @return Model
 	 */
-	public function model($class = null, array $options = array()) {
+	public function model($class = null, array $options = []) {
 		$result = $this->one(false, null);
 		if ($result === null) {
 			return null;
 		}
-		return $this->application->model_factory($this->orm_class($class), $result, array(
+		return $this->application->model_factory($this->orm_class($class), $result, [
 			'from_database' => true,
-		) + $options);
+		] + $options);
 	}
 
 	/**
@@ -261,14 +261,14 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param array $options Options to pass to object creator
 	 * @return ORM
 	 */
-	public function orm($class = null, array $options = array()) {
+	public function orm($class = null, array $options = []) {
 		$result = $this->one(false, null);
 		if ($result === null) {
 			return null;
 		}
-		return $this->application->orm_factory($this->orm_class($class), $result, array(
+		return $this->application->orm_factory($this->orm_class($class), $result, [
 			'from_database' => true,
-		) + $options);
+		] + $options);
 	}
 
 	/**
@@ -282,7 +282,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *        	Options passed to each object upon creation
 	 * @return ORMIterator
 	 */
-	public function object_iterator($class = null, array $options = array()) {
+	public function object_iterator($class = null, array $options = []) {
 		$this->application->deprecated();
 		return $this->orm_iterator($class, $options);
 	}
@@ -296,7 +296,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *        	Options passed to each object upon creation
 	 * @return ORMIterators
 	 */
-	public function objects_iterator(array $options = array()) {
+	public function objects_iterator(array $options = []) {
 		$this->application->deprecated();
 		return $this->orm_iterators($options);
 	}
@@ -311,7 +311,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *        	Optional options to be passed to the object upon instantiation
 	 * @return ORM
 	 */
-	public function one_object($class = null, array $options = array()) {
+	public function one_object($class = null, array $options = []) {
 		$this->application->deprecated();
 		return $this->orm($class, $options);
 	}
@@ -326,7 +326,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @throws Exception_Deprecated
 	 * @deprecated 2017-12
 	 */
-	public function object($class = null, array $options = array()) {
+	public function object($class = null, array $options = []) {
 		zesk()->deprecated();
 		return $this->model($class, $options);
 	}

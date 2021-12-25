@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -11,10 +11,10 @@ namespace zesk;
  *
  */
 class Template_Test extends Test_Unit {
-	public function initialize() {
+	public function initialize(): void {
 	}
 
-	public function test_begin() {
+	public function test_begin(): void {
 		$this->application->theme_path($this->test_sandbox());
 
 		file_put_contents($this->test_sandbox("good.tpl"), "<?php echo 3.14159;");
@@ -23,27 +23,27 @@ class Template_Test extends Test_Unit {
 		$template = new Template($this->application);
 		$template->begin("good.tpl");
 
-		$result = $template->end(array(
+		$result = $template->end([
 			"bad" => 1,
-		));
+		]);
 		$this->assert_equal($result, "3.14159");
 	}
 
-	public function test_find_path() {
+	public function test_find_path(): void {
 		$template = new Template($this->application);
 		$template->find_path("template.tpl");
 	}
 
-	public function test_would_exist() {
+	public function test_would_exist(): void {
 		$path = "foo.tpl";
 		$template = new Template($this->application);
 		$template->would_exist($path);
 	}
 
-	public function test_output() {
+	public function test_output(): void {
 		$this->application->theme_path($this->test_sandbox());
 
-		$files = array();
+		$files = [];
 		for ($i = 0; $i < 5; $i++) {
 			$files[$i] = $f = $this->test_sandbox($i . ".tpl");
 			$pushpop = "echo \"PUSH {\\n\" . zesk\\Text::indent(\$application->theme(\"" . ($i + 1) . "\", array(\"i\" => $i)), 1) . \"} POP\\n\";";
@@ -63,17 +63,17 @@ echo "h (" . \$this->h. ")\\n";
 echo "} END zesk\Template $i";
 END;
 
-			$map = array(
+			$map = [
 				'pushpop' => ($i !== 4) ? $pushpop : "echo \"LEAF\\n\";\n",
-			);
+			];
 
 			file_put_contents($f, map($content, $map));
 		}
 
 		$path = null;
-		$options = array(
+		$options = [
 			"application" => $this->application,
-		);
+		];
 		$x = new Template($this->application, "0.tpl", $options);
 		$result = $x->render();
 

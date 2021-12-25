@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -56,10 +56,10 @@ class TimeSpan extends Temporal {
 				}
 			}
 
-			throw new Exception_Syntax("{method} can not parse {mixed}", array(
+			throw new Exception_Syntax("{method} can not parse {mixed}", [
 				"method" => __METHOD__,
 				"mixed" => $mixed,
-			));
+			]);
 		}
 		return null;
 	}
@@ -106,7 +106,7 @@ class TimeSpan extends Temporal {
 	 * @param array $options
 	 * @return string
 	 */
-	public function format(Locale $locale = null, $format_string = null, array $options = array()) {
+	public function format(Locale $locale = null, $format_string = null, array $options = []) {
 		if (!$format_string) {
 			$format_string = "{seconds}";
 		}
@@ -119,7 +119,7 @@ class TimeSpan extends Temporal {
 	 * @param array $options
 	 * @return array
 	 */
-	public function formatting(Locale $locale = null, array $options = array()) {
+	public function formatting(Locale $locale = null, array $options = []) {
 		$seconds = $this->seconds();
 		if ($seconds !== null) {
 			$ss = intval($seconds) % 60;
@@ -129,7 +129,7 @@ class TimeSpan extends Temporal {
 			$hh = $hours % 24;
 			$dd = $days = floor($seconds / 86400);
 
-			return array(
+			return [
 				"seconds" => $seconds,
 				"ss" => StringTools::zero_pad($ss, 2),
 				"minutes" => $minutes,
@@ -138,9 +138,9 @@ class TimeSpan extends Temporal {
 				"hh" => StringTools::zero_pad($hh, 2),
 				"days" => $days,
 				"ddd" => StringTools::zero_pad($days % 365, 3),
-			);
+			];
 		}
-		return array(
+		return [
 			"seconds" => '-',
 			"ss" => "-",
 			"minutes" => '-',
@@ -149,6 +149,6 @@ class TimeSpan extends Temporal {
 			"hh" => '-',
 			"days" => '-',
 			"ddd" => '-',
-		);
+		];
 	}
 }

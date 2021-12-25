@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 // This file serves as a template for creating new tests and should only be updated to reflect new test to be generated.
 // All line comments will be stripped from this file before being copied into new tests.

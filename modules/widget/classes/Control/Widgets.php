@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Abstraction for widgets which contain multiple other widgets
  * @package zesk
@@ -15,7 +15,7 @@ class Control_Widgets extends Control {
 	 * @return array
 	 */
 	protected function _widgets() {
-		return array();
+		return [];
 	}
 
 	private $init_once = false;
@@ -24,7 +24,7 @@ class Control_Widgets extends Control {
 
 	protected $render_children = false;
 
-	protected function initialize() {
+	protected function initialize(): void {
 		assert($this->init_once === false);
 		if ($this->init_once) {
 			return;
@@ -35,9 +35,9 @@ class Control_Widgets extends Control {
 			$this->child($widgets);
 			$widgets->children($child_widgets);
 		}
-		$this->children = $this->call_hook_arguments("children", array(
+		$this->children = $this->call_hook_arguments("children", [
 			$this->children,
-		), $this->children);
+		], $this->children);
 		foreach ($this->children as $name => $child) {
 			/* @var $child Widget */
 			$child->parent($this);
@@ -53,10 +53,10 @@ class Control_Widgets extends Control {
 			$r = $w->validate();
 			if (!$r) {
 				if ($this->option_bool("generate_child_errors")) {
-					$__ = array(
+					$__ = [
 						"name" => $w->name,
 						"error" => _dump($w->error()),
-					);
+					];
 					$message = "Widget {name} failed validation: {error}";
 					$this->application->logger->debug($message, $__);
 					$w->error($this->application->locale->__($message, $__), $w->column() . "_raw");
@@ -72,7 +72,7 @@ class Control_Widgets extends Control {
 	}
 
 	public function before_store() {
-		$stored = array();
+		$stored = [];
 		foreach ($this->children as $k => $w) {
 			/* @var $w Widget */
 			if ($w->is_visible() && method_exists($w, "before_store")) {
@@ -100,7 +100,7 @@ class Control_Widgets extends Control {
 	// 			}
 	// 		}
 	// 	}
-	public function after_store($succeeded = true) {
+	public function after_store($succeeded = true): void {
 		foreach ($this->children as $w) {
 			/* @var $w Widget */
 			if ($w->is_visible() && method_exists($w, "after_store")) {

@@ -12,7 +12,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2019, Market Acumen, Inc.
  */
-define('ZESK_ROOT', dirname(__DIR__) . '/' . (strpos(__FILE__, 'vendor/bin') !== false ? 'zesk/zesk/' : ''));
+define('ZESK_ROOT', dirname(__DIR__) . '/' . (str_contains(__FILE__, 'vendor/bin') ? 'zesk/zesk/' : ''));
 
 /**
  * Load the bare minimum

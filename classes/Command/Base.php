@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -15,31 +15,31 @@ abstract class Command_Base extends Command {
 	 *
 	 * @var boolean
 	 */
-	protected $quiet = false;
+	protected bool $quiet = false;
 
 	/**
 	 *
 	 * @var array
 	 */
-	private static $quiet_levels = array(
+	private static array $quiet_levels = [
 		"info" => true,
 		"notice" => true,
 		"debug" => true,
-	);
+	];
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Command::log()
 	 */
-	public function log($message, array $arguments = array()) {
+	public function log(mixed $message, array $arguments = []): void {
 		if ($this->quiet) {
 			$severity = avalue($arguments, "severity", "info");
 			if (array_key_exists($severity, self::$quiet_levels)) {
 				return;
 			}
 		}
-		return parent::log($message, $arguments);
+		parent::log($message, $arguments);
 	}
 
 	/**
@@ -47,7 +47,7 @@ abstract class Command_Base extends Command {
 	 *
 	 * @see Command::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		$this->inherit_global_options();
 		$this->option_types['log'] = 'string';
 		$this->option_types['log-level'] = 'string';
@@ -91,7 +91,7 @@ abstract class Command_Base extends Command {
 
 	/**
 	 */
-	protected function configure_logging() {
+	protected function configure_logging(): void {
 		if ($this->option_bool("quiet")) {
 			$this->quiet = true;
 			return;
@@ -123,16 +123,16 @@ abstract class Command_Base extends Command {
 
 	/**
 	 */
-	protected function hook_run_before() {
+	protected function hook_run_before(): void {
 		$this->configure_logging();
 		if ($this->option_bool('help')) {
 			$this->usage();
 		}
 		if ($this->option_bool('debug-config')) {
-			$this->application->hooks->add("zesk\Application::configured", array(
+			$this->application->hooks->add("zesk\Application::configured", [
 				$this,
 				"action_debug_configured",
-			));
+			]);
 		}
 	}
 
@@ -145,12 +145,12 @@ abstract class Command_Base extends Command {
 	/**
 	 */
 	public function action_debug_configured($exit = true) {
-		$this->application->autoload_path($this->application->zesk_home("command"), array(
+		$this->application->autoload_path($this->application->zesk_home("command"), [
 			"extensions" => "php;inc",
 			"lower" => true,
 			"class_prefix" => "zesk\\Command_",
-		));
-		$config = new Command_Config($this->application, array(), $this->option());
+		]);
+		$config = new Command_Config($this->application, [], $this->option());
 		$result = $config->go();
 		if ($exit) {
 			exit($result);

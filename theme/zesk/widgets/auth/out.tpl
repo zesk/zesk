@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package ruler
  * @subpackage page
@@ -27,19 +27,19 @@ if ($this->has("URL")) {
 	$host = URL::host($u);
 	$current_host = $request->host();
 
-	$attr = $this->has("Attributes") ? HTML::parse_attributes($this->Attributes) : array();
+	$attr = $this->has("Attributes") ? HTML::parse_attributes($this->Attributes) : [];
 	if ($host === $current_host) {
-		$out_u = URL::query_format($u, array(
+		$out_u = URL::query_format($u, [
 			"ref" => $this->request->url(),
-		));
+		]);
 	} else {
 		$session = Session_ORM::instance(true);
 		$uk = md5($web_key . $u);
-		$out_u = URL::query_format("/out/", array(
+		$out_u = URL::query_format("/out/", [
 			"u" => $u,
 			"uk" => $uk,
 			"ref" => $this->request->url(),
-		));
+		]);
 	}
 	$attr['href'] = $out_u;
 	if ($this->has("Redirect") && $this->Redirect) {
@@ -63,10 +63,10 @@ if (md5($web_key . $u) !== $uk) {
 
 $session = Session_ORM::instance(true);
 $session = $session->one_time_create();
-$in_url = URL::query_format(URL::left_host($u) . "in/", array(
+$in_url = URL::query_format(URL::left_host($u) . "in/", [
 	"u" => $u,
 	"uk" => $uk,
 	"s" => $session->member('Cookie'),
-));
+]);
 
 $response->redirect($in_url, $request->get("message"));

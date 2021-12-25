@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Configuration_Loader {
@@ -7,28 +7,28 @@ class Configuration_Loader {
 	 *
 	 * @var \string[]
 	 */
-	private $files = array();
+	private $files = [];
 
 	/**
 	 * Files which could be loaded, but do not exist
 	 *
 	 * @var \array
 	 */
-	private $missing_files = array();
+	private $missing_files = [];
 
 	/**
 	 * Files which could be loaded, but do not exist
 	 *
 	 * @var \array
 	 */
-	private $processed_files = array();
+	private $processed_files = [];
 
 	/**
 	 * Files which could be loaded, but do not exist
 	 *
 	 * @var \array
 	 */
-	private $skipped_files = array();
+	private $skipped_files = [];
 
 	/**
 	 *
@@ -62,7 +62,7 @@ class Configuration_Loader {
 	 * @param Interface_Settings $context
 	 */
 	public function __construct(array $files, Interface_Settings $settings) {
-		$available_targets = array();
+		$available_targets = [];
 		foreach ($files as $file) {
 			if (is_readable($file)) {
 				$available_targets[] = $file;
@@ -153,36 +153,36 @@ class Configuration_Loader {
 	 *
 	 * @var string
 	 */
-	const PROCESSED = "processed";
+	public const PROCESSED = "processed";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const MISSING = "missing";
+	public const MISSING = "missing";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const SKIPPED = "skipped";
+	public const SKIPPED = "skipped";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const EXTERNALS = "externals";
+	public const EXTERNALS = "externals";
 
 	/**
 	 *
 	 * @return string[string]
 	 */
 	public function variables() {
-		return array(
+		return [
 			self::PROCESSED => $this->processed_files,
 			self::MISSING => $this->missing_files,
 			self::SKIPPED => $this->skipped_files,
 			self::EXTERNALS => $this->externals(),
-		);
+		];
 	}
 }

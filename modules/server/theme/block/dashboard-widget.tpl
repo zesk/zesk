@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -11,10 +11,10 @@ $id = $this->id;
 if (!$id) {
 	$this->id = $id = "dashboard-widget-" . $response->id_counter();
 }
-echo HTML::tag_open("div", array(
+echo HTML::tag_open("div", [
 	"class" => CSS::add_class("dashboard-widget", $this->class),
 	"id" => $id,
-));
+]);
 ?>
 <div class="header">
 	<h2><?php echo $this->title; ?></h2>

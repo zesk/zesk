@@ -6,7 +6,9 @@ $top = $_SERVER['PHP_CS_FIXER_TOP'] ?? $top;
 echo "$me default path $top\n";
 $finder = PhpCsFixer\Finder::create()->name("*.inc")->name("*.tpl")->name("*.phpt")->exclude('vendor')->in($top);
 
-return PhpCsFixer\Config::create()->setIndent("\t")->setRules([
+$config = new PhpCsFixer\Config();
+$config->setRiskyAllowed(true)
+	->setIndent("\t")->setRules([
 	'@PSR1' => true,
 	'@PSR2' => true,
 	'indentation_type' => true,
@@ -34,7 +36,7 @@ return PhpCsFixer\Config::create()->setIndent("\t")->setRules([
 	],
 	'standardize_not_equals' => true,
 	'ternary_operator_spaces' => true,
-	'trailing_comma_in_multiline_array' => true,
+	'trailing_comma_in_multiline' => true,
 	'trim_array_spaces' => true,
 	'unary_operator_spaces' => true,
 	'yoda_style' => false,
@@ -49,3 +51,11 @@ return PhpCsFixer\Config::create()->setIndent("\t")->setRules([
 	'object_operator_without_whitespace' => true,
 	'whitespace_after_comma_in_array' => true,
 ])->setFinder($finder);
+
+$config->setRules(array_merge($config->getRules(), [
+	'@PHP81Migration' => true,
+	'@PHP80Migration:risky' => true,
+	'heredoc_indentation' => false,
+]));
+
+return $config;

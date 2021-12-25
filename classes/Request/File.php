@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\Request;
 
 use zesk\Application;
@@ -30,7 +30,7 @@ class File {
 	 *
 	 * @var array
 	 */
-	private $upload_array = array();
+	private $upload_array = [];
 
 	/**
 	 *
@@ -39,10 +39,10 @@ class File {
 	 */
 	public function __construct(array $upload_array) {
 		if (!isset($upload_array["tmp_name"])) {
-			throw new Exception_Parameter("{method} must have keys tmp_name (keys passed: {keys})", array(
+			throw new Exception_Parameter("{method} must have keys tmp_name (keys passed: {keys})", [
 				"method" => __METHOD__,
 				"keys" => array_keys($upload_array),
-			));
+			]);
 		}
 		$this->upload_array = $upload_array;
 		$this->tmp_path = $upload_array["tmp_name"];
@@ -78,11 +78,11 @@ class File {
 	 * @throws Exception_Parameter
 	 * @return string
 	 */
-	public function migrate(Application $application, $dest_path, array $options = array()) {
+	public function migrate(Application $application, $dest_path, array $options = []) {
 		if (empty($dest_path)) {
-			throw new Exception_Parameter("\$dest_path is required to be a valid path or filename ({dest_path})", array(
+			throw new Exception_Parameter("\$dest_path is required to be a valid path or filename ({dest_path})", [
 				"dest_path" => $dest_path,
-			));
+			]);
 		}
 
 		$dest_dir = is_dir($dest_path) ? $dest_path : dirname($dest_path);

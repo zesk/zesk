@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -38,7 +38,7 @@ class Control_Select_ORM extends Control_Select {
 		return $this->application->orm_factory($this->class);
 	}
 
-	protected function initialize() {
+	protected function initialize(): void {
 		if (empty($this->class)) {
 			// Do not use "class" option - is also attribute on HTML tags. Use object_class
 			$this->class = $this->option("object_class");
@@ -53,7 +53,7 @@ class Control_Select_ORM extends Control_Select {
 	protected function _where() {
 		$where = $this->option("where", "");
 		if (!is_array($where)) {
-			return array();
+			return [];
 		}
 		if ($this->object) {
 			$where = $this->object->apply_map($where);
@@ -118,11 +118,11 @@ class Control_Select_ORM extends Control_Select {
 		if ($where !== null) {
 			if ($append) {
 				if (is_array($where)) {
-					$where = array(
+					$where = [
 						$where,
-					);
+					];
 				}
-				$where = $this->option_array("where", array()) + $where;
+				$where = $this->option_array("where", []) + $where;
 			}
 			$this->set_option("where", $where);
 			return $this;

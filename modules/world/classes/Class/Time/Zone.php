@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Class_Time_Zone extends Class_ORM {
@@ -8,12 +8,12 @@ class Class_Time_Zone extends Class_ORM {
 
 	public $id_column = "Time_zone_id";
 
-	public $find_keys = array(
+	public $find_keys = [
 		"Name",
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		"Name" => self::type_string,
 		"Time_zone_id" => self::type_string,
-	);
+	];
 }

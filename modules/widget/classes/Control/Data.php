@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_Data extends Control {
-	protected $options = array(
-		"default" => array(),
-	);
+	protected $options = [
+		"default" => [],
+	];
 
 	public function validate() {
 		return true;
@@ -18,11 +18,11 @@ class Control_Data extends Control {
 		return $set === null ? $this->option_list("allow_keys") : $this->set_option('allow_keys', to_list($set));
 	}
 
-	public function load() {
+	public function load(): void {
 		$column = $this->column();
 		$current_value = $this->value();
 		if (!is_array($current_value)) {
-			$current_value = array();
+			$current_value = [];
 		}
 		$value = $this->request->geta($column);
 		if (is_array($value)) {

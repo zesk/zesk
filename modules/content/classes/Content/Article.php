@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -19,18 +19,18 @@ class Content_Article extends ORM {
 	 * @return string[][]|number[][]
 	 */
 	public function configuration_options() {
-		return array(
-			"summary_maximum_length" => array(
+		return [
+			"summary_maximum_length" => [
 				"Type" => "int",
 				"Default" => 200,
 				"Description" => "Maximum length of summary",
-			),
-			"summary_maximum_length_from_body" => array(
+			],
+			"summary_maximum_length_from_body" => [
 				"Type" => "int",
 				"Default" => 200,
 				"Description" => "Maximum length of summary when generated from body.",
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -70,8 +70,8 @@ class Content_Article extends ORM {
 	 */
 	private static function extract_meta(&$contents) {
 		$tags = HTML::extract_tags("meta", $contents);
-		$meta = array();
-		$fields = array();
+		$meta = [];
+		$fields = [];
 		if (is_array($tags)) {
 			foreach ($tags as $tag) {
 				$name = strtolower($tag->option("Name", '-'));
@@ -148,14 +148,14 @@ class Content_Article extends ORM {
 	 * @return string
 	 */
 	public static function where_publish_start_end($where = false) {
-		$where['*PublishStart|<='] = array(
+		$where['*PublishStart|<='] = [
 			null,
 			"NOW()",
-		);
-		$where['*PublishEnd|>='] = array(
+		];
+		$where['*PublishEnd|>='] = [
 			null,
 			"NOW()",
-		);
+		];
 		$where['IsActive'] = 'true';
 
 		return $where;
@@ -181,12 +181,12 @@ class Content_Article extends ORM {
 		if (empty($dd)) {
 			return "";
 		}
-		return $this->application->theme("view/date", array(
+		return $this->application->theme("view/date", [
 			"value" => $dd,
 			"format" => "{mmm} {ddd} ({delta})",
 			'relative_min_unit' => 'day',
 			'zero_string' => 'Today',
-		));
+		]);
 	}
 
 	/**
@@ -264,7 +264,7 @@ class Content_Article extends ORM {
 	 * @param array $options
 	 * @return string
 	 */
-	public function image($image_index = 0, $options = array()) {
+	public function image($image_index = 0, $options = []) {
 		$options['image_path'] = "/data/article";
 
 		$member_prefix = (avalue($options, 'is_thumb')) ? "Thumb" : "";

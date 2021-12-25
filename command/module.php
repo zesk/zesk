@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -9,9 +9,9 @@ namespace zesk;
 class Command_Module extends Command_Base {
 	protected $help = "Load a module.";
 
-	protected $option_types = array(
+	protected array $option_types = [
 		'+' => "string",
-	);
+	];
 
 	public function run() {
 		$this->application->modules->load($this->get_arg("module"));

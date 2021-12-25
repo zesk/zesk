@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage sqlite3
@@ -33,7 +33,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	 *
 	 * @var string
 	 */
-	const sql_column_quotes = '``""';
+	public const sql_column_quotes = '``""';
 
 	/**
 	 * @var Database
@@ -58,7 +58,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @see zesk\Database::sql_alter_table_column_drop()
 	 */
 	public function alter_table_column_drop(Database_Table $table, $dbColName) {
-		$sqls = array();
+		$sqls = [];
 		/* @var $new_table Database_Table */
 		$new_table = clone $table;
 
@@ -138,7 +138,7 @@ class Database_SQL extends \zesk\Database_SQL {
 
 				break;
 		}
-		$sqlIndexes = array();
+		$sqlIndexes = [];
 		foreach ($indexes as $k => $size) {
 			if (is_numeric($size)) {
 				$sqlIndexes[] = $this->quote_column($k) . "($size)";
@@ -168,7 +168,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	}
 
 	public function alter_table_attributes(Database_Table $table, array $attributes) {
-		return array();
+		return [];
 	}
 
 	public function alter_table_change_column(Database_Table $table, Database_Column $db_col_old, Database_Column $db_col_new) {
@@ -180,10 +180,10 @@ class Database_SQL extends \zesk\Database_SQL {
 		$new_sql = "ALTER TABLE " . $this->quote_table($table) . " CHANGE COLUMN " . $this->quote_column($previous_name) . " " . $this->quote_column($newName) . " $newType $suffix";
 		$old_table = $db_col_old->table();
 		if ($db_col_new->primary_key() && $old_table->primary()) {
-			return array(
+			return [
 				$this->alter_table_index_drop($old_table, $old_table->primary()),
 				$new_sql,
-			);
+			];
 		}
 		return $new_sql;
 	}
@@ -207,7 +207,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * No table types in SQLite
 	 */
 	public function alter_table_type($table, $newType) {
-		return array();
+		return [];
 	}
 
 	public function function_ip2long($value) {
@@ -227,7 +227,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @return array
 	 */
 	private function _sql_column_sizes_to_quoted_list(array $column_sizes) {
-		$sqlIndexes = array();
+		$sqlIndexes = [];
 		foreach ($column_sizes as $k => $size) {
 			if (is_numeric($size)) {
 				$sqlIndexes[] = $this->quote_column($k) . "($size)";
@@ -322,13 +322,13 @@ class Database_SQL extends \zesk\Database_SQL {
 		return $this->database->sql_now_utc();
 	}
 
-	public function function_date_add($target, $number, $units = "second") {
+	public function function_date_add($target, $number, $units = "second"): void {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 		// 		$dbUnits = $this->_convert_units($number, $units);
 		// 		return "DATE_ADD($target, INTERVAL $number $dbUnits)";
 	}
 
-	public function function_date_subtract($target, $number, $units = "second") {
+	public function function_date_subtract($target, $number, $units = "second"): void {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 		// 		$dbUnits = $this->_convert_units($number, $units);
 		// 		return "DATE_SUB($target, INTERVAL $number $dbUnits)";
@@ -432,12 +432,12 @@ class Database_SQL extends \zesk\Database_SQL {
 			$table = $table->name();
 		}
 		$table = $this->quote_table($table);
-		return array(
+		return [
 			"DROP TABLE IF EXISTS $table",
-		);
+		];
 	}
 
-	public function create_table(Database_Table $dbTableObject) {
+	public function create_table(Database_Table $dbTableObject): void {
 		throw new Exception_Unimplemented("Yup");
 	}
 
@@ -458,13 +458,13 @@ class Database_SQL extends \zesk\Database_SQL {
 			}
 			return $column;
 		}
-		list($alias, $col) = pair($column, ".", null, $column);
+		[$alias, $col] = pair($column, ".", null, $column);
 		if ($alias) {
 			return $this->quote_column($alias) . "." . $this->quote_column($col);
 		}
-		return '"' . strtr($column, array(
+		return '"' . strtr($column, [
 			'"' => '\\"',
-		)) . '"';
+		]) . '"';
 	}
 
 	/**
@@ -489,10 +489,10 @@ class Database_SQL extends \zesk\Database_SQL {
 			}
 			return $column;
 		}
-		return strtr(unquote($column, self::sql_column_quotes), array(
+		return strtr(unquote($column, self::sql_column_quotes), [
 			'""' => '"',
 			'``' => '`',
-		));
+		]);
 	}
 
 	/**

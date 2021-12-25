@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -13,19 +13,19 @@ class Domain extends ORM {
 	 *
 	 * @var string
 	 */
-	const url_public_suffix_list = "https://publicsuffix.org/list/public_suffix_list.dat";
+	public const url_public_suffix_list = "https://publicsuffix.org/list/public_suffix_list.dat";
 
 	/**
 	 * @see http://www.seobythesea.com/2006/01/googles-most-popular-and-least-popular-top-level-domains/
 	 * @var string
 	 */
-	const default_public_suffix_list_file = "com\norg\nedu\ngov\nuk\nnet\nca\nde\njp\nfr\nau\nus\nru\nch\nit\nnl\nse\nno\nes\nmil";
+	public const default_public_suffix_list_file = "com\norg\nedu\ngov\nuk\nnet\nca\nde\njp\nfr\nau\nus\nru\nch\nit\nnl\nse\nno\nes\nmil";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const url_tlds_by_alpha = "http://data.iana.org/TLD/tlds-alpha-by-domain.txt";
+	public const url_tlds_by_alpha = "http://data.iana.org/TLD/tlds-alpha-by-domain.txt";
 
 	/**
 	 *
@@ -37,11 +37,11 @@ class Domain extends ORM {
 	 *
 	 * @param Application $application
 	 */
-	public static function cron_hour(Application $application) {
-		foreach (array(
+	public static function cron_hour(Application $application): void {
+		foreach ([
 			self::url_public_suffix_list => self::public_suffix_list_file($application->paths),
 			self::url_tlds_by_alpha => self::tlds_by_alpha_file($application->paths),
-		) as $url => $path) {
+		] as $url => $path) {
 			Net_Sync::url_to_file($application, $url, $path);
 		}
 	}
@@ -50,7 +50,7 @@ class Domain extends ORM {
 	 *
 	 * @param Command_ORM_Schema $command
 	 */
-	public static function schema_updated(Application $application) {
+	public static function schema_updated(Application $application): void {
 		self::update_data_files($application);
 	}
 
@@ -60,9 +60,9 @@ class Domain extends ORM {
 	 * @return \zesk\Domain
 	 */
 	public static function domain_factory(Application $application, $name) {
-		$domain = $application->orm_factory(__CLASS__, array(
+		$domain = $application->orm_factory(__CLASS__, [
 			"name" => $name,
-		));
+		]);
 		return $domain->name_changed();
 	}
 
@@ -152,11 +152,11 @@ class Domain extends ORM {
 	/**
 	 * Update our data files from our remote URLs
 	 */
-	private static function update_data_files(Application $application) {
-		foreach (array(
+	private static function update_data_files(Application $application): void {
+		foreach ([
 			self::url_public_suffix_list => self::public_suffix_list_file($application->paths),
 			self::url_tlds_by_alpha => self::tlds_by_alpha_file($application->paths),
-		) as $url => $path) {
+		] as $url => $path) {
 			Net_Sync::url_to_file($application, $url, $path);
 		}
 	}

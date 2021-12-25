@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 if (!$this->request) {
@@ -9,10 +9,10 @@ if (!$this->request) {
 <?php
 echo HTML::tag("h1", __("No matches"));
 echo HTML::tag("p", __("Try being less specific."));
-echo HTML::tag("p", HTML::tag("a", array(
+echo HTML::tag("p", HTML::tag("a", [
 	"class" => "btn btn-primary btn-lg",
 	"role" => "button",
 	"href" => $request->path(),
-), __("Try again")));
+], __("Try again")));
 ?>
 </div>

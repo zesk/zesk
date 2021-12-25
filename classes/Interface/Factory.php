@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -18,5 +18,5 @@ interface Interface_Factory {
 	 * @param array $options
 	 * @return Model
 	 */
-	public function model_factory($class, $mixed = null, array $options = array());
+	public function model_factory(string $class, mixed $mixed = null, array $options = []): Model;
 }

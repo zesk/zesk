@@ -1,12 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class TestWidget extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"Widget",
-	);
+	];
 
-	public function widget_tests(Widget $testx) {
+	public function widget_tests(Widget $testx): void {
 		$column = "col";
 		$label = "label";
 		$name = "name";
@@ -87,7 +87,7 @@ class TestWidget extends Test_Unit {
 	/**
 	 *
 	 */
-	public function test_basics() {
+	public function test_basics(): void {
 		$testx = $this->application->widget_factory("zesk\\Widget");
 
 		$this->widget_tests($testx);

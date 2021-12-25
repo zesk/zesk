@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -25,7 +25,7 @@ abstract class Net_Client extends Hookable {
 	 * Error log
 	 * @var array
 	 */
-	protected $errors = array();
+	protected $errors = [];
 
 	/**
 	 * Create a Net_Client
@@ -33,11 +33,11 @@ abstract class Net_Client extends Hookable {
 	 * @param array $options
 	 * @return Net_Client
 	 */
-	public static function factory(Application $application, $url, array $options = array()) {
+	public static function factory(Application $application, $url, array $options = []) {
 		$scheme = strtolower(URL::scheme($url));
-		$scheme = avalue(array(
+		$scheme = avalue([
 			"https" => "http",
-		), $scheme, $scheme);
+		], $scheme, $scheme);
 
 		try {
 			$class = "Net_" . strtoupper($scheme) . "_Client";
@@ -55,7 +55,7 @@ abstract class Net_Client extends Hookable {
 	 * @param array $options Options which change the behavior of this SMTP_Client connection
 	 * @return SMTP_Client
 	 */
-	public function __construct(Application $application, $url, array $options = array()) {
+	public function __construct(Application $application, $url, array $options = []) {
 		parent::__construct($application, $options);
 		$this->url = $url;
 		$this->url_parts = URL::parse($url);
@@ -95,7 +95,7 @@ abstract class Net_Client extends Hookable {
 	/**
 	 * Force connection
 	 */
-	protected function require_connect() {
+	protected function require_connect(): void {
 		if (!$this->is_connected()) {
 			$this->connect();
 		}
@@ -117,7 +117,7 @@ abstract class Net_Client extends Hookable {
 	 * Log a message
 	 * @param string $message
 	 */
-	protected function log($message) {
+	protected function log($message): void {
 		if ($this->option_bool('debug')) {
 			$this->application->logger->debug($message);
 		}
@@ -139,7 +139,7 @@ abstract class Net_Client extends Hookable {
 		if (count($fields) !== 9) {
 			throw new Exception_Syntax("Improper listing line: $line");
 		}
-		$entry = ArrayTools::map_keys($fields, array(
+		$entry = ArrayTools::map_keys($fields, [
 			0 => 'mode',
 			1 => 'links',
 			2 => 'owner',
@@ -149,7 +149,7 @@ abstract class Net_Client extends Hookable {
 			6 => 'day',
 			7 => 'timeyear',
 			8 => 'name',
-		));
+		]);
 		$name = $entry['name'];
 		if (empty($name) || ($name == ".") || ($name == "..")) {
 			return null;
@@ -167,7 +167,7 @@ abstract class Net_Client extends Hookable {
 	 * @return NULL boolean Timestamp
 	 */
 	private function _parse_date(array $entry) {
-		$mm = array(
+		$mm = [
 			"jan",
 			"feb",
 			"mar",
@@ -180,7 +180,7 @@ abstract class Net_Client extends Hookable {
 			"oct",
 			"nov",
 			"dec",
-		);
+		];
 		$month = $day = $timeyear = null;
 		extract($entry, EXTR_IF_EXISTS);
 		$month = array_search(strtolower(substr($month, 0, 3)), $mm, true);
@@ -196,7 +196,7 @@ abstract class Net_Client extends Hookable {
 			$date->ymdhms($timeyear, $month, $day, 0, 0, 0);
 			$entry['mtime_granularity'] = 'day';
 		} else {
-			list($hour, $minute) = explode(":", $timeyear);
+			[$hour, $minute] = explode(":", $timeyear);
 			if (!is_numeric($hour) || !is_numeric($minute)) {
 				return null;
 			}
@@ -204,8 +204,8 @@ abstract class Net_Client extends Hookable {
 			$date->ymdhms($date->year(), $month, $day, $hour, $minute, 0);
 			$entry['mtime_granularity'] = 'minute';
 		}
-		return array(
+		return [
 			'mtime' => $date,
-		) + $entry;
+		] + $entry;
 	}
 }

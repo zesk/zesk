@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage DaemonTools
@@ -40,7 +40,7 @@ class Service extends Model {
 	 * @param string $name
 	 * @param array $options
 	 */
-	public function __construct(Application $application, $path = null, array $options = array()) {
+	public function __construct(Application $application, $path = null, array $options = []) {
 		unset($options['path']);
 		unset($options['name']);
 		parent::__construct($application, null, $options);
@@ -64,10 +64,10 @@ class Service extends Model {
 	 * @see \zesk\Model::variables()
 	 */
 	public function variables() {
-		return array(
+		return [
 			"name" => $this->name,
 			"path" => $this->path,
-		) + $this->option();
+		] + $this->option();
 	}
 
 	/**
@@ -76,7 +76,7 @@ class Service extends Model {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function instance(Application $application, $path = null, array $options = array()) {
+	public static function instance(Application $application, $path = null, array $options = []) {
 		return new self($application, $path, $options);
 	}
 
@@ -108,7 +108,7 @@ class Service extends Model {
 	 * @return array
 	 */
 	private static function svstat_to_options($line) {
-		list($name, $status) = pair($line, ":", $line, null);
+		[$name, $status] = pair($line, ":", $line, null);
 		if ($status !== null) {
 			// /etc/service/servicename: down 0 seconds, normally up
 			// /etc/service/servicename: up (pid 17398) 1 seconds
@@ -116,35 +116,35 @@ class Service extends Model {
 			// /etc/service/monitor-services: supervise not running
 			//
 			$status = trim($status);
-			$result = array(
+			$result = [
 				"path" => $name,
-			);
+			];
 			if (preg_match('#^up \\(pid ([0-9]+)\\) ([0-9]+) seconds#', $status, $matches)) {
-				return $result + array(
+				return $result + [
 					"status" => "up",
 					"ok" => true,
 					"pid" => intval($matches[1]),
 					"duration" => intval($matches[2]),
-				);
+				];
 			}
 			if (preg_match('#^down ([0-9]+) seconds#', $status, $matches)) {
-				return $result + array(
+				return $result + [
 					"status" => "down",
 					"ok" => true,
 					"duration" => intval($matches[1]),
-				);
+				];
 			}
 			if (preg_match('#^supervise not running$#', $status, $matches)) {
-				return $result + array(
+				return $result + [
 					"status" => "down",
 					"ok" => false,
-				);
+				];
 			}
 		}
 
-		throw new Exception_Syntax("Does not appear to be a svstat output line: \"{line}\"", array(
+		throw new Exception_Syntax("Does not appear to be a svstat output line: \"{line}\"", [
 			"line" => $line,
-		));
+		]);
 	}
 
 	/**
@@ -152,10 +152,10 @@ class Service extends Model {
 	 * @return string
 	 */
 	public function __toString() {
-		$pattern = !$this->ok ? "{path}: supervise not running" : avalue(array(
+		$pattern = !$this->ok ? "{path}: supervise not running" : avalue([
 			"up" => "{path}: {status} (pid {pid}) {duration} seconds",
 			"down" => "{path}: {status} {duration} seconds, normally up",
-		), $this->status, "{path}: {status}");
+		], $this->status, "{path}: {status}");
 		return map($pattern, $this->variables());
 	}
 }

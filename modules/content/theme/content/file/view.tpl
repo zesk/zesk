@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -14,19 +14,19 @@ namespace zesk;
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
 /* @var $object \Content_File */
-echo HTML::tag_open('div', array(
+echo HTML::tag_open('div', [
 	"class" => CSS::add_class("file", $this->class),
-));
+]);
 // TODO Fix this
-$uri = URL::query_append("/download.php", array(
+$uri = URL::query_append("/download.php", [
 	"FileGroup" => $object->Parent,
 	"ID" => $object->ID,
-));
-echo HTML::a_condition($uri === $request->path(), $uri, array(
+]);
+echo HTML::a_condition($uri === $request->path(), $uri, [
 	"class" => "title",
-), $object->Name);
+], $object->Name);
 echo $this->theme('control/admin-edit');
-echo HTML::etag("p", array(
+echo HTML::etag("p", [
 	"class" => "desc",
-), $object->Body);
+], $object->Body);
 echo HTML::tag_close('div');

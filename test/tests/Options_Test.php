@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,8 +10,8 @@ namespace zesk;
  *
  */
 class Options_Test extends Test_Unit {
-	public function test_options() {
-		$options = array();
+	public function test_options(): void {
+		$options = [];
 		$testx = new Options($options);
 
 		$testx->__sleep();
@@ -61,26 +61,26 @@ class Options_Test extends Test_Unit {
 		$testx->option_list($name, $default, $delimiter);
 	}
 
-	public function test_options_path_simple() {
+	public function test_options_path_simple(): void {
 		$opts = new Options();
 		$opts->set_option_path("a.b.c.d", "1");
 		$opts->set_option_path("a.b.c.e", 1);
-		$this->assert_arrays_equal($opts->option(), array(
-			'a' => array(
-				'b' => array(
-					'c' => array(
+		$this->assert_arrays_equal($opts->option(), [
+			'a' => [
+				'b' => [
+					'c' => [
 						'd' => "1",
 						'e' => 1,
-					),
-				),
-			),
-		));
+					],
+				],
+			],
+		]);
 	}
 
-	public function test_options_path() {
+	public function test_options_path(): void {
 		$opts = new Options();
 
-		$paths = array(
+		$paths = [
 			"a.a.a",
 			"a.a.b",
 			"a.b.c",
@@ -90,37 +90,37 @@ class Options_Test extends Test_Unit {
 			"a.c.a",
 			"b.c.a",
 			"d.c.a",
-		);
+		];
 		foreach ($paths as $path) {
 			$opts->set_option_path($path, $path);
 		}
-		$this->assert_arrays_equal($opts->option(), array(
-			'a' => array(
-				'a' => array(
+		$this->assert_arrays_equal($opts->option(), [
+			'a' => [
+				'a' => [
 					'a' => 'a.a.a',
 					'b' => 'a.a.b',
-				),
-				'b' => array(
+				],
+				'b' => [
 					'c' => 'a.b.c',
 					'd' => 'a.b.d',
 					'e' => 'a.b.e',
 					'f' => 'a.b.f',
-				),
-				'c' => array(
+				],
+				'c' => [
 					'a' => 'a.c.a',
-				),
-			),
-			'b' => array(
-				'c' => array(
+				],
+			],
+			'b' => [
+				'c' => [
 					'a' => 'b.c.a',
-				),
-			),
-			'd' => array(
-				'c' => array(
+				],
+			],
+			'd' => [
+				'c' => [
 					'a' => 'd.c.a',
-				),
-			),
-		));
+				],
+			],
+		]);
 		foreach ($paths as $path) {
 			$this->assert_equal($opts->option_path($path), $path);
 		}

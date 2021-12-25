@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -20,7 +20,7 @@ $distance = $this->content;
 if (!is_numeric($distance)) {
 	return;
 }
-$epsilon = isset($this->epsilon) ? $this->epsilon : $configuration->path_get('distance::epsilon', 0.2);
+$epsilon = $this->epsilon ?? $configuration->path_get('distance::epsilon', 0.2);
 if (abs($distance) < $epsilon) {
 	echo HTML::tag('span', '.distance nearby', $locale('Nearby'));
 	return;
@@ -55,7 +55,7 @@ switch ($units) {
 		break;
 }
 
-$map = array();
+$map = [];
 $map['raw_number'] = round($distance, 1);
 $map['number'] = $this->theme('vulgar-fraction', round($distance, 1));
 $map['unit'] = $units;

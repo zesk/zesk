@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -8,17 +8,17 @@ namespace zesk;
  */
 class Server_Feature_FreeBSD extends Server_Feature {
 	// "bison", "re2c", "autoconf262", "automake19", "libtool", "cvsup-without-gui"
-	protected $packages = array();
+	protected $packages = [];
 
-	protected $platforms = array(
+	protected $platforms = [
 		"FreeBSD",
-	);
+	];
 
-	protected $settings = array(
+	protected $settings = [
 		"RC_CONF_PATH" => "path list",
-	);
+	];
 
-	public function configure() {
+	public function configure(): void {
 		$source = $this->find_inherit_file("boot/loader.conf");
 		if ($source) {
 			$this->update($source, "/boot/loader.conf");
@@ -30,27 +30,27 @@ class Server_Feature_FreeBSD extends Server_Feature {
 		if ($this->update_catenate(basename($sysctl_conf), $paths, $sysctl_conf)) {
 			$this->sysctl_apply();
 		}
-		$this->owner($sysctl_conf, "root", 0644);
+		$this->owner($sysctl_conf, "root", 0o644);
 
 		$rc_conf = "/etc/rc.conf";
 
 		$this->update_catenate(basename($rc_conf), $paths, $rc_conf);
-		$this->owner($rc_conf, "root", 0644);
+		$this->owner($rc_conf, "root", 0o644);
 
-		$rc_extras = array();
+		$rc_extras = [];
 		foreach ($paths as $path) {
 			$rc_files = Directory::ls($path, '/rc\.[-._a-zA-Z0-9]*\.conf/', true);
 			if (count($rc_files)) {
 				foreach ($rc_files as $rc_file) {
 					$dest = path('/etc/', basename($rc_file));
 					$this->update($rc_file, $dest, true);
-					$this->owner($dest, "root", 0644);
+					$this->owner($dest, "root", 0o644);
 				}
 			}
 		}
 	}
 
-	private function sysctl_apply() {
+	private function sysctl_apply(): void {
 		$this->root_exec("/sbin/sysctl `grep -v '^#.*' /etc/sysctl.conf");
 	}
 }

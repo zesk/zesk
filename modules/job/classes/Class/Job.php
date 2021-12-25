@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -9,16 +9,16 @@ namespace zesk;
 class Class_Job extends Class_ORM {
 	public $id_column = "id";
 
-	public $find_keys = array(
+	public $find_keys = [
 		"code",
-	);
+	];
 
-	public $has_one = array(
+	public $has_one = [
 		"user" => "zesk\\User",
 		"server" => "zesk\\Server",
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		'id' => self::type_id,
 		'user' => self::type_object,
 		'name' => self::type_string,
@@ -38,15 +38,15 @@ class Class_Job extends Class_ORM {
 		'hook_args' => self::type_serialize,
 		'data' => self::type_serialize,
 		'status' => self::type_string,
-	);
+	];
 
-	public $column_defaults = array(
+	public $column_defaults = [
 		"duration" => 0,
 		"died" => 0,
 		"status" => "",
-	);
+	];
 
-	public function initialize() {
+	public function initialize(): void {
 		$foo = 1;
 	}
 }

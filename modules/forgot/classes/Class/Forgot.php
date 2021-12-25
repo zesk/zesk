@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -15,15 +15,15 @@ class Class_Forgot extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $find_keys = array(
+	public $find_keys = [
 		'code',
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"login" => self::type_string,
 		"user" => self::type_object,
@@ -31,16 +31,16 @@ class Class_Forgot extends Class_ORM {
 		"code" => self::type_hex,
 		"created" => self::type_created,
 		'updated' => self::type_timestamp,
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $has_one = array(
+	public $has_one = [
 		"user" => User::class,
 		"session" => Session_ORM::class,
-	);
+	];
 
 	/**
 	 *

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -18,22 +18,22 @@ class Control extends Widget {
 	 *
 	 * @var Control
 	 */
-	public $parent = null;
+	public ?Widget $parent = null;
 
 	/**
 	 *
 	 * @var array
 	 */
-	public static $default_strip_tags = array(
+	public static array $default_strip_tags = [
 		'script',
 		'link',
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public static $default_allow_tags = array(
+	public static array $default_allow_tags = [
 		'a',
 		'b',
 		'blockquote',
@@ -71,7 +71,7 @@ class Control extends Widget {
 		'thead',
 		'tr',
 		'ul',
-	);
+	];
 
 	/**
 	 * Retrieve the key used to assign this condition to allow overwriting by subclasses
@@ -129,16 +129,16 @@ class Control extends Widget {
 		}
 		$value = $this->value();
 		if ($debug) {
-			$this->application->logger->debug("{class} hook_query {columns} {value}", array(
+			$this->application->logger->debug("{class} hook_query {columns} {value}", [
 				"class" => get_class($this),
 				"columns" => $columns,
 				"value" => $value,
-			));
+			]);
 		}
 		if ($value === null || $value === '') {
 			return false;
 		}
-		$where = array();
+		$where = [];
 		foreach ($columns as $column) {
 			if (!$query->valid_column($column)) {
 				continue;
@@ -146,15 +146,15 @@ class Control extends Widget {
 			$where[$column] = $value;
 		}
 		if (count($where) === 0) {
-			$this->application->logger->warning("{class}::hook_query had columns {columns} but none are valid", array(
+			$this->application->logger->warning("{class}::hook_query had columns {columns} but none are valid", [
 				"class" => get_class($this),
 				"columns" => $columns,
-			));
+			]);
 			return false;
 		}
-		$query->where(array(
+		$query->where([
 			$where,
-		));
+		]);
 		if ($this->option_bool('skip_query_condition')) {
 			return false;
 		}

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage Log_Mail
@@ -23,7 +23,7 @@ class Class_Log_Mail extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_types = array(
+	public $column_types = [
 		'id' => self::type_id,
 		'session' => self::type_object,
 		'user' => self::type_object,
@@ -36,14 +36,14 @@ class Class_Log_Mail extends Class_ORM {
 		'sent' => self::type_timestamp,
 		'type' => self::type_string,
 		'data' => self::type_serialize,
-	);
+	];
 
-	public $has_one = array(
+	public $has_one = [
 		'session' => Session_ORM::class,
 		'user' => User::class,
-	);
+	];
 
-	public $find_keys = array(
+	public $find_keys = [
 		'code',
-	);
+	];
 }

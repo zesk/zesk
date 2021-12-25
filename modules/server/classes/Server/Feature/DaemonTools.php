@@ -1,16 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Server_Feature_Daemontools extends Server_Feature {
-	protected $commands = array();
+	protected $commands = [];
 
-	protected $dependencies = array();
+	protected $dependencies = [];
 
-	protected $settings = array();
+	protected $settings = [];
 
 	public function configure() {
 		$tool = path($this->configure_root, 'daemontools-restart.sh');
-		$this->owner($this->install_tool($tool), $this->platform->root_user(), 0750);
+		$this->owner($this->install_tool($tool), $this->platform->root_user(), 0o750);
 		if ($this->platform->process_is_running('svscan')) {
 			$this->verbose_log("Daemontools appears to be installed and running correctly ...");
 			return true;
@@ -27,7 +27,7 @@ class Server_Feature_Daemontools extends Server_Feature {
 
 		try {
 			$path = $this->remote_package("http://cr.yp.to/daemontools/$daemontools_ver.tar.gz");
-			$this->require_directory("/package", "root", 0700);
+			$this->require_directory("/package", "root", 0o700);
 			$this->exec("tar -C /package zxpf $path");
 			$package_dir = "/package/admin/$daemontools_ver/src";
 			if (!is_dir($package_dir)) {

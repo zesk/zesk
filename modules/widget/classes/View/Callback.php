@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -12,10 +12,10 @@ class View_Callback extends View {
 	public function render() {
 		$callback = $this->option('callback');
 		if (is_callable($callback)) {
-			return call_user_func_array($callback, array(
+			return call_user_func_array($callback, [
 				$this,
 				$this->object,
-			));
+			]);
 		}
 		return null;
 	}

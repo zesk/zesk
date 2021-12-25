@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -17,30 +17,30 @@ namespace zesk;
 class Module extends Hookable {
 	/**
 	 *
-	 * @var Application
+	 * @var string
 	 */
-	protected $application_class = null;
+	protected string $application_class;
 
 	/**
 	 * Module code name
 	 *
 	 * @var string
 	 */
-	protected $codename = null;
+	protected string $codename = "";
 
 	/**
 	 * Path to this module
 	 *
 	 * @var string
 	 */
-	protected $path = null;
+	protected string $path;
 
 	/**
 	 * List of associated model classes
 	 *
 	 * @var array
 	 */
-	protected $model_classes = array();
+	protected array $model_classes = [];
 
 	/**
 	 * Array of old_class => new_class
@@ -49,7 +49,7 @@ class Module extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected $class_aliases = array();
+	protected array $class_aliases = [];
 
 	/**
 	 *
@@ -57,13 +57,13 @@ class Module extends Hookable {
 	 *
 	 */
 	public function __sleep() {
-		return array(
+		return [
 			"application_class",
 			"codename",
 			"path",
 			"model_classes",
 			"class_aliases",
-		);
+		];
 	}
 
 	/**
@@ -80,7 +80,7 @@ class Module extends Hookable {
 	 * {@inheritDoc}
 	 * @see \zesk\Hookable::__wakeup()
 	 */
-	public function __wakeup() {
+	public function __wakeup(): void {
 		parent::__wakeup();
 		$this->initialize();
 	}
@@ -90,7 +90,7 @@ class Module extends Hookable {
 	 *
 	 * @param string $options
 	 */
-	final public function __construct(Application $application, array $options = array(), array $module_data = array()) {
+	final public function __construct(Application $application, array $options = [], array $module_data = []) {
 		parent::__construct($application, $options);
 		$this->application_class = get_class($application);
 		$this->path = avalue($module_data, 'path');
@@ -134,7 +134,7 @@ class Module extends Hookable {
 	/**
 	 * Override in subclasses - called upon load
 	 */
-	public function initialize() {
+	public function initialize(): void {
 	}
 
 	/**
@@ -169,7 +169,7 @@ class Module extends Hookable {
 	 * @param array $options
 	 * @return \zesk\Model
 	 */
-	final public function model_factory($class, $mixed = null, array $options = array()) {
+	final public function model_factory(string $class, mixed $mixed = null, array $options = []): Model {
 		return $this->application->model_factory($class, $mixed, $options);
 	}
 
@@ -198,7 +198,7 @@ class Module extends Hookable {
 	 * @param array $options
 	 * @return \zesk\Model
 	 */
-	final public function object_factory($class, $mixed = null, array $options = array()) {
+	final public function object_factory($class, $mixed = null, array $options = []) {
 		$this->application->deprecated();
 		return $this->model_factory($class, $mixed, $options);
 	}

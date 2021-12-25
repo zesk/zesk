@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * HTML Select Widget
  *
@@ -21,22 +21,22 @@ class Control_Select extends Control_Optionss {
 	 *
 	 * @var boolean
 	 */
-	const default_escape_values = true;
+	public const default_escape_values = true;
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Control_Options::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
 		if ($this->control_options === null) {
-			$this->control_options = $this->option_array("options", array());
+			$this->control_options = $this->option_array("options", []);
 		}
 		$options = $this->control_options;
 		$preferred = $this->option_array('preferred_keys');
 		if (count($preferred)) {
-			$preferred_options = array();
+			$preferred_options = [];
 			foreach ($preferred as $key) {
 				if (array_key_exists($key, $options)) {
 					$preferred_options[$key] = $options[$key];
@@ -48,10 +48,10 @@ class Control_Select extends Control_Optionss {
 			if (count($preferred_options) > 0) {
 				$preferred_title = $this->option('preferred_title', __('Preferred'));
 				$unpreferred_title = $this->option('unpreferred_title', __('Other'));
-				$this->control_options = array(
+				$this->control_options = [
 					$preferred_title => $preferred_options,
 					$unpreferred_title => $options,
-				);
+				];
 				$this->set_option("optgroup", true);
 			}
 		}
@@ -201,7 +201,7 @@ class Control_Select extends Control_Optionss {
 	protected function value_to_text() {
 		$value = $this->value();
 		if ($this->multiple()) {
-			$text_values = array();
+			$text_values = [];
 			foreach ($value as $val) {
 				$text_values[] = $text_value = avalue($this->control_options, strval($val));
 			}
@@ -228,10 +228,10 @@ class Control_Select extends Control_Optionss {
 		if (!$this->has_option("query_condition_map")) {
 			$text_value = $this->value_to_text();
 			if ($text_value) {
-				$condition = __("{label} is {text_value}", array(
+				$condition = __("{label} is {text_value}", [
 					"label" => $this->label(),
 					"text_value" => $text_value,
-				));
+				]);
 				// Overwrite default condition set by parent
 				$query->condition($condition, $this->query_condition_key());
 			}
@@ -244,9 +244,9 @@ class Control_Select extends Control_Optionss {
 	}
 
 	public function theme_variables() {
-		return array(
+		return [
 			'escape_values' => $this->escape_values(),
 			'multiple' => $this->multiple(),
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 }

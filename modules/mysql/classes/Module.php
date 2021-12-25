@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage MySQL
@@ -19,7 +19,7 @@ class Module extends \zesk\Module {
 	 * {@inheritDoc}
 	 * @see \zesk\Module::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		$this->application->register_class(Database::class);
 
 		$module = $this->application->database_module();

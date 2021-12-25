@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\Response;
 
 use zesk\Response;
@@ -22,13 +22,13 @@ class Raw extends Type {
 	/**
 	 *
 	 */
-	public function initialize() {
+	public function initialize(): void {
 	}
 
 	/**
 	 *
 	 */
-	public function headers() {
+	public function headers(): void {
 		if ($this->file) {
 			$this->parent->content_type(MIME::from_filename($this->file));
 			$this->parent->header("Last-Modified", gmdate('D, d M Y H:i:s \G\M\T', filemtime($this->file)));
@@ -41,7 +41,7 @@ class Raw extends Type {
 	 * {@inheritDoc}
 	 * @see \zesk\Response\Type::passthru()
 	 */
-	public function output($content) {
+	public function output($content): void {
 		if ($this->file) {
 			$fp = fopen($this->file, "rb");
 			fpassthru($fp);
@@ -96,8 +96,8 @@ class Raw extends Type {
 	 * @see \zesk\Response\Type::to_json()
 	 */
 	public function to_json() {
-		return array(
+		return [
 			"content" => $this->binary,
-		);
+		];
 	}
 }

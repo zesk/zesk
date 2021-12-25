@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -11,34 +11,34 @@ namespace zesk;
  * @category Documentation
  */
 class Command_Help extends Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		'no-core' => 'boolean',
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		'no-core' => 'Skip all Zesk core commands',
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $categories = array();
+	private array $categories = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $aliases = array();
+	private array $aliases = [];
 
-	private $command_paths = array();
+	private array $command_paths = [];
 
 	public function run() {
 		$this->collect_help();
-		echo $this->application->theme("command/help", array(
+		echo $this->application->theme("command/help", [
 			"categories" => $this->categories,
 			"aliases" => $this->aliases,
-		));
+		]);
 		$this->save_aliases($this->aliases);
 		return 0;
 	}
@@ -47,18 +47,18 @@ class Command_Help extends Command_Base {
 	 */
 	public function collect_command_files() {
 		$zesk = $this->zesk;
-		$command_files = array();
-		$opts = array(
-			'rules_file' => array(
+		$command_files = [];
+		$opts = [
+			'rules_file' => [
 				'/.*\.(inc|php)$/' => true,
 				false,
-			),
-			'rules_directory_walk' => array(
+			],
+			'rules_directory_walk' => [
 				'#/\..*$#' => false,
 				true,
-			),
+			],
 			'rules_directory' => false,
-		);
+		];
 		$zesk_root = $this->application->zesk_home();
 		$nocore = $this->option_bool("no-core");
 		foreach ($this->application->zesk_command_path() as $path => $prefix) {
@@ -68,19 +68,19 @@ class Command_Help extends Command_Base {
 			}
 			$commands = Directory::list_recursive($path, $opts);
 			if ($commands) {
-				$command_files[$path] = array(
+				$command_files[$path] = [
 					$prefix,
 					ArrayTools::ltrim($commands, "./"),
-				);
+				];
 			}
 		}
 		return $command_files;
 	}
 
-	public function load_commands(array $command_files) {
+	public function load_commands(array $command_files): void {
 		$declared_classes_before = ArrayTools::flip_assign(get_declared_classes(), true);
 		foreach ($command_files as $path => $structure) {
-			list($prefix, $commands) = $structure;
+			[$prefix, $commands] = $structure;
 			foreach ($commands as $command) {
 				$this->verbose_log("Scanning {command}", compact("command"));
 				$command_file = path($path, $command);
@@ -92,10 +92,10 @@ class Command_Help extends Command_Base {
 					$this->verbose_log("Including $command_file");
 					require_once $command_file;
 				} catch (\Exception $e) {
-					$this->error("Error processing {command_file}: {exception}", array(
+					$this->error("Error processing {command_file}: {exception}", [
 						"exception" => $e->getMessage(),
 						"command_file" => $command_file,
-					));
+					]);
 				}
 			}
 		}
@@ -109,21 +109,21 @@ class Command_Help extends Command_Base {
 		}
 	}
 
-	public function process_class($class) {
+	public function process_class($class): void {
 		$this->verbose_log("Checking $class");
 
 		try {
 			$refl = new \ReflectionClass($class);
 		} catch (Exception_Class_NotFound $e) {
-			$this->verbose_log("{class} can not be loaded, skipping", array(
+			$this->verbose_log("{class} can not be loaded, skipping", [
 				"class" => $class,
-			));
+			]);
 			return;
 		}
 		if ($refl->isAbstract()) {
-			$this->verbose_log("{class} is abstract, skipping", array(
+			$this->verbose_log("{class} is abstract, skipping", [
 				"class" => $class,
-			));
+			]);
 			return;
 		}
 		$command_file = $refl->getFileName();
@@ -136,19 +136,19 @@ class Command_Help extends Command_Base {
 			return;
 		}
 		if (array_key_exists('aliases', $doccomment)) {
-			foreach (to_list($doccomment['aliases'], array(), " ") as $alias) {
+			foreach (to_list($doccomment['aliases'], [], " ") as $alias) {
 				if (array_key_exists($alias, $this->aliases)) {
-					$this->application->logger->warning("Identical aliases exist for command {0} and {1}: {2}, only {0} will be honored", array(
+					$this->application->logger->warning("Identical aliases exist for command {0} and {1}: {2}, only {0} will be honored", [
 						$command,
 						$this->aliases[$alias],
 						$alias,
-					));
+					]);
 				} else {
 					$this->aliases[$alias] = $command;
-					$this->verbose_log("Alias for `zesk {command}` is `zesk {alias}`", array(
+					$this->verbose_log("Alias for `zesk {command}` is `zesk {alias}`", [
 						"command" => $command,
 						"alias" => $alias,
-					));
+					]);
 				}
 			}
 		}
@@ -158,13 +158,13 @@ class Command_Help extends Command_Base {
 		$this->categories[$category][$command] = $doccomment;
 	}
 
-	public function collect_help() {
+	public function collect_help(): void {
 		$command_files = $this->collect_command_files();
 
 		$this->load_commands($command_files);
 
-		$this->aliases = array();
-		$this->categories = array();
+		$this->aliases = [];
+		$this->categories = [];
 
 		$subclasses = $this->application->classes->subclasses("zesk\Command");
 		foreach ($subclasses as $subclass) {
@@ -174,8 +174,11 @@ class Command_Help extends Command_Base {
 		ksort($this->categories);
 	}
 
-	public function save_aliases(array $aliases) {
-		$paths = $this->application->configure_include_path();
+	public function save_aliases(array $aliases): bool {
+		$paths = $this->application->configure_include();
+		foreach ($paths as $index => $confpath) {
+			$paths[$index] = dirname($confpath);
+		}
 		$name = "command-aliases.json"; // Put this in a single location
 		$content = JSON::encode_pretty($aliases);
 		$conf_file = File::find_first($paths, $name);
@@ -186,9 +189,9 @@ class Command_Help extends Command_Base {
 
 			try {
 				File::put($conf_file, $content);
-				$this->application->logger->notice("Wrote {file}", array(
+				$this->application->logger->notice("Wrote {file}", [
 					"file" => $conf_file,
-				));
+				]);
 				return true;
 			} catch (\Exception $e) {
 				echo get_class($e) . " " . $e->getMessage();
@@ -200,9 +203,9 @@ class Command_Help extends Command_Base {
 			try {
 				$conf_file = path($path, $name);
 				File::put($conf_file, $content);
-				$this->application->logger->notice("Wrote {file}", array(
+				$this->application->logger->notice("Wrote {file}", [
 					"file" => $conf_file,
-				));
+				]);
 				return true;
 			} catch (\Exception $e) {
 				echo get_class($e) . " " . $e->getMessage();

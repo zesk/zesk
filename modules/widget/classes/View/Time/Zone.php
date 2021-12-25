@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -33,9 +33,9 @@ class View_Time_Zone extends View_Text {
 		$uri = $this->request->uri();
 		$add_ref = $this->option("add_ref", URL::query_remove($uri, "message"));
 		if ($add_ref) {
-			$href = URL::query_format(URL::query_remove($href, "ref"), array(
+			$href = URL::query_format(URL::query_remove($href, "ref"), [
 				"ref" => $add_ref,
-			));
+			]);
 		}
 		$attrs['href'] = $href;
 		$result = HTML::tag("a", $attrs, HTML::ellipsis($text, $this->option("ShowSize", -1), $this->option("Ellipsis", "...")));

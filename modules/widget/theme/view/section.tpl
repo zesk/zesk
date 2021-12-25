@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 $this->label_class = "col-sm-$this->column_count_label control-label";
@@ -12,6 +12,6 @@ foreach ($this->children as $child) {
 	/* @var $child Widget */
 	$child->wrap('div', "col-sm-" . $this->get("column_count_widget", 12));
 }
-echo $this->theme('zesk/control/widgets', array(
+echo $this->theme('zesk/control/widgets', [
 	'widgets' => $this->children,
-));
+]);

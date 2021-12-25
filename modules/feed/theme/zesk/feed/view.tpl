@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this Template */
@@ -17,10 +17,10 @@ $data = $this->data;
 $feed_update_frequency = $this->geti('feed_update_frequency', 600);
 $limit = $this->geti("limit", null);
 if ($limit <= 0) {
-	$application->logger->warning("Limit passed to {file} is <= 0 ({limit}), assuming no limit", array(
+	$application->logger->warning("Limit passed to {file} is <= 0 ({limit}), assuming no limit", [
 		"file" => __FILE__,
 		"limit" => $limit,
-	));
+	]);
 	$limit = null;
 }
 
@@ -38,9 +38,9 @@ $now = Timestamp::now();
 if ($content && $updated instanceof Timestamp) {
 	$expires = $updated->add_unit($feed_update_frequency, Timestamp::UNIT_SECOND);
 	if ($expires->before($now)) {
-		$data->delete_data(array(
+		$data->delete_data([
 			$prefix . 'content',
-		));
+		]);
 	} else {
 		echo $content;
 		return;
@@ -50,14 +50,14 @@ if ($content && $updated instanceof Timestamp) {
 /* @var $attempted Timestamp */
 $attempted = $data->data($prefix . 'attempted');
 if ($attempted instanceof Timestamp && $attempted->add_unit(60, Timestamp::UNIT_SECOND)->after($now)) {
-	$application->logger->warning("Only attempt download once a minute - waiting {n_seconds} {seconds}", array(
+	$application->logger->warning("Only attempt download once a minute - waiting {n_seconds} {seconds}", [
 		"n_seconds" => $n_seconds = $attempted->difference($now),
 		"seconds" => $locale->plural($locale->__("second"), $n_seconds),
-	));
+	]);
 } else {
 	if ($object->execute()) {
 		ob_start();
-		$items = array();
+		$items = [];
 		foreach ($object as $post) {
 			/* @var $post Feed_Post */
 			$items[] = $post->theme("item");
@@ -66,9 +66,9 @@ if ($attempted instanceof Timestamp && $attempted->add_unit(60, Timestamp::UNIT_
 			}
 		}
 		echo HTML::ediv('.feed-view', implode("\n", $items));
-		echo HTML::div(".last-updated", __("Last updated {when}", array(
+		echo HTML::div(".last-updated", __("Last updated {when}", [
 			"when" => $updated->format($locale, "{delta}"),
-		)));
+		]));
 		$content = ob_get_clean();
 		$data->data($prefix . "content", $content);
 		$data->data($prefix . "updated", $now);

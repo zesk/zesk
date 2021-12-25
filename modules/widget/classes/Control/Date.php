@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -22,7 +22,7 @@ class Control_Date extends Control_Timestamp {
 		return $this->time_control() ? $this->object->get($this->name() . '_time') : $this->option("time_value", "00:00:00");
 	}
 
-	public function load() {
+	public function load(): void {
 		parent::load();
 		$value = $this->value();
 		if (empty($value)) {

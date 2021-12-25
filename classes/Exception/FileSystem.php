@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -27,14 +27,14 @@ class Exception_FileSystem extends Exception {
 	 * @param array $arguments
 	 * @param number $code
 	 */
-	public function __construct($filename = null, $message = "", array $arguments = array(), $code = 0) {
+	public function __construct($filename = null, $message = "", array $arguments = [], $code = 0) {
 		$this->filename = $filename;
-		if (strpos($message, "{filename}") === false) {
+		if (!str_contains($message, "{filename}")) {
 			$message = "{filename}: $message";
 		}
-		parent::__construct($message, array(
+		parent::__construct($message, [
 			"filename" => $filename,
-		) + $arguments, $code);
+		] + $arguments, $code);
 	}
 
 	/**

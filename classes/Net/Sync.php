@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -26,7 +26,7 @@ class Net_Sync extends Options {
 	/*
 	 * Synchronization stats
 	 */
-	private $stats = array();
+	private $stats = [];
 
 	/**
 	 * Sync a local file with a destination file, optionally checking checksums
@@ -45,7 +45,7 @@ class Net_Sync extends Options {
 	 *
 	 * @return boolean true if file has changed, false if not, null if time-to-live has not expired
 	 */
-	public static function url_to_file(Application $application, $url, $path, array $options = array()) {
+	public static function url_to_file(Application $application, $url, $path, array $options = []) {
 		if (!isset($options['timeout'])) {
 			$options['timeout'] = 2 * 60 * 1000;
 		}
@@ -57,7 +57,7 @@ class Net_Sync extends Options {
 				return null;
 			}
 		}
-		list($temp, $server_name) = self::_fetch_url($application, $url, $options);
+		[$temp, $server_name] = self::_fetch_url($application, $url, $options);
 		$full_path = ends($path, "/") ? path($path, $server_name) : $path;
 		if (!is_file($full_path) || (md5_file($temp) !== md5_file($full_path))) {
 			if (file_exists($full_path)) {
@@ -78,7 +78,7 @@ class Net_Sync extends Options {
 	 * @param array $options
 	 * @return string[]|string[]
 	 */
-	private static function _fetch_url(Application $application, $url, array $options = array()) {
+	private static function _fetch_url(Application $application, $url, array $options = []) {
 		$milliseconds = to_integer(avalue($options, 'timeout'));
 		$user_agent = avalue($options, 'user_agent');
 
@@ -97,10 +97,10 @@ class Net_Sync extends Options {
 		$result = $client->go();
 
 		$filename = $client->filename();
-		return array(
+		return [
 			$temp_file_name,
 			$filename,
-		);
+		];
 	}
 
 	/**
@@ -111,7 +111,7 @@ class Net_Sync extends Options {
 	 * @param array $options
 	 * @return array Transfer statistics
 	 */
-	public static function urls(Application $application, $source_url, $destination_url, array $options = array()) {
+	public static function urls(Application $application, $source_url, $destination_url, array $options = []) {
 		$src_client = Net_Client::factory($application, $source_url, $options);
 		$dst_client = Net_Client::factory($application, $destination_url, $options);
 		$sync = new Net_Sync($src_client, $dst_client, $options);
@@ -126,7 +126,7 @@ class Net_Sync extends Options {
 	 * @param array $options
 	 *        	Settings for the sync
 	 */
-	public function __construct(Net_FileSystem $source, Net_FileSystem $destination, array $options = array()) {
+	public function __construct(Net_FileSystem $source, Net_FileSystem $destination, array $options = []) {
 		parent::__construct($options);
 		$this->src = $source;
 		$this->dst = $destination;
@@ -275,17 +275,17 @@ class Net_Sync extends Options {
 				throw new Exception_Directory_Create($dst_root, $dst_url);
 			}
 		}
-		$dir_queue = array(
+		$dir_queue = [
 			$src_root,
-		);
-		$stats = array(
+		];
+		$stats = [
 			'dirs' => 0,
 			'mkdir' => 0,
 			'files' => 0,
 			'copy' => 0,
 			'skip' => 0,
 			'total' => 0,
-		);
+		];
 		$check_mtime = $dst->has_feature('mtime');
 		while (count($dir_queue) > 0) {
 			$src_path = array_shift($dir_queue);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -26,18 +26,18 @@ class Class_Contact_Address extends Class_Contact_Info {
 	 *
 	 * @var array
 	 */
-	public $has_one = array(
+	public $has_one = [
 		'contact' => "zesk\\Contact",
 		'label' => 'zesk\\Contact_Label',
 		'country' => 'zesk\\Country',
 		'county' => 'zesk\\County',
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"contact" => self::type_object,
 		"label" => self::type_object,
@@ -58,13 +58,13 @@ class Class_Contact_Address extends Class_Contact_Info {
 		'created' => self::type_created,
 		'modified' => self::type_modified,
 		'data' => self::type_serialize,
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $column_defaults = array(
+	public $column_defaults = [
 		'name' => '',
-	);
+	];
 }

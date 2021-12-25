@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 use PHPUnit\Framework\TestCase;
@@ -14,7 +14,7 @@ class PHPUnit_TestCase extends TestCase {
 	 *
 	 * @var array
 	 */
-	protected $load_modules = [];
+	protected array $load_modules = [];
 
 	/**
 	 *
@@ -32,7 +32,7 @@ class PHPUnit_TestCase extends TestCase {
 	/**
 	 * Ensures our zesk variables above are properly populated
 	 */
-	public function setUp() {
+	public function setUp(): void {
 
 		/*
 		 * Set up our state
@@ -59,25 +59,25 @@ class PHPUnit_TestCase extends TestCase {
 			foreach ($this->application->classes->hierarchy(get_class($this)) as $class) {
 				$this->option = $this->option->merge($this->configuration->path($class), false); // traverses leaf to base. Leaf wins, do not overwrite.
 			}
-			$this->application->logger->debug("{class} options is {option}", array(
+			$this->application->logger->debug("{class} options is {option}", [
 				"class" => get_class($this),
 				"option" => $this->option->to_array(),
-			));
+			]);
 		}
 	}
 
-	public function assertPreConditions() {
+	public function assertPreConditions(): void {
 		$this->assertInstanceOf(Configuration::class, $this->configuration);
 		$this->assertInstanceOf(Application::class, $this->application);
-		file_put_contents($this->lastTestCaseFile(), JSON::encode_pretty(array(
+		file_put_contents($this->lastTestCaseFile(), JSON::encode_pretty([
 			"class" => get_class($this),
 			"hierarchy" => $this->application->classes->hierarchy(get_class($this)),
 			"when" => date("Y-m-d H:i:s"),
 			"debug" => $this->option->to_array(),
-		)));
+		]));
 	}
 
-	public function assertPostConditions() {
+	public function assertPostConditions(): void {
 		File::unlink($this->lastTestCaseFile());
 	}
 
@@ -101,7 +101,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param \ArrayAccess $array
 	 * @param string $message Optional message
 	 */
-	public function assertArrayHasKeys($keys, $array, $message = '') {
+	public function assertArrayHasKeys($keys, $array, $message = ''): void {
 		$keys = to_list($keys);
 		foreach ($keys as $key) {
 			$this->assertArrayHasKey($key, $array, "$key: $message");
@@ -129,7 +129,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param array $paths
 	 * @param unknown $message
 	 */
-	public function assertDirectoriesExist(array $paths, $message = null) {
+	public function assertDirectoriesExist(array $paths, $message = null): void {
 		if (!$message) {
 			$message = "Path does not exist";
 		}
@@ -144,7 +144,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param array $paths
 	 * @param unknown $message
 	 */
-	public function assertDirectoriesNotExist(array $paths, $message = null) {
+	public function assertDirectoriesNotExist(array $paths, $message = null): void {
 		if (!$message) {
 			$message = "Path should not exist";
 		}
@@ -159,8 +159,8 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param mixed $expected
 	 * @param string|null $message
 	 */
-	public function assertIsInteger($expected, $message = null) {
-		$this->assertTrue(is_integer($expected), $message ?? "Item expected to be an integer but is a " . type($expected));
+	public function assertIsInteger($expected, $message = null): void {
+		$this->assertTrue(is_int($expected), $message ?? "Item expected to be an integer but is a " . type($expected));
 	}
 
 	/**
@@ -171,7 +171,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param string $contents
 	 * @return void
 	 */
-	protected function debug($contents) {
+	protected function debug($contents): void {
 		if (!is_string($contents)) {
 			$contents = var_export($contents, true);
 		}

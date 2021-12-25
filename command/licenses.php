@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -7,15 +7,15 @@ namespace zesk;
  * @category Tools
  */
 class Command_Licenses extends Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		'all' => 'boolean',
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		'all' => "Do all modules instead of just those loaded",
-	);
+	];
 
-	protected function run() {
+	protected function run(): void {
 		$modules = $this->application->modules;
 		$modules = $this->option_bool('all') ? $modules->available() : $modules->load();
 		foreach ($modules as $name => $module_data) {

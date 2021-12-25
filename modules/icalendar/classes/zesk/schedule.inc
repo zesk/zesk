@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -30,9 +30,9 @@ class Schedule extends ORM {
 		} else {
 			$last->time_zone($timezone);
 		}
-		return $this->call_hook_arguments("compute_next_$unit", array(
+		return $this->call_hook_arguments("compute_next_$unit", [
 			$last,
-		), null);
+		], null);
 	}
 
 	private function _next_initialize(Timestamp $last) {

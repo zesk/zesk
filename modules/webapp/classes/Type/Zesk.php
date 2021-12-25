@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -75,17 +75,17 @@ class Type_Zesk extends Type {
 
 		try {
 			$zesk = $this->bin_zesk();
-			$lines = $this->application->process->execute_arguments($zesk . " --cd {directory} version", array(
+			$lines = $this->application->process->execute_arguments($zesk . " --cd {directory} version", [
 				"directory" => $this->path,
-			));
+			]);
 			if (count($lines) === 0) {
 				return null;
 			}
 			if (count($lines) !== 1) {
-				$this->application->logger->warning("{zesk} version output more than 1 line: {lines}", array(
+				$this->application->logger->warning("{zesk} version output more than 1 line: {lines}", [
 					"zesk" => $zesk,
 					"lines" => $lines,
-				));
+				]);
 			}
 			$this->version = last($lines);
 			return $this->version;

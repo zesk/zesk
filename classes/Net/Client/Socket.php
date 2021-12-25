@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -68,7 +68,7 @@ class Net_Client_Socket extends Net_Client {
 	 *
 	 * @see Net_Client::disconnect()
 	 */
-	public function disconnect() {
+	public function disconnect(): void {
 		if (is_resource($this->socket)) {
 			fclose($this->socket);
 			$this->socket = null;
@@ -88,7 +88,7 @@ class Net_Client_Socket extends Net_Client {
 	 *
 	 * @throws Exception_Semantics
 	 */
-	protected function _check() {
+	protected function _check(): void {
 		if (!$this->is_connected()) {
 			throw new Exception_Semantics("Not connected to server");
 		}
@@ -127,7 +127,7 @@ class Net_Client_Socket extends Net_Client {
 	 * @return boolean
 	 */
 	protected function expect($expect, &$result) {
-		$result = array();
+		$result = [];
 		do {
 			$line = $this->read();
 			$result[] = $line;
@@ -155,7 +155,7 @@ class Net_Client_Socket extends Net_Client {
 	public function read_wait($milliseconds = 600000) {
 		$timeout = microtime(true) + $milliseconds;
 		do {
-			$status = socket_get_status($this->socket);
+			$status = stream_get_meta_data($this->socket);
 			$bytes = $status["unread_bytes"];
 			if ($bytes === 0) {
 				sleep(100);

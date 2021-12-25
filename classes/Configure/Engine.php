@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage configuration
@@ -37,17 +37,17 @@ class Engine extends Hookable {
 	 * Append to a command to redirect stderr to stdout
 	 * @var string
 	 */
-	const STDERR_REDIRECT = " 2>&1";
+	public const STDERR_REDIRECT = " 2>&1";
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $option_types = array(
+	protected array $option_types = [
 		"non-interactive" => "boolean",
 		"environment-file" => "string",
 		"host-setting-name" => "string",
-	);
+	];
 
 	/**
 	 * owner - Set owner of the file (root only)
@@ -56,12 +56,12 @@ class Engine extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected static $file_flags = array(
+	protected static $file_flags = [
 		'owner' => true,
 		'mode' => true,
 		'map' => true,
 		'trim' => true,
-	);
+	];
 
 	/**
 	 * @var Interface_Prompt
@@ -94,14 +94,14 @@ class Engine extends Hookable {
 	 *
 	 * @var array
 	 */
-	private $host_paths = array();
+	private $host_paths = [];
 
 	/**
 	 * Variables to map when copying files around, etc.
 	 *
 	 * @var array
 	 */
-	private $variable_map = array();
+	private $variable_map = [];
 
 	/**
 	 *
@@ -121,7 +121,7 @@ class Engine extends Hookable {
 	 *
 	 * @see Command::run()
 	 */
-	public function __construct(Application $application, array $options = array()) {
+	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 
 		$this->variable_map['home'] = $this->application->paths->home();
@@ -140,11 +140,11 @@ class Engine extends Hookable {
 		$this->variable_map['zesk_application_root'] = $this->application->path(); // Deprecated
 
 		$this->incomplete = 0;
-		$this->debug_log("Variables: {variables}", array(
+		$this->debug_log("Variables: {variables}", [
 			"variables" => Text::format_pairs($this->variable_map),
-		));
+		]);
 
-		list($this->current_uid, $this->current_gid) = $this->current_uid_gid();
+		[$this->current_uid, $this->current_gid] = $this->current_uid_gid();
 	}
 
 	/**
@@ -187,7 +187,7 @@ class Engine extends Hookable {
 	 * @param string $message
 	 * @param array $arguments
 	 */
-	public function log($message, array $arguments = array()) {
+	public function log($message, array $arguments = []): void {
 		if ($this->logger) {
 			$this->logger->log($message, $arguments);
 		}
@@ -198,13 +198,13 @@ class Engine extends Hookable {
 	 * @param string $message
 	 * @param array $arguments
 	 */
-	public function error($message, array $arguments = array()) {
+	public function error($message, array $arguments = []): void {
 		if (!$message) {
 			return;
 		}
-		$this->log($message, array(
+		$this->log($message, [
 			"severity" => "error",
-		) + $arguments);
+		] + $arguments);
 	}
 
 	/**
@@ -213,7 +213,7 @@ class Engine extends Hookable {
 	 * @param string $message
 	 * @param array $arguments
 	 */
-	public function verbose_log($message, array $arguments = array()) {
+	public function verbose_log($message, array $arguments = []): void {
 		if ($this->option_bool('verbose')) {
 			$this->log($message, $arguments);
 		}
@@ -223,7 +223,7 @@ class Engine extends Hookable {
 	 * @param string $message
 	 * @param array $arguments
 	 */
-	public function debug_log($message, array $arguments = array()) {
+	public function debug_log($message, array $arguments = []): void {
 		if ($this->option_bool('debug')) {
 			$this->log($message, $arguments);
 		}
@@ -235,12 +235,12 @@ class Engine extends Hookable {
 	 * @return mixed
 	 */
 	public function prompt_yes_no($message, $default = "Y") {
-		return to_bool($this->prompt("$message? (yes/no)", $default, array(
+		return to_bool($this->prompt("$message? (yes/no)", $default, [
 			"y",
 			"yes",
 			"n",
 			"no",
-		)));
+		]));
 	}
 
 	/**
@@ -285,7 +285,7 @@ class Engine extends Hookable {
 	 */
 	public function process($line) {
 		$line = preg_replace("/\s+/", " ", $line);
-		list($command, $raw_arguments) = pair($line, " ", $line, null);
+		[$command, $raw_arguments] = pair($line, " ", $line, null);
 		$command = PHP::clean_function($command);
 		$raw_arguments = preg_replace("/\s+/", " ", trim($raw_arguments));
 		$arguments = $this->map(explode(" ", $raw_arguments));
@@ -293,16 +293,16 @@ class Engine extends Hookable {
 		$__ = compact("command", "raw_arguments", "arguments");
 		if (method_exists($this, $method)) {
 			$this->verbose_log("Running command {command} {raw_arguments} => {arguments}", $__);
-			$result = call_user_func_array(array(
+			$result = call_user_func_array([
 				$this,
 				$method,
-			), $arguments);
+			], $arguments);
 		} else {
 			if ($this->has_hook($method)) {
-				$result = $this->call_hook_arguments($method, array(
+				$result = $this->call_hook_arguments($method, [
 					$arguments,
 					$command,
-				), null);
+				], null);
 			} else {
 				$this->error("Unknown command {command} ({raw_arguments})", $__);
 				return false;
@@ -312,9 +312,9 @@ class Engine extends Hookable {
 			$this->error("Command failed ... aborting.");
 			return false;
 		} else {
-			$this->verbose_log("Command {command} was successful (changed={changed})", $__ + array(
+			$this->verbose_log("Command {command} was successful (changed={changed})", $__ + [
 				"changed" => $this->changed ? "true" : "false",
-			));
+			]);
 		}
 
 		return true;
@@ -326,10 +326,10 @@ class Engine extends Hookable {
 	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes required
 	 */
 	private function current_uid_gid() {
-		return array(
+		return [
 			intval(implode("\n", $this->application->process->execute("id -u"))),
 			intval(implode("\n", $this->application->process->execute("id -g"))),
-		);
+		];
 	}
 
 	/**
@@ -341,9 +341,9 @@ class Engine extends Hookable {
 	public function command_rmdir($target) {
 		$locale = $this->application->locale;
 		$target = $this->application->paths->expand($target);
-		$__ = array(
+		$__ = [
 			"target" => $target,
-		);
+		];
 		if (is_file($target)) {
 			$this->error("{target} is a file, not a directory (rmdir)", $__);
 			return false;
@@ -370,9 +370,9 @@ class Engine extends Hookable {
 	public function command_rm($target) {
 		$locale = $this->application->locale;
 		$target = $this->application->paths->expand($target);
-		$__ = array(
+		$__ = [
 			"target" => $target,
-		);
+		];
 		if (!is_file($target)) {
 			$this->error("{target} is not a a file (rm)", $__);
 			return false;
@@ -447,7 +447,7 @@ class Engine extends Hookable {
 	 * @return NULL|boolean
 	 */
 	public function command_changed() {
-		$command = array();
+		$command = [];
 		$args = func_get_args();
 		foreach ($args as $arg) {
 			$command[] = escapeshellarg($arg);
@@ -455,9 +455,9 @@ class Engine extends Hookable {
 		$root_command = $command[0];
 		$command = implode(" ", $command);
 
-		$__ = array(
+		$__ = [
 			"command" => $command,
-		);
+		];
 		if (!$this->changed) {
 			$this->verbose_log("Skipping command {command} as no changes detected", $__);
 			return null;
@@ -493,14 +493,14 @@ class Engine extends Hookable {
 		$args = func_get_args();
 		foreach ($args as $service) {
 			try {
-				$result = $this->exec("service {service} status", array(
+				$result = $this->exec("service {service} status", [
 					"service" => $service,
-				));
+				]);
 			} catch (Exception_Command $e) {
-				$this->error("Service {service} failed with output:\n{output}", array(
+				$this->error("Service {service} failed with output:\n{output}", [
 					"service" => $service,
 					"output" => implode("\n", $e->output),
-				));
+				]);
 				return false;
 			}
 		}
@@ -517,10 +517,10 @@ class Engine extends Hookable {
 		foreach ($args as $binary) {
 			$which = $this->application->paths->which($binary);
 			if (!$which) {
-				$this->error("Binary {binary} not available in path {path}", array(
+				$this->error("Binary {binary} not available in path {path}", [
 					"binary" => $binary,
 					"path" => $this->application->paths->command(),
-				));
+				]);
 				return false;
 			}
 		}
@@ -623,47 +623,47 @@ class Engine extends Hookable {
 	 */
 	public function command_defined() {
 		$args = func_get_args();
-		$not_defined = array();
+		$not_defined = [];
 		foreach ($args as $arg) {
 			if (!array_key_exists(strtolower($arg), $this->variable_map)) {
 				$not_defined[] = $arg;
 			}
 		}
 		if (count($not_defined) > 0) {
-			$this->error("Configure {self} requires the following defined, which are not: {not_defined}\nAll variables: {all_vars}", array(
+			$this->error("Configure {self} requires the following defined, which are not: {not_defined}\nAll variables: {all_vars}", [
 				"not_defined" => $not_defined,
 				"all_vars" => array_keys($this->variable_map),
-			) + $this->variable_map);
+			] + $this->variable_map);
 			return false;
 		} else {
-			$this->verbose_log("defined {args} - success", array(
+			$this->verbose_log("defined {args} - success", [
 				"args" => implode(" ", $args),
-			));
+			]);
 			return true;
 		}
 	}
 
 	public function parse_file_flags(array $flags) {
-		$flags = to_list(strtr(implode(" ", $flags), array(
+		$flags = to_list(strtr(implode(" ", $flags), [
 			"," => " ",
 			";" => " ",
-		)), array(), " ");
-		$result = array();
+		]), [], " ");
+		$result = [];
 		foreach ($flags as $flag) {
 			$flag = trim($flag);
 			if (empty($flag)) {
 				continue;
 			}
-			if (strpos($flag, ":") !== false) {
+			if (str_contains($flag, ":")) {
 				$result['owner'] = $flag;
-			} elseif (strpos($flag, '0') === 0 || is_numeric($flag)) {
+			} elseif (str_starts_with($flag, '0')   || is_numeric($flag)) {
 				$result['mode'] = $flag;
 			} else {
 				if (!array_key_exists($flag, self::$file_flags)) {
-					$this->application->logger->warning("Unknown flag {flag} found in {flags}", array(
+					$this->application->logger->warning("Unknown flag {flag} found in {flags}", [
 						"flag" => $flag,
 						"flags" => $flags,
-					));
+					]);
 				}
 				$result[$flag] = true;
 			}
@@ -695,10 +695,10 @@ class Engine extends Hookable {
 		array_shift($args);
 		$flags = $this->parse_file_flags($args);
 		if (count($flags) > 0) {
-			$this->verbose_log("{method} flags are: {flags}", array(
+			$this->verbose_log("{method} flags are: {flags}", [
 				"method" => __METHOD__,
 				"flags" => $flags,
-			));
+			]);
 		}
 		$want_owner = avalue($flags, "owner", null);
 		$want_mode = avalue($flags, "mode", null);
@@ -783,17 +783,17 @@ class Engine extends Hookable {
 		$flags = $this->parse_file_flags($flags);
 
 		$sources = File::find_all($this->host_paths, $source);
-		$__ = array(
+		$__ = [
 			"source" => $source,
 			"host_paths" => $this->host_paths,
-		);
+		];
 		if (count($sources) === 0) {
 			$this->verbose_log("No file {source} found in {host_paths}", $__);
 			$completions = ArrayTools::suffix($this->host_paths, "/" . StringTools::unprefix($source, "/"));
-			$__ = array(
+			$__ = [
 				"source" => $source,
 				"completions" => implode(" ", $this->completions),
-			);
+			];
 			$conf = trim($this->prompt($locale->__("Create {source}? ({completions})", $__), $completions));
 			if (in_array($conf, $this->completions)) {
 				$__['conf'] = $conf;
@@ -808,9 +808,9 @@ class Engine extends Hookable {
 			}
 			return true;
 		} else {
-			$this->verbose_log("Found files {sources}", array(
+			$this->verbose_log("Found files {sources}", [
 				"sources" => implode(" ", $sources),
-			));
+			]);
 		}
 		$content = "";
 		$map = avalue($flags, "map", false);
@@ -862,9 +862,9 @@ class Engine extends Hookable {
 		}
 		$destination = array_pop($args);
 		if (!file_exists($destination)) {
-			$this->verbose_log("{destination} does not exist, skipping rule", array(
+			$this->verbose_log("{destination} does not exist, skipping rule", [
 				"destination" => $destination,
-			));
+			]);
 			return null;
 		}
 		$content = file_get_contents($destination);
@@ -872,30 +872,30 @@ class Engine extends Hookable {
 		$changed = false;
 		foreach ($args as $arg) {
 			if (!is_file($arg)) {
-				$this->application->logger->warning("{arg} passed to {method} for destination {destination}, but {arg} not found", array(
+				$this->application->logger->warning("{arg} passed to {method} for destination {destination}, but {arg} not found", [
 					"arg" => $arg,
 					"method" => __METHOD__,
 					"destination" => $destination,
-				));
+				]);
 
 				continue;
 			}
 			$source_content = file_get_contents($arg);
 			if (!strpos($content, $source_content)) {
-				$this->verbose_log("Source fragment {arg} ({len} bytes) \"{content}\" NOT found in {destination} ({dlen} bytes), inserting", array(
+				$this->verbose_log("Source fragment {arg} ({len} bytes) \"{content}\" NOT found in {destination} ({dlen} bytes), inserting", [
 					"arg" => $arg,
 					"content" => PHP::dump($source_content),
 					"len" => strlen($source_content),
 					"dlen" => strlen($content),
 					"destination" => $destination,
-				));
+				]);
 				$changed = true;
 				$content .= "\n" . rtrim($source_content) . "\n";
 			} else {
-				$this->verbose_log("Source fragment {arg} found in {destination}, no action", array(
+				$this->verbose_log("Source fragment {arg} found in {destination}, no action", [
 					"arg" => $arg,
 					"destination" => $destination,
-				));
+				]);
 			}
 		}
 		if ($changed) {
@@ -935,15 +935,15 @@ class Engine extends Hookable {
 		if (!$composer_bin) {
 			$composer_bin = $this->application->paths->which("composer.phar");
 			if (!$composer_bin) {
-				$this->error("Composer binary not found in PATH={path}, stopping", array(
+				$this->error("Composer binary not found in PATH={path}, stopping", [
 					"path" => $this->application->paths->command(),
-				));
+				]);
 				return false;
 			}
 		}
-		$__ = array(
+		$__ = [
 			"path" => $path,
-		);
+		];
 		if (!is_dir($path)) {
 			$this->error("Composer must be passed a valid directory: {path}", $__);
 			return false;
@@ -993,7 +993,7 @@ class Engine extends Hookable {
 	 * @param array $args
 	 * @return array
 	 */
-	private function _yarn_generic_args($args = array()) {
+	private function _yarn_generic_args($args = []) {
 		$args[] = "--non-interactive"; // No console here, pal.
 		$args[] = "--json"; // Output JSON structures, one per line
 		$args[] = "--check-files"; //
@@ -1013,7 +1013,7 @@ class Engine extends Hookable {
 	 * @return array
 	 */
 	private function _yarn_check_args() {
-		$args = array();
+		$args = [];
 		$args[] = "check"; // Our command
 		$args = $this->_yarn_generic_args($args);
 		$args[] = "--integrity"; // Check the integrity of the packages
@@ -1027,7 +1027,7 @@ class Engine extends Hookable {
 	 * @return array
 	 */
 	private function _yarn_install_args() {
-		$args = array();
+		$args = [];
 		$args[] = "install"; // Our command
 		$args = $this->_yarn_generic_args($args);
 		return $args;
@@ -1039,7 +1039,7 @@ class Engine extends Hookable {
 	 * @return array
 	 */
 	private function _yarn_collect_errors(array $result) {
-		$errors = array();
+		$errors = [];
 		foreach ($result as $json) {
 			$line = JSON::decode($json);
 			if ($line['type'] === "error") {
@@ -1057,14 +1057,14 @@ class Engine extends Hookable {
 	public function command_yarn($path) {
 		$yarn_bin = $this->application->paths->which("yarn");
 		if (!$yarn_bin) {
-			$this->error("Yarn binary not found in PATH={path}, stopping", array(
+			$this->error("Yarn binary not found in PATH={path}, stopping", [
 				"path" => $this->application->paths->command(),
-			));
+			]);
 			return false;
 		}
-		$__ = array(
+		$__ = [
 			"path" => $path,
-		);
+		];
 		if (!is_dir($path)) {
 			$this->error("Yarn must be passed a valid directory: {path}", $__);
 			return false;
@@ -1111,9 +1111,9 @@ class Engine extends Hookable {
 			$this->verbose_log($result);
 			$errors = $this->_yarn_collect_errors($result);
 			if (count($errors) === 0) {
-				$this->verbose_log("Yarn failed to install in {path}:\n\t{errors}", $__ + array(
+				$this->verbose_log("Yarn failed to install in {path}:\n\t{errors}", $__ + [
 					"errors" => implode("\n\t", $errors),
-				));
+				]);
 				return null;
 			}
 			$this->verbose_log("Yarn install successful in {path}", $__);
@@ -1134,14 +1134,14 @@ class Engine extends Hookable {
 	private function _chdir($path, $restoring = false) {
 		$cwd = getcwd();
 		if (!chdir($path)) {
-			$this->error($restoring ? "Can not change directory back to {path}" : "Can not change directory to {path}", array(
+			$this->error($restoring ? "Can not change directory back to {path}" : "Can not change directory to {path}", [
 				"path" => $path,
-			));
+			]);
 			return null;
 		}
-		$this->verbose_log($restoring ? "Changed directory back to {path}" : "Changed directory back to {path}", array(
+		$this->verbose_log($restoring ? "Changed directory back to {path}" : "Changed directory back to {path}", [
 			"path" => $path,
-		));
+		]);
 		return $cwd;
 	}
 
@@ -1182,22 +1182,22 @@ class Engine extends Hookable {
 			} else {
 				$want_mode = intval($want_mode);
 			}
-		} elseif (is_integer($want_mode)) {
+		} elseif (is_int($want_mode)) {
 			$want_mode = intval($want_mode);
 		}
 		if ($want_mode === 0) {
-			$this->error("{method} invalid \$want_mode with value {original}", array(
+			$this->error("{method} invalid \$want_mode with value {original}", [
 				"method" => __METHOD__,
 				"original" => $original_want_mode,
-			));
+			]);
 			return false;
-		} elseif ($want_mode !== null && !is_integer($want_mode)) {
-			$this->error("{method} invalid \$want_mode {type} with value {original} -> {final}", array(
+		} elseif ($want_mode !== null && !is_int($want_mode)) {
+			$this->error("{method} invalid \$want_mode {type} with value {original} -> {final}", [
 				"method" => __METHOD__,
 				"original" => $original_want_mode,
 				"final" => $want_mode,
 				"type" => type($original_want_mode),
-			));
+			]);
 			return false;
 		}
 		$changed = null;
@@ -1215,7 +1215,7 @@ class Engine extends Hookable {
 		$__['old_group'] = $stats['owner']['group'];
 		if (!empty($want_owner)) {
 			$this->verbose_log("Want owner of {target} to be {want_owner} ...", $__);
-			list($want_user, $want_group) = pair($want_owner, ":", $want_owner, null);
+			[$want_user, $want_group] = pair($want_owner, ":", $want_owner, null);
 			$__['new_user'] = $want_user;
 			$__['new_group'] = $want_group;
 			if (!empty($want_user)) {
@@ -1303,16 +1303,16 @@ class Engine extends Hookable {
 		$this->log("Files differ: < $source_name > $destination_name");
 
 		try {
-			$this->application->process->execute_arguments("diff {0} {1}", array(
+			$this->application->process->execute_arguments("diff {0} {1}", [
 				$source,
 				$destination,
-			), true);
+			], true);
 		} catch (\Exception $e) {
 		}
-		return array(
+		return [
 			$source_name,
 			$destination_name,
-		);
+		];
 	}
 
 	public function files_are_identical($source, $destination) {
@@ -1340,10 +1340,10 @@ class Engine extends Hookable {
 		if ($this->files_are_identical($source, $destination)) {
 			return null;
 		}
-		list($source_name, $destination_name) = $this->_show_differences($source, $destination, null, $destination_name);
-		return $this->prompt_yes_no($locale->__("Update destination {destination}?", array(
+		[$source_name, $destination_name] = $this->_show_differences($source, $destination, null, $destination_name);
+		return $this->prompt_yes_no($locale->__("Update destination {destination}?", [
 			"destination" => $destination_name,
-		)));
+		]));
 	}
 
 	/**
@@ -1358,13 +1358,13 @@ class Engine extends Hookable {
 		if ($this->files_are_identical($source, $destination)) {
 			return "=";
 		}
-		list($source_name, $destination_name) = $this->_show_differences($source, $destination, $source_name, $destination_name);
-		$completions = array(
+		[$source_name, $destination_name] = $this->_show_differences($source, $destination, $source_name, $destination_name);
+		$completions = [
 			"source",
 			"<",
 			"destination",
 			"skip",
-		);
+		];
 		switch (trim($this->prompt("Which is right?\n< source, > destination, or skip? (<,source,>,destination,skip) Default: source", "source", $completions))) {
 			case ">":
 			case "destination":

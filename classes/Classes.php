@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 use Psr\Cache\InvalidArgumentException;
@@ -8,7 +8,7 @@ class Classes {
 	 *
 	 * @var integer
 	 */
-	const VERSION = 5;
+	public const VERSION = 5;
 
 	/**
 	 * Version number of serialized file
@@ -22,24 +22,24 @@ class Classes {
 	 *
 	 * @var array
 	 */
-	protected $class_case = array();
+	protected $class_case = [];
 
 	/**
 	 * Registry of class names
 	 *
 	 * @var array
 	 */
-	protected $classes = array();
+	protected $classes = [];
 
 	/**
 	 * @var array
 	 */
-	protected $subclasses = array();
+	protected $subclasses = [];
 
 	/**
 	 * @var array
 	 */
-	protected $hierarchy = array();
+	protected $hierarchy = [];
 
 	/**
 	 * @var boolean
@@ -60,15 +60,15 @@ class Classes {
 	 * @param Kernel $kernel
 	 * @throws Exception_Semantics
 	 */
-	public function initialize(Kernel $kernel) {
-		$kernel->hooks->add("exit", array(
+	public function initialize(Kernel $kernel): void {
+		$kernel->hooks->add("exit", [
 			$this,
 			"on_exit",
-		), array(
-			"arguments" => array(
+		], [
+			"arguments" => [
 				$kernel,
-			),
-		));
+			],
+		]);
 	}
 
 	/**
@@ -96,7 +96,7 @@ class Classes {
 	 * @param Kernel $kernel
 	 * @throws InvalidArgumentException
 	 */
-	public function on_exit(Kernel $kernel) {
+	public function on_exit(Kernel $kernel): void {
 		if ($this->dirty) {
 			$this->dirty = false;
 			$kernel->cache->saveDeferred($kernel->cache->getItem(__CLASS__)->set($this));
@@ -107,11 +107,11 @@ class Classes {
 	 *
 	 * @param string $class
 	 */
-	private function _add($class) {
+	private function _add($class): void {
 		$this->class_case[strtolower($class)] = $class;
 		$parent_classes = $this->hierarchy($class);
-		$this->classes[$class] = array();
-		$this->subclasses[$class] = array();
+		$this->classes[$class] = [];
+		$this->subclasses[$class] = [];
 		$this->dirty = true;
 		array_shift($parent_classes);
 		foreach ($parent_classes as $parent_class) {
@@ -128,7 +128,7 @@ class Classes {
 	 */
 	public function register($class = null) {
 		if (is_array($class)) {
-			$result = array();
+			$result = [];
 			foreach ($class as $classy) {
 				$result[$classy] = $this->register($classy);
 			}
@@ -142,7 +142,7 @@ class Classes {
 			return null;
 		}
 		$lowclass = strtolower($class);
-		$class = isset($this->class_case[$lowclass]) ? $this->class_case[$lowclass] : $class;
+		$class = $this->class_case[$lowclass] ?? $class;
 		if (!array_key_exists($class, $this->classes)) {
 			$this->_add($class);
 		}
@@ -156,10 +156,10 @@ class Classes {
 	 * @return string[]
 	 */
 	public function subclasses($class) {
-		$classes = array(
+		$classes = [
 			$class,
-		);
-		$result = array();
+		];
+		$result = [];
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
 			if (empty($class)) {
@@ -190,7 +190,7 @@ class Classes {
 		if (is_object($mixed)) {
 			$mixed = get_class($mixed);
 		} elseif (is_array($mixed)) {
-			$result = array();
+			$result = [];
 			foreach ($mixed as $key) {
 				$result[$key] = $this->hierarchy($key, $stop_class);
 			}
@@ -200,9 +200,9 @@ class Classes {
 			$result = $this->hierarchy[$mixed];
 		} else {
 			$parent = get_parent_class($mixed);
-			$result = array(
+			$result = [
 				$mixed,
-			);
+			];
 			if ($parent !== false) {
 				$result = array_merge($result, $this->hierarchy($parent));
 			}
@@ -212,7 +212,7 @@ class Classes {
 		if ($stop_class === null) {
 			return $result;
 		}
-		$stop_result = array();
+		$stop_result = [];
 		foreach ($result as $class) {
 			$stop_result[] = $class;
 			if ($class === $stop_class) {

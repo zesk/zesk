@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 $this->response->title(__("Forgotten password email sent"));

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -36,7 +36,7 @@ class Process_Mock extends Hookable implements Interface_Process {
 	 * @param Application $application
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = array()) {
+	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		$this->timer = new Timer();
 		$this->quit_after = $this->option_integer("quit_after", 60); // 60 seconds should be good, right?
@@ -67,7 +67,7 @@ class Process_Mock extends Hookable implements Interface_Process {
 		if ($this->timer->elapsed() > $this->quit_after) {
 			return true;
 		}
-		return $this->call_hook_arguments('done', array(), $this->done);
+		return $this->call_hook_arguments('done', [], $this->done);
 	}
 
 	/**
@@ -76,7 +76,7 @@ class Process_Mock extends Hookable implements Interface_Process {
 	 *
 	 * @param string $interrupt
 	 */
-	public function kill() {
+	public function kill(): void {
 		$this->done = true;
 	}
 
@@ -84,7 +84,7 @@ class Process_Mock extends Hookable implements Interface_Process {
 	 * Terminate this process.
 	 * Nice way to do it.
 	 */
-	public function terminate() {
+	public function terminate(): void {
 		$this->done = true;
 	}
 
@@ -92,7 +92,7 @@ class Process_Mock extends Hookable implements Interface_Process {
 	 * Take a nap.
 	 * I love naps.
 	 */
-	public function sleep($seconds = 1.0) {
+	public function sleep($seconds = 1.0): void {
 		usleep($seconds * 1000000);
 	}
 
@@ -103,7 +103,7 @@ class Process_Mock extends Hookable implements Interface_Process {
 	 * @param array $args
 	 * @param string $level
 	 */
-	public function log($message, array $args = array()) {
+	public function log($message, array $args = []): void {
 		$this->application->logger->log(avalue($args, 'severity', 'info'), $message, $args);
 	}
 }

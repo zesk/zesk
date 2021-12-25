@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @version $Id: Preference.php 4555 2017-04-06 18:32:10Z kent $
@@ -16,7 +16,7 @@ namespace zesk;
  * @author kent
  */
 class Preference extends ORM {
-	const type_class = "zesk\\Preference_Type";
+	public const type_class = "zesk\\Preference_Type";
 
 	/**
 	 * Store - check requirements
@@ -49,9 +49,9 @@ class Preference extends ORM {
 	public static function user_has_one(User $user, $name) {
 		return $user->application->orm_registry(__CLASS__)
 			->query_select()
-			->join('zesk\\Preference_Type', array(
+			->join('zesk\\Preference_Type', [
 			'alias' => 'T',
-		))
+		])
 			->where('T.code', $name)
 			->where('X.user', $user)
 			->what('value', 'COUNT(X.value)')
@@ -70,27 +70,27 @@ class Preference extends ORM {
 		$query = $user->application->orm_registry(__CLASS__)
 			->query_select()
 			->link(self::type_class, "type")
-			->where(array(
+			->where([
 			'X.user' => $user,
 			'type.code' => $name,
-		));
+		]);
 		return $query;
 	}
 
 	public static function user_get(User $user, $pref_name, $default = null) {
 		if (empty($pref_name)) {
-			throw new Exception_Parameter("{method}({user}, {name}, ...) Name is empty", array(
+			throw new Exception_Parameter("{method}({user}, {name}, ...) Name is empty", [
 				"method" => __METHOD__,
 				"user" => $user->id(),
 				"name" => $pref_name,
-			));
+			]);
 		}
 		$pref_name = strtolower($pref_name);
 		$row = $user->application->orm_registry(__CLASS__)
 			->query_select()
-			->link(self::type_class, array(
+			->link(self::type_class, [
 			"alias" => "T",
-		))
+		])
 			->what("value", "X.value")
 			->what("id", "X.id")
 			->where('T.code', $pref_name)
@@ -104,13 +104,13 @@ class Preference extends ORM {
 		if ($vlen >= 4 && $value[1] === ':' && $value[$vlen - 1] === ';') {
 			return PHP::unserialize($value);
 		} else {
-			$user->application->logger->warning("Invalid preference string for {user}: {key}={value} ({vlen} chars) - deleting ({debug})", array(
+			$user->application->logger->warning("Invalid preference string for {user}: {key}={value} ({vlen} chars) - deleting ({debug})", [
 				"user" => $user,
 				"key" => $pref_name,
 				"value" => $value,
 				"debug" => PHP::dump($row),
 				"vlen" => $vlen,
-			));
+			]);
 			$user->application->orm_registry(Preference::class)
 				->query_delete()
 				->where("id", $row['id'])
@@ -122,9 +122,9 @@ class Preference extends ORM {
 	public static function user_get_single(User $user, $name, $default) {
 		$result = $user->application->orm_registry(__CLASS__)
 			->query_select()
-			->join(self::type_class, array(
+			->join(self::type_class, [
 			'alias' => 'T',
-		))
+		])
 			->where('T.code', $name)
 			->where('X.user', $user)
 			->what('value', 'X.value')
@@ -137,11 +137,11 @@ class Preference extends ORM {
 
 	public static function user_set(User $user, $name, $value = null) {
 		if (empty($name)) {
-			throw new Exception_Parameter("{method}({user}, {name}, ...) Name is empty", array(
+			throw new Exception_Parameter("{method}({user}, {name}, ...) Name is empty", [
 				"method" => __METHOD__,
 				"user" => $user->id(),
 				"name" => $name,
-			));
+			]);
 		}
 		$app = $user->application;
 		if (is_array($name)) {
@@ -182,10 +182,10 @@ class Preference extends ORM {
 				->execute();
 			return $result['id'];
 		}
-		return $app->orm_factory(__CLASS__, array(
+		return $app->orm_factory(__CLASS__, [
 			'type' => $type,
 			'value' => $value,
 			"user" => $user,
-		))->store();
+		])->store();
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -19,7 +19,7 @@ abstract class Class_ORM extends \zesk\Class_ORM {
 	 *
 	 * Only thing set is "$this->class"
 	 */
-	protected function configure(\zesk\ORM $object) {
+	protected function configure(\zesk\ORM $object): void {
 		$this->set_option('table_prefix', 'WebApp_');
 		parent::configure($object);
 	}

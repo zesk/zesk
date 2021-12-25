@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 use \SplFileInfo;
@@ -11,30 +11,30 @@ use \SplFileInfo;
  *
  */
 class Command_CONF2JSON extends Command_Iterator_File {
-	protected $extensions = array(
+	protected $extensions = [
 		"conf",
-	);
+	];
 
-	public function initialize() {
-		$this->option_types += array(
+	public function initialize(): void {
+		$this->option_types += [
 			"dry-run" => "boolean",
 			"noclobber" => "boolean",
-		);
-		$this->option_help += array(
+		];
+		$this->option_help += [
 			"dry-run" => "Don't modify the file system",
 			"noclobber" => "Do not overwrite existing files",
-		);
+		];
 		parent::initialize();
 	}
 
-	protected function start() {
+	protected function start(): void {
 	}
 
-	protected function process_file(SplFileInfo $file) {
+	protected function process_file(SplFileInfo $file): void {
 		$source_name = $file->getPathname();
 		$target_name = File::extension_change($source_name, "json");
 
-		$result = array();
+		$result = [];
 		$adapter = new Adapter_Settings_Array($result);
 		Configuration_Parser::factory("conf", file_get_contents($source_name), $adapter)->process();
 
@@ -48,12 +48,12 @@ class Command_CONF2JSON extends Command_Iterator_File {
 			} else {
 				$message = "Would write {target_name} with {n} {entries}";
 			}
-			$this->log($message, array(
+			$this->log($message, [
 				"source_name" => $source_name,
 				"target_name" => $target_name,
 				"n" => $n,
 				"entries" => $this->application->locale->plural("entry", $n),
-			));
+			]);
 			return;
 		}
 		if (count($result) > 0) {
@@ -61,6 +61,6 @@ class Command_CONF2JSON extends Command_Iterator_File {
 		}
 	}
 
-	protected function finish() {
+	protected function finish(): void {
 	}
 }

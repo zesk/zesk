@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_Settings extends Control {
@@ -29,7 +29,7 @@ class Control_Settings extends Control {
 		return $this->application->model_factory(Model_Settings::class);
 	}
 
-	protected function initialize() {
+	protected function initialize(): void {
 		$locale = $this->locale();
 		if (!$this->submit_url() && $this->request) {
 			$this->submit_url($this->request->uri());
@@ -44,7 +44,7 @@ class Control_Settings extends Control {
 		parent::initialize();
 	}
 
-	protected function hook_initialized() {
+	protected function hook_initialized(): void {
 		foreach ($this->all_children() as $child) {
 			if ($child->option_bool("settings_ignore")) {
 				$this->object->ignore_variable($child->name());
@@ -60,9 +60,9 @@ class Control_Settings extends Control {
 	 * @see Widget::theme_variables()
 	 */
 	public function theme_variables() {
-		return array(
+		return [
 			'column_count_label' => $this->column_count_label,
 			'column_count_widget' => $this->column_count_widget,
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 }

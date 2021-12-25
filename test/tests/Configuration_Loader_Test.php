@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/test/classes/conf.inc $
  * @package zesk
@@ -14,7 +14,7 @@ namespace zesk;
  *
  */
 class Configuration_Loader_Test extends Test_Unit {
-	public function test_implements() {
+	public function test_implements(): void {
 		$config = new Configuration();
 		$settings = new Adapter_Settings_Configuration($config);
 		$this->assert_instanceof($settings, __NAMESPACE__ . "\\" . "Adapter_Settings_Configuration");
@@ -22,37 +22,37 @@ class Configuration_Loader_Test extends Test_Unit {
 		$this->assert_implements($settings, __NAMESPACE__ . "\\" . "Interface_Settings");
 	}
 
-	public function test_new() {
+	public function test_new(): void {
 		$path = $this->test_sandbox();
 		Directory::depend($one = path($path, "one"));
 		Directory::depend($two = path($path, "two"));
 		Directory::depend($three = path($path, "three"));
 
-		$array = array(
+		$array = [
 			"name" => "ralph",
 			"rank" => "admiral",
 			"weight" => 140,
 			"eye_color" => "brown",
-		);
+		];
 		$config = new Configuration($array);
 		$settings = new Adapter_Settings_Configuration($config);
 		$conf_name = "a.conf";
 		$json_name = "b.json";
 		// Four files
 
-		$one_json = array(
-			"Person" => array(
+		$one_json = [
+			"Person" => [
 				"name" => "\${name}-one-json",
 				"rank" => "\${rank}-one-json",
 				"weight" => "\${weight}-one-json",
 				"eye_color" => "\${eye_color}-one-json",
-			),
+			],
 			"LAST" => "one-json",
-			"FILE_LOADED" => array(
+			"FILE_LOADED" => [
 				"ONE_JSON" => 1,
-			),
-		);
-		$two_conf = array(
+			],
+		];
+		$two_conf = [
 			"# Comment",
 			"",
 			"Person::name=\$name-two-conf",
@@ -61,41 +61,41 @@ class Configuration_Loader_Test extends Test_Unit {
 			"LAST=two-conf",
 			"FILE_LOADED__TWO_CONF=1",
 			"zesk___User__class=User",
-		);
-		$three_json = array(
+		];
+		$three_json = [
 			"Person::name" => "\${name}-three-json",
 			"Person::rank" => "\${rank}-three-json",
 			"LAST" => "three-json",
-			"FILE_LOADED" => array(
+			"FILE_LOADED" => [
 				"THREE_JSON" => 1,
-			),
-		);
-		$three_conf = array(
+			],
+		];
+		$three_conf = [
 			"# Comment",
 			"",
 			"Person::name=\$name-three-conf",
 			"Person::weight=\"\$weight-three-conf\"",
 			"LAST=three-conf",
 			"FILE_LOADED::THREE_CONF=1",
-		);
+		];
 
 		file_put_contents(path($one, $json_name), JSON::encode_pretty($one_json));
 		file_put_contents(path($two, $conf_name), implode("\n", $two_conf));
 		file_put_contents(path($three, $json_name), JSON::encode_pretty($three_json));
 		file_put_contents(path($three, $conf_name), implode("\n", $three_conf));
 
-		$files = array();
-		foreach (array(
+		$files = [];
+		foreach ([
 			$one,
 			path($path, "nope"),
 			$two,
 			path($path, "double_nope"),
 			$three,
-		) as $dir) {
-			foreach (array(
+		] as $dir) {
+			foreach ([
 				"a.conf",
 				"b.json",
-			) as $f) {
+			] as $f) {
 				$files[] = path($dir, $f);
 			}
 		}
@@ -104,40 +104,40 @@ class Configuration_Loader_Test extends Test_Unit {
 		$loader->load();
 
 		$variables = $loader->variables();
-		$this->assert_equal($variables['processed'], array(
+		$this->assert_equal($variables['processed'], [
 			"$path/one/$json_name",
 			"$path/two/$conf_name",
 			"$path/three/$conf_name",
 			"$path/three/$json_name",
-		));
+		]);
 
-		$this->assert_arrays_equal(to_array($config), array(
+		$this->assert_arrays_equal(to_array($config), [
 			"name" => "ralph",
 			"rank" => "admiral",
 			"weight" => 140,
 			"eye_color" => "brown",
-			"person" => array(
+			"person" => [
 				"name" => "ralph-three-json",
 				"rank" => "admiral-three-json",
 				"weight" => "140-three-conf",
 				"eye_color" => "brown-two-conf",
 				"hair_color" => "red-two-conf",
-			),
+			],
 			"last" => "three-json",
-			"file_loaded" => array(
+			"file_loaded" => [
 				"one_json" => 1,
 				"two_conf" => 1,
 				"three_conf" => 1,
 				"three_json" => 1,
-			),
-			"zesk\\user" => array(
+			],
+			"zesk\\user" => [
 				"class" => "User",
-			),
-		));
+			],
+		]);
 	}
 
-	public function test_load_globals_lines1() {
-		$lines = array(
+	public function test_load_globals_lines1(): void {
+		$lines = [
 			"FOO=/foo/foo",
 			"BAR=/bar/bar",
 			"B_R=red",
@@ -158,9 +158,9 @@ class Configuration_Loader_Test extends Test_Unit {
 			'FOOTEST11="$B_Rthing"',
 			'FOOTEST12=true',
 			'FOOTEST13=false',
-		);
+		];
 
-		$results = array(
+		$results = [
 			'FOO' => '/foo/foo',
 			'BAR' => '/bar/bar',
 			'B_R' => 'red',
@@ -180,12 +180,12 @@ class Configuration_Loader_Test extends Test_Unit {
 			'FOOTEST11' => '',
 			'FOOTEST12' => true,
 			'FOOTEST13' => false,
-		);
-		$options = array(
+		];
+		$options = [
 			'overwrite' => false,
 			'lower' => false,
-		);
-		$actual = array();
+		];
+		$actual = [];
 		$settings = new Adapter_Settings_Array($actual);
 		$parser = new Configuration_Parser_CONF(implode("\n", $lines), $settings, $options);
 		$parser->process();
@@ -199,32 +199,32 @@ class Configuration_Loader_Test extends Test_Unit {
 
 	public function provider_test_no_dependencies() {
 		$dir = dirname(__DIR__) . '/test-data/';
-		return array(
-			array(
-				array(
+		return [
+			[
+				[
 					$dir . 'Configuration_Loader_Test_dependencies0.conf',
-				),
-			),
-			array(
-				array(
+				],
+			],
+			[
+				[
 					$dir . 'Configuration_Loader_Test_dependencies0.conf',
 					$dir . 'Configuration_Loader_Test_dependencies1.conf',
-				),
-			),
-		);
+				],
+			],
+		];
 	}
 
 	/**
 	 * @dataProvider provider_test_no_dependencies
 	 * @param unknown $files
 	 */
-	public function test_no_dependencies(array $files) {
+	public function test_no_dependencies(array $files): void {
 		$dir = dirname(__DIR__) . '/test-data/';
-		$result = array();
+		$result = [];
 		$settings = new Adapter_Settings_Array($result);
 		$loader = new Configuration_Loader($files, $settings);
 		$loader->load();
-		$this->assertEquals(array(), $loader->externals());
+		$this->assertEquals([], $loader->externals());
 	}
 
 	// 	function test_edit() {

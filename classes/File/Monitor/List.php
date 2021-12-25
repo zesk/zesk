@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -7,7 +7,7 @@ namespace zesk;
  *
  */
 class File_Monitor_List extends File_Monitor {
-	protected $files = array();
+	protected $files = [];
 
 	/**
 	 *

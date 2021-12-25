@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage exception
@@ -24,13 +24,13 @@ class Exception_Redirect extends Exception {
 	 *
 	 * @var string
 	 */
-	const RESPONSE_STATUS_CODE = "status_code";
+	public const RESPONSE_STATUS_CODE = "status_code";
 
 	/**
 	 * Pass as an argument to set the `zesk\Response::status_message()`
 	 * @var string
 	 */
-	const RESPONSE_STATUS_MESSAGE = "status_message";
+	public const RESPONSE_STATUS_MESSAGE = "status_message";
 
 	/**
 	 * Create a redirect
@@ -38,7 +38,7 @@ class Exception_Redirect extends Exception {
 	 * @param string $url
 	 * @param string $message
 	 */
-	public function __construct($url, $message = null, array $arguments = array()) {
+	public function __construct($url, $message = null, array $arguments = []) {
 		$this->url = $url;
 		parent::__construct($message, $arguments);
 	}

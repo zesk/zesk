@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Place functions needed to maintain compatibility with previous versions of PHP
  *
@@ -14,19 +14,19 @@
 namespace zesk;
 
 class Compatibility {
-	const PHP_VERSION_MINIMUM = 50500;
+	public const PHP_VERSION_MINIMUM = 50500;
 
 	/**
 	 * @throws Exception
 	 */
-	public static function install() {
+	public static function install(): void {
 		$v = self::PHP_VERSION_MINIMUM;
 		if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < $v) {
-			throw new Exception("Zesk requires PHP version {maj}.{min}.{patch} or greater", array(
+			throw new Exception("Zesk requires PHP version {maj}.{min}.{patch} or greater", [
 				"maj" => intval($v / 10000),
 				"min" => intval(($v / 100) % 100),
 				"patch" => intval($v % 100),
-			));
+			]);
 		}
 	}
 }

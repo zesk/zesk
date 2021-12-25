@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2017 Market Acumen, Inc.
  */
@@ -49,8 +49,8 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
 	 *   key is not found. However, if no keys are specified then an empty
 	 *   traversable MUST be returned instead.
 	 */
-	public function getItems(array $keys = array()) {
-		$result = array();
+	public function getItems(array $keys = []) {
+		$result = [];
 		foreach ($keys as $index => $key) {
 			$result[$index] = $this->getItem($key);
 		}

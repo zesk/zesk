@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -16,10 +16,10 @@ $value = $this->value;
 $filecolumn = $widget->option("filecolumn", $col . "_FileName");
 
 $actual_name = $value;
-echo HTML::div(array(
+echo HTML::div([
 	"id" => $name . "_widget",
 	"class" => CSS::add_class("control-file-filename", empty($actual_name) ? "empty" : ""),
-), empty($actual_name) ? "" : HTML::tag("span", "class=\"filename\"", $actual_name));
+], empty($actual_name) ? "" : HTML::tag("span", "class=\"filename\"", $actual_name));
 
 $attrs = $widget->options_include(HTML::input_attribute_names());
 $attrs["name"] = $name . "_file";
@@ -30,7 +30,7 @@ if ($this->class) {
 }
 echo HTML::tag("input", $widget->attributes($attrs, "input"), null);
 
-$attrs = array();
+$attrs = [];
 $attrs["type"] = "hidden";
 $attrs["id"] = $filecolumn;
 $attrs["name"] = $filecolumn;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * DocComment parsing tools
  *
@@ -27,7 +27,7 @@ class DocComment extends Options {
 	 *
 	 * @var string
 	 */
-	const OPTION_MULTI_KEYS = "multi_keys"; // List of keys which
+	public const OPTION_MULTI_KEYS = "multi_keys"; // List of keys which
 
 	/**
 	 * For patterns which are keyed by the second token in the DocComment
@@ -44,7 +44,7 @@ class DocComment extends Options {
 	 *
 	 * @var string
 	 */
-	const OPTION_PARAM_KEYS = "param_keys";
+	public const OPTION_PARAM_KEYS = "param_keys";
 
 	/**
 	 * For patterns which are lists of items and
@@ -60,7 +60,7 @@ class DocComment extends Options {
 	 *
 	 * @var string
 	 */
-	const OPTION_LIST_KEYS = "list_keys";
+	public const OPTION_LIST_KEYS = "list_keys";
 
 	/**
 	 * For output, move @desc tags to the top of the DocComment and place a space between it and other content.
@@ -81,7 +81,7 @@ class DocComment extends Options {
 	 *
 	 * @var string
 	 */
-	const OPTION_DESC_NO_TAG = "desc_no_tag";
+	public const OPTION_DESC_NO_TAG = "desc_no_tag";
 
 	/**
 	 *
@@ -93,7 +93,7 @@ class DocComment extends Options {
 	 *
 	 * @var array
 	 */
-	private $variables = array();
+	private $variables = [];
 
 	/**
 	 * Retrieve all DocComment blocks in content as strings. Resulting strings are ready to be consumed.
@@ -101,16 +101,16 @@ class DocComment extends Options {
 	 * @param string $content
 	 * @return DocComment[]
 	 */
-	public static function extract($content, array $options = array()) {
+	public static function extract($content, array $options = []) {
 		$matches = null;
 		if (!preg_match_all('#[\t ]*/\*\*[^*]*\*+([^/*][^*]*\*+)*/#s', $content, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE)) {
-			return array();
+			return [];
 		}
-		$result = array();
+		$result = [];
 		foreach ($matches[0] as $index => $match) {
 			$options['index'] = $index;
 			$options['length'] = strlen($content);
-			list($content, $options['offset']) = $match;
+			[$content, $options['offset']] = $match;
 			$result[] = DocComment::instance($content, $options);
 		}
 		return $result;
@@ -122,7 +122,7 @@ class DocComment extends Options {
 	 * @param array $options
 	 * @return \zesk\DocComment
 	 */
-	public static function instance($content, array $options = array()) {
+	public static function instance($content, array $options = []) {
 		return new self($content, $options);
 	}
 
@@ -131,7 +131,7 @@ class DocComment extends Options {
 	 *
 	 * @param string|array $content
 	 */
-	public function __construct($content, array $options = array()) {
+	public function __construct($content, array $options = []) {
 		parent::__construct($options);
 		if (is_array($content)) {
 			$this->variables($content);
@@ -175,9 +175,9 @@ class DocComment extends Options {
 
 	private function unparse_multi_key($value, $key) {
 		if (!is_array($value)) {
-			return array(
+			return [
 				"@$key $value",
-			);
+			];
 		}
 		foreach ($value as $name => $value) {
 			$result[] = "@$key $name $value";
@@ -206,7 +206,7 @@ class DocComment extends Options {
 	}
 
 	private function parse_param_key($value, $key) {
-		$lines = ArrayTools::clean(to_list($value, array(), "\n"));
+		$lines = ArrayTools::clean(to_list($value, [], "\n"));
 		$keys = ArrayTools::field($lines, 1, " \t");
 		$values = ArrayTools::field($lines, null, " \t", 3);
 		return ArrayTools::rekey($keys, $values);
@@ -219,7 +219,7 @@ class DocComment extends Options {
 	 * @return string
 	 */
 	private function unparse_param_key(array $value, $key) {
-		$result = array();
+		$result = [];
 		foreach ($value as $variable_name => $type_name_etc) {
 			$result[] = "@$key " . implode(" ", $type_name_etc);
 		}
@@ -282,7 +282,7 @@ class DocComment extends Options {
 	private function parse($string) {
 		$string = self::clean($string);
 		$lines = explode("\n", $string);
-		$result = array();
+		$result = [];
 		$current_tag = "desc";
 		foreach ($lines as $line) {
 			$matches = null;
@@ -290,14 +290,14 @@ class DocComment extends Options {
 				$current_tag = $matches[1];
 				$line = substr($line, strlen($matches[0]));
 			}
-			$old_value = isset($result[$current_tag]) ? $result[$current_tag] : "";
+			$old_value = $result[$current_tag] ?? "";
 			if ($old_value) {
 				$old_value .= "\n ";
 			}
 			$result[$current_tag] = rtrim($old_value, " ") . trim($line);
 		}
 		// Convert values to a keyed array based on first token in the string
-		$handled = array();
+		$handled = [];
 		foreach ($this->multi_keys() as $key) {
 			if (isset($result[$key]) && !isset($handled[$key])) {
 				$handled[$key] = true;
@@ -346,9 +346,9 @@ class DocComment extends Options {
 		$param_keys = ArrayTools::flip_assign($this->param_keys(), true);
 		$list_keys = ArrayTools::flip_assign($this->list_keys(), true);
 
-		$result = array();
+		$result = [];
 		if ($this->option_bool(self::OPTION_DESC_NO_TAG) && isset($items['desc'])) {
-			$value = to_list(trim($items['desc']), array(), "\n");
+			$value = to_list(trim($items['desc']), [], "\n");
 			$value = trim(implode("\n", ArrayTools::trim($value))) . "\n";
 			$result[] = $value;
 			unset($items['desc']);

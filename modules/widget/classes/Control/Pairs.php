@@ -1,13 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
 namespace zesk;
 
 class Control_Pairs extends Control {
-	protected $options = array(
-		"default" => array(),
-	);
+	protected $options = [
+		"default" => [],
+	];
 
 	public function validate() {
 		return true;
@@ -17,7 +17,7 @@ class Control_Pairs extends Control {
 		$col = $this->column();
 		$names = $this->request->geta($col);
 		$values = $this->request->geta($col . "_value");
-		$result = array();
+		$result = [];
 		foreach ($names as $k => $name) {
 			$value = avalue($values, $k);
 			if (!empty($name) || !empty($value)) {
@@ -27,7 +27,7 @@ class Control_Pairs extends Control {
 		return $result;
 	}
 
-	public function load() {
+	public function load(): void {
 		$result = $this->_from_request();
 		$this->value($result);
 	}

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Define an interface to name/value pairs
  */

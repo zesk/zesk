@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2017 Market Acumen, Inc.
  */
@@ -23,7 +23,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *
 	 * @var CacheItem[]
 	 */
-	private $deferred = array();
+	private $deferred = [];
 
 	/**
 	 *
@@ -73,10 +73,10 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 */
 	public function getItem($key) {
 		if (!is_string($key)) {
-			throw new Exception_Parameter("{method} passed {type}, needs string", array(
+			throw new Exception_Parameter("{method} passed {type}, needs string", [
 				"method" => __METHOD__,
 				"type" => type($key),
-			));
+			]);
 		}
 		$cache_file = $this->cache_file($key);
 		// Previously did "is_file", then "file_get_contents", but a race condition would create warnings in our logs when files were deleted
@@ -110,8 +110,8 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *   key is not found. However, if no keys are specified then an empty
 	 *   traversable MUST be returned instead.
 	 */
-	public function getItems(array $keys = array()) {
-		$result = array();
+	public function getItems(array $keys = []) {
+		$result = [];
 		foreach ($keys as $index => $key) {
 			$result[$index] = $this->getItem($key);
 		}
@@ -202,7 +202,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	public function save(CacheItemInterface $item) {
 		$key = $item->getKey();
 		$file = $this->cache_file($key);
-		Directory::depend(dirname($file), 0770);
+		Directory::depend(dirname($file), 0o770);
 		File::put($file, serialize($item));
 		return false;
 	}
@@ -231,7 +231,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 		foreach ($this->deferred as $item) {
 			$this->save($item);
 		}
-		$this->deferred = array();
+		$this->deferred = [];
 	}
 
 	/**

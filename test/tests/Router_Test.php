@@ -1,11 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @test_sandbox true
  */
 namespace zesk;
 
 class Router_Test extends Test_Unit {
-	public function test_Router() {
+	public function test_Router(): void {
 		$testx = new Router($this->application);
 
 		$hash = md5(microtime());
@@ -17,21 +17,21 @@ class Router_Test extends Test_Unit {
 		$url_pattern = "foo";
 		$defaults = null;
 		$match_options = null;
-		$testx->add_route($url_pattern, array(
+		$testx->add_route($url_pattern, [
 			"theme" => 'Router-Test',
-		));
+		]);
 
-		$request = new Request($this->application, array(
+		$request = new Request($this->application, [
 			"url" => "http://test/",
-		));
+		]);
 		$this->assert($testx->match($request) === null);
 
 		$app = $this->application;
 
 		$app->router = $testx;
-		$request = new Request($this->application, array(
+		$request = new Request($this->application, [
 			"url" => 'http://www.example.com/foo',
-		));
+		]);
 		$response = $app->main($request);
 
 		// Avoids doing header() in test code
@@ -43,7 +43,7 @@ class Router_Test extends Test_Unit {
 		$testx->__sleep();
 	}
 
-	public function test_cached() {
+	public function test_cached(): void {
 		$mtime = null;
 		$router = new Router($this->application);
 		$result = $router->cached($mtime);

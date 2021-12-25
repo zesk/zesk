@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -16,25 +16,25 @@ class Module_Critical extends Module {
 	 *
 	 * @var string
 	 */
-	const setting_critical_alerts = "critical_alerts";
+	public const setting_critical_alerts = "critical_alerts";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const setting_email = "email";
+	public const setting_email = "email";
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const lock_timeout = 10;
+	public const lock_timeout = 10;
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $emails = array();
+	protected $emails = [];
 
 	/**
 	 *
@@ -42,9 +42,9 @@ class Module_Critical extends Module {
 	 *
 	 * @see Module::initialize()
 	 */
-	public function initialize() {
-		$emails = $this->option_list(self::setting_email, array(), ",");
-		$bad_emails = array();
+	public function initialize(): void {
+		$emails = $this->option_list(self::setting_email, [], ",");
+		$bad_emails = [];
 		foreach ($emails as $email) {
 			$email = trim($email);
 			if (is_email($email)) {
@@ -65,7 +65,7 @@ class Module_Critical extends Module {
 	/**
 	 * Run every minute to check if alerts should be sent
 	 */
-	public function hook_cron_cluster() {
+	public function hook_cron_cluster(): void {
 		$this->send_critical_alerts();
 	}
 
@@ -76,7 +76,7 @@ class Module_Critical extends Module {
 	 */
 	private function _fetch_alerts() {
 		$settings = Settings::singleton($this->application);
-		return to_array($settings->get(self::setting_critical_alerts, array()));
+		return to_array($settings->get(self::setting_critical_alerts, []));
 	}
 
 	/**
@@ -84,7 +84,7 @@ class Module_Critical extends Module {
 	 *
 	 * @param array $alerts
 	 */
-	private function _store_alerts(array $alerts) {
+	private function _store_alerts(array $alerts): void {
 		$settings = Settings::singleton($this->application);
 		$settings->set(self::setting_critical_alerts, $alerts)->flush();
 	}
@@ -98,15 +98,15 @@ class Module_Critical extends Module {
 	 */
 	public function alert($sms_message, $frequency = 3600) {
 		if (!is_numeric($frequency)) {
-			throw new Exception_Parameter("Parameter 2 to {method} should be integer value {value} is of type {type}", array(
+			throw new Exception_Parameter("Parameter 2 to {method} should be integer value {value} is of type {type}", [
 				"method" => __METHOD__,
 				"value" => to_text($frequency),
 				"type" => type($frequency),
-			));
+			]);
 		}
-		$map = array(
+		$map = [
 			"when" => date('Y-m-d H:i:s'),
-		);
+		];
 
 		try {
 			$map["server"] = Server::singleton($this->application)->name;
@@ -114,16 +114,16 @@ class Module_Critical extends Module {
 		}
 		$lock = Lock::instance($this->application, __METHOD__);
 		if ($lock->acquire(self::lock_timeout) === null) {
-			$this->application->logger->error("Unable to lock {method}: Message not sent {sms_message}", array(
+			$this->application->logger->error("Unable to lock {method}: Message not sent {sms_message}", [
 				"sms_message" => $sms_message,
 				"method" => __METHOD__,
-			));
+			]);
 			return null;
 		}
 		$alerts = $this->_fetch_alerts();
 
 		$alert_id = md5($sms_message);
-		$alert = avalue($alerts, $alert_id, array());
+		$alert = avalue($alerts, $alert_id, []);
 		$alert['frequency'] = min(avalue($alert, 'frequency', $frequency), $frequency);
 		$alert['first'] = avalue($alert, 'first', time());
 		$alert['count'] = $map['count'] = avalue($alert, 'count', 0) + 1;
@@ -151,32 +151,32 @@ class Module_Critical extends Module {
 
 		$lock = Lock::instance($this->application, __METHOD__);
 		if ($lock->acquire(self::lock_timeout) === null) {
-			$logger->error("Unable to lock {method}: can not send alerts", array(
+			$logger->error("Unable to lock {method}: can not send alerts", [
 				"method" => __METHOD__,
-			));
+			]);
 			return null;
 		}
 		$alerts = $this->_fetch_alerts();
-		$sends = array();
+		$sends = [];
 		$now = time();
 		foreach ($alerts as $alert_id => $alert) {
 			$first = $frequency = $count = $message = null;
 			extract($alert, EXTR_IF_EXISTS);
 			if (!is_numeric($first) || !is_numeric($frequency)) {
-				$logger->error("Alert is improperly formatted:\nPHP: {raw}\nJSON: {json}", array(
+				$logger->error("Alert is improperly formatted:\nPHP: {raw}\nJSON: {json}", [
 					"raw" => serialize($alert),
 					"json" => json_encode($alert),
-				));
+				]);
 				unset($alerts[$alert_id]);
 
 				continue;
 			}
 			if ($now > $first + $frequency) {
 				$sends[] = $message . ($count > 1 ? " (${count}x)" : "");
-				$logger->error("Sending critical alert {message} {alert}", array(
+				$logger->error("Sending critical alert {message} {alert}", [
 					"message" => $message,
 					"alert" => $alert,
-				));
+				]);
 				unset($alerts[$alert_id]);
 			} else {
 				$unit = "second";
@@ -189,20 +189,20 @@ class Module_Critical extends Module {
 						$remain = round($remain / 60);
 					}
 				}
-				$logger->notice("Will send alert {message} in {remain} {units}", array(
+				$logger->notice("Will send alert {message} in {remain} {units}", [
 					"message" => $message,
 					"remain" => $remain,
 					"units" => $this->application->locale->plural($unit, $remain),
-				));
+				]);
 			}
 		}
 		if (count($sends) > 0) {
 			$this->_store_alerts($alerts);
-			$emails = $this->option_list('email', array(), ",");
+			$emails = $this->option_list('email', [], ",");
 			foreach ($emails as $email) {
-				Mail::sendmail($this->application, $email, $this->option("from"), $this->option("subject"), implode("\n", $sends), false, false, false, array(
+				Mail::sendmail($this->application, $email, $this->option("from"), $this->option("subject"), implode("\n", $sends), false, false, false, [
 					'no_force_to' => true,
-				));
+				]);
 			}
 		}
 		$lock->release();

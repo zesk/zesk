@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -13,13 +13,13 @@ class Command_Markdown extends Command_File_Convert {
 
 	protected $configuration_file = "markdown";
 
-	public function initialize() {
-		$this->option_types += array(
+	public function initialize(): void {
+		$this->option_types += [
 			'cd' => 'dir',
-		);
-		$this->option_help += array(
+		];
+		$this->option_help += [
 			'cd' => 'Change to directory before running',
-		);
+		];
 		parent::initialize();
 	}
 

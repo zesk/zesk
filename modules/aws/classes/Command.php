@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -26,7 +26,7 @@ abstract class Command extends \zesk\Command_Base {
 	 *
 	 * @see \zesk\Command_Base::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->awareness = $this->application->factory(Awareness::class, $this->application);
 	}

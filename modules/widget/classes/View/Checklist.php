@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -46,11 +46,11 @@ class View_Checklist extends View {
 					$v = explode($sep, $v);
 				}
 			} else {
-				$v = array();
+				$v = [];
 			}
 		}
 
-		$r = array();
+		$r = [];
 		foreach ($oopt as $k => $text) {
 			if (in_array($k, $v)) {
 				$r[] = $text;

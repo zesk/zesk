@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -31,7 +31,7 @@ class Server_Packager_YUM extends Server_Packager {
 		return $this->exec('yum update');
 	}
 
-	public function packages() {
+	public function packages(): void {
 		throw new Exception_Unimplemented("No longer have access to yum system");
 	}
 

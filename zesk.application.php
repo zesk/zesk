@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage core
@@ -24,15 +24,15 @@ class ApplicationConfigurator {
 
 		$application = $zesk->create_application();
 
-		$application->configure_include(array(
+		$application->configure_include([
 			"/etc/zesk.json",
 			$application->path("/etc/zesk.json"),
 			$application->path("etc/host/" . System::uname() . ".json"),
 			$application->paths->uid("zesk.json"),
-		));
-		$modules = array(
+		]);
+		$modules = [
 			"GitHub",
-		);
+		];
 		if (defined("PHPUNIT")) {
 			$modules[] = "phpunit";
 		}

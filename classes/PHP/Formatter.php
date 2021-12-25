@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Based on code written by grom here:
  *
@@ -15,7 +15,7 @@ namespace zesk;
  *
  */
 class PHP_Formatter extends Options {
-	public static $OPERATORS = array(
+	public static $OPERATORS = [
 		'=',
 		'.',
 		'+',
@@ -39,16 +39,16 @@ class PHP_Formatter extends Options {
 		'>',
 		'===',
 		'!==',
-	);
+	];
 
-	public static $IMPORT_STATEMENTS = array(
+	public static $IMPORT_STATEMENTS = [
 		T_REQUIRE,
 		T_REQUIRE_ONCE,
 		T_INCLUDE,
 		T_INCLUDE_ONCE,
-	);
+	];
 
-	public static $CONTROL_STRUCTURES = array(
+	public static $CONTROL_STRUCTURES = [
 		T_IF,
 		T_ELSEIF,
 		T_FOREACH,
@@ -56,31 +56,31 @@ class PHP_Formatter extends Options {
 		T_WHILE,
 		T_SWITCH,
 		T_ELSE,
-	);
+	];
 
-	public static $WHITESPACE_BEFORE = array(
+	public static $WHITESPACE_BEFORE = [
 		'?',
 		'{',
 		'}',
 		'=>',
-	);
+	];
 
-	public static $WHITESPACE_AFTER = array(
+	public static $WHITESPACE_AFTER = [
 		'{',
 		',',
 		'?',
 		'=>',
-	);
+	];
 
-	public $whitespace_before = array();
+	public $whitespace_before = [];
 
-	public $whitespace_after = array();
+	public $whitespace_after = [];
 
 	public $line_number = 0;
 
-	public $raw_tokens = array();
+	public $raw_tokens = [];
 
-	public $tokens = array();
+	public $tokens = [];
 
 	public $index = 0;
 
@@ -88,7 +88,7 @@ class PHP_Formatter extends Options {
 
 	public $n_tokens = 0;
 
-	public function __construct(array $options = array()) {
+	public function __construct(array $options = []) {
 		parent::__construct($options);
 		$this->whitespace_before = self::$WHITESPACE_BEFORE;
 		$this->whitespace_after = self::$WHITESPACE_AFTER;
@@ -110,7 +110,7 @@ class PHP_Formatter extends Options {
 
 	public function format($code) {
 		$this->raw_tokens = token_get_all($code);
-		$this->tokens = array();
+		$this->tokens = [];
 		foreach ($this->raw_tokens as $rawToken) {
 			$this->tokens[] = new PHP_Token($rawToken);
 		}
@@ -136,13 +136,13 @@ class PHP_Formatter extends Options {
 		return $token;
 	}
 
-	private function _set_tokens(array $tokens) {
+	private function _set_tokens(array $tokens): void {
 		$this->tokens = $tokens;
 		$this->n_tokens = count($tokens);
 	}
 
-	private function filter_tokens() {
-		$filteredTokens = array();
+	private function filter_tokens(): void {
+		$filteredTokens = [];
 		for ($this->index = 0; $this->index < $this->n_tokens; $this->index++) {
 			$token = $this->tokens[$this->index];
 			if ($token->contents == '?') {
@@ -151,10 +151,10 @@ class PHP_Formatter extends Options {
 			if (in_array($token->type, self::$IMPORT_STATEMENTS) && $this->next_token()->contents == '(') {
 				$filteredTokens[] = $token;
 				if ($this->tokens[$this->index + 1]->type != T_WHITESPACE) {
-					$filteredTokens[] = new PHP_Token(array(
+					$filteredTokens[] = new PHP_Token([
 						T_WHITESPACE,
 						' ',
-					));
+					]);
 				}
 				$this->index = $this->next;
 				do {
@@ -166,10 +166,10 @@ class PHP_Formatter extends Options {
 				} while ($token->contents !== ')');
 			} elseif ($token->type === T_ELSE && $this->next_token()->type === T_IF) {
 				$this->index = $this->next;
-				$filteredTokens[] = new PHP_Token(array(
+				$filteredTokens[] = new PHP_Token([
 					T_ELSEIF,
 					'elseif',
-				));
+				]);
 			} elseif ($token->contents == ':') {
 				if ($matchingTernary) {
 					$matchingTernary = false;
@@ -181,14 +181,14 @@ class PHP_Formatter extends Options {
 				$filteredTokens[] = $token;
 			}
 		}
-		$filteredTokens[] = new PHP_Token(array(
+		$filteredTokens[] = new PHP_Token([
 			T_WHITESPACE,
 			"\n",
-		));
+		]);
 		$this->_set_tokens($filteredTokens);
 	}
 
-	private function add_white() {
+	private function add_white(): void {
 		// Second pass - add whitespace
 		$matchingTernary = false;
 		$doubleQuote = false;
@@ -243,10 +243,10 @@ class PHP_Formatter extends Options {
 				}
 			} elseif ($token->type == T_ENCAPSED_AND_WHITESPACE || $token->type == T_STRING) {
 				echo $token->contents;
-			} elseif ($token->contents == '-' && in_array($next_token->type, array(
+			} elseif ($token->contents == '-' && in_array($next_token->type, [
 				T_LNUMBER,
 				T_DNUMBER,
-			))) {
+			])) {
 				echo '-';
 			} elseif (in_array($token->type, self::$CONTROL_STRUCTURES)) {
 				echo $token->contents;

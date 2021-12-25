@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this Template */
 $where = $this->get('where');
-if (!in_array($where, array(
+if (!in_array($where, [
 	'left',
 	'right',
 	'top',
@@ -12,7 +12,7 @@ if (!in_array($where, array(
 	'top-left',
 	'bottom-right',
 	'bottom-left',
-))) {
+])) {
 	$where = 'bottom-left';
 }
 $id = 'zesk-overlay-frame-' . $where;
@@ -21,7 +21,7 @@ $this->response->content_type('text/javascript');
 
 header("Content-Type: text/javascript");
 
-$qs = array();
+$qs = [];
 $qs['width'] = $this->geti('width', 300);
 $qs['height'] = $this->geti('height', 100);
 $qs['where'] = $where;

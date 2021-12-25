@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -49,14 +49,14 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * {@inheritDoc}
 	 * @see \zesk\Module::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->dot_env_path($this->option("dot_env_path", $this->application->path()));
 		if ($this->option_bool("routes_enabled")) {
-			$this->application->hooks->add(Application::class . "::router_matched", array(
+			$this->application->hooks->add(Application::class . "::router_matched", [
 				$this,
 				"router_matched",
-			));
+			]);
 		}
 	}
 
@@ -73,9 +73,9 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 				return $content;
 			}
 		}
-		$prefix = HTML::tag("script", array(
+		$prefix = HTML::tag("script", [
 			"src" => "/static/js/bundle.js",
-		), "");
+		], "");
 		return str_replace("</body>", $prefix . "</body>", $content);
 	}
 
@@ -84,16 +84,14 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 */
 	protected function react_page_route(Router $router) {
 		$module = $this;
-		return new Route_Method($router, null, array(
-			"method" => function (Request $request, Response $response) use ($module) {
-				return $module->react_content($request, $response);
-			},
+		return new Route_Method($router, null, [
+			"method" => fn (Request $request, Response $response) => $module->react_content($request, $response),
 			"arguments" => [
 				"{request}",
 				"{response}",
 			],
 			Route::OPTION_OUTPUT_HANDLER => Response::CONTENT_TYPE_RAW,
-		));
+		]);
 	}
 
 	/**
@@ -121,10 +119,10 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 */
 	private function asset_manifest() {
 		$docroot = $this->application->document_root();
-		foreach (array(
+		foreach ([
 			'asset-manifest.json',
 			'manifest.json',
-		) as $name) {
+		] as $name) {
 			$asset_manifest = path($docroot, $name);
 			if (file_exists($asset_manifest)) {
 				return $asset_manifest;
@@ -139,7 +137,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 *
 	 * @var array
 	 */
-	public function hook_head(Request $request, Response $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template): void {
 		$app = $this->application;
 		$docroot = $app->document_root();
 		if (ends($docroot, "/build")) {
@@ -149,31 +147,31 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 				$asset_manifest = $this->asset_manifest();
 				$assets = JSON::decode(File::contents($asset_manifest));
 				$src = "/" . $assets['main.js'];
-				$response->javascript($src, array(
+				$response->javascript($src, [
 					"root_dir" => $docroot,
-				));
+				]);
 
 				if (isset($assets['main.css'])) {
-					$response->css($assets['main.css'], array(
+					$response->css($assets['main.css'], [
 						"root_dir" => $docroot,
-					));
+					]);
 				}
 			} catch (\zesk\Exception_NotFound $e) {
-				$app->logger->emergency("Asset manifest not found {asset_manifest} {e}", array(
+				$app->logger->emergency("Asset manifest not found {asset_manifest} {e}", [
 					"asset_manifest" => $asset_manifest,
 					"e" => $e,
-				));
+				]);
 			} catch (\zesk\Exception_Syntax $e) {
-				$app->logger->emergency("Unable to parse asset file {asset_manifest} {e}", array(
+				$app->logger->emergency("Unable to parse asset file {asset_manifest} {e}", [
 					"asset_manifest" => $asset_manifest,
 					"e" => $e,
-				));
+				]);
 			}
 		} else {
 			if ($this->_proxy_prefix($request->host())) {
-				$response->javascript("/static/js/bundle.js", array(
+				$response->javascript("/static/js/bundle.js", [
 					"is_route" => true,
-				));
+				]);
 			}
 		}
 	}
@@ -184,7 +182,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * @return string
 	 */
 	private function extract_script_names($index_html) {
-		$script_names = array();
+		$script_names = [];
 		foreach (HTML::extract_tags("script", file_get_contents($index_html)) as $tag) {
 			$script_names[] = $tag->src;
 		}
@@ -196,29 +194,29 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * {@inheritDoc}
 	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(Router $router) {
-		$router->add_route("static/*", array(
+	public function hook_routes(Router $router): void {
+		$router->add_route("static/*", [
 			"weight" => "first",
-			"method" => array(
+			"method" => [
 				$this,
 				"static_handler",
-			),
-			"arguments" => array(
+			],
+			"arguments" => [
 				"{request}",
 				"{response}",
-			),
-		));
-		$router->add_route("sockjs-node/*", array(
+			],
+		]);
+		$router->add_route("sockjs-node/*", [
 			"weight" => "first",
-			"method" => array(
+			"method" => [
 				$this,
 				"not_found_handler",
-			),
-			"arguments" => array(
+			],
+			"arguments" => [
 				"{request}",
 				"{response}",
-			),
-		));
+			],
+		]);
 	}
 
 	/**
@@ -249,9 +247,9 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		$config = $app->configuration->path_set(__CLASS__);
 		$dotenv = path($this->dot_env_path, ".env");
 		if (!file_exists($dotenv)) {
-			$this->application->logger->error("{dotenv} needs to be created to support ReactJS proxy", array(
+			$this->application->logger->error("{dotenv} needs to be created to support ReactJS proxy", [
 				"dotenv" => $dotenv,
-			));
+			]);
 			return null;
 		}
 		$conf = Configuration_Parser::factory("conf", File::contents($dotenv));
@@ -278,18 +276,18 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		try {
 			$http->go();
 		} catch (Net_HTTP_Client_Exception $e) {
-			$this->application->logger->error("{method} Unable to proxy request {url::path} to {proxy_prefix}: {message}", array(
+			$this->application->logger->error("{method} Unable to proxy request {url::path} to {proxy_prefix}: {message}", [
 				"method" => __METHOD__,
 				"proxy_prefix" => $proxy_prefix,
 				"message" => $e->getMessage(),
-			) + $request->variables() + ArrayTools::kprefix($request->url_variables(), "url::"));
+			] + $request->variables() + ArrayTools::kprefix($request->url_variables(), "url::"));
 
 			throw new Exception_File_NotFound($http->url());
 		}
 		return $http;
 	}
 
-	public function not_found_handler(Request $request, Response $response) {
+	public function not_found_handler(Request $request, Response $response): void {
 		$response->status(Net_HTTP::STATUS_FILE_NOT_FOUND);
 	}
 
@@ -298,7 +296,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * @param Request $request
 	 * @param Response $response
 	 */
-	public function json_handler(Request $request, Response $response) {
+	public function json_handler(Request $request, Response $response): void {
 		$response->page_theme(null);
 		$this->copy_to_response($this->_proxy_path($request), $response);
 		$response->cache_for(5);
@@ -341,7 +339,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * @param Net_HTTP_Client $client
 	 * @param Response $response
 	 */
-	private function copy_to_response(Net_HTTP_Client $client, Response $response) {
+	private function copy_to_response(Net_HTTP_Client $client, Response $response): void {
 		$response->status($client->response_code(), $client->response_message());
 		$response->content_type($client->content_type());
 		$response->content = $client->content();

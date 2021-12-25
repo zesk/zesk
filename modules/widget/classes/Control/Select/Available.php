@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -25,10 +25,10 @@ class Control_Select_Available extends Control_Select {
 		if ($column_id === null) {
 			$column_id = $this->option("column_id");
 			$column_name = $this->option("column_name", $column_id);
-			return array(
+			return [
 				$column_id,
 				$column_name,
-			);
+			];
 		}
 		$this->set_option("column_id", $column_id);
 		if ($column_name) {
@@ -61,24 +61,24 @@ class Control_Select_Available extends Control_Select {
 	 * @return array
 	 */
 	protected function hook_options() {
-		return array();
+		return [];
 	}
 
 	/**
 	 * Populate options after initialized
 	 */
-	protected function hook_initialized() {
+	protected function hook_initialized(): void {
 		$parent = $this->_list_parent();
 		/* @var $query Database_Query_Select */
 		$query = $parent->query()->duplicate();
 		$query->where(false);
 		$query->limit(0, -1);
 		$query->distinct(true);
-		list($column_id, $column_name) = $this->what_columns();
-		$query->what(array(
+		[$column_id, $column_name] = $this->what_columns();
+		$query->what([
 			"id" => $column_id,
 			"name" => $column_name,
-		));
+		]);
 		$query->where("$column_name|!=", "");
 		$this->control_options(array_change_key_case($query->to_array("id", "name")));
 	}

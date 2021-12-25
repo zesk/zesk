@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,15 +10,15 @@ namespace zesk;
  *
  */
 class Preference_Test extends Test_ORM {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"Preference",
 		'MySQL',
-	);
+	];
 
 	/**
 	 * @expectedException zesk\Exception_Parameter
 	 */
-	public function test_get() {
+	public function test_get(): void {
 		$user = new User($this->application);
 		$name = "";
 		$default = false;
@@ -28,7 +28,7 @@ class Preference_Test extends Test_ORM {
 	/**
 	 * @expectedException zesk\Exception_Parameter
 	 */
-	public function test_user_get() {
+	public function test_user_get(): void {
 		$user = new User($this->application);
 		$name = null;
 		$default = false;
@@ -38,32 +38,32 @@ class Preference_Test extends Test_ORM {
 	/**
 	 * @expectedException zesk\Exception_Parameter
 	 */
-	public function test_user_set() {
+	public function test_user_set(): void {
 		$user = new User($this->application);
 		$name = null;
 		$value = false;
 		Preference::user_set($user, $name, $value);
 	}
 
-	public function test_Preference() {
+	public function test_Preference(): void {
 		$preference_class = __NAMESPACE__ . "\\" . "Preference";
 
 		$db = $this->application->database_registry();
-		$db->query($this->application->orm_module()->schema_synchronize($db, array(
+		$db->query($this->application->orm_module()->schema_synchronize($db, [
 			$preference_class,
 			__NAMESPACE__ . "\\" . "Preference_Type",
-		), array(
+		], [
 			"follow" => true,
-		)));
+		]));
 
 		$user = new User($this->application, 1);
 
 		Preference::user_set($user, "country", "Random");
 
-		$pref = new Preference($this->application, array(
+		$pref = new Preference($this->application, [
 			"user" => $user,
 			"type" => Preference_Type::register_name($this->application, "country"),
-		));
+		]);
 		$result = $pref->find();
 		$this->assert_equal($result, $pref);
 		$this->assert_instanceof($result, $preference_class);
@@ -74,10 +74,10 @@ class Preference_Test extends Test_ORM {
 			->where("user", 1)
 			->execute();
 		$this->assert_instanceof($result, __NAMESPACE__ . "\\" . "Database_Query_Delete");
-		$this->log("Deleted {n} rows from {class}", array(
+		$this->log("Deleted {n} rows from {class}", [
 			"n" => $result->affected_rows(),
 			"class" => $preference_class,
-		));
+		]);
 
 		$name = "test";
 		$default = "Monkey";
@@ -90,7 +90,7 @@ class Preference_Test extends Test_ORM {
 	/**
 	 * @expectedException zesk\Exception_Parameter
 	 */
-	public function test_Preference_set_parameter() {
+	public function test_Preference_set_parameter(): void {
 		$user = new User($this->application, 1);
 		Preference::user_set($user, null, "Ape");
 	}

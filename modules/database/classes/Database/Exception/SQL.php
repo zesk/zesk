@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * $Id$
  *
@@ -38,7 +38,7 @@ class Database_Exception_SQL extends Database_Exception {
 	 * @param array $arguments
 	 * @param unknown $previous
 	 */
-	public function __construct(Database $db, $sql = "", $message = null, array $arguments = array(), $errno = 0, $previous = null) {
+	public function __construct(Database $db, $sql = "", $message = null, array $arguments = [], $errno = 0, $previous = null) {
 		$this->sql = $sql;
 		$this->db = $db;
 
@@ -71,12 +71,12 @@ class Database_Exception_SQL extends Database_Exception {
 	 * @see zesk\Exception::variables()
 	 */
 	public function variables() {
-		return array(
+		return [
 			'errno' => $this->getCode(),
 			'db' => $this->db, // Deprecated
 			'database' => $this->db,
 			'database_code_name' => $this->db->code_name(),
 			'sql' => $this->sql,
-		) + parent::variables();
+		] + parent::variables();
 	}
 }

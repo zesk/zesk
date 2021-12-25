@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk-modules
  * @subpackage test
@@ -23,7 +23,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 
 	/**
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->phpunit = $this->application->path("vendor/bin/phpunit");
 	}
@@ -33,14 +33,14 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * {@inheritDoc}
 	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(Router $router) {
-		$router->add_route("test(/{option action}(/{arg}))", array(
+	public function hook_routes(Router $router): void {
+		$router->add_route("test(/{option action}(/{arg}))", [
 			"controller" => Controller::class,
-			"arguments" => array(
+			"arguments" => [
 				2,
-			),
+			],
 			"default action" => "index",
-		));
+		]);
 	}
 
 	/**

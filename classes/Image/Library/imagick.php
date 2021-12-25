@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -9,32 +9,32 @@ class Image_Library_imagick extends Image_Library {
 	 *
 	 * @var string
 	 */
-	const command_default = "convert";
+	public const command_default = "convert";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const command_scale = '{command} -antialias -matte -geometry "{width}x{height}" {source} {destination}';
+	public const command_scale = '{command} -antialias -matte -geometry "{width}x{height}" {source} {destination}';
 
 	/**
 	 *
 	 * @return string|\zesk\NULL
 	 */
 	private function shell_command() {
-		$command = $this->application->configuration->path_get(array(
+		$command = $this->application->configuration->path_get([
 			__CLASS__,
 			"command",
-		), self::command_default);
+		], self::command_default);
 		$which = $this->application->paths->which($command);
 		if (!$which) {
-			throw new Exception_Configuration(array(
+			throw new Exception_Configuration([
 				__CLASS__,
 				"command",
-			), "Command {command} not found in path {paths}", array(
+			], "Command {command} not found in path {paths}", [
 				"command" => $command,
 				"paths" => $this->application->paths->command(),
-			));
+			]);
 		}
 		return $which;
 	}
@@ -45,18 +45,18 @@ class Image_Library_imagick extends Image_Library {
 	 */
 	private function shell_command_scale() {
 		$command = $this->shell_command();
-		$pattern = $this->application->configuration->path_get(array(
+		$pattern = $this->application->configuration->path_get([
 			__CLASS__,
 			"command_scale",
-		), self::command_scale);
-		$scale_command = map($pattern, array(
+		], self::command_scale);
+		$scale_command = map($pattern, [
 			"command" => $command,
-		));
+		]);
 		if (empty($scale_command)) {
-			throw new Exception_Configuration(array(
+			throw new Exception_Configuration([
 				__CLASS__,
 				"command_scale",
-			), "Is an empty string?");
+			], "Is an empty string?");
 		}
 		return $scale_command;
 	}
@@ -104,25 +104,25 @@ class Image_Library_imagick extends Image_Library {
 	}
 
 	public function image_scale($source, $dest, array $options) {
-		list($actual_width, $actual_height) = getimagesize($source);
+		[$actual_width, $actual_height] = getimagesize($source);
 		$width = $actual_width;
 		$height = $actual_height;
 		extract($options, EXTR_IF_EXISTS);
 		if (avalue($_SERVER, 'WINDIR')) {
 			$win_path = str_replace('/', '\\', dirname($dest));
-			if (!@mkdir($win_path, 0770, true)) {
+			if (!@mkdir($win_path, 0o770, true)) {
 				die("can't make directory $win_path");
 			}
 			copy($source, $dest);
 			return true;
 		}
 
-		$map = array(
+		$map = [
 			"source" => escapeshellarg($source),
 			"destination" => escapeshellarg($dest),
 			"width" => $width,
 			"height" => $height,
-		);
+		];
 
 		$cmd = $this->shell_command_scale();
 		$cmd = map($cmd, $map);
@@ -130,7 +130,7 @@ class Image_Library_imagick extends Image_Library {
 		try {
 			$lines = $this->application->process->execute_arguments($cmd);
 			if (file_exists($dest)) {
-				@chmod($dest, 0644);
+				@chmod($dest, 0o644);
 				$this->application->hooks->call('file_created', $dest);
 				return true;
 			}
@@ -143,7 +143,7 @@ class Image_Library_imagick extends Image_Library {
 		}
 	}
 
-	public function image_rotate($source, $destination, $degrees, array $options = array()) {
+	public function image_rotate($source, $destination, $degrees, array $options = []): void {
 		throw new Exception_Unimplemented("TODO");
 	}
 }

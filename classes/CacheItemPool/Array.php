@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2017 Market Acumen, Inc.
  */
@@ -18,7 +18,7 @@ class CacheItemPool_Array implements CacheItemPoolInterface {
 	 *
 	 * @var array
 	 */
-	private $items = array();
+	private $items = [];
 
 	/**
 	 * Returns a Cache Item representing the specified key.
@@ -40,7 +40,7 @@ class CacheItemPool_Array implements CacheItemPoolInterface {
 		if (array_key_exists($key, $this->items)) {
 			return $this->items[$key];
 		}
-		return new CacheItem($key, isset($this->items[$key]) ? $this->items[$key] : null, $this->hasItem($key));
+		return new CacheItem($key, $this->items[$key] ?? null, $this->hasItem($key));
 	}
 
 	/**
@@ -59,8 +59,8 @@ class CacheItemPool_Array implements CacheItemPoolInterface {
 	 *   key is not found. However, if no keys are specified then an empty
 	 *   traversable MUST be returned instead.
 	 */
-	public function getItems(array $keys = array()) {
-		$result = array();
+	public function getItems(array $keys = []) {
+		$result = [];
 		foreach ($keys as $index => $key) {
 			$result[$index] = $this->getItem($key);
 		}
@@ -95,7 +95,7 @@ class CacheItemPool_Array implements CacheItemPoolInterface {
 	 *   True if the pool was successfully cleared. False if there was an error.
 	 */
 	public function clear() {
-		$this->items = array();
+		$this->items = [];
 		return true;
 	}
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk-modules
  * @subpackage tag
@@ -13,26 +13,26 @@ namespace zesk\Tag;
  *
  */
 class Module extends \zesk\Module_JSLib {
-	protected $model_classes = array(
+	protected array $model_classes = [
 		Label::class,
-	);
+	];
 
-	protected $javascript_paths = array(
+	protected $javascript_paths = [
 		"/share/tag/js/jquery.tag.js" => [
 			'share' => true,
 		],
-	);
+	];
 
-	protected $css_paths = array(
+	protected $css_paths = [
 		"/share/tag/css/tag.css" => [
 			'share' => true,
 		],
-	);
+	];
 
 	/**
 	 * Run once an hour on a single cluster machine
 	 */
-	public function hook_cron_cluster_hour() {
+	public function hook_cron_cluster_hour(): void {
 		$this->application->orm_module();
 	}
 
@@ -56,9 +56,9 @@ class Module extends \zesk\Module_JSLib {
 	 * @return mixed|number|array|unknown
 	 */
 	public function filter_labels($items) {
-		$result = $this->call_hook_arguments("filter_labels", array(
+		$result = $this->call_hook_arguments("filter_labels", [
 			$items,
-		), $items);
+		], $items);
 		if (is_iterable($result)) {
 			return $result;
 		}

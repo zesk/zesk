@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -8,33 +8,33 @@ namespace zesk;
  *
  */
 class Module_Selection extends Module {
-	protected $model_classes = array(
+	protected array $model_classes = [
 		"zesk\\Selection_Item",
 		"zesk\\Selection_Query",
 		"zesk\\Selection_Type",
-	);
+	];
 
-	public function hook_routes(Router $router) {
-		$router->add_route('selection/{zesk\\Selection_Type type}/list', array(
+	public function hook_routes(Router $router): void {
+		$router->add_route('selection/{zesk\\Selection_Type type}/list', [
 			'controller' => 'zesk\\Controller_Selection_Item',
 			'action' => 'list',
-			'actions' => array(
+			'actions' => [
 				'list',
-			),
-			'arguments' => array(
+			],
+			'arguments' => [
 				1,
-			),
-		));
-		$router->add_route('selection/{zesk\\Selection_Type type}/delete/{id}', array(
+			],
+		]);
+		$router->add_route('selection/{zesk\\Selection_Type type}/delete/{id}', [
 			'controller' => 'zesk\\Controller_Selection_Item',
 			'action' => 'delete_id',
-			'actions' => array(
+			'actions' => [
 				'delete',
-			),
-			'arguments' => array(
+			],
+			'arguments' => [
 				1,
 				3,
-			),
-		));
+			],
+		]);
 	}
 }

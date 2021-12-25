@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\ObjectCache;
 
 use zesk\ORM;
@@ -10,7 +10,7 @@ class Module extends \zesk\Module {
 	 */
 	public $cache = null;
 
-	public function hook_configured() {
+	public function hook_configured(): void {
 		if ($this->cache instanceof Base) {
 			return;
 		}
@@ -31,20 +31,20 @@ class Module extends \zesk\Module {
 		return new Database();
 	}
 
-	private function configure_object_cache(Base $cache) {
+	private function configure_object_cache(Base $cache): void {
 		$hooks = $this->application->hooks;
-		$invalidate = array(
+		$invalidate = [
 			$cache,
 			"invalidate",
-		);
-		$hooks->add("zesk\ORM::cache-load", array(
+		];
+		$hooks->add("zesk\ORM::cache-load", [
 			$cache,
 			"load",
-		));
-		$hooks->add("zesk\ORM::cache-save", array(
+		]);
+		$hooks->add("zesk\ORM::cache-save", [
 			$cache,
 			"save",
-		));
+		]);
 		$hooks->add("zesk\ORM::cache-dirty", $invalidate);
 		$hooks->add("zesk\ORM::insert", $invalidate);
 		$hooks->add("zesk\ORM::delete", $invalidate);

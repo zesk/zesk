@@ -1,17 +1,17 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Net_Whois {
 	private static function clean_domain($domain) {
 		$domain = strtolower(trim($domain));
-		$domain = StringTools::unprefix($domain, array(
+		$domain = StringTools::unprefix($domain, [
 			"http://",
 			"https://",
-		));
-		$domain = StringTools::unprefix($domain, array(
+		]);
+		$domain = StringTools::unprefix($domain, [
 			"www.",
-		));
-		list($domain) = explode('/', $domain, 2);
+		]);
+		[$domain] = explode('/', $domain, 2);
 		return $domain;
 	}
 
@@ -21,9 +21,9 @@ class Net_Whois {
 		$extension = StringTools::rright($domain, ".");
 		$server = Net_Whois_Servers::server_from_tld($extension);
 		if (!$server) {
-			throw new Exception_NotFound("No whois server for {extension}", array(
+			throw new Exception_NotFound("No whois server for {extension}", [
 				"extension" => $extension,
-			));
+			]);
 		}
 
 		$conn = fsockopen($server, 43);
@@ -31,7 +31,7 @@ class Net_Whois {
 			throw new Exception_Connect($server);
 		}
 		$result = '';
-		fputs($conn, $domain . "\r\n");
+		fwrite($conn, $domain . "\r\n");
 		while (!feof($conn)) {
 			$result .= fgets($conn, 128);
 		}

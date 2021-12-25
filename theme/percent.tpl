@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage theme
@@ -18,15 +18,15 @@ namespace zesk;
 /* @var $current_user \zesk\User */
 $decimals = $this->get1("1;decimals");
 if (!$decimals) {
-	$decimals = $application->configuration->path_get_first(array(
-		array(
+	$decimals = $application->configuration->path_get_first([
+		[
 			Locale::class,
 			"percent_decimals",
-		),
-		array(
+		],
+		[
 			Locale::class,
 			"numeric_decimals",
-		),
-	), 0);
+		],
+	], 0);
 }
 echo sprintf("%.${decimals}f", $this->get1("0;content")) . "%";

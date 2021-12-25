@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\AWS\SQS;
 
 final class Request {
@@ -18,7 +18,7 @@ final class Request {
 
 	private $expires;
 
-	private $parameters = array();
+	private $parameters = [];
 
 	/**
 	 *
@@ -67,7 +67,7 @@ final class Request {
 	 *        	Value
 	 * @return void
 	 */
-	public function setParameter($key, $value) {
+	public function setParameter($key, $value): void {
 		$this->parameters[$key] = $value;
 	}
 
@@ -83,7 +83,7 @@ final class Request {
 			$this->parameters['Timestamp'] = gmdate('Y-m-d\TH:i:s\Z');
 		}
 
-		$params = array();
+		$params = [];
 		foreach ($this->parameters as $var => $value) {
 			$params[] = $var . '=' . rawurlencode($value);
 		}
@@ -96,7 +96,7 @@ final class Request {
 		$host = substr($queue_minus_http, 0, strpos($queue_minus_http, '/'));
 		$uri = substr($queue_minus_http, strpos($queue_minus_http, '/'));
 
-		$headers = array();
+		$headers = [];
 		$headers[] = 'Host: ' . $host;
 
 		$strtosign = $this->verb . "\n" . $host . "\n" . $uri . "\n" . $query;
@@ -129,21 +129,21 @@ final class Request {
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($curl, CURLOPT_HEADER, false);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, false);
-		curl_setopt($curl, CURLOPT_WRITEFUNCTION, array(
+		curl_setopt($curl, CURLOPT_WRITEFUNCTION, [
 			&$this,
 			'__responseWriteCallback',
-		));
+		]);
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 
 		// Execute, grab errors
 		if (curl_exec($curl)) {
 			$this->response->code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 		} else {
-			$this->response->error = array(
+			$this->response->error = [
 				'curl' => true,
 				'code' => curl_errno($curl),
 				'message' => curl_error($curl),
-			);
+			];
 		}
 
 		@curl_close($curl);
@@ -153,17 +153,17 @@ final class Request {
 			$this->response->body = simplexml_load_string($this->response->body);
 
 			// Grab SQS errors
-			if (!in_array($this->response->code, array(
+			if (!in_array($this->response->code, [
 				200,
 				204,
-			)) && isset($this->response->body->Error)) {
-				$this->response->error = array(
+			]) && isset($this->response->body->Error)) {
+				$this->response->error = [
 					'curl' => false,
 					'Type' => (string) $this->response->body->Error->Type,
 					'Code' => (string) $this->response->body->Error->Code,
 					'Message' => (string) $this->response->body->Error->Message,
 					'Detail' => (string) $this->response->body->Error->Detail,
-				);
+				];
 				unset($this->response->body);
 			}
 		}

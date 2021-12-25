@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\WebApp;
 
 use zesk\Command_Base;
@@ -13,17 +13,17 @@ use zesk\Command_Base;
  * @author kent
  */
 class Command_WebApp_API extends Command_Base {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"WebApp",
-	);
+	];
 
-	protected $option_types = array(
+	protected array $option_types = [
 		'*' => 'string',
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		'*' => 'api commands to run',
-	);
+	];
 
 	/**
 	 *
@@ -41,7 +41,7 @@ class Command_WebApp_API extends Command_Base {
 
 		$this->webapp = $this->application->webapp_module();
 
-		$result = array();
+		$result = [];
 		while ($this->has_arg()) {
 			$command = $this->get_arg("command");
 			if ($command === "--") {
@@ -50,9 +50,9 @@ class Command_WebApp_API extends Command_Base {
 			if ($this->has_hook("command_$command")) {
 				$result[$command] = $this->call_hook("command_$command");
 			} else {
-				$this->error("No such command {command}", array(
+				$this->error("No such command {command}", [
 					"command" => $command,
-				));
+				]);
 			}
 		}
 		if (count($result) > 0) {

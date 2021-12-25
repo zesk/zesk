@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -24,7 +24,7 @@ class Command_Database_Connect extends Command_Base {
 	 *
 	 * @var array
 	 */
-	protected $option_types = array(
+	protected array $option_types = [
 		'name' => 'string',
 		'format' => 'string',
 		'echo' => 'boolean',
@@ -36,13 +36,13 @@ class Command_Database_Connect extends Command_Base {
 		'db-name' => 'boolean',
 		'grant' => 'boolean',
 		'host' => 'string',
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $option_help = array(
+	protected array $option_help = [
 		'name' => 'Database code name to connect to',
 		'echo' => 'Output the connection command instead of running it',
 		'debug-connect' => 'Show the connect command',
@@ -52,7 +52,7 @@ class Command_Database_Connect extends Command_Base {
 		'db-name' => 'Output the database name or names',
 		'grant' => 'Display grant statements for the database',
 		'host' => 'Host used in grant statement if not otherwise supplied',
-	);
+	];
 
 	/**
 	 *
@@ -72,7 +72,7 @@ class Command_Database_Connect extends Command_Base {
 
 		$name = $this->option('name');
 		$db = $this->application->database_registry($name);
-		list($command, $args) = $db->shell_command();
+		[$command, $args] = $db->shell_command();
 
 		if ($this->option_bool('debug-connect')) {
 			echo "$command " . implode(" ", $args) . "\n";
@@ -145,20 +145,20 @@ class Command_Database_Connect extends Command_Base {
 	private function handle_grants() {
 		$dbmodule = $this->application->database_module();
 		$db = $dbmodule->register();
-		$result = array();
+		$result = [];
 		foreach ($db as $name => $url) {
-			$object = $dbmodule->database_registry($name, array(
+			$object = $dbmodule->database_registry($name, [
 				"connect" => false,
-			));
+			]);
 			/* @var $object \zesk\Database */
 			try {
-				$grant_statements = $object->sql()->grant(array(
+				$grant_statements = $object->sql()->grant([
 					"user" => $object->url('user'),
 					"pass" => $object->url('pass'),
 					"name" => $object->url('name'),
 					"from_host" => $this->option("host"),
 					"tables" => Database_SQL::SQL_GRANT_ALL,
-				));
+				]);
 			} catch (Exception_Parameter $e) {
 				$grant_statements = null;
 			}

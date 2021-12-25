@@ -1,17 +1,17 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_Locale_Format extends Control_Select {
-	protected $options = array(
-		'options' => array(
+	protected $options = [
+		'options' => [
 			'en' => "English",
 			'fr' => "French",
 			'es' => "Spanish",
-		),
-	);
+		],
+	];
 
-	protected static $locale_to_settings = array(
-		'en' => array(
+	protected static $locale_to_settings = [
+		'en' => [
 			'date-3' => '{WWWW}, {MMMM} {DDD} {YYYY}',
 			'date-2' => '{MMMM} {D}, {YYYY}',
 			'date-1' => '{MMM} {D}, {YYYY}',
@@ -19,7 +19,7 @@ class Control_Locale_Format extends Control_Select {
 			'time-0' => '{12h}:{mm} {AMPM}',
 			'decimal-point' => '.',
 			'thousands-separator' => ',',
-		),
+		],
 
 		// 		'fr' => array(
 		// 			'date-3' => '{WWWW} {D} {MMMM} {YYYY}',
@@ -30,7 +30,7 @@ class Control_Locale_Format extends Control_Select {
 		// 			'decimal-point' => ',',
 		// 			'thousands-separator' => ' '
 		// 		),
-		'es' => array(
+		'es' => [
 			'date-3' => '{WWWW}, {d} de {MMMM} de {YYYY}',
 			'date-2' => '{D} de {MMMM} de {YYYY}',
 			'date-1' => '{D} de {MMM} de {YYYY}',
@@ -38,12 +38,12 @@ class Control_Locale_Format extends Control_Select {
 			'time-0' => '{hh}:{mm}',
 			'decimal-point' => ',',
 			'thousands-separator' => '.',
-		),
-	);
+		],
+	];
 
 	public function submit() {
 		$val = $this->value();
-		$settings = avalue(self::$locale_to_settings, $val, array());
+		$settings = avalue(self::$locale_to_settings, $val, []);
 		$this->object->set($settings);
 		return parent::submit();
 	}

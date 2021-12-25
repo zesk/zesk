@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  * @test_sandbox true
@@ -31,11 +31,11 @@ class Net_POP_Client_Test extends Test_Unit {
 	 *
 	 * @var array
 	 */
-	private $parts = array();
+	private $parts = [];
 
 	/**
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		$this->url = $this->option('email_url');
 
 		if (empty($this->url)) {
@@ -54,13 +54,13 @@ class Net_POP_Client_Test extends Test_Unit {
 		}
 	}
 
-	public function test_mail_delivery() {
+	public function test_mail_delivery(): void {
 		$test_email = $this->email;
 		$test_url = $this->url;
 
-		$options = array(
+		$options = [
 			'echo_log' => true,
-		);
+		];
 
 		$test_prefix = __CLASS__;
 
@@ -81,12 +81,12 @@ class Net_POP_Client_Test extends Test_Unit {
 			foreach ($iterator as $message_id => $headers) {
 				$subject = avalue($headers, 'subject', "-no-subject-");
 				echo "Examining message id $message_id ... Subject: " . $subject . "\n";
-				if (strpos($subject, $test_prefix) !== false || strpos($subject, __CLASS__) !== false) {
+				if (str_contains($subject, $test_prefix)   || str_contains($subject, __CLASS__)) {
 					// Delete other tests
 					echo "Deleting message id $message_id\n";
 					$iterator->current_delete();
 				}
-				if (strpos($subject, $test_key) !== false) {
+				if (str_contains($subject, $test_key)) {
 					$success = true;
 				}
 			}
@@ -107,17 +107,17 @@ class Net_POP_Client_Test extends Test_Unit {
 	/**
 	 * @expectedException zesk\Exception_Authentication
 	 */
-	public function test_bad_password() {
+	public function test_bad_password(): void {
 		$parts = ArrayTools::filter($this->parts, 'scheme;host;user');
 		$parts['pass'] = "bad-password";
 		$test_url = URL::unparse($parts);
 
-		$options = array(
+		$options = [
 			'echo_log' => true,
 			'read_debug' => true,
 			"debug" => true,
 			"debug_apop" => true,
-		);
+		];
 		$testx = new Net_POP_Client($this->application, $test_url, $options);
 
 		$testx->authenticate();

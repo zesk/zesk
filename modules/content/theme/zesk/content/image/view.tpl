@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -24,26 +24,26 @@ $height = $this->get('height', $object->height);
 $src = $this->get('src');
 $original_src = $src;
 if (!$src) {
-	$src = $router->get_route("image", $object, array(
+	$src = $router->get_route("image", $object, [
 		'width' => $width,
 		'height' => $height,
-	));
-	$options = array();
+	]);
+	$options = [];
 	if ($object->width > 1000 || $object->height > 1000) {
-		list($width, $height) = $object->constrain_dimensions(1000, 1000);
+		[$width, $height] = $object->constrain_dimensions(1000, 1000);
 		$options = compact("width", "height");
 	}
 	$original_src = $router->get_route("image", $object, $options);
 }
 $title = $this->get('title', $object->title);
-$attr = array(
+$attr = [
 	'alt' => $title,
 	'title' => $title,
 	'data-class' => get_class($object),
 	'data-id' => $object->id,
 	'data-original' => $original_src,
 	'src' => $src,
-);
+];
 
 echo HTML::div_open('.content-image');
 echo HTML::tag('img', $attr, null);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -31,7 +31,7 @@ class File extends Base {
 		if ($add) {
 			$path = path($path, $add);
 		}
-		if ($create && !Directory::create($path, 0770)) {
+		if ($create && !Directory::create($path, 0o770)) {
 			throw new Exception_Directory_Create($path);
 		}
 		return $path;
@@ -49,7 +49,7 @@ class File extends Base {
 		return $this->cache_path(strtolower(get_class($object)) . "-$id", $create);
 	}
 
-	public function configured() {
+	public function configured(): void {
 		$path = $this->cache_path(null, true);
 	}
 
@@ -80,7 +80,7 @@ class File extends Base {
 		}
 	}
 
-	public function invalidate(ORM $object, $key = null) {
+	public function invalidate(ORM $object, $key = null): void {
 		$path = $this->object_path($object);
 		if ($key !== null) {
 			zeskFile::unlink(path($path, self::hash_from_key($key) . ".cache"));

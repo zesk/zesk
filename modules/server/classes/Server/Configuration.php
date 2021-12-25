@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -35,20 +35,20 @@ abstract class Server_Configuration extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected $variable_types = array();
+	protected $variable_types = [];
 
 	/**
 	 * Array of lowercase name => display case name
 	 *
 	 * @var array
 	 */
-	protected $variable_types_display = array();
+	protected $variable_types_display = [];
 
 	public static function factory($type, Server_Platform $platform, $options = null) {
 		if (empty($type)) {
-			throw new Exception_Parameter("No Configuration type passed to {class}::factory", array(
+			throw new Exception_Parameter("No Configuration type passed to {class}::factory", [
 				"class" => __CLASS__,
-			));
+			]);
 		}
 		$class = "Server_Configuration_$type";
 		return $platform->application->factory($class, $platform, $options);
@@ -60,7 +60,7 @@ abstract class Server_Configuration extends Hookable {
 		$this->inherit_global_options();
 	}
 
-	final public function verbose_log($message, array $args = array()) {
+	final public function verbose_log($message, array $args = []) {
 		return $this->platform->verbose_log($message, $args);
 	}
 
@@ -225,7 +225,7 @@ abstract class Server_Configuration extends Hookable {
 	 * Return an array of hostname => aliasname
 	 */
 	public function host_aliases() {
-		return array();
+		return [];
 	}
 
 	/**
@@ -235,7 +235,7 @@ abstract class Server_Configuration extends Hookable {
 	 * @param unknown $dest
 	 * @param array $options
 	 */
-	abstract public function configuration_files($type, $files, $dest, array $options = array());
+	abstract public function configuration_files($type, $files, $dest, array $options = []);
 
 	/**
 	 *

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
@@ -31,20 +31,20 @@ class Content_Link extends ORM {
 		return $this->theme('image/image-caption', $options);
 	}
 
-	public function clicked() {
+	public function clicked(): void {
 		$this->query_update()
-			->values(array(
+			->values([
 			"*ClickCount" => "ClickCount+1",
 			"*LastClick" => $this->sql()
 				->now(),
-		))
+		])
 			->where("ID", $this->id())
 			->execute();
 		$this->query_update()
-			->values(array(
+			->values([
 			"*FirstClick" => $this->sql()
 				->now(),
-		))
+		])
 			->where("ID", $this->id())
 			->where("FirstClick", null)
 			->execute();

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -44,12 +44,12 @@ class Control_Selection extends Control {
 		if ($this->type) {
 			return $this->type;
 		}
-		return $this->type = $this->application->orm_factory(Selection_Type::class, array(
+		return $this->type = $this->application->orm_factory(Selection_Type::class, [
 			"session" => $this->session(),
 			"user" => $this->user(),
 			"code" => $this->selection_code(),
 			"class" => $this->selection_class(),
-		))->register();
+		])->register();
 	}
 
 	/**
@@ -57,7 +57,7 @@ class Control_Selection extends Control {
 	 * {@inheritDoc}
 	 * @see Widget::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		$class = $this->selection_class();
 		if (empty($class)) {
 			$current = $this;
@@ -70,10 +70,10 @@ class Control_Selection extends Control {
 			}
 		}
 		if (empty($class)) {
-			throw new Exception_Semantics("{class} needs selection class set before usage", array(
+			throw new Exception_Semantics("{class} needs selection class set before usage", [
 				"this" => $this,
 				"class" => get_class($this),
-			));
+			]);
 		}
 		parent::initialize();
 	}
@@ -85,7 +85,7 @@ class Control_Selection extends Control {
 	 * @param Control_Row $row
 	 * @param zesk\Template $t
 	 */
-	public function hook_control_list_row(Model $object, Control_Row $row, Template $t) {
+	public function hook_control_list_row(Model $object, Control_Row $row, Template $t): void {
 		if (!$object instanceof Object) {
 			return;
 		}
@@ -104,19 +104,19 @@ class Control_Selection extends Control {
 	public function retrieve_queries() {
 		$top = $this->top();
 		if ($top instanceof Control_List) {
-			return array(
+			return [
 				$top->query_total(),
 				$top->query(),
-			);
+			];
 		}
-		$this->application->logger->error("{class}: Top widget is not a list: {instead}", array(
+		$this->application->logger->error("{class}: Top widget is not a list: {instead}", [
 			"class" => get_class($this),
 			"instead" => get_class($top),
-		));
-		return array(
+		]);
+		return [
 			null,
 			null,
-		);
+		];
 	}
 
 	/**
@@ -124,18 +124,18 @@ class Control_Selection extends Control {
 	 * {@inheritDoc}
 	 * @see \zesk\Widget::controller()
 	 */
-	public function controller() {
+	public function controller(): void {
 		$request = $this->request();
 		$response = $this->response();
 		if (!$this->application->development() && !$request->is_post()) {
-			$response->json()->data(array(
+			$response->json()->data([
 				"status" => false,
 				"message" => "Not a POST",
-			));
+			]);
 			return;
 		}
 		$status = true;
-		$result = array();
+		$result = [];
 		$type = $this->selection_type();
 		$already_cleared = false;
 		switch ($action = $request->get("action")) {
@@ -146,7 +146,7 @@ class Control_Selection extends Control {
 				break;
 			case "add-all":
 				$message = __("Selection expanded.");
-				list($query_total, $query_list) = $this->retrieve_queries();
+				[$query_total, $query_list] = $this->retrieve_queries();
 				if (!$query_total) {
 					$status = false;
 					$message = __("Unable to retrieve queries");
@@ -157,7 +157,7 @@ class Control_Selection extends Control {
 				break;
 			case "remove-all":
 				$message = __("Selection reduced.");
-				list($query_total, $query_list) = $this->retrieve_queries();
+				[$query_total, $query_list] = $this->retrieve_queries();
 				if (!$query_total) {
 					$status = false;
 					$message = __("Unable to retrieve queries");
@@ -171,10 +171,10 @@ class Control_Selection extends Control {
 				$add = $request->geta("add");
 				$remove = $request->geta("remove");
 				$type->items_update($add, $remove);
-				$result += array(
+				$result += [
 					"added" => count($add),
 					"removed" => count($remove),
-				);
+				];
 				break;
 		}
 		// If the list has had everything removed from it, then just clear the list if it hasn't been cleared above already
@@ -182,11 +182,11 @@ class Control_Selection extends Control {
 		if ($count === 0 && !$already_cleared) {
 			$type->items_clear();
 		}
-		$response->json()->data($result + array(
+		$response->json()->data($result + [
 			"status" => $status,
 			"message" => $message,
 			"count" => $count,
-		));
+		]);
 	}
 
 	/**
@@ -196,20 +196,20 @@ class Control_Selection extends Control {
 	 */
 	public function theme_variables() {
 		$type = $this->selection_type();
-		return parent::theme_variables() + array(
+		return parent::theme_variables() + [
 			'target' => $this->option('target', '.row'),
 			'container' => $this->option('container', '.list'),
 			'selection_type' => $type,
 			'count' => $type->count(),
-			'actions' => $this->option_array("actions", array()),
-		);
+			'actions' => $this->option_array("actions", []),
+		];
 	}
 
 	/**
 	 *
 	 * @param Database_Query_Select $query
 	 */
-	protected function hook_query_list(Database_Query_Select $query) {
+	protected function hook_query_list(Database_Query_Select $query): void {
 		if ($query->has_what("selected")) {
 			// TODO Why is this called twice while listing?
 			return;

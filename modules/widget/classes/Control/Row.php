@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_Row extends Control {
@@ -13,7 +13,7 @@ class Control_Row extends Control {
 	 *
 	 * @var string
 	 */
-	protected $row_attributes = array();
+	protected $row_attributes = [];
 
 	/**
 	 * Get/set the row tag
@@ -48,13 +48,13 @@ class Control_Row extends Control {
 	 * @see Widget::theme_variables()
 	 */
 	public function theme_variables() {
-		return array(
+		return [
 			"object" => $this->object,
 			"row_widget" => $this,
 			"row_widgets" => $this->children(),
 			"row_tag" => $this->row_tag,
 			"row_attributes" => $this->row_attributes,
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 
 	/**

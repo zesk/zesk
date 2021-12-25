@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
@@ -32,10 +32,10 @@ class Control_RichText extends Control_Text {
 		if ($cols > $maxCols) {
 			$cols = $maxCols;
 		}
-		return array(
+		return [
 			$rows,
 			$cols,
-		);
+		];
 	}
 
 	private function clean($x) {
@@ -57,9 +57,9 @@ class Control_RichText extends Control_Text {
 		// echo "<h1>---HTML::clean_tags-------</h1>\n";
 		// dump($x);
 
-		$convert_tags = array(
+		$convert_tags = [
 			"<br>" => "<br />",
-		);
+		];
 		$x = strtr($x, $convert_tags);
 		// echo "<h1>---replace_map-------</h1>\n";
 		// dump($x);
@@ -72,7 +72,7 @@ class Control_RichText extends Control_Text {
 	private function autoLink($html) {
 		$x = HTML::remove_tags(explode(";", "a;img;link;style;pre"), $html, true);
 
-		$urls = array();
+		$urls = [];
 		if (preg_match_all('/[^"]([a-zA-Z]+[:\/\/]+[A-Za-z0-9\-_]+\\.+[A-Za-z0-9\.\/%&=\?\-_]+)/i', $x, $urls)) {
 			foreach ($urls as $url) {
 				$html = str_replace($url[1], HTML::a($url[1], $url[1]), $html);
@@ -82,7 +82,7 @@ class Control_RichText extends Control_Text {
 	}
 
 	private static function entities_clean($x) {
-		$ents = array(
+		$ents = [
 			chr(160) => "&nbsp;",
 			chr(161) => "&iexcl;",
 			chr(162) => "&cent;",
@@ -179,7 +179,7 @@ class Control_RichText extends Control_Text {
 			chr(253) => "&yacute;",
 			chr(254) => "&thorn;",
 			chr(255) => "&yuml;",
-		);
+		];
 		$x = str_replace(array_keys($ents), array_values($ents), $x);
 		$x = str_replace("(TM)", "&#0153;", $x);
 		$x = str_replace("(C)", "&copy;", $x);

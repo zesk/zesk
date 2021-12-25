@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -14,22 +14,22 @@ namespace zesk;
  *
  */
 class Control_Text extends Control {
-	protected function initialize() {
-		$this->options += ArrayTools::map_keys($this->options, array(
+	protected function initialize(): void {
+		$this->options += ArrayTools::map_keys($this->options, [
 			"integer_minimum" => "value_minimum",
 			"integer_minimum_error" => "value_minimum_error",
 			"integer_maximum" => "value_maximum",
 			"integer_maximum_error" => "value_maximum_error",
-		));
+		]);
 		parent::initialize();
 	}
 
 	public function value_minimum($set = null) {
-		return $set === null ? $this->option_double('value_minimum') : $this->set_option('value_minimum', doubleval($set));
+		return $set === null ? $this->option_double('value_minimum') : $this->set_option('value_minimum', floatval($set));
 	}
 
 	public function value_maximum($set = null) {
-		return $set === null ? $this->option_double('value_maximum') : $this->set_option('value_maximum', doubleval($set));
+		return $set === null ? $this->option_double('value_maximum') : $this->set_option('value_maximum', floatval($set));
 	}
 
 	private function _validate_numeric(&$v) {
@@ -84,7 +84,7 @@ class Control_Text extends Control {
 			$this->error($this->application->locale->__("You must enter a numeric value for {label}."));
 			return false;
 		}
-		$v = doubleval($v);
+		$v = floatval($v);
 		if ($this->has_option("decimal_precision")) {
 			$v = round($v, $this->option_integer("decimal_precision"));
 		}
@@ -96,14 +96,14 @@ class Control_Text extends Control {
 	}
 
 	public function theme_variables() {
-		return array(
+		return [
 			'placeholder' => $this->option('placeholder', $this->label),
 			'password' => $this->option_bool('password'),
 			'textarea' => $this->textarea(),
 			"rows" => $this->option_integer("rows", 3),
 			"cols" => $this->option_integer("cols", 60),
 			"input_group_addon" => $this->option("input_group_addon", null),
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 
 	protected function validate() {

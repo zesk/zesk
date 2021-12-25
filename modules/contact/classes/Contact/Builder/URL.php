@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage contact
@@ -29,10 +29,10 @@ class Contact_Builder_URL extends Contact_Builder_Base {
 			throw new Exception_Syntax(__("Not a valid url: \"$value\""));
 		}
 		$clean_value = URL::normalize($value);
-		$data = array(
+		$data = [
 			'key' => $key,
 			'value' => $value,
-		);
+		];
 		$data = map($data, $this->data);
 		$import->merge_item($this->contact_class, $clean_value, $data);
 		return true;

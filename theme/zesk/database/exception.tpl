@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
@@ -19,14 +19,14 @@ $this->begin('body/exception.tpl');
 $exception = $this->exception;
 $class = get_class($this->exception);
 
-$application->logger->error("Exception: {exception_class}\nMessage: {message}\nServer:\n{server}\nRequest:\n{request}\nException: {exception_class}\nBacktrace:\n{backtrace}\n{exception}", array(
+$application->logger->error("Exception: {exception_class}\nMessage: {message}\nServer:\n{server}\nRequest:\n{request}\nException: {exception_class}\nBacktrace:\n{backtrace}\n{exception}", [
 	"server" => Text::format_pairs($_SERVER),
 	"request" => Text::format_pairs($_REQUEST),
 	"exception_class" => $class,
 	"exception" => $exception,
 	"message" => $exception->getMessage(),
 	"backtrace" => $exception->getTraceAsString(),
-));
+]);
 
 ?>
 <div class="error">
@@ -35,9 +35,9 @@ $application->logger->error("Exception: {exception_class}\nMessage: {message}\nS
 	if ($this->application->development()) {
 		?><p>The computer error given was:</p><?php
 		echo HTML::tag('code', $exception->getMessage()); ?><p>The call stack is:</p><?php
-		echo $this->theme('exception/trace', array(
+		echo $this->theme('exception/trace', [
 			"content" => $exception->getTrace(),
-		));
+		]);
 	}
 	?>
 </div>

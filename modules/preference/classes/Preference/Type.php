@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage user
@@ -21,10 +21,10 @@ class Preference_Type extends ORM {
 	 * @return Preference_Type|NULL
 	 */
 	public static function register_name(Application $application, $code_name, $name = null) {
-		$fields = array(
+		$fields = [
 			"name" => $name ? $name : $code_name,
 			"code" => $code_name,
-		);
+		];
 		$pref = $application->orm_factory(__CLASS__, $fields);
 		return $pref->register();
 	}

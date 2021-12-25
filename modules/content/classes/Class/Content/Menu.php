@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -7,9 +7,9 @@ namespace zesk;
  *
  */
 class Class_Content_Menu extends Class_ORM {
-	public $find_keys = array(
+	public $find_keys = [
 		"code",
-	);
+	];
 
 	public $id_column = "id";
 }

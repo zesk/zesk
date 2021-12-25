@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $Id: Preference.php 4412 2017-03-08 05:16:44Z kent $
  * @package zesk
@@ -16,30 +16,30 @@ class Class_Preference extends Class_ORM {
 	 *
 	 * @var unknown
 	 */
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"user" => self::type_object,
 		"type" => self::type_object,
 		"value" => self::type_serialize,
-	);
+	];
 
 	/**
 	 * Which keys are used to find this in the database uniquely
 	 *
 	 * @var array
 	 */
-	public $find_keys = array(
+	public $find_keys = [
 		"user",
 		"type",
-	);
+	];
 
 	/**
 	 * Links to other objects
 	 *
 	 * @var array
 	 */
-	public $has_one = array(
+	public $has_one = [
 		'user' => "zesk\\User",
 		'type' => "zesk\\Preference_Type",
-	);
+	];
 }

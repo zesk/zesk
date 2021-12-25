@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage git
@@ -13,10 +13,10 @@ namespace zesk\Git;
  * @author kent
  */
 class Module extends \zesk\Module_Repository {
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
-		$this->register_repository(Repository::class, array(
+		$this->register_repository(Repository::class, [
 			"git",
-		));
+		]);
 	}
 }

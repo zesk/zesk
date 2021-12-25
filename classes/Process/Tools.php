@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage tools
@@ -26,7 +26,7 @@ class Process_Tools {
 			->what('pid', $pid_field)
 			->where($where)
 			->to_array('pid', 'pid');
-		$dead_pids = array();
+		$dead_pids = [];
 		foreach ($ids as $id) {
 			if (!$application->process->alive($id)) {
 				$dead_pids[] = $id;
@@ -42,10 +42,10 @@ class Process_Tools {
 			->where($pid_field, $dead_pids)
 			->execute();
 		$rows = $query->affected_rows();
-		$application->logger->warning("Reset {n} dead pids {dead_pids}", array(
+		$application->logger->warning("Reset {n} dead pids {dead_pids}", [
 			"dead_pids" => $dead_pids,
 			"n" => $rows,
-		));
+		]);
 		return true;
 	}
 

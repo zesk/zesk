@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -19,7 +19,7 @@ class CSS {
 	 * @return array
 	 */
 	public static function color_table() {
-		return array(
+		return [
 			"aliceblue" => "f0f8ff",
 			"antiquewhite" => "faebd7",
 			"aqua" => "00ffff",
@@ -167,7 +167,7 @@ class CSS {
 			"whitesmoke" => "f5f5f5",
 			"yellow" => "ffff00",
 			"yellowgreen" => "9acd32",
-		);
+		];
 	}
 
 	/**
@@ -308,7 +308,7 @@ class CSS {
 			return $default;
 		}
 		$text_len = intval($text_len / 3);
-		$result = array();
+		$result = [];
 		for ($i = 0; $i < 3; $i += 1) {
 			$v = substr($text, $i * $text_len, $text_len);
 			if ($text_len == 1) {

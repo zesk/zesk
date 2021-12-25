@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,21 +10,21 @@ namespace zesk;
  *
  */
 class Request_Test extends Test_Unit {
-	public function test_instance() {
+	public function test_instance(): void {
 		$request = $this->application->request();
 		$this->assert_null($request, __NAMESPACE__ . "\\" . "Request");
 		$request = new Request($this->application);
 		$this->assert_instanceof($request, __NAMESPACE__ . "\\" . "Request");
 	}
 
-	public function test_put_request() {
+	public function test_put_request(): void {
 		//Request::put_request(); // Write to stdin to solve this one TODO
 	}
 
-	public function test_Request() {
-		$settings = array(
+	public function test_Request(): void {
+		$settings = [
 			"url" => "https://ex.to/",
-		);
+		];
 		$testx = new Request($this->application, $settings);
 
 		$testx->is_post();
@@ -42,22 +42,22 @@ class Request_Test extends Test_Unit {
 	/**
 	 * @expectedException zesk\Exception_File_Permission
 	 */
-	public function test__file_migrate1() {
+	public function test__file_migrate1(): void {
 		$source = $this->test_sandbox(__FUNCTION__ . '.txt');
 		file_put_contents($source, $source);
-		$upload_array = array(
+		$upload_array = [
 			'tmp_name' => $source,
-		);
+		];
 		$this->assert(file_exists($source));
 		$dest_path = $this->test_sandbox(__FUNCTION__ . '-dest.txt');
-		$options = array();
+		$options = [];
 		$filename = Request\File::instance($upload_array)->migrate($this->application, $dest_path, $options);
 	}
 
 	/**
 	 * Should prefer HTML in this case.
 	 */
-	public function test_msie_broken() {
+	public function test_msie_broken(): void {
 		$settings = [
 			'url' => 'https://autotest.zesk.com/',
 			'ip' => '127.0.0.1',
@@ -78,7 +78,7 @@ class Request_Test extends Test_Unit {
 		$this->assertFalse($request->prefer_json(), "Request should NOT prefer JSON");
 	}
 
-	public function test_chrome_works_fine() {
+	public function test_chrome_works_fine(): void {
 		$settings = [
 			'url' => 'https://autotest.zesk.com/',
 			'ip' => '127.0.0.1',

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -18,37 +18,37 @@ class Net_POP_Client extends Net_Client_Socket {
 	 * EOF for a message
 	 * @var string
 	 */
-	const EOF = ".\r\n";
+	public const EOF = ".\r\n";
 
 	/**
 	 * OK response
 	 * @var string
 	 */
-	const OK = "+OK";
+	public const OK = "+OK";
 
 	/**
 	 * ERR response
 	 * @var string
 	 */
-	const ERR = "-ERR";
+	public const ERR = "-ERR";
 
 	/**
 	 * disconnected state constant
 	 * @var integer
 	 */
-	const State_Disconnect = 0;
+	public const State_Disconnect = 0;
 
 	/**
 	 * connected state constant
 	 * @var integer
 	 */
-	const State_Connect = 1;
+	public const State_Connect = 1;
 
 	/**
 	 * mid-transaction state constant
 	 * @var integer
 	 */
-	const State_Transaction = 2;
+	public const State_Transaction = 2;
 
 	/**
 	 * Current state
@@ -91,7 +91,7 @@ class Net_POP_Client extends Net_Client_Socket {
 	 * Disconnect this puppy
 	 * @see Net_Client_Socket::disconnect()
 	 */
-	public function disconnect() {
+	public function disconnect(): void {
 		if ($this->state >= self::State_Connect) {
 			$this->quit();
 		}
@@ -116,8 +116,8 @@ class Net_POP_Client extends Net_Client_Socket {
 	 * @param string $message
 	 * @throws Exception_Authentication
 	 */
-	private function apop($user, $pass, $message = null) {
-		if (strpos($this->greeting, "<") === false) {
+	private function apop($user, $pass, $message = null): void {
+		if (!str_contains($this->greeting, "<")) {
 			if ($message === null) {
 				$message = "APOP authentication not supported";
 			}
@@ -149,7 +149,7 @@ class Net_POP_Client extends Net_Client_Socket {
 	 * @param string $pass
 	 * @throws Exception_Authentication
 	 */
-	private function user_pass($user, $pass) {
+	private function user_pass($user, $pass): void {
 		try {
 			$this->command("USER $user");
 		} catch (Net_POP_Client_Exception $e) {
@@ -169,7 +169,7 @@ class Net_POP_Client extends Net_Client_Socket {
 	 * Authenticate with the remote server
 	 * @throws Exception_Authentication
 	 */
-	public function authenticate() {
+	public function authenticate(): void {
 		if ($this->state < self::State_Transaction) {
 			$user = avalue($this->url_parts, "user");
 			$pass = avalue($this->url_parts, "pass");
@@ -225,9 +225,9 @@ class Net_POP_Client extends Net_Client_Socket {
 		$this->command("LIST");
 		$result = $this->read_multiline();
 		$result = explode($this->EOL, trim($result));
-		$messages = array();
+		$messages = [];
 		foreach ($result as $line) {
-			list($mid, $size) = pair($line, " ", $line, null);
+			[$mid, $size] = pair($line, " ", $line, null);
 			$messages[$mid] = $size;
 		}
 		return $messages;
@@ -286,7 +286,7 @@ class Net_POP_Client extends Net_Client_Socket {
 	 * @param integer $state
 	 * @throws Net_POP_Client_Exception
 	 */
-	private function _require_state($state) {
+	private function _require_state($state): void {
 		if ($this->state < $state) {
 			$this->authenticate();
 		}
@@ -298,7 +298,7 @@ class Net_POP_Client extends Net_Client_Socket {
 	/**
 	 * Quit server and disconnect
 	 */
-	private function quit() {
+	private function quit(): void {
 		$this->command("QUIT");
 		parent::disconnect();
 		$this->state = self::State_Disconnect;

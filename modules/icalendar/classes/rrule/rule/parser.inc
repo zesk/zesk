@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Implementation of iCalendar RRULE
  *
@@ -23,7 +23,7 @@ use zesk\Exception_Parameter;
  *
  */
 class Rule_Parser extends Options {
-	private static $freq_map = array(
+	private static array $freq_map = [
 		"YEARLY" => Rule::FREQUENCY_YEARLY,
 		"MONTHLY" => Rule::FREQUENCY_MONTHLY,
 		"WEEKLY" => Rule::FREQUENCY_WEEKLY,
@@ -31,7 +31,7 @@ class Rule_Parser extends Options {
 		"HOURLY" => Rule::FREQUENCY_HOURLY,
 		"MINUTELY" => Rule::FREQUENCY_MINUTELY,
 		"SECONDLY" => Rule::FREQUENCY_SECONDLY,
-	);
+	];
 
 	/**
 	 * This differs from the Python version in that Monday is 1, not 0.
@@ -40,7 +40,7 @@ class Rule_Parser extends Options {
 	 *
 	 * @var array
 	 */
-	private static $weekday_map = array(
+	private static array $weekday_map = [
 		"SU" => 0,
 		"MO" => 1,
 		"TU" => 2,
@@ -48,28 +48,28 @@ class Rule_Parser extends Options {
 		"TH" => 4,
 		"FR" => 5,
 		"SA" => 6,
-	);
+	];
 
 	/**
 	 * Code parsed
 	 *
 	 * @var string
 	 */
-	protected $code = null;
+	protected string $code;
 
 	/**
 	 *
 	 * @var string[]
 	 */
-	protected $errors = array();
+	protected array $errors = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $options = array(
+	protected array $options = [
 		"interval" => 1,
-	);
+	];
 
 	public static function factory($code) {
 		$rrule = new self();
@@ -88,7 +88,7 @@ class Rule_Parser extends Options {
 	 *
 	 */
 	public function parse_rule($code) {
-		$this->errors = array();
+		$this->errors = [];
 		$matches = null;
 		if (preg_match_all('/([A-Z]+)=([^;]*);/i', "$code;", $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
@@ -122,7 +122,7 @@ class Rule_Parser extends Options {
 	}
 
 	private function _parse_integer_list($value, $min = null, $max = null) {
-		$result = array();
+		$result = [];
 		foreach (explode(",", $value) as $v) {
 			if ($v === "") {
 				continue;
@@ -191,16 +191,16 @@ class Rule_Parser extends Options {
 
 	private function parse_BYWEEKDAY($value) {
 		// Two ways to specify this: +1MO or MO(+1)
-		$result = array();
+		$result = [];
 		$value = explode(",", $value);
 		foreach ($value as $wday) {
 			if (preg_match("#([MTWFS][OUEHRA])\(([-+]?[0-9]+)\)#i", $wday, $matches)) {
 				// If it's of the form TH(+1), etc.
-				list($ignore, $wday, $n) = $matches;
+				[$ignore, $wday, $n] = $matches;
 				$n = intval(trim($n, "+"));
 			} elseif (preg_match("#([-+]?[0-9]+)?([MTWFS][OUEHRA])#i", $wday, $matches)) {
 				// If it's of the form +1MO
-				list($ignore, $n, $wday) = $matches;
+				[$ignore, $n, $wday] = $matches;
 				if (!empty($n)) {
 					$n = intval(trim($n, "+"));
 				} else {
@@ -240,15 +240,15 @@ class Rule_Parser extends Options {
 		try {
 			return new Rule($this->options['freq'], $this->options);
 		} catch (Exception_Parameter $e) {
-			throw new Exception_Syntax("Parameter error with code:\n{code}\nError: {message}", array(
+			throw new Exception_Syntax("Parameter error with code:\n{code}\nError: {message}", [
 				"code" => $this->code,
 				"message" => $e->getMessage(),
-			));
+			]);
 		} catch (Exception_Range $e) {
-			throw new Exception_Syntax("Range error with code:\n{code}\nError: {message}", array(
+			throw new Exception_Syntax("Range error with code:\n{code}\nError: {message}", [
 				"code" => $this->code,
 				"message" => $e->getMessage(),
-			));
+			]);
 		}
 	}
 }

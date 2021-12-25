@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -18,22 +18,22 @@ use zesk\Server;
  */
 class Scanner {
 	public function scan_for_instances(Application $application, $path) {
-		$rules = array(
-			"rules_file" => array(
+		$rules = [
+			"rules_file" => [
 				"#/webapp.json$#" => true,
 				false,
-			),
-			"rules_directory_walk" => array(
+			],
+			"rules_directory_walk" => [
 				"#/\.#" => false,
 				"#/vendor/#" => false,
 				"#/node_modules/#" => false,
 				true,
-			),
+			],
 			"rules_directory" => false,
-		);
+		];
 		$files = Directory::list_recursive($path, $rules);
 		$server = Server::singleton($application);
-		$instances = array();
+		$instances = [];
 		foreach ($files as $webapp_json_file) {
 			$instances[] = Instance::register_from_path($application, $server, $webapp_json_file);
 		}

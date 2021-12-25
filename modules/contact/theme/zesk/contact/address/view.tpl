@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -28,25 +28,25 @@ if ($city && $province) {
 }
 echo HTML::etag('span', '.contact-address-postalcode', $postalcode);
 if ($object->county) {
-	echo HTML::etag('span', array(
+	echo HTML::etag('span', [
 		'class' => 'contact-address-county',
 		'title' => __('County'),
-	), $object->county->name);
+	], $object->county->name);
 }
 if ($object->country) {
-	echo HTML::etag('span', array(
+	echo HTML::etag('span', [
 		'class' => 'contact-address-country',
 		'title' => __('Country'),
-	), $object->country->name);
+	], $object->country->name);
 }
 if ($this->distance_from instanceof Contact_Address) {
 	$distance = $object->distance($this->distance_from);
 	if ($distance !== null) {
 		?><span class="contact-address-distance"><?php
-		echo $this->theme('distance', array(
+		echo $this->theme('distance', [
 			'content' => $distance,
 			'units' => 'miles',
-		)); ?></span><?php
+		]); ?></span><?php
 	}
 }
 ?>

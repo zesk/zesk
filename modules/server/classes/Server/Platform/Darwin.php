@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -22,35 +22,35 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 *
 	 * @var array of array
 	 */
-	private static $users = array();
+	private static $users = [];
 
 	/**
 	 * Group cache
 	 *
 	 * @var array of array
 	 */
-	private static $groups = array();
+	private static $groups = [];
 
 	/**
 	 * Darwin keys for mapping to standard Server_Platform_UNIX keys
 	 *
 	 * @var string
 	 */
-	const darwin_user_shell = "UserShell";
+	public const darwin_user_shell = "UserShell";
 
-	const darwin_user_id = "UniqueID";
+	public const darwin_user_id = "UniqueID";
 
-	const darwin_user_group_id = "PrimaryGroupID";
+	public const darwin_user_group_id = "PrimaryGroupID";
 
-	const darwin_user_full_name = "RealName";
+	public const darwin_user_full_name = "RealName";
 
-	const darwin_user_home = "NFSHomeDirectory";
+	public const darwin_user_home = "NFSHomeDirectory";
 
-	const darwin_group_id = "PrimaryGroupID";
+	public const darwin_group_id = "PrimaryGroupID";
 
-	const darwin_group_name = "RecordName";
+	public const darwin_group_name = "RecordName";
 
-	const darwin_group_members = "GroupMembership";
+	public const darwin_group_members = "GroupMembership";
 
 	/**
 	 * Name of the root volume - cached
@@ -64,14 +64,14 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 *
 	 * @var string
 	 */
-	const userdir_launch_agents = "Library/LaunchAgents";
+	public const userdir_launch_agents = "Library/LaunchAgents";
 
 	/**
 	 * File mode for the directory
 	 *
 	 * @var integer
 	 */
-	const mode_userdir_launch_agents = 0755;
+	public const mode_userdir_launch_agents = 0o755;
 
 	/**
 	 * (non-PHPdoc)
@@ -98,7 +98,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 * @return array
 	 */
 	private static function _parse_dscl_output(array $lines) {
-		$pairs = array();
+		$pairs = [];
 		$last_key = $last_value = null;
 		$is_xml = false;
 		foreach ($lines as $line) {
@@ -123,7 +123,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 				continue;
 			}
 			$last_key = null;
-			list($name, $value) = pairr($line, ":", $line, null);
+			[$name, $value] = pairr($line, ":", $line, null);
 			$value = trim($value);
 			if ($value === "") {
 				$last_key = $name;
@@ -147,13 +147,13 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 * @return multitype:string
 	 */
 	private function darwin_user_map() {
-		return array(
+		return [
 			self::darwin_user_group_id => self::f_user_group_id,
 			self::darwin_user_full_name => self::f_user_full_name,
 			self::darwin_user_id => self::f_user_id,
 			self::darwin_user_shell => self::f_user_shell,
 			self::darwin_user_home => self::f_user_home,
-		);
+		];
 	}
 
 	/**
@@ -162,11 +162,11 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 * @return multitype:string
 	 */
 	private function darwin_group_map() {
-		return array(
+		return [
 			self::darwin_group_id => self::f_group_id,
 			self::darwin_group_name => self::f_group_name,
 			self::darwin_group_members => self::f_group_members,
-		);
+		];
 	}
 
 	/**
@@ -209,7 +209,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		try {
 			$result = $this->exec("dscl . -read /Groups/{0} " . implode(" ", array_keys($map)), $group);
 			$data = ArrayTools::map_keys(self::_parse_dscl_output($result), $map);
-			$data[self::f_group_members] = to_list($data[self::f_group_members], array(), " ");
+			$data[self::f_group_members] = to_list($data[self::f_group_members], [], " ");
 			return self::$groups[$group] = $data;
 		} catch (Server_Exception $e) {
 		}
@@ -220,12 +220,12 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 *
 	 * @see Server_Platform::user_create()
 	 */
-	public function user_create($user, $group, $home = null, $options = null) {
-		$options = ArrayTools::filter(is_array($options) ? $options : array(), array(
+	public function user_create($user, $group, $home = null, $options = null): void {
+		$options = ArrayTools::filter(is_array($options) ? $options : [], [
 			self::f_user_shell,
 			self::f_user_full_name,
 			self::f_user_id,
-		));
+		]);
 		if (!$this->group_exists($group)) {
 			throw new Server_Exception_Group_NotFound($group);
 		}
@@ -239,7 +239,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		} catch (Server_Exception_Command $e) {
 			throw new Server_Exception_User_Create($user, $params);
 		}
-		$dscl_items = array();
+		$dscl_items = [];
 		$dscl_items['PrimaryGroupID'] = $this->group_id($group);
 		if ($home !== null) {
 			$dscl_items[self::darwin_home] = $home;
@@ -276,11 +276,11 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 *
 	 * @see Server_Platform::group_create()
 	 */
-	public function group_create($group, $members = null, $options = null) {
-		$options = ArrayTools::filter(is_array($options) ? $options : array(), 'gid');
-		$params = array(
+	public function group_create($group, $members = null, $options = null): void {
+		$options = ArrayTools::filter(is_array($options) ? $options : [], 'gid');
+		$params = [
 			'members' => to_list($members),
-		) + ArrayTools::filter($options, 'gid');
+		] + ArrayTools::filter($options, 'gid');
 
 		try {
 			$this->exec("dscl . -create /Groups/{0}", $group);
@@ -300,7 +300,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 				$this->exec("dscl . -create /Groups/{0} {1} {2}", $group, $k, $v);
 			}
 			if ($members !== null) {
-				$members = to_list($members, array());
+				$members = to_list($members, []);
 				foreach ($members as $member) {
 					$this->exec("dscl . -append /Groups/{0} {1} {2}", $group, self::darwin_group_members, $member);
 				}
@@ -380,17 +380,17 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	private function _user_directory($user, $user_dir, $create = false, $mode = null) {
 		$path = $this->user_home($user);
 		if (!is_dir($path)) {
-			throw new Exception_Directory_NotFound($path, "Home directory for {user} does not exist: {path}", array(
+			throw new Exception_Directory_NotFound($path, "Home directory for {user} does not exist: {path}", [
 				"user" => $user,
 				"path" => $path,
-			));
+			]);
 		}
 		$path = path($path, $user_dir);
 		if (!is_dir($path) && !$create) {
-			throw new Exception_Directory_NotFound($path, "Directory for {user} does not exist: {path}", array(
+			throw new Exception_Directory_NotFound($path, "Directory for {user} does not exist: {path}", [
 				"user" => $user,
 				"path" => $path,
-			));
+			]);
 		}
 		Directory::depend($path, $mode);
 		return $path;
@@ -426,10 +426,10 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		$contents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n";
 		$contents .= "<plist version=\"1.0\"><dict><key>Label</key><string>{name}</string><key>Program</key><string>{command}</string><key>RunAtLoad</key><true/></dict></plist>";
 
-		return map($contents, array(
+		return map($contents, [
 			"name" => $name,
 			"command" => $command,
-		));
+		]);
 	}
 
 	/**
@@ -465,24 +465,24 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		if (file_exists($filename)) {
 			$old_contents = file_get_contents($filename);
 			if ($old_contents === $contents) {
-				$this->application->logger->debug("{class}::{method}: File {filename} is unchanged", array(
+				$this->application->logger->debug("{class}::{method}: File {filename} is unchanged", [
 					"class" => __CLASS__,
 					"method" => __METHOD__,
 					"filename" => $filename,
-				));
+				]);
 				return true;
 			}
-			$this->application->logger->debug("{class}::{method}: File {filename} will be updated to new version", array(
+			$this->application->logger->debug("{class}::{method}: File {filename} will be updated to new version", [
 				"class" => __CLASS__,
 				"method" => __METHOD__,
 				"filename" => $filename,
-			));
+			]);
 		} else {
-			$this->application->logger->debug("{class}::{method}: File {filename} will be created", array(
+			$this->application->logger->debug("{class}::{method}: File {filename} will be created", [
 				"class" => __CLASS__,
 				"method" => __METHOD__,
 				"filename" => $filename,
-			));
+			]);
 		}
 		File::put($filename, $contents);
 		$this->exec("laumchctl load -D user {0}", $path);

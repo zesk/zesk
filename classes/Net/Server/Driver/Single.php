@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @author Kent Davidson <kent@marketacumen.com>
  * @package zesk
@@ -13,12 +13,12 @@ namespace zesk;
  *
  */
 class Net_Server_Driver_Single extends Net_Server_Driver {
-	public function start() {
+	public function start(): void {
 		$this->listen();
 		while (true) {
-			$fds = array(
+			$fds = [
 				$this->socket,
-			);
+			];
 			$clients_count = 0;
 			foreach ($this->clients as $fd) {
 				if (is_resource($fd)) {
@@ -48,7 +48,7 @@ class Net_Server_Driver_Single extends Net_Server_Driver {
 	}
 
 	protected function _after_accept($socket) {
-		socket_setopt($socket, SOL_SOCKET, SO_REUSEADDR, 1);
+		socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
 		return true;
 	}
 }

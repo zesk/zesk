@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -14,14 +14,14 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 
 	protected $root_group = "wheel";
 
-	protected $command_locations = array(
+	protected $command_locations = [
 		'pw' => '/usr/sbin',
 		'sysctl' => '/sbin',
-	);
+	];
 
-	private static $users = array();
+	private static $users = [];
 
-	private static $groups = array();
+	private static $groups = [];
 
 	/**
 	 * @return Server_Packager
@@ -38,7 +38,7 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 		try {
 			$result = $this->exec_one("pw user show {0}", $user);
 			// publish:*:1001:1001::0:0:Publish User:/publish:/usr/local/bin/bash
-			return self::$users[$user] = ArrayTools::rekey(array(
+			return self::$users[$user] = ArrayTools::rekey([
 				self::f_user_name,
 				"x-password",
 				self::f_user_id,
@@ -49,7 +49,7 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 				self::f_user_full_name,
 				self::f_user_home,
 				self::f_user_shell,
-			), explode(":", $result, 9));
+			], explode(":", $result, 9));
 		} catch (Server_Exception $e) {
 		}
 		return null;
@@ -63,12 +63,12 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 		try {
 			$result = $this->exec_one("pw group show {0}", $group);
 			// publish:*:1001:
-			$data = ArrayTools::rekey(array(
+			$data = ArrayTools::rekey([
 				self::f_group_name,
 				null,
 				self::f_group_id,
 				self::f_group_members,
-			), explode(":", $result, 4));
+			], explode(":", $result, 4));
 			$data['members'] = to_list($data['members']);
 			return self::$groups[$group] = $data;
 		} catch (Server_Exception $e) {
@@ -99,7 +99,7 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 	public function group_create($group, $members = null, $gid = null) {
 		$ma = "";
 		if ($members !== null) {
-			$members = ArrayTools::trim_clean(to_list($members, array()));
+			$members = ArrayTools::trim_clean(to_list($members, []));
 			if (count($members) > 0) {
 				foreach ($members as $member) {
 					if (!$this->group_exists($member)) {
@@ -125,7 +125,7 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 		return true;
 	}
 
-	public function syslog_restart() {
+	public function syslog_restart(): void {
 		$this->root_exec("/etc/rc.d/syslogd restart");
 	}
 }

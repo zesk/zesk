@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,19 +10,19 @@ namespace zesk;
  *
  */
 class Control_Filter_Query extends Control_Select {
-	protected $options = array(
+	protected $options = [
 		'refresh' => true,
-	);
+	];
 
-	protected $query_options = array();
+	protected $query_options = [];
 
 	public function query_options(array $set = null, $add = true) {
 		if ($set === null) {
 			return $this->query_options;
 		}
 		if (!$add) {
-			$this->query_options = array();
-			$this->control_options = array();
+			$this->query_options = [];
+			$this->control_options = [];
 		}
 		foreach ($set as $code => $options) {
 			$title = avalue($options, 'title', $code);
@@ -32,7 +32,7 @@ class Control_Filter_Query extends Control_Select {
 		return $this;
 	}
 
-	protected function hook_query(Database_Query_Select $query) {
+	protected function hook_query(Database_Query_Select $query): void {
 		$value = $this->value();
 		if (array_key_exists($value, $this->query_options)) {
 			foreach ($this->query_options[$value] as $name => $query_value) {
@@ -46,7 +46,7 @@ class Control_Filter_Query extends Control_Select {
 
 	protected function filter_map() {
 		$value = $this->value();
-		return $this->option_array("filter_map") + array(
+		return $this->option_array("filter_map") + [
 			'query_column' => $this->query_column(),
 			'name' => $this->name(),
 			'id' => $this->id(),
@@ -54,36 +54,36 @@ class Control_Filter_Query extends Control_Select {
 			'text_value' => avalue($this->control_options, strval($value), $value),
 			'label' => $this->label(),
 			'column' => $this->column(),
-		);
+		];
 	}
 
-	protected function _filter_where(Database_Query_Select $query, $value) {
+	protected function _filter_where(Database_Query_Select $query, $value): void {
 		$map = $this->filter_map();
 		$value = ArrayTools::scalars($value);
 		$query->where(amap($value, $map));
 	}
 
-	protected function _filter_condition(Database_Query_Select $query, $value) {
+	protected function _filter_condition(Database_Query_Select $query, $value): void {
 		$query->condition(map($value, $this->filter_map()), $this->query_condition_key());
 	}
 
-	protected function _filter_what(Database_Query_Select $query, $value) {
+	protected function _filter_what(Database_Query_Select $query, $value): void {
 		$map = $this->filter_map();
 		$query->what(amap($value, $map));
 	}
 
-	protected function _filter_order_by(Database_Query_Select $query, $value) {
+	protected function _filter_order_by(Database_Query_Select $query, $value): void {
 		$map = $this->filter_map();
 		$query->order_by(amap($value, $map));
 	}
 
-	protected function _filter_join(Database_Query_Select $query, $value) {
+	protected function _filter_join(Database_Query_Select $query, $value): void {
 		$map = $this->filter_map();
 		$query->join(amap($value, $map));
 	}
 
-	protected function _filter_link(Database_Query_Select $query, $value) {
-		list($class, $mixed) = $value;
+	protected function _filter_link(Database_Query_Select $query, $value): void {
+		[$class, $mixed] = $value;
 		$query->link($class, $mixed);
 	}
 }

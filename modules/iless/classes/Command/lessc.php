@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage iless
@@ -42,13 +42,13 @@ class Command_LessC extends Command_File_Convert {
 	 * {@inheritDoc}
 	 * @see \zesk\Command_File_Convert::initialize()
 	 */
-	public function initialize() {
-		$this->option_types += array(
+	public function initialize(): void {
+		$this->option_types += [
 			'cd' => 'dir',
-		);
-		$this->option_help += array(
+		];
+		$this->option_help += [
 			'cd' => 'Change to directory before running',
-		);
+		];
 		$this->option_defaults += [
 			'extension' => $this->destination_extension,
 			'target-path' => '../css/',

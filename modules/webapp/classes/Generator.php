@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -49,7 +49,7 @@ abstract class Generator extends Hookable {
 	 *
 	 * @return self
 	 */
-	public function deploy(array $options = array()) {
+	public function deploy(array $options = []) {
 		return $this;
 	}
 
@@ -70,7 +70,7 @@ abstract class Generator extends Hookable {
 			if ($file_exists && $contents === "") {
 				// Fall through and delete the file
 			} else {
-				return array();
+				return [];
 			}
 		}
 		if ($this->option_bool("save_previous")) {
@@ -86,8 +86,8 @@ abstract class Generator extends Hookable {
 				File::unlink($file);
 			}
 		}
-		return array(
+		return [
 			$file => true,
-		);
+		];
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -30,28 +30,28 @@ abstract class Server_Feature extends Server_Base {
 	 *
 	 * @var array
 	 */
-	protected $commands = array();
+	protected $commands = [];
 
 	/**
 	 * List of required packages for this feature
 	 *
 	 * @var array
 	 */
-	protected $packages = array();
+	protected $packages = [];
 
 	/**
 	 * List of required features to install this one
 	 *
 	 * @var array
 	 */
-	protected $dependencies = array();
+	protected $dependencies = [];
 
 	/**
 	 * List of settings with types which must be set to configure
 	 *
 	 * @var array
 	 */
-	protected $settings = array();
+	protected $settings = [];
 
 	/**
 	 * The directory of this feature's root for configuration in the source tree
@@ -71,27 +71,27 @@ abstract class Server_Feature extends Server_Base {
 
 		$this->code = strtolower(StringTools::unsuffix(get_class($this), __CLASS__));
 		if ($this->configure_root === null) {
-			$class = $this->application->autoloader->search($class, array(
+			$class = $this->application->autoloader->search($class, [
 				"inc",
-			));
+			]);
 			$this->configure_root = StringTools::unsuffix($class, ".inc");
 		}
 
 		$this->call_hook("construct");
 
-		$this->commands = to_list($this->commands, array());
-		$this->packages = to_list($this->packages, array());
-		$this->dependencies = to_list($this->dependencies, array());
-		$this->settings = to_array($this->settings, array());
-		$this->defaults = to_array($this->defaults, array());
+		$this->commands = to_list($this->commands, []);
+		$this->packages = to_list($this->packages, []);
+		$this->dependencies = to_list($this->dependencies, []);
+		$this->settings = to_array($this->settings, []);
+		$this->defaults = to_array($this->defaults, []);
 
 		$platform_name = strtolower($this->platform->name());
 		$platform_conf_file = path($this->configure_root, "platform", $platform_name . ".conf");
 		if (is_file($platform_conf_file)) {
-			$this->application->logger->notice("Loading feature default configuration file {file} for {class}", array(
+			$this->application->logger->notice("Loading feature default configuration file {file} for {class}", [
 				"file" => $platform_conf_file,
 				"class" => get_class($this),
-			));
+			]);
 			$this->defaults = $this->platform->conf_load($platform_conf_file) + $this->defaults;
 		}
 
@@ -109,7 +109,7 @@ abstract class Server_Feature extends Server_Base {
 	}
 
 	public function installable() {
-		$errors = array();
+		$errors = [];
 		foreach ($this->settings as $name => $type) {
 			if (!$this->config->check_type_before($name)) {
 				ArrayTools::append($errors, "configuration", $name);
@@ -145,13 +145,13 @@ abstract class Server_Feature extends Server_Base {
 		return $errors;
 	}
 
-	public function initialize() {
+	public function initialize(): void {
 	}
 
-	public function preconfigure() {
+	public function preconfigure(): void {
 	}
 
-	public function install() {
+	public function install(): void {
 		static $installing = false;
 		if ($installing) {
 			return;
@@ -163,7 +163,7 @@ abstract class Server_Feature extends Server_Base {
 		$installing = false;
 	}
 
-	public function configure() {
+	public function configure(): void {
 	}
 
 	/**
@@ -199,7 +199,7 @@ abstract class Server_Feature extends Server_Base {
 		return $this->config->remote_package($url);
 	}
 
-	final public function configuration_files($type, $files, $dest, array $options = array()) {
+	final public function configuration_files($type, $files, $dest, array $options = []) {
 		$options['+search_path'] = path($this->configure_root, 'files');
 		return $this->platform->configuration_files($type, $files, $dest, $options);
 	}

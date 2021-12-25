@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage contact
@@ -27,12 +27,12 @@ class Contact_Builder_Email extends Contact_Builder_Base {
 		if (!$parts) {
 			throw new Exception_Syntax(__("Unable to parse email address."));
 		}
-		$map = array(
+		$map = [
 			'key' => $key,
-		);
-		$data = array(
+		];
+		$data = [
 			"value" => $parts['email'],
-		) + $this->data;
+		] + $this->data;
 		$data = map($data, $map);
 
 		$import->merge_item($this->contact_class, $data['value'], $data);

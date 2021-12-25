@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -12,9 +12,9 @@ class Module_GitHub extends Module {
 	 * @see https://developer.github.com/v3/repos/releases/#create-a-release
 	 * @var string
 	 */
-	const API_ENDPOINT_RELEASE = "https://api.github.com/repos/{owner}/{repository}/releases?access_token={access_token}";
+	public const API_ENDPOINT_RELEASE = "https://api.github.com/repos/{owner}/{repository}/releases?access_token={access_token}";
 
-	const MISSING_TOKEN = "*MISSING*OPTION*";
+	public const MISSING_TOKEN = "*MISSING*OPTION*";
 
 	/**
 	 *
@@ -34,20 +34,20 @@ class Module_GitHub extends Module {
 		}
 		if ($version) {
 			if (!$this->has_credentials()) {
-				$this->application->logger->warning("{class} is not configured: need options owner, repository, and access_token to generate release for version {version}", array(
+				$this->application->logger->warning("{class} is not configured: need options owner, repository, and access_token to generate release for version {version}", [
 					"class" => get_class($this),
 					"version" => $version,
-				));
+				]);
 				return $settings;
 			}
 			if (!$this->generate_tag("v$version", $commitish)) {
-				$this->application->logger->error("Unable to generate a tag for {version}", array(
+				$this->application->logger->error("Unable to generate a tag for {version}", [
 					"version" => $version,
-				));
+				]);
 			} else {
-				$this->application->logger->info("Generated {version} for {owner}/{repository}", array(
+				$this->application->logger->info("Generated {version} for {owner}/{repository}", [
 					"version" => $version,
-				) + $this->options);
+				] + $this->options);
 			}
 		}
 		return $settings;
@@ -73,16 +73,16 @@ class Module_GitHub extends Module {
 		if (!$commitish) {
 			$commitish = "master";
 		}
-		$json_struct = array(
+		$json_struct = [
 			"tag_name" => $name,
 			"target_commitish" => $commitish,
 			"name" => $name,
 			"body" => $description,
 			"draft" => false,
 			"prerelase" => false,
-		);
+		];
 		$missing = self::MISSING_TOKEN;
-		$url = map(self::API_ENDPOINT_RELEASE, $this->options + array("owner" => $missing, "repository" => $missing, "access_token" => $missing));
+		$url = map(self::API_ENDPOINT_RELEASE, $this->options + ["owner" => $missing, "repository" => $missing, "access_token" => $missing]);
 		$client = new Net_HTTP_Client($this->application, $url);
 		$client->method(Net_HTTP::METHOD_POST);
 		$client->data(JSON::encode($json_struct));

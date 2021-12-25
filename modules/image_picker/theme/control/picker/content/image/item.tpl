@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -19,10 +19,10 @@ if (!$title) {
 	$title = basename($object->path);
 }
 $delete_url = $this->router->get_route('delete', $object);
-echo HTML::div('.item', HTML::div('.image-picker-item', $object->theme('view', array(
+echo HTML::div('.item', HTML::div('.image-picker-item', $object->theme('view', [
 	'width' => 175,
 	'height' => 175,
-))) . HTML::tag('label', $title) . HTML::tag('a', array(
+])) . HTML::tag('label', $title) . HTML::tag('a', [
 	'class' => 'glyphicon glyphicon-remove action-delete',
 	'href' => '/imagepicker/image/' . $object->id() . '/delete',
-), ''));
+], ''));

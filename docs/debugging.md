@@ -46,7 +46,7 @@ This is a RECOMMENDATION and variations among classes may be permitted depending
 		/**
 		 * Initialize the MailSender
 		 */
-		public function initialize() {
+		public function initialize(): void {
 			parent::initialize();
 			$this->inherit_global_options();
 		}

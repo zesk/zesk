@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -23,30 +23,30 @@ class View_Actions extends View {
 	 * {@inheritDoc}
 	 * @see \zesk\Widget::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
-		$this->set_option(array(
+		$this->set_option([
 			"list_order_by" => false,
 			"class" => "view-actions",
 			"label" => $this->locale()->__("Actions"),
-		), false, false);
-		foreach (array(
+		], false, false);
+		foreach ([
 			"edit",
 			"delete",
-		) as $action_code) {
+		] as $action_code) {
 			// show_edit
 			// show_delete
 			if ($this->option("show_" . $action_code, true)) {
 				$url = $this->_action_href($action_code);
 				if ($url) {
-					$this->action_add($url, array(
+					$this->action_add($url, [
 						"theme" => "zesk/view/actions/$action_code",
 						"action_code" => $action_code,
-						"a_attributes" => array(
+						"a_attributes" => [
 							"class" => "action-$action_code",
-						),
+						],
 						"add_link" => true,
-					));
+					]);
 				}
 			}
 		}
@@ -85,7 +85,7 @@ class View_Actions extends View {
 	 * @param array $options
 	 * @return \zesk\View_Actions
 	 */
-	public function action_add($url, array $options = array()) {
+	public function action_add($url, array $options = []) {
 		$options['url'] = $url;
 		$actions = $this->actions();
 		$actions[] = $options;
@@ -108,9 +108,9 @@ class View_Actions extends View {
 	 * @see \zesk\View::theme_variables()
 	 */
 	public function theme_variables() {
-		return array(
+		return [
 			"actions" => $this->actions(),
 			"add_href" => $this->option_bool("add_href", true),
-		);
+		];
 	}
 }

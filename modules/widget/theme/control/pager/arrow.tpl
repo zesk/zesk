@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -36,29 +36,29 @@ if ($direction < 0) {
 }
 
 if ($disabled) {
-	$attrs = array(
+	$attrs = [
 		'class' => 'disabled',
-	);
+	];
 } else {
-	$href = URL::query_format($url, array(
+	$href = URL::query_format($url, [
 		"offset" => $offset,
-	));
+	]);
 	if ($this->has("ajax_id")) {
 		$ajax_id = $this->ajax_id;
 		$href = "$.get('" . $href . "',function(data){\$('#$ajax_id').html(data);})";
-		$attrs = array(
+		$attrs = [
 			"href" => "javascript:noop()",
 			"onclick" => $href,
-		);
+		];
 	} else {
-		$attrs = array(
+		$attrs = [
 			"href" => $href,
-		);
+		];
 	}
 }
 $attrs['title'] = $title;
 $attrs = HTML::add_class($attrs, "btn btn-sm btn-pager");
-echo HTML::tag("a", $attrs, HTML::span(array(
+echo HTML::tag("a", $attrs, HTML::span([
 	"class" => "glyphicon glyphicon-$icon",
 	"disabled" => $disabled,
-), null));
+], null));

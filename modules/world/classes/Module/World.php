@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage address
@@ -13,34 +13,34 @@ namespace zesk;
  *
  */
 class Module_World extends Module_JSLib {
-	protected $javascript_paths = array(
+	protected $javascript_paths = [
 		'/share/world/js/module.world.js',
-	);
+	];
 
-	protected $model_classes = array(
+	protected array $model_classes = [
 		'zesk\\Currency',
 		'zesk\\City',
 		'zesk\\County',
 		'zesk\\Country',
 		'zesk\\Language',
 		'zesk\\Province',
-	);
+	];
 
-	public function hook_head(Request $request, Response $response, Template $template) {
-		$currency = $this->call_hook_arguments("currency", array(), null);
+	public function hook_head(Request $request, Response $response, Template $template): void {
+		$currency = $this->call_hook_arguments("currency", [], null);
 		/* @var $currency Currency */
 		if ($currency instanceof Currency) {
-			$this->javascript_settings += array(
+			$this->javascript_settings += [
 				'currency' => $currency->members("id;precision;format;name;code;symbol;fractional;fractional_units"),
-			);
+			];
 		}
 		parent::hook_head($request, $response, $template);
 	}
 
-	public function hook_schema_updated() {
-		$__ = array(
+	public function hook_schema_updated(): void {
+		$__ = [
 			"method" => __METHOD__,
-		);
+		];
 		$bootstrap = $this->option_bool("bootstrap_all");
 		$bootstrap_country = $this->option_bool("bootstrap_country");
 		$bootstrap_currency = $this->option_bool("bootstrap_currency");

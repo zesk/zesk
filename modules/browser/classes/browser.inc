@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -29,10 +29,10 @@ class Browser extends ORM {
 		}
 		$md5 = md5($name);
 		/* @var $browser Browser */
-		$browser = $application->orm_factory(__CLASS__, array(
+		$browser = $application->orm_factory(__CLASS__, [
 			'md5' => $md5,
 			"name" => $name,
-		));
+		]);
 		if (!$browser->find()) {
 			$browser->md5 = md5($name);
 			$browser->name = $name;

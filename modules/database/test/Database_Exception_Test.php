@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
@@ -8,11 +8,11 @@
 namespace zesk;
 
 class Database_Exception_Test extends Exception_TestCase {
-	public $load_modules = array(
+	public $load_modules = [
 		"Database",
-	);
+	];
 
-	public function test_basics() {
+	public function test_basics(): void {
 		$testx = new Database_Exception($this->test_database());
 
 		$this->exception_test($testx);

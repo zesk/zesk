@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -9,7 +9,7 @@ namespace zesk;
  */
 $value = $this->value;
 
-$attributes = array(
+$attributes = [
 	"class" => 'dropfile',
 	"data-dropfile-allowed-types" => 'image',
 	"id" => 'dropfile-image-' . $this->name,
@@ -18,9 +18,9 @@ $attributes = array(
 	"data-dropfile-column" => $this->column,
 	"data-dropfile-remove" => true,
 	"data-dropfile-url" => $this->url_upload,
-);
-echo HTML::tag('div', $attributes, $this->theme('zesk/control/dropfile/image/contents', array(
+];
+echo HTML::tag('div', $attributes, $this->theme('zesk/control/dropfile/image/contents', [
 	"object" => $value,
-)));
+]));
 
 $this->response->jquery('$.dropfile();');

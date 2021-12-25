@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
@@ -55,11 +55,11 @@ class Database_Index {
 	 */
 	private $structure;
 
-	const Index = "INDEX";
+	public const Index = "INDEX";
 
-	const Unique = "UNIQUE";
+	public const Unique = "UNIQUE";
 
-	const Primary = "PRIMARY KEY";
+	public const Primary = "PRIMARY KEY";
 
 	/**
 	 *
@@ -73,7 +73,7 @@ class Database_Index {
 	public function __construct(Database_Table $table, $name = "", $columns = null, $type = "INDEX", $structure = null) {
 		$this->table = $table;
 		$this->database = $table->database();
-		$this->columns = array();
+		$this->columns = [];
 		$this->type = self::determineType($type);
 		$this->name = empty($name) && $this->type === self::Primary ? "primary" : $name;
 
@@ -84,7 +84,7 @@ class Database_Index {
 				if (is_numeric($size) || is_bool($size)) {
 					$this->column_add($col, $size);
 				} elseif (!is_string($size)) {
-					throw new Exception_Semantics(map("Columns must be name => size, or => name ({0} => {1} passed for table {2}", array($col, $size, $table->name())));
+					throw new Exception_Semantics(map("Columns must be name => size, or => name ({0} => {1} passed for table {2}", [$col, $size, $table->name()]));
 				} else {
 					$this->column_add($size);
 				}
@@ -109,6 +109,9 @@ class Database_Index {
 	 * @return string
 	 */
 	public static function determineType($sqlType) {
+		if (!empty($sqlType)) {
+			return self::Index;
+		}
 		switch (strtolower($sqlType)) {
 			case "unique":
 			case "unique key":
@@ -129,11 +132,13 @@ class Database_Index {
 	 * @return string
 	 */
 	public function determineStructure($structure) {
-		$structure = strtoupper($structure);
-		switch ($structure) {
-			case "BTREE":
-			case "HASH":
-				return $structure;
+		if (is_string($structure)) {
+			$structure = strtoupper($structure);
+			switch ($structure) {
+				case "BTREE":
+				case "HASH":
+					return $structure;
+			}
 		}
 		return strtoupper($this->database->default_index_structure($this->type));
 	}
@@ -143,7 +148,7 @@ class Database_Index {
 	 * @param string $lower
 	 * @return string
 	 */
-	public function name() {
+	public function name(): string {
 		return $this->name;
 	}
 
@@ -217,10 +222,10 @@ class Database_Index {
 			$col = $mixed;
 			$db_col = $this->table->column($col);
 			if (!$db_col) {
-				throw new Exception_NotFound("{method}: {col} not found in {table}", compact("col") + array(
+				throw new Exception_NotFound("{method}: {col} not found in {table}", compact("col") + [
 					"method" => __METHOD__,
 					"table" => $this->table,
-				));
+				]);
 			}
 		} elseif (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {

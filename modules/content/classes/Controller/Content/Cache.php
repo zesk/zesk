@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -15,7 +15,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	 *
 	 * @var string
 	 */
-	const image_variation_default = "default";
+	public const image_variation_default = "default";
 
 	/**
 	 *
@@ -29,7 +29,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	 *
 	 * @param Content_Image $image
 	 */
-	public static function image_changed(Content_Image $image) {
+	public static function image_changed(Content_Image $image): void {
 		$app = $image->application;
 		$path = path($app->document_root(), self::cache_prefix($app->configuration), $image->id());
 		if (is_dir($path)) {
@@ -42,12 +42,12 @@ class Controller_Content_Cache extends Controller_Cache {
 	 * @param unknown $image_file
 	 * @param unknown $styles
 	 */
-	private function _correct_url_redirect($image_file, $styles) {
+	private function _correct_url_redirect($image_file, $styles): void {
 		$this->response->cache_for(60);
-		$this->response->redirect($this->router->prefix() . $this->route->url_replace(array(
+		$this->response->redirect($this->router->prefix() . $this->route->url_replace([
 			"file" => $image_file,
 			"styles" => $styles,
-		)));
+		]));
 		return;
 	}
 
@@ -126,9 +126,9 @@ class Controller_Content_Cache extends Controller_Cache {
 		} catch (Exception_ORM_NotFound $e) {
 			$this->response->status(404, "Not Found 2");
 			$this->response->cache_for(60, Response::CACHE_PATH);
-			$this->response->json()->data(array(
+			$this->response->json()->data([
 				"message" => $e->getMessage(),
-			));
+			]);
 			return;
 		}
 	}
@@ -140,7 +140,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	 */
 	protected function parse_commands(Content_Image $image, $styles) {
 		if (empty($styles) || $styles === "default") {
-			return array();
+			return [];
 		}
 		if (preg_match('/c([0-9]*)x([0-9]*)/', $styles, $matches)) {
 			$width = $matches[1] ? intval($matches[1]) : null;
@@ -153,13 +153,13 @@ class Controller_Content_Cache extends Controller_Cache {
 			} elseif (empty($height)) {
 				$height = round(($image->height / $image->width) * $width);
 			}
-			return array(
-				array(
+			return [
+				[
 					"hook" => "scale",
 					"width" => intval($width),
 					"height" => intval($height),
-				),
-			);
+				],
+			];
 		}
 		return null;
 	}
@@ -179,9 +179,9 @@ class Controller_Content_Cache extends Controller_Cache {
 			}
 			$command['original'] = $original;
 			$command['data'] = $data;
-			$new_data = $this->call_hook_arguments("image_" . $hook, array(
+			$new_data = $this->call_hook_arguments("image_" . $hook, [
 				$command,
-			), null);
+			], null);
 			if ($new_data) {
 				$data = $new_data;
 			}
@@ -197,11 +197,11 @@ class Controller_Content_Cache extends Controller_Cache {
 	protected function hook_image_scale(array $command) {
 		$width = $height = null;
 		extract($command, EXTR_IF_EXISTS);
-		return Image_Library::factory($this->application)->image_scale_data($command['data'], array(
+		return Image_Library::factory($this->application)->image_scale_data($command['data'], [
 			'zoom' => true,
 			'width' => $width,
 			'height' => $height,
-		));
+		]);
 	}
 
 	/**
@@ -224,11 +224,11 @@ class Controller_Content_Cache extends Controller_Cache {
 					}
 				}
 			}
-			return array(
+			return [
 				'styles' => "$styles",
 				'file' => $object ? basename($object->path()) : "-no-object-",
-			);
+			];
 		}
-		return array();
+		return [];
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Delete
  *
@@ -108,11 +108,11 @@ class Database_Query_Insert extends Database_Query_Edit {
 	 * @throws Exception_Parameter
 	 */
 	public function __toString() {
-		$options = array(
+		$options = [
 			'table' => $this->into,
 			'values' => $this->values,
 			'low_priority' => $this->low_priority,
-		);
+		];
 		if ($this->replace) {
 			$options['verb'] = 'REPLACE';
 		}
@@ -133,10 +133,10 @@ class Database_Query_Insert extends Database_Query_Edit {
 			$sql = $this->__toString();
 			return $this->database()->query($sql);
 		}
-		$options = array(
+		$options = [
 			'table' => $this->into,
 			'values' => $this->values,
-		);
+		];
 		if ($this->replace) {
 			$options['verb'] = 'REPLACE';
 		}

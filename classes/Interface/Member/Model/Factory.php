@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 interface Interface_Member_Model_Factory {
@@ -18,5 +18,5 @@ interface Interface_Member_Model_Factory {
 	 *        	Options to create when creating object
 	 * @return Model|null
 	 */
-	public function member_model_factory($member, $class, $mixed = null, array $options = array());
+	public function member_model_factory($member, $class, $mixed = null, array $options = []);
 }

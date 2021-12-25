@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk-modules
  * @subpackage tag
@@ -36,7 +36,7 @@ class Label extends \zesk\ORM {
 	 * @return self
 	 */
 	public static function label_find(Application $application, $code) {
-		$members = array();
+		$members = [];
 		$members['code'] = self::clean_code_name($code);
 		return $application->orm_factory(__CLASS__, $members)->find();
 	}
@@ -47,17 +47,17 @@ class Label extends \zesk\ORM {
 	 * @param array $attributes
 	 * @return self
 	 */
-	public static function label_register(Application $application, $name = null, array $attributes = array()) {
+	public static function label_register(Application $application, $name = null, array $attributes = []) {
 		$tag_label = $application->orm_factory(__CLASS__);
-		$members = ArrayTools::filter($attributes, array(
+		$members = ArrayTools::filter($attributes, [
 			"code",
 			"is_internal",
 			"is_translated",
 			"owner",
-		)) + array(
+		]) + [
 			"code" => $name,
 			"name" => $name,
-		);
+		];
 		$members['code'] = self::clean_code_name($members['code']);
 		$cache = $application->cache->getItem(__CLASS__ . "-" . $members['code']);
 		if ($cache->isHit()) {
@@ -121,7 +121,7 @@ class Label extends \zesk\ORM {
 	public function reassign($other) {
 		$app = $this->application;
 		$subclasses = $app->classes->subclasses(Tag::class);
-		$result = array();
+		$result = [];
 		foreach ($subclasses as $subclass) {
 			try {
 				$orm = $app->orm_registry($subclass);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -25,9 +25,9 @@ class Exception_DomainLookup extends Exception {
 	 * @param integer $code
 	 * @param Exception $previous
 	 */
-	public function __construct($host, $message, array $arguments = array(), $code = null, Exception $previous = null) {
+	public function __construct($host, $message, array $arguments = [], $code = null, Exception $previous = null) {
 		$this->host = $host;
-		if (strpos($message, '{host}') === false) {
+		if (!str_contains($message, '{host}')) {
 			$message = "{host}: $message";
 		}
 		$arguments['host'] = $host;

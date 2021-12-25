@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -36,18 +36,18 @@ class Health_Events extends ORM {
 	}
 
 	public function register_from_event(Health_Event $event) {
-		$hash = array(
+		$hash = [
 			$event->member_integer("server"),
 			$event->application,
 			$event->context,
 			$event->type,
 			$event->message,
 			intval($event->fatal),
-		);
-		$fields = array(
+		];
+		$fields = [
 			'hash' => md5(implode("|", $hash)),
 			'date' => new Date($event->when),
-		);
+		];
 		$this->set_member($fields);
 		if ($this->find()) {
 			$this->bump($event->when, $event->when_msec);
@@ -66,14 +66,14 @@ class Health_Events extends ORM {
 			->where("id", $this->id)
 			->execute();
 		$this->query_update()
-			->values(array(
+			->values([
 			"recent" => $when,
 			"recent_msec" => $when_msec,
-		))
-			->where(array(
+		])
+			->where([
 			"id" => $this->id,
 			"recent|<=" => $when,
-		))
+		])
 			->execute();
 		return $this;
 	}

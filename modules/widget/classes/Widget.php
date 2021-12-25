@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -16,33 +16,56 @@ namespace zesk;
  */
 class Widget extends Hookable {
 	/**
-	 *
-	 * @var string
+	 * @var integer
 	 */
-	const option_minimum_glyph_length = 'minimum_glyph_length';
+	public const INITIALIZED = 0;
+
+	/**
+	 *
+	 * @var integer
+	 */
+	public const ready = 1;
+
+	/**
+	 *
+	 * @var integer
+	 */
+	public const submit = 2;
+
+	/**
+	 *
+	 * @var integer
+	 */
+	public const render = 3;
 
 	/**
 	 *
 	 * @var string
 	 */
-	const option_maximum_glyph_length = 'maximum_glyph_length';
+	public const option_minimum_glyph_length = 'minimum_glyph_length';
+
+	/**
+	 *
+	 * @var string
+	 */
+	public const option_maximum_glyph_length = 'maximum_glyph_length';
 
 	/**
 	 * List of widget => error or errors
 	 */
-	protected $errors = array();
+	protected $errors = [];
 
 	/**
 	 * List of widget => messages
 	 */
-	protected $messages = array();
+	protected $messages = [];
 
 	/**
 	 * Parent widget, if any
 	 *
 	 * @var Widget
 	 */
-	protected $parent = null;
+	protected ?Widget $parent = null;
 
 	/**
 	 * Request associated with this widget
@@ -84,7 +107,7 @@ class Widget extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected $theme_variables = array();
+	protected $theme_variables = [];
 
 	/**
 	 * Class for context of this widget (typically, the outside HTML tag)
@@ -98,7 +121,7 @@ class Widget extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected $wraps = array();
+	protected $wraps = [];
 
 	/**
 	 * Whether this has been wrapped
@@ -112,112 +135,96 @@ class Widget extends Hookable {
 	 *
 	 * @var boolean
 	 */
-	private $behaviors = array();
+	private $behaviors = [];
 
 	/**
 	 * Set to true in subclasses to render children and append to main render
 	 *
 	 * @var boolean
 	 */
-	protected $render_children = false;
+	protected bool $render_children = false;
 
 	/**
 	 * List of children widgets
 	 *
 	 * @var array of column => Widget
 	 */
-	public $children = array();
+	public array $children = [];
 
 	/**
 	 * Whether this widget has been initialized
 	 *
 	 * @var boolean
 	 */
-	public $_initialize = false;
+	public bool $_initialize = false;
 
 	/**
 	 * Rendered content
-	 *
-	 * @var string
 	 */
-	public $content = null;
+	public ?string $content = null;
 
 	/**
 	 * String to output child nodes, set to blank to skip output
-	 *
-	 * @var string
 	 */
-	public $content_children = null;
+	public ?string $content_children = null;
 
 	/**
 	 * Widget column represents a particular class
 	 *
 	 * @var string
 	 */
-	protected $class = null;
+	protected ?string $class = null;
 
 	/**
 	 * Execution state
 	 *
 	 * @var mixed
 	 */
-	protected $exec_state = null;
+	protected int $exec_state = self::INITIALIZED;
+
+	/**
+	 * Rendered state content, probably same as content but
+	 * can not test now.
+	 */
+	private string $exec_render = "";
 
 	/**
 	 * When executing child, traverse the parent model
 	 *
 	 * @var boolean
 	 */
-	protected $traverse = null;
+	protected bool $traverse = false;
 
 	/**
-	 * Rename traversable children of so input names are guaranteed unique.
+	 * Rename traversable children so input names are guaranteed unique.
 	 * Generally should be handled by developer.
 	 *
 	 * @var boolean
 	 */
-	protected $traverse_rename = false;
+	protected bool $traverse_rename = false;
 
 	/**
 	 * Hierarchy of classes up through Widget
 	 *
 	 * @var array
 	 */
-	protected $hierarchy = array();
+	protected array $hierarchy = [];
 
 	/**
 	 * What we're operating on
 	 *
 	 * @var Model
 	 */
-	protected $object = null;
-
-	/**
-	 *
-	 * @var integer
-	 */
-	const ready = 1;
-
-	/**
-	 *
-	 * @var integer
-	 */
-	const submit = 2;
-
-	/**
-	 *
-	 * @var integer
-	 */
-	const render = 3;
+	protected Model $object;
 
 	/**
 	 * If request contains these values (strict), then ignore them
 	 *
 	 * @var array
 	 */
-	protected $load_ignore_values = array(
+	protected array $load_ignore_values = [
 		null,
-	);
+	];
 
 	/**
 	 * Create a new widget
@@ -234,17 +241,17 @@ class Widget extends Hookable {
 		$this->request = $application->request();
 
 		if (!is_array($options)) {
-			$options = array();
+			$options = [];
 		}
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 
-		$this->options += array(
+		$this->options += [
 			"column" => avalue($this->options, 'id'),
-		);
-		$this->options += array(
+		];
+		$this->options += [
 			'name' => avalue($this->options, 'column'),
-		);
+		];
 
 		if ($this->has_option("locale")) {
 			$this->locale($this->application->locale_registry($this->option("locale")));
@@ -270,10 +277,10 @@ class Widget extends Hookable {
 	 * @return array
 	 */
 	public function default_theme() {
-		return ArrayTools::change_value_case(tr($this->hierarchy, array(
+		return ArrayTools::change_value_case(tr($this->hierarchy, [
 			"\\" => "/",
 			"_" => "/",
-		)));
+		]));
 	}
 
 	/**
@@ -421,9 +428,9 @@ class Widget extends Hookable {
 	 * Retrieve all children, indexed by input names (name)
 	 */
 	public function all_children($include_this = false) {
-		$result = $include_this ? array(
+		$result = $include_this ? [
 			$this,
-		) : array();
+		] : [];
 		foreach ($this->children as $child) {
 			$result = array_merge($result, $child->all_children(true));
 		}
@@ -479,11 +486,11 @@ class Widget extends Hookable {
 				return $result;
 			}
 
-			throw new Exception_Semantics("{class}::child({name}, {widget}) invalid parameters", array(
+			throw new Exception_Semantics("{class}::child({name}, {widget}) invalid parameters", [
 				"class" => get_class($this),
 				"name" => _dump($name),
 				"widget" => _dump($widget),
-			));
+			]);
 		}
 		if ($name instanceof Widget) {
 			/* @var $name Widget */
@@ -495,19 +502,19 @@ class Widget extends Hookable {
 			return $this;
 		}
 
-		throw new Exception_Semantics("{class}::child({name}, {widget}) invalid parameters", array(
+		throw new Exception_Semantics("{class}::child({name}, {widget}) invalid parameters", [
 			"class" => get_class($this),
 			"name" => _dump($name),
 			"widget" => _dump($widget),
-		));
+		]);
 	}
 
-	private function _child($id, Widget $child, $first = false) {
+	private function _child($id, Widget $child, $first = false): void {
 		$child->parent = $this;
 		if ($first) {
-			$this->children = array_merge(array(
+			$this->children = array_merge([
 				$id => $child,
-			), $this->children);
+			], $this->children);
 		} else {
 			$this->children[$id] = $child;
 		}
@@ -522,12 +529,12 @@ class Widget extends Hookable {
 		if (count($args) === 0) {
 			return $this->wraps;
 		}
-		$this->wraps[] = array(
+		$this->wraps[] = [
 			$tag,
 			HTML::to_attributes($mixed),
 			$prefix,
 			$suffix,
-		);
+		];
 		return $this;
 	}
 
@@ -537,7 +544,7 @@ class Widget extends Hookable {
 	 * @return Widget
 	 */
 	public function nowrap() {
-		$this->wraps = array();
+		$this->wraps = [];
 		return $this;
 	}
 
@@ -551,7 +558,7 @@ class Widget extends Hookable {
 			throw new Exception_Semantics(get_class($this) . "::unwrap: Nothing more to unwrap");
 		}
 		$object = $this->object;
-		list($tag, $mixed, $prefix, $suffix) = array_shift($this->wraps);
+		[$tag, $mixed, $prefix, $suffix] = array_shift($this->wraps);
 		return HTML::tag($object->apply_map($tag), $object->apply_map($mixed), $prefix . $content . $suffix);
 	}
 
@@ -576,7 +583,7 @@ class Widget extends Hookable {
 	 */
 	public static function inherit_options(Application $application, $options, $class) {
 		if (!is_array($options)) {
-			$options = array();
+			$options = [];
 		}
 		return $options + self::default_options($application, $class);
 	}
@@ -589,7 +596,7 @@ class Widget extends Hookable {
 	 * @param mixed $mixed
 	 * @param array $options
 	 */
-	public function object_factory($class, $mixed = null, array $options = array()) {
+	public function object_factory($class, $mixed = null, array $options = []) {
 		$this->application->deprecated();
 		return $this->model_factory($class, $mixed, $options);
 	}
@@ -601,7 +608,7 @@ class Widget extends Hookable {
 	 * @param mixed $mixed
 	 * @param array $options
 	 */
-	public function model_factory($class, $mixed = null, array $options = array()) {
+	public function model_factory(string $class, mixed $mixed = null, array $options = []): Model {
 		return $this->application->model_factory($class, $mixed, $options);
 	}
 
@@ -632,22 +639,22 @@ class Widget extends Hookable {
 	 * @return Widget
 	 */
 	public static function factory(Application $application, $class, $options = null) {
-		$args = array(
+		$args = [
 			$application,
 			$options,
-		);
+		];
 		$widget = null;
 
 		try {
 			$widget = $application->factory_arguments($class, $args);
 		} catch (Exception_Class_NotFound $e) {
-			if (strpos($class, "\\") === false && class_exists("zesk\\$class")) {
+			if (!str_contains($class, "\\")   && class_exists("zesk\\$class")) {
 				$widget = $application->factory_arguments("zesk\\" . $class, $args);
 				if ($widget) {
-					$application->deprecated("{method} called with unprefixed class {class}", array(
+					$application->deprecated("{method} called with unprefixed class {class}", [
 						"method" => __METHOD__,
 						"class" => $class,
-					));
+					]);
 				}
 			} else {
 				throw $e;
@@ -751,7 +758,7 @@ class Widget extends Hookable {
 	 * @param $object mixed
 	 *        	Optional target
 	 */
-	public function user_can($action, Model $object = null, array $options = array()) {
+	public function user_can($action, Model $object = null, array $options = []) {
 		$user = $this->user();
 		if (!$user instanceof User) {
 			return false;
@@ -818,10 +825,10 @@ class Widget extends Hookable {
 			$parent = $next;
 			$next = $parent->parent();
 			if (++$depth > 50) {
-				throw new Exception_Semantics("Widgets are in a parent infinite loop - {class} {name}", array(
+				throw new Exception_Semantics("Widgets are in a parent infinite loop - {class} {name}", [
 					"class" => get_class($this),
 					"name" => $this->name(),
-				));
+				]);
 			}
 		} while ($next !== null);
 		return $parent;
@@ -835,10 +842,10 @@ class Widget extends Hookable {
 	 */
 	public function value($set = null) {
 		if (!$this->object instanceof Model) {
-			throw new Exception_Semantics("Retrieving value when object is not initialized {class} {name}", array(
+			throw new Exception_Semantics("Retrieving value when object is not initialized {class} {name}", [
 				"class" => get_class($this),
 				"name" => $this->name(),
-			));
+			]);
 		}
 		if ($set !== null) {
 			$this->object->set($this->column(), $set);
@@ -1095,7 +1102,7 @@ class Widget extends Hookable {
 		if ($this->save_render()) {
 			return false;
 		}
-		return $this->call_hook_arguments("visible", array(), true);
+		return $this->call_hook_arguments("visible", [], true);
 	}
 
 	/**
@@ -1104,8 +1111,8 @@ class Widget extends Hookable {
 	 * @return Widget
 	 */
 	public function clear() {
-		$this->errors = array();
-		$this->messages = array();
+		$this->errors = [];
+		$this->messages = [];
 		foreach ($this->children as $child) {
 			$child->clear();
 		}
@@ -1265,11 +1272,11 @@ class Widget extends Hookable {
 				} elseif ($this->submitted()) {
 					$this->load();
 					if (($valid = $this->validate()) === true) {
-						if (($valid = $this->call_hook_arguments('validate', array(), true)) === true) {
+						if (($valid = $this->call_hook_arguments('validate', [], true)) === true) {
 							$do_render = $this->submit();
 						}
 					} else {
-						$do_render = $this->call_hook_arguments("validate_failed", array(), null);
+						$do_render = $this->call_hook_arguments("validate_failed", [], null);
 					}
 				}
 			}
@@ -1331,11 +1338,11 @@ class Widget extends Hookable {
 		$result = true;
 		foreach ($this->children as $child) {
 			if (!$child->validate()) {
-				$this->application->logger->warning("{class}::validate() {child_class} named {name} did not validate", array(
+				$this->application->logger->warning("{class}::validate() {child_class} named {name} did not validate", [
 					"class" => get_class($this),
 					"name" => $child->name(),
 					"child_class" => get_class($child),
-				));
+				]);
 				$result = false;
 			}
 		}
@@ -1405,10 +1412,10 @@ class Widget extends Hookable {
 	 */
 	public function size($mixed = null, $max = null) {
 		if ($mixed === null && $max === null) {
-			return array(
+			return [
 				$this->option_integer('minlength'),
 				$this->option_integer('maxlength'),
-			);
+			];
 		} elseif ($max === null) {
 			$this->set_option('maxlength', $mixed);
 			return $this;
@@ -1436,10 +1443,10 @@ class Widget extends Hookable {
 	 */
 	public function glyphs($mixed = null, $max = null) {
 		if ($mixed === null && $max === null) {
-			return array(
+			return [
 				$this->option_integer(self::option_minimum_glyph_length),
 				$this->option_integer(self::option_maximum_glyph_length),
-			);
+			];
 		} elseif ($max === null) {
 			$this->set_option(self::option_maximum_glyph_length, $mixed);
 			return $this;
@@ -1459,12 +1466,12 @@ class Widget extends Hookable {
 	 */
 	private function _character_error($message, $size, $entered_size = null) {
 		$locale = $this->application->locale;
-		$this->error($locale($message, array(
+		$this->error($locale($message, [
 			"label" => $this->label(),
 			"length" => $size,
 			"entered_length" => $entered_size,
 			"characters" => $locale->plural($locale("character"), $size),
-		)));
+		]));
 		return false;
 	}
 
@@ -1482,8 +1489,8 @@ class Widget extends Hookable {
 		$byte_length = strlen($v);
 		$glyph_length = StringTools::length($v, $this->option("encoding"));
 
-		list($min_byte_length, $max_byte_length) = $this->size();
-		list($min_glyph_length, $max_glyph_length) = $this->glyphs();
+		[$min_byte_length, $max_byte_length] = $this->size();
+		[$min_glyph_length, $max_glyph_length] = $this->glyphs();
 
 		/* Old style - useful to ensure we don't exceed database string sizes */
 		if (($min_byte_length > 0) && ($byte_length < $min_byte_length)) {
@@ -1522,7 +1529,7 @@ class Widget extends Hookable {
 	 * @param boolean $recurse
 	 *        	Recurse on each child
 	 */
-	final protected function children_set_option($name, $value = null, $recurse = true) {
+	final protected function children_set_option($name, $value = null, $recurse = true): void {
 		if (!is_array($this->children)) {
 			return;
 		}
@@ -1555,7 +1562,7 @@ class Widget extends Hookable {
 	 *        	String, list of hooks (;-separated), or array of hook names
 	 * @return void
 	 */
-	final public function children_hook_array($hooks, array $arguments) {
+	final public function children_hook_array($hooks, array $arguments): void {
 		$this->call_hook_arguments($hooks, $arguments);
 		$children = $this->all_children();
 		$locale = $this->application->locale;
@@ -1573,7 +1580,7 @@ class Widget extends Hookable {
 	 *
 	 * @param string $state
 	 */
-	private function _update_child_state($state) {
+	private function _update_child_state($state): void {
 		if (!is_array($this->children)) {
 			return;
 		}
@@ -1590,7 +1597,7 @@ class Widget extends Hookable {
 	 * @return Widget
 	 */
 	private function _exec_ready() {
-		if ($this->exec_state === null) {
+		if ($this->exec_state === self::INITIALIZED) {
 			$this->exec_state = self::ready;
 			$this->response();
 			// Create model for parent object to have something to examine state in
@@ -1632,7 +1639,7 @@ class Widget extends Hookable {
 	 * @param $object Model
 	 * @return void
 	 */
-	protected function load() {
+	protected function load(): void {
 		$column = $this->column();
 		if (!empty($column)) {
 			/*
@@ -1678,7 +1685,7 @@ class Widget extends Hookable {
 	/**
 	 * Invoke load on all children
 	 */
-	protected function children_load() {
+	protected function children_load(): void {
 		if (is_array($this->children) && count($this->children) !== 0) {
 			foreach ($this->children as $widget) {
 				/* @var $widget Widget */
@@ -1688,7 +1695,7 @@ class Widget extends Hookable {
 		}
 	}
 
-	private function save_new_value($new_value) {
+	private function save_new_value($new_value): void {
 		if ($this->option_bool("trim", true) && is_scalar($new_value)) {
 			$new_value = trim($new_value);
 		}
@@ -1703,7 +1710,7 @@ class Widget extends Hookable {
 	/**
 	 * Initialize subobjects by traversing the model and initializing the sub-models
 	 */
-	private function children_model() {
+	private function children_model(): void {
 		foreach ($this->children as $child) {
 			/* @var $child Widget */
 			$column = $child->column();
@@ -1729,9 +1736,9 @@ class Widget extends Hookable {
 			// is generated.
 			$output = $this->render();
 			$this->_update_child_state(self::render);
-			return $this->exec_state = $this->unwrap_all($output);
+			return $this->exec_render = $this->unwrap_all($output);
 		}
-		return $this->exec_state;
+		return $this->exec_render;
 	}
 
 	/**
@@ -1755,12 +1762,12 @@ class Widget extends Hookable {
 	 * @return mixed
 	 */
 	public function controller() {
-		$this->response()->json()->data(array(
+		$this->response()->json()->data([
 			"status" => false,
-			"message" => $this->application->locale->__("{class} does not implement controller method", array(
+			"message" => $this->application->locale->__("{class} does not implement controller method", [
 				"class" => get_class($this),
-			)),
-		));
+			]),
+		]);
 		return null;
 	}
 
@@ -1959,11 +1966,11 @@ class Widget extends Hookable {
 	 * @param string $type
 	 */
 	private static function _attributes_names($type) {
-		static $types = array(
+		static $types = [
 			"default" => "id;class;style",
 			"input" => "id;class;style;title;placeholder;onclick;ondblclick;onmousedown;onmouseup;onmouseover;onmousemove;onmouseout;onkeypress;onkeydown;onkeyup;type;name;value;checked;disabled;readonly;size;maxlength;src;alt;usemap;ismap;tabindex;accesskey;onfocus;onblur;onselect;onchange;accept",
 			"textarea" => "id;class;style;title;placeholder;onclick;ondblclick;onmousedown;onmouseup;onmouseover;onmousemove;onmouseout;onkeypress;onkeydown;onkeyup;type;name;checked;disabled;readonly;size;maxlength;src;alt;tabindex;accesskey;onfocus;onblur;onselect;onchange;accept",
-		);
+		];
 		return avalue($types, $type, $types['default']);
 	}
 
@@ -1973,7 +1980,7 @@ class Widget extends Hookable {
 	 * @param array $inherit
 	 * @param string $type
 	 */
-	public function attributes(array $inherit = array(), $type = "") {
+	public function attributes(array $inherit = [], $type = "") {
 		$options_list = self::_attributes_names($type);
 		$attributes = $this->options_include($options_list) + $this->data_attributes();
 		return self::attributes_inherit($attributes, $inherit);
@@ -2012,7 +2019,7 @@ class Widget extends Hookable {
 		return $session->get($sess_variable_name, $default);
 	}
 
-	protected function _save_default_value($value, $column = null) {
+	protected function _save_default_value($value, $column = null): void {
 		$sess_variable_name = $this->option("session_default");
 		if (!$sess_variable_name) {
 			return;
@@ -2075,21 +2082,21 @@ class Widget extends Hookable {
 	 * @param $object Model
 	 * @return void
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		$response = $this->response();
 		if (!$response) {
-			throw new Exception_Semantics("Widget {class} must be set up with a response prior to initialization", array(
+			throw new Exception_Semantics("Widget {class} must be set up with a response prior to initialization", [
 				"class" => get_class($this),
-			));
+			]);
 		}
 		if (!$this->has_option('column', true)) {
 			$class = get_class($this);
 			$column = strtolower(strtr($class, "_", "-")) . '-' . $this->response()->id_counter();
 			$this->column($column);
-			$this->application->logger->notice("{class} was given a default column name \"{column}\"", array(
+			$this->application->logger->notice("{class} was given a default column name \"{column}\"", [
 				"class" => $class,
 				"column" => $column,
-			));
+			]);
 		}
 		if (!$this->has_option('name')) {
 			$this->name($this->column());
@@ -2113,7 +2120,7 @@ class Widget extends Hookable {
 	 *
 	 * @param unknown $object
 	 */
-	protected function children_initialize() {
+	protected function children_initialize(): void {
 		if (is_array($this->children)) {
 			do {
 				$n_children = count($this->children);
@@ -2135,7 +2142,7 @@ class Widget extends Hookable {
 	 * determine if we are dealing with a
 	 * pre-loaded (initialized) object, or a blank model.
 	 */
-	protected function defaults() {
+	protected function defaults(): void {
 		$this->children_defaults();
 		if (to_bool(avalue($this->options, 'disabled'))) {
 			return;
@@ -2146,7 +2153,7 @@ class Widget extends Hookable {
 	/**
 	 * Run defaults on children
 	 */
-	protected function children_defaults() {
+	protected function children_defaults(): void {
 		$children = $this->children();
 		foreach ($children as $child) {
 			$child->object = $child->traverse ? $this->object->get($child->column()) : $this->object;
@@ -2176,7 +2183,7 @@ class Widget extends Hookable {
 		if (count($this->children) === 0) {
 			return $this->content_children;
 		}
-		$content = $suffix = array();
+		$content = $suffix = [];
 		foreach ($this->children as $key => $child) {
 			$child->object = $child->traverse ? $this->object->get($child->column()) : $this->object;
 			$child->content = $child->render();
@@ -2186,10 +2193,10 @@ class Widget extends Hookable {
 			if ($child->is_visible()) {
 				$child_tag = $this->option('child_tag', "div");
 				if ($child_tag) {
-					$child_attributes = CSS::add_class($this->option('child_attributes', '.child'), array(
+					$child_attributes = CSS::add_class($this->option('child_attributes', '.child'), [
 						$child->child_css_class(),
 						$child->context_class(),
-					));
+					]);
 					$content[] = HTML::tag($child_tag, $child_attributes, $child->content);
 				} else {
 					$content[] = $child->content;
@@ -2220,7 +2227,7 @@ class Widget extends Hookable {
 	 * @return array
 	 */
 	public function theme_variables() {
-		return $this->application->variables() + array(
+		return $this->application->variables() + [
 			'request' => $this->request(),
 			'response' => $this->response(),
 			'widget' => $this,
@@ -2244,7 +2251,7 @@ class Widget extends Hookable {
 			'errors' => $this->errors(),
 			'messages' => $this->messages(),
 			'content_children' => $this->content_children,
-		) + $this->theme_variables + $this->options;
+		] + $this->theme_variables + $this->options;
 	}
 
 	/**
@@ -2278,15 +2285,15 @@ class Widget extends Hookable {
 		}
 		$this->content = "";
 		if ($this->theme) {
-			$this->content .= $theme_content = $this->application->theme($this->theme, $this->theme_variables(), array(
+			$this->content .= $this->application->theme($this->theme, $this->theme_variables(), [
 				"first" => true,
-			));
+			]);
 		}
 		$this->content .= $this->content_children;
 		$this->content = $this->render_finish($this->content);
-		$this->content = $this->call_hook_arguments("render_alter", array(
+		$this->content = $this->call_hook_arguments("render_alter", [
 			$this->content,
-		), $this->content);
+		], $this->content);
 		return $this->content;
 	}
 
@@ -2296,14 +2303,14 @@ class Widget extends Hookable {
 	 * @return array
 	 */
 	public function render_structure() {
-		$children_structure = array();
+		$children_structure = [];
 		foreach ($this->children as $child) {
 			$children_structure = array_merge($children_structure, $child->render_structure());
 		}
-		$result[$this->name() . ":" . get_class($this)] = array(
+		$result[$this->name() . ":" . get_class($this)] = [
 			"children" => $children_structure,
 			"render_children" => $this->render_children,
-		);
+		];
 		return $result;
 	}
 
@@ -2408,9 +2415,9 @@ class Widget extends Hookable {
 		$submit_url = $this->submit_url();
 		$submit_url_default = $this->submit_url_default();
 		if ($this->option_bool('submit_skip_ref')) {
-			$submit_url = $ref ? URL::query_format($submit_url, array(
+			$submit_url = $ref ? URL::query_format($submit_url, [
 				"ref" => $ref,
-			)) : $submit_url;
+			]) : $submit_url;
 		}
 		$vars = ArrayTools::kprefix($this->object->variables(), "object.") + ArrayTools::kprefix($this->request->variables(), "request.");
 		$url = null;
@@ -2431,15 +2438,15 @@ class Widget extends Hookable {
 			$message = array_values($this->errors());
 		}
 		if ($this->prefer_json()) {
-			$json = array(
+			$json = [
 				"status" => $status,
 				"message" => $message,
 				"redirect" => $url,
-			);
+			];
 			if ($this->has_option('submit_theme', true)) {
-				$json['content'] = $this->application->theme($this->option('submit_theme'), $this->theme_variables(), array(
+				$json['content'] = $this->application->theme($this->option('submit_theme'), $this->theme_variables(), [
 					"first" => true,
-				));
+				]);
 			}
 			$json += $response->html()->to_json();
 			$response->json()->data($json);
@@ -2488,7 +2495,7 @@ class Widget extends Hookable {
 	 * @param Database_Query_Select $query
 	 * @return void
 	 */
-	public function query_alter(Database_Query_Select $query) {
+	public function query_alter(Database_Query_Select $query): void {
 		$this->children_hook("query", $query);
 	}
 
@@ -2499,11 +2506,11 @@ class Widget extends Hookable {
 	 * @param array $options
 	 * @return Widget
 	 */
-	public function behavior($type, array $options = array()) {
-		$this->behaviors[] = array(
+	public function behavior($type, array $options = []) {
+		$this->behaviors[] = [
 			$type,
 			$options,
-		);
+		];
 		return $this;
 	}
 
@@ -2516,14 +2523,14 @@ class Widget extends Hookable {
 	private function render_behavior($content) {
 		//		$content .= HTML::tag("pre", _dump($this->behaviors));
 		foreach ($this->behaviors as $item) {
-			list($theme, $options) = $item;
-			$content .= $this->application->theme($theme, $options + array(
+			[$theme, $options] = $item;
+			$content .= $this->application->theme($theme, $options + [
 				"widget" => $this,
 				"object" => $this->object,
 				"content" => $content,
 				"request" => $this->request,
 				"response" => $this->response(),
-			));
+			]);
 		}
 		return $content;
 	}

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,11 +10,11 @@ namespace zesk;
  *
  */
 class Class_Domain_Name_Server extends Class_ORM {
-	protected $column_types = array(
+	protected $column_types = [
 		"IP" => "ip",
-	);
+	];
 
-	protected $has_one = array(
+	protected $has_one = [
 		'Domain' => 'zesk\Domain_Name',
-	);
+	];
 }

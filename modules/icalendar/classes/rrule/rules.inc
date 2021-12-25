@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Implementation of iCalendar RRULE
  *
@@ -22,22 +22,22 @@ class Rules implements Iterator {
 	/**
 	 * @var Rule[]
 	 */
-	private $rules = array();
+	private $rules = [];
 
 	/**
 	 * @var Timestamp[]
 	 */
-	private $timestamps = array();
+	private $timestamps = [];
 
 	/**
 	 * @var \Generator
 	 */
-	private $generator = array();
+	private $generator = [];
 
 	/**
 	 * @var zesk\Timestamp
 	 */
-	private $current = array();
+	private $current = [];
 
 	/**
 	 * Construct a group of rules which includes multiple RRule\Rules and Timestamps
@@ -55,21 +55,21 @@ class Rules implements Iterator {
 	 * {@inheritDoc}
 	 * @see Iterator::current()
 	 */
-	public function current() {
+	public function current(): mixed {
 		foreach ($this->current as $index => $timestamp) {
 			return $timestamp;
 		}
 		return null;
 	}
 
-	public function key() {
+	public function key(): mixed {
 		foreach ($this->current as $index => $timestamp) {
 			return $timestamp->__toString();
 		}
 		return null;
 	}
 
-	public function next() {
+	public function next(): void {
 		foreach ($this->current as $index => $timestamp) {
 			if ($index < 0) {
 				unset($this->current[$index]);
@@ -85,8 +85,8 @@ class Rules implements Iterator {
 		}
 	}
 
-	public function rewind() {
-		$this->current = array();
+	public function rewind(): void {
+		$this->current = [];
 		foreach ($this->rules as $index => $rule) {
 			$this->generator[$index] = $rule->generator();
 			$this->generator[$index]->rewind();
@@ -104,11 +104,11 @@ class Rules implements Iterator {
 	/**
 	 * @return boolean
 	 */
-	public function valid() {
+	public function valid(): bool {
 		return count($this->current) > 0;
 	}
 
-	private function current_sort() {
+	private function current_sort(): void {
 		uasort($this->current, "zesk\\Timestamp::compare_callback");
 	}
 }

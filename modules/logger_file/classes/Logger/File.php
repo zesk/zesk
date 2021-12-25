@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -89,7 +89,7 @@ class File implements Handler {
 	 * @param string $filename
 	 * @param array $options
 	 */
-	public function __construct($filename = null, array $options = array()) {
+	public function __construct($filename = null, array $options = []) {
 		if (is_resource($filename)) {
 			$this->fp = $filename;
 			$this->opened = false;
@@ -126,7 +126,7 @@ class File implements Handler {
 	 * @param array $options
 	 * @return \zesk\Logger\File
 	 */
-	public static function factory($filename = null, array $options = array()) {
+	public static function factory($filename = null, array $options = []) {
 		return new self($filename, $options);
 	}
 
@@ -155,10 +155,10 @@ class File implements Handler {
 			return $this->fp;
 		}
 		if (!is_resource($fp)) {
-			throw new Exception_Parameter("{method} takes a file resource, {type} passed in", array(
+			throw new Exception_Parameter("{method} takes a file resource, {type} passed in", [
 				"method" => __METHOD__,
 				"type" => type($fp),
-			));
+			]);
 		}
 		$this->close();
 		$this->fp = $fp;
@@ -174,9 +174,9 @@ class File implements Handler {
 	private function generate_filename(array $context) {
 		$locale = isset($context['locale']) && $context['locale'] instanceof Locale ? $context['locale'] : null;
 		$ts = Timestamp::factory(intval($context['_microtime']), $this->time_zone);
-		$new_filename = $ts->format($locale, $this->filename_pattern, array(
+		$new_filename = $ts->format($locale, $this->filename_pattern, [
 			'nohook' => true,
-		));
+		]);
 		if ($new_filename === $this->filename) {
 			return false;
 		}
@@ -187,7 +187,7 @@ class File implements Handler {
 		return true;
 	}
 
-	private function error_log($message, array $context = array()) {
+	private function error_log($message, array $context = []): void {
 		error_log(map($message, $context));
 	}
 
@@ -209,9 +209,9 @@ class File implements Handler {
 			return false;
 		}
 		if (!is_link($linkname)) {
-			$this->error_log("Unable to create link file {linkname} is not a link", array(
+			$this->error_log("Unable to create link file {linkname} is not a link", [
 				"linkname" => $linkname,
-			));
+			]);
 			return false;
 		}
 		$target = readlink($linkname);
@@ -225,16 +225,16 @@ class File implements Handler {
 		}
 		if (flock($lock, LOCK_EX | LOCK_NB)) {
 			if (!@unlink($linkname)) {
-				$this->error_log("Unable to delete {linkname} while attempting to link to {filename}", array(
+				$this->error_log("Unable to delete {linkname} while attempting to link to {filename}", [
 					"linkname" => $linkname,
 					"filename" => $this->filename,
-				));
+				]);
 			} else {
-				$this->error_log("Created symlink {linkname} to {filename} ({time_zone})", array(
+				$this->error_log("Created symlink {linkname} to {filename} ({time_zone})", [
 					"linkname" => $linkname,
 					"filename" => $this->filename,
 					"time_zone" => $this->time_zone,
-				));
+				]);
 				@symlink($this->filename, $linkname);
 				// This still throws PHP Warning:  symlink(): File exists in zesk/modules/logger_file/classes/zesk/logger/file.inc on line 214 ... why? Lock not working?
 			}
@@ -280,7 +280,7 @@ class File implements Handler {
 	 * {@inheritDoc}
 	 * @see \zesk\Logger\Handler::log()
 	 */
-	public function log($message, array $context = null) {
+	public function log($message, array $context = null): void {
 		if ($this->include_patterns && !$this->should_include($message)) {
 			return;
 		}
@@ -317,7 +317,7 @@ class File implements Handler {
 	/**
 	 * Close FP upon close
 	 */
-	public function close() {
+	public function close(): void {
 		if ($this->fp) {
 			if ($this->opened) {
 				fclose($this->fp);
@@ -338,7 +338,7 @@ class File implements Handler {
 	 * @return string[]
 	 */
 	public function variables() {
-		return array(
+		return [
 			"filename" => $this->filename,
 			"mode" => $this->mode,
 			"include_patterns" => $this->include_patterns,
@@ -348,6 +348,6 @@ class File implements Handler {
 			"suffix" => $this->suffix,
 			"middle" => $this->middle,
 			"class" => __CLASS__,
-		);
+		];
 	}
 }

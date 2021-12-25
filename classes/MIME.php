@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class MIME {
@@ -6,13 +6,13 @@ class MIME {
 	 *
 	 * @var string
 	 */
-	const TYPE_APPLICATION_JSON = "application/json";
+	public const TYPE_APPLICATION_JSON = "application/json";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const TYPE_APPLICATION_JAVASCRIPT = "application/javascript";
+	public const TYPE_APPLICATION_JAVASCRIPT = "application/javascript";
 
 	/**
 	 *
@@ -24,7 +24,7 @@ class MIME {
 	 *
 	 */
 	// Taken straight from Apache httpd-2.4.16.tar.gz mime.types
-	private static $mime_to_extensions = array(
+	private static $mime_to_extensions = [
 		"application/andrew-inset" => "ez",
 		"application/applixware" => "aw",
 		"application/atom+xml" => "atom",
@@ -790,15 +790,15 @@ class MIME {
 		"video/x-sgi-movie" => "movie",
 		"video/x-smv" => "smv",
 		"x-conference/x-cooltalk" => "ice",
-	);
+	];
 
-	private static function _init() {
+	private static function _init(): void {
 		if (is_array(self::$extension_to_mime)) {
 			return;
 		}
-		self::$extension_to_mime = array();
+		self::$extension_to_mime = [];
 		foreach (self::$mime_to_extensions as $mime => $extensions) {
-			$extensions = to_list($extensions, array(), " ");
+			$extensions = to_list($extensions, [], " ");
 			self::$mime_to_extensions[$mime] = $extensions;
 			foreach ($extensions as $ext) {
 				self::$extension_to_mime[$ext] = $mime;
@@ -814,8 +814,8 @@ class MIME {
 
 	public static function to_extension($mime_type, $default = null) {
 		self::_init();
-		return first(avalue(self::$mime_to_extensions, strtolower($mime_type), array(
+		return first(avalue(self::$mime_to_extensions, strtolower($mime_type), [
 			$default,
-		)));
+		]));
 	}
 }

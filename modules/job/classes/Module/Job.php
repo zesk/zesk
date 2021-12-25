@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -15,19 +15,19 @@ class Module_Job extends Module implements Interface_Module_Routes {
 	 *
 	 * @var array
 	 */
-	protected $model_classes = array(
+	protected array $model_classes = [
 		'zesk\\Job',
-	);
+	];
 
 	/**
 	 * For testing, call this statically from zesk eval, a web request, or a debugger
 	 */
-	public static function fake_daemon(Application $application) {
+	public static function fake_daemon(Application $application): void {
 		$quit_after = $application->configuration->path_get(__CLASS__ . "::fake_daemon_quit_after", 5000);
 		ini_set('max_execution_time', $quit_after);
-		$process = new Process_Mock($application, array(
+		$process = new Process_Mock($application, [
 			"quit_after" => $quit_after,
-		));
+		]);
 		Job::execute_jobs($process);
 	}
 
@@ -36,7 +36,7 @@ class Module_Job extends Module implements Interface_Module_Routes {
 	 *
 	 * @param Interface_Process $process
 	 */
-	private function run_daemon(Interface_Process $process) {
+	private function run_daemon(Interface_Process $process): void {
 		$has_hook = $this->has_hook("wait_for_job");
 		$seconds = $this->option("execute_jobs_wait", 10);
 		$app = $process->application();
@@ -48,9 +48,9 @@ class Module_Job extends Module implements Interface_Module_Routes {
 			while (!$process->done()) {
 				Job::execute_jobs($process);
 				if ($has_hook) {
-					$this->call_hook_arguments("wait_for_job", array(
+					$this->call_hook_arguments("wait_for_job", [
 						$process,
-					));
+					]);
 					$process->sleep(0);
 				} else {
 					$process->sleep($seconds);
@@ -64,7 +64,7 @@ class Module_Job extends Module implements Interface_Module_Routes {
 	 *
 	 * @param Interface_Process $process
 	 */
-	public static function daemon(Interface_Process $process) {
+	public static function daemon(Interface_Process $process): void {
 		$application = $process->application();
 		$module = $application->job_module();
 		$module->run_daemon($process);
@@ -77,23 +77,23 @@ class Module_Job extends Module implements Interface_Module_Routes {
 	 *
 	 * @see \Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(Router $router) {
-		$router->add_route("job/{zesk\\Job job}(/{option action})", array(
+	public function hook_routes(Router $router): void {
+		$router->add_route("job/{zesk\\Job job}(/{option action})", [
 			"controller" => "zesk\\Controller_Job",
-			"arguments" => array(
+			"arguments" => [
 				1,
-			),
+			],
 			'default action' => 'monitor',
 			'module' => 'job',
-		));
+		]);
 		if ($this->application->development() && !$this->option_bool("skip_route_job_execute")) {
-			$router->add_route("job-execute", array(
-				"method" => array(
+			$router->add_route("job-execute", [
+				"method" => [
 					__CLASS__,
 					"fake_daemon",
-				),
+				],
 				'module' => 'job',
-			));
+			]);
 		}
 	}
 }

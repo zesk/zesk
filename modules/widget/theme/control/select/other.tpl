@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 ?>
@@ -10,20 +10,20 @@ namespace zesk;
 		</button>
 		<ul class="dropdown-menu"><?php
 		foreach ($this->control_options as $value => $label) {
-			echo HTML::tag('li', HTML::tag('a', array(
+			echo HTML::tag('li', HTML::tag('a', [
 				'onclick' => "$('.form-control', \$(this).parents('.input-group')).val($(this).data('value'));",
 				'data-value' => $value,
-			), $label));
+			], $label));
 		}
 		?></ul>
 	</div>
 	<?php
-	$input_attributes = array(
+	$input_attributes = [
 		'type' => 'text',
 		'class' => 'form-control',
-	) + $this->widget->data_attributes() + $this->widget->input_attributes() + array(
+	] + $this->widget->data_attributes() + $this->widget->input_attributes() + [
 		'value' => $this->value,
-	);
+	];
 	echo HTML::tag('input', $input_attributes, null);
 	?>
 </div>

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -15,21 +15,21 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	/**
 	 * Add hooks for initialize
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->application->configuration->deprecated("Module_Job_Trigger", __CLASS__);
-		$this->application->hooks->add("zesk\\Job::start", array(
+		$this->application->hooks->add("zesk\\Job::start", [
 			$this,
 			"trigger_send",
-		));
-		$this->application->hooks->add("zesk\\Job::execute_interrupt", array(
+		]);
+		$this->application->hooks->add("zesk\\Job::execute_interrupt", [
 			$this,
 			"trigger_send",
-		));
-		$this->application->hooks->add("Module_Job::wait_for_job", array(
+		]);
+		$this->application->hooks->add("Module_Job::wait_for_job", [
 			$this,
 			"wait_for_job",
-		));
+		]);
 		// We don't care about completion because all that means is a job is completed, not that new jobs are ready to go
 	}
 
@@ -58,7 +58,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	}
 
 	private function compute_hash($timestamp) {
-		$code = array();
+		$code = [];
 		$code[] = $timestamp;
 		$code[] = $this->option("key");
 		return md5(implode("|", $code));
@@ -67,7 +67,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	/**
 	 * Write the marker to disk
 	 */
-	public function write_marker() {
+	public function write_marker(): void {
 		file_put_contents($this->marker_file(), microtime(true));
 	}
 
@@ -79,10 +79,10 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 */
 	private function add_security($url) {
 		if (!$this->has_option("key")) {
-			$this->application->logger->warning("Can not add security to {url} - need to configure {class}::key global", array(
+			$this->application->logger->warning("Can not add security to {url} - need to configure {class}::key global", [
 				"url" => $url,
 				"class" => __CLASS__,
-			));
+			]);
 			return $url;
 		}
 		$query['timestamp'] = $timestamp = strval(microtime(true));
@@ -99,35 +99,35 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 */
 	public function check_security($hash, $timestamp) {
 		if (!$this->has_option("key")) {
-			$this->application->logger->error("Can not check security! need to configure {class}::key global", array(
+			$this->application->logger->error("Can not check security! need to configure {class}::key global", [
 				"class" => __CLASS__,
-			));
-			return array(
+			]);
+			return [
 				"status" => false,
 				"message" => "No key configured",
-			);
+			];
 		}
 		if (empty($hash) || empty($timestamp)) {
-			return array(
+			return [
 				"status" => false,
 				"message" => "Require query string parameters hash and timestamp",
-			);
+			];
 		}
 
 		$skew_seconds = abs($timestamp - microtime(true));
 		if ($skew_seconds > $server_clock_skew_seconds = $this->option("server_clock_skew_seconds", 30)) {
-			return array(
+			return [
 				"status" => false,
 				"message" => "Clock skew - requests only valid for $server_clock_skew_seconds seconds",
 				"seconds" => $skew_seconds,
-			);
+			];
 		}
 		$check_hash = $this->compute_hash($timestamp);
 		if ($hash !== $check_hash) {
-			return array(
+			return [
 				"status" => false,
 				"message" => "Hash does not validate",
-			);
+			];
 		}
 
 		return null;
@@ -144,20 +144,20 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 		if (!is_array($result)) {
 			/* @var $module Module_Job_Trigger */
 			$module->write_marker();
-			$result = array(
+			$result = [
 				"status" => true,
-			);
+			];
 		}
-		return $result + array(
+		return $result + [
 			"elapsed" => microtime(true) - $application->initialization_time(),
 			"now" => Timestamp::now()->format(),
-		);
+		];
 	}
 
 	/**
 	 * Send a notice to all servers that jobs are waiting
 	 */
-	public function trigger_send() {
+	public function trigger_send(): void {
 		$server = $this->application->object_singleton("zesk\\Server");
 		$servers = $server->query_select()->where("alive|>=", Timestamp::now()->add_unit(-1, Timestamp::UNIT_MINUTE))->orm_iterator();
 		foreach ($servers as $other_server) {
@@ -177,13 +177,13 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	/**
 	 * Wait for the job by seeing if our marker file exists
 	 */
-	public function wait_for_job(Module_Job $module, Interface_Process $process) {
+	public function wait_for_job(Module_Job $module, Interface_Process $process): void {
 		$timer = new Timer();
 		$marker = $this->marker_file();
-		$this->application->logger->debug("{method} waiting for marker to appear: {marker}", array(
+		$this->application->logger->debug("{method} waiting for marker to appear: {marker}", [
 			"method" => __METHOD__,
 			"marker" => $marker,
-		));
+		]);
 		if (!file_exists($marker)) {
 			do {
 				$marker = $this->marker_file();
@@ -193,10 +193,10 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 				}
 			} while (!file_exists($marker));
 		}
-		$this->application->logger->debug("{method} deleting marker {marker}", array(
+		$this->application->logger->debug("{method} deleting marker {marker}", [
 			"method" => __METHOD__,
 			"marker" => $marker,
-		));
+		]);
 		if (file_exists($marker)) {
 			File::unlink($marker);
 		}
@@ -207,25 +207,25 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 *
 	 * @param Router $router
 	 */
-	public function hook_routes(Router $router) {
+	public function hook_routes(Router $router): void {
 		if ($this->has_option("key")) {
 			// Only allowed to receive web requests with some form of shared key security.
 			// If you don't configure this works fine on single-server applications
-			$router->add_route("job_trigger", array(
-				"method" => array(
+			$router->add_route("job_trigger", [
+				"method" => [
 					__CLASS__,
 					"web_job_trigger",
-				),
+				],
 				"content type" => Response::CONTENT_TYPE_JSON,
-				"arguments" => array(
+				"arguments" => [
 					"{application}",
 					"{request}",
-				),
-			));
+				],
+			]);
 		}
-		$router->add_route("job_trigger/active", array(
+		$router->add_route("job_trigger/active", [
 			"content" => true,
 			"content type" => Response::CONTENT_TYPE_JSON,
-		));
+		]);
 	}
 }

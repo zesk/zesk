@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -9,11 +9,11 @@
 namespace zesk;
 
 class Database_Column_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
-	);
+	];
 
-	public function test_main() {
+	public function test_main(): void {
 		$db = $this->application->database_registry();
 
 		$table = new Database_Table($db, __METHOD__);
@@ -26,9 +26,9 @@ class Database_Column_Test extends Test_Unit {
 
 		$x->previous_name();
 
-		$that = new Database_Column($table, "name", array(
+		$that = new Database_Column($table, "name", [
 			"sql_type" => "varchar(16)",
-		));
+		]);
 		$debug = false;
 		$x->is_similar($db, $that, $debug);
 

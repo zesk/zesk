@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\WebApp;
 
 use zesk\Exception_Configuration;
@@ -30,37 +30,37 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 *
 	 * @var string
 	 */
-	const SERVER_DATA_APP_HEALTH = __CLASS__ . "::app_health";
+	public const SERVER_DATA_APP_HEALTH = __CLASS__ . "::app_health";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const CONTROL_FILE_RESTART_APACHE = "restart-apache";
+	public const CONTROL_FILE_RESTART_APACHE = "restart-apache";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const OPTION_APP_ROOT_PATH = "path";
+	public const OPTION_APP_ROOT_PATH = "path";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const OPTION_AUTHENTICATION_KEY = "key";
+	public const OPTION_AUTHENTICATION_KEY = "key";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const OPTION_GENERATOR_CLASS = "generator_class";
+	public const OPTION_GENERATOR_CLASS = "generator_class";
 
 	/**
 	 *
 	 * @var unknown
 	 */
-	const OPTION_GENERATOR_CLASS_DEFAULT = Generator_Apache::class;
+	public const OPTION_GENERATOR_CLASS_DEFAULT = Generator_Apache::class;
 
 	/**
 	 *
@@ -78,20 +78,20 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 *
 	 * @var array
 	 */
-	protected $model_classes = array(
+	protected array $model_classes = [
 		Instance::class,
 		Site::class,
 		Domain::class,
 		Cluster::class,
 		Repository::class,
-	);
+	];
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Module::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		$this->_app_root = $this->application->paths->expand($this->option(self::OPTION_APP_ROOT_PATH));
 		if (empty($this->_app_root)) {
 			throw new Exception_Configuration(__CLASS__ . "::" . self::OPTION_APP_ROOT_PATH, "Requires the app root path to be set in order to work.");
@@ -99,10 +99,10 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		if (!is_dir($this->_app_root)) {
 			throw new Exception_Configuration(__CLASS__ . "::" . self::OPTION_APP_ROOT_PATH, "Requires the app root path to be a directory in order to work.");
 		}
-		$this->application->hooks->add(Application::class . "::request", array(
+		$this->application->hooks->add(Application::class . "::request", [
 			$this,
 			"register_domain",
-		));
+		]);
 	}
 
 	/**
@@ -116,7 +116,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	/**
 	 * Run deploy functionality
 	 */
-	public function hook_deploy() {
+	public function hook_deploy(): void {
 		$generator = $this->generator();
 		$generator->deploy();
 	}
@@ -126,7 +126,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @param Application $application
 	 * @param Request $request
 	 */
-	public function register_domain(Application $application, Request $request) {
+	public function register_domain(Application $application, Request $request): void {
 		$domain_name = $request->host();
 		$item = $application->cache->getItem(__METHOD__);
 		if ($item->isHit()) {
@@ -138,9 +138,9 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			$item->set($domains);
 			$application->cache->save($item);
 		}
-		$application->orm_factory(Domain::class, array(
+		$application->orm_factory(Domain::class, [
 			"name" => $domain_name,
-		))->register()->accessed();
+		])->register()->accessed();
 	}
 
 	/**
@@ -148,13 +148,13 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * {@inheritDoc}
 	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(Router $router) {
-		$router->add_route(trim($this->option("route_prefix", "webapp"), '/') . '(/{option action})*', array(
+	public function hook_routes(Router $router): void {
+		$router->add_route(trim($this->option("route_prefix", "webapp"), '/') . '(/{option action})*', [
 			"controller" => Controller::class,
-		));
-		$router->add_route('.webapp(/{option action})*', array(
+		]);
+		$router->add_route('.webapp(/{option action})*', [
 			"controller" => Controller::class,
-		));
+		]);
 	}
 
 	/**
@@ -164,9 +164,9 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function app_root_path($suffix = null) {
 		if (!$this->_app_root) {
-			throw new Exception_Configuration(__CLASS__ . "::path", "Valid path to directory required ({path})", array(
+			throw new Exception_Configuration(__CLASS__ . "::path", "Valid path to directory required ({path})", [
 				"path" => $this->option(self::OPTION_APP_ROOT_PATH),
-			));
+			]);
 		}
 		return $suffix === null ? $this->_app_root : path($this->_app_root, $suffix);
 	}
@@ -228,7 +228,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$configurations = avalue($this->application->loader->variables(), Configuration_Loader::PROCESSED);
 
 		$path = $this->application->paths->cache("webapp/public/");
-		Directory::depend($path, 0775);
+		Directory::depend($path, 0o775);
 
 		File::put(path($path, "index.php"), "<?php\n\$app = require_once \"../webapp.config.php\");\n\$app->index();\n");
 
@@ -247,28 +247,28 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 *
 	 * @return integer[string] Array of filename => modification time
 	 */
-	public function scan_webapp_json(array $walk_add = array()) {
+	public function scan_webapp_json(array $walk_add = []) {
 		// Include /.webapp.json, do not walk through . directories, or /vendor/, do not include directories in results
-		$rules = array(
-			"rules_file" => array(
+		$rules = [
+			"rules_file" => [
 				"#/webapp.json\$#" => true,
 				false,
-			),
-			"rules_directory_walk" => $walk_add + array(
+			],
+			"rules_directory_walk" => $walk_add + [
 				"#/\.#" => false,
 				"#/cache/#" => false,
 				"#/vendor/#" => false,
 				"#/node_modules/#" => false,
 				true,
-			),
+			],
 			"rules_directory" => false,
 			"add_path" => true,
-		);
+		];
 		if ($this->option_bool("debug")) {
 			$rules['progress'] = $this->application->logger;
 		}
 		$files = Directory::list_recursive($this->_app_root, $rules);
-		$result = array();
+		$result = [];
 		foreach ($files as $f) {
 			$result[$f] = filemtime($f);
 		}
@@ -293,7 +293,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			$files = $cached->get();
 			return $files;
 		}
-		$walk_add = array();
+		$walk_add = [];
 		foreach ($files as $file => $mtime) {
 			if (is_file($file) && filemtime($file) === $mtime) {
 				$walk_add['#' . preg_quote(rtrim(dirname($file), "/") . "/", "#") . "\$#"] = false;
@@ -330,10 +330,10 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$generator->finish();
 		$changed = $generator->changed();
 		if (count($changed) > 0) {
-			$this->application->logger->info("{method} generator reported changed: {changed}", array(
+			$this->application->logger->info("{method} generator reported changed: {changed}", [
 				"method" => __METHOD__,
 				"changed" => $changed,
-			));
+			]);
 			$this->control_file(self::CONTROL_FILE_RESTART_APACHE, time());
 		}
 		return $generator;
@@ -343,7 +343,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * Delete unreferenced objects in our database, lazily.
 	 *
 	 */
-	public function hook_cron_cluster_minute() {
+	public function hook_cron_cluster_minute(): void {
 		$this->application->orm_registry(Instance::class)->remove_dead_instances();
 		$this->application->orm_registry(Site::class)->remove_dead_instances();
 	}
@@ -352,7 +352,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * Generate our vhost configuration from the database and trigger a web server restart if changes
 	 * are required.
 	 */
-	public function hook_cron_minute() {
+	public function hook_cron_minute(): void {
 		$this->generate_configuration(true);
 	}
 
@@ -378,7 +378,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	public function control_file($name, $value = null) {
 		$full = $this->control_file_path($name);
 		$dir = dirname($full);
-		Directory::depend($dir, 0775);
+		Directory::depend($dir, 0o775);
 		if ($value !== null) {
 			File::put($full, JSON::encode($value));
 			$this->call_hook("control_file", $full);
@@ -416,12 +416,12 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$generator = $this->generator();
 		$root = rtrim($this->app_root_path(), "/") . "/";
 
-		$results = array();
+		$results = [];
 		foreach ($webapps as $webapp_path => $modtime) {
 			$subpath = StringTools::unprefix($webapp_path, $root);
-			$instance_struct = array(
+			$instance_struct = [
 				'path' => $subpath,
-			);
+			];
 
 			try {
 				if ($register) {
@@ -473,10 +473,10 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	public function generate_authentication() {
 		$time = time();
 		$hash = md5($time . "|" . $this->key());
-		return array(
+		return [
 			$time,
 			$hash,
-		);
+		];
 	}
 
 	/**
@@ -487,7 +487,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function check_authentication($time, $hash) {
 		$now = time();
-		if (!is_integer($time)) {
+		if (!is_int($time)) {
 			return "time not integer: " . type($time);
 		}
 		if ($time === 0) {
@@ -525,10 +525,10 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function response_authentication_failed(Response $response, $message) {
 		$response->status(Net_HTTP::STATUS_UNAUTHORIZED);
-		return $response->json()->data(array(
+		return $response->json()->data([
 			"status" => false,
 			"message" => "Authentication failed: $message",
-		));
+		]);
 	}
 
 	/**
@@ -540,13 +540,13 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$servers = $app->orm_registry(Server::class)
 			->query_select()
 			->what_object()
-			->link(Server_Data::class, array(
+			->link(Server_Data::class, [
 			"alias" => "d",
-		))
+		])
 			->where("d.name", Module::class)
 			->where("d.value", serialize(1));
 		$iterator = $servers->orm_iterator();
-		$results = array();
+		$results = [];
 		foreach ($iterator as $server) {
 			/* @var $server Server */
 			$results[$server->name] = $this->server_action($server, $action);
@@ -565,16 +565,16 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$webapp = $app->webapp_module();
 		$client = new Net_HTTP_Client($app);
 		/* @var $webapp Module */
-		$result = array(
+		$result = [
 			'ip' => $server->ip4_internal,
-		);
+		];
 
 		try {
-			list($time, $hash) = $webapp->generate_authentication();
-			$url = URL::query_append("http://" . $server->ip4_internal . "/webapp/$action", array(
+			[$time, $hash] = $webapp->generate_authentication();
+			$url = URL::query_append("http://" . $server->ip4_internal . "/webapp/$action", [
 				Controller::QUERY_PARAM_TIME => $time,
 				Controller::QUERY_PARAM_HASH => $hash,
-			) + $query);
+			] + $query);
 			$client->url($url);
 			$result['time'] = $time;
 			$result['time_string'] = Timestamp::factory($time, "UTC")->format($app->locale, Timestamp::FORMAT_JSON);
@@ -600,7 +600,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function add_message_route(Router $router, $message, array $options) {
 		$module = $this;
-		$options['before_hook'] = function (zeskController $controller) use ($module) {
+		$options['before_hook'] = function (zeskController $controller) use ($module): void {
 			if (($message = $module->check_request_authentication($controller->request())) !== true) {
 				$module->response_authentication_failed($controller->response(), $message);
 			}

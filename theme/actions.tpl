@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -17,29 +17,29 @@ $content = $this->content;
 if (!is_array($content)) {
 	return;
 }
-$buttons = array();
+$buttons = [];
 $ref_name = $this->get('referrer_query_string_name', 'ref');
 $add_ref = $this->getb('add_ref');
 foreach ($content as $href => $attrs) {
 	$qs = URL::query_parse_url($href);
 	if ($add_ref && !array_key_exists($ref_name, $qs)) {
-		$href = URL::query_format($href, array(
+		$href = URL::query_format($href, [
 			$ref_name => $this->ref,
-		));
+		]);
 	}
-	$tag_attrs = array(
+	$tag_attrs = [
 		'href' => $href,
-	);
+	];
 	$checkbox = false;
 	$type = 'a';
 	$class = "btn btn-default";
 	if (is_string($attrs)) {
 		$title = $attrs;
 		$tag_attrs['title'] = $title;
-		$input_data_attrs = array();
-		$attrs = array(
+		$input_data_attrs = [];
+		$attrs = [
 			'title' => $attrs,
-		);
+		];
 	} else {
 		$type = avalue($attrs, 'type', $type);
 		$checkbox = $type === 'checkbox';
@@ -56,11 +56,11 @@ foreach ($content as $href => $attrs) {
 	}
 	$tag_attrs['class'] = $class;
 	if ($checkbox) {
-		$input_data_attrs += array(
+		$input_data_attrs += [
 			'type' => 'checkbox',
 			'value' => 1,
 			'checked' => avalue($attrs, 'checked') ? 'checked' : null,
-		);
+		];
 		unset($tag_attrs['href']);
 		$buttons[] = HTML::tag('label', $tag_attrs, HTML::tag('input', $input_data_attrs) . $title);
 	} else {

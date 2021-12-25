@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -20,9 +20,9 @@ class Control_Phone extends Control_Text {
 		$value = $this->value();
 		$value = self::clean($value);
 		if (!is_phone($value)) {
-			$this->error(__("{label} must be formatted like a phone, using digits or the following characters: + - ( ) . x", array(
+			$this->error(__("{label} must be formatted like a phone, using digits or the following characters: + - ( ) . x", [
 				'label' => $this->label(),
-			)));
+			]));
 			return false;
 		}
 		return parent::validate();

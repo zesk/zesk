@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -27,8 +27,8 @@ $object = $this->object;
 
 echo HTML::input_hidden($name . '_sv', 1);
 
-$exclusives = array();
-$inputs = array();
+$exclusives = [];
+$inputs = [];
 foreach ($this->children as $child) {
 	/* @var $child Widget */
 	$inputs[] = $child->render();
@@ -52,7 +52,7 @@ if ($columns > 1) {
 }
 
 if (count($exclusives) > 0) {
-	$map = array();
+	$map = [];
 	$map['exclusives'] = implode(",", $exclusives);
 	ob_start(); ?><script>
 	(function ($) {

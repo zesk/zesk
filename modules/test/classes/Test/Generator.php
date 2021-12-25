@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -51,7 +51,7 @@ class Test_Generator extends Options {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Application $app, $target, array $options = array()) {
+	public static function factory(Application $app, $target, array $options = []) {
 		return $app->factory(__CLASS__, $app, $target, $options);
 	}
 
@@ -62,7 +62,7 @@ class Test_Generator extends Options {
 	 * @param unknown $target
 	 * @param array $options
 	 */
-	public function __construct(Application $app, $target, array $options = array()) {
+	public function __construct(Application $app, $target, array $options = []) {
 		parent::__construct($options);
 
 		$this->application = $app;
@@ -80,17 +80,17 @@ class Test_Generator extends Options {
 	 * @return boolean true if file was created
 	 */
 	public function create_if_not_exists() {
-		if (!file_exists($this->target) || strpos(File::contents($this->target), "<?php") === false) {
+		if (!file_exists($this->target) || !str_contains(File::contents($this->target), "<?php")) {
 			$this->create();
 			return true;
 		}
 		return false;
 	}
 
-	public function create() {
+	public function create(): void {
 		$namespace = $this->option("namespace", __NAMESPACE__);
 		$parent = $this->option("parent", 'zesk\\PHPUnit_TestCase');
-		list($ns, $cl) = PHP::parse_namespace_class($parent);
+		[$ns, $cl] = PHP::parse_namespace_class($parent);
 		if ($ns !== $namespace) {
 			$use = "use $parent;\n";
 			$parent_class = $parent;
@@ -100,40 +100,40 @@ class Test_Generator extends Options {
 		}
 		$example = File::contents($this->application->modules->path("test", "classes/Test/Example.php"));
 		$classname = basename($this->target, ".php");
-		$example = strtr($example, array(
+		$example = strtr($example, [
 			"// use\n" => $use,
 			"namespace zesk" => "namespace $namespace",
 			"Example_Test" => $classname,
 			"PHPUnit_TestCase" => $parent_class,
-		));
-		$map = array(
+		]);
+		$map = [
 			"year" => date("Y"),
-		) + $this->option(array(
+		] + $this->option([
 			"author" => $this->application->process->user(),
 			"package" => __NAMESPACE__,
 			"subpackage" => "test",
 			"copyright" => $this->application->kernel_copyright_holder(),
-		));
+		]);
 		$example = Text::remove_line_comments($example, "//", true);
 		file_put_contents($this->target, map($example, $map));
 		$this->target_inspector = PHP_Inspector::factory($this->application, $this->target);
 		if (first($this->target_inspector->defined_classes()) !== $namespace . "\\" . $classname) {
-			throw new Exception_System("Created target {target} but does not declare class {classname}", array(
+			throw new Exception_System("Created target {target} but does not declare class {classname}", [
 				"target" => $this->target,
 				"classname" => $classname,
-			));
+			]);
 		}
 	}
 
 	public function clean_function_parameters($params) {
 		$params = explode(",", $params);
-		$clean_params = array();
+		$clean_params = [];
 		foreach ($params as $p) {
 			$p = trim($p);
 			if (empty($p)) {
 				continue;
 			}
-			list($var, $default) = pair($p, "=", $p, 'null');
+			[$var, $default] = pair($p, "=", $p, 'null');
 			$var = str_replace("&", "", $var);
 			$clean_params[ltrim($var, '$')] = $default;
 		}
@@ -141,9 +141,9 @@ class Test_Generator extends Options {
 	}
 
 	public function generate_function_test_code($func, $params) {
-		$contents = array();
+		$contents = [];
 
-		$clean_params = array();
+		$clean_params = [];
 		foreach ($params as $k => $v) {
 			if ($v instanceof \ReflectionParameter) {
 				/* @var $v \ReflectionParameter */
@@ -163,7 +163,7 @@ class Test_Generator extends Options {
 		return implode("\n", $contents);
 	}
 
-	public function generate_function_tests($file, $dest_path, $func, $params) {
+	public function generate_function_tests($file, $dest_path, $func, $params): void {
 		global $verbose;
 
 		$old_dest_file = path($dest_path, "function.$func.phpt");
@@ -190,14 +190,14 @@ class Test_Generator extends Options {
 
 		if (!$this->option_bool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
-			chmod($dest_file, 0775);
+			chmod($dest_file, 0o775);
 			echo "Wrote $dest_file ...\n";
 		} else {
 			echo "Would write $dest_file ...\n";
 		}
 	}
 
-	public function generate_static_class_method_test($file, $dest_path, $class, $method, $params) {
+	public function generate_static_class_method_test($file, $dest_path, $class, $method, $params): void {
 		global $verbose;
 
 		$dest_file = path($dest_path, "$class-$method.phpt");
@@ -221,7 +221,7 @@ class Test_Generator extends Options {
 
 		if (!$this->option_bool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
-			chmod($dest_file, 0775);
+			chmod($dest_file, 0o775);
 			echo "Wrote $dest_file ...\n";
 		} else {
 			echo "Would write $dest_file ...\n";
@@ -230,12 +230,12 @@ class Test_Generator extends Options {
 
 	public function extract_class_functions(\ReflectionClass $x, $class) {
 		$methods = $x->getMethods();
-		$result = array();
+		$result = [];
 		foreach ($methods as $method) {
 			if ($method->isPublic()) {
 				$methodName = $method->getName();
 				$methodParams = $method->getParameters();
-				$params = array();
+				$params = [];
 				foreach ($methodParams as $methodParam) {
 					if ($method->isInternal()) {
 						$default = null;
@@ -258,7 +258,7 @@ class Test_Generator extends Options {
 		return $result;
 	}
 
-	public function generate_class_tests($file, $dest_path, $class) {
+	public function generate_class_tests($file, $dest_path, $class): void {
 		global $verbose;
 
 		include_once($file);
@@ -295,7 +295,7 @@ class Test_Generator extends Options {
 
 		$functions = extract_class_functions($x, $class);
 
-		$exclude_functions = array();
+		$exclude_functions = [];
 
 		$has_non_static_methods = false;
 
@@ -303,7 +303,7 @@ class Test_Generator extends Options {
 			if (in_array($method, $exclude_functions)) {
 				continue;
 			}
-			$param_list = array();
+			$param_list = [];
 			foreach ($params as $k => $v) {
 				$param_list[] = '$' . $k;
 				$contents[] = '$' . $k . ' = ' . PHP::dump($v) . ";";
@@ -338,14 +338,14 @@ class Test_Generator extends Options {
 
 		if (!$this->option_bool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
-			chmod($dest_file, 0775);
+			chmod($dest_file, 0o775);
 			echo "Wrote $dest_file ...\n";
 		} else {
 			echo "Would write $dest_file ...\n";
 		}
 	}
 
-	public function generate_tests($file, $dest_path) {
+	public function generate_tests($file, $dest_path): void {
 		$content = file_get_contents($file);
 		if (strpos($content, 'ZESK_TEST_SKIP')) {
 			echo "# Skipping file $file because of ZESK_TEST_SKIP tag.\n";
@@ -412,11 +412,11 @@ class Test_Generator extends Options {
 		}
 	}
 
-	public function usage($message = null, array $arguments = array()) {
+	public function usage($message = null, array $arguments = []): void {
 		parent::usage(Template::instance('command/test/generate.txt'));
 	}
 
-	protected $option_types = array(
+	protected array $option_types = [
 		'help' => 'boolean',
 		'force' => 'boolean',
 		'force-functions' => 'boolean',
@@ -426,23 +426,23 @@ class Test_Generator extends Options {
 		'dry-run' => 'boolean',
 		'extensions' => 'list',
 		'*' => 'string',
-	);
+	];
 
-	protected $option_defaults = array(
-		'extensions' => array(
+	protected array $option_defaults = [
+		'extensions' => [
 			'inc',
 			'php',
-		),
-	);
+		],
+	];
 
 	/**
 	 *
 	 * @see Command::run()
 	 */
-	public function run() {
+	public function run(): void {
 		$cwd = getcwd();
-		$dirs = array();
-		$files = array();
+		$dirs = [];
+		$files = [];
 
 		while (($arg = $this->get_arg("target")) !== null) {
 			if (Directory::is_absolute($arg)) {
@@ -485,7 +485,7 @@ class Test_Generator extends Options {
 				$dest_path = path($dir, 'test');
 				if (!is_dir($dest_path)) {
 					if (!$dry_run) {
-						if (!mkdir($dest_path, 0775)) {
+						if (!mkdir($dest_path, 0o775)) {
 							die("Can't create directory $dest_path ...\n");
 						}
 						$this->verbose_log("Created directory $dest_path ...\n");
@@ -509,7 +509,7 @@ class Test_Generator extends Options {
 			$dest_path = path(dirname($file_full), 'test');
 			if (!is_dir($dest_path)) {
 				if (!$dry_run) {
-					if (!mkdir($dest_path, 0775)) {
+					if (!mkdir($dest_path, 0o775)) {
 						die("Can't create directory $dest_path ...\n");
 					}
 					$this->verbose_log("Created directory $dest_path ...\n");

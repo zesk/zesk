@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
@@ -13,7 +13,7 @@ namespace zesk;
  *
  */
 class Lang_en_test extends Test_Unit {
-	public function test_everything() {
+	public function test_everything(): void {
 		$testx = $this->application->locale_factory("en");
 
 		$testx->date_format();
@@ -33,11 +33,11 @@ class Lang_en_test extends Test_Unit {
 		$this->assert_equal($testx->indefinite_article($word, true), 'An');
 		$this->assert_equal($testx->indefinite_article("HOUR AWAY", true), 'An');
 
-		$x = array(
+		$x = [
 			"lions",
 			"tigers",
 			"bears",
-		);
+		];
 		$conj = "and";
 		$this->assert_equal($testx->conjunction($x, $conj), "lions, tigers, and bears");
 
@@ -48,62 +48,62 @@ class Lang_en_test extends Test_Unit {
 	}
 
 	public function ordinal_tests() {
-		return array(
-			array(
+		return [
+			[
 				'1',
 				'1st',
-			),
-			array(
+			],
+			[
 				1,
 				'1st',
-			),
-			array(
+			],
+			[
 				'0',
 				'0th',
-			),
-			array(
+			],
+			[
 				0,
 				'0th',
-			),
-			array(
+			],
+			[
 				'11',
 				'11th',
-			),
-			array(
+			],
+			[
 				'101',
 				'101st',
-			),
-			array(
+			],
+			[
 				'2',
 				'2nd',
-			),
-			array(
+			],
+			[
 				'12',
 				'12th',
-			),
-			array(
+			],
+			[
 				'21',
 				'21st',
-			),
-			array(
+			],
+			[
 				'22',
 				'22nd',
-			),
-			array(
+			],
+			[
 				'99',
 				'99th',
-			),
-			array(
+			],
+			[
 				'100000001',
 				'100000001st',
-			),
-		);
+			],
+		];
 	}
 
 	/**
 	 * @data_provider ordinal_tests
 	 */
-	public function test_ordinal($input, $result) {
+	public function test_ordinal($input, $result): void {
 		$testx = $this->application->locale_registry("en");
 		$this->assert_equal($testx->ordinal($input), $result);
 	}

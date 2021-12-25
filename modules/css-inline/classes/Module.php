@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk-modules
  * @subpackage css-inline
@@ -24,7 +24,7 @@ use zesk\Exception_Semantics;
  *
  */
 class Module extends \zesk\Module {
-	public function initialize() {
+	public function initialize(): void {
 		if ($this->application->autoloader->load("TijsVerkoyen\CssToInlineStyles\CssToInlineStyles", true)) {
 			throw new Exception_Class_NotFound("TijsVerkoyen\CssToInlineStyles\CssToInlineStyles");
 		}

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -24,10 +24,10 @@ class Meta extends ORM {
 	 */
 	protected static function class_meta_factory($class, ORM $parent, $name) {
 		$name = self::clean_code_name($name, "_");
-		return $parent->application->orm_factory($class, array(
+		return $parent->application->orm_factory($class, [
 			"parent" => $parent,
 			"name" => $name,
-		));
+		]);
 	}
 
 	/*

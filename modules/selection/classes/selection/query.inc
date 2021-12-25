@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -22,10 +22,10 @@ class Selection_Query extends ORM {
 	 */
 	public static function instance(Selection_Type $type, Database_Query_Select $total, Database_Query_Select $list) {
 		$code = md5(serialize(strval($list)));
-		$object = $type->application->orm_factory(__CLASS__, array(
+		$object = $type->application->orm_factory(__CLASS__, [
 			"type" => $type,
 			"code" => $code,
-		));
+		]);
 		if (($found = $object->find()) !== null) {
 			return $found;
 		}
@@ -61,7 +61,7 @@ class Selection_Query extends ORM {
 	 * @return integer[integer] Old IDs as keys, new IDs as values
 	 */
 	public static function copy_duplicate(Application $application, $old_type, $new_type) {
-		$map = array();
+		$map = [];
 		/* @var $query Selection_Query */
 		foreach ($application->orm_registry(__CLASS__)
 			->query_select()

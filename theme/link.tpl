@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 $content = $this->content;
@@ -15,7 +15,7 @@ if (!is_array($parts)) {
 	if (!$this->allow_javascript && beginsi(trim($content), "javascript:")) {
 		return;
 	}
-	$parts = array();
+	$parts = [];
 	$parts['host'] = '';
 	$parts['user'] = '';
 	$parts['pass'] = '';
@@ -25,8 +25,8 @@ if (!is_array($parts)) {
 }
 $text = map($this->get('text', $content), $parts);
 if ($text) {
-	echo HTML::a($content, array(
+	echo HTML::a($content, [
 		'class' => $this->class,
 		'id' => $this->id,
-	), $text);
+	], $text);
 }

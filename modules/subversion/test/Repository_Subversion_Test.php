@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @test_modules Git
  * @test_phpunit true
@@ -24,10 +24,10 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	 *
 	 * @var array
 	 */
-	protected $repository_types = array(
+	protected $repository_types = [
 		"svn",
 		"subversion",
-	);
+	];
 
 	/**
 	 *
@@ -64,12 +64,12 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	/**
 	 * @depends testFactory
 	 */
-	public function testInfo(Repository $repo) {
+	public function testInfo(Repository $repo): void {
 		$this->loadConfiguration();
 		$repo->url($this->url);
 		$repo->update();
 		$info = $repo->info();
-		$this->assertArrayHasKeys(array(
+		$this->assertArrayHasKeys([
 			Repository::INFO_URL,
 			"relative-url",
 			"root",
@@ -78,7 +78,7 @@ class Repository_Subversion_Test extends Repository_TestCase {
 			"working-copy-schedule",
 			"commit-author",
 			"commit-date",
-		), $info, "Repository info missing keys");
+		], $info, "Repository info missing keys");
 		$this->assertTrue(URL::valid($info[Repository::INFO_URL]), "URL is valid: " . $info[Repository::INFO_URL]);
 		$this->assertTrue(URL::valid($info['root']), "URL is valid: " . $info['root']);
 	}

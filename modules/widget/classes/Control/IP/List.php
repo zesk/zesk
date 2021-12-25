@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
@@ -13,13 +13,13 @@ namespace zesk;
  *
  */
 class Control_IP_List extends Control {
-	const OPTION_ALLOW_MASKS_bool = "allow_ip_masks";
+	public const OPTION_ALLOW_MASKS_bool = "allow_ip_masks";
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $ErrorIPs = array();
+	private $ErrorIPs = [];
 
 	/**
 	 *
@@ -84,12 +84,12 @@ class Control_IP_List extends Control {
 		$col = $this->column();
 		$name = $this->name();
 		$errors = "";
-		$attrs = $this->option(array(
+		$attrs = $this->option([
 			"rows" => 10,
 			"cols" => 20,
 			"id" => $col . "_ip_list",
 			"name" => $name,
-		));
+		]);
 		$ip = $this->request->ip();
 		$response = $this->response();
 		$response->html()->javascript('/share/zesk/widgets/iplist/iplist.js');
@@ -100,20 +100,20 @@ class Control_IP_List extends Control {
 			$err_attrs = $attrs;
 			$err_attrs['name'] = $name . '_errors';
 			$err_attrs['id'] = $col . '_ip_list_errors';
-			$errors = HTML::tag("div", array(
+			$errors = HTML::tag("div", [
 				"class" => "ip-list ip-list-errors",
-			), HTML::tag("div", array(
+			], HTML::tag("div", [
 				"class" => "ip-list-textarea",
-			), HTML::tag("textarea", $err_attrs, implode("\n", $this->ErrorIPs))) . HTML::etag("label", false, $this->option("error_ip_list_label", "Errors")));
+			], HTML::tag("textarea", $err_attrs, implode("\n", $this->ErrorIPs))) . HTML::etag("label", false, $this->option("error_ip_list_label", "Errors")));
 		}
-		$result = HTML::tag("div", array(
+		$result = HTML::tag("div", [
 			"class" => "ip-list",
-		), HTML::tag("div", array(
+		], HTML::tag("div", [
 			"class" => "ip-list-textarea",
-		), HTML::tag("textarea", $attrs, $this->value()) . $add_ip) . HTML::etag("label", false, $this->option("ip_list_label", ""))) . $errors;
-		$result = HTML::tag("div", array(
+		], HTML::tag("textarea", $attrs, $this->value()) . $add_ip) . HTML::etag("label", false, $this->option("ip_list_label", ""))) . $errors;
+		$result = HTML::tag("div", [
 			"class" => "ip-list-widget",
-		), $result);
+		], $result);
 		return $result;
 	}
 }

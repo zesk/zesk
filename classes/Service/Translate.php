@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 abstract class Service_Translate extends Service {
@@ -18,7 +18,7 @@ abstract class Service_Translate extends Service {
 	 * @param array $options
 	 * @return Service_Translate
 	 */
-	public static function factory_translate(Application $application, $target_language, $source_language = null, array $options = array()) {
+	public static function factory_translate(Application $application, $target_language, $source_language = null, array $options = []) {
 		return self::factory($application, "translate", $target_language, $source_language = null, $options);
 	}
 }

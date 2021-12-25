@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\AWS;
 
 /**
@@ -13,16 +13,16 @@ use Aws\ElasticLoadBalancing\ElasticLoadBalancingClient as ElasticLoadBalancingC
  * @author kent
  */
 class Command_ELB extends Command {
-	protected $option_types = array(
+	protected array $option_types = [
 		"add" => "boolean",
 		"remove" => "boolean",
-	);
+	];
 
-	public function run() {
+	public function run(): void {
 		$instance_id = $this->awareness->instance_id();
-		$__ = array(
+		$__ = [
 			"instance_id" => $instance_id,
-		);
+		];
 		$this->log("Instance ID is {instance_id}", $__);
 
 		$elbc = $this->application->factory(ElasticLoadBalancingClient::class);

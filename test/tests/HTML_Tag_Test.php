@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class HTML_Tag_Test extends Test_Unit {
-	public function test_basics() {
+	public function test_basics(): void {
 		$name = null;
-		$attributes = array();
+		$attributes = [];
 		$contents = false;
 		$testx = new HTML_Tag($name, $attributes, $contents);
 

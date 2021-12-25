@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -19,19 +19,19 @@ class Edit {
 	 *
 	 * @var string
 	 */
-	const DIFF_INSERT = 'insert';
+	public const DIFF_INSERT = 'insert';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const DIFF_DELETE = 'delete';
+	public const DIFF_DELETE = 'delete';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const DIFF_MATCH = 'match';
+	public const DIFF_MATCH = 'match';
 
 	/**
 	 * Operation

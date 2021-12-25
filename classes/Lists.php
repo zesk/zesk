@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -48,7 +48,7 @@ class Lists {
 	public static function remove($list, $item, $sep = ";") {
 		$is_arr = is_array($list);
 		$a = $is_arr ? $list : explode($sep, $list);
-		$item = to_list($item, array(), $sep);
+		$item = to_list($item, [], $sep);
 		foreach ($a as $k => $i) {
 			if (in_array($i, $item)) {
 				unset($a[$k]);
@@ -69,7 +69,7 @@ class Lists {
 		if ($item === null) {
 			return $list;
 		}
-		$items = ArrayTools::clean(to_list($item, array(), $sep), null);
+		$items = ArrayTools::clean(to_list($item, [], $sep), null);
 		if (count($items) === 0) {
 			return $list;
 		}
@@ -91,10 +91,10 @@ class Lists {
 	 * @return string Result list
 	 */
 	public static function append_unique($list, $item, $sep = ";") {
-		if ($item === null) {
+		if ($item === null || $list === null) {
 			return $list;
 		}
-		$items = array_unique(ArrayTools::clean(to_list($item, array(), $sep), null));
+		$items = array_unique(ArrayTools::clean(to_list($item, [], $sep), null));
 		if (is_array($list)) {
 			return array_unique(array_merge($list, $items));
 		} elseif ($list === "") {
@@ -116,7 +116,7 @@ class Lists {
 		if (is_array($list)) {
 			return in_array($item, $list);
 		}
-		return strpos($sep . $list . $sep, $sep . $item . $sep) !== false;
+		return str_contains($sep . $list . $sep, $sep . $item . $sep)  ;
 	}
 
 	/**
@@ -129,9 +129,9 @@ class Lists {
 	 */
 	public static function prepend($list, $item, $sep = ";") {
 		if (is_array($list)) {
-			return is_array($item) ? array_merge($item, $list) : array_merge(array(
+			return is_array($item) ? array_merge($item, $list) : array_merge([
 				$item,
-			), $list);
+			], $list);
 		}
 		if (strlen($list) === 0) {
 			return is_array($item) ? implode($sep, $item) : $item;

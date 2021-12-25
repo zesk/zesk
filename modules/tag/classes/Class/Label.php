@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk-modules
  * @subpackage tag
@@ -37,23 +37,23 @@ class Class_Label extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $has_one = array(
+	public $has_one = [
 		'owner' => 'User',
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $find_keys = array(
+	public $find_keys = [
 		"code",
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $column_types = array(
+	public $column_types = [
 		'id' => self::type_id,
 		'code' => self::type_string,
 		'name' => self::type_string,
@@ -63,7 +63,7 @@ class Class_Label extends Class_ORM {
 		'created' => self::type_created,
 		'modified' => self::type_modified,
 		'last_used' => self::type_timestamp,
-	);
+	];
 
 	/**
 	 *

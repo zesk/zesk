@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -52,5 +52,5 @@ interface Interface_Process {
 	 * @param string $message
 	 * @param array $args
 	 */
-	public function log($message, array $args = array());
+	public function log($message, array $args = []);
 }

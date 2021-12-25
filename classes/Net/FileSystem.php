@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 interface Net_FileSystem {
-	const feature_mtime = 'mtime';
+	public const feature_mtime = 'mtime';
 
 	/**
 	 * @return Application
@@ -23,7 +23,7 @@ interface Net_FileSystem {
 
 	public function rmdir($path);
 
-	public function chmod($path, $mode = 0770);
+	public function chmod($path, $mode = 0o770);
 
 	public function download($remote_path, $local_path);
 

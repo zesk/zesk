@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,22 +10,22 @@ namespace zesk;
  *
  */
 class Timestamp_Test extends Test_Unit {
-	public function test_instance() {
+	public function test_instance(): void {
 		$year = $month = $day = $hour = $minute = $second = null;
 		Timestamp::instance($year, $month, $day, $hour, $minute, $second);
 	}
 
-	public function test_utc() {
+	public function test_utc(): void {
 		$now = Timestamp::now();
 		$utc = Timestamp::utc_now();
 		$this->assert_not_equal($utc->__toString(), $now->__toString());
 	}
 
-	public function test_now() {
+	public function test_now(): void {
 		Timestamp::now();
 	}
 
-	public function test_now_relative() {
+	public function test_now_relative(): void {
 		$Years = 0;
 		$Months = 0;
 		$Days = 0;
@@ -41,14 +41,14 @@ class Timestamp_Test extends Test_Unit {
 		$this->assert_not_equal($now, $other);
 	}
 
-	public function test_seconds_to_unit() {
+	public function test_seconds_to_unit(): void {
 		$seconds = null;
 		$divide = false;
 		$stopAtUnit = 'second';
 		Timestamp::seconds_to_unit($seconds, $divide, $stopAtUnit);
 	}
 
-	public function units_translation_table() {
+	public function units_translation_table(): void {
 		$this->assert(is_array(Timestamp::units_translation_table()));
 		$this->assert_equal(Timestamp::units_translation_table('minute'), 60);
 		$this->assert_equal(Timestamp::units_translation_table('second'), 1);
@@ -57,13 +57,13 @@ class Timestamp_Test extends Test_Unit {
 	/**
 	 * @dataProvider good_months
 	 */
-	public function test_month_range($value) {
+	public function test_month_range($value): void {
 		$x = new Timestamp();
 		$x->month($value);
 	}
 
 	public function bad_months() {
-		return array(
+		return [
 			-1,
 			0,
 			13,
@@ -72,11 +72,11 @@ class Timestamp_Test extends Test_Unit {
 			141231241,
 			-12,
 			-11,
-		);
+		];
 	}
 
 	public function good_months() {
-		return array(
+		return [
 			1,
 			2,
 			3,
@@ -89,21 +89,21 @@ class Timestamp_Test extends Test_Unit {
 			10,
 			11,
 			12,
-		);
+		];
 	}
 
 	/**
 	 * @dataProvider bad_months
 	 * @expectedException zesk\Exception_Range
 	 */
-	public function test_month_range_bad($month) {
+	public function test_month_range_bad($month): void {
 		$x = new Timestamp();
 		$x->month($month);
 	}
 
 	/**
 	 */
-	public function test_month_range_high() {
+	public function test_month_range_high(): void {
 		$x = new Timestamp();
 		$value = null;
 		$success = false;
@@ -146,7 +146,7 @@ class Timestamp_Test extends Test_Unit {
 	/**
 	 * @expectedException zesk\Exception_Range
 	 */
-	public function test_quarter_range_low() {
+	public function test_quarter_range_low(): void {
 		$x = new Timestamp();
 		$x->quarter(0);
 	}
@@ -154,12 +154,12 @@ class Timestamp_Test extends Test_Unit {
 	/**
 	 * @expectedException zesk\Exception_Range
 	 */
-	public function test_quarter_range_high() {
+	public function test_quarter_range_high(): void {
 		$x = new Timestamp();
 		$x->quarter(5);
 	}
 
-	public function test_Timestamp() {
+	public function test_Timestamp(): void {
 		$value = null;
 		$options = null;
 		$x = new Timestamp($value, $options);
@@ -433,12 +433,12 @@ class Timestamp_Test extends Test_Unit {
 	/**
 	 * @expectedException zesk\Exception_Parameter
 	 */
-	public function test_add_unit_deprecated() {
+	public function test_add_unit_deprecated(): void {
 		$t = Timestamp::factory('2000-01-01 00:00:00', 'UTC');
 		$t->add_unit(Timestamp::UNIT_HOUR, 2);
 	}
 
-	public function test_difference() {
+	public function test_difference(): void {
 		$now = Timestamp::factory('now');
 		$last_year = Timestamp::factory($now)->add(-1);
 		$units = Timestamp::units_translation_table();
@@ -456,7 +456,7 @@ class Timestamp_Test extends Test_Unit {
 	/**
 	 * @expectedException zesk\Exception_Convert
 	 */
-	public function test_parse_fail() {
+	public function test_parse_fail(): void {
 		$x = new Timestamp();
 		$value = null;
 		$x->parse($value);
@@ -474,7 +474,7 @@ class Timestamp_Test extends Test_Unit {
 				Timestamp::factory_ymdhms(1970, 12, 31, 18, 59, 59, 123),
 			],
 			[
-				Timestamp::factory_ymdhms(1950, 2, 14, 4, 00, 1, 412),
+				Timestamp::factory_ymdhms(1950, 2, 14, 4, 0, 1, 412),
 			],
 			[
 				Timestamp::factory_ymdhms(1900, 2, 2, 23, 59, 59, 999),
@@ -486,13 +486,13 @@ class Timestamp_Test extends Test_Unit {
 	 * @dataProvider serializeExamples
 	 * @param Timestamp $ts
 	 */
-	public function test_serialize(Timestamp $ts) {
+	public function test_serialize(Timestamp $ts): void {
 		$serialized = serialize($ts);
 		$new = PHP::unserialize($serialized);
 		$this->compare_timestamps($ts, $new);
 	}
 
-	public function compare_timestamps($ts, $new) {
+	public function compare_timestamps($ts, $new): void {
 		$this->assertEquals($ts->year(), $new->year(), "years match");
 		$this->assertEquals($ts->month(), $new->month(), "months match");
 		$this->assertEquals($ts->day(), $new->day(), "days match");

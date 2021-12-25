@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -18,11 +18,11 @@ if (!$request) {
 	$request = $this->request = $application->request();
 }
 
-$hook_parameters = array(
+$hook_parameters = [
 	$request,
 	$response,
 	$this,
-);
+];
 $application->hooks->call_arguments('response_html_start', $hook_parameters);
 {
 	$application->modules->all_hook_arguments("headers", $hook_parameters);
@@ -33,17 +33,17 @@ $application->hooks->call_arguments('response_html_start', $hook_parameters);
 	$application->hooks->call_arguments("<html>", $hook_parameters);
 	echo HTML::tag_open('html', $response->html_attributes());
 	{
-		echo $this->theme('response/html/head', array(
+		echo $this->theme('response/html/head', [
 			"hook_parameters" => $hook_parameters,
-		));
+		]);
 		echo HTML::tag_open("body", $response->body_attributes());
 		{
 			echo $application->hooks->call_arguments('<body>', $hook_parameters, '');
-			foreach (array(
+			foreach ([
 				'content',
 				'page_contents',
 				'page_content',
-			) as $k) {
+			] as $k) {
 				if ($this->has($k)) {
 					echo $this->get($k);
 					break;

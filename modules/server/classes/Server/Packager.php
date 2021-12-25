@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -26,8 +26,8 @@ abstract class Server_Packager {
 	 */
 	final public function install($packages) {
 		$packages = to_list($packages);
-		$remove = array();
-		$result = array();
+		$remove = [];
+		$result = [];
 		foreach ($packages as $k => $package) {
 			try {
 				if ($this->package_install($package) === true) {
@@ -59,7 +59,7 @@ abstract class Server_Packager {
 	 */
 	final public function remove($packages, $stop = true) {
 		$packages = to_list($packages);
-		$result = array();
+		$result = [];
 		foreach ($packages as $k => $package) {
 			try {
 				$this->package_remove($package);

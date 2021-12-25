@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -9,33 +9,33 @@ namespace zesk;
  *
  */
 class Command_World_Bootstrap extends Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		'drop' => 'boolean',
 		'all' => 'boolean',
 		'country' => 'boolean',
 		'currency' => 'boolean',
 		'language' => 'boolean',
 		'province' => 'boolean',
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		'drop' => 'Truncate all tables (may cause renumbering)',
 		'all' => 'Bootstrap all codes',
 		'country' => 'Bootstrap country codes',
 		'currency' => 'Bootstrap currency codes',
 		'language' => 'Bootstrap language codes',
 		'province' => 'Bootstrap US/CA provinces',
-	);
+	];
 
-	private static $straps = array(
+	private static $straps = [
 		'country' => 'zesk\\World_Bootstrap_Country',
 		'currency' => 'zesk\\World_Bootstrap_Currency',
 		'language' => 'zesk\\World_Bootstrap_Language',
 		'province' => 'zesk\\World_Bootstrap_Province',
-	);
+	];
 
 	public function run() {
-		$straps = array();
+		$straps = [];
 		if ($this->option_bool('all')) {
 			$straps = array_keys(self::$straps);
 		} else {

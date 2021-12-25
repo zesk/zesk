@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -22,7 +22,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @var array
 	 */
-	protected $class_options = array();
+	protected $class_options = [];
 
 	/**
 	 * Current parent
@@ -60,7 +60,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 * @param Database_Query_Select $query
 	 *        	Executed query to iterate
 	 */
-	public function __construct($class, Database_Query_Select_Base $query, array $options = array()) {
+	public function __construct($class, Database_Query_Select_Base $query, array $options = []) {
 		parent::__construct($query);
 		$this->class = $class;
 		$options['initialize'] = true;
@@ -111,18 +111,18 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @todo Decide on object system caching or this method.
 	 */
-	protected function parent_support(ORM $object) {
+	protected function parent_support(ORM $object): void {
 		if ($this->parent) {
 			$check_id = $this->object->member_integer($this->parent_member);
 			if ($check_id === $this->parent->id()) {
 				$this->object->__set($this->parent_member, $this->parent);
 			} else {
-				$object->application->logger->error("ORM iterator for {class}, mismatched parent member {member} #{id} (expecting #{expect_id})", array(
+				$object->application->logger->error("ORM iterator for {class}, mismatched parent member {member} #{id} (expecting #{expect_id})", [
 					'class' => $this->class,
 					'member' => $this->parent_member,
 					'id' => $check_id,
 					'expect_id' => $this->parent->id(),
-				));
+				]);
 			}
 		}
 	}
@@ -141,9 +141,9 @@ class ORMIterator extends Database_Result_Iterator {
 		if ($this->_valid) {
 			$members = $this->_row;
 			// We do create, then fetch to support polymorphism - if ORM supports factory polymorphism, then shorten this to single factory call
-			$this->object = $this->query->member_model_factory($this->parent_member, $this->class, $members, array(
+			$this->object = $this->query->member_model_factory($this->parent_member, $this->class, $members, [
 				'initialize' => true,
-			) + $this->class_options);
+			] + $this->class_options);
 			$this->id = $this->object->id();
 			$this->parent_support($this->object);
 		} else {
@@ -159,7 +159,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 * @return ORM[]
 	 */
 	public function to_array($key = null) {
-		$result = array();
+		$result = [];
 		if ($key === null) {
 			foreach ($this as $object) {
 				$result[$object->id()] = $object;

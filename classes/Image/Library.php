@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 abstract class Image_Library {
@@ -6,13 +6,13 @@ abstract class Image_Library {
 	 *
 	 * @var string
 	 */
-	const width = "width";
+	public const width = "width";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const height = "height";
+	public const height = "height";
 
 	/**
 	 *
@@ -38,10 +38,10 @@ abstract class Image_Library {
 	 * @return NULL|Image_Library
 	 */
 	public static function factory(Application $application) {
-		foreach (array(
+		foreach ([
 			"GD",
 			"imagick",
-		) as $type) {
+		] as $type) {
 			try {
 				$class = __CLASS__ . '_' . $type;
 				$singleton = $application->factory($class, $application);
@@ -50,9 +50,9 @@ abstract class Image_Library {
 				}
 				return $singleton;
 			} catch (\Exception $e) {
-				$application->logger->error("{class} creation resulted in {e.class}: {e.message}", array(
+				$application->logger->error("{class} creation resulted in {e.class}: {e.message}", [
 					"class" => $class,
-				) + ArrayTools::kprefix(Exception::exception_variables($e), "e."));
+				] + ArrayTools::kprefix(Exception::exception_variables($e), "e."));
 				$application->hooks->call("exception", $e);
 				continue;
 			}
@@ -64,7 +64,7 @@ abstract class Image_Library {
 	/**
 	 * Override in subclasses to hook into constructor
 	 */
-	public function construct() {
+	public function construct(): void {
 	}
 
 	/**
@@ -93,7 +93,7 @@ abstract class Image_Library {
 	 * @param unknown $degrees
 	 * @param array $options
 	 */
-	abstract public function image_rotate($source, $destination, $degrees, array $options = array());
+	abstract public function image_rotate($source, $destination, $degrees, array $options = []);
 
 	/**
 	 * Scale an image size to be within a rectangle specified
@@ -106,24 +106,24 @@ abstract class Image_Library {
 	 */
 	public static function constrain_dimensions($image_width, $image_height, $width, $height) {
 		if ($image_width < $width && $image_height < $height) {
-			return array(
+			return [
 				$image_width,
 				$image_height,
-			);
+			];
 		}
-		$ratio = doubleval($image_height / $image_width);
+		$ratio = floatval($image_height / $image_width);
 		if ($ratio > 1) {
 			// Portrait
-			return array(
+			return [
 				round($height / $ratio),
 				$height,
-			);
+			];
 		} else {
 			// Landscape
-			return array(
+			return [
 				$width,
 				round($width * $ratio),
-			);
+			];
 		}
 	}
 }

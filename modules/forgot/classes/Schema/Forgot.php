@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -17,66 +17,66 @@ class Schema_Forgot extends ORM_Schema {
 	 * @see ORM_Schema::schema()
 	 */
 	public function schema() {
-		$result = array(
-			'{table}' => array(
-				'columns' => array(
-					'id' => array(
+		$result = [
+			'{table}' => [
+				'columns' => [
+					'id' => [
 						'type' => self::type_id,
 						'previous_name' => 'ID',
-					),
-					'login' => array(
+					],
+					'login' => [
 						'type' => self::type_string,
 						'not null' => false,
 						'size' => 128,
-					),
-					'user' => array(
+					],
+					'user' => [
 						'type' => self::type_object,
 						'class' => User::class,
 						'not null' => true,
 						'previous_name' => 'User',
-					),
-					'session' => array(
+					],
+					'session' => [
 						'type' => self::type_object,
 						'class' => 'zesk\\Session',
 						'not null' => true,
 						'previous_name' => 'Session',
-					),
-					'code' => array(
+					],
+					'code' => [
 						'type' => self::type_binary, //'varbinary',
 						'size' => 16,
 						'not null' => true,
 						'previous_name' => 'Code',
-					),
-					'created' => array(
+					],
+					'created' => [
 						'type' => self::type_timestamp,
 						'not null' => true,
 						'default' => 'CURRENT_TIMESTAMP',
 						'previous_name' => 'Created',
-					),
-					'updated' => array(
+					],
+					'updated' => [
 						'type' => self::type_timestamp,
 						'not null' => false,
 						'previous_name' => 'Updated',
-					),
-				),
-				'indexes' => array(
-					'user' => array(
+					],
+				],
+				'indexes' => [
+					'user' => [
 						'user',
-					),
-					'session' => array(
+					],
+					'session' => [
 						'session',
-					),
-				),
-				'unique keys' => array(
-					'code' => array(
+					],
+				],
+				'unique keys' => [
+					'code' => [
 						'code',
-					),
-				),
-				'primary keys' => array(
+					],
+				],
+				'primary keys' => [
 					'id',
-				),
-			),
-		);
+				],
+			],
+		];
 		return $this->map($result);
 	}
 }

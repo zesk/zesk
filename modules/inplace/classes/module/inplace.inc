@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Module_InPlace extends Module_JSLib {
@@ -7,20 +7,20 @@ class Module_InPlace extends Module_JSLib {
 	 *
 	 * @var array
 	 */
-	protected $css_paths = array(
-		"/share/inplace/css/inplace.css" => array(
+	protected $css_paths = [
+		"/share/inplace/css/inplace.css" => [
 			'share' => true,
-		),
-	);
+		],
+	];
 
 	/**
 	 * Array of strings of JS to load, or array of path (key) => $options to load
 	 *
 	 * @var array
 	 */
-	protected $javascript_paths = array(
-		"/share/inplace/js/jquery.inplace.js" => array(
+	protected $javascript_paths = [
+		"/share/inplace/js/jquery.inplace.js" => [
 			'share' => true,
-		),
-	);
+		],
+	];
 }

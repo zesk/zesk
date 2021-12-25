@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace zesk;
 
@@ -7,14 +7,14 @@ class Control_Delete extends Control_Edit {
 	 * (non-PHPdoc)
 	 * @see Control_Edit::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
 		$locale = $this->application->locale;
 		$this->options['submit_redirect_message'] = $locale->__('{class.name} "{object.name}" was deleted.');
-		$title = $locale->__('Delete {class_name} &ldquo;{name}&rdquo;', array(
+		$title = $locale->__('Delete {class_name} &ldquo;{name}&rdquo;', [
 			"class_name" => $this->object->class_name(),
 			"name" => $this->object->name(),
-		));
+		]);
 		$this->set_option('title', $title);
 	}
 

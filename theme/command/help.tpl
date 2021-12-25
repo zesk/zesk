@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -35,11 +35,11 @@ foreach ($this->categories as $category => $commands) {
 	foreach ($commands as $command => $info) {
 		$extras = "";
 		if (array_key_exists($command, $aliases)) {
-			$extras = " (aliases: " . implode($aliases[$command], ", ") . ")";
+			$extras = " (aliases: " . implode(", ", to_array($aliases[$command])) . ")";
 		}
 		echo "$command$extras\n";
 		$desc = avalue($info, "desc", $locale("No description provided."));
-		$parameters = array();
+		$parameters = [];
 		// // 		foreach (avalue($info, 'global', array()) as $global => $foo) {
 		// // 			$parameters[] = "$global (" . $foo[0] . ")" . (count($foo) > 1 ? "\n" . Text::indent(avalue($foo, 2), 1, true, $tab) : "");
 		// // 		}

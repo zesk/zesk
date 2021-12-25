@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -9,10 +9,10 @@ namespace zesk;
 class Class_DBQueryObjectTest extends Class_ORM {
 	public $id_column = "id";
 
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"foo" => self::type_string,
-	);
+	];
 }
 
 /**
@@ -21,7 +21,7 @@ class Class_DBQueryObjectTest extends Class_ORM {
  *
  */
 class DBQueryObjectTest extends ORM {
-	public function validate() {
+	public function validate(): void {
 		$test = Database_Test::$test;
 		$test->assert(!$this->member_is_empty("id"));
 		$test->assert(!$this->member_is_empty("foo"));

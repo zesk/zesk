@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -7,11 +7,11 @@ namespace zesk;
  * @category Debugging
  */
 class Command_PHP_Schema extends Command {
-	protected $option_types = array(
+	protected array $option_types = [
 		'class' => 'string',
-	);
+	];
 
-	public function run() {
+	public function run(): void {
 		$db = $this->application->database_registry();
 
 		$class = $this->option('class');
@@ -37,10 +37,10 @@ class Command_PHP_Schema extends Command {
 			echo "/* $class: Schema empty */\n";
 			exit(1);
 		} else {
-			echo $this->application->theme('command/php/schema', array(
+			echo $this->application->theme('command/php/schema', [
 				'class_name' => 'Schema_' . get_class($object),
 				'schema' => $schema,
-			));
+			]);
 		}
 	}
 }

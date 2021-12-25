@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -9,7 +9,7 @@
 namespace zesk;
 
 class Control_Checkbox extends Control {
-	private function apply_options($bool_result) {
+	private function apply_options($bool_result): void {
 		if ($bool_result) {
 			if ($this->has_option("trueoptions")) {
 				$this->set_option($this->first_option("options_true;trueoptions"));
@@ -57,7 +57,7 @@ class Control_Checkbox extends Control {
 		return $this->request->getb($this->name() . "_ckbx");
 	}
 
-	public function load() {
+	public function load(): void {
 		$name = $this->name();
 		if ($this->request->has($name) || $this->request->has($name . "_ckbx")) {
 			$new_value = strval(to_bool($this->request->get($name)));
@@ -65,11 +65,11 @@ class Control_Checkbox extends Control {
 			$object_value = $checked ? $this->object_value_true() : $this->object_value_false();
 			$this->value($object_value);
 			if ($this->option_bool("debug_load")) {
-				$this->application->logger->warning("Set widget {name} to {value} ({type})", array(
+				$this->application->logger->warning("Set widget {name} to {value} ({type})", [
 					"name" => $this->name(),
 					"value" => $object_value,
 					"type" => type($object_value),
-				));
+				]);
 			}
 			$this->apply_options($checked);
 		}
@@ -100,10 +100,10 @@ class Control_Checkbox extends Control {
 
 	public function theme_variables() {
 		$this->apply_options($this->checked());
-		return parent::theme_variables() + array(
+		return parent::theme_variables() + [
 			'checked' => $this->checked(),
 			'checked_value' => $this->object->apply_map($this->checked_value()),
-		);
+		];
 	}
 
 	/**

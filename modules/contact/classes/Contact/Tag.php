@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $Id: tag.inc 4481 2017-03-24 18:21:48Z kent $
  * @package zesk
@@ -15,10 +15,10 @@ namespace zesk;
  */
 class Contact_Tag extends ORM {
 	public static function register_tag($name, $user) {
-		$x = new self(array(
+		$x = new self([
 			"name" => $name,
 			"user" => $user,
-		));
+		]);
 		if (!$x->register()) {
 			return null;
 		}
@@ -41,12 +41,12 @@ class Contact_Tag extends ORM {
 		return $result;
 	}
 
-	public function grant_user(User $user) {
+	public function grant_user(User $user): void {
 		$this->query_insert()
-			->values(array(
+			->values([
 			"user" => $user,
 			"contact_tag" => $this->id(),
-		))
+		])
 			->replace()
 			->execute();
 	}

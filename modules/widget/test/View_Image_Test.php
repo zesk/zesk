@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @test_module Widget
@@ -22,7 +22,7 @@ class View_Image_Test extends TestWidget {
 	 * @param integer $width
 	 * @param integer $height
 	 */
-	public function validate_image_size_tag($img_tag, $width, $height) {
+	public function validate_image_size_tag($img_tag, $width, $height): void {
 		dump($img_tag);
 
 		$tag = HTML::extract_tag_object("img", $img_tag);
@@ -39,7 +39,7 @@ class View_Image_Test extends TestWidget {
 		$exists = file_exists($image_path);
 		$this->assert_true($exists, "Image file should exist $image_path");
 
-		list($w_img, $h_img) = getimagesize($image_path);
+		[$w_img, $h_img] = getimagesize($image_path);
 		echo "$img_tag\n";
 		echo "$src is tag[$w x $h] image[$w_img x $h_img]\n";
 		$this->assertEquals($w, $width, "$src should be width $width");
@@ -55,13 +55,13 @@ class View_Image_Test extends TestWidget {
 	// 		$this->assert("$w === $width", "$path should be width $width");
 	// 		$this->assert("$h === $height", "$path should be height $height");
 	// 	}
-	public function validate_image_size($image_path, $width, $height) {
-		list($w_img, $h_img) = getimagesize($image_path);
+	public function validate_image_size($image_path, $width, $height): void {
+		[$w_img, $h_img] = getimagesize($image_path);
 		$this->assert_equal($w_img, $width, "$image_path image should be width $width (actual $w_img)");
 		$this->assert_equal($h_img, $height, "$image_path image should be height $height (action $h_img)");
 	}
 
-	public function test_scaled() {
+	public function test_scaled(): void {
 		$this->test_dir = $this->test_sandbox();
 
 		$this->application->set_document_root($this->test_dir);
@@ -70,89 +70,89 @@ class View_Image_Test extends TestWidget {
 		$width = false;
 		$height = false;
 		$alt = "";
-		$extras = array();
+		$extras = [];
 		View_Image::scaled($this->application, $src, $width, $height, $alt, $extras);
 
-		$images = array(
-			'z100x100.gif' => array(
-				array(
+		$images = [
+			'z100x100.gif' => [
+				[
 					50,
 					50,
 					50,
 					50,
-				),
-				array(
+				],
+				[
 					50,
 					20,
 					20,
 					20,
-				),
-				array(
+				],
+				[
 					20,
 					50,
 					20,
 					20,
-				),
-				array(
+				],
+				[
 					150,
 					150,
 					150,
 					150,
-				),
-			),
-			'i50x100.gif' => array(
-				array(
+				],
+			],
+			'i50x100.gif' => [
+				[
 					50,
 					50,
 					25,
 					50,
-				),
-				array(
+				],
+				[
 					50,
 					20,
 					10,
 					20,
-				),
-				array(
+				],
+				[
 					20,
 					50,
 					20,
 					40,
-				),
-				array(
+				],
+				[
 					150,
 					150,
 					75,
 					150,
-				),
-			),
-			'r100x50.gif' => array(
-				array(
+				],
+			],
+			'r100x50.gif' => [
+				[
 					50,
 					50,
 					50,
 					25,
-				),
-				array(
+				],
+				[
 					50,
 					20,
 					40,
 					20,
-				),
-				array(
+				],
+				[
 					20,
 					50,
 					20,
 					10,
-				),
-				array(
+				],
+				[
 					150,
 					150,
 					150,
 					75,
-				),
-			),
-		);
+				],
+			],
+		];
 
 		$image_root = $this->image_root();
 		foreach ($images as $image_name => $tests) {
@@ -165,18 +165,18 @@ class View_Image_Test extends TestWidget {
 
 			View_Image::debug(true);
 
-			$extras = array(
+			$extras = [
 				"is_relative" => false,
-			);
+			];
 			foreach ($tests as $test) {
-				list($s0x, $s0y, $s1x, $s1y) = $test;
+				[$s0x, $s0y, $s1x, $s1y] = $test;
 				$this->log("Testing image sizes $s0x, $s0y, $s1x, $s1y");
 				//$this->validate_image_size_tag(View_Image::scaled($this->application, $src, $s0x, $s0y, "", $extras), $s1x, $s1y);
 			}
 		}
 	}
 
-	public function test_scaled_path() {
+	public function test_scaled_path(): void {
 		$test_dir = $this->test_sandbox();
 
 		$this->application->document_root($test_dir);
@@ -185,89 +185,89 @@ class View_Image_Test extends TestWidget {
 		$width = false;
 		$height = false;
 		$alt = "";
-		$extras = array();
+		$extras = [];
 		View_Image::scaled_path($this->application, $src, $width, $height, $alt, $extras);
 
-		$images = array(
-			'z100x100.gif' => array(
-				array(
+		$images = [
+			'z100x100.gif' => [
+				[
 					50,
 					50,
 					50,
 					50,
-				),
-				array(
+				],
+				[
 					50,
 					20,
 					20,
 					20,
-				),
-				array(
+				],
+				[
 					20,
 					50,
 					20,
 					20,
-				),
-				array(
+				],
+				[
 					150,
 					150,
 					150,
 					150,
-				),
-			),
-			'i50x100.gif' => array(
-				array(
+				],
+			],
+			'i50x100.gif' => [
+				[
 					50,
 					50,
 					25,
 					50,
-				),
-				array(
+				],
+				[
 					50,
 					20,
 					10,
 					20,
-				),
-				array(
+				],
+				[
 					20,
 					50,
 					20,
 					40,
-				),
-				array(
+				],
+				[
 					150,
 					150,
 					75,
 					150,
-				),
-			),
-			'r100x50.gif' => array(
-				array(
+				],
+			],
+			'r100x50.gif' => [
+				[
 					50,
 					50,
 					50,
 					25,
-				),
-				array(
+				],
+				[
 					50,
 					20,
 					40,
 					20,
-				),
-				array(
+				],
+				[
 					20,
 					50,
 					20,
 					10,
-				),
-				array(
+				],
+				[
 					150,
 					150,
 					150,
 					75,
-				),
-			),
-		);
+				],
+			],
+		];
 
 		foreach ($images as $image_name => $tests) {
 			$test_image = path($this->image_root(), $image_name);
@@ -278,11 +278,11 @@ class View_Image_Test extends TestWidget {
 
 			View_Image::debug();
 
-			$extras = array(
+			$extras = [
 				"is_relative" => false,
-			);
+			];
 			foreach ($tests as $test) {
-				list($s0x, $s0y, $s1x, $s1y) = $test;
+				[$s0x, $s0y, $s1x, $s1y] = $test;
 				$rel_path = View_Image::scaled_path($this->application, $src, $s0x, $s0y, "", $extras);
 				$full_path = path($this->application->document_root(), $rel_path);
 				$this->assert_true(file_exists($full_path), "File does not exist $full_path");
@@ -291,15 +291,15 @@ class View_Image_Test extends TestWidget {
 		}
 	}
 
-	public function test_scaled_widget() {
+	public function test_scaled_widget(): void {
 		$width = false;
 		$height = false;
 		$alt = "";
-		$extras = array();
+		$extras = [];
 		View_Image::scaled_widget($this->application, $width, $height, $alt, $extras);
 	}
 
-	public function test_debug() {
+	public function test_debug(): void {
 		$saved = View_Image::debug();
 		View_Image::debug(true);
 		$this->assert_true(View_Image::debug());

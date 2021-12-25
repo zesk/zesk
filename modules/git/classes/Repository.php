@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage git
@@ -43,7 +43,7 @@ class Repository extends \zesk\Repository_Command {
 	public function status($target = null, $updates = false) {
 	}
 
-	public function info($path = null, $component = null) {
+	public function info($path = null, $component = null): void {
 	}
 
 	/**
@@ -58,17 +58,17 @@ class Repository extends \zesk\Repository_Command {
 		}
 		$tag = "origin/master";
 		$target = $this->resolve_target($target);
-		$result = $this->run_command("diff --shortstat {tag} {target}", array(
+		$result = $this->run_command("diff --shortstat {tag} {target}", [
 			"tag" => $tag,
 			"target" => $target,
-		));
+		]);
 		if (count($result) === 0) {
 			return false;
 		}
 		return true;
 	}
 
-	public function need_commit($target = null) {
+	public function need_commit($target = null): void {
 	}
 
 	/**
@@ -77,7 +77,7 @@ class Repository extends \zesk\Repository_Command {
 	 * @param string $target
 	 * @param string $message
 	 */
-	public function commit($target = null, $message = null) {
+	public function commit($target = null, $message = null): void {
 	}
 
 	/**
@@ -85,7 +85,7 @@ class Repository extends \zesk\Repository_Command {
 	 *
 	 * @param string $target
 	 */
-	public function update($target = null) {
+	public function update($target = null): void {
 	}
 
 	/**
@@ -172,7 +172,7 @@ class Repository extends \zesk\Repository_Command {
 	 *
 	 */
 	private function parse_status_results(array $results) {
-		$parsed_results = array();
+		$parsed_results = [];
 		foreach ($results as $line) {
 		}
 		return $parsed_results;

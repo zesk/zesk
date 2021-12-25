@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -13,7 +13,7 @@ namespace zesk;
  * @category Management
  */
 class Command_Version extends Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		'tag' => 'string',
 		'zesk' => 'boolean',
 		'major' => 'boolean',
@@ -23,9 +23,9 @@ class Command_Version extends Command_Base {
 		'decrement' => 'boolean',
 		'zero' => 'boolean',
 		'init' => 'boolean',
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		'tag' => 'Set tag to this value',
 		'major' => 'Bump major version (cascades)',
 		'minor' => 'Bump minor version (cascades)',
@@ -35,54 +35,54 @@ class Command_Version extends Command_Base {
 		'zero' => 'Set version component to zero instead (cascades)',
 		'init' => 'Write default etc/version-schema.json for the application',
 		'zesk' => 'Ignore all other options and output the version of Zesk (not application version)',
-	);
+	];
 
 	/**
 	 * Unable to parse JSON etc/version-schema.json
 	 *
 	 * @var integer
 	 */
-	const EXIT_CODE_VERSION_SCHEMA_PARSE_FAILURE = 1;
+	public const EXIT_CODE_VERSION_SCHEMA_PARSE_FAILURE = 1;
 
 	/**
 	 * No valid parser to determine version number
 	 *
 	 * @var integer
 	 */
-	const EXIT_CODE_INVALID_PARSER = 2;
+	public const EXIT_CODE_INVALID_PARSER = 2;
 
 	/**
 	 * Unable to load version
 	 *
 	 * @var integer
 	 */
-	const EXIT_CODE_READER_FAILED = 3;
+	public const EXIT_CODE_READER_FAILED = 3;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const EXIT_CODE_PARSER_FAILED = 4;
+	public const EXIT_CODE_PARSER_FAILED = 4;
 
 	/**
 	 * Unable to write/generate version number in code
 	 *
 	 * @var integer
 	 */
-	const EXIT_CODE_GENERATOR_FAILED = 5;
+	public const EXIT_CODE_GENERATOR_FAILED = 5;
 
 	/**
 	 * Updated version but was not reflected as a change upon reparsing
 	 *
 	 * @var integer
 	 */
-	const EXIT_CODE_VERSION_UPDATE_UNCHANGED = 6;
+	public const EXIT_CODE_VERSION_UPDATE_UNCHANGED = 6;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const EXIT_CODE_INIT_EXISTS = 7;
+	public const EXIT_CODE_INIT_EXISTS = 7;
 
 	/**
 	 * Written using functional form as an experiment to see how it feels. Not bad.
@@ -104,34 +104,34 @@ class Command_Version extends Command_Base {
 		try {
 			$schema = JSON::decode(File::contents($schema_path));
 		} catch (Exception_Parse $e) {
-			$this->error("{schema_path} not found, invoke with --init to create default version configuration", array(
+			$this->error("{schema_path} not found, invoke with --init to create default version configuration", [
 				"schema_path" => $schema_path,
-			));
+			]);
 			return 1;
 		}
-		$parser = $this->version_parser(isset($schema['parser']) ? $schema['parser'] : array());
+		$parser = $this->version_parser($schema['parser'] ?? []);
 		if (!$parser) {
 			$this->error("Unable to geneate parser for version");
 			return self::EXIT_CODE_INVALID_PARSER;
 		}
-		$reader = $this->version_reader(isset($schema['reader']) ? $schema['reader'] : array());
+		$reader = $this->version_reader($schema['reader'] ?? []);
 
 		try {
 			$version_raw = $reader($schema);
 		} catch (Exception $e) {
-			$this->error("Error reading version: {message}", array(
+			$this->error("Error reading version: {message}", [
 				"message" => $e->getMessage(),
-			));
+			]);
 			return self::EXIT_CODE_READER_FAILED;
 		}
 
 		try {
 			$version_structure = $parser($version_raw);
 		} catch (Exception $e) {
-			$this->error("Error parsing version {version}: {message}", array(
+			$this->error("Error parsing version {version}: {message}", [
 				"message" => $e->getMessage(),
 				"version" => $version_raw,
-			));
+			]);
 			return self::EXIT_CODE_PARSER_FAILED;
 		}
 		$changed = false;
@@ -144,13 +144,13 @@ class Command_Version extends Command_Base {
 		$delta = $this->option_bool("decrement") ? -1 : 1;
 		$zero = $this->option_bool("zero");
 		$reset = false;
-		$flags = array();
-		$tokens = avalue($schema, 'tokens', array(
+		$flags = [];
+		$tokens = avalue($schema, 'tokens', [
 			"major",
 			"minor",
 			"maintenance",
 			"patch",
-		));
+		]);
 		foreach ($tokens as $token) {
 			if ($this->option_bool($token)) {
 				$flags[] = "--$token";
@@ -172,43 +172,43 @@ class Command_Version extends Command_Base {
 		try {
 			$new_version = $generator($version_structure);
 		} catch (Exception $e) {
-			$this->error("Error generating new version from structure {message} ({version_structure})", array(
+			$this->error("Error generating new version from structure {message} ({version_structure})", [
 				"message" => $e->getMessage(),
 				"version_structure" => $version_structure,
-			));
+			]);
 		}
 		if ($changed) {
-			$writer = $this->version_writer(avalue($schema, 'writer', array()));
+			$writer = $this->version_writer(avalue($schema, 'writer', []));
 
 			try {
 				$writer($schema, $new_version);
 			} catch (Exception $e) {
-				$this->error("Error generating version files: {message}", array(
+				$this->error("Error generating version files: {message}", [
 					"message" => $e->getMessage(),
-				));
+				]);
 				return self::EXIT_CODE_GENERATOR_FAILED;
 			}
 			$new_version_raw = $reader($schema);
 			if ($new_version_raw === $version_raw) {
-				$this->error("Version number {version} is unchanged despite {flags}", array(
+				$this->error("Version number {version} is unchanged despite {flags}", [
 					"version" => $version_structure,
 					"flags" => $flags,
-				));
+				]);
 				return self::EXIT_CODE_VERSION_UPDATE_UNCHANGED;
 			} else {
 				$hooks = $this->application->modules->all_hook_list("version_updated");
-				$params = array(
+				$params = [
 					"previous_version" => $version_raw,
 					"version" => $new_version_raw,
 					"command" => $this,
-				);
+				];
 				if ($hooks) {
 					$this->log("Calling hooks {hooks}", [
 						"hooks" => $this->application->hooks->callable_strings($hooks),
 					]);
-					$params = $this->application->modules->all_hook_arguments("version_updated", array(
+					$params = $this->application->modules->all_hook_arguments("version_updated", [
 						$params,
-					), $params);
+					], $params);
 				}
 				$this->log("Updated version from {previous_version} to {version}", $params);
 				return 0;
@@ -233,27 +233,27 @@ class Command_Version extends Command_Base {
 	private function _command_init_schema() {
 		$schema_file_path = $this->version_schema_path();
 		if (file_exists($schema_file_path)) {
-			$this->error("{file} exists, will not overwrite", array(
+			$this->error("{file} exists, will not overwrite", [
 				"file" => $schema_file_path,
-			));
+			]);
 			return self::EXIT_CODE_INIT_EXISTS;
 		}
 		$version_file_path = "etc/version.json";
-		$json_path = array(
+		$json_path = [
 			"zesk\\Application",
 			"version",
-		);
+		];
 
 		try {
-			File::put($schema_file_path, JSON::encode_pretty(array(
+			File::put($schema_file_path, JSON::encode_pretty([
 				"file" => $version_file_path,
-				"reader" => array(
+				"reader" => [
 					"json" => $json_path,
-				),
-				"writer" => array(
+				],
+				"writer" => [
 					"json" => $json_path,
-				),
-			)));
+				],
+			]));
 			$this->log("wrote {schema_file_path}", [
 				"schema_file_path" => $schema_file_path,
 			]);
@@ -290,14 +290,14 @@ class Command_Version extends Command_Base {
 	 */
 	private function version_parser(array $__parser) {
 		$pattern = "/([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:\\.([0-9]+))?([a-z][a-z0-9]*)?/i";
-		$matches = array(
+		$matches = [
 			"version",
 			"major",
 			"minor",
 			"maintenance",
 			"patch",
 			"tag",
-		);
+		];
 		extract($__parser, EXTR_IF_EXISTS);
 		if ($pattern) {
 			if (!is_array($matches)) {
@@ -306,7 +306,7 @@ class Command_Version extends Command_Base {
 			return function ($content) use ($pattern, $matches) {
 				$found = null;
 				if (preg_match($pattern, $content, $found)) {
-					$result = array();
+					$result = [];
 					foreach ($matches as $index => $key) {
 						if ($key) {
 							$result[$key] = array_key_exists($index, $found) ? $found[$index] : null;
@@ -349,14 +349,12 @@ class Command_Version extends Command_Base {
 		$map = null;
 		extract($__generator, EXTR_IF_EXISTS);
 		if ($map) {
-			return function ($version_structure) use ($map) {
-				return map($map, $version_structure);
-			};
+			return fn ($version_structure) => map($map, $version_structure);
 		}
 
-		throw new Exception_Semantics("{schema_path} `generator` must have key `map`", array(
+		throw new Exception_Semantics("{schema_path} `generator` must have key `map`", [
 			"schema_path" => $this->version_schema_path(),
-		));
+		]);
 	}
 
 	private function version_writer(array $__writer) {
@@ -364,14 +362,14 @@ class Command_Version extends Command_Base {
 		extract($__writer, EXTR_IF_EXISTS);
 		$application_root = $this->application->path();
 		if ($json) {
-			return function ($schema, $new_version) use ($json, $application_root) {
+			return function ($schema, $new_version) use ($json, $application_root): void {
 				$file = File::is_absolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
 				$json_structure = JSON::decode(File::contents($file), true);
 				apath_set($json_structure, $json, $new_version);
 				File::put($file, JSON::encode_pretty($json_structure));
 			};
 		}
-		return function ($schema, $new_version) use ($application_root) {
+		return function ($schema, $new_version) use ($application_root): void {
 			$file = File::is_absolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
 			File::put($file, $new_version);
 		};

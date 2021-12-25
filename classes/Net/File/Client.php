@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
@@ -122,20 +122,20 @@ class Net_File_Client extends Net_Client implements Net_FileSystem {
 		return chdir($path);
 	}
 
-	public function chmod($path, $mode = 0770) {
+	public function chmod($path, $mode = 0o770) {
 		return chmod($path, $mode);
 	}
 
 	public function stat($path) {
-		$entry = array();
+		$entry = [];
 		$entry['name'] = basename($path);
 
 		try {
 			$stats = File::stat($path);
 		} catch (Exception_File_NotFound $e) {
-			return $entry + array(
+			return $entry + [
 				'type' => null,
-			);
+			];
 		}
 		$entry['mode'] = $stats['perms']['string'];
 		$entry['type'] = $stats['filetype']['type'];

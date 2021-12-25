@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -14,27 +14,27 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 
 	protected $uid = null;
 
-	private static $users = array();
+	private static $users = [];
 
-	private static $groups = array();
+	private static $groups = [];
 
-	const f_user_name = "name";
+	public const f_user_name = "name";
 
-	const f_user_full_name = "full_name";
+	public const f_user_full_name = "full_name";
 
-	const f_user_id = "uid";
+	public const f_user_id = "uid";
 
-	const f_user_home = "home";
+	public const f_user_home = "home";
 
-	const f_user_shell = "shell";
+	public const f_user_shell = "shell";
 
-	const f_user_group_id = "gid";
+	public const f_user_group_id = "gid";
 
-	const f_group_name = "name";
+	public const f_group_name = "name";
 
-	const f_group_id = "gid";
+	public const f_group_id = "gid";
 
-	const f_group_members = "members";
+	public const f_group_members = "members";
 
 	public function has_shell_program($command) {
 		return $this->application->paths->which($command) === null ? false : true;
@@ -110,7 +110,7 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 		$processes = $this->processes_running();
 		foreach ($processes as $process) {
 			$command = null;
-			list($command) = $process['command'];
+			[$command] = $process['command'];
 			if ($command === $path) {
 				return true;
 			}
@@ -119,12 +119,12 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 	}
 
 	public function ps_heading_aliases() {
-		return array();
+		return [];
 	}
 
 	public function processes_running() {
 		$lines = $this->exec("ps aux");
-		$processes = array();
+		$processes = [];
 		$line = array_shift($lines);
 		$headings = explode(" ", trim(preg_replace('/\s+/', ' ', $line)));
 		$heading_aliases = $this->ps_heading_aliases();
@@ -135,12 +135,12 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 
 		foreach ($lines as $line) {
 			$items = explode(" ", trim(preg_replace('/\s+/', ' ', $line)), count($headings)) + array_fill(0, count($headings));
-			$row = array();
+			$row = [];
 			foreach ($items as $index => $value) {
 				$name = $headings[$index];
 				if ($name === "command") {
 					$value = $args = null;
-					list($value, $args) = pair($value, " ", $value, null);
+					[$value, $args] = pair($value, " ", $value, null);
 					$row['arguments'] = $args;
 				}
 				$row[$name] = $value;
@@ -151,27 +151,27 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 	}
 
 	protected function _load_group_file($file = '/etc/group') {
-		$groups = array();
+		$groups = [];
 		foreach (File::lines($file) as $line) {
-			list($line) = pair($line, "#", $line, null);
+			[$line] = pair($line, "#", $line, null);
 			$line = trim($line);
 			if (empty($line)) {
 				continue;
 			}
-			$data = ArrayTools::rekey(array(
+			$data = ArrayTools::rekey([
 				self::f_group_name,
 				null,
 				self::f_group_id,
 				self::f_group_members,
-			), null, explode(":", $line, 4) + array_fill(0, 4));
+			], null, explode(":", $line, 4) + array_fill(0, 4));
 			$groups[$data[self::f_group_name]] = $data;
 		}
 		return $groups;
 	}
 
 	protected function _load_user_file($file = '/etc/passwd') {
-		$users = array();
-		$columns = array(
+		$users = [];
+		$columns = [
 			self::f_user_name,
 			"x-password",
 			self::f_user_id,
@@ -179,11 +179,11 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 			self::f_user_full_name,
 			self::f_user_home,
 			self::f_user_shell,
-		);
+		];
 		$n_columns = count($columns);
 		foreach (File::lines($file) as $line) {
 			// publish:x:1001:1000:Publish User:/publish:/bin/bash
-			list($line) = pair($line, "#", $line, null);
+			[$line] = pair($line, "#", $line, null);
 			$line = trim($line);
 			if (empty($line)) {
 				continue;
@@ -194,19 +194,19 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 		return $users;
 	}
 
-	public function login_script_install($user, $name, $command) {
+	public function login_script_install($user, $name, $command): void {
 		throw new Exception_Unimplemented(__CLASS__ . '::' . __METHOD__);
 	}
 
-	public function login_script_installed($user, $name) {
+	public function login_script_installed($user, $name): void {
 		throw new Exception_Unimplemented(__CLASS__ . '::' . __METHOD__);
 	}
 
-	public function login_script_run($user, $name) {
+	public function login_script_run($user, $name): void {
 		throw new Exception_Unimplemented(__CLASS__ . '::' . __METHOD__);
 	}
 
-	public function login_script_uninstall($user, $name) {
+	public function login_script_uninstall($user, $name): void {
 		throw new Exception_Unimplemented(__CLASS__ . '::' . __METHOD__);
 	}
 }

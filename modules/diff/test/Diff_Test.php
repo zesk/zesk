@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\Diff;
 
 use zesk\Test_Unit;
@@ -9,11 +9,11 @@ use zesk\Test_Unit;
  *
  */
 class Diff_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"diff",
-	);
+	];
 
-	public function test_diff_binary() {
+	public function test_diff_binary(): void {
 		$a = "a";
 		$b = "a";
 		$testx = new Binary($a, $b);
@@ -22,7 +22,7 @@ class Diff_Test extends Test_Unit {
 		$this->assert(count($edits) === 1);
 	}
 
-	public function test_diff_binary2() {
+	public function test_diff_binary2(): void {
 		$a = "a";
 		$b = "ab";
 		$testx = new Binary($a, $b);
@@ -31,7 +31,7 @@ class Diff_Test extends Test_Unit {
 		$this->assert_equal_object(new Edit(Edit::DIFF_INSERT, 1, 1, 'b'), $diffs[0]);
 	}
 
-	public function test_diff_binary3() {
+	public function test_diff_binary3(): void {
 		$a = "a";
 		$b = "ba";
 		$testx = new Binary($a, $b);
@@ -40,7 +40,7 @@ class Diff_Test extends Test_Unit {
 		$this->assert_equal_object(new Edit(Edit::DIFF_INSERT, 0, 1, 'b'), $diffs[0]);
 	}
 
-	public function test_diff_binary4() {
+	public function test_diff_binary4(): void {
 		$a = "ab";
 		$b = "a";
 		$testx = new Binary($a, $b);
@@ -49,7 +49,7 @@ class Diff_Test extends Test_Unit {
 		$this->assert_equal_object(new Edit(Edit::DIFF_DELETE, 1, 1), $diffs[0]);
 	}
 
-	public function test_diff_binary5() {
+	public function test_diff_binary5(): void {
 		$a = "ab";
 		$b = "b";
 		$testx = new Binary($a, $b);
@@ -58,7 +58,7 @@ class Diff_Test extends Test_Unit {
 		$this->assert_equal_object(new Edit(Edit::DIFF_DELETE, 0, 1), $diffs[0]);
 	}
 
-	public function test_diff_binary6() {
+	public function test_diff_binary6(): void {
 		$a = "Learning\nto\nuse\nthe\npotty";
 		$b = "Learning\n\nto\nuse\nthe\nnew\npotty";
 
@@ -69,7 +69,7 @@ class Diff_Test extends Test_Unit {
 		$this->assert_equal_object($diffs[1], new Edit(Edit::DIFF_INSERT, 21, 4, "new\n"));
 	}
 
-	public function test_diff_binary7() {
+	public function test_diff_binary7(): void {
 		$a = "Learning\nto\nuse\nthe\nnew\npotty";
 		$b = "Learning\nto\nuse\nthe\npotty";
 
@@ -79,7 +79,7 @@ class Diff_Test extends Test_Unit {
 		$this->assert_equal_object(new Edit(Edit::DIFF_DELETE, 20, 4), $diffs[0]);
 	}
 
-	public function test_diff_binary8() {
+	public function test_diff_binary8(): void {
 		$a = "Learning\nto\nuse\nthe\nold\npotty";
 
 		$b = "Learning\nto\nuse\nthe\nnew\npotty";
@@ -91,7 +91,7 @@ class Diff_Test extends Test_Unit {
 		$this->assert_equal_object(new Edit(Edit::DIFF_INSERT, 20, 3, 'new'), $diffs[1]);
 	}
 
-	public function test_diff_lines() {
+	public function test_diff_lines(): void {
 		$a = "Line1\nLine2\nLine4";
 		$b = "Line1\nLine2\nLine3\nLine4";
 		$testx = new Lines($a, $b);
@@ -100,18 +100,18 @@ class Diff_Test extends Test_Unit {
 		$this->log("Sample 2: \n$b");
 		$this->log("Output: \n" . $testx->output());
 
-		$this->assert_equal($testx->diffs(), array(
-			new Edit(Edit::DIFF_INSERT, 2, 1, array(
+		$this->assert_equal($testx->diffs(), [
+			new Edit(Edit::DIFF_INSERT, 2, 1, [
 				"Line3",
-			)),
-		));
+			]),
+		]);
 		$testx = new Lines($b, $a);
-		$this->assert_equal($testx->diffs(), array(
+		$this->assert_equal($testx->diffs(), [
 			new Edit(Edit::DIFF_DELETE, 2, 1),
-		));
+		]);
 	}
 
-	public function test_diff_text() {
+	public function test_diff_text(): void {
 		$a = "abcdefghijklmnopqrstuvwxyz";
 		$b = "abclXXXqrstwxz";
 		$d0 = $d = new Binary($a, $b);

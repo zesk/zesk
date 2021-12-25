@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage tools
@@ -91,7 +91,7 @@ abstract class CSV extends Options {
 	 *
 	 * @param mixed $options Array of options
 	 */
-	public function __construct(array $options = array()) {
+	public function __construct(array $options = []) {
 		parent::__construct($options);
 
 		$this->RowIndex = 0;
@@ -163,9 +163,9 @@ abstract class CSV extends Options {
 				$index = count($this->Headers);
 				$this->Headers[$index] = $mixed;
 				if (!is_array($mixed)) {
-					$mixed = array(
+					$mixed = [
 						$mixed,
-					);
+					];
 				}
 				foreach ($mixed as $name) {
 					$lowname = strtolower($name);
@@ -174,10 +174,10 @@ abstract class CSV extends Options {
 						if (is_array($hmap)) {
 							$this->HeadersToIndex[$lowname][] = $index;
 						} else {
-							$this->HeadersToIndex[$lowname] = array(
+							$this->HeadersToIndex[$lowname] = [
 								$hmap,
 								$index,
-							);
+							];
 						}
 					} else {
 						$this->HeadersToIndex[$lowname] = $index;
@@ -195,8 +195,8 @@ abstract class CSV extends Options {
 	 * @return CSV
 	 */
 	public function set_headers(array $headers, $is_map = true) {
-		$this->Headers = array();
-		$this->HeadersToIndex = array();
+		$this->Headers = [];
+		$this->HeadersToIndex = [];
 		return $this->add_headers($headers, $is_map);
 	}
 
@@ -279,7 +279,7 @@ abstract class CSV extends Options {
 	 *
 	 * @throws Exception_Semantics
 	 */
-	protected function _check_file() {
+	protected function _check_file(): void {
 		if (!is_resource($this->File)) {
 			throw new Exception_Semantics("Must set a file first.");
 		}

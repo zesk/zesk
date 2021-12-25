@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -23,9 +23,9 @@ class Forgot extends ORM {
 	 *
 	 * @var array
 	 */
-	private static $mappable_variables = array(
+	private static $mappable_variables = [
 		"subject",
-	);
+	];
 
 	/**
 	 *
@@ -35,22 +35,22 @@ class Forgot extends ORM {
 	public function notify(Request $request) {
 		$user = $this->user;
 		$locale = $this->application->locale;
-		$variables = array(
+		$variables = [
 			"subject" => $locale->__('Forgotten password request for {user_email}'),
 			"user_login" => $user->login(),
 			"user_email" => $user->email(),
 			"user" => $user,
 			"forgot" => $this,
-		);
+		];
 
 		$variables += ArrayTools::kprefix($this->members(), "forgot_");
 		$variables += ArrayTools::kprefix($user->members(), "user_");
 		$variables += ArrayTools::kprefix($request->variables(), "request_");
 		$variables += ArrayTools::kprefix($request->url_variables(), "url_");
 
-		$variables = $this->call_hook_arguments("notify_variables", array(
+		$variables = $this->call_hook_arguments("notify_variables", [
 			$variables,
-		), $variables);
+		], $variables);
 
 		$variables = ArrayTools::kunprefix($this->options, "notify_", true) + $variables;
 
@@ -75,9 +75,9 @@ class Forgot extends ORM {
 	 */
 	public function validated($plaintext_password) {
 		if (empty($plaintext_password)) {
-			throw new Exception_Parameter("{method} requires a non-empty new password", array(
+			throw new Exception_Parameter("{method} requires a non-empty new password", [
 				"method" => __METHOD__,
-			));
+			]);
 		}
 		$user = $this->user;
 		$user->password($plaintext_password, true)->store();
@@ -87,10 +87,10 @@ class Forgot extends ORM {
 		$query = $this->query_update();
 		$query->value("*updated", $query->sql()
 			->now())
-			->where(array(
+			->where([
 			"user" => $user,
 			"updated" => null,
-		));
+		]);
 		$query->execute();
 		return $this;
 	}

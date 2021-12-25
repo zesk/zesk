@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2016 &copy; Market Acumen, Inc.
@@ -12,15 +12,15 @@ namespace zesk;
  * Class definition for Server
  */
 class Class_Server extends Class_ORM {
-	const LOCALHOST_IP = '127.0.0.1';
+	public const LOCALHOST_IP = '127.0.0.1';
 
 	public $id_column = "id";
 
-	public $find_keys = array(
+	public $find_keys = [
 		"name",
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		'id' => self::type_id,
 		'name' => self::type_string,
 		'name_internal' => self::type_string,
@@ -31,18 +31,18 @@ class Class_Server extends Class_ORM {
 		'free_disk_units' => self::type_string,
 		'load' => self::type_double,
 		'alive' => self::type_modified,
-	);
+	];
 
-	public $has_many = array(
-		'data' => array(
+	public $has_many = [
+		'data' => [
 			'class' => 'zesk\\Server_Data',
 			'foreign_key' => 'server',
-		),
-	);
+		],
+	];
 
-	public $column_defaults = array(
+	public $column_defaults = [
 		'ip4_internal' => self::LOCALHOST_IP,
 		'ip4_external' => self::LOCALHOST_IP,
 		'free_disk_units' => Server::DISK_UNITS_BYTES,
-	);
+	];
 }

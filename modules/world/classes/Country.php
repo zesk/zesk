@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage objects
@@ -20,16 +20,16 @@ class Country extends ORM {
 				return $c;
 			}
 		} else {
-			$c = new Country($application, array(
+			$c = new Country($application, [
 				"code" => $mixed,
-			));
+			]);
 			return $c->find();
 		}
 		return null;
 	}
 
 	public static function country_codes(Locale $locale = null) {
-		$country_codes = array(
+		$country_codes = [
 			'ad' => 'Andorra',
 			'ae' => 'United Arab Emirates',
 			'af' => 'Afghanistan',
@@ -275,7 +275,7 @@ class Country extends ORM {
 			'za' => 'South Africa',
 			'zm' => 'Zambia',
 			'zw' => 'Zimbabwe',
-		);
+		];
 		if ($locale !== null) {
 			return $locale->__($country_codes);
 		}

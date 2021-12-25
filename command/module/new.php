@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -12,19 +12,19 @@ namespace zesk;
  * @category Modules
  */
 class Command_Module_New extends Command {
-	protected $option_types = array(
+	protected array $option_types = [
 		'app' => 'boolean',
 		'zesk' => 'boolean',
 		'*' => 'string',
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		'app' => 'Create module in the application (default)',
 		'zesk' => 'Create module in zesk',
 		'*' => "Names of the modules to create",
-	);
+	];
 
-	public function run() {
+	public function run(): void {
 		$names = $this->arguments_remaining(true);
 		if (count($names) === 0) {
 			$this->usage("Must specify module names to create");
@@ -72,17 +72,17 @@ class Command_Module_New extends Command {
 		return null;
 	}
 
-	public function questionnaire($name, $path) {
+	public function questionnaire($name, $path): void {
 		$module = $this->application->modules->clean_name($name);
-		$conf = array();
+		$conf = [];
 		$conf['name'] = $this->prompt("Human-readable name for your module? ", $name);
 		$namespace = $this->prompt("Namespace for this module? ", "zesk");
 		$namespace_line = "";
 		if ($namespace) {
 			$namespace = rtrim($namespace, "\\");
-			$conf['autoload_options'] = array(
+			$conf['autoload_options'] = [
 				"class_prefix" => $namespace . "\\",
-			);
+			];
 			$namespace_line = "namespace $namespace;\n";
 		}
 
@@ -99,10 +99,10 @@ class Command_Module_New extends Command {
 			$tpl = file_get_contents(path($tpl_path, 'module.php.txt'));
 			$p = path($inc_path, $inc_name);
 			$this->log("Created $p");
-			file_put_contents($p, map($tpl, array(
+			file_put_contents($p, map($tpl, [
 				"module_class" => $module_class,
 				"namespace_line" => $namespace_line,
-			)));
+			]));
 		}
 		$conf['module_class'] = "$namespace\\$module_class";
 		$conf_path = path($path, "$module.module.json");

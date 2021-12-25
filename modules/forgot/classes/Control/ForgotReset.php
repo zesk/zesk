@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -24,9 +24,9 @@ class Control_ForgotReset extends Control_Edit {
 	 *
 	 * @var array
 	 */
-	protected $options = array(
+	protected $options = [
 		'title' => 'Reset password',
-	);
+	];
 
 	/**
 	 *
@@ -49,7 +49,7 @@ class Control_ForgotReset extends Control_Edit {
 
 		$this->form_name("forgot_reset_form");
 
-		$ww = array();
+		$ww = [];
 
 		// 		$ww[] = $w = $this->widget_factory(Control_Hidden::class)->names('validate');
 		// 		$w->required(true);
@@ -126,9 +126,9 @@ class Control_ForgotReset extends Control_Edit {
 			return false;
 		}
 		$this->auth_user = $found->user;
-		$this->auth_user = $this->call_hook_arguments("find_user", array(
+		$this->auth_user = $this->call_hook_arguments("find_user", [
 			$this->auth_user,
-		), $this->auth_user);
+		], $this->auth_user);
 		if ($this->option_bool('not_found_error', true) && !$this->auth_user) {
 			$this->error($locale->__("Control_ForgotReset:=Not able to find that user."), 'login');
 			return false;
@@ -147,11 +147,11 @@ class Control_ForgotReset extends Control_Edit {
 		if (!$this->prefer_json()) {
 			throw new Exception_Redirect($location);
 		}
-		$this->json(array(
+		$this->json([
 			"redirect" => $location,
 			"status" => true,
 			"message" => $this->application->locale->__("Your password has been updated."),
-		));
+		]);
 		return false;
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -20,28 +20,24 @@ class Control_Edit extends Control {
 	 *
 	 * @var string
 	 */
-	const option_duplicate_message = 'duplicate_message';
+	public const option_duplicate_message = 'duplicate_message';
 
 	/**
 	 * Force type here
-	 *
-	 * @var Object
 	 */
-	protected $object = null;
+	protected Model $object;
 
 	/**
 	 * Class of the object we're listing.
-	 *
-	 * @var string
 	 */
-	protected $class = null;
+	protected ?string $class = null;
 
 	/**
 	 * Options to create the object we're listing, per row
 	 *
-	 * @var string
+	 * @var array
 	 */
-	protected $class_options = null;
+	protected array $class_options = [];
 
 	/**
 	 * Header theme
@@ -55,57 +51,55 @@ class Control_Edit extends Control {
 	 *
 	 * @var string
 	 */
-	protected $theme_header = null;
+	protected ?string $theme_header = null;
 
 	/**
 	 * Row theme
 	 *
 	 * @var string
 	 */
-	protected $theme_row = null;
+	protected ?string $theme_row = null;
 
 	/**
 	 * Layout theme with replacement variables for widget renderings
 	 *
 	 * @var string
 	 */
-	protected $theme_widgets = null;
+	protected ?string $theme_widgets = null;
 
 	/**
 	 * Footer theme
 	 *
 	 * @var string
 	 */
-	protected $theme_footer = null;
+	protected ?string $theme_footer = null;
 
 	/**
 	 * Suffix theme
 	 *
 	 * @var string
 	 */
-	protected $theme_suffix = null;
+	protected ?string $theme_suffix = null;
 
 	/**
 	 * Row tag
 	 */
-	protected $form_tag = "form";
+	protected string $form_tag = "form";
 
 	/**
 	 * Row attributes
-	 *
-	 * @var array
 	 */
-	protected $form_attributes = array(
+	protected array $form_attributes = [
 		"class" => "edit",
 		"method" => "post",
 		"role" => "form",
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $widgets = array();
+	protected $widgets = [];
 
 	/**
 	 * Cell tag
@@ -119,16 +113,16 @@ class Control_Edit extends Control {
 	 *
 	 * @var array
 	 */
-	protected $widget_attributes = array(
+	protected $widget_attributes = [
 		"class" => "form-group",
-	);
+	];
 
 	/**
 	 * Label attributes
 	 *
 	 * @var unknown
 	 */
-	protected $label_attributes = array();
+	protected $label_attributes = [];
 
 	/**
 	 * String
@@ -142,17 +136,17 @@ class Control_Edit extends Control {
 	 *
 	 * @var array
 	 */
-	protected $widget_wrap_attributes = array();
+	protected $widget_wrap_attributes = [];
 
 	/**
 	 * Fields to preserve in the form from the request
 	 *
 	 * @var array
 	 */
-	protected $form_preserve_hidden = array(
+	protected $form_preserve_hidden = [
 		"ajax",
 		"ref",
-	);
+	];
 
 	/**
 	 * Lazy evaluate the class based on this object's class name (if not set)
@@ -161,9 +155,9 @@ class Control_Edit extends Control {
 	 */
 	private function _class() {
 		if ($this->class === null) {
-			throw new Exception_Semantics("{class}::\$class member must be set and is not.", array(
+			throw new Exception_Semantics("{class}::\$class member must be set and is not.", [
 				"class" => get_class($this),
-			));
+			]);
 		}
 		return $this->class;
 	}
@@ -205,7 +199,7 @@ class Control_Edit extends Control {
 	 *
 	 * @see Widget::initialize($object)
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		if (!$this->name()) {
 			$this->name("edit");
 		}
@@ -256,14 +250,14 @@ class Control_Edit extends Control {
 		$message = map($this->option('delete_redirect_message'), $vars);
 		$response = $this->response();
 		if ($this->prefer_json()) {
-			$response->json()->data(array(
+			$response->json()->data([
 				"result" => true,
 				"message" => $message,
 				"redirect" => $url,
-				"object" => $this->object->json(array(
+				"object" => $this->object->json([
 					'depth' => 0,
-				)),
-			));
+				]),
+			]);
 			// Stop processing submit
 			return false;
 		}
@@ -280,9 +274,9 @@ class Control_Edit extends Control {
 
 	private function _get_duplicate_message() {
 		$message = $this->option(self::option_duplicate_message, 'Another {_class_name} with the same name already exists.');
-		$message = $this->call_hook_arguments("duplicate_message", array(
+		$message = $this->call_hook_arguments("duplicate_message", [
 			$message,
-		), $message);
+		], $message);
 		$message = __($message, $this->object->variables());
 		return $message;
 	}
@@ -290,19 +284,19 @@ class Control_Edit extends Control {
 	public function submit_store() {
 		try {
 			if (!$this->object->store()) {
-				$this->error($this->option('store_error', __('Unable to save {object}', array(
+				$this->error($this->option('store_error', __('Unable to save {object}', [
 					'object' => strval($this->object),
-				))));
+				])));
 				$this->call_hook('store_failed');
 				return true;
 			}
 			$this->call_hook('stored');
 		} catch (Database_Exception_Duplicate $dup) {
 			$this->error($this->_get_duplicate_message());
-			return $this->call_hook_arguments("store_failed", array(), false);
+			return $this->call_hook_arguments("store_failed", [], false);
 		} catch (Exception_ORM_Duplicate $dup) {
 			$this->error($this->_get_duplicate_message());
-			return $this->call_hook_arguments("store_failed", array(), false);
+			return $this->call_hook_arguments("store_failed", [], false);
 		}
 		return true;
 	}
@@ -339,13 +333,13 @@ class Control_Edit extends Control {
 	 *
 	 * @return void
 	 */
-	protected function initialize_theme_paths() {
+	protected function initialize_theme_paths(): void {
 		$hierarchy = $this->application->classes->hierarchy($this, __CLASS__);
 		foreach ($hierarchy as $index => $class) {
-			$hierarchy[$index] = strtr(strtolower($class), array(
+			$hierarchy[$index] = strtr(strtolower($class), [
 				"_" => "/",
 				"\\" => "/",
-			)) . "/";
+			]) . "/";
 		}
 		// Set default theme to control/foo/prefix, control/foo/header etc.
 		foreach (to_list("prefix;header;footer;suffix") as $var) {
@@ -356,12 +350,12 @@ class Control_Edit extends Control {
 				$debug_type = "default";
 			}
 			if ($this->option_bool("debug_theme_paths")) {
-				$this->application->logger->debug("{class}->{theme_var} theme ({debug_type}) is {paths}", array(
+				$this->application->logger->debug("{class}->{theme_var} theme ({debug_type}) is {paths}", [
 					"debug_type" => $debug_type,
 					"class" => get_class($this),
 					"theme_var" => $theme_var,
 					"paths" => $this->$theme_var,
-				));
+				]);
 			}
 		}
 	}
@@ -376,7 +370,7 @@ class Control_Edit extends Control {
 		if ($enctype === null && $this->upload()) {
 			$this->form_attributes['enctype'] = 'multipart/form-data';
 		}
-		return array(
+		return [
 			'widgets' => $this->children(),
 			'theme_prefix' => $this->theme_prefix,
 			'theme_suffix' => $this->theme_suffix,
@@ -394,6 +388,6 @@ class Control_Edit extends Control {
 			'form_preserve_hidden' => $this->form_preserve_hidden,
 			'theme_widgets' => $this->theme_widgets,
 			'title' => $this->title(),
-		) + parent::theme_variables() + $this->options;
+		] + parent::theme_variables() + $this->options;
 	}
 }

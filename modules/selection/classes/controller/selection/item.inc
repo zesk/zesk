@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2017 Market Acumen, Inc.
  */
@@ -40,44 +40,44 @@ class Controller_Selection_Item extends Controller_ORM {
 	 */
 	protected function action_list(Selection_Type $type) {
 		if (!$this->user->can("list_items", $type)) {
-			$this->json(array(
+			$this->json([
 				"status" => true,
 				"message" => $this->application->locale->__('No permission to edit selection type.'),
-			));
+			]);
 			return;
 		}
 		$this->type = $type;
 		return $this->_action_default("list");
 	}
 
-	protected function action_delete_id(Selection_Type $type, $id) {
+	protected function action_delete_id(Selection_Type $type, $id): void {
 		$this->type = $type;
 		$class = $type->class;
 		if (!$this->user->can("delete_items", $type)) {
-			$this->json(array(
+			$this->json([
 				"status" => true,
 				"message" => $this->application->locale->__('No permission to delete selection items.'),
-			));
+			]);
 			return;
 		}
 		$this->application->orm_registry($this->class)
 			->query_update()
 			->value('add', 0)
-			->where(array(
+			->where([
 			"id" => $id,
 			'type' => $type,
-		))
+		])
 			->execute();
 
 		if ($this->request->has('target')) {
 			$target = $this->request->get('target');
 			$this->response->jquery("\$(" . JSON::encode($target) . ").slideUp('slow', function() { $(this).remove(); });");
 		}
-		$this->json(array(
+		$this->json([
 			"status" => true,
 			"message" => $this->application->locale->__('Deleted selection item.'),
 			"content" => "",
-		) + $this->response->to_json());
+		] + $this->response->to_json());
 	}
 
 	/**
@@ -85,7 +85,7 @@ class Controller_Selection_Item extends Controller_ORM {
 	 * {@inheritDoc}
 	 * @see \zesk\Controller_Theme::control()
 	 */
-	protected function control(Control $control, Model $object = null, array $options = array()) {
+	protected function control(Control $control, Model $object = null, array $options = []) {
 		if (method_exists($control, "selection_type")) {
 			$control->selection_type($this->type);
 		}

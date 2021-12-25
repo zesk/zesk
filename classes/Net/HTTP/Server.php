@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Net/HTTP/Server.php $
  * @author Kent Davidson <kent@marketacumen.com>
@@ -14,7 +14,7 @@ abstract class Net_HTTP_Server extends Net_Server {
 		$this->driver->read_end_char("\r\n\r\n");
 	}
 
-	final public function hook_receive($client_id = 0, $data = "") {
+	final public function hook_receive($client_id = 0, $data = ""): void {
 		$response = new Net_HTTP_Server_Response();
 
 		try {
@@ -32,7 +32,7 @@ abstract class Net_HTTP_Server extends Net_Server {
 
 	abstract protected function handle_request(Net_HTTP_Server_Request $request, Net_HTTP_Server_Response $response);
 
-	final private function send_response($client_id, Net_HTTP_Server_Response $response) {
+	private function send_response($client_id, Net_HTTP_Server_Response $response): void {
 		$f = $response->file();
 		if ($f) {
 			$this->send($client_id, $response->raw_headers());
@@ -47,7 +47,7 @@ abstract class Net_HTTP_Server extends Net_Server {
 		}
 	}
 
-	final private function error_response(Net_HTTP_Server_Response $response, Net_HTTP_Server_Exception $e) {
+	private function error_response(Net_HTTP_Server_Response $response, Net_HTTP_Server_Exception $e): void {
 		$response->status = $e->status;
 		$response->status_text = $e->status_text;
 		$response->content($e->getMessage());

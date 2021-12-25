@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,15 +10,15 @@ namespace zesk;
  *
  */
 class Control_Text_Dropdown extends Control_Text {
-	const option_button_label = "button_label";
+	public const option_button_label = "button_label";
 
-	const option_select_behavior_enabled = "select_behavior_enabled";
+	public const option_select_behavior_enabled = "select_behavior_enabled";
 
-	const option_plural_behavior_enabled = "plural_behavior_enabled";
+	public const option_plural_behavior_enabled = "plural_behavior_enabled";
 
-	const option_dropdown_alignment = "dropdown_alignment";
+	public const option_dropdown_alignment = "dropdown_alignment";
 
-	protected $dropdown_menu = array();
+	protected $dropdown_menu = [];
 
 	/**
 	 * Array of attributes
@@ -75,13 +75,13 @@ class Control_Text_Dropdown extends Control_Text {
 
 	public function dropdown_alignment($set = null) {
 		if ($set !== null) {
-			if (!in_array($set, array(
+			if (!in_array($set, [
 				"left",
 				"right",
-			))) {
-				throw new Exception_Semantics("Requires value of left or right (passed {value})", array(
+			])) {
+				throw new Exception_Semantics("Requires value of left or right (passed {value})", [
 					"value" => $set,
-				));
+				]);
 			}
 			return $this->set_option(self::option_dropdown_alignment, $set);
 		}
@@ -157,11 +157,11 @@ class Control_Text_Dropdown extends Control_Text {
 	}
 
 	public function theme_variables() {
-		return array(
+		return [
 			'dropdown_id' => $this->dropdown_id(),
 			'dropdown_name' => $this->dropdown_name(),
 			'dropdown_column' => $this->dropdown_column(),
 			'dropdown_value' => $this->dropdown_value(),
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 }

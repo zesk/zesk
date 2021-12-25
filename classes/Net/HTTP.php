@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Net/HTTP.php $
  * @author Kent Davidson <kent@marketacumen.com>
@@ -18,19 +18,19 @@ class Net_HTTP {
 	 *
 	 * @var integer
 	 */
-	const STATUS_CONTINUE = 100;
+	public const STATUS_CONTINUE = 100;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_SWITCHING_PROTOCOLS = 101;
+	public const STATUS_SWITCHING_PROTOCOLS = 101;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_PROCESSING = 102;
+	public const STATUS_PROCESSING = 102;
 
 	/*
 	 * 200 - it's all good
@@ -40,49 +40,49 @@ class Net_HTTP {
 	 *
 	 * @var integer
 	 */
-	const STATUS_OK = 200;
+	public const STATUS_OK = 200;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_CREATED = 201;
+	public const STATUS_CREATED = 201;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_ACCEPTED = 202;
+	public const STATUS_ACCEPTED = 202;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_NON_AUTHORIATIVE_INFORMATION = 203;
+	public const STATUS_NON_AUTHORIATIVE_INFORMATION = 203;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_NO_CONTENT = 204;
+	public const STATUS_NO_CONTENT = 204;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_RESET_CONTENT = 205;
+	public const STATUS_RESET_CONTENT = 205;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_PARTIAL_CONTENT = 206;
+	public const STATUS_PARTIAL_CONTENT = 206;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_MULTI_STATUS = 207;
+	public const STATUS_MULTI_STATUS = 207;
 
 	/*
 	 * 300 - Maybe, Maybe not
@@ -91,43 +91,43 @@ class Net_HTTP {
 	/**
 	 * @var integer
 	 */
-	const STATUS_MULTIPLE_CHOICES = 300;
+	public const STATUS_MULTIPLE_CHOICES = 300;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_MOVED_PERMANENTLY = 301;
+	public const STATUS_MOVED_PERMANENTLY = 301;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_FOUND = 302;
+	public const STATUS_FOUND = 302;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_SEE_OTHER = 303;
+	public const STATUS_SEE_OTHER = 303;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_NOT_MODIFIED = 304;
+	public const STATUS_NOT_MODIFIED = 304;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_USE_PROXY = 305;
+	public const STATUS_USE_PROXY = 305;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_TEMPORARY_REDIRECT = 307;
+	public const STATUS_TEMPORARY_REDIRECT = 307;
 
 	/*
 	 * 400 - Bad client! No biscuit!
@@ -137,127 +137,127 @@ class Net_HTTP {
 	 *
 	 * @var integer
 	 */
-	const STATUS_BAD_REQUEST = 400;
+	public const STATUS_BAD_REQUEST = 400;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_UNAUTHORIZED = 401;
+	public const STATUS_UNAUTHORIZED = 401;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_PAYMENT_GRANTED = 402;
+	public const STATUS_PAYMENT_GRANTED = 402;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_FORBIDDEN = 403;
+	public const STATUS_FORBIDDEN = 403;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_FILE_NOT_FOUND = 404;
+	public const STATUS_FILE_NOT_FOUND = 404;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_METHOD_NOT_ALLOWED = 405;
+	public const STATUS_METHOD_NOT_ALLOWED = 405;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_NOT_ACCEPTABLE = 406;
+	public const STATUS_NOT_ACCEPTABLE = 406;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_PROXY_AUTHENTICATION_REQUIRED = 407;
+	public const STATUS_PROXY_AUTHENTICATION_REQUIRED = 407;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_REQUEST_TIMEOUT = 408;
+	public const STATUS_REQUEST_TIMEOUT = 408;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_CONFLICT = 409;
+	public const STATUS_CONFLICT = 409;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_GONE = 410;
+	public const STATUS_GONE = 410;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_LENGTH_REQUIRED = 411;
+	public const STATUS_LENGTH_REQUIRED = 411;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_PRECONDITION_FAILED = 412;
+	public const STATUS_PRECONDITION_FAILED = 412;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_REQUEST_ENTITY_TOO_LARGE = 413;
+	public const STATUS_REQUEST_ENTITY_TOO_LARGE = 413;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_REQUEST_URI_TOO_LARGE = 414;
+	public const STATUS_REQUEST_URI_TOO_LARGE = 414;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_UNSUPPORTED_MEDIA_TYPE = 415;
+	public const STATUS_UNSUPPORTED_MEDIA_TYPE = 415;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
+	public const STATUS_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_EXPECTATION_FAILED = 417;
+	public const STATUS_EXPECTATION_FAILED = 417;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_UNPROCESSABLE_ENTITY = 422;
+	public const STATUS_UNPROCESSABLE_ENTITY = 422;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_LOCKED = 423;
+	public const STATUS_LOCKED = 423;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_FAILED_DEPENDENCY = 424;
+	public const STATUS_FAILED_DEPENDENCY = 424;
 
 	/*
 	 * 500 - Bad programmer! No coffee!
@@ -267,37 +267,37 @@ class Net_HTTP {
 	 *
 	 * @var integer
 	 */
-	const STATUS_INTERNAL_SERVER_ERROR = 500;
+	public const STATUS_INTERNAL_SERVER_ERROR = 500;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_NOT_IMPLEMENTED = 501;
+	public const STATUS_NOT_IMPLEMENTED = 501;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_OVERLOADED = 502;
+	public const STATUS_OVERLOADED = 502;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_GATEWAY_TIMEOUT = 503;
+	public const STATUS_GATEWAY_TIMEOUT = 503;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_HTTP_VERSION_NOT_SUPPORTED = 505;
+	public const STATUS_HTTP_VERSION_NOT_SUPPORTED = 505;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const STATUS_INSUFFICIENT_STORAGE = 507;
+	public const STATUS_INSUFFICIENT_STORAGE = 507;
 
 	/*
 	 * Response Type - intval(STATUS_FOO / 100)
@@ -307,31 +307,31 @@ class Net_HTTP {
 	 *
 	 * @var integer
 	 */
-	const RESPONSE_TYPE_INFO = 1;
+	public const RESPONSE_TYPE_INFO = 1;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const RESPONSE_TYPE_SUCCESS = 2;
+	public const RESPONSE_TYPE_SUCCESS = 2;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const RESPONSE_TYPE_REDIRECT = 3;
+	public const RESPONSE_TYPE_REDIRECT = 3;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const RESPONSE_TYPE_ERROR_CLIENT = 4;
+	public const RESPONSE_TYPE_ERROR_CLIENT = 4;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const RESPONSE_TYPE_ERROR_SERVER = 5;
+	public const RESPONSE_TYPE_ERROR_SERVER = 5;
 
 	/* Method types */
 
@@ -339,58 +339,58 @@ class Net_HTTP {
 	 *
 	 * @var string
 	 */
-	const METHOD_GET = "GET";
+	public const METHOD_GET = "GET";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const METHOD_POST = "POST";
+	public const METHOD_POST = "POST";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const METHOD_PUT = "PUT";
+	public const METHOD_PUT = "PUT";
 
 	/**
 	 * DELETE a resource
 	 *
 	 * @var string
 	 */
-	const METHOD_DELETE = "DELETE";
+	public const METHOD_DELETE = "DELETE";
 
 	/**
 	 * Just the header, no content expected
 	 *
 	 * @var string
 	 */
-	const METHOD_HEAD = "HEAD";
+	public const METHOD_HEAD = "HEAD";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const METHOD_OPTIONS = "OPTIONS";
+	public const METHOD_OPTIONS = "OPTIONS";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const METHOD_TRACE = "TRACE";
+	public const METHOD_TRACE = "TRACE";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const METHOD_CONNECT = "CONNECT";
+	public const METHOD_CONNECT = "CONNECT";
 
 	/**
 	 * PROPFIND — used to retrieve properties, stored as XML, from a web resource. It is also overloaded to allow one to retrieve the collection structure (a.k.a. directory hierarchy) of a remote system.
 	 *
 	 * @var string
 	 */
-	const METHOD_PROPFIND = "PROPFIND";
+	public const METHOD_PROPFIND = "PROPFIND";
 
 	/* Request headers */
 
@@ -398,25 +398,25 @@ class Net_HTTP {
 	 *
 	 * @var string
 	 */
-	const REQUEST_REFERRER = "Referer";
+	public const REQUEST_REFERRER = "Referer";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const REQUEST_USER_AGENT = "User-Agent";
+	public const REQUEST_USER_AGENT = "User-Agent";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const REQUEST_ACCEPT = "Accept";
+	public const REQUEST_ACCEPT = "Accept";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const REQUEST_CONTENT_TYPE = "Content-Type";
+	public const REQUEST_CONTENT_TYPE = "Content-Type";
 
 	/* Response headers */
 
@@ -424,55 +424,55 @@ class Net_HTTP {
 	 *
 	 * @var string
 	 */
-	const RESPONSE_CONTENT_DISPOSITION = "Content-Disposition";
+	public const RESPONSE_CONTENT_DISPOSITION = "Content-Disposition";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const RESPONSE_CONTENT_TYPE = "Content-Type";
+	public const RESPONSE_CONTENT_TYPE = "Content-Type";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const RESPONSE_ACCEPT_RANGES = "Accept-Ranges";
+	public const RESPONSE_ACCEPT_RANGES = "Accept-Ranges";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const RESPONSE_CONTENT_ENCODING = "Content-Encoding";
+	public const RESPONSE_CONTENT_ENCODING = "Content-Encoding";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const RESPONSE_TRANSFER_ENCODING = "Transfer-Encoding";
+	public const RESPONSE_TRANSFER_ENCODING = "Transfer-Encoding";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+	public const RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
 
 	/**
 	 * @var string
 	 */
-	const RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN_CREDENTIALS = "Access-Control-Allow-Credentials";
+	public const RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN_CREDENTIALS = "Access-Control-Allow-Credentials";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const HEADER_CONTENT_LENGTH = "Content-Length";
+	public const HEADER_CONTENT_LENGTH = "Content-Length";
 
 	/**
 	 * Valid methods. 2018-05 added PROPFIND
 	 *
 	 * @var array
 	 */
-	public static $methods = array(
+	public static $methods = [
 		self::METHOD_OPTIONS => self::METHOD_OPTIONS,
 		self::METHOD_GET => self::METHOD_GET,
 		self::METHOD_POST => self::METHOD_POST,
@@ -482,14 +482,14 @@ class Net_HTTP {
 		self::METHOD_TRACE => self::METHOD_TRACE,
 		self::METHOD_CONNECT => self::METHOD_CONNECT,
 		self::METHOD_PROPFIND => self::METHOD_PROPFIND,
-	);
+	];
 
 	/**
 	 * Default status text when custom status is not given
 	 *
 	 * @var array
 	 */
-	public static $status_text = array(
+	public static $status_text = [
 		self::STATUS_CONTINUE => 'Continue',
 		self::STATUS_SWITCHING_PROTOCOLS => 'Switching Protocols',
 		self::STATUS_PROCESSING => 'Processing',
@@ -535,13 +535,13 @@ class Net_HTTP {
 		self::STATUS_GATEWAY_TIMEOUT => 'Gateway Timeout',
 		self::STATUS_HTTP_VERSION_NOT_SUPPORTED => 'HTTP Version not supported',
 		self::STATUS_INSUFFICIENT_STORAGE => 'Insufficient Storage',
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public static $request_headers = array(
+	public static $request_headers = [
 		"accept" => self::REQUEST_ACCEPT,
 		"accept-charset" => "Accept-Charset",
 		"accept-encoding" => "Accept-Encoding",
@@ -589,14 +589,14 @@ class Net_HTTP {
 		"proxy-connection" => "Proxy-Connection",
 		"x-uidh" => "X-UIDH",
 		"x-csrf-token" => "X-Csrf-Token",
-	);
+	];
 
 	/**
 	 * https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 	 *
 	 * @var array
 	 */
-	public static $response_headers = array(
+	public static $response_headers = [
 		"access-control-allow-origin" => self::RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN,
 		"access-control-allow-origin-credentials" => self::RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN_CREDENTIALS,
 		"accept-patch" => "Accept-Patch",
@@ -648,5 +648,5 @@ class Net_HTTP {
 		"x-powered-by" => "X-Powered-By",
 		"x-ua-compatible" => "X-UA-Compatible",
 		"x-content-duration" => "X-Content-Duration",
-	);
+	];
 }

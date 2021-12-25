@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Implementation of iCalendar RRULE
@@ -118,7 +118,7 @@ class Iterator {
 	 * @param integer $year
 	 * @param integer $month
 	 */
-	public function rebuild($year, $month) {
+	public function rebuild($year, $month): void {
 		$date = Date::instance($year, $month, 1);
 		$leap_index = $date->is_leap_year() ? 1 : 0;
 		$next_leap_index = $date->is_leap_year($year + 1) ? 1 : 0;
@@ -152,7 +152,7 @@ class Iterator {
 					// left in last year.
 					$wyearlen = $this->yearlen - $no1wkst;
 				}
-				list($div, $mod) = Rule::divmod($wyearlen, 7);
+				[$div, $mod] = Rule::divmod($wyearlen, 7);
 				$numweeks = $div + Rule::intdiv($mod, 4);
 				foreach ($rrule->byweekno as $n) {
 					if ($n < 0) {
@@ -230,22 +230,22 @@ class Iterator {
 			$ranges = null;
 			if ($rrule->frequency === Rule::FREQUENCY_YEARLY) {
 				if ($rrule->bymonth) {
-					$ranges = array();
+					$ranges = [];
 					foreach ($rrule->bymonth as $month) {
 						$ranges[] = array_slice($this->mrange, $month - 1, 2);
 					}
 				} else {
-					$ranges = array(
-						array(
+					$ranges = [
+						[
 							0,
 							$this->yearlen,
-						),
-					);
+						],
+					];
 				}
 			} elseif ($rrule->frequency === Rule::FREQUENCY_MONTHLY) {
-				$ranges = array(
+				$ranges = [
 					array_slice($this->mrange, $month - 1, 2),
-				);
+				];
 			}
 
 			if (is_array($ranges)) {
@@ -253,10 +253,10 @@ class Iterator {
 				// care about cross-year weekly periods.
 				$this->nwdaymask = array_fill(0, $this->yearlen, 0);
 				foreach ($ranges as $range) {
-					list($first, $last) = $range;
+					[$first, $last] = $range;
 					$last -= 1;
 					foreach ($rrule->bynweekday as $item) {
-						list($wday, $n) = $item;
+						[$wday, $n] = $item;
 						if ($n < 0) {
 							$i = $last + ($n + 1) * 7;
 							$i -= self::posmod($this->wdaymask[$i] - $wday, 7);
@@ -311,24 +311,24 @@ class Iterator {
 	}
 
 	private function _getdayset_YEARLY($year, $month, $day) {
-		return array(
+		return [
 			Rule::range($this->yearlen),
 			0,
 			$this->yearlen,
-		);
+		];
 	}
 
 	private function _getdayset_MONTHLY($year, $month, $day) {
 		$dset = array_fill(0, $this->yearlen, null);
-		list($start, $end) = array_slice($this->mrange, $month - 1, 2);
+		[$start, $end] = array_slice($this->mrange, $month - 1, 2);
 		for ($i = $start; $i < $end; $i++) {
 			$dset[$i] = $i;
 		}
-		return array(
+		return [
 			$dset,
 			$start,
 			$end,
-		);
+		];
 	}
 
 	private function _getdayset_WEEKLY($year, $month, $day) {
@@ -346,22 +346,22 @@ class Iterator {
 				break;
 			}
 		}
-		return array(
+		return [
 			$dset,
 			$start,
 			$i,
-		);
+		];
 	}
 
 	private function _getdayset_DAILY($year, $month, $day) {
 		$dset = array_fill(0, $this->yearlen + 7, null);
 		$i = Date::instance($year, $month, $day)->gregorian() - $this->yearordinal;
 		$dset[$i] = $i;
-		return array(
+		return [
 			$dset,
 			$i,
 			$i + 1,
-		);
+		];
 	}
 
 	private function _getdayset_HOURLY($year, $month, $day) {
@@ -377,7 +377,7 @@ class Iterator {
 	}
 
 	private function _gettimeset_HOURLY($hour, $minute, $second) {
-		$tset = array();
+		$tset = [];
 		$rrule = $this->rrule;
 		foreach ($rrule->byminute as $minute) {
 			foreach ($rrule->bysecond as $second) {
@@ -389,7 +389,7 @@ class Iterator {
 	}
 
 	private function _gettimeset_MINUTELY($hour, $minute, $second) {
-		$tset = array();
+		$tset = [];
 		$rrule = $this->rrule;
 		foreach ($rrule->bysecond as $second) {
 			$tset[] = Time::instance($hour, $minute, $second);
@@ -399,8 +399,8 @@ class Iterator {
 	}
 
 	private function _gettimeset_SECONDLY($hour, $minute, $second) {
-		return array(
+		return [
 			Time::instance($hour, $minute, $second),
-		);
+		];
 	}
 }

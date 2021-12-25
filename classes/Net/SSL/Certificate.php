@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage net
@@ -17,13 +17,13 @@ class Net_SSL_Certificate {
 	 *
 	 * @var string
 	 */
-	const CACERT_FILENAME = "cacert.pem";
+	public const CACERT_FILENAME = "cacert.pem";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const CACERT_TRUSTED_URL = "http://curl.haxx.se/ca/" . self::CACERT_FILENAME;
+	public const CACERT_TRUSTED_URL = "http://curl.haxx.se/ca/" . self::CACERT_FILENAME;
 
 	/**
 	 *
@@ -31,10 +31,10 @@ class Net_SSL_Certificate {
 	 */
 	public static function locate_cafile(Application $application, array $try_paths = null) {
 		if ($try_paths === null) {
-			$try_paths = array(
+			$try_paths = [
 				$application->path('etc/db'),
 				$application->zesk_home('etc/db'),
-			);
+			];
 		}
 		$first_valid_dir = null;
 		foreach ($try_paths as $path) {
@@ -56,7 +56,7 @@ class Net_SSL_Certificate {
 	 *
 	 * @param Application $application
 	 */
-	public static function sync_cafile(Application $application, $local_path) {
+	public static function sync_cafile(Application $application, $local_path): void {
 		Net_Sync::url_to_file($application, self::CACERT_TRUSTED_URL, $local_path);
 	}
 }

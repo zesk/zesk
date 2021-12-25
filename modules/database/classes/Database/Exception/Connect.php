@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -22,7 +22,7 @@ class Database_Exception_Connect extends Exception {
 	 *
 	 * @var array
 	 */
-	protected $parts = array();
+	protected $parts = [];
 
 	/**
 	 *
@@ -31,7 +31,7 @@ class Database_Exception_Connect extends Exception {
 	 * @param array $arguments
 	 * @param integer $errno
 	 */
-	public function __construct($url, $message = null, array $arguments = array(), $errno = null) {
+	public function __construct($url, $message = null, array $arguments = [], $errno = null) {
 		if (URL::valid($url)) {
 			$this->url = $url;
 			$arguments['safe_url'] = URL::remove_password($url);
@@ -40,7 +40,7 @@ class Database_Exception_Connect extends Exception {
 		} else {
 			$this->url = "nulldb://null/null";
 		}
-		if (strpos($message, "{safe_url}") === false) {
+		if (!str_contains($message, "{safe_url}")) {
 			$message .= " ({safe_url})";
 		}
 		parent::__construct($message, $arguments, $errno);
@@ -52,8 +52,8 @@ class Database_Exception_Connect extends Exception {
 	 * @see zesk\Exception::variables()
 	 */
 	public function variables() {
-		return array(
+		return [
 			"url" => $this->url,
-		) + $this->parts + parent::variables();
+		] + $this->parts + parent::variables();
 	}
 }

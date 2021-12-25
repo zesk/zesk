@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,7 +10,7 @@ namespace zesk;
  *
  */
 class DocComment_Test extends Test_Unit {
-	public function test_extract() {
+	public function test_extract(): void {
 		$testfile = ZESK_ROOT . 'classes/ArrayTools.php';
 		$content = file_get_contents($testfile);
 		$comments = DocComment::extract($content);
@@ -20,8 +20,8 @@ class DocComment_Test extends Test_Unit {
 	}
 
 	public function data_provider_clean() {
-		return array(
-			array(
+		return [
+			[
 				"	/**
 	 * Default whitespace trimming characters
 	 *
@@ -29,8 +29,8 @@ class DocComment_Test extends Test_Unit {
 	 */
 ",
 				"\nDefault whitespace trimming characters\n\n@var string\n",
-			),
-			array(
+			],
+			[
 				"	/******
 	 *** Default whitespace trimming characters
 	 ***
@@ -38,11 +38,11 @@ class DocComment_Test extends Test_Unit {
 	 ***/
 ",
 				"****\n** Default whitespace trimming characters\n**\n** @var string\n*",
-			),
-		);
+			],
+		];
 	}
 
-	public function test_desc_no_tag() {
+	public function test_desc_no_tag(): void {
 		$doc = DocComment::instance([
 			"desc" => "Hello, world",
 			"see" => "\\zesk\\Kernel",
@@ -61,7 +61,7 @@ class DocComment_Test extends Test_Unit {
 	/**
 	 * @dataProvider data_provider_clean
 	 */
-	public function test_clean($test, $expected) {
+	public function test_clean($test, $expected): void {
 		$this->assert_equal(DocComment::clean($test), $expected);
 	}
 
@@ -70,8 +70,8 @@ class DocComment_Test extends Test_Unit {
 	 * @return array
 	 */
 	public function data_provider_parse() {
-		return array(
-			array(
+		return [
+			[
 				"	/**
 	 * Removes stars from beginning and end of doccomments
 	 *
@@ -79,24 +79,24 @@ class DocComment_Test extends Test_Unit {
 	 * @return string the cleaned doccomment
 	 */
 ",
-				array(
+				[
 					"desc" => "Removes stars from beginning and end of doccomments",
-					"param" => array(
-						"\$string" => array(
+					"param" => [
+						"\$string" => [
 							"string",
 							"\$string",
 							"A doccomment string to clean",
-						),
-					),
+						],
+					],
 					"return" => "string the cleaned doccomment",
-				),
+				],
 				"/**
  * @desc Removes stars from beginning and end of doccomments
  * @param string \$string A doccomment string to clean
  * @return string the cleaned doccomment
  */",
-			),
-			array(
+			],
+			[
 				'/**
  * Server
  *
@@ -116,51 +116,51 @@ class DocComment_Test extends Test_Unit {
  * @property Timestamp $alive
  */
 ',
-				array(
+				[
 					"desc" => "Server\n\nRepresents a server (virtual or physical)",
-					"see" => array(
+					"see" => [
 						"Class_Server",
 						"Server_Data",
-					),
-					"property" => array(
-						"\$id" => array(
+					],
+					"property" => [
+						"\$id" => [
 							"id",
 							"\$id",
-						),
-						"\$name" => array(
+						],
+						"\$name" => [
 							"string",
 							"\$name",
-						),
-						"\$name_internal" => array(
+						],
+						"\$name_internal" => [
 							"string",
 							"\$name_internal",
-						),
-						"\$name_external" => array(
+						],
+						"\$name_external" => [
 							"string",
 							"\$name_external",
-						),
-						"\$ip4_internal" => array(
+						],
+						"\$ip4_internal" => [
 							"ip4",
 							"\$ip4_internal",
-						),
-						"\$ip4_external" => array(
+						],
+						"\$ip4_external" => [
 							"ip4",
 							"\$ip4_external",
-						),
-						"\$free_disk" => array(
+						],
+						"\$free_disk" => [
 							"integer",
 							"\$free_disk",
-						),
-						"\$load" => array(
+						],
+						"\$load" => [
 							"double",
 							"\$load",
-						),
-						"\$alive" => array(
+						],
+						"\$alive" => [
 							"Timestamp",
 							"\$alive",
-						),
-					),
-				),
+						],
+					],
+				],
 				"/**\n * @desc Server\n * \n *       Represents a server (virtual or physical)
  * @see Class_Server
  * @see Server_Data
@@ -174,31 +174,31 @@ class DocComment_Test extends Test_Unit {
  * @property double \$load
  * @property Timestamp \$alive
  */",
-			),
-		);
+			],
+		];
 	}
 
 	/**
 	 * @dataProvider data_provider_parse
 	 */
-	public function test_parse($test, $expected, $unparse_expected) {
+	public function test_parse($test, $expected, $unparse_expected): void {
 		$this->assert_equal($parsed = DocComment::instance($test)->variables(), $expected, JSON::encode_pretty($test));
 		$this->assert_equal(DocComment::instance($parsed)->content(), $unparse_expected, JSON::encode_pretty($parsed));
 	}
 
 	public function data_provider_unparse() {
-		return array(
-			array(
-				array(
-					"see" => array(
+		return [
+			[
+				[
+					"see" => [
 						"line1",
 						"line2",
-					),
+					],
 					"desc" => "Description",
-				),
+				],
 				"/**\n * @see line1\n * @see line2\n * @desc Description\n */",
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -206,7 +206,7 @@ class DocComment_Test extends Test_Unit {
 	 * @param string $test
 	 * @param string $expect
 	 */
-	public function test_unparse($test, $expect) {
+	public function test_unparse($test, $expect): void {
 		$this->assert_is_array($test);
 		$this->assert_is_string($expect);
 		$this->assert_equal(DocComment::instance($test)->content(), $expect);

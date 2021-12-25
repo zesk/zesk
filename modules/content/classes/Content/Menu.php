@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
@@ -66,13 +66,13 @@ class Content_Menu extends ORM {
 		}
 
 		$first = true;
-		$parent_to_code = array();
+		$parent_to_code = [];
 		$menus = $this->query_select()->what("ID,Name,CodeName,Parent,ContentObjects,ContentTemplate,ContentLayout,IsActive,IsHome");
 		$menus->order_by("Parent,OrderIndex");
 
-		$result = array();
+		$result = [];
 		$old_parent = -1;
-		$menus_content = array();
+		$menus_content = [];
 		//$menus_content = array();
 		foreach ($menus->iterator("ID") as $id => $menu) {
 			$menu['IsActive'] = to_bool($menu['IsActive']);
@@ -227,7 +227,7 @@ class Content_Menu extends ORM {
 	 * @param array $options
 	 * @return string
 	 */
-	public function layout(array $menu, array $options = array()) {
+	public function layout(array $menu, array $options = []) {
 		$objects_string = $menu['ContentObjects'];
 		$template = aevalue($menu, 'ContentTemplate', 'default');
 		$layout_string = avalue($menu, 'ContentLayout');

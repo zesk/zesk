@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -25,7 +25,7 @@ class Model_Login extends Model {
 		return $this->login;
 	}
 
-	public function __set($name, $value) {
+	public function __set($name, $value): void {
 		if ($name === "login_password") {
 			$this->login_password_hash = strtoupper(md5($value));
 			$this->login_password = $value;
@@ -34,7 +34,7 @@ class Model_Login extends Model {
 		parent::__set($name, $value);
 	}
 
-	public function __unset($name) {
+	public function __unset($name): void {
 		if ($name === "login_password") {
 			$this->login_password = null;
 			$this->login_password_hash = null;

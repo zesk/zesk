@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -27,7 +27,7 @@ class Control_Contact_Address extends Control_Edit {
 	 * @return \zesk\Widget[]
 	 */
 	protected function hook_widgets() {
-		$ww = array();
+		$ww = [];
 		$ll = $this->application->locale;
 		$ww[] = $w = $this->widget_factory('zesk\\Control_Text')->names('street', $ll->__('Contact_Address:=Street Line 1'));
 		$ww[] = $w = $this->widget_factory('zesk\\Control_Text')->names('additional', $ll->__('Contact_Address:=Street Line 2'));
@@ -56,7 +56,7 @@ class Control_Contact_Address extends Control_Edit {
 			$this->object->contact = $this->parent->object;
 		}
 		if (!$this->submit_store()) {
-			return $this->call_hook_arguments("store_failed", array(), true);
+			return $this->call_hook_arguments("store_failed", [], true);
 		}
 		return $this->submit_redirect();
 	}

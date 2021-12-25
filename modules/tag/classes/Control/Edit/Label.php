@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\Tag;
 
 use zesk\Control_Text;
@@ -19,7 +19,7 @@ class Control_Edit_Label extends Control_Edit {
 	 * {@inheritDoc}
 	 * @see \zesk\Control_Edit::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		$locale = $this->application->locale;
 		parent::initialize();
 		$this->options['submit_redirect_message'] = $locale->__('Tag "{object.name}" was saved.');

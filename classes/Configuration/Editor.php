@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 abstract class Configuration_Editor extends Options {
 	protected $content = null;
 
-	public function __construct($content = "", array $options = array()) {
+	public function __construct($content = "", array $options = []) {
 		parent::__construct($options);
 		$this->content = $content;
 	}

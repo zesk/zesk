@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage theme
@@ -17,7 +17,7 @@ namespace zesk;
 /* @var $response \zesk\Response */
 /* @var $scripts array[] */
 /* @var $jquery_ready string[] */
-$result = array();
+$result = [];
 foreach ($response->html()->scripts() as $script_tag) {
 	$name = $attributes = $content = $prefix = $suffix = null;
 	extract($script_tag, EXTR_IF_EXISTS);
@@ -28,7 +28,7 @@ foreach ($response->html()->scripts() as $script_tag) {
 }
 $jquery_ready = $response->html()->jquery_ready();
 if (count($jquery_ready)) {
-	echo HTML::tag('script', array(
+	echo HTML::tag('script', [
 		'type' => 'text/javascript',
-	), "\n\$(document).ready(function() {\n" . implode("\n", $jquery_ready) . "\n});\n") . "\n";
+	], "\n\$(document).ready(function() {\n" . implode("\n", $jquery_ready) . "\n});\n") . "\n";
 }

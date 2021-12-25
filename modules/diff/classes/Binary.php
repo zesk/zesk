@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -41,7 +41,7 @@ class Binary extends Base {
 	/**
 	 *
 	 */
-	private function process_results() {
+	private function process_results(): void {
 		foreach ($this->diffs() as $edit) {
 			if ($edit->op === Edit::DIFF_INSERT) {
 				$edit->data = substr($this->bstring, $edit->off, $edit->len);
@@ -54,7 +54,7 @@ class Binary extends Base {
 	 * @return string
 	 */
 	public function output() {
-		$result = array();
+		$result = [];
 		$diffs = $this->diffs();
 		foreach ($diffs as $edit) {
 			switch ($edit->op) {

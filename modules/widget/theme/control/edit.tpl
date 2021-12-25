@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -15,29 +15,29 @@ namespace zesk;
 /* @var $current_user \zesk\User */
 /* @var $widget \zesk\Widget */
 echo $this->prefix;
-echo $this->theme($this->theme_prefix, array(), array(
+echo $this->theme($this->theme_prefix, [], [
 	"first" => true,
-));
+]);
 if ($this->form_tag) {
 	echo HTML::tag_open($this->form_tag, HTML::add_class($this->form_attributes, $this->class));
 }
-echo $this->theme($this->theme_header, array(), array(
+echo $this->theme($this->theme_header, [], [
 	"first" => true,
-));
+]);
 $odd = 0;
 $invisible = "";
 $theme_widgets = $this->theme_widgets;
-$map = array();
-$theme_variables = array();
+$map = [];
+$theme_variables = [];
 
 foreach ($this->widgets as $widget) {
 	$nolabel = $widget->option_bool("nolabel");
 	$name = $widget->name();
 	$prefix = "$name.";
 
-	$map[$prefix . "label"] = $label = $nolabel ? "" : HTML::tag("label", to_array($this->label_attributes) + array(
+	$map[$prefix . "label"] = $label = $nolabel ? "" : HTML::tag("label", to_array($this->label_attributes) + [
 		"for" => $widget->first_option("id;column"),
-	), $widget->label());
+	], $widget->label());
 	$map[$prefix . "widget_class"] = get_class($widget);
 	$has_errors = $widget->has_errors();
 	$errors = "";
@@ -84,9 +84,9 @@ if ($theme_widgets) {
 }
 // TODO: 2016-09-26 KMD Is this wrong? Should $theme_footer go after $theme_widgets, below?
 // MOVED 2016-09-26 it's gotta be wrong, right?
-echo $this->theme($this->theme_footer, array(), array(
+echo $this->theme($this->theme_footer, [], [
 	"first" => true,
-));
+]);
 echo $invisible;
 if ($request) {
 	foreach (to_array($this->form_preserve_hidden) as $name) {
@@ -96,7 +96,7 @@ if ($request) {
 if ($this->form_tag) {
 	echo HTML::tag_close($this->form_tag);
 }
-echo $this->theme($this->theme_suffix, array(), array(
+echo $this->theme($this->theme_suffix, [], [
 	"first" => true,
-));
+]);
 echo $this->suffix;

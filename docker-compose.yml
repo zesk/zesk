@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  php:
+    env_file: docker/etc/env.sh
+    environment:
+      BUILD_CODE: php
+    build:
+      context: ./
+      dockerfile: ./docker/php.Dockerfile
+    volumes:
+      - ./:/zesk
+    ports:
+      - "4026:4026"
+  mysql:
+    platform: linux/amd64
+    env_file: docker/etc/env.sh
+    environment:
+      BUILD_CODE: mysql
+    volumes:
+      - database_data:/var/lib/mysql
+    build:
+      context: ./
+      dockerfile: ./docker/mysql.Dockerfile
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "/mysqld-health.sh"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+volumes:
+  database_data:
+    driver: local

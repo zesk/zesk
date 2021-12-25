@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
@@ -13,9 +13,9 @@ namespace zesk;
  *
  */
 class Database_Index_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
-	);
+	];
 
 	public function mytesttable() {
 		$database = $this->application->database_registry();
@@ -26,7 +26,7 @@ class Database_Index_Test extends Test_Unit {
 	/**
 	 * @expectedException zesk\Exception_NotFound
 	 */
-	public function test_add_column_not_found() {
+	public function test_add_column_not_found(): void {
 		$table = $this->mytesttable();
 
 		$x = new Database_Index($table, "testindex", Database_Index::Index);
@@ -34,7 +34,7 @@ class Database_Index_Test extends Test_Unit {
 		$x->column_add("Friday");
 	}
 
-	public function test_main() {
+	public function test_main(): void {
 		$table = $this->mytesttable();
 		$name = 'index_with_a_name';
 		$type = 'INDEX';
@@ -74,7 +74,7 @@ class Database_Index_Test extends Test_Unit {
 	/**
 	 * @expectedException zesk\Exception_Semantics
 	 */
-	public function test_name_required() {
+	public function test_name_required(): void {
 		$table = $this->mytesttable();
 		$name = '';
 		$type = 'INDEX';
@@ -87,7 +87,7 @@ class Database_Index_Test extends Test_Unit {
 		$x->sql_index_drop();
 	}
 
-	public function test_determine_type() {
+	public function test_determine_type(): void {
 		$this->assert_equal(Database_Index::determineType("unique"), Database_Index::Unique);
 		$this->assert_equal(Database_Index::determineType("unique key"), Database_Index::Unique);
 		$this->assert_equal(Database_Index::determineType("primary key"), Database_Index::Primary);

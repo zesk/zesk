@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
@@ -26,9 +26,9 @@ foreach ($aa as $a) {
 		?><dt><?php echo  $a->Name ?></dt>
 	<dd><?php echo  $a->summary() ?></dd><?php
 	} else {
-		$href = URL::query_format($link, array(
+		$href = URL::query_format($link, [
 			"ID" => $a->id(),
-		)); ?><dt>
+		]); ?><dt>
 		<a href="<?php echo  $href ?>"><?php echo  $a->Name ?></a>
 	</dt>
 	<dd><?php echo  $a->summary() ?> ... <?php echo  HTML::a($href, $this->ReadMore) ?></dd><?php

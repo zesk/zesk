@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -26,7 +26,7 @@ class Module extends \zesk\Module {
 	 *
 	 * @var string
 	 */
-	const OPTION_APPLICATION_VERSION_INHERIT = "application_version_inherit";
+	public const OPTION_APPLICATION_VERSION_INHERIT = "application_version_inherit";
 
 	/**
 	 *
@@ -44,10 +44,10 @@ class Module extends \zesk\Module {
 		}
 		$app = $this->application;
 		$package_file = $app->paths->expand($this->option("package_json_path", "./package.json"));
-		$__ = array(
+		$__ = [
 			"package_file" => $package_file,
 			"method" => __METHOD__,
-		);
+		];
 		if (!is_readable($package_file)) {
 			$app->logger->error("Package file {package_file} not found in {method}", $__);
 			return null;
@@ -61,9 +61,9 @@ class Module extends \zesk\Module {
 			return null;
 		}
 		if (!is_array($json)) {
-			$app->logger->error("Package file {package_file} did not return a JSON structure - {type} returned (in {method})", $__ + array(
+			$app->logger->error("Package file {package_file} did not return a JSON structure - {type} returned (in {method})", $__ + [
 				"type" => gettype($json),
-			));
+			]);
 			return null;
 		}
 		if (!array_key_exists("version", $json)) {
@@ -72,9 +72,9 @@ class Module extends \zesk\Module {
 		}
 		$version = $json['version'];
 		if (!is_string($version) && !is_numeric($version)) {
-			$app->logger->error("Package file {package_file} version key is not string or numeric - {type} returned (in {method})", $__ + array(
+			$app->logger->error("Package file {package_file} version key is not string or numeric - {type} returned (in {method})", $__ + [
 				"type" => gettype($version),
-			));
+			]);
 			return null;
 		}
 		return $this->package_version = $version;
@@ -83,7 +83,7 @@ class Module extends \zesk\Module {
 	/**
 	 * hook_configured
 	 */
-	public function hook_configured() {
+	public function hook_configured(): void {
 		if ($this->option_bool("application_version_inherit")) {
 			$version = $this->application_version_from_package();
 			if ($version !== null) {
@@ -92,23 +92,23 @@ class Module extends \zesk\Module {
 		}
 	}
 
-	public function hook_build(Command $command) {
+	public function hook_build(Command $command): void {
 		$app = $this->application;
 		$node_modules_path = $this->option("node_modules_path", $app->path("node_modules"));
 		if (empty($node_modules_path)) {
-			$command->error("No node_modules_path configured in {class}", array(
+			$command->error("No node_modules_path configured in {class}", [
 				"class" => __CLASS__,
-			));
+			]);
 			return;
 		}
 		if (!is_dir($node_modules_path)) {
-			$command->error("Setting {class}::node_modules_path is not a valid directory ({node_modules_path})", array(
+			$command->error("Setting {class}::node_modules_path is not a valid directory ({node_modules_path})", [
 				"class" => __CLASS__,
 				"node_modules_path" => $node_modules_path,
-			));
+			]);
 			return;
 		}
-		$result = array();
+		$result = [];
 		foreach (to_list($this->application->modules->load()) as $name => $module) {
 			$path = avalue($module, 'path');
 			if ($path) {
@@ -117,18 +117,18 @@ class Module extends \zesk\Module {
 					$result += $this->gather_node_modules_paths($path);
 				}
 			}
-			$node_modules_map = apath($module, "configuration.node_modules", array());
+			$node_modules_map = apath($module, "configuration.node_modules", []);
 			if (is_array($node_modules_map) && count($node_modules_map) > 0 && ArrayTools::is_assoc($node_modules_map)) {
 				$result += $this->convert_application_path($command, $node_modules_map, "module $name");
 			}
 		}
 		foreach ($result as $codename => $target_path) {
 			$link_path = path($node_modules_path, $codename);
-			$args = array(
+			$args = [
 				"severity" => "info",
 				"link_path" => $link_path,
 				"target_path" => $target_path,
-			);
+			];
 			if (is_link($link_path)) {
 				$existing_target = readlink($link_path);
 				if ($existing_target !== $target_path) {
@@ -142,9 +142,9 @@ class Module extends \zesk\Module {
 					if (!symlink($target_path, $link_path)) {
 						$command->error("Can not create symlink from {target_path} to {link_path}", $args);
 					} else {
-						$command->log("{link_path} -> {target_path} configured", array(
+						$command->log("{link_path} -> {target_path} configured", [
 							'severity' => 'debug',
-						) + $args);
+						] + $args);
 					}
 				}
 			} elseif (is_file($link_path)) {
@@ -163,28 +163,28 @@ class Module extends \zesk\Module {
 
 	private function convert_application_path(Handler $handler, array $items, $context = null) {
 		$app_path = $this->application->path();
-		$map = array(
+		$map = [
 			"{application_home}" => $app_path,
 			"{zesk_home}" => $this->application->zesk_home(),
 			/* @deprecated 2018-02 */
 			"{application_root}" => $app_path,
 			"{zesk_root}" => $this->application->zesk_home(),
-		);
+		];
 		if ($context === null) {
 			$context = calling_function();
 		}
-		$result = array();
+		$result = [];
 		foreach ($items as $codename => $path) {
 			$mapped_path = map($path, $map);
 			if (!Directory::is_absolute($mapped_path)) {
 				$mapped_path = path($app_path, $path);
 			}
 			if (!is_dir($mapped_path)) {
-				$handler->log("{path} (is not a valid path, found in {context}", array(
+				$handler->log("{path} (is not a valid path, found in {context}", [
 					"path" => $path,
 					"context" => $context,
 					"severity" => "error",
-				));
+				]);
 			} else {
 				$result[$codename] = $mapped_path;
 			}

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  * @package zesk
@@ -20,7 +20,7 @@ class Module extends \zesk\Module {
 	/**
 	 * Implement hook cron_minute
 	 */
-	public function hook_cron_minute() {
+	public function hook_cron_minute(): void {
 		if ($this->option_bool('generate_htaccess')) {
 			$this->generate_htaccess();
 		}
@@ -48,9 +48,9 @@ class Module extends \zesk\Module {
 		if ($mtime < $file_mtime) {
 			return false;
 		}
-		$contents = $this->application->theme('htaccess', array(
+		$contents = $this->application->theme('htaccess', [
 			'directory_index' => implode(" ", $index_file),
-		));
+		]);
 		file_put_contents($file, $contents);
 		return true;
 	}

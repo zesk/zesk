@@ -1,14 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Class_Browser extends Class_ORM {
 	public $id_column = "id";
 
-	public $find_keys = array(
+	public $find_keys = [
 		'md5',
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		'id' => self::type_id,
 		'md5' => self::type_hex32,
 		'is_phone' => self::type_boolean,
@@ -18,5 +18,5 @@ class Class_Browser extends Class_ORM {
 		'name' => self::type_string,
 		'created' => self::type_created,
 		'parsed' => self::type_timestamp,
-	);
+	];
 }

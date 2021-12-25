@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Class_Contact_Company extends Class_Contact_Info {
@@ -6,7 +6,7 @@ class Class_Contact_Company extends Class_Contact_Info {
 
 	public $id_column = "id";
 
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"name" => self::type_string,
 		"code" => self::type_string,
@@ -16,5 +16,5 @@ class Class_Contact_Company extends Class_Contact_Info {
 		"address" => self::type_object,
 		"created" => self::type_created,
 		"modified" => self::type_modified,
-	);
+	];
 }

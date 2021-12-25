@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -26,14 +26,14 @@ class Configuration_Editor_CONF extends Configuration_Editor {
 	public function edit(array $edits) {
 		$parser = new Configuration_Parser_CONF("", null, $this->options);
 		$low_edits = ArrayTools::flip_copy(array_keys($edits), true);
-		$new_lines = array();
+		$new_lines = [];
 		$lines = explode("\n", $this->content);
 		foreach ($lines as $line) {
 			$result = $parser->parse_line($line);
 			if ($result === null) {
 				$new_lines[] = rtrim($line, "\n") . "\n";
 			} else {
-				list($key, $value) = $result;
+				[$key, $value] = $result;
 				$lowkey = strtolower($key);
 				if (array_key_exists($lowkey, $low_edits)) {
 					$key = $low_edits[$lowkey];

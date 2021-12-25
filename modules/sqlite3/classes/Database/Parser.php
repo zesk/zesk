@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
@@ -153,7 +153,7 @@ class Database_Parser extends \zesk\Database_Parser {
 	 * @return multitype:
 	 */
 	private function parse_column_options_sql(Database_Table $table, $sql_type, $column_options) {
-		static $patterns = array(
+		static $patterns = [
 			'not null',
 			'default null',
 			'default \'([^\']*)\'',
@@ -162,10 +162,10 @@ class Database_Parser extends \zesk\Database_Parser {
 			'character set ([A-Za-z][A-Za-z0-9]*)',
 			'autoincrement',
 			'primary key',
-		);
+		];
 
 		$col_opt_matches = null;
-		$options = array();
+		$options = [];
 		$preg_pattern = '/' . implode('|', $patterns) . '/i';
 		if (!preg_match_all($preg_pattern, $column_options, $col_opt_matches, PREG_SET_ORDER)) {
 			return $options;
@@ -219,7 +219,7 @@ class Database_Parser extends \zesk\Database_Parser {
 	 * @return unknown
 	 */
 	private function parse_column_sql(Database_Table $table, $sql) {
-		$columns_matches = array();
+		$columns_matches = [];
 		if (!preg_match_all(SQLITE_PATTERN_COLUMN_LIST, $sql, $columns_matches, PREG_SET_ORDER)) {
 			throw new Exception_Parse(__("Unable to parse table {0} column definition: {1}", $table->name(), substr($sql, 128)));
 		}
@@ -229,7 +229,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			/*
 			 * Check for index lines and handle differently
 			 */
-			$options = array();
+			$options = [];
 			$column_name = unquote($col_match[2], SQLITE_COLUMN_QUOTES);
 			$col_opt_matches = false;
 			$sql_type = $col_match[3];
@@ -267,7 +267,7 @@ class Database_Parser extends \zesk\Database_Parser {
 		/*
 		 * Parse table options (end of table declaration)
 		 */
-		$table_options = array();
+		$table_options = [];
 		return $table_options;
 	}
 
@@ -291,11 +291,11 @@ class Database_Parser extends \zesk\Database_Parser {
 		$original_table_name = $table->name();
 		$index_matches = false;
 		if (!preg_match_all(SQLITE_PATTERN_INDEXES, $sql, $index_matches, PREG_SET_ORDER)) {
-			return array();
+			return [];
 		}
-		$indexes = array();
+		$indexes = [];
 		foreach ($index_matches as $index_match) {
-			list($ignore, $unique, $index_name, $table_name, $columns) = $index_match;
+			[$ignore, $unique, $index_name, $table_name, $columns] = $index_match;
 			$table_name = unquote($table_name, SQLITE_COLUMN_QUOTES);
 			if ($table_name !== $original_table_name) {
 				continue;
@@ -303,11 +303,11 @@ class Database_Parser extends \zesk\Database_Parser {
 			$index_name = unquote($index_name, SQLITE_COLUMN_QUOTES);
 			$columns = trim($columns);
 			if (!preg_match_all(SQLITE_PATTERN_INDEX_COLUMN_LIST, "$columns,", $column_matches, PREG_PATTERN_ORDER)) {
-				throw new Exception_Parse("Unable to parse SQLite3 {table} columns {index_name}: {raw_columns}", array(
+				throw new Exception_Parse("Unable to parse SQLite3 {table} columns {index_name}: {raw_columns}", [
 					'table' => $table_name,
 					'index_name' => $index_name,
 					"raw_columns" => $columns,
-				));
+				]);
 			}
 			$column_matches = unquote($column_matches[1], SQLITE_COLUMN_QUOTES);
 			$unique = strcasecmp($unique, "unique") ? Database_Index::Unique : Database_Index::Index;
@@ -325,7 +325,7 @@ class Database_Parser extends \zesk\Database_Parser {
 	 */
 	private static function tips(&$sql) {
 		$matches = null;
-		$renamed_columns = array();
+		$renamed_columns = [];
 		if (preg_match_all(SQLITE_PATTERN_TIP_RENAME, $sql, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
 				$sql = str_replace($match[0], "", $sql);
@@ -333,12 +333,12 @@ class Database_Parser extends \zesk\Database_Parser {
 			}
 		}
 
-		$add_tips = array();
-		$remove_tips = array();
+		$add_tips = [];
+		$remove_tips = [];
 		$tip_matches = null;
 		if (preg_match_all(SQLITE_PATTERN_TIP_ALTER, $sql, $tip_matches, PREG_SET_ORDER)) {
 			foreach ($tip_matches as $tip_match) {
-				list($full_match, $plus_minus, $column, $alter_sql) = $tip_match;
+				[$full_match, $plus_minus, $column, $alter_sql] = $tip_match;
 				$col = unquote($column, SQLITE_COLUMN_QUOTES);
 				if ($plus_minus === '+') {
 					$add_tips[$col] = $alter_sql;
@@ -348,11 +348,11 @@ class Database_Parser extends \zesk\Database_Parser {
 				$sql = str_replace($full_match, "", $sql);
 			}
 		}
-		return array(
+		return [
 			"rename" => $renamed_columns,
 			"add" => $add_tips,
 			"remove" => $remove_tips,
-		);
+		];
 	}
 
 	/**
@@ -362,8 +362,8 @@ class Database_Parser extends \zesk\Database_Parser {
 	 * @param Database_Table $table
 	 * @param array $tips
 	 */
-	private function apply_tips(Database_Table $table, array $tips) {
-		$rename_tips = avalue($tips, 'rename', array());
+	private function apply_tips(Database_Table $table, array $tips): void {
+		$rename_tips = avalue($tips, 'rename', []);
 		foreach ($rename_tips as $column => $previous_name) {
 			/* @var $col Database_Column */
 			$col = $table->column($column);
@@ -374,7 +374,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			}
 		}
 
-		$add_tips = avalue($tips, 'add', array());
+		$add_tips = avalue($tips, 'add', []);
 		foreach ($add_tips as $column => $add_sql) {
 			$col = $table->column($column);
 			if ($col) {
@@ -383,7 +383,7 @@ class Database_Parser extends \zesk\Database_Parser {
 				$table->application->logger->notice($table->name() . " contains add tip for non-existent new column: $column => $add_sql");
 			}
 		}
-		$remove_tips = avalue($tips, 'add', array());
+		$remove_tips = avalue($tips, 'add', []);
 		if (count($remove_tips) > 0) {
 			$table->set_option("remove_sql", $remove_tips);
 		}

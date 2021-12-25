@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,11 +10,11 @@ namespace zesk;
  * @category Database
  */
 class Command_Database_Export extends Command {
-	protected $option_types = array(
+	protected array $option_types = [
 		'name' => 'string',
-	);
+	];
 
-	public function run() {
+	public function run(): void {
 		$dbname = $this->option('name');
 		$url = $this->application->database_registry($dbname);
 		if (!$url) {

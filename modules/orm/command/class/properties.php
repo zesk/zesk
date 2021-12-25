@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -15,15 +15,15 @@ class Command_Class_Properties extends Command_Base {
 	 *
 	 * @var array
 	 */
-	protected $option_types = array(
+	protected array $option_types = [
 		"*" => "string",
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public static $types_map = array(
+	public static $types_map = [
 		Class_ORM::type_serialize => 'array',
 		Class_ORM::type_ip => 'string',
 		Class_ORM::type_created => '\zesk\Timestamp',
@@ -34,7 +34,7 @@ class Command_Class_Properties extends Command_Base {
 		Class_ORM::type_hex => 'string',
 		Class_ORM::type_text => 'string',
 		Class_ORM::type_id => 'integer',
-	);
+	];
 
 	/**
 	 *
@@ -49,8 +49,8 @@ class Command_Class_Properties extends Command_Base {
 	 * {@inheritDoc}
 	 * @see \zesk\Command::run()
 	 */
-	public function run() {
-		$classes = array();
+	public function run(): void {
+		$classes = [];
 		while ($this->has_arg()) {
 			$arg = $this->get_arg("class");
 			if ($arg === "all") {
@@ -66,7 +66,7 @@ class Command_Class_Properties extends Command_Base {
 
 				continue;
 			}
-			$result = array();
+			$result = [];
 			foreach ($class_object->column_types as $name => $type) {
 				$type = avalue(self::$types_map, $type, $type);
 				$result[$name] = "@property $type \$$name";

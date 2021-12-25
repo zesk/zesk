@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -106,8 +106,8 @@ class Base {
 	 * @return Diff
 	 */
 	public function __construct(array $a, array $b, $dmax = null) {
-		$this->buf = array();
-		$this->edits = array();
+		$this->buf = [];
+		$this->edits = [];
 		$this->diffs = null;
 
 		$this->a = $a;
@@ -162,7 +162,7 @@ class Base {
 		if (is_array($this->diffs)) {
 			return $this->diffs;
 		}
-		$diffs = array();
+		$diffs = [];
 		foreach ($this->edits as $edit) {
 			if ($edit->op !== Edit::DIFF_MATCH) {
 				$diffs[] = $edit;
@@ -177,7 +177,7 @@ class Base {
 		return $j;
 	}
 
-	private function _setv($k, $r, $val) {
+	private function _setv($k, $r, $val): void {
 		$j = self::index($k, $r);
 		$this->buf[$j] = $val;
 	}
@@ -283,7 +283,7 @@ class Base {
 		return -1;
 	}
 
-	private function _edit($op, $off, $len) {
+	private function _edit($op, $off, $len): void {
 		if ($len == 0) {
 			return;
 		}

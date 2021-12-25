@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -22,18 +22,18 @@ $value = Timestamp::factory($value)->date()->format($locale, $zformat);
 
 $inline = $this->getb("inline");
 
-echo $this->theme('zesk/control/text', array(
+echo $this->theme('zesk/control/text', [
 	'value' => $value,
 	'onchange' => null,
 	'class' => $inline ? CSS::add_class($this->class, 'hidden') : $this->class,
-));
+]);
 
-$options = $this->get(array(
+$options = $this->get([
 	"inline" => $this->getb('inline'),
 	"format" => "YYYY-MM-DD",
 	"toolbarPlacement" => "bottom",
 	"showTodayButton" => true,
-));
+]);
 
 /* @var $defaultDate Timestamp */
 /* @var $minDate Timestamp */

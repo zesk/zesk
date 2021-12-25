@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  * @package zesk
@@ -18,12 +18,12 @@ class Controller_Contact extends Controller_Authenticated {
 		return $this->action_list();
 	}
 
-	public function block_edit_contact(Contact $contact) {
+	public function block_edit_contact(Contact $contact): void {
 		$person = $contact->Person;
-		$template = new Template('contact/edit.tpl', array(
+		$template = new Template('contact/edit.tpl', [
 			'contact' => $contact,
 			'person' => $person,
-		) + $this->variables());
+		] + $this->variables());
 		$content = $template->output();
 		if ($template->json || $this->request->get('ajax')) {
 			$this->auto_render = false;
@@ -31,20 +31,20 @@ class Controller_Contact extends Controller_Authenticated {
 			$this->request->response = $content;
 			return;
 		}
-		$vars = array();
+		$vars = [];
 		$vars['title'] = $person->fullName();
 		$vars['content'] = HTML::tag('div', '.contact-edit', $content);
 
 		$this->template->set($vars + $this->variables());
 	}
 
-	public function action_new() {
+	public function action_new(): void {
 		$contact = new Contact();
 		$contact->Person = new Contact_Person();
 		$this->block_edit_contact($contact);
 	}
 
-	public function action_edit($id) {
+	public function action_edit($id): void {
 		$contact = new Contact($id);
 		if (!$contact->fetch()) {
 			$this->response->redirect('/contact', __("That contact has been deleted."));
@@ -55,7 +55,7 @@ class Controller_Contact extends Controller_Authenticated {
 		$this->block_edit_contact($contact);
 	}
 
-	public function action_view($id) {
+	public function action_view($id): void {
 		$contact = new Contact($id);
 		if (!$contact->fetch()) {
 			$this->response->redirect('/contact', __("That contact has been deleted."));
@@ -64,30 +64,30 @@ class Controller_Contact extends Controller_Authenticated {
 			$this->response->redirect('/contact', __("You don't have permission to view that contact."));
 		}
 		$person = $contact->memberObject('Person', 'Contact_Person');
-		$content = Template::instance('contact/view.tpl', array(
+		$content = Template::instance('contact/view.tpl', [
 			'object' => $contact,
 			'person' => $person,
-		));
+		]);
 		if ($this->request->get('ajax')) {
 			$this->auto_render = false;
 			$this->request->response = $content;
 			return;
 		}
-		$vars = array();
+		$vars = [];
 		// $vars['title'] = $person->fullName();
 		$vars['content'] = HTML::tag('div', '.pblist', $content);
 
 		$this->template->body = Template::instance('blocks/section-top.tpl', $vars + $this->variables());
 	}
 
-	public function action_list() {
-		$options = array();
+	public function action_list(): void {
+		$options = [];
 
 		$options['empty_list_string'] = HTML::tag('div', '.padding', __("No contacts match your query.") . ' ' . HTML::a($this->request->path(), __("View all contacts")));
 		$widget = new Control_Contact_List($options);
 		$content = $widget->execute();
 
-		$vars = array();
+		$vars = [];
 		$n_contacts = $this->application->orm_registry('Contact')
 			->query_select()
 			->where('User', $this->user)

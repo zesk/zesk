@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\Response;
 
 use zesk\Response;
@@ -10,11 +10,11 @@ use zesk\Response;
  *
  */
 class Text extends Type {
-	public function output($content) {
+	public function output($content): void {
 		echo $content;
 	}
 
 	public function to_json() {
-		return array();
+		return [];
 	}
 }

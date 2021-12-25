@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -19,9 +19,9 @@ class Control_Schedule extends Control {
 	 *
 	 * @var array $options
 	 */
-	protected $options = array(
+	protected $options = [
 		'is_input_group' => true,
-	);
+	];
 
 	/**
 	 *
@@ -63,52 +63,52 @@ class Control_Schedule extends Control {
 	 *
 	 * @see Widget::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		$locale = $this->application->locale;
 		/*
 		 * Time of day
 		 */
-		$schedule_frequencies = array(
+		$schedule_frequencies = [
 			'day' => $locale->__('Daily'),
 			'week' => $locale->__('Weekly'),
 			'month' => $locale->__('Monthly'),
-		);
+		];
 
 		/*
 		 * Time of day
 		 */
-		$schedule_hourofday = array();
+		$schedule_hourofday = [];
 		$timestamp = Time::now();
 		$timestamp->minute(0)->second(0);
 		for ($i = 0; $i <= 23; $i++) {
 			$timestamp->hour($i);
-			$schedule_hourofday[$i] = $locale->__('Control_Schedule:=at {hourofday}', array(
+			$schedule_hourofday[$i] = $locale->__('Control_Schedule:=at {hourofday}', [
 				'hourofday' => $timestamp->format($locale, $this->option('format_hourofday', $locale->__('Control_Schedule::format_hourofday:={12h} {ampm}'))),
-			));
+			]);
 		}
 
 		/*
 		 * Day of week
 		 */
-		$schedule_dayofweek = array();
+		$schedule_dayofweek = [];
 		$timestamp = Date::now();
 		$first = $this->option('first_dayofweek', 1);
 		for ($i = $first; $i < $first + 7; $i++) {
 			$timestamp->weekday($i);
-			$schedule_dayofweek[$i] = $locale->__('Control_Schedule:=on {dayofweek}', array(
+			$schedule_dayofweek[$i] = $locale->__('Control_Schedule:=on {dayofweek}', [
 				'dayofweek' => $timestamp->format($locale, $this->option('format_dayofweek', '{WWWW}')),
-			));
+			]);
 		}
 
 		/*
 		 * Day of month
 		 */
-		$schedule_dayofmonth = array();
+		$schedule_dayofmonth = [];
 		for ($i = 1; $i <= 28; $i++) {
-			$schedule_dayofmonth[$i] = $locale->__('Control_Schedule:=on the {dayofmonth_ordinal}', array(
+			$schedule_dayofmonth[$i] = $locale->__('Control_Schedule:=on the {dayofmonth_ordinal}', [
 				'dayofmonth' => $i,
 				'dayofmonth_ordinal' => $locale->ordinal($i),
-			));
+			]);
 		}
 
 		$column_prefix = $this->column_prefix();

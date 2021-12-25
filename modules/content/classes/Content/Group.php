@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
@@ -36,11 +36,11 @@ abstract class Content_Group extends ORM {
 	}
 
 	protected function order_methods() {
-		return array(
+		return [
 			"name" => "Order by name",
 			"order" => "Order explicitly",
 			"created" => "Order by creation date",
-		);
+		];
 	}
 
 	/**

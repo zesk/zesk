@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -18,10 +18,10 @@ if (empty($object->Byline)) {
 	return;
 }
 
-$posted_vars = array(
+$posted_vars = [
 	'byline' => $object->Byline,
 	'date' => Timestamp::factory($object->Created)->format($locale, '{mmmm} {ddd}, {yyyy} {12HH}:{MM} {AMPM}'),
-);
-echo HTML::tag("div", array(
+];
+echo HTML::tag("div", [
 	"class" => "byline",
-), $locale->__("Content_Article:=Posted by {byline} on {date}", $posted_vars));
+], $locale->__("Content_Article:=Posted by {byline} on {date}", $posted_vars));

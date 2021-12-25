@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Copyright (c) 2011, Dan Myers.
@@ -49,49 +49,49 @@ class Client {
 	 *
 	 * @var string
 	 */
-	const ENDPOINT_US_EAST = 'https://sqs.us-east-1.amazonaws.com/';
+	public const ENDPOINT_US_EAST = 'https://sqs.us-east-1.amazonaws.com/';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const ENDPOINT_US_WEST = 'https://sqs.us-west-1.amazonaws.com/';
+	public const ENDPOINT_US_WEST = 'https://sqs.us-west-1.amazonaws.com/';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const ENDPOINT_EU_WEST = 'https://sqs.eu-west-1.amazonaws.com/';
+	public const ENDPOINT_EU_WEST = 'https://sqs.eu-west-1.amazonaws.com/';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const ENDPOINT_AP_SOUTHEAST = 'https://sqs.ap-southeast-1.amazonaws.com/';
+	public const ENDPOINT_AP_SOUTHEAST = 'https://sqs.ap-southeast-1.amazonaws.com/';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const INSECURE_ENDPOINT_US_EAST = 'http://sqs.us-east-1.amazonaws.com/';
+	public const INSECURE_ENDPOINT_US_EAST = 'http://sqs.us-east-1.amazonaws.com/';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const INSECURE_ENDPOINT_US_WEST = 'http://sqs.us-west-1.amazonaws.com/';
+	public const INSECURE_ENDPOINT_US_WEST = 'http://sqs.us-west-1.amazonaws.com/';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const INSECURE_ENDPOINT_EU_WEST = 'http://sqs.eu-west-1.amazonaws.com/';
+	public const INSECURE_ENDPOINT_EU_WEST = 'http://sqs.eu-west-1.amazonaws.com/';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const INSECURE_ENDPOINT_AP_SOUTHEAST = 'http://sqs.ap-southeast-1.amazonaws.com/';
+	public const INSECURE_ENDPOINT_AP_SOUTHEAST = 'http://sqs.ap-southeast-1.amazonaws.com/';
 
 	/**
 	 *
@@ -162,7 +162,7 @@ class Client {
 	 *        	Secret key
 	 * @return void
 	 */
-	public function setAuth($accessKey, $secretKey) {
+	public function setAuth($accessKey, $secretKey): void {
 		$this->__accessKey = $accessKey;
 		$this->__secretKey = $secretKey;
 	}
@@ -187,17 +187,17 @@ class Client {
 
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200) {
-			$rest->error = array(
+			$rest->error = [
 				'code' => $rest->code,
 				'message' => 'Unexpected HTTP status',
-			);
+			];
 		}
 		if ($rest->error !== false) {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
 
-		$result = array();
+		$result = [];
 		$result['QueueUrl'] = (string) $rest->body->CreateQueueResult->QueueUrl;
 		$result['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $result;
@@ -214,17 +214,17 @@ class Client {
 		$rest = new Request($this, $queue, 'DeleteQueue', 'POST');
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200) {
-			$rest->error = array(
+			$rest->error = [
 				'code' => $rest->code,
 				'message' => 'Unexpected HTTP status',
-			);
+			];
 		}
 		if ($rest->error !== false) {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
 
-		$result = array();
+		$result = [];
 		$result['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $result;
 	}
@@ -245,19 +245,19 @@ class Client {
 
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200) {
-			$rest->error = array(
+			$rest->error = [
 				'code' => $rest->code,
 				'message' => 'Unexpected HTTP status',
-			);
+			];
 		}
 		if ($rest->error !== false) {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
 
-		$results = array();
+		$results = [];
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
-		$queues = array();
+		$queues = [];
 		if (isset($rest->body->ListQueuesResult)) {
 			foreach ($rest->body->ListQueuesResult->QueueUrl as $q) {
 				$queues[] = (string) $q;
@@ -283,19 +283,19 @@ class Client {
 
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200) {
-			$rest->error = array(
+			$rest->error = [
 				'code' => $rest->code,
 				'message' => 'Unexpected HTTP status',
-			);
+			];
 		}
 		if ($rest->error !== false) {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
 
-		$results = array();
+		$results = [];
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
-		$attributes = array();
+		$attributes = [];
 		if (isset($rest->body->GetQueueAttributesResult)) {
 			foreach ($rest->body->GetQueueAttributesResult->Attribute as $a) {
 				$attributes[(string) $a->Name] = (string) $a->Value;
@@ -326,17 +326,17 @@ class Client {
 
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200) {
-			$rest->error = array(
+			$rest->error = [
 				'code' => $rest->code,
 				'message' => 'Unexpected HTTP status',
-			);
+			];
 		}
 		if ($rest->error !== false) {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
 
-		$results = array();
+		$results = [];
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
@@ -358,17 +358,17 @@ class Client {
 
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200) {
-			$rest->error = array(
+			$rest->error = [
 				'code' => $rest->code,
 				'message' => 'Unexpected HTTP status',
-			);
+			];
 		}
 		if ($rest->error !== false) {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
 
-		$results = array();
+		$results = [];
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		if (isset($rest->body->SendMessageResult)) {
 			$results['MD5OfMessageBody'] = (string) $rest->body->SendMessageResult->MD5OfMessageBody;
@@ -390,7 +390,7 @@ class Client {
 	 *        	An array of attributes for each message that you want to retrieve (optional)
 	 * @return An array containing a list of messages and a request id
 	 */
-	public function receiveMessage($queue, $num_messages = null, $visibility_timeout = null, $attributes = array()) {
+	public function receiveMessage($queue, $num_messages = null, $visibility_timeout = null, $attributes = []) {
 		$rest = new Request($this, $queue, 'ReceiveMessage', 'GET');
 
 		if ($num_messages !== null) {
@@ -408,29 +408,29 @@ class Client {
 
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200) {
-			$rest->error = array(
+			$rest->error = [
 				'code' => $rest->code,
 				'message' => 'Unexpected HTTP status',
-			);
+			];
 		}
 		if ($rest->error !== false) {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
 
-		$results = array();
+		$results = [];
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
-		$messages = array();
+		$messages = [];
 		if (isset($rest->body->ReceiveMessageResult)) {
 			foreach ($rest->body->ReceiveMessageResult->Message as $m) {
-				$message = array();
+				$message = [];
 				$message['MessageId'] = (string) ($m->MessageId);
 				$message['ReceiptHandle'] = (string) ($m->ReceiptHandle);
 				$message['MD5OfBody'] = (string) ($m->MD5OfBody);
 				$message['Body'] = (string) ($m->Body);
 
 				if (isset($m->Attribute)) {
-					$attributes = array();
+					$attributes = [];
 					foreach ($m->Attribute as $a) {
 						$attributes[(string) $a->Name] = (string) $a->Value;
 					}
@@ -463,17 +463,17 @@ class Client {
 
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200) {
-			$rest->error = array(
+			$rest->error = [
 				'code' => $rest->code,
 				'message' => 'Unexpected HTTP status',
-			);
+			];
 		}
 		if ($rest->error !== false) {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
 
-		$results = array();
+		$results = [];
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
@@ -494,17 +494,17 @@ class Client {
 
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200) {
-			$rest->error = array(
+			$rest->error = [
 				'code' => $rest->code,
 				'message' => 'Unexpected HTTP status',
-			);
+			];
 		}
 		if ($rest->error !== false) {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
 
-		$results = array();
+		$results = [];
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
@@ -533,17 +533,17 @@ class Client {
 
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200) {
-			$rest->error = array(
+			$rest->error = [
 				'code' => $rest->code,
 				'message' => 'Unexpected HTTP status',
-			);
+			];
 		}
 		if ($rest->error !== false) {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
 
-		$results = array();
+		$results = [];
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
@@ -564,17 +564,17 @@ class Client {
 
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200) {
-			$rest->error = array(
+			$rest->error = [
 				'code' => $rest->code,
 				'message' => 'Unexpected HTTP status',
-			);
+			];
 		}
 		if ($rest->error !== false) {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
 
-		$results = array();
+		$results = [];
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}

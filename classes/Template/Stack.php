@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -14,20 +14,20 @@ class Template_Stack {
 	 *
 	 * @var Template[]
 	 */
-	protected $stack = array();
+	protected $stack = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $log = array();
+	protected $log = [];
 
 	/**
 	 * Push template
 	 *
 	 * @param Template $template
 	 */
-	final public function push(Template $template) {
+	final public function push(Template $template): void {
 		$this->stack[] = $template;
 		$this->log[] = "push " . $template->path() . " " . calling_function(2);
 	}
@@ -40,9 +40,9 @@ class Template_Stack {
 	 */
 	final public function pop() {
 		if (count($this->stack) <= 1) {
-			throw new Exception_Semantics("Popped top template from template stack - not allowed: {log}", array(
+			throw new Exception_Semantics("Popped top template from template stack - not allowed: {log}", [
 				"log" => nl2br(implode("\n", $this->log)),
-			));
+			]);
 		}
 		$template = array_pop($this->stack);
 		$this->log[] = "pop " . $template->path();
@@ -78,7 +78,7 @@ class Template_Stack {
 		$top = $this->top();
 		if ($set === null) {
 			if ($top === null) {
-				return array();
+				return [];
 			}
 			return $top->variables();
 		} else {

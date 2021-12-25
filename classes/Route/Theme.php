@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Route_Theme extends Route {
@@ -15,7 +15,7 @@ class Route_Theme extends Route {
 	 *
 	 * @see Route::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
 		$theme = $this->option("theme");
 		if (map_clean($theme) !== $theme) {
@@ -32,21 +32,21 @@ class Route_Theme extends Route {
 	 */
 	public function validate() {
 		$application = $this->router->application;
-		$parameters = $application->variables() + array(
+		$parameters = $application->variables() + [
 			'route' => $this,
-		);
+		];
 		$parameters += $this->options + $this->named;
-		$args = map($this->option_array("theme arguments", array()), $parameters) + $parameters;
+		$args = map($this->option_array("theme arguments", []), $parameters) + $parameters;
 		$theme_options = $this->option_array("theme options");
 		$theme = $this->option("theme");
 		if ($application->theme_exists($theme, $args, $theme_options)) {
 			return $this;
 		}
 
-		throw new Exception_File_NotFound("No theme {theme} found in {theme_paths}", array(
+		throw new Exception_File_NotFound("No theme {theme} found in {theme_paths}", [
 			"theme" => $theme,
 			"theme_paths" => $application->theme_path(),
-		));
+		]);
 	}
 
 	/**
@@ -55,13 +55,13 @@ class Route_Theme extends Route {
 	 *
 	 * @see Route::_execute()
 	 */
-	public function _execute(Response $response) {
+	public function _execute(Response $response): void {
 		$application = $this->router->application;
-		$parameters = $application->variables() + array(
+		$parameters = $application->variables() + [
 			'route' => $this,
-		);
+		];
 		$parameters += $this->options + $this->named;
-		$args = map($this->option_array("theme arguments", array()), $parameters) + $parameters;
+		$args = map($this->option_array("theme arguments", []), $parameters) + $parameters;
 		$mapped_theme = $theme = $this->option('theme');
 		$theme_options = $this->option_array("theme options");
 		if ($this->dynamic_theme) {
@@ -78,9 +78,9 @@ class Route_Theme extends Route {
 
 		$json_html = $this->option("json_html", false);
 		if ($json_html && $response->is_json() || $this->option_bool('json')) {
-			$response->json()->data($response->html()->to_json() + array(
+			$response->json()->data($response->html()->to_json() + [
 				"status" => true,
-			));
+			]);
 		}
 	}
 }

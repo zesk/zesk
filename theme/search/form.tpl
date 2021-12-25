@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage theme
@@ -16,18 +16,18 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
-echo HTML::tag('form', array(
+echo HTML::tag('form', [
 	'action' => '/search',
 	'method' => 'get',
 	'class' => 'form-group',
-), HTML::div('.input-group', HTML::tag('input', array(
+], HTML::div('.input-group', HTML::tag('input', [
 	'type' => 'text',
 	'name' => 'q',
 	'value' => $this->request->get('q'),
 	'placeholder' => $this->get('title', $locale('Search')),
 	'class' => 'form-control',
-), null) . HTML::div('.input-group-btn', HTML::tag('button', array(
+], null) . HTML::div('.input-group-btn', HTML::tag('button', [
 	'class' => 'btn btn-default tip',
 	'data-container' => 'body',
 	'title' => $this->get('search_title', $locale('Search')),
-), HTML::span('.glyphicon .glyphicon-search', '')))));
+], HTML::span('.glyphicon .glyphicon-search', '')))));

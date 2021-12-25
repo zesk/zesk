@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -23,17 +23,17 @@ class Control_Email extends Control_Text {
 		$v = $this->value();
 		$locale = $this->application->locale;
 		if ($this->accept_list()) {
-			$emails = ArrayTools::trim_clean(to_list($v, array(), ','));
-			$bad_email = array();
+			$emails = ArrayTools::trim_clean(to_list($v, [], ','));
+			$bad_email = [];
 			foreach ($emails as $email) {
 				if (!is_email($email)) {
 					$bad_email[] = $email;
 				}
 			}
 			if ($bad_email) {
-				$this->error($locale->__("Control_Email::error_format:={label} contains some invalid emails: {bad_emails}", array(
+				$this->error($locale->__("Control_Email::error_format:={label} contains some invalid emails: {bad_emails}", [
 					'bad_emails' => implode(", ", $bad_email),
-				)));
+				]));
 				return false;
 			}
 			$this->value(implode(", ", $emails));

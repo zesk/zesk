@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage sqlite3
@@ -62,13 +62,13 @@ class Database extends \zesk\Database {
 	 *
 	 * @see zesk\Database::feature($feature, $set)
 	 */
-	public function feature($feature, $set = null) {
+	public function feature($feature, $set = null): void {
 		switch ($feature) {
 			case self::FEATURE_MAX_BLOB_SIZE:
 				break;
 		}
 
-		throw new Exception_Unimplemented("Database {type} does not support feature {feature}", array("type" => $this->type(), "feature" => $feature, ));
+		throw new Exception_Unimplemented("Database {type} does not support feature {feature}", ["type" => $this->type(), "feature" => $feature, ]);
 	}
 
 	public function _to_php() {
@@ -88,7 +88,7 @@ class Database extends \zesk\Database {
 	 *            Options for dumping the database - dependent on database type
 	 * @return boolean Whether the operation succeeded (true) or not (false)
 	 */
-	public function dump($filename, array $options = array()) {
+	public function dump($filename, array $options = []) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
 
@@ -101,7 +101,7 @@ class Database extends \zesk\Database {
 	 *            Options for dumping the database - dependent on database type
 	 * @return boolean Whether the operation succeeded (true) or not (false)
 	 */
-	public function restore($filename, array $options = array()) {
+	public function restore($filename, array $options = []) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
 
@@ -114,12 +114,12 @@ class Database extends \zesk\Database {
 	protected function _connect() {
 		$path = avalue($this->url_parts, 'path');
 		if (!$path) {
-			throw new Exception_Configuration("No database path for {class}", array("class" => __CLASS__, ));
+			throw new Exception_Configuration("No database path for {class}", ["class" => __CLASS__, ]);
 		}
 		$path = map($path, ArrayTools::kprefix($this->application->paths->variables(), "zesk::paths::"));
 		$dir = dirname($path);
 		if (!is_dir($dir)) {
-			throw new Exception_Directory_NotFound($dir, "{path} not found", array("path" => $path, ));
+			throw new Exception_Directory_NotFound($dir, "{path} not found", ["path" => $path, ]);
 		}
 		$error_message = null;
 		$flags = 0;
@@ -160,7 +160,7 @@ class Database extends \zesk\Database {
 	 * @see zesk\Database::free()
 	 * @var $result SQLIte3Result
 	 */
-	final public function free($result) {
+	final public function free($result): void {
 	}
 
 	final public function fetch_array($result) {
@@ -191,9 +191,9 @@ class Database extends \zesk\Database {
 		return $this->conn->lastInsertRowID();
 	}
 
-	public function shell_command(array $options = array()) {
+	public function shell_command(array $options = []) {
 		static $shell_command = null;
-		static $try_commands = array('sqlite3', 'sqlite2', 'sqlite', );
+		static $try_commands = ['sqlite3', 'sqlite2', 'sqlite', ];
 		if ($shell_command) {
 			return $shell_command;
 		}
@@ -201,7 +201,7 @@ class Database extends \zesk\Database {
 			$shell_command = $this->application->paths->which($try);
 			echo "Try $try = $shell_command\n";
 			if ($shell_command) {
-				return array($shell_command, array($this->url_parts['path'], ), );
+				return [$shell_command, [$this->url_parts['path'], ], ];
 			}
 		}
 		$shell_command = false;
@@ -246,7 +246,7 @@ class Database extends \zesk\Database {
 	public function list_tables() {
 		// TODO
 		$result = $this->query("SHOW TABLES");
-		$tables = array();
+		$tables = [];
 		return $tables;
 	}
 
@@ -262,7 +262,7 @@ class Database extends \zesk\Database {
 	public function sql_create_table(Database_Table $dbTableObject) {
 		$columns = $dbTableObject->columns();
 
-		$types = array();
+		$types = [];
 		foreach ($columns as $dbCol) {
 			if (!$dbCol->has_sql_type() && !$this->type_set_sql_type($dbCol)) {
 				die(__CLASS__ . "::sql_create_table: no SQL Type for column $dbCol");
@@ -271,7 +271,7 @@ class Database extends \zesk\Database {
 			}
 		}
 		$indexes = $dbTableObject->indexes();
-		$alters = array();
+		$alters = [];
 		if ($indexes) {
 			foreach ($indexes as $index) {
 				/* @var $index Database_Index */
@@ -294,7 +294,7 @@ class Database extends \zesk\Database {
 			}
 		}
 		$types = implode(",\n\t", $types);
-		$result = array();
+		$result = [];
 		$result[] = "CREATE TABLE " . $dbTableObject->name() . " (\n\t$types\n)";
 
 		return array_merge($result, $alters);
@@ -331,7 +331,7 @@ class Database extends \zesk\Database {
 		$statement_sql = "SELECT sql FROM sqlite_master WHERE name=:name AND type='table'";
 		$statement = $conn->prepare($statement_sql);
 		$statement->bindParam(":name", $table, SQLITE3_TEXT);
-		$sql = $this->query_one($statement, "sql", null, array("statement_sql" => $statement_sql, ));
+		$sql = $this->query_one($statement, "sql", null, ["statement_sql" => $statement_sql, ]);
 		if (!$sql) {
 			throw new Database_Exception_Table_NotFound($this, null, $table);
 		}
@@ -340,14 +340,14 @@ class Database extends \zesk\Database {
 		$statement_sql = "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name=:name AND sql != ''";
 		$statement = $this->conn->prepare($statement_sql);
 		$statement->bindParam(":name", $table, SQLITE3_TEXT);
-		$indexes_sql = $this->query_array($statement, null, "sql", array(), array("statement_sql" => $statement_sql, ));
+		$indexes_sql = $this->query_array($statement, null, "sql", [], ["statement_sql" => $statement_sql, ]);
 		if (count($indexes_sql) > 0) {
 			$sql .= implode(";\n", $indexes_sql);
 		}
 		return $this->parse_create_table($sql, "extracted from sqlite_master");
 	}
 
-	private function exception(Exception $e) {
+	private function exception(Exception $e): void {
 		$message = $e->getMessage();
 		if (preg_match("/no such table: (.*)/", $message, $matches)) {
 			throw new Database_Exception_Table_NotFound($this, $matches[1]);
@@ -355,9 +355,9 @@ class Database extends \zesk\Database {
 		die(get_class($e) . "\n" . $e->getMessage() . "<br />" . $e->getTraceAsString());
 	}
 
-	public function query($query, array $options = array()) {
+	public function query($query, array $options = []) {
 		if (is_array($query)) {
-			$result = array();
+			$result = [];
 			foreach ($query as $index => $sql) {
 				$result[$index] = $this->query($sql, $options);
 			}
@@ -392,7 +392,7 @@ class Database extends \zesk\Database {
 
 	public function mixed_query($sql) {
 		if (is_array($sql)) {
-			$result = array();
+			$result = [];
 			foreach ($sql as $k => $q) {
 				$q = trim($q);
 				if (empty($q)) {
@@ -605,7 +605,7 @@ class Database extends \zesk\Database {
 
 	public function is_reserved_word($word) {
 		// Updated 2004-10-19 from MySQL Website YEARLY-TODO
-		static $reserved = array("ADD", "ALL", "ALTER", "ANALYZE", "AND", "AS", "ASC", "ASENSITIVE", "BEFORE", "BETWEEN", "BIGINT", "BINARY", "BLOB", "BOTH", "BY", "CALL", "CASCADE", "CASE", "CHANGE", "CHAR", "CHARACTER", "CHECK", "COLLATE", "COLUMN", "COLUMNS", "CONDITION", "CONNECTION", "CONSTRAINT", "CONTINUE", "CONVERT", "CREATE", "CROSS", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_USER", "CURSOR", "DATABASE", "DATABASES", "DAY_HOUR", "DAY_MICROSECOND", "DAY_MINUTE", "DAY_SECOND", "DEC", "DECIMAL", "DECLARE", "DEFAULT", "DELAYED", "DELETE", "DESC", "DESCRIBE", "DETERMINISTIC", "DISTINCT", "DISTINCTROW", "DIV", "DOUBLE", "DROP", "DUAL", "EACH", "ELSE", "ELSEIF", "ENCLOSED", "ESCAPED", "EXISTS", "EXIT", "EXPLAIN", "FALSE", "FETCH", "FIELDS", "FLOAT", "FOR", "FORCE", "FOREIGN", "FOUND", "FROM", "FULLTEXT", "GOTO", "GRANT", "GROUP", "HAVING", "HIGH_PRIORITY", "HOUR_MICROSECOND", "HOUR_MINUTE", "HOUR_SECOND", "IF", "IGNORE", "IN", "INDEX", "INFILE", "INNER", "INOUT", "INSENSITIVE", "INSERT", "INT", "INTEGER", "INTERVAL", "INTO", "IS", "ITERATE", "JOIN", "KEY", "KEYS", "KILL", "LEADING", "LEAVE", "LEFT", "LIKE", "LIMIT", "LINES", "LOAD", "LOCALTIME", "LOCALTIMESTAMP", "LOCK", "LONG", "LONGBLOB", "LONGTEXT", "LOOP", "LOW_PRIORITY", "MATCH", "MEDIUMBLOB", "MEDIUMINT", "MEDIUMTEXT", "MIDDLEINT", "MINUTE_MICROSECOND", "MINUTE_SECOND", "MOD", "NATURAL", "NOT", "NO_WRITE_TO_BINLOG", "NULL", "NUMERIC", "ON", "OPTIMIZE", "OPTION", "OPTIONALLY", "OR", "ORDER", "OUT", "OUTER", "OUTFILE", "PRECISION", "PRIMARY", "PRIVILEGES", "PROCEDURE", "PURGE", "READ", "REAL", "REFERENCES", "REGEXP", "RENAME", "REPEAT", "REPLACE", "REQUIRE", "RESTRICT", "RETURN", "REVOKE", "RIGHT", "RLIKE", "SCHEMA", "SCHEMAS", "SECOND_MICROSECOND", "SELECT", "SENSITIVE", "SEPARATOR", "SET", "SHOW", "SMALLINT", "SONAME", "SPATIAL", "SPECIFIC", "SQL", "SQLEXCEPTION", "SQLSTATE", "SQLWARNING", "SQL_BIG_RESULT", "SQL_CALC_FOUND_ROWS", "SQL_SMALL_RESULT", "SSL", "STARTING", "STRAIGHT_JOIN", "TABLE", "TABLES", "TERMINATED", "THEN", "TINYBLOB", "TINYINT", "TINYTEXT", "TO", "TRAILING", "TRIGGER", "TRUE", "UNDO", "UNION", "UNIQUE", "UNLOCK", "UNSIGNED", "UPDATE", "USAGE", "USE", "USING", "UTC_DATE", "UTC_TIME", "UTC_TIMESTAMP", "VALUES", "VARBINARY", "VARCHAR", "VARCHARACTER", "VARYING", "WHEN", "WHERE", "WHILE", "WITH", "WRITE", "XOR", "YEAR_MONTH", "ZEROFILL", );
+		static $reserved = ["ADD", "ALL", "ALTER", "ANALYZE", "AND", "AS", "ASC", "ASENSITIVE", "BEFORE", "BETWEEN", "BIGINT", "BINARY", "BLOB", "BOTH", "BY", "CALL", "CASCADE", "CASE", "CHANGE", "CHAR", "CHARACTER", "CHECK", "COLLATE", "COLUMN", "COLUMNS", "CONDITION", "CONNECTION", "CONSTRAINT", "CONTINUE", "CONVERT", "CREATE", "CROSS", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_USER", "CURSOR", "DATABASE", "DATABASES", "DAY_HOUR", "DAY_MICROSECOND", "DAY_MINUTE", "DAY_SECOND", "DEC", "DECIMAL", "DECLARE", "DEFAULT", "DELAYED", "DELETE", "DESC", "DESCRIBE", "DETERMINISTIC", "DISTINCT", "DISTINCTROW", "DIV", "DOUBLE", "DROP", "DUAL", "EACH", "ELSE", "ELSEIF", "ENCLOSED", "ESCAPED", "EXISTS", "EXIT", "EXPLAIN", "FALSE", "FETCH", "FIELDS", "FLOAT", "FOR", "FORCE", "FOREIGN", "FOUND", "FROM", "FULLTEXT", "GOTO", "GRANT", "GROUP", "HAVING", "HIGH_PRIORITY", "HOUR_MICROSECOND", "HOUR_MINUTE", "HOUR_SECOND", "IF", "IGNORE", "IN", "INDEX", "INFILE", "INNER", "INOUT", "INSENSITIVE", "INSERT", "INT", "INTEGER", "INTERVAL", "INTO", "IS", "ITERATE", "JOIN", "KEY", "KEYS", "KILL", "LEADING", "LEAVE", "LEFT", "LIKE", "LIMIT", "LINES", "LOAD", "LOCALTIME", "LOCALTIMESTAMP", "LOCK", "LONG", "LONGBLOB", "LONGTEXT", "LOOP", "LOW_PRIORITY", "MATCH", "MEDIUMBLOB", "MEDIUMINT", "MEDIUMTEXT", "MIDDLEINT", "MINUTE_MICROSECOND", "MINUTE_SECOND", "MOD", "NATURAL", "NOT", "NO_WRITE_TO_BINLOG", "NULL", "NUMERIC", "ON", "OPTIMIZE", "OPTION", "OPTIONALLY", "OR", "ORDER", "OUT", "OUTER", "OUTFILE", "PRECISION", "PRIMARY", "PRIVILEGES", "PROCEDURE", "PURGE", "READ", "REAL", "REFERENCES", "REGEXP", "RENAME", "REPEAT", "REPLACE", "REQUIRE", "RESTRICT", "RETURN", "REVOKE", "RIGHT", "RLIKE", "SCHEMA", "SCHEMAS", "SECOND_MICROSECOND", "SELECT", "SENSITIVE", "SEPARATOR", "SET", "SHOW", "SMALLINT", "SONAME", "SPATIAL", "SPECIFIC", "SQL", "SQLEXCEPTION", "SQLSTATE", "SQLWARNING", "SQL_BIG_RESULT", "SQL_CALC_FOUND_ROWS", "SQL_SMALL_RESULT", "SSL", "STARTING", "STRAIGHT_JOIN", "TABLE", "TABLES", "TERMINATED", "THEN", "TINYBLOB", "TINYINT", "TINYTEXT", "TO", "TRAILING", "TRIGGER", "TRUE", "UNDO", "UNION", "UNIQUE", "UNLOCK", "UNSIGNED", "UPDATE", "USAGE", "USE", "USING", "UTC_DATE", "UTC_TIME", "UTC_TIMESTAMP", "VALUES", "VARBINARY", "VARCHAR", "VARCHARACTER", "VARYING", "WHEN", "WHERE", "WHILE", "WITH", "WRITE", "XOR", "YEAR_MONTH", "ZEROFILL", ];
 		$word = strtoupper($word);
 		return in_array($word, $reserved);
 	}
@@ -640,7 +640,7 @@ class Database extends \zesk\Database {
 	}
 
 	public static function _basicType($t) {
-		static $basicTypes = array('string' => array("char", "varchar", "varbinary", "binary", "text", ), 'integer' => array("int", "tinyint", "mediumint", "smallint", "bigint", 'integer', ), 'real' => array("float", "double", "decimal", ), 'date' => array("date", ), 'time' => array("time", ), 'datetime' => array("datetime", "timestamp", ), 'boolean' => array("enum", ), );
+		static $basicTypes = ['string' => ["char", "varchar", "varbinary", "binary", "text", ], 'integer' => ["int", "tinyint", "mediumint", "smallint", "bigint", 'integer', ], 'real' => ["float", "double", "decimal", ], 'date' => ["date", ], 'time' => ["time", ], 'datetime' => ["datetime", "timestamp", ], 'boolean' => ["enum", ], ];
 		$t = trim(strtolower($t));
 		foreach ($basicTypes as $type => $types) {
 			if (in_array($t, $types)) {
@@ -737,7 +737,7 @@ class Database extends \zesk\Database {
 	}
 
 	public function quote_column($column) {
-		return '"' . strtr($column, array('"' => '""', )) . '"';
+		return '"' . strtr($column, ['"' => '""', ]) . '"';
 	}
 
 	public function quote_table($table) {
@@ -753,7 +753,7 @@ class Database extends \zesk\Database {
 	}
 
 	protected function integer_size_type($lookup) {
-		return avalue(array("1" => "tinyint", "tiny" => "tinyint", "2" => "smallint", "small" => "smallint", "4" => "integer", "default" => "integer", "big" => "bigint", "large" => "bigint", "8" => "bigint", ), $lookup, "integer");
+		return avalue(["1" => "tinyint", "tiny" => "tinyint", "2" => "smallint", "small" => "smallint", "4" => "integer", "default" => "integer", "big" => "bigint", "large" => "bigint", "8" => "bigint", ], $lookup, "integer");
 	}
 
 	public function table_columns($table) {
@@ -764,9 +764,9 @@ class Database extends \zesk\Database {
 		return $this->application->paths->cache('sqlite3/locks/' . md5($this->database_name()));
 	}
 
-	private $locks = array();
+	private $locks = [];
 
-	public function release_all_locks() {
+	public function release_all_locks(): void {
 		foreach ($this->locks as $name => $file) {
 			$this->release_lock($name);
 		}
@@ -789,7 +789,7 @@ class Database extends \zesk\Database {
 		do {
 			if (flock($f, LOCK_EX | LOCK_NB)) {
 				if (count($this->locks) === 0) {
-					$this->application->hooks->add('exit', array($this, 'release_all_locks', ));
+					$this->application->hooks->add('exit', [$this, 'release_all_locks', ]);
 				}
 				$this->locks[$name] = $f;
 				return true;
@@ -865,6 +865,6 @@ class Database extends \zesk\Database {
 	 * @return array
 	 */
 	public function table_information($table) {
-		throw new Exception_Unimplemented("Need to implement {method}", array("method" => __METHOD__, ));
+		throw new Exception_Unimplemented("Need to implement {method}", ["method" => __METHOD__, ]);
 	}
 }

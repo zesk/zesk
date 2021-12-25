@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -35,7 +35,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 			$ndirnames = "dirname(" . $ndirnames . ")";
 		}
 
-		$contents = array();
+		$contents = [];
 		$contents[] = "<" . "?php";
 		$contents[] = "/**";
 		$contents[] = " * @version \$URL\$";
@@ -51,13 +51,13 @@ class Test_Command_Generate_Legacy extends Command_Base {
 
 	public function clean_function_parameters($params) {
 		$params = explode(",", $params);
-		$clean_params = array();
+		$clean_params = [];
 		foreach ($params as $p) {
 			$p = trim($p);
 			if (empty($p)) {
 				continue;
 			}
-			list($var, $default) = pair($p, "=", $p, 'null');
+			[$var, $default] = pair($p, "=", $p, 'null');
 			$var = str_replace("&", "", $var);
 			$clean_params[ltrim($var, '$')] = $default;
 		}
@@ -65,9 +65,9 @@ class Test_Command_Generate_Legacy extends Command_Base {
 	}
 
 	public function generate_function_test_code($func, $params) {
-		$contents = array();
+		$contents = [];
 
-		$clean_params = array();
+		$clean_params = [];
 		foreach ($params as $k => $v) {
 			if ($v instanceof \ReflectionParameter) {
 				/* @var $v \ReflectionParameter */
@@ -87,7 +87,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 		return implode("\n", $contents);
 	}
 
-	public function generate_function_tests($file, $dest_path, $func, $params) {
+	public function generate_function_tests($file, $dest_path, $func, $params): void {
 		global $verbose;
 
 		$old_dest_file = path($dest_path, "function.$func.phpt");
@@ -114,14 +114,14 @@ class Test_Command_Generate_Legacy extends Command_Base {
 
 		if (!$this->option_bool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
-			chmod($dest_file, 0775);
+			chmod($dest_file, 0o775);
 			echo "Wrote $dest_file ...\n";
 		} else {
 			echo "Would write $dest_file ...\n";
 		}
 	}
 
-	public function generate_static_class_method_test($file, $dest_path, $class, $method, $params) {
+	public function generate_static_class_method_test($file, $dest_path, $class, $method, $params): void {
 		global $verbose;
 
 		$dest_file = path($dest_path, "$class-$method.phpt");
@@ -145,7 +145,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 
 		if (!$this->option_bool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
-			chmod($dest_file, 0775);
+			chmod($dest_file, 0o775);
 			echo "Wrote $dest_file ...\n";
 		} else {
 			echo "Would write $dest_file ...\n";
@@ -154,12 +154,12 @@ class Test_Command_Generate_Legacy extends Command_Base {
 
 	public function extract_class_functions(\ReflectionClass $x, $class) {
 		$methods = $x->getMethods();
-		$result = array();
+		$result = [];
 		foreach ($methods as $method) {
 			if ($method->isPublic()) {
 				$methodName = $method->getName();
 				$methodParams = $method->getParameters();
-				$params = array();
+				$params = [];
 				foreach ($methodParams as $methodParam) {
 					if ($method->isInternal()) {
 						$default = null;
@@ -182,7 +182,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 		return $result;
 	}
 
-	public function generate_class_tests($file, $dest_path, $class) {
+	public function generate_class_tests($file, $dest_path, $class): void {
 		global $verbose;
 
 		include_once($file);
@@ -219,7 +219,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 
 		$functions = extract_class_functions($x, $class);
 
-		$exclude_functions = array();
+		$exclude_functions = [];
 
 		$has_non_static_methods = false;
 
@@ -227,7 +227,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 			if (in_array($method, $exclude_functions)) {
 				continue;
 			}
-			$param_list = array();
+			$param_list = [];
 			foreach ($params as $k => $v) {
 				$param_list[] = '$' . $k;
 				$contents[] = '$' . $k . ' = ' . PHP::dump($v) . ";";
@@ -261,14 +261,14 @@ class Test_Command_Generate_Legacy extends Command_Base {
 
 		if (!$this->option_bool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
-			chmod($dest_file, 0775);
+			chmod($dest_file, 0o775);
 			echo "Wrote $dest_file ...\n";
 		} else {
 			echo "Would write $dest_file ...\n";
 		}
 	}
 
-	public function generate_tests($file, $dest_path) {
+	public function generate_tests($file, $dest_path): void {
 		$content = file_get_contents($file);
 		if (strpos($content, 'ZESK_TEST_SKIP')) {
 			echo "# Skipping file $file because of ZESK_TEST_SKIP tag.\n";
@@ -335,11 +335,11 @@ class Test_Command_Generate_Legacy extends Command_Base {
 		}
 	}
 
-	public function usage($message = null, array $arguments = array()) {
+	public function usage($message = null, array $arguments = []): void {
 		parent::usage(Template::instance('command/test/generate.txt'));
 	}
 
-	protected $option_types = array(
+	protected array $option_types = [
 		'help' => 'boolean',
 		'force' => 'boolean',
 		'force-functions' => 'boolean',
@@ -349,23 +349,23 @@ class Test_Command_Generate_Legacy extends Command_Base {
 		'dry-run' => 'boolean',
 		'extensions' => 'list',
 		'*' => 'string',
-	);
+	];
 
-	protected $option_defaults = array(
-		'extensions' => array(
+	protected array $option_defaults = [
+		'extensions' => [
 			'inc',
 			'php',
-		),
-	);
+		],
+	];
 
 	/**
 	 *
 	 * @see Command::run()
 	 */
-	public function run() {
+	public function run(): void {
 		$cwd = getcwd();
-		$dirs = array();
-		$files = array();
+		$dirs = [];
+		$files = [];
 
 		while (($arg = $this->get_arg("target")) !== null) {
 			if (Directory::is_absolute($arg)) {
@@ -408,7 +408,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 				$dest_path = path($dir, 'test');
 				if (!is_dir($dest_path)) {
 					if (!$dry_run) {
-						if (!mkdir($dest_path, 0775)) {
+						if (!mkdir($dest_path, 0o775)) {
 							die("Can't create directory $dest_path ...\n");
 						}
 						$this->verbose_log("Created directory $dest_path ...\n");
@@ -431,7 +431,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 			$dest_path = path(dirname($file_full), 'test');
 			if (!is_dir($dest_path)) {
 				if (!$dry_run) {
-					if (!mkdir($dest_path, 0775)) {
+					if (!mkdir($dest_path, 0o775)) {
 						die("Can't create directory $dest_path ...\n");
 					}
 					$this->verbose_log("Created directory $dest_path ...\n");

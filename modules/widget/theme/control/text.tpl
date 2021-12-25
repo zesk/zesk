@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -39,9 +39,9 @@ if ($this->textarea) {
 	echo HTML::tag_open("textarea", $ia) . htmlspecialchars(strval($value)) . HTML::tag_close("textarea");
 } else {
 	$ia["type"] = $this->password ? "password" : "text";
-	$ia = $object->apply_map($ia) + array(
+	$ia = $object->apply_map($ia) + [
 		'value' => $value,
-	);
+	];
 	$input = HTML::tag("input", $ia);
 	if ($this->input_group_addon) {
 		$html = HTML::span($this->get('input_group_class', '.input-group-addon'), $this->input_group_addon);

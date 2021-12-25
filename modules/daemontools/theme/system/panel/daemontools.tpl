@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -24,22 +24,22 @@ $servers = $application->orm_registry(Server::class)->query_select()->orm_iterat
 foreach ($servers as $server) {
 	$last_updated = $module->server_services_last_updated($server);
 	if ($last_updated instanceof Timestamp) {
-		$updated = $this->theme(array(
+		$updated = $this->theme([
 			"system/panel/daemontools/updated",
 			"system/panel/updated",
 			"updated",
-		), array(
+		], [
 			"content" => $last_updated,
-		), array(
+		], [
 			"first" => true,
-		));
+		]);
 	} else {
 		$updated = $locale->__("never updated");
 	}
-	$items[] = HTML::tag("li", '.heading', $locale->__("{name} ({updated})", array(
+	$items[] = HTML::tag("li", '.heading', $locale->__("{name} ({updated})", [
 		"name" => $server->name,
 		"updated" => $updated,
-	)));
+	]));
 	$services = $module->server_services($server);
 	if ($services === null) {
 		$items[] = HTML::tag('li', '.error', "No service data");

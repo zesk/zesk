@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -22,26 +22,26 @@ namespace zesk;
  * @category Management
  */
 class Command_Eval extends Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		'skip-configure' => 'boolean',
 		'json' => 'boolean',
 		'interactive' => 'boolean',
 		'debug-state' => 'boolean',
 		'*' => 'string',
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		'skip-configure' => 'Skip application configuration',
 		'json' => 'Output results as JSON instead of PHP',
 		'interactive' => 'Run interactively',
 		'debug-state' => 'Run interactively. When running interactively the ',
 		'*' => 'string',
-	);
+	];
 
-	protected $option_chars = array(
+	protected array $option_chars = [
 		'i' => 'interactive',
 		's' => 'skip-configure',
-	);
+	];
 
 	/**
 	 * Variables saved before eval is run
@@ -68,7 +68,7 @@ class Command_Eval extends Command_Base {
 			$this->configure("eval");
 		}
 		$this->handle_base_options();
-		$this->saved_vars = array();
+		$this->saved_vars = [];
 		while ($this->has_arg()) {
 			$arg = $this->get_arg("eval");
 			if ($arg === "--") {
@@ -89,7 +89,7 @@ class Command_Eval extends Command_Base {
 	 *
 	 * @param mixed $result
 	 */
-	public function output_result($__result, $content = "") {
+	public function output_result($__result, $content = ""): void {
 		if ($__result === null) {
 			if ($content !== "") {
 				echo $content . "\n";
@@ -157,7 +157,7 @@ class Command_Eval extends Command_Base {
 	 * After evaluate, determine if any new variables are present
 	 * @param array $vars
 	 */
-	private function _after_evaluate(array $vars) {
+	private function _after_evaluate(array $vars): void {
 		$diff = array_diff_assoc($vars, $this->before_vars);
 		foreach ($diff as $k => $v) {
 			if (begins($k, "__")) {
@@ -180,14 +180,14 @@ class Command_Eval extends Command_Base {
 		$string = trim($string, " \n\r\t;");
 		$string = preg_replace('/^return\s/', '', $string);
 		// If contains multiple commands, then no prefix
-		if (strpos($string, ";") !== false) {
+		if (str_contains($string, ";")) {
 			return $string;
 		}
 		$prefix = "return";
-		if (StringTools::begins($string, array(
+		if (StringTools::begins($string, [
 			'echo ',
 			'print ',
-		)) || strpos($string, ";") !== false) {
+		]) || str_contains($string, ";")) {
 			$prefix = "";
 		}
 		return $prefix . " " . $string;

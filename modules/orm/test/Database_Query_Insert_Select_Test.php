@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @test_sandbox true
@@ -9,12 +9,12 @@
 namespace zesk;
 
 class Database_Query_Insert_Select_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
 		"ORM",
-	);
+	];
 
-	public function test_main() {
+	public function test_main(): void {
 		$db = $this->application->database_registry();
 		$testx = new Database_Query_Insert_Select($db);
 
@@ -35,11 +35,11 @@ class Database_Query_Insert_Select_Test extends Test_Unit {
 		}
 		$this->assert($success);
 
-		$testx->what(array(
+		$testx->what([
 			"A" => "B",
 			"*C" => "UTC_TIMESTAMP()",
 			"D" => "Table.Field",
-		));
+		]);
 
 		$table = "from_table";
 		$alias = 'X';

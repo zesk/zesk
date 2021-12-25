@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\WebApp;
 
 use zesk\Exception_Directory_NotFound;
@@ -55,7 +55,7 @@ abstract class Type {
 	 */
 	public static function factory_all_types(Application $application, $path) {
 		$type_names = Directory::ls(__DIR__ . "/Type", '/.*\.php$/', false);
-		$types = array();
+		$types = [];
 		foreach ($type_names as $type_name) {
 			$type_name = "\\Type_" . StringTools::unsuffix(ltrim($type_name, "./"), ".php");
 			$class_name = __NAMESPACE__ . $type_name;

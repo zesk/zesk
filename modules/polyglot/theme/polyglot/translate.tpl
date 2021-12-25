@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -21,12 +21,12 @@ $can_update_live = $current_user ? $current_user->can("zesk\\Module_PolyGlot::up
 $response = $this->response;
 
 $response->jquery();
-$response->javascript("/share/polyglot/js/polyglot.js", array(
+$response->javascript("/share/polyglot/js/polyglot.js", [
 	"share" => true,
-));
-$response->css("/share/polyglot/css/polyglot.css", array(
+]);
+$response->css("/share/polyglot/css/polyglot.css", [
 	"share" => true,
-));
+]);
 
 $object = new Model($application);
 $object->locale = $locale->id();

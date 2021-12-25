@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 use ReflectionMethod;
@@ -9,42 +9,42 @@ use ReflectionMethod;
  *
  */
 class Route_Method extends Route {
-	public function validate() {
+	public function validate(): void {
 		$application = $this->router->application;
 		$function = $this->options['method'];
 		$class = $method = null;
 		if (is_string($function)) {
-			list($class, $method) = pair($function, "::", null, $function);
+			[$class, $method] = pair($function, "::", null, $function);
 		}
-		list($include, $require) = $this->_do_includues();
+		[$include, $require] = $this->_do_includues();
 		if ($class) {
 			if (!class_exists($class, $this->option_bool('autoload', true))) {
-				throw new Exception_Parameter("No such class found {class}", array(
+				throw new Exception_Parameter("No such class found {class}", [
 					"class" => $class,
-				));
+				]);
 			}
 			if (!method_exists($class, $method)) {
-				throw new Exception_Parameter("No such method {class}::{method} exists in $require or $include for {pattern}", array(
+				throw new Exception_Parameter("No such method {class}::{method} exists in $require or $include for {pattern}", [
 					'class' => $class,
 					'require' => $require,
 					'include' => $include,
 					'pattern' => $this->pattern,
 					'method' => $method,
-				));
+				]);
 			}
 		} elseif (is_string($function)) {
 			if (!function_exists($function)) {
-				throw new Exception_Parameter("No such function exists in {require} or {include} for {pattern}", array(
+				throw new Exception_Parameter("No such function exists in {require} or {include} for {pattern}", [
 					"require" => $require,
 					"include" => $include,
 					"pattern" => $this->pattern,
-				));
+				]);
 			}
 		} elseif (!is_callable($function)) {
-			throw new Exception_Parameter("Not callable: {callable} for {pattern}", array(
+			throw new Exception_Parameter("Not callable: {callable} for {pattern}", [
 				"callable" => Hooks::callable_string($function),
 				"pattern" => $this->pattern,
-			));
+			]);
 		}
 	}
 
@@ -61,10 +61,10 @@ class Route_Method extends Route {
 		} elseif ($include) {
 			include_once $include;
 		}
-		return array(
+		return [
 			$include,
 			$require,
-		);
+		];
 	}
 
 	/**
@@ -84,8 +84,8 @@ class Route_Method extends Route {
 		ob_start();
 
 		try {
-			if (is_string($method) && strpos($method, "::") !== false) {
-				list($class, $method) = pair($method, '::', 'stdClass', $method);
+			if (is_string($method) && str_contains($method, "::")) {
+				[$class, $method] = pair($method, '::', 'stdClass', $method);
 				$method = new ReflectionMethod($class, $method);
 				$object = $method->isStatic() ? null : $app->objects->factory_arguments($class, $construct_arguments);
 				$content = $method->invokeArgs($object, $arguments);
@@ -97,11 +97,11 @@ class Route_Method extends Route {
 		} catch (\Exception $e) {
 			$content = null;
 			$app->hooks->call("exception", $e);
-			$app->logger->error("{class}::_execute() Running {method} threw exception {e}", array(
+			$app->logger->error("{class}::_execute() Running {method} threw exception {e}", [
 				"class" => __CLASS__,
 				"method" => $app->hooks->callable_string($method),
 				"e" => $e,
-			));
+			]);
 		}
 		if ($content instanceof Response) {
 			return $content;

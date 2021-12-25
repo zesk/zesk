@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -25,18 +25,18 @@ $onchange = $this->onchange;
 
 $inline = $this->getb("inline");
 
-echo $this->theme('zesk/control/text', array(
+echo $this->theme('zesk/control/text', [
 	'onchange' => null,
 	'class' => $inline ? CSS::add_class($this->class, 'hidden') : $this->class,
-));
+]);
 
-$options = $this->get(array(
+$options = $this->get([
 	"inline" => $inline,
 	"sideBySide" => true,
 	"format" => __("Module_Bootstrap_DateTimePicker::widget_layout_format:=YYYY-MM-DD hh:mm a"),
 	"toolbarPlacement" => "bottom",
 	"showTodayButton" => true,
-));
+]);
 $zformat = "{YYYY}-{MM}-{DD} {hh}:{mm}";
 
 $ts_now = Timestamp::now();
@@ -57,11 +57,11 @@ if ($inline) {
 	$ts_defaultdate = $ts_defaultdate->later($ts_mindate);
 }
 
-foreach (array(
+foreach ([
 	"minDate" => $ts_mindate,
 	"maxDate" => $ts_maxdate,
 	"defaultDate" => $ts_defaultdate,
-) as $option_key => $ts) {
+] as $option_key => $ts) {
 	if ($ts) {
 		$options[$option_key] = $ts->format($locale, $zformat);
 	}
@@ -70,9 +70,9 @@ foreach (array(
 //	"format_time" => "formatTime",
 //	"format_date" => "formatDate",
 //	"allow_times" => "allowTimes",
-foreach (array(
+foreach ([
 	"step" => "stepping",
-) as $template_key => $js_option) {
+] as $template_key => $js_option) {
 	if ($this->has($template_key)) {
 		$options[$js_option] = $this->get($template_key);
 	}

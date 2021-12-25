@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -7,7 +7,7 @@ namespace zesk;
  *
  */
 class Control_DropFile_Image extends Control_Content_Image {
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 	}
 
@@ -23,10 +23,10 @@ class Control_DropFile_Image extends Control_Content_Image {
 
 	public function dimensions($width = null, $height = null) {
 		if ($width === null && $height === null) {
-			return array(
+			return [
 				$this->option_integer('width'),
 				$this->option_integer('height'),
-			);
+			];
 		}
 		$this->set_option('height', $height === null ? null : intval($height));
 		$this->set_option('width', $width === null ? null : intval($width));
@@ -34,15 +34,15 @@ class Control_DropFile_Image extends Control_Content_Image {
 	}
 
 	public function theme_variables() {
-		return array(
+		return [
 			'remove_enabled' => $this->remove_enabled(),
-			'url_upload' => URL::query_append($this->url_upload(), array(
+			'url_upload' => URL::query_append($this->url_upload(), [
 				"theme" => 'dropfile',
 				"name" => $this->name,
 				"width" => $this->option_integer('width'),
 				"height" => $this->option_integer('height'),
-			)),
-		) + parent::theme_variables();
+			]),
+		] + parent::theme_variables();
 	}
 
 	public function remove_enabled($set = null) {

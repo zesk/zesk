@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 $id = 'control-picker-' . $this->column . '-q';
 ?>
 <div class="form-group control-text">

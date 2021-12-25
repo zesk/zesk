@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace MySQL;
 
 use zesk\Database_Column;
@@ -12,20 +12,20 @@ class Database_Type extends \zesk\Database_Data_Type {
 	 *
 	 * @var unknown
 	 */
-	protected $sql_type_natives = array(
-		self::sql_type_string => array(
+	protected $sql_type_natives = [
+		self::sql_type_string => [
 			"char",
 			"varchar",
-		),
-		self::sql_type_blob => array(
+		],
+		self::sql_type_blob => [
 			"blob",
 			"longblob",
-		),
-		self::sql_type_text => array(
+		],
+		self::sql_type_text => [
 			"text",
 			"longtext",
-		),
-		self::sql_type_integer => array(
+		],
+		self::sql_type_integer => [
 			"bit",
 			"int",
 			"tinyint",
@@ -33,21 +33,21 @@ class Database_Type extends \zesk\Database_Data_Type {
 			"mediumint",
 			"bigint",
 			"integer",
-		),
-		self::sql_type_double => array(
+		],
+		self::sql_type_double => [
 			"decimal",
-		),
-		self::sql_type_date => array(
+		],
+		self::sql_type_date => [
 			"date",
-		),
-		self::sql_type_time => array(
+		],
+		self::sql_type_time => [
 			"time",
-		),
-		self::sql_type_datetime => array(
+		],
+		self::sql_type_datetime => [
 			"datetime",
 			"timestamp",
-		),
-	);
+		],
+	];
 
 	/**
 	 * For parsing simple database types. Extracts:

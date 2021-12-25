@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -19,49 +19,49 @@ class Mail extends Hookable {
 	 *
 	 * @const Pattern to match RFC 2047 charset encodings in mail headers
 	 */
-	const RFC2047HEADER = '/=\?([^ ?]+)\?([BQbq])\?([^ ?]+)\?=/';
+	public const RFC2047HEADER = '/=\?([^ ?]+)\?([BQbq])\?([^ ?]+)\?=/';
 
 	/**
 	 *
 	 * @const Pattern to match RFC 2047 charset encodings in mail headers with whitespace
 	 */
-	const RFC2047HEADER_SPACES = '/(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)\s+(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)/';
+	public const RFC2047HEADER_SPACES = '/(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)\s+(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)/';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const HEADER_CONTENT_TYPE = 'Content-Type';
+	public const HEADER_CONTENT_TYPE = 'Content-Type';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const HEADER_MESSAGE_ID = "Message-ID";
+	public const HEADER_MESSAGE_ID = "Message-ID";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const HEADER_TO = "To";
+	public const HEADER_TO = "To";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const HEADER_FROM = "From";
+	public const HEADER_FROM = "From";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const HEADER_SUBJECT = "Subject";
+	public const HEADER_SUBJECT = "Subject";
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $headers = array();
+	public $headers = [];
 
 	/**
 	 *
@@ -112,7 +112,7 @@ class Mail extends Hookable {
 	 * @param string $body
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $headers, $body, array $options = array()) {
+	public function __construct(Application $application, array $headers, $body, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 		$this->headers = $headers;
@@ -128,7 +128,7 @@ class Mail extends Hookable {
 	 * @param array $options
 	 * @return Mail
 	 */
-	public static function factory(Application $application, array $headers, $body, array $options = array()) {
+	public static function factory(Application $application, array $headers, $body, array $options = []) {
 		return new self($application, $headers, $body, $options);
 	}
 
@@ -153,7 +153,7 @@ class Mail extends Hookable {
 	 *
 	 * @param zesk\Application $application
 	 */
-	public static function hooks(Application $application) {
+	public static function hooks(Application $application): void {
 		$application->hooks->add(Hooks::HOOK_CONFIGURED, __CLASS__ . "::configured");
 	}
 
@@ -161,25 +161,25 @@ class Mail extends Hookable {
 	 *
 	 * @param zesk\Application $application
 	 */
-	public static function configured(Application $application) {
+	public static function configured(Application $application): void {
 		$config = $application->configuration;
 
 		/*
 		 * Load globals
 		 */
-		self::$debug = to_bool($config->path_get(array(
+		self::$debug = to_bool($config->path_get([
 			__CLASS__,
 			"debug",
-		)));
-		self::$log = $application->paths->expand($config->path_get(array(
+		]));
+		self::$log = $application->paths->expand($config->path_get([
 			__CLASS__,
 			"log",
-		)));
+		]));
 		self::$fp = null;
-		self::$disabled = to_bool($config->path_get(array(
+		self::$disabled = to_bool($config->path_get([
 			__CLASS__,
 			"disabled",
-		)));
+		]));
 	}
 
 	/**
@@ -192,7 +192,7 @@ class Mail extends Hookable {
 
 		$this->_log($this->headers, $this->body);
 
-		if (!$this->call_hook_arguments("send", array(), true)) {
+		if (!$this->call_hook_arguments("send", [], true)) {
 			return null;
 		}
 		if ($this->sent !== null) {
@@ -293,18 +293,18 @@ class Mail extends Hookable {
 	}
 
 	private static function trim_mail_line($line) {
-		return trim(str_replace(array(
+		return trim(str_replace([
 			"\r",
 			"\n",
-		), array(
+		], [
 			'',
 			'',
-		), $line));
+		], $line));
 	}
 
 	public static function parse_address($email, $part = null) {
-		$matches = array();
-		$result = array();
+		$matches = [];
+		$result = [];
 		$atom = '[- A-Za-z0-9!#$%&\'*+\/=?^_`{|}~]';
 		$atext = "$atom+";
 		$domain = '[-A-Za-z0-9.]+';
@@ -377,10 +377,10 @@ class Mail extends Hookable {
 		}
 		$len += strlen("MSG:");
 
-		$remain = to_integer($application->configuration->path_get(array(
+		$remain = to_integer($application->configuration->path_get([
 			__CLASS__,
 			"sms_max_characters",
-		)), 140) - $len;
+		]), 140) - $len;
 
 		return self::sendmail($application, $to, $from, $subject, substr($body, 0, $remain), $cc, $bcc, $headers);
 	}
@@ -404,10 +404,10 @@ class Mail extends Hookable {
 	 *        	Optional extra headers in the form: array("Header-Type: Header Value", "...")
 	 * @return boolean True if email sent, False if not.
 	 */
-	public static function sendmail(Application $application, $to, $from, $subject, $body, $cc = false, $bcc = false, $headers = false, array $options = array()) {
-		$new_headers = array();
+	public static function sendmail(Application $application, $to, $from, $subject, $body, $cc = false, $bcc = false, $headers = false, array $options = []) {
+		$new_headers = [];
 		if (!is_array($headers)) {
-			$headers = array();
+			$headers = [];
 		}
 		if (!empty($from)) {
 			$from = self::trim_mail_line($from);
@@ -427,7 +427,7 @@ class Mail extends Hookable {
 		//	$headers[] = "Content-Type: text/plain";
 
 		foreach ($headers as $header) {
-			list($name, $value) = pair($header, ":", null, null);
+			[$name, $value] = pair($header, ":", null, null);
 			if ($name) {
 				$new_headers[$name] = ltrim($value);
 			}
@@ -435,16 +435,16 @@ class Mail extends Hookable {
 		return self::mailer($application, $new_headers, $body, $options);
 	}
 
-	private function _log($headers, $body) {
+	private function _log($headers, $body): void {
 		if (!self::$log) {
 			return;
 		}
 		if (!self::$fp) {
 			self::$fp = fopen(self::$log, "ab");
 			if (!self::$fp) {
-				$this->application->logger->error("Unable to open mail log {log} - mail logging disabled", array(
+				$this->application->logger->error("Unable to open mail log {log} - mail logging disabled", [
 					"log" => self::$log,
-				));
+				]);
 				self::$log = null;
 				return;
 			}
@@ -461,7 +461,7 @@ class Mail extends Hookable {
 		return $raw_headers;
 	}
 
-	public static function mailer(Application $application, array $headers, $body, array $options = array()) {
+	public static function mailer(Application $application, array $headers, $body, array $options = []) {
 		$mail = new Mail($application, $headers, $body, $options);
 		return $mail->send();
 	}
@@ -529,24 +529,24 @@ class Mail extends Hookable {
 		// Common Headers
 		$headers = ArrayTools::filter($mail_options, "From;To;Reply-To;Return-Path;Cc;Bcc;Return-Receipt-To;Subject");
 		if (!array_key_exists("From", $headers)) {
-			throw new Exception_Semantics("Need to have a From header: {keys} {debug}", array(
+			throw new Exception_Semantics("Need to have a From header: {keys} {debug}", [
 				"keys" => array_keys($headers),
 				"debug" => _dump($mail_options),
-			));
+			]);
 		}
 		if (!array_key_exists("To", $headers)) {
-			throw new Exception_Semantics("Need to have a To header: {keys} <pre>{debug}</pre>", array(
+			throw new Exception_Semantics("Need to have a To header: {keys} <pre>{debug}</pre>", [
 				"keys" => array_keys($headers),
 				"debug" => _dump($mail_options),
-			));
+			]);
 		}
 		// KMD: 2015-11-05 Removed
 		//	 "Return-Receipt-To"
 		// From below as it should be handled enough by Return-Path for bounces
-		foreach (array(
+		foreach ([
 			"Reply-To",
 			"Return-Path",
-		) as $k) {
+		] as $k) {
 			if (!array_key_exists($k, $headers)) {
 				$headers[$k] = $headers['From'];
 			}
@@ -650,9 +650,9 @@ class Mail extends Hookable {
 	 * @param string $contents
 	 * @return array
 	 */
-	public static function load($contents) {
+	public static function load(string $contents): array {
+		$result = [];
 		$lines = explode("\n", $contents);
-		$result = array();
 		while (($line = array_shift($lines)) !== false) {
 			$line = trim($line);
 			if (empty($line)) {
@@ -669,8 +669,8 @@ class Mail extends Hookable {
 						break;
 					case "both":
 						$ff_sep = avalue($result, 'File-Format-Separator', '--HTML--');
-						list($text, $html) = explode($ff_sep, $content, 2);
-						$result['body_text'] = chop($text);
+						[$text, $html] = explode($ff_sep, $content, 2);
+						$result['body_text'] = rtrim($text);
 						$result['body_html'] = trim($html);
 
 						break;
@@ -683,7 +683,7 @@ class Mail extends Hookable {
 				break;
 			} else {
 				$header_type = $header_value = null;
-				list($header_type, $header_value) = pair($line, ":", $line, null);
+				[$header_type, $header_value] = pair($line, ":", $line, null);
 				$result[$header_type] = ltrim($header_value);
 			}
 		}
@@ -711,7 +711,7 @@ class Mail extends Hookable {
 	public static function header_charsets($header) {
 		$matches = null;
 		if (!preg_match_all(self::RFC2047HEADER, $header, $matches, PREG_PATTERN_ORDER)) {
-			return array();
+			return [];
 		}
 		return array_map('strtoupper', $matches[1]);
 	}
@@ -734,7 +734,7 @@ class Mail extends Hookable {
 			return $header;
 		}
 		foreach ($matches as $header_match) {
-			list($match, $charset, $encoding, $data) = $header_match;
+			[$match, $charset, $encoding, $data] = $header_match;
 			$encoding = strtoupper($encoding);
 			switch ($encoding) {
 				case 'B':
@@ -761,7 +761,7 @@ class Mail extends Hookable {
 	 * @param array $options
 	 * @return Ambigous <mixed, array>
 	 */
-	public static function skip_headers($content, array $options = array()) {
+	public static function skip_headers($content, array $options = []) {
 		$newline = avalue($options, 'newline', "\r\n");
 		return avalue(explode($newline . $newline, $content, 2), 1, avalue($options, 'default', null));
 	}
@@ -783,12 +783,12 @@ class Mail extends Hookable {
 	 *        	Optional options for parsing
 	 * @return array
 	 */
-	public static function parse_headers($content, array $options = array()) {
+	public static function parse_headers($content, array $options = []) {
 		$newline = avalue($options, 'newline', "\r\n");
 		$whitespace = avalue($options, 'whitespace', " \t");
 		$line_trim = avalue($options, 'line_trim', false);
 		$lines = explode($newline, $content);
-		$headers = array();
+		$headers = [];
 		$curh = null;
 		$curv = "";
 		foreach ($lines as $line) {
@@ -796,7 +796,7 @@ class Mail extends Hookable {
 				break;
 			}
 			if ($curh !== null) {
-				if (strpos($whitespace, substr($line, 0, 1)) !== false) {
+				if (str_contains($whitespace, substr($line, 0, 1))) {
 					$curv .= $newline . trim($line);
 				} else {
 					ArrayTools::append($headers, $curh, $curv);
@@ -804,7 +804,7 @@ class Mail extends Hookable {
 				}
 			}
 			if ($curh === null) {
-				list($n, $v) = pair($line, ":", $line, null);
+				[$n, $v] = pair($line, ":", $line, null);
 				$curh = $n;
 				$curv = trim($v);
 			}

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 $english = $this->label;
@@ -15,9 +15,9 @@ if (!$this->hide_sort_icon) {
 ?>
 <div class="sort-widget">
 	<?php
-	echo HTML::tag('a', array(
+	echo HTML::tag('a', [
 		'href' => $this->orderby_url,
 		"alt" => $this->alt,
-	), HTML::span("title", $english) . $suffix);
+	], HTML::span("title", $english) . $suffix);
 	?>
 </div>

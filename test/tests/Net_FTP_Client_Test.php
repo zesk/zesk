@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
@@ -11,7 +11,7 @@ namespace zesk;
  *
  */
 class Net_FTP_Client_Test extends Test_Unit {
-	public function test_basics() {
+	public function test_basics(): void {
 		$url = 'ftp://user:pass@localhost';
 		$directory = null;
 		$log_file = false;

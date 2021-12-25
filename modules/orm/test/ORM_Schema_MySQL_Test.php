@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -15,17 +15,17 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 	 *
 	 * @var array
 	 */
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
 		"ORM",
-	);
+	];
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\PHPUnit_TestCase::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		include_once __DIR__ . '/ORM_Schema_MySQL_Test_Objects.php';
 	}
@@ -41,7 +41,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		return $testx;
 	}
 
-	public function test_datetime_timestamp() {
+	public function test_datetime_timestamp(): void {
 		$sql0 = "CREATE TABLE test ( id integer unsigned NOT NULL, created datetime NULL ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 		$sql1 = "CREATE TABLE test ( id integer unsigned NOT NULL, created timestamp NULL ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
@@ -57,12 +57,12 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$this->assert_false($datatype->native_types_equal("timestamp", "datetime"));
 		$this->assert_true($datatype->native_types_equal("int", "integer(12)"));
 
-		$this->assert_arrays_equal($result, array(
+		$this->assert_arrays_equal($result, [
 			"ALTER TABLE `test` CHANGE COLUMN `created` `created` timestamp NULL DEFAULT NULL",
-		));
+		]);
 	}
 
-	public function test_primary_key_location() {
+	public function test_primary_key_location(): void {
 		$sql['base'] = "CREATE TABLE `{table}` (
 			`id` integer unsigned NOT NULL,
 			`name` varchar(255) NOT NULL DEFAULT ''
@@ -92,7 +92,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		}
 	}
 
-	public function test_0() {
+	public function test_0(): void {
 		$table = 'temp_test_SearchPhrase';
 
 		$sql = "CREATE TABLE `$table` (
@@ -131,10 +131,10 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 
 		$result = ORM_Schema::update($db, $db_table, $object_table);
 
-		$this->assert_equal($result, array());
+		$this->assert_equal($result, []);
 	}
 
-	public function test_1() {
+	public function test_1(): void {
 		$table = 'temp_test_keywords';
 
 		$sql = "CREATE TABLE `$table` (
@@ -171,12 +171,12 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 
 		$result = ORM_Schema::update($db, $db_table, $object_table);
 
-		$this->assert($result === array(), PHP::dump($result) . ' === array()');
+		$this->assert($result === [], PHP::dump($result) . ' === array()');
 
 		echo basename(__FILE__) . ": Success.\n";
 	}
 
-	public function test_2() {
+	public function test_2(): void {
 		$table = 'temp_test_actions';
 
 		// 2017-09 ActionTime datetime NOT NULL DEFAULT 0 no longer compatible across 5.6 and 5.7
@@ -221,10 +221,10 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 
 		$result = ORM_Schema::update($db, $db_table, $object_table);
 
-		$this->assert($result === array(), PHP::dump($result) . ' === array()');
+		$this->assert($result === [], PHP::dump($result) . ' === array()');
 	}
 
-	public function test_3() {
+	public function test_3(): void {
 		$table = 'temp_test_varbin';
 
 		$sql = "CREATE TABLE `$table` (
@@ -257,14 +257,14 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 
 		$result = ORM_Schema::update($db, $db_table, $object_table);
 
-		$this->assert($result === array(), PHP::dump($result) . ' === array()');
+		$this->assert($result === [], PHP::dump($result) . ' === array()');
 
 		$db->query("DROP TABLE IF EXISTS $table");
 
 		$this->log(__FUNCTION__);
 	}
 
-	public function test_4() {
+	public function test_4(): void {
 		DBSchemaTest4::$test_table = $table = 'temp_test_multi_create';
 
 		DBSchemaTest4::$test_table2 = $table2 = 'temp_test_multi_create2';
@@ -305,7 +305,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		echo basename(__FILE__) . ": Success.\n";
 	}
 
-	public function test_5() {
+	public function test_5(): void {
 		$db = $this->application->database_registry();
 
 		DBSchemaTest5::$test_table = $table = 'keywords_test';
@@ -321,14 +321,14 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 
 		$object = new DBSchemaTest5($this->application);
 		$result = ORM_Schema::update_object($object);
-		$this->assert($result === array(), gettype($result));
+		$this->assert($result === [], gettype($result));
 
 		//$db->query("DROP TABLE IF EXISTS $table");
 
 		echo basename(__FILE__) . ": Success.\n";
 	}
 
-	public function test_6() {
+	public function test_6(): void {
 		$table = 'keywords_test';
 
 		$db = $this->application->database_registry();
@@ -348,9 +348,9 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$object = new DBSchemaTest7($this->application);
 		$result = ORM_Schema::update_object($object);
 
-		$check_result = array(
+		$check_result = [
 			"ALTER TABLE `keywords_test` ADD COLUMN `Proto` tinyint NOT NULL DEFAULT 0 AFTER `Protocol`",
-		);
+		];
 
 		$this->assert_arrays_equal($result, $check_result, true);
 
@@ -359,7 +359,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		echo basename(__FILE__) . ": Success.\n";
 	}
 
-	public function test_8() {
+	public function test_8(): void {
 		$table = 'bigint_test';
 
 		$db = $this->application->database_registry();
@@ -378,14 +378,14 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$object = new DBSchemaTest8($this->application);
 		$result = ORM_Schema::update_object($object);
 
-		$this->assert_arrays_equal($result, array());
+		$this->assert_arrays_equal($result, []);
 
 		$db->query("DROP TABLE IF EXISTS $table");
 
 		echo basename(__FILE__) . ": Success.\n";
 	}
 
-	public function test_schema0() {
+	public function test_schema0(): void {
 		$updates = ORM_Schema::update_object($this->application->orm_factory(__NAMESPACE__ . "\\" . 'DBSchemaTest_columns_0'));
 		dump($updates);
 		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?

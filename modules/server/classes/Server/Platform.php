@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -15,21 +15,21 @@ abstract class Server_Platform extends Hookable {
 	 *
 	 * @var Application
 	 */
-	public $application = null;
+	public Application $application;
 
 	/**
 	 * Associative array of commands to full paths
 	 *
 	 * @var array
 	 */
-	protected $shell_commands = array();
+	protected array $shell_commands = [];
 
 	/**
 	 * Configuration
 	 *
 	 * @var Server_Configuration
 	 */
-	public $config = array();
+	public $config = [];
 
 	/**
 	 * True when shell commands have to be recomputed
@@ -85,12 +85,12 @@ abstract class Server_Platform extends Hookable {
 	 *
 	 * @var array
 	 */
-	public $paths = array(
+	public $paths = [
 		"/bin",
 		"/usr/bin",
-	);
+	];
 
-	protected $services = array();
+	protected $services = [];
 
 	/**
 	 * Construct the platform object
@@ -99,7 +99,7 @@ abstract class Server_Platform extends Hookable {
 	 *
 	 * @throws Exception_Unimplemented
 	 */
-	public function __construct(Application $application, array $options = array()) {
+	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		if ($this->root_group === null) {
 			throw new Exception_Unimplemented("\$this->root_group is null");
@@ -125,20 +125,20 @@ abstract class Server_Platform extends Hookable {
 	 * @return multitype:boolean multitype:
 	 */
 	private function _conf_defaults() {
-		return array(
+		return [
 			'variables' => $this->options,
 			'lower' => true,
 			'trim_key' => true,
 			'trim_value' => true,
 			'autotype' => true,
 			'overwrite' => true,
-		);
+		];
 	}
 
 	public function conf_load($path, $options = null) {
 		$defaults = $this->_conf_defaults();
 		$options = is_array($options) ? $options + $defaults : $defaults;
-		$result = array();
+		$result = [];
 		$array_interface = new Adapter_Settings_Array($result);
 		$loader = Configuration_Parser::factory(File::extension($path), file_get_contents($path), $array_interface, $options);
 		return $result;
@@ -147,7 +147,7 @@ abstract class Server_Platform extends Hookable {
 	/**
 	 * Initialize the file system object
 	 */
-	private function initialize_files() {
+	private function initialize_files(): void {
 		if ($this->files instanceof Server_Files) {
 			return;
 		}
@@ -156,15 +156,15 @@ abstract class Server_Platform extends Hookable {
 		} else {
 			$this->files = new Server_Files_Direct($this);
 		}
-		$this->application->logger->debug("File system is {class}", array(
+		$this->application->logger->debug("File system is {class}", [
 			"class" => get_class($this->files),
-		));
+		]);
 	}
 
 	/**
 	 * Initialize the packager mechanism
 	 */
-	public function initialize_packager() {
+	public function initialize_packager(): void {
 		if (!$this->packager) {
 			$this->packager = $this->packager();
 		}
@@ -173,18 +173,18 @@ abstract class Server_Platform extends Hookable {
 	/**
 	 * Initialize the configuration mechanism
 	 */
-	public function initialize_config() {
+	public function initialize_config(): void {
 		if ($this->config instanceof Server_Configuration) {
 			return;
 		}
 		$server_url = $this->option('server_url');
 		$host_path = $this->option('host_path');
-		$default_type = !empty($server_url) ? "client" : !empty($host_path) ? 'files' : null;
+		$default_type = !empty($server_url) ? "client" : (!empty($host_path) ? 'files' : null);
 		$configure_type = $this->option('configure_type', $default_type);
 		$this->config = Server_Configuration::factory($configure_type, $this, $this->option());
-		$this->application->logger->debug("Configuration class: {class}", array(
+		$this->application->logger->debug("Configuration class: {class}", [
 			"class" => get_class($this->config),
-		));
+		]);
 		if ($this->option_bool('verbose')) {
 			$this->verbose_log("Verbose mode on.");
 		}
@@ -354,7 +354,7 @@ abstract class Server_Platform extends Hookable {
 	 *        	Create intermediate directories as well
 	 * @throws Server_Exception_Permission
 	 */
-	public function require_directory($directory, $owner = null, $permissions = null, $recurse = true) {
+	public function require_directory($directory, $owner = null, $permissions = null, $recurse = true): void {
 		$parts = explode("/", $directory);
 		$path = "";
 		foreach ($parts as $part) {
@@ -408,7 +408,7 @@ abstract class Server_Platform extends Hookable {
 			return false;
 		}
 		$user = $group = null;
-		list($user, $group) = pair($owner, ":", $owner, null);
+		[$user, $group] = pair($owner, ":", $owner, null);
 		if ($user && !$this->validate_user_name($user)) {
 			return false;
 		}
@@ -494,7 +494,7 @@ abstract class Server_Platform extends Hookable {
 	 */
 	final public function owner_exists($owner) {
 		$user = $group = null;
-		list($user, $group) = pair($owner, ":", $user, null);
+		[$user, $group] = pair($owner, ":", $user, null);
 		if ($user !== null && !$this->user_exists($user)) {
 			return false;
 		}
@@ -513,7 +513,7 @@ abstract class Server_Platform extends Hookable {
 		return $this->host_name;
 	}
 
-	private function awareness() {
+	private function awareness(): void {
 		/**
 		 *
 		 * @var \Module_AWS $aws
@@ -535,7 +535,7 @@ abstract class Server_Platform extends Hookable {
 	/**
 	 * Configure the platform
 	 */
-	final public function configure(array $features = null) {
+	final public function configure(array $features = null): void {
 		$this->initialize_packager();
 		$this->initialize_config();
 		$this->initialize_files();
@@ -544,9 +544,9 @@ abstract class Server_Platform extends Hookable {
 
 		$this->call_hook("configure_features");
 		$feature_list = $this->config->feature_list();
-		$this->application->logger->debug("Feature list is {features}", array(
+		$this->application->logger->debug("Feature list is {features}", [
 			"features" => implode(", ", $feature_list),
-		));
+		]);
 		foreach ($feature_list as $feature_name) {
 			$this->features[$feature_name] = $this->application->objects->factory("Server_Feature_$feature_name", $this);
 		}
@@ -632,7 +632,7 @@ abstract class Server_Platform extends Hookable {
 
 	final public function package_installed($package) {
 		$package = to_list($package);
-		$result = array();
+		$result = [];
 		foreach ($package as $p) {
 			if (!$this->packager->package_installed($p)) {
 				$result[] = $p;
@@ -747,7 +747,7 @@ abstract class Server_Platform extends Hookable {
 	public function has_shell_command($command) {
 		$command = strval(trim($command));
 		if ($this->_dirty_shell_commands) {
-			$this->shell_commands = array();
+			$this->shell_commands = [];
 			$this->_dirty_shell_commands = false;
 		}
 		if (array_key_exists($command, $this->shell_commands)) {
@@ -774,11 +774,11 @@ abstract class Server_Platform extends Hookable {
 	 * @throws Server_Exception_Permission
 	 * @throws Exception_File_NotFound
 	 */
-	public function owner($path, $owner = null, $permissions = null) {
+	public function owner($path, $owner = null, $permissions = null): void {
 		$uid = $gid = null;
 		$group = null;
 		if ($owner !== null) {
-			list($user, $group) = pair($owner, ":", $owner, null);
+			[$user, $group] = pair($owner, ":", $owner, null);
 			$uid = is_string($user) ? $this->user_id($user) : intval($user);
 		}
 		if ($group !== null) {
@@ -820,7 +820,7 @@ abstract class Server_Platform extends Hookable {
 	 * @param array $options
 	 * @return boolean
 	 */
-	protected function apply_permissions($path, array $options = array()) {
+	protected function apply_permissions($path, array $options = []) {
 		$owner = avalue($options, 'owner');
 		if ($owner === null) {
 			$user = avalue($options, 'user', '');
@@ -848,7 +848,7 @@ abstract class Server_Platform extends Hookable {
 	 * @throws Server_Exception_Permission
 	 * @return Server_Platform
 	 */
-	protected function replace_file_contents($source_contents, $dest, array $options = array()) {
+	protected function replace_file_contents($source_contents, $dest, array $options = []) {
 		if (!$this->files->file_put_contents($dest, $source_contents)) {
 			throw new Server_Exception_Permission("Write to file $dest");
 		}
@@ -868,7 +868,7 @@ abstract class Server_Platform extends Hookable {
 	 * @throws Server_Exception_Permission
 	 * @return Server_Platform
 	 */
-	protected function replace_file($source_file, $dest, array $options = array()) {
+	protected function replace_file($source_file, $dest, array $options = []) {
 		if (!$this->files->copy($source_file, $dest)) {
 			throw new Server_Exception_Permission("Read from $source_file, write to $dest");
 		}
@@ -911,7 +911,7 @@ abstract class Server_Platform extends Hookable {
 	 * @throws Server_Exception_Permission
 	 * @return boolean
 	 */
-	private function _update_file($source, $dest, array $options = array()) {
+	private function _update_file($source, $dest, array $options = []) {
 		if (is_dir($dest)) {
 			$dest = path($dest, basename($source));
 		}
@@ -944,10 +944,10 @@ abstract class Server_Platform extends Hookable {
 		return false;
 	}
 
-	private function _update_dirs($source, $dest, array $options = array()) {
+	private function _update_dirs($source, $dest, array $options = []): void {
 	}
 
-	public function update($source, $dest, array $options = array()) {
+	public function update($source, $dest, array $options = []) {
 		if ($this->files->is_file($source)) {
 			if ($this->files->is_file($dest)) {
 				return $this->_update_file($source, $dest, $options);
@@ -972,8 +972,8 @@ abstract class Server_Platform extends Hookable {
 		}
 	}
 
-	public function update_catenate($relative_file, array $paths, $dest, array $options = array()) {
-		$files = array();
+	public function update_catenate($relative_file, array $paths, $dest, array $options = []) {
+		$files = [];
 		$contents = "";
 		foreach ($paths as $path) {
 			$file = path($path, $relative_file);
@@ -1016,25 +1016,25 @@ abstract class Server_Platform extends Hookable {
 
 	abstract public function login_script_uninstall($user, $name);
 
-	public function restart_service($name) {
+	public function restart_service($name): void {
 		$this->root_exec("svc -t /service/$name");
 	}
 
-	public function verbose_log($message, array $args = array()) {
+	public function verbose_log($message, array $args = []): void {
 		if ($this->option_bool('verbose')) {
 			$this->application->logger->debug($message, $args);
 		}
 	}
 
-	public function warning($message, array $args = array()) {
+	public function warning($message, array $args = []): void {
 		$this->application->logger->warning($message, $args);
 	}
 
-	public function error($message, array $args = array()) {
+	public function error($message, array $args = []): void {
 		$this->application->logger->error($message, $args);
 	}
 
-	public function notice($message, array $args = array()) {
+	public function notice($message, array $args = []): void {
 		$this->application->logger->notice($message, $args);
 	}
 
@@ -1047,13 +1047,13 @@ abstract class Server_Platform extends Hookable {
 	 * @param array $options
 	 * @return boolean changed
 	 */
-	final public function configuration_files($type, $files, $dest, array $options = array()) {
+	final public function configuration_files($type, $files, $dest, array $options = []) {
 		$changed = false;
 		$updates = $this->config->configuration_files($type, $files, $dest, $options);
 		foreach ($updates as $update) {
-			list($usource, $udest, $uoptions) = $update;
+			[$usource, $udest, $uoptions] = $update;
 			if (!is_array($uoptions)) {
-				$uoptions = array();
+				$uoptions = [];
 			}
 			if ($this->update($usource, $udest, $uoptions)) {
 				$changed = true;
@@ -1062,17 +1062,17 @@ abstract class Server_Platform extends Hookable {
 		return $changed;
 	}
 
-	final public function database_preconfigure($urls) {
+	final public function database_preconfigure($urls): void {
 		// TODO
 		$urls = to_list($urls);
 		foreach ($urls as $url) {
 			try {
 				$db = $this->application->database_registry($url);
 			} catch (Database_Exception $e) {
-				$this->application->logger->error("Need to configure DB_URL {url}: Reason {error}", array(
+				$this->application->logger->error("Need to configure DB_URL {url}: Reason {error}", [
 					"url" => URL::remove_password($url),
 					"error" => $e->getMesage(),
-				));
+				]);
 			}
 		}
 	}

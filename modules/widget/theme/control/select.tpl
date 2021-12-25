@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
@@ -49,7 +49,7 @@ if ($widget->is_single()) {
 		$single_tag_contents = current($options);
 		$single_tag = $widget->option("single_tag", "");
 		if ($single_tag) {
-			$single_tag_contents = HTML::tag($single_tag, $widget->option_array("single_tag_attributes", array()), $single_tag_contents);
+			$single_tag_contents = HTML::tag($single_tag, $widget->option_array("single_tag_attributes", []), $single_tag_contents);
 		}
 	}
 	if (!$value) {
@@ -72,60 +72,60 @@ $attributes['multiple'] = $multiple;
 
 echo HTML::tag_open('select', $attributes);
 if (!empty($no_name)) {
-	echo HTML::tag('option', array(
+	echo HTML::tag('option', [
 		'value' => $no_value,
-	), $escape_values ? htmlspecialchars($no_name) : $no_name);
+	], $escape_values ? htmlspecialchars($no_name) : $no_name);
 }
 $max_option_length = $widget->option_integer('max_option_length', 100);
-$values = $multiple ? ArrayTools::flatten(to_list($value)) : array(
+$values = $multiple ? ArrayTools::flatten(to_list($value)) : [
 	$value,
-);
+];
 foreach ($options as $k => $v) {
 	if (is_array($v)) {
 		if ($optgroup) {
-			echo HTML::tag_open("optgroup", array(
+			echo HTML::tag_open("optgroup", [
 				"label" => $escape_option_group_values ? htmlspecialchars($k) : $k,
-			));
+			]);
 			foreach ($v as $og_k => $og_v) {
 				if (is_array($og_v)) {
 					$content = $og_v['content'];
 					unset($og_v['content']);
 					$attributes = $og_v;
 				} else {
-					$attributes = array();
+					$attributes = [];
 					$content = $og_v;
 				}
 				if ($max_option_length > 0) {
 					$content = HTML::ellipsis($content, $max_option_length, $widget->option('dot_dot_dot', '...'));
 				}
-				echo HTML::tag('option', array(
+				echo HTML::tag('option', [
 					'value' => $og_k,
 					'selected' => in_array(strval($og_k), $values),
-				) + $attributes, ($escape_values ? htmlspecialchars($content) : $content));
+				] + $attributes, ($escape_values ? htmlspecialchars($content) : $content));
 			}
 			echo HTML::tag_close("optgroup");
 		} elseif (isset($v['content'])) {
 			$content = $v['content'];
-			echo HTML::tag('option', array(
+			echo HTML::tag('option', [
 				'value' => $k,
 				'selected' => in_array(strval($k), $values),
-			) + $v, ($escape_values ? htmlspecialchars($content) : $content));
+			] + $v, ($escape_values ? htmlspecialchars($content) : $content));
 		} else {
-			echo $this->theme('zesk/control/select/option', array(
+			echo $this->theme('zesk/control/select/option', [
 				"value" => $k,
 				"escape_values" => $escape_values,
 				"selected" => in_array(strval($k), $values),
-			) + $v);
+			] + $v);
 		}
 	} else {
 		if ($max_option_length > 0) {
 			$v = HTML::ellipsis($v, $max_option_length, $widget->option('dot_dot_dot', '...'));
 		}
 		$debug = "";
-		echo HTML::tag('option', array(
+		echo HTML::tag('option', [
 			'value' => $k,
 			'selected' => in_array(strval($k), $values),
-		), ($escape_values ? htmlspecialchars($v) : $v) . $debug);
+		], ($escape_values ? htmlspecialchars($v) : $v) . $debug);
 	}
 }
 echo HTML::tag_close('select');

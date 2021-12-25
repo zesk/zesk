@@ -1,22 +1,22 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Control_Edit_Horizontal extends Control_Edit {
-	protected $form_attributes = array(
+	protected $form_attributes = [
 		"class" => "edit form-horizontal",
 		"method" => "post",
 		"role" => "form",
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $label_attributes = array();
+	protected $label_attributes = [];
 
-	protected $widget_attributes = array(
+	protected $widget_attributes = [
 		'class' => 'form-group',
-	);
+	];
 
 	protected $widget_wrap_tag = "div";
 
@@ -25,16 +25,16 @@ class Control_Edit_Horizontal extends Control_Edit {
 	 *
 	 * @var array
 	 */
-	protected $widget_wrap_attributes = array();
+	protected $widget_wrap_attributes = [];
 
 	/**
 	 * Optional wrap attributes for each widget which have no label
 	 *
 	 * @var array
 	 */
-	protected $nolabel_widget_wrap_attributes = array();
+	protected $nolabel_widget_wrap_attributes = [];
 
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
 		$ncols = $this->option('layout_column_count', 12);
 		$quarter = round($ncols / 4);

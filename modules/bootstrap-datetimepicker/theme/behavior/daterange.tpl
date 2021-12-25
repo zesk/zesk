@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this Template */
@@ -22,9 +22,9 @@ $id = $widget->id();
 $json_options = json_encode($options);
 
 $response->html()->jquery("\$(\"#$id\").dateRangeWidget($json_options);");
-$response->html()->javascript("/share/bootstrap-datetimepicker-widget/jquery.daterange.js", array(
+$response->html()->javascript("/share/bootstrap-datetimepicker-widget/jquery.daterange.js", [
 	"share" => true,
-));
-$response->html()->css("/share/bootstrap-datetimepicker-widget/jquery.daterange.css", array(
+]);
+$response->html()->css("/share/bootstrap-datetimepicker-widget/jquery.daterange.css", [
 	"share" => true,
-));
+]);

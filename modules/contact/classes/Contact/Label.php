@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -11,32 +11,32 @@ namespace zesk;
  * @see Class_Contact_Label
  */
 class Contact_Label extends ORM {
-	const LabelType_Address = 1;
+	public const LabelType_Address = 1;
 
-	const LabelType_Company = 2;
+	public const LabelType_Company = 2;
 
-	const LabelType_Date = 3;
+	public const LabelType_Date = 3;
 
-	const LabelType_Email = 4;
+	public const LabelType_Email = 4;
 
-	const LabelType_Phone = 5;
+	public const LabelType_Phone = 5;
 
-	const LabelType_URL = 6;
+	public const LabelType_URL = 6;
 
-	const LabelType_XXX = 7;
+	public const LabelType_XXX = 7;
 
-	const LabelType_Other = 8;
+	public const LabelType_Other = 8;
 
 	public static function bootstrap() {
 		return Contact_Label_Bootstrap::bootstrap();
 	}
 
 	public static function find_global(Application $application, $type, $name) {
-		$fields = array(
+		$fields = [
 			'Account' => null,
 			'CodeName' => $name,
 			"Type" => $type,
-		);
+		];
 		return $application->orm_registry(__CLASS__)
 			->query_select()
 			->what("ID", "ID")
@@ -53,11 +53,11 @@ class Contact_Label extends ORM {
 	 */
 	public static function register_local(ORM $account, $type, $name) {
 		$app = $account->application;
-		$fields = array(
+		$fields = [
 			'Account' => $account,
 			'CodeName' => strtolower($name),
 			"Type" => $type,
-		);
+		];
 
 		$id = $app->orm_registry(__CLASS__)
 			->query_select()
@@ -67,12 +67,12 @@ class Contact_Label extends ORM {
 		if ($id) {
 			return $id;
 		}
-		$fields = array(
+		$fields = [
 			'Account' => $account,
 			'CodeName' => strtolower($name),
 			"Name" => $name,
 			'Type' => $type,
-		);
+		];
 		return $app->orm_registry(__CLASS__)
 			->query_update()
 			->values($fields)
@@ -88,21 +88,21 @@ class Contact_Label extends ORM {
 	public static function label_options(Application $application, $type, $account = null) {
 		$account_where = null;
 		if (!empty($account)) {
-			$account_where = array(
+			$account_where = [
 				$account,
 				null,
-			);
+			];
 		}
 		return $application->orm_registry(__CLASS__)
 			->query_select()
-			->what(array(
+			->what([
 			"id" => "ID",
 			"name" => "Name",
-		))
-			->where(array(
+		])
+			->where([
 			"Type" => $type,
 			"Account" => $account_where,
-		))
+		])
 			->to_array("id", "name");
 	}
 
@@ -112,7 +112,7 @@ class Contact_Label extends ORM {
 	 * @return string
 	 */
 	public static function type_names($locale = null) {
-		return __(array(
+		return __([
 			self::LabelType_Address => "Address",
 			self::LabelType_Company => "Company",
 			self::LabelType_Date => "Date",
@@ -120,7 +120,7 @@ class Contact_Label extends ORM {
 			self::LabelType_Phone => "Phone",
 			self::LabelType_URL => "Website",
 			self::LabelType_Other => "Other",
-		), $locale);
+		], $locale);
 	}
 
 	/**
@@ -141,28 +141,28 @@ class Contact_Label extends ORM {
 		$table = $app->orm_registry(__CLASS__)->table();
 		$account_where = null;
 		if (!empty($account)) {
-			$account_where = array(
+			$account_where = [
 				$account,
 				null,
-			);
+			];
 		}
-		$where = array(
+		$where = [
 			"Account" => $account_where,
-		);
+		];
 		if ($types !== null) {
 			$where['Type'] = $types;
 		}
 		$rows = $app->orm_registry(__CLASS__)
 			->query_select()
-			->what(array(
+			->what([
 			"id" => "ID",
 			"name" => "Name",
 			"type" => "Type",
-		))
+		])
 			->where($where)
 			->to_array("id");
 
-		$result = array();
+		$result = [];
 		$type_names = self::type_names();
 		foreach ($rows as $id => $row) {
 			$name = $row['name'];

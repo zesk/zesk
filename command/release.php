@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage command
@@ -17,11 +17,11 @@ class Command_Release extends Command_Base {
 	 *
 	 * @var array
 	 */
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"Repository",
 		"Git",
 		"Subversion",
-	);
+	];
 
 	/**
 	 * Our repository
@@ -40,7 +40,7 @@ class Command_Release extends Command_Base {
 	 * {@inheritDoc}
 	 * @see \zesk\Command_Base::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
 		$this->option_types['repo'] = 'string';
 		$this->option_help['repo'] = "Short name for the repository to use to disambiguate (e.g. --repo git or --repo svn)";
@@ -68,10 +68,10 @@ class Command_Release extends Command_Base {
 			}
 			$repo_code = $this->option("repo");
 			if (!isset($repos[$repo_code])) {
-				$this->error("No such repository of type {repo_code} found use one of: {repo_codes}", array(
+				$this->error("No such repository of type {repo_code} found use one of: {repo_codes}", [
 					"repo_code" => $repo_code,
 					"repo_codes" => array_keys($repos),
-				));
+				]);
 			}
 			$repo = $repos[$repo_code];
 		} else {
@@ -89,16 +89,16 @@ class Command_Release extends Command_Base {
 		$current_version = $this->application->version();
 		$latest_version = $repo->latest_version();
 
-		if (!$this->prompt_yes_no(__("{name} {last_version} -> {current_version} Versions ok?", array(
+		if (!$this->prompt_yes_no(__("{name} {last_version} -> {current_version} Versions ok?", [
 			"name" => get_class($this->application),
 			"last_version" => $last_version,
 			"current_version" => $current_version,
-		)))) {
+		]))) {
 			return 1;
 		}
 	}
 
-	private function log_status($status) {
+	private function log_status($status): void {
 		$this->log(Text::format_table($status));
 	}
 }

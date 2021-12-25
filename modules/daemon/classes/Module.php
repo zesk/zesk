@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -30,11 +30,11 @@ class Module extends \zesk\Module {
 	 *
 	 * @see \zesk\Module::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$runpath = $this->application->data_path("run");
 		$this->rundir = path($runpath, 'daemon');
-		Directory::depend($this->rundir, 0700);
+		Directory::depend($this->rundir, 0o700);
 	}
 
 	/**
@@ -44,17 +44,17 @@ class Module extends \zesk\Module {
 	 */
 	protected function hook_system_panel(Template $template) {
 		$locale = $template->locale;
-		return array(
-			'system/panel/daemon' => array(
+		return [
+			'system/panel/daemon' => [
 				"title" => $locale->__("Daemons"),
 				"module_class" => __CLASS__,
 				"server_data_key" => __CLASS__ . "::process_database",
 				"server_updated_key" => __CLASS__ . "::process_database_updated",
-			),
-		);
+			],
+		];
 	}
 
-	protected function hook_cron() {
+	protected function hook_cron(): void {
 		$application = $this->application;
 
 		try {
@@ -75,7 +75,7 @@ class Module extends \zesk\Module {
 	/**
 	 * Unlock database
 	 */
-	private function _unlock_database() {
+	private function _unlock_database(): void {
 		$path = $this->_database_path();
 		flock($path, LOCK_UN);
 	}
@@ -89,7 +89,7 @@ class Module extends \zesk\Module {
 		return path($this->rundir, "daemon.db");
 	}
 
-	public function unlink_database() {
+	public function unlink_database(): void {
 		unlink($this->_database_path());
 	}
 
@@ -103,23 +103,23 @@ class Module extends \zesk\Module {
 		$logger = $this->application->logger;
 		if ($database === null) {
 			if (!is_file($path)) {
-				return array();
+				return [];
 			}
 			$fp = fopen($path, "rb");
 			flock($fp, LOCK_SH);
 			$database = unserialize(fread($fp, 1024 * 1024));
 			if ($this->db_debug) {
-				$logger->debug("Read database: {data}", array(
+				$logger->debug("Read database: {data}", [
 					'data' => JSON::encode($database),
-				));
+				]);
 			}
 			flock($fp, LOCK_UN);
 			fclose($fp);
-			return is_array($database) ? $database : array();
+			return is_array($database) ? $database : [];
 		} else {
 			if (!is_file($path)) {
 				if (count($database) === 0) {
-					return array();
+					return [];
 				}
 				if (!file_put_contents($path, serialize($database))) {
 					throw new Exception_File_Permission($path, "write");
@@ -127,7 +127,7 @@ class Module extends \zesk\Module {
 			} else {
 				if (count($database) === 0) {
 					unlink($path);
-					return array();
+					return [];
 				}
 			}
 			$fp = fopen($path, "ab");
@@ -137,9 +137,9 @@ class Module extends \zesk\Module {
 			flock($fp, LOCK_UN);
 			fclose($fp);
 			if ($this->db_debug) {
-				$logger->debug("Wrote database: {data}", array(
+				$logger->debug("Wrote database: {data}", [
 					'data' => JSON::encode($database),
-				));
+				]);
 			}
 			return $database;
 		}

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /* @var $this \zesk\Template */
 /* @var $application \zesk\Application */
 /* @var $locale \zesk\Locale */
@@ -12,14 +12,14 @@
 namespace zesk;
 
 $ok = $object->option_bool("ok");
-$class = implode(" ", array(
+$class = implode(" ", [
 	"daemontools-service processes",
 	$object->status,
 	$ok ? "ok" : "not-ok",
-));
-echo HTML::tag_open("li", array(
+]);
+echo HTML::tag_open("li", [
 	"class" => $class,
-));
+]);
 echo HTML::tag("strong", ".name", $object->path);
 echo HTML::etag("span", ".pid", $object->pid);
 echo HTML::span(".status", $object->status);

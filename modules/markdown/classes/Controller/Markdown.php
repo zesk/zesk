@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -14,10 +14,10 @@ class Controller_Markdown extends Controller_Theme {
 		$file = $this->route->option('file');
 		$content = $this->route->option('content');
 		if ($file) {
-			$search_path = $this->route->option_list('search_path', array(
+			$search_path = $this->route->option_list('search_path', [
 				$this->application->path(),
 				$this->application->zesk_root(),
-			));
+			]);
 			$found_file = File::find_first($search_path, $file);
 			if ($found_file) {
 				$content = file_get_contents($found_file);
@@ -27,15 +27,15 @@ class Controller_Markdown extends Controller_Theme {
 				return;
 			}
 		}
-		$new_content = $this->call_hook_arguments('content_process', array(
+		$new_content = $this->call_hook_arguments('content_process', [
 			$content,
-		), null);
+		], null);
 		if (is_string($new_content)) {
 			$content = $new_content;
 		}
-		return $this->theme('markdown', array(
+		return $this->theme('markdown', [
 			'content' => $content,
 			'process' => true,
-		));
+		]);
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -72,18 +72,18 @@ class Server_Base extends Hookable {
 
 	final public function exec($command) {
 		$arguments = func_get_args();
-		return call_user_func_array(array(
+		return call_user_func_array([
 			$this->platform,
 			"exec",
-		), $arguments);
+		], $arguments);
 	}
 
 	final public function exec_array($command, array $arguments) {
 		array_unshift($arguments, $command);
-		return call_user_func_array(array(
+		return call_user_func_array([
 			$this->platform,
 			"exec",
-		), $arguments);
+		], $arguments);
 	}
 
 	/**

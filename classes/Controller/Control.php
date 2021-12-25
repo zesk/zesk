@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage controller
@@ -35,20 +35,20 @@ class Controller_Control extends Controller {
 		// We don't just instantiate classes, must be in approved list.
 		$control = "Control_$control";
 		if (!$this->allowed_control($control)) {
-			$this->application->logger->error("User requested prohibited control: {control}", array(
+			$this->application->logger->error("User requested prohibited control: {control}", [
 				"control" => $control,
-			));
+			]);
 			$this->error_404("Control prohibited.");
 			return;
 		}
 
-		$result = array(
+		$result = [
 			"content" => $this->widget_factory($control)
 				->names($name, null, $input)
 				->request($this->request)->response($this->response)
 				->json()
 				->execute(),
-		);
+		];
 		$result += $this->response->to_json();
 		return $this->json($result);
 	}

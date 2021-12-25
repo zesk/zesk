@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -53,13 +53,13 @@ class Database_Query {
 	 *
 	 * @var array
 	 */
-	protected $class_options = array();
+	protected $class_options = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $objects_cached = array();
+	private $objects_cached = [];
 
 	/**
 	 *
@@ -79,7 +79,7 @@ class Database_Query {
 		$this->type = strtoupper($type);
 		$this->dbname = $db->code_name();
 		$this->class = null;
-		$this->class_options = array();
+		$this->class_options = [];
 		$this->factory = $this->application;
 	}
 
@@ -99,16 +99,16 @@ class Database_Query {
 	 * @return string[]
 	 */
 	public function __sleep() {
-		return array(
+		return [
 			"type",
 			"dbname",
 			"class",
-		);
+		];
 	}
 
 	/**
 	 */
-	public function __wakeup() {
+	public function __wakeup(): void {
 		// Reconnect upon wakeup
 		$this->application = __wakeup_application();
 		$this->db = $this->application->database_registry($this->dbname);
@@ -212,7 +212,7 @@ class Database_Query {
 	 * @param array $options
 	 * @return Object
 	 */
-	public function member_model_factory($member, $class, $mixed = null, array $options = array()) {
+	public function member_model_factory($member, $class, $mixed = null, array $options = []) {
 		return $this->factory->member_model_factory($member, $class, $mixed, $options);
 	}
 

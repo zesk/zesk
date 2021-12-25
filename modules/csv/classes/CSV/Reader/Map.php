@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage tools
@@ -45,18 +45,18 @@ class CSV_Reader_Map extends CSV_Reader {
 	 *
 	 * @var array
 	 */
-	protected $translation_map = array();
+	protected $translation_map = [];
 
 	/**
 	 *
 	 * @param unknown $filename
 	 * @param unknown $options
 	 */
-	public function __construct($filename = null, array $options = array()) {
+	public function __construct($filename = null, array $options = []) {
 		parent::__construct($filename, $options);
-		$this->ReadMapGroup = array();
-		$this->ReadMapGroupDefault = array();
-		$this->ReadMapGroupTypes = array();
+		$this->ReadMapGroup = [];
+		$this->ReadMapGroupDefault = [];
+		$this->ReadMapGroupTypes = [];
 	}
 
 	/**
@@ -66,7 +66,7 @@ class CSV_Reader_Map extends CSV_Reader {
 	 * @param string $options
 	 * @return self
 	 */
-	public static function factory($filename, array $options = array()) {
+	public static function factory($filename, array $options = []) {
 		return new self($filename, $options);
 	}
 
@@ -98,13 +98,13 @@ class CSV_Reader_Map extends CSV_Reader {
 			return $this->_get_read_map($name);
 		}
 		$this->headers();
-		$mapGroup = array();
+		$mapGroup = [];
 		foreach ($map as $column => $objectMember) {
 			$column = strtolower($column);
 			if (!isset($this->HeadersToIndex[$column])) {
-				throw new Exception_Key("CSV::readSetMap($name,...): $column not found in headers {headers_to_index}", array(
+				throw new Exception_Key("CSV::readSetMap($name,...): $column not found in headers {headers_to_index}", [
 					"headers_to_index" => $this->HeadersToIndex,
-				));
+				]);
 			} else {
 				$indexes = $this->HeadersToIndex[$column];
 				if (is_array($indexes)) {
@@ -177,14 +177,14 @@ class CSV_Reader_Map extends CSV_Reader {
 			throw new Exception_Key("CSV::readMap($name) doesn't exist");
 		}
 		$g = $this->ReadMapGroup[$lowname];
-		$result = array();
+		$result = [];
 		$r = $this->Row;
 		foreach ($g as $index => $cols) {
 			$value = $r[$index];
 			if (!is_array($cols)) {
-				$cols = array(
+				$cols = [
 					$cols,
-				);
+				];
 			}
 			foreach ($cols as $col) {
 				if (isset($result[$col])) {
@@ -192,10 +192,10 @@ class CSV_Reader_Map extends CSV_Reader {
 					if (is_array($rcol)) {
 						$rcol[] = $value;
 					} else {
-						$rcol = array(
+						$rcol = [
 							$rcol,
 							$value,
-						);
+						];
 					}
 				} else {
 					$result[$col] = $value;
@@ -212,7 +212,7 @@ class CSV_Reader_Map extends CSV_Reader {
 		}
 		$t = avalue($this->ReadMapGroupTypes, $lowname);
 		if ($t) {
-			$result = self::apply_types($result, $t, avalue($this->ReadMapGroupDefault, $lowname, array()));
+			$result = self::apply_types($result, $t, avalue($this->ReadMapGroupDefault, $lowname, []));
 		}
 		return $result;
 	}
@@ -237,11 +237,11 @@ class CSV_Reader_Map extends CSV_Reader {
 	private function _add_translation_map_type(array $columns, $type) {
 		foreach ($columns as $column) {
 			if (!in_array($column, $this->Headers)) {
-				throw new Exception_Key("Unknown header key {key} in CSV reader for file {file} (type {type})", array(
+				throw new Exception_Key("Unknown header key {key} in CSV reader for file {file} (type {type})", [
 					"key" => $column,
 					"type" => $type,
 					"file" => $this->FileName,
-				));
+				]);
 			}
 			$this->translation_map[$column] = $type;
 		}

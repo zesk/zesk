@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -19,12 +19,12 @@ class Class_Site extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $find_keys = array(
+	public $find_keys = [
 		'instance',
 		'code',
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"instance" => self::type_object,
 		"name" => self::type_string,
@@ -35,9 +35,9 @@ class Class_Site extends Class_ORM {
 		"data" => self::type_json,
 		"errors" => self::type_json,
 		"valid" => self::type_boolean,
-	);
+	];
 
-	public $has_one = array(
+	public $has_one = [
 		"instance" => Instance::class,
-	);
+	];
 }

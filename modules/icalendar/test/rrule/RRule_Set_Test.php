@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -12,19 +12,19 @@ use zesk\Test_Unit;
  *
  */
 class RRule_Set_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"iCalendar",
-	);
+	];
 
 	public function load_rrule_tests($tests_path) {
 		$tests_content = file_get_contents($tests_path);
-		$tests = array();
-		$test = array();
-		$attr = array(
+		$tests = [];
+		$test = [];
+		$attr = [
 			"description",
 			"rrule",
 			"result",
-		);
+		];
 		$attrindex = 0;
 		$blank = null;
 		$lines = Text::remove_line_comments($tests_content);
@@ -43,7 +43,7 @@ class RRule_Set_Test extends Test_Unit {
 						$content = "";
 						if ($attrindex === 0) {
 							$tests[] = $test;
-							$test = array();
+							$test = [];
 						}
 					}
 				}
@@ -61,7 +61,7 @@ class RRule_Set_Test extends Test_Unit {
 		return $tests;
 	}
 
-	public function test_rrules() {
+	public function test_rrules(): void {
 		$locale = $this->application->locale_registry("en");
 		$tests_path = $this->application->modules->path("icalendar", "test/test-data/rrule-tests.txt");
 		$tests = $this->load_rrule_tests($tests_path);
@@ -97,7 +97,7 @@ class RRule_Set_Test extends Test_Unit {
 	}
 
 	public function parse_results($result) {
-		$results = array();
+		$results = [];
 		$lines = explode("\n", $result);
 		while (count($lines) > 0) {
 			$line = array_shift($lines);
@@ -110,10 +110,10 @@ class RRule_Set_Test extends Test_Unit {
 
 				break;
 			}
-			$extrapolated = array();
+			$extrapolated = [];
 			foreach (($preg = preg::matches('#\[([-,0-9]+)\]#', $line)) as $match) {
 				$series = $match[1];
-				$extrapolated = array();
+				$extrapolated = [];
 				if (preg_match('#([0-9]+)-([0-9]+)#', $series, $range)) {
 					$size = max(strlen($range[1]), strlen($range[2]));
 					$start = intval($range[1]);

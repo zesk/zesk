@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage webapp
@@ -40,15 +40,15 @@ class Class_Repository extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $find_keys = array(
+	public $find_keys = [
 		"url",
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"code" => self::type_string,
 		"type" => self::type_polymorph,
@@ -58,13 +58,13 @@ class Class_Repository extends Class_ORM {
 		"remote_hash" => self::type_string,
 		"updated" => self::type_modified,
 		"active" => self::type_boolean,
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $column_defaults = array(
+	public $column_defaults = [
 		"remote_hash" => "",
-	);
+	];
 }

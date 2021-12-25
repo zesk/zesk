@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Class_Content_Video extends Class_ORM {
 	public $id_column = "id";
 
-	public $columns = array(
+	public $columns = [
 		"id",
 		"name",
 		"parent",
@@ -16,9 +16,9 @@ class Class_Content_Video extends Class_ORM {
 		"description",
 		"created",
 		"modified",
-	);
+	];
 
-	public $find_keys = array(
+	public $find_keys = [
 		"name",
-	);
+	];
 }

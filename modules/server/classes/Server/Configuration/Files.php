@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -18,9 +18,9 @@ namespace zesk;
 class Server_Configuration_Files extends Server_Configuration {
 	protected $host_path = null;
 
-	protected $host_aliases = array();
+	protected $host_aliases = [];
 
-	protected $variables = array();
+	protected $variables = [];
 
 	public function __construct(Server_Platform $platform, $options = null) {
 		parent::__construct($platform, $options);
@@ -30,12 +30,12 @@ class Server_Configuration_Files extends Server_Configuration {
 		$this->_load_configuration();
 	}
 
-	private function _configure_host_path() {
+	private function _configure_host_path(): void {
 		$this->host_path = $this->option('host_path');
 		if ($this->host_path) {
-			$this->verbose_log("host_path is {host_path}", array(
+			$this->verbose_log("host_path is {host_path}", [
 				"host_path" => $this->host_path,
-			));
+			]);
 			if (!is_dir($this->host_path)) {
 				throw new Exception_Directory_NotFound($this->host_path);
 			}
@@ -44,8 +44,8 @@ class Server_Configuration_Files extends Server_Configuration {
 		}
 	}
 
-	private function _load_aliases() {
-		$this->host_aliases = array();
+	private function _load_aliases(): void {
+		$this->host_aliases = [];
 
 		try {
 			$alias_file = File::lines(path($this->host_path, "aliases"));
@@ -54,22 +54,22 @@ class Server_Configuration_Files extends Server_Configuration {
 		}
 	}
 
-	private function _load_configuration() {
+	private function _load_configuration(): void {
 		$app = $this->application;
 		$hostname = $this->platform->hostname();
 		$alias_hostname = avalue($this->host_aliases(), $hostname, $hostname);
 		if ($alias_hostname !== $hostname) {
-			$app->logger->warning("Server_Configuration_Files _load_configuration: {hostname} aliaesed to {alias_hostname}", array(
+			$app->logger->warning("Server_Configuration_Files _load_configuration: {hostname} aliaesed to {alias_hostname}", [
 				"hostname" => $hostname,
 				"alias_hostname" => $alias_hostname,
-			));
+			]);
 		}
-		$searched_paths = array();
+		$searched_paths = [];
 		$this->search_path("all $alias_hostname");
 		$files = $this->option_list('files', $app->configuration->get('server_configuration_file', 'environment.sh'));
 
 		$search_path = $this->search_path();
-		$result = array();
+		$result = [];
 		while (count($searched_paths) < count($search_path)) {
 			foreach ($search_path as $path) {
 				if (array_key_exists($path, $searched_paths)) {
@@ -78,16 +78,16 @@ class Server_Configuration_Files extends Server_Configuration {
 				foreach ($files as $file) {
 					$conf = path($this->host_path, $path, $file);
 					if (!is_file($conf)) {
-						$app->logger->debug("No configuration file {conf}", array(
+						$app->logger->debug("No configuration file {conf}", [
 							"conf" => $conf,
-						));
+						]);
 
 						continue;
 					}
-					$variables = $this->platform->conf_load($conf, array(
+					$variables = $this->platform->conf_load($conf, [
 						'variables' => $this->options,
 						'overwrite' => true,
-					));
+					]);
 					$result = $variables + $result;
 					$this->set_option($variables);
 					$app->logger->debug("Loading configuration $conf");
@@ -96,15 +96,15 @@ class Server_Configuration_Files extends Server_Configuration {
 			}
 			$search_path = $this->search_path();
 		}
-		$app->logger->debug("configuration search path {paths}, files {files}, result {result}", array(
+		$app->logger->debug("configuration search path {paths}, files {files}, result {result}", [
 			"paths" => implode(",", $search_path),
 			"files" => implode(",", $files),
 			"result" => PHP::dump($result),
-		));
+		]);
 	}
 
 	public function feature_list() {
-		return ArrayTools::trim_clean($this->option_list("FEATURES", $this->option_list("SERVICES", array(), " "), " "));
+		return ArrayTools::trim_clean($this->option_list("FEATURES", $this->option_list("SERVICES", [], " "), " "));
 	}
 
 	public function search_path($set = null) {
@@ -112,28 +112,28 @@ class Server_Configuration_Files extends Server_Configuration {
 			$this->set_option('SEARCH_PATH', $set);
 			return $this;
 		}
-		return $this->option_list("SEARCH_PATH", array(), " ");
+		return $this->option_list("SEARCH_PATH", [], " ");
 	}
 
-	public function remote_package($url) {
+	public function remote_package($url): void {
 	}
 
-	public function configure_feature(Server_Feature $feature) {
+	public function configure_feature(Server_Feature $feature): void {
 		$shortname = $feature->code;
-		$files = array(
+		$files = [
 			path($feature->configure_path(), 'feature.conf'),
-		);
+		];
 		$files = array_merge($files, File::find_all($this->search_path(), path($shortname, "feature.conf")));
-		$settings = array();
+		$settings = [];
 		foreach ($files as $file) {
 			if (is_file($file)) {
 				$settings = $this->platform->conf_load($file) + $settings;
 			}
 		}
-		$this->application->logger->debug("Configured feature {class} {settings}", array(
+		$this->application->logger->debug("Configured feature {class} {settings}", [
 			"class" => get_class($feature),
 			"settings" => Text::format_pairs($settings),
-		));
+		]);
 		$feature->set_option($settings);
 	}
 
@@ -141,7 +141,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		if (is_array($this->host_aliases)) {
 			return $this->host_aliases;
 		}
-		$this->host_aliases = array();
+		$this->host_aliases = [];
 		if ($this->host_path === null) {
 			return $this->host_aliases;
 		}
@@ -151,13 +151,13 @@ class Server_Configuration_Files extends Server_Configuration {
 		}
 
 		foreach (file($alias_file) as $line) {
-			list($line) = pair(trim($line), "#", $line);
+			[$line] = pair(trim($line), "#", $line);
 			$line = trim($line);
 			if (empty($line)) {
 				continue;
 			}
 			$name = $alias = null;
-			list($name, $alias) = pair($line, " ", $line);
+			[$name, $alias] = pair($line, " ", $line);
 			if ($alias === null) {
 				continue;
 			}
@@ -171,29 +171,29 @@ class Server_Configuration_Files extends Server_Configuration {
 		return $this->host_aliases;
 	}
 
-	public function configuration_files($type, $files, $dest, array $options = array()) {
-		$search_path = to_list(avalue($options, 'search_path'), array(), " ");
+	public function configuration_files($type, $files, $dest, array $options = []) {
+		$search_path = to_list(avalue($options, 'search_path'), [], " ");
 		if (empty($search_path)) {
 			$search_path = $this->search_path();
 			foreach ($search_path as $i => $path) {
 				$search_path[$i] = path($path, $type);
 			}
 		}
-		$add_search_path = to_list(avalue($options, "+search_path"), array(), " ");
+		$add_search_path = to_list(avalue($options, "+search_path"), [], " ");
 		if (is_array($add_search_path)) {
 			$search_path = array_merge($search_path, $add_search_path);
 		}
 		if (Directory::find_first($search_path) === null) {
 			if (avalue($options, "require")) {
-				throw new Exception_Configuration($type, "Requires directory to be located in {search_path_list}", array(
+				throw new Exception_Configuration($type, "Requires directory to be located in {search_path_list}", [
 					"search_path" => $search_path,
 					"search_path_list" => implode(", ", $search_path),
-				));
+				]);
 			}
 			$this->verbose_log("configuration_files $type not found ... skipping");
-			return array();
+			return [];
 		}
-		$updates = array();
+		$updates = [];
 		$files = to_list($files);
 		foreach ($files as $mixed) {
 			$source_prefix = path($type, $mixed);
@@ -204,10 +204,10 @@ class Server_Configuration_Files extends Server_Configuration {
 			}
 			if ($source) {
 				$dest = path($dest, $source_prefix);
-				$updates[] = array(
+				$updates[] = [
 					$source,
 					$dest,
-				);
+				];
 			}
 		}
 		return $updates;

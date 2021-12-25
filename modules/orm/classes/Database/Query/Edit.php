@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Edit
  *
@@ -40,7 +40,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 *
 	 * @var array
 	 */
-	protected $values = array();
+	protected $values = [];
 
 	/**
 	 * Array of columns valid for this table
@@ -93,7 +93,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 */
 	private function valid_column($name) {
 		$clean_name = ltrim($name, "*");
-		list($alias, $clean_name) = pair($clean_name, ".", $this->default_alias, $clean_name);
+		[$alias, $clean_name] = pair($clean_name, ".", $this->default_alias, $clean_name);
 		$columns = avalue($this->valid_columns, $alias);
 		if (!is_array($columns) || !in_array($clean_name, $columns)) {
 			return false;
@@ -130,14 +130,14 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @param string $name
 	 * @throws Exception_Semantics
 	 */
-	private function check_column($name) {
+	private function check_column($name): void {
 		if (!$this->valid_column($name)) {
-			throw new Exception_Semantics("Column {name} is not in table {table} (columns are {columns})", array(
+			throw new Exception_Semantics("Column {name} is not in table {table} (columns are {columns})", [
 				"name" => $name,
 				"table" => $this->table,
 				"columns" => $this->valid_columns,
 				"Database_Query_Edit" => $this,
-			));
+			]);
 		}
 	}
 

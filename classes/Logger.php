@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -16,7 +16,7 @@ class Logger implements LoggerInterface {
 	 *
 	 * @var array
 	 */
-	private static $levels = array(
+	private static $levels = [
 		LogLevel::EMERGENCY => LogLevel::EMERGENCY,
 		LogLevel::ALERT => LogLevel::ALERT,
 		LogLevel::CRITICAL => LogLevel::CRITICAL,
@@ -25,7 +25,7 @@ class Logger implements LoggerInterface {
 		LogLevel::NOTICE => LogLevel::NOTICE,
 		LogLevel::INFO => LogLevel::INFO,
 		LogLevel::DEBUG => LogLevel::DEBUG,
-	);
+	];
 
 	/**
 	 *
@@ -43,25 +43,25 @@ class Logger implements LoggerInterface {
 	 *
 	 * @var string[]
 	 */
-	private $handler_names = array();
+	private $handler_names = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $processors = array();
+	private $processors = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $handlers = array();
+	private $handlers = [];
 
 	/**
 	 * Output configuration
 	 */
 	public function dump_config() {
-		$pairs = array();
+		$pairs = [];
 		$pairs["Currently sending"] = $this->sending ? "yes" : "no";
 		$pairs["UTC Logging"] = $this->utc_time ? "yes" : "no";
 		foreach ($this->processors as $name => $processor) {
@@ -69,7 +69,7 @@ class Logger implements LoggerInterface {
 		}
 		foreach (self::$levels as $level) {
 			if (array_key_exists($level, $this->handlers)) {
-				$handler_names = array();
+				$handler_names = [];
 				foreach ($this->handlers[$level] as $handler) {
 					$handler_names[] = get_class($handler);
 				}
@@ -88,7 +88,7 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return null
 	 */
-	public function emergency($message, array $context = array()) {
+	public function emergency($message, array $context = []) {
 		$this->log(LogLevel::EMERGENCY, $message, $context);
 	}
 
@@ -102,7 +102,7 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return null
 	 */
-	public function alert($message, array $context = array()) {
+	public function alert($message, array $context = []) {
 		$this->log(LogLevel::ALERT, $message, $context);
 	}
 
@@ -115,7 +115,7 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return null
 	 */
-	public function critical($message, array $context = array()) {
+	public function critical($message, array $context = []) {
 		$this->log(LogLevel::CRITICAL, $message, $context);
 	}
 
@@ -127,7 +127,7 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return null
 	 */
-	public function error($message, array $context = array()) {
+	public function error($message, array $context = []) {
 		$this->log(LogLevel::ERROR, $message, $context);
 	}
 
@@ -141,7 +141,7 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return null
 	 */
-	public function warning($message, array $context = array()) {
+	public function warning($message, array $context = []) {
 		$this->log(LogLevel::WARNING, $message, $context);
 	}
 
@@ -152,7 +152,7 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return null
 	 */
-	public function notice($message, array $context = array()) {
+	public function notice($message, array $context = []) {
 		$this->log(LogLevel::NOTICE, $message, $context);
 	}
 
@@ -165,7 +165,7 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return null
 	 */
-	public function info($message, array $context = array()) {
+	public function info($message, array $context = []) {
 		$this->log(LogLevel::INFO, $message, $context);
 	}
 
@@ -176,7 +176,7 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return null
 	 */
-	public function debug($message, array $context = array()) {
+	public function debug($message, array $context = []) {
 		$this->log(LogLevel::DEBUG, $message, $context);
 	}
 
@@ -188,7 +188,7 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return null
 	 */
-	public function log($level, $message, array $context = array()) {
+	public function log($level, $message, array $context = []) {
 		if ($this->sending) {
 			// Doh.
 			return;
@@ -198,7 +198,7 @@ class Logger implements LoggerInterface {
 		}
 
 		if (is_object($message)) {
-			$message_args = method_exists($message, "log_variables") ? $message->log_variables() : array();
+			$message_args = method_exists($message, "log_variables") ? $message->log_variables() : [];
 			$message = method_exists($message, "log_message") ? $message->log_message() : strval($message);
 			$context = $message_args + $context;
 		}
@@ -216,7 +216,7 @@ class Logger implements LoggerInterface {
 		$time = microtime(true);
 		$int_time = intval($time);
 
-		$extras = array();
+		$extras = [];
 		$date = $this->utc_time ? "gmdate" : "date";
 		$extras['_date'] = $date("Y-m-d", $int_time);
 		$extras['_time'] = $date("H:i:s", $int_time) . ltrim(sprintf("%.3f", $time - $int_time), '0');
@@ -341,7 +341,7 @@ class Logger implements LoggerInterface {
 	 * @return array
 	 */
 	public function levels_select($severity) {
-		$result = array();
+		$result = [];
 		foreach (self::$levels as $k => $v) {
 			$result[$k] = $v;
 			if ($severity === $k) {

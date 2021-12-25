@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,9 +10,9 @@ namespace zesk;
  *
  */
 class Control_Search extends Control_Text {
-	protected $search_columns = array();
+	protected $search_columns = [];
 
-	protected $options = array();
+	protected $options = [];
 
 	public function search_columns($set = null) {
 		if ($set !== null) {
@@ -22,11 +22,11 @@ class Control_Search extends Control_Text {
 		return $this->search_columns;
 	}
 
-	protected function defaults() {
+	protected function defaults(): void {
 		$this->value($this->request->get($this->name()));
 	}
 
-	public function hook_query(Database_Query_Select $query) {
+	public function hook_query(Database_Query_Select $query): void {
 		$value = $this->value();
 		if ($value === "" || $value === null) {
 			return;
@@ -35,23 +35,23 @@ class Control_Search extends Control_Text {
 		$search_values = explode(' ', preg_replace('/\s+/', ' ', $search_values));
 		$sql = $query->sql();
 		$alias = $query->class_alias();
-		$where = array();
+		$where = [];
 		foreach ($search_values as $search_value) {
-			$value_where = array();
+			$value_where = [];
 			foreach ($this->search_columns as $col) {
 				$value_where[$col . "|%"] = $search_value;
 			}
 			$where[] = $value_where;
 		}
 		$query->where($where);
-		$query->condition($this->application->locale->__("match the string \"{q}\"", array(
+		$query->condition($this->application->locale->__("match the string \"{q}\"", [
 			"q" => $value,
-		)));
+		]));
 	}
 
 	public function theme_variables() {
-		return parent::theme_variables() + array(
+		return parent::theme_variables() + [
 			'search_title' => $this->option('search_title'),
-		);
+		];
 	}
 }

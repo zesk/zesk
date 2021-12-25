@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -21,7 +21,7 @@ class View_ORM extends View {
 		return $this->option('format');
 	}
 
-	public function display_method($set = null, $set_args = array()) {
+	public function display_method($set = null, $set_args = []) {
 		if ($set !== null) {
 			$this->set_option('display_method', $set);
 			return $this->set_option('display_method_arguments', $set_args);
@@ -30,7 +30,7 @@ class View_ORM extends View {
 	}
 
 	public function theme_variables() {
-		return array(
+		return [
 			'object' => $this->value(),
 			'format' => $this->format,
 			'display_method' => $this->option('display_method'),
@@ -38,6 +38,6 @@ class View_ORM extends View {
 			"object_class" => $this->class,
 			"hidden_input" => $this->hidden_input(),
 			"class_object" => $this->application->class_orm($this->option('class', $this->class)),
-		) + parent::theme_variables();
+		] + parent::theme_variables();
 	}
 }

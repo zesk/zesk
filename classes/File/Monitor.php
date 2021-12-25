@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 abstract class File_Monitor {
@@ -7,7 +7,7 @@ abstract class File_Monitor {
 	 *
 	 * @var array
 	 */
-	private $file_mtimes = array();
+	private $file_mtimes = [];
 
 	/**
 	 * Create a new File_Monitor
@@ -22,9 +22,9 @@ abstract class File_Monitor {
 	 * @return array
 	 */
 	private function current_mtimes() {
-		$current = array();
+		$current = [];
 		foreach ($this->files() as $f) {
-			clearstatcache($f);
+			clearstatcache(false, $f);
 			$current[$f] = @filemtime($f);
 		}
 		return $current;
@@ -36,13 +36,13 @@ abstract class File_Monitor {
 	 * @return string[]
 	 */
 	public function changed_files() {
-		$result = array();
+		$result = [];
 		$current = $this->current_mtimes();
 		foreach ($this->file_mtimes as $filename => $saved_mod_time) {
 			if (!isset($current[$filename])) {
-				error_log(map("Huh? Existing file monitor file {file} no longer monitored?", array(
+				error_log(map("Huh? Existing file monitor file {file} no longer monitored?", [
 					"file" => $filename,
-				)));
+				]));
 			} else {
 				if ($current[$filename] !== $saved_mod_time) {
 					$result[] = $filename;
@@ -63,9 +63,9 @@ abstract class File_Monitor {
 		$current = $this->current_mtimes();
 		foreach ($this->file_mtimes as $filename => $saved_mod_time) {
 			if (!isset($current[$filename])) {
-				error_log(map("Huh? Existing file monitor file {file} no longer monitored?", array(
+				error_log(map("Huh? Existing file monitor file {file} no longer monitored?", [
 					"file" => $filename,
-				)));
+				]));
 			} else {
 				if ($current[$filename] !== $saved_mod_time) {
 					return true;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Net/HTTP/Server/Response.php $
  * @author Kent Davidson <kent@marketacumen.com>
@@ -13,7 +13,7 @@ class Net_HTTP_Server_Response {
 
 	public $status_text = null;
 
-	public $headers = array();
+	public $headers = [];
 
 	public $content = "";
 
@@ -31,12 +31,12 @@ class Net_HTTP_Server_Response {
 		$this->close_file();
 	}
 
-	public function header($name, $value = null, $replace = false) {
+	public function header($name, $value = null, $replace = false): void {
 		if (array_key_exists($name, $this->headers) && !$replace) {
 			return;
 		}
 		if ($value === null) {
-			list($name, $value) = pair($name, ":", $name, null);
+			[$name, $value] = pair($name, ":", $name, null);
 			if ($value === null) {
 				throw new Exception_Syntax("Incorrect header value: $name");
 			}
@@ -46,7 +46,7 @@ class Net_HTTP_Server_Response {
 	}
 
 	public function raw_headers() {
-		$raw_headers = array();
+		$raw_headers = [];
 		$status_text = ($this->status_text === null) ? avalue(Net_HTTP::$status_text, $this->status, "Unknown status") : $this->status_text;
 		$raw_headers[] = "HTTP/1.0 " . $this->status . " " . $status_text;
 		$this->file_headers();
@@ -72,7 +72,7 @@ class Net_HTTP_Server_Response {
 		return $this;
 	}
 
-	private function file_headers() {
+	private function file_headers(): void {
 		if (!$this->filename) {
 			return;
 		}
@@ -96,7 +96,7 @@ class Net_HTTP_Server_Response {
 		return null;
 	}
 
-	public function close_file() {
+	public function close_file(): void {
 		if ($this->file) {
 			fclose($this->file);
 			$this->file = null;

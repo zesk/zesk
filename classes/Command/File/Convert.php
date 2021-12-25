@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -45,8 +45,8 @@ abstract class Command_File_Convert extends Command_Base {
 	 * {@inheritDoc}
 	 * @see Command_Base::initialize()
 	 */
-	public function initialize() {
-		$this->option_types += array(
+	public function initialize(): void {
+		$this->option_types += [
 			'nomtime' => 'boolean',
 			'noclobber' => 'boolean',
 			'extension' => 'string',
@@ -55,12 +55,12 @@ abstract class Command_File_Convert extends Command_Base {
 			'target-path' => 'string',
 			'mkdir-target' => 'boolean',
 			'*' => 'files',
-		);
-		$this->option_defaults += array(
+		];
+		$this->option_defaults += [
 			'extension' => $this->destination_extension,
 			'target-path' => './',
-		);
-		$this->option_help += array(
+		];
+		$this->option_help += [
 			'nomtime' => 'Ignore destination file modification time when determining whether to generate',
 			'noclobber' => 'Do not overwrite existing files',
 			'extension' => 'Use this extenstion for the generated files instead of the default',
@@ -69,7 +69,7 @@ abstract class Command_File_Convert extends Command_Base {
 			'target-path' => 'When converting files, create targets here (e.g. `../compiled-js/`)',
 			'mkdir-target' => 'Create target directory if does not exist, then convert`)',
 			'*' => 'A list of files to process',
-		);
+		];
 		parent::initialize();
 	}
 
@@ -86,17 +86,17 @@ abstract class Command_File_Convert extends Command_Base {
 	 * {@inheritDoc}
 	 * @see Command::run()
 	 */
-	protected function run() {
+	protected function run(): void {
 		$this->verbose_log("Configuring using config file: " . $this->configuration_file);
 		$this->configure($this->configuration_file);
 		$app = $this->application;
 		$app->console(true);
 		$request = $app->request_factory();
-		$app->template->set(array(
+		$app->template->set([
 			"request" => $request,
 			'response' => $app->response_factory($request),
 			'stylesheets_inline' => true,
-		));
+		]);
 		if ($this->overwrite && $this->option_bool("no-clobber")) {
 			$this->error("The --no-clobber option is not compatible with this command, it can only overwrite existing files.");
 		}
@@ -114,13 +114,13 @@ abstract class Command_File_Convert extends Command_Base {
 			} else {
 				$cwd = getcwd();
 				$this->verbose_log("Listing {cwd}", compact("cwd"));
-				$files = Directory::list_recursive($cwd, array(
+				$files = Directory::list_recursive($cwd, [
 					'file_include_pattern' => '/\.(' . $this->source_extension_pattern . ')$/',
 					'file_default' => false,
 					'directory_default' => false,
 					'directory_walk_exclude_pattern' => '#/\.#',
 					'add_path' => true,
-				));
+				]);
 			}
 			$overwrite = $this->overwrite;
 			$force = $this->option_bool("force") || $overwrite;

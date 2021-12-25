@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -17,7 +17,7 @@ interface Interface_Session extends Interface_Settings {
 	 * @param array $options
 	 * @param Application $application
 	 */
-	public function __construct(Application $application, $mixed = null, array $options = array());
+	public function __construct(Application $application, $mixed = null, array $options = []);
 
 	/**
 	 * Configure session connected to the Request
@@ -38,7 +38,7 @@ interface Interface_Session extends Interface_Settings {
 	 * @param integer $ip The ip address
 	 * @return void
 	 */
-	public function authenticate($mixed, $ip = false);
+	public function authenticate($mixed, $ip = false): void;
 
 	/**
 	 * User currently authenticated?

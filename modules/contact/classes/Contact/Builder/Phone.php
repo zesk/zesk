@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage contact
@@ -26,9 +26,9 @@ class Contact_Builder_Phone extends Contact_Builder_Base {
 	 */
 	public function process(Contact_Import $import, $key, $value) {
 		$clean_phone = Control_Phone::clean($value);
-		$data = array(
+		$data = [
 			'value' => $value,
-		) + $this->data;
+		] + $this->data;
 		$data = map($data, $this->data);
 		$import->merge_item($this->contact_class, $clean_phone, $data);
 		return true;

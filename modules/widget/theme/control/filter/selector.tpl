@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -28,8 +28,8 @@ $toggle_mode = $this->toggle_mode;
 $button_icon = HTML::span('.glyphicon glyphicon-filter', '');
 $button_text = $locale->__("Filters");
 
-$dropdown_items = array();
-$ids = array();
+$dropdown_items = [];
+$ids = [];
 $any_active = false;
 $has_selector = $request->has($this->name, false);
 $active = false;
@@ -51,61 +51,61 @@ foreach ($this->widgets as $index => $child) {
 		$any_active = true;
 	}
 	$sort_key = $child->label() . "-" . $index;
-	$dropdown_items[$sort_key] = HTML::tag('li', array(
+	$dropdown_items[$sort_key] = HTML::tag('li', [
 		"class" => "filter-item " . ($active ? "active" : ""),
-	), HTML::tag('a', array(
+	], HTML::tag('a', [
 		'data-id' => $id,
-	), $child->label()));
+	], $child->label()));
 }
 
 ksort($dropdown_items);
 
 echo HTML::tag_open('div', CSS::add_class('.filter-selector', $toggle_mode ? "button-mode" : "btn-group menu-mode"));
 if ($toggle_mode) {
-	echo HTML::tag('button', array(
+	echo HTML::tag('button', [
 		'type' => "button",
 		'title' => $locale->__('Click to toggle filters for this list'),
 		"class" => CSS::add_class("btn btn-default selector-toggle-mode tip", $active ? "active" : ""),
 		"data-target" => implode(",", $ids),
-	), $button_icon . ' ' . $button_text);
+	], $button_icon . ' ' . $button_text);
 } else {
-	echo HTML::tag('button', array(
+	echo HTML::tag('button', [
 		'type' => "button",
 		"class" => "btn btn-default dropdown-toggle tip",
 		"data-toggle" => "dropdown",
 		"data-container" => "body",
 		"data-placement" => "right",
 		"title" => $locale->__("Show or hide filters for this list"),
-	), $button_icon . ' ' . $button_text . HTML::tag('b', '.caret', ''));
+	], $button_icon . ' ' . $button_text . HTML::tag('b', '.caret', ''));
 }
-echo HTML::tag_open('ul', array(
+echo HTML::tag_open('ul', [
 	"class" => 'dropdown-menu',
 	"role" => "menu",
-));
+]);
 $widget->call_hook("menu_prefix");
-echo HTML::tag('li', array(
+echo HTML::tag('li', [
 	'class' => 'filter-selector-all',
-), HTML::tag('a', array(
+], HTML::tag('a', [
 	'data-text-show' => $locale->__('Hide all'),
 	'data-text-hide' => $locale->__('Show all'),
-), $locale->__('Show all')));
-echo HTML::tag('li', array(
+], $locale->__('Show all')));
+echo HTML::tag('li', [
 	'class' => 'divider',
-), "");
-echo HTML::tag('li', array(
+], "");
+echo HTML::tag('li', [
 	'role' => 'presentation',
 	'class' => 'dropdown-header',
-), $locale->__('Show/Hide filter &hellip;'));
+], $locale->__('Show/Hide filter &hellip;'));
 echo implode("\n", $dropdown_items);
 $widget->call_hook("menu_suffix");
 echo HTML::tag_close('ul');
 $id = $this->id;
-echo HTML::input_hidden($this->name, $this->value, array(
+echo HTML::input_hidden($this->name, $this->value, [
 	"id" => $id,
 	"class" => "filter-selector-input",
-));
+]);
 echo HTML::tag_close('div');
 
-$response->javascript('/share/zesk/js/control-filter-selector.js', array(
+$response->javascript('/share/zesk/js/control-filter-selector.js', [
 	"share" => true,
-));
+]);

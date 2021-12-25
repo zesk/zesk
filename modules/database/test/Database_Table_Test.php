@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
@@ -13,11 +13,11 @@ namespace zesk;
  *
  */
 class Database_Table_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
-	);
+	];
 
-	public function test_main() {
+	public function test_main(): void {
 		$db = $this->application->database_registry();
 		$table_name = PHP::parse_class(__CLASS__) . '_' . __FUNCTION__;
 		$type = false;
@@ -50,12 +50,12 @@ class Database_Table_Test extends Test_Unit {
 		$index = new Database_Index($table, "un");
 		$table->index_add($index);
 
-		$indexes = array();
+		$indexes = [];
 		$table->set_indexes($indexes);
 
-		$dbCol = new Database_Column($table, "IDs", array(
+		$dbCol = new Database_Column($table, "IDs", [
 			"sql_type" => "varchar(32)",
-		));
+		]);
 		$exception_reserved = false;
 		$table->column_add($dbCol, $exception_reserved);
 
@@ -70,7 +70,7 @@ class Database_Table_Test extends Test_Unit {
 		echo basename(__FILE__) . ": success\n";
 	}
 
-	public function test_main2() {
+	public function test_main2(): void {
 		$db = $this->application->database_registry();
 		$table_name = 'test_table';
 		$type = false;
@@ -110,9 +110,9 @@ class Database_Table_Test extends Test_Unit {
 		$index = new Database_Index($testx, "MyIndex");
 		$testx->index_add($index);
 
-		$indexes = array(
+		$indexes = [
 			$index,
-		);
+		];
 		$testx->set_indexes($indexes);
 
 		$dbCol = new Database_Column($testx, "ID");

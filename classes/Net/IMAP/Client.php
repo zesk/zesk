@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Net_IMAP_Client extends Net_Client {
@@ -42,7 +42,7 @@ class Net_IMAP_Client extends Net_Client {
 	 * (non-PHPdoc)
 	 * @see Net_Client::disconnect()
 	 */
-	public function disconnect() {
+	public function disconnect(): void {
 		if ($this->imap_conn) {
 			imap_close($this->imap_conn);
 			$this->imap_conn = null;

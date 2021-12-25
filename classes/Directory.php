@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -24,19 +24,19 @@ class Directory extends Hookable {
 	 *
 	 * @var integer
 	 */
-	public static $default_mode = 0770;
+	public static $default_mode = 0o770;
 
 	/**
 	 * Implement hooks
 	 */
-	public static function hooks(Application $application) {
+	public static function hooks(Application $application): void {
 		$application->hooks->add('configured', __CLASS__ . '::configured');
 	}
 
 	/**
 	 * configured hook
 	 */
-	public static function configured(Application $application) {
+	public static function configured(Application $application): void {
 		self::$default_mode = $application->configuration->path(__CLASS__)->get("default_mode", self::$default_mode);
 	}
 
@@ -58,7 +58,7 @@ class Directory extends Hookable {
 		$perms = File::stat($path, 'perms');
 		if (!self::octal_equal($perms['octal'], File::mode_to_octal($mode))) {
 			if (!chmod($path, $mode)) {
-				throw new Exception_Directory_Permission($path, map("Setting {filename} to mode {0}", array(sprintf("%04o", $mode))));
+				throw new Exception_Directory_Permission($path, map("Setting {filename} to mode {0}", [sprintf("%04o", $mode)]));
 			}
 		}
 		return $path;
@@ -84,7 +84,7 @@ class Directory extends Hookable {
 	 * @param unknown $message
 	 * @param array $args
 	 */
-	public static function debug($message, array $args = array()) {
+	public static function debug($message, array $args = []): void {
 		if (self::$debug) {
 			self::$application->logger->debug($message, $args);
 		}
@@ -207,7 +207,7 @@ class Directory extends Hookable {
 	 *
 	 */
 	public static function delete_contents($path) {
-		$x = array();
+		$x = [];
 
 		try {
 			$x = new DirectoryIterator($path);
@@ -275,14 +275,14 @@ class Directory extends Hookable {
 		$default = true;
 		extract($options, EXTR_IF_EXISTS);
 		if ($include_pattern === false) {
-			return array(
+			return [
 				false,
-			);
+			];
 		}
 		if ($exclude_pattern === true) {
-			return array(
+			return [
 				false,
-			);
+			];
 		}
 		if ($exclude_pattern !== null) {
 			$result[$exclude_pattern] = false;
@@ -301,15 +301,15 @@ class Directory extends Hookable {
 		$k = "rules_" . $name;
 		if (array_key_exists($k, $options)) {
 			if (is_bool($options[$k])) {
-				return array(
+				return [
 					$options[$k],
-				);
+				];
 			}
 			if (!is_array($options[$k])) {
-				throw new Exception_Parameter("Recursive rules {key} must be boolean or an array, {type} passed", array(
+				throw new Exception_Parameter("Recursive rules {key} must be boolean or an array, {type} passed", [
 					"key" => $k,
 					"type" => type($options[$k]),
-				));
+				]);
 			}
 			return $options[$k];
 		}
@@ -334,8 +334,8 @@ class Directory extends Hookable {
 	 * @param array $options
 	 * @return array
 	 */
-	public static function list_recursive($path, array $options = array()) {
-		$options = !is_array($options) ? array() : $options;
+	public static function list_recursive($path, array $options = []) {
+		$options = !is_array($options) ? [] : $options;
 		$options = array_change_key_case($options);
 		$progress = to_bool($options['progress'] ?? false);
 		$rules_file = self::_list_recursive_rules($options, "file");
@@ -348,9 +348,9 @@ class Directory extends Hookable {
 		$path = rtrim($path, "/");
 		$d = @opendir($path);
 		if (!$d) {
-			return array();
+			return [];
 		}
-		$r = array();
+		$r = [];
 		$options['add_path'] = false;
 		$prefix = $addpath ? (substr($path, -1) === '/' ? $path : "$path/") : "";
 		while (($x = readdir($d)) !== false) {
@@ -367,9 +367,9 @@ class Directory extends Hookable {
 					continue;
 				}
 				if ($progress && $progress instanceof Psr\Log\LoggerInterface) {
-					$progress->notice("Listing {full_path}", array(
+					$progress->notice("Listing {full_path}", [
 						"full_path" => $full_path,
-					));
+					]);
 				}
 				$result = self::list_recursive($full_path, $options);
 				if (is_array($result)) {
@@ -397,7 +397,7 @@ class Directory extends Hookable {
 	 * @return string path with removed dots
 	 */
 	public static function undot($p) {
-		$r = array();
+		$r = [];
 		$a = explode("/", $p);
 		$skip = 0;
 
@@ -439,9 +439,9 @@ class Directory extends Hookable {
 	/**
 	 *
 	 */
-	public static function iterate($source, $directory_function = null, $file_function = null) {
+	public static function iterate($source, $directory_function = null, $file_function = null): void {
 		$d = dir($source);
-		$list = array();
+		$list = [];
 		while (($f = $d->read()) !== false) {
 			if ($f[0] == '.') {
 				continue;
@@ -487,19 +487,19 @@ class Directory extends Hookable {
 		if (!is_string($filter)) {
 			$filter = null;
 		}
-		$r = array();
+		$r = [];
 		if (!is_dir($path)) {
-			throw new Exception_Directory_NotFound($path, "{method}: {path} is not a directory", array(
+			throw new Exception_Directory_NotFound($path, "{method}: {path} is not a directory", [
 				"method" => __METHOD__,
 				"path" => $path,
-			));
+			]);
 		}
 		$d = opendir($path);
 		if (!is_resource($d)) {
-			throw new Exception_Directory_NotFound($path, "{method}: {path} is not readable", array(
+			throw new Exception_Directory_NotFound($path, "{method}: {path} is not readable", [
 				"method" => __METHOD__,
 				"path" => $path,
-			));
+			]);
 		}
 		$path = rtrim($path, '/');
 		while (($f = readdir($d)) !== false) {
@@ -521,17 +521,17 @@ class Directory extends Hookable {
 	 */
 	public static function copy($source, $dest, $create = false) {
 		if (!is_dir($source)) {
-			throw new Exception_Directory_NotFound($source, "Copying to {dest}", array(
+			throw new Exception_Directory_NotFound($source, "Copying to {dest}", [
 				"dest" => $dest,
-			));
+			]);
 		}
 		if ($create) {
 			self::depend($dest);
 		}
 		if (!is_dir($dest)) {
-			throw new Exception_Directory_NotFound($dest, "Copying from {source}", array(
+			throw new Exception_Directory_NotFound($dest, "Copying from {source}", [
 				"source" => $source,
-			));
+			]);
 		}
 		self::delete_contents($dest);
 		foreach (self::list_recursive($source) as $f) {
@@ -589,7 +589,7 @@ class Directory extends Hookable {
 	public static function cull_contents($directory, $total, $order_by = "name", $ascending = true) {
 		$files = self::ls($directory, null, true);
 		if (count($files) < $total) {
-			return array();
+			return [];
 		}
 		if (empty($order_by)) {
 			$order_by = "name";
@@ -607,7 +607,7 @@ class Directory extends Hookable {
 		}
 		ksort($target_files, $sort_flags | ($ascending ? SORT_ASC : SORT_DESC));
 		$n_to_delete = count($target_files) - $total;
-		$deleted = array();
+		$deleted = [];
 		foreach ($target_files as $target_file) {
 			if ($n_to_delete <= 0) {
 				break;
@@ -661,7 +661,7 @@ class Directory extends Hookable {
 	 * @see File::find_first
 	 */
 	public static function find_all(array $paths, $directory = null) {
-		$result = array();
+		$result = [];
 		if (is_array($directory)) {
 			foreach ($paths as $path) {
 				foreach ($directory as $d) {

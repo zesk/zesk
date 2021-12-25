@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -67,7 +67,7 @@ class Net_POP_Client_Iterator implements \Iterator {
 	/**
 	 * Delete item at current iterator point
 	 */
-	public function current_delete() {
+	public function current_delete(): void {
 		$this->client->message_delete($this->key());
 	}
 
@@ -75,7 +75,7 @@ class Net_POP_Client_Iterator implements \Iterator {
 		return key($this->messages_list);
 	}
 
-	public function next() {
+	public function next(): void {
 		$this->valid = next($this->messages_list);
 		$this->message_headers = null;
 	}
@@ -84,7 +84,7 @@ class Net_POP_Client_Iterator implements \Iterator {
 		return $this->valid;
 	}
 
-	public function rewind() {
+	public function rewind(): void {
 		$this->messages_list = $this->client->messages_list();
 		$this->valid = reset($this->messages_list);
 		$this->message_headers = null;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage contact
@@ -28,12 +28,12 @@ class Contact_Builder_Date extends Contact_Builder_Base {
 			return;
 		}
 
-		$data = array(
+		$data = [
 			'value' => $value,
-		) + $this->data;
-		$map = array(
+		] + $this->data;
+		$map = [
 			'key' => $key,
-		);
+		];
 		$data = map($data, $map);
 
 		$import->merge_item($this->contact_class, $data['value'], $data);

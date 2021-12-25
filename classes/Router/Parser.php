@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\Router;
 
 use zesk\JSON;
@@ -51,14 +51,14 @@ class Parser {
 		$logger = $app->logger;
 
 		$lines = explode("\n", $this->contents);
-		$paths = array();
-		$options = array();
+		$paths = [];
+		$options = [];
 		$whites = to_list(" ;\t");
-		$tr = array(
+		$tr = [
 			'$zesk_root' => $app->zesk_home(),
 			'$zesk_application_root' => $app->path(),
-		);
-		$routes = array();
+		];
+		$routes = [];
 		foreach ($lines as $lineno => $line) {
 			$lineno1 = $lineno + 1; // 1-based line number
 			$firstc = substr($line, 0, 1);
@@ -70,7 +70,7 @@ class Parser {
 				if (count($paths) === 0) {
 					$logger->warning("Line $lineno1 of router has setting without path");
 				} else {
-					list($name, $value) = pair($line, "=", $line, null);
+					[$name, $value] = pair($line, "=", $line, null);
 					if ($value === null) {
 						$logger->warning("Line $lineno1 of router has no value ($line)");
 					} else {
@@ -84,10 +84,10 @@ class Parser {
 								$decoded = JSON::decode($value, true);
 								$value = $decoded;
 							} catch (Exception_Parse $e) {
-								$logger->error("Error parsing {id}:{lineno} decoding JSON failed", array(
+								$logger->error("Error parsing {id}:{lineno} decoding JSON failed", [
 									"id" => $this->id,
 									"lineno" => $lineno1,
-								));
+								]);
 								$app->hooks->call("exception", $e);
 							}
 						}
@@ -112,19 +112,19 @@ class Parser {
 					foreach ($paths as $path) {
 						$routes[] = $router->add_route($path, $options);
 					}
-					$options = array();
-					$paths = array(
+					$options = [];
+					$paths = [
 						unquote($line),
-					);
+					];
 				}
 			}
 		}
 		if (count($paths) > 0 && count($options) === 0) {
-			$logger->error("Router {path} has no valid options {options_string}", array(
+			$logger->error("Router {path} has no valid options {options_string}", [
 				"path" => $path,
 				"options" => $options,
 				"options_string" => JSON::encode($options),
-			));
+			]);
 		} else {
 			foreach ($paths as $path) {
 				$routes[] = $router->add_route($path, $options);

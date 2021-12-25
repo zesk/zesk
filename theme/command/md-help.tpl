@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL$
  * @author $Author: kent $
@@ -37,8 +37,8 @@ foreach ($this->categories as $category => $commands) {
 	foreach ($commands as $command => $info) {
 		echo "### `$command`\n\n";
 		$desc = avalue($info, "desc", $locale("No description provided."));
-		$parameters = array();
-		foreach (avalue($info, 'global', array()) as $global => $foo) {
+		$parameters = [];
+		foreach (avalue($info, 'global', []) as $global => $foo) {
 			$parameters[] = "- `$global` (" . $foo[0] . ")" . "\n" . Text::indent(rtrim($foo[2]), 1, false, " - ");
 		}
 		$parameters = implode("\n", $parameters);

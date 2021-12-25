@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -36,12 +36,12 @@ class Net_HTTP_UserAgent {
 	 *
 	 * @var array
 	 */
-	private static $classifications_names = array(
+	private static $classifications_names = [
 		'platform' => 'Platform',
 		'browser' => 'Web Browser',
 		'mobile' => 'Mobile/Desktop',
 		'user_agent' => 'User Agent',
-	);
+	];
 
 	/**
 	 * Presence of these true values in ->is will display classification
@@ -49,8 +49,8 @@ class Net_HTTP_UserAgent {
 	 *
 	 * @var array
 	 */
-	private static $classifications = array(
-		'platform' => array(
+	private static $classifications = [
+		'platform' => [
 			'mac' => 'mac',
 			'windows' => "windows",
 			'linux' => "linux",
@@ -58,25 +58,25 @@ class Net_HTTP_UserAgent {
 			'ipad' => 'ipad',
 			'android' => 'android',
 			'' => 'unknown',
-		),
-		'browser' => array(
+		],
+		'browser' => [
 			'safari' => 'safari',
 			'chrome' => 'chrome',
 			'ie' => 'ie',
 			'firefox' => 'firefox',
 			'' => 'unknown',
-		),
-		'mobile' => array(
+		],
+		'mobile' => [
 			'mobile' => 'mobile',
 			'' => 'desktop',
-		),
-	);
+		],
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private static $lang_classifications = array(
+	private static $lang_classifications = [
 		'mac' => 'Mac OS X',
 		'windows' => "Windows",
 		'linux' => "Linux",
@@ -92,7 +92,7 @@ class Net_HTTP_UserAgent {
 		'desktop' => 'Desktop',
 		'platform' => 'Platform',
 		'browser' => 'Web Browser',
-	);
+	];
 
 	/**
 	 * Create a new user agent
@@ -115,7 +115,7 @@ class Net_HTTP_UserAgent {
 	/**
 	 *
 	 */
-	public function __wakeup() {
+	public function __wakeup(): void {
 		$this->is = null;
 		$this->classify = null;
 	}
@@ -125,9 +125,9 @@ class Net_HTTP_UserAgent {
 	 * @return string[]
 	 */
 	public function __sleep() {
-		return array(
+		return [
 			"user_agent",
-		);
+		];
 	}
 
 	/**
@@ -241,37 +241,37 @@ class Net_HTTP_UserAgent {
 
 		$result['string'] = $ua = strtolower($user_agent);
 
-		$result['opera'] = (strpos($ua, "opera") !== false);
+		$result['opera'] = (str_contains($ua, "opera"));
 
-		$result['iphone'] = (strpos($ua, "iphone") !== false);
-		$result['ipad'] = (strpos($ua, "ipad") !== false);
-		$result['ios'] = $result['iphone'] || $result['ipad'] || (strpos($ua, "ios") !== false);
+		$result['iphone'] = (str_contains($ua, "iphone"));
+		$result['ipad'] = (str_contains($ua, "ipad"));
+		$result['ios'] = $result['iphone'] || $result['ipad'] || (str_contains($ua, "ios"));
 		foreach (to_list("5;6;7;8;9;10") as $v) {
-			$result["ios${v}"] = $result['ios'] && (strpos($ua, "os ${v}_") !== false);
+			$result["ios${v}"] = $result['ios'] && (str_contains($ua, "os ${v}_"));
 		}
-		$result['webkit'] = strpos($ua, "applewebkit") !== false;
-		$result['chrome'] = strpos($ua, "chrome/") !== false;
+		$result['webkit'] = str_contains($ua, "applewebkit")  ;
+		$result['chrome'] = str_contains($ua, "chrome/")  ;
 
-		$result['ie10'] = !$result['opera'] && (strpos($ua, "msie 10") !== false);
-		$result['ie9'] = !$result['opera'] && (strpos($ua, "msie 9") !== false);
-		$result['ie8'] = !$result['opera'] && (strpos($ua, "msie 8") !== false);
-		$result['ie7'] = !$result['opera'] && (strpos($ua, "msie 7") !== false) && !$result['ie8'];
-		$result['ie6'] = !$result['opera'] && (strpos($ua, "msie 6") !== false) && !$result['ie7'] && !$result['ie8'];
-		$result['ie'] = !$result['opera'] && (strpos($ua, "msie") !== false);
+		$result['ie10'] = !$result['opera'] && (str_contains($ua, "msie 10"));
+		$result['ie9'] = !$result['opera'] && (str_contains($ua, "msie 9"));
+		$result['ie8'] = !$result['opera'] && (str_contains($ua, "msie 8"));
+		$result['ie7'] = !$result['opera'] && (str_contains($ua, "msie 7")) && !$result['ie8'];
+		$result['ie6'] = !$result['opera'] && (str_contains($ua, "msie 6")) && !$result['ie7'] && !$result['ie8'];
+		$result['ie'] = !$result['opera'] && (str_contains($ua, "msie"));
 
-		$result['kindle'] = (strpos($ua, "kindle") !== false);
-		$result['surface'] = (strpos($ua, "surface") !== false);
+		$result['kindle'] = (str_contains($ua, "kindle"));
+		$result['surface'] = (str_contains($ua, "surface"));
 
-		$result['firefox'] = (strpos($ua, "firefox") !== false);
-		$result['safari'] = (strpos($ua, "safari") !== false) && !$result['chrome'];
-		$result['mac'] = (strpos($ua, "macintosh") !== false);
+		$result['firefox'] = (str_contains($ua, "firefox"));
+		$result['safari'] = (str_contains($ua, "safari")) && !$result['chrome'];
+		$result['mac'] = (str_contains($ua, "macintosh"));
 
-		$result['linux'] = (strpos($ua, "linux") !== false);
-		$result['windows'] = (strpos($ua, "windows") !== false);
-		$result['mac_intel'] = $result['mac'] && (strpos($ua, "intel") !== false);
-		$result['mac_ppc'] = $result['mac'] && (strpos($ua, "intel") === false);
+		$result['linux'] = (str_contains($ua, "linux"));
+		$result['windows'] = (str_contains($ua, "windows"));
+		$result['mac_intel'] = $result['mac'] && (str_contains($ua, "intel"));
+		$result['mac_ppc'] = $result['mac'] && (!str_contains($ua, "intel"));
 
-		$result['mobile'] = $result['ios'] || (strpos($ua, "mobile") !== false);
+		$result['mobile'] = $result['ios'] || (str_contains($ua, "mobile"));
 		$result['phone'] = $result['iphone'];
 		$result['tablet'] = !$result['phone'] && ($result['ipad'] || $result['kindle'] || $result['surface']);
 		$result['desktop'] = !$result['phone'] && !$result['tablet'];
@@ -285,7 +285,7 @@ class Net_HTTP_UserAgent {
 	 * @return unknown[]
 	 */
 	private function _classify() {
-		$result = array();
+		$result = [];
 		foreach (self::$classifications as $type => $tests) {
 			foreach ($tests as $check => $value) {
 				if ($check === '' || $this->is($check)) {

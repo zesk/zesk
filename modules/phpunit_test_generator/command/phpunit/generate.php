@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -25,16 +25,16 @@ class Command_PHPUnit_Generate extends Command_Iterator_File {
 	 *
 	 * @see Command_Base::initialize()
 	 */
-	public function initialize() {
-		$this->option_types += array(
+	public function initialize(): void {
+		$this->option_types += [
 			"destination" => 'directory',
-		);
+		];
 		parent::initialize();
 	}
 
 	/**
 	 */
-	protected function start() {
+	protected function start(): void {
 		$destination = $this->option("destination");
 		if (Directory::is_absolute($destination)) {
 			$this->destination = $destination;
@@ -48,11 +48,11 @@ class Command_PHPUnit_Generate extends Command_Iterator_File {
 	 *
 	 * @param SplFileInfo $file
 	 */
-	protected function process_file(\SplFileInfo $file) {
+	protected function process_file(\SplFileInfo $file): void {
 	}
 
 	/**
 	 */
-	protected function finish() {
+	protected function finish(): void {
 	}
 }

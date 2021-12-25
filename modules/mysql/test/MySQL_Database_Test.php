@@ -1,15 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class MySQL_Database_Test extends Test_Unit {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
-	);
+	];
 
-	public function test_types_compatible() {
-		$mysql = $this->application->database_registry("mysql://root@localhost/mysql", array(
+	public function test_types_compatible(): void {
+		$mysql = $this->application->database_registry("mysql://root@localhost/mysql", [
 			'connect' => false,
-		));
+		]);
 		/* @var $mysql Database_MySQL */
 		$this->assert_true(true);
 	}
@@ -21,14 +21,14 @@ class MySQL_Database_Test extends Test_Unit {
 	public function database() {
 		$db = $this->application->database_registry();
 
-		$this->assert_in_array(array(
+		$this->assert_in_array([
 			"mysql",
 			"mysqli",
-		), $db->type(), "Type must be mysqli or mysql");
+		], $db->type(), "Type must be mysqli or mysql");
 		return $db;
 	}
 
-	public function test_mysql_1() {
+	public function test_mysql_1(): void {
 		$db = $this->database();
 
 		$sql = <<<EOF
@@ -77,7 +77,7 @@ EOF;
 		echo "Test created because preg_match dies on web2 with above input... due to pcre backtracking stack overflow ... or something like that\n";
 	}
 
-	public function test_mysql_funcs_1() {
+	public function test_mysql_funcs_1(): void {
 		$db = $this->database();
 
 		$test_table = $this->test_table('test_table');
@@ -85,7 +85,7 @@ EOF;
 		$db->database_name();
 
 		$filename = path($this->test_sandbox("dump.sql"));
-		$options = array();
+		$options = [];
 		$db->connect();
 		$db->dump($filename, $options);
 
@@ -97,9 +97,9 @@ EOF;
 			/**
 			 * Set auto_connect to false
 			 */
-			$db->query("SHOW TABLES", array(
+			$db->query("SHOW TABLES", [
 				"auto_connect" => false,
-			));
+			]);
 		} catch (Database_Exception $e) {
 			$this->assert_contains($e->getMessage(), "Not connected");
 			$success = true;
@@ -125,32 +125,32 @@ EOF;
 
 		foreach ($tables as $table) {
 			if ($debug) {
-				$this->log("Showing table {table}", array(
+				$this->log("Showing table {table}", [
 					"table" => $table,
-				));
+				]);
 			}
 			$sql = $db->query_one("SHOW CREATE TABLE $table", 1);
 			if ($debug) {
-				$this->log("Showing table {table} = {sql}", array(
+				$this->log("Showing table {table} = {sql}", [
 					"table" => $table,
 					"sql" => $sql,
-				));
+				]);
 			}
 			$this->assert_string_begins($sql, "CREATE TABLE");
-			$this->assert(strpos($sql, "$table") !== false);
+			$this->assert(str_contains($sql, "$table"));
 
 			$dbTableObject = $db->parse_create_table($sql, __METHOD__);
 			$sql = $db->sql()->create_table($dbTableObject);
 			if (!is_array($sql)) {
-				$sqls = array(
+				$sqls = [
 					$sql,
-				);
+				];
 			} else {
 				$sqls = $sql;
 			}
 			foreach ($sqls as $sql) {
 				$this->assert(StringTools::begins($sql, "CREATE TABLE"));
-				$this->assert(strpos($sql, "$table") !== false);
+				$this->assert(str_contains($sql, "$table"));
 			}
 
 			$result = $db->table_information($table);
@@ -200,9 +200,9 @@ EOF;
 
 		$table = null;
 		$name = null;
-		$indexes = array(
+		$indexes = [
 			"Foo" => 32,
-		);
+		];
 		$db->sql()->index_type($table, $name, Database_Index::Index, $indexes);
 		$table = null;
 		$name = null;
@@ -214,17 +214,17 @@ EOF;
 		$table = null;
 		$name = null;
 		$indexType = null;
-		$indexes = array(
+		$indexes = [
 			"Foo" => 32,
-		);
+		];
 
 		$table = new Database_Table($db, "Foo");
-		$table->column_add(new Database_Column($table, "ID", array(
+		$table->column_add(new Database_Column($table, "ID", [
 			"sql_type" => "integer unsigned",
-		)));
-		$table->column_add(new Database_Column($table, "Name", array(
+		]));
+		$table->column_add(new Database_Column($table, "Name", [
 			"sql_type" => "varchar(32)",
-		)));
+		]));
 		$index = new Database_Index($table, "dude");
 		$index->column_add("ID");
 		$index->type(Database_Index::Primary);
@@ -254,7 +254,7 @@ EOF;
 
 		$db->insert_id();
 
-		$sql = array();
+		$sql = [];
 		$db->mixed_query($sql);
 
 		$sql = "SHOW TABLES";
@@ -288,7 +288,7 @@ EOF;
 
 		$filler = "ANTIDISESTABLISHMENTARIANISM";
 		$safe_url = $db->safe_url($filler);
-		$this->assert(strpos($safe_url, $filler) !== false, "Safe URL $safe_url does not contain $filler");
+		$this->assert(str_contains($safe_url, $filler), "Safe URL $safe_url does not contain $filler");
 
 		$table = new Database_Table($db, $table_name = "TestTable" . __LINE__);
 		$column = new Database_Column($table, "hello");
@@ -322,7 +322,7 @@ EOF;
 		$this->assert_is_string($db->table_prefix());
 	}
 
-	public function test_estimate_rows() {
+	public function test_estimate_rows(): void {
 		$db = $this->database();
 		$this->assert_true($db->table_exists("test_table"));
 		$sql = "SELECT * FROM test_table";

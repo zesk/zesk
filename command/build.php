@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -8,32 +8,32 @@ namespace zesk;
  * @category Management
  */
 class Command_Build extends Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		'no-update' => 'boolean',
 		'no-cache-clear' => 'boolean',
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		'no-update' => 'Skip updating of all modules',
 		'no-cache-clear' => 'Skip clearing the cache',
-	);
+	];
 
-	public function build_hook_callback($callable, array $arguments) {
-		$this->log("Running build step {callable}", array(
+	public function build_hook_callback($callable, array $arguments): void {
+		$this->log("Running build step {callable}", [
 			"callable" => $this->application->hooks->callable_string($callable),
-		));
+		]);
 	}
 
-	public function build_result_callback($callable, $previous_result, $new_result) {
+	public function build_result_callback($callable, $previous_result, $new_result): void {
 		$callable_string = $this->application->hooks->callable_string($callable);
-		$this->log("Completed build step {callable}", array(
+		$this->log("Completed build step {callable}", [
 			"callable" => $callable_string,
-		));
+		]);
 		if (is_array($new_result)) {
 		}
 	}
 
-	public function run() {
+	public function run(): void {
 		/*
 		 * Ok, so what do we do when we build an app?
 		 *
@@ -44,7 +44,7 @@ class Command_Build extends Command_Base {
 		$this->run_build_hooks();
 	}
 
-	private function run_cache_clear() {
+	private function run_cache_clear(): void {
 		if (!$this->option_bool('no-cache-clear')) {
 			$this->log("Clearing cache ...");
 			$this->log($this->zesk_cli("cache clear"));
@@ -53,7 +53,7 @@ class Command_Build extends Command_Base {
 		}
 	}
 
-	private function run_update() {
+	private function run_update(): void {
 		if (!$this->option_bool('no-update')) {
 			$this->log("Running module updates ...");
 			$this->log($this->zesk_cli("update"));
@@ -62,15 +62,15 @@ class Command_Build extends Command_Base {
 		}
 	}
 
-	private function run_build_hooks() {
-		$this->application->modules->all_hook_arguments("build", array(
+	private function run_build_hooks(): void {
+		$this->application->modules->all_hook_arguments("build", [
 			$this,
-		), true, array(
+		], true, [
 			$this,
 			"build_hook_callback",
-		), array(
+		], [
 			$this,
 			"build_result_callback",
-		));
+		]);
 	}
 }

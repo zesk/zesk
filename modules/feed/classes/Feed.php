@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Feed extends Model implements \Iterator {
@@ -12,19 +12,19 @@ class Feed extends Model implements \Iterator {
 	 *
 	 * @var array
 	 */
-	protected $posts = array();
+	protected $posts = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $errors = array();
+	protected $errors = [];
 
 	/**
 	 *
 	 * @param unknown $file_or_url
 	 */
-	public function __construct(Application $application, $url, array $options = array()) {
+	public function __construct(Application $application, $url, array $options = []) {
 		parent::__construct($application, null, $options);
 		$this->url($url);
 	}
@@ -37,9 +37,9 @@ class Feed extends Model implements \Iterator {
 	public function url($set = null) {
 		if ($set !== null) {
 			if (!URL::valid($set)) {
-				throw new Exception_Syntax("Invalid URL {url}", array(
+				throw new Exception_Syntax("Invalid URL {url}", [
 					"url" => $set,
-				));
+				]);
 			}
 			$this->url = $set;
 			return $this;
@@ -113,7 +113,7 @@ class Feed extends Model implements \Iterator {
 	 * @return NULL|\zesk\Feed
 	 */
 	public function execute() {
-		$this->errors = array();
+		$this->errors = [];
 
 		$content = $this->load_remote_url();
 		if ($content instanceof Exception) {
@@ -152,7 +152,7 @@ class Feed extends Model implements \Iterator {
 	/**
 	 *
 	 */
-	public function next() {
+	public function next(): void {
 		next($this->posts);
 	}
 
@@ -173,7 +173,7 @@ class Feed extends Model implements \Iterator {
 	/**
 	 *
 	 */
-	public function rewind() {
+	public function rewind(): void {
 		reset($this->posts);
 	}
 }

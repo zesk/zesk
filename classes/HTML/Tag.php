@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -51,7 +51,7 @@ class HTML_Tag extends Options {
 	 * @param string $outer_html
 	 * @param integer $offset
 	 */
-	public function __construct($name, array $attributes = array(), $inner_html = false, $outer_html = null, $offset = null) {
+	public function __construct($name, array $attributes = [], $inner_html = false, $outer_html = null, $offset = null) {
 		parent::__construct($attributes);
 
 		$this->name = $name;
@@ -116,13 +116,13 @@ class HTML_Tag extends Options {
 	 * @return string
 	 */
 	public function _to_php() {
-		return 'new ' . __CLASS__ . '(' . implode(", ", array(
+		return 'new ' . __CLASS__ . '(' . implode(", ", [
 			PHP::dump($this->name),
 			PHP::dump($this->option()),
 			PHP::dump($this->inner_html),
 			PHP::dump($this->outer_html),
 			$this->offset,
-		)) . ')';
+		]) . ')';
 	}
 
 	/**

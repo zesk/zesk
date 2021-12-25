@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Things that should probably just be in PHP, or were added after we added these. Review
  * annually to see if we can deprecate functionality.
@@ -232,7 +232,7 @@ function _backtrace($n = -1) {
 	if ($n <= 0) {
 		$n = count($bt);
 	}
-	$result = array();
+	$result = [];
 	foreach ($bt as $i) {
 		$file = "closure";
 		$line = "-none-";
@@ -241,7 +241,7 @@ function _backtrace($n = -1) {
 		extract($i, EXTR_IF_EXISTS);
 		$line = "$file: $line $class$type$function";
 		if (is_array($args)) {
-			$arg_dump = array();
+			$arg_dump = [];
 			foreach ($args as $index => $arg) {
 				if (is_object($arg)) {
 					$arg_dump[$index] = get_class($arg);
@@ -271,7 +271,7 @@ function _backtrace($n = -1) {
  * @param int $n
  *        	The number of frames to output
  */
-function backtrace($exit = true, $n = -1) {
+function backtrace($exit = true, $n = -1): void {
 	echo _backtrace($n);
 	if ($exit) {
 		exit($exit);
@@ -319,7 +319,7 @@ function calling_function($depth = 1, $include_line = true) {
  * @see print_r
  */
 if (!function_exists("dump")) {
-	function dump() {
+	function dump(): void {
 		call_user_func_array('zesk\Debug::output', func_get_args());
 	}
 }
@@ -363,10 +363,10 @@ function to_bool($value, $default = false) {
 	}
 	$value = strtolower($value);
 	$find = ";$value;";
-	if (strpos(";1;t;y;yes;on;enabled;true;", $find) !== false) {
+	if (str_contains(";1;t;y;yes;on;enabled;true;", $find)) {
 		return true;
 	}
-	if (strpos(";0;f;n;no;off;disabled;false;null;;", $find) !== false) {
+	if (str_contains(";0;f;n;no;off;disabled;false;null;;", $find)) {
 		return false;
 	}
 	return $default;
@@ -397,7 +397,7 @@ function to_integer($s, $def = null) {
  * @return double The double value, or $def if it can not be converted to an integer
  */
 function to_double($s, $def = null) {
-	return is_numeric($s) ? doubleval($s) : $def;
+	return is_numeric($s) ? floatval($s) : $def;
 }
 
 /**
@@ -412,7 +412,7 @@ function to_double($s, $def = null) {
  *        	String list delimiter (";" is default)
  * @return array or $default
  */
-function to_list($mixed, $default = array(), $delimiter = ";") {
+function to_list($mixed, $default = [], $delimiter = ";") {
 	if (is_scalar($mixed)) {
 		return explode($delimiter, strval($mixed));
 	} elseif (is_array($mixed)) {
@@ -434,14 +434,14 @@ function to_list($mixed, $default = array(), $delimiter = ";") {
  *        	Default value to return if can't easily convert to an array.
  * @return array
  */
-function to_array($mixed, $default = array()) {
+function to_array($mixed, $default = []) {
 	if (is_array($mixed)) {
 		return $mixed;
 	}
 	if (is_scalar($mixed) && $mixed !== false) {
-		return array(
+		return [
 			$mixed,
-		);
+		];
 	}
 	if (is_object($mixed) && method_exists($mixed, "to_array")) {
 		return $mixed->to_array();
@@ -482,11 +482,11 @@ function to_iterator($mixed) {
 		return $mixed;
 	}
 	if (empty($mixed)) {
-		return array();
+		return [];
 	}
-	return array(
+	return [
 		$mixed,
-	);
+	];
 }
 
 /**
@@ -526,7 +526,7 @@ function __($phrase) {
 }
 
 if (!function_exists('debugger_start_debug')) {
-	function debugger_start_debug() {
+	function debugger_start_debug(): void {
 	}
 }
 
@@ -619,9 +619,9 @@ function tr($mixed, array $map) {
 		$map = ArrayTools::flatten($map);
 		return strtr($mixed, $map);
 	} elseif (is_object($mixed)) {
-		return $mixed instanceof Hookable ? $mixed->call_hook_arguments('tr', array(
+		return $mixed instanceof Hookable ? $mixed->call_hook_arguments('tr', [
 			$map,
-		), $mixed) : $mixed;
+		], $mixed) : $mixed;
 	} else {
 		return $mixed;
 	}
@@ -714,7 +714,7 @@ function amap(array $target, array $map, $insensitive = false, $prefix_char = "{
  * @return array
  */
 function kmap(array $target, array $map, $insensitive = false, $prefix_char = "{", $suffix_char = "}") {
-	$new_mixed = array();
+	$new_mixed = [];
 	foreach ($target as $key => $value) {
 		$new_mixed[map($key, $map, $insensitive, $prefix_char, $suffix_char)] = $value;
 	}
@@ -753,7 +753,7 @@ function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suff
 	if ($insensitive) {
 		$map = array_change_key_case($map);
 	}
-	$s = array();
+	$s = [];
 	foreach ($map as $k => $v) {
 		if (is_array($v)) {
 			if (ArrayTools::is_list($v)) {
@@ -773,9 +773,7 @@ function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suff
 	if ($insensitive) {
 		static $func = null;
 		if (!$func) {
-			$func = function ($matches) {
-				return strtolower($matches[0]);
-			};
+			$func = fn ($matches) => strtolower($matches[0]);
 		}
 		$mixed = preg_replace_callback_mixed('/' . preg_quote($prefix_char, '/') . '([-:_ =,.\/\'"A-Za-z0-9]+)' . preg_quote($suffix_char, '/') . '/i', $func, $mixed);
 	}
@@ -822,9 +820,9 @@ function can_map($string, $prefix_char = "{", $suffix_char = "}") {
 function map_tokens($mixed, $prefix_char = "{", $suffix_char = "}") {
 	$delimiter = "#";
 	$suff = preg_quote($suffix_char, $delimiter);
-	$matches = array();
+	$matches = [];
 	if (!preg_match_all($delimiter . preg_quote($prefix_char, $delimiter) . '[^' . $suff . ']*' . $suff . $delimiter, $mixed, $matches)) {
-		return array();
+		return [];
 	}
 	return $matches[0];
 }
@@ -860,10 +858,10 @@ function map_tokens($mixed, $prefix_char = "{", $suffix_char = "}") {
  * @return string The phrase with the links embedded.
  */
 function _W($phrase) {
-	return call_user_func_array(array(
+	return call_user_func_array([
 		HTML::class,
 		"wrap",
-	), func_get_args());
+	], func_get_args());
 }
 
 /**
@@ -887,13 +885,13 @@ function _W($phrase) {
 function pair($a, $delim = '.', $left = false, $right = false, $include_delimiter = null) {
 	$n = strpos($a, $delim);
 	$delim_len = strlen($delim);
-	return ($n === false) ? array(
+	return ($n === false) ? [
 		$left,
 		$right,
-	) : array(
+	] : [
 		substr($a, 0, $n + ($include_delimiter === "left" ? $delim_len : 0)),
 		substr($a, $n + ($include_delimiter === "right" ? 0 : $delim_len)),
-	);
+	];
 }
 
 /**
@@ -917,13 +915,13 @@ function pair($a, $delim = '.', $left = false, $right = false, $include_delimite
 function pairr($a, $delim = '.', $left = false, $right = false, $include_delimiter = null) {
 	$n = strrpos($a, $delim);
 	$delim_len = strlen($delim);
-	return ($n === false) ? array(
+	return ($n === false) ? [
 		$left,
 		$right,
-	) : array(
+	] : [
 		substr($a, 0, $n + ($include_delimiter === "left" ? $delim_len : 0)),
 		substr($a, $n + ($include_delimiter === "right" ? 0 : $delim_len)),
-	);
+	];
 }
 
 /**
@@ -960,7 +958,7 @@ function glue($left, $glue, $right) {
  */
 function unquote($s, $quotes = "''\"\"", &$left_quote = null) {
 	if (is_array($s)) {
-		$result = array();
+		$result = [];
 		foreach ($s as $k => $ss) {
 			$result[$k] = unquote($ss, $quotes, $left_quote);
 		}
@@ -998,6 +996,8 @@ function path_from_array($separator, array $mixed) {
 	$r = array_shift($mixed);
 	if (is_array($r)) {
 		$r = path_from_array($separator, $r);
+	} elseif (!is_string($r)) {
+		$r = "";
 	}
 	foreach ($mixed as $p) {
 		if ($p === null) {
@@ -1005,8 +1005,9 @@ function path_from_array($separator, array $mixed) {
 		}
 		if (is_array($p)) {
 			$p = path_from_array($separator, $p);
+		} elseif (is_string($p)) {
+			$r .= ((substr($r, -1) === $separator || substr($p, 0, 1) === $separator)) ? $p : $separator . $p;
 		}
-		$r .= ((substr($r, -1) === $separator || substr($p, 0, 1) === $separator)) ? $p : $separator . $p;
 	}
 	$separatorq = preg_quote($separator);
 	$r = preg_replace("|$separatorq$separatorq+|", $separator, $r);
@@ -1257,10 +1258,10 @@ function &apath_set(array &$array, $path, $value = null, $separator = ".") {
 		$key = array_shift($keys);
 		if (isset($current[$key])) {
 			if (!is_array($current[$key])) {
-				$current[$key] = array();
+				$current[$key] = [];
 			}
 		} else {
-			$current[$key] = array();
+			$current[$key] = [];
 		}
 		$current = &$current[$key];
 	}
@@ -1303,16 +1304,16 @@ if (!function_exists('sgn')) {
  * @return float
  */
 function zesk_weight($weight = null) {
-	static $weight_specials = array(
+	static $weight_specials = [
 		'zesk-first' => -1e300,
 		'first' => -1e299,
 		'last' => 1e299,
 		'zesk-last' => 1e300,
-	);
+	];
 	if ($weight === null) {
 		return $weight_specials;
 	}
-	return doubleval($weight_specials[strval($weight)] ?? $weight);
+	return floatval($weight_specials[strval($weight)] ?? $weight);
 }
 
 /**
@@ -1366,13 +1367,13 @@ function zesk_sort_weight_array_reverse(array $a, array $b) {
  * @return array
  */
 function _zesk_global_key($key) {
-	$key = explode(ZESK_GLOBAL_KEY_SEPARATOR, strtr(strtolower($key), array(
+	$key = explode(ZESK_GLOBAL_KEY_SEPARATOR, strtr(strtolower($key), [
 		"__" => ZESK_GLOBAL_KEY_SEPARATOR,
 		"." => "_",
 		"/" => "_",
 		"-" => "_",
 		" " => "_",
-	)));
+	]));
 	return $key;
 }
 

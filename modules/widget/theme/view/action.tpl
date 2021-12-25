@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -22,10 +22,10 @@ if ($this->theme) {
 } elseif ($this->title) {
 	$content = $this->title;
 } else {
-	$application->logger->warning("No title for action {url} - parent widget is {parent_class}", array(
+	$application->logger->warning("No title for action {url} - parent widget is {parent_class}", [
 		"url" => $url,
 		$widget instanceof Widget ? get_class($widget->top()) : type($widget),
-	));
+	]);
 }
 if (!$add_link) {
 	return $content;
@@ -33,13 +33,13 @@ if (!$add_link) {
 
 $referrer_query_string_name = $this->get('referrer_query_string_name', 'ref');
 
-$attr = $this->geta("a_attributes", array());
+$attr = $this->geta("a_attributes", []);
 if ($this->onclick) {
 	$attr['onclick'] = $this->onclick;
 }
 
 echo HTML::tag_open('li', $this->get('li_attributes', ".action"));
-echo HTML::a(URL::query_format($object->apply_map($url), array(
+echo HTML::a(URL::query_format($object->apply_map($url), [
 	$referrer_query_string_name => $request->uri(),
-)), $attr, $content);
+]), $attr, $content);
 echo HTML::tag_close('li');

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * $Id: HTML.php 4380 2017-03-05 20:47:58Z kent $
  * @package zesk
@@ -16,7 +16,7 @@ namespace zesk;
  * @subpackage control
  */
 class Control_HTML extends Control_Text {
-	protected function hook_construct() {
+	protected function hook_construct(): void {
 		$this->sanitize_html(true);
 		if (!$this->has_option("sanitize_strip_tags")) {
 			$this->sanitize_strip_tags(false);

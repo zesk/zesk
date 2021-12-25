@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -9,11 +9,11 @@ namespace zesk;
 class Class_Settings extends Class_ORM {
 	public $id_column = "name";
 
-	public $column_types = array(
+	public $column_types = [
 		'name' => self::type_string,
 		'value' => self::type_serialize,
 		'modified' => self::type_modified,
-	);
+	];
 
 	/**
 	 * No auto column

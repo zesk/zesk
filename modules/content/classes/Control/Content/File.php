@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage content
@@ -20,12 +20,12 @@ class Control_Content_File extends Control_Widgets {
 		return $this->application->orm_factory(Content_File::class);
 	}
 
-	public function initialize() {
+	public function initialize(): void {
 		$prefix = $this->name() . "_";
 		$this->_file_widget = $w = $this->widget_factory("Control_File");
-		$w->set_option(array(
+		$w->set_option([
 			'hash_file' => true,
-		) + $this->options);
+		] + $this->options);
 		$w->column = $prefix . "upload";
 
 		$this->child($w);

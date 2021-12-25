@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Run through all classes and ensure they are installed correctly
@@ -17,9 +17,9 @@ namespace zesk;
  * @category BETA - Management
  */
 class Command_Install extends Command_Base {
-	protected $option_types = array();
+	protected array $option_types = [];
 
-	public function run() {
+	public function run(): void {
 		/* @var $application Application */
 		$application = $this->application;
 
@@ -28,15 +28,15 @@ class Command_Install extends Command_Base {
 		 * are up to date. If not, exit.
 		 */
 		$classes = $application->orm_classes();
-		$objects_by_class = array();
-		$errors = array();
+		$objects_by_class = [];
+		$errors = [];
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
 			$objects_by_class[$class] = $object = $this->application->orm_factory($class);
 			if (!$object instanceof ORM) {
-				$this->application->logger->error("{class} is not instance of ORM", array(
+				$this->application->logger->error("{class} is not instance of ORM", [
 					"class" => $class,
-				));
+				]);
 
 				continue;
 			}
@@ -46,7 +46,7 @@ class Command_Install extends Command_Base {
 				$errors[] = $class;
 			}
 			$dependencies = $object->dependencies();
-			$requires = avalue($dependencies, 'requires', array());
+			$requires = avalue($dependencies, 'requires', []);
 			foreach ($requires as $require) {
 				if (avalue($objects_by_class, $require)) {
 					continue;
@@ -63,11 +63,11 @@ class Command_Install extends Command_Base {
 		/*
 		 * Now, reorder the classes based on dependencies within them.
 		 */
-		$objects = array();
-		$befores = array();
-		$afters = array();
+		$objects = [];
+		$befores = [];
+		$afters = [];
 		foreach ($objects_by_class as $class => $object) {
-			$requires = $conflicts = $install_before = $install_after = array();
+			$requires = $conflicts = $install_before = $install_after = [];
 			$dependencies = $object->dependencies();
 			extract($dependencies, EXTR_IF_EXISTS);
 
@@ -108,7 +108,7 @@ class Command_Install extends Command_Base {
 			exit(1);
 		}
 
-		$ordered_objects = array();
+		$ordered_objects = [];
 		foreach ($objects_by_class as $object) {
 			$errors = $this->order_walk_object($object, $ordered_objects);
 		}
@@ -118,11 +118,11 @@ class Command_Install extends Command_Base {
 			exit(1);
 		}
 
-		foreach (array(
+		foreach ([
 			'pre_install',
 			'install',
 			'post_install',
-		) as $method_name) {
+		] as $method_name) {
 			$application->call_hook($method_name . "_begin");
 			foreach ($ordered_objects as $object) {
 				if (method_exists($object, $method_name)) {
@@ -144,11 +144,11 @@ class Command_Install extends Command_Base {
 			return true;
 		}
 		if ($object->option('installed_cyclic')) {
-			return array(
+			return [
 				get_class($object),
-			);
+			];
 		}
-		$errors = array();
+		$errors = [];
 		$object->set_option('installed_cyclic', true);
 		$object_list = $object->option('install_prev');
 		$object->set_option('install_prev');

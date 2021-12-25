@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -13,11 +13,11 @@ use zesk\URL;
  * @category Database
  */
 class Command_Database_Dump extends Command_Base {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"database",
-	);
+	];
 
-	protected $option_types = array(
+	protected array $option_types = [
 		"name" => "string",
 		"echo" => "boolean",
 		"file" => "boolean",
@@ -30,9 +30,9 @@ class Command_Database_Dump extends Command_Base {
 		"arg-suffix" => "string",
 		"tables" => "list",
 		"*" => "string",
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		"name" => "Database name to dump",
 		"echo" => "Output the shell command to do the dump instead of running it",
 		"file" => "Presence means write the output to a file instead of stdout",
@@ -45,7 +45,7 @@ class Command_Database_Dump extends Command_Base {
 		"arg-suffix" => "Pass options to suffix command-line",
 		"tables" => "List of tables to dump",
 		"*" => "string",
-	);
+	];
 
 	/**
 	 *
@@ -59,11 +59,11 @@ class Command_Database_Dump extends Command_Base {
 			$this->error("No such database for \"$dbname\"\n");
 			return false;
 		}
-		list($binary, $args) = $db->shell_command(array(
+		[$binary, $args] = $db->shell_command([
 			"sql-dump-command" => true,
 			"tables" => $this->option_list("tables"),
 			'non-blocking' => $this->option_bool('non-blocking'),
-		));
+		]);
 		if ($this->has_option("arg-prefix")) {
 			$args = array_merge($this->option_list('arg-prefix'), $args);
 		}
@@ -77,14 +77,14 @@ class Command_Database_Dump extends Command_Base {
 		$where = "";
 		if ($this->option_bool('file') || $this->has_option('dir') || $this->has_option('target')) {
 			$app_root = $this->application->path();
-			$map = array(
+			$map = [
 				'database_name' => $db->url("name"),
 				"database_host" => $db->url("host"),
 				"database_port" => $db->url("port"),
 				"database_user" => $db->url("user"),
 				"zesk_application_root" => $app_root,
 				"application_root" => $app_root,
-			);
+			];
 			$dir = $this->option("dir", "sql-dumps");
 			if ($this->has_option("target")) {
 				$target = $this->option("target");

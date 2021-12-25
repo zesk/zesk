@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @test_sandbox true
  * @package zesk
@@ -13,12 +13,12 @@ namespace zesk;
  *
  */
 class Session_ORM_Test extends Test_ORM {
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"MySQL",
 		"Session",
-	);
+	];
 
-	public function test_main() {
+	public function test_main(): void {
 		$testx = new Session_ORM($this->application);
 
 		$user = new User($this->application);
@@ -30,12 +30,12 @@ class Session_ORM_Test extends Test_ORM {
 		$db->query("DROP TABLE IF EXISTS `$table`");
 		$db->query("DROP TABLE IF EXISTS `$user_table`");
 
-		$db->query($this->application->orm_module()->schema_synchronize($db, array(
+		$db->query($this->application->orm_module()->schema_synchronize($db, [
 			User::class,
 			Session_ORM::class,
-		), array(
+		], [
 			"follow" => true,
-		)));
+		]));
 
 		//$this->test_an_object($testx, "ID");
 
@@ -69,20 +69,20 @@ class Session_ORM_Test extends Test_ORM {
 		$testx->Wild_thing = "Grawp1";
 		$testx->Wilder_thang = "Grawp2";
 
-		$result = $testx->filter(array(
+		$result = $testx->filter([
 			"A" => "B",
 			"B" => "A",
 			"Dog" => "Cat-like",
 			"Cat" => "Dog-like",
 			"Wilder_thang",
-		));
+		]);
 
-		$this->assert_arrays_equal($result, array(
+		$this->assert_arrays_equal($result, [
 			"A" => "B",
 			"B" => "A",
 			"Cat-like" => "Cat",
 			"Dog-like" => "Dog",
 			"Wilder_thang" => "Grawp2",
-		));
+		]);
 	}
 }

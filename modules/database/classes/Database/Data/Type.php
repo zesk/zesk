@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 abstract class Database_Data_Type {
@@ -13,55 +13,55 @@ abstract class Database_Data_Type {
 	 *
 	 * @var string
 	 */
-	const sql_type_id = "id";
+	public const sql_type_id = "id";
 
 	/**
 	 * Text
 	 * @var string
 	 */
-	const sql_type_string = "string";
+	public const sql_type_string = "string";
 
 	/**
 	 * Numbers of varying integer precisions
 	 * @var string
 	 */
-	const sql_type_integer = "integer";
+	public const sql_type_integer = "integer";
 
 	/**
 	 * Floating point double precision numbers
 	 * @var string
 	 */
-	const sql_type_double = "double";
+	public const sql_type_double = "double";
 
 	/**
 	 * Date
 	 * @var string
 	 */
-	const sql_type_date = "date";
+	public const sql_type_date = "date";
 
 	/**
 	 * Time
 	 * @var string
 	 */
-	const sql_type_time = "time";
+	public const sql_type_time = "time";
 
 	/**
 	 * Timestamp
 	 * @var string
 	 */
-	const sql_type_datetime = "datetime";
+	public const sql_type_datetime = "datetime";
 
 	/**
 	 * Large binary data
 	 * @var string
 	 */
-	const sql_type_blob = "blob";
+	public const sql_type_blob = "blob";
 
 	/**
 	 * Large text data
 	 * @var unknown
 	 */
-	const sql_type_text = "text";
+	public const sql_type_text = "text";
 
 	/**
 	 * Construct Database_Data_Type
@@ -71,47 +71,47 @@ abstract class Database_Data_Type {
 		$this->database = $database;
 	}
 
-	protected $sql_type_natives = array(
-		self::sql_type_string => array(
+	protected $sql_type_natives = [
+		self::sql_type_string => [
 			"char",
 			"varchar",
 			"text",
-		),
-		self::sql_type_integer => array(
+		],
+		self::sql_type_integer => [
 			self::sql_type_integer,
 			'bit',
-		),
-		self::sql_type_double => array(
+		],
+		self::sql_type_double => [
 			"decimal",
-		),
-		self::sql_type_date => array(
+		],
+		self::sql_type_date => [
 			"date",
-		),
-		self::sql_type_time => array(
+		],
+		self::sql_type_time => [
 			"time",
-		),
-		self::sql_type_datetime => array(
+		],
+		self::sql_type_datetime => [
 			"datetime",
-		),
-	);
+		],
+	];
 
-	protected $sql_type_native_aliases = array(
+	protected $sql_type_native_aliases = [
 		'int' => 'integer',
-	);
+	];
 
 	/**
 	 * Override in subclasses to configure alternate native types
 	 *
 	 * @var array
 	 */
-	protected $sql_type_to_php_type = array(
+	protected $sql_type_to_php_type = [
 		self::sql_type_string => "string",
 		self::sql_type_integer => "integer",
 		self::sql_type_double => "double",
 		self::sql_type_date => "string",
 		self::sql_type_time => "string",
 		self::sql_type_datetime => "integer",
-	);
+	];
 
 	protected $pattern_native_type = '/([a-z]+)\(([^)]*)\)/';
 
@@ -126,10 +126,10 @@ abstract class Database_Data_Type {
 
 	public function is_text($native_type) {
 		$sql_type = $this->native_type_to_sql_type($native_type);
-		return in_array($sql_type, array(
+		return in_array($sql_type, [
 			self::sql_type_string,
 			self::sql_type_text,
-		));
+		]);
 	}
 
 	/**

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -38,8 +38,8 @@ class View_Errors extends View {
 		$model = new Model($application);
 		$response = $application->response_factory($application->request());
 		$model->errors = $errors;
-		return $application->widget_factory(__CLASS__, array(
+		return $application->widget_factory(__CLASS__, [
 			'column' => 'errors',
-		))->response($response)->execute($model);
+		])->response($response)->execute($model);
 	}
 }

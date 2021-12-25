@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -16,7 +16,7 @@ class Command_Loader {
 	 *
 	 * @var array
 	 */
-	private $search = array();
+	private $search = [];
 
 	/**
 	 * Main command run
@@ -37,14 +37,14 @@ class Command_Loader {
 	 *
 	 * @var array
 	 */
-	private $wait_configs = array();
+	private $wait_configs = [];
 
 	/**
 	 * Command alaises
 	 *
 	 * @var array
 	 */
-	private $aliases = array();
+	private $aliases = [];
 
 	/**
 	 *
@@ -57,7 +57,7 @@ class Command_Loader {
 	 *
 	 * @var array
 	 */
-	private $global_context = array();
+	private $global_context = [];
 
 	/**
 	 *
@@ -69,7 +69,7 @@ class Command_Loader {
 	 *
 	 * @var string
 	 */
-	const configure_options = 'application::configure_options';
+	public const configure_options = 'application::configure_options';
 
 	/**
 	 * Set up PHP basics so we can detect errors while testing, etc.
@@ -78,7 +78,7 @@ class Command_Loader {
 		global $_ZESK;
 
 		if (!is_array($_ZESK)) {
-			$_ZESK = array();
+			$_ZESK = [];
 		}
 
 		$_ZESK['zesk\application']['configure_options']['skip_configured'] = true; // Is honored 2018-03-10 KMD
@@ -215,11 +215,11 @@ class Command_Loader {
 	public function run_command($arg, array $args) {
 		$application = $this->application;
 		$command = avalue($this->aliases, $arg, $arg);
-		$command = strtr($command, array(
+		$command = strtr($command, [
 			"_" => "/",
 			"-" => "/",
-		));
-		list($class, $path) = $this->find_command_class($command);
+		]);
+		[$class, $path] = $this->find_command_class($command);
 		if (!$class) {
 			return $args;
 		}
@@ -228,11 +228,11 @@ class Command_Loader {
 			return $args;
 		}
 		/* @var $command_object Command */
-		$command_object = $application->objects->factory($class, $application, array_merge(array(
+		$command_object = $application->objects->factory($class, $application, array_merge([
 			$arg,
-		), $args), array(
+		], $args), [
 			"debug" => $this->debug,
-		));
+		]);
 		$application->command($command_object);
 
 		$result = $command_object->go();
@@ -258,10 +258,10 @@ class Command_Loader {
 	 */
 	private function find_command_class($command) {
 		$paths = $this->application->zesk_command_path();
-		$class = strtr($command, array(
+		$class = strtr($command, [
 			"/" => "_",
-		));
-		$try_files = array();
+		]);
+		$try_files = [];
 		foreach ($paths as $path => $prefix) {
 			$try_files[path($path, $command . ".inc")] = $prefix; // DEPRECATED TODO 2017-03
 			$try_files[path($path, strtolower($command) . ".php")] = $prefix;
@@ -279,20 +279,20 @@ class Command_Loader {
 					$this->error("Command files ending with .inc are deprecated in Zesk 0.9.0, please rename\n\n\tmv $file $new_file\n\nto use the .php extension\n");
 				}
 				require_once $file;
-				return array(
+				return [
 					$prefix . $class,
 					$file,
-				);
+				];
 			}
 		}
-		$this->debug("Search path: \n\t{paths}", array(
+		$this->debug("Search path: \n\t{paths}", [
 			"paths" => implode("\n\t", ArrayTools::suffix(array_keys($paths), "/$command.php")),
-		));
+		]);
 		$this->error("Ignoring command $command - not found\n");
-		return array(
+		return [
 			null,
 			null,
-		);
+		];
 	}
 
 	/**
@@ -301,7 +301,7 @@ class Command_Loader {
 	 * @param string $error
 	 * @param number $exit_code
 	 */
-	private function usage($error = null, $exit_code = 1) {
+	private function usage($error = null, $exit_code = 1): void {
 		if ($error) {
 			$message[] = $error;
 			$message[] = "";
@@ -348,9 +348,9 @@ class Command_Loader {
 			$qs_argv = $args[0];
 		}
 		$qs_argv = explode("&", $qs_argv);
-		$args = array(
+		$args = [
 			__FILE__,
-		);
+		];
 		$found = false;
 		foreach ($qs_argv as $arg) {
 			if ($found || (substr($arg, 0, 1) === "-") || (strpos($arg, "=")) === false) {
@@ -369,9 +369,9 @@ class Command_Loader {
 	 */
 	private function argument_sugar(array $args) {
 		foreach ($args as $index => $arg) {
-			$args[$index] = strtr($arg, array(
+			$args[$index] = strtr($arg, [
 				"___" => "\\",
-			));
+			]);
 		}
 		return $args;
 	}
@@ -386,10 +386,10 @@ class Command_Loader {
 		if (count($this->search) === 0) {
 			$this->search[] = getcwd();
 		}
-		foreach (array(
+		foreach ([
 			$_ZESK,
 			$_SERVER,
-		) as $super) {
+		] as $super) {
 			if (!is_array($super)) {
 				continue;
 			}
@@ -439,23 +439,23 @@ class Command_Loader {
 		}
 		$this->is_loaded = true;
 		$kernel = Kernel::singleton();
-		$kernel->autoloader->path(ZESK_ROOT . 'command', array(
+		$kernel->autoloader->path(ZESK_ROOT . 'command', [
 			"class_prefix" => "zesk\\Command",
 			"lower" => true,
-		));
+		]);
 		$app = $kernel->application();
-		$this->aliases = array();
-		$loader = new Configuration_Loader(array(
+		$this->aliases = [];
+		$loader = new Configuration_Loader([
 			$app->path("etc/command-aliases.json"),
 			$app->zesk_home("etc/command-aliases.json"),
-		), new Adapter_Settings_Array($this->aliases));
+		], new Adapter_Settings_Array($this->aliases));
 		$loader->load();
 		if (count($this->wait_configs) > 0) {
 			foreach ($this->wait_configs as $wait_config) {
 				$this->debug("Loading $wait_config ...");
 				$app->loader->load_one($wait_config);
 			}
-			$this->wait_configs = array();
+			$this->wait_configs = [];
 		}
 		return $app;
 	}
@@ -482,10 +482,10 @@ class Command_Loader {
 			$this->usage("--set missing argument");
 		}
 
-		list($key, $value) = explode("=", $pair, 2) + array(
+		[$key, $value] = explode("=", $pair, 2) + [
 			null,
 			true,
-		);
+		];
 		if ($key === "debug") {
 			$this->debug = true;
 		}
@@ -555,10 +555,10 @@ class Command_Loader {
 		if ($arg === null) {
 			$this->usage("--cd missing argument");
 		}
-		list($name, $value) = explode("=", $arg, 2) + array(
+		[$name, $value] = explode("=", $arg, 2) + [
 			$arg,
 			true,
-		);
+		];
 		if (!defined($name)) {
 			define($name, $value);
 		} else {
@@ -604,15 +604,15 @@ class Command_Loader {
 		}
 		if ($this->zesk_is_loaded()) {
 			/* @var $locale \zesk\Locale */
-			$this->debug("Loading configuration file {file}", array(
+			$this->debug("Loading configuration file {file}", [
 				"file" => $arg,
-			));
+			]);
 			$this->application->loader->load_one($arg);
 		} else {
 			$this->wait_configs[] = $arg;
-			$this->debug("Loading configuration file {file} (queued)", array(
+			$this->debug("Loading configuration file {file} (queued)", [
 				"file" => $arg,
-			));
+			]);
 		}
 		return $args;
 	}
@@ -623,7 +623,7 @@ class Command_Loader {
 	 * @return string[]
 	 */
 	public static function wrap_brackets($array) {
-		$result = array();
+		$result = [];
 		foreach ($array as $k => $v) {
 			$result['{' . $k . '}'] = $v;
 		}
@@ -636,7 +636,7 @@ class Command_Loader {
 	 * @param string $message
 	 * @return void
 	 */
-	private function debug($message, array $context = array()) {
+	private function debug($message, array $context = []): void {
 		if ($this->debug) {
 			$context = self::wrap_brackets($context);
 			echo __CLASS__ . " " . rtrim(strtr($message, $context), "\n") . "\n";

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -11,10 +11,10 @@ namespace zesk;
  *
  */
 class Command_Test_Generate extends Command_Iterator_File {
-	protected $extensions = array(
+	protected $extensions = [
 		"php",
 		"inc",
-	);
+	];
 
 	/**
 	 *
@@ -33,19 +33,19 @@ class Command_Test_Generate extends Command_Iterator_File {
 	 *
 	 * @see Command_Base::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
-		$this->option_types += array(
+		$this->option_types += [
 			"target" => 'dir',
-		);
-		$this->option_help += array(
+		];
+		$this->option_help += [
 			"target" => "Path to create generated test files",
-		);
+		];
 	}
 
 	/**
 	 */
-	protected function start() {
+	protected function start(): void {
 		$this->autoload_paths = $this->application->autoloader->path();
 		$this->target = $this->option("target");
 		if (!$this->target) {
@@ -63,9 +63,9 @@ class Command_Test_Generate extends Command_Iterator_File {
 		$filename = $file->getFilename();
 		$fullpath = $file->getRealPath();
 		$suffix = $this->in_autoload_path($fullpath);
-		$__ = array(
+		$__ = [
 			"fullpath" => $fullpath,
-		);
+		];
 		if (!$suffix) {
 			$this->verbose_log("{fullpath} not in autoload path", $__);
 			return true;
@@ -74,7 +74,7 @@ class Command_Test_Generate extends Command_Iterator_File {
 		$inspector = PHP_Inspector::factory($this->application, $fullpath);
 
 		foreach ($inspector->defined_classes() as $class) {
-			list($ns, $cl) = PHP::parse_namespace_class($class);
+			[$ns, $cl] = PHP::parse_namespace_class($class);
 			$target_file = path($this->target, $cl . "_Test.php");
 			$target_generator = Test_Generator::factory($this->application, $target_file);
 			if ($target_generator->create_if_not_exists()) {
@@ -87,7 +87,7 @@ class Command_Test_Generate extends Command_Iterator_File {
 
 	/**
 	 */
-	protected function finish() {
+	protected function finish(): void {
 	}
 
 	/**

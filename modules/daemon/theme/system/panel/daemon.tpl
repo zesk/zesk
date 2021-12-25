@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -22,31 +22,31 @@ foreach ($servers as $server) {
 	$data = $server->data($server_data_key);
 	$last_updated = $server->data($server_updated_key);
 	if ($last_updated instanceof Timestamp) {
-		$updated = $this->theme(array(
+		$updated = $this->theme([
 			"system/panel/daemon/updated",
 			"system/panel/updated",
 			"updated",
-		), array(
+		], [
 			"content" => $last_updated,
-		), array(
+		], [
 			"first" => true,
-		));
+		]);
 	} else {
 		$updated = $locale->__("never updated");
 	}
-	$items[] = HTML::tag("li", '.heading', $locale->__("{name} ({updated})", array(
+	$items[] = HTML::tag("li", '.heading', $locale->__("{name} ({updated})", [
 		"name" => $server->name,
 		"updated" => $updated,
-	)));
+	]));
 	if (!$data) {
 		$items[] = HTML::tag('li', '.error', "No process data");
 	} else {
 		$now = microtime(true);
 		foreach ($data as $process => $settings) {
-			$items[] = $this->theme("system/panel/daemon/line", array(
+			$items[] = $this->theme("system/panel/daemon/line", [
 				"content" => $settings,
 				"process" => $process,
-			));
+			]);
 		}
 	}
 }

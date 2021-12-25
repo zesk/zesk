@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package ruler
  * @subpackage test
@@ -54,21 +54,21 @@ abstract class Test_Website extends Test_Selenium {
 		$single_test = $this->option("single_test");
 		$begin_test = $this->option("begin_test");
 		$run_default = $this->option_bool("run_default", true);
-		$tests = array();
+		$tests = [];
 		if ($single_test) {
 			if (!in_array($single_test, $this->tests())) {
 				$this->failed("No such test $single_test");
 			}
 			echo "####### Single test: $single_test\n";
-			$tests = array(
+			$tests = [
 				$single_test,
-			);
+			];
 		} elseif ($begin_test) {
 			$all_tests = $this->tests();
 			if (!in_array($begin_test, $all_tests)) {
 				$this->failed("No such test $begin_test");
 			}
-			$tests = array();
+			$tests = [];
 			$found = false;
 			foreach ($all_tests as $test) {
 				if ($test === $begin_test || $found) {
@@ -104,10 +104,10 @@ abstract class Test_Website extends Test_Selenium {
 		}
 		$sleep_time = $this->option_integer("sleep_before_stop", 0);
 		if ($exception && $sleep_time > 0) {
-			$this->application->logger->error("Error occurred: {message}", array(
+			$this->application->logger->error("Error occurred: {message}", [
 				"message" => $exception->getMessage(),
 				"exception" => $exception,
-			));
+			]);
 			$this->message("Sleeping before stopping ...");
 			sleep($sleep_time);
 		}
@@ -124,7 +124,7 @@ abstract class Test_Website extends Test_Selenium {
 		return parent::open($this->url_prefix . $url);
 	}
 
-	public function waitForPageToLoad($timeout = "30000", $reverse_test = false) {
+	public function waitForPageToLoad($timeout = "30000", $reverse_test = false): void {
 		parent::waitForPageToLoad($timeout);
 
 		if ($reverse_test) {
@@ -136,7 +136,7 @@ abstract class Test_Website extends Test_Selenium {
 
 	public function shouldSkipPage($content, $path) {
 		$skip_page_tag = $this->option('skip_page_tag');
-		if ($skip_page_tag && strpos($content, $skip_page_tag) !== false) {
+		if ($skip_page_tag && str_contains($content, $skip_page_tag)) {
 			$this->message("Skipping $path ... INTERNAL");
 			return true;
 		}
@@ -146,7 +146,7 @@ abstract class Test_Website extends Test_Selenium {
 	public function validate_method_default() {
 		$content = $this->getBodyText();
 		$visited_link = $this->getLocation();
-		if (strpos($content, "PHP-ERROR") !== false) {
+		if (str_contains($content, "PHP-ERROR")) {
 			$error = "#### ERROR: PHP Error or Warning found: $visited_link";
 			echo "$error\n";
 			echo "CONTENT:\n";
@@ -157,19 +157,19 @@ abstract class Test_Website extends Test_Selenium {
 		return true;
 	}
 
-	protected function click_all_linkable_pages($start_page = "/", $skip_links = null, $validate_method = "validate_method_default", $logprefix = "#") {
+	protected function click_all_linkable_pages($start_page = "/", $skip_links = null, $validate_method = "validate_method_default", $logprefix = "#"): void {
 		$this->application->logger->error("$logprefix _click_all_linkable_pages START");
 		if (!is_array($skip_links)) {
-			$skip_links = array();
+			$skip_links = [];
 		}
 		$this->open($start_page);
 		$this->waitForPageToLoad();
-		$errors = array();
-		$handled_links = array();
-		$external_links = array();
-		$download_links = array();
-		$mailto_links = array();
-		$links = array();
+		$errors = [];
+		$handled_links = [];
+		$external_links = [];
+		$download_links = [];
+		$mailto_links = [];
+		$links = [];
 		do {
 			$visited_link = $this->getLocation();
 
@@ -232,17 +232,17 @@ abstract class Test_Website extends Test_Selenium {
 							// echo "$logprefix ALREADY VISITED $href\n";
 						} else {
 							// echo "$logprefix ADDING $href\n";
-							$links[] = array(
+							$links[] = [
 								$href,
 								$visited_link,
-							);
+							];
 							$handled_links[$href_norm] = true;
 						}
 					}
 				}
 			}
 			// $link = $referrer = null;
-			list($link, $referrer) = array_shift($links);
+			[$link, $referrer] = array_shift($links);
 			if ($link) {
 				echo "$logprefix Next page is: $link\n";
 				echo "$logprefix Referrer is: $referrer\n";
@@ -275,7 +275,7 @@ abstract class Test_Website extends Test_Selenium {
 		return $this->walk_all_pages($directory_root, $skip_links, $exclude_files);
 	}
 
-	protected function walk_all_pages($directory_root, $skip_links = null, $exclude_files = null) {
+	protected function walk_all_pages($directory_root, $skip_links = null, $exclude_files = null): void {
 		$validate_method = $this->option('validate_method', 'validate_method_default');
 
 		$options['file_include_pattern'] = '/\.php$/';
@@ -286,7 +286,7 @@ abstract class Test_Website extends Test_Selenium {
 		echo "Files path is $directory_root ...\n";
 		$files = Directory::list_recursive($directory_root, $options);
 
-		$links = array();
+		$links = [];
 
 		$files = ArrayTools::prefix($files, "/");
 		$files = array_flip($files);
@@ -297,11 +297,11 @@ abstract class Test_Website extends Test_Selenium {
 			}
 			$files[$k] = false;
 		}
-		$handled_links = array();
-		$download_links = array();
-		$external_links = array();
+		$handled_links = [];
+		$download_links = [];
+		$external_links = [];
 		$logprefix = "######";
-		$errors = array();
+		$errors = [];
 		do {
 			$visited_link = $this->getLocation();
 
@@ -364,17 +364,17 @@ abstract class Test_Website extends Test_Selenium {
 							// echo "$logprefix ALREADY VISITED $href\n";
 						} else {
 							echo "$logprefix ADDING $href\n";
-							$links[] = array(
+							$links[] = [
 								$href,
 								$visited_link,
-							);
+							];
 							$handled_links[$href_norm] = true;
 						}
 					}
 				}
 			}
 			$link = $referrer = null;
-			list($link, $referrer) = array_shift($links);
+			[$link, $referrer] = array_shift($links);
 			if ($link) {
 				echo "$logprefix Next page is: $link\n";
 				echo "$logprefix Referrer is: $referrer\n";
@@ -384,7 +384,7 @@ abstract class Test_Website extends Test_Selenium {
 
 		if (!is_array($exclude_files)) {
 			$this->message("\$exclude_files is not an array");
-			$exclude_files = array();
+			$exclude_files = [];
 		}
 		foreach ($files as $f => $visited) {
 			if (ArrayTools::find($f, $exclude_files)) {

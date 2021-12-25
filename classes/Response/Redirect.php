@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage response
@@ -30,14 +30,14 @@ class Redirect extends Type {
 	 *
 	 * @todo Move this elsewhere. Response addon?
 	 */
-	public function message_clear() {
+	public function message_clear(): void {
 		try {
 			$this->session()->redirect_message = null;
 		} catch (\Exception $e) {
-			$this->application->logger->debug("{method} caused an exception {e}", array(
+			$this->application->logger->debug("{method} caused an exception {e}", [
 				"method" => __METHOD__,
 				"e" => $e,
-			));
+			]);
 		}
 	}
 
@@ -51,7 +51,7 @@ class Redirect extends Type {
 		try {
 			$messages = to_array($this->session()->redirect_message);
 		} catch (\Exception $e) {
-			return array();
+			return [];
 		}
 		if ($message === null) {
 			return $messages;
@@ -83,7 +83,7 @@ class Redirect extends Type {
 	}
 
 	public function to_json() {
-		return array();
+		return [];
 	}
 
 	/**
@@ -91,7 +91,7 @@ class Redirect extends Type {
 	 * {@inheritDoc}
 	 * @see \zesk\Response\Type::output()
 	 */
-	public function output($content) {
+	public function output($content): void {
 		echo $this->render($content);
 	}
 
@@ -100,7 +100,7 @@ class Redirect extends Type {
 	 * @param string $url
 	 * @param string $message
 	 */
-	public function url($url, $message = null) {
+	public function url($url, $message = null): void {
 		throw new Exception_Redirect($url, $message);
 	}
 
@@ -109,7 +109,7 @@ class Redirect extends Type {
 	 * @param string $url
 	 * @param string $message
 	 */
-	public function url_temporary($url, $message = null) {
+	public function url_temporary($url, $message = null): void {
 		throw new Exception_RedirectTemporary($url, $message);
 	}
 
@@ -122,9 +122,9 @@ class Redirect extends Type {
 		$saved_url = $url;
 		/* Clean out any unwanted characters from the URL */
 		$url = preg_replace("/[\x01-\x1F\x7F-\xFF]/", '', $url);
-		$altered_url = $this->parent->call_hook_arguments('redirect_alter', array(
+		$altered_url = $this->parent->call_hook_arguments('redirect_alter', [
 			$url,
-		), $url);
+		], $url);
 		if (is_string($altered_url) && !empty($altered_url)) {
 			$url = $altered_url;
 		}

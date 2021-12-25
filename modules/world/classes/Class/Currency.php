@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -9,20 +9,20 @@ class Class_Currency extends Class_ORM {
 
 	public $auto_column = false;
 
-	public $find_keys = array(
+	public $find_keys = [
 		"bank_country",
 		"code",
-	);
+	];
 
 	public $text_column = "name";
 
 	public $name = "Currency";
 
-	public $has_one = array(
+	public $has_one = [
 		'bank_country' => 'zesk\\Country',
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"bank_country" => self::type_object,
 		"name" => self::type_string,
@@ -32,9 +32,9 @@ class Class_Currency extends Class_ORM {
 		"fractional_units" => self::type_string,
 		"format" => self::type_string,
 		"precision" => self::type_integer,
-	);
+	];
 
-	public $column_defaults = array(
+	public $column_defaults = [
 		'precision' => 2,
-	);
+	];
 }

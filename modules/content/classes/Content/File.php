@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage file
@@ -27,13 +27,13 @@ class Content_File extends ORM {
 	 * @return multitype:multitype:string
 	 */
 	public static function settings() {
-		return array(
-			"scan_path" => array(
+		return [
+			"scan_path" => [
 				"type" => "list:path",
 				"name" => "List of internal file paths to scan for files to import.",
 				"description" => "File will be loaded and imported from this internal directory, once a minute via cron.",
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -107,10 +107,10 @@ class Content_File extends ORM {
 	 * @return string
 	 */
 	public function download_link(Router $router) {
-		return $router->get_route("download", __CLASS__, array(
+		return $router->get_route("download", __CLASS__, [
 			"id" => $this->id(),
 			"object" => $this,
-		));
+		]);
 	}
 
 	/**
@@ -169,16 +169,16 @@ class Content_File extends ORM {
 	 * @param boolean $copy
 	 * @return \Content_File
 	 */
-	public function register_path($path, array $options = array()) {
+	public function register_path($path, array $options = []) {
 		$copy = $this->option_bool("scan_path_copy");
 		$options = to_array($options);
 		$data = Content_Data::copy_from_path($this->application, $path, $copy);
 
 		$file = $this->application->object_fatcory(__CLASS__);
 		$file->original = avalue($options, 'original', $path);
-		if ($file->find(array(
+		if ($file->find([
 			'original' => $file->original,
-		))) {
+		])) {
 			return $file;
 		}
 		$file->data = $data;
@@ -190,7 +190,7 @@ class Content_File extends ORM {
 	/**
 	 * Load images from a particular directory and create Content_Files for them.
 	 */
-	public static function cron_minute(Application $application) {
+	public static function cron_minute(Application $application): void {
 		$object = new Content_File($application);
 		$paths = $object->option_list("scan_path");
 		foreach ($paths as $path) {
@@ -198,20 +198,20 @@ class Content_File extends ORM {
 				continue;
 			}
 			if (!is_dir($path)) {
-				$application->logger->error(__METHOD__ . ":=A configured path ({path}) was not found, <a href=\"{url}\">please update the setting.</a>", array(
+				$application->logger->error(__METHOD__ . ":=A configured path ({path}) was not found, <a href=\"{url}\">please update the setting.</a>", [
 					"path" => $path,
 					"url" => "admin/settings/Content_File::scan_path", /* TODO */
-				));
+				]);
 
 				continue;
 			}
 			/*
 			 * Should probably have scan_path_copy settings on a per-dir basis TODO
 			 */
-			Directory::iterate($path, null, array(
+			Directory::iterate($path, null, [
 				$object,
 				'register_path',
-			));
+			]);
 		}
 	}
 

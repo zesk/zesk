@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -22,7 +22,7 @@ class User extends ORM {
 	 *
 	 * @var string
 	 */
-	const option_debug_permission = "debug_permission";
+	public const option_debug_permission = "debug_permission";
 
 	/**
 	 *
@@ -41,7 +41,7 @@ class User extends ORM {
 	 *
 	 * @param Kernel $application
 	 */
-	public static function hooks(Application $application) {
+	public static function hooks(Application $application): void {
 		$application->configuration->path(__CLASS__);
 		$application->hooks->add(Hooks::HOOK_CONFIGURED, __CLASS__ . "::configured");
 	}
@@ -50,17 +50,17 @@ class User extends ORM {
 	 *
 	 * @param Application $application
 	 */
-	public static function configured(Application $application) {
-		self::$debug_permission = to_bool($application->configuration->path_get_first(array(
-			array(
+	public static function configured(Application $application): void {
+		self::$debug_permission = to_bool($application->configuration->path_get_first([
+			[
 				__CLASS__,
 				self::option_debug_permission,
-			),
-			array(
+			],
+			[
 				'User',
 				self::option_debug_permission,
-			),
-		)));
+			],
+		]));
 	}
 
 	/**
@@ -133,9 +133,9 @@ class User extends ORM {
 	public function email($set = null) {
 		$column = $this->column_email();
 		if (!$column) {
-			throw new Exception_Semantics("No email column in {class}", array(
+			throw new Exception_Semantics("No email column in {class}", [
 				"class" => get_class($this),
-			));
+			]);
 		}
 		if ($set !== null) {
 			return $this->set_member($column, $set);
@@ -195,11 +195,11 @@ class User extends ORM {
 		if (in_array($algo, $this->class->allowed_hash_methods)) {
 			return hash($algo, $string, $raw_output);
 		}
-		$this->application->error("Invalid hash algorithm {algo} in User {id}, using default", array(
+		$this->application->error("Invalid hash algorithm {algo} in User {id}, using default", [
 			"algo" => $algo,
 			"id" => $this->id(),
 			"default" => $this->class->default_hash_method,
-		));
+		]);
 	}
 
 	/**
@@ -271,7 +271,7 @@ class User extends ORM {
 	 * @throws Exception_Permission
 	 * @return User
 	 */
-	public function must($action, Model $context = null, array $options = array()) {
+	public function must($action, Model $context = null, array $options = []) {
 		if (!$this->can($action, $context, $options)) {
 			throw new Exception_Permission($this, $action, $context, $options);
 		}
@@ -279,12 +279,12 @@ class User extends ORM {
 	}
 
 	final public static function clean_permission($string) {
-		return strtolower(strtr($string, array(
+		return strtolower(strtr($string, [
 			' ' => '_',
 			'.' => '_',
 			'-' => '_',
 			'__' => '::',
-		)));
+		]));
 	}
 
 	/**
@@ -319,54 +319,54 @@ class User extends ORM {
 	 *        	Extra optional settings, permission-specific
 	 * @return boolean
 	 */
-	public function can($actions, $context = null, array $options = array()) {
+	public function can($actions, $context = null, array $options = []) {
 		// Sanitize input
 		if ($actions instanceof Model) {
-			list($actions, $context) = array(
+			[$actions, $context] = [
 				$context,
 				$actions,
-			);
+			];
 		}
 		if ($context && !$context instanceof Model) {
-			$this->application->logger->warning("Non model passed as \$context to {method} ({type})", array(
+			$this->application->logger->warning("Non model passed as \$context to {method} ({type})", [
 				"method" => __METHOD__,
 				"type" => type($context),
-			));
+			]);
 			$context = null;
 		}
 
 		$result = false; // By default, don't allow anything
 		// Allow multiple actions
 		$is_or = is_string($actions) && strpos($actions, '|');
-		$actions = to_list($actions, array(), $is_or ? '|' : ';');
+		$actions = to_list($actions, [], $is_or ? '|' : ';');
 		$default_result = $this->option("can", false);
 		foreach ($actions as $action) {
 			$action = self::clean_permission($action);
 			$skiplog = false;
 
 			try {
-				$result = $this->call_hook_arguments("can", array(
+				$result = $this->call_hook_arguments("can", [
 					$action,
 					$context,
 					$options,
-				), $default_result);
+				], $default_result);
 			} catch (\Exception $e) {
 				$result = false;
 				$skiplog = true;
-				$this->application->logger->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {exception_class} {message}\n{backtrace}", array(
+				$this->application->logger->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {exception_class} {message}\n{backtrace}", [
 					"action" => $action,
 					"context" => $context,
 					"result" => $result,
 					"roles" => $this->_roles,
-				) + Exception::exception_variables($e));
+				] + Exception::exception_variables($e));
 			}
 			if (self::$debug_permission && !$skiplog) {
-				$this->application->logger->debug("User::can({action},{context}) = {result} (Roles {roles}) ({extra})", array(
+				$this->application->logger->debug("User::can({action},{context}) = {result} (Roles {roles}) ({extra})", [
 					"action" => $action,
 					"context" => $context,
 					"result" => $result,
 					"roles" => $this->_roles,
-				));
+				]);
 			}
 			if ($is_or) {
 				// One must be allowed to continue
@@ -387,11 +387,11 @@ class User extends ORM {
 		}
 		$hook_option_name = $default_hook . "_hook";
 		if (($hook = avalue($options, $hook_option_name, $this->option($hook_option_name))) !== null) {
-			$this->call_hook_arguments(is_string($hook) ? $hook : $default_hook, array(
+			$this->call_hook_arguments(is_string($hook) ? $hook : $default_hook, [
 				$actions,
 				$context,
 				$options,
-			));
+			]);
 		}
 
 		return $result;
@@ -443,12 +443,12 @@ class User extends ORM {
 	 * @return array
 	 */
 	public static function permissions(Application $application) {
-		return parent::default_permissions($application, __CLASS__) + array(
-			__CLASS__ . '::become' => array(
+		return parent::default_permissions($application, __CLASS__) + [
+			__CLASS__ . '::become' => [
 				'title' => __("Become another user"),
 				"class" => "User",
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -463,18 +463,18 @@ class User extends ORM {
 	 *        	Default options to pass to "can" function
 	 * @return array
 	 */
-	public function filter_actions(array $actions, Model $context = null, array $options = array()) {
-		$actions_passed = array();
+	public function filter_actions(array $actions, Model $context = null, array $options = []) {
+		$actions_passed = [];
 		foreach ($actions as $href => $attributes) {
 			if (is_array($attributes) && array_key_exists("permission", $attributes)) {
 				$permission = $attributes['permission'];
 				unset($attributes['permission']);
 				if (is_array($permission)) {
-					list($a_permission, $a_context, $a_options) = $permission + (array(
+					[$a_permission, $a_context, $a_options] = $permission + ([
 						null,
 						null,
-						array(),
-					));
+						[],
+					]);
 					if ($this->can($a_permission, $a_context, $a_options)) {
 						$actions_passed[$href] = $attributes;
 					}

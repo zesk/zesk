@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage file
@@ -23,7 +23,7 @@ class Class_Content_File extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"mime" => self::type_string,
 		"original" => self::type_string,
@@ -33,14 +33,14 @@ class Class_Content_File extends Class_ORM {
 		"user" => self::type_object,
 		"created" => self::type_created,
 		"modified" => self::type_modified,
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $has_one = array(
+	public $has_one = [
 		'data' => 'zesk\\Content_Data',
 		'user' => 'zesk\\User',
-	);
+	];
 }

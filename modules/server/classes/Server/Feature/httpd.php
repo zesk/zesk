@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Server_Feature_HTTPD extends Server_Feature {
 	public $name = 'httpd';
 
-	protected $settings = array(
+	protected $settings = [
 		"packages" => "package list",
 		"conf_home" => "directory",
 		"bin" => "executable",
@@ -12,21 +12,21 @@ class Server_Feature_HTTPD extends Server_Feature {
 		"enable_module" => "executable",
 		"user" => "user",
 		"group" => "group",
-	);
+	];
 
-	protected $features = array(
+	protected $features = [
 		"users",
-	);
+	];
 
-	protected $defaults = array();
+	protected $defaults = [];
 
 	private $exec_control = null;
 
-	public function initialize() {
+	public function initialize(): void {
 		$this->packages = $this->config->package_dependency_list("packages");
 	}
 
-	public function install() {
+	public function install(): void {
 		parent::install();
 		/*
 		 * Service install
@@ -42,7 +42,7 @@ class Server_Feature_HTTPD extends Server_Feature {
 		}
 	}
 
-	public function preconfigure() {
+	public function preconfigure(): void {
 		/* @var $users Server_Feature_Users */
 		$users = $this->config->feature('users');
 		$users->require_user($this->config->variable('httpd::user'));
@@ -50,12 +50,12 @@ class Server_Feature_HTTPD extends Server_Feature {
 		parent::preconfigure();
 	}
 
-	public function configure() {
+	public function configure(): void {
 		$config = $this->config;
 		$httpd_conf_path = $config->option('HTTPD_CONF_HOME');
 		$owner = $config->user("HTTPD_USER") . ":" . $config->group("HTTPD_GROUP");
-		$this->require_directory(path($config->option('LOG_PATH'), 'httpd'), $owner, 0755);
-		$this->require_directory($httpd_conf_path, $owner, 0755);
+		$this->require_directory(path($config->option('LOG_PATH'), 'httpd'), $owner, 0o755);
+		$this->require_directory($httpd_conf_path, $owner, 0o755);
 
 		/*
 		 * $host_path = $this->configure_path('httpd'); if (!is_dir($host_path)) { throw new
@@ -83,7 +83,7 @@ class Server_Feature_HTTPD extends Server_Feature {
 		}
 	}
 
-	private function apache_control($arguments) {
+	private function apache_control($arguments): void {
 		$args = func_get_args();
 		array_shift($args);
 		$command = $this->config->executable('HTTPD_CONTROL');
@@ -91,7 +91,7 @@ class Server_Feature_HTTPD extends Server_Feature {
 		$this->root_exec_array($command, $args);
 	}
 
-	private function _check_configuration(Server_Configuration $config, $server_root, $httpd_conf_file = null) {
+	private function _check_configuration(Server_Configuration $config, $server_root, $httpd_conf_file = null): void {
 		if ($httpd_conf_file === null) {
 			$httpd_conf_file = $config->get("HTTPD_CONF_RELATIVE_PATH");
 		}
@@ -106,7 +106,7 @@ class Server_Feature_HTTPD extends Server_Feature {
 		}
 	}
 
-	private function _auto_configure(Server_Configuration $config) {
+	private function _auto_configure(Server_Configuration $config): void {
 	}
 }
 

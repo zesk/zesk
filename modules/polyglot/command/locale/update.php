@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -7,7 +7,7 @@ namespace zesk;
  *
  */
 class Command_Locale_Update extends Command_Base {
-	protected function run() {
+	protected function run(): void {
 		PolyGlot_Update::cron_minute($this->application);
 	}
 }

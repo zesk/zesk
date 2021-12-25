@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -16,10 +16,10 @@ namespace zesk;
 $widget = $this->widget;
 /* @var $widget Widget */
 $response = $this->response;
+$attributes = $this->attributes;
 
-$name = $widget->column();
 $value = $this->value;
-if ($value[0] !== '#') {
+if (is_string($value) && strlen($value) > 0 && $value[0] !== '#') {
 	$value = "#$value";
 }
 

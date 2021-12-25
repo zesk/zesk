@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,9 +10,9 @@ namespace zesk\UnderscoreJS;
  *
  */
 class Module extends \zesk\Module_JSLib {
-	protected $javascript_paths = array(
-		'/share/underscorejs/underscore.js' => array(
+	protected $javascript_paths = [
+		'/share/underscorejs/underscore.js' => [
 			"weight" => "first",
-		),
-	);
+		],
+	];
 }

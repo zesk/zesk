@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 $content = $this->content;
 if (can_iterate($content)) {
-	$result = array();
+	$result = [];
 	$item_theme = $this->get("theme", "list");
 	$force_assoc = $this->getb("force_assoc");
 	$force_list = $this->getb("force_list");

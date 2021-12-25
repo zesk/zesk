@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @test_module Widget
  */
@@ -11,11 +11,11 @@ namespace zesk;
  */
 class Views_Test extends TestWidget {
 	public function test_view() {
-		$controls = array(
+		$controls = [
 			View_Tooltip::class,
-			View_Actions::class => array(
+			View_Actions::class => [
 				"test_object" => User::class,
-			),
+			],
 			View_Checkbox::class,
 			View_Checklist::class,
 			View_Email::class,
@@ -34,35 +34,35 @@ class Views_Test extends TestWidget {
 			View_Time_Span::class,
 			View_Time_Zone::class,
 			View_Email::class,
-		);
+		];
 
-		$this->application->configuration->path_set(array(
+		$this->application->configuration->path_set([
 			'zesk\\' . 'Session',
 			'implementation',
-		), 'zesk\\' . 'Session_Mock');
+		], 'zesk\\' . 'Session_Mock');
 
 		$app = $this->application;
 		$router = $app->router();
-		$router->add_route("user/{action}", array(
+		$router->add_route("user/{action}", [
 			"actions" => "edit;list;new",
 			"classes" => "User",
 			"method" => __CLASS__ . "::the_route",
-		));
+		]);
 		foreach ($controls as $class => $options) {
 			if (is_string($options)) {
 				$class = $options;
-				$options = array();
+				$options = [];
 			}
-			$this->log($app->locale->__(__CLASS__ . "::test_views({0}, {1})", array($class, PHP::dump($options))));
+			$this->log($app->locale->__(__CLASS__ . "::test_views({0}, {1})", [$class, PHP::dump($options)]));
 			$this->test_basics($this->application->widget_factory($class, $options));
 		}
 		return true;
 	}
 
-	public function the_route() {
+	public function the_route(): void {
 	}
 
-	public function test_View_Currency_format() {
+	public function test_View_Currency_format(): void {
 		$this->assert_equal(View_Currency::format($this->application, "5.512", "$"), "$5.51");
 		$this->assert_equal(View_Currency::format($this->application, "5.512", "&euro;"), "&euro;5.51");
 	}

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Module to present context-sensitive help on web pages.
  *
@@ -28,19 +28,19 @@ class Module_Help extends Module_JSLib {
 	 *
 	 * @var array
 	 */
-	protected $javascript_settings_inherit = array(
+	protected $javascript_settings_inherit = [
 		'show_count' => 3,
-	);
+	];
 
 	/**
 	 * Associated classes
 	 *
 	 * @return array
 	 */
-	protected $model_classes = array(
+	protected array $model_classes = [
 		'zesk\\Help',
 		'zesk\\Help_User',
-	);
+	];
 
 	/**
 	 * We inject our JavaScript on pages; it loads
@@ -48,11 +48,11 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $requset
 	 * @param Response $response
 	 */
-	public function hook_head(Request $request, Response $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template): void {
 		if (!$this->option_bool("disabled")) {
-			$response->javascript('/share/help/js/help.js', array(
+			$response->javascript('/share/help/js/help.js', [
 				'share' => true,
-			));
+			]);
 			$this->javascript_settings['active'] = false;
 
 			try {
@@ -62,10 +62,10 @@ class Module_Help extends Module_JSLib {
 					$this->javascript_settings['active'] = true;
 				}
 			} catch (Database_Exception $e) {
-				$this->application->logger->debug("{class}::hook_head threw exception {e}", array(
+				$this->application->logger->debug("{class}::hook_head threw exception {e}", [
 					'class' => __CLASS__,
 					'e' => $e,
-				));
+				]);
 			}
 		}
 		parent::hook_head($request, $response, $template);
@@ -74,22 +74,22 @@ class Module_Help extends Module_JSLib {
 	/**
 	 * Registers all help text in the system
 	 */
-	public function hook_cron_cluster() {
+	public function hook_cron_cluster(): void {
 		$application = $this->application;
-		$helps = $application->modules->all_hook_arguments("module_help", array(), array());
-		$this->application->logger->notice("{class}::cron found {count} help items", array(
+		$helps = $application->modules->all_hook_arguments("module_help", [], []);
+		$this->application->logger->notice("{class}::cron found {count} help items", [
 			"count" => count($helps),
 			'class' => __CLASS__,
-		));
+		]);
 		foreach ($helps as $target => $settings) {
 			if ($settings === null) {
-				$item = $application->orm_factory('zesk\\Help')->find(array(
+				$item = $application->orm_factory('zesk\\Help')->find([
 					'target' => $target,
-				));
+				]);
 				if ($item) {
-					$this->application->logger->notice("Deleted help item for {target}", array(
+					$this->application->logger->notice("Deleted help item for {target}", [
 						'target' => $target,
-					));
+					]);
 					$item->delete();
 				}
 
@@ -106,9 +106,9 @@ class Module_Help extends Module_JSLib {
 			$help = $application->orm_factory(Help::class, $settings)->register();
 			/* @var $help Help */
 			if ($help->object_status() === ORM::object_status_insert) {
-				$this->application->logger->notice("Registered help item for {target}", array(
+				$this->application->logger->notice("Registered help item for {target}", [
 					'target' => $target,
-				));
+				]);
 			} elseif ($this->option_bool('cron_update')) {
 				$help->set_member($settings)->store();
 			}
@@ -120,47 +120,47 @@ class Module_Help extends Module_JSLib {
 	 *
 	 * @param Router $router
 	 */
-	public function hook_routes(Router $router) {
-		$router->add_route('help/user-targets', array(
-			'method' => array(
+	public function hook_routes(Router $router): void {
+		$router->add_route('help/user-targets', [
+			'method' => [
 				$this,
 				"user_targets",
-			),
-			'arguments' => array(
+			],
+			'arguments' => [
 				'{request}',
 				'{response}',
-			),
-		));
-		$router->add_route('help/user-reset', array(
-			'method' => array(
+			],
+		]);
+		$router->add_route('help/user-reset', [
+			'method' => [
 				$this,
 				"user_reset",
-			),
-			'arguments' => array(
+			],
+			'arguments' => [
 				'{request}',
 				'{response}',
-			),
-		));
-		$router->add_route('help/show', array(
-			'method' => array(
+			],
+		]);
+		$router->add_route('help/show', [
+			'method' => [
 				$this,
 				"user_show",
-			),
-			'arguments' => array(
+			],
+			'arguments' => [
 				'{request}',
 				'{response}',
-			),
-		));
-		$router->add_route('help/dismiss', array(
-			'method' => array(
+			],
+		]);
+		$router->add_route('help/dismiss', [
+			'method' => [
 				$this,
 				"user_dismiss",
-			),
-			'arguments' => array(
+			],
+			'arguments' => [
 				'{request}',
 				'{response}',
-			),
-		));
+			],
+		]);
 	}
 
 	/**
@@ -169,34 +169,34 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $request
 	 * @param Response $response
 	 */
-	public function user_targets(Request $request, Response $response) {
+	public function user_targets(Request $request, Response $response): void {
 		$application = $this->application;
 		$user = $this->_help_auth($request, $response);
 		$query = $this->application->orm_registry('zesk\\Help')
 			->query_select()
-			->link('zesk\\Help_User', array(
+			->link('zesk\\Help_User', [
 			'require' => false,
 			"alias" => "hu",
-			"on" => array(
+			"on" => [
 				'user' => $user,
-			),
-		))
-			->where(array(
+			],
+		])
+			->where([
 			"X.active" => true,
 			"hu.user" => null,
-		));
+		]);
 		$helps = $query->orm_iterator();
-		$result = array();
-		$mappables = $application->modules->all_hook_arguments("module_help_map", array(), array());
+		$result = [];
+		$mappables = $application->modules->all_hook_arguments("module_help_map", [], []);
 		if (count($mappables) === 0) {
-			$mappables = array();
+			$mappables = [];
 		}
 		$__ = $this->application->locale;
 		foreach ($helps as $id => $help) {
 			/* @var $help Help */
 			$additional_map = $help->map;
 			if (!is_array($additional_map)) {
-				$additional_map = array();
+				$additional_map = [];
 			}
 			$help_map = $additional_map + $mappables;
 
@@ -231,9 +231,9 @@ class Module_Help extends Module_JSLib {
 	private function _help_auth(Request $request, Response $response) {
 		$user = $this->application->user($request, false);
 		if (!$user || !$user->authenticated($request)) {
-			$response->status(Net_HTTP::STATUS_UNAUTHORIZED, "Requires user")->json(array(
+			$response->status(Net_HTTP::STATUS_UNAUTHORIZED, "Requires user")->json([
 				'error' => $this->application->locale->__('Requires user'),
-			));
+			]);
 			return null;
 		}
 		return $user;
@@ -253,9 +253,9 @@ class Module_Help extends Module_JSLib {
 			return null;
 		}
 		if (!$this->application->development() && !$request->is_post()) {
-			$response->status(Net_HTTP::STATUS_METHOD_NOT_ALLOWED, "Requires POST")->json(array(
+			$response->status(Net_HTTP::STATUS_METHOD_NOT_ALLOWED, "Requires POST")->json([
 				'error' => $this->application->locale->__('Requires POST data'),
-			));
+			]);
 			return null;
 		}
 		return $user;
@@ -267,19 +267,19 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $request
 	 * @param Response $response
 	 */
-	public function user_show(Request $request, Response $response) {
+	public function user_show(Request $request, Response $response): void {
 		if (($user = $this->_help_update($request, $response)) === null) {
 			return;
 		}
 		$application = $this->application;
-		$ids = $request->geta('id', array());
+		$ids = $request->geta('id', []);
 		foreach ($ids as $id) {
 			$application->orm_factory('zesk\\Help', $id)->show();
 		}
-		$response->json()->data(array(
+		$response->json()->data([
 			'status' => true,
 			'message' => 'Marked',
-		));
+		]);
 	}
 
 	/**
@@ -287,27 +287,27 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $request
 	 * @param Response $response
 	 */
-	public function user_dismiss(Request $request, Response $response) {
+	public function user_dismiss(Request $request, Response $response): void {
 		if (($user = $this->_help_update($request, $response)) === null) {
 			return;
 		}
 		$application = $this->application;
-		$ids = $request->geta('id', array());
+		$ids = $request->geta('id', []);
 		foreach ($ids as $id) {
 			$help = $application->orm_factory('zesk\\Help', $id)->fetch();
 			if ($help) {
-				$application->orm_factory('zesk\\Help_User', array(
+				$application->orm_factory('zesk\\Help_User', [
 					'help' => $help,
 					'user' => $user,
 					'dismissed' => 'now',
-				))->register();
+				])->register();
 				$result[$id] = true;
 			} else {
-				$this->application->logger->error("{class}::{method} Help {id} not found", array(
+				$this->application->logger->error("{class}::{method} Help {id} not found", [
 					"class" => __CLASS__,
 					"method" => __METHOD__,
 					"id" => $id,
-				));
+				]);
 				$result[$id] = false;
 			}
 		}
@@ -320,23 +320,23 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $request
 	 * @param Response $response
 	 */
-	public function user_reset(Request $request, Response $response) {
+	public function user_reset(Request $request, Response $response): void {
 		$locale = $this->application->locale;
 		if (($user = $this->_help_auth($request, $response)) === null) {
-			$response->json()->data(array(
+			$response->json()->data([
 				'status' => false,
 				'message' => $locale->__('You are not logged in'),
-			));
+			]);
 			return;
 		}
 		$n = $this->reset_user($user);
-		$response->json()->data(array(
+		$response->json()->data([
 			'status' => true,
-			'message' => $locale->__('Removed {n} {entries}', array(
+			'message' => $locale->__('Removed {n} {entries}', [
 				'n' => $n,
 				'entries' => $locale->plural($locale->__('entry'), $n),
-			)),
-		));
+			]),
+		]);
 	}
 
 	/**

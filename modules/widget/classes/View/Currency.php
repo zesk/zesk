@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
@@ -27,9 +27,9 @@ class View_Currency extends View {
 	}
 
 	public static function format(Application $application, $amount, $currency = null) {
-		$view = new View_Currency($application, array(
+		$view = new View_Currency($application, [
 			"column" => "amount",
-		));
+		]);
 		$model = new Model($application);
 		$model->amount = $amount;
 		if ($currency) {

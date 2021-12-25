@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Declare this class to receive deprecated functions between releases.
@@ -10,6 +10,6 @@
  * @author kent
  */
 abstract class Zesk_Deprecated {
-	public static function load() {
+	public static function load(): void {
 	}
 }

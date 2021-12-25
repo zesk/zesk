@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -9,12 +9,12 @@ namespace zesk;
  *
  */
 class Command_Maintenance extends Command_Base {
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
-		$this->application->hooks->add(Application::class . "::maintenance_context", array(
+		$this->application->hooks->add(Application::class . "::maintenance_context", [
 			$this,
 			"maintenance_context",
-		));
+		]);
 	}
 
 	public function run() {
@@ -27,9 +27,9 @@ class Command_Maintenance extends Command_Base {
 		$bool = to_bool($arg, null);
 		if ($bool === null) {
 			$this->application->maintenance(true);
-			$this->log("Maintenance enabled with message \"$arg\"", array(
+			$this->log("Maintenance enabled with message \"$arg\"", [
 				"arg" => $arg,
-			));
+			]);
 		} else {
 			$this->application->maintenance($bool);
 			$this->log("Maintenance " . ($bool ? "enabled" : "disabled"));

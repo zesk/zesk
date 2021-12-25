@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage contact
@@ -24,12 +24,12 @@ class Contact_Phone_Bootstrap {
 	 *
 	 * @param string $drop
 	 */
-	public function bootstrap($drop = false) {
+	public function bootstrap($drop = false): void {
 		$this->bootstrap_area_codes($drop);
 		$this->bootstrap_country_codes($drop);
 	}
 
-	public function bootstrap_area_codes($drop = false) {
+	public function bootstrap_area_codes($drop = false): void {
 		if ($this->bootAreaCode) {
 			return;
 		}
@@ -41,11 +41,11 @@ class Contact_Phone_Bootstrap {
 		$csv = new CSV_Reader();
 		// TODO Fix this path
 		$csv->filename(ZESK_CONTACT_ROOT . "classes/data/AreaCodeCities.txt");
-		$csv->set_headers(array(
+		$csv->set_headers([
 			"AreaCode",
 			"State",
 			"Desc",
-		));
+		]);
 		$nRows = 0;
 		while (is_array($a = $csv->read_row_assoc(true))) {
 			$areaCode = $a['areacode'];
@@ -57,16 +57,16 @@ class Contact_Phone_Bootstrap {
 			$stateProvince = null;
 			$country = null;
 			if (!empty($state)) {
-				$stateProvince = new Province(array(
+				$stateProvince = new Province([
 					'CodeName' => $state,
 					'Name' => $state,
-				));
+				]);
 				if (!$stateProvince->find('CodeName') && !$stateProvince->find('Name')) {
 					$stateProvince = null;
-					$country = new Country(array(
+					$country = new Country([
 						"CodeName" => $state,
 						"Name" => $state,
-					));
+					]);
 					if (!$country->find('CodeName') && !$country->find('Name')) {
 						echo "Can't find state or country \"$state\" for $desc\n";
 						$desc = $state . " (" . $desc . ")";
@@ -96,9 +96,9 @@ class Contact_Phone_Bootstrap {
 			$fields['Code'] = $areaCode;
 			$stateProvince = null;
 			if (strlen($region) == 2) {
-				$stateProvince = new Province(array(
+				$stateProvince = new Province([
 					'CodeName' => $region,
-				));
+				]);
 				if ($stateProvince->find()) {
 					$region = $stateProvince->Name;
 				} else {
@@ -114,7 +114,7 @@ class Contact_Phone_Bootstrap {
 		self::$bootAreaCode = true;
 	}
 
-	public static function bootstrap_country_codes($drop) {
+	public static function bootstrap_country_codes($drop): void {
 		self::bootstrap_area_codes();
 
 		$x = new Contact_Phone_CountryCode();
@@ -131,9 +131,9 @@ class Contact_Phone_Bootstrap {
 			$areaCode = $a['areacode'];
 			$isNANP = to_bool($a['nanp'], false);
 
-			$country = new Country(array(
+			$country = new Country([
 				'CodeName' => $name,
-			));
+			]);
 			if ($country->find()) {
 				$fields['Country'] = $country;
 				$fields['GlobalName'] = '';
@@ -144,9 +144,9 @@ class Contact_Phone_Bootstrap {
 			$fields['Code'] = $code;
 			$fields['AreaCode'] = null;
 			if ($isNANP) {
-				$pac = new Contact_Phone_AreaCode(array(
+				$pac = new Contact_Phone_AreaCode([
 					'Code' => $areaCode,
-				));
+				]);
 				if ($pac->find()) {
 					$fields['AreaCode'] = $areaCode;
 					$fields['Code'] = 1;

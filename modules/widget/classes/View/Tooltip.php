@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -31,9 +31,9 @@ class View_Tooltip extends View {
 		 */
 		$options = $this->options_include("sensitivity;interval;timeout");
 		$html->jquery('$(\'#' + $this->option("target_id") + '\').hoverBubble(\'#' + $id + '\',' . json_encode($options) . ");");
-		return HTML::tag("div", array(
+		return HTML::tag("div", [
 			"id" => $id,
 			"style" => "display: none",
-		), $this->value());
+		], $this->value());
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 abstract class Configuration_Parser extends Options {
@@ -37,7 +37,7 @@ abstract class Configuration_Parser extends Options {
 	 * @param array $options
 	 * @return Configuration_Parser
 	 */
-	public static function factory($type, $content, Interface_Settings $settings = null, array $options = array()) {
+	public static function factory($type, $content, Interface_Settings $settings = null, array $options = []) {
 		$class = __CLASS__ . "_" . PHP::clean_function(strtoupper($type));
 		return new $class($content, $settings, $options);
 	}
@@ -48,10 +48,10 @@ abstract class Configuration_Parser extends Options {
 	 * @param Interface_Settings $settings
 	 * @param array $options
 	 */
-	final public function __construct($content, Interface_Settings $settings = null, array $options = array()) {
+	final public function __construct($content, Interface_Settings $settings = null, array $options = []) {
 		parent::__construct($options);
 		if (!$settings) {
-			$values = array();
+			$values = [];
 			$settings = new Adapter_Settings_Array($values);
 		}
 		$this->settings($settings);
@@ -132,7 +132,7 @@ abstract class Configuration_Parser extends Options {
 	/**
 	 * @return Configuration_Editor
 	 */
-	public function editor($content = null, array $options = array()) {
+	public function editor($content = null, array $options = []) {
 		throw new Exception_Unimplemented(__METHOD__);
 	}
 }

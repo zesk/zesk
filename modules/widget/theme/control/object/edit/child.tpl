@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -44,43 +44,43 @@ if ($fill_label) {
 	if ($show_required) {
 		echo HTML::tag("td", ".input-required", $widget->required() ? "*" : "&nbsp;");
 	}
-	echo HTML::tag("td", array(
+	echo HTML::tag("td", [
 		'colspan' => $n_cols,
 		'class' => $class_parent,
-	), $data);
+	], $data);
 } elseif ($nolabel) {
 	if (!$overlabel) {
-		echo HTML::tag("td", $show_required ? array(
+		echo HTML::tag("td", $show_required ? [
 			"colspan" => 2,
-		) : false, "&nbsp;");
+		] : false, "&nbsp;");
 	} elseif ($show_required) {
 		echo HTML::tag("td", false, "&nbsp;");
 	}
-	echo HTML::tag("td", array(
+	echo HTML::tag("td", [
 		'class' => $class_parent,
-	), $data);
+	], $data);
 } elseif ($overlabel) {
 	if ($show_required) {
 		echo HTML::tag("td", ".input-required", $widget->required() ? "*" : "&nbsp;");
 	}
-	echo HTML::tag("td", array(
+	echo HTML::tag("td", [
 		"class" => $class_parent,
-	), HTML::tag("div", array(
+	], HTML::tag("div", [
 		"class" => "overlabel-pair",
-	), HTML::tag("label", array(
+	], HTML::tag("label", [
 		"class" => "overlabel",
 		"for" => $id,
-	), $label) . $data));
+	], $label) . $data));
 } else {
 	if ($show_required) {
 		echo HTML::tag("td", ".input-required", $widget->required() ? "*" : "&nbsp;");
 	}
-	echo HTML::tag("td", ".input-label", HTML::tag("label", array(
+	echo HTML::tag("td", ".input-label", HTML::tag("label", [
 		"for" => $id,
-	), $label));
-	echo HTML::tag("td", array(
+	], $label));
+	echo HTML::tag("td", [
 		'class' => $class_parent,
 		'id' => $id,
-	), $data);
+	], $data);
 }
 echo HTML::tag_close("tr");

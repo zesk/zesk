@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -15,20 +15,20 @@ class Module_Repository extends Module {
 	 *
 	 * @var array
 	 */
-	private $repository_types = array();
+	private $repository_types = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $repository_classes = array();
+	private $repository_classes = [];
 
 	/**
 	 *
 	 * @param string $class
 	 * @param array $aliases
 	 */
-	private function _register_repository($class, array $aliases = array()) {
+	private function _register_repository($class, array $aliases = []) {
 		$this->repository_classes[$class] = $aliases;
 		foreach ($aliases as $alias) {
 			$this->repository_types[strtolower($alias)] = $class;
@@ -64,7 +64,7 @@ class Module_Repository extends Module {
 	 * @param array $aliases
 	 * @return Module_Repository
 	 */
-	public function register_repository($class, array $aliases = array()) {
+	public function register_repository($class, array $aliases = []) {
 		return $this->singleton()->_register_repository($class, $aliases);
 	}
 
@@ -83,7 +83,7 @@ class Module_Repository extends Module {
 	 * @return \zesk\Repository[]
 	 */
 	protected function _determine_repositories($directory) {
-		$repos = array();
+		$repos = [];
 		foreach ($this->repository_classes as $class => $aliases) {
 			/* @var $repo Repository */
 			$repo = $this->application->factory($class, $this->application, $directory);
@@ -111,19 +111,19 @@ class Module_Repository extends Module {
 	public function factory($directory) {
 		$repos = $this->determine_repository($directory);
 		if (count($repos) > 1) {
-			$this->application->logger->warning("{method} multiple repositories detected ({repos}), using first {repo}", array(
+			$this->application->logger->warning("{method} multiple repositories detected ({repos}), using first {repo}", [
 				"method" => __METHOD__,
 				"repos" => array_keys($repos),
 				"repo" => first(array_keys($repos)),
-			));
+			]);
 			return first($repos);
 		}
 		if (count($repos) > 0) {
 			return first($repos);
 		}
 
-		throw new Exception_NotFound("No repository marker found at {directory}", array(
+		throw new Exception_NotFound("No repository marker found at {directory}", [
 			"directory" => $directory,
-		));
+		]);
 	}
 }

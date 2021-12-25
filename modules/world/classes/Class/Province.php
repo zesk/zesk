@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -11,19 +11,19 @@ class Class_Province extends Class_ORM {
 
 	public $name = "Province:=State";
 
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"country" => self::type_object,
 		"code" => self::type_string,
 		"name" => self::type_string,
-	);
+	];
 
-	public $find_keys = array(
+	public $find_keys = [
 		"country",
 		"name",
-	);
+	];
 
-	public $has_one = array(
+	public $has_one = [
 		"country" => "zesk\\Country",
-	);
+	];
 }

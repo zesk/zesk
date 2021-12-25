@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -35,7 +35,7 @@ class Net_HTTP_Server_File extends Net_HTTP_Server {
 		return $this->directory_list;
 	}
 
-	final protected function handle_request(Net_HTTP_Server_Request $request, Net_HTTP_Server_Response $response) {
+	final protected function handle_request(Net_HTTP_Server_Request $request, Net_HTTP_Server_Response $response): void {
 		$uri = $request->uri;
 
 		if ($this->root_path === null) {
@@ -52,15 +52,15 @@ class Net_HTTP_Server_File extends Net_HTTP_Server {
 				$full_path = $index_file;
 			} elseif ($this->directory_list) {
 				$files = Directory::ls($full_path);
-				$result = array();
+				$result = [];
 				foreach ($files as $f) {
 					$d = is_dir(path($full_path, $f));
 					if ($d) {
 						$f = "$f/";
 					}
-					$result[] = HTML::tag("a", array(
+					$result[] = HTML::tag("a", [
 						"href" => $f,
-					), $d ? HTML::tag("strong", $f) : $f);
+					], $d ? HTML::tag("strong", $f) : $f);
 				}
 				$response->content = HTML::tag("ul", HTML::tags("li", $result));
 				$response->content_type = "text/html";

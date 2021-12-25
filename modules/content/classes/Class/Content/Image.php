@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -31,37 +31,37 @@ class Class_Content_Image extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $find_keys = array(
+	public $find_keys = [
 		"data",
 		"path",
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $has_one = array(
+	public $has_one = [
 		"data" => Content_Data::class,
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $has_many = array(
-		"users" => array(
+	public $has_many = [
+		"users" => [
 			"class" => User::class,
 			"link_class" => User_Content_Image::class,
 			"foreign_key" => "image",
 			"far_key" => "user",
-		),
-	);
+		],
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"data" => self::type_object,
 		"width" => self::type_integer,
@@ -72,14 +72,14 @@ class Class_Content_Image extends Class_ORM {
 		"description" => self::type_string,
 		"created" => self::type_created,
 		"modified" => self::type_modified,
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $column_defaults = array(
+	public $column_defaults = [
 		'title' => '',
 		"description" => "",
-	);
+	];
 }

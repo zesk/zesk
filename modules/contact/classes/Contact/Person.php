@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage contact
@@ -28,11 +28,11 @@ class Contact_Person extends Contact_Info {
 	 * @return string
 	 */
 	public function greeting_name() {
-		$names = array(
+		$names = [
 			"Nickname",
 			'FirstName',
 			'LastName',
-		);
+		];
 		foreach ($names as $name) {
 			$name = $this->member($name);
 			if ($name) {
@@ -47,14 +47,14 @@ class Contact_Person extends Contact_Info {
 	 * @return string
 	 */
 	public function full_name() {
-		$result = array();
-		$names = array(
+		$result = [];
+		$names = [
 			"Prefix",
 			"FirstName",
 			"MiddleName",
 			"LastName",
 			"Suffix",
-		);
+		];
 		foreach ($names as $name) {
 			if (!$this->member_is_empty($name)) {
 				$result[] = $this->member($name);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -60,7 +60,7 @@ abstract class Tag extends ORM {
 	 */
 	public static function taggables(Application $application) {
 		$subclasses = $application->classes->subclasses(self::class);
-		$result = array();
+		$result = [];
 		foreach ($subclasses as $subclass) {
 			try {
 				$instance = $application->orm_registry($subclass);

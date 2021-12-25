@@ -132,7 +132,7 @@ The equivalent can be written as a `Command` class:
 
 	<?php
 	class Command_Module extends Command {
-		protected $option_types = array("+" => "string");
+		protected array $option_types = array("+" => "string");
 		function run() {
 			zesk::module($this->get_arg("module"));
 		}
@@ -159,4 +159,3 @@ Some commands can specify an terminating string, which **should** be standardize
 	zesk eval "echo zesk()->configuration->init;" "zesk()->hooks->call('alert')" -- globals
 	
 For example the `eval` command stops when it encounters the `--` argument, and then passes control to the next command.
-

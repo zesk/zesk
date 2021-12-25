@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage tools
@@ -29,7 +29,7 @@ class CSV_Reader extends CSV {
 	 * @param unknown $filename
 	 * @param unknown $options
 	 */
-	public function __construct($filename = null, array $options = array()) {
+	public function __construct($filename = null, array $options = []) {
 		parent::__construct($options);
 		$this->FileBuffer = "";
 		if ($filename) {
@@ -44,7 +44,7 @@ class CSV_Reader extends CSV {
 	 * @param string $options
 	 * @return CSV_Reader
 	 */
-	public static function factory($filename, array $options = array()) {
+	public static function factory($filename, array $options = []) {
 		return new self($filename, $options);
 	}
 
@@ -54,7 +54,7 @@ class CSV_Reader extends CSV {
 	 * @param string $options
 	 * @return CSV_Reader_Iterator
 	 */
-	public function iterator(array $options = array()) {
+	public function iterator(array $options = []) {
 		return new CSV_Reader_Iterator($this, $options);
 	}
 
@@ -94,13 +94,13 @@ class CSV_Reader extends CSV {
 	public function tell() {
 		$offset = ftell($this->File);
 		$line_no = $this->RowIndex;
-		return array(
+		return [
 			'file_pos' => $offset,
 			'file_buffer' => $this->FileBuffer,
 			'row_index' => $line_no,
 			'row' => $this->Row,
 			'key' => $this->_magic_number(),
-		);
+		];
 	}
 
 	/**
@@ -109,16 +109,16 @@ class CSV_Reader extends CSV {
 	 * @param array $tell
 	 * @throws Exception_Semantics
 	 */
-	public function seek(array $tell) {
+	public function seek(array $tell): void {
 		if (!array_key_exists('key', $tell)) {
-			throw new Exception_Semantics("Invalid tell for CSV File {filename}", array(
+			throw new Exception_Semantics("Invalid tell for CSV File {filename}", [
 				"filename" => $this->FileName,
-			));
+			]);
 		}
 		if ($tell['key'] !== $this->_magic_number()) {
-			throw new Exception_Semantics("Invalid tell for CSV File, hashes do not match {filename}", array(
+			throw new Exception_Semantics("Invalid tell for CSV File, hashes do not match {filename}", [
 				"filename" => $this->FileName,
-			));
+			]);
 		}
 		$this->Row = $tell['row'];
 		$this->RowIndex = $tell['row_index'];
@@ -157,7 +157,7 @@ class CSV_Reader extends CSV {
 				}
 				return UTF8::to_iso8859($result);
 			case "UTF-16":
-				if (strpos($this->FileBuffer, $this->LineDelimiter) === false && ($n = strlen($this->FileBuffer)) < 10240) {
+				if (!str_contains($this->FileBuffer, $this->LineDelimiter)   && ($n = strlen($this->FileBuffer)) < 10240) {
 					if ($n === 0 && feof($this->File)) {
 						return false;
 					}
@@ -166,7 +166,7 @@ class CSV_Reader extends CSV {
 					$data = UTF16::to_iso8859($data, $this->EncodingBigEndian);
 					$this->FileBuffer .= $data;
 				}
-				list($line, $this->FileBuffer) = pair($this->FileBuffer, $this->LineDelimiter, $this->FileBuffer, "");
+				[$line, $this->FileBuffer] = pair($this->FileBuffer, $this->LineDelimiter, $this->FileBuffer, "");
 				return str_getcsv($line, $this->Delimiter, $this->Enclosure, $this->Escape);
 			default:
 				return fgetcsv($this->File, 10240, $this->Delimiter, $this->Enclosure);
@@ -231,7 +231,7 @@ class CSV_Reader extends CSV {
 			return $row;
 		}
 		$hh = $this->headers();
-		$r = array();
+		$r = [];
 		foreach ($hh as $k => $v) {
 			if (is_scalar($v)) {
 				$r[$v] = avalue($row, $k);
@@ -262,12 +262,12 @@ class CSV_Reader extends CSV {
 	 *
 	 * @param number $offset
 	 */
-	public function skip($offset = 1) {
-		if ($offset < 0 || !is_integer($offset)) {
-			throw new Exception_Parameter("Invalid parameter to CSV_Reader::skip({offset}) of type {type}", array(
+	public function skip($offset = 1): void {
+		if ($offset < 0 || !is_int($offset)) {
+			throw new Exception_Parameter("Invalid parameter to CSV_Reader::skip({offset}) of type {type}", [
 				"offset" => $offset,
 				"type" => gettype($offset),
-			));
+			]);
 			return;
 		}
 		while ($offset-- > 0) {
@@ -282,11 +282,11 @@ class CSV_Reader extends CSV {
 	 * @throws Exception_File_Format
 	 * @return void
 	 */
-	private function determine_encoding() {
+	private function determine_encoding(): void {
 		if (!is_resource($this->File)) {
-			throw new Exception_Semantics("File is not a resource: {filename}", array(
+			throw new Exception_Semantics("File is not a resource: {filename}", [
 				"filename" => $this->FileName,
-			));
+			]);
 		}
 		$tell = ftell($this->File);
 		$file_sample = fread($this->File, 1024);
@@ -328,12 +328,12 @@ class CSV_Reader extends CSV {
 	 *
 	 * @param string $line
 	 */
-	private function _determine_delimiter($line) {
-		$fieldChars = array(
+	private function _determine_delimiter($line): void {
+		$fieldChars = [
 			",",
 			"\t",
 			"^",
-		);
+		];
 		$this->Delimiter = $fieldChars[0];
 		$maxCount = -1;
 		foreach ($fieldChars as $fieldChar) {

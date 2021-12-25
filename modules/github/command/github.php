@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -7,45 +7,45 @@ namespace zesk;
  *
  */
 class Command_GitHub extends Command_Base {
-	const OPTION_DESCRIPTION = "description";
+	public const OPTION_DESCRIPTION = "description";
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $option_types = array(
+	protected array $option_types = [
 		"tag" => "boolean",
 		"description-file" => "file",
 		self::OPTION_DESCRIPTION => "string",
 		"commitish" => "string",
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $option_defaults = array(
+	protected array $option_defaults = [
 		"description" => "Release of version {version}.",
 		"commitish" => "master",
-	);
+	];
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const EXIT_CODE_NO_DESCRIPTION = 1;
+	public const EXIT_CODE_NO_DESCRIPTION = 1;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const EXIT_CODE_GITHUB_MODULE = 2;
+	public const EXIT_CODE_GITHUB_MODULE = 2;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	const EXIT_CODE_TAG_FAILED = 3;
+	public const EXIT_CODE_TAG_FAILED = 3;
 
 	/**
 	 *
@@ -81,21 +81,21 @@ class Command_GitHub extends Command_Base {
 			}
 			return self::EXIT_CODE_TAG_FAILED;
 		} catch (Exception_NotFound $not_found) {
-			$this->error("Running {this_class} but GitHub module not loaded.", array(
+			$this->error("Running {this_class} but GitHub module not loaded.", [
 				"this_class" => get_class($this),
-			));
+			]);
 			return self::EXIT_CODE_GITHUB_MODULE;
 		} catch (\Exception $e) {
-			$this->error("Running {this_class} but unknown exception {class} {message}", array(
+			$this->error("Running {this_class} but unknown exception {class} {message}", [
 				"this_class" => get_class($this),
-			) + Exception::exception_variables($e));
+			] + Exception::exception_variables($e));
 			return self::EXIT_CODE_GITHUB_MODULE;
 		}
 	}
 
 	public function description_variables() {
-		return array(
+		return [
 			"version" => $this->application->version(),
-		);
+		];
 	}
 }

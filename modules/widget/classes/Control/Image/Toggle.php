@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -18,7 +18,7 @@ class Control_Image_Toggle extends Control {
 		$attrs = $this->options_include("width;height;border;hspace;vspace");
 		$response = $this->response();
 		$id = "toggle_image_" . $response->id_counter();
-		$js_object = $this->option(array(
+		$js_object = $this->option([
 			"true_src" => null,
 			"true_alt" => $locale->__("Click here to enable"),
 			"false_src" => null,
@@ -26,13 +26,13 @@ class Control_Image_Toggle extends Control {
 			"notify_url" => null,
 			"true_value" => 'true',
 			'false_value' => 'false',
-		));
+		]);
 		$prefix = ($value === $on_value) ? "true" : "false";
 
-		$div_attrs = $this->option(array(
+		$div_attrs = $this->option([
 			"class" => "ControlToggleImage",
 			"style" => null,
-		));
+		]);
 		$div_attrs['id'] = $id;
 		$content = HTML::tag("div", $div_attrs, HTML::img($this->application, avalue($js_object, $prefix . "_src"), avalue($js_object, $prefix . "_alt"), $attrs));
 		$response->html()->jquery('$(\'#' . $id . '\').toggleImage(' . json_encode($js_object) . ');');

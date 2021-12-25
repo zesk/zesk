@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -19,14 +19,14 @@ abstract class Version {
 	 *
 	 * @var string
 	 */
-	const PATH_RELEASE = "etc/db/release";
+	public const PATH_RELEASE = "etc/db/release";
 
 	/**
 	 * Location of the Zesk current release date
 	 *
 	 * @var string
 	 */
-	const PATH_RELEASE_DATE = "etc/db/release-date";
+	public const PATH_RELEASE_DATE = "etc/db/release-date";
 
 	/**
 	 * Cached release version
@@ -90,9 +90,9 @@ abstract class Version {
 	 * @return array
 	 */
 	public static function variables() {
-		return array(
+		return [
 			"release" => self::release(),
 			"date" => self::date(),
-		);
+		];
 	}
 }

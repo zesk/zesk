@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -31,14 +31,14 @@ class Content_Data extends ORM {
 	 * @return multitype:multitype:string
 	 */
 	public static function settings() {
-		return parent::settings() + array(
-			'database_size_threshold' => array(
+		return parent::settings() + [
+			'database_size_threshold' => [
 				'type' => 'filesize',
 				'label' => 'database size Threshold',
 				'description' => 'The size of file which should automatically be stored in the database.',
 				'help_url' => 'https://api.zesk.com/' . __CLASS__ . '::database_size_threshold',
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -101,7 +101,7 @@ class Content_Data extends ORM {
 		$threshold = self::database_size_threshold($app);
 		$type = $size <= $threshold ? 'data' : 'path';
 		if ($register) {
-			$fields = array();
+			$fields = [];
 			$fields['md5hash'] = $md5;
 			$object = $app->orm_factory(__CLASS__, $fields);
 			$row = $object->exists();
@@ -133,7 +133,7 @@ class Content_Data extends ORM {
 	 * @return multitype:string unknown Ambigous <string, mixed>
 	 */
 	private static function _copy_data(Application $app, $source_path, $copy, $md5, $data = null) {
-		$result = array();
+		$result = [];
 		$result['data_path'] = $app->paths->data();
 		$result['original_path'] = $source_path;
 		$result['path'] = 'content/data/' . $md5 . "." . File::extension($source_path);
@@ -146,24 +146,24 @@ class Content_Data extends ORM {
 
 		if ($data !== null) {
 			if (!file_put_contents($dest, $data)) {
-				throw new Exception_File_Create($locale->__("Can not copy {size} data to {dest}", array(
+				throw new Exception_File_Create($locale->__("Can not copy {size} data to {dest}", [
 					"size" => strlen($data),
 					"dest" => $dest,
-				)));
+				]));
 			}
 		} elseif ($copy) {
 			if (!copy($source_path, $dest)) {
-				throw new Exception_File_Create($locale->__("Can not copy {path} to {dest}", array(
+				throw new Exception_File_Create($locale->__("Can not copy {path} to {dest}", [
 					"path" => $source_path,
 					"dest" => $dest,
-				)));
+				]));
 			}
 		} else {
 			if (!rename($source_path, $dest)) {
-				throw new Exception_File_Create($locale->__("Can not rename {path} to {dest}", array(
+				throw new Exception_File_Create($locale->__("Can not rename {path} to {dest}", [
 					"path" => $source_path,
 					"dest" => $dest,
-				)));
+				]));
 			}
 		}
 		return $result;
@@ -185,7 +185,7 @@ class Content_Data extends ORM {
 	 * @return Ambigous <object, string, Object>
 	 */
 	private static function from_type(Application $application, $data, $type = 'data', $size = null, $hash = null, $register = true) {
-		$fields = array();
+		$fields = [];
 		$fields['type'] = $type;
 		$fields['data'] = $data;
 		$fields['size'] = $size === null ? strlen($data) : $size;
@@ -304,19 +304,19 @@ class Content_Data extends ORM {
 	 * @param string $computed_md5
 	 * @param integer $computed_size
 	 */
-	private function check_md5_and_size($computed_md5, $computed_size) {
+	private function check_md5_and_size($computed_md5, $computed_size): void {
 		if (strcasecmp($computed_md5, $this->md5hash) !== 0) {
-			$this->application->logger->error("Content_data({ID}) {noun} appears to have changed {suffix}: {md5hash} (old) !== {md5hashNew} (new)", array(
+			$this->application->logger->error("Content_data({ID}) {noun} appears to have changed {suffix}: {md5hash} (old) !== {md5hashNew} (new)", [
 				'md5hashNew' => $computed_md5,
-			) + $this->members());
+			] + $this->members());
 			if ($this->option_bool('repair;repair_checksums')) {
 				$this->md5hash = $computed_md5;
 			}
 		}
 		if ($computed_size !== $this->size) {
-			$this->application->logger->error("Content_data({ID}) {noun} appears to have changed size {suffix}: {size} (old) !== {sizeNew} (new)", array(
+			$this->application->logger->error("Content_data({ID}) {noun} appears to have changed size {suffix}: {size} (old) !== {sizeNew} (new)", [
 				'sizeNew' => $computed_size,
-			) + $this->members());
+			] + $this->members());
 			if ($this->first_option('repair;repair_sizes')) {
 				$this->size = $computed_size;
 			}
@@ -326,7 +326,7 @@ class Content_Data extends ORM {
 	/**
 	 * Internal validation function, attempts to repair files when filesystem changes, etc.
 	 */
-	protected function validate_and_repair() {
+	protected function validate_and_repair(): void {
 		if ($this->type === 'path') {
 			if (!is_array($this->data)) {
 				$this->application->logger->error("Content_data({ID}) has non array data", $this->members());
@@ -339,40 +339,40 @@ class Content_Data extends ORM {
 				$old_path = path($data_path, $path);
 				if (file_exists($old_path)) {
 					if (File::copy_uid_gid($old_path, $this_path)) {
-						$this->application->logger->notice("Content_data({ID}) Moved {old_path} to {new_path}", array(
+						$this->application->logger->notice("Content_data({ID}) Moved {old_path} to {new_path}", [
 							'old_path' => $old_path,
 							"new_path" => $this_path,
-						) + $this->members());
+						] + $this->members());
 						$this->data['data_path'] = $this->application->paths->data();
 					} else {
-						$this->application->logger->error("Content_data({ID}) Unable to move {old_path} to {new_path}", array(
+						$this->application->logger->error("Content_data({ID}) Unable to move {old_path} to {new_path}", [
 							'old_path' => $old_path,
 							"new_path" => $this_path,
-						) + $this->members());
+						] + $this->members());
 					}
 				} else {
-					$this->application->logger->error("Content_data({ID}) appears to have disappeared: {old_path}/{new_path}", array(
+					$this->application->logger->error("Content_data({ID}) appears to have disappeared: {old_path}/{new_path}", [
 						'old_path' => $old_path,
 						"new_path" => $this_path,
-					) + $this->members());
+					] + $this->members());
 					if ($this->member_is_empty('missing')) {
 						$this->missing = "now";
 					}
 				}
 			}
 			if (file_exists($this_path)) {
-				$this->check_md5_and_size(md5_file($this_path), filesize($this_path), array(
+				$this->check_md5_and_size(md5_file($this_path), filesize($this_path), [
 					'noun' => 'file',
 					'suffix' => $this_path,
-				));
+				]);
 			}
 		} elseif ($this->type !== 'data') {
 			$this->application->logger->error("Content_data({ID}) Invalid type {type}", $this->members());
 		} else {
-			$this->check_md5_and_size(md5($this->data), strlen($this->data), array(
+			$this->check_md5_and_size(md5($this->data), strlen($this->data), [
 				'noun' => 'database data',
 				'suffix' => '',
-			));
+			]);
 		}
 		$this->checked = "now";
 		$this->store();
@@ -407,15 +407,15 @@ class Content_Data extends ORM {
 			$size = $data->database()->feature(Database::FEATURE_MAX_BLOB_SIZE);
 			if ($size < $result) {
 				$data->set_option("database_size_threshold", $result);
-				$application->configuration->path_set(array(
+				$application->configuration->path_set([
 					__CLASS__,
 					"database_size_threshold",
-				), $result);
-				$application->logger->warning("{class}::database_size_threshold Database size threshold {result} is beyond database setting of {size} - adjusting", array(
+				], $result);
+				$application->logger->warning("{class}::database_size_threshold Database size threshold {result} is beyond database setting of {size} - adjusting", [
 					"class" => __CLASS__,
 					'size' => $size,
 					'result' => $result,
-				));
+				]);
 				$result = $size;
 				self::$checked_db = true;
 			}
@@ -426,7 +426,7 @@ class Content_Data extends ORM {
 	/**
 	 * Run cron hourly to check files in file system to make sure they are still consistent.
 	 */
-	public static function cron_hourly(Application $application) {
+	public static function cron_hourly(Application $application): void {
 		foreach ($application->class_query(__CLASS__)->where("*checked|<=", 'DATE_SUB(UTC_TIMESTAMP(),INTERVAL 1 DAY)')->orm_iterator() as $object) {
 			$object->validate_and_repair();
 		}

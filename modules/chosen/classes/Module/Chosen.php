@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,29 +10,29 @@ namespace zesk;
  *
  */
 class Module_Chosen extends Module_JSLib {
-	protected $css_paths = array(
+	protected $css_paths = [
 		'/share/chosen/chosen.css',
-	);
+	];
 
-	protected $javascript_paths = array(
+	protected $javascript_paths = [
 		'/share/chosen/chosen.jquery.js',
-	);
+	];
 
-	protected $javascript_settings_inherit = array(
+	protected $javascript_settings_inherit = [
 		"width" => null,
 		"search_contains" => true,
 		"disable_search_threshold" => 5,
 		"include_group_label_in_selected" => true,
-	);
+	];
 
-	protected $jquery_ready = array();
+	protected $jquery_ready = [];
 
 	//"\$('.chosen-select').chosen(zesk.get_path('modules.chosen'));"
-	protected static $jquery_ready_pattern = array(
+	protected static $jquery_ready_pattern = [
 		"{selector}.chosen(\$.extend(zesk.get_path('modules.chosen'),{json_options}));",
-	);
+	];
 
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$locale = $this->application->locale;
 		$this->javascript_settings_inherit['no_results_text'] = $locale->__('No results match');
@@ -41,16 +41,16 @@ class Module_Chosen extends Module_JSLib {
 		$chosen = $this;
 		$ready_pattern = self::$jquery_ready_pattern;
 		foreach ($classes as $class) {
-			$hooks->add("$class::render", function ($widget) use ($chosen, $ready_pattern) {
+			$hooks->add("$class::render", function ($widget) use ($chosen, $ready_pattern): void {
 				/* @var $widget Control_Select $widget  */
 				if ($widget->option_bool("skip-chosen") || $widget->is_single()) {
 					return;
 				}
 				$widget->add_class("chosen-select");
-				$code = map($ready_pattern, array(
+				$code = map($ready_pattern, [
 					"selector" => $widget->jquery_target_expression(),
 					"json_options" => ArrayTools::kunprefix($widget->option(ArrayTools::kprefix($chosen->javascript_settings(), "chosen_")), "chosen_"),
-				));
+				]);
 				$widget->response()
 					->html()
 					->jquery($code);

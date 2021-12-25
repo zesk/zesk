@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -10,7 +10,7 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
-$result = array();
+$result = [];
 
 $result['time'] = microtime(true);
 $result['date'] = gmdate('Y-m-d H:i:s');
@@ -27,9 +27,9 @@ $result['System::load_averages'] = System::load_averages();
 $result['System::host_id'] = System::host_id();
 $result['System::volume_info'] = System::volume_info();
 
-$result = $application->hooks->call_arguments('system/status', array(
+$result = $application->hooks->call_arguments('system/status', [
 	$result,
-), $result);
+], $result);
 
 $request = $this->request;
 $response = $this->response;

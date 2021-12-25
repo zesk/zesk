@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -30,39 +30,39 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	 *
 	 * @var array
 	 */
-	public static $allowed_mock_headers = array(
+	public static $allowed_mock_headers = [
 		"mock_accept" => Net_HTTP::REQUEST_ACCEPT,
-	);
+	];
 
 	/**
 	 *
 	 * @param Application $application
 	 * @param Request $request
 	 */
-	public function test_ip(Application $application, Request $request) {
+	public function test_ip(Application $application, Request $request): void {
 		$application = $this->application;
 		$ips = $this->option_list('ip_allow');
 		$development = null;
 		$ip = $request->ip();
 		foreach ($ips as $mask) {
 			if ($ip === $mask) {
-				$this->application->logger->debug("{class}::{function}: {ip} === {mask}, development on", array(
+				$this->application->logger->debug("{class}::{function}: {ip} === {mask}, development on", [
 					"class" => __CLASS__,
 					"function" => __FUNCTION__,
 					"ip" => $ip,
 					"mask" => $mask,
-				));
+				]);
 				$development = true;
 
 				break;
 			}
 			if (IPv4::within_network($ip, $mask)) {
-				$this->application->logger->debug("{class}::{function}: {ip} within network {mask}, development on", array(
+				$this->application->logger->debug("{class}::{function}: {ip} within network {mask}, development on", [
 					"class" => __CLASS__,
 					"function" => __FUNCTION__,
 					"ip" => $ip,
 					"mask" => $mask,
-				));
+				]);
 				$development = true;
 
 				break;
@@ -96,7 +96,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	 *
 	 * @param Request $request
 	 */
-	private function handle_mock_headers(Request $request) {
+	private function handle_mock_headers(Request $request): void {
 		foreach (self::$allowed_mock_headers as $request_parameter => $request_header) {
 			if ($request->has($request_parameter)) {
 				$request->header($request_header, $request->get($request_parameter));
@@ -111,7 +111,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	 * @param Router $router
 	 * @param Request $request
 	 */
-	public function router_prematch(Application $application, Router $router, Request $request) {
+	public function router_prematch(Application $application, Router $router, Request $request): void {
 		$app = $this->application;
 		$this->handle_mock_headers($request);
 		$restricted_ips = $this->option_list('ip_restrict');
@@ -126,17 +126,17 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		}
 	}
 
-	public function initialize() {
+	public function initialize(): void {
 		$app = $this->application;
 
-		$app->hooks->add("zesk\\Application::main", array(
+		$app->hooks->add("zesk\\Application::main", [
 			$this,
 			'test_ip',
-		));
-		$app->hooks->add("zesk\\Application::router_prematch", array(
+		]);
+		$app->hooks->add("zesk\\Application::router_prematch", [
 			$this,
 			'router_prematch',
-		));
+		]);
 	}
 
 	/**
@@ -145,110 +145,110 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	 *
 	 * @see \Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(Router $router) {
+	public function hook_routes(Router $router): void {
 		if (!$this->application->development()) {
 			return;
 		}
-		$extras = array(
+		$extras = [
 			'permission' => 'debug',
-		);
-		$extras = array(
+		];
+		$extras = [
 			'weight' => 'first',
-		);
+		];
 		if (function_exists('phpinfo')) {
 			// Some installations disable this function for security
-			$router->add_route('developer/phpinfo', array(
+			$router->add_route('developer/phpinfo', [
 				'method' => 'phpinfo',
 				'buffer' => true,
-			) + $extras);
+			] + $extras);
 		} else {
-			$router->add_route('developer/phpinfo', array(
+			$router->add_route('developer/phpinfo', [
 				'content' => 'phpinfo function is disabled (usually for security)',
-			));
+			]);
 		}
-		$router->add_route('developer/opcache_get_configuration', array(
+		$router->add_route('developer/opcache_get_configuration', [
 			'method' => 'opcache_get_configuration',
 			'json' => true,
-		));
-		$router->add_route('developer/opcache_get_status', array(
+		]);
+		$router->add_route('developer/opcache_get_status', [
 			'method' => 'opcache_get_status',
-			'arguments' => array(
+			'arguments' => [
 				false,
-			),
+			],
 			'json' => true,
-		));
-		$router->add_route('developer/debug', array(
+		]);
+		$router->add_route('developer/debug', [
 			'theme' => 'system/debug',
-		) + $extras);
-		$router->add_route('developer/forbidden', array(
+		] + $extras);
+		$router->add_route('developer/forbidden', [
 			'theme' => 'developer/forbidden',
-		) + $extras);
-		$router->add_route('system-status', array(
+		] + $extras);
+		$router->add_route('system-status', [
 			'theme' => 'system/status',
-		) + $extras);
-		$router->add_route('developer/routes', array(
+		] + $extras);
+		$router->add_route('developer/routes', [
 			'theme' => 'system/routes',
-		) + $extras);
-		$router->add_route('developer/modules', array(
+		] + $extras);
+		$router->add_route('developer/modules', [
 			'theme' => 'system/modules',
-		) + $extras);
-		$router->add_route('developer/ip', array(
-			'method' => array(
+		] + $extras);
+		$router->add_route('developer/ip', [
+			'method' => [
 				$this,
 				"developer_ip",
-			),
+			],
 			'json' => true,
-		) + $extras);
-		$router->add_route('development/includes', array(
-			'method' => array(
+		] + $extras);
+		$router->add_route('development/includes', [
+			'method' => [
 				$this,
 				'development_includes',
-			),
+			],
 			'json' => true,
-		) + $extras);
-		$router->add_route('developer/development', array(
-			'method' => array(
+		] + $extras);
+		$router->add_route('developer/development', [
+			'method' => [
 				$this->application,
 				'development',
-			),
+			],
 			'json' => true,
-		) + $extras);
-		$router->add_route('developer/session', array(
-			'method' => array(
+		] + $extras);
+		$router->add_route('developer/session', [
+			'method' => [
 				$this,
 				'dump_session',
-			),
-			'arguments' => array(
+			],
+			'arguments' => [
 				"{application}",
 				"{response}",
-			) + $extras,
-		));
-		$router->add_route('developer/router', array(
-			'method' => array(
+			] + $extras,
+		]);
+		$router->add_route('developer/router', [
+			'method' => [
 				$this,
 				'dump_router',
-			),
+			],
 			'arguments' => "{router}",
-		) + $extras);
-		$router->add_route('developer/schema(/*)', array(
-			'method' => array(
+		] + $extras);
+		$router->add_route('developer/schema(/*)', [
+			'method' => [
 				$this,
 				'schema',
-			),
-			'arguments' => array(
+			],
+			'arguments' => [
 				"{application}",
 				"{request}",
 				'{response}',
 				1,
-			),
-		) + $extras);
+			],
+		] + $extras);
 	}
 
 	/**
 	 *
 	 * @param Response $response
 	 */
-	public function dump_session(Application $app, Response $response) {
+	public function dump_session(Application $app, Response $response): void {
 		$session = $app->session($app->request());
 		$response->json()->data($session->get());
 	}
@@ -257,13 +257,13 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	 *
 	 * @param Request $request
 	 */
-	public function dump_router(Router $router) {
+	public function dump_router(Router $router): void {
 		foreach ($router->routes() as $pattern => $route) {
-			echo HTML::tag('h2', $route->clean_pattern) . $this->application->theme('dl', array(
-				'content' => array(
+			echo HTML::tag('h2', $route->clean_pattern) . $this->application->theme('dl', [
+				'content' => [
 					'class' => get_class($route),
-				) + $route->option(),
-			));
+				] + $route->option(),
+			]);
 		}
 	}
 
@@ -287,9 +287,9 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		} else {
 			$db = $this->application->database_registry();
 		}
-		$results = $app->orm_module()->schema_synchronize($db, $classes, array(
+		$results = $app->orm_module()->schema_synchronize($db, $classes, [
 			"follow" => false,
-		));
+		]);
 		$exception = null;
 		if ($request->get_bool("go")) {
 			try {
@@ -301,12 +301,12 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 				$results[$index] = HTML::tag('span', '.alert alert-danger', $results[$index]);
 			}
 		}
-		$result = $exception ? $app->theme('exception', array(
+		$result = $exception ? $app->theme('exception', [
 			'content' => $exception,
-		)) : "";
-		$result .= HTML::tag('ul', ".sql", HTML::tags('li', array_merge(array(
+		]) : "";
+		$result .= HTML::tag('ul', ".sql", HTML::tags('li', array_merge([
 			"-- " . $arg . ";\n",
-		), ArrayTools::suffix($results, ";\n"))));
+		], ArrayTools::suffix($results, ";\n"))));
 		return $result;
 	}
 

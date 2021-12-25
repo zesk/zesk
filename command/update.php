@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -11,7 +11,7 @@ namespace zesk;
  * @category Management
  */
 class Command_Update extends Command_Base {
-	protected $option_types = array(
+	protected array $option_types = [
 		'share-path' => 'path',
 		'source-control' => 'string',
 		'dry-run' => 'boolean',
@@ -23,9 +23,9 @@ class Command_Update extends Command_Base {
 		'force' => 'boolean',
 		'force-check' => 'boolean',
 		'*' => 'string',
-	);
+	];
 
-	protected $option_help = array(
+	protected array $option_help = [
 		'share-path' => 'Copy all updated modules files to this directory instead of the default Controller_Share directories.',
 		'source-control' => 'Uses source control to check in recent updates.',
 		'dry-run' => 'Show what would have happened without actually doing it.',
@@ -37,16 +37,16 @@ class Command_Update extends Command_Base {
 		'force' => 'Force updates regardless if local copies match most recent downloaded copies',
 		'force-check' => 'Force check for all modules regardless of when last checked.',
 		'*' => 'A list of modules to download and update',
-	);
+	];
 
-	protected $option_defaults = array(
+	protected array $option_defaults = [
 		'composer-update' => false,
 		"timeout" => 120000,
-	);
+	];
 
-	protected $load_modules = array(
+	protected array $load_modules = [
 		"Repository",
-	);
+	];
 
 	/**
 	 * Set to true in subclasses to skip Application configuration until ->go
@@ -59,7 +59,7 @@ class Command_Update extends Command_Base {
 	 *
 	 * @var array
 	 */
-	protected $update_db = array();
+	protected $update_db = [];
 
 	/*
 	 * @var Repository
@@ -82,7 +82,7 @@ class Command_Update extends Command_Base {
 	 *
 	 * @var boolean
 	 */
-	private $composer_packages = array();
+	private $composer_packages = [];
 
 	/**
 	 * Main comman entry point
@@ -110,20 +110,20 @@ class Command_Update extends Command_Base {
 			$vc = $this->option('source-control');
 			$this->repo = Repository::factory($vc);
 			if (!$this->repo) {
-				$this->usage("No version-control of type \"{type}\" available", array(
+				$this->usage("No version-control of type \"{type}\" available", [
 					"type" => $vc,
-				));
+				]);
 				return 1;
 			} else {
-				$this->verbose_log("Using repository {type}", array(
+				$this->verbose_log("Using repository {type}", [
 					"type" => $vc,
-				));
+				]);
 			}
 		}
 
-		$this->app_data = array(
+		$this->app_data = [
 			'application_root' => $this->application->path(),
-		);
+		];
 		$modules = $this->modules_to_update();
 
 		$result = $this->before_update();
@@ -144,12 +144,12 @@ class Command_Update extends Command_Base {
 	 */
 	private function modules_from_command_line(array $module_options) {
 		$logger = $this->application->logger;
-		$modules = array();
+		$modules = [];
 		do {
 			$module = $this->get_arg("module");
-			$this->verbose_log("Updating command line module \"{module}\"", array(
+			$this->verbose_log("Updating command line module \"{module}\"", [
 				"module" => $module,
-			));
+			]);
 
 			try {
 				$data = $this->application->modules->load($module, $module_options);
@@ -172,23 +172,23 @@ class Command_Update extends Command_Base {
 	 * Retrieve a list of modules from available paths
 	 */
 	private function modules_from_module_paths($module_options) {
-		$modules = array();
+		$modules = [];
 		$paths = $this->application->module_path();
 		if (count($paths) === 0) {
 			$this->verbose_log("No module paths configured");
 		}
-		$sources = array();
+		$sources = [];
 		foreach ($paths as $path) {
 			$globbed = array_merge(glob(path($path, "*/*.module.conf")), glob(path($path, "*/*/*.module.conf")), glob(path($path, "*/*.module.json")), glob(path($path, "*/*/*.module.json")));
 			if (is_array($globbed)) {
 				$count = count($globbed);
 				$locale = $this->application->locale;
-				$this->verbose_log($locale("Module path {path}: {count} {modules}"), array(
+				$this->verbose_log($locale("Module path {path}: {count} {modules}"), [
 					"path" => $path,
 					"count" => $count,
 					"modules" => $locale->plural($locale("module"), $count),
-				));
-				$debug = array();
+				]);
+				$debug = [];
 				foreach ($globbed as $glob) {
 					$module = StringTools::unprefix(dirname($glob), rtrim($path, "/") . "/");
 					$data = $this->application->modules->load($module, $module_options);
@@ -201,9 +201,9 @@ class Command_Update extends Command_Base {
 					}
 				}
 			} else {
-				$this->verbose_log("Module path {path}: no modules found", array(
+				$this->verbose_log("Module path {path}: no modules found", [
 					"path" => $path,
-				));
+				]);
 			}
 		}
 		return $modules;
@@ -215,9 +215,9 @@ class Command_Update extends Command_Base {
 	 * @return array
 	 */
 	private function modules_to_update() {
-		$module_options = array(
+		$module_options = [
 			'load' => false,
-		);
+		];
 
 		if ($this->has_arg()) {
 			$modules = $this->modules_from_command_line($module_options);
@@ -228,13 +228,13 @@ class Command_Update extends Command_Base {
 		}
 		if (count($modules) === 0) {
 			$this->error("No modules found to update");
-			return array();
+			return [];
 		}
 		$locale = $this->application->locale;
-		$this->verbose_log("Will update {count} {modules}", array(
+		$this->verbose_log("Will update {count} {modules}", [
 			"count" => count($modules),
 			"modules" => $locale->plural($locale("module"), count($modules)),
-		));
+		]);
 		return $modules;
 	}
 
@@ -251,7 +251,7 @@ class Command_Update extends Command_Base {
 	 *
 	 * @param integer $result
 	 */
-	private function after_update($result) {
+	private function after_update($result): void {
 		if ($result !== 0) {
 			return;
 		}
@@ -263,8 +263,8 @@ class Command_Update extends Command_Base {
 	 * @return integer
 	 */
 	private function composer_before_update() {
-		$this->composer_json = array();
-		$this->composer_packages = array();
+		$this->composer_json = [];
+		$this->composer_packages = [];
 
 		// TODO Is this a bad idea to depend on the structure of composer.lock?
 		$composer_lock = $this->application->path("composer.json");
@@ -275,18 +275,18 @@ class Command_Update extends Command_Base {
 		try {
 			$this->composer_json = JSON::decode(file_get_contents($composer_lock));
 		} catch (Exception_Parse $e) {
-			$this->error("Unable to parse JSON in {file}", array(
+			$this->error("Unable to parse JSON in {file}", [
 				"file" => $composer_lock,
-			));
+			]);
 			return 1;
 		}
-		$this->composer_packages = avalue($this->composer_json, "require", array()) + avalue($this->composer_json, "require-dev", array());
+		$this->composer_packages = avalue($this->composer_json, "require", []) + avalue($this->composer_json, "require-dev", []);
 		return 0;
 	}
 
 	/**
 	 */
-	private function composer_after_update() {
+	private function composer_after_update(): void {
 		try {
 			$composer_command = $this->option_bool("composer_update") ? "update" : "install";
 			$composer = $this->composer_command();
@@ -304,7 +304,7 @@ class Command_Update extends Command_Base {
 	 * @return boolean
 	 */
 	private function composer_has_installed($dependency) {
-		list($package, $version) = pairr($dependency, ":", $dependency, null);
+		[$package, $version] = pairr($dependency, ":", $dependency, null);
 		return array_key_exists($package, $this->composer_packages);
 	}
 
@@ -322,22 +322,22 @@ class Command_Update extends Command_Base {
 				} catch (\Exception $e) {
 				}
 			}
-			return array();
+			return [];
 		} else {
 			file_put_contents($path, json_encode($set, JSON_PRETTY_PRINT));
 		}
 	}
 
-	private function _run_module_hook($module, $hook_name) {
+	private function _run_module_hook($module, $hook_name): void {
 		$logger = $this->application->logger;
 
 		try {
 			$module_object = $this->application->modules->object($module);
 			if ($module_object instanceof Module) {
-				$logger->debug("Running {class}::hook_{name}", array(
+				$logger->debug("Running {class}::hook_{name}", [
 					"class" => get_class($module_object),
 					"name" => $hook_name,
-				));
+				]);
 				$module_object->call_hook($hook_name);
 			}
 		} catch (\ReflectionException $e) {
@@ -363,9 +363,9 @@ class Command_Update extends Command_Base {
 		$now = time();
 		$data = avalue($module_data, 'configuration');
 		if (!is_array($data)) {
-			$logger->debug("Module {name} does not have configuration information: {configuration_file}", $module_data + array(
+			$logger->debug("Module {name} does not have configuration information: {configuration_file}", $module_data + [
 				'configuration_file' => '-not specified-',
-			));
+			]);
 			return true;
 		}
 		if (!ArrayTools::has_any($data, 'url;urls;versions;composer')) {
@@ -376,13 +376,13 @@ class Command_Update extends Command_Base {
 			return true;
 		}
 		$this->log("Updating $module");
-		$edits = array();
+		$edits = [];
 		$composer_updates = false;
 		if (ArrayTools::has($data, "composer")) {
 			$composer_updates = $this->composer_update($data);
 		}
 		$locale = $this->application->locale;
-		$state_data = avalue($this->update_db, $module, array());
+		$state_data = avalue($this->update_db, $module, []);
 		if (!$force) {
 			$checked = avalue($state_data, 'checked', null);
 			$checked_time = strtotime($checked);
@@ -401,28 +401,28 @@ class Command_Update extends Command_Base {
 		$did_updates = $composer_updates || (is_array($edits) && count($edits) > 0) ? true : false;
 		$this->_run_module_hook($module, $did_updates ? "updated" : "update");
 		if ($did_updates) {
-			$this->log("{name} updated to latest version.", array(
+			$this->log("{name} updated to latest version.", [
 				"name" => $module,
-			));
+			]);
 		} else {
-			$this->log("{name} is up to date.", array(
+			$this->log("{name} is up to date.", [
 				"name" => $module,
-			));
+			]);
 		}
 		if (!$this->option_bool("skip-database")) {
 			$date = gmdate('Y-m-d H:i:s');
 			if ($edits === null) {
 				$this->verbose_log("$module uptodate\n");
-				$edits = array();
+				$edits = [];
 				$edits['checked'] = $date;
 			} elseif ($edits instanceof Exception) {
 				$message = $edits->getMessage();
-				$edits = array();
+				$edits = [];
 				$edits['failed_message'] = $message;
 				$edits['failed'] = $date;
 				$this->verbose_log("$module failed: $message\n");
 			} else {
-				$edits = is_array($edits) ? $edits : array();
+				$edits = is_array($edits) ? $edits : [];
 				$edits['checked'] = gmdate('Y-m-d H:i:s');
 				$this->verbose_log("$module updated\n");
 			}
@@ -455,9 +455,9 @@ class Command_Update extends Command_Base {
 			return $composer_bin;
 		}
 
-		throw new Exception_Configuration(__CLASS__ . "::composer_phar", "Need to set composer_command, composer_phar, or composer_bin for {class}, or place composer.phar, composer into path", array(
+		throw new Exception_Configuration(__CLASS__ . "::composer_phar", "Need to set composer_command, composer_phar, or composer_bin for {class}, or place composer.phar, composer into path", [
 			"class" => get_class($this),
-		));
+		]);
 	}
 
 	/**
@@ -488,40 +488,40 @@ class Command_Update extends Command_Base {
 		$do_updates = $this->option_bool("composer-update");
 
 		$changed = false;
-		foreach (array(
+		foreach ([
 			"" => $composer_require,
 			"--dev " => $composer_require_dev,
-		) as $arg => $requires) {
+		] as $arg => $requires) {
 			foreach ($requires as $require) {
 				if (!is_string($require)) {
-					$logger->error("Module {name} {conf_path} composer.require is not a string? {type}", array(
+					$logger->error("Module {name} {conf_path} composer.require is not a string? {type}", [
 						"type" => type($require),
-					) + $data);
+					] + $data);
 
 					continue;
 				}
-				list($component, $version) = pair($require, ":", $require, null);
+				[$component, $version] = pair($require, ":", $require, null);
 				if (array_key_exists($component, $composer_version)) {
 					$require = $component . ":" . $composer_version[$component];
 				}
 				if ($this->composer_has_installed($component) && !$do_updates) {
 					if ($this->option_bool("dry-run")) {
-						$this->log("No update for composer {require} - already installed", array(
+						$this->log("No update for composer {require} - already installed", [
 							"require" => $require,
-						));
+						]);
 					}
 					$this->composer_do_install = true;
 
 					continue;
 				}
 				if ($this->option_bool("dry-run")) {
-					$this->log("Would run command: $composer_command require {require}", array(
+					$this->log("Would run command: $composer_command require {require}", [
 						"require" => $require,
-					));
+					]);
 				} else {
-					$this->exec("$composer_command require -q $arg{require} 2>&1", array(
+					$this->exec("$composer_command require -q $arg{require} 2>&1", [
 						"require" => $require,
-					));
+					]);
 					$changed = true;
 				}
 			}
@@ -549,10 +549,10 @@ class Command_Update extends Command_Base {
 		$response_code = $client->response_code_type();
 		if ($response_code === 2) {
 			$filename = $client->filename();
-			return array(
+			return [
 				$temp_file_name,
 				$filename,
-			);
+			];
 		}
 		if ($response_code === 4) {
 			throw new Exception_NotFound("URL {url} no longer exists", compact("url"));
@@ -575,10 +575,10 @@ class Command_Update extends Command_Base {
 			if (!$version) {
 				$version = last(array_keys($versions));
 			}
-			$this->log("Updating {name} to version {version}", array(
+			$this->log("Updating {name} to version {version}", [
 				"name" => $name,
 				"version" => $version,
-			));
+			]);
 			$data['version'] = $version;
 			extract(array_change_key_case($versions[$version]), EXTR_IF_EXISTS);
 		}
@@ -589,37 +589,37 @@ class Command_Update extends Command_Base {
 				throw new Exception_Semantics("URLS should be a list of urls or an array");
 			}
 		} elseif ($url !== null) {
-			$urls = array(
+			$urls = [
 				$url,
-			);
+			];
 		} else {
-			return array();
+			return [];
 		}
 		$urls = map($urls, $data);
-		$load_urls = array();
+		$load_urls = [];
 		foreach ($urls as $url => $value) {
 			if (URL::valid($url)) {
 				if (is_string($value)) {
-					$load_urls[$url] = array(
+					$load_urls[$url] = [
 						'destination' => $value,
 						'strip_components' => $strip_components,
-					);
+					];
 				} elseif (is_array($value)) {
-					$load_urls[$url] = array_change_key_case($value) + array(
+					$load_urls[$url] = array_change_key_case($value) + [
 						'destination' => $destination,
 						'strip_components' => $strip_components,
-					);
+					];
 				}
 			} elseif (!URL::valid($value)) {
-				$this->error("{value} in  module {name} is not a valid URL", array(
+				$this->error("{value} in  module {name} is not a valid URL", [
 					'value' => $value,
 					'name' => $name,
-				));
+				]);
 			} else {
-				$load_urls[$value] = array(
+				$load_urls[$value] = [
 					'destination' => $destination,
 					'strip_components' => $strip_components,
-				);
+				];
 			}
 		}
 		return $load_urls;
@@ -634,7 +634,7 @@ class Command_Update extends Command_Base {
 		$name = $hashes = $delete_after = null;
 		extract(array_change_key_case($data), EXTR_IF_EXISTS);
 		if (!is_array($hashes)) {
-			$hashes = array();
+			$hashes = [];
 		}
 		$load_urls = $this->urls_to_fetch($data);
 		if (count($load_urls) === 0) {
@@ -642,7 +642,7 @@ class Command_Update extends Command_Base {
 			return null;
 		}
 		$dry_run = $this->option_bool('dry-run');
-		$new_hashes = array();
+		$new_hashes = [];
 
 		$did_updates = false;
 		foreach ($load_urls as $url => $settings) {
@@ -661,12 +661,12 @@ class Command_Update extends Command_Base {
 			}
 
 			try {
-				list($temp_file_name, $filename) = $this->_fetch_url($url);
+				[$temp_file_name, $filename] = $this->_fetch_url($url);
 			} catch (Exception $e) {
-				$this->error("Updating {url} failed: {message}", array(
+				$this->error("Updating {url} failed: {message}", [
 					"url" => $url,
 					"message" => $e->getMessage(),
-				));
+				]);
 				return $e;
 			}
 
@@ -678,24 +678,24 @@ class Command_Update extends Command_Base {
 				$this->verbose_log('Updating forced');
 			} elseif (!$this->is_unpack($filename) && !file_exists($dest_file)) {
 				$do_update = true;
-				$this->verbose_log("Destination file {dest_file} doesn't exist? (filename is {filename})", array(
+				$this->verbose_log("Destination file {dest_file} doesn't exist? (filename is {filename})", [
 					"dest_file" => $dest_file,
 					"filename" => $filename,
-				));
+				]);
 			} else {
 				$hash = avalue($hashes, $url);
 				if ($hash !== $new_hash) {
 					$do_update = true;
-					$this->verbose_log("Hashes don't match for {dest_file}: {hash} !== {new_hash}", array(
+					$this->verbose_log("Hashes don't match for {dest_file}: {hash} !== {new_hash}", [
 						"dest_file" => $dest_file,
 						"hash" => $hash,
 						"new_hash" => $new_hash,
-					));
+					]);
 				} elseif (!is_dir($destination) || Directory::is_empty($destination)) {
 					$do_update = true;
-					$this->verbose_log("Destination directory {destination} doesn't exist", array(
+					$this->verbose_log("Destination directory {destination} doesn't exist", [
 						"destination" => $destination,
-					));
+					]);
 				}
 			}
 			if (!$do_update) {
@@ -705,7 +705,7 @@ class Command_Update extends Command_Base {
 			} else {
 				$did_updates = true;
 			}
-			Directory::depend($destination, 0775);
+			Directory::depend($destination, 0o775);
 
 			$data['filename'] = $filename;
 			$data['temp_file_name'] = $temp_file_name;
@@ -728,18 +728,18 @@ class Command_Update extends Command_Base {
 			$this->_delete_files($destination, $delete_after);
 		}
 		if (count($new_hashes) > 0) {
-			return array(
+			return [
 				'hashes' => $new_hashes + $hashes,
-			);
+			];
 		}
 		$this->verbose_log("$name unchanged");
 		return null;
 	}
 
-	private function _delete_files($destination, array $files) {
-		$delete_files = array();
+	private function _delete_files($destination, array $files): void {
+		$delete_files = [];
 		foreach ($files as $file) {
-			if (strpos($file, "*") !== false) {
+			if (str_contains($file, "*")) {
 				$path = path($destination, $file);
 				$paths = glob($path);
 				if (count($paths) === 0) {
@@ -760,23 +760,23 @@ class Command_Update extends Command_Base {
 		$delete_files = array_unique($delete_files);
 		foreach ($delete_files as $index => $delete) {
 			if (!begins($delete, $destination)) {
-				$this->verbose_log("Deleted file {delete} does not contain prefix {destination} - skipping", array(
+				$this->verbose_log("Deleted file {delete} does not contain prefix {destination} - skipping", [
 					"delete" => $delete,
 					"destination" => $destination,
-				));
+				]);
 				unset($delete_files[$index]);
 			}
 		}
 		foreach ($delete_files as $delete) {
 			if (is_dir($delete)) {
-				$this->log("Deleting directory {delete}", array(
+				$this->log("Deleting directory {delete}", [
 					"delete" => $delete,
-				));
+				]);
 				Directory::delete($delete);
 			} elseif (is_file($delete)) {
-				$this->log("Deleting file {delete}", array(
+				$this->log("Deleting file {delete}", [
 					"delete" => $delete,
-				));
+				]);
 				unlink($delete);
 			} else {
 				$this->debug_log("No delete file found; $delete");
@@ -789,25 +789,25 @@ class Command_Update extends Command_Base {
 		if ($path) {
 			return $path;
 		}
-		$args = array(
+		$args = [
 			"command" => $cmd,
 			"path" => implode(":", $this->application->command_path()),
-		);
+		];
 
 		throw new Exception_File_NotFound($cmd, map($this->application->theme('error/update-command-not-found'), $args));
 	}
 
 	private function is_unpack($filename) {
-		if (StringTools::ends($filename, array(
+		if (StringTools::ends($filename, [
 			".tar.gz",
 			".tgz",
 			".tar",
-		))) {
+		])) {
 			return true;
 		}
-		if (StringTools::ends($filename, array(
+		if (StringTools::ends($filename, [
 			".zip",
-		))) {
+		])) {
 			return true;
 		}
 		return false;
@@ -815,32 +815,32 @@ class Command_Update extends Command_Base {
 
 	private function unpack(array $data) {
 		$filename = $temp_file_name = $destination = null;
-		$this->debug_log("Unpacking {filename}", array(
+		$this->debug_log("Unpacking {filename}", [
 			"filename" => $filename,
-		));
+		]);
 		extract($data, EXTR_IF_EXISTS);
-		if (StringTools::ends($filename, array(
+		if (StringTools::ends($filename, [
 			".tar.gz",
 			".tgz",
 			".tar",
-		))) {
-			$this->debug_log("Unpacking tar file {filename}", array(
+		])) {
+			$this->debug_log("Unpacking tar file {filename}", [
 				"filename" => $filename,
-			));
+			]);
 			$result = self::unpack_tar($data);
-		} elseif (StringTools::ends($filename, array(
+		} elseif (StringTools::ends($filename, [
 			".zip",
-		))) {
-			$this->debug_log("Unpacking ZIP file {filename}", array(
+		])) {
+			$this->debug_log("Unpacking ZIP file {filename}", [
 				"filename" => $filename,
-			));
+			]);
 			$result = self::unpack_zip($data);
 		} else {
 			$full_destination = path($destination, $filename);
-			$this->debug_log("Copying directory {temp_file_name} => {full_destination}", array(
+			$this->debug_log("Copying directory {temp_file_name} => {full_destination}", [
 				"temp_file_name" => $filename,
 				'full_destination' => $full_destination,
-			));
+			]);
 			if (is_dir($temp_file_name)) {
 				$result = Directory::copy($temp_file_name, $full_destination, true);
 			} else {
@@ -853,7 +853,7 @@ class Command_Update extends Command_Base {
 		// Clean up perms
 		foreach (Directory::list_recursive($destination) as $f) {
 			$path = path($destination, $f);
-			chmod($path, is_file($path) ? 0644 : 0755);
+			chmod($path, is_file($path) ? 0o644 : 0o755);
 		}
 		return $result;
 	}
@@ -875,16 +875,16 @@ class Command_Update extends Command_Base {
 		}
 
 		try {
-			$this->debug_log("Copying share directory from {source} to {dest} for module {name}", array(
+			$this->debug_log("Copying share directory from {source} to {dest} for module {name}", [
 				"source" => $source,
 				"dest" => $dest,
 				"name" => $data['name'],
-			));
+			]);
 			Directory::copy($source, $dest, true);
 		} catch (Exception $e) {
-			$this->debug_log("failed because of {e} ... rolling back", array(
+			$this->debug_log("failed because of {e} ... rolling back", [
 				"e" => $e,
-			));
+			]);
 			$this->rollback($data);
 
 			throw $e;
@@ -1023,7 +1023,7 @@ class Command_Update extends Command_Base {
 	private function unpack_tar(array $data) {
 		$filename = $temp_file_name = $destination = $strip_components = $name = null;
 		extract($data, EXTR_IF_EXISTS);
-		$args = array();
+		$args = [];
 		$args[] = $this->_which_command('tar');
 		$args[] = StringTools::ends($filename, "gz") ? "zxf" : "xf";
 		$args[] = $temp_file_name;
@@ -1044,7 +1044,7 @@ class Command_Update extends Command_Base {
 	private function unpack_zip(array $data) {
 		$filename = $temp_file_name = $destination = $strip_components = $name = null;
 		extract($data, EXTR_IF_EXISTS);
-		$args = array();
+		$args = [];
 		$args[] = $this->_which_command('unzip');
 		$args[] = '-o';
 		$args[] = $temp_file_name;
@@ -1076,9 +1076,9 @@ class Command_Update extends Command_Base {
 			return false;
 		}
 		if ($strip_components) {
-			$this->debug_log("Stripping components {strip_components}", array(
+			$this->debug_log("Stripping components {strip_components}", [
 				"strip_components" => $strip_components,
-			));
+			]);
 			return $this->strip_components($destination, $actual_destination, $strip_components);
 		}
 		return true;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,17 +10,17 @@ namespace zesk;
  *
  */
 class Class_DBSchemaTest4 extends Class_ORM {
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->table = DBSchemaTest4::$test_table;
 	}
 
-	public $column_types = array(
+	public $column_types = [
 		"ID" => self::type_id,
 		"Depth" => self::type_integer,
 		"CodeName" => self::type_string,
 		"Name" => self::type_string,
-	);
+	];
 }
 class DBSchemaTest4 extends ORM {
 	public static $test_table = "";
@@ -51,12 +51,12 @@ class DBSchemaTest4 extends ORM {
 	}
 }
 class Class_DBSchemaTest5 extends Class_ORM {
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->table = DBSchemaTest5::$test_table;
 	}
 
-	public $column_types = array(
+	public $column_types = [
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
 		"Phrase" => self::type_string,
@@ -65,7 +65,7 @@ class Class_DBSchemaTest5 extends Class_ORM {
 		"Status" => self::type_integer,
 		"IsOrganic" => self::type_string,
 		"LastUsed" => self::type_timestamp,
-	);
+	];
 }
 class DBSchemaTest5 extends ORM {
 	public static $test_table = null;
@@ -87,7 +87,7 @@ class DBSchemaTest5 extends ORM {
 	}
 }
 class Class_DBSchemaTest6 extends Class_ORM {
-	public $column_types = array(
+	public $column_types = [
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
 		"Protocol" => self::type_string,
@@ -99,9 +99,9 @@ class Class_DBSchemaTest6 extends Class_ORM {
 		"Title" => self::type_object,
 		"Fragment" => self::type_string,
 		"Frag" => self::type_object,
-	);
+	];
 
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->table = DBSchemaTest6::$test_table;
 	}
@@ -129,7 +129,7 @@ class DBSchemaTest6 extends ORM {
 	}
 }
 class Class_DBSchemaTest7 extends Class_ORM {
-	public $column_types = array(
+	public $column_types = [
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
 		"Protocol" => self::type_string,
@@ -141,9 +141,9 @@ class Class_DBSchemaTest7 extends Class_ORM {
 		"Title" => self::type_object,
 		"Fragment" => self::type_string,
 		"Frag" => self::type_object,
-	);
+	];
 
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->table = DBSchemaTest7::$test_table;
 	}
@@ -172,13 +172,13 @@ class DBSchemaTest7 extends ORM {
 	}
 }
 class Class_DBSchemaTest8 extends Class_ORM {
-	public $column_types = array(
+	public $column_types = [
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
 		"Size" => self::type_integer,
-	);
+	];
 
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->table = DBSchemaTest8::$test_table;
 	}
@@ -196,7 +196,7 @@ class DBSchemaTest8 extends ORM {
 	}
 }
 class Class_DBSchemaTest_columns_0 extends Class_ORM {
-	public $column_types = array(
+	public $column_types = [
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
 		"Protocol" => self::type_string,
@@ -206,7 +206,7 @@ class Class_DBSchemaTest_columns_0 extends Class_ORM {
 		"QueryString" => self::type_object,
 		"Fragment" => self::type_string,
 		"Frag" => self::type_object,
-	);
+	];
 }
 class DBSchemaTest_columns_0 extends ORM {
 	public function schema() {
@@ -229,14 +229,14 @@ class DBSchemaTest_columns_0 extends ORM {
 	}
 }
 class Class_DBSchemaTest_columns_1 extends Class_ORM {
-	public $column_types = array(
+	public $column_types = [
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
 		"Protocol" => self::type_string,
 		"Domain" => self::type_object,
 		"Port" => self::type_integer,
 		"URI" => self::type_object,
-	);
+	];
 }
 class DBSchemaTest_columns_1 extends ORM {
 	public function schema() {

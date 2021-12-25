@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -10,18 +10,18 @@ namespace zesk;
  *
  */
 class Hexadecimal_Test extends Test_Unit {
-	public function test_decode() {
+	public function test_decode(): void {
 		$decoded = Hexadecimal::decode("DEADBEEF");
 		$x = null;
-		$this->assert_arrays_equal(str_split($decoded), array(
+		$this->assert_arrays_equal(str_split($decoded), [
 			chr(222),
 			chr(173),
 			chr(190),
 			chr(239),
-		));
+		]);
 	}
 
-	public function test_encode() {
+	public function test_encode(): void {
 		$x = null;
 		Hexadecimal::encode($x);
 

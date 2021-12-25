@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -14,7 +14,7 @@ class Class_Content_Group extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"code" => self::type_string,
 		"name" => self::type_string,
@@ -22,7 +22,7 @@ class Class_Content_Group extends Class_ORM {
 		"created" => self::type_created,
 		"modified" => self::type_modified,
 		"order_by" => self::type_string,
-	);
+	];
 
 	/**
 	 *

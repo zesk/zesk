@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -36,9 +36,9 @@ if ($this->required) {
 }
 $ia['class'] = CSS::add_class($class, 'form-control');
 
-$ia = $object->apply_map($ia) + array(
+$ia = $object->apply_map($ia) + [
 	'value' => $value,
-);
+];
 
 $side = $this->get("dropdown_alignment", "right");
 
@@ -54,9 +54,9 @@ foreach ($control_options as $code => $attributes) {
 		continue;
 	}
 	if (!is_array($attributes)) {
-		$attributes = array(
+		$attributes = [
 			'link_html' => $attributes,
-		);
+		];
 	} elseif (!array_key_exists('link_html', $attributes)) {
 		$attributes['link_html'] = $code;
 	}
@@ -74,34 +74,34 @@ foreach ($control_options as $code => $attributes) {
 		$button_label = $attributes['link_html'];
 	}
 }
-$selected = apath($control_options, array(
+$selected = apath($control_options, [
 	$value,
 	'selected',
-));
+]);
 if (!$selected) {
 	$attributes[$code]['selected'] = true;
 }
 if (!$button_label) {
-	$button_label = apath($control_options, array(
+	$button_label = apath($control_options, [
 		$value,
 		"link_html",
-	));
+	]);
 }
 
-$items = array();
+$items = [];
 foreach ($control_options as $code => $attributes) {
 	if ($attributes === '-') {
 		$items[] = HTML::tag('li', '.divider', '');
 		continue;
 	}
-	$attributes += array(
+	$attributes += [
 		'data-value' => $code,
-	);
+	];
 	if (array_key_exists('list_item_attributes', $attributes)) {
 		$li_attributes = $attributes['list_item_attributes'];
 		unset($attributes['list_item_attributes']);
 	} else {
-		$li_attributes = array();
+		$li_attributes = [];
 	}
 	if (array_key_exists('link_html', $attributes)) {
 		$link_html = $attributes['link_html'];
@@ -117,14 +117,14 @@ foreach ($control_options as $code => $attributes) {
 
 $html = "";
 
-$html .= HTML::div_open(array(
+$html .= HTML::div_open([
 	'class' => $this->get("outer_class", 'dropdown'), //'input-group-btn'
 	'id' => $id,
-));
+]);
 
 $input_id = $this->id . "_input";
 
-$html .= HTML::tag('button', array(
+$html .= HTML::tag('button', [
 	'type' => 'button',
 	'class' => 'btn btn-default dropdown-toggle',
 	'data-toggle' => 'dropdown',
@@ -132,21 +132,21 @@ $html .= HTML::tag('button', array(
 	'data-input' => "#$input_id",
 	'data-content' => '{label} ',
 	'aria-expanded' => 'false',
-), HTML::span(".button-label", $button_label) . ' ' . HTML::span('.caret', ''));
+], HTML::span(".button-label", $button_label) . ' ' . HTML::span('.caret', ''));
 
-$html .= HTML::tag_open('ul', array(
+$html .= HTML::tag_open('ul', [
 	"class" => "dropdown-menu dropdown-menu-$side",
 	"role" => "menu",
-));
+]);
 
 $html .= implode("\n", $items);
 $html .= HTML::tag_close('ul');
 
 $html .= HTML::div_close(); // input-group-btn
 
-$input = HTML::input('hidden', $this->name, $this->value, array(
+$input = HTML::input('hidden', $this->name, $this->value, [
 	'id' => $this->id . "_input",
-));
+]);
 
 if (!$this->no_input_group) {
 	echo HTML::div_open('.input-group');
@@ -161,10 +161,10 @@ if (!$this->no_input_group) {
 	echo $input;
 }
 
-$response->javascript('/share/bootstrap-x/js/dropdown.js', array(
+$response->javascript('/share/bootstrap-x/js/dropdown.js', [
 	"share" => true,
-));
-$response->jquery(map('$("#{id}").bootstrap_dropdown({ onupdate: {onupdate} });', array(
+]);
+$response->jquery(map('$("#{id}").bootstrap_dropdown({ onupdate: {onupdate} });', [
 	'id' => $id,
 	'onupdate' => $this->onupdate ? $this->onupdate : "null",
-)));
+]));

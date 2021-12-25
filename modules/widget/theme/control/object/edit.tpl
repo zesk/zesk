@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -23,7 +23,7 @@ $widget->child_content = "";
 
 $table_attributes = $this->table_attributes;
 if (!is_array($table_attributes)) {
-	$table_attributes = array();
+	$table_attributes = [];
 }
 
 $invisibles = "";
@@ -46,10 +46,10 @@ foreach ($widget->children() as $name => $child) {
 	}
 	$label = "";
 	if ($child->label) {
-		$label = HTML::tag('label', array(
+		$label = HTML::tag('label', [
 			'for' => $child->id(),
 			'class' => $this->inline ? 'sr-only' : '',
-		), $child->label);
+		], $child->label);
 	}
 	echo HTML::div('.form-group', $label . $child->content . HTML::etag('p', '.help-block', $this->help));
 }

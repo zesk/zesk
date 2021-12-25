@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class URL_Test extends Test_Unit {
-	public function test_parse() {
-		$test_urls = array(
-			"scheme://user:pass@host/path?query#fragment" => array(
+	public function test_parse(): void {
+		$test_urls = [
+			"scheme://user:pass@host/path?query#fragment" => [
 				"scheme" => "scheme",
 				"user" => "user",
 				"pass" => "pass",
@@ -13,15 +13,15 @@ class URL_Test extends Test_Unit {
 				"query" => "query",
 				"fragment" => "fragment",
 				"url" => "scheme://user:pass@host/path?query#fragment",
-			),
+			],
 			"http:///list/flush%20mount%20fuel%20cap.htm" => false,
-			"mailto:someone@example.com" => array(
+			"mailto:someone@example.com" => [
 				'scheme' => 'mailto',
 				'user' => 'someone',
 				'host' => 'example.com',
 				'url' => "mailto:someone@example.com",
-			),
-		);
+			],
+		];
 
 		foreach ($test_urls as $url => $result) {
 			$x = URL::parse($url);
@@ -36,34 +36,34 @@ class URL_Test extends Test_Unit {
 		}
 	}
 
-	public function test_query_append() {
+	public function test_query_append(): void {
 		$u = null;
 		$values = null;
 		$is_href = false;
 		URL::query_append($u, $values, $is_href);
 	}
 
-	public function test_query_format() {
+	public function test_query_format(): void {
 		$path = null;
 		$add = null;
 		$remove = null;
 		URL::query_format($path, $add, $remove);
 	}
 
-	public function test_query_iremove() {
+	public function test_query_iremove(): void {
 		$u = null;
 		$names = null;
 		URL::query_iremove($u, $names);
 	}
 
-	public function left_path() {
+	public function left_path(): void {
 		$url = "http://www.example.com/path/?_foo=bar&number1=or-number-2";
 		$x = URL::left_path($url);
 		$r = "http://www.example.com/path/";
 		$this->assert($x === $r, "$x === $r");
 	}
 
-	public function query_remove() {
+	public function query_remove(): void {
 		$u = 'http://www.example.com/?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51';
 		$names = 'marker;a;abcDEF';
 		$isHREF = false;
@@ -86,11 +86,11 @@ class URL_Test extends Test_Unit {
 		$this->assert($result === $test_result, "$result === $test_result");
 	}
 
-	public function test_unparse() {
+	public function test_unparse(): void {
 		$parts = null;
 		URL::unparse($parts);
 
-		$urls = array(
+		$urls = [
 			"http://www.test.com:81/SIMPLE.html" => "http://www.test.com:81/SIMPLE.html",
 			"http://john:dude@www.test.com:81/SIMPLE.html" => "http://john:dude@www.test.com:81/SIMPLE.html",
 			"http:/www.test.com/SIMPLE.html" => false,
@@ -98,7 +98,7 @@ class URL_Test extends Test_Unit {
 			"http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag" => "http://www.test.com/SIMPLE.html?a=b&c=d*&#frag",
 			"file:///usr/local/etc/php.ini" => "file:///usr/local/etc/php.ini",
 			"FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini" => "ftp://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini",
-		);
+		];
 		foreach ($urls as $u => $u_final) {
 			$this->assert_equal(URL::is($u), is_string($u_final), "Is URL failed: $u");
 			$parts = URL::parse($u);
@@ -114,7 +114,7 @@ class URL_Test extends Test_Unit {
 		}
 	}
 
-	public function test_change_host() {
+	public function test_change_host(): void {
 		$url = null;
 		$host = null;
 		URL::change_host($url, $host);
@@ -126,7 +126,7 @@ class URL_Test extends Test_Unit {
 		$this->assert(URL::change_host($url, "new-host") === "http://new-host/path/to/some-file.php?id=1452123&q42=53234#hash_mark");
 	}
 
-	public function test_compute_href() {
+	public function test_compute_href(): void {
 		$url = "http://www.example.com/path/to/file.php?query=value&vale1=412#position";
 		$href = "another-file.php?foo=bar#place";
 		$this->assert(URL::compute_href($url, $href) === "http://www.example.com/path/to/another-file.php?foo=bar#place");
@@ -147,17 +147,17 @@ class URL_Test extends Test_Unit {
 		$this->assert(URL::compute_href($url, $href) === "http://www.example.com/path/to/file.php?query=fuck");
 	}
 
-	public function test_host() {
+	public function test_host(): void {
 		$url = null;
 		$default = false;
 		URL::host($url, $default);
 	}
 
-	public function test_is() {
+	public function test_is(): void {
 		$url = null;
 		URL::is($url);
 
-		$tests = array(
+		$tests = [
 			"http://localhost/SIMPLE.html" => true,
 			"http://localhost/SIMPLE.html" => true,
 			"https://*12312:asdfasdf@localhost:9293/SIMPLE.html?asdfasdljhalskjdhfasdf=asdgasdf&foo=bar&$20=/" => true,
@@ -176,7 +176,7 @@ class URL_Test extends Test_Unit {
 			"mhtml:///ftp://C:Documents and SettingsstarvisionMy DocumentsThank You for Your Order - LakeChamplainChocolates_com.mht" => false,
 			"mhtml:///http://C:Documents and SettingsstarvisionMy DocumentsThank You for Your Order - LakeChamplainChocolates_com.mht" => false,
 			"mhtml:///https://C:Documents and SettingsstarvisionMy DocumentsThank You for Your Order - LakeChamplainChocolates_com.mht" => false,
-		);
+		];
 		foreach ($tests as $u => $r) {
 			echo "Testing url: $u\n";
 			Debug::output(URL::parse($u));
@@ -184,27 +184,27 @@ class URL_Test extends Test_Unit {
 		}
 	}
 
-	public function test_is_absolute() {
+	public function test_is_absolute(): void {
 		$url = null;
 		URL::is_absolute($url);
 	}
 
-	public function test_is_secure() {
+	public function test_is_secure(): void {
 		$url = null;
 		URL::is_secure($url);
 	}
 
-	public function test_left() {
+	public function test_left(): void {
 		$url = null;
 		$part = null;
 		URL::left($url, $part);
 	}
 
-	public function test_left_host() {
+	public function test_left_host(): void {
 		$u = null;
 		URL::left_host($u);
 
-		$tests = array(
+		$tests = [
 			"http://www.test.com:81/SIMPLE.html" => "http://www.test.com:81/",
 			"http://john:dude@www.test.com:81/SIMPLE.html" => "http://john:dude@www.test.com:81/",
 			"http:/www.test.com/SIMPLE.html" => false,
@@ -221,7 +221,7 @@ class URL_Test extends Test_Unit {
 			'FILE://foo' => "file:///",
 			'file:///' => "file:///",
 			'http://www.example.com:98/path/index.php?id=323&o=123#top' => 'http://www.example.com:98/',
-		);
+		];
 
 		$this->log("URL::left_host");
 		foreach ($tests as $u => $r) {
@@ -261,15 +261,15 @@ class URL_Test extends Test_Unit {
 	/**
 	 * @dataProvider left_paths
 	 */
-	public function test_left_path($source, $expected) {
+	public function test_left_path($source, $expected): void {
 		$this->assertEquals($expected, URL::left_path($source));
 	}
 
-	public function test_normalize() {
+	public function test_normalize(): void {
 		$u = null;
 		URL::normalize($u);
 
-		$urls = array(
+		$urls = [
 			"http://www.test.com:81/SIMPLE.html" => "http://www.test.com:81/SIMPLE.html",
 			"http://john:dude@www.test.com:81/SIMPLE.html" => "http://john:dude@www.test.com:81/SIMPLE.html",
 			"http:/www.test.com/SIMPLE.html" => false,
@@ -277,14 +277,14 @@ class URL_Test extends Test_Unit {
 			"http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag" => "http://www.test.com/SIMPLE.html?a=b&c=d*&#frag",
 			"file:///usr/local/etc/php.ini" => "file:///usr/local/etc/php.ini",
 			"FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini" => "ftp://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini",
-		);
+		];
 
 		foreach ($urls as $u => $r) {
 			$this->assert_equal(URL::is($u), is_string($r));
 			$this->assert_equal(URL::normalize($u), $r);
 		}
 
-		$norm_urls = array(
+		$norm_urls = [
 			'HTTP://WWW.EXAMPLE.COM/' => "http://www.example.com/",
 			'HTTPS://WWW.EXAMPLE.COM/?test=test' => "https://www.example.com/?test=test",
 			'ftp://USER:PASSWORD@EXAMPLE.COM/' => "ftp://USER:PASSWORD@example.com/",
@@ -294,7 +294,7 @@ class URL_Test extends Test_Unit {
 			'FILE://foo' => 'file:///foo',
 			'file:///' => "file:///",
 			'file:///foo' => "file:///foo",
-		);
+		];
 
 		$this->log("URL::normalize");
 		foreach ($norm_urls as $u => $r) {
@@ -305,7 +305,7 @@ class URL_Test extends Test_Unit {
 		echo basename(__FILE__) . ": success\n";
 	}
 
-	public function test_protocol_default_port() {
+	public function test_protocol_default_port(): void {
 		$x = null;
 		URL::protocol_default_port($x);
 
@@ -322,39 +322,39 @@ class URL_Test extends Test_Unit {
 		$this->assert_equal(URL::protocol_default_port("foo"), false);
 	}
 
-	public function test_query() {
+	public function test_query(): void {
 		$url = null;
 		$default = false;
 		URL::query($url, $default);
 	}
 
-	public function test_query_from_mixed() {
+	public function test_query_from_mixed(): void {
 		$url = null;
 		$lower = true;
 		URL::query_from_mixed($url, $lower);
 	}
 
-	public function test_query_iparse() {
+	public function test_query_iparse(): void {
 		$qs = null;
 		$name = null;
 		$default = null;
 		URL::query_iparse($qs, $name, $default);
 	}
 
-	public function test_query_unparse() {
-		$m = array(
+	public function test_query_unparse(): void {
+		$m = [
 			"A" => "A",
 			"B" => "C",
 			"D" => "E",
-		);
+		];
 		$this->assertEquals("?A=A&B=C&D=E", URL::query_unparse($m));
 	}
 
-	public function test_remove_password() {
+	public function test_remove_password(): void {
 		$this->assert(URL::remove_password("http://joe:password@example.com/") === "http://joe@example.com/");
 	}
 
-	public function test_normalize1() {
+	public function test_normalize1(): void {
 		$u = null;
 		URL::repair($u);
 
@@ -369,12 +369,12 @@ class URL_Test extends Test_Unit {
 		}
 	}
 
-	public function test_scheme() {
+	public function test_scheme(): void {
 		$url = null;
 		$default = false;
 		URL::scheme($url, $default);
 
-		$tests = array(
+		$tests = [
 			'http://www.example.com' => 'http',
 			'https://www.example.com' => 'https',
 			'ftp://www.example.com' => 'ftp',
@@ -386,7 +386,7 @@ class URL_Test extends Test_Unit {
 			'FiLe://foo' => 'file',
 			'MaIlTo:john@doe.com' => 'mailto',
 			'mysql://foo:bar@localhost/db_name?table_prefix=323' => 'mysql',
-		);
+		];
 
 		$this->log("URL::scheme");
 		foreach ($tests as $u => $r) {

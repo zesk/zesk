@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -16,10 +16,10 @@ namespace zesk;
 /**
  *
  */
-$response->css('/share/zesk/css/webfonts.css', array(
+$response->css('/share/zesk/css/webfonts.css', [
 	'share' => true,
-));
-$fonts = array(
+]);
+$fonts = [
 	"Arial, Arial, Helvetica, sans-serif",
 	"Arial Black, Arial Black, Gadget, sans-serif",
 	"Comic Sans MS, Comic Sans MS5, cursive",
@@ -38,15 +38,15 @@ $fonts = array(
 	"Wingdings, Zapf Dingbats (Wingdings2, Zapf Dingbats2)",
 	"MS Sans Serif4, Geneva, sans-serif",
 	"MS Serif4, New York6, serif",
-);
+];
 foreach ($fonts as $font) {
-	$font = ArrayTools::trim(to_list($font, array(), ","));
+	$font = ArrayTools::trim(to_list($font, [], ","));
 	foreach ($font as $index => $face) {
-		if (strpos($face, " ") !== false) {
+		if (str_contains($face, " ")) {
 			$font[$index] = "\"$face\"";
 		}
 	}
-	$attrs = array();
+	$attrs = [];
 	$attrs['style'] = "font-family: " . implode(",", $font);
 	if ($this->has('font_size')) {
 		$attrs['style'] .= "; font-size: $this->font_size";

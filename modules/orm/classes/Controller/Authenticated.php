@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -33,14 +33,14 @@ class Controller_Authenticated extends Controller_Theme {
 	 *
 	 * @var User
 	 */
-	public $user = null;
+	public ?User $user = null;
 
 	/**
 	 * Current session
 	 *
 	 * @var Interface_Session
 	 */
-	public $session = null;
+	public ?Interface_Session $session = null;
 
 	/**
 	 * Constructor
@@ -48,7 +48,7 @@ class Controller_Authenticated extends Controller_Theme {
 	 * @param Application $application
 	 * @param string $options
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
 
 		if ($this->login_redirect_message === null) {
@@ -60,7 +60,7 @@ class Controller_Authenticated extends Controller_Theme {
 		}
 	}
 
-	public function default_login_redirect() {
+	public function default_login_redirect(): void {
 		if ($this->login_redirect === null) {
 			$this->login_redirect = $this->router ? $this->router->get_route("login", Controller_Login::class) : null;
 			if (!$this->login_redirect) {
@@ -69,7 +69,7 @@ class Controller_Authenticated extends Controller_Theme {
 		}
 	}
 
-	public function check_authenticated() {
+	public function check_authenticated(): void {
 		if (!$this->option_bool('login_redirect', true)) {
 			return;
 		}
@@ -78,7 +78,7 @@ class Controller_Authenticated extends Controller_Theme {
 		}
 	}
 
-	public function before() {
+	public function before(): void {
 		parent::before();
 		$this->check_authenticated();
 	}
@@ -86,21 +86,21 @@ class Controller_Authenticated extends Controller_Theme {
 	/**
 	 * If not logged in, redirect
 	 */
-	protected function login_redirect() {
+	protected function login_redirect(): void {
 		$this->default_login_redirect();
 		if (!$this->user || !$this->user->authenticated($this->request)) {
 			if ($this->response->is_json()) {
-				$this->json(array(
+				$this->json([
 					"status" => false,
 					"message" => $this->login_redirect_message,
 					"route" => $this->login_redirect,
 					"referrer" => $this->request->uri(),
-				));
+				]);
 				$this->response->status(Net_HTTP::STATUS_UNAUTHORIZED, "Need to authenticate");
 			} else {
-				$url = URL::query_format($this->login_redirect, array(
+				$url = URL::query_format($this->login_redirect, [
 					"ref" => $this->request->uri(),
-				));
+				]);
 
 				throw new Exception_RedirectTemporary($url, $this->login_redirect_message);
 			}
@@ -113,9 +113,9 @@ class Controller_Authenticated extends Controller_Theme {
 	 * @see Controller_Template::variables()
 	 */
 	public function variables() {
-		return array(
+		return [
 			'user' => $this->user,
 			'session' => $this->session,
-		) + parent::variables();
+		] + parent::variables();
 	}
 }

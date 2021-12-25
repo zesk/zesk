@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -19,7 +19,7 @@ class World_Bootstrap_Country extends Hookable {
 	 *
 	 * Country database (TXT file)
 	 */
-	const url_geonames_country_file = "https://download.geonames.org/export/dump/countryInfo.txt";
+	public const url_geonames_country_file = "https://download.geonames.org/export/dump/countryInfo.txt";
 
 	/**
 	 *
@@ -33,7 +33,7 @@ class World_Bootstrap_Country extends Hookable {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Application $application, array $options = array()) {
+	public static function factory(Application $application, array $options = []) {
 		return $application->factory(__CLASS__, $application, $options);
 	}
 
@@ -43,7 +43,7 @@ class World_Bootstrap_Country extends Hookable {
 	 *
 	 * @param mixed $options
 	 */
-	public function __construct(Application $application, array $options = array()) {
+	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options(Module_World::class);
 		$include_country = $this->option("include_country");
@@ -52,7 +52,7 @@ class World_Bootstrap_Country extends Hookable {
 		}
 	}
 
-	public function bootstrap() {
+	public function bootstrap(): void {
 		$application = $this->application;
 		$prefix = __NAMESPACE__ . "\\";
 		$x = $application->objects->factory($prefix . StringTools::unprefix(__CLASS__, $prefix . "World_Bootstrap_"), $application);
@@ -87,9 +87,9 @@ class World_Bootstrap_Country extends Hookable {
 	private function load_countryinfo(Application $application) {
 		$world_path = $application->modules->path("world");
 		$file = $this->option("geonames_country_cache_file", path($world_path, 'bootstrap-data/countryinfo.txt'));
-		Net_Sync::url_to_file($application, self::url_geonames_country_file, $file, array(
+		Net_Sync::url_to_file($application, self::url_geonames_country_file, $file, [
 			"time_to_live" => $this->option("geonames_time_to_live", 86400 * 30),
-		));
+		]);
 		$fp = fopen($file, "rb");
 		$headers = null;
 		while (is_array($row = fgetcsv($fp, null, "\t"))) {
@@ -107,10 +107,10 @@ class World_Bootstrap_Country extends Hookable {
 			if (empty($code2) || empty($name)) {
 				continue;
 			}
-			$rows[] = array(
+			$rows[] = [
 				'code' => $code2,
 				'name' => $name,
-			);
+			];
 		}
 		return $rows;
 	}

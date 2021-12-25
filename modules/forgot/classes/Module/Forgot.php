@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Handle integration and hooks into Zesk
  *
@@ -22,16 +22,16 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 *
 	 * @var array
 	 */
-	protected $model_classes = array(
+	protected array $model_classes = [
 		"zesk\\Forgot",
-	);
+	];
 
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see Module::initialize()
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->application->configuration->path(Forgot::class)->theme_path_prefix = "object";
 	}
@@ -41,18 +41,18 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 *
 	 * @param Router $router
 	 */
-	public function hook_routes(Router $router) {
-		$router->add_route("forgot(/{option action}(/{hash}))", $this->option_array("route_options") + array(
+	public function hook_routes(Router $router): void {
+		$router->add_route("forgot(/{option action}(/{hash}))", $this->option_array("route_options") + [
 			"controller" => Controller_Forgot::class,
-			"classes" => array(
+			"classes" => [
 				Forgot::class,
-			),
-			"arguments" => array(
+			],
+			"arguments" => [
 				2,
-			),
+			],
 			"login" => false,
 			"id" => "forgot",
-		));
+		]);
 	}
 
 	/**
@@ -60,7 +60,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 *
 	 * @var integer
 	 */
-	const DEFAULT_DATABASE_EXPIRE_SECONDS = 86400;
+	public const DEFAULT_DATABASE_EXPIRE_SECONDS = 86400;
 
 	/**
 	 * Default value for request_expire_seconds (# seconds after which requests are considered invalid by the browser) (1 hour)
@@ -68,7 +68,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 *
 	 * @var integer
 	 */
-	const DEFAULT_REQUEST_EXPIRE_SECONDS = 3600;
+	public const DEFAULT_REQUEST_EXPIRE_SECONDS = 3600;
 
 	/**
 	 * Represents the number of seconds after which database entries are considered invalid.
@@ -93,14 +93,14 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 *
 	 * @param Application $application
 	 */
-	public function hook_cron_cluster_minute() {
+	public function hook_cron_cluster_minute(): void {
 		$expire_seconds = -abs(to_integer($this->option("expire_seconds"), 3600));
 		$older = Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND);
 		$affected_rows = $this->application->orm_registry(Forgot::class)->delete_older($older);
 		if ($affected_rows > 0) {
-			$this->application->logger->notice("{method} deleted {affected_rows} forgotten rows", compact("affected_rows") + array(
+			$this->application->logger->notice("{method} deleted {affected_rows} forgotten rows", compact("affected_rows") + [
 				"method" => __METHOD__,
-			));
+			]);
 		}
 	}
 }

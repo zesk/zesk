@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
@@ -26,11 +26,11 @@ class View_OrderBy extends View {
 		$order_var = $this->option("list_order_variable", "o");
 		$cur_sort_names = explode(";", $this->request->get($order_var, $this->option('default')));
 		$cur_sort_names = ArrayTools::clean($cur_sort_names);
-		$new_order = array();
+		$new_order = [];
 		$new_key = null;
 		$sort_index = null;
 		$multisort = $this->option_bool("multisort");
-		$remove_order = array();
+		$remove_order = [];
 		foreach ($cur_sort_names as $i => $cur_sort_name) {
 			if ($cur_sort_name === $k) {
 				$sort_index = $i;
@@ -64,21 +64,21 @@ class View_OrderBy extends View {
 		if ($multisort) {
 			$new_key = implode(";", $new_order);
 			$remove_order = implode(";", $remove_order);
-			$remove_url = URL::query_format($this->option("URI", $this->request->uri()), array(
+			$remove_url = URL::query_format($this->option("URI", $this->request->uri()), [
 				$order_var => $remove_order,
-			));
-			$sort_number = ($sort_index !== null) ? HTML::tag("div", array(
+			]);
+			$sort_number = ($sort_index !== null) ? HTML::tag("div", [
 				"class" => "list-order-index",
-			), HTML::a($remove_url, $sort_index + 1)) : "";
+			], HTML::a($remove_url, $sort_index + 1)) : "";
 		} else {
 			$sort_number = "";
 		}
-		$url = URL::query_format($this->option("URI", $this->request->uri()), array(
+		$url = URL::query_format($this->option("URI", $this->request->uri()), [
 			$order_var => $new_key,
-		));
-		$a_tag = HTML::tag('a', array(
+		]);
+		$a_tag = HTML::tag('a', [
 			'href' => $url,
-		), $english);
+		], $english);
 		$label = "<td nowrap=\"nowrap\">" . $a_tag . "</td>";
 		$sort = "<td align=\"center\"><div class=\"list-order-by-icon\">$sort_number<a href=\"" . $url . "\"><img src=\"" . $this->application->url("/share/zesk/images/sort/$sort_order.gif") . "\" alt=\"$sort_desc\" width=\"16\" height=\"16\" border=\"0\" /></a></div></td>";
 

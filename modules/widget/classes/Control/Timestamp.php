@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -14,9 +14,9 @@ namespace zesk;
  *
  */
 class Control_Timestamp extends Control {
-	protected $options = array(
+	protected $options = [
 		"allow_times" => true,
-	);
+	];
 
 	public function future_only($set = null) {
 		if ($set !== null) {
@@ -43,7 +43,7 @@ class Control_Timestamp extends Control {
 		return $set === null ? $this->option_bool('time_control') : $this->set_option('time_control', to_bool($set));
 	}
 
-	public function load() {
+	public function load(): void {
 		parent::load();
 		$value = $this->value();
 		if (empty($value)) {

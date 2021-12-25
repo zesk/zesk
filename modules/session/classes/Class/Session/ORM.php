@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -14,15 +14,15 @@ class Class_Session_ORM extends Class_ORM {
 	 */
 	public $id_column = "id";
 
-	public $find_keys = array(
+	public $find_keys = [
 		"cookie",
-	);
+	];
 
-	public $has_one = array(
+	public $has_one = [
 		"user" => "zesk\User",
-	);
+	];
 
-	public $column_types = array(
+	public $column_types = [
 		"id" => self::type_id,
 		"cookie" => self::type_string,
 		"is_one_time" => self::type_boolean,
@@ -34,13 +34,13 @@ class Class_Session_ORM extends Class_ORM {
 		"seen" => self::type_datetime,
 		"sequence_index" => self::type_integer,
 		"data" => self::type_serialize,
-	);
+	];
 
 	public $code_name = "Session";
 
-	public $column_defaults = array(
-		'data' => array(),
+	public $column_defaults = [
+		'data' => [],
 		'sequence_index' => 0,
 		'ip' => '127.0.0.1',
-	);
+	];
 }

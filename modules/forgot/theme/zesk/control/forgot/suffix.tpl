@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/forgot/theme/zesk/control/forgot/suffix.tpl $
  * @author $Author: kent $

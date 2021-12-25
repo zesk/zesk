@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -16,21 +16,21 @@ class Command_Info extends Command_Base {
 	 *
 	 * @var array
 	 */
-	protected $option_types = array(
+	protected array $option_types = [
 		'help' => 'boolean',
 		'computer-labels' => 'boolean',
 		'format' => 'string',
-	);
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $option_help = array(
+	protected array $option_help = [
 		'help' => 'This help',
 		'computer-labels' => 'Show computer labels',
 		'format' => "output format: text (default), html, php, serialize, json",
-	);
+	];
 
 	/**
 	 *
@@ -38,61 +38,61 @@ class Command_Info extends Command_Base {
 	 *
 	 * @var string
 	 */
-	const zesk_version_release = "zesk\Version::release";
+	public const zesk_version_release = "zesk\Version::release";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const configuration_files_loaded = "configuration_files_loaded";
+	public const configuration_files_loaded = "configuration_files_loaded";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const zesk_version_string = "zesk\Version::release_string";
+	public const zesk_version_string = "zesk\Version::release_string";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const zesk_root = "zesk_root";
+	public const zesk_root = "zesk_root";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const zesk_application_root = "zesk_application_root";
+	public const zesk_application_root = "zesk_application_root";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const zesk_application_class = "zesk\Kernel::application_class";
+	public const zesk_application_class = "zesk\Kernel::application_class";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const zesk_application_theme_path = "zesk\Application::theme_path";
+	public const zesk_application_theme_path = "zesk\Application::theme_path";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const command_path = "command_path";
+	public const command_path = "command_path";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const zesk_autoload_path = "zesk\\Autoloader::path";
+	public const zesk_autoload_path = "zesk\\Autoloader::path";
 
 	/**
 	 *
 	 * @var array
 	 */
-	public static $human_names = array(
+	public static $human_names = [
 		self::APPLICATION_VERSION => 'Application Version',
 		self::zesk_version_release => 'Zesk Version',
 		self::zesk_version_string => 'Zesk Version String',
@@ -108,13 +108,13 @@ class Command_Info extends Command_Base {
 		'error_log' => 'PHP Error Log',
 		self::zesk_application_class => 'Zesk Application Class',
 		self::configuration_files_loaded => 'Loaded Configuration Files',
-	);
+	];
 
 	/**
 	 *
 	 * @var string
 	 */
-	const APPLICATION_VERSION = "zesk\Application::version";
+	public const APPLICATION_VERSION = "zesk\Application::version";
 
 	/**
 	 *
@@ -139,13 +139,13 @@ class Command_Info extends Command_Base {
 		$info['php_ini'] = get_cfg_var('cfg_file_path');
 		$info['display_startup_errors'] = to_bool(ini_get('display_startup_errors')) ? 'true' : 'false';
 		$info['error_log'] = ini_get('error_log');
-		$info[self::configuration_files_loaded] = to_array(avalue($app->loader->variables(), 'processed', array()));
+		$info[self::configuration_files_loaded] = to_array(avalue($app->loader->variables(), 'processed', []));
 
-		$module_info = $app->modules->all_hook_arguments("info", array(
-			array(),
-		), array());
+		$module_info = $app->modules->all_hook_arguments("info", [
+			[],
+		], []);
 		$info = array_merge($info, ArrayTools::key_value($module_info, null, "value"));
-		$human_names = array();
+		$human_names = [];
 		foreach ($module_info as $code_name => $settings) {
 			$human_names[$code_name] = avalue($settings, "title", $code_name);
 		}

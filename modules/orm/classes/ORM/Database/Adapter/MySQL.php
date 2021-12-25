@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage ORM
@@ -105,9 +105,9 @@ class ORM_Database_Adapter_MySQL extends ORM_Database_Adapter {
 				return true;
 		}
 
-		throw new Exception_Unimplemented("{method}({type}) Not handled", array(
+		throw new Exception_Unimplemented("{method}({type}) Not handled", [
 			"method" => __METHOD__,
 			"type" => $type_name,
-		));
+		]);
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This needs to be simplified greatly.
@@ -15,7 +15,7 @@ namespace zesk;
 class View_Image extends View {
 	public static $debug = false;
 
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		self::$debug = $this->option("debug");
 	}
@@ -47,14 +47,14 @@ class View_Image extends View {
 		return StringTools::unprefix($cache, $doc_root);
 	}
 
-	private function debug_log($message) {
+	private function debug_log($message): void {
 		if (self::$debug) {
 			$this->application->logger->debug($message);
 		}
 	}
 
 	private function scale_image($source) {
-		list($width, $height) = getimagesize($source);
+		[$width, $height] = getimagesize($source);
 		extract($this->options, EXTR_IF_EXISTS);
 
 		/*
@@ -67,7 +67,7 @@ class View_Image extends View {
 		$cache = $this->cache_directory();
 
 		try {
-			Directory::depend($cache, 0755);
+			Directory::depend($cache, 0o755);
 		} catch (Exception_Directory_Create $e) {
 			$this->application->logger->error($e);
 			return $this->missing_file();
@@ -91,18 +91,18 @@ class View_Image extends View {
 			$this->application->logger->debug("\$target_full_path is $target_full_path");
 		}
 		if (!$this->option_bool('always_generate') && file_exists($target_full_path)) {
-			list($this->width, $this->height) = getimagesize($target_full_path);
+			[$this->width, $this->height] = getimagesize($target_full_path);
 			return $scaled_result;
 		}
 
 		if (Image_Library::factory($this->application)->image_scale($source, $target_full_path, $this->options)) {
-			list($this->width, $this->height) = getimagesize($target_full_path);
+			[$this->width, $this->height] = getimagesize($target_full_path);
 			$this->set_option("created_file", true);
 		}
 		return $scaled_result;
 	}
 
-	private static function missing_file() {
+	private static function missing_file(): void {
 	}
 
 	private function relative_to_absolute_path($path) {
@@ -148,12 +148,12 @@ class View_Image extends View {
 			return $this->output_image($object, $file_path, $this->missing_image_path(), "\n<!-- Not a file -->");
 		}
 		$ext = strtolower(File::extension($path, false));
-		if (!in_array($ext, array(
+		if (!in_array($ext, [
 			"jpg",
 			"jpeg",
 			"gif",
 			"png",
-		))) {
+		])) {
 			return $this->output_image($object, $file_path, $this->missing_image_path(), "\n<!-- NOT AN IMAGE? $ext -->");
 		}
 
@@ -168,7 +168,7 @@ class View_Image extends View {
 	}
 
 	protected function output_image($file_path, $value, $options = "") {
-		$attrs = array();
+		$attrs = [];
 
 		$attrs["width"] = $this->option_integer("ScaledWidth", $this->option_integer("Width"));
 		$attrs["height"] = $this->option_integer("ScaledHeight", $this->option_integer("Height"));
@@ -212,7 +212,7 @@ class View_Image extends View {
 	 * @param array $options
 	 * @return View_Image
 	 */
-	public static function scaled_widget(Application $application, $width = false, $height = false, $alt = "", array $options = array()) {
+	public static function scaled_widget(Application $application, $width = false, $height = false, $alt = "", array $options = []) {
 		if ($width) {
 			$options['width'] = $width;
 		}
@@ -228,14 +228,14 @@ class View_Image extends View {
 		return $w;
 	}
 
-	public static function scaled(Application $application, $src, $width = false, $height = false, $alt = "", array $options = array()) {
+	public static function scaled(Application $application, $src, $width = false, $height = false, $alt = "", array $options = []) {
 		$w = self::scaled_widget($application, $width, $height, $alt, $options);
 		$x = new Model($application);
 		$x->src = $src;
 		return $w->execute($x);
 	}
 
-	public static function scaled_path(Application $application, $src, $width = false, $height = false, $alt = "", array $options = array()) {
+	public static function scaled_path(Application $application, $src, $width = false, $height = false, $alt = "", array $options = []) {
 		$w = self::scaled_widget($application, $width, $height, $alt, $options);
 		$x = new Model($application);
 		$x->src = $src;
