@@ -1,0 +1,3 @@
+ZESK_ROOT=/zesk
+MYSQL_ROOT_PASSWORD=zesk-quality
+MYSQL_DATABASE=testdb

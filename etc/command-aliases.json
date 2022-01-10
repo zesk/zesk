@@ -1,0 +1,6 @@
+{
+    "db-reset": "database-reset",
+    "db-connect": "database-connect",
+    "connect": "database-connect",
+    "conn": "database-connect"
+}

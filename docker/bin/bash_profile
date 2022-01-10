@@ -1,0 +1,8 @@
+#!/bin/bash
+. /usr/local/bin/zesk-bash.sh && container_prompt
+if [ -d "/zesk" ]; then
+    PATH=$PATH:/zesk/bin:/zesk/vendor/bin
+fi
+T-php() {
+    tail -F /usr/local/var/log/php-error.log
+}
