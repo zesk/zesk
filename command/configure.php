@@ -143,7 +143,7 @@ class Command_Configure extends Command_Base {
 		if ($this->option("debug")) {
 			$this->application->process->debug = true;
 		}
-		$this->engine = new Engine($this->application, $this->option());
+		$this->engine = new Engine($this->application, $this->options());
 		$this->engine->setPrompt($this);
 		$this->engine->setLogger($this);
 
@@ -252,7 +252,7 @@ class Command_Configure extends Command_Base {
 		$output = false;
 		while (is_array($dirs = $this->load_dirs($output)) && !array_key_exists($value, $dirs)) {
 			if (count($dirs) === 0) {
-				echo $locale->__("No possible directory settings in {environment_file}, please edit and add variable which points to a local directory with host information", $this->option());
+				echo $locale->__("No possible directory settings in {environment_file}, please edit and add variable which points to a local directory with host information", $this->options());
 			}
 			if ($times > 2) {
 				echo $locale->__("The system setting will point to a directory of host configurations to keep in sync.\n\n");

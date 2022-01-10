@@ -14,7 +14,7 @@ class Class_Content_Group extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"code" => self::type_string,
 		"name" => self::type_string,

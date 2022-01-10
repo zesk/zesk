@@ -77,7 +77,7 @@ class Deploy extends Hookable {
 		$lock = Lock::instance($app, 'deploy');
 		if ($lock->acquire() !== null) {
 			$deploy->_maintenance();
-			$results = $deploy->option();
+			$results = $deploy->options();
 			$settings->set($setting_name, $results);
 			$settings->flush();
 			$lock->release();

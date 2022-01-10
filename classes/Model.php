@@ -47,10 +47,8 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @throws Exception_Semantics
 	 * @return self
 	 */
-	public static function factory(Application $application, $class, $value = null, array $options = []) {
-		if (!is_string($class)) {
-			throw new Exception_Semantics("$class is not a class name");
-		}
+	public static function factory(Application $application, string $class, mixed $value = null, array $options = []):
+	?Model {
 		$object = $application->factory($class, $application, $value, $options);
 		if (!$object instanceof Model) {
 			throw new Exception_Semantics("{method}({class}) is not a subclass of {object_class}", [
@@ -84,7 +82,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * @return self
 	 */
-	protected function polymorphic_child() {
+	protected function polymorphic_child(): self {
 		return $this;
 	}
 
@@ -92,15 +90,22 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * Get/set the ID for this model
 	 *
 	 * @param mixed $set
-	 * @return self|mixed
+	 * @return mixed
 	 */
-	public function id($set = null) {
-		if ($set !== null) {
-			throw new Exception_Unimplemented("Model of {class} does not support setting ID", [
-				"class" => get_class($this),
-			]);
-		}
+	public function id(): mixed {
 		return null;
+	}
+
+	/**
+	 * Get/set the ID for this model
+	 *
+	 * @param mixed $set
+	 * @return self
+	 */
+	public function setId(mixed $set): self {
+		throw new Exception_Unimplemented("Model of {class} does not support setting ID", [
+			"class" => get_class($this),
+		]);
 	}
 
 	/**
@@ -108,7 +113,16 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * @return boolean
 	 */
-	public function is_new() {
+	public function is_new(): bool {
+		return $this->isNew();
+	}
+
+	/**
+	 * Is this a new object?
+	 *
+	 * @return boolean
+	 */
+	public function isNew(): bool {
 		return $this->inited();
 	}
 
@@ -117,7 +131,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * @return array
 	 */
-	public function variables() {
+	public function variables(): array {
 		$result = [];
 		foreach (get_object_vars($this) as $k => $v) {
 			if ($k[0] !== '_') {
@@ -132,15 +146,17 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	/**
 	 * Convert values in this object with map
 	 */
-	public function map(array $map) {
+	public function map(array $map): self {
 		$this->set(map($this->variables(), $map));
 		return $this;
 	}
 
 	/**
 	 * Convert other values using this Model as the map
+	 *
+	 * Returns type passed in
 	 */
-	final public function apply_map($mixed) {
+	final public function apply_map(mixed $mixed): mixed {
 		if ($mixed instanceof Model) {
 			return $mixed->map($this->variables());
 		}
@@ -193,9 +209,9 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 
 	/**
 	 *
-	 * @return boolean
+	 * @return self
 	 */
-	public function store() {
+	public function store(): self {
 		return $this;
 	}
 
@@ -205,7 +221,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *        	Settings to retrieve a model from somewhere
 	 * @return self Or null if can not be found
 	 */
-	public function fetch($mixed = null) {
+	public function fetch(array $mixed = []): self {
 		return $this;
 	}
 
@@ -217,14 +233,26 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *        	Value to return if not found
 	 * @return mixed
 	 */
-	public function get($mixed = null, $default = null) {
+	public function getMultiple(array $mixed) {
+		$result = [];
+		foreach ($mixed as $k => $v) {
+			$result[$k] = $this->__get($k, $v);
+		}
+		return $result;
+	}
+
+	/**
+	 * @param mixed|null $mixed
+	 * @param mixed|null $default
+	 * @return array|mixed|null
+	 * @throws Exception_Parameter
+	 */
+	public function get(mixed $mixed = null, mixed $default = null) {
 		if (is_array($mixed)) {
-			$result = [];
-			foreach ($mixed as $k => $v) {
-				$result[$k] = $this->get($k, $v);
-			}
-			return $result;
-		} elseif (!is_scalar($mixed)) {
+			$this->application->deprecated("getMultiple instead");
+			return $this->getMultiple($mixed);
+		}
+		if (!is_scalar($mixed)) {
 			throw new Exception_Parameter("Not sure how to handle type " . gettype($mixed));
 		}
 		if (!$this->__isset($mixed)) {
@@ -234,19 +262,30 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	}
 
 	/**
+	 * Does this model have any of the members requested?
+	 *
+	 * @param iterable $mixed
+	 * @return bool
+	 */
+	public function hasAny(iterable $mixed): bool {
+		foreach ($mixed as $k) {
+			if ($this->has($k)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Does this model have a member?
 	 *
 	 * @param list|string $mixed
 	 * @return boolean For a list, if ANY member exists, returns true.
 	 */
-	public function has($mixed = null) {
+	public function has(mixed $mixed = null): bool {
 		if (is_array($mixed)) {
-			foreach ($mixed as $k) {
-				if ($this->has($k)) {
-					return true;
-				}
-			}
-			return false;
+			$this->application->deprecated("hasAny instead");
+			return $this->hasAny($mixed);
 		}
 		if (is_scalar($mixed)) {
 			return $this->__isset($mixed);
@@ -259,7 +298,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * @return boolean
 	 */
-	public function inited() {
+	public function inited(): bool {
 		return $this->_inited;
 	}
 
@@ -304,10 +343,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * Only place to access ->$name is here
 	 */
 	public function __get($name): mixed {
-		if (isset($this->$name)) {
-			return $this->$name;
-		}
-		return null;
+		return $this->$name ?? null;
 	}
 
 	/**
@@ -316,7 +352,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * @see Options::__set()
 	 */
-	public function __set($name, $value): void {
+	public function __set(string $name, mixed $value): void {
 		$this->$name = $value;
 		$this->_inited = true;
 	}

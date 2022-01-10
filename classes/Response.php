@@ -278,11 +278,11 @@ class Response extends Hookable {
 
 	/**
 	 *
-	 * @param integer $error_code
+	 * @param int $error_code
 	 * @param string $error_string
 	 * @return $this
 	 */
-	public function status($error_code, $error_string = null) {
+	public function status(int $error_code, string $error_string = null) {
 		$codes = Net_HTTP::$status_text;
 		$code = array_key_exists($error_code, $codes) ? $error_code : 500;
 		if ($error_string === null) {

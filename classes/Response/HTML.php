@@ -1236,9 +1236,10 @@ class HTML extends Type {
 	 *
 	 * @return array($prefix, $suffix)
 	 */
-	private function browser_conditionals($browser) {
-		$prefix = "";
-		$suffix = "";
+	private function browser_conditionals(string $browser = null): array {
+		if (!$browser) {
+			return [];
+		}
 		switch (strtolower($browser)) {
 			case "ie":
 				$prefix = "<!--[if IE]>";

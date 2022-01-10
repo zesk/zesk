@@ -14,13 +14,13 @@ namespace zesk;
 class Class_Server extends Class_ORM {
 	public const LOCALHOST_IP = '127.0.0.1';
 
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	public $find_keys = [
 		"name",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'id' => self::type_id,
 		'name' => self::type_string,
 		'name_internal' => self::type_string,
@@ -33,7 +33,7 @@ class Class_Server extends Class_ORM {
 		'alive' => self::type_modified,
 	];
 
-	public $has_many = [
+	public array $has_many = [
 		'data' => [
 			'class' => 'zesk\\Server_Data',
 			'foreign_key' => 'server',

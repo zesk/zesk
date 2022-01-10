@@ -373,7 +373,7 @@ class Module_ORM extends Module {
 		return $objects_by_class;
 	}
 
-	public function clear_cache($class = null) {
+	public function clear_cache(string $class = null): self {
 		if ($class instanceof ORM) {
 			$class = get_class($class);
 		} elseif ($class instanceof Class_ORM) {

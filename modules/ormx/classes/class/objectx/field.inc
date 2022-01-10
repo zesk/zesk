@@ -2,14 +2,14 @@
 namespace zesk;
 
 class Class_ORMX_Field extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	public $find_keys = [
 		'class',
 		'column',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"class" => self::type_string,
 		"active" => self::type_string,

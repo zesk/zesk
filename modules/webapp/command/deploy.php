@@ -43,7 +43,7 @@ class Command_Deploy extends \zesk\Command_Base {
 		 */
 		$application = $this->application;
 
-		$this->application->modules->all_hook("deploy", $this->option());
+		$this->application->modules->all_hook("deploy", $this->options());
 
 		/* @var $webapp Module */
 		$webapp = $application->webapp_module();

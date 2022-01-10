@@ -58,7 +58,7 @@ class Preference_Test extends Test_ORM {
 
 		$user = new User($this->application, 1);
 
-		Preference::user_set($user, "country", "Random");
+		Preference::userSet($user, ["country" => "Random"]);
 
 		$pref = new Preference($this->application, [
 			"user" => $user,
@@ -83,7 +83,7 @@ class Preference_Test extends Test_ORM {
 		$default = "Monkey";
 		$this->assert_equal(Preference::user_get($user, $name, $default), $default);
 
-		Preference::user_set($user, $name, "Ape");
+		Preference::userSet($user, [$name => "Ape"]);
 		$this->assert_equal(Preference::user_get($user, $name, $default), "Ape");
 	}
 

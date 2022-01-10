@@ -12,7 +12,7 @@ namespace zesk;
  * @see Role
  */
 class Class_Role extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	public $name_column = "name";
 
@@ -20,7 +20,7 @@ class Class_Role extends Class_ORM {
 		'code',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"code" => self::type_string,
 		"name" => self::type_string,
@@ -28,7 +28,7 @@ class Class_Role extends Class_ORM {
 		'is_default' => self::type_boolean,
 	];
 
-	public $has_many = [
+	public array $has_many = [
 		'users' => [
 			'class' => 'zesk\\User',
 			'link_class' => 'zesk\\User_Role',
@@ -37,5 +37,5 @@ class Class_Role extends Class_ORM {
 		],
 	];
 
-	public $database_group = "zesk\\User";
+	public string $database_group = "zesk\\User";
 }

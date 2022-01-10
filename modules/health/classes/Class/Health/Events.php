@@ -16,18 +16,18 @@ class Class_Health_Events extends Class_ORM {
 	 */
 	protected $database_group = "Health_Event";
 
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	public $find_keys = [
 		'date',
 		'hash',
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		"server" => "zesk\\Server",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 
 		"date" => self::type_date,

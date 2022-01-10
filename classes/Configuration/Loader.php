@@ -177,7 +177,7 @@ class Configuration_Loader {
 	 *
 	 * @return string[string]
 	 */
-	public function variables() {
+	public function variables(): array {
 		return [
 			self::PROCESSED => $this->processed_files,
 			self::MISSING => $this->missing_files,

@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -15,10 +17,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 	 *
 	 * @var array
 	 */
-	protected array $load_modules = [
-		"MySQL",
-		"ORM",
-	];
+	protected array $load_modules = ["MySQL", "ORM", ];
 
 	/**
 	 *
@@ -57,9 +56,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$this->assert_false($datatype->native_types_equal("timestamp", "datetime"));
 		$this->assert_true($datatype->native_types_equal("int", "integer(12)"));
 
-		$this->assert_arrays_equal($result, [
-			"ALTER TABLE `test` CHANGE COLUMN `created` `created` timestamp NULL DEFAULT NULL",
-		]);
+		$this->assert_arrays_equal($result, ["ALTER TABLE `test` CHANGE COLUMN `created` `created` timestamp NULL DEFAULT NULL", ]);
 	}
 
 	public function test_primary_key_location(): void {
@@ -159,10 +156,10 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$db->query($sql);
 
 		$this->assert($db->connect(), "connecting to " . $db->safe_url());
-
 		$this->assert($db->table_exists($table));
 
 		$object_table = $db->parse_create_table($sql, __METHOD__);
+
 		$table_name = $object_table->name();
 
 		$this->assert("'$table_name' === '$table'");
@@ -172,8 +169,6 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$result = ORM_Schema::update($db, $db_table, $object_table);
 
 		$this->assert($result === [], PHP::dump($result) . ' === array()');
-
-		echo basename(__FILE__) . ": Success.\n";
 	}
 
 	public function test_2(): void {
@@ -348,9 +343,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$object = new DBSchemaTest7($this->application);
 		$result = ORM_Schema::update_object($object);
 
-		$check_result = [
-			"ALTER TABLE `keywords_test` ADD COLUMN `Proto` tinyint NOT NULL DEFAULT 0 AFTER `Protocol`",
-		];
+		$check_result = ["ALTER TABLE `keywords_test` ADD COLUMN `Proto` tinyint NOT NULL DEFAULT 0 AFTER `Protocol`", ];
 
 		$this->assert_arrays_equal($result, $check_result, true);
 

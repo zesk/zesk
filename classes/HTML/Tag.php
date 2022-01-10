@@ -118,7 +118,7 @@ class HTML_Tag extends Options {
 	public function _to_php() {
 		return 'new ' . __CLASS__ . '(' . implode(", ", [
 			PHP::dump($this->name),
-			PHP::dump($this->option()),
+			PHP::dump($this->options()),
 			PHP::dump($this->inner_html),
 			PHP::dump($this->outer_html),
 			$this->offset,
@@ -132,6 +132,6 @@ class HTML_Tag extends Options {
 	 * @see Options::__toString()
 	 */
 	public function __toString() {
-		return HTML::tag($this->name, $this->option(), $this->inner_html);
+		return HTML::tag($this->name, $this->options(), $this->inner_html);
 	}
 }

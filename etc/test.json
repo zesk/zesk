@@ -1,0 +1,9 @@
+{
+  "zesk\\Module_Database": {
+    "names": {
+      "default": "mysqli://testuser:test-password@mariadb/testdb"
+    },
+    "database_default": "default"
+  },
+  "deprecated": "exception"
+}

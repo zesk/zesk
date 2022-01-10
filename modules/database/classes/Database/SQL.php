@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 use \Iterator;
@@ -16,7 +18,17 @@ abstract class Database_SQL extends Hookable {
 	 *
 	 * @var Database
 	 */
-	protected $database = null;
+	protected Database $database;
+
+	/**
+	 *
+	 */
+	public const CONJUNCTION_OR = "OR";
+
+	/**
+	 *
+	 */
+	public const CONJUNCTION_AND = "AND";
 
 	/**
 	 * Wildcard token used to grant all privileges
@@ -43,7 +55,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param Database_Column $c
 	 * @return string SQL statement to alter a table's definition
 	 */
-	public function alter_table_column_add(Database_Table $table, Database_Column $c) {
+	public function alter_table_column_add(Database_Table $table, Database_Column $c): string {
 		$column = $c->name();
 		$sqlType = $c->sql_type();
 		return "ALTER TABLE $table ADD COLUMN $column $sqlType";
@@ -56,7 +68,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param Database_Index $index
 	 * @return string|array
 	 */
-	abstract public function alter_table_index_add(Database_Table $table, Database_Index $index);
+	abstract public function alter_table_index_add(Database_Table $table, Database_Index $index): string;
 
 	/**
 	 * Generate SQL to modify table attributes
@@ -64,7 +76,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param array $attributes new attributes (database-specific)
 	 * @return string|array
 	 */
-	abstract public function alter_table_attributes(Database_Table $table, array $attributes);
+	abstract public function alter_table_attributes(Database_Table $table, array $attributes): string;
 
 	/**
 	 * Return a SQL statement to change a table's column to another type
@@ -75,36 +87,36 @@ abstract class Database_SQL extends Hookable {
 	 * @param Database_Column $new_column
 	 * @return string SQL statement to alter a table's definition
 	 */
-	abstract public function alter_table_change_column(Database_Table $table, Database_Column $old_column, Database_Column $new_column);
+	abstract public function alter_table_change_column(Database_Table $table, Database_Column $old_column, Database_Column $new_column): string;
 
 	/**
 	 * Return a SQL statement to remove a table's column
 	 *
 	 * @param Database_Table $table
-	 *        	The table to alter
+	 *            The table to alter
 	 * @param string $column
-	 *        	The column to remove
+	 *            The column to remove
 	 * @return string SQL statement to alter a table's definition
 	 */
-	public function alter_table_column_drop(Database_Table $table, $column) {
+	public function alter_table_column_drop(Database_Table $table, $column): string {
 		return "ALTER TABLE $table DROP COLUMN $column";
 	}
 
 	/**
 	 * SQL to drop an index from a table
 	 *
-	 * @return string
 	 * @param Database_Table $table
 	 * @param Database_Index $index
+	 * @return string
 	 */
-	abstract public function alter_table_index_drop(Database_Table $table, Database_Index $index);
+	abstract public function alter_table_index_drop(Database_Table $table, Database_Index $index): string;
 
 	/**
 	 * @param Database_Table $table
 	 * @param string $type
 	 * @return string
 	 */
-	abstract public function alter_table_type($table, $type);
+	abstract public function alter_table_type(string $table, string $newType): string;
 
 	/*====================================================================================================================================*/
 
@@ -133,7 +145,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $memberName
 	 * @param string $alias
 	 */
-	abstract public function sql_function($func, $memberName, $alias = "");
+	abstract public function sql_function(string $func, string $memberName, string $alias = ""): string;
 
 	/**
 	 * Remove comments from SQL
@@ -141,7 +153,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $sql
 	 * @return string
 	 */
-	abstract public function remove_comments($sql);
+	abstract public function remove_comments(string $sql): string;
 
 	/**
 	 * Compatible
@@ -149,64 +161,40 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $value
 	 * @return number
 	 */
-	public function function_ip2long($value) {
-		return ip2long($value);
+	public function function_ip2long(string $value): string {
+		return strval(ip2long($value));
 	}
 
-	abstract public function index_type($table, $index, $type, array $column_sizes);
+	abstract public function index_type(Database_Table $table, string $name, string $type, array $column_sizes): string;
 
 	/**
 	 * Does a case-sensitive comparison (where comparison)
 	 *
-	 * @return string Expression to plug into SQL
 	 * @param string $column_name
-	 *        	Name of the column you are comparing
+	 *            Name of the column you are comparing
 	 * @param string $cmp
-	 *        	Standard comparison function from Zesk, such as =, <, <=, >, >=, LIKE
+	 *            Standard comparison function from Zesk, such as =, <, <=, >, >=, LIKE
 	 * @param string $string
-	 *        	What you're comparing. This will be quoted in the resulting expression.
+	 *            What you're comparing. This will be quoted in the resulting expression.
+	 * @return string Expression to plug into SQL
 	 */
-	abstract public function function_compare_binary($column_name, $cmp, $string);
+	abstract public function function_compare_binary(string $column_name, string $cmp, string $string): string;
 
 	/**
 	 * Does a case-sensitive comparison (where comparison)
 	 *
-	 * @return string Expression to plug into SQL
 	 * @param string $date_a Date A
 	 * @param string $date_b Date B
+	 * @return string Expression to plug into SQL
 	 */
-	abstract public function function_date_diff($date_a, $date_b);
-
-	/**
-	 * The SQL function to generate the current time in the current time zone
-	 *
-	 * @return string A SQL command for this database
-	 */
-	abstract public function now();
-
-	/**
-	 * The SQL function to generate the current time in the UTC time zone
-	 *
-	 * @return string A SQL command for this database
-	 */
-	abstract public function now_utc();
-
-	/**
-	 * DATE_ADD($target, INTERVAL 2 DAY) or whatever the SQL is required
-	 *
-	 * @param string $target
-	 * @param integer $number
-	 * @param string $unit
-	 * @return string
-	 */
-	abstract public function function_date_add($target, $number, $unit = "second");
+	abstract public function function_date_diff(string $date_a, string $date_b): string;
 
 	/**
 	 * Absolute value of a number
 	 *
 	 * @param string $target
 	 */
-	abstract public function function_abs($target);
+	abstract public function function_abs(string $target): string;
 
 	/**
 	 * MAX(col) SQL
@@ -215,7 +203,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param bool $expression When true, $target is unquoted (careful!)
 	 * @return string
 	 */
-	public function function_max($target, $expression = false) {
+	public function function_max(string $target, bool $expression = false): string {
 		return "MAX(" . ($expression ? $target : $this->quote_column($target)) . ")";
 	}
 
@@ -226,7 +214,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param bool $expression When true, $target is unquoted (careful!)
 	 * @return string
 	 */
-	public function function_min($target, $expression = false) {
+	public function function_min(string $target, bool $expression = false): string {
 		return "MIN(" . ($expression ? $target : $this->quote_column($target)) . ")";
 	}
 
@@ -236,7 +224,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $target
 	 * @return string
 	 */
-	abstract public function function_average($target);
+	abstract public function function_average(string $target): string;
 
 	/**
 	 * Convert to hexadecimal
@@ -244,7 +232,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $target
 	 * @return string
 	 */
-	abstract public function function_hex($target);
+	abstract public function function_hex(string $target): string;
 
 	/**
 	 * Convert from hexadecimal
@@ -252,7 +240,16 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $target
 	 * @return string
 	 */
-	abstract public function function_unhex($target);
+	abstract public function function_unhex(string $target): string;
+
+	/**
+	 * Date addition
+	 *
+	 * @param string $target
+	 * @param integer $number
+	 * @param string $unit
+	 */
+	abstract public function function_date_add(string $target, int $number, string $units = "second"): string;
 
 	/**
 	 * Date subtraction
@@ -261,7 +258,21 @@ abstract class Database_SQL extends Hookable {
 	 * @param integer $number
 	 * @param string $unit
 	 */
-	abstract public function function_date_subtract($target, $number, $unit = "second");
+	abstract public function function_date_subtract(string $target, int $number, string $unit = "second"): string;
+
+	/**
+	 * The SQL function to generate the current time in the current time zone
+	 *
+	 * @return string A SQL command for this database
+	 */
+	abstract public function now(): string;
+
+	/**
+	 * The SQL function to generate the current time in the UTC time zone
+	 *
+	 * @return string A SQL command for this database
+	 */
+	abstract public function now_utc(): string;
 
 	/**
 	 * TABLE as ALIAS SQL
@@ -270,7 +281,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $name
 	 * @return string
 	 */
-	public function table_as($table, $name = "") {
+	public function table_as(string $table, string $name = ""): string {
 		if (empty($name)) {
 			return $this->quote_table($table);
 		}
@@ -285,7 +296,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $name
 	 * @return string
 	 */
-	public function database_table_as($database, $table, $name = "") {
+	public function database_table_as(string $database, string $table, string $name = ""): string {
 		$result = $this->quote_table($database) . "." . $this->quote_table($table);
 		if (empty($name)) {
 			return $result;
@@ -300,13 +311,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $alias
 	 * @return string
 	 */
-	public function column_alias($column, $alias = "") {
-		if (is_array($column)) {
-			foreach ($column as $index => $col) {
-				$column[$index] = $this->column_alias($col, $alias);
-			}
-			return $column;
-		}
+	public function column_alias(string $column, string $alias = ""): string {
 		$column = $column === '*' ? $column : $this->quote_column($column);
 		return empty($alias) ? $column : $this->quote_column($alias) . "." . $column;
 	}
@@ -318,13 +323,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $alias
 	 * @return string
 	 */
-	public function column_as($column, $alias = "") {
-		if (is_array($column)) {
-			foreach ($column as $index => $col) {
-				$column[$index] = $this->column_as($col, $alias);
-			}
-			return $column;
-		}
+	public function column_as(string $column, string $alias = ""): string {
 		$column = $this->quote_column($column);
 		return $column . (empty($alias) ? "" : " AS " . $this->quote_column($alias));
 	}
@@ -337,10 +336,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param array $tables
 	 * @return string
 	 */
-	private function update_tables($tables) {
-		if (is_string($tables)) {
-			return $this->quote_table($tables);
-		}
+	private function update_tables(array $tables): string {
 		$sql_phrases = [];
 		foreach ($tables as $alias => $table) {
 			$sql_phrases[] = $this->table_as($table, $alias);
@@ -351,26 +347,26 @@ abstract class Database_SQL extends Hookable {
 	/**
 	 * Quote a table name
 	 *
-	 * @return string
 	 * @param string $name
+	 * @return string
 	 */
-	abstract public function quote_table($name);
+	abstract public function quote_table(string $name): string;
 
 	/**
 	 * Quote a text string
 	 *
-	 * @return string
 	 * @param string $text
+	 * @return string
 	 */
-	abstract public function quote_text($text);
+	abstract public function quote_text(string $text): string;
 
 	/**
 	 * Quote a column name
 	 *
-	 * @return string array
 	 * @param string|array $name
+	 * @return string array
 	 */
-	abstract public function quote_column($name);
+	abstract public function quote_column(string $name): string;
 
 	/**
 	 * Reverses, exactly, quote_column
@@ -378,7 +374,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $name
 	 * @return string
 	 */
-	abstract public function unquote_column($name);
+	abstract public function unquote_column(string $name): string;
 
 	/**
 	 * Unquote a table
@@ -386,7 +382,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $name
 	 * @return string
 	 */
-	abstract public function unquote_table($name);
+	abstract public function unquote_table(string $name): string;
 
 	/**
 	 *
@@ -394,22 +390,13 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $conjunction "AND" or "OR"
 	 * @return array
 	 */
-	private static function parse_conjunction($key, $conjunction) {
-		foreach ([
-			"AND",
-			"OR",
-		] as $token) {
+	private static function parse_conjunction(string $key, string $conjunction): array {
+		foreach (["AND", "OR", ] as $token) {
 			if (StringTools::ends($key, "|$token", true)) {
-				return [
-					substr($key, 0, -(strlen($token) + 1)),
-					$token,
-				];
+				return [substr($key, 0, -(strlen($token) + 1)), $token, ];
 			}
 		}
-		return [
-			$key,
-			$conjunction === "AND" ? "OR" : "AND",
-		];
+		return [$key, $conjunction === "AND" ? "OR" : "AND", ];
 	}
 
 	/**
@@ -417,10 +404,10 @@ abstract class Database_SQL extends Hookable {
 	 * If not, return the blank string.
 	 *
 	 * @param string $sql
-	 *        	where clause
+	 *            where clause
 	 * @return string
 	 */
-	protected function where_prefix($sql) {
+	protected function where_prefix(string $sql): string {
 		return $this->_sql_prefix($sql, "WHERE");
 	}
 
@@ -429,10 +416,10 @@ abstract class Database_SQL extends Hookable {
 	 * If not, return the blank string.
 	 *
 	 * @param string $sql
-	 *        	where clause
+	 *            where clause
 	 * @return string
 	 */
-	protected function having_prefix($sql) {
+	protected function having_prefix(string $sql): string {
 		return $this->_sql_prefix($sql, "HAVING");
 	}
 
@@ -444,12 +431,16 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $prefix
 	 * @return string
 	 */
-	private function _sql_prefix($sql, $prefix) {
+	private function _sql_prefix(string $sql, string $prefix) {
 		$sql = trim($sql);
 		if (empty($sql)) {
 			return "";
 		}
 		return " $prefix $sql ";
+	}
+
+	private static function valid_conjucnction(string $conjunction): string {
+		return strtoupper($conjunction) === self::CONJUNCTION_OR ? self::CONJUNCTION_OR : self::CONJUNCTION_AND;
 	}
 
 	/**
@@ -465,15 +456,12 @@ abstract class Database_SQL extends Hookable {
 	 *            Prefix used
 	 * @param string $suffix
 	 * @return string
-	 * @throws Exception_Unimplemented
 	 */
-	public function where_clause($arr, $conj = null, $prefix_in = "", $suffix = "") {
-		if (!is_array($arr) || count($arr) === 0) {
+	public function where_clause(array $arr, string $conj = self::CONJUNCTION_AND, string $prefix_in = "", string $suffix = ""): string {
+		if (count($arr) === 0) {
 			return "";
 		}
-		if (!is_string($conj)) {
-			$conj = "AND";
-		}
+		$conj = self::valid_conjucnction($conj);
 		$prefix = empty($prefix_in) ? "" : $prefix_in . ".";
 		$result = [];
 		foreach ($arr as $k => $v) {
@@ -484,7 +472,7 @@ abstract class Database_SQL extends Hookable {
 			}
 			$new_key = $k;
 			if (!str_contains($new_key, ".")) {
-				if (substr($new_key, 0, 1) === '*') {
+				if (str_starts_with($new_key, '*')) {
 					$new_key = '*' . $prefix . substr($new_key, 1);
 				} else {
 					$new_key = $prefix . $new_key;
@@ -492,7 +480,7 @@ abstract class Database_SQL extends Hookable {
 			}
 			if (is_array($v) || $v instanceof Iterator) {
 				if (is_numeric($k)) {
-					$result[] = "(" . $this->where_clause($v, $conj === "AND" ? "OR" : "AND", $prefix_in) . ")";
+					$result[] = "(" . $this->where_clause($v, ($conj !== self::CONJUNCTION_OR) ? self::CONJUNCTION_OR : self::CONJUNCTION_AND, $prefix_in) . ")";
 				} elseif (count($v) === 0) {
 					$result[] = $this->quote_column($new_key) . " IS NULL";
 				} else {
@@ -525,7 +513,7 @@ abstract class Database_SQL extends Hookable {
 	 * @return string
 	 * @throws Exception_Unimplemented
 	 */
-	public function where($where, $conj = null, $prefix = "") {
+	public function where(array $where, string $conj = "AND", string $prefix = ""): string {
 		return $this->where_prefix($this->where_clause($where, $conj, $prefix));
 	}
 
@@ -538,7 +526,7 @@ abstract class Database_SQL extends Hookable {
 	 * @return string
 	 * @throws Exception_Unimplemented
 	 */
-	public function having(array $having, $conj = null, $prefix = "") {
+	public function having(array $having, string $conj = "AND", string $prefix = "") {
 		return $this->having_prefix($this->where_clause($having, $conj, $prefix));
 	}
 
@@ -548,8 +536,8 @@ abstract class Database_SQL extends Hookable {
 	 * @param array $joins
 	 * @return string
 	 */
-	private function join($joins) {
-		if (!is_array($joins) || count($joins) === 0) {
+	private function join(array $joins) {
+		if (count($joins) === 0) {
 			return "\n";
 		}
 		return "\n" . implode("\n", $joins) . "\n";
@@ -562,7 +550,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $distinct
 	 * @return string
 	 */
-	private function what($what, $distinct = null) {
+	private function what(string|array $what, bool $distinct = false): string {
 		if (is_array($what)) {
 			$result = [];
 			foreach ($what as $as => $select_column) {
@@ -592,14 +580,16 @@ abstract class Database_SQL extends Hookable {
 	 * @return string
 	 * @throws Exception_Unimplemented
 	 */
-	public function update(array $options = []) {
+	public function update(array $options = []): string {
 		$table = null;
 		$values = [];
 		$where = [];
+		$alias = "";
 		extract($options, EXTR_IF_EXISTS);
 		$name_equals_values = [];
 		foreach ($values as $k => $v) {
 			// TODO, This allows for | keys, which it shouldn't allow.
+			// KMD 2022 - nice comment. Why shouldn't it allow it?
 			$name_equals_values[] = $this->pair_to_sql($k, $v);
 		}
 		$options += [
@@ -617,7 +607,7 @@ abstract class Database_SQL extends Hookable {
 			'suffix' => '',
 		];
 		$sql = "{prefix}{update prefix}UPDATE{update suffix} {table prefix}";
-		$sql .= $this->update_tables($table) . "{table suffix} {set prefix}SET{set suffix}\n\t{values prefix}";
+		$sql .= $this->update_tables([$alias => $table]) . "{table suffix} {set prefix}SET{set suffix}\n\t{values prefix}";
 		$sql .= implode(",\n\t", $name_equals_values) . "{values suffix}\t{where prefix}" . $this->where($where) . "{where suffix}{suffix}";
 		return trim(map($sql, $options));
 	}
@@ -627,18 +617,29 @@ abstract class Database_SQL extends Hookable {
 	 *
 	 * @param array $options
 	 * @return string
-	 * @throws Exception_Unimplemented
+	 * @throws Exception_Unimplemented|Exception_Semantics
 	 */
-	public function select(array $options) {
-		$what = $distinct = $tables = $where = $group_by = $order_by = null;
+	public function select(array $options): string {
+		$distinct = false;
+		$alias = "";
+		$conjunction = "AND";
+		$having = $what = $tables = $group_by = $order_by = $where = [];
 		$offset = $limit = 0;
-		$having = [];
 		extract($options, EXTR_IF_EXISTS);
-		$alias = null;
-		$where = $this->where($where, null, $alias);
+		if (!is_array($what)) {
+			$what = strval($what);
+		}
+		if (!is_array($where)) {
+			$where = [];
+		}
+		$distinct = to_bool($distinct);
+		$where = $this->where($where, $conjunction, $alias);
 		if (is_string($tables)) {
 			$sql_tables = $this->quote_table($tables);
 		} elseif (is_array($tables)) {
+			if (count($tables) === 0) {
+				throw new Exception_Semantics("Need at least one table");
+			}
 			$alias = key($tables);
 			$sql_tables = $this->table_as(array_shift($tables), $alias);
 			$sql_tables .= $this->join($tables);
@@ -662,7 +663,7 @@ abstract class Database_SQL extends Hookable {
 	 * @return string
 	 * @throws Exception_Unimplemented
 	 */
-	public function insert(array $options) {
+	public function insert(array $options): string {
 		$verb = "INSERT";
 		$table = $values = $low_priority = null;
 		extract($options, EXTR_IF_EXISTS);
@@ -678,9 +679,8 @@ abstract class Database_SQL extends Hookable {
 	 *
 	 * @param array $options
 	 * @return string
-	 * @throws Exception_Unimplemented
 	 */
-	public function insert_select(array $options) {
+	public function insert_select(array $options): string {
 		$verb = "INSERT";
 		$table = $values = $low_priority = $select = null;
 		extract($options, EXTR_IF_EXISTS);
@@ -694,9 +694,8 @@ abstract class Database_SQL extends Hookable {
 	 *
 	 * @param array $options
 	 * @return string
-	 * @throws Exception_Unimplemented
 	 */
-	public function delete(array $options) {
+	public function delete(array $options): string {
 		$table = $where = null;
 		extract($options, EXTR_IF_EXISTS);
 		return "DELETE FROM " . $this->quote_table($table) . $this->where($where);
@@ -706,14 +705,13 @@ abstract class Database_SQL extends Hookable {
 	 * Convert pair to insert name/value pair
 	 *
 	 * @param array $arr
-	 * @throws Exception_Unimplemented
 	 * @return array(array("name0","name1",..."),array("value0","value1",...))
 	 */
 	private function _insert_to_name_values($arr) {
 		$insert_names = [];
 		$insert_values = [];
 		foreach ($arr as $k => $v) {
-			if (substr($k, 0, 1) === '*') {
+			if (str_starts_with($k, '*')) {
 				$insert_names[] = substr($k, 1);
 				$insert_values[] = $v;
 			} else {
@@ -721,10 +719,7 @@ abstract class Database_SQL extends Hookable {
 				$insert_values[] = $this->mixed_to_sql($v);
 			}
 		}
-		return [
-			$insert_names,
-			$insert_values,
-		];
+		return [$insert_names, $insert_values, ];
 	}
 
 	/**
@@ -764,9 +759,7 @@ abstract class Database_SQL extends Hookable {
 			}
 		}
 		if (!is_array($s)) {
-			$s = [
-				$s,
-			];
+			$s = [$s, ];
 		}
 		$r = [];
 		foreach ($s as $oby) {
@@ -811,7 +804,6 @@ abstract class Database_SQL extends Hookable {
 	 * @param mixed $v
 	 * @param boolean $is_compare
 	 * @return string
-	 * @throws Exception_Unimplemented
 	 */
 	protected function pair_to_sql($k, $v, $is_compare = false) {
 		[$k, $cmp] = pair($k, "|", $k, "=");
@@ -842,9 +834,8 @@ abstract class Database_SQL extends Hookable {
 	 *
 	 * @param mixed $v
 	 * @return string
-	 * @throws Exception_Unimplemented
 	 */
-	protected function mixed_to_sql($v) {
+	protected function mixed_to_sql(mixed $v): string {
 		if ($v === null) {
 			return "NULL";
 		}
@@ -853,23 +844,32 @@ abstract class Database_SQL extends Hookable {
 				return "''";
 			}
 			return $this->quote_text($v);
-		} elseif (is_bool($v)) {
+		}
+		if (is_bool($v)) {
 			return $v ? "1" : "0";
-		} elseif ($v instanceof Model) {
+		}
+		if ($v instanceof Model) {
 			return $v->id();
-		} elseif (is_object($v)) {
+		}
+		if (is_object($v)) {
 			if ($v instanceof Iterator) {
-				backtrace();
+				$result = [];
+				foreach ($v as $item) {
+					$result[] = $this->mixed_to_sql($item);
+				}
+				return "(" . implode(", ", $result) . ")";
 			}
 			return $this->quote_text($v->__toString());
-		} elseif (is_numeric($v)) {
+		}
+		if (is_numeric($v)) {
 			if ($v === INF) {
 				return "'1e500'";
-			} elseif ($v === -INF) {
+			}
+			if ($v === -INF) {
 				return "'-1e500'";
 			}
 		}
-		return $v;
+		return strval($v);
 	}
 
 	/**

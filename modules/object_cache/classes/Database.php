@@ -70,7 +70,7 @@ class Database extends Base {
 		$query->where("", $object->id());
 		$hash = md5($key);
 		$query->where("*key", "UNHEX(" . $db->quote_text($hash) . ")");
-		$query->what("data");
+		$query->addWhat("data");
 		return PHP::unserialize($query->one("data", null));
 	}
 

@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * Select Query
  *
@@ -8,6 +9,7 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -18,85 +20,93 @@ namespace zesk;
 class Database_Query_Select extends Database_Query_Select_Base {
 	/**
 	 * What to select (array of alias => column)
-	 * @var array|string
+	 *
+	 * @var array
 	 */
-	protected $what = "*";
+	protected array $what = [];
+
+	/**
+	 * $what or $what_sql are valid, never both
+	 *
+	 * @var string
+	 */
+	protected string $what_sql = "*";
 
 	/**
 	 * Array of tables to query. First is main from, others are JOINed
 	 * @var array
 	 */
-	protected $tables = null;
+	protected array $tables = [];
 
 	/**
 	 * Alias of main table
 	 *
 	 * @var string
 	 */
-	protected $alias = null;
+	protected string $alias = "";
 
 	/**
 	 * Where
 	 * @var array
 	 */
-	protected $where = [];
+	protected array $where = [];
 
 	/**
 	 * Having - like where for postprocessing in database based on functions
 	 *
 	 * @var array
 	 */
-	protected $having = [];
+	protected array $having = [];
 
 	/**
 	 * Order by clause
 	 * @var array
 	 */
-	protected $order_by = null;
+	protected array $order_by = [];
 
 	/**
 	 * Group by clause
 	 * @var array
 	 */
-	protected $group_by = null;
+	protected array $group_by = [];
 
 	/**
 	 * Offset
 	 * @var integer
 	 */
-	protected $offset = 0;
+	protected int $offset = 0;
 
 	/**
 	 * Limit
 	 * @var integer
 	 */
-	protected $limit = -1;
+	protected int $limit = -1;
 
 	/**
 	 * Distinct query
 	 * @var boolean
 	 */
-	protected $distinct = null;
+	protected bool $distinct = false;
 
 	/**
 	 * Array of alias => class
 	 * @var array
 	 */
-	protected $join_objects = [];
+	protected array $join_objects = [];
 
 	/**
 	 * List of locale-specific conditions for outputting to the user
 	 *
 	 * @var array
 	 */
-	protected $conditions = [];
+	protected array $conditions = [];
 
 	/**
 	 * This is here solely for debugging purposes only.
 	 *
 	 * @var string
 	 */
-	protected $generated_sql = null;
+	protected string $generated_sql = "";
 
 	/**
 	 * Construct a new Select query
@@ -111,7 +121,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @return self
 	 */
-	public function duplicate() {
+	public function duplicate(): self {
 		return clone $this;
 	}
 
@@ -120,9 +130,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * {@inheritDoc}
 	 * @see \zesk\Database_Query_Select_Base::__sleep()
 	 */
-	public function __sleep() {
+	public function __sleep(): array {
 		return array_merge(parent::__sleep(), [
 			"what",
+			"what_sql",
 			"tables",
 			"alias",
 			"where",
@@ -142,10 +153,11 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * {@inheritDoc}
 	 * @see \zesk\Database_Query_Select_Base::copy_from()
 	 */
-	public function copy_from(Database_Query_Select $query) {
+	public function copy_from(Database_Query_Select $query): self {
 		parent::_copy_from_base($query);
 
 		$this->what = $query->what;
+		$this->what_sql = $query->what_sql;
 		$this->tables = $query->tables;
 		$this->alias = $query->alias;
 		$this->where = $query->where;
@@ -162,12 +174,13 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	}
 
 	/**
+	 * Given Foo.Whatever, is it a valid reference/colun?
 	 *
-	 * @param string $column
+	 * @param string $column_reference
 	 * @return boolean
 	 */
-	public function valid_column($column) {
-		[$alias, $column] = pair($column, ".", $this->alias, $column);
+	public function valid_column(string $column_reference): bool {
+		[$alias, $column] = pair($column_reference, ".", $this->alias, $column);
 		if ($alias === $this->alias) {
 			$class = $this->class;
 		} else {
@@ -180,25 +193,35 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	}
 
 	/**
-	 * Create an new query
+	 * Create a new query
 	 *
-	 * @param string $db
+	 * @param Database $db
 	 * @return Database_Query_Select
 	 */
-	public static function factory(Database $db = null) {
+	public static function factory(Database $db): self {
 		return new Database_Query_Select($db);
 	}
 
 	/**
 	 * Set as a distinct or non-distinct query
 	 *
-	 * @param boolean $set
-	 * @return Database_Query_Select
+	 * @param mixed $set
+	 * @return bool
 	 */
-	public function distinct($set = true) {
+	public function distinct(mixed $set = true): mixed {
 		if ($set !== null) {
-			$this->distinct = to_bool($set);
+			$this->application->deprecated("setter");
+			return $this->setDistinct(to_bool($set));
 		}
+		return $this->distinct;
+	}
+
+	/**
+	 * @param bool $set
+	 * @return $this
+	 */
+	public function setDistinct(bool $set = true): self {
+		$this->distinct = $set;
 		return $this;
 	}
 
@@ -210,23 +233,107 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		return last($result);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function alias($set = null) {
 		if ($set !== null) {
-			$this->alias = $set;
-			return $this;
+			$this->application->deprecated("setter");
+			return $this->setAlias(strval($set));
 		}
 		return $this->alias;
 	}
 
-	public function columns() {
+	/**
+	 * @param string $set
+	 * @return self
+	 */
+	public function setAlias(string $set): self {
+		$this->alias = $set;
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function columns(): array {
 		return ArrayTools::unprefix(array_keys($this->what), "*");
 	}
 
-	public function has_what($column) {
+	/**
+	 * @param $column
+	 * @return bool
+	 */
+	public function hasWhat(string $column): bool {
 		return in_array($column, $this->columns());
 	}
 
 	/**
+	 * Sets the WHAT to a string and replcaes any existing what clause
+	 *
+	 * @param string $what
+	 * @return void
+	 */
+	public function setWhatString(string $what): self {
+		$this->what_sql = $what;
+		$this->what = [];
+		return $this;
+	}
+
+	/**
+	 * Sets the what clause to empty
+	 *
+	 * @return $this
+	 */
+	public function clearWhat(): self {
+		$this->what = [];
+		$this->what_sql = "";
+		return $this;
+	}
+
+	/**
+	 * @param iterable $what Keys are alias, values are member
+	 * @return $this
+	 */
+	public function addWhatIterable(iterable $what): self {
+		foreach ($what as $alias => $member) {
+			$this->addWhat($alias, $member);
+		}
+		return $this;
+	}
+
+	/**
+	 * @param string $member
+	 * @return $this
+	 */
+	public function removeWhat(string $alias): self {
+		$alias = StringTools::unprefix($alias, "*");
+		unset($this->what[$alias]);
+		unset($this->what["*$alias"]);
+		return $this;
+	}
+
+	public function addWhat(string $alias, string $member = ""): self {
+		$cleaned_alias = StringTools::unprefix($alias, "*");
+		unset($this->what[$cleaned_alias]);
+		unset($this->what["*$cleaned_alias"]);
+		$this->what[$alias] = $member === "" ? $alias : $member;
+		$this->what_sql = "";
+		return $this;
+	}
+
+	/**
+	 * @param Database_Query_Select $query
+	 * @return $this
+	 */
+	public function addWhatSelect(Database_Query_Select $query): self {
+		$this->what += $query->what;
+		return $this;
+	}
+
+	/**
+	 * This is too confusing, refactor with setWhat 2022
+	 *
 	 * Initialize or append the what clause
 	 *
 	 * ->what() returns the what clause
@@ -241,75 +348,84 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * Passing an array should be of the form: "result name" => "table column reference"
 	 *
-	 * @param mixed $mixed
-	 * @param mixed $value
-	 * @return Database_Query_Select|array
+	 * @param ?mixed $mixed
+	 * @param ?mixed $value
+	 * @return mixed
 	 * @throws Exception_Parameter
 	 */
-	public function what($mixed = null, $value = null) {
+	public function what(mixed $mixed = null, mixed $value = null): mixed {
 		if ($mixed === null && $value === null) {
 			return $this->what;
 		}
+		$this->application->deprecated("Setter what() no longer supported");
 		if ($mixed === null && is_string($value)) {
-			$this->what = $value;
-			return $this;
+			return $this->setWhatString($value);
 		}
 		if ($mixed === false && $value === null) {
-			$this->what = [];
-			return $this;
+			return $this->clearWhat();
 		}
-		if (is_string($this->what)) {
+		if ($this->what_sql !== "") {
+			$this->what_sql = "";
 			$this->what = [];
 		}
 		if (is_string($mixed)) {
 			if ($value === null) {
-				$mixed = StringTools::unprefix($mixed, "*");
-				unset($this->what[$mixed]);
-				unset($this->what["*$mixed"]);
-				return $this;
+				return $this->removeWhat($mixed);
 			}
-			$unmixed = StringTools::unprefix($mixed, "*");
-			unset($this->what[$unmixed]);
-			unset($this->what["*$unmixed"]);
-			$this->what[$mixed] = $value;
-			return $this;
+			return $this->addWhat($mixed, $value);
 		}
 		if (is_array($mixed)) {
-			if ($value === true && is_array($this->what)) {
-				foreach ($mixed as $k => $v) {
-					$this->what($k, $v);
-				}
-				return $this;
+			if ($value !== true) {
+				$this->clearWhat();
 			}
-			$this->what = $mixed;
-			return $this;
+			return $this->addWhatIterable($mixed);
 		}
 		if ($mixed instanceof Database_Query_Select) {
-			if ($value === true) {
-				if (is_array($this->what)) {
-					$this->what += $mixed->what;
-				} else {
-					$this->what = $mixed->what;
-				}
-			} else {
-				$this->what = $mixed->what;
+			if ($value !== true) {
+				$this->clearWhat();
 			}
-			return $this;
+			return $this->addWhatSelect($mixed);
 		}
 
 		throw new Exception_Parameter("Unknown parameter passed to Database_Query_Select::what(" . gettype($mixed) . ")");
 	}
 
 	/**
-	 * Select from what
+	 * Append "what" fields for an entire ORM, with $prefix before it, using alias $alias
+	 *
+	 * @param string $class Class to add what fields for; if not supplied uses the class associated with the query
+	 * @param string $alias the alias associated with the class query, uses default (X) if not supplied
+	 * @param string $prefix Prefix all output field names with this string, blank for nothing
+	 * @param string $object_mixed Pass to class_table_columns for dynamic table objects
+	 * @param array $object_options Pass to class_table_columns for dynamic table objects
+	 * @return Database_Query_Select
+	 */
+	public function ormWhat(string $class = null, string $alias = null, string $prefix = null, mixed $object_mixed = null, array $object_options = []): self {
+		if ($class === null) {
+			$class = $this->orm_class();
+		}
+		if ($alias === null) {
+			$alias = $this->class_alias($class);
+		}
+		$columns = $this->application->orm_registry($class, $object_mixed, $object_options)->columns();
+		$what = [];
+		foreach ($columns as $column) {
+			$this->addWhat($prefix . $column, "$alias.$column");
+		}
+		$this->objects_prefixes[$prefix] = [$alias, $class, ];
+		return $this;
+	}
+
+	/**
+	 * Sets "from" table and main alias
 	 *
 	 * @param string $table
 	 * @param string $alias
 	 * @return Database_Query_Select
 	 */
-	public function from($table, $alias = "") {
+	public function from(string $table, string $alias = ""): self {
 		$this->tables[$alias] = $table;
-		$this->alias = $alias;
+		$this->setAlias($alias);
 		return $this;
 	}
 
@@ -320,13 +436,37 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param string $join_id
 	 * @return Database_Query_Select
 	 */
-	public function join($sql, $join_id = null) {
+	public function join($sql, $join_id = null): self {
 		if (is_array($sql)) {
-			$this->tables = array_merge($this->tables, $sql);
-		} elseif ($join_id !== null) {
-			$this->tables[$join_id] = $sql;
+			return $this->addJoinIterable($sql);
+		}
+		return $this->addJoin($sql, is_string($join_id) ? $join_id : "");
+	}
+
+	/**
+	 * Join tables
+	 *
+	 * @param string $sql
+	 * @param string $join_id
+	 * @return Database_Query_Select
+	 */
+	public function addJoinIterable(array $join_sql): self {
+		$this->tables = array_merge($this->tables, $join_sql);
+		return $this;
+	}
+
+	/**
+	 * Join tables
+	 *
+	 * @param string $sql
+	 * @param string $join_id
+	 * @return Database_Query_Select
+	 */
+	public function addJoin(string $join_sql, string $join_id = ""): self {
+		if ($join_id !== "") {
+			$this->tables[$join_id] = $join_sql;
 		} else {
-			$this->tables[] = $sql;
+			$this->tables[] = $join_sql;
 		}
 		return $this;
 	}
@@ -400,16 +540,16 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		} else {
 			$table_as = $sql->table_as($table, $alias);
 		}
-		return $this->join("$join_type JOIN $table_as ON " . $this->sql()->where_clause($on, null));
+		return $this->join("$join_type JOIN $table_as ON " . $this->sql()->where_clause($on));
 	}
 
 	/**
 	 * Link to another object
 	 *
 	 * @param mixed $class
-	 *        	An object or a class name
+	 *            An object or a class name
 	 * @param mixed $mixed
-	 *        	Parameters to join with this object
+	 *            Parameters to join with this object
 	 *        Options are:
 	 *         "path": The path to traverse to determine how this object links to the class specified. These are member names separated by dots.
 	 *         "alias": Assign the alias specified to the class specified; intermediate table aliases are generated dynamically based on this name.
@@ -418,15 +558,13 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @return Database_Query_Select
 	 */
-	public function link($class, $mixed = null) {
+	public function link(string $class, array $mixed = []) {
 		if (is_string($mixed)) {
 			$mixed = [
 				"path" => $mixed,
 			];
-		} elseif (!is_array($mixed)) {
-			$mixed = [];
 		}
-		$path = avalue($mixed, 'path', null);
+		$path = $mixed['path'] ?? null;
 		$object = $this->orm_registry($this->class);
 		if ($path === null) {
 			$target_class = $this->application->objects->resolve($class);
@@ -460,6 +598,42 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	}
 
 	/**
+	 * @param string $member
+	 * @param mixed $value
+	 * @return $this
+	 */
+	public function addWhere(string $member, mixed $value): self {
+		$this->where[$member] = $value;
+		return $this;
+	}
+
+	/**
+	 * @param string $sql
+	 * @return $this
+	 */
+	public function addWhereSQL(string $sql): self {
+		$this->where[] = $sql;
+		return $this;
+	}
+
+	/**
+	 * @param array $where
+	 * @return $this
+	 */
+	public function appendWhere(array $where): self {
+		$this->where = array_merge($this->where, $where);
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function clearWhere(): self {
+		$this->where = [];
+		return $this;
+	}
+
+	/**
 	 * Add where clause. Pass in false for $k to reset where to nothing.
 	 *
 	 * @param mixed $k
@@ -470,14 +644,16 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		if ($k === null && $v === null) {
 			return $this->where;
 		}
+		$this->application->deprecated("where setter");
 		if (is_array($k)) {
-			$this->where = array_merge($this->where, $k);
+			return $this->appendWhere($k);
 		} elseif ($k === null && is_string($v)) {
-			$this->where[] = $v;
+			return $this->addWhereSQL($v);
 		} elseif (!empty($k)) {
+			return $htis->addWhere($k, $v);
 			$this->where[$k] = $v;
 		} elseif ($k === false) {
-			$this->where = [];
+			return $this->clearWhere();
 		}
 		return $this;
 	}
@@ -485,13 +661,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	/**
 	 * Set order by clause
 	 *
-	 * @param string $order_by
+	 * @param array $order_by
 	 * @return Database_Query_Select
 	 */
-	public function order_by($order_by = null) {
-		if ($order_by === null) {
-			return $this->order_by;
-		}
+	public function orderBy(array $order_by): self {
 		$this->order_by = $order_by;
 		return $this;
 	}
@@ -499,10 +672,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	/**
 	 * Set group by clause
 	 *
-	 * @param string $group_by
+	 * @param array $group_by
 	 * @return Database_Query_Select
 	 */
-	public function group_by($group_by) {
+	public function groupBy(array $group_by) {
 		$this->group_by = $group_by;
 		return $this;
 	}
@@ -574,5 +747,42 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		$map['conditions'] = map($locale->conjunction($this->conditions, $locale->__("and")), $map);
 		return $locale->__("Database_Query_Select-$class_name-title:={nouns} which {conditions}", $map);
+	}
+
+	/**
+	 * Set group by clause
+	 *
+	 * @param string $group_by
+	 * @return Database_Query_Select
+	 * @deprecated 2022-01
+	 */
+	public function group_by(array|string $group_by) {
+		return $this->groupBy(to_list($group_by));
+	}
+
+	/**
+	 * Set order by clause
+	 *
+	 * @param string $order_by
+	 * @return Database_Query_Select
+	 * @deprecated 2022-01
+	 */
+	public function order_by($order_by = null) {
+		if ($order_by === null) {
+			return $this->order_by;
+		}
+		return $this->orderBy(to_list($order_by));
+	}
+
+	/**
+	 * Does a column alias exist in the query?
+	 *
+	 * @param $column
+	 * @return bool
+	 * @deprecated 2022-01
+	 */
+	public function has_what(string $column): bool {
+		$this->application->deprecated("old name");
+		return $this->hasWhat($column);
 	}
 }

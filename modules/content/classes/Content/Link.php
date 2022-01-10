@@ -13,7 +13,7 @@ namespace zesk;
  * @see Class_Content_Link
  */
 class Content_Link extends ORM {
-	public function store() {
+	public function store(): self {
 		$this->Hash = md5($this->URL);
 		if ($this->Parent === 0 || $this->Parent === "0" || $this->Parent === "") {
 			$this->Parent = null;

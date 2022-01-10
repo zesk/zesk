@@ -33,14 +33,14 @@ abstract class Version {
 	 *
 	 * @var string
 	 */
-	private static $release = null;
+	private static string $release = "";
 
 	/**
 	 * Cached release date
 	 *
 	 * @var string
 	 */
-	private static $date = null;
+	private static string $date = "";
 
 	/**
 	 * Fetch a file within the ZESK ROOT and return the trimmed contents
@@ -49,7 +49,7 @@ abstract class Version {
 	 * @param string $name
 	 * @param mixed $default
 	 */
-	private static function _file($name, $default) {
+	private static function _file($name, $default): string {
 		return trim(File::contents(path(ZESK_ROOT, $name), $default));
 	}
 
@@ -58,8 +58,8 @@ abstract class Version {
 	 *
 	 * @return string
 	 */
-	public static function release() {
-		if (self::$release === null) {
+	public static function release(): string {
+		if (self::$release === "") {
 			self::$release = self::_file(self::PATH_RELEASE, "-no-release-file-");
 		}
 		return self::$release;
@@ -72,7 +72,7 @@ abstract class Version {
 	 * @return string
 	 */
 	public static function date() {
-		if (self::$date === null) {
+		if (self::$date === "") {
 			self::$date = self::_file(self::PATH_RELEASE_DATE, "-no-release-date-");
 		}
 		return self::$date;
@@ -89,7 +89,7 @@ abstract class Version {
 	 *
 	 * @return array
 	 */
-	public static function variables() {
+	public static function variables(): array {
 		return [
 			"release" => self::release(),
 			"date" => self::date(),

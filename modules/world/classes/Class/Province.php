@@ -7,11 +7,11 @@ namespace zesk;
  * Copyright &copy; 2013 Market Acumen, Inc.
  */
 class Class_Province extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	public $name = "Province:=State";
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"country" => self::type_object,
 		"code" => self::type_string,
@@ -23,7 +23,7 @@ class Class_Province extends Class_ORM {
 		"name",
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		"country" => "zesk\\Country",
 	];
 }

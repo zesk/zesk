@@ -2,13 +2,13 @@
 namespace zesk;
 
 class Class_Test_SiteMonitor extends Class_ORM {
-	public $id_column = "ID";
+	public string $id_column = "ID";
 
-	public $has_one = [
+	public array $has_one = [
 		'Site' => __NAMESPACE__ . "\\" . 'Test_Site',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'ID' => self::type_id,
 		"Name" => self::type_string,
 		"Site" => self::type_object,
@@ -17,13 +17,13 @@ class Class_Test_SiteMonitor extends Class_ORM {
 class Test_SiteMonitor extends ORM {
 }
 class Class_Test_Site extends Class_ORM {
-	public $id_column = "ID";
+	public string $id_column = "ID";
 
-	public $has_one = [
+	public array $has_one = [
 		'Account' => __NAMESPACE__ . '\\' . 'Test_Account',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'ID' => self::type_id,
 		"Name" => self::type_string,
 		"Account" => self::type_object,
@@ -32,14 +32,14 @@ class Class_Test_Site extends Class_ORM {
 class Test_Site extends ORM {
 }
 class Class_Test_Account extends Class_ORM {
-	public $id_column = "ID";
+	public string $id_column = "ID";
 
-	public $has_one = [
+	public array $has_one = [
 		'Primary_Test_Site' => __NAMESPACE__ . '\\' . "Test_Site",
 		'Recent_Test_Site' => __NAMESPACE__ . '\\' . "Test_Site",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'ID' => self::type_id,
 		"Name" => self::type_string,
 		"Primary_Site" => self::type_object,
@@ -50,9 +50,9 @@ class Class_Test_Account extends Class_ORM {
 class Test_Account extends ORM {
 }
 class Class_TestPerson extends Class_ORM {
-	public $id_column = "PersonID";
+	public string $id_column = "PersonID";
 
-	public $has_many = [
+	public array $has_many = [
 		'Favorite_Pets' => [
 			'class' => __NAMESPACE__ . '\\' . 'TestPet',
 			'table' => __NAMESPACE__ . '\\' . 'TestPersonPetFavorites',
@@ -72,7 +72,7 @@ class Class_TestPerson extends Class_ORM {
 		],
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'PersonID' => Class_ORM::type_id,
 		"Name" => Class_ORM::type_string,
 		"Parent" => Class_ORM::type_object,
@@ -81,7 +81,7 @@ class Class_TestPerson extends Class_ORM {
 class TestPersonPet extends ORM {
 }
 class Class_TestPersonPet extends Class_ORM {
-	public $column_types = [
+	public array $column_types = [
 		'Person' => self::type_object,
 		'Pet' => self::type_object,
 	];
@@ -89,9 +89,9 @@ class Class_TestPersonPet extends Class_ORM {
 class TestPerson extends ORM {
 }
 class Class_TestPet extends Class_ORM {
-	public $id_column = "PetID";
+	public string $id_column = "PetID";
 
-	public $column_types = [
+	public array $column_types = [
 		'PetID' => self::type_id,
 		'Name' => self::type_string,
 		'Type' => self::type_object,

@@ -73,7 +73,7 @@ class Exception extends \Exception {
 			'raw_message' => $this->raw_message,
 			'arguments' => $this->arguments,
 			'previous' => $this->getPrevious(),
-		] + $this->arguments;
+		];
 	}
 
 	/**

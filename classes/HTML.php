@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @version $URL$
@@ -43,85 +44,14 @@ class HTML {
 	 *
 	 * @var array
 	 */
-	private static $global_attributes = [
-		"accesskey",
-		"class",
-		"contenteditable",
-		"contextmenu",
-		"data-*",
-		"dir",
-		"draggable",
-		"dropzone",
-		"hidden",
-		"id",
-		"lang",
-		"spellcheck",
-		"style",
-		"tabindex",
-		"title",
-		"translate",
-	];
+	private static $global_attributes = ["accesskey", "class", "contenteditable", "contextmenu", "data-*", "dir", "draggable", "dropzone", "hidden", "id", "lang", "spellcheck", "style", "tabindex", "title", "translate", ];
 
 	/**
 	 * Allowed tag attributes via HTML::tag_attributes
 	 *
 	 * @var array[]
 	 */
-	private static $tag_attributes = [
-		"a" => [
-			"href",
-			"hreflang",
-			"title",
-			"target",
-			"type",
-			"media",
-			"download",
-		],
-		"input" => [
-			"accept",
-			"alt",
-			"checked",
-			"disabled",
-			"ismap",
-			"maxlength",
-			"name",
-			"onblur",
-			"onchange",
-			"onclick",
-			"ondblclick",
-			"onfocus",
-			"onkeydown",
-			"onkeypress",
-			"onkeyup",
-			"onmousedown",
-			"onmousemove",
-			"onmouseout",
-			"onmouseover",
-			"onmouseup",
-			"onselect",
-			"placeholder",
-			"readonly",
-			"size",
-			"src",
-			"type",
-			"usemap",
-			"value",
-		],
-		"select" => "input",
-		"li" => [
-			"value",
-		],
-		"link" => [
-			"charset",
-			"crossorigin",
-			"href",
-			"hreflang",
-			"media",
-			"rel",
-			"sizes",
-			"type",
-		],
-	];
+	private static $tag_attributes = ["a" => ["href", "hreflang", "title", "target", "type", "media", "download", ], "input" => ["accept", "alt", "checked", "disabled", "ismap", "maxlength", "name", "onblur", "onchange", "onclick", "ondblclick", "onfocus", "onkeydown", "onkeypress", "onkeyup", "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup", "onselect", "placeholder", "readonly", "size", "src", "type", "usemap", "value", ], "select" => "input", "li" => ["value", ], "link" => ["charset", "crossorigin", "href", "hreflang", "media", "rel", "sizes", "type", ], ];
 
 	/**
 	 *
@@ -370,10 +300,7 @@ class HTML {
 			$char = substr($term, 0, 1);
 			if ($char === '#') {
 				if (array_key_exists('id', $result)) {
-					throw new Exception_Semantics(__CLASS__ . "::to_attributes - multiple IDs specified: {id0} {id1}", [
-						'id0' => $result['id'],
-						'id1' => $term,
-					]);
+					throw new Exception_Semantics(__CLASS__ . "::to_attributes - multiple IDs specified: {id0} {id1}", ['id0' => $result['id'], 'id1' => $term, ]);
 				}
 				$result['id'] = substr($term, 1);
 			} elseif ($char === '.') {
@@ -452,10 +379,7 @@ class HTML {
 		}
 		if (array_key_exists($name, self::$attributes_alter)) {
 			// TODO - avoid globals, but this is used EVERYWHERE without a context
-			$result = Kernel::singleton()->hooks->call_arguments(__METHOD__ . "::$name", [
-				$attributes,
-				$content,
-			], $attributes);
+			$result = Kernel::singleton()->hooks->call_arguments(__METHOD__ . "::$name", [$attributes, $content, ], $attributes);
 			if (is_array($result)) {
 				$attributes = $result;
 			}
@@ -492,32 +416,29 @@ class HTML {
 
 	/**
 	 *
-	 * @param string|array $types
+	 * @param array $types
 	 */
-	public static function input_attribute_names($types = null) {
-		if (empty($types)) {
-			$types = "core;events;input";
+	public static function input_attribute_names(array $types = []): array {
+		if (count($types) === 0) {
+			$types = ["core", "events", "input"];
+		} else {
+			$types = ArrayTools::change_value_case($types);
 		}
-		$attr_list = "";
-		$types = is_array($types) ? ArrayTools::change_value_case($types) : explode(";", strtolower($types));
+		$attr_list = [];
 		if (in_array("core", $types)) {
-			$attr_list = Lists::append($attr_list, "id;class;style;title;placeholder");
+			$attr_list = array_merge($attr_list, ["id", "class", "style", "title", "placeholder"]);
 		}
 		if (in_array("events", $types)) {
-			$attr_list = Lists::append($attr_list, "onclick;ondblclick;onmousedown;onmouseup;onmouseover;onmousemove;onmouseout;onkeypress;onkeydown;onkeyup");
+			$attr_list = array_merge($attr_list, ["onclick", "ondblclick", "onmousedown", "onmouseup", "onmouseover", "onmousemove", "onmouseout", "onkeypress", "onkeydown", "onkeyup"]);
 		}
 		if (in_array("input", $types)) {
-			$attr_list = Lists::append($attr_list, "type;name;value;checked;disabled;readonly;size;maxlength;src;alt;usemap;ismap;tabindex;accesskey;onfocus;onblur;onselect;onchange;accept");
+			$attr_list = array_merge($attr_list, ["type", "name", "value", "checked", "disabled", "readonly", "size", "maxlength", "src", "alt", "usemap", "ismap", "tabindex", "accesskey", "onfocus", "onblur", "onselect", "onchange", "accept"]);
 		}
-		return explode(";", $attr_list);
+		return $attr_list;
 	}
 
 	public static function filter_tag_attributes($tag, array $attributes) {
-		static $tag_types = [
-			'input' => null,
-			'select' => null,
-			'button' => null,
-		];
+		static $tag_types = ['input' => null, 'select' => null, 'button' => null, ];
 		$tag_filter = self::input_attribute_names($tag_types[$tag] ?? 'core');
 		return ArrayTools::kfilter($attributes, $tag_filter) + ArrayTools::kprefix(array_merge(ArrayTools::kunprefix($attributes, "data_", true), ArrayTools::kunprefix($attributes, "data-", true)), "data-");
 	}
@@ -537,16 +458,26 @@ class HTML {
 	 * foreign languages in strings,
 	 * particularly when embedded in HTML attributes.
 	 *
+	 * @param iterable $iter
+	 * @return iterable
+	 */
+	public static function specialsIterator(iterable $iter): iterable {
+		$result = [];
+		foreach ($iter as $k => $v) {
+			$result[$k] = self::specials($v);
+		}
+		return $result;
+	}
+
+	/**
+	 * Preserve html entities e.g.
+	 * foreign languages in strings,
+	 * particularly when embedded in HTML attributes.
+	 *
 	 * @param string $string
 	 * @return string
 	 */
-	public static function specials($string) {
-		if (is_array($string)) {
-			foreach ($string as $k => $v) {
-				$string[$k] = self::specials($v);
-			}
-			return $string;
-		}
+	public static function specials(string $string): string {
 		$matches = null;
 		if (!preg_match('/&(#[0-9]+|[A-Za-z0-9]+);/', $string, $matches)) {
 			return htmlspecialchars($string);
@@ -559,10 +490,11 @@ class HTML {
 		$string = str_replace($replace, $search, $string);
 		$string = htmlspecialchars($string);
 		$string = str_replace($search, $replace, $string);
+		// Leave this here for debugging
 		return $string;
 	}
 
-	public static function tag_class($class, $add = null, $remove = null) {
+	public static function tag_class($class, $add = null, $remove = null): string {
 		$class = to_list($class);
 		$add = to_list($add);
 		$remove = to_list($remove);
@@ -642,7 +574,10 @@ class HTML {
 		return " " . implode(" ", $result);
 	}
 
-	private static function _html_tag_patterns() {
+	/**
+	 * @return string[]
+	 */
+	private static function _html_tag_patterns(): array {
 		/* After replaced, how to match a tag */
 		$RE_TAG_START_CHAR_DEF = '<' . self::$RE_TAG_START_CHAR . '(' . self::RE_ATTRIBUTES . ')\s*>';
 
@@ -655,11 +590,7 @@ class HTML {
 		/* match a start/end tag in the source */
 		$RE_HTML_TAG_DOUBLE = '/' . $RE_TAG_START_CHAR_DEF . '([^' . self::$RE_TAG_START_CHAR . self::$RE_TAG_END_CHAR . ']*)' . self::$RE_TAG_END_CHAR . '/si';
 
-		return [
-			$RE_HTML_TAG_SINGLE,
-			$RE_HTML_TAG_DOUBLE,
-			$RE_HTML_TAG_START,
-		];
+		return [$RE_HTML_TAG_SINGLE, $RE_HTML_TAG_DOUBLE, $RE_HTML_TAG_START, ];
 	}
 
 	/**
@@ -703,14 +634,8 @@ class HTML {
 		$endTagPattern = '/<\/\s*' . $tag . '\s*>/si';
 
 		$results = [];
-		$rsearch = [
-			self::$RE_TAG_START_CHAR,
-			self::$RE_TAG_END_CHAR,
-		];
-		$rreplace = [
-			$tag,
-			$endTag,
-		];
+		$reverse_search = [self::$RE_TAG_START_CHAR, self::$RE_TAG_END_CHAR, ];
+		$reverse_replace = [$tag, $endTag, ];
 
 		$search = [];
 		$replace = [];
@@ -748,15 +673,15 @@ class HTML {
 						$tag_contents = false;
 					}
 
-					$results[] = new HTML_Tag($tag, $options, $tag_contents, str_replace($rsearch, $rreplace, $matched), $matched_offset);
+					$results[] = new HTML_Tag($tag, $options, $tag_contents, str_replace($reverse_search, $reverse_replace, $matched), $matched_offset);
 
 					$token = "#@" . count($results) . "@#";
 
 					$search[] = $matched;
 					$replace[] = $token;
 
-					$rsearch[] = $token;
-					$rreplace[] = $matched;
+					$reverse_search[] = $token;
+					$reverse_replace[] = $matched;
 				}
 				$contents = str_replace($search, $replace, $contents);
 
@@ -774,8 +699,8 @@ class HTML {
 			if (is_string($inner_html)) {
 				$outer_html = $result->outer_html();
 				while (preg_match("/#@[0-9]+@#|[" . self::$RE_TAG_START_CHAR . self::$RE_TAG_END_CHAR . "]/", $inner_html)) {
-					$inner_html = str_replace($rsearch, $rreplace, $inner_html);
-					$outer_html = str_replace($rsearch, $rreplace, $outer_html);
+					$inner_html = str_replace($reverse_search, $reverse_replace, $inner_html);
+					$outer_html = str_replace($reverse_search, $reverse_replace, $outer_html);
 				}
 				$result->inner_html($inner_html);
 				$result->outer_html($outer_html);
@@ -848,13 +773,8 @@ class HTML {
 	 * @return string
 	 */
 	public static function ediv($mixed) {
-		$args = array_merge([
-			'div',
-		], func_get_args());
-		return call_user_func_array([
-			__CLASS__,
-			'etag',
-		], $args);
+		$args = array_merge(['div', ], func_get_args());
+		return call_user_func_array([__CLASS__, 'etag', ], $args);
 	}
 
 	/**
@@ -863,13 +783,8 @@ class HTML {
 	 * @return string
 	 */
 	public static function espan($mixed) {
-		$args = array_merge([
-			'span',
-		], func_get_args());
-		return call_user_func_array([
-			__CLASS__,
-			'etag',
-		], $args);
+		$args = array_merge(['span', ], func_get_args());
+		return call_user_func_array([__CLASS__, 'etag', ], $args);
 	}
 
 	/**
@@ -1550,11 +1465,7 @@ class HTML {
 			}
 			$options_html[] = self::tag('option', $option_attrs, $label);
 		}
-		return self::tag('select', [
-				'name' => $name,
-			] + $attributes + [
-				'id' => $name,
-			], implode("", $options_html));
+		return self::tag('select', ['name' => $name, ] + $attributes + ['id' => $name, ], implode("", $options_html));
 	}
 
 	public static function input_submit($n, $v, $attrs = false) {
@@ -1624,18 +1535,9 @@ class HTML {
 	public static function make_absolute_urls($content, $domain_prefix) {
 		$domain_prefix = rtrim($domain_prefix, '/');
 		$map = [];
-		foreach ([
-					 'href',
-					 'src',
-				 ] as $attr) {
-			foreach ([
-						 '"',
-						 "'",
-					 ] as $quote) {
-				foreach ([
-							 "/" => '',
-							 "." => '/',
-						 ] as $prefix => $append) {
+		foreach (['href', 'src', ] as $attr) {
+			foreach (['"', "'", ] as $quote) {
+				foreach (["/" => '', "." => '/', ] as $prefix => $append) {
 					$map[$attr . '=' . $quote . $prefix] = $attr . '=' . $quote . $domain_prefix . $append . $prefix;
 				}
 			}
@@ -1650,12 +1552,7 @@ class HTML {
 	 * @return string
 	 */
 	public static function entities_replace($html) {
-		$html = strtr($html, [
-			"&ldquo;" => '"',
-			"&rdquo;" => '"',
-			"&lsquo;" => "'",
-			"&rsquo;" => "'",
-		]);
+		$html = strtr($html, ["&ldquo;" => '"', "&rdquo;" => '"', "&lsquo;" => "'", "&rsquo;" => "'", ]);
 		return html_entity_decode($html);
 	}
 
@@ -1709,10 +1606,7 @@ class HTML {
 			}
 			$global_match_index++;
 			$replace_value = $args[$index] ?? '[]';
-			[$left, $right] = explode('[]', $replace_value, 2) + [
-				null,
-				"",
-			];
+			[$left, $right] = explode('[]', $replace_value, 2) + [null, "", ];
 			if ($left === null) {
 				$replace_value = '(*' . count($skip_s) . '*)';
 				$skip_s[] = $replace_value;

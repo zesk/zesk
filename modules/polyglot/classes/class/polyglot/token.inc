@@ -7,13 +7,13 @@ namespace zesk;
  *
  */
 class Class_PolyGlot_Token extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
-	public $has_one = [
+	public array $has_one = [
 		"user" => "zesk\\User",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'id' => self::type_id,
 		'language' => self::type_string,
 		'dialect' => self::type_string,

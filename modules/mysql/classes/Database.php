@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
@@ -6,6 +7,7 @@
  * @package zesk
  * @subpackage database
  */
+
 namespace MySQL;
 
 use zesk\Exception_Semantics;
@@ -189,8 +191,8 @@ class Database extends \zesk\Database {
 	 * Retrieve a database setting and store it locally as an option
 	 *
 	 * @param unknown $attribute
-	 * @throws Exception_Semantics
 	 * @return mixed|string|array|string
+	 * @throws Exception_Semantics
 	 */
 	private function _fetch_setting($attribute) {
 		if ($this->has_option($attribute)) {
@@ -242,9 +244,9 @@ class Database extends \zesk\Database {
 		$attributes['extra'] = null;
 		$table = $column->table();
 		return $attributes + [
-			self::attribute_character_set => $table->option(self::attribute_character_set, $this->default_character_set()),
-			self::attribute_collation => $table->option(self::attribute_collation, $this->default_collation()),
-		];
+				self::attribute_character_set => $table->option(self::attribute_character_set, $this->default_character_set()),
+				self::attribute_collation => $table->option(self::attribute_collation, $this->default_collation()),
+			];
 	}
 
 	/**
@@ -257,9 +259,9 @@ class Database extends \zesk\Database {
 	public function column_differences(Database_Column $self, Database_Column $that, array $diffs) {
 		if ($self->is_text()) {
 			return $diffs + $self->attributes_differences($this, $that, [
-				self::attribute_character_set,
-				self::attribute_collation,
-			]);
+					self::attribute_character_set,
+					self::attribute_collation,
+				]);
 		}
 		return [];
 	}
@@ -341,9 +343,9 @@ class Database extends \zesk\Database {
 	 *
 	 * @param string $filename
 	 * @param array $options
-	 *        	"lock" => boolean Lock tables before dumping (avoids inconsistent state - bad for
-	 *        	busy databases)
-	 *        	"tables" => list of tables Dump these tables
+	 *            "lock" => boolean Lock tables before dumping (avoids inconsistent state - bad for
+	 *            busy databases)
+	 *            "tables" => list of tables Dump these tables
 	 * @see zesk\Database::dump()
 	 */
 	public function dump($filename, array $options = []) {
@@ -371,8 +373,8 @@ class Database extends \zesk\Database {
 		$result = 0;
 		$cmd = "mysqldump " . implode(" ", $cmd_options) . " > {filename}";
 		$this->application->process->execute_arguments($cmd, $parts + [
-			'filename' => $filename,
-		]);
+				'filename' => $filename,
+			]);
 		return file_exists($filename);
 	}
 
@@ -402,8 +404,8 @@ class Database extends \zesk\Database {
 		$result = 0;
 		$cmd = "mysql " . implode(" ", $cmd_options) . " < {filename}";
 		$this->application->process->execute_arguments($cmd, $parts + [
-			'filename' => $filename,
-		]);
+				'filename' => $filename,
+			]);
 		return file_exists($filename);
 	}
 
@@ -453,9 +455,7 @@ class Database extends \zesk\Database {
 		if (preg_match('/([0-9]+)\.([0-9]+)\.([0-9]+)/', $version, $matches)) {
 			[$v, $major, $minor, $patch] = $matches;
 			if ($major !== "5" && $major !== "8") {
-				$this->application->logger->warning("Unknown major version of MySQL (We know MySQL 5 and 8 only): {version}", [
-					"version" => $version,
-				]);
+				return;
 			}
 			if ($minor <= 6) {
 				$this->set_option("invalid_dates_ok", true);
@@ -467,7 +467,7 @@ class Database extends \zesk\Database {
 	 * Connection error
 	 *
 	 * @param array $words
-	 *        	Tokens for error message
+	 *            Tokens for error message
 	 * @throws Database_Exception_Connect
 	 */
 	protected function _connection_error(array $words): void {
@@ -535,7 +535,7 @@ class Database extends \zesk\Database {
 	 * Get/set time zone
 	 *
 	 * @param string $set
-	 *        	Time zone to Settings
+	 *            Time zone to Settings
 	 * @return self|string
 	 * @throws Exception_Unsupported
 	 */
@@ -580,8 +580,8 @@ class Database extends \zesk\Database {
 	/**
 	 * List tables
 	 *
-	 * @see zesk\Database::list_tables()
 	 * @return array
+	 * @see zesk\Database::list_tables()
 	 */
 	public function list_tables() {
 		$result = $this->query("SHOW TABLES");
@@ -600,18 +600,19 @@ class Database extends \zesk\Database {
 	}
 
 	/**
-	 *
-	 * @param string $table
-	 * @param string $sql
-	 *        	SQL used to show the table
-	 * @return boolean|string
+	 * @param $table
+	 * @param string|null $sql
+	 * @return string
+	 * @throws Database_Exception_Connect
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Parameter
 	 */
-	private function show_create_table($table, &$sql = null) {
+	private function show_create_table($table, string &$sql = null): string {
 		$sql = "SHOW CREATE TABLE " . $this->quote_table($table);
 		$result = $this->query($sql);
 		$row = $this->fetch_array($result);
 		if (count($row) === 0) {
-			return false;
+			throw new Database_Exception_Table_NotFound($this, $table);
 		}
 		$data = $row[1];
 		$this->free($result);
@@ -621,8 +622,8 @@ class Database extends \zesk\Database {
 	/**
 	 *
 	 * @param string $table
-	 * @todo Move into type\Database_Table
 	 * @return array|null
+	 * @todo Move into type\Database_Table
 	 */
 	final public function table_information($table) {
 		$result = $this->query("SHOW TABLE STATUS LIKE '$table'");
@@ -643,17 +644,19 @@ class Database extends \zesk\Database {
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 *
-	 * @see zesk\Database::database_table()
+	 * @param string $table
+	 * @return Database_Table
+	 * @throws Database_Exception_Connect
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Parameter
 	 */
-	public function database_table($table) {
-		$source = null;
+	public function database_table(string $table): Database_Table {
+		$source = "";
 		$sql = $this->show_create_table($table, $source);
-		if ($sql) {
-			return $this->parse_create_table($sql, $source);
+		if (!$sql) {
+			throw new Database_Exception_Table_NotFound($this, "$table");
 		}
-		return null;
+		return $this->parse_create_table($sql, $source);
 	}
 
 	/**
@@ -685,7 +688,7 @@ class Database extends \zesk\Database {
 	 *
 	 * @see zesk\Database::default_index_structure()
 	 */
-	public function default_index_structure($table_type) {
+	public function default_index_structure(string $table_type): string {
 		switch (strtolower($table_type)) {
 			case "innodb":
 				return "BTREE";
@@ -702,8 +705,8 @@ class Database extends \zesk\Database {
 	 * Figure out how many rows a query will hit
 	 *
 	 * @param unknown $sql
-	 * @throws Database_Exception
 	 * @return integer
+	 * @throws Database_Exception
 	 */
 	public function estimate_rows($sql) {
 		$rows = $this->query_array("EXPLAIN $sql");
@@ -839,11 +842,11 @@ class Database extends \zesk\Database {
 	 */
 	public function release_lock($name) {
 		$name = $this->quote_text($name);
-		$result = $this->query_integer("SELECT RELEASE_LOCK($name) AS X", "X", null);
+		$result = $this->query_integer("SELECT RELEASE_LOCK($name)");
 		if ($result !== 1) {
 			$this->application->logger->error("Released lock {name} FAILED (raw_result={raw_result}): ", [
 				"name" => $name,
-				"backtrace" => debug_backtrace(false),
+				"backtrace" => debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT),
 				"raw_result" => PHP::dump($result),
 			]);
 			return false;
@@ -856,7 +859,7 @@ class Database extends \zesk\Database {
 	 *
 	 * @see zesk\Database::is_reserved_word()
 	 */
-	public function is_reserved_word($word) {
+	public function is_reserved_word(string $word): bool {
 		// Updated 2004-10-19 from MySQL Website YEARLY-TODO
 		static $reserved = [
 			"ADD",
@@ -1190,9 +1193,9 @@ class Database extends \zesk\Database {
 			$error = mysqli_connect_error();
 			if ($error) {
 				$this->_connection_error(compact("database", "server", "user", "port") + [
-					"error" => $error,
-					"errno" => mysqli_connect_errno(),
-				]);
+						"error" => $error,
+						"errno" => mysqli_connect_errno(),
+					]);
 			}
 			$this->application->logger->error("Connection to database $user@$server:$port/$database FAILED, no connection error");
 			return false;
@@ -1289,15 +1292,15 @@ class Database extends \zesk\Database {
 		mysqli_free_result($result);
 	}
 
-	final public function insert_id() {
+	final public function insert_id(): ?int {
 		$id = mysqli_insert_id($this->Connection);
 		if ($id == 0) {
-			return false;
+			return null;
 		}
-		return $id;
+		return intval($id);
 	}
 
-	final public function fetch_assoc($result) {
+	final public function fetch_assoc(mixed $result): ?array {
 		if (!$result instanceof \mysqli_result) {
 			throw new Exception_Parameter("{method} requires first parameter to be {class}", [
 				"method" => __METHOD__,
@@ -1307,7 +1310,7 @@ class Database extends \zesk\Database {
 		return mysqli_fetch_assoc($result);
 	}
 
-	final public function fetch_array($result) {
+	final public function fetch_array(mixed $result): ?array {
 		if (!$result instanceof \mysqli_result) {
 			throw new Exception_Parameter("{method} requires first parameter to be {class}", [
 				"method" => __METHOD__,
@@ -1352,7 +1355,7 @@ class Database extends \zesk\Database {
 	 * Finish transaction in the database
 	 *
 	 * @param boolean $success
-	 *        	Whether to commit (true) or roll back (false)
+	 *            Whether to commit (true) or roll back (false)
 	 * @return boolean
 	 */
 	public function transaction_end($success = true) {

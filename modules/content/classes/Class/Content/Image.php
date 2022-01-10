@@ -13,7 +13,7 @@ class Class_Content_Image extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 *
@@ -40,7 +40,7 @@ class Class_Content_Image extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $has_one = [
+	public array $has_one = [
 		"data" => Content_Data::class,
 	];
 
@@ -48,7 +48,7 @@ class Class_Content_Image extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $has_many = [
+	public array $has_many = [
 		"users" => [
 			"class" => User::class,
 			"link_class" => User_Content_Image::class,
@@ -61,7 +61,7 @@ class Class_Content_Image extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"data" => self::type_object,
 		"width" => self::type_integer,

@@ -150,7 +150,7 @@ class Rule_Parser extends Options {
 	}
 
 	private function parse_INTERVAL($value) {
-		return intval(abs($value));
+		return abs(intval($value));
 	}
 
 	private function parse_COUNT($value) {

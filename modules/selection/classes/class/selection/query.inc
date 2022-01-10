@@ -9,9 +9,9 @@ namespace zesk;
  * @author kent
  */
 class Class_Selection_Query extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
-	public $has_one = [
+	public array $has_one = [
 		'type' => 'zesk\\Selection_Type',
 	];
 
@@ -20,7 +20,7 @@ class Class_Selection_Query extends Class_ORM {
 		'code',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'id' => self::type_id,
 		'type' => self::type_object,
 		'code' => self::type_hex,

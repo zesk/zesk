@@ -18,7 +18,7 @@ abstract class Controller_Theme extends Controller {
 	 *
 	 * @var string
 	 */
-	protected $default_content_type = Response::CONTENT_TYPE_HTML;
+	protected ?string $default_content_type = Response::CONTENT_TYPE_HTML;
 
 	/**
 	 *
@@ -115,7 +115,7 @@ abstract class Controller_Theme extends Controller {
 	 * (non-PHPdoc)
 	 * @see Controller::after()
 	 */
-	public function after($result = null, $output = null): void {
+	public function after(string $result = null, string $output = null): void {
 		if ($this->auto_render) {
 			if (!$this->response->is_html()) {
 				return;
@@ -142,7 +142,7 @@ abstract class Controller_Theme extends Controller {
 	 * (non-PHPdoc)
 	 * @see Controller::variables()
 	 */
-	public function variables() {
+	public function variables(): array {
 		return [
 			'theme' => $this->theme,
 		] + parent::variables() + $this->variables;

@@ -153,7 +153,7 @@ class Model_Settings extends Model {
 		return avalue($this->state, $key);
 	}
 
-	public function variables() {
+	public function variables(): array {
 		$result = $this->configuration->paths_get($this->variables);
 		foreach ($result as $k => $v) {
 			if ($v instanceof Configuration) {
@@ -188,7 +188,7 @@ class Model_Settings extends Model {
 		$this->__set($key, null);
 	}
 
-	public function store() {
+	public function store(): self {
 		$this->application->logger->debug("{method} called", [
 			"method" => __METHOD__,
 		]);

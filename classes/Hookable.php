@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage kernel
  * @author kent
  * @copyright &copy; 2018 Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -90,17 +92,17 @@ class Hookable extends Options {
 	 * Arguments passed as an array
 	 *
 	 * @param array|string $types
-	 *        	An array of hooks to call, all hooks found are executed, and you can repeat if
-	 *        	necessary.
+	 *            An array of hooks to call, all hooks found are executed, and you can repeat if
+	 *            necessary.
 	 * @param array $args
-	 *        	Optional. An array of parameters to pass to the hook.
+	 *            Optional. An array of parameters to pass to the hook.
 	 * @param mixed|null $default
-	 *        	Optional. The value to return if the final result returned by a hook is NULL.
+	 *            Optional. The value to return if the final result returned by a hook is NULL.
 	 * @param callable|null $hook_callback
-	 *        	Optional. A callable in the form `function ($callable, array $arguments) { ... }`
+	 *            Optional. A callable in the form `function ($callable, array $arguments) { ... }`
 	 * @param callable|null $result_callback
-	 *        	Optional. A callable in the form `function ($callable, $previous_result,
-	 *        	$new_result) { ... }`
+	 *            Optional. A callable in the form `function ($callable, $previous_result,
+	 *            $new_result) { ... }`
 	 * @return mixed
 	 */
 	final public function call_hook_arguments(array|string $types, array $args = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null): mixed {
@@ -130,7 +132,7 @@ class Hookable extends Options {
 	 * Arguments passed as an array
 	 *
 	 * @param array|string $types An array of hooks to call, all hooks found are executed, and you can repeat if
-	 *        	necessary.
+	 *            necessary.
 	 * @param array $args Optional. An array of parameters to pass to the hook.
 	 * @return array
 	 */
@@ -213,8 +215,8 @@ class Hookable extends Options {
 	 * Arguments passed as an array
 	 *
 	 * @param string|array $types
-	 *        	An array of hooks to call, first one found is executed, or a string of the hook to
-	 *        	call
+	 *            An array of hooks to call, first one found is executed, or a string of the hook to
+	 *            call
 	 * @param boolean $object_only
 	 * @return array
 	 */
@@ -258,14 +260,14 @@ class Hookable extends Options {
 	 * The only mechanism which modifies hook results is `Arrays`: list-style arrays are concatenated, key-value arrays are merged with later values overriding earlier values.
 	 *
 	 * @param mixed $previous_result
-	 *        	Previous hook result. Default to null for first call.
+	 *            Previous hook result. Default to null for first call.
 	 * @param callable $callable
-	 *        	Function
+	 *            Function
 	 * @param array $arguments
 	 * @param callable $hook_callback
-	 *        	A function to call for each hook called.
+	 *            A function to call for each hook called.
 	 * @param string $result_callback
-	 *        	A function to process hook results. If false, returns last result unmodified.
+	 *            A function to process hook results. If false, returns last result unmodified.
 	 * @return mixed
 	 */
 	final public static function hook_results(mixed $previous_result, callable $callable, array $arguments, callable $hook_callback = null, callable $result_callback = null): mixed {
@@ -323,7 +325,7 @@ class Hookable extends Options {
 	 * @return array
 	 * @throws Exception_Lock
 	 */
-	private function _default_options(string $class): array {
+	private function _defaultOptions(string $class): array {
 		$references = [];
 		// Class hierarchy is given from child -> parent
 		$config = $this->application->configuration;
@@ -353,7 +355,7 @@ class Hookable extends Options {
 		$class = strtolower($class);
 		// Class hierarchy is given from child -> parent
 		$config = new Configuration();
-		foreach ($this->_default_options($class) as $subclass => $configuration) {
+		foreach ($this->_defaultOptions($class) as $subclass => $configuration) {
 			// Child options override parent options
 			$config->merge($configuration, false);
 		}
@@ -364,21 +366,32 @@ class Hookable extends Options {
 	 * Load options for this object based on globals loaded.
 	 * Only overwrites values which are NOT set.
 	 *
-	 * @param string $class
-	 *        	Inherit globals from this class
+	 * @param ?string $class
+	 *            Inherit globals from this class
+	 * @return $this
+	 * @throws Exception_Lock
+	 * @deprecated 2022-01
+	 */
+	final public function inherit_global_options(string $class = null): self {
+		return $this->inheritConfiguration($class);
+	}
+
+	/**
+	 * Load options for this object based on the application configuration loaded.
+	 * Only overwrites values which are NOT set.
+	 *
+	 * @param ?string $class
+	 *            Inherit globals from this class
 	 * @return $this
 	 * @throws Exception_Lock
 	 */
-	final public function inherit_global_options(string $class = null): self {
+	final public function inheritConfiguration(string $class = null): self {
 		if ($class === null) {
 			$class = get_class($this);
 		}
-		if (is_object($class)) {
-			$class = get_class($class);
-		}
 		$options = $this->default_options($class);
 		foreach ($options as $key => $value) {
-			$key = self::_option_key($key);
+			$key = self::_optionKey($key);
 			if (!isset($this->options[$key])) {
 				$this->options[$key] = $value;
 			}

@@ -22,7 +22,7 @@ class Control_Order extends Control {
 	}
 
 	protected function hook_query_list(Database_Query_Select $query): void {
-		$query->what($this->column(), "X." . $this->column());
+		$query->addWhat($this->column(), "X." . $this->column());
 		$query->order_by($this->column());
 	}
 

@@ -119,7 +119,7 @@ class RRule_Set_Test extends Test_Unit {
 					$start = intval($range[1]);
 					$end = intval($range[2]);
 					for ($i = $start; $i <= $end; $i++) {
-						$repl = text::ralign($i, $size, 0);
+						$repl = Text::ralign("$i", $size, "0");
 						$extrapolated[] = str_replace($match[0], $repl, $line);
 					}
 				} else {

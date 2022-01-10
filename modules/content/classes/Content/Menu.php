@@ -13,7 +13,7 @@ namespace zesk;
  *
  */
 class Content_Menu extends ORM {
-	public function store() {
+	public function store(): self {
 		$this->CodeName = $this->clean_code_name($this->CodeName);
 		if ($this->Parent === 0 || $this->Parent === "0" || $this->Parent === "") {
 			$this->Parent = null;
@@ -67,7 +67,7 @@ class Content_Menu extends ORM {
 
 		$first = true;
 		$parent_to_code = [];
-		$menus = $this->query_select()->what("ID,Name,CodeName,Parent,ContentObjects,ContentTemplate,ContentLayout,IsActive,IsHome");
+		$menus = $this->query_select()->setWhatString("ID,Name,CodeName,Parent,ContentObjects,ContentTemplate,ContentLayout,IsActive,IsHome");
 		$menus->order_by("Parent,OrderIndex");
 
 		$result = [];

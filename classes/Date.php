@@ -847,8 +847,8 @@ class Date extends Temporal {
 			$x[$k . $k] = StringTools::zero_pad($v, 2);
 		}
 
-		$x['YYYY'] = $this->year;
-		$x['YY'] = substr($this->year, -2);
+		$x['YYYY'] = $y = strval($this->year);
+		$x['YY'] = substr($y, -2);
 
 		if ($locale) {
 			$x['MMMM'] = $this->month_names($locale)[$m] ?? "?";

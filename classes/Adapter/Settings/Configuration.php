@@ -81,7 +81,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 *
 	 * @return Iterator
 	 */
-	public function variables() {
+	public function variables(): array {
 		return $this->configuration->to_array();
 	}
 }

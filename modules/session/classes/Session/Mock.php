@@ -211,7 +211,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 *
 	 * @see Interface_Settings::variables()
 	 */
-	public function variables() {
+	public function variables(): array {
 		return $this->data;
 	}
 

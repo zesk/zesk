@@ -12,13 +12,13 @@ class Class_Contact_Date extends Class_Contact_Info {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"contact" => self::type_object,
 		"label" => self::type_object,

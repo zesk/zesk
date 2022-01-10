@@ -12,12 +12,12 @@ namespace zesk;
  * @author kent
  */
 class Class_Meta extends Class_ORM {
-	public $primary_keys = [
+	public array $primary_keys = [
 		"parent",
 		"name",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		"parent" => self::type_object,
 		"name" => self::type_string,
 		"value" => self::type_serialize,

@@ -129,7 +129,7 @@ class Method extends Options {
 	 *
 	 * @return string[string]
 	 */
-	public function variables() {
+	public function variables(): array {
 		return [
 			"depends" => $this->depends,
 			"name" => $this->name,

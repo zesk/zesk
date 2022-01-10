@@ -34,7 +34,7 @@ abstract class Exception_ORM extends Exception {
 		parent::__construct($message, $arguments, null, $previous);
 	}
 
-	public function variables() {
+	public function variables(): array {
 		return parent::variables() + [
 			"class" => $this->class,
 		];

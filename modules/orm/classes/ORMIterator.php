@@ -15,42 +15,42 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @var string
 	 */
-	protected $class = null;
+	protected string $class;
 
 	/**
 	 * Options to be passed to each object constructor
 	 *
 	 * @var array
 	 */
-	protected $class_options = [];
+	protected array $class_options = [];
 
 	/**
 	 * Current parent
 	 *
-	 * @var ORM
+	 * @var ?ORM
 	 */
-	protected $parent = null;
+	protected ?ORM $parent = null;
 
 	/**
 	 * Current parent
 	 *
-	 * @var ORM
+	 * @var string
 	 */
-	protected $parent_member = null;
+	protected string $parent_member = "";
 
 	/**
 	 * Current object
 	 *
 	 * @var ORM
 	 */
-	protected $object = null;
+	protected ?ORM $object = null;
 
 	/**
 	 * Current key
 	 *
 	 * @var mixed
 	 */
-	protected $id = null;
+	protected mixed $id = null;
 
 	/**
 	 * Create an object iterator
@@ -60,7 +60,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 * @param Database_Query_Select $query
 	 *        	Executed query to iterate
 	 */
-	public function __construct($class, Database_Query_Select_Base $query, array $options = []) {
+	public function __construct(string $class, Database_Query_Select_Base $query, array $options = []) {
 		parent::__construct($query);
 		$this->class = $class;
 		$options['initialize'] = true;
@@ -73,13 +73,20 @@ class ORMIterator extends Database_Result_Iterator {
 	 * @param string $member
 	 * @return \zesk\ORM_Iterator
 	 */
-	public function set_parent(ORM $parent, $member = null) {
+	public function set_parent(ORM $parent, string $member = "") : self {
+		$this->db->application->deprecated("set_parent");
+		return $this->setParent($parent, $member);
+	}
+
+	/**
+	 *
+	 * @param ORM $parent
+	 * @param string $member
+	 * @return \zesk\ORM_Iterator
+	 */
+	public function setParent(ORM $parent, string $member = ""): self {
 		$this->parent = $parent;
-		if ($member !== null) {
-			$this->parent_member = $member;
-		} else {
-			$this->parent_member = null;
-		}
+		$this->parent_member = $member;
 		return $this;
 	}
 
@@ -89,7 +96,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 * @see Database_Result_Iterator::current()
 	 * @return ORM
 	 */
-	public function current() {
+	public function current(): mixed {
 		return $this->object;
 	}
 
@@ -99,7 +106,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 * @see Database_Result_Iterator::key()
 	 * @return string
 	 */
-	public function key() {
+	public function key(): mixed {
 		return is_array($this->id) ? JSON::encode($this->id) : $this->id;
 	}
 
@@ -136,7 +143,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 * @see ORMIterators::next
 	 * @return ORM
 	 */
-	public function next() {
+	public function next(): void {
 		parent::next();
 		if ($this->_valid) {
 			$members = $this->_row;
@@ -158,7 +165,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 * @see Database_Result_Iterator::to_array()
 	 * @return ORM[]
 	 */
-	public function to_array($key = null) {
+	public function to_array($key = null): array {
 		$result = [];
 		if ($key === null) {
 			foreach ($this as $object) {
@@ -181,7 +188,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @return \zesk\ORM[]
 	 */
-	public function to_list() {
+	public function to_list(): array {
 		return $this->to_array(false);
 	}
 }

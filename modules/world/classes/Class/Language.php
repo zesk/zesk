@@ -7,7 +7,7 @@ namespace zesk;
  *
  */
 class Class_Language extends Class_ORM {
-	public $id_column = 'id';
+	public string $id_column = 'id';
 
 	public $name_column = 'name';
 
@@ -17,7 +17,7 @@ class Class_Language extends Class_ORM {
 		"code",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"code" => self::type_string,
 		"dialect" => self::type_string,
@@ -28,7 +28,7 @@ class Class_Language extends Class_ORM {
 	 * @todo Make country ID two-letter code
 	 * @var array
 	 */
-	// 	public $has_one = array()
+	// 	public array $has_one = array()
 	// 		'dialect' => 'Country'
 	// 	;
 }

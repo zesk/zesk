@@ -13,8 +13,8 @@ class Database_MySQL_SQL_Test extends Test_Unit {
 	}
 
 	public function test_function_date_add(): void {
-		$sqldatetime = null;
-		$hours = null;
+		$sqldatetime = "last_login";
+		$hours = 2;
 		$sql = $this->sql();
 		$sql->function_date_add($sqldatetime, $hours);
 	}
@@ -95,11 +95,13 @@ class Database_MySQL_SQL_Test extends Test_Unit {
 		echo basename(__FILE__) . ": success\n";
 	}
 
+	/**
+	 *
+	 */
 	public function test_quote_column(): void {
 		$sql = $this->sql();
-		$table = null;
-		$sql->quote_column($table);
-		echo basename(__FILE__) . ": success\n";
+		$name = "user_name";
+		$this->assertEquals("`user_name`", $sql->quote_column($name));
 	}
 
 	public function test_quote_text(): void {
@@ -215,10 +217,10 @@ class Database_MySQL_SQL_Test extends Test_Unit {
 	public function test_where_clause(): void {
 		$sql = $this->sql();
 
-		$arr = null;
+		$arr = [];
 		$conj = "AND";
 		$prefix_in = "";
-		$sql->where_clause($arr, $conj, $prefix_in);
+		$this->assertEquals("", $sql->where_clause($arr, $conj, $prefix_in));
 
 		$where = [
 			"Q.Site" => [

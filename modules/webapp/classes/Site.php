@@ -60,7 +60,7 @@ class Site extends ORM {
 	protected function last_priority() {
 		return $this->query_select()
 			->where("instance", $this->instance)
-			->what("*max", "MAX(priority)")
+			->addWhat("*max", "MAX(priority)")
 			->one_integer("max", -1);
 	}
 

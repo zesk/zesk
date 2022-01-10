@@ -67,6 +67,8 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 */
 	protected string $action_default = '';
 
+	protected ?string $method_default_action = "_default_action_object";
+
 	/**
 	 *
 	 * @var array
@@ -346,7 +348,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * {@inheritDoc}
 	 * @see \zesk\Controller_Template::after()
 	 */
-	public function after($result = null, $output = null): void {
+	public function after(string $result = null, string $output = null): void {
 		if ($this->request->prefer_json()) {
 			/**
 			 * @var $response Response
@@ -471,13 +473,12 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Controller::_action_default()
+	 * @throws Exception_NotFound|Exception_Authentication|Exception_Permission
 	 */
-	public function _action_default($action = null, $object = null, $options = []) {
-		$options = to_array($options);
+	public function _action_default_object(string $action = null, mixed $object = null): mixed {
 		$this->application->logger->debug("Controller_ORM::_action_default($action)");
 
 		try {
-			$request = $this->request;
 			$router = $this->router;
 			$route = $this->route;
 			$action = strval($action);
@@ -494,8 +495,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 					"action" => $action,
 					"actions" => $this->actions,
 				]);
-				$this->response->redirect($url);
-				return;
+				return $this->response->redirect($url);
 			}
 			$ajax = $this->request->getb("ajax");
 			if ($ajax) {
@@ -529,7 +529,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				}
 			} catch (Exception_Permission $e) {
 				if ($ajax) {
-					$this->json([
+					return $this->json([
 						"status" => false,
 						"message" => $e->getMessage(),
 					]);
@@ -537,7 +537,6 @@ abstract class Controller_ORM extends Controller_Authenticated {
 					throw $e;
 					//$this->error_404($e->getMessage());
 				}
-				return;
 			}
 			if (is_numeric($object)) {
 				$object = $this->controller_orm_factory($object);
@@ -576,5 +575,6 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				return $this->not_found_content . HTML::tag("div", ".error", $e->getMessage());
 			}
 		}
+		return null;
 	}
 }

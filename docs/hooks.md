@@ -86,7 +86,7 @@ Let's handle these each in order:
 
 You'll note that [`zesk\Hookable`](`hookable.md`) inherits from [`zesk\Options`](options.md) so it inherits the ability to set arbitrary options on any `Hookable` object. There's a special option called "hooks" which allows the user to define a hook to be called. You can then turn this on and off for a specific object if you wish:
 
-	$this->option_append("hooks", "delete", "project_deleted");
+	DEPRECATED TODO $this->option_append("hooks", "delete", "project_deleted");
 	
 Then the method `project_deleted` will be called with our object upon deletion.
 

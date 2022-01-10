@@ -58,7 +58,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 
 	/**
 	 *
-	 * @var unknown
+	 * @var string
 	 */
 	public const OPTION_GENERATOR_CLASS_DEFAULT = Generator_Apache::class;
 
@@ -66,13 +66,13 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 *
 	 * @var string
 	 */
-	private $app_root = null;
+	private string $_app_root = "";
 
 	/**
 	 *
-	 * @var Generator
+	 * @var ?Generator
 	 */
-	private $generator = null;
+	private ?Generator $generator = null;
 
 	/**
 	 *
@@ -109,7 +109,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 *
 	 * @return \zesk\Server
 	 */
-	public function server() {
+	public function server(): Server {
 		return Server::singleton($this->application);
 	}
 

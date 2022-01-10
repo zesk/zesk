@@ -10,7 +10,7 @@ class Class_Content_Link extends Class_ORM {
 		"Parent",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'Hash' => 'hex',
 		'FirstClick' => 'timestamp',
 		'LastClick' => 'timestamp',
@@ -18,7 +18,7 @@ class Class_Content_Link extends Class_ORM {
 		'Modified' => 'timestamp',
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		'Parent' => 'zesk\Content_Link',
 	];
 }

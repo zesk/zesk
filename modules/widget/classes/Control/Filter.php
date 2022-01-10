@@ -114,7 +114,7 @@ class Control_Filter extends Control {
 			if (!is_array($ignore)) {
 				$this->application->logger->warning('Child ignore values is not array: {class} {opts}', [
 					'class' => get_class($child),
-					'opts' => $child->option(),
+					'opts' => $child->options(),
 				]);
 			} elseif (!in_array($value, $ignore, true)) {
 				$child->default_value($value);

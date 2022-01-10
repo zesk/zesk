@@ -137,7 +137,7 @@ class Timestamp extends Temporal {
 			"configured",
 		]);
 		$kernel->configuration->deprecated('Timestamp', __CLASS__);
-		$kernel->hooks->alias("Timestamp::formatting", __CLASS__ . '::formatting');
+		$kernel->hooks->setAlias("Timestamp::formatting", __CLASS__ . '::formatting');
 		self::$kernel = $kernel;
 	}
 

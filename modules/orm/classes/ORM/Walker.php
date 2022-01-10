@@ -101,7 +101,7 @@ class Walker {
 	 */
 	protected $postprocess_hook = "walked";
 
-	public function variables() {
+	public function variables(): array {
 		return [
 			'include_members' => $this->include_members(),
 			'exclude_members' => $this->exclude_members(),

@@ -7,13 +7,13 @@ namespace zesk;
  *
  */
 class Class_Schedule extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 *
 	 * @var unknown
 	 */
-	public $has_one = [
+	public array $has_one = [
 		"account" => 'Account',
 	];
 
@@ -21,7 +21,7 @@ class Class_Schedule extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_types = [
+	public array $column_types = [
 		'id' => self::type_id,
 		'account' => self::type_object,
 		'frequency' => self::type_integer,

@@ -257,7 +257,7 @@ class ORM_Schema_File extends ORM_Schema {
 			$table_spec['engine'] = $table->type();
 			foreach ($table->columns() as $col) {
 				/* @var $col Database_Column */
-				$table_spec['columns'][$col->name()] = $col->option();
+				$table_spec['columns'][$col->name()] = $col->options();
 			}
 			foreach ($table->indexes() as $index) {
 				/* @var $index Database_Index */

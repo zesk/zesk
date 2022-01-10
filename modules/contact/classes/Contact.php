@@ -33,7 +33,7 @@ class Contact extends ORM {
 				"class" => get_class($class_object),
 			]);
 		}
-		return $query->what($id_column)->where($where)->one_integer($id_column);
+		return $query->addWhat($id_column)->where($where)->one_integer($id_column);
 	}
 
 	public function full_name($default = "") {
@@ -62,7 +62,7 @@ class Contact extends ORM {
 		return $default;
 	}
 
-	public function store() {
+	public function store(): self {
 		$is_new = $this->is_new();
 		if ($is_new) {
 			if ($this->member_is_empty('account')) {
@@ -75,40 +75,6 @@ class Contact extends ORM {
 		}
 		return parent::store();
 	}
-
-	public function find_linked_data($member, $value) {
-		return $this->has_many_query($member)
-			->where("value", $value)
-			->what("X.*")
-			->object();
-	}
-
-	public static function find_by_email($email) {
-		$contact_id = self::class_query('Contact_Email')->where('value', $email)->what('contact')->one('contact');
-		$contact = self::factory('contact', $contact_id);
-		if ($contact->fetch()) {
-			return $contact;
-		}
-		// TODO: Clean Contact_Email table
-		return null;
-	}
-
-	/**
-	 * Returns an array of contacts
-	 *
-	 * @param Contact_Tag $tag
-	 * @return unknown
-	 */
-	// 	public static function tag_status_query(Contact_Tag $tag) {
-	// 		$user_id = $tag->memberInteger("User");
-	// 		return self::class_query('Contact', 'Contact')->what('DISTINCT Contact.id,IF(Invite.Status IS NULL,\'uninvited\',Invite.status),Invite.senddate')
-	// 			->join("INNER JOIN Contact_Tag_Contact CTC ON CTC.Contact=Contact.ID")
-	// 			->join("INNER JOIN Contact_Tag Tag ON CTC.Contact_Tag=Tag.ID")
-	// 			->join("INNER JOIN User_Contact_Tag UCT ON UCT.Contact_Tag=Tag.ID")
-	// 			->join("LEFT OUTER JOIN Contact_Invite Invite ON Invite.Contact=Contact.ID AND Invite.User=$user_id")
-	// 			->where("UCT.User", $user_id)
-	// 			->where("Tag.ID", $tag);
-	// 	}
 
 	/**
 	 * Create a contact with just an email
@@ -163,28 +129,5 @@ class Contact extends ORM {
 			return true;
 		}
 		return false;
-	}
-
-	public function has_labels($labels) {
-		$objects = [
-			Contact_Address::class,
-			Contact_Date::class,
-			Contact_Email::class,
-			Contact_Other::class,
-			Contact_Person::class,
-			Contact_Phone::class,
-			Contact_URL::class,
-		];
-		$found_labels = [];
-		foreach ($objects as $object) {
-			$found_labels = array_merge($found_labels, self::class_query($object)->where("contact", $this->id())
-				->what("DISTINCT label")
-				->where("label", $labels)
-				->to_array("label", "Label"));
-		}
-		if (count($found_labels) === count($labels)) {
-			return true;
-		}
-		return array_diff($labels, array_values($found_labels));
 	}
 }

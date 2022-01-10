@@ -9,14 +9,14 @@ class Class_Contact_Label extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 * @todo Group does not have a class
 	 *
 	 * @var array
 	 */
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_integer,
 		"account" => self::type_object,
 		"group" => self::type_object,
@@ -36,7 +36,7 @@ class Class_Contact_Label extends Class_ORM {
 		"code",
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		"account" => "zesk\\Account",
 	];
 }

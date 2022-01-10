@@ -29,7 +29,7 @@ class Database_Query_Insert_Test extends Test_Unit {
 		$db = $this->application->database_registry();
 		$testx = new Database_Query_Insert($db);
 
-		$table = null;
+		$table = "TABLENAME";
 		$testx->into($table);
 
 		$name = null;
@@ -55,7 +55,7 @@ class Database_Query_Insert_Test extends Test_Unit {
 
 		$testx->database();
 
-		$class = null;
-		$testx->orm_class($class);
+		$class = Server::class;
+		$testx->setORMClass($class);
 	}
 }

@@ -1180,7 +1180,7 @@ class Net_HTTP_Client extends Hookable {
 		];
 	}
 
-	public function variables() {
+	public function variables(): array {
 		return $this->request_variables() + $this->response_variables();
 	}
 }

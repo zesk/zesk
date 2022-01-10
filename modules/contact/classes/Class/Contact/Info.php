@@ -15,5 +15,5 @@ abstract class Class_Contact_Info extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 }

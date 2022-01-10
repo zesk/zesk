@@ -37,7 +37,7 @@ class Contact_Address extends Contact_Info {
 	 * {@inheritDoc}
 	 * @see \zesk\Contact_Info::store()
 	 */
-	public function store() {
+	public function store(): self {
 		if ($this->changed("country;unparsed;street;additional;city;county;province;postal_code")) {
 			$this->geocoded = null;
 			$this->geocode_data = null;

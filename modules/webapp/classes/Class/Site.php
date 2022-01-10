@@ -24,7 +24,7 @@ class Class_Site extends Class_ORM {
 		'code',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"instance" => self::type_object,
 		"name" => self::type_string,
@@ -37,7 +37,7 @@ class Class_Site extends Class_ORM {
 		"valid" => self::type_boolean,
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		"instance" => Instance::class,
 	];
 }

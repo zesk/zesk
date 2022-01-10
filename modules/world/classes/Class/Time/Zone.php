@@ -6,13 +6,13 @@ class Class_Time_Zone extends Class_ORM {
 
 	public $database_name = "mysql";
 
-	public $id_column = "Time_zone_id";
+	public string $id_column = "Time_zone_id";
 
 	public $find_keys = [
 		"Name",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		"Name" => self::type_string,
 		"Time_zone_id" => self::type_string,
 	];

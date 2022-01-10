@@ -2,17 +2,17 @@
 namespace zesk;
 
 class Class_Help_User extends Class_ORM {
-	public $primary_keys = [
+	public array $primary_keys = [
 		'help',
 		'user',
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		'help' => 'zesk\\Help',
 		'user' => 'zesk\\User',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'help' => self::type_object,
 		'user' => self::type_object,
 		'dismissed' => self::type_created,

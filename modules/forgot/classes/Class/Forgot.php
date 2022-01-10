@@ -9,7 +9,7 @@ class Class_Forgot extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 *
@@ -23,7 +23,7 @@ class Class_Forgot extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"login" => self::type_string,
 		"user" => self::type_object,
@@ -37,7 +37,7 @@ class Class_Forgot extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $has_one = [
+	public array $has_one = [
 		"user" => User::class,
 		"session" => Session_ORM::class,
 	];
@@ -46,5 +46,5 @@ class Class_Forgot extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $database_group = User::class;
+	public string $database_group = User::class;
 }

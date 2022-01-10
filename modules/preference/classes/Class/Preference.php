@@ -9,14 +9,14 @@
 namespace zesk;
 
 class Class_Preference extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 * Column type definition for Object
 	 *
 	 * @var unknown
 	 */
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"user" => self::type_object,
 		"type" => self::type_object,
@@ -38,7 +38,7 @@ class Class_Preference extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $has_one = [
+	public array $has_one = [
 		'user' => "zesk\\User",
 		'type' => "zesk\\Preference_Type",
 	];

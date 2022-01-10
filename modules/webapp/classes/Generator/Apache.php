@@ -119,7 +119,7 @@ class Generator_Apache extends Generator {
 			"instance" => $this->instance,
 			"source" => $this->instance->path,
 			"webappbin" => $app->webapp_module()->binary(),
-		] + $site->members() + $data + $this->template_defaults() + $this->option());
+		] + $site->members() + $data + $this->template_defaults() + $this->options());
 		$filename = $this->instance->code . "-" . $site->code . ".conf";
 		$fullpath = path($this->vhost_path, $filename);
 		$this->changed += $this->replace_file($fullpath, $contents);

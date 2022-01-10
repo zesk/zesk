@@ -10,7 +10,7 @@ namespace zesk;
  *
  */
 class Controller_Login extends Controller_Theme {
-	public function _action_default($action = null) {
+	public function _action_default(?string $action = null): mixed {
 		return $this->action_login();
 	}
 

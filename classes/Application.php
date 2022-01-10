@@ -6,6 +6,7 @@
  * @author kent
  * @copyright Copyright &copy; 2018, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 use Psr\Cache\CacheItemPoolInterface;
@@ -311,7 +312,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @var string
 	 */
-	private string  $document_cache = "";
+	private string $document_cache = "";
 
 	/**
 	 * Top template
@@ -769,14 +770,13 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	private function configured_hooks(): void {
 		$hook_callback = $result_callback = null;
-		$this->hooks->call_arguments(Hooks::HOOK_DATABASE_CONFIGURE, [
-			$this,
-		], null, $hook_callback, $result_callback);
-		$this->hooks->call_arguments(Hooks::HOOK_CONFIGURED, [
-			$this,
-		], null, $hook_callback, $result_callback); // System level
-		$this->modules->all_hook_arguments(Hooks::HOOK_CONFIGURED, [], null, $hook_callback, $result_callback); // Modules
-		$this->call_hook_arguments(Hooks::HOOK_CONFIGURED, [], null, $hook_callback, $result_callback); // Application level
+		foreach ([Hooks::HOOK_DATABASE_CONFIGURE, Hooks::HOOK_CONFIGURED] as $hook) {
+			$this->hooks->call_arguments($hook, [
+				$this,
+			], null, $hook_callback, $result_callback);
+			$this->modules->all_hook_arguments($hook, [], null, $hook_callback, $result_callback); // Modules
+			$this->call_hook_arguments($hook, [], null, $hook_callback, $result_callback); // Application level
+		}
 	}
 
 	/**
@@ -867,12 +867,12 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		}
 		if ($set) {
 			$context = [
-				"time" => date('Y-m-d H:i:s'),
-			] + $this->call_hook_arguments("maintenance_context", [
-				[
-					"value" => $set,
-				],
-			], []);
+					"time" => date('Y-m-d H:i:s'),
+				] + $this->call_hook_arguments("maintenance_context", [
+					[
+						"value" => $set,
+					],
+				], []);
 			file_put_contents($this->maintenance_file(), JSON::encode($context));
 		} elseif (file_exists($maintenance_file)) {
 			unlink($maintenance_file);
@@ -901,8 +901,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 				];
 			}
 			$result = [
-				'enabled' => true,
-			] + $result;
+					'enabled' => true,
+				] + $result;
 		}
 		return $result;
 	}
@@ -920,9 +920,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
-	 * @deprecated 2017-12 use model_singleton
 	 * @param string $class
 	 * @return object
+	 * @deprecated 2017-12 use model_singleton
 	 */
 	final public function object_singleton($class) {
 		$this->deprecated();
@@ -1042,11 +1042,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 		try {
 			$response->content = $this->theme($this->classes->hierarchy($exception), [
-				"request" => $request,
-				"response" => $response,
-				"exception" => $exception,
-				"content" => $exception,
-			] + Exception::exception_variables($exception), [
+					"request" => $request,
+					"response" => $response,
+					"exception" => $exception,
+					"content" => $exception,
+				] + Exception::exception_variables($exception), [
 				"first" => true,
 			]);
 			if (!$exception instanceof Exception_Redirect) {
@@ -1114,8 +1114,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 *
 	 * @param Request $request
-	 * @throws Exception_NotFound
 	 * @return Route
+	 * @throws Exception_NotFound
 	 */
 	private function determine_route(Request $request) {
 		$router = $this->router();
@@ -1132,7 +1132,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		if (!$route) {
 			$this->call_hook("router_no_match", $request, $router);
 
-			throw new Exception_NotFound("The resource does not exist on this server: {url}", $request->url_variables());
+			throw new Exception_NotFound("The resource does not exist on this server: {url}", $request->url_variables(), Net_HTTP::STATUS_FILE_NOT_FOUND);
 		}
 		if ($this->option_bool("debug_route")) {
 			$this->logger->debug("Matched route {class} Pattern: \"{clean_pattern}\" {options}", $route->variables());
@@ -1259,9 +1259,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			"{page-render-time}" => sprintf("%.3f", microtime(true) - $this->kernel->initialization_time),
 		];
 		if (!$response || $response->is_content_type([
-			"text/",
-			"javascript",
-		])) {
+				"text/",
+				"javascript",
+			])) {
 			$response->content = strtr($response->content, $final_map);
 		}
 		$response->output($options);
@@ -1273,7 +1273,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @return Router
 	 */
-	public function variables() {
+	public function variables(): array {
 		$parameters['application'] = $this;
 		$parameters['router'] = $this->router;
 		// Do not include "request" in here as it may be NULL and it should NOT override subclass values
@@ -1285,10 +1285,10 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * (first in the list).
 	 *
 	 * @param string $add
-	 *        	(Optional) Path to add to the theme path. Pass in null to do nothing.
+	 *            (Optional) Path to add to the theme path. Pass in null to do nothing.
 	 * @param string $prefix
-	 *        	(Optional) Handle theme requests which begin with this prefix. Saves having deep
-	 *        	directories.
+	 *            (Optional) Handle theme requests which begin with this prefix. Saves having deep
+	 *            directories.
 	 * @return array The ordered list of paths to search for theme files as prefix => search list.
 	 */
 	final public function theme_path($add = null, $prefix = null) {
@@ -1322,7 +1322,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @param string $file
 	 * @param boolean $first
-	 * @return string|string[]
+	 * @return mixed
 	 */
 	final public function theme_find($theme, array $options = []) {
 		$extension = to_bool($options["no_extension"] ?? false) ? "" : $this->option("theme_extension", ".tpl");
@@ -1443,7 +1443,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Add or retrieve the data path for this application
 	 *
 	 * @param string $add
-	 *        	Value to set
+	 *            Value to set
 	 * @return string Current data_path value
 	 */
 	final public function data_path($suffix = null) {
@@ -1463,13 +1463,13 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * does not exist has no effect.
 	 *
 	 * @param mixed $add
-	 *        	A path or array of paths => prefixes to add. (Optional)
+	 *            A path or array of paths => prefixes to add. (Optional)
 	 * @param string $prefix
-	 *        	The class prefix to add to found files in this directory (defaults to
-	 *        	"zesk\Command_")
-	 * @global boolean debug.zesk_command_path Whether to log errors occurring during this call
+	 *            The class prefix to add to found files in this directory (defaults to
+	 *            "zesk\Command_")
 	 * @return array
 	 * @throws Exception_Directory_NotFound
+	 * @global boolean debug.zesk_command_path Whether to log errors occurring during this call
 	 */
 	final public function zesk_command_path($add = null, $prefix = null) {
 		if ($add !== null) {
@@ -1546,7 +1546,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$arguments['locale'] = $this->locale;
 
 		$types = to_list($types);
-		$extension = ($options[ "no_extension"] ?? false) ? null : ".tpl";
+		$extension = ($options["no_extension"] ?? false) ? null : ".tpl";
 		if (count($types) === 1) {
 			$result = $this->_theme_arguments($types[0], $arguments, null, $extension);
 			if ($result === null) {
@@ -1616,7 +1616,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param string $type
 	 * @param array $args
 	 * @param string $content
-	 *        	Default content
+	 *            Default content
 	 * @return string
 	 */
 	private function _theme_arguments($type, array $args, $content = null, $extension = ".tpl") {
@@ -1637,7 +1637,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Does one or more themes exist?
 	 *
 	 * @param mixed $types
-	 *        	List of themes
+	 *            List of themes
 	 * @return boolean If all exist, returns true, otherwise false
 	 */
 	final public function theme_exists($types, array $args = [], array $options = []) {
@@ -1723,7 +1723,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Return the application root path.
 	 *
 	 * @param string $suffix
-	 *        	Optional path to add to the application path
+	 *            Optional path to add to the application path
 	 * @return string
 	 */
 	final public function application_class() {
@@ -1744,7 +1744,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Return the zesk home path, usually used to load built-in themes directly.
 	 *
 	 * @param string $suffix
-	 *        	Optional path to add to the application path
+	 *            Optional path to add to the application path
 	 * @return string
 	 */
 	final public function zesk_home($suffix = null) {
@@ -1754,8 +1754,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Get the cache path for the application
 	 *
-	 * @return string
 	 * @param unknown $add
+	 * @return string
 	 */
 	final public function cache_path($suffix = null) {
 		return path($this->cache_path, $suffix);
@@ -1775,9 +1775,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * Currently things which use this are: TODO
 	 *
+	 * @param string $document_root_prefix
 	 * @throws Exception_Directory_NotFound
 	 *
-	 * @param string $document_root_prefix
 	 */
 	private function _init_document_root(): void {
 		$http_document_root = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/');
@@ -1816,9 +1816,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * a portion of the URL which is always prefixed to any generated url.
 	 *
 	 * @param string $set
-	 *        	Optionally set the web root
-	 * @throws Exception_Directory_NotFound
+	 *            Optionally set the web root
 	 * @return self
+	 * @throws Exception_Directory_NotFound
 	 */
 	final public function set_document_root($set, $prefix = null) {
 		if (!is_dir($set)) {
@@ -1840,9 +1840,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * prefixed to any generated url.
 	 *
 	 * @param string $set
-	 *        	Optionally set the web root
-	 * @throws Exception_Directory_NotFound
+	 *            Optionally set the web root
 	 * @return string The directory
+	 * @throws Exception_Directory_NotFound
 	 * @todo should this be urlescpaed by web_root_prefix function to avoid & and + to be set?
 	 */
 	final public function document_root_prefix($set = null) {
@@ -1861,7 +1861,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Default document cache path is $this->document_root("cache")
 	 *
 	 * @param string $set
-	 *        	Set the document cache
+	 *            Set the document cache
 	 * @return string
 	 */
 	final public function document_cache($suffix = null) {
@@ -1888,7 +1888,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Return the development status of this application
 	 *
 	 * @param boolean $set
-	 *        	Optionally set value
+	 *            Optionally set value
 	 * @return boolean
 	 */
 	public function development($set = null) {
@@ -1914,12 +1914,13 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @param string $class
 	 * @param array $options
-	 * @return Model
+	 * @return ?Model
 	 */
-	public function member_model_factory($member, $class, $mixed = null, array $options = []) {
+	public function member_model_factory(string $member, string $class, mixed $mixed = null, array $options = []):
+	?Model {
 		return Model::factory($this, $class, $mixed, [
-			"_member" => $member,
-		] + $options);
+				"_member" => $member,
+			] + $options);
 	}
 
 	/**
@@ -1928,7 +1929,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param string $class
 	 * @return object
 	 */
-	public function factory($class) {
+	public function factory(string $class): object {
 		$arguments = func_get_args();
 		$class = array_shift($arguments);
 		return $this->objects->factory_arguments($class, $arguments);
@@ -1940,7 +1941,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * a function, for example.
 	 *
 	 * @param string $__file__
-	 *        	File to include
+	 *            File to include
 	 * @return mixed Whatever is returned by the include file
 	 */
 	public function load($__file__) {
@@ -1961,7 +1962,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 *
 	 * @param boolean $require
-	 *        	Throw exception if no session found
+	 *            Throw exception if no session found
 	 * @param Request $request
 	 * @param bool $require
 	 * @return Interface_Session|null
@@ -2085,7 +2086,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Support foo_factory and foo_registry calls
 	 *
 	 * @param string $name
-	 *        	Method called
+	 *            Method called
 	 * @return \object
 	 */
 	final public function __call($name, array $args) {
@@ -2107,8 +2108,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
-	 * @deprecated 2017-12
 	 * @param mixed $add
+	 * @deprecated 2017-12
 	 * @see orm_classes
 	 */
 	final public function classes($add = null) {
@@ -2119,11 +2120,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Create an ORM
 	 *
-	 * @deprecated 2017-12 Blame PHP 7.2
 	 * @param string $class
 	 * @param array $options
-	 * @todo Pass application as part of creation call
 	 * @return ORM
+	 * @todo Pass application as part of creation call
+	 * @deprecated 2017-12 Blame PHP 7.2
 	 */
 	public function object_factory($class, $mixed = null, array $options = []) {
 		$this->deprecated();
@@ -2134,8 +2135,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * Access a class_object
 	 *
-	 * @deprecated 2017-12 use $this->class_orm_registry($class)
 	 * @return Class_ORM
+	 * @deprecated 2017-12 use $this->class_orm_registry($class)
 	 */
 	public function class_object($class) {
 		$this->deprecated();
@@ -2145,9 +2146,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Retrieve the database for a specific object class
 	 *
-	 * @deprecated 2017-12
 	 * @param string $class
 	 * @return \zesk\Database
+	 * @deprecated 2017-12
 	 */
 	final public function class_object_database($class) {
 		$this->deprecated();
@@ -2158,7 +2159,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Return the application root path.
 	 *
 	 * @param string $suffix
-	 *        	Optional path to add to the application path
+	 *            Optional path to add to the application path
 	 * @return string
 	 * @deprecated 2017-10
 	 * @see self::path()
@@ -2171,12 +2172,12 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Retrieve object or classes from cache
 	 *
-	 * @deprecated immediately
 	 * @param string $class
 	 * @param string $component
-	 *        	Optional component to retrieve
-	 * @throws Exception_Semantics
+	 *            Optional component to retrieve
 	 * @return Ambigous <mixed, array>
+	 * @throws Exception_Semantics
+	 * @deprecated immediately
 	 */
 	public function _class_cache($class, $component = "") {
 		$this->kernel->obsolete();
@@ -2185,9 +2186,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Access an ORM by class name
 	 *
+	 * @return ORM
 	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options) instead.
 	 *
-	 * @return ORM
 	 */
 	final public function object($class, $mixed = null, $options = null) {
 		$this->deprecated();
@@ -2197,11 +2198,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Determine object table name based on class and optional initialization parameters
 	 *
-	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options)->table() instead.
 	 * @param string $class
 	 * @param mixed $mixed
 	 * @param array $options
 	 * @return string|\zesk\Ambigous
+	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options)->table() instead.
 	 */
 	final public function object_table_name($class, $mixed = null, $options = null) {
 		$this->deprecated();
@@ -2211,11 +2212,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Determine object table columns based on class and optional initialization parameters
 	 *
-	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options)->columns() instead.
 	 * @param string $class
 	 * @param mixed $mixed
 	 * @param array $options
 	 * @return string|\zesk\Ambigous
+	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options)->columns() instead.
 	 */
 	final public function object_table_columns($class, $mixed = null, $options = null) {
 		$this->deprecated();
@@ -2225,11 +2226,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Determine object database based on class and optional initialization parameters
 	 *
-	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options)->database() instead.
 	 * @param string $class
 	 * @param mixed $mixed
 	 * @param array $options
 	 * @return \zesk\Database
+	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options)->database() instead.
 	 */
 	final public function object_database($class, $mixed = null, $options = null) {
 		$this->deprecated();
@@ -2238,8 +2239,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
-	 * @deprecated 2017-12 Use ->orm_registry($class)->query_select($alias) instead.
 	 * @return Database_Query_Select
+	 * @deprecated 2017-12 Use ->orm_registry($class)->query_select($alias) instead.
 	 */
 	public function query_select($class, $alias = null) {
 		$this->deprecated();
@@ -2248,8 +2249,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
-	 * @deprecated 2017-12 Use ->orm_registry($class)->query_update($alias) instead.
 	 * @return Database_Query_Update
+	 * @deprecated 2017-12 Use ->orm_registry($class)->query_update($alias) instead.
 	 */
 	public function query_update($class, $alias = null) {
 		$this->deprecated();
@@ -2258,9 +2259,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
+	 * @return Database_Query_Insert
 	 * @deprecated 2017-12 Use ->orm_registry($class)->query_insert() instead.
 	 *
-	 * @return Database_Query_Insert
 	 */
 	public function query_insert($class) {
 		$this->deprecated();
@@ -2269,8 +2270,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
-	 * @deprecated 2017-12 Use ->orm_registry($class)->query_insert_select($alias) instead.
 	 * @return Database_Query_Insert
+	 * @deprecated 2017-12 Use ->orm_registry($class)->query_insert_select($alias) instead.
 	 */
 	public function query_insert_select($class, $alias = null) {
 		$this->deprecated();
@@ -2279,8 +2280,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
-	 * @deprecated 2017-12 Use ->orm_registry($class)->query_delete() instead.
 	 * @return Database_Query_Delete
+	 * @deprecated 2017-12 Use ->orm_registry($class)->query_delete() instead.
 	 */
 	public function query_delete($class) {
 		$this->deprecated();
@@ -2290,8 +2291,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Access a Class_ORM
 	 *
-	 * @deprecated 2017-12 use class_orm_registry
 	 * @return Class_ORM
+	 * @deprecated 2017-12 use class_orm_registry
 	 */
 	public function class_orm($class) {
 		$this->deprecated();
@@ -2301,9 +2302,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Retrieve the database for a specific object class
 	 *
-	 * @deprecated 2017-12 use orm_regsitry($class)->database()
 	 * @param string $class
 	 * @return \zesk\Database
+	 * @deprecated 2017-12 use orm_regsitry($class)->database()
 	 */
 	final public function class_orm_database($class) {
 		$this->deprecated();
@@ -2312,9 +2313,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
-	 * @deprecated 2017-12 use $this->orm_registry()->clear_cache();
 	 * @param unknown $class
 	 * @throws Exception_Parameter
+	 * @deprecated 2017-12 use $this->orm_registry()->clear_cache();
 	 */
 	public function clear_class_cache($class = null) {
 		$this->deprecated();
@@ -2323,9 +2324,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
-	 * @deprecated 2017-12
-	 * @see Module_ORM
 	 * @param unknown $add
+	 * @see Module_ORM
+	 * @deprecated 2017-12
 	 */
 	final public function orm_classes($add = null) {
 		$this->deprecated();
@@ -2335,11 +2336,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Retrieve all classes with additional fields
 	 *
-	 * @todo move ORM related to hooks
+	 * @return array
 	 * @deprecated 2017-12
 	 * @see Module_ORM
 	 *
-	 * @return array
+	 * @todo move ORM related to hooks
 	 */
 	final public function all_classes() {
 		$this->deprecated();
@@ -2350,9 +2351,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Synchronzie the schema.
 	 * TODO move this elsewhere
 	 *
-	 * @deprecated 2017-12
-	 * @see Module_ORM::schema_synchronize
 	 * @return multitype:
+	 * @see Module_ORM::schema_synchronize
+	 * @deprecated 2017-12
 	 */
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = []) {
 		$this->deprecated();
@@ -2362,8 +2363,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Default include path
 	 *
-	 * @deprecated 2018-01
 	 * @return array
+	 * @deprecated 2018-01
 	 */
 	private function default_include_path() {
 		$list = array_unique([
@@ -2377,10 +2378,10 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Return the zesk root path.
 	 *
-	 * @deprecated 2018-01 Use self::zesk_home
 	 * @param string $suffix
-	 *        	Optional path to add to the application path
+	 *            Optional path to add to the application path
 	 * @return string
+	 * @deprecated 2018-01 Use self::zesk_home
 	 */
 	final public function zesk_root($suffix = null) {
 		zesk()->deprecated();
@@ -2389,9 +2390,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
-	 * @deprecated 2017-12
 	 * @param string $uri
 	 * @return string
+	 * @deprecated 2017-12
 	 */
 	public function url($uri) {
 		$this->deprecated();

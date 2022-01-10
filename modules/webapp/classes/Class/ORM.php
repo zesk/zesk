@@ -12,7 +12,7 @@ abstract class Class_ORM extends \zesk\Class_ORM {
 	 *
 	 * @var unknown
 	 */
-	public $database_group = Instance::class;
+	public string $database_group = Instance::class;
 
 	/**
 	 * Configure a class prior to instantiation

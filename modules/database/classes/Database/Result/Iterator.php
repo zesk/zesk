@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -17,92 +19,91 @@ class Database_Result_Iterator implements \Iterator {
 	 *
 	 * @var Database_Query_Select_Base
 	 */
-	public $query;
+	public Database_Query_Select_Base $query;
 
 	/**
 	 * Current database result
 	 *
 	 * @var resource
 	 */
-	private $resource;
+	private mixed $resource;
 
 	/**
 	 * Valid state
 	 *
 	 * @var boolean
 	 */
-	protected $_valid;
+	protected bool $_valid;
 
 	/**
 	 * Current row
 	 *
 	 * @var array
 	 */
-	protected $_row;
+	protected array $_row = [];
 
 	/**
 	 * Current key
 	 *
 	 * @var integer
 	 */
-	protected $_row_index;
+	protected int $_row_index = 0;
 
 	/**
 	 * Query is unbuffered or not
 	 *
 	 * @var boolean
 	 */
-	protected $unbuffered = false;
+	protected bool $unbuffered = false;
 
 	/**
 	 * The value used for the key from each row
 	 *
 	 * @var mixed
 	 */
-	protected $_key;
+	protected string $_key;
 
 	/**
 	 * The value used for the value from each row
 	 *
 	 * @var mixed
 	 */
-	protected $_value;
+	protected mixed $_value;
 
 	/**
 	 * Debugging on or off
 	 *
 	 * @var boolean
 	 */
-	protected $_debug;
+	protected bool $_debug;
 
 	/**
 	 * Database
 	 *
 	 * @var Database
 	 */
-	protected $db = null;
+	protected Database $db;
 
 	/**
 	 * Create an row iterator
 	 *
 	 * @param string $class
-	 *        	Class to iterate over
+	 *            Class to iterate over
 	 * @param Database_Query_Select $query
-	 *        	Executed query to iterate
+	 *            Executed query to iterate
 	 */
-	public function __construct(Database_Query_Select_Base $query, $key = null, $value = null) {
+	public function __construct(Database_Query_Select_Base $query, string $key = "", string $value = "") {
 		$this->query = $query;
+		$this->db = $query->database();
 		$this->resource = null;
 		$this->_valid = false;
 		$this->_row_index = 0;
-		$this->_row = null;
-		$this->_value = null;
-		$this->_key = null;
+		$this->_row = [];
+		$this->_key = $key;
+		$this->_value = $value;
 		$this->_loaded = false;
 		$this->_debug = false;
-		if ($key !== null || $value !== null) {
-			$this->set_key_value($key, $value);
-		}
+		$this->set_key_value($key, $value);
 	}
 
 	/**
@@ -119,12 +120,12 @@ class Database_Result_Iterator implements \Iterator {
 	/**
 	 *
 	 * @param string $key
-	 *        	Key to use
+	 *            Key to use
 	 * @param string $value
-	 *        	Value to use
+	 *            Value to use
 	 * @return Database_Result_Iterator
 	 */
-	public function set_key_value($key = null, $value = null) {
+	public function set_key_value(string $key = "", string $value = ""): self {
 		$this->_key = $key;
 		$this->_value = $value;
 		return $this;
@@ -136,11 +137,17 @@ class Database_Result_Iterator implements \Iterator {
 	 * @param boolean $set
 	 * @return Database_Result_Iterator boolean
 	 */
-	public function unbuffered($set = null) {
-		if ($set !== null) {
-			$this->unbuffered = $set;
-			return $this;
-		}
+	public function setUnbuffered(bool $set) {
+		$this->unbuffered = $set;
+		return $this;
+	}
+
+	/**
+	 * Set or get the unbuffered query status
+	 *
+	 * @return bool
+	 */
+	public function unbuffered(): bool {
 		return $this->unbuffered;
 	}
 
@@ -148,7 +155,7 @@ class Database_Result_Iterator implements \Iterator {
 	 *
 	 * @return Database_Query_Select
 	 */
-	public function query() {
+	public function query(): Database_Query_Select {
 		return $this->query;
 	}
 
@@ -157,15 +164,13 @@ class Database_Result_Iterator implements \Iterator {
 	 *
 	 * @see Iterator::current()
 	 */
-	public function current() {
-		if ($this->_row === null) {
+	public function current(): mixed {
+		if (!$this->valid) {
 			return null;
 		}
 		if ($this->_value) {
 			if (!array_key_exists($this->_value, $this->_row)) {
-				throw new Exception_Semantics(__("Query result does not contain value \"{value}\"", [
-					"value" => $this->_value,
-				]));
+				throw new Exception_Semantics(__("Query result does not contain value \"{value}\"", ["value" => $this->_value, ]));
 			}
 			return $this->_row[$this->_value];
 		}
@@ -177,12 +182,10 @@ class Database_Result_Iterator implements \Iterator {
 	 *
 	 * @see Iterator::key()
 	 */
-	public function key() {
+	public function key(): mixed {
 		if ($this->_key) {
 			if (!array_key_exists($this->_key, $this->_row)) {
-				throw new Exception_Semantics(__("Query result does not contain key {key}", [
-					"key" => $this->_key,
-				]));
+				throw new Exception_Semantics(__("Query result does not contain key {key}", ["key" => $this->_key, ]));
 			}
 			return $this->_row[$this->_key];
 		}
@@ -193,8 +196,19 @@ class Database_Result_Iterator implements \Iterator {
 	 * Load the next row, called from subclasses during next
 	 *
 	 * @return void
+	 * @deprecated 2022-01
 	 */
 	protected function dbnext(): void {
+		$this->db->application->deprecated("dbnext()");
+		$this->database_next();
+	}
+
+	/**
+	 * Load the next row, called from subclasses during next
+	 *
+	 * @return void
+	 */
+	protected function database_next(): void {
 		$row = $this->db->fetch_assoc($this->resource);
 		if (is_array($row)) {
 			$this->_row_index = $this->_row_index + 1;
@@ -202,7 +216,7 @@ class Database_Result_Iterator implements \Iterator {
 			$this->_row = $row;
 		} else {
 			$this->_valid = false;
-			$this->_row = null;
+			$this->_row = [];
 		}
 	}
 
@@ -211,8 +225,8 @@ class Database_Result_Iterator implements \Iterator {
 	 *
 	 * @see Iterator::next()
 	 */
-	public function next() {
-		return $this->dbnext();
+	public function next(): void {
+		$this->database_next();
 	}
 
 	/**
@@ -232,9 +246,18 @@ class Database_Result_Iterator implements \Iterator {
 	 *
 	 * @see Iterator::valid()
 	 */
-	public function valid() {
+	public function valid(): bool {
 		$this->_load();
 		return $this->_valid;
+	}
+
+	/**
+	 * Set/get debug state
+	 *
+	 * @return bool
+	 */
+	public function debug(): bool {
+		return $this->_debug;
 	}
 
 	/**
@@ -243,12 +266,9 @@ class Database_Result_Iterator implements \Iterator {
 	 * @param boolean|null $set
 	 * @return boolean
 	 */
-	public function debug($set = null) {
-		if ($set !== null) {
-			$this->_debug = to_bool($set);
-			return $this;
-		}
-		return $this->_debug;
+	public function setDebug(bool $set): self {
+		$this->_debug = $set;
+		return $this;
 	}
 
 	/**
@@ -256,7 +276,7 @@ class Database_Result_Iterator implements \Iterator {
 	 *
 	 * @return array
 	 */
-	public function to_array() {
+	public function to_array(): array {
 		$result = [];
 		foreach ($this as $k => $v) {
 			$result[$k] = $v;
@@ -275,13 +295,7 @@ class Database_Result_Iterator implements \Iterator {
 		}
 		$query = $this->query->__toString();
 		if ($this->_debug) {
-			echo "Debug: $query\n";
-		}
-		$this->db = $this->query->database();
-		if (!$this->db) {
-			throw new Exception_Semantics("No database connection to {name}", [
-				"name" => $this->db->code_name(),
-			]);
+			$this->db->application->logger->debug("{class}: {query}", ['class' => get_class($this), "query" => $query]);
 		}
 		$this->resource = $this->unbuffered ? $this->db->query_unbuffered($query) : $this->db->query($query);
 		$this->_row_index = -1;

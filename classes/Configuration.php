@@ -279,7 +279,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return mixed
 	 * @throws Exception_Lock
 	 */
-	public function path_get($path, $default = null) {
+	public function path_get(string|array $path, mixed $default = null): mixed {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$current = $this;
 		$key = array_pop($path);
@@ -296,10 +296,10 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	/**
 	 * Does a path exist?
 	 *
-	 * @param string $path
+	 * @param string|array $path
 	 * @return boolean
 	 */
-	public function path_exists($path) {
+	public function path_exists(string|array $path) {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$current = $this;
 		$key = array_pop($path);
@@ -330,7 +330,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return Configuration parent node of final value set
 	 * @throws Exception_Lock
 	 */
-	public function path_set($path, $value = null) {
+	public function path_set(string|array $path, $value = null) {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$key = array_pop($path);
 		if (count($path) > 0) {
@@ -349,7 +349,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return self
 	 * @throws Exception_Lock
 	 */
-	public function path($keys) {
+	public function path(string|array $keys) {
 		$keys = is_array($keys) ? $keys : explode(self::key_separator, $keys);
 		$current = $this;
 		while (count($keys) > 0) {
@@ -370,7 +370,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function walk($keys, $default = null) {
+	public function walk(string|array $keys, $default = null) {
 		$keys = is_array($keys) ? $keys : explode(self::key_separator, $keys);
 		$current = $this;
 		while (count($keys) > 0) {
@@ -393,7 +393,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	/**
 	 * Retrieve value
 	 */
-	public function value() {
+	public function value(): array {
 		return $this->_data;
 	}
 

@@ -21,56 +21,46 @@ use stdClass;
 class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * Method to use as default action in this Controller.
-	 * Must be a valid method name.
-	 *
-	 * @var string
+	 * Must be a valid method name. If not specified, can be overridden by calling Route.
 	 */
-	protected $method_default_action = null;
+	protected ?string $method_default_action = null;
 
 	/**
-	 * Method to use as default action in this Controller.
-	 * Must be a valid method name.
+	 * Method to use as default action argument collector in this Controller.
+	 * Must be a valid method name. Method itself returns an array (arguments)
+	 * to be passed to the above function.
 	 *
-	 * @var string
+	 * If not specified, can be overridden by calling Route.
 	 */
-	protected $method_default_arguments = null;
+	protected ?string $method_default_arguments = null;
 
 	/**
 	 * Default content type for Response generated upon instantiation.
 	 *
 	 * Can be overridden by setting global "default_content_type" option for this class
-	 *
-	 * @var string
 	 */
-	protected $default_content_type = null;
+	protected ?string $default_content_type = null;
 
 	/**
 	 * Request associated with this controller
-	 *
-	 * @var Request
 	 */
-	public $request = null;
+	public ?Request $request = null;
 
 	/**
 	 * Response associated with this controller
-	 *
-	 * @var Response
 	 */
-	public $response = null;
+	public ?Response $response = null;
 
 	/**
 	 * Router associated with this controller
-	 *
-	 * @var Router
 	 */
-	public $router = null;
+	public ?Router $router = null;
 
 	/**
 	 * Route which brought us here
 	 *
-	 * @var Route
 	 */
-	public $route = null;
+	public ?Route $route = null;
 
 	/**
 	 * Controller constructor.
@@ -175,7 +165,7 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * @param string $action
 	 */
-	public function _action_default($action = null): void {
+	public function _action_default(string $action = null): mixed {
 		$this->error_404($action ? "Action $action" : "default action");
 	}
 
@@ -184,13 +174,14 @@ class Controller extends Hookable implements Interface_Theme {
 	 *
 	 * @return void
 	 */
-	public function after(): void {
+	public function after(string $result = null, string $output = null): void {
+		// pass
 	}
 
 	/**
 	 * Returns an array of name/value pairs for a template
 	 */
-	public function variables() {
+	public function variables(): array {
 		return [
 			'application' => $this->application,
 			'controller' => $this,

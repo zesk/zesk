@@ -21,16 +21,15 @@ class Database_Query_Select_Test extends Test_Unit {
 		$db = $this->application->database_registry();
 		$testx = new Database_Query_Select($db);
 
-		$db = null;
-		$mixed = null;
-		$value = null;
-		$testx->what($mixed, $value);
+		$testx->setWhatString("*");
+		$testx->addWhat("X", "COUNT(ID)");
+		$testx->addWhat("Y", "SUM(Total)");
 
 		$alias = '';
 		$testx->from($table_name, $alias);
 
-		$sql = null;
-		$join_id = null;
+		$sql = 'INNER JOIN Person P ON P.ID=U.Person';
+		$join_id = "person";
 		$testx->join($sql, $join_id);
 
 		$k = null;
@@ -40,8 +39,7 @@ class Database_Query_Select_Test extends Test_Unit {
 		$order_by = null;
 		$testx->order_by($order_by);
 
-		$group_by = null;
-		$testx->group_by($group_by);
+		$testx->groupBy(["X"]);
 
 		$offset = 0;
 		$limit = null;
@@ -54,34 +52,31 @@ class Database_Query_Select_Test extends Test_Unit {
 		$class = null;
 		$testx->orm_iterator($class);
 
-		$field = false;
-		$default = false;
+		$field = "id";
+		$default = null;
 		$testx->one($field, $default);
 
-		$testx->object("User");
+		$testx->orm("User");
 
-		$field = null;
+		$field = "field2";
 		$default = 0;
 		$testx->one_integer($field, $default);
 
-		$field = null;
+		$field = "field1";
 		$default = 0;
 		$testx->integer($field, $default);
 
-		$key = false;
-		$value = false;
-		$default = false;
-		$testx->to_array($key, $value, $default);
+		$testx->to_array();
 
 		$testx->database();
 
-		$class = null;
-		$testx->orm_class($class);
+		$class = Server::class;
+		$testx->setORMClass($class);
 
 		$db = $this->application->database_registry();
 		$x = new Database_Query_Select($db);
 		$x->from($table_name);
-		$x->what(null, "ID");
+		$x->setWhatString("ID");
 		$x->where("ID", [
 			1,
 			2,
@@ -97,9 +92,7 @@ class Database_Query_Select_Test extends Test_Unit {
 		$this->assert_equal($result, $valid_result);
 
 		$x = new Database_Query_Select($db);
-		$x->from($table_name);
-		$x->what(null, "ID");
-		$x->where("ID|!=|AND", [
+		$x->from($table_name)->setWhatString("ID")->where("ID|!=|AND", [
 			1,
 			2,
 			3,
@@ -115,8 +108,7 @@ class Database_Query_Select_Test extends Test_Unit {
 		$this->assert($result === "$valid_result", "\"$result\" === \"$valid_result\"");
 
 		$x = new Database_Query_Select($db);
-		$x->from($table_name);
-		$x->what(null, "ID");
+		$x->from($table_name)->setWhatString("ID");
 		$x->where("*SUM(Total)|!=|AND", [
 			1,
 			2,

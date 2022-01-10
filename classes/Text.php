@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
@@ -126,13 +127,13 @@ class Text {
 	 * @see self::lalign
 	 * @see self::fill
 	 */
-	private static function _align_helper($text, $n, $pad, &$fill, $_trim = false) {
+	private static function _align_helper(string $text, int $n, string $pad, string &$fill, bool $_trim = false): string {
 		$fill = "";
 		if ($n <= 0) {
 			return $text;
 		}
 		$tlen = strlen($text);
-		if ($tlen > $n) {
+		if ($tlen >= $n) {
 			if ($_trim) {
 				return substr($text, 0, $n);
 			}
@@ -220,7 +221,7 @@ class Text {
 	public static function fill_pattern($pattern, $char_length) {
 		$pattern_length = strlen($pattern);
 		if ($pattern_length < $char_length) {
-			$pattern = str_repeat($pattern, round($char_length / $pattern_length));
+			$pattern = str_repeat($pattern, intval(round($char_length / $pattern_length)));
 		}
 		return substr($pattern, 0, $char_length);
 	}
@@ -235,16 +236,23 @@ class Text {
 	 * @param string $br End of line character
 	 * @return string
 	 */
-	public static function format_pairs(array $map, string $prefix = "", string $space = " ", string $suffix = ": ", string $br = "\n") {
+	public static function format_pairs(array $map, string $prefix = "", string $space = " ", string $suffix = ": ", string $br = "\n"): string {
 		$n = intval(array_reduce(array_keys($map), fn ($k, $n) => max(strlen(strval($k)), $n), 0));
 		$r = [];
 		foreach ($map as $k => $v) {
+			$k = strval($k);
 			$r[] = $prefix . $k . self::fill_pattern($space, $n - strlen($k)) . $suffix . JSON::encode_pretty($v);
 		}
 		return implode($br, $r) . $br;
 	}
 
-	public static function trim_words_length($string, $length, $delimiter = " ") {
+	/**
+	 * @param $string
+	 * @param $length
+	 * @param $delimiter
+	 * @return string
+	 */
+	public static function trim_words_length(string $string, $length, $delimiter = " "): string {
 		$string = to_list($string, [], $delimiter);
 		$delim_len = strlen($delimiter);
 		$remain = $length;
@@ -519,10 +527,7 @@ class Text {
 						$name .= "-$uindex";
 						$uindex = $uindex + 1;
 					}
-					$headers[$name] = [
-						$start,
-						$length,
-					];
+					$headers[$name] = [$start, $length, ];
 				}
 				$was_space = $space;
 			}

@@ -18,7 +18,7 @@ class Module_jQueryUI extends zesk\Module_JSLib {
 		if ($this->has_option("extras")) {
 			$this->application->logger->warning("Configuration setting Module_jQueryUI::extras is deprecated");
 		}
-		$this->css_paths = map($this->css_paths, $this->option() + [
+		$this->css_paths = map($this->css_paths, $this->options() + [
 			"theme" => "base",
 		]);
 	}

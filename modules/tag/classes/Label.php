@@ -107,7 +107,7 @@ class Label extends \zesk\ORM {
 	 * {@inheritDoc}
 	 * @see \zesk\ORM::store()
 	 */
-	public function store() {
+	public function store(): self {
 		if (empty($this->code)) {
 			$this->code = $this->generate_code();
 		}

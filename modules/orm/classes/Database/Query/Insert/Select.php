@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage database
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -18,33 +20,32 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	 *
 	 * @var boolean
 	 */
-	protected $low_priority = false;
+	protected bool $low_priority = false;
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $into = null;
+	private string $into = "";
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $what = [];
+	protected array $what = [];
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $verb = "INSERT";
+	protected string $verb = "INSERT";
 
 	/**
 	 * Create an new query
 	 *
-	 * @param string $db
 	 * @return Database_Query_Insert_Select
 	 */
-	public static function factory(Database $db = null) {
+	public static function factory(Database $db): self {
 		return new Database_Query_Insert_Select($db);
 	}
 
@@ -53,7 +54,7 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	 * @param Database_Query_Select $query
 	 * @return \zesk\Database_Query_Insert_Select
 	 */
-	public static function from_database_query_select(Database_Query_Select $query) {
+	public static function fromSelect(Database_Query_Select $query) {
 		$new = self::factory($query->database());
 		$new->copy_from($query);
 		return $new;
@@ -61,16 +62,45 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 
 	/**
 	 * Getter/setter for low priority state of this query
-	 *
 	 * @param boolean $low_priority
 	 * @return boolean Database_Query_Edit
+	 * @deprecated 2022-01
 	 */
-	public function low_priority($low_priority = null) {
+	public function low_priority($low_priority = null): bool {
 		if ($low_priority === null) {
 			return $this->low_priority;
 		}
-		$this->low_priority = to_bool($low_priority);
+		$this->setLowPriority(to_bool($low_priority));
+		return $this->low_priority;
+	}
+
+	/**
+	 * Getter for low priority state of this query
+	 * @param boolean $low_priority
+	 * @return boolean Database_Query_Edit
+	 */
+	public function lowPriority(): bool {
+		return $this->low_priority;
+	}
+
+	/**
+	 * Setter for low priority state of this query
+	 *
+	 * @param boolean $low_priority
+	 * @return self
+	 */
+	public function setLowPriority(bool $low_priority = true): self {
+		$this->low_priority = $low_priority;
 		return $this;
+	}
+
+	/**
+	 * Getter for replace verb
+	 *
+	 * @return bool
+	 */
+	public function replace(): bool {
+		return $this->verb === "REPLACE";
 	}
 
 	/**
@@ -79,10 +109,7 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	 * @param boolean $replace
 	 * @return string|\zesk\Database_Query_Insert_Select
 	 */
-	public function replace($replace = null) {
-		if ($replace === null) {
-			return $this->verb;
-		}
+	public function setReplace(bool $replace = true): self {
 		$this->verb = $replace ? "REPLACE" : "INSERT";
 		return $this;
 	}
@@ -92,16 +119,18 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	 * @param string $table
 	 * @return \zesk\Database_Query_Insert_Select
 	 */
-	public function into($table) {
+	public function into(string $table): self {
 		$this->into = $table;
 		return $this;
 	}
 
-	public function what($mixed = null, $value = null) {
-		if (is_string($mixed) && $value === null) {
-			throw new Exception_Semantics("Database_Query_Insert_Select must have an associative array for what (passed in \"$mixed\")");
-		}
-		return parent::what($mixed, $value);
+	/**
+	 * @param string $what
+	 * @return Database_Query_Select
+	 * @throws Exception_Semantics
+	 */
+	public function setWhatString(string $what): self {
+		throw new Exception_Semantics("{class} must have an associative array for what (passed in \"$what\")", ["class" => __CLASS__]);
 	}
 
 	public function __toString() {
@@ -116,5 +145,15 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 
 	public function execute() {
 		return $this->database()->query($this->__toString());
+	}
+
+	/**
+	 *
+	 * @param Database_Query_Select $query
+	 * @return \zesk\Database_Query_Insert_Select
+	 * @deprecated 2022-01
+	 */
+	public static function from_database_query_select(Database_Query_Select $query) {
+		return self::fromSelect($query);
 	}
 }

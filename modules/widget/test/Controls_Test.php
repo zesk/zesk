@@ -191,9 +191,9 @@ class Controls_Test extends TestWidget {
 class Class_Test_COLT_Object extends Class_ORM {
 	public $table = 'Test_COLT_Object';
 
-	public $id_column = "ID";
+	public string $id_column = "ID";
 
-	public $column_types = [
+	public array $column_types = [
 		'ID' => self::type_id,
 		'Foo' => self::type_string,
 	];
@@ -206,9 +206,9 @@ class Test_COLT_Object extends ORM {
 class Class_Test_COL_Object extends Class_ORM {
 	public $table = __CLASS__;
 
-	public $id_column = "ID";
+	public string $id_column = "ID";
 
-	public $column_types = [
+	public array $column_types = [
 		'ID' => self::type_id,
 		'Foo' => self::type_string,
 	];

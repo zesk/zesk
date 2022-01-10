@@ -107,7 +107,7 @@ class Content_Image extends ORM {
 	 *
 	 * @see ORM::store()
 	 */
-	public function store() {
+	public function store(): self {
 		$this->_update_sizes();
 		if ($this->member_is_empty("mime_type")) {
 			$this->mime_type = MIME::from_filename($this->path);

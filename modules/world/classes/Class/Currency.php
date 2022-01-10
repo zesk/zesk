@@ -5,7 +5,7 @@ namespace zesk;
  * Class_Currency
  */
 class Class_Currency extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	public $auto_column = false;
 
@@ -18,11 +18,11 @@ class Class_Currency extends Class_ORM {
 
 	public $name = "Currency";
 
-	public $has_one = [
+	public array $has_one = [
 		'bank_country' => 'zesk\\Country',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"bank_country" => self::type_object,
 		"name" => self::type_string,

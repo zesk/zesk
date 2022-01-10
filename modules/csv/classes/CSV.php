@@ -168,6 +168,9 @@ abstract class CSV extends Options {
 					];
 				}
 				foreach ($mixed as $name) {
+					if (!is_string($name)) {
+						throw new Exception_Key("Invalid key {name}");
+					}
 					$lowname = strtolower($name);
 					if (isset($this->HeadersToIndex[$lowname])) {
 						$hmap = $this->HeadersToIndex[$lowname];

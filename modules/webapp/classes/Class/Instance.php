@@ -25,13 +25,13 @@ class Class_Instance extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $has_one = [
+	public array $has_one = [
 		"server" => Server::class,
 		"repository" => Repository::class,
 	];
@@ -40,7 +40,7 @@ class Class_Instance extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $has_many = [
+	public array $has_many = [
 		"sites" => [
 			"class" => Site::class,
 			"foreign_key" => "instance",
@@ -60,7 +60,7 @@ class Class_Instance extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"server" => self::type_object,
 		"repository" => self::type_object,

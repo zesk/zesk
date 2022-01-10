@@ -18,9 +18,9 @@ In this case:
 
 	namespace awesome;
 	class Class_Task extends zesk\Class_ORM {
-		public $id_column = "id";
+		public string $id_column = "id";
 		
-		public $column_types = [
+		public array $column_types = [
 			"id" => self::type_id,
 			"name" => self::type_string,
 			"created" => self::type_created,
@@ -105,4 +105,3 @@ For sites which connect to multiple databases, it will output a SQL comment indi
 	-- zesk database-schema --name central --update
 
 ## Keeping PHP code in-sync with SQL
-

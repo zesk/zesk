@@ -15,7 +15,7 @@ class Class_Permission extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 * How to find one of these without an id?
@@ -31,7 +31,7 @@ class Class_Permission extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"name" => self::type_string,
 		"title" => self::type_string,
@@ -40,5 +40,5 @@ class Class_Permission extends Class_ORM {
 		"options" => self::type_serialize,
 	];
 
-	public $database_group = "User";
+	public string $database_group = "User";
 }

@@ -47,27 +47,12 @@ class Module_Database extends Module {
 	 * @see \zesk\Module::initialize()
 	 */
 	public function initialize(): void {
-		$this->application->register_registry("database", [
-			$this,
-			"app_database_registry",
-		]);
-		$this->application->register_factory("database", [
-			$this,
-			"app_database_registry",
-		]);
+		$this->application->register_registry("database", [$this, "app_database_registry", ]);
+		$this->application->register_factory("database", [$this, "app_database_registry", ]);
 		$hooks = $this->application->hooks;
-		$hooks->add(Hooks::HOOK_DATABASE_CONFIGURE, [
-			$this,
-			"_configured",
-		], "first");
-		$hooks->add('exit', [
-			$this,
-			"disconnect_all",
-		], "last");
-		$hooks->add('pcntl_fork-child', [
-			$this,
-			"reconnect_all",
-		]);
+		$hooks->add(Hooks::HOOK_DATABASE_CONFIGURE, [$this, "_configured", ], ["first" => true]);
+		$hooks->add('exit', [$this, "disconnect_all", ], ["last" => true]);
+		$hooks->add('pcntl_fork-child', [$this, "reconnect_all", ]);
 	}
 
 	/**
@@ -122,11 +107,7 @@ class Module_Database extends Module {
 		}
 		$url = URL::normalize($url);
 		if (array_key_exists($name, $this->databases) && $url !== $this->names[$name]) {
-			$this->application->logger->debug("Changing database url {name} {url} (old is {old})", [
-				"name" => $name,
-				"url" => $url,
-				"old" => $this->names[$name],
-			]);
+			$this->application->logger->debug("Changing database url {name} {url} (old is {old})", ["name" => $name, "url" => $url, "old" => $this->names[$name], ]);
 			$this->databases[$name]->change_url($url);
 		} else {
 			//$zesk->logger->debug("Registering database $name $url");
@@ -189,10 +170,7 @@ class Module_Database extends Module {
 		$application = $this->application;
 		$config = $application->configuration;
 
-		$databases = to_array($config->path([
-			__CLASS__,
-			'names',
-		]));
+		$databases = to_array($config->path([__CLASS__, 'names', ]));
 		foreach ($databases as $name => $database) {
 			$name = strtolower($name);
 
@@ -202,10 +180,7 @@ class Module_Database extends Module {
 				$application->logger->critical($e->raw_message, $e->variables());
 			}
 		}
-		$database_default_config_path = [
-			__CLASS__,
-			"default",
-		];
+		$database_default_config_path = [__CLASS__, "default", ];
 		if ($config->path_exists($database_default_config_path)) {
 			$this->database_default($config->path_get($database_default_config_path));
 		}
@@ -237,9 +212,7 @@ class Module_Database extends Module {
 	public function reconnect_all(): void {
 		/* @var $database Database */
 		foreach ($this->databases as $url => $database) {
-			$this->application->logger->info("Reconnecting database: {url}", [
-				"url" => $database->safe_url(),
-			]);
+			$this->application->logger->info("Reconnecting database: {url}", ["url" => $database->safe_url(), ]);
 			$database->reconnect();
 		}
 	}
@@ -283,10 +256,7 @@ class Module_Database extends Module {
 	public function scheme_factory($scheme, array $options = []) {
 		$class = $this->register_scheme($scheme);
 		if (!$class) {
-			throw new Exception_NotFound("Database scheme {scheme} does not have a registered handler. Available schemes: {schemes}", [
-				"scheme" => $scheme,
-				"schemes" => $this->valid_schemes(),
-			]);
+			throw new Exception_NotFound("Database scheme {scheme} does not have a registered handler. Available schemes: {schemes}", ["scheme" => $scheme, "schemes" => $this->valid_schemes(), ]);
 		}
 		return $this->application->factory($class, $this->application, null, $options);
 	}
@@ -336,15 +306,10 @@ class Module_Database extends Module {
 			$url = $this->register($mixed);
 			$codename = $mixed;
 			if (count($this->names) === 0) {
-				throw new Exception_Configuration(__CLASS__ . "::names", "No default database URL configured: \"{default}\"", [
-					"default" => $this->database_default(),
-				]);
+				throw new Exception_Configuration(__CLASS__ . "::names", "No default database URL configured: \"{default}\"", ["default" => $this->database_default(), ]);
 			}
 			if (!$url) {
-				throw new Exception_NotFound("Database not found: \"{name}\" from databases: {databases}", [
-					"name" => $original,
-					"databases" => JSON::encode(array_keys($this->register())),
-				]);
+				throw new Exception_NotFound("Database not found: \"{name}\" from databases: {databases}", ["name" => $original, "databases" => JSON::encode(array_keys($this->register())), ]);
 			}
 		}
 		$safe_url = URL::remove_password($url);
@@ -361,11 +326,7 @@ class Module_Database extends Module {
 		$scheme = URL::scheme($url);
 		$class = $this->register_scheme($scheme);
 		if (!$class) {
-			throw new Database_Exception_Unknown_Schema("Database::factory({url}) {scheme} not registered. Valid schemes: {schemes}", [
-				"url" => $safe_url,
-				"scheme" => $scheme,
-				"schemes" => $this->valid_schemes(),
-			]);
+			throw new Database_Exception_Unknown_Schema("Database::factory({url}) {scheme} not registered. Valid schemes: {schemes}", ["url" => $safe_url, "scheme" => $scheme, "schemes" => $this->valid_schemes(), ]);
 		}
 
 		try {
@@ -376,10 +337,7 @@ class Module_Database extends Module {
 			throw $e;
 		}
 		if (!$db instanceof Database) {
-			throw new Exception_Unimplemented("Database::factory({url}) {scheme} did not return a Database", [
-				"url" => $safe_url,
-				"scheme" => $scheme,
-			]);
+			throw new Exception_Unimplemented("Database::factory({url}) {scheme} did not return a Database", ["url" => $safe_url, "scheme" => $scheme, ]);
 		}
 		$db->code_name($codename);
 		$db->set_option("internal_name", $codename);
@@ -408,25 +366,16 @@ class Module_Database extends Module {
 		}
 		$url = $this->register($default);
 		if ($default) {
-			$info[__CLASS__ . "::default"] = [
-				"value" => $default,
-				"title" => "Default database",
-			];
+			$info[__CLASS__ . "::default"] = ["value" => $default, "title" => "Default database", ];
 		}
 		if ($url) {
-			$info[__CLASS__ . "::default_url"] = [
-				"value" => URL::remove_password($url),
-				"title" => "Default URL (Safe)",
-			];
+			$info[__CLASS__ . "::default_url"] = ["value" => URL::remove_password($url), "title" => "Default URL (Safe)", ];
 		}
 		$dbs = [];
 		foreach ($this->databases as $k => $item) {
 			$dbs[$k] = $item->safe_url();
 		};
-		$info[__CLASS__ . '::databases'] = [
-			"value" => $dbs,
-			"title" => "Database names",
-		];
+		$info[__CLASS__ . '::databases'] = ["value" => $dbs, "title" => "Database names", ];
 
 		return $info;
 	}

@@ -4,11 +4,11 @@ namespace zesk;
 class Class_ORMX extends Class_ORM {
 	public $target_class = null;
 
-	public $has_one = [
+	public array $has_one = [
 		'id' => 'null',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'id' => self::type_object,
 	];
 

@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -20,8 +22,7 @@ class Database_Table_Test extends Test_Unit {
 	public function test_main(): void {
 		$db = $this->application->database_registry();
 		$table_name = PHP::parse_class(__CLASS__) . '_' . __FUNCTION__;
-		$type = false;
-		$table = new Database_Table($db, $table_name, $type);
+		$table = new Database_Table($db, $table_name);
 
 		$table->__toString();
 
@@ -33,16 +34,15 @@ class Database_Table_Test extends Test_Unit {
 
 		$table->columns();
 
-		$name = null;
+		$name = "updated";
 		$table->column($name);
 
-		$name = null;
 		$table->previous_column("thing");
 
-		$name = null;
-		$table->has_index($name);
+		$name = "foo";
+		$this->assertFalse($table->has_index($name));
 
-		$name = null;
+		$name = "name";
 		$table->index($name);
 
 		$table->indexes();
@@ -61,10 +61,10 @@ class Database_Table_Test extends Test_Unit {
 
 		$table->sql_alter($table);
 
+		$debug = $this->option_bool("debug");
 		$that = $table;
-		$debug = false;
 		$this->assert($table->is_similar($that, $debug) === true);
-		$that = new Database_Table($db, "someother", $debug);
+		$that = new Database_Table($db, "someother");
 		$this->assert($table->is_similar($that, $debug) === false);
 
 		echo basename(__FILE__) . ": success\n";
@@ -73,13 +73,11 @@ class Database_Table_Test extends Test_Unit {
 	public function test_main2(): void {
 		$db = $this->application->database_registry();
 		$table_name = 'test_table';
-		$type = false;
-		$testx = new Database_Table($db, $table_name, $type);
+		$testx = new Database_Table($db, $table_name);
 
 		$testx->database();
 
-		$name = null;
-		$testx->has_Column($name);
+		$this->assertFalse($testx->hasColumn("foo"));
 
 		$testx->type();
 
@@ -91,19 +89,16 @@ class Database_Table_Test extends Test_Unit {
 
 		$testx->column_names();
 
-		$name = null;
+		$name = "foo";
 		$testx->column($name);
 
-		$name = null;
-		$testx->previous_column($name);
+		$testx->previous_column("foo");
 
 		$testx->columns();
 
-		$name = null;
-		$testx->has_index($name);
+		$testx->has_index("fun");
 
-		$name = null;
-		$testx->index($name);
+		$testx->index("foo");
 
 		$testx->indexes();
 

@@ -8,11 +8,11 @@ class Class_Contact_Email extends Class_Contact_Info {
 		"value",
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		'contact' => 'contact',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'verified' => 'timestamp',
 		'modified' => 'modified',
 		'created' => 'created',

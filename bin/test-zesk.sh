@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Run Zesk test interactively while debugging and fixing things
+# Run usually inside a container
 #
 set -e
 
@@ -15,8 +16,9 @@ if [ ! -d $top/vendor ]; then
 fi
 opts=
 #opts="$opts --debug"
-#opts="$opts --verbose"
-opts="$opts --sandbox"
+opts="$opts --verbose"
+#opts="$opts --sandbox"
 opts="$opts --interactive"
 #opts="$opts --debug-command"
-$top/bin/zesk.sh test $opts $*
+[ -d "$HOME/.zesk" ] || mkdir -p "$HOME/.zesk"
+$top/bin/zesk.sh --config /etc/test.conf test $opts $*

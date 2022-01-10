@@ -238,14 +238,14 @@ class Command_Check extends Command_Iterator_File {
 	}
 
 	private function add_copyright(array $doccomment) {
-		$doccomment['copyright'] = map($this->copyright_pattern(), $this->option());
+		$doccomment['copyright'] = map($this->copyright_pattern(), $this->options());
 		return $doccomment;
 	}
 
 	private function fix_prefix(&$contents) {
 		$contents = ltrim($contents);
 		$author = $this->application->process->user();
-		$new_prefix = map("<?php\n/**\n * @author $author\n * @package {package}\n * @subpackage {subpackage}\n * @copyright " . $this->copyright_pattern() . "\n */\n", $this->option());
+		$new_prefix = map("<?php\n/**\n * @author $author\n * @package {package}\n * @subpackage {subpackage}\n * @copyright " . $this->copyright_pattern() . "\n */\n", $this->options());
 		foreach ([
 			'#^(<\?php)#',
 			'#^(<\?)[^=]#',

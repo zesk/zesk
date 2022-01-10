@@ -33,7 +33,7 @@ class Contact_Tag extends ORM {
 			->to_array('id');
 	}
 
-	public function store() {
+	public function store(): self {
 		$result = parent::store();
 		if ($result) {
 			$this->grant_user($this->User);

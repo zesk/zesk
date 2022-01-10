@@ -36,7 +36,7 @@ class Health_Event extends ORM {
 	 * {@inheritDoc}
 	 * @see ORM::store()
 	 */
-	public function store() {
+	public function store(): self {
 		if ($this->member_is_empty('when_msec')) {
 			$this->when_msec = 0;
 		}
@@ -169,14 +169,14 @@ class Health_Event extends ORM {
 		$n_samples = $this->option_integer("keep_duplicates", 10);
 		$n_found = $this->application->orm_registry(__CLASS__)
 			->query_select()
-			->what("*n", "COUNT(id)")
+			->addWhat("*n", "COUNT(id)")
 			->where("events", $this->events)
 			->one_integer("n");
 		if ($n_found > $n_samples) {
 			$sample_offset = intval($n_samples / 2);
 			$ids_to_delete = $this->application->orm_registry(__CLASS__)
 				->query_select()
-				->what("id", "X.id")
+				->addWhat("id", "X.id")
 				->where("X.events", $this->events)
 				->limit($sample_offset, $n_found - $n_samples)
 				->order_by("X.when,X.when_msec")

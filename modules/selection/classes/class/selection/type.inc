@@ -10,18 +10,18 @@ namespace zesk;
  *
  */
 class Class_Selection_Type extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	public $find_keys = [
 		"code",
 		"user",
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		"user" => "zesk\\User",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"code" => self::type_text,
 		"class" => self::type_text,
@@ -29,7 +29,7 @@ class Class_Selection_Type extends Class_ORM {
 		"created" => self::type_created,
 	];
 
-	public $has_many = [
+	public array $has_many = [
 		'items' => [
 			'class' => "zesk\\Selection_Item",
 			"foreign_key" => "type",

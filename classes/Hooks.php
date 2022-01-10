@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage kernel
  * @author kent
  * @copyright &copy; 2018 Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -106,32 +108,15 @@ class Hooks {
 		$this->kernel = $kernel;
 
 		/*  TODO PHP7 use closure */
-		register_shutdown_function([
-			$this,
-			"_app_call",
-		], self::HOOK_EXIT);
+		register_shutdown_function([$this, "_app_call", ], self::HOOK_EXIT);
 
 		/* @deprecated Shutdown TODO PHP7 use closure */
-		register_shutdown_function([
-			$this,
-			"_app_call",
-		], 'shutdown');
+		register_shutdown_function([$this, "_app_call", ], 'shutdown');
 
-		register_shutdown_function([
-			$this,
-			"_app_check_error",
-		]);
+		register_shutdown_function([$this, "_app_check_error", ]);
 	}
 
-	private static $fatals = [
-		E_USER_ERROR => 'Fatal Error',
-		E_ERROR => 'Fatal Error',
-		E_PARSE => 'Parse Error',
-		E_CORE_ERROR => 'Core Error',
-		E_CORE_WARNING => 'Core Warning',
-		E_COMPILE_ERROR => 'Compile Error',
-		E_COMPILE_WARNING => 'Compile Warning',
-	];
+	private static $fatals = [E_USER_ERROR => 'Fatal Error', E_ERROR => 'Fatal Error', E_PARSE => 'Parse Error', E_CORE_ERROR => 'Core Error', E_CORE_WARNING => 'Core Warning', E_COMPILE_ERROR => 'Compile Error', E_COMPILE_WARNING => 'Compile Warning', ];
 
 	/**
 	 * Shutdown functino to log errors
@@ -197,18 +182,10 @@ class Hooks {
 	 * Given a passed-in hook name, normalize it and return the internal name
 	 *
 	 * @param string $name
-	 *        	Hook name
+	 *            Hook name
 	 * @param boolean $alias
 	 */
-	private function _hook_name($name, $alias = false) {
-		if (!is_string($name)) {
-			throw new Exception_Parameter("{method}({name},...) {type} is not string", [
-				"method" => __METHOD__,
-				"name" => _dump($name),
-				"type" => type($name),
-			]);
-		}
-		// For now, we just make it lower case
+	private function _hook_name(string $name, bool $alias = false): string {
 		$name = self::clean_name($name);
 		return !$alias ? $name : ($this->hook_aliases[$name] ?? $name);
 	}
@@ -218,20 +195,20 @@ class Hooks {
 	 *
 	 * @param string $hook
 	 */
-	public function unhook($hook): void {
+	public function unhook(string $hook): void {
 		$hook = $this->_hook_name($hook, true);
 		unset($this->hooks[$hook]);
 	}
 
 	/**
 	 *
-	 * @param string|array $hooks
-	 * @return mixed
+	 * @param array $hooks
+	 * @return array
 	 */
-	private function hook_load_definitions($hooks) {
+	private function hook_load_definitions(iterable $hooks): array {
 		$definitions = [];
 		$found = [];
-		foreach (to_list($hooks) as $hook) {
+		foreach ($hooks as $hook) {
 			$hook = $this->_hook_name($hook);
 			if (isset($found[$hook])) {
 				continue;
@@ -273,14 +250,11 @@ class Hooks {
 	 * </code>
 	 *
 	 * @param mixed $classes
-	 *        	List of classes to invoke the static "hooks" method for.
+	 *            List of classes to invoke the static "hooks" method for.
 	 *
 	 * @return array Hook class name eith the time invoked, or an Exception if an error occurred.
 	 */
-	public function register_class($class = null, $options = null) {
-		if ($class === null) {
-			return $this->hooks_called;
-		}
+	public function register_class(string|array $class, array $options = []) {
 		if (is_string($class)) {
 			return $this->_register_class_hooks($class);
 		}
@@ -295,35 +269,35 @@ class Hooks {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function hooksCalled() {
+		return $this->hooks_called;
+	}
+
+	/**
 	 *
 	 * @param string $class
-	 * @return boolean|Exception
+	 * @return bool
 	 */
-	private function _register_class_hooks($class) {
-		$lowclass = strtolower($class);
-		if (isset($this->hooks_called[$lowclass])) {
+	private function _register_class_hooks(string $class): bool {
+		$lowClass = strtolower($class);
+		if (isset($this->hooks_called[$lowClass])) {
 			return false;
 		}
 		if (method_exists($class, "hooks")) {
 			try {
-				call_user_func([
-					$class,
-					"hooks",
-				], $this->kernel->application());
-				$this->hooks_called[$lowclass] = $result[$class] = microtime(true);
+				call_user_func([$class, "hooks", ], $this->kernel->application());
+				$this->hooks_called[$lowClass] = $result[$class] = microtime(true);
 				return true;
 			} catch (\Exception $e) {
 				$this->call("exception", $e);
-				$this->hooks_called[$lowclass] = $result[$class] = $e;
-				return $e;
+				$this->hooks_called[$lowClass] = $result[$class] = $e;
+				return false;
 			}
 		} elseif ($this->debug) {
-			$this->kernel->logger->debug("{__CLASS__}::{__FUNCTION__} Class {class} does not have method hooks", [
-				"__CLASS__" => __CLASS__,
-				"__FUNCTION__" => __FUNCTION__,
-				"class" => $class,
-			]);
-			$this->hooks_called[$lowclass] = false;
+			$this->kernel->logger->debug("{__CLASS__}::{__FUNCTION__} Class {class} does not have method hooks", ["__CLASS__" => __CLASS__, "__FUNCTION__" => __FUNCTION__, "class" => $class, ]);
+			$this->hooks_called[$lowClass] = false;
 			return true;
 		}
 		return false;
@@ -337,24 +311,17 @@ class Hooks {
 	 * first time and last time, e.g. $hook => array(45, 0, 10.42)
 	 *
 	 * @param mixed $hooks
-	 *        	A hook name, or a list of hooks, separated by ";", or an array of hook names
+	 *            A hook name, or a list of hooks, separated by ";", or an array of hook names
 	 * @return true If any hook exists. If null passed then returns an array of keys => arrays
 	 *         described above.
 	 */
-	public function has($hooks = null) {
-		if ($hooks === null) {
-			return $this->hook_cache;
-		}
+	public function has(string|array $hooks) {
 		if (is_string($hooks)) {
 			$hook = $this->_hook_name($hooks);
 			if ($this->profile_hooks) {
 				$ding = microtime(true);
 				if (!isset($this->hook_cache[$hook])) {
-					$this->hook_cache[$hook] = [
-						1,
-						$ding,
-						$ding,
-					];
+					$this->hook_cache[$hook] = [1, $ding, $ding, ];
 				} else {
 					$this->hook_cache[$hook][0]++;
 					$this->hook_cache[$hook][2] = $ding;
@@ -376,6 +343,14 @@ class Hooks {
 	}
 
 	/**
+	 *
+	 * @return array
+	 */
+	public function hookCache() {
+		return $this->hook_cache;
+	}
+
+	/**
 	 * Hooks are very flexible, and each hook determines how it is combined with the next hook.
 	 *
 	 * Valid options are:
@@ -386,25 +361,15 @@ class Hooks {
 	 * passed after these.
 	 *
 	 * @param string $hook
-	 *        	Hook name. Can be any string. Typically of the form CLASS::method
+	 *            Hook name. Can be any string. Typically of the form CLASS::method
 	 * @param mixed $function
-	 *        	A function or class name, or an array to specify an object method or object static
-	 *        	method.
+	 *            A function or class name, or an array to specify an object method or object static
+	 *            method.
 	 * @param array $options
-	 *        	Return value handling, ordering, arguments.
+	 *            Return value handling, ordering, arguments.
 	 *
 	 */
-	public function add($hook, $function = null, $options = []): void {
-		if ($hook === null) {
-			return;
-		}
-		if (is_string($options)) {
-			$options = [
-				$options => true,
-			];
-		} elseif (!is_array($options)) {
-			$options = [];
-		}
+	public function add(string $hook, callable $function, array $options = []): void {
 		$hook = $this->_hook_name($hook, true);
 		if (!array_key_exists($hook, $this->hooks)) {
 			$hook_group = new HookGroup();
@@ -417,16 +382,12 @@ class Hooks {
 		}
 		$callable_string = $this->callable_string($function);
 		if ($hook_group->has($callable_string)) {
-			$this->kernel->logger->debug("Duplicate registration of hook {callable}", [
-				"callable" => $callable_string,
-			]);
+			$this->kernel->logger->debug("Duplicate registration of hook {callable}", ["callable" => $callable_string, ]);
 			return;
 		}
 		$options['callable'] = ($function === null ? $hook : $function);
 		if (isset($options['first'])) {
-			$hook_group->first = array_merge([
-				$callable_string => $options,
-			], $hook_group->first);
+			$hook_group->first = array_merge([$callable_string => $options, ], $hook_group->first);
 		} elseif (isset($options['last'])) {
 			$hook_group->last[$callable_string] = $options;
 		} else {
@@ -439,19 +400,17 @@ class Hooks {
 	 * method
 	 *
 	 * @param mixed $methods
-	 *        	List of methods (array or ;-separated string)
+	 *            List of methods (array or ;-separated string)
 	 */
-	public function find_all($methods) {
-		$class_methods = to_list($methods);
-		$methods = [];
+	public function find_all(array $class_methods): array {
 		foreach ($class_methods as $class_method) {
 			[$class, $method] = pair($class_method, "::", null, $class_method);
 			if ($class === null) {
 				continue;
 			}
-			$lowclass = strtolower($class);
-			if (!array_key_exists($lowclass, $this->all_hook_classes) && $method !== "hooks") {
-				$this->all_hook_classes[$lowclass] = true;
+			$low_class = strtolower($class);
+			if (!array_key_exists($low_class, $this->all_hook_classes) && $method !== "hooks") {
+				$this->all_hook_classes[$low_class] = true;
 				$this->_register_all_hooks($class, $this->kernel->application());
 			}
 			$classes = $this->kernel->classes->subclasses($class);
@@ -463,11 +422,7 @@ class Hooks {
 				try {
 					$refl = new \ReflectionClass($class);
 				} catch (\Exception $e) {
-					$this->kernel->logger->warning("{class} not found {eclass}: {emessage}", [
-						"class" => $class,
-						"eclass" => get_class($e),
-						"emessage" => $e->getMessage(),
-					]);
+					$this->kernel->logger->warning("{class} not found {eclass}: {emessage}", ["class" => $class, "eclass" => get_class($e), "emessage" => $e->getMessage(), ]);
 
 					continue;
 				}
@@ -503,7 +458,7 @@ class Hooks {
 	 * @param string $hook
 	 * @return boolean true if removed, false if not found
 	 */
-	public function remove($hook) {
+	public function remove(string $hook): bool {
 		$hook = $this->_hook_name($hook);
 		if (isset($this->hooks[$hook])) {
 			unset($this->hooks[$hook]);
@@ -513,72 +468,61 @@ class Hooks {
 	}
 
 	/**
-	 * Allow easy migration from old names to new
-	 * Retrieve all aliases:
-	 * <code>
-	 * $all_aliases = $application->hooks->alias();
-	 * </code>
-	 * Retrieve a single alias:
-	 * <code>
-	 * $alias = $application->hooks->alias('aliasname');
-	 * </code>
-	 * Delete an alias:
-	 * <code>
-	 * $old_alias = $application->hooks->alias('aliasname', false);
-	 * </code>
-	 * Add an alias:
-	 * <code>
-	 * $previous_alias = $application->hooks->alias('oldname', 'newname');
-	 * </code>
-	 * Bulk actions:
-	 * <code>
-	 * $results = $application->hooks->alias(
-	 * array(
-	 * 'setone' => 'newvalue',
-	 * 'getone' => null,
-	 * 'getanother' => null,
-	 * 'unsetone' => false,
-	 * )
-	 * );
-	 * </code>
+	 * Add an alias
 	 *
-	 * @param string $oldname
-	 * @param string $newname
-	 * @return mixed
+	 * @param string $old_name
+	 * @param string $new_name
+	 * @return ?string old alias
 	 */
-	public function alias($oldname = null, $newname = null) {
-		if (is_array($oldname)) {
-			$result = [];
-			foreach ($oldname as $old => $new) {
-				$result[$old] = $this->alias($old, $new);
-			}
-			return $result;
-		}
-		if ($oldname === null) {
-			return $this->hook_aliases;
-		} elseif ($newname === null) {
-			$oldname = $this->_hook_name($oldname, false);
-			return avalue($this->hook_aliases, $oldname);
-		} else {
-			$previous = avalue($this->hook_aliases, $oldname);
-			if ($newname === false) {
-				unset($this->hook_aliases[$oldname]);
-			} else {
-				$newname = $this->_hook_name($newname);
-				if ($oldname === $newname) {
-					return $previous;
-				}
-				$this->hook_aliases[$oldname] = $newname;
-				if (array_key_exists($oldname, $this->hooks)) {
-					$oldhooks = $this->hooks[$oldname];
-					if (isset($this->hooks[$newname])) {
-						$this->hooks[$newname]->merge($oldhooks);
-						unset($this->hooks[$oldname]);
-					}
-				}
-			}
+	public function setAlias(string $old_name, string $new_name): ?string {
+		$previous = $this->hook_aliases[$old_name] ?? null;
+		$new_name = $this->_hook_name($new_name);
+		if ($old_name === $new_name) {
 			return $previous;
 		}
+		$this->hook_aliases[$old_name] = $new_name;
+		if (array_key_exists($old_name, $this->hooks)) {
+			$old_hooks = $this->hooks[$old_name];
+			if (isset($this->hooks[$new_name])) {
+				$this->hooks[$new_name]->merge($old_hooks);
+				unset($this->hooks[$old_name]);
+			}
+		}
+		return $previous;
+	}
+
+	/**
+	 * Delete an alias
+	 *
+	 * @param string $name
+	 * @return bool
+	 */
+	public function clearAlias(string $name): bool {
+		$name = $this->_hook_name($name, false);
+		if (isset($this->hook_aliases[$name])) {
+			unset($this->hook_aliases[$name]);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Retrieve a single alias
+	 * @param string $name
+	 * @return string|null
+	 */
+	public function getAlias(string $name): ?string {
+		$name = $this->_hook_name($name, false);
+		return $this->hook_aliases[$name] ?? null;
+	}
+
+	/**
+	 * Retrieve all aliases (old => new)
+	 *
+	 * @return array
+	 */
+	public function aliases(): array {
+		return $this->hook_aliases;
 	}
 
 	/**
@@ -589,9 +533,7 @@ class Hooks {
 		$refl = new \ReflectionClass($class);
 		$method = 'register_all_hooks';
 		if ($refl->hasMethod($method)) {
-			$refl->getMethod($method)->invokeArgs(null, [
-				$application,
-			]);
+			$refl->getMethod($method)->invokeArgs(null, [$application, ]);
 		}
 		$this->call("$class::register_all_hooks", $application);
 	}
@@ -600,10 +542,10 @@ class Hooks {
 	 * Call a hook, with optional additional arguments
 	 *
 	 * @param string|list $hooks
-	 *        	Hooks to call
+	 *            Hooks to call
 	 * @return mixed
 	 */
-	public function call($hook) {
+	public function call(mixed $hook): mixed {
 		$arguments = func_get_args();
 		array_shift($arguments);
 		return $this->call_arguments($hook, $arguments);
@@ -612,21 +554,19 @@ class Hooks {
 	/**
 	 *
 	 * @param string|list $hooks
-	 *        	Hooks to call
+	 *            Hooks to call
 	 * @param array $arguments
-	 *        	Arguments to pass to the first hook
+	 *            Arguments to pass to the first hook
 	 * @param unknown $default
 	 * @param unknown $hook_callback
 	 * @param unknown $result_callback
 	 * @param unknown $return_hint
-	 *        	deprecated 2017-11
+	 *            deprecated 2017-11
 	 * @return string|NULL
 	 */
-	public function call_arguments($hooks, $arguments = [], $default = null, $hook_callback = null, $result_callback = null, $return_hint = null) {
+	public function call_arguments(mixed $hooks, array $arguments = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null, mixed $return_hint = null) {
 		if ($return_hint !== null) {
-			$this->kernel->deprecated("\$return_hint passed to {method}", [
-				"method" => __METHOD__,
-			]);
+			$this->kernel->deprecated("\$return_hint passed to {method}", ["method" => __METHOD__, ]);
 		}
 		$hooks = $this->collect_hooks($hooks, $arguments);
 		$result = $default;
@@ -640,23 +580,20 @@ class Hooks {
 	/**
 	 *
 	 * @param string|array $hooks
-	 *        	Hooks to call
+	 *            Hooks to call
 	 * @param array $arguments
-	 *        	Arguments to pass to the first hook
+	 *            Arguments to pass to the first hook
 	 * @return array[array]
 	 */
-	public function collect_hooks($hooks, $arguments = []) {
-		$definitions = $this->hook_load_definitions($hooks);
+	public function collect_hooks(mixed $hooks, array $arguments = []): array {
+		$definitions = $this->hook_load_definitions(to_iterable($hooks));
 		$hooks = [];
 		if (count($definitions) === 0) {
 			return $hooks;
 		}
 		foreach ($definitions as $callable_string => $options) {
 			$options_arguments = to_array(avalue($options, 'arguments'));
-			$hooks[] = [
-				$options['callable'],
-				count($options_arguments) > 0 ? array_merge($options_arguments, $arguments) : $arguments,
-			];
+			$hooks[] = [$options['callable'], count($options_arguments) > 0 ? array_merge($options_arguments, $arguments) : $arguments, ];
 		}
 		return $hooks;
 	}
@@ -688,7 +625,7 @@ class Hooks {
 	 * @return mixed
 	 * @see self::find_all
 	 */
-	public function all_call_arguments($methods, array $arguments = [], $default = null, $hook_callback = null, $result_callback = null) {
+	public function all_call_arguments(array $methods, array $arguments = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null): mixed {
 		$methods = $this->find_all($methods);
 		$result = $default;
 		foreach ($methods as $class_method) {
@@ -704,7 +641,7 @@ class Hooks {
 	 * @param mixed $callable
 	 * @return string
 	 */
-	public static function callable_string($callable) {
+	public static function callable_string(mixed $callable): string {
 		if (is_array($callable)) {
 			return is_object($callable[0]) ? strtolower(get_class($callable[0])) . "::" . $callable[1] : implode("::", $callable);
 		} elseif (is_string($callable)) {
@@ -721,7 +658,7 @@ class Hooks {
 	 * @param Callable[] $callables
 	 * @return string[]
 	 */
-	public static function callable_strings(array $callables) {
+	public static function callable_strings(array $callables): array {
 		$result = [];
 		foreach ($callables as $callable) {
 			$result[] = self::callable_string($callable);

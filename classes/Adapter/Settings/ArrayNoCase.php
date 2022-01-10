@@ -94,7 +94,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
 	 *
 	 * @return Iterator
 	 */
-	public function variables() {
+	public function variables(): array {
 		return $this->data;
 	}
 }

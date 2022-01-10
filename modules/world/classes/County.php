@@ -29,7 +29,7 @@ class County extends ORM {
 			'Contact_Address' => $this->application->orm_registry(Contact_Address::class)
 				->query_select()
 				->where("county", $this->id)
-				->what("*total", "COUNT(X.id)")
+				->addWhat("*total", "COUNT(X.id)")
 				->one_integer("total"),
 		];
 	}

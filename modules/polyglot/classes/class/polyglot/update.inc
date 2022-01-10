@@ -7,11 +7,11 @@ namespace zesk;
  *
  */
 class Class_PolyGlot_Update extends Class_ORM {
-	public $id_column = "locale";
+	public string $id_column = "locale";
 
 	public $auto_column = false;
 
-	public $column_types = [
+	public array $column_types = [
 		"locale" => self::type_string,
 		"updated" => self::type_timestamp,
 		"user" => self::type_object,

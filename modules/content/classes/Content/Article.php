@@ -38,7 +38,7 @@ class Content_Article extends ORM {
 	 * {@inheritDoc}
 	 * @see ORM::store()
 	 */
-	public function store() {
+	public function store(): self {
 		if (empty($this->parent)) {
 			$this->parent = null;
 		}

@@ -387,7 +387,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 			$value = $this->application->orm_registry(__CLASS__)
 				->query_select()
 				->where("name", $name)
-				->what("value", "value")
+				->addWhat("value", "value")
 				->one("value");
 			if ($value === null) {
 				return null;

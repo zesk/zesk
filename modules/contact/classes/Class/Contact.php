@@ -2,13 +2,13 @@
 namespace zesk;
 
 class Class_Contact extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 	];
 
-	public $has_many = [
+	public array $has_many = [
 		"tags" => [
 			'class' => 'zesk\\Contact_Tag',
 			'link_class' => 'zesk\\Contact_Tag_Contact',
@@ -41,7 +41,7 @@ class Class_Contact extends Class_ORM {
 		],
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		"email" => 'zesk\\Contact_Email',
 		"phone" => 'zesk\\Contact_Phone',
 		"address" => 'zesk\\Contact_Address',

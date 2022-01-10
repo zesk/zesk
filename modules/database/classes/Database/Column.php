@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * @package zesk
  * @subpackage database
  */
+
 namespace zesk;
 
 /**
@@ -52,8 +54,20 @@ class Database_Column extends Options {
 		return $this->table;
 	}
 
-	public function size($set = null) {
-		return $set === null ? $this->option_integer("size") : $this->set_option("size", $set);
+	/**
+	 * Get the size of the column
+	 *
+	 * @return int
+	 */
+	public function size($set = null): int {
+		if ($set !== null) {
+			$this->table->application->deprecated('setter size');
+		}
+		return $this->option_integer("size");
+	}
+
+	public function setSize(int $set): void {
+		$this->set_option("size", $set);
 	}
 
 	public function is_text() {
@@ -222,24 +236,45 @@ class Database_Column extends Options {
 		return $this->option_bool("binary");
 	}
 
-	final public function primary_key($set = null) {
+	/**
+	 * @param $set deprecated
+	 * @return bool
+	 */
+	final public function primary_key(bool $set = null): bool|self {
 		if (is_bool($set)) {
-			$this->set_option('primary_key', $set);
+			$this->setOption('primary_key', $set);
 			return $this;
 		}
-		return $this->option_bool("primary_key");
+		return $this->primaryKey();
+	}
+
+	/**
+	 * @return bool
+	 */
+	final public function primaryKey(): bool {
+		return $this->optionBool("primary_key");
+	}
+
+	/**
+	 * @param bool $set
+	 * @return $this
+	 */
+	final public function setPrimaryKey(bool $set): self {
+		$this->setOption('primary_key', $set);
+		return $this;
 	}
 
 	final public function increment($set = null) {
 		if (is_bool($set)) {
-			$this->set_option('serial', $set);
+			$this->setOption('serial', $set);
+			$this->clearOption('increment');
 			return $this;
 		}
-		return to_bool($this->first_option("serial;increment"));
+		return $this->is_increment();
 	}
 
-	final public function is_increment() {
-		return to_bool($this->first_option("increment;serial"));
+	final public function is_increment(): bool {
+		return to_bool($this->firstOption(["serial", "increment"]));
 	}
 
 	final public function index_add($name, $type = Database_Index::Index) {
@@ -248,25 +283,25 @@ class Database_Column extends Options {
 		} elseif ($type == Database_Index::Unique) {
 			$opt = "unique";
 		} elseif ($type == Database_Index::Primary) {
-			$this->set_option("primary_key", true);
-			$this->set_option("required", true);
+			$this->setOption("primary_key", true);
+			$this->setOption("required", true);
 			return true;
 		} else {
 			throw new Exception_Unimplemented("Database_Column::index_add($name, $type): Invalid type");
 		}
-		$indexes = $this->option_list($opt, []);
+		$indexes = $this->optionIterable($opt, []);
 		if (in_array($name, $indexes)) {
 			return true;
 		}
 		$indexes[] = $name;
-		$this->set_option($opt, $indexes);
+		$this->setOption($opt, $indexes);
 		return true;
 	}
 
 	final public function indexes_types() {
-		$indexNames = $this->option_list("Index", []);
-		$uniqueNames = $this->option_list("Unique", []);
-		$isPrimary = $this->option_bool("primary_key", false);
+		$indexNames = $this->optionArray("index", []);
+		$uniqueNames = $this->optionArray("unique", []);
+		$isPrimary = $this->primaryKey();
 		$result = [];
 		foreach ($uniqueNames as $name) {
 			if (empty($name)) {

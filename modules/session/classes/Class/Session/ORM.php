@@ -12,17 +12,17 @@ class Class_Session_ORM extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	public $find_keys = [
 		"cookie",
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		"user" => "zesk\User",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"cookie" => self::type_string,
 		"is_one_time" => self::type_boolean,

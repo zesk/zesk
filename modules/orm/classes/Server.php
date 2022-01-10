@@ -547,7 +547,7 @@ class Server extends ORM implements Interface_Data {
 
 	public function alive_ips($within_seconds = 300) {
 		$ips = $this->query_select()
-			->what([
+			->addWhatIterable([
 			'ip4_internal' => 'ip4_internal',
 			'ip4_external' => 'ip4_extermal',
 		])

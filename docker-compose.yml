@@ -12,20 +12,20 @@ services:
       - ./:/zesk
     ports:
       - "4026:4026"
-  mysql:
-    platform: linux/amd64
+  mariadb:
     env_file: docker/etc/env.sh
     environment:
-      BUILD_CODE: mysql
+      BUILD_CODE: mariadb
+      MARIADB_ROOT_PASSWORD: hard-to-guess
     volumes:
       - database_data:/var/lib/mysql
     build:
       context: ./
-      dockerfile: ./docker/mysql.Dockerfile
+      dockerfile: ./docker/mariadb.Dockerfile
     ports:
-      - "3307:3306"
+      - "13306:3306"
     healthcheck:
-      test: ["CMD-SHELL", "/mysqld-health.sh"]
+      test: ["CMD-SHELL", "/db-health.sh"]
       interval: 2s
       timeout: 2s
       retries: 10

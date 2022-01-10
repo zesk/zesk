@@ -15,6 +15,7 @@ class Database_Query_Insert_Select_Test extends Test_Unit {
 	];
 
 	public function test_main(): void {
+		var_dump($this->application->database_module()->options());
 		$db = $this->application->database_registry();
 		$testx = new Database_Query_Insert_Select($db);
 

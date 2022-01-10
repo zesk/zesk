@@ -9,4 +9,4 @@ services:
 before_install:
   - mysql -e "create database IF NOT EXISTS test_zesk;" -uroot
   - composer install
-script: ./bin/zesk --zesk___Command_Test::travis --zesk___Database::names::default=mysqli://root:@127.0.0.1/test_zesk test --debug --verbose --sandbox --no-config
+script: ./bin/zesk --zesk___Command_Test::travis --zesk___Module_Database::names::default=mysqli://root:@127.0.0.1/test_zesk test --debug --verbose --sandbox --no-config

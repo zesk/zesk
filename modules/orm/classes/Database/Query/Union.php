@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * Database Query Union
  *
@@ -8,6 +9,7 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -64,9 +66,18 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @throws Exception_Parameter
 	 */
 	public function what($what) {
+		return $this->addWhat($what);
+	}
+
+	/**
+	 * @param $what
+	 * @return $this
+	 * @throws Exception_Parameter
+	 */
+	public function addWhat(string $alias, string $member = ""): self {
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
-			$query->what($what);
+			$query->addWhat($alias, $member);
 		}
 		return $this;
 	}
@@ -76,7 +87,7 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @param string $alias
 	 * @return $this
 	 */
-	public function from($table, $alias = "") {
+	public function from(string $table, string $alias = ""): self {
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
 			$query->from($table, $alias);
@@ -89,10 +100,19 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @param string $join_id
 	 * @return $this
 	 */
-	public function join($sql, $join_id = null) {
+	public function join(string $sql, string $join_id = ""): string {
+		return $this->addJoin($sql, $join_id);
+	}
+
+	/**
+	 * @param string $join_sql
+	 * @param string $join_id
+	 * @return $this
+	 */
+	public function addJoin(string $join_sql, string $join_id = ""): self {
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
-			$query->join($sql, $join_id);
+			$query->join($join_sql, $join_id);
 		}
 		return $this;
 	}
@@ -123,7 +143,7 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	}
 
 	/**
-	 * @param string|array  $order_by
+	 * @param string|array $order_by
 	 * @return $this
 	 */
 	public function order_by($order_by) {

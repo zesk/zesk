@@ -114,6 +114,7 @@ class CSV_Writer_Test extends Test_Unit {
 			"4",
 			"random",
 			"5 ",
+			5,
 			"six",
 		];
 	}
@@ -124,7 +125,7 @@ class CSV_Writer_Test extends Test_Unit {
 			"SECOND",
 			"tHIRD",
 			"4th",
-			5,
+			"5",
 		];
 	}
 
@@ -140,7 +141,7 @@ class CSV_Writer_Test extends Test_Unit {
 			"Third",
 			"4th",
 			"5",
-			6,
+			"6",
 		], false);
 
 		$x->add_object_map("test", [
@@ -159,7 +160,7 @@ class CSV_Writer_Test extends Test_Unit {
 			"Third",
 			"4th",
 			"5",
-			6,
+			"6.0",
 		], false);
 
 		$x->add_object_map("test", [

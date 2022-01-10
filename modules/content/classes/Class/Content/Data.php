@@ -16,13 +16,13 @@ class Class_Content_Data extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"size" => self::type_integer,
 		'md5hash' => self::type_hex,

@@ -100,7 +100,7 @@ EOF;
 			$db->query("SHOW TABLES", [
 				"auto_connect" => false,
 			]);
-		} catch (Database_Exception $e) {
+		} catch (Database_Exception_Connect $e) {
 			$this->assert_contains($e->getMessage(), "Not connected");
 			$success = true;
 		}
@@ -148,10 +148,9 @@ EOF;
 			} else {
 				$sqls = $sql;
 			}
-			foreach ($sqls as $sql) {
-				$this->assert(StringTools::begins($sql, "CREATE TABLE"));
-				$this->assert(str_contains($sql, "$table"));
-			}
+			$sql = first($sqls);
+			$this->assert_string_begins($sql, "CREATE TABLE");
+			$this->assert(str_contains($sql, "$table"));
 
 			$result = $db->table_information($table);
 		}
@@ -161,9 +160,9 @@ EOF;
 		$success = false;
 
 		try {
-			$table = null;
+			$table = "testtable";
 			$db->database_table($table);
-		} catch (Database_Exception $e) {
+		} catch (Database_Exception_Database_NotFound $e) {
 			$success = true;
 		}
 		$this->assert($success === true);
@@ -274,7 +273,7 @@ EOF;
 			$this->assert_true($db->table_exists($table), "$table returned by list_tables but does not exist?");
 		}
 
-		$word = null;
+		$word = "foobar";
 		$db->is_reserved_word($word);
 
 		$sql = "CREATE TABLE Foo ( ID integer )";
@@ -315,9 +314,8 @@ EOF;
 		$success = true;
 		$db->transaction_end($success);
 
-		$table = null;
-		$type = false;
-		$db->new_database_table($table, $type);
+		$table = "random_table";
+		$db->new_database_table($table);
 
 		$this->assert_is_string($db->table_prefix());
 	}

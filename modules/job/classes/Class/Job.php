@@ -7,18 +7,18 @@ namespace zesk;
  *
  */
 class Class_Job extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	public $find_keys = [
 		"code",
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		"user" => "zesk\\User",
 		"server" => "zesk\\Server",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'id' => self::type_id,
 		'user' => self::type_object,
 		'name' => self::type_string,

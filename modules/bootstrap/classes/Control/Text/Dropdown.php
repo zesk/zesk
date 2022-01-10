@@ -144,7 +144,7 @@ class Control_Text_Dropdown extends Control_Text {
 		$result = true;
 		if (!empty($menu_value)) {
 			if (!array_key_exists($menu_value, $menu_dropdown)) {
-				$this->error($this->option('menu_error', $this->application->locale->__("Invalid selection in {label} <!-- $menu_value -->", $this->option())));
+				$this->error($this->option('menu_error', $this->application->locale->__("Invalid selection in {label} <!-- $menu_value -->", $this->options())));
 				$result = !$this->required();
 			}
 		} else {

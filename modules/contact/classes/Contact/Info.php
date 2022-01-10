@@ -43,7 +43,7 @@ abstract class Contact_Info extends ORM {
 	 * {@inheritDoc}
 	 * @see \zesk\ORM::store()
 	 */
-	public function store() {
+	public function store(): self {
 		$result = parent::store();
 		if ($result) {
 			$this->_update_contact();

@@ -166,9 +166,9 @@ class Process {
 	 * @return array Lines output by the command (returned by exec)
 	 * @see exec
 	 */
-	public function execute_arguments($command, array $args = [], $passthru = false) {
+	public function execute_arguments(string $command, array $args = [], bool $passthru = false) {
 		foreach ($args as $i => $arg) {
-			$args[$i] = escapeshellarg($arg);
+			$args[$i] = escapeshellarg(strval($arg));
 		}
 		$args["*"] = implode(" ", array_values($args));
 		$raw_command = map($command, $args);

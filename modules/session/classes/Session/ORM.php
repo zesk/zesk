@@ -397,7 +397,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @return Object
 	 */
-	public function store() {
+	public function store(): self {
 		if ($this->member_is_empty("cookie")) {
 			$this->delete();
 			return $this;
@@ -480,7 +480,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @see Interface_Session::variables()
 	 */
-	public function variables() {
+	public function variables(): array {
 		return $this->members['data'];
 	}
 

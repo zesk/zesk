@@ -181,7 +181,7 @@ abstract class Server_Platform extends Hookable {
 		$host_path = $this->option('host_path');
 		$default_type = !empty($server_url) ? "client" : (!empty($host_path) ? 'files' : null);
 		$configure_type = $this->option('configure_type', $default_type);
-		$this->config = Server_Configuration::factory($configure_type, $this, $this->option());
+		$this->config = Server_Configuration::factory($configure_type, $this, $this->options());
 		$this->application->logger->debug("Configuration class: {class}", [
 			"class" => get_class($this->config),
 		]);

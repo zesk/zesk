@@ -4,9 +4,9 @@ namespace zesk;
 class Class_Contact_Phone extends Class_Contact_Info {
 	public $contact_object_field = "Phone";
 
-	public $id_column = "id";
+	public string $id_column = "id";
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"contact" => self::type_object,
 		"label" => self::type_object,

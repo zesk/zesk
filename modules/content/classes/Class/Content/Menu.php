@@ -11,5 +11,5 @@ class Class_Content_Menu extends Class_ORM {
 		"code",
 	];
 
-	public $id_column = "id";
+	public string $id_column = "id";
 }

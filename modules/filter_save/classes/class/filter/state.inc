@@ -2,13 +2,13 @@
 namespace zesk;
 
 class Class_Filter_State extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
-	public $has_one = [
+	public array $has_one = [
 		"user" => "zesk\\User",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'id' => self::type_id,
 		'scope' => self::type_string,
 		'user' => self::type_object,

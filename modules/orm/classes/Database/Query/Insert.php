@@ -59,8 +59,21 @@ class Database_Query_Insert extends Database_Query_Edit {
 	 */
 	public function into($set = null) {
 		if ($set === null) {
+			zesk()->deprecated("setter/getter changed to PSR");
 			return $this->into;
 		}
+		$this->table($set);
+		$this->into = $set;
+		return $this;
+	}
+
+	/**
+	 * Setter for "into" which table
+	 *
+	 * @param string $set Into table name
+	 * @return self
+	 */
+	public function setInto(string $set): self {
 		$this->table($set);
 		$this->into = $set;
 		return $this;

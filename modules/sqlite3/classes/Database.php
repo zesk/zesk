@@ -163,7 +163,7 @@ class Database extends \zesk\Database {
 	final public function free($result): void {
 	}
 
-	final public function fetch_array($result) {
+	final public function fetch_array(mixed $result): ?array {
 		return $result->fetchArray(SQLITE3_NUM);
 	}
 
@@ -172,7 +172,7 @@ class Database extends \zesk\Database {
 	 * @param $result SQLite3Result
 	 * @throws Exception_Parameter
 	 */
-	final public function fetch_assoc($result) {
+	final public function fetch_assoc(mixed $result): ?array {
 		if (!$result instanceof SQLite3Result) {
 			throw new Exception_Parameter("Requires a SQLite3Result {class} (of {type}) given", ["class" => get_class($result), "type" => type($result)]);
 		}
@@ -187,7 +187,7 @@ class Database extends \zesk\Database {
 		return $this->conn->changes();
 	}
 
-	final public function insert_id() {
+	final public function insert_id(): ?int {
 		return $this->conn->lastInsertRowID();
 	}
 

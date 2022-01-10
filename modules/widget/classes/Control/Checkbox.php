@@ -12,11 +12,11 @@ class Control_Checkbox extends Control {
 	private function apply_options($bool_result): void {
 		if ($bool_result) {
 			if ($this->has_option("trueoptions")) {
-				$this->set_option($this->first_option("options_true;trueoptions"));
+				$this->set_option($this->firstOption(["options_true", "trueoptions"]));
 			}
 		} else {
 			if ($this->has_option("falseoptions")) {
-				$this->set_option($this->first_option("options_false;falseoptions"));
+				$this->set_option($this->firstOption(["options_false", "falseoptions"]));
 			}
 		}
 	}
@@ -34,7 +34,7 @@ class Control_Checkbox extends Control {
 	}
 
 	private function input_value($names, $default) {
-		$value = $this->first_option($names, $default);
+		$value = $this->firstOption(to_list($names), $default);
 		if (is_string($value)) {
 			return $this->object->apply_map($value);
 		}
@@ -42,7 +42,7 @@ class Control_Checkbox extends Control {
 	}
 
 	private function object_value($names, $default) {
-		$value = $this->first_option($names, $default);
+		$value = $this->firstOption(to_list($names), $default);
 		return $this->object->apply_map($value);
 	}
 

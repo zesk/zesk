@@ -64,7 +64,7 @@ abstract class Server_Configuration extends Hookable {
 		return $this->platform->verbose_log($message, $args);
 	}
 
-	final public function variables() {
+	final public function variables(): array {
 		return $this->options;
 	}
 

@@ -157,13 +157,13 @@ class Template implements Interface_Theme {
 	/**
 	 * Construct a new template
 	 *
-	 * @param string $path
+	 * @param ?string $path
 	 *        	Relative or absolute path to template
-	 * @param array $variables
+	 * @param ?mixed $variables
 	 *        	Name/Value pairs to be set in the template execution
 	 * @param Application $app
 	 */
-	public function __construct(Application $app, $path = null, $variables = null) {
+	public function __construct(Application $app, string $path = null, mixed $variables = null) {
 		$this->application = $app;
 		$this->stack = $app->template_stack;
 
@@ -172,7 +172,10 @@ class Template implements Interface_Theme {
 			$this->_vars = $variables->variables() + $this->_vars;
 		} elseif (is_array($variables)) {
 			foreach ($variables as $k => $v) {
-				if (substr($k, 0, 1) === '_') {
+				if (!is_string($k)) {
+					continue;
+				}
+				if (str_starts_with($k, '_')) {
 					continue;
 				}
 				$this->__set($k, $v);
@@ -182,7 +185,7 @@ class Template implements Interface_Theme {
 		assert(count($this->_vars_changed) === 0);
 		if ($path) {
 			$this->_original_path = $path;
-			$this->path($path);
+			$this->setPath($path);
 		}
 		if (self::$profile) {
 			ArrayTools::increment(self::$_stats['counts'], $this->_path);
@@ -194,10 +197,10 @@ class Template implements Interface_Theme {
 	 *
 	 * @param string $path
 	 *        	Relative and absolute path to template
-	 * @param array $variables
-	 * @return Template
+	 * @param ?mixed $variables
+	 * @return self
 	 */
-	public function begin($path, $variables = false) {
+	public function begin(string $path, mixed $variables = null): self {
 		if (ends($path, ".tpl")) {
 			$this->application->logger->warning("{method} {path} ends with .tpl - now deprecated, use theme names only, called from {calling_function}", [
 				"method" => __METHOD__,
@@ -224,7 +227,7 @@ class Template implements Interface_Theme {
 	 * @param string $content_variable
 	 * @throws Exception_Semantics
 	 */
-	public function end($variables = [], $content_variable = "content") {
+	public function end(array $variables = [], string $content_variable = "content"): string {
 		if (count($this->wrappers) === 0) {
 			throw new Exception_Semantics("Template::end when no template on the wrapper stack");
 		}
@@ -232,7 +235,7 @@ class Template implements Interface_Theme {
 		/* @var $t Template */
 		$t->pop();
 		if (!$t->_path) {
-			return null;
+			return "";
 		}
 		$variables[$content_variable] = ob_get_clean();
 		$t->set($variables);
@@ -263,7 +266,7 @@ class Template implements Interface_Theme {
 	 * @return $this
 	 * @throws Exception_Semantics
 	 */
-	public function pop() {
+	public function pop(): self {
 		$stack = $this->stack;
 		$top = $stack->pop();
 		if (self::$debug_stack) {
@@ -296,7 +299,7 @@ class Template implements Interface_Theme {
 	 *
 	 * @return array
 	 */
-	public function variables() {
+	public function variables(): array {
 		return $this->_vars;
 	}
 
@@ -565,8 +568,9 @@ class Template implements Interface_Theme {
 	 * Output
 	 *
 	 * @return string
+	 * @throws \Exception
 	 */
-	public function render() {
+	public function render(): ?string {
 		if (!$this->_path) {
 			return null;
 		}
@@ -584,7 +588,12 @@ class Template implements Interface_Theme {
 		} catch (\Exception $_template_exception) {
 			$this->application->hooks->call("exception", $_template_exception);
 		}
-		$this->pop();
+
+		try {
+			$this->pop();
+		} catch (Exception_Semantics $e) {
+			$this->application->logger->error("pop semantics error {path}", $this->variables());
+		}
 		$contents = ob_get_clean();
 		if ($_template_exception) {
 			throw $_template_exception;

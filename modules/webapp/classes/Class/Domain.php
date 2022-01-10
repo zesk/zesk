@@ -15,7 +15,7 @@ namespace zesk\WebApp;
 class Class_Domain extends Class_ORM {
 	public $codename = "WebApp_Domain";
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"name" => self::type_string,
 		"type" => self::type_string,
@@ -28,7 +28,7 @@ class Class_Domain extends Class_ORM {
 		"name",
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		"target" => "*type",
 	];
 

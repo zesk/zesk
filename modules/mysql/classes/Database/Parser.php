@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
@@ -6,6 +7,7 @@
  * @package zesk
  * @subpackage database
  */
+
 namespace MySQL;
 
 use zesk\Database_Table;
@@ -153,20 +155,7 @@ class Database_Parser extends \zesk\Database_Parser {
 	 * @return array
 	 */
 	private function parse_column_options_sql(Database_Table $table, $sql_type, $column_options) {
-		static $patterns = [
-			'not null',
-			'default null',
-			'default \'([^\']*)\'',
-			'default b\'([01]+)\'',
-			'default (-?[0-9:]+)',
-			'default ([a-zA-Z_]+)',
-			'default current_timestamp',
-			'character set ([A-Za-z][-_A-Za-z0-9]*)',
-			'collate ([A-Za-z][-_A-Za-z0-9]*)',
-			'auto_increment',
-			'primary key',
-			'on update current_timestamp',
-		];
+		static $patterns = ['not null', 'default null', 'default \'([^\']*)\'', 'default b\'([01]+)\'', 'default (-?[0-9:]+)', 'default ([a-zA-Z_]+)', 'default current_timestamp', 'character set ([A-Za-z][-_A-Za-z0-9]*)', 'collate ([A-Za-z][-_A-Za-z0-9]*)', 'auto_increment', 'primary key', 'on update current_timestamp', ];
 
 		$col_opt_matches = null;
 		$options = [];
@@ -226,8 +215,8 @@ class Database_Parser extends \zesk\Database_Parser {
 	 *
 	 * @param Database_Table $table
 	 * @param string $sql
-	 * @throws Exception_Parse
 	 * @return unknown
+	 * @throws Exception_Parse
 	 */
 	private function parse_column_sql(Database_Table $table, $sql) {
 		$columns_matches = [];
@@ -249,8 +238,8 @@ class Database_Parser extends \zesk\Database_Parser {
 			if (begins($sql_type, "varbinary")) {
 				$options['binary'] = true;
 			}
-			$size = to_integer(unquote($col_match[4], '()'), null);
-			if ($size !== null) {
+			$size = to_integer(unquote($col_match[4], '()'), 0);
+			if ($size !== 0) {
 				$options['size'] = $size;
 			}
 			if (trim(strtolower($col_match[5])) === "unsigned") {
@@ -260,18 +249,18 @@ class Database_Parser extends \zesk\Database_Parser {
 			$options['sql_type'] = trim($sql_type);
 
 			if ($sql_type === "timestamp" && !isset($options['default'])) {
-				if (!avalue($options, 'not null')) {
+				if ($options['not null'] ?? null) {
+					// KMD Was 2020-07-13 "CURRENT_TIMESTAMP";
+					$options['default'] = 0;
+				} else {
 					// $options['default'] = null;
 					// KMD False DEFAULT NULL not compatible 2021
-				} else {
-					$options['default'] = 0;
-					// KMD Was 2020-07-13 "CURRENT_TIMESTAMP";
 				}
 			}
 			$col = new Database_Column($table, $column_name, $options);
 			$options = $this->database->column_attributes($col);
 			$col->set_option($options, null, false);
-			$table->column_add($col);
+			$table->columnAdd($col);
 		}
 		return $sql;
 	}
@@ -307,7 +296,7 @@ class Database_Parser extends \zesk\Database_Parser {
 	 * @param mixed $indexes_state
 	 * @return string
 	 */
-	private static function parse_index_sql(Database_Table $table, $sql_columns, &$indexes_state) {
+	private static function parse_index_sql(Database_Table $table, string $sql_columns, array &$indexes_state): string {
 		/*
 		 * Extract indexes from definition
 		 */
@@ -316,12 +305,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			return $sql_columns;
 		}
 		foreach ($index_matches as $index_match) {
-			$index_type = $index_match[1];
-			$index_name = unquote($index_match[3], '``');
-			$index_columns = unquote(ArrayTools::trim(explode(",", $index_match[4])), '``');
-			$index_structure = avalue($index_match, 5, null);
-
-			$indexes_state[] = compact("index_type", "index_name", "index_columns", "index_structure");
+			$indexes_state[] = ["index_type" => $index_match[1], "index_name" => unquote($index_match[3], '``'), "index_columns" => unquote(ArrayTools::trim(explode(",", $index_match[4])), '``'), "index_structure" => $index_match[5] ?? null];
 			$sql_columns = str_replace($index_match[0], "", $sql_columns);
 		}
 		return $sql_columns;
@@ -337,7 +321,7 @@ class Database_Parser extends \zesk\Database_Parser {
 		foreach ($indexes as $state) {
 			$index_type = $index_name = $index_columns = $index_structure = null;
 			extract($state, EXTR_IF_EXISTS);
-			$index = new Database_Index($table, $index_name, null, $index_type, $index_structure);
+			$index = new Database_Index($table, $index_name, [], $index_type, $index_structure);
 			foreach ($index_columns as $index_column) {
 				$index_size_match = false;
 				if (preg_match(MYSQL_PATTERN_INDEX_COLUMN, $index_column, $index_size_match)) {
@@ -381,11 +365,7 @@ class Database_Parser extends \zesk\Database_Parser {
 				$sql = str_replace($full_match, "", $sql);
 			}
 		}
-		return [
-			"rename" => $renamed_columns,
-			"add" => $add_tips,
-			"remove" => $remove_tips,
-		];
+		return ["rename" => $renamed_columns, "add" => $add_tips, "remove" => $remove_tips, ];
 	}
 
 	/**

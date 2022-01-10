@@ -70,7 +70,7 @@ class Database_Exception_SQL extends Database_Exception {
 	 * {@inheritDoc}
 	 * @see zesk\Exception::variables()
 	 */
-	public function variables() {
+	public function variables(): array {
 		return [
 			'errno' => $this->getCode(),
 			'db' => $this->db, // Deprecated

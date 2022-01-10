@@ -17,13 +17,13 @@ class Class_Log_Mail extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $column_types = [
+	public array $column_types = [
 		'id' => self::type_id,
 		'session' => self::type_object,
 		'user' => self::type_object,
@@ -38,7 +38,7 @@ class Class_Log_Mail extends Class_ORM {
 		'data' => self::type_serialize,
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		'session' => Session_ORM::class,
 		'user' => User::class,
 	];

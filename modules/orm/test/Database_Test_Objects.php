@@ -7,9 +7,9 @@ namespace zesk;
  *
  */
 class Class_DBQueryObjectTest extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"foo" => self::type_string,
 	];

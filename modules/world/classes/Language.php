@@ -33,7 +33,7 @@ class Language extends ORM {
 		}
 		$lang_en = $application->orm_registry(__CLASS__)
 			->query_select()
-			->what("name", "name")
+			->addWhat("name", "name")
 			->where([
 			"code" => $language,
 			"dialect" => $dialect,

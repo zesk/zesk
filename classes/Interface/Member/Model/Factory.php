@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 interface Interface_Member_Model_Factory {
@@ -8,15 +10,15 @@ interface Interface_Member_Model_Factory {
 	 * Override in subclasses to get special behavior.
 	 *
 	 * @param string $member
-	 *        	Name of the member we are fetching
+	 *            Name of the member we are fetching
 	 *
 	 * @param string $class
-	 *        	Class of member
+	 *            Class of member
 	 * @param string $data
-	 *        	Current data stored in member
+	 *            Current data stored in member
 	 * @param array $options
-	 *        	Options to create when creating object
+	 *            Options to create when creating object
 	 * @return Model|null
 	 */
-	public function member_model_factory($member, $class, $mixed = null, array $options = []);
+	public function member_model_factory(string $member, string $class, mixed $mixed = null, array $options = []): ?Model;
 }

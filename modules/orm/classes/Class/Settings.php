@@ -7,9 +7,9 @@ namespace zesk;
  *
  */
 class Class_Settings extends Class_ORM {
-	public $id_column = "name";
+	public string $id_column = "name";
 
-	public $column_types = [
+	public array $column_types = [
 		'name' => self::type_string,
 		'value' => self::type_serialize,
 		'modified' => self::type_modified,

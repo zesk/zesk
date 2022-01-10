@@ -24,23 +24,22 @@ class Database_Query_Union_Test extends Test_Unit {
 		$select = new Database_Query_Select($db);
 		$testx->union($select);
 
-		$what = null;
-		$testx->what($what);
+		$testx->addWhat("ID");
 
 		$table = $table_name;
 		$alias = '';
 		$testx->from($table, $alias);
 
-		$sql = null;
-		$join_id = null;
-		$testx->join($sql, $join_id);
+		$sql = "INNER JOIN Foo F ON F.ID=B.Foo";
 
-		$k = null;
-		$v = null;
-		$testx->where($k, $v);
+		$testx->addJoin($sql);
 
-		$group_by = null;
-		$testx->group_by($group_by);
+		$select->clearWhere();
+		$select->appendWhere(["A" => null]);
+		$select->addWhereSQL("COUNT(A) != COUNT(B)");
+
+		$group_by = "ID";
+		$testx->group_by([$group_by]);
 
 		$order_by = null;
 		$testx->order_by($order_by);
@@ -57,16 +56,15 @@ class Database_Query_Union_Test extends Test_Unit {
 		$options = [];
 		$testx->orm_iterator($class, $options);
 
-		$field = false;
-		$default = false;
+		$field = "id";
+		$default = null;
 		$testx->one($field, $default);
 
 		$class = "User";
-		$testx->object($class);
+		$testx->orm($class);
 
-		$field = null;
-		$default = 0;
-		$testx->one_integer($field, $default);
+		$field = "total";
+		$testx->one_integer($field, 0);
 
 		$field = null;
 		$default = 0;
@@ -79,7 +77,7 @@ class Database_Query_Union_Test extends Test_Unit {
 
 		$testx->database();
 
-		$class = null;
-		$testx->orm_class($class);
+		$class = Server::class;
+		$testx->setORMClass($class);
 	}
 }

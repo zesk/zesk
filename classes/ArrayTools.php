@@ -29,7 +29,7 @@ class ArrayTools {
 	 * @param array $array
 	 * @return array
 	 */
-	public static function capitalize(array $array) {
+	public static function capitalize(array $array): array {
 		foreach ($array as $k => $v) {
 			if (is_array($v)) {
 				$array[$k] = self::capitalize($v);
@@ -47,7 +47,7 @@ class ArrayTools {
 	 * @return array
 	 * @see flatten
 	 */
-	public static function flatten(array $a) {
+	public static function flatten(array $a): array {
 		foreach ($a as $k => $v) {
 			if (!is_scalar($v)) {
 				$a[$k] = flatten($v);
@@ -63,7 +63,7 @@ class ArrayTools {
 	 * @return array
 	 * @see flatten
 	 */
-	public static function simplify(array $a) {
+	public static function simplify(array $a): array {
 		foreach ($a as $k => $v) {
 			if (is_object($v)) {
 				$a[$k] = method_exists($v, "__toString") ? strval($v) : self::simplify(get_object_vars($v));
@@ -85,10 +85,7 @@ class ArrayTools {
 	 * @param mixed $value
 	 *        	Value or array of values to remove
 	 */
-	public static function clean($a, $value = "") {
-		if (!is_array($a)) {
-			return $a;
-		}
+	public static function clean(array $a, string|array $value = ""): array {
 		if (is_array($value)) {
 			foreach ($value as $v) {
 				$a = self::clean($a, $v);
@@ -105,7 +102,6 @@ class ArrayTools {
 
 	/**
 	 * Calls PHP trim() on each element of an array.
-	 * If $a is not an array, returns trim($a)
 	 *
 	 * @param string $character_list List of characters to trim
 	 * @param mixed $a
@@ -113,7 +109,7 @@ class ArrayTools {
 	 * @return array
 	 * @see trim()
 	 */
-	public static function trim(array $a, $character_list = self::TRIM_WHITESPACE) {
+	public static function trim(array $a, $character_list = self::TRIM_WHITESPACE): array {
 		foreach ($a as $i => $v) {
 			$a[$i] = is_array($v) ? self::trim($v, $character_list) : trim($v, $character_list);
 		}
@@ -126,7 +122,7 @@ class ArrayTools {
 	 * @param array $a
 	 * @return array
 	 */
-	public static function list_trim(array $a) {
+	public static function list_trim(array $a): array {
 		return self::list_trim_tail(self::list_trim_head($a));
 	}
 
@@ -136,7 +132,7 @@ class ArrayTools {
 	 * @param array $a
 	 * @return array
 	 */
-	public static function list_trim_head(array $a) {
+	public static function list_trim_head(array $a): array {
 		while (count($a) > 0) {
 			$item = first($a);
 			if (trim($item) === "") {
@@ -154,7 +150,7 @@ class ArrayTools {
 	 * @param array $a
 	 * @return array
 	 */
-	public static function list_trim_tail(array $a) {
+	public static function list_trim_tail(array $a): array {
 		while (count($a) > 0) {
 			$item = last($a);
 			if (trim($item) === "") {
@@ -175,7 +171,7 @@ class ArrayTools {
 	 *        	Value which is removed
 	 * @return array
 	 */
-	public static function trim_clean(array $arr, $character_list = self::TRIM_WHITESPACE, $value = "") {
+	public static function trim_clean(array $arr, $character_list = self::TRIM_WHITESPACE, $value = ""): array {
 		return self::clean(self::trim($arr, $character_list), $value);
 	}
 
@@ -360,7 +356,7 @@ class ArrayTools {
 	 *        	Remove unmatched entries
 	 * @return array
 	 */
-	public static function unprefix(array $arr, $str, $remove = false) {
+	public static function unprefix(array $arr, string $str, bool $remove = false): array {
 		$n = strlen($str);
 		foreach ($arr as $k => $v) {
 			if (is_string($v)) {
@@ -386,7 +382,7 @@ class ArrayTools {
 	 *        	Remove unmatched entries
 	 * @return array
 	 */
-	public static function unsuffix(array $arr, $str, $remove = false) {
+	public static function unsuffix(array $arr, string $str, bool $remove = false): array {
 		$n = strlen($str);
 		foreach ($arr as $k => $v) {
 			if (is_string($v)) {
@@ -413,7 +409,7 @@ class ArrayTools {
 	 *        	Remove unmatched entries
 	 * @return array
 	 */
-	public static function unwrap(array $arr, $prefix, $suffix, $remove = false) {
+	public static function unwrap(array $arr, string $prefix, string $suffix, bool $remove = false): array {
 		$n_prefix = strlen($prefix);
 		$n_suffix = strlen($suffix);
 		foreach ($arr as $k => $v) {
@@ -439,7 +435,7 @@ class ArrayTools {
 	 *        	Remove unmatched entries
 	 * @return array
 	 */
-	public static function kunprefix(array $arr, $str, $remove = false) {
+	public static function kunprefix(array $arr, string $str, bool $remove = false): array {
 		$n = strlen($str);
 		$result = [];
 		foreach ($arr as $k => $v) {
@@ -461,7 +457,7 @@ class ArrayTools {
 	 *        	Remove unmatched entries
 	 * @return array
 	 */
-	public static function kunsuffix(array $arr, $str, $remove = false) {
+	public static function kunsuffix(array $arr, string $str, bool $remove = false): array {
 		$n = strlen($str);
 		$result = [];
 		foreach ($arr as $k => $v) {
@@ -482,8 +478,7 @@ class ArrayTools {
 	 *        	Array or list of keys to remove
 	 * @return array
 	 */
-	public static function remove(array $arr, $keys) {
-		$keys = to_list($keys);
+	public static function remove(array $arr, array $keys): array {
 		foreach ($keys as $k) {
 			unset($arr[$k]);
 		}
@@ -494,11 +489,11 @@ class ArrayTools {
 	 * Remove values from an array
 	 *
 	 * @param array $arr
-	 * @param array|string $values Array or list of values to remove
+	 * @param array $values List of values to remove
 	 * @return array
 	 */
-	public static function remove_values(array $arr, $values) {
-		$keys = array_flip(to_list($values));
+	public static function remove_values(array $arr, array $values): array {
+		$keys = array_flip($values);
 		foreach ($arr as $k => $v) {
 			if (array_key_exists($v, $keys)) {
 				unset($arr[$k]);
@@ -520,7 +515,7 @@ class ArrayTools {
 	 * @return array
 	 * @todo Is this used
 	 */
-	public static function merge() {
+	public static function merge(): array {
 		$result = [];
 		for ($i = 0, $total = func_num_args(); $i < $total; $i++) {
 			foreach (func_get_arg($i) as $key => $val) {
@@ -556,7 +551,7 @@ class ArrayTools {
 	 *        	Character used to separate levels in the array
 	 * @return array
 	 */
-	public static function path_set(array &$array, $path, $value, $separator = ".") {
+	public static function path_set(array &$array, $path, $value, $separator = "."): array {
 		return apath_set($array, $path, $value, $separator);
 	}
 

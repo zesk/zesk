@@ -2,13 +2,13 @@
 namespace zesk;
 
 class Class_Browser extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	public $find_keys = [
 		'md5',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'id' => self::type_id,
 		'md5' => self::type_hex32,
 		'is_phone' => self::type_boolean,

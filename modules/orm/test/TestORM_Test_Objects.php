@@ -2,9 +2,9 @@
 namespace zesk;
 
 class Class_TestORM extends Class_ORM {
-	public $id_column = "ID";
+	public string $id_column = "ID";
 
-	public $column_types = [
+	public array $column_types = [
 		"ID" => self::type_id,
 		'Name' => self::type_string,
 		'Price' => self::type_double,

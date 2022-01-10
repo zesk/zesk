@@ -10,9 +10,9 @@ namespace zesk;
  *
  */
 class Class_Server_Data extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
-	public $primary_keys = [
+	public array $primary_keys = [
 		"id",
 	];
 
@@ -21,16 +21,16 @@ class Class_Server_Data extends Class_ORM {
 		"name",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'id' => self::type_id,
 		'server' => self::type_object,
 		'name' => self::type_string,
 		'value' => self::type_serialize,
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		'server' => 'zesk\\Server',
 	];
 
-	public $database_group = "zesk\\Server";
+	public string $database_group = "zesk\\Server";
 }

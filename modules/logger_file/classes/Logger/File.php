@@ -337,7 +337,7 @@ class File implements Handler {
 	 *
 	 * @return string[]
 	 */
-	public function variables() {
+	public function variables(): array {
 		return [
 			"filename" => $this->filename,
 			"mode" => $this->mode,

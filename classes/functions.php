@@ -354,7 +354,7 @@ function _dump($x) {
  *        	A value to return if parsing is unsuccessful
  * @return mixed Returns true or false, or $default if parsing fails.
  */
-function to_bool($value, $default = false) {
+function to_bool(mixed $value, bool $default = false): bool {
 	if (is_bool($value)) {
 		return $value;
 	}
@@ -382,7 +382,7 @@ function to_bool($value, $default = false) {
  *        	The default value. Not converted to integer.
  * @return integer The integer value, or $def if it can not be converted to an integer
  */
-function to_integer($s, $def = null) {
+function to_integer(mixed $s, int $def = 0): int {
 	return is_numeric($s) ? intval($s) : $def;
 }
 
@@ -392,12 +392,12 @@ function to_integer($s, $def = null) {
  *
  * @param mixed $s
  *        	Value to convert to double
- * @param mixed $def
+ * @param float $def
  *        	The default value. Not converted to double.
  * @return double The double value, or $def if it can not be converted to an integer
  */
-function to_double($s, $def = null) {
-	return is_numeric($s) ? floatval($s) : $def;
+function to_double(mixed $s, float $def = null): float {
+	return is_numeric($s) ? floatval($s) : floatval($def);
 }
 
 /**
@@ -412,7 +412,7 @@ function to_double($s, $def = null) {
  *        	String list delimiter (";" is default)
  * @return array or $default
  */
-function to_list($mixed, $default = [], $delimiter = ";") {
+function to_list(mixed $mixed, array $default = [], string $delimiter = ";"): array {
 	if (is_scalar($mixed)) {
 		return explode($delimiter, strval($mixed));
 	} elseif (is_array($mixed)) {
@@ -434,7 +434,7 @@ function to_list($mixed, $default = [], $delimiter = ";") {
  *        	Default value to return if can't easily convert to an array.
  * @return array
  */
-function to_array($mixed, $default = []) {
+function to_array(mixed $mixed, array $default = []): array {
 	if (is_array($mixed)) {
 		return $mixed;
 	}
@@ -455,7 +455,7 @@ function to_array($mixed, $default = []) {
  * @param mixed $mixed
  * @return string
  */
-function to_text($mixed) {
+function to_text(mixed $mixed): string {
 	if (is_bool($mixed)) {
 		return $mixed ? 'true' : 'false';
 	}
@@ -473,12 +473,20 @@ function to_text($mixed) {
  *
  * @param mixed $mixed
  * @return array|Iterator
+ * @deprecated 2022-01
  */
-function to_iterator($mixed) {
-	if (is_array($mixed)) {
-		return $mixed;
-	}
-	if ($mixed instanceof Iterator) {
+function to_iterator(mixed $mixed): iterable {
+	return to_iterable($mixed);
+}
+
+/**
+ * Gently coerce things to iterable
+ *
+ * @param mixed $mixed
+ * @return iterable
+ */
+function to_iterable(mixed $mixed): iterable {
+	if (is_iterable($mixed)) {
 		return $mixed;
 	}
 	if (empty($mixed)) {
@@ -488,15 +496,14 @@ function to_iterator($mixed) {
 		$mixed,
 	];
 }
-
 /**
  * Converts 20G to integer value
  *
  * @param string $mixed
- * @param string $default
- * @return integer
+ * @param int $default
+ * @return float
  */
-function to_bytes($mixed, $default = null) {
+function to_bytes(string $mixed, int $default = 0): float {
 	$mixed = strtolower(trim($mixed));
 	if (is_numeric($mixed)) {
 		return intval($mixed);
@@ -518,7 +525,7 @@ function to_bytes($mixed, $default = null) {
  * @deprecated 2017-12 Use $application->locale->__($phrase) instead.
  * @see Locale::__invoke
  */
-function __($phrase) {
+function __(array|string $phrase): string {
 	$args = func_get_args();
 	$locale = Kernel::singleton()->application()->locale;
 	array_shift($args);
@@ -539,7 +546,7 @@ if (!function_exists('debugger_start_debug')) {
  * $foo = $a['key'] ?? $default;
  *
  * FINALLY.
- *
+ * @deprecated 2022-01 PHP8
  * @param array $a
  *        	An array to look in
  * @param string $k
@@ -563,6 +570,7 @@ function avalue($a, $k, $default = null) {
 /**
  * Shorthand for array_key_exists($k,$a) || !empty($a[$k]) ? $a[$k] : $default.
  * Asserts $a is an array.
+ * @deprecated 2022-01 PHP8
  *
  * @param array $a
  *        	An array to look in
@@ -1250,7 +1258,12 @@ function &apath(array $array, $path, $default = null, $separator = ".") {
  * @param string $separator Character used to separate levels in the array
  * @return array|mixed
  */
-function &apath_set(array &$array, $path, $value = null, $separator = ".") {
+function &apath_set(array &$array, $path, $value = null, $separator = "."): mixed {
+	if ($value === null) {
+		zesk()->deprecated("apath_set null to unset is deprecated");
+		apath_unset($array, to_list($path, $separator));
+		return $array;
+	}
 	$current = &$array;
 	// Split the keys by separator
 	$keys = is_array($path) ? $path : explode($separator, $path);
@@ -1266,13 +1279,37 @@ function &apath_set(array &$array, $path, $value = null, $separator = ".") {
 		$current = &$current[$key];
 	}
 	$key = array_shift($keys);
-	if ($value === null) {
-		unset($current[$key]);
-		return $current;
-	} else {
-		$current[$key] = $value;
-		return $current[$key];
+	$current[$key] = $value;
+	return $current[$key];
+}
+
+/**
+ * Partner of apath - removes an array path and value
+ *
+ * @param array $array Array to manipulate
+ * @param array $keys Path to item in the tree
+ * @return bool Value was found and unset.
+ */
+function apath_unset(array &$array, array $keys): bool {
+	$current = &$array;
+	// Split the keys by separator
+	while (count($keys) > 1) {
+		$key = array_shift($keys);
+		if (isset($current[$key])) {
+			if (!is_array($current[$key])) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+		$current = &$current[$key];
 	}
+	$key = array_shift($keys);
+	if (!isset($current[$key])) {
+		return false;
+	}
+	unset($current[$key]);
+	return true;
 }
 
 if (!function_exists('sgn')) {

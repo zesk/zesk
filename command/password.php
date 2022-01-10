@@ -26,7 +26,7 @@ class Command_Password extends Command_Base {
 		$user = $this->application->orm_factory('User');
 		$col = $user->column_login();
 		$iterator = $user->query_select()
-			->what($col)
+			->addWhat($col)
 			->order_by($col)
 			->iterator(null, $col);
 		$n = 0;

@@ -29,16 +29,16 @@ class Database_Index_Test extends Test_Unit {
 	public function test_add_column_not_found(): void {
 		$table = $this->mytesttable();
 
-		$x = new Database_Index($table, "testindex", Database_Index::Index);
+		$x = new Database_Index($table, "testindex", [], Database_Index::Index);
 
-		$x->column_add("Friday");
+		$x->addColumn("Friday");
 	}
 
 	public function test_main(): void {
 		$table = $this->mytesttable();
 		$name = 'index_with_a_name';
 		$type = 'INDEX';
-		$x = new Database_Index($table, $name, $type);
+		$x = new Database_Index($table, $name, [], $type);
 
 		$sqlType = null;
 		Database_Index::determineType($sqlType);
@@ -56,8 +56,8 @@ class Database_Index_Test extends Test_Unit {
 		$x->type();
 
 		$mixed = new Database_Column($table, "Foo");
-		$size = true;
-		$x->column_add($mixed, $size);
+		$size = Database_Index::SIZE_DEFAULT;
+		$x->addDatabaseColumn($mixed, $size);
 
 		$x->sql_index_add();
 
@@ -67,8 +67,8 @@ class Database_Index_Test extends Test_Unit {
 
 		$that = new Database_Index($table, "another_name");
 		$debug = false;
-		$this->assert($x->is_similar($that, $debug) === false);
-		$this->assert($x->is_similar($x, $debug) === true);
+		$this->assert($x->isSimilar($that, $debug) === false);
+		$this->assert($x->isSimilar($x, $debug) === true);
 	}
 
 	/**
@@ -78,11 +78,11 @@ class Database_Index_Test extends Test_Unit {
 		$table = $this->mytesttable();
 		$name = '';
 		$type = 'INDEX';
-		$x = new Database_Index($table, $name, $type);
+		$x = new Database_Index($table, $name, [], $type);
 
 		$mixed = new Database_Column($table, "Foo");
-		$size = true;
-		$x->column_add($mixed, $size);
+		$size = Database_Index::SIZE_DEFAULT;
+		$x->addDatabaseColumn($mixed, $size);
 
 		$x->sql_index_drop();
 	}

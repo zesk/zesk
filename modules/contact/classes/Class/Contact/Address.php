@@ -14,7 +14,7 @@ class Class_Contact_Address extends Class_Contact_Info {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 *
@@ -26,7 +26,7 @@ class Class_Contact_Address extends Class_Contact_Info {
 	 *
 	 * @var array
 	 */
-	public $has_one = [
+	public array $has_one = [
 		'contact' => "zesk\\Contact",
 		'label' => 'zesk\\Contact_Label',
 		'country' => 'zesk\\Country',
@@ -37,7 +37,7 @@ class Class_Contact_Address extends Class_Contact_Info {
 	 *
 	 * @var array
 	 */
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"contact" => self::type_object,
 		"label" => self::type_object,

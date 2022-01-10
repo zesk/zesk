@@ -15,7 +15,7 @@ class Class_DBSchemaTest4 extends Class_ORM {
 		$this->table = DBSchemaTest4::$test_table;
 	}
 
-	public $column_types = [
+	public array $column_types = [
 		"ID" => self::type_id,
 		"Depth" => self::type_integer,
 		"CodeName" => self::type_string,
@@ -56,7 +56,7 @@ class Class_DBSchemaTest5 extends Class_ORM {
 		$this->table = DBSchemaTest5::$test_table;
 	}
 
-	public $column_types = [
+	public array $column_types = [
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
 		"Phrase" => self::type_string,
@@ -87,7 +87,7 @@ class DBSchemaTest5 extends ORM {
 	}
 }
 class Class_DBSchemaTest6 extends Class_ORM {
-	public $column_types = [
+	public array $column_types = [
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
 		"Protocol" => self::type_string,
@@ -129,7 +129,7 @@ class DBSchemaTest6 extends ORM {
 	}
 }
 class Class_DBSchemaTest7 extends Class_ORM {
-	public $column_types = [
+	public array $column_types = [
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
 		"Protocol" => self::type_string,
@@ -172,7 +172,7 @@ class DBSchemaTest7 extends ORM {
 	}
 }
 class Class_DBSchemaTest8 extends Class_ORM {
-	public $column_types = [
+	public array $column_types = [
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
 		"Size" => self::type_integer,
@@ -196,7 +196,7 @@ class DBSchemaTest8 extends ORM {
 	}
 }
 class Class_DBSchemaTest_columns_0 extends Class_ORM {
-	public $column_types = [
+	public array $column_types = [
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
 		"Protocol" => self::type_string,
@@ -229,7 +229,7 @@ class DBSchemaTest_columns_0 extends ORM {
 	}
 }
 class Class_DBSchemaTest_columns_1 extends Class_ORM {
-	public $column_types = [
+	public array $column_types = [
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
 		"Protocol" => self::type_string,

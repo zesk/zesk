@@ -112,7 +112,7 @@ class Controller_Authenticated extends Controller_Theme {
 	 *
 	 * @see Controller_Template::variables()
 	 */
-	public function variables() {
+	public function variables(): array {
 		return [
 			'user' => $this->user,
 			'session' => $this->session,

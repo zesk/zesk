@@ -220,7 +220,7 @@ class Session_PHP implements Interface_Session {
 	 *
 	 * @see Interface_Settings::variables()
 	 */
-	public function variables() {
+	public function variables(): array {
 		return $_SESSION;
 	}
 

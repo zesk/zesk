@@ -148,7 +148,7 @@ abstract class Route extends Hookable {
 	 *
 	 * @return string[]
 	 */
-	public function variables() {
+	public function variables(): array {
 		return [
 			"class" => get_class($this),
 			"original_pattern" => $this->original_pattern,
@@ -270,7 +270,7 @@ abstract class Route extends Hookable {
 	 * @return double
 	 */
 	public static function compare_weight(Route $a, Route $b) {
-		return zesk_sort_weight_array($a->option(), $b->option());
+		return zesk_sort_weight_array($a->options(), $b->options());
 	}
 
 	/**
@@ -344,7 +344,7 @@ abstract class Route extends Hookable {
 		$C_PAREN_OPEN = chr(0x01);
 		$C_PAREN_CLOSE = chr(0x02);
 		$C_WILDCARD = chr(0x03);
-		$C_QUOTED_WILDCARD = 0x04;
+		$C_QUOTED_WILDCARD = chr(0x04);
 
 		[$methods, $pattern] = pair($pattern, ":", "GET|POST", $pattern);
 		$this->methods = ArrayTools::flip_assign(to_list($methods, [], "|"), true);

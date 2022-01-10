@@ -91,7 +91,7 @@ abstract class Tag extends ORM {
 
 		$selected_query = $selected->query();
 
-		$selected_query->what([
+		$selected_query->addWhatIterable([
 			"*tag_label" => $label->id(),
 			$this->foreign_column() => "id",
 		]);
@@ -111,7 +111,7 @@ abstract class Tag extends ORM {
 
 		$selected_query = $selected->query();
 
-		$selected_query->what([
+		$selected_query->addWhatIterable([
 			$this->foreign_column() => "id",
 		]);
 		// @todo log issue against this and fix

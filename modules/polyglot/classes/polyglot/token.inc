@@ -82,7 +82,7 @@ class PolyGlot_Token extends ORM {
 	 *
 	 * @see ORM::store()
 	 */
-	public function store() {
+	public function store(): self {
 		$this->md5 = md5($this->original);
 		if ($this->member_is_empty("user")) {
 			$request = $this->application->request();

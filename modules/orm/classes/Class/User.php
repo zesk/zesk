@@ -11,7 +11,7 @@ class Class_User extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 * Name column

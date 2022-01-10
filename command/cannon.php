@@ -70,7 +70,7 @@ class Command_Cannon extends Command_Base {
 	public function run(): void {
 		$this->configure('cannon');
 
-		$dir = $this->first_option("dir;directory");
+		$dir = $this->firstOption(["dir", "directory"]);
 		if ($dir && !is_dir($dir)) {
 			$this->usage("$dir is not a directory");
 		}
@@ -89,7 +89,10 @@ class Command_Cannon extends Command_Base {
 			if ($dir === null) {
 				$dir = getcwd();
 			}
-			$extensions = $this->first_option("extensions;extension", "php|inc|php4|php5|tpl|html|htm|sql|phpt|module|install|conf|md|markdown|css|less|js");
+			$extensions = $this->firstOption(
+				["extensions", "extension"],
+				"php|inc|php4|php5|tpl|html|htm|sql|phpt|module|install|conf|md|markdown|css|less|js"
+			);
 			$extensions = explode(",", strtr($extensions, [
 				"|" => ",",
 				"." => "",

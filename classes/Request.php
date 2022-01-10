@@ -790,7 +790,7 @@ class Request extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function variables() {
+	public function variables(): array {
 		return $this->variables;
 	}
 

@@ -41,7 +41,7 @@ class Content_File extends ORM {
 	 *
 	 * @see ORM::store()
 	 */
-	public function store() {
+	public function store(): self {
 		if (!$this->mime) {
 			$this->mime = MIME::from_filename($this->originalName);
 		}

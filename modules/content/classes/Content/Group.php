@@ -18,7 +18,7 @@ abstract class Content_Group extends ORM {
 	 * {@inheritDoc}
 	 * @see \zesk\ORM::store()
 	 */
-	public function store() {
+	public function store(): self {
 		if (empty($this->CodeName)) {
 			$this->CodeName = $this->clean_code_name($this->Name);
 		}

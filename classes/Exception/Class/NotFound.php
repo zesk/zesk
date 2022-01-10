@@ -41,7 +41,7 @@ class Exception_Class_NotFound extends Exception {
 	 *
 	 * @return array
 	 */
-	public function variables() {
+	public function variables(): array {
 		return parent::variables() + [
 			"class" => $this->class,
 		];

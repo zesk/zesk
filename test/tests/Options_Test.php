@@ -16,10 +16,7 @@ class Options_Test extends Test_Unit {
 
 		$testx->__sleep();
 
-		$testx->option();
-
-		$remove = false;
-		$testx->options_exclude($remove);
+		$testx->options();
 
 		$selected = false;
 		$testx->options_include($selected);
@@ -65,7 +62,7 @@ class Options_Test extends Test_Unit {
 		$opts = new Options();
 		$opts->set_option_path("a.b.c.d", "1");
 		$opts->set_option_path("a.b.c.e", 1);
-		$this->assert_arrays_equal($opts->option(), [
+		$this->assert_arrays_equal($opts->options(), [
 			'a' => [
 				'b' => [
 					'c' => [
@@ -94,7 +91,7 @@ class Options_Test extends Test_Unit {
 		foreach ($paths as $path) {
 			$opts->set_option_path($path, $path);
 		}
-		$this->assert_arrays_equal($opts->option(), [
+		$this->assert_arrays_equal($opts->options(), [
 			'a' => [
 				'a' => [
 					'a' => 'a.a.a',

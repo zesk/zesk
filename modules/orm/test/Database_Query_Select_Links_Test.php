@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 class Database_Query_Select_Links_Test extends Test_Unit {
@@ -47,8 +49,8 @@ class Database_Query_Select_Links_Test extends Test_Unit {
 
 		/*==== Test ===============================================================*/
 
-		$query = $this->application->orm_registry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select()->link('Test_Account', 'Site.Account');
-		$query->where('Account.Cancelled', null);
+		$query = $this->application->orm_registry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select()->link('Test_Account', ['path' => 'Site.Account']);
+		$query->addWhere('Account.Cancelled', null);
 
 		$test_result = 'SELECT `X`.* FROM `Test_SiteMonitor` AS `X`
 INNER JOIN `Test_Site` AS `Site` ON `Site`.`ID`=`X`.`Site`

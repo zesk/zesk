@@ -126,9 +126,8 @@ class Database_Test extends Test_Unit {
 		$sql = "SELECT * FROM $table ORDER BY Foo ASC";
 		$k = 0;
 		$v = 1;
-		$default = null;
-		$dbname = "";
-		$result = $db->query_array_index($sql, $k, $v, $default, $dbname);
+		$default = [];
+		$result = $db->query_array_index($sql, $k, $v, $default);
 
 		$this->assert_arrays_equal($result, []);
 
@@ -158,7 +157,7 @@ class Database_Test extends Test_Unit {
 			],
 		]);
 
-		$result = $db->query_array_index($sql, $k, null, $default, $dbname);
+		$result = $db->query_array_index($sql, $k, null, $default);
 		$this->assert_arrays_equal($result, [
 			"1" => [
 				0 => "1",
@@ -174,7 +173,7 @@ class Database_Test extends Test_Unit {
 			],
 		]);
 
-		$result = $db->query_array_index($sql, false, $v, $default, $dbname);
+		$result = $db->query_array_index($sql, null, $v, $default);
 
 		$this->assert_arrays_equal($result, [
 			"10",
@@ -193,9 +192,9 @@ class Database_Test extends Test_Unit {
 		$sql = "SELECT * FROM $table ORDER BY Foo ASC";
 		$k = "id";
 		$v = "foo";
-		$default = null;
-		$dbname = "";
-		$result = $db->query_array($sql, $k, $v, $default, $dbname);
+		$default = [];
+
+		$result = $db->query_array($sql, $k, $v, $default);
 
 		$this->assert_arrays_equal($result, []);
 
@@ -225,7 +224,7 @@ class Database_Test extends Test_Unit {
 			],
 		]);
 
-		$result = $db->query_array($sql, $k, false, $default, $dbname);
+		$result = $db->query_array($sql, $k, null, $default);
 		$this->assert_arrays_equal($result, [
 			"1" => [
 				"id" => "1",
@@ -241,7 +240,7 @@ class Database_Test extends Test_Unit {
 			],
 		]);
 
-		$result = $db->query_array($sql, false, "foo", $default, $dbname);
+		$result = $db->query_array($sql, null, "foo", $default);
 
 		$this->assert_arrays_equal($result, [
 			"10",
@@ -249,7 +248,7 @@ class Database_Test extends Test_Unit {
 			"30",
 		]);
 
-		$result = $db->query_array($sql, null, "foo", $default, $dbname);
+		$result = $db->query_array($sql, null, "foo", $default);
 
 		$this->assert_arrays_equal($result, [
 			"10",
@@ -257,7 +256,7 @@ class Database_Test extends Test_Unit {
 			"30",
 		]);
 
-		$result = $db->query_array($sql, "foo", "id", $default, $dbname);
+		$result = $db->query_array($sql, "foo", "id", $default);
 
 		$this->assert_arrays_equal($result, [
 			"10" => "1",
@@ -265,7 +264,7 @@ class Database_Test extends Test_Unit {
 			"30" => "3",
 		]);
 
-		$result = $db->query_array($sql, "foo", null, $default, $dbname);
+		$result = $db->query_array($sql, "foo", null, $default);
 
 		$this->assert_arrays_equal($result, [
 			"10" => [
@@ -306,8 +305,7 @@ class Database_Test extends Test_Unit {
 	public function test_auto_table_names_replace(): void {
 		$db = $this->application->database_registry();
 
-		$sql = null;
-		$db->auto_table_names_replace($sql);
+		$this->assertEquals("SELECT * FROM User", $db->autoTableRename("SELECT * FROM {User}"));
 	}
 
 	public function test_bytes_used(): void {
@@ -465,7 +463,7 @@ class Database_Test extends Test_Unit {
 		$default = 0;
 		$this->assert($db->query_integer($sql, "X", $default) === 23 * 54);
 		$this->assert($db->query_integer($sql, "Y", $default) === 0);
-		$this->assert($db->query_integer($sql, "Y", null) === null);
+		$this->assert($db->query_integer($sql, "Y", -1) === -1);
 	}
 
 	public function test_query_one1(): void {

@@ -35,7 +35,7 @@ class User extends ORM {
 	 *
 	 * @var Class_User
 	 */
-	protected $class = null;
+	protected Class_ORM $class;
 
 	/**
 	 *

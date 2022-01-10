@@ -87,16 +87,16 @@ class Controller_Share extends Controller {
 	 *
 	 * @see Controller::_action_default()
 	 */
-	public function _action_default($action = null): void {
+	public function _action_default($action = null): mixed {
 		$uri = StringTools::unprefix($original_uri = $this->request->path(), "/");
 		if ($this->application->development() && $uri === "share/debug") {
 			$this->response->content = $this->share_debug();
-			return;
+			return null;
 		}
 		$file = $this->path_to_file($this->request->path());
 		if (!$file) {
 			$this->error_404();
-			return;
+			return null;
 		}
 		$mod = $this->request->header('If-Modified-Since');
 		$fmod = filemtime($file);
@@ -107,7 +107,7 @@ class Controller_Share extends Controller {
 			if ($this->option_bool('build')) {
 				$this->build($original_uri, $file);
 			}
-			return;
+			return null;
 		}
 
 		$this->response->header("X-Debug", "Mod - " . strtotime($mod) . " FMod - " . $fmod);
@@ -122,6 +122,7 @@ class Controller_Share extends Controller {
 		if ($this->option_bool('build')) {
 			$this->build($original_uri, $file);
 		}
+		return null;
 	}
 
 	/**

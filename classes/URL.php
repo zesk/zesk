@@ -401,7 +401,7 @@ class URL {
 			return $result;
 		}
 		foreach ($result as $k => $v) {
-			$result[$k] = urldecode($v);
+			$result[$k] = urldecode(strval($v));
 		}
 		if (avalue($result, 'scheme') === 'mailto' && array_key_exists('path', $result)) {
 			$path = $result['path'];

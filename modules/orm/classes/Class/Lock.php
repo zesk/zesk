@@ -10,9 +10,9 @@ namespace zesk;
  *
  */
 class Class_Lock extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
-	public $has_one = [
+	public array $has_one = [
 		'server' => "zesk\\Server",
 	];
 
@@ -20,7 +20,7 @@ class Class_Lock extends Class_ORM {
 		'code',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'id' => self::type_id,
 		'code' => self::type_string,
 		'pid' => self::type_integer,

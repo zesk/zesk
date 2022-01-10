@@ -316,7 +316,7 @@ class Paths {
 	 *
 	 * @return string[]
 	 */
-	public function variables() {
+	public function variables(): array {
 		return [
 			'zesk' => ZESK_ROOT,
 			'application' => $this->application,

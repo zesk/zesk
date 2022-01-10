@@ -166,7 +166,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 */
 	public function refresh_interval() {
 		$value = $this->sql()->function_date_diff($this->sql()->now_utc(), "updated");
-		$n_seconds = $this->query_select()->what('*delta', $value)->one_integer("delta");
+		$n_seconds = $this->query_select()->addWhat('*delta', $value)->one_integer("delta");
 		$mag = 1;
 		while ($n_seconds > $mag) {
 			$mag *= 10;
@@ -295,7 +295,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 				// Race condition if we crash before this executes
 				if (!to_bool($application->orm_factory(__CLASS__)
 					->query_select()
-					->what("*X", "COUNT(id)")
+					->addWhat("*X", "COUNT(id)")
 					->where($server_pid)
 					->where("id", $job->id())
 					->one_integer("X"))) {

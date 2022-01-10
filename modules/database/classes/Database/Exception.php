@@ -6,6 +6,7 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  *            Created on Tue Apr 06 10:53:22 EDT 2010 10:53:22
  */
+
 namespace zesk;
 
 class Database_Exception extends Exception {
@@ -13,7 +14,7 @@ class Database_Exception extends Exception {
 	 *
 	 * @var Database
 	 */
-	public $database = null;
+	public Database $database;
 
 	/**
 	 *
@@ -24,7 +25,7 @@ class Database_Exception extends Exception {
 	 * @param Exception|null $previous
 	 * @return void
 	 */
-	public function __construct(Database $database, $message, $arguments = [], $code = null, \Exception $previous = null) {
+	public function __construct(Database $database, string $message, array $arguments = [], int $code = 0, \Exception $previous = null) {
 		$this->database = $database;
 		parent::__construct($message, $arguments, $code, $previous);
 	}
@@ -33,7 +34,7 @@ class Database_Exception extends Exception {
 	 *
 	 * @return Database
 	 */
-	public function database() {
+	public function database(): Database {
 		return $this->database;
 	}
 }

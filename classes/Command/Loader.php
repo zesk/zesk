@@ -16,54 +16,54 @@ class Command_Loader {
 	 *
 	 * @var array
 	 */
-	private $search = [];
+	private array $search = [];
 
 	/**
 	 * Main command run
 	 *
 	 * @var string
 	 */
-	private $command = null;
+	private string $command = "";
 
 	/**
 	 * Was Zesk loaded?
 	 *
 	 * @var string
 	 */
-	private $is_loaded = false;
+	private bool $is_loaded = false;
 
 	/**
 	 * List of config files to load after loading application
 	 *
 	 * @var array
 	 */
-	private $wait_configs = [];
+	private array $wait_configs = [];
 
 	/**
 	 * Command alaises
 	 *
 	 * @var array
 	 */
-	private $aliases = [];
+	private array $aliases = [];
 
 	/**
 	 *
 	 * @var boolean
 	 */
-	private $debug = false;
+	private bool $debug = false;
 
 	/**
 	 * Collect command-line context
 	 *
 	 * @var array
 	 */
-	private $global_context = [];
+	private array $global_context = [];
 
 	/**
 	 *
-	 * @var Application
+	 * @var ?Application
 	 */
-	public $application = null;
+	public ?Application $application = null;
 
 	/**
 	 *
@@ -92,7 +92,7 @@ class Command_Loader {
 	 *
 	 * @return self
 	 */
-	public static function factory() {
+	public static function factory(): self {
 		return new self();
 	}
 
@@ -167,9 +167,9 @@ class Command_Loader {
 					$this->debug = true;
 				}
 				$this->debug("Loaded application file $first_command\n");
-				$this->application->objects->singleton($this);
+				$this->application->objects->setSingleton($this);
 			}
-			if (substr($arg, 0, 1) === '/' && is_file($arg)) {
+			if (str_starts_with($arg, '/') && is_file($arg)) {
 				require_once $arg;
 
 				continue;

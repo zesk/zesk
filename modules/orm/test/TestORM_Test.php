@@ -115,50 +115,6 @@ class TestORM_Test extends Test_ORM {
 		$template_name = 'view';
 		$options = false;
 		$x->theme($template_name, $options);
-
-		$x->option();
-
-		$remove = false;
-		$x->options_exclude($remove);
-
-		$selected = false;
-		$x->options_include($selected);
-
-		$x->option_keys();
-
-		$name = null;
-		$checkEmpty = false;
-		$x->has_option($name, $checkEmpty);
-
-		$mixed = null;
-		$value = false;
-		$overwrite = true;
-		$x->set_option($mixed, $value, $overwrite);
-
-		$name = null;
-		$default = false;
-		$x->option($name, $default);
-
-		$name = null;
-		$default = false;
-		$x->option_bool($name, $default);
-
-		$name = null;
-		$default = false;
-		$x->option_integer($name, $default);
-
-		$name = null;
-		$default = false;
-		$x->option_double($name, $default);
-
-		$name = null;
-		$default = false;
-		$x->option_array($name, $default);
-
-		$name = null;
-		$default = false;
-		$delimiter = ';';
-		$x->option_list($name, $default, $delimiter);
 	}
 
 	public function test_object(): void {

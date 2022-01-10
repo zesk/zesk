@@ -10,13 +10,13 @@ namespace zesk;
  *
  */
 class Class_Help extends Class_ORM {
-	public $id_column = 'id';
+	public string $id_column = 'id';
 
 	public $find_keys = [
 		'target',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'id' => self::type_id,
 		'target' => self::type_string,
 		'type' => self::type_string,
@@ -44,7 +44,7 @@ class Class_Help extends Class_ORM {
 		'placement' => 'auto',
 	];
 
-	public $has_many = [
+	public array $has_many = [
 		'users' => [
 			'class' => 'zesk\\Help_User',
 			'foreign_key' => 'help',

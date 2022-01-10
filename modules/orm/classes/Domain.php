@@ -81,7 +81,7 @@ class Domain extends ORM {
 	 * {@inheritDoc}
 	 * @see \zesk\ORM::store()
 	 */
-	public function store() {
+	public function store(): self {
 		$this->tld = $this->compute_tld();
 		return parent::store();
 	}

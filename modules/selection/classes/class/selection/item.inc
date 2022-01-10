@@ -10,19 +10,17 @@ namespace zesk;
  *
  */
 class Class_Selection_Item extends Class_ORM {
-	public $id_column = false;
-
-	public $primary_keys = [
+	public array $primary_keys = [
 		'type',
 		'id',
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		'type' => 'zesk\\Selection_Type',
 		'query' => 'zesk\\Selection_Query',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		'type' => self::type_object,
 		'id' => self::type_object,
 		'add' => self::type_boolean,

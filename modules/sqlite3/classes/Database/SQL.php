@@ -451,18 +451,18 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @return string
 	 * @param string $table
 	 */
-	final public function quote_column($column) {
-		if (is_array($column)) {
-			foreach ($column as $index => $col) {
-				$column[$index] = $this->quote_column($col);
+	final public function quote_column($name) {
+		if (is_array($name)) {
+			foreach ($name as $index => $col) {
+				$name[$index] = $this->quote_column($col);
 			}
-			return $column;
+			return $name;
 		}
-		[$alias, $col] = pair($column, ".", null, $column);
+		[$alias, $col] = pair($name, ".", null, $name);
 		if ($alias) {
 			return $this->quote_column($alias) . "." . $this->quote_column($col);
 		}
-		return '"' . strtr($column, [
+		return '"' . strtr($name, [
 			'"' => '\\"',
 		]) . '"';
 	}

@@ -7,14 +7,14 @@ namespace zesk;
  *
  */
 class Class_Health_Event extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
-	public $has_one = [
+	public array $has_one = [
 		"events" => "zesk\\Health_Events",
 		"server" => "zesk\\Server",
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"events" => self::type_object,
 		"when" => self::type_timestamp,

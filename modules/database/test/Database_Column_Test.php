@@ -15,7 +15,7 @@ class Database_Column_Test extends Test_Unit {
 
 	public function test_main(): void {
 		$db = $this->application->database_registry();
-
+		var_dump($this->application->database_module()->options());
 		$table = new Database_Table($db, __METHOD__);
 
 		$name = "dude";

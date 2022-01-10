@@ -19,7 +19,7 @@ class Class_Label extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 *
@@ -37,7 +37,7 @@ class Class_Label extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $has_one = [
+	public array $has_one = [
 		'owner' => 'User',
 	];
 
@@ -53,7 +53,7 @@ class Class_Label extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_types = [
+	public array $column_types = [
 		'id' => self::type_id,
 		'code' => self::type_string,
 		'name' => self::type_string,

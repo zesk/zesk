@@ -6,6 +6,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -86,7 +87,7 @@ class CSV_Writer extends CSV {
 	 * Set the file to write to
 	 *
 	 * @param string $f
-	 *        	File name to write to
+	 *            File name to write to
 	 * @return boolean If file is opened successfully.
 	 */
 	public function file($f = null) {
@@ -127,14 +128,12 @@ class CSV_Writer extends CSV {
 		$this->headers();
 		$mapGroup = [];
 		foreach ($map as $member => $column) {
+			if (!is_string($column)) {
+				throw new Exception_Key("Column {column} is not a string", ["column" => $column]);
+			}
 			$column = strtolower($column);
-			if (!isset($this->HeadersToIndex[$column])) {
-				throw new Exception_Key("{method}({name},...): {column} not found in headers {headers}", [
-					"method" => __METHOD__,
-					"name" => $name,
-					"headers" => JSON::encode($this->HeadersToIndex),
-					"column" => $column,
-				]);
+			if (!isset($this->HeadersToIndex[strtolower($column)])) {
+				throw new Exception_Key("{method}({name},...): {column} not found in headers {headers}", ["method" => __METHOD__, "name" => $name, "headers" => JSON::encode($this->HeadersToIndex), "column" => $column, ]);
 			} else {
 				$indexes = $this->HeadersToIndex[$column];
 				$mapGroup[strtolower($member)] = $indexes;
@@ -160,21 +159,17 @@ class CSV_Writer extends CSV {
 	 * Add an output translation map for boolean values
 	 *
 	 * @param mixed $column_names
-	 *        	List of column names
+	 *            List of column names
 	 * @param string $no
-	 *        	The no string to output
+	 *            The no string to output
 	 * @param string $yes
-	 *        	The yes string to output
+	 *            The yes string to output
 	 * @param string $null
-	 *        	The value to output when the value is null
+	 *            The value to output when the value is null
 	 * @return CSV_Writer
 	 */
 	public function add_translation_map_boolean($column_names, $no = null, $yes = null, $null = null) {
-		$this->add_translation_map($column_names, [
-			'' => $null === null ? '' : $null,
-			'0' => $no === null ? 'no' : $no,
-			'1' => $yes === null ? 'yes' : $no,
-		]);
+		$this->add_translation_map($column_names, ['' => $null === null ? '' : $null, '0' => $no === null ? 'no' : $no, '1' => $yes === null ? 'yes' : $no, ]);
 		return $this;
 	}
 
@@ -182,9 +177,9 @@ class CSV_Writer extends CSV {
 	 * Set up a mapping of values when writing
 	 *
 	 * @param string $column_name
-	 *        	List or single column name
+	 *            List or single column name
 	 * @param array $map
-	 *        	A list of values to map to and from upon writing
+	 *            A list of values to map to and from upon writing
 	 * @return CSV_Writer
 	 */
 	public function add_translation_map($column_names, $map) {
@@ -207,9 +202,9 @@ class CSV_Writer extends CSV {
 	 * Enter description here...
 	 *
 	 * @param string $name
-	 *        	Name of an existing object map
+	 *            Name of an existing object map
 	 * @param array $fields
-	 *        	ORM to write to row
+	 *            ORM to write to row
 	 * @return array Written row
 	 * @see createORMMap
 	 */

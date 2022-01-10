@@ -63,11 +63,11 @@ class Service extends Model {
 	 * {@inheritDoc}
 	 * @see \zesk\Model::variables()
 	 */
-	public function variables() {
+	public function variables(): array {
 		return [
 			"name" => $this->name,
 			"path" => $this->path,
-		] + $this->option();
+		] + $this->options();
 	}
 
 	/**

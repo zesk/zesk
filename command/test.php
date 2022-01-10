@@ -201,7 +201,7 @@ class Command_Test extends Command_Base {
 
 	protected function show_options(): void {
 		$this->log("All options:\n{options}", [
-			"options" => Text::format_pairs(ArrayTools::clean($this->option(), false)),
+			"options" => Text::format_pairs(ArrayTools::clean($this->options(), false)),
 		]);
 	}
 

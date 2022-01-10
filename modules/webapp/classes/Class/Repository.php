@@ -34,7 +34,7 @@ class Class_Repository extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	/**
 	 *
@@ -48,7 +48,7 @@ class Class_Repository extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"code" => self::type_string,
 		"type" => self::type_polymorph,

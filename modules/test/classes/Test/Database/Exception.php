@@ -19,7 +19,7 @@ class Test_Database_Exception extends Test_Unit {
 	 */
 	public function test_main(): void {
 		$database = $this->application->database_registry();
-		$this->assertInstanceOf(zesk\Database::class, $database);
+		$this->assertInstanceOf(Database::class, $database);
 		for ($i = 0; $i < 100; $i++) {
 			$code = 4123 + $i;
 			$x = new Database_Exception($database, "hello {dude}", [

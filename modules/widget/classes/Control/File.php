@@ -84,7 +84,7 @@ class Control_File extends Control {
 		if (is_array($file)) {
 			$fname = basename(avalue($file, "name"));
 			$this->object->set($col, $fname);
-			$checksum_col = $this->first_option('checksum_column;ChecksumColumn');
+			$checksum_col = $this->firstOption(['checksum_column', 'ChecksumColumn']);
 			if ($checksum_col) {
 				$this->object->set($checksum_col, md5_file($file['tmp_name']));
 			}

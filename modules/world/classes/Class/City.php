@@ -2,18 +2,18 @@
 namespace zesk;
 
 class Class_City extends Class_ORM {
-	public $id_column = "id";
+	public string $id_column = "id";
 
 	public $find_keys = [
 		"name",
 	];
 
-	public $has_one = [
+	public array $has_one = [
 		'province' => 'zesk\\Province',
 		'county' => 'zesk\\County',
 	];
 
-	public $column_types = [
+	public array $column_types = [
 		"id" => self::type_id,
 		"province" => self::type_object,
 		"county" => self::type_object,

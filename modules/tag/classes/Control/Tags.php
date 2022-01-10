@@ -164,8 +164,8 @@ class Control_Tags extends Control {
 			'alias' => 'label',
 			'path' => 'tag_label',
 		])
-			->what('id', 'label.id')
-			->what("*total", "COUNT(DISTINCT items.id)")
+			->addWhat('id', 'label.id')
+			->addWhat("*total", "COUNT(DISTINCT items.id)")
 			->join("INNER JOIN $selection_item_table items ON items.id=main.$member")
 			->where([
 			"items.type" => $this->selection_type->id(),

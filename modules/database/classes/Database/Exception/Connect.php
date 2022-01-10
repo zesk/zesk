@@ -31,7 +31,7 @@ class Database_Exception_Connect extends Exception {
 	 * @param array $arguments
 	 * @param integer $errno
 	 */
-	public function __construct($url, $message = null, array $arguments = [], $errno = null) {
+	public function __construct($url, $message = null, array $arguments = [], int $errno = 0) {
 		if (URL::valid($url)) {
 			$this->url = $url;
 			$arguments['safe_url'] = URL::remove_password($url);
@@ -48,10 +48,9 @@ class Database_Exception_Connect extends Exception {
 
 	/**
 	 *
-	 * {@inheritDoc}
 	 * @see zesk\Exception::variables()
 	 */
-	public function variables() {
+	public function variables(): array {
 		return [
 			"url" => $this->url,
 		] + $this->parts + parent::variables();

@@ -198,7 +198,7 @@ class Workflow extends Model {
 	 *
 	 * @return array
 	 */
-	public function variables() {
+	public function variables(): array {
 		return $this->variables;
 	}
 
