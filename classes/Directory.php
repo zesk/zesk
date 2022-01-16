@@ -430,10 +430,13 @@ class Directory extends Hookable {
 	}
 
 	/**
+	 * Trim slash from right side of string
 	 *
+	 * @param string $path
+	 * @return string
 	 */
-	public static function strip_slash($p) {
-		return rtrim($p, "/");
+	public static function strip_slash(string $path): string {
+		return rtrim($path, "/");
 	}
 
 	/**

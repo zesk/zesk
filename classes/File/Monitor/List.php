@@ -7,7 +7,7 @@ namespace zesk;
  *
  */
 class File_Monitor_List extends File_Monitor {
-	protected $files = [];
+	protected array $files = [];
 
 	/**
 	 *
@@ -23,7 +23,7 @@ class File_Monitor_List extends File_Monitor {
 	 * {@inheritDoc}
 	 * @see \zesk\File_Monitor::files()
 	 */
-	protected function files() {
+	protected function files(): array {
 		return $this->files;
 	}
 }

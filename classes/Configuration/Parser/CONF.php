@@ -13,15 +13,19 @@ namespace zesk;
  *
  */
 class Configuration_Parser_CONF extends Configuration_Parser {
+	public const SEPARATOR_DEFAULT = "=";
+
+	public const UNQUOTE_DEFAULT = '\'\'""';
+
 	protected array $options = [
 		"overwrite" => true,
 		"trim_key" => true,
-		"separator" => '=',
+		"separator" => self::SEPARATOR_DEFAULT,
 		"trim_value" => true,
 		"autotype" => true,
 		"lower" => true,
 		"multiline" => true,
-		"unquote" => '\'\'""',
+		"unquote" => self::UNQUOTE_DEFAULT,
 	];
 
 	/**
@@ -51,7 +55,10 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 * @return Interface_Settings
 	 */
 	public function process() {
-		$separator = $lower = $trim_key = $unquote = $trim_value = $autotype = $overwrite = $multiline = null;
+		$separator = self::SEPARATOR_DEFAULT;
+		$lower = $trim_key = $trim_value = $autotype = $overwrite =
+		$multiline = null;
+		$unquote = self::UNQUOTE_DEFAULT;
 		extract($this->options, EXTR_IF_EXISTS);
 
 		$settings = $this->settings;
@@ -87,6 +94,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			/**
 			 * Parse and normalize value
 			 */
+			$found_quote = "";
 			if ($unquote) {
 				$value = unquote($value, $unquote, $found_quote);
 			}
@@ -193,7 +201,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		if (preg_match('/^export\s+/', $line, $matches)) {
 			$line = substr($line, strlen($matches[0]));
 		}
-		[$key, $value] = pair($line, $separator, null, null);
+		[$key, $value] = pair($line, $separator);
 		if (!$key) {
 			return null;
 		}

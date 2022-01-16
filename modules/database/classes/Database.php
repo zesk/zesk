@@ -320,8 +320,8 @@ abstract class Database extends Hookable {
 	 */
 	private function _init_url($url): void {
 		$this->url_parts = $parts = self::url_parse($url);
-		$this->setOption($parts);
-		self::set_option(URL::query_parse(avalue($parts, "query")), null, false);
+		$this->setOptions($parts);
+		$this->setOptions(URL::query_parse($parts["query"] ?? ""));
 		$this->Connection = false;
 		$this->URL = $url;
 		$this->Safe_URL = URL::remove_password($url);

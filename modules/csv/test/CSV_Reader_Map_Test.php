@@ -13,8 +13,7 @@ class CSV_Reader_Test extends Test_Unit {
 	];
 
 	public function sample_reader() {
-		$options = false;
-		$x = new CSV_Reader_Map($options);
+		$x = new CSV_Reader_Map();
 
 		$f = $this->test_sandbox("test.csv");
 		file_put_contents($f, "A,B,C,D,E,F,G\n0,1,2,3,4,5,6\na,b,c,d,e,f,g\n");

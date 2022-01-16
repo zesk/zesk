@@ -60,8 +60,8 @@ class Options_Test extends Test_Unit {
 
 	public function test_options_path_simple(): void {
 		$opts = new Options();
-		$opts->setOption_path("a.b.c.d", "1");
-		$opts->setOption_path("a.b.c.e", 1);
+		$opts->setOptionPath("a.b.c.d", "1");
+		$opts->setOptionPath("a.b.c.e", 1);
 		$this->assert_arrays_equal($opts->options(), [
 			'a' => [
 				'b' => [
@@ -89,7 +89,7 @@ class Options_Test extends Test_Unit {
 			"d.c.a",
 		];
 		foreach ($paths as $path) {
-			$opts->setOption_path($path, $path);
+			$opts->setOptionPath($path, $path);
 		}
 		$this->assert_arrays_equal($opts->options(), [
 			'a' => [

@@ -15,9 +15,25 @@ class Test_CSV extends Test_Unit {
 		"csv",
 	];
 
-	public function test_quote(): void {
-		$x = null;
-		CSV_Reader::quote($x);
+	/**
+	 * @return \string[][]
+	 */
+	public function quote_data(): array {
+		return [
+			["foo", "foo"],
+			["fo\no", "\"fo\no\""],
+			["fo\"o", "\"fo\"\"o\""],
+		];
+	}
+
+	/**
+	 * @param string $item
+	 * @param string $expected
+	 * @return void
+	 * @dataProvider quote_data
+	 */
+	public function test_quote(string $item, string $expected): void {
+		$this->assertEquals($expected, CSV_Reader::quote($item));
 	}
 
 	public function test_quote_row(): void {

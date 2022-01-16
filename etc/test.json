@@ -10,5 +10,8 @@
 	  "debug_test_settings": false,
       "no_buffer": false,
       "debug-logger-config": false
+  },
+  "zesk\\Command_Test": {
+    "interactive": true
   }
 }

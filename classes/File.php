@@ -336,7 +336,7 @@ class File {
 	 * @return integer The number in the file, plus one
 	 * @throws Exception_File_NotFound
 	 */
-	public static function atomic_increment($path) {
+	public static function atomic_increment(string $path): int {
 		$fp = @fopen($path, "r+b");
 		if (!$fp) {
 			throw new Exception_File_NotFound($path, "not found");
@@ -352,7 +352,7 @@ class File {
 		$id = intval(fread($fp, 20));
 		$id = $id + 1;
 		fseek($fp, 0);
-		fwrite($fp, $id);
+		fwrite($fp, strval($id));
 		flock($fp, LOCK_UN);
 		fclose($fp);
 		return $id;
@@ -368,7 +368,7 @@ class File {
 	 * @return boolean true if successful, false if 100ms passes and can't
 	 * @throws Exception_File_NotFound
 	 */
-	public static function atomic_put($path, $data) {
+	public static function atomic_put(string $path, string $data): bool {
 		$fp = fopen($path, "w+b");
 		if (!is_resource($fp)) {
 			throw new Exception_File_NotFound($path, "File::atomic_put not found");
@@ -430,23 +430,19 @@ class File {
 	 *
 	 * @param string $filename
 	 *        	File path to extract the extension from
-	 * @param boolean $lower
-	 *        	Convert the result to lowercase
 	 * @return string The file name without the extension
 	 */
-	public static function base($filename, $lower = false) {
+	public static function base(string $filename, $lower = false): string {
+		if ($lower !== false) {
+			zesk()->deprecated("lower parameter");
+		}
 		$filename = basename($filename);
 		$dot = strrpos($filename, ".");
 		if ($dot === false) {
 			return $filename;
-		} else {
-			$filename = substr($filename, 0, $dot);
 		}
-		$filename = trim($filename);
-		if (!$lower) {
-			return $filename;
-		}
-		return strtolower($filename);
+		$filename = substr($filename, 0, $dot);
+		return trim($filename);
 	}
 
 	/**
@@ -468,15 +464,14 @@ class File {
 	 *
 	 * @param string $filename
 	 *        	The file to retrieve
-	 * @param mixed $default
-	 *        	The return value when the file does not exist
 	 * @return mixed The file contents, or $default
 	 */
-	public static function contents($filename, $default = null) {
+	public static function contents(string $filename): string|null {
 		if (file_exists($filename)) {
-			return file_get_contents($filename);
+			$contents = file_get_contents($filename);
+			return is_string($contents) ? $contents : null;
 		}
-		return $default;
+		return null;
 	}
 
 	/**
@@ -739,7 +734,7 @@ class File {
 		if ($prefix) {
 			$prefix .= "/";
 		}
-		[$base] = pairr($file, ".", $file, null);
+		[$base] = pairr($file, ".", $file);
 		if ($new_extension) {
 			$base .= '.' . ltrim($new_extension, '.');
 		}

@@ -1,9 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
+use JetBrains\PhpStorm\Pure;
 use \ReflectionObject;
 use \ReflectionProperty;
 
@@ -247,8 +250,8 @@ class PHP {
 	 * NOT THREAD SAFE!
 	 *
 	 * @param string $serialized
-	 * @throws Exception_Syntax
 	 * @return mixed
+	 * @throws Exception_Syntax
 	 */
 	public static function unserialize($serialized) {
 		self::$unserialize_exception = null;
@@ -272,7 +275,7 @@ class PHP {
 	 *
 	 * @param mixed $features
 	 * @param boolean $die
-	 *        	Die if features aren't present
+	 *            Die if features aren't present
 	 * @return mixed
 	 */
 	public static function requires($features, $die = false) {
@@ -325,7 +328,7 @@ class PHP {
 	 *
 	 * @param string $feature
 	 * @param mixed $value
-	 *        	Value to set it to
+	 *            Value to set it to
 	 *
 	 * @return boolean True if successful
 	 */
@@ -395,7 +398,7 @@ class PHP {
 	 * from user input.
 	 *
 	 * @param string $func
-	 *        	String to clean
+	 *            String to clean
 	 * @return string
 	 */
 	public static function clean_function($func) {
@@ -406,7 +409,7 @@ class PHP {
 	 * Convert a string into a valid PHP class name.
 	 *
 	 * @param string $func
-	 *        	String to clean
+	 *            String to clean
 	 * @return string
 	 */
 	public static function clean_class($func) {
@@ -427,28 +430,28 @@ class PHP {
 	 * @param boolean $throw Throw an Exception_Parse error when value is invalid JSON. Defaults to true.
 	 * @return mixed
 	 */
-	public static function autotype($value, $throw = true) {
+	public static function autotype(mixed $value, bool $throw = true): mixed {
 		if (is_array($value)) {
 			foreach ($value as $k => $v) {
 				$value[$k] = self::autotype($v);
 			}
 			return $value;
 		}
-		if (!is_string($value)) {
-			return $value;
-		}
-		// Convert numeric types first, then boolean
-		if (preg_match('/^[0-9]+$/', $value)) {
-			return to_integer($value);
+		if (is_bool($value)) {
+			return to_bool($value);
 		}
 		if (is_numeric($value)) {
 			return to_double($value);
 		}
-		if (($b = to_bool($value, null)) !== null) {
-			return $b;
+		if (!is_string($value)) {
+			return $value;
 		}
 		if ($value === 'null') {
 			return null;
+		}
+		// Convert numeric types first, then boolean
+		if (preg_match('/^[0-9]+$/', $value)) {
+			return to_integer($value);
 		}
 		if (unquote($value, '{}[]\'\'""') !== $value) {
 			try {
@@ -473,8 +476,9 @@ class PHP {
 	 * @param string $class
 	 * @return string
 	 */
-	public static function parse_class($class) {
-		[$ignore, $cl] = self::parse_namespace_class($class);
+	#[Pure]
+	public static function parse_class(string $class): string {
+		[$_, $cl] = self::parse_namespace_class($class);
 		return $cl;
 	}
 
@@ -486,7 +490,7 @@ class PHP {
 	 * @param string $class
 	 * @return string
 	 */
-	public static function parse_namespace($class) {
+	public static function parse_namespace(string $class): string {
 		[$ns] = self::parse_namespace_class($class);
 		return $ns;
 	}
@@ -494,13 +498,14 @@ class PHP {
 	/**
 	 * Given a class with a namespace, return a two-element list with the namespace first and the class second.
 	 *
-	 * Returns NULL for namespace if no namespace
+	 * Returns "" for namespace if no namespace
 	 *
 	 * @param string $class
 	 * @return string[]
 	 */
-	public static function parse_namespace_class($class) {
-		return pairr($class, "\\", null, $class);
+	#[Pure]
+	public static function parse_namespace_class(string $class): array {
+		return pairr($class, "\\", "", $class);
 	}
 
 	/**
@@ -508,7 +513,7 @@ class PHP {
 	 * @param string $message
 	 * @param array $arguments
 	 */
-	public static function log($message, array $arguments = []): void {
+	public static function log(string $message, array $arguments = []): void {
 		error_log(map($message, $arguments));
 	}
 }

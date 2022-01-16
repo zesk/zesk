@@ -16,7 +16,11 @@ class DocComment_Test extends Test_Unit {
 		$comments = DocComment::extract($content);
 		$this->assert_is_array($comments);
 		$this->assert(count($comments) > 8, "More than 8 doccomments in $testfile");
-		$this->assert_contains($comments[0], "@package zesk");
+		if (count($comments) > 0) {
+			$text = $comments[0];
+			/* @var $text DocComment */
+			$this->assert_contains($text->content(), "@package zesk");
+		}
 	}
 
 	public function data_provider_clean() {

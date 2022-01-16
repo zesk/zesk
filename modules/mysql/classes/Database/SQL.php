@@ -535,7 +535,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		if (empty($name)) {
 			throw new Exception_Semantics("Quoting blank column name");
 		}
-		[$alias, $col] = pair($name, ".", null, $name);
+		[$alias, $col] = pair($name, ".", "", $name);
 		if ($alias) {
 			return $this->quote_column($alias) . "." . $this->quote_column($col);
 		}

@@ -341,7 +341,7 @@ abstract class ORM_Schema extends Hookable {
 				}
 
 				if (array_key_exists('on create', $table_schema)) {
-					$table->setOption_path('on.create', $table_schema['on create']);
+					$table->setOptionPath(['on', 'create'], $table_schema['on create']);
 				}
 			}
 		}
@@ -400,7 +400,10 @@ abstract class ORM_Schema extends Hookable {
 		$object_class = get_class($object);
 		$schema = $object->database_schema();
 		if (!$schema instanceof ORM_Schema) {
-			$logger->warning("{class} did not return a ORM_Schema ({type})", ["class" => $object_class, "type" => type($schema), ]);
+			$logger->warning("{class} did not return a ORM_Schema ({type})", [
+				"class" => $object_class,
+				"type" => type($schema),
+			]);
 			return [];
 		}
 		return $schema->_update_object();
@@ -421,7 +424,11 @@ abstract class ORM_Schema extends Hookable {
 			try {
 				$actual_table = $db->database_table($table->name());
 				$sql_results = array_merge($sql_results, self::update($db, $actual_table, $table));
-				$results = $this->object->call_hook_arguments("schema_update_alter", [$this, $actual_table, $sql_results, ], $sql_results);
+				$results = $this->object->call_hook_arguments("schema_update_alter", [
+					$this,
+					$actual_table,
+					$sql_results,
+				], $sql_results);
 				if (is_array($results)) {
 					$sql_results = $results;
 				}
@@ -490,13 +497,21 @@ abstract class ORM_Schema extends Hookable {
 		$table = $db_table_old->name();
 		if ($db_table_new->is_similar($db_table_old, self::$debug)) {
 			if (self::$debug) {
-				$logger->debug("Tables are similar: \"{table}\":\nDatabase: \n{dbOld}\nCode:\n{dbNew}", ['table' => $table, 'dbOld' => Text::indent($db_table_old->source()), 'dbNew' => Text::indent($db_table_new->source()), ]);
+				$logger->debug("Tables are similar: \"{table}\":\nDatabase: \n{dbOld}\nCode:\n{dbNew}", [
+					'table' => $table,
+					'dbOld' => Text::indent($db_table_old->source()),
+					'dbNew' => Text::indent($db_table_new->source()),
+				]);
 			}
 			return [];
 		}
 
 		if (self::$debug) {
-			$logger->debug("ORM_Schema::update: \"{table}\" tables differ:\nDatabase: \n{dbOld}\nCode:\n{dbNew}", ['table' => $table, 'dbOld' => Text::indent($db_table_old->source()), 'dbNew' => Text::indent($db_table_new->source()), ]);
+			$logger->debug("ORM_Schema::update: \"{table}\" tables differ:\nDatabase: \n{dbOld}\nCode:\n{dbNew}", [
+				'table' => $table,
+				'dbOld' => Text::indent($db_table_old->source()),
+				'dbNew' => Text::indent($db_table_new->source()),
+			]);
 		}
 
 		$drops = [];

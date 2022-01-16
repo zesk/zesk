@@ -47,14 +47,17 @@ class URL {
 	 *        	Value to return if name not found in query string
 	 * @return mixed Parsed query string
 	 */
-	public static function query_parse($qs, $name = null, $default = null) {
-		$res = [];
+	public static function query_parse(string $qs, string $name = null, mixed $default = null): array {
 		if (empty($qs)) {
-			return $res;
+			return [];
 		}
+		$res = [];
 		parse_str($qs, $res);
-		if (is_array($res) && is_string($name)) {
-			return avalue($res, $name, $default);
+		if (!is_array($res)) {
+			return [];
+		}
+		if (is_string($name)) {
+			return $res[$name] ?? $default;
 		}
 		return $res;
 	}
@@ -209,8 +212,8 @@ class URL {
 	 * @return string
 	 */
 	public static function query_format($path, $add = null, $remove = null) {
-		[$uri, $qs] = pair($path, "?", $path, null);
-		if ($qs === null) {
+		[$uri, $qs] = pair($path, "?", $path, "");
+		if ($qs === "") {
 			$qs = [];
 		} else {
 			$qs = self::query_parse($qs);
@@ -307,7 +310,7 @@ class URL {
 	 * @return A|string
 	 */
 	public static function query_remove($u, $names) {
-		[$u, $m] = pair($u, "#", $u, null);
+		[$u, $m] = pair($u, "#", $u, "");
 		$x = strpos($u, "?");
 		if ($x === false) {
 			return $u;
@@ -337,7 +340,7 @@ class URL {
 	 * @return string The URL with the query string variables removed
 	 */
 	public static function query_iremove($url, $names) {
-		[$x, $m] = pair($url, "#", $url, null);
+		[$x, $m] = pair($url, "#", $url, "");
 		$m = ($m ? "#$m" : "");
 		$x = strpos($url, "?");
 		if ($x === false) {

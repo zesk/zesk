@@ -24,15 +24,13 @@ class bash {
 			foreach ($matches as $match) {
 				$variable = $match[1];
 				$default_value = "";
-				$found_sep = null;
-				$found_quote = null;
 				foreach ([
 					":-",
 					":=",
 				] as $sep) {
 					if (str_contains($variable, $sep)) {
 						[$variable, $default_value] = explode($sep, $variable, 2);
-						$default_value = unquote($default_value, '\'\'""', $found_quote);
+						$default_value = unquote($default_value, '\'\'""');
 						break;
 					}
 				}
@@ -55,7 +53,7 @@ class bash {
 						if ($lower_dependencies) {
 							$variable = strtolower($variable);
 						}
-						$value = str_replace($match[0], $settings->get($variable, ""), $value);
+						$value = str_replace($match[0], strval($settings->get($variable, "")), $value);
 						$dependencies[$variable] = true;
 					}
 				}

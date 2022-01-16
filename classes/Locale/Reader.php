@@ -1,12 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage Locale
  * @author kent
  * @copyright &copy; 2018 Market Acumen, Inc.
  */
+
 namespace zesk\Locale;
 
+use zesk\Exception_File_Format;
 use zesk\File;
 use zesk\JSON;
 use zesk\Exception_Unsupported;
@@ -27,58 +30,58 @@ class Reader {
 	 *
 	 * @var string
 	 */
-	private $id = null;
+	private string $id = "";
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $language = null;
+	private string $language = "";
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $dialect = null;
+	private string $dialect = "";
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $paths = [];
+	private array $paths = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $extensions = [];
+	private array $extensions = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $errors = [];
+	private array $errors = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $loaded = [];
+	private array $loaded = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $missing = [];
+	private array $missing = [];
 
 	/**
 	 *
 	 * @param array $paths
-	 * @param unknown $locale
+	 * @param string $locale
 	 * @param array $extensions
-	 * @return \zesk\Locale\Reader
+	 * @return self
 	 */
-	public static function factory(array $paths, $id, array $extensions = []) {
+	public static function factory(array $paths, string $id, array $extensions = []): self {
 		return new self($paths, $id, $extensions);
 	}
 
@@ -89,7 +92,7 @@ class Reader {
 	 * @param unknown $dialect
 	 * @param array $extensions
 	 */
-	public function __construct(array $paths, $id, array $extensions = []) {
+	public function __construct(array $paths, string $id, array $extensions = []) {
 		$this->paths = $paths;
 		[$language, $dialect] = Locale::parse($id);
 		$this->id = Locale::normalize($id);
@@ -107,7 +110,7 @@ class Reader {
 	 *
 	 * @return array
 	 */
-	public function missing() {
+	public function missing(): array {
 		return $this->missing;
 	}
 
@@ -116,7 +119,7 @@ class Reader {
 	 *
 	 * @return array
 	 */
-	public function loaded() {
+	public function loaded(): array {
 		return $this->loaded;
 	}
 
@@ -126,7 +129,7 @@ class Reader {
 	 *
 	 * @return string[string]
 	 */
-	public function errors() {
+	public function errors(): array {
 		return $this->errors;
 	}
 
@@ -136,8 +139,8 @@ class Reader {
 	 * @param array $options
 	 * @return Locale
 	 */
-	public function locale(Application $application, array $options = []) {
-		return Locale::factory($application, $this->id, $options)->translations($this->execute());
+	public function locale(Application $application, array $options = []): Locale {
+		return Locale::factory($application, $this->id, $options)->setTranslations($this->execute());
 	}
 
 	/**
@@ -145,7 +148,7 @@ class Reader {
 	 *
 	 * @return array
 	 */
-	public function execute() {
+	public function execute(): array {
 		$this->loaded = [];
 		$this->errors = [];
 		$this->missing = [];
@@ -173,7 +176,7 @@ class Reader {
 	 *
 	 * @return string[]
 	 */
-	public function files() {
+	public function files(): array {
 		$files = [];
 		$prefixes = [
 			"all",
@@ -195,33 +198,36 @@ class Reader {
 
 	/**
 	 * Load a file
+	 *
 	 * @param string $file
 	 * @return array
-	 * @throws Exception_Unsupported
-	 * @return \zesk\Locale\unknown|\zesk\the
+	 * @throws Exception_Unsupported|Exception_File_Format
 	 */
-	private function load($file) {
+	private function load(string $file): array {
 		$extension = File::extension($file);
 		if (in_array($extension, [
 			"php",
 			"inc",
 		])) {
-			return $this->_require($file);
+			$result = $this->_require($file);
+		} elseif ($extension === "json") {
+			$result = JSON::decode(File::contents($file));
+		} else {
+			throw new Exception_Unsupported("Locale file {file} extension {extension} not supported", [
+				"file" => $file,
+				"extension" => $extension,
+			]);
 		}
-		if ($extension === "json") {
-			return JSON::decode(File::contents($file));
+		if (!is_array($result)) {
+			throw new Exception_File_Format($file, "Should result in an array {type} loaded", ['type' => type($result)]);
 		}
-
-		throw new Exception_Unsupported("Locale file {file} extension {extension} not supported", [
-			"file" => $file,
-			"extension" => $extension,
-		]);
+		return $result;
 	}
 
 	/**
 	 *
-	 * @param unknown $file
-	 * @return unknown
+	 * @param string $file
+	 * @return mixed
 	 */
 	private function _require($file) {
 		return require $file;

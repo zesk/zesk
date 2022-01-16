@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -133,9 +135,23 @@ class Directory_Test extends Test_Unit {
 		$this->assert_in_array($results, "test/tests/Directory_Test.php");
 	}
 
-	public function test_strip_slash(): void {
-		$p = null;
-		Directory::strip_slash($p);
+	public function strip_slash_data(): array {
+		return [
+			['foo///', 'foo'],
+			['/a/way/to/go/to/the/place/', '/a/way/to/go/to/the/place'],
+			['quality', 'quality'],
+			['', ''],
+		];
+	}
+
+	/**
+	 * @param string $string
+	 * @param string $expected
+	 * @return void
+	 * @dataProvider strip_slash_data
+	 */
+	public function test_strip_slash(string $string, string $expected): void {
+		$this->assertEquals($expected, Directory::strip_slash($string));
 	}
 
 	public function test_ls(): void {

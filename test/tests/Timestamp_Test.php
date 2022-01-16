@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -16,7 +18,7 @@ class Timestamp_Test extends Test_Unit {
 	}
 
 	public function test_utc(): void {
-		$now = Timestamp::now();
+		$now = Timestamp::now('US/Eastern');
 		$utc = Timestamp::utc_now();
 		$this->assert_not_equal($utc->__toString(), $now->__toString());
 	}
@@ -200,14 +202,14 @@ class Timestamp_Test extends Test_Unit {
 		$x->unix_timestamp();
 
 		$ts = 1231204;
-		$this->assert($x->unix_timestamp($ts) === $x);
+		$this->assert($x->setUnixTimestamp($ts) === $x);
 
 		$x->__toString();
 
-		$x->unix_timestamp();
+		$x->unixTimestamp();
 
 		$success = false;
-		$value = null;
+		$value = "";
 		$locale_format = 'MDY;MD;MY;_';
 
 		try {
@@ -223,13 +225,13 @@ class Timestamp_Test extends Test_Unit {
 
 		try {
 			$x->parse_locale_string($value, $locale_format);
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			$success = false;
 		}
 		$this->assert($success);
-		$this->assert_equal($x->year("2012")->year(), 2012);
+		$this->assert_equal($x->setYear(2012)->year(), 2012);
 
-		$this->assert_equal($x->quarter("3")->quarter(), 3);
+		$this->assert_equal($x->setQuarter(3)->quarter(), 3);
 
 		$x->month();
 
@@ -258,8 +260,7 @@ class Timestamp_Test extends Test_Unit {
 		$this->assert_equal($x->format($locale, "{YYYY}:{MM}:{DD}"), "2012:10:11");
 
 		$value = 2011;
-		$this->assert_equal($x->year($value), $x);
-		$this->assert_equal($x->year(null), $value);
+		$this->assert_equal($x->setYear($value), $x);
 		$this->assert_equal($x->year(), $value);
 
 		$success = false;
@@ -458,7 +459,7 @@ class Timestamp_Test extends Test_Unit {
 	 */
 	public function test_parse_fail(): void {
 		$x = new Timestamp();
-		$value = null;
+		$value = "foo";
 		$x->parse($value);
 	}
 

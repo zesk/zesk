@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
@@ -14,6 +15,7 @@
  * @package zesk
  * @subpackage model
  */
+
 namespace zesk;
 
 class Time extends Temporal {
@@ -183,9 +185,9 @@ class Time extends Temporal {
 	 * Set the time object
 	 *
 	 * @param mixed $value
-	 *        	Number of seconds from midnight, a string, null, Time, or Timestamp
-	 * @throws Exception_Convert
+	 *            Number of seconds from midnight, a string, null, Time, or Timestamp
 	 * @return Time
+	 * @throws Exception_Convert
 	 */
 	public function set($value) {
 		if (is_int($value)) {
@@ -231,8 +233,8 @@ class Time extends Temporal {
 	/**
 	 * Set the time to the current time of day
 	 *
-	 * @todo Support microseconds
 	 * @return Time
+	 * @todo Support microseconds
 	 */
 	public function set_now() {
 		return $this->unix_timestamp(time());
@@ -262,9 +264,9 @@ class Time extends Temporal {
 	 * Set or get the unix timestamp.
 	 *
 	 * @param integer $set
-	 *        	Optional value to set
-	 * @throws Exception_Parameter
+	 *            Optional value to set
 	 * @return Time|string
+	 * @throws Exception_Parameter
 	 */
 	public function unix_timestamp($set = null) {
 		if ($set !== null) {
@@ -284,8 +286,8 @@ class Time extends Temporal {
 	 * @param integer $hh
 	 * @param integer $mm
 	 * @param integer $ss
-	 * @throws Exception_Range
 	 * @return Time
+	 * @throws Exception_Range
 	 */
 	public function hms($hh = 0, $mm = 0, $ss = 0) {
 		if (($hh < 0) || ($hh > self::hour_max) || ($mm < 0) || ($mm > self::minute_max) || ($ss < 0) || ($ss > self::second_max)) {
@@ -297,8 +299,8 @@ class Time extends Temporal {
 
 	/**
 	 *
-	 * @todo should this honor locale? Or just be generic, programmer-only version
 	 * @return string
+	 * @todo should this honor locale? Or just be generic, programmer-only version
 	 */
 	public function __toString() {
 		if ($this->is_empty()) {
@@ -312,23 +314,23 @@ class Time extends Temporal {
 	 * Parse a time and set this object
 	 *
 	 * @param string $value
-	 * @throws Exception_Parameter
 	 * @return Time
+	 * @throws Exception_Parameter
 	 */
 	public function parse($value) {
 		foreach ([
-			"/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/" => [
-				null,
-				"hour",
-				"minute",
-				"second",
-			],
-			"/([0-9]{1,2}):([0-9]{2})/" => [
-				null,
-				"hour",
-				"minute",
-			],
-		] as $pattern => $assign) {
+					 "/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/" => [
+						 null,
+						 "hour",
+						 "minute",
+						 "second",
+					 ],
+					 "/([0-9]{1,2}):([0-9]{2})/" => [
+						 null,
+						 "hour",
+						 "minute",
+					 ],
+				 ] as $pattern => $assign) {
 			if (preg_match($pattern, $value, $matches)) {
 				$this->hms(0, 0, 0);
 				foreach ($assign as $index => $method) {
@@ -363,6 +365,16 @@ class Time extends Temporal {
 	}
 
 	/**
+	 * Set the hour of the day
+	 *
+	 * @param int $set
+	 * @return self
+	 */
+	public function setHour(int $set): self {
+		return $this->hms($set, $this->minute(), $this->second());
+	}
+
+	/**
 	 * Get/set the minute of the day
 	 *
 	 * @param integer $set
@@ -370,8 +382,18 @@ class Time extends Temporal {
 	 */
 	public function minute($set = null) {
 		if ($set === null) {
-			return intval(($this->seconds / self::seconds_per_minute) % self::seconds_per_minute);
+			return intval($this->seconds / self::seconds_per_minute) % self::seconds_per_minute;
 		}
+		return $this->hms($this->hour(), $set, $this->second());
+	}
+
+	/**
+	 * Set the minute of the day
+	 *
+	 * @param int $set
+	 * @return self
+	 */
+	public function setMinute(int $set): self {
 		return $this->hms($this->hour(), $set, $this->second());
 	}
 
@@ -385,6 +407,16 @@ class Time extends Temporal {
 		if ($set === null) {
 			return $this->seconds % self::seconds_per_minute;
 		}
+		return $this->hms($this->hour(), $this->minute(), $set);
+	}
+
+	/**
+	 * Set the second of the day
+	 *
+	 * @param int $set
+	 * @return self
+	 */
+	public function setSecond(int $set): self {
 		return $this->hms($this->hour(), $this->minute(), $set);
 	}
 
@@ -480,7 +512,7 @@ class Time extends Temporal {
 	 * @param integer $mm
 	 * @param integer $ss
 	 * @param integer $remain
-	 *        	Returned remainder of addition
+	 *            Returned remainder of addition
 	 * @return Time
 	 */
 	public function add($hh = 0, $mm = 0, $ss = 0, &$remain = null) {
@@ -525,9 +557,9 @@ class Time extends Temporal {
 	 * Format a time string
 	 *
 	 * @param string $format_string
-	 *        	Formatting string
+	 *            Formatting string
 	 * @param string $locale
-	 *        	Optional locale string
+	 *            Optional locale string
 	 * @return string
 	 */
 	public function format(Locale $locale = null, $format_string = null, array $options = []) {
@@ -563,11 +595,11 @@ class Time extends Temporal {
 	 * As of 2017-12-16, Zesk 0.14.1, no longer supports legacy calling (units,n_units)
 	 *
 	 * @param string $units
-	 *        	Unit to add: "millisecond", "second", "minute", "hour"
+	 *            Unit to add: "millisecond", "second", "minute", "hour"
 	 * @param integer $n_units
-	 *        	Number to add
-	 * @throws Exception_Parameter
+	 *            Number to add
 	 * @return Time
+	 * @throws Exception_Parameter
 	 */
 	public function add_unit($n_units = 1, $units = self::UNIT_SECOND) {
 		if (!is_numeric($n_units)) {

@@ -666,7 +666,7 @@ class Class_ORM extends Hookable {
 	 * @param unknown $classname
 	 */
 	public static function object_to_class(string $classname): string {
-		[$namespace, $suffix] = pairr($classname, "\\", null, $classname, "left");
+		[$namespace, $suffix] = pairr($classname, "\\", "", $classname, "left");
 		return $namespace . 'Class_' . $suffix;
 	}
 
@@ -1055,13 +1055,20 @@ class Class_ORM extends Hookable {
 		return $has_many;
 	}
 
+	/**
+	 * @param ORM $object
+	 * @param Database_Query_Select $query
+	 * @param array $link_state
+	 * @return Database_Query_Select
+	 * @throws Exception_Semantics
+	 */
 	final public function link_walk(ORM $object, Database_Query_Select $query, array $link_state = []): Database_Query_Select {
 		$generator = $this->database()->sql();
-		$path = $link_state['path'] ?? null;
-		if ($path === null) {
+		$path = $link_state['path'] ?? "";
+		if ($path === "") {
 			throw new Exception_Semantics($this->class . "::link_walk: No path in " . serialize($link_state));
 		}
-		[$segment, $path] = pair($path, ".", $path, null);
+		[$segment, $path] = pair($path, ".", $path, "");
 		$join_type = $link_state["type"] ?? (($link_state["require"] ?? true) ? "INNER" : "LEFT OUTER");
 		if (array_key_exists($segment, $this->has_one)) {
 			$to_class = $this->has_one[$segment];
@@ -1070,7 +1077,7 @@ class Class_ORM extends Hookable {
 			}
 			$to_object = $this->application->orm_registry($to_class);
 
-			if ($path === null) {
+			if ($path === "") {
 				$alias = $link_state['alias'] ?? $segment;
 			} else {
 				$alias = $segment;
@@ -1082,7 +1089,7 @@ class Class_ORM extends Hookable {
 				];
 				$query->join_object($join_type, $to_class, $alias, $on);
 			}
-			if ($path === null) {
+			if ($path === "") {
 				return $query;
 			}
 			$link_state['path_walked'][] = $segment;
@@ -1094,12 +1101,12 @@ class Class_ORM extends Hookable {
 		if ($has_many) {
 			$to_object = $has_many['object'];
 			$to_class = $has_many['class'];
-			if ($path === null) {
-				$alias = aevalue($link_state, 'alias', $segment);
+			if ($path === "") {
+				$alias = $link_state['alias'] ?? $segment;
 			} else {
 				$alias = $segment;
 			}
-			$prev_alias = aevalue($link_state, 'previous_alias', $query->alias());
+			$prev_alias = $link_state['previous_alias'] ?? $query->alias();
 			$mid_link = $alias . "_Link";
 			if ($this->_has_many_query($object, $query, $has_many, $mid_link, $prev_alias, $join_type)) {
 				// joining on intermediate table
@@ -1114,7 +1121,7 @@ class Class_ORM extends Hookable {
 				}
 			}
 			$query->join_object($join_type, $to_class, $alias, $on);
-			if ($path === null) {
+			if ($path === "") {
 				return $query;
 			}
 			$link_state['path_walked'][] = $segment;
@@ -1150,7 +1157,7 @@ class Class_ORM extends Hookable {
 	 */
 	final public function _has_many_query(ORM $this_object, Database_Query_Select $query, array $many_spec, &$alias = "J", $link_alias = null, $join_type = true, $reverse = false) {
 		$result = false;
-		$table = avalue($many_spec, 'table');
+		$table = $many_spec['table'] ?? null;
 		$foreign_key = $many_spec['foreign_key'];
 		$query_class = $query->orm_class();
 		$gen = $this->database()->sql();
@@ -1178,7 +1185,7 @@ class Class_ORM extends Hookable {
 		}
 		$logger = $this_object->application->logger;
 		$this_alias = $alias;
-		if (!$this_object->is_new()) {
+		if (!$this_object->isNew()) {
 			if (ORM::$debug) {
 				$logger->debug(get_class($this_object) . " is NOT new");
 			}
@@ -1191,7 +1198,7 @@ class Class_ORM extends Hookable {
 		}
 
 		if (array_key_exists("order_by", $many_spec)) {
-			$query->order_by(ArrayTools::prefix(to_list($many_spec['order_by']), "$this_alias."));
+			$query->orderBy(ArrayTools::prefix(to_list($many_spec['order_by']), "$this_alias."));
 		}
 		if (array_key_exists("where", $many_spec)) {
 			$query->where($many_spec['where']);

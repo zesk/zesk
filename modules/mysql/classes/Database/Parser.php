@@ -155,7 +155,20 @@ class Database_Parser extends \zesk\Database_Parser {
 	 * @return array
 	 */
 	private function parse_column_options_sql(Database_Table $table, $sql_type, $column_options) {
-		static $patterns = ['not null', 'default null', 'default \'([^\']*)\'', 'default b\'([01]+)\'', 'default (-?[0-9:]+)', 'default ([a-zA-Z_]+)', 'default current_timestamp', 'character set ([A-Za-z][-_A-Za-z0-9]*)', 'collate ([A-Za-z][-_A-Za-z0-9]*)', 'auto_increment', 'primary key', 'on update current_timestamp', ];
+		static $patterns = [
+			'not null',
+			'default null',
+			'default \'([^\']*)\'',
+			'default b\'([01]+)\'',
+			'default (-?[0-9:]+)',
+			'default ([a-zA-Z_]+)',
+			'default current_timestamp',
+			'character set ([A-Za-z][-_A-Za-z0-9]*)',
+			'collate ([A-Za-z][-_A-Za-z0-9]*)',
+			'auto_increment',
+			'primary key',
+			'on update current_timestamp',
+		];
 
 		$col_opt_matches = null;
 		$options = [];
@@ -259,7 +272,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			}
 			$col = new Database_Column($table, $column_name, $options);
 			$options = $this->database->column_attributes($col);
-			$col->setOption($options, null, false);
+			$col->setOptions($options, false);
 			$table->columnAdd($col);
 		}
 		return $sql;
@@ -305,7 +318,13 @@ class Database_Parser extends \zesk\Database_Parser {
 			return $sql_columns;
 		}
 		foreach ($index_matches as $index_match) {
-			$indexes_state[] = ["index_type" => $index_match[1], "index_name" => unquote($index_match[3], '``'), "index_columns" => unquote(ArrayTools::trim(explode(",", $index_match[4])), '``'), "index_structure" => $index_match[5] ?? null];
+			$index_columns = array_map(fn ($v) => unquote($v, '``'), ArrayTools::trim(explode(",", $index_match[4])));
+			$indexes_state[] = [
+				"index_type" => $index_match[1],
+				"index_name" => unquote($index_match[3], '``'),
+				"index_columns" => $index_columns,
+				"index_structure" => $index_match[5] ?? null,
+			];
 			$sql_columns = str_replace($index_match[0], "", $sql_columns);
 		}
 		return $sql_columns;

@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
@@ -1399,7 +1400,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param array $options
 	 * @return \zesk\Locale
 	 */
-	public function locale_factory($code = null, array $extensions = [], array $options = []) {
+	public function locale_factory(string $code = "", array $extensions = [], array $options = []): Locale {
 		return Reader::factory($this->locale_path(), $code, $extensions)->locale($this, $options);
 	}
 
@@ -1411,12 +1412,12 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param array $options
 	 * @return \zesk\Locale
 	 */
-	public function locale_registry($code = null, array $extensions = [], array $options = []) {
+	public function locale_registry(string $code, array $extensions = [], array $options = []) {
 		$code = Locale::normalize($code);
 		if (isset($this->locales[$code])) {
 			return $this->locales[$code];
 		}
-		return $this->locales[$code] = $this->locale_factory($code);
+		return $this->locales[$code] = $this->locale_factory($code, $extensions, $options);
 	}
 
 	/**
@@ -1428,7 +1429,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param string $add Locale path to add
 	 * @return array
 	 */
-	final public function locale_path($add = null) {
+	final public function locale_path(string $add = "") {
 		$list = $this->locale_path;
 		if ($add) {
 			$this->deprecated("use addLocalePath");
@@ -1933,8 +1934,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param array $options
 	 * @return ?Model
 	 */
-	public function member_model_factory(string $member, string $class, mixed $mixed = null, array $options = []):
-	?Model {
+	public function member_model_factory(string $member, string $class, mixed $mixed = null, array $options = []): ?Model {
 		return Model::factory($this, $class, $mixed, [
 				"_member" => $member,
 			] + $options);

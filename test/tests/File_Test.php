@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 class File_Test extends Test_Unit {
-	private function _test_atomic_increment($path, $start): void {
+	private function _test_atomic_increment(string $path, $start): void {
 		$this->assert(File::atomic_put($path, "$start"), "Creating initial file");
 		for ($j = 0; $j < 100; $j++) {
 			$this->assert(($result = File::atomic_increment($path)) === $start + $j + 1, "File::atomic_increment: $result !== " . ($start + $j + 1));
@@ -33,10 +35,22 @@ class File_Test extends Test_Unit {
 		File::atomic_put($path, $data);
 	}
 
-	public function test_base(): void {
-		$filename = null;
-		$lower = false;
-		File::base($filename, $lower);
+	public function base_data(): array {
+		return [
+			["foo/bar/dee.inc", "dee"],
+			["foo/bar/dee", "dee"],
+			["C:/Users/Volumes/Places/foo.xlsx", "foo"],
+		];
+	}
+
+	/**
+	 * @param string $filename
+	 * @param string $expected
+	 * @return void
+	 * @dataProvider base_data
+	 */
+	public function test_base(string $filename, string $expected): void {
+		$this->assertEquals($expected, File::base($filename));
 	}
 
 	public function test_checksum(): void {
@@ -45,37 +59,98 @@ class File_Test extends Test_Unit {
 	}
 
 	public function test_chmod(): void {
-		$file_name = null;
+		$file_name = $this->test_sandbox("chmod-test");
+		file_put_contents($file_name, "abc");
 		$mode = 504;
-		File::chmod($file_name, $mode);
+		$this->assertTrue(File::chmod($file_name, $mode));
+		$this->assertFalse(File::chmod($file_name . ".notthere", $mode));
 	}
 
 	public function test_contents(): void {
-		$filename = null;
-		$default = null;
-		File::contents($filename, $default);
+		$file_name = $this->test_sandbox("chmod-test");
+		$data = md5(microtime(false));
+		file_put_contents($file_name, $data);
+		$this->assertEquals($data, File::contents($file_name, ""));
+		$this->assertEquals($data, File::contents($file_name . ".notthere") ?? $data);
+		$this->assertEquals(null, File::contents($file_name . ".notthere"));
 	}
 
-	public function test_extension(): void {
-		$filename = null;
-		$default = false;
-		$lower = true;
-		File::extension($filename, $default, $lower);
+	public function extension_data() {
+		return [
+			["foo.XLSX", "def", true, "xlsx"],
+			["foo.xlsx", "def", true, "xlsx"],
+			["foo.XLSX", "def", false, "XLSX"],
+			["foo.xlsx", "def", false, "xlsx"],
+			["/path/to/a/filename.XLSX", "def", true, "xlsx"],
+			["/path/to/a/filename.xlsx", "def", true, "xlsx"],
+			["/path/to/a/filename.XLSX", "def", false, "XLSX"],
+			["/path/to/a/filename.xlsx", "def", false, "xlsx"],
+		];
 	}
 
-	public function test_name_clean(): void {
-		$x = null;
-		$sep_char = "-";
-		File::name_clean($x, $sep_char);
+	/**
+	 * @param string $filename
+	 * @param string $default
+	 * @param bool $lower
+	 * @param string $expected
+	 * @return void
+	 * @dataProvider extension_data
+	 */
+	public function test_extension(string $filename, string $default, bool $lower, string $expected): void {
+		$this->assertEquals($expected, File::extension($filename, $default, $lower));
 	}
 
-	public function test_path_check(): void {
-		$x = null;
-		File::path_check($x);
+	/**
+	 * @return array
+	 */
+	public function name_clean_data(): array {
+		return [
+			["yer!@#\$the%^&*(()_+{}|dude.xml", "-", "yer-the-_-dude.xml"],
+			["yer!@#\$the%^&*(()_+{}|dude.xml", "_", "yer_the_dude.xml"],
+		];
 	}
 
+	/**
+	 * @param string $path
+	 * @param string $sep_char
+	 * @param string $expected
+	 * @return void
+	 * @dataProvider name_clean_data
+	 */
+	public function test_name_clean(string $path, string $sep_char, string $expected): void {
+		$this->assertEquals($expected, File::name_clean($path, $sep_char));
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public function path_check_data(): array {
+		return [
+			["foo/" . chr(194) . "bar/doo.xlsx", false],
+			["foo/../bar/.././doo.xlsx", false],
+			["normalish.xlsx", true],
+			["a/very/normalish.xlsx", true],
+		];
+	}
+
+	/**
+	 * @param string $path_to_check
+	 * @param bool $is_valid
+	 * @return void
+	 * @dataProvider path_check_data
+	 */
+	public function test_path_check(string $path_to_check, bool $is_valid): void {
+		$this->assertEquals($is_valid, File::path_check($path_to_check));
+	}
+
+	/**
+	 * @return void
+	 * @throws Exception_Directory_Create
+	 * @throws Exception_Directory_Permission
+	 */
 	public function test_temporary(): void {
 		$ext = 'tmp';
-		File::temporary($this->application->paths->temporary(), $ext);
+		$filename = File::temporary($this->application->paths->temporary(), $ext);
+		$this->assertFalse(file_exists($filename));
 	}
 }

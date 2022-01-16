@@ -17,8 +17,8 @@ class Adapter_TestFramework extends Test implements Interface_Testable {
 		$this->assert_equal($expected, $actual, $message);
 	}
 
-	public function assertInstanceOf($expected, $actual, $message = null): void {
-		$this->assert_instanceof($expected, $actual, $message);
+	public function assertInstanceOf($expectedClass, $thing, $message = null): void {
+		$this->assert_instanceof($thing, $expectedClass, $message);
 	}
 
 	public function assertTrue($condition, $message = null): void {

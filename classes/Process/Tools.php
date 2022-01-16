@@ -46,14 +46,14 @@ class Process_Tools {
 	 * @return boolean
 	 */
 	public static function process_code_changed(Application $application): bool {
-		return $application->objects->singleton(__NAMESPACE__ . "\\" . "File_Monitor_Includes")->changed();
+		return $application->objects->singleton(File_Monitor_Includes::class)->changed();
 	}
 
 	/**
 	 *
-	 * @return unknown
+	 * @return array
 	 */
 	public static function process_code_changed_files(Application $application): bool {
-		return $application->objects->singleton(__NAMESPACE__ . "\\" . "File_Monitor_Includes")->changed_files();
+		return $application->objects->singleton(File_Monitor_Includes::class)->changed_files();
 	}
 }

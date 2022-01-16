@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * Date
@@ -8,6 +9,7 @@
  * @copyright Copyright &copy; 2016, Market Acumen, Inc.
  * @see Base,DateTime,Time
  */
+
 namespace zesk;
 
 /**
@@ -102,7 +104,7 @@ class Date extends Temporal {
 	 * @return Date
 	 * @throws Exception_Range
 	 */
-	public static function instance($year = null, $month = null, $day = null) {
+	public static function instance(int $year = null, int $month = null, int $day = null): Date {
 		$d = new Date();
 		$d->ymd($year, $month, $day);
 		return $d;
@@ -229,8 +231,8 @@ class Date extends Temporal {
 	/**
 	 * Parse a Date from a variety of formats
 	 *
-	 * @see strtotime
 	 * @return Date
+	 * @see strtotime
 	 */
 	/**
 	 * @param $value
@@ -310,10 +312,16 @@ class Date extends Temporal {
 	 * @return $this
 	 * @throws Exception_Range
 	 */
-	public function ymd($yy = null, $mm = null, $dd = null) {
-		$this->year($yy);
-		$this->month($mm);
-		$this->day($dd);
+	public function ymd(int $yy = null, int $mm = null, int $dd = null) {
+		if ($yy !== null) {
+			$this->setYear($yy);
+		}
+		if ($mm !== null) {
+			$this->setMonth($mm);
+		}
+		if ($dd !== null) {
+			$this->setDay($dd);
+		}
 		return $this;
 	}
 
@@ -354,6 +362,22 @@ class Date extends Temporal {
 	}
 
 	/**
+	 * @param int $set
+	 * @return $this
+	 * @throws Exception_Range
+	 */
+	public function setMonth(int $set): self {
+		if ($set < 1 || $set > 12) {
+			throw new Exception_Range(map("Date::setMonth({0})", [_dump($set)]));
+		}
+		if ($this->month !== $set) {
+			$this->_year_day = $this->_weekday = null;
+		}
+		$this->month = $set;
+		return $this;
+	}
+
+	/**
 	 * Set or get 1-based quarter number
 	 *
 	 * @param integer $set Set 1-based quarter (1,2,3,4)
@@ -364,6 +388,17 @@ class Date extends Temporal {
 		if ($set === null) {
 			return intval(($this->month - 1) / 3) + 1;
 		}
+		return $this->setQuarter(intval($set));
+	}
+
+	/**
+	 * Set or get 1-based quarter number
+	 *
+	 * @param integer $set Set 1-based quarter (1,2,3,4)
+	 * @return integer|self
+	 * @throws Exception_Range
+	 */
+	public function setQuarter(int $set): self {
 		if ($set < 1 || $set > 4) {
 			throw new Exception_Range(map("Date::quarter({0})", [_dump($set)]));
 		}
@@ -402,7 +437,16 @@ class Date extends Temporal {
 		if ($set === null) {
 			return intval($this->day);
 		}
-		$set = intval($set);
+		zesk()->deprecated("setter");
+		return $this->setDay(intval($set));
+	}
+
+	/**
+	 * @param int $set
+	 * @return $this
+	 * @throws Exception_Range
+	 */
+	public function setDay(int $set): self {
 		if ($set < 1 || $set > 31) {
 			throw new Exception_Range(map("Date::day({0})", [_dump($set)]));
 		}
@@ -424,13 +468,23 @@ class Date extends Temporal {
 	/**
 	 *
 	 * @param integer $set
-	 * @throws Exception_Range
 	 * @return number|$this
+	 * @throws Exception_Range
 	 */
 	public function year($set = null) {
 		if ($set === null) {
 			return $this->year;
 		}
+		zesk()->deprecated("setter");
+		return $this->setYear(intval($set));
+	}
+
+	/**
+	 * @param int $set
+	 * @return $this
+	 * @throws Exception_Range
+	 */
+	public function setYear(int $set): self {
 		if ($set < 0) {
 			throw new Exception_Range(map("Date::year({0})", [_dump($set)]));
 		}
@@ -456,9 +510,20 @@ class Date extends Temporal {
 	 * @return $this|int
 	 */
 	public function weekday($set = null) {
-		if ($set === null) {
-			return $this->_weekday();
+		if ($set !== null) {
+			zesk()->deprecated("setter");
+			$this->setWeekday(intval($set));
 		}
+		return $this->_weekday();
+	}
+
+	/**
+	 * Sets the DOW to the selected one
+	 *
+	 * @param integer $set
+	 * @return $this
+	 */
+	public function setWeekday(int $set) {
 		$set = abs($set) % 7;
 		$weekday = $this->_weekday();
 		if ($weekday === $set) {
@@ -494,8 +559,8 @@ class Date extends Temporal {
 	/**
 	 * Returns the last day of the month (or number of days in the month)
 	 *
-	 * @see self::days_in_month
 	 * @return integer
+	 * @see self::days_in_month
 	 */
 	public function last_day_of_month() {
 		return self::days_in_month($this->month, $this->year);
@@ -544,7 +609,7 @@ class Date extends Temporal {
 	 * @param Date $value
 	 * @return integer
 	 */
-	public function compare(Date $value) {
+	public function compare(Date $value): int {
 		try {
 			$result = $this->year - $value->_year();
 			if ($result === 0) {
@@ -564,10 +629,10 @@ class Date extends Temporal {
 	 *
 	 * @param Date $date
 	 * @param boolean $equal
-	 *        	Returns true if $date === $this
+	 *            Returns true if $date === $this
 	 * @return boolean
 	 */
-	public function before(Date $date, $equal = false) {
+	public function before(Date $date, bool $equal = false): bool {
 		$result = $this->compare($date);
 		if ($equal) {
 			return $result <= 0;
@@ -581,10 +646,10 @@ class Date extends Temporal {
 	 *
 	 * @param Date $date
 	 * @param boolean $equal
-	 *        	Returns true if $date === $this
+	 *            Returns true if $date === $this
 	 * @return boolean
 	 */
-	public function after(Date $date, $equal = false) {
+	public function after(Date $date, bool $equal = false): bool {
 		$result = $this->compare($date);
 		if ($equal) {
 			return $result >= 0;
@@ -604,9 +669,9 @@ class Date extends Temporal {
 	 * @param Date $value
 	 * @return $this|int
 	 */
-	public function subtract(Date $value) {
+	public function subtract(Date $value): int {
 		try {
-			return $this->unix_timestamp() - $value->unix_timestamp();
+			return $this->unixTimestamp() - $value->unixTimestamp();
 		} catch (\Exception $e) {
 			return PHP_INT_MAX;
 		}
@@ -618,7 +683,7 @@ class Date extends Temporal {
 	 * @param Date $value
 	 * @return integer
 	 */
-	public function subtract_days(Date $value) {
+	public function subtract_days(Date $value): int {
 		return round($this->subtract($value) / self::seconds_in_day);
 	}
 
@@ -631,7 +696,7 @@ class Date extends Temporal {
 	 * @throws Exception_Parse
 	 * @throws Exception_Range
 	 */
-	public function clamp(Date $min_date = null, Date $max_date = null) {
+	public function clamp(Date $min_date = null, Date $max_date = null): bool {
 		if ($min_date && $this->before($min_date)) {
 			$this->set($min_date);
 			return true;
@@ -645,20 +710,16 @@ class Date extends Temporal {
 
 	/**
 	 * Add years, months, or days to a Date
-	 *
-	 * @param integer $years
-	 * @param integer $months
-	 * @param integer $days
-	 * @return Date
+	 * @param int $years
+	 * @param int $months
+	 * @param int $days
+	 * @return $this
+	 * @throws Exception_Range
 	 */
-	public function add($years = 0, $months = 0, $days = 0) {
+	public function add(int $years = 0, int $months = 0, int $days = 0): self {
 		$foo = mktime(0, 0, 0, $this->month + $months, $this->day + $days, $this->year + $years);
 
-		try {
-			return $this->_set_date(getdate($foo));
-		} catch (Exception_Range $e) {
-			return null;
-		}
+		return $this->_set_date(getdate($foo));
 	}
 
 	/**
@@ -670,7 +731,7 @@ class Date extends Temporal {
 	 * @throws Exception_Deprecated
 	 * @throws Exception_Parameter
 	 */
-	public function add_unit($n_units = 1, $units = self::UNIT_DAY) {
+	public function add_unit(int $n_units = 1, string $units = self::UNIT_DAY): self {
 		/**
 		 * Support legacy call syntax
 		 *
@@ -881,7 +942,7 @@ class Date extends Temporal {
 	/**
 	 * Set/get date as an integer (UNIX timestamp)
 	 *
-	 * @param integer  $set
+	 * @param integer $set
 	 * @return $this|int
 	 * @throws Exception_Convert
 	 * @throws Exception_Parameter
@@ -929,8 +990,8 @@ class Date extends Temporal {
 	/**
 	 * Check if empty, return false. Otherwise compute _weekday and _yearday and return true
 	 *
-	 * @todo gmmktime? UTC
 	 * @return bool
+	 * @todo gmmktime? UTC
 	 */
 	private function _refresh() {
 		if ($this->is_empty()) {
@@ -991,10 +1052,10 @@ class Date extends Temporal {
 	}
 
 	/**
-	 * @deprecated 2020-10
-	 * @see Date::year_day()
 	 * @param integer $set
 	 * @return self|integer
+	 * @deprecated 2020-10
+	 * @see Date::year_day()
 	 */
 	public function yearday($set = null) {
 		return $this->year_day($set);

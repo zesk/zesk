@@ -11,6 +11,8 @@ namespace zesk;
  *
  */
 class Test_Database_Exception extends Test_Unit {
+	protected array $load_modules = ['mysql', 'database'];
+
 	public function database() {
 		return $this->application->database_registry($this->option("database"));
 	}

@@ -79,13 +79,10 @@ class Functions_Test extends Test_Unit {
 	}
 
 	public function test___(): void {
-		$phrase = null;
 		$language = "en";
-		__($phrase, $language);
+		$this->assertEquals("one", __("one", $language));
 
-		$phrase = null;
-		$locale = null;
-		__($phrase, $locale);
+		$this->assertEquals([], __([], $language));
 	}
 
 	public function test_theme(): void {

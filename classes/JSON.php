@@ -26,7 +26,7 @@ class JSON {
 	 * @param string $name
 	 * @return boolean
 	 */
-	public static function valid_member_name($name) {
+	public static function valid_member_name($name): bool {
 		return preg_match('/^[$A-Za-z_][$A-Za-z_0-9]*$/', $name) !== 0;
 	}
 
@@ -36,7 +36,7 @@ class JSON {
 	 * @param string $name
 	 * @return string
 	 */
-	public static function object_member_name_quote($name) {
+	public static function object_member_name_quote(string $name): string {
 		if (self::valid_member_name($name)) {
 			return $name;
 		}
@@ -49,7 +49,7 @@ class JSON {
 	 * @param string $name
 	 * @return string
 	 */
-	public static function quote($name) {
+	public static function quote(string $name): string {
 		return '"' . addcslashes($name, "\t\n\r\"\\") . '"';
 	}
 
@@ -59,7 +59,7 @@ class JSON {
 	 * @param mixed $mixed
 	 * @return string
 	 */
-	public static function encode_pretty($mixed) {
+	public static function encode_pretty(mixed $mixed): string {
 		return json_encode($mixed, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
 	}
 
@@ -67,7 +67,7 @@ class JSON {
 	 * Default methods to use in prepare
 	 * @var array
 	 */
-	private static $default_methods = [
+	private static array $default_methods = [
 		"json",
 		"to_json",
 		"toJSON",
@@ -78,15 +78,15 @@ class JSON {
 	 * Prepare internal objects to simple JSON-capable structures.
 	 *
 	 * @param mixed $mixed
-	 * @param array $methods
+	 * @param ?array $methods
 	 * @param array $arguments Optional arguments passed to $methods
 	 * @return mixed
 	 */
-	public static function prepare($mixed, array $methods = null, array $arguments = []) {
+	public static function prepare(mixed $mixed, array $methods = [], array $arguments = []): mixed {
 		if ($mixed === null) {
 			return null;
 		}
-		if ($methods === null) {
+		if (count($methods) === 0) {
 			$methods = self::$default_methods;
 		}
 		if (is_array($mixed)) {
@@ -123,7 +123,7 @@ class JSON {
 	 *        	Item to encode using JSON
 	 * @return string JSON string of encoded item
 	 */
-	public static function encode($mixed) {
+	public static function encode(mixed $mixed): string {
 		if (function_exists("json_encode")) {
 			return json_encode($mixed, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
 		}
@@ -142,7 +142,7 @@ class JSON {
 	 *        	Item to encode using JSON
 	 * @return string JSON string of encoded item
 	 */
-	public static function zencode($mixed) {
+	public static function zencode(mixed $mixed): string {
 		static $recursion = 0;
 		if (is_array($mixed) || is_object($mixed)) {
 			if ($recursion > 10) {
@@ -211,7 +211,7 @@ class JSON {
 	 *        	Item to encode using JSON
 	 * @return string JSON string of encoded item
 	 */
-	public static function encodex($mixed) {
+	public static function encodex(mixed $mixed): string {
 		if (is_array($mixed) || is_object($mixed)) {
 			$result = [];
 			if (!is_object($mixed) && !ArrayTools::is_assoc($mixed)) {
@@ -224,7 +224,7 @@ class JSON {
 				return self::encodex($mixed);
 			} else {
 				foreach ($mixed as $k => $v) {
-					if (substr($k, 0, 1) === '*') {
+					if (str_starts_with($k, '*')) {
 						$result[] = self::object_member_name_quote(substr($k, 1)) . ":" . $v;
 					} else {
 						$result[] = self::object_member_name_quote($k) . ":" . self::encodex($v);
@@ -257,14 +257,7 @@ class JSON {
 	 * @throws Exception_Parse
 	 * @throws Exception_Parameter
 	 */
-	public static function decode($string, $assoc = true) {
-		if (!is_string($string)) {
-			throw new Exception_Parameter("{method}: String required {type} passed from {calling_function}", [
-				'method' => __METHOD__,
-				'type' => type($string),
-				'calling_function' => calling_function(),
-			]);
-		}
+	public static function decode(string $string, bool $assoc = true): mixed {
 		$string = trim($string);
 		if ($string === 'null') {
 			return null;

@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -29,9 +31,9 @@ class Lang_en_test extends Test_Unit {
 
 		$word = 'hour away';
 		$caps = false;
-		$this->assert_equal($testx->indefinite_article($word, false), 'an');
-		$this->assert_equal($testx->indefinite_article($word, true), 'An');
-		$this->assert_equal($testx->indefinite_article("HOUR AWAY", true), 'An');
+		$this->assert_equal($testx->indefinite_article($word, []), 'an');
+		$this->assert_equal($testx->indefinite_article($word, ['capitalize' => true]), 'An');
+		$this->assert_equal($testx->indefinite_article("HOUR AWAY", ['capitalize' => true]), 'An');
 
 		$x = [
 			"lions",
@@ -50,7 +52,7 @@ class Lang_en_test extends Test_Unit {
 	public function ordinal_tests() {
 		return [
 			[
-				'1',
+				1,
 				'1st',
 			],
 			[
@@ -58,7 +60,7 @@ class Lang_en_test extends Test_Unit {
 				'1st',
 			],
 			[
-				'0',
+				0,
 				'0th',
 			],
 			[
@@ -66,44 +68,44 @@ class Lang_en_test extends Test_Unit {
 				'0th',
 			],
 			[
-				'11',
+				11,
 				'11th',
 			],
 			[
-				'101',
+				101,
 				'101st',
 			],
 			[
-				'2',
+				2,
 				'2nd',
 			],
 			[
-				'12',
+				12,
 				'12th',
 			],
 			[
-				'21',
+				21,
 				'21st',
 			],
 			[
-				'22',
+				22,
 				'22nd',
 			],
 			[
-				'99',
+				99,
 				'99th',
 			],
 			[
-				'100000001',
+				100000001,
 				'100000001st',
 			],
 		];
 	}
 
 	/**
-	 * @data_provider ordinal_tests
+	 * @dataProvider ordinal_tests
 	 */
-	public function test_ordinal($input, $result): void {
+	public function test_ordinal(int $input, string $result): void {
 		$testx = $this->application->locale_registry("en");
 		$this->assert_equal($testx->ordinal($input), $result);
 	}

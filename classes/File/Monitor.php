@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 abstract class File_Monitor {
@@ -7,7 +9,7 @@ abstract class File_Monitor {
 	 *
 	 * @var array
 	 */
-	private $file_mtimes = [];
+	private array $file_mtimes = [];
 
 	/**
 	 * Create a new File_Monitor
@@ -21,7 +23,7 @@ abstract class File_Monitor {
 	 *
 	 * @return array
 	 */
-	private function current_mtimes() {
+	private function current_mtimes(): array {
 		$current = [];
 		foreach ($this->files() as $f) {
 			clearstatcache(false, $f);
@@ -35,7 +37,7 @@ abstract class File_Monitor {
 	 *
 	 * @return string[]
 	 */
-	public function changed_files() {
+	public function changed_files(): array {
 		$result = [];
 		$current = $this->current_mtimes();
 		foreach ($this->file_mtimes as $filename => $saved_mod_time) {
@@ -59,7 +61,7 @@ abstract class File_Monitor {
 	 *
 	 * @return boolean
 	 */
-	public function changed() {
+	public function changed(): bool {
 		$current = $this->current_mtimes();
 		foreach ($this->file_mtimes as $filename => $saved_mod_time) {
 			if (!isset($current[$filename])) {
@@ -82,5 +84,5 @@ abstract class File_Monitor {
 	 *
 	 * @return array
 	 */
-	abstract protected function files();
+	abstract protected function files(): array;
 }

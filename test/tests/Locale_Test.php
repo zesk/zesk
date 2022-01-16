@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 use zesk\Lists;
@@ -16,7 +18,7 @@ class Locale_Test extends Test_Unit {
 		$tests = [
 			'Jazz' => 'Jazzes',
 			'JAZZ' => 'JAZZES',
-			'JaZz' => 'JaZzes',
+			'JaZz' => 'Jazzes',
 			'funny' => 'funnies',
 			'funnY' => 'funnies',
 			'FUNNY' => 'FUNNIES',
@@ -46,71 +48,87 @@ class Locale_Test extends Test_Unit {
 		}
 	}
 
-	public function test_conjunction(): void {
-		$locale = $this->en_locale();
-		$x = [
-			'one thing',
+	public function conjunction_data(): array {
+		return [
+			[
+				['one thing', ],
+				"",
+				'one thing',
+			],
+			[
+				[
+					'one',
+					'two',
+				],
+				"or",
+				"one or two",
+			],
+			[
+				[
+					'one',
+					'two',
+					'three',
+				],
+				'',
+				'one, two, or three',
+			],
+			[
+				[
+					"lions",
+					"tigers",
+					"bears",
+				],
+				'or',
+				"lions, tigers, or bears",
+			],
+			[
+				[
+					"lions",
+					"tigers",
+					"bears",
+					"campers",
+					"zebras",
+				],
+				'or',
+				"lions, tigers, bears, campers, or zebras",
+			],
+			[
+				[
+					"lions",
+					"tigers",
+					"bears",
+				],
+				'and',
+				"lions, tigers, and bears",
+			],
+			[
+				[
+					"lions",
+					"tigers",
+				],
+				'and',
+				"lions and tigers",
+			],
+			[
+				[
+					"lions",
+				],
+				'and',
+				'lions',
+			],
 		];
-		$c = null;
+	}
+
+	/**
+	 * @param array $words
+	 * @param string $conjunction
+	 * @param string $expected
+	 * @return void
+	 * @dataProvider conjunction_data
+	 */
+	public function test_conjunction(array $words, string $conjunction, string $expected): void {
 		$locale = $this->application->locale_registry("en");
-		$result = $locale->conjunction($x, $c);
-		echo "$result\n";
-		$this->assert($result === 'one thing');
-
-		$x = [
-			'one',
-			'two',
-		];
-		$result = $locale->conjunction($x, $c);
-		$this->assertEquals("one or two", $result);
-
-		$x = [
-			'one',
-			'two',
-			'three',
-		];
-		$result = $locale->conjunction($x, $c);
-		echo "$result\n";
-		$this->assertEquals('one, two, or three', $result);
-
-		$x = [
-			"lions",
-			"tigers",
-			"bears",
-		];
-		$c = "or";
-		$this->assert($locale->conjunction($x, $c) === "lions, tigers, or bears");
-
-		$x = [
-			"lions",
-			"tigers",
-			"bears",
-			"campers",
-			"zebras",
-		];
-		$c = "or";
-		$this->assert($locale->conjunction($x, $c) === "lions, tigers, bears, campers, or zebras");
-
-		$x = [
-			"lions",
-			"tigers",
-			"bears",
-		];
-		$c = "and";
-		$this->assert($locale->conjunction($x, $c) === "lions, tigers, and bears");
-
-		$x = [
-			"lions",
-			"tigers",
-		];
-		$c = "and";
-		$this->assert($locale->conjunction($x, $c) === "lions and tigers");
-
-		$x = [
-			"lions",
-		];
-		$c = "and";
-		$this->assert($locale->conjunction($x, $c) === "lions");
+		$this->assertEquals($expected, $locale->conjunction($words, $conjunction));
 	}
 
 	public function to_locale_list($id_list) {
@@ -165,12 +183,8 @@ class Locale_Test extends Test_Unit {
 		$this->assert_equal(Locale::parse_dialect("en_us"), "US");
 		$this->assert_equal(Locale::parse_dialect("EN_US"), "US");
 		$this->assert_equal(Locale::parse_dialect("EN_US_Southern"), "US");
-		$this->assert_equal(Locale::parse_dialect("En"), null);
-		$this->assert_equal(Locale::parse_dialect(""), null);
-		$this->assert_equal(Locale::parse_dialect(false), null);
-		$this->assert_equal(Locale::parse_dialect(0), null);
-		$this->assert_equal(Locale::parse_dialect(0.0), null);
-		$this->assert_equal(Locale::parse_dialect(null), null);
+		$this->assert_equal(Locale::parse_dialect("En"), "");
+		$this->assert_equal(Locale::parse_dialect(""), "");
 	}
 
 	/**
@@ -191,28 +205,20 @@ class Locale_Test extends Test_Unit {
 	 * @param Locale $locale
 	 */
 	public function test_indefinite_article(Locale $locale): void {
-		$word = null;
-		$caps = false;
-		$this->assert_equal($locale->indefinite_article("euro", false), "a");
-		$this->assert_equal($locale->indefinite_article("honor", false), "an");
+		$this->assert_equal($locale->indefinite_article("euro", []), "a");
+		$this->assert_equal($locale->indefinite_article("honor", []), "an");
 	}
 
 	public function test_language(): void {
 		$this->assert_equal(Locale::parse_language("EN_US"), "en");
 		$this->assert_equal(Locale::parse_language("EN_US_Southern"), "en");
 		$this->assert_equal(Locale::parse_language("En"), "en");
-		$this->assert_equal(Locale::parse_language(""), null);
-		$this->assert_equal(Locale::parse_language(0), null);
-		$this->assert_equal(Locale::parse_language(0.0), null);
-		$this->assert_equal(Locale::parse_language(false), null);
-		$this->assert_equal(Locale::parse_language(null), null);
+		$this->assert_equal(Locale::parse_language(""), "");
 	}
 
 	public function test_negate_word(): void {
 		$locale = $this->application->locale;
-		$word = null;
-		$language = "en";
-		$locale->negate_word($word, $language);
+		$this->assertEquals("updog", $locale->negate_word('dog', "up"));
 	}
 
 	public function test_normalize(): void {
@@ -221,16 +227,21 @@ class Locale_Test extends Test_Unit {
 		$this->assert_equal(Locale::normalize("Fr_Fr"), "fr_FR");
 	}
 
+	public function now_string_data(): array {
+		return [
+			["now", Timestamp::UNIT_MINUTE, "zero", "zero"],
+		];
+	}
+
 	/**
 	 * @dataProvider en_locales
 	 * @param Locale $locale
 	 */
 	public function test_now_string(Locale $locale): void {
-		$ts = null;
-		$min_unit = false;
-		$zero_string = false;
-		$result = $locale->now_string($ts, $min_unit, $zero_string);
-		$this->assert_is_string($result);
+		foreach ($this->now_string_data() as $items) {
+			[$timestamp, $min_unit, $zero_string, $expeected] = $items;
+			$this->assertEquals($expeected, $locale->now_string($timestamp, $min_unit, $zero_string));
+		}
 	}
 
 	/**
@@ -265,7 +276,7 @@ class Locale_Test extends Test_Unit {
 		$tests = [
 			'Jazz' => 'Jazzes',
 			'JAZZ' => 'JAZZES',
-			'JaZz' => 'JaZzes',
+			'JaZz' => 'Jazzes',
 			'funny' => 'funnies',
 			'funnY' => 'funnies',
 			'FUNNY' => 'FUNNIES',
@@ -304,7 +315,7 @@ class Locale_Test extends Test_Unit {
 			'woman' => 'women',
 			'Jazz' => 'Jazzes',
 			'JAZZ' => 'JAZZES',
-			'JaZz' => 'JaZzes',
+			'JaZz' => 'Jazzes',
 			'funny' => 'funnies',
 			'funnY' => 'funnies',
 			'FUNNY' => 'FUNNIES',
@@ -350,7 +361,7 @@ class Locale_Test extends Test_Unit {
 		$tests = [
 			'Jazz' => 'Jazzes',
 			'JAZZ' => 'JAZZES',
-			'JaZz' => 'JaZzes',
+			'JaZz' => 'Jazzes',
 			'funny' => 'funnies',
 			'funnY' => 'funnies',
 			'FUNNY' => 'FUNNIES',
@@ -437,9 +448,9 @@ class Locale_Test extends Test_Unit {
 	 */
 	public function test_translate(Locale $locale): void {
 		foreach ([
-			"Hello",
-			"world",
-		] as $phrase) {
+					 "Hello",
+					 "world",
+				 ] as $phrase) {
 			$this->assert_equal($locale->__($phrase), $locale($phrase));
 		}
 	}

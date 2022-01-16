@@ -152,10 +152,13 @@ class CSV_Reader extends CSV {
 		switch ($this->Encoding) {
 			case "UTF-8":
 				$result = fgetcsv($this->File, 10240, $this->Delimiter, $this->Enclosure);
-				if (!$result) {
-					return $result;
+				if (!is_array($result)) {
+					return false;
 				}
-				return UTF8::to_iso8859($result);
+				foreach ($result as $index => $value) {
+					$result[$index] = UTF8::to_iso8859($value);
+				}
+				return $result;
 			case "UTF-16":
 				if (!str_contains($this->FileBuffer, $this->LineDelimiter)   && ($n = strlen($this->FileBuffer)) < 10240) {
 					if ($n === 0 && feof($this->File)) {

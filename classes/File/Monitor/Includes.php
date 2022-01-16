@@ -16,7 +16,7 @@ class File_Monitor_Includes extends File_Monitor {
 	 * {@inheritDoc}
 	 * @see \zesk\File_Monitor::files()
 	 */
-	protected function files() {
+	protected function files(): array {
 		return get_included_files();
 	}
 }
