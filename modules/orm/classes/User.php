@@ -186,11 +186,11 @@ class User extends ORM {
 
 	/**
 	 * Using the
-	 * @param unknown $string
+	 * @param string $string
 	 * @param boolean $raw_output
 	 * @return string
 	 */
-	public function generate_hash($string, $raw_output = true) {
+	public function generate_hash(string $string, bool $raw_output = true): string {
 		$algo = $this->password_method();
 		if (in_array($algo, $this->class->allowed_hash_methods)) {
 			return hash($algo, $string, $raw_output);

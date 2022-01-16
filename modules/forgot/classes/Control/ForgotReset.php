@@ -55,8 +55,8 @@ class Control_ForgotReset extends Control_Edit {
 		// 		$w->required(true);
 
 		$ww[] = $w = $this->widget_factory(Control_Password::class)->names('password', $this->option("label_password", $locale->__("New Password")));
-		$w->set_option('encrypted_column', 'new_password');
-		$w->set_option('confirm', true);
+		$w->setOption('encrypted_column', 'new_password');
+		$w->setOption('confirm', true);
 		$w->required(true);
 
 		$ww[] = $w = $this->widget_factory(Control_Button::class)
@@ -129,7 +129,7 @@ class Control_ForgotReset extends Control_Edit {
 		$this->auth_user = $this->call_hook_arguments("find_user", [
 			$this->auth_user,
 		], $this->auth_user);
-		if ($this->option_bool('not_found_error', true) && !$this->auth_user) {
+		if ($this->optionBool('not_found_error', true) && !$this->auth_user) {
 			$this->error($locale->__("Control_ForgotReset:=Not able to find that user."), 'login');
 			return false;
 		}

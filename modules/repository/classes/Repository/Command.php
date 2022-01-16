@@ -60,7 +60,7 @@ abstract class Repository_Command extends Repository {
 				"method" => __METHOD__,
 			]);
 		}
-		if ($this->option_bool("find_root") && $root = $this->find_root($path)) {
+		if ($this->optionBool("find_root") && $root = $this->find_root($path)) {
 			if ($root !== $path) {
 				$this->application->logger->debug("{method} {code} moved to {root} instead of {path}", [
 					"method" => __METHOD__,

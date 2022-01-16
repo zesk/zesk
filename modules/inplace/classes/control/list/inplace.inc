@@ -114,7 +114,7 @@ abstract class Control_List_InPlace extends Control_List {
 			'hierarchy_column' => $this->hierarchy_column,
 			'total_title' => $locale->__($this->total_title),
 			'target' => $this->option('target'),
-			'dismiss_button' => $this->option_bool("dismiss_button", true),
+			'dismiss_button' => $this->optionBool("dismiss_button", true),
 			'current_user' => $this->user(),
 		] + parent::theme_variables();
 	}

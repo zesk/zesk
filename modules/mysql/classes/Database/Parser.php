@@ -259,7 +259,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			}
 			$col = new Database_Column($table, $column_name, $options);
 			$options = $this->database->column_attributes($col);
-			$col->set_option($options, null, false);
+			$col->setOption($options, null, false);
 			$table->columnAdd($col);
 		}
 		return $sql;
@@ -390,14 +390,14 @@ class Database_Parser extends \zesk\Database_Parser {
 		foreach ($add_tips as $column => $add_sql) {
 			$col = $table->column($column);
 			if ($col) {
-				$col->set_option("add_sql", $add_sql);
+				$col->setOption("add_sql", $add_sql);
 			} else {
 				$this->application->logger->notice($table->name() . " contains add tip for non-existent new column: $column => $add_sql");
 			}
 		}
 		$remove_tips = avalue($tips, 'add', []);
 		if (count($remove_tips) > 0) {
-			$table->set_option("remove_sql", $remove_tips);
+			$table->setOption("remove_sql", $remove_tips);
 		}
 	}
 

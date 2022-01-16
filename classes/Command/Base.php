@@ -92,11 +92,11 @@ abstract class Command_Base extends Command {
 	/**
 	 */
 	protected function configure_logging(): void {
-		if ($this->option_bool("quiet")) {
+		if ($this->optionBool("quiet")) {
 			$this->quiet = true;
 			return;
 		}
-		$debug = $this->option_bool("debug");
+		$debug = $this->optionBool("debug");
 		$severity = $this->option("severity", $this->option("log-level", $debug ? "debug" : "info"));
 		$logger = $this->application->logger;
 		$all_levels = $logger->levels_select($severity);
@@ -125,10 +125,10 @@ abstract class Command_Base extends Command {
 	 */
 	protected function hook_run_before(): void {
 		$this->configure_logging();
-		if ($this->option_bool('help')) {
+		if ($this->optionBool('help')) {
 			$this->usage();
 		}
-		if ($this->option_bool('debug-config')) {
+		if ($this->optionBool('debug-config')) {
 			$this->application->hooks->add("zesk\Application::configured", [
 				$this,
 				"action_debug_configured",
@@ -137,7 +137,7 @@ abstract class Command_Base extends Command {
 	}
 
 	protected function handle_base_options() {
-		if ($this->option_bool('debug-config')) {
+		if ($this->optionBool('debug-config')) {
 			return $this->action_debug_configured(false);
 		}
 	}

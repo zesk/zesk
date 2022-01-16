@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
  */
+
 namespace zesk;
 
 use \stdClass;
@@ -98,8 +100,8 @@ class ArrayTools_Test extends Test_Unit {
 
 	public function test_wrap(): void {
 		$a = [];
-		$prefix = null;
-		$suffix = null;
+		$prefix = "";
+		$suffix = "";
 		$this->assert_arrays_equal(ArrayTools::wrap($a, $prefix, $suffix), [], "", true, true);
 		$a = [
 			"a",
@@ -107,7 +109,7 @@ class ArrayTools_Test extends Test_Unit {
 		$this->assert_arrays_equal(ArrayTools::wrap($a, $prefix, $suffix), $a);
 
 		$prefix = "a";
-		$suffix = null;
+		$suffix = "";
 		$a = [
 			"a" => "b",
 		];
@@ -118,11 +120,7 @@ class ArrayTools_Test extends Test_Unit {
 
 		$prefix = "a";
 		$suffix = "bb";
-		$a = [
-			"a" => "b",
-		];
-
-		;
+		$a = ["a" => "b", ];
 		$b = [
 			"a" => "abbb",
 		];
@@ -220,7 +218,7 @@ class ArrayTools_Test extends Test_Unit {
 			6,
 		];
 		$keys = "0;2;4;6";
-		$result = ArrayTools::remove($arr, $keys);
+		$result = ArrayTools::remove($arr, to_list($keys));
 		$result_correct = [
 			1 => 1,
 			3 => 3,
@@ -883,43 +881,43 @@ class ArrayTools_Test extends Test_Unit {
 		$this->assert(ArrayTools::is_list(new stdClass()) === false);
 		$this->assert(ArrayTools::is_list([]) === true);
 		$this->assert(ArrayTools::is_list([
-			"1",
-			"3",
-		]) === true);
+				"1",
+				"3",
+			]) === true);
 		$this->assert(ArrayTools::is_list([
-			"1",
-			2 => "3",
-		]) === false);
+				"1",
+				2 => "3",
+			]) === false);
 		$this->assert(ArrayTools::is_list([
-			"1",
-			2 => "3",
-			4,
-			5 => "f",
-		]) === false);
+				"1",
+				2 => "3",
+				4,
+				5 => "f",
+			]) === false);
 		$this->assert(ArrayTools::is_list([
-			1,
-			2,
-			3,
-			4,
-			5,
-			9,
-		]) === true);
+				1,
+				2,
+				3,
+				4,
+				5,
+				9,
+			]) === true);
 		$this->assert(ArrayTools::is_list(array_merge([
-			1,
-			2,
-			3,
-			4,
-			5,
-			9,
-		], [
-			"a",
-			1,
-			2,
-			3,
-			4,
-			5,
-			9,
-		])) === true);
+				1,
+				2,
+				3,
+				4,
+				5,
+				9,
+			], [
+				"a",
+				1,
+				2,
+				3,
+				4,
+				5,
+				9,
+			])) === true);
 		$faker = new faker();
 		$faker->__set('0', 'zero');
 		$faker->__set('1', 'one');
@@ -937,43 +935,43 @@ class ArrayTools_Test extends Test_Unit {
 		$this->assert(ArrayTools::is_list(new stdClass()) === false);
 		$this->assert(ArrayTools::is_list([]) === true);
 		$this->assert(ArrayTools::is_list([
-			"1",
-			"3",
-		]) === true);
+				"1",
+				"3",
+			]) === true);
 		$this->assert(ArrayTools::is_list([
-			"1",
-			2 => "3",
-		]) === false);
+				"1",
+				2 => "3",
+			]) === false);
 		$this->assert(ArrayTools::is_list([
-			"1",
-			2 => "3",
-			4,
-			5 => "f",
-		]) === false);
+				"1",
+				2 => "3",
+				4,
+				5 => "f",
+			]) === false);
 		$this->assert(ArrayTools::is_list([
-			1,
-			2,
-			3,
-			4,
-			5,
-			9,
-		]) === true);
+				1,
+				2,
+				3,
+				4,
+				5,
+				9,
+			]) === true);
 		$this->assert(ArrayTools::is_list(array_merge([
-			1,
-			2,
-			3,
-			4,
-			5,
-			9,
-		], [
-			"a",
-			1,
-			2,
-			3,
-			4,
-			5,
-			9,
-		])) === true);
+				1,
+				2,
+				3,
+				4,
+				5,
+				9,
+			], [
+				"a",
+				1,
+				2,
+				3,
+				4,
+				5,
+				9,
+			])) === true);
 
 		$faker = new faker();
 		$faker->__set('0', 'zero');
@@ -1150,7 +1148,7 @@ class ArrayTools_Test extends Test_Unit {
 	public function test_clean(): void {
 		$a = null;
 		$value = '';
-		ArrayTools::clean($a, $value);
+		$this->assertEquals([2 => false, 3 => null], ArrayTools::clean(["", "", false, null], ['']));
 	}
 
 	public function test_kfilter(): void {
@@ -1182,23 +1180,22 @@ class ArrayTools_Test extends Test_Unit {
 	}
 
 	public function test_ksuffix(): void {
-		$arr = [];
-		$str = null;
-		ArrayTools::ksuffix($arr, $str);
+		$arr = [1 => "one", 2 => "two", "three" => 3];
+		$str = "duck";
+		$this->assertEquals(['1duck' => 'one', '2duck' => 'two', 'threeduck' => 3], ArrayTools::ksuffix($arr, $str));
 	}
 
 	public function test_ltrim(): void {
-		$a = null;
 		$charlist = "aA";
-		$this->assert_equal(ArrayTools::ltrim([
-			"aaaab" => "aaaab",
-			"AAAAb" => "AAAAb",
-			"baaaa" => "baaaa",
-		], $charlist), [
+		$this->assertEquals([
 			"aaaab" => "b",
 			"AAAAb" => "b",
 			"baaaa" => "baaaa",
-		]);
+		], ArrayTools::ltrim([
+			"aaaab" => "aaaab",
+			"AAAAb" => "AAAAb",
+			"baaaa" => "baaaa",
+		], $charlist));
 	}
 
 	public function test_preg_quote(): void {
@@ -1232,6 +1229,7 @@ class ArrayTools_Test extends Test_Unit {
 		]);
 	}
 }
+
 class faker {
 	public function __set($n, $v): void {
 		$this->$n = $v;

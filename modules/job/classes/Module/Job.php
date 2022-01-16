@@ -86,7 +86,7 @@ class Module_Job extends Module implements Interface_Module_Routes {
 			'default action' => 'monitor',
 			'module' => 'job',
 		]);
-		if ($this->application->development() && !$this->option_bool("skip_route_job_execute")) {
+		if ($this->application->development() && !$this->optionBool("skip_route_job_execute")) {
 			$router->add_route("job-execute", [
 				"method" => [
 					__CLASS__,

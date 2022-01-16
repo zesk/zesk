@@ -18,7 +18,7 @@ class Class_Province extends Class_ORM {
 		"name" => self::type_string,
 	];
 
-	public $find_keys = [
+	public array $find_keys = [
 		"country",
 		"name",
 	];

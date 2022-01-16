@@ -15,7 +15,7 @@ class Module_jQueryUI extends zesk\Module_JSLib {
 	];
 
 	public function hook_configured(): void {
-		if ($this->has_option("extras")) {
+		if ($this->hasOption("extras")) {
 			$this->application->logger->warning("Configuration setting Module_jQueryUI::extras is deprecated");
 		}
 		$this->css_paths = map($this->css_paths, $this->options() + [

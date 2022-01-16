@@ -63,7 +63,7 @@ class Command_Release extends Command_Base {
 			$this->error("No repository detected at {path}", compact("path"));
 		}
 		if (count($repos) > 1) {
-			if (!$this->has_option("repo")) {
+			if (!$this->hasOption("repo")) {
 				$this->error("Multiple repositories found, specify alias using --repo");
 			}
 			$repo_code = $this->option("repo");

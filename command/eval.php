@@ -64,7 +64,7 @@ class Command_Eval extends Command_Base {
 	 * @see \zesk\Command::run()
 	 */
 	public function run() {
-		if (!$this->option_bool("skip-configure")) {
+		if (!$this->optionBool("skip-configure")) {
 			$this->configure("eval");
 		}
 		$this->handle_base_options();
@@ -79,7 +79,7 @@ class Command_Eval extends Command_Base {
 			$result = $this->_eval($arg);
 			$this->output_result($result, ob_get_clean());
 		}
-		if ($this->option_bool('interactive')) {
+		if ($this->optionBool('interactive')) {
 			return $this->interactive();
 		}
 	}
@@ -167,7 +167,7 @@ class Command_Eval extends Command_Base {
 		$this->saved_vars = $diff + $this->saved_vars;
 		$this->before_vars = $vars;
 
-		if ($this->option_bool("debug-state")) {
+		if ($this->optionBool("debug-state")) {
 			if (count($diff) > 0) {
 				echo "New variables defined in state: " . implode(", ", array_keys($diff)) . "\n";
 			} else {
@@ -211,7 +211,7 @@ class Command_Eval extends Command_Base {
 			$application = $app = $this->application;
 			extract($this->_before_evaluate(get_defined_vars()), EXTR_SKIP);
 			$__eval = "?" . "><" . "?php\n$__eval;\n";
-			if ($this->option_bool("debug-state")) {
+			if ($this->optionBool("debug-state")) {
 				$this->verbose_log("RAW PHP EVAL: $__eval");
 			}
 			$__result = eval($__eval);

@@ -4,7 +4,7 @@ namespace zesk;
 class Class_City extends Class_ORM {
 	public string $id_column = "id";
 
-	public $find_keys = [
+	public array $find_keys = [
 		"name",
 	];
 

@@ -22,7 +22,7 @@ class Module_GitHub extends Module {
 	 * @return array
 	 */
 	public function hook_version_updated(array $settings) {
-		if (!$this->option_bool("tag-on-version-update")) {
+		if (!$this->optionBool("tag-on-version-update")) {
 			return $settings;
 		}
 		$version = null;
@@ -58,7 +58,7 @@ class Module_GitHub extends Module {
 	 * @return boolean
 	 */
 	public function has_credentials() {
-		return $this->has_option("owner") && $this->has_option("repository") && $this->has_option("access_token");
+		return $this->hasOption("owner") && $this->hasOption("repository") && $this->hasOption("access_token");
 	}
 
 	/**

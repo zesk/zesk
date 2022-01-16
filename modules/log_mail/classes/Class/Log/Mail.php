@@ -43,7 +43,7 @@ class Class_Log_Mail extends Class_ORM {
 		'user' => User::class,
 	];
 
-	public $find_keys = [
+	public array $find_keys = [
 		'code',
 	];
 }

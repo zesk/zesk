@@ -56,8 +56,8 @@ class Command_Database_Reset extends Command {
 		$dbname = $db->database_name();
 		$codename = $db->code_name();
 
-		$live_db = $this->has_option('file') ? $this->option('file') : null;
-		$has_dd = $this->has_option('dump-directory');
+		$live_db = $this->hasOption('file') ? $this->option('file') : null;
+		$has_dd = $this->hasOption('dump-directory');
 		if (!$live_db) {
 			$dump_dir = $has_dd ? $this->option('dump-directory') : $this->default_dump_directory();
 			$live_db = Directory::ls($dump_dir, '#^' . $dbname . '.*\.sql\.gz$#', true);

@@ -108,7 +108,7 @@ abstract class Server_Platform extends Hookable {
 			throw new Exception_Unimplemented("\$this->root_user is null");
 		}
 
-		if ($this->option_bool('awareness')) {
+		if ($this->optionBool('awareness')) {
 			$this->awareness();
 		}
 
@@ -151,7 +151,7 @@ abstract class Server_Platform extends Hookable {
 		if ($this->files instanceof Server_Files) {
 			return;
 		}
-		if ($this->option_bool('simulate') || !$this->is_root()) {
+		if ($this->optionBool('simulate') || !$this->is_root()) {
 			$this->files = new Server_Files_Simulate($this);
 		} else {
 			$this->files = new Server_Files_Direct($this);
@@ -185,7 +185,7 @@ abstract class Server_Platform extends Hookable {
 		$this->application->logger->debug("Configuration class: {class}", [
 			"class" => get_class($this->config),
 		]);
-		if ($this->option_bool('verbose')) {
+		if ($this->optionBool('verbose')) {
 			$this->verbose_log("Verbose mode on.");
 		}
 		$this->tool_path = $this->option('tool_path', '/sbin');
@@ -1021,7 +1021,7 @@ abstract class Server_Platform extends Hookable {
 	}
 
 	public function verbose_log($message, array $args = []): void {
-		if ($this->option_bool('verbose')) {
+		if ($this->optionBool('verbose')) {
 			$this->application->logger->debug($message, $args);
 		}
 	}

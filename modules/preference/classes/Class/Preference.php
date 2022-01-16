@@ -28,7 +28,7 @@ class Class_Preference extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $find_keys = [
+	public array $find_keys = [
 		"user",
 		"type",
 	];

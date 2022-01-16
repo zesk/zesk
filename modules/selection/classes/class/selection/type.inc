@@ -12,7 +12,7 @@ namespace zesk;
 class Class_Selection_Type extends Class_ORM {
 	public string $id_column = "id";
 
-	public $find_keys = [
+	public array $find_keys = [
 		"code",
 		"user",
 	];

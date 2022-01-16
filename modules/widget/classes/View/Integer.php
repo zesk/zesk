@@ -14,7 +14,7 @@ class View_Integer extends View {
 		$v = $this->value();
 		if ($v === null || $v === "") {
 			$v = $this->empty_string();
-			if ($this->option_bool("empty_string_no_wrap")) {
+			if ($this->optionBool("empty_string_no_wrap")) {
 				return $v;
 			}
 		} else {

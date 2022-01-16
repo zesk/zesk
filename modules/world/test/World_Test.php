@@ -10,7 +10,7 @@ class World_Test extends Test_ORM {
 	public function initialize(): void {
 		$db = $this->application->database_registry();
 		$this->assert_not_null($db, "Database not connected");
-		$this->require_tables(__NAMESPACE__ . "\\" . "Country");
+		$this->require_tables(Country::class);
 	}
 
 	public function classes_to_test() {

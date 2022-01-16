@@ -23,7 +23,7 @@ class Module_Modal_URL extends zesk\Module_JSLib {
 		]);
 		$response->javascript_inline($this->application->theme("modal/url", [
 			"id" => "modal_url-modal",
-			'dismiss_button' => $this->option_bool('dismiss_button', true),
+			'dismiss_button' => $this->optionBool('dismiss_button', true),
 		]), [
 			"type" => "text/x-template",
 			"id" => "modal_url-template",

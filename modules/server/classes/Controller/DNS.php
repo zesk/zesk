@@ -131,8 +131,8 @@ class Controller_DNS extends Controller_Theme {
 		// 		$control->child($this->widget_factory(Control_Text::class)->names("old", "Old Server", true));
 		// 		$control->child($this->widget_factory(Control_Text::class)->names("new", "New Server", true));
 		// 		$control->child($w = $this->widget_factory(Control_Text::class)->textarea(true)->names("lookup", "Name", true));
-		// 		$w->set_option('rows', 20);
-		// 		$w->set_option('cols', 80);
+		// 		$w->setOption('rows', 20);
+		// 		$w->setOption('cols', 80);
 		// 		$w->suffix(HTML::tag('label', "One per line. Domain names, optionally prefixed by query type and a space."));
 
 		// 		$model = new Model_DNS();

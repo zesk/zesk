@@ -51,7 +51,7 @@ class DocComment_Test extends Test_Unit {
 			DocComment::OPTION_DESC_NO_TAG => true,
 		]);
 		$this->assert_equal($doc->content(), "/**\n * Hello, world\n * \n * @see \zesk\Kernel\n */");
-		$doc->set_option(DocComment::OPTION_DESC_NO_TAG, false);
+		$doc->setOption(DocComment::OPTION_DESC_NO_TAG, false);
 		$this->assert_equal($doc->content(), "/**
  * @desc Hello, world
  * @see \zesk\Kernel

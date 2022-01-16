@@ -11,7 +11,7 @@
 /* @var $object \zesk\DaemonTools\Service */
 namespace zesk;
 
-$ok = $object->option_bool("ok");
+$ok = $object->optionBool("ok");
 $class = implode(" ", [
 	"daemontools-service processes",
 	$object->status,

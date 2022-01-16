@@ -533,7 +533,7 @@ class Template implements Interface_Theme {
 	 * @param mixed $default
 	 * @return boolean
 	 */
-	public function getb($k, $default = null) {
+	public function getb(string $k, bool $default = false): bool {
 		return to_bool($this->__get($k), $default);
 	}
 

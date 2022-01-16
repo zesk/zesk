@@ -49,7 +49,7 @@ class Command_Schema extends Command_Base {
 	/**
 	 */
 	protected function synchronize_before(): void {
-		if (!$this->option_bool("no-hooks")) {
+		if (!$this->optionBool("no-hooks")) {
 			$this->_synchronize_suffix("update");
 		}
 	}
@@ -57,8 +57,8 @@ class Command_Schema extends Command_Base {
 	/**
 	 */
 	protected function synchronize_after(): void {
-		if ($this->option_bool("update")) {
-			if (!$this->option_bool("no-hooks")) {
+		if ($this->optionBool("update")) {
+			if (!$this->optionBool("no-hooks")) {
 				$this->_synchronize_suffix("updated");
 			}
 		}
@@ -156,16 +156,16 @@ class Command_Schema extends Command_Base {
 	protected function run() {
 		$application = $this->application;
 
-		if ($this->option_bool("debug")) {
+		if ($this->optionBool("debug")) {
 			ORM_Schema::$debug = true;
 		}
 		$url = null;
-		if ($this->has_option("url")) {
+		if ($this->hasOption("url")) {
 			$url = $this->option('url');
 			if (!URL::valid($url)) {
 				$this->usage("--url is not a valid URL, e.g. mysql://user:password@host/database");
 			}
-		} elseif ($this->has_option("name")) {
+		} elseif ($this->hasOption("name")) {
 			$url = $this->option('name');
 		}
 		$classes = null;
@@ -179,10 +179,10 @@ class Command_Schema extends Command_Base {
 		$database = $application->database_registry($url);
 		$this->results = $results = $application->orm_module()->schema_synchronize($database, $classes, [
 			"skip_others" => true,
-			"check" => $this->option_bool('check'),
+			"check" => $this->optionBool('check'),
 		]);
 		$suffix = ";\n";
-		if ($this->option_bool('update')) {
+		if ($this->optionBool('update')) {
 			foreach ($results as $index => $sql) {
 				try {
 					$result = $database->query($sql);

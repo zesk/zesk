@@ -59,14 +59,14 @@ class CSV_Reader_Iterator extends Options implements \Iterator {
 		parent::__construct($options);
 		$this->csv = $csv;
 		$this->csv_tell = $csv->tell();
-		$this->assoc = $this->option_bool('assoc', true);
+		$this->assoc = $this->optionBool('assoc', true);
 		$this->use_map = $this->option('use_map', null);
 		$this->row = null;
 		$this->is_valid = true;
 	}
 
 	public function rewind(): void {
-		$this->assoc = $this->option_bool('assoc', true);
+		$this->assoc = $this->optionBool('assoc', true);
 		$this->csv->seek($this->csv_tell);
 		$this->is_valid = true;
 		$this->next();

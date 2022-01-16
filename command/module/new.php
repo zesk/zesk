@@ -51,8 +51,8 @@ class Command_Module_New extends Command {
 	}
 
 	public function new_module_path($module) {
-		$is_zesk = $this->option_bool("zesk");
-		$is_app = $this->option_bool("app", !$is_zesk);
+		$is_zesk = $this->optionBool("zesk");
+		$is_app = $this->optionBool("app", !$is_zesk);
 
 		if (!$is_app && !$is_zesk) {
 			$is_app = true;

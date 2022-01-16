@@ -123,9 +123,9 @@ class Database extends \zesk\Database {
 		}
 		$error_message = null;
 		$flags = 0;
-		$flags |= ($this->option_bool('create', true) ? SQLITE3_OPEN_CREATE : 0);
-		$flags |= ($this->option_bool('readwrite', true) ? SQLITE3_OPEN_READWRITE : 0);
-		$flags |= ($this->option_bool('readonly', false) ? SQLITE3_OPEN_READONLY : 0);
+		$flags |= ($this->optionBool('create', true) ? SQLITE3_OPEN_CREATE : 0);
+		$flags |= ($this->optionBool('readwrite', true) ? SQLITE3_OPEN_READWRITE : 0);
+		$flags |= ($this->optionBool('readonly', false) ? SQLITE3_OPEN_READONLY : 0);
 		$encryption_key = $this->option('encryption_key', null);
 		$this->Connection = new SQLite3($path, $flags, $encryption_key);
 		if (!$this->Connection) {
@@ -378,7 +378,7 @@ class Database extends \zesk\Database {
 				$this->_query_after($statement_sql, $options);
 			} else {
 				$this->_query_before($query, $options);
-				if ($this->option_bool('auto_table_names')) {
+				if ($this->optionBool('auto_table_names')) {
 					$query = $this->auto_table_names_replace($query);
 				}
 				$result = $this->conn->query($query);

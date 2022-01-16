@@ -2,13 +2,13 @@
 namespace zesk;
 
 class Class_Time_Zone extends Class_ORM {
-	public $table = "time_zone_name";
+	public string $table = "time_zone_name";
 
 	public $database_name = "mysql";
 
 	public string $id_column = "Time_zone_id";
 
-	public $find_keys = [
+	public array $find_keys = [
 		"Name",
 	];
 

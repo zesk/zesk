@@ -51,7 +51,7 @@ class Class_Instance extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $find_keys = [
+	public array $find_keys = [
 		"server",
 		"path",
 	];

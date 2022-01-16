@@ -1,7 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk\Test;
 
 use zesk\Options;
+use zesk\Text;
 use zesk\Exception_Semantics;
 
 class Method extends Options {
@@ -174,18 +177,25 @@ class Method extends Options {
 	 *
 	 * @param unknown $data_provider
 	 */
-	private function run_test_method_data_provider($data_provider): void {
+	private function run_test_method_data_provider(array $data_provider): void {
 		$loop = 0;
 		$test_output = "";
 		$name = $this->name;
 		foreach ($data_provider as $arguments) {
 			if (!is_array($arguments)) {
+				$this->test->log("Arguments is not an array - converting to single argument {type}", [
+					'type' => type($arguments),
+				]);
 				$arguments = [
 					$arguments,
 				];
 			}
-			$this->test->log(map("- $name iteration {0}: {1}", [$loop + 1, substr(json_encode($arguments), 0, 80)]));
-			$this->test->_run_test_method($this, $arguments);
+			$log_line = map("- $name iteration {0}: {1}", [
+				strval($loop + 1),
+				substr(strval(json_encode($arguments)), 0, 80),
+			]);
+			$result = $this->test->_run_test_method($this, $arguments);
+			$this->test->log(Text::lalign($log_line, 80, " ", true) . " : " . ($result ? "OK" : "FAILED"));
 			$test_output .= $this->test->last_test_output();
 			$loop++;
 		}

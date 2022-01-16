@@ -13,8 +13,8 @@ class Module extends Module_JSLib implements Interface_Module_Head {
 			$ip = "127.0.0.1";
 			$js_version = "3.0.3";
 			$response->javascript_inline(map(file_get_contents(path($this->path, "etc/js/ck-$js_version.js")), [
-				"codekit_port" => $this->option_integer("codekit_port", 5758),
-				"request_port" => $this->option_integer("request_port", $request->port()),
+				"codekit_port" => $this->optionInt("codekit_port", 5758),
+				"request_port" => $this->optionInt("request_port", $request->port()),
 				"ip" => $ip,
 				"name" => php_uname('n'),
 			], true, "{{", "}}"));

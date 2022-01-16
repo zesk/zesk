@@ -28,7 +28,7 @@ class Control_Filter_Selector extends Control {
 	 * @retrn boolean|Control_Filter_Selector
 	 */
 	public function toggle_mode($set = null) {
-		return ($set === null) ? $this->option_bool(self::option_toggle_mode) : $this->set_option(self::option_toggle_mode, to_bool($set));
+		return ($set === null) ? $this->optionBool(self::option_toggle_mode) : $this->setOption(self::option_toggle_mode, to_bool($set));
 	}
 
 	private function filtered_children() {

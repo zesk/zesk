@@ -86,7 +86,7 @@ class Controller_Preference extends Controller {
 		$locale = $this->application->locale;
 		if ($type === null) {
 			$extras = [];
-			if ($this->option_bool('debug')) {
+			if ($this->optionBool('debug')) {
 				$extras += [
 					'type' => $type,
 					'route' => [

@@ -29,7 +29,7 @@ $prefix = [];
 $navs = [];
 $suffix = [];
 foreach ($this->children as $widget) {
-	if ($widget->option_bool('nav')) {
+	if ($widget->optionBool('nav')) {
 		$navs[] = $widget;
 	} elseif (count($navs) === 0) {
 		echo $widget->render();

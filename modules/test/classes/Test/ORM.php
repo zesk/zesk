@@ -22,7 +22,9 @@ class Test_ORM extends Test_Unit {
 			$object = $this->application->orm_registry($class);
 			$table = $object->table();
 			if (!$object->database()->table_exists($table)) {
-				$this->test_table_sql($table, $this->application->orm_factory($class)->schema());
+				$schema = $this->application->orm_factory($class)->schema();
+				$create_sql = strval($schema);
+				$this->test_table_sql($table, $create_sql);
 			}
 		}
 	}

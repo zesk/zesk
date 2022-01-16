@@ -11,7 +11,7 @@ namespace zesk;
 /**
  * Representation of an HTML tag.
  * contents is a string containing more HTML.
- * Inherits Options, attributes of the tag can be accessed via option, option_bool, has_option, etc.
+ * Inherits Options, attributes of the tag can be accessed via option, optionBool, has_option, etc.
  * @package zesk
  * @subpackage tools
  */

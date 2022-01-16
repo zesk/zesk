@@ -37,17 +37,17 @@ class Command_Cron extends \zesk\Command_Base {
 			$this->error("Cron module is not enabled");
 			return 1;
 		}
-		if ($this->option_bool('reset')) {
+		if ($this->optionBool('reset')) {
 			$result = $cron->reset();
 			$this->verbose_log($result ? "Cron reset" : "Cron reset failed");
 			return $result ? 0 : 1;
 		}
-		if ($this->option_bool('list')) {
+		if ($this->optionBool('list')) {
 			$list_status = $cron->list_status();
 			$this->render_format($list_status);
 			return 0;
 		}
-		if ($this->option_bool('last')) {
+		if ($this->optionBool('last')) {
 			$result = $cron->last_run();
 			$locale = $this->application->locale;
 			$now = Timestamp::now();

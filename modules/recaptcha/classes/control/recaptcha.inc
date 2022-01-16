@@ -40,7 +40,7 @@ class Control_reCAPTCHA extends Control {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->set_option("verified_name", $this->name() . "-verified");
+		$this->setOption("verified_name", $this->name() . "-verified");
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Control_reCAPTCHA extends Control {
 			"remoteip" => $ip,
 		]);
 		$result = $http->go();
-		if ($this->option_bool('debug')) {
+		if ($this->optionBool('debug')) {
 			$debug = "";
 			$debug .= serialize($http);
 			$debug .= "Result: $result\n";
@@ -157,11 +157,11 @@ class Control_reCAPTCHA extends Control {
 			$this->application->logger->error("Time submitted was before now? {now} {time} {key} Bad server time?", compact("now", "time", "key"));
 			return null;
 		}
-		if ($delta < $this->option_integer("verification_minimum_age", 3)) {
+		if ($delta < $this->optionInt("verification_minimum_age", 3)) {
 			$this->error($locale->__("You submitted the form too quickly, please verify you are a not a robot again."));
 			return null;
 		}
-		if ($delta > $this->option_integer("verification_seconds_to_live", 600)) {
+		if ($delta > $this->optionInt("verification_seconds_to_live", 600)) {
 			$this->error($locale->__("Your verification has expired, please verify you are not a robot again."));
 			return null;
 		}

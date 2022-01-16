@@ -14,7 +14,7 @@ $docroot = $application->document_root();
 $source = path($docroot, "index.html");
 $asset_manifest = path($docroot, "asset-manifest.json");
 
-$response->set_option("wrap_html", false);
+$response->setOption("wrap_html", false);
 if (!file_exists($source)) {
 	throw new Exception_File_NotFound($source);
 }

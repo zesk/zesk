@@ -9,12 +9,12 @@ namespace zesk;
 
 class Control_Color extends Control_Text {
 	public function initialize(): void {
-		$this->set_option("show_size", 7, false);
+		$this->setOption("show_size", 7, false);
 		parent::initialize();
 	}
 
 	public function validate() {
-		$this->set_option("id", $this->name());
+		$this->setOption("id", $this->name());
 
 		$name = $this->column();
 		$color = $this->value();
@@ -26,6 +26,6 @@ class Control_Color extends Control_Text {
 	}
 
 	public function targets(array $set = null) {
-		return $set === null ? $this->option_array('targets', []) : $this->set_option('targets', $set);
+		return $set === null ? $this->option_array('targets', []) : $this->setOption('targets', $set);
 	}
 }

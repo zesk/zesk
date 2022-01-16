@@ -211,7 +211,7 @@ function contact_edit_pair($label, $class, $name, $data, $labels, $section, $sec
 			->names($field_name)
 			->control_options($labels)
 			->required(true);
-		$w->set_option("onchange", "contact_label_change.call(this)");
+		$w->setOption("onchange", "contact_label_change.call(this)");
 		$data[$field_name] = $label_value;
 		$label_html = $w->output($data);
 	}

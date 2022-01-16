@@ -15,7 +15,7 @@ class Control_Delete extends Control_Edit {
 			"class_name" => $this->object->class_name(),
 			"name" => $this->object->name(),
 		]);
-		$this->set_option('title', $title);
+		$this->setOption('title', $title);
 	}
 
 	public function submit() {

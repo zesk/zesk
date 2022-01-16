@@ -18,7 +18,7 @@ namespace zesk;
 class Control_HTML extends Control_Text {
 	protected function hook_construct(): void {
 		$this->sanitize_html(true);
-		if (!$this->has_option("sanitize_strip_tags")) {
+		if (!$this->hasOption("sanitize_strip_tags")) {
 			$this->sanitize_strip_tags(false);
 		}
 	}

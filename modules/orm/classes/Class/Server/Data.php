@@ -16,7 +16,7 @@ class Class_Server_Data extends Class_ORM {
 		"id",
 	];
 
-	public $find_keys = [
+	public array $find_keys = [
 		"server",
 		"name",
 	];

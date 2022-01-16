@@ -29,7 +29,7 @@ class Module_Moment extends Module_JSLib implements Interface_Module_Head {
 	 * @see Module::initialize()
 	 */
 	public function initialize(): void {
-		if ($this->option_bool('timezone_support')) {
+		if ($this->optionBool('timezone_support')) {
 			$this->javascript_paths[] = '/share/moment/moment-timezone.js';
 			$this->javascript_paths[] = '/share/moment/moment-timezone-with-data-2010-2020.js';
 			$this->javascript_paths[] = '/share/moment/moment-timezone-with-data.js';

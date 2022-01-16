@@ -35,7 +35,7 @@ $has_selector = $request->has($this->name, false);
 $active = false;
 foreach ($this->widgets as $index => $child) {
 	/* @var $child Widget */
-	if ($child->option_bool('filter-selector-ignore')) {
+	if ($child->optionBool('filter-selector-ignore')) {
 		continue;
 	}
 	if (!$child->is_visible($object)) {

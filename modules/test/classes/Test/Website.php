@@ -53,7 +53,7 @@ abstract class Test_Website extends Test_Selenium {
 
 		$single_test = $this->option("single_test");
 		$begin_test = $this->option("begin_test");
-		$run_default = $this->option_bool("run_default", true);
+		$run_default = $this->optionBool("run_default", true);
 		$tests = [];
 		if ($single_test) {
 			if (!in_array($single_test, $this->tests())) {
@@ -81,7 +81,7 @@ abstract class Test_Website extends Test_Selenium {
 			$tests = $this->tests();
 		}
 		$exception = null;
-		$speed = $this->option_integer("speed");
+		$speed = $this->optionInt("speed");
 		if ($speed) {
 			$this->setSpeed($speed);
 			echo "Setting speed to $speed microseconds between steps.\n";
@@ -90,7 +90,7 @@ abstract class Test_Website extends Test_Selenium {
 
 		try {
 			foreach ($tests as $test) {
-				if ($this->option_bool($test, $run_default)) {
+				if ($this->optionBool($test, $run_default)) {
 					$method = "test_$test";
 					$this->push($test);
 					echo "### BEGIN $test...\n";
@@ -102,7 +102,7 @@ abstract class Test_Website extends Test_Selenium {
 		} catch (Exception $e) {
 			$exception = $e;
 		}
-		$sleep_time = $this->option_integer("sleep_before_stop", 0);
+		$sleep_time = $this->optionInt("sleep_before_stop", 0);
 		if ($exception && $sleep_time > 0) {
 			$this->application->logger->error("Error occurred: {message}", [
 				"message" => $exception->getMessage(),

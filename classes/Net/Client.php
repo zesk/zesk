@@ -118,7 +118,7 @@ abstract class Net_Client extends Hookable {
 	 * @param string $message
 	 */
 	protected function log($message): void {
-		if ($this->option_bool('debug')) {
+		if ($this->optionBool('debug')) {
 			$this->application->logger->debug($message);
 		}
 	}

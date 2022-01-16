@@ -14,7 +14,7 @@ class Class_Cluster extends Class_ORM {
 		"active" => self::type_timestamp,
 	];
 
-	public $find_keys = [
+	public array $find_keys = [
 		"code",
 	];
 }

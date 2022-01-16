@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * DocComment parsing tools
  *
@@ -7,6 +8,7 @@
  * @author kent
  * @copyright Copyright &copy; 2017, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -18,8 +20,8 @@ class DocComment extends Options {
 	/**
 	 * For patterns which are keyed by the first token in the DocComment
 	 *
-	 *     @name key0 value0 and things
-	 *     @name key1 value1 and others
+	 * @name key0 value0 and things
+	 * @name key1 value1 and others
 	 *
 	 * Converted to:
 	 *
@@ -32,8 +34,8 @@ class DocComment extends Options {
 	/**
 	 * For patterns which are keyed by the second token in the DocComment
 	 *
-	 *     @property type0 $var0 Comments about var0
-	 *     @property type1 $var1 Comments about var1
+	 * @property type0 $var0 Comments about var0
+	 * @property type1 $var1 Comments about var1
 	 *
 	 * Converted to:
 	 *
@@ -49,8 +51,8 @@ class DocComment extends Options {
 	/**
 	 * For patterns which are lists of items and
 	 *
-	 *     @see ClassName
-	 *     @see OtherClassName, DocComment
+	 * @see ClassName
+	 * @see OtherClassName, DocComment
 	 *
 	 * Converted to:
 	 *
@@ -205,8 +207,8 @@ class DocComment extends Options {
 		return $keys;
 	}
 
-	private function parse_param_key($value, $key) {
-		$lines = ArrayTools::clean(to_list($value, [], "\n"));
+	private function parse_param_key($value) {
+		$lines = ArrayTools::clean(to_list($value, [], "\n"), ["", null]);
 		$keys = ArrayTools::field($lines, 1, " \t");
 		$values = ArrayTools::field($lines, null, " \t", 3);
 		return ArrayTools::rekey($keys, $values);
@@ -347,7 +349,7 @@ class DocComment extends Options {
 		$list_keys = ArrayTools::flip_assign($this->list_keys(), true);
 
 		$result = [];
-		if ($this->option_bool(self::OPTION_DESC_NO_TAG) && isset($items['desc'])) {
+		if ($this->optionBool(self::OPTION_DESC_NO_TAG) && isset($items['desc'])) {
 			$value = to_list(trim($items['desc']), [], "\n");
 			$value = trim(implode("\n", ArrayTools::trim($value))) . "\n";
 			$result[] = $value;

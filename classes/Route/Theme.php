@@ -77,7 +77,7 @@ class Route_Theme extends Route {
 		$response->content = $content;
 
 		$json_html = $this->option("json_html", false);
-		if ($json_html && $response->is_json() || $this->option_bool('json')) {
+		if ($json_html && $response->is_json() || $this->optionBool('json')) {
 			$response->json()->data($response->html()->to_json() + [
 				"status" => true,
 			]);

@@ -277,90 +277,90 @@ abstract class Database_Data_Type {
  */
 	// 	public function type_set_sql_type(Database_Column $type) {
 	// 		$type_name = $type->option("type", false);
-	// 		$is_bin = $type->option_bool("binary");
-	// 		$size = $type->option_integer("size");
+	// 		$is_bin = $type->optionBool("binary");
+	// 		$size = $type->optionInt("size");
 	// 		if (!$type_name) {
 	// 			throw new Exception_Semantics(__CLASS__ . "::type_set_sql_type(...): \"Type\" is not set! " . print_r($type, true));
 	// 		}
 	// 		switch (strtolower($type_name)) {
 	// 			case Class_O_R_M::type_id:
-	// 				$type->set_option("primary_key", true);
-	// 				$type->set_option("sql_type", "integer");
+	// 				$type->setOption("primary_key", true);
+	// 				$type->setOption("sql_type", "integer");
 	// 				$type->increment(true);
-	// 				$type->set_option("unsigned", true);
+	// 				$type->setOption("unsigned", true);
 	// 				return true;
 	// 			case Class_O_R_M::type_object:
-	// 				$type->set_option("sql_type", "integer");
-	// 				$type->set_option("unsigned", true);
+	// 				$type->setOption("sql_type", "integer");
+	// 				$type->setOption("unsigned", true);
 	// 				return true;
 	// 			case Class_O_R_M::type_integer:
-	// 				$type->set_option("sql_type", "integer");
+	// 				$type->setOption("sql_type", "integer");
 	// 				return true;
 	// 			case Class_O_R_M::type_character:
 	// 				$size = !is_numeric($size) ? 1 : $size;
-	// 				$type->set_option("sql_type", "char($size)");
+	// 				$type->setOption("sql_type", "char($size)");
 	// 				return true;
 	// 			case Class_O_R_M::type_text:
-	// 				$type->set_option("sql_type", "text");
+	// 				$type->setOption("sql_type", "text");
 	// 				return true;
 	// 			case "varchar":
 	// 				zesk()->deprecated();
 	// 			// fall through
 	// 			case Class_O_R_M::type_string:
 	// 				if (!is_numeric($size)) {
-	// 					$type->set_option("sql_type", $is_bin ? "blob" : "text");
+	// 					$type->setOption("sql_type", $is_bin ? "blob" : "text");
 	// 				} else {
-	// 					$type->set_option("sql_type", $is_bin ? "varbinary($size)" : "varchar($size)");
+	// 					$type->setOption("sql_type", $is_bin ? "varbinary($size)" : "varchar($size)");
 	// 				}
 	// 				return true;
 	// 			case Class_O_R_M::type_boolean:
-	// 				$type->set_option("sql_type", "bit(1)");
+	// 				$type->setOption("sql_type", "bit(1)");
 	// 				return true;
 	// 			case "varbinary":
 	// 			case Class_O_R_M::type_serialize:
 	// 			case Class_O_R_M::type_binary:
 	// 				if (!is_numeric($size)) {
-	// 					$type->set_option("sql_type", "blob");
+	// 					$type->setOption("sql_type", "blob");
 	// 				} else {
-	// 					$type->set_option("sql_type", "varbinary($size)");
+	// 					$type->setOption("sql_type", "varbinary($size)");
 	// 				}
 	// 				$type->binary(true);
 	// 				return true;
 	// 			case Class_O_R_M::type_byte:
-	// 				$type->set_option("sql_type", "tinyint(1)");
-	// 				$type->set_option("Unsigned", true);
+	// 				$type->setOption("sql_type", "tinyint(1)");
+	// 				$type->setOption("Unsigned", true);
 	// 				return true;
 	// 			case Class_O_R_M::type_decimal:
-	// 				$intP = $type->first_option("integer_precision", 10);
-	// 				$decP = $type->first_option("decimal_precision", 2);
+	// 				$intP = $type->firstOption("integer_precision", 10);
+	// 				$decP = $type->firstOption("decimal_precision", 2);
 	// 				$width = $intP + $decP;
-	// 				$type->set_option("sql_type", "decimal($width,$decP)");
+	// 				$type->setOption("sql_type", "decimal($width,$decP)");
 	// 				return true;
 	// 			case Class_O_R_M::type_real:
-	// 				$type->set_option("sql_type", "real");
+	// 				$type->setOption("sql_type", "real");
 	// 				return true;
 	// 			case Class_O_R_M::type_double:
-	// 				$type->set_option("sql_type", "double");
+	// 				$type->setOption("sql_type", "double");
 	// 				return true;
 	// 			case Class_O_R_M::type_date:
-	// 				$type->set_option("sql_type", "date");
+	// 				$type->setOption("sql_type", "date");
 	// 				return true;
 	// 			case Class_O_R_M::type_time:
-	// 				$type->set_option("sql_type", "time");
+	// 				$type->setOption("sql_type", "time");
 	// 				return true;
 	// 			case Class_O_R_M::type_datetime:
 	// 			case Class_O_R_M::type_modified:
 	// 			case Class_O_R_M::type_created:
 	// 			case Class_O_R_M::type_timestamp:
-	// 				$type->set_option("sql_type", "timestamp");
+	// 				$type->setOption("sql_type", "timestamp");
 	// 				return true;
 	// 			case "checksum":
 	// 				zesk()->deprecated(); // ?? This used anywhere?
-	// 				$type->set_option("sql_type", "char(32)");
+	// 				$type->setOption("sql_type", "char(32)");
 	// 				return true;
 	// 			case "password":
 	// 				zesk()->deprecated(); // ?? This used anywhere?
-	// 				$type->set_option("sql_type", "varchar(32)");
+	// 				$type->setOption("sql_type", "varchar(32)");
 	// 				return true;
 	// 		}
 	// 		throw new Exception_Unimplemented(__CLASS__ . "::type_set_sql_type($type_name) unknown");

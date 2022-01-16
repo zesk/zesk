@@ -19,9 +19,9 @@ class View extends Widget {
 
 	public function hidden_input($set = null) {
 		if ($set !== null) {
-			return $this->set_option("hidden_input", to_bool($set));
+			return $this->setOption("hidden_input", to_bool($set));
 		}
-		return $this->option_bool('hidden_input');
+		return $this->optionBool('hidden_input');
 	}
 
 	public function theme_variables() {

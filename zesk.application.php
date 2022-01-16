@@ -39,10 +39,10 @@ class ApplicationConfigurator {
 		if (defined("ZESK_EXTRA_MODULES")) {
 			$modules = array_merge($modules, to_list(ZESK_EXTRA_MODULES));
 		}
-		$application->set_option("modules", $modules);
+		$application->setOption("modules", $modules);
 		$application->configure();
 
-		$application->set_option("version", Version::release());
+		$application->setOption("version", Version::release());
 
 		return $application;
 	}

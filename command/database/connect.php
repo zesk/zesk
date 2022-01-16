@@ -59,14 +59,14 @@ class Command_Database_Connect extends Command_Base {
 	 * @return integer
 	 */
 	public function run() {
-		if ($this->option_bool("db-name") || $this->option_bool('db-url')) {
+		if ($this->optionBool("db-name") || $this->optionBool('db-url')) {
 			return $this->handle_info();
 		}
-		if ($this->option_bool("test")) {
+		if ($this->optionBool("test")) {
 			return $this->handle_test();
 		}
 
-		if ($this->option_bool("grant")) {
+		if ($this->optionBool("grant")) {
 			return $this->handle_grants();
 		}
 
@@ -74,14 +74,14 @@ class Command_Database_Connect extends Command_Base {
 		$db = $this->application->database_registry($name);
 		[$command, $args] = $db->shell_command();
 
-		if ($this->option_bool('debug-connect')) {
+		if ($this->optionBool('debug-connect')) {
 			echo "$command " . implode(" ", $args) . "\n";
 		}
 		$full_command_path = is_file($command) ? $command : $this->application->paths->which($command);
 		if (!$full_command_path) {
 			die("Unable to find shell $command in system path:" . implode(", ", $this->application->paths->command()) . "\n");
 		}
-		if ($this->option_bool('echo')) {
+		if ($this->optionBool('echo')) {
 			echo $full_command_path . implode("", ArrayTools::prefix($args, " ")) . "\n";
 		} else {
 			PHP::requires('pcntl', true);
@@ -98,12 +98,12 @@ class Command_Database_Connect extends Command_Base {
 	private function handle_info() {
 		$name = $this->option('name');
 		$db = $this->application->database_module()->register();
-		if (!$this->option_bool("show-passwords")) {
+		if (!$this->optionBool("show-passwords")) {
 			foreach ($db as $key => $url) {
 				$db[$key] = URL::remove_password($url);
 			}
 		}
-		if ($this->option_bool("db-name")) {
+		if ($this->optionBool("db-name")) {
 			foreach ($db as $key => $url) {
 				$db[$key] = Database::url_parse($url, "name");
 			}

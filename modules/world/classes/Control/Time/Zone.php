@@ -27,7 +27,7 @@ class Control_Time_Zone extends Control_Select {
 	 * @return void|mixed|boolean
 	 */
 	public function prefixes_only($set = null) {
-		return $set === null ? $this->option_bool('prefixes_only', false) : $this->set_option('prefixes_only', to_bool($set));
+		return $set === null ? $this->optionBool('prefixes_only', false) : $this->setOption('prefixes_only', to_bool($set));
 	}
 
 	/**
@@ -54,7 +54,7 @@ class Control_Time_Zone extends Control_Select {
 				$region = strtr($region, "_", " ");
 				$parents[$region][$tz] = strtr($name, "_", " ");
 			}
-			$this->set_option('optgroup', true);
+			$this->setOption('optgroup', true);
 			$this->control_options($parents);
 		}
 		parent::initialize();

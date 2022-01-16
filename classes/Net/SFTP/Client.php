@@ -90,7 +90,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 		if ($result !== "") {
 			return false;
 		}
-		if ($this->option_bool('debug')) {
+		if ($this->optionBool('debug')) {
 			$this->log("PWD IS " . $this->pwd());
 		}
 		return true;

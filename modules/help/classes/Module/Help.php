@@ -49,7 +49,7 @@ class Module_Help extends Module_JSLib {
 	 * @param Response $response
 	 */
 	public function hook_head(Request $request, Response $response, Template $template): void {
-		if (!$this->option_bool("disabled")) {
+		if (!$this->optionBool("disabled")) {
 			$response->javascript('/share/help/js/help.js', [
 				'share' => true,
 			]);
@@ -109,7 +109,7 @@ class Module_Help extends Module_JSLib {
 				$this->application->logger->notice("Registered help item for {target}", [
 					'target' => $target,
 				]);
-			} elseif ($this->option_bool('cron_update')) {
+			} elseif ($this->optionBool('cron_update')) {
 				$help->set_member($settings)->store();
 			}
 		}

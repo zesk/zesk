@@ -16,7 +16,7 @@ class Class_Server extends Class_ORM {
 
 	public string $id_column = "id";
 
-	public $find_keys = [
+	public array $find_keys = [
 		"name",
 	];
 
@@ -40,7 +40,7 @@ class Class_Server extends Class_ORM {
 		],
 	];
 
-	public $column_defaults = [
+	public array $column_defaults = [
 		'ip4_internal' => self::LOCALHOST_IP,
 		'ip4_external' => self::LOCALHOST_IP,
 		'free_disk_units' => Server::DISK_UNITS_BYTES,

@@ -18,7 +18,7 @@ class Route_Method extends Route {
 		}
 		[$include, $require] = $this->_do_includues();
 		if ($class) {
-			if (!class_exists($class, $this->option_bool('autoload', true))) {
+			if (!class_exists($class, $this->optionBool('autoload', true))) {
 				throw new Exception_Parameter("No such class found {class}", [
 					"class" => $class,
 				]);
@@ -116,10 +116,10 @@ class Route_Method extends Route {
 			}
 			return;
 		}
-		if (!$this->option_bool('no-buffer')) {
+		if (!$this->optionBool('no-buffer')) {
 			if ($content === null && !empty($buffer)) {
 				$content = $buffer;
-			} elseif ($this->option_bool('buffer')) {
+			} elseif ($this->optionBool('buffer')) {
 				$content = $buffer;
 			}
 		}

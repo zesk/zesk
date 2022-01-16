@@ -313,7 +313,7 @@ class Module extends \zesk\Module {
 	 * Hook Module::configured
 	 */
 	public function hook_configured(): void {
-		if ($this->option_bool('page_runner')) {
+		if ($this->optionBool('page_runner')) {
 			$this->application->hooks->add('response/html.tpl', [
 				$this,
 				'page_runner',
@@ -648,7 +648,7 @@ class Module extends \zesk\Module {
 			return $this->methods;
 		}
 
-		PHP::feature("time_limit", $this->option_integer("time_limit", 0));
+		PHP::feature("time_limit", $this->optionInt("time_limit", 0));
 		$this->_critical_crons();
 		$this->_run();
 

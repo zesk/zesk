@@ -84,10 +84,10 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 */
 	public function disabled($set = null) {
 		if ($set) {
-			$this->set_option('disabled', to_bool($set));
+			$this->setOption('disabled', to_bool($set));
 			return $this;
 		}
-		return $this->option_bool('disabled', false);
+		return $this->optionBool('disabled', false);
 	}
 
 	public function javascript_settings() {
@@ -97,7 +97,7 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	public function compute_javascript_settings() {
 		if ($this->javascript_settings_inherit) {
 			foreach ($this->javascript_settings_inherit as $key => $value) {
-				if ($this->has_option($key)) {
+				if ($this->hasOption($key)) {
 					$global = $this->option($key);
 					if ($global !== $value) {
 						$this->javascript_settings[$key] = $global;
@@ -118,7 +118,7 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 * @param Template $template
 	 */
 	public function hook_head(Request $request, Response $response, Template $template): void {
-		if (!$this->option_bool("disabled")) {
+		if (!$this->optionBool("disabled")) {
 			$this->javascript_settings['enabled'] = true;
 			$this->compute_javascript_settings();
 			if ($this->javascript_settings) {

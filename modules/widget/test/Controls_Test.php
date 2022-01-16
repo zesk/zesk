@@ -18,13 +18,13 @@ class Controls_Test extends TestWidget {
 	];
 
 	public function _test_session(): void {
-		$this->application->set_option("session_class", Session_Mock::class);
+		$this->application->setOption("session_class", Session_Mock::class);
 	}
 
 	/**
 	 * @data_provider controls_to_test
 	 */
-	public function test_control($widget_class, $options = []): void {
+	public function test_control(string $widget_class, array $options = []): void {
 		$this->_test_session();
 		$control = $this->application->widget_factory($widget_class, $options);
 		$this->assert_instanceof($control, Widget::class, "$widget_class is not an instanceof of zesk\\Widget (" . type($control) . ")");
@@ -189,7 +189,7 @@ class Controls_Test extends TestWidget {
 	}
 }
 class Class_Test_COLT_Object extends Class_ORM {
-	public $table = 'Test_COLT_Object';
+	public string $table = 'Test_COLT_Object';
 
 	public string $id_column = "ID";
 
@@ -204,7 +204,7 @@ class Test_COLT_Object extends ORM {
 	}
 }
 class Class_Test_COL_Object extends Class_ORM {
-	public $table = __CLASS__;
+	public string $table = __CLASS__;
 
 	public string $id_column = "ID";
 

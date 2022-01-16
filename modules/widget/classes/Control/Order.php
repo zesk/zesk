@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
@@ -7,6 +8,7 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Jul 15 16:27:40 EDT 2008
  */
+
 namespace zesk;
 
 /**
@@ -17,8 +19,8 @@ namespace zesk;
 class Control_Order extends Control {
 	public function initialize(): void {
 		parent::initialize();
-		$this->set_option("nowrap", "nowrap");
-		$this->set_option("ObjectListCheck", true);
+		$this->setOption("nowrap", "nowrap");
+		$this->setOption("ObjectListCheck", true);
 	}
 
 	protected function hook_query_list(Database_Query_Select $query): void {
@@ -36,7 +38,7 @@ class Control_Order extends Control {
 		if (!Lists::contains("up;down;top;bottom", $verb) || $ID == "") {
 			return true;
 		}
-		if ($this->option_bool('debug')) {
+		if ($this->optionBool('debug')) {
 			$this->response()->debug_redirect(true);
 		}
 		if (Lists::contains("top;bottom", $verb)) {
@@ -73,14 +75,14 @@ class Control_Order extends Control {
 
 		$result = implode("&nbsp;", $result);
 
-		if ($this->option_bool('debug')) {
+		if ($this->optionBool('debug')) {
 			$result .= ' (' . $this->value() . ')';
 		}
 		return $result;
 	}
 
 	private function _where() {
-		return map($this->object->apply_map($this->option_array("where", [])), $this->request->variables());
+		return map($this->object->apply_map($this->optionArray("where")), $this->request->variables());
 	}
 
 	private function moveTopBottom($ID, $verb): void {

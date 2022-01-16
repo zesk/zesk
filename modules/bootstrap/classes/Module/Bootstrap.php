@@ -36,7 +36,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 		foreach ($row->children() as $child) {
 			$list_column_width = $child->option('list_column_width');
 			if ($list_column_width === null) {
-				$child->set_option('list_column_width', $n_per);
+				$child->setOption('list_column_width', $n_per);
 				$total -= $n_per;
 			} elseif ($list_column_width === 'auto') {
 				$autos[] = $child;
@@ -47,7 +47,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 		if (count($autos) > 0) {
 			$n_per = intval($total / count($autos));
 			foreach ($autos as $child) {
-				$child->set_option('list_column_width', $n_per);
+				$child->setOption('list_column_width', $n_per);
 			}
 		}
 	}
@@ -60,14 +60,14 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 */
 	public function hook_head(Request $request, Response $response, Template $template): void {
 		// Lazy eval
-		if ($this->option_bool('enabled')) {
+		if ($this->optionBool('enabled')) {
 			$html = $response->html();
-			if ($this->option_bool('css_enabled') || !$this->source_locations()) {
+			if ($this->optionBool('css_enabled') || !$this->source_locations()) {
 				$response->css("/share/bootstrap/css/bootstrap.css", [
 					'share' => true,
 				]);
 			}
-			if ($this->option_bool("responsive", true)) {
+			if ($this->optionBool("responsive", true)) {
 				$html->meta("viewport", "width=device-width, initial-scale=1.0");
 			}
 			$html->meta([
@@ -94,7 +94,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 * @see Interface_Module_Foot::hook_foot()
 	 */
 	public function hook_foot(Request $request, Response $response, Template $template): void {
-		if ($this->option_bool('responsive_size_enabled', $this->application->development())) {
+		if ($this->optionBool('responsive_size_enabled', $this->application->development())) {
 			echo $this->application->theme("bootstrap/responsive-size");
 		}
 	}
@@ -111,7 +111,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 * @return string
 	 */
 	public function source_locations(array $set = null) {
-		return $set !== null ? $this->set_option("source_locations", $set) : $this->option_list("source_locations");
+		return $set !== null ? $this->setOption("source_locations", $set) : $this->option_list("source_locations");
 	}
 
 	/**

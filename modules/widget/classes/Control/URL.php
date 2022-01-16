@@ -17,7 +17,7 @@ class Control_URL extends Control_Text {
 		if (URL::valid($url)) {
 			return URL::normalize($url);
 		}
-		if (!$this->option_bool('autofix')) {
+		if (!$this->optionBool('autofix')) {
 			return false;
 		}
 		$url_new = URL::repair($url);
@@ -58,10 +58,10 @@ class Control_URL extends Control_Text {
 
 	public function multiple($set = null) {
 		if ($set !== null) {
-			$this->set_option('multiple', true);
+			$this->setOption('multiple', true);
 			return $this;
 		}
-		return $this->option_bool('multiple');
+		return $this->optionBool('multiple');
 	}
 
 	public function validate() {

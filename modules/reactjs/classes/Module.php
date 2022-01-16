@@ -52,7 +52,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	public function initialize(): void {
 		parent::initialize();
 		$this->dot_env_path($this->option("dot_env_path", $this->application->path()));
-		if ($this->option_bool("routes_enabled")) {
+		if ($this->optionBool("routes_enabled")) {
 			$this->application->hooks->add(Application::class . "::router_matched", [
 				$this,
 				"router_matched",
@@ -106,7 +106,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * @return \zesk\Route|\zesk\Request|NULL
 	 */
 	public function router_matched(Application $app, Request $request, Router $router, Route $route) {
-		if ($route->option_bool("react") && $request->method() === Net_HTTP::METHOD_GET && !$request->prefer_json()) {
+		if ($route->optionBool("react") && $request->method() === Net_HTTP::METHOD_GET && !$request->prefer_json()) {
 			return $this->react_page_route($router)->request($request);
 		}
 		return null;

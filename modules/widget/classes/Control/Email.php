@@ -15,7 +15,7 @@ namespace zesk;
  */
 class Control_Email extends Control_Text {
 	public function accept_list($set = null) {
-		return $set !== null ? $this->set_option('accept_list', to_bool($set)) : $this->option_bool('accept_list');
+		return $set !== null ? $this->setOption('accept_list', to_bool($set)) : $this->optionBool('accept_list');
 	}
 
 	public function validate() {

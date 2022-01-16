@@ -74,16 +74,16 @@ class Command_Cannon extends Command_Base {
 		if ($dir && !is_dir($dir)) {
 			$this->usage("$dir is not a directory");
 		}
-		$list = $this->option_bool('list');
-		$backup = $this->option_bool('backup');
-		$duplicate = $this->option_bool('duplicate');
-		$show = $this->option_bool('show');
+		$list = $this->optionBool('list');
+		$backup = $this->optionBool('backup');
+		$duplicate = $this->optionBool('duplicate');
+		$show = $this->optionBool('show');
 
 		$this->verbose_log("Verbose enabled.");
-		if ($this->option_bool('dry-run')) {
+		if ($this->optionBool('dry-run')) {
 			$this->verbose_log("Dry run - nothing will change.");
 		}
-		if ($dir === null && $this->has_option("files")) {
+		if ($dir === null && $this->hasOption("files")) {
 			$files = $this->option("files");
 		} else {
 			if ($dir === null) {
@@ -192,17 +192,17 @@ class Command_Cannon extends Command_Base {
 	}
 
 	private function _replace_file($file, $search, $replace) {
-		if (($size = filesize($file)) > $this->option_integer("max_file_size")) {
+		if (($size = filesize($file)) > $this->optionInt("max_file_size")) {
 			$this->log("Skipping {size} {file}", [
 				"size" => Number::format_bytes($this->application->locale, $size),
 				"file" => $file,
 			]);
 			return 0;
 		}
-		$backup = $this->option_bool('backup');
-		$duplicate = $this->option_bool('duplicate');
-		$show = $this->option_bool('show');
-		$dry_run = $this->option_bool('dry-run');
+		$backup = $this->optionBool('backup');
+		$duplicate = $this->optionBool('duplicate');
+		$show = $this->optionBool('show');
+		$dry_run = $this->optionBool('dry-run');
 		$contents = file_get_contents($file);
 		if (!str_contains($contents, $search)) {
 			$this->debug_log("$file: No matches");

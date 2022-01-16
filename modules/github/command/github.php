@@ -53,7 +53,7 @@ class Command_GitHub extends Command_Base {
 	 * @see \zesk\Command::run()
 	 */
 	public function run() {
-		if ($this->option_bool("tag")) {
+		if ($this->optionBool("tag")) {
 			return $this->command_tag();
 		}
 		$this->usage("Need to specify --tag");

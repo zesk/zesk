@@ -53,7 +53,7 @@ abstract class Controller_Theme extends Controller {
 	 */
 	protected function initialize(): void {
 		parent::initialize();
-		if ($this->has_option("template")) {
+		if ($this->hasOption("template")) {
 			$this->application->deprecated("{class} is using option template - should not @deprecated 2017-11", [
 				"class" => get_class($this),
 			]);
@@ -61,7 +61,7 @@ abstract class Controller_Theme extends Controller {
 		if ($this->theme === null) {
 			$this->theme = $this->option('theme', self::DEFAULT_THEME);
 		}
-		$this->auto_render = $this->option_bool('auto_render', $this->auto_render);
+		$this->auto_render = $this->optionBool('auto_render', $this->auto_render);
 	}
 
 	/**

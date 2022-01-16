@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -6,6 +7,7 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Jul 15 16:27:00 EDT 2008
  */
+
 namespace zesk;
 
 /**
@@ -75,7 +77,7 @@ class Control_Pager extends Control {
 	}
 
 	public function limit_default() {
-		return $this->option_integer("limit");
+		return $this->optionInt("limit");
 	}
 
 	private function _limit_widget() {
@@ -93,14 +95,11 @@ class Control_Pager extends Control {
 		$options['skip_query_condition'] = true;
 		$options['query_column'] = [];
 
-		return $this->widget_factory(Control_Select::class)
-			->names('limit')
-			->required(true)
-			->set_option($options);
+		return $this->widget_factory(Control_Select::class)->names('limit')->required(true)->setOption($options);
 	}
 
 	protected function initialize(): void {
-		$this->set_option('max_limit', $this->_maximum_limit());
+		$this->setOption('max_limit', $this->_maximum_limit());
 		$this->limit_widget = $this->_limit_widget();
 		$this->child($this->limit_widget);
 		parent::initialize();
@@ -185,7 +184,7 @@ class Control_Pager extends Control {
 		if ($limit < 0) {
 			$limit = $total;
 		}
-		$show_all = $this->option_bool('pager_show_all');
+		$show_all = $this->optionBool('pager_show_all');
 		$show_all_string = $this->option("pager_all_string", $this->application->locale->__("All"));
 		if ($show_all) {
 			$ss[-1] = $show_all_string;
@@ -212,16 +211,27 @@ class Control_Pager extends Control {
 		$this->limit_widget->control_options($ss);
 	}
 
-	public function pager_limit_list($set = null) {
+	public function pager_limit_list(array $set = null): array {
 		if ($set !== null) {
-			return $this->set_option('pager_limit_list', to_list($set));
+			$this->application->deprecated('setter');
+			$this->setPagerLimitList(to_list($set));
 		}
-		return $this->option_list('pager_limit_list', '5;10;25;50;100');
+		return $this->optionArray('pager_limit_list', ['5', '10', '25', '50', '100']);
+	}
+
+	/**
+	 * List of pager amounts (5,10,25,50,100,etc.)
+	 *
+	 * @param array $set
+	 * @return self
+	 */
+	public function setPagerLimitList(array $set) {
+		return $this->setOption('pager_limit_list', to_list($set));
 	}
 
 	private function _maximum_limit() {
-		$n = $this->option_integer("pager_maximum_limit", false);
-		if ($n !== false) {
+		$n = $this->optionInt("pager_maximum_limit", -1);
+		if ($n > 0) {
 			return $n;
 		}
 		$limit_list = $this->pager_limit_list();

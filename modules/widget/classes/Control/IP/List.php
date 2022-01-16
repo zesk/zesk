@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2017, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -27,7 +29,7 @@ class Control_IP_List extends Control {
 	 * @return self|boolean
 	 */
 	public function allow_ip_masks($set = null) {
-		return $set === null ? $this->option_bool(self::OPTION_ALLOW_MASKS_bool) : $this->set_option(self::OPTION_ALLOW_MASKS_bool);
+		return $set === null ? $this->optionBool(self::OPTION_ALLOW_MASKS_bool) : $this->setOption(self::OPTION_ALLOW_MASKS_bool);
 	}
 
 	/**
@@ -35,12 +37,12 @@ class Control_IP_List extends Control {
 	 * {@inheritDoc}
 	 * @see \zesk\Widget::load()
 	 */
-	public function load() {
+	public function load(): void {
 		$name = $this->name();
 		$value = trim($this->request->get($name, "") . ' ' . $this->request->get($name . '_errors', ''));
 		$value = preg_replace("#[^.*0-9/ ]#", "", $value);
 		$this->value($value);
-		return parent::load();
+		parent::load();
 	}
 
 	/**
@@ -48,14 +50,14 @@ class Control_IP_List extends Control {
 	 * {@inheritDoc}
 	 * @see \zesk\Widget::validate()
 	 */
-	public function validate() {
-		$allow_ip_masks = $this->option("allow_ip_masks", false);
+	public function validate(): bool {
+		$allow_ip_masks = $this->optionBool("allow_ip_masks");
 		$col = $this->column();
 		$name = $this->name();
 		$value = $this->value();
 		$iplist = ArrayTools::trim(explode(' ', preg_replace('/[\s, ]+/', ' ', $value)));
 		//		sort($iplist, SORT_NUMERIC);
-		$check_func = $allow_ip_masks ? "IPv4::is_mask" : "IPv4::valid";
+		$check_func = $allow_ip_masks ? [IPV4::class, 'is_mask'] : [IPV4::class, 'valid'];
 		foreach ($iplist as $k => $ip) {
 			if (empty($ip)) {
 				unset($iplist[$k]);
@@ -80,11 +82,11 @@ class Control_IP_List extends Control {
 	 * {@inheritDoc}
 	 * @see \zesk\Widget::render()
 	 */
-	public function render() {
+	public function render(): string {
 		$col = $this->column();
 		$name = $this->name();
 		$errors = "";
-		$attrs = $this->option([
+		$attrs = $this->options([
 			"rows" => 10,
 			"cols" => 20,
 			"id" => $col . "_ip_list",
@@ -103,14 +105,14 @@ class Control_IP_List extends Control {
 			$errors = HTML::tag("div", [
 				"class" => "ip-list ip-list-errors",
 			], HTML::tag("div", [
-				"class" => "ip-list-textarea",
-			], HTML::tag("textarea", $err_attrs, implode("\n", $this->ErrorIPs))) . HTML::etag("label", false, $this->option("error_ip_list_label", "Errors")));
+					"class" => "ip-list-textarea",
+				], HTML::tag("textarea", $err_attrs, implode("\n", $this->ErrorIPs))) . HTML::etag("label", false, $this->option("error_ip_list_label", "Errors")));
 		}
 		$result = HTML::tag("div", [
-			"class" => "ip-list",
-		], HTML::tag("div", [
-			"class" => "ip-list-textarea",
-		], HTML::tag("textarea", $attrs, $this->value()) . $add_ip) . HTML::etag("label", false, $this->option("ip_list_label", ""))) . $errors;
+				"class" => "ip-list",
+			], HTML::tag("div", [
+					"class" => "ip-list-textarea",
+				], HTML::tag("textarea", $attrs, $this->value()) . $add_ip) . HTML::etag("label", false, $this->option("ip_list_label", ""))) . $errors;
 		$result = HTML::tag("div", [
 			"class" => "ip-list-widget",
 		], $result);

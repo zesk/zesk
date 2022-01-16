@@ -28,7 +28,7 @@ class Control_ORM_Checklist extends Control_Checklist {
 	 * @param array $where
 	 */
 	public function where(array $where = null) {
-		return is_array($where) ? $this->set_option("where", $where) : $this->option_array("where");
+		return is_array($where) ? $this->setOption("where", $where) : $this->option_array("where");
 	}
 
 	/**

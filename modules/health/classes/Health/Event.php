@@ -166,7 +166,7 @@ class Health_Event extends ORM {
 	 * @return Health_Event
 	 */
 	public function deduplicate() {
-		$n_samples = $this->option_integer("keep_duplicates", 10);
+		$n_samples = $this->optionInt("keep_duplicates", 10);
 		$n_found = $this->application->orm_registry(__CLASS__)
 			->query_select()
 			->addWhat("*n", "COUNT(id)")

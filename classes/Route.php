@@ -598,7 +598,7 @@ abstract class Route extends Hookable {
 	 * @return string
 	 */
 	final protected function convert_option($x, $name) {
-		$this->set_option($name, $x);
+		$this->setOption($name, $x);
 		return $x;
 	}
 
@@ -695,7 +695,7 @@ abstract class Route extends Hookable {
 	protected function _before() {
 		$application = $this->application;
 		$response = $application->response_factory($this->request, $this->guess_content_type());
-		if ($this->has_option('cache')) {
+		if ($this->hasOption('cache')) {
 			$cache = $this->option('cache');
 			if (is_scalar($cache)) {
 				if (to_bool($cache)) {
@@ -722,9 +722,9 @@ abstract class Route extends Hookable {
 		if ($v) {
 			$response->output_handler($v);
 		}
-		if ($this->option_bool("json")) {
+		if ($this->optionBool("json")) {
 			$response->is_json(true);
-		} elseif ($this->option_bool("html")) {
+		} elseif ($this->optionBool("html")) {
 			$response->is_html(true);
 		}
 		$this->args = $this->_map_variables($this->args, $response);
@@ -834,7 +834,7 @@ abstract class Route extends Hookable {
 	 * @return Ambigous <mixed, multitype:>
 	 */
 	public function class_actions() {
-		if ($this->has_option("class_actions")) {
+		if ($this->hasOption("class_actions")) {
 			return $this->option_array("class_actions");
 		}
 		// $class_actions =

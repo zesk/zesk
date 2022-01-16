@@ -18,7 +18,7 @@ class Class_Content_Video extends Class_ORM {
 		"modified",
 	];
 
-	public $find_keys = [
+	public array $find_keys = [
 		"name",
 	];
 }

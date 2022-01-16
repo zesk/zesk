@@ -45,7 +45,7 @@ class Command_Build extends Command_Base {
 	}
 
 	private function run_cache_clear(): void {
-		if (!$this->option_bool('no-cache-clear')) {
+		if (!$this->optionBool('no-cache-clear')) {
 			$this->log("Clearing cache ...");
 			$this->log($this->zesk_cli("cache clear"));
 		} else {
@@ -54,7 +54,7 @@ class Command_Build extends Command_Base {
 	}
 
 	private function run_update(): void {
-		if (!$this->option_bool('no-update')) {
+		if (!$this->optionBool('no-update')) {
 			$this->log("Running module updates ...");
 			$this->log($this->zesk_cli("update"));
 		} else {

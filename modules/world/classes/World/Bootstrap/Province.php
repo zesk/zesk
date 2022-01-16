@@ -72,7 +72,7 @@ class World_Bootstrap_Province extends Hookable {
 		$country_class = Country::class;
 
 		$x = $application->orm_factory($province_class);
-		if ($this->option_bool("drop")) {
+		if ($this->optionBool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 

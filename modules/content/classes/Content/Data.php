@@ -309,7 +309,7 @@ class Content_Data extends ORM {
 			$this->application->logger->error("Content_data({ID}) {noun} appears to have changed {suffix}: {md5hash} (old) !== {md5hashNew} (new)", [
 				'md5hashNew' => $computed_md5,
 			] + $this->members());
-			if ($this->option_bool('repair;repair_checksums')) {
+			if ($this->optionBool('repair;repair_checksums')) {
 				$this->md5hash = $computed_md5;
 			}
 		}
@@ -317,7 +317,7 @@ class Content_Data extends ORM {
 			$this->application->logger->error("Content_data({ID}) {noun} appears to have changed size {suffix}: {size} (old) !== {sizeNew} (new)", [
 				'sizeNew' => $computed_size,
 			] + $this->members());
-			if ($this->first_option('repair;repair_sizes')) {
+			if ($this->firstOption('repair;repair_sizes')) {
 				$this->size = $computed_size;
 			}
 		}
@@ -402,11 +402,11 @@ class Content_Data extends ORM {
 	public static function database_size_threshold(Application $application) {
 		/* @var $data Content_Data */
 		$data = $application->orm_registry(__CLASS__);
-		$result = $data->option_integer('database_size_threshold', 8 * 1024 * 1024); // Handles most images, which is what we want.
+		$result = $data->optionInt('database_size_threshold', 8 * 1024 * 1024); // Handles most images, which is what we want.
 		if (!self::$checked_db) {
 			$size = $data->database()->feature(Database::FEATURE_MAX_BLOB_SIZE);
 			if ($size < $result) {
-				$data->set_option("database_size_threshold", $result);
+				$data->setOption("database_size_threshold", $result);
 				$application->configuration->path_set([
 					__CLASS__,
 					"database_size_threshold",

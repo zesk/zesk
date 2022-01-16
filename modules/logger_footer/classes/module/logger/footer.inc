@@ -42,7 +42,7 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 	 * @return boolean
 	 */
 	public function enabled() {
-		return !$this->option_bool('disabled', !$this->application->development());
+		return !$this->optionBool('disabled', !$this->application->development());
 	}
 
 	/**

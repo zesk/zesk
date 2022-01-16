@@ -340,14 +340,14 @@ class Module_Database extends Module {
 			throw new Exception_Unimplemented("Database::factory({url}) {scheme} did not return a Database", ["url" => $safe_url, "scheme" => $scheme, ]);
 		}
 		$db->code_name($codename);
-		$db->set_option("internal_name", $codename);
+		$db->setOption("internal_name", $codename);
 		$this->databases[$codename] = $db;
 		if (avalue($options, 'connect', true)) {
 			if (!$db->connect()) {
 				$this->application->logger->warning("Failed to connect to database: $safe_url");
 				return null;
 			}
-			if ($db->option_bool("debug")) {
+			if ($db->optionBool("debug")) {
 				$this->application->logger->debug("Connected to database: $safe_url");
 			}
 		}

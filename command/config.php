@@ -84,7 +84,7 @@ class Command_Config extends Command_Base {
 		];
 		$result = [];
 		foreach ($flags as $flag => $default) {
-			if ($this->option_bool($flag)) {
+			if ($this->optionBool($flag)) {
 				// if any value is true, return the actual values
 				return ArrayTools::kprefix($this->option($flags), "show_");
 			}

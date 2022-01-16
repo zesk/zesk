@@ -101,7 +101,7 @@ class Control extends Widget {
 	 */
 	protected function query_condition_map(array $set = null) {
 		if (is_array($set)) {
-			$this->set_option("query_condition_map", $set);
+			$this->setOption("query_condition_map", $set);
 			return $this;
 		}
 		return $this->option_array("query_condition_map");
@@ -155,7 +155,7 @@ class Control extends Widget {
 		$query->where([
 			$where,
 		]);
-		if ($this->option_bool('skip_query_condition')) {
+		if ($this->optionBool('skip_query_condition')) {
 			return false;
 		}
 		$query_condition_map = $this->option_array("query_condition_map");
@@ -171,15 +171,15 @@ class Control extends Widget {
 	}
 
 	final public function refresh($set = null) {
-		return ($set !== null) ? $this->set_option('refresh', to_bool($set)) : $this->option_bool('refresh');
+		return ($set !== null) ? $this->setOption('refresh', to_bool($set)) : $this->optionBool('refresh');
 	}
 
 	public function placeholder($set = null) {
-		return ($set !== null) ? $this->set_option('placeholder', $set) : $this->option('placeholder');
+		return ($set !== null) ? $this->setOption('placeholder', $set) : $this->option('placeholder');
 	}
 
 	public function query_column($set = null) {
-		return ($set !== null) ? $this->set_option('query_column', $set) : $this->option('query_column');
+		return ($set !== null) ? $this->setOption('query_column', $set) : $this->option('query_column');
 	}
 
 	/**
@@ -196,7 +196,7 @@ class Control extends Widget {
 	 * @return boolean|Widget
 	 */
 	protected function sanitize_html($set = null) {
-		return $set === null ? $this->option_bool('sanitize_html', true) : $this->set_option('sanitize_html', to_bool($set));
+		return $set === null ? $this->optionBool('sanitize_html', true) : $this->setOption('sanitize_html', to_bool($set));
 	}
 
 	/**
@@ -239,7 +239,7 @@ class Control extends Widget {
 	 * @return Widget|mixed
 	 */
 	protected function sanitize_strip_tags($set = null) {
-		return $set === null ? $this->option('sanitize_strip_tags', true) : $this->set_option('sanitize_strip_tags', $set);
+		return $set === null ? $this->option('sanitize_strip_tags', true) : $this->setOption('sanitize_strip_tags', $set);
 	}
 
 	/**
@@ -254,7 +254,7 @@ class Control extends Widget {
 	 * @return Widget|mixed
 	 */
 	protected function sanitize_allow_tags($set = null) {
-		return $set === null ? $this->option('sanitize_allow_tags', self::$default_allow_tags) : $this->set_option('sanitize_allow_tags', $set);
+		return $set === null ? $this->option('sanitize_allow_tags', self::$default_allow_tags) : $this->setOption('sanitize_allow_tags', $set);
 	}
 
 	/**

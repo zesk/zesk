@@ -139,7 +139,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @var string
 	 */
-	protected ?string $table = null;
+	protected string $table = "";
 
 	/**
 	 * When is_new requires a database query, cache it here
@@ -237,7 +237,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		$this->initialize_specification();
 		$this->members = $this->class->column_defaults;
 		$this->initialize($mixed, $this->option('initialize'));
-		$this->set_option('initialize', null);
+		$this->setOption('initialize', null);
 	}
 
 	/**
@@ -526,7 +526,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return Database_SQL
 	 */
-	public function sql() {
+	public function sql(): Database_SQL {
 		return $this->database()->sql();
 	}
 
@@ -534,15 +534,15 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return string
 	 */
-	final public function table() {
-		return $this->table ? $this->table : $this->class->table;
+	final public function table(): string {
+		return $this->table !== "" ? $this->table : $this->class->table;
 	}
 
 	/**
 	 *
 	 * @return boolean
 	 */
-	public function table_exists() {
+	public function table_exists(): bool {
 		return $this->database()->table_exists($this->table());
 	}
 
@@ -803,7 +803,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			return $this->is_new_cached;
 		}
 		$auto_column = $this->class->auto_column;
-		if ($auto_column && !$this->option_bool(self::option_ignore_auto_column)) {
+		if ($auto_column && !$this->optionBool(self::option_ignore_auto_column)) {
 			$auto = $this->member($auto_column);
 			return empty($auto);
 		}
@@ -1191,7 +1191,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @throws \zesk\Exception_ORM_NotFound
 	 */
 	private function orm_not_found_exception(Exception_ORM_NotFound $e, string $member = null, mixed $data = null): void {
-		if ($this->option_bool("fix_orm_members") || $this->option_bool("fix_member_objects")) {
+		if ($this->optionBool("fix_orm_members") || $this->optionBool("fix_member_objects")) {
 			// Prevent infinite recursion
 			$magic = "__" . __METHOD__;
 			if (avalue($this->members, $magic)) {
@@ -1238,7 +1238,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		if ($data === null || $data === '') {
 			return null;
 		}
-		if ($this->option_bool("debug")) {
+		if ($this->optionBool("debug")) {
 			$this->application->logger->debug("Loading {class} member {member} with id {data}", ["class" => get_class($this), "member" => $member, "data" => $data, ]);
 		}
 
@@ -1921,7 +1921,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	}
 
 	private function insert() {
-		if ($this->option_bool("disable_database") || $this->option_bool("disable_database_insert")) {
+		if ($this->optionBool("disable_database") || $this->optionBool("disable_database_insert")) {
 			return false;
 		}
 		$members = $this->pre_insert();
@@ -1955,7 +1955,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	}
 
 	private function update() {
-		if ($this->option_bool("disable_database") || $this->option_bool("disable_database_update")) {
+		if ($this->optionBool("disable_database") || $this->optionBool("disable_database_update")) {
 			return false;
 		}
 		$members = $this->_filter_store_members($this->members);
@@ -2247,7 +2247,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	protected function error_store($member, $message) {
 		$errors = $this->option_array("store_error", []);
 		$errors[$member] = $message;
-		$this->set_option("store_error", $errors);
+		$this->setOption("store_error", $errors);
 		return null;
 	}
 
@@ -2373,7 +2373,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		// If we have all of our primary keys and has an auto_column, then don't bother registering.
 		// Handles case when pre_register registers any objects within it. If everything is loaded OK, then we know
 		// these are valid objects.
-		if ($this->has_primary_keys() && $this->class->auto_column && !$this->option_bool(self::option_ignore_auto_column)) {
+		if ($this->has_primary_keys() && $this->class->auto_column && !$this->optionBool(self::option_ignore_auto_column)) {
 			return $this;
 		}
 		$this->pre_register();
@@ -2499,7 +2499,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		// 		$cache = $this->object_cache();
 		// 		$cache->delete();
 
-		if ($this->option_bool("disable_database")) {
+		if ($this->optionBool("disable_database")) {
 			return false;
 		}
 		$where = [];

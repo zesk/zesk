@@ -91,12 +91,12 @@ class Module_Log_Mail extends Module {
 			]);
 			return true;
 		}
-		if ($mail->option_bool('no_force_to')) {
+		if ($mail->optionBool('no_force_to')) {
 			return true;
 		}
 		$log_mail = $log_mail->register();
 		if ($log_mail) {
-			if ($log_mail->option_bool('no_send')) {
+			if ($log_mail->optionBool('no_send')) {
 				// Prevent sending
 				$mail->sent = time();
 			} elseif ($log_mail->option('force_to')) {

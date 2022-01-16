@@ -10,7 +10,9 @@ namespace zesk;
 /**
  *
  * @author kent
- *
+ * @see Class_Preference
+ * @see Preference_Type
+ * @see Preference
  */
 class Class_Preference_Type extends Class_ORM {
 	public string $id_column = "id";
@@ -24,14 +26,14 @@ class Class_Preference_Type extends Class_ORM {
 
 	public array $has_many = [
 		'preferences' => [
-			'class' => "zesk\\Preference",
+			'class' => Preference::class,
 			'foreign_key' => 'type',
 		],
 	];
 
-	public $find_keys = [
+	public array $find_keys = [
 		"code",
 	];
 
-	public string $database_group = "zesk\\Preference";
+	public string $database_group = Preference::class;
 }

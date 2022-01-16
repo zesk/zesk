@@ -51,7 +51,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public function initialize($value, $from_database = false) {
 		$result = parent::initialize($value, $from_database);
 		$this->changed = false;
-		$this->set_option($this->application->option_array("session"));
+		$this->setOption($this->application->option_array("session"));
 		return $result;
 	}
 

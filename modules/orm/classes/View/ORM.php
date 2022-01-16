@@ -16,15 +16,15 @@ namespace zesk;
 class View_ORM extends View {
 	public function format($set = null) {
 		if ($set !== null) {
-			return $this->set_option("format", $set);
+			return $this->setOption("format", $set);
 		}
 		return $this->option('format');
 	}
 
 	public function display_method($set = null, $set_args = []) {
 		if ($set !== null) {
-			$this->set_option('display_method', $set);
-			return $this->set_option('display_method_arguments', $set_args);
+			$this->setOption('display_method', $set);
+			return $this->setOption('display_method_arguments', $set_args);
 		}
 		return $this->option('display_method');
 	}

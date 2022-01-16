@@ -26,7 +26,7 @@ class View_Time_Zone extends View_Text {
 		$href = $object->apply_map($this->option("href", ""));
 		if (empty($text)) {
 			$text = $this->empty_string();
-		} elseif (!$this->option_bool("HTML")) {
+		} elseif (!$this->optionBool("HTML")) {
 			$text = htmlspecialchars($text);
 		}
 		$attrs = $object->apply_map($this->options_include("target;class;onclick"));

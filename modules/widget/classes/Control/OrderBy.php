@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -46,7 +48,7 @@ class Control_OrderBy extends Control {
 	 * @return void|mixed|string
 	 */
 	public function list_order_by($set = null) {
-		return $set === null ? $this->option('list_order_by') : $this->set_option('list_order_by', $set);
+		return $set === null ? $this->option('list_order_by') : $this->setOption('list_order_by', $set);
 	}
 
 	public function list_order_by_reverse($set = null) {
@@ -69,18 +71,18 @@ class Control_OrderBy extends Control {
 			}
 			return $reverse_order_by;
 		}
-		return $this->set_option('list_order_by_reverse', $set);
+		return $this->setOption('list_order_by_reverse', $set);
 	}
 
 	public function list_order_column($set = null) {
-		return $set === null ? $this->option('list_order_column', $this->column()) : $this->set_option('list_order_column', $set);
+		return $set === null ? $this->option('list_order_column', $this->column()) : $this->setOption('list_order_column', $set);
 	}
 
 	public function list_order_variable($set = null) {
 		if ($set === null) {
 			return $this->option('list_order_variable', $this->parent ? $this->parent->option('list_order_variable', self::default_order_variable) : self::default_order_variable);
 		}
-		return $this->set_option('list_order_variable', $set);
+		return $this->setOption('list_order_variable', $set);
 	}
 
 	public function hook_header(Control_Header $header): void {
@@ -95,13 +97,13 @@ class Control_OrderBy extends Control {
 		if ($list_order_by === true) {
 			$this->list_order_by($this->column());
 		}
-		$cur_sort_names = ArrayTools::clean($this->request->geta($this->list_order_variable(), [], ";"));
+		$cur_sort_names = ArrayTools::clean($this->request->geta($this->list_order_variable(), [], ";"), ['', null]);
 		$k = $this->list_order_column();
 		$order_var = $this->list_order_variable();
 		$new_order = [];
 		$new_key = null;
 		$sort_index = null;
-		$multisort = $this->option_bool("multisort");
+		$multisort = $this->optionBool("multisort");
 		$remove_order = [];
 		$selected = false;
 		$ascending = true;
@@ -128,7 +130,7 @@ class Control_OrderBy extends Control {
 			}
 		}
 		if ($new_key === null) {
-			if ($this->option_bool("list_order_default_ascending", true)) {
+			if ($this->optionBool("list_order_default_ascending", true)) {
 				$alt = "Sort ascending";
 				$sort_order = "sort-none";
 				$ascending = true;

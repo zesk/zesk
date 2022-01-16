@@ -341,7 +341,7 @@ abstract class ORM_Schema extends Hookable {
 				}
 
 				if (array_key_exists('on create', $table_schema)) {
-					$table->set_option_path('on.create', $table_schema['on create']);
+					$table->setOption_path('on.create', $table_schema['on create']);
 				}
 			}
 		}
@@ -555,7 +555,7 @@ abstract class ORM_Schema extends Hookable {
 			$dbColNew = avalue($columnsNew, $column);
 			// Pass a tip in the target column for alter_table_column_add and databases that support it
 			if ($dbColNew) {
-				$dbColNew->set_option("after_column", $last_column ? $last_column : null);
+				$dbColNew->setOption("after_column", $last_column ? $last_column : null);
 			}
 			if ($dbColOld && $dbColNew) {
 				if (!$dbColOld->is_similar($db, $dbColNew, self::$debug)) {
@@ -574,7 +574,7 @@ abstract class ORM_Schema extends Hookable {
 			} elseif ($dbColOld) {
 				/* Handle ALTER TABLE DROP COLUMN */
 				$drops[$column] = $generator->alter_table_column_drop($db_table_new, $dbColOld);
-				if ($db_table_old->has_option("remove_sql")) {
+				if ($db_table_old->hasOption("remove_sql")) {
 					$rm_cols = $table->option('remove_sql');
 					if (array_key_exists($column, $rm_cols)) {
 						$drops["-$column"] = $rm_cols[$column];
@@ -583,7 +583,7 @@ abstract class ORM_Schema extends Hookable {
 			} elseif ($dbColNew) {
 				/* Handle ALTER TABLE ADD COLUMN */
 				$adds[$column] = $generator->alter_table_column_add($db_table_new, $dbColNew);
-				if ($dbColNew->has_option("add_sql")) {
+				if ($dbColNew->hasOption("add_sql")) {
 					$adds["+$column"] = $dbColNew->option('add_sql');
 				}
 			}

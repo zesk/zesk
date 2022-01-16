@@ -134,7 +134,7 @@ class ORM_Schema_File extends ORM_Schema {
 	 */
 	protected function schema_path() {
 		$result = $this->_schema_path();
-		if ($this->option_bool('debug')) {
+		if ($this->optionBool('debug')) {
 			$this->application->logger->debug("{class_object} found file {result}", [
 				"class_object" => get_class($this->class_object),
 				"result" => $result,
@@ -276,7 +276,7 @@ class ORM_Schema_File extends ORM_Schema {
 						break;
 				}
 			}
-			if ($table->has_option('on create')) {
+			if ($table->hasOption('on create')) {
 				$table_spec['on create'] = $table->option_list('on create');
 			}
 			$table_name = $table->name();

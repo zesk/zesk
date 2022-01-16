@@ -71,7 +71,7 @@ abstract class Command_Iterator_File extends Command_Base {
 	 * @see Command::run()
 	 */
 	public function run(): void {
-		if ($this->option_bool('help')) {
+		if ($this->optionBool('help')) {
 			$this->usage();
 		}
 		$dir = $this->option('directory', getcwd());
@@ -79,9 +79,9 @@ abstract class Command_Iterator_File extends Command_Base {
 			$this->usage("$dir is not a directory");
 			exit(1);
 		}
-		$this->include_hidden = $this->option_bool('include-hidden');
-		$this->show_skipped = $this->option_bool('show-skipped');
-		$this->dry_run = $this->option_bool('dry-run');
+		$this->include_hidden = $this->optionBool('include-hidden');
+		$this->show_skipped = $this->optionBool('show-skipped');
+		$this->dry_run = $this->optionBool('dry-run');
 		$this->start();
 		$extras = $this->arguments_remaining(true);
 		if ($extras) {

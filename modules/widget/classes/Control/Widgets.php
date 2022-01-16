@@ -52,7 +52,7 @@ class Control_Widgets extends Control {
 			/* @var $w Widget */
 			$r = $w->validate();
 			if (!$r) {
-				if ($this->option_bool("generate_child_errors")) {
+				if ($this->optionBool("generate_child_errors")) {
 					$__ = [
 						"name" => $w->name,
 						"error" => _dump($w->error()),

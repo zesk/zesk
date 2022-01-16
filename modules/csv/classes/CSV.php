@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage tools
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -108,8 +110,8 @@ abstract class CSV extends Options {
 	 * @param string $filename File path to use
 	 * @param string $mode File mode (fopen)
 	 * @param boolean $create Create the file if it doesn't exist
-	 * @see fopen
 	 * @return self
+	 * @see fopen
 	 */
 	protected function _set_file($filename, $mode, $create = false) {
 		if (is_string($filename)) {
@@ -302,7 +304,7 @@ abstract class CSV extends Options {
 	 * @return string A correctly quoted CSV value
 	 * @see StringTools::csv_quote
 	 */
-	public static function quote($x) {
+	public static function quote(string $x): string {
 		return StringTools::csv_quote($x);
 	}
 
@@ -313,7 +315,7 @@ abstract class CSV extends Options {
 	 * @return string
 	 * @see StringTools::csv_quote_row
 	 */
-	public static function quote_row($x) {
+	public static function quote_row(array $x): string {
 		return StringTools::csv_quote_row($x);
 	}
 
@@ -324,7 +326,7 @@ abstract class CSV extends Options {
 	 * @return string
 	 * @see StringTools::csv_quote_rows
 	 */
-	public static function quote_rows($x) {
+	public static function quote_rows(array $x): string {
 		return StringTools::csv_quote_rows($x);
 	}
 }

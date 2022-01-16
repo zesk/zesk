@@ -127,7 +127,7 @@ class Net_POP_Client extends Net_Client_Socket {
 		$greeting_parts = explode(" ", $this->greeting);
 		$server_id = array_pop($greeting_parts);
 		$hash = md5($server_id . $pass);
-		if ($this->option_bool("debug_apop")) {
+		if ($this->optionBool("debug_apop")) {
 			echo "server id is $server_id, checksum is $hash\n";
 		}
 		if ($message === null) {

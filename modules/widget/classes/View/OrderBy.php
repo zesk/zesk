@@ -19,9 +19,9 @@ class View_OrderBy extends View {
 	public function render() {
 		$k = $this->option("list_order_column", $this->column());
 		$english = $this->label();
-		$html = $this->option_bool('html');
-		if (!$html && $this->option_integer("show_size", -1) > 0) {
-			$english = HTML::ellipsis($english, $this->option_integer("show_size"));
+		$html = $this->optionBool('html');
+		if (!$html && $this->optionInt("show_size", -1) > 0) {
+			$english = HTML::ellipsis($english, $this->optionInt("show_size"));
 		}
 		$order_var = $this->option("list_order_variable", "o");
 		$cur_sort_names = explode(";", $this->request->get($order_var, $this->option('default')));
@@ -29,7 +29,7 @@ class View_OrderBy extends View {
 		$new_order = [];
 		$new_key = null;
 		$sort_index = null;
-		$multisort = $this->option_bool("multisort");
+		$multisort = $this->optionBool("multisort");
 		$remove_order = [];
 		foreach ($cur_sort_names as $i => $cur_sort_name) {
 			if ($cur_sort_name === $k) {
@@ -50,7 +50,7 @@ class View_OrderBy extends View {
 			}
 		}
 		if ($new_key === null) {
-			if ($this->option_bool("list_order_default_ascending")) {
+			if ($this->optionBool("list_order_default_ascending")) {
 				$sort_desc = "Sort ascending";
 				$sort_order = "sort-none";
 				$new_key = $k;

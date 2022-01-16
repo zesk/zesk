@@ -92,7 +92,7 @@ class Module_Ordering extends zesk\Module {
 	public function object_pre_insert(ORM $object, array $members) {
 		$order_column = $this->order_column($object);
 		if ($object->has_member($order_column) && $object->member_is_empty($order_column)) {
-			[$func, $delta] = $object->option_bool("ordering_first") ? [
+			[$func, $delta] = $object->optionBool("ordering_first") ? [
 				"MIN",
 				-1,
 			] : [

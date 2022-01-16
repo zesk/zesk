@@ -131,7 +131,7 @@ class Control_Filter extends Control {
 		if (!$this->name()) {
 			$this->names('filter', 'filter');
 		}
-		$this->set_option('query_column', false);
+		$this->setOption('query_column', false);
 		$this->children($this->call_hook('filters'));
 		parent::initialize();
 		$this->init_defaults();

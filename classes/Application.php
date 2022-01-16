@@ -357,7 +357,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		parent::__construct($this, $options);
 		$this->_initialize($kernel);
 		$this->_initialize_fixme();
-		$this->set_option('maintenance', $this->_load_maintenance());
+		$this->setOption('maintenance', $this->_load_maintenance());
 	}
 
 	/**
@@ -542,7 +542,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	public function version($set = null) {
 		if ($set !== null) {
-			$this->set_option(self::OPTION_VERSION, $set);
+			$this->setOption(self::OPTION_VERSION, $set);
 			return $this;
 		}
 		return $this->option(self::OPTION_VERSION);
@@ -761,7 +761,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	private function configure_cache_paths(): void {
 		$cache_path = $this->option("cache_path", $this->paths->cache());
 		$this->cache_path = Directory::is_absolute($cache_path) ? $cache_path : $this->path($cache_path);
-		if ($this->has_option('document_cache')) {
+		if ($this->hasOption('document_cache')) {
 			$this->document_cache = $this->paths->expand($this->option('document_cache'));
 		}
 	}
@@ -1134,7 +1134,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 			throw new Exception_NotFound("The resource does not exist on this server: {url}", $request->url_variables(), Net_HTTP::STATUS_FILE_NOT_FOUND);
 		}
-		if ($this->option_bool("debug_route")) {
+		if ($this->optionBool("debug_route")) {
 			$this->logger->debug("Matched route {class} Pattern: \"{clean_pattern}\" {options}", $route->variables());
 		}
 		$new_route = $this->call_hook_arguments("router_matched", [
@@ -1383,7 +1383,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Setter for locale - calls hook
 	 *
 	 * @param Locale $set
-	 * @return \zesk\Locale|\zesk\Application
+	 * @return self
 	 */
 	public function set_locale(Locale $set) {
 		$this->locale = $set;
@@ -1423,6 +1423,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Add or retrieve the locale path for this application - used to load locales
 	 *
 	 * By default, it's ./etc/language/
+	 * Must exist in the file system
 	 *
 	 * @param string $add Locale path to add
 	 * @return array
@@ -1430,13 +1431,29 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	final public function locale_path($add = null) {
 		$list = $this->locale_path;
 		if ($add) {
-			$add = $this->paths->expand($add);
-			if (!is_dir($add)) {
-				throw new Exception_Directory_NotFound($add);
-			}
-			$this->locale_path[] = $add;
+			$this->deprecated("use addLocalePath");
+			$this->addLocalePath($add);
 		}
 		return $this->locale_path;
+	}
+
+	/**
+	 * Add or retrieve the locale path for this application - used to load locales
+	 *
+	 * By default, it's ./etc/language/
+	 * Must exist in the file system
+	 *
+	 * @param string $add Locale path to add
+	 * @return $this
+	 * @throws Exception_Directory_NotFound
+	 */
+	final public function addLocalePath(string $add): self {
+		$add = $this->paths->expand($add);
+		if (!is_dir($add)) {
+			throw new Exception_Directory_NotFound($add);
+		}
+		$this->locale_path[] = $add;
+		return $this;
 	}
 
 	/**
@@ -1726,7 +1743,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *            Optional path to add to the application path
 	 * @return string
 	 */
-	final public function application_class() {
+	final public function application_class(): string {
 		return $this->kernel->application_class();
 	}
 
@@ -1893,9 +1910,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	public function development($set = null) {
 		if (is_bool($set)) {
-			return $this->set_option("development", to_bool($set));
+			return $this->setOption("development", to_bool($set));
 		}
-		return $this->option_bool("development");
+		return $this->optionBool("development");
 	}
 
 	/**
@@ -1953,9 +1970,16 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Create a generic object
 	 *
 	 * @param string $class
-	 * @return object
 	 */
-	public function factory_arguments($class, array $arguments = []) {
+	/**
+	 * @param string $class
+	 * @param array $arguments
+	 * @return object
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
+	 */
+	public function factory_arguments(string $class, array $arguments = []): object {
 		return $this->objects->factory_arguments($class, $arguments);
 	}
 
@@ -1967,8 +1991,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param bool $require
 	 * @return Interface_Session|null
 	 */
-	public function session(Request $request, $require = true) {
-		if ($request->has_option(__METHOD__)) {
+	public function session(Request $request, bool $require = true): ?Interface_Session {
+		if ($request->hasOption(__METHOD__)) {
 			return $request->option(__METHOD__);
 		}
 		if (!$require) {
@@ -1976,7 +2000,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		}
 		$session = $this->session_factory();
 		$session->initialize_session($request);
-		$request->set_option(__METHOD__, $session);
+		$request->setOption(__METHOD__, $session);
 		return $session;
 	}
 
@@ -1985,9 +2009,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @param Request $request Request to use for
 	 * @param boolean $require Force object creation if not found. May have side effect of creating a Session_Interface within the Request.
-	 * @return \zesk\User
+	 * @return ?User
 	 */
-	public function user(Request $request = null, $require = true) {
+	public function user(Request $request = null, bool $require = true): ?User {
 		if ($request === null) {
 			$request = $this->request();
 		}
@@ -2012,7 +2036,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param array $arguments
 	 * @return void
 	 */
-	public function deprecated($message = null, array $arguments = []): void {
+	public function deprecated(string $message = "", array $arguments = []): void {
 		$arguments['depth'] = to_integer($arguments['depth'] ?? 0) + 1;
 		$this->kernel->deprecated($message, $arguments);
 	}

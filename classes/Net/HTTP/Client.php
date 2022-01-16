@@ -200,7 +200,7 @@ class Net_HTTP_Client extends Hookable {
 		$this->inherit_global_options();
 		$this->load_from_options();
 		if (!empty($url)) {
-			$this->set_option("URL", $url);
+			$this->setOption("URL", $url);
 		}
 		if (!$this->user_agent) {
 			$this->user_agent($this->default_user_agent());
@@ -212,10 +212,10 @@ class Net_HTTP_Client extends Hookable {
 	}
 
 	private function load_from_options(): void {
-		if ($this->has_option("timeout")) {
-			$this->timeout($this->option_integer("timeout"));
+		if ($this->hasOption("timeout")) {
+			$this->timeout($this->optionInt("timeout"));
 		}
-		if ($this->has_option("user_agent")) {
+		if ($this->hasOption("user_agent")) {
 			$this->user_agent($this->option("user_agent"));
 		}
 	}
@@ -285,7 +285,7 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function url($set = null) {
 		if ($set && URL::is($set)) {
-			$this->set_option("url", $set);
+			$this->setOption("url", $set);
 			return $this;
 		}
 		return $this->option("url");
@@ -482,7 +482,7 @@ class Net_HTTP_Client extends Hookable {
 		$this->curl_opts = [
 			CURLOPT_ENCODING => 1,
 			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_SSL_VERIFYPEER => $this->option_bool("VerifySSL", false),
+			CURLOPT_SSL_VERIFYPEER => $this->optionBool("VerifySSL", false),
 		];
 		$data = strval($this->_encode_data());
 		$length = strlen($data);
@@ -599,9 +599,9 @@ class Net_HTTP_Client extends Hookable {
 		if ($this->recurse) {
 			$this->curl_opts[CURLOPT_FOLLOWLOCATION] = true;
 		}
-		if ($this->option_bool("follow_location")) {
+		if ($this->optionBool("follow_location")) {
 			$this->curl_opts[CURLOPT_FOLLOWLOCATION] = true;
-			$this->curl_opts[CURLOPT_MAXREDIRS] = $this->option_integer("follow_location_maximum", 7);
+			$this->curl_opts[CURLOPT_MAXREDIRS] = $this->optionInt("follow_location_maximum", 7);
 		}
 	}
 
@@ -723,7 +723,7 @@ class Net_HTTP_Client extends Hookable {
 
 		$this->_parse_headers($dest_headers_name);
 
-		if ($this->option_bool("debug") && $this->destination) {
+		if ($this->optionBool("debug") && $this->destination) {
 			if (file_exists($this->destination)) {
 				$command = Command::running();
 				if ($command) {
@@ -1069,10 +1069,10 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function follow_location($set = null) {
 		if (is_bool($set)) {
-			$this->set_option("follow_location", $set);
+			$this->setOption("follow_location", $set);
 			return $this;
 		}
-		return $this->option_bool('follow_location');
+		return $this->optionBool('follow_location');
 	}
 
 	/**
@@ -1113,10 +1113,10 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function want_headers($set = null) {
 		if (is_bool($set)) {
-			$this->set_option('ReturnHeaders', $set);
+			$this->setOption('ReturnHeaders', $set);
 			return $this;
 		}
-		return $this->option_bool('ReturnHeaders', true);
+		return $this->optionBool('ReturnHeaders', true);
 	}
 
 	/**

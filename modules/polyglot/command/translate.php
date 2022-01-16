@@ -81,7 +81,7 @@ class Command_Translate extends Command_Base {
 			$this->usage("Need a directory \"{destination}\" is not a directory", compact("destination"));
 		}
 		$classes = Service::service_classes($app, "translate");
-		if ($this->option_bool("list")) {
+		if ($this->optionBool("list")) {
 			echo ArrayTools::ksuffix($classes, "\n");
 			return 0;
 		}

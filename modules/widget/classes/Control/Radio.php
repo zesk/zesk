@@ -9,7 +9,7 @@ namespace zesk;
 
 class Control_Radio extends Control_Optionss {
 	private function _check_refresh() {
-		if ($this->option_bool("refresh")) {
+		if ($this->optionBool("refresh")) {
 			if ($this->request->get($this->name() . "_cont")) {
 				$this->message($this->column(), $this->option("continue_message", "Form was updated"));
 				return false;
@@ -35,7 +35,7 @@ class Control_Radio extends Control_Optionss {
 	 * Return the jQuery expression to determine the value of this widget
 	 */
 	public function jquery_value_expression() {
-		if ($this->has_option('value_expression')) {
+		if ($this->hasOption('value_expression')) {
 			return $this->option('value_expression');
 		}
 		$name = $this->name();
@@ -49,7 +49,7 @@ class Control_Radio extends Control_Optionss {
 	 * Return the jQuery expression to determine the value of this widget
 	 */
 	public function jquery_value_selected_expression() {
-		if ($this->has_option('value_selected_expression')) {
+		if ($this->hasOption('value_selected_expression')) {
 			return $this->option('value_selected_expression');
 		}
 		$name = $this->name();
@@ -63,7 +63,7 @@ class Control_Radio extends Control_Optionss {
 	 * Return the jQuery expression to determine the value of this widget
 	 */
 	public function jquery_target_expression() {
-		if ($this->has_option('jquery_target_expression')) {
+		if ($this->hasOption('jquery_target_expression')) {
 			return $this->option('jquery_target_expression');
 		}
 		$name = $this->name();

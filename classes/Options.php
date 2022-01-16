@@ -144,8 +144,8 @@ class Options implements \ArrayAccess {
 	 *
 	 * With a name and a value:
 	 * <code>
-	 * $widget->set_option("Value", $value);
-	 * $widget->set_option("Format", "{Name} ({ID})");
+	 * $widget->setOption("Value", $value);
+	 * $widget->setOption("Format", "{Name} ({ID})");
 	 * </code>
 	 *
 	 * @param string $mixed An array of name/value pairs, or a string of the option name to set
@@ -163,6 +163,18 @@ class Options implements \ArrayAccess {
 			} else {
 				$this->options[$name] = $value;
 			}
+		}
+		return $this;
+	}
+
+	/**
+	 * @param array $values
+	 * @param bool $overwrite
+	 * @return $this
+	 */
+	public function setOptions(array $values, bool $overwrite = true): self {
+		foreach ($values as $key => $value) {
+			$this->setOption($key, $value, $overwrite);
 		}
 		return $this;
 	}
@@ -486,7 +498,7 @@ class Options implements \ArrayAccess {
 	 * @deprecated 2022-01
 	 */
 	protected function _option_get_set(string $name, mixed $set = null): mixed {
-		return $set === null ? $this->option($name) : $this->set_option($name, $set);
+		return $set === null ? $this->option($name) : $this->setOption($name, $set);
 	}
 
 	/**
@@ -548,14 +560,14 @@ class Options implements \ArrayAccess {
 	 *
 	 * With a name and a value:
 	 * <code>
-	 * $widget->set_option("Value", $value);
-	 * $widget->set_option("Format", "{Name} ({ID})");
+	 * $widget->setOption("Value", $value);
+	 * $widget->setOption("Format", "{Name} ({ID})");
 	 * </code>
 	 *
 	 * With an array:
 	 * <code>
 	 * $arr = array("Value" => $value, "Format" => "{Name} ({ID})");
-	 * $widget->set_option($arr);
+	 * $widget->setOption($arr);
 	 * </code>
 	 *
 	 * @param array|string $mixed An array of name/value pairs, or a string of the option name to set

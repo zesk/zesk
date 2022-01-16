@@ -10,7 +10,7 @@ class Route_Command extends Route {
 	protected function _execute(Response $response): void {
 		$app = $response->application;
 
-		$debug = $this->option_bool('debug');
+		$debug = $this->optionBool('debug');
 
 		$command = avalue($this->original_options, "command");
 		$args = $this->option_array("arguments", []);

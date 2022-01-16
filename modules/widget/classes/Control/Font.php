@@ -23,7 +23,7 @@ class Control_Font extends Control_Select {
 	 */
 	public function sample_text($set = null) {
 		if ($set !== null) {
-			return $this->set_option('sample_text', $set);
+			return $this->setOption('sample_text', $set);
 		}
 		return $this->option('sample_text');
 	}
@@ -35,7 +35,7 @@ class Control_Font extends Control_Select {
 	 */
 	public function css_target($set = null) {
 		if ($set !== null) {
-			return $this->set_option('css_target', $set);
+			return $this->setOption('css_target', $set);
 		}
 		return $this->option('css_target');
 	}

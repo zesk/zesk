@@ -97,12 +97,12 @@ abstract class Command_File_Convert extends Command_Base {
 			'response' => $app->response_factory($request),
 			'stylesheets_inline' => true,
 		]);
-		if ($this->overwrite && $this->option_bool("no-clobber")) {
+		if ($this->overwrite && $this->optionBool("no-clobber")) {
 			$this->error("The --no-clobber option is not compatible with this command, it can only overwrite existing files.");
 		}
-		$dry_run = $this->option_bool('dry-run');
+		$dry_run = $this->optionBool('dry-run');
 		if ($dry_run) {
-			$this->set_option('verbose', true);
+			$this->setOption('verbose', true);
 		}
 		stream_set_blocking(STDIN, 0);
 		$content = fread(STDIN, 1024);
@@ -123,11 +123,11 @@ abstract class Command_File_Convert extends Command_Base {
 				]);
 			}
 			$overwrite = $this->overwrite;
-			$force = $this->option_bool("force") || $overwrite;
-			$noclobber = $this->option_bool("noclobber");
-			$nomtime = $this->option_bool("nomtime");
+			$force = $this->optionBool("force") || $overwrite;
+			$noclobber = $this->optionBool("noclobber");
+			$nomtime = $this->optionBool("nomtime");
 			$target_prefix = $this->option("target-path");
-			$mkdir_target = $this->option_bool("mkdir-target");
+			$mkdir_target = $this->optionBool("mkdir-target");
 			foreach ($files as $file) {
 				if (!file_exists($file)) {
 					continue;

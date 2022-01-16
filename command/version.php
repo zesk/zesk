@@ -92,10 +92,10 @@ class Command_Version extends Command_Base {
 	 * @see \zesk\Command::run()
 	 */
 	public function run() {
-		if ($this->option_bool("init")) {
+		if ($this->optionBool("init")) {
 			return $this->_command_init_schema();
 		}
-		if ($this->option_bool("zesk")) {
+		if ($this->optionBool("zesk")) {
 			echo Version::release();
 			return 0;
 		}
@@ -135,14 +135,14 @@ class Command_Version extends Command_Base {
 			return self::EXIT_CODE_PARSER_FAILED;
 		}
 		$changed = false;
-		if ($this->has_option("tag", false)) {
+		if ($this->hasOption("tag", false)) {
 			if (strval(avalue($version_structure, 'tag')) !== strval($this->option('tag'))) {
 				$version_structure['tag'] = $this->option('tag');
 				$changed = true;
 			}
 		}
-		$delta = $this->option_bool("decrement") ? -1 : 1;
-		$zero = $this->option_bool("zero");
+		$delta = $this->optionBool("decrement") ? -1 : 1;
+		$zero = $this->optionBool("zero");
 		$reset = false;
 		$flags = [];
 		$tokens = avalue($schema, 'tokens', [
@@ -152,7 +152,7 @@ class Command_Version extends Command_Base {
 			"patch",
 		]);
 		foreach ($tokens as $token) {
-			if ($this->option_bool($token)) {
+			if ($this->optionBool($token)) {
 				$flags[] = "--$token";
 				$old_value = avalue($version_structure, $token, 0);
 				$version_structure[$token] = $zero ? 0 : intval($old_value) + $delta;

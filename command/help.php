@@ -60,7 +60,7 @@ class Command_Help extends Command_Base {
 			'rules_directory' => false,
 		];
 		$zesk_root = $this->application->zesk_home();
-		$nocore = $this->option_bool("no-core");
+		$nocore = $this->optionBool("no-core");
 		foreach ($this->application->zesk_command_path() as $path => $prefix) {
 			$this->command_paths[] = $path;
 			if ($nocore && begins($path, $zesk_root)) {

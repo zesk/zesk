@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  *
@@ -7,6 +8,7 @@
  * @author kent
  * @copyright Copyright &copy; 2017, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -98,44 +100,44 @@ class Widget extends Hookable {
 	/**
 	 * Theme hook to use for output
 	 *
-	 * @var string
+	 * @var array|string
 	 */
-	protected $theme = null;
+	protected array|string $theme = [];
 
 	/**
 	 * Variables to pass, automatically, to the theme
 	 *
 	 * @var array
 	 */
-	protected $theme_variables = [];
+	protected array $theme_variables = [];
 
 	/**
 	 * Class for context of this widget (typically, the outside HTML tag)
 	 *
 	 * @var string
 	 */
-	private $context_class = null;
+	private string $context_class = "";
 
 	/**
 	 * List of tag pairs to wrap this tag with, popped like a stack
 	 *
 	 * @var array
 	 */
-	protected $wraps = [];
+	protected array $wraps = [];
 
 	/**
 	 * Whether this has been wrapped
 	 *
 	 * @var boolean
 	 */
-	protected $wrapped = false;
+	protected bool $wrapped = false;
 
 	/**
 	 * List of behaviors attached to this widget
 	 *
 	 * @var boolean
 	 */
-	private $behaviors = [];
+	private array $behaviors = [];
 
 	/**
 	 * Set to true in subclasses to render children and append to main render
@@ -253,7 +255,7 @@ class Widget extends Hookable {
 			'name' => avalue($this->options, 'column'),
 		];
 
-		if ($this->has_option("locale")) {
+		if ($this->hasOption("locale")) {
 			$this->locale($this->application->locale_registry($this->option("locale")));
 		}
 		if (!$this->locale) {
@@ -285,10 +287,10 @@ class Widget extends Hookable {
 
 	/**
 	 *
-	 * @param list|string $theme
+	 * @param array|string $theme
 	 * @return Widget
 	 */
-	public function set_theme($theme) {
+	public function set_theme(array|string $theme): self {
 		$this->theme = $theme;
 		return $this;
 	}
@@ -300,7 +302,7 @@ class Widget extends Hookable {
 	 * @return string Control_Edit
 	 */
 	public function title($set = null) {
-		return $set === null ? $this->option('title') : $this->set_option('title', $set);
+		return $set === null ? $this->option('title') : $this->setOption('title', $set);
 	}
 
 	/**
@@ -310,12 +312,24 @@ class Widget extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function context_class($set = null, $add = true) {
+	public function context_class(string $set = null, bool $add = true): string {
 		if ($set !== null) {
-			$set = trim($set, ".");
-			return $this->set_option('context_class', $add ? CSS::add_class($this->context_class(), $set) : $set);
+			$this->application->deprecated("setter");
+			$this->setContextClass($set, $add);
 		}
-		return $this->option('context_class');
+		return strval($this->option('context_class'));
+	}
+
+	/**
+	 * Class applied to outer HTML tag for this widget
+	 *
+	 * Can pass in CSS-style class (.foo) or class name (foo)
+	 *
+	 * @return string
+	 */
+	public function setContextClass(string $set, bool $add = true) {
+		$set = trim($set, ".");
+		return $this->setOption('context_class', $add ? CSS::add_class($this->context_class(), $set) : $set);
 	}
 
 	/**
@@ -370,16 +384,25 @@ class Widget extends Hookable {
 
 	/**
 	 *
-	 * @param unknown $class
+	 * @paam string $class
 	 * @return Widget
 	 */
-	final public function add_class($class) {
+	final public function add_class(string $class): self {
+		return $this->addClass($class);
+	}
+
+	/**
+	 *
+	 * @paam string $class
+	 * @return Widget
+	 */
+	final public function addClass(string $class): self {
 		// Some widgets have protected variable called class - always update the options here
 		$this->options = HTML::add_class($this->options, $class);
 		return $this;
 	}
 
-	final public function remove_class($class) {
+	final public function remove_class(string $class): self {
 		// Some widgets have protected variable called class - always update the options here
 		$this->options = HTML::remove_class($this->options, $class);
 		return $this;
@@ -389,7 +412,13 @@ class Widget extends Hookable {
 		if ($set === null) {
 			return $this->traverse_rename;
 		}
-		$this->traverse_rename = to_bool($set);
+		$this->application->deprecated('setter');
+		$this->setTraverseRename(to_bool($set));
+		return $this;
+	}
+
+	public function setTraverseRename(bool $traverse_rename_on = false) {
+		$this->traverse_rename = $traverse_rename_on;
 		return $this;
 	}
 
@@ -518,7 +547,7 @@ class Widget extends Hookable {
 		} else {
 			$this->children[$id] = $child;
 		}
-		$this->call_hook_arguments("child", $child, $id);
+		$this->call_hook_arguments("child", [$child], $id);
 		if ($this->_initialize) {
 			$child->initialize();
 		}
@@ -543,7 +572,7 @@ class Widget extends Hookable {
 	 *
 	 * @return Widget
 	 */
-	public function nowrap() {
+	public function nowrap(): self {
 		$this->wraps = [];
 		return $this;
 	}
@@ -551,9 +580,9 @@ class Widget extends Hookable {
 	/**
 	 * Unwrap a set of tags
 	 *
-	 * @param unknown $content
+	 * @param string $content
 	 */
-	private function unwrap($content = null) {
+	private function unwrap(string $content): string {
 		if (count($this->wraps) === 0) {
 			throw new Exception_Semantics(get_class($this) . "::unwrap: Nothing more to unwrap");
 		}
@@ -568,37 +597,11 @@ class Widget extends Hookable {
 	 * @param string $content
 	 * @return string
 	 */
-	protected function unwrap_all($content = "") {
+	protected function unwrap_all(string $content = ""): string {
 		while (count($this->wraps) > 0) {
 			$content = $this->unwrap($content);
 		}
 		return $content;
-	}
-
-	/**
-	 * Inherit options
-	 *
-	 * @param $options unknown_type
-	 * @param $class unknown_type
-	 */
-	public static function inherit_options(Application $application, $options, $class) {
-		if (!is_array($options)) {
-			$options = [];
-		}
-		return $options + self::default_options($application, $class);
-	}
-
-	/**
-	 * Create an object in the application context
-	 *
-	 * @deprecated 2017-12
-	 * @param string $class
-	 * @param mixed $mixed
-	 * @param array $options
-	 */
-	public function object_factory($class, $mixed = null, array $options = []) {
-		$this->application->deprecated();
-		return $this->model_factory($class, $mixed, $options);
 	}
 
 	/**
@@ -617,10 +620,10 @@ class Widget extends Hookable {
 	 *
 	 * @param string $class
 	 * @param array $options
-	 * @throws Exception_Semantics
 	 * @return Widget
+	 * @throws Exception_Semantics
 	 */
-	public function widget_factory($class, array $options = null) {
+	public function widget_factory(string $class, array $options = []): Widget {
 		$widget = self::factory($this->application, $class, $options);
 		$response = $this->response();
 		if ($response) {
@@ -634,21 +637,20 @@ class Widget extends Hookable {
 	 *
 	 * @param $class string
 	 * @param $options array
-	 *        	Optional added options for this widget
+	 *            Optional added options for this widget
 	 *
 	 * @return Widget
 	 */
-	public static function factory(Application $application, $class, $options = null) {
+	public static function factory(Application $application, string $class, array $options = []): object {
 		$args = [
 			$application,
 			$options,
 		];
-		$widget = null;
 
 		try {
 			$widget = $application->factory_arguments($class, $args);
 		} catch (Exception_Class_NotFound $e) {
-			if (!str_contains($class, "\\")   && class_exists("zesk\\$class")) {
+			if (!str_contains($class, "\\") && class_exists("zesk\\$class")) {
 				$widget = $application->factory_arguments("zesk\\" . $class, $args);
 				if ($widget) {
 					$application->deprecated("{method} called with unprefixed class {class}", [
@@ -670,7 +672,7 @@ class Widget extends Hookable {
 	 * Application associated with this widget
 	 *
 	 * @param $set Application
-	 *        	to set
+	 *            to set
 	 * @return \zesk\Application
 	 */
 	public function application(Application $set = null) {
@@ -685,7 +687,7 @@ class Widget extends Hookable {
 	 * Request associated with this widget
 	 *
 	 * @param $set \zesk\Request
-	 *        	to set
+	 *            to set
 	 * @return \zesk\Request|self
 	 */
 	public function request(Request $set = null) {
@@ -752,11 +754,11 @@ class Widget extends Hookable {
 	 * (Fails.)
 	 *
 	 * @param $noun mixed
-	 *        	String or object
+	 *            String or object
 	 * @param $action string
-	 *        	What you want to do to the object
+	 *            What you want to do to the object
 	 * @param $object mixed
-	 *        	Optional target
+	 *            Optional target
 	 */
 	public function user_can($action, Model $object = null, array $options = []) {
 		$user = $this->user();
@@ -779,19 +781,19 @@ class Widget extends Hookable {
 			}
 			return $this;
 		}
-		return $this->option_bool('upload', $this->option_bool('is_upload'));
+		return $this->optionBool('upload', $this->optionBool('is_upload'));
 	}
 
 	/**
 	 * Do not output this widget, save the rendered form and use it as a token in later widgets.
 	 *
 	 * @param boolean|string $set
-	 *        	Boolean turns it on/off, string turns it on and uses alternate token name
+	 *            Boolean turns it on/off, string turns it on and uses alternate token name
 	 * @return mixed Widget
 	 */
 	public function save_render($set = null) {
 		if ($set) {
-			$this->set_option('widget_save_result', $set);
+			$this->setOption('widget_save_result', $set);
 			return $this;
 		}
 		return $this->option('widget_save_result');
@@ -804,13 +806,24 @@ class Widget extends Hookable {
 	 */
 	public function parent(Widget $set = null) {
 		if ($set !== null) {
-			$this->parent = $set;
-			$this->application($set->application());
-			$this->request($set->request());
-			$this->response($set->response());
-			return $this;
+			$this->application->deprecated("setter");
+			$this->setParent($set);
 		}
 		return $this->parent;
+	}
+
+	/**
+	 * set parent widget
+	 *
+	 * @param Widget $set
+	 * @return $this
+	 */
+	public function setParent(Widget $set): self {
+		$this->parent = $set;
+		$this->application($set->application());
+		$this->request($set->request());
+		$this->response($set->response());
+		return $this;
 	}
 
 	/**
@@ -818,7 +831,7 @@ class Widget extends Hookable {
 	 *
 	 * @return Widget
 	 */
-	public function top() {
+	public function top(): self {
 		$depth = 0;
 		$next = $this;
 		do {
@@ -838,18 +851,12 @@ class Widget extends Hookable {
 	 * Get/set the value associated with this widget
 	 *
 	 * @param mixed $set
-	 * @return mixed|Widget
+	 * @return mixed
 	 */
 	public function value($set = null) {
-		if (!$this->object instanceof Model) {
-			throw new Exception_Semantics("Retrieving value when object is not initialized {class} {name}", [
-				"class" => get_class($this),
-				"name" => $this->name(),
-			]);
-		}
 		if ($set !== null) {
-			$this->object->set($this->column(), $set);
-			return $this;
+			$this->application->deprecated("setter");
+			$this->setValue($set);
 		}
 		$column = $this->column();
 		if ($column === null) {
@@ -861,6 +868,17 @@ class Widget extends Hookable {
 		} catch (Exception_ORM_NotFound $e) {
 			return null;
 		}
+	}
+
+	/**
+	 * Get/set the value associated with this widget
+	 *
+	 * @param mixed $set
+	 * @return mixed|Widget
+	 */
+	public function setValue(mixed $set): self {
+		$this->object->set($this->column(), $set);
+		return $this;
 	}
 
 	/**
@@ -882,17 +900,17 @@ class Widget extends Hookable {
 	 * @param string $name
 	 */
 	public function names($column, $label = true, $name = false) {
-		$this->set_option("column", $column);
+		$this->setOption("column", $column);
 		if ($label === false) {
-			$this->set_option("nolabel", true);
+			$this->setOption("nolabel", true);
 		} elseif ($label === true) {
-			$this->set_option("label", ucfirst($column));
+			$this->setOption("label", ucfirst($column));
 		} else {
-			$this->set_option("label", $label);
+			$this->setOption("label", $label);
 		}
 		$name = !empty($name) ? $name : $column;
-		$this->set_option("name", $name);
-		$this->set_option("id", $name);
+		$this->setOption("name", $name);
+		$this->setOption("id", $name);
 		return $this;
 	}
 
@@ -903,10 +921,10 @@ class Widget extends Hookable {
 	 */
 	public function required($set = null) {
 		if (is_bool($set)) {
-			$this->set_option('required', $set);
+			$this->setOption('required', $set);
 			return $this;
 		}
-		return $this->option_bool("required", false);
+		return $this->optionBool("required", false);
 	}
 
 	/**
@@ -916,21 +934,21 @@ class Widget extends Hookable {
 	 */
 	public function required_error($set = null) {
 		if ($set !== null) {
-			return $this->set_option('error_required', $set);
+			return $this->setOption('error_required', $set);
 		}
-		return $this->option_bool("error_required", false);
+		return $this->optionBool("error_required", false);
 	}
 
 	/**
 	 * Get or set the column name
 	 *
 	 * @param $set Value
-	 *        	to set it to
+	 *            to set it to
 	 * @return mixed Column name for get, Widget for set
 	 */
 	public function column($set = null) {
 		if ($set !== null) {
-			$this->set_option('column', $set);
+			$this->setOption('column', $set);
 			return $this;
 		}
 		return $this->option("column");
@@ -940,12 +958,12 @@ class Widget extends Hookable {
 	 * Get or set the input name
 	 *
 	 * @param $set Value
-	 *        	to set it to
+	 *            to set it to
 	 * @return mixed Input name for get, Widget for set
 	 */
 	public function name($set = null) {
 		if ($set !== null) {
-			$this->set_option('name', $set);
+			$this->setOption('name', $set);
 			return $this;
 		}
 		return $this->option('name');
@@ -958,7 +976,7 @@ class Widget extends Hookable {
 	 * @return Widget|boolean
 	 */
 	public function nolabel($set = null) {
-		return ($set !== null) ? $this->set_option('nolabel', $set) : $this->option_bool('nolabel');
+		return ($set !== null) ? $this->setOption('nolabel', $set) : $this->optionBool('nolabel');
 	}
 
 	/**
@@ -968,7 +986,7 @@ class Widget extends Hookable {
 	 * @return Widget|string
 	 */
 	public function label($set = null) {
-		return ($set !== null) ? $this->set_option('label', $set) : $this->option("label");
+		return ($set !== null) ? $this->setOption('label', $set) : $this->option("label");
 	}
 
 	/**
@@ -981,9 +999,9 @@ class Widget extends Hookable {
 	public function suffix($data = null, $append = false) {
 		if ($data !== null) {
 			if ($append) {
-				return $this->set_option('suffix', $this->option('suffix') . $data);
+				return $this->setOption('suffix', $this->option('suffix') . $data);
 			}
-			return $this->set_option('suffix', $data);
+			return $this->setOption('suffix', $data);
 		}
 		return $this->option('suffix');
 	}
@@ -998,9 +1016,9 @@ class Widget extends Hookable {
 	public function prefix($data = null, $append = false) {
 		if ($data !== null) {
 			if ($append) {
-				return $this->set_option('prefix', $this->option('prefix') . $data);
+				return $this->setOption('prefix', $this->option('prefix') . $data);
 			}
-			return $this->set_option('prefix', $data);
+			return $this->setOption('prefix', $data);
 		}
 		return $this->option('prefix');
 	}
@@ -1017,7 +1035,7 @@ class Widget extends Hookable {
 			return $this->parent->form_name($set);
 		}
 		if ($set !== null) {
-			$this->set_option('form_name', $set);
+			$this->setOption('form_name', $set);
 			return $this;
 		}
 		return $this->option('form_name');
@@ -1035,7 +1053,7 @@ class Widget extends Hookable {
 			return $this->parent->form_id($set);
 		}
 		if ($set !== null) {
-			$this->set_option('form_id', $set);
+			$this->setOption('form_id', $set);
 			return $this;
 		}
 		return $this->option('form_id');
@@ -1067,12 +1085,12 @@ class Widget extends Hookable {
 	 * Get/set the display size of this widget (usually how much text is visible)
 	 *
 	 * @param $set integer
-	 *        	Valid of the size to display for inputs
+	 *            Valid of the size to display for inputs
 	 */
 	public function show_size($set = null) {
 		if ($set !== null) {
 			if (is_numeric($set)) {
-				$this->set_option("show_size", intval($set));
+				$this->setOption("show_size", intval($set));
 			}
 			return $this;
 		}
@@ -1183,9 +1201,9 @@ class Widget extends Hookable {
 	 * Set errors for this widget
 	 *
 	 * @param mixed $message
-	 *        	String, array, or Widget
+	 *            String, array, or Widget
 	 * @param mixed $col
-	 *        	Column for error, or null to use default
+	 *            Column for error, or null to use default
 	 */
 	public function error($message = null, $col = null) {
 		if ($message === null) {
@@ -1219,11 +1237,11 @@ class Widget extends Hookable {
 	/**
 	 * Set message for this widget
 	 *
-	 * @todo See if I can combine this with error somehow
 	 * @param mixed $message
-	 *        	String, array, or Widget
+	 *            String, array, or Widget
 	 * @param mixed $col
-	 *        	Column for message, or null to use default
+	 *            Column for message, or null to use default
+	 * @todo See if I can combine this with error somehow
 	 */
 	public function message($message = null, $col = null) {
 		if ($message === null) {
@@ -1325,7 +1343,8 @@ class Widget extends Hookable {
 	 * @return Widget
 	 */
 	public function error_required() {
-		$this->error($this->first_option("error_required;required_error", ($this->application->locale)("{label} is a required field.")));
+		$this->error($this->firstOption(["error_required", "required_error"], $this->locale->__("{label} is a
+		required field.")));
 		return $this;
 	}
 
@@ -1374,7 +1393,7 @@ class Widget extends Hookable {
 				return true;
 			}
 		} elseif (is_string($v)) {
-			if ($this->option_bool('trim')) {
+			if ($this->optionBool('trim')) {
 				$v = trim($v);
 			}
 			if (strlen($v) > 0) {
@@ -1413,15 +1432,15 @@ class Widget extends Hookable {
 	public function size($mixed = null, $max = null) {
 		if ($mixed === null && $max === null) {
 			return [
-				$this->option_integer('minlength'),
-				$this->option_integer('maxlength'),
+				$this->optionInt('minlength'),
+				$this->optionInt('maxlength'),
 			];
 		} elseif ($max === null) {
-			$this->set_option('maxlength', $mixed);
+			$this->setOption('maxlength', $mixed);
 			return $this;
 		} else {
-			$this->set_option('minlength', $mixed);
-			$this->set_option('maxlength', $max);
+			$this->setOption('minlength', $mixed);
+			$this->setOption('maxlength', $max);
 			return $this;
 		}
 	}
@@ -1444,15 +1463,15 @@ class Widget extends Hookable {
 	public function glyphs($mixed = null, $max = null) {
 		if ($mixed === null && $max === null) {
 			return [
-				$this->option_integer(self::option_minimum_glyph_length),
-				$this->option_integer(self::option_maximum_glyph_length),
+				$this->optionInt(self::option_minimum_glyph_length),
+				$this->optionInt(self::option_maximum_glyph_length),
 			];
 		} elseif ($max === null) {
-			$this->set_option(self::option_maximum_glyph_length, $mixed);
+			$this->setOption(self::option_maximum_glyph_length, $mixed);
 			return $this;
 		} else {
-			$this->set_option(self::option_minimum_glyph_length, $mixed);
-			$this->set_option(self::option_maximum_glyph_length, $max);
+			$this->setOption(self::option_minimum_glyph_length, $mixed);
+			$this->setOption(self::option_maximum_glyph_length, $max);
 			return $this;
 		}
 	}
@@ -1527,7 +1546,7 @@ class Widget extends Hookable {
 	 * @param string $name
 	 * @param mixed $value
 	 * @param boolean $recurse
-	 *        	Recurse on each child
+	 *            Recurse on each child
 	 */
 	final protected function children_set_option($name, $value = null, $recurse = true): void {
 		if (!is_array($this->children)) {
@@ -1535,7 +1554,7 @@ class Widget extends Hookable {
 		}
 		foreach ($this->children as $child) {
 			/* @var $child Widget */
-			$child->set_option($name, $value);
+			$child->setOption($name, $value);
 			if ($recurse) {
 				$child->children_set_option($name, $value, $recurse);
 			}
@@ -1546,7 +1565,7 @@ class Widget extends Hookable {
 	 * Calls a hook on this Widget, and on all children of this widget
 	 *
 	 * @param mixed $hooks
-	 *        	String, list of hooks (;-separated), or array of hook names
+	 *            String, list of hooks (;-separated), or array of hook names
 	 * @return void
 	 */
 	final public function children_hook($hooks) {
@@ -1559,7 +1578,7 @@ class Widget extends Hookable {
 	 * Calls a hook on this Widget, and on all children of this widget
 	 *
 	 * @param mixed $hooks
-	 *        	String, list of hooks (;-separated), or array of hook names
+	 *            String, list of hooks (;-separated), or array of hook names
 	 * @return void
 	 */
 	final public function children_hook_array($hooks, array $arguments): void {
@@ -1593,8 +1612,8 @@ class Widget extends Hookable {
 	/**
 	 * Run the ready step for this widget and all children
 	 *
-	 * @throws Exception_Semantics
 	 * @return Widget
+	 * @throws Exception_Semantics
 	 */
 	private function _exec_ready() {
 		if ($this->exec_state === self::INITIALIZED) {
@@ -1696,7 +1715,7 @@ class Widget extends Hookable {
 	}
 
 	private function save_new_value($new_value): void {
-		if ($this->option_bool("trim", true) && is_scalar($new_value)) {
+		if ($this->optionBool("trim", true) && is_scalar($new_value)) {
 			$new_value = trim($new_value);
 		}
 		$this->_save_default_value($new_value);
@@ -1792,7 +1811,8 @@ class Widget extends Hookable {
 			throw new Exception_Semantics("Requires request to be set");
 		}
 		if ($reset) {
-			$this->exec_state = $this->content = $this->content_children = null;
+			$this->exec_state = self::INITIALIZED;
+			$this->content = $this->content_children = "";
 		} elseif (is_string($this->exec_state)) {
 			return $this->exec_state;
 		}
@@ -1823,10 +1843,10 @@ class Widget extends Hookable {
 	/**
 	 * Retrieve the attributes in this Widget related to INPUT tags
 	 *
-	 * @param unknown $types
+	 * @param array $types
 	 * @return array
 	 */
-	public function input_attributes($types = false) {
+	public function input_attributes(array $types = []): array {
 		return $this->options_include(HTML::input_attribute_names($types));
 	}
 
@@ -1839,7 +1859,7 @@ class Widget extends Hookable {
 	 */
 	private function _getset_opt($option, $set = null) {
 		if ($set !== null) {
-			$this->set_option($option, $set);
+			$this->setOption($option, $set);
 			return $this;
 		}
 		return $this->option($option);
@@ -1863,7 +1883,7 @@ class Widget extends Hookable {
 	 */
 	public function help($set = null, $append = false) {
 		if ($set !== null) {
-			return $this->set_option('help', ($append ? $this->option('help', '') : '') . $set);
+			return $this->setOption('help', ($append ? $this->option('help', '') : '') . $set);
 		}
 		return $this->option('help');
 	}
@@ -1926,31 +1946,21 @@ class Widget extends Hookable {
 	 * To set a value always.
 	 *
 	 * @param array $attributes
-	 *        	Attributes to manipulate
+	 *            Attributes to manipulate
 	 * @param array $add
-	 *        	Set of name value pairs on how to manipulate the attributes
+	 *            Set of name value pairs on how to manipulate the attributes
 	 */
 	public static function attributes_inherit(array $attributes, array $inherit) {
 		foreach ($inherit as $k => $v) {
-			$act = substr($k, 0, 1);
-			if ($act === '+') {
+			if (is_string($k) && str_starts_with($k, '+')) {
 				$k = substr($k, 1);
-				$value = avalue($attributes, $k);
+				$value = $attributes[$k] ?? null;
 				if (empty($value)) {
 					$attributes[$k] = $v;
 				} elseif (is_string($value)) {
 					$attributes[$k] = CSS::add_class($value, $v);
 				} elseif (is_array($value)) {
 					$attributes[$k][] = $value;
-				}
-
-				continue;
-			}
-			if ($act === '*') {
-				$k = substr($k, 1);
-				$value = avalue($attributes, $k);
-				if (empty($value)) {
-					$attributes[$k] = $v;
 				}
 
 				continue;
@@ -1987,10 +1997,10 @@ class Widget extends Hookable {
 	}
 
 	private function empty_condition_apply() {
-		if (!$this->has_option("empty_condition")) {
+		if (!$this->hasOption("empty_condition")) {
 			return false;
 		}
-		$this->set_option("condition", $this->option("empty_condition"));
+		$this->setOption("condition", $this->option("empty_condition"));
 		return true;
 	}
 
@@ -2089,7 +2099,7 @@ class Widget extends Hookable {
 				"class" => get_class($this),
 			]);
 		}
-		if (!$this->has_option('column', true)) {
+		if (!$this->hasOption('column', true)) {
 			$class = get_class($this);
 			$column = strtolower(strtr($class, "_", "-")) . '-' . $this->response()->id_counter();
 			$this->column($column);
@@ -2098,10 +2108,10 @@ class Widget extends Hookable {
 				"column" => $column,
 			]);
 		}
-		if (!$this->has_option('name')) {
+		if (!$this->hasOption('name')) {
 			$this->name($this->column());
 		}
-		if (!$this->has_option('id')) {
+		if (!$this->hasOption('id')) {
 			$this->id($this->name());
 		}
 		if (!$this->_initialize) {
@@ -2109,7 +2119,7 @@ class Widget extends Hookable {
 				$this->children_initialize();
 			}
 		}
-		if ($this->has_option("theme_variables")) {
+		if ($this->hasOption("theme_variables")) {
 			$this->theme_variables += $this->option_array("theme_variables");
 		}
 		$this->_initialize = true;
@@ -2228,30 +2238,30 @@ class Widget extends Hookable {
 	 */
 	public function theme_variables() {
 		return $this->application->variables() + [
-			'request' => $this->request(),
-			'response' => $this->response(),
-			'widget' => $this,
-			'input_attributes' => $input_attributes = $this->input_attributes(),
-			'data_attributes' => $data_attributes = $this->data_attributes(),
-			'attributes' => $input_attributes + $data_attributes,
-			'required' => $this->required(),
-			'name' => $this->name(),
-			'column' => $this->column(),
-			'label' => $this->label(),
-			'id' => $this->id(),
-			'context_class' => $this->context_class(),
-			'empty_string' => $this->empty_string(),
-			'show_size' => $this->show_size(),
-			'object' => $this->object,
-			'model' => $this->object,
-			'value' => $this->value(),
-			'parent' => $this->parent,
-			'children' => $this->children(),
-			'all_children' => $this->all_children(false),
-			'errors' => $this->errors(),
-			'messages' => $this->messages(),
-			'content_children' => $this->content_children,
-		] + $this->theme_variables + $this->options;
+				'request' => $this->request(),
+				'response' => $this->response(),
+				'widget' => $this,
+				'input_attributes' => $input_attributes = $this->input_attributes(),
+				'data_attributes' => $data_attributes = $this->data_attributes(),
+				'attributes' => $input_attributes + $data_attributes,
+				'required' => $this->required(),
+				'name' => $this->name(),
+				'column' => $this->column(),
+				'label' => $this->label(),
+				'id' => $this->id(),
+				'context_class' => $this->context_class(),
+				'empty_string' => $this->empty_string(),
+				'show_size' => $this->show_size(),
+				'object' => $this->object,
+				'model' => $this->object,
+				'value' => $this->value(),
+				'parent' => $this->parent,
+				'children' => $this->children(),
+				'all_children' => $this->all_children(false),
+				'errors' => $this->errors(),
+				'messages' => $this->messages(),
+				'content_children' => $this->content_children,
+			] + $this->theme_variables + $this->options;
 	}
 
 	/**
@@ -2323,9 +2333,9 @@ class Widget extends Hookable {
 	 */
 	public function url_submit_redirect($set = null, $message = null) {
 		if ($message !== null) {
-			$this->set_option('submit_redirect_message', $message);
+			$this->setOption('submit_redirect_message', $message);
 		}
-		return $set === null ? $this->option('submit_redirect') : $this->set_option('submit_redirect', $set);
+		return $set === null ? $this->option('submit_redirect') : $this->setOption('submit_redirect', $set);
 	}
 
 	/**
@@ -2374,19 +2384,19 @@ class Widget extends Hookable {
 	 * @return Widget string
 	 */
 	public function submit_message($set = null, $append = false) {
-		return $set === null ? $this->option('submit_message') : $this->set_option('submit_message', $append ? $this->submit_message() . ' ' . $set : $set);
+		return $set === null ? $this->option('submit_message') : $this->setOption('submit_message', $append ? $this->submit_message() . ' ' . $set : $set);
 	}
 
 	/**
 	 * Getter/Setter for submit_url - URL redirected to upon any submit
 	 *
-	 * @todo rename submit_redirect to submit_url at some point.
-	 *
 	 * @param string $set
 	 * @return Widget string
+	 * @todo rename submit_redirect to submit_url at some point.
+	 *
 	 */
 	public function submit_url($set = null) {
-		return $set === null ? $this->option('submit_redirect') : $this->set_option('submit_redirect', $set);
+		return $set === null ? $this->option('submit_redirect') : $this->setOption('submit_redirect', $set);
 	}
 
 	/**
@@ -2397,7 +2407,7 @@ class Widget extends Hookable {
 	 * @return Widget string
 	 */
 	public function submit_url_default($set = null) {
-		return $set === null ? $this->option('submit_url_default') : $this->set_option('submit_url_default', $set);
+		return $set === null ? $this->option('submit_url_default') : $this->setOption('submit_url_default', $set);
 	}
 
 	/**
@@ -2414,7 +2424,7 @@ class Widget extends Hookable {
 		$ref = $this->request->get_not_empty('ref');
 		$submit_url = $this->submit_url();
 		$submit_url_default = $this->submit_url_default();
-		if ($this->option_bool('submit_skip_ref')) {
+		if ($this->optionBool('submit_skip_ref')) {
 			$submit_url = $ref ? URL::query_format($submit_url, [
 				"ref" => $ref,
 			]) : $submit_url;
@@ -2431,7 +2441,7 @@ class Widget extends Hookable {
 		if ($submit_url) {
 			$url = URL::query_format($submit_url, "ref", $this->request->get("ref", $this->request->url()));
 		}
-		$message = map($this->first_option("submit_message;submit_redirect_message;onstore_message", ""), $vars);
+		$message = map($this->firstOption("submit_message;submit_redirect_message;onstore_message", ""), $vars);
 
 		$status = $this->status();
 		if (!$status) {
@@ -2443,7 +2453,7 @@ class Widget extends Hookable {
 				"message" => $message,
 				"redirect" => $url,
 			];
-			if ($this->has_option('submit_theme', true)) {
+			if ($this->hasOption('submit_theme', true)) {
 				$json['content'] = $this->application->theme($this->option('submit_theme'), $this->theme_variables(), [
 					"first" => true,
 				]);
@@ -2476,14 +2486,14 @@ class Widget extends Hookable {
 			return $content;
 		}
 		$this->wrapped = true;
-		if ($this->option_bool("debug")) {
+		if ($this->optionBool("debug")) {
 			dump($this->object);
 		}
 		$prefix = $this->prefix();
 		$suffix = $this->suffix();
 
 		$this->prefix("")->suffix("");
-		if ($this->option_bool("wrap_map_disabled")) {
+		if ($this->optionBool("wrap_map_disabled")) {
 			return $prefix . $content . $suffix;
 		}
 		return $this->unwrap_all($this->object->apply_map($prefix) . $content . $this->object->apply_map($suffix));
@@ -2525,12 +2535,12 @@ class Widget extends Hookable {
 		foreach ($this->behaviors as $item) {
 			[$theme, $options] = $item;
 			$content .= $this->application->theme($theme, $options + [
-				"widget" => $this,
-				"object" => $this->object,
-				"content" => $content,
-				"request" => $this->request,
-				"response" => $this->response(),
-			]);
+					"widget" => $this,
+					"object" => $this->object,
+					"content" => $content,
+					"request" => $this->request,
+					"response" => $this->response(),
+				]);
 		}
 		return $content;
 	}
@@ -2539,10 +2549,10 @@ class Widget extends Hookable {
 	 * Return the jQuery expression to determine the value of this widget
 	 */
 	public function jquery_value_expression() {
-		if ($this->has_option('jquery_value_expression')) {
+		if ($this->hasOption('jquery_value_expression')) {
 			return $this->option('jquery_value_expression');
 		}
-		if ($this->has_option('value_expression')) {
+		if ($this->hasOption('value_expression')) {
 			return $this->option('value_expression');
 		}
 
@@ -2554,10 +2564,10 @@ class Widget extends Hookable {
 	}
 
 	public function jquery_value_selected_expression() {
-		if ($this->has_option('jquery_value_selected_expression')) {
+		if ($this->hasOption('jquery_value_selected_expression')) {
 			return $this->option('jquery_value_selected_expression');
 		}
-		if ($this->has_option('value_selected_expression')) {
+		if ($this->hasOption('value_selected_expression')) {
 			return $this->option('value_selected_expression');
 		}
 
@@ -2573,7 +2583,7 @@ class Widget extends Hookable {
 	 * behavior)
 	 */
 	public function jquery_target_expression() {
-		if ($this->has_option('jquery_target_expression')) {
+		if ($this->hasOption('jquery_target_expression')) {
 			return $this->option('jquery_target_expression');
 		}
 		$id = $this->id();
@@ -2595,8 +2605,8 @@ class Widget extends Hookable {
 	/**
 	 * Retrieve the class object for this widget
 	 *
-	 * @deprecated 2018-01
 	 * @return zesk\Class_ORM
+	 * @deprecated 2018-01
 	 */
 	public function class_object() {
 		zesk()->deprecated();
@@ -2604,9 +2614,9 @@ class Widget extends Hookable {
 	}
 
 	/**
-	 * @deprecated 2018-01
 	 * @param unknown $set
 	 * @return \zesk\Widget|string
+	 * @deprecated 2018-01
 	 */
 	public function object_class($set = null) {
 		zesk()->deprecated();

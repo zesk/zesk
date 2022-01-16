@@ -54,7 +54,7 @@ class Trie extends Options {
 	 */
 	public function __construct(array $options = []) {
 		parent::__construct($options);
-		$this->lower = $this->option_bool('lower');
+		$this->lower = $this->optionBool('lower');
 		$this->root = new Node();
 	}
 

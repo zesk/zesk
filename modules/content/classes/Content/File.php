@@ -170,7 +170,7 @@ class Content_File extends ORM {
 	 * @return \Content_File
 	 */
 	public function register_path($path, array $options = []) {
-		$copy = $this->option_bool("scan_path_copy");
+		$copy = $this->optionBool("scan_path_copy");
 		$options = to_array($options);
 		$data = Content_Data::copy_from_path($this->application, $path, $copy);
 

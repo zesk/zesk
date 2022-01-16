@@ -597,11 +597,13 @@ class Database_Table extends Hookable {
 	}
 
 	/**
+	 * Returns true when action is good
+	 *
 	 * @param string $action
 	 * @return bool
 	 */
 	private static function _validate_action(string $action): bool {
-		return !in_array($action, [
+		return in_array($action, [
 			'create',
 			'add column',
 			'drop column',

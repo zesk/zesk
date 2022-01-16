@@ -86,7 +86,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 * @return integer
 	 */
 	public function database_expire_seconds() {
-		return max($this->option_integer("expire_seconds", self::DEFAULT_DATABASE_EXPIRE_SECONDS), $this->request_expire_seconds());
+		return max($this->optionInt("expire_seconds", self::DEFAULT_DATABASE_EXPIRE_SECONDS), $this->request_expire_seconds());
 	}
 
 	/**

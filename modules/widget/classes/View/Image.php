@@ -74,7 +74,7 @@ class View_Image extends View {
 		}
 
 		$prefix = "";
-		if ($this->has_option('id')) {
+		if ($this->hasOption('id')) {
 			$prefix = $this->option('id') . '-';
 		}
 		$target_filename = $prefix . File::base($source) . "-${width}x${height}." . File::extension($source);
@@ -85,19 +85,19 @@ class View_Image extends View {
 		if (self::$debug) {
 			$this->application->logger->debug("\$scaled_result = {scaled_result}", compact("scaled_result"));
 		}
-		$this->set_option('scale_path', $target_full_path);
+		$this->setOption('scale_path', $target_full_path);
 		$this->call_hook('scale_path', $target_full_path);
 		if (self::$debug) {
 			$this->application->logger->debug("\$target_full_path is $target_full_path");
 		}
-		if (!$this->option_bool('always_generate') && file_exists($target_full_path)) {
+		if (!$this->optionBool('always_generate') && file_exists($target_full_path)) {
 			[$this->width, $this->height] = getimagesize($target_full_path);
 			return $scaled_result;
 		}
 
 		if (Image_Library::factory($this->application)->image_scale($source, $target_full_path, $this->options)) {
 			[$this->width, $this->height] = getimagesize($target_full_path);
-			$this->set_option("created_file", true);
+			$this->setOption("created_file", true);
 		}
 		return $scaled_result;
 	}
@@ -135,7 +135,7 @@ class View_Image extends View {
 			return "";
 		}
 
-		if ($this->option_bool("is_relative", true)) {
+		if ($this->optionBool("is_relative", true)) {
 			$file_path = $this->relative_to_absolute_path($value);
 			$path = $file_path;
 		} else {
@@ -170,9 +170,9 @@ class View_Image extends View {
 	protected function output_image($file_path, $value, $options = "") {
 		$attrs = [];
 
-		$attrs["width"] = $this->option_integer("ScaledWidth", $this->option_integer("Width"));
-		$attrs["height"] = $this->option_integer("ScaledHeight", $this->option_integer("Height"));
-		$attrs["border"] = $this->option_integer("Border", 0);
+		$attrs["width"] = $this->optionInt("ScaledWidth", $this->optionInt("Width"));
+		$attrs["height"] = $this->optionInt("ScaledHeight", $this->optionInt("Height"));
+		$attrs["border"] = $this->optionInt("Border", 0);
 		$attrs["align"] = $this->option("align", null);
 		$attrs["style"] = $this->option("style", null);
 		$attrs["class"] = $this->option("class", null);
@@ -180,17 +180,17 @@ class View_Image extends View {
 		$attrs["title"] = $this->option("title", false);
 
 		$attrs = $this->object->apply_map($attrs);
-		if ($this->has_option('image_host')) {
+		if ($this->hasOption('image_host')) {
 			$attrs["src"] = $this->option('image_host') . $file_path;
 		} else {
 			$attrs["src"] = $value;
 		}
 		$attrs["src"] = str_replace(" ", "%20", $attrs["src"]);
-		if ($this->has_option('query')) {
+		if ($this->hasOption('query')) {
 			$attrs['src'] = URL::query_format($attrs['src'], $this->option('query'));
 		}
 
-		$this->set_option("scale_src", $attrs['src']);
+		$this->setOption("scale_src", $attrs['src']);
 
 		$result = HTML::tag("img", $attrs, null);
 
@@ -198,7 +198,7 @@ class View_Image extends View {
 	}
 
 	public function didCreateFile() {
-		return $this->option_bool("created_file", true);
+		return $this->optionBool("created_file", true);
 	}
 
 	/**

@@ -89,7 +89,7 @@ class Server_Configuration_Files extends Server_Configuration {
 						'overwrite' => true,
 					]);
 					$result = $variables + $result;
-					$this->set_option($variables);
+					$this->setOption($variables);
 					$app->logger->debug("Loading configuration $conf");
 				}
 				$searched_paths[$path] = true;
@@ -109,7 +109,7 @@ class Server_Configuration_Files extends Server_Configuration {
 
 	public function search_path($set = null) {
 		if ($set !== null) {
-			$this->set_option('SEARCH_PATH', $set);
+			$this->setOption('SEARCH_PATH', $set);
 			return $this;
 		}
 		return $this->option_list("SEARCH_PATH", [], " ");
@@ -134,7 +134,7 @@ class Server_Configuration_Files extends Server_Configuration {
 			"class" => get_class($feature),
 			"settings" => Text::format_pairs($settings),
 		]);
-		$feature->set_option($settings);
+		$feature->setOption($settings);
 	}
 
 	final public function host_aliases() {

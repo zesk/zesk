@@ -10,7 +10,7 @@ namespace zesk;
 
 class View_Static extends View_Text {
 	public function text($set = null) {
-		return $set !== null ? $this->set_option('text', $set) : $this->option('text');
+		return $set !== null ? $this->setOption('text', $set) : $this->option('text');
 	}
 
 	public function render() {

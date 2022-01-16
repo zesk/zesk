@@ -184,31 +184,31 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			throw new Exception_Configuration("Application is not configured", "Application is not configured");
 		}
 
-		if ($this->option_bool('debug-log')) {
+		if ($this->optionBool('debug-log')) {
 			echo Text::format_pairs(ArrayTools::filter_prefix($this->application->configuration->to_array(), "log"));
 		}
 
 		$this->fifo_path = path($this->module->rundir, "daemon-controller");
 
-		if ($this->option_bool('kill')) {
+		if ($this->optionBool('kill')) {
 			return $this->command_stop(SIGKILL);
 		}
-		if ($this->option_bool('stop')) {
+		if ($this->optionBool('stop')) {
 			return $this->command_stop();
 		}
-		if ($this->option_bool("list")) {
+		if ($this->optionBool("list")) {
 			return $this->command_list();
 		}
-		if ($this->option_bool("stat")) {
+		if ($this->optionBool("stat")) {
 			return $this->command_stat();
 		}
-		if ($this->has_option("up")) {
+		if ($this->hasOption("up")) {
 			return $this->command_state($this->option("up"), "up");
 		}
-		if ($this->has_option("down")) {
+		if ($this->hasOption("down")) {
 			return $this->command_state($this->option("down"), "down");
 		}
-		if ($this->has_option("bounce")) {
+		if ($this->hasOption("bounce")) {
 			return $this->command_state($this->option("bounce"), "down", "up");
 		}
 
@@ -545,7 +545,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 
 					break;
 				case SIGHUP:
-					if (!$this->option_bool("nohup")) {
+					if (!$this->optionBool("nohup")) {
 						$this->terminate("Hangup signal received");
 					}
 
@@ -616,7 +616,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	}
 
 	private function daemonize() {
-		if ($this->option_bool('nofork')) {
+		if ($this->optionBool('nofork')) {
 			return 0;
 		}
 		$this->error("pcntl_fork {file}:{line}", [
@@ -654,13 +654,13 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		assert(is_array($database));
 		$my_db_pid = apath($database, 'me.pid');
 		if ($my_db_pid !== null && posix_kill($my_db_pid, 0)) {
-			if (!$this->option_bool('cron')) {
+			if (!$this->optionBool('cron')) {
 				$this->error("Daemon already running.");
 			}
 			return 1;
 		}
 
-		if ($this->option_bool('nohup')) {
+		if ($this->optionBool('nohup')) {
 			$pid = $this->daemonize();
 			if ($pid === 0) {
 				/* We are the child */
@@ -678,7 +678,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		$this->application->logger->notice("Daemon run successfully.");
 		self::instance($this);
 
-		PHP::feature("time_limit", $this->option_integer("time_limit", 0));
+		PHP::feature("time_limit", $this->optionInt("time_limit", 0));
 		$daemons = $this->daemons();
 		$this->application->logger->debug("Daemons to run: " . implode(", ", $daemons));
 
@@ -692,9 +692,9 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		}
 
 		$this->_fifo_read();
-		$timeout = $this->option_integer("child read timeout", 1);
+		$timeout = $this->optionInt("child read timeout", 1);
 		$this->install_signals();
-		$terminate_after = $this->option_integer('terminate-after', 0);
+		$terminate_after = $this->optionInt('terminate-after', 0);
 		$timer = new Timer();
 		$alive_notices = 0;
 		if (count($daemons) === 0) {
@@ -747,7 +747,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			"name" => $name,
 			"pid" => $pid,
 		]);
-		$nofork = $this->option_bool("nofork");
+		$nofork = $this->optionBool("nofork");
 		if ($nofork) {
 			$this->application->logger->warning("Not forking for child process because of --nofork");
 			$child = 0;
@@ -988,7 +988,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 */
 	private function child(): void {
 		$this->parent = false;
-		if ($this->option_bool("nofork")) {
+		if ($this->optionBool("nofork")) {
 			$this->_fifos_close();
 		} else {
 			$this->_fifo_read_close();
@@ -1158,8 +1158,8 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			$this->module->unlink_database();
 		} else {
 			$this->send();
-			if ($this->has_option("terminate-wait")) {
-				sleep($this->option_integer("terminate-wait", 1));
+			if ($this->hasOption("terminate-wait")) {
+				sleep($this->optionInt("terminate-wait", 1));
 			}
 			$this->application->logger->notice("Daemon child terminated ...");
 			exit();

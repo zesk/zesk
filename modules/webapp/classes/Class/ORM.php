@@ -20,7 +20,7 @@ abstract class Class_ORM extends \zesk\Class_ORM {
 	 * Only thing set is "$this->class"
 	 */
 	protected function configure(\zesk\ORM $object): void {
-		$this->set_option('table_prefix', 'WebApp_');
+		$this->setOption('table_prefix', 'WebApp_');
 		parent::configure($object);
 	}
 }

@@ -23,7 +23,7 @@ class Control_Content_File extends Control_Widgets {
 	public function initialize(): void {
 		$prefix = $this->name() . "_";
 		$this->_file_widget = $w = $this->widget_factory("Control_File");
-		$w->set_option([
+		$w->setOption([
 			'hash_file' => true,
 		] + $this->options);
 		$w->column = $prefix . "upload";

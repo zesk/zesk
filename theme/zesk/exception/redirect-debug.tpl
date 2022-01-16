@@ -44,7 +44,7 @@ $this->begin('body/exception.tpl');
 
 echo HTML::div('.redirect', HTML::tag('label', $locale->__('Redirect:')) . ' ' . $this->content);
 
-if ($response->option_bool('redirect_show_backtrace', $application->development())) {
+if ($response->optionBool('redirect_show_backtrace', $application->development())) {
 	echo HTML::div('.backtrace', $this->theme('exception/trace', [
 		'content' => $exception->getTrace(),
 	]));

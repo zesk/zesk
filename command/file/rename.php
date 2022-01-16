@@ -64,11 +64,11 @@ class Command_File_Rename extends Command_Iterator_File {
 	/**
 	 */
 	protected function start(): void {
-		if (!$this->has_option('from')) {
-			$this->set_option("from", $this->prompt(" Search? "));
+		if (!$this->hasOption('from')) {
+			$this->setOption("from", $this->prompt(" Search? "));
 		}
-		if (!$this->has_option('to')) {
-			$this->set_option("to", $this->prompt("Replace? ", ""));
+		if (!$this->hasOption('to')) {
+			$this->setOption("to", $this->prompt("Replace? ", ""));
 		}
 		$this->from = $this->option('from');
 		$this->to = $this->option('to');
@@ -90,7 +90,7 @@ class Command_File_Rename extends Command_Iterator_File {
 			$path = $file->getPath();
 			$from = path($path, $name);
 			$to = path($path, $newname);
-			if ($this->option_bool('dry-run')) {
+			if ($this->optionBool('dry-run')) {
 				$this->log("mv \"{from}\" \"{to}\"", compact("from", "to"));
 				$this->succeed++;
 			} elseif (!rename($from, $to)) {

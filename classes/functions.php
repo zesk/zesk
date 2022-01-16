@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 /**
  * Things that should probably just be in PHP, or were added after we added these. Review
  * annually to see if we can deprecate functionality.
@@ -65,9 +67,9 @@ define("ZESK_GLOBAL_KEY_SEPARATOR", "::");
  *
  * zesk()->deprecated()
  *
- * @return Kernel
+ * @return ?Kernel
  */
-function zesk() {
+function zesk(): ?Kernel {
 	try {
 		return Kernel::singleton();
 	} catch (Exception $e) {
@@ -81,9 +83,9 @@ function zesk() {
  * Does NOT assume array is a 0-based key list.
  *
  * @param array $a
- * @return NULL|mixed
+ * @return mixed
  */
-function first(array $a, $default = null) {
+function first(array $a, mixed $default = null): mixed {
 	return count($a) !== 0 ? $a[key($a)] : $default;
 }
 
@@ -92,9 +94,9 @@ function first(array $a, $default = null) {
  * Does NOT assume array is a 0-based key list
  *
  * @param array $a
- * @return NULL|mixed
+ * @return mixed
  */
-function last(array $a, $default = null) {
+function last(array $a, mixed $default = null): mixed {
 	if (count($a) === 0) {
 		return $default;
 	}
@@ -102,34 +104,6 @@ function last(array $a, $default = null) {
 	return $a[$kk[count($kk) - 1]];
 }
 
-/**
- * Use in lieu of ?: in PHP before PHP 7
- *
- * e.g.
- *
- * PHP < 7.0:
- *
- * return firstarg($value, $alternate_value, "default");
- *
- * PHP >= 7.0:
- *
- * return $value ?: $alternate_value ?: "default";
- *
- * Equivalent to || or && in JavaScript.
- *
- * @deprecated zesk-php-7-only When Zesk is PHP7 only (and PHP5 support is bye-bye)
- * @return mixed|NULL
- * @see https://wiki.php.net/rfc/isset_ternary
- */
-function firstarg() {
-	$args = func_get_args();
-	foreach ($args as $arg) {
-		if (!empty($arg)) {
-			return $arg;
-		}
-	}
-	return null;
-}
 /**
  * Return a sane type for a variable
  *
@@ -208,9 +182,9 @@ function endsi($haystack, $needle) {
  * Set or get the newline character.
  * Probably should deprecate this for an output class.
  *
- * @deprecated 2017-12
  * @param string $set
  * @return string
+ * @deprecated 2017-12
  */
 function newline($set = null) {
 	if ($set !== null) {
@@ -224,7 +198,7 @@ function newline($set = null) {
  * Return a backtrace of the stack
  *
  * @param int $n
- *        	The number of frames to output. Pass a negative number to pass all frames.
+ *            The number of frames to output. Pass a negative number to pass all frames.
  */
 function _backtrace($n = -1) {
 	$bt = debug_backtrace();
@@ -267,9 +241,9 @@ function _backtrace($n = -1) {
  * Output a backtrace of the stack
  *
  * @param boolean $doExit
- *        	Exit the program
+ *            Exit the program
  * @param int $n
- *        	The number of frames to output
+ *            The number of frames to output
  */
 function backtrace($exit = true, $n = -1): void {
 	echo _backtrace($n);
@@ -285,8 +259,8 @@ function backtrace($exit = true, $n = -1): void {
  * Moved from Debug:: class to assist in profiling bootstrap functions (for example)
  * which don't have the autoloader set yet.
  *
- * @return string
  * @param integer $depth
+ * @return string
  * @see debug_backtrace()
  * @see Debug::calling_function
  */
@@ -312,9 +286,9 @@ function calling_function($depth = 1, $include_line = true) {
  * Probably should switch to a namespace version of this as well.
  *
  * @param mixed $x
- *        	Variable to dump
+ *            Variable to dump
  * @param boolean $html
- *        	Whether to dump as HTML or not (surround by pre tags)
+ *            Whether to dump as HTML or not (surround by pre tags)
  * @return void echos to page
  * @see print_r
  */
@@ -328,7 +302,7 @@ if (!function_exists("dump")) {
  * Returns what "dump" would print (doesn't echo)
  *
  * @param mixed $x
- *        	Variable to dump
+ *            Variable to dump
  * @return string string representation of the value
  * @see print_r, dump
  */
@@ -349,19 +323,22 @@ function _dump($x) {
  * </ul>
  *
  * @param mixed $value
- *        	A value to parse to find a boolean value.
+ *            A value to parse to find a boolean value.
  * @param mixed $default
- *        	A value to return if parsing is unsuccessful
+ *            A value to return if parsing is unsuccessful
  * @return mixed Returns true or false, or $default if parsing fails.
  */
 function to_bool(mixed $value, bool $default = false): bool {
 	if (is_bool($value)) {
 		return $value;
 	}
+	if (is_object($value) || (is_array($value) && count($value) > 0)) {
+		return true;
+	}
 	if (!is_scalar($value)) {
 		return $default;
 	}
-	$value = strtolower($value);
+	$value = strtolower(strval($value));
 	$find = ";$value;";
 	if (str_contains(";1;t;y;yes;on;enabled;true;", $find)) {
 		return true;
@@ -377,9 +354,9 @@ function to_bool(mixed $value, bool $default = false): bool {
  * If not, the default value is returned.
  *
  * @param mixed $s
- *        	Value to convert to integer
+ *            Value to convert to integer
  * @param mixed $def
- *        	The default value. Not converted to integer.
+ *            The default value. Not converted to integer.
  * @return integer The integer value, or $def if it can not be converted to an integer
  */
 function to_integer(mixed $s, int $def = 0): int {
@@ -391,9 +368,9 @@ function to_integer(mixed $s, int $def = 0): int {
  * If not, the default value is returned.
  *
  * @param mixed $s
- *        	Value to convert to double
+ *            Value to convert to double
  * @param float $def
- *        	The default value. Not converted to double.
+ *            The default value. Not converted to double.
  * @return double The double value, or $def if it can not be converted to an integer
  */
 function to_double(mixed $s, float $def = null): float {
@@ -405,11 +382,11 @@ function to_double(mixed $s, float $def = null): float {
  * If it's already an array, return it. Otherwise, return the default.
  *
  * @param mixed $mixed
- *        	Array or string to convert to a "list"
+ *            Array or string to convert to a "list"
  * @param mixed $default
- *        	Value to return if not a string or array
+ *            Value to return if not a string or array
  * @param string $delimiter
- *        	String list delimiter (";" is default)
+ *            String list delimiter (";" is default)
  * @return array or $default
  */
 function to_list(mixed $mixed, array $default = [], string $delimiter = ";"): array {
@@ -429,9 +406,9 @@ function to_list(mixed $mixed, array $default = [], string $delimiter = ";"): ar
  * Returns default for values of null or false.
  *
  * @param mixed $mixed
- *        	If false or null, returns default value
+ *            If false or null, returns default value
  * @param mixed $default
- *        	Default value to return if can't easily convert to an array.
+ *            Default value to return if can't easily convert to an array.
  * @return array
  */
 function to_array(mixed $mixed, array $default = []): array {
@@ -520,7 +497,7 @@ function to_bytes(string $mixed, int $default = 0): float {
  * Localize a string to the current locale.
  *
  * @param string $phrase
- *        	Phrase to translate
+ *            Phrase to translate
  * @return string
  * @deprecated 2017-12 Use $application->locale->__($phrase) instead.
  * @see Locale::__invoke
@@ -546,14 +523,14 @@ if (!function_exists('debugger_start_debug')) {
  * $foo = $a['key'] ?? $default;
  *
  * FINALLY.
- * @deprecated 2022-01 PHP8
  * @param array $a
- *        	An array to look in
+ *            An array to look in
  * @param string $k
- *        	The key to look for
+ *            The key to look for
  * @param mixed $default
- *        	A value to return if $a[$k] is not set
+ *            A value to return if $a[$k] is not set
  * @return mixed The value of $a[$k], or $default if not set
+ * @deprecated 2022-01 PHP8
  * @see https://wiki.php.net/rfc/isset_ternary
  */
 function avalue($a, $k, $default = null) {
@@ -570,15 +547,15 @@ function avalue($a, $k, $default = null) {
 /**
  * Shorthand for array_key_exists($k,$a) || !empty($a[$k]) ? $a[$k] : $default.
  * Asserts $a is an array.
+ * @param array $a
+ *            An array to look in
+ * @param string $k
+ *            The key to look for
+ * @param mixed $default
+ *            A value to return if $a[$k] is not set or is empty
+ * @return mixed The value of $a[$k] if non-empty, or $default if not set or empty
  * @deprecated 2022-01 PHP8
  *
- * @param array $a
- *        	An array to look in
- * @param string $k
- *        	The key to look for
- * @param mixed $default
- *        	A value to return if $a[$k] is not set or is empty
- * @return mixed The value of $a[$k] if non-empty, or $default if not set or empty
  */
 function aevalue($a, $k, $default = null) {
 	$k = strval($k);
@@ -612,9 +589,9 @@ function flatten($mixed) {
  * Anything not a string or array is returned as-is.
  *
  * @param mixed $mixed
- *        	An array or string
+ *            An array or string
  * @param array $map
- *        	Tokens to convert from/to
+ *            Tokens to convert from/to
  * @return mixed Whatever passed in is returned (string/array)
  */
 function tr($mixed, array $map) {
@@ -639,11 +616,11 @@ function tr($mixed, array $map) {
  * preg_replace for arrays
  *
  * @param string $pattern
- *        	Pattern to match
+ *            Pattern to match
  * @param string $replacement
- *        	Replacement string
+ *            Replacement string
  * @param mixed $subject
- *        	String or array to manipulate
+ *            String or array to manipulate
  * @return mixed
  */
 function preg_replace_mixed($pattern, $replacement, $subject) {
@@ -663,11 +640,11 @@ function preg_replace_mixed($pattern, $replacement, $subject) {
  * preg_replace_callback for arrays
  *
  * @param string $pattern
- *        	Pattern to match
+ *            Pattern to match
  * @param string $callback
- *        	Replacement string
+ *            Replacement string
  * @param mixed $subject
- *        	String or array to manipulate
+ *            String or array to manipulate
  * @return mixed
  */
 function preg_replace_callback_mixed($pattern, $callback, $subject) {
@@ -691,15 +668,15 @@ function preg_replace_callback_mixed($pattern, $callback, $subject) {
  * Map array keys and values
  *
  * @param array $target
- *        	Array to modify keys AND values
+ *            Array to modify keys AND values
  * @param array $map
- *        	Array of name => value of search => replace
+ *            Array of name => value of search => replace
  * @param boolean $insensitive
- *        	Case sensitive search/replace (defaults to true)
+ *            Case sensitive search/replace (defaults to true)
  * @param string $prefix_char
- *        	Prefix character for tokens (defaults to "{")
+ *            Prefix character for tokens (defaults to "{")
  * @param string $suffix_char
- *        	Suffix character for tokens (defaults to "}")
+ *            Suffix character for tokens (defaults to "}")
  * @return array
  */
 function amap(array $target, array $map, $insensitive = false, $prefix_char = "{", $suffix_char = "}") {
@@ -710,15 +687,15 @@ function amap(array $target, array $map, $insensitive = false, $prefix_char = "{
  * Map keys instead of values
  *
  * @param array $target
- *        	Array to modify keys
+ *            Array to modify keys
  * @param array $map
- *        	Array of name => value of search => replace
+ *            Array of name => value of search => replace
  * @param boolean $insensitive
- *        	Case sensitive search/replace (defaults to true)
+ *            Case sensitive search/replace (defaults to true)
  * @param string $prefix_char
- *        	Prefix character for tokens (defaults to "{")
+ *            Prefix character for tokens (defaults to "{")
  * @param string $suffix_char
- *        	Suffix character for tokens (defaults to "}")
+ *            Suffix character for tokens (defaults to "}")
  * @return array
  */
 function kmap(array $target, array $map, $insensitive = false, $prefix_char = "{", $suffix_char = "}") {
@@ -743,15 +720,15 @@ function kmap(array $target, array $map, $insensitive = false, $prefix_char = "{
  * @test_inline $this->assert_equal(map("{a}{B}", array("a" => "ala"), true), "ala{b}");
  *
  * @param mixed $mixed
- *        	Target to modify
+ *            Target to modify
  * @param array $map
- *        	Array of name => value of search => replace
+ *            Array of name => value of search => replace
  * @param boolean $insensitive
- *        	Case sensitive search/replace (defaults to false)
+ *            Case sensitive search/replace (defaults to false)
  * @param string $prefix_char
- *        	Prefix character for tokens (defaults to "{")
+ *            Prefix character for tokens (defaults to "{")
  * @param string $suffix_char
- *        	Suffix character for tokens (defaults to "}")
+ *            Suffix character for tokens (defaults to "}")
  * @return mixed (string or array)
  */
 function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suffix_char = "}") {
@@ -859,11 +836,11 @@ function map_tokens($mixed, $prefix_char = "{", $suffix_char = "}") {
  * <pre>StringTools::wrap('[[a][b]]','<strong>[]</strong>','<em>[]</em>','<div>[]</div>') =
  * "<div><strong>a</strong><em>b</em></div>";
  *
+ * @param string $phrase
+ *            Phrase to map
+ * @return string The phrase with the links embedded.
  * @see StringTools::wrap
  * @deprecated 2018-01
- * @param string $phrase
- *        	Phrase to map
- * @return string The phrase with the links embedded.
  */
 function _W($phrase) {
 	return call_user_func_array([
@@ -884,13 +861,11 @@ function _W($phrase) {
  * @param string $delim The delimiter to break the string apart
  * @param string $left The default left value if delimiter is not found
  * @param string $right The default right value if delimiter is not found
- * @param string $include_delimiter
- *        	If "left" includes the delimiter in the left value
- *        	If "right" includes the delimiter in the right value
- *          Any other value the delimiter is stripped from the results
+ * @param string $include_delimiter If "left" includes the delimiter in the left value, if "right" includes the
+ *  delimiter in the right value Any other value the delimiter is stripped from the results
  * @return array A size 2 array containing the left and right portions of the pair
  */
-function pair($a, $delim = '.', $left = false, $right = false, $include_delimiter = null) {
+function pair(string $a, string $delim = '.', string $left = "", string $right = "", string $include_delimiter = ""): array {
 	$n = strpos($a, $delim);
 	$delim_len = strlen($delim);
 	return ($n === false) ? [
@@ -906,21 +881,21 @@ function pair($a, $delim = '.', $left = false, $right = false, $include_delimite
  * Same as pair, but does a reverse search for the delimiter
  *
  * @param string $a
- *        	A string to parse into a pair
+ *            A string to parse into a pair
  * @param string $delim
- *        	The delimiter to break the string apart
+ *            The delimiter to break the string apart
  * @param string $left
- *        	The default left value if delimiter is not found
+ *            The default left value if delimiter is not found
  * @param string $right
- *        	The default right value if delimiter is not found
+ *            The default right value if delimiter is not found
  * @param string $include_delimiter
- *        	If "left" includes the delimiter in the left value
- *        	If "right" includes the delimiter in the right value
+ *            If "left" includes the delimiter in the left value
+ *            If "right" includes the delimiter in the right value
  *          Any other value the delimiter is stripped from the results
  * @return array A size 2 array containing the left and right portions of the pair
  * @see pair
  */
-function pairr($a, $delim = '.', $left = false, $right = false, $include_delimiter = null) {
+function pairr(string $a, string $delim = '.', string $left = "", string $right = "", string $include_delimiter = ""): array {
 	$n = strrpos($a, $delim);
 	$delim_len = strlen($delim);
 	return ($n === false) ? [
@@ -947,7 +922,7 @@ function pairr($a, $delim = '.', $left = false, $right = false, $include_delimit
  * @param string $right
  * @return string
  */
-function glue($left, $glue, $right) {
+function glue(string $left, string $glue, string $right): string {
 	return rtrim($left, $glue) . $glue . ltrim($right, $glue);
 }
 
@@ -956,38 +931,31 @@ function glue($left, $glue, $right) {
  *
  * Meant to work with unique pairs of quotes, so passing in "[A[B[C" will break it.
  *
- * @param string|array $s
- *        	A string to unquote
+ * @param string $string_to_unquote
+ *            A string to unquote
  * @param string $quotes
- *        	A list of quote pairs to unquote
+ *            A list of quote pairs to unquote
  * @param string $left_quote
- *        	Returns the quotes removed
+ *            Returns the quotes removed
  * @return string|array Unquoted string, or same string if quotes not found
  */
-function unquote($s, $quotes = "''\"\"", &$left_quote = null) {
-	if (is_array($s)) {
-		$result = [];
-		foreach ($s as $k => $ss) {
-			$result[$k] = unquote($ss, $quotes, $left_quote);
-		}
-		return $result;
+function unquote(string $string_to_unquote, string $quotes = "''\"\"", string &$left_quote = ""): string {
+	if (strlen($string_to_unquote) < 2) {
+		$left_quote = "";
+		return $string_to_unquote;
 	}
-	if (strlen($s) < 2) {
-		$left_quote = false;
-		return $s;
+	$q = substr($string_to_unquote, 0, 1);
+	$quote_left_offset = strpos($quotes, $q);
+	if ($quote_left_offset === false) {
+		$left_quote = "";
+		return $string_to_unquote;
 	}
-	$q = substr($s, 0, 1);
-	$qleft = strpos($quotes, $q);
-	if ($qleft === false) {
-		$left_quote = false;
-		return $s;
+	$quote_right = $quotes[$quote_left_offset + 1];
+	if (substr($string_to_unquote, -1) === $quote_right) {
+		$left_quote = $quotes[$quote_left_offset];
+		return substr($string_to_unquote, 1, -1);
 	}
-	$qright = $quotes[$qleft + 1];
-	if (substr($s, -1) === $qright) {
-		$left_quote = $quotes[$qleft];
-		return substr($s, 1, -1);
-	}
-	return $s;
+	return $string_to_unquote;
 }
 
 /**
@@ -999,8 +967,11 @@ function unquote($s, $quotes = "''\"\"", &$left_quote = null) {
  * @return string with a properly formatted path
  * @see glue
  * @see domain
+ * @inline_test path_from_array("/", ["", "", ""]) === "/"
+ * @inline_test path_from_array("/", ["", null, false]) === "/"
+ * @inline_test path_from_array("/", ["", "", "", null, false, "a", "b"]) === "/a/b"
  */
-function path_from_array($separator, array $mixed) {
+function path_from_array(string $separator, array $mixed): string {
 	$r = array_shift($mixed);
 	if (is_array($r)) {
 		$r = path_from_array($separator, $r);
@@ -1012,14 +983,13 @@ function path_from_array($separator, array $mixed) {
 			continue;
 		}
 		if (is_array($p)) {
-			$p = path_from_array($separator, $p);
+			$r .= path_from_array($separator, $p);
 		} elseif (is_string($p)) {
 			$r .= ((substr($r, -1) === $separator || substr($p, 0, 1) === $separator)) ? $p : $separator . $p;
 		}
 	}
-	$separatorq = preg_quote($separator);
-	$r = preg_replace("|$separatorq$separatorq+|", $separator, $r);
-	return $r;
+	$separator_quoted = preg_quote($separator);
+	return preg_replace("|$separator_quoted$separator_quoted+|", $separator, $r);
 }
 
 /**
@@ -1031,7 +1001,7 @@ function path_from_array($separator, array $mixed) {
  * @see glue
  * @see domain
  */
-function path(/* dir, dir, ... */) {
+function path(/* dir, dir, ... */): string {
 	$args = func_get_args();
 	$r = path_from_array('/', $args);
 	$r = preg_replace('|(/\.)+/|', "/", $r); // TODO Test this doesn't munge foo/.bar
@@ -1046,7 +1016,7 @@ function path(/* dir, dir, ... */) {
  * @see glue
  * @see domain
  */
-function domain(/* name, name, ... */) {
+function domain(/* name, name, ... */): string {
 	$args = func_get_args();
 	$r = trim(path_from_array('.', $args), '.');
 	return $r;
@@ -1055,15 +1025,15 @@ function domain(/* name, name, ... */) {
 /**
  * Clamps a numeric value to a minimum and maximum value.
  *
- * @return mixed
  * @param mixed $minValue
- *        	The minimum value in the clamp range
+ *            The minimum value in the clamp range
  * @param mixed $value
- *        	A scalar value which serves as the value to clamp
+ *            A scalar value which serves as the value to clamp
  * @param mixed $maxValue
- *        	A scalar value which serves as the value to clamp
+ *            A scalar value which serves as the value to clamp
+ * @return mixed
  */
-function clamp($minValue, $value, $maxValue) {
+function clamp(mixed $minValue, mixed $value, mixed $maxValue): mixed {
 	if ($value < $minValue) {
 		return $minValue;
 	}
@@ -1082,7 +1052,7 @@ function clamp($minValue, $value, $maxValue) {
  * @param float $epsilon
  * @return boolean
  */
-function real_equal($a, $b, $epsilon = 1e-5) {
+function real_equal(float $a, float $b, float $epsilon = 1e-5): bool {
 	return abs($a - $b) <= $epsilon;
 }
 
@@ -1092,7 +1062,7 @@ function real_equal($a, $b, $epsilon = 1e-5) {
  * @param mixed $mixed
  * @return boolean
  */
-function can_iterate($mixed) {
+function can_iterate(mixed $mixed): bool {
 	return is_array($mixed) || $mixed instanceof Traversable;
 }
 /**
@@ -1102,7 +1072,7 @@ function can_iterate($mixed) {
  * @param float $epsilon
  * @return boolean
  */
-function is_zero($value, $epsilon = 1e-5) {
+function is_zero(float|int $value, $epsilon = 1e-5): bool {
 	return abs($value) < $epsilon;
 }
 
@@ -1113,7 +1083,7 @@ if (!function_exists("is_countable")) {
 	 * @param mixed $object
 	 * @return boolean
 	 */
-	function is_countable($object) {
+	function is_countable(mixed $object): bool {
 		return is_array($object) || $object instanceof Countable;
 	}
 }
@@ -1126,7 +1096,7 @@ if (!function_exists("is_countable")) {
  * @param integer $max
  * @return boolean
  */
-function integer_between($min, $x, $max) {
+function integer_between($min, $x, $max): bool {
 	if (!is_numeric($x)) {
 		return false;
 	}
@@ -1137,8 +1107,8 @@ function integer_between($min, $x, $max) {
  * Get the date in the UTC locale
  *
  * @param string $ts
- * @see getdate
  * @return array
+ * @see getdate
  */
 function utc_getdate($ts) {
 	$otz = date_default_timezone_get();
@@ -1183,10 +1153,10 @@ function parse_time($ts) {
  * Determine if a string is a properly formatted date
  *
  * @param string $x
- *        	A string to check
+ *            A string to check
  * @return boolean true if $x is a valid date
  */
-function is_date($x) {
+function is_date(mixed $x): bool {
 	if (empty($x)) {
 		return false;
 	}
@@ -1203,7 +1173,7 @@ function is_date($x) {
  * @param string $email
  * @return boolean
  */
-function is_email($email) {
+function is_email(string $email): bool {
 	return (preg_match('/^' . PREG_PATTERN_EMAIL . '$/i', $email) !== 0) ? true : false;
 }
 
@@ -1213,7 +1183,7 @@ function is_email($email) {
  * @param string $phone
  * @return boolean
  */
-function is_phone($phone) {
+function is_phone(string $phone): bool {
 	return (preg_match('/^\s*\+?[- \t0-9.)(x]{7,}\s*$/', $phone) !== 0) ? true : false;
 }
 
@@ -1229,7 +1199,7 @@ function is_phone($phone) {
  * @return mixed
  * @see apath_set
  */
-function &apath(array $array, $path, $default = null, $separator = ".") {
+function &apath(array $array, array|string $path, mixed $default = null, string $separator = "."): mixed {
 	// Split the keys by $separator
 	$keys = is_array($path) ? $path : explode($separator, $path);
 	while (true) {
@@ -1258,7 +1228,7 @@ function &apath(array $array, $path, $default = null, $separator = ".") {
  * @param string $separator Character used to separate levels in the array
  * @return array|mixed
  */
-function &apath_set(array &$array, $path, $value = null, $separator = "."): mixed {
+function &apath_set(array &$array, string|array $path, mixed $value = null, string $separator = "."): mixed {
 	if ($value === null) {
 		zesk()->deprecated("apath_set null to unset is deprecated");
 		apath_unset($array, to_list($path, $separator));
@@ -1320,27 +1290,24 @@ if (!function_exists('sgn')) {
 	 * @param number $value
 	 * @return number|NULL
 	 */
-	function sgn($value) {
+	function sgn(int|float $value): int {
 		if ($value > 0) {
 			return 1;
 		}
 		if ($value < 0) {
 			return -1;
 		}
-		if (is_numeric($value)) {
-			return 0;
-		}
-		return null;
+		return 0;
 	}
 }
 
 /**
  * Convert our special weights into a number
  *
- * @param mixed $weight
+ * @param string|float|null $weight
  * @return float
  */
-function zesk_weight($weight = null) {
+function zesk_weight(string|float|null $weight): array|float {
 	static $weight_specials = [
 		'zesk-first' => -1e300,
 		'first' => -1e299,
@@ -1369,9 +1336,9 @@ function zesk_weight($weight = null) {
  *
  * @param array $a
  * @param array $b
- * @see usort
- * @see uasort
  * @return integer
+ * @see uasort
+ * @see usort
  */
 function zesk_sort_weight_array(array $a, array $b) {
 	// Get weight a, convert to double
@@ -1429,18 +1396,18 @@ function zesk_global_key_normalize($key) {
  *
  * @return boolean
  */
-function is_windows() {
+function is_windows(): bool {
 	return PATH_SEPARATOR === '\\';
 }
 
 /**
  * Get our global application
  *
+ * @return Application
  * @deprecated 2017-08 Avoid usage - use $this->application when available or pass $application around
  *
- * @return Application
  */
-function app() {
+function app(): Application {
 	$kernel = zesk();
 	$kernel->deprecated();
 	return $kernel->application();
@@ -1450,6 +1417,6 @@ function app() {
  * For classes which are serialized but do not want to serialize the Application, use this
  * to restore it upon __wakeup
  */
-function __wakeup_application() {
+function __wakeup_application(): Application {
 	return Kernel::singleton()->application();
 }

@@ -18,18 +18,18 @@ class Control_DropFile_Image extends Control_Content_Image {
 	 * @return Control_DropFile_Image|string
 	 */
 	public function url_upload($set = null) {
-		return $set === null ? $this->option('url_upload') : $this->set_option('url_upload', $set);
+		return $set === null ? $this->option('url_upload') : $this->setOption('url_upload', $set);
 	}
 
 	public function dimensions($width = null, $height = null) {
 		if ($width === null && $height === null) {
 			return [
-				$this->option_integer('width'),
-				$this->option_integer('height'),
+				$this->optionInt('width'),
+				$this->optionInt('height'),
 			];
 		}
-		$this->set_option('height', $height === null ? null : intval($height));
-		$this->set_option('width', $width === null ? null : intval($width));
+		$this->setOption('height', $height === null ? null : intval($height));
+		$this->setOption('width', $width === null ? null : intval($width));
 		return $this;
 	}
 
@@ -39,13 +39,13 @@ class Control_DropFile_Image extends Control_Content_Image {
 			'url_upload' => URL::query_append($this->url_upload(), [
 				"theme" => 'dropfile',
 				"name" => $this->name,
-				"width" => $this->option_integer('width'),
-				"height" => $this->option_integer('height'),
+				"width" => $this->optionInt('width'),
+				"height" => $this->optionInt('height'),
 			]),
 		] + parent::theme_variables();
 	}
 
 	public function remove_enabled($set = null) {
-		return $set === null ? $this->option_bool('remove_enabled') : $this->set_option('remove_enabled', to_bool($set));
+		return $set === null ? $this->optionBool('remove_enabled') : $this->setOption('remove_enabled', to_bool($set));
 	}
 }

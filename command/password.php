@@ -39,7 +39,7 @@ class Command_Password extends Command_Base {
 	}
 
 	public function run() {
-		if ($this->option_bool('list')) {
+		if ($this->optionBool('list')) {
 			return $this->_option_list();
 		}
 		$login = $this->option('user');

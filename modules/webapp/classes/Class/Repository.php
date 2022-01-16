@@ -40,7 +40,7 @@ class Class_Repository extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $find_keys = [
+	public array $find_keys = [
 		"url",
 	];
 
@@ -64,7 +64,7 @@ class Class_Repository extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_defaults = [
+	public array $column_defaults = [
 		"remote_hash" => "",
 	];
 }

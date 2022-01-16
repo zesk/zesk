@@ -77,13 +77,13 @@ class Command_Glacier extends \zesk\Command_Base {
 		try {
 			$this->glacier = new Glacier($this->application);
 
-			if ($this->has_option("store")) {
+			if ($this->hasOption("store")) {
 				return $this->run_archive_store();
 			}
-			if ($this->has_option("delete")) {
+			if ($this->hasOption("delete")) {
 				return $this->run_archive_delete();
 			}
-			if ($this->has_option("list")) {
+			if ($this->hasOption("list")) {
 				return $this->run_vault_list();
 			}
 			$this->run_list();

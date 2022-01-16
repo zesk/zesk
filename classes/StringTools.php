@@ -4,6 +4,8 @@
  */
 namespace zesk;
 
+use JetBrains\PhpStorm\Pure;
+
 /**
  * String manipulation functions, largely based on latin languages.
  *
@@ -16,7 +18,7 @@ class StringTools {
 		if ($char1 == strtolower($char1)) {
 			return strtolower($string);
 		} elseif ($char2 == strtolower($char2)) {
-			return ucfirst($string);
+			return ucfirst(strtolower($string));
 		} else {
 			return strtoupper($string);
 		}
@@ -54,77 +56,77 @@ class StringTools {
 	/**
 	 * Return portion of string to the left of a matched string
 	 *
-	 * @param string $str
+	 * @param string $haystack
 	 *        	String to slice up
-	 * @param string $find
+	 * @param string $needle
 	 *        	String to find
-	 * @param string $default
+	 * @param ?string $default
 	 *        	Default string to return if not found. If null, returns $str, otherwise returns
 	 *        	$default
 	 * @return string
 	 */
-	public static function left($str, $find, $default = null) {
-		if (($pos = strpos($str, $find)) === false) {
-			return $default === null ? $str : $default;
+	public static function left(string $haystack, string $needle, string $default = null): string {
+		if (($pos = strpos($haystack, $needle)) === false) {
+			return $default === null ? $haystack : $default;
 		}
-		return substr($str, 0, $pos);
+		return substr($haystack, 0, $pos);
 	}
 
 	/**
 	 * Return portion of string to the left of a matched string, searching backwards for $find
 	 *
-	 * @param string $str
+	 * @param string $haystack
 	 *        	String to slice up
-	 * @param string $find
+	 * @param string $needle
 	 *        	String to find
 	 * @param string $default
 	 *        	Default string to return if not found. If null, returns $str, otherwise returns
 	 *        	$default
 	 * @return string
 	 */
-	public static function rleft($str, $find, $default = null) {
-		if (($pos = strrpos($str, $find)) === false) {
-			return $default === null ? $str : $default;
+	public static function rleft(string $haystack, string $needle, string $default = null): string {
+		if (($pos = strrpos($haystack, $needle)) === false) {
+			return $default === null ? $haystack : $default;
 		}
-		return substr($str, 0, $pos);
+		return substr($haystack, 0, $pos);
 	}
 
 	/**
 	 * Return portion of string to the right of a matched string
 	 *
-	 * @param string $str
+	 * @param string $haystack
 	 *        	String to slice up
-	 * @param string $find
+	 * @param string $needle
 	 *        	String to find
 	 * @param string $default
 	 *        	Default string to return if not found. If null, returns $str, otherwise returns
 	 *        	$default
 	 * @return string
 	 */
-	public static function right($str, $find, $default = null) {
-		if (($pos = strpos($str, $find)) === false) {
-			return $default === null ? $str : $default;
+	public static function right(string $haystack, string $needle, string $default = null): string {
+		if (($pos = strpos($haystack, $needle)) === false) {
+			return $default === null ? $haystack : $default;
 		}
-		return substr($str, $pos + strlen($find));
+		return substr($haystack, $pos + strlen($needle));
 	}
 
 	/**
 	 * Return portion of string to the right of a matched string, searching backwards for $find
 	 *
-	 * @param string $str
+	 * @param string $haystack
 	 *        	String to slice up
-	 * @param string $find
+	 * @param string $needle
 	 *        	String to find
 	 * @param string $default
 	 *        	Default string to return if not found. If null, returns $str, otherwise returns
 	 *        	$default
 	 * @return string
 	 */
-	public static function rright($str, $find, $default = null) {
-		if (($pos = strrpos($str, $find)) === false) {
-			return $default === null ? $str : $default;
+	public static function rright(string $haystack, string $needle, string $default = null): string {
+		if (($pos = strrpos($haystack, $needle)) === false) {
+			return $default === null ? $haystack : $default;
 		}
-		return substr($str, $pos + strlen($find));
+		return substr($haystack, $pos + strlen($needle));
 	}
 
 	/**
@@ -137,7 +139,8 @@ class StringTools {
 	 * @return mixed Parsed boolean value, or $default
 	 * @see to_bool
 	 */
-	public static function to_bool($value, $default = false) {
+	#[Pure]
+	public static function to_bool(mixed $value, bool $default = false): bool {
 		if (is_bool($value)) {
 			return $value;
 		}
@@ -153,7 +156,8 @@ class StringTools {
 	 * @param mixed $bool
 	 * @return string
 	 */
-	public static function from_bool($bool) {
+	#[Pure]
+	public static function from_bool(mixed $bool): string {
 		return to_bool($bool) ? 'true' : 'false';
 	}
 
@@ -163,7 +167,7 @@ class StringTools {
 	 * @param string $phrase
 	 * @return string
 	 */
-	public static function capitalize($phrase) {
+	public static function capitalize(string $phrase): string {
 		if (function_exists('mb_convert_case')) {
 			return mb_convert_case($phrase, MB_CASE_TITLE);
 		} else {
@@ -182,21 +186,18 @@ class StringTools {
 	 *
 	 * StringTools::field("a b c d e f", null, " \t", 3) === array("a","b","c d e f")
 	 *
-	 * @param string $string
-	 *        	Text to extract fields from
-	 * @param integer $index
-	 *        	Field number to extract, or null to extract all fields as an array
-	 * @param mixed $delim
-	 *        	field, or array when $index is null
-	 * @param integer $max_fields
-	 *        	Maximum fields to create
-	 * @return string
+	 * @param string $string Text to extract fields from
+	 * @param ?int $index Field number to extract, or null to extract all fields as an array
+	 * @param string $delim Split words using these characters (grouped)
+	 * @param ?integer $max_fields Maximum fields to create, if null, then all fields
+	 * @return string|array|null
 	 */
-	public static function field($string, $index = null, $delim = " \t", $max_fields = null) {
+	public static function field(string $string, int $index = null, string $delim = " \t", int $max_fields = null):
+	string|array|null {
 		$d = $delim[0];
 		$v = preg_replace('/[' . preg_quote($delim, '/') . ']+/', $d, $string);
 		$v = $max_fields !== null ? explode($d, $v, $max_fields) : explode($d, $v);
-		return $index === null ? $v : avalue($v, $index);
+		return $index === null ? $v : ($v[$index] ?? null);
 	}
 
 	/**
@@ -361,7 +362,7 @@ class StringTools {
 	 * @param string $str
 	 * @return boolean
 	 */
-	public static function is_utf16($str, &$be = null) {
+	public static function is_utf16(string $str, bool &$be = false): bool {
 		if (strlen($str) < 2) {
 			return false;
 		}
@@ -499,7 +500,7 @@ class StringTools {
 	 * @param string $dot_dot_dot
 	 * @return string
 	 */
-	public static function ellipsis_word($text, $length = 20, $dot_dot_dot = " ...") {
+	public static function ellipsis_word(string $text, int $length = 20, string $dot_dot_dot = " ..."): string {
 		if ($length < 0) {
 			return $text;
 		}
@@ -514,11 +515,15 @@ class StringTools {
 			"\t",
 		];
 		$letters = StringTools::str_split($text);
-		for ($i = count($letters) - 1; --$i; $i >= 0) {
-			if (in_array($letters[$i], $aa)) {
-				$off = $i;
+		if (count($letters) >= 0) {
+			$i = count($letters) - 1;
+			while ($i >= 0) {
+				if (in_array($letters[$i], $aa)) {
+					$off = $i;
 
-				break;
+					break;
+				}
+				--$i;
 			}
 		}
 		if ($off === 0) {
@@ -576,14 +581,14 @@ class StringTools {
 	 * @param string $string
 	 * @return array
 	 */
-	public static function str_split($string, $split_length = 1, $encoding = null) {
+	public static function str_split(string $string, int $split_length = 1, string $encoding = "UTF-8") {
 		if ($split_length < 1) {
-			return false;
+			$split_length = 1;
 		}
 		$ret = [];
 		$len = self::length($string, $encoding);
 		for ($i = 0; $i < $len; $i += $split_length) {
-			$ret[] = self::substr($string, $i, $split_length, "UTF-8");
+			$ret[] = self::substr($string, $i, $split_length, $encoding);
 		}
 		return $ret;
 	}
@@ -603,7 +608,7 @@ class StringTools {
 	 *        	A value to write to a CSV file
 	 * @return string A correctly quoted CSV value
 	 */
-	public static function csv_quote($x) {
+	public static function csv_quote(string $x): string {
 		if ((str_contains($x, '"')) || (str_contains($x, ",")) || (str_contains($x, "\n"))) {
 			return '"' . str_replace('"', '""', $x) . '"';
 		}
@@ -616,7 +621,7 @@ class StringTools {
 	 * @param array $x
 	 * @return string
 	 */
-	public static function csv_quote_row($x) {
+	public static function csv_quote_row(array $x): string {
 		$yy = [];
 		foreach ($x as $col) {
 			$yy[] = self::csv_quote($col);
@@ -631,7 +636,7 @@ class StringTools {
 	 *        	of arrays of strings
 	 * @return string
 	 */
-	public static function csv_quote_rows($x) {
+	public static function csv_quote_rows(array $x): array {
 		$yy = "";
 		foreach ($x as $row) {
 			$yy .= self::csv_quote_row($row);
@@ -639,11 +644,22 @@ class StringTools {
 		return $yy;
 	}
 
-	public static function from_camel_case($string) {
+	/**
+	 * Converts camelCaseStringToConvert to camel_case_string_to_convert
+	 * @param string $string
+	 * @return string
+	 */
+	public static function from_camel_case(string $string): string {
 		return preg_replace_callback('/[A-Z]/', fn ($matches) => "_" . strtolower($matches[0]), $string);
 	}
 
-	public static function to_camel_case($string) {
+	/**
+	 * Converts camel_case_string_to_convert to camelCaseStringToConvert
+	 *
+	 * @param $string
+	 * @return string
+	 */
+	public static function to_camel_case(string $string): string {
 		$result = "";
 		foreach (explode('_', $string) as $i => $token) {
 			$result .= $i === 0 ? strtolower($token) : strtoupper($token[0]) . strtolower(substr($token, 1));
@@ -659,7 +675,7 @@ class StringTools {
 	 * @see mb_internal_encoding
 	 * @return integer
 	 */
-	public static function length($string, $encoding = null) {
+	public static function length(string $string, string $encoding = "UTF-8") {
 		if (function_exists("mb_strlen")) {
 			if ($encoding === null) {
 				$encoding = mb_internal_encoding();
@@ -683,7 +699,7 @@ class StringTools {
 	 * @see mb_substr
 	 * @return string
 	 */
-	public static function substr($string, $start, $length = null, $encoding = null) {
+	public static function substr(string $string, int $start, int $length, string $encoding = "UTF-8"): string {
 		if (function_exists("mb_substr")) {
 			if ($encoding === null) {
 				$encoding = mb_internal_encoding();
@@ -706,7 +722,7 @@ class StringTools {
 	 * @return string
 	 * @deprecated 2019-01
 	 */
-	public static function wrap($phrase) {
+	public static function wrap(string $phrase): string {
 		return call_user_func_array([
 			HTML::class,
 			"wrap",

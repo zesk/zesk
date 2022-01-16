@@ -23,7 +23,7 @@ class Module_Health extends Module {
 
 	public function initialize(): void {
 		parent::initialize();
-		$this->disabled = $this->option_bool("disabled");
+		$this->disabled = $this->optionBool("disabled");
 		$this->path = $path = $this->option("event_path", $this->application->data_path("health-events"));
 		Directory::depend($path);
 		set_error_handler([
@@ -69,7 +69,7 @@ class Module_Health extends Module {
 	private function clean_backtrace(array $backtrace) {
 		foreach ($backtrace as $index => $stackframe) {
 			if (array_key_exists('args', $stackframe)) {
-				if ($this->option_bool("keep_backtrace_arguments")) {
+				if ($this->optionBool("keep_backtrace_arguments")) {
 					$new_args = $stackframe['args'];
 					foreach ($new_args as $index => $arg) {
 						if (is_resource($arg) || is_callable($arg)) {
@@ -120,7 +120,7 @@ class Module_Health extends Module {
 		if ($fatal) {
 			die("$type $errstr");
 		}
-		return $this->option_bool("skip_php_handler", false);
+		return $this->optionBool("skip_php_handler", false);
 	}
 
 	public function caught_exception_handler($exception): void {
@@ -196,8 +196,8 @@ class Module_Health extends Module {
 	}
 
 	public function hook_cron_cluster_hour(): void {
-		$purge_events_fatal_hours = $this->option_integer("purge_events_fatal_hours", -1);
-		$purge_events_non_fatal_hours = $this->option_integer("purge_events_non_fatal_hours", 24 * 7);
+		$purge_events_fatal_hours = $this->optionInt("purge_events_fatal_hours", -1);
+		$purge_events_non_fatal_hours = $this->optionInt("purge_events_non_fatal_hours", 24 * 7);
 
 		$this->purge_old_events('Health_Event', 'when', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
 		$this->purge_old_events('Health_Events', 'first', $purge_events_fatal_hours, $purge_events_non_fatal_hours);

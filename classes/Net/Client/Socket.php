@@ -37,7 +37,7 @@ class Net_Client_Socket extends Net_Client {
 	 * @see Net_Client::connect()
 	 */
 	public function connect() {
-		if ($this->has_option("eol")) {
+		if ($this->hasOption("eol")) {
 			$this->EOL = $this->option('eol', $this->EOL);
 		}
 		if ($this->is_connected()) {
@@ -46,7 +46,7 @@ class Net_Client_Socket extends Net_Client {
 
 		$host = avalue($this->url_parts, 'host', 'localhost');
 		$port = aevalue($this->url_parts, 'port', $this->default_port);
-		$timeout = $this->option_integer('timeout', 30);
+		$timeout = $this->optionInt('timeout', 30);
 
 		$errno = false;
 		$errstr = false;
@@ -57,7 +57,7 @@ class Net_Client_Socket extends Net_Client {
 			throw new Exception_Connect("$host:$port", "Could not connect to $host:$port $errstr");
 		}
 		stream_set_timeout($this->socket, $timeout, 0);
-		stream_set_blocking($this->socket, $this->option_bool('blocking', true) ? 1 : 0);
+		stream_set_blocking($this->socket, $this->optionBool('blocking', true) ? 1 : 0);
 		$this->log("Connected.");
 		$this->greeting = $this->read();
 		return true;
@@ -175,7 +175,7 @@ class Net_Client_Socket extends Net_Client {
 	 */
 	public function read() {
 		if (($pos = strpos($this->buffer, $this->EOL)) === false) {
-			$this->buffer .= $this->_read($this->option_integer('read_buffer_size', 10240));
+			$this->buffer .= $this->_read($this->optionInt('read_buffer_size', 10240));
 			$pos = strpos($this->buffer, $this->EOL);
 			if ($pos === false) {
 				throw new Exception_Protocol("Server returned a line not ending in EOL: $this->buffer");
@@ -211,11 +211,11 @@ class Net_Client_Socket extends Net_Client {
 	 */
 	protected function _read($n_chars = 1024) {
 		$this->_check();
-		if ($this->option_bool('read_debug')) {
+		if ($this->optionBool('read_debug')) {
 			echo "->read($n_chars) = ";
 		}
 		$result = fread($this->socket, $n_chars);
-		if ($this->option_bool('read_debug')) {
+		if ($this->optionBool('read_debug')) {
 			echo($result === false ? "false" : strlen($result)) . " $result\n";
 		}
 		if (strlen($result) === 0) {

@@ -46,7 +46,7 @@ class Control_Settings extends Control {
 
 	protected function hook_initialized(): void {
 		foreach ($this->all_children() as $child) {
-			if ($child->option_bool("settings_ignore")) {
+			if ($child->optionBool("settings_ignore")) {
 				$this->object->ignore_variable($child->name());
 			} else {
 				$this->object->allow_variable($child->name());

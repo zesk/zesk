@@ -322,8 +322,8 @@ class Response extends Hookable {
 				$domain = null;
 			}
 		}
-		$secure = avalue($options, 'secure', $this->option_bool("cookie_secure"));
-		$path = avalue($options, 'path', $this->option_bool("cookie_path", "/"));
+		$secure = avalue($options, 'secure', $this->optionBool("cookie_secure"));
+		$path = avalue($options, 'path', $this->optionBool("cookie_path", "/"));
 		if (!$domain) {
 			$domain = Domain::domain_factory($this->application, $host)->compute_cookie_domain();
 		}
@@ -345,9 +345,9 @@ class Response extends Hookable {
 	 */
 	public function debug_redirect($set = null) {
 		if ($set === null) {
-			return $this->option_bool('debug_redirect');
+			return $this->optionBool('debug_redirect');
 		}
-		return $this->set_option('debug_redirect', to_bool($set));
+		return $this->setOption('debug_redirect', to_bool($set));
 	}
 
 	/**
@@ -374,7 +374,7 @@ class Response extends Hookable {
 		if ($do_hooks) {
 			$this->call_hook('headers_before');
 		}
-		if ($this->option_bool("skip_response_headers")) {
+		if ($this->optionBool("skip_response_headers")) {
 			return;
 		}
 		if ($called) {
@@ -1106,7 +1106,7 @@ class Response extends Hookable {
 	 * @return boolean|self
 	 */
 	public function skip_response_headers($set = null) {
-		return $set === null ? $this->option_bool("skip_response_headers") : $this->set_option("skip_response_headers", to_bool($set));
+		return $set === null ? $this->optionBool("skip_response_headers") : $this->setOption("skip_response_headers", to_bool($set));
 	}
 
 	/**

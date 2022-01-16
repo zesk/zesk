@@ -144,9 +144,9 @@ class Control_File extends Control {
 		if (is_array($file)) {
 			$dest_path = $this->object->apply_map($this->option("dest_path"));
 			$options = [];
-			$options['file_mode'] = $this->option_integer("file_mode", 0o640);
-			$options['dir_mode'] = $this->option_integer("dir_mode", 0o750);
-			$options['hash'] = $this->option_bool("hash_file", false);
+			$options['file_mode'] = $this->optionInt("file_mode", 0o640);
+			$options['dir_mode'] = $this->optionInt("dir_mode", 0o750);
+			$options['hash'] = $this->optionBool("hash_file", false);
 			$path = Request\File::instance($file)->migrate($this->application, $dest_path, $options);
 			$this->path($path);
 			$this->object->set($filecolumn, basename($path));

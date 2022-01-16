@@ -17,7 +17,7 @@ class Control_Content_Image extends Control {
 
 	public function allowed_mime_types($set = null) {
 		if ($set !== null) {
-			$this->set_option("allowed_mime_types", to_list($set));
+			$this->setOption("allowed_mime_types", to_list($set));
 			return $this;
 		}
 		return $this->option_array("allowed_mime_types", [
@@ -69,7 +69,7 @@ class Control_Content_Image extends Control {
 			if ($code === UPLOAD_ERR_NO_FILE) {
 				return $this->validate_required();
 			}
-			$this->set_option('exception', $e);
+			$this->setOption('exception', $e);
 			$this->error($e->getMessage());
 			return false;
 		}
@@ -119,8 +119,8 @@ class Control_Content_Image extends Control {
 
 	public function theme_variables() {
 		return [
-			'width' => $this->option_integer('width', 200),
-			'height' => $this->option_integer('height', 200),
+			'width' => $this->optionInt('width', 200),
+			'height' => $this->optionInt('height', 200),
 			'value' => $this->normalize(),
 		] + parent::theme_variables();
 	}

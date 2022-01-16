@@ -21,7 +21,7 @@ class Class_Contact_Tag extends Class_Contact_Info {
 		"name" => self::type_string,
 	];
 
-	public $find_keys = [
+	public array $find_keys = [
 		"user",
 		"name",
 	];

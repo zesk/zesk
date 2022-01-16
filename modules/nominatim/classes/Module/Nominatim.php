@@ -35,7 +35,7 @@ class Module_Nominatim extends Module {
 	 * cron every minute
 	 */
 	public function hook_cron(): void {
-		if (!$this->option_bool('force') && $this->application->development()) {
+		if (!$this->optionBool('force') && $this->application->development()) {
 			return;
 		}
 		$settings = Settings::singleton($this->application);
@@ -83,7 +83,7 @@ class Module_Nominatim extends Module {
 		$query = $this->application->orm_registry('zesk\\Contact_Address')->query_select()->where([
 			[
 				'geocoded' => null,
-				'geocoded|<=' => Timestamp::now()->add_unit(-abs($this->option_integer("geocode_refresh_days", 30)), Timestamp::UNIT_DAY),
+				'geocoded|<=' => Timestamp::now()->add_unit(-abs($this->optionInt("geocode_refresh_days", 30)), Timestamp::UNIT_DAY),
 			],
 		]);
 

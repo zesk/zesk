@@ -13,7 +13,7 @@ class Class_Language extends Class_ORM {
 
 	public $name = "Language";
 
-	public $find_keys = [
+	public array $find_keys = [
 		"code",
 	];
 

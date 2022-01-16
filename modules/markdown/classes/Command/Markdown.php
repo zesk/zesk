@@ -24,7 +24,7 @@ class Command_Markdown extends Command_File_Convert {
 	}
 
 	protected function run() {
-		if ($this->has_option('cd')) {
+		if ($this->hasOption('cd')) {
 			chdir($this->option('cd'));
 		}
 		return parent::run();

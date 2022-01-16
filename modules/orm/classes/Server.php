@@ -173,7 +173,7 @@ class Server extends ORM implements Interface_Data {
 		$query = $this->query_select();
 		$pushed = $this->push_utc();
 
-		$timeout_seconds = -abs($this->option_integer('timeout_seconds', self::default_timeout_seconds));
+		$timeout_seconds = -abs($this->optionInt('timeout_seconds', self::default_timeout_seconds));
 		$dead_to_me = Timestamp::now('UTC')->add_unit($timeout_seconds, Timestamp::UNIT_SECOND);
 		$iterator = $query->where([
 			'alive|<=' => $dead_to_me,

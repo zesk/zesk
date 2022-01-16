@@ -15,12 +15,12 @@ $base_attrs['name'] = $name;
 $base_attrs['type'] = 'radio';
 $result = "";
 $sel_k = strval($object->get($col, $widget->option("default", '')));
-$refresh = $widget->option_bool("refresh");
+$refresh = $widget->optionBool("refresh");
 $suffix = "";
 if ($refresh) {
 	$suffix = HTML::hidden($name . "_cont", "");
 }
-$debug = $widget->option_bool('debug');
+$debug = $widget->optionBool('debug');
 $content = "";
 foreach ($opts as $k => $v) {
 	$attrs = $base_attrs;

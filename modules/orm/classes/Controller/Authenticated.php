@@ -70,7 +70,7 @@ class Controller_Authenticated extends Controller_Theme {
 	}
 
 	public function check_authenticated(): void {
-		if (!$this->option_bool('login_redirect', true)) {
+		if (!$this->optionBool('login_redirect', true)) {
 			return;
 		}
 		if (!$this->session || !$this->user) {

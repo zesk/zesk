@@ -40,7 +40,7 @@ class Control_Select extends Control_Optionss {
 			foreach ($preferred as $key) {
 				if (array_key_exists($key, $options)) {
 					$preferred_options[$key] = $options[$key];
-					if ($this->option_bool('preferred_keys_move', false)) {
+					if ($this->optionBool('preferred_keys_move', false)) {
 						unset($options[$key]);
 					}
 				}
@@ -52,7 +52,7 @@ class Control_Select extends Control_Optionss {
 					$preferred_title => $preferred_options,
 					$unpreferred_title => $options,
 				];
-				$this->set_option("optgroup", true);
+				$this->setOption("optgroup", true);
 			}
 		}
 	}
@@ -116,7 +116,7 @@ class Control_Select extends Control_Optionss {
 	 * @return self|boolean
 	 */
 	public function multiple($set = null) {
-		return ($set !== null) ? $this->set_option('multiple', to_bool($set)) : $this->option_bool('multiple', false);
+		return ($set !== null) ? $this->setOption('multiple', to_bool($set)) : $this->optionBool('multiple', false);
 	}
 
 	/**
@@ -126,7 +126,7 @@ class Control_Select extends Control_Optionss {
 	 * @return void|mixed|boolean
 	 */
 	public function hide_single($set = null) {
-		return ($set !== null) ? $this->set_option('hide_single', to_bool($set)) : $this->option_bool('hide_single', true);
+		return ($set !== null) ? $this->setOption('hide_single', to_bool($set)) : $this->optionBool('hide_single', true);
 	}
 
 	/**
@@ -136,7 +136,7 @@ class Control_Select extends Control_Optionss {
 	 * @return boolean|self
 	 */
 	public function hide_single_text($set = null) {
-		return ($set !== null) ? $this->set_option('hide_single_text', to_bool($set)) : $this->option_bool('hide_single_text');
+		return ($set !== null) ? $this->setOption('hide_single_text', to_bool($set)) : $this->optionBool('hide_single_text');
 	}
 
 	/**
@@ -144,7 +144,7 @@ class Control_Select extends Control_Optionss {
 	 * @return boolean
 	 */
 	public function is_single() {
-		$optgroup = $this->option_bool("optgroup");
+		$optgroup = $this->optionBool("optgroup");
 		return $this->option("hide_single", $this->required()) && (count($this->control_options) === 1 && $optgroup === false);
 	}
 
@@ -159,11 +159,11 @@ class Control_Select extends Control_Optionss {
 	 * @return void|mixed|string|array
 	 */
 	public function single_tag($set = null) {
-		return ($set !== null) ? $this->set_option('single_tag', $set) : $this->option('single_tag');
+		return ($set !== null) ? $this->setOption('single_tag', $set) : $this->option('single_tag');
 	}
 
 	public function single_tag_attributes(array $set = null) {
-		return ($set !== null) ? $this->set_option('single_tag_attributes', $set) : $this->option_array('single_tag_attributes');
+		return ($set !== null) ? $this->setOption('single_tag_attributes', $set) : $this->option_array('single_tag_attributes');
 	}
 
 	public function validate() {
@@ -208,7 +208,7 @@ class Control_Select extends Control_Optionss {
 			return implode(", ", $text_values);
 		}
 		$key = strval($value);
-		if ($this->option_bool("optgroup")) {
+		if ($this->optionBool("optgroup")) {
 			foreach ($this->control_options as $k => $options) {
 				if (array_key_exists($key, $options)) {
 					return $options[$key];
@@ -222,10 +222,10 @@ class Control_Select extends Control_Optionss {
 
 	protected function hook_query(Database_Query_Select $query) {
 		parent::hook_query($query);
-		if ($this->option_bool("skip_query_condition")) {
+		if ($this->optionBool("skip_query_condition")) {
 			return false;
 		}
-		if (!$this->has_option("query_condition_map")) {
+		if (!$this->hasOption("query_condition_map")) {
 			$text_value = $this->value_to_text();
 			if ($text_value) {
 				$condition = __("{label} is {text_value}", [
@@ -240,7 +240,7 @@ class Control_Select extends Control_Optionss {
 	}
 
 	public function escape_values($set = null) {
-		return $set !== null ? $this->set_option('escape_values', to_bool($set)) : $this->option_bool('escape_values', self::default_escape_values);
+		return $set !== null ? $this->setOption('escape_values', to_bool($set)) : $this->optionBool('escape_values', self::default_escape_values);
 	}
 
 	public function theme_variables() {

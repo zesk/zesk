@@ -25,8 +25,8 @@ $attributes = $this->input_attributes + $this->data_attributes;
 $no_value = $widget->option("novalue", "");
 $no_name = $widget->option("noname", $widget->required() ? "" : __('Control_Select:=-- Select --'));
 /* @var $widget Widget */
-$has_refresh_message = $widget->has_option("refresh_message");
-if ($widget->has_option("onchange")) {
+$has_refresh_message = $widget->hasOption("refresh_message");
+if ($widget->hasOption("onchange")) {
 	$attributes["onchange"] = $widget->option("onchange");
 }
 if ($widget->option("refresh", false)) {
@@ -43,7 +43,7 @@ $optgroup = to_bool($this->optgroup);
 unset($attributes['name']);
 if ($widget->is_single()) {
 	reset($options);
-	if ($widget->has_option('hide_single_text')) {
+	if ($widget->hasOption('hide_single_text')) {
 		$single_tag_contents = strval($widget->option("hide_single_text"));
 	} else {
 		$single_tag_contents = current($options);
@@ -63,7 +63,7 @@ if ($widget->is_single()) {
 	return;
 }
 $escape_values = $this->escape_values;
-$escape_option_group_values = $widget->option_bool("escape_option_group_values", true);
+$escape_option_group_values = $widget->optionBool("escape_option_group_values", true);
 $attributes = $object->apply_map($attributes);
 $attributes['class'] = CSS::add_class(avalue($attributes, 'class'), 'form-control');
 $attributes['name'] = $name . ($multiple ? "[]" : "");
@@ -76,7 +76,7 @@ if (!empty($no_name)) {
 		'value' => $no_value,
 	], $escape_values ? htmlspecialchars($no_name) : $no_name);
 }
-$max_option_length = $widget->option_integer('max_option_length', 100);
+$max_option_length = $widget->optionInt('max_option_length', 100);
 $values = $multiple ? ArrayTools::flatten(to_list($value)) : [
 	$value,
 ];

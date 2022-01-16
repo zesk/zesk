@@ -100,13 +100,13 @@ class Command_Update extends Command_Base {
 			$this->usage();
 			return;
 		}
-		if (!$this->option_bool("skip-database")) {
+		if (!$this->optionBool("skip-database")) {
 			// Options loaded from configuration file
 			$this->verbose_log("Loading update database");
 			$this->update_db = $this->update_database();
 		}
 
-		if ($this->has_option('source-control')) {
+		if ($this->hasOption('source-control')) {
 			$vc = $this->option('source-control');
 			$this->repo = Repository::factory($vc);
 			if (!$this->repo) {
@@ -221,7 +221,7 @@ class Command_Update extends Command_Base {
 
 		if ($this->has_arg()) {
 			$modules = $this->modules_from_command_line($module_options);
-		} elseif ($this->option_bool('all')) {
+		} elseif ($this->optionBool('all')) {
 			$modules = $this->modules_from_module_paths($module_options);
 		} else {
 			$modules = $this->application->modules->load();
@@ -288,10 +288,10 @@ class Command_Update extends Command_Base {
 	 */
 	private function composer_after_update(): void {
 		try {
-			$composer_command = $this->option_bool("composer_update") ? "update" : "install";
+			$composer_command = $this->optionBool("composer_update") ? "update" : "install";
 			$composer = $this->composer_command();
 			$devargs = $this->application->development() ? "" : " --no-dev";
-			$quietargs = $this->option_bool("quiet") ? " -q" : "";
+			$quietargs = $this->optionBool("quiet") ? " -q" : "";
 			$this->application->process->execute("$composer$quietargs $composer_command$devargs");
 		} catch (Exception_Command $e) {
 			$this->error($e);
@@ -358,8 +358,8 @@ class Command_Update extends Command_Base {
 	 */
 	private function _update_module($module, array $module_data) {
 		$logger = $this->application->logger;
-		$force = $this->option_bool('force');
-		$force_check = $this->option_bool('force-check');
+		$force = $this->optionBool('force');
+		$force_check = $this->optionBool('force-check');
 		$now = time();
 		$data = avalue($module_data, 'configuration');
 		if (!is_array($data)) {
@@ -371,7 +371,7 @@ class Command_Update extends Command_Base {
 		if (!ArrayTools::has_any($data, 'url;urls;versions;composer')) {
 			return true;
 		}
-		if ($this->option_bool('list')) {
+		if ($this->optionBool('list')) {
 			$this->log($module);
 			return true;
 		}
@@ -386,7 +386,7 @@ class Command_Update extends Command_Base {
 		if (!$force) {
 			$checked = avalue($state_data, 'checked', null);
 			$checked_time = strtotime($checked);
-			$interval = $this->option_integer('check_interval', 24 * 60 * 60);
+			$interval = $this->optionInt('check_interval', 24 * 60 * 60);
 			if ($checked_time > $now - $interval) {
 				$this->verbose_log("$module checked less than " . $locale->duration_string($interval, "hour") . " ago" . ($force_check ? "- checking anyway" : ""));
 				if (!$force_check) {
@@ -409,7 +409,7 @@ class Command_Update extends Command_Base {
 				"name" => $module,
 			]);
 		}
-		if (!$this->option_bool("skip-database")) {
+		if (!$this->optionBool("skip-database")) {
 			$date = gmdate('Y-m-d H:i:s');
 			if ($edits === null) {
 				$this->verbose_log("$module uptodate\n");
@@ -442,15 +442,15 @@ class Command_Update extends Command_Base {
 	 */
 	private function composer_command() {
 		$paths = $this->application->paths;
-		if ($this->has_option("composer_command")) {
+		if ($this->hasOption("composer_command")) {
 			return $this->option("composer_command");
 		}
 		$composer_phar = null;
-		$composer_phar = $this->has_option("composer_phar", true) ? $this->option("composer_phar") : $paths->which("composer.phar");
+		$composer_phar = $this->hasOption("composer_phar", true) ? $this->option("composer_phar") : $paths->which("composer.phar");
 		if ($composer_phar) {
 			return $this->option("php_command", "/usr/bin/env php $composer_phar");
 		}
-		$composer_bin = $this->has_option("composer_bin", true) ? $this->option("composer_bin") : $paths->which("composer");
+		$composer_bin = $this->hasOption("composer_bin", true) ? $this->option("composer_bin") : $paths->which("composer");
 		if ($composer_bin) {
 			return $composer_bin;
 		}
@@ -485,7 +485,7 @@ class Command_Update extends Command_Base {
 		$composer_require_dev = to_list(avalue($composer, 'require-dev', null));
 		$pwd = getcwd();
 		chdir($application->path());
-		$do_updates = $this->option_bool("composer-update");
+		$do_updates = $this->optionBool("composer-update");
 
 		$changed = false;
 		foreach ([
@@ -505,7 +505,7 @@ class Command_Update extends Command_Base {
 					$require = $component . ":" . $composer_version[$component];
 				}
 				if ($this->composer_has_installed($component) && !$do_updates) {
-					if ($this->option_bool("dry-run")) {
+					if ($this->optionBool("dry-run")) {
 						$this->log("No update for composer {require} - already installed", [
 							"require" => $require,
 						]);
@@ -514,7 +514,7 @@ class Command_Update extends Command_Base {
 
 					continue;
 				}
-				if ($this->option_bool("dry-run")) {
+				if ($this->optionBool("dry-run")) {
 					$this->log("Would run command: $composer_command require {require}", [
 						"require" => $require,
 					]);
@@ -641,7 +641,7 @@ class Command_Update extends Command_Base {
 			$this->debug_log("No url, urls, or versions in module {name}", $data);
 			return null;
 		}
-		$dry_run = $this->option_bool('dry-run');
+		$dry_run = $this->optionBool('dry-run');
 		$new_hashes = [];
 
 		$did_updates = false;
@@ -673,7 +673,7 @@ class Command_Update extends Command_Base {
 			$do_update = false;
 			$new_hash = md5_file($temp_file_name);
 			$dest_file = path($destination, $filename);
-			if ($this->option_bool('force')) {
+			if ($this->optionBool('force')) {
 				$do_update = true;
 				$this->verbose_log('Updating forced');
 			} elseif (!$this->is_unpack($filename) && !file_exists($dest_file)) {
@@ -711,7 +711,7 @@ class Command_Update extends Command_Base {
 			$data['temp_file_name'] = $temp_file_name;
 			$settings['destination'] = $destination;
 
-			if ($this->option_bool('debug')) {
+			if ($this->optionBool('debug')) {
 				//echo Text::format_array($data['configuration']);
 			}
 
@@ -724,7 +724,7 @@ class Command_Update extends Command_Base {
 				$new_hashes[$url] = $new_hash;
 			}
 		}
-		if (!$this->option_bool('skip-delete') && is_array($delete_after)) {
+		if (!$this->optionBool('skip-delete') && is_array($delete_after)) {
 			$this->_delete_files($destination, $delete_after);
 		}
 		if (count($new_hashes) > 0) {
@@ -972,7 +972,7 @@ class Command_Update extends Command_Base {
 	}
 
 	private function share_destination(array $data) {
-		if (!$this->has_option('share-path')) {
+		if (!$this->hasOption('share-path')) {
 			return null;
 		}
 		$name = $data['name'];
@@ -980,7 +980,7 @@ class Command_Update extends Command_Base {
 	}
 
 	private function share_source(array $data) {
-		if (!$this->has_option('share_path')) {
+		if (!$this->hasOption('share_path')) {
 			return null;
 		}
 		$path = $data['path'];
@@ -1007,7 +1007,7 @@ class Command_Update extends Command_Base {
 			$destination = StringTools::unprefix($destination, $application_root);
 		}
 		/* Disable share-path for now */
-		// 		if (trim($destination, '/') === 'share' && $this->has_option('share-path')) {
+		// 		if (trim($destination, '/') === 'share' && $this->hasOption('share-path')) {
 		// 			return path($this->option('share-path'), $name);
 		// 		}
 		return path($application_root, $destination);

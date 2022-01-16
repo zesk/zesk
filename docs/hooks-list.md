@@ -80,7 +80,7 @@ As a system hook:
 
 	$application->hooks->add("zesk\\Application::request", function (zesk\Application $app, zesk\Request $request) {
 		if (strpos($request->path(), ".exe") !== false) {
-			$request->set_option("possible_hack", true);
+			$request->setOption("possible_hack", true);
 		}
 	});
 
@@ -91,7 +91,7 @@ As an application hook:
 		...
 		function hook_request(\zesk\Request $request) {
 			if (strpos($request->path(), ".exe") !== false) {
-				$request->set_option("possible_hack", true);
+				$request->setOption("possible_hack", true);
 			}
 		});
 		...
@@ -257,4 +257,3 @@ As an application hook:
 ## `zesk\Response::compress_script`
 
 ## `zesk\Hookable::tr`
-

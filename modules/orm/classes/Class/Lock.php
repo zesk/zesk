@@ -16,7 +16,7 @@ class Class_Lock extends Class_ORM {
 		'server' => "zesk\\Server",
 	];
 
-	public $find_keys = [
+	public array $find_keys = [
 		'code',
 	];
 

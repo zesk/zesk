@@ -94,7 +94,7 @@ class Control_Picker extends Control {
 	protected $data_search = [];
 
 	public function where(array $set = null) {
-		return $set ? $this->set_option('where', $set) : $this->option_array('where');
+		return $set ? $this->setOption('where', $set) : $this->option_array('where');
 	}
 
 	public function data_search(array $set = null, $add = false) {
@@ -123,8 +123,8 @@ class Control_Picker extends Control {
 				$this->class_object->name_column,
 			];
 		}
-		if (!$this->has_option('order_by') && $this->class_object->name_column) {
-			$this->set_option('order_by', "X." . $this->class_object->name_column);
+		if (!$this->hasOption('order_by') && $this->class_object->name_column) {
+			$this->setOption('order_by', "X." . $this->class_object->name_column);
 		}
 		$hierarchy = $this->application->classes->hierarchy($this, __CLASS__);
 		if ($this->theme_item_selector === null) {
@@ -139,7 +139,7 @@ class Control_Picker extends Control {
 	}
 
 	public function inline_picker($set = null) {
-		return $set !== null ? $this->set_option('inline_picker', to_bool($set)) : $this->option_bool('inline_picker');
+		return $set !== null ? $this->setOption('inline_picker', to_bool($set)) : $this->optionBool('inline_picker');
 	}
 
 	public function search_columns($set = null) {
@@ -166,7 +166,7 @@ class Control_Picker extends Control {
 	}
 
 	public function selectable($set = null) {
-		return $set === null ? $this->option_bool('selectable', true) : $this->set_option('selectable', to_bool($set));
+		return $set === null ? $this->optionBool('selectable', true) : $this->setOption('selectable', to_bool($set));
 	}
 
 	public function hook_render(): void {
@@ -176,7 +176,7 @@ class Control_Picker extends Control {
 	}
 
 	public function single_item($set = null) {
-		return $set === null ? $this->option_bool('single_item', $set) : $this->set_option('single_item', to_bool($set));
+		return $set === null ? $this->optionBool('single_item', $set) : $this->setOption('single_item', to_bool($set));
 	}
 
 	protected function load(): void {
@@ -316,7 +316,7 @@ class Control_Picker extends Control {
 		return $this->application->orm_registry($this->class)
 			->query_select()
 			->what_object($this->class, "X")
-			->limit(0, $this->option_integer('limit', 25))
+			->limit(0, $this->optionInt('limit', 25))
 			->order_by($this->option('order_by'));
 	}
 

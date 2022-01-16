@@ -19,7 +19,7 @@ class View_Template extends View {
 	 * @return void|mixed|string
 	 */
 	public function template($set = null) {
-		return ($set !== null) ? $this->set_option('template', $set) : $this->option('template');
+		return ($set !== null) ? $this->setOption('template', $set) : $this->option('template');
 	}
 
 	public function render() {

@@ -20,7 +20,7 @@ class Control_Select_File extends Control_Select {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->set_option("novalue", "");
+		$this->setOption("novalue", "");
 	}
 
 	/**

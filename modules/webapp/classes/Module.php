@@ -264,7 +264,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			"rules_directory" => false,
 			"add_path" => true,
 		];
-		if ($this->option_bool("debug")) {
+		if ($this->optionBool("debug")) {
 			$rules['progress'] = $this->application->logger;
 		}
 		$files = Directory::list_recursive($this->_app_root, $rules);

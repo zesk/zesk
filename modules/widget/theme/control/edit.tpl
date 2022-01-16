@@ -31,7 +31,7 @@ $map = [];
 $theme_variables = [];
 
 foreach ($this->widgets as $widget) {
-	$nolabel = $widget->option_bool("nolabel");
+	$nolabel = $widget->optionBool("nolabel");
 	$name = $widget->name();
 	$prefix = "$name.";
 
@@ -46,13 +46,13 @@ foreach ($this->widgets as $widget) {
 	if ($has_errors) {
 		$widget_attributes = HTML::add_class($widget_attributes, 'has-error');
 		$map[$prefix . 'has_error'] = " has-error"; // Class name is "has-error"
-		if ($widget->option_bool("append_error", true)) {
+		if ($widget->optionBool("append_error", true)) {
 			$errors .= HTML::tags('span', '.help-block error', $widget->errors());
 			$widget->suffix($errors, true);
 		}
 	}
 	$map[$prefix . "errors"] = $errors;
-	if ($widget->has_option('help')) {
+	if ($widget->hasOption('help')) {
 		$widget->suffix($map[$prefix . 'help'] = HTML::tag('div', '.help-block', $widget->option('help')), true);
 	}
 	if (!$widget->is_visible()) {

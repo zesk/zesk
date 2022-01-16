@@ -81,7 +81,7 @@ class Markdown extends Options {
 			$this->tab_size = $set;
 			return $this;
 		}
-		return $this->option_integer('tab_size', self::default_tab_size);
+		return $this->optionInt('tab_size', self::default_tab_size);
 	}
 
 	private function _initialize(): void {

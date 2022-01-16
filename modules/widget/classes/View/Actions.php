@@ -25,7 +25,7 @@ class View_Actions extends View {
 	 */
 	protected function initialize(): void {
 		parent::initialize();
-		$this->set_option([
+		$this->setOption([
 			"list_order_by" => false,
 			"class" => "view-actions",
 			"label" => $this->locale()->__("Actions"),
@@ -61,7 +61,7 @@ class View_Actions extends View {
 	 */
 	private function _action_href($action, $add_ref = true) {
 		$object = $this->object;
-		if ($this->has_option($action . "_href")) {
+		if ($this->hasOption($action . "_href")) {
 			return $object->apply_map($this->option($action . '_href'));
 		}
 		if (!$object) {
@@ -76,7 +76,7 @@ class View_Actions extends View {
 	 * @return self|string
 	 */
 	public function format($set = null) {
-		return ($set !== null) ? $this->set_option('format', $set) : $this->option('format');
+		return ($set !== null) ? $this->setOption('format', $set) : $this->option('format');
 	}
 
 	/**
@@ -99,7 +99,7 @@ class View_Actions extends View {
 	 * @return array|void
 	 */
 	public function actions(array $set = null) {
-		return $set === null ? $this->option_list("actions") : $this->set_option("actions", $set);
+		return $set === null ? $this->option_list("actions") : $this->setOption("actions", $set);
 	}
 
 	/**
@@ -110,7 +110,7 @@ class View_Actions extends View {
 	public function theme_variables() {
 		return [
 			"actions" => $this->actions(),
-			"add_href" => $this->option_bool("add_href", true),
+			"add_href" => $this->optionBool("add_href", true),
 		];
 	}
 }

@@ -75,7 +75,7 @@ class Model_Settings extends Model {
 		foreach ($mixed as $item) {
 			if (!in_array($item, $this->variables)) {
 				$this->variables[$item] = null;
-				if ($this->option_bool("debug_variables")) {
+				if ($this->optionBool("debug_variables")) {
 					$this->application->logger->debug("Adding permitted {variable} to {class}", [
 						"variable" => $item,
 						"class" => get_class($this),
@@ -107,7 +107,7 @@ class Model_Settings extends Model {
 		}
 		// Value has definitely changed
 		if (!$this->_ignore_variable($key)) {
-			if ($this->option_bool("debug_changes")) {
+			if ($this->optionBool("debug_changes")) {
 				$this->application->logger->debug("{method} new value for key {key} {new_value} (old value was {old_value})", [
 					"key" => $key,
 					"old_value" => $old,
@@ -119,7 +119,7 @@ class Model_Settings extends Model {
 		} elseif (array_key_exists($key, $this->variables)) {
 			$this->configuration->path_set($key, $value);
 		} else {
-			if ($this->option_bool("debug_variables")) {
+			if ($this->optionBool("debug_variables")) {
 				$this->application->logger->warning("{method} STATE ONLY value for key {key} {new_value} (old value was {old_value})", [
 					"key" => $key,
 					"old_value" => $old,
@@ -194,7 +194,7 @@ class Model_Settings extends Model {
 		]);
 		$settings = $this->application->model_singleton(Settings::class);
 		foreach ($this->_changed as $key => $value) {
-			if ($this->option_bool("debug_save")) {
+			if ($this->optionBool("debug_save")) {
 				$this->application->logger->debug("{method} Saving {key}={value} ({type})", [
 					"method" => __METHOD__,
 					"key" => $key,

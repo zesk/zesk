@@ -103,8 +103,8 @@ class Command_Check extends Command_Iterator_File {
 		$this->option_types['no-backup'] = 'boolean';
 		$this->option_types['ignore'] = 'string';
 
-		$this->set_option('copyright-suffix', "");
-		$this->set_option('company', "");
+		$this->setOption('copyright-suffix', "");
+		$this->setOption('company', "");
 
 		$this->option_help['gremlins'] = 'Check file headers for incorrect headings, ensure all PHP files have no characters before first PHP tag.';
 		$this->option_help['fix'] = 'Actually modify and fix files';
@@ -135,18 +135,18 @@ class Command_Check extends Command_Iterator_File {
 		$this->option_help['no-backup'] = 'Copy original to name.ext.old';
 		$this->option_help['ignore'] = 'Ignore file paths containing this string';
 
-		$this->set_option('php-bin-path', '/usr/bin/env php');
-		$this->set_option('year', date('Y'));
+		$this->setOption('php-bin-path', '/usr/bin/env php');
+		$this->setOption('year', date('Y'));
 	}
 
 	protected function start(): void {
 		$this->prefixes = map($this->prefixes, $this->options_include("php-bin-path"));
 		$this->prefixes_gremlins = map($this->prefixes_gremlins, $this->options_include("php-bin-path"));
-		if ($this->option_bool('show-package') || $this->option_bool('show-subpackage') || $this->option_bool('show-author') || $this->option_bool('show-copyright')) {
+		if ($this->optionBool('show-package') || $this->optionBool('show-subpackage') || $this->optionBool('show-author') || $this->optionBool('show-copyright')) {
 			$this->show = true;
 			$this->verbose_log("Show is on.");
 		}
-		$this->verbose_log("Fix is " . ($this->option_bool('fix') ? 'on' : 'off') . ".");
+		$this->verbose_log("Fix is " . ($this->optionBool('fix') ? 'on' : 'off') . ".");
 		$this->changed = 0;
 	}
 
@@ -283,7 +283,7 @@ class Command_Check extends Command_Iterator_File {
 	}
 
 	private function is_add() {
-		return !$this->option_bool('update-only');
+		return !$this->optionBool('update-only');
 	}
 
 	private function recopyright(&$contents) {
@@ -333,7 +333,7 @@ class Command_Check extends Command_Iterator_File {
 
 	public function process_file(SplFileInfo $file): void {
 		$path = $file->getPathname();
-		if ($this->has_option('ignore')) {
+		if ($this->hasOption('ignore')) {
 			$ignore = $this->option('ignore');
 			if (str_contains($path, $ignore)) {
 				return;
@@ -344,7 +344,7 @@ class Command_Check extends Command_Iterator_File {
 		$ext = pathinfo($path, PATHINFO_EXTENSION);
 		$errors = [];
 		$changed = false;
-		$prefix = avalue($this->option_bool("gremlins") ? $this->prefixes_gremlins : $this->prefixes, $ext);
+		$prefix = avalue($this->optionBool("gremlins") ? $this->prefixes_gremlins : $this->prefixes, $ext);
 		if ($prefix !== null) {
 			$prefix = to_array($prefix);
 			if (!StringTools::begins($contents, $prefix)) {
@@ -352,7 +352,7 @@ class Command_Check extends Command_Iterator_File {
 				$this->verbose_log("Incorrect prefix: \"{details}\"\n should be one of: {prefix}", compact("details") + [
 					"prefix" => ArrayTools::join_wrap($prefix, "\"", "\"\n"),
 				]);
-				if ($this->option_bool('fix') && $this->fix_prefix($contents)) {
+				if ($this->optionBool('fix') && $this->fix_prefix($contents)) {
 					$changed = true;
 					$this->verbose_log("Fixed prefix");
 				} else {
@@ -367,27 +367,27 @@ class Command_Check extends Command_Iterator_File {
 		if (StringTools::ends(trim($contents), "?>")) {
 			$this->verbose_log("Need to trim PHP closing tag");
 			$details = substr($contents, 0, 40);
-			if ($this->option_bool('fix') && $this->fix_suffix($contents)) {
+			if ($this->optionBool('fix') && $this->fix_suffix($contents)) {
 				$this->verbose_log("Fixed suffix");
 				$changed = true;
 			} else {
 				$errors['suffix'] = $details;
 			}
 		}
-		if ($this->option_bool('fix') && !StringTools::ends($contents, "\n")) {
+		if ($this->optionBool('fix') && !StringTools::ends($contents, "\n")) {
 			$this->verbose_log("Terminate with newline");
 			$contents .= "\n";
 			$changed = true;
 		}
 		$output = null;
-		if ($this->option_bool('lint') && self::lint_file($path, $output) !== 0) {
+		if ($this->optionBool('lint') && self::lint_file($path, $output) !== 0) {
 			$errors['lint'] = $output;
 		}
-		if ($this->option_bool('copyright') && $this->recopyright($contents)) {
+		if ($this->optionBool('copyright') && $this->recopyright($contents)) {
 			$this->verbose_log("copyright changed");
 			$changed = true;
 		}
-		if ($this->option_bool('author') && $this->reauthor($contents)) {
+		if ($this->optionBool('author') && $this->reauthor($contents)) {
 			$this->verbose_log("author changed");
 			$changed = true;
 		}
@@ -407,7 +407,7 @@ class Command_Check extends Command_Iterator_File {
 				'show-author',
 				'show-copyright',
 			] as $option) {
-				if ($this->option_bool($option)) {
+				if ($this->optionBool($option)) {
 					$results = array_merge($results, $this->show_comments($contents, StringTools::unprefix($option, 'show-', $prefix)));
 				}
 			}
@@ -427,7 +427,7 @@ class Command_Check extends Command_Iterator_File {
 				$this->log[$path] = $errors;
 				return;
 			}
-			if (!$this->option_bool('no-backup')) {
+			if (!$this->optionBool('no-backup')) {
 				if (file_exists($path . ".old")) {
 					$this->log("$path.old exists, skipping");
 					return;
@@ -436,7 +436,7 @@ class Command_Check extends Command_Iterator_File {
 					$this->log("Can not rename $path to $path.old, skipping");
 					return;
 				}
-			} elseif ($this->option_bool('safe')) {
+			} elseif ($this->optionBool('safe')) {
 				$ext = File::extension($path);
 				$path = StringTools::unsuffix($path, ".$ext") . ".new.$ext";
 			}
@@ -461,12 +461,12 @@ class Command_Check extends Command_Iterator_File {
 			$suffix = " $suffix";
 		}
 		$locale = $this->application->locale;
-		$verbose = $this->option_bool("verbose");
+		$verbose = $this->optionBool("verbose");
 		if ($verbose) {
 			echo "# " . $locale->plural_word("error", $n_found) . " found\n";
 		}
 		$results = [];
-		if ($this->option_bool("verbose")) {
+		if ($this->optionBool("verbose")) {
 			foreach ($this->log as $f => $errors) {
 				$results[] = $prefix . $f . $suffix . " # " . implode(", ", array_keys($errors));
 			}

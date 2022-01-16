@@ -58,7 +58,7 @@ class World_Bootstrap_Currency extends Hookable {
 		$prefix = __NAMESPACE__ . "\\";
 		$x = $this->application->orm_factory($prefix . StringTools::unprefix(__CLASS__, $prefix . "World_Bootstrap_"));
 
-		if ($this->option_bool("drop")) {
+		if ($this->optionBool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 		$codes = $this->_codes();
@@ -113,7 +113,7 @@ class World_Bootstrap_Currency extends Hookable {
 		$code = strtolower(substr($codeName, 0, 2));
 
 		$country = $this->determine_country($code, $name);
-		if (!$country && !$this->option_bool("include_no_country")) {
+		if (!$country && !$this->optionBool("include_no_country")) {
 			return null;
 		}
 		$fields["bank_country"] = $country;
@@ -137,7 +137,7 @@ class World_Bootstrap_Currency extends Hookable {
 
 		$currency = $this->application->orm_factory(__NAMESPACE__ . "\\" . "Currency");
 		if ($this->is_included($currency)) {
-			if ($this->option_bool("delete_mismatched_ids")) {
+			if ($this->optionBool("delete_mismatched_ids")) {
 				$found = $currency->find();
 				if ($found->id() !== $id) {
 					$currency->delete();
@@ -160,7 +160,7 @@ class World_Bootstrap_Currency extends Hookable {
 		foreach ($codes as $index => $row) {
 			$code = strtolower($row[2]);
 			if (!isset($missing_ones[$code])) {
-				if ($this->option_bool("debug")) {
+				if ($this->optionBool("debug")) {
 					$this->application->logger->debug("Code {2} ({1}) no longer valid, remove it", $row);
 				}
 				unset($codes[$index]);

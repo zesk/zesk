@@ -34,7 +34,7 @@ class Control_Checklist extends Control_Optionss {
 	 * @param string $set
 	 */
 	public function value_is_list($set = null) {
-		return is_bool($set) ? $this->set_option('value_is_list', $set) : $this->option_bool('value_is_list');
+		return is_bool($set) ? $this->setOption('value_is_list', $set) : $this->optionBool('value_is_list');
 	}
 
 	/**
@@ -44,14 +44,14 @@ class Control_Checklist extends Control_Optionss {
 	 * @return integer|self
 	 */
 	public function columns($set = null) {
-		return $set === null ? $this->option_integer('columns') : $this->set_option('columns', intval($set));
+		return $set === null ? $this->optionInt('columns') : $this->setOption('columns', intval($set));
 	}
 
 	public function checkbox_exclusive($value = null, $set = null) {
 		if ($value === null) {
 			$result = [];
 			foreach ($this->children() as $child) {
-				if ($child->option_bool(self::option_checklist_exclusive) === $set) {
+				if ($child->optionBool(self::option_checklist_exclusive) === $set) {
 					$result[] = $child;
 				}
 			}
@@ -121,7 +121,7 @@ class Control_Checklist extends Control_Optionss {
 			$this->child($col, $widget);
 			$exclusive = avalue($this->checkbox_exclusives, $value, null);
 			if (is_bool($exclusive)) {
-				$widget->set_option(self::option_checklist_exclusive, $exclusive);
+				$widget->setOption(self::option_checklist_exclusive, $exclusive);
 			}
 		}
 		return $this->widgets_id;
@@ -136,7 +136,7 @@ class Control_Checklist extends Control_Optionss {
 			foreach ($values as $value => $label) {
 				$value = strval($value);
 				if (array_key_exists($value, $this->widgets_id)) {
-					$this->widgets_id[$value]->set_option("checked", true);
+					$this->widgets_id[$value]->setOption("checked", true);
 				}
 			}
 		}
@@ -173,7 +173,7 @@ class Control_Checklist extends Control_Optionss {
 		foreach ($values as $value) {
 			$child = $this->child($this->_child_name($value));
 			if ($child) {
-				$child->set_option("checked", true);
+				$child->setOption("checked", true);
 			}
 		}
 		$column = $this->column();

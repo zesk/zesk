@@ -84,7 +84,7 @@ class Module extends \zesk\Module {
 	 * hook_configured
 	 */
 	public function hook_configured(): void {
-		if ($this->option_bool("application_version_inherit")) {
+		if ($this->optionBool("application_version_inherit")) {
 			$version = $this->application_version_from_package();
 			if ($version !== null) {
 				$this->application->version($version);

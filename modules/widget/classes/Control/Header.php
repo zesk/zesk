@@ -13,7 +13,7 @@ class Control_Header extends Control {
 	protected $order_by_map = [];
 
 	public function list_order_variable($set = null) {
-		return $set === null ? $this->option('list_order_variable', 'o') : $this->set_option('list_order_variable', $set);
+		return $set === null ? $this->option('list_order_variable', 'o') : $this->setOption('list_order_variable', $set);
 	}
 
 	/**

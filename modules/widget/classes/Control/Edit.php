@@ -44,42 +44,42 @@ class Control_Edit extends Control {
 	 *
 	 * @var string
 	 */
-	protected $theme_prefix = null;
+	protected array $theme_prefix = [];
 
 	/**
 	 * Header theme
 	 *
 	 * @var string
 	 */
-	protected ?string $theme_header = null;
+	protected array $theme_header = [];
 
 	/**
 	 * Row theme
 	 *
-	 * @var string
+	 * @var string[]
 	 */
-	protected ?string $theme_row = null;
+	protected array $theme_row = [];
 
 	/**
 	 * Layout theme with replacement variables for widget renderings
 	 *
-	 * @var string
+	 * @var string[]
 	 */
-	protected ?string $theme_widgets = null;
+	protected array $theme_widgets = [];
 
 	/**
 	 * Footer theme
 	 *
-	 * @var string
+	 * @var string[]
 	 */
-	protected ?string $theme_footer = null;
+	protected array $theme_footer = [];
 
 	/**
 	 * Suffix theme
 	 *
-	 * @var string
+	 * @var string[]
 	 */
-	protected ?string $theme_suffix = null;
+	protected array $theme_suffix = [];
 
 	/**
 	 * Row tag
@@ -99,21 +99,21 @@ class Control_Edit extends Control {
 	 *
 	 * @var array
 	 */
-	protected $widgets = [];
+	protected array $widgets = [];
 
 	/**
 	 * Cell tag
 	 *
 	 * @var array
 	 */
-	protected $widget_tag = "div";
+	protected string $widget_tag = "div";
 
 	/**
 	 * Cell attributes
 	 *
 	 * @var array
 	 */
-	protected $widget_attributes = [
+	protected array $widget_attributes = [
 		"class" => "form-group",
 	];
 
@@ -122,28 +122,28 @@ class Control_Edit extends Control {
 	 *
 	 * @var unknown
 	 */
-	protected $label_attributes = [];
+	protected array $label_attributes = [];
 
 	/**
 	 * String
 	 *
 	 * @var string tag to wrap each widget output with
 	 */
-	protected $widget_wrap_tag = null;
+	protected array $widget_wrap_tag = [];
 
 	/**
 	 * Optional wrap attributes for each widget
 	 *
 	 * @var array
 	 */
-	protected $widget_wrap_attributes = [];
+	protected array $widget_wrap_attributes = [];
 
 	/**
 	 * Fields to preserve in the form from the request
 	 *
 	 * @var array
 	 */
-	protected $form_preserve_hidden = [
+	protected array $form_preserve_hidden = [
 		"ajax",
 		"ref",
 	];
@@ -153,7 +153,7 @@ class Control_Edit extends Control {
 	 *
 	 * @return string
 	 */
-	private function _class() {
+	private function _class(): string {
 		if ($this->class === null) {
 			throw new Exception_Semantics("{class}::\$class member must be set and is not.", [
 				"class" => get_class($this),
@@ -167,7 +167,7 @@ class Control_Edit extends Control {
 	 *
 	 * @see Widget::model()
 	 */
-	public function model() {
+	public function model(): Model {
 		return $this->model_factory($this->_class());
 	}
 
@@ -176,8 +176,8 @@ class Control_Edit extends Control {
 	 * @param array $ww
 	 * @return array
 	 */
-	private function _filter_widgets(array $ww) {
-		if ($this->has_option("widgets_filter")) {
+	private function _filter_widgets(array $ww): array {
+		if ($this->hasOption("widgets_filter")) {
 			$this->application->deprecated("{class} has deprecated widgets_filter option, use widgets_include only 2017-11");
 		}
 		$filter = $this->option_list('widgets_include', $this->option_list('widgets_filter'));
@@ -228,7 +228,7 @@ class Control_Edit extends Control {
 	 *
 	 * @see Widget::validate()
 	 */
-	public function validate() {
+	public function validate(): bool {
 		if ($this->request->get('delete') !== null && $this->user_can("delete", $this->object)) {
 			return true;
 		}
@@ -239,7 +239,7 @@ class Control_Edit extends Control {
 	 *
 	 * @return boolean
 	 */
-	protected function delete_redirect() {
+	protected function delete_redirect(): bool {
 		$redirect = avalue($this->options, "delete_redirect");
 		$vars = ArrayTools::kprefix($this->object->variables(), "object.") + ArrayTools::kprefix($this->request->variables(), "request.");
 		$url = null;
@@ -269,7 +269,11 @@ class Control_Edit extends Control {
 	}
 
 	public function duplicate_message($set = null) {
-		return $set === null ? $this->option(self::option_duplicate_message) : $this->set_option(self::option_duplicate_message, $set);
+		return $set === null ? $this->option(self::option_duplicate_message) : $this->setDuplicateMessage($set);
+	}
+
+	public function setDuplicateMessage(string $set) {
+		return $this->setOption(self::option_duplicate_message, $set);
 	}
 
 	private function _get_duplicate_message() {
@@ -315,7 +319,7 @@ class Control_Edit extends Control {
 	 *
 	 * @see Widget::submit()
 	 */
-	public function submit() {
+	public function submit(): bool {
 		if (!$this->submit_handle_delete()) {
 			return false;
 		}
@@ -349,7 +353,7 @@ class Control_Edit extends Control {
 				$this->$theme_var = ArrayTools::suffix($hierarchy, $var);
 				$debug_type = "default";
 			}
-			if ($this->option_bool("debug_theme_paths")) {
+			if ($this->optionBool("debug_theme_paths")) {
 				$this->application->logger->debug("{class}->{theme_var} theme ({debug_type}) is {paths}", [
 					"debug_type" => $debug_type,
 					"class" => get_class($this),
@@ -365,9 +369,10 @@ class Control_Edit extends Control {
 	 *
 	 * @see Widget::theme_variables()
 	 */
-	public function theme_variables() {
-		$enctype = avalue($this->form_attributes, 'enctype');
+	public function theme_variables(): array {
+		$enctype = $this->form_attributes['enctype'] ?? null;
 		if ($enctype === null && $this->upload()) {
+			// TODO - why is this added here? side effects
 			$this->form_attributes['enctype'] = 'multipart/form-data';
 		}
 		return [
@@ -384,7 +389,7 @@ class Control_Edit extends Control {
 			'widget_attributes' => $this->widget_attributes,
 			'widget_wrap_tag' => $this->widget_wrap_tag,
 			'widget_wrap_attributes' => $this->widget_wrap_attributes,
-			'nolabel_widget_wrap_attributes' => firstarg($this->nolabel_widget_wrap_attributes, $this->widget_wrap_attributes),
+			'nolabel_widget_wrap_attributes' => $this->nolabel_widget_wrap_attributes ?? $this->widget_wrap_attributes,
 			'form_preserve_hidden' => $this->form_preserve_hidden,
 			'theme_widgets' => $this->theme_widgets,
 			'title' => $this->title(),

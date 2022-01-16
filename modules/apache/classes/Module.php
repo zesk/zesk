@@ -21,7 +21,7 @@ class Module extends \zesk\Module {
 	 * Implement hook cron_minute
 	 */
 	public function hook_cron_minute(): void {
-		if ($this->option_bool('generate_htaccess')) {
+		if ($this->optionBool('generate_htaccess')) {
 			$this->generate_htaccess();
 		}
 	}

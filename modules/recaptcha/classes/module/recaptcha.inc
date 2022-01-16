@@ -6,7 +6,7 @@ class Module_reCAPTCHA extends Module {
 		$result = true;
 		$configuration = $this->application->configuration;
 		foreach (to_list("site_key;secret_key") as $key) {
-			if ($this->has_option($key)) {
+			if ($this->hasOption($key)) {
 				$target = [
 					"Control_reCAPTCHA",
 					$key,

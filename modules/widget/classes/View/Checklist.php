@@ -11,7 +11,7 @@ namespace zesk;
 class View_Checklist extends View {
 
 	// 	function defaults(Model $object) {
-	// 		if ($this->has_option("table")) {
+	// 		if ($this->hasOption("table")) {
 	// 			$table = $this->option("table");
 	// 			$linkCol = $this->option("column");
 	// 			$idCol = $this->optionget("idcolumn");
@@ -26,7 +26,7 @@ class View_Checklist extends View {
 	// 	}
 
 	// 	function load(Model $object) {
-	// 		if ($this->has_option("Separator")) {
+	// 		if ($this->hasOption("Separator")) {
 	// 			$sep = $this->option("Separator");
 	// 			$v = implode($sep, $this->request->geta($this->name(), $this->option("default", array()), $sep));
 	// 			$this->value($object, $v);

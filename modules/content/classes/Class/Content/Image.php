@@ -31,7 +31,7 @@ class Class_Content_Image extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $find_keys = [
+	public array $find_keys = [
 		"data",
 		"path",
 	];
@@ -78,7 +78,7 @@ class Class_Content_Image extends Class_ORM {
 	 *
 	 * @var array
 	 */
-	public $column_defaults = [
+	public array $column_defaults = [
 		'title' => '',
 		"description" => "",
 	];

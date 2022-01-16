@@ -173,7 +173,7 @@ class Database extends \zesk\Database {
 	public function hook_construct(): void {
 		$this->Connection = null;
 		// Is this here for backwards compatibility?
-		$this->set_option("tabletype", $this->option(self::attribute_engine, $this->default_engine()));
+		$this->setOption("tabletype", $this->option(self::attribute_engine, $this->default_engine()));
 	}
 
 	/**
@@ -195,14 +195,14 @@ class Database extends \zesk\Database {
 	 * @throws Exception_Semantics
 	 */
 	private function _fetch_setting($attribute) {
-		if ($this->has_option($attribute)) {
+		if ($this->hasOption($attribute)) {
 			return $this->option($attribute);
 		}
 		if (!array_key_exists($attribute, self::$mysql_variables)) {
 			throw new Exception_Semantics("No such MySQL variable for attribute {attribute}", compact("attribute"));
 		}
 		$variable = self::$mysql_variables[$attribute];
-		$this->set_option($attribute, $value = $this->query_one("select $variable", $variable, avalue(self::$mysql_default_attributes, $attribute, null)));
+		$this->setOption($attribute, $value = $this->query_one("select $variable", $variable, avalue(self::$mysql_default_attributes, $attribute, null)));
 		return $value;
 	}
 
@@ -429,10 +429,10 @@ class Database extends \zesk\Database {
 			return false;
 		}
 
-		$this->set_option("Database", $this->Database);
-		$this->set_option("User", $user);
-		$this->set_option("Port", $port);
-		$this->set_option("Server", $server);
+		$this->setOption("Database", $this->Database);
+		$this->setOption("User", $user);
+		$this->setOption("Port", $port);
+		$this->setOption("Server", $server);
 
 		$character_set = $this->option(self::attribute_character_set, self::default_character_set);
 		if ($character_set) {
@@ -448,7 +448,7 @@ class Database extends \zesk\Database {
 	}
 
 	private function version_settings(): void {
-		$this->set_option(self::attribute_version, null);
+		$this->setOption(self::attribute_version, null);
 		$this->_fetch_setting(self::attribute_version);
 
 		$version = $this->version;
@@ -458,7 +458,7 @@ class Database extends \zesk\Database {
 				return;
 			}
 			if ($minor <= 6) {
-				$this->set_option("invalid_dates_ok", true);
+				$this->setOption("invalid_dates_ok", true);
 			}
 		}
 	}
@@ -785,7 +785,7 @@ class Database extends \zesk\Database {
 		extract($parts, EXTR_IF_EXISTS);
 		$args = [];
 		if ($user || $pass) {
-			if ($this->option_bool("password-on-command-line")) {
+			if ($this->optionBool("password-on-command-line")) {
 				$args[] = "-u";
 				$args[] = $user;
 				$args[] = "-p$pass";
@@ -1161,10 +1161,10 @@ class Database extends \zesk\Database {
 	 */
 	final protected function _mysql_connect($server, $user, $password, $database, $port) {
 		$conn = mysqli_init(); //@new mysqli($server, $user, $password, $database, $port);
-		if ($this->option_bool("infile")) {
+		if ($this->optionBool("infile")) {
 			mysqli_options($conn, MYSQLI_OPT_LOCAL_INFILE, true);
 		}
-		mysqli_options($conn, MYSQLI_OPT_CONNECT_TIMEOUT, $this->option_integer('connect_timeout', 5));
+		mysqli_options($conn, MYSQLI_OPT_CONNECT_TIMEOUT, $this->optionInt('connect_timeout', 5));
 		$flags = $this->option("connect_flags", 0);
 		if (is_numeric($flags)) {
 			$flags = intval($flags);
@@ -1238,7 +1238,7 @@ class Database extends \zesk\Database {
 			}
 			return $result;
 		}
-		if (!$this->Connection && avalue($options, 'auto_connect', $this->option_bool("auto_connect", true))) {
+		if (!$this->Connection && avalue($options, 'auto_connect', $this->optionBool("auto_connect", true))) {
 			$this->connect();
 		}
 		if (!$this->Connection) {

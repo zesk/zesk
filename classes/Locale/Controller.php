@@ -50,7 +50,7 @@ class Controller extends \zesk\Controller {
 		$content = "/* elapsed: {page-render-time}, is_cached: {page-is-cached} */\n";
 		$content .= "(function (exports) {\n\t$load_lines\n}(this));\n";
 
-		$this->response->cache_for($this->option_integer("cache_seconds", 600));
+		$this->response->cache_for($this->optionInt("cache_seconds", 600));
 		$this->response->content = $content;
 	}
 }

@@ -17,7 +17,7 @@ class Command_Licenses extends Command_Base {
 
 	protected function run(): void {
 		$modules = $this->application->modules;
-		$modules = $this->option_bool('all') ? $modules->available() : $modules->load();
+		$modules = $this->optionBool('all') ? $modules->available() : $modules->load();
 		foreach ($modules as $name => $module_data) {
 			$configuration = to_array(avalue($module_data, 'configuration'));
 

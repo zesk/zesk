@@ -261,7 +261,7 @@ class Module_Permission extends Module {
 	 * @param CacheItemInterface $item
 	 */
 	private function _cache_changed(CacheItemInterface $item): void {
-		if ($this->option_bool('disable_cache')) {
+		if ($this->optionBool('disable_cache')) {
 			return;
 		}
 		$this->application->cache->saveDeferred($item);
@@ -278,7 +278,7 @@ class Module_Permission extends Module {
 			$this->_cache_changed($cache);
 			return $this;
 		}
-		if ($this->option_bool('disable_cache')) {
+		if ($this->optionBool('disable_cache')) {
 			return null;
 		}
 		if (!$cache->isHit()) {

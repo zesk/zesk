@@ -261,7 +261,7 @@ class URL {
 			if (is_array($v)) {
 				$item[] = self::query_unparse_arr($k, $v);
 			} else {
-				$item[] = urlencode($k) . '=' . urlencode($v);
+				$item[] = urlencode($k) . '=' . urlencode($v ?? "");
 			}
 		}
 		return "?" . implode("&", $item);

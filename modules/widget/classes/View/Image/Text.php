@@ -68,7 +68,7 @@ class View_Image_Text extends View {
 			if (!is_file($set)) {
 				throw new Exception_File_NotFound($set);
 			}
-			$this->set_option('font-file', $set);
+			$this->setOption('font-file', $set);
 		}
 		return $this->option('font-file', $this->default_font());
 	}
@@ -98,7 +98,7 @@ class View_Image_Text extends View {
 	}
 
 	private function debug_log($message): void {
-		if ($this->option_bool('debug', self::$debug)) {
+		if ($this->optionBool('debug', self::$debug)) {
 			$this->application->logger->debug($message);
 		}
 	}
@@ -108,7 +108,7 @@ class View_Image_Text extends View {
 
 		$col = $this->column();
 
-		$text = $this->value();
+		$text = $this->value() ?? "";
 
 		$background = $this->option("background-color", 'FFF');
 		$background = new Color_RGB($background);
@@ -119,12 +119,12 @@ class View_Image_Text extends View {
 		$font_size = $this->font_size();
 		$font_angle = $this->angle();
 		$align = $this->align();
-		$debug = $this->option_bool('debug', self::$debug);
+		$debug = $this->optionBool('debug', self::$debug);
 
 		$this->debug_log("Font: $font");
 		$this->debug_log("Text: $text");
 
-		$obox = @imagettfbbox($font_size, 0, $font, $text);
+		$obox = \imagettfbbox($font_size, 0, $font, $text);
 		$box = self::rotate_bbox($obox, -$font_angle);
 
 		[$xmin, $ymin, $xmax, $ymax] = self::bbox($box);
@@ -166,7 +166,7 @@ class View_Image_Text extends View {
 
 				break;
 		}
-		$transparency = $this->option_bool("transparency", true);
+		$transparency = $this->optionBool("transparency", true);
 
 		$this->debug_log(_dump($box));
 		$this->debug_log("Offset: $xoff,$yoff");
@@ -201,17 +201,17 @@ class View_Image_Text extends View {
 		}
 		$fname = md5(implode(";", $params)) . ".png";
 		if ($debug || !file_exists($absolute_cache_path . $fname)) {
-			$image = imagecreate($width, $height);
+			$image = \imagecreate($width, $height);
 			// Set the default background color
-			imagecolorallocate($image, $background->red, $background->green, $background->blue);
+			\imagecolorallocate($image, $background->red, $background->green, $background->blue);
 			if ($transparency) {
-				imagecolortransparent($image, imagecolorat($image, 1, 1));
+				\imagecolortransparent($image, imagecolorat($image, 1, 1));
 			}
-			$font_color = imagecolorallocate($image, $foreground->red, $foreground->green, $foreground->blue);
-			imagettftext($image, $font_size, $font_angle, $xoff, $yoff, $font_color, $font, $text);
-			imagepng($image, $absolute_cache_path . $fname);
+			$font_color = \imagecolorallocate($image, $foreground->red, $foreground->green, $foreground->blue);
+			\imagettftext($image, $font_size, $font_angle, $xoff, $yoff, $font_color, $font, $text);
+			\imagepng($image, $absolute_cache_path . $fname);
 			$this->application->hooks->call('file_created', $absolute_cache_path . $fname);
-			imagedestroy($image);
+			\imagedestroy($image);
 		}
 		$attr = $this->option_array('attributes');
 		$attr['title'] = $this->option("alt", $text);

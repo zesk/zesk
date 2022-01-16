@@ -36,11 +36,11 @@ class Command_World_Bootstrap extends Command_Base {
 
 	public function run() {
 		$straps = [];
-		if ($this->option_bool('all')) {
+		if ($this->optionBool('all')) {
 			$straps = array_keys(self::$straps);
 		} else {
 			foreach (self::$straps as $k => $code) {
-				if ($this->option_bool($k)) {
+				if ($this->optionBool($k)) {
 					$straps[] = $k;
 				}
 			}
@@ -49,7 +49,7 @@ class Command_World_Bootstrap extends Command_Base {
 			$this->error("Specify something to bootstrap");
 			return 1;
 		}
-		if ($this->option_bool('drop')) {
+		if ($this->optionBool('drop')) {
 			$this->verbose_log("Truncating all tables ... may cause ID renumbering.");
 			$this->application->configuration->path_set('zesk\\Module_World::drop', true);
 		}

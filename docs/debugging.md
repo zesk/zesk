@@ -60,7 +60,7 @@ This is a RECOMMENDATION and variations among classes may be permitted depending
 		 * @return void
 		 */
 		public function debug($message, array $args = array()) {
-			if ($this->option_bool("debug")) {
+			if ($this->optionBool("debug")) {
 				$this->application->logger->debug($message, $args);
 			}
 		}
@@ -72,7 +72,7 @@ This is a RECOMMENDATION and variations among classes may be permitted depending
 		 * @return self
 		 */
 		public function send() {
-			if ($this->option_bool("debug_send", $this->option_bool("debug"))) {
+			if ($this->optionBool("debug_send", $this->optionBool("debug"))) {
 				$this->application->logger->debug("Sending message {id}", array("id" => $this->id));
 			}
 		}

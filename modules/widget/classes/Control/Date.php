@@ -17,7 +17,7 @@ namespace zesk;
 class Control_Date extends Control_Timestamp {
 	public function time_value($set = null) {
 		if ($set !== null) {
-			return $this->set_option('time_value', $set);
+			return $this->setOption('time_value', $set);
 		}
 		return $this->time_control() ? $this->object->get($this->name() . '_time') : $this->option("time_value", "00:00:00");
 	}

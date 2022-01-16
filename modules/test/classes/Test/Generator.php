@@ -108,7 +108,7 @@ class Test_Generator extends Options {
 		]);
 		$map = [
 			"year" => date("Y"),
-		] + $this->option([
+		] + $this->options([
 			"author" => $this->application->process->user(),
 			"package" => __NAMESPACE__,
 			"subpackage" => "test",
@@ -172,7 +172,7 @@ class Test_Generator extends Options {
 			echo "svn mv $old_dest_file $dest_file\n";
 		}
 		if (file_exists($dest_file)) {
-			if ($this->option_bool('force-create') || $this->option_bool('force-create-functions')) {
+			if ($this->optionBool('force-create') || $this->optionBool('force-create-functions')) {
 				if ($verbose) {
 					echo "Overwriting destination file $dest_file due to force flags...\n";
 				}
@@ -188,7 +188,7 @@ class Test_Generator extends Options {
 
 		$contents[] = $this->generate_function_test_code($func, $params);
 
-		if (!$this->option_bool('dry-run')) {
+		if (!$this->optionBool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
 			chmod($dest_file, 0o775);
 			echo "Wrote $dest_file ...\n";
@@ -202,7 +202,7 @@ class Test_Generator extends Options {
 
 		$dest_file = path($dest_path, "$class-$method.phpt");
 		if (file_exists($dest_file)) {
-			if ($this->option_bool('force-create') || $this->option_bool('force-create-functions')) {
+			if ($this->optionBool('force-create') || $this->optionBool('force-create-functions')) {
 				if ($verbose) {
 					echo "Overwriting destination file $dest_file due to force flags...\n";
 				}
@@ -219,7 +219,7 @@ class Test_Generator extends Options {
 		$contents[] = generate_function_test_code("$class::$method", $params);
 		$contents[] = "echo basename(__FILE__) . \": success\\n\";";
 
-		if (!$this->option_bool('dry-run')) {
+		if (!$this->optionBool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
 			chmod($dest_file, 0o775);
 			echo "Wrote $dest_file ...\n";
@@ -278,7 +278,7 @@ class Test_Generator extends Options {
 			return;
 		}
 		if (file_exists($dest_file)) {
-			if ($this->option_bool('force-create') || $this->option_bool('force-create-classes')) {
+			if ($this->optionBool('force-create') || $this->optionBool('force-create-classes')) {
 				if ($verbose) {
 					echo "Overwriting destination file $dest_file due to force flags...\n";
 				}
@@ -336,7 +336,7 @@ class Test_Generator extends Options {
 		}
 		$contents[] = "echo basename(__FILE__) . \": success\\n\";";
 
-		if (!$this->option_bool('dry-run')) {
+		if (!$this->optionBool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
 			chmod($dest_file, 0o775);
 			echo "Wrote $dest_file ...\n";
@@ -352,7 +352,7 @@ class Test_Generator extends Options {
 			return;
 		}
 		/* Strip away all extra lines */
-		$debug_parsing = $this->option_bool('debug-parsing');
+		$debug_parsing = $this->optionBool('debug-parsing');
 		$content = str_replace("\r", "\n", $content);
 		$content = str_replace("\n\n", "\n", $content);
 		$iter = 0;
@@ -461,7 +461,7 @@ class Test_Generator extends Options {
 			$this->verbose_log("Generating tests for the current directory: $cwd\n");
 			$dirs[] = $cwd;
 		}
-		$dry_run = $this->option_bool("dry-run");
+		$dry_run = $this->optionBool("dry-run");
 		if ($dry_run) {
 			$this->verbose_log("Dry run: No files will be created.\n");
 		}

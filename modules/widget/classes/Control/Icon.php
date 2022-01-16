@@ -22,7 +22,7 @@ class Control_Icon extends Control {
 		$img_attrs['width'] = $this->option("img_width");
 		$img_attrs['height'] = $this->option("img_height");
 		$result = HTML::tag("a", $attrs, HTML::img($this->application, $src, $this->option("alt", ""), $img_attrs));
-		if ($this->has_option("js_variable")) {
+		if ($this->hasOption("js_variable")) {
 			$result .= HTML::tag("script", [
 				"type" => "text/javascript",
 			], "var " . $this->option("js_variable") . " = '" . $v . "'");

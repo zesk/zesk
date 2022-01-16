@@ -489,14 +489,14 @@ class Database_SQL extends \zesk\Database_SQL {
 	string {
 		$sql_type = $dbCol->sql_type();
 		$sql = "$sql_type";
-		if ($dbCol->option_bool("unsigned")) {
+		if ($dbCol->optionBool("unsigned")) {
 			$sql .= " unsigned";
 		}
 		if ($dbCol->is_text()) {
-			if ($dbCol->has_option(Database::attribute_character_set)) {
+			if ($dbCol->hasOption(Database::attribute_character_set)) {
 				$sql .= " CHARACTER SET " . $dbCol->option(Database::attribute_character_set);
 			}
-			if ($dbCol->has_option(Database::attribute_collation)) {
+			if ($dbCol->hasOption(Database::attribute_collation)) {
 				$sql .= " COLLATE " . $dbCol->option(Database::attribute_collation);
 			}
 		}

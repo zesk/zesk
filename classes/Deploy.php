@@ -102,7 +102,7 @@ class Deploy extends Hookable {
 			//error("Deploy::reset({skip}) Empty tags found last_tag={last_tag} failed_tag={failed_tag}", compact("last_tag", "failed_tag", "skip"));
 			return null;
 		}
-		return $this->set_option([
+		return $this->setOption([
 			'status' => true,
 			'last_tag' => $skip ? $failed_tag : $last_tag,
 		]);
@@ -114,7 +114,7 @@ class Deploy extends Hookable {
 	 * @return boolean
 	 */
 	public function failed() {
-		return !$this->option_bool('status', true);
+		return !$this->optionBool('status', true);
 	}
 
 	/**
@@ -196,9 +196,9 @@ class Deploy extends Hookable {
 		$start = time();
 		$results['started'] = date('Y-m-d H:i:s');
 		$results['first_tag'] = $last_tag;
-		$this->set_option('applied', null);
-		$this->set_option('failed_tag', null);
-		$this->set_option('failed_result', null);
+		$this->setOption('applied', null);
+		$this->setOption('failed_tag', null);
+		$this->setOption('failed_result', null);
 		$results['last_tag'] = $last_tag;
 		$results['status'] = true;
 		if (count($tags) > 0) {
@@ -219,7 +219,7 @@ class Deploy extends Hookable {
 						$results['failed_tag'] = $tag;
 						$results['failed_result'] = $result;
 						$results['status'] = false;
-						$this->set_option($results);
+						$this->setOption($results);
 						return $results;
 					} else {
 						$results['applied'][$subpath] = $result;
@@ -230,7 +230,7 @@ class Deploy extends Hookable {
 		}
 		$results['ended'] = date('Y-m-d H:i:s');
 		$results['duration'] = time() - $start;
-		$this->set_option($results);
+		$this->setOption($results);
 		return $this;
 	}
 

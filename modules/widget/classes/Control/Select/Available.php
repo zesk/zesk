@@ -30,9 +30,9 @@ class Control_Select_Available extends Control_Select {
 				$column_name,
 			];
 		}
-		$this->set_option("column_id", $column_id);
+		$this->setOption("column_id", $column_id);
 		if ($column_name) {
-			$this->set_option("column_name", $column_name);
+			$this->setOption("column_name", $column_name);
 		}
 		return $this;
 	}

@@ -118,29 +118,29 @@ class Text {
 	 * Generate a fill string to support ralign and lalign, and modify text
 	 *
 	 * @param string $text Text to right-align
-	 * @param integer $n Number of characters to return
+	 * @param integer $length Number of characters to return
 	 * @param string $pad Character used to fill string
 	 * @param string $fill The fill cahracters to be filled in.
-	 * @param boolean $_trim If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
+	 * @param boolean $chop_text If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
 	 * @return string The text with padding to fill $n characters (aligned right), or the original string (optionally trimmed) if length is greater than $n
 	 * @see self::ralign
 	 * @see self::lalign
 	 * @see self::fill
 	 */
-	private static function _align_helper(string $text, int $n, string $pad, string &$fill, bool $_trim = false): string {
+	private static function _align_helper(string $text, int $length, string $pad, string &$fill, bool $chop_text = false): string {
 		$fill = "";
-		if ($n <= 0) {
+		if ($length <= 0) {
 			return $text;
 		}
-		$tlen = strlen($text);
-		if ($tlen >= $n) {
-			if ($_trim) {
-				return substr($text, 0, $n);
+		$text_length = strlen($text);
+		if ($text_length >= $length) {
+			if ($chop_text) {
+				return substr($text, 0, $length);
 			}
 			return $text;
 		}
 		// $tlen < $n
-		$fill = self::fill($n - $tlen, $pad);
+		$fill = self::fill($length - $text_length, $pad);
 		return $text;
 	}
 
@@ -148,14 +148,14 @@ class Text {
 	 * Right align a string in a block of characters returned.
 	 *
 	 * @param string $text Text to right-align
-	 * @param integer $n Number of characters to return
+	 * @param integer $length Number of characters to return
 	 * @param string $pad Character used to fill string
-	 * @param boolean $_trim If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
+	 * @param boolean $chop_text If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
 	 * @return string The text with padding to fill $n characters (aligned right), or the original string (optionally trimmed) if length is greater than $n
 	 */
-	public static function ralign($text, $n = -1, $pad = " ", $_trim = false) {
+	public static function ralign(string $text, int $length = -1, string $pad = " ", bool $chop_text = false) {
 		$fill = "";
-		$text = self::_align_helper($text, $n, $pad, $fill, $_trim);
+		$text = self::_align_helper($text, $length, $pad, $fill, $chop_text);
 		return $fill . $text;
 	}
 
@@ -163,14 +163,14 @@ class Text {
 	 * Left align a string in a block of characters returned.
 	 *
 	 * @param string $text Text to left-align
-	 * @param integer $n Number of characters to return
+	 * @param integer $length Number of characters to return
 	 * @param string $pad Character used to fill string
-	 * @param boolean $_trim If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
+	 * @param bool $chop_text If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
 	 * @return string The text with padding to fill $n characters (aligned left), or the original string (optionally trimmed) if length is greater than $n
 	 */
-	public static function lalign($text, $n = -1, $pad = " ", $_trim = false) {
+	public static function lalign(string $text, int $length = -1, string $pad = " ", bool $chop_text = false): string {
 		$fill = "";
-		$text = self::_align_helper($text, $n, $pad, $fill, $_trim);
+		$text = self::_align_helper($text, $length, $pad, $fill, $chop_text);
 		return $text . $fill;
 	}
 

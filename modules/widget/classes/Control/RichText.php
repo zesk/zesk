@@ -20,11 +20,11 @@ class Control_RichText extends Control_Text {
 	 * @return number[]
 	 */
 	final public function dimensions() {
-		$rows = $this->option_integer("rows", 5);
-		$cols = $this->option_integer("cols", 80);
+		$rows = $this->optionInt("rows", 5);
+		$cols = $this->optionInt("cols", 80);
 
-		$maxRows = $this->option_integer("rows_max", 64);
-		$maxCols = $this->option_integer("cols_max", 200);
+		$maxRows = $this->optionInt("rows_max", 64);
+		$maxCols = $this->optionInt("cols_max", 200);
 
 		if ($rows > $maxRows) {
 			$rows = $maxRows;

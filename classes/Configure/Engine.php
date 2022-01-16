@@ -214,7 +214,7 @@ class Engine extends Hookable {
 	 * @param array $arguments
 	 */
 	public function verbose_log($message, array $arguments = []): void {
-		if ($this->option_bool('verbose')) {
+		if ($this->optionBool('verbose')) {
 			$this->log($message, $arguments);
 		}
 	}
@@ -224,7 +224,7 @@ class Engine extends Hookable {
 	 * @param array $arguments
 	 */
 	public function debug_log($message, array $arguments = []): void {
-		if ($this->option_bool('debug')) {
+		if ($this->optionBool('debug')) {
 			$this->log($message, $arguments);
 		}
 	}

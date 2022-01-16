@@ -24,11 +24,11 @@ $n_cols = $show_required ? 3 : 2;
 
 if ($overlabel) {
 	// $overlabel_id = "overlabel_". HTML::id_counter();
-	$child->set_option("overlabel", true);
+	$child->setOption("overlabel", true);
 	$response->jquery();
 	$response->javascript("/share/zesk/jquery/jquery.overlabel.js");
 	$response->jquery("$('label.overlabel').overlabel();");
-	// $widget->set_option("id", $overlabel_id);
+	// $widget->setOption("id", $overlabel_id);
 }
 
 $context_class = $child->context_class();

@@ -494,7 +494,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 * @return boolean
 	 */
 	public function dead() {
-		return $this->died > $this->option_integer("retry_attempts", self::retry_attempts($this->application));
+		return $this->died > $this->optionInt("retry_attempts", self::retry_attempts($this->application));
 	}
 
 	/**

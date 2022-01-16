@@ -451,7 +451,7 @@ class Module_ORM extends Module {
 			return false;
 		}
 		$logger = $this->application->logger;
-		if ($this->option_bool('schema_sync')) {
+		if ($this->optionBool('schema_sync')) {
 			$db = $this->application->database_registry();
 			$logger->warning("The database schema was out of sync, updating: {sql}", ["sql" => implode(";\n", $results) . ";\n", ]);
 			$db->query($results);

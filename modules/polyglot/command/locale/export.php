@@ -33,7 +33,7 @@ class Command_Locale_Export extends Command_Base {
 		if (!$destination) {
 			$this->usage("Need a file --destination {destination}");
 		}
-		$exclusions = $this->option_bool("no-exclude") ? [] : $this->load_exclusions();
+		$exclusions = $this->optionBool("no-exclude") ? [] : $this->load_exclusions();
 		$source_locale = $this->application->load($source_language_file) + Reader::factory($this->application->locale_path(), "en_US")->execute();
 		$csv = new CSV_Writer();
 		$csv->file($destination);

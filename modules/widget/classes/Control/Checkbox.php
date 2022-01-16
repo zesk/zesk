@@ -11,12 +11,12 @@ namespace zesk;
 class Control_Checkbox extends Control {
 	private function apply_options($bool_result): void {
 		if ($bool_result) {
-			if ($this->has_option("trueoptions")) {
-				$this->set_option($this->firstOption(["options_true", "trueoptions"]));
+			if ($this->hasOption("trueoptions")) {
+				$this->setOption($this->firstOption(["options_true", "trueoptions"]));
 			}
 		} else {
-			if ($this->has_option("falseoptions")) {
-				$this->set_option($this->firstOption(["options_false", "falseoptions"]));
+			if ($this->hasOption("falseoptions")) {
+				$this->setOption($this->firstOption(["options_false", "falseoptions"]));
 			}
 		}
 	}
@@ -47,8 +47,8 @@ class Control_Checkbox extends Control {
 	}
 
 	public function checked() {
-		if ($this->has_option("checked")) {
-			return $this->option_bool("checked");
+		if ($this->hasOption("checked")) {
+			return $this->optionBool("checked");
 		}
 		return $this->value() === $this->object_value_true();
 	}
@@ -64,7 +64,7 @@ class Control_Checkbox extends Control {
 			$checked = ($new_value === $this->input_value_true());
 			$object_value = $checked ? $this->object_value_true() : $this->object_value_false();
 			$this->value($object_value);
-			if ($this->option_bool("debug_load")) {
+			if ($this->optionBool("debug_load")) {
 				$this->application->logger->warning("Set widget {name} to {value} ({type})", [
 					"name" => $this->name(),
 					"value" => $object_value,
@@ -88,14 +88,14 @@ class Control_Checkbox extends Control {
 		if ($value === null) {
 			return $this->option('label_checkbox');
 		}
-		return $this->set_option('label_checkbox', $value);
+		return $this->setOption('label_checkbox', $value);
 	}
 
 	public function checked_value($value = null) {
 		if ($value === null) {
 			return $this->option('checked_value', 1);
 		}
-		return $this->set_option('checked_value', $value);
+		return $this->setOption('checked_value', $value);
 	}
 
 	public function theme_variables() {

@@ -95,7 +95,7 @@ class Feed extends Model implements \Iterator {
 	 */
 	public function load_remote_url() {
 		$http = new Net_HTTP_Client($this->application, $this->url);
-		if ($this->has_option("user_agent")) {
+		if ($this->hasOption("user_agent")) {
 			$http->user_agent($this->option("user_agent"));
 		}
 		$http->request_header(Net_HTTP::REQUEST_ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");

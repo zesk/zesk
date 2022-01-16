@@ -66,7 +66,7 @@ for ($i = 0; $i < $n_extras; $i++) {
 
 echo HTML::tag_close('div');
 
-if ($widget->option_bool("show_more", true)) {
+if ($widget->optionBool("show_more", true)) {
 	$response->jquery('$(".control-link-object button.more").on("click", function () {
 		var $parent = $(this).parents(".control-link-object"),
 		$tpl = $("#"+$parent.data("template")).html();

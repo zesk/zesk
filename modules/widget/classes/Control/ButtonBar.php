@@ -17,25 +17,25 @@ class Control_ButtonBar extends Control {
 
 		if ($ok_label) {
 			$w = $this->widget_factory('Control_Button');
-			$w->names('OK')->set_option('label_button', $ok_label);
+			$w->names('OK')->setOption('label_button', $ok_label);
 			$w->class = "btn primary";
 			$w->type = "cancel";
 			$onclick = $this->option('ok_onclick', null);
 			if ($onclick) {
-				$w->set_option("submit", false);
-				$w->set_option("onclick", $onclick);
+				$w->setOption("submit", false);
+				$w->setOption("onclick", $onclick);
 			}
 			$this->child($w);
 		}
 		if ($cancel_label) {
 			$w = $this->widget_factory('Control_Button');
-			$w->names('Cancel')->set_option('label_button', $cancel_label);
+			$w->names('Cancel')->setOption('label_button', $cancel_label);
 			$w->class = "btn";
 			$w->type = "cancel";
 			$onclick = $this->option('cancel_onclick', null);
 			if ($onclick) {
-				$w->set_option("submit", false);
-				$w->set_option("onclick", $onclick);
+				$w->setOption("submit", false);
+				$w->setOption("onclick", $onclick);
 			}
 			$this->child($w);
 		}

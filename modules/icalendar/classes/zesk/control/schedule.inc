@@ -117,7 +117,7 @@ class Control_Schedule extends Control {
 			->names("unit", null, $column_prefix . "unit")
 			->control_options($schedule_frequencies)
 			->required(true)
-			->set_option("onupdate", "function (value) {
+			->setOption("onupdate", "function (value) {
 				zesk.log(\"value is \" + value);
 				\$(\"#${column_prefix}dayofweek\").toggle(value === \"week\");
 				\$(\"#${column_prefix}dayofmonth\").toggle(value === \"month\");

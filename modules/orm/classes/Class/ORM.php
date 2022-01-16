@@ -409,7 +409,7 @@ class Class_ORM extends Hookable {
 	 *
 	 * @var array
 	 */
-	public ?array $primary_keys = null;
+	public array $primary_keys = [];
 
 	/**
 	 * Name of the column which is automatically incremented upon saves
@@ -820,7 +820,7 @@ class Class_ORM extends Hookable {
 		if (!array_key_exists('class', $many_spec)) {
 			throw new Exception_Semantics("many_spec for class {class} must contain key 'class' for member {member}", compact("class", "member"));
 		}
-		$this->add_has_many_object($many_spec['class'], $member, avalue($many_spec, 'default'));
+		$this->add_has_many_object($many_spec['class'], $member, to_bool($many_spec[ 'default'] ?? false));
 		$this->has_many[$member] = map($many_spec, ['table' => $this->table, ]);
 		return $this;
 	}
@@ -847,14 +847,14 @@ class Class_ORM extends Hookable {
 			$this->name = $this->option("name", $this_class);
 		}
 		if ($this->table === "") {
-			$this->table = $this->option("table", $object->option("table"));
-			if (empty($this->table)) {
-				$prefix = $this->option("table_prefix", $object->option("table_prefix"));
+			$this->table = $this->option("table", $object->option("table", ""));
+			if ($this->table === "") {
+				$prefix = $this->option("table_prefix", $object->option("table_prefix", ""));
 				$this->table = $prefix . $this->code_name;
 			}
 		}
 		/* Automatic promotion here of primary_keys should be avoided - id_column should probably just be internal */
-		if (is_array($this->primary_keys)) {
+		if (count($this->primary_keys) > 0) {
 			if (count($this->primary_keys) === 1) {
 				$this->id_column = $this->primary_keys[0];
 			} elseif ($this->id_column === self::ID_AUTOASSIGN) {
@@ -897,7 +897,7 @@ class Class_ORM extends Hookable {
 						"member" => $member,
 					]);
 				}
-				$this->add_has_many_object($many_spec['class'], $member, avalue($many_spec, 'default'));
+				$this->add_has_many_object($many_spec['class'], $member, to_bool($many_spec['default'] ?? false));
 			}
 			$this->has_many = map($this->has_many, ['table' => $this->table, ]);
 		}
@@ -924,7 +924,7 @@ class Class_ORM extends Hookable {
 		}
 		$this->initialize_database($object);
 		if (empty($this->utc_timestamps)) {
-			$this->utc_timestamps = $this->option_bool("utc_timestamps");
+			$this->utc_timestamps = $this->optionBool("utc_timestamps");
 		}
 		$this->init_columns(null);
 		$this->_column_defaults();
@@ -938,14 +938,20 @@ class Class_ORM extends Hookable {
 
 	protected function initialize_database(ORM $object): void {
 		if (!empty($this->database_group) && $this->database_group !== $this->class) {
-			$this->database_name = $this->database = $this->application->orm_registry($this->database_group)->databaseName();
-		} else {
-			if (empty($this->database)) {
-				$this->database = $this->option("database", $object->option("database"));
+			if ($this->database_name !== "") {
+				$this->application->logger->warning("database_name value {database_name} is ignored, using database_group {database_group}", ["database_name" => $this->database_name, "database_group" => $this->database_group]);
 			}
-			if (empty($this->database_name) && is_string($this->database)) {
-				$this->database_name = $this->database;
+			$this->database_name = $this->application->orm_registry($this->database_group)->databaseName();
+		}
+		if ($this->database_name !== "") {
+			if ($this->database_name === $object->databaseName()) {
+				$this->database = $object->database();
+			} else {
+				$this->database = $this->application->database_registry($this->database_name);
 			}
+		}
+		if ($this->database === null) {
+			$this->database = $object->database();
 		}
 	}
 
@@ -955,6 +961,7 @@ class Class_ORM extends Hookable {
 	 * Only thing set is "$this->class"
 	 */
 	protected function configure(ORM $object): void {
+		// pass
 	}
 
 	/**

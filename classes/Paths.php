@@ -140,7 +140,7 @@ class Paths {
 	 * @param string $suffix
 	 * @return string
 	 */
-	public function zesk($suffix = null) {
+	public function zesk($suffix = "") {
 		return path(ZESK_ROOT, $suffix);
 	}
 

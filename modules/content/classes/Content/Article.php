@@ -56,7 +56,7 @@ class Content_Article extends ORM {
 	 * @return boolean
 	 */
 	public function reindex($force = false, $clear = true) {
-		if (!$this->option_bool("search_active")) {
+		if (!$this->optionBool("search_active")) {
 			return true;
 		}
 
@@ -211,9 +211,9 @@ class Content_Article extends ORM {
 	public function summary() {
 		$result = $this->membere("Summary", "");
 		if (!empty($result)) {
-			return HTML::ellipsis($result, $this->option_integer('summary_maximum_length', -1));
+			return HTML::ellipsis($result, $this->optionInt('summary_maximum_length', -1));
 		}
-		$result = HTML::ellipsis($this->body(), $this->option_integer('summary_maximum_length_from_body', 200));
+		$result = HTML::ellipsis($this->body(), $this->optionInt('summary_maximum_length_from_body', 200));
 		return $result;
 	}
 
@@ -255,7 +255,7 @@ class Content_Article extends ORM {
 	 * @return number
 	 */
 	private function _compute_image_size($name, $global_prefix, $default_value) {
-		return $this->option_integer("image_${global_prefix}${name}_default", $this->application->configuration->path_get("Image::image_${global_prefix}${name}_default", $default_value));
+		return $this->optionInt("image_${global_prefix}${name}_default", $this->application->configuration->path_get("Image::image_${global_prefix}${name}_default", $default_value));
 	}
 
 	/**

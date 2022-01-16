@@ -20,27 +20,27 @@ class Control_Timestamp extends Control {
 
 	public function future_only($set = null) {
 		if ($set !== null) {
-			return $this->set_option("data-future-only", to_bool($set));
+			return $this->setOption("data-future-only", to_bool($set));
 		}
-		return $this->option_bool('data-future-only');
+		return $this->optionBool('data-future-only');
 	}
 
 	public function past_only($set = null) {
 		if ($set !== null) {
-			return $this->set_option("data-past-only", to_bool($set));
+			return $this->setOption("data-past-only", to_bool($set));
 		}
-		return $this->option_bool('data-past-only');
+		return $this->optionBool('data-past-only');
 	}
 
 	public function allow_times($set = null) {
 		if ($set !== null) {
-			return $this->set_option("allow_times", to_bool($set));
+			return $this->setOption("allow_times", to_bool($set));
 		}
-		return $this->option_bool('allow_times');
+		return $this->optionBool('allow_times');
 	}
 
 	public function time_control($set = null) {
-		return $set === null ? $this->option_bool('time_control') : $this->set_option('time_control', to_bool($set));
+		return $set === null ? $this->optionBool('time_control') : $this->setOption('time_control', to_bool($set));
 	}
 
 	public function load(): void {
@@ -56,7 +56,7 @@ class Control_Timestamp extends Control {
 
 	public function null_string($set = null) {
 		if ($set !== null) {
-			return $this->set_option('null_string', $set);
+			return $this->setOption('null_string', $set);
 		}
 		return $this->option('null_string');
 	}

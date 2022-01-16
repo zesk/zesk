@@ -11,7 +11,7 @@ namespace zesk;
 class View_Section_End extends View {
 	public function initialize(): void {
 		parent::initialize();
-		$this->set_option([
+		$this->setOption([
 			'is_section_end' => true,
 			'is_section' => true,
 		]);

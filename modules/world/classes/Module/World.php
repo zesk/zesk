@@ -41,10 +41,10 @@ class Module_World extends Module_JSLib {
 		$__ = [
 			"method" => __METHOD__,
 		];
-		$bootstrap = $this->option_bool("bootstrap_all");
-		$bootstrap_country = $this->option_bool("bootstrap_country");
-		$bootstrap_currency = $this->option_bool("bootstrap_currency");
-		$bootstrap_language = $this->option_bool("bootstrap_language");
+		$bootstrap = $this->optionBool("bootstrap_all");
+		$bootstrap_country = $this->optionBool("bootstrap_country");
+		$bootstrap_currency = $this->optionBool("bootstrap_currency");
+		$bootstrap_language = $this->optionBool("bootstrap_language");
 		$this->application->logger->debug("{method} begin", $__);
 		if ($bootstrap || $bootstrap_country) {
 			$this->application->logger->debug("{method} World_Bootstrap_Country", $__);

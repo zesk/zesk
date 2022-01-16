@@ -9,7 +9,7 @@ namespace zesk;
 class Class_Job extends Class_ORM {
 	public string $id_column = "id";
 
-	public $find_keys = [
+	public array $find_keys = [
 		"code",
 	];
 
@@ -40,7 +40,7 @@ class Class_Job extends Class_ORM {
 		'status' => self::type_string,
 	];
 
-	public $column_defaults = [
+	public array $column_defaults = [
 		"duration" => 0,
 		"died" => 0,
 		"status" => "",

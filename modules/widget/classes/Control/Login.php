@@ -53,7 +53,7 @@ class Control_Login extends Control_Edit {
 	 *
 	 * @see Control_Edit::model()
 	 */
-	public function model() {
+	public function model(): Model_Login {
 		return new Model_Login($this->application);
 	}
 
@@ -72,7 +72,7 @@ class Control_Login extends Control_Edit {
 		if (!$this->option("no_password")) {
 			$f = $this->widget_factory(Control_Password::class)->names("login_password", $this->option("label_password", $locale->__("Password")))
 				->required(true);
-			$f->set_option("encrypted_column", "login_password_hash");
+			$f->setOption("encrypted_column", "login_password_hash");
 
 			$this->child($f);
 		}
@@ -80,7 +80,7 @@ class Control_Login extends Control_Edit {
 		$f = $this->widget_factory(Control_Button::class);
 		$f->names('login_button', false)
 			->add_class('btn-primary btn-block')
-			->set_option('button_label', $locale->__("Login"));
+			->setOption('button_label', $locale->__("Login"));
 		$this->child($f);
 
 		parent::initialize();
@@ -91,7 +91,7 @@ class Control_Login extends Control_Edit {
 	 *
 	 * @see Widget::submitted()
 	 */
-	public function submitted() {
+	public function submitted(): bool {
 		return $this->request->is_post() && $this->request->has("login", true);
 	}
 
@@ -100,7 +100,7 @@ class Control_Login extends Control_Edit {
 	 *
 	 * @see Control_Edit::validate()
 	 */
-	public function validate() {
+	public function validate(): bool {
 		if (!parent::validate()) {
 			return false;
 		}
@@ -161,7 +161,7 @@ class Control_Login extends Control_Edit {
 		return false;
 	}
 
-	public function default_submit() {
+	public function default_submit(): bool {
 		$uref = $this->request->get("ref", null);
 		if (URL::is($uref) && !URL::is_same_server($uref, $this->request->url())) {
 			$uref = false;
@@ -191,7 +191,7 @@ class Control_Login extends Control_Edit {
 	 *
 	 * @see Control_Edit::submit()
 	 */
-	public function submit() {
+	public function submit(): bool {
 		if ($this->user instanceof User) {
 			$user = $this->user;
 			$user->authenticated($this->request(), $this->response());
@@ -215,7 +215,7 @@ class Control_Login extends Control_Edit {
 		return true;
 	}
 
-	public function render() {
+	public function render(): string {
 		return parent::render();
 	}
 }

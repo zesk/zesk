@@ -12,7 +12,7 @@ namespace zesk;
 class Class_Help extends Class_ORM {
 	public string $id_column = 'id';
 
-	public $find_keys = [
+	public array $find_keys = [
 		'target',
 	];
 
@@ -35,7 +35,7 @@ class Class_Help extends Class_ORM {
 		'show_count' => self::type_integer,
 	];
 
-	public $column_defaults = [
+	public array $column_defaults = [
 		'type' => 'basic',
 		'require_user' => true,
 		'active' => true,

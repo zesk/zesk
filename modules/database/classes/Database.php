@@ -290,7 +290,7 @@ abstract class Database extends Hookable {
 	 * @return boolean
 	 */
 	public function tables_case_sensitive() {
-		return $this->option_bool("tables_case_sensitive", true);
+		return $this->optionBool("tables_case_sensitive", true);
 	}
 
 	/**
@@ -320,7 +320,7 @@ abstract class Database extends Hookable {
 	 */
 	private function _init_url($url): void {
 		$this->url_parts = $parts = self::url_parse($url);
-		$this->set_option($parts);
+		$this->setOption($parts);
 		self::set_option(URL::query_parse(avalue($parts, "query")), null, false);
 		$this->Connection = false;
 		$this->URL = $url;
@@ -1021,13 +1021,13 @@ abstract class Database extends Hookable {
 		if (preg_match('/^\s*[uU][sS][eE]\s+([A-Za-z]+)\s*;?$/', $query, $matches)) {
 			$this->change_database = $matches[1];
 		}
-		if (avalue($options, 'debug') || ($this->option_bool("debug") && !$this->option_bool("log"))) {
+		if (avalue($options, 'debug') || ($this->optionBool("debug") && !$this->optionBool("log"))) {
 			$this->application->logger->debug($query);
 		}
-		if (avalue($options, 'auto_table_names', $this->option_bool('auto_table_names'))) {
+		if (avalue($options, 'auto_table_names', $this->optionBool('auto_table_names'))) {
 			$query = $this->auto_table_names_replace($query);
 		}
-		if (avalue($options, 'log', $this->option_bool("log"))) {
+		if (avalue($options, 'log', $this->optionBool("log"))) {
 			$this->timer = microtime(true);
 		}
 		return $query;
@@ -1039,9 +1039,9 @@ abstract class Database extends Hookable {
 	 * @param string $query
 	 */
 	final protected function _query_after($query, array $options): void {
-		if (avalue($options, 'log', $this->option_bool("log"))) {
+		if (avalue($options, 'log', $this->optionBool("log"))) {
 			$elapsed = microtime(true) - $this->timer;
-			$level = ($elapsed > $this->option_integer('slow_query_seconds', 1)) ? "warning" : "debug";
+			$level = ($elapsed > $this->optionInt('slow_query_seconds', 1)) ? "warning" : "debug";
 			$this->application->logger->log($level, "Elapsed: {elapsed}, SQL: {sql}", [
 				"elapsed" => $elapsed,
 				"sql" => str_replace("\n", " ", $query),
@@ -1120,7 +1120,7 @@ abstract class Database extends Hookable {
 	 * @return boolean|self
 	 */
 	public function auto_table_names($set = null) {
-		return ($set !== null) ? $this->set_option(self::OPTION_AUTO_TABLE_NAMES, to_bool($set)) : $this->option_bool(self::OPTION_AUTO_TABLE_NAMES);
+		return ($set !== null) ? $this->setOption(self::OPTION_AUTO_TABLE_NAMES, to_bool($set)) : $this->optionBool(self::OPTION_AUTO_TABLE_NAMES);
 	}
 
 	/**

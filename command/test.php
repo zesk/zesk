@@ -210,29 +210,29 @@ class Command_Test extends Command_Base {
 	 */
 	protected function run() {
 		self::_initialize_test_environment($this->application);
-		if ($this->option_bool('help')) {
+		if ($this->optionBool('help')) {
 			$this->usage("Run tests");
 		}
-		if (!$this->option_bool("no-config")) {
+		if (!$this->optionBool("no-config")) {
 			$this->configure("test");
 		} else {
 			$this->verbose_log("Skipping loading configuration files");
 			$this->application->configured();
 		}
-		if ($this->option_bool("show-options")) {
+		if ($this->optionBool("show-options")) {
 			$this->show_options();
 		}
 		$this->verbose_log("Verbose mode enabled.");
-		if ($this->option_bool('debug')) {
+		if ($this->optionBool('debug')) {
 			$this->verbose_log("Debug mode enabled (lots of logging)");
 		}
-		if ($this->option_bool('strict')) {
+		if ($this->optionBool('strict')) {
 			$this->verbose_log("Strict mode enabled (any strict warnings result in failure.)");
 		}
 		if ($this->_determine_sandbox()) {
 			$this->verbose_log("Sandbox mode enabled (all tests are run in a separate process, slower)");
 		}
-		if ($this->option_bool("debug_options")) {
+		if ($this->optionBool("debug_options")) {
 			$this->log("Command_Test options:");
 			ksort($this->options);
 			$this->log(Text::format_pairs($this->options));
@@ -269,11 +269,11 @@ class Command_Test extends Command_Base {
 			return 0;
 		}
 
-		if ($this->option_bool('interactive')) {
+		if ($this->optionBool('interactive')) {
 			$this->verbose_log("Interactive testing enabled.");
 		}
 		$tests = $this->_determine_tests_to_run();
-		if ($this->option_bool('show')) {
+		if ($this->optionBool('show')) {
 			echo implode("\n", $tests) . "\n";
 			return 0;
 		}
@@ -398,7 +398,7 @@ class Command_Test extends Command_Base {
 	 * @return boolean
 	 */
 	private function load_test_database() {
-		if ($this->option_bool('no-database')) {
+		if ($this->optionBool('no-database')) {
 			return false;
 		}
 		$file = $this->test_database_file;
@@ -434,7 +434,7 @@ class Command_Test extends Command_Base {
 	 * @param string $message Optional context message
 	 */
 	private function log_db($message = null): void {
-		if ($this->option_bool('debug_test_database')) {
+		if ($this->optionBool('debug_test_database')) {
 			$this->log("Test database {message}: {type}", [
 				"message" => strval($message),
 				"type" => type($this->test_results),
@@ -447,7 +447,7 @@ class Command_Test extends Command_Base {
 	 * Save the test database
 	 */
 	private function save_test_database(): void {
-		if ($this->option_bool('no-database')) {
+		if ($this->optionBool('no-database')) {
 			return;
 		}
 		if ($this->test_database_file) {
@@ -482,9 +482,9 @@ class Command_Test extends Command_Base {
 	 * @param string $test Filename of test file to fail
 	 */
 	private function _local_editor_open_match($test): void {
-		if ($this->option_bool('automatic_open_match')) {
+		if ($this->optionBool('automatic_open_match')) {
 			$files = $this->_parse_path_info($this->last_result);
-			if ($this->option_bool('debug_matched_files')) {
+			if ($this->optionBool('debug_matched_files')) {
 				echo "### MATCHED FILES:\n\t" . implode("\n\t", $files) . "\n";
 			}
 		} else {
@@ -507,7 +507,7 @@ class Command_Test extends Command_Base {
 	 * @param string $test Filename of test file to fail
 	 */
 	private function _run_test_failed($test): void {
-		if ($this->option_bool('automatic_open')) {
+		if ($this->optionBool('automatic_open')) {
 			$this->_local_editor_open_match($test);
 		}
 	}
@@ -535,7 +535,7 @@ class Command_Test extends Command_Base {
 		if (!preg_match_all($pattern, $contents, $matches)) {
 			return [];
 		}
-		if ($this->option_bool('debug_matched_files_preg')) {
+		if ($this->optionBool('debug_matched_files_preg')) {
 			dump($matches);
 		}
 		return avalue($matches, 'files', []);
@@ -623,13 +623,13 @@ class Command_Test extends Command_Base {
 				$this->_clear_console();
 			}
 			$options = $this->load_test_options(file_get_contents($file));
-			if ($this->option_bool('debug_test_options') && count($options) >= 0) {
+			if ($this->optionBool('debug_test_options') && count($options) >= 0) {
 				$this->verbose_log("$file test options: \n" . Text::format_pairs($options));
 			}
 			if (avalue($options, 'skip')) {
 				break;
 			}
-			if ($this->option_bool('debugger')) {
+			if ($this->optionBool('debugger')) {
 				debugger_start_debug();
 			}
 			$is_phpunit = to_bool(avalue($options, 'phpunit'));
@@ -644,7 +644,7 @@ class Command_Test extends Command_Base {
 			} else {
 				$this->_run_test_success($file);
 			}
-		} while ($this->option_bool('interactive') && $result === false);
+		} while ($this->optionBool('interactive') && $result === false);
 		return $result;
 	}
 
@@ -692,7 +692,7 @@ class Command_Test extends Command_Base {
 		}
 		$run_file = [];
 		$classes = array_flip(get_declared_classes());
-		$debug_class_discovery = $this->option_bool("debug_class_discovery");
+		$debug_class_discovery = $this->optionBool("debug_class_discovery");
 		if ($debug_class_discovery) {
 			ksort($classes);
 			echo "# Class discovery: Declared classes\n";
@@ -729,8 +729,8 @@ class Command_Test extends Command_Base {
 		if ($options === null) {
 			$options = $this->options;
 		}
-		$sandbox = to_bool(avalue($options, 'sandbox', $this->option_bool('sandbox')));
-		if (to_bool(avalue($options, 'no_sandbox', $this->option_bool('no_sandbox'))) === true) {
+		$sandbox = to_bool(avalue($options, 'sandbox', $this->optionBool('sandbox')));
+		if (to_bool(avalue($options, 'no_sandbox', $this->optionBool('no_sandbox'))) === true) {
 			$sandbox = false;
 		}
 		return $sandbox;
@@ -916,10 +916,10 @@ class Command_Test extends Command_Base {
 			}
 		}
 		$opts = "";
-		if ($this->option_bool("debug")) {
+		if ($this->optionBool("debug")) {
 			$opts .= "--debug ";
 		}
-		if ($this->option_bool("verbose")) {
+		if ($this->optionBool("verbose")) {
 			$opts .= "--verbose ";
 		}
 		$options['echo'] = true;

@@ -77,7 +77,7 @@ class Control_RRule extends \zesk\Control {
 		$this->child($w);
 		$ww['onday'] = $w;
 
-		$w = $this->widget_factory(Control_Date::class)->names($name . '_enddate', $locale->__('End Date'))->set_option('inline', true);
+		$w = $this->widget_factory(Control_Date::class)->names($name . '_enddate', $locale->__('End Date'))->setOption('inline', true);
 		$this->child($w);
 		$ww['enddate'] = $w;
 

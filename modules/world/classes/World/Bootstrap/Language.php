@@ -56,7 +56,7 @@ class World_Bootstrap_Language extends Hookable {
 		$application = $this->application;
 		$prefix = __NAMESPACE__ . "\\";
 		$x = $application->orm_factory($prefix . StringTools::unprefix(__CLASS__, $prefix . "World_Bootstrap_"));
-		if ($this->option_bool("drop")) {
+		if ($this->optionBool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 		$englishCodes = self::_language_codes_en();

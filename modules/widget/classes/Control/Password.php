@@ -23,15 +23,15 @@ class Control_Password extends Control_Text {
 	];
 
 	public function encrypted_column($set = null) {
-		return $set === null ? $this->option('encrypted_column') : $this->set_option('encrypted_column', $set);
+		return $set === null ? $this->option('encrypted_column') : $this->setOption('encrypted_column', $set);
 	}
 
 	public function confirm($set = null) {
-		return $set === null ? $this->option_bool('confirm') : $this->set_option('confirm', to_bool($set));
+		return $set === null ? $this->optionBool('confirm') : $this->setOption('confirm', to_bool($set));
 	}
 
 	public function label_confirm($set = null) {
-		return $set === null ? $this->option('label_confirm') : $this->set_option('label_confirm', $set);
+		return $set === null ? $this->option('label_confirm') : $this->setOption('label_confirm', $set);
 	}
 
 	/**
@@ -111,7 +111,7 @@ class Control_Password extends Control_Text {
 		];
 		foreach ($reqs as $rr) {
 			[$key, $pattern, $err] = $rr;
-			if ($this->option_bool($key) && (!preg_match($pattern, $pw))) {
+			if ($this->optionBool($key) && (!preg_match($pattern, $pw))) {
 				$requirements[] = $err;
 			}
 		}
@@ -124,7 +124,7 @@ class Control_Password extends Control_Text {
 
 	public function theme_variables() {
 		return [
-			'confirm' => $this->option_bool('confirm'),
+			'confirm' => $this->optionBool('confirm'),
 		] + parent::theme_variables();
 	}
 }

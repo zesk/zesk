@@ -79,7 +79,7 @@ class Control_Forgot extends Control_Edit {
 		$this->auth_user = $this->call_hook_arguments("find_user", [
 			$this->auth_user,
 		], $this->auth_user);
-		if ($this->option_bool('not_found_error', true) && !$this->auth_user) {
+		if ($this->optionBool('not_found_error', true) && !$this->auth_user) {
 			$this->error($locale->__("Control_Forgot:=Not able to find that user."), 'login');
 			return false;
 		}

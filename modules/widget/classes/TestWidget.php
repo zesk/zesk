@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 class TestWidget extends Test_Unit {
@@ -65,8 +67,8 @@ class TestWidget extends Test_Unit {
 
 		$testx->error_required();
 
-		$types = false;
-		$testx->input_attributes($types);
+		$testx->input_attributes();
+		$testx->input_attributes(['core']);
 
 		$default = "Hey, dude.";
 		$this->assert_equal($testx->empty_string($default)->empty_string(), $default);

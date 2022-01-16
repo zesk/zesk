@@ -8,13 +8,13 @@ namespace zesk;
  */
 class Control_Duration extends Control_Select {
 	public function relative_to($column = null) {
-		return $column !== null ? $this->set_option('relative_to', $column) : $this->option('relative_to');
+		return $column !== null ? $this->setOption('relative_to', $column) : $this->option('relative_to');
 	}
 
 	public function initialize(): void {
 		$locale = $this->application->locale;
-		$max_duration = $this->option_integer("max_duration_minutes", 12 * 60);
-		$duration_interval = $this->option_integer("duration_interval_minutes", 15);
+		$max_duration = $this->optionInt("max_duration_minutes", 12 * 60);
+		$duration_interval = $this->optionInt("duration_interval_minutes", 15);
 		$options = [];
 		$ts = new TimeSpan();
 		for ($i = $duration_interval; $i <= $max_duration; $i += $duration_interval) {
@@ -24,7 +24,7 @@ class Control_Duration extends Control_Select {
 		$this->control_options($options);
 		parent::initialize();
 
-		if (!$this->has_option('id')) {
+		if (!$this->hasOption('id')) {
 			$this->id('control-duration-' . $this->response()->id_counter());
 		}
 		$relative_to = $this->relative_to();
@@ -32,8 +32,8 @@ class Control_Duration extends Control_Select {
 			$child = $this->parent()->child($relative_to);
 			if ($child) {
 				$update_func = 'duration_update(\'#' . $this->id() . '\', datetime);';
-				$child->set_option('onchange', $update_func);
-				$child->set_option('oninit', $update_func);
+				$child->setOption('onchange', $update_func);
+				$child->setOption('oninit', $update_func);
 			}
 		}
 		$locale->__("Control_Duration:={duration} (ends at {end_time}");

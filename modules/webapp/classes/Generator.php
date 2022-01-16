@@ -73,13 +73,13 @@ abstract class Generator extends Hookable {
 				return [];
 			}
 		}
-		if ($this->option_bool("save_previous")) {
+		if ($this->optionBool("save_previous")) {
 			File::unlink("$file.previous");
 			if (is_file($file)) {
 				rename($file, "$file.previous");
 			}
 		}
-		if (!$this->option_bool("dry_run")) {
+		if (!$this->optionBool("dry_run")) {
 			if (!empty($contents)) {
 				File::put($file, $contents);
 			} else {

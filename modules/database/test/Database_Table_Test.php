@@ -61,7 +61,7 @@ class Database_Table_Test extends Test_Unit {
 
 		$table->sql_alter($table);
 
-		$debug = $this->option_bool("debug");
+		$debug = $this->optionBool("debug");
 		$that = $table;
 		$this->assert($table->is_similar($that, $debug) === true);
 		$that = new Database_Table($db, "someother");

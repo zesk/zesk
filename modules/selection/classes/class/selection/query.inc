@@ -15,7 +15,7 @@ class Class_Selection_Query extends Class_ORM {
 		'type' => 'zesk\\Selection_Type',
 	];
 
-	public $find_keys = [
+	public array $find_keys = [
 		'type',
 		'code',
 	];

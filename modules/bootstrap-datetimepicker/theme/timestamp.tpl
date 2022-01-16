@@ -52,7 +52,7 @@ if ($this->data_future_only) {
 
 if ($inline) {
 	/* @var $ts_defaultdate Timestamp */
-	$ts_defaultdate = Timestamp::factory(firstarg($this->default, $value));
+	$ts_defaultdate = Timestamp::factory($this->default ?? $value);
 	$ts_defaultdate = $ts_defaultdate->earlier($ts_maxdate);
 	$ts_defaultdate = $ts_defaultdate->later($ts_mindate);
 }

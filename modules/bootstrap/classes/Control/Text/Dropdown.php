@@ -46,21 +46,21 @@ class Control_Text_Dropdown extends Control_Text {
 
 	public function dropdown_column($set = null) {
 		if ($set !== null) {
-			return $this->set_option('dropdown_column', $set);
+			return $this->setOption('dropdown_column', $set);
 		}
 		return $this->option('dropdown_column', $this->column() . '_dropdown');
 	}
 
 	public function dropdown_name($set = null) {
 		if ($set !== null) {
-			return $this->set_option('dropdown_name', $set);
+			return $this->setOption('dropdown_name', $set);
 		}
 		return $this->option('dropdown_name', $this->name() . '_dropdown');
 	}
 
 	public function dropdown_id($set = null) {
 		if ($set !== null) {
-			return $this->set_option('dropdown_id', $set);
+			return $this->setOption('dropdown_id', $set);
 		}
 		return $this->option('dropdown_id', $this->id() . '_dropdown');
 	}
@@ -83,7 +83,7 @@ class Control_Text_Dropdown extends Control_Text {
 					"value" => $set,
 				]);
 			}
-			return $this->set_option(self::option_dropdown_alignment, $set);
+			return $this->setOption(self::option_dropdown_alignment, $set);
 		}
 		return $this->option(self::option_dropdown_alignment, 'right');
 	}
@@ -100,7 +100,7 @@ class Control_Text_Dropdown extends Control_Text {
 	public function button_label($set = null) {
 		if ($set !== null) {
 			$this->theme_variables[self::option_button_label] = $set;
-			$this->set_option(self::option_button_label, $set);
+			$this->setOption(self::option_button_label, $set);
 			return $this;
 		}
 		return $this->option(self::option_button_label);
@@ -113,7 +113,7 @@ class Control_Text_Dropdown extends Control_Text {
 	 * @return Control_Text_Dropdown|boolean
 	 */
 	public function select_behavior_enabled($set = null) {
-		return $set === null ? $this->option_bool(self::option_select_behavior_enabled) : $this->set_option(self::option_select_behavior_enabled, to_bool($set));
+		return $set === null ? $this->optionBool(self::option_select_behavior_enabled) : $this->setOption(self::option_select_behavior_enabled, to_bool($set));
 	}
 
 	/**
@@ -130,7 +130,7 @@ class Control_Text_Dropdown extends Control_Text {
 	 * @return Control_Text_Dropdown|boolean
 	 */
 	public function plural_behavior_enabled($set = null) {
-		return $set === null ? $this->option_bool(self::option_plural_behavior_enabled) : $this->set_option(self::option_plural_behavior_enabled, to_bool($set));
+		return $set === null ? $this->optionBool(self::option_plural_behavior_enabled) : $this->setOption(self::option_plural_behavior_enabled, to_bool($set));
 	}
 
 	public function load() {

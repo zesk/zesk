@@ -18,7 +18,7 @@ class Class_Health_Events extends Class_ORM {
 
 	public string $id_column = "id";
 
-	public $find_keys = [
+	public array $find_keys = [
 		'date',
 		'hash',
 	];
@@ -48,7 +48,7 @@ class Class_Health_Events extends Class_ORM {
 		"total" => self::type_integer,
 	];
 
-	public $column_defaults = [
+	public array $column_defaults = [
 		'first_msec' => 0,
 		'recent_msec' => 0,
 	];

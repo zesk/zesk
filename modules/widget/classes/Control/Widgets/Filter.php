@@ -74,7 +74,7 @@ class Control_Widgets_Filter extends Control_Widgets {
 	 * @return self|boolean
 	 */
 	public function show_filter($set = null) {
-		return $set !== null ? $this->set_option('show_filter', to_bool($set)) : $this->option_bool('show_filter', true);
+		return $set !== null ? $this->setOption('show_filter', to_bool($set)) : $this->optionBool('show_filter', true);
 	}
 
 	/**

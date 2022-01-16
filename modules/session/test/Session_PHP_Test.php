@@ -18,7 +18,7 @@ class Session_PHP_Test extends Test_Unit {
 	public function test_main(): void {
 		$class = __NAMESPACE__ . "\\" . "Session_PHP";
 
-		$this->application->set_option("session_class", $class);
+		$this->application->setOption("session_class", $class);
 
 		$request = new Request($this->application);
 		$request->initialize_from_settings([

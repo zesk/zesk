@@ -24,7 +24,7 @@ class Class_Domain extends Class_ORM {
 		"accessed" => self::type_timestamp,
 	];
 
-	public $find_keys = [
+	public array $find_keys = [
 		"name",
 	];
 
@@ -32,7 +32,7 @@ class Class_Domain extends Class_ORM {
 		"target" => "*type",
 	];
 
-	public $column_defaults = [
+	public array $column_defaults = [
 		'active' => 0,
 	];
 }

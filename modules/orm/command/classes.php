@@ -31,10 +31,10 @@ class Command_Classes extends Command_Base {
 		$filters = [
 			"class",
 		];
-		if ($this->option_bool("database")) {
+		if ($this->optionBool("database")) {
 			$filters[] = "database";
 		}
-		if ($this->option_bool("table")) {
+		if ($this->optionBool("table")) {
 			$filters[] = "table";
 		}
 		foreach ($classes as $data) {

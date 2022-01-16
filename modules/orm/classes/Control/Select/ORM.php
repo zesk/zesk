@@ -44,8 +44,8 @@ class Control_Select_ORM extends Control_Select {
 			$this->class = $this->option("object_class");
 		}
 		$class = $this->class_object = $this->application->class_orm_registry($this->class);
-		if (!$this->has_option('text_column')) {
-			$this->set_option('text_column', $class->text_column);
+		if (!$this->hasOption('text_column')) {
+			$this->setOption('text_column', $class->text_column);
 		}
 		parent::initialize();
 	}
@@ -95,8 +95,8 @@ class Control_Select_ORM extends Control_Select {
 		$query->order_by($this->option('order_by', $text_column));
 		$query->where($this->_where());
 
-		if (!$this->has_option('format')) {
-			$this->set_option('format', implode(" ", ArrayTools::wrap(array_keys($what), '{', '}')));
+		if (!$this->hasOption('format')) {
+			$this->setOption('format', implode(" ", ArrayTools::wrap(array_keys($what), '{', '}')));
 		}
 		$this->call_hook("options_query", $query);
 		return $this->call_hook("options_query_format", $query);
@@ -108,7 +108,7 @@ class Control_Select_ORM extends Control_Select {
 		foreach ($rows as $key => $row) {
 			$rows[$key] = map($format, $row);
 		}
-		if ($this->option_bool("translate_after")) {
+		if ($this->optionBool("translate_after")) {
 			$rows = $this->application->locale->__($rows);
 		}
 		return $rows;
@@ -124,7 +124,7 @@ class Control_Select_ORM extends Control_Select {
 				}
 				$where = $this->option_array("where", []) + $where;
 			}
-			$this->set_option("where", $where);
+			$this->setOption("where", $where);
 			return $this;
 		}
 		return $this->option("where");

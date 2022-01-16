@@ -38,7 +38,7 @@ class Database_Column extends Options {
 		parent::__construct($options);
 		$this->table = $table;
 		$this->name($name);
-		if ($this->has_option("sql_type")) {
+		if ($this->hasOption("sql_type")) {
 			$this->sql_type($this->option("sql_type"));
 		}
 	}
@@ -63,11 +63,11 @@ class Database_Column extends Options {
 		if ($set !== null) {
 			$this->table->application->deprecated('setter size');
 		}
-		return $this->option_integer("size");
+		return $this->optionInt("size");
 	}
 
 	public function setSize(int $set): void {
-		$this->set_option("size", $set);
+		$this->setOption("size", $set);
 	}
 
 	public function is_text() {
@@ -85,7 +85,7 @@ class Database_Column extends Options {
 		if ($name === null) {
 			return $this->option('previous_name');
 		}
-		$this->set_option('previous_name', $name);
+		$this->setOption('previous_name', $name);
 		return $this;
 	}
 
@@ -143,7 +143,7 @@ class Database_Column extends Options {
 				$thatDefault,
 			];
 		}
-		if (($thisUn = $this->option_bool("unsigned")) !== ($thatUn = $that->option_bool("unsigned"))) {
+		if (($thisUn = $this->optionBool("unsigned")) !== ($thatUn = $that->optionBool("unsigned"))) {
 			$diffs['unsigned'] = [
 				$thisUn,
 				$thatUn,
@@ -201,15 +201,26 @@ class Database_Column extends Options {
 	}
 
 	final public function has_sql_type() {
-		return $this->has_option("sql_type", true);
+		return $this->hasOption("sql_type", true);
 	}
 
 	final public function sql_type($set = null) {
 		if ($set !== null) {
-			$this->set_option("sql_type", strtolower($set));
-			return $this;
+			$this->table->application->deprecated("setter");
+			return $this->setSQLType(strval($set));
 		}
 		return $this->option("sql_type", false);
+	}
+
+	/**
+	 * Set the type used in the database
+	 *
+	 * @param string $set
+	 * @return $this
+	 */
+	final public function setSQLType(string $set): self {
+		$this->setOption("sql_type", strtolower($set));
+		return $this;
 	}
 
 	final public function has_default_value($checkEmpty = false) {
@@ -222,28 +233,49 @@ class Database_Column extends Options {
 
 	final public function default_value($set = null) {
 		if ($set === null) {
-			return avalue($this->options, 'default');
+			return $this->options['default'] ?? null;
 		}
 		$this->options['default'] = $set;
 		return $this;
 	}
 
+	final public function setDefaultValue(mixed $set):self {
+		$this->options['default'] = $set;
+		return $this;
+	}
+
+	/**
+	 * Get binary flag
+	 *
+	 * @param $set
+	 * @return bool
+	 */
 	final public function binary($set = null) {
 		if ($set !== null) {
-			$this->binary = to_bool($set);
-			return $this;
+			$this->table->application->deprecated("setter");
+			$this->setBinary(to_bool($set));
 		}
-		return $this->option_bool("binary");
+		return $this->optionBool("binary");
+	}
+
+	/**
+	 * Set binary flag
+	 *
+	 * @param bool $set
+	 * @return $this
+	 */
+	final public function setBinary(bool $set) {
+		return $this->optionSet('binary', $set);
 	}
 
 	/**
 	 * @param $set deprecated
 	 * @return bool
 	 */
-	final public function primary_key(bool $set = null): bool|self {
+	final public function primary_key(bool $set = null): bool {
 		if (is_bool($set)) {
-			$this->setOption('primary_key', $set);
-			return $this;
+			$this->table->application->deprecated("setter");
+			$this->setPrimaryKey($set);
 		}
 		return $this->primaryKey();
 	}
@@ -273,7 +305,18 @@ class Database_Column extends Options {
 		return $this->is_increment();
 	}
 
+	/**
+	 * @return bool
+	 */
 	final public function is_increment(): bool {
+		$this->table->application->deprecated("old style");
+		return $this->isIncrement();
+	}
+
+	/**
+	 * @return bool
+	 */
+	final public function isIncrement(): bool {
 		return to_bool($this->firstOption(["serial", "increment"]));
 	}
 
@@ -323,38 +366,38 @@ class Database_Column extends Options {
 
 	final public function not_null($set = null) {
 		if ($set !== null) {
-			$this->set_option('not null', true);
+			$this->setOption('not null', true);
 			return $this;
 		}
-		return $this->option_bool('not null', $this->option_bool('required', $this->primary_key()));
+		return $this->optionBool('not null', $this->optionBool('required', $this->primary_key()));
 	}
 
 	final public function required() {
-		return $this->option_bool("required", $this->option_bool("not null", $this->primary_key()));
+		return $this->optionBool("required", $this->optionBool("not null", $this->primary_key()));
 	}
 
 	final public function is_index($type = "") {
 		switch ($type) {
 			case Database_Index::Index:
-				return $this->has_option("Index", true);
+				return $this->hasOption("Index", true);
 			case Database_Index::Unique:
-				return $this->has_option("Unique", true);
+				return $this->hasOption("Unique", true);
 			case Database_Index::Primary:
 				return $this->primary_key();
 			default:
-				return $this->has_option("Unique", true) || $this->has_option("Index", true) || $this->primary_key();
+				return $this->hasOption("Unique", true) || $this->hasOption("Index", true) || $this->primary_key();
 		}
 	}
 
 	public function has_extras() {
-		return $this->has_option("column_extras", true);
+		return $this->hasOption("column_extras", true);
 	}
 
 	public function extras($set = null) {
 		if ($set === null) {
 			return $this->option("column_extras");
 		} else {
-			$this->set_option("column_extras", $set);
+			$this->setOption("column_extras", $set);
 		}
 	}
 

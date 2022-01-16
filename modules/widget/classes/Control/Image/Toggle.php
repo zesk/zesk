@@ -18,7 +18,7 @@ class Control_Image_Toggle extends Control {
 		$attrs = $this->options_include("width;height;border;hspace;vspace");
 		$response = $this->response();
 		$id = "toggle_image_" . $response->id_counter();
-		$js_object = $this->option([
+		$js_object = $this->options([
 			"true_src" => null,
 			"true_alt" => $locale->__("Click here to enable"),
 			"false_src" => null,
@@ -29,7 +29,7 @@ class Control_Image_Toggle extends Control {
 		]);
 		$prefix = ($value === $on_value) ? "true" : "false";
 
-		$div_attrs = $this->option([
+		$div_attrs = $this->options([
 			"class" => "ControlToggleImage",
 			"style" => null,
 		]);

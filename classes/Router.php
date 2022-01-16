@@ -247,8 +247,8 @@ class Router extends Hookable {
 	public static function compare_weight(Route $a, Route $b) {
 		$a_weight = zesk_weight($a->option("weight"));
 		$b_weight = zesk_weight($b->option("weight"));
-		$a->set_option("computed_weight", $a_weight);
-		$b->set_option("computed_weight", $b_weight);
+		$a->setOption("computed_weight", $a_weight);
+		$b->setOption("computed_weight", $b_weight);
 		$delta = floatval($a_weight) - floatval($b_weight);
 		if ($delta === 0) {
 			return 0;
@@ -357,7 +357,7 @@ class Router extends Hookable {
 	 */
 	public function add_route($path, array $options) {
 		if ($path === "<default>") {
-			$this->set_option($options);
+			$this->setOption($options);
 			return $this;
 		}
 		if ($path === "index" || $path === ".") {

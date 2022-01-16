@@ -15,31 +15,31 @@ namespace zesk;
 class ORM_Database_Adapter_MySQL extends ORM_Database_Adapter {
 	public function database_column_set_type(Database_Column $column) {
 		$type_name = $column->option("type", false);
-		$is_bin = $column->option_bool("binary");
-		$size = $column->option_integer("size");
+		$is_bin = $column->optionBool("binary");
+		$size = $column->optionInt("size");
 		if (!$type_name) {
 			throw new Exception_Semantics(__CLASS__ . "::type_set_sql_type(...): \"Type\" is not set! " . print_r($column, true));
 		}
 		switch (strtolower($type_name)) {
 			case Class_ORM::type_id:
-				$column->set_option("primary_key", true);
-				$column->set_option("sql_type", "integer");
+				$column->setOption("primary_key", true);
+				$column->setOption("sql_type", "integer");
 				$column->increment(true);
-				$column->set_option("unsigned", true);
+				$column->setOption("unsigned", true);
 				return true;
 			case Class_ORM::type_object:
-				$column->set_option("sql_type", "integer");
-				$column->set_option("unsigned", true);
+				$column->setOption("sql_type", "integer");
+				$column->setOption("unsigned", true);
 				return true;
 			case Class_ORM::type_integer:
-				$column->set_option("sql_type", "integer");
+				$column->setOption("sql_type", "integer");
 				return true;
 			case Class_ORM::type_character:
 				$size = !is_numeric($size) ? 1 : $size;
-				$column->set_option("sql_type", "char($size)");
+				$column->setOption("sql_type", "char($size)");
 				return true;
 			case Class_ORM::type_text:
-				$column->set_option("sql_type", "text");
+				$column->setOption("sql_type", "text");
 				return true;
 			case "varchar":
 				zesk()->deprecated();
@@ -47,13 +47,13 @@ class ORM_Database_Adapter_MySQL extends ORM_Database_Adapter {
 			// no break
 			case Class_ORM::type_string:
 				if (!is_numeric($size)) {
-					$column->set_option("sql_type", $is_bin ? "blob" : "text");
+					$column->setOption("sql_type", $is_bin ? "blob" : "text");
 				} else {
-					$column->set_option("sql_type", $is_bin ? "varbinary($size)" : "varchar($size)");
+					$column->setOption("sql_type", $is_bin ? "varbinary($size)" : "varchar($size)");
 				}
 				return true;
 			case Class_ORM::type_boolean:
-				$column->set_option("sql_type", "bit(1)");
+				$column->setOption("sql_type", "bit(1)");
 				return true;
 			case "varbinary":
 			case Class_ORM::type_serialize:
@@ -61,47 +61,47 @@ class ORM_Database_Adapter_MySQL extends ORM_Database_Adapter {
 			case Class_ORM::type_hex:
 			case Class_ORM::type_hex32:
 				if (!is_numeric($size)) {
-					$column->set_option("sql_type", "blob");
+					$column->setOption("sql_type", "blob");
 				} else {
-					$column->set_option("sql_type", "varbinary($size)");
+					$column->setOption("sql_type", "varbinary($size)");
 				}
 				$column->binary(true);
 				return true;
 			case Class_ORM::type_byte:
-				$column->set_option("sql_type", "tinyint(1)");
-				$column->set_option("Unsigned", true);
+				$column->setOption("sql_type", "tinyint(1)");
+				$column->setOption("Unsigned", true);
 				return true;
 			case Class_ORM::type_decimal:
-				$intP = $column->first_option("integer_precision", 10);
-				$decP = $column->first_option("decimal_precision", 2);
+				$intP = $column->firstOption("integer_precision", 10);
+				$decP = $column->firstOption("decimal_precision", 2);
 				$width = $intP + $decP;
-				$column->set_option("sql_type", "decimal($width,$decP)");
+				$column->setOption("sql_type", "decimal($width,$decP)");
 				return true;
 			case Class_ORM::type_real:
-				$column->set_option("sql_type", "real");
+				$column->setOption("sql_type", "real");
 				return true;
 			case Class_ORM::type_double:
-				$column->set_option("sql_type", "double");
+				$column->setOption("sql_type", "double");
 				return true;
 			case Class_ORM::type_date:
-				$column->set_option("sql_type", "date");
+				$column->setOption("sql_type", "date");
 				return true;
 			case Class_ORM::type_time:
-				$column->set_option("sql_type", "time");
+				$column->setOption("sql_type", "time");
 				return true;
 			case Class_ORM::type_datetime:
 			case Class_ORM::type_modified:
 			case Class_ORM::type_created:
 			case Class_ORM::type_timestamp:
-				$column->set_option("sql_type", "timestamp");
+				$column->setOption("sql_type", "timestamp");
 				return true;
 			case "checksum":
 				zesk()->deprecated(); // ?? This used anywhere?
-				$column->set_option("sql_type", "char(32)");
+				$column->setOption("sql_type", "char(32)");
 				return true;
 			case "password":
 				zesk()->deprecated(); // ?? This used anywhere?
-				$column->set_option("sql_type", "varchar(32)");
+				$column->setOption("sql_type", "varchar(32)");
 				return true;
 		}
 

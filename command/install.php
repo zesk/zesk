@@ -99,7 +99,7 @@ class Command_Install extends Command_Base {
 					$objects_by_class[$after_class]->option_append_list('install_prev', $object);
 				}
 			}
-			$object->set_option('installed_tag', false);
+			$object->setOption('installed_tag', false);
 		}
 
 		if (count($errors) > 0) {
@@ -129,7 +129,7 @@ class Command_Install extends Command_Base {
 					if ($object instanceof Hookable) {
 						$object->call_hook($method_name);
 					}
-					if ($this->option_bool('verbose')) {
+					if ($this->optionBool('verbose')) {
 						echo "== $object $method_name\n";
 					}
 					$object->$method_name();
@@ -149,9 +149,9 @@ class Command_Install extends Command_Base {
 			];
 		}
 		$errors = [];
-		$object->set_option('installed_cyclic', true);
+		$object->setOption('installed_cyclic', true);
 		$object_list = $object->option('install_prev');
-		$object->set_option('install_prev');
+		$object->setOption('install_prev');
 		if (is_array($object_list)) {
 			foreach ($object_list as $o) {
 				$errore = array_merge($errore, $this->order_walk_object($o));
@@ -162,10 +162,10 @@ class Command_Install extends Command_Base {
 		}
 
 		$ordered_objects[] = $object;
-		$object->set_option('installed_tag', true);
+		$object->setOption('installed_tag', true);
 
 		$object_list = $object->option('install_next');
-		$object->set_option('install_next');
+		$object->setOption('install_next');
 		if (is_array($object_list)) {
 			foreach ($object_list as $o) {
 				$errore = array_merge($errors, $this->order_walk_object($o));
@@ -174,7 +174,7 @@ class Command_Install extends Command_Base {
 				}
 			}
 		}
-		$object->set_option('installed_cyclic', false);
+		$object->setOption('installed_cyclic', false);
 		return $errors;
 	}
 }

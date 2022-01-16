@@ -16,21 +16,21 @@ namespace zesk;
 class View_Link extends View_Text {
 	public function format($set = null) {
 		if ($set !== null) {
-			return $this->set_option("format", $set);
+			return $this->setOption("format", $set);
 		}
 		return $this->option('format');
 	}
 
 	public function action($set = null) {
 		if ($set !== null) {
-			return $this->set_option("action", $set);
+			return $this->setOption("action", $set);
 		}
 		return $this->option('action');
 	}
 
 	public function href($set = null) {
 		if ($set !== null) {
-			return $this->set_option("href", $set);
+			return $this->setOption("href", $set);
 		}
 		return $this->option('href');
 	}
@@ -53,11 +53,11 @@ class View_Link extends View_Text {
 		if (empty($text)) {
 			$is_empty = true;
 			$text = $this->empty_string();
-		} elseif (!$this->option_bool("html")) {
+		} elseif (!$this->optionBool("html")) {
 			$text = htmlspecialchars($text);
 		}
 		$result = "";
-		if ($is_empty && $this->option_bool('empty_no_link', false)) {
+		if ($is_empty && $this->optionBool('empty_no_link', false)) {
 			return $text;
 		}
 		$attrs = $object->apply_map($this->options_include("target;class;onclick;title;id"));

@@ -16,10 +16,10 @@ foreach ($this->children as $child) {
 	$child = clone $child;
 	/* @var $child Widget */
 	$name = $child->column();
-	if ($child->has_option('help')) {
+	if ($child->hasOption('help')) {
 		$suffix = HTML::tag('div', '.help-block', $child->option('help'));
 		$child->suffix($suffix, true);
-		$child->set_option('help', null);
+		$child->setOption('help', null);
 	}
 	if ($child->has_errors()) {
 		$suffix = HTML::tags('div', '.help-block error', $child->errors());
@@ -32,7 +32,7 @@ foreach ($this->children as $child) {
 		'class' => $this->get('label_class', 'label label-default'),
 		'for' => $child->id(),
 	], $child->label());
-	if ($child->option_bool('nolabel', $this->nolabel)) {
+	if ($child->optionBool('nolabel', $this->nolabel)) {
 		$label = "";
 	}
 	$widget_tag = $child->option('widget_tag', $this->get('widget_tag', 'div'));

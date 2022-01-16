@@ -34,7 +34,7 @@ class Control_Picker_Content_Image extends Control_Picker {
 	public function hook_query(Database_Query_Select $query): void {
 		parent::hook_query($query);
 		$extras = [];
-		if ($this->has_option('user_link_path')) {
+		if ($this->hasOption('user_link_path')) {
 			$extras['path'] = $this->option('user_link_path');
 		}
 		$query->link(User::class, [

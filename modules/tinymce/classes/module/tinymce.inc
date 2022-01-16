@@ -373,7 +373,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		$this->tinymce_options['*setup'] = 'function (editor) {' . implode("\n", $js) . "}";
 		$this->tinymce_options['toolbar'] = $this->tinymce_toolbar;
 
-		if ($this->has_option("language_url_path")) {
+		if ($this->hasOption("language_url_path")) {
 			// Language file is specified relative to document root, currently.
 			$language_url_path = $this->option("language_url_path");
 			$doc_root = $this->application->document_root();

@@ -62,7 +62,7 @@ class Command_LessC extends Command_File_Convert {
 	 * @see \zesk\Command_File_Convert::run()
 	 */
 	protected function run() {
-		if ($this->has_option('cd')) {
+		if ($this->hasOption('cd')) {
 			chdir($this->option('cd'));
 		}
 		return parent::run();

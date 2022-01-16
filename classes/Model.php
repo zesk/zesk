@@ -432,7 +432,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 		foreach ($hier as $class) {
 			$result = array_merge($result, ArrayTools::prefix($theme_names, $class . "/"));
 		}
-		if ($this->has_option(self::option_theme_path_prefix)) {
+		if ($this->hasOption(self::option_theme_path_prefix)) {
 			$result_prefix = ArrayTools::prefix($result, rtrim($this->option(self::option_theme_path_prefix), "/") . "/");
 			$result = array_merge($result_prefix, $result);
 		}

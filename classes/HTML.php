@@ -539,13 +539,13 @@ class HTML {
 	 * @param mixed $class
 	 * @return array
 	 */
-	public static function add_class(array $attributes, $class) {
-		$attributes['class'] = CSS::add_class($attributes['class'] ?? null, $class);
+	public static function add_class(array $attributes, string $class = ""): array {
+		$attributes['class'] = CSS::add_class($attributes['class'] ?? "", $class);
 		return $attributes;
 	}
 
-	public static function remove_class(array $attributes, $class) {
-		$attributes['class'] = CSS::remove_class($attributes['class'] ?? null, $class);
+	public static function remove_class(array $attributes, string $class = ""): array {
+		$attributes['class'] = CSS::remove_class($attributes['class'] ?? "", $class);
 		return $attributes;
 	}
 
@@ -566,7 +566,9 @@ class HTML {
 			} elseif (is_object($value)) {
 				$value = method_exists($value, '__toString') ? $value->__toString() : strval($value);
 			}
-			$result[] = strtolower($name) . "=\"" . self::specials($value) . "\"";
+			if (!is_numeric($name)) {
+				$result[] = strtolower($name) . "=\"" . self::specials(strval($value)) . "\"";
+			}
 		}
 		if (count($result) === 0) {
 			return "";
@@ -1584,7 +1586,7 @@ class HTML {
 	 *            Phrase to map
 	 * @return string The phrase with the links embedded.
 	 */
-	public static function wrap($phrase) {
+	public static function wrap(string $phrase): string {
 		$args = func_get_args();
 		array_shift($args);
 		if (count($args) === 1 && is_array($args[0])) {

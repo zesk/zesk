@@ -23,7 +23,7 @@ class Control_Selection extends Control {
 	 * @return string|Control_Selection
 	 */
 	public function selection_class($set = null) {
-		return ($set === null) ? $this->option('selection_class') : $this->set_option('selection_class', $set);
+		return ($set === null) ? $this->option('selection_class') : $this->setOption('selection_class', $set);
 	}
 
 	/**
@@ -33,7 +33,7 @@ class Control_Selection extends Control {
 	 * @return string|Control_Selection
 	 */
 	public function selection_code($set = null) {
-		return ($set === null) ? $this->option('selection_code', $this->selection_class()) : $this->set_option('selection_code', $set);
+		return ($set === null) ? $this->option('selection_code', $this->selection_class()) : $this->setOption('selection_code', $set);
 	}
 
 	/**

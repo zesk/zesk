@@ -31,7 +31,7 @@ class Class_Schedule extends Class_ORM {
 		'hour' => self::type_integer,
 	];
 
-	public $column_defaults = [
+	public array $column_defaults = [
 		'frequency' => 1,
 		'unit' => 'week',
 	];

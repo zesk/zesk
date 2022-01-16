@@ -207,12 +207,12 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	private function _compute_url(ORM $object, $option, $default_action = null, $default_url = null) {
 		$class = get_class($object);
 		$url = null;
-		$action = $this->first_option("$class::${option}_action;${option}_action", $default_action);
+		$action = $this->firstOption("$class::${option}_action;${option}_action", $default_action);
 		if ($action) {
 			$url = $this->router->get_route($action, $object);
 		}
 		if (!$url) {
-			$url = $this->first_option("$class::${option}_url;${option}_url", $default_url);
+			$url = $this->firstOption("$class::${option}_url;${option}_url", $default_url);
 		}
 		return $url;
 	}
@@ -561,7 +561,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			} elseif ($object) {
 				$title = $action_prefix . $this->class_name;
 			}
-			$widget->set_option("class_name", $this->class_name);
+			$widget->setOption("class_name", $this->class_name);
 			return $this->control($widget, $object, [
 				'title' => $title,
 				"action" => $action,

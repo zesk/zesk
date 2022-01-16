@@ -35,7 +35,7 @@ class Router_Test extends Test_Unit {
 		$response = $app->main($request);
 
 		// Avoids doing header() in test code
-		$response->set_option("skip_response_headers", true);
+		$response->setOption("skip_response_headers", true);
 		$content = $response->render();
 
 		$this->assert_contains($content, $hash);

@@ -7,7 +7,7 @@ namespace zesk;
  *
  */
 class Class_Content_Menu extends Class_ORM {
-	public $find_keys = [
+	public array $find_keys = [
 		"code",
 	];
 

@@ -7,16 +7,14 @@ namespace zesk;
 class Class_Currency extends Class_ORM {
 	public string $id_column = "id";
 
-	public $auto_column = false;
-
-	public $find_keys = [
+	public array $find_keys = [
 		"bank_country",
 		"code",
 	];
 
-	public $text_column = "name";
+	public string $text_column = "name";
 
-	public $name = "Currency";
+	public string $name = "Currency";
 
 	public array $has_one = [
 		'bank_country' => 'zesk\\Country',
@@ -34,7 +32,7 @@ class Class_Currency extends Class_ORM {
 		"precision" => self::type_integer,
 	];
 
-	public $column_defaults = [
+	public array $column_defaults = [
 		'precision' => 2,
 	];
 }

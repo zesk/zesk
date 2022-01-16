@@ -19,7 +19,7 @@ class Control_Label extends \zesk\Control_Select_ORM {
 	];
 
 	protected function initialize(): void {
-		if (!$this->has_option('noname')) {
+		if (!$this->hasOption('noname')) {
 			$this->noname($this->application->locale->__(self::class . ':=No tag'));
 		}
 		parent::initialize();
@@ -33,7 +33,7 @@ class Control_Label extends \zesk\Control_Select_ORM {
 		foreach ($labels as $label) {
 			$options[$label->id()] = $label->name;
 		}
-		if ($this->has_option("exclude_items")) {
+		if ($this->hasOption("exclude_items")) {
 			foreach ($this->option_list("exclude_items") as $id) {
 				unset($options[$id]);
 			}

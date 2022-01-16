@@ -17,8 +17,8 @@ class Control_Arrange extends Control_Select {
 	private $arrange_options_dirty = true;
 
 	protected function initialize(): void {
-		$this->set_option("skip_query_condition", true);
-		$this->set_option("query_column", []);
+		$this->setOption("skip_query_condition", true);
+		$this->setOption("query_column", []);
 		$this->_clean();
 		parent::initialize();
 	}
@@ -104,7 +104,7 @@ class Control_Arrange extends Control_Select {
 	 * @return Control_Arrange|array
 	 */
 	public function arrange_map(array $set = null) {
-		return $set === null ? $this->option_array('arrange_map') : $this->set_option('arrange_map', $set);
+		return $set === null ? $this->option_array('arrange_map') : $this->setOption('arrange_map', $set);
 	}
 
 	protected function _fix_options(): void {
@@ -136,11 +136,11 @@ class Control_Arrange extends Control_Select {
 			if (!$no_name) {
 				$no_name = $this->option('noname-saved');
 			} else {
-				$this->set_option('noname-saved', $no_name);
-				$this->set_option('noname', null);
+				$this->setOption('noname-saved', $no_name);
+				$this->setOption('noname', null);
 			}
 			if ($no_name) {
-				$this->set_option('optgroup', true);
+				$this->setOption('optgroup', true);
 				$options = [
 					$no_name => $options,
 				];

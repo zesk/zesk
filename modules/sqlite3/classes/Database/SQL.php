@@ -413,7 +413,7 @@ class Database_SQL extends \zesk\Database_SQL {
 			// Primary key should not be unsigned integer
 			$sql .= " PRIMARY KEY NOT NULL";
 		} else {
-			if ($dbCol->option_bool("unsigned")) {
+			if ($dbCol->optionBool("unsigned")) {
 				$sql .= " unsigned";
 			}
 			$sql .= $dbCol->required() ? " NOT NULL" : " NULL";

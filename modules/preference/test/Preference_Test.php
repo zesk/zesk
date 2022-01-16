@@ -39,10 +39,8 @@ class Preference_Test extends Test_ORM {
 	 * @expectedException zesk\Exception_Parameter
 	 */
 	public function test_user_set(): void {
-		$user = new User($this->application);
-		$name = null;
-		$value = false;
-		Preference::user_set($user, $name, $value);
+		$user = new User($this->application, 1);
+		Preference::userSet($user, ["Hello" => "world"]);
 	}
 
 	public function test_Preference(): void {
@@ -92,6 +90,6 @@ class Preference_Test extends Test_ORM {
 	 */
 	public function test_Preference_set_parameter(): void {
 		$user = new User($this->application, 1);
-		Preference::user_set($user, null, "Ape");
+		Preference::userSet($user, ["Ape" => null]);
 	}
 }

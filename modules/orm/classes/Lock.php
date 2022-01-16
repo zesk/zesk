@@ -404,7 +404,7 @@ class Lock extends ORM {
 	private function _acquire($timeout) {
 		$timer = new Timer();
 		// Defaults to 0.5 seconds
-		$sleep = $this->option_integer('sleep_seconds', 0.5);
+		$sleep = $this->optionInt('sleep_seconds', 0.5);
 		if ($timeout > 0 && $timeout < $sleep) {
 			$sleep = $timeout;
 		}

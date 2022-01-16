@@ -14,15 +14,23 @@ namespace zesk;
  */
 class Adapter_TestFramework extends Test implements Interface_Testable {
 	public function assertEquals($expected, $actual, $message = null): void {
-		$this->assert_equal($actual, $expected, $message);
+		$this->assert_equal($expected, $actual, $message);
 	}
 
 	public function assertInstanceOf($expected, $actual, $message = null): void {
-		$this->assert_instanceof($actual, $expected, $message);
+		$this->assert_instanceof($expected, $actual, $message);
 	}
 
 	public function assertTrue($condition, $message = null): void {
 		$this->assert_true($condition, $message);
+	}
+
+	public function assertNull($value, $message = null): void {
+		$this->assert_null($value, $message);
+	}
+
+	public function assertNotNull($value, $message = null): void {
+		$this->assert_not_null($value, $message);
 	}
 
 	public function assertFalse($condition, $message = null): void {

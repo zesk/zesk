@@ -9,7 +9,7 @@
 namespace zesk;
 
 class View_Section extends View {
-	protected $options = [
+	protected array $options = [
 		'nav' => true,
 	];
 
@@ -28,8 +28,8 @@ class View_Section extends View {
 		if ($widget === null) {
 			$widget = $label === 12 ? 12 : 12 - $label;
 		}
-		$this->set_option('column_count_label', $label);
-		$this->set_option('column_count_widget', $widget);
+		$this->setOption('column_count_label', $label);
+		$this->setOption('column_count_widget', $widget);
 		return $this;
 	}
 

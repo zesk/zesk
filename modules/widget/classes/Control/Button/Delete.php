@@ -40,7 +40,7 @@ class Control_Button_Delete extends Control_Button {
 				"title" => $title,
 				"name" => $class_name,
 			]),
-			'confirm' => $this->option_bool('confirm'),
+			'confirm' => $this->optionBool('confirm'),
 			'link_text' => $link_text,
 		] + parent::theme_variables();
 	}

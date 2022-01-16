@@ -5,5 +5,10 @@
     },
     "database_default": "default"
   },
-  "deprecated": "exception"
+  "deprecated": "exception",
+  "zesk\\Test": {
+	  "debug_test_settings": false,
+      "no_buffer": false,
+      "debug-logger-config": false
+  }
 }

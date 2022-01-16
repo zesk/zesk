@@ -27,7 +27,7 @@ class View_Video extends View {
 
 	private function fpOption($key, $default) {
 		if (is_bool($default)) {
-			$var = $this->option_bool($key, $default);
+			$var = $this->optionBool($key, $default);
 			$var = StringTools::from_bool($var);
 		} else {
 			$var = $this->option($key, $default);
@@ -43,8 +43,8 @@ class View_Video extends View {
 	private function flash_player_html($path) {
 		static $player_id = 1;
 
-		$width = $this->option_integer("width");
-		$height = $this->option_integer("height");
+		$width = $this->optionInt("width");
+		$height = $this->optionInt("height");
 		$this_id = $player_id++;
 		$html = '<p id="player' . $this_id . '"><a href="http://www.macromedia.com/go/getflashplayer">Get the Flash Player</a> to see this player.</p>';
 		$html .= "<script type=\"text/javascript\">\n";
@@ -82,16 +82,16 @@ class View_Video extends View {
 	}
 
 	public function media_player_html($path) {
-		$width = $this->option_integer("width");
-		$height = $this->option_integer("height");
+		$width = $this->optionInt("width");
+		$height = $this->optionInt("height");
 
-		$autostart = $this->option_bool("autostart", true);
+		$autostart = $this->optionBool("autostart", true);
 		$standby_string = htmlspecialchars($this->option("standby_string", "Loading Microsoft Windows� Media Player components..."));
 		;
-		$showcontrols = $this->option_bool("showcontrols", true);
-		$volume = $this->option_integer("volume", -20);
-		$AutoSize = $this->option_bool("AutoSize", false);
-		$ShowDisplay = $this->option_bool("ShowDisplay", false);
+		$showcontrols = $this->optionBool("showcontrols", true);
+		$volume = $this->optionInt("volume", -20);
+		$AutoSize = $this->optionBool("AutoSize", false);
+		$ShowDisplay = $this->optionBool("ShowDisplay", false);
 
 		$win_embed = '<embed type="application/x-mplayer2" pluginspage="http://www.microsoft.com/Windows/MediaPlayer/"
 src="' . $this->href($path) . '"
@@ -113,8 +113,8 @@ standby="' . $standby_string . '" type="application/x-oleobject" width="' . $wid
 	}
 
 	public function quicktime_player_html($path) {
-		$width = $this->option_integer("width");
-		$height = $this->option_integer("height");
+		$width = $this->optionInt("width");
+		$height = $this->optionInt("height");
 		$attrs = $this->options_include("name;id;tabindex;hspace;vspace;border;align;class;title;accesskey;noexternaldata");
 
 		$attrs['classid'] = "clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B";

@@ -104,7 +104,7 @@ class Controller_Share extends Controller {
 			$this->response->status(Net_HTTP::STATUS_NOT_MODIFIED);
 			$this->response->content_type(MIME::from_filename($file));
 			$this->response->content = "";
-			if ($this->option_bool('build')) {
+			if ($this->optionBool('build')) {
 				$this->build($original_uri, $file);
 			}
 			return null;
@@ -119,7 +119,7 @@ class Controller_Share extends Controller {
 			$this->response->header_date("Expires", strtotime("+1 hour"));
 		}
 		$this->response->raw()->file($file);
-		if ($this->option_bool('build')) {
+		if ($this->optionBool('build')) {
 			$this->build($original_uri, $file);
 		}
 		return null;
@@ -176,7 +176,7 @@ class Controller_Share extends Controller {
 		$logger = $this->application->logger;
 		/* @var $locale \zesk\Locale */
 		$logger->debug(__METHOD__);
-		if ($this->option_bool('build')) {
+		if ($this->optionBool('build')) {
 			$share_dir = path($this->application->document_root(), $this->option_share_prefix());
 			if (is_dir($share_dir)) {
 				$logger->notice('{class}::hook_cache_clear - deleting {share_dir}', [

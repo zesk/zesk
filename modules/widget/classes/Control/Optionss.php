@@ -25,7 +25,7 @@ class Control_Optionss extends Control {
 	 *
 	 * @var boolean
 	 */
-	protected $force_value = false;
+	protected bool $force_value = false;
 
 	/**
 	 * Needs to default to null so will be initialized in _init_control_options - unless an alternate
@@ -34,7 +34,7 @@ class Control_Optionss extends Control {
 	 *
 	 * @var array
 	 */
-	protected $control_options = null;
+	protected ?array $control_options = null;
 
 	/**
 	 * If null, then no novalue.
@@ -42,7 +42,7 @@ class Control_Optionss extends Control {
 	 *
 	 * @var string
 	 */
-	protected $novalue = null;
+	protected ?string $novalue = null;
 
 	/**
 	 * Allow use of __construct and ->control_options function which matches this class name - old
@@ -67,20 +67,17 @@ class Control_Optionss extends Control {
 	}
 
 	private function _init_no_pair(): void {
-		$this->novalue = avalue($this->options, 'noname') ? strval(avalue($this->options, 'novalue', '')) : null;
+		$this->novalue = isset($this->options['noname']) ? strval($this->options['novalue'] ?? '') : null;
 	}
 
 	private function _init_control_options(): void {
 		if (is_array($this->control_options)) {
 			return;
 		}
-		$this->control_options = $this->option_array('options', null);
-		if (is_array($this->control_options)) {
-			return;
-		}
-		$this->control_options = $this->call_hook_arguments('options', [], $this->control_options);
-		if (!is_array($this->control_options)) {
-			$this->control_options = [];
+		$this->control_options = $this->optionArray('options');
+		$new_options = $this->call_hook_arguments('options', [], $this->control_options);
+		if (is_array($new_options)) {
+			$this->control_options = $new_options;
 		}
 	}
 
@@ -187,14 +184,14 @@ class Control_Optionss extends Control {
 
 	public function noname($set = null) {
 		if ($set !== null) {
-			return $this->set_option('noname', $set);
+			return $this->setOption('noname', $set);
 		}
 		return $this->option('noname');
 	}
 
 	public function novalue($set = null) {
 		if ($set !== null) {
-			return $this->set_option('novalue', $set);
+			return $this->setOption('novalue', $set);
 		}
 		return $this->option('novalue');
 	}

@@ -74,30 +74,30 @@ class Database_Type extends \zesk\Database_Data_Type {
 				'type' => _dump($type),
 			]);
 		}
-		$is_bin = $type->option_bool("binary");
-		$size = $type->option_integer("size");
+		$is_bin = $type->optionBool("binary");
+		$size = $type->optionInt("size");
 		switch (strtolower($type_name)) {
 			case Class_ORM::type_integer:
 				switch ($size) {
 					case 1:
-						$type->set_option("sql_type", "tinyint");
+						$type->setOption("sql_type", "tinyint");
 						return true;
 					case 2:
-						$type->set_option("sql_type", "smallint");
+						$type->setOption("sql_type", "smallint");
 						return true;
 					case 3:
-						$type->set_option("sql_type", "mediumint");
+						$type->setOption("sql_type", "mediumint");
 						return true;
 					case 4:
-						$type->set_option("sql_type", "bigint");
+						$type->setOption("sql_type", "bigint");
 						return true;
 					default:
-						$type->set_option("sql_type", "integer");
+						$type->setOption("sql_type", "integer");
 						return true;
 				}
 				// no break
 			case Class_ORM::type_boolean:
-				$type->set_option("sql_type", "tinyint");
+				$type->setOption("sql_type", "tinyint");
 				return true;
 			default:
 				return parent::type_set_sql_type($type);

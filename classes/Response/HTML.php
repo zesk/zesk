@@ -295,7 +295,7 @@ class HTML extends Type {
 			$arr['type'] = $type;
 		}
 		$share = avalue($attrs, 'share', false);
-		if (!$share && $this->parent->option_bool("require_root_dir") && !array_key_exists("root_dir", $attrs)) {
+		if (!$share && $this->parent->optionBool("require_root_dir") && !array_key_exists("root_dir", $attrs)) {
 			throw new Exception_Semantics("{path} requires a root_dir specified", compact('rel', 'path'));
 		}
 		ArrayTools::append($this->links_by_rel, $rel, $path);
@@ -429,7 +429,7 @@ class HTML extends Type {
 			$this->links_sorted = $this->links;
 			usort($this->links_sorted, "zesk_sort_weight_array");
 		}
-		$cache_links = $this->parent->option_bool("cache_links", false);
+		$cache_links = $this->parent->optionBool("cache_links", false);
 		$cached_media = [];
 		$this->links_sorted = $this->parent->call_hook_arguments("links_preprocess", [
 			$this->links_sorted,
@@ -781,7 +781,7 @@ class HTML extends Type {
 			],
 			"add_path" => true,
 		]);
-		$expire_seconds = abs($this->parent->option_integer("resource_cache_lifetime_seconds", 3600)); // 1 hour
+		$expire_seconds = abs($this->parent->optionInt("resource_cache_lifetime_seconds", 3600)); // 1 hour
 		$now = time();
 		$modified_after = $now - $expire_seconds;
 		$deleted = [];
@@ -860,7 +860,7 @@ class HTML extends Type {
 				$debug[] = $key;
 			}
 		}
-		if ($this->parent->option_bool("debug_resource_cache")) {
+		if ($this->parent->optionBool("debug_resource_cache")) {
 			file_put_contents($this->application->path("/resource_cache-" . date("Y-m-d-H-i-s") . ".txt"), implode("\n", $hash));
 		}
 		$hash = md5(implode("|", $hash));
@@ -967,13 +967,13 @@ class HTML extends Type {
 			$this->scripts_sorted = true;
 		}
 		if ($cache_scripts === null) {
-			$cache_scripts = $this->parent->option_bool("cache_scripts", false);
+			$cache_scripts = $this->parent->optionBool("cache_scripts", false);
 		}
 		$cached = $cached_append = [];
 		$result = [];
 		/* Output scripts */
 		$selected_attributes = to_list("src;type;async;defer;id");
-		if ($this->parent->option_bool("debug_weight")) {
+		if ($this->parent->optionBool("debug_weight")) {
 			$selected_attributes[] = "weight";
 		}
 		foreach ($this->scripts as $attrs) {
@@ -1099,7 +1099,7 @@ class HTML extends Type {
 		$content = array_key_exists('content', $options);
 		$is_route = avalue($options, 'is_route');
 		$callback = array_key_exists('callback', $options);
-		if (!$is_route && !$callback && !$content && !$share && !$nocache && $this->parent->option_bool("require_root_dir") && !array_key_exists("root_dir", $options)) {
+		if (!$is_route && !$callback && !$content && !$share && !$nocache && $this->parent->optionBool("require_root_dir") && !array_key_exists("root_dir", $options)) {
 			throw new Exception_Semantics("{path} requires a root_dir specified", compact('path'));
 		}
 		$options += [

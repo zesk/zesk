@@ -150,7 +150,7 @@ class Command_Info extends Command_Base {
 			$human_names[$code_name] = avalue($settings, "title", $code_name);
 		}
 
-		if (!$this->option_bool('computer-labels')) {
+		if (!$this->optionBool('computer-labels')) {
 			$info = ArrayTools::map_keys($info, $human_names + self::$human_names);
 		}
 		$this->render_format($info, $this->option("format"));

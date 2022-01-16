@@ -23,7 +23,7 @@ class Command_Modules extends Command_Base {
 	];
 
 	public function run(): void {
-		$only_loaded = $this->option_bool("loaded");
+		$only_loaded = $this->optionBool("loaded");
 		$loaded_modules = [];
 		$modules = $this->application->modules->available();
 		foreach ($modules as $module => $module_data) {

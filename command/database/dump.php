@@ -62,9 +62,9 @@ class Command_Database_Dump extends Command_Base {
 		[$binary, $args] = $db->shell_command([
 			"sql-dump-command" => true,
 			"tables" => $this->option_list("tables"),
-			'non-blocking' => $this->option_bool('non-blocking'),
+			'non-blocking' => $this->optionBool('non-blocking'),
 		]);
-		if ($this->has_option("arg-prefix")) {
+		if ($this->hasOption("arg-prefix")) {
 			$args = array_merge($this->option_list('arg-prefix'), $args);
 		}
 		$full_command_path = $this->application->paths->which($binary);
@@ -75,7 +75,7 @@ class Command_Database_Dump extends Command_Base {
 
 		$suffix = "";
 		$where = "";
-		if ($this->option_bool('file') || $this->has_option('dir') || $this->has_option('target')) {
+		if ($this->optionBool('file') || $this->hasOption('dir') || $this->hasOption('target')) {
 			$app_root = $this->application->path();
 			$map = [
 				'database_name' => $db->url("name"),
@@ -86,7 +86,7 @@ class Command_Database_Dump extends Command_Base {
 				"application_root" => $app_root,
 			];
 			$dir = $this->option("dir", "sql-dumps");
-			if ($this->has_option("target")) {
+			if ($this->hasOption("target")) {
 				$target = $this->option("target");
 			} else {
 				$target = path($dir, "{database_name}-{YYYY}-{MM}-{DD}_{hh}-{mm}.sql");
@@ -95,10 +95,10 @@ class Command_Database_Dump extends Command_Base {
 				$this->usage("Database target file not specified?");
 				return -1;
 			}
-			if ($this->has_option("compress")) {
+			if ($this->hasOption("compress")) {
 				$compress = true;
 			} else {
-				$compress = !$this->option_bool("no-compress", false);
+				$compress = !$this->optionBool("no-compress", false);
 			}
 			$where = map($target, $map);
 			$where = Timestamp::now()->format($this->application->locale, $where);
@@ -115,12 +115,12 @@ class Command_Database_Dump extends Command_Base {
 			$suffix .= " > $where";
 		}
 
-		if ($this->has_option("arg-suffix")) {
+		if ($this->hasOption("arg-suffix")) {
 			$args = array_merge($args, explode(" ", $this->option('arg-suffix')));
 		}
 
 		$command_line = $full_command_path . implode("", ArrayTools::prefix($args, " ")) . $suffix;
-		if ($this->option_bool('echo')) {
+		if ($this->optionBool('echo')) {
 			echo $command_line . "\n";
 			return true;
 		}

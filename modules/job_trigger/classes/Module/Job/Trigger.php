@@ -37,7 +37,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * Get/Set wait max seconds before dinging the database again
 	 */
 	public function wait_max_seconds() {
-		return $this->option_integer("wait_max_seconds", 600);
+		return $this->optionInt("wait_max_seconds", 600);
 	}
 
 	/**
@@ -78,7 +78,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * @param string $url
 	 */
 	private function add_security($url) {
-		if (!$this->has_option("key")) {
+		if (!$this->hasOption("key")) {
 			$this->application->logger->warning("Can not add security to {url} - need to configure {class}::key global", [
 				"url" => $url,
 				"class" => __CLASS__,
@@ -98,7 +98,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * @param string $timestamp
 	 */
 	public function check_security($hash, $timestamp) {
-		if (!$this->has_option("key")) {
+		if (!$this->hasOption("key")) {
 			$this->application->logger->error("Can not check security! need to configure {class}::key global", [
 				"class" => __CLASS__,
 			]);
@@ -208,7 +208,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * @param Router $router
 	 */
 	public function hook_routes(Router $router): void {
-		if ($this->has_option("key")) {
+		if ($this->hasOption("key")) {
 			// Only allowed to receive web requests with some form of shared key security.
 			// If you don't configure this works fine on single-server applications
 			$router->add_route("job_trigger", [

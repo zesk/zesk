@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2013, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -173,11 +175,11 @@ class CSS {
 	/**
 	 * Add a class to another CSS class for inclusion in HTML
 	 *
-	 * @param string $classes
+	 * @param string|array $classes
 	 * @param string $add
 	 * @return string
 	 */
-	public static function add_class($classes, $add = null) {
+	public static function add_class(string|array $classes, string $add = ""): string {
 		if (is_array($classes)) {
 			$classes = implode(" ", $classes);
 		}
@@ -186,11 +188,11 @@ class CSS {
 
 	/**
 	 * Remove a class from a list of classes
-	 * @param string $classes
+	 * @param string|array $classes
 	 * @param string $remove
 	 * @return string
 	 */
-	public static function remove_class($classes, $remove = null) {
+	public static function remove_class(string|array $classes, string $remove = ""): string {
 		if (is_array($classes)) {
 			$classes = implode(" ", $classes);
 		}
@@ -203,10 +205,10 @@ class CSS {
 	 * If color not found, then return default value.
 	 *
 	 * @param string $text
-	 * @param mixed $default
+	 * @param string $default
 	 * @return string
 	 */
-	public static function color_lookup($text, $default = null) {
+	public static function color_lookup(string $text, string $default = ""): string {
 		$colors = self::color_table();
 		return $colors[strtolower($text)] ?? $default;
 	}
@@ -215,13 +217,9 @@ class CSS {
 	 * Convert an RGB value to a hex value
 	 *
 	 * @param array $rgb Array of three values between 0 and 255
-	 * @param string $default
 	 * @return string
 	 */
-	public static function rgb_to_hex($rgb, $default = null) {
-		if (!is_array($rgb)) {
-			return $default;
-		}
+	public static function rgb_to_hex(array $rgb) {
 		$color = "";
 		foreach ($rgb as $c) {
 			$c = clamp(0, $c, 255);
@@ -241,8 +239,8 @@ class CSS {
 	 * @param mixed $default
 	 * @return string
 	 */
-	public static function color_format($rgb, $default = null) {
-		return '#' . self::rgb_to_hex($rgb, $default);
+	public static function color_format(array $rgb) {
+		return '#' . self::rgb_to_hex($rgb);
 	}
 
 	/**
@@ -252,9 +250,9 @@ class CSS {
 	 * @param string $default
 	 * @return string
 	 */
-	public static function color_normalize($text, $default = null) {
-		$x = self::color_parse($text, $default);
-		$x = self::rgb_to_hex($x, $default);
+	public static function color_normalize(string $text, string $default) {
+		$x = self::color_parse($text, $default) + [0, 0, 0];
+		$x = self::rgb_to_hex($x);
 		return $x;
 	}
 
@@ -271,23 +269,25 @@ class CSS {
 	/**
 	 * Parse a color value from a CSS file
 	 *
-	 * @todo Does not support rgba
 	 * @param string $text
-	 * @param string $default
 	 * @return array ($r, $g, $b) returned as a list
+	 * @todo Does not support rgba
+	 * @return array
+	 * @throws Exception_Syntax
 	 */
-	public static function color_parse($text, $default = null) {
+	public static function color_parse(string $text): array {
 		$text = trim($text);
 		if (strlen($text) == 0) {
-			return $default;
+			throw new Exception_Syntax("Blank color");
 		}
-		$matches = false;
-		if (preg_match('/^rgb\(([0-9,]+)\)$/', $text, $matches, false)) {
+		$matches = [];
+		if (preg_match('/^rgb\(([0-9,]+)\)$/', $text, $matches)) {
 			$colors = explode(",", $matches[1]);
 			if (count($colors) === 3) {
 				foreach ($colors as $i => $c) {
 					if ($c <= 0 || $c >= 255) {
-						return $default;
+						$c = clamp(0, $c, 255);
+						// TODO Warn or something
 					}
 					$colors[$i] = intval($c);
 				}
@@ -301,11 +301,11 @@ class CSS {
 		}
 		$text_len = strlen($text);
 		if ($text_len !== 3 && $text_len !== 6) {
-			return $default;
+			throw new Exception_Syntax("Invalid color text length \"{text}\" (3 or 6 chars)", ['text' => $text]);
 		}
 		$text = strtolower($text);
-		if (!preg_match('/^[0-9a-z]+$/', $text)) {
-			return $default;
+		if (!preg_match('/^[0-9a-f]+$/', $text)) {
+			throw new Exception_Syntax("Invalid color text characters \"{text}\" (hex only)", ['text' => $text]);
 		}
 		$text_len = intval($text_len / 3);
 		$result = [];

@@ -56,18 +56,18 @@ class Control_Link_Object extends Control {
 
 	public function minimum_objects($set = null) {
 		if ($set !== null) {
-			$this->set_option('minimum_objects', intval($set));
+			$this->setOption('minimum_objects', intval($set));
 			return $this;
 		}
-		return $this->option_integer("minimum_objects", 0);
+		return $this->optionInt("minimum_objects", 0);
 	}
 
 	public function maximum_objects($set = null) {
 		if ($set !== null) {
-			$this->set_option('maximum_objects', intval($set));
+			$this->setOption('maximum_objects', intval($set));
 			return $this;
 		}
-		return $this->option_integer("maximum_objects", 100);
+		return $this->optionInt("maximum_objects", 100);
 	}
 
 	// 	function load() {

@@ -15,7 +15,7 @@ class View_Checkbox extends View {
 		$ts = $this->option("true_string", $this->option("truestring", "Yes"));
 		$fs = $this->option("false_string", $this->option("falsestring", "No"));
 		$v = $this->value();
-		if ($this->option_bool("null_check")) {
+		if ($this->optionBool("null_check")) {
 			if ($true_value === null) {
 				$is_true = ($v === null);
 			} else {

@@ -77,7 +77,7 @@ class Rule_Parser extends Options {
 	}
 
 	public function dtstart(Timestamp $set = null) {
-		return $set ? $this->set_option('dtstart', $set) : $this->option('dtstart');
+		return $set ? $this->setOption('dtstart', $set) : $this->option('dtstart');
 	}
 
 	public function errors() {

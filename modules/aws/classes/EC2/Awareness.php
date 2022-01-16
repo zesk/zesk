@@ -231,7 +231,7 @@ class Awareness extends Hookable {
 			self::setting_security_groups => "mock-security-group",
 		];
 		foreach ($settings as $setting => $value) {
-			if ($this->has_option("mock_" . $setting)) {
+			if ($this->hasOption("mock_" . $setting)) {
 				$settings[$setting] = $this->option("mock_" . $setting);
 			}
 		}
@@ -246,7 +246,7 @@ class Awareness extends Hookable {
 	 * @return string
 	 */
 	private function fetch($suffix) {
-		if ($this->option_bool("mock")) {
+		if ($this->optionBool("mock")) {
 			return avalue($this->mock_settings(), $suffix);
 		}
 		$url = glue(self::$url, "/", "meta-data/$suffix");

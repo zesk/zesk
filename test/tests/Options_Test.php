@@ -25,12 +25,12 @@ class Options_Test extends Test_Unit {
 
 		$name = null;
 		$checkEmpty = false;
-		$testx->has_option($name, $checkEmpty);
+		$testx->hasOption($name, $checkEmpty);
 
 		$mixed = null;
 		$value = false;
 		$overwrite = true;
-		$testx->set_option($mixed, $value, $overwrite);
+		$testx->setOption($mixed, $value, $overwrite);
 
 		$name = null;
 		$default = false;
@@ -38,11 +38,11 @@ class Options_Test extends Test_Unit {
 
 		$name = null;
 		$default = false;
-		$testx->option_bool($name, $default);
+		$testx->optionBool($name, $default);
 
 		$name = null;
 		$default = false;
-		$testx->option_integer($name, $default);
+		$testx->optionInt($name, $default);
 
 		$name = null;
 		$default = false;
@@ -60,8 +60,8 @@ class Options_Test extends Test_Unit {
 
 	public function test_options_path_simple(): void {
 		$opts = new Options();
-		$opts->set_option_path("a.b.c.d", "1");
-		$opts->set_option_path("a.b.c.e", 1);
+		$opts->setOption_path("a.b.c.d", "1");
+		$opts->setOption_path("a.b.c.e", 1);
 		$this->assert_arrays_equal($opts->options(), [
 			'a' => [
 				'b' => [
@@ -89,7 +89,7 @@ class Options_Test extends Test_Unit {
 			"d.c.a",
 		];
 		foreach ($paths as $path) {
-			$opts->set_option_path($path, $path);
+			$opts->setOption_path($path, $path);
 		}
 		$this->assert_arrays_equal($opts->options(), [
 			'a' => [

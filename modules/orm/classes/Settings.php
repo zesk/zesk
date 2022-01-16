@@ -135,7 +135,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$size_loaded = 0;
 		$n_loaded = 0;
 		$object = $application->orm_registry(__CLASS__);
-		$fix_bad_globals = $object->option_bool("fix_bad_globals");
+		$fix_bad_globals = $object->optionBool("fix_bad_globals");
 
 		foreach ($object->query_select()->to_array("name", "value") as $name => $value) {
 			++$n_loaded;
@@ -206,7 +206,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		}
 		$application->configuration->deprecated("Settings", __CLASS__);
 		$settings = self::singleton($application);
-		$cache_disabled = $settings->option_bool("cache_disabled");
+		$cache_disabled = $settings->optionBool("cache_disabled");
 		$exception = null;
 
 		try {
@@ -291,7 +291,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 * Internal function to write all settings store in this object to the database instantly.
 	 */
 	public function flush(): void {
-		$debug_save = $this->option_bool("debug_save");
+		$debug_save = $this->optionBool("debug_save");
 		foreach ($this->changes as $name => $value) {
 			$settings = $this->application->orm_factory(__CLASS__, [
 				'name' => $name,

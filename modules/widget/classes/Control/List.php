@@ -221,7 +221,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @return array|void
 	 */
 	public function where(array $where = null) {
-		return $where === null ? $this->option_array('where') : $this->set_option('where', $where);
+		return $where === null ? $this->option_array('where') : $this->setOption('where', $where);
 	}
 
 	/**
@@ -240,7 +240,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @return string Control_Edit
 	 */
 	public function title($set = null) {
-		return $set === null ? $this->option('title') : $this->set_option('title', $set);
+		return $set === null ? $this->option('title') : $this->setOption('title', $set);
 	}
 
 	/**
@@ -249,11 +249,11 @@ class Control_List extends Control_Widgets_Filter {
 	 * @return Control_List|boolean
 	 */
 	public function show_pager($set = null) {
-		return $set !== null ? $this->set_option('show_pager', to_bool($set)) : $this->option_bool('show_pager');
+		return $set !== null ? $this->setOption('show_pager', to_bool($set)) : $this->optionBool('show_pager');
 	}
 
 	public function default_order_by($set = null) {
-		return $set === null ? $this->option('list_default_order_by') : $this->set_option('list_default_order_by', $set);
+		return $set === null ? $this->option('list_default_order_by') : $this->setOption('list_default_order_by', $set);
 	}
 
 	protected function initialize(): void {
@@ -281,7 +281,7 @@ class Control_List extends Control_Widgets_Filter {
 
 	protected function initialize_query(): void {
 		$this->query = $this->_query();
-		if ($this->has_option('list_default_order_by', true)) {
+		if ($this->hasOption('list_default_order_by', true)) {
 			$this->query->order_by($this->option('list_default_order_by'));
 		}
 		$this->query_total = $this->_query_total();
@@ -323,12 +323,12 @@ class Control_List extends Control_Widgets_Filter {
 		$included = to_list("list_order_column;show_size;list_order_variable;list_order_by;multisort;list_order_default_ascending;list_order_position;html;list_column_width;widget_save_result;context_class");
 		foreach ($this->row_widgets as $widget) {
 			/* @var $widget Widget */
-			if ($widget->has_option("list_order_by", true)) {
+			if ($widget->hasOption("list_order_by", true)) {
 				$w = $this->header_widgets[$widget->name()] = $this->widget_factory(Control_OrderBy::class, $widget->options_include($included))->names("" . $widget->name(), $widget->label());
 			} else {
 				$w = $this->header_widgets[$widget->name()] = $this->widget_factory(View_Text::class, $widget->options_include($included))
 					->names($widget->name())
-					->set_option("value", $widget->option("label_header", $widget->label()));
+					->setOption("value", $widget->option("label_header", $widget->label()));
 			}
 			$header_widget->child($w);
 		}
@@ -350,7 +350,7 @@ class Control_List extends Control_Widgets_Filter {
 
 			$this->cache_total = $this->total();
 			$this->children_hook("total", $this->cache_total);
-			if ($this->has_option('force_limit')) {
+			if ($this->hasOption('force_limit')) {
 				$this->query->limit($this->option('force_limit'));
 			}
 		}
@@ -369,18 +369,18 @@ class Control_List extends Control_Widgets_Filter {
 			'query_total' => $this->query_total,
 			'sql_query_total' => strval($this->query_total),
 			'total' => $this->cache_total,
-			'render_header_widgets' => $this->option_bool('render_header_widgets', true),
+			'render_header_widgets' => $this->optionBool('render_header_widgets', true),
 			'header_widgets' => $this->header_widgets,
 			'row_widget' => $this->row_widget,
 			'row_widgets' => $this->row_widgets,
 			'widgets' => $this->row_widgets,
-			'hide_new_button' => $this->option_bool('hide_new_button'),
+			'hide_new_button' => $this->optionBool('hide_new_button'),
 			'list_object_name' => $locale->__($class_object->name),
 			'list_object_names' => $locale->plural($locale($class_object->name)),
 			'list_class' => $this->class,
 			'list_class_object' => $this->class_object,
 			'list_is_empty' => $this->cache_total === 0,
-			'empty_list_hide_header' => $this->option_bool("empty_list_hide_header"),
+			'empty_list_hide_header' => $this->optionBool("empty_list_hide_header"),
 			'pager' => $this->pager,
 			'theme_prefix' => $this->theme_prefix,
 			'theme_header' => $this->theme_header,
@@ -406,7 +406,7 @@ class Control_List extends Control_Widgets_Filter {
 	 */
 	private function _query() {
 		$query = $this->application->orm_registry($this->class)->query_select()->what_object($this->class);
-		if ($this->has_option('where')) {
+		if ($this->hasOption('where')) {
 			$query->where($this->option_array('where'));
 		}
 		return $query;
@@ -442,7 +442,7 @@ class Control_List extends Control_Widgets_Filter {
 	}
 
 	final public function force_limit($limit) {
-		$this->set_option('force_limit', intval($limit));
+		$this->setOption('force_limit', intval($limit));
 		return $this;
 	}
 
@@ -479,7 +479,7 @@ class Control_List extends Control_Widgets_Filter {
 		}
 		foreach ($this->filter->all_children() as $child) {
 			/* @var $child Widget */
-			if (!$child->has_option('search_default_value')) {
+			if (!$child->hasOption('search_default_value')) {
 				continue;
 			}
 			$search_default_value = $child->option('search_default_value');
@@ -498,7 +498,7 @@ class Control_List extends Control_Widgets_Filter {
 				'shown' => 0,
 			];
 		}
-		$force_limit = $this->option_integer('search_limit', 10);
+		$force_limit = $this->optionInt('search_limit', 10);
 		$this->ready();
 		$this->defaults();
 		$this->initialize_query();

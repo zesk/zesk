@@ -31,7 +31,7 @@ class Class_Health_Event extends Class_ORM {
 		"data" => self::type_serialize,
 	];
 
-	public $column_defaults = [
+	public array $column_defaults = [
 		'when_msec' => 0,
 	];
 }

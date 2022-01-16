@@ -45,13 +45,13 @@ class Module extends \zesk\Module {
 		if (!$this->is_ec2()) {
 			return;
 		}
-		if (!$this->option_bool("disable_server_integration")) {
+		if (!$this->optionBool("disable_server_integration")) {
 			$this->application->hooks->add(Server::class . "::initialize_names", [
 				$this,
 				"server_initialize_names",
 			]);
 		}
-		if (!$this->option_bool("disable_uname_integration")) {
+		if (!$this->optionBool("disable_uname_integration")) {
 			$self = $this;
 			$this->application->hooks->add("uname", fn () => $self->awareness()->get(Awareness::setting_mac));
 		}
@@ -77,7 +77,7 @@ class Module extends \zesk\Module {
 	 */
 	public function server_initialize_names(Server $server): void {
 		$awareness = $this->awareness();
-		if ($this->option_bool("disable_uname_integration")) {
+		if ($this->optionBool("disable_uname_integration")) {
 			$server->name = php_uname('n');
 		}
 		$server->ip4_internal = $awareness->get(Awareness::setting_local_ipv4);

@@ -14,7 +14,7 @@ class Class_Session_ORM extends Class_ORM {
 	 */
 	public string $id_column = "id";
 
-	public $find_keys = [
+	public array $find_keys = [
 		"cookie",
 	];
 
@@ -38,7 +38,7 @@ class Class_Session_ORM extends Class_ORM {
 
 	public $code_name = "Session";
 
-	public $column_defaults = [
+	public array $column_defaults = [
 		'data' => [],
 		'sequence_index' => 0,
 		'ip' => '127.0.0.1',

@@ -232,7 +232,7 @@ class Module extends \zesk\Module {
 					"path" => $stat_helper,
 				]);
 				if (is_readable($stat_helper)) {
-					$services[] = Service::from_svstat($this->application, file_get_contents($stat_helper))->set_option("mtime", filemtime($stat_helper));
+					$services[] = Service::from_svstat($this->application, file_get_contents($stat_helper))->setOption("mtime", filemtime($stat_helper));
 				}
 			}
 		}

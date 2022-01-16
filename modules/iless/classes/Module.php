@@ -37,7 +37,7 @@ class Module extends \zesk\Module {
 	 * @return void|mixed|string
 	 */
 	public function style_name($set = null) {
-		return $set === null ? $this->set_option('style_name', $set) : $this->option('style_name', strtolower($this->application->application_class()));
+		return $set === null ? $this->setOption('style_name', $set) : $this->option('style_name', strtolower($this->application->application_class()));
 	}
 
 	/**
@@ -158,9 +158,9 @@ class Module extends \zesk\Module {
 	 * @return string
 	 */
 	public function css_theme(array $variables = [], array $options = []) {
-		$this->set_option($options);
+		$this->setOption($options);
 		$default_css = $this->_default_css_path();
-		if (!$this->okay || $this->option_bool('ignore_theme')) {
+		if (!$this->okay || $this->optionBool('ignore_theme')) {
 			return $default_css;
 		}
 		$full_path = $this->_full_css_path();

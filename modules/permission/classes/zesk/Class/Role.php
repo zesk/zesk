@@ -16,7 +16,7 @@ class Class_Role extends Class_ORM {
 
 	public $name_column = "name";
 
-	public $find_keys = [
+	public array $find_keys = [
 		'code',
 	];
 

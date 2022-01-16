@@ -151,7 +151,7 @@ abstract class Contact_Import extends Options {
 		$label_type = $object->label_type();
 		$label = Contact_Label::find_global($label_type, $name);
 		if (!$label) {
-			$label = Contact_Label::register_local($label_type, $name, $this->option_integer('account'));
+			$label = Contact_Label::register_local($label_type, $name, $this->optionInt('account'));
 		}
 		return $label;
 	}
@@ -188,13 +188,13 @@ abstract class Contact_Import extends Options {
 			}
 		}
 		$this->objects = map([
-			'account' => $this->option_integer('account'),
-			'user' => $this->option_integer('user'),
+			'account' => $this->optionInt('account'),
+			'user' => $this->optionInt('user'),
 		], $this->objects);
 
 		throw new Exception_Unimplemented("Need to update this code");
 
-		$account = $this->option_integer("account");
+		$account = $this->optionInt("account");
 		$dup_contact = Contact::find_hash($contact_hash, [
 			'account' => $account,
 		]);
@@ -202,7 +202,7 @@ abstract class Contact_Import extends Options {
 		$contact->memberCanStore('*Hash');
 		$contact->set_member('*Hash', $contact_hash);
 		$contact->account = $account;
-		$contact->user = $this->option_integer('User');
+		$contact->user = $this->optionInt('User');
 		// 		$contact->Duplicate = $dup_contact;
 
 		if ($this->tag) {

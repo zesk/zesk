@@ -64,7 +64,7 @@ class Class_Contact_Address extends Class_Contact_Info {
 	 *
 	 * @var array
 	 */
-	public $column_defaults = [
+	public array $column_defaults = [
 		'name' => '',
 	];
 }

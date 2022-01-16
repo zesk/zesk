@@ -19,8 +19,8 @@ class View_CSV extends View {
 			return $this->empty_string();
 		}
 
-		$header_rows_top = $this->option_integer("header_rows_top", $this->option_integer('header_rows', 1));
-		$header_rows_left = $this->option_integer("header_rows_left", 0);
+		$header_rows_top = $this->optionInt("header_rows_top", $this->optionInt('header_rows', 1));
+		$header_rows_left = $this->optionInt("header_rows_left", 0);
 
 		foreach ($table as $row_index => $row) {
 			[$tag, $attrs] = ($row_index < $header_rows_top) ? [
@@ -37,7 +37,7 @@ class View_CSV extends View {
 			}
 		}
 
-		if ($this->option_bool('rows_even_odd')) {
+		if ($this->optionBool('rows_even_odd')) {
 			$rows = "";
 			foreach ($html as $i => $row) {
 				$rows .= HTML::tag('tr', [

@@ -32,7 +32,7 @@ $inputs = [];
 foreach ($this->children as $child) {
 	/* @var $child Widget */
 	$inputs[] = $child->render();
-	if ($child->option_bool(Control_Checklist::option_checklist_exclusive)) {
+	if ($child->optionBool(Control_Checklist::option_checklist_exclusive)) {
 		$exclusives[] = "#" . $child->id();
 	}
 }

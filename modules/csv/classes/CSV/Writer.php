@@ -300,7 +300,7 @@ class CSV_Writer extends CSV {
 			throw new Exception_Semantics("CSV_Writer:writeRow: Must set row values first");
 		}
 		$headers = $this->headers();
-		if (!$this->WroteHeaders && $this->option_bool("write_header", true) && is_array($headers)) {
+		if (!$this->WroteHeaders && $this->optionBool("write_header", true) && is_array($headers)) {
 			fwrite($this->File, $this->_formatRow($headers));
 			$this->RowIndex = 0;
 			$this->WroteHeaders = true;

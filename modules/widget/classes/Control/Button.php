@@ -15,11 +15,11 @@ class Control_Button extends Control {
 	 * @return Control_Button|string
 	 */
 	public function href($set = null) {
-		return $set === null ? $this->option('href') : $this->set_option("href", $set);
+		return $set === null ? $this->option('href') : $this->setOption("href", $set);
 	}
 
 	public function button_label($set = null) {
-		return $set === null ? $this->option('button_label') : $this->set_option("button_label", $set);
+		return $set === null ? $this->option('button_label') : $this->setOption("button_label", $set);
 	}
 
 	public function submit() {

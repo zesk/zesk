@@ -388,11 +388,11 @@ class Kernel {
 	/**
 	 * Enables a method to be tagged as "deprecated"
 	 *
-	 * @param mixed $set
+	 * @param string $reason
 	 * @return mixed Current value
 	 * @throws Exception_Deprecated
 	 */
-	public function deprecated($reason = null, array $arguments = []): void {
+	public function deprecated(string $reason = "", array $arguments = []): void {
 		if ($this->deprecated === self::DEPRECATED_IGNORE) {
 			return;
 		}
@@ -518,6 +518,7 @@ class Kernel {
 	public function console($set = null) {
 		if (is_bool($set)) {
 			$this->deprecated("console -> setConsole");
+			$this->setConsole(to_bool($set));
 		}
 		return $this->console;
 	}
@@ -526,9 +527,9 @@ class Kernel {
 	 * Getter/setter for console
 	 *
 	 * @param boolean $set
-	 * @return boolean
+	 * @return self
 	 */
-	public function setConsole(bool $set = false) {
+	public function setConsole(bool $set = false): self {
 		$this->console = $set;
 		return $this;
 	}
@@ -537,20 +538,41 @@ class Kernel {
 	 * Getter/setter for application class
 	 *
 	 * @param string|null $set
-	 * @return string|self
+	 * @return string
 	 */
 	public function application_class($set = null) {
 		if ($set !== null) {
-			if ($set === $this->application_class) {
-				return $this;
-			}
-			if ($this->application !== null) {
-				throw new Exception_Semantics("Changing application class to {class} when application already instantiated", ["class" => $set, ]);
-			}
-			$this->application_class = $set;
+			$this->deprecated("setter");
+			$this->setApplicationClass(strval($set));
+		}
+		return $this->applicationClass();
+	}
+
+	/**
+	 * Getter for application class
+	 *
+	 * @return string
+	 */
+	public function applicationClass(): string {
+		return $this->application_class;
+	}
+
+	/**
+	 * Setter for application class
+	 *
+	 * @param string $set
+	 * @return $this
+	 * @throws Exception_Semantics
+	 */
+	public function setApplicationClass(string $set) {
+		if ($set === $this->application_class) {
 			return $this;
 		}
-		return $this->application_class;
+		if ($this->application !== null) {
+			throw new Exception_Semantics("Changing application class to {class} when application already instantiated", ["class" => $set, ]);
+		}
+		$this->application_class = $set;
+		return $this;
 	}
 
 	public const HOOK_CREATE_APPLICATION = __CLASS__ . '::create_application';
@@ -577,6 +599,7 @@ class Kernel {
 	 */
 	public function application(callable $callback = null): ?Application {
 		if (!$this->application) {
+			// TODO Test this
 			if ($callback) {
 				$this->hooks->add(self::HOOK_CREATE_APPLICATION, $callback);
 				return null;
@@ -597,7 +620,7 @@ class Kernel {
 	 * @param string $suffix
 	 * @return string
 	 */
-	public function path(string $suffix = null): string {
+	public function path(string $suffix = ""): string {
 		return $this->paths->zesk($suffix);
 	}
 
