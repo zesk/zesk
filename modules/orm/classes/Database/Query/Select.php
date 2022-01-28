@@ -548,7 +548,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @param mixed $class
 	 *            An object or a class name
-	 * @param mixed $mixed
+	 * @param string|array $mixed
 	 *            Parameters to join with this object
 	 *        Options are:
 	 *         "path": The path to traverse to determine how this object links to the class specified. These are member names separated by dots.
@@ -558,7 +558,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @return Database_Query_Select
 	 */
-	public function link(string $class, array $mixed = []) {
+	public function link(string $class, string|array $mixed = []) {
 		if (is_string($mixed)) {
 			$mixed = [
 				"path" => $mixed,
@@ -650,7 +650,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		} elseif ($k === null && is_string($v)) {
 			return $this->addWhereSQL($v);
 		} elseif (!empty($k)) {
-			return $htis->addWhere($k, $v);
+			return $this->addWhere($k, $v);
 			$this->where[$k] = $v;
 		} elseif ($k === false) {
 			return $this->clearWhere();
@@ -675,7 +675,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param array $group_by
 	 * @return Database_Query_Select
 	 */
-	public function groupBy(array $group_by) {
+	public function groupBy(array $group_by): self {
 		$this->group_by = $group_by;
 		return $this;
 	}
@@ -705,7 +705,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 */
 	public function __toString() {
 		return $this->generated_sql = $this->db->sql()->select([
-			'what' => $this->what,
+			'what' => $this->what_sql ?: $this->what,
 			'distinct' => $this->distinct,
 			'tables' => $this->tables,
 			'where' => $this->where,

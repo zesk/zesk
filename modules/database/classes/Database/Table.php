@@ -239,7 +239,7 @@ class Database_Table extends Hookable {
 	/**
 	 * Array of Database_Column
 	 *
-	 * @return Database_Column[]
+	 * @return array
 	 */
 	public function columns(): array {
 		return $this->columns;
@@ -306,8 +306,12 @@ class Database_Table extends Hookable {
 	 * @return bool
 	 */
 	public function hasIndex(string $name): bool {
-		$name = strtolower($name);
-		return array_key_exists($name, $this->indexes);
+		foreach ($this->indexes() as $index) {
+			if ($index->name() === $name) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private function collectIndexes(): array {
@@ -371,12 +375,12 @@ class Database_Table extends Hookable {
 		if ($index->type() === Database_Index::Primary) {
 			if ($this->primary) {
 				foreach ($this->primary->columns() as $col) {
-					$this->column($col)->primary_key(false);
+					$this->column($col)->setPrimaryKey(false);
 				}
 			}
 			$this->primary = $index;
 			foreach ($index->columns() as $col) {
-				$this->column($col)->primary_key(true);
+				$this->column($col)->setPrimaryKey(true);
 			}
 		}
 		return $this;
@@ -419,11 +423,15 @@ class Database_Table extends Hookable {
 			$this->columns[$column] = $dbCol;
 		}
 		if ($dbCol->primary_key()) {
-			if ($this->primary) {
-				$this->primary->column_add($column);
-			} else {
-				$this->primary = new Database_Index($this, '', [$column => true, ], Database_Index::Primary);
+			if (!$this->primary) {
+				$this->primary = new Database_Index(
+					$this,
+					"",
+					[],
+					Database_Index::Primary
+				);
 			}
+			$this->primary->addColumn($column);
 		}
 		return $this;
 	}

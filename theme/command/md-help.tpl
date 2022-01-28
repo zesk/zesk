@@ -4,7 +4,7 @@
  * @author $Author: kent $
  * @package zesk
  * @subpackage command
- * @copyright &copy; 2016 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  */
 namespace zesk;
 

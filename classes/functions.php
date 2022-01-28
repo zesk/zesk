@@ -983,8 +983,9 @@ function path_from_array(string $separator, array $mixed): string {
 			continue;
 		}
 		if (is_array($p)) {
-			$r .= path_from_array($separator, $p);
-		} elseif (is_string($p)) {
+			$p = path_from_array($separator, $p);
+		}
+		if (is_string($p)) {
 			$r .= ((substr($r, -1) === $separator || substr($p, 0, 1) === $separator)) ? $p : $separator . $p;
 		}
 	}

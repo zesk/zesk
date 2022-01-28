@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @author kent@marketacumen.com
- * @copyright 2017 Market Acumen, Inc.
+ * @copyright 2022 Market Acumen, Inc.
  */
 namespace zesk;
 

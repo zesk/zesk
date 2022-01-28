@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -30,7 +32,7 @@ class Functions_Test extends Test_Unit {
 			'control',
 			'ruler-reader',
 		]);
-		$this->assert($result === "/publish/nfs/monitor-services/control/ruler-reader", "$result !== /publish/nfs/monitor-services/control/ruler-reader");
+		$this->assertEquals("/publish/nfs/monitor-services/control/ruler-reader", $result);
 	}
 
 	public function test_aevalue(): void {
@@ -82,26 +84,26 @@ class Functions_Test extends Test_Unit {
 		$language = "en";
 		$this->assertEquals("one", __("one", $language));
 
-		$this->assertEquals([], __([], $language));
+		$locale = $this->application->locale;
+		$this->assertEquals([], $locale->__([], ['ignored' => true]));
 	}
 
 	public function test_theme(): void {
 		$app = $this->application;
-		$theme_path = $app->theme_path();
-		$type = null;
-		$this->assert_equal($app->theme("microsecond", 42.512312), "42.5123");
-		$this->assert_equal($app->theme("percent", [
+
+		$this->assertEquals("42.5123", $app->theme("microsecond", 42.512312));
+		$this->assertEquals("42.5%", $app->theme("percent", [
 			42.512312,
 			1,
-		]), "42.5%");
-		$this->assert_equal($app->theme("percent", [
+		]));
+		$this->assertEquals("42.6%", $app->theme("percent", [
 			42.552312,
 			1,
-		]), "42.6%");
+		]), );
 		echo $app->theme("percent", [
-			42.552312,
-			1,
-		]) . "\n";
+				42.552312,
+				1,
+			]) . "\n";
 		$this->assert_equal($app->theme("percent", [
 			42.552312,
 			0,
@@ -207,8 +209,8 @@ class Functions_Test extends Test_Unit {
 	}
 
 	public function test_is_phone(): void {
-		$phone = null;
-		is_phone($phone);
+		$phone = "";
+		$this->assertFalse(is_phone($phone));
 
 		$this->assert(is_phone('215-555-1212') === true);
 		$this->assert(is_phone('+011 44 23 41 23 23') === true);
@@ -237,82 +239,86 @@ class Functions_Test extends Test_Unit {
 		$this->assert_equal("boolean", type(true));
 	}
 
-	public function test_to_list(): void {
-		$mixed = null;
-		$default = null;
-		$delimiter = ";";
-		to_list($mixed, $default, $delimiter);
+	public function to_list_data() {
+		return [
+			["1,2,3", [], ",", ["1", "2", "3"]],
+		];
 	}
 
-	public function test_to_integer(): void {
-		$s = null;
-		$def = null;
-		to_integer($s, $def);
+	/**
+	 * @param mixed $mixed
+	 * @param array $default
+	 * @param string $delimiter
+	 * @param array $expected
+	 * @return void
+	 * @dataProvider to_list_data
+	 */
+	public function test_to_list(mixed $mixed, array $default, string $delimiter, array $expected): void {
+		$this->assertEquals($expected, to_list($mixed, $default, $delimiter));
+	}
 
-		$this->assert(to_integer("124512", null) === 124512);
-		$this->assert(to_integer(124512, null) === 124512);
-		$this->assert(to_integer("124512.7", null) === 124512);
-		$this->assert(to_integer(124512.7, null) === 124512);
-		$this->assert(to_integer(124512.999999, null) === 124512);
-		$this->assert(to_integer("0.999999", null) === 0);
-		$this->assert(to_integer("1.999999", null) === 1);
-		$this->assert(to_integer(false, null) === null);
-		$this->assert(to_integer(true, null) === null);
-		$this->assert(to_integer(true, null) === null);
-		$this->assert(to_integer([], null) === null);
+	/**
+	 * @return void
+	 */
+	public function test_to_integer(): void {
+		$this->assert(to_integer("124512") === 124512);
+		$this->assert(to_integer(124512) === 124512);
+		$this->assert(to_integer("124512.7") === 124512);
+		$this->assert(to_integer(124512.7) === 124512);
+		$this->assert(to_integer(124512.999999) === 124512);
+		$this->assert(to_integer("0.999999") === 0);
+		$this->assert(to_integer("1.999999") === 1);
+		$this->assert(to_integer(false) === 0);
+		$this->assert(to_integer(true) === 0);
+		$this->assert(to_integer(true) === 0);
+		$this->assert(to_integer([]) === 0);
 	}
 
 	public function test_to_double(): void {
-		$s = null;
-		$def = null;
-		to_double($s, $def);
+		$this->assert(to_double(100) === 100.0);
+		$this->assert(to_double(1) === 1.0);
+		$this->assert(to_double("10000") === 10000.0);
+		$this->assert(to_double("-1") === -1.0);
 
-		$this->assert(to_double(100, null) === 100.0);
-		$this->assert(to_double(1, null) === 1.0);
-		$this->assert(to_double("10000", null) === 10000.0);
-		$this->assert(to_double("-1", null) === -1.0);
-
-		$this->assert(to_double("e10000", null) === null);
-		$this->assert(to_double([], null) === null);
-
-		echo basename(__FILE__) . ": success\n";
+		$this->assert(to_double("e10000") === 0.0);
+		$this->assert(to_double([]) === 0.0);
 	}
 
 	public function test_to_bool(): void {
-		$this->assert(to_bool(true, null) === true);
-		$this->assert(to_bool(1, null) === true);
-		$this->assert(to_bool("1", null) === true);
-		$this->assert(to_bool("t", null) === true);
-		$this->assert(to_bool("T", null) === true);
-		$this->assert(to_bool("y", null) === true);
-		$this->assert(to_bool("Y", null) === true);
-		$this->assert(to_bool("Yes", null) === true);
-		$this->assert(to_bool("yES", null) === true);
-		$this->assert(to_bool("oN", null) === true);
-		$this->assert(to_bool("on", null) === true);
-		$this->assert(to_bool("enabled", null) === true);
-		$this->assert(to_bool("trUE", null) === true);
-		$this->assert(to_bool("true", null) === true);
+		$this->assert(to_bool(true) === true);
+		$this->assert(to_bool(1) === true);
+		$this->assert(to_bool("1") === true);
+		$this->assert(to_bool("t") === true);
+		$this->assert(to_bool("T") === true);
+		$this->assert(to_bool("y") === true);
+		$this->assert(to_bool("Y") === true);
+		$this->assert(to_bool("Yes") === true);
+		$this->assert(to_bool("yES") === true);
+		$this->assert(to_bool("oN") === true);
+		$this->assert(to_bool("on") === true);
+		$this->assert(to_bool("enabled") === true);
+		$this->assert(to_bool("trUE") === true);
+		$this->assert(to_bool("true") === true);
 
-		$this->assert(to_bool(0, null) === false);
-		$this->assert(to_bool("0", null) === false);
-		$this->assert(to_bool("f", null) === false);
-		$this->assert(to_bool("F", null) === false);
-		$this->assert(to_bool("n", null) === false);
-		$this->assert(to_bool("N", null) === false);
-		$this->assert(to_bool("no", null) === false);
-		$this->assert(to_bool("NO", null) === false);
-		$this->assert(to_bool("OFF", null) === false);
-		$this->assert(to_bool("off", null) === false);
-		$this->assert(to_bool("disabled", null) === false);
-		$this->assert(to_bool("DISABLED", null) === false);
-		$this->assert(to_bool("false", null) === false);
-		$this->assert(to_bool("null", null) === false);
-		$this->assert(to_bool("", null) === false);
+		$this->assert(to_bool(0) === false);
+		$this->assert(to_bool("0") === false);
+		$this->assert(to_bool("f") === false);
+		$this->assert(to_bool("F") === false);
+		$this->assert(to_bool("n") === false);
+		$this->assert(to_bool("N") === false);
+		$this->assert(to_bool("no") === false);
+		$this->assert(to_bool("NO") === false);
+		$this->assert(to_bool("OFF") === false);
+		$this->assert(to_bool("off") === false);
+		$this->assert(to_bool("disabled") === false);
+		$this->assert(to_bool("DISABLED") === false);
+		$this->assert(to_bool("false") === false);
+		$this->assert(to_bool("null") === false);
+		$this->assert(to_bool("") === false);
 
-		$this->assert(to_bool("01", null) === null);
-		$this->assert(to_bool([], null) === null);
-		$this->assert(to_bool(new \stdClass(), null) === null);
+		$this->assert(to_bool("01") === false);
+		$this->assert(to_bool([]) === false);
+		$this->assert(to_bool(new \stdClass()) === true);
 	}
 
 	public static function to_bool_strpos($value, $default = false) {
@@ -399,41 +405,35 @@ class Functions_Test extends Test_Unit {
 	}
 
 	public function test_to_array(): void {
-		$mixed = null;
-		$default = null;
-		to_array($mixed, $default);
-
-		$this->assert(to_array("foo") === [
+		$this->assertEquals(to_array("foo"), [
 			"foo",
 		]);
-		$this->assert(to_array([
+		$this->assertEquals(to_array([
 			"foo",
-		]) === [
+		]), [
 			"foo",
 		]);
-		$this->assert(to_array([
+		$this->assertNotEquals(to_array([
 			"foo",
-		]) !== [
+		]), [
 			"foob",
 		]);
-		$this->assert(to_array([
+		$this->assertNotEquals(to_array([
 			1,
-		]) !== [
+		]), [
 			"1",
 		]);
-		$this->assert(to_array([
+		$this->assertNotEquals(to_array([
 			1,
-		]) !== [
+		]), [
 			"1",
 		]);
-		$this->assert(to_array(1) === [
+		$this->assertEquals(to_array(1), [
 			1,
 		]);
-		$this->assert(to_array("1") === [
+		$this->assertEquals(to_array("1"), [
 			"1",
 		]);
-
-		echo basename(__FILE__) . ": success\n";
 	}
 
 	public function test_newline(): void {

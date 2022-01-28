@@ -172,13 +172,10 @@ class Template implements Interface_Theme {
 			$this->_vars = $variables->variables() + $this->_vars;
 		} elseif (is_array($variables)) {
 			foreach ($variables as $k => $v) {
-				if (!is_string($k)) {
+				if (is_string($k) && str_starts_with($k, '_')) {
 					continue;
 				}
-				if (str_starts_with($k, '_')) {
-					continue;
-				}
-				$this->__set($k, $v);
+				$this->__set(strval($k), $v);
 			}
 			$this->_vars_changed = [];
 		}

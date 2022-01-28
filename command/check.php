@@ -6,7 +6,7 @@
  * @subpackage bin
  * @category Debugging
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright &copy; 2016 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  */
 namespace zesk;
 

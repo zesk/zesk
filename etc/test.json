@@ -12,6 +12,11 @@
       "debug-logger-config": false
   },
   "zesk\\Command_Test": {
-    "interactive": true
+    "debug": true,
+    "verbose": true,
+    "deprecated": true,
+    "strict": true,
+    "interactive": true,
+    "test_database": "${HOME}/.zesk/test.db"
   }
 }

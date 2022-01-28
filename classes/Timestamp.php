@@ -833,12 +833,12 @@ class Timestamp extends Temporal {
 	 * @param integer $set
 	 * @return number|Timestamp
 	 */
-	public function minute($set = null) {
+	public function minute($set = null): int {
 		if ($set !== null) {
 			$this->setMinute(intval($set));
 			zesk()->deprecated("setter");
 		}
-		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_MINUTE)) : null;
+		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_MINUTE)) : -1;
 	}
 
 	/**
@@ -855,15 +855,15 @@ class Timestamp extends Temporal {
 	/**
 	 * Get/set second of the day
 	 *
-	 * @param integer $set
-	 * @return number|Timestamp
+	 * @param int|null $set
+	 * @return int
 	 */
-	public function second($set = null) {
+	public function second(int $set = null): int {
 		if ($set !== null) {
 			$this->setSecond(intval($set));
 			zesk()->deprecated("setter");
 		}
-		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_SECOND)) : null;
+		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_SECOND)) : -1;
 	}
 
 	/**

@@ -16,4 +16,4 @@ if ! test "$DEVELOPMENT"; then
   exit 0
 fi
 echo "Installing xdebug ..."
-pecl install xdebug > /dev/null
+pecl install xdebug

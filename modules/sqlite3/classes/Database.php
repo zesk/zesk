@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage sqlite3
  * @author kent
- * @copyright &copy; 2018 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -68,7 +69,10 @@ class Database extends \zesk\Database {
 				break;
 		}
 
-		throw new Exception_Unimplemented("Database {type} does not support feature {feature}", ["type" => $this->type(), "feature" => $feature, ]);
+		throw new Exception_Unimplemented("Database {type} does not support feature {feature}", [
+			"type" => $this->type(),
+			"feature" => $feature,
+		]);
 	}
 
 	public function _to_php() {
@@ -174,7 +178,10 @@ class Database extends \zesk\Database {
 	 */
 	final public function fetch_assoc(mixed $result): ?array {
 		if (!$result instanceof SQLite3Result) {
-			throw new Exception_Parameter("Requires a SQLite3Result {class} (of {type}) given", ["class" => get_class($result), "type" => type($result)]);
+			throw new Exception_Parameter("Requires a SQLite3Result {class} (of {type}) given", [
+				"class" => get_class($result),
+				"type" => type($result),
+			]);
 		}
 		return $result->fetchArray(SQLITE3_ASSOC);
 	}
@@ -355,7 +362,7 @@ class Database extends \zesk\Database {
 		die(get_class($e) . "\n" . $e->getMessage() . "<br />" . $e->getTraceAsString());
 	}
 
-	public function query($query, array $options = []) {
+	protected function _query(string $query, array $options = []): mixed {
 		if (is_array($query)) {
 			$result = [];
 			foreach ($query as $index => $sql) {
@@ -605,7 +612,224 @@ class Database extends \zesk\Database {
 
 	public function is_reserved_word($word) {
 		// Updated 2004-10-19 from MySQL Website YEARLY-TODO
-		static $reserved = ["ADD", "ALL", "ALTER", "ANALYZE", "AND", "AS", "ASC", "ASENSITIVE", "BEFORE", "BETWEEN", "BIGINT", "BINARY", "BLOB", "BOTH", "BY", "CALL", "CASCADE", "CASE", "CHANGE", "CHAR", "CHARACTER", "CHECK", "COLLATE", "COLUMN", "COLUMNS", "CONDITION", "CONNECTION", "CONSTRAINT", "CONTINUE", "CONVERT", "CREATE", "CROSS", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_USER", "CURSOR", "DATABASE", "DATABASES", "DAY_HOUR", "DAY_MICROSECOND", "DAY_MINUTE", "DAY_SECOND", "DEC", "DECIMAL", "DECLARE", "DEFAULT", "DELAYED", "DELETE", "DESC", "DESCRIBE", "DETERMINISTIC", "DISTINCT", "DISTINCTROW", "DIV", "DOUBLE", "DROP", "DUAL", "EACH", "ELSE", "ELSEIF", "ENCLOSED", "ESCAPED", "EXISTS", "EXIT", "EXPLAIN", "FALSE", "FETCH", "FIELDS", "FLOAT", "FOR", "FORCE", "FOREIGN", "FOUND", "FROM", "FULLTEXT", "GOTO", "GRANT", "GROUP", "HAVING", "HIGH_PRIORITY", "HOUR_MICROSECOND", "HOUR_MINUTE", "HOUR_SECOND", "IF", "IGNORE", "IN", "INDEX", "INFILE", "INNER", "INOUT", "INSENSITIVE", "INSERT", "INT", "INTEGER", "INTERVAL", "INTO", "IS", "ITERATE", "JOIN", "KEY", "KEYS", "KILL", "LEADING", "LEAVE", "LEFT", "LIKE", "LIMIT", "LINES", "LOAD", "LOCALTIME", "LOCALTIMESTAMP", "LOCK", "LONG", "LONGBLOB", "LONGTEXT", "LOOP", "LOW_PRIORITY", "MATCH", "MEDIUMBLOB", "MEDIUMINT", "MEDIUMTEXT", "MIDDLEINT", "MINUTE_MICROSECOND", "MINUTE_SECOND", "MOD", "NATURAL", "NOT", "NO_WRITE_TO_BINLOG", "NULL", "NUMERIC", "ON", "OPTIMIZE", "OPTION", "OPTIONALLY", "OR", "ORDER", "OUT", "OUTER", "OUTFILE", "PRECISION", "PRIMARY", "PRIVILEGES", "PROCEDURE", "PURGE", "READ", "REAL", "REFERENCES", "REGEXP", "RENAME", "REPEAT", "REPLACE", "REQUIRE", "RESTRICT", "RETURN", "REVOKE", "RIGHT", "RLIKE", "SCHEMA", "SCHEMAS", "SECOND_MICROSECOND", "SELECT", "SENSITIVE", "SEPARATOR", "SET", "SHOW", "SMALLINT", "SONAME", "SPATIAL", "SPECIFIC", "SQL", "SQLEXCEPTION", "SQLSTATE", "SQLWARNING", "SQL_BIG_RESULT", "SQL_CALC_FOUND_ROWS", "SQL_SMALL_RESULT", "SSL", "STARTING", "STRAIGHT_JOIN", "TABLE", "TABLES", "TERMINATED", "THEN", "TINYBLOB", "TINYINT", "TINYTEXT", "TO", "TRAILING", "TRIGGER", "TRUE", "UNDO", "UNION", "UNIQUE", "UNLOCK", "UNSIGNED", "UPDATE", "USAGE", "USE", "USING", "UTC_DATE", "UTC_TIME", "UTC_TIMESTAMP", "VALUES", "VARBINARY", "VARCHAR", "VARCHARACTER", "VARYING", "WHEN", "WHERE", "WHILE", "WITH", "WRITE", "XOR", "YEAR_MONTH", "ZEROFILL", ];
+		static $reserved = [
+			"ADD",
+			"ALL",
+			"ALTER",
+			"ANALYZE",
+			"AND",
+			"AS",
+			"ASC",
+			"ASENSITIVE",
+			"BEFORE",
+			"BETWEEN",
+			"BIGINT",
+			"BINARY",
+			"BLOB",
+			"BOTH",
+			"BY",
+			"CALL",
+			"CASCADE",
+			"CASE",
+			"CHANGE",
+			"CHAR",
+			"CHARACTER",
+			"CHECK",
+			"COLLATE",
+			"COLUMN",
+			"COLUMNS",
+			"CONDITION",
+			"CONNECTION",
+			"CONSTRAINT",
+			"CONTINUE",
+			"CONVERT",
+			"CREATE",
+			"CROSS",
+			"CURRENT_DATE",
+			"CURRENT_TIME",
+			"CURRENT_TIMESTAMP",
+			"CURRENT_USER",
+			"CURSOR",
+			"DATABASE",
+			"DATABASES",
+			"DAY_HOUR",
+			"DAY_MICROSECOND",
+			"DAY_MINUTE",
+			"DAY_SECOND",
+			"DEC",
+			"DECIMAL",
+			"DECLARE",
+			"DEFAULT",
+			"DELAYED",
+			"DELETE",
+			"DESC",
+			"DESCRIBE",
+			"DETERMINISTIC",
+			"DISTINCT",
+			"DISTINCTROW",
+			"DIV",
+			"DOUBLE",
+			"DROP",
+			"DUAL",
+			"EACH",
+			"ELSE",
+			"ELSEIF",
+			"ENCLOSED",
+			"ESCAPED",
+			"EXISTS",
+			"EXIT",
+			"EXPLAIN",
+			"FALSE",
+			"FETCH",
+			"FIELDS",
+			"FLOAT",
+			"FOR",
+			"FORCE",
+			"FOREIGN",
+			"FOUND",
+			"FROM",
+			"FULLTEXT",
+			"GOTO",
+			"GRANT",
+			"GROUP",
+			"HAVING",
+			"HIGH_PRIORITY",
+			"HOUR_MICROSECOND",
+			"HOUR_MINUTE",
+			"HOUR_SECOND",
+			"IF",
+			"IGNORE",
+			"IN",
+			"INDEX",
+			"INFILE",
+			"INNER",
+			"INOUT",
+			"INSENSITIVE",
+			"INSERT",
+			"INT",
+			"INTEGER",
+			"INTERVAL",
+			"INTO",
+			"IS",
+			"ITERATE",
+			"JOIN",
+			"KEY",
+			"KEYS",
+			"KILL",
+			"LEADING",
+			"LEAVE",
+			"LEFT",
+			"LIKE",
+			"LIMIT",
+			"LINES",
+			"LOAD",
+			"LOCALTIME",
+			"LOCALTIMESTAMP",
+			"LOCK",
+			"LONG",
+			"LONGBLOB",
+			"LONGTEXT",
+			"LOOP",
+			"LOW_PRIORITY",
+			"MATCH",
+			"MEDIUMBLOB",
+			"MEDIUMINT",
+			"MEDIUMTEXT",
+			"MIDDLEINT",
+			"MINUTE_MICROSECOND",
+			"MINUTE_SECOND",
+			"MOD",
+			"NATURAL",
+			"NOT",
+			"NO_WRITE_TO_BINLOG",
+			"NULL",
+			"NUMERIC",
+			"ON",
+			"OPTIMIZE",
+			"OPTION",
+			"OPTIONALLY",
+			"OR",
+			"ORDER",
+			"OUT",
+			"OUTER",
+			"OUTFILE",
+			"PRECISION",
+			"PRIMARY",
+			"PRIVILEGES",
+			"PROCEDURE",
+			"PURGE",
+			"READ",
+			"REAL",
+			"REFERENCES",
+			"REGEXP",
+			"RENAME",
+			"REPEAT",
+			"REPLACE",
+			"REQUIRE",
+			"RESTRICT",
+			"RETURN",
+			"REVOKE",
+			"RIGHT",
+			"RLIKE",
+			"SCHEMA",
+			"SCHEMAS",
+			"SECOND_MICROSECOND",
+			"SELECT",
+			"SENSITIVE",
+			"SEPARATOR",
+			"SET",
+			"SHOW",
+			"SMALLINT",
+			"SONAME",
+			"SPATIAL",
+			"SPECIFIC",
+			"SQL",
+			"SQLEXCEPTION",
+			"SQLSTATE",
+			"SQLWARNING",
+			"SQL_BIG_RESULT",
+			"SQL_CALC_FOUND_ROWS",
+			"SQL_SMALL_RESULT",
+			"SSL",
+			"STARTING",
+			"STRAIGHT_JOIN",
+			"TABLE",
+			"TABLES",
+			"TERMINATED",
+			"THEN",
+			"TINYBLOB",
+			"TINYINT",
+			"TINYTEXT",
+			"TO",
+			"TRAILING",
+			"TRIGGER",
+			"TRUE",
+			"UNDO",
+			"UNION",
+			"UNIQUE",
+			"UNLOCK",
+			"UNSIGNED",
+			"UPDATE",
+			"USAGE",
+			"USE",
+			"USING",
+			"UTC_DATE",
+			"UTC_TIME",
+			"UTC_TIMESTAMP",
+			"VALUES",
+			"VARBINARY",
+			"VARCHAR",
+			"VARCHARACTER",
+			"VARYING",
+			"WHEN",
+			"WHERE",
+			"WHILE",
+			"WITH",
+			"WRITE",
+			"XOR",
+			"YEAR_MONTH",
+			"ZEROFILL",
+		];
 		$word = strtoupper($word);
 		return in_array($word, $reserved);
 	}
@@ -640,7 +864,15 @@ class Database extends \zesk\Database {
 	}
 
 	public static function _basicType($t) {
-		static $basicTypes = ['string' => ["char", "varchar", "varbinary", "binary", "text", ], 'integer' => ["int", "tinyint", "mediumint", "smallint", "bigint", 'integer', ], 'real' => ["float", "double", "decimal", ], 'date' => ["date", ], 'time' => ["time", ], 'datetime' => ["datetime", "timestamp", ], 'boolean' => ["enum", ], ];
+		static $basicTypes = [
+			'string' => ["char", "varchar", "varbinary", "binary", "text", ],
+			'integer' => ["int", "tinyint", "mediumint", "smallint", "bigint", 'integer', ],
+			'real' => ["float", "double", "decimal", ],
+			'date' => ["date", ],
+			'time' => ["time", ],
+			'datetime' => ["datetime", "timestamp", ],
+			'boolean' => ["enum", ],
+		];
 		$t = trim(strtolower($t));
 		foreach ($basicTypes as $type => $types) {
 			if (in_array($t, $types)) {
@@ -753,7 +985,17 @@ class Database extends \zesk\Database {
 	}
 
 	protected function integer_size_type($lookup) {
-		return avalue(["1" => "tinyint", "tiny" => "tinyint", "2" => "smallint", "small" => "smallint", "4" => "integer", "default" => "integer", "big" => "bigint", "large" => "bigint", "8" => "bigint", ], $lookup, "integer");
+		return avalue([
+			"1" => "tinyint",
+			"tiny" => "tinyint",
+			"2" => "smallint",
+			"small" => "smallint",
+			"4" => "integer",
+			"default" => "integer",
+			"big" => "bigint",
+			"large" => "bigint",
+			"8" => "bigint",
+		], $lookup, "integer");
 	}
 
 	public function table_columns($table) {

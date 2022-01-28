@@ -627,7 +627,7 @@ abstract class Database extends Hookable {
 	 *            Debugging information as to where the SQL originated
 	 * @return Database_Table The database table parsed from the sql command
 	 */
-	public function parse_create_table($sql, $source = null) {
+	public function parse_create_table(string $sql, string $source = ""): Database_Table {
 		$parser = Database_Parser::parse_factory($this, $sql, $source);
 		return $parser->create_table($sql);
 	}
@@ -642,7 +642,28 @@ abstract class Database extends Hookable {
 	 *
 	 * @return mixed A resource or boolean value which represents the result of the query
 	 */
-	abstract public function query($query, array $options = []);
+	final public function query(string|array $query, array $options = []): mixed {
+		if (is_array($query)) {
+			$result = [];
+			foreach ($query as $index => $sql) {
+				$result[$index] = $this->query($sql, $options);
+			}
+			return $result;
+		}
+		return $this->_query($query, $options);
+	}
+
+	/**
+	 * Execute a SQL statment with this database
+	 *
+	 * @param string $query
+	 *            A SQL statement
+	 * @param array $options
+	 *            Settings, options for this query
+	 *
+	 * @return mixed A resource or boolean value which represents the result of the query
+	 */
+	abstract protected function _query(string $query, array $options = []): mixed;
 
 	/**
 	 * Replace functionality
@@ -654,10 +675,10 @@ abstract class Database extends Hookable {
 	 *
 	 * @return integer
 	 */
-	public function replace($table, array $values, array $options = []) {
+	public function replace(string $table, array $values, array $options = []): int {
 		$sql = $this->sql()->insert(['table' => $table, 'values' => $values, 'verb' => 'REPLACE', ] + $options);
 		if (!$this->query($sql)) {
-			return avalue($options, 'default', null);
+			return $options[ 'default'] ?? 0;
 		}
 		return $this->insert_id();
 	}

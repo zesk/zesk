@@ -59,6 +59,11 @@ class Database_Index {
 	 */
 	private $structure;
 
+	/**
+	 * Name of primary index, always
+	 */
+	public const PrimaryName = "primary";
+
 	public const Index = "INDEX";
 
 	public const Unique = "UNIQUE";
@@ -79,7 +84,7 @@ class Database_Index {
 		$this->database = $table->database();
 		$this->columns = [];
 		$this->type = self::determineType($type);
-		$this->name = empty($name) && $this->type === self::Primary ? "primary" : $name;
+		$this->name = $this->type === self::Primary ? self::PrimaryName : $name;
 
 		$this->structure = $this->determineStructure($structure);
 
@@ -98,7 +103,9 @@ class Database_Index {
 				}
 			}
 		}
-		$table->addIndex($this);
+		if (!$table->hasIndex($this->name)) {
+			$table->addIndex($this);
+		}
 	}
 
 	/**
@@ -205,12 +212,23 @@ class Database_Index {
 	 *
 	 * @return string
 	 */
-	public function type($set = null) {
+	public function type($set = null): string {
 		if ($set !== null) {
-			$this->type = self::determineType($set);
-			return $this;
+			$this->setType($set);
 		}
 		return $this->type;
+	}
+
+	/**
+	 *
+	 * @return string
+	 */
+	public function setType(string $set): self {
+		$this->type = self::determineType($set);
+		if ($this->type === self::Primary) {
+			$this->name = self::PrimaryName;
+		}
+		return $this;
 	}
 
 	/**
@@ -229,7 +247,7 @@ class Database_Index {
 	public function addDatabaseColumn(Database_Column $database_column, int $size = self::SIZE_DEFAULT): self {
 		$column = $database_column->name();
 		if ($this->type === self::Primary) {
-			$database_column->primary_key(true);
+			$database_column->setPrimaryKey(true);
 		}
 		$this->columns[$column] = $size;
 		return $this;
@@ -241,7 +259,7 @@ class Database_Index {
 	 * @return $this
 	 * @throws Exception_NotFound
 	 */
-	public function addColumn(string $column, int $size = self::SIZE_DEFAULT) {
+	public function addColumn(string $column, int $size = self::SIZE_DEFAULT): self {
 		$database_column = $this->table->column($column);
 		if (!$database_column) {
 			throw new Exception_NotFound("{method}: {col} not found in {table}", [

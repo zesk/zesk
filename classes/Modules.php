@@ -5,7 +5,7 @@
  * Ideally we should be able to serialize this entire structure and load again from cache so side-effects should be
  * tracked when loading modules (hooks, etc.) or repeated upon __wakeup() in your module itself.
  *
- * @copyright &copy; 2017 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  */
 namespace zesk;
 

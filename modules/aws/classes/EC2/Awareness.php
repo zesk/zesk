@@ -17,7 +17,7 @@ use Psr\Cache\CacheItemInterface;
 /**
  * Collect, store, and manage EC2 Awareness meta data
  *
- * @copyright &copy; 2016 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  * @author kent
  *
  */

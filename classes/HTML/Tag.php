@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
@@ -6,6 +7,7 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  *            Created on Fri Sep 05 19:32:05 EDT 2008 19:32:05
  */
+
 namespace zesk;
 
 /**
@@ -20,14 +22,14 @@ class HTML_Tag extends Options {
 	 * Tag name
 	 * @var string
 	 */
-	public $name;
+	public string $name = "";
 
 	/**
 	 * Contents between tags.
 	 * If false, then singleton tag, e.g. <tag />
 	 * @var string
 	 */
-	private $inner_html = null;
+	private string $inner_html = "";
 
 	/**
 	 * Original, outer HTML including tag itself.
@@ -35,13 +37,13 @@ class HTML_Tag extends Options {
 	 * If null, means it has not been matched in a document, or has been edited.
 	 * @var string
 	 */
-	private $outer_html = null;
+	private string $outer_html = "";
 
 	/**
 	 * Offset to where the tag is in the found context
 	 * @var integer
 	 */
-	public $offset = null;
+	public int $offset = -1;
 
 	/**
 	 *
@@ -51,15 +53,13 @@ class HTML_Tag extends Options {
 	 * @param string $outer_html
 	 * @param integer $offset
 	 */
-	public function __construct($name, array $attributes = [], $inner_html = false, $outer_html = null, $offset = null) {
+	public function __construct($name, array $attributes = [], string $inner_html = "", string $outer_html = "", int $offset = -1) {
 		parent::__construct($attributes);
 
 		$this->name = $name;
 		$this->inner_html = $inner_html;
 		$this->outer_html = $outer_html;
-		if ($offset !== null) {
-			$this->offset = $offset;
-		}
+		$this->offset = $offset;
 	}
 
 	/**
@@ -67,8 +67,17 @@ class HTML_Tag extends Options {
 	 *
 	 * @return boolean
 	 */
-	public function is_single() {
-		return !is_string($this->inner_html);
+	public function isSingle(): bool {
+		return $this->inner_html === "";
+	}
+
+	/**
+	 * Getterfor inner HTML
+	 *
+	 * @return string
+	 */
+	public function innerHTML(): string {
+		return $this->inner_html;
 	}
 
 	/**
@@ -77,37 +86,50 @@ class HTML_Tag extends Options {
 	 * @param string $set
 	 * @return string|self
 	 */
-	public function inner_html($set = null) {
-		if ($set !== null) {
-			$this->inner_html = $set;
-			$this->outer_html = null;
-			return $this;
-		}
-		return $this->inner_html;
+	public function setInnerHTML(string $set): self {
+		$this->inner_html = $set;
+		$this->outer_html = "";
+		return $this;
 	}
 
 	/**
 	 * Getter/setter for outer HTML
 	 *
 	 * @param string $set
-	 * @return string|self
+	 * @return string
 	 */
-	public function outer_html($set = null) {
-		if ($set !== null) {
-			$this->outer_html = $set;
-			return $this;
-		}
+	public function outerHTML(): string {
 		return $this->outer_html;
+	}
+
+	/**
+	 * Getter/setter for outer HTML
+	 *
+	 * @param string $set
+	 * @return self
+	 */
+	public function setOuterHTML(string $set): self {
+		$this->outer_html = $set;
+		return $this;
+	}
+
+	/**
+	 * Get content (inner HTML)
+	 *
+	 * @return string
+	 */
+	public function contents(): string {
+		return $this->innerHTML();
 	}
 
 	/**
 	 * Get/set content (inner HTML)
 	 *
 	 * @param string $set
-	 * @return string|self
+	 * @return self
 	 */
-	public function contents($set = null) {
-		return $this->inner_html($set);
+	public function setContents(string $set): self {
+		return $this->setInnerHTML($set);
 	}
 
 	/**
@@ -117,12 +139,12 @@ class HTML_Tag extends Options {
 	 */
 	public function _to_php() {
 		return 'new ' . __CLASS__ . '(' . implode(", ", [
-			PHP::dump($this->name),
-			PHP::dump($this->options()),
-			PHP::dump($this->inner_html),
-			PHP::dump($this->outer_html),
-			$this->offset,
-		]) . ')';
+				PHP::dump($this->name),
+				PHP::dump($this->options()),
+				PHP::dump($this->inner_html),
+				PHP::dump($this->outer_html),
+				$this->offset,
+			]) . ')';
 	}
 
 	/**
@@ -133,5 +155,44 @@ class HTML_Tag extends Options {
 	 */
 	public function __toString() {
 		return HTML::tag($this->name, $this->options(), $this->inner_html);
+	}
+
+	/**
+	 * Getter/setter for outer HTML
+	 *
+	 * @param string $set
+	 * @return string
+	 * @deprecated 2022-01
+	 */
+	public function outer_html($set = null) {
+		if ($set !== null) {
+			$this->setOuterHTML(strval($set));
+		}
+		return $this->outerHTML();
+	}
+
+	/**
+	 * Getter/setter for inner HTML
+	 *
+	 * @param string $set
+	 * @return string
+	 * @deprecated 2022-01
+	 */
+	public function inner_html($set = null) {
+		if ($set !== null) {
+			$this->setInnerHTML(strval($set));
+		}
+		return $this->innerHTML();
+	}
+
+	/**
+	 * Is this a single tag (no close tag, ends with '\>')
+	 *
+	 * @return boolean
+	 * @deprecated 2022-01
+	 * @see isSingle
+	 */
+	public function is_single(): bool {
+		return $this->isSingle();
 	}
 }

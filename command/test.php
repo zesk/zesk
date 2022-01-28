@@ -1,10 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
- * @copyright &copy; 2016 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  */
+
 namespace zesk;
 
+use JetBrains\PhpStorm\Pure;
 use zesk\Test\Exception;
 
 /**
@@ -394,8 +397,8 @@ class Command_Test extends Command_Base {
 	/**
 	 * Load the test database
 	 *
-	 * @throws Exception_Directory_NotFound
 	 * @return boolean
+	 * @throws Exception_Directory_NotFound
 	 */
 	private function load_test_database() {
 		if ($this->optionBool('no-database')) {
@@ -526,12 +529,12 @@ class Command_Test extends Command_Base {
 	 * @param unknown $contents
 	 * @return array|mixed|array
 	 */
-	private function _parse_path_info($contents) {
+	private function _parse_path_info(string $contents) {
 		$app_root = $this->application->path();
 		$php_extensions = $this->option("automatic_open_extensions", "inc|tpl|php|php5|phpt");
-		$pattern = "#PHP-ERROR:.*?(?P<files>(?:" . ZESK_ROOT . "|$app_root)[A-Za-z_0-9./-]*\.(?:$php_extensions))#s";
+		// $pattern = "#PHP-ERROR:.*?(?P<files>(?:" . ZESK_ROOT . "|$app_root)[A-Za-z_0-9./-]*\.(?:$php_extensions))#s";
 		$pattern = "#(?P<files>(?:" . ZESK_ROOT . "|$app_root)[A-Za-z_0-9./-]*\.(?:$php_extensions))#s";
-		$matches = null;
+		$matches = [];
 		if (!preg_match_all($pattern, $contents, $matches)) {
 			return [];
 		}
@@ -596,8 +599,8 @@ class Command_Test extends Command_Base {
 	 * Run a test on the file given based on its extension, global options, and file-specific options.
 	 *
 	 * @param string $file
-	 * @throws Exception_Unimplemented
 	 * @return boolean
+	 * @throws Exception_Unimplemented
 	 */
 	private function run_test($file) {
 		$ext = File::extension($file);
@@ -632,7 +635,7 @@ class Command_Test extends Command_Base {
 			if ($this->optionBool('debugger')) {
 				debugger_start_debug();
 			}
-			$is_phpunit = to_bool(avalue($options, 'phpunit'));
+			$is_phpunit = to_bool($options['phpunit'] ?? false);
 			if ($is_phpunit) {
 				$result = $this->run_phpunit_test($file, $options);
 			} else {
@@ -679,14 +682,13 @@ class Command_Test extends Command_Base {
 	/**
 	 * Including a file, determine what new classes are now available. File must not have been included already.
 	 *
-	 * @option boolean debug_class_directory ECHO lots of debugging information regarding how class discovery differences things.
-	 * @param unknown $file
+	 * @param string $file
 	 * @return array
 	 */
-	private function include_file_classes($file) {
+	private function include_file_classes(string $file): array {
 		/* This class *must* cache if called more than once - include files usually aren't included more than once,
 		 * so issue remains when 2nd go-round, no new classes are declared */
-		$run_file = avalue($this->incs, $file);
+		$run_file = $this->incs[$file] ?? null;
 		if (is_array($run_file)) {
 			return $run_file;
 		}
@@ -698,7 +700,7 @@ class Command_Test extends Command_Base {
 			echo "# Class discovery: Declared classes\n";
 			echo implode("", ArrayTools::wrap(array_keys($classes), "- `", "`\n"));
 		}
-		require_once $file;
+		require_once($file);
 		if ($debug_class_discovery) {
 			echo "# Class discovery: Found classes\n";
 		}
@@ -725,12 +727,13 @@ class Command_Test extends Command_Base {
 	 * @param array $options
 	 * @return boolean
 	 */
-	private function _determine_sandbox(array $options = null) {
+	#[Pure]
+	private function _determine_sandbox(array $options = null): bool {
 		if ($options === null) {
 			$options = $this->options;
 		}
-		$sandbox = to_bool(avalue($options, 'sandbox', $this->optionBool('sandbox')));
-		if (to_bool(avalue($options, 'no_sandbox', $this->optionBool('no_sandbox'))) === true) {
+		$sandbox = to_bool($options ['sandbox'] ?? $this->optionBool('sandbox'));
+		if (to_bool($options['no_sandbox'] ?? $this->optionBool('no_sandbox')) === true) {
 			$sandbox = false;
 		}
 		return $sandbox;
@@ -747,7 +750,7 @@ class Command_Test extends Command_Base {
 	}
 
 	private function setup_test_options(array $options): void {
-		$modules = to_list(avalue($options, "module", []));
+		$modules = to_list($options["module"] ?? []);
 		if (count($modules)) {
 			$this->log("Preloading modules {modules}", [
 				"modules" => $modules,
@@ -763,7 +766,7 @@ class Command_Test extends Command_Base {
 	 * @param array $options
 	 * @return boolean
 	 */
-	private function run_test_php($file, array $options) {
+	private function run_test_php(string $file, array $options): bool {
 		// Inherit from global options (overwrites only if does NOT exist in $options)
 		$options += $this->options;
 		$this->setup_test_options($options);
@@ -800,7 +803,7 @@ class Command_Test extends Command_Base {
 	 * @param array $options
 	 * @return boolean
 	 */
-	private function run_test_classes(array $run_classes, array $options) {
+	private function run_test_classes(array $run_classes, array $options): bool {
 		$final_result = true;
 
 		try {
@@ -897,7 +900,7 @@ class Command_Test extends Command_Base {
 	 * Run a command in the sandbox
 	 *
 	 * @param string $file
-	 *        	File to run
+	 *            File to run
 	 * @param array $options
 	 * @return boolean
 	 */
@@ -962,10 +965,10 @@ class Command_Test extends Command_Base {
 
 	/**
 	 *
-	 * @todo PHPUnit tests are not run
 	 * @param string $file
 	 * @param array $options
 	 * @return boolean
+	 * @todo PHPUnit tests are not run
 	 */
 	private function run_phpunit_test($file, array $options) {
 		return true;
@@ -992,7 +995,7 @@ class Command_Test extends Command_Base {
 		}
 		$exit_code = 0;
 		$test_contents = file_get_contents($file);
-		if (str_contains($test_contents, '--TEST--')   && str_contains($test_contents, '--FILE--')) {
+		if (str_contains($test_contents, '--TEST--') && str_contains($test_contents, '--FILE--')) {
 			$this->stats['skip']++;
 			if ($verbose) {
 				echo "* OK\n";
@@ -1086,9 +1089,9 @@ class Command_Test extends Command_Base {
 	 * Output test results
 	 *
 	 * @param string $file
-	 *        	Test run
+	 *            Test run
 	 * @param string $result
-	 *        	Results of test
+	 *            Results of test
 	 */
 	private function _test_function_output($file, $result): void {
 		echo "$file FAILED:\n";

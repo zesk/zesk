@@ -21,7 +21,8 @@ class Database_Query_Select_Links_Test extends Test_Unit {
 	 * @see \zesk\Test::initialize()
 	 */
 	public function initialize(): void {
-		require __DIR__ . "/Database_Query_Select_Links_Test_Objects.php";
+		require_once __DIR__ . "/Database_Query_Select_Links_Test_Objects.php";
+		$this->schema_synchronize(['zesk\\TestPerson']);
 	}
 
 	public function sep(): void {

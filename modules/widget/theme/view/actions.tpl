@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage widget
  * @author kent
- * @copyright &copy; 2018 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  */
 namespace zesk;
 

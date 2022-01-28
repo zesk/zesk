@@ -83,7 +83,7 @@ class Database_SQL extends \zesk\Database_SQL {
 			case Database_Index::Primary:
 				$sqlIndexes = [];
 				foreach ($indexes as $k => $size) {
-					if (is_numeric($size)) {
+					if (is_numeric($size) && $size > 0) {
 						$sqlIndexes[] = $this->quote_column($k) . "($size)";
 					} else {
 						$sqlIndexes[] = $this->quote_column($k);

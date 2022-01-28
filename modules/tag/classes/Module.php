@@ -3,7 +3,7 @@
  * @package zesk-modules
  * @subpackage tag
  * @author kent
- * @copyright &copy; 2018 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  */
 namespace zesk\Tag;
 

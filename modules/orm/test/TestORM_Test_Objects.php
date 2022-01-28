@@ -12,7 +12,7 @@ class Class_TestORM extends Class_ORM {
 	];
 }
 class TestORM extends ORM {
-	public function schema() {
+	public function schema(): string|array|ORM_Schema|null {
 		$table = $this->table;
 		return [
 			"CREATE TABLE $table ( ID integer unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY, Name varchar(32) NOT NULL, Price decimal(12,2), Foo integer NULL )",

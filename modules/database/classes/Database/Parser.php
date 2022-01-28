@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -43,10 +45,10 @@ abstract class Database_Parser extends Hookable {
 	 *
 	 * @param string $sql
 	 * @param string $field
-	 *        	Optional desired field.
-	 * @return multitype:string NULL |Ambigous <mixed, array>
+	 *            Optional desired field.
+	 * @return string|array
 	 */
-	public function parse_sql($sql, $field = null) {
+	public function parse_sql(string $sql, string $field = ""): string|array {
 		$sql = $this->sql()->remove_comments($sql);
 		$sql = trim($sql);
 		$result = [];
@@ -58,7 +60,7 @@ abstract class Database_Parser extends Hookable {
 				$result['table'] = $this->sql()->unquote_table($matches[1]);
 			}
 		}
-		return ($field === null) ? $result : avalue($result, $field, $result);
+		return ($field === "") ? $result : ($result[$field] ?? $result);
 	}
 
 	/**
@@ -70,7 +72,7 @@ abstract class Database_Parser extends Hookable {
 	 * @param string $sql
 	 * @return array
 	 */
-	public function split_sql_commands($sql) {
+	public function split_sql_commands(string $sql): array {
 		$map = [
 			"\\'" => '*SLASH_SLASH_QUOTE*',
 		];
@@ -100,7 +102,7 @@ abstract class Database_Parser extends Hookable {
 	 * @param string $sql
 	 * @return Database_Parser
 	 */
-	public static function parse_factory(Database $db, $sql, $source) {
+	public static function parse_factory(Database $db, string $sql, string $source): Database_Parser {
 		$app = $db->application;
 		if ($app->development() && empty($source)) {
 			throw new Exception_Parameter("{method} missing source {args}", [
@@ -138,7 +140,7 @@ abstract class Database_Parser extends Hookable {
 	 * @param string $sql
 	 * @return Database_Table
 	 */
-	abstract public function create_table($sql);
+	abstract public function create_table(string $sql): Database_Table;
 
 	abstract public function create_index(Database_Table $table, $sql);
 
@@ -148,10 +150,7 @@ abstract class Database_Parser extends Hookable {
 	 * @param string $order_by
 	 * @return array
 	 */
-	public function split_order_by($order_by) {
-		if (is_array($order_by)) {
-			return $order_by;
-		}
+	public function split_order_by(string $order_by): array {
 		$map = [];
 		/*
 		 * Remove quoted strings (simple)
@@ -179,12 +178,12 @@ abstract class Database_Parser extends Hookable {
 	/**
 	 * Reverses an order by clause as passed into a select query
 	 *
-	 * @param mixed $order_by
-	 * @return array
+	 * @param string|array $order_by
+	 * @return string|array
 	 */
-	public function reverse_order_by($order_by) {
+	public function reverse_order_by(string|array $order_by): string|array {
 		$was_string = false;
-		if (!is_array($order_by)) {
+		if (is_string($order_by)) {
 			$was_string = true;
 			$order_by = $this->split_order_by($order_by);
 		}

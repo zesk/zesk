@@ -6,3 +6,11 @@ fi
 T-php() {
     tail -F /usr/local/var/log/php-error.log
 }
+Xdebug_ON() {
+    export XDEBUG_ENABLED=1
+    echo "XDebug debugging enabled..."
+}
+Xdebug_OFF() {
+    unset XDEBUG_ENABLED
+    echo "XDebug debugging disabled..."
+}

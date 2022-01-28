@@ -209,7 +209,7 @@ class Objects {
 				"object" => $found_object,
 			]);
 		}
-		$this->_setSingleton($object, $class);
+		$this->_setSingleton($object, $resolved_class);
 		return $this;
 	}
 
@@ -232,9 +232,8 @@ class Objects {
 	 * @return mixed
 	 * @throws Exception_Semantics
 	 */
-	private function _setSingleton(object $object, string $class_name): object {
-		$class = $this->resolve($class_name);
-		$low_class = strtolower($class);
+	private function _setSingleton(object $object, string $resolved_class): object {
+		$low_class = strtolower($resolved_class);
 		if (isset($this->singletons[$low_class])) {
 			throw new Exception_Semantics("{method}(Object of {class_name}) Can not set singleton {class_name} twice, originally set in {first_caller}", [
 				"method" => __METHOD__,
@@ -270,12 +269,12 @@ class Objects {
 						$refl_method = $rc->getMethod($method);
 						/* @var $method ReflectionMethod */
 						if ($refl_method->isStatic()) {
-							return $this->_setSingleton($refl_method->invokeArgs(null, $arguments));
+							return $this->_setSingleton($refl_method->invokeArgs(null, $arguments), $resolve_class);
 						}
 					}
 				}
 			}
-			return $this->_setSingleton($rc->newInstanceArgs($arguments));
+			return $this->_setSingleton($rc->newInstanceArgs($arguments), $resolve_class);
 		} catch (ReflectionException|LogicException $e) {
 			throw new Exception_Class_NotFound($resolve_class, null, null, $e);
 		}

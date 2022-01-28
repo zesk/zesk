@@ -7,7 +7,7 @@ namespace zesk;
  * @package zesk
  * @subpackage forgot
  * @author kent
- * @copyright &copy; 2014 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  */
 class Schema_Forgot extends ORM_Schema {
 	/**

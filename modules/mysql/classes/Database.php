@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace MySQL;
 
+use zesk\Exception;
 use zesk\Exception_Semantics;
 use zesk\Exception_NotFound;
 use zesk\Exception_File_NotFound;
@@ -1227,18 +1228,11 @@ class Database extends \zesk\Database {
 	 *
 	 * @see \zesk\Database::query()
 	 */
-	final public function query($query, array $options = []) {
+	final protected function _query(string $query, array $options = []): mixed {
 		if (empty($query)) {
-			return null;
+			return true;
 		}
-		if (is_array($query)) {
-			$result = [];
-			foreach ($query as $index => $sql) {
-				$result[$index] = $this->query($sql, $options);
-			}
-			return $result;
-		}
-		if (!$this->Connection && avalue($options, 'auto_connect', $this->optionBool("auto_connect", true))) {
+		if (!$this->Connection && ($options['auto_connect'] ?? $this->optionBool("auto_connect", true))) {
 			$this->connect();
 		}
 		if (!$this->Connection) {
@@ -1258,7 +1252,9 @@ class Database extends \zesk\Database {
 					throw new Database_Exception_Table_NotFound($this, $query);
 				}
 
-				throw $exception;
+				throw new Database_Exception_SQL($this, $query, $exception->getMessage(), [
+						"sql" => $query,
+					] + Exception::exception_variables($exception), $exception->getCode(), $exception);
 			}
 			$this->_query_after($query, $options);
 			if ($result) {

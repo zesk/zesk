@@ -6,7 +6,7 @@ declare(strict_types=1);
  *
  * This is where the magic happens for ORMs
  *
- * Copyright &copy; 2015 Market Acumen, Inc.
+ * Copyright &copy; 2022 Market Acumen, Inc.
  * @author kent
  * @see ORM
  */
@@ -1530,9 +1530,9 @@ class Class_ORM extends Hookable {
 	 *
 	 * @param string $sql
 	 *            Optional SQL
-	 * @return ORM_Schema
+	 * @return ?ORM_Schema
 	 */
-	private function _database_schema(ORM $object = null, $sql = null) {
+	private function _database_schema(ORM $object = null, string $sql = ""): ?ORM_Schema {
 		try {
 			[$namespace, $class] = PHP::parse_namespace_class($this->class);
 			if ($namespace) {
@@ -1559,27 +1559,27 @@ class Class_ORM extends Hookable {
 
 	/**
 	 *
-	 * @return ORM_Schema
+	 * @return ?ORM_Schema
 	 */
-	final public function database_schema(ORM $object = null) {
-		$result = $object ? $object->schema() : null;
-		if ($result instanceof ORM_Schema) {
+	final public function database_schema(ORM $object): ?ORM_Schema {
+		$result = $object->schema();
+		if ($result === null || $result instanceof ORM_Schema) {
 			return $result;
-		} elseif (is_array($result)) {
+		}
+		if (is_array($result)) {
 			return $this->_database_schema($object, implode(";\n", $result));
 		}
-		if ($result === null) {
-			return $result;
-		}
+		assert(is_string($result));
 		return $this->_database_schema($object, $result);
 	}
 
 	/**
 	 * Override this in subclasses to provide an alternate schema
 	 *
-	 * @return ORM_Schema
+	 * @param ORM $object
+	 * @return string|array|ORM_Schema
 	 */
-	public function schema(ORM $object) {
+	public function schema(ORM $object): string|array|ORM_Schema {
 		return $this->_database_schema($object);
 	}
 

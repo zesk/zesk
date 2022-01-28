@@ -56,7 +56,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$this->assert_false($datatype->native_types_equal("timestamp", "datetime"));
 		$this->assert_true($datatype->native_types_equal("int", "integer(12)"));
 
-		$this->assert_arrays_equal($result, ["ALTER TABLE `test` CHANGE COLUMN `created` `created` timestamp NULL DEFAULT NULL", ]);
+		$this->assert_arrays_equal($result, ["ALTER TABLE `test` CHANGE COLUMN `created` `created` timestamp NULL", ]);
 	}
 
 	public function test_primary_key_location(): void {
@@ -85,6 +85,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 
 		foreach ($sql as $key => $create) {
 			$result = ORM_Schema::table_synchronize($db, $create, false);
+			$this->log("Running SQL {key} ({n}) {result}", ['key' => $key, 'n' => count($result), 'result' => $result]);
 			$db->query($result);
 		}
 	}

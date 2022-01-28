@@ -1,7 +1,7 @@
 /*
  * $Id: zesk-confirm.js 4076 2016-10-18 04:16:28Z kent $
  *
- * Copyright (C) 2007 Market Acumen, Inc. All rights reserved
+ * Copyright (C) 2022 Market Acumen, Inc. All rights reserved
  */
 
 /* Confirm dialog box on certain actions */

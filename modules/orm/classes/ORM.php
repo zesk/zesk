@@ -424,9 +424,8 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 
 	/**
 	 *
-	 * @return ORM_Schema
 	 */
-	public function schema() {
+	public function schema(): ORM_Schema|array|string|null {
 		return $this->class->schema($this);
 	}
 
@@ -1287,7 +1286,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 				return $this->members[$member];
 			}
 			$many = $this->class->has_many[$member];
-			return $this->member_iterator($member, avalue($many, 'iterator_where'));
+			return $this->member_iterator($member, $many['iterator_where'] ?? []);
 		}
 		if (array_key_exists($member, $this->class->has_one)) {
 			return $this->member_object($member, $this->inherit_options());

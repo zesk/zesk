@@ -42,9 +42,15 @@ class Database_Table_Test extends Test_Unit {
 		$name = "foo";
 		$this->assertFalse($table->has_index($name));
 
-		$name = "name";
-		$table->index($name);
+		$success = false;
 
+		try {
+			$name = "name";
+			$table->index($name);
+		} catch (Exception_NotFound $e) {
+			$success = true;
+		}
+		$this->assertTrue($success, "name index should be not found");
 		$table->indexes();
 
 		$index = new Database_Index($table, "un");
@@ -98,7 +104,14 @@ class Database_Table_Test extends Test_Unit {
 
 		$testx->has_index("fun");
 
-		$testx->index("foo");
+		$success = false;
+
+		try {
+			$testx->index("foo");
+		} catch (Exception_NotFound $e) {
+			$success = true;
+		}
+		$this->assertTrue($success, "name index should be not found");
 
 		$testx->indexes();
 

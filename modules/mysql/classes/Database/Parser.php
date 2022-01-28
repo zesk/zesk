@@ -399,7 +399,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			/* @var $col Database_Column */
 			$col = $table->column($column);
 			if ($col) {
-				$col->previous_name($previous_name);
+				$col->setPreviousName($previous_name);
 			} else {
 				$this->application->logger->notice($table->name() . " contains rename tip for non-existent new column: $previous_name => $column");
 			}
@@ -430,7 +430,7 @@ class Database_Parser extends \zesk\Database_Parser {
 	 * @see Database_Parser::create_table() Parses CREATE TABLE for MySQL and returns a
 	 *      Database_Table
 	 */
-	public function create_table($sql) {
+	public function create_table(string $sql): Database_Table {
 		$matches = false;
 		$source_sql = $sql;
 

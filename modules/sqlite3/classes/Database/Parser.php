@@ -368,7 +368,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			/* @var $col Database_Column */
 			$col = $table->column($column);
 			if ($col) {
-				$col->previous_name($previous_name);
+				$col->setPreviousName($previous_name);
 			} else {
 				$table->application->logger->notice($table->name() . " contains rename tip for non-existent new column: $previous_name => $column");
 			}

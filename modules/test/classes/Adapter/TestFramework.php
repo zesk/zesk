@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright &copy; 2018 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -15,6 +15,10 @@ namespace zesk;
 class Adapter_TestFramework extends Test implements Interface_Testable {
 	public function assertEquals($expected, $actual, $message = null): void {
 		$this->assert_equal($expected, $actual, $message);
+	}
+
+	public function assertNotEquals($expected, $actual, $message = null): void {
+		$this->assert_not_equal($expected, $actual, $message);
 	}
 
 	public function assertInstanceOf($expectedClass, $thing, $message = null): void {
@@ -43,5 +47,9 @@ class Adapter_TestFramework extends Test implements Interface_Testable {
 
 	public function assertContains($needle, $haystack, $message = null): void {
 		$this->assertTrue(str_contains($haystack, $needle), "Unable to find needle \"$needle\" in haystack:\n$haystack\n");
+	}
+
+	public function assertIsArray($object, $message = null) {
+		return $this->assert_is_array($object, $message);
 	}
 }

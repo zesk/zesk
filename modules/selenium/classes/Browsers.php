@@ -10,7 +10,7 @@ namespace zesk;
  * Based on CrossBrowserTesting structure
  *
  * @author kent
- * @copyright &copy; 2016 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  */
 class Selenium_Browsers {
 	/**

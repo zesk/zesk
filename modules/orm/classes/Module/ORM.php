@@ -1,6 +1,7 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
- * @copyright &copy; 2017 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -77,7 +78,13 @@ class Module_ORM extends Module {
 				try {
 					$member_object = $object->__get($member);
 					if ($member_object !== null && !$member_object instanceof ORM) {
-						$this->application->logger->error("Member {member} of object {class} should be an object of {expected_class}, returned {type} with value {value}", ["member" => $member, "class" => get_class($object), "expected_class" => $class, "type" => type($member_object), "value" => strval($member_object), ]);
+						$this->application->logger->error("Member {member} of object {class} should be an object of {expected_class}, returned {type} with value {value}", [
+							"member" => $member,
+							"class" => get_class($object),
+							"expected_class" => $class,
+							"type" => type($member_object),
+							"value" => strval($member_object),
+						]);
 
 						continue;
 					}
@@ -210,13 +217,19 @@ class Module_ORM extends Module {
 	private function _classes($add = null) {
 		$classes = [];
 		$model_classes = $this->application->call_hook_arguments("orm_classes", [], []);
-		$this->application->logger->debug("Classes from {class}->model_classes = {value}", ["class" => get_class($this), "value" => $model_classes, ]);
+		$this->application->logger->debug("Classes from {class}->model_classes = {value}", [
+			"class" => get_class($this),
+			"value" => $model_classes,
+		]);
 		$classes = $classes + ArrayTools::flip_copy($model_classes, true);
 		$all_classes = $this->call_hook_arguments('classes', [$classes, ], $classes);
 		/* @var $module Module */
 		foreach ($this->application->modules->all_modules() as $name => $module) {
 			$module_classes = $module->model_classes();
-			$this->application->logger->debug("Classes for module {name} = {value}", ["name" => $name, "value" => $module_classes, ]);
+			$this->application->logger->debug("Classes for module {name} = {value}", [
+				"name" => $name,
+				"value" => $module_classes,
+			]);
 			$all_classes = array_merge($all_classes, ArrayTools::flip_copy($module_classes, true));
 		}
 		$this->application->classes->register(array_values($all_classes));
@@ -229,7 +242,7 @@ class Module_ORM extends Module {
 	 *
 	 * @return string[]
 	 */
-	public function schema_synchronize(Database $db = null, array $classes = null, array $options = []) {
+	public function schema_synchronize(Database $db = null, array $classes = null, array $options = []): array {
 		if (!$db) {
 			$db = $this->application->database_registry();
 		}
@@ -243,19 +256,26 @@ class Module_ORM extends Module {
 		$results = [];
 		$objects_by_class = [];
 		$other_updates = [];
-		$follow = avalue($options, 'follow', true);
+		$follow = $options['follow'] ?? true;
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
 			if (stripos($class, 'user_role')) {
-				$logger->debug("{method}: ORM map is: {map}", ["method" => __METHOD__, "map" => _dump($this->application->objects->map()), "class" => $class, ]);
+				$logger->debug("{method}: ORM map is: {map}", [
+					"method" => __METHOD__,
+					"map" => _dump($this->application->objects->map()),
+					"class" => $class,
+				]);
 			}
 			$resolved_class = $this->application->objects->resolve($class);
 			if ($resolved_class !== $class) {
-				$logger->debug("{resolved_class} resolved to {class}", ["resolved_class" => $resolved_class, "class" => $class, ]);
+				$logger->debug("{resolved_class} resolved to {class}", [
+					"resolved_class" => $resolved_class,
+					"class" => $class,
+				]);
 			}
 			$class = $resolved_class;
 			$lowclass = strtolower($class);
-			if (avalue($objects_by_class, $lowclass)) {
+			if (isset($objects_by_class[$lowclass])) {
 				continue;
 			}
 			$logger->debug("Parsing $class");
@@ -269,20 +289,33 @@ class Module_ORM extends Module {
 				$logger->error("Unable to synchronize {class} because it can not be found", ["class" => $class, ]);
 				continue;
 			} catch (Exception $e) {
-				$logger->error("Unable to synchronize {class} because of {exception_class} {message}\nTRACE: {trace}", ["class" => $class, "message" => $e->getMessage(), "exception_class" => get_class($e), "trace" => $e->getTraceAsString(), "exception" => $e, ]);
+				$logger->error("Unable to synchronize {class} because of {exception_class} {message}\nTRACE: {trace}", [
+					"class" => $class,
+					"message" => $e->getMessage(),
+					"exception_class" => get_class($e),
+					"trace" => $e->getTraceAsString(),
+					"exception" => $e,
+				]);
 
 				throw $e;
-
-				continue;
 			}
 			if (count($updates) > 0) {
 				$updates = array_merge(["-- Synchronizing schema for class: $class", ], $updates);
 				if ($object_db_name !== $db->code_name()) {
 					$other_updates[$object_db_name] = true;
 					$updates = [];
-					$logger->debug("Result of schema parse for {class}: {n} changes - Database {dbname}", ["class" => $class, "n" => count($updates), "updates" => $updates, "dbname" => $object_db_name, ]);
+					$logger->debug("Result of schema parse for {class}: {n} changes - Database {dbname}", [
+						"class" => $class,
+						"n" => count($updates),
+						"updates" => $updates,
+						"dbname" => $object_db_name,
+					]);
 				} else {
-					$logger->debug("Result of schema parse for {class}: {n} updates", ["class" => $class, "n" => count($updates), "updates" => $updates, ]);
+					$logger->debug("Result of schema parse for {class}: {n} updates", [
+						"class" => $class,
+						"n" => count($updates),
+						"updates" => $updates,
+					]);
 				}
 			}
 			$results = array_merge($results, $updates);
@@ -347,7 +380,11 @@ class Module_ORM extends Module {
 			try {
 				$result['object'] = $object = $this->orm_factory($this->application, $class);
 				if (!$object instanceof ORM) {
-					$this->application->logger->warning("{method} {class} is not an instanceof {parent}", ["method" => __METHOD__, "class" => $class, "parent" => ORM::class, ]);
+					$this->application->logger->warning("{method} {class} is not an instanceof {parent}", [
+						"method" => __METHOD__,
+						"class" => $class,
+						"parent" => ORM::class,
+					]);
 
 					continue;
 				}
@@ -384,7 +421,11 @@ class Module_ORM extends Module {
 			return $this;
 		}
 		if (!is_string($class)) {
-			throw new Exception_Parameter("Invalid class passed to {method}: {value} ({type})", ["method" => __METHOD__, "type" => type($class), "value" => $class, ]);
+			throw new Exception_Parameter("Invalid class passed to {method}: {value} ({type})", [
+				"method" => __METHOD__,
+				"type" => type($class),
+				"value" => $class,
+			]);
 		}
 		$lowclass = strtolower($class);
 		if (array_key_exists($lowclass, $this->class_cache)) {
@@ -405,7 +446,10 @@ class Module_ORM extends Module {
 	 */
 	private function _class_cache($class, $component = "") {
 		if (!is_string($class) && !is_int($class)) {
-			throw new Exception_Parameter("Requires a scalar key {type} {value}", ["type" => type($class), "value" => str($class)]);
+			throw new Exception_Parameter("Requires a scalar key {type} {value}", [
+				"type" => type($class),
+				"value" => str($class),
+			]);
 		}
 		$lowclass = strtolower($class);
 		if (!array_key_exists($lowclass, $this->class_cache)) {
@@ -413,7 +457,14 @@ class Module_ORM extends Module {
 			if (!$object instanceof ORM) {
 				throw new Exception_Semantics("$class is not an ORM");
 			}
-			$this->class_cache[$lowclass] = ['table' => $object->table(), 'dbname' => $object->database_name(), 'database_name' => $object->database_name(), 'object' => $object, 'class' => $object->class_orm(), 'id_column' => $object->id_column(), ];
+			$this->class_cache[$lowclass] = [
+				'table' => $object->table(),
+				'dbname' => $object->database_name(),
+				'database_name' => $object->database_name(),
+				'object' => $object,
+				'class' => $object->class_orm(),
+				'id_column' => $object->id_column(),
+			];
 		}
 		$result = $this->class_cache[$lowclass];
 		return avalue($result, $component, $result);
@@ -505,7 +556,12 @@ class Module_ORM extends Module {
 		$database = $table->database();
 		$code = strtolower($database->type());
 		if (!array_key_exists($code, $this->database_adapters)) {
-			$this->application->logger->error("{method} {table} {column} - no adapter for database {code}", ["method" => __METHOD__, "table" => $table, "column" => $column, "code" => $code, ]);
+			$this->application->logger->error("{method} {table} {column} - no adapter for database {code}", [
+				"method" => __METHOD__,
+				"table" => $table,
+				"column" => $column,
+				"code" => $code,
+			]);
 			return;
 		}
 		$adapter = $this->database_adapters[$code];

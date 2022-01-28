@@ -20,35 +20,35 @@ class ORM_Schema_File extends ORM_Schema {
 	 *
 	 * @var string
 	 */
-	protected $sql_file_path = null;
+	protected string $sql_file_path = "";
 
 	/**
 	 * Raw SQL in file
 	 *
 	 * @var string
 	 */
-	protected $sql = null;
+	protected string $sql = "";
 
 	/**
 	 * Which parser to use
 	 *
 	 * @var Database_Parser
 	 */
-	protected $parser = null;
+	protected Database_Parser $parser;
 
 	/**
 	 * SQL Aftrer map has been applied
 	 *
 	 * @var string
 	 */
-	protected $mapped_sql = null;
+	protected string $mapped_sql = "";
 
 	/**
 	 * List of search paths when nothing found
 	 *
 	 * @var array
 	 */
-	protected $searched = null;
+	protected array $searched = [];
 
 	/**
 	 * Create a schema file object for a given Class_ORM, optionally specifying a string SQL
@@ -57,9 +57,9 @@ class ORM_Schema_File extends ORM_Schema {
 	 * @param Class_ORM $object
 	 * @param string $sql
 	 */
-	public function __construct(Class_ORM $class_object, ORM $object = null, $sql = null) {
+	public function __construct(Class_ORM $class_object, ORM $object = null, string $sql = "") {
 		parent::__construct($class_object, $object);
-		if ($sql !== null) {
+		if ($sql !== "") {
 			$this->_set_sql($sql);
 			$this->parser = Database_Parser::parse_factory($this->database(), $this->sql, calling_function());
 			$this->application->logger->debug("Parsing SQL {sql} using {parse_class} for class {class}", [
@@ -88,7 +88,7 @@ class ORM_Schema_File extends ORM_Schema {
 	 *
 	 * @param string $sql
 	 */
-	private function _set_sql($sql): void {
+	private function _set_sql(string $sql): void {
 		$this->sql = $sql;
 		$this->mapped_sql = map($this->sql, $this->schema_map());
 	}
@@ -193,9 +193,9 @@ class ORM_Schema_File extends ORM_Schema {
 	 * @see ORM_Schema::schema()
 	 * @return array
 	 */
-	public function schema() {
+	public function schema(): array {
 		$db = $this->database();
-		if ($this->sql === null) {
+		if ($this->sql === "") {
 			return [];
 		}
 		$sqls = $this->parser->split_sql_commands($this->mapped_sql);

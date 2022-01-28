@@ -3,7 +3,7 @@
  * Implementation of iCalendar RRULE
  *
  * @author kent
- * @copyright &copy; 2016 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  *
  * http://www.ietf.org/rfc/rfc2445.txt
  *

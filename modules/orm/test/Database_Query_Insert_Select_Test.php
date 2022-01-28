@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @test_sandbox true
@@ -6,6 +7,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 class Database_Query_Insert_Select_Test extends Test_Unit {
@@ -19,22 +21,22 @@ class Database_Query_Insert_Select_Test extends Test_Unit {
 		$db = $this->application->database_registry();
 		$testx = new Database_Query_Insert_Select($db);
 
+		try {
+			echo $testx->__toString();
+		} catch (Exception_Semantics $e) {
+			$success = true;
+		}
+		$this->assert($success);
+
+		$table = "from_table";
+		$alias = 'X';
+		$testx->from($table, $alias);
+
 		$db = null;
 		$table = "test_table";
 		$testx->into($table);
 
 		echo $testx->__toString();
-
-		$mixed = null;
-		$value = null;
-		$success = false;
-
-		try {
-			$testx->what("*", $value);
-		} catch (Exception_Semantics $e) {
-			$success = true;
-		}
-		$this->assert($success);
 
 		$testx->what([
 			"A" => "B",
@@ -42,27 +44,21 @@ class Database_Query_Insert_Select_Test extends Test_Unit {
 			"D" => "Table.Field",
 		]);
 
-		$table = "from_table";
-		$alias = 'X';
-		$testx->from($table, $alias);
-
 		$sql = "INNER JOIN join_table J ON X.JID=J.ID";
 		$testx->join($sql);
 
-		$k = null;
-		$v = null;
-		$testx->where("X.Thing|>=", '20');
+		$testx->addWhere("X.Thing|>=", '20');
 
 		$order_by = null;
-		$testx->order_by("Created");
+		$testx->orderBy(["Created"]);
 
 		$group_by = null;
-		$testx->group_by($group_by);
+		$testx->groupBy([1]);
 
 		$sql = strval($testx);
 		$sql = preg_replace('/\s+/', ' ', $sql);
 
-		$correct_sql = "INSERT INTO `test_table` ( `A`, `C`, `D` ) SELECT `B` AS `A`, UTC_TIMESTAMP() AS `C`, `Table`.`Field` AS `D` FROM `from_table` AS `X` INNER JOIN join_table J ON X.JID=J.ID WHERE `X`.`Thing` >= '20' ORDER BY Created";
+		$correct_sql = "INSERT INTO `test_table` ( `A`, `C`, `D` ) SELECT `B` AS `A`, UTC_TIMESTAMP() AS `C`, `Table`.`Field` AS `D` FROM `from_table` AS `X` INNER JOIN join_table J ON X.JID=J.ID WHERE `X`.`Thing` >= '20' GROUP BY 1 ORDER BY Created";
 		$this->assert_equal($sql, $correct_sql);
 	}
 }

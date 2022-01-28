@@ -1,10 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * Implementation of iCalendar RRULE
  *
  * @author kent
- * @copyright &copy; 2016 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  *
  * http://www.ietf.org/rfc/rfc2445.txt
  *
@@ -12,6 +13,7 @@
  *
  * https://pypi.python.org/pypi/python-dateutil/2.5.3
  */
+
 namespace RRule;
 
 use zesk\ArrayTools;
@@ -24,27 +26,26 @@ class Parser {
 	 *
 	 * @var array
 	 */
-	protected $errors = [];
+	protected array $errors = [];
 
 	/**
-	 *
-	 * @param unknown $s
-	 * @param Timestamp $dtstart
-	 * @param boolean $unfold
+	 * @param string $string_to_parse
+	 * @param Timestamp|null $dtstart
+	 * @param array $options
+	 * @return Set
 	 * @throws Exception_Syntax
-	 * @return \RRule\Set
 	 */
-	public function parse($s, Timestamp $dtstart = null, array $options = []) {
+	public function parse(string $string_to_parse, Timestamp $dtstart = null, array $options = []): Set {
 		$this->errors = [];
-		$s = trim(strtoupper($s));
-		if (empty($s)) {
+		$string_to_parse = trim(strtoupper($string_to_parse));
+		if (empty($string_to_parse)) {
 			throw new Exception_Syntax("Empty string");
 		}
-		$s = strtr($s, "\t", " ");
-		$lines = explode("\n", $s);
-		$unfold = avalue($options, "unfold", true);
+		$string_to_parse = strtr($string_to_parse, "\t", " ");
+		$lines = explode("\n", $string_to_parse);
+		$unfold = $options["unfold"] ?? true;
 		if ($unfold) {
-			$lines = $this->unfold_lines($lines);
+			$lines = $this->unfoldLines($lines);
 		}
 		$rrulevals = [];
 		$rdatevals = [];
@@ -58,7 +59,7 @@ class Parser {
 			[$name, $value] = pair($line, ":", "RRULE", $line);
 			$parameters = ArrayTools::clean(explode(";", $name), "");
 			if (count($parameters) === 0) {
-				$this->errors[] = __(__CLASS__ . ":=Empty property name: {line}", compact("line"));
+				$this->errors[] = [__CLASS__ . ":=Empty property name: {line}", compact("line")];
 				continue;
 			}
 			$name = array_shift($parameters);
@@ -140,9 +141,9 @@ class Parser {
 	 * @param Set $rset
 	 * @param Timestamp $dtstart
 	 * @param array $values
-	 * @param unknown $method
+	 * @param string $method
 	 */
-	private function add_rules_mixed(Set $rset, Timestamp $dtstart, array $values, $method): void {
+	private function add_rules_mixed(Set $rset, Timestamp $dtstart, array $values, string $method): void {
 		foreach ($values as $value) {
 			$rule = Rule_Parser::factory($value)->dtstart($dtstart)->rule();
 			$rset->$method($rule);
@@ -189,7 +190,7 @@ class Parser {
 	 * @param array $lines
 	 * @return string[]
 	 */
-	private function unfold_lines(array $lines) {
+	private function unfoldLines(array $lines): array {
 		$newlines = [];
 		foreach ($lines as $line) {
 			$line = rtrim($line);

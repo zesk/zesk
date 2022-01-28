@@ -41,6 +41,7 @@ class Database_Column extends Options {
 		if ($this->hasOption("sql_type")) {
 			$this->sql_type($this->option("sql_type"));
 		}
+		$this->setPrimaryKey($this->primaryKey());
 	}
 
 	/**
@@ -77,14 +78,19 @@ class Database_Column extends Options {
 	}
 
 	/**
+	 * Get previous name for a column
+	 * @return string
+	 */
+	public function previous_name(): string {
+		return $this->option('previous_name', '');
+	}
+
+	/**
 	 * Get/set previous name for a column
 	 * @param string $name
-	 * @return Database_Column string
+	 * @return self
 	 */
-	public function previous_name($name = null) {
-		if ($name === null) {
-			return $this->option('previous_name');
-		}
+	public function setPreviousName(string $name): self {
 		$this->setOption('previous_name', $name);
 		return $this;
 	}
@@ -239,7 +245,7 @@ class Database_Column extends Options {
 		return $this;
 	}
 
-	final public function setDefaultValue(mixed $set):self {
+	final public function setDefaultValue(mixed $set): self {
 		$this->options['default'] = $set;
 		return $this;
 	}
@@ -359,7 +365,7 @@ class Database_Column extends Options {
 			$result[$name] = Database_Index::Index;
 		}
 		if ($isPrimary) {
-			$result[""] = Database_Index::Primary;
+			$result[Database_Index::PrimaryName] = Database_Index::Primary;
 		}
 		return $result;
 	}

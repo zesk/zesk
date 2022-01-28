@@ -8,6 +8,7 @@
 namespace zesk;
 
 use __PHP_Incomplete_Class;
+use http\Exception\RuntimeException;
 use stdClass;
 
 if (!defined("JSON_INVALID_UTF8_IGNORE")) {
@@ -122,10 +123,14 @@ class JSON {
 	 * @param mixed $mixed
 	 *        	Item to encode using JSON
 	 * @return string JSON string of encoded item
+	 * @throws Exception_Semantics
 	 */
 	public static function encode(mixed $mixed): string {
 		if (function_exists("json_encode")) {
-			return json_encode($mixed, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
+			$result = json_encode($mixed, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
+			if ($result === false) {
+				throw new Exception_Semantics("JSON encode failed");
+			}
 		}
 		return self::zencode($mixed);
 	}
@@ -185,7 +190,7 @@ class JSON {
 		} elseif (is_bool($mixed)) {
 			return $mixed ? "true" : "false";
 		} elseif (is_int($mixed) || is_float($mixed)) {
-			return $mixed;
+			return strval($mixed);
 		} elseif (is_string($mixed)) {
 			return self::quote($mixed);
 		} elseif (is_resource($mixed)) {
@@ -193,7 +198,7 @@ class JSON {
 		} elseif ($mixed === null) {
 			return 'null';
 		} elseif ($mixed instanceof __PHP_Incomplete_Class) {
-			return null;
+			return 'null';
 		} else {
 			die("Unknown type: $mixed " . gettype($mixed));
 		}

@@ -1,4 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+/**
+ * @not_test
+ */
+
 namespace zesk;
 
 class Class_Test_SiteMonitor extends Class_ORM {
@@ -14,8 +19,10 @@ class Class_Test_SiteMonitor extends Class_ORM {
 		"Site" => self::type_object,
 	];
 }
+
 class Test_SiteMonitor extends ORM {
 }
+
 class Class_Test_Site extends Class_ORM {
 	public string $id_column = "ID";
 
@@ -29,8 +36,10 @@ class Class_Test_Site extends Class_ORM {
 		"Account" => self::type_object,
 	];
 }
+
 class Test_Site extends ORM {
 }
+
 class Class_Test_Account extends Class_ORM {
 	public string $id_column = "ID";
 
@@ -47,10 +56,18 @@ class Class_Test_Account extends Class_ORM {
 		"Cancelled" => self::type_timestamp,
 	];
 }
+
 class Test_Account extends ORM {
 }
+
 class Class_TestPerson extends Class_ORM {
 	public string $id_column = "PersonID";
+
+	public function schema(ORM $object): array|string|ORM_Schema {
+		return [
+			"CREATE TABLE {table} ( PersonID integer unsigned NOT NULL AUTO_INCREMENT, Name varchar(64), Parent integer unsigned NULL, PRIMARY KEY (PersonID) )",
+		];
+	}
 
 	public array $has_many = [
 		'Favorite_Pets' => [
@@ -78,16 +95,30 @@ class Class_TestPerson extends Class_ORM {
 		"Parent" => Class_ORM::type_object,
 	];
 }
-class TestPersonPet extends ORM {
-}
+
 class Class_TestPersonPet extends Class_ORM {
 	public array $column_types = [
-		'Person' => self::type_object,
-		'Pet' => self::type_object,
+		'Person' => Class_ORM::type_object,
+		"Pet" => Class_ORM::type_object,
 	];
+
+	public array $has_one = [
+		'Person' => TestPerson::class,
+		"Pet" => TestPet::class,
+	];
+
+	public function schema(ORM $object): array|string|ORM_Schema {
+		return [
+			"CREATE TABLE {table} ( Person integer unsigned NOT NULL, Pet integer unsigned NOT NULL, UNIQUE ppet (Person, Pet), UNIQUE pperson (Pet, Person) )",
+		];
+	}
 }
+class TestPersonPet extends ORM {
+}
+
 class TestPerson extends ORM {
 }
+
 class Class_TestPet extends Class_ORM {
 	public string $id_column = "PetID";
 
@@ -96,6 +127,16 @@ class Class_TestPet extends Class_ORM {
 		'Name' => self::type_string,
 		'Type' => self::type_object,
 	];
+
+	public function schema(ORM $object): string {
+		return "CREATE TABLE {table} ( PetID integer unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY, Name varchar(64), `Type` integer unsigned NULL )";
+	}
 }
+
 class TestPet extends ORM {
+}
+
+class Class_TestPersonPetFavorites extends Class_TestPersonPet {
+}
+class TestPersonPetFavorites extends TestPersonPet {
 }

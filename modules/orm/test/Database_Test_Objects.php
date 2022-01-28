@@ -13,6 +13,10 @@ class Class_DBQueryObjectTest extends Class_ORM {
 		"id" => self::type_id,
 		"foo" => self::type_string,
 	];
+
+	public function schema(ORM $object): string|array|ORM_Schema {
+		return "CREATE TABLE {table} ( id integer unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT, foo varchar(128) )";
+	}
 }
 
 /**

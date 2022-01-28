@@ -50,30 +50,31 @@ class Database_Query_Union_Test extends Test_Unit {
 
 		$testx->__toString();
 
-		$testx->iterator();
-
-		$class = "U";
-		$options = [];
-		$testx->orm_iterator($class, $options);
-
-		$field = "id";
-		$default = null;
-		$testx->one($field, $default);
-
-		$class = "User";
-		$testx->orm($class);
-
-		$field = "total";
-		$testx->one_integer($field, 0);
-
-		$field = null;
-		$default = 0;
-		$testx->integer($field, $default);
-
-		$key = false;
-		$value = false;
-		$default = false;
-		$testx->to_array($key, $value, $default);
+		// Hits database TODO
+//		$testx->iterator();
+//
+//		$class = "U";
+//		$options = [];
+//		$testx->orm_iterator($class, $options);
+//
+//		$field = "id";
+//		$default = null;
+//		$testx->one($field, $default);
+//
+//		$class = "User";
+//		$testx->orm($class);
+//
+//		$field = "total";
+//		$testx->one_integer($field, 0);
+//
+//		$field = null;
+//		$default = 0;
+//		$testx->integer($field, $default);
+//
+//		$key = false;
+//		$value = false;
+//		$default = false;
+//		$testx->to_array($key, $value, $default);
 
 		$testx->database();
 

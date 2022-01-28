@@ -2,7 +2,7 @@
 /**
  * @package zesk
  * @subpackage test
- * @copyright &copy; 2017 Market Acumen, Inc.
+ * @copyright &copy; 2022 Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -23,7 +23,8 @@ class Database_Test extends Test_Unit {
 	 * @see \zesk\Test::initialize()
 	 */
 	public function initialize(): void {
-		require __DIR__ . "/Database_Test_Objects.php";
+		require_once __DIR__ . "/Database_Test_Objects.php";
+		$this->schema_synchronize([__NAMESPACE__ . "\\DBQueryObjectTest"]);
 	}
 
 	// 	function test_table_indexes() {

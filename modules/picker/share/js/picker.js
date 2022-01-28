@@ -8,7 +8,7 @@
  * Simple drop uploads for Zesk.
  * 
  * @author Kent M. Davidson kent@marketacumen.com
- * @copyright Copyright (C) 2014 Market Acumen, Inc. 
+ * @copyright Copyright (C) 2022 Market Acumen, Inc.
  */
 // Requires zesk.js
 // Optional locale.js
@@ -200,6 +200,3 @@
 		$.picker();
 	});
 }(window, window.jQuery));
-
-
-

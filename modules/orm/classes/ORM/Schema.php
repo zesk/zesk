@@ -104,7 +104,7 @@ abstract class ORM_Schema extends Hookable {
 	 *
 	 * @var boolean
 	 */
-	public static $debug = false;
+	public static bool $debug = false;
 
 	/**
 	 * Class object associated with this schema
@@ -189,7 +189,7 @@ abstract class ORM_Schema extends Hookable {
 	 * @param mixed $mixed
 	 * @return mixed
 	 */
-	final public function map($mixed) {
+	final public function map(string|array $mixed): string|array {
 		if (is_array($mixed)) {
 			$mixed = kmap($mixed, $this->schema_map());
 		}
@@ -200,7 +200,7 @@ abstract class ORM_Schema extends Hookable {
 	 *
 	 * @return string
 	 */
-	final public function primary_table() {
+	final public function primary_table(): string {
 		return $this->class_object->table();
 	}
 
@@ -209,7 +209,7 @@ abstract class ORM_Schema extends Hookable {
 	 *
 	 * @return array
 	 */
-	abstract public function schema();
+	abstract public function schema(): array;
 
 	/**
 	 * Validate structure of array-syntax for index columns
@@ -259,7 +259,7 @@ abstract class ORM_Schema extends Hookable {
 			}
 
 			try {
-				$table->column_add(new Database_Column($table, $column_name, $column_spec));
+				$table->columnAdd(new Database_Column($table, $column_name, $column_spec));
 			} catch (\Exception $e) {
 				//dump($table_schema['columns']);
 				throw $e;
@@ -276,7 +276,7 @@ abstract class ORM_Schema extends Hookable {
 
 				continue;
 			}
-			$table->index_add(new Database_Index($table, $index, $columns, Database_Index::Index));
+			$table->addIndex(new Database_Index($table, $index, $columns, Database_Index::Index));
 		}
 		foreach (avalue($table_schema, 'unique keys', []) as $index => $columns) {
 			if (!$db->valid_index_name($index)) {
@@ -289,7 +289,7 @@ abstract class ORM_Schema extends Hookable {
 
 				continue;
 			}
-			$table->index_add(new Database_Index($table, $index, $columns, Database_Index::Unique));
+			$table->addIndex(new Database_Index($table, $index, $columns, Database_Index::Unique));
 		}
 		if (array_key_exists('primary key', $table_schema)) {
 			throw new Exception_Syntax("Table definition for $table_name should contain key \"primary keys\" not \"primary key\"");
@@ -299,7 +299,9 @@ abstract class ORM_Schema extends Hookable {
 			if (!($error = self::validate_index_column_specification($db, $primary_columns))) {
 				$logger->error("Invalid primary index column spec {error} in schema found in {table_name} in {context}: Invalid index name {index}", compact("error", "context", "table_name", "index"));
 			} else {
-				$table->index_add(new Database_Index($table, "primary", $primary_columns, Database_Index::Primary));
+				if (!$table->hasIndex(Database_Index::PrimaryName)) {
+					$table->addIndex(new Database_Index($table, "primary", $primary_columns, Database_Index::Primary));
+				}
 			}
 		}
 		if (array_key_exists("on create", $table_schema)) {
@@ -517,8 +519,6 @@ abstract class ORM_Schema extends Hookable {
 		$drops = [];
 		$changes = $db_table_new->sql_alter($db_table_old);
 		$adds = [];
-		$indexes_old = [];
-		$indexes_new = [];
 
 		$columnsOld = $db_table_old->columns();
 		$columnsNew = $db_table_new->columns();
@@ -566,11 +566,11 @@ abstract class ORM_Schema extends Hookable {
 			if (isset($ignoreColumns[$column])) {
 				continue;
 			}
-			$dbColOld = avalue($columnsOld, $column);
-			$dbColNew = avalue($columnsNew, $column);
+			$dbColOld = $columnsOld[$column] ?? null;
+			$dbColNew = $columnsNew[$column] ?? null;
 			// Pass a tip in the target column for alter_table_column_add and databases that support it
 			if ($dbColNew) {
-				$dbColNew->setOption("after_column", $last_column ? $last_column : null);
+				$dbColNew->setOption("after_column", $last_column ?: null);
 			}
 			if ($dbColOld && $dbColNew) {
 				if (!$dbColOld->is_similar($db, $dbColNew, self::$debug)) {
@@ -610,7 +610,8 @@ abstract class ORM_Schema extends Hookable {
 
 		/* @var $indexOld Database_Index */
 		/* @var $indexNew Database_Index */
-		foreach ($indexes_old as $index_name => $index_old) {
+		foreach ($indexes_old as $index_old) {
+			$index_name = $index_old->name();
 			if (isset($ignoreIndexes[$index_name])) {
 				continue;
 			}
@@ -624,7 +625,8 @@ abstract class ORM_Schema extends Hookable {
 				$changes = array_merge(["index_" . $index_name => $index_old->sql_index_drop(), ], $changes);
 			}
 		}
-		foreach ($indexes_new as $index_name => $index_new) {
+		foreach ($indexes_new as $index_new) {
+			$index_name = $index_new->name();
 			if (isset($ignoreIndexes[$index_name])) {
 				continue;
 			}

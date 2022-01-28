@@ -6,7 +6,7 @@
  * This is where the magic happens for Objects
  * @no-cannon
  *
- * Copyright &copy; 2015 Market Acumen, Inc.
+ * Copyright &copy; 2022 Market Acumen, Inc.
  * @author kent
  * @see Object
  */

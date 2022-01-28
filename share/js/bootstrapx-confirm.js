@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Market Acumen, Inc.
+ * Copyright (C) 2022 Market Acumen, Inc.
  */
 !function($) {
 	"use strict";

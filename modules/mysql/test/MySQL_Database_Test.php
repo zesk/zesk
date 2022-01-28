@@ -18,7 +18,7 @@ class MySQL_Database_Test extends Test_Unit {
 	 *
 	 * @return \mysql\Database
 	 */
-	public function database() {
+	public function database(): Database {
 		$db = $this->application->database_registry();
 
 		$this->assert_in_array([
@@ -162,13 +162,13 @@ EOF;
 		try {
 			$table = "testtable";
 			$db->database_table($table);
-		} catch (Database_Exception_Database_NotFound $e) {
+		} catch (Database_Exception_Table_NotFound $e) {
 			$success = true;
 		}
-		$this->assert($success === true);
+		$this->assert($success === true, "Table $table was found?");
 
-		$table = null;
-		$type = null;
+		$table = "testtable";
+		$type = "InnoDB";
 		$db->sql()->alter_table_type($table, $type);
 
 		$success = false;
@@ -192,41 +192,30 @@ EOF;
 
 		$table = new Database_Table($db, "Foo");
 		$index = new Database_Index($table, "dude");
-		$index->type(Database_Index::Primary);
+		$index->setType(Database_Index::Primary);
 
 		$sql = $db->sql()->alter_table_index_drop($table, $index);
 		$this->assert_equal($sql, "ALTER TABLE `Foo` DROP PRIMARY KEY");
 
-		$table = null;
-		$name = null;
+		$table = new Database_Table($db, "testtable");
+		$name = "idx";
 		$indexes = [
 			"Foo" => 32,
 		];
 		$db->sql()->index_type($table, $name, Database_Index::Index, $indexes);
-		$table = null;
-		$name = null;
 		$db->sql()->index_type($table, $name, Database_Index::Unique, $indexes);
-		$table = null;
-		$name = null;
 		$db->sql()->index_type($table, $name, Database_Index::Primary, $indexes);
 
-		$table = null;
-		$name = null;
-		$indexType = null;
-		$indexes = [
-			"Foo" => 32,
-		];
-
 		$table = new Database_Table($db, "Foo");
-		$table->column_add(new Database_Column($table, "ID", [
+		$table->columnAdd(new Database_Column($table, "ID", [
 			"sql_type" => "integer unsigned",
 		]));
-		$table->column_add(new Database_Column($table, "Name", [
+		$table->columnAdd(new Database_Column($table, "Name", [
 			"sql_type" => "varchar(32)",
 		]));
 		$index = new Database_Index($table, "dude");
-		$index->column_add("ID");
-		$index->type(Database_Index::Primary);
+		$index->addColumn("ID");
+		$index->setType(Database_Index::Primary);
 
 		$sql = $db->sql()->alter_table_index_add($table, $index);
 		$this->assert_equal($sql, "ALTER TABLE `Foo` ADD PRIMARY KEY (`ID`)");
@@ -239,9 +228,9 @@ EOF;
 		$sql = $db->sql()->alter_table_change_column($table, $dbColOld, $dbColNew);
 		$this->assert_equal($sql, "ALTER TABLE `$table_name` CHANGE COLUMN `Foo` `Foo` varchar(33) NULL");
 
-		$query = null;
-		$result = $db->query($query);
-		$this->assert_null($result);
+		$query = "SELECT NOW()";
+		$result = $db->query_array($query);
+		$this->assertIsArray($result);
 
 		$db->query("SHOW TABLES");
 
@@ -259,7 +248,7 @@ EOF;
 		$sql = "SHOW TABLES";
 		$k = null;
 		$v = null;
-		$default = null;
+		$default = [];
 		$db->query_array($sql, $k, $v, $default);
 
 		$db->now();

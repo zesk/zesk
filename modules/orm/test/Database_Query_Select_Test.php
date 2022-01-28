@@ -13,6 +13,10 @@ class Database_Query_Select_Test extends Test_Unit {
 		"ORM",
 	];
 
+	public function initialize(): void {
+		// $this->schema_synchronize(Person::class);
+	}
+
 	public function test_main(): void {
 		$table_name = "Database_Query_Select";
 
@@ -52,21 +56,24 @@ class Database_Query_Select_Test extends Test_Unit {
 		$class = null;
 		$testx->orm_iterator($class);
 
-		$field = "id";
-		$default = null;
-		$testx->one($field, $default);
 
-		$testx->orm("User");
+		// Hits database
+		//
+//		$testx->orm("User");
+		//
+		//		$field = "id";
+		//		$default = null;
+		//		$testx->one($field, $default);
 
-		$field = "field2";
-		$default = 0;
-		$testx->one_integer($field, $default);
+//		$field = "field2";
+//		$default = 0;
+//		$testx->one_integer($field, $default);
 
-		$field = "field1";
-		$default = 0;
-		$testx->integer($field, $default);
+//		$field = "field1";
+//		$default = 0;
+//		$testx->integer($field, $default);
 
-		$testx->to_array();
+//		$testx->to_array();
 
 		$testx->database();
 

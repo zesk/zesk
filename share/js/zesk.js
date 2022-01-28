@@ -1,7 +1,7 @@
 /*
  * $Id: zesk.js 4300 2017-03-02 23:13:46Z kent $
  *
- * Copyright (C) 2007 Market Acumen, Inc. All rights reserved
+ * Copyright (C) 2022 Market Acumen, Inc. All rights reserved
  */
 
 /* Globals storage container */
