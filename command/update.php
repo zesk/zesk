@@ -629,7 +629,7 @@ class Command_Update extends Command_Base {
 	 *
 	 * @param array $data
 	 */
-	private function fetch(array $data) {
+	private function fetch(array $data): self {
 		// $source = $url = $destination = $strip_components = $description = $hashes = null;
 		$name = $hashes = $delete_after = null;
 		extract(array_change_key_case($data), EXTR_IF_EXISTS);

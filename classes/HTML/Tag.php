@@ -53,7 +53,13 @@ class HTML_Tag extends Options {
 	 * @param string $outer_html
 	 * @param integer $offset
 	 */
-	public function __construct($name, array $attributes = [], string $inner_html = "", string $outer_html = "", int $offset = -1) {
+	public function __construct(
+		string $name,
+		array $attributes = [],
+		string $inner_html = "",
+		string $outer_html = "",
+		int	$offset = -1
+	) {
 		parent::__construct($attributes);
 
 		$this->name = $name;

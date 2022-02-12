@@ -3,20 +3,19 @@ namespace zesk;
 
 class HTML_Tag_Test extends Test_Unit {
 	public function test_basics(): void {
-		$name = null;
-		$attributes = [];
-		$contents = false;
+		$name = "div";
+		$attributes = ["class" => "header"];
+		$contents = "<title>Hello</title>";
 		$testx = new HTML_Tag($name, $attributes, $contents);
 
 		$testx->contents();
 
 		$testx->inner_html();
 
-		$contents = null;
-		$testx->inner_html($contents);
+		$testx->setInnerHTML(HTML::tag("div", "hello"));
 
-		$testx->outer_html();
+		$testx->outerHTML();
 
-		$testx->outer_html("<tag>");
+		$testx->setOuterHTML(HTML::tag("wrap", "content"));
 	}
 }

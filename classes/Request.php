@@ -127,7 +127,7 @@ class Request extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected $ip = null;
+	protected string $ip = "0.0.0.0";
 
 	/**
 	 * Server IP address
@@ -136,7 +136,7 @@ class Request extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected $server_ip = null;
+	protected string $server_ip = "0.0.0.0";
 
 	/**
 	 * Remote IP address
@@ -145,7 +145,7 @@ class Request extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected $remote_ip = null;
+	protected string $remote_ip = "0.0.0.0";
 
 	/**
 	 *
@@ -1049,7 +1049,7 @@ class Request extends Hookable {
 	 *
 	 * @return ?float
 	 */
-	public function ip(): ?float {
+	public function ip(): string {
 		return $this->ip;
 	}
 
@@ -1058,7 +1058,7 @@ class Request extends Hookable {
 	 *
 	 * @return mixed|NULL
 	 */
-	public function remote_ip(): ?float {
+	public function remote_ip(): string {
 		return $this->remote_ip;
 	}
 
@@ -1067,7 +1067,7 @@ class Request extends Hookable {
 	 *
 	 * @return mixed
 	 */
-	public function server_ip(): ?float {
+	public function server_ip(): string {
 		return $this->server_ip;
 	}
 

@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * Edit
  *
@@ -7,6 +8,7 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -26,28 +28,28 @@ abstract class Database_Query_Edit extends Database_Query {
 	 *
 	 * @var string
 	 */
-	protected $default_alias = "";
+	protected string $default_alias = "";
 
 	/**
 	 * Table we're update/insert
 	 *
 	 * @var array
 	 */
-	protected $table = null;
+	protected array $table = [];
 
 	/**
 	 * Name => Value of things we're updating/inserting
 	 *
 	 * @var array
 	 */
-	protected $values = [];
+	protected array $values = [];
 
 	/**
 	 * Array of columns valid for this table
 	 *
 	 * @var array
 	 */
-	protected $valid_columns = null;
+	protected array $valid_columns = [];
 
 	/**
 	 * Get/Set the table for this query
@@ -56,11 +58,23 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @param string $alias Optional alias. Blank ("") is the default table.
 	 * @return Database_Query_Edit
 	 */
-	public function table($table = null, $alias = null) {
-		if ($table === null) {
-			return avalue($this->table, "$alias");
-		}
-		if ($this->table === null || count($this->table) === 0) {
+	public function table(): ?string {
+		return $this->table[$this->default_alias] ?? null;
+	}
+
+	public function defaultAlias(): string {
+		return $this->default_alias;
+	}
+
+	/**
+	 * Get/Set the table for this query
+	 *
+	 * @param string $table Table to include in the query.
+	 * @param string $alias Optional alias. Blank ("") is the default table.
+	 * @return Database_Query_Edit
+	 */
+	public function setTable(string $table, string $alias = ""): self {
+		if (count($this->table) === 0) {
 			$this->default_alias = $alias;
 		}
 		$this->table["$alias"] = $table;
@@ -74,7 +88,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @param string|null $alias Optional table alias
 	 * @return Database_Query_Edit
 	 */
-	public function class_table($class, $alias = null) {
+	public function class_table($class, string $alias = "") {
 		$object_class = $this->application->class_orm_registry($class);
 		/* @var $object_class Class_ORM */
 		if (count($this->table) === 0) {
@@ -91,10 +105,10 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @param string $name
 	 * @return boolean
 	 */
-	private function valid_column($name) {
+	private function valid_column(string $name): bool {
 		$clean_name = ltrim($name, "*");
 		[$alias, $clean_name] = pair($clean_name, ".", $this->default_alias, $clean_name);
-		$columns = avalue($this->valid_columns, $alias);
+		$columns = $this->valid_columns[$alias] ?? null;
 		if (!is_array($columns) || !in_array($clean_name, $columns)) {
 			return false;
 		}

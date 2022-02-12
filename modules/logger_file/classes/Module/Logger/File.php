@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 use Psr\Log\LogLevel;
@@ -38,7 +40,7 @@ class Module_Logger_File extends Module {
 		$this->application->hooks->add(Hooks::HOOK_CONFIGURED, [
 			$this,
 			"configured",
-		], "first");
+		], ["first" => true]);
 	}
 
 	/**

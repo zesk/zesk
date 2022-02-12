@@ -198,20 +198,20 @@ class HTML_Test extends Test_Unit {
 	 * @dataProvider dataprovider_request
 	 */
 	public function test_a_prefix(Request $request): void {
-		$href = null;
-		$mixed = null;
+		$href = "";
+		$mixed = "null";
 		HTML::a_prefix($request, $href, $mixed);
 	}
 
 	public function test_attributes(): void {
-		$attributes = null;
+		$attributes = ["hello" => "world"];
 		HTML::attributes($attributes);
 	}
 
 	public function test_cdn_img(): void {
-		$src = null;
+		$src = "";
 		$text = '';
-		$attrs = false;
+		$attrs = [];
 		HTML::img($this->application, $src, $text, $attrs);
 	}
 

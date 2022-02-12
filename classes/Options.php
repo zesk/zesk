@@ -362,7 +362,7 @@ class Options implements \ArrayAccess {
 	 * @see is_array(), explode()
 	 */
 	#[Pure]
-	public function optionIterable(string $name, iterable $default = [], string $delimiter = ";"): iterable {
+	public function optionIterable(string $name, ?iterable $default = [], string $delimiter = ";"): iterable {
 		$name = self::_optionKey($name);
 		if (!isset($this->options[$name])) {
 			return to_iterable($default, [], $delimiter);
@@ -467,7 +467,7 @@ class Options implements \ArrayAccess {
 	 * @see is_array(), explode()
 	 * @deprecated 2022-01
 	 */
-	public function option_list(string $name, iterable $default = [], string $delimiter = ";"): iterable {
+	public function option_list(string $name, ?iterable $default = [], string $delimiter = ";"): iterable {
 		return $this->optionIterable($name, $default, $delimiter);
 	}
 
@@ -634,7 +634,7 @@ class Options implements \ArrayAccess {
 	 * @deprecated 2022-01
 	 */
 	public function option_path($path, $default = null, $separator = ".") {
-		return $this->optionPath(to_list($path, $separator), $default);
+		return $this->optionPath(to_list($path, [], $separator), $default);
 	}
 
 	/**

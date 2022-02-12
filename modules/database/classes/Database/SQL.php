@@ -849,7 +849,7 @@ abstract class Database_SQL extends Hookable {
 			return $v ? "1" : "0";
 		}
 		if ($v instanceof Model) {
-			return $v->id();
+			return strval($v->id());
 		}
 		if (is_object($v)) {
 			if ($v instanceof Iterator) {

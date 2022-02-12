@@ -199,7 +199,7 @@ class Class_Test_COLT_Object extends Class_ORM {
 	];
 }
 class Test_COLT_Object extends ORM {
-	public function schema() {
+	public function schema(): string|array|ORM_Schema|null {
 		return "CREATE TABLE `" . $this->table() . "` ( ID int(11) unsigned PRIMARY KEY AUTO_INCREMENT NOT NULL, Foo varchar(23) NOT NULL )";
 	}
 }

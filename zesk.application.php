@@ -7,8 +7,8 @@
  */
 namespace zesk;
 
-if (isset($_SERVER['XDEBUG_ENABLED'])) {
-	xdebug_break();
+if (isset($_SERVER['XDEBUG_ENABLED']) && function_exists("xdebug_break")) {
+	\xdebug_break();
 }
 if (!isset($GLOBALS['__composer_autoload_files'])) {
 	if (is_file(__DIR__ . '/vendor/autoload.php')) {

@@ -19,5 +19,5 @@ class Class_Settings extends Class_ORM {
 	 * No auto column
 	 * @var boolean
 	 */
-	public $auto_column = false;
+	public string $auto_column = "";
 }

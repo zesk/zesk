@@ -62,7 +62,7 @@ class Database_Query_Insert extends Database_Query_Edit {
 			zesk()->deprecated("setter/getter changed to PSR");
 			return $this->into;
 		}
-		$this->table($set);
+		$this->setTable($set);
 		$this->into = $set;
 		return $this;
 	}
@@ -74,7 +74,7 @@ class Database_Query_Insert extends Database_Query_Edit {
 	 * @return self
 	 */
 	public function setInto(string $set): self {
-		$this->table($set);
+		$this->setTable($set);
 		$this->into = $set;
 		return $this;
 	}

@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * Loads Zesk and allows access to all functionality.
@@ -8,6 +9,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
+
 namespace zesk\Kernel;
 
 /**
@@ -37,8 +39,8 @@ class Loader {
 		global $_ZESK;
 
 		return \zesk\Kernel::factory((is_array($_ZESK) ? $_ZESK : []) + [
-			"init" => self::$init,
-		]);
+				"init" => self::$init,
+			]);
 	}
 }
 

@@ -16,13 +16,13 @@ class JSON extends Type {
 	 *
 	 * @var array
 	 */
-	private $json_serializer_arguments = null;
+	private array $json_serializer_arguments = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $json_serializer_methods = null;
+	private array $json_serializer_methods = [];
 
 	/**
 	 *
@@ -33,7 +33,7 @@ class JSON extends Type {
 		$this->json_serializer_arguments = [
 			JSONWalker::factory(),
 		];
-		$this->json_serializer_methods = null;
+		$this->json_serializer_methods = [];
 	}
 
 	/**

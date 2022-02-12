@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk\Router;
 
 use zesk\JSON;
@@ -34,7 +36,7 @@ class Parser {
 	 * Parser constructor.
 	 *
 	 * @param string $contents
-	 * @param string  $id
+	 * @param string $id
 	 */
 	public function __construct($contents, $id = null) {
 		$this->contents = $contents;
@@ -69,36 +71,40 @@ class Parser {
 			if (in_array($firstc, $whites)) {
 				if (count($paths) === 0) {
 					$logger->warning("Line $lineno1 of router has setting without path");
+				} elseif (!str_contains($line, "=")) {
+					$logger->warning("Line $lineno1 of router has no value ($line)");
 				} else {
-					[$name, $value] = pair($line, "=", $line, null);
-					if ($value === null) {
-						$logger->warning("Line $lineno1 of router has no value ($line)");
+					[$name, $value] = explode("=", $line, 2);
+					$value_trimmed = trim($value);
+					if ($value_trimmed === "null") {
+						$value = null;
+					} elseif ($value_trimmed === "true" || $value_trimmed === "false") {
+						$value = to_bool($value_trimmed);
+					} elseif (StringTools::begins($value_trimmed, str_split("\"'{[", 1))) {
+						try {
+							$decoded = JSON::decode($value, true);
+							$value = $decoded;
+						} catch (Exception_Parameter $e) {
+							$logger->error("Error parsing {id}:{lineno} JSON parsing failed", [
+								"id" => $this->id,
+								"lineno" => $lineno1,
+							]);
+							$app->hooks->call("exception", $e);
+						} catch (Exception_Parse $e) {
+							$logger->error("Error parsing {id}:{lineno} decoding JSON failed", [
+								"id" => $this->id,
+								"lineno" => $lineno1,
+							]);
+							$app->hooks->call("exception", $e);
+						}
+					}
+					if (is_string($value) || is_array($value)) {
+						$value = tr($value, $tr);
+					}
+					if (ends($name, "[]")) {
+						$options[strtolower(substr($name, 0, -2))][] = $value;
 					} else {
-						$trimvalue = trim($value);
-						if ($trimvalue === "null") {
-							$value = null;
-						} elseif ($trimvalue === "true" || $trimvalue === "false") {
-							$value = to_bool($trimvalue);
-						} elseif (StringTools::begins($trimvalue, str_split("\"'{[", 1))) {
-							try {
-								$decoded = JSON::decode($value, true);
-								$value = $decoded;
-							} catch (Exception_Parse $e) {
-								$logger->error("Error parsing {id}:{lineno} decoding JSON failed", [
-									"id" => $this->id,
-									"lineno" => $lineno1,
-								]);
-								$app->hooks->call("exception", $e);
-							}
-						}
-						if (is_string($value) || is_array($value)) {
-							$value = tr($value, $tr);
-						}
-						if (ends($name, "[]")) {
-							$options[strtolower(substr($name, 0, -2))][] = $value;
-						} else {
-							$options[strtolower($name)] = $value;
-						}
+						$options[strtolower($name)] = $value;
 					}
 				}
 			} else {

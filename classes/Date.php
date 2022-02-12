@@ -267,12 +267,12 @@ class Date extends Temporal {
 	 * @throws Exception_Convert
 	 * @throws Exception_Parse
 	 */
-	public function parse($value) {
+	public function parse($value): self {
 		$ts = @strtotime($value, $this->unixTimestamp());
 		if ($ts < 0 || $ts === false) {
 			throw new Exception_Parse(map("Date::fromString({value})", ["value" => _dump($value)]));
 		}
-		return $this->unixTimestamp();
+		return $this->setUNIXTimestamp($ts);
 	}
 
 	/**

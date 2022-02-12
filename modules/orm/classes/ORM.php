@@ -990,10 +990,13 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return Database_Query_Update
 	 */
-	public function query_update(string $alias = null): Database_Query_Update {
+	public function query_update(string $alias = ""): Database_Query_Update {
 		$query = new Database_Query_Update($this->database());
 		$query->orm_class_options($this->inherit_options());
-		return $query->orm_class(get_class($this))->table($this->table(), $alias)->valid_columns($this->columns(), $alias);
+		return $query->setORMClass(get_class($this))->setTable($this->table(), $alias)->valid_columns(
+			$this->columns(),
+			$alias
+		);
 	}
 
 	/**

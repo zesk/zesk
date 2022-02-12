@@ -13,10 +13,33 @@ namespace zesk;
  *
  */
 class Test_Date extends Test_Unit {
-	public function test_days_in_month(): void {
-		$month = null;
-		$year = null;
-		Date::days_in_month($month, $year);
+	public function daysInMonthData() {
+		return [
+			[1, 2022, 31],
+			[2, 2022, 28],
+			[3, 2022, 31],
+			[4, 2022, 30],
+			[5, 2022, 31],
+			[6, 2022, 31],
+			[7, 2022, 31],
+			[8, 2022, 31],
+			[9, 2022, 30],
+			[10, 2022, 31],
+			[11, 2022, 30],
+			[12, 2022, 31],
+		];
+	}
+
+	/**
+	 * @param int $month
+	 * @param int $year
+	 * @param int $expected
+	 * @return void
+	 * @throws Exception_Range
+	 * @dataProvider daysInMonthData
+	 */
+	public function test_daysInMonth(int $month, int $year, int $expected): void {
+		$this->assertEquals($expected, Date::daysInMonth($month, $year), "Date::daysInMonth($month, $year)");
 	}
 
 	public function test_weekday_names(): void {
@@ -94,12 +117,14 @@ class Test_Date extends Test_Unit {
 
 	public function test_Date(): void {
 		$value = null;
-		$options = false;
-		$x = new Date($value, $options);
+		$x = new Date($value);
+		$this->assertInstanceOf(Date::class, $x);
 
-		Date::instance();
+		$y = Date::instance();
+		$this->assertInstanceOf(Date::class, $y);
 
-		Date::now();
+		$now = Date::now();
+		$this->assertInstanceOf(Date::class, $now);
 
 		$x->parse("2008-08-20");
 		$this->assert($x->year() === 2008);

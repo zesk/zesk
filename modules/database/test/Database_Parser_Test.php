@@ -84,7 +84,14 @@ class Database_Parser_Test extends Test_Unit {
 	public function test_split_order_by($order_by, $expected_split, $expected_reverse): void {
 		$parser = $this->application->database_registry()->parser();
 
-		$actual = $parser->split_order_by($order_by);
+		if (is_array($order_by)) {
+			$actual = [];
+			foreach ($order_by as $k => $v) {
+				$actual[$k] = $parser->split_order_by($v);
+			}
+		} else {
+			$actual = $parser->split_order_by($order_by);
+		}
 
 		$this->assert_equal_array($actual, $expected_split);
 

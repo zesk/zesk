@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
@@ -6,6 +7,7 @@
  * @author kent
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 use Psr\Cache\CacheItemInterface;
@@ -48,8 +50,8 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	/**
 	 *
 	 * @param Application $application
-	 * @throws Exception_Configuration
 	 * @return \zesk\Interface_Settings
+	 * @throws Exception_Configuration
 	 */
 	public static function singleton(Application $application) {
 		if ($application->objects->settings instanceof Interface_Settings) {
@@ -76,7 +78,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$hooks = $application->hooks;
 		// Ensure Database gets a chance to register first
 		$hooks->register_class(Database::class);
-		$hooks->add('configured', __CLASS__ . '::configured', 'first');
+		$hooks->add('configured', __CLASS__ . '::configured', ['first' => true]);
 		$hooks->add(Hooks::HOOK_RESET, function () use ($application): void {
 			$application->objects->settings = null;
 		});
@@ -108,8 +110,8 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 *
 	 * @param Application $application
 	 * @param string $serialized
-	 * @throws Exception_Syntax
 	 * @return mixed|null
+	 * @throws Exception_Syntax
 	 */
 	private static function unserialize(Application $application, $serialized) {
 		try {
@@ -156,10 +158,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 							"method" => __METHOD__,
 							"name" => $name,
 						]);
-						$application->orm_registry(__CLASS__)
-							->query_delete()
-							->where("name", $name)
-							->execute();
+						$application->orm_registry(__CLASS__)->query_delete()->where("name", $name)->execute();
 					} else {
 						$application->logger->error("{method}: Bad global {name} can not be unserialized, please fix manually", [
 							"method" => __METHOD__,
@@ -327,7 +326,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 * Override get to retrieve from global state
 	 *
 	 * @param $name Setting
-	 *        	to retrieve
+	 *            to retrieve
 	 * @return mixed
 	 */
 	public function __get($name): mixed {
@@ -370,8 +369,8 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	/**
 	 * Global to save
 	 *
-	 * @see ORM::set($member, $value)
 	 * @return self
+	 * @see ORM::set($member, $value)
 	 */
 	public function set($name, $value = null) {
 		$this->__set($name, $value);
@@ -384,11 +383,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 */
 	public function data($name, $value = null) {
 		if ($value === null) {
-			$value = $this->application->orm_registry(__CLASS__)
-				->query_select()
-				->where("name", $name)
-				->addWhat("value", "value")
-				->one("value");
+			$value = $this->application->orm_registry(__CLASS__)->query_select()->where("name", $name)->addWhat("value", "value")->one("value");
 			if ($value === null) {
 				return null;
 			}
@@ -446,11 +441,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 			"\\" => "\\\\",
 			"_" => "\\_",
 		]);
-		$nrows = $update->value("*name", "REPLACE(name, $old_prefix_quoted, " . $update->database()
-			->quote_text(strtolower($new_prefix)) . ")")
-			->where("name|LIKE", "$old_prefix_like_quoted%")
-			->execute()
-			->affected_rows();
+		$nrows = $update->value("*name", "REPLACE(name, $old_prefix_quoted, " . $update->database()->quote_text(strtolower($new_prefix)) . ")")->where("name|LIKE", "$old_prefix_like_quoted%")->execute()->affected_rows();
 		if ($nrows > 0) {
 			$this->application->logger->notice("Updated {nrows} settings from {old_prefix} to use new prefix {new_prefix}", [
 				"nrows" => $nrows,

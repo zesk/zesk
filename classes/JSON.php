@@ -177,7 +177,8 @@ class JSON {
 				return self::zencode($mixed);
 			} else {
 				foreach ($mixed as $k => $v) {
-					if (substr($k, 0, 1) === '*') {
+					$k = strval($k);
+					if (str_starts_with($k, '*')) {
 						$result[] = self::quote(substr($k, 1)) . ":" . $v;
 					} else {
 						$recursion++;

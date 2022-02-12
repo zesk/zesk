@@ -287,12 +287,22 @@ class HTML {
 		return self::a_condition($request->uri() === $href, $href, $mixed, $args[3] ?? null);
 	}
 
-	public static function to_attributes($mixed, $default = null) {
+	/**
+	 * Convert string into an attributes for HTML, adding one or more classes and setting and ID
+	 *
+	 * Supports:
+	 *
+	 * #id_name
+	 * .class_name
+	 * class_name
+	 *
+	 * @param string $mixed
+	 * @return array
+	 * @throws Exception_Semantics
+	 */
+	public static function to_attributes(string|array $mixed): array {
 		if (is_array($mixed)) {
 			return $mixed;
-		}
-		if (!is_string($mixed) || strlen($mixed) === 0) {
-			return $default;
 		}
 		$mixed = to_list($mixed, [], " ");
 		$result = [];
@@ -312,17 +322,17 @@ class HTML {
 		return $result;
 	}
 
-	public static function div($mixed, $content) {
+	public static function div(string|array $mixed, $content) {
 		$mixed = self::to_attributes($mixed);
 		return self::tag('div', $mixed, $content);
 	}
 
-	public static function span($mixed, $content = null) {
+	public static function span(string|array $mixed, $content = null) {
 		$mixed = self::to_attributes($mixed);
 		return self::tag('span', $mixed, $content);
 	}
 
-	public static function etag($name, $mixed) {
+	public static function etag($name, string|array $mixed) {
 		if (func_num_args() > 2) {
 			$content = func_get_arg(2);
 			if (empty($content)) {
@@ -361,7 +371,7 @@ class HTML {
 	 *            Pass a third value as content makes 2nd parameter attributes
 	 * @return string
 	 */
-	public static function tag($name, $mixed) {
+	public static function tag(string $name, string|array $mixed): string {
 		if (is_array($mixed)) {
 			$attributes = $mixed;
 			$args = func_get_args();
@@ -371,7 +381,7 @@ class HTML {
 			$content = func_get_arg(2);
 		} else {
 			$attributes = [];
-			$content = $mixed;
+			$content = strval($mixed);
 		}
 		$name = self::clean_tag_name($name);
 		if (is_array($content)) {
@@ -395,7 +405,7 @@ class HTML {
 	 * @param mixed $mixed
 	 * @return string
 	 */
-	public static function tags($name, $mixed) {
+	public static function tags(string $name, string|array $mixed): string {
 		if (func_num_args() > 2) {
 			$attributes = self::to_attributes($mixed);
 			$list = func_get_arg(2);
@@ -549,10 +559,13 @@ class HTML {
 		return $attributes;
 	}
 
-	public static function attributes($attributes) {
-		if (!is_array($attributes)) {
-			return "";
-		}
+	/**
+	 * Convert attributes into a string easily appended after a tag
+	 *
+	 * @param array $attributes
+	 * @return string
+	 */
+	public static function attributes(array $attributes): string {
 		$result = [];
 		foreach ($attributes as $name => $value) {
 			if ($value === null || $value === false) {
@@ -722,7 +735,7 @@ class HTML {
 	 * @param string $attributes
 	 * @return string
 	 */
-	public static function tag_open($name, $attributes = false) {
+	public static function tag_open($name, string|array $attributes = []) {
 		if ($name === "") {
 			return "";
 		}
@@ -994,20 +1007,20 @@ class HTML {
 		return $result;
 	}
 
-	public static function match_tags($string) {
+	/**
+	 * @param string $string
+	 * @return array|null
+	 */
+	public static function match_tags(string $string): array|null {
 		$matches = [];
 		if (!preg_match_all('#<([A-Za-z][A-Za-z0-9]*)([^>]*)/?>#i', $string, $matches, PREG_SET_ORDER)) {
-			return false;
+			return [];
 		}
 		return $matches;
 	}
 
-	public static function parse_tags($string) {
+	public static function parse_tags(string $string): array {
 		$matches = self::match_tags($string);
-		if (!$matches) {
-			return false;
-		}
-
 		$result = [];
 		foreach ($matches as $match) {
 			$result[$match[1]] = self::parse_attributes($match[2]);
@@ -1021,17 +1034,17 @@ class HTML {
 	 * @param string $x
 	 * @return string
 	 */
-	public static function strip($x) {
-		if (is_array($x)) {
-			foreach ($x as $i => $v) {
-				$x[$i] = is_string($v) ? HTML::strip($v) : $v;
-			}
-			return $x;
-		}
+	public static function strip(string $x): string {
 		return preg_replace('/ +/', ' ', trim(preg_replace("/<[^>]+>/", " ", $x)));
 	}
 
-	public static function style_clean(array $attr, $allowed = null, $disallowed = null) {
+	/**
+	 * @param array $attr
+	 * @param $allowed
+	 * @param $disallowed
+	 * @return array
+	 */
+	public static function style_clean(array $attr, array $allowed = null, array $disallowed = []) {
 		return ArrayTools::kfilter($attr, $allowed, $disallowed, true);
 	}
 
@@ -1084,14 +1097,11 @@ class HTML {
 		return str_replace($search, $replace, $string);
 	}
 
-	public static function clean_style_attributes($string, $include = true, $exclude = false) {
+	public static function clean_style_attributes(string $string, array $include = [], array $exclude = []) {
 		$matches = self::match_tags($string);
 		if (!$matches) {
 			return $string;
 		}
-
-		$include = to_list($include, $include);
-		$exclude = to_list($exclude, $exclude);
 
 		$search = [];
 		$replace = [];
