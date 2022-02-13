@@ -100,9 +100,9 @@ class Session_ORM extends ORM implements Interface_Session {
 	public static function configured(Application $application): void {
 		// 2017-01-01
 		foreach ([
-			         "Session",
-			         "zesk\\Session",
-		         ] as $class) {
+					 "Session",
+					 "zesk\\Session",
+				 ] as $class) {
 			$application->configuration->deprecated([
 				$class,
 				"cookie_name",
