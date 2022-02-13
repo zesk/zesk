@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 /**
@@ -102,9 +104,6 @@ class IPv4_Test extends Test_Unit {
 	}
 
 	public function test_network(): void {
-		$network = null;
-		IPv4::network($network);
-
 		$tests = [
 			"192.168.*" => [
 				0xC0A80000,
@@ -219,12 +218,8 @@ class IPv4_Test extends Test_Unit {
 		}
 	}
 
-	public function test_within_network(): void {
-		$ip = null;
-		$network = null;
-		IPv4::within_network($ip, $network);
-
-		$tests = [
+	public function data_within_network() {
+		return [
 			[
 				'76.12.128.128',
 				'76.12.128.128/26',
@@ -276,10 +271,16 @@ class IPv4_Test extends Test_Unit {
 				false,
 			],
 		];
+	}
 
-		foreach ($tests as $parms) {
-			[$ip, $network, $result] = $parms;
-			$this->assert(IPv4::within_network($ip, $network) === $result, "IPv4::within_network($ip, $network) === " . StringTools::from_bool($result));
-		}
+	/**
+	 * @param $ip
+	 * @param $network
+	 * @param $result
+	 * @return void
+	 * @dataProvider data_within_network
+	 */
+	public function test_within_network($ip, $network, $result): void {
+		$this->assertEquals($result, IPv4::within_network($ip, $network), "IPv4::within_network($ip, $network) === " . StringTools::from_bool($result));
 	}
 }

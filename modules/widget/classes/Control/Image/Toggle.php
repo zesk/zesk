@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
@@ -7,15 +8,16 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Jul 15 16:38:32 EDT 2008
  */
+
 namespace zesk;
 
 class Control_Image_Toggle extends Control {
-	public function render() {
+	public function render(): string {
 		$locale = $this->locale();
 		$value = $this->value();
 		$on_value = $this->option("true_value", true);
 
-		$attrs = $this->options_include("width;height;border;hspace;vspace");
+		$attrs = $this->options(to_list("width;height;border;hspace;vspace"));
 		$response = $this->response();
 		$id = "toggle_image_" . $response->id_counter();
 		$js_object = $this->options([
@@ -34,7 +36,11 @@ class Control_Image_Toggle extends Control {
 			"style" => null,
 		]);
 		$div_attrs['id'] = $id;
-		$content = HTML::tag("div", $div_attrs, HTML::img($this->application, avalue($js_object, $prefix . "_src"), avalue($js_object, $prefix . "_alt"), $attrs));
+		$src = $js_object[$prefix . "_src"] ?? null;
+		if (!$src) {
+			return "";
+		}
+		$content = HTML::tag("div", $div_attrs, HTML::img($this->application, $src, $js_object[$prefix . "_alt"] ?? "", $attrs));
 		$response->html()->jquery('$(\'#' . $id . '\').toggleImage(' . json_encode($js_object) . ');');
 
 		return $content;

@@ -21,11 +21,11 @@ if (!isset($GLOBALS['__composer_autoload_files'])) {
 	require_once __DIR__ . '/autoload.php';
 }
 class ApplicationConfigurator {
-	public static function configure() {
+	public static function configure(): Application {
 		$zesk = Kernel::singleton();
 		$zesk->paths->set_application(__DIR__);
 
-		$application = $zesk->create_application();
+		$application = $zesk->createApplication();
 
 		$application->configure_include([
 			"/etc/zesk.json",

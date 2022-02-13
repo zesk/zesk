@@ -998,39 +998,21 @@ class ArrayTools {
 	/**
 	 * Includes or excludes array keys from an array.
 	 *
-	 * @param array $a
+	 * @param array $array_to_filter
 	 *            A reference to an array to filter
 	 * @param array|string $include
-	 *            A list of array keys to explicitly include, or false to include all items
+	 *            A list of array keys to explicitly include, or null to include all items
 	 * @param array|string $exclude
-	 *            A list of array keys to explicitly exclude, or false to exclude no items
+	 *            A list of array keys to explicitly exclude, or empty to exclude no items
 	 * @param bool $lower
 	 *            Whether the array keys are case-sensitive or not
 	 * @return array The filtered array
 	 */
-	public static function kfilter($a, $include = null, $exclude = null, $lower = false) {
-		if (!is_array($a)) {
-			return $a;
-		}
-		if ($exclude === true) {
-			$exclude = array_keys($a);
-		}
-		if (is_string($include)) {
-			$include = explode(";", $include);
-		}
-		if (is_string($exclude)) {
-			$exclude = explode(";", $exclude);
-		}
-		if (!is_array($include) && !is_array($exclude)) {
-			return $a;
-		}
-
-		$ak = array_keys($a);
-		if (is_array($exclude)) {
-			$exclude = array_flip($exclude);
-			if ($lower) {
-				$exclude = array_change_key_case($exclude);
-			}
+	public static function kfilter(array $array_to_filter, array $include = null, array $exclude = [], bool $lower = false): array {
+		$ak = array_keys($array_to_filter);
+		$exclude = array_flip($exclude);
+		if ($lower) {
+			$exclude = array_change_key_case($exclude);
 		}
 		if (is_array($include)) {
 			$include = array_flip($include);
@@ -1039,27 +1021,19 @@ class ArrayTools {
 			}
 			foreach ($ak as $k) {
 				$lk = $lower ? strtolower($k) : $k;
-				if (!isset($include[$lk]) && isset($exclude[$lk])) {
-					unset($a[$lk]);
+				if (!isset($include[$lk]) || isset($exclude[$lk])) {
+					unset($array_to_filter[$lk]);
 				}
 			}
 		} else {
 			foreach ($ak as $k) {
 				$lk = $lower ? strtolower($k) : $k;
 				if (isset($exclude[$lk])) {
-					unset($a[$k]);
+					unset($array_to_filter[$k]);
 				}
 			}
 		}
-		if (is_array($include)) {
-			foreach ($ak as $k) {
-				$lk = $lower ? strtolower($k) : $k;
-				if (!isset($include[$lk])) {
-					unset($a[$k]);
-				}
-			}
-		}
-		return $a;
+		return $array_to_filter;
 	}
 
 	/**

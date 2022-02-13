@@ -2190,7 +2190,11 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	}
 
 	/**
-	 * @return self
+	 * @param array $mixed
+	 * @return $this
+	 * @throws Exception_Deprecated
+	 * @throws Exception_ORM_Empty
+	 * @throws Exception_ORM_NotFound
 	 */
 	public function fetch(array $mixed = []): self {
 		$mixed = $this->call_hook("fetch_enter", $mixed);

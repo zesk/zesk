@@ -1151,16 +1151,39 @@ class ArrayTools_Test extends Test_Unit {
 		$this->assertEquals([2 => false, 3 => null], ArrayTools::clean(["", "", false, null], ['']));
 	}
 
-	public function test_kfilter(): void {
-		$a = null;
-		$include = false;
-		$exclude = false;
-		$lower = true;
-		ArrayTools::kfilter($a, $include, $exclude, $lower);
+	public function data_kfilter(): array {
+		return [
+			[
+				["a" => 1, "b" => 2],
+				["a" => 1, "b" => 2, "c" => 3, "d" => 4],
+				["a", "b"],
+				[],
+				true,
+			],
+			[
+				["a" => 1, "b" => 2],
+				["a" => 1, "b" => 2, "c" => 3, "d" => 4],
+				null,
+				["c", "d"],
+				true,
+			],
+		];
+	}
+
+	/**
+	 * @param $expected
+	 * @param $array_to_filter
+	 * @param $include
+	 * @param $exclude
+	 * @param $lower
+	 * @return void
+	 * @dataProvider data_kfilter
+	 */
+	public function test_kfilter($expected, $array_to_filter, $include, $exclude, $lower): void {
+		$this->assertEquals($expected, ArrayTools::kfilter($array_to_filter, $include, $exclude, $lower));
 	}
 
 	public function test_kltrim(): void {
-		$a = null;
 		$charlist = "a";
 		$this->assert_equal(ArrayTools::kltrim([
 			"aaaab" => "aaaab",

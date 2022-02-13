@@ -32,7 +32,7 @@ class Database_Query_Insert_Test extends Test_Unit {
 		$table = "TABLENAME";
 		$testx->into($table);
 
-		$name = null;
+		$name = "thing";
 		$value = null;
 		$testx->value($name, $value);
 

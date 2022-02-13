@@ -9,7 +9,8 @@
 		"mishal/iless": "^2.",
       "ext-calendar": "*",
       "ext-json": "*",
-      "ext-posix": "*"
+      "ext-posix": "*",
+      "ext-xdebug": "*"
     },
 	"require-dev": {
 		"phpunit/phpunit": "*",

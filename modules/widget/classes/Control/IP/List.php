@@ -106,13 +106,13 @@ class Control_IP_List extends Control {
 				"class" => "ip-list ip-list-errors",
 			], HTML::tag("div", [
 					"class" => "ip-list-textarea",
-				], HTML::tag("textarea", $err_attrs, implode("\n", $this->ErrorIPs))) . HTML::etag("label", false, $this->option("error_ip_list_label", "Errors")));
+				], HTML::tag("textarea", $err_attrs, implode("\n", $this->ErrorIPs))) . HTML::etag("label", "", $this->option("error_ip_list_label", "Errors")));
 		}
 		$result = HTML::tag("div", [
 				"class" => "ip-list",
 			], HTML::tag("div", [
 					"class" => "ip-list-textarea",
-				], HTML::tag("textarea", $attrs, $this->value()) . $add_ip) . HTML::etag("label", false, $this->option("ip_list_label", ""))) . $errors;
+				], HTML::tag("textarea", $attrs, $this->value()) . $add_ip) . HTML::etag("label", "", $this->option("ip_list_label", ""))) . $errors;
 		$result = HTML::tag("div", [
 			"class" => "ip-list-widget",
 		], $result);

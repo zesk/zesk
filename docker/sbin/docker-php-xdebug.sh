@@ -12,8 +12,5 @@ fi
 echo "Setting php ini path to $inipath"
 pear config-set php_ini "$inipath"
 
-if ! test "$DEVELOPMENT"; then
-  exit 0
-fi
 echo "Installing xdebug ..."
 pecl install xdebug

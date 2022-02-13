@@ -18,6 +18,8 @@ namespace zesk;
  * @see Net_HTTP_Server_Request
  */
 class Request extends Hookable {
+	public const DEFAULT_IP = '0.0.0.0';
+
 	/**
 	 * Default name of file to read for POST ar PUT content
 	 *
@@ -37,7 +39,7 @@ class Request extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected $uri = "/";
+	protected string $uri = "/";
 
 	/**
 	 * Request headers (reconstructed)
@@ -127,7 +129,7 @@ class Request extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected string $ip = "0.0.0.0";
+	protected string $ip = self::DEFAULT_IP;
 
 	/**
 	 * Server IP address
@@ -136,7 +138,7 @@ class Request extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected string $server_ip = "0.0.0.0";
+	protected string $server_ip = self::DEFAULT_IP;
 
 	/**
 	 * Remote IP address
@@ -145,7 +147,7 @@ class Request extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected string $remote_ip = "0.0.0.0";
+	protected string $remote_ip = self::DEFAULT_IP;
 
 	/**
 	 *
@@ -171,7 +173,7 @@ class Request extends Hookable {
 	public function __construct(Application $application, $settings = null) {
 		parent::__construct($application);
 		$this->user_agent = null;
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 		$settings = $this->call_hook("construct", $settings);
 		if ($settings instanceof Request) {
 			$this->initialize_from_request($settings);
@@ -186,6 +188,8 @@ class Request extends Hookable {
 		}
 	}
 
+	public const DEFAULT_URI = "/";
+
 	/**
 	 * Create a Request from PHP Superglobals $_SERVER, $_COOKIE, $_GET, $_REQUEST
 	 *
@@ -193,18 +197,18 @@ class Request extends Hookable {
 	 *
 	 * @return self
 	 */
-	public function initialize_from_globals() {
+	public function initialize_from_globals(): self {
 		$this->data_raw = true;
 		$this->data = null;
 		$this->data_file = self::default_data_file;
 		$this->data_inherit = null;
 
 		$this->ip = $this->_find_remote_key($_SERVER);
-		$this->remote_ip = avalue($_SERVER, 'REMOTE_ADDR');
-		$this->server_ip = avalue($_SERVER, 'SERVER_ADDR');
+		$this->remote_ip = $_SERVER['REMOTE_ADDR'] ?? self::DEFAULT_IP;
+		$this->server_ip = $_SERVER['SERVER_ADDR'] ?? self::DEFAULT_IP;
 
-		$this->set_method(avalue($_SERVER, 'REQUEST_METHOD', Net_HTTP::METHOD_GET));
-		$this->uri = avalue($_SERVER, "REQUEST_URI", null);
+		$this->setMethod($_SERVER ['REQUEST_METHOD'] ?? Net_HTTP::METHOD_GET);
+		$this->uri = $_SERVER["REQUEST_URI"] ?? self::DEFAULT_URI;
 		$this->headers = self::http_headers_from_server($_SERVER);
 		$this->cookies = $_COOKIE;
 		$this->url = $this->url_from_server($_SERVER);
@@ -230,7 +234,7 @@ class Request extends Hookable {
 	 * @param Request $request
 	 * @return self
 	 */
-	public function initialize_from_request(Request $request) {
+	public function initialize_from_request(Request $request): self {
 		$this->method = $request->method;
 		$this->uri = $request->uri;
 		$this->headers = $request->headers;
@@ -263,27 +267,22 @@ class Request extends Hookable {
 	 * @param array|string $settings
 	 * @return self
 	 * @throws Exception_File_NotFound
-	 * @throws Exception_Parameter
 	 */
-	public function initialize_from_settings($settings) {
+	public function initialize_from_settings(string|array|Request $settings): self {
 		if (is_string($settings)) {
 			$settings = [
 				"url" => $settings,
 			];
 		} elseif ($settings instanceof Request) {
-			$this->initialize_from_request($settings);
-			return;
+			return $this->initialize_from_request($settings);
 		}
-		if (!is_array($settings)) {
-			throw new Exception_Parameter("Request constructor should take a string, array or Request {type} passed in settings {settings}", [
-				"type" => type($settings),
-				"settings" => $settings,
-			]);
-		}
-		$method = $uri = $url = $data = $data_file = $data_raw = $ip = $remote_ip = $server_ip = null;
+		assert(is_array($settings));
+		$method = $url = $data = $data_file = $data_raw = null;
+		$uri = "";
+		$ip = $remote_ip = $server_ip = self::DEFAULT_IP;
 		$headers = $cookies = $variables = $files = [];
 		extract($settings, EXTR_IF_EXISTS);
-		$this->set_method($method ? $method : "GET");
+		$this->setMethod($method ? $method : "GET");
 		$this->uri = $uri;
 		if (is_array($headers)) {
 			foreach ($headers as $k => $v) {
@@ -526,7 +525,7 @@ class Request extends Hookable {
 	 * @param string|array $value Optional value to
 	 * @return self
 	 */
-	private function _setParsedHeader(string $key, array|string $value):self {
+	private function _setParsedHeader(string $key, array|string $value): self {
 		$key = strtolower($key);
 		$this->headers_parsed[$key] = $value;
 		return $this;
@@ -563,7 +562,7 @@ class Request extends Hookable {
 	public function method($set = null): string {
 		if ($set !== null) {
 			$this->application->deprecated("setter 2022-01");
-			return $this->setMethod($set);
+			$this->setMethod($set);
 		}
 		return $this->method;
 	}
@@ -899,8 +898,8 @@ class Request extends Hookable {
 
 	/**
 	 * Retrieve the current port
-	 * @todo Default http is OK? 2022
 	 * @return integer
+	 * @todo Default http is OK? 2022
 	 */
 	public function scheme() {
 		$this->_valid_url_parts();
@@ -948,7 +947,7 @@ class Request extends Hookable {
 	 * @return array|string
 	 * @throws Exception_Key
 	 */
-	public function url_variables(string  $component = null, mixed $default = ""): string|array {
+	public function url_variables(string $component = null, mixed $default = ""): string|array {
 		$this->_valid_url_parts();
 		if ($component === null) {
 			return $this->urlComponents();
@@ -1285,7 +1284,12 @@ class Request extends Hookable {
 	 *            An array to search for certain keys
 	 * @return an IP address if found, or false
 	 */
-	private static function _find_remote_key(array $server, $default = null) {
+	/**
+	 * @param array $server
+	 * @param string $default
+	 * @return string
+	 */
+	private static function _find_remote_key(array $server, string $default = self::DEFAULT_IP): string {
 		$ks = [
 			"HTTP_CLIENT_IP",
 			"HTTP_X_FORWARDED_FOR",
@@ -1304,7 +1308,7 @@ class Request extends Hookable {
 			}
 			$match = false;
 			if (preg_match('/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/', $ip, $match)) {
-				return $match[0];
+				return strval($match[0]);
 			}
 		}
 		return $default;

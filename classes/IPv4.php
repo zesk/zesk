@@ -143,8 +143,8 @@ class IPv4 {
 	 * @param string $string
 	 * @return boolean
 	 */
-	public static function is_mask($string) {
-		[$ip, $bits] = pair($string, "/", $string, self::BITS);
+	public static function is_mask(string $string): bool {
+		[$ip, $bits] = pair($string, "/", $string, strval(self::BITS));
 		if (integer_between(8, $bits, self::BITS) && self::_valid($ip)) {
 			return true;
 		}
@@ -177,7 +177,7 @@ class IPv4 {
 				false,
 			];
 		}
-		[$ip, $bits] = pair($string, "/", $string, self::BITS);
+		[$ip, $bits] = pair($string, "/", $string, strval(self::BITS));
 
 		if (is_numeric($bits) && self::_valid($ip)) {
 			$bits = clamp(8, intval($bits), self::BITS);
@@ -238,7 +238,7 @@ class IPv4 {
 	 * @return array of
 	 * @see self::mask_to_integers
 	 */
-	public static function network($network) {
+	public static function network(string $network): array {
 		[$low_ip, $n_bits] = self::mask_to_integers($network);
 		//	echo long2ip($low_ip) . ":" . $n_bits . "\n";
 		//	echo long2ip(self::subnet_mask_not($n_bits)) . "\n";
@@ -263,7 +263,7 @@ class IPv4 {
 	 * @param string $ip IP Address
 	 * @return bool
 	 */
-	public static function within_network($ip, $network) {
+	public static function within_network(string $ip, string $network): bool {
 		$ip = self::to_integer($ip);
 		[$low_ip, $high_ip] = self::network($network);
 		return ($ip >= $low_ip && $ip <= $high_ip);
@@ -275,7 +275,7 @@ class IPv4 {
 	 * @param mixed $mixed
 	 * @return double
 	 */
-	public static function to_integer($mixed) {
+	public static function to_integer($mixed): float {
 		if (is_int($mixed)) {
 			return $mixed;
 		}
@@ -283,7 +283,7 @@ class IPv4 {
 			return $mixed;
 		}
 		if (empty($mixed)) {
-			return null;
+			return 0;
 		}
 		[$a, $b, $c, $d] = explode(".", $mixed, 4) + array_fill(0, 4, 0);
 		return ((((floatval($a) * 256) + floatval($b)) * 256 + floatval($c)) * 256 + floatval($d));
@@ -296,7 +296,7 @@ class IPv4 {
 	 *        	A long integer
 	 * @return string An ip address
 	 */
-	public static function from_integer($ip_integer) {
+	public static function from_integer(mixed $ip_integer): string {
 		$ip_integer = floatval($ip_integer);
 		$d = fmod($ip_integer, 256);
 		$ip_integer = intval($ip_integer / 256);
@@ -312,9 +312,9 @@ class IPv4 {
 	 * Is this a valid IPv4 address?
 	 *
 	 * @param string $string
-	 * @return boolean
+	 * @return bool
 	 */
-	public static function valid($string) {
+	public static function valid(string $string): bool {
 		return self::_valid($string, 1);
 	}
 
@@ -325,10 +325,7 @@ class IPv4 {
 	 * @param integer $low_low
 	 * @return boolean
 	 */
-	private static function _valid($string, $low_low = 0) {
-		if (!is_string($string)) {
-			return false;
-		}
+	private static function _valid(string $string, int $low_low = 0): bool {
 		$x = explode(".", $string);
 		if (count($x) != 4) {
 			return false;
@@ -344,7 +341,7 @@ class IPv4 {
 	 * @param mixed $ip
 	 * @return boolean
 	 */
-	public static function is_private($ip) {
+	public static function is_private($ip): bool {
 		$ipi = self::to_integer($ip);
 		foreach (self::$private_addresses as $address) {
 			if ($ipi >= $address[1] && $ipi <= $address[2]) {

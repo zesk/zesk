@@ -13,10 +13,12 @@ COPY docker/etc/env.sh /etc/env.sh
 COPY docker/etc/test.conf /etc/test.conf
 
 COPY docker/php/php.ini /tmp/php.ini
-COPY docker/php/php.ini /tmp/xdebug.ini
 RUN set -a && . /etc/env.sh && /root/sbin/envmap.sh < /tmp/php.ini > /usr/local/etc/php/php.ini
-RUN set -a && . /etc/env.sh && /root/sbin/envmap.sh < /tmp/xdebug.ini > /usr/local/etc/php/conf.d/xdebug.ini
 RUN rm /tmp/php.ini
+
+COPY docker/php/xdebug.ini /tmp/xdebug.ini
+RUN set -a && . /etc/env.sh && /root/sbin/envmap.sh < /tmp/xdebug.ini > /usr/local/etc/php/conf.d/xdebug.ini
+RUN rm /tmp/xdebug.ini
 
 RUN /root/sbin/docker-php-xdebug.sh
 

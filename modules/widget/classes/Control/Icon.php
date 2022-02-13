@@ -10,10 +10,12 @@ namespace zesk;
 
 class Control_Icon extends Control {
 	public function render() {
-		$col = $this->column();
-		$icons = $this->option_array("icons", []);
+		$icons = $this->optionArray("icons", []);
 		$v = $this->value();
-		$src = avalue($icons, strval($v));
+		$src = $icons[strval($v)] ?? null;
+		if (!$src) {
+			return "";
+		}
 		$attrs["href"] = "javascript: " . $this->option("onclick");
 		$attrs["onclick"] = $this->option("onclick");
 		//$attrs["onrclick"] = $this->option("onrclick");

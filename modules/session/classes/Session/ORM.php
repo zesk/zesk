@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * Session object is a more powerful, multi-server, database session storage.
@@ -8,6 +9,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -48,19 +50,21 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @see ORM::initialize()
 	 */
-	public function initialize($value, $from_database = false) {
-		$result = parent::initialize($value, $from_database);
+	public function initialize(mixed $mixed, mixed $initialize = false): self {
+		$result = parent::initialize($mixed, $initialize);
 		$this->changed = false;
-		$this->setOption($this->application->option_array("session"));
+		$this->setOptions($this->application->optionArray("session"));
 		return $result;
 	}
 
 	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\ORM::fetch()
+	 * @param array $mixed
+	 * @return $this
+	 * @throws Exception_Deprecated
+	 * @throws Exception_ORM_Empty
+	 * @throws Exception_ORM_NotFound
 	 */
-	public function fetch($mixed = null) {
+	public function fetch(array $mixed = []): self {
 		$result = parent::fetch($mixed);
 		if ($result instanceof self) {
 			$result->seen();
@@ -69,18 +73,13 @@ class Session_ORM extends ORM implements Interface_Session {
 	}
 
 	/**
-	 *
-	 * @return \zesk\Session_ORM
+	 * @return $this
+	 * @throws Exception_Semantics
 	 */
 	public function seen() {
 		$query = $this->query_update();
 		$sql = $query->sql();
-		$query->value("*seen", $sql->now())
-			->value("expires", $this->compute_expires())
-			->value("*sequence_index", "sequence_index+1")
-			->where("id", $this)
-			->low_priority(true)
-			->execute();
+		$query->value("*seen", $sql->now())->value("expires", $this->compute_expires())->value("*sequence_index", "sequence_index+1")->where("id", $this)->low_priority(true)->execute();
 		$this->call_hook('seen');
 		return $this;
 	}
@@ -101,9 +100,9 @@ class Session_ORM extends ORM implements Interface_Session {
 	public static function configured(Application $application): void {
 		// 2017-01-01
 		foreach ([
-			"Session",
-			"zesk\\Session",
-		] as $class) {
+			         "Session",
+			         "zesk\\Session",
+		         ] as $class) {
 			$application->configuration->deprecated([
 				$class,
 				"cookie_name",
@@ -143,7 +142,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @return integer
 	 */
 	public function cookie_expire() {
-		return to_integer($this->option_path("cookie.expire"), 604800);
+		return to_integer($this->optionPath(["cookie", "expire"], 604800));
 	}
 
 	/**
@@ -152,8 +151,8 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @param string $cookie
 	 * @return string
 	 */
-	private static function _generate_cookie() {
-		return md5("" . random_int(0, 999999999) . microtime());
+	private static function _generate_cookie(): string {
+		return md5(dechex(\random_int(PHP_INT_MIN, PHP_INT_MAX)) . microtime());
 	}
 
 	/**
@@ -161,7 +160,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @see Interface_Session::authenticate()
 	 */
-	public function authenticate($user_id, $ip = null) {
+	public function authenticate($user_id, $ip = null): void {
 		$cookieExpire = $this->cookie_expire();
 		$this->set_member("user", ORM::mixed_to_id($user_id));
 		if ($ip === null) {
@@ -173,7 +172,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		}
 		$this->set_member("ip", $ip);
 		$this->set_member("expires", Timestamp::now()->add_unit($cookieExpire, Timestamp::UNIT_SECOND));
-		return $this->store();
+		$this->store();
 	}
 
 	/**
@@ -228,18 +227,12 @@ class Session_ORM extends ORM implements Interface_Session {
 	public static function cron_cluster_minute(Application $application): void {
 		$now = Timestamp::now();
 		$where['expires|<'] = $now;
-		$iter = $application->orm_registry(__CLASS__)
-			->query_select()
-			->where($where)
-			->orm_iterator();
+		$iter = $application->orm_registry(__CLASS__)->query_select()->where($where)->orm_iterator();
 		foreach ($iter as $session) {
 			/* @var $session Session_ORM */
 			$session->logout_expire();
 		}
-		$application->orm_registry(__CLASS__)
-			->query_delete()
-			->where($where)
-			->execute();
+		$application->orm_registry(__CLASS__)->query_delete()->where($where)->execute();
 	}
 
 	/**
@@ -284,8 +277,8 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->set_member('expires', $expires);
 		$this->set_member('ip', $request->ip());
 		$this->set_member('data', to_array($this->data) + [
-			'uri' => $request->uri(),
-		]);
+				'uri' => $request->uri(),
+			]);
 		$cookie_options = $this->cookie_options();
 		$application->hooks->add(Response::class . "::headers", function (Response $response) use ($cookie_name, $cookie_value, $cookie_options): void {
 			$response->cookie($cookie_name, $cookie_value, $cookie_options);
@@ -305,7 +298,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @param User $user
 	 * @param integer $expire_seconds Expiration time in seconds, inherits from
-	 * 	'zesk\Session_ORM::one_time_expire_seconds' if not set. Defaults to 1 day (86400 seconds).
+	 *    'zesk\Session_ORM::one_time_expire_seconds' if not set. Defaults to 1 day (86400 seconds).
 	 *
 	 * @return Session_ORM
 	 */
@@ -318,11 +311,7 @@ class Session_ORM extends ORM implements Interface_Session {
 			], 86400));
 		}
 		// Only one allowed at any time, I guess.
-		$app->orm_registry(__CLASS__)
-			->query_delete()
-			->where('is_one_time', true)
-			->where('user', $user)
-			->execute();
+		$app->orm_registry(__CLASS__)->query_delete()->where('is_one_time', true)->where('user', $user)->execute();
 		$session = $app->orm_factory(__CLASS__);
 		$request = $user->application->request();
 		$ip = $request ? $request->ip() : null;
@@ -376,10 +365,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public function session_count($nSeconds = 600) {
 		$where['seen|>='] = Timestamp::now()->add_unit(-$nSeconds, Timestamp::UNIT_SECOND);
 		$where['id|!='] = $this->id();
-		return $this->query_select()
-			->what("*X", "COUNT(id)")
-			->where($where)
-			->one_integer("X");
+		return $this->query_select()->what("*X", "COUNT(id)")->where($where)->one_integer("X");
 	}
 
 	/*
@@ -434,7 +420,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @see ORM::__get($member)
 	 */
-	public function __get($name) {
+	public function __get(string $name): mixed {
 		return avalue($this->members['data'], $name);
 	}
 

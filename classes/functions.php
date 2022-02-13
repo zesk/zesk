@@ -390,7 +390,9 @@ function to_double(mixed $s, float $def = null): float {
  * @return array or $default
  */
 function to_list(mixed $mixed, array $default = [], string $delimiter = ";"): array {
-	if (is_scalar($mixed)) {
+	if ($mixed === "") {
+		return $default;
+	} elseif (is_scalar($mixed)) {
 		return explode($delimiter, strval($mixed));
 	} elseif (is_array($mixed)) {
 		return $mixed;

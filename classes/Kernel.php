@@ -578,18 +578,30 @@ class Kernel {
 	public const HOOK_CREATE_APPLICATION = __CLASS__ . '::create_application';
 
 	/**
+	 * Create an application
 	 *
 	 * @param array $options
 	 * @return Application
 	 * @throws Exception_Semantics
 	 */
-	public function create_application(array $options = []) {
+	public function createApplication(array $options = []) {
 		if ($this->application !== null) {
 			throw new Exception_Semantics("{method} application of type {class} was already created", ["method" => __METHOD__, "class" => get_class($this->application), ]);
 		}
 		$this->application = $this->objects->factory($this->application_class, $this, $options);
 		$this->application->hooks->call(self::HOOK_CREATE_APPLICATION, $this->application);
 		return $this->application;
+	}
+
+	/**
+	 *
+	 * @param array $options
+	 * @return Application
+	 * @throws Exception_Semantics
+	 * @deprecated 2022-02 PSR
+	 */
+	public function create_application(array $options = []) {
+		return self::create_application($options);
 	}
 
 	/**

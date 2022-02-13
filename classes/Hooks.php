@@ -368,6 +368,7 @@ class Hooks {
 	 * @param array $options
 	 *            Return value handling, ordering, arguments.
 	 *
+	 * @return void
 	 */
 	public function add(string $hook, callable $function, array $options = []): void {
 		$hook = $this->_hook_name($hook, true);
@@ -376,9 +377,6 @@ class Hooks {
 			$this->hooks[$hook] = $hook_group;
 		} else {
 			$hook_group = $this->hooks[$hook];
-		}
-		if (!is_callable($function)) {
-			throw new Exception_Semantics($this->callable_string($function) . " is not callable");
 		}
 		$callable_string = $this->callable_string($function);
 		if ($hook_group->has($callable_string)) {

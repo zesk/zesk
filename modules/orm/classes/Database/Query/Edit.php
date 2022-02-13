@@ -123,16 +123,14 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @return Database_Query_Edit|Database_Query_Update
 	 * @throws Exception_Semantics
 	 */
-	public function value($name, $value = null) {
+	public function value(array|string $name, mixed $value = null): self {
 		if (is_array($name)) {
 			foreach ($name as $k => $v) {
 				$this->value($k, $v);
 			}
 			return $this;
 		}
-		if (is_array($this->valid_columns)) {
-			$this->check_column($name);
-		}
+		$this->check_column($name);
 		$this->values[$name] = $value;
 		return $this;
 	}
