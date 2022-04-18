@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 use ArrayAccess;
@@ -70,7 +72,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 		$this->_locked = $locked;
 		foreach ($array as $key => $value) {
 			if (is_array($value)) {
-				$array[$key] = new self($value, $locked, $this->_add_path($key));
+				$array[$key] = new self($value, $locked, $this->_addPath($key));
 			}
 		}
 		$this->_data = array_change_key_case($array);
@@ -197,7 +199,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 			$this->_locked($key, "set");
 		}
 		if (is_array($value)) {
-			$value = new self($value, $this->_locked, $this->_add_path($key));
+			$value = new self($value, $this->_locked, $this->_addPath($key));
 		}
 		$key = strtolower($key);
 		$this->_data[$key] = $value;
@@ -209,7 +211,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * Same as __get but allows a default value
 	 *
 	 * @param string $key
-	 *        	Key to retrieve
+	 *            Key to retrieve
 	 * @param mixed $default
 	 * @return mixed
 	 */
@@ -290,16 +292,15 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 			}
 		}
 		$result = $current->get($key, $default);
-		return $result instanceof self ? $result->to_array() : $result;
+		return $result instanceof self ? $result->toArray() : $result;
 	}
 
 	/**
 	 * Does a path exist?
-	 *
 	 * @param string|array $path
-	 * @return boolean
+	 * @return bool
 	 */
-	public function path_exists(string|array $path) {
+	public function pathExists(string|array $path) {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$current = $this;
 		$key = array_pop($path);
@@ -404,12 +405,12 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return array
 	 * @throws Exception_Lock
 	 */
-	public function to_array($depth = null) {
+	public function toArray(int $depth = null): array {
 		$result = [];
 		foreach ($this->_data as $key => $value) {
 			if ($value instanceof self) {
 				if ($depth === null || $depth > 0) {
-					$result[$key] = $value->to_array($depth > 0 ? $depth - 1 : null);
+					$result[$key] = $value->toArray($depth > 0 ? $depth - 1 : null);
 				}
 			} else {
 				$result[$key] = $value;
@@ -423,7 +424,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @return array
 	 */
-	public function to_list() {
+	public function toList() {
 		$result = [];
 		foreach ($this->_data as $key => $value) {
 			if ($value instanceof self) {
@@ -448,9 +449,9 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 
 	/**
 	 *
+	 * @return mixed
 	 * @see Iterator
 	 *
-	 * @return mixed
 	 */
 	public function key(): mixed {
 		//[\ReturnTypeWillChange]
@@ -482,9 +483,9 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 
 	/**
 	 *
+	 * @return boolean
 	 * @see Iterator
 	 *
-	 * @return boolean
 	 */
 	public function valid(): bool {
 		return $this->_index < $this->_count;
@@ -500,9 +501,9 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 
 	/**
 	 *
-	 * @see ArrayAccess
 	 * @param mixed $offset
 	 * @return boolean
+	 * @see ArrayAccess
 	 */
 	public function offsetExists(mixed $offset): bool {
 		return $this->__isset($offset);
@@ -510,9 +511,9 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 
 	/**
 	 *
-	 * @see ArrayAccess
 	 * @param mixed $offset
 	 * @return mixed
+	 * @see ArrayAccess
 	 */
 	public function offsetGet($offset): mixed {
 		return $this->__get($offset);
@@ -520,10 +521,10 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 
 	/**
 	 *
-	 * @see ArrayAccess
 	 * @param mixed $offset
 	 * @param mixed $value
 	 * @throws Exception_Lock
+	 * @see ArrayAccess
 	 */
 	public function offsetSet($offset, $value): void {
 		$this->__set($offset, $value);
@@ -531,9 +532,9 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 
 	/**
 	 *
-	 * @see ArrayAccess
 	 * @param mixed $offset
 	 * @throws Exception_Lock
+	 * @see ArrayAccess
 	 */
 	public function offsetUnset($offset): void {
 		$this->__unset($offset);
@@ -545,7 +546,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string $key
 	 * @return array
 	 */
-	private function _add_path($key) {
+	private function _addPath($key) {
 		return array_merge($this->_path, [
 			$key,
 		]);
@@ -555,9 +556,9 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * Throw exception when locked
 	 *
 	 * @param string $key
-	 *        	Key attempting to modify
+	 *            Key attempting to modify
 	 * @param string $verb
-	 *        	Action attempting to do (debug)
+	 *            Action attempting to do (debug)
 	 * @throws Exception_Lock
 	 */
 	private function _locked($key, $verb): void {
@@ -586,17 +587,17 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 			return true;
 		}
 		$message_args = [];
-		if (!$this->path_exists($new_path)) {
+		if (!$this->pathExists($new_path)) {
 			$this->path_set($new_path, $old_value);
 			$message = "Global configuration option \"{old_path}\" is deprecated ({old_value}), use existing \"{new_path}\"";
-			$message_args['old_value'] = to_array($old_value);
+			$message_args['old_value'] = toArray($old_value);
 		} else {
 			$new_value = $this->walk($new_path);
 			if ($new_value instanceof self && $old_value instanceof self) {
 				$message = "Global configuration option {old_path} is deprecated ({old_value}), use existing \"{new_path}\" (merged)";
 				$new_value->merge($old_value);
 				$this->path_set($old_path, null);
-				$message_args['old_value'] = to_array($old_value);
+				$message_args['old_value'] = toArray($old_value);
 			} else {
 				$message = "Global configuration option {old_path} ({old_type}) is deprecated, use existing {new_path} (NOT merged)";
 			}
@@ -608,10 +609,41 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 			$new_path = implode(self::key_separator, $new_path);
 		}
 		$message_args += compact("old_path", "new_path") + [
-			"old_type" => type($old_value),
-		];
+				"old_type" => type($old_value),
+			];
 		$logger->warning($message, $message_args);
 		Kernel::singleton()->deprecated($message, $message_args);
 		return true;
+	}
+
+	/**
+	 * Does a path exist?
+	 *
+	 * @param string|array $path
+	 * @return boolean
+	 * @deprecated 2022-02 PSR
+	 */
+	public function path_exists(string|array $path) {
+		return $this->pathExists($path);
+	}
+
+	/**
+	 *
+	 * @param $depth
+	 * @return mixed
+	 * @deprecated 2022-02
+	 */
+	public function to_array(int $depth = null): array {
+		return $this->toArray($depth);
+	}
+
+	/**
+	 * Convert entire structure to a list
+	 *
+	 * @return array
+	 * @deprecated 2022-02
+	 */
+	public function to_list() {
+		return $this->toList();
 	}
 }

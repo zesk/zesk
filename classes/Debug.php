@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
  * @author kent
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -17,13 +19,13 @@ class Debug {
 	 *
 	 * @var string
 	 */
-	public const dump_spacer = "  ";
+	public const DUMP_SPACER = "   ";
 
 	/**
 	 *
 	 * @var integer
 	 */
-	public static $indent_limit = 4;
+	public static int $indent_limit = 4;
 
 	/**
 	 * Set up PHP errors to output on web pages
@@ -41,7 +43,7 @@ class Debug {
 	 * @return string
 	 * @see debug_backtrace()
 	 */
-	public static function calling_file() {
+	public static function calling_file(): string {
 		$bt = debug_backtrace();
 		$top = array_shift($bt);
 		return $top['file'];
@@ -51,13 +53,13 @@ class Debug {
 	 * Dumps a variable using print_r and surrounds with <pre> tag
 	 *
 	 * @param mixed $x
-	 *        	Variable to dump
+	 *            Variable to dump
 	 * @param boolean $html
-	 *        	Whether to dump as HTML or not (surround by pre tags)
-	 * @return echos to page
+	 *            Whether to dump as HTML or not (surround by pre tags)
+	 * @return void
 	 * @see print_r
 	 */
-	public static function output() {
+	public static function output(): void {
 		$args = func_get_args();
 		$result = call_user_func_array([
 			'zesk\\Debug',
@@ -69,12 +71,10 @@ class Debug {
 	/**
 	 * Returns what "dump" would print (doesn't echo)
 	 *
-	 * @param mixed $x
-	 *        	Variable to dump
 	 * @return A string representation of the value
 	 * @see print_r, dump
 	 */
-	public static function dump() {
+	public static function dump(): string {
 		$args = func_get_args();
 		$result = [];
 		foreach ($args as $x) {
@@ -89,7 +89,7 @@ class Debug {
 	 * @param string $x
 	 * @return string
 	 */
-	private static function _dump($x) {
+	private static function _dump(mixed $x): string {
 		static $indent = 0;
 		if ($x === null) {
 			return "(null)";
@@ -110,10 +110,10 @@ class Debug {
 					$max_len = max($max_len, strlen("$k"));
 				}
 				foreach ($x as $k => $v) {
-					$result[] = self::dump_spacer . "[$k] " . str_repeat(" ", $max_len - strlen("$k")) . "= " . self::_dump($v);
+					$result[] = self::DUMP_SPACER . "[$k] " . str_repeat(" ", $max_len - strlen("$k")) . "= " . self::_dump($v);
 				}
 				$indent--;
-				$prefix = str_repeat(self::dump_spacer, $indent);
+				$prefix = str_repeat(self::DUMP_SPACER, $indent);
 				if (is_object($x)) {
 					$type = get_class($x);
 				} else {
@@ -124,10 +124,12 @@ class Debug {
 				return "(recursion limit " . self::$indent_limit . ")";
 			}
 		} elseif (is_object($x)) {
-			if (method_exists($x, "_debug_dump")) {
-				return $x->_debug_dump();
+			foreach (['_debugDump', '_debug_dump'] as $method) {
+				if (method_exists($x, $method)) {
+					return $x->$method();
+				}
 			}
-			return implode("\n" . str_repeat(self::dump_spacer, $indent), explode("\n", self::_dump($x, true)));
+			return implode("\n" . str_repeat(self::DUMP_SPACER, $indent), explode("\n", self::_dump($x, true)));
 		}
 		return strval($x);
 	}

@@ -36,7 +36,7 @@ class Class_Session_ORM extends Class_ORM {
 		"data" => self::type_serialize,
 	];
 
-	public $code_name = "Session";
+	public string $code_name = "Session";
 
 	public array $column_defaults = [
 		'data' => [],

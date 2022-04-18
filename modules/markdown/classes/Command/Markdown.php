@@ -23,11 +23,11 @@ class Command_Markdown extends Command_File_Convert {
 		parent::initialize();
 	}
 
-	protected function run() {
+	protected function run(): void {
 		if ($this->hasOption('cd')) {
 			chdir($this->option('cd'));
 		}
-		return parent::run();
+		parent::run();
 	}
 
 	protected function convert_raw($content) {

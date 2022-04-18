@@ -113,30 +113,30 @@ class Command_Help extends Command_Base {
 		$this->verbose_log("Checking $class");
 
 		try {
-			$refl = new \ReflectionClass($class);
+			$reflection_class = new \ReflectionClass($class);
 		} catch (Exception_Class_NotFound $e) {
 			$this->verbose_log("{class} can not be loaded, skipping", [
 				"class" => $class,
 			]);
 			return;
 		}
-		if ($refl->isAbstract()) {
+		if ($reflection_class->isAbstract()) {
 			$this->verbose_log("{class} is abstract, skipping", [
 				"class" => $class,
 			]);
 			return;
 		}
-		$command_file = $refl->getFileName();
+		$command_file = $reflection_class->getFileName();
 		$command = StringTools::unprefix($command_file, $this->command_paths);
 		$command = File::extension_change(ltrim($command, "/"), null);
 		$command = strtr($command, "/", "-");
-		$doccomment = $refl->getDocComment();
-		$doccomment = DocComment::instance($doccomment)->variables();
-		if (array_key_exists('ignore', $doccomment)) {
+		$docComment = $reflection_class->getDocComment();
+		$docComment = DocComment::instance($docComment)->variables();
+		if (array_key_exists('ignore', $docComment)) {
 			return;
 		}
-		if (array_key_exists('aliases', $doccomment)) {
-			foreach (to_list($doccomment['aliases'], [], " ") as $alias) {
+		if (array_key_exists('aliases', $docComment)) {
+			foreach (to_list($docComment['aliases'], [], " ") as $alias) {
 				if (array_key_exists($alias, $this->aliases)) {
 					$this->application->logger->warning("Identical aliases exist for command {0} and {1}: {2}, only {0} will be honored", [
 						$command,
@@ -152,10 +152,10 @@ class Command_Help extends Command_Base {
 				}
 			}
 		}
-		$doccomment['command'] = $command;
-		$doccomment['command_file'] = $command_file;
-		$category = avalue($doccomment, 'category', 'Miscellaneous');
-		$this->categories[$category][$command] = $doccomment;
+		$docComment['command'] = $command;
+		$docComment['command_file'] = $command_file;
+		$category = $docComment['category'] ?? 'Miscellaneous';
+		$this->categories[$category][$command] = $docComment;
 	}
 
 	public function collect_help(): void {

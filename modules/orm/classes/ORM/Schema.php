@@ -246,7 +246,7 @@ abstract class ORM_Schema extends Hookable {
 	public static function schema_to_database_table(Database $db, $table_name, array $table_schema, $context = null) {
 		$logger = $db->application->logger;
 
-		$table = new Database_Table($db, $table_name, avalue($table_schema, 'engine'));
+		$table = new Database_Table($db, $table_name, $table_schema['engine'] ?? "");
 		$table->source(avalue($table_schema, 'source'));
 		if (!array_key_exists('columns', $table_schema)) {
 			throw new Exception_Syntax("No columns exist in table \"$table_name\" schema");

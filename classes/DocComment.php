@@ -248,28 +248,52 @@ class DocComment extends Options {
 		return $prefix . implode("\n$prefix", $value);
 	}
 
-	public function variables(array $set = null) {
-		if ($set === null) {
-			if ($this->variables === null) {
-				return $this->parse($this->content);
-			}
-			return $this->variables;
-		}
+	public function setVariables(array $set): self {
 		$this->variables = $set;
 		$this->content = null;
 		return $this;
 	}
 
-	public function content($set = null) {
-		if ($set === null) {
-			if ($this->content === null) {
-				return $this->unparse($this->variables);
-			}
-			return $this->content;
+	/**
+	 * Retrieve the variables for the DocComment
+	 *
+	 * @return array
+	 */
+	public function variables(array $set = null) {
+		if ($set !== null) {
+			zesk()->deprecated("use setVaribles");
+			$this->setVariables($set);
 		}
+		if ($this->variables === null) {
+			return $this->parse($this->content);
+		}
+		return $this->variables;
+	}
+
+	/**
+	 * @param string $set
+	 * @return $this
+	 */
+	public function setContent(string $set): self {
 		$this->content = $set;
 		$this->variables = null;
 		return $this;
+	}
+
+	/**
+	 * @param $set
+	 * @return string
+	 * @throws Exception_Deprecated
+	 */
+	public function content($set = null): string {
+		if ($set !== null) {
+			zesk()->deprecated("use setContent");
+			$this->setContent($set);
+		}
+		if ($this->content === null) {
+			return $this->unparse($this->variables);
+		}
+		return $this->content;
 	}
 
 	public function __toString() {

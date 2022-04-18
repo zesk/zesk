@@ -25,7 +25,7 @@ class Class_Label extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $code_name = "Tag_Label";
+	public string $code_name = "Tag_Label";
 
 	/**
 	 *

@@ -1,8 +1,18 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 class Kernel_Test extends Test_Unit {
-	public $order = 0;
+	/**
+	 * @var int
+	 */
+	public int $order = 0;
+
+	/**
+	 * @var bool
+	 */
+	public bool $_hook_was_called = false;
 
 	public static function _test_hook_order_1st(Kernel_Test $test): void {
 		$test->assert_equal($test->order, 0);
@@ -85,11 +95,17 @@ class Kernel_Test extends Test_Unit {
 		$this->assert_arrays_equal($app->classes->hierarchy(new A($this->application)), ArrayTools::prefix(to_list('A;Hookable;Options'), __NAMESPACE__ . "\\"));
 	}
 
+	public function add_hook_was_called($arg): void {
+		$this->assertEquals(2, $arg);
+		$this->_hook_was_called = true;
+	}
+
 	public function test_add_hook(): void {
-		$hook = null;
-		$function = null;
-		$args = null;
-		$this->application->hooks->add($hook, $function, $args);
+		$hook = "null";
+		$function = function ($arg): void {
+			$this->add_hook_was_called($arg);
+		};
+		$this->application->hooks->add($hook, $function);
 	}
 
 	public function test_application_class(): void {
@@ -263,20 +279,61 @@ class Kernel_Test extends Test_Unit {
 		$this->assert($result['a'] === 'b');
 	}
 
-	public function test_has(): void {
-		$key = null;
-		$check_empty = true;
-		$this->application->configuration->has($key);
+	/**
+	 *
+	 */
+	public function data_has(): array {
+		return [
+			[true, Application::class],
+			[true, [Application::class, 'version']],
+			[true, [Application::class, 'modules']],
+			[true, [Application::class, 'modules']],
+			[true, 'init'],
+			[true, 'home'],
+			[true, Options::class],
+			[false, md5('HOME')],
+			[false, 'HoMe'],
+			[false, '0192830128301283123'],
+		];
 	}
 
-	public function test_has_hook(): void {
-		$hook = null;
-		$this->application->hooks->has($hook);
+	/**
+	 * @return void
+	 * @dataProvider data_has
+	 */
+	public function test_has($expected, $key): void {
+		$this->assertEquals($expected, $this->application->configuration->path_exists($key));
 	}
 
+	/**
+	 * @return array[]
+	 */
+	public function data_has_hook(): array {
+		return [
+			[true, Hooks::HOOK_EXIT],
+			[true, Hooks::HOOK_CONFIGURED],
+			[false, 'HOME'],
+			[false, md5('HOME')],
+			[false, '0192830128301283123'],
+		];
+	}
+
+	/**
+	 * @return void
+	 * @dataProvider data_has_hook
+	 */
+	public function test_has_hook($expected, $hook): void {
+		$this->assertEquals($expected, $this->application->hooks->has($hook));
+	}
+
+	/**
+	 * @return void
+	 * @depends test_add_hook
+	 */
 	public function test_hook(): void {
-		$hook = null;
-		$this->application->hooks->call($hook);
+		$this->assertFalse($this->_hook_was_called);
+		$this->application->hooks->call("null", 2);
+		$this->assertTrue($this->_hook_was_called);
 	}
 
 	public function test_hook_array(): void {

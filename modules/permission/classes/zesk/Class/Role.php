@@ -14,7 +14,7 @@ namespace zesk;
 class Class_Role extends Class_ORM {
 	public string $id_column = "id";
 
-	public $name_column = "name";
+	public string $name_column = "name";
 
 	public array $find_keys = [
 		'code',

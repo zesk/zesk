@@ -51,7 +51,7 @@ class Module_Session extends Module {
 	 */
 	private function _implementation() {
 		$get = $this->option("implementation");
-		return avalue(self::$aliases, $get, $get);
+		return self::$aliases[$get] ?? $get;
 	}
 
 	/**

@@ -16,7 +16,7 @@ class Schema_Forgot extends ORM_Schema {
 	 * {@inheritDoc}
 	 * @see ORM_Schema::schema()
 	 */
-	public function schema() {
+	public function schema(): array {
 		$result = [
 			'{table}' => [
 				'columns' => [

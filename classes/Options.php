@@ -244,8 +244,8 @@ class Options implements \ArrayAccess {
 	 * @param string $name
 	 * @return string normalized key name
 	 */
-	final protected static function _optionKey(string $name): string {
-		return strtolower(strtr(trim($name), [
+	final protected static function _optionKey(string|int $name): string {
+		return strtolower(strtr(trim(strval($name)), [
 			"-" => self::OPTION_SPACE,
 			"_" => self::OPTION_SPACE,
 			" " => self::OPTION_SPACE,
@@ -655,7 +655,7 @@ class Options implements \ArrayAccess {
 	 * @return string normalized key name
 	 * @deprecated 2022-01
 	 */
-	final protected static function _option_key(string $name): string {
+	final protected static function _option_key(string|int $name): string {
 		return self::_optionKey($name);
 	}
 

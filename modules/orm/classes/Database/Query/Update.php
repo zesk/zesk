@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * Delete
  *
@@ -7,6 +8,7 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -20,7 +22,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	 *
 	 * @var array
 	 */
-	protected $where = [];
+	protected array $where = [];
 
 	/**
 	 *
@@ -32,7 +34,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	 *
 	 * @var boolean
 	 */
-	protected $ignore_constraints = false;
+	protected bool $ignore_constraints = false;
 
 	/**
 	 * Create a new UPDATE query
@@ -46,14 +48,20 @@ class Database_Query_Update extends Database_Query_Edit {
 	/**
 	 * Getter/setter for ignore constraints flag for update
 	 *
-	 * @param boolean|null $set
-	 * @return $this|boolean
+	 * @param boolean $set
+	 * @return self
 	 */
-	public function ignore_constraints($set = null) {
-		if (is_bool($set)) {
-			$this->ignore_constraints = true;
-			return $this;
-		}
+	public function setIgnoreConstraints(bool $set) {
+		$this->ignore_constraints = $set;
+		return $this;
+	}
+
+	/**
+	 * Getter/setter for ignore constraints flag for update
+	 *
+	 * @return bool
+	 */
+	public function ignoreConstraints(): bool {
 		return $this->ignore_constraints;
 	}
 
@@ -65,7 +73,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	 */
 	public function __toString() {
 		return $this->database()->sql()->update([
-			'table' => $this->table,
+			'table' => $this->table(),
 			'values' => $this->values,
 			'where' => $this->where,
 			'low_priority' => $this->low_priority,
@@ -77,7 +85,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	 *
 	 * @return integer
 	 */
-	final public function affected_rows() {
+	final public function affected_rows(): int {
 		return $this->database()->affected_rows($this->result);
 	}
 
@@ -95,7 +103,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	 * @deprecated 2018-02 Use "execute()->result()" instead.
 	 *
 	 */
-	public function exec() {
+	public function exec(): self {
 		zesk()->deprecated();
 		return $this->execute();
 	}
@@ -105,8 +113,8 @@ class Database_Query_Update extends Database_Query_Edit {
 	 *
 	 * @return $this
 	 */
-	public function execute() {
-		$this->result = $this->database()->update($this->table, $this->values, $this->where, [
+	public function execute(): self {
+		$this->result = $this->database()->update($this->table(), $this->values, $this->where, [
 			"low_priority" => $this->low_priority,
 			"ignore_constraints" => $this->ignore_constraints,
 		]);

@@ -11,7 +11,7 @@ class Class_Language extends Class_ORM {
 
 	public $name_column = 'name';
 
-	public $name = "Language";
+	public string $name = "Language";
 
 	public array $find_keys = [
 		"code",

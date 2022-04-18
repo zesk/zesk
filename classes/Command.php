@@ -543,12 +543,8 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @param string $message
 	 */
-	public function usage($message = null, array $arguments = []): void {
-		if (is_array($message)) {
-			$message = implode("\n", $message);
-		}
-		$message = map($message, $arguments);
-		$maxlen = 0;
+	public function usage(array|string $message = null, array $arguments = []): void {
+		$max_length = 0;
 		$types = [];
 		$commands = [];
 		$aliases = ArrayTools::flip_multiple(ArrayTools::kprefix($this->option_chars, "-"));
@@ -601,11 +597,14 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			if ($k == "*" || $k == "+") {
 				$cmd = "...";
 			}
-			$maxlen = max($maxlen, strlen($cmd));
+			$max_length = max($max_length, strlen($cmd));
 			$commands[$k] = $cmd;
 			$types[$type] = true;
 		}
 		if ($message) {
+			if (is_array($message)) {
+				$message = implode("\n", $message);
+			}
 			$result[] = wordwrap($message, $this->wordwrap, "\n");
 			$result[] = "";
 		}
@@ -619,12 +618,12 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			$result[] = "";
 		}
 
-		$maxlen += 4;
-		$wrap_len = $this->wordwrap - $maxlen - 1;
+		$max_length += 4;
+		$wrap_len = $this->wordwrap - $max_length - 1;
 		foreach ($commands as $k => $cmd) {
 			$help = explode("\n", wordwrap($this->option_help[$k] ?? $this->default_help($this->option_types[$k]), $wrap_len, "\n"));
-			$help = implode("\n" . str_repeat(" ", $maxlen + 1), $help);
-			$result[] = $cmd . str_repeat(" ", $maxlen - strlen($cmd) + 1) . $help;
+			$help = implode("\n" . str_repeat(" ", $max_length + 1), $help);
+			$result[] = $cmd . str_repeat(" ", $max_length - strlen($cmd) + 1) . $help;
 		}
 		foreach (array_keys($types) as $type) {
 			switch ($type) {
@@ -1272,7 +1271,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @return array
 	 * @throws Exception_Command
 	 */
-	public function exec($command) {
+	public function exec(string $command): array {
 		$args = func_get_args();
 		array_shift($args);
 		if (count($args) === 1 && is_array($args[0])) {
@@ -1287,7 +1286,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param string $command
 	 * @param array $arguments
 	 */
-	protected function zesk_cli($command, array $arguments = []) {
+	protected function zesk_cli(string $command, array $arguments = []): array {
 		$app = $this->application;
 		$bin = $app->zesk_home("bin/zesk.sh");
 		return $app->process->execute_arguments("$bin --search {app_root} $command", [
@@ -1303,7 +1302,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @return array
 	 * @throws Exception_Command
 	 */
-	protected function passthru($command) {
+	protected function passthru(string $command): array {
 		$args = func_get_args();
 		array_shift($args);
 		return $this->application->process->execute_arguments($command, $args, true);
@@ -1314,7 +1313,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @return numeric
 	 */
-	final public function go() {
+	final public function go(): int {
 		self::$commands[] = $this;
 		$this->application->modules->load($this->load_modules);
 		// Moved from Command_Loader
@@ -1352,6 +1351,8 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			$result = 0;
 		} elseif ($result === false) {
 			$result = -1;
+		} elseif ($result === null) {
+			$result = 0;
 		}
 		assert(count(self::$commands) > 0);
 		array_pop(self::$commands);
@@ -1363,7 +1364,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @return Command
 	 */
-	public static function running() {
+	public static function running(): self {
 		return last(self::$commands);
 	}
 
@@ -1374,7 +1375,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param string $default_format
 	 * @return boolean
 	 */
-	public function render_format($content, $format = null, $default_format = "text") {
+	public function render_format(string|array $content, string $format = null, string $default_format = "text"): bool {
 		if ($format === null) {
 			$format = $this->option('format', $default_format);
 		}
@@ -1412,18 +1413,15 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * Add help from the doccomment.
 	 * One place for docs is preferred.
 	 *
-	 * @return NULL|string
+	 * @return string
 	 */
-	private function doccomment_help() {
-		$refl = new \ReflectionClass(get_class($this));
-		$comment = $refl->getDocComment();
+	private function doccomment_help(): string {
+		$reflection_class = new \ReflectionClass(get_class($this));
+		$comment = $reflection_class->getDocComment();
 		$parsed = DocComment::instance($comment)->variables();
-		if (!$parsed) {
-			return null;
-		}
-		return implode("\n", ArrayTools::clean([
-			aevalue($parsed, 'desc'),
-			aevalue($parsed, "description"),
+		return implode("\n", array_filter([
+			$parsed['desc'] ?? null,
+			$parsed['description'] ?? null,
 		]));
 	}
 
@@ -1432,7 +1430,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @return boolean
 	 */
-	public function is_terminal() {
+	public function is_terminal(): bool {
 		return $this->ansi;
 	}
 
@@ -1442,12 +1440,13 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param string $file
 	 * @return boolean
 	 */
-	public function validate_file($file) {
+	public function validate_file(string $file): bool {
 		return is_file($file) || is_link($file);
 	}
 
 	/**
 	 * Main run code
+	 * @throws Exception_File_NotFound
 	 */
 	abstract protected function run();
 }

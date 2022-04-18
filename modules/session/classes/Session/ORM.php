@@ -35,14 +35,14 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @var array
 	 */
-	private $original = [];
+	private array $original = [];
 
 	/**
 	 * Something changed?
 	 *
 	 * @var boolean
 	 */
-	private $changed = false;
+	private bool $changed = false;
 
 	/**
 	 *
@@ -89,8 +89,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @param Application $application
 	 */
 	public static function hooks(Application $application): void {
-		$application->hooks->add(Hooks::HOOK_CONFIGURED, __CLASS__ . '::configured');
-		$application->hooks->add('exit', __CLASS__ . '::save');
+		$application->hooks->add(Hooks::HOOK_CONFIGURED, \Closure::fromCallable(__CLASS__ . '::configured'));
 	}
 
 	/**
@@ -141,7 +140,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @return integer
 	 */
-	public function cookie_expire() {
+	public function cookie_expire(): int {
 		return to_integer($this->optionPath(["cookie", "expire"], 604800));
 	}
 
@@ -239,7 +238,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @return Timestamp
 	 */
-	private function compute_expires() {
+	private function compute_expires(): Timestamp {
 		$expire = $this->cookie_expire();
 		$expires = Timestamp::now()->add_unit($expire, Timestamp::UNIT_SECOND);
 		return $expires;
@@ -249,8 +248,8 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @return string
 	 */
-	private function cookie_name() {
-		return $this->option_path("cookie.name", "ZCOOKIE");
+	private function cookie_name(): string {
+		return $this->optionPath("cookie.name", "ZCOOKIE");
 	}
 
 	/**
@@ -290,7 +289,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @return string
 	 */
-	public function hash() {
+	public function hash(): string {
 		return $this->member("cookie");
 	}
 
@@ -420,8 +419,8 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @see ORM::__get($member)
 	 */
-	public function __get(string $name): mixed {
-		return avalue($this->members['data'], $name);
+	public function __get($name): mixed {
+		return $this->members['data'][$name] ?? null;
 	}
 
 	/**
@@ -435,7 +434,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		} else {
 			$this->members['data'][$name] = $value;
 		}
-		if ($value !== avalue($this->original, $name)) {
+		if ($value !== ($this->original[$name] ?? null)) {
 			$this->changed = true;
 			$this->store();
 		}
@@ -445,7 +444,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->__set($name, $value);
 	}
 
-	public function changed($members = null) {
+	public function changed($members = null): bool {
 		return $this->changed;
 	}
 

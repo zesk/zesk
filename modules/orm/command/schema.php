@@ -30,17 +30,17 @@ class Command_Schema extends Command_Base {
 	 *
 	 * @var array
 	 */
-	protected $register_classes = [];
+	protected array $register_classes = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $results = [];
+	protected array $results = [];
 
 	/**
 	 *
-	 * @return \zesk\multitype:
+	 * @return array
 	 */
 	public function results() {
 		return $this->results;
@@ -96,12 +96,12 @@ class Command_Schema extends Command_Base {
 		$app = $this->application;
 
 		$hook_type = "zesk\ORM::schema_$suffix";
-		$all_hooks = $this->application->hooks->find_all($hook_type);
+		$all_hooks = $this->application->hooks->find_all([$hook_type]);
 
 		$app->logger->notice("Running all $suffix hooks {hooks}", [
 			"hooks" => ($all = implode(", ", array_values($all_hooks))) ? $all : "- no hooks found",
 		]);
-		$this->application->hooks->all_call_arguments($hook_type, [
+		$this->application->hooks->all_call_arguments([$hook_type], [
 			$this->application,
 		], null, $hook_callback);
 

@@ -44,9 +44,9 @@ use zesk\HTML;
  * @var string
  * @see preg_match
  */
-define("PREG_PATTERN_EMAIL_USERNAME_CHAR", '[-a-z0-9!#$%&\'*+\\/=?^_`{|}~]');
-define("PREG_PATTERN_EMAIL_USERNAME", '(?:' . PREG_PATTERN_EMAIL_USERNAME_CHAR . '+(?:\\.' . PREG_PATTERN_EMAIL_USERNAME_CHAR . '+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")');
-define("PREG_PATTERN_EMAIL_DOMAIN", '(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])');
+const PREG_PATTERN_EMAIL_USERNAME_CHAR = '[-a-z0-9!#$%&\'*+\\/=?^_`{|}~]';
+const PREG_PATTERN_EMAIL_USERNAME = '(?:' . PREG_PATTERN_EMAIL_USERNAME_CHAR . '+(?:\\.' . PREG_PATTERN_EMAIL_USERNAME_CHAR . '+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")';
+const PREG_PATTERN_EMAIL_DOMAIN = '(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])';
 
 /**
  * A regular expression pattern for matching email addresses, undelimited. Should run case-insensitive.
@@ -55,12 +55,12 @@ define("PREG_PATTERN_EMAIL_DOMAIN", '(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a
  * @see preg_match
  */
 
-define("PREG_PATTERN_EMAIL", PREG_PATTERN_EMAIL_USERNAME . '@' . PREG_PATTERN_EMAIL_DOMAIN);
+const PREG_PATTERN_EMAIL = PREG_PATTERN_EMAIL_USERNAME . '@' . PREG_PATTERN_EMAIL_DOMAIN;
 
 /**
  * Key used to seaparate paths in the globals array
  */
-define("ZESK_GLOBAL_KEY_SEPARATOR", "::");
+const ZESK_GLOBAL_KEY_SEPARATOR = "::";
 
 /**
  * Get our global Zesk kernel. Use is DISCOURAGED, unless you use it like:
@@ -83,6 +83,7 @@ function zesk(): ?Kernel {
  * Does NOT assume array is a 0-based key list.
  *
  * @param array $a
+ * @param mixed|null $default
  * @return mixed
  */
 function first(array $a, mixed $default = null): mixed {
@@ -94,6 +95,7 @@ function first(array $a, mixed $default = null): mixed {
  * Does NOT assume array is a 0-based key list
  *
  * @param array $a
+ * @param mixed|null $default
  * @return mixed
  */
 function last(array $a, mixed $default = null): mixed {
@@ -110,7 +112,7 @@ function last(array $a, mixed $default = null): mixed {
  * @param mixed $mixed
  * @return string
  */
-function type($mixed) {
+function type(mixed $mixed): string {
 	return is_object($mixed) ? get_class($mixed) : gettype($mixed);
 }
 
@@ -121,13 +123,11 @@ function type($mixed) {
  * @param string $prefix
  * @return boolean
  * @see \zesk\StringTools::begins
+ * @deprecated 2022-02
+ * @see str_starts_with
  */
-function begins($haystack, $needle) {
-	$n = strlen($needle);
-	if ($n === 0) {
-		return true;
-	}
-	return substr($haystack, 0, $n) === $needle;
+function begins(string $haystack, string $needle): bool {
+	return str_starts_with($haystack, $needle);
 }
 
 /**
@@ -137,8 +137,10 @@ function begins($haystack, $needle) {
  * @param string $prefix
  * @return boolean
  * @see \zesk\StringTools::beginsi
+ * @see str_starts_with
+ * @deprecated 2022-02
  */
-function beginsi($haystack, $needle) {
+function beginsi(string $haystack, string $needle): bool {
 	$n = strlen($needle);
 	if ($n === 0) {
 		return true;
@@ -153,8 +155,10 @@ function beginsi($haystack, $needle) {
  * @param string $prefix
  * @return boolean
  * @see \zesk\StringTools::ends
+ * @see str_ends_with()
+ * @deprecated 2022-02
  */
-function ends($haystack, $needle) {
+function ends(string $haystack, string $needle): bool {
 	$n = strlen($needle);
 	if ($n === 0) {
 		return true;
@@ -169,8 +173,10 @@ function ends($haystack, $needle) {
  * @param string $prefix
  * @return boolean
  * @see \zesk\StringTools::endsi
+ * @see str_ends_with()
+ * @deprecated 2022-02
  */
-function endsi($haystack, $needle) {
+function endsi(string $haystack, string $needle): bool {
 	$n = strlen($needle);
 	if ($n === 0) {
 		return true;
@@ -182,11 +188,11 @@ function endsi($haystack, $needle) {
  * Set or get the newline character.
  * Probably should deprecate this for an output class.
  *
- * @param string $set
+ * @param ?string $set
  * @return string
  * @deprecated 2017-12
  */
-function newline($set = null) {
+function newline(string $set = null): string {
 	if ($set !== null) {
 		zesk()->newline = $set;
 		return $set;
@@ -200,7 +206,7 @@ function newline($set = null) {
  * @param int $n
  *            The number of frames to output. Pass a negative number to pass all frames.
  */
-function _backtrace($n = -1) {
+function _backtrace(int $n = -1): string {
 	$bt = debug_backtrace();
 	array_shift($bt);
 	if ($n <= 0) {
@@ -212,7 +218,7 @@ function _backtrace($n = -1) {
 		$line = "-none-";
 		$class = "-noclass-";
 		$type = $function = $args = null;
-		extract($i, EXTR_IF_EXISTS);
+		extract($i, EXTR_OVERWRITE | EXTR_IF_EXISTS);
 		$line = "$file: $line $class$type$function";
 		if (is_array($args)) {
 			$arg_dump = [];
@@ -240,12 +246,11 @@ function _backtrace($n = -1) {
 /**
  * Output a backtrace of the stack
  *
- * @param boolean $doExit
- *            Exit the program
- * @param int $n
- *            The number of frames to output
+ * @param bool $exit Exit the program
+ * @param int $n The number of frames to output
+ * @return void
  */
-function backtrace($exit = true, $n = -1): void {
+function backtrace(bool $exit = true, int $n = -1): void {
 	echo _backtrace($n);
 	if ($exit) {
 		exit($exit);
@@ -264,7 +269,7 @@ function backtrace($exit = true, $n = -1): void {
  * @see debug_backtrace()
  * @see Debug::calling_function
  */
-function calling_function($depth = 1, $include_line = true) {
+function calling_function(int $depth = 1, bool $include_line = true): string {
 	$bt = debug_backtrace();
 	array_shift($bt); // Remove this function from the stack
 	if ($depth > 0) {
@@ -306,7 +311,7 @@ if (!function_exists("dump")) {
  * @return string string representation of the value
  * @see print_r, dump
  */
-function _dump($x) {
+function _dump($x): string {
 	return Debug::dump($x);
 }
 
@@ -412,8 +417,23 @@ function to_list(mixed $mixed, array $default = [], string $delimiter = ";"): ar
  * @param mixed $default
  *            Default value to return if can't easily convert to an array.
  * @return array
+ * @deprecated 2022-02 PSR
  */
 function to_array(mixed $mixed, array $default = []): array {
+	return toArray($mixed, $default);
+}
+
+/**
+ * Converts a scalar to an array.
+ * Returns default for values of null or false.
+ *
+ * @param mixed $mixed
+ *            If false or null, returns default value
+ * @param mixed $default
+ *            Default value to return if can't easily convert to an array.
+ * @return array
+ */
+function toArray(mixed $mixed, array $default = []): array {
 	if (is_array($mixed)) {
 		return $mixed;
 	}
@@ -434,7 +454,7 @@ function to_array(mixed $mixed, array $default = []): array {
  * @param mixed $mixed
  * @return string
  */
-function to_text(mixed $mixed): string {
+function toText(mixed $mixed): string {
 	if (is_bool($mixed)) {
 		return $mixed ? 'true' : 'false';
 	}
@@ -445,6 +465,17 @@ function to_text(mixed $mixed): string {
 		return Text::format_pairs($mixed);
 	}
 	return strval($mixed);
+}
+
+/**
+ * Converts a PHP value to a string, usually for debugging.
+ *
+ * @param mixed $mixed
+ * @return string
+ * @deprecated 2022-02
+ */
+function to_text(mixed $mixed): string {
+	return toText($mixed);
 }
 
 /**
@@ -465,6 +496,16 @@ function to_iterator(mixed $mixed): iterable {
  * @return iterable
  */
 function to_iterable(mixed $mixed): iterable {
+	return toIterable($mixed);
+}
+
+/**
+ * Gently coerce things to iterable
+ *
+ * @param mixed $mixed
+ * @return iterable
+ */
+function toIterable(mixed $mixed): iterable {
 	if (is_iterable($mixed)) {
 		return $mixed;
 	}
@@ -475,6 +516,7 @@ function to_iterable(mixed $mixed): iterable {
 		$mixed,
 	];
 }
+
 /**
  * Converts 20G to integer value
  *
@@ -511,11 +553,6 @@ function __(array|string $phrase): string {
 	return count($args) === 1 && is_array($args[0]) ? $locale($phrase, $args[0]) : $locale($phrase, $args);
 }
 
-if (!function_exists('debugger_start_debug')) {
-	function debugger_start_debug(): void {
-	}
-}
-
 /**
  * Shorthand for array_key_exists($k,$a) ? $a[$k] : $default.
  * Asserts $a is an array, $k is a string or numeric.
@@ -535,13 +572,7 @@ if (!function_exists('debugger_start_debug')) {
  * @deprecated 2022-01 PHP8
  * @see https://wiki.php.net/rfc/isset_ternary
  */
-function avalue($a, $k, $default = null) {
-	if (!is_array($a)) {
-		$message = "Array (" . strval($a) . ") is of type " . type($a) . " " . _backtrace();
-		error_log($message, E_USER_WARNING);
-		debugger_start_debug();
-		die(__FILE__ . ':' . __LINE__ . "<br />" . $message);
-	}
+function avalue(array $a, string|int $k, mixed $default = null): mixed {
 	$k = strval($k);
 	return array_key_exists($k, $a) ? $a[$k] : $default;
 }
@@ -559,7 +590,7 @@ function avalue($a, $k, $default = null) {
  * @deprecated 2022-01 PHP8
  *
  */
-function aevalue($a, $k, $default = null) {
+function aevalue(array $a, string|int $k, mixed $default = null): mixed {
 	$k = strval($k);
 	return array_key_exists($k, $a) && !empty($a[$k]) ? $a[$k] : $default;
 }
@@ -570,7 +601,7 @@ function aevalue($a, $k, $default = null) {
  * @param mixed $mixed
  * @return string
  */
-function flatten($mixed) {
+function flatten(mixed $mixed): string {
 	if (is_array($mixed)) {
 		$mixed = ArrayTools::flatten($mixed);
 	}
@@ -581,7 +612,7 @@ function flatten($mixed) {
 		return method_exists($mixed, '__toString') ? strval($mixed) : flatten(get_object_vars($mixed));
 	}
 	if (is_scalar($mixed)) {
-		return $mixed;
+		return strval($mixed);
 	}
 	return JSON::encode($mixed);
 }
@@ -596,7 +627,7 @@ function flatten($mixed) {
  *            Tokens to convert from/to
  * @return mixed Whatever passed in is returned (string/array)
  */
-function tr($mixed, array $map) {
+function tr(mixed $mixed, array $map): mixed {
 	if (can_iterate($mixed)) {
 		foreach ($mixed as $k => $v) {
 			$mixed[$k] = tr($v, $map);
@@ -623,12 +654,9 @@ function tr($mixed, array $map) {
  *            Replacement string
  * @param mixed $subject
  *            String or array to manipulate
- * @return mixed
+ * @return array|string|null
  */
-function preg_replace_mixed($pattern, $replacement, $subject) {
-	if ($subject === null || is_bool($subject)) {
-		return $subject;
-	}
+function preg_replace_mixed(string $pattern, string $replacement, array|string $subject): array|string|null {
 	if (is_array($subject)) {
 		foreach ($subject as $k => $v) {
 			$subject[$k] = preg_replace_mixed($pattern, $replacement, $v);
@@ -643,25 +671,18 @@ function preg_replace_mixed($pattern, $replacement, $subject) {
  *
  * @param string $pattern
  *            Pattern to match
- * @param string $callback
+ * @param callable $callback
  *            Replacement string
  * @param mixed $subject
  *            String or array to manipulate
  * @return mixed
  */
-function preg_replace_callback_mixed($pattern, $callback, $subject) {
-	if ($subject === null) {
-		return null;
-	}
+function preg_replace_callback_mixed(string $pattern, callable $callback, array|string $subject): array {
 	if (is_array($subject)) {
 		foreach ($subject as $k => $v) {
 			$subject[$k] = preg_replace_callback_mixed($pattern, $callback, $v);
 		}
 		return $subject;
-	}
-	if (!is_scalar($subject)) {
-		dump($subject);
-		backtrace();
 	}
 	return preg_replace_callback($pattern, $callback, $subject);
 }
@@ -681,7 +702,7 @@ function preg_replace_callback_mixed($pattern, $callback, $subject) {
  *            Suffix character for tokens (defaults to "}")
  * @return array
  */
-function amap(array $target, array $map, $insensitive = false, $prefix_char = "{", $suffix_char = "}") {
+function amap(array $target, array $map, bool $insensitive = false, string $prefix_char = "{", string $suffix_char = "}"): array {
 	return map(kmap($target, $map, $insensitive, $prefix_char, $suffix_char), $map, $insensitive, $prefix_char, $suffix_char);
 }
 
@@ -700,7 +721,7 @@ function amap(array $target, array $map, $insensitive = false, $prefix_char = "{
  *            Suffix character for tokens (defaults to "}")
  * @return array
  */
-function kmap(array $target, array $map, $insensitive = false, $prefix_char = "{", $suffix_char = "}") {
+function kmap(array $target, array $map, bool $insensitive = false, string $prefix_char = "{", string $suffix_char = "}"): array {
 	$new_mixed = [];
 	foreach ($target as $key => $value) {
 		$new_mixed[map($key, $map, $insensitive, $prefix_char, $suffix_char)] = $value;
@@ -733,10 +754,7 @@ function kmap(array $target, array $map, $insensitive = false, $prefix_char = "{
  *            Suffix character for tokens (defaults to "}")
  * @return mixed (string or array)
  */
-function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suffix_char = "}") {
-	if (!is_string($mixed) && !is_array($mixed)) {
-		return $mixed;
-	}
+function map(array|string $mixed, array $map, bool $insensitive = false, string $prefix_char = "{", string $suffix_char = "}"): array|string {
 	if ($insensitive) {
 		$map = array_change_key_case($map);
 	}
@@ -762,7 +780,7 @@ function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suff
 		if (!$func) {
 			$func = fn ($matches) => strtolower($matches[0]);
 		}
-		$mixed = preg_replace_callback_mixed('/' . preg_quote($prefix_char, '/') . '([-:_ =,.\/\'"A-Za-z0-9]+)' . preg_quote($suffix_char, '/') . '/i', $func, $mixed);
+		$mixed = preg_replace_callback_mixed('#' . preg_quote($prefix_char, '/') . '([-:_ =,./\'"A-Za-z0-9]+)' . preg_quote($suffix_char, '/') . '#i', $func, $mixed);
 	}
 	// tr("{a}", array("{a} => null)) = "null"
 	return tr($mixed, $s);
@@ -1113,7 +1131,7 @@ function integer_between($min, $x, $max): bool {
  * @return array
  * @see getdate
  */
-function utc_getdate($ts) {
+function utc_getdate(?int $ts): array {
 	$otz = date_default_timezone_get();
 	date_default_timezone_set("UTC");
 	$result = getdate($ts);

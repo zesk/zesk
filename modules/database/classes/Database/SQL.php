@@ -581,11 +581,12 @@ abstract class Database_SQL extends Hookable {
 	 * @throws Exception_Unimplemented
 	 */
 	public function update(array $options = []): string {
-		$table = null;
-		$values = [];
-		$where = [];
-		$alias = "";
-		extract($options, EXTR_IF_EXISTS);
+		$table = $options['table'] ?? "";
+		$values = toArray($options['values'] ?? []);
+		$where = toArray($options['where'] ?? []);
+		$alias = $options['alias'] ?? "";
+		assert(is_string($table));
+		assert(is_string($alias));
 		$name_equals_values = [];
 		foreach ($values as $k => $v) {
 			// TODO, This allows for | keys, which it shouldn't allow.

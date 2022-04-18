@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -11,10 +13,10 @@ namespace zesk;
  */
 class JSON_Test extends Test_Unit {
 	/**
-	 * @expectedException zesk\Exception_Parameter
+	 * @expectedException zesk\Exception_Parse
 	 */
 	public function test_decode(): void {
-		JSON::decode(null);
+		JSON::decode("{");
 	}
 
 	/**
@@ -31,41 +33,104 @@ class JSON_Test extends Test_Unit {
 	}
 
 	public function test_decode_null(): void {
-		$this->assert_equal(JSON::decode("null"), null);
+		$this->assertNull(JSON::decode("null"));
 	}
 
-	public function test_encode(): void {
-		$mixed = null;
-		$this->assert_equal(JSON::encode($mixed), "null");
-
-		$mixed = [
+	public function data_encode(): array {
+		return [
 			[
-				"Hello" => "Dude",
-				"1241`2" => "odd",
-				"__2341" => 2,
-				"a459123" => new \stdClass(),
+				"null",
+				null,
 			],
-			false,
-			true,
-			12312312,
-			"A string",
-			'A string',
-			"*don't encode result" => "document.referrer",
-			null,
-			"dog" => null,
+			[
+				'{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","*do encode result":"document.referrer","6":null,"dog":null}',
+				[
+					[
+						"Hello" => "Dude",
+						"1241`2" => "odd",
+						"__2341" => 2,
+						"a459123" => new \stdClass(),
+					],
+					false,
+					true,
+					12312312,
+					"A string",
+					'A string',
+					"*do encode result" => "document.referrer",
+					null,
+					"dog" => null,
+				],
+			],
 		];
-		$expected = '{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","*don\'t encode result":"document.referrer","6":null,"dog":null}';
-		$this->assert_equal(JSON::encode($mixed), $expected);
 	}
 
-	public function test_encodex(): void {
-		$mixed = null;
-		$this->assert_equal(JSON::encodex($mixed), "null");
+	public function data_encodex(): array {
+		return [
+			[
+				"null",
+				null,
+			],
+			[
+				'{"0":{Hello:"Dude","1241`2":"odd",__2341:2,a459123:{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","don\'t encode result":document.referrer,"6":null,dog:null}',
+				[
+					[
+						"Hello" => "Dude",
+						"1241`2" => "odd",
+						"__2341" => 2,
+						"a459123" => new \stdClass(),
+					],
+					false,
+					true,
+					12312312,
+					"A string",
+					'A string',
+					"*don't encode result" => "document.referrer",
+					null,
+					"dog" => null,
+				],
+			],
+		];
 	}
 
-	public function test_object_member_name_quote(): void {
-		$name = null;
-		JSON::object_member_name_quote($name);
+	/**
+	 * @param $expected
+	 * @param $mixed
+	 * @return void
+	 * @dataProvider data_encode
+	 */
+	public function test_encode(string $expected, mixed $mixed): void {
+		$this->assertEquals($expected, JSON::encode($mixed));
+	}
+
+	/**
+	 * @param $expected
+	 * @param $mixed
+	 * @return void
+	 * @dataProvider data_encodex
+	 */
+	public function test_encodex(string $expected, mixed $mixed): void {
+		$this->assertEquals($expected, JSON::encodex($mixed));
+	}
+
+	public function data_object_member_name_quote(): array {
+		return [
+			["", "\"\""],
+			["a", "a"],
+			["dude_123", "dude_123"],
+			[" ", "\" \""],
+			["a b", "\"a b\""],
+			["@#", "\"@#\""],
+			["Equalit'", "\"Equalit'\""],
+			["egalité", "\"egalité\""],
+		];
+	}
+
+	/**
+	 * @return void
+	 * @dataProvider data_object_member_name_quote
+	 */
+	public function test_object_member_name_quote($name, $expected): void {
+		$this->assertEquals($expected, JSON::object_member_name_quote($name));
 	}
 
 	public function test_quote(): void {
@@ -77,9 +142,25 @@ class JSON_Test extends Test_Unit {
 		$this->assert(JSON::quote("th-ingy2") === "\"th-ingy2\"");
 	}
 
-	public function test_valid_member_name(): void {
-		$name = null;
-		$this->assert_equal(JSON::valid_member_name($name), false);
+	public function data_valid_member_name(): array {
+		return [
+			[false, ""],
+			[true, "a"],
+			[true, "dude_123"],
+			[false, " "],
+			[false, "a b"],
+			[false, "@#"],
+			[false, "Equalit'"],
+			[false, "egalité"],
+		];
+	}
+
+	/**
+	 * @return void
+	 * @dataProvider data_valid_member_name
+	 */
+	public function test_valid_member_name($expected, $name): void {
+		$this->assertEquals($expected, JSON::valid_member_name($name));
 	}
 
 	public function internal_values() {

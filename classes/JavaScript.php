@@ -91,15 +91,12 @@ class JavaScript {
 	/**
 	 * Clean a JavaScript function name
 	 *
-	 * @param string $x function name to clean
+	 * @param string $name function name to clean
 	 * @return string
 	 */
-	public static function clean_function_name($x) {
-		if (!is_string($x)) {
-			return null;
-		}
-		$x = preg_replace('/[^A-Za-z0-9_]/', '', $x);
-		return $x;
+	public static function clean_function_name(string $name) {
+		$name = preg_replace('/[^A-Za-z0-9_]/', '', $name);
+		return $name;
 	}
 
 	/**
@@ -108,24 +105,22 @@ class JavaScript {
 	 * @param mixed $x value to display
 	 * @return string
 	 */
-	public static function null($x) {
+	public static function null(mixed $x): string {
 		if (empty($x)) {
 			return "null";
 		}
-		return $x;
+		return strval($x);
 	}
 
 	/**
 	 * Clean an array of JavaScript code; ensure each line ends with a semicolon, remove
 	 * empty values, and trim each line
-	 * @param string $mixed Clean code
+	 *
+	 * @param array $javascript
 	 * @return string
 	 */
-	public static function clean_code($mixed) {
-		if (is_array($mixed)) {
-			$mixed = implode(";\n", ArrayTools::unsuffix(ArrayTools::trim_clean($mixed, " ", ""), ";"));
-		}
-		return $mixed;
+	public static function clean_code(array $javascript): string {
+		return implode(";\n", ArrayTools::unsuffix(ArrayTools::trim_clean($javascript, " ", ""), ";"));
 	}
 
 	/**
@@ -134,7 +129,7 @@ class JavaScript {
 	 * @param $x string to quote
 	 * @return string Quoted and properly escaped JavaScript string
 	 */
-	public static function string($x) {
+	public static function string(string $x): string {
 		$x = str_replace("'", "\\'", $x);
 		$x = str_replace("\n", "\\n' +\n'", $x);
 		return "'$x'";

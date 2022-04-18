@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -48,7 +50,7 @@ abstract class Command_Base extends Command {
 	 * @see Command::initialize()
 	 */
 	protected function initialize(): void {
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 		$this->option_types['log'] = 'string';
 		$this->option_types['log-level'] = 'string';
 		$this->option_types['debug'] = 'boolean';
@@ -129,7 +131,7 @@ abstract class Command_Base extends Command {
 			$this->usage();
 		}
 		if ($this->optionBool('debug-config')) {
-			$this->application->hooks->add("zesk\Application::configured", [
+			$this->application->add_hook(\zesk\Hooks::HOOK_CONFIGURED, [
 				$this,
 				"action_debug_configured",
 			]);

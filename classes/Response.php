@@ -128,14 +128,14 @@ class Response extends Hookable {
 	 *
 	 * @var string
 	 */
-	public $content = null;
+	public string $content = "";
 
 	/**
 	 * File to return (for big stuff)
 	 *
 	 * @var string
 	 */
-	protected $content_file = null;
+	protected string $content_file = "";
 
 	/**
 	 * Status code

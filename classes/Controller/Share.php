@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -68,7 +70,7 @@ class Controller_Share extends Controller {
 	 */
 	public function path_to_file($path) {
 		$uri = StringTools::unprefix($path, "/");
-		[$ignore, $uri] = pair($uri, "/", null, $uri);
+		$uri = pair($uri, "/", "", $uri)[1];
 		$share_paths = $this->application->share_path();
 		foreach ($share_paths as $name => $path) {
 			if (empty($name) || begins($uri, "$name/")) {
@@ -108,9 +110,9 @@ class Controller_Share extends Controller {
 				$this->build($original_uri, $file);
 			}
 			return null;
+			$this->response->header("X-Debug", "Mod - " . strtotime($mod) . " FMod - " . strtotime($fmod));
 		}
 
-		$this->response->header("X-Debug", "Mod - " . strtotime($mod) . " FMod - " . $fmod);
 		$request = $this->request;
 		if ($request->get("_ver")) {
 			// Versioned resources are timestamped, expire never

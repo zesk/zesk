@@ -6,7 +6,7 @@ class Exception_Configuration extends Exception {
 	 *
 	 * @var string
 	 */
-	public $name = "";
+	public string $name = "";
 
 	/**
 	 *

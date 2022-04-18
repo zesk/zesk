@@ -9,7 +9,7 @@ namespace zesk;
 class Class_Province extends Class_ORM {
 	public string $id_column = "id";
 
-	public $name = "Province:=State";
+	public string $name = "Province:=State";
 
 	public array $column_types = [
 		"id" => self::type_id,

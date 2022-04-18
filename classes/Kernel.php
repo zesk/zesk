@@ -601,7 +601,7 @@ class Kernel {
 	 * @deprecated 2022-02 PSR
 	 */
 	public function create_application(array $options = []) {
-		return self::create_application($options);
+		return self::createApplication($options);
 	}
 
 	/**

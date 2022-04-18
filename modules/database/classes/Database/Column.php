@@ -271,7 +271,7 @@ class Database_Column extends Options {
 	 * @return $this
 	 */
 	final public function setBinary(bool $set) {
-		return $this->optionSet('binary', $set);
+		return $this->setOption('binary', $set);
 	}
 
 	/**

@@ -116,7 +116,15 @@ class Hooks {
 		register_shutdown_function([$this, "_app_check_error", ]);
 	}
 
-	private static $fatals = [E_USER_ERROR => 'Fatal Error', E_ERROR => 'Fatal Error', E_PARSE => 'Parse Error', E_CORE_ERROR => 'Core Error', E_CORE_WARNING => 'Core Warning', E_COMPILE_ERROR => 'Compile Error', E_COMPILE_WARNING => 'Compile Warning', ];
+	private static $fatals = [
+		E_USER_ERROR => 'Fatal Error',
+		E_ERROR => 'Fatal Error',
+		E_PARSE => 'Parse Error',
+		E_CORE_ERROR => 'Core Error',
+		E_CORE_WARNING => 'Core Warning',
+		E_COMPILE_ERROR => 'Compile Error',
+		E_COMPILE_WARNING => 'Compile Warning',
+	];
 
 	/**
 	 * Shutdown functino to log errors
@@ -296,7 +304,11 @@ class Hooks {
 				return false;
 			}
 		} elseif ($this->debug) {
-			$this->kernel->logger->debug("{__CLASS__}::{__FUNCTION__} Class {class} does not have method hooks", ["__CLASS__" => __CLASS__, "__FUNCTION__" => __FUNCTION__, "class" => $class, ]);
+			$this->kernel->logger->debug("{__CLASS__}::{__FUNCTION__} Class {class} does not have method hooks", [
+				"__CLASS__" => __CLASS__,
+				"__FUNCTION__" => __FUNCTION__,
+				"class" => $class,
+			]);
 			$this->hooks_called[$lowClass] = false;
 			return true;
 		}
@@ -343,6 +355,13 @@ class Hooks {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function all(): array {
+		return $this->hooks;
+	}
+
+	/**
 	 *
 	 * @return array
 	 */
@@ -383,7 +402,7 @@ class Hooks {
 			$this->kernel->logger->debug("Duplicate registration of hook {callable}", ["callable" => $callable_string, ]);
 			return;
 		}
-		$options['callable'] = ($function === null ? $hook : $function);
+		$options['callable'] = $function;
 		if (isset($options['first'])) {
 			$hook_group->first = array_merge([$callable_string => $options, ], $hook_group->first);
 		} elseif (isset($options['last'])) {
@@ -401,9 +420,10 @@ class Hooks {
 	 *            List of methods (array or ;-separated string)
 	 */
 	public function find_all(array $class_methods): array {
+		$methods = [];
 		foreach ($class_methods as $class_method) {
-			[$class, $method] = pair($class_method, "::", null, $class_method);
-			if ($class === null) {
+			[$class, $method] = pair($class_method, "::", "", $class_method);
+			if ($class === "") {
 				continue;
 			}
 			$low_class = strtolower($class);
@@ -420,7 +440,11 @@ class Hooks {
 				try {
 					$refl = new \ReflectionClass($class);
 				} catch (\Exception $e) {
-					$this->kernel->logger->warning("{class} not found {eclass}: {emessage}", ["class" => $class, "eclass" => get_class($e), "emessage" => $e->getMessage(), ]);
+					$this->kernel->logger->warning("{class} not found {eclass}: {emessage}", [
+						"class" => $class,
+						"eclass" => get_class($e),
+						"emessage" => $e->getMessage(),
+					]);
 
 					continue;
 				}
@@ -591,7 +615,10 @@ class Hooks {
 		}
 		foreach ($definitions as $callable_string => $options) {
 			$options_arguments = to_array(avalue($options, 'arguments'));
-			$hooks[] = [$options['callable'], count($options_arguments) > 0 ? array_merge($options_arguments, $arguments) : $arguments, ];
+			$hooks[] = [
+				$options['callable'],
+				count($options_arguments) > 0 ? array_merge($options_arguments, $arguments) : $arguments,
+			];
 		}
 		return $hooks;
 	}

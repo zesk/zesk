@@ -952,8 +952,8 @@ class Modules {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	final public function all_hook_list($hook) {
-		$result = $this->application->hooks->find_all("zesk\\Module::$hook");
+	final public function all_hook_list(string $hook) {
+		$result = $this->application->hooks->find_all(["zesk\\Module::$hook"]);
 		if (count($result) > 0) {
 			$this->application->deprecated("Static cache clear hook is deprecated: " . _dump($result));
 		}

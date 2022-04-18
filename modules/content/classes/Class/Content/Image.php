@@ -19,7 +19,7 @@ class Class_Content_Image extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $name = "Image";
+	public string $name = "Image";
 
 	/**
 	 *

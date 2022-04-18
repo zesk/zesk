@@ -257,7 +257,6 @@ class Test extends Hookable {
 	 */
 	public function log($message, array $arguments = []) {
 		if (is_array($message)) {
-			var_dump($message);
 			$message = Text::format_pairs($message);
 		}
 		if (empty($message)) {
@@ -269,7 +268,7 @@ class Test extends Hookable {
 				echo $this->application->logger->dump_config();
 			}
 		}
-		$this->application->logger->log(avalue($arguments, "severity", "info"), $message, $arguments);
+		$this->application->logger->log($arguments["severity"] ?? "info", $message, $arguments);
 		return $this;
 	}
 

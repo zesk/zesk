@@ -11,9 +11,18 @@ namespace zesk;
  *
  */
 class JavaScript_Test extends Test_Unit {
-	public function test_clean_function_name(): void {
-		$x = null;
-		JavaScript::clean_function_name($x);
+	public function data_cleanFunctionName(): array {
+		return [
+			["foobar", "foo bar"],
+		];
+	}
+
+	/**
+	 * @return void
+	 * @dataProvider  data_cleanFunctionName
+	 */
+	public function test_clean_function_name($expected, $name): void {
+		$this->assertEquals($expected, JavaScript::clean_function_name($name));
 	}
 
 	public function test_null(): void {
@@ -44,8 +53,19 @@ class JavaScript_Test extends Test_Unit {
 		JavaScript::obfuscate_end($function_map);
 	}
 
-	public function test_string(): void {
-		$x = null;
-		JavaScript::string($x);
+	public function data_string(): array {
+		return [
+			["'Normal string'", "Normal string"],
+			["'That\'s string'", "That's string"],
+			["'Multiline\\n' +\n'String'", "Multiline\nString"],
+		];
+	}
+
+	/**
+	 * @dataProvider data_string
+	 * @return void
+	 */
+	public function test_string($expected, $test): void {
+		$this->assertEquals($expected, JavaScript::string($test));
 	}
 }
