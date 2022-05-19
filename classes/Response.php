@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
 
 use Psr\Cache\CacheItemPoolInterface;
@@ -126,9 +128,9 @@ class Response extends Hookable {
 	/**
 	 * Content to return (if small enough)
 	 *
-	 * @var string
+	 * @var ?string
 	 */
-	public string $content = "";
+	public ?string $content = "";
 
 	/**
 	 * File to return (for big stuff)
@@ -354,7 +356,7 @@ class Response extends Hookable {
 	 * Output a header
 	 *
 	 * @param string $string
-	 *        	Complete header line (e.g. "Location: /failed")
+	 *            Complete header line (e.g. "Location: /failed")
 	 */
 	private function _header($string): void {
 		if ($this->cache_settings) {
@@ -403,9 +405,9 @@ class Response extends Hookable {
 			$content_type = $this->content_type;
 		}
 		if ($this->application->development() && $this->application->configuration->path_get([
-			__CLASS__,
-			"json_to_html",
-		])) {
+				__CLASS__,
+				"json_to_html",
+			])) {
 			if (in_array($this->content_type, [
 				self::CONTENT_TYPE_JSON,
 			])) {
@@ -514,9 +516,9 @@ class Response extends Hookable {
 	 * Set a date header
 	 *
 	 * @param string $name
-	 *        	Header to set (Expires, Date, Last-Modified, etc.)
+	 *            Header to set (Expires, Date, Last-Modified, etc.)
 	 * @param mixed $value
-	 *        	Timestamp or integer
+	 *            Timestamp or integer
 	 */
 	final public function header_date($name, $value) {
 		if ($value instanceof Timestamp) {
@@ -529,9 +531,9 @@ class Response extends Hookable {
 	 * Setter/Getter for headers
 	 *
 	 * @param string $name
-	 *        	Name of header to get/set
+	 *            Name of header to get/set
 	 * @param string $value
-	 *        	Value of header to set
+	 *            Value of header to set
 	 * @return mixed All headers if name is null, header value if name is set, $this if name and
 	 *         value are set
 	 */
@@ -564,8 +566,8 @@ class Response extends Hookable {
 	/**
 	 * Current output handler
 	 *
-	 * @throws Exception_Semantics
 	 * @return \zesk\Response\Type
+	 * @throws Exception_Semantics
 	 */
 	private function _output_handler() {
 		$type = $this->output_handler;
@@ -661,9 +663,9 @@ class Response extends Hookable {
 	 * Cache for n seconds
 	 *
 	 * @param integer $seconds
-	 *        	Number of seconds to cache this content
+	 *            Number of seconds to cache this content
 	 * @param integer $level
-	 *        	What cache pattern to use to store this content
+	 *            What cache pattern to use to store this content
 	 * @return \zesk\Response
 	 */
 	public function cache_for($seconds, $level = self::CACHE_SCHEME) {
@@ -681,8 +683,8 @@ class Response extends Hookable {
 	 */
 	private static function _cache_parts($url) {
 		$parts = to_array(URL::parse($url)) + [
-			"scheme" => "none",
-		];
+				"scheme" => "none",
+			];
 		$parts += [
 			"port" => URL::protocol_default_port($parts['scheme']),
 			"scheme" => 'none',
@@ -697,7 +699,7 @@ class Response extends Hookable {
 	 * Is content type?
 	 *
 	 * @param mixed $mixed
-	 *        	String or list
+	 *            String or list
 	 * @return boolean
 	 */
 	public function is_content_type($mixed) {
@@ -724,7 +726,7 @@ class Response extends Hookable {
 	 * Save this response's content, if the page requested to be cached
 	 *
 	 * @param string $content
-	 *        	Contents to save
+	 *            Contents to save
 	 * @return boolean
 	 */
 	public function cache_save(CacheItemPoolInterface $pool, $url) {
@@ -800,8 +802,8 @@ class Response extends Hookable {
 	 * Fetches the type to handle this content type
 	 *
 	 * @param string $type String of content type to find/create.
-	 * @throws Exception_Semantics When no content type is set
 	 * @return \zesk\Response\Type
+	 * @throws Exception_Semantics When no content type is set
 	 */
 	private function _type($type) {
 		if (isset($this->types[$type])) {
@@ -893,11 +895,11 @@ class Response extends Hookable {
 	 * Add a css to the page
 	 *
 	 * @param string $path
-	 *        	Path to css file
+	 *            Path to css file
 	 * @param array $options
-	 *        	Optional options: media (defaults to all), type (defults to text/css), browser
-	 *        	(may be ie,
-	 *        	ie6, ie7), and cdn (boolean to prefix with cdn path)
+	 *            Optional options: media (defaults to all), type (defults to text/css), browser
+	 *            (may be ie,
+	 *            ie6, ie7), and cdn (boolean to prefix with cdn path)
 	 * @return void
 	 */
 	final public function css($path, $mixed = null, $options = null) {
@@ -918,11 +920,11 @@ class Response extends Hookable {
 	 * Register a javascript to be put on the page
 	 *
 	 * @param string $path
-	 *        	File path to serve for the javascript
+	 *            File path to serve for the javascript
 	 * @param array $options
-	 *        	Optional settings: type (defaults to text/javascript), browser (defaults to all
-	 *        	browsers),
-	 *        	cdn (defaults to false)
+	 *            Optional settings: type (defaults to text/javascript), browser (defaults to all
+	 *            browsers),
+	 *            cdn (defaults to false)
 	 * @return Response
 	 */
 	final public function javascript($path, $options = null) {
@@ -1021,8 +1023,8 @@ class Response extends Hookable {
 	 * Output a file
 	 *
 	 * @param unknown $file
-	 * @throws Exception_File_NotFound
 	 * @return string|\zesk\Response
+	 * @throws Exception_File_NotFound
 	 */
 	final public function file($file = null) {
 		return $this->raw()->file($file);
@@ -1032,11 +1034,11 @@ class Response extends Hookable {
 	 * Download a file
 	 *
 	 * @param string $file
-	 *        	Full path to file to download
+	 *            Full path to file to download
 	 * @param string $name
-	 *        	File name given to browser to save the file
+	 *            File name given to browser to save the file
 	 * @param string $type
-	 *        	Content disposition type (attachment)
+	 *            Content disposition type (attachment)
 	 * @return \zesk\Response
 	 */
 	final public function download($file, $name = null, $type = null) {
@@ -1071,7 +1073,7 @@ class Response extends Hookable {
 	 *
 	 * @param string $url
 	 * @param string $message
-	 *        	Already-localized message to display to user on redirected page
+	 *            Already-localized message to display to user on redirected page
 	 */
 	public function redirect_default($url, $message = null): void {
 		$ref = $this->request->get("ref", "");
@@ -1121,5 +1123,16 @@ class Response extends Hookable {
 			return $this;
 		}
 		return $this->content;
+	}
+
+	/**
+	 * Getter/setter for content
+	 *
+	 * @param string|NULL $content
+	 * @return \zesk\Response|string
+	 */
+	public function setContent(string $content = null): self {
+		$this->content = $content;
+		return $this;
 	}
 }

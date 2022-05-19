@@ -79,7 +79,7 @@ class Database_Parser_Test extends Test_Unit {
 	}
 
 	/**
-	 * @data_provider data_provider_split_order_by
+	 * @dataProvider data_provider_split_order_by
 	 */
 	public function test_split_order_by($order_by, $expected_split, $expected_reverse): void {
 		$parser = $this->application->database_registry()->parser();
@@ -87,13 +87,17 @@ class Database_Parser_Test extends Test_Unit {
 		if (is_array($order_by)) {
 			$actual = [];
 			foreach ($order_by as $k => $v) {
-				$actual[$k] = $parser->split_order_by($v);
+				$result = $parser->split_order_by($v);
+				if (count($result) === 1) {
+					$result = array_pop($result);
+				}
+				$actual[$k] = $result;
 			}
 		} else {
 			$actual = $parser->split_order_by($order_by);
 		}
 
-		$this->assert_equal_array($actual, $expected_split);
+		$this->assert_equal_array($expected_split, $actual);
 
 		$actual_reverse = $parser->reverse_order_by($order_by);
 

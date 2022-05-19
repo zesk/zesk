@@ -22,7 +22,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *
 	 * @var array
 	 */
-	protected $objects_prefixes = [];
+	protected array $objects_prefixes = [];
 
 	/**
 	 *
@@ -38,7 +38,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param Database_Query_Select_Base $from
 	 * @return $this
 	 */
-	protected function _copy_from_base(Database_Query_Select_Base $from) {
+	protected function _copy_from_base(Database_Query_Select_Base $from): self {
 		parent::_copy_from_query($from);
 		$this->objects_prefixes = $from->objects_prefixes;
 		return $this;
@@ -60,7 +60,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	/**
 	 * Execute query and retrieve a single field or row
 	 *
-	 * @param string $field
+	 * @param string|int $field
 	 * @param mixed $default
 	 * @return mixed
 	 */
@@ -74,7 +74,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param string $class
 	 * @return string
 	 */
-	public function class_alias($class = null) {
+	public function class_alias(string $class = null) {
 		if ($class === null) {
 			return null;
 		}
@@ -84,13 +84,13 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	/**
 	 * Execute query and retrieve a single field, a Timestamp
 	 *
-	 * @param string|integer $field
+	 * @param string|int $field
 	 *            Field to retrieve
 	 * @param mixed $default
 	 *            Default value to retrieve
-	 * @return integer
+	 * @return int
 	 */
-	public function one_integer($field = 0, $default = 0) {
+	public function one_integer(string|int $field = 0, int $default = 0): int {
 		return $this->integer($field, $default);
 	}
 
@@ -104,7 +104,8 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param DateTimeZone|null $timezone
 	 * @return Timestamp
 	 */
-	public function one_timestamp($field = 0, $default = null, DateTimeZone $timezone = null) {
+	public function one_timestamp(string|int $field = 0, Timestamp $default = null, DateTimeZone $timezone = null):
+	Timestamp {
 		return $this->timestamp($field, $default, $timezone);
 	}
 
@@ -126,11 +127,11 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *
 	 * @param string|integer $field
 	 *            Field to retrieve
-	 * @param mixed $default
+	 * @param ?int $default
 	 *            Default value to retrieve
-	 * @return integer
+	 * @return ?int
 	 */
-	public function integer($field = 0, $default = 0) {
+	public function integer(string|int $field = 0, ?int $default = 0): ?int {
 		return $this->database()->query_integer($this->__toString(), $field, $default);
 	}
 
@@ -143,11 +144,13 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *            Default value to retrieve
 	 * @param DateTimeZone|null $timezone
 	 * @return Timestamp
+	 * @throws Exception_NotFound
 	 */
-	public function timestamp($field = 0, $default = null, DateTimeZone $timezone = null) {
+	public function timestamp(int|string $field = 0, Timestamp $default = null, DateTimeZone $timezone = null):
+	Timestamp {
 		$value = $this->database()->query_one($this->__toString(), $field, $default);
 		if (empty($value)) {
-			$value = null;
+			throw new Exception_NotFound("Timestamp {field} not found", ["field" => $field]);
 		}
 		return new Timestamp($value, $timezone);
 	}
@@ -158,8 +161,20 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param string $value
 	 * @param array $default
 	 * @return array
+	 * @deprecated 2022-04
 	 */
-	public function to_array($key = null, $value = null, $default = []) {
+	public function to_array(int|string $key = null, int|string $value = null, array $default = []): array {
+		return $this->toArray($key, $value, $default);
+	}
+
+	/**
+	 *
+	 * @param string $key
+	 * @param string $value
+	 * @param array $default
+	 * @return array
+	 */
+	public function toArray(int|string $key = null, int|string $value = null, array $default = []) {
 		return $this->database()->query_array($this->__toString(), $key, $value, $default);
 	}
 
@@ -199,24 +214,24 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @return Model
 	 */
 	public function model(string $class = null, array $options = []): Model {
-		$result = $this->one(false, null);
+		$result = $this->one();
 		if ($result === null) {
-			return null;
+			throw new Exception_ORM_NotFound("{class} not found", ["class" => $class]);
 		}
 		return $this->application->model_factory($this->orm_class($class), $result, ['from_database' => true, ] + $options);
 	}
 
 	/**
 	 * Execute query and convert to an ORM. A bit of syntactic sugar.
-	 *
-	 * @param string $class Class of object, pass NULL to use already configured class
-	 * @param array $options Options to pass to object creator
+	 * @param string|null $class
+	 * @param array $options
 	 * @return ORM
+	 * @throws Exception_ORM_NotFound
 	 */
 	public function orm(string $class = null, array $options = []): ORM {
 		$result = $this->one();
 		if ($result === null) {
-			return null;
+			throw new Exception_ORM_NotFound("{class} not found", ["class" => $class]);
 		}
 		return $this->application->orm_factory($this->orm_class($class), $result, ['from_database' => true, ] + $options + $this->ormClassOptions());
 	}

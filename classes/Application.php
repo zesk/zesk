@@ -372,7 +372,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
-	 * @throws Exception_Unimplemented
 	 */
 	protected function _initialize(Kernel $kernel): void {
 		// Pretty much just copy object references over
@@ -606,14 +605,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * - If ZESK_CONFIG_PATH changes or INCLUDE changes in a configuration file load sequence, it
 	 * continues to load
 	 */
-	final public function configure(array $options = []) {
-		if ($this->configuration_options !== null) {
-			$this->logger->warning("Reconfiguring application {class}", [
-				"class" => get_class($this),
-			]);
-		}
-		$this->configuration->deprecated("Application::configure_options", __CLASS__ . "::configure_options");
-		$this->configuration_options = $options + to_array($this->configuration->path(__CLASS__)->configure_options);
+	final public function configure(array $options = []): self {
+		$this->configuration_options = $options + toArray($this->configuration->path(__CLASS__)->configure_options);
 		$this->_configure($this->configuration_options);
 		return $this;
 	}
@@ -787,8 +780,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	public function reconfigure() {
 		$this->hooks->call(Hooks::HOOK_RESET, $this);
-		$this->_initialize($this->kernel);
-		$result = $this->_configure(to_array($this->configuration_options));
+		// $this->_initialize($this->kernel);
+		$result = $this->_configure(toArray($this->configuration_options));
 		$this->modules->reload();
 		$this->_configured();
 		return $result;
@@ -1369,15 +1362,46 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param unknown $name
 	 * @return array
 	 */
-	final public function share_path($add = null, $name = null) {
+	final public function share_path(string $add = null, string $name = null) {
 		$list = $this->share_path;
 		if ($add) {
-			if (!is_dir($add)) {
-				throw new Exception_Directory_NotFound($add);
-			}
-			$this->share_path[$name] = $add;
+			$this->addSharePath($add, strval($name));
 		}
+		return $this->sharePath();
+	}
+
+	/**
+	 * Retrieve the share path for this application, a mapping of prefixes to paths
+	 *
+	 * By default, it's /share/
+	 *
+	 * @return array
+	 *
+	 * for example, returns a value:
+	 *
+	 *  `[ "home" => "/publish/app/api/modules/home/share/" ]`
+	 */
+	final public function sharePath(): array {
 		return $this->share_path;
+	}
+
+	/**
+	 * Add the share path for this application - used to serve
+	 * shared content via Controller_Share as well as populate automatically with files within the
+	 * system.
+	 *
+	 * By default, it's /share/
+	 *
+	 * @param string $add
+	 * @param string $name
+	 * @return self
+	 */
+	final public function addSharePath(string $add, string $name): self {
+		if (!is_dir($add)) {
+			throw new Exception_Directory_NotFound($add);
+		}
+		$this->share_path[$name] = $add;
+		return $this;
 	}
 
 	/**
@@ -1489,7 +1513,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @throws Exception_Directory_NotFound
 	 * @global boolean debug.zesk_command_path Whether to log errors occurring during this call
 	 */
-	final public function zesk_command_path($add = null, $prefix = null) {
+	final public function zesk_command_path(string|array $add = null, string $prefix = null): array {
 		if ($add !== null) {
 			if (!$prefix) {
 				$prefix = "zesk\Command_";
@@ -1891,15 +1915,37 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @param string $add
 	 * @return string[] List of paths searched
+	 * @deprecated 2022-05
 	 */
-	final public function module_path($add = null) {
+	final public function module_path(string $add = null): array {
 		if ($add !== null) {
-			if (!is_dir($add)) {
-				throw new Exception_Directory_NotFound($add);
-			}
-			$this->module_path[] = $add;
+			$this->addModulePath($add);
 		}
+		return $this->modulePath();
+	}
+
+	/**
+	 * Get the module search path
+	 *
+	 * @return string[] List of paths searched
+	 */
+	final public function modulePath(): array {
 		return $this->module_path;
+	}
+
+	/**
+	 * Set the module search path
+	 *
+	 * @param string $add
+	 * @return $this
+	 * @throws Exception_Directory_NotFound
+	 */
+	final public function addModulePath(string $add): self {
+		if (!is_dir($add)) {
+			throw new Exception_Directory_NotFound($add);
+		}
+		$this->module_path[] = $add;
+		return $this;
 	}
 
 	/**
@@ -1909,11 +1955,21 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *            Optionally set value
 	 * @return boolean
 	 */
-	public function development($set = null) {
-		if (is_bool($set)) {
-			return $this->setOption("development", to_bool($set));
+	public function development(mixed $set = null): bool {
+		if ($set !== null) {
+			throw new Exception_Deprecated("Set no longer supported");
 		}
 		return $this->optionBool("development");
+	}
+
+	/**
+	 * Set the development status of this application
+	 *
+	 * @param boolean $set Set value
+	 * @return self
+	 */
+	public function setDevelopment(bool $set): self {
+		return $this->setOption("development", to_bool($set));
 	}
 
 	/**

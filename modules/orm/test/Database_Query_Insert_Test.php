@@ -31,6 +31,7 @@ class Database_Query_Insert_Test extends Test_Unit {
 
 		$table = "TABLENAME";
 		$testx->into($table);
+		$testx->valid_columns(['thing','ID']);
 
 		$name = "thing";
 		$value = null;

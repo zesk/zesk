@@ -263,7 +263,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @param array $paths
 	 * @return array
-	 * @throws Exception_Lock
 	 */
 	public function paths_get(array $paths) {
 		$result = [];
@@ -279,7 +278,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string|array $path
 	 * @param mixed $default
 	 * @return mixed
-	 * @throws Exception_Lock
 	 */
 	public function path_get(string|array $path, mixed $default = null): mixed {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
@@ -300,7 +298,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string|array $path
 	 * @return bool
 	 */
-	public function pathExists(string|array $path) {
+	public function pathExists(string|array $path): bool {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$current = $this;
 		$key = array_pop($path);
@@ -350,7 +348,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return self
 	 * @throws Exception_Lock
 	 */
-	public function path(string|array $keys) {
+	public function path(string|array $keys): self {
 		$keys = is_array($keys) ? $keys : explode(self::key_separator, $keys);
 		$current = $this;
 		while (count($keys) > 0) {
@@ -401,9 +399,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	/**
 	 * Convert entire structure to an array, recursively
 	 *
-	 * @param integer $depth How deep to traverse (null for infinite)
+	 * @param int $depth How deep to traverse (null for infinite)
 	 * @return array
-	 * @throws Exception_Lock
 	 */
 	public function toArray(int $depth = null): array {
 		$result = [];

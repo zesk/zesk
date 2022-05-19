@@ -7,10 +7,11 @@ use zesk\ORM\JSONWalker;
 
 class JSON extends Type {
 	/**
+	 * Typically an array
 	 *
-	 * @var array
+	 * @var mixed
 	 */
-	private $json = [];
+	private mixed $json = null;
 
 	/**
 	 *
@@ -29,7 +30,7 @@ class JSON extends Type {
 	 * @param \zesk\Response $response
 	 */
 	public function initialize(): void {
-		$this->json = [];
+		$this->json = null;
 		$this->json_serializer_arguments = [
 			JSONWalker::factory(),
 		];
@@ -41,12 +42,19 @@ class JSON extends Type {
 	 * @param mixed $set
 	 * @return \zesk\Response|array
 	 */
+	public function setData(mixed $set) {
+		$this->parent->content_type(Response::CONTENT_TYPE_JSON);
+		$this->json = $set;
+		return $this->parent;
+	}
+
+	/**
+	 *
+	 * @param mixed $set ignored
+	 * @return mixed
+	 */
 	public function data($set = null) {
-		if ($set !== null) {
-			$this->parent->content_type(Response::CONTENT_TYPE_JSON);
-			$this->json = $set;
-			return $this->parent;
-		}
+		assert($set === null);
 		return $this->json;
 	}
 
@@ -67,7 +75,11 @@ class JSON extends Type {
 		if (is_array($content)) {
 			$this->json = $content;
 		} elseif (is_string($content)) {
-			$this->json['content'] = $content;
+			if (is_array($this->json)) {
+				$this->json['content'] = $content;
+			} else {
+				$this->json = $content;
+			}
 		}
 		$content = zeskJSON::prepare($this->json, $this->json_serializer_methods, $this->json_serializer_arguments);
 		return $this->application->development() ? zeskJSON::encode_pretty($content) : zeskJSON::encode($content);

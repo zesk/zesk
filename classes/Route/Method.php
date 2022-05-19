@@ -9,8 +9,11 @@ use ReflectionMethod;
  *
  */
 class Route_Method extends Route {
+	/**
+	 * @return void
+	 * @throws Exception_Parameter
+	 */
 	public function validate(): void {
-		$application = $this->router->application;
 		$function = $this->options['method'];
 		$class = $method = null;
 		if (is_string($function)) {
@@ -73,6 +76,7 @@ class Route_Method extends Route {
 	 * @see Route::_execute()
 	 */
 	protected function _execute(Response $response) {
+		$response->setContent(null);
 		$app = $this->router->application;
 		$this->_do_includues();
 
@@ -112,7 +116,8 @@ class Route_Method extends Route {
 		}
 		if ($response->is_json()) {
 			if ($content !== null) {
-				$response->json()->data($content);
+				$response->json()->setData($content);
+				$response->content = null;
 			}
 			return;
 		}

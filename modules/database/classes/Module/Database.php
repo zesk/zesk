@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage database
@@ -47,12 +48,12 @@ class Module_Database extends Module {
 	 * @see \zesk\Module::initialize()
 	 */
 	public function initialize(): void {
-		$this->application->register_registry("database", [$this, "app_database_registry", ]);
-		$this->application->register_factory("database", [$this, "app_database_registry", ]);
-		$hooks = $this->application->hooks;
-		$hooks->add(Hooks::HOOK_DATABASE_CONFIGURE, [$this, "_configured", ], ["first" => true]);
-		$hooks->add('exit', [$this, "disconnect_all", ], ["last" => true]);
-		$hooks->add('pcntl_fork-child', [$this, "reconnect_all", ]);
+		$application = $this->application;
+		$application->register_registry("database", [$this, "app_database_registry", ]);
+		$application->register_factory("database", [$this, "app_database_registry", ]);
+		$application->hooks->add(Hooks::HOOK_DATABASE_CONFIGURE, [$this, "_configured", ], ["first" => true]);
+		$application->hooks->add('exit', [$this, "disconnect_all", ], ["last" => true]);
+		$application->hooks->add('pcntl_fork-child', [$this, "reconnect_all", ]);
 	}
 
 	/**
@@ -60,13 +61,14 @@ class Module_Database extends Module {
 	 *
 	 * @param string $set
 	 * @return string
+	 * @deprecated 2022-04
 	 */
-	public function database_default($set = null) {
-		if ($set === null) {
-			return $this->databaseDefault();
+	public function database_default($set = null): string {
+		if ($set !== null) {
+			$this->application->deprecated("Setter/getter deprecated " . __METHOD__);
+			$this->setDatabaseDefault($set);
 		}
-		$this->application->deprecated("Setter/getter deprecated " . __METHOD__);
-		$this->setDatabaseDefault($set);
+		return $this->databaseDefault();
 	}
 
 	/**
@@ -107,14 +109,18 @@ class Module_Database extends Module {
 		}
 		$url = URL::normalize($url);
 		if (array_key_exists($name, $this->databases) && $url !== $this->names[$name]) {
-			$this->application->logger->debug("Changing database url {name} {url} (old is {old})", ["name" => $name, "url" => $url, "old" => $this->names[$name], ]);
+			$this->application->logger->debug("Changing database url {name} {url} (old is {old})", [
+				"name" => $name,
+				"url" => $url,
+				"old" => $this->names[$name],
+			]);
 			$this->databases[$name]->change_url($url);
 		} else {
 			//$zesk->logger->debug("Registering database $name $url");
 		}
 		$this->names[$name] = $url;
 		if ($is_default) {
-			$this->database_default($name);
+			$this->setDatabaseDefault($name);
 		}
 		return $name;
 	}
@@ -123,7 +129,7 @@ class Module_Database extends Module {
 	 *
 	 * @param string $name
 	 */
-	public function unregister($name) {
+	public function unregister(string $name): self {
 		$name = strtolower($name);
 		$this->names[$name] = null;
 		return $this;
@@ -165,12 +171,13 @@ class Module_Database extends Module {
 	 * Internal function to load database settings from globals
 	 */
 	public function _configured(): void {
+		$id = spl_object_id($this);
 		$this->_legacy_configured();
 
 		$application = $this->application;
 		$config = $application->configuration;
 
-		$databases = to_array($config->path([__CLASS__, 'names', ]));
+		$databases = toArray($config->path([__CLASS__, 'names', ]));
 		foreach ($databases as $name => $database) {
 			$name = strtolower($name);
 
@@ -181,7 +188,7 @@ class Module_Database extends Module {
 			}
 		}
 		$database_default_config_path = [__CLASS__, "default", ];
-		if ($config->path_exists($database_default_config_path)) {
+		if ($config->pathExists($database_default_config_path)) {
 			$this->database_default($config->path_get($database_default_config_path));
 		}
 	}
@@ -232,17 +239,59 @@ class Module_Database extends Module {
 	 * @param string $classname
 	 * @return string
 	 */
-	public function register_scheme($scheme, $classname = null) {
+	public function register_scheme(string $scheme, $classname = null) {
 		$scheme = strtolower($scheme);
 		$exists = array_key_exists($scheme, $this->scheme_to_class);
 		if ($classname === null) {
 			return $exists ? $this->scheme_to_class[$scheme] : null;
 		}
-		if ($exists) {
-			$this->application->logger->warning("Registered {scheme} again for class {classname}", compact("scheme", "classname"));
+		return $this->registerScheme($scheme, $classname);
+	}
+
+	/**
+	 * Register or retrieve a class for a database scheme prefix
+	 *
+	 * @param string $scheme
+	 * @param string $classname
+	 * @return $this
+	 * @throws Exception_Class_NotFound
+	 */
+	public function registerScheme(string $scheme, string $classname): self {
+		$scheme = strtolower($scheme);
+		if (!class_exists($classname, false)) {
+			throw new Exception_Class_NotFound($classname);
+		}
+		if (array_key_exists($scheme, $this->scheme_to_class) && $this->scheme_to_class[$scheme] !== $classname) {
+			$this->application->logger->warning("Registered {scheme} overrides {old_classname} with {classname}", [
+				"scheme" => $scheme,
+				"classname" => $classname,
+				"old_classname" => $this->scheme_to_class[$scheme],
+			]);
 		}
 		$this->scheme_to_class[$scheme] = $classname;
-		return $classname;
+		return $this;
+	}
+
+	/**
+	 * Register or retrieve a class for a database scheme prefix.
+	 * Returns empty string if no scheme registered
+	 *
+	 * @param string $scheme
+	 * @return string
+	 */
+	public function getRegisteredScheme(string $scheme): string {
+		return $this->scheme_to_class[strtolower($scheme)] ?? "";
+	}
+
+	/**
+	 * Register or retrieve a class for a database scheme prefic
+	 *
+	 * @param string $scheme
+	 * @param string $classname
+	 * @return string
+	 */
+	public function getRegisteredSchemes(): array {
+		return array_keys($this->scheme_to_class);
 	}
 
 	/**
@@ -256,7 +305,10 @@ class Module_Database extends Module {
 	public function scheme_factory($scheme, array $options = []) {
 		$class = $this->register_scheme($scheme);
 		if (!$class) {
-			throw new Exception_NotFound("Database scheme {scheme} does not have a registered handler. Available schemes: {schemes}", ["scheme" => $scheme, "schemes" => $this->valid_schemes(), ]);
+			throw new Exception_NotFound("Database scheme {scheme} does not have a registered handler. Available schemes: {schemes}", [
+				"scheme" => $scheme,
+				"schemes" => $this->valid_schemes(),
+			]);
 		}
 		return $this->application->factory($class, $this->application, null, $options);
 	}
@@ -290,7 +342,7 @@ class Module_Database extends Module {
 	 * @throws Exception_Configuration
 	 */
 	public function database_registry($mixed = null, $options = []) {
-		$options = to_array($options);
+		$options = toArray($options);
 		$application = $this->application;
 		$original = $mixed;
 		if (URL::valid($mixed)) {
@@ -306,10 +358,16 @@ class Module_Database extends Module {
 			$url = $this->register($mixed);
 			$codename = $mixed;
 			if (count($this->names) === 0) {
-				throw new Exception_Configuration(__CLASS__ . "::names", "No default database URL configured: \"{default}\"", ["default" => $this->database_default(), ]);
+				throw new Exception_Configuration(__CLASS__ . "::names", "No default database URL configured: \"{default}\" {id}", [
+					"default" => $this->database_default(),
+					"id" => spl_object_id($this),
+				]);
 			}
 			if (!$url) {
-				throw new Exception_NotFound("Database not found: \"{name}\" from databases: {databases}", ["name" => $original, "databases" => JSON::encode(array_keys($this->register())), ]);
+				throw new Exception_NotFound("Database not found: \"{name}\" from databases: {databases}", [
+					"name" => $original,
+					"databases" => JSON::encode(array_keys($this->register())),
+				]);
 			}
 		}
 		$safe_url = URL::remove_password($url);
@@ -326,7 +384,11 @@ class Module_Database extends Module {
 		$scheme = URL::scheme($url);
 		$class = $this->register_scheme($scheme);
 		if (!$class) {
-			throw new Database_Exception_Unknown_Schema("Database::factory({url}) {scheme} not registered. Valid schemes: {schemes}", ["url" => $safe_url, "scheme" => $scheme, "schemes" => $this->valid_schemes(), ]);
+			throw new Database_Exception_Unknown_Schema("Database::factory({url}) {scheme} not registered. Valid schemes: {schemes}", [
+				"url" => $safe_url,
+				"scheme" => $scheme,
+				"schemes" => $this->valid_schemes(),
+			]);
 		}
 
 		try {
@@ -337,7 +399,10 @@ class Module_Database extends Module {
 			throw $e;
 		}
 		if (!$db instanceof Database) {
-			throw new Exception_Unimplemented("Database::factory({url}) {scheme} did not return a Database", ["url" => $safe_url, "scheme" => $scheme, ]);
+			throw new Exception_Unimplemented("Database::factory({url}) {scheme} did not return a Database", [
+				"url" => $safe_url,
+				"scheme" => $scheme,
+			]);
 		}
 		$db->code_name($codename);
 		$db->setOption("internal_name", $codename);
@@ -369,7 +434,10 @@ class Module_Database extends Module {
 			$info[__CLASS__ . "::default"] = ["value" => $default, "title" => "Default database", ];
 		}
 		if ($url) {
-			$info[__CLASS__ . "::default_url"] = ["value" => URL::remove_password($url), "title" => "Default URL (Safe)", ];
+			$info[__CLASS__ . "::default_url"] = [
+				"value" => URL::remove_password($url),
+				"title" => "Default URL (Safe)",
+			];
 		}
 		$dbs = [];
 		foreach ($this->databases as $k => $item) {

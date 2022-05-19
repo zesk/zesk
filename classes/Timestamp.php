@@ -183,14 +183,17 @@ class Timestamp extends Temporal {
 	 * Construct a new Timestamp consisting of a Date and a Time
 	 *
 	 * @param mixed $value
-	 * @throws \Exception
 	 */
 	public function __construct($value = null, DateTimeZone $timezone = null) {
 		$this->msec = null;
 		if ($value instanceof \DateTimeInterface) {
 			$this->tz = $value->getTimezone();
-			$this->datetime = new DateTime("now", $this->tz);
-			$this->unix_timestamp($value->getTimestamp());
+
+			try {
+				$this->datetime = new DateTime("now", $this->tz);
+			} catch (\Exception $e) {
+			}
+			$this->setUnixTimestamp($value->getTimestamp());
 		} else {
 			$this->tz = $timezone === null ? self::timezone_local() : $timezone;
 			if ($value !== null && $value !== '0000-00-00 00:00:00' && $value !== '0000-00-00') {
@@ -375,28 +378,27 @@ class Timestamp extends Temporal {
 	 *            string when
 	 *            converted to string
 	 * @return Timestamp
-	 * @throws Exception_Convert
 	 */
 	public function set(mixed $value): self {
 		if (empty($value)) {
-			$this->set_empty();
+			$this->setEmpty();
 			return $this;
 		}
 		if (is_string($value)) {
 			return $this->parse($value);
 		}
 		if (is_numeric($value)) {
-			return $this->unixTimestamp($value);
+			return $this->setUnixTimestamp($value);
 		}
 		if (!is_object($value)) {
 			throw new Exception_Convert("Timestamp::set(" . strval($value) . ")");
 		}
 		if ($value instanceof Date) {
-			$this->date($value);
+			$this->setDate($value);
 			return $this;
 		}
 		if ($value instanceof Time) {
-			$this->time($value);
+			$this->setTime($value);
 			return $this;
 		}
 		if ($value instanceof Timestamp) {
