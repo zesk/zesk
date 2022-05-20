@@ -651,7 +651,7 @@ class Database_Table extends Hookable {
 	 * @param string $action
 	 * @return array
 	 */
-	#[Pure] public function actionSQL(string $action): array {
+	public function actionSQL(string $action): array {
 		return self::_validate_action($action) ? $this->on[$action] ?? [] : [];
 	}
 
