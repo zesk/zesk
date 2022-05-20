@@ -16,33 +16,33 @@ namespace zesk;
 class View_Link extends View_Text {
 	public function format($set = null) {
 		if ($set !== null) {
-			return $this->setOption("format", $set);
+			return $this->setOption('format', $set);
 		}
 		return $this->option('format');
 	}
 
 	public function action($set = null) {
 		if ($set !== null) {
-			return $this->setOption("action", $set);
+			return $this->setOption('action', $set);
 		}
 		return $this->option('action');
 	}
 
 	public function href($set = null) {
 		if ($set !== null) {
-			return $this->setOption("href", $set);
+			return $this->setOption('href', $set);
 		}
 		return $this->option('href');
 	}
 
 	public function render() {
 		$object = $this->object;
-		$pp = $this->option("format", null);
+		$pp = $this->option('format', null);
 		if ($pp === null) {
 			$pp = parent::render($object);
 		}
 		$text = $object->apply_map($pp);
-		$href = $this->option("href", "");
+		$href = $this->option('href', '');
 		if (empty($href)) {
 			$action = $this->option('action');
 			$href = $this->application->router()->get_route($action, $object);
@@ -53,25 +53,25 @@ class View_Link extends View_Text {
 		if (empty($text)) {
 			$is_empty = true;
 			$text = $this->empty_string();
-		} elseif (!$this->optionBool("html")) {
+		} elseif (!$this->optionBool('html')) {
 			$text = htmlspecialchars($text);
 		}
-		$result = "";
+		$result = '';
 		if ($is_empty && $this->optionBool('empty_no_link', false)) {
 			return $text;
 		}
-		$attrs = $object->apply_map($this->options_include("target;class;onclick;title;id"));
-		$add_ref = $this->option("add_ref", URL::query_remove($this->request->uri(), "message"));
+		$attrs = $object->apply_map($this->options_include('target;class;onclick;title;id'));
+		$add_ref = $this->option('add_ref', URL::query_remove($this->request->uri(), 'message'));
 		if ($add_ref) {
-			$href = URL::query_format(URL::query_remove($href, "ref"), [
-				"ref" => $add_ref,
+			$href = URL::query_format(URL::query_remove($href, 'ref'), [
+				'ref' => $add_ref,
 			]);
 		}
 		$attrs['href'] = $href;
 		$attrs['title'] = avalue($attrs, 'title', $href);
 		$show_size = $this->show_size();
-		$text = $show_size > 0 ? HTML::ellipsis($text, $this->show_size(), $this->option("ellipsis", "&hellip;")) : $text;
-		$result = HTML::tag("a", $attrs, $text);
+		$text = $show_size > 0 ? HTML::ellipsis($text, $this->show_size(), $this->option('ellipsis', '&hellip;')) : $text;
+		$result = HTML::tag('a', $attrs, $text);
 		return $result;
 	}
 }

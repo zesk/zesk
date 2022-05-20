@@ -4,7 +4,7 @@ namespace zesk;
 class Control_Objects extends Control_Text {
 	protected $class = null;
 
-	protected $class_results = "";
+	protected $class_results = '';
 
 	protected $theme_object = null;
 
@@ -15,13 +15,13 @@ class Control_Objects extends Control_Text {
 	protected function initialize(): void {
 		parent::initialize();
 		if ($this->theme_object === null) {
-			$this->theme_object = $this->theme . "/object";
+			$this->theme_object = $this->theme . '/object';
 		}
 		if ($this->controller === null) {
-			$this->controller = StringTools::unprefix(strtolower(get_class($this)), "control_");
+			$this->controller = StringTools::unprefix(strtolower(get_class($this)), 'control_');
 		}
 		if ($this->controller_url === null) {
-			$this->controller_url = "/control/$this->controller/" . $this->column() . "/" . $this->name();
+			$this->controller_url = "/control/$this->controller/" . $this->column() . '/' . $this->name();
 		}
 	}
 
@@ -32,7 +32,7 @@ class Control_Objects extends Control_Text {
 			try {
 				$objects[$id] = $objects = $this->application->orm_factory($this->class, $id)->fetch();
 			} catch (Exception $e) {
-				$this->application->hooks->call("exception", $e);
+				$this->application->hooks->call('exception', $e);
 				return false;
 			}
 		}

@@ -11,26 +11,26 @@ namespace zesk;
 class Control_Checkbox extends Control {
 	private function apply_options($bool_result): void {
 		if ($bool_result) {
-			if ($this->hasOption("trueoptions")) {
-				$this->setOption($this->firstOption(["options_true", "trueoptions"]));
+			if ($this->hasOption('trueoptions')) {
+				$this->setOption($this->firstOption(['options_true', 'trueoptions']));
 			}
 		} else {
-			if ($this->hasOption("falseoptions")) {
-				$this->setOption($this->firstOption(["options_false", "falseoptions"]));
+			if ($this->hasOption('falseoptions')) {
+				$this->setOption($this->firstOption(['options_false', 'falseoptions']));
 			}
 		}
 	}
 
 	private function input_value_true() {
-		return $this->input_value("input_value_true", true);
+		return $this->input_value('input_value_true', true);
 	}
 
 	private function object_value_true() {
-		return $this->object_value("value_true;truevalue", true);
+		return $this->object_value('value_true;truevalue', true);
 	}
 
 	private function object_value_false() {
-		return $this->object_value("value_false;falsevalue", false);
+		return $this->object_value('value_false;falsevalue', false);
 	}
 
 	private function input_value($names, $default) {
@@ -47,28 +47,28 @@ class Control_Checkbox extends Control {
 	}
 
 	public function checked() {
-		if ($this->hasOption("checked")) {
-			return $this->optionBool("checked");
+		if ($this->hasOption('checked')) {
+			return $this->optionBool('checked');
 		}
 		return $this->value() === $this->object_value_true();
 	}
 
 	public function submitted() {
-		return $this->request->getb($this->name() . "_ckbx");
+		return $this->request->getb($this->name() . '_ckbx');
 	}
 
 	public function load(): void {
 		$name = $this->name();
-		if ($this->request->has($name) || $this->request->has($name . "_ckbx")) {
+		if ($this->request->has($name) || $this->request->has($name . '_ckbx')) {
 			$new_value = strval(to_bool($this->request->get($name)));
 			$checked = ($new_value === $this->input_value_true());
 			$object_value = $checked ? $this->object_value_true() : $this->object_value_false();
 			$this->value($object_value);
-			if ($this->optionBool("debug_load")) {
-				$this->application->logger->warning("Set widget {name} to {value} ({type})", [
-					"name" => $this->name(),
-					"value" => $object_value,
-					"type" => type($object_value),
+			if ($this->optionBool('debug_load')) {
+				$this->application->logger->warning('Set widget {name} to {value} ({type})', [
+					'name' => $this->name(),
+					'value' => $object_value,
+					'type' => type($object_value),
 				]);
 			}
 			$this->apply_options($checked);
@@ -76,9 +76,9 @@ class Control_Checkbox extends Control {
 	}
 
 	public function validate() {
-		$cont_name = $this->name() . "_sv";
+		$cont_name = $this->name() . '_sv';
 		if ($this->request->getb($cont_name)) {
-			$this->message($this->option("continue_message", $this->application->locale->__("Form was updated.")));
+			$this->message($this->option('continue_message', $this->application->locale->__('Form was updated.')));
 			return false;
 		}
 		return true;

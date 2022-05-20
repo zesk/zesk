@@ -18,55 +18,55 @@ use zesk\Session_ORM;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user User */
-$web_key = $this->get("web_key", $application->option("web_key"));
+$web_key = $this->get('web_key', $application->option('web_key'));
 /* @var $this zesk\Template */
 
-if ($this->has("URL")) {
+if ($this->has('URL')) {
 	$u = $this->URL;
 
 	$host = URL::host($u);
 	$current_host = $request->host();
 
-	$attr = $this->has("Attributes") ? HTML::parse_attributes($this->Attributes) : [];
+	$attr = $this->has('Attributes') ? HTML::parse_attributes($this->Attributes) : [];
 	if ($host === $current_host) {
 		$out_u = URL::query_format($u, [
-			"ref" => $this->request->url(),
+			'ref' => $this->request->url(),
 		]);
 	} else {
 		$session = Session_ORM::instance(true);
 		$uk = md5($web_key . $u);
-		$out_u = URL::query_format("/out/", [
-			"u" => $u,
-			"uk" => $uk,
-			"ref" => $this->request->url(),
+		$out_u = URL::query_format('/out/', [
+			'u' => $u,
+			'uk' => $uk,
+			'ref' => $this->request->url(),
 		]);
 	}
 	$attr['href'] = $out_u;
-	if ($this->has("Redirect") && $this->Redirect) {
+	if ($this->has('Redirect') && $this->Redirect) {
 		$response->redirect($out_u);
 	}
-	echo HTML::tag("a", $attr, $this->get("LinkText", $u));
+	echo HTML::tag('a', $attr, $this->get('LinkText', $u));
 	return;
 }
 
-$u = $request->get("u");
-$uk = $request->get("uk");
-$ref = $request->get("ref", '/');
+$u = $request->get('u');
+$uk = $request->get('uk');
+$ref = $request->get('ref', '/');
 
 if (md5($web_key . $u) !== $uk) {
 	if ($ref === '') {
 		echo "Invalid outbound URL: $u";
 	} else {
-		$response->redirect($ref, "Invalid outbound URL.");
+		$response->redirect($ref, 'Invalid outbound URL.');
 	}
 }
 
 $session = Session_ORM::instance(true);
 $session = $session->one_time_create();
-$in_url = URL::query_format(URL::left_host($u) . "in/", [
-	"u" => $u,
-	"uk" => $uk,
-	"s" => $session->member('Cookie'),
+$in_url = URL::query_format(URL::left_host($u) . 'in/', [
+	'u' => $u,
+	'uk' => $uk,
+	's' => $session->member('Cookie'),
 ]);
 
-$response->redirect($in_url, $request->get("message"));
+$response->redirect($in_url, $request->get('message'));

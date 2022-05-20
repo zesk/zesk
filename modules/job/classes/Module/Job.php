@@ -23,10 +23,10 @@ class Module_Job extends Module implements Interface_Module_Routes {
 	 * For testing, call this statically from zesk eval, a web request, or a debugger
 	 */
 	public static function fake_daemon(Application $application): void {
-		$quit_after = $application->configuration->path_get(__CLASS__ . "::fake_daemon_quit_after", 5000);
+		$quit_after = $application->configuration->path_get(__CLASS__ . '::fake_daemon_quit_after', 5000);
 		ini_set('max_execution_time', $quit_after);
 		$process = new Process_Mock($application, [
-			"quit_after" => $quit_after,
+			'quit_after' => $quit_after,
 		]);
 		Job::execute_jobs($process);
 	}
@@ -37,18 +37,18 @@ class Module_Job extends Module implements Interface_Module_Routes {
 	 * @param Interface_Process $process
 	 */
 	private function run_daemon(Interface_Process $process): void {
-		$has_hook = $this->has_hook("wait_for_job");
-		$seconds = $this->option("execute_jobs_wait", 10);
+		$has_hook = $this->has_hook('wait_for_job');
+		$seconds = $this->option('execute_jobs_wait', 10);
 		$app = $process->application();
 		if (!$has_hook) {
-			$app->logger->debug("No hook exists for wait_for_job, sleeping interval is {seconds} seconds", compact("seconds"));
+			$app->logger->debug('No hook exists for wait_for_job, sleeping interval is {seconds} seconds', compact('seconds'));
 		}
 
 		declare(ticks = 1) {
 			while (!$process->done()) {
 				Job::execute_jobs($process);
 				if ($has_hook) {
-					$this->call_hook_arguments("wait_for_job", [
+					$this->call_hook_arguments('wait_for_job', [
 						$process,
 					]);
 					$process->sleep(0);
@@ -78,19 +78,19 @@ class Module_Job extends Module implements Interface_Module_Routes {
 	 * @see \Interface_Module_Routes::hook_routes()
 	 */
 	public function hook_routes(Router $router): void {
-		$router->add_route("job/{zesk\\Job job}(/{option action})", [
-			"controller" => "zesk\\Controller_Job",
-			"arguments" => [
+		$router->add_route('job/{zesk\\Job job}(/{option action})', [
+			'controller' => 'zesk\\Controller_Job',
+			'arguments' => [
 				1,
 			],
 			'default action' => 'monitor',
 			'module' => 'job',
 		]);
-		if ($this->application->development() && !$this->optionBool("skip_route_job_execute")) {
-			$router->add_route("job-execute", [
-				"method" => [
+		if ($this->application->development() && !$this->optionBool('skip_route_job_execute')) {
+			$router->add_route('job-execute', [
+				'method' => [
 					__CLASS__,
-					"fake_daemon",
+					'fake_daemon',
 				],
 				'module' => 'job',
 			]);

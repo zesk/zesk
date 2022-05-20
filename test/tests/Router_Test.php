@@ -9,20 +9,20 @@ class Router_Test extends Test_Unit {
 		$testx = new Router($this->application);
 
 		$hash = md5(microtime());
-		$template = $this->test_sandbox("Router-Test.tpl");
+		$template = $this->test_sandbox('Router-Test.tpl');
 		file_put_contents($template, "<?php\necho \"$hash\";");
 
 		$this->application->theme_path($this->test_sandbox());
 
-		$url_pattern = "foo";
+		$url_pattern = 'foo';
 		$defaults = null;
 		$match_options = null;
 		$testx->add_route($url_pattern, [
-			"theme" => 'Router-Test',
+			'theme' => 'Router-Test',
 		]);
 
 		$request = new Request($this->application, [
-			"url" => "http://test/",
+			'url' => 'http://test/',
 		]);
 		$this->assert($testx->match($request) === null);
 
@@ -30,12 +30,12 @@ class Router_Test extends Test_Unit {
 
 		$app->router = $testx;
 		$request = new Request($this->application, [
-			"url" => 'http://www.example.com/foo',
+			'url' => 'http://www.example.com/foo',
 		]);
 		$response = $app->main($request);
 
 		// Avoids doing header() in test code
-		$response->setOption("skip_response_headers", true);
+		$response->setOption('skip_response_headers', true);
 		$content = $response->render();
 
 		$this->assert_contains($content, $hash);

@@ -19,14 +19,14 @@ class Command_Permission_List extends Command_Base {
 			foreach ($actions as $codename => $permission) {
 				assert($permission instanceof Permission);
 				apath_set($perms, [
-					"class",
+					'class',
 					$class,
 					$codename,
 				], $permission->members([
-					"id",
-					"title",
-					"class",
-					"options",
+					'id',
+					'title',
+					'class',
+					'options',
 				]));
 			}
 		}

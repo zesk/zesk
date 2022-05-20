@@ -2,7 +2,7 @@
 namespace zesk;
 
 class Class_ORMX_Field extends Class_ORM {
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	public array $find_keys = [
 		'class',
@@ -10,14 +10,14 @@ class Class_ORMX_Field extends Class_ORM {
 	];
 
 	public array $column_types = [
-		"id" => self::type_id,
-		"class" => self::type_string,
-		"active" => self::type_string,
-		"column" => self::type_string,
-		"name" => self::type_string,
-		"help" => self::type_string,
-		"type" => self::type_string,
-		"order_index" => self::type_integer,
-		"data" => self::type_serialize,
+		'id' => self::type_id,
+		'class' => self::type_string,
+		'active' => self::type_string,
+		'column' => self::type_string,
+		'name' => self::type_string,
+		'help' => self::type_string,
+		'type' => self::type_string,
+		'order_index' => self::type_integer,
+		'data' => self::type_serialize,
 	];
 }

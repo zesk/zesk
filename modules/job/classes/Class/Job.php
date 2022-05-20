@@ -7,15 +7,15 @@ namespace zesk;
  *
  */
 class Class_Job extends Class_ORM {
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	public array $find_keys = [
-		"code",
+		'code',
 	];
 
 	public array $has_one = [
-		"user" => "zesk\\User",
-		"server" => "zesk\\Server",
+		'user' => 'zesk\\User',
+		'server' => 'zesk\\Server',
 	];
 
 	public array $column_types = [
@@ -41,9 +41,9 @@ class Class_Job extends Class_ORM {
 	];
 
 	public array $column_defaults = [
-		"duration" => 0,
-		"died" => 0,
-		"status" => "",
+		'duration' => 0,
+		'died' => 0,
+		'status' => '',
 	];
 
 	public function initialize(): void {

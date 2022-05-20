@@ -13,7 +13,7 @@ namespace zesk\WebApp;
  *
  */
 class Class_Site extends Class_ORM {
-	public $codename = "WebApp_Site";
+	public $codename = 'WebApp_Site';
 
 	/**
 	 *
@@ -25,19 +25,19 @@ class Class_Site extends Class_ORM {
 	];
 
 	public array $column_types = [
-		"id" => self::type_id,
-		"instance" => self::type_object,
-		"name" => self::type_string,
-		"code" => self::type_string,
-		"type" => self::type_string,
-		"priority" => self::type_integer,
-		"path" => self::type_string,
-		"data" => self::type_json,
-		"errors" => self::type_json,
-		"valid" => self::type_boolean,
+		'id' => self::type_id,
+		'instance' => self::type_object,
+		'name' => self::type_string,
+		'code' => self::type_string,
+		'type' => self::type_string,
+		'priority' => self::type_integer,
+		'path' => self::type_string,
+		'data' => self::type_json,
+		'errors' => self::type_json,
+		'valid' => self::type_boolean,
 	];
 
 	public array $has_one = [
-		"instance" => Instance::class,
+		'instance' => Instance::class,
 	];
 }

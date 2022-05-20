@@ -25,7 +25,7 @@ namespace zesk;
 			echo $this->column;
 			?>_query"
 				class="overlabel"><?php
-				echo $this->get("search_label", $locale('Search'));
+				echo $this->get('search_label', $locale('Search'));
 				?></label> <input type="text"
 				size="<?php
 				echo $this->get('show_size', 20);
@@ -42,7 +42,7 @@ namespace zesk;
 		</div>
 		<img class="csod-wait csod-none" width="16" height="16" border="0"
 			src="<?php
-			echo $application->url("/share/images/spinner/spinner-16x16.gif");
+			echo $application->url('/share/images/spinner/spinner-16x16.gif');
 			?>"
 			title="Loading ..." alt="Loading ..." style="display: none;" />
 	</div>
@@ -54,7 +54,7 @@ namespace zesk;
 		?>')">
 		<img
 			src="<?php
-			echo $application->url("/share/images/search/search.png");
+			echo $application->url('/share/images/search/search.png');
 			?>"
 			width="16" height="16" alt="<?php
 			echo $locale('Search');
@@ -69,7 +69,7 @@ namespace zesk;
 		?>')">
 		<img
 			src="<?php
-			echo $application->url("/share/images/search/x.png");
+			echo $application->url('/share/images/search/x.png');
 			?>"
 			width="16" height="16" alt="<?php
 			echo $locale('Reset');

@@ -18,10 +18,10 @@ $this->response->title($object->Title);
 
 $byline = $object->Byline;
 
-echo HTML::tag_open('div', ".article article-view " . $object->class_code_name());
+echo HTML::tag_open('div', '.article article-view ' . $object->class_code_name());
 echo $this->theme('control/admin-edit');
 
-echo HTML::tag("h1", $object->title);
+echo HTML::tag('h1', $object->title);
 
 echo HTML::tag_open('div', '.article-entry cmhtml');
 echo $object->body;

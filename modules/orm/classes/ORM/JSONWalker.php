@@ -23,7 +23,7 @@ class JSONWalker extends Walker {
 	 * @var array
 	 */
 	private $resolve_methods = [
-		"json",
+		'json',
 	];
 
 	/**
@@ -31,13 +31,13 @@ class JSONWalker extends Walker {
 	 *
 	 * @var string
 	 */
-	protected $preprocess_hook = "json_options";
+	protected $preprocess_hook = 'json_options';
 
 	/**
 	 * Hook called on ORM class and object after walked
 	 * @var string
 	 */
-	protected $postprocess_hook = "json";
+	protected $postprocess_hook = 'json';
 
 	/**
 	 *

@@ -21,13 +21,13 @@ class Modules {
 	 *
 	 * @var string
 	 */
-	public const status_failed = "failed";
+	public const status_failed = 'failed';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const status_loaded = "loaded";
+	public const status_loaded = 'loaded';
 
 	/**
 	 *
@@ -67,7 +67,7 @@ class Modules {
 	 *
 	 * @var string
 	 */
-	private string $module_class_prefix = "Module_";
+	private string $module_class_prefix = 'Module_';
 
 	/**
 	 * Create the Modules
@@ -78,11 +78,11 @@ class Modules {
 		$this->application = $application;
 		$this->module_class_prefix = $application->configuration->path_get([
 			__CLASS__,
-			"module_class_prefix",
+			'module_class_prefix',
 		], $this->module_class_prefix);
 		$this->debug = $application->configuration->path_get([
 			__CLASS__,
-			"debug",
+			'debug',
 		], $this->debug);
 	}
 
@@ -142,7 +142,7 @@ class Modules {
 			asort($modules);
 			foreach ($modules as $module) {
 				$available[$module] = $this->load($module, [
-					"load" => false,
+					'load' => false,
 				]);
 			}
 		}
@@ -219,8 +219,8 @@ class Modules {
 				];
 
 				continue;
-			} elseif (avalue($options, "check loaded")) {
-				$result[$name] = avalue($options, "not loaded", null);
+			} elseif (avalue($options, 'check loaded')) {
+				$result[$name] = avalue($options, 'not loaded', null);
 
 				continue;
 			}
@@ -276,28 +276,28 @@ class Modules {
 				$module = avalue($current, 'name');
 			}
 		} elseif ($module == null) {
-			throw new Exception_Parameter("Require a \$module path if not called during module load");
+			throw new Exception_Parameter('Require a $module path if not called during module load');
 		} elseif (isset($this->modules[$module])) {
 			if (!is_dir($module_path)) {
 				throw new Exception_Directory_NotFound($module_path);
 			}
 		} else {
-			throw new Exception_Semantics("Can not call register paths unless during module load.");
+			throw new Exception_Semantics('Can not call register paths unless during module load.');
 		}
-		$configuration = avalue($current, "configuration", []);
+		$configuration = avalue($current, 'configuration', []);
 		$result = [];
-		$autoload_class_prefix = avalue($configuration, "autoload_class_prefix");
-		$autoload_path = avalue($configuration, "autoload_path", "classes");
-		$autoload_options = to_array(avalue($configuration, "autoload_options", []));
-		$theme_path = avalue($configuration, "theme_path", "theme");
-		$theme_path_prefix = avalue($configuration, "theme_path_prefix", null);
-		$zesk_command_path = avalue($configuration, "zesk_command_path", "command");
-		$deprecated_class_prefix = apath($configuration, "zesk_command_path_class_prefix");
+		$autoload_class_prefix = avalue($configuration, 'autoload_class_prefix');
+		$autoload_path = avalue($configuration, 'autoload_path', 'classes');
+		$autoload_options = to_array(avalue($configuration, 'autoload_options', []));
+		$theme_path = avalue($configuration, 'theme_path', 'theme');
+		$theme_path_prefix = avalue($configuration, 'theme_path_prefix', null);
+		$zesk_command_path = avalue($configuration, 'zesk_command_path', 'command');
+		$deprecated_class_prefix = apath($configuration, 'zesk_command_path_class_prefix');
 		if ($deprecated_class_prefix) {
 			$this->application->deprecated("$module_path uses deprecated zesk_command_path_class_prefix. Use zesk_command_class_prefix instead.");
 		}
-		$zesk_command_path_class_prefix = apath($configuration, "zesk_command_class_prefix", $deprecated_class_prefix);
-		$locale_path = apath($configuration, "locale_path", "etc/language");
+		$zesk_command_path_class_prefix = apath($configuration, 'zesk_command_class_prefix', $deprecated_class_prefix);
+		$locale_path = apath($configuration, 'locale_path', 'etc/language');
 		if (!$module_path) {
 			return $result;
 		}
@@ -306,9 +306,9 @@ class Modules {
 			$result['autoload_path'] = $path;
 			if ($autoload_class_prefix) {
 				$autoload_options += [
-					"class_prefix" => $autoload_class_prefix,
+					'class_prefix' => $autoload_class_prefix,
 				];
-				zesk()->deprecated("Module configuration \"autoload_class_prefix\" is deprecated for module >>{module}<<, use \"autoload_options\": { \"class_prefix\": ... } instead", compact("module"));
+				zesk()->deprecated('Module configuration "autoload_class_prefix" is deprecated for module >>{module}<<, use "autoload_options": { "class_prefix": ... } instead', compact('module'));
 			}
 			$this->application->autoload_path($path, $autoload_options);
 		}
@@ -321,7 +321,7 @@ class Modules {
 		if (!$module) {
 			return $result;
 		}
-		$path = path($module_path, "share");
+		$path = path($module_path, 'share');
 		if (is_dir($path)) {
 			$result['share_path'] = $path;
 			$this->application->share_path($path, $module);
@@ -332,12 +332,12 @@ class Modules {
 				backtrace();
 			}
 			$result['zesk_command_path'] = $path;
-			$prefix = "Command_";
+			$prefix = 'Command_';
 			if ($zesk_command_path_class_prefix) {
 				$prefix = $zesk_command_path_class_prefix;
 				if ($prefix !== PHP::clean_class($prefix)) {
-					$this->application->logger->error("zesk_command_path_class_prefix specified in module {name} configuration is not a valid class prefix \"{prefix}\"", [
-						"name" => $current['name'],
+					$this->application->logger->error('zesk_command_path_class_prefix specified in module {name} configuration is not a valid class prefix "{prefix}"', [
+						'name' => $current['name'],
 						'prefix' => $prefix,
 					]);
 				}
@@ -390,9 +390,9 @@ class Modules {
 			}
 			$name = apath($module_data, 'configuration.share_path_name', $module_data['name']);
 			if (!is_dir($share_path)) {
-				$this->application->logger->critical("Module {module} share path \"{share_path}\" is not a directory", [
-					"module" => $name,
-					"share_path" => $share_path,
+				$this->application->logger->critical('Module {module} share path "{share_path}" is not a directory', [
+					'module' => $name,
+					'share_path' => $share_path,
 				]);
 			} else {
 				$this->application->share_path($share_path, $name);
@@ -408,7 +408,7 @@ class Modules {
 			$required_module = self::clean_name($required_module);
 			if (!apath($this->modules, [
 				$required_module,
-				"loaded",
+				'loaded',
 			])) {
 				$result += $this->_load_one($required_module, $options);
 			}
@@ -432,7 +432,7 @@ class Modules {
 	 * @return array
 	 */
 	private function _load_one($name, array $options) {
-		if (str_contains($name, "\\")) {
+		if (str_contains($name, '\\')) {
 			return $this->_autoload_one($name, $options);
 		}
 
@@ -446,13 +446,13 @@ class Modules {
 
 		$module_data['path'] = $module_path = Directory::find_first($this->application->module_path(), $name);
 		if ($module_path === null) {
-			throw new Exception_Directory_NotFound($base, "{class}::module({name}) was not found at {name}", [
-				"class" => get_class($this),
-				"name" => $name,
-				"base" => $base,
+			throw new Exception_Directory_NotFound($base, '{class}::module({name}) was not found at {name}', [
+				'class' => get_class($this),
+				'name' => $name,
+				'base' => $base,
 			]);
 		}
-		if (avalue($options, "check exists")) {
+		if (avalue($options, 'check exists')) {
 			$result[$name] = $module_data;
 			return $result;
 		}
@@ -504,12 +504,12 @@ class Modules {
 			'name' => $name,
 			'class' => $name,
 		];
-		if (avalue($options, "check exists")) {
+		if (avalue($options, 'check exists')) {
 			if (class_exists($name, true)) {
 				return $module_data;
 			}
 
-			throw new Exception_Class_NotFound($name, "Loading module");
+			throw new Exception_Class_NotFound($name, 'Loading module');
 		}
 		$result = [];
 		if (to_bool(avalue($options, 'load', true))) {
@@ -589,18 +589,18 @@ class Modules {
 		$configuration = [];
 		extract($module_data, EXTR_IF_EXISTS);
 		if (!$class) {
-			$class = avalue($configuration, "module_class", $this->module_class_prefix . PHP::clean_class($module_data['base']));
+			$class = avalue($configuration, 'module_class', $this->module_class_prefix . PHP::clean_class($module_data['base']));
 		}
 
 		try {
 			/* @var $module_object Module */
 			$module_object = $this->application->factory($class, $this->application, $configuration, $module_data);
 			if (!$module_object instanceof Module) {
-				throw new Exception_Semantics("Module {class} must be a subclass of Module - skipping", [
-					"class" => get_class($module_object),
+				throw new Exception_Semantics('Module {class} must be a subclass of Module - skipping', [
+					'class' => get_class($module_object),
 				]);
 			}
-			if (method_exists($module_object, "hooks")) {
+			if (method_exists($module_object, 'hooks')) {
 				$this->application->hooks->register_class($class);
 			}
 			$module_object->codename = $name;
@@ -627,22 +627,22 @@ class Modules {
 			if ($object) {
 				$object->initialize();
 				if ($this->debug) {
-					$this->application->logger->debug("Initialized module object {class}", [
-						"class" => get_class($object),
+					$this->application->logger->debug('Initialized module object {class}', [
+						'class' => get_class($object),
 					]);
 				}
 			}
 			return $module_data;
 		} catch (\Exception $e) {
-			$this->application->logger->error("Failed to initialize module object {class}: {message}", [
-				"class" => get_class($object),
-				"message" => $e->getMessage(),
+			$this->application->logger->error('Failed to initialize module object {class}: {message}', [
+				'class' => get_class($object),
+				'message' => $e->getMessage(),
 			]);
-			$this->application->hooks->call("exception", $e);
+			$this->application->hooks->call('exception', $e);
 			return [
-				"object" => null,
-				"status" => "failed",
-				"initialize_exception" => $e,
+				'object' => null,
+				'status' => 'failed',
+				'initialize_exception' => $e,
 			] + $module_data;
 		}
 	}
@@ -663,11 +663,11 @@ class Modules {
 	private static function _expand_modules(array $modules) {
 		$result = [];
 		foreach ($modules as $module) {
-			$parts = explode("/", $module);
+			$parts = explode('/', $module);
 			$module = [];
 			foreach ($parts as $part) {
 				$module[] = $part;
-				$result[] = implode("/", $module);
+				$result[] = implode('/', $module);
 			}
 		}
 		return $result;
@@ -683,13 +683,13 @@ class Modules {
 		$module = $this->load($name, [
 			'load' => false,
 		]);
-		$configuration = avalue($module, "configuration", []);
+		$configuration = avalue($module, 'configuration', []);
 		if (is_array($configuration)) {
-			$version = avalue($configuration, "version");
+			$version = avalue($configuration, 'version');
 			if ($version !== null) {
 				return $version;
 			}
-			$version_data = avalue($configuration, "version_data");
+			$version_data = avalue($configuration, 'version_data');
 			if (is_array($version_data)) {
 				$file = $pattern = $key = null;
 				extract($version_data, EXTR_IF_EXISTS);
@@ -704,11 +704,11 @@ class Modules {
 					}
 					if ($key) {
 						switch ($ext = File::extension($file)) {
-							case "phps":
+							case 'phps':
 								$data = unserialize($contents);
 
 								break;
-							case "json":
+							case 'json':
 								$data = JSON::decode($contents, true);
 
 								break;
@@ -724,7 +724,7 @@ class Modules {
 
 		try {
 			$object = $this->object($name);
-			return $object->option("version");
+			return $object->option('version');
 		} catch (Exception $e) {
 			return null;
 		}
@@ -834,7 +834,7 @@ class Modules {
 	 * @return mixed
 	 */
 	final public function configuration($module, $option_path, $default = null) {
-		return apath($this->data($module, "configuration", []), $option_path, $default);
+		return apath($this->data($module, 'configuration', []), $option_path, $default);
 	}
 
 	/**
@@ -846,7 +846,7 @@ class Modules {
 	 * @return string|null Returns null if module not loaded
 	 */
 	final public function path($module, $append = null) {
-		$path = $this->data($module, "path");
+		$path = $this->data($module, 'path');
 		if (!$path) {
 			return null;
 		}
@@ -863,12 +863,12 @@ class Modules {
 	 * @throws Exception_NotFound
 	 */
 	final public function object($module, $default = null) {
-		$result = $this->data($module, "object");
+		$result = $this->data($module, 'object');
 		if ($result instanceof Module) {
 			return $result;
 		}
 
-		throw new Exception_NotFound("No module object for {module} found", compact("module"));
+		throw new Exception_NotFound('No module object for {module} found', compact('module'));
 	}
 
 	/**
@@ -932,10 +932,10 @@ class Modules {
 				$hooks = array_merge($hooks, $module->collect_hooks($hook, $arguments));
 			} else {
 				$this->application->logger->error("While calling hook {hook} for module for {module_name} is not of type zesk\Module ({value} is of type {type})", [
-					"hook" => $hook,
-					"module_name" => $module_name,
-					"value" => to_text($module),
-					"type" => type($module),
+					'hook' => $hook,
+					'module_name' => $module_name,
+					'value' => to_text($module),
+					'type' => type($module),
 				]);
 			}
 		}
@@ -955,7 +955,7 @@ class Modules {
 	final public function all_hook_list(string $hook) {
 		$result = $this->application->hooks->find_all(["zesk\\Module::$hook"]);
 		if (count($result) > 0) {
-			$this->application->deprecated("Static cache clear hook is deprecated: " . _dump($result));
+			$this->application->deprecated('Static cache clear hook is deprecated: ' . _dump($result));
 		}
 		foreach ($this->modules as $name => $data) {
 			$module = avalue($data, 'object');
@@ -980,7 +980,7 @@ class Modules {
 			}
 			return $module;
 		}
-		if (str_contains($module, "\\")) {
+		if (str_contains($module, '\\')) {
 			return PHP::clean_class($module);
 		}
 		return preg_replace('|[^-/_0-9a-z]|', '', strtolower($module));

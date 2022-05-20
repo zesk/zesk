@@ -82,14 +82,14 @@ class Controller extends Hookable implements Interface_Theme {
 		$this->response = $response;
 
 		if ($response) {
-			$this->application->logger->debug("{class}::__construct Response ID {id}", [
-				"class" => get_class($this),
-				"id" => $response->id(),
+			$this->application->logger->debug('{class}::__construct Response ID {id}', [
+				'class' => get_class($this),
+				'id' => $response->id(),
 			]);
 		}
 
 		$this->initialize();
-		$this->call_hook("initialize");
+		$this->call_hook('initialize');
 	}
 
 	/**
@@ -124,7 +124,7 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 */
 	protected function hook_classes() {
-		return $this->option_list("classes", []);
+		return $this->option_list('classes', []);
 	}
 
 	/**
@@ -166,7 +166,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param string $action
 	 */
 	public function _action_default(string $action = null): mixed {
-		$this->error_404($action ? "Action $action" : "default action");
+		$this->error_404($action ? "Action $action" : 'default action');
 	}
 
 	/**
@@ -197,7 +197,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @return self
 	 */
 	public function json($mixed = null) {
-		$mixed = $this->call_hook_arguments("json", [
+		$mixed = $this->call_hook_arguments('json', [
 			$mixed,
 		], $mixed);
 		$this->response->json()->data($mixed);
@@ -224,7 +224,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 */
 	public function error($code, $message = null) {
 		$this->response->status($code);
-		$this->response->content_type("text/html");
+		$this->response->content_type('text/html');
 		$this->response->content = $message;
 		return $this;
 	}
@@ -361,20 +361,20 @@ class Controller extends Hookable implements Interface_Theme {
 		];
 		$found = [];
 		foreach ($paths as $path => $options) {
-			$controller_path = path($path, "controller");
+			$controller_path = path($path, 'controller');
 			if (is_dir($controller_path)) {
-				$class_prefix = avalue($options, "class_prefix", "");
+				$class_prefix = avalue($options, 'class_prefix', '');
 				$controller_incs = Directory::list_recursive($controller_path, $list_options);
 				foreach ($controller_incs as $controller_inc) {
 					if (str_contains("/$controller_inc", '/.')) {
 						continue;
 					}
-					$application->logger->debug("Found controller {controller_inc}", compact("controller_inc"));
+					$application->logger->debug('Found controller {controller_inc}', compact('controller_inc'));
 
 					try {
 						$controller_inc = File::extension_change($controller_inc, null);
 						$class_name = $class_prefix . 'Controller_' . strtr($controller_inc, '/', '_');
-						$application->logger->debug("class name is {class_name}", compact("class_name"));
+						$application->logger->debug('class name is {class_name}', compact('class_name'));
 						$reflectionClass = new ReflectionClass($class_name);
 						if (!$reflectionClass->isAbstract()) {
 							/* @var $controller Controller */
@@ -386,7 +386,7 @@ class Controller extends Hookable implements Interface_Theme {
 						}
 					} catch (ReflectionException $e) {
 					} catch (\Exception $e) {
-						$application->logger->error("Exception creating controller {controller_inc} {e}", compact("controller_inc", "e"));
+						$application->logger->error('Exception creating controller {controller_inc} {e}', compact('controller_inc', 'e'));
 					}
 				}
 			}

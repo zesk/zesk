@@ -2,51 +2,51 @@
 namespace zesk;
 
 class Class_Contact extends Class_ORM {
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	public array $column_types = [
-		"id" => self::type_id,
+		'id' => self::type_id,
 	];
 
 	public array $has_many = [
-		"tags" => [
+		'tags' => [
 			'class' => 'zesk\\Contact_Tag',
 			'link_class' => 'zesk\\Contact_Tag_Contact',
 			'far_key' => 'contact_tag',
 			'foreign_key' => 'contact',
 		],
-		"emails" => [
+		'emails' => [
 			'class' => 'zesk\\Contact_Email',
 			'foreign_key' => 'contact',
 		],
-		"phones" => [
+		'phones' => [
 			'class' => 'zesk\\Contact_Phone',
 			'foreign_key' => 'contact',
 		],
-		"addresses" => [
+		'addresses' => [
 			'class' => 'zesk\\Contact_Address',
 			'foreign_key' => 'contact',
 		],
-		"urls" => [
+		'urls' => [
 			'class' => 'zesk\\Contact_URL',
 			'foreign_key' => 'contact',
 		],
-		"dates" => [
+		'dates' => [
 			'class' => 'zesk\\Contact_Date',
 			'foreign_key' => 'contact',
 		],
-		"others" => [
+		'others' => [
 			'class' => 'zesk\\Contact_Other',
 			'foreign_key' => 'contact',
 		],
 	];
 
 	public array $has_one = [
-		"email" => 'zesk\\Contact_Email',
-		"phone" => 'zesk\\Contact_Phone',
-		"address" => 'zesk\\Contact_Address',
-		"url" => 'zesk\\Contact_URL',
-		"person" => 'zesk\\Contact_Person',
-		"account" => 'zesk\\Account',
+		'email' => 'zesk\\Contact_Email',
+		'phone' => 'zesk\\Contact_Phone',
+		'address' => 'zesk\\Contact_Address',
+		'url' => 'zesk\\Contact_URL',
+		'person' => 'zesk\\Contact_Person',
+		'account' => 'zesk\\Account',
 	];
 }

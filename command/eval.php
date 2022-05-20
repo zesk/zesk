@@ -64,14 +64,14 @@ class Command_Eval extends Command_Base {
 	 * @see \zesk\Command::run()
 	 */
 	public function run() {
-		if (!$this->optionBool("skip-configure")) {
-			$this->configure("eval");
+		if (!$this->optionBool('skip-configure')) {
+			$this->configure('eval');
 		}
 		$this->handle_base_options();
 		$this->saved_vars = [];
 		while ($this->has_arg()) {
-			$arg = $this->get_arg("eval");
-			if ($arg === "--") {
+			$arg = $this->get_arg('eval');
+			if ($arg === '--') {
 				break;
 			}
 			$this->verbose_log("Evaluating: $arg\n");
@@ -89,14 +89,14 @@ class Command_Eval extends Command_Base {
 	 *
 	 * @param mixed $result
 	 */
-	public function output_result($__result, $content = ""): void {
+	public function output_result($__result, $content = ''): void {
 		if ($__result === null) {
-			if ($content !== "") {
+			if ($content !== '') {
 				echo $content . "\n";
 			}
 		} else {
-			echo "# return " . PHP::dump($__result) . "\n";
-			if ($content !== "") {
+			echo '# return ' . PHP::dump($__result) . "\n";
+			if ($content !== '') {
 				echo $content . "\n";
 			}
 		}
@@ -108,7 +108,7 @@ class Command_Eval extends Command_Base {
 	 * @return number
 	 */
 	public function interactive() {
-		$this->history_file_path = $this->application->paths->uid("eval-history.log");
+		$this->history_file_path = $this->application->paths->uid('eval-history.log');
 		$name = get_class($this->application);
 		$last_exit_code = 0;
 		while (true) {
@@ -120,7 +120,7 @@ class Command_Eval extends Command_Base {
 			if (empty($command)) {
 				return $last_exit_code;
 			}
-			if ($command === "quit" || $command === "exit") {
+			if ($command === 'quit' || $command === 'exit') {
 				return 0;
 			}
 			ob_start();
@@ -130,13 +130,13 @@ class Command_Eval extends Command_Base {
 				$last_exit_code = 0;
 			} catch (\Exception $ex) {
 				$content = ob_get_clean();
-				echo "# exception " . get_class($ex) . "\n";
-				echo "# message " . $ex->getMessage() . "\n";
+				echo '# exception ' . get_class($ex) . "\n";
+				echo '# message ' . $ex->getMessage() . "\n";
 				echo "# stack trace\n" . $ex->getTraceAsString() . "\n";
 				if ($content) {
 					echo "# Content\n$content\n";
 				}
-				$this->application->hooks->call("exception", $ex);
+				$this->application->hooks->call('exception', $ex);
 				$last_exit_code = 99;
 				continue;
 			}
@@ -160,16 +160,16 @@ class Command_Eval extends Command_Base {
 	private function _after_evaluate(array $vars): void {
 		$diff = array_diff_assoc($vars, $this->before_vars);
 		foreach ($diff as $k => $v) {
-			if (begins($k, "__")) {
+			if (begins($k, '__')) {
 				unset($diff[$k]);
 			}
 		}
 		$this->saved_vars = $diff + $this->saved_vars;
 		$this->before_vars = $vars;
 
-		if ($this->optionBool("debug-state")) {
+		if ($this->optionBool('debug-state')) {
 			if (count($diff) > 0) {
-				echo "New variables defined in state: " . implode(", ", array_keys($diff)) . "\n";
+				echo 'New variables defined in state: ' . implode(', ', array_keys($diff)) . "\n";
 			} else {
 				echo "No new variables defined.\n" . _dump(array_keys($vars));
 			}
@@ -180,17 +180,17 @@ class Command_Eval extends Command_Base {
 		$string = trim($string, " \n\r\t;");
 		$string = preg_replace('/^return\s/', '', $string);
 		// If contains multiple commands, then no prefix
-		if (str_contains($string, ";")) {
+		if (str_contains($string, ';')) {
 			return $string;
 		}
-		$prefix = "return";
+		$prefix = 'return';
 		if (StringTools::begins($string, [
 			'echo ',
 			'print ',
-		]) || str_contains($string, ";")) {
-			$prefix = "";
+		]) || str_contains($string, ';')) {
+			$prefix = '';
 		}
-		return $prefix . " " . $string;
+		return $prefix . ' ' . $string;
 	}
 
 	/**
@@ -210,8 +210,8 @@ class Command_Eval extends Command_Base {
 			$command = $_ = $this;
 			$application = $app = $this->application;
 			extract($this->_before_evaluate(get_defined_vars()), EXTR_SKIP);
-			$__eval = "?" . "><" . "?php\n$__eval;\n";
-			if ($this->optionBool("debug-state")) {
+			$__eval = '?' . '><' . "?php\n$__eval;\n";
+			if ($this->optionBool('debug-state')) {
 				$this->verbose_log("RAW PHP EVAL: $__eval");
 			}
 			$__result = eval($__eval);

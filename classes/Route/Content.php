@@ -8,12 +8,12 @@ namespace zesk;
  */
 class Route_Content extends Route {
 	protected function _execute(Response $response) {
-		$file = $this->option("file");
+		$file = $this->option('file');
 		if ($file) {
 			return $response->file($file);
 		}
-		$content = $this->option("content", $this->option('default content'));
-		if ($this->option("json")) {
+		$content = $this->option('content', $this->option('default content'));
+		if ($this->option('json')) {
 			return $response->json()->data($content);
 		} else {
 			$response->content = $content;

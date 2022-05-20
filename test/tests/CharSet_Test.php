@@ -16,12 +16,12 @@ class CharSet_Test extends Test_Unit {
 		foreach ($result as $charset) {
 			$this->assert(charset::supported($charset) === true);
 			$this->assert(charset::supported($charset . '-No') === false);
-			$result = charset::to_utf8("Hello, world", $charset);
+			$result = charset::to_utf8('Hello, world', $charset);
 		}
 	}
 
 	public function to_utf8(): void {
-		$every_char = "";
+		$every_char = '';
 		for ($i = 32; $i <= 127; $i++) {
 			$every_char .= chr($i);
 		}
@@ -33,17 +33,17 @@ class CharSet_Test extends Test_Unit {
 			$result = charset::to_utf8($every_char, $charset);
 			//echo Text::lalign($charset, 20) . $result . "\n";
 			if (in_array($charset, [
-				"CP037",
-				"CP1026",
-				"CP424",
-				"CP500",
-				"CP864",
-				"CP875",
-				"GSM0338",
-				"STDENC",
-				"SYMBOL",
-				"US-ASCII-QUOTES",
-				"ZDINGBAT",
+				'CP037',
+				'CP1026',
+				'CP424',
+				'CP500',
+				'CP864',
+				'CP875',
+				'GSM0338',
+				'STDENC',
+				'SYMBOL',
+				'US-ASCII-QUOTES',
+				'ZDINGBAT',
 			])) {
 				$this->assert($result !== $every_char, "Failed for charset $charset");
 			} else {
@@ -54,12 +54,12 @@ class CharSet_Test extends Test_Unit {
 		$tests = [
 			[
 				chr(0xC1) . chr(0xC2) . chr(0xC3) . chr(0xC4),
-				"CP424",
-				"ABCD",
+				'CP424',
+				'ABCD',
 			],
 			[
 				chr(0xE7),
-				"ISO-8859-10",
+				'ISO-8859-10',
 				UTF16::to_utf8(chr(0x01) . chr(0x2F)),
 			],
 		];

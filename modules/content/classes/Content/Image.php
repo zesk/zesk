@@ -35,10 +35,10 @@ class Content_Image extends ORM {
 	public static function register_from_file(Application $application, $path, array $members = [], $copy = true, $register = true) {
 		File::depends($path);
 		$members['data'] = $cf = Content_Data::from_path($application, $path, $copy, true);
-		if (!array_key_exists("path", $members)) {
+		if (!array_key_exists('path', $members)) {
 			$ext = self::determine_extension_simple($path);
 			if (!$ext) {
-				throw new Exception_Invalid("Not an image file {path}", compact("path"));
+				throw new Exception_Invalid('Not an image file {path}', compact('path'));
 			}
 			$members['path'] = basename($path);
 		}
@@ -68,7 +68,7 @@ class Content_Image extends ORM {
 	 * @see \zesk\ORM::fetch_object()
 	 */
 	protected function fetch_object() {
-		$query = $this->query_select("X");
+		$query = $this->query_select('X');
 		$get_data = false;
 		if ($get_data) {
 			$query->link('Content_Data', [
@@ -76,10 +76,10 @@ class Content_Image extends ORM {
 				'path' => 'data',
 			]);
 		}
-		$query->where("X." . $this->id_column(), $this->id());
-		$query->what_object(__CLASS__, null, "image_");
+		$query->where('X.' . $this->id_column(), $this->id());
+		$query->what_object(__CLASS__, null, 'image_');
 		if ($get_data) {
-			$query->what_object("Content_Data", null, "data_");
+			$query->what_object('Content_Data', null, 'data_');
 		}
 
 		$result = $query->one();
@@ -89,10 +89,10 @@ class Content_Image extends ORM {
 		$add = [];
 		if ($get_data) {
 			$add = [
-				'data' => $this->orm_factory('Content_Data')->initialize(ArrayTools::kunprefix($result, "data_", true), true),
+				'data' => $this->orm_factory('Content_Data')->initialize(ArrayTools::kunprefix($result, 'data_', true), true),
 			];
 		}
-		return $add + ArrayTools::kunprefix($result, "image_", true);
+		return $add + ArrayTools::kunprefix($result, 'image_', true);
 	}
 
 	/**
@@ -109,7 +109,7 @@ class Content_Image extends ORM {
 	 */
 	public function store(): self {
 		$this->_update_sizes();
-		if ($this->member_is_empty("mime_type")) {
+		if ($this->member_is_empty('mime_type')) {
 			$this->mime_type = MIME::from_filename($this->path);
 		}
 		return parent::store();
@@ -140,7 +140,7 @@ class Content_Image extends ORM {
 	 * @return string
 	 */
 	public function content_image_path() {
-		return $this->option("path", path($this->application->document_root(), "cache/images"));
+		return $this->option('path', path($this->application->document_root(), 'cache/images'));
 	}
 
 	/**
@@ -174,7 +174,7 @@ class Content_Image extends ORM {
 	 * @return string
 	 */
 	public function path() {
-		return path($this->content_image_path(), $this->member("path"));
+		return path($this->content_image_path(), $this->member('path'));
 	}
 
 	/**
@@ -206,19 +206,19 @@ class Content_Image extends ORM {
 	 */
 	public static function determine_extension_simple_data($data) {
 		$head = substr($data, 0, 12);
-		$head = trim(strtolower(preg_replace("/[^A-Za-z]/", "", $head)));
+		$head = trim(strtolower(preg_replace('/[^A-Za-z]/', '', $head)));
 
-		if (substr($head, 0, 3) == "gif") {
-			return "gif";
+		if (substr($head, 0, 3) == 'gif') {
+			return 'gif';
 		}
-		if (substr($head, 0, 4) == "jfif") {
-			return "jpg";
+		if (substr($head, 0, 4) == 'jfif') {
+			return 'jpg';
 		}
-		if (substr($head, 0, 3) == "png") {
-			return "png";
+		if (substr($head, 0, 3) == 'png') {
+			return 'png';
 		}
-		if (substr($head, 0, 3) == "cws") {
-			return "swf";
+		if (substr($head, 0, 3) == 'cws') {
+			return 'swf';
 		}
 
 		return false;
@@ -247,7 +247,7 @@ class Content_Image extends ORM {
 		if (empty($filename)) {
 			return false;
 		}
-		if (!function_exists("exif_imagetype")) {
+		if (!function_exists('exif_imagetype')) {
 			return self::determine_extension_simple($filename);
 		}
 
@@ -256,10 +256,10 @@ class Content_Image extends ORM {
 			return false;
 		}
 		$t2ext = [
-			IMAGETYPE_GIF => "gif",
-			IMAGETYPE_JPEG => "jpg",
-			IMAGETYPE_PNG => "png",
-			IMAGETYPE_SWF => "swf",
+			IMAGETYPE_GIF => 'gif',
+			IMAGETYPE_JPEG => 'jpg',
+			IMAGETYPE_PNG => 'png',
+			IMAGETYPE_SWF => 'swf',
 		];
 		//			IMAGETYPE_PSD => "psd",
 		//			IMAGETYPE_BMP => "bmp",
@@ -286,10 +286,10 @@ class Content_Image extends ORM {
 		}
 		$data = $this->data;
 		if (!$data) {
-			$this->application->logger->warning("{class} {id} has empty or missing data \"{data}\"", [
-				"class" => get_class($this),
-				"id" => $this->id(),
-				"data" => $this->member_integer("data"),
+			$this->application->logger->warning('{class} {id} has empty or missing data "{data}"', [
+				'class' => get_class($this),
+				'id' => $this->id(),
+				'data' => $this->member_integer('data'),
 			]);
 			return false;
 		}
@@ -325,7 +325,7 @@ class Content_Image extends ORM {
 	 * @return boolean
 	 */
 	private function _update_sizes() {
-		if (!$this->member_is_empty("width") && !$this->member_is_empty("height")) {
+		if (!$this->member_is_empty('width') && !$this->member_is_empty('height')) {
 			return true;
 		}
 		$this->_force_to_disk();
@@ -338,8 +338,8 @@ class Content_Image extends ORM {
 			trigger_error(__CLASS__ . "::_update_sizes(): getimagesize failed on \"$path\"" . _backtrace(), E_USER_WARNING);
 			return false;
 		}
-		$this->set_member("width", $result[0]);
-		$this->set_member("height", $result[1]);
+		$this->set_member('width', $result[0]);
+		$this->set_member('height', $result[1]);
 		return true;
 	}
 
@@ -390,12 +390,12 @@ class Content_Image extends ORM {
 		}
 		$exif = @exif_read_data($file);
 		if (!is_array($exif)) {
-			return "unsupported";
+			return 'unsupported';
 		}
 		$orientation = avalue($exif, 'Orientation', 'none');
 		$rotate = null;
 		switch ($orientation) {
-			case "none":
+			case 'none':
 				return true;
 			case 3:
 				$rotate = 180;
@@ -415,7 +415,7 @@ class Content_Image extends ORM {
 		}
 		$result = Image_Library::factory($application)->image_rotate($file, $file, $rotate);
 		if (!$result) {
-			return "failed";
+			return 'failed';
 		}
 		return true;
 	}
@@ -435,7 +435,7 @@ class Content_Image extends ORM {
 	public function hook_permission(User $user, Permission $perm) {
 		$is_mine = to_bool($this->member_query('users')
 			->where('users.id', $user)
-			->what("*n", "COUNT(users.id)")
+			->what('*n', 'COUNT(users.id)')
 			->one_integer('n'));
 		return $is_mine;
 	}
@@ -457,16 +457,16 @@ class Content_Image extends ORM {
 	 * @param integer $theshold
 	 */
 	public static function downscale_images(Application $application, array $options): void {
-		$query = $application->orm_registry(__CLASS__)->query_select("X");
-		$query->what_object(__CLASS__, "X", "image_");
+		$query = $application->orm_registry(__CLASS__)->query_select('X');
+		$query->what_object(__CLASS__, 'X', 'image_');
 		$query->link(Content_Data::class, [
-			"alias" => "D",
+			'alias' => 'D',
 		]);
-		$query->what_object(Content_Data::class, "D", "data_");
-		$query->where("D.type", "path");
+		$query->what_object(Content_Data::class, 'D', 'data_');
+		$query->where('D.type', 'path');
 		$size = avalue($options, 'size');
 		if ($size) {
-			$query->where("D.size|>=", $size);
+			$query->where('D.size|>=', $size);
 		}
 
 		$iterator = $query->orms_iterator();
@@ -479,10 +479,10 @@ class Content_Image extends ORM {
 			try {
 				$image->reduce_image_dimensions($options);
 			} catch (Exception_File_Format $e) {
-				$application->logger->warning("{class} #{id} - {path} - {data_md5hash} Invalid image format", [
-					"class" => get_class($image),
-					"id" => $image->id(),
-					"path" => $image->path,
+				$application->logger->warning('{class} #{id} - {path} - {data_md5hash} Invalid image format', [
+					'class' => get_class($image),
+					'id' => $image->id(),
+					'path' => $image->path,
 					'data_md5hash' => $data->md5hash,
 				]);
 			}
@@ -508,10 +508,10 @@ class Content_Image extends ORM {
 			'class' => get_class($this),
 			'data_id' => $this->member_integer('data'),
 			'path' => basename($path),
-			"data_name" => $this->data->md5hash,
+			'data_name' => $this->data->md5hash,
 		];
 		if (!$this->file_exists(true)) {
-			$this->application->logger->info("{class} #{id}: {path}: No file found {data_name}", $__);
+			$this->application->logger->info('{class} #{id}: {path}: No file found {data_name}', $__);
 			return $this;
 		}
 		$scaled = $path . '.scaled';
@@ -530,7 +530,7 @@ class Content_Image extends ORM {
 		];
 
 		if ($maximum_file_size === null && $maximum_width === null && $maximum_height === null) {
-			throw new Exception_Parameter("{method}: Parameter \$options must contain one of keys: size, width, height", [
+			throw new Exception_Parameter('{method}: Parameter $options must contain one of keys: size, width, height', [
 				'method' => __METHOD__,
 			]);
 		}
@@ -568,7 +568,7 @@ class Content_Image extends ORM {
 			}
 		}
 		if ($new_width === $width && $new_height === $height) {
-			$this->application->logger->info("{class} #{id}: {path}: Size unchanged", $__);
+			$this->application->logger->info('{class} #{id}: {path}: Size unchanged', $__);
 			return $this;
 		}
 		$__ += [
@@ -579,22 +579,22 @@ class Content_Image extends ORM {
 
 		try {
 			if (!$imageTool->image_scale($path, $scaled, [
-				"width" => $new_width,
-				"height" => $new_height,
+				'width' => $new_width,
+				'height' => $new_height,
 			])) {
-				$this->application->logger->error("{class} #{id} Unable to scale {path} (data {data_id}) to {new_width}x{new_height}", $__);
+				$this->application->logger->error('{class} #{id} Unable to scale {path} (data {data_id}) to {new_width}x{new_height}', $__);
 
-				throw new Exception_Convert("{class} #{id} Unable to scale {path} (data {data_id}) to {new_width}x{new_height}", $__);
+				throw new Exception_Convert('{class} #{id} Unable to scale {path} (data {data_id}) to {new_width}x{new_height}', $__);
 			}
 		} catch (Exception_Semantics $e) {
-			throw new Exception_File_Format($path, "Invalid image format");
+			throw new Exception_File_Format($path, 'Invalid image format');
 			// zesk\Image_Library_GD::_imageload passed an invalid string of 14103036 bytes
 		}
 		$__['new_size'] = $new_size = filesize($scaled);
-		$__['percent'] = sprintf("%0.2f%%", ($new_size / $size) * 100);
-		$__['status'] = ($new_size < $maximum_file_size) ? "OK" : "FAILED";
+		$__['percent'] = sprintf('%0.2f%%', ($new_size / $size) * 100);
+		$__['status'] = ($new_size < $maximum_file_size) ? 'OK' : 'FAILED';
 
-		$this->application->logger->info("{class} #{id}: {path}: {percent} new size {status} {size} bytes ({width}x{height}) => {new_size} bytes ({new_width}x{new_height}) (MAX: {max_size})", $__);
+		$this->application->logger->info('{class} #{id}: {path}: {percent} new size {status} {size} bytes ({width}x{height}) => {new_size} bytes ({new_width}x{new_height}) (MAX: {max_size})', $__);
 
 		$old_data = $this->data;
 		$new_data = Content_Data::from_path($this->application, $scaled, false, true);
@@ -602,11 +602,11 @@ class Content_Image extends ORM {
 		$result = $this->store();
 		if ($result) {
 			if (avalue($options, 'delete')) {
-				$this->application->logger->notice("{class} #{id}: {path}: {percent} REPLACED Data: {new_data_id}, Deleting old image data: {data_id}", $__);
+				$this->application->logger->notice('{class} #{id}: {path}: {percent} REPLACED Data: {new_data_id}, Deleting old image data: {data_id}', $__);
 				$old_data->delete();
 			} else {
-				$this->application->logger->info("{class} #{id}: {path}: {percent} REPLACED Data: {new_data_id}, Previous: {data_id}", $__ + [
-					"new_data_id" => $new_data->id(),
+				$this->application->logger->info('{class} #{id}: {path}: {percent} REPLACED Data: {new_data_id}, Previous: {data_id}', $__ + [
+					'new_data_id' => $new_data->id(),
 				]);
 			}
 		}

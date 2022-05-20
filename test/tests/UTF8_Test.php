@@ -10,6 +10,6 @@ class UTF8_Test extends Test_Unit {
 	public function test_from_charset(): void {
 		$mixed = null;
 		$charset = null;
-		UTF8::from_charset($mixed, "iso-8859-1");
+		UTF8::from_charset($mixed, 'iso-8859-1');
 	}
 }

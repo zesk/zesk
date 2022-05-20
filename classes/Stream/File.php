@@ -8,10 +8,10 @@ class Stream_File extends Stream {
 
 	protected $close = false;
 
-	public function __construct($mixed = null, $mode = "r") {
+	public function __construct($mixed = null, $mode = 'r') {
 		if (is_resource($mixed)) {
 			$this->fp = $mixed;
-			$this->filename = "(resource}";
+			$this->filename = '(resource}';
 			$this->close = false;
 		} elseif (is_file($mixed)) {
 			$this->filename = $mixed;
@@ -21,7 +21,7 @@ class Stream_File extends Stream {
 				throw new Exception_File_Permission("Can not open \"$mixed\" with mode $mode");
 			}
 		} else {
-			throw new Exception_Semantics("Need a file to create a stream");
+			throw new Exception_Semantics('Need a file to create a stream');
 		}
 	}
 
@@ -62,7 +62,7 @@ class Stream_File extends Stream {
 		}
 		$result = ftell($this->fp);
 		if ($result === false) {
-			throw new Exception_FileSystem($this->filename, "Can not ftell");
+			throw new Exception_FileSystem($this->filename, 'Can not ftell');
 		}
 		return $result;
 	}

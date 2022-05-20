@@ -93,7 +93,7 @@ class Server extends ORM implements Interface_Data {
 	 *
 	 * @var string
 	 */
-	public const option_alive_update_seconds = "alive_update_seconds";
+	public const option_alive_update_seconds = 'alive_update_seconds';
 
 	/**
 	 * Number of seconds after which the server status should be updated
@@ -106,7 +106,7 @@ class Server extends ORM implements Interface_Data {
 	 *
 	 * @var string
 	 */
-	public const option_timeout_seconds = "timeout_seconds";
+	public const option_timeout_seconds = 'timeout_seconds';
 
 	/**
 	 *
@@ -137,14 +137,14 @@ class Server extends ORM implements Interface_Data {
 	public static function hooks(Application $zesk): void {
 		$zesk->hooks->add(Hooks::HOOK_CONFIGURED, [
 			__CLASS__,
-			"configured",
+			'configured',
 		]);
 	}
 
 	/**
 	 */
 	public static function configured(Application $application): void {
-		$application->configuration->deprecated("FDISK_PRIMARY", __CLASS__ . "::free_disk_volume");
+		$application->configuration->deprecated('FDISK_PRIMARY', __CLASS__ . '::free_disk_volume');
 	}
 
 	/**
@@ -181,7 +181,7 @@ class Server extends ORM implements Interface_Data {
 		/* @var $server Server */
 		foreach ($iterator as $server) {
 			// Delete this way so hooks get called per dead server
-			$this->application->logger->warning("Burying dead server {name} (#{id}), last alive on {alive}", $server->members());
+			$this->application->logger->warning('Burying dead server {name} (#{id}), last alive on {alive}', $server->members());
 			$server->delete();
 		}
 		$this->pop_utc($pushed);
@@ -196,7 +196,7 @@ class Server extends ORM implements Interface_Data {
 	private static function host_default() {
 		$host = System::uname();
 		if (empty($host)) {
-			throw new Exception_Parameter("No UNAME or HOST defined");
+			throw new Exception_Parameter('No UNAME or HOST defined');
 		}
 		return $host;
 	}
@@ -265,7 +265,7 @@ class Server extends ORM implements Interface_Data {
 	 */
 	public function refresh_names() {
 		// Set up our names using hooks (may do nothing)
-		$this->call_hook("initialize_names");
+		$this->call_hook('initialize_names');
 		// Set all blank values to defaults
 		$this->_initialize_names_defaults();
 
@@ -292,19 +292,19 @@ class Server extends ORM implements Interface_Data {
 			// 2018-08-06 No longer inherits $host value, null by default
 			$this->name_external = null;
 		}
-		if (empty($this->ip4_internal) || $this->ip4_internal === "0.0.0.0") {
+		if (empty($this->ip4_internal) || $this->ip4_internal === '0.0.0.0') {
 			$this->ip4_internal = null;
 			$ips = System::ip_addresses($this->application);
-			$ips = ArrayTools::remove_values($ips, "127.0.0.1");
+			$ips = ArrayTools::remove_values($ips, '127.0.0.1');
 			if (count($ips) >= 1) {
 				$this->ip4_internal = first(array_values($ips));
 			}
 		}
 		if (empty($this->ip4_internal)) {
 			// Probably a single-server system.
-			$this->ip4_internal = "127.0.0.1";
+			$this->ip4_internal = '127.0.0.1';
 		}
-		if (empty($this->ip4_external) || $this->ip4_external === "0.0.0.0") {
+		if (empty($this->ip4_external) || $this->ip4_external === '0.0.0.0') {
 			// 2018-08-06 No longer inherits $host value, null by default
 			$this->ip4_external = null;
 		}
@@ -317,7 +317,7 @@ class Server extends ORM implements Interface_Data {
 	 */
 	public function update_state($path = null) {
 		if ($path === null) {
-			$path = $this->option('free_disk_volume', "/");
+			$path = $this->option('free_disk_volume', '/');
 		}
 		$volume_info = System::volume_info();
 		$info = avalue($volume_info, $path);
@@ -353,8 +353,8 @@ class Server extends ORM implements Interface_Data {
 	 */
 	private function _db_tz_is_utc($tz) {
 		return in_array(strtolower($tz), [
-			"utc",
-			"+00:00",
+			'utc',
+			'+00:00',
 		]);
 	}
 
@@ -408,8 +408,8 @@ class Server extends ORM implements Interface_Data {
 	 * @return NULL|Server_Data
 	 */
 	private function set_data($name, $value = null) {
-		$iterator = $this->member_iterator("data", [
-			"name" => $name,
+		$iterator = $this->member_iterator('data', [
+			'name' => $name,
 		]);
 		/* @var $data Server_Data */
 		foreach ($iterator as $data) {
@@ -424,9 +424,9 @@ class Server extends ORM implements Interface_Data {
 			return null;
 		}
 		$data = new Server_Data($this->application, [
-			"server" => $this,
-			"name" => $name,
-			"value" => $value,
+			'server' => $this,
+			'name' => $name,
+			'value' => $value,
 		]);
 		return $data->store();
 	}
@@ -439,8 +439,8 @@ class Server extends ORM implements Interface_Data {
 	 * @return NULL|Server_Data
 	 */
 	private function get_data($name) {
-		$iterator = $this->member_iterator("data", [
-			"name" => $name,
+		$iterator = $this->member_iterator('data', [
+			'name' => $name,
 		]);
 		/* @var $data Server_Data */
 		foreach ($iterator as $data) {
@@ -474,7 +474,7 @@ class Server extends ORM implements Interface_Data {
 		if ($acquired_lock) {
 			$this->database()->release_lock($lock_name);
 		} else {
-			$this->application->logger->warning("Unable to acquire lock {lock_name}", compact("lock_name"));
+			$this->application->logger->warning('Unable to acquire lock {lock_name}', compact('lock_name'));
 		}
 		return $result;
 	}
@@ -490,8 +490,8 @@ class Server extends ORM implements Interface_Data {
 		return $this->application->orm_registry(Server_Data::class)
 			->query_delete()
 			->where([
-			"server" => $this,
-			"name" => $name,
+			'server' => $this,
+			'name' => $name,
 		])
 			->execute()
 			->affected_rows() > 0;
@@ -507,7 +507,7 @@ class Server extends ORM implements Interface_Data {
 		return $this->application->orm_registry(Server_Data::class)
 			->query_delete()
 			->where([
-			"name" => $name,
+			'name' => $name,
 		])
 			->execute()
 			->affected_rows() > 0;
@@ -533,9 +533,9 @@ class Server extends ORM implements Interface_Data {
 		foreach ($where as $name => $value) {
 			$alias = "data_$name";
 			$query->link(Server_Data::class, [
-				"alias" => $alias,
-				"on" => [
-					"name" => $name,
+				'alias' => $alias,
+				'on' => [
+					'name' => $name,
 				],
 			]);
 			$query->where([

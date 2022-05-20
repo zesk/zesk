@@ -15,7 +15,7 @@ foreach ($this->widgets as $widget_name) {
 $id = $widget->id();
 
 $map['total_widget'] = $widget->jquery_target_expression();
-$map['sum_widgets'] = implode(", ", $sum_widgets);
+$map['sum_widgets'] = implode(', ', $sum_widgets);
 
 ob_start();
 ?>
@@ -114,4 +114,4 @@ ob_start();
 }());
 </script>
 <?php
-$response->html()->jquery(map(HTML::extract_tag_contents("script", ob_get_clean()), $map));
+$response->html()->jquery(map(HTML::extract_tag_contents('script', ob_get_clean()), $map));

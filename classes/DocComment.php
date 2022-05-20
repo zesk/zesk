@@ -29,7 +29,7 @@ class DocComment extends Options {
 	 *
 	 * @var string
 	 */
-	public const OPTION_MULTI_KEYS = "multi_keys"; // List of keys which
+	public const OPTION_MULTI_KEYS = 'multi_keys'; // List of keys which
 
 	/**
 	 * For patterns which are keyed by the second token in the DocComment
@@ -46,7 +46,7 @@ class DocComment extends Options {
 	 *
 	 * @var string
 	 */
-	public const OPTION_PARAM_KEYS = "param_keys";
+	public const OPTION_PARAM_KEYS = 'param_keys';
 
 	/**
 	 * For patterns which are lists of items and
@@ -62,7 +62,7 @@ class DocComment extends Options {
 	 *
 	 * @var string
 	 */
-	public const OPTION_LIST_KEYS = "list_keys";
+	public const OPTION_LIST_KEYS = 'list_keys';
 
 	/**
 	 * For output, move @desc tags to the top of the DocComment and place a space between it and other content.
@@ -83,13 +83,13 @@ class DocComment extends Options {
 	 *
 	 * @var string
 	 */
-	public const OPTION_DESC_NO_TAG = "desc_no_tag";
+	public const OPTION_DESC_NO_TAG = 'desc_no_tag';
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $content = "";
+	private $content = '';
 
 	/**
 	 *
@@ -150,11 +150,11 @@ class DocComment extends Options {
 	 */
 	public static function clean($string) {
 		$string = trim($string);
-		$string = StringTools::unprefix($string, "/*");
-		$string = StringTools::unsuffix($string, "*/");
+		$string = StringTools::unprefix($string, '/*');
+		$string = StringTools::unsuffix($string, '*/');
 		$string = explode("\n", $string);
 		$string = ArrayTools::trim($string);
-		$string = ArrayTools::unprefix($string, "*");
+		$string = ArrayTools::unprefix($string, '*');
 		$string = ArrayTools::trim($string);
 		$string = implode("\n", $string);
 
@@ -172,7 +172,7 @@ class DocComment extends Options {
 	}
 
 	private function parse_multi_key($value, $key) {
-		return ArrayTools::kpair(ArrayTools::clean(explode("\n", $value)), " ");
+		return ArrayTools::kpair(ArrayTools::clean(explode("\n", $value)), ' ');
 	}
 
 	private function unparse_multi_key($value, $key) {
@@ -193,22 +193,22 @@ class DocComment extends Options {
 	 */
 	private function param_keys() {
 		$keys = $this->option_list(self::OPTION_PARAM_KEYS);
-		$keys[] = "property";
-		$keys[] = "param";
-		$keys[] = "global"; // Dunno. Are there any other doccomments like this?
+		$keys[] = 'property';
+		$keys[] = 'param';
+		$keys[] = 'global'; // Dunno. Are there any other doccomments like this?
 		$keys = array_unique($keys);
 		return $keys;
 	}
 
 	private function list_keys() {
 		$keys = $this->option_list(self::OPTION_LIST_KEYS);
-		$keys[] = "see";
+		$keys[] = 'see';
 		$keys = array_unique($keys);
 		return $keys;
 	}
 
 	private function parse_param_key($value) {
-		$lines = ArrayTools::clean(to_list($value, [], "\n"), ["", null]);
+		$lines = ArrayTools::clean(to_list($value, [], "\n"), ['', null]);
 		$keys = ArrayTools::field($lines, 1, " \t");
 		$values = ArrayTools::field($lines, null, " \t", 3);
 		return ArrayTools::rekey($keys, $values);
@@ -223,7 +223,7 @@ class DocComment extends Options {
 	private function unparse_param_key(array $value, $key) {
 		$result = [];
 		foreach ($value as $variable_name => $type_name_etc) {
-			$result[] = "@$key " . implode(" ", $type_name_etc);
+			$result[] = "@$key " . implode(' ', $type_name_etc);
 		}
 		return $result;
 	}
@@ -261,7 +261,7 @@ class DocComment extends Options {
 	 */
 	public function variables(array $set = null) {
 		if ($set !== null) {
-			zesk()->deprecated("use setVaribles");
+			zesk()->deprecated('use setVaribles');
 			$this->setVariables($set);
 		}
 		if ($this->variables === null) {
@@ -287,7 +287,7 @@ class DocComment extends Options {
 	 */
 	public function content($set = null): string {
 		if ($set !== null) {
-			zesk()->deprecated("use setContent");
+			zesk()->deprecated('use setContent');
 			$this->setContent($set);
 		}
 		if ($this->content === null) {
@@ -309,18 +309,18 @@ class DocComment extends Options {
 		$string = self::clean($string);
 		$lines = explode("\n", $string);
 		$result = [];
-		$current_tag = "desc";
+		$current_tag = 'desc';
 		foreach ($lines as $line) {
 			$matches = null;
 			if (preg_match('/^\@([-A-Za-z_]+)/', $line, $matches)) {
 				$current_tag = $matches[1];
 				$line = substr($line, strlen($matches[0]));
 			}
-			$old_value = $result[$current_tag] ?? "";
+			$old_value = $result[$current_tag] ?? '';
 			if ($old_value) {
 				$old_value .= "\n ";
 			}
-			$result[$current_tag] = rtrim($old_value, " ") . trim($line);
+			$result[$current_tag] = rtrim($old_value, ' ') . trim($line);
 		}
 		// Convert values to a keyed array based on first token in the string
 		$handled = [];
@@ -357,7 +357,7 @@ class DocComment extends Options {
 	 * @return string
 	 */
 	private function unparse_default($value, $key) {
-		$spaces = str_repeat(" ", strlen($key) + 2);
+		$spaces = str_repeat(' ', strlen($key) + 2);
 		$join = "\n$spaces";
 		return "@$key " . (is_array($value) ? implode($join, $value) : implode($join, explode("\n", $value)));
 	}

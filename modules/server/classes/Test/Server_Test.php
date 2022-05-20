@@ -11,8 +11,8 @@ namespace zesk;
  */
 class Server_Test extends Test_Unit {
 	protected array $load_modules = [
-		"ORM",
-		"MySQL",
+		'ORM',
+		'MySQL',
 	];
 
 	protected function initialize(): void {
@@ -20,7 +20,7 @@ class Server_Test extends Test_Unit {
 	}
 
 	public function test_Server(): void {
-		$this->application->configuration->HOST = "localhost";
+		$this->application->configuration->HOST = 'localhost';
 
 		$testx = new Server($this->application);
 		$this->assert_instanceof($testx, Server::class);
@@ -28,7 +28,7 @@ class Server_Test extends Test_Unit {
 		$testx = Server::singleton($this->application);
 
 		$this->assert_instanceof($testx, Server::class);
-		$path = "/";
+		$path = '/';
 		$testx->id = 1;
 		$testx->update_state($path);
 	}

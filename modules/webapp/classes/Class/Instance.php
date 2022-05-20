@@ -19,21 +19,21 @@ class Class_Instance extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $codename = "WebApp_Instance";
+	public $codename = 'WebApp_Instance';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	/**
 	 *
 	 * @var array
 	 */
 	public array $has_one = [
-		"server" => Server::class,
-		"repository" => Repository::class,
+		'server' => Server::class,
+		'repository' => Repository::class,
 	];
 
 	/**
@@ -41,9 +41,9 @@ class Class_Instance extends Class_ORM {
 	 * @var array
 	 */
 	public array $has_many = [
-		"sites" => [
-			"class" => Site::class,
-			"foreign_key" => "instance",
+		'sites' => [
+			'class' => Site::class,
+			'foreign_key' => 'instance',
 		],
 	];
 
@@ -52,8 +52,8 @@ class Class_Instance extends Class_ORM {
 	 * @var array
 	 */
 	public array $find_keys = [
-		"server",
-		"path",
+		'server',
+		'path',
 	];
 
 	/**
@@ -61,17 +61,17 @@ class Class_Instance extends Class_ORM {
 	 * @var array
 	 */
 	public array $column_types = [
-		"id" => self::type_id,
-		"server" => self::type_object,
-		"repository" => self::type_object,
-		"path" => self::type_string,
-		"code" => self::type_string,
-		"name" => self::type_string,
-		"json" => self::type_json,
-		"appversion" => self::type_string,
-		"apptype" => self::type_string,
-		"hash" => self::type_hex,
-		"updated" => self::type_modified,
-		"serving" => self::type_timestamp,
+		'id' => self::type_id,
+		'server' => self::type_object,
+		'repository' => self::type_object,
+		'path' => self::type_string,
+		'code' => self::type_string,
+		'name' => self::type_string,
+		'json' => self::type_json,
+		'appversion' => self::type_string,
+		'apptype' => self::type_string,
+		'hash' => self::type_hex,
+		'updated' => self::type_modified,
+		'serving' => self::type_timestamp,
 	];
 }

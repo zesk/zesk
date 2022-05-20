@@ -3,8 +3,8 @@ namespace zesk;
 
 class TestORM_Test extends Test_ORM {
 	protected array $load_modules = [
-		"MySQL",
-		"ORM",
+		'MySQL',
+		'ORM',
 	];
 
 	public function initialize(): void {
@@ -44,45 +44,45 @@ class TestORM_Test extends Test_ORM {
 
 		$x->id();
 
-		$f = "Foo";
+		$f = 'Foo';
 		$x->__get($f);
 
-		$f = "Foo";
+		$f = 'Foo';
 		$v = null;
 		$x->__set($f, $v);
 
-		$f = "Foo";
+		$f = 'Foo';
 		$def = null;
 		$x->member($f, $def);
 
-		$f = "Foo";
+		$f = 'Foo';
 		$x->members_changed($f);
 
 		$x->changed();
 
-		$f = "Foo";
+		$f = 'Foo';
 		$def = null;
 		$x->membere($f, $def);
 
-		$f = "Foo";
+		$f = 'Foo';
 		$def = null;
 		$x->member_timestamp($f, $def);
 
 		$mixed = false;
 		$x->members($mixed);
 
-		$f = "Foo";
+		$f = 'Foo';
 		$x->member_is_empty($f);
 
-		$f = "Foo";
+		$f = 'Foo';
 		$v = null;
 		$overwrite = true;
 		$x->set_member($f, $v, $overwrite);
 
-		$mixed = "Hello";
+		$mixed = 'Hello';
 		$x->member_remove($mixed);
 
-		$f = "Foo";
+		$f = 'Foo';
 		$x->has_member($f);
 
 		//$x->insert();
@@ -118,7 +118,7 @@ class TestORM_Test extends Test_ORM {
 	}
 
 	public function test_object(): void {
-		$sTable = "TestORM";
+		$sTable = 'TestORM';
 
 		$this->test_table($sTable);
 

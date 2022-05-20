@@ -22,7 +22,7 @@ class Controller_Markdown extends Controller_Theme {
 			if ($found_file) {
 				$content = file_get_contents($found_file);
 			} else {
-				$this->application->logger->error("Page not found \"{file}\" in {search_path}", compact("file", "search_path"));
+				$this->application->logger->error('Page not found "{file}" in {search_path}', compact('file', 'search_path'));
 				$this->error_404();
 				return;
 			}

@@ -29,7 +29,7 @@ class Contact_Person extends Contact_Info {
 	 */
 	public function greeting_name() {
 		$names = [
-			"Nickname",
+			'Nickname',
 			'FirstName',
 			'LastName',
 		];
@@ -49,11 +49,11 @@ class Contact_Person extends Contact_Info {
 	public function full_name() {
 		$result = [];
 		$names = [
-			"Prefix",
-			"FirstName",
-			"MiddleName",
-			"LastName",
-			"Suffix",
+			'Prefix',
+			'FirstName',
+			'MiddleName',
+			'LastName',
+			'Suffix',
 		];
 		foreach ($names as $name) {
 			if (!$this->member_is_empty($name)) {
@@ -63,6 +63,6 @@ class Contact_Person extends Contact_Info {
 		if (count($result) == 0) {
 			$result[] = $this->member('Nickname');
 		}
-		return implode(" ", $result);
+		return implode(' ', $result);
 	}
 }

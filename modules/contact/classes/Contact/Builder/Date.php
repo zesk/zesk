@@ -12,7 +12,7 @@ class Contact_Builder_Date extends Contact_Builder_Base {
 	 *
 	 * @var string
 	 */
-	protected $contact_class = "zesk\\Contact_Date";
+	protected $contact_class = 'zesk\\Contact_Date';
 
 	/**
 	 *
@@ -21,7 +21,7 @@ class Contact_Builder_Date extends Contact_Builder_Base {
 	 */
 	public function process(Contact_Import $import, $key, $value) {
 		if (!is_date($value)) {
-			throw new Exception_Syntax(__("Not a valid date."));
+			throw new Exception_Syntax(__('Not a valid date.'));
 		}
 		$empty_values = $import->empty_date_values();
 		if (in_array($value, $empty_values)) {

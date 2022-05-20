@@ -24,28 +24,28 @@ class Controller_Cache extends Controller {
 	protected function request_to_file($contents) {
 		$file = $this->request->path();
 		if (!File::path_check($file)) {
-			$message = "User accessed {file} which contains suspicious path components while trying to write {contents_size} bytes.";
+			$message = 'User accessed {file} which contains suspicious path components while trying to write {contents_size} bytes.';
 			$args = [
-				"file" => $file,
-				"contents_size" => strlen($contents),
+				'file' => $file,
+				'contents_size' => strlen($contents),
 			];
 			$this->application->logger->error($message, $args);
-			$this->application->hooks->call("security", $message, $args);
+			$this->application->hooks->call('security', $message, $args);
 			return null;
 		}
 		$docroot = $this->application->document_root();
 		$cache_file = Directory::undot(path($docroot, $file));
 		if (!begins($cache_file, $docroot)) {
-			$this->application->hooks->call("security", "User cache file \"{cache_file}\" does not match document root \"{docroot}\"", [
-				"cache_file" => $cache_file,
-				"docroot" => $docroot,
+			$this->application->hooks->call('security', 'User cache file "{cache_file}" does not match document root "{docroot}"', [
+				'cache_file' => $cache_file,
+				'docroot' => $docroot,
 			]);
 			return null;
 		}
-		if ($this->request->get('nocache') === $this->option("nocache_key", microtime(true))) {
+		if ($this->request->get('nocache') === $this->option('nocache_key', microtime(true))) {
 			return $this->response->content_type(MIME::from_filename($cache_file))->header('Content-Length', strlen($contents))->content($contents);
 		}
-		Directory::depend(dirname($cache_file), $this->option("cache_directory_mode", 0o775));
+		Directory::depend(dirname($cache_file), $this->option('cache_directory_mode', 0o775));
 		file_put_contents($cache_file, $contents);
 		return $this->response->file($cache_file);
 	}

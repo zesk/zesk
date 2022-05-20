@@ -93,13 +93,13 @@ class Walker {
 	 *
 	 * @var string
 	 */
-	protected $preprocess_hook = "walk";
+	protected $preprocess_hook = 'walk';
 
 	/**
 	 * Hook called on ORM class and object after walked
 	 * @var string
 	 */
-	protected $postprocess_hook = "walked";
+	protected $postprocess_hook = 'walked';
 
 	public function variables(): array {
 		return [
@@ -378,9 +378,9 @@ class Walker {
 
 		foreach ($this->resolve_objects() as $member_path) {
 			if (is_array($allow_resolve_objects) && count($allow_resolve_objects) !== 0 && !StringTools::begins($allow_resolve_objects, $member_path)) {
-				$logger->warning("Not allowed to traverse {member_path} as it is not included in {allow_resolve_objects}", compact("allow_resolve_objects", "member_path"));
+				$logger->warning('Not allowed to traverse {member_path} as it is not included in {allow_resolve_objects}', compact('allow_resolve_objects', 'member_path'));
 			} else {
-				[$member, $remaining_path] = pair($member_path, ".", $member_path, null);
+				[$member, $remaining_path] = pair($member_path, '.', $member_path, null);
 				if (!array_key_exists($member, $resolve_object_match)) {
 					$resolve_object_match[$member] = [];
 				}
@@ -402,9 +402,9 @@ class Walker {
 	private function _walk(ORM $orm) {
 		/* Convert to JSONable structure */
 		$class_data = $this->class_info ? [
-			"_class" => get_class($this),
-			"_parent_class" => get_parent_class($this),
-			"_primary_keys" => $orm->members($orm->primary_keys()),
+			'_class' => get_class($this),
+			'_parent_class' => get_parent_class($this),
+			'_primary_keys' => $orm->members($orm->primary_keys()),
 		] : [];
 		if ($this->depth === 0) {
 			$id = $orm->id();
@@ -502,9 +502,9 @@ class Walker {
 			if (is_callable($resolve_method)) {
 				return $resolve_method($object, $member, $value, $child_options);
 			}
-			$logger->warning("Invalid resolve method passed into {class} walker: {type}", [
-				"class" => get_class($object),
-				"type" => type($resolve_method),
+			$logger->warning('Invalid resolve method passed into {class} walker: {type}', [
+				'class' => get_class($object),
+				'type' => type($resolve_method),
 			]);
 		}
 		return $value->__toString();

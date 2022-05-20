@@ -44,21 +44,21 @@ class World_Bootstrap_Currency extends Hookable {
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options(Module_World::class);
-		$include_currency = $this->option("include_currency");
+		$include_currency = $this->option('include_currency');
 		if ($include_currency) {
 			$this->include_currency = array_change_key_case(ArrayTools::flip_assign(to_list($include_currency), true));
 		}
-		$include_country = $this->option("include_country");
+		$include_country = $this->option('include_country');
 		if ($include_country) {
 			$this->include_country = array_change_key_case(ArrayTools::flip_assign(to_list($include_country), true));
 		}
 	}
 
 	public function bootstrap(): void {
-		$prefix = __NAMESPACE__ . "\\";
-		$x = $this->application->orm_factory($prefix . StringTools::unprefix(__CLASS__, $prefix . "World_Bootstrap_"));
+		$prefix = __NAMESPACE__ . '\\';
+		$x = $this->application->orm_factory($prefix . StringTools::unprefix(__CLASS__, $prefix . 'World_Bootstrap_'));
 
-		if ($this->optionBool("drop")) {
+		if ($this->optionBool('drop')) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 		$codes = $this->_codes();
@@ -69,7 +69,7 @@ class World_Bootstrap_Currency extends Hookable {
 
 	private function is_included(Currency $currency) {
 		if ($this->include_country) {
-			if ($currency->member_is_empty("bank_country")) {
+			if ($currency->member_is_empty('bank_country')) {
 				return false;
 			}
 			return avalue($this->include_country, strtolower($currency->bank_country->code), false);
@@ -85,23 +85,23 @@ class World_Bootstrap_Currency extends Hookable {
 		if (empty($name)) {
 			return null;
 		}
-		if (substr($name, 0, 1) === "*") {
+		if (substr($name, 0, 1) === '*') {
 			return null;
 		}
 		$country = $this->application->orm_factory('zesk\\Country', [
 			'code' => $code,
 			'name' => $name,
 		]);
-		if (($found = $country->find("code")) !== null) {
+		if (($found = $country->find('code')) !== null) {
 			return $found;
 		}
 		if (($found = $country->find([
-			"name|LIKE" => $name,
+			'name|LIKE' => $name,
 		])) !== null) {
 			return $found;
 		}
-		$this->application->logger->warning("Unable to find country {name} in database", [
-			"name" => $name,
+		$this->application->logger->warning('Unable to find country {name} in database', [
+			'name' => $name,
 		]);
 		return null;
 	}
@@ -113,31 +113,31 @@ class World_Bootstrap_Currency extends Hookable {
 		$code = strtolower(substr($codeName, 0, 2));
 
 		$country = $this->determine_country($code, $name);
-		if (!$country && !$this->optionBool("include_no_country")) {
+		if (!$country && !$this->optionBool('include_no_country')) {
 			return null;
 		}
-		$fields["bank_country"] = $country;
+		$fields['bank_country'] = $country;
 		if (empty($symbol)) {
 			$symbol = $codeName;
 		}
 
-		$fields["id"] = $id = intval($row[3]);
-		$fields["name"] = $row[1];
-		$fields["code"] = $codeName;
-		$fields["symbol"] = $symbol;
-		[$fractional, $units] = pair($fractional_string, " ");
-		$fields["fractional"] = intval($fractional);
-		$fields["fractional_units"] = $units;
-		$fields["format"] = "{symbol}{amount}";
+		$fields['id'] = $id = intval($row[3]);
+		$fields['name'] = $row[1];
+		$fields['code'] = $codeName;
+		$fields['symbol'] = $symbol;
+		[$fractional, $units] = pair($fractional_string, ' ');
+		$fields['fractional'] = intval($fractional);
+		$fields['fractional_units'] = $units;
+		$fields['format'] = '{symbol}{amount}';
 
 		if (empty($id)) {
-			$this->application->logger->debug("Unknown id for currency {code} {name}", $fields);
+			$this->application->logger->debug('Unknown id for currency {code} {name}', $fields);
 			return null;
 		}
 
-		$currency = $this->application->orm_factory(__NAMESPACE__ . "\\" . "Currency");
+		$currency = $this->application->orm_factory(__NAMESPACE__ . '\\' . 'Currency');
 		if ($this->is_included($currency)) {
-			if ($this->optionBool("delete_mismatched_ids")) {
+			if ($this->optionBool('delete_mismatched_ids')) {
 				$found = $currency->find();
 				if ($found->id() !== $id) {
 					$currency->delete();
@@ -160,8 +160,8 @@ class World_Bootstrap_Currency extends Hookable {
 		foreach ($codes as $index => $row) {
 			$code = strtolower($row[2]);
 			if (!isset($missing_ones[$code])) {
-				if ($this->optionBool("debug")) {
-					$this->application->logger->debug("Code {2} ({1}) no longer valid, remove it", $row);
+				if ($this->optionBool('debug')) {
+					$this->application->logger->debug('Code {2} ({1}) no longer valid, remove it', $row);
 				}
 				unset($codes[$index]);
 
@@ -170,8 +170,8 @@ class World_Bootstrap_Currency extends Hookable {
 			unset($missing_ones[$code]);
 		}
 		if (count($missing_ones) > 0) {
-			$this->application->logger->debug("Currency codes {missing_ones} need to be added", [
-				"missing_ones" => $missing_ones,
+			$this->application->logger->debug('Currency codes {missing_ones} need to be added', [
+				'missing_ones' => $missing_ones,
 			]);
 		}
 		return $codes;
@@ -181,7 +181,7 @@ class World_Bootstrap_Currency extends Hookable {
 	 * https://gist.githubusercontent.com/Fluidbyte/2973986/raw/b0d1722b04b0a737aade2ce6e055263625a0b435/Common-Currency.json
 	 */
 	public function _somwhat_recent_codes() {
-		$file = $this->application->modules->path("world", "bootstrap-data/currency.json");
+		$file = $this->application->modules->path('world', 'bootstrap-data/currency.json');
 		File::depends($file);
 		$currencies = JSON::decode(file_get_contents($file));
 		return $currencies;
@@ -192,12 +192,12 @@ class World_Bootstrap_Currency extends Hookable {
 		$result = [];
 		foreach ($codes as $row) {
 			$item = ArrayTools::map_keys($row, [
-				"country_name",
-				"name",
-				"code",
-				"id",
-				"symbol",
-				"unit_phrase",
+				'country_name',
+				'name',
+				'code',
+				'id',
+				'symbol',
+				'unit_phrase',
 			]);
 
 			$result[$item['code']] = $item;
@@ -632,7 +632,7 @@ class World_Bootstrap_Currency extends Hookable {
 				'100 centimos',
 			],
 			[
-				"Ivory Coast",
+				'Ivory Coast',
 				'CFA Franc BCEAO',
 				'XOF',
 				952,

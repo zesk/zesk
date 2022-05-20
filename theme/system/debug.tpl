@@ -26,10 +26,10 @@ echo PHP::dump($_COOKIE);
 ?></pre>
 <h1>Session</h1>
 <?php
-$login = "<em>None</em>";
+$login = '<em>None</em>';
 if ($session && $session->authenticated()) {
 	$user = $session->user();
-	$login = "<em>Authenticated, no user.</em>";
+	$login = '<em>Authenticated, no user.</em>';
 	if ($user instanceof User) {
 		$login = $user->login();
 	}
@@ -39,7 +39,7 @@ echo $login;
 <pre>
 <?php
 
-echo $session ? PHP::dump($session->variables()) : "<em>no session</em>"?>
+echo $session ? PHP::dump($session->variables()) : '<em>no session</em>'?>
 </pre>
 <h1>$_REQUEST</h1>
 <pre>
@@ -87,5 +87,5 @@ echo Text::format_pairs($application->database_module()->register())?>
 <h1>Hooks</h1>
 <pre>
 <?php
-echo implode("<br />", array_keys($application->hooks->has()))?>
+echo implode('<br />', array_keys($application->hooks->has()))?>
 </pre>

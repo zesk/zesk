@@ -9,12 +9,12 @@
 $tt = [];
 
 // @deprecated 2018-02
-$tt['plural:=day'] = "dní";
-$tt['Language:=en_US'] = "Angličtina (US)";
-$tt['Language:=en_GB'] = "Angličtina (UK)";
-$tt['Language:=es_ES'] = "Španielčina (Španielsko)";
-$tt['Language:=fr_FR'] = "Francúzština (Francúzsko)";
-$tt['Language:=de_DE'] = "Nemčina (Nemecko)";
+$tt['plural:=day'] = 'dní';
+$tt['Language:=en_US'] = 'Angličtina (US)';
+$tt['Language:=en_GB'] = 'Angličtina (UK)';
+$tt['Language:=es_ES'] = 'Španielčina (Španielsko)';
+$tt['Language:=fr_FR'] = 'Francúzština (Francúzsko)';
+$tt['Language:=de_DE'] = 'Nemčina (Nemecko)';
 
 $tt += [
 	'Language:=Afar' => 'Afar',

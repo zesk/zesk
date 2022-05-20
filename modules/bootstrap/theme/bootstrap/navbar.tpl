@@ -18,9 +18,9 @@ $request = $this->request;
 				foreach ((array) $this->menu as $link => $item) {
 					$active = $request->path() == $link;
 					echo HTML::tag('li', [
-						"class" => $active ? "active" : "",
+						'class' => $active ? 'active' : '',
 					], HTML::tag('a', [
-						"href" => $link,
+						'href' => $link,
 					], $item));
 				}
 				?>

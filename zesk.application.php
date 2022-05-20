@@ -7,7 +7,7 @@
  */
 namespace zesk;
 
-if (isset($_SERVER['XDEBUG_ENABLED']) && function_exists("xdebug_break")) {
+if (isset($_SERVER['XDEBUG_ENABLED']) && function_exists('xdebug_break')) {
 	\xdebug_break();
 }
 if (!isset($GLOBALS['__composer_autoload_files'])) {
@@ -28,24 +28,24 @@ class ApplicationConfigurator {
 		$application = $zesk->createApplication();
 
 		$application->configure_include([
-			"/etc/zesk.json",
-			$application->path("/etc/zesk.json"),
-			$application->path("etc/host/" . System::uname() . ".json"),
-			$application->paths->uid("zesk.json"),
+			'/etc/zesk.json',
+			$application->path('/etc/zesk.json'),
+			$application->path('etc/host/' . System::uname() . '.json'),
+			$application->paths->uid('zesk.json'),
 		]);
 		$modules = [
-			"GitHub",
+			'GitHub',
 		];
-		if (defined("PHPUNIT")) {
-			$modules[] = "phpunit";
+		if (defined('PHPUNIT')) {
+			$modules[] = 'phpunit';
 		}
-		if (defined("ZESK_EXTRA_MODULES")) {
+		if (defined('ZESK_EXTRA_MODULES')) {
 			$modules = array_merge($modules, to_list(ZESK_EXTRA_MODULES));
 		}
-		$application->setOption("modules", $modules);
+		$application->setOption('modules', $modules);
 		$application->configure();
 
-		$application->setOption("version", Version::release());
+		$application->setOption('version', Version::release());
 
 		return $application;
 	}

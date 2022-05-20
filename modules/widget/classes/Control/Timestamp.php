@@ -15,26 +15,26 @@ namespace zesk;
  */
 class Control_Timestamp extends Control {
 	protected $options = [
-		"allow_times" => true,
+		'allow_times' => true,
 	];
 
 	public function future_only($set = null) {
 		if ($set !== null) {
-			return $this->setOption("data-future-only", to_bool($set));
+			return $this->setOption('data-future-only', to_bool($set));
 		}
 		return $this->optionBool('data-future-only');
 	}
 
 	public function past_only($set = null) {
 		if ($set !== null) {
-			return $this->setOption("data-past-only", to_bool($set));
+			return $this->setOption('data-past-only', to_bool($set));
 		}
 		return $this->optionBool('data-past-only');
 	}
 
 	public function allow_times($set = null) {
 		if ($set !== null) {
-			return $this->setOption("allow_times", to_bool($set));
+			return $this->setOption('allow_times', to_bool($set));
 		}
 		return $this->optionBool('allow_times');
 	}
@@ -82,11 +82,11 @@ class Control_Timestamp extends Control {
 			return false;
 		}
 		if ($this->future_only() && !$ts->after(Timestamp::now())) {
-			$this->error($this->option("error_future_only", "Please enter a \"{label}\" in the future."));
+			$this->error($this->option('error_future_only', 'Please enter a "{label}" in the future.'));
 			return false;
 		}
 		if ($this->past_only() && !$ts->before(Timestamp::now())) {
-			$this->error($this->option("error_past_only", "Please enter a \"{label}\" in the past."));
+			$this->error($this->option('error_past_only', 'Please enter a "{label}" in the past.'));
 			return false;
 		}
 		return true;

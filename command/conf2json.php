@@ -12,17 +12,17 @@ use \SplFileInfo;
  */
 class Command_CONF2JSON extends Command_Iterator_File {
 	protected $extensions = [
-		"conf",
+		'conf',
 	];
 
 	public function initialize(): void {
 		$this->option_types += [
-			"dry-run" => "boolean",
-			"noclobber" => "boolean",
+			'dry-run' => 'boolean',
+			'noclobber' => 'boolean',
 		];
 		$this->option_help += [
-			"dry-run" => "Don't modify the file system",
-			"noclobber" => "Do not overwrite existing files",
+			'dry-run' => 'Don\'t modify the file system',
+			'noclobber' => 'Do not overwrite existing files',
 		];
 		parent::initialize();
 	}
@@ -32,27 +32,27 @@ class Command_CONF2JSON extends Command_Iterator_File {
 
 	protected function process_file(SplFileInfo $file): void {
 		$source_name = $file->getPathname();
-		$target_name = File::extension_change($source_name, "json");
+		$target_name = File::extension_change($source_name, 'json');
 
 		$result = [];
 		$adapter = new Adapter_Settings_Array($result);
-		Configuration_Parser::factory("conf", file_get_contents($source_name), $adapter)->process();
+		Configuration_Parser::factory('conf', file_get_contents($source_name), $adapter)->process();
 
 		$target_exists = file_exists($target_name);
 		$n = count($result);
 		if ($this->dry_run) {
 			if ($n === 0) {
-				$message = "No entries found in {source_name} for {target_name}";
+				$message = 'No entries found in {source_name} for {target_name}';
 			} elseif ($this->noclobber && $target_exists) {
-				$message = "Will not overwrite {target_name}";
+				$message = 'Will not overwrite {target_name}';
 			} else {
-				$message = "Would write {target_name} with {n} {entries}";
+				$message = 'Would write {target_name} with {n} {entries}';
 			}
 			$this->log($message, [
-				"source_name" => $source_name,
-				"target_name" => $target_name,
-				"n" => $n,
-				"entries" => $this->application->locale->plural("entry", $n),
+				'source_name' => $source_name,
+				'target_name' => $target_name,
+				'n' => $n,
+				'entries' => $this->application->locale->plural('entry', $n),
 			]);
 			return;
 		}

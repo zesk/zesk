@@ -11,11 +11,11 @@ namespace zesk;
  */
 class Command_Permission extends Command_Base {
 	protected array $option_types = [
-		"format" => "string",
+		'format' => 'string',
 	];
 
 	protected array $option_help = [
-		"format" => "Output format",
+		'format' => 'Output format',
 	];
 
 	/**
@@ -29,15 +29,15 @@ class Command_Permission extends Command_Base {
 	 * @see \zesk\Command::run()
 	 */
 	public function run() {
-		$command = $this->get_arg("command");
+		$command = $this->get_arg('command');
 		if (!$command) {
 			return $this->usage();
 		}
-		$this->module = $this->application->modules->object("permission");
+		$this->module = $this->application->modules->object('permission');
 		$hook = "command_$command";
 		if (!$this->has_hook($hook)) {
-			$this->usage("Unknown command {command}", [
-				"command" => $command,
+			$this->usage('Unknown command {command}', [
+				'command' => $command,
 			]);
 		}
 		return $this->call_hook($hook);

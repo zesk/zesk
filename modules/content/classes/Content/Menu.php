@@ -15,7 +15,7 @@ namespace zesk;
 class Content_Menu extends ORM {
 	public function store(): self {
 		$this->CodeName = $this->clean_code_name($this->CodeName);
-		if ($this->Parent === 0 || $this->Parent === "0" || $this->Parent === "") {
+		if ($this->Parent === 0 || $this->Parent === '0' || $this->Parent === '') {
 			$this->Parent = null;
 		}
 		if ($this->CodeName === 'home') {
@@ -28,9 +28,9 @@ class Content_Menu extends ORM {
 		}
 		if ($is_home) {
 			$this->query_update()
-				->value("IsHome", false)
-				->where("IsHome", true)
-				->where("ID|!=", $this->id())
+				->value('IsHome', false)
+				->where('IsHome', true)
+				->where('ID|!=', $this->id())
 				->execute();
 		}
 		$cc = $this->ContentObjects;
@@ -67,14 +67,14 @@ class Content_Menu extends ORM {
 
 		$first = true;
 		$parent_to_code = [];
-		$menus = $this->query_select()->setWhatString("ID,Name,CodeName,Parent,ContentObjects,ContentTemplate,ContentLayout,IsActive,IsHome");
-		$menus->order_by("Parent,OrderIndex");
+		$menus = $this->query_select()->setWhatString('ID,Name,CodeName,Parent,ContentObjects,ContentTemplate,ContentLayout,IsActive,IsHome');
+		$menus->order_by('Parent,OrderIndex');
 
 		$result = [];
 		$old_parent = -1;
 		$menus_content = [];
 		//$menus_content = array();
-		foreach ($menus->iterator("ID") as $id => $menu) {
+		foreach ($menus->iterator('ID') as $id => $menu) {
 			$menu['IsActive'] = to_bool($menu['IsActive']);
 			$menu['IsHome'] = $is_home = to_bool($menu['IsHome']);
 			$parent = intval($menu['Parent']);
@@ -84,7 +84,7 @@ class Content_Menu extends ORM {
 				$first = true;
 			}
 			if ($parent === 0) {
-				$k = $is_home ? "" : $menu_key;
+				$k = $is_home ? '' : $menu_key;
 				$result[0]["/$k"] = $menu;
 				$parent_to_code[$id] = $k;
 				$first = false;
@@ -93,9 +93,9 @@ class Content_Menu extends ORM {
 					$menus_content["/$k"] = $menu;
 				}
 			} else {
-				$k = ($first) ? "" : $menu_key;
-				$suffix = ($first) ? "" : "/$k";
-				$pkey = "/" . $parent_to_code[$parent];
+				$k = ($first) ? '' : $menu_key;
+				$suffix = ($first) ? '' : "/$k";
+				$pkey = '/' . $parent_to_code[$parent];
 				$result[$pkey][$k] = $menu;
 				$first = false;
 				$menus_content["$pkey$suffix"] = $menu;
@@ -143,8 +143,8 @@ class Content_Menu extends ORM {
 	 */
 	public static function menu_selected(Request $request, $x) {
 		$uri = $request->path();
-		if ($x === "/") {
-			return ($uri === "/");
+		if ($x === '/') {
+			return ($uri === '/');
 		}
 		return StringTools::begins($uri, $x);
 	}
@@ -158,20 +158,20 @@ class Content_Menu extends ORM {
 	 */
 	public static function menu_child_selected(Request $request, $top, $sub) {
 		$uri = $request->path();
-		$uri = trim($uri, "/");
-		$top = trim($top, "/");
-		$sub = trim($sub, "/");
+		$uri = trim($uri, '/');
+		$top = trim($top, '/');
+		$sub = trim($sub, '/');
 		//
 		// echo "[$top] [$sub] [$uri]<br />\n";
 		//
-		if ($top === "") {
-			if ($sub === "") {
-				return $uri === "";
+		if ($top === '') {
+			if ($sub === '') {
+				return $uri === '';
 			} else {
 				return $uri === "/$sub";
 			}
 		} else {
-			if ($sub === "") {
+			if ($sub === '') {
 				return $uri === "$top";
 			} else {
 				return StringTools::begins("$uri/", "$top/$sub/");
@@ -186,8 +186,8 @@ class Content_Menu extends ORM {
 	 */
 	public function menu_find($uri) {
 		$content = $this->_menus_content();
-		$uri = trim($uri, "/");
-		$uri_parts = explode("/", $uri);
+		$uri = trim($uri, '/');
+		$uri_parts = explode('/', $uri);
 		if (count($uri_parts) === 1) {
 			return avalue($content, "/$uri");
 		}

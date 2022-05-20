@@ -19,8 +19,8 @@ class County extends ORM {
 		$this->application->orm_registry(Contact_Address::class)
 			->query_update()
 			->ignore_constraints(true)
-			->value("county", $new_id)
-			->where("county", $old_id)
+			->value('county', $new_id)
+			->where('county', $old_id)
 			->execute();
 	}
 
@@ -28,9 +28,9 @@ class County extends ORM {
 		return [
 			'Contact_Address' => $this->application->orm_registry(Contact_Address::class)
 				->query_select()
-				->where("county", $this->id)
-				->addWhat("*total", "COUNT(X.id)")
-				->one_integer("total"),
+				->where('county', $this->id)
+				->addWhat('*total', 'COUNT(X.id)')
+				->one_integer('total'),
 		];
 	}
 

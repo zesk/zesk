@@ -34,8 +34,8 @@ class Command_Install extends Command_Base {
 			$class = array_shift($classes);
 			$objects_by_class[$class] = $object = $this->application->orm_factory($class);
 			if (!$object instanceof ORM) {
-				$this->application->logger->error("{class} is not instance of ORM", [
-					"class" => $class,
+				$this->application->logger->error('{class} is not instance of ORM', [
+					'class' => $class,
 				]);
 
 				continue;
@@ -123,7 +123,7 @@ class Command_Install extends Command_Base {
 			'install',
 			'post_install',
 		] as $method_name) {
-			$application->call_hook($method_name . "_begin");
+			$application->call_hook($method_name . '_begin');
 			foreach ($ordered_objects as $object) {
 				if (method_exists($object, $method_name)) {
 					if ($object instanceof Hookable) {
@@ -135,7 +135,7 @@ class Command_Install extends Command_Base {
 					$object->$method_name();
 				}
 			}
-			$application->call_hook($method_name . "_end");
+			$application->call_hook($method_name . '_end');
 		}
 	}
 

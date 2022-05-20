@@ -11,7 +11,7 @@ namespace zesk;
  */
 class Preference_Test extends Test_ORM {
 	protected array $load_modules = [
-		"Preference",
+		'Preference',
 		'MySQL',
 	];
 
@@ -20,7 +20,7 @@ class Preference_Test extends Test_ORM {
 	 */
 	public function test_get(): void {
 		$user = new User($this->application);
-		$name = "";
+		$name = '';
 		$default = false;
 		Preference::user_get($user, $name, $default);
 	}
@@ -40,27 +40,27 @@ class Preference_Test extends Test_ORM {
 	 */
 	public function test_user_set(): void {
 		$user = new User($this->application, 1);
-		Preference::userSet($user, ["Hello" => "world"]);
+		Preference::userSet($user, ['Hello' => 'world']);
 	}
 
 	public function test_Preference(): void {
-		$preference_class = __NAMESPACE__ . "\\" . "Preference";
+		$preference_class = __NAMESPACE__ . '\\' . 'Preference';
 
 		$db = $this->application->database_registry();
 		$db->query($this->application->orm_module()->schema_synchronize($db, [
 			$preference_class,
-			__NAMESPACE__ . "\\" . "Preference_Type",
+			__NAMESPACE__ . '\\' . 'Preference_Type',
 		], [
-			"follow" => true,
+			'follow' => true,
 		]));
 
 		$user = new User($this->application, 1);
 
-		Preference::userSet($user, ["country" => "Random"]);
+		Preference::userSet($user, ['country' => 'Random']);
 
 		$pref = new Preference($this->application, [
-			"user" => $user,
-			"type" => Preference_Type::register_name($this->application, "country"),
+			'user' => $user,
+			'type' => Preference_Type::register_name($this->application, 'country'),
 		]);
 		$result = $pref->find();
 		$this->assert_equal($result, $pref);
@@ -69,20 +69,20 @@ class Preference_Test extends Test_ORM {
 
 		$result = $this->application->orm_registry($preference_class)
 			->query_delete()
-			->where("user", 1)
+			->where('user', 1)
 			->execute();
-		$this->assert_instanceof($result, __NAMESPACE__ . "\\" . "Database_Query_Delete");
-		$this->log("Deleted {n} rows from {class}", [
-			"n" => $result->affected_rows(),
-			"class" => $preference_class,
+		$this->assert_instanceof($result, __NAMESPACE__ . '\\' . 'Database_Query_Delete');
+		$this->log('Deleted {n} rows from {class}', [
+			'n' => $result->affected_rows(),
+			'class' => $preference_class,
 		]);
 
-		$name = "test";
-		$default = "Monkey";
+		$name = 'test';
+		$default = 'Monkey';
 		$this->assert_equal(Preference::user_get($user, $name, $default), $default);
 
-		Preference::userSet($user, [$name => "Ape"]);
-		$this->assert_equal(Preference::user_get($user, $name, $default), "Ape");
+		Preference::userSet($user, [$name => 'Ape']);
+		$this->assert_equal(Preference::user_get($user, $name, $default), 'Ape');
 	}
 
 	/**
@@ -90,6 +90,6 @@ class Preference_Test extends Test_ORM {
 	 */
 	public function test_Preference_set_parameter(): void {
 		$user = new User($this->application, 1);
-		Preference::userSet($user, ["Ape" => null]);
+		Preference::userSet($user, ['Ape' => null]);
 	}
 }

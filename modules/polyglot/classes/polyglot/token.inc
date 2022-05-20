@@ -39,42 +39,42 @@ class PolyGlot_Token extends ORM {
 	 *
 	 * @var string
 	 */
-	public const status_todo = "todo";
+	public const status_todo = 'todo';
 
 	/**
 	 * Draft version of a token translation
 	 *
 	 * @var string
 	 */
-	public const status_draft = "draft";
+	public const status_draft = 'draft';
 
 	/**
 	 * Developer needs to review
 	 *
 	 * @var string
 	 */
-	public const status_dev = "dev";
+	public const status_dev = 'dev';
 
 	/**
 	 * Need more information
 	 *
 	 * @var string
 	 */
-	public const status_info = "info";
+	public const status_info = 'info';
 
 	/**
 	 * Done
 	 *
 	 * @var string
 	 */
-	public const status_done = "done";
+	public const status_done = 'done';
 
 	/**
 	 * Delete
 	 *
 	 * @var string
 	 */
-	public const status_delete = "delete";
+	public const status_delete = 'delete';
 
 	/**
 	 *
@@ -84,16 +84,16 @@ class PolyGlot_Token extends ORM {
 	 */
 	public function store(): self {
 		$this->md5 = md5($this->original);
-		if ($this->member_is_empty("user")) {
+		if ($this->member_is_empty('user')) {
 			$request = $this->application->request();
 			if ($request) {
 				$this->user = $this->application->user($request);
 			}
 		}
-		if ($this->member_is_empty("context")) {
-			$this->context = $this->call_hook("context_default");
+		if ($this->member_is_empty('context')) {
+			$this->context = $this->call_hook('context_default');
 		}
-		if ($this->member_is_empty("status")) {
+		if ($this->member_is_empty('status')) {
 			$this->status = self::status_todo;
 		}
 		if ($this->status === self::status_delete) {
@@ -103,10 +103,10 @@ class PolyGlot_Token extends ORM {
 		$result = parent::store();
 		if ($result && $this->status === self::status_delete) {
 			$this->query_delete()->where([
-				"*md5" => "UNHEX('$this->md5')",
-				"language|!=" => [
+				'*md5' => "UNHEX('$this->md5')",
+				'language|!=' => [
 					null,
-					"",
+					'',
 				],
 			])->execute();
 		}
@@ -115,10 +115,10 @@ class PolyGlot_Token extends ORM {
 
 	public static function create(Application $app, $language, $dialect, $original, $translation, $status = null) {
 		$token = $app->orm_factory(__CLASS__, [
-			"language" => $language,
-			"dialect" => $dialect,
-			"original" => $original,
-			"translation" => $translation,
+			'language' => $language,
+			'dialect' => $dialect,
+			'original' => $original,
+			'translation' => $translation,
 		]);
 		$token->status = ($status === null) ? self::status_todo : $status;
 		return $token;
@@ -133,23 +133,23 @@ class PolyGlot_Token extends ORM {
 	 */
 	public static function fetch_all(Application $app, $language, $dialect = null) {
 		$where = [
-			"language" => $language,
-			"dialect" => $dialect,
+			'language' => $language,
+			'dialect' => $dialect,
 		];
 		$query = $app->orm_registry(__CLASS__)->query_select();
 		$where = [
 			[
 				$where,
 				[
-					"status" => self::status_delete,
+					'status' => self::status_delete,
 				],
 			],
 		];
 		$query->where($where);
 		$query->distinct(true);
 		$query->what_object();
-		$query->order_by("updated ASC,original");
-		$result = $query->orm_iterator()->to_array("original");
+		$query->order_by('updated ASC,original');
+		$result = $query->orm_iterator()->to_array('original');
 		if ($dialect === null) {
 			return $result;
 		}
@@ -158,14 +158,14 @@ class PolyGlot_Token extends ORM {
 
 	public function json(JSONWalker $walker) {
 		$members = $this->members([
-			"id",
-			"language",
-			"dialect",
-			"original",
-			"translation",
-			"status",
+			'id',
+			'language',
+			'dialect',
+			'original',
+			'translation',
+			'status',
 		]);
-		$members['user'] = $this->member_integer("user");
+		$members['user'] = $this->member_integer('user');
 		return $members;
 	}
 
@@ -179,8 +179,8 @@ class PolyGlot_Token extends ORM {
 			->query_select()
 			->what_object()
 			->where([
-			"dialect" => Locale::parse_dialect($locale),
-			"language" => Locale::parse_language($locale),
+			'dialect' => Locale::parse_dialect($locale),
+			'language' => Locale::parse_language($locale),
 		]);
 	}
 
@@ -190,12 +190,12 @@ class PolyGlot_Token extends ORM {
 	 */
 	public static function lang_status_filters(Locale $locale) {
 		return $locale->__([
-			"todo" => "Need translation",
-			"info" => "Need more information",
-			"dev" => "Need developer review",
-			"draft" => "Draft",
-			"delete" => "Deleted",
-			"done" => "Translated",
+			'todo' => 'Need translation',
+			'info' => 'Need more information',
+			'dev' => 'Need developer review',
+			'draft' => 'Draft',
+			'delete' => 'Deleted',
+			'done' => 'Translated',
 		]);
 	}
 
@@ -207,19 +207,19 @@ class PolyGlot_Token extends ORM {
 		$iterator = $app->orm_registry(__CLASS__)
 			->query_select()
 			->what([
-			"id" => "id",
-			"translation" => "translation",
+			'id' => 'id',
+			'translation' => 'translation',
 		])
-			->iterator("id", "translation");
+			->iterator('id', 'translation');
 		foreach ($iterator as $id => $translation) {
 			$entities = htmlentities($translation);
 			if ($entities !== $translation) {
 				$app->orm_registry(__CLASS__)
 					->query_update()
-					->value("translation", $entities)
-					->where("id", $id)
+					->value('translation', $entities)
+					->where('id', $id)
 					->execute();
-				$app->logger->debug("Updated #{id} {translation} to {entities}", compact("id", "translation", "entities"));
+				$app->logger->debug('Updated #{id} {translation} to {entities}', compact('id', 'translation', 'entities'));
 			}
 		}
 	}

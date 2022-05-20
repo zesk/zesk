@@ -39,7 +39,7 @@ class Options implements \ArrayAccess {
 	 * Character used for space
 	 * @var string
 	 */
-	public const OPTION_SPACE = "_";
+	public const OPTION_SPACE = '_';
 
 	/**
 	 * An associative array of lower-case strings pointing to mixed values. $options should
@@ -69,7 +69,7 @@ class Options implements \ArrayAccess {
 	 */
 	public function __sleep() {
 		return [
-			"options",
+			'options',
 		];
 	}
 
@@ -153,9 +153,9 @@ class Options implements \ArrayAccess {
 	 * @param bool $overwrite Whether to overwrite a value if it already exists. When true, the values are always written.
 	 * When false, values are written only if the current option does not have a value. Default is true. This parameter is useful when you wish to
 	 * set default options for an object only if the user has not set them already.
-	 * @return void
+	 * @return self
 	 */
-	public function setOption(string $mixed, mixed $value, bool $overwrite = true) {
+	public function setOption(string $mixed, mixed $value, bool $overwrite = true): self {
 		$name = self::_optionKey($mixed);
 		if ($overwrite || !array_key_exists($name, $this->options)) {
 			if ($value === null) {
@@ -246,9 +246,9 @@ class Options implements \ArrayAccess {
 	 */
 	final protected static function _optionKey(string|int $name): string {
 		return strtolower(strtr(trim(strval($name)), [
-			"-" => self::OPTION_SPACE,
-			"_" => self::OPTION_SPACE,
-			" " => self::OPTION_SPACE,
+			'-' => self::OPTION_SPACE,
+			'_' => self::OPTION_SPACE,
+			' ' => self::OPTION_SPACE,
 		]));
 	}
 
@@ -362,7 +362,7 @@ class Options implements \ArrayAccess {
 	 * @see is_array(), explode()
 	 */
 	#[Pure]
-	public function optionIterable(string $name, ?iterable $default = [], string $delimiter = ";"): iterable {
+	public function optionIterable(string $name, ?iterable $default = [], string $delimiter = ';'): iterable {
 		$name = self::_optionKey($name);
 		if (!isset($this->options[$name])) {
 			return to_iterable($default, [], $delimiter);
@@ -467,7 +467,7 @@ class Options implements \ArrayAccess {
 	 * @see is_array(), explode()
 	 * @deprecated 2022-01
 	 */
-	public function option_list(string $name, ?iterable $default = [], string $delimiter = ";"): iterable {
+	public function option_list(string $name, ?iterable $default = [], string $delimiter = ';'): iterable {
 		return $this->optionIterable($name, $default, $delimiter);
 	}
 
@@ -633,7 +633,7 @@ class Options implements \ArrayAccess {
 	 * @see is_array()
 	 * @deprecated 2022-01
 	 */
-	public function option_path($path, $default = null, $separator = ".") {
+	public function option_path($path, $default = null, $separator = '.') {
 		return $this->optionPath(to_list($path, [], $separator), $default);
 	}
 
@@ -645,7 +645,7 @@ class Options implements \ArrayAccess {
 	 * @param string $separator String to separate path segments
 	 * @return Options
 	 */
-	public function set_option_path(string|array $path, mixed $value = null, string $separator = ".") {
+	public function set_option_path(string|array $path, mixed $value = null, string $separator = '.') {
 		return $this->setOptionPath(to_list($path, [], $separator), $value);
 	}
 

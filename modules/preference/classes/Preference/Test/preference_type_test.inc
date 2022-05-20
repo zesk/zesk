@@ -11,8 +11,8 @@ namespace zesk;
  */
 class Preference_Type_Test extends Test_Unit {
 	protected array $load_modules = [
-		"Preference",
-		"MySQL",
+		'Preference',
+		'MySQL',
 	];
 
 	protected function initialize(): void {
@@ -22,7 +22,7 @@ class Preference_Type_Test extends Test_Unit {
 	public function test_object(): void {
 		$x = $this->application->model_factory(Preference_Type::class);
 
-		$code_name = "Poore";
+		$code_name = 'Poore';
 		$name = false;
 		Preference_Type::register_name($this->application, $code_name, $name);
 	}

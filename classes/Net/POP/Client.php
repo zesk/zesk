@@ -24,13 +24,13 @@ class Net_POP_Client extends Net_Client_Socket {
 	 * OK response
 	 * @var string
 	 */
-	public const OK = "+OK";
+	public const OK = '+OK';
 
 	/**
 	 * ERR response
 	 * @var string
 	 */
-	public const ERR = "-ERR";
+	public const ERR = '-ERR';
 
 	/**
 	 * disconnected state constant
@@ -117,21 +117,21 @@ class Net_POP_Client extends Net_Client_Socket {
 	 * @throws Exception_Authentication
 	 */
 	private function apop($user, $pass, $message = null): void {
-		if (!str_contains($this->greeting, "<")) {
+		if (!str_contains($this->greeting, '<')) {
 			if ($message === null) {
-				$message = "APOP authentication not supported";
+				$message = 'APOP authentication not supported';
 			}
 
 			throw new Exception_Authentication($message);
 		}
-		$greeting_parts = explode(" ", $this->greeting);
+		$greeting_parts = explode(' ', $this->greeting);
 		$server_id = array_pop($greeting_parts);
 		$hash = md5($server_id . $pass);
-		if ($this->optionBool("debug_apop")) {
+		if ($this->optionBool('debug_apop')) {
 			echo "server id is $server_id, checksum is $hash\n";
 		}
 		if ($message === null) {
-			$message = "APOP authentication failed";
+			$message = 'APOP authentication failed';
 		}
 
 		try {
@@ -171,16 +171,16 @@ class Net_POP_Client extends Net_Client_Socket {
 	 */
 	public function authenticate(): void {
 		if ($this->state < self::State_Transaction) {
-			$user = avalue($this->url_parts, "user");
-			$pass = avalue($this->url_parts, "pass");
+			$user = avalue($this->url_parts, 'user');
+			$pass = avalue($this->url_parts, 'pass');
 			$this->connect();
 			switch ($this->option('authentication')) {
-				case "apop":
+				case 'apop':
 					$this->apop($user, $pass);
 					$this->state = self::State_Transaction;
 
 					break;
-				case "password":
+				case 'password':
 					$this->user_pass($user, $pass);
 					$this->state = self::State_Transaction;
 
@@ -209,8 +209,8 @@ class Net_POP_Client extends Net_Client_Socket {
 	 */
 	public function messages_count() {
 		$this->_require_state(self::State_Transaction);
-		$result = $this->command("STAT");
-		$result = explode(" ", $result, 3);
+		$result = $this->command('STAT');
+		$result = explode(' ', $result, 3);
 		$this->n_messages = to_integer($result[1]);
 		$this->n_bytes = to_integer($result[2]);
 		return $this->n_messages;
@@ -222,12 +222,12 @@ class Net_POP_Client extends Net_Client_Socket {
 	 */
 	public function messages_list() {
 		$this->_require_state(self::State_Transaction);
-		$this->command("LIST");
+		$this->command('LIST');
 		$result = $this->read_multiline();
 		$result = explode($this->EOL, trim($result));
 		$messages = [];
 		foreach ($result as $line) {
-			[$mid, $size] = pair($line, " ", $line, null);
+			[$mid, $size] = pair($line, ' ', $line, null);
 			$messages[$mid] = $size;
 		}
 		return $messages;
@@ -299,7 +299,7 @@ class Net_POP_Client extends Net_Client_Socket {
 	 * Quit server and disconnect
 	 */
 	private function quit(): void {
-		$this->command("QUIT");
+		$this->command('QUIT');
 		parent::disconnect();
 		$this->state = self::State_Disconnect;
 	}
@@ -313,22 +313,22 @@ class Net_POP_Client extends Net_Client_Socket {
 	 */
 	private function read_multiline($filename = null) {
 		if ($filename === null) {
-			$buffer = "";
+			$buffer = '';
 			while (($line = $this->read()) !== self::EOF) {
-				if ($line[0] === ".") {
+				if ($line[0] === '.') {
 					$line = substr($line, 1);
 				}
 				$buffer .= $line;
 			}
 			return $buffer;
 		} else {
-			$f = fopen($filename, "wb");
+			$f = fopen($filename, 'wb');
 			if (!$f) {
 				throw new Exception_File_Permission($filename);
 			}
 			$n_bytes = 0;
 			while (($line = $this->read()) !== self::EOF) {
-				if ($line[0] === ".") {
+				if ($line[0] === '.') {
 					$line = substr($line, 1);
 				}
 				fwrite($f, $line);

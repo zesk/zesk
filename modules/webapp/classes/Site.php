@@ -26,21 +26,21 @@ class Site extends ORM {
 	 *
 	 * @var string
 	 */
-	public const HOST_TYPE_DIRECTORY_INDEX = "directory-index";
+	public const HOST_TYPE_DIRECTORY_INDEX = 'directory-index';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const HOST_TYPE_DEFAULT = "default";
+	public const HOST_TYPE_DEFAULT = 'default';
 
 	/**
 	 *
 	 * @var array
 	 */
 	private static $types = [
-		self::HOST_TYPE_DIRECTORY_INDEX => "Directory Index",
-		self::HOST_TYPE_DEFAULT => "default",
+		self::HOST_TYPE_DIRECTORY_INDEX => 'Directory Index',
+		self::HOST_TYPE_DEFAULT => 'default',
 	];
 
 	/**
@@ -59,9 +59,9 @@ class Site extends ORM {
 	 */
 	protected function last_priority() {
 		return $this->query_select()
-			->where("instance", $this->instance)
-			->addWhat("*max", "MAX(priority)")
-			->one_integer("max", -1);
+			->where('instance', $this->instance)
+			->addWhat('*max', 'MAX(priority)')
+			->one_integer('max', -1);
 	}
 
 	public function domains() {
@@ -93,17 +93,17 @@ class Site extends ORM {
 		$errors = [];
 		$code = $this->code;
 		if (empty($code)) {
-			$errors['code'] = "code is required";
-		} elseif (preg_match("/[^-_a-zA-z0-9 ]/", $code)) {
-			$errors['code'] = "code has incorrect values";
+			$errors['code'] = 'code is required';
+		} elseif (preg_match('/[^-_a-zA-z0-9 ]/', $code)) {
+			$errors['code'] = 'code has incorrect values';
 		}
 		$name = trim($this->name);
 		if (empty($name)) {
-			$errors['name'] = "name is required";
+			$errors['name'] = 'name is required';
 		}
 		$path = $this->path;
 		if (empty($path)) {
-			$errors['path'] = "path is required";
+			$errors['path'] = 'path is required';
 		} else {
 			$path = path($this->instance->path, $path);
 			if (!is_dir($path)) {
@@ -113,11 +113,11 @@ class Site extends ORM {
 		$type = $this->type;
 		if (!empty($type)) {
 			if (array_key_exists($type, self::$types)) {
-				$errors['type'] = "invalid type, must be one of: " . implode(",", array_keys(self::$types));
+				$errors['type'] = 'invalid type, must be one of: ' . implode(',', array_keys(self::$types));
 			}
 		}
 		if (!$this->instance instanceof Instance) {
-			$errors['instance'] = "Should supply an instance source";
+			$errors['instance'] = 'Should supply an instance source';
 		}
 		return $errors;
 	}
@@ -126,19 +126,19 @@ class Site extends ORM {
 	 *
 	 */
 	public function remove_dead_instances(): void {
-		$query = $this->query_select("X")->link(Instance::class, [
+		$query = $this->query_select('X')->link(Instance::class, [
 			'alias' => 'L',
 			'require' => false,
 		])->where('L.id', null);
 		$iterator = $query->orm_iterator();
 		foreach ($iterator as $instance) {
 			/* @var $instance self */
-			$oldid = $instance->member_integer("instance");
-			$this->application->logger->notice("Deleting site #{id} {name} associated with dead instance #{oldid}", $instance->members([
-				"id",
-				"name",
+			$oldid = $instance->member_integer('instance');
+			$this->application->logger->notice('Deleting site #{id} {name} associated with dead instance #{oldid}', $instance->members([
+				'id',
+				'name',
 			]) + [
-				"oldid" => $oldid,
+				'oldid' => $oldid,
 			]);
 			$instance->delete();
 		}

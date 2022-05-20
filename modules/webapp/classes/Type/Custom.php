@@ -32,7 +32,7 @@ class Type_Custom extends Type {
 	 * @return string
 	 */
 	public function package_json_path() {
-		return path($this->path, "webapp.json");
+		return path($this->path, 'webapp.json');
 	}
 
 	/**
@@ -43,11 +43,11 @@ class Type_Custom extends Type {
 	public function version() {
 		try {
 			$json = JSON::decode(File::contents($this->package_json_path(), '{}'));
-			$version = avalue($json, "version", null);
+			$version = avalue($json, 'version', null);
 			if ($version) {
 				return $version;
 			}
-			if (array_key_exists("version_file", $json)) {
+			if (array_key_exists('version_file', $json)) {
 				$version = File::contents(path($this->path, $json['version_file']));
 				return $version;
 			}

@@ -12,9 +12,9 @@ namespace zesk;
  * @see Content_Article
  */
 class Class_Content_Article extends Class_ORM {
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
-	public $name_column = "title";
+	public $name_column = 'title';
 
 	public $options = [
 		'order_column' => 'order_index',

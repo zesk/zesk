@@ -29,34 +29,34 @@ class Contact extends ORM {
 		$where['*hash'] = $query->sql()->function_unhex($hash);
 		$id_column = $class_object->id_column;
 		if (!$id_column) {
-			throw new Exception_Semantics("Find hash on a contact but no ID column {class}", [
-				"class" => get_class($class_object),
+			throw new Exception_Semantics('Find hash on a contact but no ID column {class}', [
+				'class' => get_class($class_object),
 			]);
 		}
 		return $query->addWhat($id_column)->where($where)->one_integer($id_column);
 	}
 
-	public function full_name($default = "") {
-		if (!$this->member_is_empty("person")) {
+	public function full_name($default = '') {
+		if (!$this->member_is_empty('person')) {
 			$result = $this->Person->full_name();
 			if ($result) {
 				return $result;
 			}
 		}
-		if (!$this->member_is_empty("email")) {
+		if (!$this->member_is_empty('email')) {
 			return $this->email->value;
 		}
 		return $default;
 	}
 
-	public function greeting_name($default = "") {
-		if (!$this->member_is_empty("person")) {
+	public function greeting_name($default = '') {
+		if (!$this->member_is_empty('person')) {
 			$result = $this->person->greeting_name();
 			if ($result) {
 				return $result;
 			}
 		}
-		if (!$this->member_is_empty("Email")) {
+		if (!$this->member_is_empty('Email')) {
 			return $this->email->Value;
 		}
 		return $default;
@@ -66,7 +66,7 @@ class Contact extends ORM {
 		$is_new = $this->is_new();
 		if ($is_new) {
 			if ($this->member_is_empty('account')) {
-				$this->account = $this->application->model_singleton($this->option("account_model_singleton_class", 'zesk\\Account'));
+				$this->account = $this->application->model_singleton($this->option('account_model_singleton_class', 'zesk\\Account'));
 			}
 			if ($this->member_is_empty('user')) {
 				$this->user = $this->application->user(null, false);
@@ -117,15 +117,15 @@ class Contact extends ORM {
 	}
 
 	public function is_verified() {
-		return !$this->member_is_empty("Verified");
+		return !$this->member_is_empty('Verified');
 	}
 
 	public function is_connected(User $user) {
-		$user_account_id = $user->memberInteger("account");
-		if ($user->memberInteger("account") === $user_account_id) {
+		$user_account_id = $user->memberInteger('account');
+		if ($user->memberInteger('account') === $user_account_id) {
 			return true;
 		}
-		if ($user->is_linked("accounts", $user_account_id)) {
+		if ($user->is_linked('accounts', $user_account_id)) {
 			return true;
 		}
 		return false;

@@ -25,7 +25,7 @@ class Net_File_Client extends Net_Client implements Net_FileSystem {
 	 */
 	public function connect() {
 		if ($this->connected) {
-			throw new Exception_Semantics("Already connected");
+			throw new Exception_Semantics('Already connected');
 		}
 		$this->connected = true;
 		return true;
@@ -57,7 +57,7 @@ class Net_File_Client extends Net_Client implements Net_FileSystem {
 		}
 		$files = Directory::ls($path);
 		foreach ($files as $name) {
-			if ($name === "." || $name === "..") {
+			if ($name === '.' || $name === '..') {
 				continue;
 			}
 			$full_path = path($path, $name);

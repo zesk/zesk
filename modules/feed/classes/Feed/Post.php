@@ -44,12 +44,12 @@ class Feed_Post {
 	 */
 	public function __sleep() {
 		return [
-			"feed",
-			"date",
-			"raw_date",
-			"link",
-			"title",
-			"description",
+			'feed',
+			'date',
+			'raw_date',
+			'link',
+			'title',
+			'description',
 		];
 	}
 }

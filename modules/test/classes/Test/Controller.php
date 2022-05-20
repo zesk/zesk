@@ -24,7 +24,7 @@ class Controller extends \zesk\Controller {
 
 	public function action_config($name = null) {
 		if (empty($name)) {
-			$name = $this->request->get("name");
+			$name = $this->request->get('name');
 		}
 		if (!is_array($name)) {
 			$name = [

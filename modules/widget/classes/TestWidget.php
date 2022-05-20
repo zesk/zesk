@@ -5,16 +5,16 @@ namespace zesk;
 
 class TestWidget extends Test_Unit {
 	protected array $load_modules = [
-		"Widget",
+		'Widget',
 	];
 
 	public function widget_tests(Widget $testx): void {
-		$column = "col";
-		$label = "label";
-		$name = "name";
+		$column = 'col';
+		$label = 'label';
+		$name = 'name';
 		$testx->names($column, $label, $name);
 
-		$request = new Request($this->application, "http://localhost/");
+		$request = new Request($this->application, 'http://localhost/');
 		$response = new Response($this->application, $request);
 
 		$object = new Model($this->application);
@@ -29,7 +29,7 @@ class TestWidget extends Test_Unit {
 		$default = 'form';
 		$testx->form_name($default);
 
-		$parent = $testx->widget_factory("zesk\\Widget");
+		$parent = $testx->widget_factory('zesk\\Widget');
 		$testx->parent($parent);
 
 		$required = true;
@@ -70,7 +70,7 @@ class TestWidget extends Test_Unit {
 		$testx->input_attributes();
 		$testx->input_attributes(['core']);
 
-		$default = "Hey, dude.";
+		$default = 'Hey, dude.';
 		$this->assert_equal($testx->empty_string($default)->empty_string(), $default);
 
 		$data = null;
@@ -90,7 +90,7 @@ class TestWidget extends Test_Unit {
 	 *
 	 */
 	public function test_basics(): void {
-		$testx = $this->application->widget_factory("zesk\\Widget");
+		$testx = $this->application->widget_factory('zesk\\Widget');
 
 		$this->widget_tests($testx);
 	}

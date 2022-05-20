@@ -21,8 +21,8 @@ if ($request->user_agent_is('iphone')) {
 </ul><?php
 } elseif ($request->user_agent_is('firefox')) {
 		?><ul>
-	<li>Under the <strong><?php echo $is_mac ? "FireFox" : "Tools" ?> Menu</strong>,
-		choose <strong><?php echo $is_mac ? "Preferences ..." : "Options..." ?></strong></li>
+	<li>Under the <strong><?php echo $is_mac ? 'FireFox' : 'Tools' ?> Menu</strong>,
+		choose <strong><?php echo $is_mac ? 'Preferences ...' : 'Options...' ?></strong></li>
 	<li>Click the <strong>Content</strong> icon
 	</li>
 	<li>Ensure <strong>Enable JavaScript</strong> is checked

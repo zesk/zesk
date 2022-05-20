@@ -53,7 +53,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public function initialize(mixed $mixed, mixed $initialize = false): self {
 		$result = parent::initialize($mixed, $initialize);
 		$this->changed = false;
-		$this->setOptions($this->application->optionArray("session"));
+		$this->setOptions($this->application->optionArray('session'));
 		return $result;
 	}
 
@@ -79,7 +79,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public function seen() {
 		$query = $this->query_update();
 		$sql = $query->sql();
-		$query->value("*seen", $sql->now())->value("expires", $this->compute_expires())->value("*sequence_index", "sequence_index+1")->where("id", $this)->low_priority(true)->execute();
+		$query->value('*seen', $sql->now())->value('expires', $this->compute_expires())->value('*sequence_index', 'sequence_index+1')->where('id', $this)->low_priority(true)->execute();
 		$this->call_hook('seen');
 		return $this;
 	}
@@ -99,30 +99,30 @@ class Session_ORM extends ORM implements Interface_Session {
 	public static function configured(Application $application): void {
 		// 2017-01-01
 		foreach ([
-					 "Session",
-					 "zesk\\Session",
+					 'Session',
+					 'zesk\\Session',
 				 ] as $class) {
 			$application->configuration->deprecated([
 				$class,
-				"cookie_name",
+				'cookie_name',
 			], [
 				"zesk\Application",
-				"session",
-				"cookie",
-				"name",
+				'session',
+				'cookie',
+				'name',
 			]);
 			$application->configuration->deprecated([
 				$class,
-				"cookie_expire",
+				'cookie_expire',
 			], [
 				"zesk\Application",
-				"session",
-				"cookie",
-				"expire",
+				'session',
+				'cookie',
+				'expire',
 			]);
 		}
-		$application->configuration->deprecated("Session::cookie_expire_round");
-		$application->configuration->deprecated("zesk\\Session::cookie_expire_round");
+		$application->configuration->deprecated('Session::cookie_expire_round');
+		$application->configuration->deprecated('zesk\\Session::cookie_expire_round');
 		$application->configuration->deprecated("zesk\Application::session::cookie::expire_round");
 	}
 
@@ -130,9 +130,9 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * Called before actual store
 	 */
 	public function hook_store(): void {
-		$ip = $this->member("ip");
+		$ip = $this->member('ip');
 		if (!IPv4::valid($ip)) {
-			$this->set_member("ip", "127.0.0.1");
+			$this->set_member('ip', '127.0.0.1');
 		}
 	}
 
@@ -141,7 +141,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @return integer
 	 */
 	public function cookie_expire(): int {
-		return to_integer($this->optionPath(["cookie", "expire"], 604800));
+		return to_integer($this->optionPath(['cookie', 'expire'], 604800));
 	}
 
 	/**
@@ -161,7 +161,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 */
 	public function authenticate($user_id, $ip = null): void {
 		$cookieExpire = $this->cookie_expire();
-		$this->set_member("user", ORM::mixed_to_id($user_id));
+		$this->set_member('user', ORM::mixed_to_id($user_id));
 		if ($ip === null) {
 			// This is not necessary, probably should remove TODO KMD 2018-01
 			$request = $this->application->request();
@@ -169,8 +169,8 @@ class Session_ORM extends ORM implements Interface_Session {
 				$ip = $request->ip();
 			}
 		}
-		$this->set_member("ip", $ip);
-		$this->set_member("expires", Timestamp::now()->add_unit($cookieExpire, Timestamp::UNIT_SECOND));
+		$this->set_member('ip', $ip);
+		$this->set_member('expires', Timestamp::now()->add_unit($cookieExpire, Timestamp::UNIT_SECOND));
 		$this->store();
 	}
 
@@ -190,9 +190,9 @@ class Session_ORM extends ORM implements Interface_Session {
 	 */
 	public function deauthenticate() {
 		if ($this->user()) {
-			$this->user()->call_hook("logout");
+			$this->user()->call_hook('logout');
 		}
-		$this->set_member("user", null);
+		$this->set_member('user', null);
 		return $this->store();
 	}
 
@@ -203,7 +203,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 */
 	public function expires() {
-		return $this->member_timestamp("expires");
+		return $this->member_timestamp('expires');
 	}
 
 	/**
@@ -213,7 +213,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		try {
 			$user = $this->user();
 			if ($user) {
-				$user->call_hook("logout_expire");
+				$user->call_hook('logout_expire');
 			}
 		} catch (Exception_ORM_NotFound $e) {
 			// User deleted
@@ -249,7 +249,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @return string
 	 */
 	private function cookie_name(): string {
-		return $this->optionPath("cookie.name", "ZCOOKIE");
+		return $this->optionPath('cookie.name', 'ZCOOKIE');
 	}
 
 	/**
@@ -263,7 +263,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$application = $this->application;
 		$cookie_name = $this->cookie_name();
 		$cookie_value = $request->cookie($cookie_name);
-		if ($cookie_value && $this->fetch_by_key($cookie_value, "cookie")) {
+		if ($cookie_value && $this->fetch_by_key($cookie_value, 'cookie')) {
 			$this->seen();
 			return $this->found_session();
 		}
@@ -279,7 +279,7 @@ class Session_ORM extends ORM implements Interface_Session {
 				'uri' => $request->uri(),
 			]);
 		$cookie_options = $this->cookie_options();
-		$application->hooks->add(Response::class . "::headers", function (Response $response) use ($cookie_name, $cookie_value, $cookie_options): void {
+		$application->hooks->add(Response::class . '::headers', function (Response $response) use ($cookie_name, $cookie_value, $cookie_options): void {
 			$response->cookie($cookie_name, $cookie_value, $cookie_options);
 		});
 		return $this->store();
@@ -290,7 +290,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @return string
 	 */
 	public function hash(): string {
-		return $this->member("cookie");
+		return $this->member('cookie');
 	}
 
 	/**
@@ -306,7 +306,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		if ($expire_seconds === null) {
 			$expire_seconds = to_integer($app->configuration->path_get([
 				__CLASS__,
-				"one_time_expire_seconds",
+				'one_time_expire_seconds',
 			], 86400));
 		}
 		// Only one allowed at any time, I guess.
@@ -336,8 +336,8 @@ class Session_ORM extends ORM implements Interface_Session {
 		$hash = trim($hash);
 		$onetime = $application->orm_factory(__CLASS__);
 		if ($onetime->find([
-			"cookie" => $hash,
-			"is_one_time" => true,
+			'cookie' => $hash,
+			'is_one_time' => true,
 		])) {
 			return $onetime;
 		}
@@ -364,7 +364,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public function session_count($nSeconds = 600) {
 		$where['seen|>='] = Timestamp::now()->add_unit(-$nSeconds, Timestamp::UNIT_SECOND);
 		$where['id|!='] = $this->id();
-		return $this->query_select()->what("*X", "COUNT(id)")->where($where)->one_integer("X");
+		return $this->query_select()->what('*X', 'COUNT(id)')->where($where)->one_integer('X');
 	}
 
 	/*
@@ -383,7 +383,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @return Object
 	 */
 	public function store(): self {
-		if ($this->member_is_empty("cookie")) {
+		if ($this->member_is_empty('cookie')) {
 			$this->delete();
 			return $this;
 		} else {
@@ -392,7 +392,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	}
 
 	public function user_id() {
-		return $this->member_integer("user");
+		return $this->member_integer('user');
 	}
 
 	public function user() {
@@ -482,6 +482,6 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @return array
 	 */
 	public function cookie_options() {
-		return $this->option_array("cookie");
+		return $this->option_array('cookie');
 	}
 }

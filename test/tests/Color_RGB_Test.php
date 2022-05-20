@@ -8,6 +8,6 @@ class Color_RGB_Test extends Test_Unit {
 		$b = 255;
 		$x = new Color_RGB($r, $g, $b);
 
-		$this->assert_equal($x->__toString(), "0102FF");
+		$this->assert_equal($x->__toString(), '0102FF');
 	}
 }

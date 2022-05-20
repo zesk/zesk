@@ -14,7 +14,7 @@ class Test_Database_Exception extends Test_Unit {
 	protected array $load_modules = ['mysql', 'database'];
 
 	public function database() {
-		return $this->application->database_registry($this->option("database"));
+		return $this->application->database_registry($this->option('database'));
 	}
 
 	/**
@@ -24,11 +24,11 @@ class Test_Database_Exception extends Test_Unit {
 		$this->assertInstanceOf(Database::class, $database);
 		for ($i = 0; $i < 100; $i++) {
 			$code = 4123 + $i;
-			$x = new Database_Exception($database, "hello {dude}", [
-				"dude" => "world!",
-			], $code, new Exception("previous"));
+			$x = new Database_Exception($database, 'hello {dude}', [
+				'dude' => 'world!',
+			], $code, new Exception('previous'));
 
-			$this->_test_exception($x, "hello world!", $code);
+			$this->_test_exception($x, 'hello world!', $code);
 		}
 	}
 

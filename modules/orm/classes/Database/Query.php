@@ -48,7 +48,7 @@ class Database_Query {
 	 *
 	 * @var string
 	 */
-	protected string $class = "";
+	protected string $class = '';
 
 	/**
 	 * Inherited class options when linking or iterating
@@ -75,7 +75,7 @@ class Database_Query {
 		$this->factory = $this->application;
 		$this->type = strtoupper($type);
 		$this->dbname = $db->code_name();
-		$this->class = "";
+		$this->class = '';
 		$this->class_options = [];
 	}
 
@@ -86,7 +86,7 @@ class Database_Query {
 	 * @return self
 	 */
 	public function set_factory(Interface_Member_Model_Factory $factory): self {
-		$this->application->deprecated("set_factory");
+		$this->application->deprecated('set_factory');
 		return $this->setFactory($factory);
 	}
 
@@ -106,7 +106,7 @@ class Database_Query {
 	 * @return string[]
 	 */
 	public function __sleep(): array {
-		return ["type", "dbname", "class", ];
+		return ['type', 'dbname', 'class', ];
 	}
 
 	/**
@@ -179,7 +179,7 @@ class Database_Query {
 	 */
 	public function orm_class(string $class = null): string {
 		if ($class !== null) {
-			$this->application->deprecated("setORMClass now");
+			$this->application->deprecated('setORMClass now');
 		}
 		return $this->class;
 	}
@@ -202,7 +202,7 @@ class Database_Query {
 	 * @return mixed
 	 */
 	public function orm_class_options(array $options = null): mixed {
-		$this->application->deprecated("ormClassOptions");
+		$this->application->deprecated('ormClassOptions');
 		return $options ? $this->setORMClassOptions($options) : $this->ormClassOptions();
 	}
 

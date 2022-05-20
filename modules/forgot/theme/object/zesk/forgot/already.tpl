@@ -11,4 +11,4 @@ namespace zesk;
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
 echo HTML::tag('h1', $locale->__('Your password was already updated'));
-echo HTML::tag('p', HTML::wrap($locale->__('Please use the new password to [access your account.]'), HTML::a($router->get_route("login", Controller_Login::class), '[]')));
+echo HTML::tag('p', HTML::wrap($locale->__('Please use the new password to [access your account.]'), HTML::a($router->get_route('login', Controller_Login::class), '[]')));

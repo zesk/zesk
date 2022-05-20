@@ -49,7 +49,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		$newName = $db_col_new->name();
 		$newType = $this->database_column_native_type($db_col_new);
 
-		return "ALTER TABLE " . $this->quote_table($table) . " ADD COLUMN " . $this->quote_column($newName) . " $newType";
+		return 'ALTER TABLE ' . $this->quote_table($table) . ' ADD COLUMN ' . $this->quote_column($newName) . " $newType";
 	}
 
 	/**
@@ -63,19 +63,19 @@ class Database_SQL extends \zesk\Database_SQL {
 		$new_table = clone $table;
 
 		// If foreign key constraints are enabled, disable them using PRAGMA foreign_keys=OFF.
-		$sqls[] = "PRAGMA foreign_keys=OFF";
+		$sqls[] = 'PRAGMA foreign_keys=OFF';
 		// 		 Start a transaction.
-		$sqls[] = "BEGIN EXCLUSIVE TRANSACTION";
+		$sqls[] = 'BEGIN EXCLUSIVE TRANSACTION';
 		// 		 Remember the format of all indexes and triggers associated with table X. This information will be needed in step 8 below. One way to do this is to run a query like the following: SELECT type, sql FROM sqlite_master WHERE tbl_name='X'.
 
 		$new_table->column_remove($dbColName->name());
 
-		$new_table->name($new_table_name = strval($table) . "_" . md5(microtime()));
+		$new_table->name($new_table_name = strval($table) . '_' . md5(microtime()));
 
 		$quoted_table_name = $this->quote_table($table->name());
 		$quoted_new_table_name = $this->quote_table($new_table_name);
 
-		$quoted_column_list = implode(", ", $this->quote_column($new_table->column_names()));
+		$quoted_column_list = implode(', ', $this->quote_column($new_table->column_names()));
 
 		$create_sql = $new_table->create_sql();
 
@@ -101,9 +101,9 @@ class Database_SQL extends \zesk\Database_SQL {
 		// 		 If foreign key constraints were originally enabled then run PRAGMA foreign_key_check to verify that the schema change did not break any foreign key constraints.
 
 		// 		 Commit the transaction started in step 2.
-		$sqls[] = "COMMIT TRANSACTION";
+		$sqls[] = 'COMMIT TRANSACTION';
 
-		$sqls[] = "PRAGMA foreign_keys=ON";
+		$sqls[] = 'PRAGMA foreign_keys=ON';
 
 		// 		 If foreign keys constraints were originally enabled, reenable them now.
 
@@ -112,17 +112,17 @@ class Database_SQL extends \zesk\Database_SQL {
 
 	public function alter_table_index_add(Database_Table $table, Database_Index $index) {
 		$indexType = $index->type();
-		$unique = "";
+		$unique = '';
 		$indexes = $index->column_sizes();
 		$name = $index->name();
 		$quoted_name = $this->quote_table($name);
 		$table_name = $this->quote_table($table->name());
 		switch ($indexType) {
-			case Database_Index::Unique:
-				$unique = " UNIQUE";
+			case Database_Index::TYPE_UNIQUE:
+				$unique = ' UNIQUE';
 
 				break;
-			case Database_Index::Primary:
+			case Database_Index::TYPE_PRIMARY:
 				$columns = $index->columns();
 				if (count($columns) === 1) {
 					$column = $table->column(first($columns));
@@ -131,7 +131,7 @@ class Database_SQL extends \zesk\Database_SQL {
 					return "ALTER TABLE $table_name CHANGE $column_name $column_sql PRIMARY KEY";
 				}
 			// no break
-			case Database_Index::Index:
+			case Database_Index::TYPE_INDEX:
 				break;
 			default:
 				throw new Exception_Invalid(__METHOD__ . "($table, $indexType, ...): Invalid index type $indexType");
@@ -146,7 +146,7 @@ class Database_SQL extends \zesk\Database_SQL {
 				$sqlIndexes[] = $this->quote_column($k);
 			}
 		}
-		return "CREATE$unique INDEX $quoted_name ON $table_name (" . implode(", ", $sqlIndexes) . ")";
+		return "CREATE$unique INDEX $quoted_name ON $table_name (" . implode(', ', $sqlIndexes) . ')';
 	}
 
 	/**
@@ -158,9 +158,9 @@ class Database_SQL extends \zesk\Database_SQL {
 		$name = $index->name();
 		$name = $this->quote_column($name);
 		switch ($indexType = $index->type()) {
-			case Database_Index::Unique:
-			case Database_Index::Index:
-			case Database_Index::Primary:
+			case Database_Index::TYPE_UNIQUE:
+			case Database_Index::TYPE_INDEX:
+			case Database_Index::TYPE_PRIMARY:
 				return "DROP INDEX IF EXISTS $name";
 			default:
 				throw new Exception_Invalid(__METHOD__ . "($table, $indexType, ...): Invalid index type $indexType");
@@ -175,9 +175,9 @@ class Database_SQL extends \zesk\Database_SQL {
 		$newType = $this->database_column_native_type($db_col_new);
 		$previous_name = $db_col_old->name();
 		$newName = $db_col_new->name();
-		$suffix = $db_col_new->primary_key() ? " FIRST" : "";
+		$suffix = $db_col_new->primary_key() ? ' FIRST' : '';
 
-		$new_sql = "ALTER TABLE " . $this->quote_table($table) . " CHANGE COLUMN " . $this->quote_column($previous_name) . " " . $this->quote_column($newName) . " $newType $suffix";
+		$new_sql = 'ALTER TABLE ' . $this->quote_table($table) . ' CHANGE COLUMN ' . $this->quote_column($previous_name) . ' ' . $this->quote_column($newName) . " $newType $suffix";
 		$old_table = $db_col_old->table();
 		if ($db_col_new->primary_key() && $old_table->primary()) {
 			return [
@@ -215,7 +215,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	}
 
 	public function remove_comments($sql) {
-		$sql = Text::remove_line_comments($sql, "--");
+		$sql = Text::remove_line_comments($sql, '--');
 		$sql = Text::remove_range_comments($sql);
 		return $sql;
 	}
@@ -249,18 +249,18 @@ class Database_SQL extends \zesk\Database_SQL {
 	 */
 	public function index_type($table, $name, $type, array $column_sizes) {
 		switch ($type) {
-			case Database_Index::Unique:
-			case Database_Index::Index:
+			case Database_Index::TYPE_UNIQUE:
+			case Database_Index::TYPE_INDEX:
 				break;
-			case Database_Index::Primary:
-				$name = "";
+			case Database_Index::TYPE_PRIMARY:
+				$name = '';
 
 				break;
 			default:
-				throw new Exception_Invalid(__METHOD__ . "($table, $name, $type, ...): Invalid index type {name}", compact("name"));
+				throw new Exception_Invalid(__METHOD__ . "($table, $name, $type, ...): Invalid index type {name}", compact('name'));
 		}
 		if ($name) {
-			$name = $this->quote_column($name) . " ";
+			$name = $this->quote_column($name) . ' ';
 		}
 		return "$type $name(\n" . implode(",\n\t", $this->_sql_column_sizes_to_quoted_list($column_sizes)) . "\n)";
 	}
@@ -268,23 +268,23 @@ class Database_SQL extends \zesk\Database_SQL {
 	private function _sql_column_default($type, $default, $required = false) {
 		$data_type = $this->database->data_type();
 		switch (strtolower($type)) {
-			case "timestamp":
-				if (is_numeric($default) || (strcasecmp($default, "CURRENT_TIMESTAMP") === 0)) {
+			case 'timestamp':
+				if (is_numeric($default) || (strcasecmp($default, 'CURRENT_TIMESTAMP') === 0)) {
 					return " DEFAULT $default";
 				}
 				if ($default === null) {
-					return " DEFAULT 0";
+					return ' DEFAULT 0';
 				}
 			// no break
 			default:
 				break;
 		}
 		if ($default === null && !$required) {
-			return " DEFAULT NULL";
+			return ' DEFAULT NULL';
 		}
 		$bt = $data_type->native_type_to_sql_type($type);
 		switch ($bt) {
-			case "boolean":
+			case 'boolean':
 				$sql = StringTools::from_bool($default);
 
 				break;
@@ -293,7 +293,7 @@ class Database_SQL extends \zesk\Database_SQL {
 
 				break;
 		}
-		return " DEFAULT " . $this->sql_format_string($sql);
+		return ' DEFAULT ' . $this->sql_format_string($sql);
 	}
 
 	/*
@@ -322,14 +322,14 @@ class Database_SQL extends \zesk\Database_SQL {
 		return $this->database->sql_now_utc();
 	}
 
-	public function function_date_add($target, $number, $units = "second"): void {
-		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
+	public function function_date_add($target, $number, $units = 'second'): void {
+		throw new Exception_Unimplemented(__CLASS__ . '::' . __METHOD__);
 		// 		$dbUnits = $this->_convert_units($number, $units);
 		// 		return "DATE_ADD($target, INTERVAL $number $dbUnits)";
 	}
 
-	public function function_date_subtract($target, $number, $units = "second"): void {
-		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
+	public function function_date_subtract($target, $number, $units = 'second'): void {
+		throw new Exception_Unimplemented(__CLASS__ . '::' . __METHOD__);
 		// 		$dbUnits = $this->_convert_units($number, $units);
 		// 		return "DATE_SUB($target, INTERVAL $number $dbUnits)";
 	}
@@ -347,7 +347,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	/*
 	 * Platform SQL Tools
 	 */
-	public function sql_table_as($table, $name = "") {
+	public function sql_table_as($table, $name = '') {
 		if (empty($name)) {
 			return $table;
 		}
@@ -362,38 +362,38 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * Password Type
 	 */
 	public function sql_password($value) {
-		return "MD5(" . $this->sql_format_string($value) . ")";
+		return 'MD5(' . $this->sql_format_string($value) . ')';
 	}
 
 	/*
 	 * Functions
 	 */
-	public function sql_function($func, $memberName, $alias = "") {
+	public function sql_function($func, $memberName, $alias = '') {
 		$memberName = $this->quote_column($memberName);
 		switch (strtolower(trim($func))) {
-			case "min":
+			case 'min':
 				return $this->sql_table_as("MIN($memberName)", $alias);
-			case "max":
+			case 'max':
 				return $this->sql_table_as("MAX($memberName)", $alias);
-			case "sum":
+			case 'sum':
 				return $this->sql_table_as("SUM($memberName)", $alias);
-			case "count":
+			case 'count':
 				return $this->sql_table_as("COUNT($memberName)", $alias);
-			case "average":
+			case 'average':
 				return $this->sql_table_as("AVG($memberName)", $alias);
-			case "stddev":
+			case 'stddev':
 				return $this->sql_table_as("STDDEV($memberName)", $alias);
-			case "year":
+			case 'year':
 				return $this->sql_table_as("YEAR($memberName)", $alias);
-			case "quarter":
+			case 'quarter':
 				return $this->sql_table_as("QUARTER($memberName)", $alias);
-			case "month":
+			case 'month':
 				return $this->sql_table_as("MONTH($memberName)", $alias);
-			case "day":
+			case 'day':
 				return $this->sql_table_as("DAY($memberName)", $alias);
-			case "hour":
+			case 'hour':
 				return $this->sql_table_as("HOUR($memberName)", $alias);
-			case "minute":
+			case 'minute':
 				return $this->sql_table_as("MINUTE($memberName)", $alias);
 			default:
 				return false;
@@ -411,14 +411,14 @@ class Database_SQL extends \zesk\Database_SQL {
 		$sql = "$sql_type";
 		if ($dbCol->primary_key()) {
 			// Primary key should not be unsigned integer
-			$sql .= " PRIMARY KEY NOT NULL";
+			$sql .= ' PRIMARY KEY NOT NULL';
 		} else {
-			if ($dbCol->optionBool("unsigned")) {
-				$sql .= " unsigned";
+			if ($dbCol->optionBool('unsigned')) {
+				$sql .= ' unsigned';
 			}
-			$sql .= $dbCol->required() ? " NOT NULL" : " NULL";
+			$sql .= $dbCol->required() ? ' NOT NULL' : ' NULL';
 			if ($dbCol->has_default_value() || $dbCol->required()) {
-				$sql .= $this->_sql_column_default($sql_type, $dbCol->option("default"), $dbCol->required());
+				$sql .= $this->_sql_column_default($sql_type, $dbCol->option('default'), $dbCol->required());
 			}
 		}
 		if ($dbCol->has_extras()) {
@@ -438,7 +438,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	}
 
 	public function create_table(Database_Table $dbTableObject): void {
-		throw new Exception_Unimplemented("Yup");
+		throw new Exception_Unimplemented('Yup');
 	}
 
 	final public function column_is_quoted($column) {
@@ -458,9 +458,9 @@ class Database_SQL extends \zesk\Database_SQL {
 			}
 			return $name;
 		}
-		[$alias, $col] = pair($name, ".", null, $name);
+		[$alias, $col] = pair($name, '.', null, $name);
 		if ($alias) {
-			return $this->quote_column($alias) . "." . $this->quote_column($col);
+			return $this->quote_column($alias) . '.' . $this->quote_column($col);
 		}
 		return '"' . strtr($name, [
 			'"' => '\\"',

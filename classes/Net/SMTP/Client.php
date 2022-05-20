@@ -88,11 +88,11 @@ class Net_SMTP_Client extends Net_Client_Socket {
 		$message = false;
 		$result = $this->expect('250', $message);
 
-		$this->application->logger->debug("Sent email to {rcpts} {nbytes} bytes via {user}@{host}", [
-			"rcpts" => $rcpts,
-			"nbytes" => strlen($body),
-			"user" => $this->url("user"),
-			"host" => $this->url("host"),
+		$this->application->logger->debug('Sent email to {rcpts} {nbytes} bytes via {user}@{host}', [
+			'rcpts' => $rcpts,
+			'nbytes' => strlen($body),
+			'user' => $this->url('user'),
+			'host' => $this->url('host'),
 		]);
 		return $result;
 	}
@@ -119,7 +119,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 	 * @return boolean
 	 */
 	private function helo() {
-		return $this->command("HELO " . $this->url('host'), "250");
+		return $this->command('HELO ' . $this->url('host'), '250');
 	}
 
 	/**
@@ -129,7 +129,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 	 * @return boolean
 	 */
 	private function ehlo() {
-		return $this->command("EHLO " . $this->url('host'), "250");
+		return $this->command('EHLO ' . $this->url('host'), '250');
 	}
 
 	/**
@@ -138,11 +138,11 @@ class Net_SMTP_Client extends Net_Client_Socket {
 	 * @return boolean
 	 */
 	private function auth() {
-		$result = $this->command("AUTH LOGIN", "334");
+		$result = $this->command('AUTH LOGIN', '334');
 		$this->log($result);
-		$result = $this->command(base64_encode($this->url('user')), "334");
+		$result = $this->command(base64_encode($this->url('user')), '334');
 		$this->log($result);
-		$result = $this->command(base64_encode($this->url('pass')), "235");
+		$result = $this->command(base64_encode($this->url('pass')), '235');
 		$this->log($result);
 		$this->authenticated = true;
 		return $result;
@@ -156,7 +156,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 	 * @return boolean
 	 */
 	private function mail($from) {
-		return $this->command("MAIL FROM: <" . $from . ">", "250");
+		return $this->command('MAIL FROM: <' . $from . '>', '250');
 	}
 
 	/**
@@ -167,7 +167,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 	 * @return boolean
 	 */
 	private function rcpt($to) {
-		return $this->command("RCPT TO: <$to>", "25");
+		return $this->command("RCPT TO: <$to>", '25');
 	}
 
 	/**
@@ -176,7 +176,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 	 * @return boolean
 	 */
 	private function data() {
-		return $this->command("DATA", "354");
+		return $this->command('DATA', '354');
 	}
 
 	/**
@@ -185,7 +185,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 	 * @return boolean
 	 */
 	private function rset() {
-		return $this->command("RSET", "250");
+		return $this->command('RSET', '250');
 	}
 
 	/**
@@ -195,7 +195,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 	 */
 	private function quit() {
 		if ($this->is_connected()) {
-			$this->command("QUIT", "221");
+			$this->command('QUIT', '221');
 			$this->disconnect();
 		}
 		return true;

@@ -43,14 +43,14 @@ if (false) {
 	$value = $this->value;
 	$variables = $this->variables;
 }
-$ia = $this->geta("attributes");
+$ia = $this->geta('attributes');
 
 $ia['id'] = $id = $this->id;
-$ia["name"] = $name;
+$ia['name'] = $name;
 
 $class = $this->class;
 if ($this->required) {
-	$class = CSS::add_class($class, "required");
+	$class = CSS::add_class($class, 'required');
 }
 $ia['class'] = CSS::add_class($class, 'form-control');
 
@@ -62,9 +62,9 @@ $ia = $object->apply_map($ia) + [
 
 $button_label = $this->button_label;
 
-$side = $this->get("dropdown_alignment", "right");
+$side = $this->get('dropdown_alignment', 'right');
 
-$html = "";
+$html = '';
 
 $html .= HTML::div_open('.input-group-btn');
 
@@ -77,8 +77,8 @@ $html .= HTML::tag('button', [
 ], $button_label . ' ' . HTML::span('.caret', ''));
 
 $html .= HTML::tag_open('ul', [
-	"class" => "dropdown-menu dropdown-menu-$side",
-	"role" => "menu",
+	'class' => "dropdown-menu dropdown-menu-$side",
+	'role' => 'menu',
 ]);
 
 $dropdown_value = $this->dropdown_value;
@@ -128,7 +128,7 @@ foreach ($this->dropdown_menu as $code => $attributes) {
 		$link_html = $code;
 	}
 	if (to_bool(avalue($attributes, 'selected')) || $code === $dropdown_value) {
-		$li_attributes = HTML::add_class($li_attributes, "active");
+		$li_attributes = HTML::add_class($li_attributes, 'active');
 	}
 	$html .= HTML::tag('li', $li_attributes, HTML::tag('a', $attributes, $link_html));
 }
@@ -136,11 +136,11 @@ $html .= HTML::tag_close('ul');
 $html .= HTML::div_close(); // input-group-btn
 
 echo HTML::div_open('.input-group');
-if ($side === "left") {
+if ($side === 'left') {
 	echo $html;
 }
-echo HTML::tag("input", $ia);
-if ($side !== "left") {
+echo HTML::tag('input', $ia);
+if ($side !== 'left') {
 	echo $html;
 }
 echo HTML::div_close(); // input-group

@@ -69,18 +69,18 @@ class Database extends \zesk\Database {
 				break;
 		}
 
-		throw new Exception_Unimplemented("Database {type} does not support feature {feature}", [
-			"type" => $this->type(),
-			"feature" => $feature,
+		throw new Exception_Unimplemented('Database {type} does not support feature {feature}', [
+			'type' => $this->type(),
+			'feature' => $feature,
 		]);
 	}
 
 	public function _to_php() {
-		return "new sqlite3\\Database(" . PHP::dump($this->URL) . ")";
+		return 'new sqlite3\\Database(' . PHP::dump($this->URL) . ')';
 	}
 
 	public function default_index_structure($table_type) {
-		return "";
+		return '';
 	}
 
 	/**
@@ -93,7 +93,7 @@ class Database extends \zesk\Database {
 	 * @return boolean Whether the operation succeeded (true) or not (false)
 	 */
 	public function dump($filename, array $options = []) {
-		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
+		throw new Exception_Unimplemented(__CLASS__ . '::' . __METHOD__);
 	}
 
 	/**
@@ -106,7 +106,7 @@ class Database extends \zesk\Database {
 	 * @return boolean Whether the operation succeeded (true) or not (false)
 	 */
 	public function restore($filename, array $options = []) {
-		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
+		throw new Exception_Unimplemented(__CLASS__ . '::' . __METHOD__);
 	}
 
 	/**
@@ -118,12 +118,12 @@ class Database extends \zesk\Database {
 	protected function _connect() {
 		$path = avalue($this->url_parts, 'path');
 		if (!$path) {
-			throw new Exception_Configuration("No database path for {class}", ["class" => __CLASS__, ]);
+			throw new Exception_Configuration('No database path for {class}', ['class' => __CLASS__, ]);
 		}
-		$path = map($path, ArrayTools::kprefix($this->application->paths->variables(), "zesk::paths::"));
+		$path = map($path, ArrayTools::kprefix($this->application->paths->variables(), 'zesk::paths::'));
 		$dir = dirname($path);
 		if (!is_dir($dir)) {
-			throw new Exception_Directory_NotFound($dir, "{path} not found", ["path" => $path, ]);
+			throw new Exception_Directory_NotFound($dir, '{path} not found', ['path' => $path, ]);
 		}
 		$error_message = null;
 		$flags = 0;
@@ -133,7 +133,7 @@ class Database extends \zesk\Database {
 		$encryption_key = $this->option('encryption_key', null);
 		$this->Connection = new SQLite3($path, $flags, $encryption_key);
 		if (!$this->Connection) {
-			throw new Database_Exception_Connect($this->URL, "Unable to open file");
+			throw new Database_Exception_Connect($this->URL, 'Unable to open file');
 		}
 		$this->conn = $this->Connection;
 		$this->conn->enableExceptions(true);
@@ -178,16 +178,16 @@ class Database extends \zesk\Database {
 	 */
 	final public function fetch_assoc(mixed $result): ?array {
 		if (!$result instanceof SQLite3Result) {
-			throw new Exception_Parameter("Requires a SQLite3Result {class} (of {type}) given", [
-				"class" => get_class($result),
-				"type" => type($result),
+			throw new Exception_Parameter('Requires a SQLite3Result {class} (of {type}) given', [
+				'class' => get_class($result),
+				'type' => type($result),
 			]);
 		}
 		return $result->fetchArray(SQLITE3_ASSOC);
 	}
 
 	final public function native_quote_text($value) {
-		return "'" . $this->conn->escapeString($value) . "'";
+		return '\'' . $this->conn->escapeString($value) . '\'';
 	}
 
 	final public function affected_rows($result = null) {
@@ -238,7 +238,7 @@ class Database extends \zesk\Database {
 			$db = $this->application->objects->factory(__CLASS__, $url);
 			$db->connect();
 		} catch (Exception $e) {
-			$this->application->hooks->call("exception", $e);
+			$this->application->hooks->call('exception', $e);
 			return false;
 		}
 		return true;
@@ -252,7 +252,7 @@ class Database extends \zesk\Database {
 	 */
 	public function list_tables() {
 		// TODO
-		$result = $this->query("SHOW TABLES");
+		$result = $this->query('SHOW TABLES');
 		$tables = [];
 		return $tables;
 	}
@@ -271,10 +271,10 @@ class Database extends \zesk\Database {
 
 		$types = [];
 		foreach ($columns as $dbCol) {
-			if (!$dbCol->has_sql_type() && !$this->type_set_sql_type($dbCol)) {
+			if (!$dbCol->hasSQLType() && !$this->type_set_sql_type($dbCol)) {
 				die(__CLASS__ . "::sql_create_table: no SQL Type for column $dbCol");
 			} else {
-				$types[] = $this->quote_column($dbCol->name()) . " " . $dbCol->sql_type($dbCol, true);
+				$types[] = $this->quote_column($dbCol->name()) . ' ' . $dbCol->sql_type($dbCol, true);
 			}
 		}
 		$indexes = $dbTableObject->indexes();
@@ -284,7 +284,7 @@ class Database extends \zesk\Database {
 				/* @var $index Database_Index */
 				$typeSQL = $index->typeSQL();
 				if ($typeSQL) {
-					if ($index->type() === Database_Index::Primary) {
+					if ($index->type() === Database_Index::TYPE_PRIMARY) {
 						$columns = $index->columns();
 						if (count($columns) == 1) {
 							reset($columns);
@@ -302,25 +302,25 @@ class Database extends \zesk\Database {
 		}
 		$types = implode(",\n\t", $types);
 		$result = [];
-		$result[] = "CREATE TABLE " . $dbTableObject->name() . " (\n\t$types\n)";
+		$result[] = 'CREATE TABLE ' . $dbTableObject->name() . " (\n\t$types\n)";
 
 		return array_merge($result, $alters);
 	}
 
 	public function sql_type_default($type, $default_value = null) {
-		if ($type === "text" || $type === "blob") {
+		if ($type === 'text' || $type === 'blob') {
 			return null;
 		}
 		switch ($this->sqlBasicType($type)) {
-			case "integer":
+			case 'integer':
 				return intval($default_value);
-			case "real":
+			case 'real':
 				return floatval($default_value);
-			case "boolean":
+			case 'boolean':
 				return to_bool($default_value, false);
 			case 'timestamp':
 			case 'datetime':
-				if ($default_value === 0 || $default_value === "0") {
+				if ($default_value === 0 || $default_value === '0') {
 					return '0000-00-00 00:00:00';
 				}
 				return strval($default_value);
@@ -335,31 +335,31 @@ class Database extends \zesk\Database {
 	 */
 	public function database_table($table) {
 		$conn = $this->conn;
-		$statement_sql = "SELECT sql FROM sqlite_master WHERE name=:name AND type='table'";
+		$statement_sql = 'SELECT sql FROM sqlite_master WHERE name=:name AND type=\'table\'';
 		$statement = $conn->prepare($statement_sql);
-		$statement->bindParam(":name", $table, SQLITE3_TEXT);
-		$sql = $this->query_one($statement, "sql", null, ["statement_sql" => $statement_sql, ]);
+		$statement->bindParam(':name', $table, SQLITE3_TEXT);
+		$sql = $this->query_one($statement, 'sql', null, ['statement_sql' => $statement_sql, ]);
 		if (!$sql) {
 			throw new Database_Exception_Table_NotFound($this, null, $table);
 		}
 		$sql .= ";\n";
 		// AND sql != '' ignores sqlite_autoindex declarations
-		$statement_sql = "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name=:name AND sql != ''";
+		$statement_sql = 'SELECT sql FROM sqlite_master WHERE type=\'index\' AND tbl_name=:name AND sql != \'\'';
 		$statement = $this->conn->prepare($statement_sql);
-		$statement->bindParam(":name", $table, SQLITE3_TEXT);
-		$indexes_sql = $this->query_array($statement, null, "sql", [], ["statement_sql" => $statement_sql, ]);
+		$statement->bindParam(':name', $table, SQLITE3_TEXT);
+		$indexes_sql = $this->query_array($statement, null, 'sql', [], ['statement_sql' => $statement_sql, ]);
 		if (count($indexes_sql) > 0) {
 			$sql .= implode(";\n", $indexes_sql);
 		}
-		return $this->parse_create_table($sql, "extracted from sqlite_master");
+		return $this->parse_create_table($sql, 'extracted from sqlite_master');
 	}
 
 	private function exception(Exception $e): void {
 		$message = $e->getMessage();
-		if (preg_match("/no such table: (.*)/", $message, $matches)) {
+		if (preg_match('/no such table: (.*)/', $message, $matches)) {
 			throw new Database_Exception_Table_NotFound($this, $matches[1]);
 		}
-		die(get_class($e) . "\n" . $e->getMessage() . "<br />" . $e->getTraceAsString());
+		die(get_class($e) . "\n" . $e->getMessage() . '<br />' . $e->getTraceAsString());
 	}
 
 	protected function _query(string $query, array $options = []): mixed {
@@ -371,15 +371,15 @@ class Database extends \zesk\Database {
 			return $result;
 		}
 		if (!$this->Connection) {
-			throw new Database_Exception(null, __CLASS__ . "::query: Not connected");
+			throw new Database_Exception(null, __CLASS__ . '::query: Not connected');
 		}
-		if (is_string($query) && begins($query, "-- ")) {
+		if (is_string($query) && begins($query, '-- ')) {
 			return true;
 		}
 
 		try {
 			if ($query instanceof SQLite3Stmt) {
-				$statement_sql = avalue($options, "statement_sql", "-no-statement-sql-");
+				$statement_sql = avalue($options, 'statement_sql', '-no-statement-sql-');
 				$this->_query_before($statement_sql, $options);
 				$result = $query->execute();
 				$this->_query_after($statement_sql, $options);
@@ -416,7 +416,7 @@ class Database extends \zesk\Database {
 	 * Date functions
 	 */
 	public function sql_now() {
-		return "datetime('now')";
+		return 'datetime(\'now\')';
 	}
 
 	public function sql_now_utc() {
@@ -424,95 +424,95 @@ class Database extends \zesk\Database {
 	}
 
 	public function sql_validate_datetime($value) {
-		return (preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$/", $value) == 1);
+		return (preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$/', $value) == 1);
 	}
 
 	public function sql_validate_Date($value) {
-		return (preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/", $value) == 1);
+		return (preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $value) == 1);
 	}
 
 	public function sql_validate_time($value) {
-		return (preg_match("/^[0-9]{2}:[0-9]{2}:[0-9]{2}$/", $value) == 1);
+		return (preg_match('/^[0-9]{2}:[0-9]{2}:[0-9]{2}$/', $value) == 1);
 	}
 
 	public function sql_validate_timeStamp($value) {
-		return (preg_match("/^[0-9]{14}$/", $value) == 1);
+		return (preg_match('/^[0-9]{14}$/', $value) == 1);
 	}
 
 	final public function sql_parse_datetime($value) {
 		if ($value === null) {
-			return "NULL";
+			return 'NULL';
 		}
 		if (is_string($value)) {
-			if ($value == "now") {
+			if ($value == 'now') {
 				return $this->sqlNow();
 			} elseif ($this->sql_validate_datetime($value)) {
 				return $value;
 			}
 		}
 		if (!$value instanceof Timestamp) {
-			throw new Exception_Unimplemented(__METHOD__ . " invalid type: " . gettype($value) . "," . get_class($value));
-			return "0000-00-00 00:00:00";
+			throw new Exception_Unimplemented(__METHOD__ . ' invalid type: ' . gettype($value) . ',' . get_class($value));
+			return '0000-00-00 00:00:00';
 		}
 		if ($value->isEmpty()) {
-			return "NULL";
+			return 'NULL';
 		}
-		return "'" . $value->format('{YYYY}-{MM}-{DD} {hh}:{mm}:{ss}') . "'";
+		return '\'' . $value->format('{YYYY}-{MM}-{DD} {hh}:{mm}:{ss}') . '\'';
 	}
 
 	final public function sql_parse_date($value) {
 		if ($value === null) {
-			return "NULL";
+			return 'NULL';
 		}
 		if (is_string($value)) {
-			if ($value == "now") {
+			if ($value == 'now') {
 				return $this->sqlNow();
 			} elseif ($this->sql_validate_date($value)) {
 				return $value;
 			}
 		}
 		if (!$value instanceof Timestamp && !$value instanceof Date) {
-			throw new Exception_Unimplemented(__METHOD__ . " invalid type: " . gettype($value) . "," . get_class($value));
+			throw new Exception_Unimplemented(__METHOD__ . ' invalid type: ' . gettype($value) . ',' . get_class($value));
 		}
 		if ($value->isEmpty()) {
-			return "NULL";
+			return 'NULL';
 		}
-		return "'" . $value->format('{YYYY}-{MM}-{DD}') . "'";
+		return '\'' . $value->format('{YYYY}-{MM}-{DD}') . '\'';
 	}
 
 	final public function sql_parse_time($value) {
 		if ($value === null) {
-			return "NULL";
+			return 'NULL';
 		}
 		if (is_string($value)) {
-			if ($value == "now") {
+			if ($value == 'now') {
 				return $this->sqlNow();
 			} elseif ($this->sql_validate_time($value)) {
 				return $value;
 			}
 		}
 		if (!$value instanceof Timestamp && !$value instanceof Time) {
-			throw new Exception_Unimplemented(__METHOD__ . " invalid type: " . gettype($value) . "," . get_class($value));
-			return "00:00:00";
+			throw new Exception_Unimplemented(__METHOD__ . ' invalid type: ' . gettype($value) . ',' . get_class($value));
+			return '00:00:00';
 		}
 		if ($value->isEmpty()) {
-			return "NULL";
+			return 'NULL';
 		}
-		return "'" . $value->format('{hh}:{mm}:{ss}') . "'";
+		return '\'' . $value->format('{hh}:{mm}:{ss}') . '\'';
 	}
 
 	public function table_exists($table) {
 		if (empty($table)) {
 			return false;
 		}
-		$result = $this->query_array("SHOW TABLES LIKE " . $this->quote_table($table));
+		$result = $this->query_array('SHOW TABLES LIKE ' . $this->quote_table($table));
 		return (count($result) !== 0);
 	}
 
 	public function sql_format_datetime($sql) {
 		// "0123456789012345678"
 		// "YYYY-MM-DD hh:mm:ss"
-		if ($sql === "0000-00-00 00:00:00" || empty($sql)) {
+		if ($sql === '0000-00-00 00:00:00' || empty($sql)) {
 			return new Timestamp();
 		}
 		return Timestamp::instance((int) substr($sql, 0, 4), (int) substr($sql, 5, 2), (int) substr($sql, 8, 2), (int) substr($sql, 11, 2), (int) substr($sql, 14, 2), (int) substr($sql, 17, 2));
@@ -521,7 +521,7 @@ class Database extends \zesk\Database {
 	public function sqlToDate($sql) {
 		// "0123456789"
 		// "YYYY-MM-DD"
-		if ($sql === "0000-00-00" || empty($sql)) {
+		if ($sql === '0000-00-00' || empty($sql)) {
 			return new Timestamp();
 		}
 		return Date::instance((int) substr($sql, 0, 4), (int) substr($sql, 5, 2), (int) substr($sql, 8, 2));
@@ -529,23 +529,23 @@ class Database extends \zesk\Database {
 
 	public function sql_parse_timeStamp($value) {
 		if ($value === null) {
-			return "NULL";
+			return 'NULL';
 		}
 		if (is_string($value)) {
-			if ($value == "now") {
+			if ($value == 'now') {
 				return $this->sqlNow();
 			} elseif ($this->sql_validate_timeStamp($value)) {
 				return $value;
 			}
 		}
 		if (!$value instanceof Timestamp) {
-			throw new Exception_Unimplemented(__METHOD__ . " invalid type: " . gettype($value) . "," . get_class($value));
-			return "00000000000000";
+			throw new Exception_Unimplemented(__METHOD__ . ' invalid type: ' . gettype($value) . ',' . get_class($value));
+			return '00000000000000';
 		}
 		if ($value->isEmpty()) {
-			return "NULL";
+			return 'NULL';
 		}
-		return "'" . $value->format('{YYYY}-{MM}-{DD} {hh}:{mm}:{ss}') . "'";
+		return '\'' . $value->format('{YYYY}-{MM}-{DD} {hh}:{mm}:{ss}') . '\'';
 	}
 
 	public function sql_format_timestamp($sql) {
@@ -565,36 +565,36 @@ class Database extends \zesk\Database {
 		}
 	}
 
-	public function sql_function_date_add($sqlDate, $number, $units = "second") {
+	public function sql_function_date_add($sqlDate, $number, $units = 'second') {
 		$dbUnits = $this->_convertUnits($number, $units);
 		return "DATE_ADD($sqlDate, INTERVAL $number $dbUnits)";
 	}
 
-	public function sql_function_date_subtract($sqlDate, $number, $units = "second") {
+	public function sql_function_date_subtract($sqlDate, $number, $units = 'second') {
 		$dbUnits = $this->_convertUnits($number, $units);
 		return "DATE_SUB($sqlDate, INTERVAL $number $dbUnits)";
 	}
 
 	private function _convertUnits(&$number, $TIMEUNIT) {
 		switch ($TIMEUNIT) {
-			case "millisecond":
+			case 'millisecond':
 				$number = intval($number / 1000);
-				return "SECOND";
-			case "second":
-				return "SECOND";
-			case "hour":
-				return "HOUR";
-			case "day":
-				return "DAY";
-			case "weekday":
-				return "DAY";
-			case "month":
-				return "MONTH";
-			case "quarter":
+				return 'SECOND';
+			case 'second':
+				return 'SECOND';
+			case 'hour':
+				return 'HOUR';
+			case 'day':
+				return 'DAY';
+			case 'weekday':
+				return 'DAY';
+			case 'month':
+				return 'MONTH';
+			case 'quarter':
 				$number = $number * 3;
-				return "MONTH";
-			case "year":
-				return "YEAR";
+				return 'MONTH';
+			case 'year':
+				return 'YEAR';
 			default:
 				throw new Exception_Semantics(__METHOD__ . "($number, $TIMEUNIT): Unknown time unit.");
 		}
@@ -603,7 +603,7 @@ class Database extends \zesk\Database {
 	/*
 	 * Platform SQL Tools
 	 */
-	public function sql_table_as($table, $name = "") {
+	public function sql_table_as($table, $name = '') {
 		if (empty($name)) {
 			return $table;
 		}
@@ -613,222 +613,222 @@ class Database extends \zesk\Database {
 	public function is_reserved_word($word) {
 		// Updated 2004-10-19 from MySQL Website YEARLY-TODO
 		static $reserved = [
-			"ADD",
-			"ALL",
-			"ALTER",
-			"ANALYZE",
-			"AND",
-			"AS",
-			"ASC",
-			"ASENSITIVE",
-			"BEFORE",
-			"BETWEEN",
-			"BIGINT",
-			"BINARY",
-			"BLOB",
-			"BOTH",
-			"BY",
-			"CALL",
-			"CASCADE",
-			"CASE",
-			"CHANGE",
-			"CHAR",
-			"CHARACTER",
-			"CHECK",
-			"COLLATE",
-			"COLUMN",
-			"COLUMNS",
-			"CONDITION",
-			"CONNECTION",
-			"CONSTRAINT",
-			"CONTINUE",
-			"CONVERT",
-			"CREATE",
-			"CROSS",
-			"CURRENT_DATE",
-			"CURRENT_TIME",
-			"CURRENT_TIMESTAMP",
-			"CURRENT_USER",
-			"CURSOR",
-			"DATABASE",
-			"DATABASES",
-			"DAY_HOUR",
-			"DAY_MICROSECOND",
-			"DAY_MINUTE",
-			"DAY_SECOND",
-			"DEC",
-			"DECIMAL",
-			"DECLARE",
-			"DEFAULT",
-			"DELAYED",
-			"DELETE",
-			"DESC",
-			"DESCRIBE",
-			"DETERMINISTIC",
-			"DISTINCT",
-			"DISTINCTROW",
-			"DIV",
-			"DOUBLE",
-			"DROP",
-			"DUAL",
-			"EACH",
-			"ELSE",
-			"ELSEIF",
-			"ENCLOSED",
-			"ESCAPED",
-			"EXISTS",
-			"EXIT",
-			"EXPLAIN",
-			"FALSE",
-			"FETCH",
-			"FIELDS",
-			"FLOAT",
-			"FOR",
-			"FORCE",
-			"FOREIGN",
-			"FOUND",
-			"FROM",
-			"FULLTEXT",
-			"GOTO",
-			"GRANT",
-			"GROUP",
-			"HAVING",
-			"HIGH_PRIORITY",
-			"HOUR_MICROSECOND",
-			"HOUR_MINUTE",
-			"HOUR_SECOND",
-			"IF",
-			"IGNORE",
-			"IN",
-			"INDEX",
-			"INFILE",
-			"INNER",
-			"INOUT",
-			"INSENSITIVE",
-			"INSERT",
-			"INT",
-			"INTEGER",
-			"INTERVAL",
-			"INTO",
-			"IS",
-			"ITERATE",
-			"JOIN",
-			"KEY",
-			"KEYS",
-			"KILL",
-			"LEADING",
-			"LEAVE",
-			"LEFT",
-			"LIKE",
-			"LIMIT",
-			"LINES",
-			"LOAD",
-			"LOCALTIME",
-			"LOCALTIMESTAMP",
-			"LOCK",
-			"LONG",
-			"LONGBLOB",
-			"LONGTEXT",
-			"LOOP",
-			"LOW_PRIORITY",
-			"MATCH",
-			"MEDIUMBLOB",
-			"MEDIUMINT",
-			"MEDIUMTEXT",
-			"MIDDLEINT",
-			"MINUTE_MICROSECOND",
-			"MINUTE_SECOND",
-			"MOD",
-			"NATURAL",
-			"NOT",
-			"NO_WRITE_TO_BINLOG",
-			"NULL",
-			"NUMERIC",
-			"ON",
-			"OPTIMIZE",
-			"OPTION",
-			"OPTIONALLY",
-			"OR",
-			"ORDER",
-			"OUT",
-			"OUTER",
-			"OUTFILE",
-			"PRECISION",
-			"PRIMARY",
-			"PRIVILEGES",
-			"PROCEDURE",
-			"PURGE",
-			"READ",
-			"REAL",
-			"REFERENCES",
-			"REGEXP",
-			"RENAME",
-			"REPEAT",
-			"REPLACE",
-			"REQUIRE",
-			"RESTRICT",
-			"RETURN",
-			"REVOKE",
-			"RIGHT",
-			"RLIKE",
-			"SCHEMA",
-			"SCHEMAS",
-			"SECOND_MICROSECOND",
-			"SELECT",
-			"SENSITIVE",
-			"SEPARATOR",
-			"SET",
-			"SHOW",
-			"SMALLINT",
-			"SONAME",
-			"SPATIAL",
-			"SPECIFIC",
-			"SQL",
-			"SQLEXCEPTION",
-			"SQLSTATE",
-			"SQLWARNING",
-			"SQL_BIG_RESULT",
-			"SQL_CALC_FOUND_ROWS",
-			"SQL_SMALL_RESULT",
-			"SSL",
-			"STARTING",
-			"STRAIGHT_JOIN",
-			"TABLE",
-			"TABLES",
-			"TERMINATED",
-			"THEN",
-			"TINYBLOB",
-			"TINYINT",
-			"TINYTEXT",
-			"TO",
-			"TRAILING",
-			"TRIGGER",
-			"TRUE",
-			"UNDO",
-			"UNION",
-			"UNIQUE",
-			"UNLOCK",
-			"UNSIGNED",
-			"UPDATE",
-			"USAGE",
-			"USE",
-			"USING",
-			"UTC_DATE",
-			"UTC_TIME",
-			"UTC_TIMESTAMP",
-			"VALUES",
-			"VARBINARY",
-			"VARCHAR",
-			"VARCHARACTER",
-			"VARYING",
-			"WHEN",
-			"WHERE",
-			"WHILE",
-			"WITH",
-			"WRITE",
-			"XOR",
-			"YEAR_MONTH",
-			"ZEROFILL",
+			'ADD',
+			'ALL',
+			'ALTER',
+			'ANALYZE',
+			'AND',
+			'AS',
+			'ASC',
+			'ASENSITIVE',
+			'BEFORE',
+			'BETWEEN',
+			'BIGINT',
+			'BINARY',
+			'BLOB',
+			'BOTH',
+			'BY',
+			'CALL',
+			'CASCADE',
+			'CASE',
+			'CHANGE',
+			'CHAR',
+			'CHARACTER',
+			'CHECK',
+			'COLLATE',
+			'COLUMN',
+			'COLUMNS',
+			'CONDITION',
+			'CONNECTION',
+			'CONSTRAINT',
+			'CONTINUE',
+			'CONVERT',
+			'CREATE',
+			'CROSS',
+			'CURRENT_DATE',
+			'CURRENT_TIME',
+			'CURRENT_TIMESTAMP',
+			'CURRENT_USER',
+			'CURSOR',
+			'DATABASE',
+			'DATABASES',
+			'DAY_HOUR',
+			'DAY_MICROSECOND',
+			'DAY_MINUTE',
+			'DAY_SECOND',
+			'DEC',
+			'DECIMAL',
+			'DECLARE',
+			'DEFAULT',
+			'DELAYED',
+			'DELETE',
+			'DESC',
+			'DESCRIBE',
+			'DETERMINISTIC',
+			'DISTINCT',
+			'DISTINCTROW',
+			'DIV',
+			'DOUBLE',
+			'DROP',
+			'DUAL',
+			'EACH',
+			'ELSE',
+			'ELSEIF',
+			'ENCLOSED',
+			'ESCAPED',
+			'EXISTS',
+			'EXIT',
+			'EXPLAIN',
+			'FALSE',
+			'FETCH',
+			'FIELDS',
+			'FLOAT',
+			'FOR',
+			'FORCE',
+			'FOREIGN',
+			'FOUND',
+			'FROM',
+			'FULLTEXT',
+			'GOTO',
+			'GRANT',
+			'GROUP',
+			'HAVING',
+			'HIGH_PRIORITY',
+			'HOUR_MICROSECOND',
+			'HOUR_MINUTE',
+			'HOUR_SECOND',
+			'IF',
+			'IGNORE',
+			'IN',
+			'INDEX',
+			'INFILE',
+			'INNER',
+			'INOUT',
+			'INSENSITIVE',
+			'INSERT',
+			'INT',
+			'INTEGER',
+			'INTERVAL',
+			'INTO',
+			'IS',
+			'ITERATE',
+			'JOIN',
+			'KEY',
+			'KEYS',
+			'KILL',
+			'LEADING',
+			'LEAVE',
+			'LEFT',
+			'LIKE',
+			'LIMIT',
+			'LINES',
+			'LOAD',
+			'LOCALTIME',
+			'LOCALTIMESTAMP',
+			'LOCK',
+			'LONG',
+			'LONGBLOB',
+			'LONGTEXT',
+			'LOOP',
+			'LOW_PRIORITY',
+			'MATCH',
+			'MEDIUMBLOB',
+			'MEDIUMINT',
+			'MEDIUMTEXT',
+			'MIDDLEINT',
+			'MINUTE_MICROSECOND',
+			'MINUTE_SECOND',
+			'MOD',
+			'NATURAL',
+			'NOT',
+			'NO_WRITE_TO_BINLOG',
+			'NULL',
+			'NUMERIC',
+			'ON',
+			'OPTIMIZE',
+			'OPTION',
+			'OPTIONALLY',
+			'OR',
+			'ORDER',
+			'OUT',
+			'OUTER',
+			'OUTFILE',
+			'PRECISION',
+			'PRIMARY',
+			'PRIVILEGES',
+			'PROCEDURE',
+			'PURGE',
+			'READ',
+			'REAL',
+			'REFERENCES',
+			'REGEXP',
+			'RENAME',
+			'REPEAT',
+			'REPLACE',
+			'REQUIRE',
+			'RESTRICT',
+			'RETURN',
+			'REVOKE',
+			'RIGHT',
+			'RLIKE',
+			'SCHEMA',
+			'SCHEMAS',
+			'SECOND_MICROSECOND',
+			'SELECT',
+			'SENSITIVE',
+			'SEPARATOR',
+			'SET',
+			'SHOW',
+			'SMALLINT',
+			'SONAME',
+			'SPATIAL',
+			'SPECIFIC',
+			'SQL',
+			'SQLEXCEPTION',
+			'SQLSTATE',
+			'SQLWARNING',
+			'SQL_BIG_RESULT',
+			'SQL_CALC_FOUND_ROWS',
+			'SQL_SMALL_RESULT',
+			'SSL',
+			'STARTING',
+			'STRAIGHT_JOIN',
+			'TABLE',
+			'TABLES',
+			'TERMINATED',
+			'THEN',
+			'TINYBLOB',
+			'TINYINT',
+			'TINYTEXT',
+			'TO',
+			'TRAILING',
+			'TRIGGER',
+			'TRUE',
+			'UNDO',
+			'UNION',
+			'UNIQUE',
+			'UNLOCK',
+			'UNSIGNED',
+			'UPDATE',
+			'USAGE',
+			'USE',
+			'USING',
+			'UTC_DATE',
+			'UTC_TIME',
+			'UTC_TIMESTAMP',
+			'VALUES',
+			'VARBINARY',
+			'VARCHAR',
+			'VARCHARACTER',
+			'VARYING',
+			'WHEN',
+			'WHERE',
+			'WHILE',
+			'WITH',
+			'WRITE',
+			'XOR',
+			'YEAR_MONTH',
+			'ZEROFILL',
 		];
 		$word = strtoupper($word);
 		return in_array($word, $reserved);
@@ -845,7 +845,7 @@ class Database extends \zesk\Database {
 	 * String Manipulation
 	 */
 	public function sql_format_string($sql) {
-		return "'" . addslashes($sql) . "'";
+		return '\'' . addslashes($sql) . '\'';
 	}
 
 	public static function parseType($sql_type, &$size) {
@@ -865,13 +865,13 @@ class Database extends \zesk\Database {
 
 	public static function _basicType($t) {
 		static $basicTypes = [
-			'string' => ["char", "varchar", "varbinary", "binary", "text", ],
-			'integer' => ["int", "tinyint", "mediumint", "smallint", "bigint", 'integer', ],
-			'real' => ["float", "double", "decimal", ],
-			'date' => ["date", ],
-			'time' => ["time", ],
-			'datetime' => ["datetime", "timestamp", ],
-			'boolean' => ["enum", ],
+			'string' => ['char', 'varchar', 'varbinary', 'binary', 'text', ],
+			'integer' => ['int', 'tinyint', 'mediumint', 'smallint', 'bigint', 'integer', ],
+			'real' => ['float', 'double', 'decimal', ],
+			'date' => ['date', ],
+			'time' => ['time', ],
+			'datetime' => ['datetime', 'timestamp', ],
+			'boolean' => ['enum', ],
 		];
 		$t = trim(strtolower($t));
 		foreach ($basicTypes as $type => $types) {
@@ -920,7 +920,7 @@ class Database extends \zesk\Database {
 	 * Boolean Type
 	 */
 	public function sql_parse_boolean($value) {
-		return $value ? "'true'" : "'false'";
+		return $value ? '\'true\'' : '\'false\'';
 	}
 
 	public function sql_format_boolean($sql) {
@@ -931,37 +931,37 @@ class Database extends \zesk\Database {
 	 * Password Type
 	 */
 	public function sql_format_password($value) {
-		return "MD5(" . $this->sql_format_string($value) . ")";
+		return 'MD5(' . $this->sql_format_string($value) . ')';
 	}
 
 	/*
 	 * Functions
 	 */
-	public function sql_format_function($func, $memberName, $alias = "") {
+	public function sql_format_function($func, $memberName, $alias = '') {
 		switch (strtolower(trim($func))) {
-			case "min":
+			case 'min':
 				return $this->sql_table_as("MIN($memberName)", $alias);
-			case "max":
+			case 'max':
 				return $this->sql_table_as("MAX($memberName)", $alias);
-			case "sum":
+			case 'sum':
 				return $this->sql_table_as("SUM($memberName)", $alias);
-			case "count":
+			case 'count':
 				return $this->sql_table_as("COUNT($memberName)", $alias);
-			case "average":
+			case 'average':
 				return $this->sql_table_as("AVG($memberName)", $alias);
-			case "stddev":
+			case 'stddev':
 				return $this->sql_table_as("STDDEV($memberName)", $alias);
-			case "year":
+			case 'year':
 				return $this->sql_table_as("YEAR($memberName)", $alias);
-			case "quarter":
+			case 'quarter':
 				return $this->sql_table_as("QUARTER($memberName)", $alias);
-			case "month":
+			case 'month':
 				return $this->sql_table_as("MONTH($memberName)", $alias);
-			case "day":
+			case 'day':
 				return $this->sql_table_as("DAY($memberName)", $alias);
-			case "hour":
+			case 'hour':
 				return $this->sql_table_as("HOUR($memberName)", $alias);
-			case "minute":
+			case 'minute':
 				return $this->sql_table_as("MINUTE($memberName)", $alias);
 			default:
 				return false;
@@ -986,16 +986,16 @@ class Database extends \zesk\Database {
 
 	protected function integer_size_type($lookup) {
 		return avalue([
-			"1" => "tinyint",
-			"tiny" => "tinyint",
-			"2" => "smallint",
-			"small" => "smallint",
-			"4" => "integer",
-			"default" => "integer",
-			"big" => "bigint",
-			"large" => "bigint",
-			"8" => "bigint",
-		], $lookup, "integer");
+			'1' => 'tinyint',
+			'tiny' => 'tinyint',
+			'2' => 'smallint',
+			'small' => 'smallint',
+			'4' => 'integer',
+			'default' => 'integer',
+			'big' => 'bigint',
+			'large' => 'bigint',
+			'8' => 'bigint',
+		], $lookup, 'integer');
 	}
 
 	public function table_columns($table) {
@@ -1026,7 +1026,7 @@ class Database extends \zesk\Database {
 		Directory::depend($lock_path);
 		$name = File::name_clean($name);
 		$lock_file = path($lock_path, $name);
-		$f = fopen($lock_file, "w+b");
+		$f = fopen($lock_file, 'w+b');
 		$timer = new Timer();
 		do {
 			if (flock($f, LOCK_EX | LOCK_NB)) {
@@ -1075,7 +1075,7 @@ class Database extends \zesk\Database {
 	 */
 	public function transaction_start() {
 		// TODO: Ensure database is in auto-commit mode
-		return $this->query("BEGIN TRANSACTION");
+		return $this->query('BEGIN TRANSACTION');
 	}
 
 	/**
@@ -1086,7 +1086,7 @@ class Database extends \zesk\Database {
 	 * @return boolean
 	 */
 	public function transaction_end($success = true) {
-		$sql = $success ? "COMMIT TRANSACTION" : "ROLLBACK TRANSACTION";
+		$sql = $success ? 'COMMIT TRANSACTION' : 'ROLLBACK TRANSACTION';
 		return $this->query($sql);
 	}
 
@@ -1107,6 +1107,6 @@ class Database extends \zesk\Database {
 	 * @return array
 	 */
 	public function table_information($table) {
-		throw new Exception_Unimplemented("Need to implement {method}", ["method" => __METHOD__, ]);
+		throw new Exception_Unimplemented('Need to implement {method}', ['method' => __METHOD__, ]);
 	}
 }

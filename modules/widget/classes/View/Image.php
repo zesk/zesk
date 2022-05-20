@@ -17,7 +17,7 @@ class View_Image extends View {
 
 	public function initialize(): void {
 		parent::initialize();
-		self::$debug = $this->option("debug");
+		self::$debug = $this->option('debug');
 	}
 
 	public static function debug($set = null) {
@@ -33,7 +33,7 @@ class View_Image extends View {
 	}
 
 	protected function cache_directory() {
-		$directory = $this->option('cache_directory', path($this->application->document_root(), "/cache/images/"));
+		$directory = $this->option('cache_directory', path($this->application->document_root(), '/cache/images/'));
 		return $this->application->paths->expand($directory);
 	}
 
@@ -62,7 +62,7 @@ class View_Image extends View {
 		 */
 		$source = realpath($source);
 		$this->debug_log("\$sourceFile = $source");
-		$this->debug_log("\$this->source_directory()  = " . $this->source_directory());
+		$this->debug_log('$this->source_directory()  = ' . $this->source_directory());
 
 		$cache = $this->cache_directory();
 
@@ -73,7 +73,7 @@ class View_Image extends View {
 			return $this->missing_file();
 		}
 
-		$prefix = "";
+		$prefix = '';
 		if ($this->hasOption('id')) {
 			$prefix = $this->option('id') . '-';
 		}
@@ -83,7 +83,7 @@ class View_Image extends View {
 		$scaled_result = path($this->cache_url_prefix(), $target_filename);
 
 		if (self::$debug) {
-			$this->application->logger->debug("\$scaled_result = {scaled_result}", compact("scaled_result"));
+			$this->application->logger->debug('$scaled_result = {scaled_result}', compact('scaled_result'));
 		}
 		$this->setOption('scale_path', $target_full_path);
 		$this->call_hook('scale_path', $target_full_path);
@@ -97,7 +97,7 @@ class View_Image extends View {
 
 		if (Image_Library::factory($this->application)->image_scale($source, $target_full_path, $this->options)) {
 			[$this->width, $this->height] = getimagesize($target_full_path);
-			$this->setOption("created_file", true);
+			$this->setOption('created_file', true);
 		}
 		return $scaled_result;
 	}
@@ -106,15 +106,15 @@ class View_Image extends View {
 	}
 
 	private function relative_to_absolute_path($path) {
-		if ($path[0] === "/") {
+		if ($path[0] === '/') {
 			return HTML::href($this->application, $path);
 		}
-		$wd = path(str_replace("\\", "/", dirname($_SERVER['SCRIPT_FILENAME'])), $path);
+		$wd = path(str_replace('\\', '/', dirname($_SERVER['SCRIPT_FILENAME'])), $path);
 		return $wd;
 	}
 
 	private function missing_image_path() {
-		return $this->option("missing_image_path", $this->application->url("/share/zesk/images/missing.gif"));
+		return $this->option('missing_image_path', $this->application->url('/share/zesk/images/missing.gif'));
 	}
 
 	/**
@@ -124,18 +124,18 @@ class View_Image extends View {
 	 */
 	public function render() {
 		$object = $this->object;
-		$actualWidth = $object->get($this->option("WidthColumn", "Width"));
-		$actualHeight = $object->get($this->option("HeightColumn", "Height"));
+		$actualWidth = $object->get($this->option('WidthColumn', 'Width'));
+		$actualHeight = $object->get($this->option('HeightColumn', 'Height'));
 
-		$value = $object->apply_map($this->option("src", '{src}'));
+		$value = $object->apply_map($this->option('src', '{src}'));
 		//avalue($object, $this->column('src'));
 
 		if (empty($value)) {
-			$this->debug_log("Empty value for src...");
-			return "";
+			$this->debug_log('Empty value for src...');
+			return '';
 		}
 
-		if ($this->optionBool("is_relative", true)) {
+		if ($this->optionBool('is_relative', true)) {
 			$file_path = $this->relative_to_absolute_path($value);
 			$path = $file_path;
 		} else {
@@ -149,10 +149,10 @@ class View_Image extends View {
 		}
 		$ext = strtolower(File::extension($path, false));
 		if (!in_array($ext, [
-			"jpg",
-			"jpeg",
-			"gif",
-			"png",
+			'jpg',
+			'jpeg',
+			'gif',
+			'png',
 		])) {
 			return $this->output_image($object, $file_path, $this->missing_image_path(), "\n<!-- NOT AN IMAGE? $ext -->");
 		}
@@ -167,38 +167,38 @@ class View_Image extends View {
 		return $this->output_image($file_path, $value);
 	}
 
-	protected function output_image($file_path, $value, $options = "") {
+	protected function output_image($file_path, $value, $options = '') {
 		$attrs = [];
 
-		$attrs["width"] = $this->optionInt("ScaledWidth", $this->optionInt("Width"));
-		$attrs["height"] = $this->optionInt("ScaledHeight", $this->optionInt("Height"));
-		$attrs["border"] = $this->optionInt("Border", 0);
-		$attrs["align"] = $this->option("align", null);
-		$attrs["style"] = $this->option("style", null);
-		$attrs["class"] = $this->option("class", null);
-		$attrs["alt"] = $this->option("alt", "");
-		$attrs["title"] = $this->option("title", false);
+		$attrs['width'] = $this->optionInt('ScaledWidth', $this->optionInt('Width'));
+		$attrs['height'] = $this->optionInt('ScaledHeight', $this->optionInt('Height'));
+		$attrs['border'] = $this->optionInt('Border', 0);
+		$attrs['align'] = $this->option('align', null);
+		$attrs['style'] = $this->option('style', null);
+		$attrs['class'] = $this->option('class', null);
+		$attrs['alt'] = $this->option('alt', '');
+		$attrs['title'] = $this->option('title', false);
 
 		$attrs = $this->object->apply_map($attrs);
 		if ($this->hasOption('image_host')) {
-			$attrs["src"] = $this->option('image_host') . $file_path;
+			$attrs['src'] = $this->option('image_host') . $file_path;
 		} else {
-			$attrs["src"] = $value;
+			$attrs['src'] = $value;
 		}
-		$attrs["src"] = str_replace(" ", "%20", $attrs["src"]);
+		$attrs['src'] = str_replace(' ', '%20', $attrs['src']);
 		if ($this->hasOption('query')) {
 			$attrs['src'] = URL::query_format($attrs['src'], $this->option('query'));
 		}
 
-		$this->setOption("scale_src", $attrs['src']);
+		$this->setOption('scale_src', $attrs['src']);
 
-		$result = HTML::tag("img", $attrs, null);
+		$result = HTML::tag('img', $attrs, null);
 
 		return $result . $options;
 	}
 
 	public function didCreateFile() {
-		return $this->optionBool("created_file", true);
+		return $this->optionBool('created_file', true);
 	}
 
 	/**
@@ -212,7 +212,7 @@ class View_Image extends View {
 	 * @param array $options
 	 * @return View_Image
 	 */
-	public static function scaled_widget(Application $application, $width = false, $height = false, $alt = "", array $options = []) {
+	public static function scaled_widget(Application $application, $width = false, $height = false, $alt = '', array $options = []) {
 		if ($width) {
 			$options['width'] = $width;
 		}
@@ -223,23 +223,23 @@ class View_Image extends View {
 			$options['alt'] = $alt;
 		}
 		$w = new View_Image($application, $options);
-		$w->request($application->request() ?? Request::factory($application, "http://test/"));
+		$w->request($application->request() ?? Request::factory($application, 'http://test/'));
 		$w->response($application->response_factory($w->request()));
 		return $w;
 	}
 
-	public static function scaled(Application $application, $src, $width = false, $height = false, $alt = "", array $options = []) {
+	public static function scaled(Application $application, $src, $width = false, $height = false, $alt = '', array $options = []) {
 		$w = self::scaled_widget($application, $width, $height, $alt, $options);
 		$x = new Model($application);
 		$x->src = $src;
 		return $w->execute($x);
 	}
 
-	public static function scaled_path(Application $application, $src, $width = false, $height = false, $alt = "", array $options = []) {
+	public static function scaled_path(Application $application, $src, $width = false, $height = false, $alt = '', array $options = []) {
 		$w = self::scaled_widget($application, $width, $height, $alt, $options);
 		$x = new Model($application);
 		$x->src = $src;
 		$w->execute($x);
-		return $w->option("scale_src");
+		return $w->option('scale_src');
 	}
 }

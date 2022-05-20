@@ -8,5 +8,5 @@
 namespace zesk;
 
 class Content_Group_Link extends Content_Group {
-	protected $name = "Links";
+	protected $name = 'Links';
 }

@@ -2,7 +2,7 @@
 namespace zesk;
 
 class Class_Database_Snapshot extends Class_ORM {
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	public array $column_types = [
 		'id' => self::type_id,

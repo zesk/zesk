@@ -19,27 +19,27 @@ class Response_Test extends Test_Unit {
 
 		$add = null;
 
-		$response->html()->body_attributes("goo", "bar");
+		$response->html()->body_attributes('goo', 'bar');
 		$response->html()->body_attributes([
-			"goo" => "actual",
+			'goo' => 'actual',
 		]);
 		$response->html()->body_attributes([
-			"poo" => "bar",
+			'poo' => 'bar',
 		]);
-		$response->html()->body_attributes("poo", "actual");
+		$response->html()->body_attributes('poo', 'actual');
 		$response->html()->body_attributes([
-			"dee" => "foofla",
+			'dee' => 'foofla',
 		]);
-		$response->html()->body_attributes("dee", "actual");
-		$response->html()->body_attributes("loo", "actual");
+		$response->html()->body_attributes('dee', 'actual');
+		$response->html()->body_attributes('loo', 'actual');
 
 		$attrs = $response->html()->body_attributes();
 
 		$compare_result = [
-			"goo" => "actual",
-			"poo" => "actual",
-			"dee" => "actual",
-			"loo" => "actual",
+			'goo' => 'actual',
+			'poo' => 'actual',
+			'dee' => 'actual',
+			'loo' => 'actual',
 		];
 
 		$this->assert_arrays_equal($attrs, $compare_result);
@@ -52,25 +52,25 @@ class Response_Test extends Test_Unit {
 		$request = new Request($this->application);
 		$response = $this->application->response_factory($request);
 
-		$type = "text/javascript";
-		$script = "alert('Hello, world!');";
+		$type = 'text/javascript';
+		$script = 'alert(\'Hello, world!\');';
 		$response->html()->javascript_inline($script, [
 			'browser' => 'ie',
 		]);
 
-		$content = $this->application->theme("response/html/scripts", [
-			"response" => $response,
+		$content = $this->application->theme('response/html/scripts', [
+			'response' => $response,
 			'jquery_ready' => [],
 		]);
 		$scripts = $response->html()->scripts();
 
-		$this->assertTrue(is_array($scripts), "Scripts is array");
+		$this->assertTrue(is_array($scripts), 'Scripts is array');
 
 		$this->assertContains($script, $content);
-		$this->assertContains("<!--", $content);
-		$this->assertContains("[if IE]", $content);
-		$this->assertContains("<![endif]-->", $content);
-		$this->assertContains("<![endif]-->", $content);
+		$this->assertContains('<!--', $content);
+		$this->assertContains('[if IE]', $content);
+		$this->assertContains('<![endif]-->', $content);
+		$this->assertContains('<![endif]-->', $content);
 
 		$this->assertContains('<!--[if IE]><script type="text/javascript">alert(\'Hello, world!\');</script><![endif]-->', $content);
 	}

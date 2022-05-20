@@ -17,7 +17,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 	 *
 	 * @var array
 	 */
-	protected array $load_modules = ["MySQL", "ORM", ];
+	protected array $load_modules = ['MySQL', 'ORM', ];
 
 	/**
 	 *
@@ -31,18 +31,18 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 
 	/**
 	 *
-	 * @return mysql\Database
+	 * @return Database
 	 */
 	public function db() {
 		$testx = $this->application->database_registry();
 
-		$this->assert($testx->type() === "mysql");
+		$this->assert($testx->type() === 'mysql');
 		return $testx;
 	}
 
 	public function test_datetime_timestamp(): void {
-		$sql0 = "CREATE TABLE test ( id integer unsigned NOT NULL, created datetime NULL ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
-		$sql1 = "CREATE TABLE test ( id integer unsigned NOT NULL, created timestamp NULL ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+		$sql0 = 'CREATE TABLE test ( id integer unsigned NOT NULL, created datetime NULL ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		$sql1 = 'CREATE TABLE test ( id integer unsigned NOT NULL, created timestamp NULL ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 
 		$db = $this->application->database_registry();
 
@@ -53,29 +53,29 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 
 		$datatype = $db->data_type();
 
-		$this->assert_false($datatype->native_types_equal("timestamp", "datetime"));
-		$this->assert_true($datatype->native_types_equal("int", "integer(12)"));
+		$this->assert_false($datatype->native_types_equal('timestamp', 'datetime'));
+		$this->assert_true($datatype->native_types_equal('int', 'integer(12)'));
 
-		$this->assert_arrays_equal($result, ["ALTER TABLE `test` CHANGE COLUMN `created` `created` timestamp NULL", ]);
+		$this->assert_arrays_equal($result, ['ALTER TABLE `test` CHANGE COLUMN `created` `created` timestamp NULL', ]);
 	}
 
 	public function test_primary_key_location(): void {
-		$sql['base'] = "CREATE TABLE `{table}` (
+		$sql['base'] = 'CREATE TABLE `{table}` (
 			`id` integer unsigned NOT NULL,
-			`name` varchar(255) NOT NULL DEFAULT ''
-		);";
-		$sql['separate'] = "CREATE TABLE `{table}` (
+			`name` varchar(255) NOT NULL DEFAULT \'\'
+		);';
+		$sql['separate'] = 'CREATE TABLE `{table}` (
 			`id` integer unsigned NOT NULL AUTO_INCREMENT,
-			`name` varchar(255) NOT NULL DEFAULT '',
+			`name` varchar(255) NOT NULL DEFAULT \'\',
 			PRIMARY KEY (`id`)
-		);";
-		$sql['together'] = "CREATE TABLE `{table}` (
+		);';
+		$sql['together'] = 'CREATE TABLE `{table}` (
 			`id` integer unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			`name` varchar(255) NOT NULL DEFAULT '',
-		);";
+			`name` varchar(255) NOT NULL DEFAULT \'\',
+		);';
 
 		$table = __FUNCTION__;
-		$sql = map($sql, compact("table"));
+		$sql = map($sql, compact('table'));
 		$db = $this->application->database_registry();
 
 		$result = $db->query("DROP TABLE IF EXISTS $table");
@@ -85,7 +85,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 
 		foreach ($sql as $key => $create) {
 			$result = ORM_Schema::table_synchronize($db, $create, false);
-			$this->log("Running SQL {key} ({n}) {result}", ['key' => $key, 'n' => count($result), 'result' => $result]);
+			$this->log('Running SQL {key} ({n}) {result}', ['key' => $key, 'n' => count($result), 'result' => $result]);
 			$db->query($result);
 		}
 	}
@@ -116,7 +116,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 
-		$this->assert($db->connect(), "connecting to " . $db->safe_url());
+		$this->assert($db->connect(), 'connecting to ' . $db->safe_url());
 
 		$this->assert($db->table_exists($table), "$db->table_exists($table)");
 
@@ -127,9 +127,10 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 
 		$db_table = $db->database_table($table_name);
 
+		ORM_Schema::$debug = true;
 		$result = ORM_Schema::update($db, $db_table, $object_table);
 
-		$this->assert_equal($result, []);
+		$this->assertEquals([], $result);
 	}
 
 	public function test_1(): void {
@@ -156,7 +157,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 
-		$this->assert($db->connect(), "connecting to " . $db->safe_url());
+		$this->assert($db->connect(), 'connecting to ' . $db->safe_url());
 		$this->assert($db->table_exists($table));
 
 		$object_table = $db->parse_create_table($sql, __METHOD__);
@@ -204,7 +205,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 
-		$this->assert($db->connect(), "connecting to " . $db->safe_url());
+		$this->assert($db->connect(), 'connecting to ' . $db->safe_url());
 
 		$this->assert($db->table_exists($table));
 
@@ -240,7 +241,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 
-		$this->assert($db->connect(), "connecting to " . $db->safe_url());
+		$this->assert($db->connect(), 'connecting to ' . $db->safe_url());
 
 		$this->assert($db->table_exists($table));
 
@@ -279,7 +280,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$this->assert($db->table_exists($table));
 		$this->assert($db->table_exists($table2));
 
-		$n_rows = $db->query_one("SELECT COUNT(*) AS X FROM $table", "X", null);
+		$n_rows = $db->query_one("SELECT COUNT(*) AS X FROM $table", 'X', null);
 		$this->assert(intval($n_rows) === 1, "intval($n_rows) === 1");
 
 		$db->query("DROP TABLE IF EXISTS $table2");
@@ -293,7 +294,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$this->assert($db->table_exists($table));
 		$this->assert($db->table_exists($table2));
 
-		$this->assert(intval($db->query_one("SELECT COUNT(*) AS X FROM $table", "X", null)) === 1);
+		$this->assert(intval($db->query_one("SELECT COUNT(*) AS X FROM $table", 'X', null)) === 1);
 
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query("DROP TABLE IF EXISTS $table2");
@@ -344,7 +345,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$object = new DBSchemaTest7($this->application);
 		$result = ORM_Schema::update_object($object);
 
-		$check_result = ["ALTER TABLE `keywords_test` ADD COLUMN `Proto` tinyint NOT NULL DEFAULT 0 AFTER `Protocol`", ];
+		$check_result = ['ALTER TABLE `keywords_test` ADD COLUMN `Proto` tinyint NOT NULL DEFAULT 0 AFTER `Protocol`', ];
 
 		$this->assert_arrays_equal($result, $check_result, true);
 
@@ -380,10 +381,10 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 	}
 
 	public function test_schema0(): void {
-		$updates = ORM_Schema::update_object($this->application->orm_factory(__NAMESPACE__ . "\\" . 'DBSchemaTest_columns_0'));
+		$updates = ORM_Schema::update_object($this->application->orm_factory(__NAMESPACE__ . '\\' . 'DBSchemaTest_columns_0'));
 		dump($updates);
 		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
-		$updates = ORM_Schema::update_object($this->application->orm_factory(__NAMESPACE__ . "\\" . 'DBSchemaTest_columns_1'));
+		$updates = ORM_Schema::update_object($this->application->orm_factory(__NAMESPACE__ . '\\' . 'DBSchemaTest_columns_1'));
 		dump($updates);
 		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
 	}

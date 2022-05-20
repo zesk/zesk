@@ -339,58 +339,58 @@ class Net_HTTP {
 	 *
 	 * @var string
 	 */
-	public const METHOD_GET = "GET";
+	public const METHOD_GET = 'GET';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const METHOD_POST = "POST";
+	public const METHOD_POST = 'POST';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const METHOD_PUT = "PUT";
+	public const METHOD_PUT = 'PUT';
 
 	/**
 	 * DELETE a resource
 	 *
 	 * @var string
 	 */
-	public const METHOD_DELETE = "DELETE";
+	public const METHOD_DELETE = 'DELETE';
 
 	/**
 	 * Just the header, no content expected
 	 *
 	 * @var string
 	 */
-	public const METHOD_HEAD = "HEAD";
+	public const METHOD_HEAD = 'HEAD';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const METHOD_OPTIONS = "OPTIONS";
+	public const METHOD_OPTIONS = 'OPTIONS';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const METHOD_TRACE = "TRACE";
+	public const METHOD_TRACE = 'TRACE';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const METHOD_CONNECT = "CONNECT";
+	public const METHOD_CONNECT = 'CONNECT';
 
 	/**
 	 * PROPFIND — used to retrieve properties, stored as XML, from a web resource. It is also overloaded to allow one to retrieve the collection structure (a.k.a. directory hierarchy) of a remote system.
 	 *
 	 * @var string
 	 */
-	public const METHOD_PROPFIND = "PROPFIND";
+	public const METHOD_PROPFIND = 'PROPFIND';
 
 	/* Request headers */
 
@@ -398,25 +398,25 @@ class Net_HTTP {
 	 *
 	 * @var string
 	 */
-	public const REQUEST_REFERRER = "Referer";
+	public const REQUEST_REFERRER = 'Referer';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const REQUEST_USER_AGENT = "User-Agent";
+	public const REQUEST_USER_AGENT = 'User-Agent';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const REQUEST_ACCEPT = "Accept";
+	public const REQUEST_ACCEPT = 'Accept';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const REQUEST_CONTENT_TYPE = "Content-Type";
+	public const REQUEST_CONTENT_TYPE = 'Content-Type';
 
 	/* Response headers */
 
@@ -424,48 +424,48 @@ class Net_HTTP {
 	 *
 	 * @var string
 	 */
-	public const RESPONSE_CONTENT_DISPOSITION = "Content-Disposition";
+	public const RESPONSE_CONTENT_DISPOSITION = 'Content-Disposition';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const RESPONSE_CONTENT_TYPE = "Content-Type";
+	public const RESPONSE_CONTENT_TYPE = 'Content-Type';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const RESPONSE_ACCEPT_RANGES = "Accept-Ranges";
+	public const RESPONSE_ACCEPT_RANGES = 'Accept-Ranges';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const RESPONSE_CONTENT_ENCODING = "Content-Encoding";
+	public const RESPONSE_CONTENT_ENCODING = 'Content-Encoding';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const RESPONSE_TRANSFER_ENCODING = "Transfer-Encoding";
+	public const RESPONSE_TRANSFER_ENCODING = 'Transfer-Encoding';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+	public const RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN = 'Access-Control-Allow-Origin';
 
 	/**
 	 * @var string
 	 */
-	public const RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN_CREDENTIALS = "Access-Control-Allow-Credentials";
+	public const RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN_CREDENTIALS = 'Access-Control-Allow-Credentials';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const HEADER_CONTENT_LENGTH = "Content-Length";
+	public const HEADER_CONTENT_LENGTH = 'Content-Length';
 
 	/**
 	 * Valid methods. 2018-05 added PROPFIND
@@ -542,53 +542,53 @@ class Net_HTTP {
 	 * @var array
 	 */
 	public static $request_headers = [
-		"accept" => self::REQUEST_ACCEPT,
-		"accept-charset" => "Accept-Charset",
-		"accept-encoding" => "Accept-Encoding",
-		"accept-language" => "Accept-Language",
-		"accept-datetime" => "Accept-Datetime",
-		"authorization" => "Authorization",
-		"cache-control" => "Cache-Control",
-		"connection" => "Connection",
-		"cookie" => "Cookie",
-		"content-length" => self::HEADER_CONTENT_LENGTH,
-		"content-md5" => "Content-MD5",
-		"content-type" => self::REQUEST_CONTENT_TYPE,
-		"date" => "Date",
-		"expect" => "Expect",
-		"from" => "From",
-		"host" => "Host",
-		"if-match" => "If-Match",
-		"if-modified-since" => "If-Modified-Since",
-		"if-none-match" => "If-None-Match",
-		"if-range" => "If-Range",
-		"if-unmodified-since" => "If-Unmodified-Since",
-		"max-forwards" => "Max-Forwards",
-		"origin" => "Origin",
-		"pragma" => "Pragma",
-		"proxy-authorization" => "Proxy-Authorization",
-		"range" => "Range",
-		"referer" => self::REQUEST_REFERRER,
-		"referrer" => self::REQUEST_REFERRER,
-		"te" => "TE",
-		"user-agent" => self::REQUEST_USER_AGENT,
-		"upgrade" => "Upgrade",
-		"via" => "Via",
-		"warning" => "Warning",
+		'accept' => self::REQUEST_ACCEPT,
+		'accept-charset' => 'Accept-Charset',
+		'accept-encoding' => 'Accept-Encoding',
+		'accept-language' => 'Accept-Language',
+		'accept-datetime' => 'Accept-Datetime',
+		'authorization' => 'Authorization',
+		'cache-control' => 'Cache-Control',
+		'connection' => 'Connection',
+		'cookie' => 'Cookie',
+		'content-length' => self::HEADER_CONTENT_LENGTH,
+		'content-md5' => 'Content-MD5',
+		'content-type' => self::REQUEST_CONTENT_TYPE,
+		'date' => 'Date',
+		'expect' => 'Expect',
+		'from' => 'From',
+		'host' => 'Host',
+		'if-match' => 'If-Match',
+		'if-modified-since' => 'If-Modified-Since',
+		'if-none-match' => 'If-None-Match',
+		'if-range' => 'If-Range',
+		'if-unmodified-since' => 'If-Unmodified-Since',
+		'max-forwards' => 'Max-Forwards',
+		'origin' => 'Origin',
+		'pragma' => 'Pragma',
+		'proxy-authorization' => 'Proxy-Authorization',
+		'range' => 'Range',
+		'referer' => self::REQUEST_REFERRER,
+		'referrer' => self::REQUEST_REFERRER,
+		'te' => 'TE',
+		'user-agent' => self::REQUEST_USER_AGENT,
+		'upgrade' => 'Upgrade',
+		'via' => 'Via',
+		'warning' => 'Warning',
 
 		/* Non-standard */
-		"x-requested-with" => "X-Requested-With",
-		"dnt" => "DNT",
-		"x-forwarded-for" => "X-Forwarded-For",
-		"x-forwarded-host" => "X-Forwarded-Host",
-		"x-forwarded-proto" => "X-Forwarded-Proto",
-		"front-end-https" => "Front-End-Https",
-		"x-http-method-override" => "X-Http-Method-Override",
-		"x-att-deviceid" => "X-ATT-DeviceId",
-		"x-wap-profile" => "X-Wap-Profile",
-		"proxy-connection" => "Proxy-Connection",
-		"x-uidh" => "X-UIDH",
-		"x-csrf-token" => "X-Csrf-Token",
+		'x-requested-with' => 'X-Requested-With',
+		'dnt' => 'DNT',
+		'x-forwarded-for' => 'X-Forwarded-For',
+		'x-forwarded-host' => 'X-Forwarded-Host',
+		'x-forwarded-proto' => 'X-Forwarded-Proto',
+		'front-end-https' => 'Front-End-Https',
+		'x-http-method-override' => 'X-Http-Method-Override',
+		'x-att-deviceid' => 'X-ATT-DeviceId',
+		'x-wap-profile' => 'X-Wap-Profile',
+		'proxy-connection' => 'Proxy-Connection',
+		'x-uidh' => 'X-UIDH',
+		'x-csrf-token' => 'X-Csrf-Token',
 	];
 
 	/**
@@ -597,56 +597,56 @@ class Net_HTTP {
 	 * @var array
 	 */
 	public static $response_headers = [
-		"access-control-allow-origin" => self::RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN,
-		"access-control-allow-origin-credentials" => self::RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN_CREDENTIALS,
-		"accept-patch" => "Accept-Patch",
-		"accept-ranges" => self::RESPONSE_ACCEPT_RANGES,
-		"age" => "Age",
-		"allow" => "Allow",
-		"cache-control" => "Cache-Control",
-		"connection" => "Connection",
-		"content-disposition" => self::RESPONSE_CONTENT_DISPOSITION,
-		"content-encoding" => self::RESPONSE_CONTENT_ENCODING,
-		"content-language" => "Content-Language",
-		"content-length" => self::HEADER_CONTENT_LENGTH,
-		"content-location" => "Content-Location",
-		"content-md5" => "Content-MD5",
-		"content-range" => "Content-Range",
-		"content-type" => "Content-Type",
-		"date" => "Date",
-		"etag" => "ETag",
-		"expires" => "Expires",
-		"last-modified" => "Last-Modified",
-		"link" => "Link",
-		"location" => "Location",
-		"p3p" => "P3P",
-		"pragma" => "Pragma",
-		"proxy-authenticate" => "Proxy-Authenticate",
-		"public-key-pins" => "Public-Key-Pins",
-		"refresh" => "Refresh",
-		"retry-after" => "Retry-After",
-		"permanent" => "Permanent",
-		"server" => "Server",
-		"set-cookie" => "Set-Cookie",
-		"status" => "Status",
-		"status-line" => "Status-Line",
-		"strict-transport-security" => "Strict-Transport-Security",
-		"trailer" => "Trailer",
-		"transfer-encoding" => self::RESPONSE_TRANSFER_ENCODING,
-		"upgrade" => "Upgrade",
-		"vary" => "Vary",
-		"via" => "Via",
-		"warning" => "Warning",
-		"www-authenticate" => "WWW-Authenticate",
+		'access-control-allow-origin' => self::RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN,
+		'access-control-allow-origin-credentials' => self::RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN_CREDENTIALS,
+		'accept-patch' => 'Accept-Patch',
+		'accept-ranges' => self::RESPONSE_ACCEPT_RANGES,
+		'age' => 'Age',
+		'allow' => 'Allow',
+		'cache-control' => 'Cache-Control',
+		'connection' => 'Connection',
+		'content-disposition' => self::RESPONSE_CONTENT_DISPOSITION,
+		'content-encoding' => self::RESPONSE_CONTENT_ENCODING,
+		'content-language' => 'Content-Language',
+		'content-length' => self::HEADER_CONTENT_LENGTH,
+		'content-location' => 'Content-Location',
+		'content-md5' => 'Content-MD5',
+		'content-range' => 'Content-Range',
+		'content-type' => 'Content-Type',
+		'date' => 'Date',
+		'etag' => 'ETag',
+		'expires' => 'Expires',
+		'last-modified' => 'Last-Modified',
+		'link' => 'Link',
+		'location' => 'Location',
+		'p3p' => 'P3P',
+		'pragma' => 'Pragma',
+		'proxy-authenticate' => 'Proxy-Authenticate',
+		'public-key-pins' => 'Public-Key-Pins',
+		'refresh' => 'Refresh',
+		'retry-after' => 'Retry-After',
+		'permanent' => 'Permanent',
+		'server' => 'Server',
+		'set-cookie' => 'Set-Cookie',
+		'status' => 'Status',
+		'status-line' => 'Status-Line',
+		'strict-transport-security' => 'Strict-Transport-Security',
+		'trailer' => 'Trailer',
+		'transfer-encoding' => self::RESPONSE_TRANSFER_ENCODING,
+		'upgrade' => 'Upgrade',
+		'vary' => 'Vary',
+		'via' => 'Via',
+		'warning' => 'Warning',
+		'www-authenticate' => 'WWW-Authenticate',
 
 		/* Non-standard */
-		"x-xss-protection" => "X-XSS-Protection",
-		"content-security-policy" => "Content-Security-Policy",
-		"x-content-security-policy" => "X-Content-Security-Policy",
-		"x-webkit-csp" => "X-WebKit-CSP",
-		"x-content-type-options" => "X-Content-Type-Options",
-		"x-powered-by" => "X-Powered-By",
-		"x-ua-compatible" => "X-UA-Compatible",
-		"x-content-duration" => "X-Content-Duration",
+		'x-xss-protection' => 'X-XSS-Protection',
+		'content-security-policy' => 'Content-Security-Policy',
+		'x-content-security-policy' => 'X-Content-Security-Policy',
+		'x-webkit-csp' => 'X-WebKit-CSP',
+		'x-content-type-options' => 'X-Content-Type-Options',
+		'x-powered-by' => 'X-Powered-By',
+		'x-ua-compatible' => 'X-UA-Compatible',
+		'x-content-duration' => 'X-Content-Duration',
 	];
 }

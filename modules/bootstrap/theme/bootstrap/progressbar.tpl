@@ -5,8 +5,8 @@
 namespace zesk;
 
 /* @var $this Template */
-$minimum = $this->get("minimum", 0);
-$maximum = $this->get("maximum", 100);
+$minimum = $this->get('minimum', 0);
+$maximum = $this->get('maximum', 100);
 if (real_equal($maximum - $minimum, 0)) {
 	$percent = 0;
 } else {
@@ -15,11 +15,11 @@ if (real_equal($maximum - $minimum, 0)) {
 $label = $this->label;
 $text_arguments = $this->geta('text_arguments', []);
 $text_arguments += [
-	"percent" => $percent,
-	"value" => $this->value,
+	'percent' => $percent,
+	'value' => $this->value,
 ];
 echo HTML::tag_open('div', [
-	"class" => CSS::add_class("progress", $this->class),
+	'class' => CSS::add_class('progress', $this->class),
 ]);
 
 if ($this->prefix) {
@@ -27,13 +27,13 @@ if ($this->prefix) {
 }
 
 echo HTML::div([
-	"class" => CSS::add_class("progress-bar", $this->progressbar_class),
-	"role" => "progressbar",
-	"aria-valuenow" => $this->value,
-	"aria-valuemin" => $this->get("minimum", 0),
-	"aria-valuemax" => $maximum,
-	"style" => "width: $percent%",
-], ($label ? __($label, $text_arguments) : HTML::etag("span", ".sr-only", $this->accessible_label ? __($this->accessible_label, $text_arguments) : null)));
+	'class' => CSS::add_class('progress-bar', $this->progressbar_class),
+	'role' => 'progressbar',
+	'aria-valuenow' => $this->value,
+	'aria-valuemin' => $this->get('minimum', 0),
+	'aria-valuemax' => $maximum,
+	'style' => "width: $percent%",
+], ($label ? __($label, $text_arguments) : HTML::etag('span', '.sr-only', $this->accessible_label ? __($this->accessible_label, $text_arguments) : null)));
 
 echo map($this->suffix, $text_arguments);
 

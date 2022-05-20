@@ -25,8 +25,8 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	 * @var array
 	 */
 	protected $repository_types = [
-		"svn",
-		"subversion",
+		'svn',
+		'subversion',
 	];
 
 	/**
@@ -71,16 +71,16 @@ class Repository_Subversion_Test extends Repository_TestCase {
 		$info = $repo->info();
 		$this->assertArrayHasKeys([
 			Repository::INFO_URL,
-			"relative-url",
-			"root",
-			"uuid",
-			"working-copy-path",
-			"working-copy-schedule",
-			"commit-author",
-			"commit-date",
-		], $info, "Repository info missing keys");
-		$this->assertTrue(URL::valid($info[Repository::INFO_URL]), "URL is valid: " . $info[Repository::INFO_URL]);
-		$this->assertTrue(URL::valid($info['root']), "URL is valid: " . $info['root']);
+			'relative-url',
+			'root',
+			'uuid',
+			'working-copy-path',
+			'working-copy-schedule',
+			'commit-author',
+			'commit-date',
+		], $info, 'Repository info missing keys');
+		$this->assertTrue(URL::valid($info[Repository::INFO_URL]), 'URL is valid: ' . $info[Repository::INFO_URL]);
+		$this->assertTrue(URL::valid($info['root']), 'URL is valid: ' . $info['root']);
 	}
 
 	/**
@@ -90,50 +90,50 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	public function testUpdate(Repository $repo, $url) {
 		$this->loadConfiguration();
 		$path = $repo->path();
-		$this->assertStringMatchesFormat("%asvntest%A", $path);
+		$this->assertStringMatchesFormat('%asvntest%A', $path);
 		$url = $this->url;
 		$this->assertTrue(URL::valid($url), "URL $url is not a valid URL");
 		$repo->url($url);
 		Directory::delete_contents($path);
 		$this->assertTrue(Directory::is_empty($path));
-		$this->assertTrue($repo->need_update(), "Repo should need update");
+		$this->assertTrue($repo->need_update(), 'Repo should need update');
 		$repo->update();
 		$this->assertTrue($repo->validate());
 		$this->assertFalse(Directory::is_empty($path));
-		$this->assertDirectoryExists(path($this->path, ".svn"));
-		$this->assertFalse($repo->need_update(), "Repo should no longer need update");
+		$this->assertDirectoryExists(path($this->path, '.svn'));
+		$this->assertFalse($repo->need_update(), 'Repo should no longer need update');
 		$this->assertDirectoriesExist($this->pathCatenator($this->path, [
-			".svn",
-			"trunk",
-			"tags",
-			"branches",
+			'.svn',
+			'trunk',
+			'tags',
+			'branches',
 		]));
-		$branches_dir = path($this->path, "branches");
+		$branches_dir = path($this->path, 'branches');
 		Directory::delete($branches_dir);
 		$this->assertDirectoryNotExists($branches_dir, "Deleting of $branches_dir failed?");
-		$this->assertTrue($repo->need_update(), "Repo needs update after directory \"branches\" deleted");
+		$this->assertTrue($repo->need_update(), 'Repo needs update after directory "branches" deleted');
 		$repo->update();
 		$this->assertDirectoryExists($branches_dir, "Deleting of $branches_dir failed?");
-		$this->assertFalse($repo->need_update(), "Repo does needs update after directory \"branches\" updated");
+		$this->assertFalse($repo->need_update(), 'Repo does needs update after directory "branches" updated');
 
 		$tags = to_array($this->configuration->path_get([
 			__CLASS__,
-			"tags_tests",
+			'tags_tests',
 		]));
 		foreach ($tags as $tag) {
-			$this->assertFalse($repo->need_update(), "Repo should no longer need update");
-			$repo->url(glue($url, "/", "tags/$tag"));
-			$this->assertTrue($repo->need_update(), "Repo should need update");
+			$this->assertFalse($repo->need_update(), 'Repo should no longer need update');
+			$repo->url(glue($url, '/', "tags/$tag"));
+			$this->assertTrue($repo->need_update(), 'Repo should need update');
 			$repo->update();
 			$this->assertDirectoriesExist($this->pathCatenator($this->path, [
-				".svn",
+				'.svn',
 			]));
 			$this->assertDirectoriesNotExist($this->pathCatenator($this->path, [
-				"trunk",
-				"tags",
-				"branches",
+				'trunk',
+				'tags',
+				'branches',
 			]));
-			$tag_name_file = path($this->path, "tag-name.txt");
+			$tag_name_file = path($this->path, 'tag-name.txt');
 			$this->assertFileExists($tag_name_file);
 			$this->assertEquals($tag, trim(file_get_contents($tag_name_file)), "File should contain tag name $tag");
 		}
@@ -147,7 +147,7 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	public function testNoURL(Repository $repo) {
 		$repo->url(false);
 		$path = $repo->path();
-		$this->assertStringMatchesFormat("%asvntest%A", $path);
+		$this->assertStringMatchesFormat('%asvntest%A', $path);
 		Directory::delete_contents($path);
 		$repo->url();
 		return $repo;
@@ -158,7 +158,7 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	 * @expectedException zesk\Exception_Syntax
 	 */
 	public function testBADURL(Repository $repo) {
-		$repo->url("http:/localhost/path/to/svn");
+		$repo->url('http:/localhost/path/to/svn');
 		return $repo;
 	}
 }

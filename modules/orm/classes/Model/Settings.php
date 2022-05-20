@@ -75,10 +75,10 @@ class Model_Settings extends Model {
 		foreach ($mixed as $item) {
 			if (!in_array($item, $this->variables)) {
 				$this->variables[$item] = null;
-				if ($this->optionBool("debug_variables")) {
-					$this->application->logger->debug("Adding permitted {variable} to {class}", [
-						"variable" => $item,
-						"class" => get_class($this),
+				if ($this->optionBool('debug_variables')) {
+					$this->application->logger->debug('Adding permitted {variable} to {class}', [
+						'variable' => $item,
+						'class' => get_class($this),
 					]);
 				}
 			}
@@ -107,24 +107,24 @@ class Model_Settings extends Model {
 		}
 		// Value has definitely changed
 		if (!$this->_ignore_variable($key)) {
-			if ($this->optionBool("debug_changes")) {
-				$this->application->logger->debug("{method} new value for key {key} {new_value} (old value was {old_value})", [
-					"key" => $key,
-					"old_value" => $old,
-					"new_value" => $value,
-					"method" => __METHOD__,
+			if ($this->optionBool('debug_changes')) {
+				$this->application->logger->debug('{method} new value for key {key} {new_value} (old value was {old_value})', [
+					'key' => $key,
+					'old_value' => $old,
+					'new_value' => $value,
+					'method' => __METHOD__,
 				]);
 			}
 			$this->_changed[$key] = $value;
 		} elseif (array_key_exists($key, $this->variables)) {
 			$this->configuration->path_set($key, $value);
 		} else {
-			if ($this->optionBool("debug_variables")) {
-				$this->application->logger->warning("{method} STATE ONLY value for key {key} {new_value} (old value was {old_value})", [
-					"key" => $key,
-					"old_value" => $old,
-					"new_value" => $value,
-					"method" => __METHOD__,
+			if ($this->optionBool('debug_variables')) {
+				$this->application->logger->warning('{method} STATE ONLY value for key {key} {new_value} (old value was {old_value})', [
+					'key' => $key,
+					'old_value' => $old,
+					'new_value' => $value,
+					'method' => __METHOD__,
 				]);
 			}
 			$this->state[$key] = $value;
@@ -146,9 +146,9 @@ class Model_Settings extends Model {
 			$result = $this->configuration->path_get($key);
 			return $result instanceof Configuration ? $result->to_array() : $result;
 		}
-		$this->application->logger->debug("{variable} not permitted in {class}, using local state instead", [
-			"variable" => $key,
-			"class" => get_class($this),
+		$this->application->logger->debug('{variable} not permitted in {class}, using local state instead', [
+			'variable' => $key,
+			'class' => get_class($this),
 		]);
 		return avalue($this->state, $key);
 	}
@@ -189,22 +189,22 @@ class Model_Settings extends Model {
 	}
 
 	public function store(): self {
-		$this->application->logger->debug("{method} called", [
-			"method" => __METHOD__,
+		$this->application->logger->debug('{method} called', [
+			'method' => __METHOD__,
 		]);
 		$settings = $this->application->model_singleton(Settings::class);
 		foreach ($this->_changed as $key => $value) {
-			if ($this->optionBool("debug_save")) {
-				$this->application->logger->debug("{method} Saving {key}={value} ({type})", [
-					"method" => __METHOD__,
-					"key" => $key,
-					"value" => PHP::dump($value),
-					"type" => type($value),
+			if ($this->optionBool('debug_save')) {
+				$this->application->logger->debug('{method} Saving {key}={value} ({type})', [
+					'method' => __METHOD__,
+					'key' => $key,
+					'value' => PHP::dump($value),
+					'type' => type($value),
 				]);
 			}
 			$settings->set($key, $value);
 		}
-		$this->call_hook("stored");
+		$this->call_hook('stored');
 		$this->_changed = [];
 		return parent::store();
 	}

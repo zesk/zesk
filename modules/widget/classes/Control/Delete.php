@@ -12,8 +12,8 @@ class Control_Delete extends Control_Edit {
 		$locale = $this->application->locale;
 		$this->options['submit_redirect_message'] = $locale->__('{class.name} "{object.name}" was deleted.');
 		$title = $locale->__('Delete {class_name} &ldquo;{name}&rdquo;', [
-			"class_name" => $this->object->class_name(),
-			"name" => $this->object->name(),
+			'class_name' => $this->object->class_name(),
+			'name' => $this->object->name(),
 		]);
 		$this->setOption('title', $title);
 	}
@@ -22,7 +22,7 @@ class Control_Delete extends Control_Edit {
 		if (!$this->submit_children()) {
 			return false;
 		}
-		if ($this->object->reassign && method_exists($this->object, "reassign")) {
+		if ($this->object->reassign && method_exists($this->object, 'reassign')) {
 			$this->object->reassign($this->object->reassign);
 		}
 		$this->object->delete();

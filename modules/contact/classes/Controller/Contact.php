@@ -47,10 +47,10 @@ class Controller_Contact extends Controller_Authenticated {
 	public function action_edit($id): void {
 		$contact = new Contact($id);
 		if (!$contact->fetch()) {
-			$this->response->redirect('/contact', __("That contact has been deleted."));
+			$this->response->redirect('/contact', __('That contact has been deleted.'));
 		}
-		if (!$this->user->can($contact, "edit")) {
-			$this->response->redirect('/contact', __("You don't have permission to edit that contact."));
+		if (!$this->user->can($contact, 'edit')) {
+			$this->response->redirect('/contact', __('You don\'t have permission to edit that contact.'));
 		}
 		$this->block_edit_contact($contact);
 	}
@@ -58,10 +58,10 @@ class Controller_Contact extends Controller_Authenticated {
 	public function action_view($id): void {
 		$contact = new Contact($id);
 		if (!$contact->fetch()) {
-			$this->response->redirect('/contact', __("That contact has been deleted."));
+			$this->response->redirect('/contact', __('That contact has been deleted.'));
 		}
-		if (!$this->user->can($contact, "view")) {
-			$this->response->redirect('/contact', __("You don't have permission to view that contact."));
+		if (!$this->user->can($contact, 'view')) {
+			$this->response->redirect('/contact', __('You don\'t have permission to view that contact.'));
 		}
 		$person = $contact->memberObject('Person', 'Contact_Person');
 		$content = Template::instance('contact/view.tpl', [
@@ -83,7 +83,7 @@ class Controller_Contact extends Controller_Authenticated {
 	public function action_list(): void {
 		$options = [];
 
-		$options['empty_list_string'] = HTML::tag('div', '.padding', __("No contacts match your query.") . ' ' . HTML::a($this->request->path(), __("View all contacts")));
+		$options['empty_list_string'] = HTML::tag('div', '.padding', __('No contacts match your query.') . ' ' . HTML::a($this->request->path(), __('View all contacts')));
 		$widget = new Control_Contact_List($options);
 		$content = $widget->execute();
 
@@ -91,18 +91,18 @@ class Controller_Contact extends Controller_Authenticated {
 		$n_contacts = $this->application->orm_registry('Contact')
 			->query_select()
 			->where('User', $this->user)
-			->what("*n_contacts", 'COUNT(X.ID)')
+			->what('*n_contacts', 'COUNT(X.ID)')
 			->integer('n_contacts');
 		if ($n_contacts === 0) {
-			$vars['title'] = __("Contacts");
+			$vars['title'] = __('Contacts');
 			$vars['content'] = Template::instance('contact/no-contacts.tpl');
 		} else {
-			$template = new Template("menus/tags.tpl", $this->variables());
+			$template = new Template('menus/tags.tpl', $this->variables());
 			$this->template->menu = $template->output();
-			$title = $template->get("tag_title", __('All contacts'));
+			$title = $template->get('tag_title', __('All contacts'));
 
 			$vars['title'] = $title;
-			$vars['upper_right'] = HTML::a('/contact/new', __("Add a new contact"));
+			$vars['upper_right'] = HTML::a('/contact/new', __('Add a new contact'));
 			$vars['content'] = HTML::tag('div', '.contact-list', $content);
 		}
 

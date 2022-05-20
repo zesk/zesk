@@ -47,9 +47,9 @@ class ORM_CacheItem implements CacheItemInterface {
 	 */
 	public function __sleep() {
 		return [
-			"item",
-			"depends",
-			"class_depends",
+			'item',
+			'depends',
+			'class_depends',
 		];
 	}
 
@@ -159,8 +159,8 @@ class ORM_CacheItem implements CacheItemInterface {
 		$value = $this->get();
 		if (!is_array($value)) {
 			$value = [
-				"depends" => [],
-				"class_depends" => [],
+				'depends' => [],
+				'class_depends' => [],
 			];
 		}
 		if (count($this->depends) > 0) {
@@ -210,7 +210,7 @@ class ORM_CacheItem implements CacheItemInterface {
 		$columns = $class_orm->cache_column_names;
 		sort($columns);
 		$result = ArrayTools::flatten($depend->members($columns)) + [
-			"_columns" => $columns,
+			'_columns' => $columns,
 		];
 		$result['_hash'] = md5(serialize($result));
 		return $result;
@@ -285,14 +285,14 @@ class ORM_CacheItem implements CacheItemInterface {
 		$class_orm = $object->class_orm();
 		$columns = $class_orm->cache_column_names;
 		if (count($columns) === 0) {
-			throw new Exception_Semantics("{method}: {class} does not have cache_column_names set in {class_orm}", [
-				"method" => __METHOD__,
-				"class" => get_class($object),
-				"class_orm" => get_class($class_orm),
+			throw new Exception_Semantics('{method}: {class} does not have cache_column_names set in {class_orm}', [
+				'method' => __METHOD__,
+				'class' => get_class($object),
+				'class_orm' => get_class($class_orm),
 			]);
 		}
 		$id = json_encode($object->id());
-		$this->depends[get_class($object) . "-" . $id] = $object;
+		$this->depends[get_class($object) . '-' . $id] = $object;
 		$this->is_hit = null;
 		return $this;
 	}

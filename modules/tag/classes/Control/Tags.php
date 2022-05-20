@@ -51,8 +51,8 @@ class Control_Tags extends Control {
 	 * @var array
 	 */
 	private static $actions = [
-		"+" => "_action_add",
-		"-" => "_action_remove",
+		'+' => '_action_add',
+		'-' => '_action_remove',
 	];
 
 	/**
@@ -75,7 +75,7 @@ class Control_Tags extends Control {
 	 */
 	private function _parse_value($value) {
 		$locale = $this->application->locale;
-		$actions = explode(",", $value);
+		$actions = explode(',', $value);
 		$labels = $this->_labels();
 		$result = [];
 		foreach ($actions as $action) {
@@ -83,22 +83,22 @@ class Control_Tags extends Control {
 				continue;
 			}
 			if (strlen($action) < 2) {
-				$this->error($locale->__("Invalid value: {action}", [
-					"action" => $action,
+				$this->error($locale->__('Invalid value: {action}', [
+					'action' => $action,
 				]), $this->name());
 				return null;
 			}
 			$action_prefix = $action[0];
 			if (!array_key_exists($action_prefix, self::$actions)) {
-				$this->error($locale->__("Invalid value not a valid prefix: {action}", [
-					"action" => $action,
+				$this->error($locale->__('Invalid value not a valid prefix: {action}', [
+					'action' => $action,
 				]), $this->name());
 				return null;
 			}
 			$label_id = intval(substr($action, 1));
 			if (!array_key_exists($label_id, $labels)) {
-				$this->error($locale->__("Invalid value not a valid label: {action}", [
-					"action" => $action,
+				$this->error($locale->__('Invalid value not a valid label: {action}', [
+					'action' => $action,
 				]), $this->name());
 				return null;
 			}
@@ -136,7 +136,7 @@ class Control_Tags extends Control {
 	 */
 	public function render() {
 		$debug = [];
-		return HTML::etag("pre", implode("<br />", $debug)) . parent::render();
+		return HTML::etag('pre', implode('<br />', $debug)) . parent::render();
 	}
 
 	/**
@@ -146,10 +146,10 @@ class Control_Tags extends Control {
 	 */
 	protected function query_tags_used() {
 		if (!$this->selection_type) {
-			throw new Exception_Semantics("Need selection_type set");
+			throw new Exception_Semantics('Need selection_type set');
 		}
 		if (!$this->orm_class_name()) {
-			throw new Exception_Semantics("Need orm_class_name() set");
+			throw new Exception_Semantics('Need orm_class_name() set');
 		}
 		$class_orm = $this->class_orm();
 		assert($class_orm instanceof Class_Tag);
@@ -159,16 +159,16 @@ class Control_Tags extends Control {
 		$application = $this->application;
 		$selection_item_table = $application->orm_registry(Selection_Item::class)->table();
 		$tags_query = $application->orm_registry($this->orm_class_name())
-			->query_select("main")
+			->query_select('main')
 			->link(Label::class, [
 			'alias' => 'label',
 			'path' => 'tag_label',
 		])
 			->addWhat('id', 'label.id')
-			->addWhat("*total", "COUNT(DISTINCT items.id)")
+			->addWhat('*total', 'COUNT(DISTINCT items.id)')
 			->join("INNER JOIN $selection_item_table items ON items.id=main.$member")
 			->where([
-			"items.type" => $this->selection_type->id(),
+			'items.type' => $this->selection_type->id(),
 		])
 			->group_by([
 			'label.id',
@@ -183,7 +183,7 @@ class Control_Tags extends Control {
 	 * @return \zesk\Tag\Label[]
 	 */
 	public function filter_labels($labels) {
-		$labels = $this->call_hook_arguments("filter_labels", [
+		$labels = $this->call_hook_arguments('filter_labels', [
 			$labels,
 		], $labels);
 		$by_id = [];
@@ -201,7 +201,7 @@ class Control_Tags extends Control {
 	 * @return string
 	 */
 	private function action_form_element_name() {
-		return $this->name() . "_action";
+		return $this->name() . '_action';
 	}
 
 	/**
@@ -228,7 +228,7 @@ class Control_Tags extends Control {
 			'action_form_element_name' => $this->action_form_element_name(),
 			'selection_type' => $this->selection_type,
 			'tags_query' => strval($tags_query),
-			'labels_used' => $tags_query->to_array("id", "total"),
+			'labels_used' => $tags_query->to_array('id', 'total'),
 			'labels' => $labels,
 		];
 	}
@@ -274,8 +274,8 @@ class Control_Tags extends Control {
 		$orm->control_add($this, $query);
 
 		if (!$query->execute()) {
-			$error_id = $this->name() . "-" . $label->id();
-			$this->error($this->application->locale->__(__CLASS__ . ":=Unable to add label {name}", $label->variables()), $error_id);
+			$error_id = $this->name() . '-' . $label->id();
+			$this->error($this->application->locale->__(__CLASS__ . ':=Unable to add label {name}', $label->variables()), $error_id);
 			return false;
 		}
 		$this->debug_sqls[] = strval($query);
@@ -296,8 +296,8 @@ class Control_Tags extends Control {
 		$orm->control_remove($this, $query);
 
 		if (!$query->execute()) {
-			$error_id = $this->name() . "-" . $label->id();
-			$this->error($this->application->locale->__(__CLASS__ . ":=Unable to remove label {name}", $label->variables()), $error_id);
+			$error_id = $this->name() . '-' . $label->id();
+			$this->error($this->application->locale->__(__CLASS__ . ':=Unable to remove label {name}', $label->variables()), $error_id);
 			return false;
 		}
 		$this->debug_sqls[] = strval($query);

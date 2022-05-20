@@ -12,7 +12,7 @@ class Contact_Builder_Tag extends Contact_Builder_Base {
 	 *
 	 * @var string
 	 */
-	protected $contact_class = "zesk\\Contact_Tag";
+	protected $contact_class = 'zesk\\Contact_Tag';
 
 	/**
 	 *
@@ -25,7 +25,7 @@ class Contact_Builder_Tag extends Contact_Builder_Base {
 			foreach ($value as $val) {
 				$import->merge_item($this->contact_class, $val, [
 					'Name' => $val,
-					"Account" => "{account}",
+					'Account' => '{account}',
 				]);
 			}
 		}

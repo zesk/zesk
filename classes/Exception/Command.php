@@ -30,9 +30,9 @@ class Exception_Command extends Exception {
 	 */
 	public function __construct($command, $resultcode, array $output) {
 		parent::__construct("{command} exited with result {resultcode}\nOUTPUT:\n{output}\nEND OUTPUT", [
-			"resultcode" => $resultcode,
-			"command" => strval($command),
-			"output" => $output,
+			'resultcode' => $resultcode,
+			'command' => strval($command),
+			'output' => $output,
 		], $resultcode);
 		$this->command = strval($command);
 		$this->output = $output;

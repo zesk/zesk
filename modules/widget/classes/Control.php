@@ -84,7 +84,7 @@ class Control extends Widget {
 		if (!$columns) {
 			return null;
 		}
-		return implode(";", $columns);
+		return implode(';', $columns);
 	}
 
 	/**
@@ -101,10 +101,10 @@ class Control extends Widget {
 	 */
 	protected function query_condition_map(array $set = null) {
 		if (is_array($set)) {
-			$this->setOption("query_condition_map", $set);
+			$this->setOption('query_condition_map', $set);
 			return $this;
 		}
-		return $this->option_array("query_condition_map");
+		return $this->option_array('query_condition_map');
 	}
 
 	/**
@@ -129,10 +129,10 @@ class Control extends Widget {
 		}
 		$value = $this->value();
 		if ($debug) {
-			$this->application->logger->debug("{class} hook_query {columns} {value}", [
-				"class" => get_class($this),
-				"columns" => $columns,
-				"value" => $value,
+			$this->application->logger->debug('{class} hook_query {columns} {value}', [
+				'class' => get_class($this),
+				'columns' => $columns,
+				'value' => $value,
 			]);
 		}
 		if ($value === null || $value === '') {
@@ -146,9 +146,9 @@ class Control extends Widget {
 			$where[$column] = $value;
 		}
 		if (count($where) === 0) {
-			$this->application->logger->warning("{class}::hook_query had columns {columns} but none are valid", [
-				"class" => get_class($this),
-				"columns" => $columns,
+			$this->application->logger->warning('{class}::hook_query had columns {columns} but none are valid', [
+				'class' => get_class($this),
+				'columns' => $columns,
 			]);
 			return false;
 		}
@@ -158,11 +158,11 @@ class Control extends Widget {
 		if ($this->optionBool('skip_query_condition')) {
 			return false;
 		}
-		$query_condition_map = $this->option_array("query_condition_map");
+		$query_condition_map = $this->option_array('query_condition_map');
 		$condition = avalue($query_condition_map, strval($value));
 		$column_name = $this->option('query_column_name', $this->label());
 		if (!$condition) {
-			$condition = __("{column_name} is {value}", compact("column_name", "value"));
+			$condition = __('{column_name} is {value}', compact('column_name', 'value'));
 		}
 		if ($condition) {
 			$query->condition($condition, $this->query_condition_key());
@@ -302,7 +302,7 @@ class Control extends Widget {
 			// <p onmouseover="document.location = 'http://bad-place/';">Move your mouse over this word to get a surprise.</p>
 			// strip_tags with values is NOT safe
 			// TODO Security
-			return strip_tags($value, implode("", ArrayTools::wrap(to_list($allow), '<', '>')));
+			return strip_tags($value, implode('', ArrayTools::wrap(to_list($allow), '<', '>')));
 		}
 		return $value;
 	}

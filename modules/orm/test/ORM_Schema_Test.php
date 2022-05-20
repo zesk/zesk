@@ -11,8 +11,8 @@ namespace zesk;
  */
 class ORM_Schema_Test extends Test_Unit {
 	protected array $load_modules = [
-		"MySQL",
-		"ORM",
+		'MySQL',
+		'ORM',
 	];
 
 	public function initialize(): void {
@@ -25,12 +25,12 @@ class ORM_Schema_Test extends Test_Unit {
 
 		ORM_Schema::debug(true);
 		$this->assert_equal(ORM_Schema::debug(), true);
-		ORM_Schema::debug("Friday");
+		ORM_Schema::debug('Friday');
 		$this->assert_equal(ORM_Schema::debug(), true);
 
 		ORM_Schema::debug(false);
 		$this->assert_equal(ORM_Schema::debug(), false);
-		ORM_Schema::debug("Friday");
+		ORM_Schema::debug('Friday');
 		$this->assert_equal(ORM_Schema::debug(), false);
 
 		ORM_Schema::debug($value);

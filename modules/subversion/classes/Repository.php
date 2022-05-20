@@ -25,26 +25,26 @@ class Repository extends \zesk\Repository_Command {
 	 *
 	 * @var string
 	 */
-	protected $dot_directory = ".svn";
+	protected $dot_directory = '.svn';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $code = "svn";
+	protected $code = 'svn';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $executable = "svn";
+	protected $executable = 'svn';
 
 	/**
 	 * Non-interactive. This is updated during initialize to include the --config-dir directive.
 	 *
 	 * @var string
 	 */
-	protected $arguments = " --non-interactive";
+	protected $arguments = ' --non-interactive';
 
 	/**
 	 * Map from XML status to internal status
@@ -52,10 +52,10 @@ class Repository extends \zesk\Repository_Command {
 	 * @var array
 	 */
 	private static $svn_status_map = [
-		"added" => self::STATUS_ADDED,
-		"modified" => self::STATUS_MODIFIED,
-		"missing" => self::STATUS_MISSING,
-		"unversioned" => self::STATUS_UNVERSIONED,
+		'added' => self::STATUS_ADDED,
+		'modified' => self::STATUS_MODIFIED,
+		'missing' => self::STATUS_MISSING,
+		'unversioned' => self::STATUS_UNVERSIONED,
 	];
 
 	/**
@@ -74,22 +74,22 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	private function arguments_configuration_directory(): void {
 		$app = $this->application;
-		$config_dir = $this->option("config_dir");
+		$config_dir = $this->option('config_dir');
 		if ($config_dir) {
 			$config_dir = $app->paths->expand($config_dir);
 			if (!is_dir($config_dir)) {
-				$app->logger->warning("{class}::config_dir {config_dir} is not a directory", [
-					"class" => get_class($this),
-					"config_dir" => $config_dir,
+				$app->logger->warning('{class}::config_dir {config_dir} is not a directory', [
+					'class' => get_class($this),
+					'config_dir' => $config_dir,
 				]);
 			}
 		} else {
-			$config_dir = $app->paths->home(".subversion");
+			$config_dir = $app->paths->home('.subversion');
 		}
 		if (!$config_dir) {
 			return;
 		}
-		$this->arguments .= " --config-dir " . escapeshellarg($config_dir) . " ";
+		$this->arguments .= ' --config-dir ' . escapeshellarg($config_dir) . ' ';
 	}
 
 	/**
@@ -97,11 +97,11 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	private function arguments_username(): void {
 		$app = $this->application;
-		$username = $this->option("username");
+		$username = $this->option('username');
 		if (!$username) {
 			return;
 		}
-		$this->arguments .= " --username " . escapeshellarg($username) . " ";
+		$this->arguments .= ' --username ' . escapeshellarg($username) . ' ';
 	}
 
 	/**
@@ -193,17 +193,17 @@ class Repository extends \zesk\Repository_Command {
 		$results = [];
 		foreach ($matches as $match) {
 			$result = ArrayTools::map_keys($match, [
-				0 => "raw_status_line",
-				1 => "changed",
-				2 => "directory-properties-changed",
-				3 => "locked-working",
-				4 => "addition-with-history",
-				5 => "switched",
-				6 => "locked-repo",
-				7 => "conflict",
-				8 => "path",
+				0 => 'raw_status_line',
+				1 => 'changed',
+				2 => 'directory-properties-changed',
+				3 => 'locked-working',
+				4 => 'addition-with-history',
+				5 => 'switched',
+				6 => 'locked-repo',
+				7 => 'conflict',
+				8 => 'path',
 			]);
-			$results[$result['path']] = ArrayTools::clean($result, " ");
+			$results[$result['path']] = ArrayTools::clean($result, ' ');
 		}
 		return $results;
 	}
@@ -225,11 +225,11 @@ class Repository extends \zesk\Repository_Command {
 		]);
 		$xml = new \SimpleXMLElement(implode("\n", $result));
 		$results = [];
-		foreach ($xml->xpath("//entry") as $entry) {
+		foreach ($xml->xpath('//entry') as $entry) {
 			/* @var $item \SimpleXMLElement */
 			$attributes = $entry->attributes();
 			$path = strval($attributes['path']);
-			$wc_status = first($entry->xpath("wc-status"));
+			$wc_status = first($entry->xpath('wc-status'));
 			$entry_result = [];
 			if ($wc_status) {
 				$wc_status_attributes = $wc_status->attributes();
@@ -244,7 +244,7 @@ class Repository extends \zesk\Repository_Command {
 				$entry_result[self::ENTRY_VERSION] = strval($wc_status_attributes['revision']);
 			} else {
 				$entry_result[self::ENTRY_STATUS] = self::STATUS_UNKNOWN;
-				$entry_result[self::ENTRY_MESSAGE] = "No wc-status XML child of entry";
+				$entry_result[self::ENTRY_MESSAGE] = 'No wc-status XML child of entry';
 			}
 			$results[$path] = $entry_result;
 		}
@@ -258,8 +258,8 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	public function commit($target = null, $message = null): void {
 		$this->sync($target);
-		$this->run_command("commit -m {message}", [
-			"message" => escapeshellarg($message),
+		$this->run_command('commit -m {message}', [
+			'message' => escapeshellarg($message),
 		]);
 	}
 
@@ -278,23 +278,23 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	public function update($target = null) {
 		if (!$this->validate()) {
-			return $this->run_command("checkout {url} {target}", [
-				"url" => $this->url(),
-				"target" => $this->path($target),
+			return $this->run_command('checkout {url} {target}', [
+				'url' => $this->url(),
+				'target' => $this->path($target),
 			]);
 		} else {
 			if (!$this->url_matches()) {
 				if (!empty($target)) {
-					throw new Exception_Semantics("Can not update repository from an internal target until root is switched to desired url {desired_url}", [
-						"desired_url" => $this->url,
+					throw new Exception_Semantics('Can not update repository from an internal target until root is switched to desired url {desired_url}', [
+						'desired_url' => $this->url,
 					]);
 				}
-				return $this->run_command("switch --ignore-ancestry {url}", [
-					"url" => $this->url,
+				return $this->run_command('switch --ignore-ancestry {url}', [
+					'url' => $this->url,
 				]);
 			} else {
-				return $this->run_command("update --force {target}", [
-					"target" => $this->resolve_target($target),
+				return $this->run_command('update --force {target}', [
+					'target' => $this->resolve_target($target),
 				]);
 			}
 		}
@@ -341,16 +341,16 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	public function need_commit($target = null) {
 		if (!$this->validate()) {
-			throw new Exception_Semantics("{method} can only be called on a valid repository", [
-				"method" => __METHOD__,
+			throw new Exception_Semantics('{method} can only be called on a valid repository', [
+				'method' => __METHOD__,
 			]);
 		}
 		$target = $this->resolve_target($target);
 		$status = $this->status($target);
 		if (count($status) > 0) {
-			$this->application->logger->error("SVN working copy at {target} is out of date with the repository: {files}", [
-				"target" => $target,
-				"files" => array_keys($status),
+			$this->application->logger->error('SVN working copy at {target} is out of date with the repository: {files}', [
+				'target' => $target,
+				'files' => array_keys($status),
 			]);
 			return true;
 		}
@@ -369,7 +369,7 @@ class Repository extends \zesk\Repository_Command {
 		}
 		$command = "revert$extras {target}";
 		$result = $this->run_command($command, [
-			"target" => $target,
+			'target' => $target,
 		]);
 		if (!empty($result)) {
 			$this->application->logger->error("SVN revert failed for {target}:\n{output}", [
@@ -388,16 +388,16 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	protected function sync($target) {
 		$status = $this->status($target);
-		$errors = "";
+		$errors = '';
 		foreach ($status as $f => $entry) {
 			$changed = $entry['changed'];
 			$args = [
-				"file" => $f,
+				'file' => $f,
 			];
 			if ($changed === '?') {
-				$errors .= $this->run_command("add {file}", $args);
+				$errors .= $this->run_command('add {file}', $args);
 			} elseif ($changed === '!') {
-				$errors .= $this->run_command("remove {file}", $args);
+				$errors .= $this->run_command('remove {file}', $args);
 			}
 		}
 		if (!empty($errors)) {
@@ -416,22 +416,22 @@ class Repository extends \zesk\Repository_Command {
 	 * @param $path string Absolute or relative path to retrieve
 	 */
 	private function _info($path = null) {
-		$xml = implode("\n", $this->run_command("info --xml {path}", [
-			"path" => strval($path),
+		$xml = implode("\n", $this->run_command('info --xml {path}', [
+			'path' => strval($path),
 		]));
 		$parsed = new \SimpleXMLElement($xml);
 		foreach ([
-			"url" => "url",
-			"relative-url" => "relative-url",
-			"repository/root" => "root",
-			"repository/uuid" => "uuid",
-			"wc-info/wcroot-abspath" => "working-copy-path",
-			"wc-info/schedule" => "working-copy-schedule",
-			"wc-info/depth" => "working-copy-depth",
-			"commit/author" => "commit-author",
-			"commit/date" => "commit-date",
+			'url' => 'url',
+			'relative-url' => 'relative-url',
+			'repository/root' => 'root',
+			'repository/uuid' => 'uuid',
+			'wc-info/wcroot-abspath' => 'working-copy-path',
+			'wc-info/schedule' => 'working-copy-schedule',
+			'wc-info/depth' => 'working-copy-depth',
+			'commit/author' => 'commit-author',
+			'commit/date' => 'commit-date',
 		] as $xpath => $key) {
-			$result[$key] = strval($parsed->xpath("//entry/" . $xpath)[0]);
+			$result[$key] = strval($parsed->xpath('//entry/' . $xpath)[0]);
 		}
 		return $result;
 	}
@@ -443,30 +443,30 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	public function info($target = null, $component = null) {
 		if (!$this->validate()) {
-			throw new Exception_Semantics("Repository is not initialized");
+			throw new Exception_Semantics('Repository is not initialized');
 		}
 		$path = $this->resolve_target($target);
 
 		try {
-			$xml = implode("\n", $this->run_command("info --xml {path}", [
-				"path" => strval($path),
+			$xml = implode("\n", $this->run_command('info --xml {path}', [
+				'path' => strval($path),
 			]));
 		} catch (\Exception $e) {
 			return [];
 		}
 		$parsed = new \SimpleXMLElement($xml);
 		foreach ([
-			"url" => "url",
-			"relative-url" => "relative-url",
-			"repository/root" => "root",
-			"repository/uuid" => "uuid",
-			"wc-info/wcroot-abspath" => "working-copy-path",
-			"wc-info/schedule" => "working-copy-schedule",
-			"wc-info/depth" => "working-copy-depth",
-			"commit/author" => self::ENTRY_AUTHOR,
-			"commit/date" => self::ENTRY_DATE,
+			'url' => 'url',
+			'relative-url' => 'relative-url',
+			'repository/root' => 'root',
+			'repository/uuid' => 'uuid',
+			'wc-info/wcroot-abspath' => 'working-copy-path',
+			'wc-info/schedule' => 'working-copy-schedule',
+			'wc-info/depth' => 'working-copy-depth',
+			'commit/author' => self::ENTRY_AUTHOR,
+			'commit/date' => self::ENTRY_DATE,
 		] as $xpath => $key) {
-			$result[$key] = strval($parsed->xpath("//entry/" . $xpath)[0]);
+			$result[$key] = strval($parsed->xpath('//entry/' . $xpath)[0]);
 		}
 		if ($component) {
 			return avalue($result, $component, null);
@@ -480,17 +480,17 @@ class Repository extends \zesk\Repository_Command {
 	 * @return string
 	 */
 	public function tags_from_url($url) {
-		$trunk_directory = $this->option("trunk_directory", "trunk");
+		$trunk_directory = $this->option('trunk_directory', 'trunk');
 		$trunk_directory = "/$trunk_directory/";
 
-		$branches_directory = $this->option("branches_directory", "branches");
+		$branches_directory = $this->option('branches_directory', 'branches');
 		$branches_directory = "/$branches_directory/";
 
-		$tags_directory = $this->option("tags_directory", "tags");
+		$tags_directory = $this->option('tags_directory', 'tags');
 		$tags_directory = "/$tags_directory/";
 
 		// Make sure we end with a slash
-		$url = rtrim($url, "/") . "/";
+		$url = rtrim($url, '/') . '/';
 		$min = $mintoken = null;
 		foreach ([
 			$trunk_directory,
@@ -506,7 +506,7 @@ class Repository extends \zesk\Repository_Command {
 			}
 		}
 		if ($min === null) {
-			return rtrim($url, "/") . $tags_directory;
+			return rtrim($url, '/') . $tags_directory;
 		}
 		return StringTools::left($url, $mintoken) . $tags_directory;
 	}
@@ -529,7 +529,7 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	private function normalize_url($url) {
 		$url = URL::normalize($url);
-		return rtrim($url, "/");
+		return rtrim($url, '/');
 	}
 
 	/**
@@ -541,16 +541,16 @@ class Repository extends \zesk\Repository_Command {
 	public function versions() {
 		$url = $this->url;
 		if (!$url) {
-			$info = $this->_info(".");
+			$info = $this->_info('.');
 			$url = $info['url'];
 		}
 		if (!$url) {
-			throw new Exception_Semantics("Need a URL to retrieve versions");
+			throw new Exception_Semantics('Need a URL to retrieve versions');
 		}
 		$tags = $this->tags_from_url($url);
-		$versions = $this->run_command("list {tags}", [
-			"tags" => $tags,
+		$versions = $this->run_command('list {tags}', [
+			'tags' => $tags,
 		]);
-		return $this->rsort_versions(ArrayTools::trim($versions, "./"));
+		return $this->rsort_versions(ArrayTools::trim($versions, './'));
 	}
 }

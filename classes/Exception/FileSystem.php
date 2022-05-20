@@ -27,13 +27,13 @@ class Exception_FileSystem extends Exception {
 	 * @param array $arguments
 	 * @param number $code
 	 */
-	public function __construct($filename = null, $message = "", array $arguments = [], $code = 0) {
+	public function __construct($filename = null, $message = '', array $arguments = [], $code = 0) {
 		$this->filename = $filename;
-		if (!str_contains($message, "{filename}")) {
+		if (!str_contains($message, '{filename}')) {
 			$message = "{filename}: $message";
 		}
 		parent::__construct($message, [
-			"filename" => $filename,
+			'filename' => $filename,
 		] + $arguments, $code);
 	}
 
@@ -50,6 +50,6 @@ class Exception_FileSystem extends Exception {
 	 * @return string
 	 */
 	public function __toString() {
-		return "filename: " . $this->filename . "\n" . parent::__toString();
+		return 'filename: ' . $this->filename . "\n" . parent::__toString();
 	}
 }

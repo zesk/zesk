@@ -23,10 +23,10 @@ class bash {
 		if (preg_match_all('/\${([^}]+)}/', $value, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
 				$variable = $match[1];
-				$default_value = "";
+				$default_value = '';
 				foreach ([
-					":-",
-					":=",
+					':-',
+					':=',
 				] as $sep) {
 					if (str_contains($variable, $sep)) {
 						[$variable, $default_value] = explode($sep, $variable, 2);
@@ -53,7 +53,7 @@ class bash {
 						if ($lower_dependencies) {
 							$variable = strtolower($variable);
 						}
-						$value = str_replace($match[0], strval($settings->get($variable, "")), $value);
+						$value = str_replace($match[0], strval($settings->get($variable, '')), $value);
 						$dependencies[$variable] = true;
 					}
 				}

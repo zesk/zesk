@@ -14,10 +14,10 @@ namespace zesk;
 class Class_Server extends Class_ORM {
 	public const LOCALHOST_IP = '127.0.0.1';
 
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	public array $find_keys = [
-		"name",
+		'name',
 	];
 
 	public array $column_types = [

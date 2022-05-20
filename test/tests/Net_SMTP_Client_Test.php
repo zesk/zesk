@@ -15,25 +15,25 @@ namespace zesk;
  */
 class Net_SMTP_Client_Test extends Test_Unit {
 	public function test_main(): void {
-		$url = $this->option("url");
+		$url = $this->option('url');
 		if (!$url) {
-			$this->markTestIncomplete("No URL specified for " . __CLASS__);
+			$this->markTestIncomplete('No URL specified for ' . __CLASS__);
 		}
-		$from = $this->option("from");
+		$from = $this->option('from');
 		if (!$from) {
-			$this->markTestIncomplete("No from specified for " . __CLASS__);
+			$this->markTestIncomplete('No from specified for ' . __CLASS__);
 		}
-		$to = $this->option("to");
+		$to = $this->option('to');
 		if (!$to) {
-			$this->markTestIncomplete("No to specified for " . __CLASS__);
+			$this->markTestIncomplete('No to specified for ' . __CLASS__);
 		}
 
 		$options = [
-			"echo_log" => true,
+			'echo_log' => true,
 		];
 		$testx = new Net_SMTP_Client($this->application, $url, $options);
 
-		echo "Hello";
+		echo 'Hello';
 
 		$testx->connect();
 

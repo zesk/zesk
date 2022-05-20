@@ -51,32 +51,32 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->dot_env_path($this->option("dot_env_path", $this->application->path()));
-		if ($this->optionBool("routes_enabled")) {
-			$this->application->hooks->add(Application::class . "::router_matched", [
+		$this->dot_env_path($this->option('dot_env_path', $this->application->path()));
+		if ($this->optionBool('routes_enabled')) {
+			$this->application->hooks->add(Application::class . '::router_matched', [
 				$this,
-				"router_matched",
+				'router_matched',
 			]);
 		}
 	}
 
 	private function react_content(Request $request, Response $response) {
 		$request = new Request($this->application, $request);
-		$request->path("/");
+		$request->path('/');
 		return $this->static_handler($request, $response);
 
-		$content = file_get_contents($this->application->document_root("index.html"));
-		$scripts = HTML::extract_tags("script", $content);
+		$content = file_get_contents($this->application->document_root('index.html'));
+		$scripts = HTML::extract_tags('script', $content);
 		foreach ($scripts as $script) {
-			$src = $script->option("src");
-			if (begins($src, "/static/js/") && strpos($src, "bundle.")) {
+			$src = $script->option('src');
+			if (begins($src, '/static/js/') && strpos($src, 'bundle.')) {
 				return $content;
 			}
 		}
-		$prefix = HTML::tag("script", [
-			"src" => "/static/js/bundle.js",
-		], "");
-		return str_replace("</body>", $prefix . "</body>", $content);
+		$prefix = HTML::tag('script', [
+			'src' => '/static/js/bundle.js',
+		], '');
+		return str_replace('</body>', $prefix . '</body>', $content);
 	}
 
 	/**
@@ -85,10 +85,10 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	protected function react_page_route(Router $router) {
 		$module = $this;
 		return new Route_Method($router, null, [
-			"method" => fn (Request $request, Response $response) => $module->react_content($request, $response),
-			"arguments" => [
-				"{request}",
-				"{response}",
+			'method' => fn (Request $request, Response $response) => $module->react_content($request, $response),
+			'arguments' => [
+				'{request}',
+				'{response}',
 			],
 			Route::OPTION_OUTPUT_HANDLER => Response::CONTENT_TYPE_RAW,
 		]);
@@ -106,7 +106,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * @return \zesk\Route|\zesk\Request|NULL
 	 */
 	public function router_matched(Application $app, Request $request, Router $router, Route $route) {
-		if ($route->optionBool("react") && $request->method() === Net_HTTP::METHOD_GET && !$request->prefer_json()) {
+		if ($route->optionBool('react') && $request->method() === Net_HTTP::METHOD_GET && !$request->prefer_json()) {
 			return $this->react_page_route($router)->request($request);
 		}
 		return null;
@@ -140,37 +140,37 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	public function hook_head(Request $request, Response $response, Template $template): void {
 		$app = $this->application;
 		$docroot = $app->document_root();
-		if (ends($docroot, "/build")) {
-			$source = path($docroot, "index.html");
+		if (ends($docroot, '/build')) {
+			$source = path($docroot, 'index.html');
 
 			try {
 				$asset_manifest = $this->asset_manifest();
 				$assets = JSON::decode(File::contents($asset_manifest));
-				$src = "/" . $assets['main.js'];
+				$src = '/' . $assets['main.js'];
 				$response->javascript($src, [
-					"root_dir" => $docroot,
+					'root_dir' => $docroot,
 				]);
 
 				if (isset($assets['main.css'])) {
 					$response->css($assets['main.css'], [
-						"root_dir" => $docroot,
+						'root_dir' => $docroot,
 					]);
 				}
 			} catch (\zesk\Exception_NotFound $e) {
-				$app->logger->emergency("Asset manifest not found {asset_manifest} {e}", [
-					"asset_manifest" => $asset_manifest,
-					"e" => $e,
+				$app->logger->emergency('Asset manifest not found {asset_manifest} {e}', [
+					'asset_manifest' => $asset_manifest,
+					'e' => $e,
 				]);
 			} catch (\zesk\Exception_Syntax $e) {
-				$app->logger->emergency("Unable to parse asset file {asset_manifest} {e}", [
-					"asset_manifest" => $asset_manifest,
-					"e" => $e,
+				$app->logger->emergency('Unable to parse asset file {asset_manifest} {e}', [
+					'asset_manifest' => $asset_manifest,
+					'e' => $e,
 				]);
 			}
 		} else {
 			if ($this->_proxy_prefix($request->host())) {
-				$response->javascript("/static/js/bundle.js", [
-					"is_route" => true,
+				$response->javascript('/static/js/bundle.js', [
+					'is_route' => true,
 				]);
 			}
 		}
@@ -183,7 +183,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 */
 	private function extract_script_names($index_html) {
 		$script_names = [];
-		foreach (HTML::extract_tags("script", file_get_contents($index_html)) as $tag) {
+		foreach (HTML::extract_tags('script', file_get_contents($index_html)) as $tag) {
 			$script_names[] = $tag->src;
 		}
 		return $script_names;
@@ -195,26 +195,26 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
 	public function hook_routes(Router $router): void {
-		$router->add_route("static/*", [
-			"weight" => "first",
-			"method" => [
+		$router->add_route('static/*', [
+			'weight' => 'first',
+			'method' => [
 				$this,
-				"static_handler",
+				'static_handler',
 			],
-			"arguments" => [
-				"{request}",
-				"{response}",
+			'arguments' => [
+				'{request}',
+				'{response}',
 			],
 		]);
-		$router->add_route("sockjs-node/*", [
-			"weight" => "first",
-			"method" => [
+		$router->add_route('sockjs-node/*', [
+			'weight' => 'first',
+			'method' => [
 				$this,
-				"not_found_handler",
+				'not_found_handler',
 			],
-			"arguments" => [
-				"{request}",
-				"{response}",
+			'arguments' => [
+				'{request}',
+				'{response}',
 			],
 		]);
 	}
@@ -245,17 +245,17 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		}
 		$app = $this->application;
 		$config = $app->configuration->path_set(__CLASS__);
-		$dotenv = path($this->dot_env_path, ".env");
+		$dotenv = path($this->dot_env_path, '.env');
 		if (!file_exists($dotenv)) {
-			$this->application->logger->error("{dotenv} needs to be created to support ReactJS proxy", [
-				"dotenv" => $dotenv,
+			$this->application->logger->error('{dotenv} needs to be created to support ReactJS proxy', [
+				'dotenv' => $dotenv,
 			]);
 			return null;
 		}
-		$conf = Configuration_Parser::factory("conf", File::contents($dotenv));
+		$conf = Configuration_Parser::factory('conf', File::contents($dotenv));
 		$settings = $conf->process();
-		$host = aevalue($_SERVER, 'HOST', $settings->get("host", $default_host));
-		$port = aevalue($_SERVER, 'PORT', $settings->get("port", $default_port));
+		$host = aevalue($_SERVER, 'HOST', $settings->get('host', $default_host));
+		$port = aevalue($_SERVER, 'PORT', $settings->get('port', $default_port));
 		return $this->proxy_prefix = "http://$host:$port";
 	}
 
@@ -276,11 +276,11 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		try {
 			$http->go();
 		} catch (Net_HTTP_Client_Exception $e) {
-			$this->application->logger->error("{method} Unable to proxy request {url::path} to {proxy_prefix}: {message}", [
-				"method" => __METHOD__,
-				"proxy_prefix" => $proxy_prefix,
-				"message" => $e->getMessage(),
-			] + $request->variables() + ArrayTools::kprefix($request->url_variables(), "url::"));
+			$this->application->logger->error('{method} Unable to proxy request {url::path} to {proxy_prefix}: {message}', [
+				'method' => __METHOD__,
+				'proxy_prefix' => $proxy_prefix,
+				'message' => $e->getMessage(),
+			] + $request->variables() + ArrayTools::kprefix($request->url_variables(), 'url::'));
 
 			throw new Exception_File_NotFound($http->url());
 		}
@@ -314,23 +314,23 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 			if ($app->development()) {
 				$http = $this->_proxy_path($request);
 				if (!$http) {
-					throw new Exception_System("Unable to determine local hostname to connect to");
+					throw new Exception_System('Unable to determine local hostname to connect to');
 				}
 				$http->proxy_response($response);
 				$response->cache_for(5);
 			} else {
 				$path = $request->path();
-				$response->file($app->path(path("build", $path)));
+				$response->file($app->path(path('build', $path)));
 				$response->cache_forever();
 			}
 		} catch (Exception_File_NotFound $e) {
-			$debug = "";
+			$debug = '';
 			if ($app->development()) {
 				$debug = "\n" . $e->filename();
 			}
-			$response->status(Net_HTTP::STATUS_FILE_NOT_FOUND, "Not found");
+			$response->status(Net_HTTP::STATUS_FILE_NOT_FOUND, 'Not found');
 			$response->content_type(MIME::from_filename($request->path()));
-			return "/* ReactJS File not found" . $debug . " */";
+			return '/* ReactJS File not found' . $debug . ' */';
 		}
 	}
 

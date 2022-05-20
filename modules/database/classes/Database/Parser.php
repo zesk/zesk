@@ -48,11 +48,11 @@ abstract class Database_Parser extends Hookable {
 	 *            Optional desired field.
 	 * @return string|array
 	 */
-	public function parse_sql(string $sql, string $field = ""): string|array {
+	public function parse_sql(string $sql, string $field = ''): string|array {
 		$sql = $this->sql()->remove_comments($sql);
 		$sql = trim($sql);
 		$result = [];
-		if ($sql === "") {
+		if ($sql === '') {
 			$result['command'] = 'none';
 		} elseif (preg_match('/^(create table|insert|update|select|alter|drop table)/i', $sql, $matches)) {
 			$result['command'] = strtolower($matches[1]);
@@ -60,7 +60,7 @@ abstract class Database_Parser extends Hookable {
 				$result['table'] = $this->sql()->unquote_table($matches[1]);
 			}
 		}
-		return ($field === "") ? $result : ($result[$field] ?? $result);
+		return ($field === '') ? $result : ($result[$field] ?? $result);
 	}
 
 	/**
@@ -74,15 +74,15 @@ abstract class Database_Parser extends Hookable {
 	 */
 	public function split_sql_commands(string $sql): array {
 		$map = [
-			"\\'" => '*SLASH_SLASH_QUOTE*',
+			'\\\'' => '*SLASH_SLASH_QUOTE*',
 		];
 		$rev_map = array_flip($map);
 		// Munge our string to make pattern matching easier
 		$sql = strtr($sql, $map);
 		$index = 0;
-		while (preg_match("/'[^']*'/", $sql, $match) !== 0) {
+		while (preg_match('/\'[^\']*\'/', $sql, $match) !== 0) {
 			$from = $match[0];
-			$to = chr(1) . "{" . $index . "}" . chr(2);
+			$to = chr(1) . '{' . $index . '}' . chr(2);
 			$index++;
 			// Map BACK to the original string, not the munged one
 			$map[strtr($from, $rev_map)] = $to;
@@ -90,7 +90,7 @@ abstract class Database_Parser extends Hookable {
 				$from => $to,
 			]);
 		}
-		$sqls = ArrayTools::trim_clean(explode(";", $sql));
+		$sqls = ArrayTools::trim_clean(explode(';', $sql));
 		// Now convert everything back to what it is supposed to be
 		$sqls = tr($sqls, array_flip($map));
 		return $sqls;
@@ -105,9 +105,9 @@ abstract class Database_Parser extends Hookable {
 	public static function parse_factory(Database $db, string $sql, string $source): Database_Parser {
 		$app = $db->application;
 		if ($app->development() && empty($source)) {
-			throw new Exception_Parameter("{method} missing source {args}", [
-				"method" => __METHOD__,
-				"args" => [
+			throw new Exception_Parameter('{method} missing source {args}', [
+				'method' => __METHOD__,
+				'args' => [
 					$sql,
 					$source,
 				],
@@ -124,8 +124,8 @@ abstract class Database_Parser extends Hookable {
 			try {
 				$db = $db_module->scheme_factory($db_scheme);
 			} catch (Exception_NotFound $e) {
-				$app->logger->error("Unable to parse SQL from {source}, halting", [
-					"source" => $source,
+				$app->logger->error('Unable to parse SQL from {source}, halting', [
+					'source' => $source,
 				]);
 
 				throw $e;
@@ -158,19 +158,19 @@ abstract class Database_Parser extends Hookable {
 		 * Remove functions (one-deep)
 		 */
 		$patterns = [
-			"/'[^']*'/",
+			'/\'[^\']*\'/',
 			'/[a-z_][a-z0-9_]*\([^()]*\(([^)]*\)[^()]*)\)/i',
 			'/[a-z_][a-z0-9_]*\([^)]*\)/i',
 		];
 		foreach ($patterns as $pattern) {
 			foreach (preg::matches($pattern, $order_by) as $match) {
-				$map["%#" . count($map) . "#%"] = $match[0];
+				$map['%#' . count($map) . '#%'] = $match[0];
 			}
 		}
 		// Remove tokens from order clause
 		$order_by = tr($order_by, array_flip($map));
 		// Split at commas
-		$order_by = ArrayTools::trim_clean(explode(",", $order_by));
+		$order_by = ArrayTools::trim_clean(explode(',', $order_by));
 		// Convert resulting array and replace removed tokens
 		return tr($order_by, $map);
 	}
@@ -206,6 +206,6 @@ abstract class Database_Parser extends Hookable {
 				$reversed_order_by[] = trim($clause) . ' DESC';
 			}
 		}
-		return $was_string ? implode(", ", $reversed_order_by) : $reversed_order_by;
+		return $was_string ? implode(', ', $reversed_order_by) : $reversed_order_by;
 	}
 }

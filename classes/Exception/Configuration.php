@@ -6,7 +6,7 @@ class Exception_Configuration extends Exception {
 	 *
 	 * @var string
 	 */
-	public string $name = "";
+	public string $name = '';
 
 	/**
 	 *
@@ -18,7 +18,7 @@ class Exception_Configuration extends Exception {
 	public function __construct($name, $message, array $arguments = [], Exception $previous = null) {
 		$this->name = $name;
 		parent::__construct("Configuration error: {name}: $message", [
-			"name" => $name,
+			'name' => $name,
 		] + $arguments, 0, $previous);
 	}
 }

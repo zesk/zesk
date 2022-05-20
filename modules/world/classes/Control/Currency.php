@@ -2,7 +2,7 @@
 namespace zesk;
 
 class Control_Currency extends Control_Select_ORM {
-	protected $class = "zesk\\Currency";
+	protected $class = 'zesk\\Currency';
 
 	protected $options = [
 		'escape_values' => false,
@@ -14,7 +14,7 @@ class Control_Currency extends Control_Select_ORM {
 		foreach ($this->application->orm_registry($this->class)
 			->query_select()
 			->what_object()
-			->order_by("name")
+			->order_by('name')
 			->orm_iterator() as $object) {
 			$options[$object->id()] = $object->apply_map([
 				'label' => '{name} ({symbol})',

@@ -9,9 +9,9 @@ namespace zesk;
  */
 class Module_Selection extends Module {
 	protected array $model_classes = [
-		"zesk\\Selection_Item",
-		"zesk\\Selection_Query",
-		"zesk\\Selection_Type",
+		'zesk\\Selection_Item',
+		'zesk\\Selection_Query',
+		'zesk\\Selection_Type',
 	];
 
 	public function hook_routes(Router $router): void {

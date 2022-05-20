@@ -24,7 +24,7 @@ class Module extends \zesk\Module {
 
 		$module = $this->application->database_module();
 
-		$module->register_scheme("mysql", Database::class);
-		$module->register_scheme("mysqli", Database::class);
+		$module->register_scheme('mysql', Database::class);
+		$module->register_scheme('mysqli', Database::class);
 	}
 }

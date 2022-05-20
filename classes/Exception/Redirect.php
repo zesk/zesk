@@ -24,13 +24,13 @@ class Exception_Redirect extends Exception {
 	 *
 	 * @var string
 	 */
-	public const RESPONSE_STATUS_CODE = "status_code";
+	public const RESPONSE_STATUS_CODE = 'status_code';
 
 	/**
 	 * Pass as an argument to set the `zesk\Response::status_message()`
 	 * @var string
 	 */
-	public const RESPONSE_STATUS_MESSAGE = "status_message";
+	public const RESPONSE_STATUS_MESSAGE = 'status_message';
 
 	/**
 	 * Create a redirect

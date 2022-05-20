@@ -9,16 +9,16 @@ namespace zesk;
 
 class Control_Color extends Control_Text {
 	public function initialize(): void {
-		$this->setOption("show_size", 7, false);
+		$this->setOption('show_size', 7, false);
 		parent::initialize();
 	}
 
 	public function validate() {
-		$this->setOption("id", $this->name());
+		$this->setOption('id', $this->name());
 
 		$name = $this->column();
 		$color = $this->value();
-		if (begins($color, "#")) {
+		if (begins($color, '#')) {
 			$color = substr($color, 1);
 			$this->value($color);
 		}

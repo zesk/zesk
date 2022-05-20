@@ -22,12 +22,12 @@ $link = $this->Link;
 
 ?><dl class="article-list"><?php
 foreach ($aa as $a) {
-	if ($a->member_is_empty("Body")) {
+	if ($a->member_is_empty('Body')) {
 		?><dt><?php echo  $a->Name ?></dt>
 	<dd><?php echo  $a->summary() ?></dd><?php
 	} else {
 		$href = URL::query_format($link, [
-			"ID" => $a->id(),
+			'ID' => $a->id(),
 		]); ?><dt>
 		<a href="<?php echo  $href ?>"><?php echo  $a->Name ?></a>
 	</dt>
@@ -35,6 +35,6 @@ foreach ($aa as $a) {
 	}
 }
 if (count($aa) === 0) {
-	echo $this->option('empty_string', "No current news.");
+	echo $this->option('empty_string', 'No current news.');
 }
 ?></dl>

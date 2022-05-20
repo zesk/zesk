@@ -21,7 +21,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 *
 	 * @var string
 	 */
-	protected string $class = "";
+	protected string $class = '';
 
 	/**
 	 * Locale-specific object class name (e.g. "Link", "Page", etc.)
@@ -31,34 +31,34 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @see $class_name_locale
 	 * @var string
 	 */
-	protected string $class_name = "";
+	protected string $class_name = '';
 
 	/**
 	 * Locale of the class_name for translation
 	 *
 	 * @var string
 	 */
-	protected string $class_name_locale = "";
+	protected string $class_name_locale = '';
 
 	/**
 	 * URL to redirect to if Control_${this->class}_List
 	 *
 	 * @var string
 	 */
-	protected string $not_found_url = "";
+	protected string $not_found_url = '';
 
 	/**
 	 * Message to pass to failed page
 	 *
 	 * @var string
 	 */
-	protected string $not_found_message = "Page not found";
+	protected string $not_found_message = 'Page not found';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected string $not_found_content = "Page not found";
+	protected string $not_found_content = 'Page not found';
 
 	/**
 	 * Action default (override in subclasses)
@@ -67,31 +67,31 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 */
 	protected string $action_default = '';
 
-	protected ?string $method_default_action = "_default_action_object";
+	protected ?string $method_default_action = '_default_action_object';
 
 	/**
 	 *
 	 * @var array
 	 */
 	protected array $actions = [
-		"index" => [
-			"List",
-			"Index",
+		'index' => [
+			'List',
+			'Index',
 		],
-		"list" => [
-			"List",
-			"Index",
+		'list' => [
+			'List',
+			'Index',
 		],
-		"new" => [
-			"New",
-			"Edit",
+		'new' => [
+			'New',
+			'Edit',
 		],
-		"edit" => "Edit",
-		"delete" => [
-			"Delete",
+		'edit' => 'Edit',
+		'delete' => [
+			'Delete',
 		],
-		"duplicate" => [
-			"Edit",
+		'duplicate' => [
+			'Edit',
 		],
 	];
 
@@ -102,14 +102,14 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 *
 	 * @var string
 	 */
-	protected string $actual_action = "";
+	protected string $actual_action = '';
 
 	/**
 	 * Permissions which are required for this object to continue
 	 *
 	 * @var string
 	 */
-	protected string $permission_actions = "";
+	protected string $permission_actions = '';
 
 	/**
 	 * List of widgets tried when loading controller widget
@@ -129,7 +129,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 *
 	 * @var string
 	 */
-	protected string $widget_action = "";
+	protected string $widget_action = '';
 
 	/**
 	 *
@@ -158,14 +158,14 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		parent::initialize();
 		if ($this->class === null) {
 			$controller_class = get_class($this);
-			[$ns, $cl] = pairr($controller_class, "\\", "", $controller_class);
+			[$ns, $cl] = pairr($controller_class, '\\', '', $controller_class);
 			if ($ns) {
-				$ns .= "\\";
+				$ns .= '\\';
 			}
-			$this->class = $ns . StringTools::unprefix($cl, "Controller_");
-			$this->application->logger->debug("Automatically computed ORM class name {class} from {controller_class}", [
-				"controller_class" => $controller_class,
-				"class" => $this->class,
+			$this->class = $ns . StringTools::unprefix($cl, 'Controller_');
+			$this->application->logger->debug('Automatically computed ORM class name {class} from {controller_class}', [
+				'controller_class' => $controller_class,
+				'class' => $this->class,
 			]);
 		}
 		if (!$this->class_name) {
@@ -224,12 +224,12 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @param array $options
 	 */
 	private function _redirect_response($redirect_url, $message, array $options): void {
-		$format = $this->request->get("format");
-		if ($format === "json") {
+		$format = $this->request->get('format');
+		if ($format === 'json') {
 			$this->auto_render = false;
 			$this->response->json()->data([
-				"message" => $message,
-				"redirect_url" => $redirect_url,
+				'message' => $message,
+				'redirect_url' => $redirect_url,
 			] + $options);
 			return;
 		}
@@ -260,7 +260,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	public function arguments_delete($parameter) {
 		$result = $this->_arguments_load($parameter);
 		if ($result[0] === null) {
-			$this->response->redirect("/", $this->application->locale->__("No such object to delete"));
+			$this->response->redirect('/', $this->application->locale->__('No such object to delete'));
 		}
 		return $result;
 	}
@@ -279,33 +279,33 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @param ORM $object
 	 */
 	public function action_delete(ORM $object) {
-		$widget = $this->_action_find_widget("delete", $object);
+		$widget = $this->_action_find_widget('delete', $object);
 		if ($widget) {
-			return $this->_action_default("delete", $object);
+			return $this->_action_default('delete', $object);
 		}
 		$user = $this->user;
-		if ($user->can($object, "delete")) {
+		if ($user->can($object, 'delete')) {
 			$this->call_hook('delete_before', $object);
 			if (!$object->delete()) {
-				$message = get_class($object) . ":=Unable to delete {class_name-context-object-singular} \"{display_name}\".";
+				$message = get_class($object) . ':=Unable to delete {class_name-context-object-singular} "{display_name}".';
 				$result = false;
 			} else {
-				$message = get_class($object) . ":=Deleted {class_name-context-object-singular} \"{display_name}\".";
+				$message = get_class($object) . ':=Deleted {class_name-context-object-singular} "{display_name}".';
 				$result = true;
 			}
 		} else {
-			$message = get_class($object) . ":=You do not have permission to delete {class_name-context-object-singular} \"{display_name}\".";
+			$message = get_class($object) . ':=You do not have permission to delete {class_name-context-object-singular} "{display_name}".';
 			$result = false;
 		}
 		$message = $object->words($this->application->locale->__($message));
-		$redirect_url = $this->_compute_url($object, $result ? "delete_next" : "delete_failed", "/", $this->request->get("ref") ?? "/");
-		$format = $this->request->get("format");
-		if ($format === "json" || $this->request->prefer_json()) {
+		$redirect_url = $this->_compute_url($object, $result ? 'delete_next' : 'delete_failed', '/', $this->request->get('ref') ?? '/');
+		$format = $this->request->get('format');
+		if ($format === 'json' || $this->request->prefer_json()) {
 			$this->auto_render = false;
 			$this->response->json()->data([
-				"message" => $message,
-				"status" => $result,
-				"redirect_url" => $redirect_url,
+				'message' => $message,
+				'status' => $result,
+				'redirect_url' => $redirect_url,
 			]);
 			return;
 		}
@@ -319,7 +319,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	public function action_duplicate(ORM $object) {
 		$user = $this->user;
 		$class = get_class($object);
-		if ($user->can($object, "duplicate")) {
+		if ($user->can($object, 'duplicate')) {
 			$new_object = $object->duplicate();
 			if ($new_object) {
 				$message = "$class:=Duplicated {class_name-context-object-singular} \"{display_name}\".";
@@ -334,12 +334,12 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		$locale = $this->application->locale;
 		$message = $object->words($locale->__($message));
-		$redirect_url = $this->_compute_url($object, $result ? "duplicate_next" : "duplicate_fail", "list", $this->request->get("ref"));
+		$redirect_url = $this->_compute_url($object, $result ? 'duplicate_next' : 'duplicate_fail', 'list', $this->request->get('ref'));
 		$walker = JSONWalker::factory();
 		return $this->_redirect_response($redirect_url, $message, [
-			"status" => $result,
-			"original_object" => $object->json($walker),
-			"object" => $new_object->json($walker),
+			'status' => $result,
+			'original_object' => $object->json($walker),
+			'object' => $new_object->json($walker),
 		]);
 	}
 
@@ -389,10 +389,10 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		/* @var $widget Widget */
 		$this->tried_widgets = [];
 		$controls = [];
-		[$namespace, $class] = pairr($this->class, "\\", "", $this->class);
+		[$namespace, $class] = pairr($this->class, '\\', '', $this->class);
 		foreach ($actual_actions as $actual_action) {
 			//			$controls[$namespace "\\Control_" . $class . "_" . $actual_action] = $actual_action;
-			$controls[$namespace . "\\Control_" . $actual_action . "_" . $class] = $actual_action;
+			$controls[$namespace . '\\Control_' . $actual_action . '_' . $class] = $actual_action;
 		}
 		return $controls;
 	}
@@ -447,24 +447,24 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		$object = $this->application->orm_factory($class, $id);
 		$name = $object->class_orm()->name;
 		$__ = [
-			"name" => $name,
+			'name' => $name,
 		];
 		if (empty($id)) {
-			throw new Exception_Parameter("Invalid {name} ID", $__);
+			throw new Exception_Parameter('Invalid {name} ID', $__);
 		}
 		if (!is_numeric($id) || $id < 0) {
-			throw new Exception_Parameter("Invalid {name} ID", $__);
+			throw new Exception_Parameter('Invalid {name} ID', $__);
 		}
 
 		try {
 			return $object->fetch();
 		} catch (Exception_ORM_NotFound $e) {
-			throw new Exception_Parameter("{name} not found", $__);
+			throw new Exception_Parameter('{name} not found', $__);
 		} catch (Exception_ORM_NotFound $e) {
-			throw new Exception_Parameter("{name} is empty", $__);
+			throw new Exception_Parameter('{name} is empty', $__);
 		} catch (\Exception $e) {
-			throw new Exception_Parameter("{name} unknown error {message}", $__ + [
-				"message" => $e->getMessage(),
+			throw new Exception_Parameter('{name} unknown error {message}', $__ + [
+				'message' => $e->getMessage(),
 			]);
 		}
 	}
@@ -483,7 +483,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$route = $this->route;
 			$action = strval($action);
 			if (empty($action)) {
-				$action = "index";
+				$action = 'index';
 			}
 			if (!array_key_exists($action, $this->actions)) {
 				$url = rtrim($router->prefix() . $route->url_replace('action', $this->action_default), '/');
@@ -491,22 +491,22 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				if ($query) {
 					$url .= "?$query";
 				}
-				$this->application->logger->debug("Action {action} not found in {actions}", [
-					"action" => $action,
-					"actions" => $this->actions,
+				$this->application->logger->debug('Action {action} not found in {actions}', [
+					'action' => $action,
+					'actions' => $this->actions,
 				]);
 				return $this->response->redirect($url);
 			}
-			$ajax = $this->request->getb("ajax");
+			$ajax = $this->request->getb('ajax');
 			if ($ajax) {
 				$this->control_options['ajax'] = true;
 				$this->control_options['no-buttons'] = true;
 			}
 			$widget = $this->_action_find_widget($action);
 			if ($widget === null) {
-				throw new Exception_NotFound($this->application->locale->__("No control found for action {action}: {tried}", [
-					"action" => $action,
-					"tried" => $this->tried_widgets,
+				throw new Exception_NotFound($this->application->locale->__('No control found for action {action}: {tried}', [
+					'action' => $action,
+					'tried' => $this->tried_widgets,
 				]));
 			}
 
@@ -516,22 +516,22 @@ abstract class Controller_ORM extends Controller_Authenticated {
 					$perm_action = $this->actual_action;
 				}
 				if (!$this->user) {
-					throw new Exception_Authentication("Attempting to perform {action}", [
-						"action" => $perm_action,
+					throw new Exception_Authentication('Attempting to perform {action}', [
+						'action' => $perm_action,
 					]);
 				}
 				if ($object instanceof Model) {
 					$perm_actions = $widget->option('permission_actions', $perm_action);
 					$this->user->must($perm_actions, $object);
 				} else {
-					$perm_actions = $widget->option('permission_actions', $this->class . "::" . $perm_action);
+					$perm_actions = $widget->option('permission_actions', $this->class . '::' . $perm_action);
 					$this->user->must($perm_actions);
 				}
 			} catch (Exception_Permission $e) {
 				if ($ajax) {
 					return $this->json([
-						"status" => false,
-						"message" => $e->getMessage(),
+						'status' => false,
+						'message' => $e->getMessage(),
 					]);
 				} else {
 					throw $e;
@@ -551,28 +551,28 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			if (!$object instanceof Model) {
 				$object = null;
 			}
-			$action_prefix = $this->application->locale->__(ucfirst($action)) . " ";
+			$action_prefix = $this->application->locale->__(ucfirst($action)) . ' ';
 
 			$title = $widget->option('title', $this->option('title', $this->route->option('title')));
 			if ($title) {
 				$title = map($title, [
-					"class_name" => $this->class_name,
+					'class_name' => $this->class_name,
 				]);
 			} elseif ($object) {
 				$title = $action_prefix . $this->class_name;
 			}
-			$widget->setOption("class_name", $this->class_name);
+			$widget->setOption('class_name', $this->class_name);
 			return $this->control($widget, $object, [
 				'title' => $title,
-				"action" => $action,
-				"route_action" => $action,
+				'action' => $action,
+				'route_action' => $action,
 			]);
 		} catch (Exception_Class_NotFound $e) {
-			$this->application->hooks->call("exception", $e);
+			$this->application->hooks->call('exception', $e);
 			if ($this->not_found_url) {
 				$this->response->redirect($this->not_found_url, $this->not_found_message);
 			} else {
-				return $this->not_found_content . HTML::tag("div", ".error", $e->getMessage());
+				return $this->not_found_content . HTML::tag('div', '.error', $e->getMessage());
 			}
 		}
 		return null;

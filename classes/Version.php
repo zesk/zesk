@@ -19,28 +19,28 @@ abstract class Version {
 	 *
 	 * @var string
 	 */
-	public const PATH_RELEASE = "etc/db/release";
+	public const PATH_RELEASE = 'etc/db/release';
 
 	/**
 	 * Location of the Zesk current release date
 	 *
 	 * @var string
 	 */
-	public const PATH_RELEASE_DATE = "etc/db/release-date";
+	public const PATH_RELEASE_DATE = 'etc/db/release-date';
 
 	/**
 	 * Cached release version
 	 *
 	 * @var string
 	 */
-	private static string $release = "";
+	private static string $release = '';
 
 	/**
 	 * Cached release date
 	 *
 	 * @var string
 	 */
-	private static string $date = "";
+	private static string $date = '';
 
 	/**
 	 * Fetch a file within the ZESK ROOT and return the trimmed contents
@@ -59,8 +59,8 @@ abstract class Version {
 	 * @return string
 	 */
 	public static function release(): string {
-		if (self::$release === "") {
-			self::$release = self::_file(self::PATH_RELEASE, "-no-release-file-");
+		if (self::$release === '') {
+			self::$release = self::_file(self::PATH_RELEASE, '-no-release-file-');
 		}
 		return self::$release;
 	}
@@ -72,8 +72,8 @@ abstract class Version {
 	 * @return string
 	 */
 	public static function date() {
-		if (self::$date === "") {
-			self::$date = self::_file(self::PATH_RELEASE_DATE, "-no-release-date-");
+		if (self::$date === '') {
+			self::$date = self::_file(self::PATH_RELEASE_DATE, '-no-release-date-');
 		}
 		return self::$date;
 	}
@@ -82,7 +82,7 @@ abstract class Version {
 	 * Zesk version
 	 */
 	public static function string(Locale $locale) {
-		return $locale->__(__METHOD__ . ":={release} (on {date})", self::variables());
+		return $locale->__(__METHOD__ . ':={release} (on {date})', self::variables());
 	}
 
 	/**
@@ -91,8 +91,8 @@ abstract class Version {
 	 */
 	public static function variables(): array {
 		return [
-			"release" => self::release(),
-			"date" => self::date(),
+			'release' => self::release(),
+			'date' => self::date(),
 		];
 	}
 }

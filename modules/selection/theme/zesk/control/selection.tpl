@@ -22,8 +22,8 @@ $session = $this->session;
 $plural_noun = $locale->plural($this->label, 2);
 $singular_noun = $this->label;
 
-$format = "Control_Selection::selection_menu_title:={n} {nouns} selected";
-$zero_format = "Control_Selection::selection_menu_title_zero:=No {nouns} selected";
+$format = 'Control_Selection::selection_menu_title:={n} {nouns} selected';
+$zero_format = 'Control_Selection::selection_menu_title_zero:=No {nouns} selected';
 
 echo HTML::tag_open('div', [
 	'class' => 'control-selection-widget form-group',
@@ -113,9 +113,9 @@ if (is_array($this->actions) && count($this->actions) > 0) {
 				$title = $settings['title'];
 			}
 			$settings['href'] = map($href, [
-			"name" => $this->name,
+			'name' => $this->name,
 		]);
-			echo HTML::tag("li", HTML::tag("a", $settings, $title));
+			echo HTML::tag('li', HTML::tag('a', $settings, $title));
 		}
 		echo HTML::tag_close('ul');
 	}

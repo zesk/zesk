@@ -9,12 +9,12 @@ namespace zesk;
 
 class Database_Query_Union_Test extends Test_Unit {
 	protected array $load_modules = [
-		"MySQL",
-		"ORM",
+		'MySQL',
+		'ORM',
 	];
 
 	public function test_main(): void {
-		$table_name = "Database_Query_Union";
+		$table_name = 'Database_Query_Union';
 
 		$this->test_table($table_name);
 
@@ -24,21 +24,21 @@ class Database_Query_Union_Test extends Test_Unit {
 		$select = new Database_Query_Select($db);
 		$testx->union($select);
 
-		$testx->addWhat("ID");
+		$testx->addWhat('ID');
 
 		$table = $table_name;
 		$alias = '';
 		$testx->from($table, $alias);
 
-		$sql = "INNER JOIN Foo F ON F.ID=B.Foo";
+		$sql = 'INNER JOIN Foo F ON F.ID=B.Foo';
 
 		$testx->addJoin($sql);
 
 		$select->clearWhere();
-		$select->appendWhere(["A" => null]);
-		$select->addWhereSQL("COUNT(A) != COUNT(B)");
+		$select->appendWhere(['A' => null]);
+		$select->addWhereSQL('COUNT(A) != COUNT(B)');
 
-		$group_by = "ID";
+		$group_by = 'ID';
 		$testx->group_by([$group_by]);
 
 		$order_by = null;

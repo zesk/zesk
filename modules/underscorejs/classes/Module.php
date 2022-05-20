@@ -12,7 +12,7 @@ namespace zesk\UnderscoreJS;
 class Module extends \zesk\Module_JSLib {
 	protected $javascript_paths = [
 		'/share/underscorejs/underscore.js' => [
-			"weight" => "first",
+			'weight' => 'first',
 		],
 	];
 }

@@ -35,7 +35,7 @@ class Mail_Test extends Test_Unit {
 		$this->url = $this->option('email_url');
 
 		if (empty($this->url)) {
-			$this->markTestSkipped(__CLASS__ . "::email_url not set");
+			$this->markTestSkipped(__CLASS__ . '::email_url not set');
 		}
 		$this->parts = URL::parse($this->url);
 		if (empty($this->parts)) {
@@ -43,10 +43,10 @@ class Mail_Test extends Test_Unit {
 		}
 		$this->email = $this->option('email', avalue($this->parts, 'user'));
 		if (empty($this->email)) {
-			$this->markTestSkipped(__CLASS__ . "::email set");
+			$this->markTestSkipped(__CLASS__ . '::email set');
 		}
 		if ($this->parts['user'] !== $this->email) {
-			$this->markTestSkipped("User " . $this->parts['user'] . " !== $this->email\n");
+			$this->markTestSkipped('User ' . $this->parts['user'] . " !== $this->email\n");
 		}
 	}
 
@@ -65,29 +65,29 @@ class Mail_Test extends Test_Unit {
 	}
 
 	public function test_parse_address(): void {
-		$email = "John Doe <john@doe.com>";
+		$email = 'John Doe <john@doe.com>';
 		$part = null;
 		$result = Mail::parse_address($email, $part);
 		$this->assert_arrays_equal($result, [
 			'length' => 23,
-			'text' => "John Doe <john@doe.com>",
-			'name' => "John Doe",
-			'email' => "john@doe.com",
-			'user' => "john",
-			'host' => "doe.com",
+			'text' => 'John Doe <john@doe.com>',
+			'name' => 'John Doe',
+			'email' => 'john@doe.com',
+			'user' => 'john',
+			'host' => 'doe.com',
 		], _dump($result));
 	}
 
 	public function test_header_charsets(): void {
-		$header = "=?ISO-8859-1?q?Hello?= =?ISO-8859-2?q?This?= =?ISO-8859-3?q?is?= =?ISO-8859-4?q?a?= =?ISO-8859-5?q?test?= =?ISO-8859-4?X?but_ignore_this_part?= ";
+		$header = '=?ISO-8859-1?q?Hello?= =?ISO-8859-2?q?This?= =?ISO-8859-3?q?is?= =?ISO-8859-4?q?a?= =?ISO-8859-5?q?test?= =?ISO-8859-4?X?but_ignore_this_part?= ';
 		$result = Mail::header_charsets($header);
 
 		$this->assert_arrays_equal($result, [
-			"ISO-8859-1",
-			"ISO-8859-2",
-			"ISO-8859-3",
-			"ISO-8859-4",
-			"ISO-8859-5",
+			'ISO-8859-1',
+			'ISO-8859-2',
+			'ISO-8859-3',
+			'ISO-8859-4',
+			'ISO-8859-5',
 		]);
 	}
 
@@ -152,15 +152,15 @@ class Mail_Test extends Test_Unit {
 				'(=?ISO-8859-1?Q?a_b?=)',
 				'(a b)',
 				[
-					"ISO-8859-1",
+					'ISO-8859-1',
 				],
 			],
 			[
 				'(=?ISO-8859-1?Q?a?= =?iso-8859-2?q?_b?=)',
 				'(a b)',
 				[
-					"ISO-8859-1",
-					"ISO-8859-2",
+					'ISO-8859-1',
+					'ISO-8859-2',
 				],
 			],
 			[
@@ -181,8 +181,8 @@ class Mail_Test extends Test_Unit {
 	=?iso-8859-2?q?_b?=)',
 				'(a b)',
 				[
-					"ISO-8859-1",
-					"ISO-8859-2",
+					'ISO-8859-1',
+					'ISO-8859-2',
 				],
 			],
 		];
@@ -288,7 +288,7 @@ class Mail_Test extends Test_Unit {
 	}
 
 	public function test_load_file(): void {
-		$filename = $this->test_sandbox("mail.txt");
+		$filename = $this->test_sandbox('mail.txt');
 		$contents = <<<EOF
 File-Format: both
 Subject: Test Email
@@ -319,12 +319,12 @@ EOF;
 
 Thanks,
 
-http://www.example.com/unsubscribe?email={email}', "Text failed: " . $result['body_text']);
+http://www.example.com/unsubscribe?email={email}', 'Text failed: ' . $result['body_text']);
 		$this->assert($result['body_html'] === 'This is the <strong>HTML</strong> email.
 
 Thanks,
 
-<a href="http://www.example.com/unsubscribe?email={email}">Unsubscribe</a>', "HTML Failed: " . $result['body_html']);
+<a href="http://www.example.com/unsubscribe?email={email}">Unsubscribe</a>', 'HTML Failed: ' . $result['body_html']);
 	}
 
 	public function test_load_theme(): void {
@@ -337,24 +337,24 @@ Thanks,
 	public function test_mail_array(): void {
 		Mail::debug(true);
 
-		$to = "kent@marketacumen.com";
-		$from = "no-reply@" . System::uname();
+		$to = 'kent@marketacumen.com';
+		$from = 'no-reply@' . System::uname();
 		$subject = null;
 		$array = [
-			"Hello" => "Name",
-			"Boo" => "FEDF",
+			'Hello' => 'Name',
+			'Boo' => 'FEDF',
 		];
-		$prefix = "";
-		$suffix = "";
+		$prefix = '';
+		$suffix = '';
 		Mail::mail_array($this->application, $to, $from, $subject, $array, $prefix, $suffix);
 	}
 
 	public function test_mailer(): void {
 		Mail::debug(true);
 		$headers = [
-			"From" => "no-reply@zesk.com",
-			"To" => "noone@example.com",
-			"Subject" => basename(__FILE__),
+			'From' => 'no-reply@zesk.com',
+			'To' => 'noone@example.com',
+			'Subject' => basename(__FILE__),
 		];
 		$body = "This is the body\n\n--\nnoone@example.com";
 		Mail::mailer($this->application, $headers, $body);
@@ -380,8 +380,8 @@ Thanks,
 		Mail::debug(true);
 
 		$mail_options = [
-			"From" => "kent@zesk.com",
-			"To" => "no-reply@zesk.com",
+			'From' => 'kent@zesk.com',
+			'To' => 'no-reply@zesk.com',
 		];
 		$attachments = null;
 		Mail::multipart_send($this->application, $mail_options, $attachments);
@@ -393,10 +393,10 @@ Thanks,
 	public function test_send_sms(): void {
 		Mail::debug(true);
 
-		$to = "John@dude.com";
-		$from = "kent@example.com";
-		$subject = "You are the man!";
-		$body = "All work and no play makes Kent a dull boy.
+		$to = 'John@dude.com';
+		$from = 'kent@example.com';
+		$subject = 'You are the man!';
+		$body = 'All work and no play makes Kent a dull boy.
 All work and no play makes Kent a dull boy.
 All work and no play makes Kent a dull boy.
 All work and no play makes Kent a dull boy.
@@ -405,7 +405,7 @@ All work and no play makes Kent a dull boy.
 All work and no play makes Kent a dull boy.
 All work and no play makes Kent a dull boy.
 All work and no play makes Kent a dull boy.
-";
+';
 		$cc = false;
 		$bcc = false;
 		$headers = false;
@@ -419,18 +419,18 @@ All work and no play makes Kent a dull boy.
 		Mail::debug(false);
 		$pop_url = $this->url;
 		if (!URL::valid($pop_url)) {
-			$this->markTestSkipped("No POP URL specified in " . __CLASS__ . "::email_url");
+			$this->markTestSkipped('No POP URL specified in ' . __CLASS__ . '::email_url');
 		}
 		$to = $this->email;
 		$from = 'Don\'t bother replying <no-reply@zesk.com>';
-		$subject = "Test email: AUTO_DELETE";
-		$body = "Test body";
+		$subject = 'Test email: AUTO_DELETE';
+		$body = 'Test body';
 		$cc = false;
 		$bcc = false;
 		$headers[] = 'X-Bogus-Header: This is a bogus header';
 
 		$this->log("Sending mail to $to");
-		$this->assert_instanceof(Mail::sendmail($this->application, $to, $from, $subject, $body, $cc, $bcc, $headers), __NAMESPACE__ . "\\" . "Mail");
+		$this->assert_instanceof(Mail::sendmail($this->application, $to, $from, $subject, $body, $cc, $bcc, $headers), __NAMESPACE__ . '\\' . 'Mail');
 
 		$test_mailbox = $to;
 		$n_seconds = 1;
@@ -438,16 +438,16 @@ All work and no play makes Kent a dull boy.
 		$timer = new Timer();
 		do {
 			$pop = new Net_POP_Client($this->application, $pop_url, [
-				"echo_log" => false,
+				'echo_log' => false,
 			]);
 			$iterator = $pop->iterator();
 			foreach ($iterator as $headers) {
-				$remote_subject = avalue($headers, "subject");
+				$remote_subject = avalue($headers, 'subject');
 				$this->application->logger->debug("checking subject: $remote_subject");
 				if ($remote_subject === $subject) {
 					$iterator->current_delete();
-					$bogus_header = avalue($headers, "x-bogus-header");
-					if ($bogus_header === "This is a bogus header") {
+					$bogus_header = avalue($headers, 'x-bogus-header');
+					if ($bogus_header === 'This is a bogus header') {
 						$success = true;
 
 						break 2;

@@ -13,11 +13,11 @@ class Lists_Test extends Test_Unit {
 	public function append_data_provider() {
 		$lists = [
 			[
-				"a",
-				"b",
-				"c",
-				"dee",
-				"random",
+				'a',
+				'b',
+				'c',
+				'dee',
+				'random',
 			],
 			[],
 			[
@@ -29,37 +29,37 @@ class Lists_Test extends Test_Unit {
 			],
 		];
 		$seps = [
-			";",
-			".",
-			"/",
-			" ",
-			"DUDE",
+			';',
+			'.',
+			'/',
+			' ',
+			'DUDE',
 		];
 		$adds = [
 			[
-				"a",
-				"b",
-				"c",
-				"dee",
-				"random",
+				'a',
+				'b',
+				'c',
+				'dee',
+				'random',
 			],
 			[
-				"dude",
+				'dude',
 			],
 			[],
 			[
 				null,
 			],
 			[
-				"",
-				"",
-				"",
+				'',
+				'',
+				'',
 			],
 			[
 				1,
 				2,
 				3,
-				"",
+				'',
 			],
 			[
 				1,
@@ -103,10 +103,10 @@ class Lists_Test extends Test_Unit {
 	 */
 	public function test_append($list, $add, $sep, $expected): void {
 		$actual = Lists::append($list, $add, $sep);
-		$this->assert_equal(type($actual), type($expected), "Type of list does not match return type");
+		$this->assert_equal(type($actual), type($expected), 'Type of list does not match return type');
 		$this->assert_equal($actual, $expected, map("Lists::append({list}, {add}, \"$sep\")", [
-			"list" => _dump($list),
-			"add" => _dump($add),
+			'list' => _dump($list),
+			'add' => _dump($add),
 		]), false);
 	}
 
@@ -128,12 +128,12 @@ class Lists_Test extends Test_Unit {
 		$llist = null;
 		$item = null;
 		$sep = ';';
-		$this->assert_true(Lists::contains("a;b;c;d;ee;ff", "a"));
-		$this->assert_true(Lists::contains("a;b;c;d;ee;ff", "b"));
-		$this->assert_true(Lists::contains("a;b;c;d;ee;ff", "c"));
-		$this->assert_true(Lists::contains("a;b;c;d;ee;ff", "d"));
-		$this->assert_true(Lists::contains("a;b;c;d;ee;ff", "ee"));
-		$this->assert_true(Lists::contains("a;b;c;d;ee;ff", "ff"));
+		$this->assert_true(Lists::contains('a;b;c;d;ee;ff', 'a'));
+		$this->assert_true(Lists::contains('a;b;c;d;ee;ff', 'b'));
+		$this->assert_true(Lists::contains('a;b;c;d;ee;ff', 'c'));
+		$this->assert_true(Lists::contains('a;b;c;d;ee;ff', 'd'));
+		$this->assert_true(Lists::contains('a;b;c;d;ee;ff', 'ee'));
+		$this->assert_true(Lists::contains('a;b;c;d;ee;ff', 'ff'));
 	}
 
 	public function test_pop(): void {
@@ -157,9 +157,9 @@ class Lists_Test extends Test_Unit {
 	}
 
 	public function test_unique(): void {
-		$llist = "X;a;A;b;b;c;c;D;F;a;X";
-		$sep = ";";
-		$this->assert(Lists::unique($llist, $sep) === "X;a;A;b;c;D;F");
+		$llist = 'X;a;A;b;b;c;c;D;F;a;X';
+		$sep = ';';
+		$this->assert(Lists::unique($llist, $sep) === 'X;a;A;b;c;D;F');
 
 		echo basename(__FILE__) . ": success\n";
 	}

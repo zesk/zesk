@@ -38,7 +38,7 @@ div.redirect a {
 </style>
 <?php
 
-$response->html()->css_inline(HTML::extract_tag_contents("style", ob_get_clean()));
+$response->html()->css_inline(HTML::extract_tag_contents('style', ob_get_clean()));
 
 $this->begin('body/exception.tpl');
 

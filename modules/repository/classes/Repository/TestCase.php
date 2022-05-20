@@ -40,19 +40,19 @@ class Repository_TestCase extends PHPUnit_TestCase {
 		$this_class = get_class($this);
 		$config_path = [
 			$this_class,
-			"repository_path",
+			'repository_path',
 		];
 		$config_url = [
 			$this_class,
-			"repository_url",
+			'repository_url',
 		];
-		$this->path = rtrim($this->configuration->path_get($config_path), "/");
-		$this->url = rtrim($this->configuration->path_get($config_url), "/");
-		$this->assertNotEmpty($this->path, map("Configuration {config_path} is not set up", [
-			"config_path" => $config_path,
+		$this->path = rtrim($this->configuration->path_get($config_path), '/');
+		$this->url = rtrim($this->configuration->path_get($config_url), '/');
+		$this->assertNotEmpty($this->path, map('Configuration {config_path} is not set up', [
+			'config_path' => $config_path,
 		]));
-		$this->assertNotEmpty($this->url, map("Configuration {config_url} is not set up", [
-			"config_url" => $config_url,
+		$this->assertNotEmpty($this->url, map('Configuration {config_url} is not set up', [
+			'config_url' => $config_url,
 		]));
 		return $this->path;
 	}
@@ -72,19 +72,19 @@ class Repository_TestCase extends PHPUnit_TestCase {
 	 * @depends testConfiguration
 	 */
 	public function testFactory($path) {
-		$this->assertNotCount(0, $this->repository_types, "Must initialize " . get_class($this) . "->repository_types to a non-zero list of types");
+		$this->assertNotCount(0, $this->repository_types, 'Must initialize ' . get_class($this) . '->repository_types to a non-zero list of types');
 		$repo = null;
 		$this->repository_options = to_array($this->configuration->path_get([
 			get_class($this),
-			"repository_options",
+			'repository_options',
 		]));
 		foreach ($this->repository_types as $repository_type) {
 			$repo = Repository::factory($this->application, $repository_type, $path, [
-				"test_option" => "dude",
+				'test_option' => 'dude',
 			] + $this->repository_options);
 			$this->assertInstanceOf($this->repository_class, $repo);
 			$this->assertEquals($path, $repo->path());
-			$this->assertEquals($repo->option("test_option"), "dude");
+			$this->assertEquals($repo->option('test_option'), 'dude');
 		}
 		return $repo;
 	}

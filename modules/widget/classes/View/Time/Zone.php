@@ -17,28 +17,28 @@ namespace zesk;
  */
 class View_Time_Zone extends View_Text {
 	public function render() {
-		$pp = $this->option("format", null);
+		$pp = $this->option('format', null);
 		if ($pp === null) {
 			$pp = parent::render();
 		}
 		$object = $this->object;
 		$text = $object->apply_map($pp);
-		$href = $object->apply_map($this->option("href", ""));
+		$href = $object->apply_map($this->option('href', ''));
 		if (empty($text)) {
 			$text = $this->empty_string();
-		} elseif (!$this->optionBool("HTML")) {
+		} elseif (!$this->optionBool('HTML')) {
 			$text = htmlspecialchars($text);
 		}
-		$attrs = $object->apply_map($this->options_include("target;class;onclick"));
+		$attrs = $object->apply_map($this->options_include('target;class;onclick'));
 		$uri = $this->request->uri();
-		$add_ref = $this->option("add_ref", URL::query_remove($uri, "message"));
+		$add_ref = $this->option('add_ref', URL::query_remove($uri, 'message'));
 		if ($add_ref) {
-			$href = URL::query_format(URL::query_remove($href, "ref"), [
-				"ref" => $add_ref,
+			$href = URL::query_format(URL::query_remove($href, 'ref'), [
+				'ref' => $add_ref,
 			]);
 		}
 		$attrs['href'] = $href;
-		$result = HTML::tag("a", $attrs, HTML::ellipsis($text, $this->option("ShowSize", -1), $this->option("Ellipsis", "...")));
+		$result = HTML::tag('a', $attrs, HTML::ellipsis($text, $this->option('ShowSize', -1), $this->option('Ellipsis', '...')));
 		return $this->render_finish($object, $result);
 	}
 }

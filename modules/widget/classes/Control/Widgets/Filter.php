@@ -32,19 +32,19 @@ class Control_Widgets_Filter extends Control_Widgets {
 	 */
 	protected function initialize_filter(): void {
 		if ($this->filter === null) {
-			$filters = $this->call_hook("filters");
+			$filters = $this->call_hook('filters');
 			if (count($filters) > 0) {
-				$options = $this->options_include("URI;filter_preserve_include;filter_preserve_exclude;ajax_id;filter_form_id");
+				$options = $this->options_include('URI;filter_preserve_include;filter_preserve_exclude;ajax_id;filter_form_id');
 				$options = ArrayTools::map_keys($options, [
-					"filter_form_id" => "form_id",
+					'filter_form_id' => 'form_id',
 				]);
-				$options['id'] = $options['column'] = "filter";
+				$options['id'] = $options['column'] = 'filter';
 				$this->filter = new Control_Filter($this->application, $options);
 				$this->filter->children($filters);
-				$this->filter->wrap("div", ".filters");
+				$this->filter->wrap('div', '.filters');
 				$this->child($this->filter);
 
-				$this->call_hook("initialize_filter");
+				$this->call_hook('initialize_filter');
 			}
 		}
 	}

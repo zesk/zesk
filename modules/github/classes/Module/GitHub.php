@@ -12,9 +12,9 @@ class Module_GitHub extends Module {
 	 * @see https://developer.github.com/v3/repos/releases/#create-a-release
 	 * @var string
 	 */
-	public const API_ENDPOINT_RELEASE = "https://api.github.com/repos/{owner}/{repository}/releases?access_token={access_token}";
+	public const API_ENDPOINT_RELEASE = 'https://api.github.com/repos/{owner}/{repository}/releases?access_token={access_token}';
 
-	public const MISSING_TOKEN = "*MISSING*OPTION*";
+	public const MISSING_TOKEN = '*MISSING*OPTION*';
 
 	/**
 	 *
@@ -22,7 +22,7 @@ class Module_GitHub extends Module {
 	 * @return array
 	 */
 	public function hook_version_updated(array $settings) {
-		if (!$this->optionBool("tag-on-version-update")) {
+		if (!$this->optionBool('tag-on-version-update')) {
 			return $settings;
 		}
 		$version = null;
@@ -30,23 +30,23 @@ class Module_GitHub extends Module {
 		$commitish = null;
 		extract($settings, EXTR_IF_EXISTS);
 		if (!$commitish) {
-			$commitish = $this->option("commitish");
+			$commitish = $this->option('commitish');
 		}
 		if ($version) {
 			if (!$this->has_credentials()) {
-				$this->application->logger->warning("{class} is not configured: need options owner, repository, and access_token to generate release for version {version}", [
-					"class" => get_class($this),
-					"version" => $version,
+				$this->application->logger->warning('{class} is not configured: need options owner, repository, and access_token to generate release for version {version}', [
+					'class' => get_class($this),
+					'version' => $version,
 				]);
 				return $settings;
 			}
 			if (!$this->generate_tag("v$version", $commitish)) {
-				$this->application->logger->error("Unable to generate a tag for {version}", [
-					"version" => $version,
+				$this->application->logger->error('Unable to generate a tag for {version}', [
+					'version' => $version,
 				]);
 			} else {
-				$this->application->logger->info("Generated {version} for {owner}/{repository}", [
-					"version" => $version,
+				$this->application->logger->info('Generated {version} for {owner}/{repository}', [
+					'version' => $version,
 				] + $this->options);
 			}
 		}
@@ -58,7 +58,7 @@ class Module_GitHub extends Module {
 	 * @return boolean
 	 */
 	public function has_credentials() {
-		return $this->hasOption("owner") && $this->hasOption("repository") && $this->hasOption("access_token");
+		return $this->hasOption('owner') && $this->hasOption('repository') && $this->hasOption('access_token');
 	}
 
 	/**
@@ -71,18 +71,18 @@ class Module_GitHub extends Module {
 			$description = "Release of version $name";
 		}
 		if (!$commitish) {
-			$commitish = "master";
+			$commitish = 'master';
 		}
 		$json_struct = [
-			"tag_name" => $name,
-			"target_commitish" => $commitish,
-			"name" => $name,
-			"body" => $description,
-			"draft" => false,
-			"prerelase" => false,
+			'tag_name' => $name,
+			'target_commitish' => $commitish,
+			'name' => $name,
+			'body' => $description,
+			'draft' => false,
+			'prerelase' => false,
 		];
 		$missing = self::MISSING_TOKEN;
-		$url = map(self::API_ENDPOINT_RELEASE, $this->options + ["owner" => $missing, "repository" => $missing, "access_token" => $missing]);
+		$url = map(self::API_ENDPOINT_RELEASE, $this->options + ['owner' => $missing, 'repository' => $missing, 'access_token' => $missing]);
 		$client = new Net_HTTP_Client($this->application, $url);
 		$client->method(Net_HTTP::METHOD_POST);
 		$client->data(JSON::encode($json_struct));
@@ -92,7 +92,7 @@ class Module_GitHub extends Module {
 			$this->application->logger->info(JSON::encode_pretty(JSON::decode($content)));
 			return true;
 		}
-		$this->application->logger->error("Error with request: {response_code} {response_message} {response_data}", $client->response_variables());
+		$this->application->logger->error('Error with request: {response_code} {response_message} {response_data}', $client->response_variables());
 		return false;
 	}
 }

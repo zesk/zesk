@@ -6,7 +6,7 @@ namespace zesk;
 
 class Control_Pairs extends Control {
 	protected $options = [
-		"default" => [],
+		'default' => [],
 	];
 
 	public function validate() {
@@ -16,7 +16,7 @@ class Control_Pairs extends Control {
 	private function _from_request() {
 		$col = $this->column();
 		$names = $this->request->geta($col);
-		$values = $this->request->geta($col . "_value");
+		$values = $this->request->geta($col . '_value');
 		$result = [];
 		foreach ($names as $k => $name) {
 			$value = avalue($values, $k);

@@ -14,6 +14,6 @@ $title = $link ? HTML::tag('a', [
 	'href' => $link,
 ], $object->title) : $object->title;
 echo HTML::div_open('.feed-item');
-echo HTML::tag("h2", $title);
+echo HTML::tag('h2', $title);
 echo $object->description;
 echo HTML::div_close();

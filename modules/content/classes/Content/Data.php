@@ -136,7 +136,7 @@ class Content_Data extends ORM {
 		$result = [];
 		$result['data_path'] = $app->paths->data();
 		$result['original_path'] = $source_path;
-		$result['path'] = 'content/data/' . $md5 . "." . File::extension($source_path);
+		$result['path'] = 'content/data/' . $md5 . '.' . File::extension($source_path);
 
 		$dest = path($result['data_path'], $result['path']);
 
@@ -146,23 +146,23 @@ class Content_Data extends ORM {
 
 		if ($data !== null) {
 			if (!file_put_contents($dest, $data)) {
-				throw new Exception_File_Create($locale->__("Can not copy {size} data to {dest}", [
-					"size" => strlen($data),
-					"dest" => $dest,
+				throw new Exception_File_Create($locale->__('Can not copy {size} data to {dest}', [
+					'size' => strlen($data),
+					'dest' => $dest,
 				]));
 			}
 		} elseif ($copy) {
 			if (!copy($source_path, $dest)) {
-				throw new Exception_File_Create($locale->__("Can not copy {path} to {dest}", [
-					"path" => $source_path,
-					"dest" => $dest,
+				throw new Exception_File_Create($locale->__('Can not copy {path} to {dest}', [
+					'path' => $source_path,
+					'dest' => $dest,
 				]));
 			}
 		} else {
 			if (!rename($source_path, $dest)) {
-				throw new Exception_File_Create($locale->__("Can not rename {path} to {dest}", [
-					"path" => $source_path,
-					"dest" => $dest,
+				throw new Exception_File_Create($locale->__('Can not rename {path} to {dest}', [
+					'path' => $source_path,
+					'dest' => $dest,
 				]));
 			}
 		}
@@ -306,7 +306,7 @@ class Content_Data extends ORM {
 	 */
 	private function check_md5_and_size($computed_md5, $computed_size): void {
 		if (strcasecmp($computed_md5, $this->md5hash) !== 0) {
-			$this->application->logger->error("Content_data({ID}) {noun} appears to have changed {suffix}: {md5hash} (old) !== {md5hashNew} (new)", [
+			$this->application->logger->error('Content_data({ID}) {noun} appears to have changed {suffix}: {md5hash} (old) !== {md5hashNew} (new)', [
 				'md5hashNew' => $computed_md5,
 			] + $this->members());
 			if ($this->optionBool('repair;repair_checksums')) {
@@ -314,7 +314,7 @@ class Content_Data extends ORM {
 			}
 		}
 		if ($computed_size !== $this->size) {
-			$this->application->logger->error("Content_data({ID}) {noun} appears to have changed size {suffix}: {size} (old) !== {sizeNew} (new)", [
+			$this->application->logger->error('Content_data({ID}) {noun} appears to have changed size {suffix}: {size} (old) !== {sizeNew} (new)', [
 				'sizeNew' => $computed_size,
 			] + $this->members());
 			if ($this->firstOption('repair;repair_sizes')) {
@@ -329,7 +329,7 @@ class Content_Data extends ORM {
 	protected function validate_and_repair(): void {
 		if ($this->type === 'path') {
 			if (!is_array($this->data)) {
-				$this->application->logger->error("Content_data({ID}) has non array data", $this->members());
+				$this->application->logger->error('Content_data({ID}) has non array data', $this->members());
 				return;
 			}
 			$this_path = $this->_filepath();
@@ -339,24 +339,24 @@ class Content_Data extends ORM {
 				$old_path = path($data_path, $path);
 				if (file_exists($old_path)) {
 					if (File::copy_uid_gid($old_path, $this_path)) {
-						$this->application->logger->notice("Content_data({ID}) Moved {old_path} to {new_path}", [
+						$this->application->logger->notice('Content_data({ID}) Moved {old_path} to {new_path}', [
 							'old_path' => $old_path,
-							"new_path" => $this_path,
+							'new_path' => $this_path,
 						] + $this->members());
 						$this->data['data_path'] = $this->application->paths->data();
 					} else {
-						$this->application->logger->error("Content_data({ID}) Unable to move {old_path} to {new_path}", [
+						$this->application->logger->error('Content_data({ID}) Unable to move {old_path} to {new_path}', [
 							'old_path' => $old_path,
-							"new_path" => $this_path,
+							'new_path' => $this_path,
 						] + $this->members());
 					}
 				} else {
-					$this->application->logger->error("Content_data({ID}) appears to have disappeared: {old_path}/{new_path}", [
+					$this->application->logger->error('Content_data({ID}) appears to have disappeared: {old_path}/{new_path}', [
 						'old_path' => $old_path,
-						"new_path" => $this_path,
+						'new_path' => $this_path,
 					] + $this->members());
 					if ($this->member_is_empty('missing')) {
-						$this->missing = "now";
+						$this->missing = 'now';
 					}
 				}
 			}
@@ -367,14 +367,14 @@ class Content_Data extends ORM {
 				]);
 			}
 		} elseif ($this->type !== 'data') {
-			$this->application->logger->error("Content_data({ID}) Invalid type {type}", $this->members());
+			$this->application->logger->error('Content_data({ID}) Invalid type {type}', $this->members());
 		} else {
 			$this->check_md5_and_size(md5($this->data), strlen($this->data), [
 				'noun' => 'database data',
 				'suffix' => '',
 			]);
 		}
-		$this->checked = "now";
+		$this->checked = 'now';
 		$this->store();
 	}
 
@@ -406,13 +406,13 @@ class Content_Data extends ORM {
 		if (!self::$checked_db) {
 			$size = $data->database()->feature(Database::FEATURE_MAX_BLOB_SIZE);
 			if ($size < $result) {
-				$data->setOption("database_size_threshold", $result);
+				$data->setOption('database_size_threshold', $result);
 				$application->configuration->path_set([
 					__CLASS__,
-					"database_size_threshold",
+					'database_size_threshold',
 				], $result);
-				$application->logger->warning("{class}::database_size_threshold Database size threshold {result} is beyond database setting of {size} - adjusting", [
-					"class" => __CLASS__,
+				$application->logger->warning('{class}::database_size_threshold Database size threshold {result} is beyond database setting of {size} - adjusting', [
+					'class' => __CLASS__,
 					'size' => $size,
 					'result' => $result,
 				]);
@@ -427,18 +427,18 @@ class Content_Data extends ORM {
 	 * Run cron hourly to check files in file system to make sure they are still consistent.
 	 */
 	public static function cron_hourly(Application $application): void {
-		foreach ($application->class_query(__CLASS__)->where("*checked|<=", 'DATE_SUB(UTC_TIMESTAMP(),INTERVAL 1 DAY)')->orm_iterator() as $object) {
+		foreach ($application->class_query(__CLASS__)->where('*checked|<=', 'DATE_SUB(UTC_TIMESTAMP(),INTERVAL 1 DAY)')->orm_iterator() as $object) {
 			$object->validate_and_repair();
 		}
 		$threshold = self::database_size_threshold($application);
 		foreach ($application->class_query(__CLASS__)
-			->where("*size|<=", $threshold)
+			->where('*size|<=', $threshold)
 			->where('type', 'path')
 			->orm_iterator() as $object) {
 			$object->switch_storage();
 		}
 		foreach ($application->class_query(__CLASS__)
-			->where("*size|>", $threshold)
+			->where('*size|>', $threshold)
 			->where('type', 'data')
 			->orm_iterator() as $object) {
 			$object->switch_storage();

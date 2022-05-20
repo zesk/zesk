@@ -37,8 +37,8 @@ class Feed extends Model implements \Iterator {
 	public function url($set = null) {
 		if ($set !== null) {
 			if (!URL::valid($set)) {
-				throw new Exception_Syntax("Invalid URL {url}", [
-					"url" => $set,
+				throw new Exception_Syntax('Invalid URL {url}', [
+					'url' => $set,
 				]);
 			}
 			$this->url = $set;
@@ -52,7 +52,7 @@ class Feed extends Model implements \Iterator {
 	}
 
 	private static function process_error(\LibXMLError $error) {
-		$result = "";
+		$result = '';
 		// 		$return = $xml[$error->line - 1] . "\n";
 		// 		$return .= str_repeat('-', $error->column) . "^\n";
 		switch ($error->level) {
@@ -95,10 +95,10 @@ class Feed extends Model implements \Iterator {
 	 */
 	public function load_remote_url() {
 		$http = new Net_HTTP_Client($this->application, $this->url);
-		if ($this->hasOption("user_agent")) {
-			$http->user_agent($this->option("user_agent"));
+		if ($this->hasOption('user_agent')) {
+			$http->user_agent($this->option('user_agent'));
 		}
-		$http->request_header(Net_HTTP::REQUEST_ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
+		$http->request_header(Net_HTTP::REQUEST_ACCEPT, 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8');
 
 		try {
 			$content = $http->go();

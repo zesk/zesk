@@ -8,7 +8,7 @@ class Module_InPlace extends Module_JSLib {
 	 * @var array
 	 */
 	protected $css_paths = [
-		"/share/inplace/css/inplace.css" => [
+		'/share/inplace/css/inplace.css' => [
 			'share' => true,
 		],
 	];
@@ -19,7 +19,7 @@ class Module_InPlace extends Module_JSLib {
 	 * @var array
 	 */
 	protected $javascript_paths = [
-		"/share/inplace/js/jquery.inplace.js" => [
+		'/share/inplace/js/jquery.inplace.js' => [
 			'share' => true,
 		],
 	];

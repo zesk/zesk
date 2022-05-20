@@ -15,24 +15,24 @@ namespace zesk;
 
 /* @var $exception Exception */
 if ($response->status_code === Net_HTTP::STATUS_OK) {
-	$response->status(Net_HTTP::STATUS_INTERNAL_SERVER_ERROR, "Exception");
+	$response->status(Net_HTTP::STATUS_INTERNAL_SERVER_ERROR, 'Exception');
 }
 $exception = $this->exception;
 $class = get_class($this->exception);
 
 $application->logger->error("Exception: {exception_class}\nMessage: {message}\nServer:\n{server}\nRequest:\n{request}\nException: {exception_class}\nBacktrace:\n{backtrace}\n{exception}", [
-	"server" => Text::format_pairs($_SERVER),
-	"request" => Text::format_pairs($_REQUEST),
-	"exception_class" => $class,
-	"exception" => $exception,
-	"message" => $exception->getMessage(),
-	"backtrace" => $exception->getTraceAsString(),
+	'server' => Text::format_pairs($_SERVER),
+	'request' => Text::format_pairs($_REQUEST),
+	'exception_class' => $class,
+	'exception' => $exception,
+	'message' => $exception->getMessage(),
+	'backtrace' => $exception->getTraceAsString(),
 ]);
 
 $this->begin('body/exception.tpl');
 
 if (!$exception instanceof Exception) {
-	$message = "Not an exception: " . type($exception);
+	$message = 'Not an exception: ' . type($exception);
 	$trace = debug_backtrace();
 } else {
 	$message = $exception->getMessage();
@@ -42,7 +42,7 @@ $dev = $this->application->development();
 ?>
 <div class="exception-error">
 	<h1><?php
-	echo $dev ? $class : strtr($class, "_", " ")?>
+	echo $dev ? $class : strtr($class, '_', ' ')?>
 		<!--  <?php
 		echo $class;
 		?> -->
@@ -53,12 +53,12 @@ $dev = $this->application->development();
 	if ($dev) {
 		?><p>The call stack is:</p><?php
 		echo $this->theme('exception/trace', [
-			"content" => $trace,
+			'content' => $trace,
 		]); ?>
 	<?php
 	}
 	if ($this->suffix) {
-		echo HTML::tag("p", $this->suffix);
+		echo HTML::tag('p', $this->suffix);
 	}
 	?>
 </div>

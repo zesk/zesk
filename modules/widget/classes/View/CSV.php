@@ -19,15 +19,15 @@ class View_CSV extends View {
 			return $this->empty_string();
 		}
 
-		$header_rows_top = $this->optionInt("header_rows_top", $this->optionInt('header_rows', 1));
-		$header_rows_left = $this->optionInt("header_rows_left", 0);
+		$header_rows_top = $this->optionInt('header_rows_top', $this->optionInt('header_rows', 1));
+		$header_rows_left = $this->optionInt('header_rows_left', 0);
 
 		foreach ($table as $row_index => $row) {
 			[$tag, $attrs] = ($row_index < $header_rows_top) ? [
-				"th",
+				'th',
 				$this->oa('th_attrs'),
 			] : [
-				"td",
+				'td',
 				$this->oa('td_attrs'),
 			];
 			if ($header_rows_left > 0) {
@@ -38,7 +38,7 @@ class View_CSV extends View {
 		}
 
 		if ($this->optionBool('rows_even_odd')) {
-			$rows = "";
+			$rows = '';
 			foreach ($html as $i => $row) {
 				$rows .= HTML::tag('tr', [
 					'class' => 'row-' . ($i & 1),
@@ -59,18 +59,18 @@ class View_CSV extends View {
 		foreach ($cells as $cell) {
 			$call_attrs = $attrs;
 			if (is_numeric($cell) || is_date($cell)) {
-				$call_attrs['align'] = "right";
+				$call_attrs['align'] = 'right';
 			}
 			$html[] = HTML::tag($tag, $call_attrs, $cell);
 		}
-		return implode("", $html);
+		return implode('', $html);
 	}
 
 	public static function html(array $table, $options = null) {
 		$view = new View_CSV($options);
-		$view->names("table");
+		$view->names('table');
 		return $view->output([
-			"table" => $table,
+			'table' => $table,
 		]);
 	}
 }

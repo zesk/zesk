@@ -39,8 +39,8 @@ class Module_Logger_File extends Module {
 		 */
 		$this->application->hooks->add(Hooks::HOOK_CONFIGURED, [
 			$this,
-			"configured",
-		], ["first" => true]);
+			'configured',
+		], ['first' => true]);
 	}
 
 	/**
@@ -50,18 +50,18 @@ class Module_Logger_File extends Module {
 	 */
 	public function configured(): void {
 		/* @var $zesk Kernel */
-		$defaults = $this->option_array("defaults");
+		$defaults = $this->option_array('defaults');
 		$defaults = ArrayTools::remove($defaults, [
-			"name",
-			"linkname",
+			'name',
+			'linkname',
 		]);
-		$files = $this->option_array("files");
+		$files = $this->option_array('files');
 		$names = [];
 		foreach ($files as $name => $settings) {
 			$settings += $defaults;
 			if (!isset($settings['name'])) {
-				$this->application->logger->error(__CLASS__ . "::files::{name} is missing name key", [
-					"name" => $name,
+				$this->application->logger->error(__CLASS__ . '::files::{name} is missing name key', [
+					'name' => $name,
 				]);
 
 				continue;
@@ -73,9 +73,9 @@ class Module_Logger_File extends Module {
 			$names[] = $name;
 		}
 		if ($this->debug) {
-			$this->application->logger->debug("{method} invoked, {names} handlers registered", [
-				"method" => __METHOD__,
-				"names" => $names,
+			$this->application->logger->debug('{method} invoked, {names} handlers registered', [
+				'method' => __METHOD__,
+				'names' => $names,
 			]);
 		}
 	}

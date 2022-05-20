@@ -43,14 +43,14 @@ class Controller extends \zesk\Controller {
 				$load_lines[] = "/* No translations for $id */";
 			}
 		}
-		$this->response->content_type("text/javascript");
+		$this->response->content_type('text/javascript');
 		$load_lines[] = 'exports.Locale.locale(' . JavaScript::arguments($app->locale->id()) . ');';
 
 		$load_lines = implode("\n\t", $load_lines);
 		$content = "/* elapsed: {page-render-time}, is_cached: {page-is-cached} */\n";
 		$content .= "(function (exports) {\n\t$load_lines\n}(this));\n";
 
-		$this->response->cache_for($this->optionInt("cache_seconds", 600));
+		$this->response->cache_for($this->optionInt('cache_seconds', 600));
 		$this->response->content = $content;
 	}
 }

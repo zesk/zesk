@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 abstract class Database_Data_Type {
@@ -6,62 +8,62 @@ abstract class Database_Data_Type {
 	 *
 	 * @var Database
 	 */
-	public $database = null;
+	public Database $database;
 
 	/**
 	 * ORM references?
 	 *
 	 * @var string
 	 */
-	public const sql_type_id = "id";
+	public const sql_type_id = 'id';
 
 	/**
 	 * Text
 	 * @var string
 	 */
-	public const sql_type_string = "string";
+	public const sql_type_string = 'string';
 
 	/**
 	 * Numbers of varying integer precisions
 	 * @var string
 	 */
-	public const sql_type_integer = "integer";
+	public const sql_type_integer = 'integer';
 
 	/**
 	 * Floating point double precision numbers
 	 * @var string
 	 */
-	public const sql_type_double = "double";
+	public const sql_type_double = 'double';
 
 	/**
 	 * Date
 	 * @var string
 	 */
-	public const sql_type_date = "date";
+	public const sql_type_date = 'date';
 
 	/**
 	 * Time
 	 * @var string
 	 */
-	public const sql_type_time = "time";
+	public const sql_type_time = 'time';
 
 	/**
 	 * Timestamp
 	 * @var string
 	 */
-	public const sql_type_datetime = "datetime";
+	public const sql_type_datetime = 'datetime';
 
 	/**
 	 * Large binary data
 	 * @var string
 	 */
-	public const sql_type_blob = "blob";
+	public const sql_type_blob = 'blob';
 
 	/**
 	 * Large text data
 	 * @var unknown
 	 */
-	public const sql_type_text = "text";
+	public const sql_type_text = 'text';
 
 	/**
 	 * Construct Database_Data_Type
@@ -71,31 +73,31 @@ abstract class Database_Data_Type {
 		$this->database = $database;
 	}
 
-	protected $sql_type_natives = [
+	protected array $sql_type_natives = [
 		self::sql_type_string => [
-			"char",
-			"varchar",
-			"text",
+			'char',
+			'varchar',
+			'text',
 		],
 		self::sql_type_integer => [
 			self::sql_type_integer,
 			'bit',
 		],
 		self::sql_type_double => [
-			"decimal",
+			'decimal',
 		],
 		self::sql_type_date => [
-			"date",
+			'date',
 		],
 		self::sql_type_time => [
-			"time",
+			'time',
 		],
 		self::sql_type_datetime => [
-			"datetime",
+			'datetime',
 		],
 	];
 
-	protected $sql_type_native_aliases = [
+	protected array $sql_type_native_aliases = [
 		'int' => 'integer',
 	];
 
@@ -104,28 +106,28 @@ abstract class Database_Data_Type {
 	 *
 	 * @var array
 	 */
-	protected $sql_type_to_php_type = [
-		self::sql_type_string => "string",
-		self::sql_type_integer => "integer",
-		self::sql_type_double => "double",
-		self::sql_type_date => "string",
-		self::sql_type_time => "string",
-		self::sql_type_datetime => "integer",
+	protected array $sql_type_to_php_type = [
+		self::sql_type_string => 'string',
+		self::sql_type_integer => 'integer',
+		self::sql_type_double => 'double',
+		self::sql_type_date => 'string',
+		self::sql_type_time => 'string',
+		self::sql_type_datetime => 'integer',
 	];
 
-	protected $pattern_native_type = '/([a-z]+)\(([^)]*)\)/';
+	protected string $pattern_native_type = '/([a-z]+)\(([^)]*)\)/';
 
 	/**
 	 *
 	 * @param string $type
 	 * @return string
 	 */
-	public function native_type_to_data_type($type) {
-		return avalue($this->sql_type_to_php_type, $this->native_type_to_sql_type($type, "string"));
+	public function native_type_to_data_type(string $type) {
+		return $this->sql_type_to_php_type[$this->native_type_to_sql_type($type, 'string')] ?? null;
 	}
 
 	public function is_text($native_type) {
-		$sql_type = $this->native_type_to_sql_type($native_type);
+		$sql_type = $this->native_type_to_sql_type($native_type, "");
 		return in_array($sql_type, [
 			self::sql_type_string,
 			self::sql_type_text,
@@ -136,23 +138,21 @@ abstract class Database_Data_Type {
 	 * Override this method to convert the default value to the database canonical default.
 	 *
 	 * @param string $type
-	 *        	sql type
+	 *            sql type
 	 * @param mixed $default_value
-	 *        	default value supplied
+	 *            default value supplied
 	 * @return mixed Canonical default for this type
 	 */
-	abstract public function sql_type_default($type, $default_value = null);
+	abstract public function sql_type_default(string $type, mixed $default_value = null): mixed;
 
 	/**
 	 * Given a native type, convert default value to the correct type
 	 *
-	 * @param string $type
-	 *        	sql type
-	 * @param mixed $default_value
-	 *        	default value supplied
-	 * @return mixed Canonical default for this type
+	 * @param string $type sql type
+	 * @param mixed $default_value  default value supplied
+	 * @return string Canonical default for this type
 	 */
-	public function native_type_default($type, $default_value = null) {
+	public function native_type_default(string $type, mixed $default_value = null) {
 		return $this->sql_type_default($this->parse_native_type($type), $default_value);
 	}
 
@@ -167,18 +167,19 @@ abstract class Database_Data_Type {
 			$size = preg_replace('/\s/', '', $matches[2]);
 			$sql_type = $matches[1];
 		}
-		return avalue($this->sql_type_native_aliases, $sql_type, $sql_type);
+		$sql_type = strtolower($sql_type);
+		return $this->sql_type_native_aliases[$sql_type] ?? $sql_type;
 	}
 
 	/**
 	 * Return the standard SQL type for a native type in our database
 	 *
-	 * @see Database::sql_type_string etc.
-	 * @param unknown $native_type
+	 * @param string $native_type
 	 * @param string $default
+	 * @see Database::sql_type_string etc.
 	 */
-	final public function native_type_to_sql_type($t, $default = null) {
-		$t = $this->parse_sql_type($t);
+	final public function native_type_to_sql_type(string $native_type, string $default): string {
+		$t = $this->parse_sql_type($native_type);
 		foreach ($this->sql_type_natives as $type => $types) {
 			if (in_array($t, $types)) {
 				return $type;
@@ -192,13 +193,13 @@ abstract class Database_Data_Type {
 	 * the other
 	 *
 	 * @param string $sqlType0
-	 *        	A database-specific data type
+	 *            A database-specific data type
 	 * @param string $sqlType1
-	 *        	A database-specific data type
+	 *            A database-specific data type
 	 */
-	public function native_types_compatible($sql_type0, $sql_type1) {
-		$s0 = false;
-		$s1 = false;
+	public function native_types_compatible(string $sql_type0, string $sql_type1): bool {
+		$s0 = 0;
+		$s1 = 0;
 		$t0 = $this->parse_sql_type($sql_type0, $s0);
 		$t1 = $this->parse_sql_type($sql_type1, $s1);
 
@@ -224,24 +225,24 @@ abstract class Database_Data_Type {
 	 * @param string $b
 	 * @return boolean
 	 */
-	protected function basic_types_compatible($a, $b) {
-		return ($a === $b);
+	protected function basic_types_compatible(string $a, string $b): bool {
+		return strcasecmp($a, $b) === 0;
 	}
 
 	/**
 	 * Do we need to do an ALTER TABLE to make these column types look identical
 	 *
-	 * @param unknown $native_type0
-	 * @param unknown $native_type1
+	 * @param string $native_type0
+	 * @param string $native_type1
 	 * @return boolean
 	 */
-	public function native_types_equal($native_type0, $native_type1) {
+	public function native_types_equal(string $native_type0, string $native_type1): bool {
 		$s0 = false;
 		$s1 = false;
 		$t0 = $this->parse_sql_type($native_type0, $s0);
 		$t1 = $this->parse_sql_type($native_type1, $s1);
-		$bt0 = $this->native_type_to_sql_type($t0);
-		$bt1 = $this->native_type_to_sql_type($t1);
+		$bt0 = $this->native_type_to_sql_type($t0, $t0);
+		$bt1 = $this->native_type_to_sql_type($t1, $t1);
 		if ($bt0 !== $bt1) {
 			return false;
 		}
@@ -269,12 +270,12 @@ abstract class Database_Data_Type {
 	/*
 	 * Type Manipulation
 	 */
-/**
- * Given an internal type and size settings on a database column, generate the database SQL type
- * for the column. Uses Class_O_R_M::type_foo constants for base type definitions.
- *
- * @param Database_Column $type
- */
+	/**
+	 * Given an internal type and size settings on a database column, generate the database SQL type
+	 * for the column. Uses Class_O_R_M::type_foo constants for base type definitions.
+	 *
+	 * @param Database_Column $type
+	 */
 	// 	public function type_set_sql_type(Database_Column $type) {
 	// 		$type_name = $type->option("type", false);
 	// 		$is_bin = $type->optionBool("binary");

@@ -12,8 +12,8 @@ namespace zesk;
 
 class Database_Query_Insert_Select_Test extends Test_Unit {
 	protected array $load_modules = [
-		"MySQL",
-		"ORM",
+		'MySQL',
+		'ORM',
 	];
 
 	public function test_main(): void {
@@ -28,29 +28,29 @@ class Database_Query_Insert_Select_Test extends Test_Unit {
 		}
 		$this->assert($success);
 
-		$table = "from_table";
+		$table = 'from_table';
 		$alias = 'X';
 		$testx->from($table, $alias);
 
 		$db = null;
-		$table = "test_table";
+		$table = 'test_table';
 		$testx->into($table);
 
 		echo $testx->__toString();
 
 		$testx->what([
-			"A" => "B",
-			"*C" => "UTC_TIMESTAMP()",
-			"D" => "Table.Field",
+			'A' => 'B',
+			'*C' => 'UTC_TIMESTAMP()',
+			'D' => 'Table.Field',
 		]);
 
-		$sql = "INNER JOIN join_table J ON X.JID=J.ID";
+		$sql = 'INNER JOIN join_table J ON X.JID=J.ID';
 		$testx->join($sql);
 
-		$testx->addWhere("X.Thing|>=", '20');
+		$testx->addWhere('X.Thing|>=', '20');
 
 		$order_by = null;
-		$testx->orderBy(["Created"]);
+		$testx->orderBy(['Created']);
 
 		$group_by = null;
 		$testx->groupBy([1]);
@@ -58,7 +58,7 @@ class Database_Query_Insert_Select_Test extends Test_Unit {
 		$sql = strval($testx);
 		$sql = preg_replace('/\s+/', ' ', $sql);
 
-		$correct_sql = "INSERT INTO `test_table` ( `A`, `C`, `D` ) SELECT `B` AS `A`, UTC_TIMESTAMP() AS `C`, `Table`.`Field` AS `D` FROM `from_table` AS `X` INNER JOIN join_table J ON X.JID=J.ID WHERE `X`.`Thing` >= '20' GROUP BY 1 ORDER BY Created";
+		$correct_sql = 'INSERT INTO `test_table` ( `A`, `C`, `D` ) SELECT `B` AS `A`, UTC_TIMESTAMP() AS `C`, `Table`.`Field` AS `D` FROM `from_table` AS `X` INNER JOIN join_table J ON X.JID=J.ID WHERE `X`.`Thing` >= \'20\' GROUP BY 1 ORDER BY Created';
 		$this->assert_equal($sql, $correct_sql);
 	}
 }

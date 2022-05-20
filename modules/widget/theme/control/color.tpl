@@ -24,21 +24,21 @@ if (is_string($value) && strlen($value) > 0 && $value[0] !== '#') {
 }
 
 $name = $widget->name();
-$response->javascript("/share/zesk/farbtastic/farbtastic.js");
-$response->css("/share/zesk/farbtastic/farbtastic.css");
+$response->javascript('/share/zesk/farbtastic/farbtastic.js');
+$response->css('/share/zesk/farbtastic/farbtastic.css');
 $response->jquery("\$('#colorpicker_$name').farbtastic('#$name'); \$('#$name').on('default', function () {
 		var \$this = \$(this), container = \$('#colorpicker_$name').get(0);
 		container.farbtastic.setColor(\$this.val());
 });");
 
-$result = "";
+$result = '';
 
-$attributes = HTML::add_class($attributes, "form-control");
+$attributes = HTML::add_class($attributes, 'form-control');
 
 $attributes['style'] = "background-color: $value";
 
-$attributes = $widget->attributes($attributes, "input");
-echo HTML::input("text", $name, $value, $attributes);
+$attributes = $widget->attributes($attributes, 'input');
+echo HTML::input('text', $name, $value, $attributes);
 
 if ($this->targets) {
 	$targets = JSON::encode($this->targets);
@@ -57,7 +57,7 @@ if ($this->targets) {
 		}, 500);
 	}());
 	</script><?php
-	$script = HTML::extract_tag_contents("script", ob_get_clean());
+	$script = HTML::extract_tag_contents('script', ob_get_clean());
 	$response->jquery($script);
 }
 ?>

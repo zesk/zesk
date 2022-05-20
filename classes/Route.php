@@ -33,7 +33,7 @@ abstract class Route extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const OPTION_OUTPUT_HANDLER = "output_handler";
+	public const OPTION_OUTPUT_HANDLER = 'output_handler';
 
 	/**
 	 *
@@ -131,15 +131,15 @@ abstract class Route extends Hookable {
 	 */
 	public function __sleep() {
 		return array_merge(parent::__sleep(), [
-			"original_options",
-			"original_pattern",
-			"clean_pattern",
-			"pattern",
-			"methods",
-			"types",
-			"url_args",
-			"args",
-			"named",
+			'original_options',
+			'original_pattern',
+			'clean_pattern',
+			'pattern',
+			'methods',
+			'types',
+			'url_args',
+			'args',
+			'named',
 		]);
 	}
 
@@ -150,15 +150,15 @@ abstract class Route extends Hookable {
 	 */
 	public function variables(): array {
 		return [
-			"class" => get_class($this),
-			"original_pattern" => $this->original_pattern,
-			"clean_pattern" => $this->clean_pattern,
-			"pattern" => $this->pattern,
-			"methods" => array_keys($this->methods),
-			"types" => $this->types,
-			"url_args" => $this->url_args,
-			"named" => $this->named,
-			"options" => $this->options,
+			'class' => get_class($this),
+			'original_pattern' => $this->original_pattern,
+			'clean_pattern' => $this->clean_pattern,
+			'pattern' => $this->pattern,
+			'methods' => array_keys($this->methods),
+			'types' => $this->types,
+			'url_args' => $this->url_args,
+			'named' => $this->named,
+			'options' => $this->options,
 		];
 	}
 
@@ -223,7 +223,7 @@ abstract class Route extends Hookable {
 	 * @param string $message
 	 */
 	public function log($message, array $arguments = []) {
-		return $this->router->log("info", $message, $arguments);
+		return $this->router->log('info', $message, $arguments);
 	}
 
 	/**
@@ -282,7 +282,7 @@ abstract class Route extends Hookable {
 	 */
 	public static function preprocess_options($pattern, array $options) {
 		// Replace parts which do not have variables set
-		$parts = explode("/", strval(strtr($pattern, [
+		$parts = explode('/', strval(strtr($pattern, [
 			'(' => '',
 			')' => '',
 		])));
@@ -331,7 +331,7 @@ abstract class Route extends Hookable {
 	 * @return string
 	 */
 	private static function clean_type($type) {
-		return preg_replace('/[^\\\\0-9A-Za-z_]/i', "_", $type);
+		return preg_replace('/[^\\\\0-9A-Za-z_]/i', '_', $type);
 	}
 
 	/**
@@ -346,8 +346,8 @@ abstract class Route extends Hookable {
 		$C_WILDCARD = chr(0x03);
 		$C_QUOTED_WILDCARD = chr(0x04);
 
-		[$methods, $pattern] = pair($pattern, ":", "GET|POST", $pattern);
-		$this->methods = ArrayTools::flip_assign(to_list($methods, [], "|"), true);
+		[$methods, $pattern] = pair($pattern, ':', 'GET|POST', $pattern);
+		$this->methods = ArrayTools::flip_assign(to_list($methods, [], '|'), true);
 		$replace = [];
 		$parameters = [];
 		$parameter_names = [];
@@ -368,16 +368,16 @@ abstract class Route extends Hookable {
 					self::clean_type(trim($match[1])),
 					$match[2],
 				];
-				$replace[$key] = "([^/]*)";
+				$replace[$key] = '([^/]*)';
 				++$index;
 			}
 		}
-		$parts = explode("/", str_replace([
+		$parts = explode('/', str_replace([
 			$C_PAREN_OPEN,
 			$C_PAREN_CLOSE,
 			$C_WILDCARD,
 			$C_QUOTED_WILDCARD,
-		], "", $re_pattern));
+		], '', $re_pattern));
 
 		foreach ($parts as $index => $part) {
 			$this->types[$index] = array_key_exists($part, $types) ? $types[$part] : true;
@@ -473,7 +473,7 @@ abstract class Route extends Hookable {
 	 * @param unknown_type $url
 	 * @throws Exception_NotFound
 	 */
-	final public function match($url, $method = "GET") {
+	final public function match($url, $method = 'GET') {
 		if (!isset($this->methods[$method]) || !$this->methods[$method]) {
 			return false;
 		}
@@ -481,7 +481,7 @@ abstract class Route extends Hookable {
 			return false;
 		}
 		/* Convert the arguments into any types specified */
-		$this->url_args = explode("/", $url) + array_fill(0, count($this->types), null);
+		$this->url_args = explode('/', $url) + array_fill(0, count($this->types), null);
 		$this->args = null;
 		return true;
 	}
@@ -499,7 +499,7 @@ abstract class Route extends Hookable {
 			} else {
 				$object = $application->model_factory($type);
 				if ($object instanceof Model) {
-					$object = $object->call_hook_arguments("router_argument", [
+					$object = $object->call_hook_arguments('router_argument', [
 						$this,
 						$arg,
 					], $object);
@@ -512,7 +512,7 @@ abstract class Route extends Hookable {
 		}
 		if ($name !== null) {
 			if (is_object($object)) {
-				foreach ($application->classes->hierarchy($object, "Model") as $class) {
+				foreach ($application->classes->hierarchy($object, 'Model') as $class) {
 					$this->by_class[strtolower($class)][$name] = $object;
 				}
 			}
@@ -540,7 +540,7 @@ abstract class Route extends Hookable {
 			}
 			$this->_handle_argument($index, $type_name);
 		}
-		$arguments = $this->option_list("arguments", null);
+		$arguments = $this->option_list('arguments', null);
 		if (is_array($arguments)) {
 			foreach ($arguments as $arg) {
 				$this->args[] = is_numeric($arg) ? avalue($this->url_args, $arg, null) : $arg;
@@ -574,7 +574,7 @@ abstract class Route extends Hookable {
 	 */
 	final protected function convert_double($x) {
 		if (!is_numeric($x)) {
-			throw new Exception_File_NotFound("Invalid double format");
+			throw new Exception_File_NotFound('Invalid double format');
 		}
 		return intval($x);
 	}
@@ -632,7 +632,7 @@ abstract class Route extends Hookable {
 	 * @return array
 	 */
 	final protected function convert_dash_list($x) {
-		return to_list($x, [], "-");
+		return to_list($x, [], '-');
 	}
 
 	/**
@@ -643,7 +643,7 @@ abstract class Route extends Hookable {
 	 * @return array
 	 */
 	final protected function convert_semicolon_list($x) {
-		return to_list($x, [], ";");
+		return to_list($x, [], ';');
 	}
 
 	/**
@@ -654,7 +654,7 @@ abstract class Route extends Hookable {
 	 * @return array
 	 */
 	final protected function convert_comma_list($x) {
-		return to_list($x, [], ",");
+		return to_list($x, [], ',');
 	}
 
 	/**
@@ -684,7 +684,7 @@ abstract class Route extends Hookable {
 	}
 
 	private function guess_content_type(): void {
-		$content_type = $this->option("content_type");
+		$content_type = $this->option('content_type');
 	}
 
 	/**
@@ -704,9 +704,9 @@ abstract class Route extends Hookable {
 			} elseif (is_array($cache)) {
 				$response->cache($cache);
 			} else {
-				$application->logger->warning("Invalid cache setting for route {route}: {cache}", [
-					"route" => $this->clean_pattern,
-					"cache" => _dump($cache),
+				$application->logger->warning('Invalid cache setting for route {route}: {cache}', [
+					'route' => $this->clean_pattern,
+					'cache' => _dump($cache),
 				]);
 			}
 		}
@@ -722,9 +722,9 @@ abstract class Route extends Hookable {
 		if ($v) {
 			$response->output_handler($v);
 		}
-		if ($this->optionBool("json")) {
+		if ($this->optionBool('json')) {
 			$response->is_json(true);
-		} elseif ($this->optionBool("html")) {
+		} elseif ($this->optionBool('html')) {
 			$response->is_html(true);
 		}
 		$this->args = $this->_map_variables($this->args, $response);
@@ -743,7 +743,7 @@ abstract class Route extends Hookable {
 	 *
 	 */
 	protected function _after(Response $response): void {
-		if (array_key_exists("redirect", $this->options)) {
+		if (array_key_exists('redirect', $this->options)) {
 			$response->redirect($this->options['redirect']);
 		}
 	}
@@ -751,16 +751,16 @@ abstract class Route extends Hookable {
 	/**
 	 */
 	protected function _permissions(Response $response): void {
-		$permission = $this->option("permission");
+		$permission = $this->option('permission');
 		$permissions = [];
 		if ($permission) {
 			$permissions[] = [
-				"action" => $this->option("permission"),
-				"context" => $this->option("permission context"),
-				"options" => $this->option_array("permission options"),
+				'action' => $this->option('permission'),
+				'context' => $this->option('permission context'),
+				'options' => $this->option_array('permission options'),
 			];
 		}
-		$permissions = array_merge($permissions, $this->option_array("permissions", []));
+		$permissions = array_merge($permissions, $this->option_array('permissions', []));
 		$permissions = $this->_map_variables($permissions, $response);
 		$app = $this->router->application;
 		foreach ($permissions as $permission) {
@@ -772,11 +772,11 @@ abstract class Route extends Hookable {
 				$action = $permission;
 			}
 			if (!$context instanceof Model && $context !== null) {
-				$app->logger->warning("Invalid permission context in route {url}, permission {action}, type={type}, value={value}", [
-					"url" => $this->clean_pattern,
-					"action" => $action,
-					"type" => type($context),
-					"value" => strval($context),
+				$app->logger->warning('Invalid permission context in route {url}, permission {action}, type={type}, value={value}', [
+					'url' => $this->clean_pattern,
+					'action' => $action,
+					'type' => type($context),
+					'value' => strval($context),
 				]);
 				$context = null;
 			}
@@ -815,8 +815,8 @@ abstract class Route extends Hookable {
 		$response = $this->_before();
 		$this->_permissions($response);
 		$template = Template::factory($this->application, null, [
-			"response" => $response,
-			"route" => $this,
+			'response' => $response,
+			'route' => $this,
 		])->push();
 		$exec_response = $this->_execute($response);
 		if ($exec_response instanceof Response) {
@@ -834,12 +834,12 @@ abstract class Route extends Hookable {
 	 * @return Ambigous <mixed, multitype:>
 	 */
 	public function class_actions() {
-		if ($this->hasOption("class_actions")) {
-			return $this->option_array("class_actions");
+		if ($this->hasOption('class_actions')) {
+			return $this->option_array('class_actions');
 		}
 		// $class_actions =
-		$classes = $this->option_list("classes");
-		$actions = $this->option_list("actions");
+		$classes = $this->option_list('classes');
+		$actions = $this->option_list('actions');
 		if (!$classes) {
 			return [];
 		}
@@ -851,7 +851,7 @@ abstract class Route extends Hookable {
 				];
 			} else {
 				$actions = [
-					"*",
+					'*',
 				];
 			}
 		}
@@ -875,7 +875,7 @@ abstract class Route extends Hookable {
 		$derived_classes = avalue($options, 'derived_classes', []);
 		$options = to_array($options, []);
 		$map = [
-			"action" => $action,
+			'action' => $action,
 		] + $options;
 
 		if (count($object_hierarchy) > 0) {
@@ -885,7 +885,7 @@ abstract class Route extends Hookable {
 				}
 				[$part_class, $part_name] = $type;
 				if (in_array($part_class, $object_hierarchy)) {
-					$map[$part_name] = $object instanceof Model ? $object->id() : avalue($options, $part_name, "");
+					$map[$part_name] = $object instanceof Model ? $object->id() : avalue($options, $part_name, '');
 				} elseif (array_key_exists($part_class, $derived_classes)) {
 					$map[$part_name] = $derived_classes[$part_class];
 				} else {
@@ -898,7 +898,7 @@ abstract class Route extends Hookable {
 					}
 				}
 			}
-			if ($object instanceof Model && !array_key_exists("id", $map)) {
+			if ($object instanceof Model && !array_key_exists('id', $map)) {
 				$map['id'] = $object->id();
 			}
 		}
@@ -913,10 +913,10 @@ abstract class Route extends Hookable {
 	 */
 	public function get_route($action, $object = null, $options = null) {
 		$route_map = $this->get_route_map($action, $object, $options);
-		$map = $this->call_hook_arguments("get_route_map", [
+		$map = $this->call_hook_arguments('get_route_map', [
 			$route_map,
 		], $route_map);
-		$result = rtrim(map_clean(map($this->clean_pattern, $map), "/"));
+		$result = rtrim(map_clean(map($this->clean_pattern, $map), '/'));
 		return $result;
 	}
 }

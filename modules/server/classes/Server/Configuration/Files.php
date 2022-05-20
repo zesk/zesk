@@ -33,14 +33,14 @@ class Server_Configuration_Files extends Server_Configuration {
 	private function _configure_host_path(): void {
 		$this->host_path = $this->option('host_path');
 		if ($this->host_path) {
-			$this->verbose_log("host_path is {host_path}", [
-				"host_path" => $this->host_path,
+			$this->verbose_log('host_path is {host_path}', [
+				'host_path' => $this->host_path,
 			]);
 			if (!is_dir($this->host_path)) {
 				throw new Exception_Directory_NotFound($this->host_path);
 			}
 		} else {
-			throw new Exception_Configuration("host_path", "Must be set in Server_Configuration_Files");
+			throw new Exception_Configuration('host_path', 'Must be set in Server_Configuration_Files');
 		}
 	}
 
@@ -48,7 +48,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		$this->host_aliases = [];
 
 		try {
-			$alias_file = File::lines(path($this->host_path, "aliases"));
+			$alias_file = File::lines(path($this->host_path, 'aliases'));
 			$this->host_aliases = ArrayTools::trim_clean(ArrayTools::ktrim(ArrayTools::kpair($alias_file), " \t"));
 		} catch (Exception_File_NotFound $e) {
 		}
@@ -59,9 +59,9 @@ class Server_Configuration_Files extends Server_Configuration {
 		$hostname = $this->platform->hostname();
 		$alias_hostname = avalue($this->host_aliases(), $hostname, $hostname);
 		if ($alias_hostname !== $hostname) {
-			$app->logger->warning("Server_Configuration_Files _load_configuration: {hostname} aliaesed to {alias_hostname}", [
-				"hostname" => $hostname,
-				"alias_hostname" => $alias_hostname,
+			$app->logger->warning('Server_Configuration_Files _load_configuration: {hostname} aliaesed to {alias_hostname}', [
+				'hostname' => $hostname,
+				'alias_hostname' => $alias_hostname,
 			]);
 		}
 		$searched_paths = [];
@@ -78,8 +78,8 @@ class Server_Configuration_Files extends Server_Configuration {
 				foreach ($files as $file) {
 					$conf = path($this->host_path, $path, $file);
 					if (!is_file($conf)) {
-						$app->logger->debug("No configuration file {conf}", [
-							"conf" => $conf,
+						$app->logger->debug('No configuration file {conf}', [
+							'conf' => $conf,
 						]);
 
 						continue;
@@ -96,15 +96,15 @@ class Server_Configuration_Files extends Server_Configuration {
 			}
 			$search_path = $this->search_path();
 		}
-		$app->logger->debug("configuration search path {paths}, files {files}, result {result}", [
-			"paths" => implode(",", $search_path),
-			"files" => implode(",", $files),
-			"result" => PHP::dump($result),
+		$app->logger->debug('configuration search path {paths}, files {files}, result {result}', [
+			'paths' => implode(',', $search_path),
+			'files' => implode(',', $files),
+			'result' => PHP::dump($result),
 		]);
 	}
 
 	public function feature_list() {
-		return ArrayTools::trim_clean($this->option_list("FEATURES", $this->option_list("SERVICES", [], " "), " "));
+		return ArrayTools::trim_clean($this->option_list('FEATURES', $this->option_list('SERVICES', [], ' '), ' '));
 	}
 
 	public function search_path($set = null) {
@@ -112,7 +112,7 @@ class Server_Configuration_Files extends Server_Configuration {
 			$this->setOption('SEARCH_PATH', $set);
 			return $this;
 		}
-		return $this->option_list("SEARCH_PATH", [], " ");
+		return $this->option_list('SEARCH_PATH', [], ' ');
 	}
 
 	public function remote_package($url): void {
@@ -123,16 +123,16 @@ class Server_Configuration_Files extends Server_Configuration {
 		$files = [
 			path($feature->configure_path(), 'feature.conf'),
 		];
-		$files = array_merge($files, File::find_all($this->search_path(), path($shortname, "feature.conf")));
+		$files = array_merge($files, File::find_all($this->search_path(), path($shortname, 'feature.conf')));
 		$settings = [];
 		foreach ($files as $file) {
 			if (is_file($file)) {
 				$settings = $this->platform->conf_load($file) + $settings;
 			}
 		}
-		$this->application->logger->debug("Configured feature {class} {settings}", [
-			"class" => get_class($feature),
-			"settings" => Text::format_pairs($settings),
+		$this->application->logger->debug('Configured feature {class} {settings}', [
+			'class' => get_class($feature),
+			'settings' => Text::format_pairs($settings),
 		]);
 		$feature->setOption($settings);
 	}
@@ -151,13 +151,13 @@ class Server_Configuration_Files extends Server_Configuration {
 		}
 
 		foreach (file($alias_file) as $line) {
-			[$line] = pair(trim($line), "#", $line);
+			[$line] = pair(trim($line), '#', $line);
 			$line = trim($line);
 			if (empty($line)) {
 				continue;
 			}
 			$name = $alias = null;
-			[$name, $alias] = pair($line, " ", $line);
+			[$name, $alias] = pair($line, ' ', $line);
 			if ($alias === null) {
 				continue;
 			}
@@ -172,22 +172,22 @@ class Server_Configuration_Files extends Server_Configuration {
 	}
 
 	public function configuration_files($type, $files, $dest, array $options = []) {
-		$search_path = to_list(avalue($options, 'search_path'), [], " ");
+		$search_path = to_list(avalue($options, 'search_path'), [], ' ');
 		if (empty($search_path)) {
 			$search_path = $this->search_path();
 			foreach ($search_path as $i => $path) {
 				$search_path[$i] = path($path, $type);
 			}
 		}
-		$add_search_path = to_list(avalue($options, "+search_path"), [], " ");
+		$add_search_path = to_list(avalue($options, '+search_path'), [], ' ');
 		if (is_array($add_search_path)) {
 			$search_path = array_merge($search_path, $add_search_path);
 		}
 		if (Directory::find_first($search_path) === null) {
-			if (avalue($options, "require")) {
-				throw new Exception_Configuration($type, "Requires directory to be located in {search_path_list}", [
-					"search_path" => $search_path,
-					"search_path_list" => implode(", ", $search_path),
+			if (avalue($options, 'require')) {
+				throw new Exception_Configuration($type, 'Requires directory to be located in {search_path_list}', [
+					'search_path' => $search_path,
+					'search_path_list' => implode(', ', $search_path),
 				]);
 			}
 			$this->verbose_log("configuration_files $type not found ... skipping");
@@ -197,7 +197,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		$files = to_list($files);
 		foreach ($files as $mixed) {
 			$source_prefix = path($type, $mixed);
-			if (StringTools::ends($source_prefix, "/")) {
+			if (StringTools::ends($source_prefix, '/')) {
 				$source = Directory::find_first($search_path, $source_prefix);
 			} else {
 				$source = File::find_first($search_path, $source_prefix);

@@ -10,7 +10,7 @@ namespace zesk;
  *
  */
 abstract class Server_Platform_UNIX extends Server_Platform {
-	protected $root_user = "root";
+	protected $root_user = 'root';
 
 	protected $uid = null;
 
@@ -18,30 +18,30 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 
 	private static $groups = [];
 
-	public const f_user_name = "name";
+	public const f_user_name = 'name';
 
-	public const f_user_full_name = "full_name";
+	public const f_user_full_name = 'full_name';
 
-	public const f_user_id = "uid";
+	public const f_user_id = 'uid';
 
-	public const f_user_home = "home";
+	public const f_user_home = 'home';
 
-	public const f_user_shell = "shell";
+	public const f_user_shell = 'shell';
 
-	public const f_user_group_id = "gid";
+	public const f_user_group_id = 'gid';
 
-	public const f_group_name = "name";
+	public const f_group_name = 'name';
 
-	public const f_group_id = "gid";
+	public const f_group_id = 'gid';
 
-	public const f_group_members = "members";
+	public const f_group_members = 'members';
 
 	public function has_shell_program($command) {
 		return $this->application->paths->which($command) === null ? false : true;
 	}
 
 	public function user_current() {
-		return trim($this->exec_one("id -un"));
+		return trim($this->exec_one('id -un'));
 	}
 
 	public function user_home($user) {
@@ -123,10 +123,10 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 	}
 
 	public function processes_running() {
-		$lines = $this->exec("ps aux");
+		$lines = $this->exec('ps aux');
 		$processes = [];
 		$line = array_shift($lines);
-		$headings = explode(" ", trim(preg_replace('/\s+/', ' ', $line)));
+		$headings = explode(' ', trim(preg_replace('/\s+/', ' ', $line)));
 		$heading_aliases = $this->ps_heading_aliases();
 		foreach ($headings as $index => $heading) {
 			$heading = strtolower($heading);
@@ -134,13 +134,13 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 		}
 
 		foreach ($lines as $line) {
-			$items = explode(" ", trim(preg_replace('/\s+/', ' ', $line)), count($headings)) + array_fill(0, count($headings));
+			$items = explode(' ', trim(preg_replace('/\s+/', ' ', $line)), count($headings)) + array_fill(0, count($headings));
 			$row = [];
 			foreach ($items as $index => $value) {
 				$name = $headings[$index];
-				if ($name === "command") {
+				if ($name === 'command') {
 					$value = $args = null;
-					[$value, $args] = pair($value, " ", $value, null);
+					[$value, $args] = pair($value, ' ', $value, null);
 					$row['arguments'] = $args;
 				}
 				$row[$name] = $value;
@@ -153,7 +153,7 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 	protected function _load_group_file($file = '/etc/group') {
 		$groups = [];
 		foreach (File::lines($file) as $line) {
-			[$line] = pair($line, "#", $line, null);
+			[$line] = pair($line, '#', $line, null);
 			$line = trim($line);
 			if (empty($line)) {
 				continue;
@@ -163,7 +163,7 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 				null,
 				self::f_group_id,
 				self::f_group_members,
-			], null, explode(":", $line, 4) + array_fill(0, 4));
+			], null, explode(':', $line, 4) + array_fill(0, 4));
 			$groups[$data[self::f_group_name]] = $data;
 		}
 		return $groups;
@@ -173,7 +173,7 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 		$users = [];
 		$columns = [
 			self::f_user_name,
-			"x-password",
+			'x-password',
 			self::f_user_id,
 			self::f_user_group_id,
 			self::f_user_full_name,
@@ -183,12 +183,12 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 		$n_columns = count($columns);
 		foreach (File::lines($file) as $line) {
 			// publish:x:1001:1000:Publish User:/publish:/bin/bash
-			[$line] = pair($line, "#", $line, null);
+			[$line] = pair($line, '#', $line, null);
 			$line = trim($line);
 			if (empty($line)) {
 				continue;
 			}
-			$data = ArrayTools::rekey($columns, explode(":", $line, $n_columns) + array_fill(0, $n_columns));
+			$data = ArrayTools::rekey($columns, explode(':', $line, $n_columns) + array_fill(0, $n_columns));
 			$users[$data[self::f_user_name]] = $data;
 		}
 		return $users;

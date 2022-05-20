@@ -1477,11 +1477,11 @@ class HttpClient {
 			$proxyURL .= $proxy['host'] ?? '';
 
 			if (isset($proxy['port'])) {
-				$proxyURL .= ":" . $proxy['port'];
+				$proxyURL .= ':' . $proxy['port'];
 			} elseif (str_starts_with($proxyURL, 'http://')) {
-				$proxyURL .= ":80";
+				$proxyURL .= ':80';
 			} elseif (str_starts_with($proxyURL, 'https://')) {
-				$proxyURL .= ":443";
+				$proxyURL .= ':443';
 			}
 
 			// check for a secure proxy
@@ -1526,7 +1526,7 @@ class HttpClient {
 		if (extension_loaded('zlib')) {
 			$options['http']['header'] .= "Accept-Encoding: gzip\r\n";
 		}
-		$options['http']['header'] .= "User-Agent: " . COMPOSER_INSTALLER . "\r\n";
+		$options['http']['header'] .= 'User-Agent: ' . COMPOSER_INSTALLER . "\r\n";
 		$options['http']['protocol_version'] = 1.1;
 		$options['http']['timeout'] = 600;
 

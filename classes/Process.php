@@ -31,7 +31,7 @@ class Process {
 	 */
 	public function __sleep() {
 		return [
-			"debug",
+			'debug',
 		];
 	}
 
@@ -49,7 +49,7 @@ class Process {
 		$this->application = $application;
 		$application->hooks->add(Hooks::HOOK_CONFIGURED, [
 			$this,
-			"configured",
+			'configured',
 		]);
 	}
 
@@ -78,9 +78,9 @@ class Process {
 	public function configured(Application $application): void {
 		$key = [
 			__CLASS__,
-			"debug_execute",
+			'debug_execute',
 		];
-		$application->configuration->deprecated("zesk::debug_execute", $key);
+		$application->configuration->deprecated('zesk::debug_execute', $key);
 		$this->debug = $application->configuration->path_get($key);
 	}
 
@@ -91,8 +91,8 @@ class Process {
 	 * @return boolean
 	 */
 	public function alive($pid) {
-		if (!function_exists("posix_kill")) {
-			throw new Exception_Unimplemented("Need --with-pcntl");
+		if (!function_exists('posix_kill')) {
+			throw new Exception_Unimplemented('Need --with-pcntl');
 		}
 		return posix_kill($pid, 0) ? true : false;
 	}
@@ -128,7 +128,7 @@ class Process {
 	public function execute($command) {
 		$args = func_get_args();
 		array_shift($args);
-		if ($command[0] === "|") {
+		if ($command[0] === '|') {
 			$command = substr($command, 1);
 			$passthru = true;
 		} else {
@@ -170,12 +170,12 @@ class Process {
 		foreach ($args as $i => $arg) {
 			$args[$i] = escapeshellarg(strval($arg));
 		}
-		$args["*"] = implode(" ", array_values($args));
+		$args['*'] = implode(' ', array_values($args));
 		$raw_command = map($command, $args);
 		$result = 0;
 		$output = [];
 		if ($this->debug) {
-			$this->application->logger->debug("Running command: {raw_command}", compact("raw_command"));
+			$this->application->logger->debug('Running command: {raw_command}', compact('raw_command'));
 		}
 		if ($passthru) {
 			passthru($raw_command, $result);

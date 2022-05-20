@@ -15,7 +15,7 @@ namespace zesk;
  *
  */
 class Control_IP_List extends Control {
-	public const OPTION_ALLOW_MASKS_bool = "allow_ip_masks";
+	public const OPTION_ALLOW_MASKS_bool = 'allow_ip_masks';
 
 	/**
 	 *
@@ -39,8 +39,8 @@ class Control_IP_List extends Control {
 	 */
 	public function load(): void {
 		$name = $this->name();
-		$value = trim($this->request->get($name, "") . ' ' . $this->request->get($name . '_errors', ''));
-		$value = preg_replace("#[^.*0-9/ ]#", "", $value);
+		$value = trim($this->request->get($name, '') . ' ' . $this->request->get($name . '_errors', ''));
+		$value = preg_replace('#[^.*0-9/ ]#', '', $value);
 		$this->value($value);
 		parent::load();
 	}
@@ -51,7 +51,7 @@ class Control_IP_List extends Control {
 	 * @see \zesk\Widget::validate()
 	 */
 	public function validate(): bool {
-		$allow_ip_masks = $this->optionBool("allow_ip_masks");
+		$allow_ip_masks = $this->optionBool('allow_ip_masks');
 		$col = $this->column();
 		$name = $this->name();
 		$value = $this->value();
@@ -71,7 +71,7 @@ class Control_IP_List extends Control {
 		}
 		$this->value(implode("\n", $iplist));
 		if (count($this->ErrorIPs) > 0) {
-			$this->error("Some IP addresses were incorrectly formatted, please check your work below.", $col);
+			$this->error('Some IP addresses were incorrectly formatted, please check your work below.', $col);
 			return false;
 		}
 		return true;
@@ -85,12 +85,12 @@ class Control_IP_List extends Control {
 	public function render(): string {
 		$col = $this->column();
 		$name = $this->name();
-		$errors = "";
+		$errors = '';
 		$attrs = $this->options([
-			"rows" => 10,
-			"cols" => 20,
-			"id" => $col . "_ip_list",
-			"name" => $name,
+			'rows' => 10,
+			'cols' => 20,
+			'id' => $col . '_ip_list',
+			'name' => $name,
 		]);
 		$ip = $this->request->ip();
 		$response = $this->response();
@@ -102,19 +102,19 @@ class Control_IP_List extends Control {
 			$err_attrs = $attrs;
 			$err_attrs['name'] = $name . '_errors';
 			$err_attrs['id'] = $col . '_ip_list_errors';
-			$errors = HTML::tag("div", [
-				"class" => "ip-list ip-list-errors",
-			], HTML::tag("div", [
-					"class" => "ip-list-textarea",
-				], HTML::tag("textarea", $err_attrs, implode("\n", $this->ErrorIPs))) . HTML::etag("label", "", $this->option("error_ip_list_label", "Errors")));
+			$errors = HTML::tag('div', [
+				'class' => 'ip-list ip-list-errors',
+			], HTML::tag('div', [
+					'class' => 'ip-list-textarea',
+				], HTML::tag('textarea', $err_attrs, implode("\n", $this->ErrorIPs))) . HTML::etag('label', '', $this->option('error_ip_list_label', 'Errors')));
 		}
-		$result = HTML::tag("div", [
-				"class" => "ip-list",
-			], HTML::tag("div", [
-					"class" => "ip-list-textarea",
-				], HTML::tag("textarea", $attrs, $this->value()) . $add_ip) . HTML::etag("label", "", $this->option("ip_list_label", ""))) . $errors;
-		$result = HTML::tag("div", [
-			"class" => "ip-list-widget",
+		$result = HTML::tag('div', [
+				'class' => 'ip-list',
+			], HTML::tag('div', [
+					'class' => 'ip-list-textarea',
+				], HTML::tag('textarea', $attrs, $this->value()) . $add_ip) . HTML::etag('label', '', $this->option('ip_list_label', ''))) . $errors;
+		$result = HTML::tag('div', [
+			'class' => 'ip-list-widget',
 		], $result);
 		return $result;
 	}

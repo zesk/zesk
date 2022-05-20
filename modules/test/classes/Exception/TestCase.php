@@ -6,9 +6,9 @@ class Exception_TestCase extends Test_Unit {
 
 	public function simple_exceptions() {
 		return [
-			new \Exception("message", 123, new \Exception("previous", 345)),
-			new Exception("Hello {thing}", [
-				"thing" => "world",
+			new \Exception('message', 123, new \Exception('previous', 345)),
+			new Exception('Hello {thing}', [
+				'thing' => 'world',
 			]),
 		];
 	}

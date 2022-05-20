@@ -21,17 +21,17 @@ class Control_Content_File extends Control_Widgets {
 	}
 
 	public function initialize(): void {
-		$prefix = $this->name() . "_";
-		$this->_file_widget = $w = $this->widget_factory("Control_File");
+		$prefix = $this->name() . '_';
+		$this->_file_widget = $w = $this->widget_factory('Control_File');
 		$w->setOption([
 			'hash_file' => true,
 		] + $this->options);
-		$w->column = $prefix . "upload";
+		$w->column = $prefix . 'upload';
 
 		$this->child($w);
 
 		$locale = $this->application->locale;
-		$w = $this->widget_factory(Control_Text::class)->names($prefix . "desc", $locale->__("Description"))->textarea(true);
+		$w = $this->widget_factory(Control_Text::class)->names($prefix . 'desc', $locale->__('Description'))->textarea(true);
 		$this->child($w);
 		$this->upload(true);
 
@@ -50,7 +50,7 @@ class Control_Content_File extends Control_Widgets {
 		if (!$this->submit_children()) {
 			return $this->required() ? false : true;
 		}
-		$prefix = $this->name() . "_";
+		$prefix = $this->name() . '_';
 		$member = $this->value();
 		if (!$member instanceof Content_File) {
 			$member = $this->model();
@@ -60,7 +60,7 @@ class Control_Content_File extends Control_Widgets {
 			$member->Content_Data = Content_Data::from_path($this->_file_widget->path(), false);
 			$member->Name = $member->Original = $this->_file_widget->original_name();
 			$member->MIMEType = MIME::from_filename($member->Original);
-			$member->Description = $this->object->get($prefix . "desc");
+			$member->Description = $this->object->get($prefix . 'desc');
 			$member->store();
 			$this->value($member);
 			return true;

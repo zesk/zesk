@@ -31,43 +31,43 @@ class Rule {
 	 *
 	 * @var string
 	 */
-	public const FREQUENCY_YEARLY = "YEARLY";
+	public const FREQUENCY_YEARLY = 'YEARLY';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const FREQUENCY_MONTHLY = "MONTHLY";
+	public const FREQUENCY_MONTHLY = 'MONTHLY';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const FREQUENCY_WEEKLY = "WEEKLY";
+	public const FREQUENCY_WEEKLY = 'WEEKLY';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const FREQUENCY_DAILY = "DAILY";
+	public const FREQUENCY_DAILY = 'DAILY';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const FREQUENCY_HOURLY = "HOURLY";
+	public const FREQUENCY_HOURLY = 'HOURLY';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const FREQUENCY_MINUTELY = "MINUTELY";
+	public const FREQUENCY_MINUTELY = 'MINUTELY';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const FREQUENCY_SECONDLY = "SECONDLY";
+	public const FREQUENCY_SECONDLY = 'SECONDLY';
 
 	/**
 	 *
@@ -228,7 +228,7 @@ class Rule {
 	 *
 	 * @var string
 	 */
-	public string $frequency = "";
+	public string $frequency = '';
 
 	/**
 	 *
@@ -455,7 +455,7 @@ class Rule {
 		$this->frequency = $frequency;
 		$this->frequency_index = $frequency_index = avalue(self::$frequencies, $frequency, null);
 		if ($frequency_index === null) {
-			throw new Exception_Parameter("Invalid frequency {frequency}", compact("frequency"));
+			throw new Exception_Parameter('Invalid frequency {frequency}', compact('frequency'));
 		}
 
 		$this->interval = $interval;
@@ -472,12 +472,12 @@ class Rule {
 		}
 
 		if ($this->count && $this->until) {
-			zesk()->deprecated("Using both 'count' and 'until' is inconsistent with RFC 2445 and has been deprecated in dateutil. Future versions will raise an error.");
+			zesk()->deprecated('Using both \'count\' and \'until\' is inconsistent with RFC 2445 and has been deprecated in dateutil. Future versions will raise an error.');
 		}
 
 		// wkst: Starting day of the week
 		if ($wkst === null) {
-			$this->wkst = $options["first_day_of_week"] ?? ($locale ? $locale->first_day_of_week() : 1);
+			$this->wkst = $options['first_day_of_week'] ?? ($locale ? $locale->first_day_of_week() : 1);
 		} elseif (is_int($wkst)) {
 			$this->wkst = $wkst;
 		} elseif ($wkst instanceof Weekday) {
@@ -487,7 +487,7 @@ class Rule {
 		// bysetpos
 		if ($bysetpos === null) {
 			$this->bysetpos = null;
-		} elseif (self::_is_integer_list("bysetpos", $bysetpos, -366, 366, true)) {
+		} elseif (self::_is_integer_list('bysetpos', $bysetpos, -366, 366, true)) {
 			$this->bysetpos = $bysetpos;
 		}
 		$this->original_rule['bysetpos'] = $bysetpos;
@@ -515,7 +515,7 @@ class Rule {
 		// bymonth
 		if ($bymonth === null) {
 			$this->bymonth = null;
-		} elseif (self::_is_integer_list("bymonth", $bymonth, 1, 12)) {
+		} elseif (self::_is_integer_list('bymonth', $bymonth, 1, 12)) {
 			$this->bymonth = $bymonth;
 			$this->original_rule += [
 				'bymonth' => $bymonth,
@@ -525,7 +525,7 @@ class Rule {
 		// byyearday
 		if ($byyearday === null) {
 			$this->byyearday = null;
-		} elseif (self::_is_integer_list("byyearday", $byyearday, 1, 366)) {
+		} elseif (self::_is_integer_list('byyearday', $byyearday, 1, 366)) {
 			$this->byyearday = $byyearday;
 			$this->original_rule['byyearday'] = $byyearday;
 		}
@@ -534,7 +534,7 @@ class Rule {
 		if ($bymonthday === null) {
 			$this->bymonthday = [];
 			$this->bynmonthday = [];
-		} elseif (self::_is_integer_list("bymonthday", $bymonthday, -31, 31, false)) {
+		} elseif (self::_is_integer_list('bymonthday', $bymonthday, -31, 31, false)) {
 			$this->bymonthday = self::_integers_filter($bymonthday, true);
 			$this->bynmonthday = self::_integers_filter($bymonthday, false);
 			$this->original_rule += [
@@ -545,7 +545,7 @@ class Rule {
 		//byweekno
 		if ($byweekno === null) {
 			$this->byweekno = null;
-		} elseif (self::_is_integer_list("byweekno", $byweekno)) {
+		} elseif (self::_is_integer_list('byweekno', $byweekno)) {
 			$this->byweekno = $byweekno;
 			$this->original_rule += [
 				'byweekno' => $byweekno,
@@ -610,9 +610,9 @@ class Rule {
 				$this->byhour = null;
 			}
 		} else {
-			if (self::_is_integer_list("byhour", $byhour, 0, 23)) {
+			if (self::_is_integer_list('byhour', $byhour, 0, 23)) {
 				if ($frequency === self::FREQUENCY_HOURLY) {
-					$this->byhour = $this->_construct_byset("byhour", $dtstart, $byhour, 24);
+					$this->byhour = $this->_construct_byset('byhour', $dtstart, $byhour, 24);
 				} else {
 					$this->byhour = $byhour;
 				}
@@ -630,9 +630,9 @@ class Rule {
 				$this->byminute = null;
 			}
 		} else {
-			if (self::_is_integer_list("byminute", $byminute, 0, 59)) {
+			if (self::_is_integer_list('byminute', $byminute, 0, 59)) {
 				if ($frequency === self::FREQUENCY_MINUTELY) {
-					$this->byminute = $this->_construct_byset("byminute", $dtstart->minute(), $byminute, 60);
+					$this->byminute = $this->_construct_byset('byminute', $dtstart->minute(), $byminute, 60);
 				} else {
 					$this->byminute = $byminute;
 				}
@@ -650,9 +650,9 @@ class Rule {
 				$this->bysecond = null;
 			}
 		} else {
-			if (self::_is_integer_list("bysecond", $bysecond, 0, 59)) {
+			if (self::_is_integer_list('bysecond', $bysecond, 0, 59)) {
 				if ($frequency === self::FREQUENCY_SECONDLY) {
-					$this->bysecond = $this->_construct_byset("bysecond", $dtstart->second(), $bysecond, 60);
+					$this->bysecond = $this->_construct_byset('bysecond', $dtstart->second(), $bysecond, 60);
 				} else {
 					$this->bysecond = $bysecond;
 				}
@@ -832,7 +832,7 @@ class Rule {
 						}
 					}
 				}
-				uasort($poslist, "zesk\\Timestamp::compare_callback");
+				uasort($poslist, 'zesk\\Timestamp::compare_callback');
 				foreach ($poslist as $res) {
 					/* @var $res \zesk\Timestamp */
 					if ($until && $res->after($until)) {
@@ -1025,7 +1025,7 @@ class Rule {
 		$output = [];
 		$h = $m = $s = null;
 		if ($this->dtstart) {
-			$output[] = $this->dtstart->format("DTSTART:{YYYY}{MM}{DD}T{hh}{mm}{ss}");
+			$output[] = $this->dtstart->format('DTSTART:{YYYY}{MM}{DD}T{hh}{mm}{ss}');
 			$h = $this->dtstart->hour();
 			$m = $this->dtstart->minute();
 			$s = $this->dtstart->second();
@@ -1034,16 +1034,16 @@ class Rule {
 			'FREQ=' . $this->frequency,
 		];
 		if ($this->interval !== 1) {
-			$parts[] = "INTERVAL=" . $this->interval;
+			$parts[] = 'INTERVAL=' . $this->interval;
 		}
 		if ($this->wkst !== 1) {
-			$parts[] = "WKST=" . self::list_to_string($this->wkst);
+			$parts[] = 'WKST=' . self::list_to_string($this->wkst);
 		}
 		if ($this->count !== 1) {
-			$parts[] = "COUNT=" . $this->count;
+			$parts[] = 'COUNT=' . $this->count;
 		}
 		if ($this->until) {
-			$parts[] = $this->until->format("UNTIL={YYYY}{MM}{DD}T{hh}{mm}{ss}");
+			$parts[] = $this->until->format('UNTIL={YYYY}{MM}{DD}T{hh}{mm}{ss}');
 		}
 		$original_rule = $this->original_rule;
 		if (isset($original_rule['byweekday'])) {
@@ -1070,12 +1070,12 @@ class Rule {
 				$parts[] = "$name=" . self::list_to_string($original_rule[$var]);
 			}
 		}
-		$output[] = implode(";", $parts);
+		$output[] = implode(';', $parts);
 		return implode("\n", $output);
 	}
 
 	private static function list_to_string(array $list) {
-		return implode(",", $list);
+		return implode(',', $list);
 	}
 
 	/**
@@ -1106,37 +1106,37 @@ class Rule {
 			if ($map) {
 				$num = avalue($map, $num, $num);
 				if (!is_int($num)) {
-					throw new Exception_Parameter("{name} item #{index} should have an integer value ({item} is {type})", [
-						"name" => $name,
-						"item" => $num,
-						"index" => $index + 1,
-						"type" => type($item),
+					throw new Exception_Parameter('{name} item #{index} should have an integer value ({item} is {type})', [
+						'name' => $name,
+						'item' => $num,
+						'index' => $index + 1,
+						'type' => type($item),
 					]);
 				}
 			}
 			$num = intval($num);
 			if ($min !== null && $num < $min) {
-				throw new Exception_Range("{name} item {num} (#{index}) must be greater than or equal to minimum {min} ", [
-					"name" => $name,
-					"num" => $num,
-					"index" => $index + 1,
-					"min" => $min,
+				throw new Exception_Range('{name} item {num} (#{index}) must be greater than or equal to minimum {min} ', [
+					'name' => $name,
+					'num' => $num,
+					'index' => $index + 1,
+					'min' => $min,
 				]);
 			}
 			if ($max !== null && $num > $max) {
-				throw new Exception_Range("{name} item {num} (#{index}) must be less than or equal to maximum {max}", [
-					"name" => $name,
-					"num" => $num,
-					"index" => $index + 1,
-					"max" => $max,
+				throw new Exception_Range('{name} item {num} (#{index}) must be less than or equal to maximum {max}', [
+					'name' => $name,
+					'num' => $num,
+					'index' => $index + 1,
+					'max' => $max,
 				]);
 			}
 			if ($allow_zero !== true && $num === 0) {
-				throw new Exception_Range("{name} item #{index} does not allow a zero value ({num} from {check_items})", [
-					"name" => $name,
-					"num" => $num,
-					"check_items" => $check_items,
-					"index" => $index + 1,
+				throw new Exception_Range('{name} item #{index} does not allow a zero value ({num} from {check_items})', [
+					'name' => $name,
+					'num' => $num,
+					'check_items' => $check_items,
+					'index' => $index + 1,
 				]);
 			}
 			$check_items[$index] = $num;
@@ -1262,9 +1262,9 @@ class Rule {
 			}
 		}
 		if (count($result) === 0) {
-			throw new Exception_Semantics("Invalid rrule {name} generates an empty set ({base})", [
-				"name" => $name,
-				"base" => $base,
+			throw new Exception_Semantics('Invalid rrule {name} generates an empty set ({base})', [
+				'name' => $name,
+				'base' => $base,
 			]);
 		}
 		ksort($result, SORT_NUMERIC);

@@ -11,7 +11,7 @@ namespace zesk;
 		<ul class="dropdown-menu"><?php
 		foreach ($this->control_options as $value => $label) {
 			echo HTML::tag('li', HTML::tag('a', [
-				'onclick' => "$('.form-control', \$(this).parents('.input-group')).val($(this).data('value'));",
+				'onclick' => '$(\'.form-control\', $(this).parents(\'.input-group\')).val($(this).data(\'value\'));',
 				'data-value' => $value,
 			], $label));
 		}

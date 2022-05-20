@@ -83,7 +83,7 @@ abstract class Metafile extends Options {
 			case 1:
 				return $data;
 			default:
-				throw new Exception_Semantics("read_integer reads 1,2,4 byte integers");
+				throw new Exception_Semantics('read_integer reads 1,2,4 byte integers');
 		}
 		if ($count === 1) {
 			return $result[0];

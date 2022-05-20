@@ -13,7 +13,7 @@ class Domain extends ORM {
 	 *
 	 * @var string
 	 */
-	public const url_public_suffix_list = "https://publicsuffix.org/list/public_suffix_list.dat";
+	public const url_public_suffix_list = 'https://publicsuffix.org/list/public_suffix_list.dat';
 
 	/**
 	 * @see http://www.seobythesea.com/2006/01/googles-most-popular-and-least-popular-top-level-domains/
@@ -25,7 +25,7 @@ class Domain extends ORM {
 	 *
 	 * @var string
 	 */
-	public const url_tlds_by_alpha = "http://data.iana.org/TLD/tlds-alpha-by-domain.txt";
+	public const url_tlds_by_alpha = 'http://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 
 	/**
 	 *
@@ -61,7 +61,7 @@ class Domain extends ORM {
 	 */
 	public static function domain_factory(Application $application, $name) {
 		$domain = $application->orm_factory(__CLASS__, [
-			"name" => $name,
+			'name' => $name,
 		]);
 		return $domain->name_changed();
 	}
@@ -95,14 +95,14 @@ class Domain extends ORM {
 			$this->load_public_tlds();
 		}
 		$server = $this->name;
-		$x = explode(".", strrev(strtolower($server)), 4);
+		$x = explode('.', strrev(strtolower($server)), 4);
 		$last = null;
 		while (count($x) >= 3) {
 			$last = strrev(array_pop($x));
 		}
-		$default = strrev(implode(".", $x));
+		$default = strrev(implode('.', $x));
 		do {
-			$try = strrev(implode(".", $x));
+			$try = strrev(implode('.', $x));
 			if (isset(self::$public_tlds[$try])) {
 				return "$last.$try";
 			}
@@ -120,13 +120,13 @@ class Domain extends ORM {
 			$this->load_public_tlds();
 		}
 		$server = $this->name;
-		$x = explode(".", strrev(strtolower($server)), 4);
+		$x = explode('.', strrev(strtolower($server)), 4);
 		$default = strrev($x[0]);
 		while (count($x) >= 2) {
 			array_pop($x);
 		}
 		do {
-			$try = strrev(implode(".", $x));
+			$try = strrev(implode('.', $x));
 			if (isset(self::$public_tlds[$try])) {
 				return "$try";
 			}
@@ -139,14 +139,14 @@ class Domain extends ORM {
 	 * @return string
 	 */
 	private static function public_suffix_list_file(Paths $paths) {
-		return $paths->zesk("etc/db/public-tlds.txt");
+		return $paths->zesk('etc/db/public-tlds.txt');
 	}
 
 	/**
 	 * @return string
 	 */
 	private static function tlds_by_alpha_file(Paths $paths) {
-		return $paths->zesk("etc/db/tlds.txt");
+		return $paths->zesk('etc/db/tlds.txt');
 	}
 
 	/**

@@ -11,17 +11,17 @@ namespace zesk;
 /* @var $response \zesk\Response */
 $duration = $this->content;
 $use_unit = Timestamp::UNIT_SECOND;
-$prefix = "";
+$prefix = '';
 foreach (Timestamp::$UNITS_TRANSLATION_TABLE as $unit => $seconds) {
 	if ($duration > $seconds * 2) {
 		$use_unit = $unit;
 		$duration = floor($duration / $seconds);
-		$prefix = "~";
+		$prefix = '~';
 		break;
 	}
 }
-echo $locale->__("{prefix}{n} {units}", [
-	"prefix" => $prefix,
-	"n" => $duration,
-	"units" => $locale->plural($locale->__($unit), $duration),
+echo $locale->__('{prefix}{n} {units}', [
+	'prefix' => $prefix,
+	'n' => $duration,
+	'units' => $locale->plural($locale->__($unit), $duration),
 ]);

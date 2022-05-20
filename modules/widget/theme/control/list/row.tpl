@@ -15,5 +15,5 @@ if ($this->row_widget instanceof Widget) {
 	$children = $this->children;
 }
 echo $this->theme('zesk/control/widgets', [
-	"children" => $children,
+	'children' => $children,
 ]);

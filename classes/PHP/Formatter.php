@@ -210,7 +210,7 @@ class PHP_Formatter extends Options {
 				$str = $this->tokens[$this->index++]->contents;
 				$closeSquareBracket = $this->tokens[$this->index++]->contents;
 				$quote = $this->tokens[$this->index]->contents;
-				echo $var . "['" . $str . "']";
+				echo $var . '[\'' . $str . '\']';
 				$doubleQuote = false;
 
 				continue;
@@ -228,7 +228,7 @@ class PHP_Formatter extends Options {
 				$openSquareBracket = $this->tokens[++$this->index]->contents;
 				$str = $this->tokens[++$this->index]->contents;
 				$closeSquareBracket = $this->tokens[++$this->index]->contents;
-				echo $var . "['" . $str . "']";
+				echo $var . '[\'' . $str . '\']';
 				if ($next_token->contents != '"') {
 					echo ' . "';
 				} else {
@@ -237,7 +237,7 @@ class PHP_Formatter extends Options {
 				}
 			} elseif ($token->type == T_STRING && $prev_token->contents == '[' && $next_token->contents == ']') {
 				if (preg_match('/[a-z_]+/', $token->contents)) {
-					echo "'" . $token->contents . "'";
+					echo '\'' . $token->contents . '\'';
 				} else {
 					echo $token->contents;
 				}
@@ -254,7 +254,7 @@ class PHP_Formatter extends Options {
 					echo ' ';
 				}
 			} elseif ($token->contents == '}' && in_array($next_token->type, self::$CONTROL_STRUCTURES)) {
-				echo "} ";
+				echo '} ';
 			} elseif ($token->contents == '=' && $next_token->contents == '&') {
 				if ($prev_token->type != T_WHITESPACE) {
 					echo ' ';

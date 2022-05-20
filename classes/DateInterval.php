@@ -14,7 +14,7 @@ class DateInterval extends \DateInterval {
 	 * @var string
 	 * @see \DateInterval
 	 */
-	public const INTERVAL_SPEC_FORMAT = "P%yY%mM%dDT%hH%iM%sS";
+	public const INTERVAL_SPEC_FORMAT = 'P%yY%mM%dDT%hH%iM%sS';
 
 	/**
 	 * Convert a \DateInterval to a zesk\DateInterval
@@ -49,12 +49,12 @@ class DateInterval extends \DateInterval {
 	 */
 	public function fromSeconds($value) {
 		static $units = [
-			"s" => Temporal::SECONDS_PER_MINUTE,
-			"i" => Temporal::MINUTES_PER_HOUR,
-			"h" => Temporal::HOURS_PER_DAY,
-			"d" => Temporal::DAYS_PER_MONTH,
-			"m" => Temporal::MONTHS_PER_YEAR,
-			"y" => 10000, // Think we'll live to year 10,000? I think not.
+			's' => Temporal::SECONDS_PER_MINUTE,
+			'i' => Temporal::MINUTES_PER_HOUR,
+			'h' => Temporal::HOURS_PER_DAY,
+			'd' => Temporal::DAYS_PER_MONTH,
+			'm' => Temporal::MONTHS_PER_YEAR,
+			'y' => 10000, // Think we'll live to year 10,000? I think not.
 		];
 		if ($value < 0) {
 			$value = -$value;

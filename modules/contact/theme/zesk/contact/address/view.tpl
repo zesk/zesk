@@ -21,7 +21,7 @@ if ($this->getb('show_street', true)) {
 	echo HTML::span('.contact-address-street', $street);
 }
 if ($city && $province) {
-	echo HTML::tag("span", ".contact-address-city-province", __("contact/address/view:={city}, {province}", $members));
+	echo HTML::tag('span', '.contact-address-city-province', __('contact/address/view:={city}, {province}', $members));
 } else {
 	echo HTML::etag('span', '.contact-address-city', StringTools::capitalize($city));
 	echo HTML::etag('span', '.contact-address-province', StringTools::capitalize($province));

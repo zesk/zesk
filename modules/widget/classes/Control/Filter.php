@@ -14,19 +14,19 @@ class Control_Filter extends Control {
 	 *
 	 * @var string
 	 */
-	protected $theme_prefix = "zesk/control/filter/prefix";
+	protected $theme_prefix = 'zesk/control/filter/prefix';
 
 	/**
 	 * Header theme
 	 *
 	 * @var string
 	 */
-	protected $theme_header = "zesk/control/filter/header";
+	protected $theme_header = 'zesk/control/filter/header';
 
 	/**
 	 * Row tag
 	 */
-	protected $filter_tag = "form";
+	protected $filter_tag = 'form';
 
 	/**
 	 * Row attributes
@@ -34,9 +34,9 @@ class Control_Filter extends Control {
 	 * @var array
 	 */
 	protected $filter_attributes = [
-		"class" => "navbar-form",
-		"role" => "filter",
-		"method" => "GET",
+		'class' => 'navbar-form',
+		'role' => 'filter',
+		'method' => 'GET',
 	];
 
 	/**
@@ -44,14 +44,14 @@ class Control_Filter extends Control {
 	 *
 	 * @var string|iterable
 	 */
-	protected string|iterable $theme_footer = "zesk/control/filter/footer";
+	protected string|iterable $theme_footer = 'zesk/control/filter/footer';
 
 	/**
 	 * Suffix theme
 	 *
 	 * @var string|iterable
 	 */
-	protected string|iterable $theme_suffix = "zesk/control/filter/suffix";
+	protected string|iterable $theme_suffix = 'zesk/control/filter/suffix';
 
 	/**
 	 *
@@ -64,7 +64,7 @@ class Control_Filter extends Control {
 	 *
 	 * @var array
 	 */
-	protected string $widget_tag = "div";
+	protected string $widget_tag = 'div';
 
 	/**
 	 * Cell attributes
@@ -72,7 +72,7 @@ class Control_Filter extends Control {
 	 * @var array
 	 */
 	protected array $widget_attributes = [
-		"class" => "form-group",
+		'class' => 'form-group',
 	];
 
 	/**

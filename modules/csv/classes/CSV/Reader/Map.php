@@ -89,7 +89,7 @@ class CSV_Reader_Map extends CSV_Reader {
 	 */
 	public function read_map($name = null, array $map = null, array $mapTypes = null, array $defaultMap = null) {
 		if (!is_array($this->Headers)) {
-			throw new Exception_Semantics("Must have headers before setting map");
+			throw new Exception_Semantics('Must have headers before setting map');
 		}
 		if ($name === null) {
 			return array_keys($this->ReadMapGroup);
@@ -103,7 +103,7 @@ class CSV_Reader_Map extends CSV_Reader {
 			$column = strtolower($column);
 			if (!isset($this->HeadersToIndex[$column])) {
 				throw new Exception_Key("CSV::readSetMap($name,...): $column not found in headers {headers_to_index}", [
-					"headers_to_index" => $this->HeadersToIndex,
+					'headers_to_index' => $this->HeadersToIndex,
 				]);
 			} else {
 				$indexes = $this->HeadersToIndex[$column];
@@ -141,12 +141,12 @@ class CSV_Reader_Map extends CSV_Reader {
 			if ($v !== null) {
 				if (is_string($type)) {
 					switch ($type) {
-						case "boolean":
+						case 'boolean':
 							$row[$k] = to_bool($v);
 
 							break;
-						case "timestamp":
-						case "datetime":
+						case 'timestamp':
+						case 'datetime':
 							$row[$k] = Timestamp::factory($v);
 
 							break;
@@ -237,10 +237,10 @@ class CSV_Reader_Map extends CSV_Reader {
 	private function _add_translation_map_type(array $columns, $type) {
 		foreach ($columns as $column) {
 			if (!in_array($column, $this->Headers)) {
-				throw new Exception_Key("Unknown header key {key} in CSV reader for file {file} (type {type})", [
-					"key" => $column,
-					"type" => $type,
-					"file" => $this->FileName,
+				throw new Exception_Key('Unknown header key {key} in CSV reader for file {file} (type {type})', [
+					'key' => $column,
+					'type' => $type,
+					'file' => $this->FileName,
 				]);
 			}
 			$this->translation_map[$column] = $type;

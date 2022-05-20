@@ -19,6 +19,6 @@ abstract class Service_Translate extends Service {
 	 * @return Service_Translate
 	 */
 	public static function factory_translate(Application $application, $target_language, $source_language = null, array $options = []) {
-		return self::factory($application, "translate", $target_language, $source_language = null, $options);
+		return self::factory($application, 'translate', $target_language, $source_language = null, $options);
 	}
 }

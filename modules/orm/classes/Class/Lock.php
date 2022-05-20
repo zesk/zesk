@@ -10,10 +10,10 @@ namespace zesk;
  *
  */
 class Class_Lock extends Class_ORM {
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	public array $has_one = [
-		'server' => "zesk\\Server",
+		'server' => 'zesk\\Server',
 	];
 
 	public array $find_keys = [

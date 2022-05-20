@@ -32,11 +32,11 @@ class Server_Packager_YUM extends Server_Packager {
 	}
 
 	public function packages(): void {
-		throw new Exception_Unimplemented("No longer have access to yum system");
+		throw new Exception_Unimplemented('No longer have access to yum system');
 	}
 
 	public function package_exists($package) {
-		throw new Exception_Unimplemented("package_exists");
+		throw new Exception_Unimplemented('package_exists');
 		return false;
 	}
 }

@@ -2,14 +2,14 @@
 namespace zesk;
 
 class Class_County extends Class_ORM {
-	public string $name = "County";
+	public string $name = 'County';
 
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
-	public $name_column = "name";
+	public $name_column = 'name';
 
 	public array $has_one = [
-		'province' => "zesk\\Province",
+		'province' => 'zesk\\Province',
 	];
 
 	public array $column_types = [

@@ -24,7 +24,7 @@ class Control_URL extends Control_Text {
 		if ($url_new) {
 			return URL::normalize($url_new);
 		}
-		$default_protocol = $this->option("default_protocol", "http");
+		$default_protocol = $this->option('default_protocol', 'http');
 		if (URL::valid("$default_protocol://$url")) {
 			return URL::normalize("$default_protocol://$url");
 		}
@@ -36,9 +36,9 @@ class Control_URL extends Control_Text {
 	}
 
 	private function _error_default() {
-		$protocols = ArrayTools::suffix($this->protocol_list(), "://");
+		$protocols = ArrayTools::suffix($this->protocol_list(), '://');
 		return $this->application->locale->__('{label} must begin with {protocol_phrase}', [
-			"protocol_phrase" => $this->application->locale->conjunction($protocols),
+			'protocol_phrase' => $this->application->locale->conjunction($protocols),
 		]);
 	}
 

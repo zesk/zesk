@@ -107,7 +107,7 @@ final class Request {
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_USERAGENT, 'SQS/php');
 
-		if (substr($this->queue, 0, 5) == "https") {
+		if (substr($this->queue, 0, 5) == 'https') {
 			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, ($this->sqs->verifyHost() ? 1 : 0));
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, ($this->sqs->verifyPeer() ? 1 : 0));
 		}

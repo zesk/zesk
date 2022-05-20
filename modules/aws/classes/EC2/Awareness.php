@@ -31,61 +31,61 @@ class Awareness extends Hookable {
 	/**
 	 * Root URL to retrieve the settings from the network
 	 */
-	private static $url = "http://169.254.169.254/latest/";
+	private static $url = 'http://169.254.169.254/latest/';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const setting_hostname = "hostname";
+	public const setting_hostname = 'hostname';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const setting_instance_id = "instance_id";
+	public const setting_instance_id = 'instance_id';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const setting_instance_type = "instance_type";
+	public const setting_instance_type = 'instance_type';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const setting_local_hostname = "local_hostname";
+	public const setting_local_hostname = 'local_hostname';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const setting_local_ipv4 = "local_ipv4";
+	public const setting_local_ipv4 = 'local_ipv4';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const setting_mac = "mac";
+	public const setting_mac = 'mac';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const setting_public_hostname = "public_hostname";
+	public const setting_public_hostname = 'public_hostname';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const setting_public_ipv4 = "public_ipv4";
+	public const setting_public_ipv4 = 'public_ipv4';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const setting_security_groups = "security_groups";
+	public const setting_security_groups = 'security_groups';
 
 	/**
 	 *
@@ -111,15 +111,15 @@ class Awareness extends Hookable {
 	 * @var array
 	 */
 	private static $setting_to_suffix = [
-		self::setting_hostname => "hostname",
-		self::setting_instance_id => "instance-id",
-		self::setting_instance_type => "instance-type",
-		self::setting_local_hostname => "local-hostname",
-		self::setting_local_ipv4 => "local-ipv4",
-		self::setting_mac => "mac",
-		self::setting_public_hostname => "public-hostname",
-		self::setting_public_ipv4 => "public-ipv4",
-		self::setting_security_groups => "security-groups",
+		self::setting_hostname => 'hostname',
+		self::setting_instance_id => 'instance-id',
+		self::setting_instance_type => 'instance-type',
+		self::setting_local_hostname => 'local-hostname',
+		self::setting_local_ipv4 => 'local-ipv4',
+		self::setting_mac => 'mac',
+		self::setting_public_hostname => 'public-hostname',
+		self::setting_public_ipv4 => 'public-ipv4',
+		self::setting_security_groups => 'security-groups',
 	];
 
 	/**
@@ -216,23 +216,23 @@ class Awareness extends Hookable {
 			return $this->mock_settings;
 		}
 		$host = php_uname('n');
-		$ips = array_values(ArrayTools::clean(System::ip_addresses($this->application), "127.0.0.1"));
+		$ips = array_values(ArrayTools::clean(System::ip_addresses($this->application), '127.0.0.1'));
 		$macs = array_values(System::mac_addresses($this->application));
 
 		$settings = [
 			self::setting_hostname => $host,
-			self::setting_instance_id => "i-ffffffff",
-			self::setting_instance_type => "mock",
+			self::setting_instance_id => 'i-ffffffff',
+			self::setting_instance_type => 'mock',
 			self::setting_local_hostname => $host,
 			self::setting_local_ipv4 => first($ips),
 			self::setting_mac => first($macs),
 			self::setting_public_hostname => $host,
 			self::setting_public_ipv4 => last($ips),
-			self::setting_security_groups => "mock-security-group",
+			self::setting_security_groups => 'mock-security-group',
 		];
 		foreach ($settings as $setting => $value) {
-			if ($this->hasOption("mock_" . $setting)) {
-				$settings[$setting] = $this->option("mock_" . $setting);
+			if ($this->hasOption('mock_' . $setting)) {
+				$settings[$setting] = $this->option('mock_' . $setting);
 			}
 		}
 		$settings = ArrayTools::map_keys($settings, self::$setting_to_suffix);
@@ -246,12 +246,12 @@ class Awareness extends Hookable {
 	 * @return string
 	 */
 	private function fetch($suffix) {
-		if ($this->optionBool("mock")) {
+		if ($this->optionBool('mock')) {
 			return avalue($this->mock_settings(), $suffix);
 		}
-		$url = glue(self::$url, "/", "meta-data/$suffix");
+		$url = glue(self::$url, '/', "meta-data/$suffix");
 		$result = null;
-		if (to_bool(ini_get("allow_url_fopen"))) {
+		if (to_bool(ini_get('allow_url_fopen'))) {
 			$result = file_get_contents($url);
 		} else {
 			$client = new Net_HTTP_Client($this->application, $url);

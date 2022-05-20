@@ -31,7 +31,7 @@ class Markdown extends Options {
 	//
 	// Global default settings:
 	//
-	private $g_empty_element_suffix = " />"; // Change to ">" for HTML output
+	private $g_empty_element_suffix = ' />'; // Change to ">" for HTML output
 
 	private $g_tab_width = self::default_tab_size;
 
@@ -332,7 +332,7 @@ class Markdown extends Options {
 		$text = $this->_DoItalicsAndBold($text);
 
 		// Do hard breaks:
-		$replace = " <br" . $this->g_empty_element_suffix . "\n";
+		$replace = ' <br' . $this->g_empty_element_suffix . "\n";
 		$text = preg_replace("/ {2,}\n/", $replace, $text);
 
 		return $text;
@@ -347,7 +347,7 @@ class Markdown extends Options {
 
 		foreach ($tokens as $cur_token) {
 			[$type, $content] = $cur_token;
-			if ($type === "tag") {
+			if ($type === 'tag') {
 				// Within tags, encode * and _ so they don't conflict
 				// with their use in Markdown for italics and strong.
 				// We're replacing each such character with its
@@ -477,7 +477,7 @@ class Markdown extends Options {
 			[$whole_match, $IGNORED, $alt_text, $link_id] = $match;
 			$link_id = strtolower($link_id);
 
-			if ($link_id === "") {
+			if ($link_id === '') {
 				$link_id = strtolower($alt_text); // for shortcut links like ![this][].
 			}
 
@@ -646,7 +646,7 @@ class Markdown extends Options {
 		$whole_list = $this->g_list_level ? '@^' . $whole_list . '@mx' : '@(?:(?<=\n\n)|\A\n?)' . $whole_list . '@mx';
 		foreach (preg::matches($whole_list, $text) as $match) {
 			[$full_match, $list, $IGNORED, $list_type] = $match;
-			$list_type = preg_match("/$marker_ul/", $list_type) ? "ul" : "ol";
+			$list_type = preg_match("/$marker_ul/", $list_type) ? 'ul' : 'ol';
 			// Turn double returns into triple returns, so that we can make a
 			// paragraph for the last item in a list, if necessary:
 			$list = preg_replace('/\n{2,}/', "\n\n\n", $list);
@@ -710,7 +710,7 @@ class Markdown extends Options {
 				$item = $this->_RunSpanGamut($item);
 			}
 
-			$list_str = StringTools::replace_first($whole_string, "<li>" . $item . "</li>\n", $list_str);
+			$list_str = StringTools::replace_first($whole_string, '<li>' . $item . "</li>\n", $list_str);
 		}
 
 		$this->g_list_level--;
@@ -814,7 +814,7 @@ class Markdown extends Options {
 
 		// Do the angle bracket song and dance:
 		$text = strtr($text, [
-			'<' => "&lt;",
+			'<' => '&lt;',
 			'>' => '&gt;',
 		]);
 
@@ -950,14 +950,14 @@ class Markdown extends Options {
 		//	Based on a filter by Matthew Wickline, posted to the BBEdit-Talk
 		//	mailing list: <http://tinyurl.com/yu7ue>
 		//
-		$addr = "mailto:" . $addr;
-		$eaddr = "";
+		$addr = 'mailto:' . $addr;
+		$eaddr = '';
 		foreach (str_split($addr) as $c) {
 			if ($c !== ':') {
 				$top = $c === '@' ? 0.9 : 1;
 				$rand = random_int(0, 1);
 				if ($rand < 0.45) {
-					$c = '&#x' . sprintf('%X', ord($c)) . ";";
+					$c = '&#x' . sprintf('%X', ord($c)) . ';';
 				} elseif ($rand <= $top) {
 					$c = '&#' . ord($c) . ';';
 				}
@@ -965,7 +965,7 @@ class Markdown extends Options {
 			$eaddr .= $c;
 		}
 
-		$addr = "<a href=\"$eaddr\">" . StringTools::right($eaddr, ":") . "</a>";
+		$addr = "<a href=\"$eaddr\">" . StringTools::right($eaddr, ':') . '</a>';
 
 		return $addr;
 	}
@@ -1039,7 +1039,7 @@ class Markdown extends Options {
 		//
 		// Remove one level of line-leading tabs or spaces
 		//
-		$text = preg_replace('/^(\t|[ ]{1,' . $this->g_tab_width . '})/m', "", $text);
+		$text = preg_replace('/^(\t|[ ]{1,' . $this->g_tab_width . '})/m', '', $text);
 		return $text;
 	}
 }

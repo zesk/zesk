@@ -49,11 +49,11 @@ class Control_Row extends Control {
 	 */
 	public function theme_variables() {
 		return [
-			"object" => $this->object,
-			"row_widget" => $this,
-			"row_widgets" => $this->children(),
-			"row_tag" => $this->row_tag,
-			"row_attributes" => $this->row_attributes,
+			'object' => $this->object,
+			'row_widget' => $this,
+			'row_widgets' => $this->children(),
+			'row_tag' => $this->row_tag,
+			'row_attributes' => $this->row_attributes,
 		] + parent::theme_variables();
 	}
 

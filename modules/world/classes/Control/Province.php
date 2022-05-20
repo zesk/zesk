@@ -2,7 +2,7 @@
 namespace zesk;
 
 class Control_Province extends Control_Select_ORM {
-	protected $class = "zesk\\Province";
+	protected $class = 'zesk\\Province';
 
 	protected $options = [
 		'text_column' => 'name',

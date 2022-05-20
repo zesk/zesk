@@ -19,15 +19,15 @@ class Command_Build extends Command_Base {
 	];
 
 	public function build_hook_callback($callable, array $arguments): void {
-		$this->log("Running build step {callable}", [
-			"callable" => $this->application->hooks->callable_string($callable),
+		$this->log('Running build step {callable}', [
+			'callable' => $this->application->hooks->callable_string($callable),
 		]);
 	}
 
 	public function build_result_callback($callable, $previous_result, $new_result): void {
 		$callable_string = $this->application->hooks->callable_string($callable);
-		$this->log("Completed build step {callable}", [
-			"callable" => $callable_string,
+		$this->log('Completed build step {callable}', [
+			'callable' => $callable_string,
 		]);
 		if (is_array($new_result)) {
 		}
@@ -46,31 +46,31 @@ class Command_Build extends Command_Base {
 
 	private function run_cache_clear(): void {
 		if (!$this->optionBool('no-cache-clear')) {
-			$this->log("Clearing cache ...");
-			$this->log($this->zesk_cli("cache clear"));
+			$this->log('Clearing cache ...');
+			$this->log($this->zesk_cli('cache clear'));
 		} else {
-			$this->log("Skipping clearing cache ...");
+			$this->log('Skipping clearing cache ...');
 		}
 	}
 
 	private function run_update(): void {
 		if (!$this->optionBool('no-update')) {
-			$this->log("Running module updates ...");
-			$this->log($this->zesk_cli("update"));
+			$this->log('Running module updates ...');
+			$this->log($this->zesk_cli('update'));
 		} else {
-			$this->log("Skipping module updates ...");
+			$this->log('Skipping module updates ...');
 		}
 	}
 
 	private function run_build_hooks(): void {
-		$this->application->modules->all_hook_arguments("build", [
+		$this->application->modules->all_hook_arguments('build', [
 			$this,
 		], true, [
 			$this,
-			"build_hook_callback",
+			'build_hook_callback',
 		], [
 			$this,
-			"build_result_callback",
+			'build_result_callback',
 		]);
 	}
 }

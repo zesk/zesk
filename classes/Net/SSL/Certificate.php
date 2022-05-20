@@ -17,13 +17,13 @@ class Net_SSL_Certificate {
 	 *
 	 * @var string
 	 */
-	public const CACERT_FILENAME = "cacert.pem";
+	public const CACERT_FILENAME = 'cacert.pem';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const CACERT_TRUSTED_URL = "http://curl.haxx.se/ca/" . self::CACERT_FILENAME;
+	public const CACERT_TRUSTED_URL = 'http://curl.haxx.se/ca/' . self::CACERT_FILENAME;
 
 	/**
 	 *

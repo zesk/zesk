@@ -21,10 +21,10 @@ class View_Errors extends View {
 	 * @param string $prefix
 	 * @return string
 	 */
-	public static function one_error(array $errors, $name, $prefix = "<br />") {
+	public static function one_error(array $errors, $name, $prefix = '<br />') {
 		$error_string = avalue($errors, $name);
 		if (!$error_string) {
-			return "";
+			return '';
 		}
 		return $prefix . HTML::tag('span', '.error', $error_string);
 	}

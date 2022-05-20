@@ -11,18 +11,18 @@
 /* @var $object \zesk\DaemonTools\Service */
 namespace zesk;
 
-$ok = $object->optionBool("ok");
-$class = implode(" ", [
-	"daemontools-service processes",
+$ok = $object->optionBool('ok');
+$class = implode(' ', [
+	'daemontools-service processes',
 	$object->status,
-	$ok ? "ok" : "not-ok",
+	$ok ? 'ok' : 'not-ok',
 ]);
-echo HTML::tag_open("li", [
-	"class" => $class,
+echo HTML::tag_open('li', [
+	'class' => $class,
 ]);
-echo HTML::tag("strong", ".name", $object->path);
-echo HTML::etag("span", ".pid", $object->pid);
-echo HTML::span(".status", $object->status);
+echo HTML::tag('strong', '.name', $object->path);
+echo HTML::etag('span', '.pid', $object->pid);
+echo HTML::span('.status', $object->status);
 
-echo HTML::span(".duration", $this->theme('duration', $object->duration));
-echo HTML::tag_close("li");
+echo HTML::span('.duration', $this->theme('duration', $object->duration));
+echo HTML::tag_close('li');

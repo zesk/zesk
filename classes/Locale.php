@@ -47,19 +47,19 @@ abstract class Locale extends Hookable {
 	 * The locale string, e.g. "en_US", etc.
 	 * @var string
 	 */
-	private string $locale_string = "";
+	private string $locale_string = '';
 
 	/**
 	 *
 	 * @var string
 	 */
-	private string $language = "";
+	private string $language = '';
 
 	/**
 	 *
 	 * @var string|null
 	 */
-	private string $dialect = "";
+	private string $dialect = '';
 
 	/**
 	 * @var array
@@ -73,12 +73,12 @@ abstract class Locale extends Hookable {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Application $application, string $locale_string = "", array $options = []): self {
+	public static function factory(Application $application, string $locale_string = '', array $options = []): self {
 		if (!$locale_string) {
 			$locale_string = $application->configuration->path_get([
 				__CLASS__,
-				"default",
-			], "en_US");
+				'default',
+			], 'en_US');
 		}
 		[$lang, $dialect] = self::parse($locale_string);
 		$lang = strtoupper($lang);
@@ -86,8 +86,8 @@ abstract class Locale extends Hookable {
 			"${lang}_${dialect}",
 			"${lang}_Default",
 			$lang,
-			"Default",
-		], __CLASS__ . "_");
+			'Default',
+		], __CLASS__ . '_');
 		foreach ($classes as $class_name) {
 			try {
 				if (class_exists($class_name, true)) {
@@ -97,8 +97,8 @@ abstract class Locale extends Hookable {
 			}
 		}
 
-		throw new Exception_Class_NotFound(first($classes), "No matching classes: {classes}", [
-			"classes" => $classes,
+		throw new Exception_Class_NotFound(first($classes), 'No matching classes: {classes}', [
+			'classes' => $classes,
 		]);
 	}
 
@@ -114,14 +114,14 @@ abstract class Locale extends Hookable {
 		$this->locale_string = $locale_string;
 		[$this->language, $this->dialect] = self::parse($locale_string);
 		$this->inheritConfiguration();
-		$auto = $this->option("auto");
+		$auto = $this->option('auto');
 		if ($auto === true || $auto === $this->language || $auto === $this->locale_string) {
 			$this->auto = true;
 		}
 		if ($this->auto) {
-			$application->hooks->add("exit", [
+			$application->hooks->add('exit', [
 				$this,
-				"shutdown",
+				'shutdown',
 			]);
 		}
 	}
@@ -157,7 +157,7 @@ abstract class Locale extends Hookable {
 	 */
 	public function translations(array $set = null): array {
 		if ($set !== null) {
-			$this->application->deprecated("setter");
+			$this->application->deprecated('setter');
 			$this->setTranslations($set);
 		}
 		return $this->translation_table;
@@ -201,7 +201,7 @@ abstract class Locale extends Hookable {
 	 */
 	public function find(string $phrase): string|null {
 		$phrase = strval($phrase);
-		[$group, $text] = explode(":=", $phrase, 2) + [
+		[$group, $text] = explode(':=', $phrase, 2) + [
 			null,
 			$phrase,
 		];
@@ -239,7 +239,7 @@ abstract class Locale extends Hookable {
 			if ($this->auto) {
 				$this->auto_add_phrase($phrase);
 			}
-			$translated = StringTools::right($phrase, ":=");
+			$translated = StringTools::right($phrase, ':=');
 			$translated = map($translated, $arguments);
 		} else {
 			$translated = $this->translation_table[$key_phrase];
@@ -331,16 +331,16 @@ abstract class Locale extends Hookable {
 	 *            Conjunction to use. Defaults to translation of "or"
 	 * @return unknown
 	 */
-	public function conjunction(array $words, string $conj = ""): string {
-		if ($conj === "") {
+	public function conjunction(array $words, string $conj = ''): string {
+		if ($conj === '') {
 			$conj = $this->__('or');
 		}
 		if (count($words) <= 1) {
-			return implode("", $words);
+			return implode('', $words);
 		}
 		$ll = array_pop($words);
-		$oxford = (count($words) > 1) ? "," : "";
-		return implode(", ", $words) . $oxford . " $conj $ll";
+		$oxford = (count($words) > 1) ? ',' : '';
+		return implode(', ', $words) . $oxford . " $conj $ll";
 	}
 
 	/**
@@ -355,7 +355,7 @@ abstract class Locale extends Hookable {
 	 * @return string
 	 */
 	public function plural_number(string $noun, int $number): string {
-		return $number . " " . $this->plural($noun, $number);
+		return $number . ' ' . $this->plural($noun, $number);
 	}
 
 	/**
@@ -388,7 +388,7 @@ abstract class Locale extends Hookable {
 	 */
 	final public function plural(string $noun, int $number = 2): string {
 		foreach ([
-					 "Locale::plural::" . $noun,
+					 'Locale::plural::' . $noun,
 				 ] as $k) {
 			if ($this->has($k)) {
 				return $this->__($k);
@@ -448,16 +448,16 @@ abstract class Locale extends Hookable {
 		$year = (365 * 24 * 3600 * 4 + 1) / 4;
 		$month = $year / 12;
 		return [
-			intval($year * 1000) => "millenium",
-			intval($year * 100) => "century",
-			intval($year * 10) => "decade",
-			intval($year) => "year",
-			intval($month) => "month",
-			604800 => "week",
-			86400 => "day",
-			3600 => "hour",
-			60 => "minute",
-			1 => "second",
+			intval($year * 1000) => 'millenium',
+			intval($year * 100) => 'century',
+			intval($year * 10) => 'decade',
+			intval($year) => 'year',
+			intval($month) => 'month',
+			604800 => 'week',
+			86400 => 'day',
+			3600 => 'hour',
+			60 => 'minute',
+			1 => 'second',
 		];
 	}
 
@@ -472,7 +472,7 @@ abstract class Locale extends Hookable {
 	 *            Optional string if < 1 unit away
 	 * @return string
 	 */
-	public function now_string(Timestamp|string|int $ts, string $min_unit = "", string $zero_string = "") {
+	public function now_string(Timestamp|string|int $ts, string $min_unit = '', string $zero_string = '') {
 		if ($ts instanceof Timestamp) {
 			$ts = $ts->unix_timestamp();
 		} elseif (!is_int($ts) && is_date($ts)) {
@@ -482,12 +482,12 @@ abstract class Locale extends Hookable {
 		$delta = $now - $ts;
 		$number = -1;
 		$duration = $this->duration_string($delta, $min_unit, $number);
-		if ($number === 0 && $zero_string !== "") {
+		if ($number === 0 && $zero_string !== '') {
 			$phrase = $zero_string;
 		} elseif ($delta < 0) {
-			$phrase = "Locale::now_string:=in {duration}";
+			$phrase = 'Locale::now_string:=in {duration}';
 		} else {
-			$phrase = "Locale::now_string:={duration} ago";
+			$phrase = 'Locale::now_string:={duration} ago';
 		}
 		return $this->__($phrase, [
 			'duration' => $duration,
@@ -507,7 +507,7 @@ abstract class Locale extends Hookable {
 	 *            Returns the final unit number
 	 * @return string
 	 */
-	public function duration_string(float $delta, string $min_unit = "", int &$number = null): string {
+	public function duration_string(float $delta, string $min_unit = '', int &$number = null): string {
 		if ($delta < 0) {
 			$delta = -$delta;
 		}
@@ -535,7 +535,7 @@ abstract class Locale extends Hookable {
 	 * @deprecated 2018-01
 	 * @todo clarify the use of this grammatically
 	 */
-	abstract public function negate_word(string $word, string $preferred_prefix = ""): string;
+	abstract public function negate_word(string $word, string $preferred_prefix = ''): string;
 
 	/**
 	 * Format currency values
@@ -575,19 +575,19 @@ abstract class Locale extends Hookable {
 		if (count($this->locale_phrases) === 0) {
 			return;
 		}
-		$path = $this->option("auto_path");
+		$path = $this->option('auto_path');
 		if (!$path) {
 			return;
 		}
 		$path = $this->application->paths->expand($path);
 		if (!is_dir($path)) {
-			$this->application->logger->warning("{class}::auto_path {path} is not a directory", [
-				"path" => $path,
-				"class" => get_class($this),
+			$this->application->logger->warning('{class}::auto_path {path} is not a directory', [
+				'path' => $path,
+				'class' => get_class($this),
 			]);
 			return;
 		}
-		$writer = new Writer($this->application, path($path, $this->id() . "-auto.php"));
+		$writer = new Writer($this->application, path($path, $this->id() . '-auto.php'));
 		$writer->append($this->locale_phrases, $this->locale_phrase_context);
 	}
 
@@ -595,7 +595,7 @@ abstract class Locale extends Hookable {
 	 * @return int
 	 */
 	public function first_day_of_week(): int {
-		if (function_exists("intlcal_get_first_day_of_week")) {
+		if (function_exists('intlcal_get_first_day_of_week')) {
 			$cal = \IntlCalendar::createInstance(null, $this->id());
 			return $cal->getFirstDayOfWeek();
 		}
@@ -621,9 +621,9 @@ abstract class Locale extends Hookable {
 	 */
 	public static function parse_language(string $locale): string {
 		if (empty($locale)) {
-			return "";
+			return '';
 		}
-		[$lang] = pair($locale, "_", $locale);
+		[$lang] = pair($locale, '_', $locale);
 		return strtolower(substr($lang, 0, 2));
 	}
 
@@ -636,10 +636,10 @@ abstract class Locale extends Hookable {
 	#[Pure]
 	public static function parse_dialect(string $locale): string {
 		if (empty($locale)) {
-			return "";
+			return '';
 		}
-		[$lang, $dialect] = \pair($locale, "_", $locale);
-		return is_string($dialect) ? strtoupper(substr($dialect, 0, 2)) : "";
+		[$lang, $dialect] = \pair($locale, '_', $locale);
+		return is_string($dialect) ? strtoupper(substr($dialect, 0, 2)) : '';
 	}
 
 	/**
@@ -648,18 +648,18 @@ abstract class Locale extends Hookable {
 	 * @return string[]
 	 */
 	public static function parse(string $locale): array {
-		if ($locale === "") {
-			return ["", ""];
+		if ($locale === '') {
+			return ['', ''];
 		}
-		[$lang, $region] = explode("_", $locale, 2) + [
+		[$lang, $region] = explode('_', $locale, 2) + [
 			$locale,
-			"",
+			'',
 		];
 		$lang = strtolower(substr($lang, 0, 2));
-		if ($region === "") {
+		if ($region === '') {
 			return [
 				$lang,
-				"",
+				'',
 			];
 		}
 		return [
@@ -675,7 +675,7 @@ abstract class Locale extends Hookable {
 	 * @return string
 	 */
 	public static function normalize(string $locale): string {
-		[$lang, $region] = explode("_", $locale, 2) + [
+		[$lang, $region] = explode('_', $locale, 2) + [
 			$locale,
 			null,
 		];
@@ -683,6 +683,6 @@ abstract class Locale extends Hookable {
 		if ($region === null) {
 			return $lang;
 		}
-		return $lang . "_" . strtoupper(substr($region, 0, 2));
+		return $lang . '_' . strtoupper(substr($region, 0, 2));
 	}
 }

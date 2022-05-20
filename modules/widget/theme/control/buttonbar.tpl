@@ -3,7 +3,7 @@ namespace zesk;
 
 $widget = $this->widget;
 /* @var $widget Widget */
-$widget->content_children = "";
+$widget->content_children = '';
 echo HTML::tag_open('div', '.buttonbar');
 foreach ($widget->children as $widget) {
 	/* @var $widget Widget */

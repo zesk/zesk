@@ -26,17 +26,17 @@ abstract class Exception_ORM extends Exception {
 	public function __construct($class, $message = null, $arguments = [], Exception $previous = null) {
 		$this->class = $class;
 		if (empty($message)) {
-			$message = "Class: {class}";
+			$message = 'Class: {class}';
 		}
 		$arguments += [
-			"class" => $class,
+			'class' => $class,
 		];
 		parent::__construct($message, $arguments, null, $previous);
 	}
 
 	public function variables(): array {
 		return parent::variables() + [
-			"class" => $this->class,
+			'class' => $this->class,
 		];
 	}
 }

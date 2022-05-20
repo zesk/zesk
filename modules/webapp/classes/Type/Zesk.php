@@ -40,7 +40,7 @@ class Type_Zesk extends Type {
 			$this->exception = $e;
 			return false;
 		}
-		$glob_pattern = path($this->path, "/*.application.php");
+		$glob_pattern = path($this->path, '/*.application.php');
 		$files = glob($glob_pattern);
 		if (count($files) === 0) {
 			$this->exception = new Exception_File_NotFound($glob_pattern);
@@ -56,9 +56,9 @@ class Type_Zesk extends Type {
 	 * @return string
 	 */
 	public function bin_zesk() {
-		$ff = path($this->path, "vendor/bin/zesk.sh");
+		$ff = path($this->path, 'vendor/bin/zesk.sh');
 		if (!is_executable($ff)) {
-			throw new Exception_File_Permission($ff, "Not executable");
+			throw new Exception_File_Permission($ff, 'Not executable');
 		}
 		return $ff;
 	}
@@ -75,16 +75,16 @@ class Type_Zesk extends Type {
 
 		try {
 			$zesk = $this->bin_zesk();
-			$lines = $this->application->process->execute_arguments($zesk . " --cd {directory} version", [
-				"directory" => $this->path,
+			$lines = $this->application->process->execute_arguments($zesk . ' --cd {directory} version', [
+				'directory' => $this->path,
 			]);
 			if (count($lines) === 0) {
 				return null;
 			}
 			if (count($lines) !== 1) {
-				$this->application->logger->warning("{zesk} version output more than 1 line: {lines}", [
-					"zesk" => $zesk,
-					"lines" => $lines,
+				$this->application->logger->warning('{zesk} version output more than 1 line: {lines}', [
+					'zesk' => $zesk,
+					'lines' => $lines,
 				]);
 			}
 			$this->version = last($lines);

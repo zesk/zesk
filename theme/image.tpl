@@ -24,7 +24,7 @@ $attributes = $this->geta('attributes', []) + [
 $widget = View_Image::scaled_widget($application, $width, $height, null, $attributes);
 $widget->response($response);
 
-$model = $application->model_factory("zesk\\Model");
+$model = $application->model_factory('zesk\\Model');
 $model->src = $src;
 
 echo $widget->execute($model);

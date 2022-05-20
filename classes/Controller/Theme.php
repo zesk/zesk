@@ -53,9 +53,9 @@ abstract class Controller_Theme extends Controller {
 	 */
 	protected function initialize(): void {
 		parent::initialize();
-		if ($this->hasOption("template")) {
-			$this->application->deprecated("{class} is using option template - should not @deprecated 2017-11", [
-				"class" => get_class($this),
+		if ($this->hasOption('template')) {
+			$this->application->deprecated('{class} is using option template - should not @deprecated 2017-11', [
+				'class' => get_class($this),
 			]);
 		}
 		if ($this->theme === null) {
@@ -105,8 +105,8 @@ abstract class Controller_Theme extends Controller {
 	 */
 	public function exception(\Exception $e): void {
 		if ($this->auto_render && $this->theme) {
-			$this->application->logger->error("Exception in controller {this-class} {class}: {message}", [
-				"this-class" => get_class($this),
+			$this->application->logger->error('Exception in controller {this-class} {class}: {message}', [
+				'this-class' => get_class($this),
 			] + Exception::exception_variables($e));
 		}
 	}
@@ -132,8 +132,8 @@ abstract class Controller_Theme extends Controller {
 				] + $this->response->to_json());
 			} else {
 				$this->response->content = $this->theme ? $this->theme($this->theme, [
-					"content" => $content,
-				] + $this->variables(), $this->option_array("theme_options")) : $content;
+					'content' => $content,
+				] + $this->variables(), $this->option_array('theme_options')) : $content;
 			}
 		}
 	}
@@ -158,7 +158,7 @@ abstract class Controller_Theme extends Controller {
 	protected function control(Control $control, Model $object = null, array $options = []) {
 		$control->response($this->response);
 		$content = $control->execute($object);
-		$this->call_hook(avalue($options, "hook_execute", "control_execute"), $control, $object, $options);
+		$this->call_hook(avalue($options, 'hook_execute', 'control_execute'), $control, $object, $options);
 		$title = $control->option('title', avalue($options, 'title'));
 		if ($title) {
 			$this->response->title($title, false); // Do not overwrite existing values

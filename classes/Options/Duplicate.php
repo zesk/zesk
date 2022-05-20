@@ -103,9 +103,9 @@ class Options_Duplicate extends Options {
 				$new_id = avalue($map, $id, null);
 				if ($new_id !== null) {
 					if (array_key_exists($member, $members)) {
-						throw new Exception_Semantics("Member {member} for object class {class} is already set in the member map", [
-							"member" => $member,
-							"class" => get_class($object),
+						throw new Exception_Semantics('Member {member} for object class {class} is already set in the member map', [
+							'member' => $member,
+							'class' => get_class($object),
 						]);
 					}
 					$members[$member] = $new_id;

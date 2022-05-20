@@ -4,9 +4,9 @@ namespace zesk;
 class Control_Locale_Format extends Control_Select {
 	protected $options = [
 		'options' => [
-			'en' => "English",
-			'fr' => "French",
-			'es' => "Spanish",
+			'en' => 'English',
+			'fr' => 'French',
+			'es' => 'Spanish',
 		],
 	];
 

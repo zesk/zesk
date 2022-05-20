@@ -46,7 +46,7 @@ class Database extends Base {
 	}
 
 	private function object_table_name(ORM $object) {
-		return "Cache_" . $object->table();
+		return 'Cache_' . $object->table();
 	}
 
 	private function object_table(ORM $object, $create = false) {
@@ -67,11 +67,11 @@ class Database extends Base {
 		$db = $this->cache_database($object);
 		$query = new Database_Query_Select($db);
 		$query->from($table);
-		$query->where("", $object->id());
+		$query->where('', $object->id());
 		$hash = md5($key);
-		$query->where("*key", "UNHEX(" . $db->quote_text($hash) . ")");
-		$query->addWhat("data");
-		return PHP::unserialize($query->one("data", null));
+		$query->where('*key', 'UNHEX(' . $db->quote_text($hash) . ')');
+		$query->addWhat('data');
+		return PHP::unserialize($query->one('data', null));
 	}
 
 	public function save(ORM $object, $key, $data) {
@@ -82,14 +82,14 @@ class Database extends Base {
 		}
 		$hash = md5($key);
 		$update = [
-			"*key" => "UNHEX(" . $database->quote_text($hash) . ")",
-			"id" => $object->id(),
+			'*key' => 'UNHEX(' . $database->quote_text($hash) . ')',
+			'id' => $object->id(),
 		];
 		$update['data'] = serialize($data);
 		$sql = $database->sql()->insert([
 			'table' => $table,
 			'values' => $update,
-			'verb' => "REPLACE",
+			'verb' => 'REPLACE',
 		]);
 		$database->query($sql);
 	}
@@ -101,11 +101,11 @@ class Database extends Base {
 		}
 		$database = $this->cache_database($object);
 		$where = [
-			"id" => $object->id(),
+			'id' => $object->id(),
 		];
 		if ($key !== null) {
 			$hash = md5($key);
-			$where['*key'] = "UNHEX(" . $database->quote_text($hash) . ")";
+			$where['*key'] = 'UNHEX(' . $database->quote_text($hash) . ')';
 		}
 		$sql = $database->sql()->delete([
 			'table' => $table,

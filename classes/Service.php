@@ -32,9 +32,9 @@ class Service extends Hookable {
 	 */
 	public static function valid_type(Application $application, $type = null) {
 		if (self::$valid_types === null) {
-			$service_class = __NAMESPACE__ . "\\Service";
+			$service_class = __NAMESPACE__ . '\\Service';
 			$types = ArrayTools::change_value_case($application->classes->register($service_class));
-			$types = ArrayTools::unprefix($types, strtolower($service_class) . "_");
+			$types = ArrayTools::unprefix($types, strtolower($service_class) . '_');
 			self::$valid_types = ArrayTools::flip_copy($types);
 		}
 		return $type === null ? self::$valid_types : array_key_exists(strtolower($type), self::$valid_types);
@@ -48,7 +48,7 @@ class Service extends Hookable {
 	 */
 	public static function service_classes(Application $application, $type) {
 		if (self::valid_type($application, $type)) {
-			return $application->classes->register(__NAMESPACE__ . "\\Service_" . $type);
+			return $application->classes->register(__NAMESPACE__ . '\\Service_' . $type);
 		}
 		return [];
 	}
@@ -62,8 +62,8 @@ class Service extends Hookable {
 	 */
 	public static function factory(Application $application, $type) {
 		if (!self::valid_type($application, $type)) {
-			throw new Exception_Semantics("Invalid service type {type}", [
-				"type" => $type,
+			throw new Exception_Semantics('Invalid service type {type}', [
+				'type' => $type,
 			]);
 		}
 		$args = func_get_args();
@@ -74,8 +74,8 @@ class Service extends Hookable {
 		if (!$class) {
 			$classes = self::service_classes($application, $type);
 			if (count($classes) === 0) {
-				throw new Exception_Semantics("No service classes for {type}", [
-					"type" => $type,
+				throw new Exception_Semantics('No service classes for {type}', [
+					'type' => $type,
 				]);
 			}
 			$class = array_shift($classes);

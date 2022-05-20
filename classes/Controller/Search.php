@@ -19,14 +19,14 @@ class Controller_Search extends Controller_Theme {
 	 * @return string
 	 */
 	protected function action_index() {
-		$query = $this->request->get($this->option("search_query_variable", 'q'));
+		$query = $this->request->get($this->option('search_query_variable', 'q'));
 		$results = [];
 		$total = $shown = 0;
 		foreach ($this->option_list('search_classes') as $class) {
 			try {
 				if (class_exists($class)) {
 					$object = $this->widget_factory($class);
-					$method = "controller_search";
+					$method = 'controller_search';
 					if (method_exists($object, $method)) {
 						$result = call_user_func([
 							$object,
@@ -38,18 +38,18 @@ class Controller_Search extends Controller_Theme {
 							$total += $result['total'];
 						}
 					} else {
-						$this->application->logger->error("Controller_Search::action_index {class} does not have method {method}", [
-							"class" => $class,
-							"method" => $method,
+						$this->application->logger->error('Controller_Search::action_index {class} does not have method {method}', [
+							'class' => $class,
+							'method' => $method,
 						]);
 					}
 				} else {
 					throw new Exception_Class_NotFound($class);
 				}
 			} catch (Exception_Class_NotFound $e) {
-				$this->application->hooks->call("exception", $e);
-				$this->application->logger->error("Controller_Search::action_index {class} does not exist", [
-					"class" => $class,
+				$this->application->hooks->call('exception', $e);
+				$this->application->logger->error('Controller_Search::action_index {class} does not exist', [
+					'class' => $class,
 				]);
 
 				continue;

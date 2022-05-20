@@ -30,7 +30,7 @@ class Image_Library_GD extends Image_Library {
 	 * @return boolean
 	 */
 	public function installed() {
-		return function_exists("imagecreate");
+		return function_exists('imagecreate');
 	}
 
 	/*
@@ -174,15 +174,15 @@ class Image_Library_GD extends Image_Library {
 	 */
 	public function image_scale_data($data, array $options) {
 		if (empty($data)) {
-			throw new Exception_Semantics("{method} passed an empty string", [
-				"method" => __METHOD__,
+			throw new Exception_Semantics('{method} passed an empty string', [
+				'method' => __METHOD__,
 			]);
 		}
 		$src = @imagecreatefromstring($data);
 		if (!is_resource($src)) {
-			throw new Exception_Semantics("{method} passed an invalid string of {n} bytes", [
-				"n" => strlen($data),
-				"method" => __METHOD__,
+			throw new Exception_Semantics('{method} passed an invalid string of {n} bytes', [
+				'n' => strlen($data),
+				'method' => __METHOD__,
 			]);
 		}
 		return $this->_image_scale_resource($src, null, $options);
@@ -215,10 +215,10 @@ class Image_Library_GD extends Image_Library {
 		}
 		$src = @imagecreatefromstring($contents);
 		if (!is_resource($src)) {
-			throw new Exception_Semantics("{method} passed an invalid string from {source} of {n} bytes", [
-				"n" => strlen($contents),
-				"source" => $source,
-				"method" => __METHOD__,
+			throw new Exception_Semantics('{method} passed an invalid string from {source} of {n} bytes', [
+				'n' => strlen($contents),
+				'source' => $source,
+				'method' => __METHOD__,
 			]);
 		}
 		return $src;
@@ -255,7 +255,7 @@ class Image_Library_GD extends Image_Library {
 			ob_start();
 		}
 		switch ($method) {
-			case "imagejpeg":
+			case 'imagejpeg':
 				$result = $method($dst, $dest, 100);
 
 				break;

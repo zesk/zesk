@@ -45,7 +45,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 	 * @param string $message
 	 */
 	final public function assert_is_string($mixed, $message = null): void {
-		$this->assertTrue(is_string($mixed), "!is_string(" . type($mixed) . " $mixed) $message");
+		$this->assertTrue(is_string($mixed), '!is_string(' . type($mixed) . " $mixed) $message");
 	}
 
 	/**
@@ -55,7 +55,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 	 * @param string $message
 	 */
 	final public function assert_is_numeric($mixed, $message = null): void {
-		$this->assertTrue(is_numeric($mixed), "!is_numeric(" . type($mixed) . " $mixed) $message");
+		$this->assertTrue(is_numeric($mixed), '!is_numeric(' . type($mixed) . " $mixed) $message");
 	}
 
 	/**
@@ -65,7 +65,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 	 * @param string $message
 	 */
 	final public function assert_is_integer($mixed, $message = null): void {
-		$this->assertTrue(is_int($mixed), "!is_integer(" . type($mixed) . " $mixed) $message");
+		$this->assertTrue(is_int($mixed), '!is_integer(' . type($mixed) . " $mixed) $message");
 	}
 
 	/**
@@ -75,7 +75,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 	 * @param string $message
 	 */
 	final public function assert_is_array($mixed, $message = null): void {
-		$this->assertTrue(is_array($mixed), "!is_array(" . type($mixed) . ") $message");
+		$this->assertTrue(is_array($mixed), '!is_array(' . type($mixed) . ") $message");
 	}
 
 	/**
@@ -89,7 +89,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 	}
 
 	final public function assert_class_exists($class, $message = null): void {
-		$this->assert_is_string($class, "Class passed to " . __METHOD__ . " should be string");
+		$this->assert_is_string($class, 'Class passed to ' . __METHOD__ . ' should be string');
 		$default_message = "Asserted class $class exists when it does not";
 
 		try {
@@ -107,7 +107,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 	 */
 	final public function assert_implements($mixed, $instanceof, $message = null): void {
 		$interfaces = class_implements($mixed);
-		$this->assert(in_array($instanceof, $interfaces), "!" . type($mixed) . " implements $instanceof (does implement " . implode(", ", $interfaces) . ") $message", false);
+		$this->assert(in_array($instanceof, $interfaces), '!' . type($mixed) . " implements $instanceof (does implement " . implode(', ', $interfaces) . ") $message", false);
 	}
 
 	/**
@@ -159,35 +159,35 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 	 * @param boolean $strict
 	 */
 	final protected function assert_arrays_equal($actual, $expected, $message = null, $strict = true): void {
-		$this->assertTrue(is_array($actual), gettype($actual) . " is not an array");
-		$this->assertTrue(is_array($expected), gettype($expected) . " is not an array");
+		$this->assertTrue(is_array($actual), gettype($actual) . ' is not an array');
+		$this->assertTrue(is_array($expected), gettype($expected) . ' is not an array');
 		$this->assert_equal($actual, $expected, $message, $strict);
 	}
 
 	final protected function assert_array_key_exists(array $array, $key, $message = null): void {
 		if ($message === null) {
-			$message = "Array does not contain key: $key (keys: " . implode(", ", array_keys($array)) . ")";
+			$message = "Array does not contain key: $key (keys: " . implode(', ', array_keys($array)) . ')';
 		}
 		$this->assert(array_key_exists($key, $array), $message);
 	}
 
 	final protected function assert_array_key_not_exists(array $array, $key, $message = null): void {
 		if ($message === null) {
-			$message = "Array does contain key but should not: $key (keys: " . implode(", ", array_keys($array)) . ")";
+			$message = "Array does contain key but should not: $key (keys: " . implode(', ', array_keys($array)) . ')';
 		}
 		$this->assert(!array_key_exists($key, $array), $message);
 	}
 
 	final protected function assert_in_array(array $array, $mixed, $message = null): void {
 		if ($message === null) {
-			$message = "Array does not contain value: $mixed (values: " . implode(", ", array_values($array)) . ")";
+			$message = "Array does not contain value: $mixed (values: " . implode(', ', array_values($array)) . ')';
 		}
 		$this->assert(in_array($mixed, $array), $message);
 	}
 
 	final protected function assert_not_in_array(array $array, $mixed, $message = null): void {
 		if ($message === null) {
-			$message = "Array should not contain value: $mixed (values: " . implode(", ", array_values($array)) . ")";
+			$message = "Array should not contain value: $mixed (values: " . implode(', ', array_values($array)) . ')';
 		}
 		$this->assert(!in_array($mixed, $array), $message);
 	}
@@ -208,7 +208,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 
 	final protected function assert_equal($actual, $expected, $message = null, $strict = true): void {
 		$this->assertEquals($expected, $actual, $message);
-		$message .= "\nassert_equal failed:\n  Actual: " . gettype($actual) . ": " . $this->dump($actual) . "\nExpected: " . gettype($expected) . ": " . $this->dump($expected);
+		$message .= "\nassert_equal failed:\n  Actual: " . gettype($actual) . ': ' . $this->dump($actual) . "\nExpected: " . gettype($expected) . ': ' . $this->dump($expected);
 		if (is_scalar($actual) && is_scalar($expected)) {
 			if (is_float($actual) && is_float($expected)) {
 				if (abs($actual - $expected) > 0.00001) {
@@ -232,7 +232,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 
 	final protected function assert_not_equal($actual, $expected, $message = null, $strict = true): void {
 		if ($message === null) {
-			$message = gettype($actual) . ": " . $this->dump($actual) . " === " . gettype($expected) . ": " . $this->dump($expected);
+			$message = gettype($actual) . ': ' . $this->dump($actual) . ' === ' . gettype($expected) . ': ' . $this->dump($expected);
 		}
 		if ($strict) {
 			$this->assert($actual !== $expected, $message);
@@ -241,9 +241,9 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 		}
 	}
 
-	final public function assert_equal_object($actual, $expected, $message = ""): void {
-		$this->assert(get_class($actual) === get_class($expected), $message . "get_class(" . get_class($actual) . ") === get_class(" . get_class($expected) . ")");
-		$this->assert($actual == $expected, $message . "\n" . $this->dump($actual) . " !== " . $this->dump($expected));
+	final public function assert_equal_object($actual, $expected, $message = ''): void {
+		$this->assert(get_class($actual) === get_class($expected), $message . 'get_class(' . get_class($actual) . ') === get_class(' . get_class($expected) . ')');
+		$this->assert($actual == $expected, $message . "\n" . $this->dump($actual) . ' !== ' . $this->dump($expected));
 	}
 
 	/**
@@ -258,7 +258,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 		return PHP::singleton()->settings_one()->render($value);
 	}
 
-	final protected function assert_equal_array($actual, $expected, $message = "", $strict = true, $order_matters = false): void {
+	final protected function assert_equal_array($actual, $expected, $message = '', $strict = true, $order_matters = false): void {
 		if (!is_array($actual)) {
 			$this->fail("$message: \$actual is not an array: " . $this->dump($actual, false));
 		}
@@ -266,19 +266,19 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 			$this->fail("$message: \$expected is not an array: " . $this->dump($expected, false));
 		}
 		if (count($actual) !== count($expected)) {
-			$this->fail("$message: Arrays are diferent sizes: count(\$actual)=" . count($actual) . " count(\$expected)=" . count($expected));
+			$this->fail("$message: Arrays are diferent sizes: count(\$actual)=" . count($actual) . ' count($expected)=' . count($expected));
 		}
 		foreach ($actual as $k => $v) {
 			if (!array_key_exists($k, $expected)) {
 				$this->fail("$message: $k doesn't exist in 2nd array");
 			}
 			if ($strict && gettype($v) !== gettype($expected[$k])) {
-				$this->fail("$message: types do not match for key $k: $v(" . gettype($v) . ") !== " . $expected[$k] . "(" . gettype($expected[$k]) . ")");
+				$this->fail("$message: types do not match for key $k: $v(" . gettype($v) . ') !== ' . $expected[$k] . '(' . gettype($expected[$k]) . ')');
 			}
 			if (is_array($v)) {
 				$this->assert_equal($v, $expected[$k], "[$k] $message", $strict);
 			} elseif (is_object($v)) {
-				$this->assert(get_class($v) === get_class($expected[$k]), "Classes don't match " . get_class($v) . " === " . get_class($expected[$k]) . ": $message");
+				$this->assert(get_class($v) === get_class($expected[$k]), 'Classes don\'t match ' . get_class($v) . ' === ' . get_class($expected[$k]) . ": $message");
 				$this->assert_equal($v, $expected[$k], "Comparing Key($k) => ");
 			} elseif ($strict) {
 				if ($v !== $expected[$k]) {
@@ -291,11 +291,11 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 			}
 		}
 		if ($order_matters) {
-			$this->assert(implode(";", array_keys($actual)) === implode(";", array_keys($expected)), "Ordering is different: " . implode(";", array_keys($actual)) === implode(";", array_keys($expected)));
+			$this->assert(implode(';', array_keys($actual)) === implode(';', array_keys($expected)), 'Ordering is different: ' . implode(';', array_keys($actual)) === implode(';', array_keys($expected)));
 		}
 	}
 
-	final protected function assert_array_contains($subset, $superset, $message = ""): void {
+	final protected function assert_array_contains($subset, $superset, $message = ''): void {
 		if (!is_array($subset)) {
 			$this->fail("$message: \$subset is not an array: " . $this->dump($subset, false));
 		}

@@ -11,8 +11,8 @@ namespace zesk;
  */
 class Database_Query_Insert_Test extends Test_Unit {
 	protected array $load_modules = [
-		"MySQL",
-		"ORM",
+		'MySQL',
+		'ORM',
 	];
 
 	public function test_Database_Query_Insert(): void {
@@ -29,16 +29,16 @@ class Database_Query_Insert_Test extends Test_Unit {
 		$db = $this->application->database_registry();
 		$testx = new Database_Query_Insert($db);
 
-		$table = "TABLENAME";
+		$table = 'TABLENAME';
 		$testx->into($table);
-		$testx->valid_columns(['thing','ID']);
+		$testx->valid_columns(['thing', 'ID']);
 
-		$name = "thing";
+		$name = 'thing';
 		$value = null;
 		$testx->value($name, $value);
 
 		$values = [
-			"ID" => "23",
+			'ID' => '23',
 		];
 		$testx->values($values);
 
@@ -50,7 +50,7 @@ class Database_Query_Insert_Test extends Test_Unit {
 		$testx->__toString();
 
 		$columns = [
-			"ID",
+			'ID',
 		];
 		$testx->valid_columns($columns);
 

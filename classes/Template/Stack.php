@@ -29,7 +29,7 @@ class Template_Stack {
 	 */
 	final public function push(Template $template): void {
 		$this->stack[] = $template;
-		$this->log[] = "push " . $template->path() . " " . calling_function(2);
+		$this->log[] = 'push ' . $template->path() . ' ' . calling_function(2);
 	}
 
 	/**
@@ -40,12 +40,12 @@ class Template_Stack {
 	 */
 	final public function pop() {
 		if (count($this->stack) <= 1) {
-			throw new Exception_Semantics("Popped top template from template stack - not allowed: {log}", [
-				"log" => nl2br(implode("\n", $this->log)),
+			throw new Exception_Semantics('Popped top template from template stack - not allowed: {log}', [
+				'log' => nl2br(implode("\n", $this->log)),
 			]);
 		}
 		$template = array_pop($this->stack);
-		$this->log[] = "pop " . $template->path();
+		$this->log[] = 'pop ' . $template->path();
 		return $template;
 	}
 

@@ -16,10 +16,10 @@ namespace zesk;
 class Control_Text extends Control {
 	protected function initialize(): void {
 		$this->options += ArrayTools::map_keys($this->options, [
-			"integer_minimum" => "value_minimum",
-			"integer_minimum_error" => "value_minimum_error",
-			"integer_maximum" => "value_maximum",
-			"integer_maximum_error" => "value_maximum_error",
+			'integer_minimum' => 'value_minimum',
+			'integer_minimum_error' => 'value_minimum_error',
+			'integer_maximum' => 'value_maximum',
+			'integer_maximum_error' => 'value_maximum_error',
 		]);
 		parent::initialize();
 	}
@@ -35,13 +35,13 @@ class Control_Text extends Control {
 	private function _validate_numeric(&$v) {
 		$locale = $this->application->locale;
 		$clamp = to_bool($this->optionBool('value_clamp'));
-		$min = $this->optionInt("value_minimum", null);
-		$max = $this->optionInt("value_maximum", null);
+		$min = $this->optionInt('value_minimum', null);
+		$max = $this->optionInt('value_maximum', null);
 		if ($min !== null && $v < $min) {
 			if ($clamp) {
 				$v = $min;
 			} else {
-				$this->error($this->option("value_minimum_error", $locale->__("{label} must be at least {value_minimum}.")));
+				$this->error($this->option('value_minimum_error', $locale->__('{label} must be at least {value_minimum}.')));
 				return false;
 			}
 		}
@@ -49,7 +49,7 @@ class Control_Text extends Control {
 			if ($clamp) {
 				$v = $max;
 			} else {
-				$this->error($this->option("value_maximum_error", $locale->__("{label} must be at most {value_maximum}")));
+				$this->error($this->option('value_maximum_error', $locale->__('{label} must be at most {value_maximum}')));
 				return false;
 			}
 		}
@@ -65,7 +65,7 @@ class Control_Text extends Control {
 			return !$this->required();
 		}
 		if (!is_numeric($v)) {
-			$this->error($this->application->locale->__("You must enter a numeric value for {label}."));
+			$this->error($this->application->locale->__('You must enter a numeric value for {label}.'));
 			return false;
 		}
 		if (!$this->_validate_numeric($v)) {
@@ -81,12 +81,12 @@ class Control_Text extends Control {
 			return !$this->required();
 		}
 		if (!empty($v) && !is_numeric($v)) {
-			$this->error($this->application->locale->__("You must enter a numeric value for {label}."));
+			$this->error($this->application->locale->__('You must enter a numeric value for {label}.'));
 			return false;
 		}
 		$v = floatval($v);
-		if ($this->hasOption("decimal_precision")) {
-			$v = round($v, $this->optionInt("decimal_precision"));
+		if ($this->hasOption('decimal_precision')) {
+			$v = round($v, $this->optionInt('decimal_precision'));
 		}
 		if (!$this->_validate_numeric($v)) {
 			return false;
@@ -100,9 +100,9 @@ class Control_Text extends Control {
 			'placeholder' => $this->option('placeholder', $this->label),
 			'password' => $this->optionBool('password'),
 			'textarea' => $this->textarea(),
-			"rows" => $this->optionInt("rows", 3),
-			"cols" => $this->optionInt("cols", 60),
-			"input_group_addon" => $this->option("input_group_addon", null),
+			'rows' => $this->optionInt('rows', 3),
+			'cols' => $this->optionInt('cols', 60),
+			'input_group_addon' => $this->option('input_group_addon', null),
 		] + parent::theme_variables();
 	}
 
@@ -110,8 +110,8 @@ class Control_Text extends Control {
 		if (!parent::validate()) {
 			return false;
 		}
-		if ($this->hasOption("validate")) {
-			$validate = $this->option("validate");
+		if ($this->hasOption('validate')) {
+			$validate = $this->option('validate');
 			$method = "validate_$validate";
 			if (!method_exists($this, $method)) {
 				throw new Exception_Semantics("Unknokn validation method $method for Control_Text");

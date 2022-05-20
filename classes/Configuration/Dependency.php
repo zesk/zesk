@@ -38,7 +38,7 @@ class Configuration_Dependency {
 
 	public function pop() {
 		if (count($this->context) === 0) {
-			throw new Exception_Semantics("Popped once to many times?");
+			throw new Exception_Semantics('Popped once to many times?');
 		}
 		array_pop($this->context);
 		return $this;
@@ -56,8 +56,8 @@ class Configuration_Dependency {
 			}
 		}
 		$this->definitions[$variable] = [
-			"context" => $context,
-			"dependencies" => $dependencies,
+			'context' => $context,
+			'dependencies' => $dependencies,
 		];
 		return $this;
 	}

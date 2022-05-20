@@ -48,7 +48,7 @@ class Database_Query_Insert extends Database_Query_Edit {
 	 * @param Database $db
 	 */
 	public function __construct(Database $db) {
-		parent::__construct("INSERT", $db);
+		parent::__construct('INSERT', $db);
 	}
 
 	/**
@@ -59,7 +59,7 @@ class Database_Query_Insert extends Database_Query_Edit {
 	 */
 	public function into($set = null) {
 		if ($set === null) {
-			zesk()->deprecated("setter/getter changed to PSR");
+			zesk()->deprecated('setter/getter changed to PSR');
 			return $this->into;
 		}
 		$this->setTable($set);
@@ -165,10 +165,10 @@ class Database_Query_Insert extends Database_Query_Edit {
 	 */
 	public function id() {
 		if ($this->low_priority) {
-			throw new Exception_Semantics("Can not execute query as low priority and retrieve id: " . $this->__toString());
+			throw new Exception_Semantics('Can not execute query as low priority and retrieve id: ' . $this->__toString());
 		}
 		if ($this->select) {
-			throw new Exception_Semantics("Can not execute query as select and retrieve id: " . $this->__toString());
+			throw new Exception_Semantics('Can not execute query as select and retrieve id: ' . $this->__toString());
 		}
 		return $this->_execute();
 	}

@@ -25,21 +25,21 @@ class Command_Locale_Export extends Command_Base {
 	];
 
 	protected function run() {
-		$source_language_file = $this->option("language-file", $this->application->configuration->path_get("zesk\\Module_PolyGlot::source_file"));
+		$source_language_file = $this->option('language-file', $this->application->configuration->path_get('zesk\\Module_PolyGlot::source_file'));
 		if (!$source_language_file) {
-			$this->usage("Need a source --language-file to determine source strings");
+			$this->usage('Need a source --language-file to determine source strings');
 		}
-		$destination = $this->option("destination", "locale.csv");
+		$destination = $this->option('destination', 'locale.csv');
 		if (!$destination) {
-			$this->usage("Need a file --destination {destination}");
+			$this->usage('Need a file --destination {destination}');
 		}
-		$exclusions = $this->optionBool("no-exclude") ? [] : $this->load_exclusions();
-		$source_locale = $this->application->load($source_language_file) + Reader::factory($this->application->locale_path(), "en_US")->execute();
+		$exclusions = $this->optionBool('no-exclude') ? [] : $this->load_exclusions();
+		$source_locale = $this->application->load($source_language_file) + Reader::factory($this->application->locale_path(), 'en_US')->execute();
 		$csv = new CSV_Writer();
 		$csv->file($destination);
 		$csv->set_headers([
-			"phrase",
-			"translation",
+			'phrase',
+			'translation',
 		]);
 		$n_excluded = $n_written = 0;
 		foreach ($source_locale as $phrase => $translation) {
@@ -56,20 +56,20 @@ class Command_Locale_Export extends Command_Base {
 			++$n_written;
 		}
 		$csv->close();
-		$this->log("Wrote {destination} {n_written} {rows}, excluded {n_excluded} {phrases}.", compact("destination") + [
-			"n_written" => $n_written,
-			"rows" => $this->application->locale->plural("row", $n_written),
-			"n_excluded" => $n_excluded,
-			"phrases" => $this->application->locale->plural("phrase", $n_excluded),
+		$this->log('Wrote {destination} {n_written} {rows}, excluded {n_excluded} {phrases}.', compact('destination') + [
+			'n_written' => $n_written,
+			'rows' => $this->application->locale->plural('row', $n_written),
+			'n_excluded' => $n_excluded,
+			'phrases' => $this->application->locale->plural('phrase', $n_excluded),
 		]);
 		return 0;
 	}
 
 	protected function load_exclusions() {
-		$column = "original";
-		$exclusions = $this->application->orm_registry("PolyGlot_Token")
+		$column = 'original';
+		$exclusions = $this->application->orm_registry('PolyGlot_Token')
 			->query_select()
-			->where("status", "delete")
+			->where('status', 'delete')
 			->what([
 			$column => $column,
 		])

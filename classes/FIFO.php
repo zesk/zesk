@@ -59,17 +59,17 @@ class FIFO {
 		if ($create) {
 			$dir = dirname($this->path);
 			if (!is_dir($dir)) {
-				throw new Exception_Directory_NotFound($dir, "Creating fifo {path}", [
-					"path" => $this->path,
+				throw new Exception_Directory_NotFound($dir, 'Creating fifo {path}', [
+					'path' => $this->path,
 				]);
 			}
 			if (file_exists($this->path)) {
 				if (!unlink($this->path)) {
-					throw new Exception_File_Permission($this->path, "unlink('{filename}')");
+					throw new Exception_File_Permission($this->path, 'unlink(\'{filename}\')');
 				}
 			}
 			if (!posix_mkfifo($this->path, $mode)) {
-				throw new Exception_File_Permission($this->path, "posix_mkfifo {filename}");
+				throw new Exception_File_Permission($this->path, 'posix_mkfifo {filename}');
 			}
 			$this->created = true;
 			$this->_before_read();
@@ -110,7 +110,7 @@ class FIFO {
 		}
 		if ($message === null) {
 			$n = 0;
-			$data = "";
+			$data = '';
 		} else {
 			$data = serialize($message);
 			$n = strlen($data);
@@ -151,14 +151,14 @@ class FIFO {
 	 */
 	private function _before_write() {
 		if (!file_exists($this->path)) {
-			error_log(map("FIFO does not exist at {path}", [
-				"path" => $this->path,
+			error_log(map('FIFO does not exist at {path}', [
+				'path' => $this->path,
 			]));
 			return false;
 		}
-		$this->w = fopen($this->path, "wb");
+		$this->w = fopen($this->path, 'wb');
 		if (!$this->w) {
-			throw new Exception_File_Permission($this->path, "fopen('{filename}', 'w')");
+			throw new Exception_File_Permission($this->path, 'fopen(\'{filename}\', \'w\')');
 		}
 		return true;
 	}
@@ -169,9 +169,9 @@ class FIFO {
 	 * @throws Exception_File_Permission
 	 */
 	private function _before_read(): void {
-		$this->r = fopen($this->path, "r+b");
+		$this->r = fopen($this->path, 'r+b');
 		if (!$this->r) {
-			throw new Exception_File_Permission($this->path, "fopen('{filename}', 'r')");
+			throw new Exception_File_Permission($this->path, 'fopen(\'{filename}\', \'r\')');
 		}
 	}
 

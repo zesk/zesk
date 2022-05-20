@@ -92,7 +92,7 @@ class Workflow extends Model {
 			$keys[] = $id;
 			$keys[] = $step->hash();
 		}
-		return md5(implode(";", $keys));
+		return md5(implode(';', $keys));
 	}
 
 	/**
@@ -126,9 +126,9 @@ class Workflow extends Model {
 			} elseif (is_array($spec)) {
 				[$class, $options] = $spec;
 			} else {
-				$app->logger->error("Workflow::_init_steps Invalid value type {type} {dump}", [
-					"type" => type($spec),
-					"dump" => _dump($spec),
+				$app->logger->error('Workflow::_init_steps Invalid value type {type} {dump}', [
+					'type' => type($spec),
+					'dump' => _dump($spec),
 				]);
 				continue;
 			}
@@ -137,8 +137,8 @@ class Workflow extends Model {
 				/* @var $step Workflow_Step */
 				$steps[$id] = $step = $app->objects->factory($class, $this, $options);
 			} catch (Exception_Class_NotFound $e) {
-				$app->logger->error("Workflow::_init_steps Class not found {class}", [
-					"class" => $step,
+				$app->logger->error('Workflow::_init_steps Class not found {class}', [
+					'class' => $step,
 				]);
 			}
 		}
@@ -165,9 +165,9 @@ class Workflow extends Model {
 				}
 			}
 			if (!$changed) {
-				$this->application->logger->error("Unable to resolve dependencies in {class}: {deps}", [
-					"class" => get_class($this),
-					"deps" => array_keys($dependencies),
+				$this->application->logger->error('Unable to resolve dependencies in {class}: {deps}', [
+					'class' => get_class($this),
+					'deps' => array_keys($dependencies),
 				]);
 				break;
 			}
@@ -190,7 +190,7 @@ class Workflow extends Model {
 		}
 		$this->completed = ($this->steps_completed === $this->steps_total);
 		$this->dirty = false;
-		$this->call_hook($this->completed ? 'completed' : "incomplete");
+		$this->call_hook($this->completed ? 'completed' : 'incomplete');
 	}
 
 	/**
@@ -228,16 +228,16 @@ class Workflow extends Model {
 			return $this;
 		}
 
-		throw new Exception_Parameter("{class}::variable invalid name type {type} {dump}", [
-			"class" => get_class($this),
-			"type" => type($name),
-			"dump" => _dump($name),
+		throw new Exception_Parameter('{class}::variable invalid name type {type} {dump}', [
+			'class' => get_class($this),
+			'type' => type($name),
+			'dump' => _dump($name),
 		]);
 	}
 
-	public function render($theme_name = null, $variables = null, $default = "") {
+	public function render($theme_name = null, $variables = null, $default = '') {
 		if ($theme_name === null) {
-			$theme_name = "steps";
+			$theme_name = 'steps';
 		}
 		$this->_clean_completed();
 		$themes = ArrayTools::suffix($this->application->classes->hierarchy(get_class($this), __CLASS__), "/$theme_name");
@@ -249,7 +249,7 @@ class Workflow extends Model {
 			'steps_total' => $this->steps_total,
 		] + to_array($variables, []), [
 			'first' => true,
-			"default" => $default,
+			'default' => $default,
 		]);
 	}
 

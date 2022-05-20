@@ -13,7 +13,7 @@ class PHP_Test extends Test_Unit {
 				1,
 			],
 			[
-				"",
+				'',
 			],
 			[
 				0,
@@ -24,16 +24,16 @@ class PHP_Test extends Test_Unit {
 		];
 		$falsy = [
 			0,
-			"",
+			'',
 			null,
 			false,
 			0.0,
 		];
 		foreach ($truthy as $true) {
-			$this->assert(!!$true, gettype($true) . " is not TRUE " . var_export($true, true));
+			$this->assert(!!$true, gettype($true) . ' is not TRUE ' . var_export($true, true));
 		}
 		foreach ($falsy as $false) {
-			$this->assert(!$false, gettype($false) . " is not FALSE " . var_export($false, true));
+			$this->assert(!$false, gettype($false) . ' is not FALSE ' . var_export($false, true));
 		}
 	}
 
@@ -44,9 +44,9 @@ class PHP_Test extends Test_Unit {
 	 */
 	public function test_php_andor(): void {
 		$a = new \stdClass();
-		$a->val = "a";
+		$a->val = 'a';
 		$b = new \stdClass();
-		$b->val = "b";
+		$b->val = 'b';
 
 		$c = $a || $b;
 		$this->assert_equal($c, true);
@@ -62,35 +62,35 @@ class PHP_Test extends Test_Unit {
 		return [
 			[
 				false,
-				"false",
+				'false',
 			],
 			[
 				true,
-				"true",
+				'true',
 			],
 			[
 				null,
-				"null",
+				'null',
 			],
 			[
 				0,
-				"0",
+				'0',
 			],
 			[
 				0.123,
-				"0.123",
+				'0.123',
 			],
 			[
-				"\$Hello",
-				"\"\\\$Hello\"",
+				'$Hello',
+				'"\\$Hello"',
 			],
 			[
 				[
-					"1",
-					"2",
-					"3",
+					'1',
+					'2',
+					'3',
 				],
-				"array(\"1\", \"2\", \"3\" )",
+				'array("1", "2", "3" )',
 			],
 		];
 	}
@@ -104,38 +104,38 @@ class PHP_Test extends Test_Unit {
 
 	public function test_php_references(): void {
 		$bigthing = [
-			"a" => [
-				"kind" => "letter",
-				"code" => 65,
+			'a' => [
+				'kind' => 'letter',
+				'code' => 65,
 			],
-			"b" => [
-				"kind" => "letter",
-				"code" => 66,
+			'b' => [
+				'kind' => 'letter',
+				'code' => 66,
 			],
-			"9" => [
-				"kind" => "number",
-				"code" => ord('9'),
+			'9' => [
+				'kind' => 'number',
+				'code' => ord('9'),
 			],
 		];
 
 		$otherarray = [];
-		$otherarray["test"] = &$bigthing['a'];
+		$otherarray['test'] = &$bigthing['a'];
 		// What happens to $bigthing?
-		unset($otherarray["test"]);
+		unset($otherarray['test']);
 		// Nothing, unset applies only to the key in the array
 
 		$this->assert_arrays_equal($bigthing, [
-			"a" => [
-				"kind" => "letter",
-				"code" => 65,
+			'a' => [
+				'kind' => 'letter',
+				'code' => 65,
 			],
-			"b" => [
-				"kind" => "letter",
-				"code" => 66,
+			'b' => [
+				'kind' => 'letter',
+				'code' => 66,
 			],
-			"9" => [
-				"kind" => "number",
-				"code" => ord('9'),
+			'9' => [
+				'kind' => 'number',
+				'code' => ord('9'),
 			],
 		]);
 	}

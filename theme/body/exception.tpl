@@ -12,4 +12,4 @@ if ($response) {
 		'share' => true,
 	]);
 }
-echo HTML::div(".exception", $this->content);
+echo HTML::div('.exception', $this->content);

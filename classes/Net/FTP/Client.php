@@ -43,7 +43,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	 */
 	public function connect(): void {
 		if ($this->is_connected()) {
-			throw new Exception_Semantics("Already connected.");
+			throw new Exception_Semantics('Already connected.');
 		}
 		$host = null;
 		$port = 21;
@@ -115,7 +115,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 
 	public function ls($path = null) {
 		$this->_passive();
-		$lines = ftp_rawlist($this->ftp, $path === null ? "" : $path);
+		$lines = ftp_rawlist($this->ftp, $path === null ? '' : $path);
 		$entries = [];
 		foreach ($lines as $line) {
 			$entry = $this->parse_ls_line($line);

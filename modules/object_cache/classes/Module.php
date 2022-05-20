@@ -17,7 +17,7 @@ class Module extends \zesk\Module {
 		$type = $this->option('type', 'file');
 		$factory = "_factory_$type";
 		if (!method_exists($this, $factory)) {
-			$factory = "_factory_file";
+			$factory = '_factory_file';
 		}
 		$this->cache = $this->$factory($this->application);
 		$this->configure_object_cache($this->cache);
@@ -35,15 +35,15 @@ class Module extends \zesk\Module {
 		$hooks = $this->application->hooks;
 		$invalidate = [
 			$cache,
-			"invalidate",
+			'invalidate',
 		];
 		$hooks->add("zesk\ORM::cache-load", [
 			$cache,
-			"load",
+			'load',
 		]);
 		$hooks->add("zesk\ORM::cache-save", [
 			$cache,
-			"save",
+			'save',
 		]);
 		$hooks->add("zesk\ORM::cache-dirty", $invalidate);
 		$hooks->add("zesk\ORM::insert", $invalidate);

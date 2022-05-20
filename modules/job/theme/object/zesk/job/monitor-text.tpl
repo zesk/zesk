@@ -4,7 +4,7 @@ namespace zesk;
 /* @var $job Job */
 /* @var $object Job */
 /* @var $response Response */
-$object->theme("scripts");
+$object->theme('scripts');
 
 $success = $this->success;
 if ($success) {
@@ -12,9 +12,9 @@ if ($success) {
 		'data-success' => $success,
 	]);
 }
-$job_attributes = "";
+$job_attributes = '';
 if ($this->success_remove) {
-	$job_attributes = " data-success-remove=\"1\"";
+	$job_attributes = ' data-success-remove="1"';
 }
 if ($job->dead()) {
 	$job->progress(__('Job has failed too many times. Contact a system administrator with the following code "{code}"', [

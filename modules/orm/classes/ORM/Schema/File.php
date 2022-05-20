@@ -20,14 +20,14 @@ class ORM_Schema_File extends ORM_Schema {
 	 *
 	 * @var string
 	 */
-	protected string $sql_file_path = "";
+	protected string $sql_file_path = '';
 
 	/**
 	 * Raw SQL in file
 	 *
 	 * @var string
 	 */
-	protected string $sql = "";
+	protected string $sql = '';
 
 	/**
 	 * Which parser to use
@@ -41,7 +41,7 @@ class ORM_Schema_File extends ORM_Schema {
 	 *
 	 * @var string
 	 */
-	protected string $mapped_sql = "";
+	protected string $mapped_sql = '';
 
 	/**
 	 * List of search paths when nothing found
@@ -57,15 +57,15 @@ class ORM_Schema_File extends ORM_Schema {
 	 * @param Class_ORM $object
 	 * @param string $sql
 	 */
-	public function __construct(Class_ORM $class_object, ORM $object = null, string $sql = "") {
+	public function __construct(Class_ORM $class_object, ORM $object = null, string $sql = '') {
 		parent::__construct($class_object, $object);
-		if ($sql !== "") {
+		if ($sql !== '') {
 			$this->_set_sql($sql);
 			$this->parser = Database_Parser::parse_factory($this->database(), $this->sql, calling_function());
-			$this->application->logger->debug("Parsing SQL {sql} using {parse_class} for class {class}", [
-				"sql" => $sql,
-				"parse_class" => get_class($this->parser),
-				"class" => get_class($class_object),
+			$this->application->logger->debug('Parsing SQL {sql} using {parse_class} for class {class}', [
+				'sql' => $sql,
+				'parse_class' => get_class($this->parser),
+				'class' => get_class($class_object),
 			]);
 		} else {
 			$path = $this->schema_path();
@@ -74,10 +74,10 @@ class ORM_Schema_File extends ORM_Schema {
 				$this->_set_sql(file_get_contents($path));
 				$this->parser = Database_Parser::parse_factory($this->database(), $this->sql, $path);
 				$this->application->logger->debug("Parsing {path} using {parse_class} for class {class}\nSQL:\n{sql}\n", [
-					"path" => $path,
-					"sql" => $this->mapped_sql,
-					"parse_class" => get_class($this->parser),
-					"class" => get_class($class_object),
+					'path' => $path,
+					'sql' => $this->mapped_sql,
+					'parse_class' => get_class($this->parser),
+					'class' => get_class($class_object),
 				]);
 			}
 		}
@@ -135,9 +135,9 @@ class ORM_Schema_File extends ORM_Schema {
 	protected function schema_path() {
 		$result = $this->_schema_path();
 		if ($this->optionBool('debug')) {
-			$this->application->logger->debug("{class_object} found file {result}", [
-				"class_object" => get_class($this->class_object),
-				"result" => $result,
+			$this->application->logger->debug('{class_object} found file {result}', [
+				'class_object' => get_class($this->class_object),
+				'result' => $result,
 			]);
 		}
 		return $result;
@@ -169,7 +169,7 @@ class ORM_Schema_File extends ORM_Schema {
 		}
 		$all_searches = array_merge($all_searches, $searches);
 		// Old-style way of finding - deprecate the template_schema_paths method
-		$file = $class_object->schema_file ? $class_object->schema_file : $class_object->class . ".sql";
+		$file = $class_object->schema_file ? $class_object->schema_file : $class_object->class . '.sql';
 		$this->searched = $all_searches;
 		return null;
 	}
@@ -195,7 +195,7 @@ class ORM_Schema_File extends ORM_Schema {
 	 */
 	public function schema(): array {
 		$db = $this->database();
-		if ($this->sql === "") {
+		if ($this->sql === '') {
 			return [];
 		}
 		$sqls = $this->parser->split_sql_commands($this->mapped_sql);
@@ -210,43 +210,43 @@ class ORM_Schema_File extends ORM_Schema {
 			$table_name = avalue($parse_result, 'table', '');
 			/* @var $table Database_Table */
 			$table = avalue($tables, $table_name);
-			$statement = avalue($parse_result, "command");
+			$statement = avalue($parse_result, 'command');
 			$__ = [
-				"table" => $table_name,
-				"sql" => $sql,
-				"file" => $this->sql_file_path,
-				"statement" => $statement,
+				'table' => $table_name,
+				'sql' => $sql,
+				'file' => $this->sql_file_path,
+				'statement' => $statement,
 			];
-			if ($statement === "create table") {
+			if ($statement === 'create table') {
 				$table = $this->parser->create_table($sql);
 				if (!$table) {
-					throw new Database_Exception_Schema($db, $sql, "Can not parse create table in {file}", $__);
+					throw new Database_Exception_Schema($db, $sql, 'Can not parse create table in {file}', $__);
 				}
 				$table_name = $table->name();
 				if (array_key_exists($table_name, $tables)) {
-					throw new Database_Exception_Schema($db, $sql, "Duplicate definition in {file} of {table}", $__);
+					throw new Database_Exception_Schema($db, $sql, 'Duplicate definition in {file} of {table}', $__);
 				}
 				$tables[$table_name] = $table;
-			} elseif ($statement === "create index") {
+			} elseif ($statement === 'create index') {
 				if ($table) {
 					$result = $this->parser->create_index($table, $sql);
 					$table->source($sql, true);
 					if (!$result) {
-						throw new Database_Exception_Schema($db, $sql, "Can not parse CREATE INDEX statement in {file} result={result}", $__ + [
+						throw new Database_Exception_Schema($db, $sql, 'Can not parse CREATE INDEX statement in {file} result={result}', $__ + [
 							'result' => _dump($result),
 						]);
 					}
 				} else {
-					throw new Database_Exception_Schema($db, $sql, "CREATE INDEX in {file} on unknown table {table}", $__);
+					throw new Database_Exception_Schema($db, $sql, 'CREATE INDEX in {file} on unknown table {table}', $__);
 				}
-			} elseif ($statement === "insert" || $statement === "drop table") {
+			} elseif ($statement === 'insert' || $statement === 'drop table') {
 				if (!$table) {
 					$table = first(array_values($tables));
-					$this->application->logger->warning("{statement} \"{sql}\" on unknown table {table} in {file}", $__);
+					$this->application->logger->warning('{statement} "{sql}" on unknown table {table} in {file}', $__);
 				}
-				$table->option_append_list("on create", $sql);
-			} elseif ($statement !== "none") {
-				$this->application->logger->error("Unknown SQL statement ({statement}) found in file {file}: {sql}", $__);
+				$table->option_append_list('on create', $sql);
+			} elseif ($statement !== 'none') {
+				$this->application->logger->error('Unknown SQL statement ({statement}) found in file {file}: {sql}', $__);
 			}
 		}
 
@@ -262,15 +262,15 @@ class ORM_Schema_File extends ORM_Schema {
 			foreach ($table->indexes() as $index) {
 				/* @var $index Database_Index */
 				switch ($index->type()) {
-					case Database_Index::Index:
+					case Database_Index::TYPE_INDEX:
 						$table_spec['indexes'][$index->name()] = $index->column_sizes();
 
 						break;
-					case Database_Index::Unique:
+					case Database_Index::TYPE_UNIQUE:
 						$table_spec['unique keys'][$index->name()] = $index->column_sizes();
 
 						break;
-					case Database_Index::Primary:
+					case Database_Index::TYPE_PRIMARY:
 						$table_spec['primary keys'] = $index->columns();
 
 						break;

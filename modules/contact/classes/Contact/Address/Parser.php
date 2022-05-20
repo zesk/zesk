@@ -105,89 +105,89 @@ class Contact_Address_Parser {
 		$patterns = [
 			// Pre-filter things that look like company names so we don't think they are states etc.
 			'/^(' . self::RE_ADDRESS_COMPANY . ')$/' => [
-				0 => "street",
+				0 => 'street',
 			],
 			// Just a word: Try country code
 			'/^(' . self::RE_ADDRESS_COUNTRY . ')$/' => [
-				0 => "country",
+				0 => 'country',
 			],
 			// City, State Zip Country
 			//[A-Za-z]{2,} country
 			'/^(' . self::RE_ADDRESS_CITY . '),? (' . self::RE_ADDRESS_STATE . ') (' . $RE_ADDRESS_ZIP . ') (' . self::RE_ADDRESS_COUNTRY . ')$/' => [
-				4 => "country",
-				1 => "city",
-				2 => "province",
-				3 => "postal_code",
+				4 => 'country',
+				1 => 'city',
+				2 => 'province',
+				3 => 'postal_code',
 			],
 			// Zip City, State Country
 			'/^(' . $RE_ADDRESS_ZIP . ') (' . self::RE_ADDRESS_CITY . '),? (' . self::RE_ADDRESS_STATE . ') (' . self::RE_ADDRESS_COUNTRY . ')$/' => [
-				4 => "country",
-				3 => "province",
-				2 => "city",
-				1 => "postal_code",
+				4 => 'country',
+				3 => 'province',
+				2 => 'city',
+				1 => 'postal_code',
 			],
 			// City, State Country
 			'/^(' . self::RE_ADDRESS_CITY . '),? (' . self::RE_ADDRESS_STATE . ') (' . self::RE_ADDRESS_COUNTRY . ')$/' => [
-				3 => "country",
-				2 => "province",
-				1 => "city",
+				3 => 'country',
+				2 => 'province',
+				1 => 'city',
 			],
 			// Zip City Country
 			'/^(' . $RE_ADDRESS_ZIP . ') (' . self::RE_ADDRESS_CITY . '),? (' . self::RE_ADDRESS_COUNTRY . ')$/' => [
-				3 => "country",
-				2 => "city",
-				1 => "postal_code",
+				3 => 'country',
+				2 => 'city',
+				1 => 'postal_code',
 			],
 			// Zip Country
 			'/^(' . $RE_ADDRESS_ZIP . ') (' . self::RE_ADDRESS_COUNTRY . ')$/' => [
-				2 => "country",
-				1 => "postal_code",
+				2 => 'country',
+				1 => 'postal_code',
 			],
 			// Country Zip
 			'/^(' . self::RE_ADDRESS_COUNTRY . ') (' . $RE_ADDRESS_ZIP . ')$/' => [
-				1 => "country",
-				2 => "postal_code",
+				1 => 'country',
+				2 => 'postal_code',
 			],
 			// City, ST 12345
 			// City, ST 12345-1234
 			// City, ST 123451234
 			'/^(' . self::RE_ADDRESS_CITY . '),? (' . self::RE_ADDRESS_STATE_US . ') (' . self::RE_ADDRESS_ZIP_US . ')$/' => [
-				1 => "city",
-				2 => "province",
-				3 => "postal_code",
-				"country" => "US",
+				1 => 'city',
+				2 => 'province',
+				3 => 'postal_code',
+				'country' => 'US',
 			],
 			// City, State Zip
 			'/^(' . self::RE_ADDRESS_CITY . '),? (' . self::RE_ADDRESS_STATE . ') (' . $RE_ADDRESS_ZIP . ')$/' => [
-				1 => "city",
-				2 => "province",
-				3 => "postal_code",
+				1 => 'city',
+				2 => 'province',
+				3 => 'postal_code',
 			],
 			// Zip City, State
 			'/^(' . $RE_ADDRESS_ZIP . ') (' . self::RE_ADDRESS_CITY . '),? (' . self::RE_ADDRESS_STATE . ')$/' => [
-				1 => "postal_code",
-				2 => "city",
-				3 => "province",
+				1 => 'postal_code',
+				2 => 'city',
+				3 => 'province',
 			],
 			// Zip City, State Zip - Saw this once
 			'/^(' . $RE_ADDRESS_ZIP . ') (' . self::RE_ADDRESS_CITY . '),? (' . self::RE_ADDRESS_STATE . ') (' . $RE_ADDRESS_ZIP . ')$/' => [
-				1 => "postal_code",
-				2 => "city",
-				3 => "province",
+				1 => 'postal_code',
+				2 => 'city',
+				3 => 'province',
 			],
 			// City, State
 			'/^(' . self::RE_ADDRESS_CITY . '),? (' . self::RE_ADDRESS_STATE . ')$/' => [
-				1 => "city",
-				2 => "province",
+				1 => 'city',
+				2 => 'province',
 			],
 			// Zip State
 			'/^(' . $RE_ADDRESS_ZIP . ') (' . self::RE_ADDRESS_STATE . ')$/' => [
-				2 => "province",
-				1 => "postal_code",
+				2 => 'province',
+				1 => 'postal_code',
 			],
 			// Zip
 			'/^(' . $RE_ADDRESS_ZIP . ')$/' => [
-				1 => "postal_code",
+				1 => 'postal_code',
 			],
 		];
 
@@ -195,7 +195,7 @@ class Contact_Address_Parser {
 			$lines = explode("\n", $lines);
 		}
 		$address = [
-			"unparsed" => implode("\n", $lines),
+			'unparsed' => implode("\n", $lines),
 		];
 		$streets = [];
 		while (count($lines) !== 0) {
@@ -203,8 +203,8 @@ class Contact_Address_Parser {
 			if (empty($line)) {
 				continue;
 			}
-			$line = str_replace(",", ", ", $line);
-			$line = preg_replace('/\s+/', " ", $line);
+			$line = str_replace(',', ', ', $line);
+			$line = preg_replace('/\s+/', ' ', $line);
 
 			$matched = false;
 			foreach ($patterns as $pattern => $map) {
@@ -218,12 +218,12 @@ class Contact_Address_Parser {
 						$temp = $matches[$k];
 						$k = $v;
 						$v = $temp;
-						if ($k === "street") {
+						if ($k === 'street') {
 							array_unshift($streets, $line);
 							$matched = true;
 
 							break;
-						} elseif ($k === "country") {
+						} elseif ($k === 'country') {
 							$cc = Country::find_country($application, $v);
 							if (empty($cc)) {
 								break;

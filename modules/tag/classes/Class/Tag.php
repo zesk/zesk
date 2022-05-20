@@ -22,7 +22,7 @@ abstract class Class_Tag extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $tag_column = "tag_label";
+	public $tag_column = 'tag_label';
 
 	/**
 	 * Linked column in OUR class which connects to foreign primary key
@@ -45,12 +45,12 @@ abstract class Class_Tag extends Class_ORM {
 	 */
 	public function initialize(): void {
 		if (!$this->foreign_column) {
-			throw new Exception_Semantics("{class} is misconfigured and needs foreign_column set", [
+			throw new Exception_Semantics('{class} is misconfigured and needs foreign_column set', [
 				'class' => get_class($this),
 			]);
 		}
 		if (!$this->table) {
-			$this->table = $this->option("tag_table_prefix", "Tag_") . PHP::parse_class($this->foreign_orm);
+			$this->table = $this->option('tag_table_prefix', 'Tag_') . PHP::parse_class($this->foreign_orm);
 		}
 		$this->find_keys = [
 			$this->tag_column,

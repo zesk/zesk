@@ -47,7 +47,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 					'status' => true,
 					'message' => $locale->__('That file is too large. You can only upload files which are less than {bytes}.', [
 						'bytes' => $this->application->theme('bytes', [
-							"content" => $real_size,
+							'content' => $real_size,
 						]),
 					]),
 				]);
@@ -56,24 +56,24 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 		}
 		if (!$file) {
 			$this->json([
-				"status" => false,
-				"message" => $locale->__("No file uploaded."),
+				'status' => false,
+				'message' => $locale->__('No file uploaded.'),
 			]);
 			return;
 		}
 		$fix_result = Content_Image::correct_orientation($this->application, $file['tmp_name']);
 		$image = Content_Image::register_from_file($this->application, $file['tmp_name'], [
-			"path" => $file['name'],
+			'path' => $file['name'],
 		]);
 		if (!$image) {
 			$this->json([
-				"status" => false,
-				"message" => $locale->__("Failed to save new image."),
+				'status' => false,
+				'message' => $locale->__('Failed to save new image.'),
 			]);
 			return;
 		}
 		if ($fix_result !== true) {
-			$this->application->logger->warning("Unable to fix orientation of image {id}: {name}", [
+			$this->application->logger->warning('Unable to fix orientation of image {id}: {name}', [
 				'id' => $image->id(),
 				'name' => $file['name'],
 			]);
@@ -85,14 +85,14 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 		$theme_key = $this->request->get('theme', '');
 		$theme = avalue($this->upload_theme_map(), $theme_key, 'zesk/control/picker/content/image/item');
 		$this->json([
-			"status" => true,
-			"content" => $this->application->theme($theme, [
-				"object" => $image,
-				"width" => $this->request->geti("width"),
-				"height" => $this->request->geti("height"),
-				"name" => $this->request->get("name"),
+			'status' => true,
+			'content' => $this->application->theme($theme, [
+				'object' => $image,
+				'width' => $this->request->geti('width'),
+				'height' => $this->request->geti('height'),
+				'name' => $this->request->get('name'),
 			]),
-			"message" => $locale->__("Upload successful."),
+			'message' => $locale->__('Upload successful.'),
 		]);
 	}
 

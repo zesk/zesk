@@ -20,25 +20,25 @@ namespace zesk;
  */
 class Language extends ORM {
 	public function locale_string() {
-		if ($this->member_is_empty("dialect")) {
+		if ($this->member_is_empty('dialect')) {
 			return strtolower($this->code);
 		}
-		return strtolower($this->code) . "_" . strtoupper($this->dialect);
+		return strtolower($this->code) . '_' . strtoupper($this->dialect);
 	}
 
 	public static function lang_name(Application $application, $code, Locale $locale = null) {
-		[$language, $dialect] = pair($code, "_", $code, null);
+		[$language, $dialect] = pair($code, '_', $code, null);
 		if (empty($dialect)) {
 			$dialect = null;
 		}
 		$lang_en = $application->orm_registry(__CLASS__)
 			->query_select()
-			->addWhat("name", "name")
+			->addWhat('name', 'name')
 			->where([
-			"code" => $language,
-			"dialect" => $dialect,
+			'code' => $language,
+			'dialect' => $dialect,
 		])
-			->one("name");
+			->one('name');
 		if ($lang_en) {
 			if (!$locale) {
 				$locale = $application->locale;
@@ -54,12 +54,12 @@ class Language extends ORM {
 	 */
 	public static function clean_table(Application $application): void {
 		$query = $application->orm_registry(__CLASS__)->query_update();
-		$query->value("dialect", null)->where("dialect", "");
+		$query->value('dialect', null)->where('dialect', '');
 		$query->execute();
 		if ($query->affected_rows() > 0) {
-			$application->logger->warning("{method} updated {n} non-NULL rows", [
-				"method" => __METHOD__,
-				"n" => $query->affected_rows(),
+			$application->logger->warning('{method} updated {n} non-NULL rows', [
+				'method' => __METHOD__,
+				'n' => $query->affected_rows(),
 			]);
 		}
 	}

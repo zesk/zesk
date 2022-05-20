@@ -21,7 +21,7 @@ class Module_Log_Mail extends Module {
 		parent::initialize();
 		$this->application->hooks->add(Mail::class . '::send', [
 			$this,
-			"hook_mail_send",
+			'hook_mail_send',
 		]);
 	}
 
@@ -38,18 +38,18 @@ class Module_Log_Mail extends Module {
 			$class = Log_Mail::class;
 			$n_affected = $application->orm_registry($class)
 				->query_delete()
-				->where("created|<=", $delete_before)
+				->where('created|<=', $delete_before)
 				->exec()
 				->affected_rows();
 			if ($n_affected > 0) {
-				$application->logger->notice("Deleted {n_affected} {class} rows older than {delete_before}", [
-					"delete_before" => $delete_before,
-					"n_affected" => $n_affected,
-					"class" => $class,
+				$application->logger->notice('Deleted {n_affected} {class} rows older than {delete_before}', [
+					'delete_before' => $delete_before,
+					'n_affected' => $n_affected,
+					'class' => $class,
 				]);
 				$object = $application->orm_registry($class);
 				$table = $object->table();
-				$object->database()->query("OPTIMIZE TABLE " . $table);
+				$object->database()->query('OPTIMIZE TABLE ' . $table);
 			}
 		}
 	}
@@ -73,7 +73,7 @@ class Module_Log_Mail extends Module {
 		}
 		$code = $mail->header(Mail::HEADER_MESSAGE_ID);
 		if ($code === null) {
-			$code = "";
+			$code = '';
 		}
 		$log_mail = $app->orm_factory(Log_Mail::class, [
 			'code' => $code,
@@ -86,8 +86,8 @@ class Module_Log_Mail extends Module {
 		]);
 		$table_name = $log_mail->table();
 		if (!$log_mail->database()->table_exists($table_name)) {
-			$app->logger->warning("Can not log message with subject {subject} ... table does not exist", [
-				"subject" => $subject,
+			$app->logger->warning('Can not log message with subject {subject} ... table does not exist', [
+				'subject' => $subject,
 			]);
 			return true;
 		}
@@ -101,7 +101,7 @@ class Module_Log_Mail extends Module {
 				$mail->sent = time();
 			} elseif ($log_mail->option('force_to')) {
 				$to = $mail->header(Mail::HEADER_TO);
-				if (!str_contains($to, "bounce-test")   && !str_contains($to, "bounce@")) {
+				if (!str_contains($to, 'bounce-test')   && !str_contains($to, 'bounce@')) {
 					$mail->header(Mail::HEADER_TO, $log_mail->option('force_to'));
 				}
 			}

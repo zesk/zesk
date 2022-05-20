@@ -42,8 +42,8 @@ abstract class File_Monitor {
 		$current = $this->current_mtimes();
 		foreach ($this->file_mtimes as $filename => $saved_mod_time) {
 			if (!isset($current[$filename])) {
-				error_log(map("Huh? Existing file monitor file {file} no longer monitored?", [
-					"file" => $filename,
+				error_log(map('Huh? Existing file monitor file {file} no longer monitored?', [
+					'file' => $filename,
 				]));
 			} else {
 				if ($current[$filename] !== $saved_mod_time) {
@@ -65,8 +65,8 @@ abstract class File_Monitor {
 		$current = $this->current_mtimes();
 		foreach ($this->file_mtimes as $filename => $saved_mod_time) {
 			if (!isset($current[$filename])) {
-				error_log(map("Huh? Existing file monitor file {file} no longer monitored?", [
-					"file" => $filename,
+				error_log(map('Huh? Existing file monitor file {file} no longer monitored?', [
+					'file' => $filename,
 				]));
 			} else {
 				if ($current[$filename] !== $saved_mod_time) {

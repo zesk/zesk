@@ -42,4 +42,4 @@ foreach ($strings as $unit => $format) {
 		return;
 	}
 }
-echo HTML::span(".currently-online", $locale('Currently online'));
+echo HTML::span('.currently-online', $locale('Currently online'));

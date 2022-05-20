@@ -11,7 +11,7 @@ namespace zesk;
  */
 class Class_Domain_Name_Server extends Class_ORM {
 	protected $column_types = [
-		"IP" => "ip",
+		'IP' => 'ip',
 	];
 
 	protected $has_one = [

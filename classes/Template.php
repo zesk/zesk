@@ -198,14 +198,14 @@ class Template implements Interface_Theme {
 	 * @return self
 	 */
 	public function begin(string $path, mixed $variables = null): self {
-		if (ends($path, ".tpl")) {
-			$this->application->logger->warning("{method} {path} ends with .tpl - now deprecated, use theme names only, called from {calling_function}", [
-				"method" => __METHOD__,
-				"path" => $path,
-				"calling_function" => calling_function(0),
+		if (ends($path, '.tpl')) {
+			$this->application->logger->warning('{method} {path} ends with .tpl - now deprecated, use theme names only, called from {calling_function}', [
+				'method' => __METHOD__,
+				'path' => $path,
+				'calling_function' => calling_function(0),
 			]);
 		} else {
-			$path .= ".tpl";
+			$path .= '.tpl';
 		}
 		$this->wrappers[] = $t = new Template($this->application, $path, $variables);
 		$t->push();
@@ -224,15 +224,15 @@ class Template implements Interface_Theme {
 	 * @param string $content_variable
 	 * @throws Exception_Semantics
 	 */
-	public function end(array $variables = [], string $content_variable = "content"): string {
+	public function end(array $variables = [], string $content_variable = 'content'): string {
 		if (count($this->wrappers) === 0) {
-			throw new Exception_Semantics("Template::end when no template on the wrapper stack");
+			throw new Exception_Semantics('Template::end when no template on the wrapper stack');
 		}
 		$t = array_pop($this->wrappers);
 		/* @var $t Template */
 		$t->pop();
 		if (!$t->_path) {
-			return "";
+			return '';
 		}
 		$variables[$content_variable] = ob_get_clean();
 		$t->set($variables);
@@ -249,8 +249,8 @@ class Template implements Interface_Theme {
 		$this->stack->push($this);
 		$this->_vars += $top->variables();
 		if (self::$debug_stack) {
-			$this->application->logger->debug("Push {path}", [
-				"path" => $this->_path,
+			$this->application->logger->debug('Push {path}', [
+				'path' => $this->_path,
 			]);
 		}
 		$this->_running++;
@@ -267,19 +267,19 @@ class Template implements Interface_Theme {
 		$stack = $this->stack;
 		$top = $stack->pop();
 		if (self::$debug_stack) {
-			$this->application->logger->debug("Pop {path}", [
-				"path" => $top->_path,
+			$this->application->logger->debug('Pop {path}', [
+				'path' => $top->_path,
 			]);
 		}
 		if ($top !== $this) {
 			if ($top === null) {
-				throw new Exception_Semantics("Template::pop: Popped beyond the top!");
+				throw new Exception_Semantics('Template::pop: Popped beyond the top!');
 			}
 
 			throw new Exception_Semantics("Popped template ($top->_path) not this ($this->_path)");
 		}
 		if (--$this->_running < 0) {
-			throw new Exception_Semantics("Template::pop negative running");
+			throw new Exception_Semantics('Template::pop negative running');
 		}
 		/*
 		 * If we have a stack and variables changed
@@ -318,7 +318,7 @@ class Template implements Interface_Theme {
 		if (empty($path)) {
 			return null;
 		}
-		if (begins($path, "/")) {
+		if (begins($path, '/')) {
 			return $path;
 		}
 		return $this->_find_path($path, $all);
@@ -342,8 +342,8 @@ class Template implements Interface_Theme {
 			return $path;
 		}
 		$result = $this->application->theme_find($path, [
-			"all" => $all,
-			"no_extension" => true,
+			'all' => $all,
+			'no_extension' => true,
 		]);
 		if ($result === null || (is_array($result) && count($result) === 0)) {
 			$theme_paths = $this->application->theme_path();
@@ -353,7 +353,7 @@ class Template implements Interface_Theme {
 					$this->application->logger->debug("theme_path is\n\t" . JSON::encode_pretty($theme_paths));
 					$template_path = true;
 				}
-				$this->application->logger->warning(__("Template::path(\"{path}\") not found in theme_path ({n_paths} paths).", [
+				$this->application->logger->warning(__('Template::path("{path}") not found in theme_path ({n_paths} paths).', [
 					'path' => $path,
 					'theme_paths' => $theme_paths,
 					'n_paths' => count($theme_paths),
@@ -387,7 +387,7 @@ class Template implements Interface_Theme {
 	 */
 	public function path($set = null) {
 		if ($set !== null) {
-			$this->application->deprecated("setter/getter combo deprecated");
+			$this->application->deprecated('setter/getter combo deprecated');
 			return $this->setPath($set);
 		}
 		return $this->_path;
@@ -416,7 +416,7 @@ class Template implements Interface_Theme {
 	 * @return string
 	 */
 	public function className() {
-		return "Template";
+		return 'Template';
 	}
 
 	/**
@@ -557,7 +557,7 @@ class Template implements Interface_Theme {
 	 * @param string $delimiter How to split string lists
 	 * @return boolean
 	 */
-	public function get_list($k, $default = [], $delimiter = ";") {
+	public function get_list($k, $default = [], $delimiter = ';') {
 		return to_list($this->__get($k), $default, $delimiter);
 	}
 
@@ -575,7 +575,7 @@ class Template implements Interface_Theme {
 		ob_start();
 		$this->push();
 		extract([
-			"application" => $this->application,
+			'application' => $this->application,
 		] + $this->_vars, EXTR_SKIP); // Avoid overwriting $this
 		// This name is fairly unique to avoid conflicts with variables set in our include.
 		$_template_exception = null;
@@ -583,13 +583,13 @@ class Template implements Interface_Theme {
 		try {
 			$this->return = include($this->_path);
 		} catch (\Exception $_template_exception) {
-			$this->application->hooks->call("exception", $_template_exception);
+			$this->application->hooks->call('exception', $_template_exception);
 		}
 
 		try {
 			$this->pop();
 		} catch (Exception_Semantics $e) {
-			$this->application->logger->error("pop semantics error {path}", $this->variables());
+			$this->application->logger->error('pop semantics error {path}', $this->variables());
 		}
 		$contents = ob_get_clean();
 		if ($_template_exception) {

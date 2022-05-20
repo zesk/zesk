@@ -2,7 +2,7 @@
 namespace zesk;
 
 class Class_Browser extends Class_ORM {
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	public array $find_keys = [
 		'md5',

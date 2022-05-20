@@ -26,7 +26,7 @@ class Model_Login extends Model {
 	}
 
 	public function __set($name, $value): void {
-		if ($name === "login_password") {
+		if ($name === 'login_password') {
 			$this->login_password_hash = strtoupper(md5($value));
 			$this->login_password = $value;
 			return;
@@ -35,7 +35,7 @@ class Model_Login extends Model {
 	}
 
 	public function __unset($name): void {
-		if ($name === "login_password") {
+		if ($name === 'login_password') {
 			$this->login_password = null;
 			$this->login_password_hash = null;
 		} else {

@@ -41,7 +41,7 @@ class Exception extends \Exception {
 	 * @param \Exception $previous
 	 *        	Previous exception which may have spawned this one
 	 */
-	public function __construct(string $message = "", array $arguments = [], int $code = 0, \Exception $previous = null) {
+	public function __construct(string $message = '', array $arguments = [], int $code = 0, \Exception $previous = null) {
 		/* Support previous invocation style ($message, $code, $previous) */
 		if (is_array($arguments)) {
 			$this->arguments = $arguments;
@@ -104,13 +104,13 @@ class Exception extends \Exception {
 	public static function exception_variables(\Exception $e): array {
 		return $e instanceof self ? $e->variables() : [
 			'exception_class' => get_class($e),
-			"class" => get_class($e),
-			"code" => $e->getCode(),
-			"message" => $e->getMessage(),
-			"file" => $e->getFile(),
-			"line" => $e->getLine(),
-			"trace" => $e->getTrace(),
-			"backtrace" => $e->getTraceAsString(),
+			'class' => get_class($e),
+			'code' => $e->getCode(),
+			'message' => $e->getMessage(),
+			'file' => $e->getFile(),
+			'line' => $e->getLine(),
+			'trace' => $e->getTrace(),
+			'backtrace' => $e->getTraceAsString(),
 		];
 	}
 }

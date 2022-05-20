@@ -49,36 +49,36 @@ class Directory_Test extends Test_Unit {
 	}
 
 	public function test_is_absolute(): void {
-		$this->assert_true(Directory::is_absolute("/"));
-		$this->assert_false(Directory::is_absolute("./"));
-		$this->assert_false(Directory::is_absolute("./place/to/go"));
-		$this->assert_false(Directory::is_absolute("../place/to/go"));
+		$this->assert_true(Directory::is_absolute('/'));
+		$this->assert_false(Directory::is_absolute('./'));
+		$this->assert_false(Directory::is_absolute('./place/to/go'));
+		$this->assert_false(Directory::is_absolute('../place/to/go'));
 		if (\is_windows()) {
-			$this->assert_true(Directory::is_absolute("\\windows\\"));
+			$this->assert_true(Directory::is_absolute('\\windows\\'));
 		} else {
-			$this->assert_false(Directory::is_absolute("\\windows\\"));
+			$this->assert_false(Directory::is_absolute('\\windows\\'));
 		}
 	}
 
 	public function test_delete(): void {
-		$path = $this->sandbox("testdir");
+		$path = $this->sandbox('testdir');
 		$this->assert_false(is_dir($path));
 		mkdir($path, 0o777);
 		$this->assert_true(is_dir($path));
 		for ($i = 0; $i < 100; $i++) {
-			file_put_contents($path . "/$i.txt", str_repeat(".", $i));
+			file_put_contents($path . "/$i.txt", str_repeat('.', $i));
 		}
 		Directory::delete($path);
 		$this->assert_false(is_dir($path));
 	}
 
 	public function test_delete_contents(): void {
-		$path = $this->sandbox("testdircontents");
+		$path = $this->sandbox('testdircontents');
 		$this->assert_false(is_dir($path));
 		mkdir($path, 0o777);
 		$this->assert_true(is_dir($path));
 		for ($i = 0; $i < 100; $i++) {
-			file_put_contents($path . "/$i.txt", str_repeat(".", $i));
+			file_put_contents($path . "/$i.txt", str_repeat('.', $i));
 		}
 		$this->assert_false(Directory::is_empty($path));
 		Directory::delete_contents($path);
@@ -90,15 +90,15 @@ class Directory_Test extends Test_Unit {
 	public function undot_examples() {
 		return [
 			[
-				"/path/to/a/file/../../foo",
-				"/path/to/foo",
+				'/path/to/a/file/../../foo',
+				'/path/to/foo',
 			],
 			[
-				"/path/to/a/file/../../..foo",
-				"/path/to/..foo",
+				'/path/to/a/file/../../..foo',
+				'/path/to/..foo',
 			],
 			[
-				"/path/to/a/file/../../../../../../foo",
+				'/path/to/a/file/../../../../../../foo',
 				null,
 			],
 		];
@@ -132,7 +132,7 @@ class Directory_Test extends Test_Unit {
 		$results = Directory::list_recursive(ZESK_ROOT, $options);
 		$this->log($results);
 
-		$this->assert_in_array($results, "test/tests/Directory_Test.php");
+		$this->assert_in_array($results, 'test/tests/Directory_Test.php');
 	}
 
 	public function strip_slash_data(): array {
@@ -155,8 +155,8 @@ class Directory_Test extends Test_Unit {
 	}
 
 	public function test_ls(): void {
-		$path = $this->sandbox("testdir");
-		$filter = "/.*/";
+		$path = $this->sandbox('testdir');
+		$filter = '/.*/';
 		$cat_path = false;
 		$success = false;
 
@@ -181,26 +181,26 @@ class Directory_Test extends Test_Unit {
 		$file_function = null;
 		ob_start();
 		Directory::iterate($source, [
-			__NAMESPACE__ . "\\testdir",
-			"collect_dirs",
+			__NAMESPACE__ . '\\testdir',
+			'collect_dirs',
 		], [
-			__NAMESPACE__ . "\\testdir",
-			"collect_files",
+			__NAMESPACE__ . '\\testdir',
+			'collect_files',
 		]);
 		$iterate_dump = ob_end_clean();
 
 		[$dirs, $files] = testdir::dump();
 		//		Debug::dump($files);
 
-		$this->assert(in_array(ZESK_ROOT . "autoload.php", $files));
-		$this->assert(in_array(ZESK_ROOT . "LICENSE.md", $files));
-		$this->assert(!in_array(ZESK_ROOT . "LICENSE.md", $dirs));
+		$this->assert(in_array(ZESK_ROOT . 'autoload.php', $files));
+		$this->assert(in_array(ZESK_ROOT . 'LICENSE.md', $files));
+		$this->assert(!in_array(ZESK_ROOT . 'LICENSE.md', $dirs));
 
-		$this->assert(in_array(ZESK_ROOT . "classes", $dirs));
-		$this->assert(!in_array(ZESK_ROOT . ".", $dirs));
-		$this->assert(!in_array(ZESK_ROOT . "..", $dirs));
-		$this->assert(!in_array(ZESK_ROOT . ".", $files));
-		$this->assert(!in_array(ZESK_ROOT . "..", $files));
+		$this->assert(in_array(ZESK_ROOT . 'classes', $dirs));
+		$this->assert(!in_array(ZESK_ROOT . '.', $dirs));
+		$this->assert(!in_array(ZESK_ROOT . '..', $dirs));
+		$this->assert(!in_array(ZESK_ROOT . '.', $files));
+		$this->assert(!in_array(ZESK_ROOT . '..', $files));
 		$this->assert(in_array(__FILE__, $files));
 	}
 
@@ -210,8 +210,8 @@ class Directory_Test extends Test_Unit {
 		$this->assert(Directory::is_empty($path) === true);
 		mkdir($path, 0o777);
 		$this->assert(Directory::is_empty($path) === true);
-		$filepath = $path . "/foo.txt";
-		file_put_contents($filepath, "hello?");
+		$filepath = $path . '/foo.txt';
+		file_put_contents($filepath, 'hello?');
 		$this->assert(Directory::is_empty($path) === false);
 		unlink($filepath);
 		$this->assert(Directory::is_empty($path) === true);

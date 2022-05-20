@@ -13,28 +13,28 @@ $base_attrs = $widget->options_include(HTML::input_attribute_names());
 $id_base = avalue($base_attrs, 'id', $name);
 $base_attrs['name'] = $name;
 $base_attrs['type'] = 'radio';
-$result = "";
-$sel_k = strval($object->get($col, $widget->option("default", '')));
-$refresh = $widget->optionBool("refresh");
-$suffix = "";
+$result = '';
+$sel_k = strval($object->get($col, $widget->option('default', '')));
+$refresh = $widget->optionBool('refresh');
+$suffix = '';
 if ($refresh) {
-	$suffix = HTML::hidden($name . "_cont", "");
+	$suffix = HTML::hidden($name . '_cont', '');
 }
 $debug = $widget->optionBool('debug');
-$content = "";
+$content = '';
 foreach ($opts as $k => $v) {
 	$attrs = $base_attrs;
 	if (!is_array($v)) {
 		$v = [
-			"label" => $v,
+			'label' => $v,
 		];
 	}
-	$label = avalue($v, "label", "");
+	$label = avalue($v, 'label', '');
 	unset($v['label']);
 	$attrs += $v;
 	$attrs['value'] = $k;
 	$attrs['id'] = $id_base . $k;
-	if ($refresh && !array_key_exists("onclick", $attrs)) {
+	if ($refresh && !array_key_exists('onclick', $attrs)) {
 		$attrs['onclick'] = "this.form.elements['${name}_cont'] = 1; this.form.submit()";
 	}
 	if (strval($k) === $sel_k) {
@@ -42,9 +42,9 @@ foreach ($opts as $k => $v) {
 	} else {
 		unset($attrs['checked']);
 	}
-	$content .= HTML::tag("div", ".radio", HTML::tag("label", HTML::tag("input", $attrs, null) . $label . ($debug ? " " . _dump($k) : '')));
+	$content .= HTML::tag('div', '.radio', HTML::tag('label', HTML::tag('input', $attrs, null) . $label . ($debug ? ' ' . _dump($k) : '')));
 }
-$result = HTML::tag("div", [
-	"class" => "control-radio",
+$result = HTML::tag('div', [
+	'class' => 'control-radio',
 ], $content);
-echo $result . $suffix . ($debug ? " Selected K: " . _dump($sel_k) . ";" : "");
+echo $result . $suffix . ($debug ? ' Selected K: ' . _dump($sel_k) . ';' : '');

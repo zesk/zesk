@@ -61,11 +61,11 @@ class Classes {
 	 * @throws Exception_Semantics
 	 */
 	public function initialize(Kernel $kernel): void {
-		$kernel->hooks->add("exit", [
+		$kernel->hooks->add('exit', [
 			$this,
-			"on_exit",
+			'on_exit',
 		], [
-			"arguments" => [
+			'arguments' => [
 				$kernel,
 			],
 		]);

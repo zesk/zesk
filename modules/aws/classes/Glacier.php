@@ -35,7 +35,7 @@ class Glacier extends Hookable {
 		if (is_object($this->glacier_client)) {
 			return;
 		}
-		$options = $this->options_include("key;secret;credentials;token;credentials;region");
+		$options = $this->options_include('key;secret;credentials;token;credentials;region');
 		$this->glacier_client = GlacierClient::factory($options);
 	}
 
@@ -48,7 +48,7 @@ class Glacier extends Hookable {
 		$this->_init();
 		/* @var $response Guzzle\Service\Resource\Model */
 		$response = $this->glacier_client->listVaults();
-		$result = $response->get("VaultList");
+		$result = $response->get('VaultList');
 		return $result;
 	}
 
@@ -62,10 +62,10 @@ class Glacier extends Hookable {
 	public function vault_store_file($vault, $filename) {
 		$this->_init();
 		$result = $this->glacier_client->uploadArchive([
-			"vaultName" => $vault,
-			"sourceFile" => $filename,
+			'vaultName' => $vault,
+			'sourceFile' => $filename,
 		]);
-		$archiveId = $result->get("archiveId");
+		$archiveId = $result->get('archiveId');
 		return $archiveId;
 	}
 
@@ -74,14 +74,14 @@ class Glacier extends Hookable {
 
 		try {
 			$result = $this->glacier_client->initiateJob([
-				"vaultName" => $vault,
-				"Type" => "inventory-retrieval",
-				"Format" => "JSON",
-				"Description" => "Listing of $vault",
+				'vaultName' => $vault,
+				'Type' => 'inventory-retrieval',
+				'Format' => 'JSON',
+				'Description' => "Listing of $vault",
 			]);
 			return [
-				"job_id" => $result->get("jobId"),
-				"uri" => $result->get("location"),
+				'job_id' => $result->get('jobId'),
+				'uri' => $result->get('location'),
 			];
 		} catch (GlacierException $e) {
 			throw new Exception_NotFound($e->getMessage());
@@ -94,8 +94,8 @@ class Glacier extends Hookable {
 	public function job_status($vault, $job_id) {
 		$this->_init();
 		$response = $this->glacier_client->describeJob([
-			"vaultName" => $vault,
-			"jobId" => $job_id,
+			'vaultName' => $vault,
+			'jobId' => $job_id,
 		]);
 		return $response->getAll();
 	}

@@ -21,7 +21,7 @@ $tt['last 180 days'] = 'Vergangene 180 Tage';
 $tt['this year'] = 'diesem Jahr';
 $tt['last year'] = 'vorigem Jahr';
 
-$tt['edit'] = "&Auml;nderung";
+$tt['edit'] = '&Auml;nderung';
 $tt['All rights reserved'] = 'Alle Rechte vorbehalten';
 $tt['Search'] = 'Suchen';
 $tt['E-Mail Address'] = 'E-Mail Adresse';

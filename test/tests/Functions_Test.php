@@ -15,74 +15,74 @@ class Functions_Test extends Test_Unit {
 	public function test_path(): void {
 		path();
 
-		$this->assert(path("a", "b") === "a/b", path("a", "b") . " !== 'a/b'");
-		$this->assert(path("a/", "b") === "a/b", path("a/", "b") . " !== 'a/b'");
-		$this->assert(path("a", "/b") === "a/b", path("a", "/b") . " !== 'a/b'");
-		$this->assert(path("a/", "/b") === "a/b", path("a/", "b") . " !== 'a/b'");
-		$this->assert(path("/a/", "/b") === "/a/b", path("/a/", "/b") . " !== '/a/b'");
-		$this->assert(path("/a/", "/b/") === "/a/b/", path("/a/", "/b/") . " !== '/a/b/'");
-		$result = path("/a/", "/./", [
-			"/./",
-			"////",
-			"/././",
-		], "/b/");
-		$this->assert($result === "/a/b/", $result . " !== '/a/b/'");
+		$this->assert(path('a', 'b') === 'a/b', path('a', 'b') . ' !== \'a/b\'');
+		$this->assert(path('a/', 'b') === 'a/b', path('a/', 'b') . ' !== \'a/b\'');
+		$this->assert(path('a', '/b') === 'a/b', path('a', '/b') . ' !== \'a/b\'');
+		$this->assert(path('a/', '/b') === 'a/b', path('a/', 'b') . ' !== \'a/b\'');
+		$this->assert(path('/a/', '/b') === '/a/b', path('/a/', '/b') . ' !== \'/a/b\'');
+		$this->assert(path('/a/', '/b/') === '/a/b/', path('/a/', '/b/') . ' !== \'/a/b/\'');
+		$result = path('/a/', '/./', [
+			'/./',
+			'////',
+			'/././',
+		], '/b/');
+		$this->assert($result === '/a/b/', $result . ' !== \'/a/b/\'');
 
-		$result = path("/publish/nfs/monitor-services", [
+		$result = path('/publish/nfs/monitor-services', [
 			'control',
 			'ruler-reader',
 		]);
-		$this->assertEquals("/publish/nfs/monitor-services/control/ruler-reader", $result);
+		$this->assertEquals('/publish/nfs/monitor-services/control/ruler-reader', $result);
 	}
 
 	public function test_aevalue(): void {
 		$a = [
-			"a" => null,
-			"b" => 0,
-			"c" => "",
-			"d" => [],
-			"e" => "0",
+			'a' => null,
+			'b' => 0,
+			'c' => '',
+			'd' => [],
+			'e' => '0',
 		];
 		$ak = array_keys($a);
 		foreach ($ak as $k) {
-			$this->assert(aevalue($a, $k, "-EMPTY-") === "-EMPTY-", aevalue($a, $k, "-EMPTY-") . " === \"-EMPTY-\"");
+			$this->assert(aevalue($a, $k, '-EMPTY-') === '-EMPTY-', aevalue($a, $k, '-EMPTY-') . ' === "-EMPTY-"');
 		}
 		$b = [
-			"a" => "null",
-			"b" => "1",
-			"c" => " ",
-			"d" => [
-				"a",
+			'a' => 'null',
+			'b' => '1',
+			'c' => ' ',
+			'd' => [
+				'a',
 			],
 		];
 		foreach ($b as $k => $v) {
-			$this->assert_equal(aevalue($b, $k, "-EMPTY-"), $v, _dump(aevalue($b, $k, "-EMPTY-")) . " === " . _dump($v) . " ($k => " . _dump($v) . ")");
+			$this->assert_equal(aevalue($b, $k, '-EMPTY-'), $v, _dump(aevalue($b, $k, '-EMPTY-')) . ' === ' . _dump($v) . " ($k => " . _dump($v) . ')');
 		}
 	}
 
 	public function test_avalue(): void {
 		$a = [];
-		$k = "";
+		$k = '';
 		$default = null;
 		avalue($a, $k, $default);
 
 		$a = [
-			"" => "empty",
-			"0" => "zero",
-			"A" => "a",
-			"B" => "b",
+			'' => 'empty',
+			'0' => 'zero',
+			'A' => 'a',
+			'B' => 'b',
 		];
-		$this->assert(avalue($a, "") === "empty");
-		$this->assert(avalue($a, "z") === null);
-		$this->assert(avalue($a, "0") === "zero");
-		$this->assert(avalue($a, "A") === "a");
-		$this->assert(avalue($a, "a") === null);
-		$this->assert(avalue($a, "a", "dude") === "dude");
+		$this->assert(avalue($a, '') === 'empty');
+		$this->assert(avalue($a, 'z') === null);
+		$this->assert(avalue($a, '0') === 'zero');
+		$this->assert(avalue($a, 'A') === 'a');
+		$this->assert(avalue($a, 'a') === null);
+		$this->assert(avalue($a, 'a', 'dude') === 'dude');
 	}
 
 	public function test___(): void {
-		$language = "en";
-		$this->assertEquals("one", __("one", $language));
+		$language = 'en';
+		$this->assertEquals('one', __('one', $language));
 
 		$locale = $this->application->locale;
 		$this->assertEquals([], $locale->__([], ['ignored' => true]));
@@ -91,23 +91,23 @@ class Functions_Test extends Test_Unit {
 	public function test_theme(): void {
 		$app = $this->application;
 
-		$this->assertEquals("42.5123", $app->theme("microsecond", 42.512312));
-		$this->assertEquals("42.5%", $app->theme("percent", [
+		$this->assertEquals('42.5123', $app->theme('microsecond', 42.512312));
+		$this->assertEquals('42.5%', $app->theme('percent', [
 			42.512312,
 			1,
 		]));
-		$this->assertEquals("42.6%", $app->theme("percent", [
+		$this->assertEquals('42.6%', $app->theme('percent', [
 			42.552312,
 			1,
 		]), );
-		echo $app->theme("percent", [
+		echo $app->theme('percent', [
 				42.552312,
 				1,
 			]) . "\n";
-		$this->assert_equal($app->theme("percent", [
+		$this->assert_equal($app->theme('percent', [
 			42.552312,
 			0,
-		]), "43%");
+		]), '43%');
 
 		echo $app->theme('control/button', [
 			'label' => 'OK',
@@ -209,7 +209,7 @@ class Functions_Test extends Test_Unit {
 	}
 
 	public function test_is_phone(): void {
-		$phone = "";
+		$phone = '';
 		$this->assertFalse(is_phone($phone));
 
 		$this->assert(is_phone('215-555-1212') === true);
@@ -228,20 +228,20 @@ class Functions_Test extends Test_Unit {
 	}
 
 	public function test_vartype(): void {
-		$this->assert_equal("NULL", type(null));
-		$this->assert_equal("stdClass", type(new \stdClass()));
-		$this->assert_equal("zesk\\Date", type(new Date()));
-		$this->assert_equal("integer", type(223));
-		$this->assert_equal("double", type(223.2));
-		$this->assert_equal("string", type(""));
-		$this->assert_equal("string", type("dude"));
-		$this->assert_equal("boolean", type(false));
-		$this->assert_equal("boolean", type(true));
+		$this->assert_equal('NULL', type(null));
+		$this->assert_equal('stdClass', type(new \stdClass()));
+		$this->assert_equal('zesk\\Date', type(new Date()));
+		$this->assert_equal('integer', type(223));
+		$this->assert_equal('double', type(223.2));
+		$this->assert_equal('string', type(''));
+		$this->assert_equal('string', type('dude'));
+		$this->assert_equal('boolean', type(false));
+		$this->assert_equal('boolean', type(true));
 	}
 
 	public function to_list_data() {
 		return [
-			["1,2,3", [], ",", ["1", "2", "3"]],
+			['1,2,3', [], ',', ['1', '2', '3']],
 		];
 	}
 
@@ -261,13 +261,13 @@ class Functions_Test extends Test_Unit {
 	 * @return void
 	 */
 	public function test_to_integer(): void {
-		$this->assert(to_integer("124512") === 124512);
+		$this->assert(to_integer('124512') === 124512);
 		$this->assert(to_integer(124512) === 124512);
-		$this->assert(to_integer("124512.7") === 124512);
+		$this->assert(to_integer('124512.7') === 124512);
 		$this->assert(to_integer(124512.7) === 124512);
 		$this->assert(to_integer(124512.999999) === 124512);
-		$this->assert(to_integer("0.999999") === 0);
-		$this->assert(to_integer("1.999999") === 1);
+		$this->assert(to_integer('0.999999') === 0);
+		$this->assert(to_integer('1.999999') === 1);
 		$this->assert(to_integer(false) === 0);
 		$this->assert(to_integer(true) === 0);
 		$this->assert(to_integer(true) === 0);
@@ -277,46 +277,46 @@ class Functions_Test extends Test_Unit {
 	public function test_to_double(): void {
 		$this->assert(to_double(100) === 100.0);
 		$this->assert(to_double(1) === 1.0);
-		$this->assert(to_double("10000") === 10000.0);
-		$this->assert(to_double("-1") === -1.0);
+		$this->assert(to_double('10000') === 10000.0);
+		$this->assert(to_double('-1') === -1.0);
 
-		$this->assert(to_double("e10000") === 0.0);
+		$this->assert(to_double('e10000') === 0.0);
 		$this->assert(to_double([]) === 0.0);
 	}
 
 	public function test_to_bool(): void {
 		$this->assert(to_bool(true) === true);
 		$this->assert(to_bool(1) === true);
-		$this->assert(to_bool("1") === true);
-		$this->assert(to_bool("t") === true);
-		$this->assert(to_bool("T") === true);
-		$this->assert(to_bool("y") === true);
-		$this->assert(to_bool("Y") === true);
-		$this->assert(to_bool("Yes") === true);
-		$this->assert(to_bool("yES") === true);
-		$this->assert(to_bool("oN") === true);
-		$this->assert(to_bool("on") === true);
-		$this->assert(to_bool("enabled") === true);
-		$this->assert(to_bool("trUE") === true);
-		$this->assert(to_bool("true") === true);
+		$this->assert(to_bool('1') === true);
+		$this->assert(to_bool('t') === true);
+		$this->assert(to_bool('T') === true);
+		$this->assert(to_bool('y') === true);
+		$this->assert(to_bool('Y') === true);
+		$this->assert(to_bool('Yes') === true);
+		$this->assert(to_bool('yES') === true);
+		$this->assert(to_bool('oN') === true);
+		$this->assert(to_bool('on') === true);
+		$this->assert(to_bool('enabled') === true);
+		$this->assert(to_bool('trUE') === true);
+		$this->assert(to_bool('true') === true);
 
 		$this->assert(to_bool(0) === false);
-		$this->assert(to_bool("0") === false);
-		$this->assert(to_bool("f") === false);
-		$this->assert(to_bool("F") === false);
-		$this->assert(to_bool("n") === false);
-		$this->assert(to_bool("N") === false);
-		$this->assert(to_bool("no") === false);
-		$this->assert(to_bool("NO") === false);
-		$this->assert(to_bool("OFF") === false);
-		$this->assert(to_bool("off") === false);
-		$this->assert(to_bool("disabled") === false);
-		$this->assert(to_bool("DISABLED") === false);
-		$this->assert(to_bool("false") === false);
-		$this->assert(to_bool("null") === false);
-		$this->assert(to_bool("") === false);
+		$this->assert(to_bool('0') === false);
+		$this->assert(to_bool('f') === false);
+		$this->assert(to_bool('F') === false);
+		$this->assert(to_bool('n') === false);
+		$this->assert(to_bool('N') === false);
+		$this->assert(to_bool('no') === false);
+		$this->assert(to_bool('NO') === false);
+		$this->assert(to_bool('OFF') === false);
+		$this->assert(to_bool('off') === false);
+		$this->assert(to_bool('disabled') === false);
+		$this->assert(to_bool('DISABLED') === false);
+		$this->assert(to_bool('false') === false);
+		$this->assert(to_bool('null') === false);
+		$this->assert(to_bool('') === false);
 
-		$this->assert(to_bool("01") === false);
+		$this->assert(to_bool('01') === false);
 		$this->assert(to_bool([]) === false);
 		$this->assert(to_bool(new \stdClass()) === true);
 	}
@@ -329,10 +329,10 @@ class Functions_Test extends Test_Unit {
 			return $default;
 		}
 		$value = strtolower($value);
-		if (str_contains(";1;t;y;yes;on;enabled;true;", ";$value;")) {
+		if (str_contains(';1;t;y;yes;on;enabled;true;', ";$value;")) {
 			return true;
 		}
-		if (str_contains(";0;f;n;no;off;disabled;false;null;", ";$value;")) {
+		if (str_contains(';0;f;n;no;off;disabled;false;null;', ";$value;")) {
 			return false;
 		}
 		return $default;
@@ -391,7 +391,7 @@ class Functions_Test extends Test_Unit {
 			self::to_bool_strpos('false');
 		}
 		$strpos_timing = $t->elapsed();
-		echo "to_bool_strpos: " . $t->elapsed() . "\n";
+		echo 'to_bool_strpos: ' . $t->elapsed() . "\n";
 
 		$t = new Timer();
 		for ($i = 0; $i < 100000; $i++) {
@@ -399,40 +399,40 @@ class Functions_Test extends Test_Unit {
 			self::to_bool_in_array('false');
 		}
 		$in_array_timing = $t->elapsed();
-		echo "to_bool_in_array: " . $t->elapsed() . "\n";
+		echo 'to_bool_in_array: ' . $t->elapsed() . "\n";
 		$diff = 20;
 		$this->assert($strpos_timing < $in_array_timing * (1 + ($diff / 100)), "strpos to_bool is more than $diff% slower than in_array implementation");
 	}
 
 	public function test_to_array(): void {
-		$this->assertEquals(to_array("foo"), [
-			"foo",
+		$this->assertEquals(to_array('foo'), [
+			'foo',
 		]);
 		$this->assertEquals(to_array([
-			"foo",
+			'foo',
 		]), [
-			"foo",
+			'foo',
 		]);
 		$this->assertNotEquals(to_array([
-			"foo",
+			'foo',
 		]), [
-			"foob",
-		]);
-		$this->assertNotEquals(to_array([
-			1,
-		]), [
-			"1",
+			'foob',
 		]);
 		$this->assertNotEquals(to_array([
 			1,
 		]), [
-			"1",
+			'1',
+		]);
+		$this->assertNotEquals(to_array([
+			1,
+		]), [
+			'1',
 		]);
 		$this->assertEquals(to_array(1), [
 			1,
 		]);
-		$this->assertEquals(to_array("1"), [
-			"1",
+		$this->assertEquals(to_array('1'), [
+			'1',
 		]);
 	}
 
@@ -502,18 +502,18 @@ EOF;
 		// file_put_contents("$sandbox/function.map.1.txt", $test);
 		$this->assert($foo === $test, "Mismatch $foo");
 
-		$prefix = "dude";
+		$prefix = 'dude';
 		$a = [
-			"a" => "b",
-			"b" => "c",
-			"c" => "d",
-			"d" => "e",
+			'a' => 'b',
+			'b' => 'c',
+			'c' => 'd',
+			'd' => 'e',
 		];
-		$contents = "{dudea}{a}{dudeb}{b}{duDeC}{c}{dudeD}{d}";
+		$contents = '{dudea}{a}{dudeb}{b}{duDeC}{c}{dudeD}{d}';
 		$v = map($contents, ArrayTools::kprefix($a, $prefix), true);
-		$this->assert($v === "b{a}c{b}d{c}e{d}", $v . "=== \"b{a}c{b}d{c}e{d}\"");
+		$this->assert($v === 'b{a}c{b}d{c}e{d}', $v . '=== "b{a}c{b}d{c}e{d}"');
 		$v = map($contents, ArrayTools::kprefix($a, $prefix), false);
-		$this->assert($v === "b{a}c{b}{duDeC}{c}{dudeD}{d}", $v . " === \"b{a}c{b}{duDeC}{c}{dudeD}{d}\"");
+		$this->assert($v === 'b{a}c{b}{duDeC}{c}{dudeD}{d}', $v . ' === "b{a}c{b}{duDeC}{c}{dudeD}{d}"');
 	}
 
 	public function test_integer_between(): void {

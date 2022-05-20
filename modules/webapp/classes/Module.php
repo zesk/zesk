@@ -30,31 +30,31 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 *
 	 * @var string
 	 */
-	public const SERVER_DATA_APP_HEALTH = __CLASS__ . "::app_health";
+	public const SERVER_DATA_APP_HEALTH = __CLASS__ . '::app_health';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const CONTROL_FILE_RESTART_APACHE = "restart-apache";
+	public const CONTROL_FILE_RESTART_APACHE = 'restart-apache';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const OPTION_APP_ROOT_PATH = "path";
+	public const OPTION_APP_ROOT_PATH = 'path';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const OPTION_AUTHENTICATION_KEY = "key";
+	public const OPTION_AUTHENTICATION_KEY = 'key';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const OPTION_GENERATOR_CLASS = "generator_class";
+	public const OPTION_GENERATOR_CLASS = 'generator_class';
 
 	/**
 	 *
@@ -66,7 +66,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 *
 	 * @var string
 	 */
-	private string $_app_root = "";
+	private string $_app_root = '';
 
 	/**
 	 *
@@ -94,14 +94,14 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	public function initialize(): void {
 		$this->_app_root = $this->application->paths->expand($this->option(self::OPTION_APP_ROOT_PATH));
 		if (empty($this->_app_root)) {
-			throw new Exception_Configuration(__CLASS__ . "::" . self::OPTION_APP_ROOT_PATH, "Requires the app root path to be set in order to work.");
+			throw new Exception_Configuration(__CLASS__ . '::' . self::OPTION_APP_ROOT_PATH, 'Requires the app root path to be set in order to work.');
 		}
 		if (!is_dir($this->_app_root)) {
-			throw new Exception_Configuration(__CLASS__ . "::" . self::OPTION_APP_ROOT_PATH, "Requires the app root path to be a directory in order to work.");
+			throw new Exception_Configuration(__CLASS__ . '::' . self::OPTION_APP_ROOT_PATH, 'Requires the app root path to be a directory in order to work.');
 		}
-		$this->application->hooks->add(Application::class . "::request", [
+		$this->application->hooks->add(Application::class . '::request', [
 			$this,
-			"register_domain",
+			'register_domain',
 		]);
 	}
 
@@ -139,7 +139,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			$application->cache->save($item);
 		}
 		$application->orm_factory(Domain::class, [
-			"name" => $domain_name,
+			'name' => $domain_name,
 		])->register()->accessed();
 	}
 
@@ -149,11 +149,11 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
 	public function hook_routes(Router $router): void {
-		$router->add_route(trim($this->option("route_prefix", "webapp"), '/') . '(/{option action})*', [
-			"controller" => Controller::class,
+		$router->add_route(trim($this->option('route_prefix', 'webapp'), '/') . '(/{option action})*', [
+			'controller' => Controller::class,
 		]);
 		$router->add_route('.webapp(/{option action})*', [
-			"controller" => Controller::class,
+			'controller' => Controller::class,
 		]);
 	}
 
@@ -164,8 +164,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function app_root_path($suffix = null) {
 		if (!$this->_app_root) {
-			throw new Exception_Configuration(__CLASS__ . "::path", "Valid path to directory required ({path})", [
-				"path" => $this->option(self::OPTION_APP_ROOT_PATH),
+			throw new Exception_Configuration(__CLASS__ . '::path', 'Valid path to directory required ({path})', [
+				'path' => $this->option(self::OPTION_APP_ROOT_PATH),
 			]);
 		}
 		return $suffix === null ? $this->_app_root : path($this->_app_root, $suffix);
@@ -186,7 +186,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @return string
 	 */
 	public function binary() {
-		return $this->application->paths->cache("webapp/public/index.php");
+		return $this->application->paths->cache('webapp/public/index.php');
 	}
 
 	/**
@@ -227,14 +227,14 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	public function generate_binary() {
 		$configurations = avalue($this->application->loader->variables(), Configuration_Loader::PROCESSED);
 
-		$path = $this->application->paths->cache("webapp/public/");
+		$path = $this->application->paths->cache('webapp/public/');
 		Directory::depend($path, 0o775);
 
-		File::put(path($path, "index.php"), "<?php\n\$app = require_once \"../webapp.config.php\");\n\$app->index();\n");
+		File::put(path($path, 'index.php'), "<?php\n\$app = require_once \"../webapp.config.php\");\n\$app->index();\n");
 
 		$path = dirname($path);
-		File::put(path($path, "webapp.config.php"), file_get_contents($this->path("theme/webapp.config.tpl")));
-		File::put(path($path, "configuration.json"), json_encode($configurations));
+		File::put(path($path, 'webapp.config.php'), file_get_contents($this->path('theme/webapp.config.tpl')));
+		File::put(path($path, 'configuration.json'), json_encode($configurations));
 
 		return true;
 	}
@@ -250,21 +250,21 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	public function scan_webapp_json(array $walk_add = []) {
 		// Include /.webapp.json, do not walk through . directories, or /vendor/, do not include directories in results
 		$rules = [
-			"rules_file" => [
-				"#/webapp.json\$#" => true,
+			'rules_file' => [
+				'#/webapp.json$#' => true,
 				false,
 			],
-			"rules_directory_walk" => $walk_add + [
+			'rules_directory_walk' => $walk_add + [
 				"#/\.#" => false,
-				"#/cache/#" => false,
-				"#/vendor/#" => false,
-				"#/node_modules/#" => false,
+				'#/cache/#' => false,
+				'#/vendor/#' => false,
+				'#/node_modules/#' => false,
 				true,
 			],
-			"rules_directory" => false,
-			"add_path" => true,
+			'rules_directory' => false,
+			'add_path' => true,
 		];
-		if ($this->optionBool("debug")) {
+		if ($this->optionBool('debug')) {
 			$rules['progress'] = $this->application->logger;
 		}
 		$files = Directory::list_recursive($this->_app_root, $rules);
@@ -296,7 +296,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$walk_add = [];
 		foreach ($files as $file => $mtime) {
 			if (is_file($file) && filemtime($file) === $mtime) {
-				$walk_add['#' . preg_quote(rtrim(dirname($file), "/") . "/", "#") . "\$#"] = false;
+				$walk_add['#' . preg_quote(rtrim(dirname($file), '/') . '/', '#') . '$#'] = false;
 			} else {
 				unset($files[$file]);
 			}
@@ -312,7 +312,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @return \zesk\WebApp\Generator
 	 */
 	public function generate_configuration($rescan = false) {
-		$instances = ArrayTools::clean(ArrayTools::collapse($this->instance_factory($rescan), "instance"), null);
+		$instances = ArrayTools::clean(ArrayTools::collapse($this->instance_factory($rescan), 'instance'), null);
 		$generator = $this->generator();
 
 		$generator->start();
@@ -330,9 +330,9 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$generator->finish();
 		$changed = $generator->changed();
 		if (count($changed) > 0) {
-			$this->application->logger->info("{method} generator reported changed: {changed}", [
-				"method" => __METHOD__,
-				"changed" => $changed,
+			$this->application->logger->info('{method} generator reported changed: {changed}', [
+				'method' => __METHOD__,
+				'changed' => $changed,
 			]);
 			$this->control_file(self::CONTROL_FILE_RESTART_APACHE, time());
 		}
@@ -381,7 +381,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		Directory::depend($dir, 0o775);
 		if ($value !== null) {
 			File::put($full, JSON::encode($value));
-			$this->call_hook("control_file", $full);
+			$this->call_hook('control_file', $full);
 			return $this;
 		}
 		if ($value === false) {
@@ -390,7 +390,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		}
 		if (file_exists($full)) {
 			try {
-				return JSON::decode(File::contents($full, "{}"));
+				return JSON::decode(File::contents($full, '{}'));
 			} catch (\Exception $e) {
 				return true;
 			}
@@ -414,7 +414,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		}
 
 		$generator = $this->generator();
-		$root = rtrim($this->app_root_path(), "/") . "/";
+		$root = rtrim($this->app_root_path(), '/') . '/';
 
 		$results = [];
 		foreach ($webapps as $webapp_path => $modtime) {
@@ -441,7 +441,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			} catch (Exception_Semantics $e) {
 				$instance_struct['errors'][] = 'Semantic error in JSON: ' . $e->getMessage();
 			}
-			$instance_struct["modified"] = Timestamp::factory($modtime, 'UTC')->format(null, '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {ZZZ}');
+			$instance_struct['modified'] = Timestamp::factory($modtime, 'UTC')->format(null, '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {ZZZ}');
 
 			$results[$subpath] = $instance_struct;
 		}
@@ -450,14 +450,14 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			foreach ($results as $result) {
 				$instance = $result['instance'] ?? null;
 				if ($instance) {
-					$app->logger->debug("Refreshing instance #{id} {name} version", $instance->members());
+					$app->logger->debug('Refreshing instance #{id} {name} version', $instance->members());
 					$instance->refresh_appversion();
 				}
 			}
 			foreach ($results as $result) {
 				$instance = $result['instance'] ?? null;
 				if ($instance) {
-					$app->logger->debug("Refreshing instance #{id} {name} repo", $instance->members());
+					$app->logger->debug('Refreshing instance #{id} {name} repo', $instance->members());
 					$instance->refresh_repository();
 				}
 			}
@@ -472,7 +472,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function generate_authentication() {
 		$time = time();
-		$hash = md5($time . "|" . $this->key());
+		$hash = md5($time . '|' . $this->key());
 		return [
 			$time,
 			$hash,
@@ -488,20 +488,20 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	public function check_authentication($time, $hash) {
 		$now = time();
 		if (!is_int($time)) {
-			return "time not integer: " . type($time);
+			return 'time not integer: ' . type($time);
 		}
 		if ($time === 0) {
-			return "time is zero";
+			return 'time is zero';
 		}
 		if (empty($hash)) {
-			return "missing hash";
+			return 'missing hash';
 		}
-		$clock_skew = $this->option("authentication_clock_skew", 10); // 10 seconds
+		$clock_skew = $this->option('authentication_clock_skew', 10); // 10 seconds
 		$delta = abs($time - $now);
 		if ($delta > $clock_skew) {
 			return "clock skew: ($delta = abs($time - $now)) > $clock_skew";
 		}
-		$hash_check = md5($time . "|" . $this->key());
+		$hash_check = md5($time . '|' . $this->key());
 		if ($hash !== $hash_check) {
 			return "hash check failed $hash !== $hash_check";
 		}
@@ -526,8 +526,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	public function response_authentication_failed(Response $response, $message) {
 		$response->status(Net_HTTP::STATUS_UNAUTHORIZED);
 		return $response->json()->data([
-			"status" => false,
-			"message" => "Authentication failed: $message",
+			'status' => false,
+			'message' => "Authentication failed: $message",
 		]);
 	}
 
@@ -541,10 +541,10 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			->query_select()
 			->what_object()
 			->link(Server_Data::class, [
-			"alias" => "d",
+			'alias' => 'd',
 		])
-			->where("d.name", Module::class)
-			->where("d.value", serialize(1));
+			->where('d.name', Module::class)
+			->where('d.value', serialize(1));
 		$iterator = $servers->orm_iterator();
 		$results = [];
 		foreach ($iterator as $server) {
@@ -571,13 +571,13 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 
 		try {
 			[$time, $hash] = $webapp->generate_authentication();
-			$url = URL::query_append("http://" . $server->ip4_internal . "/webapp/$action", [
+			$url = URL::query_append('http://' . $server->ip4_internal . "/webapp/$action", [
 				Controller::QUERY_PARAM_TIME => $time,
 				Controller::QUERY_PARAM_HASH => $hash,
 			] + $query);
 			$client->url($url);
 			$result['time'] = $time;
-			$result['time_string'] = Timestamp::factory($time, "UTC")->format($app->locale, Timestamp::FORMAT_JSON);
+			$result['time_string'] = Timestamp::factory($time, 'UTC')->format($app->locale, Timestamp::FORMAT_JSON);
 			$result['url'] = $url;
 			$result['raw'] = $client->go();
 			$result['status'] = true;

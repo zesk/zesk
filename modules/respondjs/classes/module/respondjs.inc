@@ -4,7 +4,7 @@ class Module_RespondJS extends zesk\Module {
 		if ($request->user_agent_is('ie')) {
 			$response->jquery();
 			$response->javascript([
-				"/share/respondjs/dest/respond.min.js",
+				'/share/respondjs/dest/respond.min.js',
 			], [
 				'share' => true,
 			]);

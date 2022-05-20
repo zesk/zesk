@@ -100,16 +100,16 @@ class URL {
 	 */
 	public static function query_parse_url($url, $qmark = true, $simple = false) {
 		if ($qmark) {
-			$url = StringTools::right($url, "?");
-			$url = StringTools::left($url, "#");
+			$url = StringTools::right($url, '?');
+			$url = StringTools::left($url, '#');
 		}
 		if (empty($url)) {
 			return [];
 		}
-		$tokens = explode("&", $url);
+		$tokens = explode('&', $url);
 		$urlVars = [];
 		foreach ($tokens as $token) {
-			[$token, $value] = pair($token, "=", $token, "");
+			[$token, $value] = pair($token, '=', $token, '');
 			$matches = false;
 			if (!$simple && preg_match('/^([^\[]*)(\[.*\])$/', $token, $matches)) {
 				self::_query_parse_array($urlVars, $matches[1], $matches[2], $value);
@@ -147,7 +147,7 @@ class URL {
 		$last = urldecode(array_pop($matches[1]));
 		foreach ($matches[1] as $k) {
 			$k = urldecode($k);
-			if ($k === "") {
+			if ($k === '') {
 				$temp[] = [];
 				$temp = &$temp[count($temp) - 1];
 			} elseif (!isset($temp[$k])) {
@@ -155,7 +155,7 @@ class URL {
 				$temp = &$temp[$k];
 			}
 		}
-		if ($last === "") {
+		if ($last === '') {
 			$temp[] = $value;
 		} else {
 			$temp[urldecode($last)] = $value;
@@ -185,7 +185,7 @@ class URL {
 			if ($u === false) {
 				return false;
 			}
-			$query_string = avalue($u, "query");
+			$query_string = avalue($u, 'query');
 		}
 		if (empty($query_string)) {
 			return false;
@@ -212,8 +212,8 @@ class URL {
 	 * @return string
 	 */
 	public static function query_format($path, $add = null, $remove = null) {
-		[$uri, $qs] = pair($path, "?", $path, "");
-		if ($qs === "") {
+		[$uri, $qs] = pair($path, '?', $path, '');
+		if ($qs === '') {
 			$qs = [];
 		} else {
 			$qs = self::query_parse($qs);
@@ -245,7 +245,7 @@ class URL {
 				$item[] = $name . '=' . urlencode($v);
 			}
 		}
-		return implode("&", $item);
+		return implode('&', $item);
 	}
 
 	/**
@@ -257,17 +257,17 @@ class URL {
 	 */
 	public static function query_unparse(array $qs) {
 		if (count($qs) === 0) {
-			return "";
+			return '';
 		}
 		$item = [];
 		foreach ($qs as $k => $v) {
 			if (is_array($v)) {
 				$item[] = self::query_unparse_arr($k, $v);
 			} else {
-				$item[] = urlencode($k) . '=' . urlencode($v ?? "");
+				$item[] = urlencode($k) . '=' . urlencode($v ?? '');
 			}
 		}
-		return "?" . implode("&", $item);
+		return '?' . implode('&', $item);
 	}
 
 	/**
@@ -281,7 +281,7 @@ class URL {
 	 * @return string
 	 */
 	public static function query_append($u, $values = null) {
-		$amp = "&";
+		$amp = '&';
 		if (is_array($values)) {
 			$qs_append = [];
 			foreach ($values as $k => $v) {
@@ -295,10 +295,10 @@ class URL {
 		} else {
 			$qs_append = $values;
 		}
-		if (strval($qs_append) === "") {
+		if (strval($qs_append) === '') {
 			return $u;
 		}
-		$sep = (!str_contains($u, "?")) ? "?" : $amp;
+		$sep = (!str_contains($u, '?')) ? '?' : $amp;
 		return $u . $sep . $qs_append;
 	}
 
@@ -310,26 +310,26 @@ class URL {
 	 * @return A|string
 	 */
 	public static function query_remove($u, $names) {
-		[$u, $m] = pair($u, "#", $u, "");
-		$x = strpos($u, "?");
+		[$u, $m] = pair($u, '#', $u, '');
+		$x = strpos($u, '?');
 		if ($x === false) {
 			return $u;
 		}
 		$q = substr($u, $x + 1);
 		$newu = substr($u, 0, $x);
-		$q = explode("&", $q);
+		$q = explode('&', $q);
 		$nq = [];
 		foreach ($q as $i) {
-			$kv = explode("=", $i, 2);
+			$kv = explode('=', $i, 2);
 			if (!Lists::contains($names, $kv[0])) {
 				$nq[] = $i;
 			}
 		}
-		$m = ($m ? "#$m" : "");
+		$m = ($m ? "#$m" : '');
 		if (count($nq) == 0) {
 			return $newu . $m;
 		}
-		return $newu . "?" . implode("&", $nq) . $m;
+		return $newu . '?' . implode('&', $nq) . $m;
 	}
 
 	/**
@@ -340,9 +340,9 @@ class URL {
 	 * @return string The URL with the query string variables removed
 	 */
 	public static function query_iremove($url, $names) {
-		[$x, $m] = pair($url, "#", $url, "");
-		$m = ($m ? "#$m" : "");
-		$x = strpos($url, "?");
+		[$x, $m] = pair($url, '#', $url, '');
+		$m = ($m ? "#$m" : '');
+		$x = strpos($url, '?');
 		if ($x === false) {
 			return $url;
 		}
@@ -366,7 +366,7 @@ class URL {
 		foreach ($qs as $k => $v) {
 			$nq[] = "$k=" . urlencode($v);
 		}
-		return $newu . "?" . implode("&", $nq) . $m;
+		return $newu . '?' . implode('&', $nq) . $m;
 	}
 
 	/**
@@ -391,11 +391,11 @@ class URL {
 			return false;
 		}
 		$result = [];
-		if (strtolower(substr($url, 0, 7)) === "file://") {
+		if (strtolower(substr($url, 0, 7)) === 'file://') {
 			$result = [
-				"scheme" => "file",
-				"host" => "",
-				"path" => substr($url, 7),
+				'scheme' => 'file',
+				'host' => '',
+				'path' => substr($url, 7),
 			];
 		} else {
 			$result = @parse_url($url);
@@ -438,7 +438,7 @@ class URL {
 		$parts = self::parse($url);
 		$parts['url'] = $url;
 		if (array_key_exists('host', $parts)) {
-			$parts['host:port'] = $parts['host'] . (array_key_exists('port', $parts) ? ":" . $parts['port'] : "");
+			$parts['host:port'] = $parts['host'] . (array_key_exists('port', $parts) ? ':' . $parts['port'] : '');
 		}
 		if (array_key_exists('scheme', $parts)) {
 			$parts['scheme:host:port'] = self::left($url, 'host');
@@ -453,48 +453,48 @@ class URL {
 	 * @return NULL|string
 	 */
 	public static function unparse($parts) {
-		if (!is_array($parts) || !array_key_exists("scheme", $parts)) {
+		if (!is_array($parts) || !array_key_exists('scheme', $parts)) {
 			return null;
 		}
-		$scheme = strtolower($parts["scheme"]);
-		$mailto = ($scheme === "mailto");
-		$url = $scheme . ($mailto ? ":" : "://");
+		$scheme = strtolower($parts['scheme']);
+		$mailto = ($scheme === 'mailto');
+		$url = $scheme . ($mailto ? ':' : '://');
 
-		$temp = avalue($parts, "user");
+		$temp = avalue($parts, 'user');
 		if ($temp !== null) {
 			$url .= urlencode($temp);
 
-			$temp = avalue($parts, "pass");
+			$temp = avalue($parts, 'pass');
 			if ($temp !== null) {
-				$url .= ":" . urlencode($parts["pass"]);
+				$url .= ':' . urlencode($parts['pass']);
 			}
 
-			$url .= "@";
+			$url .= '@';
 		}
 
-		$url .= strtolower(avalue($parts, "host"));
-		$temp = intval(avalue($parts, "port"));
+		$url .= strtolower(avalue($parts, 'host'));
+		$temp = intval(avalue($parts, 'port'));
 		if ($temp && ($temp !== self::protocol_default_port($scheme))) {
-			$url .= ":" . $parts["port"];
+			$url .= ':' . $parts['port'];
 		}
 		if (!$mailto) {
-			$temp = avalue($parts, "path");
+			$temp = avalue($parts, 'path');
 			if (!empty($temp)) {
 				if ($temp[0] !== '/') {
 					$temp = "/$temp";
 				}
 				$url .= $temp;
 			} else {
-				$url .= "/";
+				$url .= '/';
 			}
-			$temp = avalue($parts, "query");
+			$temp = avalue($parts, 'query');
 			if ($temp) {
-				$url .= "?" . $temp;
+				$url .= '?' . $temp;
 			}
 
-			$temp = avalue($parts, "fragment");
+			$temp = avalue($parts, 'fragment');
 			if ($temp) {
-				$url .= "#" . urlencode($temp);
+				$url .= '#' . urlencode($temp);
 			}
 		}
 		return $url;
@@ -522,12 +522,12 @@ class URL {
 		if (!is_array($p)) {
 			return false;
 		}
-		$s = avalue($p, "scheme");
-		if ($s !== "http" && $s !== "https") {
+		$s = avalue($p, 'scheme');
+		if ($s !== 'http' && $s !== 'https') {
 			return true;
 		}
-		$a = strtolower(avalue($p, "host", ""));
-		if (preg_match("/[^-a-z.0-9]/", $a)) {
+		$a = strtolower(avalue($p, 'host', ''));
+		if (preg_match('/[^-a-z.0-9]/', $a)) {
 			return false;
 		}
 		return true;
@@ -555,13 +555,13 @@ class URL {
 	 */
 	public static function protocol_default_port($x) {
 		static $protocols = [
-			"ftp" => 21,
-			"smtp" => 25,
-			"mailto" => 25,
-			"http" => 80,
-			"pop" => 110,
-			"https" => 443,
-			"file" => false,
+			'ftp' => 21,
+			'smtp' => 25,
+			'mailto' => 25,
+			'http' => 80,
+			'pop' => 110,
+			'https' => 443,
+			'file' => false,
 		];
 		return avalue($protocols, strtolower($x), false);
 	}
@@ -597,7 +597,7 @@ class URL {
 		}
 
 		$p['scheme'] = $proto;
-		if ($proto !== "mailto") {
+		if ($proto !== 'mailto') {
 			$p['path'] = avalue($p, 'path', '/');
 		}
 
@@ -767,13 +767,13 @@ class URL {
 	 */
 	public static function to_https($u = null) {
 		if ($u === null) {
-			throw new Exception_Deprecated("Must pass URL to {method}", [
-				"method" => __METHOD__,
+			throw new Exception_Deprecated('Must pass URL to {method}', [
+				'method' => __METHOD__,
 			]);
 			//	$u = self::current();
 		}
-		if (substr($u, 0, 7) === "http://") {
-			return "https://" . substr($u, 7);
+		if (substr($u, 0, 7) === 'http://') {
+			return 'https://' . substr($u, 7);
 		}
 		return $u;
 	}
@@ -803,7 +803,7 @@ class URL {
 	 * @return boolean true if the URL is a https URL
 	 */
 	public static function is_secure($url) {
-		return in_array(self::scheme($url, ""), array_values(self::$secure_protocols));
+		return in_array(self::scheme($url, ''), array_values(self::$secure_protocols));
 	}
 
 	/**
@@ -831,7 +831,7 @@ class URL {
 	 */
 	public static function is_absolute($url) {
 		$url = trim($url);
-		return begins($url, "https://", true) || begins($url, "http://", true);
+		return begins($url, 'https://', true) || begins($url, 'http://', true);
 	}
 
 	/**
@@ -851,12 +851,12 @@ class URL {
 			return false;
 		}
 
-		$p1proto = avalue($p1, "scheme", "http");
-		$p2proto = avalue($p2, "scheme", "http");
+		$p1proto = avalue($p1, 'scheme', 'http');
+		$p2proto = avalue($p2, 'scheme', 'http');
 
-		$p1port = avalue($p1, "port", self::protocol_default_port($p1proto));
-		$p2port = avalue($p2, "port", self::protocol_default_port($p2proto));
-		if (($p1proto == $p2proto) && (trim(avalue($p1, "host", "")) === trim(avalue($p2, "host", ""))) && ($p1port == $p2port)) {
+		$p1port = avalue($p1, 'port', self::protocol_default_port($p1proto));
+		$p2port = avalue($p2, 'port', self::protocol_default_port($p2proto));
+		if (($p1proto == $p2proto) && (trim(avalue($p1, 'host', '')) === trim(avalue($p2, 'host', ''))) && ($p1port == $p2port)) {
 			return true;
 		}
 		return false;
@@ -876,28 +876,28 @@ class URL {
 		if (empty($href)) {
 			return false;
 		}
-		if (begins($href, "javascript:")) {
+		if (begins($href, 'javascript:')) {
 			return false;
 		}
 		if (self::is($href)) {
 			return self::normalize($href);
 		}
 		$parts = self::parse($url);
-		if (begins($href, "//")) {
-			$href = $parts['scheme'] . ":" . $href;
+		if (begins($href, '//')) {
+			$href = $parts['scheme'] . ':' . $href;
 			return self::normalize($href);
 		}
-		if (begins($href, "#")) {
+		if (begins($href, '#')) {
 			$parts['fragment'] = substr($href, 1);
 			return self::unparse($parts);
 		}
 		unset($parts['fragment']);
-		if (begins($href, "?")) {
+		if (begins($href, '?')) {
 			$parts['query'] = substr($href, 1);
 			return self::unparse($parts);
 		}
 		unset($parts['query']);
-		if (begins($href, "/")) {
+		if (begins($href, '/')) {
 			$parts['path'] = $href;
 			return self::unparse($parts);
 		}

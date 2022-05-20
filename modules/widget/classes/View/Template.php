@@ -23,11 +23,11 @@ class View_Template extends View {
 	}
 
 	public function render() {
-		$template = $this->option("template");
+		$template = $this->option('template');
 		if ($this->application->theme_exists($template)) {
 			$attr['object'] = $this->object;
 			$attr['widget'] = $this;
-			return $this->application->theme($this->option("template"), $attr);
+			return $this->application->theme($this->option('template'), $attr);
 		} else {
 			return $this->empty_string();
 		}

@@ -19,7 +19,7 @@ $id = 'zesk-overlay-frame-' . $where;
 $this->frame = null;
 $this->response->content_type('text/javascript');
 
-header("Content-Type: text/javascript");
+header('Content-Type: text/javascript');
 
 $qs = [];
 $qs['width'] = $this->geti('width', 300);
@@ -138,4 +138,4 @@ $map['iframe_url_prefix'] = $this->iframe_url_prefix;
 $map['timeout'] = $timeout;
 $map['id'] = $id;
 
-echo HTML::extract_tag_contents("script", map(ob_get_clean(), $map));
+echo HTML::extract_tag_contents('script', map(ob_get_clean(), $map));

@@ -8,11 +8,11 @@
  */
 $tt = [];
 
-$tt['and'] = "y";
-$tt['or'] = "o";
-$tt['name'] = "nombre";
-$tt['special'] = "nombre";
-$tt['current'] = "current";
+$tt['and'] = 'y';
+$tt['or'] = 'o';
+$tt['name'] = 'nombre';
+$tt['special'] = 'nombre';
+$tt['current'] = 'current';
 $tt['organic'] = 'org&aacute;nico';
 
 $tt['Date:=January'] = 'enero';

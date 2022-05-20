@@ -9,10 +9,10 @@ namespace zesk;
 
 class Exception_FileSystem_Test extends Exception_TestCase {
 	public function test_basics(): void {
-		$filename = "/etc";
+		$filename = '/etc';
 		$message = 'Nothing';
 		$arguments = [
-			"hello" => "world",
+			'hello' => 'world',
 		];
 		$code = 42;
 		$testx = new Exception_FileSystem($filename, $message, $arguments, $code);

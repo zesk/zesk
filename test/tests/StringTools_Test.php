@@ -9,11 +9,11 @@ class StringTools_Test extends Test_Unit {
 	 */
 	public function begins_data(): array {
 		return [
-			["food", "foo", false, true],
-			["food", "Foo", true, true],
-			["Food", "Foo", true, true],
-			["Food", "foo", true, true],
-			["Food", "foo", false, false],
+			['food', 'foo', false, true],
+			['food', 'Foo', true, true],
+			['Food', 'Foo', true, true],
+			['Food', 'foo', true, true],
+			['Food', 'foo', false, false],
 		];
 	}
 
@@ -22,15 +22,15 @@ class StringTools_Test extends Test_Unit {
 	 * @dataProvider begins_data
 	 */
 	public function test_begins(string $haystack, string $needle, bool $lower, bool $expected): void {
-		$this->assertEquals($expected, StringTools::begins($haystack, $needle, $lower), "StringTools::begins(\"$haystack\", \"$needle\", " . to_text($lower) . ")");
+		$this->assertEquals($expected, StringTools::begins($haystack, $needle, $lower), "StringTools::begins(\"$haystack\", \"$needle\", " . to_text($lower) . ')');
 	}
 
 	public function capitalize_data() {
 		return [
-			["", ""],
-			["hello", "Hello", ],
-			["I WOULD LIKE SOME HELP", "I Would Like Some Help", ],
-			["a rather fun title to have for the new ages", "A Rather Fun Title To Have For The New Ages", ],
+			['', ''],
+			['hello', 'Hello', ],
+			['I WOULD LIKE SOME HELP', 'I Would Like Some Help', ],
+			['a rather fun title to have for the new ages', 'A Rather Fun Title To Have For The New Ages', ],
 		];
 	}
 
@@ -47,8 +47,8 @@ class StringTools_Test extends Test_Unit {
 	 */
 	public function to_camel_data(): array {
 		return [
-			["long_ass_string", "longAssString"],
-			["_long_ass_string", "LongAssString"],
+			['long_ass_string', 'longAssString'],
+			['_long_ass_string', 'LongAssString'],
 		];
 	}
 
@@ -65,8 +65,8 @@ class StringTools_Test extends Test_Unit {
 	 */
 	public function from_camel_data(): array {
 		return [
-			["longAssString", "long_ass_string"],
-			["LongAssString", "_long_ass_string"],
+			['longAssString', 'long_ass_string'],
+			['LongAssString', '_long_ass_string'],
 		];
 	}
 
@@ -80,18 +80,18 @@ class StringTools_Test extends Test_Unit {
 
 	public function case_match_data(): array {
 		return [
-			["test", "John", "Test"],
-			["Test", "John", "Test"],
-			["test", "John", "Test"],
-			["TeSt", "John", "Test"],
-			["test", "JOHN", "TEST"],
-			["Test", "JOHN", "TEST"],
-			["test", "JOHN", "TEST"],
-			["TeSt", "JOHn", "TEST"],
-			["test", "john", "test"],
-			["Test", "john", "test"],
-			["test", "john", "test"],
-			["TeSt", "john", "test"],
+			['test', 'John', 'Test'],
+			['Test', 'John', 'Test'],
+			['test', 'John', 'Test'],
+			['TeSt', 'John', 'Test'],
+			['test', 'JOHN', 'TEST'],
+			['Test', 'JOHN', 'TEST'],
+			['test', 'JOHN', 'TEST'],
+			['TeSt', 'JOHn', 'TEST'],
+			['test', 'john', 'test'],
+			['Test', 'john', 'test'],
+			['test', 'john', 'test'],
+			['TeSt', 'john', 'test'],
 		];
 	}
 
@@ -108,13 +108,13 @@ class StringTools_Test extends Test_Unit {
 
 	public function ellipsis_word_data(): array {
 		return [
-			["A quick brown fox jumps over the lazy dog.", 1, "...", "A ..."],
-			["A quick brown fox jumps over the lazy dog.", 5, "...", "A ..."],
-			["A quick brown fox jumps over the lazy dog.", 10, "...", "A quick brown fox ..."],
-			["A quick brown fox jumps over the lazy dog.", 15, "...", "A quick brown fox ..."],
-			["A quick brown fox jumps over the lazy dog.", 20, "...", "A quick brown fox ..."],
-			["A quick brown fox jumps over the lazy dog.", 25, "...", "A quick brown fox ..."],
-			["A quick brown fox jumps over the lazy dog.", 30, "...", "A quick brown fox ..."],
+			['A quick brown fox jumps over the lazy dog.', 1, '...', 'A ...'],
+			['A quick brown fox jumps over the lazy dog.', 5, '...', 'A ...'],
+			['A quick brown fox jumps over the lazy dog.', 10, '...', 'A quick brown fox ...'],
+			['A quick brown fox jumps over the lazy dog.', 15, '...', 'A quick brown fox ...'],
+			['A quick brown fox jumps over the lazy dog.', 20, '...', 'A quick brown fox ...'],
+			['A quick brown fox jumps over the lazy dog.', 25, '...', 'A quick brown fox ...'],
+			['A quick brown fox jumps over the lazy dog.', 30, '...', 'A quick brown fox ...'],
 		];
 	}
 
@@ -128,18 +128,18 @@ class StringTools_Test extends Test_Unit {
 
 	public function ends_data(): array {
 		return [
-			["a", "A", false, false],
-			["A", "a", false, false],
-			["a", "a", false, true],
-			["A", "A", false, true],
-			["a", "A", true, true],
-			["A", "a", true, true],
-			["a", "a", true, true],
-			["A", "A", true, true],
-			["1", "1", false, true],
-			["1", "1", true, true],
-			["could_be_setting_with_password", "_password", false, true],
-			["_password ", "_password", false, false],
+			['a', 'A', false, false],
+			['A', 'a', false, false],
+			['a', 'a', false, true],
+			['A', 'A', false, true],
+			['a', 'A', true, true],
+			['A', 'a', true, true],
+			['a', 'a', true, true],
+			['A', 'A', true, true],
+			['1', '1', false, true],
+			['1', '1', true, true],
+			['could_be_setting_with_password', '_password', false, true],
+			['_password ', '_password', false, false],
 		];
 	}
 
@@ -152,7 +152,7 @@ class StringTools_Test extends Test_Unit {
 	 * @dataProvider ends_data
 	 */
 	public function test_ends(string $haystack, string $needle, bool $lower, bool $expected): void {
-		$this->assertEquals($expected, StringTools::ends($haystack, $needle, $lower), "StringTools::ends(\"$haystack\", \"$needle\", " . to_text($lower) . ")");
+		$this->assertEquals($expected, StringTools::ends($haystack, $needle, $lower), "StringTools::ends(\"$haystack\", \"$needle\", " . to_text($lower) . ')');
 	}
 
 	/**
@@ -160,7 +160,7 @@ class StringTools_Test extends Test_Unit {
 	 */
 	public function to_bool_data(): array {
 		return [
-			["", false, ],
+			['', false, ],
 			[null, false, ],
 			[0, false, ],
 			[0.0, false, ],
@@ -196,21 +196,21 @@ class StringTools_Test extends Test_Unit {
 	}
 
 	public function test_is_ascii(): void {
-		$str = "string";
+		$str = 'string';
 		$this->assert(StringTools::is_ascii($str));
-		$str = chr(255) . chr(254) . "Hello";
+		$str = chr(255) . chr(254) . 'Hello';
 		$this->assertFalse(StringTools::is_ascii($str));
 	}
 
 	public function is_utf16_data(): array {
 		return [
-			[chr(0xFF) . chr(0xFE) . "is this utf16", true, chr(0xFF)],
-			[chr(0xFE) . chr(0xFF) . "is this utf16", true, chr(0xFE)],
-			[chr(0xFF) . chr(0xFF) . "is this utf16", false, ""],
-			[chr(0xFE) . chr(0xFE) . "is this utf16", false, ""],
-			["", false, ""],
-			["1", false, ""],
-			["22", false, ""],
+			[chr(0xFF) . chr(0xFE) . 'is this utf16', true, chr(0xFF)],
+			[chr(0xFE) . chr(0xFF) . 'is this utf16', true, chr(0xFE)],
+			[chr(0xFF) . chr(0xFF) . 'is this utf16', false, ''],
+			[chr(0xFE) . chr(0xFE) . 'is this utf16', false, ''],
+			['', false, ''],
+			['1', false, ''],
+			['22', false, ''],
 		];
 	}
 
@@ -222,7 +222,7 @@ class StringTools_Test extends Test_Unit {
 		$be = false;
 		$this->assertEquals($isUTF16, StringTools::is_utf16($content, $be));
 		if ($isUTF16) {
-			$this->assertEquals($beShouldBe, $be, "BOM matches");
+			$this->assertEquals($beShouldBe, $be, 'BOM matches');
 		}
 	}
 
@@ -272,13 +272,13 @@ class StringTools_Test extends Test_Unit {
 		$test_dir = $this->application->zesk_home('test/test-data');
 
 		$files = [
-			"utf16-le-no-bom.data" => false,
-			"utf16-no-bom.data" => false,
-			"iso-latin-1.data" => true,
-			"gb-18030.data" => true,
-			"utf16-le.data" => false,
-			"iso-latin-9.data" => true,
-			"utf16.data" => false,
+			'utf16-le-no-bom.data' => false,
+			'utf16-no-bom.data' => false,
+			'iso-latin-1.data' => true,
+			'gb-18030.data' => true,
+			'utf16-le.data' => false,
+			'iso-latin-9.data' => true,
+			'utf16.data' => false,
 		];
 		$str = null;
 		$this->assert(StringTools::is_utf8('') === true);
@@ -295,10 +295,10 @@ class StringTools_Test extends Test_Unit {
 
 	public function left_data(): array {
 		return [
-			["haystack to find that thing", "that", "default", "haystack to find "],
-			["haystack to find that thing", "that", null, "haystack to find "],
-			["haystack to find that thing", "thot", "default", "default"],
-			["haystack to find that thing", "thot", null, "haystack to find that thing"],
+			['haystack to find that thing', 'that', 'default', 'haystack to find '],
+			['haystack to find that thing', 'that', null, 'haystack to find '],
+			['haystack to find that thing', 'thot', 'default', 'default'],
+			['haystack to find that thing', 'thot', null, 'haystack to find that thing'],
 		];
 	}
 
@@ -316,16 +316,16 @@ class StringTools_Test extends Test_Unit {
 
 	public function pair_data(): array {
 		return [
-			["string", "delim", "left", "right", ["left", "right"]],
-			["string", "r", "left", "right", ["st", "ing"]],
-			["NAME=VALUE", "=", "left", "right", ["NAME", "VALUE"]],
-			["=VALUE", "=", "left", "right", ["", "VALUE"]],
-			["NAME=", "=", "left", "right", ["NAME", ""]],
-			["NAME=", "!", "left", "right", ["left", "right"]],
-			["NAME=VALUE=VALUE", "=", "left", "right", ["NAME", "VALUE=VALUE"]],
-			["=VALUE=VALUE", "=", "left", "right", ["", "VALUE=VALUE"]],
-			["NAME=NAME=", "=", "left", "right", ["NAME", "NAME="]],
-			["NAME=NAME=", "!", "left", "right", ["left", "right"]],
+			['string', 'delim', 'left', 'right', ['left', 'right']],
+			['string', 'r', 'left', 'right', ['st', 'ing']],
+			['NAME=VALUE', '=', 'left', 'right', ['NAME', 'VALUE']],
+			['=VALUE', '=', 'left', 'right', ['', 'VALUE']],
+			['NAME=', '=', 'left', 'right', ['NAME', '']],
+			['NAME=', '!', 'left', 'right', ['left', 'right']],
+			['NAME=VALUE=VALUE', '=', 'left', 'right', ['NAME', 'VALUE=VALUE']],
+			['=VALUE=VALUE', '=', 'left', 'right', ['', 'VALUE=VALUE']],
+			['NAME=NAME=', '=', 'left', 'right', ['NAME', 'NAME=']],
+			['NAME=NAME=', '!', 'left', 'right', ['left', 'right']],
 		];
 	}
 
@@ -344,16 +344,16 @@ class StringTools_Test extends Test_Unit {
 
 	public function pairr_data(): array {
 		return [
-			["string", "delim", "left", "right", ["left", "right"]],
-			["string", "r", "left", "right", ["st", "ing"]],
-			["NAME=VALUE", "=", "left", "right", ["NAME", "VALUE"]],
-			["=VALUE", "=", "left", "right", ["", "VALUE"]],
-			["NAME=", "=", "left", "right", ["NAME", ""]],
-			["NAME=", "!", "left", "right", ["left", "right"]],
-			["NAME=VALUE=VALUE", "=", "left", "right", ["NAME=VALUE", "VALUE"]],
-			["=VALUE=VALUE", "=", "left", "right", ["=VALUE", "VALUE"]],
-			["NAME=NAME=", "=", "left", "right", ["NAME=NAME", ""]],
-			["NAME=NAME=", "!", "left", "right", ["left", "right"]],
+			['string', 'delim', 'left', 'right', ['left', 'right']],
+			['string', 'r', 'left', 'right', ['st', 'ing']],
+			['NAME=VALUE', '=', 'left', 'right', ['NAME', 'VALUE']],
+			['=VALUE', '=', 'left', 'right', ['', 'VALUE']],
+			['NAME=', '=', 'left', 'right', ['NAME', '']],
+			['NAME=', '!', 'left', 'right', ['left', 'right']],
+			['NAME=VALUE=VALUE', '=', 'left', 'right', ['NAME=VALUE', 'VALUE']],
+			['=VALUE=VALUE', '=', 'left', 'right', ['=VALUE', 'VALUE']],
+			['NAME=NAME=', '=', 'left', 'right', ['NAME=NAME', '']],
+			['NAME=NAME=', '!', 'left', 'right', ['left', 'right']],
 		];
 	}
 
@@ -367,12 +367,12 @@ class StringTools_Test extends Test_Unit {
 
 	public function replace_first_data(): array {
 		return [
-			["is", "at", "This is a test", "That is a test"],
+			['is', 'at', 'This is a test', 'That is a test'],
 			[
-				"DOG",
-				"CAT",
-				"I have several DOG and I only like all DOGs",
-				"I have several CAT and I only like all DOGs",
+				'DOG',
+				'CAT',
+				'I have several DOG and I only like all DOGs',
+				'I have several CAT and I only like all DOGs',
 			],
 		];
 	}
@@ -386,16 +386,16 @@ class StringTools_Test extends Test_Unit {
 	 * @dataProvider replace_first_data
 	 */
 	public function test_replace_first(string $search, string $replace, string $content, string $expected): void {
-		$this->assertEquals($expected, StringTools::replace_first($search, $replace, $content) === "That is a test");
+		$this->assertEquals($expected, StringTools::replace_first($search, $replace, $content) === 'That is a test');
 	}
 
 	public function right_data(): array {
 		return [
-			["NAME and VALUE", "and", "default", " VALUE", ],
-			["NAME and VALUE", "and V", "default", "ALUE", ],
-			["NAME and VALUE", " ", "default", " and VALUE", ],
-			["NAME and VALUE", "D", "default", "default", ],
-			["NAME and VALUE", "D", null, "NAME and VALUE", ],
+			['NAME and VALUE', 'and', 'default', ' VALUE', ],
+			['NAME and VALUE', 'and V', 'default', 'ALUE', ],
+			['NAME and VALUE', ' ', 'default', ' and VALUE', ],
+			['NAME and VALUE', 'D', 'default', 'default', ],
+			['NAME and VALUE', 'D', null, 'NAME and VALUE', ],
 		];
 	}
 
@@ -415,11 +415,11 @@ class StringTools_Test extends Test_Unit {
 	 */
 	public function rleft_data(): array {
 		return [
-			["NAME and VALUE", "and", "default", "NAME ", ],
-			["NAME and VALUE", "and V", "default", "NAME ", ],
-			["NAME and VALUE", " ", "default", "NAME and ", ],
-			["NAME and VALUE", "D", "default", "default", ],
-			["NAME and VALUE", "D", null, "NAME and VALUE", ],
+			['NAME and VALUE', 'and', 'default', 'NAME ', ],
+			['NAME and VALUE', 'and V', 'default', 'NAME ', ],
+			['NAME and VALUE', ' ', 'default', 'NAME and ', ],
+			['NAME and VALUE', 'D', 'default', 'default', ],
+			['NAME and VALUE', 'D', null, 'NAME and VALUE', ],
 		];
 	}
 
@@ -440,11 +440,11 @@ class StringTools_Test extends Test_Unit {
 	 */
 	public function rright_data(): array {
 		return [
-			["NAME and VALUE", "and", "default", " VALUE", ],
-			["NAME and VALUE", "and V", "default", "ALUE", ],
-			["NAME and VALUE", " ", "default", " and VALUE", ],
-			["NAME and VALUE", "D", "default", "default", ],
-			["NAME and VALUE", "D", null, "NAME and VALUE", ],
+			['NAME and VALUE', 'and', 'default', ' VALUE', ],
+			['NAME and VALUE', 'and V', 'default', 'ALUE', ],
+			['NAME and VALUE', ' ', 'default', ' and VALUE', ],
+			['NAME and VALUE', 'D', 'default', 'default', ],
+			['NAME and VALUE', 'D', null, 'NAME and VALUE', ],
 		];
 	}
 
@@ -473,39 +473,39 @@ class StringTools_Test extends Test_Unit {
 	public function to_bool_data_original() {
 		return [
 			[true, true],
-			["t", true],
-			["T", true],
-			["y", true],
-			["Y", true],
-			["Yes", true],
-			["yES", true],
-			["oN", true],
-			["on", true],
-			["enabled", true],
-			["trUE", true],
-			["true", true],
+			['t', true],
+			['T', true],
+			['y', true],
+			['Y', true],
+			['Yes', true],
+			['yES', true],
+			['oN', true],
+			['on', true],
+			['enabled', true],
+			['trUE', true],
+			['true', true],
 
-			["f", false],
-			["F", false],
-			["n", false],
-			["N", false],
-			["no", false],
-			["NO", false],
-			["OFF", false],
-			["off", false],
-			["disabled", false],
-			["DISABLED", false],
-			["false", false],
-			["null", false],
-			["", false],
+			['f', false],
+			['F', false],
+			['n', false],
+			['N', false],
+			['no', false],
+			['NO', false],
+			['OFF', false],
+			['off', false],
+			['disabled', false],
+			['DISABLED', false],
+			['false', false],
+			['null', false],
+			['', false],
 
 			[0, false],
-			["0", false],
+			['0', false],
 
 			[1, true],
-			["1", true],
+			['1', true],
 
-			["01", true],
+			['01', true],
 			[[], false],
 			[new \stdClass(), true],
 
@@ -517,17 +517,17 @@ class StringTools_Test extends Test_Unit {
 	 */
 	public function unprefix_data(): array {
 		return [
-			["string", "str", false, "ing"],
-			["string", "str", true, "ing"],
+			['string', 'str', false, 'ing'],
+			['string', 'str', true, 'ing'],
 
-			["string", "Str", false, "string"],
-			["string", "Str", true, "ing"],
+			['string', 'Str', false, 'string'],
+			['string', 'Str', true, 'ing'],
 
-			["String", "str", false, "String"],
-			["String", "str", true, "ing"],
+			['String', 'str', false, 'String'],
+			['String', 'str', true, 'ing'],
 
-			["String", "Str", false, "ing"],
-			["String", "Str", true, "ing"],
+			['String', 'Str', false, 'ing'],
+			['String', 'Str', true, 'ing'],
 		];
 	}
 
@@ -547,17 +547,17 @@ class StringTools_Test extends Test_Unit {
 	 */
 	public function unsuffix_data(): array {
 		return [
-			["string", "ing", false, "str"],
-			["string", "ing", true, "str"],
+			['string', 'ing', false, 'str'],
+			['string', 'ing', true, 'str'],
 
-			["string", "ING", false, "string"],
-			["string", "ING", true, "Str"],
+			['string', 'ING', false, 'string'],
+			['string', 'ING', true, 'Str'],
 
-			["String", "ing", false, "Str"],
-			["String", "ing", true, "Str"],
+			['String', 'ing', false, 'Str'],
+			['String', 'ing', true, 'Str'],
 
-			["String", "Ing", false, "String"],
-			["String", "Ing", true, "Str"],
+			['String', 'Ing', false, 'String'],
+			['String', 'Ing', true, 'Str'],
 		];
 	}
 
@@ -575,15 +575,15 @@ class StringTools_Test extends Test_Unit {
 
 	public function zero_pad_data(): array {
 		return [
-			["0", 2, "00"],
-			["00", 2, "00"],
-			["1", 2, "01"],
-			["01", 2, "01"],
-			["0", 3, "000"],
-			["00", 3, "000"],
-			["1", 3, "001"],
-			["01", 3, "001"],
-			["xx", 4, "00xx"],
+			['0', 2, '00'],
+			['00', 2, '00'],
+			['1', 2, '01'],
+			['01', 2, '01'],
+			['0', 3, '000'],
+			['00', 3, '000'],
+			['1', 3, '001'],
+			['01', 3, '001'],
+			['xx', 4, '00xx'],
 		];
 	}
 
@@ -599,10 +599,10 @@ class StringTools_Test extends Test_Unit {
 
 	public function lalign_data(): array {
 		return [
-			["text", 10, "-", true, "text------"],
-			["text ", 10, "-", true, "text -----"],
-			["textificiation", 10, "-", false, "textificiation"],
-			["textificiation", 10, "-", true, "textificia"],
+			['text', 10, '-', true, 'text------'],
+			['text ', 10, '-', true, 'text -----'],
+			['textificiation', 10, '-', false, 'textificiation'],
+			['textificiation', 10, '-', true, 'textificia'],
 		];
 	}
 
@@ -621,10 +621,10 @@ class StringTools_Test extends Test_Unit {
 
 	public function ralign_data(): array {
 		return [
-			["text", 10, "-", true, "------text"],
-			["text ", 10, "-", true, "-----text "],
-			["textificiation", 10, "-", false, "textificiation"],
-			["textificiation", 10, "-", true, "textificia"],
+			['text', 10, '-', true, '------text'],
+			['text ', 10, '-', true, '-----text '],
+			['textificiation', 10, '-', false, 'textificiation'],
+			['textificiation', 10, '-', true, 'textificia'],
 		];
 	}
 
@@ -689,20 +689,20 @@ class StringTools_Test extends Test_Unit {
 
 	public function test_substr(): void {
 		// Never knew this'
-		$foo = "OK,";
+		$foo = 'OK,';
 		$result = substr($foo, 3);
 		if (PHP_VERSION_ID > 0o70000) {
 			// Fixed in 7.0
-			$this->assert_equal(gettype($result), "string");
-			$this->assert_equal($result, "");
+			$this->assert_equal(gettype($result), 'string');
+			$this->assert_equal($result, '');
 		} else {
-			$this->assert_equal(gettype($result), "boolean");
+			$this->assert_equal(gettype($result), 'boolean');
 			$this->assert_equal($result, false);
 		}
 	}
 
 	public function test_replace_first1(): void {
-		$this->assert(StringTools::replace_first("a", "b", "abracadabra") === "bbracadabra");
-		$this->assert(StringTools::replace_first("bra", "strap", "abracadabra") === "astrapcadabra");
+		$this->assert(StringTools::replace_first('a', 'b', 'abracadabra') === 'bbracadabra');
+		$this->assert(StringTools::replace_first('bra', 'strap', 'abracadabra') === 'astrapcadabra');
 	}
 }

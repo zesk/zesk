@@ -17,7 +17,7 @@ class Class_Log_Mail extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	/**
 	 *

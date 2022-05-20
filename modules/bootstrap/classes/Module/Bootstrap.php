@@ -63,16 +63,16 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 		if ($this->optionBool('enabled')) {
 			$html = $response->html();
 			if ($this->optionBool('css_enabled') || !$this->source_locations()) {
-				$response->css("/share/bootstrap/css/bootstrap.css", [
+				$response->css('/share/bootstrap/css/bootstrap.css', [
 					'share' => true,
 				]);
 			}
-			if ($this->optionBool("responsive", true)) {
-				$html->meta("viewport", "width=device-width, initial-scale=1.0");
+			if ($this->optionBool('responsive', true)) {
+				$html->meta('viewport', 'width=device-width, initial-scale=1.0');
 			}
 			$html->meta([
 				'http-equiv' => 'X-UA-Compatible',
-				'content' => "IE=edge",
+				'content' => 'IE=edge',
 			]);
 			$html->meta([
 				'charset' => 'utf-8',
@@ -80,7 +80,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 
 			$html->jquery();
 			$html->javascript([
-				$this->application->development() ? "/share/bootstrap/js/bootstrap.js" : "/share/bootstrap/js/bootstrap.min.js",
+				$this->application->development() ? '/share/bootstrap/js/bootstrap.js' : '/share/bootstrap/js/bootstrap.min.js',
 			], [
 				'share' => true,
 			]);
@@ -95,7 +95,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 */
 	public function hook_foot(Request $request, Response $response, Template $template): void {
 		if ($this->optionBool('responsive_size_enabled', $this->application->development())) {
-			echo $this->application->theme("bootstrap/responsive-size");
+			echo $this->application->theme('bootstrap/responsive-size');
 		}
 	}
 
@@ -111,7 +111,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 * @return string
 	 */
 	public function source_locations(array $set = null) {
-		return $set !== null ? $this->setOption("source_locations", $set) : $this->option_list("source_locations");
+		return $set !== null ? $this->setOption('source_locations', $set) : $this->option_list('source_locations');
 	}
 
 	/**
@@ -122,10 +122,10 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 		$tr = [
 			"@import \"variables.less\";\n@import \"mixins.less\";" => "@import \"variables.less\";\n@import \"$newfilename\";\n@import \"mixins.less\";",
 		];
-		$bootstrap_main = path($source_location, "bootstrap.less");
+		$bootstrap_main = path($source_location, 'bootstrap.less');
 		if (!is_file($bootstrap_main)) {
-			$this->application->logger->error("Module_Bootstrap expected file to exist for modification: {file} - no action taken", [
-				"file" => $bootstrap_main,
+			$this->application->logger->error('Module_Bootstrap expected file to exist for modification: {file} - no action taken', [
+				'file' => $bootstrap_main,
 			]);
 			return false;
 		}
@@ -134,18 +134,18 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			$old = file_get_contents($bootstrap_main);
 			$new = strtr($old, $tr);
 			if ($old === $new) {
-				$this->application->logger->warning("Module_Bootstrap tried to modify {file} for custom variables.less, but didn't change it?", [
-					"file" => $bootstrap_main,
+				$this->application->logger->warning('Module_Bootstrap tried to modify {file} for custom variables.less, but didn\'t change it?', [
+					'file' => $bootstrap_main,
 				]);
 				return false;
 			}
 			file_put_contents($bootstrap_main, $new);
-			$this->application->logger->notice("Module_Bootstrap modified {file} for custom variables.less", [
-				"file" => $bootstrap_main,
+			$this->application->logger->notice('Module_Bootstrap modified {file} for custom variables.less', [
+				'file' => $bootstrap_main,
 			]);
 			return true;
 		} else {
-			$this->application->logger->warning("Module_Bootstrap - can not find import file {import_file_path}", compact('import_file_path'));
+			$this->application->logger->warning('Module_Bootstrap - can not find import file {import_file_path}', compact('import_file_path'));
 		}
 		return false;
 	}
@@ -162,18 +162,18 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 * @param string $reason
 	 * @return array|void[]
 	 */
-	private function handle_source_locations($reason = "") {
+	private function handle_source_locations($reason = '') {
 		$source_location = $this->option('source_location');
-		$source_locations = $this->option_list("source_locations");
+		$source_locations = $this->option_list('source_locations');
 
 		if ($source_location) {
 			$source_locations[] = $source_location;
 		}
 
 		if (count($source_locations) === 0) {
-			$this->application->logger->notice("{method}: No {class}::source_locations configuration option specified, using default bootstrap CSS/LESS files", [
-				"method" => __METHOD__,
-				"class" => __CLASS__,
+			$this->application->logger->notice('{method}: No {class}::source_locations configuration option specified, using default bootstrap CSS/LESS files', [
+				'method' => __METHOD__,
+				'class' => __CLASS__,
 			]);
 			return [];
 		}
@@ -182,9 +182,9 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			if (!!Directory::is_absolute($source_location)) {
 				$source_location = $this->application->path($source_location);
 			}
-			$this->application->logger->debug("{reason}: source_location={source_location}", [
+			$this->application->logger->debug('{reason}: source_location={source_location}', [
 				'reason' => $reason,
-				"source_location" => $source_location,
+				'source_location' => $source_location,
 			]);
 			$result[$source_location] = $this->handle_source_location($source_location);
 		}
@@ -197,9 +197,9 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 */
 	private function handle_source_location($source_location): void {
 		if (is_dir($source_location) || is_dir(dirname($source_location))) {
-			$master = path($this->application->path(), dirname($this->option("share_path")), "less");
+			$master = path($this->application->path(), dirname($this->option('share_path')), 'less');
 			if (!is_dir($master)) {
-				$this->application->logger->error("Bootstrap master directory moved from \"{master}\" to {source_location} - update Module_Bootstrap code", compact("master", "source_location"));
+				$this->application->logger->error('Bootstrap master directory moved from "{master}" to {source_location} - update Module_Bootstrap code', compact('master', 'source_location'));
 				return;
 			}
 			Directory::copy($master, $source_location, true);

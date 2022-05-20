@@ -12,7 +12,7 @@ if (is_numeric($value)) {
 	$value = $widget->empty_string();
 }
 $attrs = [];
-$attrs['placeholder'] = __("IP Address");
+$attrs['placeholder'] = __('IP Address');
 $attrs['name'] = $name;
 $attrs['id'] = avalue($attrs, 'id', $attrs['name']);
 $attrs['value'] = $value;

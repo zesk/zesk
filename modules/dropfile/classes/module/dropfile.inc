@@ -43,15 +43,15 @@ class Module_DropFile extends Module_JSLib {
 	 * @var array
 	 */
 	private $javascript_include_settings = [
-		"column",
-		"url",
-		"max_files",
-		"target",
-		"accept",
-		"enabled_class",
-		"target_class",
-		"document_target_class",
-		"allowed_types",
+		'column',
+		'url',
+		'max_files',
+		'target',
+		'accept',
+		'enabled_class',
+		'target_class',
+		'document_target_class',
+		'allowed_types',
 	];
 
 	/**

@@ -7,11 +7,11 @@ namespace zesk;
  *
  */
 class Command_Markdown extends Command_File_Convert {
-	protected $source_extension_pattern = "markdown|md|mdown";
+	protected $source_extension_pattern = 'markdown|md|mdown';
 
-	protected $destination_extension = "html";
+	protected $destination_extension = 'html';
 
-	protected $configuration_file = "markdown";
+	protected $configuration_file = 'markdown';
 
 	public function initialize(): void {
 		$this->option_types += [

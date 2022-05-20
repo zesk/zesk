@@ -24,8 +24,8 @@ class Preference_Type extends ORM {
 	 */
 	public static function register_name(Application $application, string $code_name, string $name = null): self {
 		$fields = [
-			"name" => $name ? $name : $code_name,
-			"code" => $code_name,
+			'name' => $name ? $name : $code_name,
+			'code' => $code_name,
 		];
 		$pref = $application->orm_factory(__CLASS__, $fields);
 		return $pref->register();

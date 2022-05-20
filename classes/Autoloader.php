@@ -22,42 +22,42 @@ class Autoloader {
 	 *
 	 * @var string
 	 */
-	public const OPTION_CLASS_PREFIX = "class_prefix";
+	public const OPTION_CLASS_PREFIX = 'class_prefix';
 
 	/**
 	 * Used in ->path("path/to", [ Autoloader::CLASS_PREFIX => "foo\\", Autoloader::LOWER => false ]);
 	 *
 	 * @var string
 	 */
-	public const OPTION_LOWER = "lower";
+	public const OPTION_LOWER = 'lower';
 
 	/**
 	 * Used in ->path(..., $options); Make this path first in the list. (Default is added to the middle)
 	 *
 	 * @var string
 	 */
-	public const OPTION_FIRST = "first";
+	public const OPTION_FIRST = 'first';
 
 	/**
 	 * Used in ->path(..., $options); Make this path last in the list. (Default is added to the end)
 	 *
 	 * @var string
 	 */
-	public const OPTION_LAST = "last";
+	public const OPTION_LAST = 'last';
 
 	/**
 	 * Used in ->path(..., $options); List of array of valid extensions, characters only, in order of search priority. e.g. ["php", "php7", "inc"]
 	 *
 	 * @var string
 	 */
-	public const OPTION_EXTENSIONS = "extensions";
+	public const OPTION_EXTENSIONS = 'extensions';
 
 	/**
 	 * Default OPTION_CLASS_PREFIX
 	 *
 	 * @var string
 	 */
-	public const OPTION_CLASS_PREFIX_DEFAULT = "";
+	public const OPTION_CLASS_PREFIX_DEFAULT = '';
 
 	/**
 	 *
@@ -117,8 +117,8 @@ class Autoloader {
 	 * @var array
 	 */
 	public $autoload_extensions = [
-		"php",
-		"inc",
+		'php',
+		'inc',
 	];
 
 	/**
@@ -138,7 +138,7 @@ class Autoloader {
 			self::OPTION_LAST => true,
 			self::OPTION_LOWER => false,
 			self::OPTION_EXTENSIONS => [
-				"php",
+				'php',
 			],
 			self::OPTION_CLASS_PREFIX => __NAMESPACE__ . '\\',
 		]);
@@ -152,7 +152,7 @@ class Autoloader {
 	private function autoload_register(): void {
 		spl_autoload_register([
 			$this,
-			"php_autoloader",
+			'php_autoloader',
 		], true);
 	}
 
@@ -164,7 +164,7 @@ class Autoloader {
 	 */
 	private function _autoload_cache() {
 		try {
-			return $this->kernel->cache->getItem("autoload_cache");
+			return $this->kernel->cache->getItem('autoload_cache');
 		} catch (InvalidArgumentException $e) {
 			return null;
 		}
@@ -231,10 +231,10 @@ class Autoloader {
 				}
 
 				throw new Exception_Class_NotFound($class, "Class {class} called from {calling_function} invoked from:\n{backtrace}\n{tried_path}", [
-					"class" => $class,
-					"calling_function" => calling_function(2, true),
-					"tried_path" => Text::indent(implode("\n", $tried_path)),
-					"backtrace" => Text::indent(_backtrace(), 1),
+					'class' => $class,
+					'calling_function' => calling_function(2, true),
+					'tried_path' => Text::indent(implode("\n", $tried_path)),
+					'backtrace' => Text::indent(_backtrace(), 1),
 				]);
 			}
 			$cache_items[$lowercase_class] = $include;
@@ -247,9 +247,9 @@ class Autoloader {
 		require_once($include);
 		if ($this->debug) {
 			$content = ob_get_clean();
-			if ($content !== "") {
-				throw new Exception_Semantics("Include file {include} should not output text", [
-					"include" => $include,
+			if ($content !== '') {
+				throw new Exception_Semantics('Include file {include} should not output text', [
+					'include' => $include,
 				]);
 			}
 		}
@@ -271,9 +271,9 @@ class Autoloader {
 		$result = [];
 		foreach ($this->path() as $path => $options) {
 			$class_prefix = rtrim($options[self::OPTION_CLASS_PREFIX], '_');
-			if ($class_prefix !== "") {
-				if (substr($class_prefix, -1) !== "\\") {
-					$class_prefix .= "_";
+			if ($class_prefix !== '') {
+				if (substr($class_prefix, -1) !== '\\') {
+					$class_prefix .= '_';
 				}
 				$len = strlen($class_prefix);
 				if (strcasecmp(substr($file_prefix, 0, $len), $class_prefix) === 0) {
@@ -286,7 +286,7 @@ class Autoloader {
 				$path_file_prefix = $file_prefix;
 			}
 			$path_file_prefix = strtr($path_file_prefix, '\\', '_');
-			$file_parts = implode("/", explode("_", $options[self::OPTION_LOWER] ? strtolower($path_file_prefix) : $path_file_prefix));
+			$file_parts = implode('/', explode('_', $options[self::OPTION_LOWER] ? strtolower($path_file_prefix) : $path_file_prefix));
 			if ($extensions) {
 				$iterate_extensions = $extensions;
 			} elseif (isset($options[self::OPTION_EXTENSIONS])) {

@@ -33,8 +33,8 @@ class Control_Label extends \zesk\Control_Select_ORM {
 		foreach ($labels as $label) {
 			$options[$label->id()] = $label->name;
 		}
-		if ($this->hasOption("exclude_items")) {
-			foreach ($this->option_list("exclude_items") as $id) {
+		if ($this->hasOption('exclude_items')) {
+			foreach ($this->option_list('exclude_items') as $id) {
 				unset($options[$id]);
 			}
 		}

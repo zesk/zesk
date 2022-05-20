@@ -10,15 +10,15 @@ namespace zesk;
  *
  */
 class Class_Server_Data extends Class_ORM {
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	public array $primary_keys = [
-		"id",
+		'id',
 	];
 
 	public array $find_keys = [
-		"server",
-		"name",
+		'server',
+		'name',
 	];
 
 	public array $column_types = [
@@ -32,5 +32,5 @@ class Class_Server_Data extends Class_ORM {
 		'server' => 'zesk\\Server',
 	];
 
-	public string $database_group = "zesk\\Server";
+	public string $database_group = 'zesk\\Server';
 }

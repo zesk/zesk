@@ -30,7 +30,7 @@ class Lists {
 	 * @param string $sep
 	 * @return string|array
 	 */
-	public static function unique($list, $sep = ";") {
+	public static function unique($list, $sep = ';') {
 		if (is_array($list)) {
 			return array_unique($list);
 		}
@@ -45,7 +45,7 @@ class Lists {
 	 * @param string $sep List separator, defaults to ";", only relevant if string passed for first parameter
 	 * @return string|array The new list
 	 */
-	public static function remove($list, $item, $sep = ";") {
+	public static function remove($list, $item, $sep = ';') {
 		$is_arr = is_array($list);
 		$a = $is_arr ? $list : explode($sep, $list);
 		$item = to_list($item, [], $sep);
@@ -65,7 +65,7 @@ class Lists {
 	 * @param string $sep List separator, defaults to ";"
 	 * @return string The new list
 	 */
-	public static function append($list, $item, $sep = ";") {
+	public static function append($list, $item, $sep = ';') {
 		if ($item === null) {
 			return $list;
 		}
@@ -90,14 +90,14 @@ class Lists {
 	 * @param string $sep List separator, defaults to ";"
 	 * @return string Result list
 	 */
-	public static function append_unique($list, $item, $sep = ";") {
+	public static function append_unique($list, $item, $sep = ';') {
 		if ($item === null || $list === null) {
 			return $list;
 		}
 		$items = array_unique(ArrayTools::clean(to_list($item, [], $sep), null));
 		if (is_array($list)) {
 			return array_unique(array_merge($list, $items));
-		} elseif ($list === "") {
+		} elseif ($list === '') {
 			return implode($sep, $items);
 		} else {
 			return implode($sep, array_unique(array_merge(explode($sep, $list), $items)));
@@ -112,7 +112,7 @@ class Lists {
 	 * @param string $sep List separator, defaults to ";"
 	 * @return boolean
 	 */
-	public static function contains($list, $item, $sep = ";") {
+	public static function contains($list, $item, $sep = ';') {
 		if (is_array($list)) {
 			return in_array($item, $list);
 		}
@@ -127,7 +127,7 @@ class Lists {
 	 * @param string $sep List separator, defaults to ";"
 	 * @return string The new list
 	 */
-	public static function prepend($list, $item, $sep = ";") {
+	public static function prepend($list, $item, $sep = ';') {
 		if (is_array($list)) {
 			return is_array($item) ? array_merge($item, $list) : array_merge([
 				$item,
@@ -146,7 +146,7 @@ class Lists {
 	 * @param string $sep
 	 * @return string|array List with the last item removed
 	 */
-	public static function pop($list, $sep = ";") {
+	public static function pop($list, $sep = ';') {
 		if (is_array($list)) {
 			array_pop($list);
 			return $list;

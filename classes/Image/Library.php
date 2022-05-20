@@ -6,13 +6,13 @@ abstract class Image_Library {
 	 *
 	 * @var string
 	 */
-	public const width = "width";
+	public const width = 'width';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const height = "height";
+	public const height = 'height';
 
 	/**
 	 *
@@ -39,8 +39,8 @@ abstract class Image_Library {
 	 */
 	public static function factory(Application $application) {
 		foreach ([
-			"GD",
-			"imagick",
+			'GD',
+			'imagick',
 		] as $type) {
 			try {
 				$class = __CLASS__ . '_' . $type;
@@ -50,10 +50,10 @@ abstract class Image_Library {
 				}
 				return $singleton;
 			} catch (\Exception $e) {
-				$application->logger->error("{class} creation resulted in {e.class}: {e.message}", [
-					"class" => $class,
-				] + ArrayTools::kprefix(Exception::exception_variables($e), "e."));
-				$application->hooks->call("exception", $e);
+				$application->logger->error('{class} creation resulted in {e.class}: {e.message}', [
+					'class' => $class,
+				] + ArrayTools::kprefix(Exception::exception_variables($e), 'e.'));
+				$application->hooks->call('exception', $e);
 				continue;
 			}
 		}

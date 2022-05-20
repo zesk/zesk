@@ -47,20 +47,20 @@ class Control_ForgotReset extends Control_Edit {
 	public function hook_widgets() {
 		$locale = $this->locale();
 
-		$this->form_name("forgot_reset_form");
+		$this->form_name('forgot_reset_form');
 
 		$ww = [];
 
 		// 		$ww[] = $w = $this->widget_factory(Control_Hidden::class)->names('validate');
 		// 		$w->required(true);
 
-		$ww[] = $w = $this->widget_factory(Control_Password::class)->names('password', $this->option("label_password", $locale->__("New Password")));
+		$ww[] = $w = $this->widget_factory(Control_Password::class)->names('password', $this->option('label_password', $locale->__('New Password')));
 		$w->setOption('encrypted_column', 'new_password');
 		$w->setOption('confirm', true);
 		$w->required(true);
 
 		$ww[] = $w = $this->widget_factory(Control_Button::class)
-			->names('submit_forgot_reset', $this->option("label_button", $locale->__("Change password")))
+			->names('submit_forgot_reset', $this->option('label_button', $locale->__('Change password')))
 			->add_class('btn-primary btn-block')
 			->nolabel(true);
 
@@ -87,7 +87,7 @@ class Control_ForgotReset extends Control_Edit {
 	 * @see \zesk\Widget::submitted()
 	 */
 	public function submitted() {
-		return $this->request->get("submit_forgot_reset", "") !== "";
+		return $this->request->get('submit_forgot_reset', '') !== '';
 	}
 
 	/**
@@ -118,19 +118,19 @@ class Control_ForgotReset extends Control_Edit {
 		/* @var $found Forgot */
 		$found = $this->find_code($this->validate_token());
 		if (!$found) {
-			$this->error($locale->__("Control_ForgotReset:=Forgotten password request no longer valid. Please try again."));
+			$this->error($locale->__('Control_ForgotReset:=Forgotten password request no longer valid. Please try again.'));
 			return false;
 		}
 		if ($found->expired()) {
-			$this->error($locale->__("Control_ForgotReset:=Forgotten password request expired. Please try again."));
+			$this->error($locale->__('Control_ForgotReset:=Forgotten password request expired. Please try again.'));
 			return false;
 		}
 		$this->auth_user = $found->user;
-		$this->auth_user = $this->call_hook_arguments("find_user", [
+		$this->auth_user = $this->call_hook_arguments('find_user', [
 			$this->auth_user,
 		], $this->auth_user);
 		if ($this->optionBool('not_found_error', true) && !$this->auth_user) {
-			$this->error($locale->__("Control_ForgotReset:=Not able to find that user."), 'login');
+			$this->error($locale->__('Control_ForgotReset:=Not able to find that user.'), 'login');
 			return false;
 		}
 		return true;
@@ -148,9 +148,9 @@ class Control_ForgotReset extends Control_Edit {
 			throw new Exception_Redirect($location);
 		}
 		$this->json([
-			"redirect" => $location,
-			"status" => true,
-			"message" => $this->application->locale->__("Your password has been updated."),
+			'redirect' => $location,
+			'status' => true,
+			'message' => $this->application->locale->__('Your password has been updated.'),
 		]);
 		return false;
 	}

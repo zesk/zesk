@@ -589,9 +589,9 @@ class Client {
 	 */
 	private function __triggerError($functionname, $error) {
 		if ($error['curl']) {
-			trigger_error(sprintf("SQS::%s(): %s", $functionname, $error['code']), E_USER_WARNING);
+			trigger_error(sprintf('SQS::%s(): %s', $functionname, $error['code']), E_USER_WARNING);
 		} else {
-			$message = sprintf("SQS::%s(): Error %s caused by %s.", $functionname, $error['Code'], $error['Type']);
+			$message = sprintf('SQS::%s(): Error %s caused by %s.', $functionname, $error['Code'], $error['Type']);
 			$message .= sprintf("\nMessage: %s\n", $error['Message']);
 			if (strlen($error['Detail']) > 0) {
 				$message .= sprintf("Detail: %s\n", $error['Detail']);

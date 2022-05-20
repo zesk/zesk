@@ -90,7 +90,7 @@ class Paths {
 
 		$zesk->hooks->add(Hooks::HOOK_CONFIGURED, [
 			$this,
-			"configured",
+			'configured',
 		]);
 	}
 
@@ -140,7 +140,7 @@ class Paths {
 	 * @param string $suffix
 	 * @return string
 	 */
-	public function zesk($suffix = "") {
+	public function zesk($suffix = '') {
 		return path(ZESK_ROOT, $suffix);
 	}
 
@@ -150,17 +150,17 @@ class Paths {
 	 * @throws Exception_Lock
 	 */
 	private function _init_zesk_root(Configuration $config): void {
-		$zesk_root = dirname(__DIR__) . "/";
+		$zesk_root = dirname(__DIR__) . '/';
 		if (!defined('ZESK_ROOT')) {
 			define('ZESK_ROOT', $zesk_root);
 		} elseif (ZESK_ROOT !== $zesk_root) {
-			die("Two versions of zesk: First \"" . ZESK_ROOT . "\", then us \"$zesk_root\"\n");
+			die('Two versions of zesk: First "' . ZESK_ROOT . "\", then us \"$zesk_root\"\n");
 		}
 		$config->path(__CLASS__)->root = ZESK_ROOT;
 	}
 
 	public function set_application($set, $update = true) {
-		$this->application = rtrim($set, "/");
+		$this->application = rtrim($set, '/');
 		if ($update) {
 			$this->_init_app_paths();
 		}
@@ -172,16 +172,16 @@ class Paths {
 	private function _init_system_paths(): void {
 		$this->which_cache = [];
 		$this->home = avalue($_SERVER, 'HOME');
-		$this->uid = $this->home(".zesk");
+		$this->uid = $this->home('.zesk');
 	}
 
 	/**
 	 */
 	private function _init_app_paths(): void {
 		if ($this->application) {
-			$this->temporary = path($this->application, "cache/temp");
-			$this->data = path($this->application, "data");
-			$this->cache = path($this->application, "cache");
+			$this->temporary = path($this->application, 'cache/temp');
+			$this->data = path($this->application, 'data');
+			$this->cache = path($this->application, 'cache');
 		}
 	}
 
@@ -273,16 +273,16 @@ class Paths {
 	 */
 	public function expand($file) {
 		$file = strval($file);
-		if ($file === "") {
+		if ($file === '') {
 			return $file;
 		}
 		if ($file[0] === '/') {
 			return $file;
 		}
-		if (begins($file, "~/")) {
+		if (begins($file, '~/')) {
 			return $this->home(substr($file, 2));
 		}
-		if (begins($file, "./")) {
+		if (begins($file, './')) {
 			return $this->application(substr($file, 2));
 		}
 		return $file;

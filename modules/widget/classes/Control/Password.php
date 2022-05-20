@@ -44,8 +44,8 @@ class Control_Password extends Control_Text {
 			$locale = $this->application->locale;
 			$w = $this->widget_factory(self::class, [
 				'confirm' => false,
-			])->names($this->column() . "_confirm", $this->option('label_confirm', $locale->__('Control_Password:={label} (Again)', [
-				"label" => $this->label(),
+			])->names($this->column() . '_confirm', $this->option('label_confirm', $locale->__('Control_Password:={label} (Again)', [
+				'label' => $this->label(),
 			])));
 			$this->child($w);
 		}
@@ -53,7 +53,7 @@ class Control_Password extends Control_Text {
 	}
 
 	protected function hook_initialized(): void {
-		$this->value("");
+		$this->value('');
 	}
 
 	/**
@@ -70,7 +70,7 @@ class Control_Password extends Control_Text {
 		if ($this->confirm) {
 			$pw_confirm = $this->object->get($this->column . '_confirm');
 			if ($pw_confirm !== $pw) {
-				$this->error($locale->__("Your passwords do not match, please enter the same password twice."));
+				$this->error($locale->__('Your passwords do not match, please enter the same password twice.'));
 				$result = false;
 			}
 		}
@@ -94,19 +94,19 @@ class Control_Password extends Control_Text {
 		$requirements = [];
 		$reqs = [
 			[
-				"password_require_alpha",
-				"/[A-Za-z]/",
-				$locale->__("at least 1 letter"),
+				'password_require_alpha',
+				'/[A-Za-z]/',
+				$locale->__('at least 1 letter'),
 			],
 			[
-				"password_require_numeric",
-				"/[0-9]/",
-				$locale->__("at least 1 digit"),
+				'password_require_numeric',
+				'/[0-9]/',
+				$locale->__('at least 1 digit'),
 			],
 			[
-				"password_require_non_alphanumeric",
-				"/[^0-9A-Za-z]/",
-				$locale->__("at least 1 symbol"),
+				'password_require_non_alphanumeric',
+				'/[^0-9A-Za-z]/',
+				$locale->__('at least 1 symbol'),
 			],
 		];
 		foreach ($reqs as $rr) {
@@ -116,7 +116,7 @@ class Control_Password extends Control_Text {
 			}
 		}
 		if (count($requirements) > 0) {
-			$this->error($locale->__("Your password is required to have {0}", [$locale->conjunction($requirements, __("and"))]));
+			$this->error($locale->__('Your password is required to have {0}', [$locale->conjunction($requirements, __('and'))]));
 			return false;
 		}
 		return true;

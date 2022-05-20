@@ -23,7 +23,7 @@ class Command_Test extends Command_Base {
 	 *
 	 * @var string
 	 */
-	public const TEST_UNIT_CLASS = "zesk\\Test_Unit";
+	public const TEST_UNIT_CLASS = 'zesk\\Test_Unit';
 
 	/**
 	 * Set to true in subclasses to skip Application configuration until ->go
@@ -45,7 +45,7 @@ class Command_Test extends Command_Base {
 	 * $var array
 	 */
 	protected array $load_modules = [
-		"test",
+		'test',
 	];
 
 	/**
@@ -90,9 +90,9 @@ class Command_Test extends Command_Base {
 		'config' => 'Configuration file to load. Defaults to $HOME/.zesk/test.conf',
 		'debugger' => 'Open debugger right before test is run',
 		'debug-command' => 'Debug the sandbox execution command',
-		'show-options' => "Show computed options for command before running tests",
-		'no-buffer' => "Do not do any output buffering",
-		'no-config' => "Skip loading of any external configuration files",
+		'show-options' => 'Show computed options for command before running tests',
+		'no-buffer' => 'Do not do any output buffering',
+		'no-config' => 'Skip loading of any external configuration files',
 		'interactive' => 'Run tests interactively, continue only when successful.',
 		'deprecated' => 'Throw exceptions when deprecated functions are used.',
 		'strict' => 'Strict warnings count as failure.',
@@ -104,14 +104,9 @@ class Command_Test extends Command_Base {
 		/* TestDatabase related */
 		'test-database' => 'Store tests results in specified database file - makes testing faster',
 		'no-database' => 'Ignore past saved results, do not save any test results (even if specified)',
-		'reset' => "Reset all tests stored in the database, and exit. Does not run any tests.",
-		'report' => "Show a report of failed tests in the database",
-		'format' => 'databse-report format',
-
-		/* Deprecated 2018-03 */
-		'database-reset' => 'Deprecated 2018-03. Use --reset instead. Reset all tests stored in the database, and exit. Does not run any tests.',
-		'database-report' => 'Deprecated 2018-03. Use --report instead. Show a report of failed tests in the database',
-
+		'reset' => 'Reset all tests stored in the database, and exit. Does not run any tests.',
+		'report' => 'Show a report of failed tests in the database',
+		'format' => 'Report format',
 	];
 
 	public const width = 96;
@@ -172,7 +167,7 @@ class Command_Test extends Command_Base {
 	 *
 	 * @var string
 	 */
-	protected $help = "Run automated tests in a variety of formats.";
+	protected $help = 'Run automated tests in a variety of formats.';
 
 	/**
 	 * TODO we use two different ways of doing this: static::settings() and this.
@@ -183,15 +178,15 @@ class Command_Test extends Command_Base {
 	public static $zesk_globals = [
 		'Command_Test::command_run_sandbox' => [
 			'type' => 'string',
-			'description' => "Command to run a unit test via a sandbox. @zesk_docs",
+			'description' => 'Command to run a unit test via a sandbox. @zesk_docs',
 		],
 		'Command_Test::command_local_open' => [
 			'type' => 'string',
-			'description' => "Command to open a text file via a local editor when a test fails. Takes a single token {file} which is the unit test which has failed. Used during --interactive mode to load failed files for fixes. @zesk_docs",
+			'description' => 'Command to open a text file via a local editor when a test fails. Takes a single token {file} which is the unit test which has failed. Used during --interactive mode to load failed files for fixes. @zesk_docs',
 		],
 		'Command_Test::command_clear_console' => [
 			'type' => 'string',
-			'description' => "Command to clear the console while running tests interactively (--interactive). @zesk_docs",
+			'description' => 'Command to clear the console while running tests interactively (--interactive). @zesk_docs',
 		],
 	];
 
@@ -204,7 +199,7 @@ class Command_Test extends Command_Base {
 
 	protected function show_options(): void {
 		$this->log("All options:\n{options}", [
-			"options" => Text::format_pairs(ArrayTools::clean($this->options(), false)),
+			'options' => Text::format_pairs(ArrayTools::clean($this->options(), false)),
 		]);
 	}
 
@@ -214,58 +209,58 @@ class Command_Test extends Command_Base {
 	protected function run() {
 		self::_initialize_test_environment($this->application);
 		if ($this->optionBool('help')) {
-			$this->usage("Run tests");
+			$this->usage('Run tests');
 		}
-		if (!$this->optionBool("no-config")) {
-			$this->configure("test");
+		if (!$this->optionBool('no-config')) {
+			$this->configure('test');
 		} else {
-			$this->verbose_log("Skipping loading configuration files");
+			$this->verbose_log('Skipping loading configuration files');
 			$this->application->configured();
 		}
-		if ($this->optionBool("show-options")) {
+		if ($this->optionBool('show-options')) {
 			$this->show_options();
 		}
-		$this->verbose_log("Verbose mode enabled.");
+		$this->verbose_log('Verbose mode enabled.');
 		if ($this->optionBool('debug')) {
-			$this->verbose_log("Debug mode enabled (lots of logging)");
+			$this->verbose_log('Debug mode enabled (lots of logging)');
 		}
 		if ($this->optionBool('strict')) {
-			$this->verbose_log("Strict mode enabled (any strict warnings result in failure.)");
+			$this->verbose_log('Strict mode enabled (any strict warnings result in failure.)');
 		}
 		if ($this->_determine_sandbox()) {
-			$this->verbose_log("Sandbox mode enabled (all tests are run in a separate process, slower)");
+			$this->verbose_log('Sandbox mode enabled (all tests are run in a separate process, slower)');
 		}
-		if ($this->optionBool("debug_options")) {
-			$this->log("Command_Test options:");
+		if ($this->optionBool('debug_options')) {
+			$this->log('Command_Test options:');
 			ksort($this->options);
 			$this->log(Text::format_pairs($this->options));
 		}
-		$db_reset = $this->option("reset", $this->option("database-reset"));
-		$db_report = $this->option("report", $this->option("database-report"));
+		$db_reset = $this->option('reset', $this->option('database-reset'));
+		$db_report = $this->option('report', $this->option('database-report'));
 		$db_loaded = false;
 		if ($this->option('test-database')) {
 			$this->test_database_file = $this->option('test-database');
 			$db_loaded = $this->load_test_database();
-			$this->verbose_log($db_loaded ? "Database {name} was loaded" : "Database {name} was NOT loaded", [
-				"name" => $this->test_database_file,
+			$this->verbose_log($db_loaded ? 'Database {name} was loaded' : 'Database {name} was NOT loaded', [
+				'name' => $this->test_database_file,
 			]);
 		}
 		if ($db_report) {
 			if (!$db_loaded) {
-				$this->usage("--database-report and --no-database are incompatible");
+				$this->usage('--database-report and --no-database are incompatible');
 			}
 			if (!$this->test_database_file) {
-				$this->usage("--database-report requires --test-database");
+				$this->usage('--database-report requires --test-database');
 			}
 			$this->database_report();
 			return 0;
 		}
 		if ($db_reset) {
 			if (!$db_loaded) {
-				$this->error("Can not --reset unless you specify a --test-database");
+				$this->error('Can not --reset unless you specify a --test-database');
 			}
-			$this->verbose_log("Resetting all tests stored in database {file}", [
-				"file" => $this->test_database_file,
+			$this->verbose_log('Resetting all tests stored in database {file}', [
+				'file' => $this->test_database_file,
 			]);
 			$this->test_results = [];
 			$this->save_test_database();
@@ -273,7 +268,7 @@ class Command_Test extends Command_Base {
 		}
 
 		if ($this->optionBool('interactive')) {
-			$this->verbose_log("Interactive testing enabled.");
+			$this->verbose_log('Interactive testing enabled.');
 		}
 		$tests = $this->_determine_tests_to_run();
 		if ($this->optionBool('show')) {
@@ -313,7 +308,7 @@ class Command_Test extends Command_Base {
 			$this->test_results[$test] = $success ? $test_mtime : false;
 			$this->save_test_database();
 		}
-		$this->log("# Tests completed");
+		$this->log('# Tests completed');
 		$this->log(Text::format_pairs($this->stats));
 		return $result;
 	}
@@ -368,7 +363,7 @@ class Command_Test extends Command_Base {
 		$matches = [];
 		$tests = [];
 		while ($this->has_arg()) {
-			$arg = $this->get_arg("test");
+			$arg = $this->get_arg('test');
 			if (is_file($arg)) {
 				$tests[] = $arg;
 
@@ -384,8 +379,8 @@ class Command_Test extends Command_Base {
 				if (count($found) > 0) {
 					$tests = array_merge($tests, $found);
 				} else {
-					$this->error("No match for test {arg}", [
-						"arg" => $arg,
+					$this->error('No match for test {arg}', [
+						'arg' => $arg,
 					]);
 				}
 			}
@@ -406,27 +401,27 @@ class Command_Test extends Command_Base {
 		}
 		$file = $this->test_database_file;
 		if (file_exists($file)) {
-			$this->verbose_log("Loading test database {file}", [
-				"file" => $file,
+			$this->verbose_log('Loading test database {file}', [
+				'file' => $file,
 			]);
 
 			try {
 				$this->test_results = JSON::decode(File::contents($file));
 			} catch (Exception_Parse $e) {
-				$this->error("Unable to parse {file} - likely corrupt", [
-					"file" => $file,
+				$this->error('Unable to parse {file} - likely corrupt', [
+					'file' => $file,
 				]);
 				$this->test_results = [];
 			}
-			$this->log_db("After Load");
+			$this->log_db('After Load');
 			return true;
 		}
 		$dir = dirname($this->test_database_file);
 		if (!is_dir($dir)) {
 			throw new Exception_Directory_NotFound($dir, "Can not write test database to $dir");
 		}
-		$this->verbose_log("Will save to new test database {file}", [
-			"file" => $file,
+		$this->verbose_log('Will save to new test database {file}', [
+			'file' => $file,
 		]);
 		return true;
 	}
@@ -438,9 +433,9 @@ class Command_Test extends Command_Base {
 	 */
 	private function log_db($message = null): void {
 		if ($this->optionBool('debug_test_database')) {
-			$this->log("Test database {message}: {type}", [
-				"message" => strval($message),
-				"type" => type($this->test_results),
+			$this->log('Test database {message}: {type}', [
+				'message' => strval($message),
+				'type' => type($this->test_results),
 			]);
 			$this->log($this->test_results);
 		}
@@ -454,7 +449,7 @@ class Command_Test extends Command_Base {
 			return;
 		}
 		if ($this->test_database_file) {
-			$this->log_db("Before Save");
+			$this->log_db('Before Save');
 			file_put_contents($this->test_database_file, JSON::encode_pretty($this->test_results));
 		}
 	}
@@ -531,9 +526,9 @@ class Command_Test extends Command_Base {
 	 */
 	private function _parse_path_info(string $contents) {
 		$app_root = $this->application->path();
-		$php_extensions = $this->option("automatic_open_extensions", "inc|tpl|php|php5|phpt");
+		$php_extensions = $this->option('automatic_open_extensions', 'inc|tpl|php|php5|phpt');
 		// $pattern = "#PHP-ERROR:.*?(?P<files>(?:" . ZESK_ROOT . "|$app_root)[A-Za-z_0-9./-]*\.(?:$php_extensions))#s";
-		$pattern = "#(?P<files>(?:" . ZESK_ROOT . "|$app_root)[A-Za-z_0-9./-]*\.(?:$php_extensions))#s";
+		$pattern = '#(?P<files>(?:' . ZESK_ROOT . "|$app_root)[A-Za-z_0-9./-]*\.(?:$php_extensions))#s";
 		$matches = [];
 		if (!preg_match_all($pattern, $contents, $matches)) {
 			return [];
@@ -565,9 +560,9 @@ class Command_Test extends Command_Base {
 			return false;
 		}
 		$localopen = map($command, [
-			"file" => $file,
+			'file' => $file,
 		]);
-		if ($this->option("debug_run_test_command")) {
+		if ($this->option('debug_run_test_command')) {
 			$this->log("Local open: $localopen");
 		}
 		$return_var = null;
@@ -615,7 +610,7 @@ class Command_Test extends Command_Base {
 		do {
 			if ($repeated) {
 				if (Process_Tools::process_code_changed($this->application)) {
-					$this->log("Code changed, exiting to run again.");
+					$this->log('Code changed, exiting to run again.');
 					exit(1);
 				}
 				if ($first) {
@@ -662,21 +657,21 @@ class Command_Test extends Command_Base {
 	private static function load_test_options($contents) {
 		$result = [];
 		if (StringTools::contains($contents, [
-			"extends PHPUnit_TestCase",
-			"extends \\zesk\\PHPUnit_TestCase",
+			'extends PHPUnit_TestCase',
+			'extends \\zesk\\PHPUnit_TestCase',
 		])) {
 			$result['phpunit'] = true;
 		}
 		$comments = DocComment::extract($contents, [
 			DocComment::OPTION_LIST_KEYS => [
-				"test_module",
+				'test_module',
 			],
 		]);
 		if (count($comments) === 0) {
 			return $result;
 		}
 		$first_comment = $comments[0];
-		return $result + array_change_key_case(ArrayTools::kunprefix($first_comment->variables(), "test_", true));
+		return $result + array_change_key_case(ArrayTools::kunprefix($first_comment->variables(), 'test_', true));
 	}
 
 	/**
@@ -694,11 +689,11 @@ class Command_Test extends Command_Base {
 		}
 		$run_file = [];
 		$classes = array_flip(get_declared_classes());
-		$debug_class_discovery = $this->optionBool("debug_class_discovery");
+		$debug_class_discovery = $this->optionBool('debug_class_discovery');
 		if ($debug_class_discovery) {
 			ksort($classes);
 			echo "# Class discovery: Declared classes\n";
-			echo implode("", ArrayTools::wrap(array_keys($classes), "- `", "`\n"));
+			echo implode('', ArrayTools::wrap(array_keys($classes), '- `', "`\n"));
 		}
 		require_once($file);
 		if ($debug_class_discovery) {
@@ -750,10 +745,10 @@ class Command_Test extends Command_Base {
 	}
 
 	private function setup_test_options(array $options): void {
-		$modules = to_list($options["module"] ?? []);
+		$modules = to_list($options['module'] ?? []);
 		if (count($modules)) {
-			$this->log("Preloading modules {modules}", [
-				"modules" => $modules,
+			$this->log('Preloading modules {modules}', [
+				'modules' => $modules,
 			]);
 			$this->application->modules->load($modules);
 		}
@@ -775,14 +770,14 @@ class Command_Test extends Command_Base {
 			$run_classes = $this->include_file_classes($file);
 		} catch (Exception $e) {
 			$this->log("Unable to include $file without error {class} {message} - fail.", [
-				"class" => get_class($e),
-				"message" => $e->getMessage(),
+				'class' => get_class($e),
+				'message' => $e->getMessage(),
 			]);
 			return false;
 		}
 		if (count($run_classes) === 0) {
 			$this->log("Unable to find any {name} classes in $file - skipping", [
-				"name" => self::TEST_UNIT_CLASS,
+				'name' => self::TEST_UNIT_CLASS,
 			]);
 			return true;
 		}
@@ -823,7 +818,7 @@ class Command_Test extends Command_Base {
 			}
 		} catch (\Exception $e) {
 			$this->stats['fail']++;
-			$this->error("Exception {message} at {file}:{line}", Exception::exception_variables($e));
+			$this->error('Exception {message} at {file}:{line}', Exception::exception_variables($e));
 			$final_result = false;
 		}
 		return $final_result;
@@ -845,7 +840,7 @@ class Command_Test extends Command_Base {
 		$php = $this->application->paths->which('php');
 		if (!$env) {
 			if (!$php) {
-				throw new Exception_Configuration("PATH", "No env or php found in path, is PATH invalid?\n" . implode("\n\t", $this->application->paths->command()) . "\n");
+				throw new Exception_Configuration('PATH', "No env or php found in path, is PATH invalid?\n" . implode("\n\t", $this->application->paths->command()) . "\n");
 			}
 			$command = $php;
 		} else {
@@ -881,19 +876,19 @@ class Command_Test extends Command_Base {
 	 * @return string
 	 */
 	private function _pass_along_loader_options() {
-		$loader = $this->application->objects->singleton("zesk\\Command_Loader");
+		$loader = $this->application->objects->singleton('zesk\\Command_Loader');
 		if (!$loader) {
-			return "";
+			return '';
 		}
 		$context = $loader->context();
 		if (count($context) === 0) {
-			return "";
+			return '';
 		}
 		$result = [];
 		foreach ($context as $name => $value) {
-			$result[] = "--set " . unquote(escapeshellarg($name)) . "=" . unquote(escapeshellarg($value));
+			$result[] = '--set ' . unquote(escapeshellarg($name)) . '=' . unquote(escapeshellarg($value));
 		}
-		return implode(" ", $result) . " ";
+		return implode(' ', $result) . ' ';
 	}
 
 	/**
@@ -906,7 +901,7 @@ class Command_Test extends Command_Base {
 	 */
 	private function _run_test_sandbox($file, $class, array $options) {
 		$command = self::_run_sandbox_command();
-		$options['prefix'] = $command . " " . ZESK_ROOT . "bin/zesk-command.php --search \"" . $this->application->path() . "\" ";
+		$options['prefix'] = $command . ' ' . ZESK_ROOT . 'bin/zesk-command.php --search "' . $this->application->path() . '" ';
 		if (is_file($this->config)) {
 			$options['prefix'] .= '--config \'' . addslashes($this->config) . '\' ';
 		}
@@ -915,23 +910,23 @@ class Command_Test extends Command_Base {
 		foreach ($flags as $flag) {
 			$value = avalue($options, $flag);
 			if (is_bool($value) || is_string($value) || is_numeric($value)) {
-				$options['prefix'] .= "--set " . self::TEST_UNIT_CLASS . "::$flag=" . json_encode($value) . " ";
+				$options['prefix'] .= '--set ' . self::TEST_UNIT_CLASS . "::$flag=" . json_encode($value) . ' ';
 			}
 		}
-		$opts = "";
-		if ($this->optionBool("debug")) {
-			$opts .= "--debug ";
+		$opts = '';
+		if ($this->optionBool('debug')) {
+			$opts .= '--debug ';
 		}
-		if ($this->optionBool("verbose")) {
-			$opts .= "--verbose ";
+		if ($this->optionBool('verbose')) {
+			$opts .= '--verbose ';
 		}
 		$options['echo'] = true;
 		$options['suffix'] = " module test eval $opts 'zesk\\Command_Test::run_file(\$application, \"$file\")'";
-		$options['command'] = "{prefix}{suffix}";
+		$options['command'] = '{prefix}{suffix}';
 
 		foreach ($options as $k => $v) {
 			$options[$k] = tr($v, [
-				"\\" => "___",
+				'\\' => '___',
 			]);
 		}
 		return $this->_run_test_command($file, $options);
@@ -958,8 +953,8 @@ class Command_Test extends Command_Base {
 			return;
 		}
 
-		throw new Exception("{file} failed", [
-			"file" => $file,
+		throw new Exception('{file} failed', [
+			'file' => $file,
 		]);
 	}
 
@@ -990,8 +985,8 @@ class Command_Test extends Command_Base {
 		$verbose = avalue($options, 'verbose');
 		$strict = avalue($options, 'strict');
 		if ($verbose) {
-			$pad = str_repeat(" ", max(self::width - strlen($file), 0));
-			echo " # ";
+			$pad = str_repeat(' ', max(self::width - strlen($file), 0));
+			echo ' # ';
 		}
 		$exit_code = 0;
 		$test_contents = file_get_contents($file);
@@ -1006,7 +1001,7 @@ class Command_Test extends Command_Base {
 		$this->stats['test']++;
 		$options['prefix'] = avalue($options, 'prefix', '');
 		$options['suffix'] = avalue($options, 'suffix', '');
-		$command = map(avalue($options, 'command', "{prefix}$file{suffix}"), $options) . " 2>&1";
+		$command = map(avalue($options, 'command', "{prefix}$file{suffix}"), $options) . ' 2>&1';
 		if ($this->option('debug-command')) {
 			$this->log("COMMAND: $command");
 		}
@@ -1019,7 +1014,7 @@ class Command_Test extends Command_Base {
 			ob_start();
 		} else {
 			if ($debug_buffering) {
-				echo "\n" . __FILE__ . " ### NO ob " . Text::format_pairs($options) . " ###\n";
+				echo "\n" . __FILE__ . ' ### NO ob ' . Text::format_pairs($options) . " ###\n";
 			}
 		}
 		$system_result = system($command, $exit_code);
@@ -1036,11 +1031,11 @@ class Command_Test extends Command_Base {
 			$this->last_result = $last_result = $system_result;
 		}
 		$exit_code = intval($exit_code);
-		if (str_contains($last_result, "PHP-ERROR")) {
+		if (str_contains($last_result, 'PHP-ERROR')) {
 			$exit_code = 100;
 		}
 		if ($strict) {
-			if (str_contains($last_result, "Strict Standards:")) {
+			if (str_contains($last_result, 'Strict Standards:')) {
 				$exit_code = 101;
 			}
 		}
@@ -1050,7 +1045,7 @@ class Command_Test extends Command_Base {
 		$success = ($exit_code === 0);
 		if (avalue($options, 'always_fail') || str_contains($test_contents, 'ALWAYS_FAIL')) {
 			if ($verbose) {
-				echo " always fail:";
+				echo ' always fail:';
 			}
 			$success = !$success;
 		}
@@ -1095,9 +1090,9 @@ class Command_Test extends Command_Base {
 	 */
 	private function _test_function_output($file, $result): void {
 		echo "$file FAILED:\n";
-		echo str_repeat("-", 80) . "\n";
+		echo str_repeat('-', 80) . "\n";
 		echo trim($result) . "\n";
-		echo str_repeat("*", 80) . "\n";
+		echo str_repeat('*', 80) . "\n";
 	}
 
 	/**
@@ -1105,7 +1100,7 @@ class Command_Test extends Command_Base {
 	 */
 	private function database_report(): void {
 		$stats = [
-			"total" => count($this->test_results),
+			'total' => count($this->test_results),
 			'pass' => 0,
 			'fail' => 0,
 			'missing' => 0,

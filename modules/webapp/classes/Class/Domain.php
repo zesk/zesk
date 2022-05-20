@@ -13,23 +13,23 @@ namespace zesk\WebApp;
  *
  */
 class Class_Domain extends Class_ORM {
-	public $codename = "WebApp_Domain";
+	public $codename = 'WebApp_Domain';
 
 	public array $column_types = [
-		"id" => self::type_id,
-		"name" => self::type_string,
-		"type" => self::type_string,
-		"target" => self::type_object,
-		"active" => self::type_boolean,
-		"accessed" => self::type_timestamp,
+		'id' => self::type_id,
+		'name' => self::type_string,
+		'type' => self::type_string,
+		'target' => self::type_object,
+		'active' => self::type_boolean,
+		'accessed' => self::type_timestamp,
 	];
 
 	public array $find_keys = [
-		"name",
+		'name',
 	];
 
 	public array $has_one = [
-		"target" => "*type",
+		'target' => '*type',
 	];
 
 	public array $column_defaults = [

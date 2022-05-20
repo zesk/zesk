@@ -27,7 +27,7 @@ class Server_Packager_APT extends Server_Packager {
 	}
 
 	public function package_exists($package) {
-		throw new Exception_Unimplemented("package_exists");
+		throw new Exception_Unimplemented('package_exists');
 		return false;
 	}
 
@@ -36,7 +36,7 @@ class Server_Packager_APT extends Server_Packager {
 	}
 
 	public function packages() {
-		return $this->exec("apt-show-versions -b | cut -d / -f 1");
+		return $this->exec('apt-show-versions -b | cut -d / -f 1');
 	}
 
 	public function configure(): void {

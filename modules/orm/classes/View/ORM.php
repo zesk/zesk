@@ -16,7 +16,7 @@ namespace zesk;
 class View_ORM extends View {
 	public function format($set = null) {
 		if ($set !== null) {
-			return $this->setOption("format", $set);
+			return $this->setOption('format', $set);
 		}
 		return $this->option('format');
 	}
@@ -35,9 +35,9 @@ class View_ORM extends View {
 			'format' => $this->format,
 			'display_method' => $this->option('display_method'),
 			'display_method_arguments' => $this->option_array('display_method_arguments'),
-			"object_class" => $this->class,
-			"hidden_input" => $this->hidden_input(),
-			"class_object" => $this->application->class_orm($this->option('class', $this->class)),
+			'object_class' => $this->class,
+			'hidden_input' => $this->hidden_input(),
+			'class_object' => $this->application->class_orm($this->option('class', $this->class)),
 		] + parent::theme_variables();
 	}
 }

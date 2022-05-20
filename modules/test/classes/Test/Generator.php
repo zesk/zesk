@@ -80,7 +80,7 @@ class Test_Generator extends Options {
 	 * @return boolean true if file was created
 	 */
 	public function create_if_not_exists() {
-		if (!file_exists($this->target) || !str_contains(File::contents($this->target), "<?php")) {
+		if (!file_exists($this->target) || !str_contains(File::contents($this->target), '<?php')) {
 			$this->create();
 			return true;
 		}
@@ -88,53 +88,53 @@ class Test_Generator extends Options {
 	}
 
 	public function create(): void {
-		$namespace = $this->option("namespace", __NAMESPACE__);
-		$parent = $this->option("parent", 'zesk\\PHPUnit_TestCase');
+		$namespace = $this->option('namespace', __NAMESPACE__);
+		$parent = $this->option('parent', 'zesk\\PHPUnit_TestCase');
 		[$ns, $cl] = PHP::parse_namespace_class($parent);
 		if ($ns !== $namespace) {
 			$use = "use $parent;\n";
 			$parent_class = $parent;
 		} else {
-			$use = "// use - remove me";
+			$use = '// use - remove me';
 			$parent_class = $cl;
 		}
-		$example = File::contents($this->application->modules->path("test", "classes/Test/Example.php"));
-		$classname = basename($this->target, ".php");
+		$example = File::contents($this->application->modules->path('test', 'classes/Test/Example.php'));
+		$classname = basename($this->target, '.php');
 		$example = strtr($example, [
 			"// use\n" => $use,
-			"namespace zesk" => "namespace $namespace",
-			"Example_Test" => $classname,
-			"PHPUnit_TestCase" => $parent_class,
+			'namespace zesk' => "namespace $namespace",
+			'Example_Test' => $classname,
+			'PHPUnit_TestCase' => $parent_class,
 		]);
 		$map = [
-			"year" => date("Y"),
+			'year' => date('Y'),
 		] + $this->options([
-			"author" => $this->application->process->user(),
-			"package" => __NAMESPACE__,
-			"subpackage" => "test",
-			"copyright" => $this->application->kernel_copyright_holder(),
+			'author' => $this->application->process->user(),
+			'package' => __NAMESPACE__,
+			'subpackage' => 'test',
+			'copyright' => $this->application->kernel_copyright_holder(),
 		]);
-		$example = Text::remove_line_comments($example, "//", true);
+		$example = Text::remove_line_comments($example, '//', true);
 		file_put_contents($this->target, map($example, $map));
 		$this->target_inspector = PHP_Inspector::factory($this->application, $this->target);
-		if (first($this->target_inspector->defined_classes()) !== $namespace . "\\" . $classname) {
-			throw new Exception_System("Created target {target} but does not declare class {classname}", [
-				"target" => $this->target,
-				"classname" => $classname,
+		if (first($this->target_inspector->defined_classes()) !== $namespace . '\\' . $classname) {
+			throw new Exception_System('Created target {target} but does not declare class {classname}', [
+				'target' => $this->target,
+				'classname' => $classname,
 			]);
 		}
 	}
 
 	public function clean_function_parameters($params) {
-		$params = explode(",", $params);
+		$params = explode(',', $params);
 		$clean_params = [];
 		foreach ($params as $p) {
 			$p = trim($p);
 			if (empty($p)) {
 				continue;
 			}
-			[$var, $default] = pair($p, "=", $p, 'null');
-			$var = str_replace("&", "", $var);
+			[$var, $default] = pair($p, '=', $p, 'null');
+			$var = str_replace('&', '', $var);
 			$clean_params[ltrim($var, '$')] = $default;
 		}
 		return $clean_params;
@@ -156,9 +156,9 @@ class Test_Generator extends Options {
 				$v = PHP::dump($v);
 			}
 			$clean_params[] = '$' . $k;
-			$contents[] = '$' . $k . ' = ' . $v . ";";
+			$contents[] = '$' . $k . ' = ' . $v . ';';
 		}
-		$contents[] = "$func(" . implode(", ", $clean_params) . ");";
+		$contents[] = "$func(" . implode(', ', $clean_params) . ');';
 
 		return implode("\n", $contents);
 	}
@@ -217,7 +217,7 @@ class Test_Generator extends Options {
 		$contents = test_file_header($file, $dest_file, false);
 
 		$contents[] = generate_function_test_code("$class::$method", $params);
-		$contents[] = "echo basename(__FILE__) . \": success\\n\";";
+		$contents[] = 'echo basename(__FILE__) . ": success\\n";';
 
 		if (!$this->optionBool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
@@ -306,12 +306,12 @@ class Test_Generator extends Options {
 			$param_list = [];
 			foreach ($params as $k => $v) {
 				$param_list[] = '$' . $k;
-				$contents[] = '$' . $k . ' = ' . PHP::dump($v) . ";";
+				$contents[] = '$' . $k . ' = ' . PHP::dump($v) . ';';
 			}
-			if (begins($method, "new ")) {
+			if (begins($method, 'new ')) {
 				$prefix = '$testx = ';
 				$has_non_static_methods = true;
-			} elseif (begins($method, "::")) {
+			} elseif (begins($method, '::')) {
 				$method_name = str_replace('::', '', $method);
 				$method_object = $x->getMethod($method_name);
 				$methodParams = $method_object->getParameters();
@@ -319,14 +319,14 @@ class Test_Generator extends Options {
 				self::generate_static_class_method_test($file, $dest_path, $class, $method_name, $methodParams);
 
 				continue;
-			} elseif (begins($method, "->")) {
+			} elseif (begins($method, '->')) {
 				$prefix = '$testx';
 				$has_non_static_methods = true;
 			} else {
 				continue;
 			}
-			$contents[] = $prefix . $method . '(' . implode(", ", $param_list) . ');';
-			$contents[] = "";
+			$contents[] = $prefix . $method . '(' . implode(', ', $param_list) . ');';
+			$contents[] = '';
 		}
 		if (!$class_test_file) {
 			return;
@@ -334,7 +334,7 @@ class Test_Generator extends Options {
 		if (!$has_non_static_methods) {
 			return;
 		}
-		$contents[] = "echo basename(__FILE__) . \": success\\n\";";
+		$contents[] = 'echo basename(__FILE__) . ": success\\n";';
 
 		if (!$this->optionBool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
@@ -361,12 +361,12 @@ class Test_Generator extends Options {
 		/* Strip away quoted strings (to eliminate stray {}) */
 		do {
 			$old_content = $content;
-			$content = preg_replace("/'[^'\n]*'/", "", $content);
-			$content = preg_replace('/"[^"\n]*"/', "", $content);
+			$content = preg_replace("/'[^'\n]*'/", '', $content);
+			$content = preg_replace('/"[^"\n]*"/', '', $content);
 		} while ($content !== $old_content);
 
 		if ($debug_parsing) {
-			file_put_contents($debug_parsing_path . "." . ($iter++), $content);
+			file_put_contents($debug_parsing_path . '.' . ($iter++), $content);
 		}
 
 		/* Strip away all // comments */
@@ -376,23 +376,23 @@ class Test_Generator extends Options {
 		} while ($content !== $old_content);
 
 		if ($debug_parsing) {
-			file_put_contents($debug_parsing_path . "." . ($iter++), $content);
+			file_put_contents($debug_parsing_path . '.' . ($iter++), $content);
 		}
 		/* Strip away all /* comments */
 		do {
 			$old_content = $content;
-			$content = preg_replace("|/\\*[^~]*?\\*/|m", "", $content);
+			$content = preg_replace('|/\\*[^~]*?\\*/|m', '', $content);
 		} while ($content !== $old_content);
 
 		if ($debug_parsing) {
-			file_put_contents($debug_parsing_path . "." . ($iter++), $content);
+			file_put_contents($debug_parsing_path . '.' . ($iter++), $content);
 		}
 		/* Strip away all blocks */
 		do {
 			$old_content = $content;
-			$content = preg_replace('/\{[^\{\}]*\}/', "", $content);
+			$content = preg_replace('/\{[^\{\}]*\}/', '', $content);
 			if ($debug_parsing) {
-				file_put_contents($debug_parsing_path . "." . ($iter++), $content);
+				file_put_contents($debug_parsing_path . '.' . ($iter++), $content);
 			}
 		} while ($content !== $old_content);
 
@@ -405,7 +405,7 @@ class Test_Generator extends Options {
 				self::generate_function_tests($file, $dest_path, $func, $params);
 			}
 		}
-		if (preg_match_all("/class\\s+([A-Za-z_][A-Za-z_0-9]*)\\s*/", $content, $matches, PREG_SET_ORDER)) {
+		if (preg_match_all('/class\\s+([A-Za-z_][A-Za-z_0-9]*)\\s*/', $content, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
 				self::generate_class_tests($file, $dest_path, $match[1]);
 			}
@@ -444,7 +444,7 @@ class Test_Generator extends Options {
 		$dirs = [];
 		$files = [];
 
-		while (($arg = $this->get_arg("target")) !== null) {
+		while (($arg = $this->get_arg('target')) !== null) {
 			if (Directory::is_absolute($arg)) {
 				$dirs[] = $arg;
 			} elseif (is_dir(path($cwd, $arg))) {
@@ -461,11 +461,11 @@ class Test_Generator extends Options {
 			$this->verbose_log("Generating tests for the current directory: $cwd\n");
 			$dirs[] = $cwd;
 		}
-		$dry_run = $this->optionBool("dry-run");
+		$dry_run = $this->optionBool('dry-run');
 		if ($dry_run) {
 			$this->verbose_log("Dry run: No files will be created.\n");
 		}
-		$extensions = ArrayTools::prefix(ArrayTools::unprefix(".", $this->option_list("extensions")), ".");
+		$extensions = ArrayTools::prefix(ArrayTools::unprefix('.', $this->option_list('extensions')), '.');
 		foreach ($dirs as $dir) {
 			$this->verbose_log("Processing directory $dir ...");
 			if (!Directory::is_absolute($dir)) {

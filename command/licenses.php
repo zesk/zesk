@@ -12,7 +12,7 @@ class Command_Licenses extends Command_Base {
 	];
 
 	protected array $option_help = [
-		'all' => "Do all modules instead of just those loaded",
+		'all' => 'Do all modules instead of just those loaded',
 	];
 
 	protected function run(): void {
@@ -24,16 +24,16 @@ class Command_Licenses extends Command_Base {
 			$url_license = $url_project = $project_url = $licenses = $description = null;
 			extract($configuration, EXTR_IF_EXISTS);
 			if ($project_url !== null) {
-				$this->application->logger->notice("Module {name} uses deprecated setting PROJECT_URL update to URL_PROJECT", compact("name"));
+				$this->application->logger->notice('Module {name} uses deprecated setting PROJECT_URL update to URL_PROJECT', compact('name'));
 			}
 			if ($url_license || $licenses) {
-				$desc = $description ? ": $description" : "";
+				$desc = $description ? ": $description" : '';
 				echo "$name$desc\n";
 				if ($url_license) {
-					echo "License information: " . $url_license . "\n";
+					echo 'License information: ' . $url_license . "\n";
 				}
 				if ($licenses) {
-					echo "      License types: " . implode(", ", to_list($licenses)) . "\n";
+					echo '      License types: ' . implode(', ', to_list($licenses)) . "\n";
 				}
 				echo "\n";
 			}

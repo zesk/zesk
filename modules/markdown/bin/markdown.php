@@ -2,7 +2,7 @@
 <?php
 namespace zesk;
 
-define("ZESK_ROOT", dirname(__DIR__, 3) . "/");
+define('ZESK_ROOT', dirname(__DIR__, 3) . '/');
 
 if (file_exists(ZESK_ROOT . 'vendor/autoload.php')) {
 	require_once ZESK_ROOT . 'vendor/autoload.php';
@@ -13,6 +13,6 @@ if (file_exists(ZESK_ROOT . 'vendor/autoload.php')) {
 
 $app = $zesk->create_application();
 $app->set_application_root(ZESK_ROOT);
-$app->modules->load("markdown");
+$app->modules->load('markdown');
 
-$app->objects->factory("zesk\\Command_Markdown", $app)->go();
+$app->objects->factory('zesk\\Command_Markdown', $app)->go();

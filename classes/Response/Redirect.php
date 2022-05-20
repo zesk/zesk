@@ -34,9 +34,9 @@ class Redirect extends Type {
 		try {
 			$this->session()->redirect_message = null;
 		} catch (\Exception $e) {
-			$this->application->logger->debug("{method} caused an exception {e}", [
-				"method" => __METHOD__,
-				"e" => $e,
+			$this->application->logger->debug('{method} caused an exception {e}', [
+				'method' => __METHOD__,
+				'e' => $e,
 			]);
 		}
 	}
@@ -147,7 +147,7 @@ class Redirect extends Type {
 		$url = $this->process_url($original_url);
 		$this->parent->output_handler(Response::HANDLER_REDIRECT);
 
-		$this->parent->header("Location", $url);
+		$this->parent->header('Location', $url);
 		$status_code = $exception->status_code();
 		if (!$status_code) {
 			$status_code = Net_HTTP::STATUS_MOVED_PERMANENTLY;
@@ -155,7 +155,7 @@ class Redirect extends Type {
 		$this->parent->status_code = $status_code;
 		$status_message = $exception->status_message();
 		if (!$status_message) {
-			$status_message = "Moved";
+			$status_message = 'Moved';
 		}
 		$this->parent->status_message = $status_message;
 		return $url;

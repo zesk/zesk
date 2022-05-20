@@ -10,16 +10,16 @@ echo $this->theme('zesk/control/text', [
 	'data-controller' => $this->controller_url,
 ]);
 
-$html = "";
+$html = '';
 if (can_iterate($this->objects)) {
 	foreach ($this->objects as $object) {
 		$html .= $this->theme($this->theme_object, [
-			"object" => $object,
+			'object' => $object,
 		]);
 	}
 }
 
 echo HTML::tag('div', [
-	"class" => CSS::add_class("control-objects-results", $this->class_results),
-	"id" => "control-objects-" . $this->name,
+	'class' => CSS::add_class('control-objects-results', $this->class_results),
+	'id' => 'control-objects-' . $this->name,
 ], $html);

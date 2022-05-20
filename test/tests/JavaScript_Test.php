@@ -13,7 +13,7 @@ namespace zesk;
 class JavaScript_Test extends Test_Unit {
 	public function data_cleanFunctionName(): array {
 		return [
-			["foobar", "foo bar"],
+			['foobar', 'foo bar'],
 		];
 	}
 
@@ -55,8 +55,8 @@ class JavaScript_Test extends Test_Unit {
 
 	public function data_string(): array {
 		return [
-			["'Normal string'", "Normal string"],
-			["'That\'s string'", "That's string"],
+			['\'Normal string\'', 'Normal string'],
+			["'That\'s string'", 'That\'s string'],
 			["'Multiline\\n' +\n'String'", "Multiline\nString"],
 		];
 	}

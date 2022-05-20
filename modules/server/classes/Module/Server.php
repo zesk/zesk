@@ -21,7 +21,7 @@ class Module_Server extends Module {
 		return [
 			'remote' => [
 				'document_root' => path($this->path, 'site'),
-				'description' => __("Server remote control. Secure, authenticated system management."),
+				'description' => __('Server remote control. Secure, authenticated system management.'),
 				'class' => 'Application_Server',
 			],
 		];

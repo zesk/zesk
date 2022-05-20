@@ -56,17 +56,17 @@ abstract class Repository_Command extends Repository {
 	 */
 	public function set_path($path) {
 		if (empty($path)) {
-			throw new Exception_Parameter("{method} - no path passed", [
-				"method" => __METHOD__,
+			throw new Exception_Parameter('{method} - no path passed', [
+				'method' => __METHOD__,
 			]);
 		}
-		if ($this->optionBool("find_root") && $root = $this->find_root($path)) {
+		if ($this->optionBool('find_root') && $root = $this->find_root($path)) {
 			if ($root !== $path) {
-				$this->application->logger->debug("{method} {code} moved to {root} instead of {path}", [
-					"method" => __METHOD__,
-					"code" => $this->code,
-					"root" => $root,
-					"path" => $path,
+				$this->application->logger->debug('{method} {code} moved to {root} instead of {path}', [
+					'method' => __METHOD__,
+					'code' => $this->code,
+					'root' => $root,
+					'path' => $path,
 				]);
 			}
 			$this->path = $root;
@@ -84,14 +84,14 @@ abstract class Repository_Command extends Repository {
 	 */
 	protected function initialize(): void {
 		if (!$this->executable) {
-			throw new Exception_Unimplemented("Need to set ->executable to a value");
+			throw new Exception_Unimplemented('Need to set ->executable to a value');
 		}
 		parent::initialize();
 		$this->process = $this->application->process;
 		$this->command = $this->application->paths->which($this->executable);
 		if (!$this->command) {
-			throw new Exception_NotFound("Executable {executable} not found", [
-				"executable" => $this->executable,
+			throw new Exception_NotFound('Executable {executable} not found', [
+				'executable' => $this->executable,
 			]);
 		}
 	}
@@ -146,12 +146,12 @@ abstract class Repository_Command extends Repository {
 	 */
 	protected function find_root($directory) {
 		if (!$this->dot_directory) {
-			throw new Exception_Unimplemented("{method} does not support dot_directory setting", [
-				"method" => __METHOD__,
+			throw new Exception_Unimplemented('{method} does not support dot_directory setting', [
+				'method' => __METHOD__,
 			]);
 		}
 		$directory = realpath($directory);
-		while (!empty($directory) && $directory !== ".") {
+		while (!empty($directory) && $directory !== '.') {
 			if (is_dir(path($directory, $this->dot_directory))) {
 				return $directory;
 			}
@@ -174,7 +174,7 @@ abstract class Repository_Command extends Repository {
 		$factor = 100;
 		$result = [];
 		foreach ($versions as $version) {
-			$v = explode(" ", trim(preg_replace('/[^0-9]+/', ' ', $version), ' '), 4) + array_fill(0, 4, 0);
+			$v = explode(' ', trim(preg_replace('/[^0-9]+/', ' ', $version), ' '), 4) + array_fill(0, 4, 0);
 			$index = ((((intval($v[0]) * $factor) + intval($v[1])) * $factor + intval($v[2])) * $factor) + intval($v[3]);
 			$result[$index] = $version;
 		}

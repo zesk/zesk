@@ -13,11 +13,11 @@ namespace zesk;
 // STDOUT and the outer page.tpl is NOT rendered; like
 $trace = $this->content;
 echo HTML::tag_open('ol', '.exception-trace');
-$skip_frames = $request->geti("skip_frames", 10);
-$frames = $request->geti("frames", 20);
+$skip_frames = $request->geti('skip_frames', 10);
+$frames = $request->geti('frames', 20);
 foreach ($trace as $index => $trace_item) {
 	echo $this->theme('exception/trace-item', [
-		"content" => $trace_item,
+		'content' => $trace_item,
 	]);
 	if ($frames > 0 && $index >= $frames - 1) {
 		break;

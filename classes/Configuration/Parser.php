@@ -38,7 +38,7 @@ abstract class Configuration_Parser extends Options {
 	 * @return Configuration_Parser
 	 */
 	public static function factory($type, $content, Interface_Settings $settings = null, array $options = []) {
-		$class = __CLASS__ . "_" . PHP::clean_function(strtoupper($type));
+		$class = __CLASS__ . '_' . PHP::clean_function(strtoupper($type));
 		return new $class($content, $settings, $options);
 	}
 

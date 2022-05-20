@@ -44,15 +44,15 @@ class Database_Query_Delete extends Database_Query {
 	 * @param Database $db
 	 */
 	public function __construct(Database $db) {
-		parent::__construct("DELETE", $db);
+		parent::__construct('DELETE', $db);
 	}
 
 	public function truncate($set = null) {
 		if ($set !== null) {
 			$set = to_bool($set);
 			if ($set === true && (count($this->where) > 0)) {
-				$this->application->logger->warning("Failed to add truncate with a where clause", [
-					"query" => $this,
+				$this->application->logger->warning('Failed to add truncate with a where clause', [
+					'query' => $this,
 				]);
 				return null;
 			}
@@ -78,8 +78,8 @@ class Database_Query_Delete extends Database_Query {
 			$this->where[$k] = $v;
 		}
 		if ($this->truncate) {
-			$this->application->logger->warning("Adding where clause de-activates truncate", [
-				"query" => $this,
+			$this->application->logger->warning('Adding where clause de-activates truncate', [
+				'query' => $this,
 			]);
 			$this->truncate = false;
 		}
@@ -151,8 +151,8 @@ class Database_Query_Delete extends Database_Query {
 	 */
 	public function execute() {
 		if ($this->_execute() === null) {
-			throw new Database_Exception($this->database(), "Delete query failed: {sql}", [
-				"sql" => $this->__toString(),
+			throw new Database_Exception($this->database(), 'Delete query failed: {sql}', [
+				'sql' => $this->__toString(),
 			]);
 		}
 		return $this;

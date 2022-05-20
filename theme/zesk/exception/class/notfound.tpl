@@ -10,6 +10,6 @@
 /* @var $current_user \User */
 namespace zesk;
 
-echo $this->theme("exception", [
-	"suffix" => HTML::tag("pre", _dump($application->autoloader->path())),
+echo $this->theme('exception', [
+	'suffix' => HTML::tag('pre', _dump($application->autoloader->path())),
 ]);

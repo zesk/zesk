@@ -11,34 +11,34 @@ namespace zesk;
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
 $docroot = $application->document_root();
-$source = path($docroot, "index.html");
-$asset_manifest = path($docroot, "asset-manifest.json");
+$source = path($docroot, 'index.html');
+$asset_manifest = path($docroot, 'asset-manifest.json');
 
-$response->setOption("wrap_html", false);
+$response->setOption('wrap_html', false);
 if (!file_exists($source)) {
 	throw new Exception_File_NotFound($source);
 }
-$src = "/static/js/bundle.js";
+$src = '/static/js/bundle.js';
 if (file_exists($asset_manifest)) {
 	try {
 		$assets = JSON::decode(File::contents($asset_manifest));
-		$src = "/" . $assets['main.js'];
+		$src = '/' . $assets['main.js'];
 		if (isset($assets['main.css'])) {
 			$response->css($assets['main.css'], [
-				"root_dir" => $source,
+				'root_dir' => $source,
 			]);
 		}
 	} catch (\zesk\Exception_Syntax $e) {
-		$application->logger->emergency("Unable to parse asset file {asset_manifest} {e}", [
-			"asset_manifest" => $asset_manifest,
-			"e" => $e,
+		$application->logger->emergency('Unable to parse asset file {asset_manifest} {e}', [
+			'asset_manifest' => $asset_manifest,
+			'e' => $e,
 		]);
 	}
 }
-$scripts = HTML::tag("script", [
-	"src" => $src,
-], "");
+$scripts = HTML::tag('script', [
+	'src' => $src,
+], '');
 echo strtr(file_get_contents($source), [
-	"%PUBLIC_URL%" => "",
-	"</body>" => "$scripts</body>",
+	'%PUBLIC_URL%' => '',
+	'</body>' => "$scripts</body>",
 ]);

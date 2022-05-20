@@ -47,16 +47,16 @@ class Control_Font extends Control_Select {
 	public static function web_font_options() {
 		return [
 			'"Source Sans Pro", Helvetica, Arial, sans-serif' => 'Source Sans Pro',
-			"Georgia, serif" => "Georgia",
-			'"Palatino Linotype", "Book Antiqua", Palatino, serif' => "Palatino",
-			'"Times New Roman", Times, serif' => "Times New Roman",
-			'"Lucida Sans Unicode", "Lucida Grande", sans-serif' => "Lucida Sans",
+			'Georgia, serif' => 'Georgia',
+			'"Palatino Linotype", "Book Antiqua", Palatino, serif' => 'Palatino',
+			'"Times New Roman", Times, serif' => 'Times New Roman',
+			'"Lucida Sans Unicode", "Lucida Grande", sans-serif' => 'Lucida Sans',
 			'Tahoma, Geneva, sans-serif' => 'Tahoma',
-			'"Trebuchet MS", Helvetica, sans-serif' => "Trebuchet MS",
-			'Verdana, Geneva, sans-serif' => "Verdana",
+			'"Trebuchet MS", Helvetica, sans-serif' => 'Trebuchet MS',
+			'Verdana, Geneva, sans-serif' => 'Verdana',
 			'Optima, Segoe, "Segoe UI", Candara, Calibri, Arial, sans-serif' => 'Optima',
-			'"Gill Sans", "Gill Sans MT", Calibri, sans-serif' => "Gill Sans",
-			'"Hoefler Text", "Baskerville old face", Garamond, "Times New Roman", serif' => "Hoefler Text",
+			'"Gill Sans", "Gill Sans MT", Calibri, sans-serif' => 'Gill Sans',
+			'"Hoefler Text", "Baskerville old face", Garamond, "Times New Roman", serif' => 'Hoefler Text',
 		];
 	}
 
@@ -77,6 +77,6 @@ class Control_Font extends Control_Select {
 	 * @see \zesk\Control_Select::theme_variables()
 	 */
 	public function theme_variables() {
-		return $this->options_include("css_target;sample_text") + parent::theme_variables();
+		return $this->options_include('css_target;sample_text') + parent::theme_variables();
 	}
 }

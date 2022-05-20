@@ -15,7 +15,7 @@ if ($this->help) {
 echo $this->filter_prefix;
 if ($this->filter && $this->show_filter) {
 	echo $this->filter->render();
-	$this->filter->content = $this->filter->content_children = "";
+	$this->filter->content = $this->filter->content_children = '';
 }
 echo $this->filter_suffix . $this->pager_prefix;
 if ($this->pager && $this->show_pager) {

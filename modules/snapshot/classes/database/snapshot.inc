@@ -76,7 +76,7 @@ class Database_Snapshot extends ORM {
 			->query_select()
 			->what_object()
 			->where([
-			"dbname" => $dbname,
+			'dbname' => $dbname,
 		])
 			->order_by('created DESC')
 			->limit(0, 1)
@@ -92,7 +92,7 @@ class Database_Snapshot extends ORM {
 			$db = $this->application->database_registry();
 		}
 		if ($db->database_name() !== $this->dbname) {
-			throw new Exception_Semantics("Restoring incorrect snapshot name {dbname} onto existing database name {db_database_name} - stopping", [
+			throw new Exception_Semantics('Restoring incorrect snapshot name {dbname} onto existing database name {db_database_name} - stopping', [
 				'db_database_name' => $db->database_name(),
 				'dbname' => $this->dbname,
 			]);

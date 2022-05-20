@@ -9,7 +9,7 @@ class Image_Library_imagick extends Image_Library {
 	 *
 	 * @var string
 	 */
-	public const command_default = "convert";
+	public const command_default = 'convert';
 
 	/**
 	 *
@@ -24,16 +24,16 @@ class Image_Library_imagick extends Image_Library {
 	private function shell_command() {
 		$command = $this->application->configuration->path_get([
 			__CLASS__,
-			"command",
+			'command',
 		], self::command_default);
 		$which = $this->application->paths->which($command);
 		if (!$which) {
 			throw new Exception_Configuration([
 				__CLASS__,
-				"command",
-			], "Command {command} not found in path {paths}", [
-				"command" => $command,
-				"paths" => $this->application->paths->command(),
+				'command',
+			], 'Command {command} not found in path {paths}', [
+				'command' => $command,
+				'paths' => $this->application->paths->command(),
 			]);
 		}
 		return $which;
@@ -47,16 +47,16 @@ class Image_Library_imagick extends Image_Library {
 		$command = $this->shell_command();
 		$pattern = $this->application->configuration->path_get([
 			__CLASS__,
-			"command_scale",
+			'command_scale',
 		], self::command_scale);
 		$scale_command = map($pattern, [
-			"command" => $command,
+			'command' => $command,
 		]);
 		if (empty($scale_command)) {
 			throw new Exception_Configuration([
 				__CLASS__,
-				"command_scale",
-			], "Is an empty string?");
+				'command_scale',
+			], 'Is an empty string?');
 		}
 		return $scale_command;
 	}
@@ -118,10 +118,10 @@ class Image_Library_imagick extends Image_Library {
 		}
 
 		$map = [
-			"source" => escapeshellarg($source),
-			"destination" => escapeshellarg($dest),
-			"width" => $width,
-			"height" => $height,
+			'source' => escapeshellarg($source),
+			'destination' => escapeshellarg($dest),
+			'width' => $width,
+			'height' => $height,
 		];
 
 		$cmd = $this->shell_command_scale();
@@ -144,6 +144,6 @@ class Image_Library_imagick extends Image_Library {
 	}
 
 	public function image_rotate($source, $destination, $degrees, array $options = []): void {
-		throw new Exception_Unimplemented("TODO");
+		throw new Exception_Unimplemented('TODO');
 	}
 }

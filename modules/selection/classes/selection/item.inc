@@ -77,12 +77,12 @@ class Selection_Item extends ORM {
 		$before_changes = [];
 		foreach ($changes as $change) {
 			if (str_contains($change, 'tid')   && str_contains($change, 'UNIQUE')) {
-				$before_changes[] = "CREATE TABLE Selection_Item_UQ LIKE Selection_Item";
-				$before_changes[] = "ALTER TABLE Selection_Item_UQ DROP INDEX tid";
-				$before_changes[] = "ALTER TABLE Selection_Item_UQ ADD UNIQUE tid (`type`,`id`)";
-				$before_changes[] = "REPLACE INTO Selection_Item_UQ SELECT * FROM Selection_Item";
-				$before_changes[] = "DROP TABLE Selection_Item";
-				$before_changes[] = "RENAME TABLE Selection_Item_UQ TO Selection_Item";
+				$before_changes[] = 'CREATE TABLE Selection_Item_UQ LIKE Selection_Item';
+				$before_changes[] = 'ALTER TABLE Selection_Item_UQ DROP INDEX tid';
+				$before_changes[] = 'ALTER TABLE Selection_Item_UQ ADD UNIQUE tid (`type`,`id`)';
+				$before_changes[] = 'REPLACE INTO Selection_Item_UQ SELECT * FROM Selection_Item';
+				$before_changes[] = 'DROP TABLE Selection_Item';
+				$before_changes[] = 'RENAME TABLE Selection_Item_UQ TO Selection_Item';
 				break;
 			}
 		}

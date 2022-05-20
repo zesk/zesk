@@ -44,8 +44,8 @@ class Instance extends ORM {
 	public static function find_from_path(Application $application, Server $server, $webapp_path) {
 		$path = dirname($webapp_path);
 		$instance = $application->orm_factory(self::class, [
-			"path" => $path,
-			"server" => $server,
+			'path' => $path,
+			'server' => $server,
 		]);
 		return $instance->find();
 	}
@@ -57,7 +57,7 @@ class Instance extends ORM {
 	 * @return string
 	 */
 	public function json_path() {
-		return path($this->path, "webapp.json");
+		return path($this->path, 'webapp.json');
 	}
 
 	public function load_json() {
@@ -74,8 +74,8 @@ class Instance extends ORM {
 	public static function find_from_code(Application $application, Server $server, $code) {
 		$instance = $application->orm_factory(self::class);
 		return $instance->find([
-			"code" => $code,
-			"server" => $server,
+			'code' => $code,
+			'server' => $server,
 		]);
 	}
 
@@ -94,32 +94,32 @@ class Instance extends ORM {
 		$code = $json['code'];
 
 		if (!$code) {
-			throw new Exception_Semantics("{class} JSON at {webapp_path} has no code set", [
-				"class" => __CLASS__,
-				"webapp_path" => $webapp_path,
+			throw new Exception_Semantics('{class} JSON at {webapp_path} has no code set', [
+				'class' => __CLASS__,
+				'webapp_path' => $webapp_path,
 			]);
 		}
 		/**
 		 * @var self $instance
 		 */
 		$instance = $application->orm_factory(self::class, [
-			"path" => $path,
-			"server" => $server,
-			"hash" => $hash,
+			'path' => $path,
+			'server' => $server,
+			'hash' => $hash,
 		] + ArrayTools::filter($json, [
-			"name",
-			"code",
+			'name',
+			'code',
 		]))->register();
 		$instance->json = $json;
 		$instance->hash = $hash;
 		$instance->code = $code;
 
-		$mtime = Timestamp::factory(filemtime($webapp_path), "UTC");
+		$mtime = Timestamp::factory(filemtime($webapp_path), 'UTC');
 		$updated = $instance->updated;
 		$changes = $instance->changes();
 		if (count($changes) !== 0 || !$updated instanceof Timestamp || $updated->before($mtime)) {
 			$instance->store();
-			$instance->call_hook("before_sites_changed");
+			$instance->call_hook('before_sites_changed');
 			$valid_sites = [];
 
 			foreach (to_list(avalue($json, 'sites')) as $site_members) {
@@ -127,7 +127,7 @@ class Instance extends ORM {
 				$valid_sites[] = $site->id();
 			}
 			$where = [
-				"instance" => $instance,
+				'instance' => $instance,
 			];
 			if (count($valid_sites) > 0) {
 				$where['id|!=|AND'] = $valid_sites;
@@ -135,7 +135,7 @@ class Instance extends ORM {
 			$delete = $application->orm_factory(Site::class)->query_delete()->where($where);
 			// $application->logger->debug(strval($delete));
 			$delete->execute();
-			$instance->call_hook("after_sites_changed");
+			$instance->call_hook('after_sites_changed');
 		}
 
 		return $instance;
@@ -150,19 +150,19 @@ class Instance extends ORM {
 		/* @var $site Site */
 		ksort($members);
 		$site = $this->application->orm_factory(Site::class, [
-			"instance" => $this,
+			'instance' => $this,
 		]);
 		$site_member_names = $site->member_names();
 		$data = ArrayTools::remove($members, $site_member_names);
 		$members = ArrayTools::filter($members, $site_member_names);
 		if (!isset($members['code'])) {
-			throw new Exception_Semantics("{class} Site {code} {name} missing code", [
-				"class" => Site::class,
+			throw new Exception_Semantics('{class} Site {code} {name} missing code', [
+				'class' => Site::class,
 			] + $members);
 		}
 		if (!isset($members['path'])) {
-			throw new Exception_Semantics("{class} Site {code} {name} missing path", [
-				"class" => Site::class,
+			throw new Exception_Semantics('{class} Site {code} {name} missing path', [
+				'class' => Site::class,
 			] + $members);
 		}
 		if (!isset($members['type'])) {
@@ -204,14 +204,14 @@ class Instance extends ORM {
 				];
 			}
 		}
-		usort($priorities, "zesk_sort_weight_array");
-		$priorities = ArrayTools::collapse($priorities, "type");
+		usort($priorities, 'zesk_sort_weight_array');
+		$priorities = ArrayTools::collapse($priorities, 'type');
 		foreach ($priorities as $type) {
 			/* @var $type Type */
 			$version = $type->version();
 			if (!empty($version)) {
 				$this->appversion = $version;
-				$this->apptype = strtolower(StringTools::unprefix(PHP::parse_class(get_class($type)), "Type_"));
+				$this->apptype = strtolower(StringTools::unprefix(PHP::parse_class(get_class($type)), 'Type_'));
 				return true;
 			}
 		}
@@ -227,8 +227,8 @@ class Instance extends ORM {
 			return null;
 		}
 		$members = $json['repository'] + ArrayTools::filter($json, [
-			"name",
-			"code",
+			'name',
+			'code',
 		]);
 		$this->repository = $this->application->orm_factory(Repository::class, $members)
 			->register()
@@ -242,19 +242,19 @@ class Instance extends ORM {
 	 *
 	 */
 	public function remove_dead_instances(): void {
-		$query = $this->query_select("X")->link(Server::class, [
+		$query = $this->query_select('X')->link(Server::class, [
 			'alias' => 'S',
 			'require' => false,
 		])->where('s.id', null);
 		$iterator = $query->orm_iterator();
 		foreach ($iterator as $instance) {
 			/* @var $instance self */
-			$sid = $instance->member_integer("server");
-			$this->application->logger->notice("Deleting instance #{id} {path} associated with dead server #{sid}", $instance->members([
-				"id",
-				"path",
+			$sid = $instance->member_integer('server');
+			$this->application->logger->notice('Deleting instance #{id} {path} associated with dead server #{sid}', $instance->members([
+				'id',
+				'path',
 			]) + [
-				"sid" => $sid,
+				'sid' => $sid,
 			]);
 			$instance->delete();
 		}

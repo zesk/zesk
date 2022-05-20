@@ -17,37 +17,37 @@ namespace zesk;
 $url_key = $application->configuration->url_key;
 
 $class = [
-	"link",
+	'link',
 ];
 if ($this->class) {
 	$class[] = $this->class;
 }
-$rd_link = URL::query_format("/out", [
-	"link" => $object->id(),
-	"url" => $object->URL,
-	"key" => md5($object->URL . $url_key),
+$rd_link = URL::query_format('/out', [
+	'link' => $object->id(),
+	'url' => $object->URL,
+	'key' => md5($object->URL . $url_key),
 ]);
 
 /* @var $object Link */
 echo HTML::div_open([
-	"class" => implode(" ", $class),
+	'class' => implode(' ', $class),
 ]);
-echo HTML::etag("a", [
-	"href" => $rd_link,
-	"onmouseover" => "window.status='" . $object->URL . "'",
-	"onmouseout" => "window.status=''",
+echo HTML::etag('a', [
+	'href' => $rd_link,
+	'onmouseover' => 'window.status=\'' . $object->URL . '\'',
+	'onmouseout' => 'window.status=\'\'',
 ], $object->image());
 
 echo HTML::a_condition($rd_link === $request->path(), $rd_link, [
-	"class" => "title",
-	"onmouseover" => "window.status='" . $object->URL . "'",
-	"onmouseout" => "window.status=''",
+	'class' => 'title',
+	'onmouseover' => 'window.status=\'' . $object->URL . '\'',
+	'onmouseout' => 'window.status=\'\'',
 ], $object->Name);
 
 echo $this->theme('control/admin-edit');
 
-echo HTML::etag("p", [
-	"class" => "desc",
+echo HTML::etag('p', [
+	'class' => 'desc',
 ], $object->Body);
 
 echo HTML::div_close();

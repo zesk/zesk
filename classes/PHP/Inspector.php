@@ -97,9 +97,9 @@ class PHP_Inspector {
 	 */
 	public function reflection_class($class) {
 		if (!in_array($class, $this->defined_classes())) {
-			throw new Exception_Class_NotFound($class, "Class {class} is not defined in file {file}", [
-				"class" => $class,
-				"file" => $this->file,
+			throw new Exception_Class_NotFound($class, 'Class {class} is not defined in file {file}', [
+				'class' => $class,
+				'file' => $this->file,
 			]);
 		}
 		if (!$this->included) {
@@ -107,9 +107,9 @@ class PHP_Inspector {
 			$this->included = true;
 		}
 		if (!class_exists($class, false)) {
-			throw new Exception_Class_NotFound($class, "Class {class} is not defined in file {file} after include", [
-				"class" => $class,
-				"file" => $this->file,
+			throw new Exception_Class_NotFound($class, 'Class {class} is not defined in file {file} after include', [
+				'class' => $class,
+				'file' => $this->file,
 			]);
 		}
 		return new \ReflectionClass($class);
@@ -147,7 +147,7 @@ class PHP_Inspector {
 	 */
 	private function _compute_classes() {
 		$classes = [];
-		$namespace = "";
+		$namespace = '';
 		$index = 0;
 		while ($index < $this->tokens_length) {
 			[$type, $text] = $this->token($index);
@@ -158,7 +158,7 @@ class PHP_Inspector {
 					T_STRING,
 					T_NS_SEPARATOR,
 				]);
-				$namespace = trim($namespace) . "\\";
+				$namespace = trim($namespace) . '\\';
 			} elseif ($type === T_CLASS) {
 				$class = $this->capture_next($index, [
 					T_WHITESPACE,
@@ -167,7 +167,7 @@ class PHP_Inspector {
 				], [
 					T_IMPLEMENTS,
 					T_EXTENDS,
-					"{",
+					'{',
 				]);
 				$classes[] = $namespace . trim($class);
 			}
@@ -193,19 +193,19 @@ class PHP_Inspector {
 					T_STRING,
 					T_NS_SEPARATOR,
 				]);
-				$namespace = trim($namespace) . "\\";
+				$namespace = trim($namespace) . '\\';
 			} elseif ($type === T_FUNCTION) {
 				$function = $this->capture_next($index, [
 					T_WHITESPACE,
 					T_STRING,
 				], [
-					"(",
+					'(',
 				], [
-					"&",
+					'&',
 				]);
 				$functions[] = $namespace . trim($function);
 			} elseif ($type === T_CLASS) {
-				$index = $this->advance_to($index, "{");
+				$index = $this->advance_to($index, '{');
 				$index = $this->skip_brackets($index);
 			}
 		}
@@ -225,9 +225,9 @@ class PHP_Inspector {
 			}
 			++$index;
 		} while ($index < $this->tokens_length);
-		$this->app->logger->warning("{method} skipped beyond EOF for {file}", [
-			"method" => __METHOD__,
-			"file" => $this->file,
+		$this->app->logger->warning('{method} skipped beyond EOF for {file}', [
+			'method' => __METHOD__,
+			'file' => $this->file,
 		]);
 		return $index;
 	}
@@ -241,13 +241,13 @@ class PHP_Inspector {
 	private function skip_brackets(&$index) {
 		$depth = 0;
 		$lasttype = null;
-		$result = "";
+		$result = '';
 		do {
 			[$type, $text] = $this->token($index);
-			if ($type === "{") {
+			if ($type === '{') {
 				++$depth;
 			}
-			if ($lasttype === "}") {
+			if ($lasttype === '}') {
 				--$depth;
 			}
 			$result .= $text;
@@ -257,9 +257,9 @@ class PHP_Inspector {
 			++$index;
 			$lasttype = $type;
 		} while ($index < $this->tokens_length);
-		$this->app->logger->warning("{method} skipped beyond EOF for {file}", [
-			"method" => __METHOD__,
-			"file" => $this->file,
+		$this->app->logger->warning('{method} skipped beyond EOF for {file}', [
+			'method' => __METHOD__,
+			'file' => $this->file,
 		]);
 		return $index;
 	}
@@ -273,7 +273,7 @@ class PHP_Inspector {
 	 * @return string|unknown|mixed
 	 */
 	private function capture_next(&$index, array $capture_tokens, array $stop_tokens = [], array $ignore_tokens = []) {
-		$capture = "";
+		$capture = '';
 		while ($index < $this->tokens_length) {
 			[$type, $text] = $this->token($index);
 			if (!in_array($type, $ignore_tokens)) {
@@ -288,9 +288,9 @@ class PHP_Inspector {
 			}
 			++$index;
 		}
-		$this->app->logger->warning("{method} skipped beyond EOF for {file}", [
-			"method" => __METHOD__,
-			"file" => $this->file,
+		$this->app->logger->warning('{method} skipped beyond EOF for {file}', [
+			'method' => __METHOD__,
+			'file' => $this->file,
 		]);
 		return $capture;
 	}
@@ -302,7 +302,7 @@ class PHP_Inspector {
 		$i = 0;
 		while ($i < $this->tokens_length) {
 			[$type, $text] = $this->token($i);
-			echo token_name($type) . ": " . StringTools::ellipsis_word($text) . "\n";
+			echo token_name($type) . ': ' . StringTools::ellipsis_word($text) . "\n";
 		}
 	}
 }

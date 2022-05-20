@@ -62,13 +62,13 @@ class Server_Files_Simulate extends Server_Files {
 		if ($this->simlog) {
 			return;
 		}
-		$this->simulate_path = $this->platform->option("simulate_path");
+		$this->simulate_path = $this->platform->option('simulate_path');
 		if (!$this->simulate_path) {
-			throw new Exception_Configuration("simulate_path", "Need to configure a simulation path for configuration");
+			throw new Exception_Configuration('simulate_path', 'Need to configure a simulation path for configuration');
 		}
 		Directory::depend($this->simulate_path, 0o770);
-		$simlogpath = path($this->simulate_path, "configure.sh");
-		$this->simlog = fopen($simlogpath, "wb");
+		$simlogpath = path($this->simulate_path, 'configure.sh');
+		$this->simlog = fopen($simlogpath, 'wb');
 		if (!$this->simlog) {
 			throw new Exception_File_Permission($simlogpath);
 		}
@@ -119,7 +119,7 @@ class Server_Files_Simulate extends Server_Files {
 			return false;
 		}
 		$this->dirs[$path] = [];
-		$this->simlog("mkdir {0}", $path);
+		$this->simlog('mkdir {0}', $path);
 		$this->chmod($path, $mode);
 		return true;
 	}
@@ -129,16 +129,16 @@ class Server_Files_Simulate extends Server_Files {
 			return false;
 		}
 		$this->dirs[$path]['mode'] = $mode;
-		$this->simlog("chmod {0} {1}", File::mode_to_octal($mode), $path);
+		$this->simlog('chmod {0} {1}', File::mode_to_octal($mode), $path);
 		return true;
 	}
 
 	public function stat($path, $section = null) {
 		if (array_key_exists($path, $this->files)) {
-			throw new Exception_Semantics("Can't stat unavailable file");
+			throw new Exception_Semantics('Can\'t stat unavailable file');
 		}
 		if (array_key_exists($path, $this->dir)) {
-			throw new Exception_Semantics("Can't stat unavailable directory");
+			throw new Exception_Semantics('Can\'t stat unavailable directory');
 		}
 		return File::stat($path, $section);
 	}
@@ -147,7 +147,7 @@ class Server_Files_Simulate extends Server_Files {
 		$this->files[$dest] = [
 			'source' => $source,
 		];
-		$this->simlog("cp {0} {1}", $source, $dest);
+		$this->simlog('cp {0} {1}', $source, $dest);
 		return true;
 	}
 
@@ -173,9 +173,9 @@ class Server_Files_Simulate extends Server_Files {
 	public function file_put_contents($path, $contents) {
 		$vpath = $this->create_vfile($path, $contents);
 		$this->files[$path] = [
-			"content" => $contents,
+			'content' => $contents,
 		];
-		$this->simlog("cp {0} {1}", $vpath, $path);
+		$this->simlog('cp {0} {1}', $vpath, $path);
 	}
 
 	public function file_get_contents($path) {

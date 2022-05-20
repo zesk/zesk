@@ -13,7 +13,7 @@ use zesk\Test_Unit;
  */
 class RRule_Set_Test extends Test_Unit {
 	protected array $load_modules = [
-		"iCalendar",
+		'iCalendar',
 	];
 
 	public function load_rrule_tests($tests_path) {
@@ -21,15 +21,15 @@ class RRule_Set_Test extends Test_Unit {
 		$tests = [];
 		$test = [];
 		$attr = [
-			"description",
-			"rrule",
-			"result",
+			'description',
+			'rrule',
+			'result',
 		];
 		$attrindex = 0;
 		$blank = null;
 		$lines = Text::remove_line_comments($tests_content);
 		$lines = explode("\n", $lines);
-		$content = "";
+		$content = '';
 		foreach ($lines as $line) {
 			$line = trim($line);
 			if (empty($line)) {
@@ -40,7 +40,7 @@ class RRule_Set_Test extends Test_Unit {
 					if ($content) {
 						$test[$attr[$attrindex]] = trim($content);
 						$attrindex = ($attrindex + 1) % count($attr);
-						$content = "";
+						$content = '';
 						if ($attrindex === 0) {
 							$tests[] = $test;
 							$test = [];
@@ -62,8 +62,8 @@ class RRule_Set_Test extends Test_Unit {
 	}
 
 	public function test_rrules(): void {
-		$locale = $this->application->locale_registry("en");
-		$tests_path = $this->application->modules->path("icalendar", "test/test-data/rrule-tests.txt");
+		$locale = $this->application->locale_registry('en');
+		$tests_path = $this->application->modules->path('icalendar', 'test/test-data/rrule-tests.txt');
 		$tests = $this->load_rrule_tests($tests_path);
 		foreach ($tests as $test_index => $test) {
 			$description = $rrule = $result = null;
@@ -102,10 +102,10 @@ class RRule_Set_Test extends Test_Unit {
 		while (count($lines) > 0) {
 			$line = array_shift($lines);
 			$line = trim($line);
-			if (begins($line, "==")) {
+			if (begins($line, '==')) {
 				break;
 			}
-			if ($line === "...") {
+			if ($line === '...') {
 				$results[] = true;
 
 				break;
@@ -119,11 +119,11 @@ class RRule_Set_Test extends Test_Unit {
 					$start = intval($range[1]);
 					$end = intval($range[2]);
 					for ($i = $start; $i <= $end; $i++) {
-						$repl = Text::ralign("$i", $size, "0");
+						$repl = Text::ralign("$i", $size, '0');
 						$extrapolated[] = str_replace($match[0], $repl, $line);
 					}
 				} else {
-					foreach (explode(",", $series) as $repl) {
+					foreach (explode(',', $series) as $repl) {
 						$extrapolated[] = str_replace($match[0], $repl, $line);
 					}
 				}

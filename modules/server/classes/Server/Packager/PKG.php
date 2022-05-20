@@ -20,7 +20,7 @@ class Server_Packager_PKG extends Server_Packager {
 	protected function package_installed($package) {
 		try {
 			$result = $this->exec('pkg_info | grep {0} | awk \'{ print $1 }\'', $package);
-			return trim($result[0]) !== "";
+			return trim($result[0]) !== '';
 		} catch (Server_Exception $e) {
 			return false;
 		}
@@ -45,7 +45,7 @@ class Server_Packager_PKG extends Server_Packager {
 	}
 
 	public function package_exists($package) {
-		throw new Exception_Unimplemented("package_exists");
+		throw new Exception_Unimplemented('package_exists');
 		return false;
 	}
 }

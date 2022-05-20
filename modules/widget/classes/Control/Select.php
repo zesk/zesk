@@ -31,7 +31,7 @@ class Control_Select extends Control_Optionss {
 	protected function initialize(): void {
 		parent::initialize();
 		if ($this->control_options === null) {
-			$this->control_options = $this->option_array("options", []);
+			$this->control_options = $this->option_array('options', []);
 		}
 		$options = $this->control_options;
 		$preferred = $this->option_array('preferred_keys');
@@ -52,7 +52,7 @@ class Control_Select extends Control_Optionss {
 					$preferred_title => $preferred_options,
 					$unpreferred_title => $options,
 				];
-				$this->setOption("optgroup", true);
+				$this->setOption('optgroup', true);
 			}
 		}
 	}
@@ -144,8 +144,8 @@ class Control_Select extends Control_Optionss {
 	 * @return boolean
 	 */
 	public function is_single() {
-		$optgroup = $this->optionBool("optgroup");
-		return $this->option("hide_single", $this->required()) && (count($this->control_options) === 1 && $optgroup === false);
+		$optgroup = $this->optionBool('optgroup');
+		return $this->option('hide_single', $this->required()) && (count($this->control_options) === 1 && $optgroup === false);
 	}
 
 	/**
@@ -176,10 +176,10 @@ class Control_Select extends Control_Optionss {
 			return true;
 		}
 		$value = $this->value();
-		if ($this->option("refresh", false)) {
+		if ($this->option('refresh', false)) {
 			$continue = $this->name() . '_sv';
 			if ($this->request->getb($continue)) {
-				$this->message($this->option("refresh_message", __("Form has been updated, check your settings.")));
+				$this->message($this->option('refresh_message', __('Form has been updated, check your settings.')));
 				return false;
 			}
 		}
@@ -205,10 +205,10 @@ class Control_Select extends Control_Optionss {
 			foreach ($value as $val) {
 				$text_values[] = $text_value = avalue($this->control_options, strval($val));
 			}
-			return implode(", ", $text_values);
+			return implode(', ', $text_values);
 		}
 		$key = strval($value);
-		if ($this->optionBool("optgroup")) {
+		if ($this->optionBool('optgroup')) {
 			foreach ($this->control_options as $k => $options) {
 				if (array_key_exists($key, $options)) {
 					return $options[$key];
@@ -222,15 +222,15 @@ class Control_Select extends Control_Optionss {
 
 	protected function hook_query(Database_Query_Select $query) {
 		parent::hook_query($query);
-		if ($this->optionBool("skip_query_condition")) {
+		if ($this->optionBool('skip_query_condition')) {
 			return false;
 		}
-		if (!$this->hasOption("query_condition_map")) {
+		if (!$this->hasOption('query_condition_map')) {
 			$text_value = $this->value_to_text();
 			if ($text_value) {
-				$condition = __("{label} is {text_value}", [
-					"label" => $this->label(),
-					"text_value" => $text_value,
+				$condition = __('{label} is {text_value}', [
+					'label' => $this->label(),
+					'text_value' => $text_value,
 				]);
 				// Overwrite default condition set by parent
 				$query->condition($condition, $this->query_condition_key());

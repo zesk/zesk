@@ -31,7 +31,7 @@ class CSV_Reader extends CSV {
 	 */
 	public function __construct($filename = null, array $options = []) {
 		parent::__construct($options);
-		$this->FileBuffer = "";
+		$this->FileBuffer = '';
 		if ($filename) {
 			$this->filename($filename);
 		}
@@ -82,7 +82,7 @@ class CSV_Reader extends CSV {
 	 * @return CSV_Reader
 	 */
 	public function set_file($filename) {
-		parent::_set_file($filename, "r");
+		parent::_set_file($filename, 'r');
 		return $this->determine_encoding();
 	}
 
@@ -111,13 +111,13 @@ class CSV_Reader extends CSV {
 	 */
 	public function seek(array $tell): void {
 		if (!array_key_exists('key', $tell)) {
-			throw new Exception_Semantics("Invalid tell for CSV File {filename}", [
-				"filename" => $this->FileName,
+			throw new Exception_Semantics('Invalid tell for CSV File {filename}', [
+				'filename' => $this->FileName,
 			]);
 		}
 		if ($tell['key'] !== $this->_magic_number()) {
-			throw new Exception_Semantics("Invalid tell for CSV File, hashes do not match {filename}", [
-				"filename" => $this->FileName,
+			throw new Exception_Semantics('Invalid tell for CSV File, hashes do not match {filename}', [
+				'filename' => $this->FileName,
 			]);
 		}
 		$this->Row = $tell['row'];
@@ -132,7 +132,7 @@ class CSV_Reader extends CSV {
 	 * @return boolean
 	 */
 	private function eof() {
-		if ($this->Encoding === "UTF-16") {
+		if ($this->Encoding === 'UTF-16') {
 			if (!empty($this->FileBuffer)) {
 				return false;
 			}
@@ -150,7 +150,7 @@ class CSV_Reader extends CSV {
 	 */
 	private function read_line() {
 		switch ($this->Encoding) {
-			case "UTF-8":
+			case 'UTF-8':
 				$result = fgetcsv($this->File, 10240, $this->Delimiter, $this->Enclosure);
 				if (!is_array($result)) {
 					return false;
@@ -159,7 +159,7 @@ class CSV_Reader extends CSV {
 					$result[$index] = UTF8::to_iso8859($value);
 				}
 				return $result;
-			case "UTF-16":
+			case 'UTF-16':
 				if (!str_contains($this->FileBuffer, $this->LineDelimiter)   && ($n = strlen($this->FileBuffer)) < 10240) {
 					if ($n === 0 && feof($this->File)) {
 						return false;
@@ -169,7 +169,7 @@ class CSV_Reader extends CSV {
 					$data = UTF16::to_iso8859($data, $this->EncodingBigEndian);
 					$this->FileBuffer .= $data;
 				}
-				[$line, $this->FileBuffer] = pair($this->FileBuffer, $this->LineDelimiter, $this->FileBuffer, "");
+				[$line, $this->FileBuffer] = pair($this->FileBuffer, $this->LineDelimiter, $this->FileBuffer, '');
 				return str_getcsv($line, $this->Delimiter, $this->Enclosure, $this->Escape);
 			default:
 				return fgetcsv($this->File, 10240, $this->Delimiter, $this->Enclosure);
@@ -267,9 +267,9 @@ class CSV_Reader extends CSV {
 	 */
 	public function skip($offset = 1): void {
 		if ($offset < 0 || !is_int($offset)) {
-			throw new Exception_Parameter("Invalid parameter to CSV_Reader::skip({offset}) of type {type}", [
-				"offset" => $offset,
-				"type" => gettype($offset),
+			throw new Exception_Parameter('Invalid parameter to CSV_Reader::skip({offset}) of type {type}', [
+				'offset' => $offset,
+				'type' => gettype($offset),
 			]);
 			return;
 		}
@@ -287,28 +287,28 @@ class CSV_Reader extends CSV {
 	 */
 	private function determine_encoding(): void {
 		if (!is_resource($this->File)) {
-			throw new Exception_Semantics("File is not a resource: {filename}", [
-				"filename" => $this->FileName,
+			throw new Exception_Semantics('File is not a resource: {filename}', [
+				'filename' => $this->FileName,
 			]);
 		}
 		$tell = ftell($this->File);
 		$file_sample = fread($this->File, 1024);
 		fseek($this->File, $tell);
 		if (StringTools::is_utf8($file_sample, $this->EncodingBigEndian)) {
-			$this->Encoding = "UTF-8";
-			$this->EncodingSuffix = ".UTF8";
+			$this->Encoding = 'UTF-8';
+			$this->EncodingSuffix = '.UTF8';
 			$file_sample = UTF8::to_iso8859($file_sample);
 		} elseif (StringTools::is_utf16($file_sample, $this->EncodingBigEndian)) {
-			$this->Encoding = "UTF-16";
-			$this->EncodingSuffix = ".UTF16";
+			$this->Encoding = 'UTF-16';
+			$this->EncodingSuffix = '.UTF16';
 			$file_sample = UTF16::to_iso8859($file_sample, $this->EncodingBigEndian);
 		} elseif (StringTools::is_ascii($file_sample)) {
-			$this->Encoding = "ISO-8859-1";
-			$this->EncodingSuffix = ".ISO8859";
+			$this->Encoding = 'ISO-8859-1';
+			$this->EncodingSuffix = '.ISO8859';
 		} else {
-			throw new Exception_File_Format("Unknown file encoding");
+			throw new Exception_File_Format('Unknown file encoding');
 		}
-		$old_locale = setlocale(LC_CTYPE, "en" . $this->EncodingSuffix);
+		$old_locale = setlocale(LC_CTYPE, 'en' . $this->EncodingSuffix);
 		if ($old_locale === false) {
 			$this->EncodingSuffix = null;
 		} else {
@@ -333,9 +333,9 @@ class CSV_Reader extends CSV {
 	 */
 	private function _determine_delimiter($line): void {
 		$fieldChars = [
-			",",
+			',',
 			"\t",
-			"^",
+			'^',
 		];
 		$this->Delimiter = $fieldChars[0];
 		$maxCount = -1;

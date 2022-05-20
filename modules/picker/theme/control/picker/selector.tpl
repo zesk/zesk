@@ -17,19 +17,19 @@ $column = $this->column;
 
 $id = "control-picker-selector-q-$column";
 
-$picker_options = $this->geta("picker_options", []);
+$picker_options = $this->geta('picker_options', []);
 if (is_array($this->data_search) && count($this->data_search) > 0) {
 	$picker_options['data_search'] = $this->data_search;
 }
 
-$json_options = count($picker_options) > 0 ? JSON::encode($picker_options) : "";
+$json_options = count($picker_options) > 0 ? JSON::encode($picker_options) : '';
 $this->response->jquery("\$(\"#$id\").picker($json_options);");
 
 $input_attributes = [
-	'class' => "input-lg required form-control",
-	"id" => $id,
-	'name' => "q",
-	'type' => "text",
+	'class' => 'input-lg required form-control',
+	'id' => $id,
+	'name' => 'q',
+	'type' => 'text',
 	'placeholder' => $locale->__($this->label_search),
 	'data-source' => $this->target,
 	'data-widget-target' => $this->name,
@@ -60,9 +60,9 @@ echo HTML::etag('div', '.control-picker-empty', $this->item_selector_empty);
 <?php
 foreach ($this->objects as $object) {
 		$item_content = $this->theme($this->theme_item, [
-		"object" => $object,
-		"selected" => true,
-		"column" => $this->column,
+		'object' => $object,
+		'selected' => true,
+		'column' => $this->column,
 	]);
 		echo $item_content;
 	}

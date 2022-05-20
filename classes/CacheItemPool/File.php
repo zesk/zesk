@@ -73,9 +73,9 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 */
 	public function getItem($key) {
 		if (!is_string($key)) {
-			throw new Exception_Parameter("{method} passed {type}, needs string", [
-				"method" => __METHOD__,
-				"type" => type($key),
+			throw new Exception_Parameter('{method} passed {type}, needs string', [
+				'method' => __METHOD__,
+				'type' => type($key),
 			]);
 		}
 		$cache_file = $this->cache_file($key);
@@ -243,7 +243,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	private function cache_name($key) {
 		$clean = File::name_clean($key);
 		$hash = md5($key);
-		return substr($hash, 0, 1) . "/" . substr($hash, 1) . '^' . substr($clean, 0, 32);
+		return substr($hash, 0, 1) . '/' . substr($hash, 1) . '^' . substr($clean, 0, 32);
 	}
 
 	/**

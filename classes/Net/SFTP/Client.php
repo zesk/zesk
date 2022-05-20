@@ -35,12 +35,12 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 	 * Connect using a Process object and the sftp command
 	 */
 	public function connect(): void {
-		$command = "sftp";
+		$command = 'sftp';
 		$arguments = [];
 		$pass = $user = $host = $port = null;
 		extract($this->url_parts, EXTR_IF_EXISTS);
 		if ($port !== null && $port !== 22) {
-			$arguments[] = "-P";
+			$arguments[] = '-P';
 			$arguments[] = $port;
 		}
 		$arguments[] = "$user@$host";
@@ -54,7 +54,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 
 	public function disconnect(): void {
 		if ($this->is_connected()) {
-			$this->command("quit");
+			$this->command('quit');
 			$this->process->terminate();
 			$this->process = null;
 			$this->stat_cache = [];
@@ -78,7 +78,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 	}
 
 	private function one_liner($command) {
-		return trim(StringTools::rright(trim($this->command($command)), ":"));
+		return trim(StringTools::rright(trim($this->command($command)), ':'));
 	}
 
 	public function pwd() {
@@ -87,11 +87,11 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 
 	public function cd($path) {
 		$result = $this->command("cd $path");
-		if ($result !== "") {
+		if ($result !== '') {
 			return false;
 		}
 		if ($this->optionBool('debug')) {
-			$this->log("PWD IS " . $this->pwd());
+			$this->log('PWD IS ' . $this->pwd());
 		}
 		return true;
 	}
@@ -110,7 +110,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 				throw new Exception_Directory_NotFound($dir);
 			}
 		}
-		$lines = $this->command("ls -la");
+		$lines = $this->command('ls -la');
 		$lines = explode("\n", trim($lines));
 		$entries = [];
 		foreach ($lines as $line) {
@@ -129,7 +129,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 	public function mkdir($path) {
 		$path = $this->quote_path($path);
 		$result = trim($this->command("mkdir $path"));
-		if ($result !== "") {
+		if ($result !== '') {
 			throw new Exception_Directory_Create($path);
 		}
 		return true;
@@ -138,7 +138,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 	public function rmdir($path) {
 		$path = $this->quote_path($path);
 		$result = trim($this->command("mkdir $path"));
-		if ($result !== "") {
+		if ($result !== '') {
 			throw new Exception_Directory_NotFound($path);
 		}
 		return true;
@@ -168,7 +168,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 		$file = $this->quote_path($file);
 		$mode = base_convert($mode, 10, 8);
 		$result = strtolower($this->one_liner("chmod $mode $file"));
-		if (str_contains($result, " denied")) {
+		if (str_contains($result, ' denied')) {
 			return false;
 		}
 		return true;
@@ -177,7 +177,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 	public function unlink($file) {
 		$file = $this->quote_path($file);
 		$result = strtolower($this->command("rm $file"));
-		if (strpos($result, ": failure")) {
+		if (strpos($result, ': failure')) {
 			return false;
 		}
 		return true;

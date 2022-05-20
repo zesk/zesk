@@ -15,13 +15,13 @@ namespace zesk;
  * @see Preference
  */
 class Class_Preference_Type extends Class_ORM {
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	public array $column_types = [
-		"id" => self::type_id,
-		"code" => self::type_string,
-		"name" => self::type_string,
-		"description" => self::type_string,
+		'id' => self::type_id,
+		'code' => self::type_string,
+		'name' => self::type_string,
+		'description' => self::type_string,
 	];
 
 	public array $has_many = [
@@ -32,7 +32,7 @@ class Class_Preference_Type extends Class_ORM {
 	];
 
 	public array $find_keys = [
-		"code",
+		'code',
 	];
 
 	public string $database_group = Preference::class;

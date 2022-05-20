@@ -16,20 +16,20 @@ class Class_Content_Data extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	/**
 	 *
 	 * @var array
 	 */
 	public array $column_types = [
-		"id" => self::type_id,
-		"size" => self::type_integer,
+		'id' => self::type_id,
+		'size' => self::type_integer,
 		'md5hash' => self::type_hex,
 		'type' => self::type_string,
 		'data' => self::type_serialize,
-		"checked" => self::type_timestamp,
-		"missing" => self::type_timestamp,
+		'checked' => self::type_timestamp,
+		'missing' => self::type_timestamp,
 	];
 
 	/**

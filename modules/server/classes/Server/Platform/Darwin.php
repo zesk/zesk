@@ -15,7 +15,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 *
 	 * @var string
 	 */
-	protected $root_group = "wheel";
+	protected $root_group = 'wheel';
 
 	/**
 	 * User cache
@@ -36,21 +36,21 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 *
 	 * @var string
 	 */
-	public const darwin_user_shell = "UserShell";
+	public const darwin_user_shell = 'UserShell';
 
-	public const darwin_user_id = "UniqueID";
+	public const darwin_user_id = 'UniqueID';
 
-	public const darwin_user_group_id = "PrimaryGroupID";
+	public const darwin_user_group_id = 'PrimaryGroupID';
 
-	public const darwin_user_full_name = "RealName";
+	public const darwin_user_full_name = 'RealName';
 
-	public const darwin_user_home = "NFSHomeDirectory";
+	public const darwin_user_home = 'NFSHomeDirectory';
 
-	public const darwin_group_id = "PrimaryGroupID";
+	public const darwin_group_id = 'PrimaryGroupID';
 
-	public const darwin_group_name = "RecordName";
+	public const darwin_group_name = 'RecordName';
 
-	public const darwin_group_members = "GroupMembership";
+	public const darwin_group_members = 'GroupMembership';
 
 	/**
 	 * Name of the root volume - cached
@@ -64,7 +64,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 *
 	 * @var string
 	 */
-	public const userdir_launch_agents = "Library/LaunchAgents";
+	public const userdir_launch_agents = 'Library/LaunchAgents';
 
 	/**
 	 * File mode for the directory
@@ -79,14 +79,14 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 * @see Server_Platform::packager()
 	 */
 	protected function packager() {
-		if ($this->has_shell_command("brew")) {
-			return $this->application->objects->factory(__NAMESPACE__ . "\\Server_Packager_Brew", $this);
+		if ($this->has_shell_command('brew')) {
+			return $this->application->objects->factory(__NAMESPACE__ . '\\Server_Packager_Brew', $this);
 		}
-		if ($this->has_shell_command("macports")) {
-			return $this->application->objects->factory(__NAMESPACE__ . "\\Server_Packager_MacPORTS", $this);
+		if ($this->has_shell_command('macports')) {
+			return $this->application->objects->factory(__NAMESPACE__ . '\\Server_Packager_MacPORTS', $this);
 		}
-		if ($this->has_shell_command("fink")) {
-			return $this->application->objects->factory(__NAMESPACE__ . "\\Server_Packager_Fink", $this);
+		if ($this->has_shell_command('fink')) {
+			return $this->application->objects->factory(__NAMESPACE__ . '\\Server_Packager_Fink', $this);
 		}
 		return null;
 	}
@@ -103,7 +103,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		$is_xml = false;
 		foreach ($lines as $line) {
 			if ($is_xml) {
-				if ($line === "") {
+				if ($line === '') {
 					$pairs[$last_key] = $last_value;
 					$is_xml = false;
 				} else {
@@ -112,7 +112,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 
 				continue;
 			}
-			if (substr($line, 0, 1) === " ") {
+			if (substr($line, 0, 1) === ' ') {
 				if (StringTools::begins($line, ' <?xml')) {
 					$is_xml = true;
 					$last_value = substr($line, 1);
@@ -123,12 +123,12 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 				continue;
 			}
 			$last_key = null;
-			[$name, $value] = pairr($line, ":", $line, null);
+			[$name, $value] = pairr($line, ':', $line, null);
 			$value = trim($value);
-			if ($value === "") {
+			if ($value === '') {
 				$last_key = $name;
-				$last_value = "";
-			} elseif ($name === "No such key") {
+				$last_value = '';
+			} elseif ($name === 'No such key') {
 				continue;
 			} else {
 				$pairs[$name] = ltrim($value);
@@ -182,7 +182,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		$map = self::darwin_user_map();
 
 		try {
-			$result = $this->exec("dscl . -read /Users/{0} " . implode(" ", array_keys($map)), $user);
+			$result = $this->exec('dscl . -read /Users/{0} ' . implode(' ', array_keys($map)), $user);
 			$result = self::_parse_dscl_output($result);
 			return self::$users[$user] = ArrayTools::map_keys($result, $map);
 		} catch (Server_Exception $e) {
@@ -207,9 +207,9 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		$map = self::darwin_group_map();
 
 		try {
-			$result = $this->exec("dscl . -read /Groups/{0} " . implode(" ", array_keys($map)), $group);
+			$result = $this->exec('dscl . -read /Groups/{0} ' . implode(' ', array_keys($map)), $group);
 			$data = ArrayTools::map_keys(self::_parse_dscl_output($result), $map);
-			$data[self::f_group_members] = to_list($data[self::f_group_members], [], " ");
+			$data[self::f_group_members] = to_list($data[self::f_group_members], [], ' ');
 			return self::$groups[$group] = $data;
 		} catch (Server_Exception $e) {
 		}
@@ -229,13 +229,13 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		if (!$this->group_exists($group)) {
 			throw new Server_Exception_Group_NotFound($group);
 		}
-		$params = compact("user", "group", "home") + options;
+		$params = compact('user', 'group', 'home') + options;
 
 		$shell = $full_name = $uid = null;
 		extract($options, EXTR_IF_EXISTS);
 
 		try {
-			$this->exec("dscl . -create /Users/{0}", $user);
+			$this->exec('dscl . -create /Users/{0}', $user);
 		} catch (Server_Exception_Command $e) {
 			throw new Server_Exception_User_Create($user, $params);
 		}
@@ -257,14 +257,14 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 
 		try {
 			foreach ($dscl_items as $k => $v) {
-				$this->exec("dscl . -create /Users/{0} {1} {2}", $user, $k, $v);
+				$this->exec('dscl . -create /Users/{0} {1} {2}', $user, $k, $v);
 			}
 		} catch (Server_Exception_Command $e) {
 			$ex = $e;
 		}
 
 		try {
-			$this->exec("dscl . -delete /Users/{0}", $user);
+			$this->exec('dscl . -delete /Users/{0}', $user);
 		} catch (Exception $e) {
 		}
 
@@ -283,7 +283,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		] + ArrayTools::filter($options, 'gid');
 
 		try {
-			$this->exec("dscl . -create /Groups/{0}", $group);
+			$this->exec('dscl . -create /Groups/{0}', $group);
 		} catch (Server_Exception_Command $e) {
 			throw new Server_Exception_Group_Create($group, $params);
 		}
@@ -297,12 +297,12 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 
 		try {
 			foreach ($dscl_items as $k => $v) {
-				$this->exec("dscl . -create /Groups/{0} {1} {2}", $group, $k, $v);
+				$this->exec('dscl . -create /Groups/{0} {1} {2}', $group, $k, $v);
 			}
 			if ($members !== null) {
 				$members = to_list($members, []);
 				foreach ($members as $member) {
-					$this->exec("dscl . -append /Groups/{0} {1} {2}", $group, self::darwin_group_members, $member);
+					$this->exec('dscl . -append /Groups/{0} {1} {2}', $group, self::darwin_group_members, $member);
 				}
 			}
 		} catch (Server_Exception_Command $e) {
@@ -310,7 +310,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		}
 
 		try {
-			$this->exec("dscl . -delete /Groups/{0}", $group);
+			$this->exec('dscl . -delete /Groups/{0}', $group);
 		} catch (Exception $e) {
 		}
 
@@ -326,7 +326,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		if (!$this->group_exists($group)) {
 			throw new Server_Exception_Group_NotFound($group);
 		}
-		$this->exec("dscl . -delete /Groups/{0}", $group);
+		$this->exec('dscl . -delete /Groups/{0}', $group);
 		return true;
 	}
 
@@ -339,7 +339,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		if (!$this->user_exists($user)) {
 			throw new Server_Exception_User_NotFound($user);
 		}
-		$this->exec("dscl . -delete /Users/{0}", $user);
+		$this->exec('dscl . -delete /Users/{0}', $user);
 		return true;
 	}
 
@@ -351,20 +351,20 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 * @see Server_Platform::volume_short_name()
 	 */
 	public function volume_short_name($path) {
-		if ($path === "/") {
+		if ($path === '/') {
 			if ($this->root_volume_name !== null) {
 				return $this->root_volume_name;
 			}
-			foreach (Directory::ls("/Volumes", null, true) as $path) {
+			foreach (Directory::ls('/Volumes', null, true) as $path) {
 				if (!is_link($path)) {
 					continue;
 				}
 				$link = readlink($path);
-				if ($link === "/") {
+				if ($link === '/') {
 					return $this->root_volume_name = basename($path);
 				}
 			}
-			return $this->root_volume_name = "/";
+			return $this->root_volume_name = '/';
 		}
 		return basename($path);
 	}
@@ -380,16 +380,16 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	private function _user_directory($user, $user_dir, $create = false, $mode = null) {
 		$path = $this->user_home($user);
 		if (!is_dir($path)) {
-			throw new Exception_Directory_NotFound($path, "Home directory for {user} does not exist: {path}", [
-				"user" => $user,
-				"path" => $path,
+			throw new Exception_Directory_NotFound($path, 'Home directory for {user} does not exist: {path}', [
+				'user' => $user,
+				'path' => $path,
 			]);
 		}
 		$path = path($path, $user_dir);
 		if (!is_dir($path) && !$create) {
-			throw new Exception_Directory_NotFound($path, "Directory for {user} does not exist: {path}", [
-				"user" => $user,
-				"path" => $path,
+			throw new Exception_Directory_NotFound($path, 'Directory for {user} does not exist: {path}', [
+				'user' => $user,
+				'path' => $path,
 			]);
 		}
 		Directory::depend($path, $mode);
@@ -410,7 +410,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	private function _login_script_path($user, $name) {
 		$path = $this->_userdir_launch_agents($user, true);
 		$name = File::name_clean($name);
-		$name = "com.zesk." . $name;
+		$name = 'com.zesk.' . $name;
 
 		return path($path, $name . '.plist');
 	}
@@ -424,11 +424,11 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 */
 	private static function _login_script_contents($name, $command) {
 		$contents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n";
-		$contents .= "<plist version=\"1.0\"><dict><key>Label</key><string>{name}</string><key>Program</key><string>{command}</string><key>RunAtLoad</key><true/></dict></plist>";
+		$contents .= '<plist version="1.0"><dict><key>Label</key><string>{name}</string><key>Program</key><string>{command}</string><key>RunAtLoad</key><true/></dict></plist>';
 
 		return map($contents, [
-			"name" => $name,
-			"command" => $command,
+			'name' => $name,
+			'command' => $command,
 		]);
 	}
 
@@ -456,7 +456,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 
 		$path = $this->_userdir_launch_agents($user);
 		$name = File::name_clean($name);
-		$name = "com.zesk." . $name;
+		$name = 'com.zesk.' . $name;
 
 		$filename = path($path, $name . '.plist');
 
@@ -465,27 +465,27 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		if (file_exists($filename)) {
 			$old_contents = file_get_contents($filename);
 			if ($old_contents === $contents) {
-				$this->application->logger->debug("{class}::{method}: File {filename} is unchanged", [
-					"class" => __CLASS__,
-					"method" => __METHOD__,
-					"filename" => $filename,
+				$this->application->logger->debug('{class}::{method}: File {filename} is unchanged', [
+					'class' => __CLASS__,
+					'method' => __METHOD__,
+					'filename' => $filename,
 				]);
 				return true;
 			}
-			$this->application->logger->debug("{class}::{method}: File {filename} will be updated to new version", [
-				"class" => __CLASS__,
-				"method" => __METHOD__,
-				"filename" => $filename,
+			$this->application->logger->debug('{class}::{method}: File {filename} will be updated to new version', [
+				'class' => __CLASS__,
+				'method' => __METHOD__,
+				'filename' => $filename,
 			]);
 		} else {
-			$this->application->logger->debug("{class}::{method}: File {filename} will be created", [
-				"class" => __CLASS__,
-				"method" => __METHOD__,
-				"filename" => $filename,
+			$this->application->logger->debug('{class}::{method}: File {filename} will be created', [
+				'class' => __CLASS__,
+				'method' => __METHOD__,
+				'filename' => $filename,
 			]);
 		}
 		File::put($filename, $contents);
-		$this->exec("laumchctl load -D user {0}", $path);
+		$this->exec('laumchctl load -D user {0}', $path);
 
 		return true;
 	}
@@ -496,15 +496,15 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 * @return
 	 */
 	public function login_script_run($user, $name) {
-		$name = "com.zesk." . $name;
-		$result = $this->exec("launchctl start {0}", $name);
+		$name = 'com.zesk.' . $name;
+		$result = $this->exec('launchctl start {0}', $name);
 		return $result;
 	}
 
 	public function login_script_uninstall($user, $name) {
 		$path = $this->_userdir_launch_agents($user);
 		$name = File::name_clean($name);
-		$name = "com.zesk." . $name;
+		$name = 'com.zesk.' . $name;
 
 		$filename = path($path, $name . '.plist');
 

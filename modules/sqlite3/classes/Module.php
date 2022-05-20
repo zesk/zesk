@@ -24,7 +24,7 @@ class Module extends \zesk\Module {
 
 		$module = $this->application->database_module();
 
-		$module->register_scheme("sqlite", Database::class);
-		$module->register_scheme("sqlite3", Database::class);
+		$module->register_scheme('sqlite', Database::class);
+		$module->register_scheme('sqlite3', Database::class);
 	}
 }

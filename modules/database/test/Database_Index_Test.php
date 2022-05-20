@@ -14,12 +14,12 @@ namespace zesk;
  */
 class Database_Index_Test extends Test_Unit {
 	protected array $load_modules = [
-		"MySQL",
+		'MySQL',
 	];
 
 	public function mytesttable() {
 		$database = $this->application->database_registry();
-		$table = new Database_Table($database, "new_table");
+		$table = new Database_Table($database, 'new_table');
 		return $table;
 	}
 
@@ -29,9 +29,9 @@ class Database_Index_Test extends Test_Unit {
 	public function test_add_column_not_found(): void {
 		$table = $this->mytesttable();
 
-		$x = new Database_Index($table, "testindex", [], Database_Index::Index);
+		$x = new Database_Index($table, 'testindex', [], Database_Index::TYPE_INDEX);
 
-		$x->addColumn("Friday");
+		$x->addColumn('Friday');
 	}
 
 	public function test_main(): void {
@@ -40,22 +40,20 @@ class Database_Index_Test extends Test_Unit {
 		$type = 'INDEX';
 		$x = new Database_Index($table, $name, [], $type);
 
-		$sqlType = null;
+		$sqlType = "";
 		Database_Index::determineType($sqlType);
 
-		$lower = false;
-		$x->name($lower);
+		$x->name();
 
 		$x->table();
 
-		$lower = false;
-		$x->columns($lower);
+		$x->columns();
 
-		$x->column_count();
+		$x->columnCount();
 
 		$x->type();
 
-		$mixed = new Database_Column($table, "Foo");
+		$mixed = new Database_Column($table, 'Foo');
 		$size = Database_Index::SIZE_DEFAULT;
 		$x->addDatabaseColumn($mixed, $size);
 
@@ -65,7 +63,7 @@ class Database_Index_Test extends Test_Unit {
 
 		$x->sql_index_type();
 
-		$that = new Database_Index($table, "another_name");
+		$that = new Database_Index($table, 'another_name');
 		$debug = false;
 		$this->assert($x->isSimilar($that, $debug) === false);
 		$this->assert($x->isSimilar($x, $debug) === true);
@@ -80,7 +78,7 @@ class Database_Index_Test extends Test_Unit {
 		$type = 'INDEX';
 		$x = new Database_Index($table, $name, [], $type);
 
-		$mixed = new Database_Column($table, "Foo");
+		$mixed = new Database_Column($table, 'Foo');
 		$size = Database_Index::SIZE_DEFAULT;
 		$x->addDatabaseColumn($mixed, $size);
 
@@ -88,15 +86,14 @@ class Database_Index_Test extends Test_Unit {
 	}
 
 	public function test_determine_type(): void {
-		$this->assert_equal(Database_Index::determineType("unique"), Database_Index::Unique);
-		$this->assert_equal(Database_Index::determineType("unique key"), Database_Index::Unique);
-		$this->assert_equal(Database_Index::determineType("primary key"), Database_Index::Primary);
-		$this->assert_equal(Database_Index::determineType("primary"), Database_Index::Primary);
-		$this->assert_equal(Database_Index::determineType("key"), Database_Index::Index);
-		$this->assert_equal(Database_Index::determineType("index"), Database_Index::Index);
-		$this->assert_equal(Database_Index::determineType(""), Database_Index::Index);
-		$this->assert_equal(Database_Index::determineType(null), Database_Index::Index);
-		$this->assert_equal(Database_Index::determineType("Dude"), Database_Index::Index);
-		$this->assert_equal(Database_Index::determineType("MFNATCFF"), Database_Index::Index);
+		$this->assert_equal(Database_Index::determineType('unique'), Database_Index::TYPE_UNIQUE);
+		$this->assert_equal(Database_Index::determineType('unique key'), Database_Index::TYPE_UNIQUE);
+		$this->assert_equal(Database_Index::determineType('primary key'), Database_Index::TYPE_PRIMARY);
+		$this->assert_equal(Database_Index::determineType('primary'), Database_Index::TYPE_PRIMARY);
+		$this->assert_equal(Database_Index::determineType('key'), Database_Index::TYPE_INDEX);
+		$this->assert_equal(Database_Index::determineType('index'), Database_Index::TYPE_INDEX);
+		$this->assert_equal(Database_Index::determineType(''), Database_Index::TYPE_INDEX);
+		$this->assert_equal(Database_Index::determineType('Dude'), Database_Index::TYPE_INDEX);
+		$this->assert_equal(Database_Index::determineType('MFNATCFF'), Database_Index::TYPE_INDEX);
 	}
 }

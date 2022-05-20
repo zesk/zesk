@@ -12,13 +12,13 @@ namespace zesk;
  */
 class Controls_Test extends TestWidget {
 	protected array $load_modules = [
-		"MySQL",
-		"Session",
-		"Widget",
+		'MySQL',
+		'Session',
+		'Widget',
 	];
 
 	public function _test_session(): void {
-		$this->application->setOption("session_class", Session_Mock::class);
+		$this->application->setOption('session_class', Session_Mock::class);
 	}
 
 	/**
@@ -27,7 +27,7 @@ class Controls_Test extends TestWidget {
 	public function test_control(string $widget_class, array $options = []): void {
 		$this->_test_session();
 		$control = $this->application->widget_factory($widget_class, $options);
-		$this->assert_instanceof($control, Widget::class, "$widget_class is not an instanceof of zesk\\Widget (" . type($control) . ")");
+		$this->assert_instanceof($control, Widget::class, "$widget_class is not an instanceof of zesk\\Widget (" . type($control) . ')');
 		$this->widget_tests($control);
 	}
 
@@ -111,9 +111,9 @@ class Controls_Test extends TestWidget {
 		$request = $this->application->request();
 		$router = $this->application->router();
 
-		$router->add_route("*", [
-			"class" => "Test_COLT_Object",
-			"action" => [
+		$router->add_route('*', [
+			'class' => 'Test_COLT_Object',
+			'action' => [
 				0,
 			],
 		]);
@@ -145,7 +145,7 @@ class Controls_Test extends TestWidget {
 
 	public function test_Control_Select_File(): void {
 		$options = [
-			"path" => $this->sandbox(),
+			'path' => $this->sandbox(),
 		];
 		$x = new Control_Select_File($this->application, $options);
 
@@ -157,16 +157,16 @@ class Controls_Test extends TestWidget {
 
 		$options = [
 			'table' => 'Control_Select_Test_ORM',
-			'textcolumn' => "Foo",
+			'textcolumn' => 'Foo',
 		];
 		$x = new Control_Select_ORM($this->application, $options);
-		$x->object_class(__NAMESPACE__ . "\\" . "User");
+		$x->object_class(__NAMESPACE__ . '\\' . 'User');
 		$this->test_basics($x);
 	}
 
 	public function test_Control_Link_Object(): void {
 		$db = $this->application->database_registry();
-		$table = "Test_LinkObject";
+		$table = 'Test_LinkObject';
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query("CREATE TABLE $table ( A int(11) unsigned NOT NULL, B int(11) unsigned NOT NULL, UNIQUE ab (A,B) )");
 
@@ -179,8 +179,8 @@ class Controls_Test extends TestWidget {
 		$testx->widget($text);
 
 		$this->test_basics($testx, [
-			"column" => "A",
-			"test_object" => [
+			'column' => 'A',
+			'test_object' => [
 				'B' => 12,
 			],
 		]);
@@ -191,7 +191,7 @@ class Controls_Test extends TestWidget {
 class Class_Test_COLT_Object extends Class_ORM {
 	public string $table = 'Test_COLT_Object';
 
-	public string $id_column = "ID";
+	public string $id_column = 'ID';
 
 	public array $column_types = [
 		'ID' => self::type_id,
@@ -200,13 +200,13 @@ class Class_Test_COLT_Object extends Class_ORM {
 }
 class Test_COLT_Object extends ORM {
 	public function schema(): string|array|ORM_Schema|null {
-		return "CREATE TABLE `" . $this->table() . "` ( ID int(11) unsigned PRIMARY KEY AUTO_INCREMENT NOT NULL, Foo varchar(23) NOT NULL )";
+		return 'CREATE TABLE `' . $this->table() . '` ( ID int(11) unsigned PRIMARY KEY AUTO_INCREMENT NOT NULL, Foo varchar(23) NOT NULL )';
 	}
 }
 class Class_Test_COL_Object extends Class_ORM {
 	public string $table = __CLASS__;
 
-	public string $id_column = "ID";
+	public string $id_column = 'ID';
 
 	public array $column_types = [
 		'ID' => self::type_id,

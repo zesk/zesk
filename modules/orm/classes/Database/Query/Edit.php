@@ -28,7 +28,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 *
 	 * @var string
 	 */
-	protected string $default_alias = "";
+	protected string $default_alias = '';
 
 	/**
 	 * Table we're update/insert
@@ -73,7 +73,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @param string $alias Optional alias. Blank ("") is the default table.
 	 * @return Database_Query_Edit
 	 */
-	public function setTable(string $table, string $alias = ""): self {
+	public function setTable(string $table, string $alias = ''): self {
 		if (count($this->table) === 0) {
 			$this->default_alias = $alias;
 		}
@@ -88,7 +88,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @param string|null $alias Optional table alias
 	 * @return Database_Query_Edit
 	 */
-	public function class_table($class, string $alias = "") {
+	public function class_table($class, string $alias = '') {
 		$object_class = $this->application->class_orm_registry($class);
 		/* @var $object_class Class_ORM */
 		if (count($this->table) === 0) {
@@ -106,8 +106,8 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @return boolean
 	 */
 	private function valid_column(string $name): bool {
-		$clean_name = ltrim($name, "*");
-		[$alias, $clean_name] = pair($clean_name, ".", $this->default_alias, $clean_name);
+		$clean_name = ltrim($name, '*');
+		[$alias, $clean_name] = pair($clean_name, '.', $this->default_alias, $clean_name);
 		$columns = $this->valid_columns[$alias] ?? null;
 		if (!is_array($columns) || !in_array($clean_name, $columns)) {
 			return false;
@@ -144,11 +144,11 @@ abstract class Database_Query_Edit extends Database_Query {
 	 */
 	private function check_column($name): void {
 		if (!$this->valid_column($name)) {
-			throw new Exception_Semantics("Column {name} is not in table {table} (columns are {columns})", [
-				"name" => $name,
-				"table" => $this->table,
-				"columns" => $this->valid_columns,
-				"Database_Query_Edit" => $this,
+			throw new Exception_Semantics('Column {name} is not in table {table} (columns are {columns})', [
+				'name' => $name,
+				'table' => $this->table,
+				'columns' => $this->valid_columns,
+				'Database_Query_Edit' => $this,
 			]);
 		}
 	}

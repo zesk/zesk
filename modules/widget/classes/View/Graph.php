@@ -17,7 +17,7 @@ class View_Graph extends View {
 		]);
 		$html->javascript('/share/zesk/jquery/flot/jquery.flot.js');
 		$html->javascript('/share/zesk/jquery/flot/excanvas.pack.js', [
-			'browser' => "ie",
+			'browser' => 'ie',
 		]);
 		$html->javascript('/share/zesk/jquery/zesk.flot.js');
 		return parent::render();

@@ -28,20 +28,20 @@ class Class_Repository extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $codename = "WebApp_Repository";
+	public $codename = 'WebApp_Repository';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	/**
 	 *
 	 * @var array
 	 */
 	public array $find_keys = [
-		"url",
+		'url',
 	];
 
 	/**
@@ -49,15 +49,15 @@ class Class_Repository extends Class_ORM {
 	 * @var array
 	 */
 	public array $column_types = [
-		"id" => self::type_id,
-		"code" => self::type_string,
-		"type" => self::type_polymorph,
-		"name" => self::type_string,
-		"url" => self::type_string,
-		"versions" => self::type_json,
-		"remote_hash" => self::type_string,
-		"updated" => self::type_modified,
-		"active" => self::type_boolean,
+		'id' => self::type_id,
+		'code' => self::type_string,
+		'type' => self::type_polymorph,
+		'name' => self::type_string,
+		'url' => self::type_string,
+		'versions' => self::type_json,
+		'remote_hash' => self::type_string,
+		'updated' => self::type_modified,
+		'active' => self::type_boolean,
 	];
 
 	/**
@@ -65,6 +65,6 @@ class Class_Repository extends Class_ORM {
 	 * @var array
 	 */
 	public array $column_defaults = [
-		"remote_hash" => "",
+		'remote_hash' => '',
 	];
 }

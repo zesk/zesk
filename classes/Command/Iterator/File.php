@@ -22,13 +22,13 @@ abstract class Command_Iterator_File extends Command_Base {
 	 * @var array
 	 */
 	protected $extensions = [
-		"php",
-		"phpt",
-		"inc",
-		"tpl",
-		"php4",
-		"php5",
-		"php7",
+		'php',
+		'phpt',
+		'inc',
+		'tpl',
+		'php4',
+		'php5',
+		'php7',
 	];
 
 	/**
@@ -56,10 +56,10 @@ abstract class Command_Iterator_File extends Command_Base {
 	 */
 	public function initialize(): void {
 		$this->option_types += [
-			"no-recurse" => 'boolean',
-			"directory" => "dir",
-			"include-hidden" => "boolean",
-			"show-skipped" => "boolean",
+			'no-recurse' => 'boolean',
+			'directory' => 'dir',
+			'include-hidden' => 'boolean',
+			'show-skipped' => 'boolean',
 			'*' => 'string',
 		];
 		parent::initialize();
@@ -128,7 +128,7 @@ abstract class Command_Iterator_File extends Command_Base {
 				continue;
 			}
 			$basename = basename($name);
-			if ($basename[0] === "." && !$this->include_hidden) {
+			if ($basename[0] === '.' && !$this->include_hidden) {
 				continue;
 			}
 			if ($fileinfo->isDir()) {

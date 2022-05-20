@@ -17,19 +17,19 @@ namespace zesk;
  */
 class Command_Database_Reset extends Command {
 	protected array $option_types = [
-		"name" => "string",
-		"yes" => "boolean",
-		"file" => "file",
-		"no-inf-fix" => "boolean",
-		"dump-directory" => "dir",
+		'name' => 'string',
+		'yes' => 'boolean',
+		'file' => 'file',
+		'no-inf-fix' => 'boolean',
+		'dump-directory' => 'dir',
 	];
 
 	protected array $option_help = [
-		"name" => "Database to reset",
-		'yes' => "Do not prompt the user to overwrite current database (reply yes to any prompts)",
-		'file' => "Use the file specified as the database to restore (ignores dump-directory)",
-		'no-inf-fix' => "Do not try to fix MySQL dumps which can not handle INFINITY in mysqldump",
-		'dump-directory' => "Use alternate dump directory. Default is \"{default-dump-directory}\"",
+		'name' => 'Database to reset',
+		'yes' => 'Do not prompt the user to overwrite current database (reply yes to any prompts)',
+		'file' => 'Use the file specified as the database to restore (ignores dump-directory)',
+		'no-inf-fix' => 'Do not try to fix MySQL dumps which can not handle INFINITY in mysqldump',
+		'dump-directory' => 'Use alternate dump directory. Default is "{default-dump-directory}"',
 	];
 
 	public function __construct($argv = null) {
@@ -68,17 +68,17 @@ class Command_Database_Reset extends Command {
 			sort($live_db, SORT_STRING);
 			$live_db = array_pop($live_db);
 		} elseif ($has_dd) {
-			$this->application->logger->warning("Specifying --file and --dump-directory are incompatible. --dump-directory is ignored.");
+			$this->application->logger->warning('Specifying --file and --dump-directory are incompatible. --dump-directory is ignored.');
 		}
 		if (!$this->option('yes')) {
-			echo "Overwrite\n\t" . URL::remove_password($url) . "\nwith\n\t" . $live_db . "? (y/N) ";
+			echo "Overwrite\n\t" . URL::remove_password($url) . "\nwith\n\t" . $live_db . '? (y/N) ';
 			$reply = fgets(STDIN, 8);
 			if (to_bool(trim($reply)) !== true) {
-				$this->error("Aborting.");
+				$this->error('Aborting.');
 				return;
 			}
 		}
-		$db_arg = ($codename !== "default") ? " --name \"$codename\"" : "";
+		$db_arg = ($codename !== 'default') ? " --name \"$codename\"" : '';
 		echo "Unpacking live database $live_db ... ";
 		$command = "gunzip -c $live_db | sed \"s/1.79769313486232e+308/'1.79769313486232e+308'/g\" | zesk database-connect$db_arg";
 		$this->verbose_log("Running command: $command");

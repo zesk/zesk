@@ -15,12 +15,12 @@ class Module_Moment extends Module_JSLib implements Interface_Module_Head {
 	 * @var array
 	 */
 	protected $javascript_paths = [
-		"/share/moment/moment.js",
-		"/share/moment/moment-with-locales.js",
+		'/share/moment/moment.js',
+		'/share/moment/moment-with-locales.js',
 	];
 
 	protected $class_aliases = [
-		"Module_Moment" => __CLASS__,
+		'Module_Moment' => __CLASS__,
 	];
 
 	/**

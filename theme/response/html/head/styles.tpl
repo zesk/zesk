@@ -19,7 +19,7 @@ $styles = to_array($response->html()->styles());
 
 foreach ($styles as $attributes) {
 	$content = $attributes['content'];
-	echo HTML::tag("style", ArrayTools::filter($attributes, "type;id;media;dir;lang;title;xml:lang"), $content) . "\n";
+	echo HTML::tag('style', ArrayTools::filter($attributes, 'type;id;media;dir;lang;title;xml:lang'), $content) . "\n";
 }
 if (count($styles) > 0) {
 	echo "\n";

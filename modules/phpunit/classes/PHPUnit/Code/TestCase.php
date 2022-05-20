@@ -12,15 +12,15 @@ class PHPUnit_Code_TestCase extends PHPUnit_TestCase {
 			}
 		}
 		if ($extensions) {
-			$rules_files["/.(" . implode("|", $extensions) . ")$/"] = true;
+			$rules_files['/.(' . implode('|', $extensions) . ')$/'] = true;
 			$rules_files[] = false;
 		} else {
 			$rules_files[] = true;
 		}
 		$result = Directory::list_recursive($path, [
-			"rules_file" => $rules_files,
-			"rules_directory" => false, // No directories in list
-			"rules_directory_walk" => [
+			'rules_file' => $rules_files,
+			'rules_directory' => false, // No directories in list
+			'rules_directory_walk' => [
 				"#/\.#" => false,
 				true,
 			],
@@ -35,16 +35,16 @@ class PHPUnit_Code_TestCase extends PHPUnit_TestCase {
 	 * @param array $extensions Defaults to ["php","inc"]
 	 */
 	protected function include_directory($path, array $options = []): void {
-		$this->application->logger->info("{method}({path}, {options})", [
-			"method" => __METHOD__,
-			"path" => $path,
-			"options" => $options,
+		$this->application->logger->info('{method}({path}, {options})', [
+			'method' => __METHOD__,
+			'path' => $path,
+			'options' => $options,
 		]);
-		$extensions = avalue($options, "extensions");
+		$extensions = avalue($options, 'extensions');
 		if ($extensions === null) {
 			$options['extensions'] = [
-				"php",
-				"inc",
+				'php',
+				'inc',
 			];
 		}
 		$files = $this->list_files($path, $options);
@@ -54,13 +54,13 @@ class PHPUnit_Code_TestCase extends PHPUnit_TestCase {
 			if (in_array($full_path, $included_files)) {
 				continue;
 			}
-			$this->application->logger->info("Including {path}", [
-				"path" => $full_path,
+			$this->application->logger->info('Including {path}', [
+				'path' => $full_path,
 			]);
 			ob_start();
 			require_once $full_path;
 			$result = ob_get_clean();
-			$this->assertEquals("", $result, "Including $full_path");
+			$this->assertEquals('', $result, "Including $full_path");
 		}
 	}
 
@@ -69,28 +69,28 @@ class PHPUnit_Code_TestCase extends PHPUnit_TestCase {
 	 * @param unknown $path
 	 */
 	protected function lint_directory($path, array $options = []): void {
-		$this->application->logger->info("{method}({path}, {options})", [
-			"method" => __METHOD__,
-			"path" => $path,
-			"options" => $options,
+		$this->application->logger->info('{method}({path}, {options})', [
+			'method' => __METHOD__,
+			'path' => $path,
+			'options' => $options,
 		]);
-		$extensions = avalue($options, "extensions");
+		$extensions = avalue($options, 'extensions');
 		if ($extensions === null) {
 			$options['extensions'] = [
-				"php",
-				"inc",
+				'php',
+				'inc',
 			];
 		}
 		$files = $this->list_files($path, $options);
 		$process = $this->application->process;
-		$php = $this->application->paths->which("php");
+		$php = $this->application->paths->which('php');
 		foreach ($files as $file) {
 			$full_path = path($path, $file);
 
 			try {
-				$result = $process->execute_arguments("{php} -l {file}", [
-					"php" => $php,
-					"file" => $full_path,
+				$result = $process->execute_arguments('{php} -l {file}', [
+					'php' => $php,
+					'file' => $full_path,
 				]);
 			} catch (Exception_Command $e) {
 				$this->assertEquals($e->getCode(), 0, "ERROR calling php -l $full_path:\n" . implode("\n", $e->output));

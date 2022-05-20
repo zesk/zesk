@@ -19,17 +19,17 @@ class Control_reCAPTCHA extends Control {
 	 *
 	 * @var string
 	 */
-	public static $url = "https://www.google.com/recaptcha/api/siteverify";
+	public static $url = 'https://www.google.com/recaptcha/api/siteverify';
 
 	/**
 	 *
 	 * @var array
 	 */
 	public static $error_codes = [
-		"missing-input-secret" => "The secret parameter is missing.",
-		"invalid-input-secret" => "The secret parameter is invalid or malformed.",
-		"missing-input-response" => "The response parameter is missing.",
-		"invalid-input-response" => "The response parameter is invalid or malformed.",
+		'missing-input-secret' => 'The secret parameter is missing.',
+		'invalid-input-secret' => 'The secret parameter is invalid or malformed.',
+		'missing-input-response' => 'The response parameter is missing.',
+		'invalid-input-response' => 'The response parameter is invalid or malformed.',
 	];
 
 	/**
@@ -40,7 +40,7 @@ class Control_reCAPTCHA extends Control {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->setOption("verified_name", $this->name() . "-verified");
+		$this->setOption('verified_name', $this->name() . '-verified');
 	}
 
 	/**
@@ -74,17 +74,17 @@ class Control_reCAPTCHA extends Control {
 		$http->method_post(true);
 		$ip = $this->request->ip();
 		$http->data([
-			"secret" => $this->option("secret_key"),
-			"response" => $this->request->get("g-recaptcha-response"),
-			"remoteip" => $ip,
+			'secret' => $this->option('secret_key'),
+			'response' => $this->request->get('g-recaptcha-response'),
+			'remoteip' => $ip,
 		]);
 		$result = $http->go();
 		if ($this->optionBool('debug')) {
-			$debug = "";
+			$debug = '';
 			$debug .= serialize($http);
 			$debug .= "Result: $result\n";
-			$debug .= "Response: " . $http->response_code_type() . "\n";
-			$debug .= "Data: " . _dump(JSON::decode($result)) . "\n";
+			$debug .= 'Response: ' . $http->response_code_type() . "\n";
+			$debug .= 'Data: ' . _dump(JSON::decode($result)) . "\n";
 			file_put_contents($app->path('recaptcha.log'), $debug);
 		}
 		$code_type = $http->response_code_type();
@@ -105,17 +105,17 @@ class Control_reCAPTCHA extends Control {
 					$this->verified();
 					return true;
 				} else {
-					$this->error($locale->__("Please verify that you are not a robot."));
+					$this->error($locale->__('Please verify that you are not a robot.'));
 				}
 			} catch (Exception_Parse $e) {
-				$this->error($locale->__("Unable to verify that you are not a robot, problem decoding. Please try again later."));
+				$this->error($locale->__('Unable to verify that you are not a robot, problem decoding. Please try again later.'));
 			}
 		} else {
-			$this->error($locale->__("Unable to verify that you are not a robot. Please try again later."));
-			$message = "reCAPTCHA response type {code_type} from {ip}";
+			$this->error($locale->__('Unable to verify that you are not a robot. Please try again later.'));
+			$message = 'reCAPTCHA response type {code_type} from {ip}';
 			$message_args = [
-				"code_type" => $code_type,
-				"ip" => $ip,
+				'code_type' => $code_type,
+				'ip' => $ip,
 			];
 			$app->logger->critical($message, $message_args);
 		}
@@ -127,8 +127,8 @@ class Control_reCAPTCHA extends Control {
 	private function verified(): void {
 		$now = time();
 		$name = $this->name();
-		$verified_html = "";
-		$verified_html .= HTML::input_hidden("$name-verified-key", md5($now . "|" . $this->option("secret_key")));
+		$verified_html = '';
+		$verified_html .= HTML::input_hidden("$name-verified-key", md5($now . '|' . $this->option('secret_key')));
 		$verified_html .= HTML::input_hidden("$name-verified-timestamp", $now);
 
 		$this->theme_variables['verified_html'] = $verified_html;
@@ -154,23 +154,23 @@ class Control_reCAPTCHA extends Control {
 		$time = floatval($time);
 		$delta = $now - $time;
 		if ($delta < 0) {
-			$this->application->logger->error("Time submitted was before now? {now} {time} {key} Bad server time?", compact("now", "time", "key"));
+			$this->application->logger->error('Time submitted was before now? {now} {time} {key} Bad server time?', compact('now', 'time', 'key'));
 			return null;
 		}
-		if ($delta < $this->optionInt("verification_minimum_age", 3)) {
-			$this->error($locale->__("You submitted the form too quickly, please verify you are a not a robot again."));
+		if ($delta < $this->optionInt('verification_minimum_age', 3)) {
+			$this->error($locale->__('You submitted the form too quickly, please verify you are a not a robot again.'));
 			return null;
 		}
-		if ($delta > $this->optionInt("verification_seconds_to_live", 600)) {
-			$this->error($locale->__("Your verification has expired, please verify you are not a robot again."));
+		if ($delta > $this->optionInt('verification_seconds_to_live', 600)) {
+			$this->error($locale->__('Your verification has expired, please verify you are not a robot again.'));
 			return null;
 		}
-		$check = md5($time . "|" . $this->option("secret_key"));
+		$check = md5($time . '|' . $this->option('secret_key'));
 		if ($check === $key) {
 			$this->verified();
 			return true;
 		}
-		$this->error($locale->__("The checksum did not match. Please verify that you are not a robot one more time."));
+		$this->error($locale->__('The checksum did not match. Please verify that you are not a robot one more time.'));
 		return null;
 	}
 }

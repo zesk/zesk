@@ -6,7 +6,7 @@ class Net_Ping {
 
 	public static function _init(): void {
 		if (self::$icmp_proto === null) {
-			self::$icmp_proto = getprotobyname("icmp");
+			self::$icmp_proto = getprotobyname('icmp');
 		}
 	}
 

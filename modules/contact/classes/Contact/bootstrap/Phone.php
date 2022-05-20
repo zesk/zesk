@@ -40,11 +40,11 @@ class Contact_Phone_Bootstrap {
 
 		$csv = new CSV_Reader();
 		// TODO Fix this path
-		$csv->filename(ZESK_CONTACT_ROOT . "classes/data/AreaCodeCities.txt");
+		$csv->filename(ZESK_CONTACT_ROOT . 'classes/data/AreaCodeCities.txt');
 		$csv->set_headers([
-			"AreaCode",
-			"State",
-			"Desc",
+			'AreaCode',
+			'State',
+			'Desc',
 		]);
 		$nRows = 0;
 		while (is_array($a = $csv->read_row_assoc(true))) {
@@ -64,12 +64,12 @@ class Contact_Phone_Bootstrap {
 				if (!$stateProvince->find('CodeName') && !$stateProvince->find('Name')) {
 					$stateProvince = null;
 					$country = new Country([
-						"CodeName" => $state,
-						"Name" => $state,
+						'CodeName' => $state,
+						'Name' => $state,
 					]);
 					if (!$country->find('CodeName') && !$country->find('Name')) {
 						echo "Can't find state or country \"$state\" for $desc\n";
-						$desc = $state . " (" . $desc . ")";
+						$desc = $state . ' (' . $desc . ')';
 						$country = null;
 					}
 				}
@@ -84,7 +84,7 @@ class Contact_Phone_Bootstrap {
 			++$nRows;
 		}
 
-		$csv = new CSV_Reader(ZESK_ROOT . "ext/contact/bootstrap-data/USAreaCodes.csv");
+		$csv = new CSV_Reader(ZESK_ROOT . 'ext/contact/bootstrap-data/USAreaCodes.csv');
 		$i = new CSV_Reader_Iterator($csv);
 		foreach ($i as $a) {
 			$areaCode = $a['npa'];
@@ -122,7 +122,7 @@ class Contact_Phone_Bootstrap {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 
-		$csv = new CSV_Reader(__DIR__ . "/../bootstrap-data/PhoneCountryCode.csv");
+		$csv = new CSV_Reader(__DIR__ . '/../bootstrap-data/PhoneCountryCode.csv');
 		$i = new CSV_Reader_Iterator($csv);
 		$nRows = 0;
 		foreach ($i as $a) {

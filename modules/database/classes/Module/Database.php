@@ -19,7 +19,7 @@ class Module_Database extends Module {
 	 *
 	 * @var string
 	 */
-	private string $default = "";
+	private string $default = '';
 
 	/**
 	 * Global database name => url mapping
@@ -49,11 +49,11 @@ class Module_Database extends Module {
 	 */
 	public function initialize(): void {
 		$application = $this->application;
-		$application->register_registry("database", [$this, "app_database_registry", ]);
-		$application->register_factory("database", [$this, "app_database_registry", ]);
-		$application->hooks->add(Hooks::HOOK_DATABASE_CONFIGURE, [$this, "_configured", ], ["first" => true]);
-		$application->hooks->add('exit', [$this, "disconnect_all", ], ["last" => true]);
-		$application->hooks->add('pcntl_fork-child', [$this, "reconnect_all", ]);
+		$application->register_registry('database', [$this, 'app_database_registry', ]);
+		$application->register_factory('database', [$this, 'app_database_registry', ]);
+		$application->hooks->add(Hooks::HOOK_DATABASE_CONFIGURE, [$this, '_configured', ], ['first' => true]);
+		$application->hooks->add('exit', [$this, 'disconnect_all', ], ['last' => true]);
+		$application->hooks->add('pcntl_fork-child', [$this, 'reconnect_all', ]);
 	}
 
 	/**
@@ -65,7 +65,7 @@ class Module_Database extends Module {
 	 */
 	public function database_default($set = null): string {
 		if ($set !== null) {
-			$this->application->deprecated("Setter/getter deprecated " . __METHOD__);
+			$this->application->deprecated('Setter/getter deprecated ' . __METHOD__);
 			$this->setDatabaseDefault($set);
 		}
 		return $this->databaseDefault();
@@ -105,14 +105,14 @@ class Module_Database extends Module {
 			return avalue($this->names, $name);
 		}
 		if (!URL::valid($url)) {
-			throw new Exception_Semantics("{url} is not a valid database URL ({name})", compact("name", "url"));
+			throw new Exception_Semantics('{url} is not a valid database URL ({name})', compact('name', 'url'));
 		}
 		$url = URL::normalize($url);
 		if (array_key_exists($name, $this->databases) && $url !== $this->names[$name]) {
-			$this->application->logger->debug("Changing database url {name} {url} (old is {old})", [
-				"name" => $name,
-				"url" => $url,
-				"old" => $this->names[$name],
+			$this->application->logger->debug('Changing database url {name} {url} (old is {old})', [
+				'name' => $name,
+				'url' => $url,
+				'old' => $this->names[$name],
 			]);
 			$this->databases[$name]->change_url($url);
 		} else {
@@ -143,14 +143,14 @@ class Module_Database extends Module {
 		$application = $this->application;
 		$config = $application->configuration;
 		// 2017-10
-		if ($config->has("table_prefix")) {
-			zesk()->deprecated("Using table_prefix - no longer supported n 2017");
+		if ($config->has('table_prefix')) {
+			zesk()->deprecated('Using table_prefix - no longer supported n 2017');
 		}
-		if ($config->has("db_url")) {
-			zesk()->deprecated("Using DB_URL - no longer supported after 2016");
-			$old_style = ArrayTools::kunprefix($application->configuration->to_array(), "db_url", true);
+		if ($config->has('db_url')) {
+			zesk()->deprecated('Using DB_URL - no longer supported after 2016');
+			$old_style = ArrayTools::kunprefix($application->configuration->to_array(), 'db_url', true);
 			foreach ($old_style as $name => $url) {
-				$name = empty($name) ? "default" : StringTools::unprefix($name, '_');
+				$name = empty($name) ? 'default' : StringTools::unprefix($name, '_');
 
 				try {
 					$this->register($name, $url);
@@ -159,12 +159,12 @@ class Module_Database extends Module {
 				}
 			}
 		}
-		$config->deprecated("Database::database_names", __CLASS__ . "::names");
-		$config->deprecated("Database::default", __CLASS__ . '::default');
+		$config->deprecated('Database::database_names', __CLASS__ . '::names');
+		$config->deprecated('Database::default', __CLASS__ . '::default');
 		// 2018-01
-		$config->deprecated(Database::class . "::database_names", __CLASS__ . "::names");
-		$config->deprecated(Database::class . "::default", __CLASS__ . '::default');
-		$config->deprecated(Database::class . "::names", __CLASS__ . '::names');
+		$config->deprecated(Database::class . '::database_names', __CLASS__ . '::names');
+		$config->deprecated(Database::class . '::default', __CLASS__ . '::default');
+		$config->deprecated(Database::class . '::names', __CLASS__ . '::names');
 	}
 
 	/**
@@ -187,7 +187,7 @@ class Module_Database extends Module {
 				$application->logger->critical($e->raw_message, $e->variables());
 			}
 		}
-		$database_default_config_path = [__CLASS__, "default", ];
+		$database_default_config_path = [__CLASS__, 'default', ];
 		if ($config->pathExists($database_default_config_path)) {
 			$this->database_default($config->path_get($database_default_config_path));
 		}
@@ -219,7 +219,7 @@ class Module_Database extends Module {
 	public function reconnect_all(): void {
 		/* @var $database Database */
 		foreach ($this->databases as $url => $database) {
-			$this->application->logger->info("Reconnecting database: {url}", ["url" => $database->safe_url(), ]);
+			$this->application->logger->info('Reconnecting database: {url}', ['url' => $database->safe_url(), ]);
 			$database->reconnect();
 		}
 	}
@@ -262,10 +262,10 @@ class Module_Database extends Module {
 			throw new Exception_Class_NotFound($classname);
 		}
 		if (array_key_exists($scheme, $this->scheme_to_class) && $this->scheme_to_class[$scheme] !== $classname) {
-			$this->application->logger->warning("Registered {scheme} overrides {old_classname} with {classname}", [
-				"scheme" => $scheme,
-				"classname" => $classname,
-				"old_classname" => $this->scheme_to_class[$scheme],
+			$this->application->logger->warning('Registered {scheme} overrides {old_classname} with {classname}', [
+				'scheme' => $scheme,
+				'classname' => $classname,
+				'old_classname' => $this->scheme_to_class[$scheme],
 			]);
 		}
 		$this->scheme_to_class[$scheme] = $classname;
@@ -280,7 +280,7 @@ class Module_Database extends Module {
 	 * @return string
 	 */
 	public function getRegisteredScheme(string $scheme): string {
-		return $this->scheme_to_class[strtolower($scheme)] ?? "";
+		return $this->scheme_to_class[strtolower($scheme)] ?? '';
 	}
 
 	/**
@@ -305,9 +305,9 @@ class Module_Database extends Module {
 	public function scheme_factory($scheme, array $options = []) {
 		$class = $this->register_scheme($scheme);
 		if (!$class) {
-			throw new Exception_NotFound("Database scheme {scheme} does not have a registered handler. Available schemes: {schemes}", [
-				"scheme" => $scheme,
-				"schemes" => $this->valid_schemes(),
+			throw new Exception_NotFound('Database scheme {scheme} does not have a registered handler. Available schemes: {schemes}', [
+				'scheme' => $scheme,
+				'schemes' => $this->valid_schemes(),
 			]);
 		}
 		return $this->application->factory($class, $this->application, null, $options);
@@ -352,21 +352,21 @@ class Module_Database extends Module {
 			if (empty($mixed)) {
 				$mixed = $this->database_default();
 				if (empty($mixed)) {
-					$mixed = "default";
+					$mixed = 'default';
 				}
 			}
 			$url = $this->register($mixed);
 			$codename = $mixed;
 			if (count($this->names) === 0) {
-				throw new Exception_Configuration(__CLASS__ . "::names", "No default database URL configured: \"{default}\" {id}", [
-					"default" => $this->database_default(),
-					"id" => spl_object_id($this),
+				throw new Exception_Configuration(__CLASS__ . '::names', 'No default database URL configured: "{default}" {id}', [
+					'default' => $this->database_default(),
+					'id' => spl_object_id($this),
 				]);
 			}
 			if (!$url) {
-				throw new Exception_NotFound("Database not found: \"{name}\" from databases: {databases}", [
-					"name" => $original,
-					"databases" => JSON::encode(array_keys($this->register())),
+				throw new Exception_NotFound('Database not found: "{name}" from databases: {databases}', [
+					'name' => $original,
+					'databases' => JSON::encode(array_keys($this->register())),
 				]);
 			}
 		}
@@ -378,41 +378,41 @@ class Module_Database extends Module {
 			}
 		} else {
 			if (array_key_exists($codename, $this->databases)) {
-				$codename .= "#" . count($this->databases);
+				$codename .= '#' . count($this->databases);
 			}
 		}
 		$scheme = URL::scheme($url);
 		$class = $this->register_scheme($scheme);
 		if (!$class) {
-			throw new Database_Exception_Unknown_Schema("Database::factory({url}) {scheme} not registered. Valid schemes: {schemes}", [
-				"url" => $safe_url,
-				"scheme" => $scheme,
-				"schemes" => $this->valid_schemes(),
+			throw new Database_Exception_Unknown_Schema('Database::factory({url}) {scheme} not registered. Valid schemes: {schemes}', [
+				'url' => $safe_url,
+				'scheme' => $scheme,
+				'schemes' => $this->valid_schemes(),
 			]);
 		}
 
 		try {
 			$db = $application->objects->factory($class, $application, $url, $options);
 		} catch (Exception $e) {
-			$application->hooks->call("exception", $e);
+			$application->hooks->call('exception', $e);
 
 			throw $e;
 		}
 		if (!$db instanceof Database) {
-			throw new Exception_Unimplemented("Database::factory({url}) {scheme} did not return a Database", [
-				"url" => $safe_url,
-				"scheme" => $scheme,
+			throw new Exception_Unimplemented('Database::factory({url}) {scheme} did not return a Database', [
+				'url' => $safe_url,
+				'scheme' => $scheme,
 			]);
 		}
 		$db->code_name($codename);
-		$db->setOption("internal_name", $codename);
+		$db->setOption('internal_name', $codename);
 		$this->databases[$codename] = $db;
 		if (avalue($options, 'connect', true)) {
 			if (!$db->connect()) {
 				$this->application->logger->warning("Failed to connect to database: $safe_url");
 				return null;
 			}
-			if ($db->optionBool("debug")) {
+			if ($db->optionBool('debug')) {
 				$this->application->logger->debug("Connected to database: $safe_url");
 			}
 		}
@@ -425,25 +425,25 @@ class Module_Database extends Module {
 	 * @return string
 	 */
 	public function hook_info(array $info) {
-		$default = $this->option("default");
+		$default = $this->option('default');
 		if (empty($default)) {
-			$default = "";
+			$default = '';
 		}
 		$url = $this->register($default);
 		if ($default) {
-			$info[__CLASS__ . "::default"] = ["value" => $default, "title" => "Default database", ];
+			$info[__CLASS__ . '::default'] = ['value' => $default, 'title' => 'Default database', ];
 		}
 		if ($url) {
-			$info[__CLASS__ . "::default_url"] = [
-				"value" => URL::remove_password($url),
-				"title" => "Default URL (Safe)",
+			$info[__CLASS__ . '::default_url'] = [
+				'value' => URL::remove_password($url),
+				'title' => 'Default URL (Safe)',
 			];
 		}
 		$dbs = [];
 		foreach ($this->databases as $k => $item) {
 			$dbs[$k] = $item->safe_url();
 		};
-		$info[__CLASS__ . '::databases'] = ["value" => $dbs, "title" => "Database names", ];
+		$info[__CLASS__ . '::databases'] = ['value' => $dbs, 'title' => 'Database names', ];
 
 		return $info;
 	}

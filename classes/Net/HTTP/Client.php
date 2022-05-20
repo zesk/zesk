@@ -18,34 +18,34 @@ class Net_HTTP_Client extends Hookable {
 	 * Sample user agent for FireFox
 	 * @var string
 	 */
-	public const user_agent_firefox = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.7; en-US; rv:1.9.0.4) Gecko/2009032609  Firefox/3.0.8";
+	public const user_agent_firefox = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.7; en-US; rv:1.9.0.4) Gecko/2009032609  Firefox/3.0.8';
 
 	/*
 	 * Sample user agent for Microsoft Internet Explorer
 	 * @var string
 	 */
-	public const user_agent_msie = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0; .NET4.0E; .NET4.0C; BRI/2)";
+	public const user_agent_msie = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0; .NET4.0E; .NET4.0C; BRI/2)';
 
 	/**
 	 * Sample user agent for Safari
 	 *
 	 * @var string
 	 */
-	public const user_agent_safari = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1795.2 Safari/537.36";
+	public const user_agent_safari = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1795.2 Safari/537.36';
 
 	/**
 	 * Sample user agent for Chrome
 	 *
 	 * @var string
 	 */
-	public const user_agent_chrome = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1796.0 Safari/537.36";
+	public const user_agent_chrome = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1796.0 Safari/537.36';
 
 	/**
 	 * Sample user agent for Opera
 	 *
 	 * @var string
 	 */
-	public const user_agent_opera = "Opera/9.80 (Windows NT 6.1; MRA 8.0 (build 5784)) Presto/2.12.388 Version/12.16";
+	public const user_agent_opera = 'Opera/9.80 (Windows NT 6.1; MRA 8.0 (build 5784)) Presto/2.12.388 Version/12.16';
 
 	/**
 	 * Sample user agents
@@ -172,22 +172,22 @@ class Net_HTTP_Client extends Hookable {
 	/**
 	 * Error with connecting to server
 	 */
-	public const Error_Connection = "Error_Connection";
+	public const Error_Connection = 'Error_Connection';
 
 	/**
 	 * Error resolving host name
 	 */
-	public const Error_Resolve_Host = "Error_Resolve_Host";
+	public const Error_Resolve_Host = 'Error_Resolve_Host';
 
 	/**
 	 * Error waiting for server to respond
 	 */
-	public const Error_Timeout = "Error_Timeout";
+	public const Error_Timeout = 'Error_Timeout';
 
 	/**
 	 * Error connecting via SSL to remote site
 	 */
-	public const Error_SSL_Connect = "Error_SSL_Connect";
+	public const Error_SSL_Connect = 'Error_SSL_Connect';
 
 	/**
 	 * Create a new Net_HTTP_Client
@@ -200,7 +200,7 @@ class Net_HTTP_Client extends Hookable {
 		$this->inherit_global_options();
 		$this->load_from_options();
 		if (!empty($url)) {
-			$this->setOption("URL", $url);
+			$this->setOption('URL', $url);
 		}
 		if (!$this->user_agent) {
 			$this->user_agent($this->default_user_agent());
@@ -212,11 +212,11 @@ class Net_HTTP_Client extends Hookable {
 	}
 
 	private function load_from_options(): void {
-		if ($this->hasOption("timeout")) {
-			$this->timeout($this->optionInt("timeout"));
+		if ($this->hasOption('timeout')) {
+			$this->timeout($this->optionInt('timeout'));
 		}
-		if ($this->hasOption("user_agent")) {
-			$this->user_agent($this->option("user_agent"));
+		if ($this->hasOption('user_agent')) {
+			$this->user_agent($this->option('user_agent'));
 		}
 	}
 
@@ -226,7 +226,7 @@ class Net_HTTP_Client extends Hookable {
 	 * @return string
 	 */
 	public function default_user_agent() {
-		return $this->option("default_user_agent", __CLASS__ . ' ' . Version::release());
+		return $this->option('default_user_agent', __CLASS__ . ' ' . Version::release());
 	}
 
 	private function _method($method, $set = null) {
@@ -285,10 +285,10 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function url($set = null) {
 		if ($set && URL::is($set)) {
-			$this->setOption("url", $set);
+			$this->setOption('url', $set);
 			return $this;
 		}
-		return $this->option("url");
+		return $this->option('url');
 	}
 
 	/**
@@ -370,10 +370,10 @@ class Net_HTTP_Client extends Hookable {
 			if ($value === true) {
 				$result[] = strtr($name, $encode);
 			} else {
-				$result[] = strtr($name, $encode) . "=" . strtr($value, $encode);
+				$result[] = strtr($name, $encode) . '=' . strtr($value, $encode);
 			}
 		}
-		return implode("; ", $result);
+		return implode('; ', $result);
 	}
 
 	/**
@@ -471,7 +471,7 @@ class Net_HTTP_Client extends Hookable {
 	}
 
 	private function _zero_content_length_warning(): void {
-		$this->application->logger->warning("{method} with 0 size data", ["method" => $this->method]);
+		$this->application->logger->warning('{method} with 0 size data', ['method' => $this->method]);
 	}
 
 	/**
@@ -482,7 +482,7 @@ class Net_HTTP_Client extends Hookable {
 		$this->curl_opts = [
 			CURLOPT_ENCODING => 1,
 			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_SSL_VERIFYPEER => $this->optionBool("VerifySSL", false),
+			CURLOPT_SSL_VERIFYPEER => $this->optionBool('VerifySSL', false),
 		];
 		$data = strval($this->_encode_data());
 		$length = strlen($data);
@@ -563,10 +563,10 @@ class Net_HTTP_Client extends Hookable {
 	 * Set curl options related to If-Modified-Since
 	 */
 	private function _curl_opts_if_modified(): void {
-		if (($value = $this->request_header("If-Modified-Since")) !== null) {
+		if (($value = $this->request_header('If-Modified-Since')) !== null) {
 			$this->curl_opts[CURLOPT_TIMECONDITION] = CURL_TIMECOND_IFMODSINCE;
 			$this->curl_opts[CURLOPT_TIMEVALUE] = $value;
-			$this->skip_request_header("If-Modified-Since");
+			$this->skip_request_header('If-Modified-Since');
 		}
 	}
 
@@ -599,9 +599,9 @@ class Net_HTTP_Client extends Hookable {
 		if ($this->recurse) {
 			$this->curl_opts[CURLOPT_FOLLOWLOCATION] = true;
 		}
-		if ($this->optionBool("follow_location")) {
+		if ($this->optionBool('follow_location')) {
 			$this->curl_opts[CURLOPT_FOLLOWLOCATION] = true;
-			$this->curl_opts[CURLOPT_MAXREDIRS] = $this->optionInt("follow_location_maximum", 7);
+			$this->curl_opts[CURLOPT_MAXREDIRS] = $this->optionInt('follow_location_maximum', 7);
 		}
 	}
 
@@ -614,17 +614,17 @@ class Net_HTTP_Client extends Hookable {
 		if ($port !== $default_port) {
 			$host .= ":$port";
 		}
-		$this->request_header("Host", $host);
+		$this->request_header('Host', $host);
 	}
 
 	private function _curl_opts_cookie(): void {
 		if (count($this->request_cookie)) {
-			$this->request_header("Cookie", $this->format_cookie());
+			$this->request_header('Cookie', $this->format_cookie());
 		}
 	}
 
 	private function _curl_opts_range(): void {
-		if (($range = $this->request_header("Range")) !== null) {
+		if (($range = $this->request_header('Range')) !== null) {
 			$this->curl_opts[CURLOPT_RANGE] = substr($range, 6);
 			$this->skip_request_header('Range');
 		}
@@ -649,13 +649,13 @@ class Net_HTTP_Client extends Hookable {
 
 	private function _curl_opts_destination() {
 		if ($this->destination) {
-			$dest_fp = fopen($this->destination, "wb");
+			$dest_fp = fopen($this->destination, 'wb');
 			if (!$dest_fp) {
-				throw new Exception_File_Permission($dest_fp, "Not writable");
+				throw new Exception_File_Permission($dest_fp, 'Not writable');
 			}
 			$this->curl_opts[CURLOPT_FILE] = $dest_fp;
-			$dest_headers_name = $this->destination . "-headers";
-			$dest_headers_fp = fopen($dest_headers_name, "wb");
+			$dest_headers_name = $this->destination . '-headers';
+			$dest_headers_fp = fopen($dest_headers_name, 'wb');
 			$this->curl_opts[CURLOPT_WRITEHEADER] = $dest_headers_fp;
 
 			return $dest_headers_name;
@@ -688,12 +688,12 @@ class Net_HTTP_Client extends Hookable {
 	}
 
 	public function go() {
-		if (!function_exists("curl_init")) {
-			throw new Exception_Unsupported("Net_HTTP_Client::go(): CURL not integrated!");
+		if (!function_exists('curl_init')) {
+			throw new Exception_Unsupported('Net_HTTP_Client::go(): CURL not integrated!');
 		}
-		$url = $this->option("URL");
+		$url = $this->option('URL');
 		if (empty($url)) {
-			throw new Exception_Parameter("Net_HTTP_Client::go called with no URL specified");
+			throw new Exception_Parameter('Net_HTTP_Client::go called with no URL specified');
 		}
 
 		$httpHeaders = $this->_method_open();
@@ -707,7 +707,7 @@ class Net_HTTP_Client extends Hookable {
 		$this->_curl_opts_headers();
 		$dest_headers_name = $this->_curl_opts_destination();
 
-		if ($this->option("debug")) {
+		if ($this->option('debug')) {
 			dump($url);
 			dump($httpHeaders);
 		}
@@ -723,11 +723,11 @@ class Net_HTTP_Client extends Hookable {
 
 		$this->_parse_headers($dest_headers_name);
 
-		if ($this->optionBool("debug") && $this->destination) {
+		if ($this->optionBool('debug') && $this->destination) {
 			if (file_exists($this->destination)) {
 				$command = Command::running();
 				if ($command) {
-					$command->readline(__CLASS__ . " : CHECK " . $this->url() . " Destination $this->destination");
+					$command->readline(__CLASS__ . ' : CHECK ' . $this->url() . " Destination $this->destination");
 				}
 			}
 		}
@@ -735,10 +735,10 @@ class Net_HTTP_Client extends Hookable {
 		curl_close($curl);
 		if ($errno !== 0) {
 			if ($errno === CURLE_COULDNT_RESOLVE_HOST) {
-				$host = URL::parse($this->url(), "host");
+				$host = URL::parse($this->url(), 'host');
 
-				throw new Exception_DomainLookup($host, "Retrieving URL {url}", [
-					"url" => $this->url(),
+				throw new Exception_DomainLookup($host, 'Retrieving URL {url}', [
+					'url' => $this->url(),
 				], $errno);
 			}
 			// TODO 2017-08 These should probably all be their own Exception class
@@ -750,8 +750,8 @@ class Net_HTTP_Client extends Hookable {
 			];
 			$error_string = avalue($errno_map, $errno, "UnknownErrno-$errno");
 
-			throw new Net_HTTP_Client_Exception("Error {error_code} ({errno} = {error_string})", [
-				"error_string" => $error_string,
+			throw new Net_HTTP_Client_Exception('Error {error_code} ({errno} = {error_string})', [
+				'error_string' => $error_string,
 			], $error_code, $errno);
 		}
 		return $this->Content;
@@ -764,15 +764,15 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public static function simpleGet($url) {
 		if (!$url) {
-			throw new Exception_Semantics("Require non-blank URL");
+			throw new Exception_Semantics('Require non-blank URL');
 		}
 		$parts = parse_url($url);
-		$protocol = avalue($parts, "scheme");
+		$protocol = avalue($parts, 'scheme');
 		if (!in_array($protocol, [
-			"http",
-			"https",
+			'http',
+			'https',
 		])) {
-			throw new Exception_Semantics("Require valid HTTP URL {protocol} ({url})", ["protocol" => $protocol, "url" => $url]);
+			throw new Exception_Semantics('Require valid HTTP URL {protocol} ({url})', ['protocol' => $protocol, 'url' => $url]);
 		}
 		$ctx_options = [
 			'http' => [
@@ -791,11 +791,11 @@ class Net_HTTP_Client extends Hookable {
 			];
 		}
 		$context = stream_context_create($ctx_options);
-		$f = fopen($url, "rb", false, $context);
+		$f = fopen($url, 'rb', false, $context);
 		if (!$f) {
 			return false;
 		}
-		$contents = "";
+		$contents = '';
 		while (!feof($f)) {
 			$contents .= fread($f, 4096);
 		}
@@ -803,13 +803,13 @@ class Net_HTTP_Client extends Hookable {
 	}
 
 	public function domain() {
-		$url = $this->option("URL");
+		$url = $this->option('URL');
 		return URL::host($url);
 	}
 
 	public static function url_content_length(Application $application, $url) {
 		$headers = self::url_headers($application, $url);
-		return to_integer(aevalue($headers, "Content-Length"));
+		return to_integer(aevalue($headers, 'Content-Length'));
 	}
 
 	public static function url_headers(Application $application, $url) {
@@ -818,10 +818,10 @@ class Net_HTTP_Client extends Hookable {
 		$x->go();
 		$result = $x->response_code_type();
 		if ($result !== 2) {
-			throw new Net_HTTP_Client_Exception("{method}({url}) returned response code {result} ", [
-				"method" => __METHOD__,
-				"ur" => $url,
-				"result" => $x->responseCode(),
+			throw new Net_HTTP_Client_Exception('{method}({url}) returned response code {result} ', [
+				'method' => __METHOD__,
+				'ur' => $url,
+				'result' => $x->responseCode(),
 			]);
 		}
 		return $x->response_header();
@@ -855,9 +855,9 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	private function cookieString($url) {
 		$parts = parse_url($url);
-		$host = strtolower(avalue($parts, "host", ""));
-		$path = avalue($parts, "path", "/");
-		$secure = strtolower(avalue($parts, "scheme", "")) === "https" ? true : false;
+		$host = strtolower(avalue($parts, 'host', ''));
+		$path = avalue($parts, 'path', '/');
+		$secure = strtolower(avalue($parts, 'scheme', '')) === 'https' ? true : false;
 		$results = [];
 		foreach ($this->response_cookies as $cookies) {
 			if (!is_array($cookies)) {
@@ -878,7 +878,7 @@ class Net_HTTP_Client extends Hookable {
 		if (empty($results)) {
 			return false;
 		}
-		return implode("; ", $results);
+		return implode('; ', $results);
 	}
 
 	private function deleteCookie($cookieName, $domain, $path) {
@@ -932,51 +932,51 @@ class Net_HTTP_Client extends Hookable {
 			$domain = $this->domain();
 		}
 		if (!$path) {
-			$path = "/";
+			$path = '/';
 		}
 		ArrayTools::append($this->response_cookies, $cookieName, new Net_HTTP_Client_Cookie($cookieName, $cookieValue, $domain, $path, $expires, $secure));
 	}
 
 	private function parseCookies() {
-		if (!isset($this->response_headers["set-cookie"])) {
+		if (!isset($this->response_headers['set-cookie'])) {
 			return false;
 		}
-		$cookies = $this->response_headers["set-cookie"];
+		$cookies = $this->response_headers['set-cookie'];
 		if (!is_array($cookies)) {
 			$cookies = [
 				$cookies,
 			];
 		}
 		foreach ($cookies as $cookie) {
-			$parts = explode(";", $cookie);
+			$parts = explode(';', $cookie);
 			$cookie_item = array_shift($parts);
-			[$cookieName, $cookieValue] = StringTools::pair($cookie_item, "=", $cookie_item, null);
+			[$cookieName, $cookieValue] = StringTools::pair($cookie_item, '=', $cookie_item, null);
 			$cookieName = trim($cookieName);
 			if (empty($cookieName)) {
 				continue;
 			}
-			$path = "/";
+			$path = '/';
 			$secure = false;
 			$domain = $this->domain();
 			$expireString = false;
 			foreach ($parts as $cname) {
-				[$cname, $cvalue] = StringTools::pair($cname, "=", $cname);
+				[$cname, $cvalue] = StringTools::pair($cname, '=', $cname);
 				$cname = strtolower(trim($cname));
 				$cvalue = trim($cvalue);
 				switch ($cname) {
-					case "path":
+					case 'path':
 						$path = $cvalue;
 
 						break;
-					case "secure":
+					case 'secure':
 						$secure = true;
 
 						break;
-					case "domain":
+					case 'domain':
 						$domain = $cvalue;
 
 						break;
-					case "expires":
+					case 'expires':
 						$expireString = $cvalue;
 
 						break;
@@ -1026,9 +1026,9 @@ class Net_HTTP_Client extends Hookable {
 	private function parseHeaders($content = null) {
 		$headers = ($content === null) ? $this->Content : $content;
 		$this->response_headers = [];
-		[$headers, $new_content] = pair($headers, "\r\n\r\n", $headers, "");
+		[$headers, $new_content] = pair($headers, "\r\n\r\n", $headers, '');
 		$headers = explode("\r\n", $headers);
-		$response = explode(" ", array_shift($headers), 3);
+		$response = explode(' ', array_shift($headers), 3);
 		$this->response_protocol = array_shift($response);
 		$this->response_code = intval(array_shift($response));
 		$this->response_message = array_shift($response);
@@ -1036,7 +1036,7 @@ class Net_HTTP_Client extends Hookable {
 			if (empty($h)) {
 				continue;
 			}
-			[$h, $v] = pair($h, ":");
+			[$h, $v] = pair($h, ':');
 			$h = trim($h);
 			$lowh = strtolower($h);
 			ArrayTools::append($this->response_headers, $lowh, ltrim($v));
@@ -1069,7 +1069,7 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function follow_location($set = null) {
 		if (is_bool($set)) {
-			$this->setOption("follow_location", $set);
+			$this->setOption('follow_location', $set);
 			return $this;
 		}
 		return $this->optionBool('follow_location');
@@ -1096,10 +1096,10 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function filename() {
 		// Content-Disposition: attachment; filename=foo.tar.gz
-		$dispositions = ArrayTools::trim_clean(explode(";", $this->response_header(Net_HTTP::RESPONSE_CONTENT_DISPOSITION)));
+		$dispositions = ArrayTools::trim_clean(explode(';', $this->response_header(Net_HTTP::RESPONSE_CONTENT_DISPOSITION)));
 		while (($disposition = array_shift($dispositions)) !== null) {
-			[$name, $value] = pair($disposition, "=", null, null);
-			if ($name === "filename") {
+			[$name, $value] = pair($disposition, '=', null, null);
+			if ($name === 'filename') {
 				return unquote($value);
 			}
 		}
@@ -1128,9 +1128,9 @@ class Net_HTTP_Client extends Hookable {
 	public function proxy_request(Request $request, $url_prefix) {
 		$this->method($method = $request->method());
 		if (in_array($method, [
-			"PUT",
-			"PATCH",
-			"POST",
+			'PUT',
+			'PATCH',
+			'POST',
 		])) {
 			$this->data($request->data());
 		}
@@ -1156,27 +1156,27 @@ class Net_HTTP_Client extends Hookable {
 			$headers[] = $header;
 			$response->header($header, $value);
 		}
-		$response->header("X-Debug-Headers", implode(",", $headers));
+		$response->header('X-Debug-Headers', implode(',', $headers));
 		$response->content = $this->content();
 		return $this;
 	}
 
 	public function request_variables() {
 		return [
-			"url" => $this->url(),
-			"request_method" => $this->method(),
-			"request_cookies" => $this->request_cookie,
-			"request_data" => $this->data(),
+			'url' => $this->url(),
+			'request_method' => $this->method(),
+			'request_cookies' => $this->request_cookie,
+			'request_data' => $this->data(),
 		];
 	}
 
 	public function response_variables() {
 		return [
-			"response_code" => $this->response_code,
-			"response_message" => $this->response_message,
-			"response_protocol" => $this->response_protocol,
-			"response_code_type" => $this->response_code_type(),
-			"response_data" => $this->Content,
+			'response_code' => $this->response_code,
+			'response_message' => $this->response_message,
+			'response_protocol' => $this->response_protocol,
+			'response_code_type' => $this->response_code_type(),
+			'response_data' => $this->Content,
 		];
 	}
 

@@ -27,7 +27,7 @@ class Database_Exception_SQL extends Database_Exception {
 	 *
 	 * @var string
 	 */
-	public $sql = "";
+	public $sql = '';
 
 	/**
 	 *
@@ -38,7 +38,7 @@ class Database_Exception_SQL extends Database_Exception {
 	 * @param array $arguments
 	 * @param unknown $previous
 	 */
-	public function __construct(Database $db, $sql = "", $message = null, array $arguments = [], $errno = 0, $previous = null) {
+	public function __construct(Database $db, $sql = '', $message = null, array $arguments = [], $errno = 0, $previous = null) {
 		$this->sql = $sql;
 		$this->db = $db;
 
@@ -61,7 +61,7 @@ class Database_Exception_SQL extends Database_Exception {
 	 */
 	public function __toString() {
 		$result = parent::__toString();
-		$result .= "Error Number: " . $this->getCode() . "\n\n";
+		$result .= 'Error Number: ' . $this->getCode() . "\n\n";
 		return $result;
 	}
 

@@ -18,13 +18,13 @@ class Module extends \zesk\Module_JSLib {
 	];
 
 	protected $javascript_paths = [
-		"/share/tag/js/jquery.tag.js" => [
+		'/share/tag/js/jquery.tag.js' => [
 			'share' => true,
 		],
 	];
 
 	protected $css_paths = [
-		"/share/tag/css/tag.css" => [
+		'/share/tag/css/tag.css' => [
 			'share' => true,
 		],
 	];
@@ -44,7 +44,7 @@ class Module extends \zesk\Module_JSLib {
 		$application = $this->application;
 		$labels = $application->orm_registry(Label::class)
 			->query_select()
-			->order_by("X.name")
+			->order_by('X.name')
 			->orm_iterator();
 		$labels = $this->filter_labels($labels);
 		return $labels;
@@ -56,15 +56,15 @@ class Module extends \zesk\Module_JSLib {
 	 * @return mixed|number|array|unknown
 	 */
 	public function filter_labels($items) {
-		$result = $this->call_hook_arguments("filter_labels", [
+		$result = $this->call_hook_arguments('filter_labels', [
 			$items,
 		], $items);
 		if (is_iterable($result)) {
 			return $result;
 		}
-		$this->application->logger->warning("{class}::call_hook_arguments(\"filter_labels\") returned non-iterable {type} - nothing was filtered", [
-			"class" => get_class($this),
-			"type" => type($result),
+		$this->application->logger->warning('{class}::call_hook_arguments("filter_labels") returned non-iterable {type} - nothing was filtered', [
+			'class' => get_class($this),
+			'type' => type($result),
 		]);
 		return $items;
 	}

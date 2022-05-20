@@ -15,32 +15,32 @@ class Control_Image_Toggle extends Control {
 	public function render(): string {
 		$locale = $this->locale();
 		$value = $this->value();
-		$on_value = $this->option("true_value", true);
+		$on_value = $this->option('true_value', true);
 
-		$attrs = $this->options(to_list("width;height;border;hspace;vspace"));
+		$attrs = $this->options(to_list('width;height;border;hspace;vspace'));
 		$response = $this->response();
-		$id = "toggle_image_" . $response->id_counter();
+		$id = 'toggle_image_' . $response->id_counter();
 		$js_object = $this->options([
-			"true_src" => null,
-			"true_alt" => $locale->__("Click here to enable"),
-			"false_src" => null,
-			"false_alt" => $locale->__("Click here to disable"),
-			"notify_url" => null,
-			"true_value" => 'true',
+			'true_src' => null,
+			'true_alt' => $locale->__('Click here to enable'),
+			'false_src' => null,
+			'false_alt' => $locale->__('Click here to disable'),
+			'notify_url' => null,
+			'true_value' => 'true',
 			'false_value' => 'false',
 		]);
-		$prefix = ($value === $on_value) ? "true" : "false";
+		$prefix = ($value === $on_value) ? 'true' : 'false';
 
 		$div_attrs = $this->options([
-			"class" => "ControlToggleImage",
-			"style" => null,
+			'class' => 'ControlToggleImage',
+			'style' => null,
 		]);
 		$div_attrs['id'] = $id;
-		$src = $js_object[$prefix . "_src"] ?? null;
+		$src = $js_object[$prefix . '_src'] ?? null;
 		if (!$src) {
-			return "";
+			return '';
 		}
-		$content = HTML::tag("div", $div_attrs, HTML::img($this->application, $src, $js_object[$prefix . "_alt"] ?? "", $attrs));
+		$content = HTML::tag('div', $div_attrs, HTML::img($this->application, $src, $js_object[$prefix . '_alt'] ?? '', $attrs));
 		$response->html()->jquery('$(\'#' . $id . '\').toggleImage(' . json_encode($js_object) . ');');
 
 		return $content;

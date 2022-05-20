@@ -38,10 +38,10 @@ class Database_Exception_Connect extends Exception {
 			$arguments += Database::url_parse($url);
 			$arguments['database'] = $arguments['name'];
 		} else {
-			$this->url = "nulldb://null/null";
+			$this->url = 'nulldb://null/null';
 		}
-		if (!str_contains($message, "{safe_url}")) {
-			$message .= " ({safe_url})";
+		if (!str_contains($message, '{safe_url}')) {
+			$message .= ' ({safe_url})';
 		}
 		parent::__construct($message, $arguments, $errno);
 	}
@@ -52,7 +52,7 @@ class Database_Exception_Connect extends Exception {
 	 */
 	public function variables(): array {
 		return [
-			"url" => $this->url,
+			'url' => $this->url,
 		] + $this->parts + parent::variables();
 	}
 }

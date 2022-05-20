@@ -14,16 +14,16 @@ use Aws\ElasticLoadBalancing\ElasticLoadBalancingClient as ElasticLoadBalancingC
  */
 class Command_ELB extends Command {
 	protected array $option_types = [
-		"add" => "boolean",
-		"remove" => "boolean",
+		'add' => 'boolean',
+		'remove' => 'boolean',
 	];
 
 	public function run(): void {
 		$instance_id = $this->awareness->instance_id();
 		$__ = [
-			"instance_id" => $instance_id,
+			'instance_id' => $instance_id,
 		];
-		$this->log("Instance ID is {instance_id}", $__);
+		$this->log('Instance ID is {instance_id}', $__);
 
 		$elbc = $this->application->factory(ElasticLoadBalancingClient::class);
 		$load_balancers = $elbc->describeLoadBalancers();

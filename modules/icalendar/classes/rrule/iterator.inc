@@ -292,19 +292,19 @@ class Iterator {
 	 */
 	public function getdayset(int $year, int $month, int $day): array {
 		$methods = [
-			"YEARLY" => fn (): array => $this->_getdayset_YEARLY($year, $month, $day),
-			"MONTHLY" => fn (): array => $this->_getdayset_MONTHLY($year, $month, $day),
-			"WEEKLY" => fn (): array => $this->_getdayset_WEEKLY($year, $month, $day),
-			"DAILY" => fn (): array => $this->_getdayset_DAILY($year, $month, $day),
-			"HOURLY" => fn (): array => $this->_getdayset_HOURLY($year, $month, $day),
-			"MINUTELY" => fn (): array => $this->_getdayset_MINUTELY($year, $month, $day),
-			"SECONDLY" => fn (): array => $this->_getdayset_SECONDLY($year, $month, $day),
+			'YEARLY' => fn (): array => $this->_getdayset_YEARLY($year, $month, $day),
+			'MONTHLY' => fn (): array => $this->_getdayset_MONTHLY($year, $month, $day),
+			'WEEKLY' => fn (): array => $this->_getdayset_WEEKLY($year, $month, $day),
+			'DAILY' => fn (): array => $this->_getdayset_DAILY($year, $month, $day),
+			'HOURLY' => fn (): array => $this->_getdayset_HOURLY($year, $month, $day),
+			'MINUTELY' => fn (): array => $this->_getdayset_MINUTELY($year, $month, $day),
+			'SECONDLY' => fn (): array => $this->_getdayset_SECONDLY($year, $month, $day),
 		];
 		$func = $methods[$this->rrule->frequency] ?? null;
 		if ($func) {
 			return $func();
 		}
-		$method = "_getdayset_" . $this->rrule->frequency;
+		$method = '_getdayset_' . $this->rrule->frequency;
 		return $this->$method($year, $month, $day);
 	}
 
@@ -317,15 +317,15 @@ class Iterator {
 	 */
 	public function gettimeset(int $hour, int $minute, int $second): array {
 		$methods = [
-			"HOURLY" => fn (): array => $this->_gettimeset_HOURLY($hour, $minute, $second),
-			"MINUTELY" => fn (): array => $this->_gettimeset_MINUTELY($hour, $minute, $second),
-			"SECONDLY" => fn (): array => $this->_gettimeset_SECONDLY($hour, $minute, $second),
+			'HOURLY' => fn (): array => $this->_gettimeset_HOURLY($hour, $minute, $second),
+			'MINUTELY' => fn (): array => $this->_gettimeset_MINUTELY($hour, $minute, $second),
+			'SECONDLY' => fn (): array => $this->_gettimeset_SECONDLY($hour, $minute, $second),
 		];
 		$func = $methods[$this->rrule->frequency] ?? null;
 		if ($func) {
 			return $func();
 		}
-		$method = "_gettimeset_" . $this->rrule->frequency;
+		$method = '_gettimeset_' . $this->rrule->frequency;
 		return $this->$method($hour, $minute, $second);
 	}
 
@@ -409,7 +409,7 @@ class Iterator {
 				$tset[] = Time::instance($hour, $minute, $second);
 			}
 		}
-		usort($tset, "zesk\\Time::sort_callback");
+		usort($tset, 'zesk\\Time::sort_callback');
 		return $tset;
 	}
 
@@ -425,7 +425,7 @@ class Iterator {
 		foreach ($rrule->bysecond as $second) {
 			$tset[] = Time::instance($hour, $minute, $second);
 		}
-		usort($tset, "zesk\\Time::sort_callback");
+		usort($tset, 'zesk\\Time::sort_callback');
 		return $tset;
 	}
 

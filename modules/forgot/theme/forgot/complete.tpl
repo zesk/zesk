@@ -19,10 +19,10 @@ namespace zesk;
 /* @var $current_user \zesk\User */
 
 /* @var $token string */
-echo HTML::tag("h1", $locale->__("Password updated"));
-$href = $router->get_route("login", Controller_Login::class);
+echo HTML::tag('h1', $locale->__('Password updated'));
+$href = $router->get_route('login', Controller_Login::class);
 
-echo HTML::tag("p", HTML::wrap($locale->__("Your password has been updated. Please [login] to continue."), HTML::tag("a", [
-	"class" => "forgot-index-link",
-	"href" => $href,
+echo HTML::tag('p', HTML::wrap($locale->__('Your password has been updated. Please [login] to continue.'), HTML::tag('a', [
+	'class' => 'forgot-index-link',
+	'href' => $href,
 ], '[]')));

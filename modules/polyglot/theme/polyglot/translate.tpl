@@ -15,17 +15,17 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
-$can_update_live = $current_user ? $current_user->can("zesk\\Module_PolyGlot::update") : false;
+$can_update_live = $current_user ? $current_user->can('zesk\\Module_PolyGlot::update') : false;
 
 /* @var $response zesk\Response */
 $response = $this->response;
 
 $response->jquery();
-$response->javascript("/share/polyglot/js/polyglot.js", [
-	"share" => true,
+$response->javascript('/share/polyglot/js/polyglot.js', [
+	'share' => true,
 ]);
-$response->css("/share/polyglot/css/polyglot.css", [
-	"share" => true,
+$response->css('/share/polyglot/css/polyglot.css', [
+	'share' => true,
 ]);
 
 $object = new Model($application);
@@ -34,13 +34,13 @@ $defaults = [
 	$locale->id(),
 	$locale->language(),
 ];
-$object->status = $this->request->get("s", PolyGlot_Token::status_todo);
+$object->status = $this->request->get('s', PolyGlot_Token::status_todo);
 
 $locale_options = array_change_key_case(to_array($this->locale_options));
 asort($locale_options, SORT_LOCALE_STRING);
 $widget = $this->widget_factory(Control_Select::class)
 	->response($response)
-	->names("locale", __("Locale"))
+	->names('locale', __('Locale'))
 	->control_options($locale_options)
 	->hide_single(false);
 
@@ -54,9 +54,9 @@ $widget->required(true);
 
 $status = $this->widget_factory(Control_Select::class)
 	->response($response)
-	->names("status", __("Status"))
+	->names('status', __('Status'))
 	->control_options(PolyGlot_Token::lang_status_filters($locale))
-	->noname(__("All"));
+	->noname(__('All'));
 $status->default_value($object->status);
 $widget->required(true);
 ?>
@@ -92,14 +92,14 @@ $widget->required(true);
 					<div id="search-progress" style="display: none"></div>
 					<div id="search-status" style="display: none">
 						<span class="total"></span><?php
-						echo __("total");
+						echo __('total');
 						?></div>
 				</div>
 				<?php
 				if ($can_update_live) {
 					?><button id="translate-save" class="btn btn-warning pull-right"><?php
 
-					echo __("Update Live"); ?></button><?php
+					echo __('Update Live'); ?></button><?php
 				}
 				?></form>
 		</div>
@@ -129,7 +129,7 @@ $widget->required(true);
 			aria-expanded="false" aria-controls="translate-help">Help</a>
 		<div class="collapse clearfix" id="translate-help">
 			<div class="well"><?php
-			echo $this->theme("polyglot/translate-help-header");
+			echo $this->theme('polyglot/translate-help-header');
 			?><h3>Keyboard</h3>
 				<p>Navigate with Ctrl-&rarr;, Ctrl-&larr;, &uarr;, &darr;. When the
 					translator editor is closed, use arrow keys to choose the first or
@@ -177,7 +177,7 @@ $widget->required(true);
 						(contains user content not applicable to all sites, etc.). <strong>CAUTION:
 							Deleting a phrase will remove it from all available translations.</strong></li>
 				</ul><?php
-				echo $this->theme("polyglot/translate-help-footer");
+				echo $this->theme('polyglot/translate-help-footer');
 				?></div>
 		</div>
 	</form>

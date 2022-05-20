@@ -13,8 +13,8 @@ class Control_Duration extends Control_Select {
 
 	public function initialize(): void {
 		$locale = $this->application->locale;
-		$max_duration = $this->optionInt("max_duration_minutes", 12 * 60);
-		$duration_interval = $this->optionInt("duration_interval_minutes", 15);
+		$max_duration = $this->optionInt('max_duration_minutes', 12 * 60);
+		$duration_interval = $this->optionInt('duration_interval_minutes', 15);
 		$options = [];
 		$ts = new TimeSpan();
 		for ($i = $duration_interval; $i <= $max_duration; $i += $duration_interval) {
@@ -36,8 +36,8 @@ class Control_Duration extends Control_Select {
 				$child->setOption('oninit', $update_func);
 			}
 		}
-		$locale->__("Control_Duration:={duration} (ends at {end_time}");
-		$this->theme_variables['data-format'] = $this->option("time_format", $locale->__("Control_Duration::time_format:={12hh}:{mm} {ampm}"));
+		$locale->__('Control_Duration:={duration} (ends at {end_time}');
+		$this->theme_variables['data-format'] = $this->option('time_format', $locale->__('Control_Duration::time_format:={12hh}:{mm} {ampm}'));
 	}
 
 	public function render() {

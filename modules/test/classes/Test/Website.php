@@ -24,14 +24,14 @@ abstract class Test_Website extends Test_Selenium {
 	 * @param unknown $options
 	 */
 	public function __construct($options = null) {
-		$options['browser'] = "*chrome";
-		$options['test_host'] = "192.168.0.113";
+		$options['browser'] = '*chrome';
+		$options['test_host'] = '192.168.0.113';
 		$options['test_port'] = 14444;
 		parent::__construct($options);
 
 		$parts = URL::parse($this->browserUrl);
 
-		$this->url_prefix = rtrim(avalue($parts, 'path', ''), "/");
+		$this->url_prefix = rtrim(avalue($parts, 'path', ''), '/');
 	}
 
 	abstract public function tests();
@@ -47,13 +47,13 @@ abstract class Test_Website extends Test_Selenium {
 	 * @return unknown
 	 */
 	public function test() {
-		echo "Testing site: " . $this->browserUrl . "\n";
+		echo 'Testing site: ' . $this->browserUrl . "\n";
 
 		$this->start();
 
-		$single_test = $this->option("single_test");
-		$begin_test = $this->option("begin_test");
-		$run_default = $this->optionBool("run_default", true);
+		$single_test = $this->option('single_test');
+		$begin_test = $this->option('begin_test');
+		$run_default = $this->optionBool('run_default', true);
 		$tests = [];
 		if ($single_test) {
 			if (!in_array($single_test, $this->tests())) {
@@ -81,7 +81,7 @@ abstract class Test_Website extends Test_Selenium {
 			$tests = $this->tests();
 		}
 		$exception = null;
-		$speed = $this->optionInt("speed");
+		$speed = $this->optionInt('speed');
 		if ($speed) {
 			$this->setSpeed($speed);
 			echo "Setting speed to $speed microseconds between steps.\n";
@@ -102,13 +102,13 @@ abstract class Test_Website extends Test_Selenium {
 		} catch (Exception $e) {
 			$exception = $e;
 		}
-		$sleep_time = $this->optionInt("sleep_before_stop", 0);
+		$sleep_time = $this->optionInt('sleep_before_stop', 0);
 		if ($exception && $sleep_time > 0) {
-			$this->application->logger->error("Error occurred: {message}", [
-				"message" => $exception->getMessage(),
-				"exception" => $exception,
+			$this->application->logger->error('Error occurred: {message}', [
+				'message' => $exception->getMessage(),
+				'exception' => $exception,
 			]);
-			$this->message("Sleeping before stopping ...");
+			$this->message('Sleeping before stopping ...');
 			sleep($sleep_time);
 		}
 		$this->stop();
@@ -120,11 +120,11 @@ abstract class Test_Website extends Test_Selenium {
 	}
 
 	public function open_url($url) {
-		throw new Exception_Unimplemented("TODO");
+		throw new Exception_Unimplemented('TODO');
 		return parent::open($this->url_prefix . $url);
 	}
 
-	public function waitForPageToLoad($timeout = "30000", $reverse_test = false): void {
+	public function waitForPageToLoad($timeout = '30000', $reverse_test = false): void {
 		parent::waitForPageToLoad($timeout);
 
 		if ($reverse_test) {
@@ -146,7 +146,7 @@ abstract class Test_Website extends Test_Selenium {
 	public function validate_method_default() {
 		$content = $this->getBodyText();
 		$visited_link = $this->getLocation();
-		if (str_contains($content, "PHP-ERROR")) {
+		if (str_contains($content, 'PHP-ERROR')) {
 			$error = "#### ERROR: PHP Error or Warning found: $visited_link";
 			echo "$error\n";
 			echo "CONTENT:\n";
@@ -157,7 +157,7 @@ abstract class Test_Website extends Test_Selenium {
 		return true;
 	}
 
-	protected function click_all_linkable_pages($start_page = "/", $skip_links = null, $validate_method = "validate_method_default", $logprefix = "#"): void {
+	protected function click_all_linkable_pages($start_page = '/', $skip_links = null, $validate_method = 'validate_method_default', $logprefix = '#'): void {
 		$this->application->logger->error("$logprefix _click_all_linkable_pages START");
 		if (!is_array($skip_links)) {
 			$skip_links = [];
@@ -186,35 +186,35 @@ abstract class Test_Website extends Test_Selenium {
 			// echo "$logprefix FILES key doesn't exist $visited_link_norm\n";
 			// }
 			$html_source = $this->getHtmlSource();
-			$aa = HTML::extract_tags("a", $html_source, false);
+			$aa = HTML::extract_tags('a', $html_source, false);
 			if (is_array($aa)) {
 				foreach ($aa as $tag) {
-					$href = $tag->option("href");
+					$href = $tag->option('href');
 					if ($href === null) {
 						continue;
 					}
-					if (begins($href, "javascript:")) {
+					if (begins($href, 'javascript:')) {
 						// echo "$logprefix skipping $href\n";
-					} elseif (begins($href, "http")) {
-						$href = StringTools::left($href, "?");
+					} elseif (begins($href, 'http')) {
+						$href = StringTools::left($href, '?');
 						$external_links[$href] = $href;
 					// echo "$logprefix skipping external link $href\n";
-					} elseif (ends($href, ".zip")) {
+					} elseif (ends($href, '.zip')) {
 						$download_links[$href] = $href;
 					// echo "$logprefix skipping download link $href\n";
 					} else {
-						$href_norm = StringTools::left(StringTools::left($href, "?"), "#");
+						$href_norm = StringTools::left(StringTools::left($href, '?'), '#');
 						if (empty($href_norm)) {
 							// echo "$logprefix BLANK LINK: $href\n";
 							continue;
 						}
 						if ($href_norm[0] !== '/') {
-							if (begins($href_norm, "mailto:")) {
+							if (begins($href_norm, 'mailto:')) {
 								$mailto_links[$href_norm] = $href_norm;
 
 								continue;
 							}
-							$cur_path = StringTools::ends($visited_link_norm, "/") ? $visited_link_norm : dirname($visited_link_norm);
+							$cur_path = StringTools::ends($visited_link_norm, '/') ? $visited_link_norm : dirname($visited_link_norm);
 							// echo "$logprefix visited_link_norm is $cur_path\n";
 							// echo "$logprefix $href_norm becomes dirname(" . $cur_path . ") => ";
 							$href_norm = path($cur_path, $href_norm);
@@ -251,16 +251,16 @@ abstract class Test_Website extends Test_Selenium {
 		} while (count($links) > 0);
 		$locale = $this->application->locale;
 		if (count($external_links) > 0) {
-			echo $locale->plural_word("External Link", count($external_links)) . ":\n\t" . implode("\n\t", $external_links) . "\n";
+			echo $locale->plural_word('External Link', count($external_links)) . ":\n\t" . implode("\n\t", $external_links) . "\n";
 		}
 		if (count($download_links) > 0) {
-			echo $locale->plural_word("Download Link", count($download_links)) . ":\n\t" . implode("\n\t", $download_links) . "\n";
+			echo $locale->plural_word('Download Link', count($download_links)) . ":\n\t" . implode("\n\t", $download_links) . "\n";
 		}
 		if (count($mailto_links) > 0) {
-			echo $locale->plural_word("Mail Link", count($mailto_links)) . ":\n\t" . implode("\n\t", $mailto_links) . "\n";
+			echo $locale->plural_word('Mail Link', count($mailto_links)) . ":\n\t" . implode("\n\t", $mailto_links) . "\n";
 		}
 		if (count($errors) > 0) {
-			echo $locale->plural_word("Error", count($errors)) . ":\n\t" . implode("\n\t", $errors) . "\n";
+			echo $locale->plural_word('Error', count($errors)) . ":\n\t" . implode("\n\t", $errors) . "\n";
 			$this->assert(false);
 		}
 		$this->application->logger->error("$logprefix _click_all_linkable_pages DONE");
@@ -288,19 +288,19 @@ abstract class Test_Website extends Test_Selenium {
 
 		$links = [];
 
-		$files = ArrayTools::prefix($files, "/");
+		$files = ArrayTools::prefix($files, '/');
 		$files = array_flip($files);
 		$files_names = array_keys($files);
 		foreach ($files_names as $k) {
-			if (StringTools::ends($k, "/index.php")) {
-				$k = substr($k, 0, -strlen("index.php"));
+			if (StringTools::ends($k, '/index.php')) {
+				$k = substr($k, 0, -strlen('index.php'));
 			}
 			$files[$k] = false;
 		}
 		$handled_links = [];
 		$download_links = [];
 		$external_links = [];
-		$logprefix = "######";
+		$logprefix = '######';
 		$errors = [];
 		do {
 			$visited_link = $this->getLocation();
@@ -318,34 +318,34 @@ abstract class Test_Website extends Test_Selenium {
 				$files[$visited_link_norm] = true;
 			}
 			$html_source = $this->getHtmlSource();
-			$aa = HTML::extract_tags("a", $html_source, false);
+			$aa = HTML::extract_tags('a', $html_source, false);
 			if (is_array($aa)) {
 				foreach ($aa as $tag) {
-					$href = $tag->option("href");
+					$href = $tag->option('href');
 					if ($href === null) {
 						continue;
 					}
-					if (begins($href, "javascript:")) {
+					if (begins($href, 'javascript:')) {
 						echo "$logprefix skipping $href\n";
-					} elseif (begins($href, "http")) {
+					} elseif (begins($href, 'http')) {
 						$external_links[$href] = $href;
 						echo "$logprefix skipping external link $href\n";
-					} elseif (ends($href, ".zip")) {
+					} elseif (ends($href, '.zip')) {
 						$download_links[$href] = $href;
 						echo "$logprefix skipping download link $href\n";
 					} else {
-						$href_norm = StringTools::left(StringTools::left($href, "?"), "#");
+						$href_norm = StringTools::left(StringTools::left($href, '?'), '#');
 						if (empty($href_norm)) {
 							// echo "$logprefix BLANK LINK: $href\n";
 							continue;
 						}
 						if ($href_norm[0] !== '/') {
-							if (begins($href_norm, "mailto:")) {
+							if (begins($href_norm, 'mailto:')) {
 								echo "$logprefix MAILTO link: $href_norm\n";
 
 								continue;
 							}
-							$cur_path = StringTools::ends($visited_link_norm, "/") ? $visited_link_norm : dirname($visited_link_norm);
+							$cur_path = StringTools::ends($visited_link_norm, '/') ? $visited_link_norm : dirname($visited_link_norm);
 							// echo "$logprefix visited_link_norm is $cur_path\n";
 							// echo "$logprefix $href_norm becomes dirname(" . $cur_path . ") => ";
 							$href_norm = path($cur_path, $href_norm);
@@ -383,7 +383,7 @@ abstract class Test_Website extends Test_Selenium {
 		} while (count($links) > 0);
 
 		if (!is_array($exclude_files)) {
-			$this->message("\$exclude_files is not an array");
+			$this->message('$exclude_files is not an array');
 			$exclude_files = [];
 		}
 		foreach ($files as $f => $visited) {

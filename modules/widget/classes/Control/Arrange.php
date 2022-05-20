@@ -17,8 +17,8 @@ class Control_Arrange extends Control_Select {
 	private $arrange_options_dirty = true;
 
 	protected function initialize(): void {
-		$this->setOption("skip_query_condition", true);
-		$this->setOption("query_column", []);
+		$this->setOption('skip_query_condition', true);
+		$this->setOption('query_column', []);
 		$this->_clean();
 		parent::initialize();
 	}
@@ -125,7 +125,7 @@ class Control_Arrange extends Control_Select {
 				$new_key = preg_replace('/-+/', '-', trim(preg_replace('/[^a-z]/', '-', strtolower($key)), '-'));
 				$order_by = $key;
 			} elseif ($what !== null) {
-				$this->what["*$what"] = StringTools::unsuffix(StringTools::unsuffix($order_by, " ASC", true), " DESC", true);
+				$this->what["*$what"] = StringTools::unsuffix(StringTools::unsuffix($order_by, ' ASC', true), ' DESC', true);
 				$order_by = $what;
 			}
 			$options[$new_key] = $value;

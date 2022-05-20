@@ -25,18 +25,18 @@ $hook_parameters = [
 ];
 $application->hooks->call_arguments('response_html_start', $hook_parameters);
 {
-	$application->modules->all_hook_arguments("headers", $hook_parameters);
+	$application->modules->all_hook_arguments('headers', $hook_parameters);
 	$application->call_hook_arguments('headers', $hook_parameters);
 
-	$application->modules->all_hook_arguments("html", $hook_parameters);
-	echo $this->theme("response/html/head/doctype");
-	$application->hooks->call_arguments("<html>", $hook_parameters);
+	$application->modules->all_hook_arguments('html', $hook_parameters);
+	echo $this->theme('response/html/head/doctype');
+	$application->hooks->call_arguments('<html>', $hook_parameters);
 	echo HTML::tag_open('html', $response->html_attributes());
 	{
 		echo $this->theme('response/html/head', [
-			"hook_parameters" => $hook_parameters,
+			'hook_parameters' => $hook_parameters,
 		]);
-		echo HTML::tag_open("body", $response->body_attributes());
+		echo HTML::tag_open('body', $response->body_attributes());
 		{
 			echo $application->hooks->call_arguments('<body>', $hook_parameters, '');
 			foreach ([
@@ -49,14 +49,14 @@ $application->hooks->call_arguments('response_html_start', $hook_parameters);
 					break;
 				}
 			}
-			echo $this->theme("response/html/scripts");
-			echo $application->hooks->call_arguments('</body>', $hook_parameters, "");
+			echo $this->theme('response/html/scripts');
+			echo $application->hooks->call_arguments('</body>', $hook_parameters, '');
 		}
 		$application->modules->all_hook_arguments('foot', $hook_parameters);
 
-		echo "\n" . HTML::tag_close("body");
+		echo "\n" . HTML::tag_close('body');
 	}
-	echo $application->hooks->call_arguments('</html>', $hook_parameters, "");
+	echo $application->hooks->call_arguments('</html>', $hook_parameters, '');
 	echo "\n" . HTML::tag_close('html');
 }
 $application->hooks->call_arguments('response_html_end', $hook_parameters);

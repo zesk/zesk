@@ -21,12 +21,12 @@ namespace zesk;
 <h1>Something went wrong</h1>
 <?php
 
-echo HTML::tag("p", $this->message);
+echo HTML::tag('p', $this->message);
 
-$href = $router->get_route("index", Controller_Forgot::class);
+$href = $router->get_route('index', Controller_Forgot::class);
 if ($href) {
-	echo HTML::tag("p", HTML::tag("a", [
-		"class" => "forgot-index-link",
-		"href" => $href,
-	], $locale->__("Try again")));
+	echo HTML::tag('p', HTML::tag('a', [
+		'class' => 'forgot-index-link',
+		'href' => $href,
+	], $locale->__('Try again')));
 }

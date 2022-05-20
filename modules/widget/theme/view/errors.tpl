@@ -32,15 +32,15 @@ if (count($errors) === 0) {
 	return;
 }
 
-if (avalue($errors, "continue", false)) {
-	unset($errors["continue"]);
+if (avalue($errors, 'continue', false)) {
+	unset($errors['continue']);
 	$label = $this->get('continue_label', '');
-	$class = $this->get('continue_class', "continue");
+	$class = $this->get('continue_class', 'continue');
 } else {
-	$label = $this->get('label', __("Please fix the following:"));
+	$label = $this->get('label', __('Please fix the following:'));
 	$class = 'danger';
 }
 
-echo HTML::etag("div", [
+echo HTML::etag('div', [
 	'class' => CSS::add_class("alert alert-$class"),
-], HTML::tags("p", $errors));
+], HTML::tags('p', $errors));

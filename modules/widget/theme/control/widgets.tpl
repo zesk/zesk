@@ -11,7 +11,7 @@ use zesk\ArrayTools;
  *
  */
 $results = [];
-$hidden = "";
+$hidden = '';
 foreach ($this->children as $child) {
 	$child = clone $child;
 	/* @var $child Widget */
@@ -33,7 +33,7 @@ foreach ($this->children as $child) {
 		'for' => $child->id(),
 	], $child->label());
 	if ($child->optionBool('nolabel', $this->nolabel)) {
-		$label = "";
+		$label = '';
 	}
 	$widget_tag = $child->option('widget_tag', $this->get('widget_tag', 'div'));
 	$widget_attributes = HTML::add_class(to_array($this->widget_attributes), $child->context_class());

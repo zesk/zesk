@@ -29,18 +29,18 @@ if (!$this->object) {
 }
 if ($is_empty) {
 	$result = $this->empty_string;
-	echo empty($result) ? __("View_Date:=Never.") : $result;
+	echo empty($result) ? __('View_Date:=Never.') : $result;
 	return true;
 }
 
 $format = $this->format;
 if (!$format) {
-	$format = "{MM}/{DD}/{YYYY} {hh}:{mm}";
+	$format = '{MM}/{DD}/{YYYY} {hh}:{mm}';
 }
 
 /* @var $timestamp Timestamp */
 $map = [];
-$map["delta"] = $locale->now_string($timestamp, $this->get('relative_min_unit', 'second'), $this->zero_string);
+$map['delta'] = $locale->now_string($timestamp, $this->get('relative_min_unit', 'second'), $this->zero_string);
 $format = map($format, $map);
 
 $result = $timestamp->format($locale, $format);

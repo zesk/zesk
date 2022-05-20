@@ -81,6 +81,6 @@ class Edit {
 	 * @return string
 	 */
 	public function __toString() {
-		return PHP::dump($this->op) . ", " . $this->off . ", " . $this->len . ', ' . PHP::dump($this->data);
+		return PHP::dump($this->op) . ', ' . $this->off . ', ' . $this->len . ', ' . PHP::dump($this->data);
 	}
 }

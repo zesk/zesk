@@ -36,7 +36,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @var string
 	 */
-	protected string $parent_member = "";
+	protected string $parent_member = '';
 
 	/**
 	 * Current object
@@ -73,8 +73,8 @@ class ORMIterator extends Database_Result_Iterator {
 	 * @param string $member
 	 * @return \zesk\ORM_Iterator
 	 */
-	public function set_parent(ORM $parent, string $member = "") : self {
-		$this->db->application->deprecated("set_parent");
+	public function set_parent(ORM $parent, string $member = '') : self {
+		$this->db->application->deprecated('set_parent');
 		return $this->setParent($parent, $member);
 	}
 
@@ -84,7 +84,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 * @param string $member
 	 * @return \zesk\ORM_Iterator
 	 */
-	public function setParent(ORM $parent, string $member = ""): self {
+	public function setParent(ORM $parent, string $member = ''): self {
 		$this->parent = $parent;
 		$this->parent_member = $member;
 		return $this;
@@ -124,7 +124,7 @@ class ORMIterator extends Database_Result_Iterator {
 			if ($check_id === $this->parent->id()) {
 				$this->object->__set($this->parent_member, $this->parent);
 			} else {
-				$object->application->logger->error("ORM iterator for {class}, mismatched parent member {member} #{id} (expecting #{expect_id})", [
+				$object->application->logger->error('ORM iterator for {class}, mismatched parent member {member} #{id} (expecting #{expect_id})', [
 					'class' => $this->class,
 					'member' => $this->parent_member,
 					'id' => $check_id,

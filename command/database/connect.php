@@ -59,14 +59,14 @@ class Command_Database_Connect extends Command_Base {
 	 * @return integer
 	 */
 	public function run() {
-		if ($this->optionBool("db-name") || $this->optionBool('db-url')) {
+		if ($this->optionBool('db-name') || $this->optionBool('db-url')) {
 			return $this->handle_info();
 		}
-		if ($this->optionBool("test")) {
+		if ($this->optionBool('test')) {
 			return $this->handle_test();
 		}
 
-		if ($this->optionBool("grant")) {
+		if ($this->optionBool('grant')) {
 			return $this->handle_grants();
 		}
 
@@ -75,14 +75,14 @@ class Command_Database_Connect extends Command_Base {
 		[$command, $args] = $db->shell_command();
 
 		if ($this->optionBool('debug-connect')) {
-			echo "$command " . implode(" ", $args) . "\n";
+			echo "$command " . implode(' ', $args) . "\n";
 		}
 		$full_command_path = is_file($command) ? $command : $this->application->paths->which($command);
 		if (!$full_command_path) {
-			die("Unable to find shell $command in system path:" . implode(", ", $this->application->paths->command()) . "\n");
+			die("Unable to find shell $command in system path:" . implode(', ', $this->application->paths->command()) . "\n");
 		}
 		if ($this->optionBool('echo')) {
-			echo $full_command_path . implode("", ArrayTools::prefix($args, " ")) . "\n";
+			echo $full_command_path . implode('', ArrayTools::prefix($args, ' ')) . "\n";
 		} else {
 			PHP::requires('pcntl', true);
 			$method = 'pcntl_exec';
@@ -98,14 +98,14 @@ class Command_Database_Connect extends Command_Base {
 	private function handle_info() {
 		$name = $this->option('name');
 		$db = $this->application->database_module()->register();
-		if (!$this->optionBool("show-passwords")) {
+		if (!$this->optionBool('show-passwords')) {
 			foreach ($db as $key => $url) {
 				$db[$key] = URL::remove_password($url);
 			}
 		}
-		if ($this->optionBool("db-name")) {
+		if ($this->optionBool('db-name')) {
 			foreach ($db as $key => $url) {
-				$db[$key] = Database::url_parse($url, "name");
+				$db[$key] = Database::url_parse($url, 'name');
 			}
 		}
 		if ($name) {
@@ -113,7 +113,7 @@ class Command_Database_Connect extends Command_Base {
 				echo $db[$name] . "\n";
 				return 0;
 			} else {
-				$this->error("{name} not found", compact("name"));
+				$this->error('{name} not found', compact('name'));
 				return -1;
 			}
 		}
@@ -148,16 +148,16 @@ class Command_Database_Connect extends Command_Base {
 		$result = [];
 		foreach ($db as $name => $url) {
 			$object = $dbmodule->database_registry($name, [
-				"connect" => false,
+				'connect' => false,
 			]);
 			/* @var $object \zesk\Database */
 			try {
 				$grant_statements = $object->sql()->grant([
-					"user" => $object->url('user'),
-					"pass" => $object->url('pass'),
-					"name" => $object->url('name'),
-					"from_host" => $this->option("host"),
-					"tables" => Database_SQL::SQL_GRANT_ALL,
+					'user' => $object->url('user'),
+					'pass' => $object->url('pass'),
+					'name' => $object->url('name'),
+					'from_host' => $this->option('host'),
+					'tables' => Database_SQL::SQL_GRANT_ALL,
 				]);
 			} catch (Exception_Parameter $e) {
 				$grant_statements = null;

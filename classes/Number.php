@@ -51,25 +51,25 @@ class Number {
 	 */
 	public static function format_bytes(Locale $locale, $n, $precision = 1) {
 		if ($n >= 1099511627776) {
-			return $locale("Number::format_bytes:={0} TB", [
+			return $locale('Number::format_bytes:={0} TB', [
 				round(($n / self::$magnitudes['T']), $precision),
 			]);
 		} elseif ($n >= 1073741824) {
-			return $locale("Number::format_bytes:={0} GB", [
+			return $locale('Number::format_bytes:={0} GB', [
 				round(($n / self::$magnitudes['G']), $precision),
 			]);
 		} elseif ($n >= 1048576) {
-			return $locale("Number::format_bytes:={0} MB", [
+			return $locale('Number::format_bytes:={0} MB', [
 				round(($n / self::$magnitudes['M']), $precision),
 			]);
 		} elseif ($n >= 1024) {
-			return $locale("Number::format_bytes:={0} KB", [
+			return $locale('Number::format_bytes:={0} KB', [
 				round($n / self::$magnitudes['K'], $precision),
 			]);
 		} else {
-			return $locale("Number::format_bytes:={0} {1}", [
+			return $locale('Number::format_bytes:={0} {1}', [
 				intval($n),
-				$locale->plural($locale("byte"), intval($n)),
+				$locale->plural($locale('byte'), intval($n)),
 			]);
 		}
 	}

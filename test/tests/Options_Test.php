@@ -60,13 +60,13 @@ class Options_Test extends Test_Unit {
 
 	public function test_options_path_simple(): void {
 		$opts = new Options();
-		$opts->setOptionPath("a.b.c.d", "1");
-		$opts->setOptionPath("a.b.c.e", 1);
+		$opts->setOptionPath('a.b.c.d', '1');
+		$opts->setOptionPath('a.b.c.e', 1);
 		$this->assert_arrays_equal($opts->options(), [
 			'a' => [
 				'b' => [
 					'c' => [
-						'd' => "1",
+						'd' => '1',
 						'e' => 1,
 					],
 				],
@@ -78,15 +78,15 @@ class Options_Test extends Test_Unit {
 		$opts = new Options();
 
 		$paths = [
-			"a.a.a",
-			"a.a.b",
-			"a.b.c",
-			"a.b.d",
-			"a.b.e",
-			"a.b.f",
-			"a.c.a",
-			"b.c.a",
-			"d.c.a",
+			'a.a.a',
+			'a.a.b',
+			'a.b.c',
+			'a.b.d',
+			'a.b.e',
+			'a.b.f',
+			'a.c.a',
+			'b.c.a',
+			'd.c.a',
 		];
 		foreach ($paths as $path) {
 			$opts->setOptionPath($path, $path);
@@ -122,6 +122,6 @@ class Options_Test extends Test_Unit {
 			$this->assert_equal($opts->option_path($path), $path);
 		}
 
-		$this->assert_null($opts->option_path("a.a.c", null));
+		$this->assert_null($opts->option_path('a.a.c', null));
 	}
 }

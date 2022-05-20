@@ -10,4 +10,4 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
-echo $locale->__("Edit");
+echo $locale->__('Edit');

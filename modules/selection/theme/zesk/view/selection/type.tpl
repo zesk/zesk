@@ -21,15 +21,15 @@ $first_key = first($keys);
 $last_key = last($keys);
 $lines = [];
 foreach ($tags as $key => $line) {
-	$class = $key === $first_key ? ".first" : "";
-	$class = $key === $last_key ? ".last" : "";
+	$class = $key === $first_key ? '.first' : '';
+	$class = $key === $last_key ? '.last' : '';
 	$lines[] = HTML::tag('li', $class, $line);
 }
 echo HTML::tag('ul', '.selection-type', implode("\n", $lines));
 
 if ($this->show_editor) {
 	$href = URL::query_format('/selection/' . $value->id . '/list', [
-		"ref" => $request->uri(),
+		'ref' => $request->uri(),
 	]);
 	echo HTML::tag('a', [
 		'class' => 'btn btn-default',

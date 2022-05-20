@@ -16,13 +16,13 @@ class Module_Critical extends Module {
 	 *
 	 * @var string
 	 */
-	public const setting_critical_alerts = "critical_alerts";
+	public const setting_critical_alerts = 'critical_alerts';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const setting_email = "email";
+	public const setting_email = 'email';
 
 	/**
 	 *
@@ -43,7 +43,7 @@ class Module_Critical extends Module {
 	 * @see Module::initialize()
 	 */
 	public function initialize(): void {
-		$emails = $this->option_list(self::setting_email, [], ",");
+		$emails = $this->option_list(self::setting_email, [], ',');
 		$bad_emails = [];
 		foreach ($emails as $email) {
 			$email = trim($email);
@@ -53,12 +53,12 @@ class Module_Critical extends Module {
 				$bad_emails[] = $email;
 			}
 		}
-		$global_name = __CLASS__ . "::" . self::setting_email;
+		$global_name = __CLASS__ . '::' . self::setting_email;
 		if (count($this->emails) === 0) {
 			throw new Exception_Configuration($global_name, "No emails configured in $global_name");
 		}
 		if (count($bad_emails) > 0) {
-			$this->alert("$global_name invalid email address: " . implode(",", $bad_emails));
+			$this->alert("$global_name invalid email address: " . implode(',', $bad_emails));
 		}
 	}
 
@@ -98,25 +98,25 @@ class Module_Critical extends Module {
 	 */
 	public function alert($sms_message, $frequency = 3600) {
 		if (!is_numeric($frequency)) {
-			throw new Exception_Parameter("Parameter 2 to {method} should be integer value {value} is of type {type}", [
-				"method" => __METHOD__,
-				"value" => to_text($frequency),
-				"type" => type($frequency),
+			throw new Exception_Parameter('Parameter 2 to {method} should be integer value {value} is of type {type}', [
+				'method' => __METHOD__,
+				'value' => to_text($frequency),
+				'type' => type($frequency),
 			]);
 		}
 		$map = [
-			"when" => date('Y-m-d H:i:s'),
+			'when' => date('Y-m-d H:i:s'),
 		];
 
 		try {
-			$map["server"] = Server::singleton($this->application)->name;
+			$map['server'] = Server::singleton($this->application)->name;
 		} catch (Exception $e) {
 		}
 		$lock = Lock::instance($this->application, __METHOD__);
 		if ($lock->acquire(self::lock_timeout) === null) {
-			$this->application->logger->error("Unable to lock {method}: Message not sent {sms_message}", [
-				"sms_message" => $sms_message,
-				"method" => __METHOD__,
+			$this->application->logger->error('Unable to lock {method}: Message not sent {sms_message}', [
+				'sms_message' => $sms_message,
+				'method' => __METHOD__,
 			]);
 			return null;
 		}
@@ -151,8 +151,8 @@ class Module_Critical extends Module {
 
 		$lock = Lock::instance($this->application, __METHOD__);
 		if ($lock->acquire(self::lock_timeout) === null) {
-			$logger->error("Unable to lock {method}: can not send alerts", [
-				"method" => __METHOD__,
+			$logger->error('Unable to lock {method}: can not send alerts', [
+				'method' => __METHOD__,
 			]);
 			return null;
 		}
@@ -164,43 +164,43 @@ class Module_Critical extends Module {
 			extract($alert, EXTR_IF_EXISTS);
 			if (!is_numeric($first) || !is_numeric($frequency)) {
 				$logger->error("Alert is improperly formatted:\nPHP: {raw}\nJSON: {json}", [
-					"raw" => serialize($alert),
-					"json" => json_encode($alert),
+					'raw' => serialize($alert),
+					'json' => json_encode($alert),
 				]);
 				unset($alerts[$alert_id]);
 
 				continue;
 			}
 			if ($now > $first + $frequency) {
-				$sends[] = $message . ($count > 1 ? " (${count}x)" : "");
-				$logger->error("Sending critical alert {message} {alert}", [
-					"message" => $message,
-					"alert" => $alert,
+				$sends[] = $message . ($count > 1 ? " (${count}x)" : '');
+				$logger->error('Sending critical alert {message} {alert}', [
+					'message' => $message,
+					'alert' => $alert,
 				]);
 				unset($alerts[$alert_id]);
 			} else {
-				$unit = "second";
+				$unit = 'second';
 				$remain = $first + $frequency - $now;
 				if ($remain > 120) {
-					$unit = "minute";
+					$unit = 'minute';
 					$remain = round($remain / 60);
 					if ($remain > 120) {
-						$unit = "hour";
+						$unit = 'hour';
 						$remain = round($remain / 60);
 					}
 				}
-				$logger->notice("Will send alert {message} in {remain} {units}", [
-					"message" => $message,
-					"remain" => $remain,
-					"units" => $this->application->locale->plural($unit, $remain),
+				$logger->notice('Will send alert {message} in {remain} {units}', [
+					'message' => $message,
+					'remain' => $remain,
+					'units' => $this->application->locale->plural($unit, $remain),
 				]);
 			}
 		}
 		if (count($sends) > 0) {
 			$this->_store_alerts($alerts);
-			$emails = $this->option_list('email', [], ",");
+			$emails = $this->option_list('email', [], ',');
 			foreach ($emails as $email) {
-				Mail::sendmail($this->application, $email, $this->option("from"), $this->option("subject"), implode("\n", $sends), false, false, false, [
+				Mail::sendmail($this->application, $email, $this->option('from'), $this->option('subject'), implode("\n", $sends), false, false, false, [
 					'no_force_to' => true,
 				]);
 			}

@@ -22,6 +22,6 @@ class Module_Picker extends Module_JSLib {
 	];
 
 	public function hook_cron(): void {
-		$this->application->locale->__("No matches found for search &ldquo;{q}&rdquo;.");
+		$this->application->locale->__('No matches found for search &ldquo;{q}&rdquo;.');
 	}
 }

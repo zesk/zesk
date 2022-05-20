@@ -18,34 +18,34 @@ $person = $contact->Person;
 
 $sections = [
 	'email' => [
-		'head_label' => "Email",
-		'object_class' => "Contact_Email",
+		'head_label' => 'Email',
+		'object_class' => 'Contact_Email',
 	],
 	'phone' => [
-		'head_label' => "Phone",
-		'object_class' => "Contact_Phone",
+		'head_label' => 'Phone',
+		'object_class' => 'Contact_Phone',
 	],
 	'address' => [
-		'head_label' => "Address",
-		'object_class' => "Contact_Address",
+		'head_label' => 'Address',
+		'object_class' => 'Contact_Address',
 	],
 	'url' => [
-		'head_label' => "Web sites",
-		'object_class' => "Contact_URL",
+		'head_label' => 'Web sites',
+		'object_class' => 'Contact_URL',
 	],
 	'dates' => [
-		'head_label' => "Dates",
-		'object_class' => "Contact_Date",
+		'head_label' => 'Dates',
+		'object_class' => 'Contact_Date',
 	],
 ];
 if ($this->get('show_other', true)) {
 	$sections['other'] = [
-		'head_label' => "Other",
-		'object_class' => "Contact_Other",
+		'head_label' => 'Other',
+		'object_class' => 'Contact_Other',
 	];
 }
 
-$this->response->jquery("contact_view_load()");
+$this->response->jquery('contact_view_load()');
 
 /* @var $this zesk\Template */
 /* @var $person Person */
@@ -55,7 +55,7 @@ $show_links = $this->get('show_links', true);
 ?>
 <div id="contact-<?php echo $id?>" class="contact-view">
 	<?php
-	if ($show_links && $user->can($contact, "edit")) {
+	if ($show_links && $user->can($contact, 'edit')) {
 		?>
 		<?php
 		if ($user->member_is_empty('Contact')) {
@@ -86,13 +86,13 @@ $show_links = $this->get('show_links', true);
 	</div>
 <?php
 
-$label_table = ORM::class_table_name("Contact_Label");
+$label_table = ORM::class_table_name('Contact_Label');
 foreach ($sections as $section => $variables) {
 	$object_class = $head_label = null;
 	extract($variables, EXTR_IF_EXISTS);
 	$values = [];
-	$query = ORM::class_query($object_class)->link("Contact_Label", [
-		"alias" => "L",
+	$query = ORM::class_query($object_class)->link('Contact_Label', [
+		'alias' => 'L',
 	])->what('label_name', 'L.name')->where('contact', $id);
 	$values = $query->to_array();
 	if (count($values) > 0) {

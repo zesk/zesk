@@ -99,7 +99,7 @@ class Control_Optionss extends Control {
 		if (empty($show_size) || $show_size < 0) {
 			return $options;
 		}
-		$ellipsis = $this->option("ellipsis", "...");
+		$ellipsis = $this->option('ellipsis', '...');
 		$new_options = [];
 		foreach ($options as $k => $v) {
 			if (is_array($v)) {
@@ -176,7 +176,7 @@ class Control_Optionss extends Control {
 	public function control_options(array $set = null) {
 		if (is_array($set)) {
 			$this->control_options = $set;
-			$this->call_hook("control_options_changed");
+			$this->call_hook('control_options_changed');
 			return $this;
 		}
 		return $this->control_options;

@@ -107,7 +107,7 @@ class IPv4 {
 	 */
 	public static function subnet_mask($ip_bits) {
 		$ip_bits = clamp(0, $ip_bits, self::BITS);
-		return bindec(str_repeat("1", $ip_bits) . str_repeat("0", self::BITS - $ip_bits));
+		return bindec(str_repeat('1', $ip_bits) . str_repeat('0', self::BITS - $ip_bits));
 	}
 
 	/**
@@ -119,7 +119,7 @@ class IPv4 {
 	 */
 	public static function subnet_mask_not($ip_bits) {
 		$ip_bits = clamp(0, $ip_bits, self::BITS);
-		return bindec(str_repeat("1", self::BITS - $ip_bits));
+		return bindec(str_repeat('1', self::BITS - $ip_bits));
 	}
 
 	/**
@@ -144,16 +144,16 @@ class IPv4 {
 	 * @return boolean
 	 */
 	public static function is_mask(string $string): bool {
-		[$ip, $bits] = pair($string, "/", $string, strval(self::BITS));
+		[$ip, $bits] = pair($string, '/', $string, strval(self::BITS));
 		if (integer_between(8, $bits, self::BITS) && self::_valid($ip)) {
 			return true;
 		}
-		$x = explode(".", $string);
+		$x = explode('.', $string);
 		if (count($x) > 4) {
 			return false;
 		}
 		$last = array_pop($x);
-		if ($last !== "*" && !integer_between(0, $last, 255)) {
+		if ($last !== '*' && !integer_between(0, $last, 255)) {
 			return false;
 		}
 		foreach ($x as $ipi) {
@@ -177,12 +177,12 @@ class IPv4 {
 				false,
 			];
 		}
-		[$ip, $bits] = pair($string, "/", $string, strval(self::BITS));
+		[$ip, $bits] = pair($string, '/', $string, strval(self::BITS));
 
 		if (is_numeric($bits) && self::_valid($ip)) {
 			$bits = clamp(8, intval($bits), self::BITS);
 		} else {
-			$x = explode(".", $string);
+			$x = explode('.', $string);
 			$last = array_pop($x);
 			if (integer_between(0, $last, 255)) {
 				$x[] = intval($last);
@@ -192,7 +192,7 @@ class IPv4 {
 				$x[] = 0;
 			}
 			assert('count($x) === 4');
-			$ip = implode(".", $x);
+			$ip = implode('.', $x);
 			$bits = $n * 8;
 		}
 		return [
@@ -221,7 +221,7 @@ class IPv4 {
 		}
 		if ($star_notation) {
 			if ($ip_bits === 24 || $ip_bits === 16 || $ip_bits === 8) {
-				return implode(".", array_slice(explode(".", self::from_integer($ip)), 0, ($ip_bits / 8))) . ".*";
+				return implode('.', array_slice(explode('.', self::from_integer($ip)), 0, ($ip_bits / 8))) . '.*';
 			}
 		}
 		return self::from_integer(self::subnet_bits($ip, $ip_bits)) . "/$ip_bits";
@@ -285,7 +285,7 @@ class IPv4 {
 		if (empty($mixed)) {
 			return 0;
 		}
-		[$a, $b, $c, $d] = explode(".", $mixed, 4) + array_fill(0, 4, 0);
+		[$a, $b, $c, $d] = explode('.', $mixed, 4) + array_fill(0, 4, 0);
 		return ((((floatval($a) * 256) + floatval($b)) * 256 + floatval($c)) * 256 + floatval($d));
 	}
 
@@ -326,7 +326,7 @@ class IPv4 {
 	 * @return boolean
 	 */
 	private static function _valid(string $string, int $low_low = 0): bool {
-		$x = explode(".", $string);
+		$x = explode('.', $string);
 		if (count($x) != 4) {
 			return false;
 		}

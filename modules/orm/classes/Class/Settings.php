@@ -7,7 +7,7 @@ namespace zesk;
  *
  */
 class Class_Settings extends Class_ORM {
-	public string $id_column = "name";
+	public string $id_column = 'name';
 
 	public array $column_types = [
 		'name' => self::type_string,
@@ -19,5 +19,5 @@ class Class_Settings extends Class_ORM {
 	 * No auto column
 	 * @var boolean
 	 */
-	public string $auto_column = "";
+	public string $auto_column = '';
 }

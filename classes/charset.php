@@ -34,15 +34,15 @@ class charset {
 			return $data;
 		}
 		$charset = strtoupper($charset);
-		if ($charset === "ISO-8859-1") {
+		if ($charset === 'ISO-8859-1') {
 			return utf8_encode($data);
 		}
-		if ($charset === "UTF-8") {
+		if ($charset === 'UTF-8') {
 			return $data;
 		}
 		$table = self::load_table($charset);
 		$length = strlen($data);
-		$result = "";
+		$result = '';
 		for ($i = 0; $i < $length; $i++) {
 			$c = ord($data[$i]);
 			if (!array_key_exists($c, $table)) {
@@ -83,13 +83,13 @@ class charset {
 				if (str_contains($original_line, '#UNDEFINED')) {
 					continue;
 				}
-				$line = preg_replace('/\s+/', ' ', trim(StringTools::left($original_line, "#")));
+				$line = preg_replace('/\s+/', ' ', trim(StringTools::left($original_line, '#')));
 				if (empty($line)) {
 					continue;
 				}
 				$matches = null;
 				if (!preg_match('/0x([A-Z0-9]{2,4}) 0x([A-Z0-9]{4})/i', $line, $matches)) {
-					throw new Exception_File_Format("Bad line " . ($line_number + 1) . " in $path");
+					throw new Exception_File_Format('Bad line ' . ($line_number + 1) . " in $path");
 				}
 				$table[hexdec($matches[1])] = hexdec($matches[2]);
 			}

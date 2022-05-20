@@ -51,24 +51,24 @@ class Command_Config extends Command_Base {
 		extract($this->show_flags(), EXTR_IF_EXISTS);
 
 		if ($show_loaded) {
-			echo $this->output_list("INFO: Loaded configuration files:", $loaded);
+			echo $this->output_list('INFO: Loaded configuration files:', $loaded);
 		}
 		if ($show_not_loaded) {
-			echo $this->output_list("NOTICE: Not loaded configuration files (file not found):", $not_loaded);
+			echo $this->output_list('NOTICE: Not loaded configuration files (file not found):', $not_loaded);
 		}
 
 		if ($show_skipped && count($skipped) > 0) {
-			echo $this->output_list("ERROR: Skipped due to syntax errors:", $skipped);
+			echo $this->output_list('ERROR: Skipped due to syntax errors:', $skipped);
 		}
 		if ($show_externals && count($externals) > 0) {
-			echo $this->output_list("INFO: Dependency variables:", $externals);
+			echo $this->output_list('INFO: Dependency variables:', $externals);
 		}
 		if ($show_missing_classes && count($missing_vars) > 0) {
 			sort($missing_vars);
-			echo $this->output_list("WARNING: Variables have no corresponding class:", $missing_vars);
+			echo $this->output_list('WARNING: Variables have no corresponding class:', $missing_vars);
 		}
 		if ($show_top_level_scalar && count($warning_top_levels) > 0) {
-			echo $this->output_list("NOTICE: Top-level variables which are scalar:", $warning_top_levels);
+			echo $this->output_list('NOTICE: Top-level variables which are scalar:', $warning_top_levels);
 		}
 		return 0;
 	}
@@ -86,11 +86,11 @@ class Command_Config extends Command_Base {
 		foreach ($flags as $flag => $default) {
 			if ($this->optionBool($flag)) {
 				// if any value is true, return the actual values
-				return ArrayTools::kprefix($this->option($flags), "show_");
+				return ArrayTools::kprefix($this->option($flags), 'show_');
 			}
 		}
 		// Show all
-		return ArrayTools::kprefix($flags, "show_");
+		return ArrayTools::kprefix($flags, 'show_');
 	}
 
 	/**

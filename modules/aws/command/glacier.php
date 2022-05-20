@@ -28,12 +28,12 @@ class Command_Glacier extends \zesk\Command_Base {
 	 * @var array
 	 */
 	protected array $option_types = [
-		"store" => "file",
-		"delete" => "string",
-		"vault" => "string",
-		"list" => "string",
-		"wait" => "boolean",
-		"*" => "string",
+		'store' => 'file',
+		'delete' => 'string',
+		'vault' => 'string',
+		'list' => 'string',
+		'wait' => 'boolean',
+		'*' => 'string',
 	];
 
 	/**
@@ -42,10 +42,10 @@ class Command_Glacier extends \zesk\Command_Base {
 	 * @var string
 	 */
 	protected array $option_help = [
-		"store" => "Name of the file to upload to the vault (requires --vault as well)",
-		"fetch" => "Name of the file to retrieve from the vault",
-		"vault" => "Specify which vault to access",
-		"list" => "List files within the specified vault",
+		'store' => 'Name of the file to upload to the vault (requires --vault as well)',
+		'fetch' => 'Name of the file to retrieve from the vault',
+		'vault' => 'Specify which vault to access',
+		'list' => 'List files within the specified vault',
 	];
 
 	/**
@@ -61,9 +61,9 @@ class Command_Glacier extends \zesk\Command_Base {
 	 * @return string
 	 */
 	private function require_vault() {
-		$vault = $this->option("vault");
+		$vault = $this->option('vault');
 		if (!$vault) {
-			$this->usage("Need to specify a --vault");
+			$this->usage('Need to specify a --vault');
 		}
 		return $vault;
 	}
@@ -77,13 +77,13 @@ class Command_Glacier extends \zesk\Command_Base {
 		try {
 			$this->glacier = new Glacier($this->application);
 
-			if ($this->hasOption("store")) {
+			if ($this->hasOption('store')) {
 				return $this->run_archive_store();
 			}
-			if ($this->hasOption("delete")) {
+			if ($this->hasOption('delete')) {
 				return $this->run_archive_delete();
 			}
-			if ($this->hasOption("list")) {
+			if ($this->hasOption('list')) {
 				return $this->run_vault_list();
 			}
 			$this->run_list();
@@ -99,12 +99,12 @@ class Command_Glacier extends \zesk\Command_Base {
 	 */
 	private function run_archive_store() {
 		$vault = $this->require_vault();
-		$file = $this->option("store");
+		$file = $this->option('store');
 		if (!is_file($file)) {
-			$this->usage("File {file} does not exist", compact("file"));
+			$this->usage('File {file} does not exist', compact('file'));
 		}
-		$result = $this->glacier->vault_store_file($this->option("vault"), $file);
-		$this->log("Archive ID: {result}", compact("result"));
+		$result = $this->glacier->vault_store_file($this->option('vault'), $file);
+		$this->log('Archive ID: {result}', compact('result'));
 		return 0;
 	}
 
@@ -114,10 +114,10 @@ class Command_Glacier extends \zesk\Command_Base {
 	 * @return integer
 	 */
 	private function run_archive_delete() {
-		$archive_id = $this->option("delete");
-		[$vault, $archive_id] = pair($archive_id, ":", $this->option('vault'), $archive_id);
+		$archive_id = $this->option('delete');
+		[$vault, $archive_id] = pair($archive_id, ':', $this->option('vault'), $archive_id);
 		if (empty($vault)) {
-			$this->usage("Need to specify a --vault");
+			$this->usage('Need to specify a --vault');
 		}
 		$result = $this->glacier->vault_delete_file($vault, $archive_id);
 		$this->log("Deleted $archive_id from $vault");
@@ -130,19 +130,19 @@ class Command_Glacier extends \zesk\Command_Base {
 	 * @return integer
 	 */
 	private function run_vault_list() {
-		$vault = $this->option("list");
+		$vault = $this->option('list');
 		if (empty($vault)) {
-			$this->usage("Need to specify a vault after --list");
+			$this->usage('Need to specify a vault after --list');
 		}
 		$job = $this->glacier->vault_list($vault);
 		$job_id = $uri = null;
 		extract($job, EXTR_IF_EXISTS);
-		$this->log("Initiated job {job_id} at {uri}", $job);
+		$this->log('Initiated job {job_id} at {uri}', $job);
 		do {
 			sleep(5);
 			$status = $this->glacier->job_status($vault, $job_id);
 			echo Text::format_table($status);
-		} while ($status['StatusCode'] === "InProgress");
+		} while ($status['StatusCode'] === 'InProgress');
 		return 0;
 	}
 

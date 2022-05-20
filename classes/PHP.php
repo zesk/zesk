@@ -21,7 +21,7 @@ class PHP {
 	 *
 	 * @var string
 	 */
-	public $indent_char = " ";
+	public $indent_char = ' ';
 
 	/**
 	 * When indenting, use $indent_multiple times $indent_char for each indent level
@@ -49,21 +49,21 @@ class PHP {
 	 *
 	 * @var string
 	 */
-	public $array_arrow_prefix = " ";
+	public $array_arrow_prefix = ' ';
 
 	/**
 	 * Characters to place after an array arrow =>
 	 *
 	 * @var string
 	 */
-	public $array_arrow_suffix = " ";
+	public $array_arrow_suffix = ' ';
 
 	/**
 	 * Characters to place before an array open parenthesis
 	 *
 	 * @var string
 	 */
-	public $array_open_parenthesis_prefix = "";
+	public $array_open_parenthesis_prefix = '';
 
 	/**
 	 * Characters to place after an array open parenthesis
@@ -77,14 +77,14 @@ class PHP {
 	 *
 	 * @var string
 	 */
-	public $array_close_parenthesis_prefix = "";
+	public $array_close_parenthesis_prefix = '';
 
 	/**
 	 * Characters to place after an array close parenthesis
 	 *
 	 * @var string
 	 */
-	public $array_close_parenthesis_suffix = "";
+	public $array_close_parenthesis_suffix = '';
 
 	/**
 	 * Global dump settings, used when called statically
@@ -130,10 +130,10 @@ class PHP {
 	 * @return php
 	 */
 	public function settings_one() {
-		$this->indent_char = "";
-		$this->array_value_separator = " ";
-		$this->array_open_parenthesis_suffix = "";
-		$this->array_close_parenthesis_suffix = "";
+		$this->indent_char = '';
+		$this->array_value_separator = ' ';
+		$this->array_open_parenthesis_suffix = '';
+		$this->array_close_parenthesis_suffix = '';
 		return $this;
 	}
 
@@ -186,10 +186,10 @@ class PHP {
 		$no_first_line_indent = to_bool(avalue($args, 2));
 		if (is_array($x)) {
 			if (count($x) === 0) {
-				return "array()";
+				return 'array()';
 			}
 			$indent_level = avalue($args, 1, 0);
-			$result = ($no_first_line_indent ? '' : str_repeat($this->indent_char, $indent_level * $this->indent_multiple)) . "array" . $this->array_open_parenthesis_prefix . "(" . $this->array_open_parenthesis_suffix;
+			$result = ($no_first_line_indent ? '' : str_repeat($this->indent_char, $indent_level * $this->indent_multiple)) . 'array' . $this->array_open_parenthesis_prefix . '(' . $this->array_open_parenthesis_suffix;
 			$items = [];
 			if (ArrayTools::is_list($x)) {
 				foreach ($x as $k => $v) {
@@ -197,23 +197,23 @@ class PHP {
 				}
 			} else {
 				foreach ($x as $k => $v) {
-					$items[] = str_repeat($this->indent_char, ($indent_level + 1) * $this->indent_multiple) . $this->render($k) . $this->array_arrow_prefix . "=>" . $this->array_arrow_suffix . $this->render($v, $indent_level + 1, true);
+					$items[] = str_repeat($this->indent_char, ($indent_level + 1) * $this->indent_multiple) . $this->render($k) . $this->array_arrow_prefix . '=>' . $this->array_arrow_suffix . $this->render($v, $indent_level + 1, true);
 				}
 			}
-			$sep = "," . $this->array_value_separator;
+			$sep = ',' . $this->array_value_separator;
 			$result .= implode($sep, $items);
-			$result .= $this->array_trailing_comma ? "," : "";
+			$result .= $this->array_trailing_comma ? ',' : '';
 			$result .= $this->array_value_separator;
-			$result .= str_repeat($this->indent_char, $indent_level * $this->indent_multiple) . $this->array_close_parenthesis_prefix . ")" . $this->array_close_parenthesis_suffix;
+			$result .= str_repeat($this->indent_char, $indent_level * $this->indent_multiple) . $this->array_close_parenthesis_prefix . ')' . $this->array_close_parenthesis_suffix;
 			return $result;
 		} elseif (is_string($x)) {
 			return '"' . addcslashes($x, "\$\"\\\0..\37") . '"';
 		} elseif (is_int($x)) {
 			return "$x";
 		} elseif ($x === null) {
-			return "null";
+			return 'null';
 		} elseif (is_bool($x)) {
-			return $x ? "true" : "false";
+			return $x ? 'true' : 'false';
 		} elseif (is_object($x)) {
 			if (method_exists($x, '_to_php')) {
 				return $x->_to_php();
@@ -284,24 +284,24 @@ class PHP {
 		$errors = [];
 		foreach ($features as $feature) {
 			switch ($feature) {
-				case "pcntl":
+				case 'pcntl':
 					$results[$feature] = $result = function_exists('pcntl_exec');
 					if (!$result) {
 						$errors[] = map("Need pcntl extensions for PHP\nphp.ini at {0}\n", [get_cfg_var('cfg_file_path')]);
 					}
 
 					break;
-				case "time_limits":
+				case 'time_limits':
 					$results[$feature] = $result = !to_bool(ini_get('safe_mode'));
 					if (!$result) {
 						$errors[] = map("PHP safe mode prevents removing time limits on pages\nphp.ini at {0}\n", [get_cfg_var('safe_mode')]);
 					}
 
 					break;
-				case "posix":
+				case 'posix':
 					$results[$feature] = $result = function_exists('posix_getpid');
 					if (!$result) {
-						$errors[] = "Need POSIX extensions to PHP (posix_getpid)";
+						$errors[] = 'Need POSIX extensions to PHP (posix_getpid)';
 					}
 
 					break;
@@ -344,7 +344,7 @@ class PHP {
 				ini_set('memory_limit', to_bytes($value));
 				return $old_value;
 			default:
-				throw new Exception_Unimplemented("No such feature {feature}", compact("feature"));
+				throw new Exception_Unimplemented('No such feature {feature}', compact('feature'));
 		}
 	}
 
@@ -402,7 +402,7 @@ class PHP {
 	 * @return string
 	 */
 	public static function clean_function($func) {
-		return preg_replace("/[^a-zA-Z0-9_]/", '_', $func);
+		return preg_replace('/[^a-zA-Z0-9_]/', '_', $func);
 	}
 
 	/**
@@ -413,7 +413,7 @@ class PHP {
 	 * @return string
 	 */
 	public static function clean_class($func) {
-		return preg_replace("/[^a-zA-Z0-9_\\\\]/", '_', $func);
+		return preg_replace('/[^a-zA-Z0-9_\\\\]/', '_', $func);
 	}
 
 	/**
@@ -505,7 +505,7 @@ class PHP {
 	 */
 	#[Pure]
 	public static function parse_namespace_class(string $class): array {
-		return pairr($class, "\\", "", $class);
+		return pairr($class, '\\', '', $class);
 	}
 
 	/**

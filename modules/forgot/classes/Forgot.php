@@ -24,7 +24,7 @@ class Forgot extends ORM {
 	 * @var array
 	 */
 	private static $mappable_variables = [
-		"subject",
+		'subject',
 	];
 
 	/**
@@ -36,23 +36,23 @@ class Forgot extends ORM {
 		$user = $this->user;
 		$locale = $this->application->locale;
 		$variables = [
-			"subject" => $locale->__('Forgotten password request for {user_email}'),
-			"user_login" => $user->login(),
-			"user_email" => $user->email(),
-			"user" => $user,
-			"forgot" => $this,
+			'subject' => $locale->__('Forgotten password request for {user_email}'),
+			'user_login' => $user->login(),
+			'user_email' => $user->email(),
+			'user' => $user,
+			'forgot' => $this,
 		];
 
-		$variables += ArrayTools::kprefix($this->members(), "forgot_");
-		$variables += ArrayTools::kprefix($user->members(), "user_");
-		$variables += ArrayTools::kprefix($request->variables(), "request_");
-		$variables += ArrayTools::kprefix($request->url_variables(), "url_");
+		$variables += ArrayTools::kprefix($this->members(), 'forgot_');
+		$variables += ArrayTools::kprefix($user->members(), 'user_');
+		$variables += ArrayTools::kprefix($request->variables(), 'request_');
+		$variables += ArrayTools::kprefix($request->url_variables(), 'url_');
 
-		$variables = $this->call_hook_arguments("notify_variables", [
+		$variables = $this->call_hook_arguments('notify_variables', [
 			$variables,
 		], $variables);
 
-		$variables = ArrayTools::kunprefix($this->options, "notify_", true) + $variables;
+		$variables = ArrayTools::kunprefix($this->options, 'notify_', true) + $variables;
 
 		/*
 		 * Map subject again
@@ -61,11 +61,11 @@ class Forgot extends ORM {
 			$variables[$key] = map($variables[$key], $variables);
 		}
 
-		$mail = $this->call_hook("notify", $variables);
+		$mail = $this->call_hook('notify', $variables);
 		if ($mail instanceof Mail) {
 			return $mail;
 		}
-		$mail_options = Mail::load_theme($this->application, "object/zesk/forgot/notify", $variables);
+		$mail_options = Mail::load_theme($this->application, 'object/zesk/forgot/notify', $variables);
 		return Mail::multipart_send($this->application, $mail_options);
 	}
 
@@ -75,21 +75,21 @@ class Forgot extends ORM {
 	 */
 	public function validated($plaintext_password) {
 		if (empty($plaintext_password)) {
-			throw new Exception_Parameter("{method} requires a non-empty new password", [
-				"method" => __METHOD__,
+			throw new Exception_Parameter('{method} requires a non-empty new password', [
+				'method' => __METHOD__,
 			]);
 		}
 		$user = $this->user;
 		$user->password($plaintext_password, true)->store();
-		$this->updated = "now";
+		$this->updated = 'now';
 		$this->store();
-		$this->call_hook("validated");
+		$this->call_hook('validated');
 		$query = $this->query_update();
-		$query->value("*updated", $query->sql()
+		$query->value('*updated', $query->sql()
 			->now())
 			->where([
-			"user" => $user,
-			"updated" => null,
+			'user' => $user,
+			'updated' => null,
 		]);
 		$query->execute();
 		return $this;
@@ -139,7 +139,7 @@ class Forgot extends ORM {
 	 */
 	public function delete_older(Timestamp $older) {
 		return $this->query_delete()
-			->where("Created|<=", $older)
+			->where('Created|<=', $older)
 			->execute()
 			->affected_rows();
 	}

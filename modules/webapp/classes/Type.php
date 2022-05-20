@@ -43,7 +43,7 @@ abstract class Type {
 			throw new Exception_Directory_NotFound($path);
 		}
 		$this->path = $path;
-		$this->priority = $application->configuration->path_get(get_class($this), "priority", $this->priority);
+		$this->priority = $application->configuration->path_get(get_class($this), 'priority', $this->priority);
 	}
 
 	/**
@@ -54,10 +54,10 @@ abstract class Type {
 	 * @return object[]|\zesk\stdClass[]
 	 */
 	public static function factory_all_types(Application $application, $path) {
-		$type_names = Directory::ls(__DIR__ . "/Type", '/.*\.php$/', false);
+		$type_names = Directory::ls(__DIR__ . '/Type', '/.*\.php$/', false);
 		$types = [];
 		foreach ($type_names as $type_name) {
-			$type_name = "\\Type_" . StringTools::unsuffix(ltrim($type_name, "./"), ".php");
+			$type_name = '\\Type_' . StringTools::unsuffix(ltrim($type_name, './'), '.php');
 			$class_name = __NAMESPACE__ . $type_name;
 			$type = $application->factory($class_name, $application, $path);
 			$types[] = $type;

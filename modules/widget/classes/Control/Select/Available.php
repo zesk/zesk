@@ -23,16 +23,16 @@ class Control_Select_Available extends Control_Select {
 	 */
 	public function what_columns($column_id = null, $column_name = null) {
 		if ($column_id === null) {
-			$column_id = $this->option("column_id");
-			$column_name = $this->option("column_name", $column_id);
+			$column_id = $this->option('column_id');
+			$column_name = $this->option('column_name', $column_id);
 			return [
 				$column_id,
 				$column_name,
 			];
 		}
-		$this->setOption("column_id", $column_id);
+		$this->setOption('column_id', $column_id);
 		if ($column_name) {
-			$this->setOption("column_name", $column_name);
+			$this->setOption('column_name', $column_name);
 		}
 		return $this;
 	}
@@ -76,10 +76,10 @@ class Control_Select_Available extends Control_Select {
 		$query->distinct(true);
 		[$column_id, $column_name] = $this->what_columns();
 		$query->what([
-			"id" => $column_id,
-			"name" => $column_name,
+			'id' => $column_id,
+			'name' => $column_name,
 		]);
-		$query->where("$column_name|!=", "");
-		$this->control_options(array_change_key_case($query->to_array("id", "name")));
+		$query->where("$column_name|!=", '');
+		$this->control_options(array_change_key_case($query->to_array('id', 'name')));
 	}
 }

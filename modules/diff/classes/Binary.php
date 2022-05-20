@@ -59,12 +59,12 @@ class Binary extends Base {
 		foreach ($diffs as $edit) {
 			switch ($edit->op) {
 				case Edit::DIFF_INSERT:
-					$result[] = ">" . $edit->off . " ($edit->len)";
+					$result[] = '>' . $edit->off . " ($edit->len)";
 					$result[] = substr($this->bstring, $edit->off, $edit->len);
 
 					break;
 				case Edit::DIFF_DELETE:
-					$result[] = "<" . $edit->off . " ($edit->len)";
+					$result[] = '<' . $edit->off . " ($edit->len)";
 					$result[] = substr($this->astring, $edit->off, $edit->len);
 
 					break;

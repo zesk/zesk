@@ -13,19 +13,19 @@ namespace zesk;
  *
  */
 class Configuration_Parser_CONF extends Configuration_Parser {
-	public const SEPARATOR_DEFAULT = "=";
+	public const SEPARATOR_DEFAULT = '=';
 
 	public const UNQUOTE_DEFAULT = '\'\'""';
 
 	protected array $options = [
-		"overwrite" => true,
-		"trim_key" => true,
-		"separator" => self::SEPARATOR_DEFAULT,
-		"trim_value" => true,
-		"autotype" => true,
-		"lower" => true,
-		"multiline" => true,
-		"unquote" => self::UNQUOTE_DEFAULT,
+		'overwrite' => true,
+		'trim_key' => true,
+		'separator' => self::SEPARATOR_DEFAULT,
+		'trim_value' => true,
+		'autotype' => true,
+		'lower' => true,
+		'multiline' => true,
+		'unquote' => self::UNQUOTE_DEFAULT,
 	];
 
 	/**
@@ -69,9 +69,9 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			$lines = self::join_lines($lines);
 		}
 		if ($dependency) {
-			$this->dependency->push($this->option("name", "unnamed-" . get_class($this)));
+			$this->dependency->push($this->option('name', 'unnamed-' . get_class($this)));
 		}
-		$lower = $this->option("lower");
+		$lower = $this->option('lower');
 		foreach ($lines as $line) {
 			$parse_result = $this->parse_line($line);
 			if ($parse_result === null) {
@@ -83,23 +83,23 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			 * Parse and normalize key
 			 */
 			if (ends($key, '[]')) {
-				$key = StringTools::unsuffix($key, "[]");
+				$key = StringTools::unsuffix($key, '[]');
 				$append = true;
 			}
 			$found_quote = null;
 			$key = strtr($key, [
-				"___" => "\\",
-				"__" => "::",
+				'___' => '\\',
+				'__' => '::',
 			]);
 			/**
 			 * Parse and normalize value
 			 */
-			$found_quote = "";
+			$found_quote = '';
 			if ($unquote) {
 				$value = unquote($value, $unquote, $found_quote);
 			}
 			$dependencies = [];
-			if ($found_quote !== "'") {
+			if ($found_quote !== '\'') {
 				$value = bash::substitute($value, $settings, $dependencies, $lower);
 			}
 			if (!$found_quote) {
@@ -111,7 +111,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			/**
 			 * Now apply to back to our settings, or handle special values
 			 */
-			if ($this->loader && strtolower($key) === "include") {
+			if ($this->loader && strtolower($key) === 'include') {
 				$this->handle_include($value);
 			} elseif ($append) {
 				$append_value = to_array($settings->get($key));
@@ -172,7 +172,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		foreach ($lines as $line) {
 			if (in_array(substr($line, 0, 1), [
 				"\t",
-				" ",
+				' ',
 			])) {
 				$result[$last] .= "\n$line";
 			} else {
@@ -194,7 +194,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		extract($this->options, EXTR_IF_EXISTS);
 
 		$line = trim($line);
-		if (substr($line, 0, 1) == "#") {
+		if (substr($line, 0, 1) == '#') {
 			return null;
 		}
 		$matches = false;

@@ -70,19 +70,19 @@ class File implements Handler {
 	 *
 	 * @var string
 	 */
-	protected $prefix = "";
+	protected $prefix = '';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $suffix = "";
+	protected $suffix = '';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $middle = "";
+	protected $middle = '';
 
 	/**
 	 *
@@ -104,14 +104,14 @@ class File implements Handler {
 			$this->filename_pattern = null;
 			$this->fp = null;
 		}
-		$this->linkname = avalue($options, "linkname");
-		$this->time_zone = avalue($options, "time_zone", null);
-		$this->mode = avalue($options, "mode", "a");
-		$this->prefix = avalue($options, "prefix", "");
-		$this->suffix = avalue($options, "suffix", "");
-		$this->middle = avalue($options, "middle", "");
-		$this->include_patterns = to_array(avalue($options, "include_patterns", null));
-		$this->exclude_patterns = to_array(avalue($options, "exclude_patterns", null));
+		$this->linkname = avalue($options, 'linkname');
+		$this->time_zone = avalue($options, 'time_zone', null);
+		$this->mode = avalue($options, 'mode', 'a');
+		$this->prefix = avalue($options, 'prefix', '');
+		$this->suffix = avalue($options, 'suffix', '');
+		$this->middle = avalue($options, 'middle', '');
+		$this->include_patterns = to_array(avalue($options, 'include_patterns', null));
+		$this->exclude_patterns = to_array(avalue($options, 'exclude_patterns', null));
 		if (count($this->include_patterns) === 0) {
 			$this->include_patterns = null;
 		}
@@ -155,9 +155,9 @@ class File implements Handler {
 			return $this->fp;
 		}
 		if (!is_resource($fp)) {
-			throw new Exception_Parameter("{method} takes a file resource, {type} passed in", [
-				"method" => __METHOD__,
-				"type" => type($fp),
+			throw new Exception_Parameter('{method} takes a file resource, {type} passed in', [
+				'method' => __METHOD__,
+				'type' => type($fp),
 			]);
 		}
 		$this->close();
@@ -209,8 +209,8 @@ class File implements Handler {
 			return false;
 		}
 		if (!is_link($linkname)) {
-			$this->error_log("Unable to create link file {linkname} is not a link", [
-				"linkname" => $linkname,
+			$this->error_log('Unable to create link file {linkname} is not a link', [
+				'linkname' => $linkname,
 			]);
 			return false;
 		}
@@ -218,22 +218,22 @@ class File implements Handler {
 		if ($target === $this->filename) {
 			return false;
 		}
-		$lockfile = $linkname . ".lock";
-		$lock = fopen($lockfile, "wb");
+		$lockfile = $linkname . '.lock';
+		$lock = fopen($lockfile, 'wb');
 		if (!$lock) {
 			return;
 		}
 		if (flock($lock, LOCK_EX | LOCK_NB)) {
 			if (!@unlink($linkname)) {
-				$this->error_log("Unable to delete {linkname} while attempting to link to {filename}", [
-					"linkname" => $linkname,
-					"filename" => $this->filename,
+				$this->error_log('Unable to delete {linkname} while attempting to link to {filename}', [
+					'linkname' => $linkname,
+					'filename' => $this->filename,
 				]);
 			} else {
-				$this->error_log("Created symlink {linkname} to {filename} ({time_zone})", [
-					"linkname" => $linkname,
-					"filename" => $this->filename,
-					"time_zone" => $this->time_zone,
+				$this->error_log('Created symlink {linkname} to {filename} ({time_zone})', [
+					'linkname' => $linkname,
+					'filename' => $this->filename,
+					'time_zone' => $this->time_zone,
 				]);
 				@symlink($this->filename, $linkname);
 				// This still throws PHP Warning:  symlink(): File exists in zesk/modules/logger_file/classes/zesk/logger/file.inc on line 214 ... why? Lock not working?
@@ -299,13 +299,13 @@ class File implements Handler {
 			$this->opened = true;
 			if (!$this->fp) {
 				$this->fp = false;
-				$this->error_log("Unable to open file {filename} with {mode} for log file", $this->variables());
+				$this->error_log('Unable to open file {filename} with {mode} for log file', $this->variables());
 				return;
 			}
 		}
-		$prefix = map($this->prefix . "{_level_string} {_date} {_time}:{_pid}: " . $this->middle, $context);
-		$suffix = $this->suffix ? map($this->suffix, $context) : "";
-		$message = $prefix . ltrim(Text::indent($context['_formatted'] . $suffix, strlen($prefix), false, " "));
+		$prefix = map($this->prefix . '{_level_string} {_date} {_time}:{_pid}: ' . $this->middle, $context);
+		$suffix = $this->suffix ? map($this->suffix, $context) : '';
+		$message = $prefix . ltrim(Text::indent($context['_formatted'] . $suffix, strlen($prefix), false, ' '));
 		fwrite($this->fp, $message);
 		fflush($this->fp);
 
@@ -339,15 +339,15 @@ class File implements Handler {
 	 */
 	public function variables(): array {
 		return [
-			"filename" => $this->filename,
-			"mode" => $this->mode,
-			"include_patterns" => $this->include_patterns,
-			"exclude_patterns" => $this->exclude_patterns,
-			"time_zone" => $this->time_zone,
-			"prefix" => $this->prefix,
-			"suffix" => $this->suffix,
-			"middle" => $this->middle,
-			"class" => __CLASS__,
+			'filename' => $this->filename,
+			'mode' => $this->mode,
+			'include_patterns' => $this->include_patterns,
+			'exclude_patterns' => $this->exclude_patterns,
+			'time_zone' => $this->time_zone,
+			'prefix' => $this->prefix,
+			'suffix' => $this->suffix,
+			'middle' => $this->middle,
+			'class' => __CLASS__,
 		];
 	}
 }

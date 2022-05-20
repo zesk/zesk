@@ -6,6 +6,6 @@ namespace zesk;
  */
 class Class_Contact_Phone_AreaCode extends Class_ORM {
 	public array $find_keys = [
-		"Code",
+		'Code',
 	];
 }

@@ -9,10 +9,10 @@ namespace zesk;
 /* @var $response Response */
 
 // Setup
-$application->hooks->call("page.tpl", $this);
+$application->hooks->call('page.tpl', $this);
 
 $wrap_html = $response->content_type === Response::CONTENT_TYPE_HTML;
-$page_template = $response->option("theme", 'response/html');
+$page_template = $response->option('theme', 'response/html');
 if (isset($route) && $route instanceof Route) {
 	$wrap_html = $response->optionBool('wrap_html', $route->optionBool('wrap_html', $wrap_html));
 	$page_template = $route->option('page template', $page_template);
@@ -24,4 +24,4 @@ if ($wrap_html && $page_template) {
 	echo $this->content;
 }
 
-$application->hooks->call("page.tpl-exit", $this);
+$application->hooks->call('page.tpl-exit', $this);

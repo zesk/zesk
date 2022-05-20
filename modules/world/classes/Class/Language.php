@@ -11,17 +11,17 @@ class Class_Language extends Class_ORM {
 
 	public $name_column = 'name';
 
-	public string $name = "Language";
+	public string $name = 'Language';
 
 	public array $find_keys = [
-		"code",
+		'code',
 	];
 
 	public array $column_types = [
-		"id" => self::type_id,
-		"code" => self::type_string,
-		"dialect" => self::type_string,
-		"name" => self::type_string,
+		'id' => self::type_id,
+		'code' => self::type_string,
+		'dialect' => self::type_string,
+		'name' => self::type_string,
 	];
 
 	/**

@@ -19,11 +19,11 @@ echo "<IfModule mod_dir.c>\n";
 $prefix = $this->share_prefix;
 $share_paths = array_reverse($this->share_paths);
 foreach ($share_paths as $alias => $realpath) {
-	$alias = rtrim($alias, "/");
+	$alias = rtrim($alias, '/');
 	if (!empty($alias)) {
-		$alias .= "/";
+		$alias .= '/';
 	}
-	$realpath = rtrim($realpath, "/");
+	$realpath = rtrim($realpath, '/');
 	echo "Alias $prefix/$alias $realpath/\n";
 }
 echo "</IfModule>\n";

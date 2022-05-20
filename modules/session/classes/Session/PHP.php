@@ -149,7 +149,7 @@ class Session_PHP implements Interface_Session {
 	 * @return mixed|mixed[]|\zesk\Configuration
 	 */
 	private function global_session_user_id() {
-		return $this->application->configuration->path("session")->get("user_id_variable", "user");
+		return $this->application->configuration->path('session')->get('user_id_variable', 'user');
 	}
 
 	/**
@@ -175,7 +175,7 @@ class Session_PHP implements Interface_Session {
 		}
 
 		try {
-			return $this->application->orm_factory(__NAMESPACE__ . "\\" . "User", $user_id)->fetch();
+			return $this->application->orm_factory(__NAMESPACE__ . '\\' . 'User', $user_id)->fetch();
 		} catch (Exception_ORM_NotFound $e) {
 			$this->__set($this->global_session_user_id(), null);
 			return null;
@@ -190,7 +190,7 @@ class Session_PHP implements Interface_Session {
 	 */
 	public function authenticate($id, $ip = false): void {
 		$this->__set($this->global_session_user_id(), ORM::mixed_to_id($id));
-		$this->__set($this->global_session_user_id() . "_IP", $ip);
+		$this->__set($this->global_session_user_id() . '_IP', $ip);
 	}
 
 	/**

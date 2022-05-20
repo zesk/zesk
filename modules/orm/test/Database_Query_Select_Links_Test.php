@@ -11,8 +11,8 @@ namespace zesk;
 
 class Database_Query_Select_Links_Test extends Test_Unit {
 	protected array $load_modules = [
-		"MySQL",
-		"ORM",
+		'MySQL',
+		'ORM',
 	];
 
 	/**
@@ -21,7 +21,7 @@ class Database_Query_Select_Links_Test extends Test_Unit {
 	 * @see \zesk\Test::initialize()
 	 */
 	public function initialize(): void {
-		require_once __DIR__ . "/Database_Query_Select_Links_Test_Objects.php";
+		require_once __DIR__ . '/Database_Query_Select_Links_Test_Objects.php';
 		$this->schema_synchronize(['zesk\\TestPerson']);
 	}
 
@@ -31,7 +31,7 @@ class Database_Query_Select_Links_Test extends Test_Unit {
 
 	public function sql_normalize($sql) {
 		$sql = strtr($sql, [
-			" = " => "=",
+			' = ' => '=',
 		]);
 		return $sql;
 	}
@@ -46,7 +46,7 @@ class Database_Query_Select_Links_Test extends Test_Unit {
 
 	public function test_main(): void {
 		$db = $this->application->database_registry();
-		$db->table_prefix("");
+		$db->table_prefix('');
 
 		/*==== Test ===============================================================*/
 
@@ -59,7 +59,7 @@ INNER JOIN `Test_Account` AS `Account` ON `Account`.`ID`=`Site`.`Account`
 WHERE `Account`.`Cancelled` IS NULL';
 
 		$result = strval($query);
-		$this->sql_test_assert($result, $test_result, "link through");
+		$this->sql_test_assert($result, $test_result, 'link through');
 
 		/*==== Test ===============================================================*/
 
@@ -69,7 +69,7 @@ WHERE `Account`.`Cancelled` IS NULL';
 		$query->where('Account.Cancelled', null);
 
 		$result = strval($query);
-		$this->sql_test_assert($result, $test_result, "explicit link through");
+		$this->sql_test_assert($result, $test_result, 'explicit link through');
 
 		/*==== Test ===============================================================*/
 
@@ -83,7 +83,7 @@ WHERE `Account`.`Cancelled` IS NULL';
 		$query->where('Account.Cancelled', null);
 
 		$result = strval($query);
-		$this->sql_test_assert($result, $test_result, "explicit link through, repeated a few times");
+		$this->sql_test_assert($result, $test_result, 'explicit link through, repeated a few times');
 
 		/*==== Test ===============================================================*/
 
@@ -140,31 +140,30 @@ WHERE `A`.`Cancelled` IS NULL';
 		/*==== Test ===============================================================*/
 
 		$person = new TestPerson($this->application, [
-			"PersonID" => 1,
+			'PersonID' => 1,
 		]);
 
 		/* @var $iterator ORMIterator */
 		$iterator = $person->Children;
-
+		$this->assertInstanceOf(ORMIterator::class, $iterator);
 		$result = strval($iterator->query());
 		$test_result = 'SELECT `Children`.* FROM `TestPerson` AS `Children`
 WHERE `Children`.`Parent` = 1';
-		$this->sql_test_assert($result, $test_result, "Person->Children");
+		$this->sql_test_assert($result, $test_result, 'Person->Children');
 
 		/*==== Test ===============================================================*/
 
 		$person = new TestPerson($this->application, [
-			"PersonID" => 1,
+			'PersonID' => 1,
 		]);
 
-		/* @var $iterator ORMIterator */
 		$iterator = $person->Pets;
 
 		$result = strval($iterator->query());
 		$test_result = 'SELECT `Pets`.* FROM `TestPet` AS `Pets`
 INNER JOIN `TestPersonPet` AS `Pets_join` ON `Pets_join`.`Pet`=`Pets`.`PetID`
 WHERE `Pets_join`.`Person` = 1';
-		$this->sql_test_assert($result, $test_result, "Person->Pets");
+		$this->sql_test_assert($result, $test_result, 'Person->Pets');
 
 		/*==== Test ===============================================================*/
 
@@ -179,7 +178,7 @@ INNER JOIN `TestPet` AS `Pets` ON `Pets_Link_join`.`Pet`=`Pets`.`PetID`
 WHERE `Pets`.`Type` = \'cat\'
 ';
 		$result = strval($query);
-		$this->sql_test_assert($result, $test_result, "Person->TestPet");
+		$this->sql_test_assert($result, $test_result, 'Person->TestPet');
 
 		/*==== Test ===============================================================*/
 

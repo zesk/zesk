@@ -18,7 +18,7 @@ class Command_Runtime extends Command {
 		$zesk = $this->application->zesk;
 		$delta = microtime(true) - $zesk->initialization_time;
 		$digits = $delta < 0.001 ? ($delta < 0.000001 ? /* yeah right */ 9 : 6) : 3;
-		echo sprintf("%." . $digits . "f", $delta) . " sec\n";
+		echo sprintf('%.' . $digits . 'f', $delta) . " sec\n";
 		return 0;
 	}
 }

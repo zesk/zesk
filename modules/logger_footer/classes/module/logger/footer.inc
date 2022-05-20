@@ -53,23 +53,23 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 	public function hook_foot(Request $request, Response $response, Template $template) {
 		$result = [];
 		if ($this->enabled() && count($this->log) > 0) {
-			$result[] = HTML::tag_open("div", "#logger_footer");
-			$result[] = HTML::tag_open("ul");
+			$result[] = HTML::tag_open('div', '#logger_footer');
+			$result[] = HTML::tag_open('ul');
 			$this->log[] = [
-				"_level_string" => "info",
-				"_formatted" => sprintf("%.3f", microtime(true) - $this->application->initialization_time()) . " seconds elapsed",
+				'_level_string' => 'info',
+				'_formatted' => sprintf('%.3f', microtime(true) - $this->application->initialization_time()) . ' seconds elapsed',
 			];
 			foreach ($this->log as $entry) {
 				$level_class = strtolower($entry['_level_string']);
 				$label_class = avalue([
-					"debug" => "default",
-					"notice" => "success",
-					"error" => "danger",
+					'debug' => 'default',
+					'notice' => 'success',
+					'error' => 'danger',
 				], $level_class, $level_class);
-				$result[] = HTML::tag('li', ".level-$level_class", HTML::tag("label", ".label .label-$label_class", $entry['_level_string']) . " " . nl2br($entry['_formatted']));
+				$result[] = HTML::tag('li', ".level-$level_class", HTML::tag('label', ".label .label-$label_class", $entry['_level_string']) . ' ' . nl2br($entry['_formatted']));
 			}
-			$result[] = HTML::tag_close("ul");
-			$result[] = HTML::tag_close("div");
+			$result[] = HTML::tag_close('ul');
+			$result[] = HTML::tag_close('div');
 		}
 		echo implode("\n", $result);
 	}

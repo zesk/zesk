@@ -107,7 +107,7 @@ class Configuration_Loader {
 				$this->load_one($file);
 				$this->current = null;
 			} catch (Exception_File_Format $e) {
-				error_log(map("Unable to parse configuration file {file} - no parser", compact("file")));
+				error_log(map('Unable to parse configuration file {file} - no parser', compact('file')));
 			}
 			$this->current = null;
 		}
@@ -131,7 +131,7 @@ class Configuration_Loader {
 		if (!$parser) {
 			$this->skipped_files[] = $file;
 
-			throw new Exception_File_Format($file, "Unable to parse configuration file {file} - no parser", compact("file"));
+			throw new Exception_File_Format($file, 'Unable to parse configuration file {file} - no parser', compact('file'));
 		}
 		$parser->configuration_dependency($this->dependency);
 		$parser->configuration_loader($this);
@@ -153,25 +153,25 @@ class Configuration_Loader {
 	 *
 	 * @var string
 	 */
-	public const PROCESSED = "processed";
+	public const PROCESSED = 'processed';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const MISSING = "missing";
+	public const MISSING = 'missing';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const SKIPPED = "skipped";
+	public const SKIPPED = 'skipped';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const EXTERNALS = "externals";
+	public const EXTERNALS = 'externals';
 
 	/**
 	 *

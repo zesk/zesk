@@ -21,8 +21,8 @@ class Test_Time extends Test_Unit {
 		$x = new Time();
 
 		$value = null;
-		$x->parse("23:29:19");
-		$this->assert_equal($x->format(null, "{hh}:{mm}:{ss}"), "23:29:19");
+		$x->parse('23:29:19');
+		$this->assert_equal($x->format(null, '{hh}:{mm}:{ss}'), '23:29:19');
 		$this->assert_equal($x->hour(), 23);
 		$this->assert_equal($x->minute(), 29);
 		$this->assert_equal($x->second(), 19);
@@ -35,7 +35,7 @@ class Test_Time extends Test_Unit {
 		$x = new Time();
 
 		$value = null;
-		$x->parse("23:61:19");
+		$x->parse('23:61:19');
 	}
 
 	public function test_basics(): void {
@@ -111,6 +111,6 @@ class Test_Time extends Test_Unit {
 	 */
 	public function test_invalid_unit(): void {
 		$time = new Time();
-		$time->add_unit(1, "money");
+		$time->add_unit(1, 'money');
 	}
 }

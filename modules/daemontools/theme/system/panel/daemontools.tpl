@@ -25,32 +25,32 @@ foreach ($servers as $server) {
 	$last_updated = $module->server_services_last_updated($server);
 	if ($last_updated instanceof Timestamp) {
 		$updated = $this->theme([
-			"system/panel/daemontools/updated",
-			"system/panel/updated",
-			"updated",
+			'system/panel/daemontools/updated',
+			'system/panel/updated',
+			'updated',
 		], [
-			"content" => $last_updated,
+			'content' => $last_updated,
 		], [
-			"first" => true,
+			'first' => true,
 		]);
 	} else {
-		$updated = $locale->__("never updated");
+		$updated = $locale->__('never updated');
 	}
-	$items[] = HTML::tag("li", '.heading', $locale->__("{name} ({updated})", [
-		"name" => $server->name,
-		"updated" => $updated,
+	$items[] = HTML::tag('li', '.heading', $locale->__('{name} ({updated})', [
+		'name' => $server->name,
+		'updated' => $updated,
 	]));
 	$services = $module->server_services($server);
 	if ($services === null) {
-		$items[] = HTML::tag('li', '.error', "No service data");
+		$items[] = HTML::tag('li', '.error', 'No service data');
 	} else {
 		if (count($services) === 0) {
-			$items[] = HTML::tag('li', '.error', "No services");
+			$items[] = HTML::tag('li', '.error', 'No services');
 		} else {
 			foreach ($services as $service) {
-				$items[] = $service->theme("system");
+				$items[] = $service->theme('system');
 			}
 		}
 	}
 }
-echo HTML::tag("ul", implode("\n", $items));
+echo HTML::tag('ul', implode("\n", $items));

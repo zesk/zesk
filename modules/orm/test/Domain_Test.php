@@ -8,8 +8,8 @@ namespace zesk;
  */
 class Domain_Test extends Test_Unit {
 	protected array $load_modules = [
-		"MySQL",
-		"ORM",
+		'MySQL',
+		'ORM',
 	];
 
 	/**
@@ -18,32 +18,32 @@ class Domain_Test extends Test_Unit {
 	public function cookie_domain_data() {
 		return [
 			[
-				"conversion.kent.glucose",
-				"kent.glucose",
+				'conversion.kent.glucose',
+				'kent.glucose',
 			],
 			[
-				"www.conversionruler.com",
-				"conversionruler.com",
+				'www.conversionruler.com',
+				'conversionruler.com',
 			],
 			[
-				"hello.www.conversionruler.com",
-				"conversionruler.com",
+				'hello.www.conversionruler.com',
+				'conversionruler.com',
 			],
 			[
-				"test.conversionruler.com",
-				"conversionruler.com",
+				'test.conversionruler.com',
+				'conversionruler.com',
 			],
 			[
-				"another-fucking-thing.roi-tracking.com",
-				"roi-tracking.com",
+				'another-fucking-thing.roi-tracking.com',
+				'roi-tracking.com',
 			],
 			[
-				"Hello",
-				"hello",
+				'Hello',
+				'hello',
 			],
 			[
-				"joe.com",
-				"joe.com",
+				'joe.com',
+				'joe.com',
 			],
 		];
 	}

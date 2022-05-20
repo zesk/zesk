@@ -9,7 +9,7 @@ class Control_Hidden_Model extends Control_Hidden {
 			$object = $this->model_factory($this->class, $x)->fetch();
 			$this->value($object);
 		} catch (\Exception $e) {
-			$this->application->hooks->call("exception", $e);
+			$this->application->hooks->call('exception', $e);
 		}
 	}
 }

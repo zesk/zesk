@@ -37,9 +37,9 @@ abstract class Content_Group extends ORM {
 
 	protected function order_methods() {
 		return [
-			"name" => "Order by name",
-			"order" => "Order explicitly",
-			"created" => "Order by creation date",
+			'name' => 'Order by name',
+			'order' => 'Order explicitly',
+			'created' => 'Order by creation date',
 		];
 	}
 
@@ -51,12 +51,12 @@ abstract class Content_Group extends ORM {
 	public function hook_query_alter(Database_Query_Select $query) {
 		$alias = $query->alias();
 		switch ($this->OrderMethod) {
-			case "name":
+			case 'name':
 				$object = ORM::cache_object($this->group_class);
 				return $query->order_by("$alias." . $object->name_column());
-			case "order":
+			case 'order':
 				return $query->order_by("$alias.OrderIndex");
-			case "created":
+			case 'created':
 				return $query->order_by("$alias.Created");
 			default:
 				return false;

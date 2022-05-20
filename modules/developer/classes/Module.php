@@ -31,7 +31,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	 * @var array
 	 */
 	public static $allowed_mock_headers = [
-		"mock_accept" => Net_HTTP::REQUEST_ACCEPT,
+		'mock_accept' => Net_HTTP::REQUEST_ACCEPT,
 	];
 
 	/**
@@ -46,22 +46,22 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		$ip = $request->ip();
 		foreach ($ips as $mask) {
 			if ($ip === $mask) {
-				$this->application->logger->debug("{class}::{function}: {ip} === {mask}, development on", [
-					"class" => __CLASS__,
-					"function" => __FUNCTION__,
-					"ip" => $ip,
-					"mask" => $mask,
+				$this->application->logger->debug('{class}::{function}: {ip} === {mask}, development on', [
+					'class' => __CLASS__,
+					'function' => __FUNCTION__,
+					'ip' => $ip,
+					'mask' => $mask,
 				]);
 				$development = true;
 
 				break;
 			}
 			if (IPv4::within_network($ip, $mask)) {
-				$this->application->logger->debug("{class}::{function}: {ip} within network {mask}, development on", [
-					"class" => __CLASS__,
-					"function" => __FUNCTION__,
-					"ip" => $ip,
-					"mask" => $mask,
+				$this->application->logger->debug('{class}::{function}: {ip} within network {mask}, development on', [
+					'class' => __CLASS__,
+					'function' => __FUNCTION__,
+					'ip' => $ip,
+					'mask' => $mask,
 				]);
 				$development = true;
 
@@ -119,21 +119,21 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 			return;
 		}
 		if (!$this->ip_matches($request->ip(), $restricted_ips)) {
-			if (begins($request->path(), "/share")) {
+			if (begins($request->path(), '/share')) {
 				return;
 			}
-			$request->path("/developer/forbidden");
+			$request->path('/developer/forbidden');
 		}
 	}
 
 	public function initialize(): void {
 		$app = $this->application;
 
-		$app->hooks->add("zesk\\Application::main", [
+		$app->hooks->add('zesk\\Application::main', [
 			$this,
 			'test_ip',
 		]);
-		$app->hooks->add("zesk\\Application::router_prematch", [
+		$app->hooks->add('zesk\\Application::router_prematch', [
 			$this,
 			'router_prematch',
 		]);
@@ -195,7 +195,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		$router->add_route('developer/ip', [
 			'method' => [
 				$this,
-				"developer_ip",
+				'developer_ip',
 			],
 			'json' => true,
 		] + $extras);
@@ -219,8 +219,8 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 				'dump_session',
 			],
 			'arguments' => [
-				"{application}",
-				"{response}",
+				'{application}',
+				'{response}',
 			] + $extras,
 		]);
 		$router->add_route('developer/router', [
@@ -228,7 +228,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 				$this,
 				'dump_router',
 			],
-			'arguments' => "{router}",
+			'arguments' => '{router}',
 		] + $extras);
 		$router->add_route('developer/schema(/*)', [
 			'method' => [
@@ -236,8 +236,8 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 				'schema',
 			],
 			'arguments' => [
-				"{application}",
-				"{request}",
+				'{application}',
+				'{request}',
 				'{response}',
 				1,
 			],
@@ -278,8 +278,8 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		ORM_Schema::debug(true);
 		$db = null;
 		$classes = null;
-		if ($request->has("classes")) {
-			$classes = to_list($request->get("classes"));
+		if ($request->has('classes')) {
+			$classes = to_list($request->get('classes'));
 		}
 		if ($arg) {
 			// TODO Potentical security issue - pass in URL value here
@@ -288,10 +288,10 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 			$db = $this->application->database_registry();
 		}
 		$results = $app->orm_module()->schema_synchronize($db, $classes, [
-			"follow" => false,
+			'follow' => false,
 		]);
 		$exception = null;
-		if ($request->get_bool("go")) {
+		if ($request->get_bool('go')) {
 			try {
 				foreach ($results as $index => $sql) {
 					$db->query($results);
@@ -303,9 +303,9 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		}
 		$result = $exception ? $app->theme('exception', [
 			'content' => $exception,
-		]) : "";
-		$result .= HTML::tag('ul', ".sql", HTML::tags('li', array_merge([
-			"-- " . $arg . ";\n",
+		]) : '';
+		$result .= HTML::tag('ul', '.sql', HTML::tags('li', array_merge([
+			'-- ' . $arg . ";\n",
 		], ArrayTools::suffix($results, ";\n"))));
 		return $result;
 	}

@@ -10,12 +10,12 @@ use zesk\Test_Unit;
  */
 class Diff_Test extends Test_Unit {
 	protected array $load_modules = [
-		"diff",
+		'diff',
 	];
 
 	public function test_diff_binary(): void {
-		$a = "a";
-		$b = "a";
+		$a = 'a';
+		$b = 'a';
 		$testx = new Binary($a, $b);
 		$this->assert($testx->is_identical());
 		$edits = $testx->edits();
@@ -23,8 +23,8 @@ class Diff_Test extends Test_Unit {
 	}
 
 	public function test_diff_binary2(): void {
-		$a = "a";
-		$b = "ab";
+		$a = 'a';
+		$b = 'ab';
 		$testx = new Binary($a, $b);
 		$diffs = $testx->diffs();
 		$this->assert(count($diffs) === 1);
@@ -32,8 +32,8 @@ class Diff_Test extends Test_Unit {
 	}
 
 	public function test_diff_binary3(): void {
-		$a = "a";
-		$b = "ba";
+		$a = 'a';
+		$b = 'ba';
 		$testx = new Binary($a, $b);
 		$diffs = $testx->diffs();
 		$this->assert(count($diffs) === 1);
@@ -41,8 +41,8 @@ class Diff_Test extends Test_Unit {
 	}
 
 	public function test_diff_binary4(): void {
-		$a = "ab";
-		$b = "a";
+		$a = 'ab';
+		$b = 'a';
 		$testx = new Binary($a, $b);
 		$diffs = $testx->diffs();
 		$this->assert(count($diffs) === 1);
@@ -50,8 +50,8 @@ class Diff_Test extends Test_Unit {
 	}
 
 	public function test_diff_binary5(): void {
-		$a = "ab";
-		$b = "b";
+		$a = 'ab';
+		$b = 'b';
 		$testx = new Binary($a, $b);
 		$diffs = $testx->diffs();
 		$this->assert(count($diffs) === 1);
@@ -102,7 +102,7 @@ class Diff_Test extends Test_Unit {
 
 		$this->assert_equal($testx->diffs(), [
 			new Edit(Edit::DIFF_INSERT, 2, 1, [
-				"Line3",
+				'Line3',
 			]),
 		]);
 		$testx = new Lines($b, $a);
@@ -112,8 +112,8 @@ class Diff_Test extends Test_Unit {
 	}
 
 	public function test_diff_text(): void {
-		$a = "abcdefghijklmnopqrstuvwxyz";
-		$b = "abclXXXqrstwxz";
+		$a = 'abcdefghijklmnopqrstuvwxyz';
+		$b = 'abclXXXqrstwxz';
 		$d0 = $d = new Binary($a, $b);
 		$edits = $d->edits();
 		$d1 = new Binary($b, $a);
@@ -128,7 +128,7 @@ class Diff_Test extends Test_Unit {
 
 		$diffs0 = $d0->diffs();
 		$diffs1 = $d1->diffs();
-		$this->assert_equal(count($diffs0), count($diffs1), count($diffs0) . " = count(diffs0) === count(diffs1) = " . count($diffs1));
+		$this->assert_equal(count($diffs0), count($diffs1), count($diffs0) . ' = count(diffs0) === count(diffs1) = ' . count($diffs1));
 
 		$offset0 = $offset1 = 0;
 		foreach ($diffs0 as $index => $edit0) {

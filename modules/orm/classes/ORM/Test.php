@@ -13,8 +13,8 @@ class Test extends \zesk\Test {
 	 * @see \zesk\Test::initialize()
 	 */
 	public function hook_construct(): void {
-		if (!in_array("ORM", $this->load_modules)) {
-			$this->load_modules[] = "ORM";
+		if (!in_array('ORM', $this->load_modules)) {
+			$this->load_modules[] = 'ORM';
 		}
 	}
 
@@ -34,7 +34,7 @@ class Test extends \zesk\Test {
 			$results[$class] = $db->query($app->orm_module()->schema_synchronize($db, [
 				$class,
 			], $options + [
-				"follow" => true,
+				'follow' => true,
 			]));
 		}
 		return $results;

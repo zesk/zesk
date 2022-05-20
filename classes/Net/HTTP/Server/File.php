@@ -39,15 +39,15 @@ class Net_HTTP_Server_File extends Net_HTTP_Server {
 		$uri = $request->uri;
 
 		if ($this->root_path === null) {
-			throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_FILE_NOT_FOUND, null, "root_path is not set");
+			throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_FILE_NOT_FOUND, null, 'root_path is not set');
 		}
 		$real_root_path = realpath($this->root_path);
 		$full_path = realpath(path($real_root_path, $uri));
 		if (!begins($full_path, $real_root_path)) {
-			throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_UNAUTHORIZED, null, "Request outside of root directory");
+			throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_UNAUTHORIZED, null, 'Request outside of root directory');
 		}
 		if (is_dir($full_path)) {
-			$index_file = path($full_path, "index.html");
+			$index_file = path($full_path, 'index.html');
 			if (is_file($index_file)) {
 				$full_path = $index_file;
 			} elseif ($this->directory_list) {
@@ -58,12 +58,12 @@ class Net_HTTP_Server_File extends Net_HTTP_Server {
 					if ($d) {
 						$f = "$f/";
 					}
-					$result[] = HTML::tag("a", [
-						"href" => $f,
-					], $d ? HTML::tag("strong", $f) : $f);
+					$result[] = HTML::tag('a', [
+						'href' => $f,
+					], $d ? HTML::tag('strong', $f) : $f);
 				}
-				$response->content = HTML::tag("ul", HTML::tags("li", $result));
-				$response->content_type = "text/html";
+				$response->content = HTML::tag('ul', HTML::tags('li', $result));
+				$response->content_type = 'text/html';
 				return;
 			}
 		}

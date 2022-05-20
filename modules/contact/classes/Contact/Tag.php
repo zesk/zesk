@@ -16,8 +16,8 @@ namespace zesk;
 class Contact_Tag extends ORM {
 	public static function register_tag($name, $user) {
 		$x = new self([
-			"name" => $name,
-			"user" => $user,
+			'name' => $name,
+			'user' => $user,
 		]);
 		if (!$x->register()) {
 			return null;
@@ -44,8 +44,8 @@ class Contact_Tag extends ORM {
 	public function grant_user(User $user): void {
 		$this->query_insert()
 			->values([
-			"user" => $user,
-			"contact_tag" => $this->id(),
+			'user' => $user,
+			'contact_tag' => $this->id(),
 		])
 			->replace()
 			->execute();

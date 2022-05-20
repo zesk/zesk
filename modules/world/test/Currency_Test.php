@@ -3,16 +3,16 @@ namespace zesk;
 
 class Currency_Test extends Test_ORM {
 	protected array $load_modules = [
-		"World",
-		"ORM",
-		"MySQL",
+		'World',
+		'ORM',
+		'MySQL',
 	];
 
 	public function initialize(): void {
 		$this->application->orm_module()->schema_synchronize(null, [
 			Currency::class,
 		], [
-			"follow" => true,
+			'follow' => true,
 		]);
 		parent::initialize();
 	}

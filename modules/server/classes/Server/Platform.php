@@ -86,8 +86,8 @@ abstract class Server_Platform extends Hookable {
 	 * @var array
 	 */
 	public $paths = [
-		"/bin",
-		"/usr/bin",
+		'/bin',
+		'/usr/bin',
 	];
 
 	protected $services = [];
@@ -102,17 +102,17 @@ abstract class Server_Platform extends Hookable {
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		if ($this->root_group === null) {
-			throw new Exception_Unimplemented("\$this->root_group is null");
+			throw new Exception_Unimplemented('$this->root_group is null');
 		}
 		if ($this->root_user === null) {
-			throw new Exception_Unimplemented("\$this->root_user is null");
+			throw new Exception_Unimplemented('$this->root_user is null');
 		}
 
 		if ($this->optionBool('awareness')) {
 			$this->awareness();
 		}
 
-		$this->host_name = $this->option("host-name", php_uname('n'));
+		$this->host_name = $this->option('host-name', php_uname('n'));
 	}
 
 	public function name() {
@@ -156,8 +156,8 @@ abstract class Server_Platform extends Hookable {
 		} else {
 			$this->files = new Server_Files_Direct($this);
 		}
-		$this->application->logger->debug("File system is {class}", [
-			"class" => get_class($this->files),
+		$this->application->logger->debug('File system is {class}', [
+			'class' => get_class($this->files),
 		]);
 	}
 
@@ -179,14 +179,14 @@ abstract class Server_Platform extends Hookable {
 		}
 		$server_url = $this->option('server_url');
 		$host_path = $this->option('host_path');
-		$default_type = !empty($server_url) ? "client" : (!empty($host_path) ? 'files' : null);
+		$default_type = !empty($server_url) ? 'client' : (!empty($host_path) ? 'files' : null);
 		$configure_type = $this->option('configure_type', $default_type);
 		$this->config = Server_Configuration::factory($configure_type, $this, $this->options());
-		$this->application->logger->debug("Configuration class: {class}", [
-			"class" => get_class($this->config),
+		$this->application->logger->debug('Configuration class: {class}', [
+			'class' => get_class($this->config),
 		]);
 		if ($this->optionBool('verbose')) {
-			$this->verbose_log("Verbose mode on.");
+			$this->verbose_log('Verbose mode on.');
 		}
 		$this->tool_path = $this->option('tool_path', '/sbin');
 	}
@@ -355,8 +355,8 @@ abstract class Server_Platform extends Hookable {
 	 * @throws Server_Exception_Permission
 	 */
 	public function require_directory($directory, $owner = null, $permissions = null, $recurse = true): void {
-		$parts = explode("/", $directory);
-		$path = "";
+		$parts = explode('/', $directory);
+		$path = '';
 		foreach ($parts as $part) {
 			$path .= "$part/";
 			if ($this->files->is_dir($path)) {
@@ -408,7 +408,7 @@ abstract class Server_Platform extends Hookable {
 			return false;
 		}
 		$user = $group = null;
-		[$user, $group] = pair($owner, ":", $owner, null);
+		[$user, $group] = pair($owner, ':', $owner, null);
 		if ($user && !$this->validate_user_name($user)) {
 			return false;
 		}
@@ -494,7 +494,7 @@ abstract class Server_Platform extends Hookable {
 	 */
 	final public function owner_exists($owner) {
 		$user = $group = null;
-		[$user, $group] = pair($owner, ":", $user, null);
+		[$user, $group] = pair($owner, ':', $user, null);
 		if ($user !== null && !$this->user_exists($user)) {
 			return false;
 		}
@@ -518,13 +518,13 @@ abstract class Server_Platform extends Hookable {
 		 *
 		 * @var \Module_AWS $aws
 		 */
-		$aws = $this->application->modules->object("aws");
+		$aws = $this->application->modules->object('aws');
 		$awareness = $aws->awareness();
-		$this->verbose_log("Using awareness");
+		$this->verbose_log('Using awareness');
 		$this->verbose_log(Text::format_pairs($awareness));
 		$user_data = avalue($awareness, 'UserData');
 		$user_data = $this->conf_parse($user_data);
-		$this->verbose_log("Parsed awareness data:");
+		$this->verbose_log('Parsed awareness data:');
 		$this->verbose_log(Text::format_pairs($user_data));
 		// Store into globals
 		$this->application->configuration->paths_set($user_data);
@@ -542,10 +542,10 @@ abstract class Server_Platform extends Hookable {
 
 		$this->packager->configure();
 
-		$this->call_hook("configure_features");
+		$this->call_hook('configure_features');
 		$feature_list = $this->config->feature_list();
-		$this->application->logger->debug("Feature list is {features}", [
-			"features" => implode(", ", $feature_list),
+		$this->application->logger->debug('Feature list is {features}', [
+			'features' => implode(', ', $feature_list),
 		]);
 		foreach ($feature_list as $feature_name) {
 			$this->features[$feature_name] = $this->application->objects->factory("Server_Feature_$feature_name", $this);
@@ -556,7 +556,7 @@ abstract class Server_Platform extends Hookable {
 			$feature->preconfigure();
 			$dependencies = $feature->dependencies();
 		}
-		$this->verbose_log("All services preconfigured");
+		$this->verbose_log('All services preconfigured');
 	}
 
 	/**
@@ -577,12 +577,12 @@ abstract class Server_Platform extends Hookable {
 	 */
 	public function confirm($message) {
 		do {
-			echo $message . " (Y/n)? ";
+			echo $message . ' (Y/n)? ';
 			$reply = strtolower(trim(fgets(STDIN)));
-			if ($reply === "y" || $reply === "") {
+			if ($reply === 'y' || $reply === '') {
 				return true;
 			}
-			if ($reply === "n") {
+			if ($reply === 'n') {
 				return false;
 			}
 		} while (true);
@@ -595,7 +595,7 @@ abstract class Server_Platform extends Hookable {
 	 */
 	protected function require_root() {
 		if (!$this->is_root()) {
-			throw new Exception_Authentication("Must be logged in as root");
+			throw new Exception_Authentication('Must be logged in as root');
 		}
 		return $this;
 	}
@@ -607,7 +607,7 @@ abstract class Server_Platform extends Hookable {
 	 */
 	protected function not_root() {
 		if ($this->is_root()) {
-			throw new Exception_Authentication("Must not be logged in as root");
+			throw new Exception_Authentication('Must not be logged in as root');
 		}
 		return $this;
 	}
@@ -685,7 +685,7 @@ abstract class Server_Platform extends Hookable {
 		$args = func_get_args();
 		array_shift($args);
 		$result = $this->exec_array($command, $args);
-		return avalue($result, 0, "");
+		return avalue($result, 0, '');
 	}
 
 	/**
@@ -699,7 +699,7 @@ abstract class Server_Platform extends Hookable {
 	 */
 	final public function exec_one_array($command, array $arguments) {
 		$result = $this->exec_array($command, $arguments);
-		return avalue($result, 0, "");
+		return avalue($result, 0, '');
 	}
 
 	/**
@@ -727,7 +727,7 @@ abstract class Server_Platform extends Hookable {
 	 */
 	final public function exec_array($command, array $arguments) {
 		$command = $this->_format_command($command, $arguments);
-		$this->verbose_log("Server_Platform::exec " . $command);
+		$this->verbose_log('Server_Platform::exec ' . $command);
 		$return = $result = null;
 		exec($command, $result, $return);
 		if (intval($return) === 0) {
@@ -778,7 +778,7 @@ abstract class Server_Platform extends Hookable {
 		$uid = $gid = null;
 		$group = null;
 		if ($owner !== null) {
-			[$user, $group] = pair($owner, ":", $owner, null);
+			[$user, $group] = pair($owner, ':', $owner, null);
 			$uid = is_string($user) ? $this->user_id($user) : intval($user);
 		}
 		if ($group !== null) {
@@ -791,7 +791,7 @@ abstract class Server_Platform extends Hookable {
 		if (is_int($permissions)) {
 			if ($permissions !== $options['mode']) {
 				if (!$this->files->chmod($path, $permissions)) {
-					throw new Server_Exception_Permission("Unable to change mode on $path to $permissions (" . File::mode_to_string($permissions) . ")");
+					throw new Server_Exception_Permission("Unable to change mode on $path to $permissions (" . File::mode_to_string($permissions) . ')');
 				}
 			}
 		} elseif (is_string($permissions)) {
@@ -826,7 +826,7 @@ abstract class Server_Platform extends Hookable {
 			$user = avalue($options, 'user', '');
 			$group = avalue($options, 'group', '');
 			$owner = "$user:$group";
-			if ($owner === ":") {
+			if ($owner === ':') {
 				$owner = null;
 			}
 		}
@@ -974,7 +974,7 @@ abstract class Server_Platform extends Hookable {
 
 	public function update_catenate($relative_file, array $paths, $dest, array $options = []) {
 		$files = [];
-		$contents = "";
+		$contents = '';
 		foreach ($paths as $path) {
 			$file = path($path, $relative_file);
 			if ($this->files->is_file($file)) {
@@ -1069,9 +1069,9 @@ abstract class Server_Platform extends Hookable {
 			try {
 				$db = $this->application->database_registry($url);
 			} catch (Database_Exception $e) {
-				$this->application->logger->error("Need to configure DB_URL {url}: Reason {error}", [
-					"url" => URL::remove_password($url),
-					"error" => $e->getMesage(),
+				$this->application->logger->error('Need to configure DB_URL {url}: Reason {error}', [
+					'url' => URL::remove_password($url),
+					'error' => $e->getMesage(),
 				]);
 			}
 		}

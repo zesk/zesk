@@ -3,7 +3,7 @@ namespace zesk;
 
 class Control_Data extends Control {
 	protected $options = [
-		"default" => [],
+		'default' => [],
 	];
 
 	public function validate() {
@@ -11,11 +11,11 @@ class Control_Data extends Control {
 	}
 
 	public function option_merge($set = null) {
-		return $set === null ? $this->optionBool("merge") : $this->setOption('merge', to_bool($set));
+		return $set === null ? $this->optionBool('merge') : $this->setOption('merge', to_bool($set));
 	}
 
 	public function allow_keys($set = null) {
-		return $set === null ? $this->option_list("allow_keys") : $this->setOption('allow_keys', to_list($set));
+		return $set === null ? $this->option_list('allow_keys') : $this->setOption('allow_keys', to_list($set));
 	}
 
 	public function load(): void {
@@ -26,7 +26,7 @@ class Control_Data extends Control {
 		}
 		$value = $this->request->geta($column);
 		if (is_array($value)) {
-			if ($this->hasOption("allow_keys")) {
+			if ($this->hasOption('allow_keys')) {
 				$value = ArrayTools::filter($value, $this->allow_keys());
 			}
 			if (count($value) > 0) {

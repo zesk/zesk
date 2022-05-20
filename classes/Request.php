@@ -25,21 +25,21 @@ class Request extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const default_data_file = "php://input";
+	public const default_data_file = 'php://input';
 
 	/**
 	 * Method of request GET, POST, PUT, POST, DELETE etc.
 	 *
 	 * @var string
 	 */
-	protected $method = "GET";
+	protected $method = 'GET';
 
 	/**
 	 * Requested URI
 	 *
 	 * @var string
 	 */
-	protected string $uri = "/";
+	protected string $uri = '/';
 
 	/**
 	 * Request headers (reconstructed)
@@ -63,14 +63,14 @@ class Request extends Hookable {
 	 *
 	 * @var mixed
 	 */
-	protected $data_raw = "";
+	protected $data_raw = '';
 
 	/**
 	 * Processed data converted to internal structure
 	 *
 	 * @var mixed
 	 */
-	protected $data = "";
+	protected $data = '';
 
 	/**
 	 * Where to retrieve the data from
@@ -174,21 +174,21 @@ class Request extends Hookable {
 		parent::__construct($application);
 		$this->user_agent = null;
 		$this->inheritConfiguration();
-		$settings = $this->call_hook("construct", $settings);
+		$settings = $this->call_hook('construct', $settings);
 		if ($settings instanceof Request) {
 			$this->initialize_from_request($settings);
 		} elseif (is_array($settings) || is_string($settings)) {
 			$this->initialize_from_settings($settings);
 		} elseif ($settings === null) {
-			$this->init = "not-inited";
+			$this->init = 'not-inited';
 		} else {
-			throw new Exception_Parameter("{method} Requires array, Request, or null", [
-				"method" => __METHOD__,
+			throw new Exception_Parameter('{method} Requires array, Request, or null', [
+				'method' => __METHOD__,
 			]);
 		}
 	}
 
-	public const DEFAULT_URI = "/";
+	public const DEFAULT_URI = '/';
 
 	/**
 	 * Create a Request from PHP Superglobals $_SERVER, $_COOKIE, $_GET, $_REQUEST
@@ -208,7 +208,7 @@ class Request extends Hookable {
 		$this->server_ip = $_SERVER['SERVER_ADDR'] ?? self::DEFAULT_IP;
 
 		$this->setMethod($_SERVER ['REQUEST_METHOD'] ?? Net_HTTP::METHOD_GET);
-		$this->uri = $_SERVER["REQUEST_URI"] ?? self::DEFAULT_URI;
+		$this->uri = $_SERVER['REQUEST_URI'] ?? self::DEFAULT_URI;
 		$this->headers = self::http_headers_from_server($_SERVER);
 		$this->cookies = $_COOKIE;
 		$this->url = $this->url_from_server($_SERVER);
@@ -218,11 +218,11 @@ class Request extends Hookable {
 
 		$this->variables = $this->default_request();
 
-		$this->init = "globals";
+		$this->init = 'globals';
 
 		$this->call_hook([
-			"initialize",
-			"initialize_from_globals",
+			'initialize',
+			'initialize_from_globals',
 		]);
 
 		return $this;
@@ -251,11 +251,11 @@ class Request extends Hookable {
 		$this->remote_ip = $request->remote_ip;
 		$this->server_ip = $request->server_ip;
 
-		$this->init = "request";
+		$this->init = 'request';
 
 		$this->call_hook([
-			"initialize",
-			"initialize_from_request",
+			'initialize',
+			'initialize_from_request',
 		]);
 
 		return $this;
@@ -271,18 +271,18 @@ class Request extends Hookable {
 	public function initialize_from_settings(string|array|Request $settings): self {
 		if (is_string($settings)) {
 			$settings = [
-				"url" => $settings,
+				'url' => $settings,
 			];
 		} elseif ($settings instanceof Request) {
 			return $this->initialize_from_request($settings);
 		}
 		assert(is_array($settings));
 		$method = $url = $data = $data_file = $data_raw = null;
-		$uri = "";
+		$uri = '';
 		$ip = $remote_ip = $server_ip = self::DEFAULT_IP;
 		$headers = $cookies = $variables = $files = [];
 		extract($settings, EXTR_IF_EXISTS);
-		$this->setMethod($method ? $method : "GET");
+		$this->setMethod($method ? $method : 'GET');
 		$this->uri = $uri;
 		if (is_array($headers)) {
 			foreach ($headers as $k => $v) {
@@ -299,8 +299,8 @@ class Request extends Hookable {
 		}
 		if ($data_file) {
 			if (!is_file($data_file)) {
-				throw new Exception_File_NotFound($data_file, "Passed {filename} as settings to new Request {settings}", [
-					"settings" => $settings,
+				throw new Exception_File_NotFound($data_file, 'Passed {filename} as settings to new Request {settings}', [
+					'settings' => $settings,
 				]);
 			}
 			$this->data_file = $data_file;
@@ -316,10 +316,10 @@ class Request extends Hookable {
 		$this->remote_ip = $remote_ip ?? $ip;
 		$this->server_ip = $server_ip;
 
-		$this->init = "settings";
+		$this->init = 'settings';
 		$this->call_hook([
-			"initialize",
-			"initialize_from_settings",
+			'initialize',
+			'initialize_from_settings',
 		]);
 
 		return $this;
@@ -341,7 +341,7 @@ class Request extends Hookable {
 	 * @return string
 	 */
 	public function content_type() {
-		$type = explode(";", $this->header(Net_HTTP::REQUEST_CONTENT_TYPE));
+		$type = explode(';', $this->header(Net_HTTP::REQUEST_CONTENT_TYPE));
 		return strtolower(array_shift($type));
 	}
 
@@ -359,18 +359,18 @@ class Request extends Hookable {
 		$accept = $this->header($name);
 		if (!$accept) {
 			return [
-				"*/*" => [
-					"q" => 1,
-					"pattern" => "#[^/]+/[^/]+#",
+				'*/*' => [
+					'q' => 1,
+					'pattern' => '#[^/]+/[^/]+#',
 				],
 			];
 		}
-		$items = explode(",", preg_replace('/\s+/', '', $accept));
+		$items = explode(',', preg_replace('/\s+/', '', $accept));
 		foreach ($items as $item_index => $item) {
-			$item_parts = explode(";", $item);
-			$type = $subtype = "*";
+			$item_parts = explode(';', $item);
+			$type = $subtype = '*';
 			$attr = [
-				"weight" => 1,
+				'weight' => 1,
 			];
 
 			foreach ($item_parts as $item_part) {
@@ -380,9 +380,9 @@ class Request extends Hookable {
 					if (isset($attr['weight'])) {
 						continue;
 					}
-					if ($type === "*") {
+					if ($type === '*') {
 						$weight = 0;
-					} elseif ($subtype === "*") {
+					} elseif ($subtype === '*') {
 						$weight = 0;
 					} else {
 						$weight = 1 + ($item_index * 0.01);
@@ -401,12 +401,12 @@ class Request extends Hookable {
 			}
 			$key = "$type/$subtype";
 			$attr['pattern'] = '#' . strtr($key, [
-					"*" => "[^/]+",
-					"+" => "\\+",
+					'*' => '[^/]+',
+					'+' => '\\+',
 				]) . '#';
 			$result[$key] = $attr;
 		}
-		uasort($result, "zesk_sort_weight_array");
+		uasort($result, 'zesk_sort_weight_array');
 		return $this->_setParsedHeader($name, $result);
 	}
 
@@ -435,7 +435,7 @@ class Request extends Hookable {
 			return null;
 		}
 		if (count($result) > 1) {
-			uasort($result, "zesk_sort_weight_array_reverse");
+			uasort($result, 'zesk_sort_weight_array_reverse');
 		}
 		return first(array_keys($result));
 	}
@@ -456,16 +456,16 @@ class Request extends Hookable {
 			}
 		}
 		if ($this->data === null) {
-			$content_type = StringTools::left($this->content_type(), ";");
+			$content_type = StringTools::left($this->content_type(), ';');
 			switch ($content_type) {
-				case "application/json":
+				case 'application/json':
 					$this->data = strlen($this->data_raw) > 0 ? JSON::decode($this->data_raw) : [];
 					break;
-				case "application/x-www-form-urlencoded":
+				case 'application/x-www-form-urlencoded':
 					$this->data = [];
 					parse_str($this->data_raw, $this->data);
 					break;
-				case "multipart/form-data":
+				case 'multipart/form-data':
 					$this->data = $_REQUEST;
 					break;
 				default:
@@ -490,7 +490,7 @@ class Request extends Hookable {
 		if ($value === null) {
 			return $this->headers[strtolower($key)] ?? null;
 		}
-		$this->application->deprecated("Setter pattern");
+		$this->application->deprecated('Setter pattern');
 		return $this->setHeader($key, $value);
 	}
 
@@ -551,7 +551,7 @@ class Request extends Hookable {
 		if ($this->getb('ajax')) {
 			return true;
 		}
-		return $this->get("ajax_id", null) !== null;
+		return $this->get('ajax_id', null) !== null;
 	}
 
 	/**
@@ -561,7 +561,7 @@ class Request extends Hookable {
 	 */
 	public function method($set = null): string {
 		if ($set !== null) {
-			$this->application->deprecated("setter 2022-01");
+			$this->application->deprecated('setter 2022-01');
 			$this->setMethod($set);
 		}
 		return $this->method;
@@ -635,7 +635,7 @@ class Request extends Hookable {
 	public function get_not_empty($name = null, $default = null) {
 		if ($name === null) {
 			return ArrayTools::clean($this->variables, [
-				"",
+				'',
 				null,
 			]);
 		}
@@ -720,7 +720,7 @@ class Request extends Hookable {
 	 *            For string values, split on this character
 	 * @return array|mixed
 	 */
-	public function geta($name, $default = [], $sep = ";") {
+	public function geta($name, $default = [], $sep = ';') {
 		$x = $this->get($name, $default);
 		if (is_array($x)) {
 			return $x;
@@ -732,7 +732,7 @@ class Request extends Hookable {
 			}
 		}
 		if (is_string($x)) {
-			if ($sep === "") {
+			if ($sep === '') {
 				return str_split($x);
 			}
 			return explode($sep, $x);
@@ -808,7 +808,7 @@ class Request extends Hookable {
 	 */
 	public function url(string $set = null): string {
 		if ($set !== null) {
-			$this->application->deprecated("setter use setUrl");
+			$this->application->deprecated('setter use setUrl');
 			$this->setUrl($set);
 		}
 		return $this->url;
@@ -836,7 +836,7 @@ class Request extends Hookable {
 	 */
 	public function path($set = null) {
 		if ($set !== null) {
-			$this->application->deprecated("setter use setPath");
+			$this->application->deprecated('setter use setPath');
 			$this->setPath($set);
 		}
 		return $this->url_variables('path');
@@ -872,8 +872,8 @@ class Request extends Hookable {
 	 * @param mixed $default
 	 * @return string|mixed
 	 */
-	public function path_index(int $index, string $default = ""): string {
-		return explode("/", $this->path())[$index] ?? $default;
+	public function path_index(int $index, string $default = ''): string {
+		return explode('/', $this->path())[$index] ?? $default;
 	}
 
 	/**
@@ -913,7 +913,7 @@ class Request extends Hookable {
 	 */
 	public function query(): string {
 		$this->_valid_url_parts();
-		return $this->url_parts["query"] ?? "";
+		return $this->url_parts['query'] ?? '';
 	}
 
 	/**
@@ -947,7 +947,7 @@ class Request extends Hookable {
 	 * @return array|string
 	 * @throws Exception_Key
 	 */
-	public function url_variables(string $component = null, mixed $default = ""): string|array {
+	public function url_variables(string $component = null, mixed $default = ''): string|array {
 		$this->_valid_url_parts();
 		if ($component === null) {
 			return $this->urlComponents();
@@ -981,7 +981,7 @@ class Request extends Hookable {
 	 * @todo make this an object, maybe?
 	 */
 	public function range_parse() {
-		$range = $this->header("Range");
+		$range = $this->header('Range');
 
 		$matches = null;
 		preg_match_all('/(-?[0-9]++(?:-(?![0-9]++))?)(?:-?([0-9]++))?/', $range, $matches, PREG_SET_ORDER);
@@ -1097,14 +1097,14 @@ class Request extends Hookable {
 	 */
 	public function __toString() {
 		return PHP::dump([
-			"method" => $this->method,
-			"uri" => $this->uri,
-			"url" => $this->url,
-			"data" => $this->data(),
-			"headers" => $this->headers,
-			"files" => $this->files,
-			"cookies" => $this->cookies,
-			"variables" => $this->variables,
+			'method' => $this->method,
+			'uri' => $this->uri,
+			'url' => $this->url,
+			'data' => $this->data(),
+			'headers' => $this->headers,
+			'files' => $this->files,
+			'cookies' => $this->cookies,
+			'variables' => $this->variables,
 		]);
 	}
 
@@ -1118,7 +1118,7 @@ class Request extends Hookable {
 		$post_max_size = to_bytes(ini_get('post_max_size'));
 		$memory_limit = to_bytes(ini_get('memory_limit'));
 		if ($all) {
-			$result = compact("upload_max_filesize", "post_max_size", "memory_limit");
+			$result = compact('upload_max_filesize', 'post_max_size', 'memory_limit');
 			$mink = $minv = null;
 			foreach ($result as $key => $value) {
 				if ($mink === null || $value < $minv) {
@@ -1127,7 +1127,7 @@ class Request extends Hookable {
 				}
 			}
 			return $result + [
-					"limiting_factor" => $mink,
+					'limiting_factor' => $mink,
 				];
 		}
 		return min($upload_max_filesize, $post_max_size, $memory_limit);
@@ -1153,9 +1153,9 @@ class Request extends Hookable {
 	private function set_method($method) {
 		$method = strtoupper($method);
 		if (!array_key_exists($method, Net_HTTP::$methods)) {
-			throw new Exception_Parameter("Unknown method in {method_name}({method}", [
-				"method_name" => __METHOD__,
-				"method" => $method,
+			throw new Exception_Parameter('Unknown method in {method_name}({method}', [
+				'method_name' => __METHOD__,
+				'method' => $method,
 			]);
 		}
 		$this->method = $method;
@@ -1174,7 +1174,7 @@ class Request extends Hookable {
 			$parts = [];
 		}
 		$this->url_parts = $parts + [
-				"url" => $this->url,
+				'url' => $this->url,
 				'scheme' => 'http',
 				'host' => 'localhost',
 				'port' => 80,
@@ -1206,12 +1206,12 @@ class Request extends Hookable {
 	 * @return array
 	 */
 	private static function http_headers_from_server(array $server) {
-		$server = ArrayTools::kreplace(array_change_key_case($server), "_", '-');
+		$server = ArrayTools::kreplace(array_change_key_case($server), '_', '-');
 		$headers = [];
 		foreach ($server as $key => $value) {
 			foreach ([
-						 "http-" => true,
-						 "content-" => false,
+						 'http-' => true,
+						 'content-' => false,
 					 ] as $prefix => $unprefix) {
 				$len = strlen($prefix);
 				if (substr($key, 0, $len) === $prefix) {
@@ -1236,25 +1236,25 @@ class Request extends Hookable {
 
 	private function current_scheme(array $server) {
 		// Amazon load balancers
-		$proto = $this->header("X-Forwarded-Proto");
+		$proto = $this->header('X-Forwarded-Proto');
 		if ($proto) {
 			return $proto;
 		}
-		return avalue($server, 'HTTPS') === "on" ? "https" : "http";
+		return avalue($server, 'HTTPS') === 'on' ? 'https' : 'http';
 	}
 
 	private function current_host() {
-		$host = $this->header("Host");
-		return strtolower(StringTools::left($host, ":", $host));
+		$host = $this->header('Host');
+		return strtolower(StringTools::left($host, ':', $host));
 	}
 
 	private function current_port(array $server) {
 		// Amazon load balancers
-		$port = $this->header("X-Forwarded-Port");
+		$port = $this->header('X-Forwarded-Port');
 		if ($port) {
 			return intval($port);
 		}
-		return avalue($server, "SERVER_PORT", 80);
+		return avalue($server, 'SERVER_PORT', 80);
 	}
 
 	private function current_uri(array $server) {
@@ -1271,9 +1271,9 @@ class Request extends Hookable {
 			return true;
 		}
 		return $this->accept_priority([
-				"application/json",
-				"text/html",
-			]) === "application/json";
+				'application/json',
+				'text/html',
+			]) === 'application/json';
 	}
 
 	/**
@@ -1291,16 +1291,16 @@ class Request extends Hookable {
 	 */
 	private static function _find_remote_key(array $server, string $default = self::DEFAULT_IP): string {
 		$ks = [
-			"HTTP_CLIENT_IP",
-			"HTTP_X_FORWARDED_FOR",
-			"REMOTE_ADDR",
+			'HTTP_CLIENT_IP',
+			'HTTP_X_FORWARDED_FOR',
+			'REMOTE_ADDR',
 		];
 		foreach ($ks as $k) {
 			if (!isset($server[$k])) {
 				continue;
 			}
 			$ip = $server[$k];
-			if ($ip === "unknown") {
+			if ($ip === 'unknown') {
 				continue;
 			}
 			if (empty($ip)) {

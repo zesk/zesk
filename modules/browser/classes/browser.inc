@@ -31,7 +31,7 @@ class Browser extends ORM {
 		/* @var $browser Browser */
 		$browser = $application->orm_factory(__CLASS__, [
 			'md5' => $md5,
-			"name" => $name,
+			'name' => $name,
 		]);
 		if (!$browser->find()) {
 			$browser->md5 = md5($name);

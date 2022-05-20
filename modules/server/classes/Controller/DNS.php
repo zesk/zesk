@@ -13,7 +13,7 @@ class Controller_DNS extends Controller_Theme {
 	 *
 	 * @var string
 	 */
-	protected $template = "body/default";
+	protected $template = 'body/default';
 
 	/**
 	 *
@@ -28,7 +28,7 @@ class Controller_DNS extends Controller_Theme {
 		$new_result = $new['result'];
 		foreach ($old_result as $old_host => $old_record_type_list) {
 			if (!array_key_exists($old_host, $new_result)) {
-				$compare_result[] = __("{server} (query {query}) does not know about {old_host}", [
+				$compare_result[] = __('{server} (query {query}) does not know about {old_host}', [
 					'old_host' => $old_host,
 				] + $new);
 
@@ -38,7 +38,7 @@ class Controller_DNS extends Controller_Theme {
 			foreach ($old_record_type_list as $old_record_type => $old_records) {
 				$new_records = avalue($new_record_type_list, $old_record_type);
 				if (!is_array($new_records)) {
-					$compare_result[] = __("{server} (query {query}) does not know about {old_host}/{type}", [
+					$compare_result[] = __('{server} (query {query}) does not know about {old_host}/{type}', [
 						'old_host' => $old_host,
 						'type' => $old_record_type,
 					] + $new);
@@ -70,7 +70,7 @@ class Controller_DNS extends Controller_Theme {
 	 * @param string $new_name
 	 * @return string[]
 	 */
-	private function compare_results($old, $new, $old_name = "old", $new_name = "new") {
+	private function compare_results($old, $new, $old_name = 'old', $new_name = 'new') {
 		if (!is_array($old)) {
 			return [
 				"$old_name lookup failed.",
@@ -82,11 +82,11 @@ class Controller_DNS extends Controller_Theme {
 			];
 		}
 		return array_merge(map(self::_compare_results($old, $new), [
-			"old" => $old_name,
-			"new" => $new_name,
+			'old' => $old_name,
+			'new' => $new_name,
 		]), map(self::_compare_results($new, $old, true), [
 			'old' => $new_name,
-			"new" => $old_name,
+			'new' => $old_name,
 		]));
 	}
 
@@ -96,7 +96,7 @@ class Controller_DNS extends Controller_Theme {
 	 * @return string
 	 */
 	private function run_test(Model_DNS $model) {
-		$this->application->modules->load("dns;diff");
+		$this->application->modules->load('dns;diff');
 
 		$lookup = trim(preg_replace("/[\r\n,;]+/", "\n", $model->lookup));
 		$lookup = preg_replace('/ +/', ' ', $lookup);
@@ -104,21 +104,21 @@ class Controller_DNS extends Controller_Theme {
 		$old = $model->old;
 		$new = $model->new;
 		$result[] = HTML::tag('h1', "Comparing $old to $new");
-		$result[] = HTML::tag_open("ul");
+		$result[] = HTML::tag_open('ul');
 		foreach ($lookup as $name) {
-			[$type, $name] = pair($name, " ", null, $name);
+			[$type, $name] = pair($name, ' ', null, $name);
 			$old_result = dns::host($name, $type, $old);
 			$new_result = dns::host($name, $type, $new);
 			$compare_results = self::compare_results($old_result, $new_result, $old, $new);
 			if (count($compare_results) === 0) {
-				$result[] = HTML::tag("li", "$name ($type) passed");
+				$result[] = HTML::tag('li', "$name ($type) passed");
 			} else {
-				$result[] = HTML::tag("li", ".error", count($compare_results) === 1 ? "$name ($type) failed: <br />" . implode("", $compare_results) : "$name($type) failed" . HTML::tag("ul", HTML::tags('li', $compare_results)));
+				$result[] = HTML::tag('li', '.error', count($compare_results) === 1 ? "$name ($type) failed: <br />" . implode('', $compare_results) : "$name($type) failed" . HTML::tag('ul', HTML::tags('li', $compare_results)));
 			}
 			// 			$result[] = HTML::tag('pre', var_export($old_result, true));
 			// 			$result[] = HTML::tag('pre', var_export($new_result, true));
 		}
-		$result[] = HTML::tag_close("ul");
+		$result[] = HTML::tag_close('ul');
 		return implode("\n", $result);
 	}
 
@@ -140,7 +140,7 @@ class Controller_DNS extends Controller_Theme {
 		// 		if ($model->valid) {
 		// 			$content .= $this->run_test($model);
 		// 		}
-		$content = "TODO FIX THIS";
+		$content = 'TODO FIX THIS';
 		return $content;
 	}
 }

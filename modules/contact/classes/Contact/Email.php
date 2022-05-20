@@ -21,7 +21,7 @@ class Contact_Email extends Contact_Info {
 	}
 
 	public function verified(): void {
-		$this->verified = "now";
+		$this->verified = 'now';
 		$this->store();
 	}
 

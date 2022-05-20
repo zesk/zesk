@@ -12,7 +12,7 @@ class Net_IMAP_Client extends Net_Client {
 	private function imap_server() {
 		$port = avalue($this->url_parts, 'port', 143);
 		$path = ltrim(avalue($this->url_parts, 'path', 'INBOX'), '/');
-		return '{' . imap_utf7_encode($this->url_parts['host']) . ":" . $port . "}" . $path;
+		return '{' . imap_utf7_encode($this->url_parts['host']) . ':' . $port . '}' . $path;
 	}
 
 	/**
@@ -26,7 +26,7 @@ class Net_IMAP_Client extends Net_Client {
 		if (!$this->imap_conn) {
 			throw new $this->exception("Could not connect to IMAP $server");
 		}
-		$this->log("Connected.");
+		$this->log('Connected.');
 		return true;
 	}
 

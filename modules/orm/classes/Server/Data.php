@@ -35,7 +35,7 @@ class Server_Data extends ORM {
 	 * @param Application $application
 	 */
 	public static function cron_cluster_hour(Application $application): void {
-		$deleted_servers = $application->orm_registry(__CLASS__)->database()->query_array("SELECT DISTINCT D.server FROM Server_Data D LEFT OUTER JOIN Server S on S.id=D.server WHERE S.id IS NULL", null, 'server');
+		$deleted_servers = $application->orm_registry(__CLASS__)->database()->query_array('SELECT DISTINCT D.server FROM Server_Data D LEFT OUTER JOIN Server S on S.id=D.server WHERE S.id IS NULL', null, 'server');
 		if (count($deleted_servers) > 0) {
 			$application->orm_registry(__CLASS__)
 				->query_delete()
@@ -52,7 +52,7 @@ class Server_Data extends ORM {
 	public static function server_delete(Server $server): void {
 		$server->application->orm_registry(__CLASS__)
 			->query_delete()
-			->where("server", $server)
+			->where('server', $server)
 			->execute();
 	}
 }

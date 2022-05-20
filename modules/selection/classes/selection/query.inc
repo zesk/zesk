@@ -23,8 +23,8 @@ class Selection_Query extends ORM {
 	public static function instance(Selection_Type $type, Database_Query_Select $total, Database_Query_Select $list) {
 		$code = md5(serialize(strval($list)));
 		$object = $type->application->orm_factory(__CLASS__, [
-			"type" => $type,
-			"code" => $code,
+			'type' => $type,
+			'code' => $code,
 		]);
 		if (($found = $object->find()) !== null) {
 			return $found;
@@ -38,19 +38,19 @@ class Selection_Query extends ORM {
 	}
 
 	public function reorder() {
-		$this->order_index = $this->query_select("X")
-			->where("X.type", $this->type)
-			->what("*N", "MAX(X.order_index)")
-			->one_integer("N", 0) + 1;
+		$this->order_index = $this->query_select('X')
+			->where('X.type', $this->type)
+			->what('*N', 'MAX(X.order_index)')
+			->one_integer('N', 0) + 1;
 		return $this->store();
 	}
 
 	public function count() {
 		$query = $this->query_total;
 		if ($query instanceof Database_Query_Select) {
-			return $query->one_integer("total", 0);
+			return $query->one_integer('total', 0);
 		}
-		return "unknown";
+		return 'unknown';
 	}
 
 	/**

@@ -30,7 +30,7 @@ class HTML extends Type {
 	 *
 	 * @var string
 	 */
-	protected $title = "";
+	protected $title = '';
 
 	/**
 	 * head <link tags>
@@ -121,7 +121,7 @@ class HTML extends Type {
 	 *
 	 * @var string
 	 */
-	protected $page_theme = "page";
+	protected $page_theme = 'page';
 
 	/**
 	 *
@@ -134,10 +134,10 @@ class HTML extends Type {
 				'inited' => $application->initialization_time(),
 			],
 		];
-		$this->html_attributes = $response->option_array("html_attributes");
-		$this->body_attributes = $response->option_array("body_attributes");
+		$this->html_attributes = $response->option_array('html_attributes');
+		$this->body_attributes = $response->option_array('body_attributes');
 
-		$this->page_theme = $response->option("page_theme", $this->page_theme);
+		$this->page_theme = $response->option('page_theme', $this->page_theme);
 	}
 
 	/**
@@ -149,7 +149,7 @@ class HTML extends Type {
 	 */
 	public function title($set = null, $overwrite = true) {
 		if ($set !== null) {
-			if ($overwrite || $this->title === "") {
+			if ($overwrite || $this->title === '') {
 				$this->title = (string) $set;
 				$this->application->logger->debug("Set title to \"$set\"");
 			} else {
@@ -213,7 +213,7 @@ class HTML extends Type {
 	 * @return Response|string
 	 */
 	public function meta_keywords($content = null) {
-		return $this->meta("keywords", $content);
+		return $this->meta('keywords', $content);
 	}
 
 	/**
@@ -223,7 +223,7 @@ class HTML extends Type {
 	 * @return Response|string
 	 */
 	public function meta_description($content = null) {
-		return $this->meta("description", $content);
+		return $this->meta('description', $content);
 	}
 
 	/**
@@ -295,8 +295,8 @@ class HTML extends Type {
 			$arr['type'] = $type;
 		}
 		$share = avalue($attrs, 'share', false);
-		if (!$share && $this->parent->optionBool("require_root_dir") && !array_key_exists("root_dir", $attrs)) {
-			throw new Exception_Semantics("{path} requires a root_dir specified", compact('rel', 'path'));
+		if (!$share && $this->parent->optionBool('require_root_dir') && !array_key_exists('root_dir', $attrs)) {
+			throw new Exception_Semantics('{path} requires a root_dir specified', compact('rel', 'path'));
 		}
 		ArrayTools::append($this->links_by_rel, $rel, $path);
 		$this->links[$path] = $arr + $attrs;
@@ -427,11 +427,11 @@ class HTML extends Type {
 		$stylesheets_inline = to_bool(avalue($options, 'stylesheets_inline'));
 		if (!$this->links_sorted) {
 			$this->links_sorted = $this->links;
-			usort($this->links_sorted, "zesk_sort_weight_array");
+			usort($this->links_sorted, 'zesk_sort_weight_array');
 		}
-		$cache_links = $this->parent->optionBool("cache_links", false);
+		$cache_links = $this->parent->optionBool('cache_links', false);
 		$cached_media = [];
-		$this->links_sorted = $this->parent->call_hook_arguments("links_preprocess", [
+		$this->links_sorted = $this->parent->call_hook_arguments('links_preprocess', [
 			$this->links_sorted,
 		], $this->links_sorted);
 		foreach ($this->links_sorted as $attrs) {
@@ -444,9 +444,9 @@ class HTML extends Type {
 			if ($stylesheets_inline && $rel === 'stylesheet') {
 				$dest = $this->resource_path($attrs['href'], $attrs);
 				if (!is_file($dest)) {
-					$this->application->logger->error("Inline stylesheet path {dest} not found: {attributes}", [
-						"dest" => $dest,
-						"attributes" => serialize($attrs),
+					$this->application->logger->error('Inline stylesheet path {dest} not found: {attributes}', [
+						'dest' => $dest,
+						'attributes' => serialize($attrs),
 					]);
 				} else {
 					$tag['name'] = 'style';
@@ -464,7 +464,7 @@ class HTML extends Type {
 					$attrs['file_path'] = $file_path;
 					$attrs['href_original'] = $attrs['href'];
 					$attrs['href'] = $href;
-					$attrs = $this->parent->call_hook_arguments("link_process", [
+					$attrs = $this->parent->call_hook_arguments('link_process', [
 						$attrs,
 					], $attrs);
 					// Only cache and group stylesheets, for now.
@@ -475,13 +475,13 @@ class HTML extends Type {
 						}
 					}
 				} else {
-					$this->application->logger->error("Unable to find {href} in {root_dir}", $attrs);
+					$this->application->logger->error('Unable to find {href} in {root_dir}', $attrs);
 
 					continue;
 				}
 				$tag += [
 					'name' => 'link',
-					'attributes' => ArrayTools::filter($attrs, "rel;href;type;media;sizes;crossorigin;hrefland;rev"),
+					'attributes' => ArrayTools::filter($attrs, 'rel;href;type;media;sizes;crossorigin;hrefland;rev'),
 					'content' => '',
 				];
 				$result[] = $tag;
@@ -501,7 +501,7 @@ class HTML extends Type {
 	 */
 	private function link_options() {
 		return $this->parent->options_include([
-			"stylesheets_inline",
+			'stylesheets_inline',
 		]);
 	}
 
@@ -545,7 +545,7 @@ class HTML extends Type {
 		foreach ($script_tags as $tag) {
 			$prefix = $suffix = $name = $content = $attributes = null;
 			extract($tag, EXTR_IF_EXISTS);
-			if ($name !== "script") {
+			if ($name !== 'script') {
 				continue;
 			}
 			$attributes = to_array($attributes);
@@ -582,7 +582,7 @@ class HTML extends Type {
 	 */
 	private function resource_path_route($resource_path, $route_expire) {
 		$path = $this->application->cache_path([
-			"resources",
+			'resources',
 			$resource_path,
 		]);
 		if (file_exists($path)) {
@@ -619,7 +619,7 @@ class HTML extends Type {
 		extract($attributes, EXTR_IF_EXISTS);
 		if ($root_dir) {
 			if ($debug) {
-				$this->application->logger->debug("rootdir (" . JSONTools::encode($root_dir) . ") check $_path");
+				$this->application->logger->debug('rootdir (' . JSONTools::encode($root_dir) . ") check $_path");
 			}
 			return HTMLTools::href($this->application, path($root_dir, $_path));
 		} elseif ($share) {
@@ -649,9 +649,9 @@ class HTML extends Type {
 		$query = [];
 		$file = $this->resource_path($path, $attributes);
 		if (!$file || !is_file($file)) {
-			$this->application->logger->warning("Resource {path} not found at {file}", [
-				"path" => $path,
-				"file" => $file,
+			$this->application->logger->warning('Resource {path} not found at {file}', [
+				'path' => $path,
+				'file' => $file,
 			]);
 			return [
 				$path,
@@ -688,7 +688,7 @@ class HTML extends Type {
 			foreach ($matches as $match) {
 				$import = trim($match[1]);
 				$imatch = null;
-				if (preg_match('|^"[^"]+"$|', $import) || preg_match("|^'[^']+'$|", $import)) {
+				if (preg_match('|^"[^"]+"$|', $import) || preg_match('|^\'[^\']+\'$|', $import)) {
 					$import = unquote($import);
 				} elseif (preg_match('|^url\(([^)]+)\)$|', $import, $imatch)) {
 					$import = unquote($imatch[1]);
@@ -696,9 +696,9 @@ class HTML extends Type {
 						continue;
 					}
 				} else {
-					$this->application->logger->debug("Unknown @import syntax in {file}: {import}", [
-						"file" => $file,
-						"import" => $match[0],
+					$this->application->logger->debug('Unknown @import syntax in {file}: {import}', [
+						'file' => $file,
+						'import' => $match[0],
 					]);
 
 					continue;
@@ -719,19 +719,19 @@ class HTML extends Type {
 			[$full_match, $rel_image] = $match;
 			$rel_image = unquote($rel_image);
 			if (URL::valid($rel_image) || StringTools::begins($rel_image, [
-				"/",
-				"data:",
+				'/',
+				'data:',
 			])) {
 				continue;
 			}
-			$rel_image = explode("/", $rel_image);
-			$src_dir = explode("/", dirname($src));
-			while ($rel_image[0] === "..") {
+			$rel_image = explode('/', $rel_image);
+			$src_dir = explode('/', dirname($src));
+			while ($rel_image[0] === '..') {
 				array_shift($rel_image);
 				array_pop($src_dir);
 			}
-			$src_dir = implode("/", $src_dir);
-			$rel_image = implode("/", $rel_image);
+			$src_dir = implode('/', $src_dir);
+			$rel_image = implode('/', $rel_image);
 			$new_href = path($src_dir, $rel_image);
 			$this->application->logger->debug("process_cached_css: $file: $rel_image => $new_href");
 			$map[$full_match] = strtr($full_match, [
@@ -774,14 +774,14 @@ class HTML extends Type {
 	public function clean_resource_caches($extension = null) {
 		$path = $this->resource_cache_path($extension);
 		$files = Directory::list_recursive($path, [
-			"rules_directory_walk" => [
+			'rules_directory_walk' => [
 				'#/cache/js#' => true,
 				'#/cache/css#' => true,
 				false,
 			],
-			"add_path" => true,
+			'add_path' => true,
 		]);
-		$expire_seconds = abs($this->parent->optionInt("resource_cache_lifetime_seconds", 3600)); // 1 hour
+		$expire_seconds = abs($this->parent->optionInt('resource_cache_lifetime_seconds', 3600)); // 1 hour
 		$now = time();
 		$modified_after = $now - $expire_seconds;
 		$deleted = [];
@@ -792,20 +792,20 @@ class HTML extends Type {
 				}
 				$filemtime = filemtime($file);
 				if ($filemtime < $modified_after) {
-					$this->application->logger->debug("Deleting old file {file} modified on {when}, more than {delta} seconds ago", [
-						"file" => $file,
-						"when" => date("Y-m-d H:i:s"),
-						"delta" => $now - $filemtime,
+					$this->application->logger->debug('Deleting old file {file} modified on {when}, more than {delta} seconds ago', [
+						'file' => $file,
+						'when' => date('Y-m-d H:i:s'),
+						'delta' => $now - $filemtime,
 					]);
 					@unlink($file);
 					$deleted[] = $file;
 				}
 			}
 		}
-		$this->application->logger->notice("Deleted {deleted} files from cache directory at {path} (Expire after {expire_seconds} seconds)", [
-			"deleted" => count($deleted),
-			"path" => $path,
-			"expire_seconds" => $expire_seconds,
+		$this->application->logger->notice('Deleted {deleted} files from cache directory at {path} (Expire after {expire_seconds} seconds)', [
+			'deleted' => count($deleted),
+			'path' => $path,
+			'expire_seconds' => $expire_seconds,
 		]);
 		return $deleted;
 	}
@@ -818,7 +818,7 @@ class HTML extends Type {
 	 * @return string
 	 */
 	private function resource_cache_href($extension = null, $filename = null) {
-		$segments[] = "/cache";
+		$segments[] = '/cache';
 		if ($extension) {
 			$segments[] = $extension;
 			if ($filename) {
@@ -860,16 +860,16 @@ class HTML extends Type {
 				$debug[] = $key;
 			}
 		}
-		if ($this->parent->optionBool("debug_resource_cache")) {
-			file_put_contents($this->application->path("/resource_cache-" . date("Y-m-d-H-i-s") . ".txt"), implode("\n", $hash));
+		if ($this->parent->optionBool('debug_resource_cache')) {
+			file_put_contents($this->application->path('/resource_cache-' . date('Y-m-d-H-i-s') . '.txt'), implode("\n", $hash));
 		}
-		$hash = md5(implode("|", $hash));
+		$hash = md5(implode('|', $hash));
 		$cache_path = $this->resource_cache_path($extension);
 		$href = $this->resource_cache_href($extension, "$hash.$extension");
 		$cache_path = $this->resource_cache_path($extension, "$hash.$extension");
 		if (!file_exists($cache_path)) {
 			Directory::depend(dirname($cache_path), 0o770);
-			$content = "";
+			$content = '';
 			$srcs = [];
 			foreach ($cached as $src => $mixed) {
 				if (is_numeric($src)) {
@@ -895,18 +895,18 @@ class HTML extends Type {
 	 * @param string $media
 	 * @return array
 	 */
-	private function resource_cache_css(array $cached, $media = "screen") {
-		$debug = "";
-		$href = $this->resource_cache($cached, "css", "compress_css", $debug);
+	private function resource_cache_css(array $cached, $media = 'screen') {
+		$debug = '';
+		$href = $this->resource_cache($cached, 'css', 'compress_css', $debug);
 		return [
 			'name' => 'link',
 			'attributes' => [
 				'href' => $href,
 				'rel' => 'stylesheet',
-				"media" => $media,
+				'media' => $media,
 			],
-			'content' => "",
-			'suffix' => $this->application->development() ? "<!--\n$debug\n-->" : "",
+			'content' => '',
+			'suffix' => $this->application->development() ? "<!--\n$debug\n-->" : '',
 		];
 	}
 
@@ -917,16 +917,16 @@ class HTML extends Type {
 	 * @return multitype:string multitype:string
 	 */
 	private function resource_cache_scripts(array $cached) {
-		$debug = "";
-		$href = $this->resource_cache($cached, "js", "compress_script", $debug);
+		$debug = '';
+		$href = $this->resource_cache($cached, 'js', 'compress_script', $debug);
 		return [
 			'name' => 'script',
 			'attributes' => [
 				'src' => $href,
 				'type' => 'text/javascript',
 			],
-			'content' => "",
-			'suffix' => $this->application->development() ? "<!--\n$debug\n-->" : "",
+			'content' => '',
+			'suffix' => $this->application->development() ? "<!--\n$debug\n-->" : '',
 		];
 	}
 
@@ -963,18 +963,18 @@ class HTML extends Type {
 	private function script_tags($cache_scripts = null) {
 		// Sort them by weight if they're not sorted
 		if (!$this->scripts_sorted) {
-			uasort($this->scripts, "zesk_sort_weight_array");
+			uasort($this->scripts, 'zesk_sort_weight_array');
 			$this->scripts_sorted = true;
 		}
 		if ($cache_scripts === null) {
-			$cache_scripts = $this->parent->optionBool("cache_scripts", false);
+			$cache_scripts = $this->parent->optionBool('cache_scripts', false);
 		}
 		$cached = $cached_append = [];
 		$result = [];
 		/* Output scripts */
-		$selected_attributes = to_list("src;type;async;defer;id");
-		if ($this->parent->optionBool("debug_weight")) {
-			$selected_attributes[] = "weight";
+		$selected_attributes = to_list('src;type;async;defer;id');
+		if ($this->parent->optionBool('debug_weight')) {
+			$selected_attributes[] = 'weight';
 		}
 		foreach ($this->scripts as $attrs) {
 			$script_attributes = ArrayTools::filter($attrs, $selected_attributes) + HTMLTools::data_attributes($attrs);
@@ -992,7 +992,7 @@ class HTML extends Type {
 				assert(array_key_exists('src', $attrs));
 				if (avalue($attrs, 'nocache')) {
 					$resource_path = URL::query_append($attrs['src'], [
-						$this->parent->option('scripts_nocache_variable', "_r") => md5(microtime()),
+						$this->parent->option('scripts_nocache_variable', '_r') => md5(microtime()),
 					]);
 					$script_attributes['src'] = $resource_path;
 				} elseif (URL::valid($attrs['src'])) {
@@ -1006,7 +1006,7 @@ class HTML extends Type {
 								$cached[] = $attrs['javascript_before'];
 							}
 							$cached[$resource_path] = $file_path;
-							$cached_append[] = "zesk.scripts_cached(" . JSONTools::encode($resource_path) . ");";
+							$cached_append[] = 'zesk.scripts_cached(' . JSONTools::encode($resource_path) . ');';
 							if (array_key_exists('javascript_after', $attrs)) {
 								$cached[] = $attrs['javascript_after'];
 							}
@@ -1023,17 +1023,17 @@ class HTML extends Type {
 			}
 			if (array_key_exists('javascript_before', $attrs)) {
 				$result[] = [
-					"name" => 'script',
-					"type" => "text/javascript",
-					"content" => $attrs['javascript_before'],
+					'name' => 'script',
+					'type' => 'text/javascript',
+					'content' => $attrs['javascript_before'],
 				];
 			}
 			$result[] = $script;
 			if (array_key_exists('javascript_after', $attrs)) {
 				$result[] = [
-					"name" => 'script',
-					"type" => "text/javascript",
-					"content" => $attrs['javascript_after'],
+					'name' => 'script',
+					'type' => 'text/javascript',
+					'content' => $attrs['javascript_after'],
 				];
 			}
 		}
@@ -1073,15 +1073,15 @@ class HTML extends Type {
 			$last_weight = count($this->scripts) * 10;
 			$before = null;
 			if (array_key_exists('before', $options)) {
-				if (($before = $this->find_weight($options['before'], "min")) !== null) {
+				if (($before = $this->find_weight($options['before'], 'min')) !== null) {
 					$options['weight'] = $before - 1;
 				}
 			}
 			if (array_key_exists('after', $options)) {
-				if (($after = $this->find_weight($options['after'], "max")) !== null) {
+				if (($after = $this->find_weight($options['after'], 'max')) !== null) {
 					if ($before !== null) {
 						if ($after <= $before) {
-							throw new Exception_Semantics("{path} has a computed {before} weight which is greater than the after weight {after}", compact('path', 'before', 'after'));
+							throw new Exception_Semantics('{path} has a computed {before} weight which is greater than the after weight {after}', compact('path', 'before', 'after'));
 						} else {
 							$options['weight'] = $before - 1;
 						}
@@ -1099,11 +1099,11 @@ class HTML extends Type {
 		$content = array_key_exists('content', $options);
 		$is_route = avalue($options, 'is_route');
 		$callback = array_key_exists('callback', $options);
-		if (!$is_route && !$callback && !$content && !$share && !$nocache && $this->parent->optionBool("require_root_dir") && !array_key_exists("root_dir", $options)) {
-			throw new Exception_Semantics("{path} requires a root_dir specified", compact('path'));
+		if (!$is_route && !$callback && !$content && !$share && !$nocache && $this->parent->optionBool('require_root_dir') && !array_key_exists('root_dir', $options)) {
+			throw new Exception_Semantics('{path} requires a root_dir specified', compact('path'));
 		}
 		$options += [
-			'type' => "text/javascript",
+			'type' => 'text/javascript',
 		];
 		$this->scripts[$path] = $options;
 		$this->scripts_sorted = false;
@@ -1165,8 +1165,8 @@ class HTML extends Type {
 	 */
 	public function javascript_inline($script, $options = null) {
 		$options = to_array($options, []);
-		$multiple = to_bool(avalue($options, "multiple", false));
-		$id = array_key_exists("id", $options) ? $options['id'] : md5($script);
+		$multiple = to_bool(avalue($options, 'multiple', false));
+		$id = array_key_exists('id', $options) ? $options['id'] : md5($script);
 		if ($multiple) {
 			$id = $id . '-' . count($this->scripts);
 		}
@@ -1183,11 +1183,11 @@ class HTML extends Type {
 		if ($this->jquery !== null) {
 			return;
 		}
-		$this->javascript("/share/jquery/jquery.js", [
+		$this->javascript('/share/jquery/jquery.js', [
 			'weight' => 'zesk-first',
 			'share' => true,
 		]);
-		$this->javascript("/share/zesk/js/zesk.js", [
+		$this->javascript('/share/zesk/js/zesk.js', [
 			'weight' => 'first',
 			'share' => true,
 		]);
@@ -1241,29 +1241,29 @@ class HTML extends Type {
 			return [];
 		}
 		switch (strtolower($browser)) {
-			case "ie":
-				$prefix = "<!--[if IE]>";
-				$suffix = "<![endif]-->";
+			case 'ie':
+				$prefix = '<!--[if IE]>';
+				$suffix = '<![endif]-->';
 
 				break;
-			case "ie6":
-				$prefix = "<!--[if lte IE 6]>";
-				$suffix = "<![endif]-->";
+			case 'ie6':
+				$prefix = '<!--[if lte IE 6]>';
+				$suffix = '<![endif]-->';
 
 				break;
-			case "ie7":
-				$prefix = "<!--[if IE 7]>";
-				$suffix = "<![endif]-->";
+			case 'ie7':
+				$prefix = '<!--[if IE 7]>';
+				$suffix = '<![endif]-->';
 
 				break;
-			case "ie8":
-				$prefix = "<!--[if IE 8]>";
-				$suffix = "<![endif]-->";
+			case 'ie8':
+				$prefix = '<!--[if IE 8]>';
+				$suffix = '<![endif]-->';
 
 				break;
-			case "ie9":
-				$prefix = "<!--[if IE 9]>";
-				$suffix = "<![endif]-->";
+			case 'ie9':
+				$prefix = '<!--[if IE 9]>';
+				$suffix = '<![endif]-->';
 
 				break;
 			default:

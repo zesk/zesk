@@ -16,8 +16,8 @@ use zesk\Module_JSLib;
 
 class Module extends Module_JSLib {
 	protected $javascript_paths = [
-		"/share/threejs/three.js" => [
-			"share" => true,
+		'/share/threejs/three.js' => [
+			'share' => true,
 		],
 	];
 }

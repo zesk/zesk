@@ -69,28 +69,28 @@ class Command_Translate extends Command_Base {
 	 */
 	protected function run() {
 		$app = $this->application;
-		$source_language_file = $this->option("language-file", $app->configuration->path_get("Module_PolyGlot::source_file"));
+		$source_language_file = $this->option('language-file', $app->configuration->path_get('Module_PolyGlot::source_file'));
 		if (!$source_language_file) {
-			$this->usage("Need a source --language-file to determine source strings");
+			$this->usage('Need a source --language-file to determine source strings');
 		}
-		$destination = $this->option("destination", $app->configuration->path_get(Locale::class . "::auto_path"));
+		$destination = $this->option('destination', $app->configuration->path_get(Locale::class . '::auto_path'));
 		if (!$destination) {
-			$this->usage("Need a directory --destination {destination} is not a directory");
+			$this->usage('Need a directory --destination {destination} is not a directory');
 		}
 		if (!is_dir($destination)) {
-			$this->usage("Need a directory \"{destination}\" is not a directory", compact("destination"));
+			$this->usage('Need a directory "{destination}" is not a directory', compact('destination'));
 		}
-		$classes = Service::service_classes($app, "translate");
-		if ($this->optionBool("list")) {
+		$classes = Service::service_classes($app, 'translate');
+		if ($this->optionBool('list')) {
 			echo ArrayTools::ksuffix($classes, "\n");
 			return 0;
 		}
-		$target_language = $this->option("target");
+		$target_language = $this->option('target');
 		if (!$target_language) {
-			$this->error("Please supply a --target language");
+			$this->error('Please supply a --target language');
 			return self::error_parameters;
 		}
-		$source_language = $this->option("source", $app->locale->language());
+		$source_language = $this->option('source', $app->locale->language());
 
 		$target_language = strtolower($target_language);
 		$source_language = strtolower($source_language);
@@ -104,26 +104,26 @@ class Command_Translate extends Command_Base {
 			$this->error($e->getMessage(), $e->arguments);
 			return 2;
 		}
-		$this->verbose_log("Using default service {class}", [
-			"class" => get_class($service_object),
+		$this->verbose_log('Using default service {class}', [
+			'class' => get_class($service_object),
 		]);
 		$target_file = path($destination, "$target_language.inc");
 
 		if (!is_file($target_file)) {
-			$target_file = file_put_contents($target_file, map('<' . "?php\n// Generated file by {class}, editing OK\n\$tt = array();\n\nreturn \$tt;\n", ["class" => $default_class]));
+			$target_file = file_put_contents($target_file, map('<' . "?php\n// Generated file by {class}, editing OK\n\$tt = array();\n\nreturn \$tt;\n", ['class' => $default_class]));
 		}
 		$target_translations = $app->load($target_file);
 		if (!is_array($target_translations)) {
-			$this->error("target file {target_file} does not return a translation table", compact("target_file"));
+			$this->error('target file {target_file} does not return a translation table', compact('target_file'));
 			return self::error_file_formats;
 		}
 		$translation_file = $app->load($source_language_file);
 		if (!is_array($translation_file)) {
-			$this->error("translation file {translation_file} does not return a translation table", compact("translation_file"));
+			$this->error('translation file {translation_file} does not return a translation table', compact('translation_file'));
 			return self::error_file_formats;
 		}
 		if (count($translation_file) === 0) {
-			$this->error("translation file {translation_file} is empty", compact("translation_file"));
+			$this->error('translation file {translation_file} is empty', compact('translation_file'));
 			return self::error_file_formats;
 		}
 

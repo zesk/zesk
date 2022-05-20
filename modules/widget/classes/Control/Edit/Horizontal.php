@@ -3,9 +3,9 @@ namespace zesk;
 
 class Control_Edit_Horizontal extends Control_Edit {
 	protected $form_attributes = [
-		"class" => "edit form-horizontal",
-		"method" => "post",
-		"role" => "form",
+		'class' => 'edit form-horizontal',
+		'method' => 'post',
+		'role' => 'form',
 	];
 
 	/**
@@ -18,7 +18,7 @@ class Control_Edit_Horizontal extends Control_Edit {
 		'class' => 'form-group',
 	];
 
-	protected $widget_wrap_tag = "div";
+	protected $widget_wrap_tag = 'div';
 
 	/**
 	 * Optional wrap attributes for each widget

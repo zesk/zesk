@@ -10,13 +10,13 @@ namespace zesk;
  *
  */
 class Control_Text_Dropdown extends Control_Text {
-	public const option_button_label = "button_label";
+	public const option_button_label = 'button_label';
 
-	public const option_select_behavior_enabled = "select_behavior_enabled";
+	public const option_select_behavior_enabled = 'select_behavior_enabled';
 
-	public const option_plural_behavior_enabled = "plural_behavior_enabled";
+	public const option_plural_behavior_enabled = 'plural_behavior_enabled';
 
-	public const option_dropdown_alignment = "dropdown_alignment";
+	public const option_dropdown_alignment = 'dropdown_alignment';
 
 	protected $dropdown_menu = [];
 
@@ -76,11 +76,11 @@ class Control_Text_Dropdown extends Control_Text {
 	public function dropdown_alignment($set = null) {
 		if ($set !== null) {
 			if (!in_array($set, [
-				"left",
-				"right",
+				'left',
+				'right',
 			])) {
-				throw new Exception_Semantics("Requires value of left or right (passed {value})", [
-					"value" => $set,
+				throw new Exception_Semantics('Requires value of left or right (passed {value})', [
+					'value' => $set,
 				]);
 			}
 			return $this->setOption(self::option_dropdown_alignment, $set);

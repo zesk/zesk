@@ -41,15 +41,15 @@ class Module extends \zesk\Module {
 			return false;
 		}
 		$mtime = filemtime($this->application->template->find_path('htaccess.tpl'));
-		$htaccess_name = $this->option("htaccess_name", ".htaccess");
-		$index_file = $this->option_list("directory_index", "index.php", " ");
+		$htaccess_name = $this->option('htaccess_name', '.htaccess');
+		$index_file = $this->option_list('directory_index', 'index.php', ' ');
 		$file = path($docroot, $htaccess_name);
 		$file_mtime = is_file($file) ? filemtime($file) : null;
 		if ($mtime < $file_mtime) {
 			return false;
 		}
 		$contents = $this->application->theme('htaccess', [
-			'directory_index' => implode(" ", $index_file),
+			'directory_index' => implode(' ', $index_file),
 		]);
 		file_put_contents($file, $contents);
 		return true;

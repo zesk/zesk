@@ -94,7 +94,7 @@ class CSV_Writer extends CSV {
 		if ($f === null) {
 			return $this->FileName;
 		}
-		return parent::_set_file($f, "w", true);
+		return parent::_set_file($f, 'w', true);
 	}
 
 	/*====================================================================================*\
@@ -107,7 +107,7 @@ class CSV_Writer extends CSV {
 	 * @return unknown
 	 */
 	private function _writeNewRow() {
-		return array_fill(0, count($this->Headers), "");
+		return array_fill(0, count($this->Headers), '');
 	}
 
 	/**
@@ -129,11 +129,11 @@ class CSV_Writer extends CSV {
 		$mapGroup = [];
 		foreach ($map as $member => $column) {
 			if (!is_string($column)) {
-				throw new Exception_Key("Column {column} is not a string", ["column" => $column]);
+				throw new Exception_Key('Column {column} is not a string', ['column' => $column]);
 			}
 			$column = strtolower($column);
 			if (!isset($this->HeadersToIndex[strtolower($column)])) {
-				throw new Exception_Key("{method}({name},...): {column} not found in headers {headers}", ["method" => __METHOD__, "name" => $name, "headers" => JSON::encode($this->HeadersToIndex), "column" => $column, ]);
+				throw new Exception_Key('{method}({name},...): {column} not found in headers {headers}', ['method' => __METHOD__, 'name' => $name, 'headers' => JSON::encode($this->HeadersToIndex), 'column' => $column, ]);
 			} else {
 				$indexes = $this->HeadersToIndex[$column];
 				$mapGroup[strtolower($member)] = $indexes;
@@ -220,7 +220,7 @@ class CSV_Writer extends CSV {
 
 		if (isset($this->WriteMapGroupDefault[$lowname])) {
 			foreach ($fields as $k => $v) {
-				if (!isset($fields[$k]) || ($fields[$k] === "")) {
+				if (!isset($fields[$k]) || ($fields[$k] === '')) {
 					$fields[$k] = $v;
 				}
 			}
@@ -297,10 +297,10 @@ class CSV_Writer extends CSV {
 	public function write_row(): void {
 		$this->_check_file();
 		if (!is_array($this->Row)) {
-			throw new Exception_Semantics("CSV_Writer:writeRow: Must set row values first");
+			throw new Exception_Semantics('CSV_Writer:writeRow: Must set row values first');
 		}
 		$headers = $this->headers();
-		if (!$this->WroteHeaders && $this->optionBool("write_header", true) && is_array($headers)) {
+		if (!$this->WroteHeaders && $this->optionBool('write_header', true) && is_array($headers)) {
 			fwrite($this->File, $this->_formatRow($headers));
 			$this->RowIndex = 0;
 			$this->WroteHeaders = true;
@@ -311,7 +311,7 @@ class CSV_Writer extends CSV {
 			foreach ($values as $value) {
 				$result[] = avalue($v, $value, $value);
 			}
-			$this->Row[$k] = implode(", ", $result);
+			$this->Row[$k] = implode(', ', $result);
 		}
 		fwrite($this->File, $this->_formatRow($this->Row));
 		$this->RowIndex += 1;
@@ -328,7 +328,7 @@ class CSV_Writer extends CSV {
 		$d = $this->Delimiter;
 		$e = $this->Enclosure;
 		$rowOut = [];
-		$pattern = "/[" . preg_quote("$e$d") . '\s]/';
+		$pattern = '/[' . preg_quote("$e$d") . '\s]/';
 		foreach ($row as $cell) {
 			if (preg_match($pattern, $cell)) {
 				$cell = $e . str_replace($e, "$e$e", $cell) . $e;

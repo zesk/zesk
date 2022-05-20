@@ -10,7 +10,7 @@ namespace zesk;
  *
  */
 class Server_Platform_Linux extends Server_Platform_Unix {
-	protected $root_group = "root";
+	protected $root_group = 'root';
 
 	private static $users_loaded = false;
 
@@ -59,16 +59,16 @@ class Server_Platform_Linux extends Server_Platform_Unix {
 				$this->verbose_log("Stopping $path ...");
 				$this->root_exec("$path stop");
 			}
-			$this->owner($path, "root", "-rw-r--r--");
+			$this->owner($path, 'root', '-rw-r--r--');
 		}
 	}
 
 	public function hook_configure_features(): void {
 		$this->packager->install([
-			"curl",
-			"rsync",
-			"unzip",
-			"bzip2",
+			'curl',
+			'rsync',
+			'unzip',
+			'bzip2',
 		]);
 		$this->network_configure();
 	}
@@ -97,9 +97,9 @@ class Server_Platform_Linux extends Server_Platform_Unix {
 		if (!$this->group_exists($group)) {
 			throw new Server_Exception_Group_NotFound($group);
 		}
-		$da = ($home !== null) ? " -d {2}" : "";
-		$sa = ($shell !== null) ? " -s {3}" : "";
-		$ua = ($uid !== null) ? " -u {4}" : "";
+		$da = ($home !== null) ? ' -d {2}' : '';
+		$sa = ($shell !== null) ? ' -s {3}' : '';
+		$ua = ($uid !== null) ? ' -u {4}' : '';
 		$this->root_exec("useradd -g {1}$da$sa$ua {0}", $user, $group, $home, $shell, $uid);
 		return $this->user_id($user);
 	}
@@ -108,13 +108,13 @@ class Server_Platform_Linux extends Server_Platform_Unix {
 		if (!$this->user_exists($user)) {
 			throw new Server_Exception_User_NotFound($user);
 		}
-		$force = $force ? "-f " : "";
+		$force = $force ? '-f ' : '';
 		$this->root_exec("userdel $force{0}", $user);
 		return true;
 	}
 
 	public function group_create($group, $members = null, $gid = null) {
-		$ma = "";
+		$ma = '';
 		if ($members !== null) {
 			$members = ArrayTools::trim_clean(to_list($members, []));
 			if (count($members) > 0) {
@@ -123,11 +123,11 @@ class Server_Platform_Linux extends Server_Platform_Unix {
 						throw new Server_Exception_Group_NotFound($members, "When adding $group with members $members");
 					}
 				}
-				$ma = " -m {1}";
-				$members = implode(",", $members);
+				$ma = ' -m {1}';
+				$members = implode(',', $members);
 			}
 			if ($gid !== null) {
-				$ga = " -g {2}";
+				$ga = ' -g {2}';
 			}
 		}
 		$this->root_exec("groupadd {0}$ma$ga", $group, $members, $gid);
@@ -138,7 +138,7 @@ class Server_Platform_Linux extends Server_Platform_Unix {
 		if (!$this->group_exists($group)) {
 			throw new Server_Exception_Group_NotFound($group);
 		}
-		$this->root_exec("groupdel {0}", $group);
+		$this->root_exec('groupdel {0}', $group);
 		return true;
 	}
 

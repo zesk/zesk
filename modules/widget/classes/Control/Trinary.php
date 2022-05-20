@@ -15,15 +15,15 @@ class Control_Trinary extends Control_Select {
 		$val = $this->value();
 		$column = $this->query_column();
 		$locale = $this->application->locale;
-		if ($val === "null") {
-			$query->condition($locale->__("have not answered {label}", [
-				"label" => $this->label,
+		if ($val === 'null') {
+			$query->condition($locale->__('have not answered {label}', [
+				'label' => $this->label,
 			]), $this->query_condition_key());
 			$query->where($column, null);
 		} elseif (is_numeric($val)) {
-			$query->condition($locale->__("answered {value} for {label}", [
-				"label" => $this->label,
-				"value" => $val ? $locale->__("yes") : $locale->__("no"),
+			$query->condition($locale->__('answered {value} for {label}', [
+				'label' => $this->label,
+				'value' => $val ? $locale->__('yes') : $locale->__('no'),
 			]), $this->query_condition_key());
 			$query->where($column, $val);
 		}

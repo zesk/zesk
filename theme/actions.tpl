@@ -32,7 +32,7 @@ foreach ($content as $href => $attrs) {
 	];
 	$checkbox = false;
 	$type = 'a';
-	$class = "btn btn-default";
+	$class = 'btn btn-default';
 	if (is_string($attrs)) {
 		$title = $attrs;
 		$tag_attrs['title'] = $title;
@@ -48,7 +48,7 @@ foreach ($content as $href => $attrs) {
 		$title = avalue($attrs, 'title');
 		$tag_attrs['title'] = avalue($attrs, 'a_title', $title);
 		$class = avalue($attrs, 'class', $class);
-		$class = CSS::add_class($class, avalue($attrs, "+class"));
+		$class = CSS::add_class($class, avalue($attrs, '+class'));
 	}
 	$visible = avalue($attrs, 'visible', true);
 	if (!$visible) {
@@ -67,4 +67,4 @@ foreach ($content as $href => $attrs) {
 		$buttons[] = HTML::tag($type, $tag_attrs + $input_data_attrs, $title);
 	}
 }
-echo HTML::etag("div", CSS::add_class(".actions", $this->class), implode("\n", $buttons));
+echo HTML::etag('div', CSS::add_class('.actions', $this->class), implode("\n", $buttons));

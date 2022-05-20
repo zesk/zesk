@@ -38,7 +38,7 @@ class Contact_Address extends Contact_Info {
 	 * @see \zesk\Contact_Info::store()
 	 */
 	public function store(): self {
-		if ($this->changed("country;unparsed;street;additional;city;county;province;postal_code")) {
+		if ($this->changed('country;unparsed;street;additional;city;county;province;postal_code')) {
 			$this->geocoded = null;
 			$this->geocode_data = null;
 		}
@@ -46,11 +46,11 @@ class Contact_Address extends Contact_Info {
 			$address = Contact_Address_Parser::parse($this->application, $this->value);
 			if ($address) {
 				$columns = [
-					"street",
-					"city",
-					"province",
-					"postalCode",
-					"country",
+					'street',
+					'city',
+					'province',
+					'postalCode',
+					'country',
 				];
 				foreach ($columns as $col) {
 					$this->$col = $address->$col;
@@ -83,10 +83,10 @@ class Contact_Address extends Contact_Info {
 	 */
 	public static function en_lang_member_names() {
 		return [
-			"id" => 'ID',
-			"contact" => 'Contact',
-			"label" => 'Label',
-			"country" => 'Country',
+			'id' => 'ID',
+			'contact' => 'Contact',
+			'label' => 'Label',
+			'country' => 'Country',
 			'unparsed' => 'Raw Address',
 			'name' => 'Name',
 			'street' => 'Street',
@@ -215,7 +215,7 @@ class Contact_Address extends Contact_Info {
 	 * @return Contact_Address_Parser
 	 */
 	private function parser() {
-		return $this->application->object_singleton("Contact_Address_Parser");
+		return $this->application->object_singleton('Contact_Address_Parser');
 	}
 
 	/**

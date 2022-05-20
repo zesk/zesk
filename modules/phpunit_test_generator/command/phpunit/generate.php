@@ -27,7 +27,7 @@ class Command_PHPUnit_Generate extends Command_Iterator_File {
 	 */
 	public function initialize(): void {
 		$this->option_types += [
-			"destination" => 'directory',
+			'destination' => 'directory',
 		];
 		parent::initialize();
 	}
@@ -35,7 +35,7 @@ class Command_PHPUnit_Generate extends Command_Iterator_File {
 	/**
 	 */
 	protected function start(): void {
-		$destination = $this->option("destination");
+		$destination = $this->option('destination');
 		if (Directory::is_absolute($destination)) {
 			$this->destination = $destination;
 		} else {

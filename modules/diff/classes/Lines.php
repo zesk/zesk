@@ -92,12 +92,12 @@ class Lines extends Base {
 		foreach ($diffs as $edit) {
 			switch ($edit->op) {
 				case Edit::DIFF_INSERT:
-					$result[] = "> Line " . ($edit->off + 1) . " Insert $edit->len lines";
+					$result[] = '> Line ' . ($edit->off + 1) . " Insert $edit->len lines";
 					$result[] = implode("\n", array_slice($this->blines, $edit->off, $edit->len));
 
 					break;
 				case Edit::DIFF_DELETE:
-					$result[] = "< Line " . ($edit->off + 1) . " Delete $edit->len lines";
+					$result[] = '< Line ' . ($edit->off + 1) . " Delete $edit->len lines";
 					$result[] = implode("\n", array_slice($this->alines, $edit->off, $edit->len));
 
 					break;

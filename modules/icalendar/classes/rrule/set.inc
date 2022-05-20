@@ -99,8 +99,8 @@ class Set {
 	public function iterator() {
 		$rlist = [];
 		if ($this->dirty) {
-			usort($this->rdate, "zesk\\Timestamp::compare_callback");
-			usort($this->exdate, "zesk\\Timestamp::compare_callback");
+			usort($this->rdate, 'zesk\\Timestamp::compare_callback');
+			usort($this->exdate, 'zesk\\Timestamp::compare_callback');
 		}
 
 		$rules = new Rules($this->rrule, $this->rdate);
@@ -118,9 +118,9 @@ class Set {
 					continue;
 				}
 			} elseif ($extimestamp !== null) {
-				throw new Exception_System("ExTimestamp invalid value \"{value}\" type({type})", [
-					"value" => $extimestamp,
-					"type" => type($extimestamp),
+				throw new Exception_System('ExTimestamp invalid value "{value}" type({type})', [
+					'value' => $extimestamp,
+					'type' => type($extimestamp),
 				]);
 			}
 			yield $timestamp;

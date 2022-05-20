@@ -29,7 +29,7 @@ class Net_Client_Socket extends Net_Client {
 	 *
 	 * @var string
 	 */
-	protected $buffer = "";
+	protected $buffer = '';
 
 	/**
 	 * Connect to the socket
@@ -37,7 +37,7 @@ class Net_Client_Socket extends Net_Client {
 	 * @see Net_Client::connect()
 	 */
 	public function connect() {
-		if ($this->hasOption("eol")) {
+		if ($this->hasOption('eol')) {
 			$this->EOL = $this->option('eol', $this->EOL);
 		}
 		if ($this->is_connected()) {
@@ -58,7 +58,7 @@ class Net_Client_Socket extends Net_Client {
 		}
 		stream_set_timeout($this->socket, $timeout, 0);
 		stream_set_blocking($this->socket, $this->optionBool('blocking', true) ? 1 : 0);
-		$this->log("Connected.");
+		$this->log('Connected.');
 		$this->greeting = $this->read();
 		return true;
 	}
@@ -90,7 +90,7 @@ class Net_Client_Socket extends Net_Client {
 	 */
 	protected function _check(): void {
 		if (!$this->is_connected()) {
-			throw new Exception_Semantics("Not connected to server");
+			throw new Exception_Semantics('Not connected to server');
 		}
 	}
 
@@ -144,7 +144,7 @@ class Net_Client_Socket extends Net_Client {
 	 */
 	public function write($data) {
 		$this->_check();
-		$this->log($data, "> ");
+		$this->log($data, '> ');
 		return $this->write_data($data . $this->EOL);
 	}
 
@@ -156,7 +156,7 @@ class Net_Client_Socket extends Net_Client {
 		$timeout = microtime(true) + $milliseconds;
 		do {
 			$status = stream_get_meta_data($this->socket);
-			$bytes = $status["unread_bytes"];
+			$bytes = $status['unread_bytes'];
 			if ($bytes === 0) {
 				sleep(100);
 			} else {
@@ -197,7 +197,7 @@ class Net_Client_Socket extends Net_Client {
 		}
 		$read_length = $length - strlen($this->buffer);
 		$data = $this->buffer;
-		$this->buffer = "";
+		$this->buffer = '';
 		return $data . $this->_read($read_length);
 	}
 
@@ -216,12 +216,12 @@ class Net_Client_Socket extends Net_Client {
 		}
 		$result = fread($this->socket, $n_chars);
 		if ($this->optionBool('read_debug')) {
-			echo($result === false ? "false" : strlen($result)) . " $result\n";
+			echo($result === false ? 'false' : strlen($result)) . " $result\n";
 		}
 		if (strlen($result) === 0) {
 			throw new Exception_Protocol("fread returned empty: $result");
 		}
-		$this->log($result, "< ");
+		$this->log($result, '< ');
 		return $result;
 	}
 }

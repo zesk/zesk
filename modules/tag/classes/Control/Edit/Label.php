@@ -33,7 +33,7 @@ class Control_Edit_Label extends Control_Edit {
 		$locale = $this->application->locale;
 		$ww[] = $this->widget_factory(Control_Text::class)
 			->names('name', $locale->__('Name'))
-			->add_class("input-lg")
+			->add_class('input-lg')
 			->required(true);
 
 		$ww[] = $w = $this->widget_factory(Control_Button::class)

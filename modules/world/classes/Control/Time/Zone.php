@@ -36,23 +36,23 @@ class Control_Time_Zone extends Control_Select {
 	 * @see \zesk\Control_Select::initialize()
 	 */
 	public function initialize(): void {
-		$query = $this->application->orm_registry("zesk\\Time_Zone")->query_select()->where($this->where);
+		$query = $this->application->orm_registry('zesk\\Time_Zone')->query_select()->where($this->where);
 		if ($this->prefixes_only()) {
-			$query->what("*Name", "DISTINCT LEFT(Name,LOCATE('/',Name)-1)");
-			$tzs = ArrayTools::clean(ArrayTools::ksuffix($query->to_array("Name", "Name"), "/"), '');
+			$query->what('*Name', 'DISTINCT LEFT(Name,LOCATE(\'/\',Name)-1)');
+			$tzs = ArrayTools::clean(ArrayTools::ksuffix($query->to_array('Name', 'Name'), '/'), '');
 			$this->control_options($tzs);
 		} else {
-			$query->what("Name", "Name");
+			$query->what('Name', 'Name');
 			$exclude = $this->option_array('exclude');
 			if (count($exclude) > 0) {
-				$query->where("Name|NOT LIKE|AND", $exclude);
+				$query->where('Name|NOT LIKE|AND', $exclude);
 			}
-			$tzs = $query->to_array("Name", "Name");
+			$tzs = $query->to_array('Name', 'Name');
 			$parents = [];
 			foreach ($tzs as $tz) {
-				[$region, $name] = pair($tz, "/", "Miscellaneous", $tz);
-				$region = strtr($region, "_", " ");
-				$parents[$region][$tz] = strtr($name, "_", " ");
+				[$region, $name] = pair($tz, '/', 'Miscellaneous', $tz);
+				$region = strtr($region, '_', ' ');
+				$parents[$region][$tz] = strtr($name, '_', ' ');
 			}
 			$this->setOption('optgroup', true);
 			$this->control_options($parents);

@@ -27,7 +27,7 @@ class Base26 {
 	 */
 	public static function from_integer($i, $nChars) {
 		$A = ord('A');
-		$s = "";
+		$s = '';
 		while ($i > 0) {
 			$mod = $i % 26;
 			$i = intval($i / 26);
@@ -59,7 +59,7 @@ class Base26 {
 	 * @see Base26::from_integer()
 	 */
 	public static function to_integer($s) {
-		$s = preg_replace("/[^A-Z]/", "", strtoupper($s));
+		$s = preg_replace('/[^A-Z]/', '', strtoupper($s));
 		$A = ord('A');
 		$mul = 1;
 		$total = 0;

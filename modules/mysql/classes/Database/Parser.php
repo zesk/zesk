@@ -13,8 +13,10 @@ namespace MySQL;
 use zesk\Database_Table;
 use zesk\Database_Column;
 use zesk\Database_Index;
+use zesk\Exception_NotFound;
 use zesk\Exception_Parse;
 use zesk\ArrayTools;
+use zesk\Exception_Semantics;
 
 /**
  * Pattern to capture an enture CREATE TABLE sql command
@@ -39,7 +41,7 @@ define('MYSQL_PATTERN_CREATE_TABLE', '/\s*CREATE\s+TABLE\s+(`[^`]+`|[A-Za-z][A-Z
  * @var string
  * @see preg_match
  */
-define("MYSQL_PATTERN_CREATE_TABLE_OPTIONS", '/(ENGINE|DEFAULT CHARSET|COLLATE)=([A-Za-z0-9_]+)/i');
+define('MYSQL_PATTERN_CREATE_TABLE_OPTIONS', '/(ENGINE|DEFAULT CHARSET|COLLATE)=([A-Za-z0-9_]+)/i');
 
 /**
  * Pattern to capture `Name's alive` or Name_Of_Column in MySQL
@@ -50,7 +52,7 @@ define("MYSQL_PATTERN_CREATE_TABLE_OPTIONS", '/(ENGINE|DEFAULT CHARSET|COLLATE)=
  * @see preg_match
  *
  */
-define("MYSQL_PATTERN_COLUMN_NAME", '(`[^`]+`|[A-Za-z][A-Za-z0-9_]*)');
+define('MYSQL_PATTERN_COLUMN_NAME', '(`[^`]+`|[A-Za-z][A-Za-z0-9_]*)');
 /**
  * Pattern to capture `Name's alive` or Name_Of_Column in MySQL
  *
@@ -60,7 +62,7 @@ define("MYSQL_PATTERN_COLUMN_NAME", '(`[^`]+`|[A-Za-z][A-Za-z0-9_]*)');
  * @see preg_match
  *
  */
-define("MYSQL_PATTERN_COLUMN_TYPE", '([A-Za-z]+(\([^)]*\))?)(\s+unsigned)?');
+define('MYSQL_PATTERN_COLUMN_TYPE', '([A-Za-z]+(\([^)]*\))?)(\s+unsigned)?');
 
 /**
  * Pattern to capture multiple columns in a database CREATE TABLE syntax
@@ -76,7 +78,7 @@ define("MYSQL_PATTERN_COLUMN_TYPE", '([A-Za-z]+(\([^)]*\))?)(\s+unsigned)?');
  * @see preg_match_all
  *
  */
-define("MYSQL_PATTERN_COLUMN_LIST", '/\s*(' . MYSQL_PATTERN_COLUMN_NAME . '\s+' . MYSQL_PATTERN_COLUMN_TYPE . '([^,]*)),/i');
+define('MYSQL_PATTERN_COLUMN_LIST', '/\s*(' . MYSQL_PATTERN_COLUMN_NAME . '\s+' . MYSQL_PATTERN_COLUMN_TYPE . '([^,]*)),/i');
 
 /**
  * Pattern to capture optional "size" after an index column name, e.g.
@@ -181,7 +183,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			$type = strtolower($arr[0]);
 			$value = last($arr);
 			switch ($type) {
-				case "default null":
+				case 'default null':
 					$options['not null'] = false;
 					$options['default'] = null;
 
@@ -195,7 +197,7 @@ class Database_Parser extends \zesk\Database_Parser {
 
 					break;
 				case 'default current_timestamp':
-					$options['default'] = "CURRENT_TIMESTAMP";
+					$options['default'] = 'CURRENT_TIMESTAMP';
 
 					break;
 				case 'on update current_timestamp':
@@ -207,13 +209,13 @@ class Database_Parser extends \zesk\Database_Parser {
 
 					break;
 				default:
-					if (begins($type, "default ")) {
+					if (begins($type, 'default ')) {
 						$options['default'] = $data_type->native_type_default($sql_type, $value);
 					}
-					if (begins($type, "character set ")) {
+					if (begins($type, 'character set ')) {
 						$options[Database::attribute_character_set] = $value;
 					}
-					if (begins($type, "collate ")) {
+					if (begins($type, 'collate ')) {
 						$options[Database::attribute_collation] = $value;
 					}
 
@@ -234,7 +236,7 @@ class Database_Parser extends \zesk\Database_Parser {
 	private function parse_column_sql(Database_Table $table, $sql) {
 		$columns_matches = [];
 		if (!preg_match_all(MYSQL_PATTERN_COLUMN_LIST, $sql, $columns_matches, PREG_SET_ORDER)) {
-			throw new Exception_Parse(__("Unable to parse table {0} column definition: {1}", $table->name(), substr($sql, 128)));
+			throw new Exception_Parse(__('Unable to parse table {0} column definition: {1}', $table->name(), substr($sql, 128)));
 		}
 		$db = $table->database();
 		foreach ($columns_matches as $col_match) {
@@ -248,20 +250,20 @@ class Database_Parser extends \zesk\Database_Parser {
 
 			$options = $this->parse_column_options_sql($table, $sql_type, $col_match[6]);
 
-			if (begins($sql_type, "varbinary")) {
+			if (begins($sql_type, 'varbinary')) {
 				$options['binary'] = true;
 			}
 			$size = to_integer(unquote($col_match[4], '()'), 0);
 			if ($size !== 0) {
 				$options['size'] = $size;
 			}
-			if (trim(strtolower($col_match[5])) === "unsigned") {
+			if (trim(strtolower($col_match[5])) === 'unsigned') {
 				$options['unsigned'] = true;
 			}
 			$options['type'] = $sql_type;
 			$options['sql_type'] = trim($sql_type);
 
-			if ($sql_type === "timestamp" && !isset($options['default'])) {
+			if ($sql_type === 'timestamp' && !isset($options['default'])) {
 				if ($options['not null'] ?? null) {
 					// KMD Was 2020-07-13 "CURRENT_TIMESTAMP";
 					$options['default'] = 0;
@@ -273,7 +275,12 @@ class Database_Parser extends \zesk\Database_Parser {
 			$col = new Database_Column($table, $column_name, $options);
 			$options = $this->database->column_attributes($col);
 			$col->setOptions($options, false);
-			$table->columnAdd($col);
+
+			try {
+				$table->columnAdd($col);
+			} catch (Exception_Semantics $e) {
+				throw new Exception_Parse('Invalid column spec {table}', $table->variables(), 0, $e);
+			}
 		}
 		return $sql;
 	}
@@ -318,14 +325,14 @@ class Database_Parser extends \zesk\Database_Parser {
 			return $sql_columns;
 		}
 		foreach ($index_matches as $index_match) {
-			$index_columns = array_map(fn ($v) => unquote($v, '``'), ArrayTools::trim(explode(",", $index_match[4])));
+			$index_columns = array_map(fn($v) => unquote($v, '``'), ArrayTools::trim(explode(',', $index_match[4])));
 			$indexes_state[] = [
-				"index_type" => $index_match[1],
-				"index_name" => unquote($index_match[3], '``'),
-				"index_columns" => $index_columns,
-				"index_structure" => $index_match[5] ?? null,
+				'index_type' => $index_match[1],
+				'index_name' => unquote($index_match[3], '``'),
+				'index_columns' => $index_columns,
+				'index_structure' => $index_match[5] ?? null,
 			];
-			$sql_columns = str_replace($index_match[0], "", $sql_columns);
+			$sql_columns = str_replace($index_match[0], '', $sql_columns);
 		}
 		return $sql_columns;
 	}
@@ -335,18 +342,36 @@ class Database_Parser extends \zesk\Database_Parser {
 	 *
 	 * @param Database_Table $table
 	 * @param array $indexes
+	 * @return void
+	 * @throws Exception_Parse
 	 */
 	private static function process_indexes(Database_Table $table, array $indexes): void {
 		foreach ($indexes as $state) {
-			$index_type = $index_name = $index_columns = $index_structure = null;
+			$index_type = $index_name = $index_columns = $index_structure = "";
 			extract($state, EXTR_IF_EXISTS);
-			$index = new Database_Index($table, $index_name, [], $index_type, $index_structure);
+			try {
+				$index = new Database_Index($table, $index_name, [], $index_type, $index_structure);
+			} catch (Exception_Semantics $e) {
+				throw new Exception_Parse("Invalid index data specified {data} in index {index_name}", [
+					'data' => $state,
+					'index_name' => $index_name,
+				], 0, $e);
+			}
 			foreach ($index_columns as $index_column) {
 				$index_size_match = false;
-				if (preg_match(MYSQL_PATTERN_INDEX_COLUMN, $index_column, $index_size_match)) {
-					$index->column_add(unquote($index_size_match[1], '``'), intval($index_size_match[2]));
-				} else {
-					$index->column_add($index_column);
+				try {
+					if (preg_match(MYSQL_PATTERN_INDEX_COLUMN, $index_column, $index_size_match)) {
+						$column_name = unquote($index_size_match[1], '``');
+						$index->addColumn($column_name, intval($index_size_match[2]));
+					} else {
+						$column_name = $index_column;
+						$index->addColumn($index_column);
+					}
+				} catch (Exception_NotFound $e) {
+					throw new Exception_Parse("Invalid column {column_name} in index {index_name}", [
+						'column_name' => $column_name,
+						'index_name' => $index_name,
+					], 0, $e);
 				}
 			}
 		}
@@ -363,7 +388,7 @@ class Database_Parser extends \zesk\Database_Parser {
 		$renamed_columns = [];
 		if (preg_match_all(MYSQL_PATTERN_TIP_COLUMN, $sql, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
-				$sql = str_replace($match[0], "", $sql);
+				$sql = str_replace($match[0], '', $sql);
 				$renamed_columns[$match[2]] = $match[1];
 			}
 		}
@@ -374,17 +399,17 @@ class Database_Parser extends \zesk\Database_Parser {
 		if (preg_match_all(MYSQL_PATTERN_TIP_ALTER, $sql, $tip_matches, PREG_SET_ORDER)) {
 			foreach ($tip_matches as $tip_match) {
 				[$full_match, $plus_minus, $column, $alter_sql] = $tip_match;
-				$alter_sql = rtrim($alter_sql, ";\n") . ";";
-				$col = unquote($column, "``");
+				$alter_sql = rtrim($alter_sql, ";\n") . ';';
+				$col = unquote($column, '``');
 				if ($plus_minus === '+') {
-					$add_tips[$col] = avalue($add_tips, $col, "") . $alter_sql;
+					$add_tips[$col] = avalue($add_tips, $col, '') . $alter_sql;
 				} else {
-					$remove_tips[$col] = avalue($remove_tips, $col, "") . $alter_sql;
+					$remove_tips[$col] = avalue($remove_tips, $col, '') . $alter_sql;
 				}
-				$sql = str_replace($full_match, "", $sql);
+				$sql = str_replace($full_match, '', $sql);
 			}
 		}
-		return ["rename" => $renamed_columns, "add" => $add_tips, "remove" => $remove_tips, ];
+		return ['rename' => $renamed_columns, 'add' => $add_tips, 'remove' => $remove_tips,];
 	}
 
 	/**
@@ -409,14 +434,14 @@ class Database_Parser extends \zesk\Database_Parser {
 		foreach ($add_tips as $column => $add_sql) {
 			$col = $table->column($column);
 			if ($col) {
-				$col->setOption("add_sql", $add_sql);
+				$col->setOption('add_sql', $add_sql);
 			} else {
 				$this->application->logger->notice($table->name() . " contains add tip for non-existent new column: $column => $add_sql");
 			}
 		}
 		$remove_tips = avalue($tips, 'add', []);
 		if (count($remove_tips) > 0) {
-			$table->setOption("remove_sql", $remove_tips);
+			$table->setOption('remove_sql', $remove_tips);
 		}
 	}
 
@@ -429,6 +454,12 @@ class Database_Parser extends \zesk\Database_Parser {
 	 *
 	 * @see Database_Parser::create_table() Parses CREATE TABLE for MySQL and returns a
 	 *      Database_Table
+	 */
+	/**
+	 * @param string $sql
+	 * @return Database_Table
+	 * @throws Exception_Parse
+	 * @throws Exception_Semantics
 	 */
 	public function create_table(string $sql): Database_Table {
 		$matches = false;
@@ -443,21 +474,21 @@ class Database_Parser extends \zesk\Database_Parser {
 		/*
 		 * Parse table into name, columns, and options
 		 */
-		if (!preg_match(MYSQL_PATTERN_CREATE_TABLE, strtr($sql, "\n", " "), $matches)) {
-			throw new Exception_Parse(__("Unable to parse CREATE TABLE starting with: {0}", $sql));
+		if (!preg_match(MYSQL_PATTERN_CREATE_TABLE, strtr($sql, "\n", ' '), $matches)) {
+			throw new Exception_Parse(__('Unable to parse CREATE TABLE starting with: {0}', $sql));
 		}
 
-		$table = unquote($matches[1], "``");
+		$table = unquote($matches[1], '``');
 
 		/*
 		 * Parse table options (end of table declaration)
 		 */
 		$table_options = self::create_table_options($matches[3]);
 
-		$type = avalue($table_options, "engine", avalue($table_options, "type", $this->database->default_engine()));
+		$type = avalue($table_options, 'engine', avalue($table_options, 'type', $this->database->default_engine()));
 		$table = new Database_Table($this->database, $table, $type, $table_options);
 		$table->source($source_sql);
-		$sql_columns = trim($matches[2]) . ",";
+		$sql_columns = trim($matches[2]) . ',';
 
 		/*
 		 * Extract indexes first

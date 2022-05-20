@@ -19,19 +19,19 @@ class Class_Label extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public string $code_name = "Tag_Label";
+	public string $code_name = 'Tag_Label';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public $name_column = "name";
+	public $name_column = 'name';
 
 	/**
 	 *
@@ -46,7 +46,7 @@ class Class_Label extends Class_ORM {
 	 * @var array
 	 */
 	public array $find_keys = [
-		"code",
+		'code',
 	];
 
 	/**

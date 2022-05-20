@@ -20,7 +20,7 @@ class Control_Select_File extends Control_Select {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->setOption("novalue", "");
+		$this->setOption('novalue', '');
 	}
 
 	/**
@@ -28,7 +28,7 @@ class Control_Select_File extends Control_Select {
 	 * @return mixed[]
 	 */
 	public function hook_options() {
-		$map = Directory::ls($this->option("path", "/data/files/"), $this->option("filter", '/.*\.[A-Za-z0-9]+/'));
+		$map = Directory::ls($this->option('path', '/data/files/'), $this->option('filter', '/.*\.[A-Za-z0-9]+/'));
 		$opts = [];
 
 		foreach ($map as $k) {

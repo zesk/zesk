@@ -14,14 +14,14 @@ namespace zesk;
  * @see docs/share.md
  */
 class Controller_Share extends Controller {
-	public const SHARE_PREFIX_DEFAULT = "share";
+	public const SHARE_PREFIX_DEFAULT = 'share';
 
 	/**
 	 * Option to override default
 	 *
 	 * @var string
 	 */
-	public const OPTION_SHARE_PREFIX = "share_prefix";
+	public const OPTION_SHARE_PREFIX = 'share_prefix';
 
 	/**
 	 *
@@ -43,15 +43,15 @@ class Controller_Share extends Controller {
 		$share_paths = $this->application->share_path();
 		$document_root = $app->document_root();
 		foreach ($share_paths as $name => $path) {
-			$app->logger->info("Reviewing {name} => {path}", [
-				"name" => $name,
-				"path" => $path,
+			$app->logger->info('Reviewing {name} => {path}', [
+				'name' => $name,
+				'path' => $path,
 			]);
 			$files = Directory::ls($path);
 			foreach ($files as $file) {
 				$base = basename($file);
 				$source = path($path, $file);
-				if (substr($base, 0, 1) !== "." && is_file($source)) {
+				if (substr($base, 0, 1) !== '.' && is_file($source)) {
 					$target_file = path($document_root, $this->option_share_prefix(), $name, $file);
 					Directory::depend(dirname($target_file), 0o777);
 					if (!copy($source, $target_file)) {
@@ -69,8 +69,8 @@ class Controller_Share extends Controller {
 	 * @return string
 	 */
 	public function path_to_file($path) {
-		$uri = StringTools::unprefix($path, "/");
-		$uri = pair($uri, "/", "", $uri)[1];
+		$uri = StringTools::unprefix($path, '/');
+		$uri = pair($uri, '/', '', $uri)[1];
 		$share_paths = $this->application->share_path();
 		foreach ($share_paths as $name => $path) {
 			if (empty($name) || begins($uri, "$name/")) {
@@ -90,8 +90,8 @@ class Controller_Share extends Controller {
 	 * @see Controller::_action_default()
 	 */
 	public function _action_default($action = null): mixed {
-		$uri = StringTools::unprefix($original_uri = $this->request->path(), "/");
-		if ($this->application->development() && $uri === "share/debug") {
+		$uri = StringTools::unprefix($original_uri = $this->request->path(), '/');
+		if ($this->application->development() && $uri === 'share/debug') {
 			$this->response->content = $this->share_debug();
 			return null;
 		}
@@ -105,20 +105,20 @@ class Controller_Share extends Controller {
 		if ($mod && $fmod <= strtotime($mod)) {
 			$this->response->status(Net_HTTP::STATUS_NOT_MODIFIED);
 			$this->response->content_type(MIME::from_filename($file));
-			$this->response->content = "";
+			$this->response->content = '';
 			if ($this->optionBool('build')) {
 				$this->build($original_uri, $file);
 			}
 			return null;
-			$this->response->header("X-Debug", "Mod - " . strtotime($mod) . " FMod - " . strtotime($fmod));
+			$this->response->header('X-Debug', 'Mod - ' . strtotime($mod) . ' FMod - ' . strtotime($fmod));
 		}
 
 		$request = $this->request;
-		if ($request->get("_ver")) {
+		if ($request->get('_ver')) {
 			// Versioned resources are timestamped, expire never
-			$this->response->header_date("Expires", strtotime("+1 year"));
+			$this->response->header_date('Expires', strtotime('+1 year'));
 		} else {
-			$this->response->header_date("Expires", strtotime("+1 hour"));
+			$this->response->header_date('Expires', strtotime('+1 hour'));
 		}
 		$this->response->raw()->file($file);
 		if ($this->optionBool('build')) {
@@ -137,10 +137,10 @@ class Controller_Share extends Controller {
 		$target = path($this->application->document_root(), $path);
 		Directory::depend(dirname($target), 0o775);
 		$status = copy($file, $target);
-		$this->application->logger->notice("Copied {file} to {target} - {status}", [
-			"file" => $file,
-			"target" => $target,
-			"status" => $status ? "true" : "false",
+		$this->application->logger->notice('Copied {file} to {target} - {status}', [
+			'file' => $file,
+			'target' => $target,
+			'status' => $status ? 'true' : 'false',
 		]);
 	}
 
@@ -148,10 +148,10 @@ class Controller_Share extends Controller {
 	 * Output debug information during development
 	 */
 	private function share_debug() {
-		$content = "";
-		$content .= HTML::tag("h1", "Server") . HTML::tag("pre", PHP::dump($_SERVER));
-		$content .= HTML::tag("h1", "Request headers") . HTML::tag('pre', PHP::dump($this->request->header()));
-		$content .= HTML::tag("h1", "Shares") . HTML::tag('pre', PHP::dump($this->application->share_path()));
+		$content = '';
+		$content .= HTML::tag('h1', 'Server') . HTML::tag('pre', PHP::dump($_SERVER));
+		$content .= HTML::tag('h1', 'Request headers') . HTML::tag('pre', PHP::dump($this->request->header()));
+		$content .= HTML::tag('h1', 'Shares') . HTML::tag('pre', PHP::dump($this->application->share_path()));
 		return $content;
 	}
 
@@ -161,12 +161,12 @@ class Controller_Share extends Controller {
 	 * @return string
 	 */
 	public static function realpath(Application $application, $path) {
-		$path = explode("/", trim($path, '/'));
+		$path = explode('/', trim($path, '/'));
 		array_shift($path);
 		$share = array_shift($path);
 		$shares = $application->share_path();
 		if (array_key_exists($share, $shares)) {
-			return path($shares[$share], implode("/", $path));
+			return path($shares[$share], implode('/', $path));
 		}
 		return null;
 	}

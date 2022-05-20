@@ -109,6 +109,6 @@ class Rules implements Iterator {
 	}
 
 	private function current_sort(): void {
-		uasort($this->current, "zesk\\Timestamp::compare_callback");
+		uasort($this->current, 'zesk\\Timestamp::compare_callback');
 	}
 }

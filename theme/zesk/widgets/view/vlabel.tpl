@@ -11,7 +11,7 @@ namespace zesk;
 /* @var $router \zesk\Router */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
-$cache_path = $application->cache_path("vlabels");
+$cache_path = $application->cache_path('vlabels');
 
 $allowed_vlabel_fields = $this->get('vlabel_allowed_options', 'font-size;width;height;align;angle;title;text');
 
@@ -20,13 +20,13 @@ $text = $attributes['text'];
 
 ksort($attributes);
 
-$cache_file = md5(serialize($attributes)) . ".png";
+$cache_file = md5(serialize($attributes)) . '.png';
 
 $path = Directory::create($cache_path, 0o775);
 if (!$path) {
 	$response->status_code = Net_HTTP::STATUS_INTERNAL_SERVER_ERROR;
-	$response->status_message = "Permission";
-	echo "Can not create vlabels cache directory";
+	$response->status_message = 'Permission';
+	echo 'Can not create vlabels cache directory';
 	return;
 }
 

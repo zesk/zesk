@@ -57,16 +57,16 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		if ($application->objects->settings instanceof Interface_Settings) {
 			return $application->objects->settings;
 		}
-		$class = $application->configuration->path_get(__CLASS__ . "::instance_class", __CLASS__);
+		$class = $application->configuration->path_get(__CLASS__ . '::instance_class', __CLASS__);
 		$settings = $application->objects->factory($class, $application);
 		if (!$settings instanceof Interface_Settings) {
-			throw new Exception_Configuration(__CLASS__ . "::instance_class", "Must be Interface_Settings, class is {class}", [
-				"class" => $class,
+			throw new Exception_Configuration(__CLASS__ . '::instance_class', 'Must be Interface_Settings, class is {class}', [
+				'class' => $class,
 			]);
 		}
 		$application->hooks->add(Hooks::HOOK_EXIT, [
 			$settings,
-			"flush_instance",
+			'flush_instance',
 		]);
 		return $application->objects->settings = $settings;
 	}
@@ -95,7 +95,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		if ($item) {
 			$expires = $application->configuration->path_get([
 				__CLASS__,
-				"cache_expire_after",
+				'cache_expire_after',
 			], self::SETTINGS_CACHE_EXPIRE_AFTER);
 			if ($expires) {
 				$item->expiresAfter($expires);
@@ -117,11 +117,11 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		try {
 			$value = @unserialize($serialized);
 			if ($value === false && $serialized !== 'b:0;') {
-				throw new Exception_Syntax("Serialized value has an error");
+				throw new Exception_Syntax('Serialized value has an error');
 			}
 			return $value;
 		} catch (Exception_Class_NotFound $e) {
-			$application->hooks->call("exception", $e);
+			$application->hooks->call('exception', $e);
 			return null;
 		}
 	}
@@ -137,45 +137,45 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$size_loaded = 0;
 		$n_loaded = 0;
 		$object = $application->orm_registry(__CLASS__);
-		$fix_bad_globals = $object->optionBool("fix_bad_globals");
+		$fix_bad_globals = $object->optionBool('fix_bad_globals');
 
-		foreach ($object->query_select()->to_array("name", "value") as $name => $value) {
+		foreach ($object->query_select()->to_array('name', 'value') as $name => $value) {
 			++$n_loaded;
 			$size_loaded += strlen($value);
 			if (is_string($value)) {
 				try {
 					$globals[$name] = $value = self::unserialize($application, $value);
 					if ($debug_load) {
-						$application->logger->debug("{method} Loaded {name}={value}", [
-							"method" => __METHOD__,
-							"name" => $name,
-							"value" => $value,
+						$application->logger->debug('{method} Loaded {name}={value}', [
+							'method' => __METHOD__,
+							'name' => $name,
+							'value' => $value,
 						]);
 					}
 				} catch (Exception_Syntax $e) {
 					if ($fix_bad_globals) {
-						$application->logger->warning("{method}: Bad global {name} can not be unserialized - DELETING", [
-							"method" => __METHOD__,
-							"name" => $name,
+						$application->logger->warning('{method}: Bad global {name} can not be unserialized - DELETING', [
+							'method' => __METHOD__,
+							'name' => $name,
 						]);
-						$application->orm_registry(__CLASS__)->query_delete()->where("name", $name)->execute();
+						$application->orm_registry(__CLASS__)->query_delete()->where('name', $name)->execute();
 					} else {
-						$application->logger->error("{method}: Bad global {name} can not be unserialized, please fix manually", [
-							"method" => __METHOD__,
-							"name" => $name,
+						$application->logger->error('{method}: Bad global {name} can not be unserialized, please fix manually', [
+							'method' => __METHOD__,
+							'name' => $name,
 						]);
 					}
 				}
 			}
 		}
 		if ($debug_load) {
-			$application->logger->debug("{method} - loaded {n} globals {size} of data", [
-				"method" => __METHOD__,
-				"n" => $n_loaded,
-				"size" => Number::format_bytes($application->locale, $size_loaded),
+			$application->logger->debug('{method} - loaded {n} globals {size} of data', [
+				'method' => __METHOD__,
+				'n' => $n_loaded,
+				'size' => Number::format_bytes($application->locale, $size_loaded),
 			]);
 		}
-		$globals = $application->call_hook_arguments("filter_settings", [
+		$globals = $application->call_hook_arguments('filter_settings', [
 			$globals,
 		], $globals);
 		return $globals;
@@ -186,46 +186,46 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 */
 	public static function configured(Application $application): void {
 		$__ = [
-			"method" => __METHOD__,
+			'method' => __METHOD__,
 		];
 		$debug_load = $application->configuration->path_get([
 			__CLASS__,
-			"debug_load",
+			'debug_load',
 		]);
 		if ($debug_load) {
-			$application->logger->debug("{method} entry", $__);
+			$application->logger->debug('{method} entry', $__);
 		}
 		// If no databases registered, don't bother loading.
 		$databases = $application->database_module()->register();
 		if (count($databases) === 0) {
 			if ($debug_load) {
-				$application->logger->debug("{method} - no databases, not loading configuration", $__);
+				$application->logger->debug('{method} - no databases, not loading configuration', $__);
 			}
 			return;
 		}
-		$application->configuration->deprecated("Settings", __CLASS__);
+		$application->configuration->deprecated('Settings', __CLASS__);
 		$settings = self::singleton($application);
-		$cache_disabled = $settings->optionBool("cache_disabled");
+		$cache_disabled = $settings->optionBool('cache_disabled');
 		$exception = null;
 
 		try {
 			if ($cache_disabled) {
 				if ($debug_load) {
-					$application->logger->debug("{method} cache disabled", $__);
+					$application->logger->debug('{method} cache disabled', $__);
 				}
 				$globals = self::load_globals_from_database($application, $debug_load);
 			} else {
 				$cache = self::_cache_item($application);
 				if (!$cache->isHit()) {
 					if ($debug_load) {
-						$application->logger->debug("{method} does not have cached globals .. loading", $__);
+						$application->logger->debug('{method} does not have cached globals .. loading', $__);
 					}
 					$globals = self::load_globals_from_database($application, $debug_load);
 					$cache->set($globals);
 					self::_cache_item($application, $cache);
 				} else {
 					if ($debug_load) {
-						$application->logger->debug("{method} - loading globals from cache", $__);
+						$application->logger->debug('{method} - loading globals from cache', $__);
 					}
 					$globals = $cache->get();
 				}
@@ -253,7 +253,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 			$exception = $e;
 		}
 		if ($exception) {
-			$application->hooks->call("exception", $exception);
+			$application->hooks->call('exception', $exception);
 			$settings->_db_down($exception);
 		}
 	}
@@ -272,11 +272,11 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 			return;
 		}
 		if ($this->db_down && !$force) {
-			$this->application->logger->debug("{method}: Database is down, can not save changes {changes} because of {e}", [
-				"method" => __METHOD__,
-				"class" => __CLASS__,
-				"changes" => $this->changes,
-				"e" => $this->db_down_why,
+			$this->application->logger->debug('{method}: Database is down, can not save changes {changes} because of {e}', [
+				'method' => __METHOD__,
+				'class' => __CLASS__,
+				'changes' => $this->changes,
+				'e' => $this->db_down_why,
 			]);
 			return;
 		}
@@ -290,7 +290,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 * Internal function to write all settings store in this object to the database instantly.
 	 */
 	public function flush(): void {
-		$debug_save = $this->optionBool("debug_save");
+		$debug_save = $this->optionBool('debug_save');
 		foreach ($this->changes as $name => $value) {
 			$settings = $this->application->orm_factory(__CLASS__, [
 				'name' => $name,
@@ -298,25 +298,25 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 			if ($value === null) {
 				$settings->delete();
 				if ($debug_save) {
-					$settings->application->logger->debug("Deleting {class} {name}", [
-						"class" => get_class($settings),
-						"name" => $name,
+					$settings->application->logger->debug('Deleting {class} {name}', [
+						'class' => get_class($settings),
+						'name' => $name,
 					]);
 				}
 			} else {
 				$settings->set_member('value', $value);
 				$settings->store();
 				if ($debug_save) {
-					$settings->application->logger->debug("Saved {class} {name}={value}", [
-						"class" => get_class($settings),
-						"name" => $name,
-						"value" => $value,
+					$settings->application->logger->debug('Saved {class} {name}={value}', [
+						'class' => get_class($settings),
+						'name' => $name,
+						'value' => $value,
 					]);
 				}
 			}
 		}
-		$this->application->logger->debug("Deleted {class} cache", [
-			"class" => __CLASS__,
+		$this->application->logger->debug('Deleted {class} cache', [
+			'class' => __CLASS__,
 		]);
 		$this->application->cache->deleteItem(self::CACHE_ITEM_KEY);
 		$this->changes = [];
@@ -383,7 +383,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 */
 	public function data($name, $value = null) {
 		if ($value === null) {
-			$value = $this->application->orm_registry(__CLASS__)->query_select()->where("name", $name)->addWhat("value", "value")->one("value");
+			$value = $this->application->orm_registry(__CLASS__)->query_select()->where('name', $name)->addWhat('value', 'value')->one('value');
 			if ($value === null) {
 				return null;
 			}
@@ -438,15 +438,15 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$update = $this->application->orm_registry(Settings::class)->query_update();
 		$old_prefix_quoted = $update->sql()->quote_text($old_prefix);
 		$old_prefix_like_quoted = tr($old_prefix, [
-			"\\" => "\\\\",
-			"_" => "\\_",
+			'\\' => '\\\\',
+			'_' => '\\_',
 		]);
-		$nrows = $update->value("*name", "REPLACE(name, $old_prefix_quoted, " . $update->database()->quote_text(strtolower($new_prefix)) . ")")->where("name|LIKE", "$old_prefix_like_quoted%")->execute()->affected_rows();
+		$nrows = $update->value('*name', "REPLACE(name, $old_prefix_quoted, " . $update->database()->quote_text(strtolower($new_prefix)) . ')')->where('name|LIKE', "$old_prefix_like_quoted%")->execute()->affected_rows();
 		if ($nrows > 0) {
-			$this->application->logger->notice("Updated {nrows} settings from {old_prefix} to use new prefix {new_prefix}", [
-				"nrows" => $nrows,
-				"old_prefix" => $old_prefix,
-				"new_prefix" => $new_prefix,
+			$this->application->logger->notice('Updated {nrows} settings from {old_prefix} to use new prefix {new_prefix}', [
+				'nrows' => $nrows,
+				'old_prefix' => $old_prefix,
+				'new_prefix' => $new_prefix,
 			]);
 		}
 		return $nrows;

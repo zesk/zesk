@@ -13,7 +13,7 @@ class Controller_Control extends Controller {
 	 *
 	 * @var string
 	 */
-	protected $method_default_action = "action_control";
+	protected $method_default_action = 'action_control';
 
 	/**
 	 * Method to use as default action in this Controller. Must be a valid method name.
@@ -26,7 +26,7 @@ class Controller_Control extends Controller {
 
 	public function allowed_control($control) {
 		if (!is_array(self::$allowed)) {
-			self::$allowed = array_change_key_case(ArrayTools::flip_assign($this->option_list("allowed_controls"), true));
+			self::$allowed = array_change_key_case(ArrayTools::flip_assign($this->option_list('allowed_controls'), true));
 		}
 		return avalue(self::$allowed, strtolower($control), false);
 	}
@@ -35,15 +35,15 @@ class Controller_Control extends Controller {
 		// We don't just instantiate classes, must be in approved list.
 		$control = "Control_$control";
 		if (!$this->allowed_control($control)) {
-			$this->application->logger->error("User requested prohibited control: {control}", [
-				"control" => $control,
+			$this->application->logger->error('User requested prohibited control: {control}', [
+				'control' => $control,
 			]);
-			$this->error_404("Control prohibited.");
+			$this->error_404('Control prohibited.');
 			return;
 		}
 
 		$result = [
-			"content" => $this->widget_factory($control)
+			'content' => $this->widget_factory($control)
 				->names($name, null, $input)
 				->request($this->request)->response($this->response)
 				->json()

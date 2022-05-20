@@ -3,13 +3,13 @@ namespace zesk;
 
 class World_Test extends Test_ORM {
 	protected array $load_modules = [
-		"World",
-		"MySQL",
+		'World',
+		'MySQL',
 	];
 
 	public function initialize(): void {
 		$db = $this->application->database_registry();
-		$this->assert_not_null($db, "Database not connected");
+		$this->assert_not_null($db, 'Database not connected');
 		$this->require_tables(Country::class);
 	}
 

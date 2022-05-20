@@ -8,5 +8,5 @@
 namespace zesk;
 
 class Control_Annotation extends Control {
-	protected string $theme = "annotation";
+	protected string $theme = 'annotation';
 }

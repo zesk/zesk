@@ -35,61 +35,61 @@ if (!in_array($where, [
 
 // top-right
 $padding = "0 0 $thickness_px $thickness_px";
-$xpos = "right";
-$ypos = "top";
+$xpos = 'right';
+$ypos = 'top';
 $bg = "url($corner_image) no-repeat scroll left bottom";
 $y_close = 0;
 $x_close = 0;
-$xpos_close = "right";
+$xpos_close = 'right';
 
 switch ($where) {
 	case 'top':
 		$padding = "0 0 $thickness_px 0";
-		$xpos = "left";
-		$ypos = "top";
-		$width_unit = "100%";
+		$xpos = 'left';
+		$ypos = 'top';
+		$width_unit = '100%';
 		$bg = 'url(http://static.marketruler.com/share/images/gradient/bottom-shadow-20.png) repeat-x bottom';
 		break;
 	case 'bottom':
 		$padding = "$thickness_px 0 0 0";
-		$xpos = "left";
-		$ypos = "bottom";
-		$width_unit = "100%";
+		$xpos = 'left';
+		$ypos = 'bottom';
+		$width_unit = '100%';
 		$bg = 'url(http://static.marketruler.com/share/images/gradient/top-shadow-20.png) repeat-x top';
 		break;
 	case 'left':
 		$padding = "0 0 0 $thickness_px";
-		$xpos = "left";
-		$ypos = "top";
-		$height_unit = "100%";
+		$xpos = 'left';
+		$ypos = 'top';
+		$height_unit = '100%';
 		$bg = 'url(http://static.marketruler.com/share/images/gradient/right-shadow-20.png) repeat-y right';
 		break;
 	case 'right':
 		$padding = "0 0 0 $thickness_px";
-		$xpos = "right";
-		$ypos = "top";
-		$height_unit = "100%";
-		$bg = "url(http://static.marketruler.com/share/images/gradient/left-shadow-20.png) repeat-y left";
+		$xpos = 'right';
+		$ypos = 'top';
+		$height_unit = '100%';
+		$bg = 'url(http://static.marketruler.com/share/images/gradient/left-shadow-20.png) repeat-y left';
 		break;
 	case 'bottom-left':
 		$padding = "$thickness_px $thickness_px 0 0";
-		$xpos = "left";
-		$ypos = "bottom";
+		$xpos = 'left';
+		$ypos = 'bottom';
 		$bg = "url($corner_image) no-repeat right top";
 		$y_close = $height - $close_height;
 		$x_close = $width - $close_height;
 		break;
 	case 'bottom-right':
 		$padding = "$thickness_px 0 0 $thickness_px";
-		$xpos = "right";
-		$ypos = "bottom";
+		$xpos = 'right';
+		$ypos = 'bottom';
 		$bg = "url($corner_image) no-repeat left top";
 		$y_close = $height - $close_height;
 		break;
 	case 'top-left':
 		$padding = "0 $thickness_px $thickness_px 0";
-		$xpos = "left";
-		$ypos = "top";
+		$xpos = 'left';
+		$ypos = 'top';
 		$x_close = $width - $close_height;
 		$bg = "url($corner_image) no-repeat right bottom";
 		break;
@@ -97,7 +97,7 @@ switch ($where) {
 	case 'top-right':
 		break;
 }
-$y_timer = ($ypos === "top") ? ($y_close + $close_height) : ($y_close - $timer_height);
+$y_timer = ($ypos === 'top') ? ($y_close + $close_height) : ($y_close - $timer_height);
 
 $this->frame = null;
 

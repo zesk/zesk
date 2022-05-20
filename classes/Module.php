@@ -26,7 +26,7 @@ class Module extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected string $codename = "";
+	protected string $codename = '';
 
 	/**
 	 * Path to this module
@@ -58,11 +58,11 @@ class Module extends Hookable {
 	 */
 	public function __sleep() {
 		return [
-			"application_class",
-			"codename",
-			"path",
-			"model_classes",
-			"class_aliases",
+			'application_class',
+			'codename',
+			'path',
+			'model_classes',
+			'class_aliases',
 		];
 	}
 
@@ -98,17 +98,17 @@ class Module extends Hookable {
 			$this->codename = avalue($module_data, 'name');
 			if (!$this->codename) {
 				// Code name used in JavaScript settings
-				$this->codename = strtolower(StringTools::unprefix(PHP::parse_class(get_class($this)), "Module_"));
+				$this->codename = strtolower(StringTools::unprefix(PHP::parse_class(get_class($this)), 'Module_'));
 			}
 		}
 		if (isset($this->classes)) {
-			$this->application->deprecated(get_class($this) . "->classes is deprecated, use ->model_classes");
+			$this->application->deprecated(get_class($this) . '->classes is deprecated, use ->model_classes');
 		}
 		$this->application->register_class($this->model_classes());
 		if (count($this->class_aliases)) {
 			$this->application->objects->map($this->class_aliases);
 		}
-		$this->call_hook("construct");
+		$this->call_hook('construct');
 		$this->inherit_global_options();
 	}
 
@@ -128,7 +128,7 @@ class Module extends Hookable {
 	public function __toString() {
 		$php = new PHP();
 		$php->settings_one();
-		return "\$application, " . $php->render($this->options);
+		return '$application, ' . $php->render($this->options);
 	}
 
 	/**
@@ -142,7 +142,7 @@ class Module extends Hookable {
 	 * @return string
 	 */
 	final public function name() {
-		return $this->option("name", $this->codename);
+		return $this->option('name', $this->codename);
 	}
 
 	/**

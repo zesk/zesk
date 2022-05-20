@@ -26,7 +26,7 @@ class Net_HTTP_Client_Exception extends Exception {
 	 *
 	 * @var string
 	 */
-	public $error_code = "";
+	public $error_code = '';
 
 	/**
 	 * @todo Convert to arguments, if needed
@@ -35,10 +35,10 @@ class Net_HTTP_Client_Exception extends Exception {
 	 * @param number $errno
 	 * @param string $error_code
 	 */
-	public function __construct($message, array $arguments = [], $errno = 0, $error_code = "") {
+	public function __construct($message, array $arguments = [], $errno = 0, $error_code = '') {
 		parent::__construct($message, $arguments + [
-			"errno" => $errno,
-			"error_code" => $error_code,
+			'errno' => $errno,
+			'error_code' => $error_code,
 		], $errno);
 		$this->errno = $errno;
 		$this->error_code = $error_code;

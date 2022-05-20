@@ -16,7 +16,7 @@ namespace zesk;
  */
 class Lang_en_test extends Test_Unit {
 	public function test_everything(): void {
-		$testx = $this->application->locale_factory("en");
+		$testx = $this->application->locale_factory('en');
 
 		$testx->date_format();
 
@@ -33,20 +33,20 @@ class Lang_en_test extends Test_Unit {
 		$caps = false;
 		$this->assert_equal($testx->indefinite_article($word, []), 'an');
 		$this->assert_equal($testx->indefinite_article($word, ['capitalize' => true]), 'An');
-		$this->assert_equal($testx->indefinite_article("HOUR AWAY", ['capitalize' => true]), 'An');
+		$this->assert_equal($testx->indefinite_article('HOUR AWAY', ['capitalize' => true]), 'An');
 
 		$x = [
-			"lions",
-			"tigers",
-			"bears",
+			'lions',
+			'tigers',
+			'bears',
 		];
-		$conj = "and";
-		$this->assert_equal($testx->conjunction($x, $conj), "lions, tigers, and bears");
+		$conj = 'and';
+		$this->assert_equal($testx->conjunction($x, $conj), 'lions, tigers, and bears');
 
-		$s = "word";
+		$s = 'word';
 		$n = 3;
 		$locale = null;
-		$this->assert_equal($testx->plural_number($s, $n), "3 words");
+		$this->assert_equal($testx->plural_number($s, $n), '3 words');
 	}
 
 	public function ordinal_tests() {
@@ -106,7 +106,7 @@ class Lang_en_test extends Test_Unit {
 	 * @dataProvider ordinal_tests
 	 */
 	public function test_ordinal(int $input, string $result): void {
-		$testx = $this->application->locale_registry("en");
+		$testx = $this->application->locale_registry('en');
 		$this->assert_equal($testx->ordinal($input), $result);
 	}
 }

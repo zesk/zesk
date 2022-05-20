@@ -6,7 +6,7 @@ namespace zesk;
 /* @var $job Job */
 $job = $object;
 
-$object->theme("scripts");
+$object->theme('scripts');
 
 $success = $this->success;
 if ($success) {
@@ -39,7 +39,7 @@ if ($job->dead()) {
 			<div class="message col-sm-9 col-md-8"></div>
 			<?php
 		} else {
-			echo HTML::div(".message dead col-sm-12", "");
+			echo HTML::div('.message dead col-sm-12', '');
 		}
 		?>
 		</div>

@@ -62,8 +62,8 @@ class Logger implements LoggerInterface {
 	 */
 	public function dump_config() {
 		$pairs = [];
-		$pairs["Currently sending"] = $this->sending ? "yes" : "no";
-		$pairs["UTC Logging"] = $this->utc_time ? "yes" : "no";
+		$pairs['Currently sending'] = $this->sending ? 'yes' : 'no';
+		$pairs['UTC Logging'] = $this->utc_time ? 'yes' : 'no';
 		foreach ($this->processors as $name => $processor) {
 			$pairs["Processor named $name"] = get_class($processor);
 		}
@@ -73,9 +73,9 @@ class Logger implements LoggerInterface {
 				foreach ($this->handlers[$level] as $handler) {
 					$handler_names[] = get_class($handler);
 				}
-				$pairs['Handler at ' . $level] = implode(", ", $handler_names);
+				$pairs['Handler at ' . $level] = implode(', ', $handler_names);
 			} else {
-				$pairs['Handler at ' . $level] = "None";
+				$pairs['Handler at ' . $level] = 'None';
 			}
 		}
 		return Text::format_pairs($pairs);
@@ -198,8 +198,8 @@ class Logger implements LoggerInterface {
 		}
 
 		if (is_object($message)) {
-			$message_args = method_exists($message, "log_variables") ? $message->log_variables() : [];
-			$message = method_exists($message, "log_message") ? $message->log_message() : strval($message);
+			$message_args = method_exists($message, 'log_variables') ? $message->log_variables() : [];
+			$message = method_exists($message, 'log_message') ? $message->log_message() : strval($message);
 			$context = $message_args + $context;
 		}
 		foreach ($this->processors as $name => $processor) {
@@ -217,9 +217,9 @@ class Logger implements LoggerInterface {
 		$int_time = intval($time);
 
 		$extras = [];
-		$date = $this->utc_time ? "gmdate" : "date";
-		$extras['_date'] = $date("Y-m-d", $int_time);
-		$extras['_time'] = $date("H:i:s", $int_time) . ltrim(sprintf("%.3f", $time - $int_time), '0');
+		$date = $this->utc_time ? 'gmdate' : 'date';
+		$extras['_date'] = $date('Y-m-d', $int_time);
+		$extras['_time'] = $date('H:i:s', $int_time) . ltrim(sprintf('%.3f', $time - $int_time), '0');
 		$extras['_microtime'] = $time;
 		$extras['_pid'] = $pid;
 		$extras['_level'] = $level;
@@ -239,9 +239,9 @@ class Logger implements LoggerInterface {
 			try {
 				$handler->log($message, $context);
 			} catch (\Exception $e) {
-				PHP::log("{method} {handler} threw {class} at {file}:{line} {message} Backtrace: {backtrace}", [
-					"method" => __METHOD__,
-					"name" => $name,
+				PHP::log('{method} {handler} threw {class} at {file}:{line} {message} Backtrace: {backtrace}', [
+					'method' => __METHOD__,
+					'name' => $name,
 				] + Exception::exception_variables($e));
 			}
 		}

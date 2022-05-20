@@ -19,8 +19,8 @@ class Configuration_Parser_Array extends Configuration_Parser {
 	public function process() {
 		foreach ($this->content as $key => $value) {
 			$key = strtr($key, [
-				"___" => "\\",
-				"__" => "::",
+				'___' => '\\',
+				'__' => '::',
 			]);
 			$this->settings->set($key, $value);
 		}

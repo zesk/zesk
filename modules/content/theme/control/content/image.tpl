@@ -8,9 +8,9 @@ $value = $this->value;
 /* @var $value Content_Image */
 if ($value instanceof Content_Image) {
 	echo $this->theme('content/image', [
-		"object" => $value,
-		"width" => $this->width,
-		"height" => $this->height,
+		'object' => $value,
+		'width' => $this->width,
+		'height' => $this->height,
 	]);
 }
 $widget = $this->widget;

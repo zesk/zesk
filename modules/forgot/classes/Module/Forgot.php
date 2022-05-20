@@ -23,7 +23,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 * @var array
 	 */
 	protected array $model_classes = [
-		"zesk\\Forgot",
+		'zesk\\Forgot',
 	];
 
 	/**
@@ -33,7 +33,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->application->configuration->path(Forgot::class)->theme_path_prefix = "object";
+		$this->application->configuration->path(Forgot::class)->theme_path_prefix = 'object';
 	}
 
 	/**
@@ -42,16 +42,16 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 * @param Router $router
 	 */
 	public function hook_routes(Router $router): void {
-		$router->add_route("forgot(/{option action}(/{hash}))", $this->option_array("route_options") + [
-			"controller" => Controller_Forgot::class,
-			"classes" => [
+		$router->add_route('forgot(/{option action}(/{hash}))', $this->option_array('route_options') + [
+			'controller' => Controller_Forgot::class,
+			'classes' => [
 				Forgot::class,
 			],
-			"arguments" => [
+			'arguments' => [
 				2,
 			],
-			"login" => false,
-			"id" => "forgot",
+			'login' => false,
+			'id' => 'forgot',
 		]);
 	}
 
@@ -76,7 +76,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 * @return integer
 	 */
 	public function request_expire_seconds() {
-		return $this->option("request_expire_seconds", self::DEFAULT_REQUEST_EXPIRE_SECONDS);
+		return $this->option('request_expire_seconds', self::DEFAULT_REQUEST_EXPIRE_SECONDS);
 	}
 
 	/**
@@ -86,7 +86,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 * @return integer
 	 */
 	public function database_expire_seconds() {
-		return max($this->optionInt("expire_seconds", self::DEFAULT_DATABASE_EXPIRE_SECONDS), $this->request_expire_seconds());
+		return max($this->optionInt('expire_seconds', self::DEFAULT_DATABASE_EXPIRE_SECONDS), $this->request_expire_seconds());
 	}
 
 	/**
@@ -94,12 +94,12 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 * @param Application $application
 	 */
 	public function hook_cron_cluster_minute(): void {
-		$expire_seconds = -abs(to_integer($this->option("expire_seconds"), 3600));
+		$expire_seconds = -abs(to_integer($this->option('expire_seconds'), 3600));
 		$older = Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND);
 		$affected_rows = $this->application->orm_registry(Forgot::class)->delete_older($older);
 		if ($affected_rows > 0) {
-			$this->application->logger->notice("{method} deleted {affected_rows} forgotten rows", compact("affected_rows") + [
-				"method" => __METHOD__,
+			$this->application->logger->notice('{method} deleted {affected_rows} forgotten rows', compact('affected_rows') + [
+				'method' => __METHOD__,
 			]);
 		}
 	}

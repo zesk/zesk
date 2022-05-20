@@ -16,10 +16,10 @@ $longitude = $this->longitude;
 $zoom = $this->geti('zoom', 14);
 $message = $this->message;
 
-$id = "openlayers-map-" . $response->id_counter();
+$id = 'openlayers-map-' . $response->id_counter();
 
-$width = $this->geti("width", null);
-$height = $this->geti("height", null);
+$width = $this->geti('width', null);
+$height = $this->geti('height', null);
 
 ob_start();
 ?>
@@ -30,7 +30,7 @@ $(document).ready(function () {
 	latitude = parseFloat('<?php echo $latitude ?>'),
 	longitude = parseFloat('<?php echo $longitude ?>'),
 	message = <?php echo JSON::encode($message); ?>,
-	size = <?php echo $width ? "new ol.Size($width, $height)" : "null" ?>,
+	size = <?php echo $width ? "new ol.Size($width, $height)" : 'null' ?>,
 	$popup = $('#<?php echo $id; ?>-popup'),
 	position =  ol.proj.transform([longitude, latitude], 'EPSG:4326', 'EPSG:3857'),
 	overlay,
@@ -71,12 +71,12 @@ $(document).ready(function () {
 </script>
 <?php
 
-$response->javascript_inline(HTML::extract_tag_contents("script", ob_get_clean()));
+$response->javascript_inline(HTML::extract_tag_contents('script', ob_get_clean()));
 
-echo HTML::tag("div", "#$id .openlayers-map .openlayers-map-marker-popup", "");
+echo HTML::tag('div', "#$id .openlayers-map .openlayers-map-marker-popup", '');
 echo HTML::tag('div', [
 	'id' => "$id-popup",
 	'class' => 'openlayers-map-marker-member',
-	'style' => "",
+	'style' => '',
 	'data-title' => $this->title,
-], "");
+], '');

@@ -16,16 +16,16 @@ class Class_DBSchemaTest4 extends Class_ORM {
 	}
 
 	public array $column_types = [
-		"ID" => self::type_id,
-		"Depth" => self::type_integer,
-		"CodeName" => self::type_string,
-		"Name" => self::type_string,
+		'ID' => self::type_id,
+		'Depth' => self::type_integer,
+		'CodeName' => self::type_string,
+		'Name' => self::type_string,
 	];
 }
 class DBSchemaTest4 extends ORM {
-	public static $test_table = "";
+	public static $test_table = '';
 
-	public static $test_table2 = "";
+	public static $test_table2 = '';
 
 	public function schema(): ORM_Schema|array|string|null {
 		$table = self::$test_table;
@@ -57,48 +57,48 @@ class Class_DBSchemaTest5 extends Class_ORM {
 	}
 
 	public array $column_types = [
-		"ID" => self::type_id,
-		"Hash" => self::type_string,
-		"Phrase" => self::type_string,
-		"Created" => self::type_created,
-		"Modified" => self::type_modified,
-		"Status" => self::type_integer,
-		"IsOrganic" => self::type_string,
-		"LastUsed" => self::type_timestamp,
+		'ID' => self::type_id,
+		'Hash' => self::type_string,
+		'Phrase' => self::type_string,
+		'Created' => self::type_created,
+		'Modified' => self::type_modified,
+		'Status' => self::type_integer,
+		'IsOrganic' => self::type_string,
+		'LastUsed' => self::type_timestamp,
 	];
 }
 class DBSchemaTest5 extends ORM {
 	public static $test_table = null;
 
 	public function schema(): string|array|null|ORM_Schema {
-		return "CREATE TABLE `{table}` (
+		return 'CREATE TABLE `{table}` (
 		`ID` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
 		`Hash` binary(16) NOT NULL,
 		`Phrase` varchar(255) NOT NULL,
 		`Created` timestamp NOT NULL DEFAULT 0,
 		`Modified` timestamp NOT NULL DEFAULT 0,
-		`Status` smallint(1) DEFAULT '0',
-		`IsOrganic` enum('false','true') DEFAULT 'false',
+		`Status` smallint(1) DEFAULT \'0\',
+		`IsOrganic` enum(\'false\',\'true\') DEFAULT \'false\',
 		`LastUsed` timestamp NOT NULL DEFAULT 0,
 		UNIQUE Hash (Hash) USING HASH,
 		INDEX created ( Created ),
 		INDEX phrase ( Phrase(64) )
-		);";
+		);';
 	}
 }
 class Class_DBSchemaTest6 extends Class_ORM {
 	public array $column_types = [
-		"ID" => self::type_id,
-		"Hash" => self::type_string,
-		"Protocol" => self::type_string,
-		"Proto" => self::type_object,
-		"Domain" => self::type_object,
-		"Port" => self::type_integer,
-		"URI" => self::type_object,
-		"QueryString" => self::type_object,
-		"Title" => self::type_object,
-		"Fragment" => self::type_string,
-		"Frag" => self::type_object,
+		'ID' => self::type_id,
+		'Hash' => self::type_string,
+		'Protocol' => self::type_string,
+		'Proto' => self::type_object,
+		'Domain' => self::type_object,
+		'Port' => self::type_integer,
+		'URI' => self::type_object,
+		'QueryString' => self::type_object,
+		'Title' => self::type_object,
+		'Fragment' => self::type_string,
+		'Frag' => self::type_object,
 	];
 
 	public function initialize(): void {
@@ -110,10 +110,10 @@ class DBSchemaTest6 extends ORM {
 	public static $test_table = null;
 
 	public function schema(): string|array|null|ORM_Schema {
-		return "CREATE TABLE `{table}` (
+		return 'CREATE TABLE `{table}` (
 		`ID` int(11) unsigned NOT NULL auto_increment,
 		`Hash` char(32) NOT NULL,
-		`Protocol` varchar(7) NOT NULL default '',
+		`Protocol` varchar(7) NOT NULL default \'\',
 		`Domain` int(11) unsigned default NULL,
 		`Port` smallint(11) unsigned NULL,
 		`URI` int(11) unsigned default NULL,
@@ -125,22 +125,22 @@ class DBSchemaTest6 extends ORM {
 		UNIQUE KEY `Hash` (`Hash`) USING HASH,
 		KEY `domain` (`Domain`),
 		KEY `title` (`Title`)
-		);";
+		);';
 	}
 }
 class Class_DBSchemaTest7 extends Class_ORM {
 	public array $column_types = [
-		"ID" => self::type_id,
-		"Hash" => self::type_string,
-		"Protocol" => self::type_string,
-		"Proto" => self::type_object,
-		"Domain" => self::type_object,
-		"Port" => self::type_integer,
-		"URI" => self::type_object,
-		"QueryString" => self::type_object,
-		"Title" => self::type_object,
-		"Fragment" => self::type_string,
-		"Frag" => self::type_object,
+		'ID' => self::type_id,
+		'Hash' => self::type_string,
+		'Protocol' => self::type_string,
+		'Proto' => self::type_object,
+		'Domain' => self::type_object,
+		'Port' => self::type_integer,
+		'URI' => self::type_object,
+		'QueryString' => self::type_object,
+		'Title' => self::type_object,
+		'Fragment' => self::type_string,
+		'Frag' => self::type_object,
 	];
 
 	public function initialize(): void {
@@ -152,11 +152,11 @@ class DBSchemaTest7 extends ORM {
 	public static $test_table = null;
 
 	public function schema(): string|array|null|ORM_Schema {
-		return "CREATE TABLE `{table}` (
+		return 'CREATE TABLE `{table}` (
 	`ID` int(11) unsigned NOT NULL auto_increment,
 	`Hash` char(32) NOT NULL,
-	`Protocol` varchar(7) NOT NULL default '',
-	`Proto` tinyint NOT NULL default '0',
+	`Protocol` varchar(7) NOT NULL default \'\',
+	`Proto` tinyint NOT NULL default \'0\',
 	`Domain` int(11) unsigned default NULL,
 	`Port` smallint(11) unsigned NULL,
 	`URI` int(11) unsigned default NULL,
@@ -168,14 +168,14 @@ class DBSchemaTest7 extends ORM {
 	UNIQUE KEY `Hash` (`Hash`) USING HASH,
 	KEY `domain` (`Domain`),
 	KEY `title` (`Title`)
-	);";
+	);';
 	}
 }
 class Class_DBSchemaTest8 extends Class_ORM {
 	public array $column_types = [
-		"ID" => self::type_id,
-		"Hash" => self::type_string,
-		"Size" => self::type_integer,
+		'ID' => self::type_id,
+		'Hash' => self::type_string,
+		'Size' => self::type_integer,
 	];
 
 	public function initialize(): void {
@@ -187,33 +187,33 @@ class DBSchemaTest8 extends ORM {
 	public static $test_table = null;
 
 	public function schema(): string|array|null|ORM_Schema {
-		return "CREATE TABLE `{table}` (
+		return 'CREATE TABLE `{table}` (
 			`ID` int(11) unsigned NOT NULL auto_increment,
 			`Hash` char(32) NOT NULL,
 			`Size` bigint unsigned NOT NULL,
 			PRIMARY KEY (ID)
-		);";
+		);';
 	}
 }
 class Class_DBSchemaTest_columns_0 extends Class_ORM {
 	public array $column_types = [
-		"ID" => self::type_id,
-		"Hash" => self::type_string,
-		"Protocol" => self::type_string,
-		"Domain" => self::type_object,
-		"Port" => self::type_integer,
-		"URI" => self::type_object,
-		"QueryString" => self::type_object,
-		"Fragment" => self::type_string,
-		"Frag" => self::type_object,
+		'ID' => self::type_id,
+		'Hash' => self::type_string,
+		'Protocol' => self::type_string,
+		'Domain' => self::type_object,
+		'Port' => self::type_integer,
+		'URI' => self::type_object,
+		'QueryString' => self::type_object,
+		'Fragment' => self::type_string,
+		'Frag' => self::type_object,
 	];
 }
 class DBSchemaTest_columns_0 extends ORM {
 	public function schema(): string|array|null|ORM_Schema {
-		return "CREATE TABLE `{table}` (
+		return 'CREATE TABLE `{table}` (
 					`ID` int(11) unsigned NOT NULL auto_increment,
 					`Hash` char(32) NOT NULL,
-					`Protocol` varchar(7) NOT NULL default '',
+					`Protocol` varchar(7) NOT NULL default \'\',
 					`Domain` int(11) unsigned default NULL,
 					`Port` smallint(11) unsigned NULL,
 					`URI` int(11) unsigned default NULL,
@@ -225,28 +225,28 @@ class DBSchemaTest_columns_0 extends ORM {
 					UNIQUE KEY `Hash` (`Hash`) USING HASH,
 					KEY `domain` (`Domain`),
 					KEY `title` (`Title`)
-				);";
+				);';
 	}
 }
 class Class_DBSchemaTest_columns_1 extends Class_ORM {
 	public array $column_types = [
-		"ID" => self::type_id,
-		"Hash" => self::type_string,
-		"Protocol" => self::type_string,
-		"Domain" => self::type_object,
-		"Port" => self::type_integer,
-		"URI" => self::type_object,
+		'ID' => self::type_id,
+		'Hash' => self::type_string,
+		'Protocol' => self::type_string,
+		'Domain' => self::type_object,
+		'Port' => self::type_integer,
+		'URI' => self::type_object,
 	];
 }
 class DBSchemaTest_columns_1 extends ORM {
 	public function schema(): string|array|null|ORM_Schema {
-		return "CREATE TABLE `{table}` (
+		return 'CREATE TABLE `{table}` (
 					`ID` int(11) unsigned NOT NULL auto_increment,
 					`Hash` char(32) NOT NULL,
-					`Protocol` varchar(7) NOT NULL default '',
+					`Protocol` varchar(7) NOT NULL default \'\',
 					`Domain` int(11) unsigned default NULL,
 					`Port` smallint(11) unsigned NULL,
 					`URI` int(11) unsigned default NULL
-				);";
+				);';
 	}
 }

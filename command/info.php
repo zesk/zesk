@@ -29,7 +29,7 @@ class Command_Info extends Command_Base {
 	protected array $option_help = [
 		'help' => 'This help',
 		'computer-labels' => 'Show computer labels',
-		'format' => "output format: text (default), html, php, serialize, json",
+		'format' => 'output format: text (default), html, php, serialize, json',
 	];
 
 	/**
@@ -44,7 +44,7 @@ class Command_Info extends Command_Base {
 	 *
 	 * @var string
 	 */
-	public const configuration_files_loaded = "configuration_files_loaded";
+	public const configuration_files_loaded = 'configuration_files_loaded';
 
 	/**
 	 *
@@ -56,13 +56,13 @@ class Command_Info extends Command_Base {
 	 *
 	 * @var string
 	 */
-	public const zesk_root = "zesk_root";
+	public const zesk_root = 'zesk_root';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const zesk_application_root = "zesk_application_root";
+	public const zesk_application_root = 'zesk_application_root';
 
 	/**
 	 *
@@ -80,13 +80,13 @@ class Command_Info extends Command_Base {
 	 *
 	 * @var string
 	 */
-	public const command_path = "command_path";
+	public const command_path = 'command_path';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const zesk_autoload_path = "zesk\\Autoloader::path";
+	public const zesk_autoload_path = 'zesk\\Autoloader::path';
 
 	/**
 	 *
@@ -141,19 +141,19 @@ class Command_Info extends Command_Base {
 		$info['error_log'] = ini_get('error_log');
 		$info[self::configuration_files_loaded] = to_array(avalue($app->loader->variables(), 'processed', []));
 
-		$module_info = $app->modules->all_hook_arguments("info", [
+		$module_info = $app->modules->all_hook_arguments('info', [
 			[],
 		], []);
-		$info = array_merge($info, ArrayTools::key_value($module_info, null, "value"));
+		$info = array_merge($info, ArrayTools::key_value($module_info, null, 'value'));
 		$human_names = [];
 		foreach ($module_info as $code_name => $settings) {
-			$human_names[$code_name] = avalue($settings, "title", $code_name);
+			$human_names[$code_name] = avalue($settings, 'title', $code_name);
 		}
 
 		if (!$this->optionBool('computer-labels')) {
 			$info = ArrayTools::map_keys($info, $human_names + self::$human_names);
 		}
-		$this->render_format($info, $this->option("format"));
+		$this->render_format($info, $this->option('format'));
 		return 0;
 	}
 }

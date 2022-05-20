@@ -12,7 +12,7 @@ namespace zesk;
  */
 class Test_CSV extends Test_Unit {
 	protected array $load_modules = [
-		"csv",
+		'csv',
 	];
 
 	/**
@@ -20,9 +20,9 @@ class Test_CSV extends Test_Unit {
 	 */
 	public function quote_data(): array {
 		return [
-			["foo", "foo"],
+			['foo', 'foo'],
 			["fo\no", "\"fo\no\""],
-			["fo\"o", "\"fo\"\"o\""],
+			['fo"o', '"fo""o"'],
 		];
 	}
 

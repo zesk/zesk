@@ -12,8 +12,8 @@ namespace zesk;
  */
 class Command_Test_Generate extends Command_Iterator_File {
 	protected $extensions = [
-		"php",
-		"inc",
+		'php',
+		'inc',
 	];
 
 	/**
@@ -36,10 +36,10 @@ class Command_Test_Generate extends Command_Iterator_File {
 	public function initialize(): void {
 		parent::initialize();
 		$this->option_types += [
-			"target" => 'dir',
+			'target' => 'dir',
 		];
 		$this->option_help += [
-			"target" => "Path to create generated test files",
+			'target' => 'Path to create generated test files',
 		];
 	}
 
@@ -47,9 +47,9 @@ class Command_Test_Generate extends Command_Iterator_File {
 	 */
 	protected function start(): void {
 		$this->autoload_paths = $this->application->autoloader->path();
-		$this->target = $this->option("target");
+		$this->target = $this->option('target');
 		if (!$this->target) {
-			$this->usage("--target is required");
+			$this->usage('--target is required');
 		}
 		Directory::depend($this->target);
 	}
@@ -64,21 +64,21 @@ class Command_Test_Generate extends Command_Iterator_File {
 		$fullpath = $file->getRealPath();
 		$suffix = $this->in_autoload_path($fullpath);
 		$__ = [
-			"fullpath" => $fullpath,
+			'fullpath' => $fullpath,
 		];
 		if (!$suffix) {
-			$this->verbose_log("{fullpath} not in autoload path", $__);
+			$this->verbose_log('{fullpath} not in autoload path', $__);
 			return true;
 		}
-		$this->verbose_log("Processing {fullpath}", $__);
+		$this->verbose_log('Processing {fullpath}', $__);
 		$inspector = PHP_Inspector::factory($this->application, $fullpath);
 
 		foreach ($inspector->defined_classes() as $class) {
 			[$ns, $cl] = PHP::parse_namespace_class($class);
-			$target_file = path($this->target, $cl . "_Test.php");
+			$target_file = path($this->target, $cl . '_Test.php');
 			$target_generator = Test_Generator::factory($this->application, $target_file);
 			if ($target_generator->create_if_not_exists()) {
-				$this->log("Created {target_file}", compact("target_file"));
+				$this->log('Created {target_file}', compact('target_file'));
 			}
 		}
 
@@ -99,7 +99,7 @@ class Command_Test_Generate extends Command_Iterator_File {
 			$this->first = true;
 		}
 		foreach ($this->autoload_paths as $path => $options) {
-			$path = rtrim($path, "/") . "/";
+			$path = rtrim($path, '/') . '/';
 			if (begins($file, $path)) {
 				return substr($file, strlen($path));
 			}

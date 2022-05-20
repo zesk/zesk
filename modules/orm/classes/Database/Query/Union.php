@@ -38,7 +38,7 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @param Database $db
 	 */
 	public function __construct(Database $db) {
-		parent::__construct("UNION", $db);
+		parent::__construct('UNION', $db);
 	}
 
 	/**
@@ -74,7 +74,7 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @return $this
 	 * @throws Exception_Parameter
 	 */
-	public function addWhat(string $alias, string $member = ""): self {
+	public function addWhat(string $alias, string $member = ''): self {
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
 			$query->addWhat($alias, $member);
@@ -87,7 +87,7 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @param string $alias
 	 * @return $this
 	 */
-	public function from(string $table, string $alias = ""): self {
+	public function from(string $table, string $alias = ''): self {
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
 			$query->from($table, $alias);
@@ -100,7 +100,7 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @param string $join_id
 	 * @return $this
 	 */
-	public function join(string $sql, string $join_id = ""): string {
+	public function join(string $sql, string $join_id = ''): string {
 		return $this->addJoin($sql, $join_id);
 	}
 
@@ -109,7 +109,7 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @param string $join_id
 	 * @return $this
 	 */
-	public function addJoin(string $join_sql, string $join_id = ""): self {
+	public function addJoin(string $join_sql, string $join_id = ''): self {
 		foreach ($this->queries as $query) {
 			/* @var $query Database_Query_Select */
 			$query->join($join_sql, $join_id);
@@ -175,6 +175,6 @@ class Database_Query_Union extends Database_Query_Select_Base {
 			/* @var $query Database_Query_Select */
 			$sql_phrases[] = $query->__toString();
 		}
-		return implode(" UNION ", ArrayTools::wrap($sql_phrases, "(", ")")) . $this->sql()->order_by($this->order_by);
+		return implode(' UNION ', ArrayTools::wrap($sql_phrases, '(', ')')) . $this->sql()->order_by($this->order_by);
 	}
 }

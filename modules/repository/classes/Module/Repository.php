@@ -55,7 +55,7 @@ class Module_Repository extends Module {
 	 * @return self
 	 */
 	public function singleton() {
-		return $this->application->modules->object("Repository");
+		return $this->application->modules->object('Repository');
 	}
 
 	/**
@@ -111,10 +111,10 @@ class Module_Repository extends Module {
 	public function factory($directory) {
 		$repos = $this->determine_repository($directory);
 		if (count($repos) > 1) {
-			$this->application->logger->warning("{method} multiple repositories detected ({repos}), using first {repo}", [
-				"method" => __METHOD__,
-				"repos" => array_keys($repos),
-				"repo" => first(array_keys($repos)),
+			$this->application->logger->warning('{method} multiple repositories detected ({repos}), using first {repo}', [
+				'method' => __METHOD__,
+				'repos' => array_keys($repos),
+				'repo' => first(array_keys($repos)),
 			]);
 			return first($repos);
 		}
@@ -122,8 +122,8 @@ class Module_Repository extends Module {
 			return first($repos);
 		}
 
-		throw new Exception_NotFound("No repository marker found at {directory}", [
-			"directory" => $directory,
+		throw new Exception_NotFound('No repository marker found at {directory}', [
+			'directory' => $directory,
 		]);
 	}
 }

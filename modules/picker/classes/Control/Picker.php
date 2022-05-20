@@ -21,14 +21,14 @@ class Control_Picker extends Control {
 	 */
 	protected $list_tag = 'div';
 
-	protected $list_attributes = ".control-picker-state";
+	protected $list_attributes = '.control-picker-state';
 
 	/**
 	 * Tag wrapped around each item displayed
 	 *
 	 * @var string
 	 */
-	protected $item_tag = "li";
+	protected $item_tag = 'li';
 
 	/**
 	 * Attributes for tag around each item displayed
@@ -124,7 +124,7 @@ class Control_Picker extends Control {
 			];
 		}
 		if (!$this->hasOption('order_by') && $this->class_object->name_column) {
-			$this->setOption('order_by', "X." . $this->class_object->name_column);
+			$this->setOption('order_by', 'X.' . $this->class_object->name_column);
 		}
 		$hierarchy = $this->application->classes->hierarchy($this, __CLASS__);
 		if ($this->theme_item_selector === null) {
@@ -197,8 +197,8 @@ class Control_Picker extends Control {
 
 	public function object_class_css_class() {
 		return strtr(strtolower($this->class), [
-			"\\" => "-",
-			"_" => "-",
+			'\\' => '-',
+			'_' => '-',
 		]);
 	}
 
@@ -216,7 +216,7 @@ class Control_Picker extends Control {
 			'object_class_css_class' => $this->object_class_css_class(),
 			'class_object' => $class_object,
 			'class_object_name' => $name,
-			"class_object_names" => $names,
+			'class_object_names' => $names,
 			'objects' => $this->to_objects($this->value()),
 			'selectable' => $this->selectable(),
 			'theme_item' => $this->theme_item,
@@ -230,7 +230,7 @@ class Control_Picker extends Control {
 				'names' => $names,
 			]),
 			'label_search' => $locale('Search {names}', [
-				"names" => $names,
+				'names' => $names,
 			]),
 		] + $this->options_include([
 			'item_selector_none_selected',
@@ -244,23 +244,23 @@ class Control_Picker extends Control {
 		$variables = $this->theme_variables();
 		if ($action === 'selector') {
 			$content = $this->application->theme($this->theme_item_selector, [
-				"value" => $this->request->geta($this->column()),
+				'value' => $this->request->geta($this->column()),
 			] + $variables, [
-				"first" => true,
+				'first' => true,
 			]);
 			$response->json()->data([
-				"content" => $this->wrap_form($content),
-				"status" => true,
+				'content' => $this->wrap_form($content),
+				'status' => true,
 			] + $response->html()->to_json());
 		} elseif ($action === 'search') {
-			$response->json()->data($this->search_results($variables, $this->request->get("q")) + [
-				"class_object_name" => $variables['class_object_name'],
-				"class_object_names" => $variables['class_object_names'],
-				"status" => true,
+			$response->json()->data($this->search_results($variables, $this->request->get('q')) + [
+				'class_object_name' => $variables['class_object_name'],
+				'class_object_names' => $variables['class_object_names'],
+				'status' => true,
 			] + $response->html()->to_json());
-		} elseif ($action === "submit") {
+		} elseif ($action === 'submit') {
 			$response->json()->data($this->submit_results($response, $variables, $this->request->geta($this->column())) + [
-				"status" => true,
+				'status' => true,
 			] + $response->html()
 				->to_json());
 		}
@@ -268,15 +268,15 @@ class Control_Picker extends Control {
 	}
 
 	private function submit_results(Response $response, array $variables, array $ids) {
-		$iter = $this->_query()->where("X." . $this->class_object->id_column, $ids)->orm_iterator();
-		$content = "";
+		$iter = $this->_query()->where('X.' . $this->class_object->id_column, $ids)->orm_iterator();
+		$content = '';
 		foreach ($iter as $object) {
 			$content .= $this->application->theme($this->theme_item, [
 				'object' => $object,
-				"selected" => true,
-				"column" => $this->column,
+				'selected' => true,
+				'column' => $this->column,
 			], [
-				"first" => true,
+				'first' => true,
 			]);
 		}
 		$response->javascript('/share/picker/js/picker.js', [
@@ -284,38 +284,38 @@ class Control_Picker extends Control {
 		]);
 		$response->jquery('$.picker();');
 		return [
-			"status" => true,
-			"message" => $this->option("submit_message"),
-			"content" => $content,
+			'status' => true,
+			'message' => $this->option('submit_message'),
+			'content' => $content,
 		];
 	}
 
 	public function hook_query(Database_Query_Select $query) {
 		$value = $this->request->get('q');
-		if ($value === "" || $value === null) {
+		if ($value === '' || $value === null) {
 			return [];
 		}
-		$value = trim(preg_replace("/\s+/", " ", $value));
-		$value = explode(" ", $value);
+		$value = trim(preg_replace("/\s+/", ' ', $value));
+		$value = explode(' ', $value);
 		$sql = $query->sql();
 		$alias = $query->class_alias();
 		$where = [];
 		foreach ($this->search_columns as $col) {
-			$where[$col . "|%|OR"] = $value;
+			$where[$col . '|%|OR'] = $value;
 		}
 		$query->where([
 			$where,
 		]);
 		$query->where($this->where());
-		$query->condition($query->application->locale->__("match the string \"{q}\"", [
-			"q" => $value,
+		$query->condition($query->application->locale->__('match the string "{q}"', [
+			'q' => $value,
 		]));
 	}
 
 	private function _query() {
 		return $this->application->orm_registry($this->class)
 			->query_select()
-			->what_object($this->class, "X")
+			->what_object($this->class, 'X')
 			->limit(0, $this->optionInt('limit', 25))
 			->order_by($this->option('order_by'));
 	}
@@ -326,21 +326,21 @@ class Control_Picker extends Control {
 		$this->call_hook('query_list;query', $query);
 		$this->call_hook('query_total;query', $total);
 		$total->what([
-			"*total" => "COUNT(DISTINCT X." . $this->class_object->id_column . ")",
+			'*total' => 'COUNT(DISTINCT X.' . $this->class_object->id_column . ')',
 		]);
 		$results = [];
 		foreach ($query->orm_iterator() as $id => $object) {
 			$results[$id] = $this->application->theme($this->theme_item, [
-				"object" => $object,
-				"id" => $id,
+				'object' => $object,
+				'id' => $id,
 			] + $variables, [
-				"first" => true,
+				'first' => true,
 			]);
 		}
-		$total = $total->one_integer("total");
+		$total = $total->one_integer('total');
 		$result = [
-			"results" => $results,
-			"total" => $total,
+			'results' => $results,
+			'total' => $total,
 		];
 		if ($this->application->development()) {
 			$result['query_sql'] = strval($query);
@@ -352,7 +352,7 @@ class Control_Picker extends Control {
 		return HTML::tag('form', [
 			'method' => 'post',
 			'class' => 'control-picker-selector',
-			'action' => URL::query_remove($this->request->uri(), "widget::target;action;q"),
-		] + $this->form_attributes, $content . HTML::input_hidden("action", "submit") . HTML::input_hidden("widget::target", $this->request->get('widget::target')));
+			'action' => URL::query_remove($this->request->uri(), 'widget::target;action;q'),
+		] + $this->form_attributes, $content . HTML::input_hidden('action', 'submit') . HTML::input_hidden('widget::target', $this->request->get('widget::target')));
 	}
 }

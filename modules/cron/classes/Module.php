@@ -91,12 +91,12 @@ class Module extends \zesk\Module {
 	 * @var array
 	 */
 	public static $intervals = [
-		"minute",
-		"hour",
-		"day",
-		"week",
-		"month",
-		"year",
+		'minute',
+		'hour',
+		'day',
+		'week',
+		'month',
+		'year',
 	];
 
 	/**
@@ -114,9 +114,9 @@ class Module extends \zesk\Module {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->application->hooks->add(Engine::class . "::command_crontab", [
+		$this->application->hooks->add(Engine::class . '::command_crontab', [
 			$this,
-			"command_crontab",
+			'command_crontab',
 		]);
 	}
 
@@ -127,12 +127,12 @@ class Module extends \zesk\Module {
 	 */
 	private function command_crontab_help($command_name) {
 		return [
-			"example" => "crontab file [flags]",
-			"arguments" => [
-				"file" => "File to install as crontab",
-				"map" => "list of flags for file, currently suports \"map\" flag",
+			'example' => 'crontab file [flags]',
+			'arguments' => [
+				'file' => 'File to install as crontab',
+				'map' => 'list of flags for file, currently suports "map" flag',
 			],
-			"description" => "Install crontab for current user",
+			'description' => 'Install crontab for current user',
 		];
 	}
 
@@ -145,15 +145,15 @@ class Module extends \zesk\Module {
 	 */
 	public function command_crontab(Engine $command, array $arguments, $command_name) {
 		$file = array_shift($arguments);
-		if ($file === "--help") {
+		if ($file === '--help') {
 			return $this->command_crontab_help($command_name);
 		}
 		$file = $this->application->paths->expand($file);
 		$flags = $command->parse_file_flags($arguments);
-		$map = to_bool(avalue($flags, "map"));
+		$map = to_bool(avalue($flags, 'map'));
 		if (!file_exists($file)) {
-			$command->error("crontab file not found {file}", [
-				"file" => $file,
+			$command->error('crontab file not found {file}', [
+				'file' => $file,
 			]);
 			return false;
 		}
@@ -164,8 +164,8 @@ class Module extends \zesk\Module {
 			$mapped_target = File::temporary($temp_path);
 			file_put_contents($mapped_target, $command->map(trim(file_get_contents($file)) . "\n"));
 			$target = $mapped_target;
-			$command->verbose_log("Mapping crontab file to {mapped_target}", [
-				"mapped_target" => $mapped_target,
+			$command->verbose_log('Mapping crontab file to {mapped_target}', [
+				'mapped_target' => $mapped_target,
 			]);
 		}
 		$compare = File::temporary($temp_path);
@@ -173,18 +173,18 @@ class Module extends \zesk\Module {
 		try {
 			$command->exec("crontab -l > $compare");
 		} catch (\Exception $e) {
-			file_put_contents($compare, "");
+			file_put_contents($compare, '');
 		}
 
 		try {
-			$result = $command->file_update_helper($target, $compare, "crontab");
+			$result = $command->file_update_helper($target, $compare, 'crontab');
 			if ($result === true) {
-				$command->exec("crontab {target}", [
-					"target" => $target,
+				$command->exec('crontab {target}', [
+					'target' => $target,
 				]);
 			}
 		} catch (\Exception $e) {
-			$command->error("Installing crontab failed {code} {message}", Exception::exception_variables($e));
+			$command->error('Installing crontab failed {code} {message}', Exception::exception_variables($e));
 			$result = false;
 		}
 		if ($mapped_target) {
@@ -209,11 +209,11 @@ class Module extends \zesk\Module {
 			$message = "\$application->modules->object(\"$name\")->{1}()";
 			$message_args = $method;
 		} else {
-			$message = "{method_string}(\$application)";
-			$message_args = compact("method_string");
+			$message = '{method_string}($application)';
+			$message_args = compact('method_string');
 		}
 		$this->application->logger->notice("zesk eval '$message' # {source}", [
-			"source" => $this->hook_source,
+			'source' => $this->hook_source,
 		] + $message_args);
 		$this->methods[] = $method_string;
 		$this->start = microtime(true);
@@ -230,14 +230,14 @@ class Module extends \zesk\Module {
 	 */
 	public function _result_callback($method, $previous_result, $new_result, array $arguments) {
 		$elapsed = microtime(true) - $this->start;
-		if ($elapsed > ($elapsed_warn = $this->option_double("elapsed_warn", 2))) {
+		if ($elapsed > ($elapsed_warn = $this->option_double('elapsed_warn', 2))) {
 			$locale = $this->application->locale;
-			$this->application->logger->warning("Cron: {method} took {elapsed} {seconds} (exceeded {elapsed_warn} {elapsed_warn_seconds})", [
-				"elapsed" => sprintf("%.3f", $elapsed),
-				"seconds" => $locale->plural("second", $elapsed),
-				"elapsed_warn" => sprintf("%.3f", $elapsed_warn),
-				"elapsed_warn_seconds" => $locale->plural("second", $elapsed_warn),
-				"method" => $this->application->hooks->callable_string($method),
+			$this->application->logger->warning('Cron: {method} took {elapsed} {seconds} (exceeded {elapsed_warn} {elapsed_warn_seconds})', [
+				'elapsed' => sprintf('%.3f', $elapsed),
+				'seconds' => $locale->plural('second', $elapsed),
+				'elapsed_warn' => sprintf('%.3f', $elapsed_warn),
+				'elapsed_warn_seconds' => $locale->plural('second', $elapsed_warn),
+				'method' => $this->application->hooks->callable_string($method),
 			]);
 		}
 		return Hookable::combine_hook_results($previous_result, $new_result, $arguments);
@@ -247,9 +247,9 @@ class Module extends \zesk\Module {
 		if ($set !== null) {
 			$name = strval($set);
 			if (empty($name)) {
-				throw new Exception_Parameter("Blank lock name for {method} {set}", [
-					"method" => __METHOD__,
-					"set" => $set,
+				throw new Exception_Parameter('Blank lock name for {method} {set}', [
+					'method' => __METHOD__,
+					'set' => $set,
 				]);
 			}
 			$this->lock_name = $name;
@@ -269,7 +269,7 @@ class Module extends \zesk\Module {
 				'type' => 'boolean',
 				'default' => false,
 				'name' => 'Cron task runs asynchronously via web page requests.',
-				'description' => "Whether to run poor-man style cron tasks from page requests.",
+				'description' => 'Whether to run poor-man style cron tasks from page requests.',
 			],
 			__CLASS__ . '::time_limit' => [
 				'type' => 'integer',
@@ -278,10 +278,10 @@ class Module extends \zesk\Module {
 				'description' => "Set this to a value if cron tasks run too long, and need to be terminated after a certain number of seconds (and that\'s ok)... Uses php's time_limit ini setting to terminate the cron task after a certain amount of time.",
 			],
 			__CLASS__ . '::page_runner_script' => [
-				'type' => "uri",
-				"default" => "js/cron.js",
-				"name" => "Path of script to run cron on each page. ",
-				"description" => "Modify this if it conflicts with one of your own scripts. Note this page should never be cached. It should be a unique URL.",
+				'type' => 'uri',
+				'default' => 'js/cron.js',
+				'name' => 'Path of script to run cron on each page. ',
+				'description' => 'Modify this if it conflicts with one of your own scripts. Note this page should never be cached. It should be a unique URL.',
 			],
 		];
 	}
@@ -301,11 +301,11 @@ class Module extends \zesk\Module {
 	 */
 	public function hook_routes(Router $router): void {
 		$router->add_route($this->page_runner_script(), [
-			"method" => [
+			'method' => [
 				$this,
-				"run_js",
+				'run_js',
 			],
-			"content type" => "text/javascript",
+			'content type' => 'text/javascript',
 		]);
 	}
 
@@ -326,8 +326,8 @@ class Module extends \zesk\Module {
 	 *
 	 * @return string
 	 */
-	private static function _cron_variable_prefix($suffix = "", $system = false) {
-		return __CLASS__ . "::last" . ($suffix ? "_$suffix" : "") . "::" . System::uname();
+	private static function _cron_variable_prefix($suffix = '', $system = false) {
+		return __CLASS__ . '::last' . ($suffix ? "_$suffix" : '') . '::' . System::uname();
 	}
 
 	/**
@@ -336,7 +336,7 @@ class Module extends \zesk\Module {
 	 * @return string
 	 */
 	private static function _last_cron_variable($prefix, $unit) {
-		return __CLASS__ . "::last" . $prefix . ($unit ? "_$unit" : "");
+		return __CLASS__ . '::last' . $prefix . ($unit ? "_$unit" : '');
 	}
 
 	/**
@@ -344,7 +344,7 @@ class Module extends \zesk\Module {
 	 *
 	 * @return Timestamp
 	 */
-	private static function _last_cron_run(Interface_Data $object, $prefix = "", $unit = null) {
+	private static function _last_cron_run(Interface_Data $object, $prefix = '', $unit = null) {
 		return Timestamp::factory($object->data(self::_last_cron_variable($prefix, $unit)));
 	}
 
@@ -352,7 +352,7 @@ class Module extends \zesk\Module {
 		return $object->data(self::_last_cron_variable($prefix, $unit), $when->unix_timestamp());
 	}
 
-	private static function _cron_reset(Interface_Data $object, $prefix = "", $unit = null): void {
+	private static function _cron_reset(Interface_Data $object, $prefix = '', $unit = null): void {
 		$name = self::_last_cron_variable($prefix, $unit);
 		if ($object instanceof Server) {
 			/* @var $object Server */
@@ -385,20 +385,20 @@ class Module extends \zesk\Module {
 		$settings = Settings::singleton($application);
 
 		return $this->scopes = [
-			"cron_server" => [
-				"state" => $server,
-				"prefix" => "",
-				"lock" => "cron-server-" . $server->id,
+			'cron_server' => [
+				'state' => $server,
+				'prefix' => '',
+				'lock' => 'cron-server-' . $server->id,
 			],
-			"cron" => [
-				"state" => $settings,
-				"prefix" => "",
-				"lock" => "cron-application-" . $application->id(),
+			'cron' => [
+				'state' => $settings,
+				'prefix' => '',
+				'lock' => 'cron-application-' . $application->id(),
 			],
-			"cron_cluster" => [
-				"state" => $settings,
-				"prefix" => "_cluster",
-				"lock" => "cron-cluster",
+			'cron_cluster' => [
+				'state' => $settings,
+				'prefix' => '_cluster',
+				'lock' => 'cron-cluster',
 			],
 		];
 	}
@@ -436,7 +436,7 @@ class Module extends \zesk\Module {
 			/* @var $state Interface_Data */
 			$last_run = self::_last_cron_run($state);
 
-			$status = $now->difference($last_run, "second") > 0;
+			$status = $now->difference($last_run, 'second') > 0;
 			$cron_hooks = $this->_cron_hooks($method);
 			$all_hooks = $hooks->find_all($cron_hooks);
 			$all_hooks = array_merge($all_hooks, $this->application->modules->all_hook_list($method));
@@ -489,12 +489,12 @@ class Module extends \zesk\Module {
 	 */
 	private function _exception(Exception $e, $cron_hooks): void {
 		$this->application->logger->error("Exception during {hooks}: {message}\n{backtrace}", [
-			"hooks" => $cron_hooks,
-			"message" => $e->getMessage(),
-			"backtrace" => $e->getTraceAsString(),
-			"exception" => $e,
+			'hooks' => $cron_hooks,
+			'message' => $e->getMessage(),
+			'backtrace' => $e->getTraceAsString(),
+			'exception' => $e,
 		]);
-		$this->application->hooks->call("exception", $e);
+		$this->application->hooks->call('exception', $e);
 	}
 
 	/**
@@ -517,16 +517,16 @@ class Module extends \zesk\Module {
 		try {
 			$scopes = $this->_cron_scopes($this->application);
 		} catch (Exception $e) {
-			$this->_exception($e, __CLASS__ . "::_cron_scopes");
+			$this->_exception($e, __CLASS__ . '::_cron_scopes');
 			return false;
 		}
 		$hook_callback = [
 			$this,
-			"_hook_callback",
+			'_hook_callback',
 		];
 		$result_callback = [
 			$this,
-			"_result_callback",
+			'_result_callback',
 		];
 		$cron_arguments = [
 			$this->application,
@@ -542,10 +542,10 @@ class Module extends \zesk\Module {
 			$lock = Lock::instance($this->application, $lock_name);
 			if ($lock->acquire() === null) {
 				unset($scopes[$method]);
-				$this->application->logger->warning("{method}: Unable to acquire lock {lock_name}, skipping scope {scope_method}", [
-					"method" => __METHOD__,
-					"scope_method" => $method,
-					"lock_name" => $lock_name,
+				$this->application->logger->warning('{method}: Unable to acquire lock {lock_name}, skipping scope {scope_method}', [
+					'method' => __METHOD__,
+					'scope_method' => $method,
+					'lock_name' => $lock_name,
 				]);
 			} else {
 				$scopes[$method]['lock'] = $lock;
@@ -561,18 +561,18 @@ class Module extends \zesk\Module {
 			/* @var $state Interface_Data */
 			$last_run = self::_last_cron_run($state);
 			$cron_hooks = $this->_cron_hooks($method);
-			if ($now->difference($last_run, "second")) {
+			if ($now->difference($last_run, 'second')) {
 				self::_cron_ran($state, null, null, $now);
 
 				try {
-					$this->hook_source = $method . " second global hooks->all_call";
+					$this->hook_source = $method . ' second global hooks->all_call';
 					$hooks->all_call_arguments($cron_hooks, $cron_arguments, null, $hook_callback, $result_callback);
 				} catch (Exception $e) {
 					$this->_exception($e, $cron_hooks);
 				}
 
 				try {
-					$this->hook_source = $method . " second module->all_hook";
+					$this->hook_source = $method . ' second module->all_hook';
 					$this->application->modules->all_hook_arguments($method, [], null, $hook_callback, $result_callback);
 				} catch (Exception $e) {
 					$this->_exception($e, "Module::$method");
@@ -580,9 +580,9 @@ class Module extends \zesk\Module {
 			}
 			foreach (self::$intervals as $unit) {
 				$last_unit_run = self::_last_cron_run($state, $settings['prefix'], $unit);
-				$this->application->logger->debug("Last ran {unit} {when}", [
-					"unit" => $unit,
-					"when" => $last_unit_run->format($locale),
+				$this->application->logger->debug('Last ran {unit} {when}', [
+					'unit' => $unit,
+					'when' => $last_unit_run->format($locale),
 				]);
 				if ($now->difference($last_unit_run, $unit) > 0) {
 					self::_cron_ran($state, $settings['prefix'], $unit, $now);
@@ -622,13 +622,13 @@ class Module extends \zesk\Module {
 	public function run_js() {
 		$run = $this->run();
 		$js = [];
-		$js[] = "(function (x) {";
-		$js[] = "x.cron = x.cron || {};";
-		$js[] = "x.cron.locked = " . ($run ? "false" : "true") . ";";
+		$js[] = '(function (x) {';
+		$js[] = 'x.cron = x.cron || {};';
+		$js[] = 'x.cron.locked = ' . ($run ? 'false' : 'true') . ';';
 		if ($run) {
-			$js[] = "x.cron.methods = " . json_encode($this->methods) . ";";
+			$js[] = 'x.cron.methods = ' . json_encode($this->methods) . ';';
 		}
-		$js[] = "}(window.zesk.settings));";
+		$js[] = '}(window.zesk.settings));';
 		return ArrayTools::join_suffix($js, "\n");
 	}
 
@@ -642,17 +642,17 @@ class Module extends \zesk\Module {
 
 		$this->methods = [];
 
-		$result = $modules->all_hook_arguments("cron_before", [], true);
+		$result = $modules->all_hook_arguments('cron_before', [], true);
 		if ($result === false) {
-			$this->application->logger->error(__CLASS__ . "::cron_before return false");
+			$this->application->logger->error(__CLASS__ . '::cron_before return false');
 			return $this->methods;
 		}
 
-		PHP::feature("time_limit", $this->optionInt("time_limit", 0));
+		PHP::feature('time_limit', $this->optionInt('time_limit', 0));
 		$this->_critical_crons();
 		$this->_run();
 
-		$modules->all_hook_arguments("cron_after", [
+		$modules->all_hook_arguments('cron_after', [
 			$this->methods,
 		]);
 
@@ -700,7 +700,7 @@ class Module extends \zesk\Module {
 	 */
 	public static function hourly(Interface_Settings $settings, $prefix, $minute_to_hit = 0) {
 		if (empty($prefix)) {
-			throw new Exception_Parameter("Prefix mus be non-empty to hourly");
+			throw new Exception_Parameter('Prefix mus be non-empty to hourly');
 		}
 		$locale = $settings->application->locale;
 		/*
@@ -767,7 +767,7 @@ class Module extends \zesk\Module {
 	 */
 	public static function daily_hour_of_day(Interface_Settings $settings, $prefix, $hour_to_hit) {
 		if (empty($prefix)) {
-			throw new Exception_Parameter("Prefix mus be non-empty to daily_hour_of_day");
+			throw new Exception_Parameter('Prefix mus be non-empty to daily_hour_of_day');
 		}
 		$hour_to_hit = intval($hour_to_hit);
 		/*
@@ -818,28 +818,28 @@ class Module extends \zesk\Module {
 	 */
 	protected function hook_system_panel() {
 		return [
-			"system/panel/cron" => [
-				"title" => "Cron Tasks",
-				"module_class" => __CLASS__,
+			'system/panel/cron' => [
+				'title' => 'Cron Tasks',
+				'module_class' => __CLASS__,
 			],
 		];
 	}
 
 	protected function _fix_settings(Settings $settings): void {
 		// Changed class structure on 2016-11-23
-		$settings->prefix_updated("Module_Cron::", __CLASS__ . "::");
-		$settings->prefix_updated("zesk\\Module_Cron::", __CLASS__ . "::");
+		$settings->prefix_updated('Module_Cron::', __CLASS__ . '::');
+		$settings->prefix_updated('zesk\\Module_Cron::', __CLASS__ . '::');
 		$nrows = $settings->query_delete()
-			->where("name|LIKE", [
+			->where('name|LIKE', [
 			'Module_Cron::%',
 			'cron::%',
 		])
 			->execute()
 			->affected_rows();
 		if ($nrows > 0) {
-			$this->application->logger->notice("{class}: Deleted {nrows} settings to using old prefixes", [
-				"nrows" => $nrows,
-				"class" => __CLASS__,
+			$this->application->logger->notice('{class}: Deleted {nrows} settings to using old prefixes', [
+				'nrows' => $nrows,
+				'class' => __CLASS__,
 			]);
 		}
 	}

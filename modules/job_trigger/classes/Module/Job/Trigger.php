@@ -17,18 +17,18 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->application->configuration->deprecated("Module_Job_Trigger", __CLASS__);
-		$this->application->hooks->add("zesk\\Job::start", [
+		$this->application->configuration->deprecated('Module_Job_Trigger', __CLASS__);
+		$this->application->hooks->add('zesk\\Job::start', [
 			$this,
-			"trigger_send",
+			'trigger_send',
 		]);
-		$this->application->hooks->add("zesk\\Job::execute_interrupt", [
+		$this->application->hooks->add('zesk\\Job::execute_interrupt', [
 			$this,
-			"trigger_send",
+			'trigger_send',
 		]);
-		$this->application->hooks->add("Module_Job::wait_for_job", [
+		$this->application->hooks->add('Module_Job::wait_for_job', [
 			$this,
-			"wait_for_job",
+			'wait_for_job',
 		]);
 		// We don't care about completion because all that means is a job is completed, not that new jobs are ready to go
 	}
@@ -37,31 +37,31 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * Get/Set wait max seconds before dinging the database again
 	 */
 	public function wait_max_seconds() {
-		return $this->optionInt("wait_max_seconds", 600);
+		return $this->optionInt('wait_max_seconds', 600);
 	}
 
 	/**
 	 * Create the directory for the marker file if it does not exist and return the path to the marker file
 	 */
 	private function marker_file() {
-		$path = $this->application->data_path("job_trigger");
+		$path = $this->application->data_path('job_trigger');
 		Directory::depend($path);
-		return path($path, "trigger");
+		return path($path, 'trigger');
 	}
 
 	/**
 	 * Given a server, provide the URL to contact that server
 	 */
 	private function trigger_send_pattern(Server $server) {
-		$url_pattern = $this->option("trigger_url_pattern", "http://{ip4_internal}/job_trigger");
+		$url_pattern = $this->option('trigger_url_pattern', 'http://{ip4_internal}/job_trigger');
 		return $server->apply_map($url_pattern);
 	}
 
 	private function compute_hash($timestamp) {
 		$code = [];
 		$code[] = $timestamp;
-		$code[] = $this->option("key");
-		return md5(implode("|", $code));
+		$code[] = $this->option('key');
+		return md5(implode('|', $code));
 	}
 
 	/**
@@ -78,10 +78,10 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * @param string $url
 	 */
 	private function add_security($url) {
-		if (!$this->hasOption("key")) {
-			$this->application->logger->warning("Can not add security to {url} - need to configure {class}::key global", [
-				"url" => $url,
-				"class" => __CLASS__,
+		if (!$this->hasOption('key')) {
+			$this->application->logger->warning('Can not add security to {url} - need to configure {class}::key global', [
+				'url' => $url,
+				'class' => __CLASS__,
 			]);
 			return $url;
 		}
@@ -98,35 +98,35 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * @param string $timestamp
 	 */
 	public function check_security($hash, $timestamp) {
-		if (!$this->hasOption("key")) {
-			$this->application->logger->error("Can not check security! need to configure {class}::key global", [
-				"class" => __CLASS__,
+		if (!$this->hasOption('key')) {
+			$this->application->logger->error('Can not check security! need to configure {class}::key global', [
+				'class' => __CLASS__,
 			]);
 			return [
-				"status" => false,
-				"message" => "No key configured",
+				'status' => false,
+				'message' => 'No key configured',
 			];
 		}
 		if (empty($hash) || empty($timestamp)) {
 			return [
-				"status" => false,
-				"message" => "Require query string parameters hash and timestamp",
+				'status' => false,
+				'message' => 'Require query string parameters hash and timestamp',
 			];
 		}
 
 		$skew_seconds = abs($timestamp - microtime(true));
-		if ($skew_seconds > $server_clock_skew_seconds = $this->option("server_clock_skew_seconds", 30)) {
+		if ($skew_seconds > $server_clock_skew_seconds = $this->option('server_clock_skew_seconds', 30)) {
 			return [
-				"status" => false,
-				"message" => "Clock skew - requests only valid for $server_clock_skew_seconds seconds",
-				"seconds" => $skew_seconds,
+				'status' => false,
+				'message' => "Clock skew - requests only valid for $server_clock_skew_seconds seconds",
+				'seconds' => $skew_seconds,
 			];
 		}
 		$check_hash = $this->compute_hash($timestamp);
 		if ($hash !== $check_hash) {
 			return [
-				"status" => false,
-				"message" => "Hash does not validate",
+				'status' => false,
+				'message' => 'Hash does not validate',
 			];
 		}
 
@@ -140,17 +140,17 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 */
 	public static function web_job_trigger(Application $application, Request $request) {
 		$module = $application->job_trigger_module();
-		$result = $module->check_security($request->get("hash"), $request->get("timestamp"));
+		$result = $module->check_security($request->get('hash'), $request->get('timestamp'));
 		if (!is_array($result)) {
 			/* @var $module Module_Job_Trigger */
 			$module->write_marker();
 			$result = [
-				"status" => true,
+				'status' => true,
 			];
 		}
 		return $result + [
-			"elapsed" => microtime(true) - $application->initialization_time(),
-			"now" => Timestamp::now()->format(),
+			'elapsed' => microtime(true) - $application->initialization_time(),
+			'now' => Timestamp::now()->format(),
 		];
 	}
 
@@ -158,17 +158,17 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * Send a notice to all servers that jobs are waiting
 	 */
 	public function trigger_send(): void {
-		$server = $this->application->object_singleton("zesk\\Server");
-		$servers = $server->query_select()->where("alive|>=", Timestamp::now()->add_unit(-1, Timestamp::UNIT_MINUTE))->orm_iterator();
+		$server = $this->application->object_singleton('zesk\\Server');
+		$servers = $server->query_select()->where('alive|>=', Timestamp::now()->add_unit(-1, Timestamp::UNIT_MINUTE))->orm_iterator();
 		foreach ($servers as $other_server) {
 			if ($other_server->id() === $server->id()) {
 				$this->write_marker();
 			} else {
 				$url = $this->trigger_send_pattern($other_server);
 				if ($url) {
-					$this->application->logger->debug("Notifying job trigger for {url}", compact("url"));
+					$this->application->logger->debug('Notifying job trigger for {url}', compact('url'));
 					$url = $this->add_security($url);
-					$this->application->process->execute("curl --connect-timeout 2 {0} > /dev/null 2>&1 &", $url);
+					$this->application->process->execute('curl --connect-timeout 2 {0} > /dev/null 2>&1 &', $url);
 				}
 			}
 		}
@@ -180,9 +180,9 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	public function wait_for_job(Module_Job $module, Interface_Process $process): void {
 		$timer = new Timer();
 		$marker = $this->marker_file();
-		$this->application->logger->debug("{method} waiting for marker to appear: {marker}", [
-			"method" => __METHOD__,
-			"marker" => $marker,
+		$this->application->logger->debug('{method} waiting for marker to appear: {marker}', [
+			'method' => __METHOD__,
+			'marker' => $marker,
 		]);
 		if (!file_exists($marker)) {
 			do {
@@ -193,9 +193,9 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 				}
 			} while (!file_exists($marker));
 		}
-		$this->application->logger->debug("{method} deleting marker {marker}", [
-			"method" => __METHOD__,
-			"marker" => $marker,
+		$this->application->logger->debug('{method} deleting marker {marker}', [
+			'method' => __METHOD__,
+			'marker' => $marker,
 		]);
 		if (file_exists($marker)) {
 			File::unlink($marker);
@@ -208,24 +208,24 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * @param Router $router
 	 */
 	public function hook_routes(Router $router): void {
-		if ($this->hasOption("key")) {
+		if ($this->hasOption('key')) {
 			// Only allowed to receive web requests with some form of shared key security.
 			// If you don't configure this works fine on single-server applications
-			$router->add_route("job_trigger", [
-				"method" => [
+			$router->add_route('job_trigger', [
+				'method' => [
 					__CLASS__,
-					"web_job_trigger",
+					'web_job_trigger',
 				],
-				"content type" => Response::CONTENT_TYPE_JSON,
-				"arguments" => [
-					"{application}",
-					"{request}",
+				'content type' => Response::CONTENT_TYPE_JSON,
+				'arguments' => [
+					'{application}',
+					'{request}',
 				],
 			]);
 		}
-		$router->add_route("job_trigger/active", [
-			"content" => true,
-			"content type" => Response::CONTENT_TYPE_JSON,
+		$router->add_route('job_trigger/active', [
+			'content' => true,
+			'content type' => Response::CONTENT_TYPE_JSON,
 		]);
 	}
 }

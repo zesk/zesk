@@ -13,48 +13,48 @@ use zesk\ArrayTools;
 use zesk\System;
 
 $lines = [];
-$lines[] = "# Template " . __FILE__;
-$lines[] = "# Automatically generated on " . Timestamp::now()->format($locale, Timestamp::DEFAULT_FORMAT_STRING);
-$lines[] = "";
+$lines[] = '# Template ' . __FILE__;
+$lines[] = '# Automatically generated on ' . Timestamp::now()->format($locale, Timestamp::DEFAULT_FORMAT_STRING);
+$lines[] = '';
 $lines[] = 'LogFormat 		"%V:%p %h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" vhost_webapp';
 $lines[] = 'LogFormat 		"%V:%p %{X-Forwarded-For}i %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" vhost_webapp_proxy';
-$lines[] = "<IfModule mod_logio.c>";
+$lines[] = '<IfModule mod_logio.c>';
 $lines[] = 'LogFormat 		"%V:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" vhost_webapp';
 $lines[] = 'LogFormat 		"%V:%p %{X-Forwarded-For}i %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" vhost_webapp_proxy';
-$lines[] = "</IfModule>";
-$lines[] = "";
-$lines[] = "";
-$lines[] = "";
+$lines[] = '</IfModule>';
+$lines[] = '';
+$lines[] = '';
+$lines[] = '';
 
 $docroot = $application->document_root();
-$lines[] = "<VirtualHost *:80>";
-$namename = "ServerName";
+$lines[] = '<VirtualHost *:80>';
+$namename = 'ServerName';
 $names = [
-	"localhost",
+	'localhost',
 ];
 $ips = System::ip_addresses($application);
 $names = array_merge($names, array_values($ips));
 foreach ($names as $name) {
 	$lines[] = "\t$namename $name";
-	$namename = "ServerAlias";
+	$namename = 'ServerAlias';
 }
 $lines[] = "\tDocumentRoot " . $docroot;
 $lines[] = "\t<Directory $docroot>";
 $lines[] = "\t\tDirectoryIndex index.php";
 $lines[] = "\t\tAllowOverride All";
-$lines = array_merge($lines, ArrayTools::prefix(explode("\n", $this->theme("webapp/generator/apache/rewrite-index", [
-	"index_file" => "index.php",
+$lines = array_merge($lines, ArrayTools::prefix(explode("\n", $this->theme('webapp/generator/apache/rewrite-index', [
+	'index_file' => 'index.php',
 ])), "\t\t"));
 $lines[] = "\t</Directory>";
-$lines[] = "</VirtualHost>";
-$lines[] = "";
+$lines[] = '</VirtualHost>';
+$lines[] = '';
 
 if (!is_array($includes) || count($includes) === 0) {
-	$lines[] = "# No includes";
+	$lines[] = '# No includes';
 } else {
-	$lines = array_merge($lines, ArrayTools::prefix($includes, "Include "));
+	$lines = array_merge($lines, ArrayTools::prefix($includes, 'Include '));
 }
 
-$lines[] = "";
+$lines[] = '';
 
 echo implode("\n", $lines);

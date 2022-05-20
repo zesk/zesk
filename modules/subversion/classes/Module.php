@@ -19,7 +19,7 @@ class Module extends \zesk\Module_Repository {
 	 *
 	 * @var string
 	 */
-	public const TYPE = "svn";
+	public const TYPE = 'svn';
 
 	/**
 	 *
@@ -27,22 +27,22 @@ class Module extends \zesk\Module_Repository {
 	 * @see \zesk\Module::initialize()
 	 */
 	public function initialize(): void {
-		$required_class = "SimpleXMLElement";
+		$required_class = 'SimpleXMLElement';
 		if (!class_exists($required_class, false)) {
-			throw new Exception_System("{class} requires the {required_class}. See {help_url}", [
-				"class" => get_class($this),
-				"required_class" => $required_class,
-				"help_url" => "http://php.net/manual/en/simplexml.installation.php",
+			throw new Exception_System('{class} requires the {required_class}. See {help_url}', [
+				'class' => get_class($this),
+				'required_class' => $required_class,
+				'help_url' => 'http://php.net/manual/en/simplexml.installation.php',
 			]);
 		}
 		parent::initialize();
 		$this->register_repository(Repository::class, [
 			self::TYPE,
-			"subversion",
+			'subversion',
 		]);
 		$this->application->hooks->add(Engine::class . '::command_subversion', [
 			$this,
-			"command_subversion",
+			'command_subversion',
 		]);
 	}
 
@@ -57,35 +57,35 @@ class Module extends \zesk\Module_Repository {
 		$locale = $app->locale;
 		$url = array_shift($arguments);
 		$target = $this->application->paths->expand(array_shift($arguments));
-		$__ = compact("url", "target");
+		$__ = compact('url', 'target');
 
 		try {
 			if (!is_dir($target)) {
-				if (!$engine->prompt_yes_no($locale->__("Create subversion directory {target} for {url}", $__))) {
+				if (!$engine->prompt_yes_no($locale->__('Create subversion directory {target} for {url}', $__))) {
 					return false;
 				}
 				if (!Directory::create($target)) {
-					$engine->error($locale->__("Unable to create {target}", $__));
+					$engine->error($locale->__('Unable to create {target}', $__));
 					return false;
 				}
-				$engine->verbose_log("Created {target}", $__);
+				$engine->verbose_log('Created {target}', $__);
 			}
 			$repo = Repository::factory($this->application, self::TYPE, $target);
 			$repo->url($url);
 			if ($repo->need_commit()) {
-				$engine->log("Repository at {target} has uncommitted changes", $__);
+				$engine->log('Repository at {target} has uncommitted changes', $__);
 				$engine->log(array_keys($repo->status()));
 			}
 			if (!$repo->need_update()) {
 				return null;
 			}
-			if (!$engine->prompt_yes_no($locale->__("Update subversion {target} from {url}", $__))) {
+			if (!$engine->prompt_yes_no($locale->__('Update subversion {target} from {url}', $__))) {
 				return false;
 			}
 			$engine->log($repo->update());
 			return true;
 		} catch (\Exception $e) {
-			$engine->error("Command failed: {e}", compact("e"));
+			$engine->error('Command failed: {e}', compact('e'));
 			return false;
 		}
 	}

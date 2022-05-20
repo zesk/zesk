@@ -10,9 +10,9 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 $uri = URL::query_append($this->request->uri(), [
-	"widget::target" => $this->column,
-	"ajax" => 1,
-	"action" => "selector",
+	'widget::target' => $this->column,
+	'ajax' => 1,
+	'action' => 'selector',
 ]);
 
 $column = $this->column;
@@ -28,8 +28,8 @@ echo HTML::tag('div', '.btn-group', HTML::tag('a', [
 $results = [];
 foreach ($this->objects as $object) {
 	$results[] = $this->theme($this->theme_item, [
-		"object" => $object,
-		"selected" => true,
+		'object' => $object,
+		'selected' => true,
 	]);
 }
 // $n = count($results);
@@ -40,9 +40,9 @@ foreach ($this->objects as $object) {
 
 $list_attributes = HTML::to_attributes($this->list_attributes);
 $list_attributes['id'] = $list_id;
-$list_attributes = HTML::add_class($list_attributes, "control-picker-state class-" . strtolower($this->object_class));
+$list_attributes = HTML::add_class($list_attributes, 'control-picker-state class-' . strtolower($this->object_class));
 if ($this->selectable) {
-	$list_attributes = HTML::add_class($list_attributes, "selectable");
+	$list_attributes = HTML::add_class($list_attributes, 'selectable');
 }
 
 echo HTML::tag($this->get('list_tag', 'div'), $list_attributes, implode("\n", $results));

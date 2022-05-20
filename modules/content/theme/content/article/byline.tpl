@@ -22,6 +22,6 @@ $posted_vars = [
 	'byline' => $object->Byline,
 	'date' => Timestamp::factory($object->Created)->format($locale, '{mmmm} {ddd}, {yyyy} {12HH}:{MM} {AMPM}'),
 ];
-echo HTML::tag("div", [
-	"class" => "byline",
-], $locale->__("Content_Article:=Posted by {byline} on {date}", $posted_vars));
+echo HTML::tag('div', [
+	'class' => 'byline',
+], $locale->__('Content_Article:=Posted by {byline} on {date}', $posted_vars));

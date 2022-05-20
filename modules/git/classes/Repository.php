@@ -17,20 +17,20 @@ class Repository extends \zesk\Repository_Command {
 	/**
 	 * @var string
 	 */
-	protected $code = "git";
+	protected $code = 'git';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $executable = "git";
+	protected $executable = 'git';
 
 	/**
 	 * Used in validate function
 	 *
 	 * @var string
 	 */
-	protected $dot_directory = ".git";
+	protected $dot_directory = '.git';
 
 	/**
 	 * Fetch a list of repository status for a target
@@ -56,11 +56,11 @@ class Repository extends \zesk\Repository_Command {
 		if (!$this->validate()) {
 			return true;
 		}
-		$tag = "origin/master";
+		$tag = 'origin/master';
 		$target = $this->resolve_target($target);
-		$result = $this->run_command("diff --shortstat {tag} {target}", [
-			"tag" => $tag,
-			"target" => $target,
+		$result = $this->run_command('diff --shortstat {tag} {target}', [
+			'tag' => $tag,
+			'target' => $target,
 		]);
 		if (count($result) === 0) {
 			return false;
@@ -103,7 +103,7 @@ class Repository extends \zesk\Repository_Command {
 	 * @return mixed|array
 	 */
 	public function latest_version() {
-		$versions = $this->run_command("tag");
+		$versions = $this->run_command('tag');
 		return $this->compute_latest_version($versions);
 	}
 

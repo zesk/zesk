@@ -28,10 +28,10 @@ class Control_SortOrder extends Control {
 		parent::initialize();
 		$name = $this->name();
 		if ($this->request->has($name)) {
-			$this->ascending = $this->request->get($name) === "asc";
+			$this->ascending = $this->request->get($name) === 'asc';
 		}
 		if ($this->parent instanceof Control_Pager) {
-			$this->parent->preserve_hidden("so", $this->default_value());
+			$this->parent->preserve_hidden('so', $this->default_value());
 		}
 	}
 
@@ -42,7 +42,7 @@ class Control_SortOrder extends Control {
 	public function hook_after_query_list(Database_Query_Select $query): void {
 		$parser = $query->parser();
 		$order_by_original = $parser->split_order_by($query->order_by());
-		$this->list_default_ascending = !endsi(first($order_by_original), " desc");
+		$this->list_default_ascending = !endsi(first($order_by_original), ' desc');
 		if ($this->ascending === null) {
 			$this->ascending = $this->list_default_ascending;
 		}

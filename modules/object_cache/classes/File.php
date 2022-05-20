@@ -59,7 +59,7 @@ class File extends Base {
 			return null;
 		}
 		$hash = self::hash_from_key($key);
-		$cache_file = path($path, $hash . ".cache");
+		$cache_file = path($path, $hash . '.cache');
 		if (file_exists($cache_file)) {
 			return unserialize(file_get_contents($cache_file));
 		}
@@ -72,7 +72,7 @@ class File extends Base {
 			return null;
 		}
 		$hash = self::hash_from_key($key);
-		$cache_file = path($path, $hash . ".cache");
+		$cache_file = path($path, $hash . '.cache');
 		if ($data === null) {
 			@unlink($cache_file);
 		} else {
@@ -83,7 +83,7 @@ class File extends Base {
 	public function invalidate(ORM $object, $key = null): void {
 		$path = $this->object_path($object);
 		if ($key !== null) {
-			zeskFile::unlink(path($path, self::hash_from_key($key) . ".cache"));
+			zeskFile::unlink(path($path, self::hash_from_key($key) . '.cache'));
 		} elseif (is_dir($path)) {
 			Directory::delete($path);
 		}

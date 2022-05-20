@@ -17,7 +17,7 @@ class Contact_Builder_Address extends Contact_Builder_Base {
 	 *
 	 * @var string
 	 */
-	protected $contact_class = "zesk\\Contact_Address";
+	protected $contact_class = 'zesk\\Contact_Address';
 
 	/**
 	 *

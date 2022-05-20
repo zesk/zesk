@@ -13,7 +13,7 @@ namespace zesk;
 /* @var $response \zesk\Response */
 $id = $this->id;
 if (empty($id)) {
-	$this->id = $id = "datetimepicker-" . $response->id_counter();
+	$this->id = $id = 'datetimepicker-' . $response->id_counter();
 }
 $value = $this->value;
 if (empty($value)) {
@@ -23,7 +23,7 @@ $format = $this->allow_times ? 'Y-m-d H:i' : 'Y-m-d';
 $value = $this->value = date($format, strtotime($value));
 $onchange = $this->onchange;
 
-$inline = $this->getb("inline");
+$inline = $this->getb('inline');
 
 echo $this->theme('zesk/control/text', [
 	'onchange' => null,
@@ -31,13 +31,13 @@ echo $this->theme('zesk/control/text', [
 ]);
 
 $options = $this->get([
-	"inline" => $inline,
-	"sideBySide" => true,
-	"format" => __("Module_Bootstrap_DateTimePicker::widget_layout_format:=YYYY-MM-DD hh:mm a"),
-	"toolbarPlacement" => "bottom",
-	"showTodayButton" => true,
+	'inline' => $inline,
+	'sideBySide' => true,
+	'format' => __('Module_Bootstrap_DateTimePicker::widget_layout_format:=YYYY-MM-DD hh:mm a'),
+	'toolbarPlacement' => 'bottom',
+	'showTodayButton' => true,
 ]);
-$zformat = "{YYYY}-{MM}-{DD} {hh}:{mm}";
+$zformat = '{YYYY}-{MM}-{DD} {hh}:{mm}';
 
 $ts_now = Timestamp::now();
 $ts_mindate = null;
@@ -58,9 +58,9 @@ if ($inline) {
 }
 
 foreach ([
-	"minDate" => $ts_mindate,
-	"maxDate" => $ts_maxdate,
-	"defaultDate" => $ts_defaultdate,
+	'minDate' => $ts_mindate,
+	'maxDate' => $ts_maxdate,
+	'defaultDate' => $ts_defaultdate,
 ] as $option_key => $ts) {
 	if ($ts) {
 		$options[$option_key] = $ts->format($locale, $zformat);
@@ -71,7 +71,7 @@ foreach ([
 //	"format_date" => "formatDate",
 //	"allow_times" => "allowTimes",
 foreach ([
-	"step" => "stepping",
+	'step' => 'stepping',
 ] as $template_key => $js_option) {
 	if ($this->has($template_key)) {
 		$options[$js_option] = $this->get($template_key);
@@ -87,9 +87,9 @@ $options['*locale'] = $js_language;
 $original_id = $id;
 if ($inline) {
 	$id = "$id-dtp";
-	echo HTML::div("#$id", "");
+	echo HTML::div("#$id", '');
 }
-$jquery = "\$(\"#$id\").datetimepicker(" . JSON::encodex($options) . ")";
+$jquery = "\$(\"#$id\").datetimepicker(" . JSON::encodex($options) . ')';
 
 if ($onchange) {
 	$onchange = JavaScript::clean_code($onchange);
@@ -103,6 +103,6 @@ if ($inline) {
 	$jquery .= ".on(\"dp.change\", function (e) {\n\t\$(\"#$original_id\").val(e.date.format('YYYY-MM-DD HH:mm:ss'));\n})";
 }
 
-$jquery .= ";";
+$jquery .= ';';
 
 $this->response->jquery($jquery);

@@ -12,38 +12,38 @@ use zesk\File;
  */
 class Command_WebApp_Domains extends \zesk\Command_Base {
 	public array $option_types = [
-		"file" => "file",
-		"format" => "string",
+		'file' => 'file',
+		'format' => 'string',
 	];
 
 	public $option_help = [
-		"file" => "Load domains from a file, one domain per line",
+		'file' => 'Load domains from a file, one domain per line',
 	];
 
 	public function run() {
-		if ($this->option("file")) {
-			$lines = File::lines($this->option("file"));
+		if ($this->option('file')) {
+			$lines = File::lines($this->option('file'));
 			foreach ($lines as $line) {
 				$line = trim($line);
-				if (substr($line, 0, 1) === "#") {
+				if (substr($line, 0, 1) === '#') {
 					continue;
 				}
 				$this->application->orm_factory(Domain::class, [
-					"name" => $line,
+					'name' => $line,
 				])->register();
 			}
 		}
 		$result = $this->application->orm_registry(Domain::class)
 			->query_select()
 			->what([
-			"name" => "name",
-			"active" => "active",
+			'name' => 'name',
+			'active' => 'active',
 		])
 			->order_by([
-			"name",
-			"active DESC",
+			'name',
+			'active DESC',
 		])
-			->to_array("name", "active");
+			->to_array('name', 'active');
 		return $this->render_format($result);
 	}
 }

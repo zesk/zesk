@@ -37,7 +37,7 @@ class Health_Events extends ORM {
 
 	public function register_from_event(Health_Event $event) {
 		$hash = [
-			$event->member_integer("server"),
+			$event->member_integer('server'),
 			$event->application,
 			$event->context,
 			$event->type,
@@ -45,7 +45,7 @@ class Health_Events extends ORM {
 			intval($event->fatal),
 		];
 		$fields = [
-			'hash' => md5(implode("|", $hash)),
+			'hash' => md5(implode('|', $hash)),
 			'date' => new Date($event->when),
 		];
 		$this->set_member($fields);
@@ -53,7 +53,7 @@ class Health_Events extends ORM {
 			$this->bump($event->when, $event->when_msec);
 			return $this;
 		}
-		$this->set_member($event->members("server;application;context;type;message;fatal"));
+		$this->set_member($event->members('server;application;context;type;message;fatal'));
 		$this->first = $this->recent = $event->when;
 		$this->first_msec = $this->recent_msec = $event->when_msec;
 		$this->total = 1;
@@ -62,17 +62,17 @@ class Health_Events extends ORM {
 
 	public function bump($when, $when_msec = 0) {
 		$this->query_update()
-			->value("*total", "total+1")
-			->where("id", $this->id)
+			->value('*total', 'total+1')
+			->where('id', $this->id)
 			->execute();
 		$this->query_update()
 			->values([
-			"recent" => $when,
-			"recent_msec" => $when_msec,
+			'recent' => $when,
+			'recent_msec' => $when_msec,
 		])
 			->where([
-			"id" => $this->id,
-			"recent|<=" => $when,
+			'id' => $this->id,
+			'recent|<=' => $when,
 		])
 			->execute();
 		return $this;

@@ -12,7 +12,7 @@ class Contact_Builder_Email extends Contact_Builder_Base {
 	 *
 	 * @var string
 	 */
-	protected $contact_class = "zesk\\Contact_Email";
+	protected $contact_class = 'zesk\\Contact_Email';
 
 	/**
 	 *
@@ -21,17 +21,17 @@ class Contact_Builder_Email extends Contact_Builder_Base {
 	 */
 	public function process(Contact_Import $import, $key, $value) {
 		if (!is_email($value)) {
-			throw new Exception_Syntax(__("Not a valid email address."));
+			throw new Exception_Syntax(__('Not a valid email address.'));
 		}
 		$parts = Mail::parse_address($value);
 		if (!$parts) {
-			throw new Exception_Syntax(__("Unable to parse email address."));
+			throw new Exception_Syntax(__('Unable to parse email address.'));
 		}
 		$map = [
 			'key' => $key,
 		];
 		$data = [
-			"value" => $parts['email'],
+			'value' => $parts['email'],
 		] + $this->data;
 		$data = map($data, $map);
 

@@ -13,7 +13,7 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
-die(__FILE__ . ":" . __LINE__ . " Needs to be rewritten");
+die(__FILE__ . ':' . __LINE__ . ' Needs to be rewritten');
 
 $contact = $this->contact;
 
@@ -32,7 +32,7 @@ if (!$account) {
 	$account = $contact->Account;
 }
 if (!$account) {
-	throw new Exception_Semantics("Need an account to edit contacts");
+	throw new Exception_Semantics('Need an account to edit contacts');
 }
 $id = $contact->is_new() ? 0 : $contact->id();
 
@@ -44,14 +44,14 @@ function contact_edit_post(Template $object, Contact $contact) {
 	$account = $object->account;
 	$person = $contact->Person;
 	$person_fields = [
-		"Prefix",
-		"FirstName",
-		"MiddleName",
-		"LastName",
-		"Suffix",
-		"Title",
-		"Company",
-		"Nickname",
+		'Prefix',
+		'FirstName',
+		'MiddleName',
+		'LastName',
+		'Suffix',
+		'Title',
+		'Company',
+		'Nickname',
 	];
 	foreach ($person_fields as $person_field) {
 		$request_field = "Person_$person_field";
@@ -61,37 +61,37 @@ function contact_edit_post(Template $object, Contact $contact) {
 	}
 	$errors = [];
 	$value_names = [
-		"Email" => [
-			"Emails",
+		'Email' => [
+			'Emails',
 			Contact_Label::LabelType_Email,
 		],
-		"Phone" => [
-			"Phones",
+		'Phone' => [
+			'Phones',
 			Contact_Label::LabelType_Phone,
 		],
-		"Address" => [
-			"Addresses",
+		'Address' => [
+			'Addresses',
 			Contact_Label::LabelType_Address,
 		],
-		"URL" => [
-			"URLs",
+		'URL' => [
+			'URLs',
 			Contact_Label::LabelType_URL,
 		],
-		"Date" => [
-			"Dates",
+		'Date' => [
+			'Dates',
 			Contact_Label::LabelType_Date,
 		],
-		"Other" => [
-			"Others",
+		'Other' => [
+			'Others',
 			Contact_Label::LabelType_Other,
 		],
 	];
 	$delete_list = [];
 	foreach ($value_names as $value_name => $settings) {
 		[$member_name, $label_type] = $settings;
-		$labels = $request->get("Contact_" . $value_name . "_Label");
-		$labels_custom = $request->get("Contact_" . $value_name . "_Custom");
-		$values = $request->get("Contact_" . $value_name);
+		$labels = $request->get('Contact_' . $value_name . '_Label');
+		$labels_custom = $request->get('Contact_' . $value_name . '_Custom');
+		$values = $request->get('Contact_' . $value_name);
 		if (!is_array($labels) || !is_array($values)) {
 			$errors[] = "Incorrect POST format for $value_name";
 			continue;
@@ -107,7 +107,7 @@ function contact_edit_post(Template $object, Contact $contact) {
 			$label_custom = avalue($labels_custom, $index);
 			$subobject = $contact->find_linked_data($member_name, $value);
 			if (!$subobject) {
-				$subobject = ORM::factory("Contact_" . $value_name);
+				$subobject = ORM::factory('Contact_' . $value_name);
 			} else {
 				$subobject_id = $subobject->id();
 				unset($linked_ids[$subobject_id]);
@@ -124,10 +124,10 @@ function contact_edit_post(Template $object, Contact $contact) {
 		}
 		$linked_ids = array_keys($linked_ids);
 		foreach ($linked_ids as $id) {
-			$delete_list[] = ORM::factory("Contact_" . $value_name, $id);
+			$delete_list[] = ORM::factory('Contact_' . $value_name, $id);
 		}
 	}
-	$contact->Notes = $request->get("Contact_Notes");
+	$contact->Notes = $request->get('Contact_Notes');
 	if (count($errors) > 0) {
 		return $errors;
 	}
@@ -144,14 +144,14 @@ if ($request->is_post()) {
 	$result = contact_edit_post($this, $contact);
 	if ($result === true) {
 		$response = [
-			"success" => $result,
-			"message" => __("Saved successfully."),
+			'success' => $result,
+			'message' => __('Saved successfully.'),
 		];
 	} else {
 		$response = [
-			"success" => false,
-			"message" => __("There were some problems saving your contact."),
-			"errors" => $result,
+			'success' => false,
+			'message' => __('There were some problems saving your contact.'),
+			'errors' => $result,
 		];
 	}
 	$response['id'] = $contact->id();
@@ -166,35 +166,35 @@ function contact_edit_input($label, $class, $name, $id, $value, $default_visibil
 		$id = $name;
 	}
 	$widget_attrs = [
-		'name' => $name . ($multi ? '[]' : ""),
+		'name' => $name . ($multi ? '[]' : ''),
 		'class' => $name,
 		'id' => $id,
 	];
 	$widget_attrs['class'] = $class;
 	if ($widget_textarea) {
-		$widget = HTML::tag("textarea", $widget_attrs, htmlspecialchars("$value"));
+		$widget = HTML::tag('textarea', $widget_attrs, htmlspecialchars("$value"));
 	} else {
 		$widget_attrs['type'] = 'text';
 		$widget_attrs['value'] = $value;
-		$widget = HTML::tag("input", $widget_attrs);
+		$widget = HTML::tag('input', $widget_attrs);
 	}
 
 	$attrs = [
-		"class" => 'overlabel-pair edit-value',
-		"id" => "contact-field-$name",
+		'class' => 'overlabel-pair edit-value',
+		'id' => "contact-field-$name",
 	];
 	if ($default_visibility === false && empty($value)) {
 		$attrs['style'] = 'display: none';
 	}
 	return HTML::div($attrs, HTML::tag('label', [
 		'for' => $id,
-		"class" => "overlabel",
+		'class' => 'overlabel',
 	], $label) . $widget);
 }
 function contact_edit_pair($label, $class, $name, $data, $labels, $section, $section_id, $widget_textarea = false) {
 	$value = avalue($data, 'Value');
 	$label_value = avalue($data, 'Label');
-	$field_name = $name . "_Label[]";
+	$field_name = $name . '_Label[]';
 	$is_custom = intval(count($labels) === 0);
 	$id_label = 'label-' . $section_id;
 	if ($is_custom) {
@@ -211,12 +211,12 @@ function contact_edit_pair($label, $class, $name, $data, $labels, $section, $sec
 			->names($field_name)
 			->control_options($labels)
 			->required(true);
-		$w->setOption("onchange", "contact_label_change.call(this)");
+		$w->setOption('onchange', 'contact_label_change.call(this)');
 		$data[$field_name] = $label_value;
 		$label_html = $w->output($data);
 	}
-	return HTML::div('.contact-pair', contact_edit_input($label, $class, $name, $id_label, $value, true, true, $widget_textarea) . HTML::div('.contact-label', $label_html) . "<a href=\"javascript:contact_remove_item('$section','$section_id')\" class=\"remove\">" . __('remove') . "</a>" . HTML::input_hidden($name . "_Custom[]", "$is_custom", [
-		"class" => "custom",
+	return HTML::div('.contact-pair', contact_edit_input($label, $class, $name, $id_label, $value, true, true, $widget_textarea) . HTML::div('.contact-label', $label_html) . "<a href=\"javascript:contact_remove_item('$section','$section_id')\" class=\"remove\">" . __('remove') . '</a>' . HTML::input_hidden($name . '_Custom[]', "$is_custom", [
+		'class' => 'custom',
 	]));
 }
 
@@ -232,41 +232,41 @@ if (is_array($require_labels)) {
 $sections = [
 	'email' => [
 		'label_type' => Contact_Label::LabelType_Email,
-		'head_label' => "Email",
-		'object_name' => "Contact_Email",
+		'head_label' => 'Email',
+		'object_name' => 'Contact_Email',
 	],
 	'phone' => [
 		'label_type' => Contact_Label::LabelType_Phone,
-		'head_label' => "Phone",
-		'object_name' => "Contact_Phone",
+		'head_label' => 'Phone',
+		'object_name' => 'Contact_Phone',
 	],
 	'address' => [
 		'label_type' => Contact_Label::LabelType_Address,
-		'head_label' => "Address",
-		'object_name' => "Contact_Address",
+		'head_label' => 'Address',
+		'object_name' => 'Contact_Address',
 		'field_type' => 'textarea',
 	],
 	'url' => [
 		'label_type' => Contact_Label::LabelType_URL,
-		'head_label' => "Web sites",
-		'object_name' => "Contact_URL",
+		'head_label' => 'Web sites',
+		'object_name' => 'Contact_URL',
 		'widget_class' => 'long',
 	],
 	'dates' => [
 		'label_type' => Contact_Label::LabelType_Date,
-		'head_label' => "Dates",
-		'object_name' => "Contact_Date",
+		'head_label' => 'Dates',
+		'object_name' => 'Contact_Date',
 		'default_hide' => true,
 	],
 	'other' => [
 		'label_type' => Contact_Label::LabelType_Other,
-		'head_label' => "Other",
-		'object_name' => "Contact_Other",
+		'head_label' => 'Other',
+		'object_name' => 'Contact_Other',
 		'default_hide' => true,
 	],
 ];
 
-HTML::jquery("contact_edit_load()");
+HTML::jquery('contact_edit_load()');
 
 $fields = [
 	'Person_Prefix' => [
@@ -330,14 +330,14 @@ $fields = [
 					[$section, $name] = $field;
 					if (is_string($codename)) {
 						$onclick = "$('#contact-field-$codename').show();$('#$codename-add').hide(); \$(this).parent().parent().parent().hide()";
-						$link = HTML::tag("a", [
-							"onclick" => $onclick,
-							"id" => $codename . "-add",
+						$link = HTML::tag('a', [
+							'onclick' => $onclick,
+							'id' => $codename . '-add',
 						], $name);
 					} else {
 						$onclick = "contact_add_item('$section'); \$(this).parent().parent().parent().hide()";
-						$link = HTML::tag("a", [
-							"onclick" => $onclick,
+						$link = HTML::tag('a', [
+							'onclick' => $onclick,
 						], $name);
 					}
 					echo HTML::tag('li', $link);
@@ -348,18 +348,18 @@ $fields = [
 		<div class="contact-person">
 			<table class="layout">
 				<tr>
-					<td><?php echo contact_edit_input(__("Prefix"), "short", "Person_Prefix", null, $person->member("Prefix"), false)?></td>
-					<td><?php echo contact_edit_input(__("First Name"), null, "Person_FirstName", null, $person->member("FirstName"), true)?></td>
-					<td><?php echo contact_edit_input(__("Middle Name"), null, "Person_MiddleName", null, $person->member("MiddleName"), false)?></td>
-					<td><?php echo contact_edit_input(__("Last Name"), null, "Person_LastName", null, $person->member("LastName"), true)?></td>
-					<td><?php echo contact_edit_input(__("Suffix"), "short", "Person_Suffix", null, $person->member("Suffix"), false)?></td>
+					<td><?php echo contact_edit_input(__('Prefix'), 'short', 'Person_Prefix', null, $person->member('Prefix'), false)?></td>
+					<td><?php echo contact_edit_input(__('First Name'), null, 'Person_FirstName', null, $person->member('FirstName'), true)?></td>
+					<td><?php echo contact_edit_input(__('Middle Name'), null, 'Person_MiddleName', null, $person->member('MiddleName'), false)?></td>
+					<td><?php echo contact_edit_input(__('Last Name'), null, 'Person_LastName', null, $person->member('LastName'), true)?></td>
+					<td><?php echo contact_edit_input(__('Suffix'), 'short', 'Person_Suffix', null, $person->member('Suffix'), false)?></td>
 				</tr>
 			</table>
 			<table>
 				<tr>
-					<td><?php echo contact_edit_input(__("Title"), null, "Person_Title", null, $person->member("Title"), false)?></td>
-					<td><?php echo contact_edit_input(__("Company"), null, "Person_Company", null, $person->member("Company"), true)?></td>
-					<td><?php echo contact_edit_input(__("Nickname"), null, "Person_Nickname", null, $person->member("Nickname"), false)?></td>
+					<td><?php echo contact_edit_input(__('Title'), null, 'Person_Title', null, $person->member('Title'), false)?></td>
+					<td><?php echo contact_edit_input(__('Company'), null, 'Person_Company', null, $person->member('Company'), true)?></td>
+					<td><?php echo contact_edit_input(__('Nickname'), null, 'Person_Nickname', null, $person->member('Nickname'), false)?></td>
 				</tr>
 			</table>
 		</div>
@@ -374,13 +374,13 @@ foreach ($sections as $section => $variables) {
 		$values = $application->orm_registry($object_name)
 			->query_select()
 			->what([
-			"Label" => "Label",
-			"Value" => "Value",
+			'Label' => 'Label',
+			'Value' => 'Value',
 		])
-			->where("contact", $id)
+			->where('contact', $id)
 			->to_array();
 	}
-	$display = "";
+	$display = '';
 	$required = avalue($required_labels, $label_type, []);
 	if (!$id || count($values) === 0) {
 		if (count($required) > 0) {
@@ -415,16 +415,16 @@ foreach ($sections as $section => $variables) {
 	foreach ($values as $i => $data) {
 		$section_id = "$object_name-$id-$i";
 		$required = avalue($data, 'required', false); ?><div
-				class="section-control section-control-<?php echo $section?><?php echo $required ? " section-label-required" : ""?>"
+				class="section-control section-control-<?php echo $section?><?php echo $required ? ' section-label-required' : ''?>"
 				id="<?php echo $section_id?>">
-			<?php echo contact_edit_pair(__($head_label), $widget_class, $object_name, $data, $labels, $section, $section_id, $field_type === "textarea")?>
+			<?php echo contact_edit_pair(__($head_label), $widget_class, $object_name, $data, $labels, $section, $section_id, $field_type === 'textarea')?>
 		</div>
 		<?php
 	} ?>
 		<?php
 	ob_start(); ?>
 		<div id="section-template-<?php echo $section?>" style="display: none">
-			<?php echo contact_edit_pair(__($head_label), $widget_class, $object_name, [], $labels, $section, '{id}', $field_type === "textarea")?>
+			<?php echo contact_edit_pair(__($head_label), $widget_class, $object_name, [], $labels, $section, '{id}', $field_type === 'textarea')?>
 		</div>
 		<?php
 	$append_templates[] = ob_get_clean(); ?>

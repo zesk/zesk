@@ -61,10 +61,10 @@ class Control_OrderBy extends Control {
 			$reverse_order_by = [];
 			foreach ($list_order_by as $token) {
 				$lowtoken = strtolower($token);
-				if (ends($lowtoken, " desc")) {
+				if (ends($lowtoken, ' desc')) {
 					$reverse_order_by[] = substr($token, 0, -5);
-				} elseif (ends($lowtoken, " asc")) {
-					$reverse_order_by[] = substr($token, 0, -4) . " DESC";
+				} elseif (ends($lowtoken, ' asc')) {
+					$reverse_order_by[] = substr($token, 0, -4) . ' DESC';
 				} else {
 					$reverse_order_by[] = "$token DESC";
 				}
@@ -97,30 +97,30 @@ class Control_OrderBy extends Control {
 		if ($list_order_by === true) {
 			$this->list_order_by($this->column());
 		}
-		$cur_sort_names = ArrayTools::clean($this->request->geta($this->list_order_variable(), [], ";"), ['', null]);
+		$cur_sort_names = ArrayTools::clean($this->request->geta($this->list_order_variable(), [], ';'), ['', null]);
 		$k = $this->list_order_column();
 		$order_var = $this->list_order_variable();
 		$new_order = [];
 		$new_key = null;
 		$sort_index = null;
-		$multisort = $this->optionBool("multisort");
+		$multisort = $this->optionBool('multisort');
 		$remove_order = [];
 		$selected = false;
 		$ascending = true;
 		foreach ($cur_sort_names as $i => $cur_sort_name) {
 			if ($cur_sort_name === $k) {
 				$sort_index = $i;
-				$sort_order = "sort-asc";
+				$sort_order = 'sort-asc';
 				$selected = true;
-				$alt = "Sort ascending";
+				$alt = 'Sort ascending';
 				$ascending = true;
-				$new_key = "-" . $k;
+				$new_key = '-' . $k;
 				$new_order[] = $new_key;
 			} elseif ($cur_sort_name === "-$k") {
 				$sort_index = $i;
 				$selected = true;
-				$sort_order = "sort-desc";
-				$alt = "Sort descending";
+				$sort_order = 'sort-desc';
+				$alt = 'Sort descending';
 				$ascending = false;
 				$new_key = $k;
 				$new_order[] = $new_key;
@@ -130,35 +130,35 @@ class Control_OrderBy extends Control {
 			}
 		}
 		if ($new_key === null) {
-			if ($this->optionBool("list_order_default_ascending", true)) {
-				$alt = "Sort ascending";
-				$sort_order = "sort-none";
+			if ($this->optionBool('list_order_default_ascending', true)) {
+				$alt = 'Sort ascending';
+				$sort_order = 'sort-none';
 				$ascending = true;
 				$new_key = $k;
 			} else {
-				$alt = "Sort descending";
+				$alt = 'Sort descending';
 				$ascending = false;
-				$sort_order = "sort-none";
+				$sort_order = 'sort-none';
 				$new_key = "-$k";
 			}
 			$new_order[] = $new_key;
 		}
 		if ($multisort) {
-			$new_key = implode(";", $new_order);
-			$remove_order = implode(";", $remove_order);
-			$remove_url = URL::query_format($this->option("URI", $this->request->uri()), [
+			$new_key = implode(';', $new_order);
+			$remove_order = implode(';', $remove_order);
+			$remove_url = URL::query_format($this->option('URI', $this->request->uri()), [
 				$order_var => $remove_order,
 			]);
-			$sort_number = ($sort_index !== null) ? HTML::tag("div", [
-				"class" => "list-order-index",
-			], HTML::a($remove_url, $sort_index + 1)) : "";
+			$sort_number = ($sort_index !== null) ? HTML::tag('div', [
+				'class' => 'list-order-index',
+			], HTML::a($remove_url, $sort_index + 1)) : '';
 		} else {
 			$sort_number = null;
 		}
 		$new_query = [
 			$order_var => $new_key,
 		];
-		$this->theme_variables['orderby_url'] = URL::query_format($this->option("URI", $this->request->uri()), $new_query);
+		$this->theme_variables['orderby_url'] = URL::query_format($this->option('URI', $this->request->uri()), $new_query);
 
 		$this->theme_variables['list_order_column'] = $k;
 		$this->theme_variables['list_order_variable'] = $order_var;

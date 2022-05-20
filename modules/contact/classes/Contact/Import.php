@@ -18,7 +18,7 @@ abstract class Contact_Import extends Options {
 	 *
 	 * @var string
 	 */
-	protected $import_class = "zesk\\CSV_Reader";
+	protected $import_class = 'zesk\\CSV_Reader';
 
 	/**
 	 *
@@ -74,9 +74,9 @@ abstract class Contact_Import extends Options {
 		$keys = $this->contact_hash_keys();
 		$hash = [];
 		foreach ($keys as $k) {
-			$hash[] = avalue($row, $k, "");
+			$hash[] = avalue($row, $k, '');
 		}
-		return md5(implode("|", $hash));
+		return md5(implode('|', $hash));
 	}
 
 	/**
@@ -121,7 +121,7 @@ abstract class Contact_Import extends Options {
 	 */
 	public static function factory(Interface_Process $proc, $filename, $options = null) {
 		$classes = [
-			"Contact_Import_Outlook",
+			'Contact_Import_Outlook',
 		];
 
 		foreach ($classes as $class) {
@@ -174,7 +174,7 @@ abstract class Contact_Import extends Options {
 			if (array_key_exists($key, $map)) {
 				$handler = $map[$key];
 				if (is_string($handler)) {
-					[$object, $field] = pair($handler, ".", null, null);
+					[$object, $field] = pair($handler, '.', null, null);
 					if ($object) {
 						$this->objects[$object][0][$field] = $value;
 					}
@@ -192,9 +192,9 @@ abstract class Contact_Import extends Options {
 			'user' => $this->optionInt('user'),
 		], $this->objects);
 
-		throw new Exception_Unimplemented("Need to update this code");
+		throw new Exception_Unimplemented('Need to update this code');
 
-		$account = $this->optionInt("account");
+		$account = $this->optionInt('account');
 		$dup_contact = Contact::find_hash($contact_hash, [
 			'account' => $account,
 		]);
@@ -210,8 +210,8 @@ abstract class Contact_Import extends Options {
 		}
 		if (!$contact->store()) {
 			$this->errors[$row_index] = [
-				"error" => "Can not store contact",
-				"data" => serialize($this->objects),
+				'error' => 'Can not store contact',
+				'data' => serialize($this->objects),
 			];
 			return false;
 		}

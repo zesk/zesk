@@ -15,52 +15,52 @@ abstract class Temporal {
 	 *
 	 * @var string
 	 */
-	public const UNIT_YEAR = "year";
+	public const UNIT_YEAR = 'year';
 
 	/*
 	 * @var string
 	 */
-	public const UNIT_QUARTER = "quarter";
+	public const UNIT_QUARTER = 'quarter';
 
 	/*
 	 * @var string
 	 */
-	public const UNIT_MONTH = "month";
+	public const UNIT_MONTH = 'month';
 
 	/*
 	 * @var string
 	 */
-	public const UNIT_WEEKDAY = "weekday";
+	public const UNIT_WEEKDAY = 'weekday';
 
 	/*
 	 * @var string
 	 */
-	public const UNIT_WEEK = "week";
+	public const UNIT_WEEK = 'week';
 
 	/*
 	 * @var string
 	 */
-	public const UNIT_DAY = "day";
+	public const UNIT_DAY = 'day';
 
 	/*
 	 * @var string
 	 */
-	public const UNIT_HOUR = "hour";
+	public const UNIT_HOUR = 'hour';
 
 	/*
 	 * @var string
 	 */
-	public const UNIT_MINUTE = "minute";
+	public const UNIT_MINUTE = 'minute';
 
 	/*
 	 * @var string
 	 */
-	public const UNIT_SECOND = "second";
+	public const UNIT_SECOND = 'second';
 
 	/*
 	 * @var string
 	 */
-	public const UNIT_MILLISECOND = "millisecond";
+	public const UNIT_MILLISECOND = 'millisecond';
 
 	/**
 	 * Duh.
@@ -220,12 +220,12 @@ abstract class Temporal {
 	 * @throws Exception_Parameter
 	 * @return double
 	 */
-	public static function convert_units($seconds, $unit = "second") {
+	public static function convert_units($seconds, $unit = 'second') {
 		$seconds_in_unit = self::$UNITS_TRANSLATION_TABLE[$unit] ?? null;
 		if ($seconds_in_unit === null) {
-			throw new Exception_Parameter("Invalid unit name passed to {method}: {unit}", [
-				"method" => __METHOD__,
-				"unit" => $unit,
+			throw new Exception_Parameter('Invalid unit name passed to {method}: {unit}', [
+				'method' => __METHOD__,
+				'unit' => $unit,
 			]);
 		}
 		return floatval($seconds / $seconds_in_unit);
@@ -245,7 +245,7 @@ abstract class Temporal {
 	 *        	example.
 	 * @return string The units closest to the number of seconds
 	 */
-	public static function seconds_to_unit($seconds, $stop_unit = "second", &$fraction = null) {
+	public static function seconds_to_unit($seconds, $stop_unit = 'second', &$fraction = null) {
 		$seconds = intval($seconds);
 		$translation = self::$UNITS_TRANSLATION_TABLE;
 		foreach ($translation as $unit => $unit_seconds) {

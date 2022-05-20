@@ -23,7 +23,7 @@ class Time extends Temporal {
 	 *
 	 * @var string
 	 */
-	public const DEFAULT_FORMAT_STRING = "{hh}:{mm}:{ss}";
+	public const DEFAULT_FORMAT_STRING = '{hh}:{mm}:{ss}';
 
 	/**
 	 * Set up upon load
@@ -114,7 +114,7 @@ class Time extends Temporal {
 	public static function hooks(Application $kernel): void {
 		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, [
 			__CLASS__,
-			"configured",
+			'configured',
 		]);
 	}
 
@@ -125,7 +125,7 @@ class Time extends Temporal {
 	public static function configured(Application $application): void {
 		self::$default_format_string = $application->configuration->path_get([
 			__CLASS__,
-			"format_string",
+			'format_string',
 		], self::DEFAULT_FORMAT_STRING);
 	}
 
@@ -208,7 +208,7 @@ class Time extends Temporal {
 			return $this;
 		}
 
-		throw new Exception_Parameter(map("Time::set({0})", [_dump($value)]));
+		throw new Exception_Parameter(map('Time::set({0})', [_dump($value)]));
 	}
 
 	/**
@@ -271,9 +271,9 @@ class Time extends Temporal {
 	public function unix_timestamp($set = null) {
 		if ($set !== null) {
 			if (!is_numeric($set)) {
-				throw new Exception_Parameter(map("Time::unix_timestamp({0})", [_dump($set)]));
+				throw new Exception_Parameter(map('Time::unix_timestamp({0})', [_dump($set)]));
 			}
-			[$hours, $minutes, $seconds] = explode(" ", gmdate("G n s", $set)); // getdate doesn't support UTC
+			[$hours, $minutes, $seconds] = explode(' ', gmdate('G n s', $set)); // getdate doesn't support UTC
 			$this->hms(intval($hours), intval($minutes), intval($seconds));
 			return $this;
 		}
@@ -304,9 +304,9 @@ class Time extends Temporal {
 	 */
 	public function __toString() {
 		if ($this->is_empty()) {
-			return "";
+			return '';
 		}
-		$result = $this->format(null, "{hh}:{mm}:{ss}");
+		$result = $this->format(null, '{hh}:{mm}:{ss}');
 		return $result;
 	}
 
@@ -319,16 +319,16 @@ class Time extends Temporal {
 	 */
 	public function parse($value) {
 		foreach ([
-					 "/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/" => [
+					 '/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/' => [
 						 null,
-						 "hour",
-						 "minute",
-						 "second",
+						 'hour',
+						 'minute',
+						 'second',
 					 ],
-					 "/([0-9]{1,2}):([0-9]{2})/" => [
+					 '/([0-9]{1,2}):([0-9]{2})/' => [
 						 null,
-						 "hour",
-						 "minute",
+						 'hour',
+						 'minute',
 					 ],
 				 ] as $pattern => $assign) {
 			if (preg_match($pattern, $value, $matches)) {
@@ -342,11 +342,11 @@ class Time extends Temporal {
 			}
 		}
 		$tz = date_default_timezone_get();
-		date_default_timezone_set("UTC");
+		date_default_timezone_set('UTC');
 		$ts = strtotime($value, $this->unix_timestamp());
 		date_default_timezone_set($tz);
 		if ($ts === false || $ts < 0) {
-			throw new Exception_Parameter(map("Time::parse({0}): Can't parse", [$value]));
+			throw new Exception_Parameter(map('Time::parse({0}): Can\'t parse', [$value]));
 		}
 		return $this->unix_timestamp($ts);
 	}
@@ -460,7 +460,7 @@ class Time extends Temporal {
 	 */
 	public function ampm() {
 		$hour = $this->hour();
-		return ($hour < 12) ? "am" : "pm";
+		return ($hour < 12) ? 'am' : 'pm';
 	}
 
 	/**
@@ -576,7 +576,7 @@ class Time extends Temporal {
 	 * @param string $sep
 	 * @return string
 	 */
-	private function _hms_format($sep = ":") {
+	private function _hms_format($sep = ':') {
 		return StringTools::zero_pad($this->hour()) . $sep . StringTools::zero_pad($this->minute()) . $sep . StringTools::zero_pad($this->second());
 	}
 
@@ -603,9 +603,9 @@ class Time extends Temporal {
 	 */
 	public function add_unit($n_units = 1, $units = self::UNIT_SECOND) {
 		if (!is_numeric($n_units)) {
-			throw new Exception_Parameter("\$n_units must be numeric {type} {value}", [
-				"type" => type($n_units),
-				"value" => $n_units,
+			throw new Exception_Parameter('$n_units must be numeric {type} {value}', [
+				'type' => type($n_units),
+				'value' => $n_units,
 			]);
 		}
 		switch ($units) {
@@ -618,10 +618,10 @@ class Time extends Temporal {
 			case self::UNIT_HOUR:
 				return $this->add($n_units);
 			default:
-				throw new Exception_Parameter("{method)({n_units}, {units}): Invalid unit", [
-					"method" => __METHOD__,
-					"n_units" => $n_units,
-					"units" => $units,
+				throw new Exception_Parameter('{method)({n_units}, {units}): Invalid unit', [
+					'method' => __METHOD__,
+					'n_units' => $n_units,
+					'units' => $units,
 				]);
 		}
 	}
@@ -633,7 +633,7 @@ class Time extends Temporal {
 	 * @return Time
 	 */
 	private function _set_date(array $darr) {
-		return $this->hms($darr["hours"], $darr["minutes"], $darr["seconds"]);
+		return $this->hms($darr['hours'], $darr['minutes'], $darr['seconds']);
 	}
 
 	/**

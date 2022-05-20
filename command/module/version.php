@@ -23,10 +23,10 @@ class Command_Module_Version extends Command_Base {
 		}
 
 		foreach ($modules as $module) {
-			$this->verbose_log("Checking module {module}", compact("module"));
+			$this->verbose_log('Checking module {module}', compact('module'));
 			$version = $app->modules->version($module);
 			if ($version === null) {
-				$version = "-";
+				$version = '-';
 			}
 			echo "$module: $version\n";
 		}

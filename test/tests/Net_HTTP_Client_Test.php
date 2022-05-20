@@ -10,7 +10,7 @@ namespace zesk;
  *
  */
 class Net_HTTP_Client_Test extends Test_Unit {
-	public const TEST_URL = "https://marketacumen.com/";
+	public const TEST_URL = 'https://marketacumen.com/';
 
 	public function test_all(): void {
 		$url = self::TEST_URL;
@@ -63,11 +63,11 @@ class Net_HTTP_Client_Test extends Test_Unit {
 		$result = Net_HTTP_Client::simpleGet($url);
 		$this->assertIsString($result);
 		$this->log($result);
-		$this->assert(str_contains($result, "Market Acumen"), $result);
+		$this->assert(str_contains($result, 'Market Acumen'), $result);
 	}
 
 	public function test_url_content_length(): void {
-		$url = self::TEST_URL . "images/marketacumen-logo.png";
+		$url = self::TEST_URL . 'images/marketacumen-logo.png';
 		$n = Net_HTTP_Client::url_content_length($this->application, $url);
 		$this->assert($n > 0);
 	}
@@ -81,7 +81,7 @@ class Net_HTTP_Client_Test extends Test_Unit {
 
 	public function test_default_user_agent(): void {
 		$client = new Net_HTTP_Client($this->application);
-		$this->assert(str_starts_with($client->default_user_agent(), "zesk"));
+		$this->assert(str_starts_with($client->default_user_agent(), 'zesk'));
 		echo basename(__FILE__) . ": success\n";
 	}
 }

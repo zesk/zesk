@@ -17,66 +17,66 @@ class Configuration_Loader_Test extends Test_Unit {
 	public function test_implements(): void {
 		$config = new Configuration();
 		$settings = new Adapter_Settings_Configuration($config);
-		$this->assert_instanceof($settings, __NAMESPACE__ . "\\" . "Adapter_Settings_Configuration");
-		$this->assert_instanceof($settings, __NAMESPACE__ . "\\" . "Interface_Settings");
-		$this->assert_implements($settings, __NAMESPACE__ . "\\" . "Interface_Settings");
+		$this->assert_instanceof($settings, __NAMESPACE__ . '\\' . 'Adapter_Settings_Configuration');
+		$this->assert_instanceof($settings, __NAMESPACE__ . '\\' . 'Interface_Settings');
+		$this->assert_implements($settings, __NAMESPACE__ . '\\' . 'Interface_Settings');
 	}
 
 	public function test_new(): void {
 		$path = $this->test_sandbox();
-		Directory::depend($one = path($path, "one"));
-		Directory::depend($two = path($path, "two"));
-		Directory::depend($three = path($path, "three"));
+		Directory::depend($one = path($path, 'one'));
+		Directory::depend($two = path($path, 'two'));
+		Directory::depend($three = path($path, 'three'));
 
 		$array = [
-			"name" => "ralph",
-			"rank" => "admiral",
-			"weight" => 140,
-			"eye_color" => "brown",
+			'name' => 'ralph',
+			'rank' => 'admiral',
+			'weight' => 140,
+			'eye_color' => 'brown',
 		];
 		$config = new Configuration($array);
 		$settings = new Adapter_Settings_Configuration($config);
-		$conf_name = "a.conf";
-		$json_name = "b.json";
+		$conf_name = 'a.conf';
+		$json_name = 'b.json';
 		// Four files
 
 		$one_json = [
-			"Person" => [
-				"name" => "\${name}-one-json",
-				"rank" => "\${rank}-one-json",
-				"weight" => "\${weight}-one-json",
-				"eye_color" => "\${eye_color}-one-json",
+			'Person' => [
+				'name' => '${name}-one-json',
+				'rank' => '${rank}-one-json',
+				'weight' => '${weight}-one-json',
+				'eye_color' => '${eye_color}-one-json',
 			],
-			"LAST" => "one-json",
-			"FILE_LOADED" => [
-				"ONE_JSON" => 1,
+			'LAST' => 'one-json',
+			'FILE_LOADED' => [
+				'ONE_JSON' => 1,
 			],
 		];
 		$two_conf = [
-			"# Comment",
-			"",
-			"Person::name=\$name-two-conf",
-			"Person::eye_color=\"\${eye_color:=red}-two-conf\"",
-			"Person::hair_color=\"\${hair_color:=red}-two-conf\"",
-			"LAST=two-conf",
-			"FILE_LOADED__TWO_CONF=1",
-			"zesk___User__class=User",
+			'# Comment',
+			'',
+			'Person::name=$name-two-conf',
+			'Person::eye_color="${eye_color:=red}-two-conf"',
+			'Person::hair_color="${hair_color:=red}-two-conf"',
+			'LAST=two-conf',
+			'FILE_LOADED__TWO_CONF=1',
+			'zesk___User__class=User',
 		];
 		$three_json = [
-			"Person::name" => "\${name}-three-json",
-			"Person::rank" => "\${rank}-three-json",
-			"LAST" => "three-json",
-			"FILE_LOADED" => [
-				"THREE_JSON" => 1,
+			'Person::name' => '${name}-three-json',
+			'Person::rank' => '${rank}-three-json',
+			'LAST' => 'three-json',
+			'FILE_LOADED' => [
+				'THREE_JSON' => 1,
 			],
 		];
 		$three_conf = [
-			"# Comment",
-			"",
-			"Person::name=\$name-three-conf",
-			"Person::weight=\"\$weight-three-conf\"",
-			"LAST=three-conf",
-			"FILE_LOADED::THREE_CONF=1",
+			'# Comment',
+			'',
+			'Person::name=$name-three-conf',
+			'Person::weight="$weight-three-conf"',
+			'LAST=three-conf',
+			'FILE_LOADED::THREE_CONF=1',
 		];
 
 		file_put_contents(path($one, $json_name), JSON::encode_pretty($one_json));
@@ -87,14 +87,14 @@ class Configuration_Loader_Test extends Test_Unit {
 		$files = [];
 		foreach ([
 			$one,
-			path($path, "nope"),
+			path($path, 'nope'),
 			$two,
-			path($path, "double_nope"),
+			path($path, 'double_nope'),
 			$three,
 		] as $dir) {
 			foreach ([
-				"a.conf",
-				"b.json",
+				'a.conf',
+				'b.json',
 			] as $f) {
 				$files[] = path($dir, $f);
 			}
@@ -112,37 +112,37 @@ class Configuration_Loader_Test extends Test_Unit {
 		]);
 
 		$this->assert_arrays_equal(to_array($config), [
-			"name" => "ralph",
-			"rank" => "admiral",
-			"weight" => 140,
-			"eye_color" => "brown",
-			"person" => [
-				"name" => "ralph-three-json",
-				"rank" => "admiral-three-json",
-				"weight" => "140-three-conf",
-				"eye_color" => "brown-two-conf",
-				"hair_color" => "red-two-conf",
+			'name' => 'ralph',
+			'rank' => 'admiral',
+			'weight' => 140,
+			'eye_color' => 'brown',
+			'person' => [
+				'name' => 'ralph-three-json',
+				'rank' => 'admiral-three-json',
+				'weight' => '140-three-conf',
+				'eye_color' => 'brown-two-conf',
+				'hair_color' => 'red-two-conf',
 			],
-			"last" => "three-json",
-			"file_loaded" => [
-				"one_json" => 1,
-				"two_conf" => 1,
-				"three_conf" => 1,
-				"three_json" => 1,
+			'last' => 'three-json',
+			'file_loaded' => [
+				'one_json' => 1,
+				'two_conf' => 1,
+				'three_conf' => 1,
+				'three_json' => 1,
 			],
-			"zesk\\user" => [
-				"class" => "User",
+			'zesk\\user' => [
+				'class' => 'User',
 			],
 		]);
 	}
 
 	public function test_load_globals_lines1(): void {
 		$lines = [
-			"FOO=/foo/foo",
-			"BAR=/bar/bar",
-			"B_R=red",
-			"UNQ0=\"quotes0\"",
-			"UNQ1='quotes1'",
+			'FOO=/foo/foo',
+			'BAR=/bar/bar',
+			'B_R=red',
+			'UNQ0="quotes0"',
+			'UNQ1=\'quotes1\'',
 			'FOOTEST0=${FOO:-123}',
 			'FOOTEST1=${UNDEF:-123}',
 			'FOOTEST2=${FOO:-123}${BAR:-456}',

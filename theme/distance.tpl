@@ -26,31 +26,31 @@ if (abs($distance) < $epsilon) {
 	return;
 }
 switch ($units) {
-	case "km":
-		$units = "kilometer";
+	case 'km':
+		$units = 'kilometer';
 		$distance /= 1000;
 		break;
-	case "m":
-		$units = "meter";
+	case 'm':
+		$units = 'meter';
 		break;
-	case "mm":
-		$units = "millimeter";
+	case 'mm':
+		$units = 'millimeter';
 		$distance *= 1000000;
 		break;
-	case "cm":
-		$units = "centimeter";
+	case 'cm':
+		$units = 'centimeter';
 		$distance *= 100000;
 		break;
-	case "miles":
-		$units = "mile";
+	case 'miles':
+		$units = 'mile';
 		$distance *= 0.000621371;
 		break;
-	case "feet":
-		$units = "feet";
+	case 'feet':
+		$units = 'feet';
 		$distance *= 3.28084;
 		break;
-	case "inches":
-		$units = "inch";
+	case 'inches':
+		$units = 'inch';
 		$distance *= 39.3701;
 		break;
 }
@@ -62,6 +62,6 @@ $map['unit'] = $units;
 $map['units'] = $locale($locale->plural($units, $distance));
 $map['distance'] = $map['number'] . ' ' . $map['units'];
 
-$format = $this->get("format", "{number} {units}");
+$format = $this->get('format', '{number} {units}');
 
 echo HTML::span('.distance', map($format, $map));

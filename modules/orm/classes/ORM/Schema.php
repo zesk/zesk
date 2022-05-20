@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use http\Exception\RuntimeException;
+
 abstract class ORM_Schema extends Hookable {
 	public const type_id = Class_ORM::type_id;
 
@@ -143,7 +145,7 @@ abstract class ORM_Schema extends Hookable {
 	 * @param zesk\Kernel $application
 	 */
 	public static function hooks(Application $application): void {
-		$application->hooks->add("configured", __CLASS__ . "::configured");
+		$application->hooks->add('configured', __CLASS__ . '::configured');
 		$application->configuration->path(__CLASS__);
 	}
 
@@ -152,7 +154,7 @@ abstract class ORM_Schema extends Hookable {
 	 * @param zesk\Application $application
 	 */
 	public static function configured(Application $application): void {
-		if ($application->configuration->debug || $application->configuration->path_get([__CLASS__, "debug", ])) {
+		if ($application->configuration->debug || $application->configuration->path_get([__CLASS__, 'debug',])) {
 			self::$debug = true;
 		}
 	}
@@ -237,78 +239,87 @@ abstract class ORM_Schema extends Hookable {
 	 * Convert an array-based table schema to a Database_Table object
 	 *
 	 * @param Database $db
-	 * @param string $table
-	 *            The table name
+	 * @param string $table_name
 	 * @param array $table_schema
+	 * @param string|null $context
 	 * @return Database_Table
 	 * @throws Database_Exception_Schema
+	 * @throws Exception_NotFound
+	 * @throws Exception_Semantics
+	 * @throws Exception_Syntax
 	 */
-	public static function schema_to_database_table(Database $db, $table_name, array $table_schema, $context = null) {
+	public static function schema_to_database_table(Database $db, string $table_name, array $table_schema, string $context = null): Database_Table {
 		$logger = $db->application->logger;
 
-		$table = new Database_Table($db, $table_name, $table_schema['engine'] ?? "");
-		$table->source(avalue($table_schema, 'source'));
+		$table = new Database_Table($db, $table_name, $table_schema['engine'] ?? '');
+		if (array_key_exists('source', $table_schema)) {
+			$table->setSource($table_schema['source']);
+		}
 		if (!array_key_exists('columns', $table_schema)) {
 			throw new Exception_Syntax("No columns exist in table \"$table_name\" schema");
 		}
 		foreach ($table_schema['columns'] as $column_name => $column_spec) {
 			if (!$db->valid_column_name($column_name)) {
-				$logger->error("Invalid index name in schema found in {table_name} in {context}: Invalid column name {index}", compact("context", "table_name", "column_name"));
+				$logger->error('Invalid index name in schema found in {table_name} in {context}: Invalid column name {index}', compact('context', 'table_name', 'column_name'));
 
 				continue;
 			}
-
-			try {
-				$table->columnAdd(new Database_Column($table, $column_name, $column_spec));
-			} catch (\Exception $e) {
-				//dump($table_schema['columns']);
-				throw $e;
-			}
+			$table->columnAdd(new Database_Column($table, $column_name, $column_spec));
 		}
-		foreach (avalue($table_schema, 'indexes', []) as $index => $columns) {
-			if (!$db->valid_index_name($index)) {
-				$logger->error("Invalid index name in schema found in {table_name} in {context}: Invalid index name {index}", compact("context", "table_name", "index"));
-
+		foreach ([
+			         'indexes' => Database_Index::TYPE_INDEX,
+			         'unique keys' => Database_Index::TYPE_UNIQUE,
+		         ] as $key => $index_type) {
+			if (!array_key_exists($key, $table_schema)) {
 				continue;
 			}
-			if (!($error = self::validate_index_column_specification($db, $columns))) {
-				$logger->error("Invalid index column spec {error} in schema found in {table_name} in {context}: Invalid index name {index}", compact("error", "context", "table_name", "index"));
+			foreach ($table_schema[$key] as $index => $columns) {
+				$__ = ['context' => $context, 'table_name' => $table_name, 'index' => $index];
+				if (!$db->valid_index_name($index)) {
+					$logger->error('Invalid {index_type} in schema found in {table_name} in {context}: Invalid index name {index}', $__);
 
-				continue;
-			}
-			$table->addIndex(new Database_Index($table, $index, $columns, Database_Index::Index));
-		}
-		foreach (avalue($table_schema, 'unique keys', []) as $index => $columns) {
-			if (!$db->valid_index_name($index)) {
-				$logger->error("Invalid index name in schema found in {table_name} in {context}: Invalid index name {index}", compact("context", "table_name", "index"));
+					continue;
+				}
+				if (!($error = self::validate_index_column_specification($db, $columns))) {
+					$logger->error('Invalid index column spec {error} in schema found in {table_name} in {context}: Invalid index name {index}', ['error' => $error] + $__);
 
-				continue;
-			}
-			if (!($error = self::validate_index_column_specification($db, $columns))) {
-				$logger->error("Invalid index column spec {error} in schema found in {table_name} in {context}: Invalid index name {index}", compact("error", "context", "table_name", "index"));
+					continue;
+				}
 
-				continue;
+				try {
+					$index = new Database_Index($table, $index, $columns, $index_type);
+				} catch (Exception_Semantics $e) {
+					throw new Database_Exception_Schema($db, 'index {index}', 'Duplicate index {index}', $__, 0, $e);
+				}
 			}
-			$table->addIndex(new Database_Index($table, $index, $columns, Database_Index::Unique));
 		}
 		if (array_key_exists('primary key', $table_schema)) {
 			throw new Exception_Syntax("Table definition for $table_name should contain key \"primary keys\" not \"primary key\"");
 		}
-		$primary_columns = avalue($table_schema, 'primary keys', null);
+		$primary_columns = $table_schema['primary keys'] ?? null;
 		if (is_array($primary_columns) && count($primary_columns) > 0) {
 			if (!($error = self::validate_index_column_specification($db, $primary_columns))) {
-				$logger->error("Invalid primary index column spec {error} in schema found in {table_name} in {context}: Invalid index name {index}", compact("error", "context", "table_name", "index"));
+				$logger->error('Invalid primary index column spec {error} in schema found in {table_name} in {context}: Invalid index name {index}', compact('error', 'context', 'table_name', 'index'));
 			} else {
-				if (!$table->hasIndex(Database_Index::PrimaryName)) {
-					$table->addIndex(new Database_Index($table, "primary", $primary_columns, Database_Index::Primary));
+				if (!$table->hasIndex(Database_Index::NAME_PRIMARY)) {
+					try {
+						new Database_Index($table, Database_Index::NAME_PRIMARY, $primary_columns, Database_Index::TYPE_PRIMARY);
+					} catch (Exception_Semantics $e) {
+						throw new RuntimeException('!hasIndex -> addIndex failed for ' . Database_Index::NAME_PRIMARY);
+					}
+				} else {
+					$index = $table->index(Database_Index::NAME_PRIMARY);
+					foreach ($primary_columns as $primary_column) {
+						$index->addColumn($primary_column);
+					}
 				}
 			}
 		}
-		if (array_key_exists("on create", $table_schema)) {
+		if (array_key_exists('on create', $table_schema)) {
 			if (is_array($table_schema['on create'])) {
-				$table->addActionSQL("create", $table_schema['on create']);
-			} elseif (is_string($table_schema['on create'])) {
-				$table->addActionSQL("create", [$table_schema['on create'], ]);
+				$table->addActionSQL('create', $table_schema['on create']);
+			} else if (is_string($table_schema['on create'])) {
+				$table->addActionSQL('create', [$table_schema['on create'],]);
 			}
 		}
 		return $table;
@@ -317,9 +328,15 @@ abstract class ORM_Schema extends Hookable {
 	/**
 	 * Return an array of tables associated with this schema
 	 *
-	 * @return array of Database_Table
 	 */
-	public function tables() {
+	/**
+	 * @return Database_Table[]
+	 * @throws Database_Exception_Schema
+	 * @throws Exception
+	 * @throws Exception_Semantics
+	 * @throws Exception_Syntax
+	 */
+	public function tables(): array {
 		$logger = $this->application->logger;
 		$schema = $this->schema();
 		$tables = [];
@@ -330,14 +347,14 @@ abstract class ORM_Schema extends Hookable {
 					throw new Exception_Syntax(get_class($this) . " should contain an array of table schemas\n" . var_export($table_schema));
 				}
 				if (self::$debug) {
-					$logger->debug("ORM_Schema: " . $this->class_object->class . " \"$table_name\"");
+					$logger->debug('ORM_Schema: ' . $this->class_object->class . " \"$table_name\"");
 				}
 				/* @var $table Database_Table */
 				try {
 					$tables[$table_name] = $table = self::schema_to_database_table($db, $this->map($table_name), $table_schema);
 				} catch (Exception $e) {
-					$this->application->hooks->call("exception", $e);
-					$logger->debug("Error with object " . $this->class_object->class);
+					$this->application->hooks->call('exception', $e);
+					$logger->debug('Error with object ' . $this->class_object->class);
 
 					throw $e;
 				}
@@ -364,7 +381,7 @@ abstract class ORM_Schema extends Hookable {
 			/* @var $table Database_Table */
 			$create_sql = $table->create_sql();
 			if (!is_array($create_sql)) {
-				$create_sql = [$create_sql, ];
+				$create_sql = [$create_sql,];
 			}
 			$result = array_merge($result, $create_sql);
 		}
@@ -386,25 +403,26 @@ abstract class ORM_Schema extends Hookable {
 
 	/**
 	 * Return an array of SQL to update an object's schema to its database
-	 *
 	 * @param ORM $object
-	 * @return multitype:
+	 * @return array
 	 * @throws Database_Exception
 	 */
-	public static function update_object(ORM $object) {
+	public static function update_object(ORM $object): array {
 		$logger = $object->application->logger;
 
 		/* @var $db Database */
 		$db = $object->database();
 		if (!$db) {
-			throw new Database_Exception(__("Can not connect to {0}", $db->safeURL()));
+			throw new Database_Exception($object->database(), 'Can not connect to {url}', [
+				'url' => $db->safeURL(),
+			]);;
 		}
 		$object_class = get_class($object);
 		$schema = $object->database_schema();
 		if (!$schema instanceof ORM_Schema) {
-			$logger->warning("{class} did not return a ORM_Schema ({type})", [
-				"class" => $object_class,
-				"type" => type($schema),
+			$logger->warning('{class} did not return a ORM_Schema ({type})', [
+				'class' => $object_class,
+				'type' => type($schema),
 			]);
 			return [];
 		}
@@ -417,16 +435,20 @@ abstract class ORM_Schema extends Hookable {
 	 * @return array
 	 * @see update_object
 	 */
-	protected function _update_object() {
+	protected function _update_object(): array {
 		$db = $this->database();
-		$tables = $this->tables();
+		try {
+			$tables = $this->tables();
+		} catch (Exception_Semantics $e) {
+			throw $e;
+		}
 		$sql_results = [];
 		foreach ($tables as $table_name => $table) {
 			/* @var $table Database_Table */
 			try {
 				$actual_table = $db->database_table($table->name());
 				$sql_results = array_merge($sql_results, self::update($db, $actual_table, $table));
-				$results = $this->object->call_hook_arguments("schema_update_alter", [
+				$results = $this->object->call_hook_arguments('schema_update_alter', [
 					$this,
 					$actual_table,
 					$sql_results,
@@ -470,7 +492,7 @@ abstract class ORM_Schema extends Hookable {
 				return $result;
 			}
 			if (is_string($result)) {
-				return [$result, ];
+				return [$result,];
 			}
 			return $result;
 		}
@@ -488,16 +510,16 @@ abstract class ORM_Schema extends Hookable {
 	 *            You may get some compatibility improvements by using this.
 	 * @return array
 	 */
-	public static function update(Database $db, Database_Table $db_table_old, Database_Table $db_table_new, $change_permanently = false) {
+	public static function update(Database $db, Database_Table $db_table_old, Database_Table $db_table_new, bool $change_permanently = false): array {
 		$logger = $db->application->logger;
 
 		$generator = $db->sql();
 
 		if (self::$debug) {
-			$logger->debug("ORM_Schema::debug is enabled");
+			$logger->debug('ORM_Schema::debug is enabled');
 		}
 		$table = $db_table_old->name();
-		if ($db_table_new->is_similar($db_table_old, self::$debug)) {
+		if ($db_table_new->isSimilar($db_table_old, self::$debug)) {
 			if (self::$debug) {
 				$logger->debug("Tables are similar: \"{table}\":\nDatabase: \n{dbOld}\nCode:\n{dbNew}", [
 					'table' => $table,
@@ -540,19 +562,19 @@ abstract class ORM_Schema extends Hookable {
 			$dbColOld = avalue($columnsOld, $column);
 			$dbColNew = avalue($columnsNew, $column);
 			if (!$dbColOld && $dbColNew) {
-				$previous_name = $dbColNew->previous_name();
+				$previous_name = $dbColNew->previousName();
 				if (isset($columnsOld[$previous_name])) {
 					$changes[$column] = $generator->alter_table_change_column($db_table_new, $columnsOld[$previous_name], $dbColNew);
 					$ignoreColumns[$previous_name] = true;
 					$ignoreColumns[$column] = true;
 				}
-			} elseif ($dbColOld && $dbColNew && !$dbColOld->is_similar($db, $dbColNew, self::$debug)) {
-				$previous_name = $dbColNew->previous_name();
+			} else if ($dbColOld && $dbColNew && !$dbColOld->isSimilar($db, $dbColNew, self::$debug)) {
+				$previous_name = $dbColNew->previousName();
 				if (isset($columns[$previous_name])) {
 					if ($previous_name) {
 						// New column replaces an old
 						$changes[$previous_name] = $generator->alter_table_column_drop($db_table_new, $columnsOld[$column]);
-						$dbColOld->name($previous_name);
+						$dbColOld->setName($previous_name);
 						$changes[$column] = $generator->alter_table_change_column($db_table_new, $dbColOld, $dbColNew);
 						$ignoreColumns[$previous_name] = true;
 						$ignoreColumns[$column] = true;
@@ -570,35 +592,35 @@ abstract class ORM_Schema extends Hookable {
 			$dbColNew = $columnsNew[$column] ?? null;
 			// Pass a tip in the target column for alter_table_column_add and databases that support it
 			if ($dbColNew) {
-				$dbColNew->setOption("after_column", $last_column ?: null);
+				$dbColNew->setOption('after_column', $last_column ?: null);
 			}
 			if ($dbColOld && $dbColNew) {
-				if (!$dbColOld->is_similar($db, $dbColNew, self::$debug)) {
+				if (!$dbColOld->isSimilar($db, $dbColNew, self::$debug)) {
 					$sql = $generator->alter_table_change_column($db_table_new, $dbColOld, $dbColNew);
 					if ($sql) {
 						$changes[$column] = $sql;
 					}
 					// TODO MySQL specific stuff should be factored out
-					if ($dbColNew->is_increment() && $dbColNew->is_index(Database_Index::Primary)) {
+					if ($dbColNew->isIncrement() && $dbColNew->isIndex(Database_Index::TYPE_PRIMARY)) {
 						$name = $db_table_new->primary()->name();
 						$ignoreIndexes[$name] = true;
 					}
 					$drops[$column] = $generator->alter_table_column_drop($db_table_new, $dbColOld);
 					$adds[$column] = $generator->alter_table_column_add($db_table_new, $dbColNew);
 				}
-			} elseif ($dbColOld) {
+			} else if ($dbColOld) {
 				/* Handle ALTER TABLE DROP COLUMN */
 				$drops[$column] = $generator->alter_table_column_drop($db_table_new, $dbColOld);
-				if ($db_table_old->hasOption("remove_sql")) {
+				if ($db_table_old->hasOption('remove_sql')) {
 					$rm_cols = $table->option('remove_sql');
 					if (array_key_exists($column, $rm_cols)) {
 						$drops["-$column"] = $rm_cols[$column];
 					}
 				}
-			} elseif ($dbColNew) {
+			} else if ($dbColNew) {
 				/* Handle ALTER TABLE ADD COLUMN */
 				$adds[$column] = $generator->alter_table_column_add($db_table_new, $dbColNew);
-				if ($dbColNew->hasOption("add_sql")) {
+				if ($dbColNew->hasOption('add_sql')) {
 					$adds["+$column"] = $dbColNew->option('add_sql');
 				}
 			}
@@ -617,12 +639,12 @@ abstract class ORM_Schema extends Hookable {
 			}
 			if (array_key_exists($index_name, $indexes_new)) {
 				$index_new = $indexes_new[$index_name];
-				if (!$index_old->is_similar($index_new, self::$debug)) {
-					$changes = array_merge(["index_" . $index_name => $index_old->sql_index_drop(), ], $changes);
-					$adds["index_" . $index_name] = $index_new->sql_index_add();
+				if (!$index_old->isSimilar($index_new, self::$debug)) {
+					$changes = array_merge(['index_' . $index_name => $index_old->sql_index_drop(),], $changes);
+					$adds['index_' . $index_name] = $index_new->sql_index_add();
 				}
 			} else {
-				$changes = array_merge(["index_" . $index_name => $index_old->sql_index_drop(), ], $changes);
+				$changes = array_merge(['index_' . $index_name => $index_old->sql_index_drop(),], $changes);
 			}
 		}
 		foreach ($indexes_new as $index_new) {
@@ -631,7 +653,7 @@ abstract class ORM_Schema extends Hookable {
 				continue;
 			}
 			if (!array_key_exists($index_name, $indexes_old)) {
-				$adds["index_" . $index_name] = $index_new->sql_index_add();
+				$adds['index_' . $index_name] = $index_new->sql_index_add();
 			}
 		}
 
@@ -695,7 +717,7 @@ abstract class ORM_Schema extends Hookable {
 				$result = false;
 			}
 		}
-		$sql_list = $generator->call_hook_arguments("update_alter", [$sql_list, ], $sql_list);
+		$sql_list = $generator->call_hook_arguments('update_alter', [$sql_list,], $sql_list);
 		return $sql_list;
 	}
 }

@@ -38,8 +38,8 @@ class Control_Picker_Content_Image extends Control_Picker {
 			$extras['path'] = $this->option('user_link_path');
 		}
 		$query->link(User::class, [
-			"alias" => "user_image",
-		] + $extras)->where("user_image.id", $this->user());
+			'alias' => 'user_image',
+		] + $extras)->where('user_image.id', $this->user());
 	}
 
 	/**

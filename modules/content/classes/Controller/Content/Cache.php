@@ -15,7 +15,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	 *
 	 * @var string
 	 */
-	public const image_variation_default = "default";
+	public const image_variation_default = 'default';
 
 	/**
 	 *
@@ -45,8 +45,8 @@ class Controller_Content_Cache extends Controller_Cache {
 	private function _correct_url_redirect($image_file, $styles): void {
 		$this->response->cache_for(60);
 		$this->response->redirect($this->router->prefix() . $this->route->url_replace([
-			"file" => $image_file,
-			"styles" => $styles,
+			'file' => $image_file,
+			'styles' => $styles,
 		]));
 		return;
 	}
@@ -114,7 +114,7 @@ class Controller_Content_Cache extends Controller_Cache {
 			}
 			$image_data = $image->data;
 			if (!$image_data instanceof Content_Data) {
-				$this->response->status(404, "Not Found 1");
+				$this->response->status(404, 'Not Found 1');
 				$this->response->cache_for(60, Response::CACHE_PATH);
 				return;
 			}
@@ -124,10 +124,10 @@ class Controller_Content_Cache extends Controller_Cache {
 			}
 			$this->request_to_file($data);
 		} catch (Exception_ORM_NotFound $e) {
-			$this->response->status(404, "Not Found 2");
+			$this->response->status(404, 'Not Found 2');
 			$this->response->cache_for(60, Response::CACHE_PATH);
 			$this->response->json()->data([
-				"message" => $e->getMessage(),
+				'message' => $e->getMessage(),
 			]);
 			return;
 		}
@@ -139,7 +139,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	 * @return array|null
 	 */
 	protected function parse_commands(Content_Image $image, $styles) {
-		if (empty($styles) || $styles === "default") {
+		if (empty($styles) || $styles === 'default') {
 			return [];
 		}
 		if (preg_match('/c([0-9]*)x([0-9]*)/', $styles, $matches)) {
@@ -155,9 +155,9 @@ class Controller_Content_Cache extends Controller_Cache {
 			}
 			return [
 				[
-					"hook" => "scale",
-					"width" => intval($width),
-					"height" => intval($height),
+					'hook' => 'scale',
+					'width' => intval($width),
+					'height' => intval($height),
 				],
 			];
 		}
@@ -173,13 +173,13 @@ class Controller_Content_Cache extends Controller_Cache {
 	protected function apply_commands(array $commands, $data) {
 		$original = $data;
 		foreach ($commands as $command) {
-			$hook = avalue($command, "hook");
+			$hook = avalue($command, 'hook');
 			if (!$hook) {
 				continue;
 			}
 			$command['original'] = $original;
 			$command['data'] = $data;
-			$new_data = $this->call_hook_arguments("image_" . $hook, [
+			$new_data = $this->call_hook_arguments('image_' . $hook, [
 				$command,
 			], null);
 			if ($new_data) {
@@ -212,7 +212,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	 * @see Controller::get_route_map()
 	 */
 	public function get_route_map($action = null, $object = null, $options = null) {
-		if ($action === "image") {
+		if ($action === 'image') {
 			$width = $height = $styles = null;
 			if (is_array($options)) {
 				extract($options, EXTR_IF_EXISTS);
@@ -220,13 +220,13 @@ class Controller_Content_Cache extends Controller_Cache {
 					if ($width || $height) {
 						$styles = "c${width}x${height}";
 					} else {
-						$styles = "default";
+						$styles = 'default';
 					}
 				}
 			}
 			return [
 				'styles' => "$styles",
-				'file' => $object ? basename($object->path()) : "-no-object-",
+				'file' => $object ? basename($object->path()) : '-no-object-',
 			];
 		}
 		return [];

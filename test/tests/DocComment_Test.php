@@ -19,28 +19,28 @@ class DocComment_Test extends Test_Unit {
 		if (count($comments) > 0) {
 			$text = $comments[0];
 			/* @var $text DocComment */
-			$this->assert_contains($text->content(), "@package zesk");
+			$this->assert_contains($text->content(), '@package zesk');
 		}
 	}
 
 	public function data_provider_clean() {
 		return [
 			[
-				"	/**
+				'	/**
 	 * Default whitespace trimming characters
 	 *
 	 * @var string
 	 */
-",
+',
 				"\nDefault whitespace trimming characters\n\n@var string\n",
 			],
 			[
-				"	/******
+				'	/******
 	 *** Default whitespace trimming characters
 	 ***
 	 *** @var string
 	 ***/
-",
+',
 				"****\n** Default whitespace trimming characters\n**\n** @var string\n*",
 			],
 		];
@@ -48,8 +48,8 @@ class DocComment_Test extends Test_Unit {
 
 	public function test_desc_no_tag(): void {
 		$doc = DocComment::instance([
-			"desc" => "Hello, world",
-			"see" => "\\zesk\\Kernel",
+			'desc' => 'Hello, world',
+			'see' => '\\zesk\\Kernel',
 
 		], [
 			DocComment::OPTION_DESC_NO_TAG => true,
@@ -76,29 +76,29 @@ class DocComment_Test extends Test_Unit {
 	public function data_provider_parse() {
 		return [
 			[
-				"	/**
+				'	/**
 	 * Removes stars from beginning and end of doccomments
 	 *
-	 * @param string \$string A doccomment string to clean
+	 * @param string $string A doccomment string to clean
 	 * @return string the cleaned doccomment
 	 */
-",
+',
 				[
-					"desc" => "Removes stars from beginning and end of doccomments",
-					"param" => [
-						"\$string" => [
-							"string",
-							"\$string",
-							"A doccomment string to clean",
+					'desc' => 'Removes stars from beginning and end of doccomments',
+					'param' => [
+						'$string' => [
+							'string',
+							'$string',
+							'A doccomment string to clean',
 						],
 					],
-					"return" => "string the cleaned doccomment",
+					'return' => 'string the cleaned doccomment',
 				],
-				"/**
+				'/**
  * @desc Removes stars from beginning and end of doccomments
- * @param string \$string A doccomment string to clean
+ * @param string $string A doccomment string to clean
  * @return string the cleaned doccomment
- */",
+ */',
 			],
 			[
 				'/**
@@ -121,47 +121,47 @@ class DocComment_Test extends Test_Unit {
  */
 ',
 				[
-					"desc" => "Server\n\nRepresents a server (virtual or physical)",
-					"see" => [
-						"Class_Server",
-						"Server_Data",
+					'desc' => "Server\n\nRepresents a server (virtual or physical)",
+					'see' => [
+						'Class_Server',
+						'Server_Data',
 					],
-					"property" => [
-						"\$id" => [
-							"id",
-							"\$id",
+					'property' => [
+						'$id' => [
+							'id',
+							'$id',
 						],
-						"\$name" => [
-							"string",
-							"\$name",
+						'$name' => [
+							'string',
+							'$name',
 						],
-						"\$name_internal" => [
-							"string",
-							"\$name_internal",
+						'$name_internal' => [
+							'string',
+							'$name_internal',
 						],
-						"\$name_external" => [
-							"string",
-							"\$name_external",
+						'$name_external' => [
+							'string',
+							'$name_external',
 						],
-						"\$ip4_internal" => [
-							"ip4",
-							"\$ip4_internal",
+						'$ip4_internal' => [
+							'ip4',
+							'$ip4_internal',
 						],
-						"\$ip4_external" => [
-							"ip4",
-							"\$ip4_external",
+						'$ip4_external' => [
+							'ip4',
+							'$ip4_external',
 						],
-						"\$free_disk" => [
-							"integer",
-							"\$free_disk",
+						'$free_disk' => [
+							'integer',
+							'$free_disk',
 						],
-						"\$load" => [
-							"double",
-							"\$load",
+						'$load' => [
+							'double',
+							'$load',
 						],
-						"\$alive" => [
-							"Timestamp",
-							"\$alive",
+						'$alive' => [
+							'Timestamp',
+							'$alive',
 						],
 					],
 				],
@@ -194,11 +194,11 @@ class DocComment_Test extends Test_Unit {
 		return [
 			[
 				[
-					"see" => [
-						"line1",
-						"line2",
+					'see' => [
+						'line1',
+						'line2',
 					],
-					"desc" => "Description",
+					'desc' => 'Description',
 				],
 				"/**\n * @see line1\n * @see line2\n * @desc Description\n */",
 			],

@@ -35,13 +35,13 @@ class Contact_Label extends ORM {
 		$fields = [
 			'Account' => null,
 			'CodeName' => $name,
-			"Type" => $type,
+			'Type' => $type,
 		];
 		return $application->orm_registry(__CLASS__)
 			->query_select()
-			->what("ID", "ID")
+			->what('ID', 'ID')
 			->where($fields)
-			->one("ID", null);
+			->one('ID', null);
 	}
 
 	/**
@@ -56,21 +56,21 @@ class Contact_Label extends ORM {
 		$fields = [
 			'Account' => $account,
 			'CodeName' => strtolower($name),
-			"Type" => $type,
+			'Type' => $type,
 		];
 
 		$id = $app->orm_registry(__CLASS__)
 			->query_select()
-			->what("ID", "ID")
+			->what('ID', 'ID')
 			->where($fields)
-			->one("ID", null);
+			->one('ID', null);
 		if ($id) {
 			return $id;
 		}
 		$fields = [
 			'Account' => $account,
 			'CodeName' => strtolower($name),
-			"Name" => $name,
+			'Name' => $name,
 			'Type' => $type,
 		];
 		return $app->orm_registry(__CLASS__)
@@ -96,14 +96,14 @@ class Contact_Label extends ORM {
 		return $application->orm_registry(__CLASS__)
 			->query_select()
 			->what([
-			"id" => "ID",
-			"name" => "Name",
+			'id' => 'ID',
+			'name' => 'Name',
 		])
 			->where([
-			"Type" => $type,
-			"Account" => $account_where,
+			'Type' => $type,
+			'Account' => $account_where,
 		])
-			->to_array("id", "name");
+			->to_array('id', 'name');
 	}
 
 	/**
@@ -113,13 +113,13 @@ class Contact_Label extends ORM {
 	 */
 	public static function type_names($locale = null) {
 		return __([
-			self::LabelType_Address => "Address",
-			self::LabelType_Company => "Company",
-			self::LabelType_Date => "Date",
-			self::LabelType_Email => "Email",
-			self::LabelType_Phone => "Phone",
-			self::LabelType_URL => "Website",
-			self::LabelType_Other => "Other",
+			self::LabelType_Address => 'Address',
+			self::LabelType_Company => 'Company',
+			self::LabelType_Date => 'Date',
+			self::LabelType_Email => 'Email',
+			self::LabelType_Phone => 'Phone',
+			self::LabelType_URL => 'Website',
+			self::LabelType_Other => 'Other',
 		], $locale);
 	}
 
@@ -128,7 +128,7 @@ class Contact_Label extends ORM {
 	 * @return string
 	 */
 	public function type_name() {
-		return $this->Name . " " . avalue($this->type_names(), $this->Type, 'Unknown Type');
+		return $this->Name . ' ' . avalue($this->type_names(), $this->Type, 'Unknown Type');
 	}
 
 	/**
@@ -147,7 +147,7 @@ class Contact_Label extends ORM {
 			];
 		}
 		$where = [
-			"Account" => $account_where,
+			'Account' => $account_where,
 		];
 		if ($types !== null) {
 			$where['Type'] = $types;
@@ -155,12 +155,12 @@ class Contact_Label extends ORM {
 		$rows = $app->orm_registry(__CLASS__)
 			->query_select()
 			->what([
-			"id" => "ID",
-			"name" => "Name",
-			"type" => "Type",
+			'id' => 'ID',
+			'name' => 'Name',
+			'type' => 'Type',
 		])
 			->where($where)
-			->to_array("id");
+			->to_array('id');
 
 		$result = [];
 		$type_names = self::type_names();

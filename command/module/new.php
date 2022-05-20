@@ -21,13 +21,13 @@ class Command_Module_New extends Command {
 	protected array $option_help = [
 		'app' => 'Create module in the application (default)',
 		'zesk' => 'Create module in zesk',
-		'*' => "Names of the modules to create",
+		'*' => 'Names of the modules to create',
 	];
 
 	public function run(): void {
 		$names = $this->arguments_remaining(true);
 		if (count($names) === 0) {
-			$this->usage("Must specify module names to create");
+			$this->usage('Must specify module names to create');
 		}
 		$modules = $this->application->modules;
 		foreach ($names as $name) {
@@ -51,8 +51,8 @@ class Command_Module_New extends Command {
 	}
 
 	public function new_module_path($module) {
-		$is_zesk = $this->optionBool("zesk");
-		$is_app = $this->optionBool("app", !$is_zesk);
+		$is_zesk = $this->optionBool('zesk');
+		$is_app = $this->optionBool('app', !$is_zesk);
 
 		if (!$is_app && !$is_zesk) {
 			$is_app = true;
@@ -75,13 +75,13 @@ class Command_Module_New extends Command {
 	public function questionnaire($name, $path): void {
 		$module = $this->application->modules->clean_name($name);
 		$conf = [];
-		$conf['name'] = $this->prompt("Human-readable name for your module? ", $name);
-		$namespace = $this->prompt("Namespace for this module? ", "zesk");
-		$namespace_line = "";
+		$conf['name'] = $this->prompt('Human-readable name for your module? ', $name);
+		$namespace = $this->prompt('Namespace for this module? ', 'zesk');
+		$namespace_line = '';
 		if ($namespace) {
-			$namespace = rtrim($namespace, "\\");
+			$namespace = rtrim($namespace, '\\');
 			$conf['autoload_options'] = [
-				"class_prefix" => $namespace . "\\",
+				'class_prefix' => $namespace . '\\',
 			];
 			$namespace_line = "namespace $namespace;\n";
 		}
@@ -89,19 +89,19 @@ class Command_Module_New extends Command {
 		$tpl_path = path(__DIR__, 'templates');
 		$module_class = PHP::clean_function("Module_$name");
 		if ($this->prompt_yes_no("Create $module_class?")) {
-			$inc_path = explode("/", str_replace("_", "/", $name));
+			$inc_path = explode('/', str_replace('_', '/', $name));
 			array_unshift($inc_path, 'module');
 			array_unshift($inc_path, 'classes');
-			$inc_name = strtolower(array_pop($inc_path)) . ".php";
-			$inc_path = strtolower(path($path, implode("/", $inc_path)));
+			$inc_name = strtolower(array_pop($inc_path)) . '.php';
+			$inc_path = strtolower(path($path, implode('/', $inc_path)));
 			Directory::create($inc_path);
 
 			$tpl = file_get_contents(path($tpl_path, 'module.php.txt'));
 			$p = path($inc_path, $inc_name);
 			$this->log("Created $p");
 			file_put_contents($p, map($tpl, [
-				"module_class" => $module_class,
-				"namespace_line" => $namespace_line,
+				'module_class' => $module_class,
+				'namespace_line' => $namespace_line,
 			]));
 		}
 		$conf['module_class'] = "$namespace\\$module_class";

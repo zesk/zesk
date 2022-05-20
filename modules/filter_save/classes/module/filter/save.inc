@@ -14,7 +14,7 @@ class Module_Filter_Save extends Module_JSLib implements Interface_Module_Routes
 	 * @var array
 	 */
 	protected $classes = [
-		"zesk\\Filter_State",
+		'zesk\\Filter_State',
 	];
 
 	/**
@@ -32,23 +32,23 @@ class Module_Filter_Save extends Module_JSLib implements Interface_Module_Routes
 	 */
 	public function hook_routes(Router $router): void {
 		$router->add_route('filter_state/new', [
-			"method" => [
+			'method' => [
 				$this,
-				"filter_state_new",
+				'filter_state_new',
 			],
-			"arguments" => [
-				"{request}",
-				"{response}",
+			'arguments' => [
+				'{request}',
+				'{response}',
 			],
 		]);
 		$router->add_route('filter_state/{zesk\\Filter_State filter}/delete', [
-			"method" => [
+			'method' => [
 				$this,
-				"filter_state_delete",
+				'filter_state_delete',
 			],
-			"arguments" => [
-				"{request}",
-				"{response}",
+			'arguments' => [
+				'{request}',
+				'{response}',
 				1,
 			],
 		]);
@@ -60,9 +60,9 @@ class Module_Filter_Save extends Module_JSLib implements Interface_Module_Routes
 	 * @see Module::initialize()
 	 */
 	public function initialize(): void {
-		$this->application->hooks->add("Control_Filter_Selector::menu_content", [
+		$this->application->hooks->add('Control_Filter_Selector::menu_content', [
 			$this,
-			"menu_prefix",
+			'menu_prefix',
 		]);
 	}
 

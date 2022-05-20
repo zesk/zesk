@@ -66,14 +66,14 @@ class Control_RRule extends \zesk\Control {
 		$w = $this->widget_factory(Control_Select::class)
 			->names($name . '_on_which')
 			->control_options($this->which_day_options())
-			->noname("");
+			->noname('');
 		$this->child($w);
 		$ww['onwhich'] = $w;
 
 		$w = $this->widget_factory(Control_Select::class)
 			->names($name . '_on_day')
 			->control_options($this->day_choice_options())
-			->noname("");
+			->noname('');
 		$this->child($w);
 		$ww['onday'] = $w;
 
@@ -122,11 +122,11 @@ class Control_RRule extends \zesk\Control {
 
 	public function which_day_options() {
 		return $this->locale->__([
-			1 => "first",
-			2 => "second",
-			3 => "third",
-			4 => "fourth",
-			5 => "fifth",
+			1 => 'first',
+			2 => 'second',
+			3 => 'third',
+			4 => 'fourth',
+			5 => 'fifth',
 			'last' => 'last',
 		]);
 	}

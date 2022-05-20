@@ -11,69 +11,69 @@ namespace zesk;
  */
 class Database_Parser_Test extends Test_Unit {
 	protected array $load_modules = [
-		"MySQL",
+		'MySQL',
 	];
 
 	public function data_provider_split_order_by() {
 		return [
 			// Suffix, string
 			[
-				"((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) ASC, SOME_FUNCTION(CURDATE(),'2014-12-30') DESC",
+				'((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) ASC, SOME_FUNCTION(CURDATE(),\'2014-12-30\') DESC',
 				[
-					"((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) ASC",
-					"SOME_FUNCTION(CURDATE(),'2014-12-30') DESC",
+					'((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) ASC',
+					'SOME_FUNCTION(CURDATE(),\'2014-12-30\') DESC',
 				],
-				"((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) DESC, SOME_FUNCTION(CURDATE(),'2014-12-30') ASC",
+				'((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) DESC, SOME_FUNCTION(CURDATE(),\'2014-12-30\') ASC',
 			],
 			// Suffix, array
 			[
 				[
-					"((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) ASC",
-					"SOME_FUNCTION(CURDATE(),'2014-12-30') DESC",
+					'((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) ASC',
+					'SOME_FUNCTION(CURDATE(),\'2014-12-30\') DESC',
 				],
 				[
-					"((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) ASC",
-					"SOME_FUNCTION(CURDATE(),'2014-12-30') DESC",
+					'((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) ASC',
+					'SOME_FUNCTION(CURDATE(),\'2014-12-30\') DESC',
 				],
 				[
-					"((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) DESC",
-					"SOME_FUNCTION(CURDATE(),'2014-12-30') ASC",
+					'((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) DESC',
+					'SOME_FUNCTION(CURDATE(),\'2014-12-30\') ASC',
 				],
 			],
 			// No suffix, string
 			[
-				"((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365), SOME_FUNCTION(CURDATE(),'2014-12-30')",
+				'((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365), SOME_FUNCTION(CURDATE(),\'2014-12-30\')',
 				[
-					"((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365)",
-					"SOME_FUNCTION(CURDATE(),'2014-12-30')",
+					'((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365)',
+					'SOME_FUNCTION(CURDATE(),\'2014-12-30\')',
 				],
-				"((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) DESC, SOME_FUNCTION(CURDATE(),'2014-12-30') DESC",
+				'((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) DESC, SOME_FUNCTION(CURDATE(),\'2014-12-30\') DESC',
 			],
 			// No suffix, array
 			[
 				[
-					"((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365)",
-					"SOME_FUNCTION(CURDATE(),'2014-12-30')",
+					'((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365)',
+					'SOME_FUNCTION(CURDATE(),\'2014-12-30\')',
 				],
 				[
-					"((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365)",
-					"SOME_FUNCTION(CURDATE(),'2014-12-30')",
+					'((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365)',
+					'SOME_FUNCTION(CURDATE(),\'2014-12-30\')',
 				],
 				[
-					"((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) DESC",
-					"SOME_FUNCTION(CURDATE(),'2014-12-30') DESC",
+					'((DAYOFYEAR(X.birthday)-DAYOFYEAR(CURDATE())+365)%365) DESC',
+					'SOME_FUNCTION(CURDATE(),\'2014-12-30\') DESC',
 				],
 			],
 			// Random tests
 			[
-				"IF(A=B,0,1),ColumnName,'some string',IF(CURDATE()<modified,'2014-12-01',modified)",
+				'IF(A=B,0,1),ColumnName,\'some string\',IF(CURDATE()<modified,\'2014-12-01\',modified)',
 				[
-					"IF(A=B,0,1)",
-					"ColumnName",
-					"'some string'",
-					"IF(CURDATE()<modified,'2014-12-01',modified)",
+					'IF(A=B,0,1)',
+					'ColumnName',
+					'\'some string\'',
+					'IF(CURDATE()<modified,\'2014-12-01\',modified)',
 				],
-				"IF(A=B,0,1) DESC, ColumnName DESC, 'some string' DESC, IF(CURDATE()<modified,'2014-12-01',modified) DESC",
+				'IF(A=B,0,1) DESC, ColumnName DESC, \'some string\' DESC, IF(CURDATE()<modified,\'2014-12-01\',modified) DESC',
 			],
 		];
 	}

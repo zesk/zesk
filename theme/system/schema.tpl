@@ -13,4 +13,4 @@ $results = $application->orm_module()->schema_synchronize();
 
 echo HTML::tag('ol', HTML::tags('li', $results));
 
-$this->response->content_type = "text/plain";
+$this->response->content_type = 'text/plain';

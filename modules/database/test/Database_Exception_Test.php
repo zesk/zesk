@@ -9,12 +9,12 @@ namespace zesk;
 
 class Database_Exception_Test extends Exception_TestCase {
 	public array $load_modules = [
-		"Database",
-		"MySQL",
+		'Database',
+		'MySQL',
 	];
 
 	public function test_basics(): void {
-		$testx = new Database_Exception($this->test_database(), "Basic test exception");
+		$testx = new Database_Exception($this->test_database(), 'Basic test exception');
 
 		$this->exception_test($testx);
 	}

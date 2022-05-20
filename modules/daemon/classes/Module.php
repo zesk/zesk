@@ -32,7 +32,7 @@ class Module extends \zesk\Module {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$runpath = $this->application->data_path("run");
+		$runpath = $this->application->data_path('run');
 		$this->rundir = path($runpath, 'daemon');
 		Directory::depend($this->rundir, 0o700);
 	}
@@ -46,10 +46,10 @@ class Module extends \zesk\Module {
 		$locale = $template->locale;
 		return [
 			'system/panel/daemon' => [
-				"title" => $locale->__("Daemons"),
-				"module_class" => __CLASS__,
-				"server_data_key" => __CLASS__ . "::process_database",
-				"server_updated_key" => __CLASS__ . "::process_database_updated",
+				'title' => $locale->__('Daemons'),
+				'module_class' => __CLASS__,
+				'server_data_key' => __CLASS__ . '::process_database',
+				'server_updated_key' => __CLASS__ . '::process_database_updated',
 			],
 		];
 	}
@@ -65,8 +65,8 @@ class Module extends \zesk\Module {
 					$pid = $settings['pid'];
 					$database[$process]['alive'] = $application->process->alive($pid);
 				}
-				$server->data(__CLASS__ . "::process_database", $database);
-				$server->data(__CLASS__ . "::process_database_updated", Timestamp::now());
+				$server->data(__CLASS__ . '::process_database', $database);
+				$server->data(__CLASS__ . '::process_database_updated', Timestamp::now());
 			}
 		} catch (\Exception $e) {
 		}
@@ -86,7 +86,7 @@ class Module extends \zesk\Module {
 	 * @return string
 	 */
 	private function _database_path() {
-		return path($this->rundir, "daemon.db");
+		return path($this->rundir, 'daemon.db');
 	}
 
 	public function unlink_database(): void {
@@ -105,11 +105,11 @@ class Module extends \zesk\Module {
 			if (!is_file($path)) {
 				return [];
 			}
-			$fp = fopen($path, "rb");
+			$fp = fopen($path, 'rb');
 			flock($fp, LOCK_SH);
 			$database = unserialize(fread($fp, 1024 * 1024));
 			if ($this->db_debug) {
-				$logger->debug("Read database: {data}", [
+				$logger->debug('Read database: {data}', [
 					'data' => JSON::encode($database),
 				]);
 			}
@@ -122,7 +122,7 @@ class Module extends \zesk\Module {
 					return [];
 				}
 				if (!file_put_contents($path, serialize($database))) {
-					throw new Exception_File_Permission($path, "write");
+					throw new Exception_File_Permission($path, 'write');
 				}
 			} else {
 				if (count($database) === 0) {
@@ -130,14 +130,14 @@ class Module extends \zesk\Module {
 					return [];
 				}
 			}
-			$fp = fopen($path, "ab");
+			$fp = fopen($path, 'ab');
 			flock($fp, LOCK_SH);
 			ftruncate($fp, 0);
 			fwrite($fp, serialize($database));
 			flock($fp, LOCK_UN);
 			fclose($fp);
 			if ($this->db_debug) {
-				$logger->debug("Wrote database: {data}", [
+				$logger->debug('Wrote database: {data}', [
 					'data' => JSON::encode($database),
 				]);
 			}

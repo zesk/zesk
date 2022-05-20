@@ -14,4 +14,4 @@ namespace zesk;
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
 /* @var $object \Content_Group_Article */
-echo $this->theme("content/group/view");
+echo $this->theme('content/group/view');

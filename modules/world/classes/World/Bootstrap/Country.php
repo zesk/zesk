@@ -19,7 +19,7 @@ class World_Bootstrap_Country extends Hookable {
 	 *
 	 * Country database (TXT file)
 	 */
-	public const url_geonames_country_file = "https://download.geonames.org/export/dump/countryInfo.txt";
+	public const url_geonames_country_file = 'https://download.geonames.org/export/dump/countryInfo.txt';
 
 	/**
 	 *
@@ -46,7 +46,7 @@ class World_Bootstrap_Country extends Hookable {
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options(Module_World::class);
-		$include_country = $this->option("include_country");
+		$include_country = $this->option('include_country');
 		if ($include_country) {
 			$this->include_country = array_change_key_case(ArrayTools::flip_assign(to_list($include_country), true));
 		}
@@ -54,9 +54,9 @@ class World_Bootstrap_Country extends Hookable {
 
 	public function bootstrap(): void {
 		$application = $this->application;
-		$prefix = __NAMESPACE__ . "\\";
-		$x = $application->objects->factory($prefix . StringTools::unprefix(__CLASS__, $prefix . "World_Bootstrap_"), $application);
-		if ($this->optionBool("drop")) {
+		$prefix = __NAMESPACE__ . '\\';
+		$x = $application->objects->factory($prefix . StringTools::unprefix(__CLASS__, $prefix . 'World_Bootstrap_'), $application);
+		if ($this->optionBool('drop')) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 
@@ -85,17 +85,17 @@ class World_Bootstrap_Country extends Hookable {
 	 * @global Module_World::geonames_time_to_live
 	 */
 	private function load_countryinfo(Application $application) {
-		$world_path = $application->modules->path("world");
-		$file = $this->option("geonames_country_cache_file", path($world_path, 'bootstrap-data/countryinfo.txt'));
+		$world_path = $application->modules->path('world');
+		$file = $this->option('geonames_country_cache_file', path($world_path, 'bootstrap-data/countryinfo.txt'));
 		Net_Sync::url_to_file($application, self::url_geonames_country_file, $file, [
-			"time_to_live" => $this->option("geonames_time_to_live", 86400 * 30),
+			'time_to_live' => $this->option('geonames_time_to_live', 86400 * 30),
 		]);
-		$fp = fopen($file, "rb");
+		$fp = fopen($file, 'rb');
 		$headers = null;
 		while (is_array($row = fgetcsv($fp, null, "\t"))) {
 			if ($headers === null) {
-				if (in_array("#ISO", $row)) {
-					$headers = ArrayTools::change_value_case(ArrayTools::unprefix($row, "#"));
+				if (in_array('#ISO', $row)) {
+					$headers = ArrayTools::change_value_case(ArrayTools::unprefix($row, '#'));
 				}
 
 				continue;

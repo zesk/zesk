@@ -5,7 +5,7 @@ namespace zesk;
 
 class File_Test extends Test_Unit {
 	private function _test_atomic_increment(string $path, $start): void {
-		$this->assert(File::atomic_put($path, "$start"), "Creating initial file");
+		$this->assert(File::atomic_put($path, "$start"), 'Creating initial file');
 		for ($j = 0; $j < 100; $j++) {
 			$this->assert(($result = File::atomic_increment($path)) === $start + $j + 1, "File::atomic_increment: $result !== " . ($start + $j + 1));
 		}
@@ -23,23 +23,23 @@ class File_Test extends Test_Unit {
 		} catch (Exception $e) {
 			$exception = true;
 		}
-		$this->assert($exception, "when file doesn't exist, an exception should occur");
+		$this->assert($exception, 'when file doesn\'t exist, an exception should occur');
 
 		$this->_test_atomic_increment($path, 0);
 		$this->_test_atomic_increment($path, 48123192);
 	}
 
 	public function test_atomic_put(): void {
-		$path = $this->test_sandbox("foo");
-		$data = "hello";
+		$path = $this->test_sandbox('foo');
+		$data = 'hello';
 		File::atomic_put($path, $data);
 	}
 
 	public function base_data(): array {
 		return [
-			["foo/bar/dee.inc", "dee"],
-			["foo/bar/dee", "dee"],
-			["C:/Users/Volumes/Places/foo.xlsx", "foo"],
+			['foo/bar/dee.inc', 'dee'],
+			['foo/bar/dee', 'dee'],
+			['C:/Users/Volumes/Places/foo.xlsx', 'foo'],
 		];
 	}
 
@@ -59,32 +59,32 @@ class File_Test extends Test_Unit {
 	}
 
 	public function test_chmod(): void {
-		$file_name = $this->test_sandbox("chmod-test");
-		file_put_contents($file_name, "abc");
+		$file_name = $this->test_sandbox('chmod-test');
+		file_put_contents($file_name, 'abc');
 		$mode = 504;
 		$this->assertTrue(File::chmod($file_name, $mode));
-		$this->assertFalse(File::chmod($file_name . ".notthere", $mode));
+		$this->assertFalse(File::chmod($file_name . '.notthere', $mode));
 	}
 
 	public function test_contents(): void {
-		$file_name = $this->test_sandbox("chmod-test");
+		$file_name = $this->test_sandbox('chmod-test');
 		$data = md5(microtime(false));
 		file_put_contents($file_name, $data);
-		$this->assertEquals($data, File::contents($file_name, ""));
-		$this->assertEquals($data, File::contents($file_name . ".notthere") ?? $data);
-		$this->assertEquals(null, File::contents($file_name . ".notthere"));
+		$this->assertEquals($data, File::contents($file_name, ''));
+		$this->assertEquals($data, File::contents($file_name . '.notthere') ?? $data);
+		$this->assertEquals(null, File::contents($file_name . '.notthere'));
 	}
 
 	public function extension_data() {
 		return [
-			["foo.XLSX", "def", true, "xlsx"],
-			["foo.xlsx", "def", true, "xlsx"],
-			["foo.XLSX", "def", false, "XLSX"],
-			["foo.xlsx", "def", false, "xlsx"],
-			["/path/to/a/filename.XLSX", "def", true, "xlsx"],
-			["/path/to/a/filename.xlsx", "def", true, "xlsx"],
-			["/path/to/a/filename.XLSX", "def", false, "XLSX"],
-			["/path/to/a/filename.xlsx", "def", false, "xlsx"],
+			['foo.XLSX', 'def', true, 'xlsx'],
+			['foo.xlsx', 'def', true, 'xlsx'],
+			['foo.XLSX', 'def', false, 'XLSX'],
+			['foo.xlsx', 'def', false, 'xlsx'],
+			['/path/to/a/filename.XLSX', 'def', true, 'xlsx'],
+			['/path/to/a/filename.xlsx', 'def', true, 'xlsx'],
+			['/path/to/a/filename.XLSX', 'def', false, 'XLSX'],
+			['/path/to/a/filename.xlsx', 'def', false, 'xlsx'],
 		];
 	}
 
@@ -105,8 +105,8 @@ class File_Test extends Test_Unit {
 	 */
 	public function name_clean_data(): array {
 		return [
-			["yer!@#\$the%^&*(()_+{}|dude.xml", "-", "yer-the-_-dude.xml"],
-			["yer!@#\$the%^&*(()_+{}|dude.xml", "_", "yer_the_dude.xml"],
+			['yer!@#$the%^&*(()_+{}|dude.xml', '-', 'yer-the-_-dude.xml'],
+			['yer!@#$the%^&*(()_+{}|dude.xml', '_', 'yer_the_dude.xml'],
 		];
 	}
 
@@ -126,10 +126,10 @@ class File_Test extends Test_Unit {
 	 */
 	public function path_check_data(): array {
 		return [
-			["foo/" . chr(194) . "bar/doo.xlsx", false],
-			["foo/../bar/.././doo.xlsx", false],
-			["normalish.xlsx", true],
-			["a/very/normalish.xlsx", true],
+			['foo/' . chr(194) . 'bar/doo.xlsx', false],
+			['foo/../bar/.././doo.xlsx', false],
+			['normalish.xlsx', true],
+			['a/very/normalish.xlsx', true],
 		];
 	}
 

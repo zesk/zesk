@@ -14,16 +14,16 @@ abstract class Net_HTTP_Server extends Net_Server {
 		$this->driver->read_end_char("\r\n\r\n");
 	}
 
-	final public function hook_receive($client_id = 0, $data = ""): void {
+	final public function hook_receive($client_id = 0, $data = ''): void {
 		$response = new Net_HTTP_Server_Response();
 
 		try {
 			$this->handle_request(new Net_HTTP_Server_Request($data), $response);
 		} catch (Net_HTTP_Server_Exception $e) {
-			$this->application->hooks->call("exception", $e);
+			$this->application->hooks->call('exception', $e);
 			$this->error_response($response, $e);
 		} catch (Exception $e) {
-			$this->application->hooks->call("exception", $e);
+			$this->application->hooks->call('exception', $e);
 			$this->error_response($response, new Net_HTTP_Server_Exception(Net_HTTP::STATUS_INTERNAL_SERVER_ERROR, null, $e->getMessage()));
 		}
 		$this->send_response($client_id, $response);
@@ -42,7 +42,7 @@ abstract class Net_HTTP_Server extends Net_Server {
 			}
 			$response->close_file();
 		} else {
-			$response->header("Content-Length", strlen($response->content));
+			$response->header('Content-Length', strlen($response->content));
 			$this->send($client_id, $response->raw_headers() . $response->content);
 		}
 	}

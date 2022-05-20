@@ -17,8 +17,8 @@ class Module_Session extends Module {
 	 * @var array
 	 */
 	private static $aliases = [
-		"db" => "ORM",
-		"database" => "ORM",
+		'db' => 'ORM',
+		'database' => 'ORM',
 	];
 
 	/**
@@ -34,15 +34,15 @@ class Module_Session extends Module {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->application->register_factory("session", [
+		$this->application->register_factory('session', [
 			$this,
-			"session_factory",
+			'session_factory',
 		]);
 		/**
 		 * @deprecated 2018-01
 		 */
-		$this->application->objects->map("zesk\\Session_" . "Database", Session_ORM::class);
-		$this->application->configuration->deprecated("zesk\\Application::session_class", __CLASS__ . "::session_class");
+		$this->application->objects->map('zesk\\Session_' . 'Database', Session_ORM::class);
+		$this->application->configuration->deprecated('zesk\\Application::session_class', __CLASS__ . '::session_class');
 	}
 
 	/**
@@ -50,7 +50,7 @@ class Module_Session extends Module {
 	 * @return string
 	 */
 	private function _implementation() {
-		$get = $this->option("implementation");
+		$get = $this->option('implementation');
 		return self::$aliases[$get] ?? $get;
 	}
 
@@ -63,13 +63,13 @@ class Module_Session extends Module {
 		$default_class = $this->_implementation();
 		if ($default_class) {
 			$this->application->deprecated("Session::implementation configuration value is deprecated, use {class}::session_class instead (set to \"$default_class\")", [
-				"class" => __CLASS__,
+				'class' => __CLASS__,
 			]);
-			$default_class = __NAMESPACE__ . "\\" . "Session_" . $default_class;
+			$default_class = __NAMESPACE__ . '\\' . 'Session_' . $default_class;
 		} else {
-			$default_class = __NAMESPACE__ . "\\" . "Session_PHP";
+			$default_class = __NAMESPACE__ . '\\' . 'Session_PHP';
 		}
-		$class = $this->option("session_class", $this->application->option("session_class", $default_class));
+		$class = $this->option('session_class', $this->application->option('session_class', $default_class));
 		return $class;
 	}
 
@@ -85,7 +85,7 @@ class Module_Session extends Module {
 		if (empty($class)) {
 			$class = $this->session_class();
 			if (!$class) {
-				throw new Exception_Configuration(__CLASS__ . "::session_class", "Needs a class name value");
+				throw new Exception_Configuration(__CLASS__ . '::session_class', 'Needs a class name value');
 			}
 		}
 		if (array_key_exists($class, $this->instances)) {

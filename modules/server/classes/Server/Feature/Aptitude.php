@@ -4,8 +4,8 @@ namespace zesk;
 class Server_Feature_Aptitute extends Server_Feature {
 	public function configure(): void {
 		if (!$this->platform->packager instanceof Server_Packager_APT) {
-			$this->application->logger->warning("Server_Feature_Aptitute being configured, but packager is {class}", [
-				"class" => get_class($this->platform->packager),
+			$this->application->logger->warning('Server_Feature_Aptitute being configured, but packager is {class}', [
+				'class' => get_class($this->platform->packager),
 			]);
 		}
 		$this->configuration_files('apt', [
@@ -16,8 +16,8 @@ class Server_Feature_Aptitute extends Server_Feature {
 			'trustdb.gpg',
 			'trusted.gpg',
 		], '/etc/apt/', [
-			"user" => "root",
-			"mode" => 0o755,
+			'user' => 'root',
+			'mode' => 0o755,
 		]);
 	}
 }

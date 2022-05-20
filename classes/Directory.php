@@ -37,7 +37,7 @@ class Directory extends Hookable {
 	 * configured hook
 	 */
 	public static function configured(Application $application): void {
-		self::$default_mode = $application->configuration->path(__CLASS__)->get("default_mode", self::$default_mode);
+		self::$default_mode = $application->configuration->path(__CLASS__)->get('default_mode', self::$default_mode);
 	}
 
 	/**
@@ -58,7 +58,7 @@ class Directory extends Hookable {
 		$perms = File::stat($path, 'perms');
 		if (!self::octal_equal($perms['octal'], File::mode_to_octal($mode))) {
 			if (!chmod($path, $mode)) {
-				throw new Exception_Directory_Permission($path, map("Setting {filename} to mode {0}", [sprintf("%04o", $mode)]));
+				throw new Exception_Directory_Permission($path, map('Setting {filename} to mode {0}', [sprintf('%04o', $mode)]));
 			}
 		}
 		return $path;
@@ -131,10 +131,10 @@ class Directory extends Hookable {
 	 */
 	public static function duplicate($source, $destination, $recursive = true, $file_copy_function = null) {
 		if (empty($source)) {
-			throw new Exception_Parameter("self::duplicate: Source is empty");
+			throw new Exception_Parameter('self::duplicate: Source is empty');
 		}
 		if (empty($destination)) {
-			throw new Exception_Parameter("self::duplicate: Destination is empty");
+			throw new Exception_Parameter('self::duplicate: Destination is empty');
 		}
 		if (!is_dir($destination)) {
 			if (!mkdir($destination, self::default_mode(), true)) {
@@ -179,7 +179,7 @@ class Directory extends Hookable {
 			throw new Exception_Directory_NotFound("Can't opendir on $path");
 		}
 		while (($f = readdir($d)) !== false) {
-			if ($f === "." || $f === "..") {
+			if ($f === '.' || $f === '..') {
 				continue;
 			}
 			closedir($d);
@@ -198,7 +198,7 @@ class Directory extends Hookable {
 		}
 		self::delete_contents($path);
 		if (!rmdir($path)) {
-			throw new Exception_Directory_Permission($path, __METHOD__ . " rmdir returned false");
+			throw new Exception_Directory_Permission($path, __METHOD__ . ' rmdir returned false');
 		}
 		return true;
 	}
@@ -270,7 +270,7 @@ class Directory extends Hookable {
 	 * @param unknown $prefix
 	 */
 	private static function _legacy_parse_options(array $options, $prefix) {
-		$options = ArrayTools::kunprefix($options, $prefix . "_", true);
+		$options = ArrayTools::kunprefix($options, $prefix . '_', true);
 		$include_pattern = $exclude_pattern = null;
 		$default = true;
 		extract($options, EXTR_IF_EXISTS);
@@ -298,7 +298,7 @@ class Directory extends Hookable {
 	 *
 	 */
 	private static function _list_recursive_rules(array $options, $name) {
-		$k = "rules_" . $name;
+		$k = 'rules_' . $name;
 		if (array_key_exists($k, $options)) {
 			if (is_bool($options[$k])) {
 				return [
@@ -306,9 +306,9 @@ class Directory extends Hookable {
 				];
 			}
 			if (!is_array($options[$k])) {
-				throw new Exception_Parameter("Recursive rules {key} must be boolean or an array, {type} passed", [
-					"key" => $k,
-					"type" => type($options[$k]),
+				throw new Exception_Parameter('Recursive rules {key} must be boolean or an array, {type} passed', [
+					'key' => $k,
+					'type' => type($options[$k]),
 				]);
 			}
 			return $options[$k];
@@ -338,28 +338,28 @@ class Directory extends Hookable {
 		$options = !is_array($options) ? [] : $options;
 		$options = array_change_key_case($options);
 		$progress = to_bool($options['progress'] ?? false);
-		$rules_file = self::_list_recursive_rules($options, "file");
-		$rules_dir = self::_list_recursive_rules($options, "directory");
-		$rules_dir_walk = self::_list_recursive_rules($options, "directory_walk");
+		$rules_file = self::_list_recursive_rules($options, 'file');
+		$rules_dir = self::_list_recursive_rules($options, 'directory');
+		$rules_dir_walk = self::_list_recursive_rules($options, 'directory_walk');
 
-		$max_results = $options["maximum_results"]?? -1;
-		$addpath = to_bool($options["add_path"] ?? false);
+		$max_results = $options['maximum_results']?? -1;
+		$addpath = to_bool($options['add_path'] ?? false);
 
-		$path = rtrim($path, "/");
+		$path = rtrim($path, '/');
 		$d = @opendir($path);
 		if (!$d) {
 			return [];
 		}
 		$r = [];
 		$options['add_path'] = false;
-		$prefix = $addpath ? (substr($path, -1) === '/' ? $path : "$path/") : "";
+		$prefix = $addpath ? (substr($path, -1) === '/' ? $path : "$path/") : '';
 		while (($x = readdir($d)) !== false) {
-			if ($x === "." || $x === "..") {
+			if ($x === '.' || $x === '..') {
 				continue;
 			}
 			$full_path = path($path, $x);
 			if (is_dir($full_path)) {
-				$full_path .= "/";
+				$full_path .= '/';
 				if (StringTools::filter($full_path, $rules_dir)) {
 					$r[] = ($addpath) ? "$prefix$x/" : "$x/";
 				}
@@ -367,8 +367,8 @@ class Directory extends Hookable {
 					continue;
 				}
 				if ($progress && $progress instanceof Psr\Log\LoggerInterface) {
-					$progress->notice("Listing {full_path}", [
-						"full_path" => $full_path,
+					$progress->notice('Listing {full_path}', [
+						'full_path' => $full_path,
 					]);
 				}
 				$result = self::list_recursive($full_path, $options);
@@ -398,14 +398,14 @@ class Directory extends Hookable {
 	 */
 	public static function undot($p) {
 		$r = [];
-		$a = explode("/", $p);
+		$a = explode('/', $p);
 		$skip = 0;
 
 		$n = count($a);
 		while ($n-- !== 0) {
-			if ($a[$n] == "..") {
+			if ($a[$n] == '..') {
 				$skip = $skip + 1;
-			} elseif ($a[$n] == ".") {
+			} elseif ($a[$n] == '.') {
 				// Do nothing
 			} elseif ($skip > 0) {
 				$skip--;
@@ -416,7 +416,7 @@ class Directory extends Hookable {
 		if ($skip > 0) {
 			return null;
 		}
-		return implode("/", $r);
+		return implode('/', $r);
 	}
 
 	/**
@@ -426,7 +426,7 @@ class Directory extends Hookable {
 		if (!$p) {
 			return $p;
 		}
-		return substr($p, -1) === "/" ? $p : "$p/";
+		return substr($p, -1) === '/' ? $p : "$p/";
 	}
 
 	/**
@@ -436,7 +436,7 @@ class Directory extends Hookable {
 	 * @return string
 	 */
 	public static function strip_slash(string $path): string {
-		return rtrim($path, "/");
+		return rtrim($path, '/');
 	}
 
 	/**
@@ -492,25 +492,25 @@ class Directory extends Hookable {
 		}
 		$r = [];
 		if (!is_dir($path)) {
-			throw new Exception_Directory_NotFound($path, "{method}: {path} is not a directory", [
-				"method" => __METHOD__,
-				"path" => $path,
+			throw new Exception_Directory_NotFound($path, '{method}: {path} is not a directory', [
+				'method' => __METHOD__,
+				'path' => $path,
 			]);
 		}
 		$d = opendir($path);
 		if (!is_resource($d)) {
-			throw new Exception_Directory_NotFound($path, "{method}: {path} is not readable", [
-				"method" => __METHOD__,
-				"path" => $path,
+			throw new Exception_Directory_NotFound($path, '{method}: {path} is not readable', [
+				'method' => __METHOD__,
+				'path' => $path,
 			]);
 		}
 		$path = rtrim($path, '/');
 		while (($f = readdir($d)) !== false) {
-			if ($f === "." || $f === "..") {
+			if ($f === '.' || $f === '..') {
 				continue;
 			}
 			if (is_dir("$path/$f")) {
-				$f .= "/";
+				$f .= '/';
 			}
 			if ($filter === null || preg_match($filter, $f)) {
 				$r[] = $cat_path ? "$path/$f" : $f;
@@ -524,16 +524,16 @@ class Directory extends Hookable {
 	 */
 	public static function copy($source, $dest, $create = false) {
 		if (!is_dir($source)) {
-			throw new Exception_Directory_NotFound($source, "Copying to {dest}", [
-				"dest" => $dest,
+			throw new Exception_Directory_NotFound($source, 'Copying to {dest}', [
+				'dest' => $dest,
 			]);
 		}
 		if ($create) {
 			self::depend($dest);
 		}
 		if (!is_dir($dest)) {
-			throw new Exception_Directory_NotFound($dest, "Copying from {source}", [
-				"source" => $source,
+			throw new Exception_Directory_NotFound($dest, 'Copying from {source}', [
+				'source' => $source,
 			]);
 		}
 		self::delete_contents($dest);
@@ -589,24 +589,24 @@ class Directory extends Hookable {
 	 * @param string $order_by
 	 * @return integer List of files deleted
 	 */
-	public static function cull_contents($directory, $total, $order_by = "name", $ascending = true) {
+	public static function cull_contents($directory, $total, $order_by = 'name', $ascending = true) {
 		$files = self::ls($directory, null, true);
 		if (count($files) < $total) {
 			return [];
 		}
 		if (empty($order_by)) {
-			$order_by = "name";
+			$order_by = 'name';
 		}
-		if ($order_by === "name") {
+		if ($order_by === 'name') {
 			$target_files = ArrayTools::flip_copy($files);
 			$sort_flags = SORT_STRING;
-		} elseif ($order_by === "date") {
+		} elseif ($order_by === 'date') {
 			foreach ($files as $i => $file) {
 				$target_files[filemtime($file) . ".$i"] = $file;
 			}
 			$sort_flags = SORT_NUMERIC;
 		} else {
-			throw new Exception_Parameter("Invalid order by {order_by}, must be name or date", compact("order_by"));
+			throw new Exception_Parameter('Invalid order by {order_by}, must be name or date', compact('order_by'));
 		}
 		ksort($target_files, $sort_flags | ($ascending ? SORT_ASC : SORT_DESC));
 		$n_to_delete = count($target_files) - $total;

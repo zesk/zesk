@@ -66,97 +66,97 @@ class File {
 	 *
 	 * @var string
 	 */
-	public const TYPE_SOCKET = "socket";
+	public const TYPE_SOCKET = 'socket';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const TYPE_LINK = "link";
+	public const TYPE_LINK = 'link';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const TYPE_FILE = "file";
+	public const TYPE_FILE = 'file';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const TYPE_BLOCK = "block";
+	public const TYPE_BLOCK = 'block';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const TYPE_DIR = "dir";
+	public const TYPE_DIR = 'dir';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const TYPE_CHAR = "char";
+	public const TYPE_CHAR = 'char';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const TYPE_FIFO = "fifo";
+	public const TYPE_FIFO = 'fifo';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const TYPE_UNKNOWN = "unknown";
+	public const TYPE_UNKNOWN = 'unknown';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const CHAR_SOCKET = "s";
+	public const CHAR_SOCKET = 's';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const CHAR_LINK = "l";
+	public const CHAR_LINK = 'l';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const CHAR_FILE = "-";
+	public const CHAR_FILE = '-';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const CHAR_BLOCK = "b";
+	public const CHAR_BLOCK = 'b';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const CHAR_DIR = "d";
+	public const CHAR_DIR = 'd';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const CHAR_CHAR = "c";
+	public const CHAR_CHAR = 'c';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const CHAR_FIFO = "p";
+	public const CHAR_FIFO = 'p';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const CHAR_UNKNOWN = "u";
+	public const CHAR_UNKNOWN = 'u';
 
 	/**
 	 * Return an absolute path given a filename and a working directory
@@ -205,14 +205,14 @@ class File {
 	 *        	Character to replace unwanted characters with
 	 * @return string Cleaned filename
 	 */
-	public static function name_clean($mixed, $sep_char = "-") {
+	public static function name_clean($mixed, $sep_char = '-') {
 		if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
 				$mixed[$k] = self::name_clean($v, $sep_char);
 			}
 			return $mixed;
 		}
-		$mixed = preg_replace("/[^-A-Za-z0-9_.]/", $sep_char, $mixed);
+		$mixed = preg_replace('/[^-A-Za-z0-9_.]/', $sep_char, $mixed);
 		$mixed = preg_replace("/$sep_char$sep_char+/", $sep_char, $mixed);
 		return $mixed;
 	}
@@ -228,7 +228,7 @@ class File {
 	 * @return string
 	 */
 	public static function clean_path($path) {
-		return preg_replace("%[^-_./a-zA-Z0-9]%", '_', str_replace("_", "/", $path));
+		return preg_replace('%[^-_./a-zA-Z0-9]%', '_', str_replace('_', '/', $path));
 	}
 
 	/**
@@ -243,8 +243,8 @@ class File {
 			return false;
 		}
 		if (ArrayTools::strstr($x, [
-			"..",
-			"/./",
+			'..',
+			'/./',
 		]) !== false) {
 			return false;
 		}
@@ -267,7 +267,7 @@ class File {
 			return md5_file($path);
 		}
 		$data = "$size:";
-		$f = @fopen($path, "rb");
+		$f = @fopen($path, 'rb');
 		$data .= fread($f, 1024 * 512);
 		$data .= "-$size-";
 		if (fseek($f, $size - 1024) === 0) {
@@ -300,7 +300,7 @@ class File {
 	 * @return string
 	 */
 	public static function strip_extension($filename) {
-		return self::map_pathinfo($filename, "{dirname}{/}{filename}");
+		return self::map_pathinfo($filename, '{dirname}{/}{filename}');
 	}
 
 	/**
@@ -313,7 +313,7 @@ class File {
 	 */
 	public static function extension($filename, $default = null, $lower = true) {
 		$name = basename($filename);
-		$dot = strrpos($name, ".");
+		$dot = strrpos($name, '.');
 		if ($dot === false) {
 			return $default;
 		}
@@ -337,9 +337,9 @@ class File {
 	 * @throws Exception_File_NotFound
 	 */
 	public static function atomic_increment(string $path): int {
-		$fp = @fopen($path, "r+b");
+		$fp = @fopen($path, 'r+b');
 		if (!$fp) {
-			throw new Exception_File_NotFound($path, "not found");
+			throw new Exception_File_NotFound($path, 'not found');
 		}
 		$until = time() + 10;
 		while (!flock($fp, LOCK_EX | LOCK_NB)) {
@@ -369,9 +369,9 @@ class File {
 	 * @throws Exception_File_NotFound
 	 */
 	public static function atomic_put(string $path, string $data): bool {
-		$fp = fopen($path, "w+b");
+		$fp = fopen($path, 'w+b');
 		if (!is_resource($fp)) {
-			throw new Exception_File_NotFound($path, "File::atomic_put not found");
+			throw new Exception_File_NotFound($path, 'File::atomic_put not found');
 		}
 		$until = time() + 10;
 		while (!flock($fp, LOCK_EX | LOCK_NB)) {
@@ -421,8 +421,8 @@ class File {
 	 * @throws Exception_Directory_Create
 	 * @throws Exception_Directory_Permission
 	 */
-	public static function temporary($path, $ext = "tmp", $mode = null) {
-		return path(Directory::depend($path, $mode), md5(microtime()) . "." . ltrim($ext, "."));
+	public static function temporary($path, $ext = 'tmp', $mode = null) {
+		return path(Directory::depend($path, $mode), md5(microtime()) . '.' . ltrim($ext, '.'));
 	}
 
 	/**
@@ -434,10 +434,10 @@ class File {
 	 */
 	public static function base(string $filename, $lower = false): string {
 		if ($lower !== false) {
-			zesk()->deprecated("lower parameter");
+			zesk()->deprecated('lower parameter');
 		}
 		$filename = basename($filename);
-		$dot = strrpos($filename, ".");
+		$dot = strrpos($filename, '.');
 		if ($dot === false) {
 			return $filename;
 		}
@@ -483,12 +483,12 @@ class File {
 	 * @return boolean
 	 */
 	public static function append($filename, $content) {
-		$mode = file_exists($filename) ? "a" : "w";
+		$mode = file_exists($filename) ? 'a' : 'w';
 		if (!is_resource($f = fopen($filename, $mode))) {
-			throw new Exception_File_Permission("Can not open {filename} with mode {mode} to append {n} bytes of content", [
-				"filename" => $filename,
-				"mode" => $mode,
-				"n" => strlen($content),
+			throw new Exception_File_Permission('Can not open {filename} with mode {mode} to append {n} bytes of content', [
+				'filename' => $filename,
+				'mode' => $mode,
+				'n' => strlen($content),
 			]);
 		}
 		fwrite($f, $content);
@@ -509,21 +509,21 @@ class File {
 	 */
 	public static function put($path, $contents) {
 		if (!is_scalar($contents)) {
-			throw new Exception_Parameter("{method}: Contents should be a scalar value {type} passed", [
-				"method" => __METHOD__,
-				"type" => type($contents),
+			throw new Exception_Parameter('{method}: Contents should be a scalar value {type} passed', [
+				'method' => __METHOD__,
+				'type' => type($contents),
 			]);
 		}
 		if (!is_dir($dir = dirname($path))) {
-			throw new Exception_Directory_NotFound($dir, "Unable to write {n} bytes to file {file}", [
-				"file" => $path,
-				"n" => strlen($contents),
+			throw new Exception_Directory_NotFound($dir, 'Unable to write {n} bytes to file {file}', [
+				'file' => $path,
+				'n' => strlen($contents),
 			]);
 		}
 		if (@file_put_contents($path, $contents) === false) {
-			throw new Exception_File_Permission($path, "Unable to write {n} bytes to file {file}", [
-				"file" => $path,
-				"n" => strlen($contents),
+			throw new Exception_File_Permission($path, 'Unable to write {n} bytes to file {file}', [
+				'file' => $path,
+				'n' => strlen($contents),
 			]);
 		}
 		return true;
@@ -544,7 +544,7 @@ class File {
 			return true;
 		}
 		if (!unlink($path)) {
-			throw new Exception_File_Permission($path, "unable to unlink");
+			throw new Exception_File_Permission($path, 'unable to unlink');
 		}
 		return true;
 	}
@@ -680,7 +680,7 @@ class File {
 	 */
 	public static function mode_to_string($mode) {
 		$map = self::_mode_map();
-		$result = "";
+		$result = '';
 		foreach ($map as $i => $items) {
 			if ($i === 0) {
 				$result .= avalue(self::$fchars, $mode & self::MASK_FTYPE, self::CHAR_UNKNOWN);
@@ -706,7 +706,7 @@ class File {
 	 * @return integer
 	 */
 	public static function string_to_mode($mode_string) {
-		$keys = implode("", array_keys(self::$mtypes));
+		$keys = implode('', array_keys(self::$mtypes));
 		if (!preg_match('/^[' . $keys . '][-r][-w][-xSs][-r][-w][-xSs][-r][-w][-xSs]$/', $mode_string)) {
 			return null;
 		}
@@ -715,7 +715,7 @@ class File {
 		for ($i = 0; $i < strlen($mode_string); $i++) {
 			$v = avalue($map[$i], $mode_string[$i], null);
 			if ($v === null) {
-				throw new Exception_Unimplemented("Unknown mode character $mode_string ($i)... \"" . $mode_string[$i] . "\"");
+				throw new Exception_Unimplemented("Unknown mode character $mode_string ($i)... \"" . $mode_string[$i] . '"');
 			}
 			$mode |= $v;
 		}
@@ -730,11 +730,11 @@ class File {
 	 * @return string
 	 */
 	public static function extension_change($file, $new_extension) {
-		[$prefix, $file] = pairr($file, "/", "", $file);
+		[$prefix, $file] = pairr($file, '/', '', $file);
 		if ($prefix) {
-			$prefix .= "/";
+			$prefix .= '/';
 		}
-		[$base] = pairr($file, ".", $file);
+		[$base] = pairr($file, '.', $file);
 		if ($new_extension) {
 			$base .= '.' . ltrim($new_extension, '.');
 		}
@@ -748,7 +748,7 @@ class File {
 	 * @return string
 	 */
 	public static function mode_to_octal($mode) {
-		return sprintf("0%o", 0o777 & $mode);
+		return sprintf('0%o', 0o777 & $mode);
 	}
 
 	/**
@@ -815,9 +815,9 @@ class File {
 		$type = self::$fchars[$p & self::MASK_FTYPE];
 		$s = [
 			'perms' => [/* Permissions */
-				'umask' => sprintf("%04o", @umask()),  /* umask */
+				'umask' => sprintf('%04o', @umask()),  /* umask */
 				'string' => $mode_string,  /* drwxrwxrwx */
-				'octal' => sprintf("%o", ($p & 0o777)),  /* Octal without a zero prefix */
+				'octal' => sprintf('%o', ($p & 0o777)),  /* Octal without a zero prefix */
 				'octal0' => self::mode_to_octal($p),  /* Octal with a zero prefix */
 				'decimal' => intval($p) & 0o777,  /* Decimal value, truncated */
 				'fileperms' => $is_res ? null : @fileperms($path),  /* Permissions */
@@ -890,13 +890,13 @@ class File {
 		$app = Kernel::singleton()->application();
 		$result = to_integer($app->configuration->path_get([
 			"zesk\file",
-			"trim",
-			"maximum_file_size",
+			'trim',
+			'maximum_file_size',
 		]));
 		if ($result) {
 			return $result;
 		}
-		$memory_limit = to_bytes(ini_get("memory_limit"));
+		$memory_limit = to_bytes(ini_get('memory_limit'));
 		return intval($memory_limit / 2);
 	}
 
@@ -914,13 +914,13 @@ class File {
 		$app = Kernel::singleton()->application();
 		$result = to_integer($app->configuration->path_get([
 			"zesk\file",
-			"trim",
-			"read_buffer_size",
+			'trim',
+			'read_buffer_size',
 		]));
 		if ($result) {
 			return $result;
 		}
-		$memory_limit = to_bytes(ini_get("memory_limit"));
+		$memory_limit = to_bytes(ini_get('memory_limit'));
 		$default_trim_read_buffer_size = clamp(10240, $memory_limit / 4, 1048576);
 		return intval($default_trim_read_buffer_size);
 	}
@@ -975,12 +975,12 @@ class File {
 			$length = $size + $length - $offset;
 		}
 		$temp = $path . '-temp-trim-' . getmypid();
-		$temp_mv = $temp . "-rename";
-		$w = fopen($temp, "wb");
+		$temp_mv = $temp . '-rename';
+		$w = fopen($temp, 'wb');
 		if (!$w) {
 			throw new Exception_File_Create($temp);
 		}
-		$r = fopen($path, "r+b");
+		$r = fopen($path, 'r+b');
 		if (!$r) {
 			fclose($w);
 
@@ -1024,7 +1024,7 @@ class File {
 		if (!is_file($filename)) {
 			throw new Exception_File_NotFound($filename);
 		}
-		$f = fopen($filename, "rb");
+		$f = fopen($filename, 'rb');
 		if (!$f) {
 			throw new Exception_File_Permission("$filename:Can not read");
 		}
@@ -1042,7 +1042,7 @@ class File {
 	 * @param string $suffix
 	 * @return boolean
 	 */
-	public static function rotate($path, $size_limit = 10485760, $keep_count = 7, $suffix = "") {
+	public static function rotate($path, $size_limit = 10485760, $keep_count = 7, $suffix = '') {
 		if (file_exists($path) && ($size_limit === null || filesize($path) > $size_limit)) {
 			if (file_exists("$path.$keep_count$suffix")) {
 				@unlink("$path.$keep_count$suffix");
@@ -1069,20 +1069,20 @@ class File {
 	 */
 	public static function is_absolute($f) {
 		if (!is_string($f)) {
-			throw new Exception_Parameter("{method} First parameter should be string {type} passed", [
-				"method" => __METHOD__,
-				"type" => type($f),
+			throw new Exception_Parameter('{method} First parameter should be string {type} passed', [
+				'method' => __METHOD__,
+				'type' => type($f),
 			]);
 		}
 		$f = strval($f);
-		if ($f === "") {
+		if ($f === '') {
 			return false;
 		}
 		if (is_windows()) {
 			if (strlen($f) < 1) {
 				return false;
 			}
-			return $f[1] === ":" || $f[0] === "\\";
+			return $f[1] === ':' || $f[0] === '\\';
 		} else {
 			return $f[0] === '/';
 		}
@@ -1107,11 +1107,11 @@ class File {
 			throw new Exception_File_NotFound($source);
 		}
 		$pid = getmypid();
-		$target_lock = $target . ".atomic-lock";
-		$lock = fopen($target_lock, "w+b");
+		$target_lock = $target . '.atomic-lock';
+		$lock = fopen($target_lock, 'w+b');
 		if (!$lock) {
-			throw new Exception_File_Permission("Can not create lock file {target_lock}", [
-				"target_lock" => $target_lock,
+			throw new Exception_File_Permission('Can not create lock file {target_lock}', [
+				'target_lock' => $target_lock,
 			]);
 		}
 		if (!flock($lock, LOCK_EX)) {
@@ -1122,12 +1122,12 @@ class File {
 		$target_temp = $target . ".atomic.$pid";
 		$exception = null;
 		if (!@rename($target, $target_temp)) {
-			$exception = new Exception_File_Permission($target_temp, "Can not rename target {target} to temp {target_temp}", compact("target", "target_temp"));
+			$exception = new Exception_File_Permission($target_temp, 'Can not rename target {target} to temp {target_temp}', compact('target', 'target_temp'));
 		} elseif (!@rename($source, $target)) {
 			if (!@rename($target_temp, $target)) {
-				$exception = new Exception_File_Permission($target, "RECOVERY: Can not rename target temp {target_temp} BACK to target {target}", compact("target", "target_temp"));
+				$exception = new Exception_File_Permission($target, 'RECOVERY: Can not rename target temp {target_temp} BACK to target {target}', compact('target', 'target_temp'));
 			} else {
-				$exception = new Exception_File_Permission($target, "Can not rename source {source} to target {target}", compact("source", "target"));
+				$exception = new Exception_File_Permission($target, 'Can not rename source {source} to target {target}', compact('source', 'target'));
 			}
 		}
 		flock($lock, LOCK_UN);
@@ -1174,10 +1174,10 @@ class File {
 		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['uid'] !== $source_owner['uid']) {
 			if (!@chown($target, $source_owner['uid'])) {
-				throw new Exception_File_Permission($target, "{method}({source}, {target}) chown({target}, {gid})", [
-					"method" => __METHOD__,
-					"source" => $source,
-					"target" => $target,
+				throw new Exception_File_Permission($target, '{method}({source}, {target}) chown({target}, {gid})', [
+					'method' => __METHOD__,
+					'source' => $source,
+					'target' => $target,
 				]);
 			}
 		}
@@ -1200,10 +1200,10 @@ class File {
 		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['gid'] !== $source_owner['gid']) {
 			if (!@chgrp($target, $source_owner['gid'])) {
-				throw new Exception_File_Permission($target, "{method}({source}, {target}) chgrp({target}, {gid})", [
-					"method" => __METHOD__,
-					"source" => $source,
-					"target" => $target,
+				throw new Exception_File_Permission($target, '{method}({source}, {target}) chgrp({target}, {gid})', [
+					'method' => __METHOD__,
+					'source' => $source,
+					'target' => $target,
 				]);
 			}
 		}
@@ -1227,16 +1227,16 @@ class File {
 				return $file;
 			}
 
-			throw new Exception_File_Permission($file, "Unable to write (!is_writable)");
+			throw new Exception_File_Permission($file, 'Unable to write (!is_writable)');
 		}
-		$lock_name = "$file.pid=" . getmypid() . ".writable.temp";
+		$lock_name = "$file.pid=" . getmypid() . '.writable.temp';
 		if (file_put_contents($lock_name, strval(microtime(true))) !== false) {
 			unlink($lock_name);
 			return $file;
 		}
 
-		throw new Exception_File_Permission($file, "Unable to write in {dir} {filename}", [
-			"dir" => $dir,
+		throw new Exception_File_Permission($file, 'Unable to write in {dir} {filename}', [
+			'dir' => $dir,
 		]);
 	}
 

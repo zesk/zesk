@@ -36,15 +36,15 @@ class Repository extends ORM {
 	public static function update_all_versions(Application $application, $only_if_empty = false): void {
 		$iterator = $application->orm_registry(__CLASS__)
 			->query_select()
-			->where("active", true)
+			->where('active', true)
 			->orm_iterator();
 		foreach ($iterator as $repo) {
 			if (!$only_if_empty || empty($repo->versions)) {
 				/* @var $repo self */
 				if ($repo->update_versions()) {
-					$application->logger->info("Update repository versions for {code}: {versions}", $repo->members());
+					$application->logger->info('Update repository versions for {code}: {versions}', $repo->members());
 				} else {
-					$application->logger->error("Failed to update repository versions for {code} {url}", $repo->members());
+					$application->logger->error('Failed to update repository versions for {code} {url}', $repo->members());
 				}
 			}
 		}

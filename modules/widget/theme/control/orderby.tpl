@@ -7,7 +7,7 @@ if (!$html && $this->show_size > 0) {
 	$english = HTML::ellipsis($english, $this->show_size);
 }
 
-$suffix = "";
+$suffix = '';
 if (!$this->hide_sort_icon) {
 	$icon = !$this->selected ? 'glyphicon-sort' : ($this->ascending ? 'glyphicon-sort-by-attributes ascending' : 'glyphicon-sort-by-attributes-alt descending');
 	$suffix = HTML::span(".glyphicon $icon", null) . HTML::etag('.sort-number', $this->sort_number);
@@ -17,7 +17,7 @@ if (!$this->hide_sort_icon) {
 	<?php
 	echo HTML::tag('a', [
 		'href' => $this->orderby_url,
-		"alt" => $this->alt,
-	], HTML::span("title", $english) . $suffix);
+		'alt' => $this->alt,
+	], HTML::span('title', $english) . $suffix);
 	?>
 </div>

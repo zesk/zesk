@@ -12,18 +12,18 @@ namespace zesk;
  */
 abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2TestCase {
 	protected function waitForId($selector, $timeout = null) {
-		$this->log("Waiting for ID: {selector} ({timeout} secs)", compact("selector", "timeout"));
-		return $this->waitForFunc("byId", $selector, $timeout);
+		$this->log('Waiting for ID: {selector} ({timeout} secs)', compact('selector', 'timeout'));
+		return $this->waitForFunc('byId', $selector, $timeout);
 	}
 
 	protected function waitForCssSelector($selector, $timeout = null) {
-		$this->log("Waiting for CSS Selector: {selector} ({timeout} secs)", compact("selector", "timeout"));
-		return $this->waitForFunc("byCssSelector", $selector, $timeout);
+		$this->log('Waiting for CSS Selector: {selector} ({timeout} secs)', compact('selector', 'timeout'));
+		return $this->waitForFunc('byCssSelector', $selector, $timeout);
 	}
 
 	protected function waitForName($selector, $timeout = null) {
-		$this->log("Waiting for Name: {selector} ({timeout} secs)", compact("selector", "timeout"));
-		return $this->waitForFunc("byName", $selector, $timeout);
+		$this->log('Waiting for Name: {selector} ({timeout} secs)', compact('selector', 'timeout'));
+		return $this->waitForFunc('byName', $selector, $timeout);
 	}
 
 	private function waitForFunc($func, $selector, $timeout = null) {
@@ -40,12 +40,12 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 			}
 		}
 
-		throw new Exception_NotFound("{class}:waitFor:{func} Element {selector} not found on page {url}", [
-			"func" => $func,
-			"class" => get_class($this),
-			"method" => __METHOD__,
-			"selector" => $selector,
-			"url" => $this->getBrowserUrl(),
+		throw new Exception_NotFound('{class}:waitFor:{func} Element {selector} not found on page {url}', [
+			'func' => $func,
+			'class' => get_class($this),
+			'method' => __METHOD__,
+			'selector' => $selector,
+			'url' => $this->getBrowserUrl(),
 		]);
 	}
 
@@ -59,12 +59,12 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 			$this->getBrowser(),
 		];
 		$caps = $this->getDesiredCapabilities();
-		foreach (to_list("os_api_name;browser_api_name;screen_resolution") as $key) {
+		foreach (to_list('os_api_name;browser_api_name;screen_resolution') as $key) {
 			if (array_key_exists($key, $caps)) {
 				$name[] = $caps[$key];
 			}
 		}
-		return implode(" ", $name);
+		return implode(' ', $name);
 	}
 
 	/**
@@ -73,12 +73,12 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 	protected function message_details($mixed = null) {
 		if (is_string($mixed)) {
 			$mixed = [
-				"message" => $mixed,
+				'message' => $mixed,
 			];
 		}
 		$details = [
-			"browser" => $this->getBrowser(),
-			"url" => $this->url(),
+			'browser' => $this->getBrowser(),
+			'url' => $this->url(),
 		];
 		if (is_array($mixed)) {
 			$details += $mixed;
@@ -130,7 +130,7 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 	protected function check_page_source() {
 		$source = $this->source();
 		foreach ([
-			"PHP-ERROR",
+			'PHP-ERROR',
 		] as $error_string) {
 			$this->assertTrue(!str_contains($source, $error_string), $this->message_details("$error_string found in page source"));
 		}
@@ -151,11 +151,11 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 			if ($this->saved_url) {
 				return $this->saved_url;
 			}
-			return $this->saved_url = $this->__call("url", []);
+			return $this->saved_url = $this->__call('url', []);
 		} else {
 			$this->saved_url = null;
-			$this->log("Going to {url}", compact("url"));
-			$result = $this->__call("url", [
+			$this->log('Going to {url}', compact('url'));
+			$result = $this->__call('url', [
 				$url,
 			]);
 			if ($check) {
@@ -172,7 +172,7 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 	 * @return string
 	 */
 	public function add_path($path) {
-		return glue($this->url_default(), "/", $path);
+		return glue($this->url_default(), '/', $path);
 	}
 
 	/**
@@ -195,7 +195,7 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 	 * @param string $path
 	 */
 	protected function assert_path($path): void {
-		$this->assertEquals($this->url_part("path"), $path, $this->message_details("assert_path = $path"));
+		$this->assertEquals($this->url_part('path'), $path, $this->message_details("assert_path = $path"));
 	}
 
 	/**

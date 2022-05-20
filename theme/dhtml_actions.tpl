@@ -8,7 +8,7 @@
 namespace zesk;
 
 $w = $this->widget;
-$idname = $w->option("idname", "ID");
+$idname = $w->option('idname', 'ID');
 $id = $this->object[$idname];
 ?><input class="tiny" disabled="disabled" type="button"
 	name="OK[<?php echo $id ?>]" value="Save"

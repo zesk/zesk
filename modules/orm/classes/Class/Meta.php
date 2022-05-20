@@ -13,14 +13,14 @@ namespace zesk;
  */
 class Class_Meta extends Class_ORM {
 	public array $primary_keys = [
-		"parent",
-		"name",
+		'parent',
+		'name',
 	];
 
 	public array $column_types = [
-		"parent" => self::type_object,
-		"name" => self::type_string,
-		"value" => self::type_serialize,
+		'parent' => self::type_object,
+		'name' => self::type_string,
+		'value' => self::type_serialize,
 	];
 
 	/**

@@ -19,25 +19,25 @@ class Hooks {
 	 *
 	 * @var string
 	 */
-	public const HOOK_DATABASE_CONFIGURE = "database_configure";
+	public const HOOK_DATABASE_CONFIGURE = 'database_configure';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const HOOK_CONFIGURED = "configured";
+	public const HOOK_CONFIGURED = 'configured';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const HOOK_RESET = "reset";
+	public const HOOK_RESET = 'reset';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const HOOK_EXIT = "exit";
+	public const HOOK_EXIT = 'exit';
 
 	/**
 	 * Output a debug log when a class is called with ::hooks but does not implement it
@@ -108,12 +108,12 @@ class Hooks {
 		$this->kernel = $kernel;
 
 		/*  TODO PHP7 use closure */
-		register_shutdown_function([$this, "_app_call", ], self::HOOK_EXIT);
+		register_shutdown_function([$this, '_app_call', ], self::HOOK_EXIT);
 
 		/* @deprecated Shutdown TODO PHP7 use closure */
-		register_shutdown_function([$this, "_app_call", ], 'shutdown');
+		register_shutdown_function([$this, '_app_call', ], 'shutdown');
 
-		register_shutdown_function([$this, "_app_check_error", ]);
+		register_shutdown_function([$this, '_app_check_error', ]);
 	}
 
 	private static $fatals = [
@@ -293,21 +293,21 @@ class Hooks {
 		if (isset($this->hooks_called[$lowClass])) {
 			return false;
 		}
-		if (method_exists($class, "hooks")) {
+		if (method_exists($class, 'hooks')) {
 			try {
-				call_user_func([$class, "hooks", ], $this->kernel->application());
+				call_user_func([$class, 'hooks', ], $this->kernel->application());
 				$this->hooks_called[$lowClass] = $result[$class] = microtime(true);
 				return true;
 			} catch (\Exception $e) {
-				$this->call("exception", $e);
+				$this->call('exception', $e);
 				$this->hooks_called[$lowClass] = $result[$class] = $e;
 				return false;
 			}
 		} elseif ($this->debug) {
-			$this->kernel->logger->debug("{__CLASS__}::{__FUNCTION__} Class {class} does not have method hooks", [
-				"__CLASS__" => __CLASS__,
-				"__FUNCTION__" => __FUNCTION__,
-				"class" => $class,
+			$this->kernel->logger->debug('{__CLASS__}::{__FUNCTION__} Class {class} does not have method hooks', [
+				'__CLASS__' => __CLASS__,
+				'__FUNCTION__' => __FUNCTION__,
+				'class' => $class,
 			]);
 			$this->hooks_called[$lowClass] = false;
 			return true;
@@ -399,7 +399,7 @@ class Hooks {
 		}
 		$callable_string = $this->callable_string($function);
 		if ($hook_group->has($callable_string)) {
-			$this->kernel->logger->debug("Duplicate registration of hook {callable}", ["callable" => $callable_string, ]);
+			$this->kernel->logger->debug('Duplicate registration of hook {callable}', ['callable' => $callable_string, ]);
 			return;
 		}
 		$options['callable'] = $function;
@@ -422,12 +422,12 @@ class Hooks {
 	public function find_all(array $class_methods): array {
 		$methods = [];
 		foreach ($class_methods as $class_method) {
-			[$class, $method] = pair($class_method, "::", "", $class_method);
-			if ($class === "") {
+			[$class, $method] = pair($class_method, '::', '', $class_method);
+			if ($class === '') {
 				continue;
 			}
 			$low_class = strtolower($class);
-			if (!array_key_exists($low_class, $this->all_hook_classes) && $method !== "hooks") {
+			if (!array_key_exists($low_class, $this->all_hook_classes) && $method !== 'hooks') {
 				$this->all_hook_classes[$low_class] = true;
 				$this->_register_all_hooks($class, $this->kernel->application());
 			}
@@ -440,10 +440,10 @@ class Hooks {
 				try {
 					$refl = new \ReflectionClass($class);
 				} catch (\Exception $e) {
-					$this->kernel->logger->warning("{class} not found {eclass}: {emessage}", [
-						"class" => $class,
-						"eclass" => get_class($e),
-						"emessage" => $e->getMessage(),
+					$this->kernel->logger->warning('{class} not found {eclass}: {emessage}', [
+						'class' => $class,
+						'eclass' => get_class($e),
+						'emessage' => $e->getMessage(),
 					]);
 
 					continue;
@@ -588,7 +588,7 @@ class Hooks {
 	 */
 	public function call_arguments(mixed $hooks, array $arguments = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null, mixed $return_hint = null) {
 		if ($return_hint !== null) {
-			$this->kernel->deprecated("\$return_hint passed to {method}", ["method" => __METHOD__, ]);
+			$this->kernel->deprecated('$return_hint passed to {method}', ['method' => __METHOD__, ]);
 		}
 		$hooks = $this->collect_hooks($hooks, $arguments);
 		$result = $default;
@@ -668,13 +668,13 @@ class Hooks {
 	 */
 	public static function callable_string(mixed $callable): string {
 		if (is_array($callable)) {
-			return is_object($callable[0]) ? strtolower(get_class($callable[0])) . "::" . $callable[1] : implode("::", $callable);
+			return is_object($callable[0]) ? strtolower(get_class($callable[0])) . '::' . $callable[1] : implode('::', $callable);
 		} elseif (is_string($callable)) {
 			return $callable;
-		} elseif (gettype($callable) === "function") {
-			return "Closure: " . strval($callable);
+		} elseif (gettype($callable) === 'function') {
+			return 'Closure: ' . strval($callable);
 		}
-		return "Unknown: " . type($callable);
+		return 'Unknown: ' . type($callable);
 	}
 
 	/**
@@ -716,5 +716,5 @@ class Hooks {
 	 * @deprecated 2019-07
 	 * @var string
 	 */
-	public const hook_configured = "configured";
+	public const hook_configured = 'configured';
 }

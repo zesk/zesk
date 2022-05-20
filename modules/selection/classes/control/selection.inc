@@ -45,10 +45,10 @@ class Control_Selection extends Control {
 			return $this->type;
 		}
 		return $this->type = $this->application->orm_factory(Selection_Type::class, [
-			"session" => $this->session(),
-			"user" => $this->user(),
-			"code" => $this->selection_code(),
-			"class" => $this->selection_class(),
+			'session' => $this->session(),
+			'user' => $this->user(),
+			'code' => $this->selection_code(),
+			'class' => $this->selection_class(),
 		])->register();
 	}
 
@@ -70,9 +70,9 @@ class Control_Selection extends Control {
 			}
 		}
 		if (empty($class)) {
-			throw new Exception_Semantics("{class} needs selection class set before usage", [
-				"this" => $this,
-				"class" => get_class($this),
+			throw new Exception_Semantics('{class} needs selection class set before usage', [
+				'this' => $this,
+				'class' => get_class($this),
 			]);
 		}
 		parent::initialize();
@@ -89,10 +89,10 @@ class Control_Selection extends Control {
 		if (!$object instanceof Object) {
 			return;
 		}
-		if ($object->member_boolean("selected")) {
-			$row->row_attributes(HTML::add_class($row->row_attributes(), "selected"));
+		if ($object->member_boolean('selected')) {
+			$row->row_attributes(HTML::add_class($row->row_attributes(), 'selected'));
 		} else {
-			$row->row_attributes(HTML::remove_class($row->row_attributes(), "selected"));
+			$row->row_attributes(HTML::remove_class($row->row_attributes(), 'selected'));
 		}
 	}
 
@@ -109,9 +109,9 @@ class Control_Selection extends Control {
 				$top->query(),
 			];
 		}
-		$this->application->logger->error("{class}: Top widget is not a list: {instead}", [
-			"class" => get_class($this),
-			"instead" => get_class($top),
+		$this->application->logger->error('{class}: Top widget is not a list: {instead}', [
+			'class' => get_class($this),
+			'instead' => get_class($top),
 		]);
 		return [
 			null,
@@ -129,8 +129,8 @@ class Control_Selection extends Control {
 		$response = $this->response();
 		if (!$this->application->development() && !$request->is_post()) {
 			$response->json()->data([
-				"status" => false,
-				"message" => "Not a POST",
+				'status' => false,
+				'message' => 'Not a POST',
 			]);
 			return;
 		}
@@ -138,42 +138,42 @@ class Control_Selection extends Control {
 		$result = [];
 		$type = $this->selection_type();
 		$already_cleared = false;
-		switch ($action = $request->get("action")) {
-			case "none":
-				$message = __("Selection deleted.");
+		switch ($action = $request->get('action')) {
+			case 'none':
+				$message = __('Selection deleted.');
 				$type->items_clear();
 				$already_cleared = true;
 				break;
-			case "add-all":
-				$message = __("Selection expanded.");
+			case 'add-all':
+				$message = __('Selection expanded.');
 				[$query_total, $query_list] = $this->retrieve_queries();
 				if (!$query_total) {
 					$status = false;
-					$message = __("Unable to retrieve queries");
+					$message = __('Unable to retrieve queries');
 				} else {
 					$type->items_all($query_total, $query_list, true);
-					$message = __("Added to current selection.");
+					$message = __('Added to current selection.');
 				}
 				break;
-			case "remove-all":
-				$message = __("Selection reduced.");
+			case 'remove-all':
+				$message = __('Selection reduced.');
 				[$query_total, $query_list] = $this->retrieve_queries();
 				if (!$query_total) {
 					$status = false;
-					$message = __("Unable to retrieve queries");
+					$message = __('Unable to retrieve queries');
 				} else {
 					$type->items_all($query_total, $query_list, false);
-					$message = __("Reduced current selection.");
+					$message = __('Reduced current selection.');
 				}
 				break;
 			default:
 				$message = null; //__("Updated selection");
-				$add = $request->geta("add");
-				$remove = $request->geta("remove");
+				$add = $request->geta('add');
+				$remove = $request->geta('remove');
 				$type->items_update($add, $remove);
 				$result += [
-					"added" => count($add),
-					"removed" => count($remove),
+					'added' => count($add),
+					'removed' => count($remove),
 				];
 				break;
 		}
@@ -183,9 +183,9 @@ class Control_Selection extends Control {
 			$type->items_clear();
 		}
 		$response->json()->data($result + [
-			"status" => $status,
-			"message" => $message,
-			"count" => $count,
+			'status' => $status,
+			'message' => $message,
+			'count' => $count,
 		]);
 	}
 
@@ -201,7 +201,7 @@ class Control_Selection extends Control {
 			'container' => $this->option('container', '.list'),
 			'selection_type' => $type,
 			'count' => $type->count(),
-			'actions' => $this->option_array("actions", []),
+			'actions' => $this->option_array('actions', []),
 		];
 	}
 
@@ -210,15 +210,15 @@ class Control_Selection extends Control {
 	 * @param Database_Query_Select $query
 	 */
 	protected function hook_query_list(Database_Query_Select $query): void {
-		if ($query->has_what("selected")) {
+		if ($query->has_what('selected')) {
 			// TODO Why is this called twice while listing?
 			return;
 		}
 		$type_id = $this->selection_type()->id();
 		$alias = $query->alias();
 		$id_column = $this->application->orm_registry($query->orm_class())->id_column();
-		$table = $this->application->orm_registry(__NAMESPACE__ . "\\Selection_Item")->table();
+		$table = $this->application->orm_registry(__NAMESPACE__ . '\\Selection_Item')->table();
 		$query->join("LEFT OUTER JOIN $table sel_item ON sel_item.type=$type_id AND sel_item.id=$alias.$id_column");
-		$query->what("*selected", "sel_item.add");
+		$query->what('*selected', 'sel_item.add');
 	}
 }

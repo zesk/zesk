@@ -98,7 +98,7 @@ abstract class CSV extends Options {
 
 		$this->RowIndex = 0;
 		$this->File = false;
-		$this->Delimiter = ",";
+		$this->Delimiter = ',';
 		$this->Enclosure = '"';
 		$this->Escape = '\\';
 		$this->LineDelimiter = "\n";
@@ -171,7 +171,7 @@ abstract class CSV extends Options {
 				}
 				foreach ($mixed as $name) {
 					if (!is_string($name)) {
-						throw new Exception_Key("Invalid key {name}");
+						throw new Exception_Key('Invalid key {name}');
 					}
 					$lowname = strtolower($name);
 					if (isset($this->HeadersToIndex[$lowname])) {
@@ -211,7 +211,7 @@ abstract class CSV extends Options {
 	 * @return unknown
 	 */
 	public function headers() {
-		if (method_exists($this, "_cleanHeaders")) {
+		if (method_exists($this, '_cleanHeaders')) {
 			if ($this->_cleanHeaders()) {
 				return false;
 			}
@@ -286,7 +286,7 @@ abstract class CSV extends Options {
 	 */
 	protected function _check_file(): void {
 		if (!is_resource($this->File)) {
-			throw new Exception_Semantics("Must set a file first.");
+			throw new Exception_Semantics('Must set a file first.');
 		}
 	}
 

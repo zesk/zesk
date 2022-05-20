@@ -2,10 +2,10 @@
 namespace zesk;
 
 class Class_TestORM extends Class_ORM {
-	public string $id_column = "ID";
+	public string $id_column = 'ID';
 
 	public array $column_types = [
-		"ID" => self::type_id,
+		'ID' => self::type_id,
 		'Name' => self::type_string,
 		'Price' => self::type_double,
 		'Foo' => self::type_integer,
@@ -21,10 +21,10 @@ class TestORM extends ORM {
 
 	public function specification() {
 		return [
-			"table" => get_class($this),
-			"fields" => "Foo",
-			"find_keys" => [
-				"Foo",
+			'table' => get_class($this),
+			'fields' => 'Foo',
+			'find_keys' => [
+				'Foo',
 			],
 		];
 	}

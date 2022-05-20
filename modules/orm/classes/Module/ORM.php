@@ -17,7 +17,7 @@ class Module_ORM extends Module {
 	 *
 	 * @var array
 	 */
-	public $orm_classes = [Server::class, Settings::class, Meta::class, Domain::class, Lock::class, ];
+	public $orm_classes = [Server::class, Settings::class, Meta::class, Domain::class, Lock::class,];
 
 	/**
 	 *
@@ -41,35 +41,35 @@ class Module_ORM extends Module {
 		/**
 		 * @deprecated 2018-01-02
 		 */
-		$this->application->configuration->deprecated(ORM::class . '::fix_member_objects', ORM::class . "::fix_orm_members");
+		$this->application->configuration->deprecated(ORM::class . '::fix_member_objects', ORM::class . '::fix_orm_members');
 
 		/**
 		 * $application->orm_factory(...)
 		 */
-		$this->application->register_factory("orm", [$this, "orm_factory", ]);
+		$this->application->register_factory('orm', [$this, 'orm_factory',]);
 		/**
 		 * $application->orm_registry(...)
 		 */
-		$this->application->register_registry("orm", [$this, "orm_registry", ]);
+		$this->application->register_registry('orm', [$this, 'orm_registry',]);
 		/**
 		 * $application->class_orm_registry(...)
 		 */
-		$this->application->register_registry("class_orm", [$this, "class_orm_registry", ]);
+		$this->application->register_registry('class_orm', [$this, 'class_orm_registry',]);
 
 		/**
 		 * $application->settings_registry(...)
 		 */
-		$this->application->register_registry("settings", [$this, "settings_registry", ]);
+		$this->application->register_registry('settings', [$this, 'settings_registry',]);
 
 		/**
 		 * Hook into database table
 		 */
-		$this->application->hooks->add(Database_Table::class . '::column_add', [$this, "database_table_add_column", ]);
+		$this->application->hooks->add(Database_Table::class . '::column_add', [$this, 'database_table_add_column',]);
 
-		$this->application->hooks->add('zesk\\Command_Daemon::daemon_hooks', [$this, "daemon_hooks", ]);
+		$this->application->hooks->add('zesk\\Command_Daemon::daemon_hooks', [$this, 'daemon_hooks',]);
 
 		$self = $this;
-		$this->application->hooks->add(ORM::class . "::router_derived_classes", function (ORM $object, array $classes) use ($self) {
+		$this->application->hooks->add(ORM::class . '::router_derived_classes', function (ORM $object, array $classes) use ($self) {
 			$class_object = $object->class_orm();
 			if (!is_array($class_object->has_one) || !$class_object->id_column) {
 				return $classes;
@@ -78,12 +78,12 @@ class Module_ORM extends Module {
 				try {
 					$member_object = $object->__get($member);
 					if ($member_object !== null && !$member_object instanceof ORM) {
-						$this->application->logger->error("Member {member} of object {class} should be an object of {expected_class}, returned {type} with value {value}", [
-							"member" => $member,
-							"class" => get_class($object),
-							"expected_class" => $class,
-							"type" => type($member_object),
-							"value" => strval($member_object),
+						$this->application->logger->error('Member {member} of object {class} should be an object of {expected_class}, returned {type} with value {value}', [
+							'member' => $member,
+							'class' => get_class($object),
+							'expected_class' => $class,
+							'type' => type($member_object),
+							'value' => strval($member_object),
 						]);
 
 						continue;
@@ -93,8 +93,8 @@ class Module_ORM extends Module {
 				}
 				if ($member_object) {
 					$id = $member_object->id();
-					foreach ($this->application->classes->hierarchy($member_object, "zesk\\ORM") as $class) {
-						$classes[$class] = $id;
+					foreach ($this->application->classes->hierarchy($member_object, 'zesk\\ORM') as $orm_class) {
+						$classes[$orm_class] = $id;
 					}
 				}
 			}
@@ -111,9 +111,9 @@ class Module_ORM extends Module {
 	 * Collect hooks used to invoke daemons
 	 *
 	 * @param array $daemon_hooks
-	 * @return string
+	 * @return array
 	 */
-	public function daemon_hooks(Command $daemon, array $daemon_hooks) {
+	public function daemon_hooks(Command $daemon, array $daemon_hooks): array {
 		$daemon_hooks[] = ORM::class . '::daemon';
 		return $daemon_hooks;
 	}
@@ -144,8 +144,8 @@ class Module_ORM extends Module {
 	 * @param array $options
 	 * @return \zesk\ORM
 	 */
-	public function orm_factory(Application $application, $class = null, $mixed = null, $options = null) {
-		return ORM::factory($application, $class, $mixed, to_array($options));
+	public function orm_factory(Application $application, string $class, mixed $mixed = null, array $options = []): ORM {
+		return ORM::factory($application, $class, $mixed, $options);
 	}
 
 	/**
@@ -154,19 +154,19 @@ class Module_ORM extends Module {
 	 * @param mixed $mixed
 	 * @param array $options
 	 */
-	public function orm_registry(Application $application, $class = null, $mixed = null, $options = null) {
+	public function orm_registry(Application $application, string $class = null, mixed $mixed = null, array $options = []) {
 		if ($class === null) {
 			return $this;
 		}
 		$class = $application->objects->resolve($class);
 		if ($mixed === null && is_array($options) && count($options) > 0) {
-			$result = $this->_class_cache($class, "object");
+			$result = $this->_class_cache_component($class, 'object');
 			if (!$result) {
 				throw new Exception_Class_NotFound($class);
 			}
 			return $result;
 		} else {
-			return ORM::factory($application, $class, $mixed, (array) $options);
+			return ORM::factory($application, $class, $mixed, (array)$options);
 		}
 	}
 
@@ -177,7 +177,7 @@ class Module_ORM extends Module {
 	 * @param array $options
 	 */
 	public function class_orm_registry(Application $application, $class, $mixed = null, array $options = []) {
-		$result = $this->_class_cache($application->objects->resolve($class), "class");
+		$result = $this->_class_cache_component($application->objects->resolve($class), 'class');
 		if (!$result) {
 			throw new Exception_Class_NotFound($class);
 		}
@@ -189,7 +189,7 @@ class Module_ORM extends Module {
 	 * in the system.
 	 */
 	public static function hooks(Application $application): void {
-		$application->hooks->add(ORM::class . '::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
+		$application->hooks->add(ORM::class . '::register_all_hooks', __CLASS__ . '::object_register_all_hooks');
 	}
 
 	/**
@@ -198,37 +198,35 @@ class Module_ORM extends Module {
 	 */
 	public static function object_register_all_hooks(Application $app): void {
 		$classes = $app->orm_module()->all_classes();
-		$app->classes->register(ArrayTools::collapse($classes, "class"));
+		$app->classes->register(ArrayTools::collapse($classes, 'class'));
 	}
 
 	/**
 	 *
 	 * @var string[]
 	 */
-	private $cached_classes = null;
+	private ?array $cached_classes = null;
 
 	/**
 	 * Retrieve the list of classes associated with an application
 	 *
-	 * @param mixed $add
-	 *            Class to add, or array of classes to add
 	 * @return array
 	 */
-	private function _classes($add = null) {
+	private function _classes(): array {
 		$classes = [];
-		$model_classes = $this->application->call_hook_arguments("orm_classes", [], []);
-		$this->application->logger->debug("Classes from {class}->model_classes = {value}", [
-			"class" => get_class($this),
-			"value" => $model_classes,
+		$model_classes = $this->application->call_hook_arguments('orm_classes', [], []);
+		$this->application->logger->debug('Classes from {class}->model_classes = {value}', [
+			'class' => get_class($this),
+			'value' => $model_classes,
 		]);
 		$classes = $classes + ArrayTools::flip_copy($model_classes, true);
-		$all_classes = $this->call_hook_arguments('classes', [$classes, ], $classes);
+		$all_classes = $this->call_hook_arguments('classes', [$classes,], $classes);
 		/* @var $module Module */
 		foreach ($this->application->modules->all_modules() as $name => $module) {
 			$module_classes = $module->model_classes();
-			$this->application->logger->debug("Classes for module {name} = {value}", [
-				"name" => $name,
-				"value" => $module_classes,
+			$this->application->logger->debug('Classes for module {name} = {value}', [
+				'name' => $name,
+				'value' => $module_classes,
 			]);
 			$all_classes = array_merge($all_classes, ArrayTools::flip_copy($module_classes, true));
 		}
@@ -238,9 +236,13 @@ class Module_ORM extends Module {
 	}
 
 	/**
-	 * Synchronzie the schema.
+	 * Synchronize the schema.
 	 *
+	 * @param Database|null $db
+	 * @param array|null $classes
+	 * @param array $options
 	 * @return string[]
+	 * @throws Database_Exception
 	 */
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = []): array {
 		if (!$db) {
@@ -252,7 +254,7 @@ class Module_ORM extends Module {
 			$options['follow'] = avalue($options, 'follow', false);
 		}
 		$logger = $this->application->logger;
-		$logger->debug("{method}: Synchronizing classes: {classes}", ["method" => __METHOD__, "classes" => $classes, ]);
+		$logger->debug('{method}: Synchronizing classes: {classes}', ['method' => __METHOD__, 'classes' => $classes,]);
 		$results = [];
 		$objects_by_class = [];
 		$other_updates = [];
@@ -260,100 +262,112 @@ class Module_ORM extends Module {
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
 			if (stripos($class, 'user_role')) {
-				$logger->debug("{method}: ORM map is: {map}", [
-					"method" => __METHOD__,
-					"map" => _dump($this->application->objects->map()),
-					"class" => $class,
+				$logger->debug('{method}: ORM map is: {map}', [
+					'method' => __METHOD__,
+					'map' => _dump($this->application->objects->map()),
+					'class' => $class,
 				]);
 			}
 			$resolved_class = $this->application->objects->resolve($class);
 			if ($resolved_class !== $class) {
-				$logger->debug("{resolved_class} resolved to {class}", [
-					"resolved_class" => $resolved_class,
-					"class" => $class,
+				$logger->debug('{resolved_class} resolved to {class}', [
+					'resolved_class' => $resolved_class,
+					'class' => $class,
 				]);
 			}
 			$class = $resolved_class;
-			$lowclass = strtolower($class);
-			if (isset($objects_by_class[$lowclass])) {
+			$low_class = strtolower($class);
+			if (isset($objects_by_class[$low_class])) {
 				continue;
 			}
 			$logger->debug("Parsing $class");
-			$objects_by_class[$lowclass] = true;
+			$objects_by_class[$low_class] = true;
 
 			try {
 				$object = $this->application->orm_registry($class);
 				$object_db_name = $object->database()->code_name();
 				$updates = ORM_Schema::update_object($object);
 			} catch (Exception_Class_NotFound $e) {
-				$logger->error("Unable to synchronize {class} because it can not be found", ["class" => $class, ]);
+				$logger->error('Unable to synchronize {class} because it can not be found', ['class' => $class,]);
 				continue;
-			} catch (Exception $e) {
+			} catch (Database_Exception $e) {
 				$logger->error("Unable to synchronize {class} because of {exception_class} {message}\nTRACE: {trace}", [
-					"class" => $class,
-					"message" => $e->getMessage(),
-					"exception_class" => get_class($e),
-					"trace" => $e->getTraceAsString(),
-					"exception" => $e,
+					'class' => $class,
+					'message' => $e->getMessage(),
+					'exception_class' => get_class($e),
+					'trace' => $e->getTraceAsString(),
+					'exception' => $e,
 				]);
 
 				throw $e;
 			}
 			if (count($updates) > 0) {
-				$updates = array_merge(["-- Synchronizing schema for class: $class", ], $updates);
+				$updates = array_merge(["-- Synchronizing schema for class: $class",], $updates);
 				if ($object_db_name !== $db->code_name()) {
 					$other_updates[$object_db_name] = true;
-					$updates = [];
-					$logger->debug("Result of schema parse for {class}: {n} changes - Database {dbname}", [
-						"class" => $class,
-						"n" => count($updates),
-						"updates" => $updates,
-						"dbname" => $object_db_name,
+					$logger->debug('Result of schema parse for {class}: {n} changes - Database {dbname}', [
+						'class' => $class,
+						'n' => count($updates),
+						'updates' => $updates,
+						'dbname' => $object_db_name,
 					]);
+					$updates = [];
 				} else {
-					$logger->debug("Result of schema parse for {class}: {n} updates", [
-						"class" => $class,
-						"n" => count($updates),
-						"updates" => $updates,
+					$logger->debug('Result of schema parse for {class}: {n} updates', [
+						'class' => $class,
+						'n' => count($updates),
+						'updates' => $updates,
 					]);
 				}
 			}
 			$results = array_merge($results, $updates);
 			if ($follow) {
 				$dependencies = $object->dependencies();
-				$requires = avalue($dependencies, 'requires', []);
-				foreach ($requires as $require) {
-					if (avalue($objects_by_class, $require)) {
-						continue;
+				if (is_array($dependencies['requires'] ?? null)) {
+					foreach ($dependencies['requires'] as $require) {
+						if ($objects_by_class[$require] ?? null) {
+							continue;
+						}
+						$logger->debug("$class: Adding dependent class $require");
+						$classes[] = $require;
 					}
-					$logger->debug("$class: Adding dependent class $require");
-					$classes[] = $require;
 				}
 			}
 		}
 
-		$skip_others = isset($options['skip_others']) && boolval($options['skip_others']);
+		$skip_others = isset($options['skip_others']) && $options['skip_others'];
 		if (count($other_updates) > 0 && !$skip_others) {
-			$results[] = "-- Other database updates:\n" . ArrayTools::join_wrap(array_keys($other_updates), "-- zesk schema --name ", " --update;\n");
+			$results[] = "-- Other database updates:\n" . ArrayTools::join_wrap(array_keys($other_updates), '-- zesk schema --name ', " --update;\n");
 		}
 		return $results;
 	}
 
 	/**
 	 *
-	 * @param unknown $add
+	 * @param string|array $add List of classes to add
 	 */
-	final public function orm_classes($add = null) {
+	final public function orm_classes(string|array $add = null): array {
 		if ($this->cached_classes === null) {
 			$this->cached_classes = $this->_classes();
 		}
 		if ($add !== null) {
-			foreach (to_list($add) as $class) {
-				$this->cached_classes[strtolower($class)] = $class;
-			}
-			return $this;
+			return $this->addORMClasses($add);
 		}
 		return array_values($this->cached_classes);
+	}
+
+	/**
+	 *
+	 * @param string|array $add List of classes to add
+	 */
+	final public function addORMClasses(string|array $add): self {
+		if ($this->cached_classes === null) {
+			$this->cached_classes = $this->_classes();
+		}
+		foreach (to_list($add) as $class) {
+			$this->cached_classes[strtolower($class)] = $class;
+		}
+		return $this;
 	}
 
 	/**
@@ -370,8 +384,8 @@ class Module_ORM extends Module {
 		$rows = [];
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
-			$lowclass = strtolower($class);
-			if (array_key_exists($lowclass, $objects_by_class)) {
+			$low_class = strtolower($class);
+			if (array_key_exists($low_class, $objects_by_class)) {
 				continue;
 			}
 			$result = [];
@@ -380,10 +394,10 @@ class Module_ORM extends Module {
 			try {
 				$result['object'] = $object = $this->orm_factory($this->application, $class);
 				if (!$object instanceof ORM) {
-					$this->application->logger->warning("{method} {class} is not an instanceof {parent}", [
-						"method" => __METHOD__,
-						"class" => $class,
-						"parent" => ORM::class,
+					$this->application->logger->warning('{method} {class} is not an instanceof {parent}', [
+						'method' => __METHOD__,
+						'class' => $class,
+						'parent' => ORM::class,
 					]);
 
 					continue;
@@ -394,42 +408,45 @@ class Module_ORM extends Module {
 			} catch (\Exception $e) {
 				$result['object'] = $object = null;
 			}
-			$objects_by_class[$lowclass] = $result;
+			$objects_by_class[$low_class] = $result;
 			if ($object) {
 				$dependencies = $object->dependencies();
-				$requires = avalue($dependencies, 'requires', []);
-				foreach ($requires as $require) {
-					$require = strtolower($require);
-					if (array_key_exists($require, $objects_by_class)) {
-						continue;
+				if (is_array($dependencies['requires'] ?? null)) {
+					foreach ($dependencies['requires'] as $require) {
+						$require = strtolower($require);
+						if (array_key_exists($require, $objects_by_class)) {
+							continue;
+						}
+						$classes[] = $require;
 					}
-					$classes[] = $require;
 				}
 			}
 		}
 		return $objects_by_class;
 	}
 
-	public function clear_cache(string $class = null): self {
+	/**
+	 * @return $this
+	 */
+	public function clearCache(): self {
+		$this->class_cache = [];
+		return $this;
+	}
+
+	/**
+	 * @param string|ORM|Class_ORM $class
+	 * @return $this
+	 */
+	public function clearNamedCache(string|ORM|Class_ORM $class): self {
 		if ($class instanceof ORM) {
 			$class = get_class($class);
-		} elseif ($class instanceof Class_ORM) {
+		} else if ($class instanceof Class_ORM) {
 			$class = $class->class;
 		}
-		if ($class === null) {
-			$this->class_cache = [];
-			return $this;
-		}
-		if (!is_string($class)) {
-			throw new Exception_Parameter("Invalid class passed to {method}: {value} ({type})", [
-				"method" => __METHOD__,
-				"type" => type($class),
-				"value" => $class,
-			]);
-		}
-		$lowclass = strtolower($class);
-		if (array_key_exists($lowclass, $this->class_cache)) {
-			unset($this->class_cache[$lowclass]);
+		assert(is_string($class));
+		$low_class = strtolower($class);
+		if (array_key_exists($low_class, $this->class_cache)) {
+			unset($this->class_cache[$low_class]);
 		}
 		return $this;
 	}
@@ -440,24 +457,17 @@ class Module_ORM extends Module {
 	 * @param string $class
 	 * @param string $component
 	 *            Optional component to retrieve
-	 * @return Ambigous <mixed, array>
+	 * @return array
 	 * @throws Exception_Semantics
-	 * @throws Exception_Parameter
 	 */
-	private function _class_cache($class, $component = "") {
-		if (!is_string($class) && !is_int($class)) {
-			throw new Exception_Parameter("Requires a scalar key {type} {value}", [
-				"type" => type($class),
-				"value" => str($class),
-			]);
-		}
-		$lowclass = strtolower($class);
-		if (!array_key_exists($lowclass, $this->class_cache)) {
-			$object = $this->model_factory($class, null, ["immutable" => true, ]);
+	private function _class_cache(string $class): array {
+		$low_class = strtolower($class);
+		if (!array_key_exists($low_class, $this->class_cache)) {
+			$object = $this->model_factory($class, null, ['immutable' => true,]);
 			if (!$object instanceof ORM) {
 				throw new Exception_Semantics("$class is not an ORM");
 			}
-			$this->class_cache[$lowclass] = [
+			$this->class_cache[$low_class] = [
 				'table' => $object->table(),
 				'dbname' => $object->database_name(),
 				'database_name' => $object->database_name(),
@@ -466,8 +476,19 @@ class Module_ORM extends Module {
 				'id_column' => $object->id_column(),
 			];
 		}
-		$result = $this->class_cache[$lowclass];
-		return avalue($result, $component, $result);
+		return $this->class_cache[$low_class];
+	}
+
+	/**
+	 * @param string $class
+	 * @param string $component
+	 * @return mixed
+	 * @throws Exception_Semantics
+	 */
+	private function _class_cache_component(string $class, string $component): mixed {
+		$result = $this->_class_cache($class);
+		assert(array_key_exists($component, $result));
+		return $result[$component];
 	}
 
 	/**
@@ -504,10 +525,10 @@ class Module_ORM extends Module {
 		$logger = $this->application->logger;
 		if ($this->optionBool('schema_sync')) {
 			$db = $this->application->database_registry();
-			$logger->warning("The database schema was out of sync, updating: {sql}", ["sql" => implode(";\n", $results) . ";\n", ]);
+			$logger->warning('The database schema was out of sync, updating: {sql}', ['sql' => implode(";\n", $results) . ";\n",]);
 			$db->query($results);
 		} else {
-			$logger->warning("The database schema is out of sync, please update: {sql}", ["sql" => implode(";\n", $results) . ";\n", ]);
+			$logger->warning('The database schema is out of sync, please update: {sql}', ['sql' => implode(";\n", $results) . ";\n",]);
 			//TODO How to communicate with main UI?
 			// 				$router = $this->router();
 			// 				$url = $router->get_route("schema_synchronize", $application);
@@ -534,7 +555,7 @@ class Module_ORM extends Module {
 	 */
 	public function settings_registry(Application $application, $class = null) {
 		if ($class === null) {
-			$class = $this->option("settings_class", Settings::class);
+			$class = $this->option('settings_class', Settings::class);
 		}
 		$low_class = strtolower($class);
 		if (isset($this->registry[$low_class])) {
@@ -550,17 +571,17 @@ class Module_ORM extends Module {
 	 * @param Database_Column $column
 	 */
 	public function database_table_add_column(Database_Table $table, Database_Column $column): void {
-		if ($column->has_sql_type()) {
+		if ($column->hasSQLType()) {
 			return;
 		}
 		$database = $table->database();
 		$code = strtolower($database->type());
 		if (!array_key_exists($code, $this->database_adapters)) {
-			$this->application->logger->error("{method} {table} {column} - no adapter for database {code}", [
-				"method" => __METHOD__,
-				"table" => $table,
-				"column" => $column,
-				"code" => $code,
+			$this->application->logger->error('{method} {table} {column} - no adapter for database {code}', [
+				'method' => __METHOD__,
+				'table' => $table,
+				'column' => $column,
+				'code' => $code,
 			]);
 			return;
 		}
@@ -577,4 +598,14 @@ class Module_ORM extends Module {
 		/* @var $server Server */
 		$server->bury_dead_servers();
 	}
+
+	/**
+	 * @param string|ORM|Class_ORM|null $class
+	 * @return $this
+	 * @deprecated 2022-05
+	 */
+	public function clear_cache(string|ORM|Class_ORM $class = null): self {
+		return ($class === null) ? $this->clearCache() : $this->clearORMCache($class);
+	}
+
 }

@@ -14,7 +14,7 @@ class View_Image_Text_Test extends TestWidget {
 	public function test_horizontal(): void {
 		View_Image_Text::$debug = true;
 
-		$text = "foo";
+		$text = 'foo';
 		$attributes = $this->_test_attributes();
 		View_Image_Text::horizontal($this->application, $text, $attributes);
 	}
@@ -40,9 +40,9 @@ class View_Image_Text_Test extends TestWidget {
 	public function test_0(): void {
 		$text = null;
 		$attributes = [
-			"debug" => true,
+			'debug' => true,
 		];
 		$attributes['cache_path'] = $this->test_sandbox();
-		echo View_Image_Text::vertical($this->application, "Hello", $attributes);
+		echo View_Image_Text::vertical($this->application, 'Hello', $attributes);
 	}
 }

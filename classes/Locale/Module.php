@@ -29,14 +29,14 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head, \zesk\
 	 * @param \zesk\Response $response
 	 */
 	public function hook_head(Request $request, Response $response, Template $template): void {
-		$response->javascript("/share/zesk/js/locale.js", [
-			"weight" => -20,
-			"share" => true,
+		$response->javascript('/share/zesk/js/locale.js', [
+			'weight' => -20,
+			'share' => true,
 		]);
-		$response->javascript("/locale/js?ll=" . $this->application->locale->id(), [
-			"weight" => -10,
-			"is_route" => true,
-			"route_expire" => 3600, /* once an hour */
+		$response->javascript('/locale/js?ll=' . $this->application->locale->id(), [
+			'weight' => -10,
+			'is_route' => true,
+			'route_expire' => 3600, /* once an hour */
 		]);
 	}
 
@@ -45,8 +45,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head, \zesk\
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->application->configuration->deprecated("zesk\\Controller_Locale", Controller::class);
-		$this->application->configuration->deprecated("zesk\\Locale_Validate", Validate::class);
+		$this->application->configuration->deprecated('zesk\\Controller_Locale', Controller::class);
+		$this->application->configuration->deprecated('zesk\\Locale_Validate', Validate::class);
 		// 		$this->application->hooks->add(Application::class . "::router_loaded", array(
 		// 			$this,
 		// 			"router_loaded"
@@ -59,9 +59,9 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head, \zesk\
 	 * @param Router $router
 	 */
 	public function hook_routes(Router $router): void {
-		$router->add_route("/locale/{option action}", [
-			"controller" => Controller::class,
-			"arguments" => [
+		$router->add_route('/locale/{option action}', [
+			'controller' => Controller::class,
+			'arguments' => [
 				1,
 			],
 		]);

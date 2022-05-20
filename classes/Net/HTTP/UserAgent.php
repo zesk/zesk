@@ -52,8 +52,8 @@ class Net_HTTP_UserAgent {
 	private static $classifications = [
 		'platform' => [
 			'mac' => 'mac',
-			'windows' => "windows",
-			'linux' => "linux",
+			'windows' => 'windows',
+			'linux' => 'linux',
 			'iphone' => 'iphone',
 			'ipad' => 'ipad',
 			'android' => 'android',
@@ -78,8 +78,8 @@ class Net_HTTP_UserAgent {
 	 */
 	private static $lang_classifications = [
 		'mac' => 'Mac OS X',
-		'windows' => "Windows",
-		'linux' => "Linux",
+		'windows' => 'Windows',
+		'linux' => 'Linux',
 		'iphone' => 'iPhone',
 		'ipad' => 'iPad',
 		'android' => 'Android',
@@ -126,7 +126,7 @@ class Net_HTTP_UserAgent {
 	 */
 	public function __sleep() {
 		return [
-			"user_agent",
+			'user_agent',
 		];
 	}
 
@@ -241,37 +241,37 @@ class Net_HTTP_UserAgent {
 
 		$result['string'] = $ua = strtolower($user_agent);
 
-		$result['opera'] = (str_contains($ua, "opera"));
+		$result['opera'] = (str_contains($ua, 'opera'));
 
-		$result['iphone'] = (str_contains($ua, "iphone"));
-		$result['ipad'] = (str_contains($ua, "ipad"));
-		$result['ios'] = $result['iphone'] || $result['ipad'] || (str_contains($ua, "ios"));
-		foreach (to_list("5;6;7;8;9;10") as $v) {
+		$result['iphone'] = (str_contains($ua, 'iphone'));
+		$result['ipad'] = (str_contains($ua, 'ipad'));
+		$result['ios'] = $result['iphone'] || $result['ipad'] || (str_contains($ua, 'ios'));
+		foreach (to_list('5;6;7;8;9;10') as $v) {
 			$result["ios${v}"] = $result['ios'] && (str_contains($ua, "os ${v}_"));
 		}
-		$result['webkit'] = str_contains($ua, "applewebkit")  ;
-		$result['chrome'] = str_contains($ua, "chrome/")  ;
+		$result['webkit'] = str_contains($ua, 'applewebkit')  ;
+		$result['chrome'] = str_contains($ua, 'chrome/')  ;
 
-		$result['ie10'] = !$result['opera'] && (str_contains($ua, "msie 10"));
-		$result['ie9'] = !$result['opera'] && (str_contains($ua, "msie 9"));
-		$result['ie8'] = !$result['opera'] && (str_contains($ua, "msie 8"));
-		$result['ie7'] = !$result['opera'] && (str_contains($ua, "msie 7")) && !$result['ie8'];
-		$result['ie6'] = !$result['opera'] && (str_contains($ua, "msie 6")) && !$result['ie7'] && !$result['ie8'];
-		$result['ie'] = !$result['opera'] && (str_contains($ua, "msie"));
+		$result['ie10'] = !$result['opera'] && (str_contains($ua, 'msie 10'));
+		$result['ie9'] = !$result['opera'] && (str_contains($ua, 'msie 9'));
+		$result['ie8'] = !$result['opera'] && (str_contains($ua, 'msie 8'));
+		$result['ie7'] = !$result['opera'] && (str_contains($ua, 'msie 7')) && !$result['ie8'];
+		$result['ie6'] = !$result['opera'] && (str_contains($ua, 'msie 6')) && !$result['ie7'] && !$result['ie8'];
+		$result['ie'] = !$result['opera'] && (str_contains($ua, 'msie'));
 
-		$result['kindle'] = (str_contains($ua, "kindle"));
-		$result['surface'] = (str_contains($ua, "surface"));
+		$result['kindle'] = (str_contains($ua, 'kindle'));
+		$result['surface'] = (str_contains($ua, 'surface'));
 
-		$result['firefox'] = (str_contains($ua, "firefox"));
-		$result['safari'] = (str_contains($ua, "safari")) && !$result['chrome'];
-		$result['mac'] = (str_contains($ua, "macintosh"));
+		$result['firefox'] = (str_contains($ua, 'firefox'));
+		$result['safari'] = (str_contains($ua, 'safari')) && !$result['chrome'];
+		$result['mac'] = (str_contains($ua, 'macintosh'));
 
-		$result['linux'] = (str_contains($ua, "linux"));
-		$result['windows'] = (str_contains($ua, "windows"));
-		$result['mac_intel'] = $result['mac'] && (str_contains($ua, "intel"));
-		$result['mac_ppc'] = $result['mac'] && (!str_contains($ua, "intel"));
+		$result['linux'] = (str_contains($ua, 'linux'));
+		$result['windows'] = (str_contains($ua, 'windows'));
+		$result['mac_intel'] = $result['mac'] && (str_contains($ua, 'intel'));
+		$result['mac_ppc'] = $result['mac'] && (!str_contains($ua, 'intel'));
 
-		$result['mobile'] = $result['ios'] || (str_contains($ua, "mobile"));
+		$result['mobile'] = $result['ios'] || (str_contains($ua, 'mobile'));
 		$result['phone'] = $result['iphone'];
 		$result['tablet'] = !$result['phone'] && ($result['ipad'] || $result['kindle'] || $result['surface']);
 		$result['desktop'] = !$result['phone'] && !$result['tablet'];

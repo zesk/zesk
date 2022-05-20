@@ -24,7 +24,7 @@ class Method extends Options {
 	 *
 	 * @var string
 	 */
-	private $name = "";
+	private $name = '';
 
 	/**
 	 *
@@ -42,22 +42,22 @@ class Method extends Options {
 		parent::__construct($options);
 		$this->test = $test;
 		$this->name = $name;
-		$this->data_provider_method = $this->option("dataProvider", $this->option('data_provider', null));
+		$this->data_provider_method = $this->option('dataProvider', $this->option('data_provider', null));
 		if ($this->data_provider_method) {
 			if (!method_exists($test, $this->data_provider_method)) {
-				throw new Exception_Semantics("No such data provider method {method} exists to run test {name}", [
-					"method" => $this->data_provider_method,
-					"name" => $this->name,
+				throw new Exception_Semantics('No such data provider method {method} exists to run test {name}', [
+					'method' => $this->data_provider_method,
+					'name' => $this->name,
 				]);
 			}
 		}
-		$this->depends = $this->option_list("depends");
+		$this->depends = $this->option_list('depends');
 		if (count($this->depends) > 0) {
 			if ($this->data_provider_method) {
-				throw new Exception_Semantics("@dataProvider {method} and @depends {depends} specified in test {name}", [
-					"method" => $this->data_provider_method,
-					"depends" => $this->depends,
-					"name" => $this->name,
+				throw new Exception_Semantics('@dataProvider {method} and @depends {depends} specified in test {name}', [
+					'method' => $this->data_provider_method,
+					'depends' => $this->depends,
+					'name' => $this->name,
 				]);
 			}
 		}
@@ -134,8 +134,8 @@ class Method extends Options {
 	 */
 	public function variables(): array {
 		return [
-			"depends" => $this->depends,
-			"name" => $this->name,
+			'depends' => $this->depends,
+			'name' => $this->name,
 		];
 	}
 
@@ -145,7 +145,7 @@ class Method extends Options {
 	 */
 	public function run() {
 		if (!$this->can_run()) {
-			throw new Exception("Dependencies {depends} are not met for test {name}", $this->variables());
+			throw new Exception('Dependencies {depends} are not met for test {name}', $this->variables());
 		}
 		$data_provider = $this->_compute_data_provider();
 		if (is_array($data_provider) && count($data_provider) === 1) {
@@ -179,11 +179,11 @@ class Method extends Options {
 	 */
 	private function run_test_method_data_provider(array $data_provider): void {
 		$loop = 0;
-		$test_output = "";
+		$test_output = '';
 		$name = $this->name;
 		foreach ($data_provider as $arguments) {
 			if (!is_array($arguments)) {
-				$this->test->log("Arguments is not an array - converting to single argument {type}", [
+				$this->test->log('Arguments is not an array - converting to single argument {type}', [
 					'type' => type($arguments),
 				]);
 				$arguments = [
@@ -195,7 +195,7 @@ class Method extends Options {
 				substr(strval(json_encode($arguments)), 0, 80),
 			]);
 			$result = $this->test->_run_test_method($this, $arguments);
-			$this->test->log(Text::lalign($log_line, 80, " ", true) . " : " . ($result ? "OK" : "FAIL"));
+			$this->test->log(Text::lalign($log_line, 80, ' ', true) . ' : ' . ($result ? 'OK' : 'FAIL'));
 			$last_test = $this->test->last_test_output();
 			if ($last_test) {
 				$this->test->log($last_test, ['severity' => 'error']);

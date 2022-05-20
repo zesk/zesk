@@ -29,7 +29,7 @@ class Health_Event extends ORM {
 	 *
 	 * @var string
 	 */
-	public const updated_file = ".updated";
+	public const updated_file = '.updated';
 
 	/**
 	 *
@@ -50,13 +50,13 @@ class Health_Event extends ORM {
 	 */
 	public static function event_log(Application $application, array $event, $path): void {
 		$microtime = microtime(true);
-		$event['when'] = $when = gmdate("Y-m-d H:i:s", $microtime);
+		$event['when'] = $when = gmdate('Y-m-d H:i:s', $microtime);
 		$event['when_msec'] = $msec = ($microtime - intval($microtime)) * 1000;
 
 		try {
 			$event['server'] = Server::singleton($application)->id();
 		} catch (Exception $e) {
-			error_log("Error while logging event " . __METHOD__ . "\n" . $e->getMessage() . "\n" . $e->getTraceAsString());
+			error_log('Error while logging event ' . __METHOD__ . "\n" . $e->getMessage() . "\n" . $e->getTraceAsString());
 			$event['server'] = null;
 		}
 		$event['application'] = get_class($application);
@@ -72,10 +72,10 @@ class Health_Event extends ORM {
 		}
 		$event['data'] = $data;
 
-		$hash = md5($application->process->id() . "-" . mt_rand() . "-" . $microtime);
-		$msec = Text::ralign("$msec", 3, "0");
+		$hash = md5($application->process->id() . '-' . mt_rand() . '-' . $microtime);
+		$msec = Text::ralign("$msec", 3, '0');
 		$filename = strtr("$when.$msec-$hash.event", [
-			" " => "-",
+			' ' => '-',
 		]);
 		file_put_contents(path($path, $filename), serialize($event));
 		file_put_contents(path($path, self::updated_file), strval($microtime));
@@ -109,25 +109,25 @@ class Health_Event extends ORM {
 		}
 		File::unlink($updated_file_path);
 		$files = Directory::ls($path, '/\.event$/', true);
-		$max_size = $application->configuration->path_get("Health_Event::max_event_size", min(4 * 1024 * 1024, System::memory_limit() / 10));
+		$max_size = $application->configuration->path_get('Health_Event::max_event_size', min(4 * 1024 * 1024, System::memory_limit() / 10));
 		foreach ($files as $file) {
 			$size = filesize($file);
 			if ($size > $max_size) {
-				self::event_defer($application, $path, $file, "huge");
-				$application->logger->error("File {file} exceeds event limit of {max_size}", compact("file", "max_size"));
+				self::event_defer($application, $path, $file, 'huge');
+				$application->logger->error('File {file} exceeds event limit of {max_size}', compact('file', 'max_size'));
 
 				continue;
 			}
-			$application->logger->debug("Processing {file}", compact("file"));
+			$application->logger->debug('Processing {file}', compact('file'));
 			$contents = file_get_contents($file);
 
 			try {
 				$settings = unserialize($contents);
 			} catch (Exception $e) {
-				self::event_defer($application, $path, $file, "exception");
-				$application->logger->error("Exception {e} when unserializing file contents: {contents}", [
-					"e" => $e,
-					"contents" => $contents,
+				self::event_defer($application, $path, $file, 'exception');
+				$application->logger->error('Exception {e} when unserializing file contents: {contents}', [
+					'e' => $e,
+					'contents' => $contents,
 				]);
 
 				continue;
@@ -166,30 +166,30 @@ class Health_Event extends ORM {
 	 * @return Health_Event
 	 */
 	public function deduplicate() {
-		$n_samples = $this->optionInt("keep_duplicates", 10);
+		$n_samples = $this->optionInt('keep_duplicates', 10);
 		$n_found = $this->application->orm_registry(__CLASS__)
 			->query_select()
-			->addWhat("*n", "COUNT(id)")
-			->where("events", $this->events)
-			->one_integer("n");
+			->addWhat('*n', 'COUNT(id)')
+			->where('events', $this->events)
+			->one_integer('n');
 		if ($n_found > $n_samples) {
 			$sample_offset = intval($n_samples / 2);
 			$ids_to_delete = $this->application->orm_registry(__CLASS__)
 				->query_select()
-				->addWhat("id", "X.id")
-				->where("X.events", $this->events)
+				->addWhat('id', 'X.id')
+				->where('X.events', $this->events)
 				->limit($sample_offset, $n_found - $n_samples)
-				->order_by("X.when,X.when_msec")
-				->to_array(null, "id");
+				->order_by('X.when,X.when_msec')
+				->to_array(null, 'id');
 			$delete_query = $this->application->query_delete(__CLASS__);
-			$delete_query->where("id", $ids_to_delete);
+			$delete_query->where('id', $ids_to_delete);
 			$delete_query->execute();
-			$this->application->logger->notice("Deleted {n} {rows} related to health event {message} (Health Events #{id}) - total {total}", [
-				"n" => $nrows = $delete_query->affected_rows(),
-				"rows" => $this->application->locale->plural("row", $nrows),
-				"message" => $this->message,
-				"id" => $this->member_integer("events"),
-				"total" => $this->events->total,
+			$this->application->logger->notice('Deleted {n} {rows} related to health event {message} (Health Events #{id}) - total {total}', [
+				'n' => $nrows = $delete_query->affected_rows(),
+				'rows' => $this->application->locale->plural('row', $nrows),
+				'message' => $this->message,
+				'id' => $this->member_integer('events'),
+				'total' => $this->events->total,
 			]);
 		}
 		return $this;

@@ -22,14 +22,14 @@ class HTML_Tag extends Options {
 	 * Tag name
 	 * @var string
 	 */
-	public string $name = "";
+	public string $name = '';
 
 	/**
 	 * Contents between tags.
 	 * If false, then singleton tag, e.g. <tag />
 	 * @var string
 	 */
-	private string $inner_html = "";
+	private string $inner_html = '';
 
 	/**
 	 * Original, outer HTML including tag itself.
@@ -37,7 +37,7 @@ class HTML_Tag extends Options {
 	 * If null, means it has not been matched in a document, or has been edited.
 	 * @var string
 	 */
-	private string $outer_html = "";
+	private string $outer_html = '';
 
 	/**
 	 * Offset to where the tag is in the found context
@@ -56,8 +56,8 @@ class HTML_Tag extends Options {
 	public function __construct(
 		string $name,
 		array $attributes = [],
-		string $inner_html = "",
-		string $outer_html = "",
+		string $inner_html = '',
+		string $outer_html = '',
 		int	$offset = -1
 	) {
 		parent::__construct($attributes);
@@ -74,7 +74,7 @@ class HTML_Tag extends Options {
 	 * @return boolean
 	 */
 	public function isSingle(): bool {
-		return $this->inner_html === "";
+		return $this->inner_html === '';
 	}
 
 	/**
@@ -94,7 +94,7 @@ class HTML_Tag extends Options {
 	 */
 	public function setInnerHTML(string $set): self {
 		$this->inner_html = $set;
-		$this->outer_html = "";
+		$this->outer_html = '';
 		return $this;
 	}
 
@@ -144,7 +144,7 @@ class HTML_Tag extends Options {
 	 * @return string
 	 */
 	public function _to_php() {
-		return 'new ' . __CLASS__ . '(' . implode(", ", [
+		return 'new ' . __CLASS__ . '(' . implode(', ', [
 				PHP::dump($this->name),
 				PHP::dump($this->options()),
 				PHP::dump($this->inner_html),

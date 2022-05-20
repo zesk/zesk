@@ -23,13 +23,13 @@ class Command_Class_New extends Command {
 		'zesk' => 'Create classin zesk',
 		'sql' => 'Create SQL file instead of a Schema file (default)',
 		'schema' => 'Create Schema class instead of a SQL file',
-		'*' => "Names of the classes to create (capitalization matters)",
+		'*' => 'Names of the classes to create (capitalization matters)',
 	];
 
 	public function run(): void {
 		$names = $this->arguments_remaining(true);
 		if (count($names) === 0) {
-			$this->usage("Must specify class names to create");
+			$this->usage('Must specify class names to create');
 		}
 		foreach ($names as $class) {
 			if (!PHP::valid_class($class)) {

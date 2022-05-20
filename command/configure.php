@@ -27,16 +27,16 @@ class Command_Configure extends Command_Base {
 	 * Append to a command to redirect stderr to stdout
 	 * @var string
 	 */
-	public const STDERR_REDIRECT = " 2>&1";
+	public const STDERR_REDIRECT = ' 2>&1';
 
 	/**
 	 *
 	 * @var array
 	 */
 	protected array $option_types = [
-		"non-interactive" => "boolean",
-		"environment-file" => "string",
-		"host-setting-name" => "string",
+		'non-interactive' => 'boolean',
+		'environment-file' => 'string',
+		'host-setting-name' => 'string',
 	];
 
 	protected array $option_chars = [
@@ -138,16 +138,16 @@ class Command_Configure extends Command_Base {
 	protected function run() {
 		$this->completion_function();
 
-		$this->configure("configure", true);
+		$this->configure('configure', true);
 
-		if ($this->option("debug")) {
+		if ($this->option('debug')) {
 			$this->application->process->debug = true;
 		}
 		$this->engine = new Engine($this->application, $this->options());
 		$this->engine->setPrompt($this);
 		$this->engine->setLogger($this);
 
-		$this->log("Configuration synchronization for: {uname}, user: {user}", $this->engine->variable_map());
+		$this->log('Configuration synchronization for: {uname}, user: {user}', $this->engine->variable_map());
 		$this->determine_environment_files();
 		if (!$this->determine_host_path_setting_name()) {
 			return 1;
@@ -156,13 +156,13 @@ class Command_Configure extends Command_Base {
 
 		$this->save_configuration_changes();
 
-		$this->debug_log("Variables: {variables}", [
-			"variables" => Text::format_pairs($this->engine->variable_map()),
+		$this->debug_log('Variables: {variables}', [
+			'variables' => Text::format_pairs($this->engine->variable_map()),
 		]);
 		if (!$this->configure_user()) {
 			return 99;
 		}
-		$this->verbose_log("Success");
+		$this->verbose_log('Success');
 		return 0;
 	}
 
@@ -173,14 +173,14 @@ class Command_Configure extends Command_Base {
 	 * @param array $completions
 	 */
 	public function prompt($message, $default = null, array $completions = null) {
-		if ($this->option("non-interactive")) {
+		if ($this->option('non-interactive')) {
 			if ($default === null) {
-				$this->error("Non-interactive set but input is required for {message}", [
-					"message" => $message,
+				$this->error('Non-interactive set but input is required for {message}', [
+					'message' => $message,
 				]);
 
-				throw new Exception_Semantics("Non-interactive set but input is required for {message}", [
-					"message" => $message,
+				throw new Exception_Semantics('Non-interactive set but input is required for {message}', [
+					'message' => $message,
 				]);
 			}
 			return $default;
@@ -194,7 +194,7 @@ class Command_Configure extends Command_Base {
 	 * @see \zesk\Command::prompt_yes_no()
 	 */
 	public function prompt_yes_no($message, $default = true) {
-		if ($this->option("non-interactive")) {
+		if ($this->option('non-interactive')) {
 			return true;
 		}
 		return parent::prompt_yes_no($message, $default);
@@ -209,12 +209,12 @@ class Command_Configure extends Command_Base {
 		$locale = $this->application->locale;
 		$value = $this->environment_file;
 		$times = 0;
-		$this->completions = Directory::ls("/etc/", "/(.conf|.sh|.json)$/", true);
+		$this->completions = Directory::ls('/etc/', '/(.conf|.sh|.json)$/', true);
 		while (empty($value) || !is_file($value)) {
 			if ($times > 2) {
 				echo $locale->__("System settings file is a BASH and Zesk Configuration_Loader parsable file which contains a global which points to this host's configuration directory.\n\n");
 			}
-			$value = trim($this->prompt($locale->__("Path to system settings file: ")));
+			$value = trim($this->prompt($locale->__('Path to system settings file: ')));
 			++$times;
 			$this->need_save = true;
 		}
@@ -252,13 +252,13 @@ class Command_Configure extends Command_Base {
 		$output = false;
 		while (is_array($dirs = $this->load_dirs($output)) && !array_key_exists($value, $dirs)) {
 			if (count($dirs) === 0) {
-				echo $locale->__("No possible directory settings in {environment_file}, please edit and add variable which points to a local directory with host information", $this->options());
+				echo $locale->__('No possible directory settings in {environment_file}, please edit and add variable which points to a local directory with host information', $this->options());
 			}
 			if ($times > 2) {
 				echo $locale->__("The system setting will point to a directory of host configurations to keep in sync.\n\n");
 			}
 			$this->completions = array_keys($dirs);
-			$value = trim($this->prompt($locale->__("Name of system setting: ")));
+			$value = trim($this->prompt($locale->__('Name of system setting: ')));
 			++$times;
 			$this->need_save = true;
 			$output = true;
@@ -267,8 +267,8 @@ class Command_Configure extends Command_Base {
 		$this->host_path = $dirs[$value];
 		$this->engine->variable_map('host_path', $this->host_path);
 		if (!is_dir($this->host_path)) {
-			$this->error("Host path does not exist? {host_path}", [
-				"host_path" => $this->host_path,
+			$this->error('Host path does not exist? {host_path}', [
+				'host_path' => $this->host_path,
 			]);
 			return null;
 		}
@@ -284,7 +284,7 @@ class Command_Configure extends Command_Base {
 	private function load_conf($path, $extension = null) {
 		$conf = [];
 		Configuration_Parser::factory($extension ? $extension : File::extension($path), File::contents($path), new Adapter_Settings_Array($conf), [
-			"lower" => false,
+			'lower' => false,
 		])->process();
 		return $conf;
 	}
@@ -313,28 +313,28 @@ class Command_Configure extends Command_Base {
 	private function load_dirs($output = false) {
 		$locale = $this->application->locale;
 
-		$this->verbose_log("Loading {environment_files}", [
-			"environment_files" => $this->environment_files,
+		$this->verbose_log('Loading {environment_files}', [
+			'environment_files' => $this->environment_files,
 		]);
 		$env = [];
 		foreach ($this->environment_files as $environment_file) {
-			$env += $this->load_conf($environment_file, File::extension($environment_file) === "sh" ? "conf" : null);
+			$env += $this->load_conf($environment_file, File::extension($environment_file) === 'sh' ? 'conf' : null);
 		}
 		$this->engine->variable_map(array_change_key_case($env));
 		$dirs = [];
 		foreach ($env as $name => $value) {
-			if (is_string($value) && (begins($value, "/") || begins($value, ".")) && is_dir($value)) {
+			if (is_string($value) && (begins($value, '/') || begins($value, '.')) && is_dir($value)) {
 				$dirs[$name] = $value;
 			} else {
 				$possibilities[] = $name;
 			}
 		}
 		if ($output) {
-			$this->log($locale->__("Non-directory settings: {possibilities}", [
-				"possibilities" => implode(" ", $possibilities),
+			$this->log($locale->__('Non-directory settings: {possibilities}', [
+				'possibilities' => implode(' ', $possibilities),
 			]));
-			$this->log($locale->__("Available settings: {dirs}", [
-				"dirs" => implode(" ", array_keys($dirs)),
+			$this->log($locale->__('Available settings: {dirs}', [
+				'dirs' => implode(' ', array_keys($dirs)),
 			]));
 		}
 		return $dirs;
@@ -348,16 +348,16 @@ class Command_Configure extends Command_Base {
 	private function determine_host_name() {
 		$locale = $this->application->locale;
 
-		$this->possible_host_configurations = ArrayTools::unsuffix(Directory::ls($this->host_path), "/", true);
-		$this->alias_file = path($this->host_path, "aliases.conf");
+		$this->possible_host_configurations = ArrayTools::unsuffix(Directory::ls($this->host_path), '/', true);
+		$this->alias_file = path($this->host_path, 'aliases.conf');
 		$__ = [
-			"alias_file" => $this->alias_file,
+			'alias_file' => $this->alias_file,
 		];
-		$this->verbose_log("Alias file is {alias_file}", $__);
-		$uname = $this->engine->variable_map("uname");
+		$this->verbose_log('Alias file is {alias_file}', $__);
+		$uname = $this->engine->variable_map('uname');
 		if (!is_file($this->alias_file)) {
 			self::file_put_contents_inherit($this->alias_file, "$uname=[]");
-			$this->verbose_log("Created empty {alias_file}", $__);
+			$this->verbose_log('Created empty {alias_file}', $__);
 		}
 		$aliases = [];
 		while (!is_array($host_configs = avalue($aliases = $this->load_conf($this->alias_file), strtolower($uname))) || count(array_diff($host_configs, $this->possible_host_configurations)) !== 0) {
@@ -366,8 +366,8 @@ class Command_Configure extends Command_Base {
 				$this->save_conf($this->alias_file, [
 					$uname => $configs,
 				]);
-				$this->log("Changed {alias_file}", [
-					"alias_file" => $this->alias_file,
+				$this->log('Changed {alias_file}', [
+					'alias_file' => $this->alias_file,
 				]);
 			}
 		}
@@ -385,16 +385,16 @@ class Command_Configure extends Command_Base {
 
 		$this->completions = $possible_host_configurations = $this->possible_host_configurations;
 		do {
-			$message = $locale->__("Host configurations: {configs}", [
-				"configs" => implode(" ", $possible_host_configurations),
+			$message = $locale->__('Host configurations: {configs}', [
+				'configs' => implode(' ', $possible_host_configurations),
 			]) . "\n\n";
-			$message .= $locale->__("Enter a list of configurations separated by space") . "\n";
+			$message .= $locale->__('Enter a list of configurations separated by space') . "\n";
 			$host_configurations = $this->prompt("$message\n> ");
-			$host_configurations = explode(" ", preg_replace("/\s+/", " ", trim($host_configurations)));
+			$host_configurations = explode(' ', preg_replace("/\s+/", ' ', trim($host_configurations)));
 		} while (count(array_diff($host_configurations, $possible_host_configurations)) !== 0);
-		$this->log("Will add host configuration for host {host}: {host_configurations}", [
-			"host" => $this->host,
-			"host_configurations" => implode(" ", $host_configurations),
+		$this->log('Will add host configuration for host {host}: {host_configurations}', [
+			'host' => $this->host,
+			'host_configurations' => implode(' ', $host_configurations),
 		]);
 		return $host_configurations;
 	}
@@ -405,12 +405,12 @@ class Command_Configure extends Command_Base {
 	private function save_configuration_changes(): void {
 		if ($this->need_save) {
 			$__ = [
-				"config" => $this->config,
+				'config' => $this->config,
 			];
 			$locale = $this->application->locale;
-			if ($this->prompt_yes_no($locale->__("Save changes to {config}? ", $__))) {
-				$this->save_conf($this->config, ArrayTools::kprefix($this->options_include("environment_file;host_setting_name"), __CLASS__ . "::"));
-				$this->log("Wrote {config}", $__);
+			if ($this->prompt_yes_no($locale->__('Save changes to {config}? ', $__))) {
+				$this->save_conf($this->config, ArrayTools::kprefix($this->options_include('environment_file;host_setting_name'), __CLASS__ . '::'));
+				$this->log('Wrote {config}', $__);
 			}
 		}
 	}
@@ -429,26 +429,26 @@ class Command_Configure extends Command_Base {
 			$paths[] = path($this->host_path, $host);
 		}
 		$this->verbose_log($locale->__("Configuration paths:\n\t{paths}", [
-			"paths" => implode("\n\t", $paths),
+			'paths' => implode("\n\t", $paths),
 		]));
 		$this->engine->host_paths($paths);
 
-		$pattern = $this->option("user_configuration_file", "users/{user}/configure");
+		$pattern = $this->option('user_configuration_file', 'users/{user}/configure');
 		$suffix = $this->engine->map($pattern);
 		$files = File::find_all($paths, $suffix);
 		$this->log($locale->__("Configuration files:\n\t{files}", [
-			"files" => implode("\n\t", $files),
+			'files' => implode("\n\t", $files),
 		]));
 
 		foreach ($files as $file) {
 			$this->engine->variable_map([
-				'current_host_path' => rtrim(StringTools::unsuffix($file, $suffix), "/"),
+				'current_host_path' => rtrim(StringTools::unsuffix($file, $suffix), '/'),
 				'self_path' => dirname($file),
 				'self' => $file,
 			]);
-			$this->verbose_log("Processing file {file}", compact("file"));
+			$this->verbose_log('Processing file {file}', compact('file'));
 			$contents = File::contents($file);
-			$contents = Text::remove_line_comments($contents, "#", false);
+			$contents = Text::remove_line_comments($contents, '#', false);
 			$lines = ArrayTools::trim_clean(explode("\n", $contents));
 			foreach ($lines as $line) {
 				if (!$this->engine->process($line)) {

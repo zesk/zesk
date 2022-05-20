@@ -26,26 +26,26 @@ class View_Actions extends View {
 	protected function initialize(): void {
 		parent::initialize();
 		$this->setOption([
-			"list_order_by" => false,
-			"class" => "view-actions",
-			"label" => $this->locale()->__("Actions"),
+			'list_order_by' => false,
+			'class' => 'view-actions',
+			'label' => $this->locale()->__('Actions'),
 		], false, false);
 		foreach ([
-			"edit",
-			"delete",
+			'edit',
+			'delete',
 		] as $action_code) {
 			// show_edit
 			// show_delete
-			if ($this->option("show_" . $action_code, true)) {
+			if ($this->option('show_' . $action_code, true)) {
 				$url = $this->_action_href($action_code);
 				if ($url) {
 					$this->action_add($url, [
-						"theme" => "zesk/view/actions/$action_code",
-						"action_code" => $action_code,
-						"a_attributes" => [
-							"class" => "action-$action_code",
+						'theme' => "zesk/view/actions/$action_code",
+						'action_code' => $action_code,
+						'a_attributes' => [
+							'class' => "action-$action_code",
 						],
-						"add_link" => true,
+						'add_link' => true,
 					]);
 				}
 			}
@@ -61,13 +61,13 @@ class View_Actions extends View {
 	 */
 	private function _action_href($action, $add_ref = true) {
 		$object = $this->object;
-		if ($this->hasOption($action . "_href")) {
+		if ($this->hasOption($action . '_href')) {
 			return $object->apply_map($this->option($action . '_href'));
 		}
 		if (!$object) {
 			return null;
 		}
-		return $this->application->router()->get_route($action, $object, $this->option_array("route_options"));
+		return $this->application->router()->get_route($action, $object, $this->option_array('route_options'));
 	}
 
 	/**
@@ -99,7 +99,7 @@ class View_Actions extends View {
 	 * @return array|void
 	 */
 	public function actions(array $set = null) {
-		return $set === null ? $this->option_list("actions") : $this->setOption("actions", $set);
+		return $set === null ? $this->option_list('actions') : $this->setOption('actions', $set);
 	}
 
 	/**
@@ -109,8 +109,8 @@ class View_Actions extends View {
 	 */
 	public function theme_variables() {
 		return [
-			"actions" => $this->actions(),
-			"add_href" => $this->optionBool("add_href", true),
+			'actions' => $this->actions(),
+			'add_href' => $this->optionBool('add_href', true),
 		];
 	}
 }

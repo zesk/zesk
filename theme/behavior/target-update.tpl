@@ -29,7 +29,7 @@ if (!is_array($map_values)) {
 }
 $id = $widget->id();
 if (!$id) {
-	$application->logger->warning("Template behavior/target-update missing source ID");
+	$application->logger->warning('Template behavior/target-update missing source ID');
 	return;
 }
 $map['id'] = "#$id";

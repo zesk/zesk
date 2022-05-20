@@ -44,12 +44,12 @@ class PHPUnit_TestCase extends TestCase {
 		foreach ($this->load_modules as $module) {
 			$result = $this->application->modules->load($module);
 			$this->assertArrayHasKeys([
-				"loaded",
-				"name",
-				"class",
-				"object",
+				'loaded',
+				'name',
+				'class',
+				'object',
 			], $result);
-			$this->assertTrue($result['loaded'], "is not loaded");
+			$this->assertTrue($result['loaded'], 'is not loaded');
 		}
 		if (!$this->configuration) {
 			$this->configuration = $this->application->configuration;
@@ -59,9 +59,9 @@ class PHPUnit_TestCase extends TestCase {
 			foreach ($this->application->classes->hierarchy(get_class($this)) as $class) {
 				$this->option = $this->option->merge($this->configuration->path($class), false); // traverses leaf to base. Leaf wins, do not overwrite.
 			}
-			$this->application->logger->debug("{class} options is {option}", [
-				"class" => get_class($this),
-				"option" => $this->option->to_array(),
+			$this->application->logger->debug('{class} options is {option}', [
+				'class' => get_class($this),
+				'option' => $this->option->to_array(),
 			]);
 		}
 	}
@@ -70,10 +70,10 @@ class PHPUnit_TestCase extends TestCase {
 		$this->assertInstanceOf(Configuration::class, $this->configuration);
 		$this->assertInstanceOf(Application::class, $this->application);
 		file_put_contents($this->lastTestCaseFile(), JSON::encode_pretty([
-			"class" => get_class($this),
-			"hierarchy" => $this->application->classes->hierarchy(get_class($this)),
-			"when" => date("Y-m-d H:i:s"),
-			"debug" => $this->option->to_array(),
+			'class' => get_class($this),
+			'hierarchy' => $this->application->classes->hierarchy(get_class($this)),
+			'when' => date('Y-m-d H:i:s'),
+			'debug' => $this->option->to_array(),
 		]));
 	}
 
@@ -82,7 +82,7 @@ class PHPUnit_TestCase extends TestCase {
 	}
 
 	private function lastTestCaseFile() {
-		return $this->application->path(".phpunit-testcase-last");
+		return $this->application->path('.phpunit-testcase-last');
 	}
 
 	/**
@@ -131,7 +131,7 @@ class PHPUnit_TestCase extends TestCase {
 	 */
 	public function assertDirectoriesExist(array $paths, $message = null): void {
 		if (!$message) {
-			$message = "Path does not exist";
+			$message = 'Path does not exist';
 		}
 		foreach ($paths as $index => $path) {
 			$this->assertDirectoryExists($path, "$index: $path $message");
@@ -146,7 +146,7 @@ class PHPUnit_TestCase extends TestCase {
 	 */
 	public function assertDirectoriesNotExist(array $paths, $message = null): void {
 		if (!$message) {
-			$message = "Path should not exist";
+			$message = 'Path should not exist';
 		}
 		foreach ($paths as $index => $path) {
 			$this->assertDirectoryNotExists($path, "$index: $path $message");
@@ -160,7 +160,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param string|null $message
 	 */
 	public function assertIsInteger($expected, $message = null): void {
-		$this->assertTrue(is_int($expected), $message ?? "Item expected to be an integer but is a " . type($expected));
+		$this->assertTrue(is_int($expected), $message ?? 'Item expected to be an integer but is a ' . type($expected));
 	}
 
 	/**

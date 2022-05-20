@@ -36,7 +36,7 @@ class Weekday {
 	 */
 	public function __construct($weekday, $n = null) {
 		if ($n === 0) {
-			throw new \zesk\Exception_Range("Can't create a weekday with n == 0");
+			throw new \zesk\Exception_Range('Can\'t create a weekday with n == 0');
 		}
 		$this->weekday = $weekday;
 		$this->n = $n;
@@ -53,7 +53,7 @@ class Weekday {
 	public function render() {
 		$dname = Rule::$dow[$this->weekday];
 		$n = $this->n;
-		$sign = $n > 0 ? "+" : "";
+		$sign = $n > 0 ? '+' : '';
 		return $this->n === null ? $dname : "$dname($sign$n)";
 	}
 }

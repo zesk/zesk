@@ -17,13 +17,13 @@ class Control_Content_Image extends Control {
 
 	public function allowed_mime_types($set = null) {
 		if ($set !== null) {
-			$this->setOption("allowed_mime_types", to_list($set));
+			$this->setOption('allowed_mime_types', to_list($set));
 			return $this;
 		}
-		return $this->option_array("allowed_mime_types", [
-			"image/jpeg",
-			"image/gif",
-			"image/png",
+		return $this->option_array('allowed_mime_types', [
+			'image/jpeg',
+			'image/gif',
+			'image/png',
 		]);
 	}
 
@@ -42,7 +42,7 @@ class Control_Content_Image extends Control {
 		} elseif (!$value instanceof Content_Image) {
 			return null;
 		}
-		if ($value === null || !$this->user_can("edit", $value)) {
+		if ($value === null || !$this->user_can('edit', $value)) {
 			return null;
 		}
 		return $value;
@@ -83,7 +83,7 @@ class Control_Content_Image extends Control {
 		if (!in_array($type, $allowed)) {
 			$type = MIME::from_filename($name);
 			if (!in_array($type, $allowed)) {
-				$this->error(__("Not allowed to upload files of that type."));
+				$this->error(__('Not allowed to upload files of that type.'));
 				return false;
 			}
 		}
@@ -108,7 +108,7 @@ class Control_Content_Image extends Control {
 			]);
 			$this->value($image->id());
 		} catch (Exception_Upload $e) {
-			$this->application->logger->debug("Upload exception {1}, Upload dir: {0}", [
+			$this->application->logger->debug('Upload exception {1}, Upload dir: {0}', [
 				ini_get('upload_tmp_dir'),
 				$e,
 			]);

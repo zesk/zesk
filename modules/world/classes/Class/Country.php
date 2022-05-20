@@ -2,10 +2,10 @@
 namespace zesk;
 
 class Class_Country extends Class_ORM {
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	public array $find_keys = [
-		"code",
+		'code',
 	];
 
 	public array $column_types = [

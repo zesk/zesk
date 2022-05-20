@@ -14,8 +14,8 @@ namespace zesk;
  */
 class Session_ORM_Test extends Test_ORM {
 	protected array $load_modules = [
-		"MySQL",
-		"Session",
+		'MySQL',
+		'Session',
 	];
 
 	public function test_main(): void {
@@ -34,7 +34,7 @@ class Session_ORM_Test extends Test_ORM {
 			User::class,
 			Session_ORM::class,
 		], [
-			"follow" => true,
+			'follow' => true,
 		]));
 
 		//$this->test_an_object($testx, "ID");
@@ -48,7 +48,7 @@ class Session_ORM_Test extends Test_ORM {
 
 		$testx->hash();
 
-		$hash = "ABC";
+		$hash = 'ABC';
 		$find = Session_ORM::one_time_find($this->application, $hash);
 
 		$testx->user_id();
@@ -61,28 +61,28 @@ class Session_ORM_Test extends Test_ORM {
 		$this->assert_true($resx->member_boolean('is_one_time'));
 		$this->assert_not_equal($resx->member('cookie'), $testx->member('cookie'));
 
-		$testx->A = "A";
-		$testx->B = "B";
-		$testx->Dog = "Cat";
-		$testx->Cat = "Dog";
-		$testx->Wildebeast = "Grawp";
-		$testx->Wild_thing = "Grawp1";
-		$testx->Wilder_thang = "Grawp2";
+		$testx->A = 'A';
+		$testx->B = 'B';
+		$testx->Dog = 'Cat';
+		$testx->Cat = 'Dog';
+		$testx->Wildebeast = 'Grawp';
+		$testx->Wild_thing = 'Grawp1';
+		$testx->Wilder_thang = 'Grawp2';
 
 		$result = $testx->filter([
-			"A" => "B",
-			"B" => "A",
-			"Dog" => "Cat-like",
-			"Cat" => "Dog-like",
-			"Wilder_thang",
+			'A' => 'B',
+			'B' => 'A',
+			'Dog' => 'Cat-like',
+			'Cat' => 'Dog-like',
+			'Wilder_thang',
 		]);
 
 		$this->assert_arrays_equal($result, [
-			"A" => "B",
-			"B" => "A",
-			"Cat-like" => "Cat",
-			"Dog-like" => "Dog",
-			"Wilder_thang" => "Grawp2",
+			'A' => 'B',
+			'B' => 'A',
+			'Cat-like' => 'Cat',
+			'Dog-like' => 'Dog',
+			'Wilder_thang' => 'Grawp2',
 		]);
 	}
 }

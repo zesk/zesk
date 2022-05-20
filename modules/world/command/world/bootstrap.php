@@ -46,11 +46,11 @@ class Command_World_Bootstrap extends Command_Base {
 			}
 		}
 		if (count($straps) === 0) {
-			$this->error("Specify something to bootstrap");
+			$this->error('Specify something to bootstrap');
 			return 1;
 		}
 		if ($this->optionBool('drop')) {
-			$this->verbose_log("Truncating all tables ... may cause ID renumbering.");
+			$this->verbose_log('Truncating all tables ... may cause ID renumbering.');
 			$this->application->configuration->path_set('zesk\\Module_World::drop', true);
 		}
 		foreach ($straps as $strap) {

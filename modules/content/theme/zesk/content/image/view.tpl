@@ -24,16 +24,16 @@ $height = $this->get('height', $object->height);
 $src = $this->get('src');
 $original_src = $src;
 if (!$src) {
-	$src = $router->get_route("image", $object, [
+	$src = $router->get_route('image', $object, [
 		'width' => $width,
 		'height' => $height,
 	]);
 	$options = [];
 	if ($object->width > 1000 || $object->height > 1000) {
 		[$width, $height] = $object->constrain_dimensions(1000, 1000);
-		$options = compact("width", "height");
+		$options = compact('width', 'height');
 	}
-	$original_src = $router->get_route("image", $object, $options);
+	$original_src = $router->get_route('image', $object, $options);
 }
 $title = $this->get('title', $object->title);
 $attr = [

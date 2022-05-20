@@ -27,7 +27,7 @@ class Net_HTTP_Server_Request {
 		$lines = explode("\r\n", $raw_request);
 		$raw_request_line = array_shift($lines);
 		$regs = null;
-		if (!preg_match("'([^ ]+) ([^ ]+) (HTTP/[^ ]+)'", $raw_request_line, $regs)) {
+		if (!preg_match('\'([^ ]+) ([^ ]+) (HTTP/[^ ]+)\'', $raw_request_line, $regs)) {
 			throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_BAD_REQUEST, null, $raw_request_line);
 		}
 
@@ -36,11 +36,11 @@ class Net_HTTP_Server_Request {
 		$cur_line = null;
 		while (count($lines) > 0) {
 			$line = array_shift($lines);
-			if ($line === "") {
+			if ($line === '') {
 				break;
 			}
 			$first_char = $line[0];
-			if ($first_char === " " || $first_char === "\t") {
+			if ($first_char === ' ' || $first_char === "\t") {
 				$cur_line = ($cur_line === null) ? $line : $cur_line . $line;
 			} else {
 				$this->add_header($cur_line);
@@ -50,16 +50,16 @@ class Net_HTTP_Server_Request {
 		$this->add_header($cur_line);
 		$this->content = implode("\r\n", $lines);
 
-		[$this->uri, $this->query_string] = pair($this->raw_uri, "?", $this->raw_uri, "");
+		[$this->uri, $this->query_string] = pair($this->raw_uri, '?', $this->raw_uri, '');
 	}
 
 	private function add_header($raw_header): void {
 		if ($raw_header === null) {
 			return;
 		}
-		[$name, $value] = pair($raw_header, ":", $raw_header, null);
+		[$name, $value] = pair($raw_header, ':', $raw_header, null);
 		if ($value === null) {
-			throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_BAD_REQUEST, "Bad header", $raw_header);
+			throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_BAD_REQUEST, 'Bad header', $raw_header);
 		}
 		$name = strtolower($name);
 		ArrayTools::append($this->headers, $name, ltrim($value));

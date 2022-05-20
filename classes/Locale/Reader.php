@@ -24,25 +24,25 @@ class Reader {
 	 *
 	 * @var string
 	 */
-	public const ERROR_NOT_ARRAY = "ERROR_NOT_ARRAY";
+	public const ERROR_NOT_ARRAY = 'ERROR_NOT_ARRAY';
 
 	/**
 	 *
 	 * @var string
 	 */
-	private string $id = "";
+	private string $id = '';
 
 	/**
 	 *
 	 * @var string
 	 */
-	private string $language = "";
+	private string $language = '';
 
 	/**
 	 *
 	 * @var string
 	 */
-	private string $dialect = "";
+	private string $dialect = '';
 
 	/**
 	 *
@@ -99,9 +99,9 @@ class Reader {
 		$this->language = $language;
 		$this->dialect = $dialect;
 		$this->extensions = count($extensions) ? $extensions : [
-			"php",
-			"inc",
-			"json",
+			'php',
+			'inc',
+			'json',
 		];
 	}
 
@@ -179,12 +179,12 @@ class Reader {
 	public function files(): array {
 		$files = [];
 		$prefixes = [
-			"all",
+			'all',
 			$this->language,
 
 		];
 		if ($this->dialect) {
-			$prefixes[] = $this->language . "_" . $this->dialect;
+			$prefixes[] = $this->language . '_' . $this->dialect;
 		}
 		foreach ($this->paths as $path) {
 			foreach ($prefixes as $prefix) {
@@ -206,20 +206,20 @@ class Reader {
 	private function load(string $file): array {
 		$extension = File::extension($file);
 		if (in_array($extension, [
-			"php",
-			"inc",
+			'php',
+			'inc',
 		])) {
 			$result = $this->_require($file);
-		} elseif ($extension === "json") {
+		} elseif ($extension === 'json') {
 			$result = JSON::decode(File::contents($file));
 		} else {
-			throw new Exception_Unsupported("Locale file {file} extension {extension} not supported", [
-				"file" => $file,
-				"extension" => $extension,
+			throw new Exception_Unsupported('Locale file {file} extension {extension} not supported', [
+				'file' => $file,
+				'extension' => $extension,
 			]);
 		}
 		if (!is_array($result)) {
-			throw new Exception_File_Format($file, "Should result in an array {type} loaded", ['type' => type($result)]);
+			throw new Exception_File_Format($file, 'Should result in an array {type} loaded', ['type' => type($result)]);
 		}
 		return $result;
 	}

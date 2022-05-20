@@ -17,9 +17,9 @@ echo HTML::div([
 $response = $this->response;
 
 $target = "#$id-sample";
-$source_sample = "";
+$source_sample = '';
 if ($this->css_target) {
-	$target = Lists::append($target, $this->css_target, ",");
+	$target = Lists::append($target, $this->css_target, ',');
 }
 
 $response->jquery("\$('#$id').on('change', function () {

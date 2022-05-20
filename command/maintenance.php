@@ -11,9 +11,9 @@ namespace zesk;
 class Command_Maintenance extends Command_Base {
 	protected function initialize(): void {
 		parent::initialize();
-		$this->application->hooks->add(Application::class . "::maintenance_context", [
+		$this->application->hooks->add(Application::class . '::maintenance_context', [
 			$this,
-			"maintenance_context",
+			'maintenance_context',
 		]);
 	}
 
@@ -22,17 +22,17 @@ class Command_Maintenance extends Command_Base {
 			echo $this->application->maintenance();
 			return 0;
 		}
-		$arg = $this->get_arg("value");
+		$arg = $this->get_arg('value');
 		$this->message = $arg;
 		$bool = to_bool($arg, null);
 		if ($bool === null) {
 			$this->application->maintenance(true);
 			$this->log("Maintenance enabled with message \"$arg\"", [
-				"arg" => $arg,
+				'arg' => $arg,
 			]);
 		} else {
 			$this->application->maintenance($bool);
-			$this->log("Maintenance " . ($bool ? "enabled" : "disabled"));
+			$this->log('Maintenance ' . ($bool ? 'enabled' : 'disabled'));
 		}
 	}
 

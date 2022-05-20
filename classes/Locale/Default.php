@@ -22,7 +22,7 @@ class Locale_Default extends Locale {
 	 * @see \zesk\Locale::date_format()
 	 */
 	public function date_format(): string {
-		return "{YYYY}-{MM}-{DD}";
+		return '{YYYY}-{MM}-{DD}';
 	}
 
 	/**
@@ -31,7 +31,7 @@ class Locale_Default extends Locale {
 	 * @see \zesk\Locale::datetime_format()
 	 */
 	public function datetime_format(): string {
-		return "{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {Z}";
+		return '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {Z}';
 	}
 
 	/**
@@ -40,7 +40,7 @@ class Locale_Default extends Locale {
 	 * @see \zesk\Locale::time_format()
 	 */
 	public function time_format(bool $include_seconds = false): string {
-		return $include_seconds ? "{h}:{mm}:{ss}" : "{h}:{mm}";
+		return $include_seconds ? '{h}:{mm}:{ss}' : '{h}:{mm}';
 	}
 
 	/**
@@ -49,9 +49,9 @@ class Locale_Default extends Locale {
 	 * @see \zesk\Locale::possessive()
 	 */
 	public function possessive(string $owner, string $noun): string {
-		return $this->__("Locale::possessive:={owner}&lsquo;s {noun}", [
-			"owner" => $owner,
-			"noun" => $noun,
+		return $this->__('Locale::possessive:={owner}&lsquo;s {noun}', [
+			'owner' => $owner,
+			'noun' => $noun,
 		]);
 	}
 
@@ -96,7 +96,7 @@ class Locale_Default extends Locale {
 	 * {@inheritDoc}
 	 * @see \zesk\Locale::negate_word()
 	 */
-	public function negate_word(string $word, string $preferred_prefix = ""): string {
+	public function negate_word(string $word, string $preferred_prefix = ''): string {
 		return "non-$word";
 	}
 }

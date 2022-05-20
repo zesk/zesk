@@ -8,10 +8,10 @@ class Control_Spectrum extends Control {
 	 * @see Widget::validate()
 	 */
 	public function validate() {
-		$this->setOption("id", $this->name(), false);
+		$this->setOption('id', $this->name(), false);
 
 		$color = $this->value();
-		if (begins($color, "#")) {
+		if (begins($color, '#')) {
 			$color = substr($color, 1);
 			$this->value($color);
 		}

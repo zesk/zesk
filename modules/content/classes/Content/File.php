@@ -28,10 +28,10 @@ class Content_File extends ORM {
 	 */
 	public static function settings() {
 		return [
-			"scan_path" => [
-				"type" => "list:path",
-				"name" => "List of internal file paths to scan for files to import.",
-				"description" => "File will be loaded and imported from this internal directory, once a minute via cron.",
+			'scan_path' => [
+				'type' => 'list:path',
+				'name' => 'List of internal file paths to scan for files to import.',
+				'description' => 'File will be loaded and imported from this internal directory, once a minute via cron.',
 			],
 		];
 	}
@@ -107,9 +107,9 @@ class Content_File extends ORM {
 	 * @return string
 	 */
 	public function download_link(Router $router) {
-		return $router->get_route("download", __CLASS__, [
-			"id" => $this->id(),
-			"object" => $this,
+		return $router->get_route('download', __CLASS__, [
+			'id' => $this->id(),
+			'object' => $this,
 		]);
 	}
 
@@ -125,11 +125,11 @@ class Content_File extends ORM {
 		if (!$extension) {
 			return $name;
 		}
-		$actual_extension = File::extension($name, "", true);
+		$actual_extension = File::extension($name, '', true);
 		if ($actual_extension === $extension) {
 			return $name;
 		}
-		return $name . "." . $extension;
+		return $name . '.' . $extension;
 	}
 
 	/**
@@ -159,7 +159,7 @@ class Content_File extends ORM {
 	 * @return string
 	 */
 	public function mime_type() {
-		return $this->member("mime", "application/unknown");
+		return $this->member('mime', 'application/unknown');
 	}
 
 	/**
@@ -170,7 +170,7 @@ class Content_File extends ORM {
 	 * @return \Content_File
 	 */
 	public function register_path($path, array $options = []) {
-		$copy = $this->optionBool("scan_path_copy");
+		$copy = $this->optionBool('scan_path_copy');
 		$options = to_array($options);
 		$data = Content_Data::copy_from_path($this->application, $path, $copy);
 
@@ -192,15 +192,15 @@ class Content_File extends ORM {
 	 */
 	public static function cron_minute(Application $application): void {
 		$object = new Content_File($application);
-		$paths = $object->option_list("scan_path");
+		$paths = $object->option_list('scan_path');
 		foreach ($paths as $path) {
 			if (empty($path)) {
 				continue;
 			}
 			if (!is_dir($path)) {
-				$application->logger->error(__METHOD__ . ":=A configured path ({path}) was not found, <a href=\"{url}\">please update the setting.</a>", [
-					"path" => $path,
-					"url" => "admin/settings/Content_File::scan_path", /* TODO */
+				$application->logger->error(__METHOD__ . ':=A configured path ({path}) was not found, <a href="{url}">please update the setting.</a>', [
+					'path' => $path,
+					'url' => 'admin/settings/Content_File::scan_path', /* TODO */
 				]);
 
 				continue;
@@ -224,7 +224,7 @@ class Content_File extends ORM {
 		if (!$name) {
 			$name = $this->name;
 		}
-		$extension = "." . MIME::to_extension($this->mime_type());
+		$extension = '.' . MIME::to_extension($this->mime_type());
 		return StringTools::unsuffix(basename($name), $extension) . $extension;
 	}
 }

@@ -50,16 +50,16 @@ class Label extends \zesk\ORM {
 	public static function label_register(Application $application, $name = null, array $attributes = []) {
 		$tag_label = $application->orm_factory(__CLASS__);
 		$members = ArrayTools::filter($attributes, [
-			"code",
-			"is_internal",
-			"is_translated",
-			"owner",
+			'code',
+			'is_internal',
+			'is_translated',
+			'owner',
 		]) + [
-			"code" => $name,
-			"name" => $name,
+			'code' => $name,
+			'name' => $name,
 		];
 		$members['code'] = self::clean_code_name($members['code']);
-		$cache = $application->cache->getItem(__CLASS__ . "-" . $members['code']);
+		$cache = $application->cache->getItem(__CLASS__ . '-' . $members['code']);
 		if ($cache->isHit()) {
 			$object = $cache->get();
 			if ($object instanceof self) {
@@ -96,7 +96,7 @@ class Label extends \zesk\ORM {
 	 * @return string
 	 */
 	public function generate_code() {
-		return implode("-", array_filter([
+		return implode('-', array_filter([
 			PHP::clean_function($this->name),
 			substr(md5(microtime(false)), 0, 8),
 		]));

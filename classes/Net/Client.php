@@ -36,15 +36,15 @@ abstract class Net_Client extends Hookable {
 	public static function factory(Application $application, $url, array $options = []) {
 		$scheme = strtolower(URL::scheme($url));
 		$scheme = avalue([
-			"https" => "http",
+			'https' => 'http',
 		], $scheme, $scheme);
 
 		try {
-			$class = "Net_" . strtoupper($scheme) . "_Client";
+			$class = 'Net_' . strtoupper($scheme) . '_Client';
 			$object = new $class($application, $url, $options);
 			return $object;
 		} catch (Exception_Class_NotFound $e) {
-			$application->hooks->call("exception", $e);
+			$application->hooks->call('exception', $e);
 			return null;
 		}
 	}
@@ -133,7 +133,7 @@ abstract class Net_Client extends Hookable {
 		$line = trim($line);
 
 		$fields = preg_split('/\s+/', $line, 9);
-		if (strtolower($fields[0]) === "total") {
+		if (strtolower($fields[0]) === 'total') {
 			return null;
 		}
 		if (count($fields) !== 9) {
@@ -151,10 +151,10 @@ abstract class Net_Client extends Hookable {
 			8 => 'name',
 		]);
 		$name = $entry['name'];
-		if (empty($name) || ($name == ".") || ($name == "..")) {
+		if (empty($name) || ($name == '.') || ($name == '..')) {
 			return null;
 		}
-		$entry['name'] = $name = trim(StringTools::left($name, "->", $name));
+		$entry['name'] = $name = trim(StringTools::left($name, '->', $name));
 		$entry['type'] = File::ls_type($entry['mode']);
 		return $this->_parse_date($entry);
 	}
@@ -168,18 +168,18 @@ abstract class Net_Client extends Hookable {
 	 */
 	private function _parse_date(array $entry) {
 		$mm = [
-			"jan",
-			"feb",
-			"mar",
-			"apr",
-			"may",
-			"jun",
-			"jul",
-			"aug",
-			"sep",
-			"oct",
-			"nov",
-			"dec",
+			'jan',
+			'feb',
+			'mar',
+			'apr',
+			'may',
+			'jun',
+			'jul',
+			'aug',
+			'sep',
+			'oct',
+			'nov',
+			'dec',
 		];
 		$month = $day = $timeyear = null;
 		extract($entry, EXTR_IF_EXISTS);
@@ -191,12 +191,12 @@ abstract class Net_Client extends Hookable {
 			$this->log("FTP_Client::_parse_date: Day not numeric: $day");
 			return null;
 		}
-		if (strstr($timeyear, ":") === false) {
+		if (strstr($timeyear, ':') === false) {
 			$date = new Timestamp();
 			$date->ymdhms($timeyear, $month, $day, 0, 0, 0);
 			$entry['mtime_granularity'] = 'day';
 		} else {
-			[$hour, $minute] = explode(":", $timeyear);
+			[$hour, $minute] = explode(':', $timeyear);
 			if (!is_numeric($hour) || !is_numeric($minute)) {
 				return null;
 			}

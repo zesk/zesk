@@ -23,7 +23,7 @@ class System {
 	public static function hooks(Application $app): void {
 		$app->hooks->add(Hooks::HOOK_CONFIGURED, [
 			__CLASS__,
-			"configured",
+			'configured',
 		]);
 	}
 
@@ -73,7 +73,7 @@ class System {
 	 * @return array of interface => $ip
 	 */
 	public static function ip_addresses(Application $application) {
-		$ifconfig = self::ifconfig($application, "inet;ether");
+		$ifconfig = self::ifconfig($application, 'inet;ether');
 		$ips = [];
 		foreach ($ifconfig as $interface => $values) {
 			if (array_key_exists('inet', $values)) {
@@ -92,7 +92,7 @@ class System {
 	 * @return array of interface => $ip
 	 */
 	public static function mac_addresses(Application $application) {
-		$ifconfig = self::ifconfig($application, "inet;ether");
+		$ifconfig = self::ifconfig($application, 'inet;ether');
 		$macs = [];
 		foreach ($ifconfig as $interface => $values) {
 			if (array_key_exists('ether', $values)) {
@@ -117,30 +117,30 @@ class System {
 			if ($cache->isHit()) {
 				$command = $cache->get();
 			} else {
-				$command = $application->process->execute("ifconfig");
-				$application->cache->saveDeferred($cache->expiresAfter($application->configuration->path_get(__METHOD__ . "::expires_after", 60))
+				$command = $application->process->execute('ifconfig');
+				$application->cache->saveDeferred($cache->expiresAfter($application->configuration->path_get(__METHOD__ . '::expires_after', 60))
 					->set($command));
 			}
 			$interface = null;
 			$flags = null;
 			foreach ($command as $line) {
 				if (preg_match('/^[^\s]/', $line)) {
-					[$interface, $flags] = pair($line, " ");
-					$interface = rtrim($interface, ":");
+					[$interface, $flags] = pair($line, ' ');
+					$interface = rtrim($interface, ':');
 					$result[$interface] = [
 						'flags' => ltrim($flags),
 					];
 				} else {
 					$line = trim($line);
-					$pairs = explode(" ", $line);
-					$type = rtrim(array_shift($pairs), ":");
-					$id = StringTools::unprefix(array_shift($pairs), "addr:");
+					$pairs = explode(' ', $line);
+					$type = rtrim(array_shift($pairs), ':');
+					$id = StringTools::unprefix(array_shift($pairs), 'addr:');
 					$result[$interface][$type][$id] = [
-						"value" => $id,
+						'value' => $id,
 						$type => $id,
 					];
 					while (count($pairs) > 1) {
-						$name = rtrim(array_shift($pairs), ":");
+						$name = rtrim(array_shift($pairs), ':');
 						$value = array_shift($pairs);
 						$result[$interface][$type][$id][$name] = $value;
 					}
@@ -148,25 +148,25 @@ class System {
 			}
 		} catch (Exception $e) {
 			$result = [
-				"localhost" => [
-					"inet" => [
-						"127.0.0.1" => [
-							"value" => "127.0.0.1",
-							"inet" => "127.0.0.1",
-							"netmask" => "0xff000000",
+				'localhost' => [
+					'inet' => [
+						'127.0.0.1' => [
+							'value' => '127.0.0.1',
+							'inet' => '127.0.0.1',
+							'netmask' => '0xff000000',
 						],
 					],
-					"inet6" => [
-						"::1" => [
-							"value" => "::1",
-							"inet6" => "::1",
-							"prefixlen" => "128",
+					'inet6' => [
+						'::1' => [
+							'value' => '::1',
+							'inet6' => '::1',
+							'prefixlen' => '128',
 						],
-						"fe80::1%lo0" => [
-							"value" => "fe80::1%lo0",
-							"inet6" => "fe80::1%lo0",
-							"prefixlen" => "64",
-							"scopeid" => "0x1",
+						'fe80::1%lo0' => [
+							'value' => 'fe80::1%lo0',
+							'inet6' => 'fe80::1%lo0',
+							'prefixlen' => '64',
+							'scopeid' => '0x1',
 						],
 					],
 				],
@@ -192,16 +192,16 @@ class System {
 	 */
 	public static function load_averages() {
 		$uptime_string = null;
-		if (file_exists("/proc/loadavg")) {
-			$uptime_string = explode(" ", File::contents("/proc/loadavg", ""));
+		if (file_exists('/proc/loadavg')) {
+			$uptime_string = explode(' ', File::contents('/proc/loadavg', ''));
 		} else {
 			ob_start();
-			system("/usr/bin/uptime");
+			system('/usr/bin/uptime');
 			$uptime = trim(ob_get_clean());
-			$pattern = ":";
+			$pattern = ':';
 			$pos = strrpos($uptime, $pattern);
 			if ($pos !== false) {
-				$uptime_string = explode(" ", str_replace(",", "", trim(substr($uptime, $pos + strlen($pattern)))));
+				$uptime_string = explode(' ', str_replace(',', '', trim(substr($uptime, $pos + strlen($pattern)))));
 			}
 		}
 		$loads = [
@@ -219,7 +219,7 @@ class System {
 	 *        	Request for a specific volume (passed to df)
 	 * @return array:array
 	 */
-	public static function volume_info($volume = "") {
+	public static function volume_info($volume = '') {
 		ob_start();
 		$max_tokens = 10;
 		$args = $volume ? ' ' . escapeshellarg($volume) : '';
@@ -237,15 +237,15 @@ class System {
 		// Darwin:  Filesystem  1024-blocks     Used Available  Capacity iused ifree %iused Mounted on
 		// Darwin:  Filesystem   1024-blocks       Used  Available Capacity  Mounted on
 		$normalized_headers = [
-			"1024-blocks" => "total",
-			"1k-blocks" => "total",
-			"avail" => "free",
-			"available" => "free",
-			"use%" => "used_percent",
-			"capacity" => "used_percent",
-			"mounted" => "path",
-			"mounted on" => "path",
-			"filesystem" => "filesystem",
+			'1024-blocks' => 'total',
+			'1k-blocks' => 'total',
+			'avail' => 'free',
+			'available' => 'free',
+			'use%' => 'used_percent',
+			'capacity' => 'used_percent',
+			'mounted' => 'path',
+			'mounted on' => 'path',
+			'filesystem' => 'filesystem',
 		];
 		$result = [];
 		foreach ($volume_info as $volume_data) {
@@ -281,30 +281,30 @@ class System {
 	 */
 	public static function distro($component = null) {
 		static $distro_tips = [
-			"Novell SUSE" => "/etc/SUSE-release",
-			"Red Hat" => [
-				"/etc/redhat-release",
-				"/etc/redhat_version",
+			'Novell SUSE' => '/etc/SUSE-release',
+			'Red Hat' => [
+				'/etc/redhat-release',
+				'/etc/redhat_version',
 			],
-			"Fedora" => "/etc/fedora-release",
-			"Slackware" => [
-				"/etc/slackware-release",
-				"/etc/slackware-version",
+			'Fedora' => '/etc/fedora-release',
+			'Slackware' => [
+				'/etc/slackware-release',
+				'/etc/slackware-version',
 			],
-			"Debian" => [
-				"/etc/debian_release",
-				"/etc/debian_version",
+			'Debian' => [
+				'/etc/debian_release',
+				'/etc/debian_version',
 			],
-			"Mandrake" => "/etc/mandrake-release",
-			"Yellow dog" => "/etc/yellowdog-release",
-			"Sun JDS" => "/etc/sun-release",
-			"Solaris/Sparc" => "/etc/release",
-			"Gentoo" => "/etc/gentoo-release",
-			"UnitedLinux" => "/etc/UnitedLinux-release",
-			"ubuntu" => "/etc/lsb-release",
+			'Mandrake' => '/etc/mandrake-release',
+			'Yellow dog' => '/etc/yellowdog-release',
+			'Sun JDS' => '/etc/sun-release',
+			'Solaris/Sparc' => '/etc/release',
+			'Gentoo' => '/etc/gentoo-release',
+			'UnitedLinux' => '/etc/UnitedLinux-release',
+			'ubuntu' => '/etc/lsb-release',
 		];
 		static $sysnames = [
-			"Darwin" => "Mac OS X",
+			'Darwin' => 'Mac OS X',
 		];
 		$relname = php_uname('r');
 		foreach ($distro_tips as $distro => $files) {
@@ -312,23 +312,23 @@ class System {
 			foreach ($files as $file) {
 				if (file_exists($file)) {
 					return [
-						"brand" => $distro,
-						"distro" => trim(file_get_contents($file)),
-						"release" => $relname,
+						'brand' => $distro,
+						'distro' => trim(file_get_contents($file)),
+						'release' => $relname,
 					];
 				}
 			}
 		}
 		$sysname = php_uname('s');
 		$result = [
-			"brand" => avalue($sysnames, $sysname, $sysname),
-			"distro" => $sysname,
-			"release" => $relname,
+			'brand' => avalue($sysnames, $sysname, $sysname),
+			'distro' => $sysname,
+			'release' => $relname,
 		];
 		if ($component) {
 			if (!isset($result[$component])) {
-				throw new Exception_Parameter("Component should be on of {keys}", [
-					"keys" => array_keys($result),
+				throw new Exception_Parameter('Component should be on of {keys}', [
+					'keys' => array_keys($result),
 				]);
 			}
 			return $result[$component];

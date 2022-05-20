@@ -39,7 +39,7 @@ class Net_POP_Client_Test extends Test_Unit {
 		$this->url = $this->option('email_url');
 
 		if (empty($this->url)) {
-			$this->markTestSkipped(__CLASS__ . "::email_url not set");
+			$this->markTestSkipped(__CLASS__ . '::email_url not set');
 		}
 		$this->parts = URL::parse($this->url);
 		if (empty($this->parts)) {
@@ -47,10 +47,10 @@ class Net_POP_Client_Test extends Test_Unit {
 		}
 		$this->email = $this->option('email', avalue($this->parts, 'user'));
 		if (empty($this->email)) {
-			$this->markTestSkipped(__CLASS__ . "::email set");
+			$this->markTestSkipped(__CLASS__ . '::email set');
 		}
 		if ($this->parts['user'] !== $this->email) {
-			$this->markTestSkipped("User " . $this->parts['user'] . " !== $this->email\n");
+			$this->markTestSkipped('User ' . $this->parts['user'] . " !== $this->email\n");
 		}
 	}
 
@@ -64,9 +64,9 @@ class Net_POP_Client_Test extends Test_Unit {
 
 		$test_prefix = __CLASS__;
 
-		$test_key = $test_prefix . "-" . md5(microtime());
+		$test_key = $test_prefix . '-' . md5(microtime());
 
-		$mail = Mail::sendmail($this->application, $test_email, "no-reply@zesk.com", "Test Subject: $test_key", "This is not a comment. I hold a mild disdain for writing comments, but find them useful when others write them.\n$test_key");
+		$mail = Mail::sendmail($this->application, $test_email, 'no-reply@zesk.com', "Test Subject: $test_key", "This is not a comment. I hold a mild disdain for writing comments, but find them useful when others write them.\n$test_key");
 
 		$this->assert_instanceof($mail, 'zesk\\Mail');
 
@@ -79,7 +79,7 @@ class Net_POP_Client_Test extends Test_Unit {
 
 			$iterator = $testx->iterator();
 			foreach ($iterator as $message_id => $headers) {
-				$subject = avalue($headers, 'subject', "-no-subject-");
+				$subject = avalue($headers, 'subject', '-no-subject-');
 				echo "Examining message id $message_id ... Subject: " . $subject . "\n";
 				if (str_contains($subject, $test_prefix)   || str_contains($subject, __CLASS__)) {
 					// Delete other tests
@@ -109,14 +109,14 @@ class Net_POP_Client_Test extends Test_Unit {
 	 */
 	public function test_bad_password(): void {
 		$parts = ArrayTools::filter($this->parts, 'scheme;host;user');
-		$parts['pass'] = "bad-password";
+		$parts['pass'] = 'bad-password';
 		$test_url = URL::unparse($parts);
 
 		$options = [
 			'echo_log' => true,
 			'read_debug' => true,
-			"debug" => true,
-			"debug_apop" => true,
+			'debug' => true,
+			'debug_apop' => true,
 		];
 		$testx = new Net_POP_Client($this->application, $test_url, $options);
 

@@ -15,7 +15,7 @@ namespace zesk;
  */
 class Command_Arguments extends Command {
 	public array $option_types = [
-		"*" => "string",
+		'*' => 'string',
 	];
 
 	protected function run() {

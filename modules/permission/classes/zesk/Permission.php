@@ -35,7 +35,7 @@ class Permission extends ORM {
 	 */
 	public function action() {
 		$name = $this->member('name');
-		return StringTools::right($name, "::", $name);
+		return StringTools::right($name, '::', $name);
 	}
 
 	/**
@@ -44,7 +44,7 @@ class Permission extends ORM {
 	 */
 	public function object_class() {
 		$name = $this->member('name');
-		return StringTools::left($name, "::", $name);
+		return StringTools::left($name, '::', $name);
 	}
 
 	/**
@@ -160,20 +160,20 @@ class Permission extends ORM {
 		if ($class !== null) {
 			if (!$context instanceof $class) {
 				if (self::$debug) {
-					$this->application->logger->debug("Permission::check: {context} not instanceof {class}", [
-						"context" => get_class($context),
-						"class" => $class,
+					$this->application->logger->debug('Permission::check: {context} not instanceof {class}', [
+						'context' => get_class($context),
+						'class' => $class,
 					]);
 				}
 				return false;
 			}
-			$hook = $this->membere("hook", "permission");
+			$hook = $this->membere('hook', 'permission');
 			$result = $this->before_hook($user, $options);
 			if (is_bool($result)) {
 				if (self::$debug) {
-					$this->application->logger->debug("Permission::check: before hook for {action} returned {value}", [
-						"action" => $action,
-						"value" => $result ? "true" : "false",
+					$this->application->logger->debug('Permission::check: before hook for {action} returned {value}', [
+						'action' => $action,
+						'value' => $result ? 'true' : 'false',
 					]);
 				}
 				return $result;
@@ -185,10 +185,10 @@ class Permission extends ORM {
 			], null);
 			if (is_bool($result)) {
 				if (self::$debug) {
-					$this->application->logger->debug("Permission::check: hook_array {hook} for {action} returned {value}", [
-						"action" => $action,
-						"value" => $result ? "true" : "false",
-						"hook" => $hook,
+					$this->application->logger->debug('Permission::check: hook_array {hook} for {action} returned {value}', [
+						'action' => $action,
+						'value' => $result ? 'true' : 'false',
+						'hook' => $hook,
 					]);
 				}
 				return $result;
@@ -218,6 +218,6 @@ class Permission extends ORM {
 	 */
 	public function _to_php() {
 		$members = $this->members();
-		return "new " . get_class($this) . '(' . PHP::dump($members) . ')';
+		return 'new ' . get_class($this) . '(' . PHP::dump($members) . ')';
 	}
 }

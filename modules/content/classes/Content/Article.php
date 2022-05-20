@@ -20,15 +20,15 @@ class Content_Article extends ORM {
 	 */
 	public function configuration_options() {
 		return [
-			"summary_maximum_length" => [
-				"Type" => "int",
-				"Default" => 200,
-				"Description" => "Maximum length of summary",
+			'summary_maximum_length' => [
+				'Type' => 'int',
+				'Default' => 200,
+				'Description' => 'Maximum length of summary',
 			],
-			"summary_maximum_length_from_body" => [
-				"Type" => "int",
-				"Default" => 200,
-				"Description" => "Maximum length of summary when generated from body.",
+			'summary_maximum_length_from_body' => [
+				'Type' => 'int',
+				'Default' => 200,
+				'Description' => 'Maximum length of summary when generated from body.',
 			],
 		];
 	}
@@ -43,7 +43,7 @@ class Content_Article extends ORM {
 			$this->parent = null;
 		}
 		if ($this->member_is_empty('slug')) {
-			$this->set_member("slug", self::clean_code_name($this->member("title")));
+			$this->set_member('slug', self::clean_code_name($this->member('title')));
 		}
 		return parent::store();
 	}
@@ -56,7 +56,7 @@ class Content_Article extends ORM {
 	 * @return boolean
 	 */
 	public function reindex($force = false, $clear = true) {
-		if (!$this->optionBool("search_active")) {
+		if (!$this->optionBool('search_active')) {
 			return true;
 		}
 
@@ -69,50 +69,50 @@ class Content_Article extends ORM {
 	 * @return array
 	 */
 	private static function extract_meta(&$contents) {
-		$tags = HTML::extract_tags("meta", $contents);
+		$tags = HTML::extract_tags('meta', $contents);
 		$meta = [];
 		$fields = [];
 		if (is_array($tags)) {
 			foreach ($tags as $tag) {
-				$name = strtolower($tag->option("Name", '-'));
+				$name = strtolower($tag->option('Name', '-'));
 				if (isset($meta[$name])) {
-					$meta[$name] .= " " . $tag->option("Content");
+					$meta[$name] .= ' ' . $tag->option('Content');
 				} else {
-					$meta[$name] = $tag->option("Content");
+					$meta[$name] = $tag->option('Content');
 				}
 			}
-			$contents = HTML::remove_tags("meta", $contents);
+			$contents = HTML::remove_tags('meta', $contents);
 		}
-		$temp = avalue($meta, "language");
+		$temp = avalue($meta, 'language');
 		if ($temp) {
-			$fields["Language"] = $temp;
+			$fields['Language'] = $temp;
 		} else {
-			$fields["Language"] = null;
+			$fields['Language'] = null;
 		}
 		if (count($meta) == 0) {
 			return $fields;
 		}
-		$kw = avalue($meta, "keywords");
+		$kw = avalue($meta, 'keywords');
 		if ($kw) {
-			$fields["AutoKeywords"] = false;
-			$fields["Keywords"] = $kw;
+			$fields['AutoKeywords'] = false;
+			$fields['Keywords'] = $kw;
 		}
-		$description = avalue($meta, "description");
+		$description = avalue($meta, 'description');
 		if (!$description) {
 			return $fields;
 		}
-		$fields["Summary"] = $description;
+		$fields['Summary'] = $description;
 		return $fields;
 	}
 
 	private static function extract_title(&$contents, $default = null) {
-		$title = HTML::extract_tag_contents("title", $contents);
+		$title = HTML::extract_tag_contents('title', $contents);
 		if ($title) {
-			$contents = HTML::remove_tags("title", $contents);
+			$contents = HTML::remove_tags('title', $contents);
 		} else {
-			$title = HTML::extract_tag_contents("h1", $contents);
+			$title = HTML::extract_tag_contents('h1', $contents);
 			if ($title) {
-				$contents = HTML::remove_tags("h1", $contents);
+				$contents = HTML::remove_tags('h1', $contents);
 			} else {
 				$title = $default;
 			}
@@ -123,17 +123,17 @@ class Content_Article extends ORM {
 	public function register_content($name, $contents, $parent, $update = false) {
 		$title = self::extract_title($contents, $name);
 		$fields = self::extract_meta($contents);
-		$body = HTML::extract_tag_contents("body", $contents);
+		$body = HTML::extract_tag_contents('body', $contents);
 		if (!$body) {
 			$body = $contents;
 		}
-		$fields["Name"] = $title;
-		$fields["CodeName"] = $name;
-		$fields["Body"] = $body;
+		$fields['Name'] = $title;
+		$fields['CodeName'] = $name;
+		$fields['Body'] = $body;
 		if ($parent) {
-			$fields["Categories"] = $parent;
+			$fields['Categories'] = $parent;
 		}
-		$fields["CodeName"] = $name;
+		$fields['CodeName'] = $name;
 		$this->initialize($fields);
 		return $this->register();
 	}
@@ -150,11 +150,11 @@ class Content_Article extends ORM {
 	public static function where_publish_start_end($where = false) {
 		$where['*PublishStart|<='] = [
 			null,
-			"NOW()",
+			'NOW()',
 		];
 		$where['*PublishEnd|>='] = [
 			null,
-			"NOW()",
+			'NOW()',
 		];
 		$where['IsActive'] = 'true';
 
@@ -167,7 +167,7 @@ class Content_Article extends ORM {
 	 * @return string
 	 */
 	public static function where_publish_start_end_NOT($where = false) {
-		$where['*PublishEnd|<'] = "NOW()";
+		$where['*PublishEnd|<'] = 'NOW()';
 
 		return $where;
 	}
@@ -179,11 +179,11 @@ class Content_Article extends ORM {
 	public function displayDate() {
 		$dd = $this->DisplayDate;
 		if (empty($dd)) {
-			return "";
+			return '';
 		}
-		return $this->application->theme("view/date", [
-			"value" => $dd,
-			"format" => "{mmm} {ddd} ({delta})",
+		return $this->application->theme('view/date', [
+			'value' => $dd,
+			'format' => '{mmm} {ddd} ({delta})',
 			'relative_min_unit' => 'day',
 			'zero_string' => 'Today',
 		]);
@@ -194,7 +194,7 @@ class Content_Article extends ORM {
 	 * @return string
 	 */
 	public function homeTitle() {
-		return $this->membere("Headline", $this->Title);
+		return $this->membere('Headline', $this->Title);
 	}
 
 	/**
@@ -209,7 +209,7 @@ class Content_Article extends ORM {
 	 * @return unknown|string
 	 */
 	public function summary() {
-		$result = $this->membere("Summary", "");
+		$result = $this->membere('Summary', '');
 		if (!empty($result)) {
 			return HTML::ellipsis($result, $this->optionInt('summary_maximum_length', -1));
 		}
@@ -234,7 +234,7 @@ class Content_Article extends ORM {
 	 * @return number
 	 */
 	private function _compute_image_width($global_prefix, $default_value) {
-		return $this->_compute_image_size("width", $global_prefix, $default_value);
+		return $this->_compute_image_size('width', $global_prefix, $default_value);
 	}
 
 	/**
@@ -244,7 +244,7 @@ class Content_Article extends ORM {
 	 * @return number
 	 */
 	private function _compute_image_height($global_prefix, $default_value) {
-		return $this->_compute_image_size("height", $global_prefix, $default_value);
+		return $this->_compute_image_size('height', $global_prefix, $default_value);
 	}
 
 	/**
@@ -265,10 +265,10 @@ class Content_Article extends ORM {
 	 * @return string
 	 */
 	public function image($image_index = 0, $options = []) {
-		$options['image_path'] = "/data/article";
+		$options['image_path'] = '/data/article';
 
-		$member_prefix = (avalue($options, 'is_thumb')) ? "Thumb" : "";
-		$global_prefix = (avalue($options, 'is_thumb')) ? "thumb_" : "";
+		$member_prefix = (avalue($options, 'is_thumb')) ? 'Thumb' : '';
+		$global_prefix = (avalue($options, 'is_thumb')) ? 'thumb_' : '';
 		$default_value = (avalue($options, 'is_thumb')) ? 150 : 300;
 
 		if (!array_key_exists('image_width', $options)) {

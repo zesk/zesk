@@ -24,7 +24,7 @@ class Configuration_Editor_CONF extends Configuration_Editor {
 	 * @param array $options
 	 */
 	public function edit(array $edits) {
-		$parser = new Configuration_Parser_CONF("", null, $this->options);
+		$parser = new Configuration_Parser_CONF('', null, $this->options);
 		$low_edits = ArrayTools::flip_copy(array_keys($edits), true);
 		$new_lines = [];
 		$lines = explode("\n", $this->content);
@@ -38,7 +38,7 @@ class Configuration_Editor_CONF extends Configuration_Editor {
 				if (array_key_exists($lowkey, $low_edits)) {
 					$key = $low_edits[$lowkey];
 					unset($low_edits[$lowkey]);
-					$new_lines[] = $key . '=' . Text::lines_wrap(JSON::encode($edits[$key]), "\t", "", "") . "\n";
+					$new_lines[] = $key . '=' . Text::lines_wrap(JSON::encode($edits[$key]), "\t", '', '') . "\n";
 					unset($edits[$key]);
 				} else {
 					$new_lines[] = rtrim($line, "\n") . "\n";
@@ -48,6 +48,6 @@ class Configuration_Editor_CONF extends Configuration_Editor {
 		foreach ($low_edits as $low_edit => $key) {
 			$new_lines[] = $key . '=' . JSON::encode($edits[$key]) . "\n";
 		}
-		return implode("", $new_lines);
+		return implode('', $new_lines);
 	}
 }

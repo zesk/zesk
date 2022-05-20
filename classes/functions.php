@@ -60,7 +60,7 @@ const PREG_PATTERN_EMAIL = PREG_PATTERN_EMAIL_USERNAME . '@' . PREG_PATTERN_EMAI
 /**
  * Key used to seaparate paths in the globals array
  */
-const ZESK_GLOBAL_KEY_SEPARATOR = "::";
+const ZESK_GLOBAL_KEY_SEPARATOR = '::';
 
 /**
  * Get our global Zesk kernel. Use is DISCOURAGED, unless you use it like:
@@ -214,9 +214,9 @@ function _backtrace(int $n = -1): string {
 	}
 	$result = [];
 	foreach ($bt as $i) {
-		$file = "closure";
-		$line = "-none-";
-		$class = "-noclass-";
+		$file = 'closure';
+		$line = '-none-';
+		$class = '-noclass-';
 		$type = $function = $args = null;
 		extract($i, EXTR_OVERWRITE | EXTR_IF_EXISTS);
 		$line = "$file: $line $class$type$function";
@@ -232,7 +232,7 @@ function _backtrace(int $n = -1): string {
 				}
 			}
 			if (count($arg_dump)) {
-				$line .= "(" . implode(", ", $arg_dump) . ")";
+				$line .= '(' . implode(', ', $arg_dump) . ')';
 			}
 		}
 		$result[] = $line;
@@ -281,7 +281,7 @@ function calling_function(int $depth = 1, bool $include_line = true): string {
 	if (!$top) {
 		return '-no calling function $depth deep-';
 	}
-	return ($top["file"] ?? '') . " " . ($top["class"] ?? '') . ($top["type"] ?? '') . $top["function"] . ($include_line ? ':' . ($top['line'] ?? '-') : '');
+	return ($top['file'] ?? '') . ' ' . ($top['class'] ?? '') . ($top['type'] ?? '') . $top['function'] . ($include_line ? ':' . ($top['line'] ?? '-') : '');
 }
 
 /**
@@ -297,7 +297,7 @@ function calling_function(int $depth = 1, bool $include_line = true): string {
  * @return void echos to page
  * @see print_r
  */
-if (!function_exists("dump")) {
+if (!function_exists('dump')) {
 	function dump(): void {
 		call_user_func_array('zesk\Debug::output', func_get_args());
 	}
@@ -345,10 +345,10 @@ function to_bool(mixed $value, bool $default = false): bool {
 	}
 	$value = strtolower(strval($value));
 	$find = ";$value;";
-	if (str_contains(";1;t;y;yes;on;enabled;true;", $find)) {
+	if (str_contains(';1;t;y;yes;on;enabled;true;', $find)) {
 		return true;
 	}
-	if (str_contains(";0;f;n;no;off;disabled;false;null;;", $find)) {
+	if (str_contains(';0;f;n;no;off;disabled;false;null;;', $find)) {
 		return false;
 	}
 	return $default;
@@ -394,14 +394,14 @@ function to_double(mixed $s, float $def = null): float {
  *            String list delimiter (";" is default)
  * @return array or $default
  */
-function to_list(mixed $mixed, array $default = [], string $delimiter = ";"): array {
-	if ($mixed === "") {
+function to_list(mixed $mixed, array $default = [], string $delimiter = ';'): array {
+	if ($mixed === '') {
 		return $default;
 	} elseif (is_scalar($mixed)) {
 		return explode($delimiter, strval($mixed));
 	} elseif (is_array($mixed)) {
 		return $mixed;
-	} elseif (is_object($mixed) && method_exists($mixed, "to_list")) {
+	} elseif (is_object($mixed) && method_exists($mixed, 'to_list')) {
 		return to_list($mixed->to_list());
 	} else {
 		return $default;
@@ -442,7 +442,7 @@ function toArray(mixed $mixed, array $default = []): array {
 			$mixed,
 		];
 	}
-	if (is_object($mixed) && method_exists($mixed, "to_array")) {
+	if (is_object($mixed) && method_exists($mixed, 'to_array')) {
 		return $mixed->to_array();
 	}
 	return $default;
@@ -606,7 +606,7 @@ function flatten(mixed $mixed): string {
 		$mixed = ArrayTools::flatten($mixed);
 	}
 	if ($mixed === null) {
-		return "";
+		return '';
 	}
 	if (is_object($mixed)) {
 		return method_exists($mixed, '__toString') ? strval($mixed) : flatten(get_object_vars($mixed));
@@ -673,11 +673,11 @@ function preg_replace_mixed(string $pattern, string $replacement, array|string $
  *            Pattern to match
  * @param callable $callback
  *            Replacement string
- * @param mixed $subject
+ * @param array|string $subject
  *            String or array to manipulate
- * @return mixed
+ * @return array|string
  */
-function preg_replace_callback_mixed(string $pattern, callable $callback, array|string $subject): array {
+function preg_replace_callback_mixed(string $pattern, callable $callback, array|string $subject): array|string {
 	if (is_array($subject)) {
 		foreach ($subject as $k => $v) {
 			$subject[$k] = preg_replace_callback_mixed($pattern, $callback, $v);
@@ -702,7 +702,7 @@ function preg_replace_callback_mixed(string $pattern, callable $callback, array|
  *            Suffix character for tokens (defaults to "}")
  * @return array
  */
-function amap(array $target, array $map, bool $insensitive = false, string $prefix_char = "{", string $suffix_char = "}"): array {
+function amap(array $target, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array {
 	return map(kmap($target, $map, $insensitive, $prefix_char, $suffix_char), $map, $insensitive, $prefix_char, $suffix_char);
 }
 
@@ -721,7 +721,7 @@ function amap(array $target, array $map, bool $insensitive = false, string $pref
  *            Suffix character for tokens (defaults to "}")
  * @return array
  */
-function kmap(array $target, array $map, bool $insensitive = false, string $prefix_char = "{", string $suffix_char = "}"): array {
+function kmap(array $target, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array {
 	$new_mixed = [];
 	foreach ($target as $key => $value) {
 		$new_mixed[map($key, $map, $insensitive, $prefix_char, $suffix_char)] = $value;
@@ -754,7 +754,7 @@ function kmap(array $target, array $map, bool $insensitive = false, string $pref
  *            Suffix character for tokens (defaults to "}")
  * @return mixed (string or array)
  */
-function map(array|string $mixed, array $map, bool $insensitive = false, string $prefix_char = "{", string $suffix_char = "}"): array|string {
+function map(array|string $mixed, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array|string {
 	if ($insensitive) {
 		$map = array_change_key_case($map);
 	}
@@ -762,7 +762,7 @@ function map(array|string $mixed, array $map, bool $insensitive = false, string 
 	foreach ($map as $k => $v) {
 		if (is_array($v)) {
 			if (ArrayTools::is_list($v)) {
-				$v = implode(";", ArrayTools::flatten($v));
+				$v = implode(';', ArrayTools::flatten($v));
 			} else {
 				$v = JSON::encode($v);
 			}
@@ -798,9 +798,9 @@ function map(array|string $mixed, array $map, bool $insensitive = false, string 
  * @param string $suffix_char
  * @return mixed
  */
-function map_clean($mixed, $prefix_char = "{", $suffix_char = "}") {
+function map_clean($mixed, $prefix_char = '{', $suffix_char = '}') {
 	$suff = preg_quote($suffix_char);
-	return preg_replace_mixed('#' . preg_quote($prefix_char, '#') . '[^' . $suff . ']*' . $suff . '#', "", $mixed);
+	return preg_replace_mixed('#' . preg_quote($prefix_char, '#') . '[^' . $suff . ']*' . $suff . '#', '', $mixed);
 }
 
 /**
@@ -809,7 +809,7 @@ function map_clean($mixed, $prefix_char = "{", $suffix_char = "}") {
  * @param string $string
  * @return boolean
  */
-function can_map($string, $prefix_char = "{", $suffix_char = "}") {
+function can_map($string, $prefix_char = '{', $suffix_char = '}') {
 	$tokens = map_tokens($string, $prefix_char, $suffix_char);
 	return count($tokens) !== 0;
 }
@@ -822,8 +822,8 @@ function can_map($string, $prefix_char = "{", $suffix_char = "}") {
  * @param string $suffix_char
  * @return array
  */
-function map_tokens($mixed, $prefix_char = "{", $suffix_char = "}") {
-	$delimiter = "#";
+function map_tokens($mixed, $prefix_char = '{', $suffix_char = '}') {
+	$delimiter = '#';
 	$suff = preg_quote($suffix_char, $delimiter);
 	$matches = [];
 	if (!preg_match_all($delimiter . preg_quote($prefix_char, $delimiter) . '[^' . $suff . ']*' . $suff . $delimiter, $mixed, $matches)) {
@@ -865,7 +865,7 @@ function map_tokens($mixed, $prefix_char = "{", $suffix_char = "}") {
 function _W($phrase) {
 	return call_user_func_array([
 		HTML::class,
-		"wrap",
+		'wrap',
 	], func_get_args());
 }
 
@@ -885,15 +885,15 @@ function _W($phrase) {
  *  delimiter in the right value Any other value the delimiter is stripped from the results
  * @return array A size 2 array containing the left and right portions of the pair
  */
-function pair(string $a, string $delim = '.', string $left = "", string $right = "", string $include_delimiter = ""): array {
+function pair(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
 	$n = strpos($a, $delim);
 	$delim_len = strlen($delim);
 	return ($n === false) ? [
 		$left,
 		$right,
 	] : [
-		substr($a, 0, $n + ($include_delimiter === "left" ? $delim_len : 0)),
-		substr($a, $n + ($include_delimiter === "right" ? 0 : $delim_len)),
+		substr($a, 0, $n + ($include_delimiter === 'left' ? $delim_len : 0)),
+		substr($a, $n + ($include_delimiter === 'right' ? 0 : $delim_len)),
 	];
 }
 
@@ -915,15 +915,15 @@ function pair(string $a, string $delim = '.', string $left = "", string $right =
  * @return array A size 2 array containing the left and right portions of the pair
  * @see pair
  */
-function pairr(string $a, string $delim = '.', string $left = "", string $right = "", string $include_delimiter = ""): array {
+function pairr(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
 	$n = strrpos($a, $delim);
 	$delim_len = strlen($delim);
 	return ($n === false) ? [
 		$left,
 		$right,
 	] : [
-		substr($a, 0, $n + ($include_delimiter === "left" ? $delim_len : 0)),
-		substr($a, $n + ($include_delimiter === "right" ? 0 : $delim_len)),
+		substr($a, 0, $n + ($include_delimiter === 'left' ? $delim_len : 0)),
+		substr($a, $n + ($include_delimiter === 'right' ? 0 : $delim_len)),
 	];
 }
 
@@ -959,15 +959,15 @@ function glue(string $left, string $glue, string $right): string {
  *            Returns the quotes removed
  * @return string|array Unquoted string, or same string if quotes not found
  */
-function unquote(string $string_to_unquote, string $quotes = "''\"\"", string &$left_quote = ""): string {
+function unquote(string $string_to_unquote, string $quotes = '\'\'""', string &$left_quote = ''): string {
 	if (strlen($string_to_unquote) < 2) {
-		$left_quote = "";
+		$left_quote = '';
 		return $string_to_unquote;
 	}
 	$q = substr($string_to_unquote, 0, 1);
 	$quote_left_offset = strpos($quotes, $q);
 	if ($quote_left_offset === false) {
-		$left_quote = "";
+		$left_quote = '';
 		return $string_to_unquote;
 	}
 	$quote_right = $quotes[$quote_left_offset + 1];
@@ -996,7 +996,7 @@ function path_from_array(string $separator, array $mixed): string {
 	if (is_array($r)) {
 		$r = path_from_array($separator, $r);
 	} elseif (!is_string($r)) {
-		$r = "";
+		$r = '';
 	}
 	foreach ($mixed as $p) {
 		if ($p === null) {
@@ -1025,7 +1025,7 @@ function path_from_array(string $separator, array $mixed): string {
 function path(/* dir, dir, ... */): string {
 	$args = func_get_args();
 	$r = path_from_array('/', $args);
-	$r = preg_replace('|(/\.)+/|', "/", $r); // TODO Test this doesn't munge foo/.bar
+	$r = preg_replace('|(/\.)+/|', '/', $r); // TODO Test this doesn't munge foo/.bar
 	return $r;
 }
 
@@ -1097,7 +1097,7 @@ function is_zero(float|int $value, $epsilon = 1e-5): bool {
 	return abs($value) < $epsilon;
 }
 
-if (!function_exists("is_countable")) {
+if (!function_exists('is_countable')) {
 	/**
 	 * Verify that the contents of a variable is a countable value
 	 *
@@ -1133,7 +1133,7 @@ function integer_between($min, $x, $max): bool {
  */
 function utc_getdate(?int $ts): array {
 	$otz = date_default_timezone_get();
-	date_default_timezone_set("UTC");
+	date_default_timezone_set('UTC');
 	$result = getdate($ts);
 	date_default_timezone_set($otz);
 	return $result;
@@ -1147,7 +1147,7 @@ function utc_getdate(?int $ts): array {
  */
 function utc_parse_time($ts) {
 	$otz = date_default_timezone_get();
-	date_default_timezone_set("UTC");
+	date_default_timezone_set('UTC');
 	$result = parse_time($ts);
 	date_default_timezone_set($otz);
 	return $result;
@@ -1220,7 +1220,7 @@ function is_phone(string $phone): bool {
  * @return mixed
  * @see apath_set
  */
-function &apath(array $array, array|string $path, mixed $default = null, string $separator = "."): mixed {
+function &apath(array $array, array|string $path, mixed $default = null, string $separator = '.'): mixed {
 	// Split the keys by $separator
 	$keys = is_array($path) ? $path : explode($separator, $path);
 	while (true) {
@@ -1249,9 +1249,9 @@ function &apath(array $array, array|string $path, mixed $default = null, string 
  * @param string $separator Character used to separate levels in the array
  * @return array|mixed
  */
-function &apath_set(array &$array, string|array $path, mixed $value = null, string $separator = "."): mixed {
+function &apath_set(array &$array, string|array $path, mixed $value = null, string $separator = '.'): mixed {
 	if ($value === null) {
-		zesk()->deprecated("apath_set null to unset is deprecated");
+		zesk()->deprecated('apath_set null to unset is deprecated');
 		apath_unset($array, to_list($path, $separator));
 		return $array;
 	}
@@ -1393,11 +1393,11 @@ function zesk_sort_weight_array_reverse(array $a, array $b) {
  */
 function _zesk_global_key($key) {
 	$key = explode(ZESK_GLOBAL_KEY_SEPARATOR, strtr(strtolower($key), [
-		"__" => ZESK_GLOBAL_KEY_SEPARATOR,
-		"." => "_",
-		"/" => "_",
-		"-" => "_",
-		" " => "_",
+		'__' => ZESK_GLOBAL_KEY_SEPARATOR,
+		'.' => '_',
+		'/' => '_',
+		'-' => '_',
+		' ' => '_',
 	]));
 	return $key;
 }

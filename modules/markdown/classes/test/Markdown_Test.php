@@ -13,8 +13,8 @@ use zesk\Diff\Lines;
  */
 class Markdown_Test extends Test_Unit {
 	protected array $load_modules = [
-		"markdown",
-		"diff",
+		'markdown',
+		'diff',
 	];
 
 	public function test_md(): void {
@@ -22,11 +22,11 @@ class Markdown_Test extends Test_Unit {
 
 		$tests = Directory::ls(__DIR__, '/.markdown$/');
 		chdir(__DIR__);
-		$bar = "\n" . str_repeat("*", 80) . "\n";
+		$bar = "\n" . str_repeat('*', 80) . "\n";
 		foreach ($tests as $test) {
 			echo "Processing $test ... ";
 			[$markdown, $html] = explode("\n-markdown-\n", file_get_contents($test));
-			if (str_contains($markdown, "***SKIP***")) {
+			if (str_contains($markdown, '***SKIP***')) {
 				// TODO
 				continue;
 			}
@@ -38,8 +38,8 @@ class Markdown_Test extends Test_Unit {
 				echo "<Test File, >Computed Result\n";
 				//		echo $result_html;
 				echo $diff->output();
-				file_put_contents($test . ".loaded", $html);
-				file_put_contents($test . ".computed", $result_html);
+				file_put_contents($test . '.loaded', $html);
+				file_put_contents($test . '.computed', $result_html);
 				echo "\nbbdiff $test.loaded $test.computed\n";
 				echo $bar;
 				$failed = true;

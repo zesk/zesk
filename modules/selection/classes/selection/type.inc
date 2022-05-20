@@ -40,10 +40,10 @@ class Selection_Type extends ORM {
 		$alias = $list->alias();
 		$id_column = $this->application->orm_registry($list->orm_class())->id_column();
 		$list->what([
-			"id" => "$alias.$id_column",
-			"*type" => $this->id(),
-			"*add" => intval(to_bool($add)),
-			"*query" => $query->id(),
+			'id' => "$alias.$id_column",
+			'*type' => $this->id(),
+			'*add' => intval(to_bool($add)),
+			'*query' => $query->id(),
 		]);
 		$list->limit(0, -1);
 		$this->application->orm_registry(Selection_Item::class)
@@ -59,9 +59,9 @@ class Selection_Type extends ORM {
 	 */
 	public function items_selected() {
 		return $this->member_query('items')
-			->where("add", true)
+			->where('add', true)
 			->distinct(true)
-			->group_by("id")
+			->group_by('id')
 			->orm_iterator();
 	}
 
@@ -71,7 +71,7 @@ class Selection_Type extends ORM {
 	 * @return boolean True if it's the user's original selection
 	 */
 	public function is_original() {
-		return !begins($this->code, "*");
+		return !begins($this->code, '*');
 	}
 
 	/**
@@ -102,7 +102,7 @@ class Selection_Type extends ORM {
 	 */
 	public function duplicate(Options_Duplicate &$options = null) {
 		$dup = parent::duplicate($options);
-		$dup->code = "*" . md5(microtime());
+		$dup->code = '*' . md5(microtime());
 		$dup->store();
 		$mapping = Selection_Query::copy_duplicate($this->application, $this->id, $dup->id);
 		Selection_Item::copy_duplicate($this->application, $this->id, $dup->id, $mapping);
@@ -125,7 +125,7 @@ class Selection_Type extends ORM {
 	 * @param array $remove_items
 	 */
 	public function items_update(array $add_items, array $remove_items): void {
-		$found = $this->member_query("items")->where("id", array_merge($add_items, $remove_items))->to_array("id");
+		$found = $this->member_query('items')->where('id', array_merge($add_items, $remove_items))->to_array('id');
 		$items = ArrayTools::flip_assign($add_items, true) + ArrayTools::flip_assign($remove_items, false);
 		foreach ($found as $id => $row) {
 			$op = $items[$id];
@@ -136,20 +136,20 @@ class Selection_Type extends ORM {
 					$this->application->orm_registry(Selection_Item::class)
 						->query_delete()
 						->where([
-						"id" => $id,
-						"type" => $this,
+						'id' => $id,
+						'type' => $this,
 					])
 						->execute();
 				} else {
 					$this->application->orm_registry(Selection_Item::class)
 						->query_update()
 						->value([
-						"add" => $op,
-						"query" => null,
+						'add' => $op,
+						'query' => null,
 					])
 						->where([
-						"id" => $id,
-						"type" => $this,
+						'id' => $id,
+						'type' => $this,
 					])
 						->execute();
 				}
@@ -160,10 +160,10 @@ class Selection_Type extends ORM {
 			$this->application->orm_registry(Selection_Item::class)
 				->query_insert()
 				->values([
-				"add" => intval($op),
-				"query" => null,
-				"id" => $id,
-				"type" => $this,
+				'add' => intval($op),
+				'query' => null,
+				'id' => $id,
+				'type' => $this,
 			])
 				->replace(true)
 				->execute();
@@ -176,10 +176,10 @@ class Selection_Type extends ORM {
 	 * @return integer
 	 */
 	public function count() {
-		return $this->member_query("items")
-			->what("*n", "COUNT(DISTINCT items.id)")
-			->where("items.add", 1)
-			->one_integer("n");
+		return $this->member_query('items')
+			->what('*n', 'COUNT(DISTINCT items.id)')
+			->where('items.add', 1)
+			->one_integer('n');
 	}
 
 	/**
@@ -190,43 +190,43 @@ class Selection_Type extends ORM {
 		$locale = $this->application->locale;
 		/* @var $query Selection_Query */
 		foreach ($this->queries as $query) {
-			$line[] = HTML::wrap($locale->__("[{action}] {title} ({operation}{count})", [
-				"title" => $query->title,
-				"count" => $query->count(),
-				"operation" => $query->add ? "+" : "-",
-				"action" => $query->add ? $locale->__('Selection_Type:=Added to selection') : $locale->__('Selection_Type:=Removed from selection'),
-			]), HTML::span(".query-action " . ($query->add ? ".query-action-add" : ".query-action-remove"), "[]"));
+			$line[] = HTML::wrap($locale->__('[{action}] {title} ({operation}{count})', [
+				'title' => $query->title,
+				'count' => $query->count(),
+				'operation' => $query->add ? '+' : '-',
+				'action' => $query->add ? $locale->__('Selection_Type:=Added to selection') : $locale->__('Selection_Type:=Removed from selection'),
+			]), HTML::span('.query-action ' . ($query->add ? '.query-action-add' : '.query-action-remove'), '[]'));
 		}
-		$n_added = $this->application->orm_registry("zesk\\Selection_Item")
+		$n_added = $this->application->orm_registry('zesk\\Selection_Item')
 			->query_select()
 			->where([
-			"type" => $this,
-			"query" => null,
-			"add" => 1,
+			'type' => $this,
+			'query' => null,
+			'add' => 1,
 		])
-			->what("*n", "COUNT(id)")
-			->one_integer("n");
+			->what('*n', 'COUNT(id)')
+			->one_integer('n');
 		if ($n_added) {
-			$line[] .= $locale->__("{n} specifically added", [
-				"n" => $n_added,
+			$line[] .= $locale->__('{n} specifically added', [
+				'n' => $n_added,
 			]);
 		}
-		$n_excluded = $this->application->orm_registry("zesk\\Selection_Item")
+		$n_excluded = $this->application->orm_registry('zesk\\Selection_Item')
 			->query_select()
 			->where([
-			"type" => $this,
-			"query" => null,
-			"add" => 0,
+			'type' => $this,
+			'query' => null,
+			'add' => 0,
 		])
-			->what("*n", "COUNT(id)")
-			->one_integer("n");
+			->what('*n', 'COUNT(id)')
+			->one_integer('n');
 		if ($n_excluded) {
-			$line[] .= $locale->__("{n} specifically removed", [
-				"n" => $n_excluded,
+			$line[] .= $locale->__('{n} specifically removed', [
+				'n' => $n_excluded,
 			]);
 		}
-		$line[] = $locale->__("{n} total", [
-			"n" => $this->count(),
+		$line[] = $locale->__('{n} total', [
+			'n' => $this->count(),
 		]);
 		return $line;
 	}

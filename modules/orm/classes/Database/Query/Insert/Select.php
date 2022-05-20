@@ -26,7 +26,7 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	 *
 	 * @var string
 	 */
-	private string $into = "";
+	private string $into = '';
 
 	/**
 	 *
@@ -38,7 +38,7 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	 *
 	 * @var string
 	 */
-	protected string $verb = "INSERT";
+	protected string $verb = 'INSERT';
 
 	/**
 	 * Create an new query
@@ -100,7 +100,7 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	 * @return bool
 	 */
 	public function replace(): bool {
-		return $this->verb === "REPLACE";
+		return $this->verb === 'REPLACE';
 	}
 
 	/**
@@ -110,7 +110,7 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	 * @return string|\zesk\Database_Query_Insert_Select
 	 */
 	public function setReplace(bool $replace = true): self {
-		$this->verb = $replace ? "REPLACE" : "INSERT";
+		$this->verb = $replace ? 'REPLACE' : 'INSERT';
 		return $this;
 	}
 
@@ -130,16 +130,16 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	 * @throws Exception_Semantics
 	 */
 	public function setWhatString(string $what): self {
-		throw new Exception_Semantics("{class} must have an associative array for what (passed in \"$what\")", ["class" => __CLASS__]);
+		throw new Exception_Semantics("{class} must have an associative array for what (passed in \"$what\")", ['class' => __CLASS__]);
 	}
 
 	public function __toString() {
 		return $this->sql()->insert_select([
-			"verb" => $this->verb,
-			"table" => $this->into,
-			"values" => $this->what,
-			"low_priority" => $this->low_priority,
-			"select" => parent::__toString(),
+			'verb' => $this->verb,
+			'table' => $this->into,
+			'values' => $this->what,
+			'low_priority' => $this->low_priority,
+			'select' => parent::__toString(),
 		]);
 	}
 

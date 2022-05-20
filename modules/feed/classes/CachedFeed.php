@@ -23,7 +23,7 @@ class CachedFeed extends Feed {
 	 * @see \zesk\Feed::execute()
 	 */
 	public function execute() {
-		$cache_item = $this->application->cache->getItem(__CLASS__ . "-" . $this->url);
+		$cache_item = $this->application->cache->getItem(__CLASS__ . '-' . $this->url);
 		if ($cache_item->isHit()) {
 			[$this->posts, $this->last_updated] = $cache_item->get();
 			foreach ($this->posts as $post) {
@@ -37,7 +37,7 @@ class CachedFeed extends Feed {
 				$this->posts,
 				Timestamp::now(),
 			]);
-			$cache_item->expiresAfter($this->option("ttl", 600));
+			$cache_item->expiresAfter($this->option('ttl', 600));
 			$this->application->cache->saveDeferred($cache_item);
 		}
 		return $this;

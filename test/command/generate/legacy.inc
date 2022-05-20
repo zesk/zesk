@@ -24,41 +24,41 @@ class Test_Command_Generate_Legacy extends Command_Base {
 			$n = strlen($codehome);
 		} else {
 			backtrace(false);
-			echo "$file doesn't begin with " . ZESK_ROOT . " or " . $codehome . "\n";
+			echo "$file doesn't begin with " . ZESK_ROOT . ' or ' . $codehome . "\n";
 			exit(1);
 		}
 		$file = substr($file, $n);
 
-		$n = substr_count($dest_file, "/", $n);
-		$ndirnames = "__DIR__";
+		$n = substr_count($dest_file, '/', $n);
+		$ndirnames = '__DIR__';
 		for ($i = 0; $i < $n; $i++) {
-			$ndirnames = "dirname(" . $ndirnames . ")";
+			$ndirnames = 'dirname(' . $ndirnames . ')';
 		}
 
 		$contents = [];
-		$contents[] = "<" . "?php";
-		$contents[] = "/**";
-		$contents[] = " * @version \$URL\$";
-		$contents[] = " * @package zesk";
-		$contents[] = " * @subpackage test";
-		$contents[] = " * @author \$Author\$";
-		$contents[] = " * @copyright Copyright &copy; " . date('Y') . ", " . $this->option("copyright", "Market Acumen, Inc.");
-		$contents[] = " */";
-		$contents[] = "";
+		$contents[] = '<' . '?php';
+		$contents[] = '/**';
+		$contents[] = ' * @version $URL$';
+		$contents[] = ' * @package zesk';
+		$contents[] = ' * @subpackage test';
+		$contents[] = ' * @author $Author$';
+		$contents[] = ' * @copyright Copyright &copy; ' . date('Y') . ', ' . $this->option('copyright', 'Market Acumen, Inc.');
+		$contents[] = ' */';
+		$contents[] = '';
 
 		return $contents;
 	}
 
 	public function clean_function_parameters($params) {
-		$params = explode(",", $params);
+		$params = explode(',', $params);
 		$clean_params = [];
 		foreach ($params as $p) {
 			$p = trim($p);
 			if (empty($p)) {
 				continue;
 			}
-			[$var, $default] = pair($p, "=", $p, 'null');
-			$var = str_replace("&", "", $var);
+			[$var, $default] = pair($p, '=', $p, 'null');
+			$var = str_replace('&', '', $var);
 			$clean_params[ltrim($var, '$')] = $default;
 		}
 		return $clean_params;
@@ -80,9 +80,9 @@ class Test_Command_Generate_Legacy extends Command_Base {
 				$v = PHP::dump($v);
 			}
 			$clean_params[] = '$' . $k;
-			$contents[] = '$' . $k . ' = ' . $v . ";";
+			$contents[] = '$' . $k . ' = ' . $v . ';';
 		}
-		$contents[] = "$func(" . implode(", ", $clean_params) . ");";
+		$contents[] = "$func(" . implode(', ', $clean_params) . ');';
 
 		return implode("\n", $contents);
 	}
@@ -141,7 +141,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 		$contents = test_file_header($file, $dest_file, false);
 
 		$contents[] = generate_function_test_code("$class::$method", $params);
-		$contents[] = "echo basename(__FILE__) . \": success\\n\";";
+		$contents[] = 'echo basename(__FILE__) . ": success\\n";';
 
 		if (!$this->optionBool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
@@ -230,26 +230,26 @@ class Test_Command_Generate_Legacy extends Command_Base {
 			$param_list = [];
 			foreach ($params as $k => $v) {
 				$param_list[] = '$' . $k;
-				$contents[] = '$' . $k . ' = ' . PHP::dump($v) . ";";
+				$contents[] = '$' . $k . ' = ' . PHP::dump($v) . ';';
 			}
-			if (begins($method, "new ")) {
+			if (begins($method, 'new ')) {
 				$prefix = '$testx = ';
 				$has_non_static_methods = true;
-			} elseif (begins($method, "::")) {
+			} elseif (begins($method, '::')) {
 				$method_name = str_replace('::', '', $method);
 				$method_object = $x->getMethod($method_name);
 				$methodParams = $method_object->getParameters();
 
 				self::generate_static_class_method_test($file, $dest_path, $class, $method_name, $methodParams);
 				continue;
-			} elseif (begins($method, "->")) {
+			} elseif (begins($method, '->')) {
 				$prefix = '$testx';
 				$has_non_static_methods = true;
 			} else {
 				continue;
 			}
-			$contents[] = $prefix . $method . '(' . implode(", ", $param_list) . ');';
-			$contents[] = "";
+			$contents[] = $prefix . $method . '(' . implode(', ', $param_list) . ');';
+			$contents[] = '';
 		}
 		if (!$class_test_file) {
 			return;
@@ -257,7 +257,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 		if (!$has_non_static_methods) {
 			return;
 		}
-		$contents[] = "echo basename(__FILE__) . \": success\\n\";";
+		$contents[] = 'echo basename(__FILE__) . ": success\\n";';
 
 		if (!$this->optionBool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
@@ -284,12 +284,12 @@ class Test_Command_Generate_Legacy extends Command_Base {
 		/* Strip away quoted strings (to eliminate stray {}) */
 		do {
 			$old_content = $content;
-			$content = preg_replace("/'[^'\n]*'/", "", $content);
-			$content = preg_replace('/"[^"\n]*"/', "", $content);
+			$content = preg_replace("/'[^'\n]*'/", '', $content);
+			$content = preg_replace('/"[^"\n]*"/', '', $content);
 		} while ($content !== $old_content);
 
 		if ($debug_parsing) {
-			file_put_contents($debug_parsing_path . "." . ($iter++), $content);
+			file_put_contents($debug_parsing_path . '.' . ($iter++), $content);
 		}
 
 		/* Strip away all // comments */
@@ -299,23 +299,23 @@ class Test_Command_Generate_Legacy extends Command_Base {
 		} while ($content !== $old_content);
 
 		if ($debug_parsing) {
-			file_put_contents($debug_parsing_path . "." . ($iter++), $content);
+			file_put_contents($debug_parsing_path . '.' . ($iter++), $content);
 		}
 		/* Strip away all /* comments */
 		do {
 			$old_content = $content;
-			$content = preg_replace("|/\\*[^~]*?\\*/|m", "", $content);
+			$content = preg_replace('|/\\*[^~]*?\\*/|m', '', $content);
 		} while ($content !== $old_content);
 
 		if ($debug_parsing) {
-			file_put_contents($debug_parsing_path . "." . ($iter++), $content);
+			file_put_contents($debug_parsing_path . '.' . ($iter++), $content);
 		}
 		/* Strip away all blocks */
 		do {
 			$old_content = $content;
-			$content = preg_replace('/\{[^\{\}]*\}/', "", $content);
+			$content = preg_replace('/\{[^\{\}]*\}/', '', $content);
 			if ($debug_parsing) {
-				file_put_contents($debug_parsing_path . "." . ($iter++), $content);
+				file_put_contents($debug_parsing_path . '.' . ($iter++), $content);
 			}
 		} while ($content !== $old_content);
 
@@ -328,7 +328,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 				self::generate_function_tests($file, $dest_path, $func, $params);
 			}
 		}
-		if (preg_match_all("/class\\s+([A-Za-z_][A-Za-z_0-9]*)\\s*/", $content, $matches, PREG_SET_ORDER)) {
+		if (preg_match_all('/class\\s+([A-Za-z_][A-Za-z_0-9]*)\\s*/', $content, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
 				self::generate_class_tests($file, $dest_path, $match[1]);
 			}
@@ -367,7 +367,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 		$dirs = [];
 		$files = [];
 
-		while (($arg = $this->get_arg("target")) !== null) {
+		while (($arg = $this->get_arg('target')) !== null) {
 			if (Directory::is_absolute($arg)) {
 				$dirs[] = $arg;
 			} elseif (is_dir(path($cwd, $arg))) {
@@ -384,11 +384,11 @@ class Test_Command_Generate_Legacy extends Command_Base {
 			$this->verbose_log("Generating tests for the current directory: $cwd\n");
 			$dirs[] = $cwd;
 		}
-		$dry_run = $this->optionBool("dry-run");
+		$dry_run = $this->optionBool('dry-run');
 		if ($dry_run) {
 			$this->verbose_log("Dry run: No files will be created.\n");
 		}
-		$extensions = ArrayTools::prefix(ArrayTools::unprefix(".", $this->option_list("extensions")), ".");
+		$extensions = ArrayTools::prefix(ArrayTools::unprefix('.', $this->option_list('extensions')), '.');
 		foreach ($dirs as $dir) {
 			$this->verbose_log("Processing directory $dir ...");
 			if (!Directory::is_absolute($dir)) {

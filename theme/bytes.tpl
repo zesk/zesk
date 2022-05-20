@@ -9,4 +9,4 @@ namespace zesk;
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
-echo Number::format_bytes($locale, $this->content, $this->get1("1;precision"));
+echo Number::format_bytes($locale, $this->content, $this->get1('1;precision'));

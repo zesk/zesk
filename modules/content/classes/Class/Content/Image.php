@@ -13,27 +13,27 @@ class Class_Content_Image extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public string $name = "Image";
+	public string $name = 'Image';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public $name_column = "title";
+	public $name_column = 'title';
 
 	/**
 	 *
 	 * @var array
 	 */
 	public array $find_keys = [
-		"data",
-		"path",
+		'data',
+		'path',
 	];
 
 	/**
@@ -41,7 +41,7 @@ class Class_Content_Image extends Class_ORM {
 	 * @var array
 	 */
 	public array $has_one = [
-		"data" => Content_Data::class,
+		'data' => Content_Data::class,
 	];
 
 	/**
@@ -49,11 +49,11 @@ class Class_Content_Image extends Class_ORM {
 	 * @var array
 	 */
 	public array $has_many = [
-		"users" => [
-			"class" => User::class,
-			"link_class" => User_Content_Image::class,
-			"foreign_key" => "image",
-			"far_key" => "user",
+		'users' => [
+			'class' => User::class,
+			'link_class' => User_Content_Image::class,
+			'foreign_key' => 'image',
+			'far_key' => 'user',
 		],
 	];
 
@@ -62,16 +62,16 @@ class Class_Content_Image extends Class_ORM {
 	 * @var array
 	 */
 	public array $column_types = [
-		"id" => self::type_id,
-		"data" => self::type_object,
-		"width" => self::type_integer,
-		"height" => self::type_integer,
-		"mime_type" => self::type_string,
-		"path" => self::type_string,
-		"title" => self::type_string,
-		"description" => self::type_string,
-		"created" => self::type_created,
-		"modified" => self::type_modified,
+		'id' => self::type_id,
+		'data' => self::type_object,
+		'width' => self::type_integer,
+		'height' => self::type_integer,
+		'mime_type' => self::type_string,
+		'path' => self::type_string,
+		'title' => self::type_string,
+		'description' => self::type_string,
+		'created' => self::type_created,
+		'modified' => self::type_modified,
 	];
 
 	/**
@@ -80,6 +80,6 @@ class Class_Content_Image extends Class_ORM {
 	 */
 	public array $column_defaults = [
 		'title' => '',
-		"description" => "",
+		'description' => '',
 	];
 }

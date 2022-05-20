@@ -43,12 +43,12 @@ class Module extends \zesk\Module {
 
 		$html = $content;
 		if ($css === null) {
-			$css_tags = HTML::extract_tags("style", $content);
+			$css_tags = HTML::extract_tags('style', $content);
 			if (!$css_tags) {
-				throw new Exception_Semantics("No style tags found in HTML content to apply");
+				throw new Exception_Semantics('No style tags found in HTML content to apply');
 			}
-			$html = HTML::remove_tags("style", $content);
-			$css = "";
+			$html = HTML::remove_tags('style', $content);
+			$css = '';
 			foreach ($css_tags as $tag) {
 				$css .= $tag->inner_html() . "\n";
 			}

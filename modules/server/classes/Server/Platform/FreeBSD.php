@@ -10,9 +10,9 @@ namespace zesk;
  *
  */
 class Server_Platform_FreeBSD extends Server_Platform_UNIX {
-	protected $root_user = "root";
+	protected $root_user = 'root';
 
-	protected $root_group = "wheel";
+	protected $root_group = 'wheel';
 
 	protected $command_locations = [
 		'pw' => '/usr/sbin',
@@ -36,20 +36,20 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 		}
 
 		try {
-			$result = $this->exec_one("pw user show {0}", $user);
+			$result = $this->exec_one('pw user show {0}', $user);
 			// publish:*:1001:1001::0:0:Publish User:/publish:/usr/local/bin/bash
 			return self::$users[$user] = ArrayTools::rekey([
 				self::f_user_name,
-				"x-password",
+				'x-password',
 				self::f_user_id,
 				self::f_user_group_id,
-				"x-class",
-				"x-change",
-				"x-expire",
+				'x-class',
+				'x-change',
+				'x-expire',
 				self::f_user_full_name,
 				self::f_user_home,
 				self::f_user_shell,
-			], explode(":", $result, 9));
+			], explode(':', $result, 9));
 		} catch (Server_Exception $e) {
 		}
 		return null;
@@ -61,14 +61,14 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 		}
 
 		try {
-			$result = $this->exec_one("pw group show {0}", $group);
+			$result = $this->exec_one('pw group show {0}', $group);
 			// publish:*:1001:
 			$data = ArrayTools::rekey([
 				self::f_group_name,
 				null,
 				self::f_group_id,
 				self::f_group_members,
-			], explode(":", $result, 4));
+			], explode(':', $result, 4));
 			$data['members'] = to_list($data['members']);
 			return self::$groups[$group] = $data;
 		} catch (Server_Exception $e) {
@@ -80,9 +80,9 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 		if (!$this->group_exists($group)) {
 			throw new Server_Exception_Group_NotFound($group);
 		}
-		$da = ($home !== null) ? " -d {2}" : "";
-		$sa = ($shell !== null) ? " -s {3}" : "";
-		$ua = ($uid !== null) ? " -u {4}" : "";
+		$da = ($home !== null) ? ' -d {2}' : '';
+		$sa = ($shell !== null) ? ' -s {3}' : '';
+		$ua = ($uid !== null) ? ' -u {4}' : '';
 		$this->root_exec("pw user add {0} -g {1}$da$sa$ua", $user, $group, $home, $shell, $uid);
 		return $this->user_id($user);
 	}
@@ -91,13 +91,13 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 		if (!$this->user_exists($user)) {
 			throw new Server_Exception_User_NotFound($user);
 		}
-		$force = " -r";
+		$force = ' -r';
 		$this->root_exec("pw user del {0}$force", $user);
 		return true;
 	}
 
 	public function group_create($group, $members = null, $gid = null) {
-		$ma = "";
+		$ma = '';
 		if ($members !== null) {
 			$members = ArrayTools::trim_clean(to_list($members, []));
 			if (count($members) > 0) {
@@ -106,11 +106,11 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 						throw new Server_Exception_Group_NotFound($members, "When adding $group with members $members");
 					}
 				}
-				$ma = " -m {1}";
-				$members = implode(",", $members);
+				$ma = ' -m {1}';
+				$members = implode(',', $members);
 			}
 			if ($gid !== null) {
-				$ga = " -g {2}";
+				$ga = ' -g {2}';
 			}
 		}
 		$this->root_exec("pw group add {0}$ma$ga", $group, $members, $gid);
@@ -121,11 +121,11 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 		if (!$this->group_exists($group)) {
 			throw new Server_Exception_Group_NotFound($group);
 		}
-		$this->root_exec("pw group del {0}", $group);
+		$this->root_exec('pw group del {0}', $group);
 		return true;
 	}
 
 	public function syslog_restart(): void {
-		$this->root_exec("/etc/rc.d/syslogd restart");
+		$this->root_exec('/etc/rc.d/syslogd restart');
 	}
 }

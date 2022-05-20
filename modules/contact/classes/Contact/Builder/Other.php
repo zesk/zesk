@@ -17,7 +17,7 @@ class Contact_Builder_Other extends Contact_Builder_Base {
 	 *
 	 * @var string
 	 */
-	protected $contact_class = "zesk\\Contact_Other";
+	protected $contact_class = 'zesk\\Contact_Other';
 
 	/**
 	 *
@@ -31,7 +31,7 @@ class Contact_Builder_Other extends Contact_Builder_Base {
 		$data = map($data, [
 			'key' => $key,
 		]);
-		$clean_value = trim($value) . "." . trim($data['label']);
+		$clean_value = trim($value) . '.' . trim($data['label']);
 		$import->merge_item($this->contact_class, $clean_value, $data);
 		return true;
 	}

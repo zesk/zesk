@@ -50,8 +50,8 @@ class Control_Filter_Selector extends Control {
 
 	public function theme_variables() {
 		return [
-			"toggle_mode" => $this->toggle_mode(),
-			"widgets" => $this->filtered_children(),
+			'toggle_mode' => $this->toggle_mode(),
+			'widgets' => $this->filtered_children(),
 		] + parent::theme_variables();
 	}
 }

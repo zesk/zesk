@@ -45,7 +45,7 @@ class Module extends \zesk\Module {
 	 * @return string
 	 */
 	private function _default_css_path() {
-		return $this->option('default_css_path', "/css/" . $this->style_name() . ".css");
+		return $this->option('default_css_path', '/css/' . $this->style_name() . '.css');
 	}
 
 	/**
@@ -96,7 +96,7 @@ class Module extends \zesk\Module {
 	protected function hook_process_variable_color($value, array $settings) {
 		$value = CSS::color_normalize($value);
 		if (empty($value)) {
-			$value = ltrim($settings['default'], "#");
+			$value = ltrim($settings['default'], '#');
 		}
 		return '#' . $value;
 	}
@@ -109,11 +109,11 @@ class Module extends \zesk\Module {
 	 */
 	protected function hook_process_variable_font($value, array $settings) {
 		$objects = $this->application->objects;
-		$fonts = explode(",", $value);
+		$fonts = explode(',', $value);
 		$values = [];
 		foreach ($fonts as $font) {
 			$font = unquote(trim($font));
-			$values[] = $objects->factory("ILess\\Node\\QuotedNode", "'$font'", $font);
+			$values[] = $objects->factory('ILess\\Node\\QuotedNode', "'$font'", $font);
 		}
 		$value_node = $objects->factory("ILess\Node\ValueNode", $values);
 		return $objects->factory("ILess\Variable", 'site_theme_font', $value_node);
@@ -131,7 +131,7 @@ class Module extends \zesk\Module {
 		Directory::depend(dirname($full_path));
 		$compiler = $this->compiler();
 
-		$types = $variables + $this->call_hook_arguments("less_variables", [], []);
+		$types = $variables + $this->call_hook_arguments('less_variables', [], []);
 		$variables = [];
 		foreach ($types as $name => $settings) {
 			$settings['name'] = $name;
@@ -142,13 +142,13 @@ class Module extends \zesk\Module {
 				$settings,
 			], $value);
 		}
-		$this->application->logger->debug("LESS Vars: {vars}", [
-			"vars" => _dump($variables),
+		$this->application->logger->debug('LESS Vars: {vars}', [
+			'vars' => _dump($variables),
 		]);
 		$compiler->variables($variables);
 		$compiler->compile_file($source, $full_path);
-		$this->application->logger->notice("Write css theme {path}", [
-			"path" => $full_path,
+		$this->application->logger->notice('Write css theme {path}', [
+			'path' => $full_path,
 		]);
 	}
 

@@ -23,31 +23,31 @@ foreach ($servers as $server) {
 	$last_updated = $server->data($server_updated_key);
 	if ($last_updated instanceof Timestamp) {
 		$updated = $this->theme([
-			"system/panel/daemon/updated",
-			"system/panel/updated",
-			"updated",
+			'system/panel/daemon/updated',
+			'system/panel/updated',
+			'updated',
 		], [
-			"content" => $last_updated,
+			'content' => $last_updated,
 		], [
-			"first" => true,
+			'first' => true,
 		]);
 	} else {
-		$updated = $locale->__("never updated");
+		$updated = $locale->__('never updated');
 	}
-	$items[] = HTML::tag("li", '.heading', $locale->__("{name} ({updated})", [
-		"name" => $server->name,
-		"updated" => $updated,
+	$items[] = HTML::tag('li', '.heading', $locale->__('{name} ({updated})', [
+		'name' => $server->name,
+		'updated' => $updated,
 	]));
 	if (!$data) {
-		$items[] = HTML::tag('li', '.error', "No process data");
+		$items[] = HTML::tag('li', '.error', 'No process data');
 	} else {
 		$now = microtime(true);
 		foreach ($data as $process => $settings) {
-			$items[] = $this->theme("system/panel/daemon/line", [
-				"content" => $settings,
-				"process" => $process,
+			$items[] = $this->theme('system/panel/daemon/line', [
+				'content' => $settings,
+				'process' => $process,
 			]);
 		}
 	}
 }
-echo HTML::tag("ul", implode("\n", $items));
+echo HTML::tag('ul', implode("\n", $items));

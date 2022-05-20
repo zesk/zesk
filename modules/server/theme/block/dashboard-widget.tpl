@@ -9,11 +9,11 @@ $response = $this->response;
 
 $id = $this->id;
 if (!$id) {
-	$this->id = $id = "dashboard-widget-" . $response->id_counter();
+	$this->id = $id = 'dashboard-widget-' . $response->id_counter();
 }
-echo HTML::tag_open("div", [
-	"class" => CSS::add_class("dashboard-widget", $this->class),
-	"id" => $id,
+echo HTML::tag_open('div', [
+	'class' => CSS::add_class('dashboard-widget', $this->class),
+	'id' => $id,
 ]);
 ?>
 <div class="header">
@@ -23,4 +23,4 @@ echo HTML::tag_open("div", [
 	<?php echo $this->content?>
 </div>
 <?php
-echo HTML::tag_close("div");
+echo HTML::tag_close('div');

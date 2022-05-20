@@ -13,7 +13,7 @@ namespace zesk;
  */
 class Overhead_Test extends Test_Unit {
 	protected array $load_modules = [
-		"ORM",
+		'ORM',
 	];
 
 	public function test_usage(): void {
@@ -31,15 +31,15 @@ class Overhead_Test extends Test_Unit {
 			// echo "$current < $stop, " . ($current < $stop) . "\n";
 		} while ($current < $stop);
 		$nusers = count($users);
-		$this->log("{nusers} users fit in {bytes}, or {per_user} per user", [
-			"nusers" => $nusers,
-			"bytes" => Number::format_bytes($this->application->locale, $test_limit),
-			"per_user" => Number::format_bytes($this->application->locale, $test_limit / $nusers),
+		$this->log('{nusers} users fit in {bytes}, or {per_user} per user', [
+			'nusers' => $nusers,
+			'bytes' => Number::format_bytes($this->application->locale, $test_limit),
+			'per_user' => Number::format_bytes($this->application->locale, $test_limit / $nusers),
 		]);
 	}
 
 	private function run_php_sandbox($sandbox) {
-		$php = $this->application->paths->which("php");
+		$php = $this->application->paths->which('php');
 		ob_start();
 		$result = system("$php $sandbox");
 		ob_end_clean();
@@ -50,20 +50,20 @@ class Overhead_Test extends Test_Unit {
 	 * @no_buffer true
 	 */
 	public function test_kernel_usage(): void {
-		$sandbox = $this->test_sandbox("run.php");
+		$sandbox = $this->test_sandbox('run.php');
 		file_put_contents($sandbox, "<?php\necho memory_get_usage();");
 		$result = $this->run_php_sandbox($sandbox);
 		$this->assert_is_numeric($result);
 		$raw_usage = intval($result);
 		$this->log("Raw PHP usage is $raw_usage");
 
-		file_put_contents($sandbox, "<?php\nrequire_once '" . $this->application->path("zesk.application.php") . "';\necho memory_get_usage();");
+		file_put_contents($sandbox, "<?php\nrequire_once '" . $this->application->path('zesk.application.php') . "';\necho memory_get_usage();");
 		$result = $this->run_php_sandbox($sandbox);
 		$this->assert_is_numeric($result);
 		$usage = intval($result);
 		$this->log("Zesk PHP usage is $usage");
 
 		$delta = $usage - $raw_usage;
-		$this->log("Zesk Overhead is " . $delta . " " . Number::format_bytes($this->application->locale, $delta));
+		$this->log('Zesk Overhead is ' . $delta . ' ' . Number::format_bytes($this->application->locale, $delta));
 	}
 }

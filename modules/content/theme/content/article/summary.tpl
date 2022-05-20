@@ -25,24 +25,24 @@ $request = $this->request;
 
 $new_link = path($request->path(), $object->CodeName);
 
-echo HTML::tag_open("div", '.article-entry');
-if ($object->member_boolean("ShowDisplayDate")) {
-	echo HTML::etag("div", [
-		"class" => "article-date",
+echo HTML::tag_open('div', '.article-entry');
+if ($object->member_boolean('ShowDisplayDate')) {
+	echo HTML::etag('div', [
+		'class' => 'article-date',
 	], $object->displayDate());
 }
 echo $object->articleImage(0, [
-	"image_size" => 150,
+	'image_size' => 150,
 ]);
 
 echo HTML::tag('h2', HTML::a($new_link, $object->homeTitle()));
 
 echo $this->theme('control/admin-edit.tpl');
 
-$insert_html = "&nbsp;<strong><a href=\"$new_link\">" . $object->member("MoreLink", "... more") . "</a></strong>";
+$insert_html = "&nbsp;<strong><a href=\"$new_link\">" . $object->member('MoreLink', '... more') . '</a></strong>';
 
 echo HTML::insert_inside_end($object->summary(), $insert_html);
 
-echo $object->theme("byline");
+echo $object->theme('byline');
 
 echo HTML::tag_close('div');

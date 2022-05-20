@@ -16,18 +16,18 @@ namespace zesk;
 /* @var $object \zesk\Content_Image */
 if (!$this->object) {
 	echo $this->empty_string;
-	$object_id = "";
+	$object_id = '';
 } else {
 	echo $this->theme('content/image', [
-		"object" => $this->object,
-		"width" => $this->width,
-		"height" => $this->height,
+		'object' => $this->object,
+		'width' => $this->width,
+		'height' => $this->height,
 	]);
 	$object_id = $this->object->id;
 }
 echo HTML::input('hidden', $this->name, $object_id, [
-	"id" => $this->name,
-	"class" => 'dropfile-value',
+	'id' => $this->name,
+	'class' => 'dropfile-value',
 ]);
 
 echo $this->theme('dropfile/overlay');

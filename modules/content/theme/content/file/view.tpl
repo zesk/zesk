@@ -15,18 +15,18 @@ namespace zesk;
 /* @var $current_user \User */
 /* @var $object \Content_File */
 echo HTML::tag_open('div', [
-	"class" => CSS::add_class("file", $this->class),
+	'class' => CSS::add_class('file', $this->class),
 ]);
 // TODO Fix this
-$uri = URL::query_append("/download.php", [
-	"FileGroup" => $object->Parent,
-	"ID" => $object->ID,
+$uri = URL::query_append('/download.php', [
+	'FileGroup' => $object->Parent,
+	'ID' => $object->ID,
 ]);
 echo HTML::a_condition($uri === $request->path(), $uri, [
-	"class" => "title",
+	'class' => 'title',
 ], $object->Name);
 echo $this->theme('control/admin-edit');
-echo HTML::etag("p", [
-	"class" => "desc",
+echo HTML::etag('p', [
+	'class' => 'desc',
 ], $object->Body);
 echo HTML::tag_close('div');

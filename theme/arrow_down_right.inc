@@ -17,7 +17,7 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_HTML */
 /* @var $current_user \User */
-$suffix = "";
+$suffix = '';
 //$suffix = ($this->jquery) ? "_jquery" : "";
 $this->state_url = htmlspecialchars($this->state_url);
 
@@ -31,7 +31,7 @@ $this->state_url = htmlspecialchars($this->state_url);
 		echo $this->state_url;
 		?>')"><img alt=""
 		src="<?php
-		echo $application->url("/share/images/toggle/small-" . ($this->is_open ? "down" : "right") . ".gif");
+		echo $application->url('/share/images/toggle/small-' . ($this->is_open ? 'down' : 'right') . '.gif');
 		?>"
 		id="<?php
 		echo $this->id_class;

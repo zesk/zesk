@@ -15,46 +15,46 @@ class Module_Health extends Module {
 	protected $path = null;
 
 	protected $classes = [
-		"zesk\\Health_Event",
-		"zesk\\Health_Events",
+		'zesk\\Health_Event',
+		'zesk\\Health_Events',
 	];
 
 	protected $disabled = false;
 
 	public function initialize(): void {
 		parent::initialize();
-		$this->disabled = $this->optionBool("disabled");
-		$this->path = $path = $this->option("event_path", $this->application->data_path("health-events"));
+		$this->disabled = $this->optionBool('disabled');
+		$this->path = $path = $this->option('event_path', $this->application->data_path('health-events'));
 		Directory::depend($path);
 		set_error_handler([
 			$this,
-			"error_handler",
+			'error_handler',
 		], E_ALL | E_STRICT);
 		set_exception_handler([
 			$this,
-			"exception_handler",
+			'exception_handler',
 		]);
-		$this->application->hooks->add("exception", [
+		$this->application->hooks->add('exception', [
 			$this,
-			"caught_exception_handler",
+			'caught_exception_handler',
 		]);
 	}
 
 	private static $error_codes = [
-		E_ERROR => "E_ERROR",
-		E_RECOVERABLE_ERROR => "E_RECOVERABLE_ERROR",
-		E_WARNING => "E_WARNING",
-		E_PARSE => "E_PARSE",
-		E_NOTICE => "E_NOTICE",
-		E_STRICT => "E_STRICT",
-		E_DEPRECATED => "E_DEPRECATED",
-		E_CORE_ERROR => "E_CORE_ERROR",
-		E_CORE_WARNING => "E_CORE_WARNING",
-		E_COMPILE_ERROR => "E_COMPILE_ERROR",
-		E_COMPILE_WARNING => "E_COMPILE_WARNING",
-		E_USER_ERROR => "E_USER_ERROR",
-		E_USER_WARNING => "E_USER_WARNING",
-		E_USER_NOTICE => "E_USER_NOTICE",
+		E_ERROR => 'E_ERROR',
+		E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
+		E_WARNING => 'E_WARNING',
+		E_PARSE => 'E_PARSE',
+		E_NOTICE => 'E_NOTICE',
+		E_STRICT => 'E_STRICT',
+		E_DEPRECATED => 'E_DEPRECATED',
+		E_CORE_ERROR => 'E_CORE_ERROR',
+		E_CORE_WARNING => 'E_CORE_WARNING',
+		E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+		E_COMPILE_WARNING => 'E_COMPILE_WARNING',
+		E_USER_ERROR => 'E_USER_ERROR',
+		E_USER_WARNING => 'E_USER_WARNING',
+		E_USER_NOTICE => 'E_USER_NOTICE',
 	];
 
 	private static $fatal_errors = [
@@ -69,7 +69,7 @@ class Module_Health extends Module {
 	private function clean_backtrace(array $backtrace) {
 		foreach ($backtrace as $index => $stackframe) {
 			if (array_key_exists('args', $stackframe)) {
-				if ($this->optionBool("keep_backtrace_arguments")) {
+				if ($this->optionBool('keep_backtrace_arguments')) {
 					$new_args = $stackframe['args'];
 					foreach ($new_args as $index => $arg) {
 						if (is_resource($arg) || is_callable($arg)) {
@@ -105,22 +105,22 @@ class Module_Health extends Module {
 		if ($this->disabled) {
 			return false;
 		}
-		$type = strtolower(StringTools::unprefix(avalue(self::$error_codes, $errno, $errno), "E_"));
+		$type = strtolower(StringTools::unprefix(avalue(self::$error_codes, $errno, $errno), 'E_'));
 		$this->log([
-			"type" => $type,
-			"code" => $errno,
-			"fatal" => $fatal = avalue(self::$fatal_errors, $errno),
-			"message" => $errstr,
-			"file" => $errfile,
-			"line" => $errline,
-			"backtrace" => $this->clean_backtrace(debug_backtrace()),
-			"_SERVER" => $_SERVER,
-			"_REQUEST" => $_REQUEST,
+			'type' => $type,
+			'code' => $errno,
+			'fatal' => $fatal = avalue(self::$fatal_errors, $errno),
+			'message' => $errstr,
+			'file' => $errfile,
+			'line' => $errline,
+			'backtrace' => $this->clean_backtrace(debug_backtrace()),
+			'_SERVER' => $_SERVER,
+			'_REQUEST' => $_REQUEST,
 		]);
 		if ($fatal) {
 			die("$type $errstr");
 		}
-		return $this->optionBool("skip_php_handler", false);
+		return $this->optionBool('skip_php_handler', false);
 	}
 
 	public function caught_exception_handler($exception): void {
@@ -148,15 +148,15 @@ class Module_Health extends Module {
 		$trace = $exception->getTrace();
 		$trace0 = $trace[0];
 		$this->log([
-			"type" => "exception",
-			"fatal" => $fatal,
-			"exception" => $exception,
-			"message" => $exception->getMessage(),
-			"backtrace" => $this->clean_backtrace($trace),
-			"file" => avalue($trace0, 'file', '-'),
-			"line" => avalue($trace0, 'line', '-'),
-			"_SERVER" => $_SERVER,
-			"_REQUEST" => $_REQUEST,
+			'type' => 'exception',
+			'fatal' => $fatal,
+			'exception' => $exception,
+			'message' => $exception->getMessage(),
+			'backtrace' => $this->clean_backtrace($trace),
+			'file' => avalue($trace0, 'file', '-'),
+			'line' => avalue($trace0, 'line', '-'),
+			'_SERVER' => $_SERVER,
+			'_REQUEST' => $_REQUEST,
 		]);
 	}
 
@@ -164,7 +164,7 @@ class Module_Health extends Module {
 		if ($this->disabled) {
 			return;
 		}
-		$event = $this->call_hook_arguments("log", [
+		$event = $this->call_hook_arguments('log', [
 			$event,
 		], $event);
 		$event_object = Health_Event::event_log($this->application, $event, $this->path);
@@ -196,8 +196,8 @@ class Module_Health extends Module {
 	}
 
 	public function hook_cron_cluster_hour(): void {
-		$purge_events_fatal_hours = $this->optionInt("purge_events_fatal_hours", -1);
-		$purge_events_non_fatal_hours = $this->optionInt("purge_events_non_fatal_hours", 24 * 7);
+		$purge_events_fatal_hours = $this->optionInt('purge_events_fatal_hours', -1);
+		$purge_events_non_fatal_hours = $this->optionInt('purge_events_non_fatal_hours', 24 * 7);
 
 		$this->purge_old_events('Health_Event', 'when', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
 		$this->purge_old_events('Health_Events', 'first', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
@@ -206,13 +206,13 @@ class Module_Health extends Module {
 	private function purge_old_events($class, $date_column, $fatal_hours, $non_fatal_hours): void {
 		if ($fatal_hours > 0) {
 			$this->purge_event_types($class, $date_column, [
-				"fatal" => true,
-			], Timestamp::now()->add_unit(-abs($fatal_hours), Timestamp::UNIT_HOUR), "fatal");
+				'fatal' => true,
+			], Timestamp::now()->add_unit(-abs($fatal_hours), Timestamp::UNIT_HOUR), 'fatal');
 		}
 		if ($non_fatal_hours > 0) {
 			$this->purge_event_types($class, $date_column, [
-				"fatal" => false,
-			], Timestamp::now()->add_unit(-abs($non_fatal_hours), Timestamp::UNIT_HOUR), "non-fatal");
+				'fatal' => false,
+			], Timestamp::now()->add_unit(-abs($non_fatal_hours), Timestamp::UNIT_HOUR), 'non-fatal');
 		}
 	}
 
@@ -221,11 +221,11 @@ class Module_Health extends Module {
 			"$date_column|<=" => $when,
 		]);
 		$delete->execute();
-		$this->application->logger->warning("Deleted {description} {n} {classes} older than {when}", [
-			"n" => $nrows = $delete->affected_rows(),
-			"description" => $description,
-			"classes" => $this->application->locale->plural($class, $nrows),
-			"when" => $when,
+		$this->application->logger->warning('Deleted {description} {n} {classes} older than {when}', [
+			'n' => $nrows = $delete->affected_rows(),
+			'description' => $description,
+			'classes' => $this->application->locale->plural($class, $nrows),
+			'when' => $when,
 		]);
 	}
 }

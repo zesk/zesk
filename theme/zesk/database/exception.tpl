@@ -20,12 +20,12 @@ $exception = $this->exception;
 $class = get_class($this->exception);
 
 $application->logger->error("Exception: {exception_class}\nMessage: {message}\nServer:\n{server}\nRequest:\n{request}\nException: {exception_class}\nBacktrace:\n{backtrace}\n{exception}", [
-	"server" => Text::format_pairs($_SERVER),
-	"request" => Text::format_pairs($_REQUEST),
-	"exception_class" => $class,
-	"exception" => $exception,
-	"message" => $exception->getMessage(),
-	"backtrace" => $exception->getTraceAsString(),
+	'server' => Text::format_pairs($_SERVER),
+	'request' => Text::format_pairs($_REQUEST),
+	'exception_class' => $class,
+	'exception' => $exception,
+	'message' => $exception->getMessage(),
+	'backtrace' => $exception->getTraceAsString(),
 ]);
 
 ?>
@@ -36,7 +36,7 @@ $application->logger->error("Exception: {exception_class}\nMessage: {message}\nS
 		?><p>The computer error given was:</p><?php
 		echo HTML::tag('code', $exception->getMessage()); ?><p>The call stack is:</p><?php
 		echo $this->theme('exception/trace', [
-			"content" => $exception->getTrace(),
+			'content' => $exception->getTrace(),
 		]);
 	}
 	?>

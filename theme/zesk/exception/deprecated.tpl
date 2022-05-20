@@ -2,6 +2,6 @@
 namespace zesk;
 
 /* @var $content Exception_Deprecated */
-echo HTML::tag("h1", "Deprecated function called: ");
+echo HTML::tag('h1', 'Deprecated function called: ');
 
-echo "<pre>" . $content->getTraceAsString() . "</pre>";
+echo '<pre>' . $content->getTraceAsString() . '</pre>';

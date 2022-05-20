@@ -35,12 +35,12 @@ class View_Checklist extends View {
 	// 		}
 	// 	}
 	public function render() {
-		$oopt = HTML::parse_attributes($this->option("options", ""));
+		$oopt = HTML::parse_attributes($this->option('options', ''));
 		$v = $this->value();
 		if (!is_array($v)) {
-			$sep = $this->option("separator", ";");
+			$sep = $this->option('separator', ';');
 			if (is_string($v)) {
-				if ($sep === "") {
+				if ($sep === '') {
 					$v = str_split($v, 1);
 				} else {
 					$v = explode($sep, $v);
@@ -59,7 +59,7 @@ class View_Checklist extends View {
 		if (count($r) === 0) {
 			$r = $this->empty_string();
 		} else {
-			$r = implode($this->option("between", ", "), $r);
+			$r = implode($this->option('between', ', '), $r);
 		}
 		return $r;
 	}

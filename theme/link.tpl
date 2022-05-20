@@ -5,14 +5,14 @@ $content = $this->content;
 $parts = URL::parse($content);
 if (!is_array($parts)) {
 	if ($this->auto_prepend_scheme) {
-		$parts = URL::parse("http://" . $content);
+		$parts = URL::parse('http://' . $content);
 		if (is_array($parts)) {
-			$content = "http://" . $content;
+			$content = 'http://' . $content;
 		}
 	}
 }
 if (!is_array($parts)) {
-	if (!$this->allow_javascript && beginsi(trim($content), "javascript:")) {
+	if (!$this->allow_javascript && beginsi(trim($content), 'javascript:')) {
 		return;
 	}
 	$parts = [];

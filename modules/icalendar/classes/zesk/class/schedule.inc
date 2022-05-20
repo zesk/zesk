@@ -7,14 +7,14 @@ namespace zesk;
  *
  */
 class Class_Schedule extends Class_ORM {
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	/**
 	 *
 	 * @var unknown
 	 */
 	public array $has_one = [
-		"account" => 'Account',
+		'account' => 'Account',
 	];
 
 	/**

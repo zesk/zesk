@@ -4,9 +4,9 @@
  */
 class Module_Bootstrap_File_Input extends zesk\Module_JSLib {
 	protected $javascript_paths = [
-		"/share/bootstrap-file-input/bootstrap.file-input.js" => [
+		'/share/bootstrap-file-input/bootstrap.file-input.js' => [
 			'share' => true,
-			'after' => "jquery.js",
+			'after' => 'jquery.js',
 		],
 	];
 

@@ -12,10 +12,10 @@ namespace zesk;
 
 /* @var $exception \zesk\Exception_Redirect */
 /* @var $url string */
-if ($response->optionBool("debug_redirect")) {
+if ($response->optionBool('debug_redirect')) {
 	$original_url = $exception->url();
 	$url = $response->redirect()->process_url($original_url);
-	echo $this->theme("zesk/exception/redirect-debug", [
+	echo $this->theme('zesk/exception/redirect-debug', [
 		'content' => HTML::a($url, $url),
 		'url' => $url,
 		'original_url' => $original_url,

@@ -18,30 +18,30 @@ class Control_ButtonBar extends Control {
 		if ($ok_label) {
 			$w = $this->widget_factory('Control_Button');
 			$w->names('OK')->setOption('label_button', $ok_label);
-			$w->class = "btn primary";
-			$w->type = "cancel";
+			$w->class = 'btn primary';
+			$w->type = 'cancel';
 			$onclick = $this->option('ok_onclick', null);
 			if ($onclick) {
-				$w->setOption("submit", false);
-				$w->setOption("onclick", $onclick);
+				$w->setOption('submit', false);
+				$w->setOption('onclick', $onclick);
 			}
 			$this->child($w);
 		}
 		if ($cancel_label) {
 			$w = $this->widget_factory('Control_Button');
 			$w->names('Cancel')->setOption('label_button', $cancel_label);
-			$w->class = "btn";
-			$w->type = "cancel";
+			$w->class = 'btn';
+			$w->type = 'cancel';
 			$onclick = $this->option('cancel_onclick', null);
 			if ($onclick) {
-				$w->setOption("submit", false);
-				$w->setOption("onclick", $onclick);
+				$w->setOption('submit', false);
+				$w->setOption('onclick', $onclick);
 			}
 			$this->child($w);
 		}
 	}
 
 	public function submitted() {
-		return $this->request->has("OK") || $this->request->has("Cancel") || $this->request->is_post();
+		return $this->request->has('OK') || $this->request->has('Cancel') || $this->request->is_post();
 	}
 }

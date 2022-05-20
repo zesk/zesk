@@ -10,7 +10,7 @@ namespace zesk;
 
 class Database_Column_Test extends Test_Unit {
 	protected array $load_modules = [
-		"MySQL",
+		'MySQL',
 	];
 
 	public function test_main(): void {
@@ -18,51 +18,50 @@ class Database_Column_Test extends Test_Unit {
 		var_dump($this->application->database_module()->options());
 		$table = new Database_Table($db, __METHOD__);
 
-		$name = "dude";
+		$name = 'dude';
 		$x = new Database_Column($table, $name);
 
-		$name = 'dude';
 		$x->name($name);
 
-		$x->previous_name();
+		$x->previousName();
 
-		$that = new Database_Column($table, "name", [
-			"sql_type" => "varchar(16)",
+		$that = new Database_Column($table, 'name', [
+			'sql_type' => 'varchar(16)',
 		]);
 		$debug = false;
-		$x->is_similar($db, $that, $debug);
+		$x->isSimilar($db, $that, $debug);
 
-		$x->has_sql_type();
+		$x->hasSQLType();
 
-		$x->sql_type();
+		$x->sqlType();
 
 		$checkEmpty = false;
-		$x->has_default_value($checkEmpty);
+		$x->hasDefaultValue($checkEmpty);
 
-		$x->default_value();
+		$x->setDefaultValue(null);
 
-		$x->previous_name();
+		$x->defaultValue();
+
+		$x->previousName();
 
 		$x->binary();
 
-		$x->primary_key();
+		$x->primaryKey();
 
 		$on_off = true;
-		$x->primary_key($on_off);
+		$x->setPrimaryKey($on_off);
 
-		$x->is_increment();
+		$x->isIncrement();
 
-		$name = null;
+		$name = "sue";
 		$type = 'INDEX';
-		$x->index_add($name, $type);
+		$x->addIndex($name, $type);
 
-		$x->indexes_types();
+		$x->indexesTypes();
 
 		$x->required();
 
 		$type = '';
-		$x->is_index($type);
-
-		echo basename(__FILE__) . ": success\n";
+		$x->isIndex($type);
 	}
 }

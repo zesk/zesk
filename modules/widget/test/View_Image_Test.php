@@ -13,7 +13,7 @@ class View_Image_Test extends TestWidget {
 	 * @return string|NULL
 	 */
 	private function image_root() {
-		return $this->application->modules->path("widget", "test/test-data");
+		return $this->application->modules->path('widget', 'test/test-data');
 	}
 
 	/**
@@ -25,14 +25,14 @@ class View_Image_Test extends TestWidget {
 	public function validate_image_size_tag($img_tag, $width, $height): void {
 		dump($img_tag);
 
-		$tag = HTML::extract_tag_object("img", $img_tag);
+		$tag = HTML::extract_tag_object('img', $img_tag);
 		dump($tag);
 
 		$this->assert_equal(get_class($tag), "zesk\HTML_Tag");
 
-		$w = $tag->option("width");
-		$h = $tag->option("height");
-		$src = $tag->option("src");
+		$w = $tag->option('width');
+		$h = $tag->option('height');
+		$src = $tag->option('src');
 
 		$image_path = path($this->test_dir, $src);
 
@@ -69,7 +69,7 @@ class View_Image_Test extends TestWidget {
 		$src = null;
 		$width = false;
 		$height = false;
-		$alt = "";
+		$alt = '';
 		$extras = [];
 		View_Image::scaled($this->application, $src, $width, $height, $alt, $extras);
 
@@ -166,7 +166,7 @@ class View_Image_Test extends TestWidget {
 			View_Image::debug(true);
 
 			$extras = [
-				"is_relative" => false,
+				'is_relative' => false,
 			];
 			foreach ($tests as $test) {
 				[$s0x, $s0y, $s1x, $s1y] = $test;
@@ -184,7 +184,7 @@ class View_Image_Test extends TestWidget {
 		$src = null;
 		$width = false;
 		$height = false;
-		$alt = "";
+		$alt = '';
 		$extras = [];
 		View_Image::scaled_path($this->application, $src, $width, $height, $alt, $extras);
 
@@ -279,11 +279,11 @@ class View_Image_Test extends TestWidget {
 			View_Image::debug();
 
 			$extras = [
-				"is_relative" => false,
+				'is_relative' => false,
 			];
 			foreach ($tests as $test) {
 				[$s0x, $s0y, $s1x, $s1y] = $test;
-				$rel_path = View_Image::scaled_path($this->application, $src, $s0x, $s0y, "", $extras);
+				$rel_path = View_Image::scaled_path($this->application, $src, $s0x, $s0y, '', $extras);
 				$full_path = path($this->application->document_root(), $rel_path);
 				$this->assert_true(file_exists($full_path), "File does not exist $full_path");
 				$this->validate_image_size($full_path, $s1x, $s1y);
@@ -294,7 +294,7 @@ class View_Image_Test extends TestWidget {
 	public function test_scaled_widget(): void {
 		$width = false;
 		$height = false;
-		$alt = "";
+		$alt = '';
 		$extras = [];
 		View_Image::scaled_widget($this->application, $width, $height, $alt, $extras);
 	}

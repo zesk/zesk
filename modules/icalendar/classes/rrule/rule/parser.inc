@@ -24,13 +24,13 @@ use zesk\Exception_Parameter;
  */
 class Rule_Parser extends Options {
 	private static array $freq_map = [
-		"YEARLY" => Rule::FREQUENCY_YEARLY,
-		"MONTHLY" => Rule::FREQUENCY_MONTHLY,
-		"WEEKLY" => Rule::FREQUENCY_WEEKLY,
-		"DAILY" => Rule::FREQUENCY_DAILY,
-		"HOURLY" => Rule::FREQUENCY_HOURLY,
-		"MINUTELY" => Rule::FREQUENCY_MINUTELY,
-		"SECONDLY" => Rule::FREQUENCY_SECONDLY,
+		'YEARLY' => Rule::FREQUENCY_YEARLY,
+		'MONTHLY' => Rule::FREQUENCY_MONTHLY,
+		'WEEKLY' => Rule::FREQUENCY_WEEKLY,
+		'DAILY' => Rule::FREQUENCY_DAILY,
+		'HOURLY' => Rule::FREQUENCY_HOURLY,
+		'MINUTELY' => Rule::FREQUENCY_MINUTELY,
+		'SECONDLY' => Rule::FREQUENCY_SECONDLY,
 	];
 
 	/**
@@ -41,13 +41,13 @@ class Rule_Parser extends Options {
 	 * @var array
 	 */
 	private static array $weekday_map = [
-		"SU" => 0,
-		"MO" => 1,
-		"TU" => 2,
-		"WE" => 3,
-		"TH" => 4,
-		"FR" => 5,
-		"SA" => 6,
+		'SU' => 0,
+		'MO' => 1,
+		'TU' => 2,
+		'WE' => 3,
+		'TH' => 4,
+		'FR' => 5,
+		'SA' => 6,
 	];
 
 	/**
@@ -68,7 +68,7 @@ class Rule_Parser extends Options {
 	 * @var array
 	 */
 	protected array $options = [
-		"interval" => 1,
+		'interval' => 1,
 	];
 
 	public static function factory($code) {
@@ -123,8 +123,8 @@ class Rule_Parser extends Options {
 
 	private function _parse_integer_list($value, $min = null, $max = null) {
 		$result = [];
-		foreach (explode(",", $value) as $v) {
-			if ($v === "") {
+		foreach (explode(',', $value) as $v) {
+			if ($v === '') {
 				continue;
 			}
 			$v = intval($v);
@@ -143,7 +143,7 @@ class Rule_Parser extends Options {
 
 	private function parse_FREQ($value) {
 		if (!array_key_exists($value, self::$freq_map)) {
-			$this->errors[] = __(__CLASS__ . ":=Invalid frequency \"{value}\"", compact("value"));
+			$this->errors[] = __(__CLASS__ . ':=Invalid frequency "{value}"', compact('value'));
 			return null;
 		}
 		return self::$freq_map[$value];
@@ -162,7 +162,7 @@ class Rule_Parser extends Options {
 	}
 
 	private function parse_UNTIL($value) {
-		return Timestamp::factory(rtrim($value, 'Z'), "UTC");
+		return Timestamp::factory(rtrim($value, 'Z'), 'UTC');
 	}
 
 	private function parse_WKST($value) {
@@ -192,26 +192,26 @@ class Rule_Parser extends Options {
 	private function parse_BYWEEKDAY($value) {
 		// Two ways to specify this: +1MO or MO(+1)
 		$result = [];
-		$value = explode(",", $value);
+		$value = explode(',', $value);
 		foreach ($value as $wday) {
 			if (preg_match("#([MTWFS][OUEHRA])\(([-+]?[0-9]+)\)#i", $wday, $matches)) {
 				// If it's of the form TH(+1), etc.
 				[$ignore, $wday, $n] = $matches;
-				$n = intval(trim($n, "+"));
-			} elseif (preg_match("#([-+]?[0-9]+)?([MTWFS][OUEHRA])#i", $wday, $matches)) {
+				$n = intval(trim($n, '+'));
+			} elseif (preg_match('#([-+]?[0-9]+)?([MTWFS][OUEHRA])#i', $wday, $matches)) {
 				// If it's of the form +1MO
 				[$ignore, $n, $wday] = $matches;
 				if (!empty($n)) {
-					$n = intval(trim($n, "+"));
+					$n = intval(trim($n, '+'));
 				} else {
 					$n = null;
 				}
 			} else {
-				$this->errors[] = __(__CLASS__ . ":=Invalid BYDAY token: {wday}", compact("wday"));
+				$this->errors[] = __(__CLASS__ . ':=Invalid BYDAY token: {wday}', compact('wday'));
 				continue;
 			}
 			if (!array_key_exists($wday, self::$weekday_map)) {
-				$this->errors[] = __(__CLASS__ . ":=Invalid BYDAY token: {wday}", compact("wday"));
+				$this->errors[] = __(__CLASS__ . ':=Invalid BYDAY token: {wday}', compact('wday'));
 				continue;
 			}
 			$wday = strtoupper($wday);
@@ -241,13 +241,13 @@ class Rule_Parser extends Options {
 			return new Rule($this->options['freq'], $this->options);
 		} catch (Exception_Parameter $e) {
 			throw new Exception_Syntax("Parameter error with code:\n{code}\nError: {message}", [
-				"code" => $this->code,
-				"message" => $e->getMessage(),
+				'code' => $this->code,
+				'message' => $e->getMessage(),
 			]);
 		} catch (Exception_Range $e) {
 			throw new Exception_Syntax("Range error with code:\n{code}\nError: {message}", [
-				"code" => $this->code,
-				"message" => $e->getMessage(),
+				'code' => $this->code,
+				'message' => $e->getMessage(),
 			]);
 		}
 	}

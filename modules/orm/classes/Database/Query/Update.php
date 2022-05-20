@@ -42,7 +42,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	 * @param Database $db
 	 */
 	public function __construct(Database $db) {
-		parent::__construct("UPDATE", $db);
+		parent::__construct('UPDATE', $db);
 	}
 
 	/**
@@ -115,8 +115,8 @@ class Database_Query_Update extends Database_Query_Edit {
 	 */
 	public function execute(): self {
 		$this->result = $this->database()->update($this->table(), $this->values, $this->where, [
-			"low_priority" => $this->low_priority,
-			"ignore_constraints" => $this->ignore_constraints,
+			'low_priority' => $this->low_priority,
+			'ignore_constraints' => $this->ignore_constraints,
 		]);
 		return $this;
 	}

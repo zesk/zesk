@@ -2,7 +2,7 @@
 namespace zesk;
 
 class Server_Feature_Users extends Server_Feature {
-	public $code = "users";
+	public $code = 'users';
 
 	protected $commands = [
 		'crontab',
@@ -25,7 +25,7 @@ class Server_Feature_Users extends Server_Feature {
 	private $require_groups = [];
 
 	public function configure(): void {
-		$users = $this->config->user_list("users");
+		$users = $this->config->user_list('users');
 		foreach ($users as $user) {
 			$this->configure_user($user);
 		}

@@ -19,7 +19,7 @@ class Debug {
 	 *
 	 * @var string
 	 */
-	public const DUMP_SPACER = "   ";
+	public const DUMP_SPACER = '   ';
 
 	/**
 	 *
@@ -32,8 +32,8 @@ class Debug {
 	 */
 	public static function php_errors_configure(): void {
 		error_reporting(E_ALL | E_STRICT);
-		ini_set('error_prepend_string', "\nPHP-ERROR " . str_repeat("=", 80) . "\n");
-		ini_set('error_append_string', "\n" . str_repeat("*", 80) . "\n");
+		ini_set('error_prepend_string', "\nPHP-ERROR " . str_repeat('=', 80) . "\n");
+		ini_set('error_append_string', "\n" . str_repeat('*', 80) . "\n");
 		ini_set('display_errors', true);
 	}
 
@@ -63,7 +63,7 @@ class Debug {
 		$args = func_get_args();
 		$result = call_user_func_array([
 			'zesk\\Debug',
-			"dump",
+			'dump',
 		], $args);
 		echo $result . "\n";
 	}
@@ -92,13 +92,13 @@ class Debug {
 	private static function _dump(mixed $x): string {
 		static $indent = 0;
 		if ($x === null) {
-			return "(null)";
+			return '(null)';
 		} elseif (is_bool($x)) {
-			return "(boolean) " . ($x ? 'true' : 'false');
+			return '(boolean) ' . ($x ? 'true' : 'false');
 		} elseif (is_string($x)) {
-			return "(string(" . strlen($x) . ")) \"" . addcslashes($x, "\0\r\n\t") . "\"";
+			return '(string(' . strlen($x) . ')) "' . addcslashes($x, "\0\r\n\t") . '"';
 		} elseif (is_scalar($x)) {
-			return "(" . gettype($x) . ") $x";
+			return '(' . gettype($x) . ") $x";
 		} elseif (is_resource($x)) {
 			return "(resource) $x";
 		} elseif (is_array($x)) {
@@ -110,18 +110,18 @@ class Debug {
 					$max_len = max($max_len, strlen("$k"));
 				}
 				foreach ($x as $k => $v) {
-					$result[] = self::DUMP_SPACER . "[$k] " . str_repeat(" ", $max_len - strlen("$k")) . "= " . self::_dump($v);
+					$result[] = self::DUMP_SPACER . "[$k] " . str_repeat(' ', $max_len - strlen("$k")) . '= ' . self::_dump($v);
 				}
 				$indent--;
 				$prefix = str_repeat(self::DUMP_SPACER, $indent);
 				if (is_object($x)) {
 					$type = get_class($x);
 				} else {
-					$type = "array";
+					$type = 'array';
 				}
-				return $prefix . "$type(" . (count($result) === 0 ? "" : ("\n$prefix" . implode(",\n$prefix", $result) . "\n$prefix")) . ")";
+				return $prefix . "$type(" . (count($result) === 0 ? '' : ("\n$prefix" . implode(",\n$prefix", $result) . "\n$prefix")) . ')';
 			} else {
-				return "(recursion limit " . self::$indent_limit . ")";
+				return '(recursion limit ' . self::$indent_limit . ')';
 			}
 		} elseif (is_object($x)) {
 			foreach (['_debugDump', '_debug_dump'] as $method) {

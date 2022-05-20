@@ -23,14 +23,14 @@ class Control_Pager extends Control {
 	public static function hooks(Application $zesk): void {
 		$zesk->configuration->deprecated([
 			__CLASS__,
-			"pager_limit",
+			'pager_limit',
 		], [
 			__CLASS__,
-			"limit",
+			'limit',
 		]);
-		$zesk->configuration->deprecated("pager_limit", [
+		$zesk->configuration->deprecated('pager_limit', [
 			__CLASS__,
-			"limit",
+			'limit',
 		]);
 	}
 
@@ -77,7 +77,7 @@ class Control_Pager extends Control {
 	}
 
 	public function limit_default() {
-		return $this->optionInt("limit");
+		return $this->optionInt('limit');
 	}
 
 	private function _limit_widget() {
@@ -86,7 +86,7 @@ class Control_Pager extends Control {
 		$pager_limit_list = ArrayTools::flip_copy($pager_limit_list);
 
 		$ajax_id = $this->option('ajax_id');
-		$onchange = $ajax_id ? "pager_limit_change.call(this,'$ajax_id')" : "this.form.submit()";
+		$onchange = $ajax_id ? "pager_limit_change.call(this,'$ajax_id')" : 'this.form.submit()';
 
 		$options = [];
 		$options['options'] = $pager_limit_list;
@@ -107,7 +107,7 @@ class Control_Pager extends Control {
 
 	protected function defaults(): void {
 		$this->children_defaults();
-		$this->object->set('offset', $this->request->geti("offset", 0));
+		$this->object->set('offset', $this->request->geti('offset', 0));
 	}
 
 	private function _refresh(): void {
@@ -156,7 +156,7 @@ class Control_Pager extends Control {
 	protected function hook_query_list(Database_Query_Select $query): void {
 		static $recurse = 0;
 		if ($recurse !== 0) {
-			throw new Exception_Semantics("Can not call hook_query_list recursively");
+			throw new Exception_Semantics('Can not call hook_query_list recursively');
 		}
 		$recurse = 1;
 		$query->limit($this->object->offset, $this->object->limit);
@@ -185,7 +185,7 @@ class Control_Pager extends Control {
 			$limit = $total;
 		}
 		$show_all = $this->optionBool('pager_show_all');
-		$show_all_string = $this->option("pager_all_string", $this->application->locale->__("All"));
+		$show_all_string = $this->option('pager_all_string', $this->application->locale->__('All'));
 		if ($show_all) {
 			$ss[-1] = $show_all_string;
 		}
@@ -230,7 +230,7 @@ class Control_Pager extends Control {
 	}
 
 	private function _maximum_limit() {
-		$n = $this->optionInt("pager_maximum_limit", -1);
+		$n = $this->optionInt('pager_maximum_limit', -1);
 		if ($n > 0) {
 			return $n;
 		}

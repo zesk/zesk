@@ -18,7 +18,7 @@ class Control_Forgot extends Control_Edit {
 	 *
 	 * @var string
 	 */
-	protected ?string $class = "zesk\\Forgot"; // TODO fix to __NAMESPACE__ when TODO-PHP7 only
+	protected ?string $class = 'zesk\\Forgot'; // TODO fix to __NAMESPACE__ when TODO-PHP7 only
 
 	/**
 	 *
@@ -47,26 +47,26 @@ class Control_Forgot extends Control_Edit {
 	public function hook_widgets() {
 		$locale = $this->locale();
 
-		$this->form_name("forgot_form");
+		$this->form_name('forgot_form');
 
 		$ww = [];
 
-		$ww[] = $w = $this->widget_factory($this->option("widget_login", Control_Text::class))->names('login', $locale->__($this->option("label_login", "Login")));
+		$ww[] = $w = $this->widget_factory($this->option('widget_login', Control_Text::class))->names('login', $locale->__($this->option('label_login', 'Login')));
 		$w->required(true);
 		$w->default_value($this->request->get('login'));
 
 		$ww[] = $w = $this->widget_factory(Control_Button::class)
-			->names('forgot', $this->option("label_button", $locale->__("Send me an email")))
+			->names('forgot', $this->option('label_button', $locale->__('Send me an email')))
 			->add_class('btn-primary btn-block')
 			->nolabel(true);
 
-		$ww[] = $w = $this->widget_factory(Control_Hidden::class)->names("tzid");
+		$ww[] = $w = $this->widget_factory(Control_Hidden::class)->names('tzid');
 
 		return $ww;
 	}
 
 	public function submitted() {
-		return $this->request->get("forgot", "") !== "";
+		return $this->request->get('forgot', '') !== '';
 	}
 
 	public function validate() {
@@ -76,11 +76,11 @@ class Control_Forgot extends Control_Edit {
 		$locale = $this->locale();
 		/* @var $user User */
 		$this->auth_user = $this->application->orm_factory(User::class)->login($this->object->login)->find();
-		$this->auth_user = $this->call_hook_arguments("find_user", [
+		$this->auth_user = $this->call_hook_arguments('find_user', [
 			$this->auth_user,
 		], $this->auth_user);
 		if ($this->optionBool('not_found_error', true) && !$this->auth_user) {
-			$this->error($locale->__("Control_Forgot:=Not able to find that user."), 'login');
+			$this->error($locale->__('Control_Forgot:=Not able to find that user.'), 'login');
 			return false;
 		}
 		return true;
@@ -96,12 +96,12 @@ class Control_Forgot extends Control_Edit {
 		$object->store();
 		$object->fetch();
 
-		$tzid = $object->member("tzid");
+		$tzid = $object->member('tzid');
 		if (is_numeric($tzid)) {
 			$off = abs(intval($tzid / 60));
 			// INTENTIALLY REVERSED. Etc/GMT+5 is EST
 			// https://en.wikipedia.org/wiki/Tz_database#Area
-			$sign = $tzid < 0 ? "+" : "-";
+			$sign = $tzid < 0 ? '+' : '-';
 			date_default_timezone_set("Etc/GMT$sign$off");
 		} elseif (is_string($tzid)) {
 			date_default_timezone_set($tzid);
@@ -115,9 +115,9 @@ class Control_Forgot extends Control_Edit {
 			throw new Exception_Redirect('/forgot/sent');
 		}
 		$this->json([
-			"redirect" => "/forgot/sent",
-			"status" => true,
-			"message" => $this->application->locale->__("An email has been sent with instructions to reset your password."),
+			'redirect' => '/forgot/sent',
+			'status' => true,
+			'message' => $this->application->locale->__('An email has been sent with instructions to reset your password.'),
 		]);
 		return false;
 	}

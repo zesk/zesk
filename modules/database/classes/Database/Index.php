@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use JetBrains\PhpStorm\ArrayShape;
+
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @package zesk
@@ -18,93 +20,136 @@ class Database_Index {
 	public const SIZE_DEFAULT = -1;
 
 	/**
-	 * The databsae this is associated with
+	 * The database this is associated with
 	 *
 	 * @var Database
 	 */
-	private $database;
+	private Database $database;
 
 	/**
 	 * The table this index is associated with
 	 *
 	 * @var Database_Table
 	 */
-	private $table;
+	private Database_Table $table;
 
 	/**
 	 * Array of name => size
 	 * @var array
 	 */
-	private $columns;
+	private array $columns;
 
 	/**
 	 * index name
 	 *
 	 * @var string
 	 */
-	private $name;
+	private string $name;
 
 	/**
 	 * index type
 	 *
 	 * @var string
 	 */
-	private $type;
+	private string $type;
 
 	/**
 	 * Index structure (database-specific)
 	 *
-	 * @todo move this to database-specific code
+	 * @todo move this to database-specific code?
 	 * @var string
 	 */
-	private $structure;
+	private string $structure;
 
 	/**
 	 * Name of primary index, always
 	 */
-	public const PrimaryName = "primary";
+	public const NAME_PRIMARY = 'primary';
 
-	public const Index = "INDEX";
+	public const TYPE_INDEX = 'INDEX';
 
-	public const Unique = "UNIQUE";
+	public const TYPE_UNIQUE = 'UNIQUE';
 
-	public const Primary = "PRIMARY KEY";
+	public const TYPE_PRIMARY = 'PRIMARY KEY';
+
+	#[ArrayShape([
+		'database_name' => "null|string",
+		'table' => "\zesk\Database_Table",
+		'name' => "string",
+		'type' => "string",
+		'columns' => "array",
+		'structure' => "string",
+	])] final public function variables(): array {
+		return [
+			'database_name' => $this->database->code_name(),
+			'table' => $this->table(),
+			'name' => $this->name(),
+			'type' => $this->type(),
+			'columns' => $this->columns(),
+			'structure' => $this->structure(),
+		];
+	}
 
 	/**
 	 *
 	 * @param Database_Table $table
 	 * @param string $name
-	 * @param unknown $columns
+	 * @param array $columns
 	 * @param string $type
-	 * @param unknown $structure
+	 * @param ?string $structure
 	 * @throws Exception_Semantics
 	 */
-	public function __construct(Database_Table $table, string $name = "", array $columns = [], $type = "INDEX", string $structure = null) {
+	public function __construct(Database_Table $table, string $name = '', array $columns = [], string $type = self::TYPE_INDEX, string $structure = null) {
 		$this->table = $table;
 		$this->database = $table->database();
 		$this->columns = [];
 		$this->type = self::determineType($type);
-		$this->name = $this->type === self::Primary ? self::PrimaryName : $name;
+		$this->name = $this->type === self::TYPE_PRIMARY ? self::NAME_PRIMARY : $name;
 
 		$this->structure = $this->determineStructure($structure);
 
 		if (is_array($columns)) {
 			foreach ($columns as $col => $size) {
 				if (is_numeric($size) || is_bool($size)) {
-					$this->addColumn($col, is_bool($size) ? Database_Index::SIZE_DEFAULT : intval($size));
-				} elseif (!is_string($size)) {
-					throw new Exception_Semantics(map("Columns must be name => size, or => name ({0} => {1} passed for table {2}", [
+					try {
+						$this->addColumn($col, is_bool($size) ? Database_Index::SIZE_DEFAULT : intval($size));
+					} catch (Exception_NotFound $e) {
+						throw new Exception_Semantics('Columns must be name => size, or => name ({0} => {1} passed for table {2}', [
+							$col,
+							$size,
+							$table->name(),
+						], 0, $e);
+					}
+				} else if (!is_string($size)) {
+					throw new Exception_Semantics('Columns must be name => size, or => name ({0} => {1} passed for table {2}', [
 						$col,
 						$size,
 						$table->name(),
-					]));
+					]);
 				} else {
-					$this->addColumn($size);
+					try {
+						$this->addColumn($size);
+					} catch (Exception_NotFound $e) {
+						throw new Exception_Semantics('No such column found {name} in {table_name}', [
+							"name" => $size,
+							"table_name" => $table->name(),
+						], 0, $e);
+					}
 				}
 			}
 		}
-		if (!$table->hasIndex($this->name)) {
+
+		try {
+			$table->removeIndex($this->name());
+		} catch (Exception_NotFound) {
+		}
+		try {
 			$table->addIndex($this);
+		} catch (Exception_Key $e) {
+			throw new Exception_Semantics('Adding index failed', [
+				"name" => $this->name(),
+				"table_name" => $table->name(),
+			], 0, $e);
 		}
 	}
 
@@ -123,35 +168,35 @@ class Database_Index {
 	 * @return string
 	 * @todo Move into database implementation
 	 */
-	public static function determineType($sqlType) {
+	public static function determineType(string $sqlType): string {
 		if (empty($sqlType)) {
-			return self::Index;
+			return self::TYPE_INDEX;
 		}
 		switch (strtolower($sqlType)) {
-			case "unique":
-			case "unique key":
-				return self::Unique;
-			case "primary key":
-			case "primary":
-				return self::Primary;
+			case 'unique':
+			case 'unique key':
+				return self::TYPE_UNIQUE;
+			case 'primary key':
+			case 'primary':
+				return self::TYPE_PRIMARY;
 			default:
-			case "key":
-			case "index":
-				return self::Index;
+			case 'key':
+			case 'index':
+				return self::TYPE_INDEX;
 		}
 	}
 
 	/**
 	 *
-	 * @param unknown $structure
+	 * @param ?string $structure
 	 * @return string
 	 */
-	public function determineStructure($structure) {
+	public function determineStructure(string $structure = null): string {
 		if (is_string($structure)) {
 			$structure = strtoupper($structure);
 			switch ($structure) {
-				case "BTREE":
-				case "HASH":
+				case 'BTREE':
+				case 'HASH':
 					return $structure;
 			}
 		}
@@ -160,7 +205,6 @@ class Database_Index {
 
 	/**
 	 *
-	 * @param string $lower
 	 * @return string
 	 */
 	public function name(): string {
@@ -172,18 +216,9 @@ class Database_Index {
 	 */
 	public function table($set = null): Database_Table {
 		if ($set !== null) {
-			$this->database->application->deprecated("table setter");
-			$this->setTable($set);
+			$this->database->application->deprecated('table setter');
 		}
 		return $this->table;
-	}
-
-	/**
-	 * @return Database_Table
-	 */
-	public function setTable(Database_Table $set): self {
-		$this->table = $set;
-		return $this;
 	}
 
 	/**
@@ -196,15 +231,15 @@ class Database_Index {
 	/**
 	 *
 	 */
-	public function column_sizes(): array {
+	public function columnSizes(): array {
 		return $this->columns;
 	}
 
 	/**
 	 *
-	 * @return number
+	 * @return int
 	 */
-	public function column_count() {
+	public function columnCount(): int {
 		return count($this->columns);
 	}
 
@@ -214,19 +249,20 @@ class Database_Index {
 	 */
 	public function type($set = null): string {
 		if ($set !== null) {
+			$this->database->application->deprecated("set type");
 			$this->setType($set);
 		}
 		return $this->type;
 	}
 
 	/**
-	 *
-	 * @return string
+	 * @param string $set
+	 * @return $this
 	 */
 	public function setType(string $set): self {
 		$this->type = self::determineType($set);
-		if ($this->type === self::Primary) {
-			$this->name = self::PrimaryName;
+		if ($this->type === self::TYPE_PRIMARY) {
+			$this->name = self::NAME_PRIMARY;
 		}
 		return $this;
 	}
@@ -235,18 +271,18 @@ class Database_Index {
 	 *
 	 * @return string
 	 */
-	public function structure() {
+	public function structure(): string {
 		return $this->structure;
 	}
 
 	/**
-	 * @param Database_Column $column
+	 * @param Database_Column $database_column
 	 * @param int $size
 	 * @return $this
 	 */
 	public function addDatabaseColumn(Database_Column $database_column, int $size = self::SIZE_DEFAULT): self {
 		$column = $database_column->name();
-		if ($this->type === self::Primary) {
+		if ($this->type === self::TYPE_PRIMARY) {
 			$database_column->setPrimaryKey(true);
 		}
 		$this->columns[$column] = $size;
@@ -260,53 +296,16 @@ class Database_Index {
 	 * @throws Exception_NotFound
 	 */
 	public function addColumn(string $column, int $size = self::SIZE_DEFAULT): self {
-		$database_column = $this->table->column($column);
-		if (!$database_column) {
-			throw new Exception_NotFound("{method}: {col} not found in {table}", [
-				"col" => $column,
-				"method" => __METHOD__,
-				"table" => $this->table,
-			]);
+		try {
+			$database_column = $this->table->column($column);
+			return $this->addDatabaseColumn($database_column, $size);
+		} catch (Exception_Key $e) {
+			throw new Exception_NotFound('{method}: {col} not found in {table}', [
+				'col' => $column,
+				'method' => __METHOD__,
+				'table' => $this->table,
+			], 0, $e);
 		}
-		return $this->addDatabaseColumn($database_column, $size);
-	}
-
-	/**
-	 *
-	 * @param unknown $mixed
-	 * @param string $size
-	 * @return \zesk\Database_Index
-	 * @throws Database_Exception
-	 * @throws Exception_NotFound
-	 * @deprecated 2022-01
-	 */
-	public function column_add(mixed $mixed, int $size = self::SIZE_DEFAULT) {
-		if ($mixed instanceof Database_Column) {
-			return $this->addDatabaseColumn($mixed, $size);
-		} elseif (is_string($mixed)) {
-			return $this->addColumn($mixed, $size);
-		} elseif (is_array($mixed)) {
-			foreach ($mixed as $k => $v) {
-				if (is_numeric($k)) {
-					$this->addColumn($v);
-				} else {
-					$this->addColumn($k, $v);
-				}
-			}
-			return $this;
-		} else {
-			throw new Database_Exception($this->database, "Database_Index::column_add(" . gettype($mixed) . "): Invalid type", [], 0);
-		}
-	}
-
-	/**
-	 * @param Database_Index $that
-	 * @param bool $debug
-	 * @return bool
-	 * @deprecated 2022-01
-	 */
-	public function is_similar(Database_Index $that, bool $debug = false): bool {
-		return $this->isSimilar($that, $debug);
 	}
 
 	/**
@@ -319,31 +318,31 @@ class Database_Index {
 		$logger = $this->database->application->logger;
 		if ($this->type() !== $that->type()) {
 			if ($debug) {
-				$logger->debug("Database_Index::is_similar(" . $this->type() . " !== " . $that->type() . ") Table types different");
+				$logger->debug('Database_Index::is_similar(' . $this->type() . ' !== ' . $that->type() . ') Table types different');
 			}
 			return false;
 		}
 		if ($this->structure() !== $that->structure()) {
 			if ($debug) {
-				$logger->debug("Database_Index::is_similar(" . $this->structure() . " !== " . $that->structure() . ") Table structures different");
+				$logger->debug('Database_Index::is_similar(' . $this->structure() . ' !== ' . $that->structure() . ') Table structures different');
 			}
 			return false;
 		}
 		if ($this->table()->name() !== $that->table()->name()) {
 			if ($debug) {
-				$logger->debug("Database_Index::is_similar(" . $this->table() . " !== " . $that->table() . ") Tables different");
+				$logger->debug('Database_Index::is_similar(' . $this->table() . ' !== ' . $that->table() . ') Tables different');
 			}
 			return false;
 		}
-		if ($this->name(true) !== $that->name(true)) {
+		if ($this->name() !== $that->name()) {
 			if ($debug) {
-				$logger->debug("Database_Index::is_similar(" . $this->name() . " !== " . $that->name() . ") Names different");
+				$logger->debug('Database_Index::is_similar(' . $this->name() . ' !== ' . $that->name() . ') Names different');
 			}
 			return false;
 		}
-		if ($this->column_count() !== $that->column_count()) {
+		if ($this->columnCount() !== $that->columnCount()) {
 			if ($debug) {
-				$logger->debug("Database_Index::is_similar(" . $this->column_count() . " !== " . $that->column_count() . ") ColumnCount different");
+				$logger->debug('Database_Index::is_similar(' . $this->columnCount() . ' !== ' . $that->columnCount() . ') ColumnCount different');
 			}
 			return false;
 		}
@@ -364,7 +363,7 @@ class Database_Index {
 	 *
 	 */
 	public function sql_index_type(): string {
-		return $this->database->sql()->index_type($this->table, $this->name, $this->type, $this->column_sizes());
+		return $this->database->sql()->index_type($this->table, $this->name, $this->type, $this->columnSizes());
 	}
 
 	/**
@@ -388,7 +387,7 @@ class Database_Index {
 	 * @return boolean
 	 */
 	public function isPrimary(): bool {
-		return $this->type === self::Primary;
+		return $this->type === self::TYPE_PRIMARY;
 	}
 
 	/**
@@ -396,7 +395,7 @@ class Database_Index {
 	 * @return boolean
 	 */
 	public function isIndex(): bool {
-		return $this->type === self::Index;
+		return $this->type === self::TYPE_INDEX;
 	}
 
 	/**
@@ -404,7 +403,7 @@ class Database_Index {
 	 * @return boolean
 	 */
 	public function isUnique(): bool {
-		return $this->type === self::Unique;
+		return $this->type === self::TYPE_UNIQUE;
 	}
 
 	/**
@@ -415,8 +414,21 @@ class Database_Index {
 		$vars = get_object_vars($this);
 		$vars['database'] = $this->database->code_name();
 		$vars['table'] = $this->table->name();
-		return "Object:" . __CLASS__ . " (\n" . Text::indent(_dump($vars)) . "\n)";
+		return 'Object:' . __CLASS__ . " (\n" . Text::indent(_dump($vars)) . "\n)";
 	}
+
+	/*---------------------------------------------------------------------------------------------------------*\
+	  ---------------------------------------------------------------------------------------------------------
+	  ---------------------------------------------------------------------------------------------------------
+		     _                               _           _
+		  __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
+		 / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
+		| (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
+		 \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
+		           |_|
+	  ---------------------------------------------------------------------------------------------------------
+	  ---------------------------------------------------------------------------------------------------------
+	\*---------------------------------------------------------------------------------------------------------*/
 
 	/**
 	 * @return boolean
@@ -430,7 +442,7 @@ class Database_Index {
 	 * @return boolean
 	 * @deprecated 2022-01
 	 */
-	public function is_index() {
+	public function is_index(): bool {
 		return $this->isIndex();
 	}
 
@@ -438,7 +450,63 @@ class Database_Index {
 	 * @return boolean
 	 * @deprecated 2022-01
 	 */
-	public function is_unique() {
+	public function is_unique(): bool {
 		return $this->isUnique();
 	}
+
+	/**
+	 *
+	 * @param mixed $mixed
+	 * @param string $size
+	 * @return \zesk\Database_Index
+	 * @throws Database_Exception
+	 * @throws Exception_NotFound
+	 * @deprecated 2022-01
+	 */
+	public function column_add(mixed $mixed, int $size = self::SIZE_DEFAULT) {
+		$this->database->application->deprecated(__METHOD__);
+		if ($mixed instanceof Database_Column) {
+			return $this->addDatabaseColumn($mixed, $size);
+		} else if (is_string($mixed)) {
+			return $this->addColumn($mixed, $size);
+		} else if (is_array($mixed)) {
+			foreach ($mixed as $k => $v) {
+				if (is_numeric($k)) {
+					$this->addColumn($v);
+				} else {
+					$this->addColumn($k, $v);
+				}
+			}
+			return $this;
+		} else {
+			throw new Database_Exception($this->database, 'Database_Index::column_add(' . gettype($mixed) . '): Invalid type', [], 0);
+		}
+	}
+
+	/**
+	 * @param Database_Index $that
+	 * @param bool $debug
+	 * @return bool
+	 * @deprecated 2022-01
+	 */
+	public function is_similar(Database_Index $that, bool $debug = false): bool {
+		return $this->isSimilar($that, $debug);
+	}
+
+	/**
+	 * @deprecated 2022-05
+	 */
+	public function column_sizes(): array {
+		return $this->columnSizes();
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 2022-05
+	 */
+	public function column_count() {
+		return $this->columnCount();
+	}
+
+
 }

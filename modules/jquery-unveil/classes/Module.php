@@ -16,7 +16,7 @@ use zesk\Module_JSLib;
  */
 class Module extends Module_JSLib {
 	protected $javascript_paths = [
-		"/share/jquery-unveil/jquery.unveil.js",
+		'/share/jquery-unveil/jquery.unveil.js',
 	];
 
 	/**
@@ -25,7 +25,7 @@ class Module extends Module_JSLib {
 	 * @var array
 	 */
 	protected $jquery_ready = [
-		"\$(\"img\").unveil();",
+		'$("img").unveil();',
 		"zesk.add_hook('document::ready', function (context) {\n\t\$(\"img\", context).unveil();\n});",
 	];
 
@@ -33,9 +33,9 @@ class Module extends Module_JSLib {
 	 * Register global hooks for this module
 	 */
 	public function initialize(): void {
-		$this->application->hooks->add(HTML::tag_attributes_alter_hook_name("img"), [
+		$this->application->hooks->add(HTML::tag_attributes_alter_hook_name('img'), [
 			$this,
-			"img_alter",
+			'img_alter',
 		]);
 		parent::initialize();
 	}
@@ -56,7 +56,7 @@ class Module extends Module_JSLib {
 		}
 		$src = $attributes['src'];
 		$attributes['data-src'] = $src;
-		$attributes['src'] = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+		$attributes['src'] = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 		return $attributes;
 	}
 }

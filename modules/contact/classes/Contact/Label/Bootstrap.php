@@ -114,7 +114,7 @@ class Contact_Label_Bootstrap {
 		$clg_exists = $application->orm_registry(Contact_Label_Group::class)->table_exists();
 		$cl_exists = $application->orm_registry(Contact_Label::class)->table_exists();
 		if (!$clg_exists || !$cl_exists) {
-			return "";
+			return '';
 		}
 		$result = [];
 		foreach ($labels as $arr) {
@@ -122,17 +122,17 @@ class Contact_Label_Bootstrap {
 			$group_name = Contact_Label_Group::register_group($application, $group_name);
 			$label = $application->orm_factory(Contact_Label::class, [
 				'CodeName' => $codename,
-				"Type" => $type,
-				"Name" => $codename,
-				"Account" => null,
-				"Group" => $group_name,
+				'Type' => $type,
+				'Name' => $codename,
+				'Account' => null,
+				'Group' => $group_name,
 			]);
 			if (!$label->exists()) {
 				$result[] = $label->insert_sql();
 			}
 		}
 		if (count($result) === 0) {
-			return "";
+			return '';
 		}
 		return implode(";\n", $result) . ";\n";
 	}

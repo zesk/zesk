@@ -58,7 +58,7 @@ class Net_Sync extends Options {
 			}
 		}
 		[$temp, $server_name] = self::_fetch_url($application, $url, $options);
-		$full_path = ends($path, "/") ? path($path, $server_name) : $path;
+		$full_path = ends($path, '/') ? path($path, $server_name) : $path;
 		if (!is_file($full_path) || (md5_file($temp) !== md5_file($full_path))) {
 			if (file_exists($full_path)) {
 				unlink($full_path);
@@ -86,7 +86,7 @@ class Net_Sync extends Options {
 		if ($milliseconds) {
 			$client->timeout($milliseconds);
 		}
-		$temporary_path = avalue($options, "temporary_path", $application->paths->temporary());
+		$temporary_path = avalue($options, 'temporary_path', $application->paths->temporary());
 		$temp_file_name = File::temporary($temporary_path);
 		$client->follow_location(true);
 		if ($user_agent) {
@@ -148,10 +148,10 @@ class Net_Sync extends Options {
 		if (is_bool($pattern)) {
 			return $pattern;
 		}
-		if (substr($pattern, 0, 1) == "/") {
+		if (substr($pattern, 0, 1) == '/') {
 			return $pattern;
 		}
-		return "/" . preg_quote($pattern) . "/";
+		return '/' . preg_quote($pattern) . '/';
 	}
 
 	public function file_filter($include = null, $exclude = null) {

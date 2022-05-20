@@ -67,7 +67,7 @@ class Timer {
 	 * @return double
 	 */
 	private static function microtime_to_seconds($value) {
-		[$integer_seconds, $fractional_seconds] = explode(" ", $value, 2);
+		[$integer_seconds, $fractional_seconds] = explode(' ', $value, 2);
 		return ((float) $integer_seconds + (float) $fractional_seconds);
 	}
 
@@ -126,21 +126,21 @@ class Timer {
 	 * @param string $comment Comment to be included in output
 	 * @return string HTML of output
 	 */
-	public function output($comment = "") {
+	public function output($comment = '') {
 		$now = self::now();
 		$delta = $this->elapsed();
 		$elapsed = self::now() - $this->start;
 		$this->last = $now;
 
-		$result = "";
+		$result = '';
 		if (!empty($comment)) {
 			$result .= "<strong>$comment</strong>: ";
 		}
-		$result .= "Elapsed: " . sprintf("%.3f", $delta) . " seconds";
+		$result .= 'Elapsed: ' . sprintf('%.3f', $delta) . ' seconds';
 		if ($this->stop != null) {
 			$delta = $this->stop - $this->start;
-			$result .= ", Total: " . sprintf("%.3f", $delta) . " seconds";
-			$result .= ", Elapsed: " . sprintf("%.3f", $elapsed) . " seconds";
+			$result .= ', Total: ' . sprintf('%.3f', $delta) . ' seconds';
+			$result .= ', Elapsed: ' . sprintf('%.3f', $elapsed) . ' seconds';
 		}
 		return $result;
 	}
@@ -150,7 +150,7 @@ class Timer {
 	 *
 	 * @param string $comment Comment to be included in output
 	 */
-	public function dump($comment = ""): void {
+	public function dump($comment = ''): void {
 		echo $this->output($comment);
 	}
 }

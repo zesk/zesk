@@ -11,36 +11,36 @@ namespace zesk;
  */
 class Command_Cannon extends Command_Base {
 	protected array $option_types = [
-		"directory" => 'dir',
-		"dir" => 'dir',
-		"list" => 'boolean',
-		"show" => 'boolean',
-		"dry-run" => 'boolean',
-		"backup" => 'boolean',
-		"duplicate" => 'boolean',
-		"config" => 'file',
-		"extensions" => 'string',
-		"extension" => 'string',
-		"files" => "files",
-		"skip-when-matches" => "string[]",
-		"also-match" => "string[]",
-		"*" => "string",
+		'directory' => 'dir',
+		'dir' => 'dir',
+		'list' => 'boolean',
+		'show' => 'boolean',
+		'dry-run' => 'boolean',
+		'backup' => 'boolean',
+		'duplicate' => 'boolean',
+		'config' => 'file',
+		'extensions' => 'string',
+		'extension' => 'string',
+		'files' => 'files',
+		'skip-when-matches' => 'string[]',
+		'also-match' => 'string[]',
+		'*' => 'string',
 	];
 
 	protected array $option_help = [
-		"directory" => 'Directory to look for files',
-		"dir" => 'Synonym for --directory',
-		"list" => 'List files which would be scanned',
-		"show" => 'Output files and matched lines',
-		"dry-run" => 'Show what files would match without changing anythiing (implies --show)',
-		"backup" => 'Backup files before changing',
-		"duplicate" => 'Create a copy of the file next to the original which has changes',
-		"extensions" => "List of extensions separated by commas to look for",
-		"extension" => 'Synonym for --extensions',
-		"files" => "Just run against this file",
-		"skip-when-matches" => "Skip replacements in files which contain ANY of the string(s) specified.",
-		"also-match" => "File must also match ANY of the given strings(s) in addition to the search term",
-		"*" => "Follow by Search string and Replace string",
+		'directory' => 'Directory to look for files',
+		'dir' => 'Synonym for --directory',
+		'list' => 'List files which would be scanned',
+		'show' => 'Output files and matched lines',
+		'dry-run' => 'Show what files would match without changing anythiing (implies --show)',
+		'backup' => 'Backup files before changing',
+		'duplicate' => 'Create a copy of the file next to the original which has changes',
+		'extensions' => 'List of extensions separated by commas to look for',
+		'extension' => 'Synonym for --extensions',
+		'files' => 'Just run against this file',
+		'skip-when-matches' => 'Skip replacements in files which contain ANY of the string(s) specified.',
+		'also-match' => 'File must also match ANY of the given strings(s) in addition to the search term',
+		'*' => 'Follow by Search string and Replace string',
 	];
 
 	protected array $options = [
@@ -70,7 +70,7 @@ class Command_Cannon extends Command_Base {
 	public function run(): void {
 		$this->configure('cannon');
 
-		$dir = $this->firstOption(["dir", "directory"]);
+		$dir = $this->firstOption(['dir', 'directory']);
 		if ($dir && !is_dir($dir)) {
 			$this->usage("$dir is not a directory");
 		}
@@ -79,43 +79,43 @@ class Command_Cannon extends Command_Base {
 		$duplicate = $this->optionBool('duplicate');
 		$show = $this->optionBool('show');
 
-		$this->verbose_log("Verbose enabled.");
+		$this->verbose_log('Verbose enabled.');
 		if ($this->optionBool('dry-run')) {
-			$this->verbose_log("Dry run - nothing will change.");
+			$this->verbose_log('Dry run - nothing will change.');
 		}
-		if ($dir === null && $this->hasOption("files")) {
-			$files = $this->option("files");
+		if ($dir === null && $this->hasOption('files')) {
+			$files = $this->option('files');
 		} else {
 			if ($dir === null) {
 				$dir = getcwd();
 			}
 			$extensions = $this->firstOption(
-				["extensions", "extension"],
-				"php|inc|php4|php5|tpl|html|htm|sql|phpt|module|install|conf|md|markdown|css|less|js"
+				['extensions', 'extension'],
+				'php|inc|php4|php5|tpl|html|htm|sql|phpt|module|install|conf|md|markdown|css|less|js'
 			);
-			$extensions = explode(",", strtr($extensions, [
-				"|" => ",",
-				"." => "",
-				";" => ",",
+			$extensions = explode(',', strtr($extensions, [
+				'|' => ',',
+				'.' => '',
+				';' => ',',
 			]));
-			$this->verbose_log("Generating file list ...");
+			$this->verbose_log('Generating file list ...');
 			$files = $this->_list_files($dir, $extensions);
-			$this->verbose_log("{count} files found", [
-				"count" => count($files),
+			$this->verbose_log('{count} files found', [
+				'count' => count($files),
 			]);
 		}
 		if ($list) {
 			echo implode("\n", $files) . "\n";
 			return;
 		}
-		$this->skip_when_matches = $this->option_array("skip-when-matches");
+		$this->skip_when_matches = $this->option_array('skip-when-matches');
 		if (count($this->skip_when_matches) === 0) {
 			$this->skip_when_matches = null;
 		} else {
 			$this->verbose_log("Skipping files which contain: \n\t\"" . implode("\"\n\t\"", $this->skip_when_matches) . "\"\n\n");
 			$stats['skipped'] = 0;
 		}
-		$this->also_match = $this->option_array("also-match");
+		$this->also_match = $this->option_array('also-match');
 		if (count($this->also_match) === 0) {
 			$this->also_match = null;
 		} else {
@@ -124,32 +124,32 @@ class Command_Cannon extends Command_Base {
 		}
 
 		if ($this->has_arg()) {
-			$search = $this->get_arg("search");
+			$search = $this->get_arg('search');
 		} else {
-			echo " Search? ";
+			echo ' Search? ';
 			$search = rtrim(fgets(STDIN), "\n\r");
 		}
 		$replace = null;
 		if ($this->has_arg()) {
-			$replace = $this->get_arg("replace");
+			$replace = $this->get_arg('replace');
 		} elseif (!$show) {
-			echo "Replace? ";
+			echo 'Replace? ';
 			$replace = rtrim(fgets(STDIN), "\n\r");
 		}
 		if (empty($search)) {
-			$this->usage("Must have a non-blank search phrase.");
+			$this->usage('Must have a non-blank search phrase.');
 		}
 		if ($show) {
-			$this->verbose_log("Showing matches only");
+			$this->verbose_log('Showing matches only');
 		} elseif ($backup) {
 			if ($duplicate) {
-				$this->error("--duplicate and --backup are exclusive, ignoring --backup");
+				$this->error('--duplicate and --backup are exclusive, ignoring --backup');
 			}
-			$this->verbose_log("Backing up files with matches");
+			$this->verbose_log('Backing up files with matches');
 		}
 		$locale = $this->application->locale;
-		$this->log(" Search: $search (" . $locale->plural_word("character", strlen($search)) . ")");
-		$this->log("Replace: $replace (" . $locale->plural_word("character", strlen($replace)) . ")");
+		$this->log(" Search: $search (" . $locale->plural_word('character', strlen($search)) . ')');
+		$this->log("Replace: $replace (" . $locale->plural_word('character', strlen($replace)) . ')');
 		$stats = [
 			'files' => 0,
 			'lines' => 0,
@@ -175,7 +175,7 @@ class Command_Cannon extends Command_Base {
 	private function _list_files($dir, array $extensions) {
 		$options = [];
 		$options['rules_file'] = [
-			'#\.' . implode("|", $extensions) . '$#' => true,
+			'#\.' . implode('|', $extensions) . '$#' => true,
 			'#.*/\.#' => true,
 			false,
 		];
@@ -192,10 +192,10 @@ class Command_Cannon extends Command_Base {
 	}
 
 	private function _replace_file($file, $search, $replace) {
-		if (($size = filesize($file)) > $this->optionInt("max_file_size")) {
-			$this->log("Skipping {size} {file}", [
-				"size" => Number::format_bytes($this->application->locale, $size),
-				"file" => $file,
+		if (($size = filesize($file)) > $this->optionInt('max_file_size')) {
+			$this->log('Skipping {size} {file}', [
+				'size' => Number::format_bytes($this->application->locale, $size),
+				'file' => $file,
 			]);
 			return 0;
 		}
@@ -232,33 +232,33 @@ class Command_Cannon extends Command_Base {
 		}
 		$locale = $this->application->locale;
 		if ($dry_run || $show) {
-			echo "$file: " . $locale->plural_word("match", count($lines)) . "\n";
+			echo "$file: " . $locale->plural_word('match', count($lines)) . "\n";
 			$carrots_tr = [
-				$rabbit => str_repeat("^", strlen($replace)),
+				$rabbit => str_repeat('^', strlen($replace)),
 			];
 			foreach ($lines as $lineno => $line) {
 				$line = strtr($line, [
-					"\t" => "    ",
+					"\t" => '    ',
 				]);
-				echo Text::ralign($lineno + 1, 4) . ": " . strtr($line, [
+				echo Text::ralign($lineno + 1, 4) . ': ' . strtr($line, [
 					$rabbit => $search,
 				]) . "\n";
-				echo Text::ralign($lineno + 1, 4) . ": " . strtr($line, $replace_tr) . "\n";
-				$carrot_line = preg_replace("#[^$rabbit]#", " ", $line);
-				echo Text::ralign("", 4) . "  " . strtr($carrot_line, $carrots_tr) . "\n";
+				echo Text::ralign($lineno + 1, 4) . ': ' . strtr($line, $replace_tr) . "\n";
+				$carrot_line = preg_replace("#[^$rabbit]#", ' ', $line);
+				echo Text::ralign('', 4) . '  ' . strtr($carrot_line, $carrots_tr) . "\n";
 			}
 			return count($lines);
 		}
 		if ($duplicate) {
 			$ext = File::extension($file);
 			$dupfile = File::extension_change($file, ".cannon.$ext");
-			$this->verbose_log("Writing $dupfile: " . $locale->plural_word("change", count($lines)));
+			$this->verbose_log("Writing $dupfile: " . $locale->plural_word('change', count($lines)));
 			file_put_contents($dupfile, strtr($contents, [
 				$search => $replace,
 			]));
 		} else {
 			if ($backup) {
-				File::rotate($file, null, 3, ".old");
+				File::rotate($file, null, 3, '.old');
 			}
 			file_put_contents($file, strtr($contents, [
 				$search => $replace,

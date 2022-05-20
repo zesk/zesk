@@ -34,16 +34,16 @@ if ($maximum_objects <= 0) {
 	$maximum_objects = 100;
 }
 $template_name = "template-$column";
-echo HTML::tag_open("div", [
-	"class" => "control-link-object",
-	"data-minimum-objects" => $minimum_objects,
-	"data-template" => $template_name,
-	"data-maximum-objects" => $maximum_objects,
+echo HTML::tag_open('div', [
+	'class' => 'control-link-object',
+	'data-minimum-objects' => $minimum_objects,
+	'data-template' => $template_name,
+	'data-maximum-objects' => $maximum_objects,
 ]);
 
 echo HTML::tag('script', [
 	'id' => $template_name,
-	"type" => "text/x-template",
+	'type' => 'text/x-template',
 ], $blank_widget = $link_widget->render());
 
 echo HTML::tag_open('div', '.links');
@@ -66,7 +66,7 @@ for ($i = 0; $i < $n_extras; $i++) {
 
 echo HTML::tag_close('div');
 
-if ($widget->optionBool("show_more", true)) {
+if ($widget->optionBool('show_more', true)) {
 	$response->jquery('$(".control-link-object button.more").on("click", function () {
 		var $parent = $(this).parents(".control-link-object"),
 		$tpl = $("#"+$parent.data("template")).html();
@@ -74,9 +74,9 @@ if ($widget->optionBool("show_more", true)) {
 		return false;
 	});');
 	$add_attrs = [
-		"class" => "form-control more",
+		'class' => 'form-control more',
 	];
-	echo HTML::tag('div', '.more', HTML::tag("button", $add_attrs, $widget->option('label_more', __("More ..."))));
+	echo HTML::tag('div', '.more', HTML::tag('button', $add_attrs, $widget->option('label_more', __('More ...'))));
 }
 
 echo HTML::tag_close('div');

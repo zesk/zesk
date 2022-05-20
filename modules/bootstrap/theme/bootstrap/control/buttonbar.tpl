@@ -6,7 +6,7 @@
 /*
  * @var $this zesk\Template @var $object Model @var $widget Widget
  */
-$this->widget->content_children = "";
+$this->widget->content_children = '';
 foreach ($this->widget->children as $widget) {
 	echo $widget->content;
 }

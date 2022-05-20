@@ -5,11 +5,11 @@ class Net_Whois {
 	private static function clean_domain($domain) {
 		$domain = strtolower(trim($domain));
 		$domain = StringTools::unprefix($domain, [
-			"http://",
-			"https://",
+			'http://',
+			'https://',
 		]);
 		$domain = StringTools::unprefix($domain, [
-			"www.",
+			'www.',
 		]);
 		[$domain] = explode('/', $domain, 2);
 		return $domain;
@@ -18,11 +18,11 @@ class Net_Whois {
 	public static function query($domain) {
 		// fix the domain name:
 		$domain = self::clean_domain($domain);
-		$extension = StringTools::rright($domain, ".");
+		$extension = StringTools::rright($domain, '.');
 		$server = Net_Whois_Servers::server_from_tld($extension);
 		if (!$server) {
-			throw new Exception_NotFound("No whois server for {extension}", [
-				"extension" => $extension,
+			throw new Exception_NotFound('No whois server for {extension}', [
+				'extension' => $extension,
 			]);
 		}
 

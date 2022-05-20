@@ -20,7 +20,7 @@ class Control_Login extends Control_Edit {
 	/**
 	 *
 	 */
-	protected ?string $class = "User";
+	protected ?string $class = 'User';
 
 	/**
 	 *
@@ -64,15 +64,15 @@ class Control_Login extends Control_Edit {
 	 */
 	protected function initialize(): void {
 		$locale = $this->locale();
-		$f = $this->widget_factory(Control_Text::class)->names("login", $this->option("label_login", $locale->__("Email")))
+		$f = $this->widget_factory(Control_Text::class)->names('login', $this->option('label_login', $locale->__('Email')))
 			->required(true);
 
 		$this->child($f);
 
-		if (!$this->option("no_password")) {
-			$f = $this->widget_factory(Control_Password::class)->names("login_password", $this->option("label_password", $locale->__("Password")))
+		if (!$this->option('no_password')) {
+			$f = $this->widget_factory(Control_Password::class)->names('login_password', $this->option('label_password', $locale->__('Password')))
 				->required(true);
-			$f->setOption("encrypted_column", "login_password_hash");
+			$f->setOption('encrypted_column', 'login_password_hash');
 
 			$this->child($f);
 		}
@@ -80,7 +80,7 @@ class Control_Login extends Control_Edit {
 		$f = $this->widget_factory(Control_Button::class);
 		$f->names('login_button', false)
 			->add_class('btn-primary btn-block')
-			->setOption('button_label', $locale->__("Login"));
+			->setOption('button_label', $locale->__('Login'));
 		$this->child($f);
 
 		parent::initialize();
@@ -92,7 +92,7 @@ class Control_Login extends Control_Edit {
 	 * @see Widget::submitted()
 	 */
 	public function submitted(): bool {
-		return $this->request->is_post() && $this->request->has("login", true);
+		return $this->request->is_post() && $this->request->has('login', true);
 	}
 
 	/**
@@ -110,7 +110,7 @@ class Control_Login extends Control_Edit {
 		$locale = $this->locale();
 		$user = $this->application->orm_factory(User::class);
 		$column_login = $this->option('column_login', $user->column_login());
-		if ($this->option("no_password")) {
+		if ($this->option('no_password')) {
 			$user = $this->application->orm_registry(User::class)
 				->query_select()
 				->where($column_login, $object->login)
@@ -119,14 +119,14 @@ class Control_Login extends Control_Edit {
 				$this->user = $user;
 				return true;
 			}
-			$this->error($locale->__("User name not found, please try again, or sign up for a new account."));
+			$this->error($locale->__('User name not found, please try again, or sign up for a new account.'));
 			return false;
 		}
 		/* @var $user User */
 		$failed = false;
 		if (!$user->authenticate($login, $object->login_password_hash, false, false)) {
 			$failed = true;
-			if ($this->call_hook_arguments("authenticate", [
+			if ($this->call_hook_arguments('authenticate', [
 				$user,
 				$login,
 				$object->login_password_hash,
@@ -135,24 +135,24 @@ class Control_Login extends Control_Edit {
 			}
 		}
 		if ($failed) {
-			$this->response()->status(Net_HTTP::STATUS_UNAUTHORIZED, "Unauthorized");
-			$this->application->logger->warning("User login failed for user {login}", [
-				"login" => $login,
-				"password_hash" => $object->login_password_hash,
+			$this->response()->status(Net_HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
+			$this->application->logger->warning('User login failed for user {login}', [
+				'login' => $login,
+				'password_hash' => $object->login_password_hash,
 			]);
-			$this->error($locale->__("Username or password is incorrect."));
+			$this->error($locale->__('Username or password is incorrect.'));
 			$this->object->user = $this->user = null;
-			$user->call_hook("login_failed", $this);
+			$user->call_hook('login_failed', $this);
 			if ($this->prefer_json()) {
 				$this->json([
-					"status" => false,
-					"errors" => $this->errors(),
+					'status' => false,
+					'errors' => $this->errors(),
 				]);
 				return false;
 			}
 			return false;
 		}
-		if ($user->call_hook_arguments("login", [
+		if ($user->call_hook_arguments('login', [
 			$this,
 		], true)) {
 			$this->user = $this->object->user = $user;
@@ -162,28 +162,28 @@ class Control_Login extends Control_Edit {
 	}
 
 	public function default_submit(): bool {
-		$uref = $this->request->get("ref", null);
+		$uref = $this->request->get('ref', null);
 		if (URL::is($uref) && !URL::is_same_server($uref, $this->request->url())) {
 			$uref = false;
 		}
 		if (!$uref) {
 			$uref = $this->option('login_url', '/');
 		}
-		$this->application->logger->notice("User {user} ({uid}) logged in successfully", [
-			"user" => $this->user,
-			"uid" => $this->user->id(),
+		$this->application->logger->notice('User {user} ({uid}) logged in successfully', [
+			'user' => $this->user,
+			'uid' => $this->user->id(),
 		]);
 		if ($this->prefer_json()) {
 			$walker = JSONWalker::factory();
-			if ($this->option_array("user_json_options")) {
+			if ($this->option_array('user_json_options')) {
 				// Development here
-				$this->application->logger->warning("user_json_options ignored");
+				$this->application->logger->warning('user_json_options ignored');
 			}
 			$this->json($this->user->json($walker));
 			return false;
 		}
 
-		throw new Exception_Redirect($uref, $this->application->locale->__("You have logged in successfully."));
+		throw new Exception_Redirect($uref, $this->application->locale->__('You have logged in successfully.'));
 	}
 
 	/**
@@ -195,7 +195,7 @@ class Control_Login extends Control_Edit {
 		if ($this->user instanceof User) {
 			$user = $this->user;
 			$user->authenticated($this->request(), $this->response());
-			$result = $this->call_hook_arguments("submit", [], null);
+			$result = $this->call_hook_arguments('submit', [], null);
 			if ($result !== null) {
 				if (is_array($result)) {
 					$this->json($result);
@@ -205,7 +205,7 @@ class Control_Login extends Control_Edit {
 			return $this->default_submit();
 		}
 		// Is this reachable? I don't think so. KMD 2018
-		$result = $this->call_hook_arguments("submit_failed", [], null);
+		$result = $this->call_hook_arguments('submit_failed', [], null);
 		if ($result !== null) {
 			if (is_array($result)) {
 				$this->json($result);

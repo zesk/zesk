@@ -33,7 +33,7 @@ foreach ($this->children as $child) {
 	/* @var $child Widget */
 	$inputs[] = $child->render();
 	if ($child->optionBool(Control_Checklist::option_checklist_exclusive)) {
-		$exclusives[] = "#" . $child->id();
+		$exclusives[] = '#' . $child->id();
 	}
 }
 
@@ -41,7 +41,7 @@ $columns = intval($this->columns);
 if ($columns > 1) {
 	echo HTML::div_open('.row');
 	$columns = clamp(2, $columns, 12);
-	$columns = avalue(ArrayTools::flip_copy(to_list("2;3;4;6;12")), $columns, 12);
+	$columns = avalue(ArrayTools::flip_copy(to_list('2;3;4;6;12')), $columns, 12);
 	$n_per = ceil(count($inputs) / $columns);
 	for ($i = 0; $i < $columns; $i++) {
 		echo HTML::tag('div', '.col-sm-' . intval(12 / $columns), implode("\n", array_slice($inputs, $i * $n_per, $n_per)));
@@ -53,7 +53,7 @@ if ($columns > 1) {
 
 if (count($exclusives) > 0) {
 	$map = [];
-	$map['exclusives'] = implode(",", $exclusives);
+	$map['exclusives'] = implode(',', $exclusives);
 	ob_start(); ?><script>
 	(function ($) {
 		var update = function () {
@@ -72,6 +72,6 @@ if (count($exclusives) > 0) {
 		$("{exclusives}").on("click", update).each(update);
 	}(window.jQuery));
 	</script><?php
-	$content = HTML::extract_tag_contents("script", map(ob_get_clean(), $map));
+	$content = HTML::extract_tag_contents('script', map(ob_get_clean(), $map));
 	$response->html()->jquery($content);
 }

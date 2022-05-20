@@ -21,7 +21,7 @@ class Country extends ORM {
 			}
 		} else {
 			$c = new Country($application, [
-				"code" => $mixed,
+				'code' => $mixed,
 			]);
 			return $c->find();
 		}

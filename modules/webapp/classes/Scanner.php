@@ -19,17 +19,17 @@ use zesk\Server;
 class Scanner {
 	public function scan_for_instances(Application $application, $path) {
 		$rules = [
-			"rules_file" => [
-				"#/webapp.json$#" => true,
+			'rules_file' => [
+				'#/webapp.json$#' => true,
 				false,
 			],
-			"rules_directory_walk" => [
+			'rules_directory_walk' => [
 				"#/\.#" => false,
-				"#/vendor/#" => false,
-				"#/node_modules/#" => false,
+				'#/vendor/#' => false,
+				'#/node_modules/#' => false,
 				true,
 			],
-			"rules_directory" => false,
+			'rules_directory' => false,
 		];
 		$files = Directory::list_recursive($path, $rules);
 		$server = Server::singleton($application);

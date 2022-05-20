@@ -11,31 +11,31 @@ class Server_Feature_FreeBSD extends Server_Feature {
 	protected $packages = [];
 
 	protected $platforms = [
-		"FreeBSD",
+		'FreeBSD',
 	];
 
 	protected $settings = [
-		"RC_CONF_PATH" => "path list",
+		'RC_CONF_PATH' => 'path list',
 	];
 
 	public function configure(): void {
-		$source = $this->find_inherit_file("boot/loader.conf");
+		$source = $this->find_inherit_file('boot/loader.conf');
 		if ($source) {
-			$this->update($source, "/boot/loader.conf");
+			$this->update($source, '/boot/loader.conf');
 		}
-		$paths = $this->get_path_list("RC_CONF_PATH");
+		$paths = $this->get_path_list('RC_CONF_PATH');
 
-		$sysctl_conf = "/etc/sysctl.conf";
+		$sysctl_conf = '/etc/sysctl.conf';
 
 		if ($this->update_catenate(basename($sysctl_conf), $paths, $sysctl_conf)) {
 			$this->sysctl_apply();
 		}
-		$this->owner($sysctl_conf, "root", 0o644);
+		$this->owner($sysctl_conf, 'root', 0o644);
 
-		$rc_conf = "/etc/rc.conf";
+		$rc_conf = '/etc/rc.conf';
 
 		$this->update_catenate(basename($rc_conf), $paths, $rc_conf);
-		$this->owner($rc_conf, "root", 0o644);
+		$this->owner($rc_conf, 'root', 0o644);
 
 		$rc_extras = [];
 		foreach ($paths as $path) {
@@ -44,13 +44,13 @@ class Server_Feature_FreeBSD extends Server_Feature {
 				foreach ($rc_files as $rc_file) {
 					$dest = path('/etc/', basename($rc_file));
 					$this->update($rc_file, $dest, true);
-					$this->owner($dest, "root", 0o644);
+					$this->owner($dest, 'root', 0o644);
 				}
 			}
 		}
 	}
 
 	private function sysctl_apply(): void {
-		$this->root_exec("/sbin/sysctl `grep -v '^#.*' /etc/sysctl.conf");
+		$this->root_exec('/sbin/sysctl `grep -v \'^#.*\' /etc/sysctl.conf');
 	}
 }

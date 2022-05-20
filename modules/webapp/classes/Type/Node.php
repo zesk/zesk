@@ -32,7 +32,7 @@ class Type_Node extends Type {
 	 * @return string
 	 */
 	public function package_json_path() {
-		return path($this->path, "package.json");
+		return path($this->path, 'package.json');
 	}
 
 	/**
@@ -43,7 +43,7 @@ class Type_Node extends Type {
 	public function version() {
 		try {
 			$json = JSON::decode(File::contents($this->package_json_path(), '{}'));
-			return avalue($json, "version", null);
+			return avalue($json, 'version', null);
 		} catch (\Exception $e) {
 			$this->exception = $e;
 			return null;

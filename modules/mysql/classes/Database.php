@@ -71,32 +71,32 @@ class Database extends \zesk\Database {
 	 *
 	 * @var string
 	 */
-	public const attribute_default_charset = "default charset";
+	public const attribute_default_charset = 'default charset';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const attribute_character_set = "character set";
+	public const attribute_character_set = 'character set';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const attribute_collation = "collate";
+	public const attribute_collation = 'collate';
 
 	/**
 	 * Current MySQL version
 	 *
 	 * @var string
 	 */
-	public const attribute_version = "version";
+	public const attribute_version = 'version';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const attribute_engine = "engine";
+	public const attribute_engine = 'engine';
 
 	// utf8mb4 is the future
 	//
@@ -119,19 +119,19 @@ class Database extends \zesk\Database {
 	 *
 	 * @var string
 	 */
-	public const default_character_set = "utf8";
+	public const default_character_set = 'utf8';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const default_collation = "utf8_unicode_ci";
+	public const default_collation = 'utf8_unicode_ci';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const default_engine = "InnoDB";
+	public const default_engine = 'InnoDB';
 
 	/**
 	 * Current selected database
@@ -152,10 +152,10 @@ class Database extends \zesk\Database {
 	 * @var array
 	 */
 	private static $mysql_variables = [
-		self::attribute_engine => "@@default_storage_engine",
-		self::attribute_character_set => "@@character_set_database",
-		self::attribute_collation => "@@collation_database",
-		self::attribute_version => "@@version",
+		self::attribute_engine => '@@default_storage_engine',
+		self::attribute_character_set => '@@character_set_database',
+		self::attribute_collation => '@@collation_database',
+		self::attribute_version => '@@version',
 	];
 
 	/**
@@ -174,7 +174,7 @@ class Database extends \zesk\Database {
 	public function hook_construct(): void {
 		$this->Connection = null;
 		// Is this here for backwards compatibility?
-		$this->setOption("tabletype", $this->option(self::attribute_engine, $this->default_engine()));
+		$this->setOption('tabletype', $this->option(self::attribute_engine, $this->default_engine()));
 	}
 
 	/**
@@ -184,7 +184,7 @@ class Database extends \zesk\Database {
 	 * @return string
 	 */
 	public function remove_comments($sql) {
-		$sql = Text::remove_line_comments($sql, "--");
+		$sql = Text::remove_line_comments($sql, '--');
 		return $sql;
 	}
 
@@ -200,7 +200,7 @@ class Database extends \zesk\Database {
 			return $this->option($attribute);
 		}
 		if (!array_key_exists($attribute, self::$mysql_variables)) {
-			throw new Exception_Semantics("No such MySQL variable for attribute {attribute}", compact("attribute"));
+			throw new Exception_Semantics('No such MySQL variable for attribute {attribute}', compact('attribute'));
 		}
 		$variable = self::$mysql_variables[$attribute];
 		$this->setOption($attribute, $value = $this->query_one("select $variable", $variable, avalue(self::$mysql_default_attributes, $attribute, null)));
@@ -227,7 +227,7 @@ class Database extends \zesk\Database {
 	 */
 	public function column_attributes(Database_Column $column) {
 		$attributes = [];
-		if ($column->sql_type() === "timestamp") {
+		if ($column->sql_type() === 'timestamp') {
 			if ($column->not_null()) {
 				$attributes['default'] = 'CURRENT_TIMESTAMP';
 			} else {
@@ -235,7 +235,7 @@ class Database extends \zesk\Database {
 			}
 		}
 		$sql_type = $column->sql_type();
-		if (ends($sql_type, "blob") || ends($sql_type, "text")) {
+		if (ends($sql_type, 'blob') || ends($sql_type, 'text')) {
 			if ($column->not_null()) {
 				// $attributes['default'] = '';
 			} else {
@@ -295,7 +295,7 @@ class Database extends \zesk\Database {
 		}
 
 		try {
-			$this->query("USE " . $this->sql()->quote_table($name));
+			$this->query('USE ' . $this->sql()->quote_table($name));
 			$this->change_database = $name;
 			return $this;
 		} catch (\Exception $e) {
@@ -326,13 +326,13 @@ class Database extends \zesk\Database {
 	public function table_columns(string $table): array {
 		$columns = [];
 		$tobject = new Database_Table($this, $table);
-		$result = $this->query_array("DESC " . $this->quote_table($table), "Field");
+		$result = $this->query_array('DESC ' . $this->quote_table($table), 'Field');
 		foreach ($result as $name => $result) {
 			$Type = $Null = $Key = $Default = $Extra = null;
 			extract($result, EXTR_IF_EXISTS);
 			$columns[$name] = $col = new Database_Column($tobject, $name);
 			$col->sql_type($Type);
-			$col->increment(str_contains($Extra, "auto_increment"));
+			$col->increment(str_contains($Extra, 'auto_increment'));
 			$col->default_value($Default);
 			$col->not_null(!to_bool($Null));
 		}
@@ -352,27 +352,27 @@ class Database extends \zesk\Database {
 	public function dump($filename, array $options = []) {
 		$parts = $this->url_parts;
 
-		$parts['port'] = avalue($parts, "port", 3306);
+		$parts['port'] = avalue($parts, 'port', 3306);
 		$database = $this->database_name();
 
 		$tables = to_list(avalue($options, 'tables', []));
 
 		$cmd_options = [
-			"--add-drop-table",
-			"-c",
-			"--host={host}",
-			"--port={port}",
-			"--password={pass}",
-			"--user={user}",
+			'--add-drop-table',
+			'-c',
+			'--host={host}',
+			'--port={port}',
+			'--password={pass}',
+			'--user={user}',
 		];
 		$lock_first = avalue($options, 'lock', false);
 		if ($lock_first) {
-			$cmd_options[] = "--lock-tables";
+			$cmd_options[] = '--lock-tables';
 		}
 		$cmd_options[] = $database;
-		$cmd_options[] = implode(" ", $tables);
+		$cmd_options[] = implode(' ', $tables);
 		$result = 0;
-		$cmd = "mysqldump " . implode(" ", $cmd_options) . " > {filename}";
+		$cmd = 'mysqldump ' . implode(' ', $cmd_options) . ' > {filename}';
 		$this->application->process->execute_arguments($cmd, $parts + [
 				'filename' => $filename,
 			]);
@@ -392,18 +392,18 @@ class Database extends \zesk\Database {
 		}
 		$parts = $this->url_parts;
 
-		$parts['port'] = avalue($parts, "port", 3306);
+		$parts['port'] = avalue($parts, 'port', 3306);
 		$database = $this->database_name();
 
 		$cmd_options = [
-			"--host={host}",
-			"--port={port}",
-			"--password={pass}",
-			"--user={user}",
+			'--host={host}',
+			'--port={port}',
+			'--password={pass}',
+			'--user={user}',
 		];
 		$cmd_options[] = $database;
 		$result = 0;
-		$cmd = "mysql " . implode(" ", $cmd_options) . " < {filename}";
+		$cmd = 'mysql ' . implode(' ', $cmd_options) . ' < {filename}';
 		$this->application->process->execute_arguments($cmd, $parts + [
 				'filename' => $filename,
 			]);
@@ -417,11 +417,11 @@ class Database extends \zesk\Database {
 	final public function _connect() {
 		$parts = $this->url_parts;
 
-		$server = avalue($parts, "host");
-		$port = avalue($parts, "port", null);
-		$user = avalue($parts, "user");
-		$password = avalue($parts, "pass");
-		$this->Database = $database = substr(avalue($parts, "path"), 1);
+		$server = avalue($parts, 'host');
+		$port = avalue($parts, 'port', null);
+		$user = avalue($parts, 'user');
+		$password = avalue($parts, 'pass');
+		$this->Database = $database = substr(avalue($parts, 'path'), 1);
 
 		if (!$port) {
 			$port = 3306;
@@ -430,10 +430,10 @@ class Database extends \zesk\Database {
 			return false;
 		}
 
-		$this->setOption("Database", $this->Database);
-		$this->setOption("User", $user);
-		$this->setOption("Port", $port);
-		$this->setOption("Server", $server);
+		$this->setOption('Database', $this->Database);
+		$this->setOption('User', $user);
+		$this->setOption('Port', $port);
+		$this->setOption('Server', $server);
 
 		$character_set = $this->option(self::attribute_character_set, self::default_character_set);
 		if ($character_set) {
@@ -455,11 +455,11 @@ class Database extends \zesk\Database {
 		$version = $this->version;
 		if (preg_match('/([0-9]+)\.([0-9]+)\.([0-9]+)/', $version, $matches)) {
 			[$v, $major, $minor, $patch] = $matches;
-			if ($major !== "5" && $major !== "8") {
+			if ($major !== '5' && $major !== '8') {
 				return;
 			}
 			if ($minor <= 6) {
-				$this->setOption("invalid_dates_ok", true);
+				$this->setOption('invalid_dates_ok', true);
 			}
 		}
 	}
@@ -500,7 +500,7 @@ class Database extends \zesk\Database {
 	protected function _mysql_throw_error($query, $errno, $message): void {
 		if ($errno == 1062) {
 			$match = false;
-			if (preg_match("/key ([0-9]+)/", $message, $match)) {
+			if (preg_match('/key ([0-9]+)/', $message, $match)) {
 				$match = intval($match[1]);
 			}
 			if (empty($match)) {
@@ -510,7 +510,7 @@ class Database extends \zesk\Database {
 			}
 
 			throw new Database_Exception_Duplicate($this, $query, $message, [], $errno);
-		} elseif ($errno === 1146) {
+		} else if ($errno === 1146) {
 			throw new Database_Exception_Table_NotFound($this, $query, $message, [], $errno);
 		} else {
 			throw new Database_Exception_SQL($this, $query, $message, [], $errno);
@@ -542,9 +542,9 @@ class Database extends \zesk\Database {
 	 */
 	public function time_zone($set = null) {
 		if ($set === null) {
-			return $this->query_one("SELECT @@time_zone as tz", "tz", "UTC");
+			return $this->query_one('SELECT @@time_zone as tz', 'tz', 'UTC');
 		}
-		$this->query("SET time_zone=" . $this->quote_text($set));
+		$this->query('SET time_zone=' . $this->quote_text($set));
 		return $this;
 	}
 
@@ -556,22 +556,22 @@ class Database extends \zesk\Database {
 	public function create_database(string $url, array $hosts): bool {
 		$parts = parse_url($url);
 
-		$server = avalue($parts, "host");
-		$user = avalue($parts, "user");
-		$password = avalue($parts, "pass");
-		$database = substr(avalue($parts, "path"), 1);
+		$server = avalue($parts, 'host');
+		$user = avalue($parts, 'user');
+		$password = avalue($parts, 'pass');
+		$database = substr(avalue($parts, 'path'), 1);
 
 		$query = "CREATE DATABASE IF NOT EXISTS $database;";
 		if (!$this->query($query)) {
 			return false;
 		}
 		foreach ($hosts as $host) {
-			$query = "GRANT ALL PRIVILEGES ON `$database`.* TO `$user`@`$host` IDENTIFIED BY '" . addslashes($password) . "' WITH GRANT OPTION;";
+			$query = "GRANT ALL PRIVILEGES ON `$database`.* TO `$user`@`$host` IDENTIFIED BY '" . addslashes($password) . '\' WITH GRANT OPTION;';
 			if (!$this->query($query)) {
 				return false;
 			}
 		}
-		$query = "FLUSH PRIVILEGES;";
+		$query = 'FLUSH PRIVILEGES;';
 		if (!$this->query($query)) {
 			return false;
 		}
@@ -585,7 +585,7 @@ class Database extends \zesk\Database {
 	 * @see zesk\Database::list_tables()
 	 */
 	public function list_tables() {
-		$result = $this->query("SHOW TABLES");
+		$result = $this->query('SHOW TABLES');
 		$tables = [];
 		$caseSensitive = $this->tables_case_sensitive();
 		if ($caseSensitive) {
@@ -609,7 +609,7 @@ class Database extends \zesk\Database {
 	 * @throws Exception_Parameter
 	 */
 	private function show_create_table($table, string &$sql = null): string {
-		$sql = "SHOW CREATE TABLE " . $this->quote_table($table);
+		$sql = 'SHOW CREATE TABLE ' . $this->quote_table($table);
 		$result = $this->query($sql);
 		$row = $this->fetch_array($result);
 		if (count($row) === 0) {
@@ -652,7 +652,7 @@ class Database extends \zesk\Database {
 	 * @throws Exception_Parameter
 	 */
 	public function database_table(string $table): Database_Table {
-		$source = "";
+		$source = '';
 		$sql = $this->show_create_table($table, $source);
 		if (!$sql) {
 			throw new Database_Exception_Table_NotFound($this, "$table");
@@ -670,9 +670,9 @@ class Database extends \zesk\Database {
 			return true;
 		}
 		static $map = [
-			"float" => "double",
-			"integer" => "double",
-			"boolean" => "integer",
+			'float' => 'double',
+			'integer' => 'double',
+			'boolean' => 'integer',
 		];
 		return avalue($map, $t0, $t0) === avalue($map, $t1, $t1);
 	}
@@ -681,7 +681,7 @@ class Database extends \zesk\Database {
 	 * Boolean Type
 	 */
 	public function sql_parse_boolean($value) {
-		return $value ? "'true'" : "'false'";
+		return $value ? '\'true\'' : '\'false\'';
 	}
 
 	/**
@@ -691,14 +691,14 @@ class Database extends \zesk\Database {
 	 */
 	public function default_index_structure(string $table_type): string {
 		switch (strtolower($table_type)) {
-			case "innodb":
-				return "BTREE";
-			case "memory":
-			case "heap":
-				return "HASH";
+			case 'innodb':
+				return 'BTREE';
+			case 'memory':
+			case 'heap':
+				return 'HASH';
 			default:
-			case "myisam":
-				return "BTREE";
+			case 'myisam':
+				return 'BTREE';
 		}
 	}
 
@@ -713,7 +713,7 @@ class Database extends \zesk\Database {
 		$rows = $this->query_array("EXPLAIN $sql");
 		$n = 1;
 		foreach ($rows as $row) {
-			$x = avalue($row, "rows");
+			$x = avalue($row, 'rows');
 			if (!empty($x)) {
 				$n *= $x;
 			}
@@ -731,7 +731,7 @@ class Database extends \zesk\Database {
 	 */
 	public function parse_rename_table($sql) {
 		$sql = preg_replace('/\s+/', ' ', rtrim(trim($sql), ';'));
-		if (preg_match("/RENAME TABLE (`[^`]+`|[^` ]+) TO (`[^`]+`|[^` ]+)/i", $sql, $matches)) {
+		if (preg_match('/RENAME TABLE (`[^`]+`|[^` ]+) TO (`[^`]+`|[^` ]+)/i', $sql, $matches)) {
 			dump($matches);
 			exit(1);
 		}
@@ -742,7 +742,7 @@ class Database extends \zesk\Database {
 		if (empty($table)) {
 			return false;
 		}
-		$result = $this->query_array("SHOW TABLES LIKE " . $this->quote_text($table));
+		$result = $this->query_array('SHOW TABLES LIKE ' . $this->quote_text($table));
 		return (count($result) !== 0);
 	}
 
@@ -753,9 +753,9 @@ class Database extends \zesk\Database {
 	 * @return string
 	 */
 	private function credentials_file($user, $pass) {
-		$directory = $this->option("credentials_path", $this->application->paths->uid("mysql"));
-		Directory::depend($directory, $this->option("credentials_path_mode", 0o700));
-		$name = md5($user . ":" . $pass) . ".cnf";
+		$directory = $this->option('credentials_path', $this->application->paths->uid('mysql'));
+		Directory::depend($directory, $this->option('credentials_path_mode', 0o700));
+		$name = md5($user . ':' . $pass) . '.cnf';
 		$full = path($directory, $name);
 		if (is_readable($full)) {
 			return $full;
@@ -773,9 +773,9 @@ class Database extends \zesk\Database {
 	public function shell_command(array $options = []) {
 		foreach ($options as $option_key => $option_value) {
 			if (!array_key_exists($option_key, self::$shell_command_options)) {
-				$this->application->logger->warning("Unknown option passed to {method}: {option_key}={option_value}", [
-					"method" => __METHOD__,
-					"option_key" => $option_key,
+				$this->application->logger->warning('Unknown option passed to {method}: {option_key}={option_value}', [
+					'method' => __METHOD__,
+					'option_key' => $option_key,
 					'option_value' => _dump($option_value),
 				]);
 			}
@@ -786,33 +786,33 @@ class Database extends \zesk\Database {
 		extract($parts, EXTR_IF_EXISTS);
 		$args = [];
 		if ($user || $pass) {
-			if ($this->optionBool("password-on-command-line")) {
-				$args[] = "-u";
+			if ($this->optionBool('password-on-command-line')) {
+				$args[] = '-u';
 				$args[] = $user;
 				$args[] = "-p$pass";
 			} else {
-				$args[] = "--defaults-extra-file=" . $this->credentials_file($user, $pass);
+				$args[] = '--defaults-extra-file=' . $this->credentials_file($user, $pass);
 			}
 		}
 		if ($host) {
-			$args[] = "-h";
+			$args[] = '-h';
 			$args[] = $host;
 		}
 		if (to_bool(avalue($options, 'force'))) {
-			$args[] = "-f";
+			$args[] = '-f';
 		}
 		$path = substr($path, 1);
 		$args[] = $path;
 
-		$bin = "mysql";
-		if (to_bool(avalue($options, "sql-dump-command"))) {
-			$bin = "mysqldump";
+		$bin = 'mysql';
+		if (to_bool(avalue($options, 'sql-dump-command'))) {
+			$bin = 'mysqldump';
 			if (isset($options['non-blocking']) && to_bool($options['non-blocking'])) {
 				$args = array_merge($args, [
-					"--single-transaction=TRUE",
+					'--single-transaction=TRUE',
 				]);
 			}
-			$tables = to_list(avalue($options, "tables", []));
+			$tables = to_list(avalue($options, 'tables', []));
 			$args = array_merge($args, $tables);
 		}
 		return [
@@ -831,8 +831,7 @@ class Database extends \zesk\Database {
 	public function get_lock($name, $wait_seconds = 0) {
 		$wait_seconds = intval($wait_seconds);
 		$name = $this->quote_text($name);
-		$result = $this->query_integer("SELECT GET_LOCK($name, $wait_seconds) AS X", "X", 0) === 1;
-		return $result;
+		return $this->query_integer("SELECT GET_LOCK($name, $wait_seconds)", 0) === 1;
 	}
 
 	/**
@@ -843,12 +842,12 @@ class Database extends \zesk\Database {
 	 */
 	public function release_lock($name) {
 		$name = $this->quote_text($name);
-		$result = $this->query_integer("SELECT RELEASE_LOCK($name)");
-		if ($result !== 1) {
-			$this->application->logger->error("Released lock {name} FAILED (raw_result={raw_result}): ", [
-				"name" => $name,
-				"backtrace" => debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT),
-				"raw_result" => PHP::dump($result),
+		$result = $this->query_one("SELECT RELEASE_LOCK($name)", 0);
+		if (intval($result) !== 1) {
+			$this->application->logger->error('Released lock {name} FAILED (raw_result={raw_result}): ', [
+				'name' => $name,
+				'backtrace' => debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT),
+				'raw_result' => PHP::dump($result),
 			]);
 			return false;
 		}
@@ -863,222 +862,222 @@ class Database extends \zesk\Database {
 	public function is_reserved_word(string $word): bool {
 		// Updated 2004-10-19 from MySQL Website YEARLY-TODO
 		static $reserved = [
-			"ADD",
-			"ALL",
-			"ALTER",
-			"ANALYZE",
-			"AND",
-			"AS",
-			"ASC",
-			"ASENSITIVE",
-			"BEFORE",
-			"BETWEEN",
-			"BIGINT",
-			"BINARY",
-			"BLOB",
-			"BOTH",
-			"BY",
-			"CALL",
-			"CASCADE",
-			"CASE",
-			"CHANGE",
-			"CHAR",
-			"CHARACTER",
-			"CHECK",
-			"COLLATE",
-			"COLUMN",
-			"COLUMNS",
-			"CONDITION",
-			"CONNECTION",
-			"CONSTRAINT",
-			"CONTINUE",
-			"CONVERT",
-			"CREATE",
-			"CROSS",
-			"CURRENT_DATE",
-			"CURRENT_TIME",
-			"CURRENT_TIMESTAMP",
-			"CURRENT_USER",
-			"CURSOR",
-			"DATABASE",
-			"DATABASES",
-			"DAY_HOUR",
-			"DAY_MICROSECOND",
-			"DAY_MINUTE",
-			"DAY_SECOND",
-			"DEC",
-			"DECIMAL",
-			"DECLARE",
-			"DEFAULT",
-			"DELAYED",
-			"DELETE",
-			"DESC",
-			"DESCRIBE",
-			"DETERMINISTIC",
-			"DISTINCT",
-			"DISTINCTROW",
-			"DIV",
-			"DOUBLE",
-			"DROP",
-			"DUAL",
-			"EACH",
-			"ELSE",
-			"ELSEIF",
-			"ENCLOSED",
-			"ESCAPED",
-			"EXISTS",
-			"EXIT",
-			"EXPLAIN",
-			"FALSE",
-			"FETCH",
-			"FIELDS",
-			"FLOAT",
-			"FOR",
-			"FORCE",
-			"FOREIGN",
-			"FOUND",
-			"FROM",
-			"FULLTEXT",
-			"GOTO",
-			"GRANT",
-			"GROUP",
-			"HAVING",
-			"HIGH_PRIORITY",
-			"HOUR_MICROSECOND",
-			"HOUR_MINUTE",
-			"HOUR_SECOND",
-			"IF",
+			'ADD',
+			'ALL',
+			'ALTER',
+			'ANALYZE',
+			'AND',
+			'AS',
+			'ASC',
+			'ASENSITIVE',
+			'BEFORE',
+			'BETWEEN',
+			'BIGINT',
+			'BINARY',
+			'BLOB',
+			'BOTH',
+			'BY',
+			'CALL',
+			'CASCADE',
+			'CASE',
+			'CHANGE',
+			'CHAR',
+			'CHARACTER',
+			'CHECK',
+			'COLLATE',
+			'COLUMN',
+			'COLUMNS',
+			'CONDITION',
+			'CONNECTION',
+			'CONSTRAINT',
+			'CONTINUE',
+			'CONVERT',
+			'CREATE',
+			'CROSS',
+			'CURRENT_DATE',
+			'CURRENT_TIME',
+			'CURRENT_TIMESTAMP',
+			'CURRENT_USER',
+			'CURSOR',
+			'DATABASE',
+			'DATABASES',
+			'DAY_HOUR',
+			'DAY_MICROSECOND',
+			'DAY_MINUTE',
+			'DAY_SECOND',
+			'DEC',
+			'DECIMAL',
+			'DECLARE',
+			'DEFAULT',
+			'DELAYED',
+			'DELETE',
+			'DESC',
+			'DESCRIBE',
+			'DETERMINISTIC',
+			'DISTINCT',
+			'DISTINCTROW',
+			'DIV',
+			'DOUBLE',
+			'DROP',
+			'DUAL',
+			'EACH',
+			'ELSE',
+			'ELSEIF',
+			'ENCLOSED',
+			'ESCAPED',
+			'EXISTS',
+			'EXIT',
+			'EXPLAIN',
+			'FALSE',
+			'FETCH',
+			'FIELDS',
+			'FLOAT',
+			'FOR',
+			'FORCE',
+			'FOREIGN',
+			'FOUND',
+			'FROM',
+			'FULLTEXT',
+			'GOTO',
+			'GRANT',
+			'GROUP',
+			'HAVING',
+			'HIGH_PRIORITY',
+			'HOUR_MICROSECOND',
+			'HOUR_MINUTE',
+			'HOUR_SECOND',
+			'IF',
 			// WL #7395			"IGNORE",
-			"IN",
-			"INDEX",
-			"INFILE",
-			"INNER",
-			"INOUT",
-			"INSENSITIVE",
-			"INSERT",
-			"INT",
-			"INTEGER",
-			"INTERVAL",
-			"INTO",
-			"IS",
-			"ITERATE",
-			"JOIN",
-			"KEY",
-			"KEYS",
-			"KILL",
-			"LEADING",
-			"LEAVE",
-			"LEFT",
-			"LIKE",
-			"LIMIT",
-			"LINES",
-			"LOAD",
-			"LOCALTIME",
-			"LOCALTIMESTAMP",
-			"LOCK",
-			"LONG",
-			"LONGBLOB",
-			"LONGTEXT",
-			"LOOP",
-			"LOW_PRIORITY",
-			"MATCH",
-			"MEDIUMBLOB",
-			"MEDIUMINT",
-			"MEDIUMTEXT",
-			"MIDDLEINT",
-			"MINUTE_MICROSECOND",
-			"MINUTE_SECOND",
-			"MOD",
-			"NATURAL",
-			"NOT",
-			"NO_WRITE_TO_BINLOG",
-			"NULL",
-			"NUMERIC",
-			"ON",
-			"OPTIMIZE",
-			"OPTION",
-			"OPTIONALLY",
-			"OR",
-			"ORDER",
-			"OUT",
-			"OUTER",
-			"OUTFILE",
-			"PRECISION",
-			"PRIMARY",
-			"PRIVILEGES",
-			"PROCEDURE",
-			"PURGE",
-			"READ",
-			"REAL",
-			"REFERENCES",
-			"REGEXP",
-			"RENAME",
-			"REPEAT",
-			"REPLACE",
-			"REQUIRE",
-			"RESTRICT",
-			"RETURN",
-			"REVOKE",
-			"RIGHT",
-			"RLIKE",
-			"SCHEMA",
-			"SCHEMAS",
-			"SECOND_MICROSECOND",
-			"SELECT",
-			"SENSITIVE",
-			"SEPARATOR",
-			"SET",
-			"SHOW",
-			"SMALLINT",
-			"SONAME",
-			"SPATIAL",
-			"SPECIFIC",
-			"SQL",
-			"SQLEXCEPTION",
-			"SQLSTATE",
-			"SQLWARNING",
-			"SQL_BIG_RESULT",
-			"SQL_CALC_FOUND_ROWS",
-			"SQL_SMALL_RESULT",
-			"SSL",
-			"STARTING",
-			"STRAIGHT_JOIN",
-			"TABLE",
-			"TABLES",
-			"TERMINATED",
-			"THEN",
-			"TINYBLOB",
-			"TINYINT",
-			"TINYTEXT",
-			"TO",
-			"TRAILING",
-			"TRIGGER",
-			"TRUE",
-			"UNDO",
-			"UNION",
-			"UNIQUE",
-			"UNLOCK",
-			"UNSIGNED",
-			"UPDATE",
-			"USAGE",
-			"USE",
-			"USING",
-			"UTC_DATE",
-			"UTC_TIME",
-			"UTC_TIMESTAMP",
-			"VALUES",
-			"VARBINARY",
-			"VARCHAR",
-			"VARCHARACTER",
-			"VARYING",
-			"WHEN",
-			"WHERE",
-			"WHILE",
-			"WITH",
-			"WRITE",
-			"XOR",
-			"YEAR_MONTH",
-			"ZEROFILL",
+			'IN',
+			'INDEX',
+			'INFILE',
+			'INNER',
+			'INOUT',
+			'INSENSITIVE',
+			'INSERT',
+			'INT',
+			'INTEGER',
+			'INTERVAL',
+			'INTO',
+			'IS',
+			'ITERATE',
+			'JOIN',
+			'KEY',
+			'KEYS',
+			'KILL',
+			'LEADING',
+			'LEAVE',
+			'LEFT',
+			'LIKE',
+			'LIMIT',
+			'LINES',
+			'LOAD',
+			'LOCALTIME',
+			'LOCALTIMESTAMP',
+			'LOCK',
+			'LONG',
+			'LONGBLOB',
+			'LONGTEXT',
+			'LOOP',
+			'LOW_PRIORITY',
+			'MATCH',
+			'MEDIUMBLOB',
+			'MEDIUMINT',
+			'MEDIUMTEXT',
+			'MIDDLEINT',
+			'MINUTE_MICROSECOND',
+			'MINUTE_SECOND',
+			'MOD',
+			'NATURAL',
+			'NOT',
+			'NO_WRITE_TO_BINLOG',
+			'NULL',
+			'NUMERIC',
+			'ON',
+			'OPTIMIZE',
+			'OPTION',
+			'OPTIONALLY',
+			'OR',
+			'ORDER',
+			'OUT',
+			'OUTER',
+			'OUTFILE',
+			'PRECISION',
+			'PRIMARY',
+			'PRIVILEGES',
+			'PROCEDURE',
+			'PURGE',
+			'READ',
+			'REAL',
+			'REFERENCES',
+			'REGEXP',
+			'RENAME',
+			'REPEAT',
+			'REPLACE',
+			'REQUIRE',
+			'RESTRICT',
+			'RETURN',
+			'REVOKE',
+			'RIGHT',
+			'RLIKE',
+			'SCHEMA',
+			'SCHEMAS',
+			'SECOND_MICROSECOND',
+			'SELECT',
+			'SENSITIVE',
+			'SEPARATOR',
+			'SET',
+			'SHOW',
+			'SMALLINT',
+			'SONAME',
+			'SPATIAL',
+			'SPECIFIC',
+			'SQL',
+			'SQLEXCEPTION',
+			'SQLSTATE',
+			'SQLWARNING',
+			'SQL_BIG_RESULT',
+			'SQL_CALC_FOUND_ROWS',
+			'SQL_SMALL_RESULT',
+			'SSL',
+			'STARTING',
+			'STRAIGHT_JOIN',
+			'TABLE',
+			'TABLES',
+			'TERMINATED',
+			'THEN',
+			'TINYBLOB',
+			'TINYINT',
+			'TINYTEXT',
+			'TO',
+			'TRAILING',
+			'TRIGGER',
+			'TRUE',
+			'UNDO',
+			'UNION',
+			'UNIQUE',
+			'UNLOCK',
+			'UNSIGNED',
+			'UPDATE',
+			'USAGE',
+			'USE',
+			'USING',
+			'UTC_DATE',
+			'UTC_TIME',
+			'UTC_TIMESTAMP',
+			'VALUES',
+			'VARBINARY',
+			'VARCHAR',
+			'VARCHARACTER',
+			'VARYING',
+			'WHEN',
+			'WHERE',
+			'WHILE',
+			'WITH',
+			'WRITE',
+			'XOR',
+			'YEAR_MONTH',
+			'ZEROFILL',
 		];
 		$word = strtoupper($word);
 		return in_array($word, $reserved);
@@ -1086,14 +1085,14 @@ class Database extends \zesk\Database {
 
 	private function _variable($name, $set = null) {
 		if ($set === null) {
-			return $this->query_one("SHOW VARIABLES LIKE " . $this->quote_text($name), "Value", null);
+			return $this->query_one('SHOW VARIABLES LIKE ' . $this->quote_text($name), 'Value', null);
 		}
 
 		try {
 			$this->query("SET GLOBAL $name=" . $this->quote_text($set));
 		} catch (\Exception $e) {
-			throw new Database_Exception_Permission("Unable to set global {name}", [
-				"name" => $name,
+			throw new Database_Exception_Permission('Unable to set global {name}', [
+				'name' => $name,
 			]);
 		}
 	}
@@ -1106,10 +1105,10 @@ class Database extends \zesk\Database {
 				return true;
 		}
 
-		throw new Exception_NotFound("Feature {feature} not available in database {name}", [
-			"feature" => $feature,
-			"name
-" => $this->type(),
+		throw new Exception_NotFound('Feature {feature} not available in database {name}', [
+			'feature' => $feature,
+			'name
+' => $this->type(),
 		]);
 	}
 
@@ -1121,7 +1120,7 @@ class Database extends \zesk\Database {
 			return $this->query_one("SHOW TABLE STATUS LIKE '$table'", 'Data_length', 0);
 		} else {
 			$total = 0;
-			foreach ($this->query_array("SHOW TABLE STATUS", null, "Data_length") as $data_length) {
+			foreach ($this->query_array('SHOW TABLE STATUS', null, 'Data_length') as $data_length) {
 				$total += $data_length;
 			}
 			return $total;
@@ -1162,40 +1161,40 @@ class Database extends \zesk\Database {
 	 */
 	final protected function _mysql_connect($server, $user, $password, $database, $port) {
 		$conn = mysqli_init(); //@new mysqli($server, $user, $password, $database, $port);
-		if ($this->optionBool("infile")) {
+		if ($this->optionBool('infile')) {
 			mysqli_options($conn, MYSQLI_OPT_LOCAL_INFILE, true);
 		}
 		mysqli_options($conn, MYSQLI_OPT_CONNECT_TIMEOUT, $this->optionInt('connect_timeout', 5));
-		$flags = $this->option("connect_flags", 0);
+		$flags = $this->option('connect_flags', 0);
 		if (is_numeric($flags)) {
 			$flags = intval($flags);
-		} elseif (is_string($flags) || is_array($flags)) {
+		} else if (is_string($flags) || is_array($flags)) {
 			$flag_tokens = ArrayTools::change_value_case(to_list($flags));
 			$flags = 0;
 			foreach ($flag_tokens as $token) {
 				if (!array_key_exists($token, self::$flag_map)) {
-					$this->application->logger->warning("Unknown flag {token} in {method}: possible flags are {flags}", [
-						"method" => __METHOD__,
-						"token" => $token,
-						"flags" => array_keys(self::$flag_map),
+					$this->application->logger->warning('Unknown flag {token} in {method}: possible flags are {flags}', [
+						'method' => __METHOD__,
+						'token' => $token,
+						'flags' => array_keys(self::$flag_map),
 					]);
 				} else {
 					$flags |= self::$flag_map[$token];
 				}
 			}
 		} else {
-			$this->application->logger->warning("Unknown connect_flags option value type passed to {method} {type}", [
-				"method" => __METHOD__,
-				"type" => gettype($flags),
+			$this->application->logger->warning('Unknown connect_flags option value type passed to {method} {type}', [
+				'method' => __METHOD__,
+				'type' => gettype($flags),
 			]);
 			$flags = 0;
 		}
 		if (!@mysqli_real_connect($conn, $server, $user, $password, $database, $port, null, $flags)) {
 			$error = mysqli_connect_error();
 			if ($error) {
-				$this->_connection_error(compact("database", "server", "user", "port") + [
-						"error" => $error,
-						"errno" => mysqli_connect_errno(),
+				$this->_connection_error(compact('database', 'server', 'user', 'port') + [
+						'error' => $error,
+						'errno' => mysqli_connect_errno(),
 					]);
 			}
 			$this->application->logger->error("Connection to database $user@$server:$port/$database FAILED, no connection error");
@@ -1232,13 +1231,13 @@ class Database extends \zesk\Database {
 		if (empty($query)) {
 			return true;
 		}
-		if (!$this->Connection && ($options['auto_connect'] ?? $this->optionBool("auto_connect", true))) {
+		if (!$this->Connection && ($options['auto_connect'] ?? $this->optionBool('auto_connect', true))) {
 			$this->connect();
 		}
 		if (!$this->Connection) {
-			throw new Database_Exception_Connect($this->URL, "Not connected to database {safe_url} when attempting query: {sql}", [
-				"sql" => $query,
-				"safe_url" => $this->safe_url(""),
+			throw new Database_Exception_Connect($this->URL, 'Not connected to database {safe_url} when attempting query: {sql}', [
+				'sql' => $query,
+				'safe_url' => $this->safe_url(''),
 			]);
 		}
 		$tries = 0;
@@ -1248,12 +1247,17 @@ class Database extends \zesk\Database {
 			try {
 				$result = mysqli_query($this->Connection, $query);
 			} catch (\mysqli_sql_exception $exception) {
-				if ($exception->getCode() === 1146) {
+				$exception_code = $exception->getCode();
+				$message = $exception->getMessage();
+				if ($exception_code === 1062 || stripos($message, "duplicate") !== false) {
+					throw new Database_Exception_Duplicate($this, $query, $exception->getMessage(), [], $exception_code, $exception);
+				}
+				if ($exception_code === 1146) {
 					throw new Database_Exception_Table_NotFound($this, $query);
 				}
 
 				throw new Database_Exception_SQL($this, $query, $exception->getMessage(), [
-						"sql" => $query,
+						'sql' => $query,
 					] + Exception::exception_variables($exception), $exception->getCode(), $exception);
 			}
 			$this->_query_after($query, $options);
@@ -1263,8 +1267,8 @@ class Database extends \zesk\Database {
 			$message = mysqli_error($this->Connection);
 			$errno = mysqli_errno($this->Connection);
 			if ($errno === 2006 && $this->auto_reconnect) /* CR_SERVER_GONE_ERROR */ {
-				$this->application->logger->warning("Reconnecting to database {url}", [
-					"url" => $this->safe_url(),
+				$this->application->logger->warning('Reconnecting to database {url}', [
+					'url' => $this->safe_url(),
 				]);
 				$this->reconnect();
 			} else {
@@ -1298,9 +1302,9 @@ class Database extends \zesk\Database {
 
 	final public function fetch_assoc(mixed $result): ?array {
 		if (!$result instanceof \mysqli_result) {
-			throw new Exception_Parameter("{method} requires first parameter to be {class}", [
-				"method" => __METHOD__,
-				"class" => "mysqli_result",
+			throw new Exception_Parameter('{method} requires first parameter to be {class}', [
+				'method' => __METHOD__,
+				'class' => 'mysqli_result',
 			]);
 		}
 		return mysqli_fetch_assoc($result);
@@ -1308,9 +1312,9 @@ class Database extends \zesk\Database {
 
 	final public function fetch_array(mixed $result): ?array {
 		if (!$result instanceof \mysqli_result) {
-			throw new Exception_Parameter("{method} requires first parameter to be {class}", [
-				"method" => __METHOD__,
-				"class" => "mysqli_result",
+			throw new Exception_Parameter('{method} requires first parameter to be {class}', [
+				'method' => __METHOD__,
+				'class' => 'mysqli_result',
 			]);
 		}
 		return mysqli_fetch_array($result, MYSQLI_NUM);
@@ -1318,20 +1322,20 @@ class Database extends \zesk\Database {
 
 	final public function native_quote_text($value) {
 		if (!is_string($value) && !is_int($value)) {
-			throw new Exception_Parameter("Incorrect type {type} passed, string or int required", [
-				"type" => type($value),
+			throw new Exception_Parameter('Incorrect type {type} passed, string or int required', [
+				'type' => type($value),
 			]);
 		}
 		if (!$this->Connection) {
 			// Usually means the database is down
-			return "'" . addslashes($value) . "'";
+			return '\'' . addslashes($value) . '\'';
 		}
-		return "'" . mysqli_real_escape_string($this->Connection, $value) . "'";
+		return '\'' . mysqli_real_escape_string($this->Connection, $value) . '\'';
 	}
 
 	final public function has_innodb() {
 		$ver = mysqli_get_server_info($this->Connection);
-		if (str_contains($ver, "4.0")) {
+		if (str_contains($ver, '4.0')) {
 			return true;
 		}
 		return false;
@@ -1344,7 +1348,7 @@ class Database extends \zesk\Database {
 	 */
 	public function transaction_start() {
 		// TODO: Ensure database is in auto-commit mode
-		return $this->query("START TRANSACTION");
+		return $this->query('START TRANSACTION');
 	}
 
 	/**
@@ -1355,7 +1359,7 @@ class Database extends \zesk\Database {
 	 * @return boolean
 	 */
 	public function transaction_end($success = true) {
-		$sql = $success ? "COMMIT" : "ROLLBACK";
+		$sql = $success ? 'COMMIT' : 'ROLLBACK';
 		return $this->query($sql);
 	}
 }

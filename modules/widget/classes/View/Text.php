@@ -31,30 +31,30 @@ class View_Text extends View {
 				return $v;
 			}
 		}
-		$transform = $this->option("transform");
-		$is_html = $this->optionBool("HTML");
+		$transform = $this->option('transform');
+		$is_html = $this->optionBool('HTML');
 		switch ($transform) {
-			case "html":
+			case 'html':
 				$v = htmlspecialchars($v);
 
 				break;
-			case "no-html":
+			case 'no-html':
 				$v = HTML::strip($v);
 
 				break;
-			case "camel":
+			case 'camel':
 				$v = StringTools::capitalize($v);
 
 				break;
 		}
-		$close_ellip = "";
-		$old_v = "";
+		$close_ellip = '';
+		$old_v = '';
 		$my_id = null;
 		if ($showSize > 0) {
-			$allow_show_all = $this->optionBool("allow_show_all");
-			$ellip = $this->option($is_html ? "html_ellipsis" : "text_ellipsis", '...');
+			$allow_show_all = $this->optionBool('allow_show_all');
+			$ellip = $this->option($is_html ? 'html_ellipsis' : 'text_ellipsis', '...');
 			if ($allow_show_all) {
-				$this->response()->html()->javascript("/share/zesk/js/zesk.js", [
+				$this->response()->html()->javascript('/share/zesk/js/zesk.js', [
 					'weight' => 'first',
 				]);
 
@@ -72,8 +72,8 @@ class View_Text extends View {
 				$v = "<span id=\"ellipsis-$my_id\">$v</span><span style=\"display: none\" id=\"ellipsis-$my_id-all\">$old_v $close_ellip</span>";
 			}
 		}
-		if ($this->hasOption("format")) {
-			$v = $this->object->apply_map($this->option("format"));
+		if ($this->hasOption('format')) {
+			$v = $this->object->apply_map($this->option('format'));
 		}
 		if ($this->optionBool('debug')) {
 			dump($this->object);

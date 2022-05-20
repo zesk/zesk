@@ -28,7 +28,7 @@ class Module_Ordering extends zesk\Module {
 	 * @return zesk\Database_Query_Select
 	 */
 	private function query_ordering(ORM $object) {
-		return $object->call_hook("query_ordering", $object->query_select("X"));
+		return $object->call_hook('query_ordering', $object->query_select('X'));
 	}
 
 	/**
@@ -58,23 +58,23 @@ class Module_Ordering extends zesk\Module {
 
 		// Minimize the number of changes to the database
 		if ($previous_id) {
-			$order_index = $object->query_select("X")
-				->what("X", $order_column)
+			$order_index = $object->query_select('X')
+				->what('X', $order_column)
 				->where($id_column, $previous_id)
-				->one_integer("X");
+				->one_integer('X');
 			$object->query_update()
-				->value("*" . $order_column, "$order_column + 2")
+				->value('*' . $order_column, "$order_column + 2")
 				->where("$order_column|>=", $order_index + 1)
 				->execute();
 			return $object->set($order_column, $order_index + 1)->store();
 		}
 		if ($next_id) {
-			$order_index = $object->query_select("X")
-				->what("X", $order_column)
+			$order_index = $object->query_select('X')
+				->what('X', $order_column)
 				->where($id_column, $next_id)
-				->one_integer("X");
+				->one_integer('X');
 			$object->query_update()
-				->value("*" . $order_column, "$order_column - 2")
+				->value('*' . $order_column, "$order_column - 2")
 				->where("$order_column|<=", $order_index - 1)
 				->execute();
 			return $object->set($order_column, $order_index - 1)->store();
@@ -92,14 +92,14 @@ class Module_Ordering extends zesk\Module {
 	public function object_pre_insert(ORM $object, array $members) {
 		$order_column = $this->order_column($object);
 		if ($object->has_member($order_column) && $object->member_is_empty($order_column)) {
-			[$func, $delta] = $object->optionBool("ordering_first") ? [
-				"MIN",
+			[$func, $delta] = $object->optionBool('ordering_first') ? [
+				'MIN',
 				-1,
 			] : [
-				"MAX",
+				'MAX',
 				1,
 			];
-			$members[$order_column] = $this->query_ordering($object)->what("*X", "$func(`$order_column`)")->one_integer("X") + $delta;
+			$members[$order_column] = $this->query_ordering($object)->what('*X', "$func(`$order_column`)")->one_integer('X') + $delta;
 			$object->store_member($order_column, true);
 		}
 		return $members;

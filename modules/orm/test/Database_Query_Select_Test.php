@@ -9,8 +9,8 @@ namespace zesk;
 
 class Database_Query_Select_Test extends Test_Unit {
 	protected array $load_modules = [
-		"MySQL",
-		"ORM",
+		'MySQL',
+		'ORM',
 	];
 
 	public function initialize(): void {
@@ -18,22 +18,22 @@ class Database_Query_Select_Test extends Test_Unit {
 	}
 
 	public function test_main(): void {
-		$table_name = "Database_Query_Select";
+		$table_name = 'Database_Query_Select';
 
 		$this->test_table($table_name);
 
 		$db = $this->application->database_registry();
 		$testx = new Database_Query_Select($db);
 
-		$testx->setWhatString("*");
-		$testx->addWhat("X", "COUNT(ID)");
-		$testx->addWhat("Y", "SUM(Total)");
+		$testx->setWhatString('*');
+		$testx->addWhat('X', 'COUNT(ID)');
+		$testx->addWhat('Y', 'SUM(Total)');
 
 		$alias = '';
 		$testx->from($table_name, $alias);
 
 		$sql = 'INNER JOIN Person P ON P.ID=U.Person';
-		$join_id = "person";
+		$join_id = 'person';
 		$testx->join($sql, $join_id);
 
 		$k = null;
@@ -43,7 +43,7 @@ class Database_Query_Select_Test extends Test_Unit {
 		$order_by = null;
 		$testx->order_by($order_by);
 
-		$testx->groupBy(["X"]);
+		$testx->groupBy(['X']);
 
 		$offset = 0;
 		$limit = null;
@@ -83,8 +83,8 @@ class Database_Query_Select_Test extends Test_Unit {
 		$db = $this->application->database_registry();
 		$x = new Database_Query_Select($db);
 		$x->from($table_name);
-		$x->setWhatString("ID");
-		$x->where("ID", [
+		$x->setWhatString('ID');
+		$x->where('ID', [
 			1,
 			2,
 			3,
@@ -92,14 +92,14 @@ class Database_Query_Select_Test extends Test_Unit {
 		]);
 
 		$result = strval($x);
-		$valid_result = "SELECT ID FROM `Database_Query_Select` WHERE (`ID` = 1 OR `ID` = 2 OR `ID` = 3 OR `ID` = 4)";
+		$valid_result = 'SELECT ID FROM `Database_Query_Select` WHERE (`ID` = 1 OR `ID` = 2 OR `ID` = 3 OR `ID` = 4)';
 
 		$result = preg_replace('/\s+/', ' ', trim($result));
 		$valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
 		$this->assert_equal($result, $valid_result);
 
 		$x = new Database_Query_Select($db);
-		$x->from($table_name)->setWhatString("ID")->where("ID|!=|AND", [
+		$x->from($table_name)->setWhatString('ID')->where('ID|!=|AND', [
 			1,
 			2,
 			3,
@@ -108,15 +108,15 @@ class Database_Query_Select_Test extends Test_Unit {
 		$result = strval($x);
 
 		$result = strval($x);
-		$valid_result = "SELECT ID FROM `Database_Query_Select` WHERE (`ID` != 1 AND `ID` != 2 AND `ID` != 3 AND `ID` != 4)";
+		$valid_result = 'SELECT ID FROM `Database_Query_Select` WHERE (`ID` != 1 AND `ID` != 2 AND `ID` != 3 AND `ID` != 4)';
 
 		$result = preg_replace('/\s+/', ' ', trim($result));
 		$valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
 		$this->assert($result === "$valid_result", "\"$result\" === \"$valid_result\"");
 
 		$x = new Database_Query_Select($db);
-		$x->from($table_name)->setWhatString("ID");
-		$x->where("*SUM(Total)|!=|AND", [
+		$x->from($table_name)->setWhatString('ID');
+		$x->where('*SUM(Total)|!=|AND', [
 			1,
 			2,
 			3,
@@ -125,7 +125,7 @@ class Database_Query_Select_Test extends Test_Unit {
 		$result = strval($x);
 
 		$result = strval($x);
-		$valid_result = "SELECT ID FROM `Database_Query_Select` WHERE (SUM(Total)!=1 AND SUM(Total)!=2 AND SUM(Total)!=3 AND SUM(Total)!=4)";
+		$valid_result = 'SELECT ID FROM `Database_Query_Select` WHERE (SUM(Total)!=1 AND SUM(Total)!=2 AND SUM(Total)!=3 AND SUM(Total)!=4)';
 
 		$result = preg_replace('/\s+/', ' ', trim($result));
 		$valid_result = preg_replace('/\s+/', ' ', trim($valid_result));

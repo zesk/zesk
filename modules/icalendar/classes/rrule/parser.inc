@@ -39,11 +39,11 @@ class Parser {
 		$this->errors = [];
 		$string_to_parse = trim(strtoupper($string_to_parse));
 		if (empty($string_to_parse)) {
-			throw new Exception_Syntax("Empty string");
+			throw new Exception_Syntax('Empty string');
 		}
-		$string_to_parse = strtr($string_to_parse, "\t", " ");
+		$string_to_parse = strtr($string_to_parse, "\t", ' ');
 		$lines = explode("\n", $string_to_parse);
-		$unfold = $options["unfold"] ?? true;
+		$unfold = $options['unfold'] ?? true;
 		if ($unfold) {
 			$lines = $this->unfoldLines($lines);
 		}
@@ -56,70 +56,70 @@ class Parser {
 			if (!$line) {
 				continue;
 			}
-			[$name, $value] = pair($line, ":", "RRULE", $line);
-			$parameters = ArrayTools::clean(explode(";", $name), "");
+			[$name, $value] = pair($line, ':', 'RRULE', $line);
+			$parameters = ArrayTools::clean(explode(';', $name), '');
 			if (count($parameters) === 0) {
-				$this->errors[] = [__CLASS__ . ":=Empty property name: {line}", compact("line")];
+				$this->errors[] = [__CLASS__ . ':=Empty property name: {line}', compact('line')];
 				continue;
 			}
 			$name = array_shift($parameters);
-			if ($name == "RRULE") {
+			if ($name == 'RRULE') {
 				if (count($parameters) > 0) {
-					throw new Exception_Syntax("unsupported RRULE parameters: {parms}", [
-						"parms" => $parameters,
+					throw new Exception_Syntax('unsupported RRULE parameters: {parms}', [
+						'parms' => $parameters,
 					]);
 				}
 				$rrulevals[] = $value;
-			} elseif ($name == "RDATE") {
+			} elseif ($name == 'RDATE') {
 				foreach ($parameters as $parameter) {
-					if ($parameter != "VALUE=DATE-TIME") {
-						throw new Exception_Syntax("unsupported RDATE parameter: {parm}", [
-							"parm" => $parameter,
+					if ($parameter != 'VALUE=DATE-TIME') {
+						throw new Exception_Syntax('unsupported RDATE parameter: {parm}', [
+							'parm' => $parameter,
 						]);
 					}
 				}
 				$rdatevals[] = $value;
-			} elseif ($name == "EXRULE") {
+			} elseif ($name == 'EXRULE') {
 				if (count($parameters) > 0) {
-					throw new Exception_Syntax("unsupported EXRULE parameters: {parms}", [
-						"parms" => $parameters,
+					throw new Exception_Syntax('unsupported EXRULE parameters: {parms}', [
+						'parms' => $parameters,
 					]);
 				}
 				$exrulevals[] = $value;
-			} elseif ($name == "EXDATE") {
+			} elseif ($name == 'EXDATE') {
 				$time_zone = null;
 				foreach ($parameters as $param) {
-					if ($param === "VALUE=DATE-TIME") {
+					if ($param === 'VALUE=DATE-TIME') {
 						continue;
 					}
-					[$param_name, $param_value] = pair($param, "=", $param);
-					if ($param_name === "TZID") {
+					[$param_name, $param_value] = pair($param, '=', $param);
+					if ($param_name === 'TZID') {
 						$time_zone = strtr($param_value, '-', '/');
 						continue;
 					}
 
-					throw new Exception_Syntax("unsupported DTSTART parameters: {parms}", [
-						"parms" => $parameters,
+					throw new Exception_Syntax('unsupported DTSTART parameters: {parms}', [
+						'parms' => $parameters,
 					]);
 				}
 				$exdatevals[] = Timestamp::factory($value, $time_zone);
-			} elseif ($name == "DTSTART") {
+			} elseif ($name == 'DTSTART') {
 				$time_zone = null;
 				foreach ($parameters as $param) {
-					[$param_name, $param_value] = pair($param, "=", $param);
-					if ($param_name === "TZID") {
+					[$param_name, $param_value] = pair($param, '=', $param);
+					if ($param_name === 'TZID') {
 						$time_zone = strtr($param_value, '-', '/');
 						continue;
 					}
 
-					throw new Exception_Syntax("unsupported DTSTART parameters: {parms}", [
-						"parms" => $parameters,
+					throw new Exception_Syntax('unsupported DTSTART parameters: {parms}', [
+						'parms' => $parameters,
 					]);
 				}
 				$dtstart = Timestamp::factory($value, $time_zone);
 			} else {
-				throw new Exception_Syntax("unsupported property: {name}", [
-					"name" => $name,
+				throw new Exception_Syntax('unsupported property: {name}', [
+					'name' => $name,
 				]);
 			}
 		}
@@ -128,10 +128,10 @@ class Parser {
 		}
 		$rset = new Set();
 
-		$this->add_rules_mixed($rset, $dtstart, $rrulevals, "rrule");
-		$this->add_timestamps_mixed($rset, $rdatevals, "rdate", $time_zone);
-		$this->add_rules_mixed($rset, $dtstart, $exrulevals, "exrule");
-		$this->add_timestamps_mixed($rset, $exdatevals, "exdate", $time_zone);
+		$this->add_rules_mixed($rset, $dtstart, $rrulevals, 'rrule');
+		$this->add_timestamps_mixed($rset, $rdatevals, 'rdate', $time_zone);
+		$this->add_rules_mixed($rset, $dtstart, $exrulevals, 'exrule');
+		$this->add_timestamps_mixed($rset, $exdatevals, 'exdate', $time_zone);
 
 		return $rset;
 	}
@@ -166,19 +166,19 @@ class Parser {
 				} elseif (is_string($mixed) || is_numeric($mixed)) {
 					$ts = Timestamp::factory($mixed, $time_zone);
 					if (!$ts->is_empty()) {
-						throw new Exception_Syntax("{tag} value of {value} is not a valid date (empty timestamp)", [
-							"tag" => strtoupper($method),
-							"value" => $mixed,
+						throw new Exception_Syntax('{tag} value of {value} is not a valid date (empty timestamp)', [
+							'tag' => strtoupper($method),
+							'value' => $mixed,
 						]);
 					} else {
 						$rset->$method($mixed);
 					}
 				} else {
-					throw new Exception_Parameter("Unknown type {type} passed to {method}(\$set, {nvalues}, \"{param_method}\")", [
-						"method" => __METHOD__,
-						"nvalues" => "Array of " . count($values),
-						"type" => type($mixed),
-						"param_method" => $method,
+					throw new Exception_Parameter('Unknown type {type} passed to {method}($set, {nvalues}, "{param_method}")', [
+						'method' => __METHOD__,
+						'nvalues' => 'Array of ' . count($values),
+						'type' => type($mixed),
+						'param_method' => $method,
 					]);
 				}
 			}
@@ -197,7 +197,7 @@ class Parser {
 			if (empty($line)) {
 				continue;
 			}
-			if ($line[0] === " ") {
+			if ($line[0] === ' ') {
 				$n = count($newlines);
 				if ($n > 0) {
 					$newlines[$n - 1] .= $line;

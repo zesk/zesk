@@ -9,4 +9,4 @@
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
 /* @var $content Timestamp */
-echo $content->format($locale, "{delta}");
+echo $content->format($locale, '{delta}');

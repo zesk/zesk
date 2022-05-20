@@ -4,9 +4,9 @@ namespace zesk;
 class Configuration_Test extends Test_Unit {
 	public function value_types() {
 		return [
-			"Hello",
+			'Hello',
 			1,
-			"null",
+			'null',
 			null,
 			false,
 			true,
@@ -21,16 +21,16 @@ class Configuration_Test extends Test_Unit {
 	 */
 	public function test_value_types($value): void {
 		$configuration = new Configuration();
-		$configuration->path_set("TEST::ROOT", $value);
-		$this->assert_equal($configuration->path_get("TEST::ROOT"), $value);
-		$this->assert_equal($configuration->path_get("test::RooT"), $value);
+		$configuration->path_set('TEST::ROOT', $value);
+		$this->assert_equal($configuration->path_get('TEST::ROOT'), $value);
+		$this->assert_equal($configuration->path_get('test::RooT'), $value);
 		$this->assert_equal($configuration->path_get([
-			"test",
-			"RooT",
+			'test',
+			'RooT',
 		]), $value);
 		$this->assert_equal($configuration->path_get([
-			"Test",
-			"Root",
+			'Test',
+			'Root',
 		]), $value);
 	}
 }

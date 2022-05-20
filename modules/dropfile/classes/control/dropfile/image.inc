@@ -37,10 +37,10 @@ class Control_DropFile_Image extends Control_Content_Image {
 		return [
 			'remove_enabled' => $this->remove_enabled(),
 			'url_upload' => URL::query_append($this->url_upload(), [
-				"theme" => 'dropfile',
-				"name" => $this->name,
-				"width" => $this->optionInt('width'),
-				"height" => $this->optionInt('height'),
+				'theme' => 'dropfile',
+				'name' => $this->name,
+				'width' => $this->optionInt('width'),
+				'height' => $this->optionInt('height'),
 			]),
 		] + parent::theme_variables();
 	}

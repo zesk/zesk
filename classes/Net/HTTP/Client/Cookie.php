@@ -96,6 +96,6 @@ class Net_HTTP_Client_Cookie {
 	}
 
 	public function __toString() {
-		return $this->name . "=" . urlencode($this->value);
+		return $this->name . '=' . urlencode($this->value);
 	}
 }

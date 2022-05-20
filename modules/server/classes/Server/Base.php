@@ -41,7 +41,7 @@ class Server_Base extends Hookable {
 	 */
 	protected function require_root() {
 		if (!$this->is_root()) {
-			throw new Exception_Authentication("Must be logged in as root");
+			throw new Exception_Authentication('Must be logged in as root');
 		}
 		return $this;
 	}
@@ -53,7 +53,7 @@ class Server_Base extends Hookable {
 	 */
 	protected function not_root() {
 		if ($this->is_root()) {
-			throw new Exception_Authentication("Must not be logged in as root");
+			throw new Exception_Authentication('Must not be logged in as root');
 		}
 		return $this;
 	}
@@ -74,7 +74,7 @@ class Server_Base extends Hookable {
 		$arguments = func_get_args();
 		return call_user_func_array([
 			$this->platform,
-			"exec",
+			'exec',
 		], $arguments);
 	}
 
@@ -82,7 +82,7 @@ class Server_Base extends Hookable {
 		array_unshift($arguments, $command);
 		return call_user_func_array([
 			$this->platform,
-			"exec",
+			'exec',
 		], $arguments);
 	}
 

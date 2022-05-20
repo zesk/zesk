@@ -12,14 +12,14 @@ class View_Integer extends View {
 	public function render() {
 		$showSize = $this->show_size();
 		$v = $this->value();
-		if ($v === null || $v === "") {
+		if ($v === null || $v === '') {
 			$v = $this->empty_string();
-			if ($this->optionBool("empty_string_no_wrap")) {
+			if ($this->optionBool('empty_string_no_wrap')) {
 				return $v;
 			}
 		} else {
-			$dec_sep = $this->option("decimal_point", __('Number::decimal_point:=.'));
-			$thou_sep = $this->option("thousands_separator", __('Number::thousands_separator:=,'));
+			$dec_sep = $this->option('decimal_point', __('Number::decimal_point:=.'));
+			$thou_sep = $this->option('thousands_separator', __('Number::thousands_separator:=,'));
 			$v = number_format($v, 0, $dec_sep, $thou_sep);
 		}
 		return $this->render_finish($v);

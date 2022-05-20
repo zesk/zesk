@@ -20,7 +20,7 @@ class PolyGlot_Update extends ORM {
 	 */
 	public static function register_update(Application $application, $locale, User $user = null) {
 		$object = $application->orm_factory(__CLASS__, [
-			"locale" => Locale::normalize($locale),
+			'locale' => Locale::normalize($locale),
 		]);
 
 		try {
@@ -28,7 +28,7 @@ class PolyGlot_Update extends ORM {
 		} catch (Exception_ORM_NotFound $e) {
 			$object->user = $user;
 		}
-		$object->updated = "now";
+		$object->updated = 'now';
 		return $object->store();
 	}
 
@@ -38,23 +38,23 @@ class PolyGlot_Update extends ORM {
 	 */
 	public static function cron_minute(Application $application): void {
 		$server = Server::singleton($application);
-		$path = $application->configuration->path_get("zesk\\Module_PolyGlot::update_path", $application->path("etc/language"));
+		$path = $application->configuration->path_get('zesk\\Module_PolyGlot::update_path', $application->path('etc/language'));
 		if (!is_dir($path)) {
-			$application->logger->warning("zesk\\Module_PolyGlot::update_path is not a directory ({path}) on {server}", [
-				"path" => $path,
-				"server" => $server->name,
+			$application->logger->warning('zesk\\Module_PolyGlot::update_path is not a directory ({path}) on {server}', [
+				'path' => $path,
+				'server' => $server->name,
 			]);
 			return;
 		}
-		$lock = Lock::instance($application, __METHOD__ . ":" . $server->id());
+		$lock = Lock::instance($application, __METHOD__ . ':' . $server->id());
 		if (!$lock->acquire()) {
 			return;
 		}
-		$server_variable_name = __CLASS__ . "::last_update";
+		$server_variable_name = __CLASS__ . '::last_update';
 		$update_requested = $application->orm_registry(__CLASS__)
 			->query_select()
-			->what("*updated", "MAX(updated)")
-			->one_timestamp("updated");
+			->what('*updated', 'MAX(updated)')
+			->one_timestamp('updated');
 		$server_updated = $server->data($server_variable_name);
 		$update_locales = [];
 		if ($server_updated) {
@@ -62,19 +62,19 @@ class PolyGlot_Update extends ORM {
 			if ($server_updated->before($update_requested)) {
 				$update_locales = $application->orm_registry(__CLASS__)
 					->query_select()
-					->what("locale", "locale")
-					->where("updated|>=", $server_updated)
-					->to_array(null, "locale");
+					->what('locale', 'locale')
+					->where('updated|>=', $server_updated)
+					->to_array(null, 'locale');
 			}
 		} else {
 			$update_locales = $application->orm_registry(__CLASS__)
 				->query_select()
-				->what("locale", "locale")
-				->to_array(null, "locale");
+				->what('locale', 'locale')
+				->to_array(null, 'locale');
 		}
 		if (count($update_locales) === 0) {
-			$application->logger->debug("No locale updates needed on {server}", [
-				"server" => $server->name,
+			$application->logger->debug('No locale updates needed on {server}', [
+				'server' => $server->name,
 			]);
 			$lock->release();
 			return;
@@ -86,25 +86,25 @@ class PolyGlot_Update extends ORM {
 				$expanded_locales = $application->orm_registry(PolyGlot_Token::class)
 					->query_select()
 					->distinct(true)
-					->what("*locale", "CONCAT(language,'_',dialect)")
+					->what('*locale', 'CONCAT(language,\'_\',dialect)')
 					->where([
-					"language" => $update_locale,
+					'language' => $update_locale,
 					[
-						"dialect|!=" => [
+						'dialect|!=' => [
 							null,
-							"",
+							'',
 						],
 					],
 				])
-					->to_array(null, "locale");
+					->to_array(null, 'locale');
 				$additional_locales = array_merge($additional_locales, $expanded_locales);
 			}
 		}
 		$update_locales = array_merge($update_locales, $additional_locales);
 		$update_locales = array_unique($update_locales);
-		$application->logger->warning("Updating locales {locales} on {server}", [
-			"locales" => $update_locales,
-			"server" => $server->name,
+		$application->logger->warning('Updating locales {locales} on {server}', [
+			'locales' => $update_locales,
+			'server' => $server->name,
 		]);
 		$success = true;
 		foreach ($update_locales as $update_locale) {
@@ -114,14 +114,14 @@ class PolyGlot_Update extends ORM {
 				self::update_locale($application, $path, $update_locale);
 				$application->orm_registry(__CLASS__)
 					->query_update()
-					->value("updated", Timestamp::now())
-					->where("locale", $update_locale)
+					->value('updated', Timestamp::now())
+					->where('locale', $update_locale)
 					->execute();
 			} catch (Exception $e) {
-				$application->logger->error("Updating locale {locale} on {server} FAILED due to {message}", [
-					"locales" => $update_locales,
-					"server" => $server->name,
-					"message" => $e->getMessage(),
+				$application->logger->error('Updating locale {locale} on {server} FAILED due to {message}', [
+					'locales' => $update_locales,
+					'server' => $server->name,
+					'message' => $e->getMessage(),
 				]);
 				$success = false;
 			}
@@ -130,7 +130,7 @@ class PolyGlot_Update extends ORM {
 			$server->data($server_variable_name, time());
 		}
 		$lock->release();
-		$application->call_hook("polyglot_update");
+		$application->call_hook('polyglot_update');
 	}
 
 	/**
@@ -142,8 +142,8 @@ class PolyGlot_Update extends ORM {
 	 * @throws Exception_FileSystem
 	 */
 	private static function write_translation_line($f, $filename, $original, $translation): void {
-		if (!fwrite($f, '$tt[' . PHP::dump($original) . "] = " . PHP::dump($translation) . ";\n")) {
-			throw new Exception_FileSystem($filename, "Unable to write to {filename}");
+		if (!fwrite($f, '$tt[' . PHP::dump($original) . '] = ' . PHP::dump($translation) . ";\n")) {
+			throw new Exception_FileSystem($filename, 'Unable to write to {filename}');
 		}
 	}
 
@@ -156,17 +156,17 @@ class PolyGlot_Update extends ORM {
 	 * @return boolean
 	 */
 	public static function update_locale(Application $application, $path, $locale) {
-		$iterator = PolyGlot_Token::locale_query($application, $locale)->where("status", PolyGlot_Token::status_done)->order_by("updated DESC,original")->iterator("original", "translation");
+		$iterator = PolyGlot_Token::locale_query($application, $locale)->where('status', PolyGlot_Token::status_done)->order_by('updated DESC,original')->iterator('original', 'translation');
 
 		$target_file = path($path, "$locale.inc");
 
 		$pid = $application->process->id();
 		$temp_file = path($path, "$locale.inc.$pid");
-		$f = fopen($temp_file, "wb");
+		$f = fopen($temp_file, 'wb');
 		if (!$f) {
-			throw new Exception_File_Permission($temp_file, "Unable to open {filename} for writing");
+			throw new Exception_File_Permission($temp_file, 'Unable to open {filename} for writing');
 		}
-		fwrite($f, "<?php\n\n// This file was automatically generated on " . date("Y-m-d H:i:s") . " by " . __METHOD__ . "\n\n\$tt = array();\n");
+		fwrite($f, "<?php\n\n// This file was automatically generated on " . date('Y-m-d H:i:s') . ' by ' . __METHOD__ . "\n\n\$tt = array();\n");
 		$original_tt = [];
 		if (file_exists($target_file)) {
 			$original_tt = $application->load($target_file);

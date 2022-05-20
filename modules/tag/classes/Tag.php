@@ -45,9 +45,9 @@ abstract class Tag extends ORM {
 	 * @return integer
 	 */
 	public function reassign($old, $new) {
-		return $this->query_update("X")
-			->value("X.tag_label", $new)
-			->where("X.tag_label", $old)
+		return $this->query_update('X')
+			->value('X.tag_label', $new)
+			->where('X.tag_label', $old)
 			->execute()
 			->affected_rows();
 		;
@@ -92,8 +92,8 @@ abstract class Tag extends ORM {
 		$selected_query = $selected->query();
 
 		$selected_query->addWhatIterable([
-			"*tag_label" => $label->id(),
-			$this->foreign_column() => "id",
+			'*tag_label' => $label->id(),
+			$this->foreign_column() => 'id',
 		]);
 		$query = Database_Query_Insert_Select::from_database_query_select($selected_query);
 		$query->into($this->table());
@@ -112,12 +112,12 @@ abstract class Tag extends ORM {
 		$selected_query = $selected->query();
 
 		$selected_query->addWhatIterable([
-			$this->foreign_column() => "id",
+			$this->foreign_column() => 'id',
 		]);
 		// @todo log issue against this and fix
 		$query = $this->query_delete()->where([
-			"tag_label" => $label,
-			"*" . $this->foreign_column() . "| IN " => "(" . strval($selected_query) . ")",
+			'tag_label' => $label,
+			'*' . $this->foreign_column() . '| IN ' => '(' . strval($selected_query) . ')',
 		]);
 		return $query;
 	}

@@ -76,18 +76,18 @@ class Text {
 	 *            End of line character
 	 * @return string Array formatted
 	 */
-	public static function format_array($fields, $padding = " ", $prefix = " ", $suffix = ": ", $line_end = "\n") {
+	public static function format_array($fields, $padding = ' ', $prefix = ' ', $suffix = ': ', $line_end = "\n") {
 		$n = 0;
 		foreach ($fields as $k => $v) {
 			$n = max(strlen($k), $n);
 		}
-		$result = "";
+		$result = '';
 		foreach ($fields as $k => $v) {
-			$line = "";
+			$line = '';
 			if (strlen($k) < $n) {
 				$line .= str_repeat($padding, $n - strlen($k));
 			}
-			if (is_object($v) && !method_exists($v, "__toString")) {
+			if (is_object($v) && !method_exists($v, '__toString')) {
 				continue;
 			}
 			if (is_array($v)) {
@@ -100,7 +100,7 @@ class Text {
 		return $result;
 	}
 
-	public static function lines_wrap($text, $prefix = "", $suffix = "", $first_prefix = null, $last_suffix = null) {
+	public static function lines_wrap($text, $prefix = '', $suffix = '', $first_prefix = null, $last_suffix = null) {
 		if ($first_prefix === null) {
 			$first_prefix = $prefix;
 		}
@@ -110,7 +110,7 @@ class Text {
 		return $first_prefix . implode("$suffix\n$prefix", explode("\n", $text)) . $last_suffix;
 	}
 
-	public static function fill($n, $pad = " ") {
+	public static function fill($n, $pad = ' ') {
 		return substr(str_repeat($pad, $n), 0, $n);
 	}
 
@@ -128,7 +128,7 @@ class Text {
 	 * @see self::fill
 	 */
 	private static function _align_helper(string $text, int $length, string $pad, string &$fill, bool $chop_text = false): string {
-		$fill = "";
+		$fill = '';
 		if ($length <= 0) {
 			return $text;
 		}
@@ -153,8 +153,8 @@ class Text {
 	 * @param boolean $chop_text If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
 	 * @return string The text with padding to fill $n characters (aligned right), or the original string (optionally trimmed) if length is greater than $n
 	 */
-	public static function ralign(string $text, int $length = -1, string $pad = " ", bool $chop_text = false) {
-		$fill = "";
+	public static function ralign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false) {
+		$fill = '';
 		$text = self::_align_helper($text, $length, $pad, $fill, $chop_text);
 		return $fill . $text;
 	}
@@ -168,8 +168,8 @@ class Text {
 	 * @param bool $chop_text If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
 	 * @return string The text with padding to fill $n characters (aligned left), or the original string (optionally trimmed) if length is greater than $n
 	 */
-	public static function lalign(string $text, int $length = -1, string $pad = " ", bool $chop_text = false): string {
-		$fill = "";
+	public static function lalign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false): string {
+		$fill = '';
 		$text = self::_align_helper($text, $length, $pad, $fill, $chop_text);
 		return $text . $fill;
 	}
@@ -186,7 +186,7 @@ class Text {
 	 *            comments at the end of a line
 	 * @return string The contents with line comments removed
 	 */
-	public static function remove_line_comments($data, $line_comment = "#", $alone = true) {
+	public static function remove_line_comments($data, $line_comment = '#', $alone = true) {
 		$new_data = [];
 		if ($alone) {
 			$line_comment_len = strlen($line_comment);
@@ -214,7 +214,7 @@ class Text {
 	 *            Optional ending string - is preg_quoted
 	 * @return string
 	 */
-	public static function remove_range_comments($text, $begin_comment = "/*", $end_comment = "*/") {
+	public static function remove_range_comments($text, $begin_comment = '/*', $end_comment = '*/') {
 		return preg_replace('#' . preg_quote($begin_comment) . '.*?' . preg_quote($end_comment) . '#s', '', $text);
 	}
 
@@ -236,7 +236,7 @@ class Text {
 	 * @param string $br End of line character
 	 * @return string
 	 */
-	public static function format_pairs(array $map, string $prefix = "", string $space = " ", string $suffix = ": ", string $br = "\n"): string {
+	public static function format_pairs(array $map, string $prefix = '', string $space = ' ', string $suffix = ': ', string $br = "\n"): string {
 		$n = intval(array_reduce(array_keys($map), fn ($k, $n) => max(strlen(strval($k)), $n), 0));
 		$r = [];
 		foreach ($map as $k => $v) {
@@ -252,7 +252,7 @@ class Text {
 	 * @param $delimiter
 	 * @return string
 	 */
-	public static function trim_words_length(string $string, $length, $delimiter = " "): string {
+	public static function trim_words_length(string $string, $length, $delimiter = ' '): string {
 		$string = to_list($string, [], $delimiter);
 		$delim_len = strlen($delimiter);
 		$remain = $length;
@@ -275,7 +275,7 @@ class Text {
 	public static function trim_words($string, $wordCount) {
 		$words = preg_split('/(\s+)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 		$words = array_slice($words, 0, $wordCount * 2 - 1);
-		return implode("", $words);
+		return implode('', $words);
 	}
 
 	public static function words($string) {
@@ -322,9 +322,9 @@ class Text {
 	 *            String to prefix every line with. Used for indenting
 	 * @return string The resulting text table, with \n on each line.
 	 */
-	public static function format_table($table, $prefix = "") {
+	public static function format_table($table, $prefix = '') {
 		if (!is_array($table) || !isset($table[0]) || !is_array($table[0])) {
-			return "";
+			return '';
 		}
 		$result = [];
 		$allhs = array_keys($table[0]);
@@ -343,23 +343,23 @@ class Text {
 		}
 		$line = [];
 		foreach ($hs as $i => $h) {
-			$line[] = str_repeat("-", $ws[$i]);
+			$line[] = str_repeat('-', $ws[$i]);
 		}
-		$divLine = "+-" . implode("-+-", $line) . "-+";
+		$divLine = '+-' . implode('-+-', $line) . '-+';
 		$result[] = $divLine;
 
 		$line = [];
 		foreach ($hs as $i => $h) {
 			$line[] = str_pad($h, $ws[$i]);
 		}
-		$result[] = "| " . implode(" | ", $line) . " |";
+		$result[] = '| ' . implode(' | ', $line) . ' |';
 		$result[] = $divLine;
 		foreach ($table as $row) {
 			$line = [];
 			foreach ($hs as $i => $h) {
 				$line[] = str_pad($row[$h], $ws[$i]);
 			}
-			$result[] = "| " . implode(" | ", $line) . " |";
+			$result[] = '| ' . implode(' | ', $line) . ' |';
 		}
 		$result[] = $divLine;
 		return $prefix . implode("\n$prefix", $result) . "\n";
@@ -380,7 +380,7 @@ class Text {
 	 * @see explode()
 	 */
 	private static function split_line($line, $num_columns = 99, $delimiters = " \t") {
-		return explode($delimiters[0], preg_replace("/[" . preg_quote($delimiters) . "]+/", $delimiters[0], $line), $num_columns);
+		return explode($delimiters[0], preg_replace('/[' . preg_quote($delimiters) . ']+/', $delimiters[0], $line), $num_columns);
 	}
 
 	/**

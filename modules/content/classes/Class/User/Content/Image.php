@@ -3,17 +3,17 @@ namespace zesk;
 
 class Class_User_Content_Image extends Class_ORM {
 	public array $primary_keys = [
-		"user",
-		"image",
+		'user',
+		'image',
 	];
 
 	public array $has_one = [
-		"user" => "zesk\User",
-		"image" => "zesk\Content_Image",
+		'user' => "zesk\User",
+		'image' => "zesk\Content_Image",
 	];
 
 	public array $column_types = [
-		"user" => self::type_object,
-		"image" => self::type_object,
+		'user' => self::type_object,
+		'image' => self::type_object,
 	];
 }

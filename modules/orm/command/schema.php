@@ -18,12 +18,12 @@ class Command_Schema extends Command_Base {
 	 * @var array
 	 */
 	protected array $option_types = [
-		"check" => "boolean",
-		"url" => "string",
-		"name" => "string",
-		"update" => "boolean",
-		"no-hooks" => "boolean",
-		"*" => "string",
+		'check' => 'boolean',
+		'url' => 'string',
+		'name' => 'string',
+		'update' => 'boolean',
+		'no-hooks' => 'boolean',
+		'*' => 'string',
 	];
 
 	/**
@@ -49,17 +49,17 @@ class Command_Schema extends Command_Base {
 	/**
 	 */
 	protected function synchronize_before(): void {
-		if (!$this->optionBool("no-hooks")) {
-			$this->_synchronize_suffix("update");
+		if (!$this->optionBool('no-hooks')) {
+			$this->_synchronize_suffix('update');
 		}
 	}
 
 	/**
 	 */
 	protected function synchronize_after(): void {
-		if ($this->optionBool("update")) {
-			if (!$this->optionBool("no-hooks")) {
-				$this->_synchronize_suffix("updated");
+		if ($this->optionBool('update')) {
+			if (!$this->optionBool('no-hooks')) {
+				$this->_synchronize_suffix('updated');
 			}
 		}
 	}
@@ -70,9 +70,9 @@ class Command_Schema extends Command_Base {
 	 * @param callable $callable
 	 */
 	public function hook_callback($callable): void {
-		$this->debug_log("{class}: Calling {callable}", [
-			"class" => __CLASS__,
-			"callable" => $this->application->hooks->callable_string($callable),
+		$this->debug_log('{class}: Calling {callable}', [
+			'class' => __CLASS__,
+			'callable' => $this->application->hooks->callable_string($callable),
 		]);
 	}
 
@@ -90,7 +90,7 @@ class Command_Schema extends Command_Base {
 	private function _synchronize_suffix($suffix): void {
 		$hook_callback = [
 			$this,
-			"hook_callback",
+			'hook_callback',
 		];
 
 		$app = $this->application;
@@ -99,7 +99,7 @@ class Command_Schema extends Command_Base {
 		$all_hooks = $this->application->hooks->find_all([$hook_type]);
 
 		$app->logger->notice("Running all $suffix hooks {hooks}", [
-			"hooks" => ($all = implode(", ", array_values($all_hooks))) ? $all : "- no hooks found",
+			'hooks' => ($all = implode(', ', array_values($all_hooks))) ? $all : '- no hooks found',
 		]);
 		$this->application->hooks->all_call_arguments([$hook_type], [
 			$this->application,
@@ -115,14 +115,14 @@ class Command_Schema extends Command_Base {
 			}
 		}
 		$app->logger->notice("Running module $suffix hooks {hooks}", [
-			"hooks" => $hooks_strings ? implode(", ", $hooks_strings) : "- no hooks found",
+			'hooks' => $hooks_strings ? implode(', ', $hooks_strings) : '- no hooks found',
 		]);
 		$app->modules->all_hook_arguments($hook_type, [
 			$this->application,
 		], null, $hook_callback);
 
 		$app_hooks = $app->hook_list($hook_type);
-		$app_hooks_strings = "- no hooks found";
+		$app_hooks_strings = '- no hooks found';
 		if (count($app_hooks) !== 0) {
 			$app_hooks_strings = [];
 			foreach ($app_hooks as $hook) {
@@ -130,7 +130,7 @@ class Command_Schema extends Command_Base {
 			}
 		}
 		$app->logger->notice("Running application $suffix hooks {hooks}", [
-			"hooks" => $app_hooks_strings,
+			'hooks' => $app_hooks_strings,
 		]);
 		$app->call_hook_arguments($hook_type, [
 			$this->application,
@@ -156,30 +156,30 @@ class Command_Schema extends Command_Base {
 	protected function run() {
 		$application = $this->application;
 
-		if ($this->optionBool("debug")) {
+		if ($this->optionBool('debug')) {
 			ORM_Schema::$debug = true;
 		}
 		$url = null;
-		if ($this->hasOption("url")) {
+		if ($this->hasOption('url')) {
 			$url = $this->option('url');
 			if (!URL::valid($url)) {
-				$this->usage("--url is not a valid URL, e.g. mysql://user:password@host/database");
+				$this->usage('--url is not a valid URL, e.g. mysql://user:password@host/database');
 			}
-		} elseif ($this->hasOption("name")) {
+		} elseif ($this->hasOption('name')) {
 			$url = $this->option('name');
 		}
 		$classes = null;
 		if ($this->has_arg()) {
 			$classes = $this->arguments_remaining(true);
-			$this->verbose_log("Running on classes {classes}", compact("classes"));
+			$this->verbose_log('Running on classes {classes}', compact('classes'));
 		}
 
 		$this->synchronize_before();
 
 		$database = $application->database_registry($url);
 		$this->results = $results = $application->orm_module()->schema_synchronize($database, $classes, [
-			"skip_others" => true,
-			"check" => $this->optionBool('check'),
+			'skip_others' => true,
+			'check' => $this->optionBool('check'),
 		]);
 		$suffix = ";\n";
 		if ($this->optionBool('update')) {
@@ -187,14 +187,14 @@ class Command_Schema extends Command_Base {
 				try {
 					$result = $database->query($sql);
 					$this->results[$index] = [
-						"sql" => $sql,
-						"result" => $result,
+						'sql' => $sql,
+						'result' => $result,
 					];
 					echo "$sql$suffix";
 				} catch (Exception $e) {
 					$this->results[$index] = [
-						"sql" => $sql,
-						"exception" => $e,
+						'sql' => $sql,
+						'exception' => $e,
 					];
 					echo "FAILED: $sql$suffix" . $e->getMessage() . "\n\n";
 				}

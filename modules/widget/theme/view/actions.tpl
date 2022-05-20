@@ -31,23 +31,23 @@ $html = [];
 //echo HTML::tag("pre", _dump($actions));
 foreach ($actions as $index => $action) {
 	if (!is_array($action)) {
-		$application->logger->warning("{file} action {index} is not an array? ({type})", [
-			"file" => __FILE__,
-			"index" => $index,
-			"type" => type($action),
+		$application->logger->warning('{file} action {index} is not an array? ({type})', [
+			'file' => __FILE__,
+			'index' => $index,
+			'type' => type($action),
 		]);
 		continue;
 	}
 	$action = $object->apply_map($action);
-	$html[] = $this->theme("zesk/view/action", $action);
+	$html[] = $this->theme('zesk/view/action', $action);
 }
 if (count($html) === 0) {
 	echo $this->empty_actions;
 	return;
 }
 $content = implode("\n", $html);
-if ($this->getb("add_div", true)) {
-	echo HTML::tag("ul", ".view-actions", $content);
+if ($this->getb('add_div', true)) {
+	echo HTML::tag('ul', '.view-actions', $content);
 } else {
 	echo $content;
 }

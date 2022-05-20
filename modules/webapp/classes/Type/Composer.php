@@ -20,6 +20,6 @@ class Type_Composer extends Type_Node {
 	 * @return string
 	 */
 	public function package_json_path() {
-		return path($this->path, "composer.json");
+		return path($this->path, 'composer.json');
 	}
 }

@@ -62,7 +62,7 @@ class Controller_Authenticated extends Controller_Theme {
 
 	public function default_login_redirect(): void {
 		if ($this->login_redirect === null) {
-			$this->login_redirect = $this->router ? $this->router->get_route("login", Controller_Login::class) : null;
+			$this->login_redirect = $this->router ? $this->router->get_route('login', Controller_Login::class) : null;
 			if (!$this->login_redirect) {
 				$this->login_redirect = '/login';
 			}
@@ -91,15 +91,15 @@ class Controller_Authenticated extends Controller_Theme {
 		if (!$this->user || !$this->user->authenticated($this->request)) {
 			if ($this->response->is_json()) {
 				$this->json([
-					"status" => false,
-					"message" => $this->login_redirect_message,
-					"route" => $this->login_redirect,
-					"referrer" => $this->request->uri(),
+					'status' => false,
+					'message' => $this->login_redirect_message,
+					'route' => $this->login_redirect,
+					'referrer' => $this->request->uri(),
 				]);
-				$this->response->status(Net_HTTP::STATUS_UNAUTHORIZED, "Need to authenticate");
+				$this->response->status(Net_HTTP::STATUS_UNAUTHORIZED, 'Need to authenticate');
 			} else {
 				$url = URL::query_format($this->login_redirect, [
-					"ref" => $this->request->uri(),
+					'ref' => $this->request->uri(),
 				]);
 
 				throw new Exception_RedirectTemporary($url, $this->login_redirect_message);

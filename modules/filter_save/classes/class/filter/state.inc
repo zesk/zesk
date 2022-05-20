@@ -2,10 +2,10 @@
 namespace zesk;
 
 class Class_Filter_State extends Class_ORM {
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	public array $has_one = [
-		"user" => "zesk\\User",
+		'user' => 'zesk\\User',
 	];
 
 	public array $column_types = [

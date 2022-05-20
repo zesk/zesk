@@ -22,7 +22,7 @@ foreach ($response->html()->scripts() as $script_tag) {
 	$name = $attributes = $content = $prefix = $suffix = null;
 	extract($script_tag, EXTR_IF_EXISTS);
 	if (empty($content)) {
-		$content = "";
+		$content = '';
 	}
 	echo $prefix . HTML::tag($name, $attributes, $content) . $suffix . "\n";
 }

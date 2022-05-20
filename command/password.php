@@ -10,15 +10,15 @@ namespace zesk;
  */
 class Command_Password extends Command_Base {
 	protected array $option_types = [
-		"user" => "string",
-		"password" => "string",
-		"list" => "boolean",
+		'user' => 'string',
+		'password' => 'string',
+		'list' => 'boolean',
 	];
 
 	protected array $option_help = [
-		"user" => "The user to edit",
-		"password" => "The new password",
-		"list" => "List the active users in the database",
+		'user' => 'The user to edit',
+		'password' => 'The new password',
+		'list' => 'List the active users in the database',
 	];
 
 	public function _option_list() {
@@ -34,7 +34,7 @@ class Command_Password extends Command_Base {
 			fprintf(STDOUT, "$login\n");
 			++$n;
 		}
-		fprintf(STDERR, "# " . $this->application->locale->plural_word("user", $n) . "\n");
+		fprintf(STDERR, '# ' . $this->application->locale->plural_word('user', $n) . "\n");
 		return true;
 	}
 
@@ -55,7 +55,7 @@ class Command_Password extends Command_Base {
 		}
 		$pass = $this->option('password');
 		if ($pass === null) {
-			echo "New Password: ";
+			echo 'New Password: ';
 			system('stty -echo');
 			$pass = rtrim(fgets(STDIN));
 			system('stty echo');
@@ -73,7 +73,7 @@ class Command_Password extends Command_Base {
 		$user->password($pass, true);
 		if (!$user->store()) {
 			$id = $user->id();
-			fprintf(STDERR, "Unabled to save $user ($id) " . implode(", ", $user->store_error()) . "\n");
+			fprintf(STDERR, "Unabled to save $user ($id) " . implode(', ', $user->store_error()) . "\n");
 			exit(2);
 		}
 		echo "Updated user password.\n";

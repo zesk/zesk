@@ -31,14 +31,14 @@ class Module_Content extends Module implements Interface_Module_Head {
 	 * @see Module::initialize()
 	 */
 	public function initialize(): void {
-		if ($this->hasOption("content_classes")) {
+		if ($this->hasOption('content_classes')) {
 			$types = ArrayTools::flip_multiple(self::$all_classes);
 			$this->model_classes = array_merge($this->model_classes, $types['data']);
-			foreach ($this->option_list("content_classes") as $type) {
+			foreach ($this->option_list('content_classes') as $type) {
 				if (!array_key_exists($type, $types)) {
-					$this->application->logger->warning("{method} Unknown content class type {type}", [
-						"method" => __METHOD__,
-						"type" => $type,
+					$this->application->logger->warning('{method} Unknown content class type {type}', [
+						'method' => __METHOD__,
+						'type' => $type,
 					]);
 
 					continue;
@@ -57,8 +57,8 @@ class Module_Content extends Module implements Interface_Module_Head {
 	 * @param Response $response
 	 */
 	public function hook_head(Request $request, Response $response, Template $template): void {
-		$response->css("/share/content/css/content.css", [
-			"share" => true,
+		$response->css('/share/content/css/content.css', [
+			'share' => true,
 		]);
 	}
 
@@ -66,6 +66,6 @@ class Module_Content extends Module implements Interface_Module_Head {
 	 * Register hooks
 	 */
 	public static function hooks(Application $zesk): void {
-		$zesk->hooks->add(Content_Image::class . '::stored', Controller_Content_Cache::class . "::image_changed");
+		$zesk->hooks->add(Content_Image::class . '::stored', Controller_Content_Cache::class . '::image_changed');
 	}
 }

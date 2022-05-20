@@ -24,7 +24,7 @@ $this->offset = $this->current = $offset = $object->offset;
 
 // Prevent child content to be output by render function
 
-$widget->content_children = "";
+$widget->content_children = '';
 
 if (!$this->always_show) {
 	if ($total <= $limit) {
@@ -36,65 +36,65 @@ $this->last_offset = $last_offset = $object->last_offset;
 
 $this->last_index = ($limit < 0) ? $total : min($offset + $limit, $total);
 $this->url = URL::query_format($request->uri(), [
-	"limit" => $limit,
+	'limit' => $limit,
 ]);
 
 $showing = __($total === 0 ? 'Control_Pager:=Showing none' : 'Control_Pager:=Showing {0} - {1} of {2}', ($offset + 1), $this->last_index, $total);
 $uri = $request->uri();
 
 echo HTML::tag_open('form', [
-	"method" => 'get',
+	'method' => 'get',
 	'action' => $uri,
 ]);
-echo HTML::tag_open("div", [
-	"class" => 'control-pager btn-toolbar',
+echo HTML::tag_open('div', [
+	'class' => 'control-pager btn-toolbar',
 ]);
 {
-	echo HTML::tag_open("div", [
-		"class" => ' btn-group pagination',
+	echo HTML::tag_open('div', [
+		'class' => ' btn-group pagination',
 	]);
 	{
 		$this->direction = -1;
 
 		echo $this->theme('zesk/control/pager/arrow', [
-			"icon" => "fast-backward",
-			"offset" => 0,
-			"title" => __("First page"),
-			"disabled_title" => __("Already at first page"),
+			'icon' => 'fast-backward',
+			'offset' => 0,
+			'title' => __('First page'),
+			'disabled_title' => __('Already at first page'),
 		]);
 		echo $this->theme('zesk/control/pager/arrow', [
-			"icon" => "step-backward",
-			"offset" => max($offset - $limit, 0),
-			"title" => __("Previous page"),
-			"disabled_title" => __("Already at first page"),
+			'icon' => 'step-backward',
+			'offset' => max($offset - $limit, 0),
+			'title' => __('Previous page'),
+			'disabled_title' => __('Already at first page'),
 		]);
 		$this->direction = 1;
 		echo $this->theme('zesk/control/pager/arrow', [
-			"icon" => "step-forward",
-			"offset" => $offset + $limit,
-			"title" => __("Next page"),
-			"disabled_title" => __("Already at last page"),
+			'icon' => 'step-forward',
+			'offset' => $offset + $limit,
+			'title' => __('Next page'),
+			'disabled_title' => __('Already at last page'),
 		]);
 		echo $this->theme('zesk/control/pager/arrow', [
-			"icon" => "fast-forward",
-			"offset" => $last_offset,
-			"title" => __("Last page"),
-			"disabled_title" => __("Already at last page"),
+			'icon' => 'fast-forward',
+			'offset' => $last_offset,
+			'title' => __('Last page'),
+			'disabled_title' => __('Already at last page'),
 		]);
 	}
 	echo HTML::tag_close('div');
 
 	if ($this->debug) {
-		echo HTML::tag("div", [
-			"class" => "pager-debug",
+		echo HTML::tag('div', [
+			'class' => 'pager-debug',
 		], "$offset/$limit/$total");
 	}
 
-	echo HTML::tag("div", [
-		"class" => "pager-state btn-group",
+	echo HTML::tag('div', [
+		'class' => 'pager-state btn-group',
 	], HTML::tag('a', 'btn disabled pager-text btn-pager-stage btn-sm', $showing));
 
-	$attrs = $this->geta("preserve_hidden", []);
+	$attrs = $this->geta('preserve_hidden', []);
 	$attrs += $request->get();
 	$children = $this->children;
 	unset($children['limit']);
@@ -104,12 +104,12 @@ echo HTML::tag_open("div", [
 			/* @var $child Widget */
 			unset($attrs[$child->name()]);
 			echo HTML::tag('div', [
-				"class" => $child->context_class(),
+				'class' => $child->context_class(),
 			], $child->render());
 		}
 	}
 
-	echo $this->theme("zesk/control/pager/limits");
+	echo $this->theme('zesk/control/pager/limits');
 }
 echo HTML::tag_close('div');
 

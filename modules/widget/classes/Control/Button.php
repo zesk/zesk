@@ -15,18 +15,18 @@ class Control_Button extends Control {
 	 * @return Control_Button|string
 	 */
 	public function href($set = null) {
-		return $set === null ? $this->option('href') : $this->setOption("href", $set);
+		return $set === null ? $this->option('href') : $this->setOption('href', $set);
 	}
 
 	public function button_label($set = null) {
-		return $set === null ? $this->option('button_label') : $this->setOption("button_label", $set);
+		return $set === null ? $this->option('button_label') : $this->setOption('button_label', $set);
 	}
 
 	public function submit() {
 		if (($url = $this->option('redirect_url')) !== null) {
 			$url = $this->object->apply_map($url);
 			$url = URL::query_format($url, [
-				"ref" => $this->request->uri(),
+				'ref' => $this->request->uri(),
 			]);
 
 			throw new Exception_Redirect($url, $this->object->apply_map($this->option('redirect_message')));

@@ -20,7 +20,7 @@ $form = [
 	'class' => CSS::add_class('form-horizontal', $this->class),
 	'action' => $this->request->path(),
 	'method' => 'post',
-	'enctype' => $upload ? "multipart/form-data" : "",
+	'enctype' => $upload ? 'multipart/form-data' : '',
 ];
 
 echo HTML::tag_open('form', $form);
@@ -68,7 +68,7 @@ $title = $response->html()->title();
 <div class="nav-tabs">
 	<ul class="nav nav-tabs">
 	<?php
-	$content = "";
+	$content = '';
 	$selected_tab = $first_name = null;
 	foreach ($this->children as $widget) {
 		$name = $widget->column();
@@ -98,14 +98,14 @@ $title = $response->html()->title();
 			'class' => CSS::add_class($item_class, count($errors) > 0 ? 'error' : ''),
 		], HTML::tag('a', [
 			'href' => '#' . $name,
-			'data-toggle' => "tab",
+			'data-toggle' => 'tab',
 		], $widget->label() . HTML::etag('span', '.badge error', count($errors))));
 		$content .= HTML::tag('div', [
 			'id' => $name,
 			'class' => 'tab-pane' . ($name === $selected_tab ? ' active' : ''),
 		], $widget_content);
-		$widget->content = "";
-		$widget->content_children = "";
+		$widget->content = '';
+		$widget->content_children = '';
 	}
 	?>
 	</ul>

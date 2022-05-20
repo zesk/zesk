@@ -17,7 +17,7 @@ namespace zesk;
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
 $response->title($title = $locale('Search results for &ldquo;{query}&rdquo;', [
-	"query" => $this->query,
+	'query' => $this->query,
 ]));
 echo HTML::tag('h1', $title);
 echo HTML::div_open('.search-results');
@@ -36,9 +36,9 @@ foreach ($this->results as $name => $result) {
 	if ($total > 0) {
 		echo HTML::tag('h2', [
 			'class' => 'found',
-		], map($title . " ({total})", $__) . HTML::tag('a', [
+		], map($title . ' ({total})', $__) . HTML::tag('a', [
 			'name' => $name,
-		], ""));
+		], ''));
 		if ($total === $shown) {
 			echo HTML::tag('p', '.small', $locale('Showing {shown} matching {nouns}', $__));
 			echo $content;

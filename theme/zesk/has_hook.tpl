@@ -28,16 +28,16 @@ foreach ($this->content as $key => $arr) {
 	$rows[] = [
 		$key,
 		$arr[0],
-		$this->theme("microsecond", $arr[1] - $min, $range),
-		$this->theme("microsecond", $arr[2] - $min, $range),
+		$this->theme('microsecond', $arr[1] - $min, $range),
+		$this->theme('microsecond', $arr[2] - $min, $range),
 	];
 }
 return $this->theme('table', [
 	'headers' => $locale->__([
-		"Hook",
-		"First Time",
-		"Last Time",
-		"Number of times",
+		'Hook',
+		'First Time',
+		'Last Time',
+		'Number of times',
 	]),
 	'rows' => $rows,
 ]);

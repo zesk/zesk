@@ -10,11 +10,11 @@ use \SplFileInfo;
  */
 class Command_File_White extends Command_Iterator_File {
 	protected $extensions = [
-		"php",
-		"phpt",
-		"inc",
-		"php4",
-		"php5",
+		'php',
+		'phpt',
+		'inc',
+		'php4',
+		'php5',
 	];
 
 	protected $parsed = 0;
@@ -39,9 +39,9 @@ class Command_File_White extends Command_Iterator_File {
 	}
 
 	protected function finish(): void {
-		$this->log("Completed: {parsed} parsed, {whites} with whitespace", [
-			"parsed" => $this->parsed,
-			"whites" => $this->whites,
+		$this->log('Completed: {parsed} parsed, {whites} with whitespace', [
+			'parsed' => $this->parsed,
+			'whites' => $this->whites,
 		]);
 	}
 }

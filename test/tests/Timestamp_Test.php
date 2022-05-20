@@ -209,7 +209,7 @@ class Timestamp_Test extends Test_Unit {
 		$x->unixTimestamp();
 
 		$success = false;
-		$value = "";
+		$value = '';
 		$locale_format = 'MDY;MD;MY;_';
 
 		try {
@@ -220,7 +220,7 @@ class Timestamp_Test extends Test_Unit {
 		$this->assert($success);
 
 		$success = true;
-		$value = "10/2/1922";
+		$value = '10/2/1922';
 		$locale_format = 'MDY;MD;MY;_';
 
 		try {
@@ -251,13 +251,13 @@ class Timestamp_Test extends Test_Unit {
 
 		$x->ampm();
 
-		$locale = $this->application->locale_registry("en_US");
+		$locale = $this->application->locale_registry('en_US');
 		$year = 2012;
 		$month = 10;
 		$day = 11;
 		$x->ymd($year, $month, $day);
-		$locale = $this->application->locale_registry("en_US");
-		$this->assert_equal($x->format($locale, "{YYYY}:{MM}:{DD}"), "2012:10:11");
+		$locale = $this->application->locale_registry('en_US');
+		$this->assert_equal($x->format($locale, '{YYYY}:{MM}:{DD}'), '2012:10:11');
 
 		$value = 2011;
 		$this->assert_equal($x->setYear($value), $x);
@@ -303,7 +303,7 @@ class Timestamp_Test extends Test_Unit {
 		} catch (Exception_Range $e) {
 			$success = true;
 		}
-		$this->assert_true($success, "Day range exception failed");
+		$this->assert_true($success, 'Day range exception failed');
 
 		$value = 4;
 		$x->weekday($value);
@@ -315,14 +315,14 @@ class Timestamp_Test extends Test_Unit {
 		$minute = 23;
 		$second = 24;
 		$x->hms($hour, $minute, $second);
-		$this->assert_equal($x->format($locale, "{hh}:{mm}:{ss}"), "22:23:24");
-		$this->assert_equal($x->format($locale, "{12hh}:{mm}:{ss}"), "10:23:24");
-		$this->assert_equal($x->format($locale, "{12hh}:{mm}:{ss} {ampm}"), "10:23:24 pm");
-		$this->assert_equal($x->format($locale, "{12hh}:{mm}:{ss} {AMPM}"), "10:23:24 PM");
+		$this->assert_equal($x->format($locale, '{hh}:{mm}:{ss}'), '22:23:24');
+		$this->assert_equal($x->format($locale, '{12hh}:{mm}:{ss}'), '10:23:24');
+		$this->assert_equal($x->format($locale, '{12hh}:{mm}:{ss} {ampm}'), '10:23:24 pm');
+		$this->assert_equal($x->format($locale, '{12hh}:{mm}:{ss} {AMPM}'), '10:23:24 PM');
 		$x->add_unit(-12, Timestamp::UNIT_HOUR);
-		$this->assert_equal($x->format($locale, "{12hh}:{mm}:{ss} {AMPM}"), "10:23:24 AM");
-		$this->assert_equal($x->format($locale, "{hh}:{mm}:{ss} {AMPM}"), "10:23:24 AM");
-		$this->assert_equal($x->format($locale, "{hh}:{mm}:{ss} {ampm}"), "10:23:24 am");
+		$this->assert_equal($x->format($locale, '{12hh}:{mm}:{ss} {AMPM}'), '10:23:24 AM');
+		$this->assert_equal($x->format($locale, '{hh}:{mm}:{ss} {AMPM}'), '10:23:24 AM');
+		$this->assert_equal($x->format($locale, '{hh}:{mm}:{ss} {ampm}'), '10:23:24 am');
 
 		$year = 2011;
 		$month = 12;
@@ -402,11 +402,11 @@ class Timestamp_Test extends Test_Unit {
 		date_default_timezone_set('UTC');
 
 		// Test
-		$long_date = "Sat, 16-Aug-2064 04:11:10 GMT";
+		$long_date = 'Sat, 16-Aug-2064 04:11:10 GMT';
 
 		$test_long_date = new Timestamp($long_date, null);
-		$this->assert_equal($test_long_date->time()->format($locale), "04:11:10");
-		$this->assert_equal($test_long_date->date()->format($locale), "2064-08-16");
+		$this->assert_equal($test_long_date->time()->format($locale), '04:11:10');
+		$this->assert_equal($test_long_date->date()->format($locale), '2064-08-16');
 		$threw = false;
 
 		try {
@@ -418,16 +418,16 @@ class Timestamp_Test extends Test_Unit {
 			$threw = true;
 		}
 		$should_throw = PHP_VERSION_ID < 50209;
-		if (php_uname('s') === "Darwin") {
+		if (php_uname('s') === 'Darwin') {
 			$should_throw = PHP_VERSION_ID <= 50400 ? true : false;
 		}
 		if ($should_throw) {
-			$this->assert($threw, "Exception_Convert was not thrown? PHP_VERSION_ID=" . PHP_VERSION_ID);
+			$this->assert($threw, 'Exception_Convert was not thrown? PHP_VERSION_ID=' . PHP_VERSION_ID);
 		} else {
-			$this->assert(!$threw, "Exception_Convert was thrown? PHP_VERSION_ID=" . PHP_VERSION_ID);
+			$this->assert(!$threw, 'Exception_Convert was thrown? PHP_VERSION_ID=' . PHP_VERSION_ID);
 			$test_long_date_2 = new Timestamp();
 			$test_long_date_2->unix_timestamp($ts);
-			$this->assert($test_long_date_2->__toString() === $test_long_date->__toString(), $test_long_date_2->__toString() . " === " . $test_long_date->__toString());
+			$this->assert($test_long_date_2->__toString() === $test_long_date->__toString(), $test_long_date_2->__toString() . ' === ' . $test_long_date->__toString());
 		}
 	}
 
@@ -459,7 +459,7 @@ class Timestamp_Test extends Test_Unit {
 	 */
 	public function test_parse_fail(): void {
 		$x = new Timestamp();
-		$value = "foo";
+		$value = 'foo';
 		$x->parse($value);
 	}
 
@@ -494,14 +494,14 @@ class Timestamp_Test extends Test_Unit {
 	}
 
 	public function compare_timestamps($ts, $new): void {
-		$this->assertEquals($ts->year(), $new->year(), "years match");
-		$this->assertEquals($ts->month(), $new->month(), "months match");
-		$this->assertEquals($ts->day(), $new->day(), "days match");
-		$this->assertEquals($ts->day_seconds(), $new->day_seconds(), "day_seconds match");
-		$this->assertEquals($ts->hour(), $new->hour(), "hours match");
-		$this->assertEquals($ts->minute(), $new->minute(), "minutes match");
-		$this->assertEquals($ts->second(), $new->second(), "seconds match");
-		$this->assertEquals($ts->millisecond(), $new->millisecond(), "milliseconds match");
-		$this->assertEquals($ts->format(), $new->format(), "default format matches");
+		$this->assertEquals($ts->year(), $new->year(), 'years match');
+		$this->assertEquals($ts->month(), $new->month(), 'months match');
+		$this->assertEquals($ts->day(), $new->day(), 'days match');
+		$this->assertEquals($ts->day_seconds(), $new->day_seconds(), 'day_seconds match');
+		$this->assertEquals($ts->hour(), $new->hour(), 'hours match');
+		$this->assertEquals($ts->minute(), $new->minute(), 'minutes match');
+		$this->assertEquals($ts->second(), $new->second(), 'seconds match');
+		$this->assertEquals($ts->millisecond(), $new->millisecond(), 'milliseconds match');
+		$this->assertEquals($ts->format(), $new->format(), 'default format matches');
 	}
 }

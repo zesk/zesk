@@ -22,7 +22,7 @@ class Process_Tools {
 	 * @param string $pid_field
 	 * @return boolean
 	 */
-	public static function reset_dead_processes(Application $application, string $class, array $where = [], string $pid_field = "PID"): bool {
+	public static function reset_dead_processes(Application $application, string $class, array $where = [], string $pid_field = 'PID'): bool {
 		$where["$pid_field|!="] = null;
 		$ids = $application->orm_registry($class)->query_select()->addWhat('pid', $pid_field)->where($where)->to_array('pid', 'pid');
 		$dead_pids = [];
@@ -36,7 +36,7 @@ class Process_Tools {
 		}
 		$query = $application->orm_registry($class)->query_update()->value($pid_field, null)->where($pid_field, $dead_pids)->execute();
 		$rows = $query->affected_rows();
-		$application->logger->warning("Reset {n} dead pids {dead_pids}", ["dead_pids" => $dead_pids, "n" => $rows, ]);
+		$application->logger->warning('Reset {n} dead pids {dead_pids}', ['dead_pids' => $dead_pids, 'n' => $rows, ]);
 		return true;
 	}
 

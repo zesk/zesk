@@ -2,10 +2,10 @@
 namespace zesk;
 
 class Class_City extends Class_ORM {
-	public string $id_column = "id";
+	public string $id_column = 'id';
 
 	public array $find_keys = [
-		"name",
+		'name',
 	];
 
 	public array $has_one = [
@@ -14,9 +14,9 @@ class Class_City extends Class_ORM {
 	];
 
 	public array $column_types = [
-		"id" => self::type_id,
-		"province" => self::type_object,
-		"county" => self::type_object,
+		'id' => self::type_id,
+		'province' => self::type_object,
+		'county' => self::type_object,
 		'name' => self::type_string,
 	];
 }

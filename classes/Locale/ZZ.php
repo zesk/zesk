@@ -21,7 +21,7 @@ class Locale_ZZ extends Locale {
 	 * @see \zesk\Locale::date_format()
 	 */
 	public function date_format(): string {
-		return "{YYYY}-{MM}-{DD}";
+		return '{YYYY}-{MM}-{DD}';
 	}
 
 	/**
@@ -30,7 +30,7 @@ class Locale_ZZ extends Locale {
 	 * @see \zesk\Locale::datetime_format()
 	 */
 	public function datetime_format(): string {
-		return "{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {Z}";
+		return '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {Z}';
 	}
 
 	/**
@@ -39,7 +39,7 @@ class Locale_ZZ extends Locale {
 	 * @see \zesk\Locale::time_format()
 	 */
 	public function time_format(bool $include_seconds = false): string {
-		return $include_seconds ? "{h}:{mm}:{ss}" : "{h}:{mm}";
+		return $include_seconds ? '{h}:{mm}:{ss}' : '{h}:{mm}';
 	}
 
 	/**
@@ -48,7 +48,7 @@ class Locale_ZZ extends Locale {
 	 * @see \zesk\Locale::possessive()
 	 */
 	public function possessive(string $owner, string $object): string {
-		return "{possessive(" . JSON::quote($owner) . ", " . JSON::quote($object) . "}";
+		return '{possessive(' . JSON::quote($owner) . ', ' . JSON::quote($object) . '}';
 	}
 
 	/**
@@ -61,7 +61,7 @@ class Locale_ZZ extends Locale {
 		if ($count > 0 && $count <= 1) {
 			return $word;
 		}
-		return "{plural(" . JSON::encode($word) . ", $count)}";
+		return '{plural(' . JSON::encode($word) . ", $count)}";
 	}
 
 	/**
@@ -69,7 +69,7 @@ class Locale_ZZ extends Locale {
 	 * {@inheritDoc}
 	 * @see \zesk\Locale::indefinite_article()
 	 */
-	public function indefinite_article(string $word, string $context = ""): string {
+	public function indefinite_article(string $word, string $context = ''): string {
 		if (strlen($word) === 0) {
 			return '';
 		}
@@ -93,6 +93,6 @@ class Locale_ZZ extends Locale {
 	 * @see \zesk\Locale::negate_word()
 	 */
 	public function negate_word(string $word, string $preferred_prefix = null): string {
-		return "{negate_word(" . JSON::encode($word) . "" . JSON::encode($preferred_prefix) . "}";
+		return '{negate_word(' . JSON::encode($word) . '' . JSON::encode($preferred_prefix) . '}';
 	}
 }

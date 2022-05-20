@@ -43,14 +43,14 @@ class Currency extends ORM {
 	 */
 	public function format($value = 0) {
 		$locale = $this->application->locale;
-		$decimals = $this->option("decimal_point", $locale->__("Currency::decimal_point:=."));
-		$thousands = $this->option('thousands_separator', $locale->__("Currency::thousands_separator:=."));
+		$decimals = $this->option('decimal_point', $locale->__('Currency::decimal_point:=.'));
+		$thousands = $this->option('thousands_separator', $locale->__('Currency::thousands_separator:=.'));
 		return map($this->format, [
 			'value_raw' => $value,
 			'value_decimal' => $intvalue = intval($value),
 			'value_fraction' => substr(strval(abs($value - $intvalue)), 2),
-			'minus' => $value < 0 ? "-" : "",
-			'plus' => $value > 0 ? "+" : "",
+			'minus' => $value < 0 ? '-' : '',
+			'plus' => $value > 0 ? '+' : '',
 			'decimal' => $decimals,
 			'thousands' => $thousands,
 			'amount' => number_format($value, $this->precision, $decimals, $thousands),
@@ -107,7 +107,7 @@ class Currency extends ORM {
 	}
 
 	public function precision() {
-		return $this->member_integer("precision", 2);
+		return $this->member_integer('precision', 2);
 	}
 
 	/**

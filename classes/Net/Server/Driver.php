@@ -24,7 +24,7 @@ abstract class Net_Server_Driver extends Hookable {
 	 *
 	 * @var string
 	 */
-	private $host = "localhost";
+	private $host = 'localhost';
 
 	/**
 	 *
@@ -123,7 +123,7 @@ abstract class Net_Server_Driver extends Hookable {
 	 * @param number $port
 	 * @param string $protocol
 	 */
-	public function __construct(Net_Server $server, $host = "localhost", $port = 10000, $protocol = AF_INET) {
+	public function __construct(Net_Server $server, $host = 'localhost', $port = 10000, $protocol = AF_INET) {
 		parent::__construct($server->application);
 		$this->host = $host;
 		$this->port = $port;
@@ -187,7 +187,7 @@ abstract class Net_Server_Driver extends Hookable {
 		if (count($this->clients) === 0 && $this->socket === null) {
 			return;
 		}
-		$this->server_hook("shutdown");
+		$this->server_hook('shutdown');
 		foreach ($this->clients as $client_id => $client) {
 			$this->close_connection($client_id);
 		}
@@ -196,7 +196,7 @@ abstract class Net_Server_Driver extends Hookable {
 			$this->socket = null;
 		}
 		$this->clients = [];
-		$this->message("shutdown");
+		$this->message('shutdown');
 		exit();
 	}
 
@@ -209,7 +209,7 @@ abstract class Net_Server_Driver extends Hookable {
 	final protected function listen($reuse = true): void {
 		$this->socket = @socket_create($this->protocol, SOCK_STREAM, SOL_TCP);
 		if (!$this->socket) {
-			throw new Net_Server_Exception("Could not create socket.");
+			throw new Net_Server_Exception('Could not create socket.');
 		}
 
 		if ($reuse) {
@@ -222,7 +222,7 @@ abstract class Net_Server_Driver extends Hookable {
 			$error = $this->last_socket_error($this->socket);
 			socket_close($this->socket);
 
-			throw new Net_Server_Exception("Could not bind socket to " . $this->host . " on port " . $this->port . " (" . $error . ").");
+			throw new Net_Server_Exception('Could not bind socket to ' . $this->host . ' on port ' . $this->port . ' (' . $error . ').');
 		}
 
 		//    listen on selected port
@@ -230,10 +230,10 @@ abstract class Net_Server_Driver extends Hookable {
 			$error = $this->last_socket_error($this->socket);
 			socket_close($this->socket);
 
-			throw new Net_Server_Exception("Could not listen (" . $error . ").");
+			throw new Net_Server_Exception('Could not listen (' . $error . ').');
 		}
 
-		$this->message("Listening on port " . $this->port . ". Server started at " . date("H:i:s", time()));
+		$this->message('Listening on port ' . $this->port . '. Server started at ' . date('H:i:s', time()));
 
 		$this->server_hook('start');
 	}
@@ -256,8 +256,8 @@ abstract class Net_Server_Driver extends Hookable {
 		$now = time();
 		if ($ready === 0 && $this->idle_timeout !== null && ($this->idle_time + $this->idle_timeout) <= $now) {
 			$this->idle_time = $now;
-			$this->message("Idle.");
-			$this->server_hook("idle");
+			$this->message('Idle.');
+			$this->server_hook('idle');
 			return 0;
 		}
 		return $ready;
@@ -272,12 +272,12 @@ abstract class Net_Server_Driver extends Hookable {
 	final protected function read_connection($client_id) {
 		$data = $this->read($client_id);
 		if ($data === false) {
-			$this->message("Connection closed by peer");
+			$this->message('Connection closed by peer');
 			$this->close_connection($client_id);
 			return false;
 		} else {
-			$this->message("Received " . trim($data) . " from $client_id");
-			$this->server_hook("receive", $client_id, $data);
+			$this->message('Received ' . trim($data) . " from $client_id");
+			$this->server_hook('receive', $client_id, $data);
 			return true;
 		}
 	}
@@ -292,7 +292,7 @@ abstract class Net_Server_Driver extends Hookable {
 		$accept = socket_accept($this->socket);
 		if ($this->max_clients > 0 && $this->connected_clients() >= $this->max_clients) {
 			$this->message("Exceeded max connections: $this->max_clients");
-			$this->server_hook("connect_refused", $client_id);
+			$this->server_hook('connect_refused', $client_id);
 			socket_close($accept);
 			return null;
 		}
@@ -310,17 +310,17 @@ abstract class Net_Server_Driver extends Hookable {
 		]);
 		socket_set_block($accept);
 
-		$peer_host = $peer_port = "";
+		$peer_host = $peer_port = '';
 		socket_getpeername($accept, $peer_host, $peer_port);
 		$this->client_data[$client_id] = [
-			"host" => $peer_host,
-			"port" => $peer_port,
-			"time" => time(),
+			'host' => $peer_host,
+			'port' => $peer_port,
+			'time' => time(),
 		];
 
 		$this->message("New connection #$client_id from $peer_host on port $peer_port");
 		$this->clients[$client_id] = $accept;
-		$this->server_hook("connect", $client_id);
+		$this->server_hook('connect', $client_id);
 		return $client_id;
 	}
 
@@ -365,13 +365,13 @@ abstract class Net_Server_Driver extends Hookable {
 			return;
 		}
 		$recursion = true;
-		$this->server_hook("close", $client_id);
+		$this->server_hook('close', $client_id);
 		$recursion = false;
 
 		$this->empty_clients[] = $client_id;
 
 		$data = $this->client_data[$client_id];
-		$this->message("Closed connection #$client_id from " . $data["host"] . " on port " . $data["port"]);
+		$this->message("Closed connection #$client_id from " . $data['host'] . ' on port ' . $data['port']);
 
 		$this->clients[$client_id] = null;
 		unset($this->client_data[$client_id]);
@@ -456,7 +456,7 @@ abstract class Net_Server_Driver extends Hookable {
 		}
 
 		if ($buf === false) {
-			$this->message("Could not read from client " . $client_id . " (" . $this->last_socket_error($this->clients[$client_id]) . ").");
+			$this->message('Could not read from client ' . $client_id . ' (' . $this->last_socket_error($this->clients[$client_id]) . ').');
 			return false;
 		}
 		if ((string) $data === '') {
@@ -480,13 +480,13 @@ abstract class Net_Server_Driver extends Hookable {
 		$to_write = strlen($data);
 		$wrote = socket_write($fd, $data);
 		if (!$wrote) {
-			$this->message("Could not write $to_write bytes data '" . $data . "' to client " . $this->last_socket_error($fd));
+			$this->message("Could not write $to_write bytes data '" . $data . '\' to client ' . $this->last_socket_error($fd));
 		}
 		if ($wrote !== $to_write) {
 			$this->message("Wanted to write $to_write bytes, but only wrote $wrote");
 		}
 		$ll = $this->application->locale;
-		$this->message("Wrote " . Number::format_bytes($ll, $wrote) . "\n" . trim(substr($data, 0, 1024)) . "\n");
+		$this->message('Wrote ' . Number::format_bytes($ll, $wrote) . "\n" . trim(substr($data, 0, 1024)) . "\n");
 	}
 
 	/**
@@ -532,10 +532,10 @@ abstract class Net_Server_Driver extends Hookable {
 			return $this->server;
 		}
 		if (!is_object($object)) {
-			throw new Exception_Parameter("Need an object passed to handler: " . gettype($object));
+			throw new Exception_Parameter('Need an object passed to handler: ' . gettype($object));
 		}
 		$this->server = $object;
-		if (method_exists($object, "net_server_driver")) {
+		if (method_exists($object, 'net_server_driver')) {
 			$object->net_server_driver($this);
 		}
 		return $this;

@@ -49,7 +49,7 @@ class Module_Help extends Module_JSLib {
 	 * @param Response $response
 	 */
 	public function hook_head(Request $request, Response $response, Template $template): void {
-		if (!$this->optionBool("disabled")) {
+		if (!$this->optionBool('disabled')) {
 			$response->javascript('/share/help/js/help.js', [
 				'share' => true,
 			]);
@@ -62,7 +62,7 @@ class Module_Help extends Module_JSLib {
 					$this->javascript_settings['active'] = true;
 				}
 			} catch (Database_Exception $e) {
-				$this->application->logger->debug("{class}::hook_head threw exception {e}", [
+				$this->application->logger->debug('{class}::hook_head threw exception {e}', [
 					'class' => __CLASS__,
 					'e' => $e,
 				]);
@@ -76,9 +76,9 @@ class Module_Help extends Module_JSLib {
 	 */
 	public function hook_cron_cluster(): void {
 		$application = $this->application;
-		$helps = $application->modules->all_hook_arguments("module_help", [], []);
-		$this->application->logger->notice("{class}::cron found {count} help items", [
-			"count" => count($helps),
+		$helps = $application->modules->all_hook_arguments('module_help', [], []);
+		$this->application->logger->notice('{class}::cron found {count} help items', [
+			'count' => count($helps),
 			'class' => __CLASS__,
 		]);
 		foreach ($helps as $target => $settings) {
@@ -87,7 +87,7 @@ class Module_Help extends Module_JSLib {
 					'target' => $target,
 				]);
 				if ($item) {
-					$this->application->logger->notice("Deleted help item for {target}", [
+					$this->application->logger->notice('Deleted help item for {target}', [
 						'target' => $target,
 					]);
 					$item->delete();
@@ -96,7 +96,7 @@ class Module_Help extends Module_JSLib {
 				continue;
 			}
 			$locale = $this->application->locale;
-			foreach (to_list("title", "content") as $translation_key) {
+			foreach (to_list('title', 'content') as $translation_key) {
 				if (array_key_exists($translation_key, $settings)) {
 					// Will register with localization. Is there a more explicit way to do this?
 					$locale->__($settings[$translation_key]);
@@ -106,7 +106,7 @@ class Module_Help extends Module_JSLib {
 			$help = $application->orm_factory(Help::class, $settings)->register();
 			/* @var $help Help */
 			if ($help->object_status() === ORM::object_status_insert) {
-				$this->application->logger->notice("Registered help item for {target}", [
+				$this->application->logger->notice('Registered help item for {target}', [
 					'target' => $target,
 				]);
 			} elseif ($this->optionBool('cron_update')) {
@@ -124,7 +124,7 @@ class Module_Help extends Module_JSLib {
 		$router->add_route('help/user-targets', [
 			'method' => [
 				$this,
-				"user_targets",
+				'user_targets',
 			],
 			'arguments' => [
 				'{request}',
@@ -134,7 +134,7 @@ class Module_Help extends Module_JSLib {
 		$router->add_route('help/user-reset', [
 			'method' => [
 				$this,
-				"user_reset",
+				'user_reset',
 			],
 			'arguments' => [
 				'{request}',
@@ -144,7 +144,7 @@ class Module_Help extends Module_JSLib {
 		$router->add_route('help/show', [
 			'method' => [
 				$this,
-				"user_show",
+				'user_show',
 			],
 			'arguments' => [
 				'{request}',
@@ -154,7 +154,7 @@ class Module_Help extends Module_JSLib {
 		$router->add_route('help/dismiss', [
 			'method' => [
 				$this,
-				"user_dismiss",
+				'user_dismiss',
 			],
 			'arguments' => [
 				'{request}',
@@ -176,18 +176,18 @@ class Module_Help extends Module_JSLib {
 			->query_select()
 			->link('zesk\\Help_User', [
 			'require' => false,
-			"alias" => "hu",
-			"on" => [
+			'alias' => 'hu',
+			'on' => [
 				'user' => $user,
 			],
 		])
 			->where([
-			"X.active" => true,
-			"hu.user" => null,
+			'X.active' => true,
+			'hu.user' => null,
 		]);
 		$helps = $query->orm_iterator();
 		$result = [];
-		$mappables = $application->modules->all_hook_arguments("module_help_map", [], []);
+		$mappables = $application->modules->all_hook_arguments('module_help_map', [], []);
 		if (count($mappables) === 0) {
 			$mappables = [];
 		}
@@ -231,7 +231,7 @@ class Module_Help extends Module_JSLib {
 	private function _help_auth(Request $request, Response $response) {
 		$user = $this->application->user($request, false);
 		if (!$user || !$user->authenticated($request)) {
-			$response->status(Net_HTTP::STATUS_UNAUTHORIZED, "Requires user")->json([
+			$response->status(Net_HTTP::STATUS_UNAUTHORIZED, 'Requires user')->json([
 				'error' => $this->application->locale->__('Requires user'),
 			]);
 			return null;
@@ -253,7 +253,7 @@ class Module_Help extends Module_JSLib {
 			return null;
 		}
 		if (!$this->application->development() && !$request->is_post()) {
-			$response->status(Net_HTTP::STATUS_METHOD_NOT_ALLOWED, "Requires POST")->json([
+			$response->status(Net_HTTP::STATUS_METHOD_NOT_ALLOWED, 'Requires POST')->json([
 				'error' => $this->application->locale->__('Requires POST data'),
 			]);
 			return null;
@@ -303,10 +303,10 @@ class Module_Help extends Module_JSLib {
 				])->register();
 				$result[$id] = true;
 			} else {
-				$this->application->logger->error("{class}::{method} Help {id} not found", [
-					"class" => __CLASS__,
-					"method" => __METHOD__,
-					"id" => $id,
+				$this->application->logger->error('{class}::{method} Help {id} not found', [
+					'class' => __CLASS__,
+					'method' => __METHOD__,
+					'id' => $id,
 				]);
 				$result[$id] = false;
 			}

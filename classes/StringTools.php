@@ -34,7 +34,7 @@ class StringTools {
 	 * @return array
 	 * @see pair
 	 */
-	public static function pair($string, $delim = ".", $left = null, $right = null) {
+	public static function pair($string, $delim = '.', $left = null, $right = null) {
 		return pair($string, $delim, $left, $right);
 	}
 
@@ -49,7 +49,7 @@ class StringTools {
 	 * @return array|string
 	 * @see pairr
 	 */
-	public static function pairr($string, $delim = ".", $left = null, $right = null) {
+	public static function pairr($string, $delim = '.', $left = null, $right = null) {
 		return pairr($string, $delim, $left, $right);
 	}
 
@@ -171,11 +171,11 @@ class StringTools {
 		if (function_exists('mb_convert_case')) {
 			return mb_convert_case($phrase, MB_CASE_TITLE);
 		} else {
-			$items = explode(" ", strtolower($phrase));
+			$items = explode(' ', strtolower($phrase));
 			foreach ($items as $i => $word) {
 				$items[$i] = ucfirst($word);
 			}
-			return implode(" ", $items);
+			return implode(' ', $items);
 		}
 	}
 
@@ -500,7 +500,7 @@ class StringTools {
 	 * @param string $dot_dot_dot
 	 * @return string
 	 */
-	public static function ellipsis_word(string $text, int $length = 20, string $dot_dot_dot = " ..."): string {
+	public static function ellipsis_word(string $text, int $length = 20, string $dot_dot_dot = ' ...'): string {
 		if ($length < 0) {
 			return $text;
 		}
@@ -510,7 +510,7 @@ class StringTools {
 		$text = StringTools::substr($text, 0, $length);
 		$off = 0;
 		$aa = [
-			" ",
+			' ',
 			"\n",
 			"\t",
 		];
@@ -547,7 +547,7 @@ class StringTools {
 		if ($number_length >= $length) {
 			return $number;
 		}
-		return str_repeat("0", $length - $number_length) . $number;
+		return str_repeat('0', $length - $number_length) . $number;
 	}
 
 	/**
@@ -581,7 +581,7 @@ class StringTools {
 	 * @param string $string
 	 * @return array
 	 */
-	public static function str_split(string $string, int $split_length = 1, string $encoding = "UTF-8") {
+	public static function str_split(string $string, int $split_length = 1, string $encoding = 'UTF-8') {
 		if ($split_length < 1) {
 			$split_length = 1;
 		}
@@ -609,7 +609,7 @@ class StringTools {
 	 * @return string A correctly quoted CSV value
 	 */
 	public static function csv_quote(string $x): string {
-		if ((str_contains($x, '"')) || (str_contains($x, ",")) || (str_contains($x, "\n"))) {
+		if ((str_contains($x, '"')) || (str_contains($x, ',')) || (str_contains($x, "\n"))) {
 			return '"' . str_replace('"', '""', $x) . '"';
 		}
 		return $x;
@@ -626,7 +626,7 @@ class StringTools {
 		foreach ($x as $col) {
 			$yy[] = self::csv_quote($col);
 		}
-		return implode(",", $yy) . "\r\n";
+		return implode(',', $yy) . "\r\n";
 	}
 
 	/**
@@ -637,7 +637,7 @@ class StringTools {
 	 * @return string
 	 */
 	public static function csv_quote_rows(array $x): array {
-		$yy = "";
+		$yy = '';
 		foreach ($x as $row) {
 			$yy .= self::csv_quote_row($row);
 		}
@@ -650,7 +650,7 @@ class StringTools {
 	 * @return string
 	 */
 	public static function from_camel_case(string $string): string {
-		return preg_replace_callback('/[A-Z]/', fn ($matches) => "_" . strtolower($matches[0]), $string);
+		return preg_replace_callback('/[A-Z]/', fn ($matches) => '_' . strtolower($matches[0]), $string);
 	}
 
 	/**
@@ -660,7 +660,7 @@ class StringTools {
 	 * @return string
 	 */
 	public static function to_camel_case(string $string): string {
-		$result = "";
+		$result = '';
 		foreach (explode('_', $string) as $i => $token) {
 			$result .= $i === 0 ? strtolower($token) : strtoupper($token[0]) . strtolower(substr($token, 1));
 		}
@@ -675,14 +675,14 @@ class StringTools {
 	 * @see mb_internal_encoding
 	 * @return integer
 	 */
-	public static function length(string $string, string $encoding = "UTF-8") {
-		if (function_exists("mb_strlen")) {
+	public static function length(string $string, string $encoding = 'UTF-8') {
+		if (function_exists('mb_strlen')) {
 			if ($encoding === null) {
 				$encoding = mb_internal_encoding();
 			}
 			return mb_strlen($string, $encoding);
 		}
-		if ($encoding && $encoding !== "UTF-8") {
+		if ($encoding && $encoding !== 'UTF-8') {
 			$string = UTF8::from_charset($string, $encoding);
 		}
 		return strlen(UTF8::to_iso8859($string));
@@ -699,15 +699,15 @@ class StringTools {
 	 * @see mb_substr
 	 * @return string
 	 */
-	public static function substr(string $string, int $start, int $length, string $encoding = "UTF-8"): string {
-		if (function_exists("mb_substr")) {
+	public static function substr(string $string, int $start, int $length, string $encoding = 'UTF-8'): string {
+		if (function_exists('mb_substr')) {
 			if ($encoding === null) {
 				$encoding = mb_internal_encoding();
 			}
 			return mb_substr($string, $start, $length, $encoding);
 		}
 		// Use preg_match_all to extract characters
-		if ($encoding && $encoding !== "UTF-8") {
+		if ($encoding && $encoding !== 'UTF-8') {
 			$string = UTF8::from_charset($string, $encoding);
 		}
 		preg_match_all('/./us', $string, $match);
@@ -725,7 +725,7 @@ class StringTools {
 	public static function wrap(string $phrase): string {
 		return call_user_func_array([
 			HTML::class,
-			"wrap",
+			'wrap',
 		], func_get_args());
 	}
 }

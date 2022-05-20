@@ -29,7 +29,7 @@ class Deploy extends Hookable {
 	 * @var array
 	 */
 	protected $options = [
-		"last_tag" => "-none-",
+		'last_tag' => '-none-',
 	];
 
 	/**
@@ -66,8 +66,8 @@ class Deploy extends Hookable {
 	 */
 	public static function settings_maintenance($path, Settings $settings) {
 		$app = $settings->application;
-		$setting_name = __CLASS__ . "::state";
-		$settings->deprecated("deploy", $setting_name);
+		$setting_name = __CLASS__ . '::state';
+		$settings->deprecated('deploy', $setting_name);
 		$options = to_array($settings->get($setting_name));
 
 		$deploy = new Deploy($app, $path, $options);
@@ -82,7 +82,7 @@ class Deploy extends Hookable {
 			$settings->flush();
 			$lock->release();
 		} else {
-			$app->logger->warning("Deployment is already running.");
+			$app->logger->warning('Deployment is already running.');
 		}
 		return $deploy;
 	}
@@ -203,8 +203,8 @@ class Deploy extends Hookable {
 		$results['status'] = true;
 		if (count($tags) > 0) {
 			$logger->notice('Last tag succeeded was {last_tag}', $this->options);
-			$logger->notice("Processing tags: {tags}", [
-				"tags" => _dump($tags),
+			$logger->notice('Processing tags: {tags}', [
+				'tags' => _dump($tags),
 			]);
 			foreach ($tags as $name => $subpaths) {
 				foreach ($subpaths as $subpath => $tag) {
@@ -213,8 +213,8 @@ class Deploy extends Hookable {
 						$tag,
 					], []);
 					if (!is_array($result) || !$result['status']) {
-						$logger->error("Tag failed: {tag} {message}", $result + [
-							"tag" => $tag,
+						$logger->error('Tag failed: {tag} {message}', $result + [
+							'tag' => $tag,
 						]);
 						$results['failed_tag'] = $tag;
 						$results['failed_result'] = $result;
@@ -257,11 +257,11 @@ class Deploy extends Hookable {
 		$status = true;
 
 		try {
-			$this->application->logger->notice("Including PHP file {path}", compact("path"));
+			$this->application->logger->notice('Including PHP file {path}', compact('path'));
 			$app = $application = $this->application;
 			$result = @include $path;
 		} catch (\Exception $e) {
-			$this->application->hooks->call("exception", $e);
+			$this->application->hooks->call('exception', $e);
 			$status = false;
 			$result = null;
 		}
@@ -286,10 +286,10 @@ class Deploy extends Hookable {
 		$status = true;
 
 		try {
-			$this->application->logger->notice("Loading template {path}", compact("path"));
+			$this->application->logger->notice('Loading template {path}', compact('path'));
 			$content = new Template($this->application, $path);
 		} catch (\Exception $e) {
-			$this->application->hooks->call("exception", $e);
+			$this->application->hooks->call('exception', $e);
 			$status = false;
 		}
 		return [
@@ -327,10 +327,10 @@ class Deploy extends Hookable {
 					$result['applied'][] = $sql;
 				}
 			} catch (\Exception $e) {
-				$this->application->hooks->call("exception", $e);
-				$result['message'] = map("Exception {class}: {message}", [
-					"class" => get_class($e),
-					"message" => $e->getMessage(),
+				$this->application->hooks->call('exception', $e);
+				$result['message'] = map('Exception {class}: {message}', [
+					'class' => get_class($e),
+					'message' => $e->getMessage(),
 				]);
 				$result['exception'] = $e;
 				$result['exception_sql'] = $sql;

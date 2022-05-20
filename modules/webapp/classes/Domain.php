@@ -23,8 +23,8 @@ use zesk\Timestamp;
 class Domain extends ORM {
 	public function accessed() {
 		$this->query_update()
-			->value("accessed", Timestamp::now())
-			->where("id", $this->id())
+			->value('accessed', Timestamp::now())
+			->where('id', $this->id())
 			->execute();
 		return $this;
 	}

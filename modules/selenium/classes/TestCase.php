@@ -12,7 +12,7 @@ use zesk\Exception_Configuration;
  */
 class TestCase extends \zesk\PHPUnit_TestCase {
 	protected array $load_modules = [
-		"selenium/php-webdriver-facebook",
+		'selenium/php-webdriver-facebook',
 	];
 
 	/**
@@ -66,7 +66,7 @@ class TestCase extends \zesk\PHPUnit_TestCase {
 				$host = $this->option('host');
 				if (!$host) {
 					throw new Exception_Configuration('{class}::host or ::url needs to be set to a Selenium server', [
-						"class" => get_class($this),
+						'class' => get_class($this),
 					]);
 				}
 				$webdriver_url = "http://$host:4444/wd/hub";
@@ -78,7 +78,7 @@ class TestCase extends \zesk\PHPUnit_TestCase {
 				$timeout = $this->timeout;
 			}
 			if ($this->debug) {
-				$this->application->logger->debug("Connecting to {webdriver_url} {capabilities} {timeout}", compact("webdriver_url", "capabilities", "timeout"));
+				$this->application->logger->debug('Connecting to {webdriver_url} {capabilities} {timeout}', compact('webdriver_url', 'capabilities', 'timeout'));
 			}
 			$this->driver = \RemoteWebDriver::create($webdriver_url, $capabilities, $timeout);
 		}

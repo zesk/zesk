@@ -28,7 +28,7 @@ class Control_ORM_Checklist extends Control_Checklist {
 	 * @param array $where
 	 */
 	public function where(array $where = null) {
-		return is_array($where) ? $this->setOption("where", $where) : $this->option_array("where");
+		return is_array($where) ? $this->setOption('where', $where) : $this->option_array('where');
 	}
 
 	/**
@@ -41,9 +41,9 @@ class Control_ORM_Checklist extends Control_Checklist {
 		$this->objects = [];
 		$control_options = [];
 		$query = $this->application->orm_registry($this->class)->query_select();
-		$query->where($this->option_array("where"));
+		$query->where($this->option_array('where'));
 		$query->order_by($this->option('order_by', $name_col));
-		$this->call_hook("options_query", $query);
+		$this->call_hook('options_query', $query);
 		$iterator = $query->orm_iterator();
 		foreach ($iterator as $id => $object) {
 			$this->objects[$id] = $object;
@@ -62,7 +62,7 @@ class Control_ORM_Checklist extends Control_Checklist {
 	 */
 	public function theme_variables() {
 		return parent::theme_variables() + [
-			"control_objects" => $this->objects,
+			'control_objects' => $this->objects,
 		];
 	}
 }

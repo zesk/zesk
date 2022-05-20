@@ -14,7 +14,7 @@ namespace zesk;
  *
  */
 class Control_Checklist extends Control_Optionss {
-	public const option_checklist_exclusive = "checklist_exclusive";
+	public const option_checklist_exclusive = 'checklist_exclusive';
 
 	/**
 	 *
@@ -62,10 +62,10 @@ class Control_Checklist extends Control_Optionss {
 			return $this;
 		}
 
-		throw new Exception_Parameter("{method} {name} {id} Widget not support for value {type} {value}", [
-			"method" => __METHOD__,
-			"type" => gettype($value),
-			"value" => $value,
+		throw new Exception_Parameter('{method} {name} {id} Widget not support for value {type} {value}', [
+			'method' => __METHOD__,
+			'type' => gettype($value),
+			'value' => $value,
 		] + $this->options);
 	}
 
@@ -85,14 +85,14 @@ class Control_Checklist extends Control_Optionss {
 			$this->_init_children($options);
 		} else {
 			$this->control_options = $this->call_hook_arguments('options', [], $this->control_options);
-			$this->call_hook("control_options_changed");
+			$this->call_hook('control_options_changed');
 		}
 		parent::initialize();
 	}
 
 	private function control_checkbox_factory($name, $col, $label, $value) {
 		return $this->widget_factory(Control_Checkbox::class, [
-			'name' => $name . "[]",
+			'name' => $name . '[]',
 			'column' => $col,
 			'id' => $col,
 			'label_checkbox' => $label,
@@ -101,7 +101,7 @@ class Control_Checklist extends Control_Optionss {
 	}
 
 	private function _child_name($value) {
-		return "checklist-" . $this->name() . "-$value";
+		return 'checklist-' . $this->name() . "-$value";
 	}
 
 	/**
@@ -131,12 +131,12 @@ class Control_Checklist extends Control_Optionss {
 	 * Hook intialized
 	 */
 	protected function hook_initialized(): void {
-		$values = $this->call_hook_arguments("object_value", [], []);
+		$values = $this->call_hook_arguments('object_value', [], []);
 		if (can_iterate($values)) {
 			foreach ($values as $value => $label) {
 				$value = strval($value);
 				if (array_key_exists($value, $this->widgets_id)) {
-					$this->widgets_id[$value]->setOption("checked", true);
+					$this->widgets_id[$value]->setOption('checked', true);
 				}
 			}
 		}
@@ -173,7 +173,7 @@ class Control_Checklist extends Control_Optionss {
 		foreach ($values as $value) {
 			$child = $this->child($this->_child_name($value));
 			if ($child) {
-				$child->setOption("checked", true);
+				$child->setOption('checked', true);
 			}
 		}
 		$column = $this->column();

@@ -46,8 +46,8 @@ abstract class Server_Configuration extends Hookable {
 
 	public static function factory($type, Server_Platform $platform, $options = null) {
 		if (empty($type)) {
-			throw new Exception_Parameter("No Configuration type passed to {class}::factory", [
-				"class" => __CLASS__,
+			throw new Exception_Parameter('No Configuration type passed to {class}::factory', [
+				'class' => __CLASS__,
 			]);
 		}
 		$class = "Server_Configuration_$type";
@@ -69,7 +69,7 @@ abstract class Server_Configuration extends Hookable {
 	}
 
 	private function validate_type_before($type, $name, $value) {
-		if (ends($type, " list")) {
+		if (ends($type, ' list')) {
 			if (!is_array($value)) {
 				throw new Exception_Semantics("Setting $name of type $type should be an array: " . gettype($value));
 			}
@@ -85,7 +85,7 @@ abstract class Server_Configuration extends Hookable {
 	}
 
 	private function validate_type_after($type, $name, $value) {
-		if (StringTools::ends($type, " list")) {
+		if (StringTools::ends($type, ' list')) {
 			if (!is_array($value)) {
 				throw new Exception_Semantics("Setting $name of type $type should be an array: " . gettype($value));
 			}
@@ -102,21 +102,21 @@ abstract class Server_Configuration extends Hookable {
 
 	private function _validate_type_before($type, $name, $value) {
 		switch ($type) {
-			case "path":
+			case 'path':
 				return File::path_check($value) !== false;
-			case "file":
+			case 'file':
 				return File::path_check($value) !== false;
-			case "package":
+			case 'package':
 				return $this->packager->package_exists($value);
-			case "feature":
+			case 'feature':
 				return $this->platform->feature_exists($name);
-			case "executable":
+			case 'executable':
 				return File::path_check($value) !== false;
-			case "user":
+			case 'user':
 				return $this->platform->validate_user_name($value);
-			case "group":
+			case 'group':
 				return $this->platform->validate_group_name($value);
-			case "owner":
+			case 'owner':
 				return $this->platform->validate_owner_name($value);
 			default:
 				throw new Exception_Semantics("Unknown type \"$type\" supplied for name $name");
@@ -125,21 +125,21 @@ abstract class Server_Configuration extends Hookable {
 
 	private function _validate_type_after($type, $name, $value) {
 		switch ($type) {
-			case "path":
+			case 'path':
 				return is_string($value) && is_dir($value);
-			case "file":
+			case 'file':
 				return is_string($value) && is_file($value);
-			case "package":
+			case 'package':
 				return $this->packager->package_installed($name);
-			case "feature":
+			case 'feature':
 				return $this->platform->feature_installed($name);
-			case "executable":
+			case 'executable':
 				return is_string($value) && is_executable($value);
-			case "user":
+			case 'user':
 				return $this->platform->user_exists($name);
-			case "group":
+			case 'group':
 				return $this->platform->group_exists($name);
-			case "owner":
+			case 'owner':
 				return $this->platform->owner_exists($name);
 			default:
 				throw new Exception_Semantics("Unknown type \"$type\" supplied for name $name");
@@ -255,19 +255,19 @@ abstract class Server_Configuration extends Hookable {
 	}
 
 	public function path($name, $set = null) {
-		return $this->variable($name, "path", $set);
+		return $this->variable($name, 'path', $set);
 	}
 
 	public function executable($name, $set = null) {
-		return $this->variable($name, "executable", $set);
+		return $this->variable($name, 'executable', $set);
 	}
 
 	public function feature_dependency_list($name, $set = null) {
-		return $this->variable($name, "feature", $set);
+		return $this->variable($name, 'feature', $set);
 	}
 
 	public function package_dependency_list($name, $set = null) {
-		return $this->variable($name, "package list", $set);
+		return $this->variable($name, 'package list', $set);
 	}
 
 	public function type_list($name, $type, $set = null) {
@@ -275,13 +275,13 @@ abstract class Server_Configuration extends Hookable {
 	}
 
 	public function user_list($name, $set = null) {
-		return $this->type_list($name, "user", "list", $set);
+		return $this->type_list($name, 'user', 'list', $set);
 	}
 
 	public function variable($name, $type, $set = null) {
 		$k = self::_option_key($name);
-		$value = apath($this->options, $k, null, "::");
-		$registered_type = apath($this->variable_types, $k, null, "::");
+		$value = apath($this->options, $k, null, '::');
+		$registered_type = apath($this->variable_types, $k, null, '::');
 		assert($registered_type === $type);
 		if ($set !== null) {
 			apath_set($this->options, $k, $set);

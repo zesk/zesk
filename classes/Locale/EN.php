@@ -24,7 +24,7 @@ class Locale_EN extends Locale {
 	 * @see \zesk\Locale::date_format()
 	 */
 	public function date_format(): string {
-		return "{MMMM} {DDD}, {YYYY}";
+		return '{MMMM} {DDD}, {YYYY}';
 	}
 
 	/**
@@ -33,7 +33,7 @@ class Locale_EN extends Locale {
 	 * @see \zesk\Locale::datetime_format()
 	 */
 	public function datetime_format(): string {
-		return "{MMMM} {DDD}, {YYYY} {12hh}:{mm} {AMPM}";
+		return '{MMMM} {DDD}, {YYYY} {12hh}:{mm} {AMPM}';
 	}
 
 	/**
@@ -42,7 +42,7 @@ class Locale_EN extends Locale {
 	 * @see \zesk\Locale::time_format()
 	 */
 	public function time_format(bool $include_seconds = false): string {
-		return $include_seconds ? "{12h}:{mm}:{ss} {ampm}" : "{12h}:{mm} {AMPM}";
+		return $include_seconds ? '{12h}:{mm}:{ss} {ampm}' : '{12h}:{mm} {AMPM}';
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Locale_EN extends Locale {
 	 */
 	#[Pure]
 	public function possessive(string $owner, string $object): string {
-		if (ends($owner, "s")) {
+		if (ends($owner, 's')) {
 			return "$owner' $object";
 		} else {
 			return "$owner's $object";
@@ -67,14 +67,14 @@ class Locale_EN extends Locale {
 	 */
 	private function plural_en_exception(string $s): string|null {
 		$exceptions = [
-			"day" => "days",
-			"staff" => "staff",
-			"sheep" => "sheep",
-			"octopus" => "octopi",
-			"news" => "news",
-			"person" => "people",
-			"woman" => "women",
-			"man" => "men",
+			'day' => 'days',
+			'staff' => 'staff',
+			'sheep' => 'sheep',
+			'octopus' => 'octopi',
+			'news' => 'news',
+			'person' => 'people',
+			'woman' => 'women',
+			'man' => 'men',
 		];
 		$ss = $exceptions[strtolower($s)] ?? null;
 		if ($ss) {
@@ -99,17 +99,17 @@ class Locale_EN extends Locale {
 		}
 		$s2 = strtolower(substr($word, -2));
 		switch ($s2) {
-			case "ay":
-				return StringTools::case_match($word . "s", $word);
+			case 'ay':
+				return StringTools::case_match($word . 's', $word);
 		}
 		$s1 = substr($s2, 1, 1);
 		switch ($s1) {
 			case 'z':
 			case 's':
 			case 'x':
-				return StringTools::case_match($word . "es", $word);
+				return StringTools::case_match($word . 'es', $word);
 			case 'y':
-				return StringTools::case_match(substr($word, 0, -1) . "ies", $word);
+				return StringTools::case_match(substr($word, 0, -1) . 'ies', $word);
 		}
 		return $word . 's';
 	}
@@ -126,12 +126,12 @@ class Locale_EN extends Locale {
 		$caps = $context['capitalize'] ?? false;
 		$check_word = strtolower($word);
 		$first_letter = substr($check_word, 0, 1);
-		$article = "a";
-		if (str_contains("aeiouh", $first_letter)) {
-			if (StringTools::begins($check_word, explode(";", "eur;un;uni;use;u.;one-"))) {
-				$article = "a";
+		$article = 'a';
+		if (str_contains('aeiouh', $first_letter)) {
+			if (StringTools::begins($check_word, explode(';', 'eur;un;uni;use;u.;one-'))) {
+				$article = 'a';
 			} else { // Removed hon for honor, honest
-				$article = "an";
+				$article = 'an';
 			}
 		}
 		return ($caps ? ucfirst($article) : $article);
@@ -146,14 +146,14 @@ class Locale_EN extends Locale {
 		$n = floatval($n);
 		$mod_100 = $n % 100;
 		if ($mod_100 > 10 && $mod_100 < 20) {
-			return $n . "th";
+			return $n . 'th';
 		}
 		$mod_10 = $n % 10;
 		return $n . avalue([
-				1 => "st",
-				2 => "nd",
-				3 => "rd",
-			], $mod_10, "th");
+				1 => 'st',
+				2 => 'nd',
+				3 => 'rd',
+			], $mod_10, 'th');
 	}
 
 	/**
@@ -162,18 +162,18 @@ class Locale_EN extends Locale {
 	 * {@inheritDoc}
 	 * @see \zesk\Locale::negate_word()
 	 */
-	public function negate_word(string $word, string $preferred_prefix = ""): string {
-		if ($preferred_prefix === "") {
-			$preferred_prefix = "Non-";
+	public function negate_word(string $word, string $preferred_prefix = ''): string {
+		if ($preferred_prefix === '') {
+			$preferred_prefix = 'Non-';
 		}
 		$word = trim($word);
 		$negative_prefixes = [
-			"not-",
-			"non-",
-			"un-",
-			"not",
-			"non",
-			"un",
+			'not-',
+			'non-',
+			'un-',
+			'not',
+			'non',
+			'un',
 		];
 		foreach ($negative_prefixes as $prefix) {
 			if (begins($word, $prefix, true)) {

@@ -10,12 +10,12 @@ namespace zesk;
 
 class View_Checkbox extends View {
 	public function render() {
-		$true_value = $this->option("true_value", $this->option("truevalue", true));
+		$true_value = $this->option('true_value', $this->option('truevalue', true));
 		//		$false_value	= $this->option("false_value", $this->option("falsevalue", true));
-		$ts = $this->option("true_string", $this->option("truestring", "Yes"));
-		$fs = $this->option("false_string", $this->option("falsestring", "No"));
+		$ts = $this->option('true_string', $this->option('truestring', 'Yes'));
+		$fs = $this->option('false_string', $this->option('falsestring', 'No'));
 		$v = $this->value();
-		if ($this->optionBool("null_check")) {
+		if ($this->optionBool('null_check')) {
 			if ($true_value === null) {
 				$is_true = ($v === null);
 			} else {

@@ -33,7 +33,7 @@ class JavaScript {
 		foreach ($args as $arg) {
 			$json[] = JSON::encodex($arg);
 		}
-		return implode(", ", $json);
+		return implode(', ', $json);
 	}
 
 	/**
@@ -44,7 +44,7 @@ class JavaScript {
 	 */
 	public static function obfuscate_begin(): void {
 		if (self::$obfuscated) {
-			throw new Exception_Semantics("Already called obfuscate_begin");
+			throw new Exception_Semantics('Already called obfuscate_begin');
 		}
 		self::$obfuscated = true;
 		ob_start();
@@ -59,29 +59,29 @@ class JavaScript {
 	 */
 	public static function obfuscate_end($function_map = []) {
 		if (!self::$obfuscated) {
-			throw new Exception_Semantics("Need to call obfuscate_begin first");
+			throw new Exception_Semantics('Need to call obfuscate_begin first');
 		}
 		self::$obfuscated = false;
 		if (!is_array($function_map)) {
 			$function_map = [];
 		}
 		$formatting = [
-			"\t" => " ",
-			"\n" => "",
-			"  " => " ",
-			", " => ",",
-			" {" => "{",
-			"{ " => "{",
-			" =" => "=",
-			"= " => "=",
-			"; " => ";",
-			"+ " => "+",
-			" +" => "+",
-			"} " => "}",
-			"if (" => "if(",
-			") {" => "){",
-			" if(" => "if(",
-			"elseif" => "else if",
+			"\t" => ' ',
+			"\n" => '',
+			'  ' => ' ',
+			', ' => ',',
+			' {' => '{',
+			'{ ' => '{',
+			' =' => '=',
+			'= ' => '=',
+			'; ' => ';',
+			'+ ' => '+',
+			' +' => '+',
+			'} ' => '}',
+			'if (' => 'if(',
+			') {' => '){',
+			' if(' => 'if(',
+			'elseif' => 'else if',
 		];
 		$js = ob_get_clean();
 		$formatting = array_merge($formatting, $function_map);
@@ -107,7 +107,7 @@ class JavaScript {
 	 */
 	public static function null(mixed $x): string {
 		if (empty($x)) {
-			return "null";
+			return 'null';
 		}
 		return strval($x);
 	}
@@ -120,7 +120,7 @@ class JavaScript {
 	 * @return string
 	 */
 	public static function clean_code(array $javascript): string {
-		return implode(";\n", ArrayTools::unsuffix(ArrayTools::trim_clean($javascript, " ", ""), ";"));
+		return implode(";\n", ArrayTools::unsuffix(ArrayTools::trim_clean($javascript, ' ', ''), ';'));
 	}
 
 	/**
@@ -130,7 +130,7 @@ class JavaScript {
 	 * @return string Quoted and properly escaped JavaScript string
 	 */
 	public static function string(string $x): string {
-		$x = str_replace("'", "\\'", $x);
+		$x = str_replace('\'', '\\\'', $x);
 		$x = str_replace("\n", "\\n' +\n'", $x);
 		return "'$x'";
 	}

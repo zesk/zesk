@@ -92,7 +92,7 @@ class Database_Result_Iterator implements \Iterator {
 	 * @param Database_Query_Select $query
 	 *            Executed query to iterate
 	 */
-	public function __construct(Database_Query_Select_Base $query, string $key = "", string $value = "") {
+	public function __construct(Database_Query_Select_Base $query, string $key = '', string $value = '') {
 		$this->query = $query;
 		$this->db = $query->database();
 		$this->resource = null;
@@ -125,7 +125,7 @@ class Database_Result_Iterator implements \Iterator {
 	 *            Value to use
 	 * @return Database_Result_Iterator
 	 */
-	public function set_key_value(string $key = "", string $value = ""): self {
+	public function set_key_value(string $key = '', string $value = ''): self {
 		$this->_key = $key;
 		$this->_value = $value;
 		return $this;
@@ -170,7 +170,7 @@ class Database_Result_Iterator implements \Iterator {
 		}
 		if ($this->_value) {
 			if (!array_key_exists($this->_value, $this->_row)) {
-				throw new Exception_Semantics(__("Query result does not contain value \"{value}\"", ["value" => $this->_value, ]));
+				throw new Exception_Semantics(__('Query result does not contain value "{value}"', ['value' => $this->_value, ]));
 			}
 			return $this->_row[$this->_value];
 		}
@@ -185,7 +185,7 @@ class Database_Result_Iterator implements \Iterator {
 	public function key(): mixed {
 		if ($this->_key) {
 			if (!array_key_exists($this->_key, $this->_row)) {
-				throw new Exception_Semantics(__("Query result does not contain key {key}", ["key" => $this->_key, ]));
+				throw new Exception_Semantics(__('Query result does not contain key {key}', ['key' => $this->_key, ]));
 			}
 			return $this->_row[$this->_key];
 		}
@@ -199,7 +199,7 @@ class Database_Result_Iterator implements \Iterator {
 	 * @deprecated 2022-01
 	 */
 	protected function dbnext(): void {
-		$this->db->application->deprecated("dbnext()");
+		$this->db->application->deprecated('dbnext()');
 		$this->database_next();
 	}
 
@@ -295,7 +295,7 @@ class Database_Result_Iterator implements \Iterator {
 		}
 		$query = $this->query->__toString();
 		if ($this->_debug) {
-			$this->db->application->logger->debug("{class}: {query}", ['class' => get_class($this), "query" => $query]);
+			$this->db->application->logger->debug('{class}: {query}', ['class' => get_class($this), 'query' => $query]);
 		}
 		$this->resource = $this->unbuffered ? $this->db->query_unbuffered($query) : $this->db->query($query);
 		$this->_row_index = -1;

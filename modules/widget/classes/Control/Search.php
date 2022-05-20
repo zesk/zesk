@@ -28,7 +28,7 @@ class Control_Search extends Control_Text {
 
 	public function hook_query(Database_Query_Select $query): void {
 		$value = $this->value();
-		if ($value === "" || $value === null) {
+		if ($value === '' || $value === null) {
 			return;
 		}
 		$search_values = trim($value);
@@ -39,13 +39,13 @@ class Control_Search extends Control_Text {
 		foreach ($search_values as $search_value) {
 			$value_where = [];
 			foreach ($this->search_columns as $col) {
-				$value_where[$col . "|%"] = $search_value;
+				$value_where[$col . '|%'] = $search_value;
 			}
 			$where[] = $value_where;
 		}
 		$query->where($where);
-		$query->condition($this->application->locale->__("match the string \"{q}\"", [
-			"q" => $value,
+		$query->condition($this->application->locale->__('match the string "{q}"', [
+			'q' => $value,
 		]));
 	}
 

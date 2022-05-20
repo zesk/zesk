@@ -16,7 +16,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * @var string
 	 */
-	public const option_theme_path_prefix = "theme_path_prefix";
+	public const option_theme_path_prefix = 'theme_path_prefix';
 
 	/**
 	 *
@@ -37,7 +37,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 				$this->__set($k, $v);
 			}
 		}
-		$this->call_hook("construct");
+		$this->call_hook('construct');
 	}
 
 	/**
@@ -51,10 +51,10 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	?Model {
 		$object = $application->factory($class, $application, $value, $options);
 		if (!$object instanceof Model) {
-			throw new Exception_Semantics("{method}({class}) is not a subclass of {object_class}", [
-				"method" => __METHOD__,
-				"class" => $class,
-				"object_class" => __CLASS__,
+			throw new Exception_Semantics('{method}({class}) is not a subclass of {object_class}', [
+				'method' => __METHOD__,
+				'class' => $class,
+				'object_class' => __CLASS__,
 			]);
 		}
 		return $object->polymorphic_child();
@@ -103,8 +103,8 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @return self
 	 */
 	public function setId(mixed $set): self {
-		throw new Exception_Unimplemented("Model of {class} does not support setting ID", [
-			"class" => get_class($this),
+		throw new Exception_Unimplemented('Model of {class} does not support setting ID', [
+			'class' => get_class($this),
 		]);
 	}
 
@@ -249,11 +249,11 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 */
 	public function get(mixed $mixed = null, mixed $default = null) {
 		if (is_array($mixed)) {
-			$this->application->deprecated("getMultiple instead");
+			$this->application->deprecated('getMultiple instead');
 			return $this->getMultiple($mixed);
 		}
 		if (!is_scalar($mixed)) {
-			throw new Exception_Parameter("Not sure how to handle type " . gettype($mixed));
+			throw new Exception_Parameter('Not sure how to handle type ' . gettype($mixed));
 		}
 		if (!$this->__isset($mixed)) {
 			return $default;
@@ -284,7 +284,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 */
 	public function has(mixed $mixed = null): bool {
 		if (is_array($mixed)) {
-			$this->application->deprecated("hasAny instead");
+			$this->application->deprecated('hasAny instead');
 			return $this->hasAny($mixed);
 		}
 		if (is_scalar($mixed)) {
@@ -320,9 +320,9 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 		} elseif (is_scalar($mixed) && !empty($mixed)) {
 			$this->__set($mixed, $value);
 		} else {
-			throw new Exception_Parameter("Model::set({mixed}, {value}) Not sure how to handle 1st parameter", [
-				"mixed" => JSON::encode($mixed),
-				"value" => PHP::dump($value),
+			throw new Exception_Parameter('Model::set({mixed}, {value}) Not sure how to handle 1st parameter', [
+				'mixed' => JSON::encode($mixed),
+				'value' => PHP::dump($value),
 			]);
 		}
 		return $this;
@@ -389,8 +389,8 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 			return $name;
 		}
 		return strtr(strtolower($name), [
-			"_" => "/",
-			"\\" => "/",
+			'_' => '/',
+			'\\' => '/',
 		]);
 	}
 
@@ -413,10 +413,10 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	public function theme_paths($theme_names) {
 		if ($theme_names === null) {
 			$theme_names = [
-				$this->option("default_theme", "view"),
+				$this->option('default_theme', 'view'),
 			];
 		} elseif (is_string($theme_names)) {
-			if ($theme_names[0] === "/" || $theme_names[0] === ".") {
+			if ($theme_names[0] === '/' || $theme_names[0] === '.') {
 				return [
 					$theme_names,
 				];
@@ -430,10 +430,10 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 		$result = [];
 		$hier = $this->application->classes->hierarchy(get_class($this), __CLASS__);
 		foreach ($hier as $class) {
-			$result = array_merge($result, ArrayTools::prefix($theme_names, $class . "/"));
+			$result = array_merge($result, ArrayTools::prefix($theme_names, $class . '/'));
 		}
 		if ($this->hasOption(self::option_theme_path_prefix)) {
-			$result_prefix = ArrayTools::prefix($result, rtrim($this->option(self::option_theme_path_prefix), "/") . "/");
+			$result_prefix = ArrayTools::prefix($result, rtrim($this->option(self::option_theme_path_prefix), '/') . '/');
 			$result = array_merge($result_prefix, $result);
 		}
 
@@ -451,7 +451,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *        	Default value if no theme is found
 	 * @return string
 	 */
-	public function theme($theme_name = null, $variables = null, $default = "") {
+	public function theme($theme_name = null, $variables = null, $default = '') {
 		$variables = is_string($variables) ? [
 			'content' => $variables,
 		] : (array) $variables;
@@ -460,8 +460,8 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 			strtolower(get_class($this)) => $this,
 		];
 		return $this->application->theme($this->theme_paths($theme_name), $variables, [
-			"default" => $default,
-			"first" => true,
+			'default' => $default,
+			'first' => true,
 		]);
 	}
 

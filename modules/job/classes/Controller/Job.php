@@ -16,8 +16,8 @@ class Controller_Job extends Controller {
 		} else {
 			$result['progress'] = 100;
 			$result['completed'] = $job->completed;
-			if ($job->has_data("content")) {
-				$result['content'] = $job->data("content");
+			if ($job->has_data('content')) {
+				$result['content'] = $job->data('content');
 			}
 		}
 		$this->json($result);

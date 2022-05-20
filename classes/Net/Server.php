@@ -13,12 +13,12 @@ abstract class Net_Server {
 	/**
 	 * Net_Server_Driver_Fork
 	 */
-	public const type_fork = "Fork";
+	public const type_fork = 'Fork';
 
 	/**
 	 * Net_Server_Driver_Single
 	 */
-	public const type_single = "Single";
+	public const type_single = 'Single';
 
 	/**
 	 * Override in subclasses to set the default driver type
@@ -55,10 +55,10 @@ abstract class Net_Server {
 			throw new Exception_Unimplemented("No such server type: $type");
 		}
 		if ($host === null) {
-			$host = "0.0.0.0";
+			$host = '0.0.0.0';
 		}
 		if ($port === null || ($port <= 0 || $port >= 65535)) {
-			throw new Exception_Parameter("Net_Server requires a nueric port between 1 and 65535 to be specified");
+			throw new Exception_Parameter('Net_Server requires a nueric port between 1 and 65535 to be specified');
 		}
 		$this->driver = $application->objects->factory(__NAMESPACE__ . "\\Net_Server_Driver_$type", $this, $host, $port);
 	}
@@ -84,7 +84,7 @@ abstract class Net_Server {
 	 }
 
 	 */
-	abstract public function hook_receive($client_id = 0, $data = "");
+	abstract public function hook_receive($client_id = 0, $data = '');
 
 	protected function send($client_id, $data): void {
 		$this->driver->write($client_id, $data);

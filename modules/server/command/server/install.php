@@ -22,7 +22,7 @@ class Command_Server_Install extends Command {
 	 *
 	 * @var string
 	 */
-	protected $help = "Run server software installation and configuration, ensuring this server is up-to-date.";
+	protected $help = 'Run server software installation and configuration, ensuring this server is up-to-date.';
 
 	/**
 	 * Command-line options for this command
@@ -48,7 +48,7 @@ class Command_Server_Install extends Command {
 		'server-url' => 'Remote URL to configure this server (implies configure-type "client")',
 		'simulate-path' => 'Local directory to output root configuration steps',
 		'configure-type' => 'One of "files" or "server"',
-		'*' => "A list of specific features to configure",
+		'*' => 'A list of specific features to configure',
 	];
 
 	protected array $option_defaults = [
@@ -60,8 +60,8 @@ class Command_Server_Install extends Command {
 	protected function run(): void {
 		$this->configure('server-install');
 
-		$this->verbose_log("Running {class}", [
-			"class" => __CLASS__,
+		$this->verbose_log('Running {class}', [
+			'class' => __CLASS__,
 		]);
 
 		try {
@@ -70,23 +70,23 @@ class Command_Server_Install extends Command {
 		} catch (Exception $e) {
 			$this->usage($e->getMessage());
 		}
-		$this->verbose_log("Configuring {class}", [
-			"class" => get_class($platform),
+		$this->verbose_log('Configuring {class}', [
+			'class' => get_class($platform),
 		]);
 
 		$features = null;
 		if ($this->has_arg()) {
 			$features = [];
 			do {
-				$feature = $this->get_arg("feature");
+				$feature = $this->get_arg('feature');
 				if ($platform->feature_exists($feature)) {
 					$features[] = $feature;
 				} else {
-					$this->error("Ignoring feature {feature} - unknown", compact("feature"));
+					$this->error('Ignoring feature {feature} - unknown', compact('feature'));
 				}
 			} while ($this->has_arg());
 			if (count($features) === 0) {
-				$this->usage("No features to configure, aborting.");
+				$this->usage('No features to configure, aborting.');
 			}
 		}
 		$platform->configure($features);

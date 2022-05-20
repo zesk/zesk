@@ -9,13 +9,13 @@ namespace zesk;
 
 class CSV_Reader_Test extends Test_Unit {
 	protected array $load_modules = [
-		"CSV",
+		'CSV',
 	];
 
 	public function sample_reader() {
 		$x = new CSV_Reader_Map();
 
-		$f = $this->test_sandbox("test.csv");
+		$f = $this->test_sandbox('test.csv');
 		file_put_contents($f, "A,B,C,D,E,F,G\n0,1,2,3,4,5,6\na,b,c,d,e,f,g\n");
 		$x->filename($f);
 
@@ -26,9 +26,9 @@ class CSV_Reader_Test extends Test_Unit {
 	public function test_main(): void {
 		$x = $this->sample_reader();
 		$map = [
-			"A" => "Dude",
+			'A' => 'Dude',
 		];
-		$x->read_map("Hello", $map);
+		$x->read_map('Hello', $map);
 
 		$x->read_map();
 
@@ -36,7 +36,7 @@ class CSV_Reader_Test extends Test_Unit {
 
 		try {
 			$name = null;
-			$x->read_map("nokey");
+			$x->read_map('nokey');
 		} catch (Exception_Key $e) {
 			$success = true;
 		}
@@ -54,10 +54,10 @@ class CSV_Reader_Test extends Test_Unit {
 
 		$headers = [
 			[
-				"A",
-				"B",
-				"C",
-				"D",
+				'A',
+				'B',
+				'C',
+				'D',
 			],
 		];
 		$is_map = false;
@@ -77,10 +77,10 @@ class CSV_Reader_Test extends Test_Unit {
 		$x = $this->sample_reader();
 		$success = false;
 		$map = [
-			"Dude" => "X",
+			'Dude' => 'X',
 		];
 		$mapTypes = null;
 		$defaultMap = null;
-		$x->read_map("Hello", $map, $mapTypes, $defaultMap);
+		$x->read_map('Hello', $map, $mapTypes, $defaultMap);
 	}
 }

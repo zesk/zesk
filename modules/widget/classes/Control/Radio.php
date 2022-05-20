@@ -9,9 +9,9 @@ namespace zesk;
 
 class Control_Radio extends Control_Optionss {
 	private function _check_refresh() {
-		if ($this->optionBool("refresh")) {
-			if ($this->request->get($this->name() . "_cont")) {
-				$this->message($this->column(), $this->option("continue_message", "Form was updated"));
+		if ($this->optionBool('refresh')) {
+			if ($this->request->get($this->name() . '_cont')) {
+				$this->message($this->column(), $this->option('continue_message', 'Form was updated'));
 				return false;
 			}
 		}
@@ -20,8 +20,8 @@ class Control_Radio extends Control_Optionss {
 
 	public function validate() {
 		$name = $this->name();
-		$v = $this->request->get($name, $this->option("default", null));
-		$opts = $this->option_array("options", []);
+		$v = $this->request->get($name, $this->option('default', null));
+		$opts = $this->option_array('options', []);
 		if (array_key_exists($v, $opts)) {
 			$this->value($v);
 		}

@@ -278,7 +278,7 @@ class Base {
 			}
 		}
 
-		throw new Exception("No middle snake found?");
+		throw new Exception('No middle snake found?');
 
 		return -1;
 	}

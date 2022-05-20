@@ -21,21 +21,21 @@ class Command_LessC extends Command_File_Convert {
 	 *
 	 * @var string
 	 */
-	protected $source_extension_pattern = "less";
+	protected $source_extension_pattern = 'less';
 
 	/**
 	 * What're we converting it into?
 	 *
 	 * @var string
 	 */
-	protected $destination_extension = "css";
+	protected $destination_extension = 'css';
 
 	/**
 	 * How should this command be configured when running on its own
 	 *
 	 * @var string
 	 */
-	protected $configuration_file = "lessc";
+	protected $configuration_file = 'lessc';
 
 	/**
 	 *

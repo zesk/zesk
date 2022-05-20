@@ -15,7 +15,7 @@ use zesk\Text;
  * @author kent
  */
 class Command_Cron extends \zesk\Command_Base {
-	protected $help = "Run zesk cron hooks";
+	protected $help = 'Run zesk cron hooks';
 
 	protected array $option_types = [
 		'list' => 'boolean',
@@ -32,14 +32,14 @@ class Command_Cron extends \zesk\Command_Base {
 	public function run() {
 		try {
 			/* @var $cron Module */
-			$cron = $this->application->modules->object("cron");
+			$cron = $this->application->modules->object('cron');
 		} catch (Exception_NotFound $e) {
-			$this->error("Cron module is not enabled");
+			$this->error('Cron module is not enabled');
 			return 1;
 		}
 		if ($this->optionBool('reset')) {
 			$result = $cron->reset();
-			$this->verbose_log($result ? "Cron reset" : "Cron reset failed");
+			$this->verbose_log($result ? 'Cron reset' : 'Cron reset failed');
 			return $result ? 0 : 1;
 		}
 		if ($this->optionBool('list')) {
@@ -66,9 +66,9 @@ class Command_Cron extends \zesk\Command_Base {
 		}
 		$result = $cron->run();
 		if ($result === null) {
-			$this->verbose_log("Cron is already running.");
+			$this->verbose_log('Cron is already running.');
 		} else {
-			$this->verbose_log("Cron run successfully: " . implode(", ", $result));
+			$this->verbose_log('Cron run successfully: ' . implode(', ', $result));
 		}
 		return 0;
 	}

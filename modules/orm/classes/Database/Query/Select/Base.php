@@ -31,7 +31,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @see \zesk\Database_Query::__sleep()
 	 */
 	public function __sleep(): array {
-		return array_merge(parent::__sleep(), ["objects_prefixes", ]);
+		return array_merge(parent::__sleep(), ['objects_prefixes', ]);
 	}
 
 	/**
@@ -53,7 +53,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *            Use this column as a value for the iterator, null means use entire object/row
 	 * @return Database_Result_Iterator
 	 */
-	public function iterator(string $key = "", string $value = ""): Database_Result_Iterator {
+	public function iterator(string $key = '', string $value = ''): Database_Result_Iterator {
 		return new Database_Result_Iterator($this, $key, $value);
 	}
 
@@ -78,7 +78,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		if ($class === null) {
 			return null;
 		}
-		return "";
+		return '';
 	}
 
 	/**
@@ -150,7 +150,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	Timestamp {
 		$value = $this->database()->query_one($this->__toString(), $field, $default);
 		if (empty($value)) {
-			throw new Exception_NotFound("Timestamp {field} not found", ["field" => $field]);
+			throw new Exception_NotFound('Timestamp {field} not found', ['field' => $field]);
 		}
 		return new Timestamp($value, $timezone);
 	}
@@ -216,7 +216,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	public function model(string $class = null, array $options = []): Model {
 		$result = $this->one();
 		if ($result === null) {
-			throw new Exception_ORM_NotFound("{class} not found", ["class" => $class]);
+			throw new Exception_ORM_NotFound('{class} not found', ['class' => $class]);
 		}
 		return $this->application->model_factory($this->orm_class($class), $result, ['from_database' => true, ] + $options);
 	}
@@ -231,7 +231,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	public function orm(string $class = null, array $options = []): ORM {
 		$result = $this->one();
 		if ($result === null) {
-			throw new Exception_ORM_NotFound("{class} not found", ["class" => $class]);
+			throw new Exception_ORM_NotFound('{class} not found', ['class' => $class]);
 		}
 		return $this->application->orm_factory($this->orm_class($class), $result, ['from_database' => true, ] + $options + $this->ormClassOptions());
 	}

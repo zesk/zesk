@@ -38,18 +38,18 @@ class File {
 	 * @throws Exception_File_Permission
 	 */
 	public function __construct(array $upload_array) {
-		if (!isset($upload_array["tmp_name"])) {
-			throw new Exception_Parameter("{method} must have keys tmp_name (keys passed: {keys})", [
-				"method" => __METHOD__,
-				"keys" => array_keys($upload_array),
+		if (!isset($upload_array['tmp_name'])) {
+			throw new Exception_Parameter('{method} must have keys tmp_name (keys passed: {keys})', [
+				'method' => __METHOD__,
+				'keys' => array_keys($upload_array),
 			]);
 		}
 		$this->upload_array = $upload_array;
-		$this->tmp_path = $upload_array["tmp_name"];
+		$this->tmp_path = $upload_array['tmp_name'];
 		if (!is_uploaded_file($this->tmp_path)) {
-			throw new Exception_File_Permission($this->tmp_path, "Not an uploaded file");
+			throw new Exception_File_Permission($this->tmp_path, 'Not an uploaded file');
 		}
-		$this->name = avalue($upload_array, "name", basename($this->tmp_path));
+		$this->name = avalue($upload_array, 'name', basename($this->tmp_path));
 		$this->ext = zeskFile::extension($this->name);
 	}
 
@@ -80,25 +80,25 @@ class File {
 	 */
 	public function migrate(Application $application, $dest_path, array $options = []) {
 		if (empty($dest_path)) {
-			throw new Exception_Parameter("\$dest_path is required to be a valid path or filename ({dest_path})", [
-				"dest_path" => $dest_path,
+			throw new Exception_Parameter('$dest_path is required to be a valid path or filename ({dest_path})', [
+				'dest_path' => $dest_path,
 			]);
 		}
 
 		$dest_dir = is_dir($dest_path) ? $dest_path : dirname($dest_path);
 
-		Directory::depend($dest_dir, avalue($options, "dir_mode"));
+		Directory::depend($dest_dir, avalue($options, 'dir_mode'));
 
-		if (avalue($options, "hash")) {
+		if (avalue($options, 'hash')) {
 			$x = md5_file($this->tmp_path);
 			$dest_path = path($dest_dir, "$x." . $this->ext);
 		}
 		move_uploaded_file($this->tmp_path, $dest_path);
-		if (avalue($options, "file_mode")) {
-			@chmod($dest_path, avalue($options, "file_mode"));
+		if (avalue($options, 'file_mode')) {
+			@chmod($dest_path, avalue($options, 'file_mode'));
 		}
-		if (!avalue($options, "skip_hook")) {
-			$application->hooks->call("upload", $dest_path);
+		if (!avalue($options, 'skip_hook')) {
+			$application->hooks->call('upload', $dest_path);
 		}
 		return $dest_path;
 	}

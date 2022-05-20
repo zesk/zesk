@@ -31,14 +31,14 @@ class Control_Email extends Control_Text {
 				}
 			}
 			if ($bad_email) {
-				$this->error($locale->__("Control_Email::error_format:={label} contains some invalid emails: {bad_emails}", [
-					'bad_emails' => implode(", ", $bad_email),
+				$this->error($locale->__('Control_Email::error_format:={label} contains some invalid emails: {bad_emails}', [
+					'bad_emails' => implode(', ', $bad_email),
 				]));
 				return false;
 			}
-			$this->value(implode(", ", $emails));
+			$this->value(implode(', ', $emails));
 		} elseif ($temp && strlen($v) > 0 && !is_email($v)) {
-			$this->error($locale->__("Control_Email::error_format:={label} must be formatted like an email, e.g. user@example.com.", $this->options));
+			$this->error($locale->__('Control_Email::error_format:={label} must be formatted like an email, e.g. user@example.com.', $this->options));
 			return false;
 		}
 		return $temp;

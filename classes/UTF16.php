@@ -115,7 +115,7 @@ class UTF16 {
 	 */
 	public static function encode($str, $be = true, $add_bom = true) {
 		$n = strlen($str);
-		$result = "";
+		$result = '';
 		if ($add_bom) {
 			$result .= $be ? chr(0xFE) . chr(0xFF) : chr(0xFF) . chr(0xFE);
 		}

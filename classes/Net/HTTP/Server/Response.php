@@ -15,16 +15,16 @@ class Net_HTTP_Server_Response {
 
 	public $headers = [];
 
-	public $content = "";
+	public $content = '';
 
 	public $filename = null;
 
 	public $file = null;
 
 	public function __construct() {
-		$this->header("Server", "Zesk Net_HTTP_Server 1.0");
+		$this->header('Server', 'Zesk Net_HTTP_Server 1.0');
 		//$this->header("Connection", "close");
-		$this->header("Date", gmdate("D, d M y H:i:s", time()) . " GMT");
+		$this->header('Date', gmdate('D, d M y H:i:s', time()) . ' GMT');
 	}
 
 	public function __destruct() {
@@ -36,7 +36,7 @@ class Net_HTTP_Server_Response {
 			return;
 		}
 		if ($value === null) {
-			[$name, $value] = pair($name, ":", $name, null);
+			[$name, $value] = pair($name, ':', $name, null);
 			if ($value === null) {
 				throw new Exception_Syntax("Incorrect header value: $name");
 			}
@@ -47,10 +47,10 @@ class Net_HTTP_Server_Response {
 
 	public function raw_headers() {
 		$raw_headers = [];
-		$status_text = ($this->status_text === null) ? avalue(Net_HTTP::$status_text, $this->status, "Unknown status") : $this->status_text;
-		$raw_headers[] = "HTTP/1.0 " . $this->status . " " . $status_text;
+		$status_text = ($this->status_text === null) ? avalue(Net_HTTP::$status_text, $this->status, 'Unknown status') : $this->status_text;
+		$raw_headers[] = 'HTTP/1.0 ' . $this->status . ' ' . $status_text;
 		$this->file_headers();
-		$this->header("Content-Type", "text/html", false);
+		$this->header('Content-Type', 'text/html', false);
 		foreach ($this->headers as $key => $value) {
 			if (is_array($value)) {
 				foreach ($value as $value_line) {
@@ -68,7 +68,7 @@ class Net_HTTP_Server_Response {
 			return $this->filename;
 		}
 		$this->filename = $filename;
-		$this->content = "";
+		$this->content = '';
 		return $this;
 	}
 
@@ -76,9 +76,9 @@ class Net_HTTP_Server_Response {
 		if (!$this->filename) {
 			return;
 		}
-		$this->header("Content-Type", MIME::from_filename($this->filename, "application/octet-stream"), false);
+		$this->header('Content-Type', MIME::from_filename($this->filename, 'application/octet-stream'), false);
 		if (file_exists($this->filename)) {
-			$this->header("Content-Length", filesize($this->filename), true);
+			$this->header('Content-Length', filesize($this->filename), true);
 		}
 	}
 
@@ -90,7 +90,7 @@ class Net_HTTP_Server_Response {
 			if (!file_exists($this->filename)) {
 				$this->status = Net_HTTP::STATUS_FILE_NOT_FOUND;
 			}
-			$this->file = fopen($this->filename, "rb");
+			$this->file = fopen($this->filename, 'rb');
 			return $this->file;
 		}
 		return null;

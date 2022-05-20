@@ -24,31 +24,31 @@ class Database_Type extends \zesk\Database_Data_Type {
 	 */
 	protected $sql_type_natives = [
 		self::sql_type_string => [
-			"char",
-			"varchar",
-			"text",
+			'char',
+			'varchar',
+			'text',
 		],
 		self::sql_type_integer => [
-			"bit",
-			"int",
-			"tinyint",
-			"smallint",
-			"mediumint",
-			"bigint",
-			"integer",
+			'bit',
+			'int',
+			'tinyint',
+			'smallint',
+			'mediumint',
+			'bigint',
+			'integer',
 		],
 		self::sql_type_double => [
-			"decimal",
+			'decimal',
 		],
 		self::sql_type_date => [
-			"date",
+			'date',
 		],
 		self::sql_type_time => [
-			"time",
+			'time',
 		],
 		self::sql_type_datetime => [
-			"datetime",
-			"timestamp",
+			'datetime',
+			'timestamp',
 		],
 	];
 
@@ -67,37 +67,37 @@ class Database_Type extends \zesk\Database_Data_Type {
 	 * Type Manipulation Class_ORM::type_foo conversion to SQL Type
 	 */
 	public function type_set_sql_type(Database_Column $type) {
-		$type_name = $type->option("type", false);
+		$type_name = $type->option('type', false);
 		if (!$type_name) {
-			throw new Exception_Semantics("{class}::type_set_sql_type(...): \"Type\" is not set! {type}", [
+			throw new Exception_Semantics('{class}::type_set_sql_type(...): "Type" is not set! {type}', [
 				'class' => get_class($this),
 				'type' => _dump($type),
 			]);
 		}
-		$is_bin = $type->optionBool("binary");
-		$size = $type->optionInt("size");
+		$is_bin = $type->optionBool('binary');
+		$size = $type->optionInt('size');
 		switch (strtolower($type_name)) {
 			case Class_ORM::type_integer:
 				switch ($size) {
 					case 1:
-						$type->setOption("sql_type", "tinyint");
+						$type->setOption('sql_type', 'tinyint');
 						return true;
 					case 2:
-						$type->setOption("sql_type", "smallint");
+						$type->setOption('sql_type', 'smallint');
 						return true;
 					case 3:
-						$type->setOption("sql_type", "mediumint");
+						$type->setOption('sql_type', 'mediumint');
 						return true;
 					case 4:
-						$type->setOption("sql_type", "bigint");
+						$type->setOption('sql_type', 'bigint');
 						return true;
 					default:
-						$type->setOption("sql_type", "integer");
+						$type->setOption('sql_type', 'integer');
 						return true;
 				}
 				// no break
 			case Class_ORM::type_boolean:
-				$type->setOption("sql_type", "tinyint");
+				$type->setOption('sql_type', 'tinyint');
 				return true;
 			default:
 				return parent::type_set_sql_type($type);
@@ -137,7 +137,7 @@ class Database_Type extends \zesk\Database_Data_Type {
 				return floatval($default_value);
 				return to_bool($default_value, false);
 			case self::sql_type_datetime:
-				if ($default_value === 0 || $default_value === "0") {
+				if ($default_value === 0 || $default_value === '0') {
 					return '0000-00-00 00:00:00';
 				}
 				return strval($default_value);

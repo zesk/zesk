@@ -19,7 +19,7 @@ class DNS {
 			$options = [];
 		}
 		if (empty($name)) {
-			throw new Exception_Semantics("dns::host(empty name)");
+			throw new Exception_Semantics('dns::host(empty name)');
 		}
 		return self::_lookup_shell_host($name, $type, $options);
 	}
@@ -36,8 +36,8 @@ class DNS {
 			'query' => $name,
 			'type' => $type,
 		];
-		$typearg = is_string($type) ? "-t" . preg_replace("/[^a-z0-9]/", "", $type) . " " : "-ta ";
-		$hostarg = avalue($options, "server");
+		$typearg = is_string($type) ? '-t' . preg_replace('/[^a-z0-9]/', '', $type) . ' ' : '-ta ';
+		$hostarg = avalue($options, 'server');
 		if ($hostarg) {
 			$append['server'] = $hostarg;
 			$hostarg = " $hostarg";
@@ -60,10 +60,10 @@ class DNS {
 		$lines = to_list($lines);
 		foreach ($lines as $line) {
 			foreach ([
-				"mx" => "mail is handled by",
+				'mx' => 'mail is handled by',
 				'aaaa' => 'has IPv6 address',
-				"a" => "has address",
-				"txt" => "descriptive text",
+				'a' => 'has address',
+				'txt' => 'descriptive text',
 				'cname' => 'is an alias for',
 			] as $type => $pattern) {
 				[$host, $value] = pair($line, $pattern, null, null);

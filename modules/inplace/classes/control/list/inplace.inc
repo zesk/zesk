@@ -15,37 +15,37 @@ abstract class Control_List_InPlace extends Control_List {
 	 *
 	 * @var string
 	 */
-	protected $theme_empty = "zesk/control/list/inplace/empty";
+	protected $theme_empty = 'zesk/control/list/inplace/empty';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $theme_widgets = "zesk/control/list/inplace/widgets";
+	protected $theme_widgets = 'zesk/control/list/inplace/widgets';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $theme_prefix = "zesk/control/list/inplace/prefix";
+	protected $theme_prefix = 'zesk/control/list/inplace/prefix';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $theme_suffix = "zesk/control/list/inplace/suffix";
+	protected $theme_suffix = 'zesk/control/list/inplace/suffix';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $theme_header = "zesk/control/list/inplace/header";
+	protected $theme_header = 'zesk/control/list/inplace/header';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $theme_footer = "zesk/control/list/inplace/footer";
+	protected $theme_footer = 'zesk/control/list/inplace/footer';
 
 	/**
 	 *
@@ -57,10 +57,10 @@ abstract class Control_List_InPlace extends Control_List {
 	 *
 	 * @var string
 	 */
-	protected $list_tag = "div";
+	protected $list_tag = 'div';
 
 	protected $list_attributes = [
-		"class" => "list list-inplace",
+		'class' => 'list list-inplace',
 	];
 
 	protected $total_title = null;
@@ -68,9 +68,9 @@ abstract class Control_List_InPlace extends Control_List {
 	protected $hierarchy_column = null;
 
 	protected $row_attributes = [
-		"class" => "row",
-		"id" => "row-{id}",
-		"data-id" => "{id}",
+		'class' => 'row',
+		'id' => 'row-{id}',
+		'data-id' => '{id}',
 	];
 
 	/**
@@ -114,7 +114,7 @@ abstract class Control_List_InPlace extends Control_List {
 			'hierarchy_column' => $this->hierarchy_column,
 			'total_title' => $locale->__($this->total_title),
 			'target' => $this->option('target'),
-			'dismiss_button' => $this->optionBool("dismiss_button", true),
+			'dismiss_button' => $this->optionBool('dismiss_button', true),
 			'current_user' => $this->user(),
 		] + parent::theme_variables();
 	}

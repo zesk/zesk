@@ -16,17 +16,17 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
-$decimals = $this->get1("1;decimals");
+$decimals = $this->get1('1;decimals');
 if (!$decimals) {
 	$decimals = $application->configuration->path_get_first([
 		[
 			Locale::class,
-			"percent_decimals",
+			'percent_decimals',
 		],
 		[
 			Locale::class,
-			"numeric_decimals",
+			'numeric_decimals',
 		],
 	], 0);
 }
-echo sprintf("%.${decimals}f", $this->get1("0;content")) . "%";
+echo sprintf("%.${decimals}f", $this->get1('0;content')) . '%';

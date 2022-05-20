@@ -16,7 +16,7 @@ use Psr\Cache\CacheItemPoolInterface;
 /**
  * Stuff that should probably just be part of PHP, but isn't.
  */
-require_once __DIR__ . "/functions.php";
+require_once __DIR__ . '/functions.php';
 
 class Profiler {
 	/**
@@ -33,18 +33,18 @@ class Profiler {
 	 *
 	 */
 	public function __construct(Hooks $hooks) {
-		$hooks->add("</body>", function (): void {
+		$hooks->add('</body>', function (): void {
 			echo $this->render();
 		});
 	}
 
 	public function render(): string {
-		$content = "<pre>";
+		$content = '<pre>';
 		asort($this->calls);
 		asort($this->times);
 		$content .= print_r($this->calls, true);
 		$content .= print_r($this->times, true);
-		$content .= "</pre>";
+		$content .= '</pre>';
 		return $content;
 	}
 }
@@ -62,7 +62,7 @@ class Kernel {
 	 *
 	 * @var string
 	 */
-	public const DEPRECATED_EXCEPTION = "exception";
+	public const DEPRECATED_EXCEPTION = 'exception';
 
 	/**
 	 * Log all deprecated function calls.
@@ -70,7 +70,7 @@ class Kernel {
 	 *
 	 * @var string
 	 */
-	public const DEPRECATED_LOG = "log";
+	public const DEPRECATED_LOG = 'log';
 
 	/**
 	 * Terminate execution and output a backtrace when a deprecated function is called.
@@ -78,7 +78,7 @@ class Kernel {
 	 *
 	 * @var string
 	 */
-	public const DEPRECATED_BACKTRACE = "backtrace";
+	public const DEPRECATED_BACKTRACE = 'backtrace';
 
 	/**
 	 * Do nothing when deprecated functions are called.
@@ -86,7 +86,7 @@ class Kernel {
 	 *
 	 * @var null
 	 */
-	public const DEPRECATED_IGNORE = "ignore";
+	public const DEPRECATED_IGNORE = 'ignore';
 
 	/**
 	 *
@@ -198,7 +198,7 @@ class Kernel {
 	 *
 	 * @var string
 	 */
-	protected string $application_class = "";
+	protected string $application_class = '';
 
 	/**
 	 *
@@ -210,25 +210,25 @@ class Kernel {
 	 * Include related classes
 	 */
 	public static function includes(): void {
-		require_once __DIR__ . "/Exception.php";
-		require_once __DIR__ . "/Process.php";
-		require_once __DIR__ . "/Logger.php";
+		require_once __DIR__ . '/Exception.php';
+		require_once __DIR__ . '/Process.php';
+		require_once __DIR__ . '/Logger.php';
 
-		require_once __DIR__ . "/Configuration.php";
-		require_once __DIR__ . "/Options.php";
-		require_once __DIR__ . "/Hookable.php";
-		require_once __DIR__ . "/Hooks.php";
-		require_once __DIR__ . "/HookGroup.php";
-		require_once __DIR__ . "/Paths.php";
-		require_once __DIR__ . "/Autoloader.php";
-		require_once __DIR__ . "/Classes.php";
-		require_once __DIR__ . "/Objects.php";
+		require_once __DIR__ . '/Configuration.php';
+		require_once __DIR__ . '/Options.php';
+		require_once __DIR__ . '/Hookable.php';
+		require_once __DIR__ . '/Hooks.php';
+		require_once __DIR__ . '/HookGroup.php';
+		require_once __DIR__ . '/Paths.php';
+		require_once __DIR__ . '/Autoloader.php';
+		require_once __DIR__ . '/Classes.php';
+		require_once __DIR__ . '/Objects.php';
 
-		require_once __DIR__ . "/Compatibility.php";
-		require_once __DIR__ . "/PHP.php";
+		require_once __DIR__ . '/Compatibility.php';
+		require_once __DIR__ . '/PHP.php';
 
-		require_once __DIR__ . "/CacheItem.php";
-		require_once __DIR__ . "/CacheItemPool/Array.php";
+		require_once __DIR__ . '/CacheItem.php';
+		require_once __DIR__ . '/CacheItemPool/Array.php';
 	}
 
 	/**
@@ -253,7 +253,7 @@ class Kernel {
 	 */
 	public static function singleton(): self {
 		if (!self::$singleton) {
-			throw new Exception_Semantics("Need to create singleton with {class}::factory first", ["class" => __CLASS__, ]);
+			throw new Exception_Semantics('Need to create singleton with {class}::factory first', ['class' => __CLASS__, ]);
 		}
 		return self::$singleton;
 	}
@@ -314,7 +314,7 @@ class Kernel {
 		 */
 		$this->configuration = Configuration::factory(self::$configuration_defaults)->merge(Configuration::factory($configuration));
 
-		$this->application_class = $this->configuration->path_get([__CLASS__, "application_class", ], __NAMESPACE__ . "\\" . "Application");
+		$this->application_class = $this->configuration->path_get([__CLASS__, 'application_class', ], __NAMESPACE__ . '\\' . 'Application');
 
 		/*
 		 * Initialize system paths and set up default paths for interacting with the file system
@@ -338,7 +338,7 @@ class Kernel {
 		Compatibility::install();
 
 		if (PHP_VERSION_ID < 50000) {
-			die("Zesk works in PHP 5 only.");
+			die('Zesk works in PHP 5 only.');
 		}
 	}
 
@@ -346,7 +346,7 @@ class Kernel {
 	 * Add configurated hook
 	 */
 	public function initialize(): void {
-		$this->hooks->add(Hooks::HOOK_CONFIGURED, [$this, "configured", ]);
+		$this->hooks->add(Hooks::HOOK_CONFIGURED, [$this, 'configured', ]);
 	}
 
 	/**
@@ -368,7 +368,7 @@ class Kernel {
 	 */
 	public function set_deprecated($set) {
 		$this->deprecated = is_string($set) ? strtolower($set) : self::DEPRECATED_IGNORE;
-		$this->deprecated("use setDeprecated");
+		$this->deprecated('use setDeprecated');
 		return $this;
 	}
 
@@ -392,16 +392,16 @@ class Kernel {
 	 * @return mixed Current value
 	 * @throws Exception_Deprecated
 	 */
-	public function deprecated(string $reason = "", array $arguments = []): void {
+	public function deprecated(string $reason = '', array $arguments = []): void {
 		if ($this->deprecated === self::DEPRECATED_IGNORE) {
 			return;
 		}
-		$depth = avalue($arguments, "depth", 0);
+		$depth = avalue($arguments, 'depth', 0);
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
-				throw new Exception_Deprecated("${reason} Deprecated: {calling_function}\n{backtrace}", ["reason" => $reason, "calling_function" => calling_function(), "backtrace" => _backtrace(4 + $depth), ] + $arguments);
+				throw new Exception_Deprecated("${reason} Deprecated: {calling_function}\n{backtrace}", ['reason' => $reason, 'calling_function' => calling_function(), 'backtrace' => _backtrace(4 + $depth), ] + $arguments);
 			case self::DEPRECATED_LOG:
-				$this->logger->error("${reason} Deprecated: {calling_function}\n{backtrace}", ["reason" => $reason ? $reason : "DEPRECATED", "calling_function" => calling_function(), "backtrace" => _backtrace(4 + $depth), ] + $arguments);
+				$this->logger->error("${reason} Deprecated: {calling_function}\n{backtrace}", ['reason' => $reason ? $reason : 'DEPRECATED', 'calling_function' => calling_function(), 'backtrace' => _backtrace(4 + $depth), ] + $arguments);
 
 				break;
 		}
@@ -413,7 +413,7 @@ class Kernel {
 	 * For cordoning off old, dead code
 	 */
 	public function obsolete(): void {
-		$this->logger->alert("Obsolete function called {function}", ['function' => calling_function(2), ]);
+		$this->logger->alert('Obsolete function called {function}', ['function' => calling_function(2), ]);
 		if ($this->application()->development()) {
 			backtrace();
 		}
@@ -442,7 +442,7 @@ class Kernel {
 		if (isset($configuration->deprecated)) {
 			$deprecated = $configuration->deprecated;
 			$this->setDeprecated($deprecated);
-			$this->logger->debug("Setting deprecated handling to {deprecated} => {actual}", ['deprecated' => $deprecated, 'actual' => $this->deprecated]);
+			$this->logger->debug('Setting deprecated handling to {deprecated} => {actual}', ['deprecated' => $deprecated, 'actual' => $this->deprecated]);
 		}
 		if (isset($configuration->assert)) {
 			$ass_settings = ['active' => ASSERT_ACTIVE, 'warning' => ASSERT_WARNING, 'bail' => ASSERT_BAIL, 'quiet' => ASSERT_QUIET_EVAL, ];
@@ -454,7 +454,7 @@ class Kernel {
 				if (array_key_exists($code, $ass_settings)) {
 					assert_options($ass_settings[$code], 1);
 				} else {
-					$this->logger->warning("Invalid assert option: {code}, valid options: {settings}", ["code" => $code, "settings" => array_keys($ass_settings), ]);
+					$this->logger->warning('Invalid assert option: {code}, valid options: {settings}', ['code' => $code, 'settings' => array_keys($ass_settings), ]);
 				}
 			}
 		}
@@ -517,7 +517,7 @@ class Kernel {
 	 */
 	public function console($set = null) {
 		if (is_bool($set)) {
-			$this->deprecated("console -> setConsole");
+			$this->deprecated('console -> setConsole');
 			$this->setConsole(to_bool($set));
 		}
 		return $this->console;
@@ -542,7 +542,7 @@ class Kernel {
 	 */
 	public function application_class($set = null) {
 		if ($set !== null) {
-			$this->deprecated("setter");
+			$this->deprecated('setter');
 			$this->setApplicationClass(strval($set));
 		}
 		return $this->applicationClass();
@@ -569,7 +569,7 @@ class Kernel {
 			return $this;
 		}
 		if ($this->application !== null) {
-			throw new Exception_Semantics("Changing application class to {class} when application already instantiated", ["class" => $set, ]);
+			throw new Exception_Semantics('Changing application class to {class} when application already instantiated', ['class' => $set, ]);
 		}
 		$this->application_class = $set;
 		return $this;
@@ -586,7 +586,7 @@ class Kernel {
 	 */
 	public function createApplication(array $options = []) {
 		if ($this->application !== null) {
-			throw new Exception_Semantics("{method} application of type {class} was already created", ["method" => __METHOD__, "class" => get_class($this->application), ]);
+			throw new Exception_Semantics('{method} application of type {class} was already created', ['method' => __METHOD__, 'class' => get_class($this->application), ]);
 		}
 		$this->application = $this->objects->factory($this->application_class, $this, $options);
 		$this->application->hooks->call(self::HOOK_CREATE_APPLICATION, $this->application);
@@ -616,7 +616,7 @@ class Kernel {
 				$this->hooks->add(self::HOOK_CREATE_APPLICATION, $callback);
 				return null;
 			} else {
-				throw new Exception_Semantics("Application must be created with {class}::create_application", ["class" => get_class($this), ]);
+				throw new Exception_Semantics('Application must be created with {class}::create_application', ['class' => get_class($this), ]);
 			}
 		} elseif (is_callable($callback)) {
 			$callback($this->application);
@@ -632,7 +632,7 @@ class Kernel {
 	 * @param string $suffix
 	 * @return string
 	 */
-	public function path(string $suffix = ""): string {
+	public function path(string $suffix = ''): string {
 		return $this->paths->zesk($suffix);
 	}
 
@@ -642,7 +642,7 @@ class Kernel {
 	 * @return string
 	 */
 	public function copyright_holder(): string {
-		return "Market Acumen, Inc.";
+		return 'Market Acumen, Inc.';
 	}
 }
 

@@ -3,7 +3,7 @@ namespace zesk;
 
 class Database_Exception_Schema_Test extends Test_Database_Exception {
 	protected array $load_modules = [
-		"MySQL",
+		'MySQL',
 	];
 
 	public function test_main(): void {

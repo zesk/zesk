@@ -11,9 +11,9 @@ namespace zesk;
  */
 class Configuration_Parser_JSON extends Configuration_Parser {
 	protected array $options = [
-		"overwrite" => true,
-		"lower" => true,
-		"interpolate" => true,
+		'overwrite' => true,
+		'lower' => true,
+		'interpolate' => true,
 	];
 
 	/**
@@ -43,9 +43,9 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 		$result = JSON::decode($this->content);
 
 		if (!is_array($result)) {
-			error_log(map("{method} JSON::decode returned non-array {type}", [
-				"method" => __METHOD__,
-				"type" => type($result),
+			error_log(map('{method} JSON::decode returned non-array {type}', [
+				'method' => __METHOD__,
+				'type' => type($result),
 			]));
 			return false;
 		}
@@ -53,13 +53,13 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 			$result = array_change_key_case($result);
 		}
 		$include = null;
-		if (array_key_exists("include", $result) && $this->loader) {
-			$include = $result["include"];
-			unset($result["include"]);
+		if (array_key_exists('include', $result) && $this->loader) {
+			$include = $result['include'];
+			unset($result['include']);
 		}
 		$result = $this->merge_results($result, [], $interpolate);
 		if ($include) {
-			$this->handle_include($include, $this->option("context"));
+			$this->handle_include($include, $this->option('context'));
 		}
 		return $result;
 	}
@@ -78,10 +78,10 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 			$full = path($context, $file);
 			$this->loader->append_files([$full]);
 		} else {
-			error_log(map("{method} {file} context {context} was a no-op", [
-				"method" => __METHOD__,
-				"file" => $file,
-				"context" => $context,
+			error_log(map('{method} {file} context {context} was a no-op', [
+				'method' => __METHOD__,
+				'file' => $file,
+				'context' => $context,
 			]));
 		}
 	}

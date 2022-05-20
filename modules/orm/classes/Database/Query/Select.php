@@ -30,7 +30,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @var string
 	 */
-	protected string $what_sql = "*";
+	protected string $what_sql = '*';
 
 	/**
 	 * Array of tables to query. First is main from, others are JOINed
@@ -43,7 +43,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @var string
 	 */
-	protected string $alias = "";
+	protected string $alias = '';
 
 	/**
 	 * Where
@@ -106,7 +106,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @var string
 	 */
-	protected string $generated_sql = "";
+	protected string $generated_sql = '';
 
 	/**
 	 * Construct a new Select query
@@ -114,7 +114,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param Database $db
 	 */
 	public function __construct(Database $db) {
-		parent::__construct("SELECT", $db);
+		parent::__construct('SELECT', $db);
 	}
 
 	/**
@@ -132,19 +132,19 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 */
 	public function __sleep(): array {
 		return array_merge(parent::__sleep(), [
-			"what",
-			"what_sql",
-			"tables",
-			"alias",
-			"where",
-			"having",
-			"order_by",
-			"group_by",
-			"offset",
-			"limit",
-			"distinct",
-			"join_objects",
-			"conditions",
+			'what',
+			'what_sql',
+			'tables',
+			'alias',
+			'where',
+			'having',
+			'order_by',
+			'group_by',
+			'offset',
+			'limit',
+			'distinct',
+			'join_objects',
+			'conditions',
 		]);
 	}
 
@@ -180,7 +180,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @return boolean
 	 */
 	public function valid_column(string $column_reference): bool {
-		[$alias, $column] = pair($column_reference, ".", $this->alias, $column);
+		[$alias, $column] = pair($column_reference, '.', $this->alias, $column);
 		if ($alias === $this->alias) {
 			$class = $this->class;
 		} else {
@@ -210,7 +210,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 */
 	public function distinct(mixed $set = true): mixed {
 		if ($set !== null) {
-			$this->application->deprecated("setter");
+			$this->application->deprecated('setter');
 			return $this->setDistinct(to_bool($set));
 		}
 		return $this->distinct;
@@ -238,7 +238,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 */
 	public function alias($set = null) {
 		if ($set !== null) {
-			$this->application->deprecated("setter");
+			$this->application->deprecated('setter');
 			return $this->setAlias(strval($set));
 		}
 		return $this->alias;
@@ -257,7 +257,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @return array
 	 */
 	public function columns(): array {
-		return ArrayTools::unprefix(array_keys($this->what), "*");
+		return ArrayTools::unprefix(array_keys($this->what), '*');
 	}
 
 	/**
@@ -287,7 +287,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 */
 	public function clearWhat(): self {
 		$this->what = [];
-		$this->what_sql = "";
+		$this->what_sql = '';
 		return $this;
 	}
 
@@ -307,18 +307,18 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @return $this
 	 */
 	public function removeWhat(string $alias): self {
-		$alias = StringTools::unprefix($alias, "*");
+		$alias = StringTools::unprefix($alias, '*');
 		unset($this->what[$alias]);
 		unset($this->what["*$alias"]);
 		return $this;
 	}
 
-	public function addWhat(string $alias, string $member = ""): self {
-		$cleaned_alias = StringTools::unprefix($alias, "*");
+	public function addWhat(string $alias, string $member = ''): self {
+		$cleaned_alias = StringTools::unprefix($alias, '*');
 		unset($this->what[$cleaned_alias]);
 		unset($this->what["*$cleaned_alias"]);
-		$this->what[$alias] = $member === "" ? $alias : $member;
-		$this->what_sql = "";
+		$this->what[$alias] = $member === '' ? $alias : $member;
+		$this->what_sql = '';
 		return $this;
 	}
 
@@ -357,15 +357,15 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		if ($mixed === null && $value === null) {
 			return $this->what;
 		}
-		$this->application->deprecated("Setter what() no longer supported");
+		$this->application->deprecated('Setter what() no longer supported');
 		if ($mixed === null && is_string($value)) {
 			return $this->setWhatString($value);
 		}
 		if ($mixed === false && $value === null) {
 			return $this->clearWhat();
 		}
-		if ($this->what_sql !== "") {
-			$this->what_sql = "";
+		if ($this->what_sql !== '') {
+			$this->what_sql = '';
 			$this->what = [];
 		}
 		if (is_string($mixed)) {
@@ -387,7 +387,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			return $this->addWhatSelect($mixed);
 		}
 
-		throw new Exception_Parameter("Unknown parameter passed to Database_Query_Select::what(" . gettype($mixed) . ")");
+		throw new Exception_Parameter('Unknown parameter passed to Database_Query_Select::what(' . gettype($mixed) . ')');
 	}
 
 	/**
@@ -423,7 +423,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param string $alias
 	 * @return Database_Query_Select
 	 */
-	public function from(string $table, string $alias = ""): self {
+	public function from(string $table, string $alias = ''): self {
 		$this->tables[$alias] = $table;
 		$this->setAlias($alias);
 		return $this;
@@ -440,7 +440,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		if (is_array($sql)) {
 			return $this->addJoinIterable($sql);
 		}
-		return $this->addJoin($sql, is_string($join_id) ? $join_id : "");
+		return $this->addJoin($sql, is_string($join_id) ? $join_id : '');
 	}
 
 	/**
@@ -462,8 +462,8 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param string $join_id
 	 * @return Database_Query_Select
 	 */
-	public function addJoin(string $join_sql, string $join_id = ""): self {
-		if ($join_id !== "") {
+	public function addJoin(string $join_sql, string $join_id = ''): self {
+		if ($join_id !== '') {
 			$this->tables[$join_id] = $join_sql;
 		} else {
 			$this->tables[] = $join_sql;
@@ -525,15 +525,15 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$cross_db_this = $this->database()->feature(Database::FEATURE_CROSS_DATABASE_QUERIES);
 			$cross_db_object = $object->database()->feature(Database::FEATURE_CROSS_DATABASE_QUERIES);
 			if ($cross_db_this !== true) {
-				throw new Exception_Semantics("Database {name} ({class}) does not support cross-database queries, join is not possible", [
-					"name" => $this->database_name(),
-					"class" => $this->class,
+				throw new Exception_Semantics('Database {name} ({class}) does not support cross-database queries, join is not possible', [
+					'name' => $this->database_name(),
+					'class' => $this->class,
 				]);
 			}
 			if ($cross_db_object !== true) {
-				throw new Exception_Semantics("Database {name} ({class}) does not support cross-database queries, join is not possible", [
-					"name" => $object->database_name(),
-					"class" => get_class($object),
+				throw new Exception_Semantics('Database {name} ({class}) does not support cross-database queries, join is not possible', [
+					'name' => $object->database_name(),
+					'class' => get_class($object),
 				]);
 			}
 			$table_as = $sql->database_table_as($object->database()->database_name(), $table, $alias);
@@ -561,7 +561,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	public function link(string $class, string|array $mixed = []) {
 		if (is_string($mixed)) {
 			$mixed = [
-				"path" => $mixed,
+				'path' => $mixed,
 			];
 		}
 		$path = $mixed['path'] ?? null;
@@ -571,8 +571,8 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$path = $object->link_default_path_to($target_class);
 			if ($path === null) {
 				throw new Exception_Semantics("No path to {target_class} (resolved from {class}) from $this->class, specify explicitly", [
-					"class" => $class,
-					"target_class" => $target_class,
+					'class' => $class,
+					'target_class' => $target_class,
 				]);
 			}
 			$mixed['path'] = $path;
@@ -644,7 +644,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		if ($k === null && $v === null) {
 			return $this->where;
 		}
-		$this->application->deprecated("where setter");
+		$this->application->deprecated('where setter');
 		if (is_array($k)) {
 			return $this->appendWhere($k);
 		} elseif ($k === null && is_string($v)) {
@@ -739,13 +739,13 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$locale = $this->application->locale;
 		$class = $this->application->class_orm_registry($class_name);
 		$map = [
-			"noun" => $class->name,
-			"nouns" => $locale->plural($class->name),
+			'noun' => $class->name,
+			'nouns' => $locale->plural($class->name),
 		];
 		if (count($this->conditions) === 0) {
 			return $locale->__("Database_Query_Select-$class_name-title-all:=All {nouns}", $map);
 		}
-		$map['conditions'] = map($locale->conjunction($this->conditions, $locale->__("and")), $map);
+		$map['conditions'] = map($locale->conjunction($this->conditions, $locale->__('and')), $map);
 		return $locale->__("Database_Query_Select-$class_name-title:={nouns} which {conditions}", $map);
 	}
 
@@ -782,7 +782,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @deprecated 2022-01
 	 */
 	public function has_what(string $column): bool {
-		$this->application->deprecated("old name");
+		$this->application->deprecated('old name');
 		return $this->hasWhat($column);
 	}
 }

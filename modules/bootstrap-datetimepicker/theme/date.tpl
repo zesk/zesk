@@ -14,13 +14,13 @@ namespace zesk;
 /* @var $response \zesk\Response */
 $id = $this->id;
 if (empty($id)) {
-	$this->id = $id = "datetimepicker-" . $response->id_counter();
+	$this->id = $id = 'datetimepicker-' . $response->id_counter();
 }
 
 $zformat = $this->get('format', '{YYYY}-{MM}-{DD}');
 $value = Timestamp::factory($value)->date()->format($locale, $zformat);
 
-$inline = $this->getb("inline");
+$inline = $this->getb('inline');
 
 echo $this->theme('zesk/control/text', [
 	'value' => $value,
@@ -29,10 +29,10 @@ echo $this->theme('zesk/control/text', [
 ]);
 
 $options = $this->get([
-	"inline" => $this->getb('inline'),
-	"format" => "YYYY-MM-DD",
-	"toolbarPlacement" => "bottom",
-	"showTodayButton" => true,
+	'inline' => $this->getb('inline'),
+	'format' => 'YYYY-MM-DD',
+	'toolbarPlacement' => 'bottom',
+	'showTodayButton' => true,
 ]);
 
 /* @var $defaultDate Timestamp */
@@ -77,13 +77,13 @@ $options['*locale'] = $js_language;
 $original_id = $id;
 if ($inline) {
 	$id = "$id-dtp";
-	echo HTML::div("#$id", "");
+	echo HTML::div("#$id", '');
 }
-$jquery = "\$(\"#$id\").datetimepicker(" . JSON::encodex($options) . ")";
+$jquery = "\$(\"#$id\").datetimepicker(" . JSON::encodex($options) . ')';
 
 if ($inline) {
 	$jquery .= ".on(\"dp.change\", function (e) {\n\t\$(\"#$original_id\").val(e.date.format('YYYY-MM-DD'));\n})";
 }
-$jquery .= ";";
+$jquery .= ';';
 
 $this->response->jquery($jquery);

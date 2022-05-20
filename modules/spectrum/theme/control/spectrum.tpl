@@ -22,25 +22,25 @@ if (empty($id)) {
 
 $value = $this->value;
 
-if (!begins($value, "#")) {
+if (!begins($value, '#')) {
 	$value = "#$value";
 }
 
 $html_id = "jpicker-$id";
 
 $options = [
-	"preferredFormat" => "hex6",
+	'preferredFormat' => 'hex6',
 ];
 
-$response->jquery("\$('#$html_id').spectrum(" . JSON::encodex($options) . ");");
-$response->javascript("/share/spectrum/spectrum.js", [
-	"share" => true,
+$response->jquery("\$('#$html_id').spectrum(" . JSON::encodex($options) . ');');
+$response->javascript('/share/spectrum/spectrum.js', [
+	'share' => true,
 ]);
-$response->css("/share/spectrum/spectrum.css", [
-	"share" => true,
+$response->css('/share/spectrum/spectrum.css', [
+	'share' => true,
 ]);
 
 $attributes = [
-	"id" => $html_id,
+	'id' => $html_id,
 ];
-echo HTML::input("hidden", $this->name, $value, $attributes);
+echo HTML::input('hidden', $this->name, $value, $attributes);

@@ -7,12 +7,12 @@ $counts = $this->counts;
 arsort($times, SORT_NUMERIC);
 arsort($counts, SORT_NUMERIC);
 
-echo HTML::div_open("#template-profile");
-echo HTML::tag("h2", "zesk\Template profiling");
+echo HTML::div_open('#template-profile');
+echo HTML::tag('h2', "zesk\Template profiling");
 echo $this->theme('pairs', [
-	"content" => $times,
+	'content' => $times,
 ]);
 echo $this->theme('pairs', [
-	"content" => $counts,
+	'content' => $counts,
 ]);
 echo HTML::div_close();

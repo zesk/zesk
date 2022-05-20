@@ -32,7 +32,7 @@ $ia['id'] = $button_id;
 
 $class = $this->class;
 if ($this->required) {
-	$class = CSS::add_class($class, "required");
+	$class = CSS::add_class($class, 'required');
 }
 $ia['class'] = CSS::add_class($class, 'form-control');
 
@@ -40,9 +40,9 @@ $ia = $object->apply_map($ia) + [
 	'value' => $value,
 ];
 
-$side = $this->get("dropdown_alignment", "right");
+$side = $this->get('dropdown_alignment', 'right');
 
-$button_label = "";
+$button_label = '';
 
 $value = $this->value;
 if (!$value) {
@@ -84,7 +84,7 @@ if (!$selected) {
 if (!$button_label) {
 	$button_label = apath($control_options, [
 		$value,
-		"link_html",
+		'link_html',
 	]);
 }
 
@@ -110,19 +110,19 @@ foreach ($control_options as $code => $attributes) {
 		$link_html = $code;
 	}
 	if (to_bool(avalue($attributes, 'selected')) || strval($code) === strval($value)) {
-		$li_attributes = HTML::add_class($li_attributes, "active");
+		$li_attributes = HTML::add_class($li_attributes, 'active');
 	}
 	$items[] = HTML::tag('li', $li_attributes, HTML::tag('a', $attributes, $link_html));
 }
 
-$html = "";
+$html = '';
 
 $html .= HTML::div_open([
-	'class' => $this->get("outer_class", 'dropdown'), //'input-group-btn'
+	'class' => $this->get('outer_class', 'dropdown'), //'input-group-btn'
 	'id' => $id,
 ]);
 
-$input_id = $this->id . "_input";
+$input_id = $this->id . '_input';
 
 $html .= HTML::tag('button', [
 	'type' => 'button',
@@ -132,11 +132,11 @@ $html .= HTML::tag('button', [
 	'data-input' => "#$input_id",
 	'data-content' => '{label} ',
 	'aria-expanded' => 'false',
-], HTML::span(".button-label", $button_label) . ' ' . HTML::span('.caret', ''));
+], HTML::span('.button-label', $button_label) . ' ' . HTML::span('.caret', ''));
 
 $html .= HTML::tag_open('ul', [
-	"class" => "dropdown-menu dropdown-menu-$side",
-	"role" => "menu",
+	'class' => "dropdown-menu dropdown-menu-$side",
+	'role' => 'menu',
 ]);
 
 $html .= implode("\n", $items);
@@ -145,7 +145,7 @@ $html .= HTML::tag_close('ul');
 $html .= HTML::div_close(); // input-group-btn
 
 $input = HTML::input('hidden', $this->name, $this->value, [
-	'id' => $this->id . "_input",
+	'id' => $this->id . '_input',
 ]);
 
 if (!$this->no_input_group) {
@@ -162,9 +162,9 @@ if (!$this->no_input_group) {
 }
 
 $response->javascript('/share/bootstrap-x/js/dropdown.js', [
-	"share" => true,
+	'share' => true,
 ]);
 $response->jquery(map('$("#{id}").bootstrap_dropdown({ onupdate: {onupdate} });', [
 	'id' => $id,
-	'onupdate' => $this->onupdate ? $this->onupdate : "null",
+	'onupdate' => $this->onupdate ? $this->onupdate : 'null',
 ]));

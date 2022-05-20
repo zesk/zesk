@@ -16,9 +16,9 @@ if ($object instanceof Module) {
 	if (!$version) {
 		return;
 	}
-	echo $locale->__("{name} (<code>{codename}</code>) version {version}", [
-		"name" => $object->name(),
-		"codename" => $object->codename(),
-		"version" => $version,
+	echo $locale->__('{name} (<code>{codename}</code>) version {version}', [
+		'name' => $object->name(),
+		'codename' => $object->codename(),
+		'version' => $version,
 	]);
 }

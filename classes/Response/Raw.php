@@ -31,8 +31,8 @@ class Raw extends Type {
 	public function headers(): void {
 		if ($this->file) {
 			$this->parent->content_type(MIME::from_filename($this->file));
-			$this->parent->header("Last-Modified", gmdate('D, d M Y H:i:s \G\M\T', filemtime($this->file)));
-			$this->parent->header("Content-Length", filesize($this->file));
+			$this->parent->header('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', filemtime($this->file)));
+			$this->parent->header('Content-Length', filesize($this->file));
 		}
 	}
 
@@ -43,7 +43,7 @@ class Raw extends Type {
 	 */
 	public function output($content): void {
 		if ($this->file) {
-			$fp = fopen($this->file, "rb");
+			$fp = fopen($this->file, 'rb');
 			fpassthru($fp);
 			fclose($fp);
 		} else {
@@ -84,10 +84,10 @@ class Raw extends Type {
 		}
 		$name = File::name_clean($name);
 		if ($type === null) {
-			$type = "attachment";
+			$type = 'attachment';
 		}
 		$this->file($file);
-		return $this->parent->header("Content-Disposition", "$type; filename=\"$name\"")->nocache();
+		return $this->parent->header('Content-Disposition', "$type; filename=\"$name\"")->nocache();
 	}
 
 	/**
@@ -97,7 +97,7 @@ class Raw extends Type {
 	 */
 	public function to_json() {
 		return [
-			"content" => $this->binary,
+			'content' => $this->binary,
 		];
 	}
 }

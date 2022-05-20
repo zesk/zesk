@@ -14,7 +14,7 @@ class View_Static extends View_Text {
 	}
 
 	public function render() {
-		$this->value($this->option("text", ""));
+		$this->value($this->option('text', ''));
 		return parent::render();
 	}
 }

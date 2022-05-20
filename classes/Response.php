@@ -50,31 +50,31 @@ class Response extends Hookable {
 	/**
 	 * @var string
 	 */
-	public const CONTENT_TYPE_JSON = "application/json";
+	public const CONTENT_TYPE_JSON = 'application/json';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const CONTENT_TYPE_HTML = "text/html";
+	public const CONTENT_TYPE_HTML = 'text/html';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const CONTENT_TYPE_PLAINTEXT = "text/plain";
+	public const CONTENT_TYPE_PLAINTEXT = 'text/plain';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const CONTENT_TYPE_RAW = "application/octet-stream";
+	public const CONTENT_TYPE_RAW = 'application/octet-stream';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const HANDLER_REDIRECT = "redirect";
+	public const HANDLER_REDIRECT = 'redirect';
 
 	/**
 	 *
@@ -100,9 +100,9 @@ class Response extends Hookable {
 	 * @var array
 	 */
 	private static $cache_pattern = [
-		self::CACHE_SCHEME => "{scheme}/{host}_{port}{path}/{query}",
-		self::CACHE_QUERY => "any/{host}_{port}{path}/{query}",
-		self::CACHE_PATH => "any/{host}_{port}{path}",
+		self::CACHE_SCHEME => '{scheme}/{host}_{port}{path}/{query}',
+		self::CACHE_QUERY => 'any/{host}_{port}{path}/{query}',
+		self::CACHE_PATH => 'any/{host}_{port}{path}',
 	];
 
 	/**
@@ -130,14 +130,14 @@ class Response extends Hookable {
 	 *
 	 * @var ?string
 	 */
-	public ?string $content = "";
+	public ?string $content = '';
 
 	/**
 	 * File to return (for big stuff)
 	 *
 	 * @var string
 	 */
-	protected string $content_file = "";
+	protected string $content_file = '';
 
 	/**
 	 * Status code
@@ -151,7 +151,7 @@ class Response extends Hookable {
 	 *
 	 * @var string
 	 */
-	public $status_message = "OK";
+	public $status_message = 'OK';
 
 	/**
 	 * Content-Type header
@@ -217,15 +217,15 @@ class Response extends Hookable {
 	 */
 	public function __sleep() {
 		return array_merge(parent::__sleep(), [
-			"content",
-			"status_code",
-			"status_message",
-			"content_type",
-			"output_handler",
-			"charset",
-			"types",
-			"headers",
-			"response_data",
+			'content',
+			'status_code',
+			'status_message',
+			'content_type',
+			'output_handler',
+			'charset',
+			'types',
+			'headers',
+			'response_data',
 		]);
 	}
 
@@ -241,7 +241,7 @@ class Response extends Hookable {
 	 */
 	public static function hooks(Application $application): void {
 		// Not sure when, let's say 2017-03
-		$application->configuration->deprecated("Response", __CLASS__);
+		$application->configuration->deprecated('Response', __CLASS__);
 	}
 
 	/**
@@ -265,7 +265,7 @@ class Response extends Hookable {
 		$this->id = self::$response_index++;
 		$this->inherit_global_options();
 		if (!$this->content_type) {
-			$this->content_type($this->option("content_type", self::CONTENT_TYPE_HTML));
+			$this->content_type($this->option('content_type', self::CONTENT_TYPE_HTML));
 		}
 	}
 
@@ -304,7 +304,7 @@ class Response extends Hookable {
 	 * @return unknown
 	 */
 	public function cookie($name, $value = null, array $options = []) {
-		$expire = avalue($options, 'expire', $this->option("cookie_expire"));
+		$expire = avalue($options, 'expire', $this->option('cookie_expire'));
 		if ($expire instanceof Timestamp) {
 			$n_seconds = $expire->subtract(Timestamp::now($expire->time_zone()));
 		} elseif (is_int($expire)) {
@@ -313,19 +313,19 @@ class Response extends Hookable {
 			$n_seconds = null;
 		}
 		$host = $this->request->host();
-		$domain = avalue($options, 'domain', $this->option("cookie_domain"));
+		$domain = avalue($options, 'domain', $this->option('cookie_domain'));
 		if ($domain) {
-			$domain = ltrim($domain, ".");
+			$domain = ltrim($domain, '.');
 			if (!ends($host, $domain)) {
-				$this->application->logger->warning("Unable to set cookie domain {cookie_domain} on host {host}", [
-					"cookie_domain" => $domain,
-					"host" => $host,
+				$this->application->logger->warning('Unable to set cookie domain {cookie_domain} on host {host}', [
+					'cookie_domain' => $domain,
+					'host' => $host,
 				]);
 				$domain = null;
 			}
 		}
-		$secure = avalue($options, 'secure', $this->optionBool("cookie_secure"));
-		$path = avalue($options, 'path', $this->optionBool("cookie_path", "/"));
+		$secure = avalue($options, 'secure', $this->optionBool('cookie_secure'));
+		$path = avalue($options, 'path', $this->optionBool('cookie_path', '/'));
 		if (!$domain) {
 			$domain = Domain::domain_factory($this->application, $host)->compute_cookie_domain();
 		}
@@ -376,51 +376,51 @@ class Response extends Hookable {
 		if ($do_hooks) {
 			$this->call_hook('headers_before');
 		}
-		if ($this->optionBool("skip_response_headers")) {
+		if ($this->optionBool('skip_response_headers')) {
 			return;
 		}
 		if ($called) {
-			throw new Exception_Semantics("Response headers called twice! {previous}", [
-				"previous" => $called,
+			throw new Exception_Semantics('Response headers called twice! {previous}', [
+				'previous' => $called,
 			]);
 		} else {
 			$called = calling_function(2);
 		}
 		$file = $line = null;
 		if (headers_sent($file, $line)) {
-			throw new Exception_Semantics("Headers already sent on {file}:{line}", [
-				"file" => $file,
-				"line" => $line,
+			throw new Exception_Semantics('Headers already sent on {file}:{line}', [
+				'file' => $file,
+				'line' => $line,
 			]);
 		}
 		if ($do_hooks) {
-			$this->call_hook("headers");
+			$this->call_hook('headers');
 		}
-		if (begins($this->content_type, "text/")) {
+		if (begins($this->content_type, 'text/')) {
 			if (empty($this->charset)) {
-				$this->charset = "utf-8";
+				$this->charset = 'utf-8';
 			}
-			$content_type = $this->content_type . "; charset=" . $this->charset;
+			$content_type = $this->content_type . '; charset=' . $this->charset;
 		} else {
 			$content_type = $this->content_type;
 		}
 		if ($this->application->development() && $this->application->configuration->path_get([
 				__CLASS__,
-				"json_to_html",
+				'json_to_html',
 			])) {
 			if (in_array($this->content_type, [
 				self::CONTENT_TYPE_JSON,
 			])) {
-				$content_type = "text/html; charset=" . $this->charset;
+				$content_type = 'text/html; charset=' . $this->charset;
 			}
 		}
 		$code = $this->status_code;
 		if ($code !== Net_HTTP::STATUS_OK) {
 			$message = $this->status_message;
-			$message = $message ? $message : avalue(Net_HTTP::$status_text, $code, "No error message");
-			$this->_header("HTTP/1.0 " . $this->status_code . " " . $message);
+			$message = $message ? $message : avalue(Net_HTTP::$status_text, $code, 'No error message');
+			$this->_header('HTTP/1.0 ' . $this->status_code . ' ' . $message);
 		}
-		$this->_header("Content-Type: " . $content_type);
+		$this->_header('Content-Type: ' . $content_type);
 		foreach ($this->headers as $name => $value) {
 			if (is_array($value)) {
 				foreach ($value as $v) {
@@ -467,9 +467,9 @@ class Response extends Hookable {
 	 */
 	final public function nocache() {
 		$this->cache_settings = null;
-		$this->header("Cache-Control", "no-cache, must-revalidate");
-		$this->header("Pragma", "no-cache");
-		$this->header("Expires", "-1");
+		$this->header('Cache-Control', 'no-cache, must-revalidate');
+		$this->header('Pragma', 'no-cache');
+		$this->header('Expires', '-1');
 		return $this;
 	}
 
@@ -481,9 +481,9 @@ class Response extends Hookable {
 	 */
 	final public function content_type($set = null) {
 		if ($set !== null) {
-			$this->application->logger->debug("Set content type to {set} at {where}", [
-				"set" => $set,
-				"where" => calling_function(),
+			$this->application->logger->debug('Set content type to {set} at {where}', [
+				'set' => $set,
+				'where' => calling_function(),
 			]);
 			$this->content_type = $set;
 			return $this;
@@ -501,10 +501,10 @@ class Response extends Hookable {
 	 */
 	final public function output_handler($set = null) {
 		if ($set !== null) {
-			$this->application->logger->debug("{method} set to {set} from {calling}", [
-				"method" => __METHOD__,
-				"set" => $set,
-				"calling" => calling_function(2),
+			$this->application->logger->debug('{method} set to {set} from {calling}', [
+				'method' => __METHOD__,
+				'set' => $set,
+				'calling' => calling_function(2),
 			]);
 			$this->output_handler = $set;
 			return $this;
@@ -548,7 +548,7 @@ class Response extends Hookable {
 			return $this;
 		}
 		$lowname = strtolower($name);
-		if ($lowname === "content-type") {
+		if ($lowname === 'content-type') {
 			if ($value === null) {
 				return $this->content_type();
 			}
@@ -574,8 +574,8 @@ class Response extends Hookable {
 		if (!$type) {
 			$type = $this->content_type;
 			if (!$type) {
-				throw new Exception_Semantics("No content type set in {method}", [
-					"method" => __METHOD__,
+				throw new Exception_Semantics('No content type set in {method}', [
+					'method' => __METHOD__,
 				]);
 			}
 		}
@@ -603,18 +603,18 @@ class Response extends Hookable {
 			return;
 		}
 		$this->rendering = true;
-		$skip_hooks = to_bool(avalue($options, "skip_hooks"));
+		$skip_hooks = to_bool(avalue($options, 'skip_hooks'));
 		if (!$skip_hooks) {
-			$this->application->call_hook("response_output_before", $this);
-			$this->call_hook("output_before");
+			$this->application->call_hook('response_output_before', $this);
+			$this->call_hook('output_before');
 		}
 		if (!avalue($options, 'skip_headers')) {
 			$this->response_headers($skip_hooks);
 		}
 		$this->_output_handler()->output($this->content);
 		if (!$skip_hooks) {
-			$this->application->call_hook("response_output_after", $this);
-			$this->call_hook("output_after");
+			$this->application->call_hook('response_output_after', $this);
+			$this->call_hook('output_after');
 		}
 		$this->rendering = false;
 	}
@@ -655,7 +655,7 @@ class Response extends Hookable {
 	 */
 	public function cache_forever() {
 		return $this->cache([
-			"seconds" => 1576800000,
+			'seconds' => 1576800000,
 		]);
 	}
 
@@ -670,8 +670,8 @@ class Response extends Hookable {
 	 */
 	public function cache_for($seconds, $level = self::CACHE_SCHEME) {
 		return $this->cache([
-			"seconds" => intval($seconds),
-			"level" => $level,
+			'seconds' => intval($seconds),
+			'level' => $level,
 		]);
 	}
 
@@ -683,14 +683,14 @@ class Response extends Hookable {
 	 */
 	private static function _cache_parts($url) {
 		$parts = to_array(URL::parse($url)) + [
-				"scheme" => "none",
+				'scheme' => 'none',
 			];
 		$parts += [
-			"port" => URL::protocol_default_port($parts['scheme']),
-			"scheme" => 'none',
-			"host" => '_host_',
-			"query" => '_query_',
-			"path" => '_path_',
+			'port' => URL::protocol_default_port($parts['scheme']),
+			'scheme' => 'none',
+			'host' => '_host_',
+			'query' => '_query_',
+			'path' => '_path_',
 		];
 		return $parts;
 	}
@@ -719,7 +719,7 @@ class Response extends Hookable {
 	 * @return \Psr\Cache\CacheItemInterface
 	 */
 	private static function fetch_cache_id(CacheItemPoolInterface $pool, $id) {
-		return $pool->getItem(__CLASS__ . "::" . $id);
+		return $pool->getItem(__CLASS__ . '::' . $id);
 	}
 
 	/**
@@ -747,7 +747,7 @@ class Response extends Hookable {
 		$response->content_type($this->content_type());
 		$response->header($this->header());
 		$response->content = $this->render([
-			"skip_headers" => true,
+			'skip_headers' => true,
 		]);
 
 		if ($seconds !== null) {
@@ -759,9 +759,9 @@ class Response extends Hookable {
 			} elseif ($expires instanceof Timestamp) {
 				$item->expiresAt($expires->datetime());
 			} else {
-				$this->application->logger->error("{method} expires is unhandled type: {type}", [
-					"method" => __METHOD__,
-					"type" => type($expires),
+				$this->application->logger->error('{method} expires is unhandled type: {type}', [
+					'method' => __METHOD__,
+					'type' => type($expires),
 				]);
 			}
 		}
@@ -973,8 +973,8 @@ class Response extends Hookable {
 	 */
 	final public function json() {
 		if (func_num_args() !== 0) {
-			zesk()->deprecated("{method} takes NO arguments", [
-				"method" => __METHOD__,
+			zesk()->deprecated('{method} takes NO arguments', [
+				'method' => __METHOD__,
 			]);
 		}
 		return $this->_type(self::CONTENT_TYPE_JSON);
@@ -1058,8 +1058,8 @@ class Response extends Hookable {
 	 */
 	final public function redirect($url = null, $message = null) {
 		if ($url) {
-			$this->application->deprecated("[method} support for URL and message is deprecated 2018-01", [
-				"method" => __METHOD__,
+			$this->application->deprecated('[method} support for URL and message is deprecated 2018-01', [
+				'method' => __METHOD__,
 			]);
 			return $this->redirect()->url($url, $message);
 		}
@@ -1076,7 +1076,7 @@ class Response extends Hookable {
 	 *            Already-localized message to display to user on redirected page
 	 */
 	public function redirect_default($url, $message = null): void {
-		$ref = $this->request->get("ref", "");
+		$ref = $this->request->get('ref', '');
 		if (!empty($ref)) {
 			$url = $ref;
 		}
@@ -1108,7 +1108,7 @@ class Response extends Hookable {
 	 * @return boolean|self
 	 */
 	public function skip_response_headers($set = null) {
-		return $set === null ? $this->optionBool("skip_response_headers") : $this->setOption("skip_response_headers", to_bool($set));
+		return $set === null ? $this->optionBool('skip_response_headers') : $this->setOption('skip_response_headers', to_bool($set));
 	}
 
 	/**

@@ -118,7 +118,7 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 * @param Template $template
 	 */
 	public function hook_head(Request $request, Response $response, Template $template): void {
-		if (!$this->optionBool("disabled")) {
+		if (!$this->optionBool('disabled')) {
 			$this->javascript_settings['enabled'] = true;
 			$this->compute_javascript_settings();
 			if ($this->javascript_settings) {

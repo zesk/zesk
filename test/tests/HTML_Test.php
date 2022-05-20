@@ -43,11 +43,11 @@ class HTML_Test extends Test_Unit {
 			2,
 			3,
 		]);
-		$this->assert_equal(HTML::parseAttributes("1"), ["1" => true]);
+		$this->assert_equal(HTML::parseAttributes('1'), ['1' => true]);
 
 		$this->assert_arrays_equal(HTML::parseAttributes('template="volunteer-help" article="12"'), [
-			"article" => "12",
-			"template" => "volunteer-help",
+			'article' => '12',
+			'template' => 'volunteer-help',
 		]);
 	}
 
@@ -58,11 +58,11 @@ class HTML_Test extends Test_Unit {
 	public function cleanTagWhitespace(array $tags): array {
 		foreach ($tags as $index => $tag) {
 			$html = $tag->innerHTML();
-			$html = preg_replace("/\s+/", " ", $html);
+			$html = preg_replace("/\s+/", ' ', $html);
 			$tag->setInnerHTML($html);
 
 			$html = $tag->outerHTML();
-			$html = preg_replace("/\s+/", " ", $html);
+			$html = preg_replace("/\s+/", ' ', $html);
 			$tag->setOuterHTML($html);
 
 			$tags[$index] = $tag;
@@ -71,7 +71,7 @@ class HTML_Test extends Test_Unit {
 	}
 
 	public function test_extract_tags(): void {
-		$tag = "a";
+		$tag = 'a';
 		$contents = file_get_contents(dirname(__DIR__) . '/test-data/html-extract_tags.html');
 		$tags = HTML::extract_tags($tag, $contents, true);
 		$expected_tags = [
@@ -162,7 +162,7 @@ class HTML_Test extends Test_Unit {
 	public function dataprovider_request() {
 		$request0 = $this->application->factory(Request::class, $this->application);
 		$request0->initialize_from_settings([
-			"url" => "http://localhost/path/",
+			'url' => 'http://localhost/path/',
 		]);
 		return [
 			[
@@ -193,40 +193,40 @@ class HTML_Test extends Test_Unit {
 	 * @dataProvider dataprovider_request
 	 */
 	public function test_a_prefix(Request $request): void {
-		$href = "";
-		$mixed = "null";
+		$href = '';
+		$mixed = 'null';
 		HTML::a_prefix($request, $href, $mixed);
 	}
 
 	public function test_attributes(): void {
-		$attributes = ["hello" => "world"];
+		$attributes = ['hello' => 'world'];
 		HTML::attributes($attributes);
 	}
 
 	public function test_cdn_img(): void {
-		$src = "";
+		$src = '';
 		$text = '';
 		$attrs = [];
 		HTML::img($this->application, $src, $text, $attrs);
 	}
 
 	public function test_clean_style_attributes(): void {
-		$base = "<a style=\"background-url: foo.gif; background-color: red\" href=\"/\">Hello world</a>";
-		$this->assertEquals("<a style=\"background-color: red;\" href=\"/\">Hello world</a>", HTML::clean_style_attributes($base, ["background-color"], []));
-		$this->assertEquals("<a style=\"background-url: foo.gif\" href=\"/\">Hello world</a>", HTML::clean_style_attributes($base, ["background-url"], []));
+		$base = '<a style="background-url: foo.gif; background-color: red" href="/">Hello world</a>';
+		$this->assertEquals('<a style="background-color: red;" href="/">Hello world</a>', HTML::clean_style_attributes($base, ['background-color'], []));
+		$this->assertEquals('<a style="background-url: foo.gif" href="/">Hello world</a>', HTML::clean_style_attributes($base, ['background-url'], []));
 		$this->assertEquals($base, HTML::clean_style_attributes($base, [
-			"background-url",
-			"background-color",
+			'background-url',
+			'background-color',
 		], []));
-		$this->assertEquals("<a href=\"/\">Hello world</a>", HTML::clean_style_attributes($base, [], [
-			"background-url",
-			"background-color",
+		$this->assertEquals('<a href="/">Hello world</a>', HTML::clean_style_attributes($base, [], [
+			'background-url',
+			'background-color',
 		]));
-		$this->assertEquals("<a href=\"/\">Hello world</a>", HTML::clean_style_attributes($base, ["background-url"], ["background-url"]));
+		$this->assertEquals('<a href="/">Hello world</a>', HTML::clean_style_attributes($base, ['background-url'], ['background-url']));
 	}
 
 	public function dataCleanTags() {
-		$simple_html = "<a href=\"/\"><strong>Bold</strong><em>Italic</em><p>Paragraphs</p></a><h1>Heading</h1><h2>Heading</h2>";
+		$simple_html = '<a href="/"><strong>Bold</strong><em>Italic</em><p>Paragraphs</p></a><h1>Heading</h1><h2>Heading</h2>';
 		return [
 			[
 				$simple_html,
@@ -237,8 +237,8 @@ class HTML_Test extends Test_Unit {
 			[
 				$simple_html,
 				[],
-				["h2"],
-				"<a href=\"/\"><strong>Bold</strong><em>Italic</em><p>Paragraphs</p></a><h1>Heading</h1>",
+				['h2'],
+				'<a href="/"><strong>Bold</strong><em>Italic</em><p>Paragraphs</p></a><h1>Heading</h1>',
 			],
 		];
 	}
@@ -248,12 +248,12 @@ class HTML_Test extends Test_Unit {
 	 * @dataProvider dataCleanTags
 	 */
 	public function test_cleanTags($string, $allowed_tags, $remove_tags, $expected): void {
-		$this->assertEquals($expected, HTML::cleanTags($string, $allowed_tags, $remove_tags), "HTML::clean_tags");
+		$this->assertEquals($expected, HTML::cleanTags($string, $allowed_tags, $remove_tags), 'HTML::clean_tags');
 	}
 
 	public function dataCleanTagAttributes() {
 		return [
-			["<a class=\"dude\">Link</a>", [], ["class"], "<a>Link</a>"],
+			['<a class="dude">Link</a>', [], ['class'], '<a>Link</a>'],
 		];
 	}
 
@@ -262,13 +262,13 @@ class HTML_Test extends Test_Unit {
 	 * @dataProvider dataCleanTagAttributes
 	 */
 	public function test_clean_tags_attributes(string $string, $include, $exclude, $expected): void {
-		$this->assertEquals($expected, HTML::cleanTagsAttributes($string, $include, $exclude), "HTML::clean_tags_attributes");
+		$this->assertEquals($expected, HTML::cleanTagsAttributes($string, $include, $exclude), 'HTML::clean_tags_attributes');
 	}
 
 	public function dataCleanTagsWithoutAttributes() {
 		return [
-			[["a"], "<a href='dude'>Link</a>", "<a href='dude'>Link</a>"],
-			[["a"], "<a href='dude'>Link</a><a>Nolink</a>", "<a href='dude'>Link</a>Nolink"],
+			[['a'], '<a href=\'dude\'>Link</a>', '<a href=\'dude\'>Link</a>'],
+			[['a'], '<a href=\'dude\'>Link</a><a>Nolink</a>', '<a href=\'dude\'>Link</a>Nolink'],
 		];
 	}
 
@@ -280,13 +280,13 @@ class HTML_Test extends Test_Unit {
 		return [
 			[
 				0,
-				"a",
-				"",
+				'a',
+				'',
 			],
 			[
 				1,
-				"a",
-				"</a>",
+				'a',
+				'</a>',
 			],
 		];
 	}
@@ -302,33 +302,33 @@ class HTML_Test extends Test_Unit {
 	}
 
 	public function test_count_until_tag(): void {
-		$string = "All good <strong>things</strong> must come to an <em>end</em>.<h1>Hello!</h1>";
+		$string = 'All good <strong>things</strong> must come to an <em>end</em>.<h1>Hello!</h1>';
 		//        01234567890123456789012345678901234567890123456789
 		$offset = 17;
 		$nWords = 0;
-		$tagName = "strong";
+		$tagName = 'strong';
 		$this->assert(HTML::count_until_tag($string, $tagName, $nWords) === $offset, "HTML::count_until_tag($string, $tagName, $nWords) " . HTML::count_until_tag($string, $tagName, $nWords) . " === $offset");
 		$this->assert($nWords === 2);
-		$this->assert($tagName === "strong", "$tagName === strong");
+		$this->assert($tagName === 'strong', "$tagName === strong");
 	}
 
 	public function test_div(): void {
-		$this->assertEquals("<div class=\"hello world\">Dude</div>", HTML::div(".hello world", "Dude"));
+		$this->assertEquals('<div class="hello world">Dude</div>', HTML::div('.hello world', 'Dude'));
 	}
 
 	public function dataEllipsis(): array {
 		return [
 			[
-				"<a href=\"link.gif\">this is a word with a lot of</a> ...",
-				"<a href=\"link.gif\">this is a word with a lot of other words in it</a>",
+				'<a href="link.gif">this is a word with a lot of</a> ...',
+				'<a href="link.gif">this is a word with a lot of other words in it</a>',
 				20,
-				" ...",
+				' ...',
 			],
 			[
-				"<a href=\"link.gif\">this</a>&mdash;",
-				"<a href=\"link.gif\">this is a word with a lot of other words in it</a>",
+				'<a href="link.gif">this</a>&mdash;',
+				'<a href="link.gif">this is a word with a lot of other words in it</a>',
 				4,
-				"&mdash;",
+				'&mdash;',
 			],
 		];
 	}
@@ -343,16 +343,16 @@ class HTML_Test extends Test_Unit {
 	public function data_eTag(): array {
 		return [
 			[
-				"",
-				"div",
-				".class",
-				"",
+				'',
+				'div',
+				'.class',
+				'',
 			],
 			[
-				"<div class=\"class\">a</div>",
-				"div",
-				".class",
-				"a",
+				'<div class="class">a</div>',
+				'div',
+				'.class',
+				'a',
 			],
 		];
 	}
@@ -367,7 +367,7 @@ class HTML_Test extends Test_Unit {
 
 	public function data_extractEmails(): array {
 		return [
-			[["info@example.com", "nowhere@none.com"], "<a href=\"mailto:info@example.com\">nowhere@noone.com</a>"],
+			[['info@example.com', 'nowhere@none.com'], '<a href="mailto:info@example.com">nowhere@noone.com</a>'],
 		];
 	}
 
@@ -381,13 +381,13 @@ class HTML_Test extends Test_Unit {
 
 	public function test_extract_links(): void {
 		$content = null;
-		HTML::extract_links("Goo <a href=\"dude\">Dude</a>");
+		HTML::extract_links('Goo <a href="dude">Dude</a>');
 	}
 
 	public function data_extractTagContents(): array {
 		return [
-			["Link", "a", "<a href=\"\">Link</a>"],
-			["Link", "a", "<a href=\"\">Link</a><a>Loop</a>"],
+			['Link', 'a', '<a href="">Link</a>'],
+			['Link', 'a', '<a href="">Link</a><a>Loop</a>'],
 		];
 	}
 
@@ -401,8 +401,8 @@ class HTML_Test extends Test_Unit {
 
 	public function data_extractTagObject(): array {
 		return [
-			[new HTML_Tag("a", ["href" => "/"], "Link"), "a", "<a href=\"/\">Link</a>"],
-			[new HTML_Tag("a", ["href" => "/"], "Link"), "a", "<a href=\"\">Link</a><a>Loop</a>"],
+			[new HTML_Tag('a', ['href' => '/'], 'Link'), 'a', '<a href="/">Link</a>'],
+			[new HTML_Tag('a', ['href' => '/'], 'Link'), 'a', '<a href="">Link</a><a>Loop</a>'],
 		];
 	}
 
@@ -424,41 +424,41 @@ class HTML_Test extends Test_Unit {
 	}
 
 	public function test_img(): void {
-		$src = "image.gif";
+		$src = 'image.gif';
 		$text = '';
-		$attrs = ["alt" => "dude"];
-		$this->assertEquals("<img alt=\"\" title=\"\" src=\"image.gif\" border=\"0\" />", HTML::img($this->application, $src, $text, $attrs));
+		$attrs = ['alt' => 'dude'];
+		$this->assertEquals('<img alt="" title="" src="image.gif" border="0" />', HTML::img($this->application, $src, $text, $attrs));
 	}
 
 	public function test_img_compat(): void {
-		$src = "image.gif";
+		$src = 'image.gif';
 		$w = false;
 		$h = false;
 		$text = '';
 		$attrs = [];
-		$this->assertEquals("", HTML::img_compat($this->application, $src, $w, $h, $text, $attrs));
+		$this->assertEquals('', HTML::img_compat($this->application, $src, $w, $h, $text, $attrs));
 	}
 
 	public function test_input(): void {
-		$type = "hidden";
-		$name = "hidden-input";
-		$value = "<>[]:\"";
-		$attributes = ["class" => "none"];
-		$this->assertEquals("<input class=\"none\" name=\"hidden-input\" type=\"hidden\" value=\"&lt;&gt;[]:&quot;\" />", HTML::input($type, $name, $value, $attributes));
+		$type = 'hidden';
+		$name = 'hidden-input';
+		$value = '<>[]:"';
+		$attributes = ['class' => 'none'];
+		$this->assertEquals('<input class="none" name="hidden-input" type="hidden" value="&lt;&gt;[]:&quot;" />', HTML::input($type, $name, $value, $attributes));
 	}
 
 	public function test_input_button(): void {
-		$n = "name";
-		$v = "random";
+		$n = 'name';
+		$v = 'random';
 		$attrs = [];
-		$this->assertEquals("<input name=\"name\" value=\"random\" type=\"button\" id=\"name\" />", HTML::input_button($n, $v, $attrs));
+		$this->assertEquals('<input name="name" value="random" type="button" id="name" />', HTML::input_button($n, $v, $attrs));
 	}
 
 	public function test_input_hidden(): void {
-		$name = "inputname";
-		$value = "random";
+		$name = 'inputname';
+		$value = 'random';
 		$attributes = [];
-		$this->assertEquals("<input name=\"inputname\" type=\"hidden\" value=\"random\" />", HTML::input_hidden($name, $value, $attributes));
+		$this->assertEquals('<input name="inputname" type="hidden" value="random" />', HTML::input_hidden($name, $value, $attributes));
 	}
 
 	public function test_input_submit(): void {
@@ -469,14 +469,14 @@ class HTML_Test extends Test_Unit {
 	}
 
 	public function test_insert_inside_end(): void {
-		$html = "<a>Dude</a>";
-		$insert_html = "<strong>*</strong>";
-		$this->assertEquals("<a>Dude<strong>*</strong></a>", HTML::insertInsideEnd($html, $insert_html));
+		$html = '<a>Dude</a>';
+		$insert_html = '<strong>*</strong>';
+		$this->assertEquals('<a>Dude<strong>*</strong></a>', HTML::insertInsideEnd($html, $insert_html));
 	}
 
 	public function data_isEndTag() {
 		return [
-			[true, "</a>"],
+			[true, '</a>'],
 		];
 	}
 
@@ -492,8 +492,8 @@ class HTML_Test extends Test_Unit {
 	 * @todo move to zesk\Response_Test after HTML merged into parent
 	 */
 	public function TODO_test_scripts(): void {
-		$type = "text/javascript";
-		$script = "alert('Hello, world!');";
+		$type = 'text/javascript';
+		$script = 'alert(\'Hello, world!\');';
 		HTML::javascript_inline($script, [
 			'browser' => 'ie',
 		]);
@@ -501,16 +501,16 @@ class HTML_Test extends Test_Unit {
 		$scripts = HTML::scripts();
 
 		$this->assert(str_contains($scripts, $script));
-		$this->assert(str_contains($scripts, "<!--"));
-		$this->assert(str_contains($scripts, "[if IE]"));
-		$this->assert(str_contains($scripts, "<![endif]-->"));
+		$this->assert(str_contains($scripts, '<!--'));
+		$this->assert(str_contains($scripts, '[if IE]'));
+		$this->assert(str_contains($scripts, '<![endif]-->'));
 
 		$this->assert_equal($scripts, '<!--[if IE]><script type="text/javascript">alert(\'Hello, world!\');</script><![endif]-->');
 	}
 
 	public function data_matchTags() {
 		return [
-			[['a', 'b', 'strong', 'li'], "<a><b></b><strong></strong><li>"],
+			[['a', 'b', 'strong', 'li'], '<a><b></b><strong></strong><li>'],
 		];
 	}
 
@@ -531,15 +531,15 @@ class HTML_Test extends Test_Unit {
 
 	public function test_parse_styles(): void {
 		$this->assertEquals([
-			"background-color" => "red",
-			"position" => "absolute",
-			"z-index" => "2000",
-		], HTML::parse_styles("background-color: red; position: absolute; z-index: 2000"));
+			'background-color' => 'red',
+			'position' => 'absolute',
+			'z-index' => '2000',
+		], HTML::parse_styles('background-color: red; position: absolute; z-index: 2000'));
 	}
 
 	public function data_parseTags(): array {
 		return [
-			[["", ], "<a href=\"/\">Link</a>"],
+			[['', ], '<a href="/">Link</a>'],
 		];
 	}
 
@@ -555,8 +555,8 @@ class HTML_Test extends Test_Unit {
 
 	public function data_removeTags(): array {
 		return [
-			["", "a", "<a href=\"/\">Link</a>", true],
-			["Link", "a", "<a href=\"/\">Link</a>", false],
+			['', 'a', '<a href="/">Link</a>', true],
+			['Link', 'a', '<a href="/">Link</a>', false],
 		];
 	}
 
@@ -576,8 +576,8 @@ class HTML_Test extends Test_Unit {
 		$name = null;
 		$value = null;
 		$options = [
-			"opt" => "opt",
-			"opt2" => "opt2",
+			'opt' => 'opt',
+			'opt2' => 'opt2',
 		];
 		$attributes = null;
 		HTML::select($name, $value, $options, $attributes);
@@ -598,14 +598,14 @@ class HTML_Test extends Test_Unit {
 	}
 
 	public function test_strip(): void {
-		$x = "<strong>Dude</strong>";
-		$this->assertEquals("Dude", HTML::strip($x));
+		$x = '<strong>Dude</strong>';
+		$this->assertEquals('Dude', HTML::strip($x));
 	}
 
 	public function data_strlen(): array {
 		return [
-			[4, "<a href=\"/\">Link</a>"],
-			[5, "<a href=\"/\">Links</a>"],
+			[4, '<a href="/">Link</a>'],
+			[5, '<a href="/">Links</a>'],
 		];
 	}
 
@@ -621,9 +621,9 @@ class HTML_Test extends Test_Unit {
 
 	public function data_style_units(): array {
 		return [
-			["3px", "3", "px"],
-			["3em", "3em", "px"],
-			["32em", "32em", "px"],
+			['3px', '3', 'px'],
+			['3em', '3em', 'px'],
+			['32em', '32em', 'px'],
 		];
 	}
 
@@ -640,11 +640,11 @@ class HTML_Test extends Test_Unit {
 
 	public function data_substr(): array {
 		return [
-			["<h1>Heading</h1><p>Once upon a time</p>", "<h1>Heading</h1><p>Once upon a time</p>", 0, 1],
-			["<h1>Heading</h1><p>Once upon a time</p>", "<h1>Heading</h1><p>Once upon a time</p>", 0, 10],
-			["<h1>Heading</h1><p>Once upon a time</p>", "<h1>Heading</h1><p>Once upon a time</p>", 0, 20],
-			["<h1>Heading</h1><p>Once upon a time</p>", "<h1>Heading</h1><p>Once upon a time</p>", 0, 30],
-			["<h1>Heading</h1><p>Once upon a time</p>", "<h1>Heading</h1><p>Once upon a time</p>", 0, 50],
+			['<h1>Heading</h1><p>Once upon a time</p>', '<h1>Heading</h1><p>Once upon a time</p>', 0, 1],
+			['<h1>Heading</h1><p>Once upon a time</p>', '<h1>Heading</h1><p>Once upon a time</p>', 0, 10],
+			['<h1>Heading</h1><p>Once upon a time</p>', '<h1>Heading</h1><p>Once upon a time</p>', 0, 20],
+			['<h1>Heading</h1><p>Once upon a time</p>', '<h1>Heading</h1><p>Once upon a time</p>', 0, 30],
+			['<h1>Heading</h1><p>Once upon a time</p>', '<h1>Heading</h1><p>Once upon a time</p>', 0, 50],
 		];
 	}
 
@@ -662,9 +662,9 @@ class HTML_Test extends Test_Unit {
 
 	public function data_tag(): array {
 		return [
-			["<h1>Heading</h1>", "h1", [], "Heading"],
-			["<h1 class=\"dude\">Heading</h1>", "h1", ".dude", "Heading"],
-			["<h1 id=\"dude\">Heading</h1>", "h1", "#dude", "Heading"],
+			['<h1>Heading</h1>', 'h1', [], 'Heading'],
+			['<h1 class="dude">Heading</h1>', 'h1', '.dude', 'Heading'],
+			['<h1 id="dude">Heading</h1>', 'h1', '#dude', 'Heading'],
 		];
 	}
 
@@ -686,15 +686,15 @@ class HTML_Test extends Test_Unit {
 
 	public function test_tag_open(): void {
 		$attributes = [
-			"id" => "dude",
+			'id' => 'dude',
 		];
-		HTML::tag_open("div", $attributes);
-		HTML::tag_close("DIV");
+		HTML::tag_open('div', $attributes);
+		HTML::tag_close('DIV');
 	}
 
 	public function data_tags(): array {
 		return [
-			["<h1>Heading</h1><h1>Another</h1>", "h1", ["Heading", "Another"]],
+			['<h1>Heading</h1><h1>Another</h1>', 'h1', ['Heading', 'Another']],
 		];
 	}
 
@@ -711,9 +711,9 @@ class HTML_Test extends Test_Unit {
 
 	public function data_toAttributes(): array {
 		return [
-			[["class" => "dude"], ".dude"],
-			[["id" => "dude"], "#dude"],
-			[["class" => "dude"], "dude"],
+			[['class' => 'dude'], '.dude'],
+			[['id' => 'dude'], '#dude'],
+			[['class' => 'dude'], 'dude'],
 		];
 	}
 
@@ -727,7 +727,7 @@ class HTML_Test extends Test_Unit {
 
 	public function data_trimWhiteSpace(): array {
 		return [
-			["<a>href</a>", "   <a  > href < /a >  "],
+			['<a>href</a>', '   <a  > href < /a >  '],
 		];
 	}
 
@@ -742,12 +742,12 @@ class HTML_Test extends Test_Unit {
 	}
 
 	public function data_trimWords(): array {
-		$test_phrase_1 = "<h1>one two three four five <em>six seven eight</em> nine ten</h1>";
+		$test_phrase_1 = '<h1>one two three four five <em>six seven eight</em> nine ten</h1>';
 		return [
 			[$test_phrase_1, $test_phrase_1, 10],
-			["<h1>one two three four five <em>six seven eight</em> nine </h1>", "<h1>one two three four</h1>", 9],
-			["<h1>one two three four five <em>six seven eight</em></h1>", "<h1>one two three four</h1>", 8],
-			["<h1>one</h1>", "<h1>one two three four</h1>", 1],
+			['<h1>one two three four five <em>six seven eight</em> nine </h1>', '<h1>one two three four</h1>', 9],
+			['<h1>one two three four five <em>six seven eight</em></h1>', '<h1>one two three four</h1>', 8],
+			['<h1>one</h1>', '<h1>one two three four</h1>', 1],
 		];
 	}
 
@@ -761,7 +761,7 @@ class HTML_Test extends Test_Unit {
 
 	public function data_urlify() {
 		return [
-			["<a href=\"http://example.com\">http://example.com</a>", "http://example.com", []],
+			['<a href="http://example.com">http://example.com</a>', 'http://example.com', []],
 		];
 	}
 

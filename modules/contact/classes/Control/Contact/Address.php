@@ -20,7 +20,7 @@ class Control_Contact_Address extends Control_Edit {
 	 *
 	 * @var string
 	 */
-	protected $theme_widgets = "zesk/control/contact/address/widgets";
+	protected $theme_widgets = 'zesk/control/contact/address/widgets';
 
 	/**
 	 *
@@ -56,7 +56,7 @@ class Control_Contact_Address extends Control_Edit {
 			$this->object->contact = $this->parent->object;
 		}
 		if (!$this->submit_store()) {
-			return $this->call_hook_arguments("store_failed", [], true);
+			return $this->call_hook_arguments('store_failed', [], true);
 		}
 		return $this->submit_redirect();
 	}

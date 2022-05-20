@@ -8,8 +8,8 @@ namespace zesk;
  */
 class Class_Content_Menu extends Class_ORM {
 	public array $find_keys = [
-		"code",
+		'code',
 	];
 
-	public string $id_column = "id";
+	public string $id_column = 'id';
 }

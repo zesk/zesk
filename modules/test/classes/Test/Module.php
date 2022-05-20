@@ -25,7 +25,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->phpunit = $this->application->path("vendor/bin/phpunit");
+		$this->phpunit = $this->application->path('vendor/bin/phpunit');
 	}
 
 	/**
@@ -34,12 +34,12 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
 	public function hook_routes(Router $router): void {
-		$router->add_route("test(/{option action}(/{arg}))", [
-			"controller" => Controller::class,
-			"arguments" => [
+		$router->add_route('test(/{option action}(/{arg}))', [
+			'controller' => Controller::class,
+			'arguments' => [
 				2,
 			],
-			"default action" => "index",
+			'default action' => 'index',
 		]);
 	}
 

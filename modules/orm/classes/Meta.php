@@ -23,10 +23,10 @@ class Meta extends ORM {
 	 * @return self
 	 */
 	protected static function class_meta_factory($class, ORM $parent, $name) {
-		$name = self::clean_code_name($name, "_");
+		$name = self::clean_code_name($name, '_');
 		return $parent->application->orm_factory($class, [
-			"parent" => $parent,
-			"name" => $name,
+			'parent' => $parent,
+			'name' => $name,
 		]);
 	}
 
@@ -45,7 +45,7 @@ class Meta extends ORM {
 	 */
 	public function meta_set($value) {
 		$this->_meta_fetch = true;
-		return $this->set_member("value", $value)->store();
+		return $this->set_member('value', $value)->store();
 	}
 
 	/**
@@ -61,6 +61,6 @@ class Meta extends ORM {
 			}
 			$this->_meta_fetch = true;
 		}
-		return $this->member("value", $default);
+		return $this->member('value', $default);
 	}
 }

@@ -15,14 +15,14 @@ class Controller_Preference extends Controller {
 	 *
 	 * @var string
 	 */
-	protected $method_default_action = "action_getset";
+	protected $method_default_action = 'action_getset';
 
 	/**
 	 * Method to use as default action in this Controller. Must be a valid method name.
 	 *
 	 * @var string
 	 */
-	protected $method_default_arguments = "arguments_getset";
+	protected $method_default_arguments = 'arguments_getset';
 
 	/**
 	 *
@@ -35,7 +35,7 @@ class Controller_Preference extends Controller {
 	 * @return string
 	 */
 	public function _whitelist() {
-		return $this->application->path("etc/preference-whitelist.txt");
+		return $this->application->path('etc/preference-whitelist.txt');
 	}
 
 	/**
@@ -53,11 +53,11 @@ class Controller_Preference extends Controller {
 	 */
 	public function arguments_getset($action, $arg) {
 		if ($this->whitelist === null) {
-			$path = $this->whitelist = array_flip(ArrayTools::clean(explode("\n", File::contents($this->_whitelist(), "")), ""));
+			$path = $this->whitelist = array_flip(ArrayTools::clean(explode("\n", File::contents($this->_whitelist(), '')), ''));
 			if ($this->application->development()) {
 				// TODO Possible security hole here - if someone outside can set development, they could possibly overwrite User preferences how they wish.
 				// Possibly set a global flag instead?
-				$this->application->hooks->add("exit", [
+				$this->application->hooks->add('exit', [
 					$this,
 					'save_preferences',
 				]);
@@ -98,37 +98,37 @@ class Controller_Preference extends Controller {
 				];
 			}
 			return $this->json([
-				"status" => false,
-				"message" => $locale->__("Invalid preference"),
+				'status' => false,
+				'message' => $locale->__('Invalid preference'),
 			] + $extras);
 		}
 		$user = $this->application->user($this->request);
 		if (!$user || !$user->authenticated($this->request)) {
-			$this->response->status(Net_HTTP::STATUS_UNAUTHORIZED, $message_en = "Not authenticated");
+			$this->response->status(Net_HTTP::STATUS_UNAUTHORIZED, $message_en = 'Not authenticated');
 			return $this->json([
-				"status" => false,
-				"actions" => [
-					"user-not-authenticated",
+				'status' => false,
+				'actions' => [
+					'user-not-authenticated',
 				],
-				"message" => $locale->__($message_en),
+				'message' => $locale->__($message_en),
 			]);
 		}
 		if ($this->request->is_post()) {
 			$value = PHP::autotype($this->request->get('value'));
 			if (Preference::user_set($user, $type, $value)) {
 				return $this->json([
-					"status" => true,
+					'status' => true,
 				]);
 			}
 			return $this->json([
-				"status" => false,
-				"message" => $locale->__("Can not set preference {type}", [
-					"type" => $type,
+				'status' => false,
+				'message' => $locale->__('Can not set preference {type}', [
+					'type' => $type,
 				]),
 			]);
 		}
 		return $this->json([
-			"value" => Preference::user_get($user, $type),
+			'value' => Preference::user_get($user, $type),
 		]);
 	}
 }

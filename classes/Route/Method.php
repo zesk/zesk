@@ -17,13 +17,13 @@ class Route_Method extends Route {
 		$function = $this->options['method'];
 		$class = $method = null;
 		if (is_string($function)) {
-			[$class, $method] = pair($function, "::", null, $function);
+			[$class, $method] = pair($function, '::', null, $function);
 		}
 		[$include, $require] = $this->_do_includues();
 		if ($class) {
 			if (!class_exists($class, $this->optionBool('autoload', true))) {
-				throw new Exception_Parameter("No such class found {class}", [
-					"class" => $class,
+				throw new Exception_Parameter('No such class found {class}', [
+					'class' => $class,
 				]);
 			}
 			if (!method_exists($class, $method)) {
@@ -37,16 +37,16 @@ class Route_Method extends Route {
 			}
 		} elseif (is_string($function)) {
 			if (!function_exists($function)) {
-				throw new Exception_Parameter("No such function exists in {require} or {include} for {pattern}", [
-					"require" => $require,
-					"include" => $include,
-					"pattern" => $this->pattern,
+				throw new Exception_Parameter('No such function exists in {require} or {include} for {pattern}', [
+					'require' => $require,
+					'include' => $include,
+					'pattern' => $this->pattern,
 				]);
 			}
 		} elseif (!is_callable($function)) {
-			throw new Exception_Parameter("Not callable: {callable} for {pattern}", [
-				"callable" => Hooks::callable_string($function),
-				"pattern" => $this->pattern,
+			throw new Exception_Parameter('Not callable: {callable} for {pattern}', [
+				'callable' => Hooks::callable_string($function),
+				'pattern' => $this->pattern,
 			]);
 		}
 	}
@@ -83,12 +83,12 @@ class Route_Method extends Route {
 		$method = $this->options['method'];
 		$arguments = $this->args;
 
-		$construct_arguments = $this->_map_variables($this->option_array("construct arguments"));
+		$construct_arguments = $this->_map_variables($this->option_array('construct arguments'));
 		$method = $this->_map_variables($method);
 		ob_start();
 
 		try {
-			if (is_string($method) && str_contains($method, "::")) {
+			if (is_string($method) && str_contains($method, '::')) {
 				[$class, $method] = pair($method, '::', 'stdClass', $method);
 				$method = new ReflectionMethod($class, $method);
 				$object = $method->isStatic() ? null : $app->objects->factory_arguments($class, $construct_arguments);
@@ -100,11 +100,11 @@ class Route_Method extends Route {
 			throw $e;
 		} catch (\Exception $e) {
 			$content = null;
-			$app->hooks->call("exception", $e);
-			$app->logger->error("{class}::_execute() Running {method} threw exception {e}", [
-				"class" => __CLASS__,
-				"method" => $app->hooks->callable_string($method),
-				"e" => $e,
+			$app->hooks->call('exception', $e);
+			$app->logger->error('{class}::_execute() Running {method} threw exception {e}', [
+				'class' => __CLASS__,
+				'method' => $app->hooks->callable_string($method),
+				'e' => $e,
 			]);
 		}
 		if ($content instanceof Response) {
@@ -129,13 +129,13 @@ class Route_Method extends Route {
 			}
 		}
 		if (empty($content)) {
-			$content = $this->option("empty content", "");
+			$content = $this->option('empty content', '');
 		}
 		if ($content !== null) {
 			if (is_array($content)) {
-				$content = ArrayTools::join_wrap($content, $this->option("join_prefix", ""), $this->option("join_suffix", ""));
+				$content = ArrayTools::join_wrap($content, $this->option('join_prefix', ''), $this->option('join_suffix', ''));
 			}
-			$response->content = $this->option("prefix", "") . $content . $this->option("suffix", "");
+			$response->content = $this->option('prefix', '') . $content . $this->option('suffix', '');
 		}
 	}
 }

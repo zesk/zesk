@@ -68,7 +68,7 @@ class ArrayTools {
 	public static function simplify(array $a): array {
 		foreach ($a as $k => $v) {
 			if (is_object($v)) {
-				$a[$k] = method_exists($v, "__toString") ? strval($v) : self::simplify(get_object_vars($v));
+				$a[$k] = method_exists($v, '__toString') ? strval($v) : self::simplify(get_object_vars($v));
 			} elseif (is_array($v)) {
 				$a[$k] = self::simplify($v);
 			} else {
@@ -85,7 +85,7 @@ class ArrayTools {
 	 * @param mixed $values_to_remove Value or array of values to remove. Must match explicitly (===)
 	 * @return array
 	 */
-	public static function clean(array $array_to_clean, mixed $values_to_remove = [null, "", false]): array {
+	public static function clean(array $array_to_clean, mixed $values_to_remove = [null, '', false]): array {
 		if (is_array($values_to_remove)) {
 			foreach ($values_to_remove as $v) {
 				$array_to_clean = self::clean($array_to_clean, $v);
@@ -111,7 +111,7 @@ class ArrayTools {
 	 */
 	public static function trim(array $a, string $character_list = self::TRIM_WHITESPACE): array {
 		foreach ($a as $i => $v) {
-			$a[$i] = is_array($v) ? self::trim($v, $character_list) : (is_string($v) ? trim($v, $character_list) : "");
+			$a[$i] = is_array($v) ? self::trim($v, $character_list) : (is_string($v) ? trim($v, $character_list) : '');
 		}
 		return $a;
 	}
@@ -135,7 +135,7 @@ class ArrayTools {
 	public static function list_trim_head(array $a): array {
 		while (count($a) > 0) {
 			$item = first($a);
-			if (trim($item) === "") {
+			if (trim($item) === '') {
 				array_shift($a);
 			} else {
 				break;
@@ -153,7 +153,7 @@ class ArrayTools {
 	public static function list_trim_tail(array $a): array {
 		while (count($a) > 0) {
 			$item = last($a);
-			if (trim($item) === "") {
+			if (trim($item) === '') {
 				array_pop($a);
 			} else {
 				break;
@@ -173,7 +173,7 @@ class ArrayTools {
 	 */
 	public static function trim_clean(array $arr, string $character_list = self::TRIM_WHITESPACE, array $values = [
 		null,
-		"",
+		'',
 		false,
 	]): array {
 		return self::clean(self::trim($arr, $character_list), $values);
@@ -285,7 +285,7 @@ class ArrayTools {
 	 * @param string $suffix
 	 * @return array
 	 */
-	public static function wrap(array $arr, string $prefix = "", string $suffix = ""): array {
+	public static function wrap(array $arr, string $prefix = '', string $suffix = ''): array {
 		foreach ($arr as $k => $v) {
 			$arr[$k] = $prefix . $v . $suffix;
 		}
@@ -330,7 +330,7 @@ class ArrayTools {
 	 * @param string $suffix
 	 * @return array
 	 */
-	public static function kwrap(array $arr, string $prefix = "", string $suffix = ""): array {
+	public static function kwrap(array $arr, string $prefix = '', string $suffix = ''): array {
 		$result = [];
 		foreach ($arr as $k => $v) {
 			$result[$prefix . $k . $suffix] = $v;
@@ -543,7 +543,7 @@ class ArrayTools {
 	 *            Character used to separate levels in the array
 	 * @return array
 	 */
-	public static function path_set(array &$array, $path, $value, $separator = "."): array {
+	public static function path_set(array &$array, $path, $value, $separator = '.'): array {
 		return apath_set($array, $path, $value, $separator);
 	}
 
@@ -560,7 +560,7 @@ class ArrayTools {
 	 * @see ArrayTools::path_set
 	 * @deprecated Use apath
 	 */
-	public static function path(array $array, $path, $default = null, $separator = ".") {
+	public static function path(array $array, $path, $default = null, $separator = '.') {
 		return apath($array, $path, $default, $separator);
 	}
 
@@ -709,7 +709,7 @@ class ArrayTools {
 	 *            Delimiter to split on
 	 * @return array
 	 */
-	public static function kpair(array $array, $delim = " ") {
+	public static function kpair(array $array, $delim = ' ') {
 		$result = [];
 		foreach ($array as $k => $item) {
 			[$key, $value] = pair($item, $delim, $k, $item);
@@ -910,7 +910,7 @@ class ArrayTools {
 	 */
 	public static function filter(array $arr, $keys) {
 		if (is_string($keys)) {
-			$keys = explode(";", $keys);
+			$keys = explode(';', $keys);
 		}
 		$r = [];
 		foreach ($keys as $src_key => $dest_key) {
@@ -937,7 +937,7 @@ class ArrayTools {
 	 */
 	public static function filter_prefix($a, $prefixes, $lower = false) {
 		if (is_string($prefixes)) {
-			$prefixes = explode(";", $prefixes);
+			$prefixes = explode(';', $prefixes);
 		}
 		$r = [];
 		foreach ($a as $k => $v) {
@@ -984,7 +984,7 @@ class ArrayTools {
 			}
 			foreach ($a as $i => $action) {
 				if (!is_scalar($action)) {
-					error_log(__METHOD__ . ' ' . type($action) . " " . _backtrace(), E_USER_ERROR);
+					error_log(__METHOD__ . ' ' . type($action) . ' ' . _backtrace(), E_USER_ERROR);
 				}
 				$action = strval($action);
 				if (array_key_exists($action, $exclude)) {
@@ -1656,9 +1656,9 @@ class ArrayTools {
 	 * @param string $suffix
 	 * @return string
 	 */
-	public static function join_wrap(array $array, $prefix = "", $suffix = "") {
+	public static function join_wrap(array $array, $prefix = '', $suffix = '') {
 		if (count($array) === 0) {
-			return "";
+			return '';
 		}
 		return $prefix . implode($suffix . $prefix, $array) . $suffix;
 	}
@@ -1684,7 +1684,7 @@ class ArrayTools {
 	 * @return string
 	 */
 	public static function join_suffix(array $array, $suffix) {
-		return self::join_wrap($array, "", $suffix);
+		return self::join_wrap($array, '', $suffix);
 	}
 
 	/**

@@ -34,7 +34,7 @@ class Control_Link_Object extends Control {
 	public function initialize(): void {
 		$widget = $this->widget;
 		$list_name = $this->_list_name();
-		$widget->name($list_name . "[]");
+		$widget->name($list_name . '[]');
 		$widget->initialize();
 		$this->object = $widget->model();
 
@@ -59,7 +59,7 @@ class Control_Link_Object extends Control {
 			$this->setOption('minimum_objects', intval($set));
 			return $this;
 		}
-		return $this->optionInt("minimum_objects", 0);
+		return $this->optionInt('minimum_objects', 0);
 	}
 
 	public function maximum_objects($set = null) {
@@ -67,7 +67,7 @@ class Control_Link_Object extends Control {
 			$this->setOption('maximum_objects', intval($set));
 			return $this;
 		}
-		return $this->optionInt("maximum_objects", 100);
+		return $this->optionInt('maximum_objects', 100);
 	}
 
 	// 	function load() {
@@ -90,7 +90,7 @@ class Control_Link_Object extends Control {
 	}
 
 	public function theme_variables() {
-		$list_name = $this->name() . "_list";
+		$list_name = $this->name() . '_list';
 		return [
 			'link_widgets' => $this->widgets,
 			'link_widget' => $this->widget,

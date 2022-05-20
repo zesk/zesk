@@ -19,7 +19,7 @@ class Control_Date extends Control_Timestamp {
 		if ($set !== null) {
 			return $this->setOption('time_value', $set);
 		}
-		return $this->time_control() ? $this->object->get($this->name() . '_time') : $this->option("time_value", "00:00:00");
+		return $this->time_control() ? $this->object->get($this->name() . '_time') : $this->option('time_value', '00:00:00');
 	}
 
 	public function load(): void {
@@ -29,7 +29,7 @@ class Control_Date extends Control_Timestamp {
 			$this->value(null);
 		} else {
 			$ts = new Timestamp($value);
-			$ts->set($ts->date() . " " . $this->time_value());
+			$ts->set($ts->date() . ' ' . $this->time_value());
 			$this->value(strval($ts));
 		}
 	}

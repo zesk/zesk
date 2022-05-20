@@ -18,9 +18,9 @@ class Command_Release extends Command_Base {
 	 * @var array
 	 */
 	protected array $load_modules = [
-		"Repository",
-		"Git",
-		"Subversion",
+		'Repository',
+		'Git',
+		'Subversion',
 	];
 
 	/**
@@ -43,7 +43,7 @@ class Command_Release extends Command_Base {
 	protected function initialize(): void {
 		parent::initialize();
 		$this->option_types['repo'] = 'string';
-		$this->option_help['repo'] = "Short name for the repository to use to disambiguate (e.g. --repo git or --repo svn)";
+		$this->option_help['repo'] = 'Short name for the repository to use to disambiguate (e.g. --repo git or --repo svn)';
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Command_Release extends Command_Base {
 	 * @see \zesk\Command::run()
 	 */
 	public function run() {
-		$this->repository = $this->application->modules->object("Repository");
+		$this->repository = $this->application->modules->object('Repository');
 
 		$path = $this->application->path();
 
@@ -60,17 +60,17 @@ class Command_Release extends Command_Base {
 
 		$repos = $this->repository->determine_repository($path);
 		if (count($repos) === 0) {
-			$this->error("No repository detected at {path}", compact("path"));
+			$this->error('No repository detected at {path}', compact('path'));
 		}
 		if (count($repos) > 1) {
-			if (!$this->hasOption("repo")) {
-				$this->error("Multiple repositories found, specify alias using --repo");
+			if (!$this->hasOption('repo')) {
+				$this->error('Multiple repositories found, specify alias using --repo');
 			}
-			$repo_code = $this->option("repo");
+			$repo_code = $this->option('repo');
 			if (!isset($repos[$repo_code])) {
-				$this->error("No such repository of type {repo_code} found use one of: {repo_codes}", [
-					"repo_code" => $repo_code,
-					"repo_codes" => array_keys($repos),
+				$this->error('No such repository of type {repo_code} found use one of: {repo_codes}', [
+					'repo_code' => $repo_code,
+					'repo_codes' => array_keys($repos),
 				]);
 			}
 			$repo = $repos[$repo_code];
@@ -78,21 +78,21 @@ class Command_Release extends Command_Base {
 			$repo = first($repos);
 		}
 
-		$this->log("Synchronizing with remote ...");
+		$this->log('Synchronizing with remote ...');
 		$repo->update($path);
 		$status = $repo->status($path, true);
 		if (count($status) > 0) {
 			$this->log_status($status);
-			$this->prompt_yes_no("Git status ok?");
+			$this->prompt_yes_no('Git status ok?');
 		}
 
 		$current_version = $this->application->version();
 		$latest_version = $repo->latest_version();
 
-		if (!$this->prompt_yes_no(__("{name} {last_version} -> {current_version} Versions ok?", [
-			"name" => get_class($this->application),
-			"last_version" => $last_version,
-			"current_version" => $current_version,
+		if (!$this->prompt_yes_no(__('{name} {last_version} -> {current_version} Versions ok?', [
+			'name' => get_class($this->application),
+			'last_version' => $last_version,
+			'current_version' => $current_version,
 		]))) {
 			return 1;
 		}

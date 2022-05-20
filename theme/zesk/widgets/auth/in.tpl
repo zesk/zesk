@@ -17,17 +17,17 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
-$web_key = $this->get("web_key", $application->option("web_key"));
+$web_key = $this->get('web_key', $application->option('web_key'));
 
-$u = $request->get("u", "/");
-$uc = $request->get("uk");
-$s = $request->get("s");
+$u = $request->get('u', '/');
+$uc = $request->get('uk');
+$s = $request->get('s');
 
 $m = false;
 
 if (md5($web_key . $u) !== $uc) {
-	$u = "/";
-	$m = "Invalid http::redirect URL.";
+	$u = '/';
+	$m = 'Invalid http::redirect URL.';
 }
 if (strlen($s) === 32) {
 	$session = Session_ORM::one_time_find($s);

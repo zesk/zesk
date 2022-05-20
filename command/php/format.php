@@ -14,7 +14,7 @@ class Command_PHP_Format extends Command_File_Convert {
 	 *
 	 * @var string
 	 */
-	protected $source_extension_pattern = "php|inc|tpl|php5|php7|phps";
+	protected $source_extension_pattern = 'php|inc|tpl|php5|php7|phps';
 
 	/**
 	 *
@@ -27,7 +27,7 @@ class Command_PHP_Format extends Command_File_Convert {
 	 *
 	 * @var string
 	 */
-	protected $configuration_file = "php-format";
+	protected $configuration_file = 'php-format';
 
 	/**
 	 * Convert $file into $new_file

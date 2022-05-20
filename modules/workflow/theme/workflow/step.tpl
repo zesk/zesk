@@ -12,4 +12,4 @@ if ($step->href) {
 		'href' => $step->href,
 	], $title);
 }
-echo HTML::tag('h2', $title) . HTML::etag("p", $step->description);
+echo HTML::tag('h2', $title) . HTML::etag('p', $step->description);

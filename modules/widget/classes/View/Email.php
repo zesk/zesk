@@ -13,7 +13,7 @@ class View_Email extends View {
 		if (empty($value) || !is_email($value)) {
 			return $this->empty_string();
 		}
-		$text = $this->option("format", '{' . $this->column() . '}');
+		$text = $this->option('format', '{' . $this->column() . '}');
 		$text = $this->object->apply_map($text);
 		$attrs = $this->options_include('charset;coords;href;hreflang;rel;rev;shape;target;accesskey;class;dir;id;lang;style;tabindex;title;xml:lang');
 		$attrs['href'] = 'mailto:' . $value;

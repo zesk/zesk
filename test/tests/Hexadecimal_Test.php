@@ -11,7 +11,7 @@ namespace zesk;
  */
 class Hexadecimal_Test extends Test_Unit {
 	public function test_decode(): void {
-		$decoded = Hexadecimal::decode("DEADBEEF");
+		$decoded = Hexadecimal::decode('DEADBEEF');
 		$x = null;
 		$this->assert_arrays_equal(str_split($decoded), [
 			chr(222),
@@ -22,6 +22,6 @@ class Hexadecimal_Test extends Test_Unit {
 	}
 
 	public function test_encode(): void {
-		$this->assert_equal(Hexadecimal::encode(chr(222) . chr(173) . chr(190) . chr(239)), "DEADBEEF");
+		$this->assert_equal(Hexadecimal::encode(chr(222) . chr(173) . chr(190) . chr(239)), 'DEADBEEF');
 	}
 }

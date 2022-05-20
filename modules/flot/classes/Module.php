@@ -39,8 +39,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head {
 	 */
 	private function _head(Response $response): void {
 		$response->html()->jquery();
-		$response->html()->javascript("/share/flot/jquery.flot.js", [
-			"share" => true,
+		$response->html()->javascript('/share/flot/jquery.flot.js', [
+			'share' => true,
 		]);
 	}
 
@@ -50,7 +50,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head {
 	 * @return string
 	 */
 	private function flot_js_path() {
-		return $this->application->path($this->option("share_path"));
+		return $this->application->path($this->option('share_path'));
 	}
 
 	/**
@@ -58,7 +58,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head {
 	private function _plugins() {
 		if ($this->plugins === null) {
 			$result = Directory::ls($this->flot_js_path(), '/jquery\.flot\.[a-zA-Z0-9]+]\.js/');
-			$this->plugins = array_flip(ArrayTools::unwrap(ArrayTools::flip_copy($result), "jquery.flot.", ".js", true));
+			$this->plugins = array_flip(ArrayTools::unwrap(ArrayTools::flip_copy($result), 'jquery.flot.', '.js', true));
 		}
 		return $this->plugins;
 	}
@@ -85,12 +85,12 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head {
 			$plugin_path = "/share/flot/$js_name";
 			if ((is_array($this->plugins) && array_key_exists($plugin, $this->plugins)) || file_exists($full_path = path($path, $js_name))) {
 				return $response->html()->javascript($plugin_path, [
-					"share" => true,
+					'share' => true,
 				]);
 			} else {
-				throw new Exception_File_NotFound($full_path, "{class} plugin not found: {plugin}", [
-					"class" => __CLASS__,
-					"plugin" => $plugin_path,
+				throw new Exception_File_NotFound($full_path, '{class} plugin not found: {plugin}', [
+					'class' => __CLASS__,
+					'plugin' => $plugin_path,
 				]);
 			}
 		}

@@ -43,7 +43,7 @@ class Command_Deploy extends \zesk\Command_Base {
 		 */
 		$application = $this->application;
 
-		$this->application->modules->all_hook("deploy", $this->options());
+		$this->application->modules->all_hook('deploy', $this->options());
 
 		/* @var $webapp Module */
 		$webapp = $application->webapp_module();
@@ -51,68 +51,68 @@ class Command_Deploy extends \zesk\Command_Base {
 		$server = Server::singleton($application);
 		if (!$this->has_arg()) {
 			$instances = $webapp->instance_factory(true);
-			foreach (ArrayTools::collapse($instances, "instance") as $instance) {
-				$this->log(" #{id} {code}: {name} ({appversion})", $instance->members());
+			foreach (ArrayTools::collapse($instances, 'instance') as $instance) {
+				$this->log(' #{id} {code}: {name} ({appversion})', $instance->members());
 			}
 			return 0;
 		}
-		$appcode = $this->get_arg("instancecode");
+		$appcode = $this->get_arg('instancecode');
 		$instance = Instance::find_from_code($application, $server, $appcode);
 		if (!$instance) {
-			$this->error("Unable to find instance \"{code}\"", [
-				"code" => $appcode,
+			$this->error('Unable to find instance "{code}"', [
+				'code' => $appcode,
 			]);
 			return 1;
 		}
 		$data = $instance->load_json();
 		$appinstances = to_array(avalue($data, 'instances', []));
 		if (count($appinstances) > 0 && !$this->has_arg()) {
-			$appinstance = $this->get_arg("instance");
+			$appinstance = $this->get_arg('instance');
 			if (!array_key_exists($appinstance, $appinstances)) {
-				$this->error("Unknown instance type \"{appinstance}\", must be one of {appinstances}", [
-					"appinstance" => $appinstance,
-					"appinstances" => array_keys($appinstances),
+				$this->error('Unknown instance type "{appinstance}", must be one of {appinstances}', [
+					'appinstance' => $appinstance,
+					'appinstances' => array_keys($appinstances),
 				]);
 				return 2;
 			}
 		}
 		if (!$application->maintenance(true)) {
-			$this->error("Unable to enter maintenance mode.");
+			$this->error('Unable to enter maintenance mode.');
 			return;
 		}
 
-		$this->log("Backing up the database ...");
+		$this->log('Backing up the database ...');
 		$dump = new \zesk\Command_Database_Dump($this->application, [
-			"file" => true,
+			'file' => true,
 		]);
 		$dump->run();
 
-		$this->log("Copying source code ...");
+		$this->log('Copying source code ...');
 		$trees = $application->repositories();
 		$this->copy_source_code();
 
-		$this->log("Current source code versions:");
+		$this->log('Current source code versions:');
 		$trees = $application->repositories();
 		$this->save_source_code_versions();
 
-		$this->log("Updating source code ...");
+		$this->log('Updating source code ...');
 		$this->update_source_code();
 
-		$this->log("Updating the schema ...");
+		$this->log('Updating the schema ...');
 		$db = $this->application->database_registry();
 		$results = $application->schema_synchronize($db);
 		$this->log($results);
 		$db->query($results);
 
-		$this->log("Running upgrade scripts");
-		$application->call_hook("upgrade");
+		$this->log('Running upgrade scripts');
+		$application->call_hook('upgrade');
 
-		$this->log("Replicating to other systems ...");
+		$this->log('Replicating to other systems ...');
 		$this->replicate();
 
-		$this->log("Turning off maintenance ...");
+		$this->log('Turning off maintenance ...');
 		if (!$application->maintenance(false)) {
-			$this->log("Unable to exit maintenance mode.");
+			$this->log('Unable to exit maintenance mode.');
 		}
 	}
 

@@ -74,27 +74,27 @@ class View_Image_Text extends View {
 	}
 
 	public function font_size() {
-		return $this->option("font-size", 13);
+		return $this->option('font-size', 13);
 	}
 
 	public function default_font() {
-		return $this->option("font-file", ZESK_ROOT . "etc/font/Arial.ttf");
+		return $this->option('font-file', ZESK_ROOT . 'etc/font/Arial.ttf');
 	}
 
 	public function width() {
-		return $this->option("width", "auto");
+		return $this->option('width', 'auto');
 	}
 
 	public function height() {
-		return $this->option("height", "auto");
+		return $this->option('height', 'auto');
 	}
 
 	public function align() {
-		return $this->option("align", "left");
+		return $this->option('align', 'left');
 	}
 
 	public function angle() {
-		return $this->option("angle", 0);
+		return $this->option('angle', 0);
 	}
 
 	private function debug_log($message): void {
@@ -104,15 +104,15 @@ class View_Image_Text extends View {
 	}
 
 	public function render() {
-		$rootdir = $this->option("root_directory", $this->application->path());
+		$rootdir = $this->option('root_directory', $this->application->path());
 
 		$col = $this->column();
 
-		$text = $this->value() ?? "";
+		$text = $this->value() ?? '';
 
-		$background = $this->option("background-color", 'FFF');
+		$background = $this->option('background-color', 'FFF');
 		$background = new Color_RGB($background);
-		$foreground = $this->option("color", '000');
+		$foreground = $this->option('color', '000');
 		$foreground = new Color_RGB($foreground);
 
 		$font = $this->font();
@@ -135,14 +135,14 @@ class View_Image_Text extends View {
 		$width = $this->width();
 		$height = $this->height();
 
-		$padding = $this->option("padding", 3);
+		$padding = $this->option('padding', 3);
 
-		if ($width === "auto") {
+		if ($width === 'auto') {
 			$width = $textwidth + ($padding * 2);
 		} else {
 			$width = intval($width);
 		}
-		if ($height === "auto") {
+		if ($height === 'auto') {
 			$height = $textheight + ($padding * 2);
 		} else {
 			$height = intval($height);
@@ -152,13 +152,13 @@ class View_Image_Text extends View {
 		$yoff = -$ymin + $padding;
 
 		switch ($align) {
-			case "right":
+			case 'right':
 				if ($font_angle == 0) {
 					$xoff += ($width - $padding) - $textwidth;
 				}
 
 				break;
-			case "left":
+			case 'left':
 			default:
 				if ($font_angle == 90) {
 					$yoff += ($height - $padding - $textheight);
@@ -166,7 +166,7 @@ class View_Image_Text extends View {
 
 				break;
 		}
-		$transparency = $this->optionBool("transparency", true);
+		$transparency = $this->optionBool('transparency', true);
 
 		$this->debug_log(_dump($box));
 		$this->debug_log("Offset: $xoff,$yoff");
@@ -186,8 +186,8 @@ class View_Image_Text extends View {
 			$yoff,
 		];
 
-		$cache_path = $this->option("cache_path", path($rootdir, '/cache/image-text/'));
-		$url_prefix = Directory::add_slash($this->option("url_prefix", $this->application->url('/cache/image-text')));
+		$cache_path = $this->option('cache_path', path($rootdir, '/cache/image-text/'));
+		$url_prefix = Directory::add_slash($this->option('url_prefix', $this->application->url('/cache/image-text')));
 		$absolute_cache_path = Directory::add_slash(Directory::undot($cache_path));
 		if (!Directory::create($absolute_cache_path, 0o775)) {
 			throw new Exception_Directory_Create($absolute_cache_path);
@@ -195,11 +195,11 @@ class View_Image_Text extends View {
 
 		if ($width === 0 || $height === 0) {
 			return HTML::img($this->application, '/share/images/spacer.gif', 'Zero width and height', [
-				"width" => 0,
-				"height" => 0,
+				'width' => 0,
+				'height' => 0,
 			]);
 		}
-		$fname = md5(implode(";", $params)) . ".png";
+		$fname = md5(implode(';', $params)) . '.png';
 		if ($debug || !file_exists($absolute_cache_path . $fname)) {
 			$image = \imagecreate($width, $height);
 			// Set the default background color
@@ -214,10 +214,10 @@ class View_Image_Text extends View {
 			\imagedestroy($image);
 		}
 		$attr = $this->option_array('attributes');
-		$attr['title'] = $this->option("alt", $text);
+		$attr['title'] = $this->option('alt', $text);
 		$attr['width'] = $width;
 		$attr['height'] = $height;
-		return HTML::img($this->application, $url_prefix . $fname, $this->option("alt", $text), $attr);
+		return HTML::img($this->application, $url_prefix . $fname, $this->option('alt', $text), $attr);
 	}
 
 	public static function vertical(Application $application, $text, $attributes = false) {
@@ -226,7 +226,7 @@ class View_Image_Text extends View {
 		$attributes['angle'] = 90;
 		$attributes['column'] = 'text';
 		$w = $application->widget_factory(View_Image_Text::class, $attributes);
-		$request = $application->request() ?? Request::factory($application, "http://test/");
+		$request = $application->request() ?? Request::factory($application, 'http://test/');
 		$w->request($request);
 		$w->response($application->response_factory($request));
 		return $w->execute($x);
@@ -237,7 +237,7 @@ class View_Image_Text extends View {
 		$x->text = $text;
 		$attributes['column'] = 'text';
 		$w = $application->widget_factory(View_Image_Text::class, $attributes);
-		$request = $application->request() ?? Request::factory($application, "http://test/");
+		$request = $application->request() ?? Request::factory($application, 'http://test/');
 		$w->request($request);
 		$w->response($application->response_factory($request));
 		return $w->execute($x);
