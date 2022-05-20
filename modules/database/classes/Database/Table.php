@@ -446,7 +446,7 @@ class Database_Table extends Hookable {
 		}
 		$after_column = $dbCol->option('after_column');
 		if ($after_column) {
-			$this->columns = ArrayTools::insert($this->columns, $after_column, [$column => $dbCol,]);
+			$this->columns = ArrayTools::insert($this->columns, $after_column, [$column => $dbCol, ]);
 		} else {
 			$this->columns[$column] = $dbCol;
 		}
