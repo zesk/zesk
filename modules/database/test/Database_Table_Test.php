@@ -35,14 +35,15 @@ class Database_Table_Test extends Test_Unit {
 		$table->columns();
 
 		$name = 'updated';
+
 		try {
 			$table->column($name);
-			$this->assertFalse(true, "Never gets here");
+			$this->assertFalse(true, 'Never gets here');
 		} catch (Exception_Key $e) {
 			$this->assertInstanceOf(Exception_Key::class, $e);
 		}
 		$table->columnAdd(new Database_Column($table, $name, [
-			Database_Column::OPTION_SQL_TYPE => "datetime",
+			Database_Column::OPTION_SQL_TYPE => 'datetime',
 			Database_Column::OPTION_NOT_NULL => false,
 		]));
 		$table->column($name);
@@ -63,7 +64,7 @@ class Database_Table_Test extends Test_Unit {
 		$table->indexes();
 
 		$index = new Database_Index($table, 'un');
-		$this->assertTrue($table->hasIndex($index->name()), "Table has index");
+		$this->assertTrue($table->hasIndex($index->name()), 'Table has index');
 
 		$dbCol = new Database_Column($table, 'IDs', [
 			'sql_type' => 'varchar(32)',
@@ -102,8 +103,8 @@ class Database_Table_Test extends Test_Unit {
 		$x->columnNames();
 
 		try {
-			$x->column("Notfound");
-			$this->assertFalse(true, "never get here");
+			$x->column('Notfound');
+			$this->assertFalse(true, 'never get here');
 		} catch (Exception_Key $e) {
 			$this->assertInstanceOf(Exception_Key::class, $e);
 		}
@@ -129,7 +130,7 @@ class Database_Table_Test extends Test_Unit {
 
 		$x->indexes();
 
-		$index_name = "MyIndex";
+		$index_name = 'MyIndex';
 		$index = new Database_Index($x, $index_name);
 
 		$this->assertEquals($x->index($index_name), $index);

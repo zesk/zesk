@@ -210,7 +210,7 @@ class Database_Table extends Hookable {
 	 */
 	public function name($set = null): string {
 		if ($set !== null) {
-			$this->application->deprecated("name setter");
+			$this->application->deprecated('name setter');
 		}
 		return $this->name;
 	}
@@ -259,7 +259,8 @@ class Database_Table extends Hookable {
 		if (array_key_exists($name, $this->columns)) {
 			return $this->columns[$name];
 		}
-		throw new Exception_Key("No column {name} in {table}", ["name" => $name, "table" => $this->name]);
+
+		throw new Exception_Key('No column {name} in {table}', ['name' => $name, 'table' => $this->name]);
 	}
 
 	/**
@@ -700,12 +701,12 @@ class Database_Table extends Hookable {
 	/*---------------------------------------------------------------------------------------------------------*\
 	  ---------------------------------------------------------------------------------------------------------
 	  ---------------------------------------------------------------------------------------------------------
-		     _                               _           _
+			 _                               _           _
 		  __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
 		 / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
 		| (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
 		 \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
-		           |_|
+				   |_|
 	  ---------------------------------------------------------------------------------------------------------
 	  ---------------------------------------------------------------------------------------------------------
 	\*---------------------------------------------------------------------------------------------------------*/
@@ -797,5 +798,4 @@ class Database_Table extends Hookable {
 	public function create_sql(): array {
 		return $this->sqlCreate();
 	}
-
 }

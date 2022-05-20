@@ -510,7 +510,7 @@ class Database extends \zesk\Database {
 			}
 
 			throw new Database_Exception_Duplicate($this, $query, $message, [], $errno);
-		} else if ($errno === 1146) {
+		} elseif ($errno === 1146) {
 			throw new Database_Exception_Table_NotFound($this, $query, $message, [], $errno);
 		} else {
 			throw new Database_Exception_SQL($this, $query, $message, [], $errno);
@@ -1168,7 +1168,7 @@ class Database extends \zesk\Database {
 		$flags = $this->option('connect_flags', 0);
 		if (is_numeric($flags)) {
 			$flags = intval($flags);
-		} else if (is_string($flags) || is_array($flags)) {
+		} elseif (is_string($flags) || is_array($flags)) {
 			$flag_tokens = ArrayTools::change_value_case(to_list($flags));
 			$flags = 0;
 			foreach ($flag_tokens as $token) {
@@ -1249,7 +1249,7 @@ class Database extends \zesk\Database {
 			} catch (\mysqli_sql_exception $exception) {
 				$exception_code = $exception->getCode();
 				$message = $exception->getMessage();
-				if ($exception_code === 1062 || stripos($message, "duplicate") !== false) {
+				if ($exception_code === 1062 || stripos($message, 'duplicate') !== false) {
 					throw new Database_Exception_Duplicate($this, $query, $exception->getMessage(), [], $exception_code, $exception);
 				}
 				if ($exception_code === 1146) {

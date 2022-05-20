@@ -403,9 +403,9 @@ class Database_Column extends Options {
 	final public function addIndex($name, string $type = Database_Index::TYPE_INDEX): self {
 		if ($type == Database_Index::TYPE_INDEX) {
 			$opt = 'index';
-		} else if ($type == Database_Index::TYPE_UNIQUE) {
+		} elseif ($type == Database_Index::TYPE_UNIQUE) {
 			$opt = 'unique';
-		} else if ($type == Database_Index::TYPE_PRIMARY) {
+		} elseif ($type == Database_Index::TYPE_PRIMARY) {
 			$this->setOption(self::OPTION_PRIMARY_KEY, true);
 			$this->setOption(self::OPTION_REQUIRED, true);
 			return $this;
@@ -486,14 +486,16 @@ class Database_Column extends Options {
 	/**
 	 * @return bool
 	 */
-	#[Pure] final public function inUniqueIndex(): bool {
+	#[Pure]
+	final public function inUniqueIndex(): bool {
 		return $this->hasOption(self::OPTION_UNIQUE, true);
 	}
 
 	/**
 	 * @return bool
 	 */
-	#[Pure] final public function inIndex(): bool {
+	#[Pure]
+	final public function inIndex(): bool {
 		return $this->hasOption(self::OPTION_INDEX, true);
 	}
 
@@ -501,7 +503,8 @@ class Database_Column extends Options {
 	 * @param string $of_type
 	 * @return bool
 	 */
-	#[Pure] final public function isIndex(string $of_type = ''): bool {
+	#[Pure]
+	final public function isIndex(string $of_type = ''): bool {
 		switch ($of_type) {
 			case Database_Index::TYPE_INDEX:
 				return $this->inIndex();
@@ -517,7 +520,8 @@ class Database_Column extends Options {
 	/**
 	 * @return bool
 	 */
-	#[Pure] public function hasExtras(): bool {
+	#[Pure]
+	public function hasExtras(): bool {
 		return $this->hasOption(self::OPTION_COLUMN_EXTRAS, true);
 	}
 
@@ -560,12 +564,12 @@ class Database_Column extends Options {
 	/*---------------------------------------------------------------------------------------------------------*\
 	  ---------------------------------------------------------------------------------------------------------
 	  ---------------------------------------------------------------------------------------------------------
-		     _                               _           _
+			 _                               _           _
 		  __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
 		 / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
 		| (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
 		 \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
-		           |_|
+				   |_|
 	  ---------------------------------------------------------------------------------------------------------
 	  ---------------------------------------------------------------------------------------------------------
 	\*---------------------------------------------------------------------------------------------------------*/

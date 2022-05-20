@@ -325,7 +325,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			return $sql_columns;
 		}
 		foreach ($index_matches as $index_match) {
-			$index_columns = array_map(fn($v) => unquote($v, '``'), ArrayTools::trim(explode(',', $index_match[4])));
+			$index_columns = array_map(fn ($v) => unquote($v, '``'), ArrayTools::trim(explode(',', $index_match[4])));
 			$indexes_state[] = [
 				'index_type' => $index_match[1],
 				'index_name' => unquote($index_match[3], '``'),
@@ -347,18 +347,20 @@ class Database_Parser extends \zesk\Database_Parser {
 	 */
 	private static function process_indexes(Database_Table $table, array $indexes): void {
 		foreach ($indexes as $state) {
-			$index_type = $index_name = $index_columns = $index_structure = "";
+			$index_type = $index_name = $index_columns = $index_structure = '';
 			extract($state, EXTR_IF_EXISTS);
+
 			try {
 				$index = new Database_Index($table, $index_name, [], $index_type, $index_structure);
 			} catch (Exception_Semantics $e) {
-				throw new Exception_Parse("Invalid index data specified {data} in index {index_name}", [
+				throw new Exception_Parse('Invalid index data specified {data} in index {index_name}', [
 					'data' => $state,
 					'index_name' => $index_name,
 				], 0, $e);
 			}
 			foreach ($index_columns as $index_column) {
 				$index_size_match = false;
+
 				try {
 					if (preg_match(MYSQL_PATTERN_INDEX_COLUMN, $index_column, $index_size_match)) {
 						$column_name = unquote($index_size_match[1], '``');
@@ -368,7 +370,7 @@ class Database_Parser extends \zesk\Database_Parser {
 						$index->addColumn($index_column);
 					}
 				} catch (Exception_NotFound $e) {
-					throw new Exception_Parse("Invalid column {column_name} in index {index_name}", [
+					throw new Exception_Parse('Invalid column {column_name} in index {index_name}', [
 						'column_name' => $column_name,
 						'index_name' => $index_name,
 					], 0, $e);
@@ -409,7 +411,7 @@ class Database_Parser extends \zesk\Database_Parser {
 				$sql = str_replace($full_match, '', $sql);
 			}
 		}
-		return ['rename' => $renamed_columns, 'add' => $add_tips, 'remove' => $remove_tips,];
+		return ['rename' => $renamed_columns, 'add' => $add_tips, 'remove' => $remove_tips, ];
 	}
 
 	/**

@@ -10,8 +10,6 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use JetBrains\PhpStorm\ArrayShape;
-
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @package zesk
@@ -72,14 +70,7 @@ class Database_Index {
 
 	public const TYPE_PRIMARY = 'PRIMARY KEY';
 
-	#[ArrayShape([
-		'database_name' => "null|string",
-		'table' => "\zesk\Database_Table",
-		'name' => "string",
-		'type' => "string",
-		'columns' => "array",
-		'structure' => "string",
-	])] final public function variables(): array {
+	final public function variables(): array {
 		return [
 			'database_name' => $this->database->code_name(),
 			'table' => $this->table(),
@@ -120,7 +111,7 @@ class Database_Index {
 							$table->name(),
 						], 0, $e);
 					}
-				} else if (!is_string($size)) {
+				} elseif (!is_string($size)) {
 					throw new Exception_Semantics('Columns must be name => size, or => name ({0} => {1} passed for table {2}', [
 						$col,
 						$size,
@@ -131,8 +122,8 @@ class Database_Index {
 						$this->addColumn($size);
 					} catch (Exception_NotFound $e) {
 						throw new Exception_Semantics('No such column found {name} in {table_name}', [
-							"name" => $size,
-							"table_name" => $table->name(),
+							'name' => $size,
+							'table_name' => $table->name(),
 						], 0, $e);
 					}
 				}
@@ -143,12 +134,13 @@ class Database_Index {
 			$table->removeIndex($this->name());
 		} catch (Exception_NotFound) {
 		}
+
 		try {
 			$table->addIndex($this);
 		} catch (Exception_Key $e) {
 			throw new Exception_Semantics('Adding index failed', [
-				"name" => $this->name(),
-				"table_name" => $table->name(),
+				'name' => $this->name(),
+				'table_name' => $table->name(),
 			], 0, $e);
 		}
 	}
@@ -249,7 +241,7 @@ class Database_Index {
 	 */
 	public function type($set = null): string {
 		if ($set !== null) {
-			$this->database->application->deprecated("set type");
+			$this->database->application->deprecated('set type');
 			$this->setType($set);
 		}
 		return $this->type;
@@ -420,12 +412,12 @@ class Database_Index {
 	/*---------------------------------------------------------------------------------------------------------*\
 	  ---------------------------------------------------------------------------------------------------------
 	  ---------------------------------------------------------------------------------------------------------
-		     _                               _           _
+			 _                               _           _
 		  __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
 		 / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
 		| (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
 		 \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
-		           |_|
+				   |_|
 	  ---------------------------------------------------------------------------------------------------------
 	  ---------------------------------------------------------------------------------------------------------
 	\*---------------------------------------------------------------------------------------------------------*/
@@ -467,9 +459,9 @@ class Database_Index {
 		$this->database->application->deprecated(__METHOD__);
 		if ($mixed instanceof Database_Column) {
 			return $this->addDatabaseColumn($mixed, $size);
-		} else if (is_string($mixed)) {
+		} elseif (is_string($mixed)) {
 			return $this->addColumn($mixed, $size);
-		} else if (is_array($mixed)) {
+		} elseif (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
 				if (is_numeric($k)) {
 					$this->addColumn($v);
@@ -507,6 +499,4 @@ class Database_Index {
 	public function column_count() {
 		return $this->columnCount();
 	}
-
-
 }

@@ -154,7 +154,7 @@ abstract class ORM_Schema extends Hookable {
 	 * @param zesk\Application $application
 	 */
 	public static function configured(Application $application): void {
-		if ($application->configuration->debug || $application->configuration->path_get([__CLASS__, 'debug',])) {
+		if ($application->configuration->debug || $application->configuration->path_get([__CLASS__, 'debug', ])) {
 			self::$debug = true;
 		}
 	}
@@ -267,9 +267,9 @@ abstract class ORM_Schema extends Hookable {
 			$table->columnAdd(new Database_Column($table, $column_name, $column_spec));
 		}
 		foreach ([
-			         'indexes' => Database_Index::TYPE_INDEX,
-			         'unique keys' => Database_Index::TYPE_UNIQUE,
-		         ] as $key => $index_type) {
+					 'indexes' => Database_Index::TYPE_INDEX,
+					 'unique keys' => Database_Index::TYPE_UNIQUE,
+				 ] as $key => $index_type) {
 			if (!array_key_exists($key, $table_schema)) {
 				continue;
 			}
@@ -318,8 +318,8 @@ abstract class ORM_Schema extends Hookable {
 		if (array_key_exists('on create', $table_schema)) {
 			if (is_array($table_schema['on create'])) {
 				$table->addActionSQL('create', $table_schema['on create']);
-			} else if (is_string($table_schema['on create'])) {
-				$table->addActionSQL('create', [$table_schema['on create'],]);
+			} elseif (is_string($table_schema['on create'])) {
+				$table->addActionSQL('create', [$table_schema['on create'], ]);
 			}
 		}
 		return $table;
@@ -381,7 +381,7 @@ abstract class ORM_Schema extends Hookable {
 			/* @var $table Database_Table */
 			$create_sql = $table->create_sql();
 			if (!is_array($create_sql)) {
-				$create_sql = [$create_sql,];
+				$create_sql = [$create_sql, ];
 			}
 			$result = array_merge($result, $create_sql);
 		}
@@ -415,7 +415,8 @@ abstract class ORM_Schema extends Hookable {
 		if (!$db) {
 			throw new Database_Exception($object->database(), 'Can not connect to {url}', [
 				'url' => $db->safeURL(),
-			]);;
+			]);
+			;
 		}
 		$object_class = get_class($object);
 		$schema = $object->database_schema();
@@ -437,6 +438,7 @@ abstract class ORM_Schema extends Hookable {
 	 */
 	protected function _update_object(): array {
 		$db = $this->database();
+
 		try {
 			$tables = $this->tables();
 		} catch (Exception_Semantics $e) {
@@ -492,7 +494,7 @@ abstract class ORM_Schema extends Hookable {
 				return $result;
 			}
 			if (is_string($result)) {
-				return [$result,];
+				return [$result, ];
 			}
 			return $result;
 		}
@@ -568,7 +570,7 @@ abstract class ORM_Schema extends Hookable {
 					$ignoreColumns[$previous_name] = true;
 					$ignoreColumns[$column] = true;
 				}
-			} else if ($dbColOld && $dbColNew && !$dbColOld->isSimilar($db, $dbColNew, self::$debug)) {
+			} elseif ($dbColOld && $dbColNew && !$dbColOld->isSimilar($db, $dbColNew, self::$debug)) {
 				$previous_name = $dbColNew->previousName();
 				if (isset($columns[$previous_name])) {
 					if ($previous_name) {
@@ -608,7 +610,7 @@ abstract class ORM_Schema extends Hookable {
 					$drops[$column] = $generator->alter_table_column_drop($db_table_new, $dbColOld);
 					$adds[$column] = $generator->alter_table_column_add($db_table_new, $dbColNew);
 				}
-			} else if ($dbColOld) {
+			} elseif ($dbColOld) {
 				/* Handle ALTER TABLE DROP COLUMN */
 				$drops[$column] = $generator->alter_table_column_drop($db_table_new, $dbColOld);
 				if ($db_table_old->hasOption('remove_sql')) {
@@ -617,7 +619,7 @@ abstract class ORM_Schema extends Hookable {
 						$drops["-$column"] = $rm_cols[$column];
 					}
 				}
-			} else if ($dbColNew) {
+			} elseif ($dbColNew) {
 				/* Handle ALTER TABLE ADD COLUMN */
 				$adds[$column] = $generator->alter_table_column_add($db_table_new, $dbColNew);
 				if ($dbColNew->hasOption('add_sql')) {
@@ -640,11 +642,11 @@ abstract class ORM_Schema extends Hookable {
 			if (array_key_exists($index_name, $indexes_new)) {
 				$index_new = $indexes_new[$index_name];
 				if (!$index_old->isSimilar($index_new, self::$debug)) {
-					$changes = array_merge(['index_' . $index_name => $index_old->sql_index_drop(),], $changes);
+					$changes = array_merge(['index_' . $index_name => $index_old->sql_index_drop(), ], $changes);
 					$adds['index_' . $index_name] = $index_new->sql_index_add();
 				}
 			} else {
-				$changes = array_merge(['index_' . $index_name => $index_old->sql_index_drop(),], $changes);
+				$changes = array_merge(['index_' . $index_name => $index_old->sql_index_drop(), ], $changes);
 			}
 		}
 		foreach ($indexes_new as $index_new) {
@@ -717,7 +719,7 @@ abstract class ORM_Schema extends Hookable {
 				$result = false;
 			}
 		}
-		$sql_list = $generator->call_hook_arguments('update_alter', [$sql_list,], $sql_list);
+		$sql_list = $generator->call_hook_arguments('update_alter', [$sql_list, ], $sql_list);
 		return $sql_list;
 	}
 }

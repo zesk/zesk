@@ -17,7 +17,7 @@ class Module_ORM extends Module {
 	 *
 	 * @var array
 	 */
-	public $orm_classes = [Server::class, Settings::class, Meta::class, Domain::class, Lock::class,];
+	public $orm_classes = [Server::class, Settings::class, Meta::class, Domain::class, Lock::class, ];
 
 	/**
 	 *
@@ -46,27 +46,27 @@ class Module_ORM extends Module {
 		/**
 		 * $application->orm_factory(...)
 		 */
-		$this->application->register_factory('orm', [$this, 'orm_factory',]);
+		$this->application->register_factory('orm', [$this, 'orm_factory', ]);
 		/**
 		 * $application->orm_registry(...)
 		 */
-		$this->application->register_registry('orm', [$this, 'orm_registry',]);
+		$this->application->register_registry('orm', [$this, 'orm_registry', ]);
 		/**
 		 * $application->class_orm_registry(...)
 		 */
-		$this->application->register_registry('class_orm', [$this, 'class_orm_registry',]);
+		$this->application->register_registry('class_orm', [$this, 'class_orm_registry', ]);
 
 		/**
 		 * $application->settings_registry(...)
 		 */
-		$this->application->register_registry('settings', [$this, 'settings_registry',]);
+		$this->application->register_registry('settings', [$this, 'settings_registry', ]);
 
 		/**
 		 * Hook into database table
 		 */
-		$this->application->hooks->add(Database_Table::class . '::column_add', [$this, 'database_table_add_column',]);
+		$this->application->hooks->add(Database_Table::class . '::column_add', [$this, 'database_table_add_column', ]);
 
-		$this->application->hooks->add('zesk\\Command_Daemon::daemon_hooks', [$this, 'daemon_hooks',]);
+		$this->application->hooks->add('zesk\\Command_Daemon::daemon_hooks', [$this, 'daemon_hooks', ]);
 
 		$self = $this;
 		$this->application->hooks->add(ORM::class . '::router_derived_classes', function (ORM $object, array $classes) use ($self) {
@@ -166,7 +166,7 @@ class Module_ORM extends Module {
 			}
 			return $result;
 		} else {
-			return ORM::factory($application, $class, $mixed, (array)$options);
+			return ORM::factory($application, $class, $mixed, (array) $options);
 		}
 	}
 
@@ -220,7 +220,7 @@ class Module_ORM extends Module {
 			'value' => $model_classes,
 		]);
 		$classes = $classes + ArrayTools::flip_copy($model_classes, true);
-		$all_classes = $this->call_hook_arguments('classes', [$classes,], $classes);
+		$all_classes = $this->call_hook_arguments('classes', [$classes, ], $classes);
 		/* @var $module Module */
 		foreach ($this->application->modules->all_modules() as $name => $module) {
 			$module_classes = $module->model_classes();
@@ -254,7 +254,7 @@ class Module_ORM extends Module {
 			$options['follow'] = avalue($options, 'follow', false);
 		}
 		$logger = $this->application->logger;
-		$logger->debug('{method}: Synchronizing classes: {classes}', ['method' => __METHOD__, 'classes' => $classes,]);
+		$logger->debug('{method}: Synchronizing classes: {classes}', ['method' => __METHOD__, 'classes' => $classes, ]);
 		$results = [];
 		$objects_by_class = [];
 		$other_updates = [];
@@ -288,7 +288,7 @@ class Module_ORM extends Module {
 				$object_db_name = $object->database()->code_name();
 				$updates = ORM_Schema::update_object($object);
 			} catch (Exception_Class_NotFound $e) {
-				$logger->error('Unable to synchronize {class} because it can not be found', ['class' => $class,]);
+				$logger->error('Unable to synchronize {class} because it can not be found', ['class' => $class, ]);
 				continue;
 			} catch (Database_Exception $e) {
 				$logger->error("Unable to synchronize {class} because of {exception_class} {message}\nTRACE: {trace}", [
@@ -302,7 +302,7 @@ class Module_ORM extends Module {
 				throw $e;
 			}
 			if (count($updates) > 0) {
-				$updates = array_merge(["-- Synchronizing schema for class: $class",], $updates);
+				$updates = array_merge(["-- Synchronizing schema for class: $class", ], $updates);
 				if ($object_db_name !== $db->code_name()) {
 					$other_updates[$object_db_name] = true;
 					$logger->debug('Result of schema parse for {class}: {n} changes - Database {dbname}', [
@@ -440,7 +440,7 @@ class Module_ORM extends Module {
 	public function clearNamedCache(string|ORM|Class_ORM $class): self {
 		if ($class instanceof ORM) {
 			$class = get_class($class);
-		} else if ($class instanceof Class_ORM) {
+		} elseif ($class instanceof Class_ORM) {
 			$class = $class->class;
 		}
 		assert(is_string($class));
@@ -463,7 +463,7 @@ class Module_ORM extends Module {
 	private function _class_cache(string $class): array {
 		$low_class = strtolower($class);
 		if (!array_key_exists($low_class, $this->class_cache)) {
-			$object = $this->model_factory($class, null, ['immutable' => true,]);
+			$object = $this->model_factory($class, null, ['immutable' => true, ]);
 			if (!$object instanceof ORM) {
 				throw new Exception_Semantics("$class is not an ORM");
 			}
@@ -525,10 +525,10 @@ class Module_ORM extends Module {
 		$logger = $this->application->logger;
 		if ($this->optionBool('schema_sync')) {
 			$db = $this->application->database_registry();
-			$logger->warning('The database schema was out of sync, updating: {sql}', ['sql' => implode(";\n", $results) . ";\n",]);
+			$logger->warning('The database schema was out of sync, updating: {sql}', ['sql' => implode(";\n", $results) . ";\n", ]);
 			$db->query($results);
 		} else {
-			$logger->warning('The database schema is out of sync, please update: {sql}', ['sql' => implode(";\n", $results) . ";\n",]);
+			$logger->warning('The database schema is out of sync, please update: {sql}', ['sql' => implode(";\n", $results) . ";\n", ]);
 			//TODO How to communicate with main UI?
 			// 				$router = $this->router();
 			// 				$url = $router->get_route("schema_synchronize", $application);
@@ -607,5 +607,4 @@ class Module_ORM extends Module {
 	public function clear_cache(string|ORM|Class_ORM $class = null): self {
 		return ($class === null) ? $this->clearCache() : $this->clearORMCache($class);
 	}
-
 }

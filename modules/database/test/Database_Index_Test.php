@@ -40,7 +40,7 @@ class Database_Index_Test extends Test_Unit {
 		$type = 'INDEX';
 		$x = new Database_Index($table, $name, [], $type);
 
-		$sqlType = "";
+		$sqlType = '';
 		Database_Index::determineType($sqlType);
 
 		$x->name();

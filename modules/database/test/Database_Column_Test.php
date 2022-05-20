@@ -53,7 +53,7 @@ class Database_Column_Test extends Test_Unit {
 
 		$x->isIncrement();
 
-		$name = "sue";
+		$name = 'sue';
 		$type = 'INDEX';
 		$x->addIndex($name, $type);
 

@@ -868,7 +868,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 					],
 				], []);
 			file_put_contents($this->maintenance_file(), JSON::encode($context));
-		} else if (file_exists($maintenance_file)) {
+		} elseif (file_exists($maintenance_file)) {
 			unlink($maintenance_file);
 			clearstatcache(true, $maintenance_file);
 		}
@@ -973,7 +973,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$request = new Request($this);
 		if ($inherit) {
 			$request->initialize_from_request($inherit);
-		} else if ($this->console()) {
+		} elseif ($this->console()) {
 			$request->initialize_from_settings('http://console/');
 		} else {
 			$request->initialize_from_globals();
@@ -1324,7 +1324,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$theme = $this->clean_template_path($theme) . $extension;
 		$theme_path = $this->theme_path();
 		$prefixes = array_keys($theme_path);
-		usort($prefixes, fn($a, $b) => strlen($b) - strlen($a));
+		usort($prefixes, fn ($a, $b) => strlen($b) - strlen($a));
 		$result = [];
 		foreach ($prefixes as $prefix) {
 			if ($prefix === '' || str_starts_with($theme, $prefix)) {
@@ -1529,7 +1529,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 				}
 				if (!isset($this->zesk_command_path[$path])) {
 					$this->zesk_command_path[$path] = $prefix;
-				} else if ($debug) {
+				} elseif ($debug) {
 					$this->logger->debug('{method}: did not add "{path}" (prefix {prefix}) because it already exists', [
 						'method' => __METHOD__,
 						'path' => $path,

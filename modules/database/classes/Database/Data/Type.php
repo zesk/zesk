@@ -127,7 +127,7 @@ abstract class Database_Data_Type {
 	}
 
 	public function is_text($native_type) {
-		$sql_type = $this->native_type_to_sql_type($native_type, "");
+		$sql_type = $this->native_type_to_sql_type($native_type, '');
 		return in_array($sql_type, [
 			self::sql_type_string,
 			self::sql_type_text,
