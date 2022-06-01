@@ -59,13 +59,13 @@ class Command_Database_Dump extends Command_Base {
 			$this->error("No such database for \"$dbname\"\n");
 			return false;
 		}
-		[$binary, $args] = $db->shell_command([
+		[$binary, $args] = $db->shellCommand([
 			'sql-dump-command' => true,
-			'tables' => $this->option_list('tables'),
+			'tables' => $this->optionIterable('tables'),
 			'non-blocking' => $this->optionBool('non-blocking'),
 		]);
 		if ($this->hasOption('arg-prefix')) {
-			$args = array_merge($this->option_list('arg-prefix'), $args);
+			$args = array_merge($this->optionIterable('arg-prefix'), $args);
 		}
 		$full_command_path = $this->application->paths->which($binary);
 		if (!$full_command_path) {
@@ -119,7 +119,7 @@ class Command_Database_Dump extends Command_Base {
 			$args = array_merge($args, explode(' ', $this->option('arg-suffix')));
 		}
 
-		$command_line = $full_command_path . implode('', ArrayTools::prefix($args, ' ')) . $suffix;
+		$command_line = $full_command_path . implode('', ArrayTools::prefixValues($args, ' ')) . $suffix;
 		if ($this->optionBool('echo')) {
 			echo $command_line . "\n";
 			return true;

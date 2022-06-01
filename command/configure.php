@@ -15,7 +15,8 @@ use zesk\Configure\Engine;
  * in a source repository and copy them into the
  * appropriate locations without too much extra work.
  *
- * The configure command is intended to run as a mini-Zesk application and will likely include PHP configuration scripts in the future.
+ * The configure command is intended to run as a mini-Zesk application and will likely include PHP
+ * configuration scripts in the future.
  *
  * @alias sync
  * @see \zesk\Configure\Engine
@@ -61,33 +62,33 @@ class Command_Configure extends Command_Base {
 	 *
 	 * @var Engine
 	 */
-	private $engine = null;
+	private Engine $engine;
 
 	/**
 	 * Whether the configuration should be saved
 	 *
 	 * @var boolean
 	 */
-	private $need_save = null;
+	private bool $need_save;
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $host_path = null;
+	private string $host_path;
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $username = null;
+	private string $username = '';
 
 	/**
 	 * List of known host configurations
 	 *
 	 * @var array
 	 */
-	private $possible_host_configurations = [];
+	private array $possible_host_configurations = [];
 
 	/**
 	 * Map from uname => host configurations
@@ -108,26 +109,26 @@ class Command_Configure extends Command_Base {
 	 *
 	 * @var array
 	 */
-	private $host_paths = [];
+	private array $host_paths = [];
 
 	/**
 	 * Variables to map when copying files around, etc.
 	 *
 	 * @var array
 	 */
-	private $variable_map = [];
+	private array $variable_map = [];
 
 	/**
 	 *
 	 * @var integer
 	 */
-	protected $current_uid = null;
+	protected int $current_uid = -1;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	protected $current_gid = null;
+	protected int $current_gid = -1;
 
 	/**
 	 *
@@ -172,7 +173,7 @@ class Command_Configure extends Command_Base {
 	 * @param string $default
 	 * @param array $completions
 	 */
-	public function prompt($message, $default = null, array $completions = null) {
+	public function prompt($message, $default = null, array $completions = null): string {
 		if ($this->option('non-interactive')) {
 			if ($default === null) {
 				$this->error('Non-interactive set but input is required for {message}', [
@@ -310,7 +311,7 @@ class Command_Configure extends Command_Base {
 	 * @param string $output
 	 * @return unknown[]
 	 */
-	private function load_dirs($output = false) {
+	private function load_dirs(bool $output = false): array {
 		$locale = $this->application->locale;
 
 		$this->verbose_log('Loading {environment_files}', [
@@ -348,7 +349,7 @@ class Command_Configure extends Command_Base {
 	private function determine_host_name() {
 		$locale = $this->application->locale;
 
-		$this->possible_host_configurations = ArrayTools::unsuffix(Directory::ls($this->host_path), '/', true);
+		$this->possible_host_configurations = ArrayTools::valuesRemoveSuffix(Directory::ls($this->host_path), '/', true);
 		$this->alias_file = path($this->host_path, 'aliases.conf');
 		$__ = [
 			'alias_file' => $this->alias_file,
@@ -409,7 +410,7 @@ class Command_Configure extends Command_Base {
 			];
 			$locale = $this->application->locale;
 			if ($this->prompt_yes_no($locale->__('Save changes to {config}? ', $__))) {
-				$this->save_conf($this->config, ArrayTools::kprefix($this->options_include('environment_file;host_setting_name'), __CLASS__ . '::'));
+				$this->save_conf($this->config, ArrayTools::prefixKeys($this->options_include('environment_file;host_setting_name'), __CLASS__ . '::'));
 				$this->log('Wrote {config}', $__);
 			}
 		}
@@ -449,7 +450,7 @@ class Command_Configure extends Command_Base {
 			$this->verbose_log('Processing file {file}', compact('file'));
 			$contents = File::contents($file);
 			$contents = Text::remove_line_comments($contents, '#', false);
-			$lines = ArrayTools::trim_clean(explode("\n", $contents));
+			$lines = ArrayTools::listTrimClean(explode("\n", $contents));
 			foreach ($lines as $line) {
 				if (!$this->engine->process($line)) {
 					return false;

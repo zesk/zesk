@@ -37,11 +37,11 @@ if (!empty($value)) {
 			return;
 		}
 		if ($format) {
-			echo $object->apply_map($col_object->apply_map($format));
+			echo $object->applyMap($col_object->applyMap($format));
 			return;
 		}
 		echo $col_object->display_name();
 		return;
 	}
 }
-echo $object ? $object->apply_map($this->empty_string) : $this->empty_string;
+echo $object ? $object->applyMap($this->empty_string) : $this->empty_string;

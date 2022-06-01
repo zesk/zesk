@@ -46,8 +46,8 @@ class Control_Filter_Query extends Control_Select {
 
 	protected function filter_map() {
 		$value = $this->value();
-		return $this->option_array('filter_map') + [
-			'query_column' => $this->query_column(),
+		return $this->optionArray('filter_map') + [
+			'query_column' => $this->queryColumn(),
 			'name' => $this->name(),
 			'id' => $this->id(),
 			'value' => $value,

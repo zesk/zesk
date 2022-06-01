@@ -3,7 +3,7 @@
 * @package zesk
 * @subpackage test
 * @author Kent Davidson <kent@marketacumen.com>
-* @copyright Copyright &copy; 2009, Market Acumen, Inc.
+* @copyright Copyright &copy; 2022, Market Acumen, Inc.
 */
 
 function test_assert(x) {
@@ -16,7 +16,7 @@ function test_assert(x) {
 			message = x + "<br />" + message;
 		}
 	} else {
-		result = to_bool(result);
+		result = toBool(result);
 	}
 	if (!result) {
 		verbose = verbose;

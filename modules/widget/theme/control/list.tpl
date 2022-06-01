@@ -8,7 +8,7 @@ $theme_options = [
 	'first' => true,
 ];
 echo $this->theme($this->theme_prefix, [], $theme_options);
-echo HTML::tag_open($this->list_tag, HTML::add_class($this->list_attributes, PHP::parse_class($this->class)));
+echo HTML::tag_open($this->list_tag, HTML::addClass($this->list_attributes, PHP::parseClass($this->class)));
 echo $this->theme($this->theme_header, [], $theme_options);
 echo $this->theme($this->theme_content, [], $theme_options);
 echo $this->theme($this->theme_footer, [], $theme_options);

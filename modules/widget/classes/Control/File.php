@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 16:33:36 EDT 2008
  */
 namespace zesk;
@@ -136,13 +136,13 @@ class Control_File extends Control {
 	 * {@inheritDoc}
 	 * @see Widget::submit()
 	 */
-	public function submit() {
+	public function submit(): bool {
 		$col = $this->column();
 		$name = $this->name();
 		$filecolumn = $this->file_name_column();
 		$file = $this->_file();
 		if (is_array($file)) {
-			$dest_path = $this->object->apply_map($this->option('dest_path'));
+			$dest_path = $this->object->applyMap($this->option('dest_path'));
 			$options = [];
 			$options['file_mode'] = $this->optionInt('file_mode', 0o640);
 			$options['dir_mode'] = $this->optionInt('dir_mode', 0o750);

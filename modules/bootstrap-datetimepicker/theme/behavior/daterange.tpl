@@ -17,7 +17,7 @@ $options = [
 	'title' => $locale->__('Choose your dates'),
 	'button' => $locale->__('Choose dates'),
 	'value' => $widget->value(),
-] + $widget->option_array('dateRangeWidget');
+] + $widget->optionArray('dateRangeWidget');
 $id = $widget->id();
 $json_options = json_encode($options);
 

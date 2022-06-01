@@ -39,12 +39,12 @@ class Command_Build extends Command_Base {
 		 *
 		 * 1. Do updates
 		 */
-		$this->run_cache_clear();
+		$this->run_cacheClear();
 		$this->run_update();
 		$this->run_build_hooks();
 	}
 
-	private function run_cache_clear(): void {
+	private function run_cacheClear(): void {
 		if (!$this->optionBool('no-cache-clear')) {
 			$this->log('Clearing cache ...');
 			$this->log($this->zesk_cli('cache clear'));

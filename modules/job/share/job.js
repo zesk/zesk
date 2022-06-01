@@ -62,7 +62,7 @@
 			    }
 			    this.$element.data("job", null);
 			    if (this.success_remove) {
-			    	this.$element.remove();
+					this.$element.keysRemove();
 			    }
 			    delete this;
 		    }

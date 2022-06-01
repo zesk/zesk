@@ -3,7 +3,7 @@
  * @package ruler
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2011, Market Ruler, LLC
+ * @copyright Copyright &copy; 2022, Market Ruler, LLC
  *            This subclass is for basic website testing using Selenium. Should probably expand it to allow for features
  *            specific to certain types of sites.
  *            (Signup, Login, Forgot, etc.)
@@ -288,7 +288,7 @@ abstract class Test_Website extends Test_Selenium {
 
 		$links = [];
 
-		$files = ArrayTools::prefix($files, '/');
+		$files = ArrayTools::prefixValues($files, '/');
 		$files = array_flip($files);
 		$files_names = array_keys($files);
 		foreach ($files_names as $k) {

@@ -86,11 +86,11 @@ class Command_Config extends Command_Base {
 		foreach ($flags as $flag => $default) {
 			if ($this->optionBool($flag)) {
 				// if any value is true, return the actual values
-				return ArrayTools::kprefix($this->option($flags), 'show_');
+				return ArrayTools::prefixKeys($this->option($flags), 'show_');
 			}
 		}
 		// Show all
-		return ArrayTools::kprefix($flags, 'show_');
+		return ArrayTools::prefixKeys($flags, 'show_');
 	}
 
 	/**

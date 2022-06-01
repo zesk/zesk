@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage daemontools
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\DaemonTools;
 
@@ -139,7 +139,7 @@ class Module extends \zesk\Module {
 	 *
 	 * @param Engine $command
 	 */
-	public function command_daemontools_service_remove(Engine $command, array $arguments, $command_name) {
+	public function command_daemontools_service_keysRemove(Engine $command, array $arguments, $command_name) {
 		$service_name = avalue($arguments, 0);
 		if ($service_name === '--help') {
 			return $this->command_daemontools_service_remove_help($command_name);
@@ -328,6 +328,6 @@ class Module extends \zesk\Module {
 				true,
 			],
 		]);
-		return ArrayTools::unsuffix($files, '/run');
+		return ArrayTools::valuesRemoveSuffix($files, '/run');
 	}
 }

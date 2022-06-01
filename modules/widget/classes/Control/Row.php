@@ -45,16 +45,16 @@ class Control_Row extends Control {
 
 	/**
 	 * {@inheritDoc}
-	 * @see Widget::theme_variables()
+	 * @see Widget::themeVariables()
 	 */
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
 			'object' => $this->object,
 			'row_widget' => $this,
 			'row_widgets' => $this->children(),
 			'row_tag' => $this->row_tag,
 			'row_attributes' => $this->row_attributes,
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 
 	/**
@@ -63,7 +63,7 @@ class Control_Row extends Control {
 	 * {@inheritDoc}
 	 * @see Widget::render()
 	 */
-	public function render() {
+	public function render(): string {
 		if ($this->row_tag) {
 			$object = $this->object;
 			$map = $object->variables() + $this->theme_variables;

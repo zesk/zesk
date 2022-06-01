@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage cleaner
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Cleaner;
 
@@ -33,7 +33,7 @@ class Module extends \zesk\Module {
 	 * Run every hour and clean things up
 	 */
 	public function hook_cron_hour(): void {
-		$directories = $this->option_array('directories');
+		$directories = $this->optionArray('directories');
 		foreach ($directories as $code => $settings) {
 			$path = $extensions = $lifetime = null;
 			extract($settings, EXTR_IF_EXISTS);
@@ -45,7 +45,7 @@ class Module extends \zesk\Module {
 
 				continue;
 			}
-			$path = File::is_absolute($path) ? $path : $this->application->path($path);
+			$path = File::isAbsolute($path) ? $path : $this->application->path($path);
 			if (!$extensions) {
 				$extensions = null;
 			} else {

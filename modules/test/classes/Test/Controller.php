@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Test;
 

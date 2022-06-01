@@ -6,7 +6,7 @@
  * @package zesk
  * @subpackage forgot
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -42,7 +42,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 * @param Router $router
 	 */
 	public function hook_routes(Router $router): void {
-		$router->add_route('forgot(/{option action}(/{hash}))', $this->option_array('route_options') + [
+		$router->add_route('forgot(/{option action}(/{hash}))', $this->optionArray('route_options') + [
 			'controller' => Controller_Forgot::class,
 			'classes' => [
 				Forgot::class,
@@ -95,10 +95,10 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 */
 	public function hook_cron_cluster_minute(): void {
 		$expire_seconds = -abs(to_integer($this->option('expire_seconds'), 3600));
-		$older = Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND);
+		$older = Timestamp::now()->addUnit($expire_seconds, Timestamp::UNIT_SECOND);
 		$affected_rows = $this->application->orm_registry(Forgot::class)->delete_older($older);
 		if ($affected_rows > 0) {
-			$this->application->logger->notice('{method} deleted {affected_rows} forgotten rows', compact('affected_rows') + [
+			$this->application->logger->notice('{method} deleted {affectedRows} forgotten rows', compact('affectedRows') + [
 				'method' => __METHOD__,
 			]);
 		}

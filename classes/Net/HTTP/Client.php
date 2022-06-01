@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * @package zesk
  * @subpackage system
  */
@@ -197,13 +197,13 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function __construct(Application $application, $url = null, array $options = []) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 		$this->load_from_options();
 		if (!empty($url)) {
 			$this->setOption('URL', $url);
 		}
 		if (!$this->user_agent) {
-			$this->user_agent($this->default_user_agent());
+			$this->user_agent($this->default_userAgent());
 		}
 	}
 
@@ -225,7 +225,7 @@ class Net_HTTP_Client extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function default_user_agent() {
+	public function default_userAgent() {
 		return $this->option('default_user_agent', __CLASS__ . ' ' . Version::release());
 	}
 
@@ -385,7 +385,7 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function request_header($name = null, $set = null) {
 		if ($name === null) {
-			return ArrayTools::map_keys($this->request_headers, Net_HTTP::$request_headers);
+			return ArrayTools::keysMap($this->request_headers, Net_HTTP::$request_headers);
 		}
 		if (is_array($name)) {
 			foreach ($name as $k => $v) {
@@ -430,7 +430,7 @@ class Net_HTTP_Client extends Hookable {
 	/**
 	 * Get/set the request timeout in miiliseconds
 	 *
-	 * @param integer $milliseconds
+	 * @param int $milliseconds
 	 * @return integer|Net_HTTP_Client
 	 */
 	public function timeout($milliseconds = null) {
@@ -444,7 +444,7 @@ class Net_HTTP_Client extends Hookable {
 	/**
 	 * Get/set the request timeout in miiliseconds
 	 *
-	 * @param integer $milliseconds
+	 * @param int $milliseconds
 	 * @return integer|Net_HTTP_Client
 	 */
 	public function connect_timeout($milliseconds = null) {
@@ -609,7 +609,7 @@ class Net_HTTP_Client extends Hookable {
 		$parts = parse_url($this->url());
 		$host = avalue($parts, 'host');
 		$scheme = avalue($parts, 'scheme');
-		$default_port = URL::protocol_default_port($scheme);
+		$default_port = URL::protocolDefaultPort($scheme);
 		$port = intval(avalue($parts, 'port', $default_port));
 		if ($port !== $default_port) {
 			$host .= ":$port";
@@ -1056,7 +1056,7 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function response_header($name = null, $default = null) {
 		if ($name === null) {
-			return ArrayTools::map_keys($this->response_headers, Net_HTTP::$response_headers);
+			return ArrayTools::keysMap($this->response_headers, Net_HTTP::$response_headers);
 		}
 		return avalue($this->response_headers, strtolower($name), $default);
 	}
@@ -1096,7 +1096,7 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function filename() {
 		// Content-Disposition: attachment; filename=foo.tar.gz
-		$dispositions = ArrayTools::trim_clean(explode(';', $this->response_header(Net_HTTP::RESPONSE_CONTENT_DISPOSITION)));
+		$dispositions = ArrayTools::listTrimClean(explode(';', $this->response_header(Net_HTTP::RESPONSE_CONTENT_DISPOSITION)));
 		while (($disposition = array_shift($dispositions)) !== null) {
 			[$name, $value] = pair($disposition, '=', null, null);
 			if ($name === 'filename') {

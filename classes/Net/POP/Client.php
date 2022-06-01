@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -235,7 +235,7 @@ class Net_POP_Client extends Net_Client_Socket {
 
 	/**
 	 * Retrieve a message
-	 * @param integer $message_index
+	 * @param int $message_index
 	 * @param string $filename Path to store the message (optional)
 	 * @return number|string Bytes written, or message content
 	 */
@@ -247,8 +247,8 @@ class Net_POP_Client extends Net_Client_Socket {
 
 	/**
 	 * Retrieve the message top section (usually the headers)
-	 * @param integer $message_index
-	 * @param integer $n_lines Number of lines to retrieve
+	 * @param int $message_index
+	 * @param int $n_lines Number of lines to retrieve
 	 * @return string
 	 */
 	public function message_top($message_index, $n_lines = 64) {
@@ -259,7 +259,7 @@ class Net_POP_Client extends Net_Client_Socket {
 
 	/**
 	 * Delete a message
-	 * @param integer $message_index
+	 * @param int $message_index
 	 * @return boolean
 	 */
 	public function message_delete($message_index) {
@@ -283,7 +283,7 @@ class Net_POP_Client extends Net_Client_Socket {
 
 	/**
 	 * Require states
-	 * @param integer $state
+	 * @param int $state
 	 * @throws Net_POP_Client_Exception
 	 */
 	private function _require_state($state): void {

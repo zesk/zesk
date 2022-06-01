@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -21,7 +21,7 @@ class Image_Library_imagick extends Image_Library {
 	 *
 	 * @return string|\zesk\NULL
 	 */
-	private function shell_command() {
+	private function shellCommand() {
 		$command = $this->application->configuration->path_get([
 			__CLASS__,
 			'command',
@@ -44,7 +44,7 @@ class Image_Library_imagick extends Image_Library {
 	 * @return string|\zesk\NULL
 	 */
 	private function shell_command_scale() {
-		$command = $this->shell_command();
+		$command = $this->shellCommand();
 		$pattern = $this->application->configuration->path_get([
 			__CLASS__,
 			'command_scale',
@@ -66,7 +66,7 @@ class Image_Library_imagick extends Image_Library {
 	 * @return boolean
 	 */
 	public function installed() {
-		$which = $this->shell_command();
+		$which = $this->shellCommand();
 		if ($which) {
 			return true;
 		}

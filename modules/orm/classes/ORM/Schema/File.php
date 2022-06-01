@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright Copyright &copy; 2014, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -61,7 +61,7 @@ class ORM_Schema_File extends ORM_Schema {
 		parent::__construct($class_object, $object);
 		if ($sql !== '') {
 			$this->_set_sql($sql);
-			$this->parser = Database_Parser::parse_factory($this->database(), $this->sql, calling_function());
+			$this->parser = Database_Parser::parseFactory($this->database(), $this->sql, calling_function());
 			$this->application->logger->debug('Parsing SQL {sql} using {parse_class} for class {class}', [
 				'sql' => $sql,
 				'parse_class' => get_class($this->parser),
@@ -72,7 +72,7 @@ class ORM_Schema_File extends ORM_Schema {
 			if ($path) {
 				$this->sql_file_path = $path;
 				$this->_set_sql(file_get_contents($path));
-				$this->parser = Database_Parser::parse_factory($this->database(), $this->sql, $path);
+				$this->parser = Database_Parser::parseFactory($this->database(), $this->sql, $path);
 				$this->application->logger->debug("Parsing {path} using {parse_class} for class {class}\nSQL:\n{sql}\n", [
 					'path' => $path,
 					'sql' => $this->mapped_sql,
@@ -198,7 +198,7 @@ class ORM_Schema_File extends ORM_Schema {
 		if ($this->sql === '') {
 			return [];
 		}
-		$sqls = $this->parser->split_sql_commands($this->mapped_sql);
+		$sqls = $this->parser->splitSQLStatements($this->mapped_sql);
 		$create_table = null;
 		$tables = [];
 		foreach ($sqls as $sql) {
@@ -206,7 +206,7 @@ class ORM_Schema_File extends ORM_Schema {
 			if (empty($sql)) {
 				continue;
 			}
-			$parse_result = $this->parser->parse_sql($sql);
+			$parse_result = $this->parser->parseSQL($sql);
 			$table_name = avalue($parse_result, 'table', '');
 			/* @var $table Database_Table */
 			$table = avalue($tables, $table_name);
@@ -218,7 +218,7 @@ class ORM_Schema_File extends ORM_Schema {
 				'statement' => $statement,
 			];
 			if ($statement === 'create table') {
-				$table = $this->parser->create_table($sql);
+				$table = $this->parser->createTable($sql);
 				if (!$table) {
 					throw new Database_Exception_Schema($db, $sql, 'Can not parse create table in {file}', $__);
 				}
@@ -229,7 +229,7 @@ class ORM_Schema_File extends ORM_Schema {
 				$tables[$table_name] = $table;
 			} elseif ($statement === 'create index') {
 				if ($table) {
-					$result = $this->parser->create_index($table, $sql);
+					$result = $this->parser->createIndex($table, $sql);
 					$table->source($sql, true);
 					if (!$result) {
 						throw new Database_Exception_Schema($db, $sql, 'Can not parse CREATE INDEX statement in {file} result={result}', $__ + [
@@ -244,7 +244,7 @@ class ORM_Schema_File extends ORM_Schema {
 					$table = first(array_values($tables));
 					$this->application->logger->warning('{statement} "{sql}" on unknown table {table} in {file}', $__);
 				}
-				$table->option_append_list('on create', $sql);
+				$table->optionAppend('on create', $sql);
 			} elseif ($statement !== 'none') {
 				$this->application->logger->error('Unknown SQL statement ({statement}) found in file {file}: {sql}', $__);
 			}
@@ -277,7 +277,7 @@ class ORM_Schema_File extends ORM_Schema {
 				}
 			}
 			if ($table->hasOption('on create')) {
-				$table_spec['on create'] = $table->option_list('on create');
+				$table_spec['on create'] = $table->optionIterable('on create');
 			}
 			$table_name = $table->name();
 			if (!array_key_exists($table_name, $schema)) {

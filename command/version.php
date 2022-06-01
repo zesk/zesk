@@ -332,14 +332,14 @@ class Command_Version extends Command_Base {
 				$path = $json;
 			}
 			return function ($schema) use ($path, $application_root) {
-				$file = File::is_absolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
+				$file = File::isAbsolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
 				File::depends($file);
 				$json_structure = JSON::decode(File::contents($file), true);
 				return apath($json_structure, $path, '', '::');
 			};
 		}
 		return function ($schema) use ($application_root) {
-			$file = File::is_absolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
+			$file = File::isAbsolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
 			File::depends($file);
 			return File::contents($file);
 		};
@@ -363,14 +363,14 @@ class Command_Version extends Command_Base {
 		$application_root = $this->application->path();
 		if ($json) {
 			return function ($schema, $new_version) use ($json, $application_root): void {
-				$file = File::is_absolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
+				$file = File::isAbsolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
 				$json_structure = JSON::decode(File::contents($file), true);
 				apath_set($json_structure, $json, $new_version);
 				File::put($file, JSON::encode_pretty($json_structure));
 			};
 		}
 		return function ($schema, $new_version) use ($application_root): void {
-			$file = File::is_absolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
+			$file = File::isAbsolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
 			File::put($file, $new_version);
 		};
 	}

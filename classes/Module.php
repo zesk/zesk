@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2016, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -93,23 +95,20 @@ class Module extends Hookable {
 	final public function __construct(Application $application, array $options = [], array $module_data = []) {
 		parent::__construct($application, $options);
 		$this->application_class = get_class($application);
-		$this->path = avalue($module_data, 'path');
+		$this->path = $module_data['path'] ?: null;
 		if (!$this->codename) {
 			$this->codename = avalue($module_data, 'name');
 			if (!$this->codename) {
 				// Code name used in JavaScript settings
-				$this->codename = strtolower(StringTools::unprefix(PHP::parse_class(get_class($this)), 'Module_'));
+				$this->codename = strtolower(StringTools::unprefix(PHP::parseClass(get_class($this)), 'Module_'));
 			}
-		}
-		if (isset($this->classes)) {
-			$this->application->deprecated(get_class($this) . '->classes is deprecated, use ->model_classes');
 		}
 		$this->application->register_class($this->model_classes());
 		if (count($this->class_aliases)) {
-			$this->application->objects->map($this->class_aliases);
+			$this->application->objects->setMap($this->class_aliases);
 		}
 		$this->call_hook('construct');
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 	}
 
 	/**
@@ -141,7 +140,7 @@ class Module extends Hookable {
 	 *
 	 * @return string
 	 */
-	final public function name() {
+	final public function name(): string {
 		return $this->option('name', $this->codename);
 	}
 
@@ -150,7 +149,7 @@ class Module extends Hookable {
 	 *
 	 * @return string
 	 */
-	final public function codename() {
+	final public function codeName() {
 		return $this->codename;
 	}
 
@@ -169,37 +168,15 @@ class Module extends Hookable {
 	 * @param array $options
 	 * @return \zesk\Model
 	 */
-	final public function model_factory(string $class, mixed $mixed = null, array $options = []): Model {
-		return $this->application->model_factory($class, $mixed, $options);
+	final public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
+		return $this->application->modelFactory($class, $mixed, $options);
 	}
 
 	/**
 	 *
-	 * @return mixed|string|array
+	 * @return string
 	 */
-	public function version() {
+	public function version(): string {
 		return $this->application->modules->version($this->codename);
-	}
-
-	/**
-	 * @deprecated 2018-01 Use ->model_classes instead
-	 * Override in subclasses - called upon Application::classes
-	 * @return string[]
-	 */
-	public function classes() {
-		$this->application->deprecated();
-		return $this->model_classes();
-	}
-
-	/**
-	 * @deprecated 2017-12 Blame PHP 7.2
-	 * @param string $class
-	 * @param mixed $mixed
-	 * @param array $options
-	 * @return \zesk\Model
-	 */
-	final public function object_factory($class, $mixed = null, array $options = []) {
-		$this->application->deprecated();
-		return $this->model_factory($class, $mixed, $options);
 	}
 }

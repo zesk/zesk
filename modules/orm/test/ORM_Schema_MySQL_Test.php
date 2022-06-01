@@ -46,8 +46,8 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 
 		$db = $this->application->database_registry();
 
-		$table0 = $db->parse_create_table($sql0, __METHOD__);
-		$table1 = $db->parse_create_table($sql1, __METHOD__);
+		$table0 = $db->parseCreateTable($sql0, __METHOD__);
+		$table1 = $db->parseCreateTable($sql1, __METHOD__);
 
 		$result = ORM_Schema::update($db, $table0, $table1, false);
 
@@ -79,14 +79,14 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$db = $this->application->database_registry();
 
 		$result = $db->query("DROP TABLE IF EXISTS $table");
-		$this->assert_equal($result, true);
+		$this->assert_equal($result->resource(), null);
 
-		$this->assert_true(!$db->table_exists($table), "$table should not exist");
+		$this->assertFalse($db->tableExists($table), "$table should not exist");
 
 		foreach ($sql as $key => $create) {
-			$result = ORM_Schema::table_synchronize($db, $create, false);
+			$result = ORM_Schema::tableSynchronize($db, $create, false);
 			$this->log('Running SQL {key} ({n}) {result}', ['key' => $key, 'n' => count($result), 'result' => $result]);
-			$db->query($result);
+			$db->queries($result);
 		}
 	}
 
@@ -116,16 +116,17 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 
-		$this->assert($db->connect(), 'connecting to ' . $db->safe_url());
+		$db->connect();
+		$this->assert($db->connected(), 'connecting to ' . $db->safeURL());
 
-		$this->assert($db->table_exists($table), "$db->table_exists($table)");
+		$this->assert($db->tableExists($table), "$db->tableExists($table)");
 
-		$object_table = $db->parse_create_table($sql, __METHOD__);
+		$object_table = $db->parseCreateTable($sql, __METHOD__);
 		$table_name = $object_table->name();
 
 		$this->assert_equal($table_name, $table);
 
-		$db_table = $db->database_table($table_name);
+		$db_table = $db->databaseTable($table_name);
 
 		ORM_Schema::$debug = true;
 		$result = ORM_Schema::update($db, $db_table, $object_table);
@@ -157,16 +158,17 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 
-		$this->assert($db->connect(), 'connecting to ' . $db->safe_url());
-		$this->assert($db->table_exists($table));
+		$db->connect();
+		$this->assert($db->connected(), 'connecting to ' . $db->safeURL());
+		$this->assert($db->tableExists($table));
 
-		$object_table = $db->parse_create_table($sql, __METHOD__);
+		$object_table = $db->parseCreateTable($sql, __METHOD__);
 
 		$table_name = $object_table->name();
 
 		$this->assert("'$table_name' === '$table'");
 
-		$db_table = $db->database_table($table_name);
+		$db_table = $db->databaseTable($table_name);
 
 		$result = ORM_Schema::update($db, $db_table, $object_table);
 
@@ -205,16 +207,17 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 
-		$this->assert($db->connect(), 'connecting to ' . $db->safe_url());
+		$db->connect();
+		$this->assert($db->connected(), 'connecting to ' . $db->safeURL());
 
-		$this->assert($db->table_exists($table));
+		$this->assert($db->tableExists($table));
 
-		$object_table = $db->parse_create_table($sql, __METHOD__);
+		$object_table = $db->parseCreateTable($sql, __METHOD__);
 		$table_name = $object_table->name();
 
 		$this->assert("'$table_name' === '$table'");
 
-		$db_table = $db->database_table($table_name);
+		$db_table = $db->databaseTable($table_name);
 
 		$result = ORM_Schema::update($db, $db_table, $object_table);
 
@@ -241,16 +244,17 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 
-		$this->assert($db->connect(), 'connecting to ' . $db->safe_url());
+		$db->connect();
+		$this->assert($db->connected(), 'connecting to ' . $db->safeURL());
 
-		$this->assert($db->table_exists($table));
+		$this->assert($db->tableExists($table));
 
-		$object_table = $db->parse_create_table($sql, __METHOD__);
+		$object_table = $db->parseCreateTable($sql, __METHOD__);
 		$table_name = $object_table->name();
 
 		$this->assert("'$table_name' === '$table'");
 
-		$db_table = $db->database_table($table_name);
+		$db_table = $db->databaseTable($table_name);
 
 		$result = ORM_Schema::update($db, $db_table, $object_table);
 
@@ -274,32 +278,31 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$object = new DBSchemaTest4($this->application);
 
 		$result = ORM_Schema::update_object($object);
+		$db->queries($result);
 		$this->log($result);
-		$db->query($result);
 
-		$this->assert($db->table_exists($table));
-		$this->assert($db->table_exists($table2));
+		$this->assert($db->tableExists($table));
+		$this->assert($db->tableExists($table2));
 
-		$n_rows = $db->query_one("SELECT COUNT(*) AS X FROM $table", 'X', null);
+		$n_rows = $db->queryOne("SELECT COUNT(*) AS X FROM $table", 'X', null);
 		$this->assert(intval($n_rows) === 1, "intval($n_rows) === 1");
 
 		$db->query("DROP TABLE IF EXISTS $table2");
 
-		$this->assert(!$db->table_exists($table2));
+		$this->assert(!$db->tableExists($table2));
 
 		$object = new DBSchemaTest4($this->application);
 		$result = ORM_Schema::update_object($object);
-		$db->query($result);
+		$db->queries($result);
+		$this->log($result);
 
-		$this->assert($db->table_exists($table));
-		$this->assert($db->table_exists($table2));
+		$this->assert($db->tableExists($table));
+		$this->assert($db->tableExists($table2));
 
-		$this->assert(intval($db->query_one("SELECT COUNT(*) AS X FROM $table", 'X', null)) === 1);
+		$this->assert(intval($db->queryOne("SELECT COUNT(*) AS X FROM $table", 'X', null)) === 1);
 
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query("DROP TABLE IF EXISTS $table2");
-
-		echo basename(__FILE__) . ": Success.\n";
 	}
 
 	public function test_5(): void {
@@ -310,9 +313,9 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 
 		$object = new DBSchemaTest5($this->application);
 		$result = ORM_Schema::update_object($object);
-		$db->query($result);
+		$db->queries($result);
 
-		$this->assert($db->table_exists($table));
+		$this->assert($db->tableExists($table));
 
 		ORM_Schema::debug(true);
 
@@ -335,9 +338,9 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		DBSchemaTest6::$test_table = $table;
 		$object = new DBSchemaTest6($this->application);
 		$result = ORM_Schema::update_object($object);
-		$db->query($result);
+		$db->queries($result);
 
-		$this->assert($db->table_exists($table));
+		$this->assert($db->tableExists($table));
 
 		ORM_Schema::debug(true);
 
@@ -349,9 +352,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 
 		$this->assert_arrays_equal($result, $check_result, true);
 
-		//$db->query("DROP TABLE IF EXISTS $table");
-
-		echo basename(__FILE__) . ": Success.\n";
+		$db->query("DROP TABLE IF EXISTS $table");
 	}
 
 	public function test_8(): void {
@@ -364,9 +365,9 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		DBSchemaTest8::$test_table = $table;
 		$object = new DBSchemaTest8($this->application);
 		$result = ORM_Schema::update_object($object);
-		$db->query($result);
+		$db->queries($result);
 
-		$this->assert($db->table_exists($table));
+		$this->assert($db->tableExists($table));
 
 		ORM_Schema::debug(true);
 

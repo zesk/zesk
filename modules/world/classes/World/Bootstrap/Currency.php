@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage model
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -43,14 +43,14 @@ class World_Bootstrap_Currency extends Hookable {
 	 */
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options(Module_World::class);
+		$this->inheritConfiguration(Module_World::class);
 		$include_currency = $this->option('include_currency');
 		if ($include_currency) {
-			$this->include_currency = array_change_key_case(ArrayTools::flip_assign(to_list($include_currency), true));
+			$this->include_currency = array_change_key_case(ArrayTools::keysFromValues(to_list($include_currency), true));
 		}
 		$include_country = $this->option('include_country');
 		if ($include_country) {
-			$this->include_country = array_change_key_case(ArrayTools::flip_assign(to_list($include_country), true));
+			$this->include_country = array_change_key_case(ArrayTools::keysFromValues(to_list($include_country), true));
 		}
 	}
 
@@ -69,7 +69,7 @@ class World_Bootstrap_Currency extends Hookable {
 
 	private function is_included(Currency $currency) {
 		if ($this->include_country) {
-			if ($currency->member_is_empty('bank_country')) {
+			if ($currency->memberIsEmpty('bank_country')) {
 				return false;
 			}
 			return avalue($this->include_country, strtolower($currency->bank_country->code), false);
@@ -156,7 +156,7 @@ class World_Bootstrap_Currency extends Hookable {
 	private function _codes() {
 		$codes = $this->_somewhat_dated_codes();
 		$valid_ones = $this->_valid_codes();
-		$missing_ones = ArrayTools::flip_copy($valid_ones, true);
+		$missing_ones = ArrayTools::valuesFlipCopy($valid_ones, true);
 		foreach ($codes as $index => $row) {
 			$code = strtolower($row[2]);
 			if (!isset($missing_ones[$code])) {
@@ -191,7 +191,7 @@ class World_Bootstrap_Currency extends Hookable {
 		$codes = self::_somewhat_dated_codes();
 		$result = [];
 		foreach ($codes as $row) {
-			$item = ArrayTools::map_keys($row, [
+			$item = ArrayTools::keysMap($row, [
 				'country_name',
 				'name',
 				'code',

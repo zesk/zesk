@@ -22,7 +22,7 @@ class Validate extends Hookable {
 	 */
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 	}
 
 	/**
@@ -48,7 +48,7 @@ class Validate extends Hookable {
 		[$group, $phrase] = pair($source, ':=', null, $source);
 		$methods = to_list('token_names;braces');
 		if ($group !== null) {
-			$check_methods = array_change_key_case($this->option_array('group_check_methods', []));
+			$check_methods = array_change_key_case($this->optionArray('group_check_methods', []));
 			foreach ($check_methods as $check_method => $methods_list) {
 				if (beginsi($group, $check_method)) {
 					$methods = $methods_list;

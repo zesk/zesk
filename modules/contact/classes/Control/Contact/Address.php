@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -12,15 +14,15 @@ namespace zesk;
 class Control_Contact_Address extends Control_Edit {
 	/**
 	 *
-	 * @var string
+	 * @var ?string
 	 */
-	protected $class = "zesk\Contact_Address";
+	protected string $class = "zesk\Contact_Address";
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $theme_widgets = 'zesk/control/contact/address/widgets';
+	protected array $theme_widgets = ['zesk/control/contact/address/widgets'];
 
 	/**
 	 *
@@ -45,14 +47,14 @@ class Control_Contact_Address extends Control_Edit {
 	 * {@inheritDoc}
 	 * @see \zesk\Control_Edit::submit()
 	 */
-	public function submit() {
+	public function submit(): bool {
 		if (!$this->submit_handle_delete()) {
 			return false;
 		}
 		if (!$this->submit_children()) {
 			return false;
 		}
-		if ($this->parent && $this->object->member_is_empty('contact')) {
+		if ($this->parent && $this->object->memberIsEmpty('contact')) {
 			$this->object->contact = $this->parent->object;
 		}
 		if (!$this->submit_store()) {

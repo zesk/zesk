@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2017, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -42,7 +42,7 @@ class ORMIterators extends ORMIterator {
 			$first = null;
 			foreach ($this->objects_prefixes as $prefix => $class_name) {
 				[$alias, $class] = $class_name;
-				$members = ArrayTools::kunprefix($this->_row, $prefix, true);
+				$members = ArrayTools::keysRemovePrefix($this->_row, $prefix, true);
 				$object = $result[$alias] = $this->query->member_model_factory($this->parent_member . '.' . $prefix, $class, $members, [
 					'initialize' => true,
 				] + $this->class_options);

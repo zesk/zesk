@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Sun Apr 04 21:15:53 EDT 2010 21:15:53
  */
 namespace zesk;
@@ -19,14 +19,14 @@ class View extends Widget {
 
 	public function hidden_input($set = null) {
 		if ($set !== null) {
-			return $this->setOption('hidden_input', to_bool($set));
+			return $this->setOption('hidden_input', toBool($set));
 		}
 		return $this->optionBool('hidden_input');
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
 			'hidden_input' => $this->hidden_input(),
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 }

@@ -3,15 +3,15 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 16:00:34 EDT 2008
  */
 namespace zesk;
 
 class View_Select extends Control_Optionss {
-	public function render() {
+	public function render(): string {
 		if ($this->optionBool('hidden_input')) {
-			$this->wrap(null, null, null, HTML::hidden($this->name(), $this->value()));
+			$this->addWrap(null, null, null, HTML::hidden($this->name(), $this->value()));
 		}
 		$options = $this->control_options;
 		$value = $this->value();

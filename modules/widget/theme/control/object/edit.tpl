@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -21,18 +21,18 @@ if (!$request instanceof Request) {
 
 $widget->child_content = '';
 
-$table_attributes = $this->table_attributes;
+$table_attributes = $this->tableAttributes;
 if (!is_array($table_attributes)) {
 	$table_attributes = [];
 }
 
 $invisibles = '';
-$form_attributes = $this->geta('form_attributes');
+$form_attributes = $this->getArray('form_attributes');
 $form_attributes['method'] = avalue($form_attributes, 'method', 'post');
 if ($this->ajax) {
 	$invisibles .= HTML::hidden('ajax', 1);
 }
-$form_attributes['class'] = CSS::add_class(avalue($form_attributes, 'class'), 'form-' . $this->get('form-style', 'horizontal'));
+$form_attributes['class'] = CSS::addClass(avalue($form_attributes, 'class'), 'form-' . $this->get('form-style', 'horizontal'));
 
 $form_attributes['role'] = 'form';
 echo HTML::tag_open('form', $form_attributes);
@@ -60,7 +60,7 @@ if ($widgets) {
 		/* @var $w Widget */
 		$this->child = $child;
 		if ($child->is_visible($object)) {
-			echo $this->theme(ArrayTools::suffix($application->classes->hierarchy($this->widget), '/child'));
+			echo $this->theme(ArrayTools::suffixValues($application->classes->hierarchy($this->widget), '/child'));
 		} else {
 			$invisibles .= $child->content;
 		}
@@ -70,7 +70,7 @@ echo HTML::tag_close('div');
 
 echo HTML::hidden('ref', $request->get('ref'));
 if (method_exists($object, 'id_column')) {
-	echo HTML::hidden($object->id_column(), $object->id()) . $invisibles;
+	echo HTML::hidden($object->idColumn(), $object->id()) . $invisibles;
 }
 
 $buttonbar = $widget->child('buttonbar');

@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage configuration
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -133,10 +133,10 @@ class Engine extends Hookable {
 
 		$this->variable_map['application_root'] = $this->application->path();
 		$this->variable_map['application_home'] = $this->application->path();
-		$this->variable_map['zesk_home'] = $this->application->zesk_home();
+		$this->variable_map['zesk_home'] = $this->application->zeskHome();
 
 		/* @deprecated 2018-01 */
-		$this->variable_map['zesk_root'] = $this->application->zesk_home();
+		$this->variable_map['zesk_root'] = $this->application->zeskHome();
 		$this->variable_map['zesk_application_root'] = $this->application->path(); // Deprecated
 
 		$this->incomplete = 0;
@@ -235,7 +235,7 @@ class Engine extends Hookable {
 	 * @return mixed
 	 */
 	public function prompt_yes_no($message, $default = 'Y') {
-		return to_bool($this->prompt("$message? (yes/no)", $default, [
+		return toBool($this->prompt("$message? (yes/no)", $default, [
 			'y',
 			'yes',
 			'n',
@@ -286,7 +286,7 @@ class Engine extends Hookable {
 	public function process($line) {
 		$line = preg_replace("/\s+/", ' ', $line);
 		[$command, $raw_arguments] = pair($line, ' ', $line, null);
-		$command = PHP::clean_function($command);
+		$command = PHP::cleanFunction($command);
 		$raw_arguments = preg_replace("/\s+/", ' ', trim($raw_arguments));
 		$arguments = $this->map(explode(' ', $raw_arguments));
 		$method = "command_$command";
@@ -789,7 +789,7 @@ class Engine extends Hookable {
 		];
 		if (count($sources) === 0) {
 			$this->verbose_log('No file {source} found in {host_paths}', $__);
-			$completions = ArrayTools::suffix($this->host_paths, '/' . StringTools::unprefix($source, '/'));
+			$completions = ArrayTools::suffixValues($this->host_paths, '/' . StringTools::unprefix($source, '/'));
 			$__ = [
 				'source' => $source,
 				'completions' => implode(' ', $this->completions),
@@ -922,7 +922,7 @@ class Engine extends Hookable {
 	 * @return boolean
 	 */
 	public function _find_result_string(array $result, $string, $case_sensitive = false) {
-		return $case_sensitive ? ArrayTools::find($result, $string) !== false : ArrayTools::ifind($result, $string) !== false;
+		return $case_sensitive ? ArrayTools::find($result, $string) !== false : ArrayTools::findInsensitive($result, $string) !== false;
 	}
 
 	/**

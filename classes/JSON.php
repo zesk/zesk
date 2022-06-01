@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2016, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -154,7 +154,7 @@ class JSON {
 				return '"Recursion ' . type($mixed) . '"';
 			}
 			$result = [];
-			if (!is_object($mixed) && !ArrayTools::is_assoc($mixed)) {
+			if (!is_object($mixed) && !ArrayTools::isAssoc($mixed)) {
 				foreach ($mixed as $v) {
 					$recursion++;
 					$result[] = self::zencode($v);
@@ -220,7 +220,7 @@ class JSON {
 	public static function encodex(mixed $mixed): string {
 		if (is_array($mixed) || is_object($mixed)) {
 			$result = [];
-			if (!is_object($mixed) && !ArrayTools::is_assoc($mixed)) {
+			if (!is_object($mixed) && !ArrayTools::isAssoc($mixed)) {
 				foreach ($mixed as $v) {
 					$result[] = self::encodex($v);
 				}
@@ -268,28 +268,23 @@ class JSON {
 		if ($string === 'null') {
 			return null;
 		}
-		if (function_exists('json_decode')) {
-			$result = json_decode($string, $assoc);
-			if ($result !== null) {
-				return $result;
-			}
-			$e = self::lastError();
-			if (!$e) {
-				$e = new Exception_Parse('Unable to parse JSON: {string}', [
-					'string' => $string,
-				]);
-			}
-
-			throw $e;
-		} else {
-			// Throws own error
-			return self::zesk_decode($string, $assoc);
+		$result = json_decode($string, $assoc);
+		if ($result !== null) {
+			return $result;
 		}
+		$e = self::lastError();
+		if (!$e) {
+			$e = new Exception_Parse('Unable to parse JSON: {string}', [
+				'string' => $string,
+			]);
+		}
+
+		throw $e;
 	}
 
 	/**
 	 *
-	 * @param integer $code
+	 * @param int $code
 	 * @return ?string
 	 */
 	private static function errorToString(int $code): ?string {
@@ -359,7 +354,7 @@ class JSON {
 	 *
 	 * @param string $string
 	 *            JSON string optionally beginning with whitespace which will be trimmed
-	 * @param integer $offset
+	 * @param int $offset
 	 *            Current offset in the total string - for debugging only
 	 * @param boolean $assoc
 	 *            Whether arrays should be created as associative arrays, or objects
@@ -384,7 +379,7 @@ class JSON {
 	 * be core of PHP in the near future.
 	 *
 	 * @param string $string
-	 * @param integer $offset
+	 * @param int $offset
 	 *            Current offset in the total string - for debugging only
 	 * @param boolean $assoc
 	 * @return array
@@ -432,7 +427,7 @@ class JSON {
 	 * JSON parse number
 	 *
 	 * @param string $string
-	 * @param integer $offset
+	 * @param int $offset
 	 *            Current offset in the total string - for debugging only
 	 * @return array
 	 * @throws Exception_Parse
@@ -462,7 +457,7 @@ class JSON {
 	 * JSON decode array
 	 *
 	 * @param string $string
-	 * @param integer $offset Current offset in the total string - for debugging only
+	 * @param int $offset Current offset in the total string - for debugging only
 	 * @param bool $assoc
 	 * @return array
 	 * @throws Exception_Parse
@@ -522,7 +517,7 @@ class JSON {
 	 *
 	 * @param bool $assoc
 	 * @param string $string
-	 * @param integer $offset
+	 * @param int $offset
 	 *            Current offset in the total string - for debugging only
 	 * @return array
 	 * @throws Exception_Parse
@@ -605,7 +600,7 @@ class JSON {
 	 * JSON decode string
 	 *
 	 * @param string $string
-	 * @param integer $offset
+	 * @param int $offset
 	 *            Current offset in the total string - for debugging only
 	 * @return array
 	 * @throws Exception_Parse

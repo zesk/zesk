@@ -60,7 +60,7 @@ class Module_Image_Picker extends Module_JSLib implements Interface_Module_Route
 			];
 			$module->add_setup('editor.addButton("image_picker",' . JSON::encodex($image_picker_button) . ");\n");
 			$toolbar = $module->tinymce_toolbar();
-			$toolbar = Lists::remove($toolbar, 'image', ' ');
+			$toolbar = Lists::keysRemove($toolbar, 'image', ' ');
 			$module->tinymce_toolbar("$toolbar image_picker image");
 		} catch (\zesk\Exception_NotFound $e) {
 		}

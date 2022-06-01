@@ -3,7 +3,7 @@
 * @package zesk
 * @subpackage image_picker
 * @author Kent M. Davidson https://razzed.com/
-* @copyright Copyright &copy; 2019, Market Acumen, Inc.
+* @copyright Copyright &copy; 2022, Market Acumen, Inc.
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -111,7 +111,7 @@
 					dataType: 'json',
 					success: function (data) {
 						zesk.handle_json(data);
-						$item.parents('.item').remove();
+						$item.parents('.item').keysRemove();
 					}
 				});
 				return false;
@@ -133,4 +133,3 @@
 		});
 	};
 }(window, window.jQuery));
-

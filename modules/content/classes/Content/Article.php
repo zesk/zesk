@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2014, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -42,7 +42,7 @@ class Content_Article extends ORM {
 		if (empty($this->parent)) {
 			$this->parent = null;
 		}
-		if ($this->member_is_empty('slug')) {
+		if ($this->memberIsEmpty('slug')) {
 			$this->set_member('slug', self::clean_code_name($this->member('title')));
 		}
 		return parent::store();

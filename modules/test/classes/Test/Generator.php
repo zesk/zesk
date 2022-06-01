@@ -90,7 +90,7 @@ class Test_Generator extends Options {
 	public function create(): void {
 		$namespace = $this->option('namespace', __NAMESPACE__);
 		$parent = $this->option('parent', 'zesk\\PHPUnit_TestCase');
-		[$ns, $cl] = PHP::parse_namespace_class($parent);
+		[$ns, $cl] = PHP::parseNamespaceClass($parent);
 		if ($ns !== $namespace) {
 			$use = "use $parent;\n";
 			$parent_class = $parent;
@@ -112,7 +112,7 @@ class Test_Generator extends Options {
 			'author' => $this->application->process->user(),
 			'package' => __NAMESPACE__,
 			'subpackage' => 'test',
-			'copyright' => $this->application->kernel_copyright_holder(),
+			'copyright' => $this->application->kernelCopyrightHolder(),
 		]);
 		$example = Text::remove_line_comments($example, '//', true);
 		file_put_contents($this->target, map($example, $map));
@@ -445,7 +445,7 @@ class Test_Generator extends Options {
 		$files = [];
 
 		while (($arg = $this->get_arg('target')) !== null) {
-			if (Directory::is_absolute($arg)) {
+			if (Directory::isAbsolute($arg)) {
 				$dirs[] = $arg;
 			} elseif (is_dir(path($cwd, $arg))) {
 				$dirs[] = $arg;
@@ -465,10 +465,10 @@ class Test_Generator extends Options {
 		if ($dry_run) {
 			$this->verbose_log("Dry run: No files will be created.\n");
 		}
-		$extensions = ArrayTools::prefix(ArrayTools::unprefix('.', $this->option_list('extensions')), '.');
+		$extensions = ArrayTools::prefixValues(ArrayTools::valuesRemovePrefix('.', $this->optionIterable('extensions')), '.');
 		foreach ($dirs as $dir) {
 			$this->verbose_log("Processing directory $dir ...");
-			if (!Directory::is_absolute($dir)) {
+			if (!Directory::isAbsolute($dir)) {
 				$dir = path(getcwd(), $dir);
 			}
 			$dir_files = new \DirectoryIterator($dir);
@@ -498,7 +498,7 @@ class Test_Generator extends Options {
 		}
 		foreach ($files as $file) {
 			$this->verbose_log("Processing file $file ...\n");
-			if (!Directory::is_absolute($file)) {
+			if (!Directory::isAbsolute($file)) {
 				$file_full = path($cwd, $file);
 			}
 			if (!StringTools::ends($file, $extensions)) {

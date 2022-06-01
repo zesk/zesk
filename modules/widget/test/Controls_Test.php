@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @test_module Widget
  * @test_module ORM
  * @test_no_buffer false
  * @author kent
  */
+
 namespace zesk;
 
 /**
@@ -26,9 +28,15 @@ class Controls_Test extends TestWidget {
 	 */
 	public function test_control(string $widget_class, array $options = []): void {
 		$this->_test_session();
+		$request = $this->application->requestFactory()->initializeFromSettings('http://localhost/testpath?query=testquery#testfrag');
+		$this->application->pushRequest($request);
+
 		$control = $this->application->widget_factory($widget_class, $options);
+		$control->setResponse($this->application->responseFactory($request));
 		$this->assert_instanceof($control, Widget::class, "$widget_class is not an instanceof of zesk\\Widget (" . type($control) . ')');
 		$this->widget_tests($control);
+
+		$this->application->popRequest($request);
 	}
 
 	public function controls_to_test() {
@@ -138,7 +146,7 @@ class Controls_Test extends TestWidget {
 		$options = [];
 		$x = new Control_Edit($this->application, $options);
 		$object = new User($this->application);
-		$x->object($object);
+		$x->setObject($object);
 
 		$this->test_basics($x);
 	}
@@ -148,6 +156,7 @@ class Controls_Test extends TestWidget {
 			'path' => $this->sandbox(),
 		];
 		$x = new Control_Select_File($this->application, $options);
+		$x->setResponse($this->application->responseFactory($this->application->request()));
 
 		$this->test_basics($x);
 	}
@@ -160,7 +169,7 @@ class Controls_Test extends TestWidget {
 			'textcolumn' => 'Foo',
 		];
 		$x = new Control_Select_ORM($this->application, $options);
-		$x->object_class(__NAMESPACE__ . '\\' . 'User');
+		$x->setORMClassName(__NAMESPACE__ . '\\' . 'User');
 		$this->test_basics($x);
 	}
 
@@ -188,6 +197,7 @@ class Controls_Test extends TestWidget {
 		$db->query("DROP TABLE IF EXISTS $table");
 	}
 }
+
 class Class_Test_COLT_Object extends Class_ORM {
 	public string $table = 'Test_COLT_Object';
 
@@ -198,11 +208,13 @@ class Class_Test_COLT_Object extends Class_ORM {
 		'Foo' => self::type_string,
 	];
 }
+
 class Test_COLT_Object extends ORM {
 	public function schema(): string|array|ORM_Schema|null {
 		return 'CREATE TABLE `' . $this->table() . '` ( ID int(11) unsigned PRIMARY KEY AUTO_INCREMENT NOT NULL, Foo varchar(23) NOT NULL )';
 	}
 }
+
 class Class_Test_COL_Object extends Class_ORM {
 	public string $table = __CLASS__;
 
@@ -213,5 +225,6 @@ class Class_Test_COL_Object extends Class_ORM {
 		'Foo' => self::type_string,
 	];
 }
+
 class Test_COL_Object extends ORM {
 }

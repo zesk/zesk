@@ -6,7 +6,7 @@
  * @package zesk
  * @subpackage server
  * @author $Author: kent $
- * @copyright Copyright &copy; 2011, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -49,7 +49,7 @@ class Server_Configuration_Files extends Server_Configuration {
 
 		try {
 			$alias_file = File::lines(path($this->host_path, 'aliases'));
-			$this->host_aliases = ArrayTools::trim_clean(ArrayTools::ktrim(ArrayTools::kpair($alias_file), " \t"));
+			$this->host_aliases = ArrayTools::listTrimClean(ArrayTools::keysTrim(ArrayTools::pairValues($alias_file), " \t"));
 		} catch (Exception_File_NotFound $e) {
 		}
 	}
@@ -66,7 +66,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		}
 		$searched_paths = [];
 		$this->search_path("all $alias_hostname");
-		$files = $this->option_list('files', $app->configuration->get('server_configuration_file', 'environment.sh'));
+		$files = $this->optionIterable('files', $app->configuration->get('server_configuration_file', 'environment.sh'));
 
 		$search_path = $this->search_path();
 		$result = [];
@@ -104,7 +104,7 @@ class Server_Configuration_Files extends Server_Configuration {
 	}
 
 	public function feature_list() {
-		return ArrayTools::trim_clean($this->option_list('FEATURES', $this->option_list('SERVICES', [], ' '), ' '));
+		return ArrayTools::listTrimClean($this->optionIterable('FEATURES', $this->optionIterable('SERVICES', [], ' '), ' '));
 	}
 
 	public function search_path($set = null) {
@@ -112,7 +112,7 @@ class Server_Configuration_Files extends Server_Configuration {
 			$this->setOption('SEARCH_PATH', $set);
 			return $this;
 		}
-		return $this->option_list('SEARCH_PATH', [], ' ');
+		return $this->optionIterable('SEARCH_PATH', [], ' ');
 	}
 
 	public function remote_package($url): void {

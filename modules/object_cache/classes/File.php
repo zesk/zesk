@@ -23,7 +23,7 @@ class File extends Base {
 		$this->configured();
 	}
 
-	private function cache_path($add = null, $create = false) {
+	private function cachePath($add = null, $create = false) {
 		$path = $this->path;
 		if (!$path) {
 			return null;
@@ -46,11 +46,11 @@ class File extends Base {
 			ksort($id);
 			$id = zeskFile::name_clean(JSON::encode($id));
 		}
-		return $this->cache_path(strtolower(get_class($object)) . "-$id", $create);
+		return $this->cachePath(strtolower(get_class($object)) . "-$id", $create);
 	}
 
 	public function configured(): void {
-		$path = $this->cache_path(null, true);
+		$path = $this->cachePath(null, true);
 	}
 
 	public function load(ORM $object, $key) {

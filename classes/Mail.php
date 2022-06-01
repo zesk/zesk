@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage email
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2014, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -114,7 +114,7 @@ class Mail extends Hookable {
 	 */
 	public function __construct(Application $application, array $headers, $body, array $options = []) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 		$this->headers = $headers;
 		$this->body = $body;
 		$this->sent = null;
@@ -167,7 +167,7 @@ class Mail extends Hookable {
 		/*
 		 * Load globals
 		 */
-		self::$debug = to_bool($config->path_get([
+		self::$debug = toBool($config->path_get([
 			__CLASS__,
 			'debug',
 		]));
@@ -176,7 +176,7 @@ class Mail extends Hookable {
 			'log',
 		]));
 		self::$fp = null;
-		self::$disabled = to_bool($config->path_get([
+		self::$disabled = toBool($config->path_get([
 			__CLASS__,
 			'disabled',
 		]));
@@ -236,7 +236,7 @@ class Mail extends Hookable {
 		$from = avalue($this->headers, 'From', null);
 		$body = str_replace("\r\n", "\n", $this->body);
 		$body = str_replace("\n", "\r\n", $body);
-		$smtp = new Net_SMTP_Client($this->application, $smtp_send, $this->option_array('SMTP_OPTIONS'));
+		$smtp = new Net_SMTP_Client($this->application, $smtp_send, $this->optionArray('SMTP_OPTIONS'));
 		$this->method = 'smtp';
 		if ($smtp->send($from, $to, self::render_headers($this->headers), $body)) {
 			$this->sent = time();

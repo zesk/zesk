@@ -33,22 +33,22 @@ class Control_Edit_Content_Image extends Control_Edit {
 		];
 		$f = $this->widget_factory('control_integer')->names('DisplayWidth', 'Width', false);
 		$f->setOption($clamp_values);
-		$f->suffix('<p class="tiny">Option width to scale this image. If blank, uses site default.</p>');
+		$f->setSuffix('<p class="tiny">Option width to scale this image. If blank, uses site default.</p>');
 		$spec[$f->column()] = $f;
 
 		$f = $this->widget_factory('control_integer')->names('DisplayHeight', 'Height', false);
 		$f->setOption($clamp_values);
-		$f->suffix('<p class="tiny">Option height to scale this image. If blank, uses site default.</p>');
+		$f->setSuffix('<p class="tiny">Option height to scale this image. If blank, uses site default.</p>');
 		$spec[$f->column()] = $f;
 
 		$f = $this->widget_factory('control_integer')->names('ThumbWidth', 'Thumbnail Width', false);
 		$f->setOption($clamp_values);
-		$f->suffix('<p class="tiny">Option width to scale this image when shown as a thumbnail. If blank, uses site default.</p>');
+		$f->setSuffix('<p class="tiny">Option width to scale this image when shown as a thumbnail. If blank, uses site default.</p>');
 		$spec[$f->column()] = $f;
 
 		$f = $this->widget_factory('control_integer')->names('ThumbHeight', 'Thumbnail Height', false);
 		$f->setOption($clamp_values);
-		$f->suffix('<p class="tiny">Option height to scale this image when shown as a thumbnail. If blank, uses site default.</p>');
+		$f->setSuffix('<p class="tiny">Option height to scale this image when shown as a thumbnail. If blank, uses site default.</p>');
 		$spec[$f->column()] = $f;
 
 		$f = $this->widget_factory('view_date')->names('Created', 'Created', '');

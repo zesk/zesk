@@ -29,7 +29,7 @@ class Net_HTTP_Server_File extends Net_HTTP_Server {
 
 	final public function directory_list($set = null) {
 		if ($set !== null) {
-			$this->directory_list = to_bool($set);
+			$this->directory_list = toBool($set);
 			return $this;
 		}
 		return $this->directory_list;

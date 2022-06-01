@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2016, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -120,7 +120,7 @@ class JavaScript {
 	 * @return string
 	 */
 	public static function clean_code(array $javascript): string {
-		return implode(";\n", ArrayTools::unsuffix(ArrayTools::trim_clean($javascript, ' ', ''), ';'));
+		return implode(";\n", ArrayTools::valuesRemoveSuffix(ArrayTools::listTrimClean($javascript, ' ', ''), ';'));
 	}
 
 	/**

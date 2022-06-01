@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -59,7 +59,7 @@ abstract class Net_Client extends Hookable {
 		parent::__construct($application, $options);
 		$this->url = $url;
 		$this->url_parts = URL::parse($url);
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 	}
 
 	public function __toString() {
@@ -139,7 +139,7 @@ abstract class Net_Client extends Hookable {
 		if (count($fields) !== 9) {
 			throw new Exception_Syntax("Improper listing line: $line");
 		}
-		$entry = ArrayTools::map_keys($fields, [
+		$entry = ArrayTools::keysMap($fields, [
 			0 => 'mode',
 			1 => 'links',
 			2 => 'owner',

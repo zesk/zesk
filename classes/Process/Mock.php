@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -16,19 +18,19 @@ class Process_Mock extends Hookable implements Interface_Process {
 	 *
 	 * @var boolean
 	 */
-	private $done = false;
+	private bool $done = false;
 
 	/**
 	 *
 	 * @var Timer
 	 */
-	private $timer = null;
+	private Timer $timer;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	private $quit_after = null;
+	private int $quit_after;
 
 	/**
 	 * Construct our mock process
@@ -43,25 +45,26 @@ class Process_Mock extends Hookable implements Interface_Process {
 	}
 
 	/**
-	 * Getter/setter for application
-	 *
-	 * {@inheritdoc}
-	 *
-	 * @see zesk\Interface_Process::application()
+	 * @return Application
 	 */
-	public function application(Application $set = null) {
-		if ($set) {
-			$this->application = $set;
-			return $this;
-		}
+	public function application(): Application {
 		return $this->application;
+	}
+
+	/**
+	 * @param Application $set
+	 * @return $this
+	 */
+	public function setApplication(Application $set): self {
+		$this->application = $set;
+		return $this;
 	}
 
 	/**
 	 * Getter for done state
 	 *
 	 * @param
-	 *        	boolean
+	 *            boolean
 	 */
 	public function done() {
 		if ($this->timer->elapsed() > $this->quit_after) {
@@ -73,8 +76,6 @@ class Process_Mock extends Hookable implements Interface_Process {
 	/**
 	 * Kill/interrupt this process.
 	 * Harsher than ->done(true);
-	 *
-	 * @param string $interrupt
 	 */
 	public function kill(): void {
 		$this->done = true;
@@ -101,9 +102,8 @@ class Process_Mock extends Hookable implements Interface_Process {
 	 *
 	 * @param string $message
 	 * @param array $args
-	 * @param string $level
 	 */
 	public function log($message, array $args = []): void {
-		$this->application->logger->log(avalue($args, 'severity', 'info'), $message, $args);
+		$this->application->logger->log($args['severity'] ?? 'info', $message, $args);
 	}
 }

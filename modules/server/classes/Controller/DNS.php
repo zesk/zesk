@@ -100,7 +100,7 @@ class Controller_DNS extends Controller_Theme {
 
 		$lookup = trim(preg_replace("/[\r\n,;]+/", "\n", $model->lookup));
 		$lookup = preg_replace('/ +/', ' ', $lookup);
-		$lookup = ArrayTools::trim_clean(explode("\n", $lookup));
+		$lookup = ArrayTools::listTrimClean(explode("\n", $lookup));
 		$old = $model->old;
 		$new = $model->new;
 		$result[] = HTML::tag('h1', "Comparing $old to $new");

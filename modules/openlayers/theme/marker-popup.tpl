@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -13,13 +13,13 @@ namespace zesk;
 /* @var $response \zesk\Response */
 $latitude = $this->latitude;
 $longitude = $this->longitude;
-$zoom = $this->geti('zoom', 14);
+$zoom = $this->getInt('zoom', 14);
 $message = $this->message;
 
 $id = 'openlayers-map-' . $response->id_counter();
 
-$width = $this->geti('width', null);
-$height = $this->geti('height', null);
+$width = $this->getInt('width', null);
+$height = $this->getInt('height', null);
 
 ob_start();
 ?>

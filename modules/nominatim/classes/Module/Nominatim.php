@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -83,7 +83,7 @@ class Module_Nominatim extends Module {
 		$query = $this->application->orm_registry('zesk\\Contact_Address')->query_select()->where([
 			[
 				'geocoded' => null,
-				'geocoded|<=' => Timestamp::now()->add_unit(-abs($this->optionInt('geocode_refresh_days', 30)), Timestamp::UNIT_DAY),
+				'geocoded|<=' => Timestamp::now()->addUnit(-abs($this->optionInt('geocode_refresh_days', 30)), Timestamp::UNIT_DAY),
 			],
 		]);
 
@@ -139,7 +139,7 @@ class Module_Nominatim extends Module {
 	 * @return boolean
 	 */
 	private function geocode_address(Net_HTTP_Client $http, Contact_Address $item) {
-		$query = $this->option_array('url_geocode_query', []);
+		$query = $this->optionArray('url_geocode_query', []);
 		$query['format'] = 'json';
 		$query['q'] = implode(', ', ArrayTools::clean([
 			$item->street,
@@ -157,9 +157,9 @@ class Module_Nominatim extends Module {
 		$alt_query['state'] = $item->province;
 		$alt_query['country'] = $item->country_code;
 		$alt_query['postalcode'] = $item->postal_code;
-		$alt_query = ArrayTools::trim_clean($alt_query);
+		$alt_query = ArrayTools::listTrimClean($alt_query);
 
-		$this_url = URL::query_append($this->url, $query);
+		$this_url = URL::queryAppend($this->url, $query);
 		$http->url($this_url);
 		$raw = $http->go();
 		if ($http->response_code() === Net_HTTP::STATUS_OK) {
@@ -190,14 +190,14 @@ class Module_Nominatim extends Module {
 			$item->geocode_data = to_array($item->geocode_data) + [
 				'message' => $message,
 				'url' => $this_url,
-				'alt_url' => URL::query_append($this->url, $alt_query),
+				'alt_url' => URL::queryAppend($this->url, $alt_query),
 			];
 			$item->store();
 			return true;
 		}
 		$item->geocode_data = [
 			'url' => $this_url,
-			'alt_url' => URL::query_append($this->url, $alt_query),
+			'alt_url' => URL::queryAppend($this->url, $alt_query),
 			'http_response_code' => $http->response_code,
 			'http_content' => $raw,
 		];

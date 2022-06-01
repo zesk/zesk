@@ -34,7 +34,7 @@ class Compiler {
 	 * @param Application $application
 	 */
 	public function __construct(Application $application) {
-		$cache_dir = $application->cache_path($application->iless_module()->option('cache_suffix', 'iless'));
+		$cache_dir = $application->cachePath($application->iless_module()->option('cache_suffix', 'iless'));
 		Directory::depend($cache_dir);
 		$cache = new FileSystemCache($cache_dir);
 		$this->iless = new Parser([

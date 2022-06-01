@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage subversion
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Subversion;
 
@@ -192,7 +192,7 @@ class Repository extends \zesk\Repository_Command {
 		}
 		$results = [];
 		foreach ($matches as $match) {
-			$result = ArrayTools::map_keys($match, [
+			$result = ArrayTools::keysMap($match, [
 				0 => 'raw_status_line',
 				1 => 'changed',
 				2 => 'directory-properties-changed',

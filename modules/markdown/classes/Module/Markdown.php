@@ -4,7 +4,7 @@ namespace zesk;
 class Module_Markdown extends Module implements Interface_Module_Routes {
 	public static function request(Request $request) {
 		$input = $request->get('markdown');
-		$tab_size = $request->geti('tab_size', Markdown::default_tab_size);
+		$tab_size = $request->getInt('tab_size', Markdown::default_tab_size);
 		return Markdown::filter($input, [
 			'tab_size' => $tab_size,
 		]);

@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  *            Created on Tue Jul 15 16:38:32 EDT 2008
  */
 namespace zesk;
@@ -36,14 +36,14 @@ class Control_Checkbox extends Control {
 	private function input_value($names, $default) {
 		$value = $this->firstOption(to_list($names), $default);
 		if (is_string($value)) {
-			return $this->object->apply_map($value);
+			return $this->object->applyMap($value);
 		}
 		return strval($value);
 	}
 
 	private function object_value($names, $default) {
 		$value = $this->firstOption(to_list($names), $default);
-		return $this->object->apply_map($value);
+		return $this->object->applyMap($value);
 	}
 
 	public function checked() {
@@ -54,13 +54,13 @@ class Control_Checkbox extends Control {
 	}
 
 	public function submitted() {
-		return $this->request->getb($this->name() . '_ckbx');
+		return $this->request->getBool($this->name() . '_ckbx');
 	}
 
 	public function load(): void {
 		$name = $this->name();
 		if ($this->request->has($name) || $this->request->has($name . '_ckbx')) {
-			$new_value = strval(to_bool($this->request->get($name)));
+			$new_value = strval(toBool($this->request->get($name)));
 			$checked = ($new_value === $this->input_value_true());
 			$object_value = $checked ? $this->object_value_true() : $this->object_value_false();
 			$this->value($object_value);
@@ -77,7 +77,7 @@ class Control_Checkbox extends Control {
 
 	public function validate() {
 		$cont_name = $this->name() . '_sv';
-		if ($this->request->getb($cont_name)) {
+		if ($this->request->getBool($cont_name)) {
 			$this->message($this->option('continue_message', $this->application->locale->__('Form was updated.')));
 			return false;
 		}
@@ -98,11 +98,11 @@ class Control_Checkbox extends Control {
 		return $this->setOption('checked_value', $value);
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		$this->apply_options($this->checked());
-		return parent::theme_variables() + [
+		return parent::themeVariables() + [
 			'checked' => $this->checked(),
-			'checked_value' => $this->object->apply_map($this->checked_value()),
+			'checked_value' => $this->object->applyMap($this->checked_value()),
 		];
 	}
 

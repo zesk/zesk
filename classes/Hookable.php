@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage kernel
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -24,6 +24,20 @@ class Hookable extends Options {
 	 * @var array
 	 */
 	private array $_hooks = [];
+
+	/**
+	 * Set in subclasses to have options append upon inherit
+	 *
+	 * @var array
+	 */
+	protected array $options_inherit_append = [];
+
+	/**
+	 * Set in subclasses to have options overwrite (always) upon inherit
+	 *
+	 * @var array
+	 */
+	protected array $options_inherit_overwrite = [];
 
 	/**
 	 *
@@ -67,9 +81,6 @@ class Hookable extends Options {
 	 * @see Hookable::hook_array
 	 */
 	final public function call_hook(array|string $types): mixed {
-		if (empty($types)) {
-			return $this;
-		}
 		$args = func_get_args();
 		array_shift($args);
 		return $this->call_hook_arguments($types, $args, $args[0] ?? null);
@@ -145,7 +156,7 @@ class Hookable extends Options {
 				$args,
 			];
 		}
-		$types = to_list($types);
+		$types = toList($types);
 		/*
 		 * Add $this for system hooks
 		 */
@@ -180,7 +191,7 @@ class Hookable extends Options {
 					];
 				}
 			}
-			$hook_names = ArrayTools::suffix($app->classes->hierarchy($this, __CLASS__), "::$type");
+			$hook_names = ArrayTools::suffixValues($app->classes->hierarchy($this, __CLASS__), "::$type");
 			$hooks = array_merge($hooks, $app->hooks->collect_hooks($hook_names, $zesk_hook_args));
 		}
 		return $hooks;
@@ -222,7 +233,7 @@ class Hookable extends Options {
 	 */
 	final public function hook_list(string|array $types, bool $object_only = false): array {
 		$hooks = $this->application->hooks;
-		$types = to_list($types);
+		$types = toList($types);
 		$result = [];
 		foreach ($types as $type) {
 			$method = Hooks::clean_name($type);
@@ -241,7 +252,7 @@ class Hookable extends Options {
 				}
 			}
 			if (!$object_only) {
-				$hook_names = ArrayTools::suffix($this->application->classes->hierarchy($this, __CLASS__), "::$type");
+				$hook_names = ArrayTools::suffixValues($this->application->classes->hierarchy($this, __CLASS__), "::$type");
 				if ($hooks->has($hook_names)) {
 					foreach ($hook_names as $hook_name) {
 						if ($hooks->has($hook_name)) {
@@ -264,10 +275,8 @@ class Hookable extends Options {
 	 * @param callable $callable
 	 *            Function
 	 * @param array $arguments
-	 * @param callable $hook_callback
-	 *            A function to call for each hook called.
-	 * @param string $result_callback
-	 *            A function to process hook results. If false, returns last result unmodified.
+	 * @param ?callable $hook_callback A function to call for each hook called.
+	 * @param ?callable $result_callback A function to process hook results. If false, returns last result unmodified.
 	 * @return mixed
 	 */
 	final public static function hook_results(mixed $previous_result, callable $callable, array $arguments, callable $hook_callback = null, callable $result_callback = null): mixed {
@@ -309,7 +318,7 @@ class Hookable extends Options {
 			return $previous_result;
 		}
 		if (is_array($previous_result) && is_array($new_result)) {
-			if (count($previous_result) > 0 && ArrayTools::is_list($previous_result)) {
+			if (count($previous_result) > 0 && ArrayTools::isList($previous_result)) {
 				return array_merge($previous_result, $new_result);
 			} else {
 				return $new_result + $previous_result;
@@ -323,7 +332,6 @@ class Hookable extends Options {
 	 *
 	 * @param string $class
 	 * @return array
-	 * @throws Exception_Lock
 	 */
 	private function _defaultOptions(string $class): array {
 		$references = [];
@@ -349,7 +357,6 @@ class Hookable extends Options {
 	 *
 	 * @param string $class
 	 * @return array
-	 * @throws Exception_Lock
 	 */
 	public function default_options(string $class): array {
 		$class = strtolower($class);
@@ -359,7 +366,7 @@ class Hookable extends Options {
 			// Child options override parent options
 			$config->merge($configuration, false);
 		}
-		return $config->to_array();
+		return $config->toArray();
 	}
 
 	/**
@@ -369,7 +376,6 @@ class Hookable extends Options {
 	 * @param ?string $class
 	 *            Inherit globals from this class
 	 * @return $this
-	 * @throws Exception_Lock
 	 * @deprecated 2022-01
 	 */
 	final public function inherit_global_options(string $class = null): self {
@@ -383,16 +389,21 @@ class Hookable extends Options {
 	 * @param ?string $class
 	 *            Inherit globals from this class
 	 * @return $this
-	 * @throws Exception_Lock
 	 */
 	final public function inheritConfiguration(string $class = null): self {
 		if ($class === null) {
 			$class = get_class($this);
 		}
 		$options = $this->default_options($class);
+		foreach ($this->options_inherit_append as $append_key) {
+			if ($this->hasOption($append_key) && array_key_exists($append_key, $options)) {
+				$items = $this->optionArray($append_key);
+				$this->setOption($append_key, array_merge($items, toArray($options[$append_key])));
+			}
+		}
 		foreach ($options as $key => $value) {
 			$key = self::_optionKey($key);
-			if (!isset($this->options[$key])) {
+			if (!array_key_exists($key, $this->options) || in_array($key, $this->options_inherit_overwrite)) {
 				$this->options[$key] = $value;
 			}
 		}

@@ -7,7 +7,7 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2013, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Cron;
 
@@ -150,7 +150,7 @@ class Module extends \zesk\Module {
 		}
 		$file = $this->application->paths->expand($file);
 		$flags = $command->parse_file_flags($arguments);
-		$map = to_bool(avalue($flags, 'map'));
+		$map = toBool(avalue($flags, 'map'));
 		if (!file_exists($file)) {
 			$command->error('crontab file not found {file}', [
 				'file' => $file,
@@ -205,7 +205,7 @@ class Module extends \zesk\Module {
 	public function _hook_callback($method, $arguments): void {
 		$method_string = $this->application->hooks->callable_string($method);
 		if (is_array($method) && ($method[0] instanceof Module)) {
-			$name = $method[0]->codename();
+			$name = $method[0]->codeName();
 			$message = "\$application->modules->object(\"$name\")->{1}()";
 			$message_args = $method;
 		} else {
@@ -230,7 +230,7 @@ class Module extends \zesk\Module {
 	 */
 	public function _result_callback($method, $previous_result, $new_result, array $arguments) {
 		$elapsed = microtime(true) - $this->start;
-		if ($elapsed > ($elapsed_warn = $this->option_double('elapsed_warn', 2))) {
+		if ($elapsed > ($elapsed_warn = $this->optionFloat('elapsed_warn', 2))) {
 			$locale = $this->application->locale;
 			$this->application->logger->warning('Cron: {method} took {elapsed} {seconds} (exceeded {elapsed_warn} {elapsed_warn_seconds})', [
 				'elapsed' => sprintf('%.3f', $elapsed),
@@ -349,7 +349,7 @@ class Module extends \zesk\Module {
 	}
 
 	private static function _cron_ran(Interface_Data $object, $prefix, $unit, Timestamp $when) {
-		return $object->data(self::_last_cron_variable($prefix, $unit), $when->unix_timestamp());
+		return $object->data(self::_last_cron_variable($prefix, $unit), $when->unixTimestamp());
 	}
 
 	private static function _cron_reset(Interface_Data $object, $prefix = '', $unit = null): void {
@@ -367,7 +367,7 @@ class Module extends \zesk\Module {
 			Application::class,
 			ORM::class,
 		]));
-		return ArrayTools::suffix($classes, "::$method");
+		return ArrayTools::suffixValues($classes, "::$method");
 	}
 
 	/**
@@ -446,7 +446,7 @@ class Module extends \zesk\Module {
 			foreach (self::$intervals as $unit) {
 				$last_unit_run = self::_last_cron_run($state, $settings['prefix'], $unit);
 				$status = $now->difference($last_unit_run, $unit) > 0;
-				$unit_hooks = ArrayTools::suffix($cron_hooks, "_$unit");
+				$unit_hooks = ArrayTools::suffixValues($cron_hooks, "_$unit");
 				$all_hooks = $this->application->modules->all_hook_list($method . "_${unit}");
 				$all_hooks = array_merge($all_hooks, $hooks->find_all($unit_hooks));
 				foreach ($all_hooks as $hook) {
@@ -589,7 +589,7 @@ class Module extends \zesk\Module {
 					$unit_hooks = $method . "_$unit";
 
 					try {
-						$unit_hooks = ArrayTools::suffix($cron_hooks, "_$unit");
+						$unit_hooks = ArrayTools::suffixValues($cron_hooks, "_$unit");
 						$this->hook_source = $method . " $unit hooks->all_call";
 						$hooks->all_call_arguments($unit_hooks, $cron_arguments, null, $hook_callback, $result_callback);
 					} catch (Exception $e) {
@@ -629,7 +629,7 @@ class Module extends \zesk\Module {
 			$js[] = 'x.cron.methods = ' . json_encode($this->methods) . ';';
 		}
 		$js[] = '}(window.zesk.settings));';
-		return ArrayTools::join_suffix($js, "\n");
+		return ArrayTools::joinSuffix($js, "\n");
 	}
 
 	/**
@@ -695,7 +695,7 @@ class Module extends \zesk\Module {
 	 * </code>
 	 *
 	 * @param string $prefix
-	 * @param integer $minute_to_hit
+	 * @param int $minute_to_hit
 	 *        	Minute of the hour to hit
 	 */
 	public static function hourly(Interface_Settings $settings, $prefix, $minute_to_hit = 0) {
@@ -762,7 +762,7 @@ class Module extends \zesk\Module {
 	 * </code>
 	 *
 	 * @param string $prefix
-	 * @param integer $hour_to_hit
+	 * @param int $hour_to_hit
 	 *        	Hour of the day to hit, 0 ... 23
 	 */
 	public static function daily_hour_of_day(Interface_Settings $settings, $prefix, $hour_to_hit) {
@@ -830,12 +830,12 @@ class Module extends \zesk\Module {
 		$settings->prefix_updated('Module_Cron::', __CLASS__ . '::');
 		$settings->prefix_updated('zesk\\Module_Cron::', __CLASS__ . '::');
 		$nrows = $settings->query_delete()
-			->where('name|LIKE', [
+			->addWhere('name|LIKE', [
 			'Module_Cron::%',
 			'cron::%',
 		])
 			->execute()
-			->affected_rows();
+			->affectedRows();
 		if ($nrows > 0) {
 			$this->application->logger->notice('{class}: Deleted {nrows} settings to using old prefixes', [
 				'nrows' => $nrows,

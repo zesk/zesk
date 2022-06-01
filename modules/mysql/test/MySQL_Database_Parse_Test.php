@@ -66,7 +66,7 @@ EOF;
 
 	public function test_schema(): void {
 		$db = $this->application->database_registry();
-		$table = $db->parse_create_table(self::$schema, __METHOD__);
+		$table = $db->parseCreateTable(self::$schema, __METHOD__);
 		$this->assert_instanceof($table, 'zesk\\Database_Table');
 		$week = $table->column('Week');
 		$this->assert_instanceof($week, 'zesk\\Database_Column');

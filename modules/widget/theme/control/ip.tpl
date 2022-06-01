@@ -16,6 +16,6 @@ $attrs['placeholder'] = __('IP Address');
 $attrs['name'] = $name;
 $attrs['id'] = avalue($attrs, 'id', $attrs['name']);
 $attrs['value'] = $value;
-$attrs = $widget->input_attributes() + $attrs;
+$attrs = $widget->inputAttributes() + $attrs;
 
 echo HTML::tag('input', $attrs, null);

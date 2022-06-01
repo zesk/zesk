@@ -6,10 +6,13 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
+
+use zesk\ORM\QueryTrait\Affected;
+use zesk\ORM\QueryTrait\Where;
 
 /**
  *
@@ -17,18 +20,14 @@ namespace zesk;
  *
  */
 class Database_Query_Update extends Database_Query_Edit {
-	/**
-	 * Update where clause
-	 *
-	 * @var array
-	 */
-	protected array $where = [];
+	use Where;
+	use Affected;
 
 	/**
 	 *
 	 * @var resource
 	 */
-	private $result = null;
+	private mixed $result;
 
 	/**
 	 *
@@ -46,7 +45,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	}
 
 	/**
-	 * Getter/setter for ignore constraints flag for update
+	 * Getter for ignore constraints
 	 *
 	 * @param boolean $set
 	 * @return self
@@ -57,7 +56,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	}
 
 	/**
-	 * Getter/setter for ignore constraints flag for update
+	 * Getter for ignore constraints flag for update
 	 *
 	 * @return bool
 	 */
@@ -77,16 +76,8 @@ class Database_Query_Update extends Database_Query_Edit {
 			'values' => $this->values,
 			'where' => $this->where,
 			'low_priority' => $this->low_priority,
+			'ignore_constraints' => $this->ignore_constraints,
 		]);
-	}
-
-	/**
-	 * Return the number of affected rows after query has run
-	 *
-	 * @return integer
-	 */
-	final public function affected_rows(): int {
-		return $this->database()->affected_rows($this->result);
 	}
 
 	/**
@@ -109,36 +100,14 @@ class Database_Query_Update extends Database_Query_Edit {
 	}
 
 	/**
-	 * Run this query
-	 *
 	 * @return $this
+	 * @throws Exception_Semantics
 	 */
 	public function execute(): self {
 		$this->result = $this->database()->update($this->table(), $this->values, $this->where, [
 			'low_priority' => $this->low_priority,
 			'ignore_constraints' => $this->ignore_constraints,
 		]);
-		return $this;
-	}
-
-	/**
-	 * Add where clause.
-	 * Once traits are standard, make this a trait for SELECT/INSERT
-	 *
-	 * @trait
-	 *
-	 * @param string|array $k
-	 * @param string|array $v
-	 * @return $this
-	 */
-	public function where($k, $v = null) {
-		if (is_array($k)) {
-			$this->where = array_merge($this->where, $k);
-		} elseif ($k === null && is_string($v)) {
-			$this->where[] = $v;
-		} elseif (!empty($k)) {
-			$this->where[$k] = $v;
-		}
-		return $this;
+		return $this->setAffectedRows($this->database()->affectedRows($this->result));
 	}
 }

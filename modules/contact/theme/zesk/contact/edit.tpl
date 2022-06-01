@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -140,7 +140,7 @@ function contact_edit_post(Template $object, Contact $contact) {
 	return false;
 }
 
-if ($request->is_post()) {
+if ($request->isPost()) {
 	$result = contact_edit_post($this, $contact);
 	if ($result === true) {
 		$response = [
@@ -377,7 +377,7 @@ foreach ($sections as $section => $variables) {
 			'Label' => 'Label',
 			'Value' => 'Value',
 		])
-			->where('contact', $id)
+			->addWhere('contact', $id)
 			->to_array();
 	}
 	$display = '';

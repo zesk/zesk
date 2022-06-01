@@ -8,7 +8,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -122,12 +122,12 @@ class View_Image extends View {
 	 *
 	 * @return string
 	 */
-	public function render() {
+	public function render(): string {
 		$object = $this->object;
 		$actualWidth = $object->get($this->option('WidthColumn', 'Width'));
 		$actualHeight = $object->get($this->option('HeightColumn', 'Height'));
 
-		$value = $object->apply_map($this->option('src', '{src}'));
+		$value = $object->applyMap($this->option('src', '{src}'));
 		//avalue($object, $this->column('src'));
 
 		if (empty($value)) {
@@ -179,7 +179,7 @@ class View_Image extends View {
 		$attrs['alt'] = $this->option('alt', '');
 		$attrs['title'] = $this->option('title', false);
 
-		$attrs = $this->object->apply_map($attrs);
+		$attrs = $this->object->applyMap($attrs);
 		if ($this->hasOption('image_host')) {
 			$attrs['src'] = $this->option('image_host') . $file_path;
 		} else {
@@ -187,7 +187,7 @@ class View_Image extends View {
 		}
 		$attrs['src'] = str_replace(' ', '%20', $attrs['src']);
 		if ($this->hasOption('query')) {
-			$attrs['src'] = URL::query_format($attrs['src'], $this->option('query'));
+			$attrs['src'] = URL::queryFormat($attrs['src'], $this->option('query'));
 		}
 
 		$this->setOption('scale_src', $attrs['src']);
@@ -206,8 +206,8 @@ class View_Image extends View {
 	 *
 	 * @param string $src
 	 *        	Path to image to scale
-	 * @param integer $width
-	 * @param integer $height
+	 * @param int $width
+	 * @param int $height
 	 * @param string $alt
 	 * @param array $options
 	 * @return View_Image
@@ -224,7 +224,7 @@ class View_Image extends View {
 		}
 		$w = new View_Image($application, $options);
 		$w->request($application->request() ?? Request::factory($application, 'http://test/'));
-		$w->response($application->response_factory($w->request()));
+		$w->response($application->responseFactory($w->request()));
 		return $w;
 	}
 

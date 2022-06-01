@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -16,7 +16,7 @@ namespace zesk;
  */
 class Lang_en_test extends Test_Unit {
 	public function test_everything(): void {
-		$testx = $this->application->locale_factory('en');
+		$testx = $this->application->localeFactory('en');
 
 		$testx->date_format();
 
@@ -106,7 +106,7 @@ class Lang_en_test extends Test_Unit {
 	 * @dataProvider ordinal_tests
 	 */
 	public function test_ordinal(int $input, string $result): void {
-		$testx = $this->application->locale_registry('en');
+		$testx = $this->application->localeRegistry('en');
 		$this->assert_equal($testx->ordinal($input), $result);
 	}
 }

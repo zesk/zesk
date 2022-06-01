@@ -36,7 +36,7 @@ class Module_Chosen extends Module_JSLib {
 		parent::initialize();
 		$locale = $this->application->locale;
 		$this->javascript_settings_inherit['no_results_text'] = $locale->__('No results match');
-		$classes = $this->option_list('hook_classes', Control_Select::class);
+		$classes = $this->optionIterable('hook_classes', Control_Select::class);
 		$hooks = $this->application->hooks;
 		$chosen = $this;
 		$ready_pattern = self::$jquery_ready_pattern;
@@ -46,10 +46,10 @@ class Module_Chosen extends Module_JSLib {
 				if ($widget->optionBool('skip-chosen') || $widget->is_single()) {
 					return;
 				}
-				$widget->add_class('chosen-select');
+				$widget->addClass('chosen-select');
 				$code = map($ready_pattern, [
 					'selector' => $widget->jquery_target_expression(),
-					'json_options' => ArrayTools::kunprefix($widget->option(ArrayTools::kprefix($chosen->javascript_settings(), 'chosen_')), 'chosen_'),
+					'json_options' => ArrayTools::keysRemovePrefix($widget->option(ArrayTools::prefixKeys($chosen->javascript_settings(), 'chosen_')), 'chosen_'),
 				]);
 				$widget->response()
 					->html()

@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage controller
  * @author $Author: kent $
- * @copyright Copyright &copy; 2017, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -174,7 +174,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$this->class_name = $class->name;
 		}
 		if ($this->class_name !== null) {
-			$locale = $this->application->locale_registry($this->class_name_locale ?? $this->application->locale->id());
+			$locale = $this->application->localeRegistry($this->class_name_locale ?? $this->application->locale->id());
 			$this->class_name = $locale->__($this->class_name);
 		}
 	}
@@ -300,7 +300,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		$message = $object->words($this->application->locale->__($message));
 		$redirect_url = $this->_compute_url($object, $result ? 'delete_next' : 'delete_failed', '/', $this->request->get('ref') ?? '/');
 		$format = $this->request->get('format');
-		if ($format === 'json' || $this->request->prefer_json()) {
+		if ($format === 'json' || $this->request->preferJSON()) {
 			$this->auto_render = false;
 			$this->response->json()->data([
 				'message' => $message,
@@ -349,7 +349,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @see \zesk\Controller_Template::after()
 	 */
 	public function after(string $result = null, string $output = null): void {
-		if ($this->request->prefer_json()) {
+		if ($this->request->preferJSON()) {
 			/**
 			 * @var $response Response
 			 */
@@ -497,7 +497,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				]);
 				return $this->response->redirect($url);
 			}
-			$ajax = $this->request->getb('ajax');
+			$ajax = $this->request->getBool('ajax');
 			if ($ajax) {
 				$this->control_options['ajax'] = true;
 				$this->control_options['no-buttons'] = true;
@@ -542,7 +542,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				$object = $this->controller_orm_factory($object);
 				if ($object) {
 					// Backwards compatibility: TODO is this needed anymore - corrupts truth of Request object
-					$this->request->set($object->id_column(), $object);
+					$this->request->set($object->idColumn(), $object);
 					if (!$this->user->can($this->actual_action, $object)) {
 						throw new Exception_Permission($this->user, $this->actual_action, $object);
 					}

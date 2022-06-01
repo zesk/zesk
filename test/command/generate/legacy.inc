@@ -368,7 +368,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 		$files = [];
 
 		while (($arg = $this->get_arg('target')) !== null) {
-			if (Directory::is_absolute($arg)) {
+			if (Directory::isAbsolute($arg)) {
 				$dirs[] = $arg;
 			} elseif (is_dir(path($cwd, $arg))) {
 				$dirs[] = $arg;
@@ -388,10 +388,10 @@ class Test_Command_Generate_Legacy extends Command_Base {
 		if ($dry_run) {
 			$this->verbose_log("Dry run: No files will be created.\n");
 		}
-		$extensions = ArrayTools::prefix(ArrayTools::unprefix('.', $this->option_list('extensions')), '.');
+		$extensions = ArrayTools::prefixValues(ArrayTools::valuesRemovePrefix('.', $this->optionIterable('extensions')), '.');
 		foreach ($dirs as $dir) {
 			$this->verbose_log("Processing directory $dir ...");
-			if (!Directory::is_absolute($dir)) {
+			if (!Directory::isAbsolute($dir)) {
 				$dir = path(getcwd(), $dir);
 			}
 			$dir_files = new DirectoryIterator($dir);
@@ -421,7 +421,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 		}
 		foreach ($files as $file) {
 			$this->verbose_log("Processing file $file ...\n");
-			if (!Directory::is_absolute($file)) {
+			if (!Directory::isAbsolute($file)) {
 				$file_full = path($cwd, $file);
 			}
 			if (!StringTools::ends($file, $extensions)) {

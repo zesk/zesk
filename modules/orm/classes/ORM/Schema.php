@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage database
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -181,7 +181,7 @@ abstract class ORM_Schema extends Hookable {
 	 */
 	protected function schema_map() {
 		$map = $this->object ? $this->object->schema_map() : [];
-		$map += $this->class_object->schema_map();
+		$map += $this->class_object->schemaMap();
 		return $map;
 	}
 
@@ -224,10 +224,10 @@ abstract class ORM_Schema extends Hookable {
 	 */
 	private static function validate_index_column_specification(Database $db, array $columns) {
 		foreach ($columns as $k => $v) {
-			if (is_numeric($k) && $db->valid_column_name($v)) {
+			if (is_numeric($k) && $db->validColumnName($v)) {
 				continue;
 			}
-			if ((is_bool($v) || (is_numeric($v) && $v > 0)) && $db->valid_column_name($k)) {
+			if ((is_bool($v) || (is_numeric($v) && $v > 0)) && $db->validColumnName($k)) {
 				continue;
 			}
 			return "$k => $v";
@@ -259,7 +259,7 @@ abstract class ORM_Schema extends Hookable {
 			throw new Exception_Syntax("No columns exist in table \"$table_name\" schema");
 		}
 		foreach ($table_schema['columns'] as $column_name => $column_spec) {
-			if (!$db->valid_column_name($column_name)) {
+			if (!$db->validColumnName($column_name)) {
 				$logger->error('Invalid index name in schema found in {table_name} in {context}: Invalid column name {index}', compact('context', 'table_name', 'column_name'));
 
 				continue;
@@ -275,7 +275,7 @@ abstract class ORM_Schema extends Hookable {
 			}
 			foreach ($table_schema[$key] as $index => $columns) {
 				$__ = ['context' => $context, 'table_name' => $table_name, 'index' => $index];
-				if (!$db->valid_index_name($index)) {
+				if (!$db->validIndexName($index)) {
 					$logger->error('Invalid {index_type} in schema found in {table_name} in {context}: Invalid index name {index}', $__);
 
 					continue;
@@ -445,10 +445,10 @@ abstract class ORM_Schema extends Hookable {
 			throw $e;
 		}
 		$sql_results = [];
-		foreach ($tables as $table_name => $table) {
+		foreach ($tables as $table) {
 			/* @var $table Database_Table */
 			try {
-				$actual_table = $db->database_table($table->name());
+				$actual_table = $db->databaseTable($table->name());
 				$sql_results = array_merge($sql_results, self::update($db, $actual_table, $table));
 				$results = $this->object->call_hook_arguments('schema_update_alter', [
 					$this,
@@ -458,8 +458,8 @@ abstract class ORM_Schema extends Hookable {
 				if (is_array($results)) {
 					$sql_results = $results;
 				}
-			} catch (Database_Exception_Table_NotFound $e) {
-				$sql_results = array_merge($sql_results, $table->create_sql());
+			} catch (Database_Exception_Table_NotFound) {
+				$sql_results = array_merge($sql_results, $table->sqlCreate());
 			}
 		}
 		return $sql_results;
@@ -473,8 +473,8 @@ abstract class ORM_Schema extends Hookable {
 	 * @param boolean $change_permanently
 	 * @return array of sql commands
 	 */
-	public static function table_synchronize(Database $db, $create_sql, $change_permanently = true) {
-		$table = $db->parse_create_table($create_sql, __METHOD__);
+	public static function tableSynchronize(Database $db, $create_sql, $change_permanently = true) {
+		$table = $db->parseCreateTable($create_sql, __METHOD__);
 		return self::synchronize($db, $table, $change_permanently);
 	}
 
@@ -485,21 +485,15 @@ abstract class ORM_Schema extends Hookable {
 	 * @param boolean $change_permanently
 	 * @return string[]
 	 */
-	public static function synchronize(Database $db, Database_Table $table, $change_permanently = true) {
+	public static function synchronize(Database $db, Database_Table $table, bool $change_permanently = true): array {
 		$name = $table->name();
-		if (!$db->table_exists($name)) {
-			$result = $table->create_sql();
-			// Not sure what format this returns as - should figure it out and clean up this code below
-			if (is_array($result)) {
-				return $result;
-			}
-			if (is_string($result)) {
-				return [$result, ];
-			}
-			return $result;
+
+		try {
+			$old_table = $db->databaseTable($name);
+			return self::update($db, $old_table, $table, $change_permanently);
+		} catch (Database_Exception_Table_NotFound) {
+			return $table->sqlCreate();
 		}
-		$old_table = $db->database_table($name);
-		return self::update($db, $old_table, $table, $change_permanently);
 	}
 
 	/**

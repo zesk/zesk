@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage control
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -42,6 +42,6 @@ class Control_ButtonBar extends Control {
 	}
 
 	public function submitted() {
-		return $this->request->has('OK') || $this->request->has('Cancel') || $this->request->is_post();
+		return $this->request->has('OK') || $this->request->has('Cancel') || $this->request->isPost();
 	}
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -15,8 +15,8 @@ foreach ($this->steps as $step) {
 	$completed = $step->completed;
 	$classes = $completed ? 'complete' : 'incomplete';
 	$icon = HTML::tag('div', [
-		'class' => CSS::add_class('pull-right glyphicon', $completed ? 'glyphicon-ok' : 'glyphicon-remove'),
+		'class' => CSS::addClass('pull-right glyphicon', $completed ? 'glyphicon-ok' : 'glyphicon-remove'),
 	], '');
-	echo HTML::tag('li', CSS::add_class('step', $classes), HTML::div('.step-content', $icon . $step->render()));
+	echo HTML::tag('li', CSS::addClass('step', $classes), HTML::div('.step-content', $icon . $step->render()));
 }
 echo HTML::tag_close('ol');

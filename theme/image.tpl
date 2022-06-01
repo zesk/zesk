@@ -14,7 +14,7 @@ $src = $this->src;
 $width = $this->width;
 $height = $this->height;
 $name = 'image-' . md5(microtime());
-$attributes = $this->geta('attributes', []) + [
+$attributes = $this->getArray('attributes', []) + [
 	'class' => $this->class,
 	'query' => $this->query,
 	'name' => $name,
@@ -24,7 +24,7 @@ $attributes = $this->geta('attributes', []) + [
 $widget = View_Image::scaled_widget($application, $width, $height, null, $attributes);
 $widget->response($response);
 
-$model = $application->model_factory('zesk\\Model');
+$model = $application->modelFactory('zesk\\Model');
 $model->src = $src;
 
 echo $widget->execute($model);

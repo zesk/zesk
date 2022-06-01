@@ -69,7 +69,7 @@ class Command_Locale_Export extends Command_Base {
 		$column = 'original';
 		$exclusions = $this->application->orm_registry('PolyGlot_Token')
 			->query_select()
-			->where('status', 'delete')
+			->addWhere('status', 'delete')
 			->what([
 			$column => $column,
 		])

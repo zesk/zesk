@@ -41,7 +41,7 @@ class Control_SortOrder extends Control {
 	 */
 	public function hook_after_query_list(Database_Query_Select $query): void {
 		$parser = $query->parser();
-		$order_by_original = $parser->split_order_by($query->order_by());
+		$order_by_original = $parser->splitOrderBy($query->order_by());
 		$this->list_default_ascending = !endsi(first($order_by_original), ' desc');
 		if ($this->ascending === null) {
 			$this->ascending = $this->list_default_ascending;
@@ -49,17 +49,17 @@ class Control_SortOrder extends Control {
 		if ($this->ascending === $this->list_default_ascending) {
 			return;
 		}
-		$order_by_reversed = $parser->reverse_order_by($order_by_original);
+		$order_by_reversed = $parser->reverseOrderBy($order_by_original);
 		$query->order_by($order_by_reversed);
 	}
 
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see Widget::theme_variables()
+	 * @see Widget::themeVariables()
 	 */
-	public function theme_variables() {
-		return parent::theme_variables() + [
+	public function themeVariables(): array {
+		return parent::themeVariables() + [
 			'ascending' => $this->ascending,
 			'list_default_ascending' => $this->list_default_ascending,
 			'uri' => $this->option('uri', $this->request->uri()),

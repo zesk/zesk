@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 class Test_ORM extends Test_Unit {
@@ -21,7 +23,7 @@ class Test_ORM extends Test_Unit {
 		foreach ($classes as $class) {
 			$object = $this->application->orm_registry($class);
 			$table = $object->table();
-			if (!$object->database()->table_exists($table)) {
+			if (!$object->database()->tableExists($table)) {
 				$schema = $this->application->orm_factory($class)->schema();
 				$create_sql = strval($schema);
 				$this->test_table_sql($table, $create_sql);
@@ -33,7 +35,7 @@ class Test_ORM extends Test_Unit {
 	 *
 	 * @param string $class
 	 * @param array $options
-	 *        	@data_provider classes_to_test
+	 * @data_provider classes_to_test
 	 */
 	public function run_test_class($class, array $options = []) {
 		return $this->run_test_an_object($this->application->orm_factory($class, $options));
@@ -58,7 +60,7 @@ class Test_ORM extends Test_Unit {
 			$db->query($results);
 		}
 
-		$this->assert($object->database()->table_exists($table), 'Table not created/exists');
+		$this->assert($object->database()->tableExists($table), 'Table not created/exists');
 
 		$object->schema();
 
@@ -74,11 +76,11 @@ class Test_ORM extends Test_Unit {
 
 		$object->class_name();
 
-		$object->id_column();
+		$object->idColumn();
 
 		$object->utc_Timestamps();
 
-		$object->select_database();
+		$object->selectDatabase();
 
 		$this->log(get_class($object) . ' members: ' . PHP::dump($object->members()));
 
@@ -117,11 +119,10 @@ class Test_ORM extends Test_Unit {
 		$def = null;
 		$object->membere($f, $def);
 
-		$mixed = false;
-		$object->members($mixed);
+		$object->members([]);
 
 		$f = $test_field;
-		$object->member_is_empty($f);
+		$object->memberIsEmpty($f);
 
 		$f = $test_field;
 		$v = null;
@@ -129,10 +130,10 @@ class Test_ORM extends Test_Unit {
 		$object->set_member($f, $v, $overwrite);
 
 		$mixed = $test_field;
-		$object->member_remove($mixed);
+		$object->member_keysRemove($mixed);
 
 		$f = $test_field;
-		$object->has_member($f);
+		$object->hasMember($f);
 
 		$where = false;
 		$object->exists($where);
@@ -155,8 +156,10 @@ class Test_ORM extends Test_Unit {
 		$columns = $object->columns();
 		$this->assert_not_equal(count($columns), 0);
 
+
 		foreach ($columns as $member) {
-			if (!in_array($member, $object->primary_keys())) {
+			$type = $object->class_orm()->column_types[$member] ?? '';
+			if ($type === Class_ORM::type_string) {
 				$object->__set($member, 'stuff' . mt_rand());
 			}
 		}

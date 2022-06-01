@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 12:37:21 EDT 2008
  */
 namespace zesk;
@@ -20,7 +20,7 @@ namespace zesk;
  */
 class Language extends ORM {
 	public function locale_string() {
-		if ($this->member_is_empty('dialect')) {
+		if ($this->memberIsEmpty('dialect')) {
 			return strtolower($this->code);
 		}
 		return strtolower($this->code) . '_' . strtoupper($this->dialect);
@@ -54,12 +54,12 @@ class Language extends ORM {
 	 */
 	public static function clean_table(Application $application): void {
 		$query = $application->orm_registry(__CLASS__)->query_update();
-		$query->value('dialect', null)->where('dialect', '');
+		$query->value('dialect', null)->addWhere('dialect', '');
 		$query->execute();
-		if ($query->affected_rows() > 0) {
+		if ($query->affectedRows() > 0) {
 			$application->logger->warning('{method} updated {n} non-NULL rows', [
 				'method' => __METHOD__,
-				'n' => $query->affected_rows(),
+				'n' => $query->affectedRows(),
 			]);
 		}
 	}

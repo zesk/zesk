@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -18,10 +18,10 @@ $filecolumn = $widget->option('filecolumn', $col . '_FileName');
 $actual_name = $value;
 echo HTML::div([
 	'id' => $name . '_widget',
-	'class' => CSS::add_class('control-file-filename', empty($actual_name) ? 'empty' : ''),
+	'class' => CSS::addClass('control-file-filename', empty($actual_name) ? 'empty' : ''),
 ], empty($actual_name) ? '' : HTML::tag('span', 'class="filename"', $actual_name));
 
-$attrs = $widget->options_include(HTML::input_attribute_names());
+$attrs = $widget->options_include(HTML::inputAttributeNames());
 $attrs['name'] = $name . '_file';
 $attrs['id'] = $widget->option('id', $name);
 $attrs['type'] = 'file';

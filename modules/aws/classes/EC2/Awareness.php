@@ -17,7 +17,7 @@ use Psr\Cache\CacheItemInterface;
 /**
  * Collect, store, and manage EC2 Awareness meta data
  *
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  * @author kent
  *
  */
@@ -129,7 +129,7 @@ class Awareness extends Hookable {
 	 */
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 		$this->cache = $this->application->cache->getItem(__CLASS__);
 	}
 
@@ -235,7 +235,7 @@ class Awareness extends Hookable {
 				$settings[$setting] = $this->option('mock_' . $setting);
 			}
 		}
-		$settings = ArrayTools::map_keys($settings, self::$setting_to_suffix);
+		$settings = ArrayTools::keysMap($settings, self::$setting_to_suffix);
 		return $this->mock_settings = $settings;
 	}
 
@@ -251,7 +251,7 @@ class Awareness extends Hookable {
 		}
 		$url = glue(self::$url, '/', "meta-data/$suffix");
 		$result = null;
-		if (to_bool(ini_get('allow_url_fopen'))) {
+		if (toBool(ini_get('allow_url_fopen'))) {
 			$result = file_get_contents($url);
 		} else {
 			$client = new Net_HTTP_Client($this->application, $url);

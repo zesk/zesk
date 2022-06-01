@@ -90,12 +90,12 @@ class Repository_Git_Test extends Repository_TestCase {
 		$url = $this->url;
 		$this->assertTrue(URL::valid($url), "URL $url is not a valid URL");
 		$repo->url($url);
-		Directory::delete_contents($path);
-		$this->assertTrue(Directory::is_empty($path));
+		Directory::deleteContents($path);
+		$this->assertTrue(Directory::isEmpty($path));
 		$this->assertTrue($repo->need_update(), 'Repo should need update');
 		$repo->update();
 		$this->assertTrue($repo->validate());
-		$this->assertFalse(Directory::is_empty($path));
+		$this->assertFalse(Directory::isEmpty($path));
 		$this->assertDirectoryExists(path($this->path, '.svn'));
 		$this->assertFalse($repo->need_update(), 'Repo should no longer need update');
 		$this->assertDirectoriesExist($this->pathCatenator($this->path, [
@@ -136,7 +136,7 @@ class Repository_Git_Test extends Repository_TestCase {
 		$repo->url(false);
 		$path = $repo->path();
 		$this->assertStringMatchesFormat('%agittest%A', $path);
-		Directory::delete_contents($path);
+		Directory::deleteContents($path);
 		$repo->url();
 		return $repo;
 	}

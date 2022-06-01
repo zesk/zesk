@@ -2,10 +2,9 @@
 declare(strict_types=1);
 /**
  * @package zesk
- * @test_sandbox true
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -17,7 +16,6 @@ class Database_Query_Insert_Select_Test extends Test_Unit {
 	];
 
 	public function test_main(): void {
-		var_dump($this->application->database_module()->options());
 		$db = $this->application->database_registry();
 		$testx = new Database_Query_Insert_Select($db);
 
@@ -50,10 +48,10 @@ class Database_Query_Insert_Select_Test extends Test_Unit {
 		$testx->addWhere('X.Thing|>=', '20');
 
 		$order_by = null;
-		$testx->orderBy(['Created']);
+		$testx->setOrderBy(['Created']);
 
 		$group_by = null;
-		$testx->groupBy([1]);
+		$testx->setGroupBy([1]);
 
 		$sql = strval($testx);
 		$sql = preg_replace('/\s+/', ' ', $sql);

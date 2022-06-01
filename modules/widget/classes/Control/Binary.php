@@ -4,7 +4,7 @@ namespace zesk;
 class Control_Binary extends Control_Filter_Query {
 	protected function initialize(): void {
 		if (count($this->query_options) === 0) {
-			$query_column = $this->query_column();
+			$query_column = $this->queryColumn();
 			$locale = $this->application->locale;
 			$this->query_options([
 				0 => [

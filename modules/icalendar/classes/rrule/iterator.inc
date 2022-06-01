@@ -5,7 +5,7 @@ declare(strict_types=1);
  * Implementation of iCalendar RRULE
  *
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  *
  * http://www.ietf.org/rfc/rfc2445.txt
  *
@@ -274,8 +274,8 @@ class Iterator {
 	/**
 	 * Python -1 % 7 = 6, not -1 as it does in PHP
 	 *
-	 * @param integer $number
-	 * @param integer $modulo
+	 * @param int $number
+	 * @param int $modulo
 	 * @return integer
 	 */
 	public static function posmod(int $number, int $modulo): int {
@@ -310,9 +310,9 @@ class Iterator {
 
 	/**
 	 *
-	 * @param integer $hour
-	 * @param integer $minute
-	 * @param integer $second
+	 * @param int $hour
+	 * @param int $minute
+	 * @param int $second
 	 * @return Time[]
 	 */
 	public function gettimeset(int $hour, int $minute, int $second): array {

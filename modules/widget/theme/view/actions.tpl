@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage widget
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -38,7 +38,7 @@ foreach ($actions as $index => $action) {
 		]);
 		continue;
 	}
-	$action = $object->apply_map($action);
+	$action = $object->applyMap($action);
 	$html[] = $this->theme('zesk/view/action', $action);
 }
 if (count($html) === 0) {
@@ -46,7 +46,7 @@ if (count($html) === 0) {
 	return;
 }
 $content = implode("\n", $html);
-if ($this->getb('add_div', true)) {
+if ($this->getBool('add_div', true)) {
 	echo HTML::tag('ul', '.view-actions', $content);
 } else {
 	echo $content;

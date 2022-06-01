@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -12,7 +12,7 @@ if (!$id) {
 	$this->id = $id = 'dashboard-widget-' . $response->id_counter();
 }
 echo HTML::tag_open('div', [
-	'class' => CSS::add_class('dashboard-widget', $this->class),
+	'class' => CSS::addClass('dashboard-widget', $this->class),
 	'id' => $id,
 ]);
 ?>

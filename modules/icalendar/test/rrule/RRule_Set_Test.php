@@ -62,7 +62,7 @@ class RRule_Set_Test extends Test_Unit {
 	}
 
 	public function test_rrules(): void {
-		$locale = $this->application->locale_registry('en');
+		$locale = $this->application->localeRegistry('en');
 		$tests_path = $this->application->modules->path('icalendar', 'test/test-data/rrule-tests.txt');
 		$tests = $this->load_rrule_tests($tests_path);
 		foreach ($tests as $test_index => $test) {

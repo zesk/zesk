@@ -1306,7 +1306,7 @@ class rruleset(rrulebase):
                 if self.genlist[0] is self:
                     heapq.heappop(self.genlist)
                 else:
-                    self.genlist.remove(self)
+                    self.genlist.keysRemove(self)
                     heapq.heapify(self.genlist)
 
         next = __next__

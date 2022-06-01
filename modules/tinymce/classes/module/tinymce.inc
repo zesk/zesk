@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 use zesk\JSON;
 use zesk\ArrayTools;
@@ -209,7 +209,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	}
 
 	public function action_spellchecker(Request $request, Response $response): void {
-		$params = $request->geta('params');
+		$params = $request->getArray('params');
 		$ll = $this->application->locale;
 		if (!is_array($params)) {
 			$response->json()->data([
@@ -325,13 +325,13 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	}
 
 	public function add_insertion_menu($title, array $menu, array $options = []): void {
-		$code = avalue($options, 'id', strtolower(PHP::clean_function($title)));
+		$code = avalue($options, 'id', strtolower(PHP::cleanFunction($title)));
 		$this->insertion_menus[$code] = [
 			'title' => $title,
 			'menu' => $menu,
 			'options' => $options,
 		];
-		$this->tinymce_toolbar = Lists::remove($this->tinymce_toolbar, $code, ' ');
+		$this->tinymce_toolbar = Lists::keysRemove($this->tinymce_toolbar, $code, ' ');
 		if (avalue($options, 'first')) {
 			$this->tinymce_toolbar = "$code " . $this->tinymce_toolbar;
 		} else {

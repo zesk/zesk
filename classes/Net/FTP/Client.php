@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * @package zesk
  * @subpackage model
  */
@@ -100,7 +100,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	 */
 	public function passive($set = null) {
 		if ($set !== null) {
-			$this->passive = to_bool($set);
+			$this->passive = toBool($set);
 			return $this;
 		}
 		return $this->passive;

@@ -10,7 +10,7 @@ namespace zesk;
  *
  */
 class Controller_Image_Picker extends \zesk\Controller_ORM {
-	protected $class = Content_Image::class;
+	protected string $class = Content_Image::class;
 
 	/**
 	 *
@@ -25,7 +25,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 	public const OPTION_UPLOAD_THEME_MAP = 'upload_theme_map';
 
 	public function upload_theme_map(array $set = null) {
-		return $set === null ? $this->option_array(self::OPTION_UPLOAD_THEME_MAP, []) + $this->application->configuration->path_get([
+		return $set === null ? $this->optionArray(self::OPTION_UPLOAD_THEME_MAP, []) + $this->application->configuration->path_get([
 			__CLASS__,
 			self::OPTION_UPLOAD_THEME_MAP,
 		], []) : $this->setOption(self::OPTION_UPLOAD_THEME_MAP, $set);
@@ -62,7 +62,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 			return;
 		}
 		$fix_result = Content_Image::correct_orientation($this->application, $file['tmp_name']);
-		$image = Content_Image::register_from_file($this->application, $file['tmp_name'], [
+		$image = Content_Image::registerFromFile($this->application, $file['tmp_name'], [
 			'path' => $file['name'],
 		]);
 		if (!$image) {
@@ -88,8 +88,8 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 			'status' => true,
 			'content' => $this->application->theme($theme, [
 				'object' => $image,
-				'width' => $this->request->geti('width'),
-				'height' => $this->request->geti('height'),
+				'width' => $this->request->getInt('width'),
+				'height' => $this->request->getInt('height'),
 				'name' => $this->request->get('name'),
 			]),
 			'message' => $locale->__('Upload successful.'),

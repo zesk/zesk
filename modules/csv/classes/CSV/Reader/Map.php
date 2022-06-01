@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage tools
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -142,7 +142,7 @@ class CSV_Reader_Map extends CSV_Reader {
 				if (is_string($type)) {
 					switch ($type) {
 						case 'boolean':
-							$row[$k] = to_bool($v);
+							$row[$k] = toBool($v);
 
 							break;
 						case 'timestamp':
@@ -267,6 +267,6 @@ class CSV_Reader_Map extends CSV_Reader {
 	 * Convert data to boolean
 	 */
 	private function _convert_to_boolean($value, array $row, $column) {
-		return to_bool($value);
+		return toBool($value);
 	}
 }

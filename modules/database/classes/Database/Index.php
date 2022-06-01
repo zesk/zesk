@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * @package zesk
  * @subpackage database
  */
@@ -72,7 +72,7 @@ class Database_Index {
 
 	final public function variables(): array {
 		return [
-			'database_name' => $this->database->code_name(),
+			'database_name' => $this->database->codeName(),
 			'table' => $this->table(),
 			'name' => $this->name(),
 			'type' => $this->type(),
@@ -192,7 +192,7 @@ class Database_Index {
 					return $structure;
 			}
 		}
-		return strtoupper($this->database->default_index_structure($this->type));
+		return strtoupper($this->database->defaultIndexStructure($this->type));
 	}
 
 	/**
@@ -310,31 +310,31 @@ class Database_Index {
 		$logger = $this->database->application->logger;
 		if ($this->type() !== $that->type()) {
 			if ($debug) {
-				$logger->debug('Database_Index::is_similar(' . $this->type() . ' !== ' . $that->type() . ') Table types different');
+				$logger->debug('Database_Index::isSimilar(' . $this->type() . ' !== ' . $that->type() . ') Table types different');
 			}
 			return false;
 		}
 		if ($this->structure() !== $that->structure()) {
 			if ($debug) {
-				$logger->debug('Database_Index::is_similar(' . $this->structure() . ' !== ' . $that->structure() . ') Table structures different');
+				$logger->debug('Database_Index::isSimilar(' . $this->structure() . ' !== ' . $that->structure() . ') Table structures different');
 			}
 			return false;
 		}
 		if ($this->table()->name() !== $that->table()->name()) {
 			if ($debug) {
-				$logger->debug('Database_Index::is_similar(' . $this->table() . ' !== ' . $that->table() . ') Tables different');
+				$logger->debug('Database_Index::isSimilar(' . $this->table() . ' !== ' . $that->table() . ') Tables different');
 			}
 			return false;
 		}
 		if ($this->name() !== $that->name()) {
 			if ($debug) {
-				$logger->debug('Database_Index::is_similar(' . $this->name() . ' !== ' . $that->name() . ') Names different');
+				$logger->debug('Database_Index::isSimilar(' . $this->name() . ' !== ' . $that->name() . ') Names different');
 			}
 			return false;
 		}
 		if ($this->columnCount() !== $that->columnCount()) {
 			if ($debug) {
-				$logger->debug('Database_Index::is_similar(' . $this->columnCount() . ' !== ' . $that->columnCount() . ') ColumnCount different');
+				$logger->debug('Database_Index::isSimilar(' . $this->columnCount() . ' !== ' . $that->columnCount() . ') ColumnCount different');
 			}
 			return false;
 		}
@@ -344,7 +344,7 @@ class Database_Index {
 		ksort($thatCols);
 		if (serialize($thisCols) !== serialize($thatCols)) {
 			if ($debug) {
-				$logger->debug("Database_Index::is_similar(\n" . serialize($thisCols) . " !== \n" . serialize($thatCols) . "\n) ColumnCount different");
+				$logger->debug("Database_Index::isSimilar(\n" . serialize($thisCols) . " !== \n" . serialize($thatCols) . "\n) ColumnCount different");
 			}
 			return false;
 		}
@@ -404,7 +404,7 @@ class Database_Index {
 	 */
 	public function _debug_dump(): string {
 		$vars = get_object_vars($this);
-		$vars['database'] = $this->database->code_name();
+		$vars['database'] = $this->database->codeName();
 		$vars['table'] = $this->table->name();
 		return 'Object:' . __CLASS__ . " (\n" . Text::indent(_dump($vars)) . "\n)";
 	}
@@ -473,16 +473,6 @@ class Database_Index {
 		} else {
 			throw new Database_Exception($this->database, 'Database_Index::column_add(' . gettype($mixed) . '): Invalid type', [], 0);
 		}
-	}
-
-	/**
-	 * @param Database_Index $that
-	 * @param bool $debug
-	 * @return bool
-	 * @deprecated 2022-01
-	 */
-	public function is_similar(Database_Index $that, bool $debug = false): bool {
-		return $this->isSimilar($that, $debug);
 	}
 
 	/**

@@ -106,7 +106,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * @return \zesk\Route|\zesk\Request|NULL
 	 */
 	public function router_matched(Application $app, Request $request, Router $router, Route $route) {
-		if ($route->optionBool('react') && $request->method() === Net_HTTP::METHOD_GET && !$request->prefer_json()) {
+		if ($route->optionBool('react') && $request->method() === Net_HTTP::METHOD_GET && !$request->preferJSON()) {
 			return $this->react_page_route($router)->request($request);
 		}
 		return null;
@@ -280,7 +280,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 				'method' => __METHOD__,
 				'proxy_prefix' => $proxy_prefix,
 				'message' => $e->getMessage(),
-			] + $request->variables() + ArrayTools::kprefix($request->url_variables(), 'url::'));
+			] + $request->variables() + ArrayTools::prefixKeys($request->urlComponents(), 'url::'));
 
 			throw new Exception_File_NotFound($http->url());
 		}

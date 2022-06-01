@@ -11,10 +11,10 @@ class Control_Dropdown extends Control_Select {
 		'skip-chosen' => true,
 	];
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		$parent = $this->parent();
 		$default_no_input_group = $parent ? $parent->optionBool('is_input_group') : false;
-		return parent::theme_variables() + [
+		return parent::themeVariables() + [
 			'no_input_group' => $this->optionBool('no_input_group', $default_no_input_group),
 		];
 	}

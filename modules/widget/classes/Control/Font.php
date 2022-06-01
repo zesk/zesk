@@ -74,9 +74,9 @@ class Control_Font extends Control_Select {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\Control_Select::theme_variables()
+	 * @see \zesk\Control_Select::themeVariables()
 	 */
-	public function theme_variables() {
-		return $this->options_include('css_target;sample_text') + parent::theme_variables();
+	public function themeVariables(): array {
+		return $this->options_include('css_target;sample_text') + parent::themeVariables();
 	}
 }

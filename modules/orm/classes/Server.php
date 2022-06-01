@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
  * @subpackage file
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -15,13 +17,12 @@ namespace zesk;
  *
  * @see Class_Server
  * @see Server_Data
- * @property id $id
+ * @property int $id
  * @property string $name
  * @property string $name_internal
  * @property string $name_external
- * @property ip4 $ip4_internal
- * @property ip4 $ip4_external
- * @property integer $free_disk
+ * @property string $ip4_internal
+ * @property string $ip4_external
  * @property integer $free_disk
  * @property double $load
  * @property Timestamp $alive
@@ -110,7 +111,7 @@ class Server extends ORM implements Interface_Data {
 
 	/**
 	 *
-	 * @var unknown
+	 * @var int
 	 */
 	public const default_timeout_seconds = 180;
 
@@ -174,7 +175,7 @@ class Server extends ORM implements Interface_Data {
 		$pushed = $this->push_utc();
 
 		$timeout_seconds = -abs($this->optionInt('timeout_seconds', self::default_timeout_seconds));
-		$dead_to_me = Timestamp::now('UTC')->add_unit($timeout_seconds, Timestamp::UNIT_SECOND);
+		$dead_to_me = Timestamp::now('UTC')->addUnit($timeout_seconds, Timestamp::UNIT_SECOND);
 		$iterator = $query->where([
 			'alive|<=' => $dead_to_me,
 		])->orm_iterator();
@@ -220,7 +221,7 @@ class Server extends ORM implements Interface_Data {
 			if ($item->isHit()) {
 				$server = $item->get();
 				if ($server instanceof Server) {
-					$one_minute_ago = Timestamp::now()->add_unit(-60);
+					$one_minute_ago = Timestamp::now()->addUnit(-60);
 					if ($server->alive instanceof Timestamp && $server->alive->after($one_minute_ago)) {
 						return $server;
 					}
@@ -239,8 +240,6 @@ class Server extends ORM implements Interface_Data {
 
 	/**
 	 * Register and load this
-	 *
-	 * @param unknown $host
 	 */
 	protected function _retrieve_singleton() {
 		$this->name = self::host_default();
@@ -295,7 +294,7 @@ class Server extends ORM implements Interface_Data {
 		if (empty($this->ip4_internal) || $this->ip4_internal === '0.0.0.0') {
 			$this->ip4_internal = null;
 			$ips = System::ip_addresses($this->application);
-			$ips = ArrayTools::remove_values($ips, '127.0.0.1');
+			$ips = ArrayTools::valuesRemove($ips, ['127.0.0.1']);
 			if (count($ips) >= 1) {
 				$this->ip4_internal = first(array_values($ips));
 			}
@@ -313,14 +312,15 @@ class Server extends ORM implements Interface_Data {
 	/**
 	 * Update server state
 	 *
-	 * @param unknown $path
+	 * @param string $path
+	 * @return self
 	 */
-	public function update_state($path = null) {
+	public function updateState(string $path = null) {
 		if ($path === null) {
 			$path = $this->option('free_disk_volume', '/');
 		}
 		$volume_info = System::volume_info();
-		$info = avalue($volume_info, $path);
+		$info = $volume_info[$path] ?? null;
 		$update = [];
 		if ($info) {
 			$units = self::$disk_units_list;
@@ -333,12 +333,17 @@ class Server extends ORM implements Interface_Data {
 			$update['free_disk_units'] = $units[0];
 		}
 		$pushed = $this->push_utc();
-		$update['load'] = avalue(System::load_averages(), 0, null);
+		$update['load'] = first(System::load_averages());
 		$update['*alive'] = $this->sql()->now();
-		$this->query_update()
-			->values($update)
-			->where($this->members($this->primary_keys()))
-			->execute();
+
+		try {
+			$this->queryUpdate()->setValues($update)->appendWhere($this->members($this->primaryKeys()))->execute();
+		} catch (Exception_Semantics $e) {
+			// Runtime error - never occur
+			$this->application->hooks->call('exception', $e);
+		} catch (Database_Exception $e) {
+			$this->application->hooks->call('exception', $e);
+		}
 		$this->pop_utc($pushed);
 		return $this->fetch();
 	}
@@ -364,12 +369,12 @@ class Server extends ORM implements Interface_Data {
 	private function push_utc() {
 		$db = $this->database();
 		if ($db->can(Database::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP)) {
-			$old_tz = $db->time_zone();
+			$old_tz = $db->timeZone();
 			if (!$this->_db_tz_is_utc($old_tz)) {
 				// From https://stackoverflow.com/questions/2934258/how-do-i-get-the-current-time-zone-of-mysql#2934271
 				// UTC fails on virgin MySQL installations
 				// TODO this is (?) specific to MySQL - need to modify for different databases
-				$db->time_zone('+00:00');
+				$db->setTimeZone('+00:00');
 			}
 		} else {
 			$old_tz = null;
@@ -392,7 +397,7 @@ class Server extends ORM implements Interface_Data {
 		$db = $this->database();
 		if ($db->can(Database::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP)) {
 			if (!$this->_db_tz_is_utc($old_tz)) {
-				$db->time_zone($old_tz);
+				$db->setTimeZone($old_tz);
 			}
 		}
 		if ($old_php_tz !== 'UTC') {
@@ -452,14 +457,14 @@ class Server extends ORM implements Interface_Data {
 	/**
 	 * Retrieve or store per-server data
 	 *
-	 * @see Interface_Data::data
 	 * @param mixed $name
 	 * @param mixed $value
 	 * @return mixed
+	 * @see Interface_Data::data
 	 */
 	public function data($name, $value = null) {
-		$lock_name = 'server_data_' . $this->member_integer('id');
-		$acquired_lock = $this->database()->get_lock($lock_name, 5);
+		$lock_name = 'server_data_' . $this->memberInteger('id');
+		$acquired_lock = $this->database()->getLock($lock_name, 5);
 		$result = null;
 		if (is_array($name)) {
 			$result = [];
@@ -472,7 +477,7 @@ class Server extends ORM implements Interface_Data {
 			$result = $this->set_data($name, $value);
 		}
 		if ($acquired_lock) {
-			$this->database()->release_lock($lock_name);
+			$this->database()->releaseLock($lock_name);
 		} else {
 			$this->application->logger->warning('Unable to acquire lock {lock_name}', compact('lock_name'));
 		}
@@ -482,19 +487,15 @@ class Server extends ORM implements Interface_Data {
 	/**
 	 * Delete a data member of this server.
 	 *
-	 * @see Interface_Data::delete_data
 	 * @param mixed $name
 	 * @return boolean true if any values were deleted
+	 * @see Interface_Data::delete_data
 	 */
-	public function delete_data($name) {
-		return $this->application->orm_registry(Server_Data::class)
-			->query_delete()
-			->where([
-			'server' => $this,
-			'name' => $name,
-		])
-			->execute()
-			->affected_rows() > 0;
+	public function deleteData(string $name): bool {
+		return $this->application->orm_registry(Server_Data::class)->queryDelete()->appendWhere([
+				'server' => $this,
+				'name' => $name,
+			])->execute()->affectedRows() > 0;
 	}
 
 	/**
@@ -503,14 +504,10 @@ class Server extends ORM implements Interface_Data {
 	 * @param mixed $name
 	 * @return boolean true if any values were deleted
 	 */
-	public function delete_all_data($name) {
-		return $this->application->orm_registry(Server_Data::class)
-			->query_delete()
-			->where([
-			'name' => $name,
-		])
-			->execute()
-			->affected_rows() > 0;
+	public function deleteAllData(string $name): bool {
+		return $this->application->orm_registry(Server_Data::class)->queryDelete()->appendWhere([
+				'name' => $name,
+			])->execute()->affectedRows() > 0;
 	}
 
 	/**
@@ -520,7 +517,7 @@ class Server extends ORM implements Interface_Data {
 	 * @param mixed $value
 	 * @return Database_Query_Select
 	 */
-	public function data_query($name, $value = null) {
+	public function dataQuery($name, $value = null) {
 		if (!is_array($name)) {
 			$where = [
 				$name => $value,
@@ -528,8 +525,8 @@ class Server extends ORM implements Interface_Data {
 		} else {
 			$where = $name;
 		}
-		$query = $this->application->orm_registry(Server::class)->query_select();
-		$query->what_object();
+		$query = $this->application->orm_registry(Server::class)->querySelect();
+		$query->ormWhat();
 		foreach ($where as $name => $value) {
 			$alias = "data_$name";
 			$query->link(Server_Data::class, [
@@ -538,24 +535,29 @@ class Server extends ORM implements Interface_Data {
 					'name' => $name,
 				],
 			]);
-			$query->where([
+			$query->appendWhere([
 				"$alias.value" => serialize($value),
 			]);
 		}
 		return $query;
 	}
 
-	public function alive_ips($within_seconds = 300) {
-		$ips = $this->query_select()
-			->addWhatIterable([
+	public function aliveIPs($within_seconds = 300) {
+		$ips = $this->query_select()->addWhatIterable([
 			'ip4_internal' => 'ip4_internal',
 			'ip4_external' => 'ip4_extermal',
-		])
-			->distinct(true)
-			->where([
-			'alive|>=' => Timestamp::now('UTC')->add_unit(-abs($within_seconds), Timestamp::UNIT_SECOND),
-		])
-			->to_array();
+		])->distinct(true)->where([
+			'alive|>=' => Timestamp::now('UTC')->addUnit(-abs($within_seconds), Timestamp::UNIT_SECOND),
+		])->to_array();
 		return array_unique(array_merge(ArrayTools::extract($ips, 'ip4_internal'), ArrayTools::extract($ips, 'ip4_external')));
+	}
+
+	/**
+	 * @param string|null $path
+	 * @return self
+	 * @deprecated 2022-05
+	 */
+	public function update_state(string $path = null) {
+		return $this->updateState($path);
 	}
 }

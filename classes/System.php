@@ -6,7 +6,7 @@
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2006, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -175,7 +175,7 @@ class System {
 		if ($filter !== null) {
 			foreach ($result as $interface => $values) {
 				if (is_array($values)) {
-					if (!ArrayTools::has_any($values, $filter)) {
+					if (!ArrayTools::hasAnyKey($values, $filter)) {
 						unset($result[$interface]);
 					}
 				}

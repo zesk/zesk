@@ -4,10 +4,12 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage database
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
+
+use zesk\Database\QueryResult;
 
 /**
  * @see Database_Query_Insert
@@ -61,23 +63,8 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	}
 
 	/**
-	 * Getter/setter for low priority state of this query
-	 * @param boolean $low_priority
-	 * @return boolean Database_Query_Edit
-	 * @deprecated 2022-01
-	 */
-	public function low_priority($low_priority = null): bool {
-		if ($low_priority === null) {
-			return $this->low_priority;
-		}
-		$this->setLowPriority(to_bool($low_priority));
-		return $this->low_priority;
-	}
-
-	/**
 	 * Getter for low priority state of this query
-	 * @param boolean $low_priority
-	 * @return boolean Database_Query_Edit
+	 * @return boolean
 	 */
 	public function lowPriority(): bool {
 		return $this->low_priority;
@@ -107,7 +94,7 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	 * Getter/setter for replace verb
 	 *
 	 * @param boolean $replace
-	 * @return string|\zesk\Database_Query_Insert_Select
+	 * @return self
 	 */
 	public function setReplace(bool $replace = true): self {
 		$this->verb = $replace ? 'REPLACE' : 'INSERT';
@@ -117,7 +104,7 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	/**
 	 *
 	 * @param string $table
-	 * @return \zesk\Database_Query_Insert_Select
+	 * @return self
 	 */
 	public function into(string $table): self {
 		$this->into = $table;
@@ -134,26 +121,19 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	}
 
 	public function __toString() {
-		return $this->sql()->insert_select([
+		return $this->sql()->insert_select($this->into, $this->what, parent::__toString(), [
 			'verb' => $this->verb,
-			'table' => $this->into,
-			'values' => $this->what,
 			'low_priority' => $this->low_priority,
-			'select' => parent::__toString(),
 		]);
 	}
 
-	public function execute() {
-		return $this->database()->query($this->__toString());
-	}
-
 	/**
-	 *
-	 * @param Database_Query_Select $query
-	 * @return \zesk\Database_Query_Insert_Select
-	 * @deprecated 2022-01
+	 * @return QueryResult
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
 	 */
-	public static function from_database_query_select(Database_Query_Select $query) {
-		return self::fromSelect($query);
+	public function execute(): QueryResult {
+		return $this->database()->query($this->__toString());
 	}
 }

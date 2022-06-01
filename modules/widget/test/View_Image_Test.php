@@ -19,8 +19,8 @@ class View_Image_Test extends TestWidget {
 	/**
 	 *
 	 * @param string $img_tag
-	 * @param integer $width
-	 * @param integer $height
+	 * @param int $width
+	 * @param int $height
 	 */
 	public function validate_image_size_tag($img_tag, $width, $height): void {
 		dump($img_tag);
@@ -64,7 +64,7 @@ class View_Image_Test extends TestWidget {
 	public function test_scaled(): void {
 		$this->test_dir = $this->test_sandbox();
 
-		$this->application->set_document_root($this->test_dir);
+		$this->application->setDocumentRoot($this->test_dir);
 
 		$src = null;
 		$width = false;

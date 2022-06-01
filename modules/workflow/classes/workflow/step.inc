@@ -64,7 +64,7 @@ abstract class Workflow_Step extends Hookable {
 	 * @see \zesk\Hookable::initialize()
 	 */
 	protected function initialize(): void {
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 		if (empty($this->title)) {
 			$this->title = $this->option('title');
 		}
@@ -78,7 +78,7 @@ abstract class Workflow_Step extends Hookable {
 		if (!empty($this->description) && !$this->optionBool('no_translate', false)) {
 			$this->description = $locale->__($this->description);
 		}
-		$this->dependencies = array_merge($this->dependencies, $this->option_list('dependencies'));
+		$this->dependencies = array_merge($this->dependencies, $this->optionIterable('dependencies'));
 		if ($this->theme === null) {
 			$this->theme = $this->application->classes->hierarchy(get_class($this), __CLASS__);
 		}
@@ -145,7 +145,7 @@ abstract class Workflow_Step extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function render() {
+	public function render(): string {
 		return $this->application->theme($this->theme, [
 			'step' => $this,
 			'workflow' => $this->workflow,

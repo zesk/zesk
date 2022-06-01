@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 /**
- * Cache commands. Currently takes a single argument: "clear"
+ * Cache commands. Takes a single argument: "clear" or "print" to print the class in the application.
  *
  * @category Management
  * @author kent
@@ -13,7 +15,7 @@ class Command_Cache extends Command_Base {
 		'*' => 'string',
 	];
 
-	protected function run() {
+	protected function run(): int {
 		if ($this->has_arg()) {
 			do {
 				$arg = $this->get_arg('command');
@@ -26,19 +28,24 @@ class Command_Cache extends Command_Base {
 	}
 
 	protected function run_arg($arg) {
-		$method = "_exec_$arg";
-		if (method_exists($this, $method)) {
-			return $this->$method();
-		} else {
-			$this->error('No such command {arg}', [
-				'arg' => $arg,
-			]);
-			return 1;
+		$methods = ['clear' => [$this, '_exec_clear'], 'print' => [$this, '_exec_print']];
+		$method = $methods[$arg] ?? null;
+		if ($method) {
+			return call_user_func($method);
 		}
+		$this->error('No such command {arg}', [
+			'arg' => $arg,
+		]);
+		return 1;
 	}
 
-	protected function _exec_clear() {
-		$this->application->cache_clear();
+	protected function _exec_print(): int {
+		print(get_class($this->application->cache) . "\n");
+		return 0;
+	}
+
+	protected function _exec_clear(): int {
+		$this->application->cacheClear();
 		return 0;
 	}
 }

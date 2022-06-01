@@ -540,7 +540,7 @@ jQuery.extend({
 
 		parsed = jQuery.buildFragment( [ data ], context, scripts );
 		if ( scripts ) {
-			jQuery( scripts ).remove();
+			jQuery( scripts ).keysRemove();
 		}
 		return jQuery.merge( [], parsed.childNodes );
 	},
@@ -4868,7 +4868,7 @@ jQuery.event = {
 			// Unbind all events (on this namespace, if provided) for the element
 			if ( !type ) {
 				for ( type in events ) {
-					jQuery.event.remove( elem, type + types[ t ], handler, selector, true );
+					jQuery.event.keysRemove( elem, type + types[ t ], handler, selector, true );
 				}
 				continue;
 			}
@@ -5508,7 +5508,7 @@ if ( !jQuery.support.submitBubbles ) {
 			}
 
 			// Remove delegated handlers; cleanData eventually reaps submit handlers attached above
-			jQuery.event.remove( this, "._submit" );
+			jQuery.event.keysRemove( this, "._submit" );
 		}
 	};
 }
@@ -5565,7 +5565,7 @@ if ( !jQuery.support.changeBubbles ) {
 		},
 
 		teardown: function() {
-			jQuery.event.remove( this, "._change" );
+			jQuery.event.keysRemove( this, "._change" );
 
 			return !rformElems.test( this.nodeName );
 		}
@@ -5683,7 +5683,7 @@ jQuery.fn.extend({
 			fn = returnFalse;
 		}
 		return this.each(function() {
-			jQuery.event.remove( this, types, fn, selector );
+			jQuery.event.keysRemove( this, types, fn, selector );
 		});
 	},
 
@@ -6195,18 +6195,18 @@ jQuery.fn.extend({
 				if ( next && next.parentNode !== parent ) {
 					next = this.nextSibling;
 				}
-				jQuery( this ).remove();
+				jQuery( this ).keysRemove();
 				parent.insertBefore( elem, next );
 			}
 		// Allow new content to include elements from the context set
 		}, true );
 
 		// Force removal if there was no new content (e.g., from empty arguments)
-		return i ? this : this.remove();
+		return i ? this : this.keysRemove();
 	},
 
 	detach: function( selector ) {
-		return this.remove( selector, true );
+		return this.keysRemove( selector, true );
 	},
 
 	domManip: function( args, callback, allowIntersection ) {
@@ -6681,7 +6681,7 @@ jQuery.extend({
 					if ( data.events ) {
 						for ( type in data.events ) {
 							if ( special[ type ] ) {
-								jQuery.event.remove( elem, type );
+								jQuery.event.keysRemove( elem, type );
 
 							// This is a shortcut to avoid jQuery.event.remove's overhead
 							} else {
@@ -7299,7 +7299,7 @@ function css_defaultDisplay( nodeName ) {
 function actualDisplay( name, doc ) {
 	var elem = jQuery( doc.createElement( name ) ).appendTo( doc.body ),
 		display = jQuery.css( elem[0], "display" );
-	elem.remove();
+	elem.keysRemove();
 	return display;
 }
 

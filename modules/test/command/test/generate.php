@@ -74,7 +74,7 @@ class Command_Test_Generate extends Command_Iterator_File {
 		$inspector = PHP_Inspector::factory($this->application, $fullpath);
 
 		foreach ($inspector->defined_classes() as $class) {
-			[$ns, $cl] = PHP::parse_namespace_class($class);
+			[$ns, $cl] = PHP::parseNamespaceClass($class);
 			$target_file = path($this->target, $cl . '_Test.php');
 			$target_generator = Test_Generator::factory($this->application, $target_file);
 			if ($target_generator->create_if_not_exists()) {

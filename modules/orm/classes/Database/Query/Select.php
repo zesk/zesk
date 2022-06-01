@@ -7,10 +7,12 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
+
+use zesk\ORM\QueryTrait\Where;
 
 /**
  *
@@ -18,6 +20,8 @@ namespace zesk;
  *
  */
 class Database_Query_Select extends Database_Query_Select_Base {
+	use Where;
+
 	/**
 	 * What to select (array of alias => column)
 	 *
@@ -44,12 +48,6 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @var string
 	 */
 	protected string $alias = '';
-
-	/**
-	 * Where
-	 * @var array
-	 */
-	protected array $where = [];
 
 	/**
 	 * Having - like where for postprocessing in database based on functions
@@ -149,9 +147,8 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	}
 
 	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Database_Query_Select_Base::copy_from()
+	 * @param Database_Query_Select $query
+	 * @return $this
 	 */
 	public function copy_from(Database_Query_Select $query): self {
 		parent::_copy_from_base($query);
@@ -179,17 +176,17 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param string $column_reference
 	 * @return boolean
 	 */
-	public function valid_column(string $column_reference): bool {
-		[$alias, $column] = pair($column_reference, '.', $this->alias, $column);
+	public function validColumn(string $column_reference): bool {
+		[$alias, $column] = pair($column_reference, '.', $this->alias, $column_reference);
 		if ($alias === $this->alias) {
 			$class = $this->class;
 		} else {
-			$class = avalue($this->join_objects, $alias);
+			$class = $this->join_objects[$alias] ?? null;
 			if (!$class) {
 				return false;
 			}
 		}
-		return $this->orm_registry($class)->has_member($column);
+		return $this->orm_registry($class)->hasMember($column);
 	}
 
 	/**
@@ -208,10 +205,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param mixed $set
 	 * @return bool
 	 */
-	public function distinct(mixed $set = true): mixed {
+	public function distinct(mixed $set = true): bool {
 		if ($set !== null) {
 			$this->application->deprecated('setter');
-			return $this->setDistinct(to_bool($set));
+			$this->setDistinct(toBool($set));
 		}
 		return $this->distinct;
 	}
@@ -225,21 +222,33 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		return $this;
 	}
 
-	public function class_alias($class = null) {
-		if ($class === null || $this->class === $class) {
+	/**
+	 * Get the class alias for this object
+	 * @param string $class
+	 * @return string
+	 * @throws Exception_ORM_NotFound
+	 */
+	public function class_alias(string $class = ''): string {
+		if ($class === '' || $this->class === $class) {
 			return $this->alias;
 		}
-		$result = avalue(ArrayTools::flip_multiple($this->join_objects), $class, []);
-		return last($result);
+		$reverse_joins = ArrayTools::valuesFlipAppend($this->join_objects);
+		if (array_key_exists($class, $reverse_joins)) {
+			return $reverse_joins[$class];
+		}
+
+		throw new Exception_ORM_NotFound($class, '{class} is not a member of any joins in {this}', [
+			'this' => get_class($this),
+		]);
 	}
 
 	/**
 	 * @return string
 	 */
-	public function alias($set = null) {
+	public function alias(string $set = null): string {
 		if ($set !== null) {
 			$this->application->deprecated('setter');
-			return $this->setAlias(strval($set));
+			$this->setAlias(strval($set));
 		}
 		return $this->alias;
 	}
@@ -257,7 +266,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @return array
 	 */
 	public function columns(): array {
-		return ArrayTools::unprefix(array_keys($this->what), '*');
+		return ArrayTools::valuesRemovePrefix(array_keys($this->what), '*');
 	}
 
 	/**
@@ -339,7 +348,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * ->what() returns the what clause
 	 * ->what(null, "string") sets the what clause to a static string (no checking)
 	 * ->what("string", null) deletes a member from the what clause
-	 * ->what(return_column, table_column) adds "table_column as return_column" to what clause
+	 * ->what(return_column, tableColumn) adds "tableColumn as return_column" to what clause
 	 * ->what(array(...), true) appends to the current what clause
 	 * ->what(array(...)) replaces the current what clause
 	 * ->what(false) sets the what clause to empty
@@ -393,10 +402,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	/**
 	 * Append "what" fields for an entire ORM, with $prefix before it, using alias $alias
 	 *
-	 * @param string $class Class to add what fields for; if not supplied uses the class associated with the query
-	 * @param string $alias the alias associated with the class query, uses default (X) if not supplied
-	 * @param string $prefix Prefix all output field names with this string, blank for nothing
-	 * @param string $object_mixed Pass to class_table_columns for dynamic table objects
+	 * @param ?string $class Class to add what fields for; if not supplied uses the class associated with the query
+	 * @param ?string $alias the alias associated with the class query, uses default (X) if not supplied
+	 * @param ?string $prefix Prefix all output field names with this string, blank for nothing
+	 * @param ?string $object_mixed Pass to class_table_columns for dynamic table objects
 	 * @param array $object_options Pass to class_table_columns for dynamic table objects
 	 * @return Database_Query_Select
 	 */
@@ -408,7 +417,6 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$alias = $this->class_alias($class);
 		}
 		$columns = $this->application->orm_registry($class, $object_mixed, $object_options)->columns();
-		$what = [];
 		foreach ($columns as $column) {
 			$this->addWhat($prefix . $column, "$alias.$column");
 		}
@@ -436,19 +444,16 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param string $join_id
 	 * @return Database_Query_Select
 	 */
-	public function join($sql, $join_id = null): self {
+	public function join(array|string $sql, string $join_id = ''): self {
 		if (is_array($sql)) {
 			return $this->addJoinIterable($sql);
 		}
-		return $this->addJoin($sql, is_string($join_id) ? $join_id : '');
+		return $this->addJoin($sql, $join_id);
 	}
 
 	/**
-	 * Join tables
-	 *
-	 * @param string $sql
-	 * @param string $join_id
-	 * @return Database_Query_Select
+	 * @param array $join_sql
+	 * @return $this
 	 */
 	public function addJoinIterable(array $join_sql): self {
 		$this->tables = array_merge($this->tables, $join_sql);
@@ -458,9 +463,9 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	/**
 	 * Join tables
 	 *
-	 * @param string $sql
+	 * @param string $join_sql
 	 * @param string $join_id
-	 * @return Database_Query_Select
+	 * @return $this
 	 */
 	public function addJoin(string $join_sql, string $join_id = ''): self {
 		if ($join_id !== '') {
@@ -475,29 +480,32 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * Given a table alias, find the associated class
 	 *
 	 * @param string $alias
-	 * @return string Class name associated with the alias, or null if not found
+	 * @return string Class name associated with the alias, or "" if not found
 	 */
-	public function find_alias($alias) {
+	public function findAlias(string $alias): string {
 		if ($alias === $this->alias) {
 			return $this->class;
 		}
-		return avalue($this->join_objects, $alias, null);
+		return $this->join_objects[$alias] ?? '';
 	}
 
 	/**
 	 * Join tables
 	 *
-	 * @param string $sql
-	 * @param string $join_id
-	 * @return Database_Query_Select
+	 * @param string $join_type
+	 * @param string $class
+	 * @param string $alias
+	 * @param array $on
+	 * @param string $table
+	 * @return $this
+	 * @throws Exception_Semantics
 	 */
-	public function join_object($join_type, $class, $alias, array $on, $table = null) {
-		$object = null;
-		if ($class instanceof ORM) {
-			$object = $class;
-			$class = get_class($class);
-		} else {
+	public function join_object(string $join_type, ORM|string $class, string $alias, array $on, string $table = ''): self {
+		if (is_string($class)) {
 			$object = $this->orm_registry($class);
+		} else {
+			$object = $class;
+			$class = get_class($object);
 		}
 		if (array_key_exists($alias, $this->join_objects)) {
 			throw new Exception_Semantics(__CLASS__ . "::join_object: Same alias $alias added twice");
@@ -505,38 +513,38 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->join_objects[$alias] = $class;
 
 		$sql = $this->sql();
-		if ($table === null) {
+		if ($table === '') {
 			$table = $object->table();
 		}
-		if ($alias === null) {
+		if ($alias === '') {
 			$alias = $class;
 		}
 		/*
-		 * $object->database_name() is sometimes blank, sometimes "default" here so it uses the more complex
+		 * $object->databaseName() is sometimes blank, sometimes "default" here so it uses the more complex
 		 * database name to join tables here, which is not what we want.
 		 *
-		 * Using $object->database()->code_name() means it fetches it from the actual database.
+		 * Using $object->database()->codeName() means it fetches it from the actual database.
 		 *
 		 * You can also try and fix this with logic:
 		 *
 		 * empty "database_name" means value of configuration zesk\Database::default
 		 */
-		if ($object->database()->code_name() !== $this->database_name()) {
+		if ($object->database()->codeName() !== $this->databaseName()) {
 			$cross_db_this = $this->database()->feature(Database::FEATURE_CROSS_DATABASE_QUERIES);
 			$cross_db_object = $object->database()->feature(Database::FEATURE_CROSS_DATABASE_QUERIES);
 			if ($cross_db_this !== true) {
 				throw new Exception_Semantics('Database {name} ({class}) does not support cross-database queries, join is not possible', [
-					'name' => $this->database_name(),
+					'name' => $this->databaseName(),
 					'class' => $this->class,
 				]);
 			}
 			if ($cross_db_object !== true) {
 				throw new Exception_Semantics('Database {name} ({class}) does not support cross-database queries, join is not possible', [
-					'name' => $object->database_name(),
+					'name' => $object->databaseName(),
 					'class' => get_class($object),
 				]);
 			}
-			$table_as = $sql->database_table_as($object->database()->database_name(), $table, $alias);
+			$table_as = $sql->database_table_as($object->database()->databaseName(), $table, $alias);
 		} else {
 			$table_as = $sql->table_as($table, $alias);
 		}
@@ -556,9 +564,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *         "type": Type of join, e.g. "INNER", or "LEFT OUTER", or "CROSS" or whatever database-specific join you want. Defaults to "INNER".
 	 *         "require": Boolean value, when specified and when "type" is not specified, specifies "INNER" or "LEFT OUTER" for type. Defaults to false.
 	 *
-	 * @return Database_Query_Select
+	 * @return $this
+	 * @throws RuntimeException
 	 */
-	public function link(string $class, string|array $mixed = []) {
+	public function link(string $class, string|array $mixed = []): self {
 		if (is_string($mixed)) {
 			$mixed = [
 				'path' => $mixed,
@@ -570,14 +579,14 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$target_class = $this->application->objects->resolve($class);
 			$path = $object->link_default_path_to($target_class);
 			if ($path === null) {
-				throw new Exception_Semantics("No path to {target_class} (resolved from {class}) from $this->class, specify explicitly", [
+				throw new RuntimeException("No path to {target_class} (resolved from {class}) from $this->class, specify explicitly", [
 					'class' => $class,
 					'target_class' => $target_class,
 				]);
 			}
 			$mixed['path'] = $path;
 		}
-		return $object->link_walk($this, $mixed);
+		return $object->linkWalk($this, $mixed);
 
 		//		return ORM::cache_object($class)->link($this, $mixed);
 	}
@@ -585,76 +594,27 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	/**
 	 * Get/set/append having clause. Does no validation.
 	 *
-	 * @param array $add
+	 * @param ?array $add
 	 * @param boolean $replace
 	 * @return self|array
 	 */
-	public function having(array $add = null, $replace = false) {
+	public function having(array $add = null, bool $replace = false): self|array {
 		if ($add !== null) {
-			$this->having = $replace ? $add : $add + $this->having;
-			return $this;
+			$this->application->deprecated(__METHOD__ . ' as setter use addHaving');
+			return $this->addHaving($add, $replace);
 		}
 		return $this->having;
 	}
 
 	/**
-	 * @param string $member
-	 * @param mixed $value
-	 * @return $this
-	 */
-	public function addWhere(string $member, mixed $value): self {
-		$this->where[$member] = $value;
-		return $this;
-	}
-
-	/**
-	 * @param string $sql
-	 * @return $this
-	 */
-	public function addWhereSQL(string $sql): self {
-		$this->where[] = $sql;
-		return $this;
-	}
-
-	/**
-	 * @param array $where
-	 * @return $this
-	 */
-	public function appendWhere(array $where): self {
-		$this->where = array_merge($this->where, $where);
-		return $this;
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function clearWhere(): self {
-		$this->where = [];
-		return $this;
-	}
-
-	/**
-	 * Add where clause. Pass in false for $k to reset where to nothing.
+	 * Get/set/append having clause. Does no validation.
 	 *
-	 * @param mixed $k
-	 * @param string $v
-	 * @return Database_Query_Select
+	 * @param array $add
+	 * @param boolean $replace
+	 * @return self
 	 */
-	public function where($k = null, $v = null) {
-		if ($k === null && $v === null) {
-			return $this->where;
-		}
-		$this->application->deprecated('where setter');
-		if (is_array($k)) {
-			return $this->appendWhere($k);
-		} elseif ($k === null && is_string($v)) {
-			return $this->addWhereSQL($v);
-		} elseif (!empty($k)) {
-			return $this->addWhere($k, $v);
-			$this->where[$k] = $v;
-		} elseif ($k === false) {
-			return $this->clearWhere();
-		}
+	public function addHaving(array $add, bool $replace = false): self {
+		$this->having = $replace ? $add : $add + $this->having;
 		return $this;
 	}
 
@@ -664,7 +624,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param array $order_by
 	 * @return Database_Query_Select
 	 */
-	public function orderBy(array $order_by): self {
+	public function setOrderBy(array $order_by): self {
 		$this->order_by = $order_by;
 		return $this;
 	}
@@ -675,7 +635,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param array $group_by
 	 * @return Database_Query_Select
 	 */
-	public function groupBy(array $group_by): self {
+	public function setGroupBy(array $group_by): self {
 		$this->group_by = $group_by;
 		return $this;
 	}
@@ -683,9 +643,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	/**
 	 * Set limit
 	 *
-	 * @param integer $offset
-	 * @param integer $limit
+	 * @param int $offset
+	 * @param int $limit
 	 * @return Database_Query_Select
+	 * @deprecated 2022-05
 	 */
 	public function limit($offset = 0, $limit = null) {
 		if ($limit === null) {
@@ -695,6 +656,19 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$this->offset = $offset;
 			$this->limit = $limit;
 		}
+		return $this;
+	}
+
+	/**
+	 * Set offset and limit for paging
+	 *
+	 * @param int $offset
+	 * @param int $limit
+	 * @return Database_Query_Select
+	 */
+	public function setOffsetLimit(int $offset = 0, int $limit = -1): self {
+		$this->offset = $offset;
+		$this->limit = $limit;
 		return $this;
 	}
 
@@ -717,15 +691,26 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		]);
 	}
 
-	public function condition($add = null, $id = null) {
-		if ($add !== null) {
-			if ($id === null) {
-				$this->conditions[] = $add;
-			} else {
-				$this->conditions[$id] = $add;
-			}
-			return $this;
+	/**
+	 * Simple way of storing locale conditions of the query for display
+	 *
+	 * @param string $add
+	 * @param string $id Option key for this condition
+	 * @return $this
+	 */
+	public function addCondition(string $add, string $id = ''): self {
+		if ($id === '') {
+			$this->conditions[] = $add;
+		} else {
+			$this->conditions[$id] = $add;
 		}
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function conditions(): array {
 		return $this->conditions;
 	}
 
@@ -733,7 +718,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @return string
 	 */
-	public function title() {
+	public function title(): string {
 		/* @var $class Class_ORM */
 		$class_name = $this->class;
 		$locale = $this->application->locale;
@@ -757,7 +742,8 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @deprecated 2022-01
 	 */
 	public function group_by(array|string $group_by) {
-		return $this->groupBy(to_list($group_by));
+		$this->application->deprecated(__METHOD__);
+		return $this->setGroupBy(toList($group_by));
 	}
 
 	/**
@@ -767,11 +753,12 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @return Database_Query_Select
 	 * @deprecated 2022-01
 	 */
-	public function order_by($order_by = null) {
+	public function order_by(array|string $order_by = null): array|self {
+		$this->application->deprecated(__METHOD__);
 		if ($order_by === null) {
 			return $this->order_by;
 		}
-		return $this->orderBy(to_list($order_by));
+		return $this->setOrderBy(toList($order_by));
 	}
 
 	/**
@@ -784,5 +771,16 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	public function has_what(string $column): bool {
 		$this->application->deprecated('old name');
 		return $this->hasWhat($column);
+	}
+
+	/**
+	 * @param string|null $add
+	 * @param string $id
+	 * @return $this|array
+	 * @deprecated 2022-05
+	 */
+	public function condition(string $add = null, string $id = ''): self|array {
+		$this->application->deprecated(__METHOD__);
+		return ($add !== null) ? $this->addCondition($add, $id) : $this->conditions();
 	}
 }

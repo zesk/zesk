@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2006, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -36,7 +36,7 @@ class Control_URL extends Control_Text {
 	}
 
 	private function _error_default() {
-		$protocols = ArrayTools::suffix($this->protocol_list(), '://');
+		$protocols = ArrayTools::suffixValues($this->protocol_list(), '://');
 		return $this->application->locale->__('{label} must begin with {protocol_phrase}', [
 			'protocol_phrase' => $this->application->locale->conjunction($protocols),
 		]);

@@ -35,7 +35,7 @@ if (!$this->always_show) {
 $this->last_offset = $last_offset = $object->last_offset;
 
 $this->last_index = ($limit < 0) ? $total : min($offset + $limit, $total);
-$this->url = URL::query_format($request->uri(), [
+$this->url = URL::queryFormat($request->uri(), [
 	'limit' => $limit,
 ]);
 
@@ -94,7 +94,7 @@ echo HTML::tag_open('div', [
 		'class' => 'pager-state btn-group',
 	], HTML::tag('a', 'btn disabled pager-text btn-pager-stage btn-sm', $showing));
 
-	$attrs = $this->geta('preserve_hidden', []);
+	$attrs = $this->getArray('preserve_hidden', []);
 	$attrs += $request->get();
 	$children = $this->children;
 	unset($children['limit']);
@@ -104,7 +104,7 @@ echo HTML::tag_open('div', [
 			/* @var $child Widget */
 			unset($attrs[$child->name()]);
 			echo HTML::tag('div', [
-				'class' => $child->context_class(),
+				'class' => $child->contextClass(),
 			], $child->render());
 		}
 	}

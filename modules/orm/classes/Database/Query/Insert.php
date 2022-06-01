@@ -1,12 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * Delete
  *
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright Copyright &copy; 2016, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -20,27 +22,27 @@ class Database_Query_Insert extends Database_Query_Edit {
 	 *
 	 * @var boolean
 	 */
-	protected $replace = false;
+	protected bool $replace = false;
 
 	/**
 	 *
-	 * @var Database_Query_Select
+	 * @var ?Database_Query_Select
 	 */
-	protected $select = null;
+	protected ?Database_Query_Select $select = null;
 
 	/**
 	 * INSERT INTO {$this->into}
 	 *
 	 * @var string
 	 */
-	protected $into = null;
+	protected string $into;
 
 	/**
 	 * Result
 	 *
 	 * @var mixed
 	 */
-	protected $result = null;
+	protected mixed $result;
 
 	/**
 	 * Construct a new insert query
@@ -52,19 +54,18 @@ class Database_Query_Insert extends Database_Query_Edit {
 	}
 
 	/**
-	 * Getter/setter for "into" which table
+	 * Getter for "into" which table
 	 *
-	 * @param string $set Into table name, null to get
-	 * @return Database_Query_Insert|string
+	 * @param ?string $set Deprecated method to set into table name
+	 * @return $this|string
+	 * @throws Exception_Deprecated
 	 */
-	public function into($set = null) {
-		if ($set === null) {
+	public function into(string $set = null): self|string {
+		if ($set !== null) {
 			zesk()->deprecated('setter/getter changed to PSR');
-			return $this->into;
+			return $this->setInto($set);
 		}
-		$this->setTable($set);
-		$this->into = $set;
-		return $this;
+		return $this->into;
 	}
 
 	/**
@@ -80,17 +81,21 @@ class Database_Query_Insert extends Database_Query_Edit {
 	}
 
 	/**
-	 * Set to replace mode
+	 * Get replace mode
 	 *
-	 * @param null $set
-	 * @return Database_Query_Insert|bool
+	 * @return bool
 	 */
-	public function replace($set = null) {
-		if (is_bool($set)) {
-			$this->replace = $set;
-			return $this;
-		}
+	public function replace(): bool {
 		return $this->replace;
+	}
+
+	/**
+	 * @param bool $set
+	 * @return $this
+	 */
+	public function setReplace(bool $set): self {
+		$this->replace = $set;
+		return $this;
 	}
 
 	/**
@@ -98,7 +103,7 @@ class Database_Query_Insert extends Database_Query_Edit {
 	 *
 	 * @return Database_Query_Insert
 	 */
-	public function insert() {
+	public function insert(): self {
 		$this->replace = false;
 		return $this;
 	}
@@ -109,7 +114,7 @@ class Database_Query_Insert extends Database_Query_Edit {
 	 * @param Database_Query_Select $query
 	 * @return Database_Query_Insert
 	 */
-	public function select(Database_Query_Select $query) {
+	public function select(Database_Query_Select $query): self {
 		$this->select = $query;
 		return $this;
 	}
@@ -119,29 +124,31 @@ class Database_Query_Insert extends Database_Query_Edit {
 	 *
 	 * @return string
 	 * @throws Exception_Parameter
+	 * @throws Exception_Unimplemented
 	 */
 	public function __toString() {
 		$options = [
 			'table' => $this->into,
-			'values' => $this->values,
 			'low_priority' => $this->low_priority,
 		];
 		if ($this->replace) {
 			$options['verb'] = 'REPLACE';
 		}
 		if ($this->select) {
-			$options['values'] = $this->select->what();
-			$options['select'] = strval($this->select);
-			return $this->sql()->insert_select($options);
+			return $this->sql()->insert_select($this->into, $this->select->what(), strval($this->select), $options);
 		}
-		return $this->sql()->insert($options);
+		return $this->sql()->insert($this->into, $this->values(), $options);
 	}
 
 	/**
-	 * @return bool|mixed
+	 * @return int|null
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
 	 * @throws Exception_Parameter
+	 * @throws Exception_Unimplemented
 	 */
-	private function _execute() {
+	private function _execute(): ?int {
 		if ($this->select) {
 			$sql = $this->__toString();
 			return $this->database()->query($sql);
@@ -160,10 +167,15 @@ class Database_Query_Insert extends Database_Query_Edit {
 	/**
 	 * Execute the insert and retrieve the ID created
 	 *
-	 * @return mixed
-	 * @throws Exception_Semantics|Exception_Parameter
+	 * @return int
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
 	 */
-	public function id() {
+	public function id(): int {
 		if ($this->low_priority) {
 			throw new Exception_Semantics('Can not execute query as low priority and retrieve id: ' . $this->__toString());
 		}
@@ -174,29 +186,37 @@ class Database_Query_Insert extends Database_Query_Edit {
 	}
 
 	/**
-	 *
-	 * @return mixed
+	 * @return $this
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
 	 * @throws Exception_Parameter
+	 * @throws Exception_Unimplemented
 	 */
-	public function execute() {
-		return $this->_execute();
-	}
-
-	/**
-	 *
-	 * @return self
-	 * @throws Exception_Parameter
-	 */
-	public function exec() {
+	public function execute(): self {
 		$this->_execute();
 		return $this;
 	}
 
 	/**
+	 * Returns the inserted ID or null if non-primary key insert
 	 *
-	 * @return mixed
+	 * @return ?int
 	 */
-	public function result() {
+	public function result(): ?int {
 		return $this->result;
+	}
+
+	/**
+	 * @return $this
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Unimplemented
+	 * @deprecated 2022-05
+	 */
+	public function exec(): self {
+		return $this->execute();
 	}
 }

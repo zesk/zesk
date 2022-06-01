@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2017, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -154,7 +154,7 @@ class DocComment extends Options {
 		$string = StringTools::unsuffix($string, '*/');
 		$string = explode("\n", $string);
 		$string = ArrayTools::trim($string);
-		$string = ArrayTools::unprefix($string, '*');
+		$string = ArrayTools::valuesRemovePrefix($string, '*');
 		$string = ArrayTools::trim($string);
 		$string = implode("\n", $string);
 
@@ -166,13 +166,13 @@ class DocComment extends Options {
 	 * @return array
 	 */
 	private function multi_keys() {
-		$keys = $this->option_list(self::OPTION_MULTI_KEYS);
+		$keys = $this->optionIterable(self::OPTION_MULTI_KEYS);
 		$keys = array_unique($keys);
 		return $keys;
 	}
 
 	private function parse_multi_key($value, $key) {
-		return ArrayTools::kpair(ArrayTools::clean(explode("\n", $value)), ' ');
+		return ArrayTools::pairValues(ArrayTools::clean(explode("\n", $value)), ' ');
 	}
 
 	private function unparse_multi_key($value, $key) {
@@ -192,7 +192,7 @@ class DocComment extends Options {
 	 * @return array
 	 */
 	private function param_keys() {
-		$keys = $this->option_list(self::OPTION_PARAM_KEYS);
+		$keys = $this->optionIterable(self::OPTION_PARAM_KEYS);
 		$keys[] = 'property';
 		$keys[] = 'param';
 		$keys[] = 'global'; // Dunno. Are there any other doccomments like this?
@@ -201,7 +201,7 @@ class DocComment extends Options {
 	}
 
 	private function list_keys() {
-		$keys = $this->option_list(self::OPTION_LIST_KEYS);
+		$keys = $this->optionIterable(self::OPTION_LIST_KEYS);
 		$keys[] = 'see';
 		$keys = array_unique($keys);
 		return $keys;
@@ -236,13 +236,13 @@ class DocComment extends Options {
 	 * @return string|array
 	 */
 	private function parse_list_key($value, $key) {
-		$value = ArrayTools::trim_clean(explode("\n", $value));
+		$value = ArrayTools::listTrimClean(explode("\n", $value));
 		return $value;
 	}
 
 	private function unparse_list_key($value, $key) {
 		if (!is_array($value)) {
-			$value = ArrayTools::trim_clean(explode("\n", $value));
+			$value = ArrayTools::listTrimClean(explode("\n", $value));
 		}
 		$prefix = "@$key ";
 		return $prefix . implode("\n$prefix", $value);
@@ -368,9 +368,9 @@ class DocComment extends Options {
 	 * @return string
 	 */
 	private function unparse(array $items) {
-		$multi_keys = ArrayTools::flip_assign($this->multi_keys(), true);
-		$param_keys = ArrayTools::flip_assign($this->param_keys(), true);
-		$list_keys = ArrayTools::flip_assign($this->list_keys(), true);
+		$multi_keys = ArrayTools::keysFromValues($this->multi_keys(), true);
+		$param_keys = ArrayTools::keysFromValues($this->param_keys(), true);
+		$list_keys = ArrayTools::keysFromValues($this->list_keys(), true);
 
 		$result = [];
 		if ($this->optionBool(self::OPTION_DESC_NO_TAG) && isset($items['desc'])) {

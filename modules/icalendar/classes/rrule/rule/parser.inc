@@ -3,7 +3,7 @@
  * Implementation of iCalendar RRULE
  *
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  *
  * http://www.ietf.org/rfc/rfc2445.txt
  *
@@ -108,7 +108,7 @@ class Rule_Parser extends Options {
 
 	/**
 	 * Convert an integer day of the week into the token
-	 * @param integer $dow
+	 * @param int $dow
 	 * @return integer|null
 	 */
 	private static function _dow_from_string($dow) {

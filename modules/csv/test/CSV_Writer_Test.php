@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 class CSV_Writer_Test extends Test_Unit {
@@ -108,32 +110,32 @@ class CSV_Writer_Test extends Test_Unit {
 
 	public function badkeys() {
 		return [
-			'f!rst',
-			'2ECOND',
-			'THURD',
-			'4',
-			'random',
-			'5 ',
-			5,
-			'six',
+			['f!rst'],
+			['2ECOND'],
+			['THURD'],
+			['4'],
+			['random'],
+			['5 '],
+			['six'],
 		];
 	}
 
 	public function goodkeys() {
 		return [
-			'first',
-			'SECOND',
-			'tHIRD',
-			'4th',
-			'5',
+			['first'],
+			['SECOND'],
+			['tHIRD'],
+			['4th'],
+			[5],
+			['5'],
 		];
 	}
 
 	/**
-	 * @data_provider badkeys
+	 * @dataProvider badkeys
 	 * @expectedException zesk\Exception_Key
 	 */
-	public function test_badkey($badkey): void {
+	public function test_badkey(string $badkey): void {
 		$x = new CSV_Writer();
 		$x->set_headers([
 			'First',
@@ -150,9 +152,9 @@ class CSV_Writer_Test extends Test_Unit {
 	}
 
 	/**
-	 * @data_provider goodkeys
+	 * @dataProvider goodkeys
 	 */
-	public function test_goodkey($key): void {
+	public function test_goodkey(string $key): void {
 		$x = new CSV_Writer();
 		$x->set_headers([
 			'First',

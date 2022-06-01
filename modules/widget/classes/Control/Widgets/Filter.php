@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage control
  * @author kent
- * @copyright Copyright &copy; 2017, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -35,13 +35,13 @@ class Control_Widgets_Filter extends Control_Widgets {
 			$filters = $this->call_hook('filters');
 			if (count($filters) > 0) {
 				$options = $this->options_include('URI;filter_preserve_include;filter_preserve_exclude;ajax_id;filter_form_id');
-				$options = ArrayTools::map_keys($options, [
+				$options = ArrayTools::keysMap($options, [
 					'filter_form_id' => 'form_id',
 				]);
 				$options['id'] = $options['column'] = 'filter';
 				$this->filter = new Control_Filter($this->application, $options);
 				$this->filter->children($filters);
-				$this->filter->wrap('div', '.filters');
+				$this->filter->addWrap('div', '.filters');
 				$this->child($this->filter);
 
 				$this->call_hook('initialize_filter');
@@ -74,18 +74,18 @@ class Control_Widgets_Filter extends Control_Widgets {
 	 * @return self|boolean
 	 */
 	public function show_filter($set = null) {
-		return $set !== null ? $this->setOption('show_filter', to_bool($set)) : $this->optionBool('show_filter', true);
+		return $set !== null ? $this->setOption('show_filter', toBool($set)) : $this->optionBool('show_filter', true);
 	}
 
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\Widget::theme_variables()
+	 * @see \zesk\Widget::themeVariables()
 	 */
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
 			'filter' => $this->filter,
 			'show_filter' => $this->show_filter(),
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 }

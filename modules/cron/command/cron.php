@@ -56,8 +56,8 @@ class Command_Cron extends \zesk\Command_Base {
 				if ($ts instanceof Timestamp) {
 					$rows[] = [
 						'key' => $key,
-						'value' => $ts->is_empty() ? null : $ts->iso8601(),
-						'seconds ago' => $ts->is_empty() ? $this->application->locale->__('Never') : $now->difference($ts, Timestamp::UNIT_SECOND),
+						'value' => $ts->isEmpty() ? null : $ts->iso8601(),
+						'seconds ago' => $ts->isEmpty() ? $this->application->locale->__('Never') : $now->difference($ts, Timestamp::UNIT_SECOND),
 					];
 				}
 			}

@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage file
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -192,7 +192,7 @@ class Content_File extends ORM {
 	 */
 	public static function cron_minute(Application $application): void {
 		$object = new Content_File($application);
-		$paths = $object->option_list('scan_path');
+		$paths = $object->optionIterable('scan_path');
 		foreach ($paths as $path) {
 			if (empty($path)) {
 				continue;

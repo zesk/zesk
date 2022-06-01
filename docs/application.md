@@ -38,7 +38,7 @@ Your application file solely handles setting up the context (configuration) for 
 	$kernel->autoloader->path(__DIR__ . '/classes', array("class_prefix" => "awesome\\"));
 	
 	return $kernel
-		->application_class(Application::class)
+		->applicationClass(Application::class)
 		->create_application()
 		->set_application_root(__DIR__)
 		->configure();
@@ -60,7 +60,7 @@ We then tell the kernel that any class which begins with "awesome\\" should be f
 The final lines do the following, in order:
 
 	return $kernel
-		->application_class(Application::class)
+		->applicationClass(Application::class)
 		->create_application()
 		->set_application_root(__DIR__)
 		->configure();
@@ -151,7 +151,7 @@ Now, broken into smaller sections:
 1. `app()->call_hook("configured_files")` is called to handle extending or mananging file configuration state before modules are loaded
 1. Modules are loaded, and each module object is created and linked to our application instance, and each `zesk\Module->initialize()` call is called (which can register additional hooks). If your module throws an exception during the `initialize()` call, the object is discarded and the exception stored
 1. The application's options are reconfigured from the global configuration 
-1. Any modules dynamically loaded from `app()->option_list("modules")` are loaded
+1. Any modules dynamically loaded from `app()->optionIterable("modules")` are loaded
 
 ### 3. Application configuration hooks
 
@@ -162,4 +162,3 @@ Configured hooks are called from lowest-level to highest level:
 - System wide hook `configured` is called first
 - Each module's `hook_configured()` call is called, in order of module dependency
 - Finally the `\zesk\Application` object `hook_configured()` call is made
-

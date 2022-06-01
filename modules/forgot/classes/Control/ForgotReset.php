@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2016, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 16:31:01 EDT 2008
  */
+
 namespace zesk;
 
 /**
@@ -14,17 +16,19 @@ namespace zesk;
  *
  */
 class Control_ForgotReset extends Control_Edit {
+	protected string $validate_token = '';
+
 	/**
 	 *
 	 * @var string
 	 */
-	protected $class = Forgot::class;
+	protected string $class = Forgot::class;
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $options = [
+	protected array $options = [
 		'title' => 'Reset password',
 	];
 
@@ -32,22 +36,22 @@ class Control_ForgotReset extends Control_Edit {
 	 *
 	 * @var Forgot
 	 */
-	protected $object = null;
+	protected Model $object;
 
 	/**
 	 *
 	 * @var User
 	 */
-	private $auth_user = null;
+	private ?User $auth_user = null;
 
 	/**
 	 *
-	 * @return \zesk\Widget[]|boolean[]
+	 * @return Widget[]
 	 */
-	public function hook_widgets() {
+	public function hook_widgets(): array {
 		$locale = $this->locale();
 
-		$this->form_name('forgot_reset_form');
+		$this->setFormName('forgot_reset_form');
 
 		$ww = [];
 
@@ -59,10 +63,7 @@ class Control_ForgotReset extends Control_Edit {
 		$w->setOption('confirm', true);
 		$w->required(true);
 
-		$ww[] = $w = $this->widget_factory(Control_Button::class)
-			->names('submit_forgot_reset', $this->option('label_button', $locale->__('Change password')))
-			->add_class('btn-primary btn-block')
-			->nolabel(true);
+		$ww[] = $w = $this->widget_factory(Control_Button::class)->names('submit_forgot_reset', $this->option('label_button', $locale->__('Change password')))->addClass('btn-primary btn-block')->nolabel(true);
 
 		return $ww;
 	}
@@ -73,12 +74,19 @@ class Control_ForgotReset extends Control_Edit {
 	 * @param string $set
 	 * @return string
 	 */
-	public function validate_token($set = null) {
-		if ($set === null) {
-			return $this->validate_token;
-		}
+	public function setValidateToken(string $set): self {
 		$this->validate_token = $set;
 		return $this;
+	}
+
+	/**
+	 * Getter for validate_token
+	 *
+	 * @param string $set
+	 * @return string
+	 */
+	public function validateToken(): string {
+		return $this->validate_token;
 	}
 
 	/**
@@ -86,7 +94,7 @@ class Control_ForgotReset extends Control_Edit {
 	 * {@inheritDoc}
 	 * @see \zesk\Widget::submitted()
 	 */
-	public function submitted() {
+	public function submitted(): bool {
 		return $this->request->get('submit_forgot_reset', '') !== '';
 	}
 
@@ -97,11 +105,10 @@ class Control_ForgotReset extends Control_Edit {
 	 * @throws Exception_Parameter
 	 * @throws Exception_Semantics
 	 */
-	protected function find_code($token) {
-		$this->object->code = $this->validate_token();
+	protected function find_code(): Forgot {
+		$this->object->code = $this->validateToken();
 
-		$found = $this->object->find();
-		return $found;
+		return $this->object->find();
 	}
 
 	/**
@@ -109,14 +116,14 @@ class Control_ForgotReset extends Control_Edit {
 	 * {@inheritDoc}
 	 * @see \zesk\Control_Edit::validate()
 	 */
-	public function validate() {
+	public function validate(): bool {
 		if (!parent::validate()) {
 			return false;
 		}
 		$locale = $this->locale();
 		/* @var $user User */
 		/* @var $found Forgot */
-		$found = $this->find_code($this->validate_token());
+		$found = $this->find_code();
 		if (!$found) {
 			$this->error($locale->__('Control_ForgotReset:=Forgotten password request no longer valid. Please try again.'));
 			return false;
@@ -136,15 +143,15 @@ class Control_ForgotReset extends Control_Edit {
 		return true;
 	}
 
-	public function submit_store() {
+	public function submit_store(): bool {
 		assert($this->auth_user instanceof Model);
 
 		$object = $this->object;
 
 		$object->validated($object->password);
 
-		$location = '/forgot/complete/' . $this->validate_token();
-		if (!$this->prefer_json()) {
+		$location = '/forgot/complete/' . $this->validateToken();
+		if (!$this->preferJSON()) {
 			throw new Exception_Redirect($location);
 		}
 		$this->json([

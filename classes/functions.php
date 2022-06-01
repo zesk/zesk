@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2014, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 use zesk\Kernel;
@@ -264,7 +264,7 @@ function backtrace(bool $exit = true, int $n = -1): void {
  * Moved from Debug:: class to assist in profiling bootstrap functions (for example)
  * which don't have the autoloader set yet.
  *
- * @param integer $depth
+ * @param int $depth
  * @return string
  * @see debug_backtrace()
  * @see Debug::calling_function
@@ -329,11 +329,11 @@ function _dump($x): string {
  *
  * @param mixed $value
  *            A value to parse to find a boolean value.
- * @param mixed $default
+ * @param ?bool $default
  *            A value to return if parsing is unsuccessful
- * @return mixed Returns true or false, or $default if parsing fails.
+ * @return ?bool Returns true or false, or null if parsing fails
  */
-function to_bool(mixed $value, bool $default = false): bool {
+function toBool(mixed $value, bool $default = null): ?bool {
 	if (is_bool($value)) {
 		return $value;
 	}
@@ -364,7 +364,7 @@ function to_bool(mixed $value, bool $default = false): bool {
  *            The default value. Not converted to integer.
  * @return integer The integer value, or $def if it can not be converted to an integer
  */
-function to_integer(mixed $s, int $def = 0): int {
+function toInteger(mixed $s, int $def = 0): int {
 	return is_numeric($s) ? intval($s) : $def;
 }
 
@@ -394,7 +394,7 @@ function to_double(mixed $s, float $def = null): float {
  *            String list delimiter (";" is default)
  * @return array or $default
  */
-function to_list(mixed $mixed, array $default = [], string $delimiter = ';'): array {
+function toList(mixed $mixed, array $default = [], string $delimiter = ';'): array {
 	if ($mixed === '') {
 		return $default;
 	} elseif (is_scalar($mixed)) {
@@ -406,21 +406,6 @@ function to_list(mixed $mixed, array $default = [], string $delimiter = ';'): ar
 	} else {
 		return $default;
 	}
-}
-
-/**
- * Converts a scalar to an array.
- * Returns default for values of null or false.
- *
- * @param mixed $mixed
- *            If false or null, returns default value
- * @param mixed $default
- *            Default value to return if can't easily convert to an array.
- * @return array
- * @deprecated 2022-02 PSR
- */
-function to_array(mixed $mixed, array $default = []): array {
-	return toArray($mixed, $default);
 }
 
 /**
@@ -600,6 +585,7 @@ function aevalue(array $a, string|int $k, mixed $default = null): mixed {
  *
  * @param mixed $mixed
  * @return string
+ * @throws \zesk\Exception_Semantics
  */
 function flatten(mixed $mixed): string {
 	if (is_array($mixed)) {
@@ -742,17 +728,12 @@ function kmap(array $target, array $map, bool $insensitive = false, string $pref
  * @test_inline $this->assert_equal(map("{a}{B}", array("a" => "ala")), "ala{B}");
  * @test_inline $this->assert_equal(map("{a}{B}", array("a" => "ala"), true), "ala{b}");
  *
- * @param mixed $mixed
- *            Target to modify
- * @param array $map
- *            Array of name => value of search => replace
- * @param boolean $insensitive
- *            Case sensitive search/replace (defaults to false)
- * @param string $prefix_char
- *            Prefix character for tokens (defaults to "{")
- * @param string $suffix_char
- *            Suffix character for tokens (defaults to "}")
- * @return mixed (string or array)
+ * @param mixed $mixed Target to modify
+ * @param array $map Array of name => value of search => replace
+ * @param boolean $insensitive Case sensitive search/replace (defaults to false)
+ * @param string $prefix_char Prefix character for tokens (defaults to "{")
+ * @param string $suffix_char Suffix character for tokens (defaults to "}")
+ * @return array|string
  */
 function map(array|string $mixed, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array|string {
 	if ($insensitive) {
@@ -761,10 +742,14 @@ function map(array|string $mixed, array $map, bool $insensitive = false, string 
 	$s = [];
 	foreach ($map as $k => $v) {
 		if (is_array($v)) {
-			if (ArrayTools::is_list($v)) {
+			if (ArrayTools::isList($v)) {
 				$v = implode(';', ArrayTools::flatten($v));
 			} else {
-				$v = JSON::encode($v);
+				try {
+					$v = JSON::encode($v);
+				} catch (\zesk\Exception_Semantics $e) {
+					$v = null;
+				}
 			}
 		} elseif (is_object($v)) {
 			if (method_exists($v, '__toString')) {
@@ -789,18 +774,18 @@ function map(array|string $mixed, array $map, bool $insensitive = false, string 
 /**
  * Clean map tokens from a string
  *
- * @test_inline $this->assert_equal(map_clean("He wanted {n} days"), "He wanted days");
- * @test_inline
- * $this->assert_equal(map_clean("{}{}{}{}{}{all}{of}{this}{is}{removed}except}{}"),"except}");
+ * @test_inline $this->assert_equal(map_clean("He wanted {n} days"), "He wanted  days");
+ * @test_inline $this->assert_equal(map_clean("{}{}{}{}{}{all}{of}{this}{is}{removed}except}{}"),"except}");
  *
  * @param mixed $mixed
  * @param string $prefix_char
  * @param string $suffix_char
  * @return mixed
  */
-function map_clean($mixed, $prefix_char = '{', $suffix_char = '}') {
-	$suff = preg_quote($suffix_char);
-	return preg_replace_mixed('#' . preg_quote($prefix_char, '#') . '[^' . $suff . ']*' . $suff . '#', '', $mixed);
+function map_clean(string $mixed, string $prefix_char = '{', string $suffix_char = '}'): string {
+	$delimiter = '#';
+	$suffix = preg_quote($suffix_char, $delimiter);
+	return preg_replace_mixed($delimiter . preg_quote($prefix_char, $delimiter) . '[^' . $suffix . ']*' . $suffix . $delimiter, '', $mixed);
 }
 
 /**
@@ -809,7 +794,7 @@ function map_clean($mixed, $prefix_char = '{', $suffix_char = '}') {
  * @param string $string
  * @return boolean
  */
-function can_map($string, $prefix_char = '{', $suffix_char = '}') {
+function can_map(string $string, string $prefix_char = '{', string $suffix_char = '}'): bool {
 	$tokens = map_tokens($string, $prefix_char, $suffix_char);
 	return count($tokens) !== 0;
 }
@@ -817,56 +802,21 @@ function can_map($string, $prefix_char = '{', $suffix_char = '}') {
 /**
  * Retrieve map tokens from a string
  *
- * @param mixed $mixed
+ * @param string $subject
  * @param string $prefix_char
  * @param string $suffix_char
  * @return array
  */
-function map_tokens($mixed, $prefix_char = '{', $suffix_char = '}') {
+function map_tokens(string $subject, string $prefix_char = '{', string $suffix_char = '}'): array {
 	$delimiter = '#';
-	$suff = preg_quote($suffix_char, $delimiter);
+	$prefix = preg_quote($prefix_char, $delimiter);
+	$suffix = preg_quote($suffix_char, $delimiter);
 	$matches = [];
-	if (!preg_match_all($delimiter . preg_quote($prefix_char, $delimiter) . '[^' . $suff . ']*' . $suff . $delimiter, $mixed, $matches)) {
+	$pattern = $delimiter . $prefix . '[^' . $suffix . ']*' . $suffix . $delimiter;
+	if (!preg_match_all($pattern, $subject, $matches)) {
 		return [];
 	}
 	return $matches[0];
-}
-
-/**
- * Wrapping mapping function (_W)
- *
- * Mapping function which understands tags better. To apply styles or links certain elements within
- * a i18n phrase, use brackets
- * to delineate tags to add to the phrase, as follows:
- *
- * <pre>StringTools::wrap(__('This is [0:bold text] and this is [1:italic].'), '<strong>[]</strong>',
- * '<em>[italic]</em>') =
- * "This is <strong>bold text</strong> and this is <em>italic</em>."</pre>
- *
- * Supplying <strong>no</strong> positional information will replace values in order, e.g.
- *
- * <pre>StringTools::wrap(__('This is [bold text] and this is [italic].'), '<strong>[]</strong>',
- * '<em>[italic]</em>') =
- * "This is <strong>bold text</strong> and this is <em>italic</em>."</pre>
- *
- * Positional indicators are delimited with a number and a colon after the opening bracket. It also
- * handles nested brackets, however,
- * the inner brackets is indexed before the outer brackets, e.g.
- *
- * <pre>StringTools::wrap('[[a][b]]','<strong>[]</strong>','<em>[]</em>','<div>[]</div>') =
- * "<div><strong>a</strong><em>b</em></div>";
- *
- * @param string $phrase
- *            Phrase to map
- * @return string The phrase with the links embedded.
- * @see StringTools::wrap
- * @deprecated 2018-01
- */
-function _W($phrase) {
-	return call_user_func_array([
-		HTML::class,
-		'wrap',
-	], func_get_args());
 }
 
 /**
@@ -956,8 +906,8 @@ function glue(string $left, string $glue, string $right): string {
  * @param string $quotes
  *            A list of quote pairs to unquote
  * @param string $left_quote
- *            Returns the quotes removed
- * @return string|array Unquoted string, or same string if quotes not found
+ *            Returns the left quote removed
+ * @return string
  */
 function unquote(string $string_to_unquote, string $quotes = '\'\'""', string &$left_quote = ''): string {
 	if (strlen($string_to_unquote) < 2) {
@@ -1025,8 +975,7 @@ function path_from_array(string $separator, array $mixed): string {
 function path(/* dir, dir, ... */): string {
 	$args = func_get_args();
 	$r = path_from_array('/', $args);
-	$r = preg_replace('|(/\.)+/|', '/', $r); // TODO Test this doesn't munge foo/.bar
-	return $r;
+	return preg_replace('|(/\.)+/|', '/', $r); // TODO Test this doesn't munge foo/.bar
 }
 
 /**
@@ -1039,8 +988,7 @@ function path(/* dir, dir, ... */): string {
  */
 function domain(/* name, name, ... */): string {
 	$args = func_get_args();
-	$r = trim(path_from_array('.', $args), '.');
-	return $r;
+	return trim(path_from_array('.', $args), '.');
 }
 
 /**
@@ -1093,7 +1041,7 @@ function can_iterate(mixed $mixed): bool {
  * @param float $epsilon
  * @return boolean
  */
-function is_zero(float|int $value, $epsilon = 1e-5): bool {
+function is_zero(float|int $value, float $epsilon = 1e-5): bool {
 	return abs($value) < $epsilon;
 }
 
@@ -1112,26 +1060,24 @@ if (!function_exists('is_countable')) {
 /**
  * Simple integer comparison routine, syntactic sugar
  *
- * @param integer $min
- * @param integer $x
- * @param integer $max
+ * @param int $min
+ * @param int $x
+ * @param int $max
  * @return boolean
  */
-function integer_between($min, $x, $max): bool {
-	if (!is_numeric($x)) {
-		return false;
-	}
+function integer_between(int $min, int $x, int $max): bool {
 	return ($x >= $min) && ($x <= $max);
 }
 
 /**
  * Get the date in the UTC locale
  *
- * @param string $ts
+ * @param ?int $ts
  * @return array
  * @see getdate
+ * @todo Does this do anything useful?
  */
-function utc_getdate(?int $ts): array {
+function utc_getdate(int $ts = null): array {
 	$otz = date_default_timezone_get();
 	date_default_timezone_set('UTC');
 	$result = getdate($ts);
@@ -1143,9 +1089,9 @@ function utc_getdate(?int $ts): array {
  * Parse a time in UTC locale
  *
  * @param string $ts
- * @return integer number, or null if can not parse
+ * @return ?int
  */
-function utc_parse_time($ts) {
+function utc_parse_time(string $ts): ?int {
 	$otz = date_default_timezone_get();
 	date_default_timezone_set('UTC');
 	$result = parse_time($ts);
@@ -1157,9 +1103,9 @@ function utc_parse_time($ts) {
  * Parse a time in the current locale
  *
  * @param string $ts
- * @return integer number, or null if can not parse
+ * @return ?int number, or null if can not parse
  */
-function parse_time($ts) {
+function parse_time(string $ts): ?int {
 	if (empty($ts)) {
 		return null;
 	}
@@ -1195,7 +1141,7 @@ function is_date(mixed $x): bool {
  * @return boolean
  */
 function is_email(string $email): bool {
-	return (preg_match('/^' . PREG_PATTERN_EMAIL . '$/i', $email) !== 0) ? true : false;
+	return preg_match('/^' . PREG_PATTERN_EMAIL . '$/i', $email) !== 0;
 }
 
 /**
@@ -1205,7 +1151,7 @@ function is_email(string $email): bool {
  * @return boolean
  */
 function is_phone(string $phone): bool {
-	return (preg_match('/^\s*\+?[- \t0-9.)(x]{7,}\s*$/', $phone) !== 0) ? true : false;
+	return preg_match('/^\s*\+?[- \t0-9.)(x]{7,}\s*$/', $phone) !== 0;
 }
 
 /**
@@ -1223,36 +1169,32 @@ function is_phone(string $phone): bool {
 function &apath(array $array, array|string $path, mixed $default = null, string $separator = '.'): mixed {
 	// Split the keys by $separator
 	$keys = is_array($path) ? $path : explode($separator, $path);
-	while (true) {
-		if (!is_array($array)) {
-			return $default;
-		}
+	while (is_array($array)) {
 		$key = array_shift($keys);
-		$count = count($keys);
-		if (isset($array[$key])) {
-			if ($count === 0) {
-				return $array[$key];
-			}
-			$array = &$array[$key];
-		} else {
-			return $default;
+		if (!array_key_exists($key, $array)) {
+			break;
 		}
+		if (count($keys) === 0) {
+			return $array[$key];
+		}
+		$array = &$array[$key];
 	}
+	return $default;
 }
 
 /**
  * Partner of apath - sets an array path to a specific value
  *
- * @param array $current
- * @param string $path A path into the array separated by $separator (e.g. "document.title")
+ * @param array $array
+ * @param array|string $path A path into the array separated by $separator (e.g. "document.title")
  * @param mixed $value Value to set the path in the tree. Use null to delete the target item.
  * @param string $separator Character used to separate levels in the array
- * @return array|mixed
+ * @return mixed
  */
 function &apath_set(array &$array, string|array $path, mixed $value = null, string $separator = '.'): mixed {
 	if ($value === null) {
-		zesk()->deprecated('apath_set null to unset is deprecated');
-		apath_unset($array, to_list($path, $separator));
+		zesk()->deprecated('use apath_unset');
+		apath_unset($array, toList($path, $separator));
 		return $array;
 	}
 	$current = &$array;
@@ -1303,42 +1245,25 @@ function apath_unset(array &$array, array $keys): bool {
 	return true;
 }
 
-if (!function_exists('sgn')) {
-	/**
-	 * Returns the sign of an integer or floating-point number
-	 * Thought this was a part of the PHP core, but apparently not.
-	 *
-	 * @param number $value
-	 * @return number|NULL
-	 */
-	function sgn(int|float $value): int {
-		if ($value > 0) {
-			return 1;
-		}
-		if ($value < 0) {
-			return -1;
-		}
-		return 0;
-	}
-}
+const ZESK_INTERNAL_WEIGHT_FIRST = 'zesk-first';
+const ZESK_WEIGHT_FIRST = 'first';
+const ZESK_WEIGHT_LAST = 'last';
+const ZESK_INTERNAL_WEIGHT_LAST = 'zesk-last';
 
 /**
  * Convert our special weights into a number
  *
- * @param string|float|null $weight
+ * @param string|float|int $weight
  * @return float
  */
-function zesk_weight(string|float|null $weight): array|float {
-	static $weight_specials = [
-		'zesk-first' => -1e300,
-		'first' => -1e299,
-		'last' => 1e299,
-		'zesk-last' => 1e300,
+function zesk_weight(string|float|int $weight): float {
+	static $weights = [
+		ZESK_INTERNAL_WEIGHT_FIRST => -1e300,
+		ZESK_WEIGHT_FIRST => -1e299,
+		ZESK_WEIGHT_LAST => 1e299,
+		ZESK_INTERNAL_WEIGHT_LAST => 1e300,
 	];
-	if ($weight === null) {
-		return $weight_specials;
-	}
-	return floatval($weight_specials[strval($weight)] ?? $weight);
+	return floatval($weights[strval($weight)] ?? $weight);
 }
 
 /**
@@ -1357,11 +1282,11 @@ function zesk_weight(string|float|null $weight): array|float {
  *
  * @param array $a
  * @param array $b
- * @return integer
+ * @return int
  * @see uasort
  * @see usort
  */
-function zesk_sort_weight_array(array $a, array $b) {
+function zesk_sort_weight_array(array $a, array $b): int {
 	// Get weight a, convert to double
 	$aw = array_key_exists('weight', $a) ? zesk_weight($a['weight']) : 0;
 
@@ -1379,9 +1304,9 @@ function zesk_sort_weight_array(array $a, array $b) {
  *
  * @param array $a
  * @param array $b
- * @return number
+ * @return int
  */
-function zesk_sort_weight_array_reverse(array $a, array $b) {
+function zesk_sort_weight_array_reverse(array $a, array $b): int {
 	return zesk_sort_weight_array($b, $a);
 }
 
@@ -1391,15 +1316,14 @@ function zesk_sort_weight_array_reverse(array $a, array $b) {
  * @param string $key
  * @return array
  */
-function _zesk_global_key($key) {
-	$key = explode(ZESK_GLOBAL_KEY_SEPARATOR, strtr(strtolower($key), [
+function _zesk_global_key(string $key): array {
+	return explode(ZESK_GLOBAL_KEY_SEPARATOR, strtr(strtolower($key), [
 		'__' => ZESK_GLOBAL_KEY_SEPARATOR,
 		'.' => '_',
 		'/' => '_',
 		'-' => '_',
 		' ' => '_',
 	]));
-	return $key;
 }
 
 /**
@@ -1408,7 +1332,7 @@ function _zesk_global_key($key) {
  * @param string $key
  * @return string
  */
-function zesk_global_key_normalize($key) {
+function zesk_global_key_normalize(string $key): string {
 	return implode(ZESK_GLOBAL_KEY_SEPARATOR, _zesk_global_key($key));
 }
 
@@ -1420,6 +1344,27 @@ function zesk_global_key_normalize($key) {
 function is_windows(): bool {
 	return PATH_SEPARATOR === '\\';
 }
+
+/**
+ * For classes which are serialized but do not want to serialize the Application, use this
+ * to restore it upon __wakeup
+ */
+function __wakeup_application(): Application {
+	return Kernel::singleton()->application();
+}
+
+/*---------------------------------------------------------------------------------------------------------*\
+  ---------------------------------------------------------------------------------------------------------
+  ---------------------------------------------------------------------------------------------------------
+		 _                               _           _
+	  __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
+	 / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
+	| (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
+	 \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
+			   |_|
+  ---------------------------------------------------------------------------------------------------------
+  ---------------------------------------------------------------------------------------------------------
+\*---------------------------------------------------------------------------------------------------------*/
 
 /**
  * Get our global application
@@ -1434,10 +1379,62 @@ function app(): Application {
 	return $kernel->application();
 }
 
+
 /**
- * For classes which are serialized but do not want to serialize the Application, use this
- * to restore it upon __wakeup
+ * Converts a string to a list via explode.
+ * If it's already an array, return it. Otherwise, return the default.
+ *
+ * @param mixed $mixed
+ *            Array or string to convert to a "list"
+ * @param mixed $default
+ *            Value to return if not a string or array
+ * @param string $delimiter
+ *            String list delimiter (";" is default)
+ * @return array or $default
+ * @deprecated 2022-05
  */
-function __wakeup_application(): Application {
-	return Kernel::singleton()->application();
+function to_list(mixed $mixed, array $default = [], string $delimiter = ';'): array {
+	return toList($mixed, $default, $delimiter);
+}
+
+/**
+ * Converts a scalar to an array.
+ * Returns default for values of null or false.
+ *
+ * @param mixed $mixed
+ *            If false or null, returns default value
+ * @param mixed $default
+ *            Default value to return if can't easily convert to an array.
+ * @return array
+ * @deprecated 2022-02 PSR
+ */
+function to_array(mixed $mixed, array $default = []): array {
+	return toArray($mixed, $default);
+}
+
+/**
+ * Ensures a value is an integer value.
+ * If not, the default value is returned.
+ *
+ * @param mixed $s
+ *            Value to convert to integer
+ * @param mixed $def
+ *            The default value. Not converted to integer.
+ * @return integer The integer value, or $def if it can not be converted to an integer
+ * @deprecated 2022-05
+ */
+function to_integer(mixed $s, int $def = 0): int {
+	return toInteger($s, $def);
+}
+
+/**
+ * Convert to a boolean or null if not able to be parsed
+ *
+ * @param mixed $value
+ * @param bool|null $default
+ * @return bool|null
+ * @deprecated 2022-05
+ */
+function to_bool(mixed $value, bool $default = null): ?bool {
+	return toBool($value, $default);
 }

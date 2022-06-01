@@ -2,7 +2,7 @@
 /**
  *
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -20,7 +20,7 @@ $is_empty = false;
 
 try {
 	$timestamp = new Timestamp($this->value);
-	$is_empty = $timestamp->is_empty();
+	$is_empty = $timestamp->isEmpty();
 } catch (Exception_Convert $e) {
 	$is_empty = true;
 }
@@ -45,4 +45,4 @@ $format = map($format, $map);
 
 $result = $timestamp->format($locale, $format);
 
-echo $this->object->apply_map($result);
+echo $this->object->applyMap($result);

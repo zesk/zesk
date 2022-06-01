@@ -21,7 +21,7 @@ class Service extends Hookable {
 	 */
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 	}
 
 	/**
@@ -33,9 +33,9 @@ class Service extends Hookable {
 	public static function valid_type(Application $application, $type = null) {
 		if (self::$valid_types === null) {
 			$service_class = __NAMESPACE__ . '\\Service';
-			$types = ArrayTools::change_value_case($application->classes->register($service_class));
-			$types = ArrayTools::unprefix($types, strtolower($service_class) . '_');
-			self::$valid_types = ArrayTools::flip_copy($types);
+			$types = ArrayTools::changeValueCase($application->classes->register($service_class));
+			$types = ArrayTools::valuesRemovePrefix($types, strtolower($service_class) . '_');
+			self::$valid_types = ArrayTools::valuesFlipCopy($types);
 		}
 		return $type === null ? self::$valid_types : array_key_exists(strtolower($type), self::$valid_types);
 	}

@@ -51,7 +51,7 @@ class Method extends Options {
 				]);
 			}
 		}
-		$this->depends = $this->option_list('depends');
+		$this->depends = $this->optionIterable('depends');
 		if (count($this->depends) > 0) {
 			if ($this->data_provider_method) {
 				throw new Exception_Semantics('@dataProvider {method} and @depends {depends} specified in test {name}', [

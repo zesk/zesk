@@ -5,7 +5,7 @@
  * @package zesk
  * @subpackage objects
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -37,26 +37,26 @@ class Contact extends ORM {
 	}
 
 	public function full_name($default = '') {
-		if (!$this->member_is_empty('person')) {
+		if (!$this->memberIsEmpty('person')) {
 			$result = $this->Person->full_name();
 			if ($result) {
 				return $result;
 			}
 		}
-		if (!$this->member_is_empty('email')) {
+		if (!$this->memberIsEmpty('email')) {
 			return $this->email->value;
 		}
 		return $default;
 	}
 
 	public function greeting_name($default = '') {
-		if (!$this->member_is_empty('person')) {
+		if (!$this->memberIsEmpty('person')) {
 			$result = $this->person->greeting_name();
 			if ($result) {
 				return $result;
 			}
 		}
-		if (!$this->member_is_empty('Email')) {
+		if (!$this->memberIsEmpty('Email')) {
 			return $this->email->Value;
 		}
 		return $default;
@@ -65,10 +65,10 @@ class Contact extends ORM {
 	public function store(): self {
 		$is_new = $this->is_new();
 		if ($is_new) {
-			if ($this->member_is_empty('account')) {
-				$this->account = $this->application->model_singleton($this->option('account_model_singleton_class', 'zesk\\Account'));
+			if ($this->memberIsEmpty('account')) {
+				$this->account = $this->application->modelSingleton($this->option('account_model_singleton_class', 'zesk\\Account'));
 			}
-			if ($this->member_is_empty('user')) {
+			if ($this->memberIsEmpty('user')) {
 				$this->user = $this->application->user(null, false);
 			}
 			$this->accounts = $this->account;
@@ -117,7 +117,7 @@ class Contact extends ORM {
 	}
 
 	public function is_verified() {
-		return !$this->member_is_empty('Verified');
+		return !$this->memberIsEmpty('Verified');
 	}
 
 	public function is_connected(User $user) {

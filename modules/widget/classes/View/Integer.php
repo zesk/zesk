@@ -3,14 +3,14 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 15:59:24 EDT 2008
  */
 namespace zesk;
 
 class View_Integer extends View {
-	public function render() {
-		$showSize = $this->show_size();
+	public function render(): string {
+		$showSize = $this->showSize();
 		$v = $this->value();
 		if ($v === null || $v === '') {
 			$v = $this->empty_string();

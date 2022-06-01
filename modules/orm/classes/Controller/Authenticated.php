@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2017, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -98,7 +98,7 @@ class Controller_Authenticated extends Controller_Theme {
 				]);
 				$this->response->status(Net_HTTP::STATUS_UNAUTHORIZED, 'Need to authenticate');
 			} else {
-				$url = URL::query_format($this->login_redirect, [
+				$url = URL::queryFormat($this->login_redirect, [
 					'ref' => $this->request->uri(),
 				]);
 

@@ -11,7 +11,7 @@ class Control_Roles extends Control_Checklist_Object {
 	public function initialize(): void {
 		parent::initialize();
 
-		if (!$this->user_can('zesk\\Role::view_all')) {
+		if (!$this->userCan('zesk\\Role::view_all')) {
 			$this->options['where'] = [
 				'OR' => [
 					'X.visibility' => 1,

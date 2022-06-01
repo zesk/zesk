@@ -46,7 +46,7 @@ abstract class Server_Files {
 	 * Create directory
 	 *
 	 * @param string $pathname
-	 * @param integer $mode
+	 * @param int $mode
 	 *        	Mode of path
 	 * @param boolean $recursive
 	 */
@@ -56,7 +56,7 @@ abstract class Server_Files {
 	 * Change mode of path
 	 *
 	 * @param string $path
-	 * @param integer $mode
+	 * @param int $mode
 	 */
 	abstract public function chmod($path, $mode);
 

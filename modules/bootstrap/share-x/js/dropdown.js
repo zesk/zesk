@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage Control_Dropdown
  * @author Kent M. Davidson http://www.razzed.com/
- * @copyright Copyright &copy; 2016, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

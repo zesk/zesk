@@ -3,14 +3,12 @@ declare(strict_types=1);
 
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * @package zesk
  * @subpackage database
  */
 
 namespace zesk;
-
-use JetBrains\PhpStorm\Pure;
 
 /**
  *
@@ -179,7 +177,7 @@ class Database_Table extends Hookable {
 	 */
 	public function type(): string {
 		if (empty($this->type)) {
-			return $this->database->default_engine();
+			return $this->database->defaultEngine();
 		}
 		return $this->type;
 	}
@@ -188,19 +186,9 @@ class Database_Table extends Hookable {
 	 * Default index structure for table (e.g.
 	 * BTREE, etc.)
 	 * @return string
-	 * @deprecated 2022-01
-	 */
-	public function default_index_structure(): string {
-		return $this->defaultIndexStructure();
-	}
-
-	/**
-	 * Default index structure for table (e.g.
-	 * BTREE, etc.)
-	 * @return string
 	 */
 	public function defaultIndexStructure(): string {
-		return $this->database->default_index_structure($this->type);
+		return $this->database->defaultIndexStructure($this->type);
 	}
 
 	/**
@@ -379,14 +367,18 @@ class Database_Table extends Hookable {
 	/**
 	 * @param string $name
 	 * @return Database_Index
-	 * @throws Exception_NotFound
+	 * @throws Exception_NotFound|Exception_Key
 	 */
 	public function removeIndex(string $name): Database_Index {
 		$index = $this->index($name);
 		if ($index->type() === Database_Index::TYPE_PRIMARY) {
 			if ($this->primary) {
 				assert($index === $this->primary);
-				$this->removePrimaryIndex();
+
+				try {
+					$this->removePrimaryIndex();
+				} catch (Exception_Key) {
+				}
 			}
 			$this->setPrimaryIndex($index);
 		}
@@ -427,7 +419,6 @@ class Database_Table extends Hookable {
 	 */
 	public function columnAdd(Database_Column $dbCol): self {
 		$column = $dbCol->name();
-		assert($column !== null);
 		if (array_key_exists($column, $this->columns)) {
 			throw new Exception_Semantics('Database_Table::column_add({column}) already exists in {table}', [
 				'column' => $column,
@@ -465,7 +456,7 @@ class Database_Table extends Hookable {
 	 * @param Database_Table $old_table
 	 * @return array
 	 */
-	public function sql_alter(Database_Table $old_table) {
+	public function sql_alter(Database_Table $old_table): array {
 		$result = [];
 		$oldTableType = $old_table->type();
 		$newTableType = $this->type();
@@ -475,7 +466,7 @@ class Database_Table extends Hookable {
 			'old' => $oldTableType,
 			'new' => $newTableType,
 		]);
-		if (!$this->table_attributes_is_similar($old_table)) {
+		if (!$this->isTableAttributesSimilar($old_table)) {
 			$result[] = $this->database->sql()->alter_table_attributes($this, $this->options());
 		}
 		return $result;
@@ -486,14 +477,14 @@ class Database_Table extends Hookable {
 	 * @param bool $debug
 	 * @return bool
 	 */
-	private function table_attributes_is_similar(Database_Table $that, bool $debug = false): bool {
+	private function isTableAttributesSimilar(Database_Table $that, bool $debug = false): bool {
 		$logger = $this->application->logger;
-		$defaults = $this->database->table_attributes();
+		$defaults = $this->database->tableAttributes();
 		$this_attributes = $this->options($defaults);
 		$that_attributes = $that->options($defaults);
 		if ($this_attributes !== $that_attributes) {
 			if ($debug) {
-				$logger->debug('Database_Table::is_similar({this_name}): Mismatched attributes: {this} != {that}', [
+				$logger->debug('Database_Table::isSimilar({this_name}): Mismatched attributes: {this} != {that}', [
 					'this' => $this_attributes,
 					'that' => $that_attributes,
 					'this_name' => $this->name,
@@ -506,15 +497,6 @@ class Database_Table extends Hookable {
 	}
 
 	/**
-	 * @param Database_Table $that
-	 * @param bool $debug
-	 * @return bool
-	 */
-	public function is_similar(Database_Table $that, bool $debug = false): bool {
-		return $this->isSimilar($that, $debug);
-	}
-
-	/**
 	 *
 	 * @param Database_Table $that
 	 * @param bool $debug
@@ -522,18 +504,18 @@ class Database_Table extends Hookable {
 	 */
 	public function isSimilar(Database_Table $that, bool $debug = false): bool {
 		$logger = $this->application->logger;
-		if (!$this->table_attributes_is_similar($that, $debug)) {
+		if (!$this->isTableAttributesSimilar($that, $debug)) {
 			return false;
 		}
 		if (($this_count = count($this->columns())) !== ($that_count = count($that->columns()))) {
 			if ($debug) {
-				$logger->debug("Database_Table::is_similar($this->name): Column Counts: $this_count != $that_count");
+				$logger->debug("Database_Table::isSimilar($this->name): Column Counts: $this_count != $that_count");
 			}
 			return false;
 		}
 		if (($this_count = count($this->indexes())) !== ($that_count = count($that->indexes()))) {
 			if ($debug) {
-				$logger->debug("Database_Table::is_similar($this->name): Index Counts: $this_count != $that_count");
+				$logger->debug("Database_Table::isSimilar($this->name): Index Counts: $this_count != $that_count");
 			}
 			return false;
 		}
@@ -545,16 +527,17 @@ class Database_Table extends Hookable {
 		foreach ($thisColumns as $k => $thisCol) {
 			/* @var $thisCol Database_Column */
 			/* @var $thatCol Database_Column */
-			$thatCol = $that->column($k);
-			if (!$thatCol) {
-				if ($debug) {
-					$logger->debug("Database_Table::is_similar($this->name): No that column $k");
+			try {
+				$thatCol = $that->column($k);
+				if (!$thisCol->isSimilar($this->database, $thatCol, $debug)) {
+					if ($debug) {
+						$logger->debug("Database_Table::isSimilar($this->name): Dissimilar column $k");
+					}
+					return false;
 				}
-				return false;
-			}
-			if (!$thisCol->isSimilar($this->database, $thatCol, $debug)) {
+			} catch (Exception_Key) {
 				if ($debug) {
-					$logger->debug("Database_Table::is_similar($this->name): Dissimilar column $k");
+					$logger->debug("Database_Table::isSimilar($this->name): No target column $k");
 				}
 				return false;
 			}
@@ -568,25 +551,25 @@ class Database_Table extends Hookable {
 		foreach ($this_indexes as $k => $this_index) {
 			if (!isset($thatIndexes[$k])) {
 				if ($debug) {
-					$logger->debug("Database_Table::is_similar($this->name): No that index $k");
+					$logger->debug("Database_Table::isSimilar($this->name): No that index $k");
 				}
 				return false;
 			}
-			if (!$this_index->is_similar($thatIndexes[$k])) {
+			if (!$this_index->isSimilar($thatIndexes[$k])) {
 				if ($debug) {
-					$logger->debug("Database_Table::is_similar($this->name): Dissimilar index $k");
+					$logger->debug("Database_Table::isSimilar($this->name): Dissimilar index $k");
 				}
 				return false;
 			}
 		}
 
-		$extras = $this->database->table_attributes();
+		$extras = $this->database->tableAttributes();
 		foreach ($extras as $extra => $default) {
 			$this_value = $this->option($extra, $default);
 			$that_value = $that->option($extra, $default);
 			if ($this_value !== $that_value) {
 				if ($debug) {
-					$logger->debug("Database_Table::is_similar($this->name): $extra: $this_value !== $that_value");
+					$logger->debug("Database_Table::isSimilar($this->name): $extra: $this_value !== $that_value");
 				}
 				return false;
 			}
@@ -601,7 +584,7 @@ class Database_Table extends Hookable {
 	 * @return array
 	 */
 	public function sqlCreate(): array {
-		$result = $this->database->sql()->create_table($this);
+		$result = $this->database->sql()->createTable($this);
 		$result[] = '-- database type ' . $this->database->type();
 		$result[] = '-- sql ' . get_class($this->database->sql());
 		$result = array_merge($result, $this->actionSQL('create'));
@@ -652,7 +635,7 @@ class Database_Table extends Hookable {
 	 * @return array
 	 */
 	public function actionSQL(string $action): array {
-		return self::_validate_action($action) ? $this->on[$action] ?? [] : [];
+		return self::_validate_action($action) ? toArray($this->on[$action] ?? []) : [];
 	}
 
 	/**
@@ -671,7 +654,7 @@ class Database_Table extends Hookable {
 	 * {@inheritDoc}
 	 * @see Options::__toString()
 	 */
-	public function __toString() {
+	public function __toString(): string {
 		return $this->name();
 	}
 
@@ -680,7 +663,7 @@ class Database_Table extends Hookable {
 	 */
 	public function variables(): array {
 		return [
-			'database_name' => $this->database->code_name(),
+			'database_name' => $this->database->codeName(),
 			'columns' => $this->columnNames(),
 			'name' => $this->name(),
 			'type' => $this->type(),
@@ -693,109 +676,8 @@ class Database_Table extends Hookable {
 	 */
 	public function _debug_dump(): string {
 		$dump = get_object_vars($this);
-		$dump['database'] = $this->database ? $this->database->code_name() : null;
-		$dump['primary'] = $this->primary ? $this->primary->name() : null;
+		$dump['database'] = $this->database?->codeName();
+		$dump['primary'] = $this->primary?->name();
 		return 'Object ' . __CLASS__ . " (\n" . Text::indent(_dump($dump, true)) . "\n)";
-	}
-
-	/*---------------------------------------------------------------------------------------------------------*\
-	  ---------------------------------------------------------------------------------------------------------
-	  ---------------------------------------------------------------------------------------------------------
-			 _                               _           _
-		  __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
-		 / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
-		| (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
-		 \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
-				   |_|
-	  ---------------------------------------------------------------------------------------------------------
-	  ---------------------------------------------------------------------------------------------------------
-	\*---------------------------------------------------------------------------------------------------------*/
-
-	/**
-	 * Index exists in table?
-	 * @param string $name
-	 * @return bool
-	 * @deprecated 2022-01
-	 */
-	public function has_index(string $name): bool {
-		return $this->hasIndex($name);
-	}
-
-	/**
-	 * @param Database_Column $dbCol
-	 * @return $this
-	 * @throws Exception_Semantics
-	 * @deprecated 2022-01
-	 */
-	public function column_add(Database_Column $dbCol): self {
-		return $this->columnAdd($dbCol);
-	}
-
-	/**
-	 *
-	 * @param Database_Index $index
-	 */
-	public function index_add(Database_Index $index): self {
-		return $this->addIndex($index);
-	}
-
-	/**
-	 * @param array $indexes
-	 * @deprecated 2022-01
-	 */
-	public function set_indexes(array $indexes): void {
-		foreach ($indexes as $v) {
-			$this->addIndex($v);
-		}
-	}
-
-	/**
-	 * Return array of column names
-	 * @return string[]
-	 * @deprecated 2022-01
-	 */
-	public function column_names(): array {
-		return $this->columnNames();
-	}
-
-	/**
-	 * Retieve the previous column definition for a column
-	 *
-	 * @param string $name
-	 * @return ?Database_Column
-	 * @deprecated 2022-01
-	 */
-	public function previous_column(string $find_name): ?Database_Column {
-		return $this->previousColumn($find_name);
-	}
-
-	/**
-	 * Has column
-	 *
-	 * @param string $name
-	 * @return boolean
-	 * @deprecated 2022-01
-	 *
-	 */
-	public function has_column(string $name): bool {
-		return $this->hasColumn($name);
-	}
-
-	/**
-	 * @param string $action
-	 * @param array $sqls
-	 * @return self
-	 * @deprecated 2022-01
-	 */
-	public function on_action(string $action, array $sqls): self {
-		return $this->addActionSQL($action, $sqls);
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 2022-01
-	 */
-	public function create_sql(): array {
-		return $this->sqlCreate();
 	}
 }

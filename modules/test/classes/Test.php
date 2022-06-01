@@ -160,7 +160,7 @@ class Test extends Hookable {
 	 */
 	private function begin_test(Method $test, array $arguments = []): void {
 		if ($this->test !== null) {
-			throw new Exception_Semantics('{method}({name}): Already started test {this_name}', $test->variables() + ArrayTools::kprefix($this->test->variables(), 'this_') + ['method' => __METHOD__, ]);
+			throw new Exception_Semantics('{method}({name}): Already started test {this_name}', $test->variables() + ArrayTools::prefixKeys($this->test->variables(), 'this_') + ['method' => __METHOD__, ]);
 		}
 		$this->stats['test']++;
 		$this->test = $test;
@@ -1111,7 +1111,7 @@ class Test extends Hookable {
 			}
 			$headers[] = $header;
 		}
-		$rows = $db->query_array('SELECT ' . implode(',', $headers) . " FROM $table");
+		$rows = $db->queryArray('SELECT ' . implode(',', $headers) . " FROM $table");
 		$this->assert_arrays_equal($rows, $dbrows, "Matching $table to row values", false);
 	}
 
@@ -1226,7 +1226,7 @@ class Test extends Hookable {
 		foreach (to_list($classes) as $class) {
 			$class_object = $app->class_orm_registry($class);
 			$db = $class_object->database();
-			$results[$class] = $db->query($app->orm_module()->schema_synchronize($db, [$class, ], $options + ['follow' => true, ]));
+			$results[$class] = $db->queries($app->orm_module()->schema_synchronize($db, [$class, ], $options + ['follow' => true, ]));
 		}
 		return $results;
 	}
@@ -1248,7 +1248,7 @@ class Test extends Hookable {
 
 		$loader->load();
 
-		if (to_bool($configuration->path_get('zesk\\Command_Test::debug_config'))) {
+		if (toBool($configuration->path_get('zesk\\Command_Test::debug_config'))) {
 			echo "Loaded configuration file:\n";
 			echo Text::format_pairs($settings);
 		}

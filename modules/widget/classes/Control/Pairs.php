@@ -15,8 +15,8 @@ class Control_Pairs extends Control {
 
 	private function _from_request() {
 		$col = $this->column();
-		$names = $this->request->geta($col);
-		$values = $this->request->geta($col . '_value');
+		$names = $this->request->getArray($col);
+		$values = $this->request->getArray($col . '_value');
 		$result = [];
 		foreach ($names as $k => $name) {
 			$value = avalue($values, $k);

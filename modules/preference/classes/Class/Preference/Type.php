@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage user
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -16,6 +18,8 @@ namespace zesk;
  */
 class Class_Preference_Type extends Class_ORM {
 	public string $id_column = 'id';
+
+	public string $name_column = 'name';
 
 	public array $column_types = [
 		'id' => self::type_id,

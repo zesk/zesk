@@ -91,7 +91,7 @@ class Parser {
 
 	/**
 	 *
-	 * @param integer $index
+	 * @param int $index
 	 * @param mixed $add
 	 * @return self
 	 */
@@ -214,7 +214,7 @@ class Parser {
 						if ($divisor < 0) {
 							$next_value = $next->month() + ($next->year() * 12);
 						} else {
-							$next_value = intval($next->unix_timestamp() / $divisor);
+							$next_value = intval($next->unixTimestamp() / $divisor);
 						}
 						$mod = $next_value % $interval;
 						if ($debug) {
@@ -223,7 +223,7 @@ class Parser {
 						if ($mod === 0) {
 							$match[$cindex] = '1';
 						} else {
-							$next->add_unit($$interval - $mod, $unit);
+							$next->addUnit($$interval - $mod, $unit);
 							$match = $default_match;
 							$match[$cindex] = '1';
 
@@ -257,7 +257,7 @@ class Parser {
 						if ($match[$cindex] !== '1') {
 							$next->unit($unit, ($unit == 'day' || $unit == 'month') ? 1 : 0);
 							if ($next_unit) {
-								$next->add_unit(1, $next_unit);
+								$next->addUnit(1, $next_unit);
 							}
 							$match = $default_match;
 
@@ -302,8 +302,8 @@ class Parser {
 		//  Every 3 days
 		$short_months = Date::month_names($locale, 'en', true);
 		$short_dow = Date::weekday_names($locale, 'en', true);
-		$short_months = ArrayTools::change_value_case($short_months);
-		$short_dow = ArrayTools::change_value_case($short_dow);
+		$short_months = ArrayTools::changeValueCase($short_months);
+		$short_dow = ArrayTools::changeValueCase($short_dow);
 		//		$original_text = $text;
 		$text = preg_replace('/[,-]/', ' ', strtolower(trim($text)));
 		$text = preg_replace('/\s+/', ' ', $text);

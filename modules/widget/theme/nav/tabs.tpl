@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -17,7 +17,7 @@ namespace zesk;
 $upload = $widget ? $widget->upload() : false;
 
 $form = [
-	'class' => CSS::add_class('form-horizontal', $this->class),
+	'class' => CSS::addClass('form-horizontal', $this->class),
 	'action' => $this->request->path(),
 	'method' => 'post',
 	'enctype' => $upload ? 'multipart/form-data' : '',
@@ -92,10 +92,10 @@ $title = $response->html()->title();
 		$errors = $widget->children_errors();
 		$name = $widget->column();
 		$item_class = $name === $selected_tab ? 'active' : '';
-		$item_class = CSS::add_class($item_class, $widget->context_class());
+		$item_class = CSS::addClass($item_class, $widget->contextClass());
 		echo HTML::tag('li', [
 			'id' => 'nav-link-' . $widget->id(),
-			'class' => CSS::add_class($item_class, count($errors) > 0 ? 'error' : ''),
+			'class' => CSS::addClass($item_class, count($errors) > 0 ? 'error' : ''),
 		], HTML::tag('a', [
 			'href' => '#' . $name,
 			'data-toggle' => 'tab',

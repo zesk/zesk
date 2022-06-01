@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage server
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2014, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -90,12 +90,12 @@ class Lock extends ORM {
 		$n_rows = $application->orm_registry(__CLASS__)
 			->query_delete()
 			->where([
-			'used|<=' => Timestamp::now()->add_unit(-1, Timestamp::UNIT_DAY),
+			'used|<=' => Timestamp::now()->addUnit(-1, Timestamp::UNIT_DAY),
 			'server' => null,
 			'pid' => null,
 		])
 			->execute()
-			->affected_rows();
+			->affectedRows();
 		if ($n_rows > 0) {
 			$application->logger->notice('Deleted {n_rows} {locks} which were unused in the past 24 hours.', [
 				'n_rows' => $n_rows,
@@ -105,7 +105,7 @@ class Lock extends ORM {
 		return $n_rows;
 	}
 
-	private static function release_lock(Lock $lock, $context=''): void {
+	private static function releaseLock(Lock $lock, $context=''): void {
 		$server_id = $lock->member_integer('server');
 		$lock->release();
 		$lock->application->logger->notice('Releasing lock #{id} {code} associated with defunct server # {server_id} (current server ids: {context})', $lock->variables() + [
@@ -126,10 +126,10 @@ class Lock extends ORM {
 		}
 		$iterator = $application->orm_registry(__CLASS__)
 			->query_select()
-			->where('X.server|!=|AND', $server_ids)
+			->addWhere('X.server|!=|AND', $server_ids)
 			->orm_iterator();
 		foreach ($iterator as $lock) {
-			self::release_lock($lock, implode(',', $server_ids));
+			self::releaseLock($lock, implode(',', $server_ids));
 			++$n_rows;
 		}
 		return $n_rows;
@@ -140,7 +140,7 @@ class Lock extends ORM {
 	 */
 	public static function delete_dead_pids(Application $application): void {
 		$timeout_seconds = -abs($application->configuration->path_get(__CLASS__ . '::timeout_seconds', 100));
-		$you_are_dead_to_me = Timestamp::now()->add_unit($timeout_seconds, Timestamp::UNIT_SECOND);
+		$you_are_dead_to_me = Timestamp::now()->addUnit($timeout_seconds, Timestamp::UNIT_SECOND);
 		$iterator = $application->orm_registry(__CLASS__)
 			->query_select()
 			->where([
@@ -196,7 +196,7 @@ class Lock extends ORM {
 	 * Acquire a lock or throw an Exception_Lock
 	 *
 	 * @param string $code
-	 * @param integer $timeout
+	 * @param int $timeout
 	 *        	Optional timeout
 	 * @throws Exception_Lock
 	 * @return Lock
@@ -242,9 +242,9 @@ class Lock extends ORM {
 	 */
 	public static function server_delete(Server $server): void {
 		$application = $server->application;
-		$query = $application->orm_registry(__CLASS__)->query_delete()->where('server', $server);
+		$query = $application->orm_registry(__CLASS__)->query_delete()->addWhere('server', $server);
 		$query->execute();
-		if (($n_rows = $query->affected_rows()) > 0) {
+		if (($n_rows = $query->affectedRows()) > 0) {
 			$application->logger->warning('Deleted {n} {locks} associated with server {name} (#{id})', [
 				'n' => $n_rows,
 				'locks' => $application->locale->plural(__CLASS__, $n_rows),
@@ -267,7 +267,7 @@ class Lock extends ORM {
 	 * Locked by SOMEONE ELSE
 	 */
 	public function is_locked() {
-		if ($this->member_is_empty('pid') && $this->member_is_empty('server')) {
+		if ($this->memberIsEmpty('pid') && $this->memberIsEmpty('server')) {
 			return false;
 		}
 		return $this->_is_locked();
@@ -398,7 +398,7 @@ class Lock extends ORM {
 	/**
 	 * Loop and try to get lock
 	 *
-	 * @param integer $timeout
+	 * @param int $timeout
 	 * @throws Exception_Timeout
 	 */
 	private function _acquire($timeout) {
@@ -470,7 +470,7 @@ class Lock extends ORM {
 	 * @return boolean
 	 */
 	private function _is_free() {
-		return $this->member_is_empty('pid') && $this->member_is_empty('server');
+		return $this->memberIsEmpty('pid') && $this->memberIsEmpty('server');
 	}
 
 	/**

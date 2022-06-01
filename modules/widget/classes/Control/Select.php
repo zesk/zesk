@@ -5,7 +5,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2014, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -31,10 +31,10 @@ class Control_Select extends Control_Optionss {
 	protected function initialize(): void {
 		parent::initialize();
 		if ($this->control_options === null) {
-			$this->control_options = $this->option_array('options', []);
+			$this->control_options = $this->optionArray('options', []);
 		}
 		$options = $this->control_options;
-		$preferred = $this->option_array('preferred_keys');
+		$preferred = $this->optionArray('preferred_keys');
 		if (count($preferred)) {
 			$preferred_options = [];
 			foreach ($preferred as $key) {
@@ -116,7 +116,7 @@ class Control_Select extends Control_Optionss {
 	 * @return self|boolean
 	 */
 	public function multiple($set = null) {
-		return ($set !== null) ? $this->setOption('multiple', to_bool($set)) : $this->optionBool('multiple', false);
+		return ($set !== null) ? $this->setOption('multiple', toBool($set)) : $this->optionBool('multiple', false);
 	}
 
 	/**
@@ -126,7 +126,7 @@ class Control_Select extends Control_Optionss {
 	 * @return void|mixed|boolean
 	 */
 	public function hide_single($set = null) {
-		return ($set !== null) ? $this->setOption('hide_single', to_bool($set)) : $this->optionBool('hide_single', true);
+		return ($set !== null) ? $this->setOption('hide_single', toBool($set)) : $this->optionBool('hide_single', true);
 	}
 
 	/**
@@ -136,7 +136,7 @@ class Control_Select extends Control_Optionss {
 	 * @return boolean|self
 	 */
 	public function hide_single_text($set = null) {
-		return ($set !== null) ? $this->setOption('hide_single_text', to_bool($set)) : $this->optionBool('hide_single_text');
+		return ($set !== null) ? $this->setOption('hide_single_text', toBool($set)) : $this->optionBool('hide_single_text');
 	}
 
 	/**
@@ -163,11 +163,11 @@ class Control_Select extends Control_Optionss {
 	}
 
 	public function single_tag_attributes(array $set = null) {
-		return ($set !== null) ? $this->setOption('single_tag_attributes', $set) : $this->option_array('single_tag_attributes');
+		return ($set !== null) ? $this->setOption('single_tag_attributes', $set) : $this->optionArray('single_tag_attributes');
 	}
 
 	public function validate() {
-		if (to_bool(avalue($this->options, 'disabled'))) {
+		if (toBool(avalue($this->options, 'disabled'))) {
 			return true;
 		}
 		// If nothing was submitted, then we are still valid.
@@ -178,7 +178,7 @@ class Control_Select extends Control_Optionss {
 		$value = $this->value();
 		if ($this->option('refresh', false)) {
 			$continue = $this->name() . '_sv';
-			if ($this->request->getb($continue)) {
+			if ($this->request->getBool($continue)) {
 				$this->message($this->option('refresh_message', __('Form has been updated, check your settings.')));
 				return false;
 			}
@@ -240,13 +240,13 @@ class Control_Select extends Control_Optionss {
 	}
 
 	public function escape_values($set = null) {
-		return $set !== null ? $this->setOption('escape_values', to_bool($set)) : $this->optionBool('escape_values', self::default_escape_values);
+		return $set !== null ? $this->setOption('escape_values', toBool($set)) : $this->optionBool('escape_values', self::default_escape_values);
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
 			'escape_values' => $this->escape_values(),
 			'multiple' => $this->multiple(),
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 }

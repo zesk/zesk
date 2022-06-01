@@ -47,9 +47,9 @@ abstract class Tag extends ORM {
 	public function reassign($old, $new) {
 		return $this->query_update('X')
 			->value('X.tag_label', $new)
-			->where('X.tag_label', $old)
+			->addWhere('X.tag_label', $old)
 			->execute()
-			->affected_rows();
+			->affectedRows();
 		;
 	}
 
@@ -95,7 +95,7 @@ abstract class Tag extends ORM {
 			'*tag_label' => $label->id(),
 			$this->foreign_column() => 'id',
 		]);
-		$query = Database_Query_Insert_Select::from_database_query_select($selected_query);
+		$query = Database_Query_Insert_Select::fromSelect($selected_query);
 		$query->into($this->table());
 		$query->replace(true);
 
@@ -138,7 +138,7 @@ abstract class Tag extends ORM {
 	 * @param Database_Query_Insert_Select $query
 	 * @return
 	 */
-	public function control_remove(Control_Tags $control, Database_Query_Delete $query) {
+	public function control_keysRemove(Control_Tags $control, Database_Query_Delete $query) {
 		return;
 	}
 }

@@ -36,24 +36,24 @@ class URL_Test extends Test_Unit {
 		}
 	}
 
-	public function test_query_append(): void {
+	public function test_queryAppend(): void {
 		$u = null;
 		$values = null;
 		$is_href = false;
-		URL::query_append($u, $values, $is_href);
+		URL::queryAppend($u, $values, $is_href);
 	}
 
-	public function test_query_format(): void {
+	public function test_queryFormat(): void {
 		$path = null;
 		$add = null;
 		$remove = null;
-		URL::query_format($path, $add, $remove);
+		URL::queryFormat($path, $add, $remove);
 	}
 
-	public function test_query_iremove(): void {
+	public function test_queryKeysRemoveInsensitive(): void {
 		$u = null;
 		$names = null;
-		URL::query_iremove($u, $names);
+		URL::queryKeysRemoveInsensitive($u, $names);
 	}
 
 	public function left_path(): void {
@@ -63,25 +63,25 @@ class URL_Test extends Test_Unit {
 		$this->assert($x === $r, "$x === $r");
 	}
 
-	public function query_remove(): void {
+	public function queryKeysRemove(): void {
 		$u = 'http://www.example.com/?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51';
 		$names = 'marker;a;abcDEF';
 		$isHREF = false;
-		$result = URL::query_remove($u, $names, $isHREF);
+		$result = URL::queryKeysRemove($u, $names, $isHREF);
 		$test_result = 'http://www.example.com/?b=def&dogfish=HEAD#marker=12&place=51';
 		$this->assert($result === $test_result, "$result === $test_result");
 
 		$u = '?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51';
 		$names = 'marker;a;abcDEF';
 		$isHREF = false;
-		$result = URL::query_remove($u, $names, $isHREF);
+		$result = URL::queryKeysRemove($u, $names, $isHREF);
 		$test_result = '?b=def&dogfish=HEAD#marker=12&place=51';
 		$this->assert($result === $test_result, "$result === $test_result");
 
 		$u = '?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51';
 		$names = 'marker;a;B;abcDEF';
 		$isHREF = false;
-		$result = URL::query_remove($u, $names, $isHREF);
+		$result = URL::queryKeysRemove($u, $names, $isHREF);
 		$test_result = '?b=def&dogfish=HEAD#marker=12&place=51';
 		$this->assert($result === $test_result, "$result === $test_result");
 	}
@@ -184,9 +184,9 @@ class URL_Test extends Test_Unit {
 		}
 	}
 
-	public function test_is_absolute(): void {
+	public function test_isAbsolute(): void {
 		$url = null;
-		URL::is_absolute($url);
+		URL::isAbsolute($url);
 	}
 
 	public function test_is_secure(): void {
@@ -305,21 +305,21 @@ class URL_Test extends Test_Unit {
 		echo basename(__FILE__) . ": success\n";
 	}
 
-	public function test_protocol_default_port(): void {
+	public function test_protocolDefaultPort(): void {
 		$x = null;
-		URL::protocol_default_port($x);
+		URL::protocolDefaultPort($x);
 
 		$this->log('URL::protocol_default_port');
-		$this->assert_equal(URL::protocol_default_port('hTtP'), 80);
-		$this->assert_equal(URL::protocol_default_port('http'), 80);
-		$this->assert_equal(URL::protocol_default_port('HTTP'), 80);
-		$this->assert_equal(URL::protocol_default_port('hTtPs'), 443);
-		$this->assert_equal(URL::protocol_default_port('https'), 443);
-		$this->assert_equal(URL::protocol_default_port('HTTPS'), 443);
-		$this->assert_equal(URL::protocol_default_port('ftp'), 21);
-		$this->assert_equal(URL::protocol_default_port('mailto'), 25);
-		$this->assert_equal(URL::protocol_default_port('file'), false);
-		$this->assert_equal(URL::protocol_default_port('foo'), false);
+		$this->assert_equal(URL::protocolDefaultPort('hTtP'), 80);
+		$this->assert_equal(URL::protocolDefaultPort('http'), 80);
+		$this->assert_equal(URL::protocolDefaultPort('HTTP'), 80);
+		$this->assert_equal(URL::protocolDefaultPort('hTtPs'), 443);
+		$this->assert_equal(URL::protocolDefaultPort('https'), 443);
+		$this->assert_equal(URL::protocolDefaultPort('HTTPS'), 443);
+		$this->assert_equal(URL::protocolDefaultPort('ftp'), 21);
+		$this->assert_equal(URL::protocolDefaultPort('mailto'), 25);
+		$this->assert_equal(URL::protocolDefaultPort('file'), false);
+		$this->assert_equal(URL::protocolDefaultPort('foo'), false);
 	}
 
 	public function test_query(): void {
@@ -328,30 +328,30 @@ class URL_Test extends Test_Unit {
 		URL::query($url, $default);
 	}
 
-	public function test_query_from_mixed(): void {
+	public function test_queryFromMixed(): void {
 		$url = null;
 		$lower = true;
-		URL::query_from_mixed($url, $lower);
+		URL::queryFromMixed($url, $lower);
 	}
 
-	public function test_query_iparse(): void {
+	public function test_queryParseInsensitive(): void {
 		$qs = null;
 		$name = null;
 		$default = null;
-		URL::query_iparse($qs, $name, $default);
+		URL::queryParseInsensitive($qs, $name, $default);
 	}
 
-	public function test_query_unparse(): void {
+	public function test_queryUnparse(): void {
 		$m = [
 			'A' => 'A',
 			'B' => 'C',
 			'D' => 'E',
 		];
-		$this->assertEquals('?A=A&B=C&D=E', URL::query_unparse($m));
+		$this->assertEquals('?A=A&B=C&D=E', URL::queryUnparse($m));
 	}
 
 	public function test_remove_password(): void {
-		$this->assert(URL::remove_password('http://joe:password@example.com/') === 'http://joe@example.com/');
+		$this->assert(URL::removePassword('http://joe:password@example.com/') === 'http://joe@example.com/');
 	}
 
 	public function test_normalize1(): void {

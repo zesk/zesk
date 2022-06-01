@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -118,7 +118,7 @@ class Controller_Forgot extends Controller_Theme {
 			]);
 		}
 
-		if (!$forgot->member_is_empty('updated')) {
+		if (!$forgot->memberIsEmpty('updated')) {
 			$this->response->status(Net_HTTP::STATUS_UNPROCESSABLE_ENTITY, 'Already used');
 			return $this->json($json + [
 				'type' => 'already',
@@ -130,7 +130,7 @@ class Controller_Forgot extends Controller_Theme {
 		return $this->json([
 			'status' => true,
 			'token' => $token,
-			'expiration' => $expiration->unix_timestamp(),
+			'expiration' => $expiration->unixTimestamp(),
 			'expiration-string' => $expiration->__toString(),
 			'timeout' => $this->request_expire_seconds(),
 		]);
@@ -142,7 +142,7 @@ class Controller_Forgot extends Controller_Theme {
 	 */
 	public function action_validate($token) {
 		$locale = $this->application->locale;
-		$prefer_json = $this->request->prefer_json();
+		$prefer_json = $this->request->preferJSON();
 		if (!preg_match('/[0-9a-f]{32}/i', $token)) {
 			$args = [
 				'token' => $token,
@@ -174,10 +174,10 @@ class Controller_Forgot extends Controller_Theme {
 		if ($forgot->id() !== $session->forgot) {
 			return $forgot->theme('same-browser');
 		}
-		if (!$forgot->member_is_empty('updated')) {
+		if (!$forgot->memberIsEmpty('updated')) {
 			return $forgot->theme('already');
 		}
 
-		return $this->control($this->widget_factory(Control_ForgotReset::class)->validate_token($token));
+		return $this->control($this->widget_factory(Control_ForgotReset::class)->validateToken($token));
 	}
 }

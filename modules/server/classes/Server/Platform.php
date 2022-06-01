@@ -348,7 +348,7 @@ abstract class Server_Platform extends Hookable {
 	 * @param string $directory
 	 * @param string $owner
 	 *        	Set owner
-	 * @param integer $permissions
+	 * @param int $permissions
 	 *        	Set unix-style permissions
 	 * @param boolean $recurse
 	 *        	Create intermediate directories as well
@@ -444,7 +444,7 @@ abstract class Server_Platform extends Hookable {
 	 *
 	 * @param string $group
 	 * @param string $members
-	 * @param integer $gid
+	 * @param int $gid
 	 * @return number Group ID created
 	 */
 	public function group_register($group, $members = null, $gid = null) {
@@ -529,7 +529,7 @@ abstract class Server_Platform extends Hookable {
 		// Store into globals
 		$this->application->configuration->paths_set($user_data);
 		// Then copy into here
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 	}
 
 	/**
@@ -1070,7 +1070,7 @@ abstract class Server_Platform extends Hookable {
 				$db = $this->application->database_registry($url);
 			} catch (Database_Exception $e) {
 				$this->application->logger->error('Need to configure DB_URL {url}: Reason {error}', [
-					'url' => URL::remove_password($url),
+					'url' => URL::removePassword($url),
 					'error' => $e->getMesage(),
 				]);
 			}

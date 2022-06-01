@@ -16,10 +16,10 @@ class Control_Button_Delete extends Control_Button {
 		if ($this->object->is_new()) {
 			return false;
 		}
-		return $this->user_can('delete', $this->object);
+		return $this->userCan('delete', $this->object);
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		/* @var $object ORM */
 		$object = $this->object;
 		$locale = $this->application->locale;
@@ -42,10 +42,10 @@ class Control_Button_Delete extends Control_Button {
 			]),
 			'confirm' => $this->optionBool('confirm'),
 			'link_text' => $link_text,
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 
-	public function render() {
+	public function render(): string {
 		return $this->is_visible() ? parent::render() : '';
 	}
 }

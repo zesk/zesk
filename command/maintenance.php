@@ -24,7 +24,7 @@ class Command_Maintenance extends Command_Base {
 		}
 		$arg = $this->get_arg('value');
 		$this->message = $arg;
-		$bool = to_bool($arg, null);
+		$bool = toBool($arg, null);
 		if ($bool === null) {
 			$this->application->maintenance(true);
 			$this->log("Maintenance enabled with message \"$arg\"", [

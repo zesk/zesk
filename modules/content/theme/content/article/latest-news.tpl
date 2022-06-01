@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2016, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -22,11 +22,11 @@ $link = $this->Link;
 
 ?><dl class="article-list"><?php
 foreach ($aa as $a) {
-	if ($a->member_is_empty('Body')) {
+	if ($a->memberIsEmpty('Body')) {
 		?><dt><?php echo  $a->Name ?></dt>
 	<dd><?php echo  $a->summary() ?></dd><?php
 	} else {
-		$href = URL::query_format($link, [
+		$href = URL::queryFormat($link, [
 			'ID' => $a->id(),
 		]); ?><dt>
 		<a href="<?php echo  $href ?>"><?php echo  $a->Name ?></a>

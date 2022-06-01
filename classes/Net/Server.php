@@ -3,7 +3,7 @@
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Net/Server.php $
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2011, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * @package zesk
  * @subpackage system
  */
@@ -94,7 +94,7 @@ abstract class Net_Server {
 		if ($set === null) {
 			return $this->driver->debug;
 		}
-		$this->driver->debug = to_bool($set);
+		$this->driver->debug = toBool($set);
 		return $this;
 	}
 

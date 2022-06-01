@@ -24,7 +24,7 @@ class Module extends \zesk\Module {
 	}
 
 	public static function _factory_file(Application $application) {
-		return new File($application->cache_path('object_cache'));
+		return new File($application->cachePath('object_cache'));
 	}
 
 	public static function _factory_database(Application $application) {

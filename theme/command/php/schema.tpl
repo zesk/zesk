@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -17,7 +17,7 @@ echo "<?php\n";
 
 $php = new PHP();
 $t = $php->indent_char = $this->get('indent_char', $configuration->path_get('Text::indent_char', "\t"));
-$php->indent_multiple = to_integer($this->geti('indent_multiple', $configuration->path_get('Text::indent_multiple')), 1);
+$php->indent_multiple = to_integer($this->getInt('indent_multiple', $configuration->path_get('Text::indent_multiple')), 1);
 
 ob_start();
 

@@ -2,7 +2,7 @@
 namespace zesk;
 
 class Control_Contact_List extends Control_List {
-	protected $class = 'zesk\\Contact';
+	protected string $class = 'zesk\\Contact';
 
 	public function hook_widgets() {
 		$widgets = [];

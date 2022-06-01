@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2016, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 16:31:01 EDT 2008
  */
 namespace zesk;
@@ -18,7 +18,7 @@ class Control_Forgot extends Control_Edit {
 	 *
 	 * @var string
 	 */
-	protected ?string $class = 'zesk\\Forgot'; // TODO fix to __NAMESPACE__ when TODO-PHP7 only
+	protected string $class = 'zesk\\Forgot'; // TODO fix to __NAMESPACE__ when TODO-PHP7 only
 
 	/**
 	 *
@@ -47,7 +47,7 @@ class Control_Forgot extends Control_Edit {
 	public function hook_widgets() {
 		$locale = $this->locale();
 
-		$this->form_name('forgot_form');
+		$this->setFormName('forgot_form');
 
 		$ww = [];
 
@@ -57,7 +57,7 @@ class Control_Forgot extends Control_Edit {
 
 		$ww[] = $w = $this->widget_factory(Control_Button::class)
 			->names('forgot', $this->option('label_button', $locale->__('Send me an email')))
-			->add_class('btn-primary btn-block')
+			->addClass('btn-primary btn-block')
 			->nolabel(true);
 
 		$ww[] = $w = $this->widget_factory(Control_Hidden::class)->names('tzid');
@@ -111,7 +111,7 @@ class Control_Forgot extends Control_Edit {
 
 		$session->forgot = $object->id();
 
-		if (!$this->prefer_json()) {
+		if (!$this->preferJSON()) {
 			throw new Exception_Redirect('/forgot/sent');
 		}
 		$this->json([

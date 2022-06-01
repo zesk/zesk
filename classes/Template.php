@@ -333,7 +333,7 @@ class Template implements Interface_Theme {
 	 * @return array|string
 	 */
 	private function _find_path($path, $all = false) {
-		if (Directory::is_absolute($path)) {
+		if (Directory::isAbsolute($path)) {
 			if ($all) {
 				return [
 					$path => file_exists($path),
@@ -519,7 +519,7 @@ class Template implements Interface_Theme {
 	 * @param mixed $default
 	 * @return integer
 	 */
-	public function geti($k, $default = null) {
+	public function getInt($k, $default = null) {
 		return to_integer($this->__get($k), $default);
 	}
 
@@ -530,8 +530,8 @@ class Template implements Interface_Theme {
 	 * @param mixed $default
 	 * @return boolean
 	 */
-	public function getb(string $k, bool $default = false): bool {
-		return to_bool($this->__get($k), $default);
+	public function getBool(string $k, bool $default = false): bool {
+		return toBool($this->__get($k), $default);
 	}
 
 	/**
@@ -541,7 +541,7 @@ class Template implements Interface_Theme {
 	 * @param mixed $default
 	 * @return boolean
 	 */
-	public function geta($k, $default = []) {
+	public function getArray($k, $default = []) {
 		$value = $this->__get($k);
 		if (is_array($value)) {
 			return $value;
@@ -622,10 +622,10 @@ class Template implements Interface_Theme {
 	 */
 	public static function configured(Application $application): void {
 		$config = $application->configuration->path(__CLASS__);
-		self::$profile = to_bool($config->profile);
-		self::$wrap = to_bool($config->wrap);
-		self::$debug = to_bool($config->debug);
-		self::$debug_stack = to_bool($config->debug_stack);
+		self::$profile = toBool($config->profile);
+		self::$wrap = toBool($config->wrap);
+		self::$debug = toBool($config->debug);
+		self::$debug_stack = toBool($config->debug_stack);
 		$application->hooks->add('</body>', [
 			__CLASS__,
 			'profile_output',
@@ -758,7 +758,7 @@ class Template implements Interface_Theme {
 	 * @see Application::theme
 	 * @return string
 	 */
-	final public function theme($types, $arguments = [], array $options = []) {
+	final public function theme(array|string $types, array $arguments = [], array $options = []): ?string {
 		return $this->application->theme($types, $arguments, $options);
 	}
 

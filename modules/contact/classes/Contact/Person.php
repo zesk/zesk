@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage contact
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -56,7 +56,7 @@ class Contact_Person extends Contact_Info {
 			'Suffix',
 		];
 		foreach ($names as $name) {
-			if (!$this->member_is_empty($name)) {
+			if (!$this->memberIsEmpty($name)) {
 				$result[] = $this->member($name);
 			}
 		}

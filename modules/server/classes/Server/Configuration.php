@@ -57,7 +57,7 @@ abstract class Server_Configuration extends Hookable {
 	public function __construct(Server_Platform $platform, $options = null) {
 		$this->platform = $platform;
 		parent::__construct($platform->application, $options);
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 	}
 
 	final public function verbose_log($message, array $args = []) {
@@ -171,7 +171,7 @@ abstract class Server_Configuration extends Hookable {
 	 */
 	final public function register_types(array $variable_types, array $variable_defaults, $check_conflict = true) {
 		foreach ($variable_types as $name => $type) {
-			$lowname = self::_option_key($name);
+			$lowname = self::_optionKey($name);
 			$this->variable_types_display[$lowname] = $name;
 			if ($check_conflict && ($existing_type = avalue($this->variable_types, $name, $type)) !== $type) {
 				throw new Exception_Key("Conflicting configuration type for $name: $existing_type !== $type");
@@ -279,7 +279,7 @@ abstract class Server_Configuration extends Hookable {
 	}
 
 	public function variable($name, $type, $set = null) {
-		$k = self::_option_key($name);
+		$k = self::_optionKey($name);
 		$value = apath($this->options, $k, null, '::');
 		$registered_type = apath($this->variable_types, $k, null, '::');
 		assert($registered_type === $type);

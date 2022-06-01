@@ -17,7 +17,7 @@ namespace zesk;
 $widget = $this->widget;
 
 if (count($this->children) === 0) {
-	$widget->nowrap();
+	$widget->clearWrap();
 	return;
 }
 
@@ -41,7 +41,7 @@ $columns = intval($this->columns);
 if ($columns > 1) {
 	echo HTML::div_open('.row');
 	$columns = clamp(2, $columns, 12);
-	$columns = avalue(ArrayTools::flip_copy(to_list('2;3;4;6;12')), $columns, 12);
+	$columns = avalue(ArrayTools::valuesFlipCopy(to_list('2;3;4;6;12')), $columns, 12);
 	$n_per = ceil(count($inputs) / $columns);
 	for ($i = 0; $i < $columns; $i++) {
 		echo HTML::tag('div', '.col-sm-' . intval(12 / $columns), implode("\n", array_slice($inputs, $i * $n_per, $n_per)));

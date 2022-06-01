@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 16:24:32 EDT 2008
  */
 namespace zesk;
@@ -16,7 +16,7 @@ class Control_Phone extends Control_Text {
 		return $phone;
 	}
 
-	protected function validate() {
+	protected function validate(): bool {
 		$value = $this->value();
 		$value = self::clean($value);
 		if (!is_phone($value)) {

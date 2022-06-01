@@ -113,7 +113,7 @@ class Controller_Preference extends Controller {
 				'message' => $locale->__($message_en),
 			]);
 		}
-		if ($this->request->is_post()) {
+		if ($this->request->isPost()) {
 			$value = PHP::autotype($this->request->get('value'));
 			if (Preference::user_set($user, $type, $value)) {
 				return $this->json([

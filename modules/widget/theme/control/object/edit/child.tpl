@@ -31,7 +31,7 @@ if ($overlabel) {
 	// $widget->setOption("id", $overlabel_id);
 }
 
-$context_class = $child->context_class();
+$context_class = $child->contextClass();
 $class_parent = Lists::append('input-control', $widget->option('class_parent', $context_class), ' ');
 $class_row = Lists::append('', $widget->option('class_row', 'row-' . $context_class));
 

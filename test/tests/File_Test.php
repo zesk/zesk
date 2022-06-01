@@ -12,6 +12,29 @@ class File_Test extends Test_Unit {
 		$this->assert(unlink($path), "Deleting $path at end");
 	}
 
+	/**
+	 * @return array
+	 */
+	public function data_absolute_path() {
+		return [
+			['/whatever', '/whatever', 'does not matter'],
+			['/whatever', '/whatever', null],
+			['/var/dude', 'dude', '/var'],
+			['etc/hosts/dude/er/ino', 'dude/er/ino', 'etc/hosts'],
+		];
+	}
+
+	/**
+	 * @param $expected
+	 * @param $path
+	 * @param $cwd
+	 * @return void
+	 * @dataProvider data_absolute_path
+	 */
+	public function test_absolute_path($expected, $path, $cwd): void {
+		$this->assertEquals($expected, File::absolute_path($path, $cwd));
+	}
+
 	public function test_atomic_increment(): void {
 		$path = $this->test_sandbox(__FUNCTION__);
 

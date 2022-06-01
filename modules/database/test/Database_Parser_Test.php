@@ -87,21 +87,21 @@ class Database_Parser_Test extends Test_Unit {
 		if (is_array($order_by)) {
 			$actual = [];
 			foreach ($order_by as $k => $v) {
-				$result = $parser->split_order_by($v);
+				$result = $parser->splitOrderBy($v);
 				if (count($result) === 1) {
 					$result = array_pop($result);
 				}
 				$actual[$k] = $result;
 			}
 		} else {
-			$actual = $parser->split_order_by($order_by);
+			$actual = $parser->splitOrderBy($order_by);
 		}
 
 		$this->assert_equal_array($expected_split, $actual);
 
-		$actual_reverse = $parser->reverse_order_by($order_by);
+		$actual_reverse = $parser->reverseOrderBy($order_by);
 
-		// 		$this->log('reverse_order_by');
+		// 		$this->log('reverseOrderBy');
 		// 		$this->log($actual_reverse);
 		// 		$this->log($expected_reverse);
 		$this->assert_equal($actual_reverse, $expected_reverse);

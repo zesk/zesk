@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage webapp
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\WebApp;
 
@@ -64,7 +64,7 @@ class Generator_Apache extends Generator {
 		$this->vhost_path = $this->webapp->webapp_data_path('vhosts/');
 		Directory::depend($this->vhost_path, 0o755);
 		if ($this->optionBool('clean')) {
-			Directory::delete_contents($this->vhost_path);
+			Directory::deleteContents($this->vhost_path);
 		}
 		return $this;
 	}
@@ -172,7 +172,7 @@ class Generator_Apache extends Generator {
 	 * @see \zesk\WebApp\Generator::changed()
 	 */
 	public function changed() {
-		return ArrayTools::kunprefix($this->changed, $this->vhost_path);
+		return ArrayTools::keysRemovePrefix($this->changed, $this->vhost_path);
 	}
 
 	/**

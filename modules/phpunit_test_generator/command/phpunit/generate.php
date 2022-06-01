@@ -36,7 +36,7 @@ class Command_PHPUnit_Generate extends Command_Iterator_File {
 	 */
 	protected function start(): void {
 		$destination = $this->option('destination');
-		if (Directory::is_absolute($destination)) {
+		if (Directory::isAbsolute($destination)) {
 			$this->destination = $destination;
 		} else {
 			$this->destination = $this->application->path($destination);

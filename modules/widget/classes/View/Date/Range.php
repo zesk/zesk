@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -17,7 +17,7 @@ class View_Date_Range extends View {
 		return $this->option('EndDateColumn', 'EndDate');
 	}
 
-	public function render() {
+	public function render(): string {
 		$object = $this->object;
 		$start_col = $this->_startColumn();
 		$end_col = $this->_endColumn();

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2013, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -18,9 +18,9 @@ class CSS {
 	/**
 	 * Array of standard CSS colors and their respective hex codes
 	 *
-	 * @return array
+	 * @return string[]
 	 */
-	public static function color_table() {
+	public static function color_table(): array {
 		return [
 			'aliceblue' => 'f0f8ff',
 			'antiquewhite' => 'faebd7',
@@ -176,14 +176,14 @@ class CSS {
 	 * Add a class to another CSS class for inclusion in HTML
 	 *
 	 * @param string|array $classes
-	 * @param string $add
+	 * @param string|array $add
 	 * @return string
 	 */
-	public static function add_class(string|array $classes, string $add = ''): string {
+	public static function addClass(string|array $classes, string|array $add = ''): string {
 		if (is_array($classes)) {
 			$classes = implode(' ', $classes);
 		}
-		return $add ? Lists::append_unique($classes, $add, ' ') : $classes;
+		return $add ? Lists::appendUnique($classes, $add, ' ') : $classes;
 	}
 
 	/**
@@ -192,11 +192,11 @@ class CSS {
 	 * @param string $remove
 	 * @return string
 	 */
-	public static function remove_class(string|array $classes, string $remove = ''): string {
+	public static function removeClass(string|array $classes, string $remove = ''): string {
 		if (is_array($classes)) {
 			$classes = implode(' ', $classes);
 		}
-		return Lists::remove($classes, $remove, ' ');
+		return Lists::keysRemove($classes, $remove, ' ');
 	}
 
 	/**
@@ -208,7 +208,7 @@ class CSS {
 	 * @param string $default
 	 * @return string
 	 */
-	public static function color_lookup(string $text, string $default = ''): string {
+	public static function colorLookup(string $text, string $default = ''): string {
 		$colors = self::color_table();
 		return $colors[strtolower($text)] ?? $default;
 	}
@@ -219,7 +219,7 @@ class CSS {
 	 * @param array $rgb Array of three values between 0 and 255
 	 * @return string
 	 */
-	public static function rgb_to_hex(array $rgb) {
+	public static function rgbToHex(array $rgb): string {
 		$color = '';
 		foreach ($rgb as $c) {
 			$c = clamp(0, $c, 255);
@@ -239,8 +239,8 @@ class CSS {
 	 * @param mixed $default
 	 * @return string
 	 */
-	public static function color_format(array $rgb) {
-		return '#' . self::rgb_to_hex($rgb);
+	public static function colorFormat(array $rgb): string {
+		return '#' . self::rgbToHex($rgb);
 	}
 
 	/**
@@ -249,11 +249,11 @@ class CSS {
 	 * @param string $text Color value
 	 * @param string $default
 	 * @return string
+	 * @throws Exception_Syntax
 	 */
-	public static function color_normalize(string $text, string $default) {
-		$x = self::color_parse($text, $default) + [0, 0, 0];
-		$x = self::rgb_to_hex($x);
-		return $x;
+	public static function colorNormalize(string $text, string $default): string {
+		$x = self::colorParse($text) + [0, 0, 0];
+		return self::rgbToHex($x);
 	}
 
 	/**
@@ -262,8 +262,13 @@ class CSS {
 	 * @param string $text
 	 * @return boolean
 	 */
-	public static function is_color($text) {
-		return self::color_parse($text, null) !== null;
+	public static function isColor(string $text): bool {
+		try {
+			self::colorParse($text);
+			return true;
+		} catch (Exception_Syntax) {
+			return false;
+		}
 	}
 
 	/**
@@ -271,11 +276,11 @@ class CSS {
 	 *
 	 * @param string $text
 	 * @return array ($r, $g, $b) returned as a list
-	 * @todo Does not support rgba
 	 * @return array
 	 * @throws Exception_Syntax
+	 * @todo Does not support rgba
 	 */
-	public static function color_parse(string $text): array {
+	public static function colorParse(string $text): array {
 		$text = trim($text);
 		if (strlen($text) == 0) {
 			throw new Exception_Syntax('Blank color');
@@ -297,7 +302,7 @@ class CSS {
 		if ($text[0] == '#') {
 			$text = substr($text, 1);
 		} else {
-			$text = self::color_lookup($text, $text);
+			$text = self::colorLookup($text, $text);
 		}
 		$text_len = strlen($text);
 		if ($text_len !== 3 && $text_len !== 6) {

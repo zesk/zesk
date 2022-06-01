@@ -45,18 +45,18 @@ class Directory_Test extends Test_Unit {
 	 */
 	public function test_is_absolute_param(): void {
 		$f = null;
-		$this->assert_false(Directory::is_absolute($f));
+		$this->assert_false(Directory::isAbsolute($f));
 	}
 
-	public function test_is_absolute(): void {
-		$this->assert_true(Directory::is_absolute('/'));
-		$this->assert_false(Directory::is_absolute('./'));
-		$this->assert_false(Directory::is_absolute('./place/to/go'));
-		$this->assert_false(Directory::is_absolute('../place/to/go'));
+	public function test_isAbsolute(): void {
+		$this->assert_true(Directory::isAbsolute('/'));
+		$this->assert_false(Directory::isAbsolute('./'));
+		$this->assert_false(Directory::isAbsolute('./place/to/go'));
+		$this->assert_false(Directory::isAbsolute('../place/to/go'));
 		if (\is_windows()) {
-			$this->assert_true(Directory::is_absolute('\\windows\\'));
+			$this->assert_true(Directory::isAbsolute('\\windows\\'));
 		} else {
-			$this->assert_false(Directory::is_absolute('\\windows\\'));
+			$this->assert_false(Directory::isAbsolute('\\windows\\'));
 		}
 	}
 
@@ -72,7 +72,7 @@ class Directory_Test extends Test_Unit {
 		$this->assert_false(is_dir($path));
 	}
 
-	public function test_delete_contents(): void {
+	public function test_deleteContents(): void {
 		$path = $this->sandbox('testdircontents');
 		$this->assert_false(is_dir($path));
 		mkdir($path, 0o777);
@@ -80,10 +80,10 @@ class Directory_Test extends Test_Unit {
 		for ($i = 0; $i < 100; $i++) {
 			file_put_contents($path . "/$i.txt", str_repeat('.', $i));
 		}
-		$this->assert_false(Directory::is_empty($path));
-		Directory::delete_contents($path);
+		$this->assert_false(Directory::isEmpty($path));
+		Directory::deleteContents($path);
 		$this->assert_true(is_dir($path));
-		$this->assert_true(Directory::is_empty($path));
+		$this->assert_true(Directory::isEmpty($path));
 		Directory::delete($path);
 	}
 
@@ -204,17 +204,17 @@ class Directory_Test extends Test_Unit {
 		$this->assert(in_array(__FILE__, $files));
 	}
 
-	public function test_is_empty(): void {
+	public function test_isEmpty(): void {
 		$path = $this->sandbox(__FUNCTION__);
 		$this->assert(!is_dir($path));
-		$this->assert(Directory::is_empty($path) === true);
+		$this->assert(Directory::isEmpty($path) === true);
 		mkdir($path, 0o777);
-		$this->assert(Directory::is_empty($path) === true);
+		$this->assert(Directory::isEmpty($path) === true);
 		$filepath = $path . '/foo.txt';
 		file_put_contents($filepath, 'hello?');
-		$this->assert(Directory::is_empty($path) === false);
+		$this->assert(Directory::isEmpty($path) === false);
 		unlink($filepath);
-		$this->assert(Directory::is_empty($path) === true);
+		$this->assert(Directory::isEmpty($path) === true);
 	}
 
 	public function test_duplicate(): void {
@@ -228,7 +228,7 @@ class Directory_Test extends Test_Unit {
 		$file_copy_function = null;
 		Directory::duplicate($source, $destination, $recursive, $file_copy_function);
 
-		$this->assert(Directory::is_empty($destination));
+		$this->assert(Directory::isEmpty($destination));
 
 		// TODO more tests here as necessary
 	}

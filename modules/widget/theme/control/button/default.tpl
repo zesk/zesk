@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -8,8 +8,8 @@ echo HTML::tag('button', [
 	'type' => 'button',
 	'id' => $this->id,
 	'title' => $this->title,
-	'class' => CSS::add_class('btn btn-default', $this->confirm ? 'confirm' : ''),
-] + $this->widget->data_attributes(), HTML::tag('span', '.glyphicon .glyphicon-repeat', '') . ' ' . $this->button_label);
+	'class' => CSS::addClass('btn btn-default', $this->confirm ? 'confirm' : ''),
+] + $this->widget->dataAttributes(), HTML::tag('span', '.glyphicon .glyphicon-repeat', '') . ' ' . $this->button_label);
 
 /* $var $response zesk\Response */
 $response = $this->response;

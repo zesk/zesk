@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2016, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * @requires PHP 5
  * Created on Mon Apr 06 22:59:37 EDT 2009 22:59:37
  */

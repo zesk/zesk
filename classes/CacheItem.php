@@ -143,7 +143,7 @@ class CacheItem implements CacheItemInterface {
 	 * @throws Exception_Parameter
 	 */
 	public function expiresAfter($time) {
-		$this->expiration = $time ? Timestamp::now()->add_unit($time) : null;
+		$this->expiration = $time ? Timestamp::now()->addUnit($time) : null;
 		return $this;
 	}
 

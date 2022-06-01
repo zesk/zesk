@@ -5,7 +5,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2014, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  *
  * @see Control_Select
  * @see Control_Select_Other
@@ -95,7 +95,7 @@ class Control_Optionss extends Control {
 	}
 
 	private function ellipsis_options(array $options) {
-		$show_size = $this->show_size();
+		$show_size = $this->showSize();
 		if (empty($show_size) || $show_size < 0) {
 			return $options;
 		}
@@ -117,7 +117,7 @@ class Control_Optionss extends Control {
 	 * @param unknown $key
 	 * @return boolean
 	 */
-	private function _has_option_group($key) {
+	private function _hasOption_group($key) {
 		$options = $this->control_options;
 		foreach ($options as $k => $optgroup) {
 			if (is_array($optgroup) && array_key_exists($key, $optgroup)) {
@@ -138,13 +138,13 @@ class Control_Optionss extends Control {
 		if ($noname && $key === strval(avalue($this->options, 'novalue', ''))) {
 			return true;
 		}
-		if (to_bool(avalue($this->options, 'optgroup'))) {
-			return $this->_has_option_group($key);
+		if (toBool(avalue($this->options, 'optgroup'))) {
+			return $this->_hasOption_group($key);
 		}
 		if (array_key_exists($key, $this->control_options)) {
 			return true;
 		}
-		return $this->_has_option_group($key);
+		return $this->_hasOption_group($key);
 	}
 
 	public function force_value($set = null) {
@@ -159,12 +159,12 @@ class Control_Optionss extends Control {
 		return "#$id option:selected";
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		assert(is_array($this->control_options));
 		return [
 			'original_options' => $this->control_options,
 			'control_options' => $this->ellipsis_options($this->control_options),
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 
 	/**

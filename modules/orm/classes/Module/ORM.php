@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -46,20 +46,20 @@ class Module_ORM extends Module {
 		/**
 		 * $application->orm_factory(...)
 		 */
-		$this->application->register_factory('orm', [$this, 'orm_factory', ]);
+		$this->application->registerFactory('orm', [$this, 'orm_factory', ]);
 		/**
 		 * $application->orm_registry(...)
 		 */
-		$this->application->register_registry('orm', [$this, 'orm_registry', ]);
+		$this->application->registerRegistry('orm', [$this, 'orm_registry', ]);
 		/**
 		 * $application->class_orm_registry(...)
 		 */
-		$this->application->register_registry('class_orm', [$this, 'class_orm_registry', ]);
+		$this->application->registerRegistry('class_orm', [$this, 'class_orm_registry', ]);
 
 		/**
 		 * $application->settings_registry(...)
 		 */
-		$this->application->register_registry('settings', [$this, 'settings_registry', ]);
+		$this->application->registerRegistry('settings', [$this, 'settings_registry', ]);
 
 		/**
 		 * Hook into database table
@@ -138,23 +138,11 @@ class Module_ORM extends Module {
 
 	/**
 	 *
-	 * @param Application $application
-	 * @param string $class
-	 * @param mixed $mixed
-	 * @param array $options
-	 * @return \zesk\ORM
-	 */
-	public function orm_factory(Application $application, string $class, mixed $mixed = null, array $options = []): ORM {
-		return ORM::factory($application, $class, $mixed, $options);
-	}
-
-	/**
-	 *
 	 * @param string $class
 	 * @param mixed $mixed
 	 * @param array $options
 	 */
-	public function orm_registry(Application $application, string $class = null, mixed $mixed = null, array $options = []) {
+	public function orm_registry(Application $application, string $class, mixed $mixed = null, array $options = []) {
 		if ($class === null) {
 			return $this;
 		}
@@ -166,8 +154,22 @@ class Module_ORM extends Module {
 			}
 			return $result;
 		} else {
-			return ORM::factory($application, $class, $mixed, (array) $options);
+			return ORM::factory($application, $class, $mixed, $options);
 		}
+	}
+
+	/**
+	 *
+	 * @param Application $application
+	 * @param string $class
+	 * @param mixed|null $mixed
+	 * @param array $options
+	 * @return ORM
+	 * @throws Exception_Semantics
+	 */
+	public function orm_factory(Application $application, string $class, mixed $mixed = null, array $options = []): ORM {
+		$class = $application->objects->resolve($class);
+		return ORM::factory($application, $class, $mixed, $options);
 	}
 
 	/**
@@ -219,7 +221,7 @@ class Module_ORM extends Module {
 			'class' => get_class($this),
 			'value' => $model_classes,
 		]);
-		$classes = $classes + ArrayTools::flip_copy($model_classes, true);
+		$classes = $classes + ArrayTools::valuesFlipCopy($model_classes, true);
 		$all_classes = $this->call_hook_arguments('classes', [$classes, ], $classes);
 		/* @var $module Module */
 		foreach ($this->application->modules->all_modules() as $name => $module) {
@@ -228,7 +230,7 @@ class Module_ORM extends Module {
 				'name' => $name,
 				'value' => $module_classes,
 			]);
-			$all_classes = array_merge($all_classes, ArrayTools::flip_copy($module_classes, true));
+			$all_classes = array_merge($all_classes, ArrayTools::valuesFlipCopy($module_classes, true));
 		}
 		$this->application->classes->register(array_values($all_classes));
 		ksort($all_classes);
@@ -249,9 +251,9 @@ class Module_ORM extends Module {
 			$db = $this->application->database_registry();
 		}
 		if ($classes === null) {
-			$classes = $this->orm_classes();
+			$classes = $this->ormClasses();
 		} else {
-			$options['follow'] = avalue($options, 'follow', false);
+			$options['follow'] = toBool($options['follow'] ?? false);
 		}
 		$logger = $this->application->logger;
 		$logger->debug('{method}: Synchronizing classes: {classes}', ['method' => __METHOD__, 'classes' => $classes, ]);
@@ -264,7 +266,7 @@ class Module_ORM extends Module {
 			if (stripos($class, 'user_role')) {
 				$logger->debug('{method}: ORM map is: {map}', [
 					'method' => __METHOD__,
-					'map' => _dump($this->application->objects->map()),
+					'map' => _dump($this->application->objects->mapping()),
 					'class' => $class,
 				]);
 			}
@@ -285,7 +287,7 @@ class Module_ORM extends Module {
 
 			try {
 				$object = $this->application->orm_registry($class);
-				$object_db_name = $object->database()->code_name();
+				$object_db_name = $object->database()->codeName();
 				$updates = ORM_Schema::update_object($object);
 			} catch (Exception_Class_NotFound $e) {
 				$logger->error('Unable to synchronize {class} because it can not be found', ['class' => $class, ]);
@@ -303,7 +305,7 @@ class Module_ORM extends Module {
 			}
 			if (count($updates) > 0) {
 				$updates = array_merge(["-- Synchronizing schema for class: $class", ], $updates);
-				if ($object_db_name !== $db->code_name()) {
+				if ($object_db_name !== $db->codeName()) {
 					$other_updates[$object_db_name] = true;
 					$logger->debug('Result of schema parse for {class}: {n} changes - Database {dbname}', [
 						'class' => $class,
@@ -337,21 +339,17 @@ class Module_ORM extends Module {
 
 		$skip_others = isset($options['skip_others']) && $options['skip_others'];
 		if (count($other_updates) > 0 && !$skip_others) {
-			$results[] = "-- Other database updates:\n" . ArrayTools::join_wrap(array_keys($other_updates), '-- zesk schema --name ', " --update;\n");
+			$results[] = "-- Other database updates:\n" . ArrayTools::joinWrap(array_keys($other_updates), '-- zesk schema --name ', " --update;\n");
 		}
 		return $results;
 	}
 
 	/**
-	 *
-	 * @param string|array $add List of classes to add
+	 * @return array
 	 */
-	final public function orm_classes(string|array $add = null): array {
+	final public function ormClasses(): array {
 		if ($this->cached_classes === null) {
 			$this->cached_classes = $this->_classes();
-		}
-		if ($add !== null) {
-			return $this->addORMClasses($add);
 		}
 		return array_values($this->cached_classes);
 	}
@@ -364,7 +362,7 @@ class Module_ORM extends Module {
 		if ($this->cached_classes === null) {
 			$this->cached_classes = $this->_classes();
 		}
-		foreach (to_list($add) as $class) {
+		foreach (toList($add) as $class) {
 			$this->cached_classes[strtolower($class)] = $class;
 		}
 		return $this;
@@ -393,16 +391,7 @@ class Module_ORM extends Module {
 
 			try {
 				$result['object'] = $object = $this->orm_factory($this->application, $class);
-				if (!$object instanceof ORM) {
-					$this->application->logger->warning('{method} {class} is not an instanceof {parent}', [
-						'method' => __METHOD__,
-						'class' => $class,
-						'parent' => ORM::class,
-					]);
-
-					continue;
-				}
-				$result['database'] = $object->database_name();
+				$result['database'] = $object->databaseName();
 				$result['table'] = $object->table();
 				$result['class'] = get_class($object);
 			} catch (\Exception $e) {
@@ -455,25 +444,23 @@ class Module_ORM extends Module {
 	 * Retrieve object or classes from cache
 	 *
 	 * @param string $class
-	 * @param string $component
-	 *            Optional component to retrieve
 	 * @return array
 	 * @throws Exception_Semantics
 	 */
 	private function _class_cache(string $class): array {
 		$low_class = strtolower($class);
 		if (!array_key_exists($low_class, $this->class_cache)) {
-			$object = $this->model_factory($class, null, ['immutable' => true, ]);
+			$object = $this->modelFactory($class, null, ['immutable' => true, ]);
 			if (!$object instanceof ORM) {
 				throw new Exception_Semantics("$class is not an ORM");
 			}
 			$this->class_cache[$low_class] = [
 				'table' => $object->table(),
-				'dbname' => $object->database_name(),
-				'database_name' => $object->database_name(),
+				'dbname' => $object->databaseName(),
+				'database_name' => $object->databaseName(),
 				'object' => $object,
 				'class' => $object->class_orm(),
-				'id_column' => $object->id_column(),
+				'id_column' => $object->idColumn(),
 			];
 		}
 		return $this->class_cache[$low_class];
@@ -526,7 +513,7 @@ class Module_ORM extends Module {
 		if ($this->optionBool('schema_sync')) {
 			$db = $this->application->database_registry();
 			$logger->warning('The database schema was out of sync, updating: {sql}', ['sql' => implode(";\n", $results) . ";\n", ]);
-			$db->query($results);
+			$db->queries($results);
 		} else {
 			$logger->warning('The database schema is out of sync, please update: {sql}', ['sql' => implode(";\n", $results) . ";\n", ]);
 			//TODO How to communicate with main UI?
@@ -553,8 +540,8 @@ class Module_ORM extends Module {
 	 * @param string $class
 	 * @return \zesk\Settings[string]
 	 */
-	public function settings_registry(Application $application, $class = null) {
-		if ($class === null) {
+	public function settings_registry(Application $application, string $class = ''): Settings {
+		if ($class === '') {
 			$class = $this->option('settings_class', Settings::class);
 		}
 		$low_class = strtolower($class);
@@ -599,6 +586,19 @@ class Module_ORM extends Module {
 		$server->bury_dead_servers();
 	}
 
+	/*---------------------------------------------------------------------------------------------------------*\
+	  ---------------------------------------------------------------------------------------------------------
+	  ---------------------------------------------------------------------------------------------------------
+			 _                               _           _
+		  __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
+		 / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
+		| (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
+		 \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
+				   |_|
+	  ---------------------------------------------------------------------------------------------------------
+	  ---------------------------------------------------------------------------------------------------------
+	\*---------------------------------------------------------------------------------------------------------*/
+
 	/**
 	 * @param string|ORM|Class_ORM|null $class
 	 * @return $this
@@ -606,5 +606,16 @@ class Module_ORM extends Module {
 	 */
 	public function clear_cache(string|ORM|Class_ORM $class = null): self {
 		return ($class === null) ? $this->clearCache() : $this->clearORMCache($class);
+	}
+
+	/**
+	 * @param string|array $add List of classes to add
+	 * @deprecated 2022-05
+	 */
+	final public function orm_classes(string|array $add = null): array {
+		if ($add !== null) {
+			return $this->addORMClasses($add);
+		}
+		return $this->ormClasses();
 	}
 }

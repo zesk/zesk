@@ -2,12 +2,11 @@
 declare(strict_types=1);
 
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
 
-use JetBrains\PhpStorm\Pure;
 use zesk\Test\Exception;
 
 /**
@@ -351,7 +350,7 @@ class Command_Test extends Command_Base {
 		$path = $this->option('directory', $cwd);
 		if ($path) {
 			$path = Directory::make_absolute($cwd, $path);
-		} elseif (!Directory::is_absolute($path)) {
+		} elseif (!Directory::isAbsolute($path)) {
 			throw new Exception_Directory_NotFound($path);
 		}
 
@@ -630,7 +629,7 @@ class Command_Test extends Command_Base {
 			if ($this->optionBool('debugger')) {
 				debugger_start_debug();
 			}
-			$is_phpunit = to_bool($options['phpunit'] ?? false);
+			$is_phpunit = toBool($options['phpunit'] ?? false);
 			if ($is_phpunit) {
 				$result = $this->run_phpunit_test($file, $options);
 			} else {
@@ -671,7 +670,7 @@ class Command_Test extends Command_Base {
 			return $result;
 		}
 		$first_comment = $comments[0];
-		return $result + array_change_key_case(ArrayTools::kunprefix($first_comment->variables(), 'test_', true));
+		return $result + array_change_key_case(ArrayTools::keysRemovePrefix($first_comment->variables(), 'test_', true));
 	}
 
 	/**
@@ -693,7 +692,7 @@ class Command_Test extends Command_Base {
 		if ($debug_class_discovery) {
 			ksort($classes);
 			echo "# Class discovery: Declared classes\n";
-			echo implode('', ArrayTools::wrap(array_keys($classes), '- `', "`\n"));
+			echo implode('', ArrayTools::wrapValues(array_keys($classes), '- `', "`\n"));
 		}
 		require_once($file);
 		if ($debug_class_discovery) {
@@ -722,13 +721,12 @@ class Command_Test extends Command_Base {
 	 * @param array $options
 	 * @return boolean
 	 */
-	#[Pure]
 	private function _determine_sandbox(array $options = null): bool {
 		if ($options === null) {
 			$options = $this->options;
 		}
-		$sandbox = to_bool($options ['sandbox'] ?? $this->optionBool('sandbox'));
-		if (to_bool($options['no_sandbox'] ?? $this->optionBool('no_sandbox')) === true) {
+		$sandbox = toBool($options ['sandbox'] ?? $this->optionBool('sandbox'));
+		if (toBool($options['no_sandbox'] ?? $this->optionBool('no_sandbox')) === true) {
 			$sandbox = false;
 		}
 		return $sandbox;
@@ -1005,8 +1003,8 @@ class Command_Test extends Command_Base {
 		if ($this->option('debug-command')) {
 			$this->log("COMMAND: $command");
 		}
-		$buffer = !to_bool(avalue($options, 'no-buffer'));
-		$debug_buffering = to_bool(avalue($options, 'debug_buffering'));
+		$buffer = !toBool(avalue($options, 'no-buffer'));
+		$debug_buffering = toBool(avalue($options, 'debug_buffering'));
 		if ($buffer) {
 			if ($debug_buffering) {
 				echo "\n" . __FILE__ . " ### ob_start(); ###\n";

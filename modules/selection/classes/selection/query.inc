@@ -39,7 +39,7 @@ class Selection_Query extends ORM {
 
 	public function reorder() {
 		$this->order_index = $this->query_select('X')
-			->where('X.type', $this->type)
+			->addWhere('X.type', $this->type)
 			->what('*N', 'MAX(X.order_index)')
 			->one_integer('N', 0) + 1;
 		return $this->store();
@@ -65,7 +65,7 @@ class Selection_Query extends ORM {
 		/* @var $query Selection_Query */
 		foreach ($application->orm_registry(__CLASS__)
 			->query_select()
-			->where('type', $old_type)
+			->addWhere('type', $old_type)
 			->orm_iterator() as $query) {
 			$old_id = $query->id;
 			$query->id = null;

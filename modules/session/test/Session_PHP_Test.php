@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -15,19 +17,30 @@ class Session_PHP_Test extends Test_Unit {
 		'session',
 	];
 
-	public function test_main(): void {
-		$class = __NAMESPACE__ . '\\' . 'Session_PHP';
+	public const TEST_CLASS = __NAMESPACE__ . '\\' . 'Session_PHP';
 
-		$this->application->setOption('session_class', $class);
+	public function data_basic_session(): array {
+		$this->application->setOption('session_class', self::TEST_CLASS);
 
 		$request = new Request($this->application);
-		$request->initialize_from_settings([
+		$request->initializeFromSettings([
 			'url' => 'http://localhost/path',
 		]);
 
 		$session = $this->application->session($request);
 
-		$this->assert_instanceof($session, $class);
+		return [
+			[$session],
+		];
+	}
+
+	/**
+	 * @dataProvider data_basic_session
+	 * @param Interface_Session $session
+	 * @return void
+	 */
+	public function test_main(Interface_Session $session): void {
+		$this->assert_instanceof($session, self::TEST_CLASS);
 
 		$this->session_tests($session);
 	}
@@ -37,11 +50,29 @@ class Session_PHP_Test extends Test_Unit {
 		$this->assert_is_string($id, 'Session ID is string');
 
 		$request = new Request($this->application);
-		$request->initialize_from_settings([
+		$request->initializeFromSettings([
 			'url' => 'http://localhost/',
 		]);
-		$this->assert_false($session->authenticated($request), 'Session authenticated');
-		$this->assert_null($session->user_id(), 'Session user ID is null');
-		$this->assert_null($session->user(), 'Session user is null');
+		$this->assert_false($session->authenticated(), 'Session authenticated');
+	}
+
+	/**
+	 * @param Interface_Session $session
+	 * @return void
+	 * @expectedException zesk\Exception_NotFound
+	 * @dataProvider data_basic_session
+	 */
+	public function test_user_id_throws(Interface_Session $session): void {
+		$this->assert_null($session->userId(), 'Session user ID did not throw');
+	}
+
+	/**
+	 * @param Interface_Session $session
+	 * @return void
+	 * @expectedException zesk\Exception_NotFound
+	 * @dataProvider data_basic_session
+	 */
+	public function test_user_throws(Interface_Session $session): void {
+		$this->assert_null($session->user(), 'Session user did not throw');
 	}
 }

@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 16:38:07 EDT 2008
  */
+
 namespace zesk;
 
 /**
@@ -18,35 +20,57 @@ class Control_Checklist extends Control_Optionss {
 
 	/**
 	 *
-	 * @var array
+	 * @var ?array
 	 */
-	private $widgets_id = null;
+	private ?array $widgets_id = null;
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $checkbox_exclusives = [];
+	private array $checkbox_exclusives = [];
 
 	/**
 	 * Convert value to/from a string (list)
 	 *
-	 * @param string $set
+	 * @return bool
 	 */
-	public function value_is_list($set = null) {
-		return is_bool($set) ? $this->setOption('value_is_list', $set) : $this->optionBool('value_is_list');
+	public function valueIsList(): bool {
+		return $this->optionBool('value_is_list');
+	}
+
+	/**
+	 * Convert value to/from a string (list)
+	 *
+	 * @param bool $set
+	 */
+	public function setValueIsList(bool $set): self {
+		return $this->setOption('value_is_list', $set);
 	}
 
 	/**
 	 * Getter/setter for columns to display checkboxes in
 	 *
-	 * @param integer $set
-	 * @return integer|self
+	 * @return int
 	 */
-	public function columns($set = null) {
-		return $set === null ? $this->optionInt('columns') : $this->setOption('columns', intval($set));
+	public function columns(): int {
+		return $this->optionInt('columns');
 	}
 
+	/**
+	 * @param int $set
+	 * @return $this
+	 */
+	public function setColumns(int $set): self {
+		return $this->setOption('columns', $set);
+	}
+
+	/**
+	 * @param $value
+	 * @param $set
+	 * @return $this|array
+	 * @throws Exception_Parameter
+	 */
 	public function checkbox_exclusive($value = null, $set = null) {
 		if ($value === null) {
 			$result = [];
@@ -63,12 +87,15 @@ class Control_Checklist extends Control_Optionss {
 		}
 
 		throw new Exception_Parameter('{method} {name} {id} Widget not support for value {type} {value}', [
-			'method' => __METHOD__,
-			'type' => gettype($value),
-			'value' => $value,
-		] + $this->options);
+				'method' => __METHOD__,
+				'type' => gettype($value),
+				'value' => $value,
+			] + $this->options);
 	}
 
+	/**
+	 * @return void
+	 */
 	protected function hook_control_options_changed(): void {
 		$this->widgets_id = null;
 		$this->_init_children(to_array($this->control_options));
@@ -90,7 +117,15 @@ class Control_Checklist extends Control_Optionss {
 		parent::initialize();
 	}
 
-	private function control_checkbox_factory($name, $col, $label, $value) {
+	/**
+	 * @param $name
+	 * @param $col
+	 * @param $label
+	 * @param $value
+	 * @return Widget
+	 * @throws Exception_Semantics
+	 */
+	private function control_checkbox_factory(string $name, string $col, string $label, string $value) {
 		return $this->widget_factory(Control_Checkbox::class, [
 			'name' => $name . '[]',
 			'column' => $col,
@@ -100,7 +135,11 @@ class Control_Checklist extends Control_Optionss {
 		]);
 	}
 
-	private function _child_name($value) {
+	/**
+	 * @param string $value
+	 * @return string
+	 */
+	private function _child_name(string $value): string {
 		return 'checklist-' . $this->name() . "-$value";
 	}
 
@@ -109,7 +148,7 @@ class Control_Checklist extends Control_Optionss {
 	 *
 	 * @param array $options
 	 */
-	protected function _init_children(array $options) {
+	protected function _init_children(array $options): array {
 		if (is_array($this->widgets_id)) {
 			return $this->widgets_id;
 		}
@@ -118,8 +157,8 @@ class Control_Checklist extends Control_Optionss {
 		foreach ($options as $value => $label) {
 			$col = $this->_child_name($value);
 			$this->widgets_id[$value] = $widget = $this->control_checkbox_factory($name, $col, $label, $value);
-			$this->child($col, $widget);
-			$exclusive = avalue($this->checkbox_exclusives, $value, null);
+			$this->setChild($col, $widget);
+			$exclusive = $this->checkbox_exclusives[$value] ?? null;
 			if (is_bool($exclusive)) {
 				$widget->setOption(self::option_checklist_exclusive, $exclusive);
 			}
@@ -146,7 +185,7 @@ class Control_Checklist extends Control_Optionss {
 	 *
 	 * @return string
 	 */
-	private function option_separator() {
+	private function option_separator(): string {
 		return $this->option('separator', ';');
 	}
 
@@ -155,9 +194,9 @@ class Control_Checklist extends Control_Optionss {
 	 * @return array Iterator
 	 */
 	protected function hook_object_value() {
-		if ($this->value_is_list()) {
-			$flip_copy = to_list($this->value(), to_list($this->default_value(), []), $this->option_separator());
-			return ArrayTools::flip_copy($flip_copy);
+		if ($this->valueIsList()) {
+			$flip_copy = toList($this->value(), toList($this->default_value(), []), $this->option_separator());
+			return ArrayTools::valuesFlipCopy($flip_copy);
 		}
 		return $this->value();
 	}
@@ -169,11 +208,13 @@ class Control_Checklist extends Control_Optionss {
 	 */
 	protected function load(): void {
 		$name = $this->name();
-		$values = $this->request->geta($name);
+		$values = $this->request->getArray($name);
 		foreach ($values as $value) {
-			$child = $this->child($this->_child_name($value));
-			if ($child) {
+			try {
+				$child = $this->findChild($this->_child_name($value));
 				$child->setOption('checked', true);
+			} catch (Exception_Key) {
+				// TODO Handle this
 			}
 		}
 		$column = $this->column();
@@ -185,9 +226,9 @@ class Control_Checklist extends Control_Optionss {
 	 *
 	 * @see Widget::submit()
 	 */
-	public function submit() {
-		$values = $this->request->geta($this->name());
-		if ($this->value_is_list()) {
+	public function submit(): bool {
+		$values = $this->request->getArray($this->name());
+		if ($this->valueIsList()) {
 			$this->value(implode($this->option_separator(), $values));
 		} else {
 			$this->value($values);
@@ -197,7 +238,7 @@ class Control_Checklist extends Control_Optionss {
 
 	// Debugging only
 	// 	private $debug = "";
-	// 	public function render() {
+	// 	public function render(): string {
 	// 		return parent::render() . $this->debug;
 	// 	}
 }

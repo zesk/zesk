@@ -84,7 +84,7 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 */
 	public function disabled($set = null) {
 		if ($set) {
-			$this->setOption('disabled', to_bool($set));
+			$this->setOption('disabled', toBool($set));
 			return $this;
 		}
 		return $this->optionBool('disabled', false);

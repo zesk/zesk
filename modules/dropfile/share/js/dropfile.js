@@ -98,7 +98,7 @@
 				});
 			},
 			error: function() {
-				$(".dropfile-progress", this.$element).remove();
+				$(".dropfile-progress", this.$element).keysRemove();
 			},
 		},
 		DropFile = function($this, options) {
@@ -153,9 +153,9 @@
 					'<a class="dropfile-remove-button"><span class="glyphicon glyphicon-remove"></span></a>'
 				);
 				$(".dropfile-remove-button", $element).on("click", function() {
-					$("img", $element).remove();
+					$("img", $element).keysRemove();
 					$(".dropfile-value", $element).val("");
-					$(".dropfile-remove-button", $element).remove();
+					$(".dropfile-remove-button", $element).keysRemove();
 					$element.append('<div class="no-image" />');
 				});
 			}
@@ -210,7 +210,7 @@
 			});
 		},
 		reset_file_input: function() {
-			$("form", this.$element).remove();
+			$("form", this.$element).keysRemove();
 			this.setup_file_input();
 		},
 		click: function(/*e*/) {},
@@ -362,7 +362,7 @@
 			$(".progress .progress-bar .sr-only", this.$element).html(percent + "%");
 		},
 		progress_success: function(data) {
-			$(".progress", this.$element).remove();
+			$(".progress", this.$element).keysRemove();
 			$(this.$element).removeClass(this.active_class);
 			if (this.target) {
 				$(this.target).html(data.content);

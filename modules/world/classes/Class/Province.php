@@ -4,7 +4,7 @@ namespace zesk;
 /**
  *
  * @author kent
- * Copyright &copy; 2022 Market Acumen, Inc.
+ * Copyright &copy; 2022, Market Acumen, Inc.
  */
 class Class_Province extends Class_ORM {
 	public string $id_column = 'id';

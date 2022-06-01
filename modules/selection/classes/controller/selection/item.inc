@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -26,7 +26,7 @@ class Controller_Selection_Item extends Controller_ORM {
 	protected function widget_control_classes($action) {
 		if ($action === 'list') {
 			$type_class = strtolower($this->type->class);
-			$widget_control_classes = $this->option_array('widget_control_classes');
+			$widget_control_classes = $this->optionArray('widget_control_classes');
 			if (array_key_exists($type_class, $widget_control_classes)) {
 				return $widget_control_classes[$type_class];
 			}
@@ -71,7 +71,7 @@ class Controller_Selection_Item extends Controller_ORM {
 
 		if ($this->request->has('target')) {
 			$target = $this->request->get('target');
-			$this->response->jquery('$(' . JSON::encode($target) . ').slideUp(\'slow\', function() { $(this).remove(); });');
+			$this->response->jquery('$(' . JSON::encode($target) . ').slideUp(\'slow\', function() { $(this).keysRemove(); });');
 		}
 		$this->json([
 			'status' => true,

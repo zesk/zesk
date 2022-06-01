@@ -47,12 +47,12 @@ class Selection_Item extends ORM {
 		/* @var $class Class_ORM */
 		$members = $application->class_orm_registry(__CLASS__)->column_types;
 		unset($members['type']);
-		$what = ArrayTools::flip_copy(array_keys($members));
+		$what = ArrayTools::valuesFlipCopy(array_keys($members));
 		$what['*type'] = $new_type;
 		$object = $application->orm_registry(__CLASS__);
 		$object->query_insert_select()
 			->what($what)
-			->where('type', $old_type)
+			->addWhere('type', $old_type)
 			->execute();
 		foreach ($mapping as $old_query_id => $new_query_id) {
 			$object->query_update()

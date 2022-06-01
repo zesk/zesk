@@ -1,9 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
+
+use zesk\ORM\QueryTrait\Affected;
+use zesk\ORM\QueryTrait\Where;
 
 /**
  *
@@ -11,32 +16,21 @@ namespace zesk;
  *
  */
 class Database_Query_Delete extends Database_Query {
-	/**
-	 * Where clause
-	 *
-	 * @var array
-	 */
-	protected $where = [];
+	use Where;
+	use Affected;
 
 	/**
-	 * Store affected rows after execute
+	 * Whether to use truncate instead of DELETE when deleting a table
 	 *
-	 * @var integer
+	 * @var bool
 	 */
-	protected $affected_rows = null;
-
-	/**
-	 * Store affected rows after execute
-	 *
-	 * @var integer
-	 */
-	protected $truncate = false;
+	protected bool $truncate = false;
 
 	/**
 	 *
 	 * @var mixed
 	 */
-	protected $result = null;
+	protected mixed $result = null;
 
 	/**
 	 * Construct a delete query
@@ -47,43 +41,41 @@ class Database_Query_Delete extends Database_Query {
 		parent::__construct('DELETE', $db);
 	}
 
-	public function truncate($set = null) {
-		if ($set !== null) {
-			$set = to_bool($set);
-			if ($set === true && (count($this->where) > 0)) {
-				$this->application->logger->warning('Failed to add truncate with a where clause', [
-					'query' => $this,
-				]);
-				return null;
-			}
-			$this->truncate = $set;
-			return $this;
-		}
-		return $this->truncate;
+	/**
+	 * @param bool $set
+	 * @return $this
+	 * @throws Exception_Semantics
+	 */
+	public function setTruncate(bool $set): self {
+		$this->truncate = $set;
+		$this->_validate_truncate();
+		return $this;
 	}
 
 	/**
-	 * Add where clause
-	 *
-	 * @param mixed $k
-	 * @param string $v
-	 * @return Database_Query_Delete
+	 * @return void
+	 * @throws Exception_Semantics
 	 */
-	public function where($k, $v = null) {
-		if (is_array($k)) {
-			$this->where = array_merge($this->where, $k);
-		} elseif ($k === null && is_string($v)) {
-			$this->where[] = $v;
-		} elseif (!empty($k)) {
-			$this->where[$k] = $v;
-		}
-		if ($this->truncate) {
-			$this->application->logger->warning('Adding where clause de-activates truncate', [
-				'query' => $this,
+	private function _validate_truncate(): void {
+		if ($this->truncate === true && count($this->where) > 0) {
+			throw new Exception_Semantics('Truncate not allowed with a where clause {where}', [
+				'where' => $this->where,
 			]);
-			$this->truncate = false;
 		}
-		return $this;
+	}
+
+	/**
+	 * @param $set
+	 * @return bool
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Semantics
+	 */
+	public function truncate($set = null): bool {
+		if ($set !== null) {
+			zesk()->deprecated('setter');
+			$this->setTruncate($set);
+		}
+		return $this->truncate;
 	}
 
 	/**
@@ -92,26 +84,25 @@ class Database_Query_Delete extends Database_Query {
 	 */
 	public function __toString() {
 		$table = $this->application->orm_registry($this->class)->table();
-		return $this->sql()->delete([
-			'table' => $table,
+		return $this->sql()->delete($table, $this->where, [
 			'truncate' => $this->truncate,
-			'where' => $this->where,
 		]);
-	}
-
-	public function affected_rows() {
-		return $this->affected_rows;
 	}
 
 	/**
 	 * Execute syntax is now identical, stop using this method, use ->execute() with new semantics
 	 *
 	 * @return Database_Query_Delete
-	 * @throws Database_Exception|Exception_Deprecated
+	 * @throws Database_Exception
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Semantics
 	 * @deprecated 2018-02
 	 * @see self::execute()
 	 */
-	public function exec() {
+	public function exec(): self {
 		zesk()->deprecated();
 		return $this->execute();
 	}
@@ -120,41 +111,29 @@ class Database_Query_Delete extends Database_Query {
 	 *
 	 * @return mixed
 	 */
-	public function result() {
+	public function result(): mixed {
 		return $this->result;
 	}
 
 	/**
-	 * @return Database_Query_Delete|NULL|mixed
-	 */
-	private function _execute() {
-		$db = $this->database();
-		$result = $this->result = $db->query($this->__toString());
-		if ($result) {
-			$this->affected_rows = $db->affected_rows($result);
-		} else {
-			$this->affected_rows = null;
-		}
-		if (is_bool($result)) {
-			return $result ? $this : null;
-		}
-		return $result;
-	}
-
-	/**
-	 * Prefer this function name, but need to change semantics so will remove and then rename ->exec
-	 * to ->execute later.
-	 * Use ->exec()->result() to get similar behavior in the short term
-	 *
-	 * @return Database_Query_Delete|NULL|mixed
+	 * @return mixed
 	 * @throws Database_Exception
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Semantics
 	 */
-	public function execute() {
-		if ($this->_execute() === null) {
+	public function execute(): self {
+		$this->_validate_truncate();
+		$db = $this->database();
+		$sql = $this->__toString();
+		$result = $this->result = $db->query($sql);
+		if (!$result) {
 			throw new Database_Exception($this->database(), 'Delete query failed: {sql}', [
-				'sql' => $this->__toString(),
+				'sql' => $sql,
 			]);
 		}
+		$this->setAffectedRows($db->affectedRows($result));
 		return $this;
 	}
 }

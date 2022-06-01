@@ -37,7 +37,7 @@ class Health_Event extends ORM {
 	 * @see ORM::store()
 	 */
 	public function store(): self {
-		if ($this->member_is_empty('when_msec')) {
+		if ($this->memberIsEmpty('when_msec')) {
 			$this->when_msec = 0;
 		}
 		return parent::store();
@@ -103,7 +103,7 @@ class Health_Event extends ORM {
 		$updated_file_path = path($path, self::updated_file);
 		clearstatcache(true, $updated_file_path);
 		if (!file_exists($updated_file_path)) {
-			if (Directory::is_empty($updated_file_path)) {
+			if (Directory::isEmpty($updated_file_path)) {
 				return false;
 			}
 		}
@@ -170,22 +170,22 @@ class Health_Event extends ORM {
 		$n_found = $this->application->orm_registry(__CLASS__)
 			->query_select()
 			->addWhat('*n', 'COUNT(id)')
-			->where('events', $this->events)
+			->addWhere('events', $this->events)
 			->one_integer('n');
 		if ($n_found > $n_samples) {
 			$sample_offset = intval($n_samples / 2);
 			$ids_to_delete = $this->application->orm_registry(__CLASS__)
 				->query_select()
 				->addWhat('id', 'X.id')
-				->where('X.events', $this->events)
+				->addWhere('X.events', $this->events)
 				->limit($sample_offset, $n_found - $n_samples)
 				->order_by('X.when,X.when_msec')
 				->to_array(null, 'id');
 			$delete_query = $this->application->query_delete(__CLASS__);
-			$delete_query->where('id', $ids_to_delete);
+			$delete_query->addWhere('id', $ids_to_delete);
 			$delete_query->execute();
 			$this->application->logger->notice('Deleted {n} {rows} related to health event {message} (Health Events #{id}) - total {total}', [
-				'n' => $nrows = $delete_query->affected_rows(),
+				'n' => $nrows = $delete_query->affectedRows(),
 				'rows' => $this->application->locale->plural('row', $nrows),
 				'message' => $this->message,
 				'id' => $this->member_integer('events'),

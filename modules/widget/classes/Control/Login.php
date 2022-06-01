@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 16:31:14 EDT 2008
  */
 namespace zesk;
@@ -20,7 +20,7 @@ class Control_Login extends Control_Edit {
 	/**
 	 *
 	 */
-	protected ?string $class = 'User';
+	protected string $class = 'User';
 
 	/**
 	 *
@@ -53,7 +53,7 @@ class Control_Login extends Control_Edit {
 	 *
 	 * @see Control_Edit::model()
 	 */
-	public function model(): Model_Login {
+	public function model(): ORM {
 		return new Model_Login($this->application);
 	}
 
@@ -79,7 +79,7 @@ class Control_Login extends Control_Edit {
 
 		$f = $this->widget_factory(Control_Button::class);
 		$f->names('login_button', false)
-			->add_class('btn-primary btn-block')
+			->addClass('btn-primary btn-block')
 			->setOption('button_label', $locale->__('Login'));
 		$this->child($f);
 
@@ -92,7 +92,7 @@ class Control_Login extends Control_Edit {
 	 * @see Widget::submitted()
 	 */
 	public function submitted(): bool {
-		return $this->request->is_post() && $this->request->has('login', true);
+		return $this->request->isPost() && $this->request->has('login', true);
 	}
 
 	/**
@@ -143,7 +143,7 @@ class Control_Login extends Control_Edit {
 			$this->error($locale->__('Username or password is incorrect.'));
 			$this->object->user = $this->user = null;
 			$user->call_hook('login_failed', $this);
-			if ($this->prefer_json()) {
+			if ($this->preferJSON()) {
 				$this->json([
 					'status' => false,
 					'errors' => $this->errors(),
@@ -173,9 +173,9 @@ class Control_Login extends Control_Edit {
 			'user' => $this->user,
 			'uid' => $this->user->id(),
 		]);
-		if ($this->prefer_json()) {
+		if ($this->preferJSON()) {
 			$walker = JSONWalker::factory();
-			if ($this->option_array('user_json_options')) {
+			if ($this->optionArray('user_json_options')) {
 				// Development here
 				$this->application->logger->warning('user_json_options ignored');
 			}

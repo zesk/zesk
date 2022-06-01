@@ -5,7 +5,7 @@
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2006, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -17,7 +17,7 @@ namespace zesk;
 class View_Video extends View {
 	public static function html_param_tag($name, $value) {
 		if (is_bool($value)) {
-			$value = StringTools::from_bool($value);
+			$value = StringTools::fromBool($value);
 		}
 		return HTML::tag('param', [
 			'name' => $name,
@@ -28,7 +28,7 @@ class View_Video extends View {
 	private function fpOption($key, $default) {
 		if (is_bool($default)) {
 			$var = $this->optionBool($key, $default);
-			$var = StringTools::from_bool($var);
+			$var = StringTools::fromBool($var);
 		} else {
 			$var = $this->option($key, $default);
 			$var = strval($var);
@@ -107,7 +107,7 @@ width="' . $width . '" height="' . $height . '" autostart="' . intval($autostart
 		$result = '<object id="MediaPlayer1"
 classid="CLSID:22d6f312-b0f6-11d0-94ab-0080c74c7e95"
 codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701"
-standby="' . $standby_string . '" type="application/x-oleobject" width="' . $width . '" height="' . $height . '">' . self::html_param_tag('fileName', $path) . self::html_param_tag('animationatStart', 'true') . self::html_param_tag('transparentatStart', 'true') . self::html_param_tag('AutoSize', intval($AutoSize)) . self::html_param_tag('ShowDisplay', intval($ShowDisplay)) . self::html_param_tag('autoStart', StringTools::from_bool($autostart)) . self::html_param_tag('ShowControls', intval($showcontrols)) . self::html_param_tag('Volume', $volume) . $embed . '</object>';
+standby="' . $standby_string . '" type="application/x-oleobject" width="' . $width . '" height="' . $height . '">' . self::html_param_tag('fileName', $path) . self::html_param_tag('animationatStart', 'true') . self::html_param_tag('transparentatStart', 'true') . self::html_param_tag('AutoSize', intval($AutoSize)) . self::html_param_tag('ShowDisplay', intval($ShowDisplay)) . self::html_param_tag('autoStart', StringTools::fromBool($autostart)) . self::html_param_tag('ShowControls', intval($showcontrols)) . self::html_param_tag('Volume', $volume) . $embed . '</object>';
 
 		return $result;
 	}
@@ -148,13 +148,13 @@ standby="' . $standby_string . '" type="application/x-oleobject" width="' . $wid
 
 	public function video_html($path) {
 		$ext = strtolower(File::extension($path));
-		if (in_array($ext, $this->option_list('flash_player_extensions', 'flv'))) {
+		if (in_array($ext, $this->optionIterable('flash_player_extensions', 'flv'))) {
 			return $this->flash_player_html($path);
 		}
-		if (in_array($ext, $this->option_list('quicktime_extensions', 'mov;sdp;dv;mpeg;mpg;mp4;m4v'))) {
+		if (in_array($ext, $this->optionIterable('quicktime_extensions', 'mov;sdp;dv;mpeg;mpg;mp4;m4v'))) {
 			return $this->quicktime_player_html($path);
 		}
-		if (in_array($ext, $this->option_list('mplayer_extensions', ''))) {
+		if (in_array($ext, $this->optionIterable('mplayer_extensions', ''))) {
 			return $this->media_player_html($path);
 		}
 		switch ($this->option('unknown_use')) {
@@ -172,8 +172,8 @@ standby="' . $standby_string . '" type="application/x-oleobject" width="' . $wid
 	 *
 	 * @return string
 	 */
-	public function render() {
-		$path = $this->object->apply_map($this->option('src', '{' . $this->column() . '}'));
+	public function render(): string {
+		$path = $this->object->applyMap($this->option('src', '{' . $this->column() . '}'));
 		return $this->video_html($path);
 	}
 }

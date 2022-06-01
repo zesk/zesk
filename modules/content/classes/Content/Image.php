@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk-lite
  * @subpackage image
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -29,10 +31,10 @@ class Content_Image extends ORM {
 	 *
 	 * @param string $path
 	 * @param array $members
-	 * @throws Exception_Invalid
 	 * @return Content_Image
+	 * @throws Exception_Invalid
 	 */
-	public static function register_from_file(Application $application, $path, array $members = [], $copy = true, $register = true) {
+	public static function registerFromFile(Application $application, $path, array $members = [], $copy = true, $register = true) {
 		File::depends($path);
 		$members['data'] = $cf = Content_Data::from_path($application, $path, $copy, true);
 		if (!array_key_exists('path', $members)) {
@@ -76,10 +78,10 @@ class Content_Image extends ORM {
 				'path' => 'data',
 			]);
 		}
-		$query->where('X.' . $this->id_column(), $this->id());
-		$query->what_object(__CLASS__, null, 'image_');
+		$query->addWhere('X.' . $this->idColumn(), $this->id());
+		$query->ormWhat(__CLASS__, null, 'image_');
 		if ($get_data) {
-			$query->what_object('Content_Data', null, 'data_');
+			$query->ormWhat('Content_Data', null, 'data_');
 		}
 
 		$result = $query->one();
@@ -89,10 +91,10 @@ class Content_Image extends ORM {
 		$add = [];
 		if ($get_data) {
 			$add = [
-				'data' => $this->orm_factory('Content_Data')->initialize(ArrayTools::kunprefix($result, 'data_', true), true),
+				'data' => $this->orm_factory('Content_Data')->initialize(ArrayTools::keysRemovePrefix($result, 'data_', true), true),
 			];
 		}
-		return $add + ArrayTools::kunprefix($result, 'image_', true);
+		return $add + ArrayTools::keysRemovePrefix($result, 'image_', true);
 	}
 
 	/**
@@ -109,7 +111,7 @@ class Content_Image extends ORM {
 	 */
 	public function store(): self {
 		$this->_update_sizes();
-		if ($this->member_is_empty('mime_type')) {
+		if ($this->memberIsEmpty('mime_type')) {
 			$this->mime_type = MIME::from_filename($this->path);
 		}
 		return parent::store();
@@ -148,7 +150,7 @@ class Content_Image extends ORM {
 	 * servable name
 	 *
 	 * @param string $path
-	 *        	Relative path of file
+	 *            Relative path of file
 	 * @param unknown $rawfile
 	 * @return unknown Ambigous unknown>
 	 */
@@ -199,10 +201,10 @@ class Content_Image extends ORM {
 	 *
 	 * Or false if not able to determine image type.
 	 *
-	 * @see Content_Image::determine_extension_simple
 	 * @param string $data
-	 *        	Raw image data
+	 *            Raw image data
 	 * @return string|boolean
+	 * @see Content_Image::determine_extension_simple
 	 */
 	public static function determine_extension_simple_data($data) {
 		$head = substr($data, 0, 12);
@@ -325,7 +327,7 @@ class Content_Image extends ORM {
 	 * @return boolean
 	 */
 	private function _update_sizes() {
-		if (!$this->member_is_empty('width') && !$this->member_is_empty('height')) {
+		if (!$this->memberIsEmpty('width') && !$this->memberIsEmpty('height')) {
 			return true;
 		}
 		$this->_force_to_disk();
@@ -346,7 +348,7 @@ class Content_Image extends ORM {
 	/**
 	 * Rotate image $degrees degrees in one direction or the other
 	 *
-	 * @param integer $degrees
+	 * @param int $degrees
 	 * @return boolean
 	 */
 	public function rotate($degrees) {
@@ -367,8 +369,8 @@ class Content_Image extends ORM {
 	 * Image result width is guaranteed to be <= $width
 	 * Image result height is guaranteed to be <= $height
 	 *
-	 * @param integer $width
-	 * @param integer $height
+	 * @param int $width
+	 * @param int $height
 	 * @return array
 	 */
 	public function constrain_dimensions($width, $height) {
@@ -433,10 +435,7 @@ class Content_Image extends ORM {
 	 * @return mixed|boolean
 	 */
 	public function hook_permission(User $user, Permission $perm) {
-		$is_mine = to_bool($this->member_query('users')
-			->where('users.id', $user)
-			->what('*n', 'COUNT(users.id)')
-			->one_integer('n'));
+		$is_mine = toBool($this->memberQuery('users')->addWhere('users.id', $user)->what('*n', 'COUNT(users.id)')->one_integer('n'));
 		return $is_mine;
 	}
 
@@ -452,9 +451,9 @@ class Content_Image extends ORM {
 	 * "height" - Scale to this maximum height
 	 * "delete" - boolean value. Whether to delete old Content_Data.
 	 *
-	 * @see self::reduce_image_dimensions
 	 * @param Application $application
-	 * @param integer $theshold
+	 * @param int $theshold
+	 * @see self::reduce_image_dimensions
 	 */
 	public static function downscale_images(Application $application, array $options): void {
 		$query = $application->orm_registry(__CLASS__)->query_select('X');
@@ -463,10 +462,10 @@ class Content_Image extends ORM {
 			'alias' => 'D',
 		]);
 		$query->what_object(Content_Data::class, 'D', 'data_');
-		$query->where('D.type', 'path');
+		$query->addWhere('D.type', 'path');
 		$size = avalue($options, 'size');
 		if ($size) {
-			$query->where('D.size|>=', $size);
+			$query->addWhere('D.size|>=', $size);
 		}
 
 		$iterator = $query->orms_iterator();
@@ -606,8 +605,8 @@ class Content_Image extends ORM {
 				$old_data->delete();
 			} else {
 				$this->application->logger->info('{class} #{id}: {path}: {percent} REPLACED Data: {new_data_id}, Previous: {data_id}', $__ + [
-					'new_data_id' => $new_data->id(),
-				]);
+						'new_data_id' => $new_data->id(),
+					]);
 			}
 		}
 		return $result;

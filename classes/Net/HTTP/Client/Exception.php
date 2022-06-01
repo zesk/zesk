@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Fri Feb 26 17:07:14 EST 2010 17:07:14
  */
 namespace zesk;

@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage webapp
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\WebApp;
 
@@ -153,7 +153,7 @@ class Instance extends ORM {
 			'instance' => $this,
 		]);
 		$site_member_names = $site->member_names();
-		$data = ArrayTools::remove($members, $site_member_names);
+		$data = ArrayTools::keysRemove($members, $site_member_names);
 		$members = ArrayTools::filter($members, $site_member_names);
 		if (!isset($members['code'])) {
 			throw new Exception_Semantics('{class} Site {code} {name} missing code', [
@@ -211,7 +211,7 @@ class Instance extends ORM {
 			$version = $type->version();
 			if (!empty($version)) {
 				$this->appversion = $version;
-				$this->apptype = strtolower(StringTools::unprefix(PHP::parse_class(get_class($type)), 'Type_'));
+				$this->apptype = strtolower(StringTools::unprefix(PHP::parseClass(get_class($type)), 'Type_'));
 				return true;
 			}
 		}
@@ -245,7 +245,7 @@ class Instance extends ORM {
 		$query = $this->query_select('X')->link(Server::class, [
 			'alias' => 'S',
 			'require' => false,
-		])->where('s.id', null);
+		])->addWhere('s.id', null);
 		$iterator = $query->orm_iterator();
 		foreach ($iterator as $instance) {
 			/* @var $instance self */

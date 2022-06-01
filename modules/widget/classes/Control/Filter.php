@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  *            Created on Tue Jul 15 16:28:30 EDT 2008
  */
+
 namespace zesk;
 
 class Control_Filter extends Control {
@@ -96,11 +98,11 @@ class Control_Filter extends Control {
 
 	/**
 	 *
-	 * {@inheritDoc}
 	 * @see Widget::model()
+	 * @return ORM
 	 */
-	public function model() {
-		return new Model($this->application);
+	public function model(): ORM {
+		return new ORM($this->application);
 	}
 
 	/**
@@ -140,20 +142,20 @@ class Control_Filter extends Control {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see Widget::theme_variables()
+	 * @see Widget::themeVariables()
 	 */
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
-			'theme_prefix' => $this->theme_prefix,
-			'theme_header' => $this->theme_header,
-			'filter_tag' => $this->filter_tag,
-			'filter_attributes' => $this->filter_attributes,
-			'widget_tag' => $this->widget_tag,
-			'widget_attributes' => $this->widget_attributes,
-			'widgets' => $this->children(),
-			'theme_widgets' => $this->theme_widgets,
-			'theme_footer' => $this->theme_footer,
-			'theme_suffix' => $this->theme_suffix,
-		] + parent::theme_variables() + $this->options;
+				'theme_prefix' => $this->theme_prefix,
+				'theme_header' => $this->theme_header,
+				'filter_tag' => $this->filter_tag,
+				'filter_attributes' => $this->filter_attributes,
+				'widget_tag' => $this->widget_tag,
+				'widget_attributes' => $this->widget_attributes,
+				'widgets' => $this->children(),
+				'theme_widgets' => $this->theme_widgets,
+				'theme_footer' => $this->theme_footer,
+				'theme_suffix' => $this->theme_suffix,
+			] + parent::themeVariables() + $this->options;
 	}
 }

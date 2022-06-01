@@ -158,7 +158,7 @@ abstract class Contact_Import extends Options {
 
 	/**
 	 *
-	 * @param integer $row_index
+	 * @param int $row_index
 	 * @param array $row
 	 * @return boolean
 	 */
@@ -179,7 +179,7 @@ abstract class Contact_Import extends Options {
 						$this->objects[$object][0][$field] = $value;
 					}
 				} elseif ($handler instanceof Contact_Builder_Base) {
-					$ignores = $handler->option_list('ignore_values');
+					$ignores = $handler->optionIterable('ignore_values');
 					if (is_array($ignores) && in_array($value, $ignores)) {
 						continue;
 					}
@@ -225,7 +225,7 @@ abstract class Contact_Import extends Options {
 				if (array_key_exists('Label', $item)) {
 					$object->label = $this->registerLabel($object, $item['Label']);
 				}
-				if ($object->has_member('contact')) {
+				if ($object->hasMember('contact')) {
 					$object->contact = $contact;
 				}
 				$object->register();

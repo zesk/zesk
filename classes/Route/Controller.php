@@ -85,7 +85,7 @@ class Route_Controller extends Route {
 		[$class, $this->controller_action] = $this->_determine_class_action();
 
 		/* @var $controller Controller */
-		$this->controller = $class->newInstance($this->application, $this, $response, $this->option_array('controller options') + $this->options);
+		$this->controller = $class->newInstance($this->application, $this, $response, $this->optionArray('controller options') + $this->options);
 
 		return [
 			$this->controller,

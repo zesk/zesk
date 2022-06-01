@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage kernel
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -159,7 +159,7 @@ class Paths {
 		$config->path(__CLASS__)->root = ZESK_ROOT;
 	}
 
-	public function set_application($set, $update = true) {
+	public function setApplication($set, $update = true) {
 		$this->application = rtrim($set, '/');
 		if ($update) {
 			$this->_init_app_paths();

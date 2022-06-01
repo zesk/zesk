@@ -5,7 +5,7 @@
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @package zesk
  * @subpackage kernel
- * @copyright Copyright &copy; 2012, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 

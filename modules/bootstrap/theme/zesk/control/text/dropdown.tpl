@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -43,20 +43,20 @@ if (false) {
 	$value = $this->value;
 	$variables = $this->variables;
 }
-$ia = $this->geta('attributes');
+$ia = $this->getArray('attributes');
 
 $ia['id'] = $id = $this->id;
 $ia['name'] = $name;
 
 $class = $this->class;
 if ($this->required) {
-	$class = CSS::add_class($class, 'required');
+	$class = CSS::addClass($class, 'required');
 }
-$ia['class'] = CSS::add_class($class, 'form-control');
+$ia['class'] = CSS::addClass($class, 'form-control');
 
 $ia['placeholder'] = $this->placeholder;
 
-$ia = $object->apply_map($ia) + [
+$ia = $object->applyMap($ia) + [
 	'value' => $value,
 ];
 
@@ -96,7 +96,7 @@ if ($this->select_behavior_enabled && empty($dropdown_value)) {
 		if (!is_array($attributes)) {
 			continue;
 		}
-		if (to_bool(avalue($attributes, 'selected'))) {
+		if (toBool(avalue($attributes, 'selected'))) {
 			$dropdown_value = $code;
 			break;
 		}
@@ -127,8 +127,8 @@ foreach ($this->dropdown_menu as $code => $attributes) {
 	} else {
 		$link_html = $code;
 	}
-	if (to_bool(avalue($attributes, 'selected')) || $code === $dropdown_value) {
-		$li_attributes = HTML::add_class($li_attributes, 'active');
+	if (toBool(avalue($attributes, 'selected')) || $code === $dropdown_value) {
+		$li_attributes = HTML::addClass($li_attributes, 'active');
 	}
 	$html .= HTML::tag('li', $li_attributes, HTML::tag('a', $attributes, $link_html));
 }

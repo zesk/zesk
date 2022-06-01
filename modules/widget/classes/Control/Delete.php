@@ -18,7 +18,7 @@ class Control_Delete extends Control_Edit {
 		$this->setOption('title', $title);
 	}
 
-	public function submit() {
+	public function submit(): bool {
 		if (!$this->submit_children()) {
 			return false;
 		}

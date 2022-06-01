@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -21,7 +21,7 @@ class Database_Table_Test extends Test_Unit {
 
 	public function test_main(): void {
 		$db = $this->application->database_registry();
-		$table_name = PHP::parse_class(__CLASS__) . '_' . __FUNCTION__;
+		$table_name = PHP::parseClass(__CLASS__) . '_' . __FUNCTION__;
 		$table = new Database_Table($db, $table_name);
 
 		$table->__toString();
@@ -50,7 +50,7 @@ class Database_Table_Test extends Test_Unit {
 		$table->previousColumn('thing');
 
 		$name = 'foo';
-		$this->assertFalse($table->has_index($name));
+		$this->assertFalse($table->hasIndex($name));
 
 		$success = false;
 
@@ -70,15 +70,15 @@ class Database_Table_Test extends Test_Unit {
 			'sql_type' => 'varchar(32)',
 		]);
 		$exception_reserved = false;
-		$table->column_add($dbCol, $exception_reserved);
+		$table->columnAdd($dbCol, $exception_reserved);
 
 		$table->sql_alter($table);
 
 		$debug = $this->optionBool('debug');
 		$that = $table;
-		$this->assert($table->is_similar($that, $debug) === true);
+		$this->assert($table->isSimilar($that, $debug) === true);
 		$that = new Database_Table($db, 'someother');
-		$this->assert($table->is_similar($that, $debug) === false);
+		$this->assert($table->isSimilar($that, $debug) === false);
 
 		echo basename(__FILE__) . ": success\n";
 	}

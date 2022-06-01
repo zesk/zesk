@@ -13,7 +13,7 @@ class Control_Trinary extends Control_Select {
 
 	protected function hook_query(Database_Query_Select $query): void {
 		$val = $this->value();
-		$column = $this->query_column();
+		$column = $this->queryColumn();
 		$locale = $this->application->locale;
 		if ($val === 'null') {
 			$query->condition($locale->__('have not answered {label}', [

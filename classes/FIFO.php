@@ -50,7 +50,7 @@ class FIFO {
 	 *
 	 * @param string $path Full path name
 	 * @param bool $create Create the FIFO if it doesn't exist (assumes READER)
-	 * @param integer $mode File mode to create the FIFO (uses umask)
+	 * @param int $mode File mode to create the FIFO (uses umask)
 	 * @throws Exception_Directory_NotFound
 	 * @throws Exception_File_Permission
 	 */
@@ -123,7 +123,7 @@ class FIFO {
 	/**
 	 * Read a message from client process
 	 *
-	 * @param integer $timeout
+	 * @param int $timeout
 	 *        	in seconds
 	 * @return mixed
 	 */

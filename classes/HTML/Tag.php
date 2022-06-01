@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  *            Created on Fri Sep 05 19:32:05 EDT 2008 19:32:05
  */
 
@@ -13,7 +13,7 @@ namespace zesk;
 /**
  * Representation of an HTML tag.
  * contents is a string containing more HTML.
- * Inherits Options, attributes of the tag can be accessed via option, optionBool, has_option, etc.
+ * Inherits Options, attributes of the tag can be accessed via option, optionBool, hasOption, etc.
  * @package zesk
  * @subpackage tools
  */
@@ -51,7 +51,7 @@ class HTML_Tag extends Options {
 	 * @param array $attributes tag attributes
 	 * @param string $inner_html
 	 * @param string $outer_html
-	 * @param integer $offset
+	 * @param int $offset
 	 */
 	public function __construct(
 		string $name,

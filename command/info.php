@@ -130,28 +130,28 @@ class Command_Info extends Command_Base {
 		$info[self::zesk_version_string] = Version::string($this->application->locale);
 		$info[self::zesk_root] = ZESK_ROOT;
 		$info[self::zesk_application_root] = $app->path();
-		$info[self::zesk_application_class] = $app->application_class();
+		$info[self::zesk_application_class] = $app->applicationClass();
 		$info[self::command_path] = $app->command_path();
 		$info[self::zesk_application_theme_path] = $app->theme_path();
 		$info['zesk_command_path'] = $app->zesk_command_path();
 		$info[self::zesk_autoload_path] = $app->autoloader->path();
 		$info['enable_dl'] = ini_get('enable_dl') ? 'true' : 'false';
 		$info['php_ini'] = get_cfg_var('cfg_file_path');
-		$info['display_startup_errors'] = to_bool(ini_get('display_startup_errors')) ? 'true' : 'false';
+		$info['display_startup_errors'] = toBool(ini_get('display_startup_errors')) ? 'true' : 'false';
 		$info['error_log'] = ini_get('error_log');
 		$info[self::configuration_files_loaded] = to_array(avalue($app->loader->variables(), 'processed', []));
 
 		$module_info = $app->modules->all_hook_arguments('info', [
 			[],
 		], []);
-		$info = array_merge($info, ArrayTools::key_value($module_info, null, 'value'));
+		$info = array_merge($info, ArrayTools::extract($module_info, null, 'value'));
 		$human_names = [];
 		foreach ($module_info as $code_name => $settings) {
 			$human_names[$code_name] = avalue($settings, 'title', $code_name);
 		}
 
 		if (!$this->optionBool('computer-labels')) {
-			$info = ArrayTools::map_keys($info, $human_names + self::$human_names);
+			$info = ArrayTools::keysMap($info, $human_names + self::$human_names);
 		}
 		$this->render_format($info, $this->option('format'));
 		return 0;

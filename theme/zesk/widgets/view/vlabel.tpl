@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -11,7 +11,7 @@ namespace zesk;
 /* @var $router \zesk\Router */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
-$cache_path = $application->cache_path('vlabels');
+$cache_path = $application->cachePath('vlabels');
 
 $allowed_vlabel_fields = $this->get('vlabel_allowed_options', 'font-size;width;height;align;angle;title;text');
 

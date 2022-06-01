@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage sqlite3
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace sqlite3;
 
@@ -49,7 +49,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		$newName = $db_col_new->name();
 		$newType = $this->database_column_native_type($db_col_new);
 
-		return 'ALTER TABLE ' . $this->quote_table($table) . ' ADD COLUMN ' . $this->quote_column($newName) . " $newType";
+		return 'ALTER TABLE ' . $this->quoteTable($table) . ' ADD COLUMN ' . $this->quoteColumn($newName) . " $newType";
 	}
 
 	/**
@@ -68,14 +68,14 @@ class Database_SQL extends \zesk\Database_SQL {
 		$sqls[] = 'BEGIN EXCLUSIVE TRANSACTION';
 		// 		 Remember the format of all indexes and triggers associated with table X. This information will be needed in step 8 below. One way to do this is to run a query like the following: SELECT type, sql FROM sqlite_master WHERE tbl_name='X'.
 
-		$new_table->column_remove($dbColName->name());
+		$new_table->column_keysRemove($dbColName->name());
 
 		$new_table->name($new_table_name = strval($table) . '_' . md5(microtime()));
 
-		$quoted_table_name = $this->quote_table($table->name());
-		$quoted_new_table_name = $this->quote_table($new_table_name);
+		$quoted_table_name = $this->quoteTable($table->name());
+		$quoted_new_table_name = $this->quoteTable($new_table_name);
 
-		$quoted_column_list = implode(', ', $this->quote_column($new_table->column_names()));
+		$quoted_column_list = implode(', ', $this->quoteColumn($new_table->columnNames()));
 
 		$create_sql = $new_table->create_sql();
 
@@ -115,8 +115,8 @@ class Database_SQL extends \zesk\Database_SQL {
 		$unique = '';
 		$indexes = $index->column_sizes();
 		$name = $index->name();
-		$quoted_name = $this->quote_table($name);
-		$table_name = $this->quote_table($table->name());
+		$quoted_name = $this->quoteTable($name);
+		$table_name = $this->quoteTable($table->name());
 		switch ($indexType) {
 			case Database_Index::TYPE_UNIQUE:
 				$unique = ' UNIQUE';
@@ -126,7 +126,7 @@ class Database_SQL extends \zesk\Database_SQL {
 				$columns = $index->columns();
 				if (count($columns) === 1) {
 					$column = $table->column(first($columns));
-					$column_name = $this->quote_column($column->name());
+					$column_name = $this->quoteColumn($column->name());
 					$column_sql = $column->sql_type();
 					return "ALTER TABLE $table_name CHANGE $column_name $column_sql PRIMARY KEY";
 				}
@@ -141,9 +141,9 @@ class Database_SQL extends \zesk\Database_SQL {
 		$sqlIndexes = [];
 		foreach ($indexes as $k => $size) {
 			if (is_numeric($size)) {
-				$sqlIndexes[] = $this->quote_column($k) . "($size)";
+				$sqlIndexes[] = $this->quoteColumn($k) . "($size)";
 			} else {
-				$sqlIndexes[] = $this->quote_column($k);
+				$sqlIndexes[] = $this->quoteColumn($k);
 			}
 		}
 		return "CREATE$unique INDEX $quoted_name ON $table_name (" . implode(', ', $sqlIndexes) . ')';
@@ -156,7 +156,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	 */
 	public function alter_table_index_drop(Database_Table $table, Database_Index $index) {
 		$name = $index->name();
-		$name = $this->quote_column($name);
+		$name = $this->quoteColumn($name);
 		switch ($indexType = $index->type()) {
 			case Database_Index::TYPE_UNIQUE:
 			case Database_Index::TYPE_INDEX:
@@ -177,7 +177,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		$newName = $db_col_new->name();
 		$suffix = $db_col_new->primary_key() ? ' FIRST' : '';
 
-		$new_sql = 'ALTER TABLE ' . $this->quote_table($table) . ' CHANGE COLUMN ' . $this->quote_column($previous_name) . ' ' . $this->quote_column($newName) . " $newType $suffix";
+		$new_sql = 'ALTER TABLE ' . $this->quoteTable($table) . ' CHANGE COLUMN ' . $this->quoteColumn($previous_name) . ' ' . $this->quoteColumn($newName) . " $newType $suffix";
 		$old_table = $db_col_old->table();
 		if ($db_col_new->primary_key() && $old_table->primary()) {
 			return [
@@ -214,7 +214,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		return "INET_ATON($value)";
 	}
 
-	public function remove_comments($sql) {
+	public function removeComments($sql) {
 		$sql = Text::remove_line_comments($sql, '--');
 		$sql = Text::remove_range_comments($sql);
 		return $sql;
@@ -230,9 +230,9 @@ class Database_SQL extends \zesk\Database_SQL {
 		$sqlIndexes = [];
 		foreach ($column_sizes as $k => $size) {
 			if (is_numeric($size)) {
-				$sqlIndexes[] = $this->quote_column($k) . "($size)";
+				$sqlIndexes[] = $this->quoteColumn($k) . "($size)";
 			} else {
-				$sqlIndexes[] = $this->quote_column($k);
+				$sqlIndexes[] = $this->quoteColumn($k);
 			}
 		}
 		return $sqlIndexes;
@@ -260,7 +260,7 @@ class Database_SQL extends \zesk\Database_SQL {
 				throw new Exception_Invalid(__METHOD__ . "($table, $name, $type, ...): Invalid index type {name}", compact('name'));
 		}
 		if ($name) {
-			$name = $this->quote_column($name) . ' ';
+			$name = $this->quoteColumn($name) . ' ';
 		}
 		return "$type $name(\n" . implode(",\n\t", $this->_sql_column_sizes_to_quoted_list($column_sizes)) . "\n)";
 	}
@@ -285,7 +285,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		$bt = $data_type->native_type_to_sql_type($type);
 		switch ($bt) {
 			case 'boolean':
-				$sql = StringTools::from_bool($default);
+				$sql = StringTools::fromBool($default);
 
 				break;
 			default:
@@ -341,7 +341,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @return unknown
 	 */
 	public function sql_format_string($sql) {
-		return $this->quote_text($sql);
+		return $this->quoteText($sql);
 	}
 
 	/*
@@ -355,7 +355,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	}
 
 	public function sql_boolean($value) {
-		return to_bool(value) ? 'true' : 'false';
+		return toBool(value) ? 'true' : 'false';
 	}
 
 	/*
@@ -369,7 +369,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * Functions
 	 */
 	public function sql_function($func, $memberName, $alias = '') {
-		$memberName = $this->quote_column($memberName);
+		$memberName = $this->quoteColumn($memberName);
 		switch (strtolower(trim($func))) {
 			case 'min':
 				return $this->sql_table_as("MIN($memberName)", $alias);
@@ -431,13 +431,13 @@ class Database_SQL extends \zesk\Database_SQL {
 		if ($table instanceof Database_Table) {
 			$table = $table->name();
 		}
-		$table = $this->quote_table($table);
+		$table = $this->quoteTable($table);
 		return [
 			"DROP TABLE IF EXISTS $table",
 		];
 	}
 
-	public function create_table(Database_Table $dbTableObject): void {
+	public function createTable(Database_Table $dbTableObject): void {
 		throw new Exception_Unimplemented('Yup');
 	}
 
@@ -451,16 +451,16 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @return string
 	 * @param string $table
 	 */
-	final public function quote_column($name) {
+	final public function quoteColumn($name) {
 		if (is_array($name)) {
 			foreach ($name as $index => $col) {
-				$name[$index] = $this->quote_column($col);
+				$name[$index] = $this->quoteColumn($col);
 			}
 			return $name;
 		}
 		[$alias, $col] = pair($name, '.', null, $name);
 		if ($alias) {
-			return $this->quote_column($alias) . '.' . $this->quote_column($col);
+			return $this->quoteColumn($alias) . '.' . $this->quoteColumn($col);
 		}
 		return '"' . strtr($name, [
 			'"' => '\\"',
@@ -470,22 +470,22 @@ class Database_SQL extends \zesk\Database_SQL {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database_SQL::quote_text()
+	 * @see Database_SQL::quoteText()
 	 */
-	final public function quote_text($text) {
-		return $this->database->native_quote_text($text);
+	final public function quoteText($text) {
+		return $this->database->nativeQuoteText($text);
 	}
 
 	/**
-	 * Reverses, exactly, quote_column
+	 * Reverses, exactly, quoteColumn
 	 *
 	 * @param string $column
 	 * @return string
 	 */
-	final public function unquote_column($column) {
+	final public function unquoteColumn($column) {
 		if (is_array($column)) {
 			foreach ($column as $index => $col) {
-				$column[$index] = $this->unquote_column($col);
+				$column[$index] = $this->unquoteColumn($col);
 			}
 			return $column;
 		}
@@ -500,8 +500,8 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @param string $table
 	 * @return string
 	 */
-	final public function quote_table($table) {
-		return self::quote_column($table);
+	final public function quoteTable($table) {
+		return self::quoteColumn($table);
 	}
 
 	/**
@@ -509,8 +509,8 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @param string $table
 	 * @return string
 	 */
-	final public function unquote_table($table) {
-		return self::unquote_column($table);
+	final public function unquoteTable($table) {
+		return self::unquoteColumn($table);
 	}
 
 	public function function_date_diff($date_a, $date_b) {

@@ -19,7 +19,7 @@ echo $this->theme($this->theme_prefix, [], [
 	'first' => true,
 ]);
 if ($this->form_tag) {
-	echo HTML::tag_open($this->form_tag, HTML::add_class($this->form_attributes, $this->class));
+	echo HTML::tag_open($this->form_tag, HTML::addClass($this->form_attributes, $this->class));
 }
 echo $this->theme($this->theme_header, [], [
 	'first' => true,
@@ -44,7 +44,7 @@ foreach ($this->widgets as $widget) {
 	$map[$prefix . 'has-error'] = '';
 	$widget_attributes = $this->widget_attributes;
 	if ($has_errors) {
-		$widget_attributes = HTML::add_class($widget_attributes, 'has-error');
+		$widget_attributes = HTML::addClass($widget_attributes, 'has-error');
 		$map[$prefix . 'has_error'] = ' has-error'; // Class name is "has-error"
 		if ($widget->optionBool('append_error', true)) {
 			$errors .= HTML::tags('span', '.help-block error', $widget->errors());
@@ -64,22 +64,22 @@ foreach ($this->widgets as $widget) {
 	}
 	/* @var $widget Widget */
 	if ($this->widget_wrap_tag) {
-		$widget->wrap($this->widget_wrap_tag, $nolabel ? $this->nolabel_widget_wrap_attributes : $this->widget_wrap_attributes);
+		$widget->addWrap($this->widget_wrap_tag, $nolabel ? $this->nolabel_widget_wrap_attributes : $this->widget_wrap_attributes);
 	}
-	$widget_attributes = HTML::add_class($widget_attributes, $widget->context_class());
+	$widget_attributes = HTML::addClass($widget_attributes, $widget->contextClass());
 	if ($name) {
-		$widget_attributes = HTML::add_class($widget_attributes, "form-widget-$name");
+		$widget_attributes = HTML::addClass($widget_attributes, "form-widget-$name");
 	}
 	$theme_variables["widget_${name}"] = $widget;
 	$map[$prefix . 'widget'] = $map[$prefix . 'render'] = $render = $widget->render();
-	$map[$name] = $row = $this->widget_tag ? HTML::tag($this->widget_tag, HTML::add_class($widget_attributes, "odd-$odd"), $label . $render) : $label . $render;
+	$map[$name] = $row = $this->widget_tag ? HTML::tag($this->widget_tag, HTML::addClass($widget_attributes, "odd-$odd"), $label . $render) : $label . $render;
 	if (!$theme_widgets) {
 		echo map($row, $map);
 	}
 	$odd = 1 - $odd;
 }
 if ($theme_widgets) {
-	$theme_variables += ArrayTools::kprefix(ArrayTools::kreplace($map, '.', '_'), 'widget_');
+	$theme_variables += ArrayTools::prefixKeys(ArrayTools::keysReplace($map, '.', '_'), 'widget_');
 	echo map($this->theme($theme_widgets, $theme_variables), $map);
 }
 // TODO: 2016-09-26 KMD Is this wrong? Should $theme_footer go after $theme_widgets, below?

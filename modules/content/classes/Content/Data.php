@@ -302,7 +302,7 @@ class Content_Data extends ORM {
 	 * Internal validation routing - checks consistency of data in files
 	 *
 	 * @param string $computed_md5
-	 * @param integer $computed_size
+	 * @param int $computed_size
 	 */
 	private function check_md5_and_size($computed_md5, $computed_size): void {
 		if (strcasecmp($computed_md5, $this->md5hash) !== 0) {
@@ -355,7 +355,7 @@ class Content_Data extends ORM {
 						'old_path' => $old_path,
 						'new_path' => $this_path,
 					] + $this->members());
-					if ($this->member_is_empty('missing')) {
+					if ($this->memberIsEmpty('missing')) {
 						$this->missing = 'now';
 					}
 				}
@@ -427,19 +427,19 @@ class Content_Data extends ORM {
 	 * Run cron hourly to check files in file system to make sure they are still consistent.
 	 */
 	public static function cron_hourly(Application $application): void {
-		foreach ($application->class_query(__CLASS__)->where('*checked|<=', 'DATE_SUB(UTC_TIMESTAMP(),INTERVAL 1 DAY)')->orm_iterator() as $object) {
+		foreach ($application->class_query(__CLASS__)->addWhere('*checked|<=', 'DATE_SUB(UTC_TIMESTAMP(),INTERVAL 1 DAY)')->orm_iterator() as $object) {
 			$object->validate_and_repair();
 		}
 		$threshold = self::database_size_threshold($application);
 		foreach ($application->class_query(__CLASS__)
-			->where('*size|<=', $threshold)
-			->where('type', 'path')
+			->addWhere('*size|<=', $threshold)
+			->addWhere('type', 'path')
 			->orm_iterator() as $object) {
 			$object->switch_storage();
 		}
 		foreach ($application->class_query(__CLASS__)
-			->where('*size|>', $threshold)
-			->where('type', 'data')
+			->addWhere('*size|>', $threshold)
+			->addWhere('type', 'data')
 			->orm_iterator() as $object) {
 			$object->switch_storage();
 		}

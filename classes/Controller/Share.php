@@ -174,7 +174,7 @@ class Controller_Share extends Controller {
 	/**
 	 * Clear the share build path upon cache clear
 	 */
-	public function hook_cache_clear(): void {
+	public function hook_cacheClear(): void {
 		$logger = $this->application->logger;
 		/* @var $locale \zesk\Locale */
 		$logger->debug(__METHOD__);

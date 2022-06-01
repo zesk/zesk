@@ -1,10 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
-namespace zesk;
 
-use JetBrains\PhpStorm\Pure;
+namespace zesk;
 
 /**
  * String manipulation functions, largely based on latin languages.
@@ -12,7 +12,7 @@ use JetBrains\PhpStorm\Pure;
  * @todo Check multibyte functionality with PHP7
  */
 class StringTools {
-	public static function case_match($string, $pattern) {
+	public static function case_match(string $string, string $pattern): string {
 		$char1 = substr($pattern, 0, 1);
 		$char2 = substr($pattern, 1, 1);
 		if ($char1 == strtolower($char1)) {
@@ -34,7 +34,7 @@ class StringTools {
 	 * @return array
 	 * @see pair
 	 */
-	public static function pair($string, $delim = '.', $left = null, $right = null) {
+	public static function pair(string $string, string $delim = '.', mixed $left = null, mixed $right = null): array {
 		return pair($string, $delim, $left, $right);
 	}
 
@@ -46,10 +46,10 @@ class StringTools {
 	 * @param string $delim
 	 * @param string $left
 	 * @param string $right
-	 * @return array|string
+	 * @return array
 	 * @see pairr
 	 */
-	public static function pairr($string, $delim = '.', $left = null, $right = null) {
+	public static function pairr(string $string, string $delim = '.', mixed $left = null, mixed $right = null) {
 		return pairr($string, $delim, $left, $right);
 	}
 
@@ -57,12 +57,12 @@ class StringTools {
 	 * Return portion of string to the left of a matched string
 	 *
 	 * @param string $haystack
-	 *        	String to slice up
+	 *            String to slice up
 	 * @param string $needle
-	 *        	String to find
+	 *            String to find
 	 * @param ?string $default
-	 *        	Default string to return if not found. If null, returns $str, otherwise returns
-	 *        	$default
+	 *            Default string to return if not found. If null, returns $str, otherwise returns
+	 *            $default
 	 * @return string
 	 */
 	public static function left(string $haystack, string $needle, string $default = null): string {
@@ -76,12 +76,12 @@ class StringTools {
 	 * Return portion of string to the left of a matched string, searching backwards for $find
 	 *
 	 * @param string $haystack
-	 *        	String to slice up
+	 *            String to slice up
 	 * @param string $needle
-	 *        	String to find
-	 * @param string $default
-	 *        	Default string to return if not found. If null, returns $str, otherwise returns
-	 *        	$default
+	 *            String to find
+	 * @param ?string $default
+	 *            Default string to return if not found. If null, returns $str, otherwise returns
+	 *            $default
 	 * @return string
 	 */
 	public static function rleft(string $haystack, string $needle, string $default = null): string {
@@ -95,12 +95,12 @@ class StringTools {
 	 * Return portion of string to the right of a matched string
 	 *
 	 * @param string $haystack
-	 *        	String to slice up
+	 *            String to slice up
 	 * @param string $needle
-	 *        	String to find
+	 *            String to find
 	 * @param string $default
-	 *        	Default string to return if not found. If null, returns $str, otherwise returns
-	 *        	$default
+	 *            Default string to return if not found. If null, returns $str, otherwise returns
+	 *            $default
 	 * @return string
 	 */
 	public static function right(string $haystack, string $needle, string $default = null): string {
@@ -114,12 +114,12 @@ class StringTools {
 	 * Return portion of string to the right of a matched string, searching backwards for $find
 	 *
 	 * @param string $haystack
-	 *        	String to slice up
+	 *            String to slice up
 	 * @param string $needle
-	 *        	String to find
+	 *            String to find
 	 * @param string $default
-	 *        	Default string to return if not found. If null, returns $str, otherwise returns
-	 *        	$default
+	 *            Default string to return if not found. If null, returns $str, otherwise returns
+	 *            $default
 	 * @return string
 	 */
 	public static function rright(string $haystack, string $needle, string $default = null): string {
@@ -133,21 +133,20 @@ class StringTools {
 	 * Parses boolean values, but does not accept numeric ones.
 	 *
 	 * @param mixed $value
-	 *        	Value to parse
+	 *            Value to parse
 	 * @param mixed $default
-	 *        	Value to return if parsing fails.
+	 *            Value to return if parsing fails.
 	 * @return mixed Parsed boolean value, or $default
-	 * @see to_bool
+	 * @see toBool
 	 */
-	#[Pure]
-	public static function to_bool(mixed $value, bool $default = false): bool {
+	public static function toBool(mixed $value, bool $default = false): bool {
 		if (is_bool($value)) {
 			return $value;
 		}
 		if (is_numeric($value)) {
 			return $default;
 		}
-		return to_bool($value, $default);
+		return toBool($value, $default);
 	}
 
 	/**
@@ -156,9 +155,8 @@ class StringTools {
 	 * @param mixed $bool
 	 * @return string
 	 */
-	#[Pure]
-	public static function from_bool(mixed $bool): string {
-		return to_bool($bool) ? 'true' : 'false';
+	public static function fromBool(mixed $bool): string {
+		return toBool($bool) ? 'true' : 'false';
 	}
 
 	/**
@@ -192,8 +190,7 @@ class StringTools {
 	 * @param ?integer $max_fields Maximum fields to create, if null, then all fields
 	 * @return string|array|null
 	 */
-	public static function field(string $string, int $index = null, string $delim = " \t", int $max_fields = null):
-	string|array|null {
+	public static function field(string $string, int $index = null, string $delim = " \t", int $max_fields = null): string|array|null {
 		$d = $delim[0];
 		$v = preg_replace('/[' . preg_quote($delim, '/') . ']+/', $d, $string);
 		$v = $max_fields !== null ? explode($d, $v, $max_fields) : explode($d, $v);
@@ -203,16 +200,16 @@ class StringTools {
 	/**
 	 * Determine if a string begins with another string
 	 *
-	 * @param string $haystack
-	 *        	String to search
-	 * @param string $needle
-	 *        	String to find
+	 * @param string|array $haystack
+	 *            String(s) to search
+	 * @param string|array $needle
+	 *            String(s) to find
 	 * @param boolean $case_insensitive
-	 *        	Case insensitive comparison
-	 * @return boolean Whether the haystack begins with needle
+	 *            Case insensitive comparison
+	 * @return boolean Whether any haystack begins with any needle
 	 * @see begins
 	 */
-	public static function begins($haystack, $needle, $case_insensitive = false) {
+	public static function begins(string|array $haystack, string|array $needle, bool $case_insensitive = false): bool {
 		if (is_array($haystack)) {
 			foreach ($haystack as $k) {
 				if (self::begins($k, $needle, $case_insensitive)) {
@@ -230,22 +227,22 @@ class StringTools {
 			return false;
 		}
 		$check_string = substr($haystack, 0, strlen($needle));
-		return $case_insensitive ? (strcasecmp($check_string, $needle) === 0 ? true : false) : ($check_string === $needle ? true : false);
+		return $case_insensitive ? strcasecmp($check_string, $needle) === 0 : $check_string === $needle;
 	}
 
 	/**
 	 * Determine if a string contains with another string
 	 *
 	 * @param string $haystack
-	 *        	String to search
+	 *            String to search
 	 * @param string $needle
-	 *        	String to find
+	 *            String to find
 	 * @param boolean $case_insensitive
-	 *        	Case insensitive comparison
+	 *            Case insensitive comparison
 	 * @return boolean Whether the haystack contains the needle
 	 * @see StringTools::begins, StringTools::ends
 	 */
-	public static function contains($haystack, $needle, $case_insensitive = false) {
+	public static function contains(array|string $haystack, array|string $needle, bool $case_insensitive = false): bool {
 		if (is_array($haystack)) {
 			foreach ($haystack as $k) {
 				if (self::contains($k, $needle, $case_insensitive)) {
@@ -262,21 +259,21 @@ class StringTools {
 			}
 			return false;
 		}
-		return $case_insensitive ? (stripos($haystack, $needle) !== false ? true : false) : (str_contains($haystack, $needle) ? true : false);
+		return $case_insensitive ? stripos($haystack, $needle) !== false : str_contains($haystack, $needle);
 	}
 
 	/**
 	 * Determine if a string ends with another string
 	 *
-	 * @param mixed $haystack
-	 *        	A string or array of strings to search
-	 * @param mixed $needle
-	 *        	A string or array of strings to find
+	 * @param array|string $haystack
+	 *            A string or array of strings to search
+	 * @param array|string $needle
+	 *            A string or array of strings to find
 	 * @param boolean $case_insensitive
-	 *        	Case insensitive comparison
+	 *            Case insensitive comparison
 	 * @return boolean
 	 */
-	public static function ends($haystack, $needle, $case_insensitive = false) {
+	public static function ends(array|string $haystack, array|string $needle, bool $case_insensitive = false): bool {
 		if (is_array($haystack)) {
 			foreach ($haystack as $k) {
 				if (self::ends($k, $needle, $case_insensitive)) {
@@ -314,11 +311,12 @@ class StringTools {
 	 *
 	 * @param string $string
 	 * @param mixed $prefix
-	 *        	A string or an array of strings to unprefix. First matched string is used to
-	 *        	unprefix the string.
+	 *            A string or an array of strings to unprefix. First matched string is used to
+	 *            unprefix the string.
 	 * @return string
 	 */
-	public static function unprefix($string, $prefix, $case_insensitive = false) {
+	public static function unprefix(string|array $string, string|array $prefix, bool $case_insensitive = false):
+	string|array {
 		if (is_array($prefix)) {
 			foreach ($prefix as $pre) {
 				$new_string = self::unprefix($string, $pre, $case_insensitive);
@@ -337,11 +335,11 @@ class StringTools {
 	 *
 	 * @param string $string
 	 * @param mixed $suffix
-	 *        	A string or an array of strings to unsuffix. First matched string is used to
-	 *        	unsuffix the string.
+	 *            A string or an array of strings to unsuffix. First matched string is used to
+	 *            unsuffix the string.
 	 * @return string
 	 */
-	public static function unsuffix($string, $suffix, $case_insensitive = false) {
+	public static function unsuffix(string|array $string, string $suffix, bool $case_insensitive = false): string|array {
 		if (is_array($suffix)) {
 			foreach ($suffix as $suff) {
 				$new_string = self::unsuffix($string, $suff, $case_insensitive);
@@ -452,7 +450,7 @@ class StringTools {
 	 *
 	 * Returns true for php files, false for ZIP files, and "funky" for everything else
 	 *
-	 * @param string $string  A string to match
+	 * @param string $string A string to match
 	 * @param array $rules A list of patterns and how to handle them
 	 * @param boolean $default The default value to return if all rules are parsed and nothing matches
 	 *
@@ -460,7 +458,7 @@ class StringTools {
 	 */
 	public static function filter($string, array $rules, $default = null) {
 		foreach ($rules as $pattern => $result) {
-			$result = to_bool($result);
+			$result = toBool($result);
 			if (is_numeric($pattern)) {
 				return $result;
 			}
@@ -477,11 +475,11 @@ class StringTools {
 	 * If not found, return the content unchanged.
 	 *
 	 * @param string $search
-	 *        	String to find
+	 *            String to find
 	 * @param string $replace
-	 *        	String to replace
+	 *            String to replace
 	 * @param string $content
-	 *        	Content in which to replace string
+	 *            Content in which to replace string
 	 * @return string
 	 */
 	public static function replace_first($search, $replace, $content) {
@@ -536,9 +534,9 @@ class StringTools {
 	 * Pad a string with zeros up to the length specified.
 	 *
 	 * @param number $number
-	 *        	Number to pad
+	 *            Number to pad
 	 * @param number $length
-	 *        	Number of characters to pad
+	 *            Number of characters to pad
 	 * @return string
 	 */
 	public static function zero_pad($number, $length = 2) {
@@ -557,7 +555,7 @@ class StringTools {
 	 *
 	 * @see http://www.nntp.perl.org/group/perl.macperl.anyperl/154
 	 * @param string $text
-	 * @param integer $tab_width
+	 * @param int $tab_width
 	 * @return string
 	 */
 	public static function detab($text, $tab_width = null) {
@@ -605,7 +603,7 @@ class StringTools {
 	 * "Hello", he said.
 	 *
 	 * @param string $x
-	 *        	A value to write to a CSV file
+	 *            A value to write to a CSV file
 	 * @return string A correctly quoted CSV value
 	 */
 	public static function csv_quote(string $x): string {
@@ -633,7 +631,7 @@ class StringTools {
 	 * Quote multiple CSV rows
 	 *
 	 * @param array $x
-	 *        	of arrays of strings
+	 *            of arrays of strings
 	 * @return string
 	 */
 	public static function csv_quote_rows(array $x): array {
@@ -672,8 +670,8 @@ class StringTools {
 	 *
 	 * @param string $string
 	 * @param string $encoding
-	 * @see mb_internal_encoding
 	 * @return integer
+	 * @see mb_internal_encoding
 	 */
 	public static function length(string $string, string $encoding = 'UTF-8') {
 		if (function_exists('mb_strlen')) {
@@ -692,12 +690,12 @@ class StringTools {
 	 * Retrieve a substring of a multi-byte string
 	 *
 	 * @param string $string
-	 * @param integer $start
-	 * @param integer $length
+	 * @param int $start
+	 * @param int $length
 	 * @param string $encoding
-	 * @see mb_internal_encoding
-	 * @see mb_substr
 	 * @return string
+	 * @see mb_substr
+	 * @see mb_internal_encoding
 	 */
 	public static function substr(string $string, int $start, int $length, string $encoding = 'UTF-8'): string {
 		if (function_exists('mb_substr')) {
@@ -717,9 +715,9 @@ class StringTools {
 	/**
 	 * Moved to HTML::wrap 2018-02. Leave here for now.
 	 *
-	 * @see HTML::wrap
 	 * @param string $phrase
 	 * @return string
+	 * @see HTML::wrap
 	 * @deprecated 2019-01
 	 */
 	public static function wrap(string $phrase): string {

@@ -13,7 +13,7 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
-$show_weights = $request->getb('show_weights');
+$show_weights = $request->getBool('show_weights');
 
 echo HTML::tag_open('ul');
 foreach ($router->routes() as $route) {

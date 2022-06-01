@@ -172,7 +172,7 @@ class Client {
 	 *
 	 * @param string $queue
 	 *        	The queue to create
-	 * @param integer $visibility_timeout
+	 * @param int $visibility_timeout
 	 *        	The visibility timeout for the new queue
 	 * @return An array containing the queue's URL and a request Id
 	 */
@@ -382,9 +382,9 @@ class Client {
 	 *
 	 * @param string $queue
 	 *        	The queue for which to retrieve messages
-	 * @param integer $num_messages
+	 * @param int $num_messages
 	 *        	The maximum number of messages to retrieve (optional)
-	 * @param integer $visibility_timeout
+	 * @param int $visibility_timeout
 	 *        	The visibility timeout of the retrieved message (optional)
 	 * @param array $attributes
 	 *        	An array of attributes for each message that you want to retrieve (optional)
@@ -451,7 +451,7 @@ class Client {
 	 *        	The queue containing the message to modify
 	 * @param string $receipt_handle
 	 *        	The receipt handle of the message to modify
-	 * @param integer $visibility_timeout
+	 * @param int $visibility_timeout
 	 *        	The new visibility timeout to set on the message, in seconds
 	 * @return An array containing the request id
 	 */

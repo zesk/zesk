@@ -28,7 +28,7 @@ class Control_Filter_Selector extends Control {
 	 * @retrn boolean|Control_Filter_Selector
 	 */
 	public function toggle_mode($set = null) {
-		return ($set === null) ? $this->optionBool(self::option_toggle_mode) : $this->setOption(self::option_toggle_mode, to_bool($set));
+		return ($set === null) ? $this->optionBool(self::option_toggle_mode) : $this->setOption(self::option_toggle_mode, toBool($set));
 	}
 
 	private function filtered_children() {
@@ -48,10 +48,10 @@ class Control_Filter_Selector extends Control {
 		return true;
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
 			'toggle_mode' => $this->toggle_mode(),
 			'widgets' => $this->filtered_children(),
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 }

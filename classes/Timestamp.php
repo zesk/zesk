@@ -5,13 +5,14 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2016, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
 
 use \DateTimeZone;
 use \DateTime;
+use \DateInterval;
 
 /**
  * Timestamp class is similar to PHP DateTime, it used to be called DateTime, and ZDateTime.
@@ -84,7 +85,7 @@ class Timestamp extends Temporal {
 	 *
 	 * @var string
 	 */
-	public const DATETIME_FORMAT_DAY¨ = 'j';
+	public const DATETIME_FORMAT_DAY = 'j';
 
 	/**
 	 * Internal hour format - do not use
@@ -182,9 +183,12 @@ class Timestamp extends Temporal {
 	/**
 	 * Construct a new Timestamp consisting of a Date and a Time
 	 *
-	 * @param mixed $value
+	 * @param null|\DateTimeInterface|int|string|Time|Date|Timestamp $value
+	 * @param DateTimeZone|null $timezone
+	 * @throws Exception_Convert
+	 * @throws Exception_Parameter
 	 */
-	public function __construct($value = null, DateTimeZone $timezone = null) {
+	public function __construct(null|\DateTimeInterface|int|string|Time|Date|Timestamp $value = '', DateTimeZone $timezone = null) {
 		$this->msec = null;
 		if ($value instanceof \DateTimeInterface) {
 			$this->tz = $value->getTimezone();
@@ -216,20 +220,26 @@ class Timestamp extends Temporal {
 	 *
 	 * @return Timestamp
 	 */
-	public function duplicate() {
+	public function duplicate(): self {
 		return clone $this;
 	}
 
 	/**
-	 * Set/get time zone
+	 * Get time zone
 	 *
-	 * @param string $mixed
-	 * @return DateTimeZone|Timestamp
+	 * @return DateTimeZone
 	 */
-	public function time_zone($mixed = null) {
-		if ($mixed === null) {
-			return $this->tz;
-		}
+	public function timeZone(): DateTimeZone {
+		return $this->tz;
+	}
+
+	/**
+	 * Set time zone
+	 *
+	 * @param DateTimeZone|string $mixed
+	 * @return $this
+	 */
+	public function setTimeZone(DateTimeZone|string $mixed): self {
 		if (!$mixed instanceof DateTimeZone) {
 			$mixed = new DateTimeZone($mixed);
 		}
@@ -243,10 +253,11 @@ class Timestamp extends Temporal {
 	 * Syntactic sugar, for example:
 	 * Timestamp::factory($value)->format("{MMM} {DDD}");
 	 *
-	 * @param mixed $value
+	 * @param null|string|int|Date|Time|Timestamp $value
+	 * @param string|DateTimeZone|null $timezone
 	 * @return Timestamp
 	 */
-	public static function factory($value = null, $timezone = null) {
+	public static function factory(null|string|int|Date|Time|Timestamp $value, string|DateTimeZone $timezone = null): self {
 		if (!$timezone instanceof DateTimeZone) {
 			$timezone = empty($timezone) ? null : new DateTimeZone($timezone);
 		}
@@ -258,7 +269,7 @@ class Timestamp extends Temporal {
 	 *
 	 * @return Timestamp
 	 */
-	public static function now($timezone = null) {
+	public static function now(string|DateTimeZone $timezone = null) {
 		return self::factory('now', $timezone);
 	}
 
@@ -273,14 +284,13 @@ class Timestamp extends Temporal {
 	}
 
 	public function set_now() {
-		$this->unix_timestamp(time());
+		$this->unixTimestamp()(time());
 		return $this;
 	}
 
 	/**
 	 * Set/get the date component of this Timestamp
 	 *
-	 * @param Date $date
 	 * @return Date date portion of Timestamp
 	 */
 	public function date(): Date {
@@ -291,9 +301,9 @@ class Timestamp extends Temporal {
 	 * Set/get the date component of this Timestamp
 	 *
 	 * @param Date $date
-	 * @return Date date portion of Timestamp
+	 * @return self
 	 */
-	public function setDate(Date $date) {
+	public function setDate(Date $date): self {
 		$this->ymd($date->year(), $date->month(), $date->day());
 		return $this;
 	}
@@ -312,9 +322,9 @@ class Timestamp extends Temporal {
 	 * Set/get the time component of this Timestamp
 	 *
 	 * @param Time $time
-	 * @return Time Timestamp
+	 * @return self
 	 */
-	public function setTime(Time $time) {
+	public function setTime(Time $time): self {
 		$this->hms($time->hour(), $time->minute(), $time->second());
 		return $this;
 	}
@@ -322,12 +332,12 @@ class Timestamp extends Temporal {
 	/**
 	 * Set the integer value of this Timestamp
 	 *
-	 * @param integer $set
+	 * @param int $set
 	 *            Value to set
 	 * @return Timestamp integer
-	 * @see Timestamp::unix_timestamp()
+	 * @see Timestamp::unixTimestamp()
 	 */
-	public function integer() {
+	public function integer(): int {
 		return $this->unixTimestamp();
 	}
 
@@ -335,29 +345,9 @@ class Timestamp extends Temporal {
 	 * Check if this object is empty, or unset
 	 *
 	 * @return boolean
-	 * @deprecated 2022-01
 	 */
-	public function is_empty() {
-		return $this->isEmpty();
-	}
-
-	/**
-	 * Check if this object is empty, or unset
-	 *
-	 * @return boolean
-	 */
-	public function isEmpty() {
+	public function isEmpty(): bool {
 		return $this->datetime === null;
-	}
-
-	/**
-	 * Set this Timetamp to empty
-	 *
-	 * @return Timestamp
-	 * @deprecated 2022-01
-	 */
-	public function set_empty() {
-		return $this->setEmpty();
 	}
 
 	/**
@@ -373,13 +363,12 @@ class Timestamp extends Temporal {
 	/**
 	 * Set the Timestamp with a variety of formats
 	 *
-	 * @param mixed $value
-	 *            null, string, integer, Date, Time, Timestamp, or object which returns a date
-	 *            string when
-	 *            converted to string
-	 * @return Timestamp
+	 * @param null|string|int|Date|Time|Timestamp $value
+	 * @return $this
+	 * @throws Exception_Convert
+	 * @throws Exception_Parameter
 	 */
-	public function set(mixed $value): self {
+	public function set(null|string|int|Date|Time|Timestamp $value): self {
 		if (empty($value)) {
 			$this->setEmpty();
 			return $this;
@@ -389,9 +378,6 @@ class Timestamp extends Temporal {
 		}
 		if (is_numeric($value)) {
 			return $this->setUnixTimestamp($value);
-		}
-		if (!is_object($value)) {
-			throw new Exception_Convert('Timestamp::set(' . strval($value) . ')');
 		}
 		if ($value instanceof Date) {
 			$this->setDate($value);
@@ -404,14 +390,12 @@ class Timestamp extends Temporal {
 		if ($value instanceof Timestamp) {
 			return $this->setUnixTimestamp($value->unixTimestamp());
 		}
-		if ($value instanceof Configuration || is_array($value)) {
-			throw new Exception_Parameter("Invalid value passed to {method} ... {backtrace}\nVALUE={value}", [
-				'method' => __METHOD__,
-				'backtrace' => _backtrace(),
-				'value' => to_array($value),
-			]);
-		}
-		return $this->set(strval($value));
+
+		throw new Exception_Parameter("Invalid value passed to {method} ... {backtrace}\nVALUE={value}", [
+			'method' => __METHOD__,
+			'backtrace' => _backtrace(),
+			'value' => to_array($value),
+		]);
 	}
 
 	/**
@@ -420,7 +404,7 @@ class Timestamp extends Temporal {
 	 * @return string
 	 */
 	public function __toString() {
-		if ($this->is_empty()) {
+		if ($this->isEmpty()) {
 			return '';
 		}
 		return $this->format();
@@ -457,32 +441,18 @@ class Timestamp extends Temporal {
 	}
 
 	/**
-	 * @param $set
-	 * @return int|null
-	 * @throws Exception_Deprecated
-	 * @deprecated 2022-01
-	 */
-	public function unix_timestamp(int $set = null): int {
-		if ($set !== null) {
-			$this->setUnixTimestamp(intval($set));
-			zesk()->deprecated('setter');
-		}
-		return $this->unixTimestamp();
-	}
-
-	/**
 	 *
 	 * @return int
 	 */
 	public function unixTimestamp(): int {
-		return $this->datetime ? $this->datetime->getTimestamp() : 0;
+		return $this->datetime ? $this->datetime->getTimestamp() : -1;
 	}
 
 	/**
 	 * @param int $set
 	 * @return $this
 	 */
-	public function setUnixTimestamp(int $set) {
+	public function setUnixTimestamp(int $set): self {
 		// 03:14:08 UTC on 19 January 2038 is MAX time using 32-bit integers
 		$this->_datetime()->setTimestamp($set);
 		return $this;
@@ -622,7 +592,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Set a 1-based quarter (1,2,3,4)
 	 *
-	 * @param integer $set
+	 * @param int $set
 	 * @return Timestamp, number
 	 */
 	public function quarter($set = null): int {
@@ -636,7 +606,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Set a 1-based quarter (1,2,3,4)
 	 *
-	 * @param integer $set
+	 * @param int $set
 	 * @return Timestamp, number
 	 */
 	public function setQuarter(int $set): self {
@@ -692,7 +662,7 @@ class Timestamp extends Temporal {
 		if ($set !== null) {
 			$this->setDay(intval($set));
 		}
-		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_DAY¨)) : -1;
+		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_DAY)) : -1;
 	}
 
 	/**
@@ -729,32 +699,27 @@ class Timestamp extends Temporal {
 	 *
 	 * @return Timestamp
 	 */
-	public function setToday() {
-		return $this->setYear(date('Y'))->setMonth(date('n'))->setDay(date('j'));
+	public function setToday(): self {
+		return $this->setYear(intval(date('Y')))->setMonth(intval(date('n')))->setDay(intval(date('j')));
 	}
 
 	/**
 	 * Set to the past weekday specified
 	 *
-	 * @param integer $set
+	 * @param int $set
 	 * @return Timestamp
 	 */
-	public function weekday_past($set) {
-		return $this->weekday($set)->add_unit(-7, self::UNIT_DAY);
+	public function setWeekdayPast(int $set): self {
+		return $this->setWeekday($set)->addUnit(-7, self::UNIT_DAY);
 	}
 
 	/**
 	 * Get/set weekday.
 	 * Weekday, when set, is always the NEXT possible weekday, including today.
 	 *
-	 * @param string $set
-	 * @return Timestamp|integer
+	 * @return integer
 	 */
-	public function weekday($set = null): int {
-		if ($set !== null) {
-			$this->setWeekday($set);
-			zesk()->deprecated('setter');
-		}
+	public function weekday(): int {
 		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_WEEKDAY)) : -1;
 	}
 
@@ -762,8 +727,8 @@ class Timestamp extends Temporal {
 	 * Get/set weekday.
 	 * Weekday, when set, is always the NEXT possible weekday, including today.
 	 *
-	 * @param string $set
-	 * @return Timestamp|integer
+	 * @param int $set
+	 * @return Timestamp
 	 */
 	public function setWeekday(int $set): self {
 		$set = abs($set) % 7;
@@ -782,15 +747,10 @@ class Timestamp extends Temporal {
 	/**
 	 * Get/set yearday
 	 *
-	 * @param string $set
-	 * @return number Timestamp
+	 * @return int -1 if empty
 	 */
-	public function yearday($set = null) {
-		if ($set !== null) {
-			zesk()->deprecated('setter');
-			$this->setYearday(intval($set));
-		}
-		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_YEARDAY)) : null;
+	public function yearday(): int {
+		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_YEARDAY)) : -1;
 	}
 
 	/**
@@ -807,22 +767,18 @@ class Timestamp extends Temporal {
 	/**
 	 * Get/set hour of day
 	 *
-	 * @param string $set
-	 * @return number|Timestamp
+	 * @param int $set
+	 * @return self
 	 */
-	public function hour(int $hour = null): int {
-		if ($hour !== null) {
-			$this->setHour(intval($hour));
-			zesk()->deprecated('setter');
-		}
+	public function hour(): int {
 		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_HOUR)) : -1;
 	}
 
 	/**
 	 * Get/set hour of day
 	 *
-	 * @param string $set
-	 * @return number|Timestamp
+	 * @param int $set
+	 * @return self
 	 */
 	public function setHour(int $set): self {
 		$this->_datetime()->setTime($set, $this->minute(), $this->second());
@@ -830,23 +786,18 @@ class Timestamp extends Temporal {
 	}
 
 	/**
-	 * Get/set minute of the day
+	 * Get minute of the day
 	 *
-	 * @param integer $set
-	 * @return number|Timestamp
+	 * @return int
 	 */
-	public function minute($set = null): int {
-		if ($set !== null) {
-			$this->setMinute(intval($set));
-			zesk()->deprecated('setter');
-		}
+	public function minute(): int {
 		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_MINUTE)) : -1;
 	}
 
 	/**
 	 * Set minute of the day
 	 *
-	 * @param integer $set
+	 * @param int $set
 	 * @return self
 	 */
 	public function setMinute(int $set): self {
@@ -857,24 +808,19 @@ class Timestamp extends Temporal {
 	/**
 	 * Get/set second of the day
 	 *
-	 * @param int|null $set
 	 * @return int
 	 */
-	public function second(int $set = null): int {
-		if ($set !== null) {
-			$this->setSecond(intval($set));
-			zesk()->deprecated('setter');
-		}
+	public function second(): int {
 		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_SECOND)) : -1;
 	}
 
 	/**
 	 * Get/set second of the day
 	 *
-	 * @param integer $set
-	 * @return number|Timestamp
+	 * @param int $set
+	 * @return Timestamp
 	 */
-	public function setSecond(int $set) {
+	public function setSecond(int $set): self {
 		$this->_datetime()->setTime($this->hour(), $this->minute(), $set);
 		return $this;
 	}
@@ -883,32 +829,18 @@ class Timestamp extends Temporal {
 	 *
 	 * @return integer
 	 */
-	public function millisecond($set = null) {
-		if ($set !== null) {
-			$this->setMillisecond(intval($set));
-			zesk()->deprecated('setter');
-		}
-		return $this->datetime ? $this->msec : null;
+	public function millisecond(): int {
+		return $this->datetime ? $this->msec : 0;
 	}
 
 	/**
 	 *
-	 * @return integer
+	 * @return self
 	 */
-	public function setMillisecond(int $set) {
+	public function setMillisecond(int $set): self {
 		$this->_datetime();
 		$this->msec = $set % 1000;
 		return $this;
-	}
-
-	/**
-	 * Number of seconds since midnight
-	 *
-	 * @return integer
-	 * @deprecated 2022-01
-	 */
-	public function day_seconds(): int {
-		return $this->daySeconds();
 	}
 
 	/**
@@ -923,29 +855,23 @@ class Timestamp extends Temporal {
 	}
 
 	/**
-	 * Get/Set 12-hour
+	 * Get 12-hour
 	 *
-	 * @param string $set
-	 * @return Ambigous <Timestamp, unknown>
+	 * @return int
 	 */
-	public function hour12($set = null) {
-		if ($set === null) {
-			if ($this->datetime === null) {
-				return null;
-			}
-			$hour = $this->hour() % 12;
-			return ($hour === 0) ? 12 : $hour;
+	public function hour12(): int {
+		if ($this->datetime === null) {
+			return -1;
 		}
-		$set = $set % 12;
-		// Retains AM/PM
-		return $this->hour($set + ($this->hour() < 12 ? 0 : 12));
+		$hour = $this->hour() % 12;
+		return ($hour === 0) ? 12 : $hour;
 	}
 
 	/**
-	 * Get/Set 12-hour
+	 * Set 12-hour
 	 *
-	 * @param string $set
-	 * @return Ambigous <Timestamp, unknown>
+	 * @param int $set
+	 * @return self
 	 */
 	public function setHour12(int $set): self {
 		$set = $set % 12;
@@ -956,7 +882,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Get AMPM
 	 */
-	public function ampm() {
+	public function ampm(): string {
 		return $this->time()->ampm();
 	}
 
@@ -965,12 +891,12 @@ class Timestamp extends Temporal {
 	 *
 	 * @return Timestamp
 	 */
-	public function midnight() {
+	public function midnight(): self {
 		$this->_datetime()->setTime(0, 0, 0);
 		return $this;
 	}
 
-	public function noon() {
+	public function noon(): self {
 		$this->_datetime()->setTime(12, 0, 0);
 		return $this;
 	}
@@ -978,9 +904,9 @@ class Timestamp extends Temporal {
 	/**
 	 * Set the Year/Month/Date for this Timestamp
 	 *
-	 * @param integer $year
-	 * @param integer $month
-	 * @param integer $day
+	 * @param ?int $year
+	 * @param ?int $month
+	 * @param ?int $day
 	 * @return Timestamp
 	 */
 	public function ymd(int $year = null, int $month = null, int $day = null): self {
@@ -991,9 +917,9 @@ class Timestamp extends Temporal {
 	/**
 	 * Set the Hour/Minute/Second for this Timestamp
 	 *
-	 * @param integer $hour
-	 * @param integer $minute
-	 * @param integer $second
+	 * @param ?int $hour
+	 * @param ?int $minute
+	 * @param ?int $second
 	 * @return Timestamp
 	 */
 	public function hms(int $hour = null, int $minute = null, int $second = null): self {
@@ -1004,12 +930,12 @@ class Timestamp extends Temporal {
 	/**
 	 * Set the Year/Month/Date/Hour/Minute/Second for this Timestamp
 	 *
-	 * @param integer $year
-	 * @param integer $month
-	 * @param integer $day
-	 * @param integer $hour
-	 * @param integer $minute
-	 * @param integer $second
+	 * @param ?int $year
+	 * @param ?int $month
+	 * @param ?int $day
+	 * @param ?int $hour
+	 * @param ?int $minute
+	 * @param ?int $second
 	 * @return Timestamp
 	 */
 	public function ymdhms(int $year = null, int $month = null, int $day = null, int $hour = null, int $minute = null, int $second = null) {
@@ -1032,7 +958,7 @@ class Timestamp extends Temporal {
 			}
 			return 1;
 		}
-		return $this->unixTimestamp() - $value->unix_timestamp();
+		return $this->unixTimestamp() <=> $value->unixTimestamp();
 	}
 
 	/**
@@ -1041,8 +967,8 @@ class Timestamp extends Temporal {
 	 * @param Timestamp $value
 	 * @return integer
 	 */
-	public function subtract(Timestamp $value) {
-		return $this->unix_timestamp() - $value->unix_timestamp();
+	public function subtract(Timestamp $value): int {
+		return $this->unixTimestamp() - $value->unixTimestamp();
 	}
 
 	/**
@@ -1054,8 +980,8 @@ class Timestamp extends Temporal {
 	 *            Locale to use, if any
 	 * @return string
 	 */
-	public function format(Locale $locale = null, $format_string = null, array $options = []) {
-		if ($format_string === null) {
+	public function format(Locale $locale = null, string $format_string = '', array $options = []): string {
+		if ($format_string === '') {
 			$format_string = self::$default_format_string;
 		}
 		return map($format_string, $this->formatting($locale, $options));
@@ -1077,13 +1003,13 @@ class Timestamp extends Temporal {
 	 * @global string Timestamp::formatting::zero_string
 	 * @hook Timestamp::formatting
 	 */
-	public function formatting(Locale $locale = null, array $options = []) {
-		$ts = $this->unix_timestamp();
+	public function formatting(Locale $locale = null, array $options = []): array {
+		$ts = $this->unixTimestamp();
 		$formatting = $this->date()->formatting($locale, $options) + $this->time()->formatting($locale, $options);
 
 		$formatting += [
 			'seconds' => $ts,
-			'unix_timestamp' => $ts,
+			'unixTimestamp()' => $ts,
 			'Z' => '-',
 			'ZZZ' => '---',
 		];
@@ -1125,10 +1051,10 @@ class Timestamp extends Temporal {
 	 * @param Timestamp $timestamp
 	 * @return boolean
 	 */
-	public function equals(Timestamp $timestamp) {
+	public function equals(Timestamp $timestamp): bool {
 		if ($timestamp->tz->getName() !== $this->tz->getName()) {
 			$timestamp = clone $timestamp;
-			$timestamp->time_zone($this->tz->getName());
+			$timestamp->setTimeZone($this->tz->getName());
 		}
 		$options = [
 			'nohook' => true,
@@ -1144,13 +1070,9 @@ class Timestamp extends Temporal {
 	 *            Return true if they are equal
 	 * @return boolean
 	 */
-	public function before(Timestamp $model, $equal = false) {
+	public function before(Timestamp $model, bool $equal = false) {
 		$result = $this->compare($model);
-		if ($equal) {
-			return ($result <= 0) ? true : false;
-		} else {
-			return ($result < 0) ? true : false;
-		}
+		return ($equal) ? ($result <= 0) : ($result < 0);
 	}
 
 	/**
@@ -1161,22 +1083,22 @@ class Timestamp extends Temporal {
 	 * @return boolean
 	 */
 	public function beforeNow($equal = false) {
-		$unix_timestamp = $this->unix_timestamp();
+		$timestamp = $this->unixTimestamp();
 		$now = time();
-		return boolval($equal ? ($unix_timestamp <= $now) : ($unix_timestamp < $now));
+		return $equal ? ($timestamp <= $now) : ($timestamp < $now);
 	}
 
 	/**
 	 * Shortcut to test if time is before current time
 	 *
-	 * @param string $equal
+	 * @param bool $equal
 	 *            Return true if time MATCHES current time (seconds)
-	 * @return boolean
+	 * @return bool
 	 */
-	public function afterNow($equal = false) {
-		$unix_timestamp = $this->unix_timestamp();
+	public function afterNow(bool $equal = false): bool {
+		$timestamp = $this->unixTimestamp();
 		$now = time();
-		return boolval($equal ? ($unix_timestamp >= $now) : ($unix_timestamp > $now));
+		return $equal ? ($timestamp >= $now) : ($timestamp > $now);
 	}
 
 	/**
@@ -1187,13 +1109,9 @@ class Timestamp extends Temporal {
 	 *            Return true if they are equal
 	 * @return boolean
 	 */
-	public function after(Timestamp $model, $equal = false) {
+	public function after(Timestamp $model, bool $equal = false): bool {
 		$result = $this->compare($model);
-		if ($equal) {
-			return ($result >= 0) ? true : false;
-		} else {
-			return ($result > 0) ? true : false;
-		}
+		return $equal ? ($result >= 0) : ($result > 0);
 	}
 
 	/**
@@ -1201,17 +1119,17 @@ class Timestamp extends Temporal {
 	 * If both are empty, returns $this
 	 * If identical, returns $this
 	 *
-	 * @param Timestamp $model
+	 * @param ?Timestamp $model
 	 * @return Timestamp
 	 */
-	public function later(Timestamp $model = null) {
+	public function later(Timestamp $model = null): Timestamp {
 		if ($model === null) {
 			return $this;
 		}
-		if ($model->is_empty()) {
+		if ($model->isEmpty()) {
 			return $this;
 		}
-		if ($this->is_empty()) {
+		if ($this->isEmpty()) {
 			return $model;
 		}
 		return $model->after($this) ? $model : $this;
@@ -1222,11 +1140,11 @@ class Timestamp extends Temporal {
 	 *
 	 * @return boolean
 	 */
-	public function is_past() {
-		if ($this->is_empty()) {
+	public function isPast() {
+		if ($this->isEmpty()) {
 			return false;
 		}
-		return ($this->unix_timestamp() < time());
+		return ($this->unixTimestamp() < time());
 	}
 
 	/**
@@ -1234,60 +1152,63 @@ class Timestamp extends Temporal {
 	 * If both are empty, returns $this
 	 * If identical, returns $this
 	 *
-	 * @param Timestamp $model
+	 * @param ?Timestamp $model
 	 * @return Timestamp
 	 */
-	public function earlier(Timestamp $model = null) {
+	public function earlier(Timestamp $model = null): Timestamp {
 		if ($model === null) {
 			return $this;
 		}
-		if ($model->is_empty()) {
+		if ($model->isEmpty()) {
 			return $this;
 		}
-		if ($this->is_empty()) {
+		if ($this->isEmpty()) {
 			return $model;
 		}
 		return $model->before($this) ? $model : $this;
 	}
 
 	/**
-	 * Add units to dates
+	 * Add DateInterval to dates
 	 *
-	 * @param integer $years
-	 * @param integer $months
-	 * @param integer $days
-	 * @param integer $hours
-	 * @param integer $minutes
-	 * @param integer $seconds
+	 * @param DateInterval $interval
 	 * @return Timestamp
 	 */
-	public function add($years = 0, $months = 0, $days = 0, $hours = 0, $minutes = 0, $seconds = 0) {
-		if ($years instanceof \DateInterval) {
-			$di = $years;
-			/* @var $di \DateInterval */
-			return $this->add($di->format('%y'), $di->format('%m'), $di->format('%d'), $di->format('%h'), $di->format('%i'), $di->format('%s'));
-		}
+	public function addInterval(DateInterval $interval): self {
+		$this->datetime->add($interval);
+		return $this;
+	}
+
+	/**
+	 * Add units to dates
+	 *
+	 * @param int $years
+	 * @param int $months
+	 * @param int $days
+	 * @param int $hours
+	 * @param int $minutes
+	 * @param int $seconds
+	 * @return $this
+	 * @throws Exception_Semantics
+	 */
+	public function add(int $years = 0, int $months = 0, int $days = 0, int $hours = 0, int $minutes = 0, int $seconds = 0): self {
 		if ($this->datetime === null) {
 			throw new Exception_Semantics('Adding to a empty Timestamp');
 		}
-		$this->_add_unit($years, 'Y');
-		$this->_add_unit($months, 'M');
-		$this->_add_unit($days, 'D');
-		$this->_add_unit($hours, 'H', true);
-		$this->_add_unit($minutes, 'M', true);
-		$this->_add_unit($seconds, 'S', true);
+		$this->_addUnit($years, 'Y')->_addUnit($months, 'M')->_addUnit($days, 'D');
+		$this->_addUnit($hours, 'H', true)->_addUnit($minutes, 'M', true)->_addUnit($seconds, 'S', true);
 		return $this;
 	}
 
 	/**
 	 * Utility for add
 	 *
-	 * @param number $number
+	 * @param int $number
 	 * @param string $code
 	 * @param boolean $time
 	 * @return Timestamp
 	 */
-	public function _add_unit($number, $code, $time = false) {
+	private function _addUnit(int $number, string $code, bool $time = false): self {
 		$interval = new DateInterval('P' . ($time ? 'T' : '') . abs($number) . $code);
 		if ($number < 0) {
 			$interval->invert = true;
@@ -1312,12 +1233,12 @@ class Timestamp extends Temporal {
 	 * @param Timestamp $timestamp
 	 * @param string $unit
 	 *            millisecond, second, minute, hour, day, week, weekday, quarter
-	 * @param integer $precision
+	 * @param int $precision
 	 *            The precision for the result (decimal places to use)
 	 * @return number
 	 * @throws Exception_Parameter
 	 */
-	public function difference(Timestamp $timestamp, $unit = self::UNIT_SECOND, $precision = 0) {
+	public function difference(Timestamp $timestamp, string $unit = self::UNIT_SECOND, int $precision = 0): int|float {
 		if ($timestamp->after($this, false)) {
 			return -$timestamp->difference($this, $unit, $precision);
 		}
@@ -1341,22 +1262,22 @@ class Timestamp extends Temporal {
 				return round($delta / (86400 * 7), $precision);
 		}
 
-		$mstart = $timestamp->month();
-		$ystart = $timestamp->year();
+		$month_start = $timestamp->month();
+		$year_start = $timestamp->year();
 
-		$mend = $this->month();
-		$yend = $this->year();
+		$month_end = $this->month();
+		$year_end = $this->year();
 
 		if ($precision === 0) {
 			switch ($unit) {
 				case self::UNIT_MONTH:
-					return ($yend - $ystart) * 12 + ($mend - $mstart);
+					return ($year_end - $year_start) * 12 + ($month_end - $month_start);
 				case self::UNIT_QUARTER:
-					$mend = intval($mend / 4);
-					$mstart = intval($mstart / 4);
-					return ($yend - $ystart) * 4 + ($mend - $mstart);
+					$month_end = intval($month_end / 4);
+					$month_start = intval($month_start / 4);
+					return ($year_end - $year_start) * 4 + ($month_end - $month_start);
 				case self::UNIT_YEAR:
-					return ($yend - $ystart);
+					return ($year_end - $year_start);
 				default:
 					throw new Exception_Parameter("Date::difference($timestamp, $unit): Bad unit");
 			}
@@ -1366,12 +1287,12 @@ class Timestamp extends Temporal {
 			// 2/22 -> 3/22 = 1 month
 			// 2/12 -> 3/22 = 1 month + ((3/22-2/22) / 28)
 
-			$intmon = ($yend - $ystart) * 12 + ($mend - $mstart);
-			$total = Date::days_in_month($mstart, $ystart);
+			$intmon = ($year_end - $year_start) * 12 + ($month_end - $month_start);
+			$total = Date::days_in_month($month_start, $year_start);
 
 			$temp = clone $timestamp;
-			$temp->month($mstart);
-			$temp->year($ystart);
+			$temp->month($month_start);
+			$temp->year($year_start);
 
 			$fract = $temp->subtract($this);
 			$fract = $fract / floatval($total * 86400);
@@ -1401,7 +1322,7 @@ class Timestamp extends Temporal {
 	 *
 	 * @param string $unit
 	 *            One of millisecond, second, minute, hour, weekday, day, month, quarter, year
-	 * @param integer $value
+	 * @param int $value
 	 *            Value to set, or null to get
 	 * @return Timestamp integer
 	 * @throws Exception_Parameter
@@ -1432,17 +1353,17 @@ class Timestamp extends Temporal {
 	/**
 	 * Add a unit to this Timestamp.
 	 *
-	 * @param integer $n_units
+	 * @param int $n_units
 	 *            Number of units to add (may be negative)
 	 * @param string $units
 	 *            One of millisecond, second, minute, hour, weekday, day, month, quarter, year
 	 * @return Timestamp
 	 * @throws Exception_Parameter
 	 */
-	public function add_unit($n_units = 1, $units = self::UNIT_SECOND) {
+	public function addUnit($n_units = 1, $units = self::UNIT_SECOND) {
 		switch ($units) {
 			case self::UNIT_MILLISECOND:
-				return $this->add(0, 0, 0, 0, 0, round($n_units * self::MILLISECONDS_PER_SECONDS));
+				return $this->add(0, 0, 0, 0, 0, intval(round($n_units * self::MILLISECONDS_PER_SECONDS)));
 			case self::UNIT_SECOND:
 				return $this->add(0, 0, 0, 0, 0, $n_units);
 			case self::UNIT_MINUTE:
@@ -1510,7 +1431,7 @@ class Timestamp extends Temporal {
 	public function iso8601($set = null) {
 		if ($set !== null) {
 			if (is_numeric($set)) {
-				return $this->unix_timestamp($set);
+				return $this->unixTimestamp()($set);
 			}
 			$value = trim($set);
 			// if (preg_match('/[0-9]{4}-([0-9]{2}-[0-9]{2}|W[0-9]{2}|[0-9]{3})(T[0-9]{2}(:?[0-9]{2}(:?[0-9]{2}))/',
@@ -1519,36 +1440,33 @@ class Timestamp extends Temporal {
 			// }
 			[$dd, $tt] = pair(strtoupper($value), 'T');
 			if ($dd === '0000') {
-				$this->set_empty();
+				$this->setEmpty();
 				return $this;
 			}
 			if ($dd === false || $tt === false) {
 				throw new Exception_Syntax(map('Timestamp::iso8601({0}) - invalid date format', [$set]));
 			}
 			[$hh, $mm, $ss] = explode(':', $tt, 3);
-			$this->ymdhms(substr($dd, 0, 4), substr($dd, 4, 2), substr($dd, 6, 2), $hh, $mm, $ss);
+			$this->ymdhms(intval(substr($dd, 0, 4)), intval(substr($dd, 4, 2)), intval(substr($dd, 6, 2)), intval($hh), intval($mm), intval($ss));
 			return $this;
 		}
-		$result = '';
-		$result .= $this->_ymd_format('');
-		$result .= 'T' . $this->_hms_format();
-		return $result;
+		return $this->_ymd_format('') . 'T' . $this->_hms_format();
 	}
 
 	/**
 	 * Create a new Timestamp with explicit values
 	 *
-	 * @param integer $year
-	 * @param integer $month
-	 * @param integer $day
-	 * @param integer $hour
-	 * @param integer $minute
-	 * @param integer $second
+	 * @param int $year
+	 * @param int $month
+	 * @param int $day
+	 * @param int $hour
+	 * @param int $minute
+	 * @param int $second
 	 * @return Timestamp
 	 * @see Timestamp::factory_ymdhms
 	 */
 	public static function instance($year = null, $month = null, $day = null, $hour = null, $minute = null, $second = null) {
-		$dt = new Timestamp(null);
+		$dt = new Timestamp();
 		$dt->ymd($year, $month, $day);
 		$dt->hms($hour, $minute, $second);
 		return $dt;
@@ -1557,16 +1475,16 @@ class Timestamp extends Temporal {
 	/**
 	 * Create a new Timestamp with explicit values
 	 *
-	 * @param integer $year
-	 * @param integer $month
-	 * @param integer $day
-	 * @param integer $hour
-	 * @param integer $minute
-	 * @param integer $second
+	 * @param int $year
+	 * @param int $month
+	 * @param int $day
+	 * @param int $hour
+	 * @param int $minute
+	 * @param int $second
 	 * @return Timestamp
 	 */
 	public static function factory_ymdhms($year = null, $month = null, $day = null, $hour = null, $minute = null, $second = null, $millisecond = null) {
-		$dt = new Timestamp(null);
+		$dt = new Timestamp();
 		$dt->ymd($year, $month, $day);
 		$dt->hms($hour, $minute, $second);
 		$dt->millisecond($millisecond);
@@ -1581,7 +1499,7 @@ class Timestamp extends Temporal {
 	 * @return integer
 	 */
 	public static function compare_callback(Timestamp $a, Timestamp $b) {
-		$delta = $a->unix_timestamp() - $b->unix_timestamp();
+		$delta = $a->unixTimestamp() - $b->unixTimestamp();
 		if ($delta < 0) {
 			return -1;
 		} elseif ($delta === 0) {

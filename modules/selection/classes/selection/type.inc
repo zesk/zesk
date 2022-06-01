@@ -29,7 +29,7 @@ class Selection_Type extends ORM {
 		if (!$query) {
 			return null;
 		}
-		$add = intval(to_bool($add));
+		$add = intval(toBool($add));
 		if ($query->add !== $add) {
 			$query->add = $add;
 		}
@@ -38,11 +38,11 @@ class Selection_Type extends ORM {
 		/* @var $list Database_Query_Select */
 		$list = clone $list;
 		$alias = $list->alias();
-		$id_column = $this->application->orm_registry($list->orm_class())->id_column();
+		$id_column = $this->application->orm_registry($list->orm_class())->idColumn();
 		$list->what([
 			'id' => "$alias.$id_column",
 			'*type' => $this->id(),
-			'*add' => intval(to_bool($add)),
+			'*add' => intval(toBool($add)),
 			'*query' => $query->id(),
 		]);
 		$list->limit(0, -1);
@@ -58,8 +58,8 @@ class Selection_Type extends ORM {
 	 * @return ORMIterator
 	 */
 	public function items_selected() {
-		return $this->member_query('items')
-			->where('add', true)
+		return $this->memberQuery('items')
+			->addWhere('add', true)
 			->distinct(true)
 			->group_by('id')
 			->orm_iterator();
@@ -84,11 +84,11 @@ class Selection_Type extends ORM {
 	public function delete() {
 		$this->application->orm_registry(Selection_Query::class)
 			->query_delete()
-			->where('type', $this->id)
+			->addWhere('type', $this->id)
 			->execute();
 		$this->application->orm_registry(Selection_Item::class)
 			->query_delete()
-			->where('type', $this->id)
+			->addWhere('type', $this->id)
 			->execute();
 		return parent::delete();
 	}
@@ -125,11 +125,11 @@ class Selection_Type extends ORM {
 	 * @param array $remove_items
 	 */
 	public function items_update(array $add_items, array $remove_items): void {
-		$found = $this->member_query('items')->where('id', array_merge($add_items, $remove_items))->to_array('id');
-		$items = ArrayTools::flip_assign($add_items, true) + ArrayTools::flip_assign($remove_items, false);
+		$found = $this->memberQuery('items')->addWhere('id', array_merge($add_items, $remove_items))->to_array('id');
+		$items = ArrayTools::keysFromValues($add_items, true) + ArrayTools::keysFromValues($remove_items, false);
 		foreach ($found as $id => $row) {
 			$op = $items[$id];
-			$add = to_bool($row['add']);
+			$add = toBool($row['add']);
 			$query_id = $row['query'];
 			if ($add !== $op) {
 				if ($op === false && !$query_id) {
@@ -176,9 +176,9 @@ class Selection_Type extends ORM {
 	 * @return integer
 	 */
 	public function count() {
-		return $this->member_query('items')
+		return $this->memberQuery('items')
 			->what('*n', 'COUNT(DISTINCT items.id)')
-			->where('items.add', 1)
+			->addWhere('items.add', 1)
 			->one_integer('n');
 	}
 

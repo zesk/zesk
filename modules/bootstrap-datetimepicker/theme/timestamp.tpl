@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -23,11 +23,11 @@ $format = $this->allow_times ? 'Y-m-d H:i' : 'Y-m-d';
 $value = $this->value = date($format, strtotime($value));
 $onchange = $this->onchange;
 
-$inline = $this->getb('inline');
+$inline = $this->getBool('inline');
 
 echo $this->theme('zesk/control/text', [
 	'onchange' => null,
-	'class' => $inline ? CSS::add_class($this->class, 'hidden') : $this->class,
+	'class' => $inline ? CSS::addClass($this->class, 'hidden') : $this->class,
 ]);
 
 $options = $this->get([

@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -13,7 +13,7 @@ namespace zesk;
  *
  */
 class View_CSV extends View {
-	public function render() {
+	public function render(): string {
 		$table = $this->value();
 		if (!is_array($table)) {
 			return $this->empty_string();
@@ -47,7 +47,7 @@ class View_CSV extends View {
 		} else {
 			$rows = HTML::tags('tr', $html);
 		}
-		return HTML::tag('table', $this->option_array('table_attributes', [
+		return HTML::tag('table', $this->optionArray('tableAttributes', [
 			'cellspacing' => 1,
 			'cellpadding' => 4,
 			'border' => 0,

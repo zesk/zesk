@@ -16,6 +16,6 @@
 - **Zesk Kernel**: Refactoring, comments, misspellings, and doccomment updates
 - **Zesk Kernel**: Removing references to `backtrace` in code as well as cleaning up various WS
 - **Zesk Kernel**: `Hookable` Removing incorrect string type to `call_hook` sheesh
-- **Zesk Kernel**: fixing UTF8, fixing invalid UTF8 in response, fixing native_quote_text logic, fixing sql for latest MySQL, fixing warnings, new version
+- **Zesk Kernel**: fixing UTF8, fixing invalid UTF8 in response, fixing nativeQuoteText logic, fixing sql for latest MySQL, fixing warnings, new version
 
 <!-- Generated automatically by release-zesk.sh, beware editing! -->

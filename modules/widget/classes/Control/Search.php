@@ -49,8 +49,8 @@ class Control_Search extends Control_Text {
 		]));
 	}
 
-	public function theme_variables() {
-		return parent::theme_variables() + [
+	public function themeVariables(): array {
+		return parent::themeVariables() + [
 			'search_title' => $this->option('search_title'),
 		];
 	}

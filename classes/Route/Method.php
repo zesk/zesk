@@ -83,7 +83,7 @@ class Route_Method extends Route {
 		$method = $this->options['method'];
 		$arguments = $this->args;
 
-		$construct_arguments = $this->_map_variables($this->option_array('construct arguments'));
+		$construct_arguments = $this->_map_variables($this->optionArray('construct arguments'));
 		$method = $this->_map_variables($method);
 		ob_start();
 
@@ -91,7 +91,7 @@ class Route_Method extends Route {
 			if (is_string($method) && str_contains($method, '::')) {
 				[$class, $method] = pair($method, '::', 'stdClass', $method);
 				$method = new ReflectionMethod($class, $method);
-				$object = $method->isStatic() ? null : $app->objects->factory_arguments($class, $construct_arguments);
+				$object = $method->isStatic() ? null : $app->objects->factoryArguments($class, $construct_arguments);
 				$content = $method->invokeArgs($object, $arguments);
 			} else {
 				$content = call_user_func_array($method, $arguments);
@@ -133,7 +133,7 @@ class Route_Method extends Route {
 		}
 		if ($content !== null) {
 			if (is_array($content)) {
-				$content = ArrayTools::join_wrap($content, $this->option('join_prefix', ''), $this->option('join_suffix', ''));
+				$content = ArrayTools::joinWrap($content, $this->option('join_prefix', ''), $this->option('join_suffix', ''));
 			}
 			$response->content = $this->option('prefix', '') . $content . $this->option('suffix', '');
 		}

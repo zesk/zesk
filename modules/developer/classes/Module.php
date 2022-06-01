@@ -41,7 +41,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	 */
 	public function test_ip(Application $application, Request $request): void {
 		$application = $this->application;
-		$ips = $this->option_list('ip_allow');
+		$ips = $this->optionIterable('ip_allow');
 		$development = null;
 		$ip = $request->ip();
 		foreach ($ips as $mask) {
@@ -68,11 +68,11 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 				break;
 			}
 		}
-		if ($this->ip_matches($ip, $this->option_list('ip_deny'))) {
+		if ($this->ip_matches($ip, $this->optionIterable('ip_deny'))) {
 			$development = false;
 		}
 		if ($development !== null) {
-			$application->development($development);
+			$application->setDevelopment($development);
 		}
 	}
 
@@ -114,7 +114,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	public function router_prematch(Application $application, Router $router, Request $request): void {
 		$app = $this->application;
 		$this->handle_mock_headers($request);
-		$restricted_ips = $this->option_list('ip_restrict');
+		$restricted_ips = $this->optionIterable('ip_restrict');
 		if (count($restricted_ips) === 0) {
 			return;
 		}
@@ -291,7 +291,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 			'follow' => false,
 		]);
 		$exception = null;
-		if ($request->get_bool('go')) {
+		if ($request->getBool('go')) {
 			try {
 				foreach ($results as $index => $sql) {
 					$db->query($results);
@@ -306,7 +306,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		]) : '';
 		$result .= HTML::tag('ul', '.sql', HTML::tags('li', array_merge([
 			'-- ' . $arg . ";\n",
-		], ArrayTools::suffix($results, ";\n"))));
+		], ArrayTools::suffixValues($results, ";\n"))));
 		return $result;
 	}
 

@@ -15,10 +15,10 @@ if [ ! -d $top/vendor ]; then
 	composer install
 fi
 opts=
-#opts="$opts --debug"
+opts="$opts --debug"
 opts="$opts --verbose"
 #opts="$opts --sandbox"
 opts="$opts --interactive"
 #opts="$opts --debug-command"
 [ -d "$HOME/.zesk" ] || mkdir -p "$HOME/.zesk"
-"$top/bin/zesk.s"h --config /etc/test.conf test ${opts} "$@"
+"$top/bin/zesk.sh" --config /etc/test.conf test ${opts} "$@"

@@ -28,7 +28,7 @@ foreach ($tags as $key => $line) {
 echo HTML::tag('ul', '.selection-type', implode("\n", $lines));
 
 if ($this->show_editor) {
-	$href = URL::query_format('/selection/' . $value->id . '/list', [
+	$href = URL::queryFormat('/selection/' . $value->id . '/list', [
 		'ref' => $request->uri(),
 	]);
 	echo HTML::tag('a', [

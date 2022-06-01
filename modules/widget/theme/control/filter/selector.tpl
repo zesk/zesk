@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -60,12 +60,12 @@ foreach ($this->widgets as $index => $child) {
 
 ksort($dropdown_items);
 
-echo HTML::tag_open('div', CSS::add_class('.filter-selector', $toggle_mode ? 'button-mode' : 'btn-group menu-mode'));
+echo HTML::tag_open('div', CSS::addClass('.filter-selector', $toggle_mode ? 'button-mode' : 'btn-group menu-mode'));
 if ($toggle_mode) {
 	echo HTML::tag('button', [
 		'type' => 'button',
 		'title' => $locale->__('Click to toggle filters for this list'),
-		'class' => CSS::add_class('btn btn-default selector-toggle-mode tip', $active ? 'active' : ''),
+		'class' => CSS::addClass('btn btn-default selector-toggle-mode tip', $active ? 'active' : ''),
 		'data-target' => implode(',', $ids),
 	], $button_icon . ' ' . $button_text);
 } else {

@@ -11,7 +11,7 @@ $query = $this->query;
 foreach ($query->orm_iterator() as $key => $object) {
 	$this_row = clone $row_widget;
 
-	$this_row->set_theme_variables([
+	$this_row->setThemeVariables([
 		'odd' => $odd,
 		'key' => $key,
 		'object' => $object,

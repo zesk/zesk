@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage webapp
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\WebApp;
 
@@ -24,7 +24,7 @@ class Domain extends ORM {
 	public function accessed() {
 		$this->query_update()
 			->value('accessed', Timestamp::now())
-			->where('id', $this->id())
+			->addWhere('id', $this->id())
 			->execute();
 		return $this;
 	}

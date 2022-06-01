@@ -34,7 +34,7 @@ abstract class Server_Packager {
 					array_unshift($remove, $package);
 				}
 			} catch (Server_Exception $e) {
-				$this->remove($remove, false);
+				$this->keysRemove($remove, false);
 
 				throw $e;
 			}
@@ -57,12 +57,12 @@ abstract class Server_Packager {
 	 * @param mixed $packages String or array of strings to install.
 	 * @return mixed true on success, or array of packagename => error
 	 */
-	final public function remove($packages, $stop = true) {
+	final public function keysRemove($packages, $stop = true) {
 		$packages = to_list($packages);
 		$result = [];
 		foreach ($packages as $k => $package) {
 			try {
-				$this->package_remove($package);
+				$this->package_keysRemove($package);
 			} catch (Server_Exception $e) {
 				if ($stop) {
 					throw $e;
@@ -126,5 +126,5 @@ abstract class Server_Packager {
 	 * @param string $package A package to remove
 	 * @return boolean true if removed, false if not
 	 */
-	abstract protected function package_remove($package);
+	abstract protected function package_keysRemove($package);
 }

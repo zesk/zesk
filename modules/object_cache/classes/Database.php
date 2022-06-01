@@ -56,7 +56,7 @@ class Database extends Base {
 			$database->query(ORM_Schema::synchronize($database, $this->_object_database_table($database, $object, $table_name)));
 			return $table_name;
 		}
-		return $database->table_exists($table_name) ? $table_name : null;
+		return $database->tableExists($table_name) ? $table_name : null;
 	}
 
 	public function load(ORM $object, $key) {
@@ -67,9 +67,9 @@ class Database extends Base {
 		$db = $this->cache_database($object);
 		$query = new Database_Query_Select($db);
 		$query->from($table);
-		$query->where('', $object->id());
+		$query->addWhere('', $object->id());
 		$hash = md5($key);
-		$query->where('*key', 'UNHEX(' . $db->quote_text($hash) . ')');
+		$query->addWhere('*key', 'UNHEX(' . $db->quoteText($hash) . ')');
 		$query->addWhat('data');
 		return PHP::unserialize($query->one('data', null));
 	}
@@ -82,7 +82,7 @@ class Database extends Base {
 		}
 		$hash = md5($key);
 		$update = [
-			'*key' => 'UNHEX(' . $database->quote_text($hash) . ')',
+			'*key' => 'UNHEX(' . $database->quoteText($hash) . ')',
 			'id' => $object->id(),
 		];
 		$update['data'] = serialize($data);
@@ -105,7 +105,7 @@ class Database extends Base {
 		];
 		if ($key !== null) {
 			$hash = md5($key);
-			$where['*key'] = 'UNHEX(' . $database->quote_text($hash) . ')';
+			$where['*key'] = 'UNHEX(' . $database->quoteText($hash) . ')';
 		}
 		$sql = $database->sql()->delete([
 			'table' => $table,

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2012, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * @package zesk
  * @subpackage database
  */
@@ -213,10 +213,10 @@ class Database_Parser extends \zesk\Database_Parser {
 						$options['default'] = $data_type->native_type_default($sql_type, $value);
 					}
 					if (begins($type, 'character set ')) {
-						$options[Database::attribute_character_set] = $value;
+						$options[Database::ATTRIBUTE_CHARACTER_SET] = $value;
 					}
 					if (begins($type, 'collate ')) {
-						$options[Database::attribute_collation] = $value;
+						$options[Database::ATTRIBUTE_COLLATION] = $value;
 					}
 
 					break;
@@ -273,7 +273,7 @@ class Database_Parser extends \zesk\Database_Parser {
 				}
 			}
 			$col = new Database_Column($table, $column_name, $options);
-			$options = $this->database->column_attributes($col);
+			$options = $this->database->columnAttributes($col);
 			$col->setOptions($options, false);
 
 			try {
@@ -447,14 +447,14 @@ class Database_Parser extends \zesk\Database_Parser {
 		}
 	}
 
-	public function create_index(Database_Table $table, $sql) {
+	public function createIndex(Database_Table $table, $sql) {
 		return false;
 	}
 
 	/**
 	 * The money
 	 *
-	 * @see Database_Parser::create_table() Parses CREATE TABLE for MySQL and returns a
+	 * @see Database_Parser::createTable() Parses CREATE TABLE for MySQL and returns a
 	 *      Database_Table
 	 */
 	/**
@@ -463,7 +463,7 @@ class Database_Parser extends \zesk\Database_Parser {
 	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
-	public function create_table(string $sql): Database_Table {
+	public function createTable(string $sql): Database_Table {
 		$matches = false;
 		$source_sql = $sql;
 
@@ -471,7 +471,7 @@ class Database_Parser extends \zesk\Database_Parser {
 		 * Extract tips from SQL first, save them
 		 */
 		$tips = self::tips($sql);
-		$sql = $this->sql()->remove_comments($sql);
+		$sql = $this->sql()->removeComments($sql);
 
 		/*
 		 * Parse table into name, columns, and options
@@ -487,7 +487,7 @@ class Database_Parser extends \zesk\Database_Parser {
 		 */
 		$table_options = self::create_table_options($matches[3]);
 
-		$type = avalue($table_options, 'engine', avalue($table_options, 'type', $this->database->default_engine()));
+		$type = avalue($table_options, 'engine', avalue($table_options, 'type', $this->database->defaultEngine()));
 		$table = new Database_Table($this->database, $table, $type, $table_options);
 		$table->source($source_sql);
 		$sql_columns = trim($matches[2]) . ',';

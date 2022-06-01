@@ -5,12 +5,12 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2010, Market Ruler, LLC
+ * @copyright Copyright &copy; 2022, Market Ruler, LLC
  */
 
 namespace zesk;
 
-use \DateTimeZone;
+use DateTimeZone;
 
 /**
  *
@@ -58,27 +58,14 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	}
 
 	/**
-	 * Execute query and retrieve a single field or row
+	 * Execute query and retrieve a single row or field in each tow
 	 *
-	 * @param string|int $field
+	 * @param string|int|null $field
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function one(string|int $field = 0, mixed $default = null): mixed {
-		return $this->database()->query_one($this->__toString(), $field, $default);
-	}
-
-	/**
-	 * This method should be overriden in subclasses if it has class_object support
-	 *
-	 * @param string $class
-	 * @return string
-	 */
-	public function class_alias(string $class = null) {
-		if ($class === null) {
-			return null;
-		}
-		return '';
+	public function one(string|int|null $field = null, mixed $default = null): mixed {
+		return $this->database()->queryOne($this->__toString(), $field, $default);
 	}
 
 	/**
@@ -89,24 +76,10 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param mixed $default
 	 *            Default value to retrieve
 	 * @return int
+	 * @deprecated 2022-05
 	 */
 	public function one_integer(string|int $field = 0, int $default = 0): int {
 		return $this->integer($field, $default);
-	}
-
-	/**
-	 * Execute query and retrieve a single field, an integer
-	 *
-	 * @param string|integer $field
-	 *            Field to retrieve
-	 * @param mixed $default
-	 *            Default value to retrieve
-	 * @param DateTimeZone|null $timezone
-	 * @return Timestamp
-	 */
-	public function one_timestamp(string|int $field = 0, Timestamp $default = null, DateTimeZone $timezone = null):
-	Timestamp {
-		return $this->timestamp($field, $default, $timezone);
 	}
 
 	/**
@@ -132,7 +105,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @return ?int
 	 */
 	public function integer(string|int $field = 0, ?int $default = 0): ?int {
-		return $this->database()->query_integer($this->__toString(), $field, $default);
+		return $this->database()->queryInteger($this->__toString(), $field, $default);
 	}
 
 	/**
@@ -146,9 +119,8 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @return Timestamp
 	 * @throws Exception_NotFound
 	 */
-	public function timestamp(int|string $field = 0, Timestamp $default = null, DateTimeZone $timezone = null):
-	Timestamp {
-		$value = $this->database()->query_one($this->__toString(), $field, $default);
+	public function timestamp(int|string $field = 0, Timestamp $default = null, DateTimeZone $timezone = null): Timestamp {
+		$value = $this->database()->queryOne($this->__toString(), $field, $default);
 		if (empty($value)) {
 			throw new Exception_NotFound('Timestamp {field} not found', ['field' => $field]);
 		}
@@ -161,21 +133,9 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param string $value
 	 * @param array $default
 	 * @return array
-	 * @deprecated 2022-04
-	 */
-	public function to_array(int|string $key = null, int|string $value = null, array $default = []): array {
-		return $this->toArray($key, $value, $default);
-	}
-
-	/**
-	 *
-	 * @param string $key
-	 * @param string $value
-	 * @param array $default
-	 * @return array
 	 */
 	public function toArray(int|string $key = null, int|string $value = null, array $default = []) {
-		return $this->database()->query_array($this->__toString(), $key, $value, $default);
+		return $this->database()->queryArray($this->__toString(), $key, $value, $default);
 	}
 
 	/**
@@ -184,11 +144,11 @@ abstract class Database_Query_Select_Base extends Database_Query {
 
 	/**
 	 *
-	 * @param string $class Optional ORM class to use as target for iteration (overrides `$this->orm_class()`)
+	 * @param ?string $class Optional ORM class to use as target for iteration (overrides `$this->orm_class()`)
 	 * @param array $options Options passed to each ORM class upon creation
 	 * @return ORMIterator
 	 */
-	public function orm_iterator(string $class = null, array $options = []): ORMIterator {
+	public function ormIterator(string $class = null, array $options = []): ORMIterator {
 		if ($class !== null) {
 			$this->setORMClass($class);
 		}
@@ -202,23 +162,23 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *            Options passed to each object upon creation
 	 * @return ORMIterators
 	 */
-	public function orm_iterators(array $options = []) {
+	public function ormIterators(array $options = []): ORMIterators {
 		return new ORMIterators($this->class, $this, $this->objects_prefixes, $options);
 	}
 
 	/**
 	 * Execute query and convert to a Model
 	 *
-	 * @param string $class Class of object, pass NULL to use already configured class
+	 * @param ?string $class Class of object, pass NULL to use already configured class
 	 * @param array $options Options to pass to object creator
 	 * @return Model
 	 */
 	public function model(string $class = null, array $options = []): Model {
 		$result = $this->one();
 		if ($result === null) {
-			throw new Exception_ORM_NotFound('{class} not found', ['class' => $class]);
+			throw new Exception_ORM_NotFound($class);
 		}
-		return $this->application->model_factory($this->orm_class($class), $result, ['from_database' => true, ] + $options);
+		return $this->application->modelFactory($this->orm_class($class), $result, ['from_database' => true, ] + $options);
 	}
 
 	/**
@@ -231,10 +191,23 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	public function orm(string $class = null, array $options = []): ORM {
 		$result = $this->one();
 		if ($result === null) {
-			throw new Exception_ORM_NotFound('{class} not found', ['class' => $class]);
+			throw new Exception_ORM_NotFound($class);
 		}
 		return $this->application->orm_factory($this->orm_class($class), $result, ['from_database' => true, ] + $options + $this->ormClassOptions());
 	}
+
+	/*---------------------------------------------------------------------------------------------------------*\
+	  ---------------------------------------------------------------------------------------------------------
+	  ---------------------------------------------------------------------------------------------------------
+			 _                               _           _
+		  __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
+		 / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
+		| (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
+		 \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
+				   |_|
+	  ---------------------------------------------------------------------------------------------------------
+	  ---------------------------------------------------------------------------------------------------------
+	\*---------------------------------------------------------------------------------------------------------*/
 
 	/**
 	 * Convert this query into an ORM Iterator (returns single object per row)
@@ -247,8 +220,8 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @deprecated 2017-12 Blame PHP 7.2
 	 * @see Database_Query_Select_Base::orm_iterator
 	 */
-	public function object_iterator($class = null, array $options = []) {
-		$this->application->deprecated();
+	public function object_iterator($class = null, array $options = []): ORMIterator {
+		$this->application->deprecated(__METHOD__);
 		return $this->orm_iterator($class, $options);
 	}
 
@@ -261,8 +234,8 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @see Database_Query_Select_Base::orms_iterator
 	 * @deprecated 2017-12 Blame PHP 7.2
 	 */
-	public function objects_iterator(array $options = []) {
-		$this->application->deprecated();
+	public function objects_iterator(array $options = []): ORMIterators {
+		$this->application->deprecated(__METHOD__);
 		return $this->orm_iterators($options);
 	}
 
@@ -277,7 +250,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @deprecated 2017-12
 	 */
 	public function one_object($class = null, array $options = []) {
-		$this->application->deprecated();
+		$this->application->deprecated(__METHOD__);
 		return $this->orm($class, $options);
 	}
 
@@ -292,7 +265,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @deprecated 2017-12
 	 */
 	public function object($class = null, array $options = []) {
-		zesk()->deprecated();
+		$this->application->deprecated(__METHOD__);
 		return $this->model($class, $options);
 	}
 
@@ -314,6 +287,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @deprecated 2022-01
 	 */
 	public function what_object(string $class = null, string $alias = null, string $prefix = null, mixed $object_mixed = null, array $object_options = []) {
+		$this->application->deprecated(__METHOD__);
 		return $this->ormWhat($class, $alias, $prefix, $object_mixed, $object_options);
 	}
 
@@ -327,6 +301,57 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @see $this->orm_iterators()
 	 */
 	public function orms_iterator(array $options = []) {
+		$this->application->deprecated(__METHOD__);
 		return $this->orm_iterators($options);
+	}
+
+	/**
+	 * Execute query and retrieve a single field, an integer
+	 *
+	 * @param string|integer $field
+	 *            Field to retrieve
+	 * @param mixed $default
+	 *            Default value to retrieve
+	 * @param DateTimeZone|null $timezone
+	 * @return Timestamp
+	 * @deprecated 2022-05
+	 * @see Database_Query_Select_Base::timestamp()
+	 */
+	public function one_timestamp(string|int $field = 0, Timestamp $default = null, DateTimeZone $timezone = null): Timestamp {
+		$this->application->deprecated(__METHOD__);
+		return $this->timestamp($field, $default, $timezone);
+	}
+
+	/**
+	 * @param int|string|null $key
+	 * @param int|string|null $value
+	 * @param array $default
+	 * @return array
+	 * @deprecated 2022-04
+	 */
+	public function to_array(int|string $key = null, int|string $value = null, array $default = []): array {
+		$this->application->deprecated(__METHOD__);
+		return $this->toArray($key, $value, $default);
+	}
+
+	/**
+	 * @param string|null $class
+	 * @param array $options
+	 * @return ORMIterator
+	 * @deprecated 2022-05
+	 */
+	public function orm_iterator(string $class = null, array $options = []): ORMIterator {
+		$this->application->deprecated(__METHOD__);
+		return $this->ormIterator($class, $options);
+	}
+
+	/**
+	 * @param array $options
+	 * @return ORMIterators
+	 * @deprecated 2022-05
+	 */
+	public function orm_iterators(array $options = []): ORMIterators {
+		$this->application->deprecated(__METHOD__);
+		return $this->ormIterators($options);
 	}
 }

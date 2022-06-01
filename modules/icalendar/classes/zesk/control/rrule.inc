@@ -3,7 +3,7 @@
  * @package zesk-module
  * @subpackage icalendar
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -139,8 +139,8 @@ class Control_RRule extends \zesk\Control {
 		]);
 	}
 
-	public function theme_variables() {
-		return parent::theme_variables() + [
+	public function themeVariables(): array {
+		return parent::themeVariables() + [
 			'child_widgets' => $this->child_widgets,
 		];
 	}

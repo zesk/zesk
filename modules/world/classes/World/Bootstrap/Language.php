@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -37,10 +37,10 @@ class World_Bootstrap_Language extends Hookable {
 	 */
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options(Module_World::class);
+		$this->inheritConfiguration(Module_World::class);
 		$include_language = $this->option('include_language');
 		if ($include_language) {
-			$this->include_language = array_change_key_case(ArrayTools::flip_assign(to_list($include_language), true));
+			$this->include_language = array_change_key_case(ArrayTools::keysFromValues(to_list($include_language), true));
 		}
 	}
 

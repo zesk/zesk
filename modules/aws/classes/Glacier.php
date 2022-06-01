@@ -4,7 +4,7 @@
  * @package zesk-modules
  * @subpackage aws
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2013, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\AWS;
 
@@ -19,7 +19,7 @@ use Aws\Glacier\Exception\GlacierException;
  * Converts most AWS internal objects into PHP-friendly and platform neutral data types
  *
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 class Glacier extends Hookable {
 	/**

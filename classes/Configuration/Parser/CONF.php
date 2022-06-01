@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage Configuration
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -35,7 +37,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 
 	/**
 	 */
-	public function validate() {
+	public function validate(): bool {
 		return true;
 	}
 
@@ -44,20 +46,19 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 * {@inheritDoc}
 	 * @see \zesk\Configuration_Parser::editor()
 	 */
-	public function editor($content = null, array $options = []) {
+	public function editor(string $content = '', array $options = []): Configuration_Editor {
 		return new Configuration_Editor_CONF($content, $options);
 	}
 
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\Configuration_Parser::process()
 	 * @return Interface_Settings
+	 * @see \zesk\Configuration_Parser::process()
 	 */
-	public function process() {
+	public function process(): void {
 		$separator = self::SEPARATOR_DEFAULT;
-		$lower = $trim_key = $trim_value = $autotype = $overwrite =
-		$multiline = null;
+		$lower = $trim_key = $trim_value = $autotype = $overwrite = $multiline = null;
 		$unquote = self::UNQUOTE_DEFAULT;
 		extract($this->options, EXTR_IF_EXISTS);
 
@@ -82,7 +83,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			/**
 			 * Parse and normalize key
 			 */
-			if (ends($key, '[]')) {
+			if (str_ends_with($key, '[]')) {
 				$key = StringTools::unsuffix($key, '[]');
 				$append = true;
 			}
@@ -114,35 +115,28 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			if ($this->loader && strtolower($key) === 'include') {
 				$this->handle_include($value);
 			} elseif ($append) {
-				$append_value = to_array($settings->get($key));
+				$append_value = toArray($settings->get($key));
 				$append_value[] = $value;
 				$settings->set($key, $append_value);
-				if ($dependency) {
-					$dependency->defines($key, array_keys($dependencies));
-				}
+				$dependency?->defines($key, array_keys($dependencies));
 			} else {
 				if ($overwrite || !$settings->has($key)) {
 					$settings->set($key, $value);
-					if ($dependency) {
-						$dependency->defines($key, array_keys($dependencies));
-					}
+					$dependency?->defines($key, array_keys($dependencies));
 				}
 			}
 		}
-		if ($dependency) {
-			$dependency->pop();
-		}
-		return $settings;
+		$dependency?->pop();
 	}
 
 	/**
 	 * Handle include files specially
 	 *
 	 * @param string $file
-	 *        	Name of additional include file
+	 *            Name of additional include file
 	 */
-	private function handle_include($file): void {
-		if (File::is_absolute($file)) {
+	private function handle_include(string $file): void {
+		if (File::isAbsolute($file)) {
 			$this->loader->append_files([
 				$file,
 			]);
@@ -164,7 +158,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 *
 	 * @param array $lines
 	 */
-	private static function join_lines(array $lines) {
+	private static function join_lines(array $lines): array {
 		$result = [
 			array_shift($lines),
 		];
@@ -187,14 +181,12 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 * Shared by Configuration_Editor_CONF
 	 *
 	 * @param string $line
-	 * @return array
+	 * @return ?array
 	 */
-	public function parse_line($line) {
-		$separator = $trim_key = $trim_value = $lower = null;
-		extract($this->options, EXTR_IF_EXISTS);
-
+	public function parse_line(string $line): ?array {
+		$separator = $this->options['separator'] ?? '=';
 		$line = trim($line);
-		if (substr($line, 0, 1) == '#') {
+		if (str_starts_with($line, '#')) {
 			return null;
 		}
 		$matches = false;
@@ -205,13 +197,13 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		if (!$key) {
 			return null;
 		}
-		if ($trim_key) {
+		if ($this->options['trim_key'] ?? false) {
 			$key = trim($key);
 		}
-		if ($trim_value) {
+		if ($this->options['trim_value'] ?? false) {
 			$value = trim($value);
 		}
-		if ($lower) {
+		if ($this->options['lower'] ?? false) {
 			$key = strtolower($key);
 		}
 		return [

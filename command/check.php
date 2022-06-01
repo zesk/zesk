@@ -6,7 +6,7 @@
  * @subpackage bin
  * @category Debugging
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -350,7 +350,7 @@ class Command_Check extends Command_Iterator_File {
 			if (!StringTools::begins($contents, $prefix)) {
 				$details = substr($contents, 0, 40);
 				$this->verbose_log("Incorrect prefix: \"{details}\"\n should be one of: {prefix}", compact('details') + [
-					'prefix' => ArrayTools::join_wrap($prefix, '"', "\"\n"),
+					'prefix' => ArrayTools::joinWrap($prefix, '"', "\"\n"),
 				]);
 				if ($this->optionBool('fix') && $this->fix_prefix($contents)) {
 					$changed = true;

@@ -27,7 +27,7 @@ class Request_Test extends Test_Unit {
 		];
 		$testx = new Request($this->application, $settings);
 
-		$testx->is_post();
+		$testx->isPost();
 
 		$name = null;
 		$value = null;
@@ -75,7 +75,7 @@ class Request_Test extends Test_Unit {
 
 		$request = Request::factory($this->application, $settings);
 
-		$this->assertFalse($request->prefer_json(), 'Request should NOT prefer JSON');
+		$this->assertFalse($request->preferJSON(), 'Request should NOT prefer JSON');
 	}
 
 	public function test_chrome_works_fine(): void {
@@ -96,6 +96,6 @@ class Request_Test extends Test_Unit {
 
 		$request = Request::factory($this->application, $settings);
 
-		$this->assertFalse($request->prefer_json(), 'Request should NOT prefer JSON');
+		$this->assertFalse($request->preferJSON(), 'Request should NOT prefer JSON');
 	}
 }

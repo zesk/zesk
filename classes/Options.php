@@ -2,14 +2,12 @@
 declare(strict_types=1);
 /**
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * @package zesk
  * @subpackage system
  */
 
 namespace zesk;
-
-use JetBrains\PhpStorm\Pure;
 
 /**
  * The Options object is universally used to tag various objects in the system with optional
@@ -79,7 +77,6 @@ class Options implements \ArrayAccess {
 	 * @param array|null $selected
 	 * @return array
 	 */
-	#[Pure]
 	public function options(array $selected = null): array {
 		if ($selected === null) {
 			return $this->options;
@@ -110,7 +107,6 @@ class Options implements \ArrayAccess {
 	 * @return bool
 	 * @see empty()
 	 */
-	#[Pure]
 	public function hasAnyOption(iterable $name, bool $check_empty = false): bool {
 		foreach ($name as $k) {
 			if ($this->hasOption($k, $check_empty)) {
@@ -128,7 +124,6 @@ class Options implements \ArrayAccess {
 	 * @return bool
 	 * @see empty()
 	 */
-	#[Pure]
 	public function hasOption(string $name, bool $check_empty = false): bool {
 		$name = self::_optionKey($name);
 		if (!array_key_exists($name, $this->options)) {
@@ -193,14 +188,14 @@ class Options implements \ArrayAccess {
 	 *
 	 * Guarantees that future option($name) will return an array.
 	 *
-	 * @param string $mixed A string of the option name to convert and append.
-	 * @param string $value The value to append to the end of the option's value array.
+	 * @param string $name A string of the option name to convert and append.
+	 * @param mixed $value The value to append to the end of the option's value array.
 	 * @return Options
 	 */
-	public function appendOptionList(string $name, mixed $value): self {
+	public function optionAppend(string $name, mixed $value): self {
 		$name = self::_optionKey($name);
 		$current_value = $this->options[$name] ?? null;
-		if (is_scalar($current_value) && $current_value !== null && $current_value !== false) {
+		if (is_scalar($current_value) && !empty($current_value)) {
 			$this->options[$name] = [
 				$current_value,
 			];
@@ -216,7 +211,6 @@ class Options implements \ArrayAccess {
 	 * @param mixed|null $default
 	 * @return mixed
 	 */
-	#[Pure]
 	public function option(string $name, mixed $default = null): mixed {
 		return $this->options[self::_optionKey($name)] ?? $default;
 	}
@@ -228,7 +222,6 @@ class Options implements \ArrayAccess {
 	 * @param mixed $default The default value to return of the option is not found
 	 * @return mixed The retrieved option
 	 */
-	#[Pure]
 	public function firstOption(iterable $names, mixed $default = null): mixed {
 		foreach ($names as $name) {
 			$name = self::_optionKey($name);
@@ -259,7 +252,6 @@ class Options implements \ArrayAccess {
 	 * @param array $target
 	 * @return array
 	 */
-	#[Pure]
 	final protected static function cleanOptionKeys(array $options, array $target = []): array {
 		foreach ($options as $k => $v) {
 			$target[self::_optionKey($k)] = $v;
@@ -274,9 +266,8 @@ class Options implements \ArrayAccess {
 	 * @param bool $default
 	 * @return bool
 	 */
-	#[Pure]
 	public function optionBool(string $name, bool $default = false): bool {
-		return to_bool($this->options[self::_optionKey($name)] ?? $default);
+		return toBool($this->options[self::_optionKey($name)] ?? $default);
 	}
 
 	/**
@@ -284,7 +275,6 @@ class Options implements \ArrayAccess {
 	 * @param int $default
 	 * @return int
 	 */
-	#[Pure]
 	public function optionInt(string $name, int $default = 0): int {
 		return to_integer($this->options[self::_optionKey($name)] ?? $default);
 	}
@@ -297,7 +287,6 @@ class Options implements \ArrayAccess {
 	 * @return float The real value of the option, or $default. The default value is passed back without modification.
 	 * @see is_numeric()
 	 */
-	#[Pure]
 	public function optionFloat(string $name, float $default = 0): float {
 		$name = self::_optionKey($name);
 		if (isset($this->options[$name]) && is_numeric($this->options[$name])) {
@@ -314,7 +303,6 @@ class Options implements \ArrayAccess {
 	 * @return array The real value of the option, or $default. The default value is passed back without modification.
 	 * @see is_array()
 	 */
-	#[Pure]
 	public function optionArray(string $name, array $default = []): array {
 		$name = self::_optionKey($name);
 		if (isset($this->options[$name]) && is_array($this->options[$name])) {
@@ -361,7 +349,6 @@ class Options implements \ArrayAccess {
 	 * @return array The string exploded by $delimiter, or the array value. The default value is passed back without modification.
 	 * @see is_array(), explode()
 	 */
-	#[Pure]
 	public function optionIterable(string $name, ?iterable $default = [], string $delimiter = ';'): iterable {
 		$name = self::_optionKey($name);
 		if (!isset($this->options[$name])) {
@@ -376,7 +363,6 @@ class Options implements \ArrayAccess {
 	 * @param string $key
 	 * @return boolean
 	 */
-	#[Pure]
 	public function __isset(string $key): bool {
 		return isset($this->options[self::_optionKey($key)]);
 	}
@@ -387,7 +373,6 @@ class Options implements \ArrayAccess {
 	 * @param string $key
 	 * @return mixed
 	 */
-	#[Pure]
 	public function __get(string $key): mixed {
 		return $this->options[self::_optionKey($key)] ?? null;
 	}
@@ -416,7 +401,6 @@ class Options implements \ArrayAccess {
 	 * @return bool
 	 * @see ArrayAccess::offsetExists
 	 */
-	#[Pure]
 	public function offsetExists($offset): bool {
 		return array_key_exists(self::_optionKey($offset), $this->options);
 	}
@@ -606,7 +590,6 @@ class Options implements \ArrayAccess {
 	 * @see is_numeric()
 	 * @deprecated 2022-01
 	 */
-	#[Pure]
 	public function option_double(string $name, float $default = 0): float {
 		return $this->optionFloat($name, $default);
 	}
@@ -620,7 +603,6 @@ class Options implements \ArrayAccess {
 	 * @see is_array()
 	 * @deprecated 2022-01
 	 */
-	#[Pure]
 	public function option_array(string $name, array $default = []): array {
 		return $this->optionArray($name, $default);
 	}
@@ -670,7 +652,7 @@ class Options implements \ArrayAccess {
 	 * @deprecated 2022-01
 	 */
 	public function option_append_list(string $name, mixed $value) {
-		return $this->appendOptionList($name, $value);
+		return $this->optionAppend($name, $value);
 	}
 
 	/**

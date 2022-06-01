@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage objects
  * @author $Author: kent $
- * @copyright Copyright &copy; 2011, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Mon,Aug 1, 11 at 5:07 PM
  */
 namespace zesk;
@@ -35,11 +35,11 @@ class Server_Data extends ORM {
 	 * @param Application $application
 	 */
 	public static function cron_cluster_hour(Application $application): void {
-		$deleted_servers = $application->orm_registry(__CLASS__)->database()->query_array('SELECT DISTINCT D.server FROM Server_Data D LEFT OUTER JOIN Server S on S.id=D.server WHERE S.id IS NULL', null, 'server');
+		$deleted_servers = $application->orm_registry(__CLASS__)->database()->queryArray('SELECT DISTINCT D.server FROM Server_Data D LEFT OUTER JOIN Server S on S.id=D.server WHERE S.id IS NULL', null, 'server');
 		if (count($deleted_servers) > 0) {
 			$application->orm_registry(__CLASS__)
 				->query_delete()
-				->where('server', $deleted_servers)
+				->addWhere('server', $deleted_servers)
 				->execute();
 		}
 	}
@@ -52,7 +52,7 @@ class Server_Data extends ORM {
 	public static function server_delete(Server $server): void {
 		$server->application->orm_registry(__CLASS__)
 			->query_delete()
-			->where('server', $server)
+			->addWhere('server', $server)
 			->execute();
 	}
 }

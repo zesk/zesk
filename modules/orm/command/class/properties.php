@@ -41,7 +41,7 @@ class Command_Class_Properties extends Command_Base {
 	 * @return string[]
 	 */
 	private function all_classes() {
-		return ArrayTools::key_value($this->application->orm_module()->all_classes(), null, 'class');
+		return ArrayTools::extract($this->application->orm_module()->all_classes(), null, 'class');
 	}
 
 	/**
@@ -74,7 +74,7 @@ class Command_Class_Properties extends Command_Base {
 			foreach ($class_object->has_one as $name => $type) {
 				$result[$name] = "@property \\$type \$$name";
 			}
-			echo "/**\n * @see " . get_class($class_object) . "\n" . ArrayTools::join_wrap($result, ' * ', "\n") . " */\n\n";
+			echo "/**\n * @see " . get_class($class_object) . "\n" . ArrayTools::joinWrap($result, ' * ', "\n") . " */\n\n";
 		}
 	}
 }

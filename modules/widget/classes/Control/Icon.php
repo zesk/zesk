@@ -4,12 +4,12 @@
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
 class Control_Icon extends Control {
-	public function render() {
+	public function render(): string {
 		$icons = $this->optionArray('icons', []);
 		$v = $this->value();
 		$src = $icons[strval($v)] ?? null;
@@ -20,7 +20,7 @@ class Control_Icon extends Control {
 		$attrs['onclick'] = $this->option('onclick');
 		//$attrs["onrclick"] = $this->option("onrclick");
 		$attrs['ondblclick'] = $this->option('ondblclick');
-		$img_attrs = $this->option_array('img_attributes');
+		$img_attrs = $this->optionArray('img_attributes');
 		$img_attrs['width'] = $this->option('img_width');
 		$img_attrs['height'] = $this->option('img_height');
 		$result = HTML::tag('a', $attrs, HTML::img($this->application, $src, $this->option('alt', ''), $img_attrs));

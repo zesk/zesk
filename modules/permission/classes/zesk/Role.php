@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage objects
  * @author $Author: kent $
- * @copyright Copyright &copy; 2011, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Mon,Aug 1, 11 at 4:58 PM
  */
 
@@ -27,7 +27,7 @@ class Role extends ORM {
 	 * @return int
 	 */
 	public static function root_id(Application $application): int {
-		return $application->orm_registry(__CLASS__)->query_select()->addWhat('id', 'id')->where('is_root', true)->integer('id', 0);
+		return $application->orm_registry(__CLASS__)->query_select()->addWhat('id', 'id')->addWhere('is_root', true)->integer('id', 0);
 	}
 
 	/**
@@ -36,7 +36,7 @@ class Role extends ORM {
 	 * @return int
 	 */
 	public static function default_id(Application $application): int {
-		return $application->orm_registry(__CLASS__)->query_select()->addWhat('id', 'id')->where('is_default', true)->integer('id', 0);
+		return $application->orm_registry(__CLASS__)->query_select()->addWhat('id', 'id')->addWhere('is_default', true)->integer('id', 0);
 	}
 
 	/**

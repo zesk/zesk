@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage tag
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Tag;
 
@@ -134,7 +134,7 @@ class Control_Tags extends Control {
 	 * {@inheritDoc}
 	 * @see \zesk\Widget::render()
 	 */
-	public function render() {
+	public function render(): string {
 		$debug = [];
 		return HTML::etag('pre', implode('<br />', $debug)) . parent::render();
 	}
@@ -217,14 +217,14 @@ class Control_Tags extends Control {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\Widget::theme_variables()
+	 * @see \zesk\Widget::themeVariables()
 	 */
-	public function theme_variables() {
+	public function themeVariables(): array {
 		$tags_query = $this->query_tags_used();
 
 		$labels = $this->_labels();
 
-		return parent::theme_variables() + [
+		return parent::themeVariables() + [
 			'action_form_element_name' => $this->action_form_element_name(),
 			'selection_type' => $this->selection_type,
 			'tags_query' => strval($tags_query),
@@ -238,7 +238,7 @@ class Control_Tags extends Control {
 	 * {@inheritDoc}
 	 * @see \zesk\Widget::submit()
 	 */
-	public function submit() {
+	public function submit(): bool {
 		if (!parent::submit()) {
 			return false;
 		}
@@ -287,13 +287,13 @@ class Control_Tags extends Control {
 	 * @param Label $label
 	 * @return boolean
 	 */
-	public function _action_remove(Label $label) {
+	public function _action_keysRemove(Label $label) {
 		$orm = $this->application->orm_registry($this->orm_class_name());
 		/* @var $orm Tag */
 		$type = $this->selection_type();
 
 		$query = $orm->remove_label_selection($label, $type);
-		$orm->control_remove($this, $query);
+		$orm->control_keysRemove($this, $query);
 
 		if (!$query->execute()) {
 			$error_id = $this->name() . '-' . $label->id();

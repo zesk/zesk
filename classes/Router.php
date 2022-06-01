@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2016, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -419,7 +419,7 @@ class Router extends Hookable {
 			$url = $route->get_route($action, $object, $options);
 			if ($url) {
 				if (array_key_exists('query', $options)) {
-					return URL::query_append($url, $options['query']);
+					return URL::queryAppend($url, $options['query']);
 				}
 				return $url;
 			}
@@ -468,7 +468,7 @@ class Router extends Hookable {
 		$app = $this->application;
 		if (is_string($options) && begins($options, '?')) {
 			$options = [
-				'query' => URL::query_parse($options),
+				'query' => URL::queryParse($options),
 			];
 		}
 		$options = to_array($options);
@@ -541,7 +541,7 @@ class Router extends Hookable {
 			]);
 			return null;
 		}
-		return URL::query_append($this->prefix . $url, avalue($options, 'query', []));
+		return URL::queryAppend($this->prefix . $url, avalue($options, 'query', []));
 	}
 
 	/**

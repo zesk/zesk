@@ -36,8 +36,8 @@ class Route_Theme extends Route {
 			'route' => $this,
 		];
 		$parameters += $this->options + $this->named;
-		$args = map($this->option_array('theme arguments', []), $parameters) + $parameters;
-		$theme_options = $this->option_array('theme options');
+		$args = map($this->optionArray('theme arguments', []), $parameters) + $parameters;
+		$theme_options = $this->optionArray('theme options');
 		$theme = $this->option('theme');
 		if ($application->theme_exists($theme, $args, $theme_options)) {
 			return $this;
@@ -61,9 +61,9 @@ class Route_Theme extends Route {
 			'route' => $this,
 		];
 		$parameters += $this->options + $this->named;
-		$args = map($this->option_array('theme arguments', []), $parameters) + $parameters;
+		$args = map($this->optionArray('theme arguments', []), $parameters) + $parameters;
 		$mapped_theme = $theme = $this->option('theme');
-		$theme_options = $this->option_array('theme options');
+		$theme_options = $this->optionArray('theme options');
 		if ($this->dynamic_theme) {
 			$mapped_theme = map($theme, $parameters);
 			if (!$application->theme_exists($mapped_theme, $args, $theme_options)) { //TODO

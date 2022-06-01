@@ -113,13 +113,13 @@ class Lists_Test extends Test_Unit {
 	/**
 	 * @data_provider append_data_provider
 	 */
-	public function test_append_unique($list, $add, $sep, $expected): void {
+	public function test_appendUnique($list, $add, $sep, $expected): void {
 		if (is_array($expected)) {
 			$expected = array_unique($expected);
 		} else {
 			$expected = implode($sep, array_unique(explode($sep, $expected)));
 		}
-		$actual = Lists::append_unique($list, $add, $sep);
+		$actual = Lists::appendUnique($list, $add, $sep);
 		$this->assert_equal(type($actual), type($expected));
 		$this->assert_equal($actual, $expected);
 	}
@@ -149,11 +149,11 @@ class Lists_Test extends Test_Unit {
 		Lists::prepend($llist, $item, $sep);
 	}
 
-	public function test_remove(): void {
+	public function test_keysRemove(): void {
 		$llist = null;
 		$item = null;
 		$sep = ';';
-		Lists::remove($llist, $item, $sep);
+		Lists::keysRemove($llist, $item, $sep);
 	}
 
 	public function test_unique(): void {

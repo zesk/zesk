@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -146,7 +146,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *   True if the pool was successfully cleared. False if there was an error.
 	 */
 	public function clear() {
-		Directory::delete_contents($this->path);
+		Directory::deleteContents($this->path);
 		return true;
 	}
 

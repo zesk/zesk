@@ -87,7 +87,7 @@ class Command_Module_New extends Command {
 		}
 
 		$tpl_path = path(__DIR__, 'templates');
-		$module_class = PHP::clean_function("Module_$name");
+		$module_class = PHP::cleanFunction("Module_$name");
 		if ($this->prompt_yes_no("Create $module_class?")) {
 			$inc_path = explode('/', str_replace('_', '/', $name));
 			array_unshift($inc_path, 'module');

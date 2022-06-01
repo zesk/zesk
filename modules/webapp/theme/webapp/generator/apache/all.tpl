@@ -42,7 +42,7 @@ $lines[] = "\tDocumentRoot " . $docroot;
 $lines[] = "\t<Directory $docroot>";
 $lines[] = "\t\tDirectoryIndex index.php";
 $lines[] = "\t\tAllowOverride All";
-$lines = array_merge($lines, ArrayTools::prefix(explode("\n", $this->theme('webapp/generator/apache/rewrite-index', [
+$lines = array_merge($lines, ArrayTools::prefixValues(explode("\n", $this->theme('webapp/generator/apache/rewrite-index', [
 	'index_file' => 'index.php',
 ])), "\t\t"));
 $lines[] = "\t</Directory>";
@@ -52,7 +52,7 @@ $lines[] = '';
 if (!is_array($includes) || count($includes) === 0) {
 	$lines[] = '# No includes';
 } else {
-	$lines = array_merge($lines, ArrayTools::prefix($includes, 'Include '));
+	$lines = array_merge($lines, ArrayTools::prefixValues($includes, 'Include '));
 }
 
 $lines[] = '';

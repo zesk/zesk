@@ -63,7 +63,7 @@ fu_widgets()ctio_widgets() co_widgets()tact_add_item(sectio_widgets())
 
 fu_widgets()ctio_widgets() co_widgets()tact_remove_item(sectio_widgets(), id)
 {
-	$('#'+id).remove();
+	$('#'+id).keysRemove();
 	if ($('#co_widgets()tact-sectio_widgets()-'+sectio_widgets()+' .sectio_widgets()-co_widgets()trol').le_widgets()gth === 1) {
 		$('#co_widgets()tact-sectio_widgets()-'+sectio_widgets()+' .remove').hide();
 	}

@@ -3,7 +3,7 @@
 /**
  *
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -67,7 +67,7 @@ class TimeSpan extends Temporal {
 	/**
 	 * Add seconds to time span
 	 *
-	 * @param integer $seconds
+	 * @param int $seconds
 	 *
 	 * @return $this
 	 */

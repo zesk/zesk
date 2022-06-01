@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage widget
  * @author kent
- * @copyright Copyright &copy; 2017, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -55,17 +55,17 @@ class Widget extends Hookable {
 	/**
 	 * List of widget => error or errors
 	 */
-	protected $errors = [];
+	protected array $errors = [];
 
 	/**
 	 * List of widget => messages
 	 */
-	protected $messages = [];
+	protected array $messages = [];
 
 	/**
 	 * Parent widget, if any
 	 *
-	 * @var Widget
+	 * @var ?Widget
 	 */
 	protected ?Widget $parent = null;
 
@@ -74,35 +74,35 @@ class Widget extends Hookable {
 	 *
 	 * @var Request
 	 */
-	protected $request = null;
+	protected Request $request;
 
 	/**
 	 * For multi-value forms, this index tells the widget which value to check in the request
 	 *
 	 * @var mixed
 	 */
-	protected $request_index = null;
+	protected int $request_index = 0;
 
 	/**
 	 * Respose associated with this widget. Inherited by children, stored only at root Widget.
 	 *
-	 * @var Response
+	 * @var ?Response
 	 */
-	private $response = null;
+	private ?Response $response = null;
 
 	/**
 	 * Current locale for this widget
 	 *
-	 * @var Locale
+	 * @var ?Locale
 	 */
-	protected $locale = null;
+	protected ?Locale $locale = null;
 
 	/**
 	 * Theme hook to use for output
 	 *
 	 * @var array|string
 	 */
-	protected array|string $theme = [];
+	protected array|string $theme = '';
 
 	/**
 	 * Variables to pass, automatically, to the theme
@@ -149,7 +149,7 @@ class Widget extends Hookable {
 	/**
 	 * List of children widgets
 	 *
-	 * @var array of column => Widget
+	 * @var Widget[]
 	 */
 	public array $children = [];
 
@@ -175,7 +175,7 @@ class Widget extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected ?string $class = null;
+	protected string $class = '';
 
 	/**
 	 * Execution state
@@ -215,9 +215,9 @@ class Widget extends Hookable {
 	/**
 	 * What we're operating on
 	 *
-	 * @var Model
+	 * @var ORM
 	 */
-	protected Model $object;
+	protected ORM $object;
 
 	/**
 	 * If request contains these values (strict), then ignore them
@@ -239,36 +239,33 @@ class Widget extends Hookable {
 	 *
 	 * @param mixed $options
 	 */
-	public function __construct(Application $application, array $options = null) {
-		$this->request = $application->request();
-
-		if (!is_array($options)) {
-			$options = [];
-		}
+	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options();
+		$this->request = $application->request();
+		$this->object = $this->model();
+		$this->inheritConfiguration();
 
 		$this->options += [
-			'column' => avalue($this->options, 'id'),
+			'column' => $this->options['id'] ?? null,
 		];
 		$this->options += [
-			'name' => avalue($this->options, 'column'),
+			'name' => $this->options['column'] ?? null,
 		];
 
 		if ($this->hasOption('locale')) {
-			$this->locale($this->application->locale_registry($this->option('locale')));
+			$this->locale($this->application->localeRegistry($this->option('locale')));
 		}
 		if (!$this->locale) {
 			$this->locale = $application->locale;
 		}
 		$this->hierarchy = $application->classes->hierarchy($this, __CLASS__);
-		if ($this->theme === null) {
+		if ($this->theme === '') {
 			$this->theme = $this->default_theme();
 		}
-		if ($this->context_class() === null) {
+		if ($this->contextClass() === null) {
 			$cl = get_class($this);
 			$cl = StringTools::rright($cl, '\\', $cl);
-			$this->context_class(strtr(strtolower($cl), '_', '-'));
+			$this->contextClass(strtr(strtolower($cl), '_', '-'));
 		}
 		$this->call_hook('construct');
 	}
@@ -279,7 +276,7 @@ class Widget extends Hookable {
 	 * @return array
 	 */
 	public function default_theme() {
-		return ArrayTools::change_value_case(tr($this->hierarchy, [
+		return ArrayTools::changeValueCase(tr($this->hierarchy, [
 			'\\' => '/',
 			'_' => '/',
 		]));
@@ -312,11 +309,7 @@ class Widget extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function context_class(string $set = null, bool $add = true): string {
-		if ($set !== null) {
-			$this->application->deprecated('setter');
-			$this->setContextClass($set, $add);
-		}
+	public function contextClass(): string {
 		return strval($this->option('context_class'));
 	}
 
@@ -327,9 +320,9 @@ class Widget extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function setContextClass(string $set, bool $add = true) {
+	public function setContextClass(string $set, bool $add = true): self {
 		$set = trim($set, '.');
-		return $this->setOption('context_class', $add ? CSS::add_class($this->context_class(), $set) : $set);
+		return $this->setOption('context_class', $add ? CSS::addClass($this->contextClass(), $set) : $set);
 	}
 
 	/**
@@ -369,6 +362,17 @@ class Widget extends Hookable {
 	}
 
 	/**
+	 * Getter/setter for orm class naem
+	 *
+	 * @param string $set
+	 * @return \zesk\Widget|string
+	 */
+	final public function setORMClassName(string $set): self {
+		$this->class = $set;
+		return $this;
+	}
+
+	/**
 	 * @return Class_ORM
 	 */
 	final public function find_parent_class_orm() {
@@ -387,24 +391,15 @@ class Widget extends Hookable {
 	 * @paam string $class
 	 * @return Widget
 	 */
-	final public function add_class(string $class): self {
-		return $this->addClass($class);
-	}
-
-	/**
-	 *
-	 * @paam string $class
-	 * @return Widget
-	 */
 	final public function addClass(string $class): self {
 		// Some widgets have protected variable called class - always update the options here
-		$this->options = HTML::add_class($this->options, $class);
+		$this->options = HTML::addClass($this->options, $class);
 		return $this;
 	}
 
-	final public function remove_class(string $class): self {
+	final public function removeClass(string $class): self {
 		// Some widgets have protected variable called class - always update the options here
-		$this->options = HTML::remove_class($this->options, $class);
+		$this->options = HTML::removeClass($this->options, $class);
 		return $this;
 	}
 
@@ -413,7 +408,7 @@ class Widget extends Hookable {
 			return $this->traverse_rename;
 		}
 		$this->application->deprecated('setter');
-		$this->setTraverseRename(to_bool($set));
+		$this->setTraverseRename(toBool($set));
 		return $this;
 	}
 
@@ -489,30 +484,51 @@ class Widget extends Hookable {
 	 * </code>
 	 *
 	 *
-	 * @param unknown $name
-	 * @param unknown $widget
-	 * @return Widget
+	 * @param string $name
+	 * @param Widget $widget
+	 * @return self
 	 */
-	public function child($name, $widget = null) {
+	public function setChild(string $name, Widget $widget): self {
+		$this->_setChild($name, $widget);
+		return $this;
+	}
+
+	/**
+	 * @param string $name
+	 * @return Widget
+	 * @throws Exception_Key
+	 * @throws Exception_Semantics
+	 */
+	public function findChild(string $name): Widget {
+		$result = $this->children[$name] ?? null;
+		if ($result !== null) {
+			return $result;
+		}
+		foreach ($this->children as $child) {
+			try {
+				return $child->findChild($name);
+			} catch (Exception_Key) {
+			}
+		}
+
+		throw new Exception_Key($name);
+	}
+
+	/**
+	 * @param string|Widget $name
+	 * @param string|null $widget
+	 * @return $this|Widget
+	 * @throws Exception_Key
+	 * @throws Exception_Semantics
+	 * @deprecated 2022-05
+	 */
+	public function child(string|Widget $name, string $widget = null) {
 		if (is_string($name)) {
 			if ($widget instanceof Widget) {
-				$this->_child($name, $widget);
-				return $this;
+				return $this->setChild($name, $widget);
 			}
 			if ($widget === null) {
-				if (!is_array($this->children)) {
-					return null;
-				}
-				$result = avalue($this->children, $name);
-				if ($result === null) {
-					foreach ($this->children as $child) {
-						$result = $child->child($name);
-						if ($result instanceof Widget) {
-							return $result;
-						}
-					}
-				}
-				return $result;
+				return $this->findChild($name);
 			}
 
 			throw new Exception_Semantics('{class}::child({name}, {widget}) invalid parameters', [
@@ -523,11 +539,7 @@ class Widget extends Hookable {
 		}
 		if ($name instanceof Widget) {
 			/* @var $name Widget */
-			$this->_child($name->column(), $name, $widget === 'first');
-			return $this;
-		}
-		if (is_array($name)) {
-			$this->children($name);
+			$this->_setChild($name->column(), $name, $widget === 'first');
 			return $this;
 		}
 
@@ -538,7 +550,14 @@ class Widget extends Hookable {
 		]);
 	}
 
-	private function _child($id, Widget $child, $first = false): void {
+	/**
+	 * @param string $id
+	 * @param Widget $child
+	 * @param bool $first
+	 * @return void
+	 * @throws Exception_Semantics
+	 */
+	private function _setChild(string $id, Widget $child, bool $first = false): void {
 		$child->parent = $this;
 		if ($first) {
 			$this->children = array_merge([
@@ -553,14 +572,10 @@ class Widget extends Hookable {
 		}
 	}
 
-	public function wrap($tag = null, $mixed = null, $prefix = '', $suffix = '') {
-		$args = func_get_args();
-		if (count($args) === 0) {
-			return $this->wraps;
-		}
+	public function addWrap(string $tag, array|string $attributes = [], string $prefix = '', string $suffix = ''): self {
 		$this->wraps[] = [
 			$tag,
-			HTML::to_attributes($mixed),
+			HTML::toAttributes($attributes),
 			$prefix,
 			$suffix,
 		];
@@ -572,7 +587,7 @@ class Widget extends Hookable {
 	 *
 	 * @return Widget
 	 */
-	public function nowrap(): self {
+	public function clearWrap(): self {
 		$this->wraps = [];
 		return $this;
 	}
@@ -583,12 +598,10 @@ class Widget extends Hookable {
 	 * @param string $content
 	 */
 	private function unwrap(string $content): string {
-		if (count($this->wraps) === 0) {
-			throw new Exception_Semantics(get_class($this) . '::unwrap: Nothing more to unwrap');
-		}
+		assert(count($this->wraps) > 0);
 		$object = $this->object;
 		[$tag, $mixed, $prefix, $suffix] = array_shift($this->wraps);
-		return HTML::tag($object->apply_map($tag), $object->apply_map($mixed), $prefix . $content . $suffix);
+		return HTML::tag($object->applyMap($tag), $object->applyMap($mixed), $prefix . $content . $suffix);
 	}
 
 	/**
@@ -611,8 +624,8 @@ class Widget extends Hookable {
 	 * @param mixed $mixed
 	 * @param array $options
 	 */
-	public function model_factory(string $class, mixed $mixed = null, array $options = []): Model {
-		return $this->application->model_factory($class, $mixed, $options);
+	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
+		return $this->application->modelFactory($class, $mixed, $options);
 	}
 
 	/**
@@ -627,7 +640,7 @@ class Widget extends Hookable {
 		$widget = self::factory($this->application, $class, $options);
 		$response = $this->response();
 		if ($response) {
-			$widget->response($response);
+			$widget->setResponse($response);
 		}
 		return $widget;
 	}
@@ -648,10 +661,10 @@ class Widget extends Hookable {
 		];
 
 		try {
-			$widget = $application->factory_arguments($class, $args);
+			$widget = $application->factoryArguments($class, $args);
 		} catch (Exception_Class_NotFound $e) {
 			if (!str_contains($class, '\\') && class_exists("zesk\\$class")) {
-				$widget = $application->factory_arguments('zesk\\' . $class, $args);
+				$widget = $application->factoryArguments('zesk\\' . $class, $args);
 				if ($widget) {
 					$application->deprecated('{method} called with unprefixed class {class}', [
 						'method' => __METHOD__,
@@ -670,45 +683,48 @@ class Widget extends Hookable {
 
 	/**
 	 * Application associated with this widget
-	 *
-	 * @param $set Application
-	 *            to set
-	 * @return \zesk\Application
 	 */
-	public function application(Application $set = null) {
-		if ($set !== null) {
-			$this->application = $set;
-			return $this;
-		}
+	public function application(): Application {
 		return $this->application;
+	}
+
+	/**
+	 * Application associated with this widget
+	 *
+	 * @param Application $set
+	 * @return $this
+	 */
+	public function setApplication(Application $set): self {
+		$this->application = $set;
+		return $this;
 	}
 
 	/**
 	 * Request associated with this widget
 	 *
-	 * @param $set \zesk\Request
-	 *            to set
-	 * @return \zesk\Request|self
+	 * @return Request
 	 */
-	public function request(Request $set = null) {
-		if ($set !== null) {
-			$this->request = $set;
-			return $this;
-		}
+	public function request(): Request {
 		return $this->request;
+	}
+
+	/**
+	 * Request associated with this widget
+	 *
+	 * @param Request $set
+	 * @return self
+	 */
+	public function setRequest(Request $set): self {
+		$this->request = $set;
+		return $this;
 	}
 
 	/**
 	 * Response associated with this widget. NOT created if not set.
 	 *
-	 * @param $set Response to set
-	 * @return \zesk\Response
+	 * @return ?Response
 	 */
-	public function response(Response $set = null) {
-		if ($set !== null) {
-			$this->response = $set;
-			return $this;
-		}
+	public function response(): ?Response {
 		if ($this->response instanceof Response) {
 			return $this->response;
 		}
@@ -722,21 +738,32 @@ class Widget extends Hookable {
 	}
 
 	/**
+	 * Response associated with this widget. NOT created if not set.
+	 *
+	 * @param $set Response to set
+	 * @return self
+	 */
+	public function setResponse(Response $set): self {
+		$this->response = $set;
+		return $this;
+	}
+
+	/**
 	 * Retrieve the user, if any, associated with permissions for this control.
 	 *
-	 * @return \zesk\User
+	 * @return ?User
 	 */
-	public function user($require = true) {
+	public function user(bool $require = true): ?User {
 		return $this->application()->user($this->request, $require);
 	}
 
 	/**
 	 * Retrieve the account, if any, associated with permissions for this control.
 	 *
-	 * @return \zesk\Account
+	 * @return Account
 	 */
-	public function account() {
-		return $this->application->model_singleton('zesk\\Account');
+	public function account(): Account {
+		return $this->application->modelSingleton(__NAMESPACE__ . '\\Account');
 	}
 
 	/**
@@ -744,7 +771,7 @@ class Widget extends Hookable {
 	 *
 	 * @return \zesk\Interface_Session
 	 */
-	public function session($require = true) {
+	public function session(bool $require = true): ?Interface_Session {
 		return $this->application()->session($this->request, $require);
 	}
 
@@ -760,7 +787,7 @@ class Widget extends Hookable {
 	 * @param $object mixed
 	 *            Optional target
 	 */
-	public function user_can($action, Model $object = null, array $options = []) {
+	public function userCan(string $action, Model $object = null, array $options = []) {
 		$user = $this->user();
 		if (!$user instanceof User) {
 			return false;
@@ -771,44 +798,51 @@ class Widget extends Hookable {
 	/**
 	 * Set/get file upload flag
 	 *
+	 * @param bool $set
+	 */
+	public function upload(): bool {
+		return $this->optionBool('upload', $this->optionBool('is_upload'));
+	}
+
+	/**
+	 * Set/get file upload flag
+	 *
 	 * @param boolean $set
 	 */
-	public function upload($set = null) {
-		if (is_bool($set)) {
-			$this->options['upload'] = $set;
-			if ($this->parent) {
-				$this->parent->upload($set);
-			}
-			return $this;
+	public function setUpload(bool $set): self {
+		$this->options['upload'] = $set;
+		if ($this->parent) {
+			$this->parent->setUpload($set);
 		}
-		return $this->optionBool('upload', $this->optionBool('is_upload'));
+		return $this;
 	}
 
 	/**
 	 * Do not output this widget, save the rendered form and use it as a token in later widgets.
 	 *
-	 * @param boolean|string $set
-	 *            Boolean turns it on/off, string turns it on and uses alternate token name
-	 * @return mixed Widget
+	 * @return string|bool
 	 */
-	public function save_render($set = null) {
-		if ($set) {
-			$this->setOption('widget_save_result', $set);
-			return $this;
-		}
-		return $this->option('widget_save_result');
+	public function saveRender(): string|bool {
+		return $this->option('widget_save_result', false);
+	}
+
+	/**
+	 * Do not output this widget, save the rendered form and use it as a token in later widgets.
+	 *
+	 * @param boolean|string $set Boolean turns it on/off, string turns it on and uses alternate token name
+	 * @return self
+	 */
+	public function setSaveRender(bool|string $set): self {
+		$this->setOption('widget_save_result', $set);
+		return $this;
 	}
 
 	/**
 	 * Parent Widget
 	 *
-	 * @return Widget
+	 * @return ?Widget
 	 */
-	public function parent(Widget $set = null) {
-		if ($set !== null) {
-			$this->application->deprecated('setter');
-			$this->setParent($set);
-		}
+	public function parent(): ?Widget {
 		return $this->parent;
 	}
 
@@ -850,14 +884,9 @@ class Widget extends Hookable {
 	/**
 	 * Get/set the value associated with this widget
 	 *
-	 * @param mixed $set
 	 * @return mixed
 	 */
-	public function value($set = null) {
-		if ($set !== null) {
-			$this->application->deprecated('setter');
-			$this->setValue($set);
-		}
+	public function value(): mixed {
 		$column = $this->column();
 		if ($column === null) {
 			return null;
@@ -874,7 +903,7 @@ class Widget extends Hookable {
 	 * Get/set the value associated with this widget
 	 *
 	 * @param mixed $set
-	 * @return mixed|Widget
+	 * @return self
 	 */
 	public function setValue(mixed $set): self {
 		$this->object->set($this->column(), $set);
@@ -887,8 +916,8 @@ class Widget extends Hookable {
 	 * @param mixed $set
 	 * @return self
 	 */
-	public function json($set) {
-		$this->response()->json()->data($set);
+	public function json(array $set) {
+		$this->response()->json()->setData($set);
 		return $this;
 	}
 
@@ -896,17 +925,20 @@ class Widget extends Hookable {
 	 * Set names for this widget
 	 *
 	 * @param string $column
-	 * @param string $label
+	 * @param string|bool $label
 	 * @param string $name
 	 */
-	public function names($column, $label = true, $name = false) {
+	public function names(string $column, bool|string $label = true, string $name = ''): self {
 		$this->setOption('column', $column);
+
 		if ($label === false) {
 			$this->setOption('nolabel', true);
 		} elseif ($label === true) {
 			$this->setOption('label', ucfirst($column));
+			$this->clearOption('nolabel');
 		} else {
 			$this->setOption('label', $label);
+			$this->clearOption('nolabel');
 		}
 		$name = !empty($name) ? $name : $column;
 		$this->setOption('name', $name);
@@ -915,78 +947,118 @@ class Widget extends Hookable {
 	}
 
 	/**
-	 * Set/get widget required
+	 * Get widget required
 	 *
-	 * @return boolean|Widget
+	 * @return bool
 	 */
-	public function required($set = null) {
-		if (is_bool($set)) {
-			$this->setOption('required', $set);
-			return $this;
-		}
-		return $this->optionBool('required', false);
+	public function required(): bool {
+		return $this->optionBool('required');
 	}
 
 	/**
-	 * Set/get widget required error message
+	 * Set widget required
 	 *
-	 * @return boolean
+	 * @param bool $set
+	 * @return $this
 	 */
-	public function required_error($set = null) {
-		if ($set !== null) {
-			return $this->setOption('error_required', $set);
-		}
-		return $this->optionBool('error_required', false);
+	public function setRequired(bool $set): self {
+		$this->setOption('required', $set);
+		return $this;
 	}
 
 	/**
-	 * Get or set the column name
+	 * Get widget required error message
 	 *
-	 * @param $set Value
-	 *            to set it to
-	 * @return mixed Column name for get, Widget for set
+	 * @return string
 	 */
-	public function column($set = null) {
-		if ($set !== null) {
-			$this->setOption('column', $set);
-			return $this;
-		}
-		return $this->option('column');
+	public function requiredError(): string {
+		return $this->option('error_required', '');
 	}
 
 	/**
-	 * Get or set the input name
-	 *
-	 * @param $set Value
-	 *            to set it to
-	 * @return mixed Input name for get, Widget for set
-	 */
-	public function name($set = null) {
-		if ($set !== null) {
-			$this->setOption('name', $set);
-			return $this;
-		}
-		return $this->option('name');
-	}
-
-	/**
-	 * Get/set the nolabel option
-	 *
-	 * @param boolean $set
-	 * @return Widget|boolean
-	 */
-	public function nolabel($set = null) {
-		return ($set !== null) ? $this->setOption('nolabel', $set) : $this->optionBool('nolabel');
-	}
-
-	/**
-	 * Get/set the label
+	 * Set widget required error message
 	 *
 	 * @param string $set
-	 * @return Widget|string
+	 * @return $this
 	 */
-	public function label($set = null) {
-		return ($set !== null) ? $this->setOption('label', $set) : $this->option('label');
+	public function setRequiredError(string $set): self {
+		return $this->setOption('error_required', $set);
+	}
+
+	/**
+	 * Det the column name
+	 *
+	 * @param string $set
+	 * @return $this
+	 */
+	public function setColumn(string $set) {
+		$this->setOption('column', $set);
+		return $this;
+	}
+
+	/**
+	 * Get the column name
+	 *
+	 * @return string
+	 */
+	public function column(): string {
+		return $this->option('column', '');
+	}
+
+	/**
+	 * Get the input name
+	 *
+	 * @return string
+	 */
+	public function name(): string {
+		return $this->option('name', '');
+	}
+
+	/**
+	 * Set the input name
+	 *
+	 * @param string $set
+	 * @return $this
+	 */
+	public function setName(string $set): self {
+		$this->setOption('name', $set);
+		return $this;
+	}
+
+	/**
+	 * Get the no label option
+	 *
+	 * @return bool
+	 */
+	public function nolabel(): bool {
+		return $this->optionBool('nolabel');
+	}
+
+	/**
+	 * Set the no label option
+	 *
+	 * @param bool $set
+	 * @return $this
+	 */
+	public function setNoLabel(bool $set): self {
+		return $this->setOption('nolabel', $set);
+	}
+
+	/**
+	 * Get the label
+	 *
+	 * @return string
+	 */
+	public function label(): string {
+		return $this->option('label', '');
+	}
+
+	/**
+	 * @param string $set
+	 * @return $this
+	 */
+	public function setLabel(string $set): self {
+		return $this->setOption('label', $set);
 	}
 
 	/**
@@ -996,67 +1068,95 @@ class Widget extends Hookable {
 	 * @param boolean $append
 	 * @return Widget|string
 	 */
-	public function suffix($data = null, $append = false) {
-		if ($data !== null) {
-			if ($append) {
-				return $this->setOption('suffix', $this->option('suffix') . $data);
-			}
-			return $this->setOption('suffix', $data);
-		}
-		return $this->option('suffix');
+	public function suffix(): string {
+		return $this->option('suffix', '');
 	}
 
 	/**
-	 * Get/set/append the prefix
+	 * Set/append the suffix
+	 *
+	 * @param string|null $data
+	 * @param bool $append
+	 * @return $this
+	 */
+	public function setSuffix(string $data = null, bool $append = false): self {
+		if ($append) {
+			return $this->setOption('suffix', $this->suffix() . $data);
+		}
+		return $this->setOption('suffix', $data);
+	}
+
+	/**
+	 * Set/append the prefix
 	 *
 	 * @param string $data
 	 * @param boolean $append
-	 * @return Widget string
+	 * @return self
 	 */
-	public function prefix($data = null, $append = false) {
-		if ($data !== null) {
-			if ($append) {
-				return $this->setOption('prefix', $this->option('prefix') . $data);
-			}
-			return $this->setOption('prefix', $data);
+	public function setPrefix(string $data, bool $append = false): self {
+		if ($append) {
+			return $this->setOption('prefix', $this->option('prefix') . $data);
 		}
-		return $this->option('prefix');
+		return $this->setOption('prefix', $data);
+	}
+
+	/**
+	 * Get the prefix
+	 *
+	 * @return string
+	 */
+	public function prefix(): string {
+		return $this->option('prefix', '');
+	}
+
+	/**
+	 * Get the form name, finds it from the parent if exists
+	 *
+	 * @return string
+	 */
+	public function formName(): string {
+		if ($this->parent) {
+			return $this->parent->formName();
+		}
+		return $this->option('form_name', '');
 	}
 
 	/**
 	 * Get/set the form name, finds it from the parent if exists
 	 *
-	 * @param string $data
-	 * @param boolean $append
-	 * @return Widget string
+	 * @param string $set
+	 * @return $this
 	 */
-	public function form_name($set = null) {
+	public function setFormName(string $set): self {
 		if ($this->parent) {
-			return $this->parent->form_name($set);
+			return $this->parent->setFormName($set);
 		}
-		if ($set !== null) {
-			$this->setOption('form_name', $set);
-			return $this;
-		}
-		return $this->option('form_name');
+		$this->setOption('form_name', $set);
+		return $this;
 	}
 
 	/**
-	 * Get/set the form ID
+	 * Get the form ID
 	 *
-	 * @param string $data
-	 * @param boolean $append
-	 * @return Widget string
+	 * @return string
 	 */
-	public function form_id($set = null) {
+	public function formID(): string {
 		if ($this->parent) {
-			return $this->parent->form_id($set);
+			return $this->parent->formID();
 		}
-		if ($set !== null) {
-			$this->setOption('form_id', $set);
-			return $this;
+		return $this->option('form_id', '');
+	}
+
+	/**
+	 * @param string $set
+	 * @return $this
+	 */
+	public function setFormID(string $set): self {
+		if ($this->parent) {
+			return $this->parent->setFormID($set);
 		}
-		return $this->option('form_id');
+		$this->setOption('form_id', $set);
+		return $this;
 	}
 
 	/**
@@ -1064,8 +1164,17 @@ class Widget extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function language() {
+	public function language(): string {
 		return $this->locale->language();
+	}
+
+	/**
+	 * Get/set the locale of this widget
+	 *
+	 * @return Locale
+	 */
+	public function locale(): Locale {
+		return $this->locale;
 	}
 
 	/**
@@ -1073,12 +1182,9 @@ class Widget extends Hookable {
 	 *
 	 * @return Locale|self
 	 */
-	public function locale(Locale $set = null) {
-		if ($set) {
-			$this->locale = $set;
-			return $this;
-		}
-		return $this->locale;
+	public function setLocale(Locale $set): self {
+		$this->locale = $set;
+		return $this;
 	}
 
 	/**
@@ -1087,14 +1193,13 @@ class Widget extends Hookable {
 	 * @param $set integer
 	 *            Valid of the size to display for inputs
 	 */
-	public function show_size($set = null) {
-		if ($set !== null) {
-			if (is_numeric($set)) {
-				$this->setOption('show_size', intval($set));
-			}
-			return $this;
-		}
-		return $this->option('show_size', null);
+	public function showSize(): int {
+		return $this->optionInt('show_size', -1);
+	}
+
+	public function setShowSize(int $set): self {
+		$this->setOption('show_size', $set);
+		return $this;
 	}
 
 	/**
@@ -1117,7 +1222,7 @@ class Widget extends Hookable {
 	 * @return boolean
 	 */
 	public function is_visible() {
-		if ($this->save_render()) {
+		if ($this->saveRender()) {
 			return false;
 		}
 		return $this->call_hook_arguments('visible', [], true);
@@ -1353,7 +1458,7 @@ class Widget extends Hookable {
 	 *
 	 * @return boolean
 	 */
-	protected function validate() {
+	protected function validate(): bool {
 		$result = true;
 		foreach ($this->children as $child) {
 			if (!$child->validate()) {
@@ -1456,8 +1561,8 @@ class Widget extends Hookable {
 	 * ->glyphs(min,max) sets min and max number of glyphs
 	 * </pre>
 	 *
-	 * @param integer $mixed
-	 * @param integer $max
+	 * @param int $mixed
+	 * @param int $max
 	 * @return array|Widget
 	 */
 	public function glyphs($mixed = null, $max = null) {
@@ -1479,8 +1584,8 @@ class Widget extends Hookable {
 	/**
 	 *
 	 * @param string $message
-	 * @param integer $size
-	 * @param integer $entered_size
+	 * @param int $size
+	 * @param int $entered_size
 	 * @return boolean
 	 */
 	private function _character_error($message, $size, $entered_size = null) {
@@ -1537,7 +1642,7 @@ class Widget extends Hookable {
 		if ($name && $this->request->has($name)) {
 			return true;
 		}
-		return $this->request->is_post();
+		return $this->request->isPost();
 	}
 
 	/**
@@ -1597,12 +1702,10 @@ class Widget extends Hookable {
 	/**
 	 * Update execution state for all children
 	 *
-	 * @param string $state
+	 * @param int $state
+	 * @return void
 	 */
-	private function _update_child_state($state): void {
-		if (!is_array($this->children)) {
-			return;
-		}
+	private function _update_child_state(int $state): void {
 		foreach ($this->children as $child) {
 			$child->_update_child_state($state);
 			$child->exec_state = $state;
@@ -1620,14 +1723,9 @@ class Widget extends Hookable {
 			$this->exec_state = self::ready;
 			$this->response();
 			// Create model for parent object to have something to examine state in
-			if (!$this->object instanceof Model) {
-				$model = $this->model();
-				if (!$model instanceof Model) {
-					throw new Exception_Semantics('Object required for class ' . get_class($this));
-				}
-				$this->object($model);
-				$this->defaults();
-			}
+			$model = $this->model();
+			$this->object($model);
+			$this->defaults();
 			$this->initialize();
 			// Apply model settings to the children we just created
 			$this->children_model();
@@ -1669,11 +1767,11 @@ class Widget extends Hookable {
 			if (!$object instanceof Model) {
 				backtrace();
 			}
-			$input_name = $object->apply_map($this->name());
+			$input_name = $object->applyMap($this->name());
 			if ($this->request_index !== null) {
 				$input_name = StringTools::unsuffix($input_name, '[]');
 				if ($this->request->has($input_name, false)) {
-					$new_value = $this->request->geta($input_name);
+					$new_value = $this->request->getArray($input_name);
 					$new_value = $this->sanitize($new_value);
 					$new_value = avalue($new_value, $this->request_index);
 					if ($new_value !== null && $new_value !== '') {
@@ -1763,7 +1861,7 @@ class Widget extends Hookable {
 	/**
 	 * Get/set the request index
 	 *
-	 * @param integer $set
+	 * @param int $set
 	 * @return Widget integer
 	 */
 	final public function request_index($set = null) {
@@ -1836,7 +1934,7 @@ class Widget extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function data_attributes() {
+	public function dataAttributes() {
 		return HTML::data_attributes($this->options);
 	}
 
@@ -1846,8 +1944,8 @@ class Widget extends Hookable {
 	 * @param array $types
 	 * @return array
 	 */
-	public function input_attributes(array $types = []): array {
-		return $this->options_include(HTML::input_attribute_names($types));
+	public function inputAttributes(array $types = []): array {
+		return $this->options(HTML::inputAttributeNames($types));
 	}
 
 	/**
@@ -1958,7 +2056,7 @@ class Widget extends Hookable {
 				if (empty($value)) {
 					$attributes[$k] = $v;
 				} elseif (is_string($value)) {
-					$attributes[$k] = CSS::add_class($value, $v);
+					$attributes[$k] = CSS::addClass($value, $v);
 				} elseif (is_array($value)) {
 					$attributes[$k][] = $value;
 				}
@@ -1974,14 +2072,15 @@ class Widget extends Hookable {
 	 * List of attributes associate with HTML tags
 	 *
 	 * @param string $type
+	 * @return array
 	 */
-	private static function _attributes_names($type) {
+	private static function _attributesNames(string $type): array {
 		static $types = [
 			'default' => 'id;class;style',
 			'input' => 'id;class;style;title;placeholder;onclick;ondblclick;onmousedown;onmouseup;onmouseover;onmousemove;onmouseout;onkeypress;onkeydown;onkeyup;type;name;value;checked;disabled;readonly;size;maxlength;src;alt;usemap;ismap;tabindex;accesskey;onfocus;onblur;onselect;onchange;accept',
 			'textarea' => 'id;class;style;title;placeholder;onclick;ondblclick;onmousedown;onmouseup;onmouseover;onmousemove;onmouseout;onkeypress;onkeydown;onkeyup;type;name;checked;disabled;readonly;size;maxlength;src;alt;tabindex;accesskey;onfocus;onblur;onselect;onchange;accept',
 		];
-		return avalue($types, $type, $types['default']);
+		return toList($types[$type] ?? $types['default']);
 	}
 
 	/**
@@ -1990,13 +2089,15 @@ class Widget extends Hookable {
 	 * @param array $inherit
 	 * @param string $type
 	 */
-	public function attributes(array $inherit = [], $type = '') {
-		$options_list = self::_attributes_names($type);
-		$attributes = $this->options_include($options_list) + $this->data_attributes();
+	public function attributes(array $inherit = [], string $type = ''): array {
+		$attributes = $this->options(self::_attributesNames($type)) + $this->dataAttributes();
 		return self::attributes_inherit($attributes, $inherit);
 	}
 
-	private function empty_condition_apply() {
+	/**
+	 * @return bool
+	 */
+	private function empty_condition_apply(): bool {
 		if (!$this->hasOption('empty_condition')) {
 			return false;
 		}
@@ -2004,7 +2105,10 @@ class Widget extends Hookable {
 		return true;
 	}
 
-	private function validate_empty_condition() {
+	/**
+	 * @return bool
+	 */
+	private function validate_empty_condition(): bool {
 		$value = $this->value();
 		if (empty($value)) {
 			return true;
@@ -2012,7 +2116,12 @@ class Widget extends Hookable {
 		return true;
 	}
 
-	protected function _default_value($default = null, $column = null) {
+	/**
+	 * @param mixed|null $default
+	 * @param string|null $column
+	 * @return mixed
+	 */
+	protected function _default_value(mixed $default = null, string $column = null): mixed {
 		$column = ($column === null) ? $this->column() : $column;
 		$sess_variable_name = $this->option('session_default');
 		$default = $default !== null ? $default : $this->default_value();
@@ -2042,7 +2151,7 @@ class Widget extends Hookable {
 		if (!$session) {
 			return;
 		}
-		$this->session->set($sess_variable_name, $value);
+		$session->set($sess_variable_name, $value);
 	}
 
 	/**
@@ -2050,24 +2159,30 @@ class Widget extends Hookable {
 	 *
 	 * @var boolean
 	 */
-	public function traverse($set = null) {
-		if ($set !== null) {
-			$this->traverse = to_bool($set);
-			return $this;
-		}
+	public function traverse(): bool {
 		return $this->traverse;
+	}
+
+	/**
+	 * When executing child, traverse the parent model
+	 *
+	 * @var boolean
+	 */
+	public function setTraverse(bool $set): self {
+		$this->traverse = toBool($set);
+		return $this;
 	}
 
 	/**
 	 * Returns the model for this widget.
 	 * If no model returned, then this widget must be invoked with an existing model.
 	 *
-	 * @return Model
+	 * @return ORM
 	 */
-	protected function model() {
+	protected function model(): ORM {
 		$model = $this->call_hook('model_new', $this);
-		if (!$model instanceof Model) {
-			$model = $this->application->factory(__NAMESPACE__ . '\\' . 'Model', $this->application);
+		if (!$model instanceof ORM) {
+			$model = $this->application->factory(__NAMESPACE__ . '\\' . 'ORM', $this->application);
 			$model = $this->call_hook('model_alter', $model);
 		}
 		return $model;
@@ -2075,13 +2190,11 @@ class Widget extends Hookable {
 
 	/**
 	 *
-	 * @param Model $object
-	 * @return Widget
+	 * @param ORM $object
+	 * @return self
 	 */
-	public function ready(Model &$object = null) {
-		if ($object) {
-			$this->object = $object;
-		}
+	public function ready(ORM $object): self {
+		$this->object = $object;
 		$this->_exec_ready();
 		return $this;
 	}
@@ -2089,7 +2202,6 @@ class Widget extends Hookable {
 	/**
 	 * Initialize widgets before any other execution function
 	 *
-	 * @param $object Model
 	 * @return void
 	 */
 	protected function initialize(): void {
@@ -2115,34 +2227,28 @@ class Widget extends Hookable {
 			$this->id($this->name());
 		}
 		if (!$this->_initialize) {
-			if (is_array($this->children)) {
-				$this->children_initialize();
-			}
+			$this->childrenInitialize();
 		}
 		if ($this->hasOption('theme_variables')) {
-			$this->theme_variables += $this->option_array('theme_variables');
+			$this->theme_variables += $this->optionArray('theme_variables');
 		}
 		$this->_initialize = true;
 	}
 
 	/**
 	 * Initialize all of my children, if any
-	 *
-	 * @param unknown $object
 	 */
-	protected function children_initialize(): void {
-		if (is_array($this->children)) {
-			do {
-				$n_children = count($this->children);
-				foreach ($this->children as $widget) {
-					if (!$widget->_initialize) {
-						/* @var $w Widget */
-						$widget->initialize();
-						$widget->_initialize = true;
-					}
+	protected function childrenInitialize(): void {
+		do {
+			$n_children = count($this->children);
+			foreach ($this->children as $widget) {
+				if (!$widget->_initialize) {
+					/* @var $w Widget */
+					$widget->initialize();
+					$widget->_initialize = true;
 				}
-			} while ($n_children !== count($this->children));
-		}
+			}
+		} while ($n_children !== count($this->children));
 	}
 
 	/**
@@ -2153,8 +2259,8 @@ class Widget extends Hookable {
 	 * pre-loaded (initialized) object, or a blank model.
 	 */
 	protected function defaults(): void {
-		$this->children_defaults();
-		if (to_bool(avalue($this->options, 'disabled'))) {
+		$this->childrenDefaults();
+		if (toBool($this->options['disabled'] ?? false)) {
 			return;
 		}
 		$this->value($this->_default_value(null));
@@ -2163,7 +2269,7 @@ class Widget extends Hookable {
 	/**
 	 * Run defaults on children
 	 */
-	protected function children_defaults(): void {
+	protected function childrenDefaults(): void {
 		$children = $this->children();
 		foreach ($children as $child) {
 			$child->object = $child->traverse ? $this->object->get($child->column()) : $this->object;
@@ -2176,7 +2282,7 @@ class Widget extends Hookable {
 	 *
 	 * @return string
 	 */
-	protected function child_css_class() {
+	protected function childCSSClass(): string {
 		return strtr(strtolower(get_class($this)), '_', '-');
 	}
 
@@ -2185,7 +2291,7 @@ class Widget extends Hookable {
 	 *
 	 * @return string
 	 */
-	protected function render_children() {
+	protected function renderChildren(): string {
 		if ($this->content_children !== null) {
 			return $this->content_children;
 		}
@@ -2195,6 +2301,7 @@ class Widget extends Hookable {
 		}
 		$content = $suffix = [];
 		foreach ($this->children as $key => $child) {
+			/* @var $child Widget */
 			$child->object = $child->traverse ? $this->object->get($child->column()) : $this->object;
 			$child->content = $child->render();
 			if (empty($child->content)) {
@@ -2203,9 +2310,9 @@ class Widget extends Hookable {
 			if ($child->is_visible()) {
 				$child_tag = $this->option('child_tag', 'div');
 				if ($child_tag) {
-					$child_attributes = CSS::add_class($this->option('child_attributes', '.child'), [
-						$child->child_css_class(),
-						$child->context_class(),
+					$child_attributes = CSS::addClass($this->option('child_attributes', '.child'), [
+						$child->childCSSClass(),
+						$child->contextClass(),
 					]);
 					$content[] = HTML::tag($child_tag, $child_attributes, $child->content);
 				} else {
@@ -2224,9 +2331,9 @@ class Widget extends Hookable {
 	 *
 	 * @param array $set
 	 * @param boolean $append
-	 * @return Widget
+	 * @return self
 	 */
-	public function set_theme_variables(array $set, $append = true) {
+	public function setThemeVariables(array $set, bool $append = true): self {
 		$this->theme_variables = $append ? $set : $set + $this->theme_variables;
 		return $this;
 	}
@@ -2236,22 +2343,22 @@ class Widget extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return $this->application->variables() + [
 				'request' => $this->request(),
 				'response' => $this->response(),
 				'widget' => $this,
-				'input_attributes' => $input_attributes = $this->input_attributes(),
-				'data_attributes' => $data_attributes = $this->data_attributes(),
+				'input_attributes' => $input_attributes = $this->inputAttributes(),
+				'data_attributes' => $data_attributes = $this->dataAttributes(),
 				'attributes' => $input_attributes + $data_attributes,
 				'required' => $this->required(),
 				'name' => $this->name(),
 				'column' => $this->column(),
 				'label' => $this->label(),
 				'id' => $this->id(),
-				'context_class' => $this->context_class(),
+				'context_class' => $this->contextClass(),
 				'empty_string' => $this->empty_string(),
-				'show_size' => $this->show_size(),
+				'show_size' => $this->showSize(),
 				'object' => $this->object,
 				'model' => $this->object,
 				'value' => $this->value(),
@@ -2265,19 +2372,24 @@ class Widget extends Hookable {
 	}
 
 	/**
-	 * Getter/setter for object
+	 * Getter for object
 	 *
-	 * @param Model $set
-	 *
-	 * @return Widget Model
+	 * @return ORM
 	 */
-	public function object(Model $set = null) {
-		if ($set !== null) {
-			$this->object = $set;
-			$this->call_hook('object', $set);
-			return $this;
-		}
+	public function object(): ORM {
 		return $this->object;
+	}
+
+	/**
+	 * Setter for object
+	 *
+	 * @param ORM $set
+	 * @return $this
+	 */
+	public function setObject(ORM $set): self {
+		$this->object = $set;
+		$this->call_hook('object', $set);
+		return $this;
 	}
 
 	/**
@@ -2285,17 +2397,17 @@ class Widget extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function render() {
+	public function render(): string {
 		if ($this->content !== null) {
 			return $this->content;
 		}
 		$this->children_hook('render');
 		if ($this->render_children) {
-			$this->render_children();
+			$this->renderChildren();
 		}
 		$this->content = '';
 		if ($this->theme) {
-			$this->content .= $this->application->theme($this->theme, $this->theme_variables(), [
+			$this->content .= $this->application->theme($this->theme, $this->themeVariables(), [
 				'first' => true,
 			]);
 		}
@@ -2312,7 +2424,7 @@ class Widget extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function render_structure() {
+	public function render_structure(): array {
 		$children_structure = [];
 		foreach ($this->children as $child) {
 			$children_structure = array_merge($children_structure, $child->render_structure());
@@ -2327,15 +2439,24 @@ class Widget extends Hookable {
 	/**
 	 * Get/set the URL to redirect to upon submit
 	 *
-	 * @param string $set
-	 * @param string $message
-	 * @return string|Widget
+	 * @return string
 	 */
-	public function url_submit_redirect($set = null, $message = null) {
+	public function submitRedirect(): string {
+		return $this->option('submit_redirect', '');
+	}
+
+	/**
+	 * Set the URL to redirect to upon submit
+	 *
+	 * @param string $url
+	 * @param string|null $message
+	 * @return $this
+	 */
+	public function setSubmitRedirect(string $url, string $message = null): self {
 		if ($message !== null) {
 			$this->setOption('submit_redirect_message', $message);
 		}
-		return $set === null ? $this->option('submit_redirect') : $this->setOption('submit_redirect', $set);
+		return $this->setOption('submit_redirect', $url);
 	}
 
 	/**
@@ -2345,7 +2466,7 @@ class Widget extends Hookable {
 	 *
 	 * @return boolean Do render
 	 */
-	public function submit() {
+	public function submit(): bool {
 		if (!$this->submit_children()) {
 			return false;
 		}
@@ -2415,7 +2536,7 @@ class Widget extends Hookable {
 	 *
 	 * @return boolean
 	 */
-	protected function submit_redirect() {
+	protected function submit_redirect(): bool {
 		$response = $this->response();
 		if ($this->parent && $this->parent->submit_url() !== null) {
 			// Continue
@@ -2425,11 +2546,11 @@ class Widget extends Hookable {
 		$submit_url = $this->submit_url();
 		$submit_url_default = $this->submit_url_default();
 		if ($this->optionBool('submit_skip_ref')) {
-			$submit_url = $ref ? URL::query_format($submit_url, [
+			$submit_url = $ref ? URL::queryFormat($submit_url, [
 				'ref' => $ref,
 			]) : $submit_url;
 		}
-		$vars = ArrayTools::kprefix($this->object->variables(), 'object.') + ArrayTools::kprefix($this->request->variables(), 'request.');
+		$vars = ArrayTools::prefixKeys($this->object->variables(), 'object.') + ArrayTools::prefixKeys($this->request->variables(), 'request.');
 		$url = null;
 		if ($submit_url) {
 			$submit_url = map($submit_url, $vars);
@@ -2439,22 +2560,22 @@ class Widget extends Hookable {
 			$submit_url = map($submit_url_default, $vars);
 		}
 		if ($submit_url) {
-			$url = URL::query_format($submit_url, 'ref', $this->request->get('ref', $this->request->url()));
+			$url = URL::queryFormat($submit_url, 'ref', $this->request->get('ref', $this->request->url()));
 		}
-		$message = map($this->firstOption('submit_message;submit_redirect_message;onstore_message', ''), $vars);
+		$message = map($this->firstOption(['submit_message', 'submit_redirect_message', 'onstore_message'], ''), $vars);
 
 		$status = $this->status();
 		if (!$status) {
 			$message = array_values($this->errors());
 		}
-		if ($this->prefer_json()) {
+		if ($this->preferJSON()) {
 			$json = [
 				'status' => $status,
 				'message' => $message,
 				'redirect' => $url,
 			];
 			if ($this->hasOption('submit_theme', true)) {
-				$json['content'] = $this->application->theme($this->option('submit_theme'), $this->theme_variables(), [
+				$json['content'] = $this->application->theme($this->option('submit_theme'), $this->themeVariables(), [
 					'first' => true,
 				]);
 			}
@@ -2480,8 +2601,8 @@ class Widget extends Hookable {
 	 * @param string $content
 	 * @return string
 	 */
-	protected function render_finish($content) {
-		$content = $this->render_behavior($content);
+	protected function render_finish(string $content): string {
+		$content = $this->renderBehavior($content);
 		if ($this->wrapped) {
 			return $content;
 		}
@@ -2492,11 +2613,11 @@ class Widget extends Hookable {
 		$prefix = $this->prefix();
 		$suffix = $this->suffix();
 
-		$this->prefix('')->suffix('');
+		$this->setPrefix('')->setSuffix('');
 		if ($this->optionBool('wrap_map_disabled')) {
 			return $prefix . $content . $suffix;
 		}
-		return $this->unwrap_all($this->object->apply_map($prefix) . $content . $this->object->apply_map($suffix));
+		return $this->unwrap_all($this->object->applyMap($prefix) . $content . $this->object->applyMap($suffix));
 	}
 
 	/**
@@ -2516,7 +2637,7 @@ class Widget extends Hookable {
 	 * @param array $options
 	 * @return Widget
 	 */
-	public function behavior($type, array $options = []) {
+	public function behavior(string $type, array $options = []): self {
 		$this->behaviors[] = [
 			$type,
 			$options,
@@ -2530,8 +2651,7 @@ class Widget extends Hookable {
 	 * @param string $content
 	 * @return string
 	 */
-	private function render_behavior($content) {
-		//		$content .= HTML::tag("pre", _dump($this->behaviors));
+	private function renderBehavior(string $content): string {
 		foreach ($this->behaviors as $item) {
 			[$theme, $options] = $item;
 			$content .= $this->application->theme($theme, $options + [
@@ -2563,7 +2683,7 @@ class Widget extends Hookable {
 		return "\$(\"#$id\").val()";
 	}
 
-	public function jquery_value_selected_expression() {
+	public function jquery_value_selected_expression(): string {
 		if ($this->hasOption('jquery_value_selected_expression')) {
 			return $this->option('jquery_value_selected_expression');
 		}
@@ -2573,7 +2693,7 @@ class Widget extends Hookable {
 
 		$id = $this->id();
 		if (!$id) {
-			return null;
+			return '';
 		}
 		return "\$(\"#$id\")";
 	}
@@ -2598,28 +2718,7 @@ class Widget extends Hookable {
 	 *
 	 * @return boolean
 	 */
-	public function prefer_json() {
-		return $this->request->prefer_json();
-	}
-
-	/**
-	 * Retrieve the class object for this widget
-	 *
-	 * @return zesk\Class_ORM
-	 * @deprecated 2018-01
-	 */
-	public function class_object() {
-		zesk()->deprecated();
-		return $this->class_orm();
-	}
-
-	/**
-	 * @param unknown $set
-	 * @return \zesk\Widget|string
-	 * @deprecated 2018-01
-	 */
-	public function object_class($set = null) {
-		zesk()->deprecated();
-		return $this->orm_class_name($set);
+	public function preferJSON(): bool {
+		return $this->request->preferJSON();
 	}
 }

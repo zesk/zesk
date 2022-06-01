@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -22,7 +22,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 *
 	 * @var boolean
 	 */
-	protected $low_priority = false;
+	protected bool $low_priority = false;
 
 	/**
 	 *
@@ -31,7 +31,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	protected string $default_alias = '';
 
 	/**
-	 * Table we're update/insert
+	 * Table to update/insert
 	 *
 	 * @var array
 	 */
@@ -52,11 +52,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	protected array $valid_columns = [];
 
 	/**
-	 * Get/Set the table for this query
-	 *
-	 * @param string $table Table to include in the query.
-	 * @param string $alias Optional alias. Blank ("") is the default table.
-	 * @return Database_Query_Edit
+	 * @return string|null
 	 */
 	public function table(): ?string {
 		return $this->table[$this->default_alias] ?? null;
@@ -85,17 +81,17 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * Get/Set the table for this query
 	 *
 	 * @param string $class ORM Class name
-	 * @param string|null $alias Optional table alias
-	 * @return Database_Query_Edit
+	 * @param string $alias Optional table alias
+	 * @return self
 	 */
-	public function class_table($class, string $alias = '') {
+	public function class_table(string $class, string $alias = ''): self {
 		$object_class = $this->application->class_orm_registry($class);
 		/* @var $object_class Class_ORM */
 		if (count($this->table) === 0) {
 			$this->default_alias = "$alias";
 		}
 		$this->table["$alias"] = $object_class->table;
-		$this->valid_columns($object_class->column_names(), $alias);
+		$this->setValidColumns($object_class->columnNames(), $alias);
 		return $this;
 	}
 
@@ -105,7 +101,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @param string $name
 	 * @return boolean
 	 */
-	private function valid_column(string $name): bool {
+	private function validColumn(string $name): bool {
 		$clean_name = ltrim($name, '*');
 		[$alias, $clean_name] = pair($clean_name, '.', $this->default_alias, $clean_name);
 		$columns = $this->valid_columns[$alias] ?? null;
@@ -120,7 +116,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 *
 	 * @param string|array $name Alternately, pass an array as this value to update multiple values
 	 * @param mixed $value When $name is a string, this is the value set
-	 * @return Database_Query_Edit|Database_Query_Update
+	 * @return self
 	 * @throws Exception_Semantics
 	 */
 	public function value(array|string $name, mixed $value = null): self {
@@ -142,8 +138,8 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @param string $name
 	 * @throws Exception_Semantics
 	 */
-	private function check_column($name): void {
-		if (!$this->valid_column($name)) {
+	private function check_column(string $name): void {
+		if (!$this->validColumn($name)) {
 			throw new Exception_Semantics('Column {name} is not in table {table} (columns are {columns})', [
 				'name' => $name,
 				'table' => $this->table,
@@ -156,15 +152,60 @@ abstract class Database_Query_Edit extends Database_Query {
 	/**
 	 * Pass multiple values to be inserted/updated
 	 *
-	 * @param array $values When null, return the current values to be set (array)
-	 * @return Database_Query_Edit|Database_Query_Update|array
+	 * @param array|null $values Deprecated parameter
+	 * @return array
 	 * @throws Exception_Semantics
 	 */
-	public function values(array $values = null) {
+	public function values(array $values = null): array {
 		if ($values === null) {
 			return $this->values;
 		}
+		$this->application->deprecated(__METHOD__ . ' as setter');
+		$this->setValues($values);
+		return $this->values;
+	}
+
+	/**
+	 * Pass multiple values to be inserted/updated
+	 *
+	 * @param array $values When null, return the current values to be set (array)
+	 * @return self
+	 * @throws Exception_Semantics
+	 */
+	public function setValues(array $values): self {
 		return $this->value($values);
+	}
+
+	/**
+	 * Setter for low priority state of this query
+	 *
+	 * @param boolean $low_priority
+	 * @return self
+	 */
+	public function setLowPriority(bool $low_priority): self {
+		$this->low_priority = $low_priority;
+		return $this;
+	}
+
+	/**
+	 * Get low priority state of this query
+	 *
+	 * @return boolean
+	 */
+	public function lowPriority(): bool {
+		return $this->low_priority;
+	}
+
+	/**
+	 * Saves the valid columns associated with a table alias.
+	 *
+	 * @param array $columns
+	 * @param string $alias
+	 * @return $this
+	 */
+	public function setValidColumns(array $columns, string $alias = ''): self {
+		$this->valid_columns[$alias] = $columns;
+		return $this;
 	}
 
 	/**
@@ -172,13 +213,14 @@ abstract class Database_Query_Edit extends Database_Query {
 	 *
 	 * @param boolean $low_priority
 	 * @return boolean|Database_Query_Edit
+	 * @deprecated 2022-05
 	 */
-	public function low_priority($low_priority = null) {
+	public function low_priority($low_priority = null): bool|self {
+		$this->application->deprecated(__METHOD__);
 		if ($low_priority === null) {
-			return $this->low_priority;
+			return $this->lowPriority();
 		}
-		$this->low_priority = to_bool($low_priority);
-		return $this;
+		return $this->setLowPriority(toBool($low_priority));
 	}
 
 	/**
@@ -187,11 +229,13 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * Right now just stores it.
 	 *
 	 * @param array $columns
-	 * @param string|null $alias Optional alias for the table mapping. Blank for default mapping.
+	 * @param string $alias Optional alias for the table mapping. Blank for default mapping.
 	 * @return self
+	 * @deprecated 2022-05
 	 */
-	public function valid_columns(array $columns, $alias = null) {
-		$this->valid_columns["$alias"] = $columns;
+	public function valid_columns(array $columns, string $alias = ''): self {
+		$this->application->deprecated(__METHOD__);
+		$this->setValidColumns($columns, $alias);
 		return $this;
 	}
 }

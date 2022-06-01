@@ -82,7 +82,7 @@ class Command_Translate extends Command_Base {
 		}
 		$classes = Service::service_classes($app, 'translate');
 		if ($this->optionBool('list')) {
-			echo ArrayTools::ksuffix($classes, "\n");
+			echo ArrayTools::suffixKeys($classes, "\n");
 			return 0;
 		}
 		$target_language = $this->option('target');
@@ -96,7 +96,7 @@ class Command_Translate extends Command_Base {
 		$source_language = strtolower($source_language);
 
 		$default_class = first($classes);
-		$classes = ArrayTools::flip_copy($classes, true);
+		$classes = ArrayTools::valuesFlipCopy($classes, true);
 		/* @var $service_object Service_Translate */
 		try {
 			$service_object = $this->service_object = Service_Translate::factory_translate($app, $target_language, $source_language);

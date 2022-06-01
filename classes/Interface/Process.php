@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -16,7 +16,15 @@ interface Interface_Process {
 	 *
 	 * @return Application
 	 */
-	public function application(Application $set = null);
+	public function application(): Application;
+
+	/**
+	 * Set current application
+	 *
+	 * @param Application $set
+	 * @return $this
+	 */
+	public function setApplication(Application $set): self;
 
 	/**
 	 * Getter for done state
@@ -29,8 +37,6 @@ interface Interface_Process {
 	/**
 	 * Kill/interrupt this process.
 	 * Harsher than ->terminate();
-	 *
-	 * @param string $interrupt
 	 */
 	public function kill();
 

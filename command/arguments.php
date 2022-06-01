@@ -18,7 +18,7 @@ class Command_Arguments extends Command {
 		'*' => 'string',
 	];
 
-	protected function run() {
+	protected function run(): int {
 		$arguments = $this->arguments_remaining(true);
 		echo json_encode($arguments) . "\n";
 		return 0;

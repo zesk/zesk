@@ -24,7 +24,7 @@ class Database_Query_Insert_Test extends Test_Unit {
 		 * @package zesk
 		 * @subpackage test
 		 * @author Kent Davidson <kent@marketacumen.com>
-		 * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+		 * @copyright Copyright &copy; 2022, Market Acumen, Inc.
 		 */
 		$db = $this->application->database_registry();
 		$testx = new Database_Query_Insert($db);
@@ -42,8 +42,8 @@ class Database_Query_Insert_Test extends Test_Unit {
 		];
 		$testx->values($values);
 
-		$low_priority = null;
-		$testx->low_priority($low_priority);
+		$low_priority = true;
+		$testx->setLowPriority($low_priority);
 
 		$testx->replace();
 

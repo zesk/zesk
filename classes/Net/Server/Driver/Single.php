@@ -3,7 +3,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @package zesk
  * @subpackage system
- * @copyright Copyright &copy; 2017, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 

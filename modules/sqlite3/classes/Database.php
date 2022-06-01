@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage sqlite3
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -79,7 +79,7 @@ class Database extends \zesk\Database {
 		return 'new sqlite3\\Database(' . PHP::dump($this->URL) . ')';
 	}
 
-	public function default_index_structure($table_type) {
+	public function defaultIndexStructure($table_type) {
 		return '';
 	}
 
@@ -120,7 +120,7 @@ class Database extends \zesk\Database {
 		if (!$path) {
 			throw new Exception_Configuration('No database path for {class}', ['class' => __CLASS__, ]);
 		}
-		$path = map($path, ArrayTools::kprefix($this->application->paths->variables(), 'zesk::paths::'));
+		$path = map($path, ArrayTools::prefixKeys($this->application->paths->variables(), 'zesk::paths::'));
 		$dir = dirname($path);
 		if (!is_dir($dir)) {
 			throw new Exception_Directory_NotFound($dir, '{path} not found', ['path' => $path, ]);
@@ -144,7 +144,7 @@ class Database extends \zesk\Database {
 		return new Database_Parser($this);
 	}
 
-	public function select_database($name = null) {
+	public function selectDatabase($name = null) {
 		return true;
 	}
 
@@ -167,7 +167,7 @@ class Database extends \zesk\Database {
 	final public function free($result): void {
 	}
 
-	final public function fetch_array(mixed $result): ?array {
+	final public function fetchArray(mixed $result): ?array {
 		return $result->fetchArray(SQLITE3_NUM);
 	}
 
@@ -176,7 +176,7 @@ class Database extends \zesk\Database {
 	 * @param $result SQLite3Result
 	 * @throws Exception_Parameter
 	 */
-	final public function fetch_assoc(mixed $result): ?array {
+	final public function fetchAssoc(mixed $result): ?array {
 		if (!$result instanceof SQLite3Result) {
 			throw new Exception_Parameter('Requires a SQLite3Result {class} (of {type}) given', [
 				'class' => get_class($result),
@@ -186,19 +186,19 @@ class Database extends \zesk\Database {
 		return $result->fetchArray(SQLITE3_ASSOC);
 	}
 
-	final public function native_quote_text($value) {
+	final public function nativeQuoteText($value) {
 		return '\'' . $this->conn->escapeString($value) . '\'';
 	}
 
-	final public function affected_rows($result = null) {
+	final public function affectedRows($result = null) {
 		return $this->conn->changes();
 	}
 
-	final public function insert_id(): ?int {
+	final public function insertID(): ?int {
 		return $this->conn->lastInsertRowID();
 	}
 
-	public function shell_command(array $options = []) {
+	public function shellCommand(array $options = []) {
 		static $shell_command = null;
 		static $try_commands = ['sqlite3', 'sqlite2', 'sqlite', ];
 		if ($shell_command) {
@@ -231,9 +231,9 @@ class Database extends \zesk\Database {
 	/**
 	 * Create a database at URL
 	 *
-	 * @see zesk\Database::create_database()
+	 * @see zesk\Database::createDatabase()
 	 */
-	public function create_database($url) {
+	public function createDatabase($url) {
 		try {
 			$db = $this->application->objects->factory(__CLASS__, $url);
 			$db->connect();
@@ -248,9 +248,9 @@ class Database extends \zesk\Database {
 	 * List tables
 	 *
 	 * @return array
-	 * @see zesk\Database::list_tables()
+	 * @see zesk\Database::listTables()
 	 */
-	public function list_tables() {
+	public function listTables() {
 		// TODO
 		$result = $this->query('SHOW TABLES');
 		$tables = [];
@@ -274,7 +274,7 @@ class Database extends \zesk\Database {
 			if (!$dbCol->hasSQLType() && !$this->type_set_sql_type($dbCol)) {
 				die(__CLASS__ . "::sql_create_table: no SQL Type for column $dbCol");
 			} else {
-				$types[] = $this->quote_column($dbCol->name()) . ' ' . $dbCol->sql_type($dbCol, true);
+				$types[] = $this->quoteColumn($dbCol->name()) . ' ' . $dbCol->sql_type($dbCol, true);
 			}
 		}
 		$indexes = $dbTableObject->indexes();
@@ -317,7 +317,7 @@ class Database extends \zesk\Database {
 			case 'real':
 				return floatval($default_value);
 			case 'boolean':
-				return to_bool($default_value, false);
+				return toBool($default_value, false);
 			case 'timestamp':
 			case 'datetime':
 				if ($default_value === 0 || $default_value === '0') {
@@ -331,14 +331,14 @@ class Database extends \zesk\Database {
 	/**
 	 *
 	 * @return Database_Table
-	 * @see zesk\Database::database_table()
+	 * @see zesk\Database::databaseTable()
 	 */
-	public function database_table($table) {
+	public function databaseTable($table) {
 		$conn = $this->conn;
 		$statement_sql = 'SELECT sql FROM sqlite_master WHERE name=:name AND type=\'table\'';
 		$statement = $conn->prepare($statement_sql);
 		$statement->bindParam(':name', $table, SQLITE3_TEXT);
-		$sql = $this->query_one($statement, 'sql', null, ['statement_sql' => $statement_sql, ]);
+		$sql = $this->queryOne($statement, 'sql', null, ['statement_sql' => $statement_sql, ]);
 		if (!$sql) {
 			throw new Database_Exception_Table_NotFound($this, null, $table);
 		}
@@ -347,11 +347,11 @@ class Database extends \zesk\Database {
 		$statement_sql = 'SELECT sql FROM sqlite_master WHERE type=\'index\' AND tbl_name=:name AND sql != \'\'';
 		$statement = $this->conn->prepare($statement_sql);
 		$statement->bindParam(':name', $table, SQLITE3_TEXT);
-		$indexes_sql = $this->query_array($statement, null, 'sql', [], ['statement_sql' => $statement_sql, ]);
+		$indexes_sql = $this->queryArray($statement, null, 'sql', [], ['statement_sql' => $statement_sql, ]);
 		if (count($indexes_sql) > 0) {
 			$sql .= implode(";\n", $indexes_sql);
 		}
-		return $this->parse_create_table($sql, 'extracted from sqlite_master');
+		return $this->parseCreateTable($sql, 'extracted from sqlite_master');
 	}
 
 	private function exception(Exception $e): void {
@@ -380,16 +380,16 @@ class Database extends \zesk\Database {
 		try {
 			if ($query instanceof SQLite3Stmt) {
 				$statement_sql = avalue($options, 'statement_sql', '-no-statement-sql-');
-				$this->_query_before($statement_sql, $options);
+				$this->_queryBefore($statement_sql, $options);
 				$result = $query->execute();
-				$this->_query_after($statement_sql, $options);
+				$this->_queryAfter($statement_sql, $options);
 			} else {
-				$this->_query_before($query, $options);
+				$this->_queryBefore($query, $options);
 				if ($this->optionBool('auto_table_names')) {
-					$query = $this->auto_table_names_replace($query);
+					$query = $this->autoTableNamesReplace($query);
 				}
 				$result = $this->conn->query($query);
-				$this->_query_after($query, $options);
+				$this->_queryAfter($query, $options);
 			}
 		} catch (\Exception $e) {
 			$this->exception($e);
@@ -501,11 +501,11 @@ class Database extends \zesk\Database {
 		return '\'' . $value->format('{hh}:{mm}:{ss}') . '\'';
 	}
 
-	public function table_exists($table) {
+	public function tableExists($table) {
 		if (empty($table)) {
 			return false;
 		}
-		$result = $this->query_array('SHOW TABLES LIKE ' . $this->quote_table($table));
+		$result = $this->queryArray('SHOW TABLES LIKE ' . $this->quoteTable($table));
 		return (count($result) !== 0);
 	}
 
@@ -610,7 +610,7 @@ class Database extends \zesk\Database {
 		return "$table AS $name";
 	}
 
-	public function is_reserved_word($word) {
+	public function isReservedWord($word) {
 		// Updated 2004-10-19 from MySQL Website YEARLY-TODO
 		static $reserved = [
 			'ADD',
@@ -919,7 +919,7 @@ class Database extends \zesk\Database {
 	/*
 	 * Boolean Type
 	 */
-	public function sql_parse_boolean($value) {
+	public function sqlParseBoolean($value) {
 		return $value ? '\'true\'' : '\'false\'';
 	}
 
@@ -968,20 +968,20 @@ class Database extends \zesk\Database {
 		}
 	}
 
-	public function quote_column($column) {
+	public function quoteColumn($column) {
 		return '"' . strtr($column, ['"' => '""', ]) . '"';
 	}
 
-	public function quote_table($table) {
-		return self::quote_column($table);
+	public function quoteTable($table) {
+		return self::quoteColumn($table);
 	}
 
-	public function unquote_table($table) {
+	public function unquoteTable($table) {
 		return unquote($table, '""');
 	}
 
-	public function quote_name($table) {
-		return self::quote_column($table);
+	public function quoteName($table) {
+		return self::quoteColumn($table);
 	}
 
 	protected function integer_size_type($lookup) {
@@ -998,19 +998,19 @@ class Database extends \zesk\Database {
 		], $lookup, 'integer');
 	}
 
-	public function table_columns($table) {
-		return $this->database_table($table)->columns();
+	public function tableColumns($table) {
+		return $this->databaseTable($table)->columns();
 	}
 
 	private function _lock_path() {
-		return $this->application->paths->cache('sqlite3/locks/' . md5($this->database_name()));
+		return $this->application->paths->cache('sqlite3/locks/' . md5($this->databaseName()));
 	}
 
 	private $locks = [];
 
 	public function release_all_locks(): void {
 		foreach ($this->locks as $name => $file) {
-			$this->release_lock($name);
+			$this->releaseLock($name);
 		}
 	}
 
@@ -1021,7 +1021,7 @@ class Database extends \zesk\Database {
 	 * @param number $wait_seconds
 	 * @return boolean
 	 */
-	public function get_lock($name, $wait_seconds = 0) {
+	public function getLock($name, $wait_seconds = 0) {
 		$lock_path = $this->_lock_path();
 		Directory::depend($lock_path);
 		$name = File::name_clean($name);
@@ -1050,7 +1050,7 @@ class Database extends \zesk\Database {
 	 * @param unknown $name
 	 * @return boolean
 	 */
-	public function release_lock($name) {
+	public function releaseLock($name) {
 		$lock_path = self::_lock_path();
 		Directory::depend($lock_path);
 		$name = File::name_clean($name);
@@ -1064,7 +1064,7 @@ class Database extends \zesk\Database {
 		return false;
 	}
 
-	public function bytes_used($table = null) {
+	public function bytesUsed($table = null) {
 		return 0;
 	}
 
@@ -1073,7 +1073,7 @@ class Database extends \zesk\Database {
 	 *
 	 * @return boolean
 	 */
-	public function transaction_start() {
+	public function transactionStart() {
 		// TODO: Ensure database is in auto-commit mode
 		return $this->query('BEGIN TRANSACTION');
 	}
@@ -1085,7 +1085,7 @@ class Database extends \zesk\Database {
 	 *            Whether to commit (true) or roll back (false)
 	 * @return boolean
 	 */
-	public function transaction_end($success = true) {
+	public function transactionEnd($success = true) {
 		$sql = $success ? 'COMMIT TRANSACTION' : 'ROLLBACK TRANSACTION';
 		return $this->query($sql);
 	}
@@ -1094,9 +1094,9 @@ class Database extends \zesk\Database {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see \zesk\Database::column_differences()
+	 * @see \zesk\Database::columnDifferences()
 	 */
-	public function column_differences(Database_Column $a, Database_Column $b, array $differences) {
+	public function columnDifferences(Database_Column $a, Database_Column $b, array $differences) {
 		return $differences;
 	}
 
@@ -1106,7 +1106,7 @@ class Database extends \zesk\Database {
 	 * @param string $table
 	 * @return array
 	 */
-	public function table_information($table) {
+	public function tableInformation($table) {
 		throw new Exception_Unimplemented('Need to implement {method}', ['method' => __METHOD__, ]);
 	}
 }

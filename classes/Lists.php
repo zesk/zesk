@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -30,7 +32,7 @@ class Lists {
 	 * @param string $sep
 	 * @return string|array
 	 */
-	public static function unique($list, $sep = ';') {
+	public static function unique(string|array $list, string $sep = ';'): string|array {
 		if (is_array($list)) {
 			return array_unique($list);
 		}
@@ -45,10 +47,10 @@ class Lists {
 	 * @param string $sep List separator, defaults to ";", only relevant if string passed for first parameter
 	 * @return string|array The new list
 	 */
-	public static function remove($list, $item, $sep = ';') {
+	public static function keysRemove(array|string $list, string|array $item, string $sep = ';'): array|string {
 		$is_arr = is_array($list);
 		$a = $is_arr ? $list : explode($sep, $list);
-		$item = to_list($item, [], $sep);
+		$item = toList($item, [], $sep);
 		foreach ($a as $k => $i) {
 			if (in_array($i, $item)) {
 				unset($a[$k]);
@@ -63,13 +65,10 @@ class Lists {
 	 * @param string|array $list List of strings
 	 * @param string|array $item Item or items to add
 	 * @param string $sep List separator, defaults to ";"
-	 * @return string The new list
+	 * @return string|array The new list
 	 */
-	public static function append($list, $item, $sep = ';') {
-		if ($item === null) {
-			return $list;
-		}
-		$items = ArrayTools::clean(to_list($item, [], $sep), null);
+	public static function append(string|array $list, string|array $item, string $sep = ';'): string|array {
+		$items = ArrayTools::clean(toList($item, [], $sep), null);
 		if (count($items) === 0) {
 			return $list;
 		}
@@ -85,16 +84,13 @@ class Lists {
 	/**
 	 * Add an item to a list only if it's not in it already
 	 *
-	 * @param string|array $list List of strings
-	 * @param string $item Item(s) to add (array or string)
-	 * @param string $sep List separator, defaults to ";"
-	 * @return string Result list
+	 * @param string|array $list List to append - same type is returned
+	 * @param string|array $item Items to add
+	 * @param string $sep List separator
+	 * @return string|array Result list
 	 */
-	public static function append_unique($list, $item, $sep = ';') {
-		if ($item === null || $list === null) {
-			return $list;
-		}
-		$items = array_unique(ArrayTools::clean(to_list($item, [], $sep), null));
+	public static function appendUnique(string|array $list, string|array $item, string $sep = ';'): string|array {
+		$items = array_unique(ArrayTools::clean(toList($item, [], $sep), null));
 		if (is_array($list)) {
 			return array_unique(array_merge($list, $items));
 		} elseif ($list === '') {
@@ -110,33 +106,33 @@ class Lists {
 	 * @param string|array $list List to check
 	 * @param string $item Item to check if it appears in the list
 	 * @param string $sep List separator, defaults to ";"
-	 * @return boolean
+	 * @return bool
 	 */
-	public static function contains($list, $item, $sep = ';') {
+	public static function contains(array|string $list, string $item, string $sep = ';'): bool {
 		if (is_array($list)) {
 			return in_array($item, $list);
 		}
-		return str_contains($sep . $list . $sep, $sep . $item . $sep)  ;
+		return str_contains($sep . $list . $sep, $sep . $item . $sep);
 	}
 
 	/**
 	 * Prepend an item to a list, maintaining existing order
 	 *
-	 * @param string $list List of strings
-	 * @param string $item Item to add
+	 * @param array|string $list List of strings
+	 * @param array|string $items Item to add
 	 * @param string $sep List separator, defaults to ";"
-	 * @return string The new list
+	 * @return array|string The new list
 	 */
-	public static function prepend($list, $item, $sep = ';') {
+	public static function prepend(array|string $list, array|string $items, string $sep = ';'): array|string {
 		if (is_array($list)) {
-			return is_array($item) ? array_merge($item, $list) : array_merge([
-				$item,
+			return is_array($items) ? array_merge($items, $list) : array_merge([
+				$items,
 			], $list);
 		}
 		if (strlen($list) === 0) {
-			return is_array($item) ? implode($sep, $item) : $item;
+			return is_array($items) ? implode($sep, $items) : $items;
 		}
-		return $item . $sep . $list;
+		return $items . $sep . $list;
 	}
 
 	/**
@@ -146,13 +142,13 @@ class Lists {
 	 * @param string $sep
 	 * @return string|array List with the last item removed
 	 */
-	public static function pop($list, $sep = ';') {
+	public static function pop(string|array $list, string $sep = ';'): array|string {
 		if (is_array($list)) {
 			array_pop($list);
 			return $list;
 		}
 		if (strlen($list) == 0) {
-			return null;
+			return '';
 		}
 		$x = explode($list, $sep);
 		array_pop($x);

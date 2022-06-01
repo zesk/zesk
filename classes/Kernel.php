@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage kernel
  * @author kent
- * @copyright Copyright &copy; 2017, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -210,6 +210,7 @@ class Kernel {
 	 * Include related classes
 	 */
 	public static function includes(): void {
+		require_once __DIR__ . '/Exceptional.php';
 		require_once __DIR__ . '/Exception.php';
 		require_once __DIR__ . '/Process.php';
 		require_once __DIR__ . '/Logger.php';
@@ -248,8 +249,7 @@ class Kernel {
 	/**
 	 * Fetch the kernel singleton. Avoid this call whenever possible.
 	 *
-	 * @param array $configuration parameter @deprecated 2017-10
-	 * @return \zesk\Kernel
+	 * @return self
 	 */
 	public static function singleton(): self {
 		if (!self::$singleton) {
@@ -264,6 +264,8 @@ class Kernel {
 	 */
 	public function __construct(array $configuration = []) {
 		error_reporting(E_ALL | E_STRICT);
+
+		self::$singleton = $this;
 
 		$this->initialize_configuration = $configuration;
 
@@ -281,7 +283,7 @@ class Kernel {
 		/*
 		 * Zesk's start time in microseconds
 		 */
-		$this->initialization_time = $configuration['init'] ?? microtime(true);
+		$this->initializationTime = $configuration['init'] ?? microtime(true);
 
 		/*
 		 * Create our hooks registry
@@ -289,8 +291,6 @@ class Kernel {
 		$this->hooks = new Hooks($this);
 
 		$this->construct($configuration);
-
-		self::$singleton = $this;
 	}
 
 	/**
@@ -314,7 +314,10 @@ class Kernel {
 		 */
 		$this->configuration = Configuration::factory(self::$configuration_defaults)->merge(Configuration::factory($configuration));
 
-		$this->application_class = $this->configuration->path_get([__CLASS__, 'application_class', ], __NAMESPACE__ . '\\' . 'Application');
+		$this->application_class = $this->configuration->path_get([
+			__CLASS__,
+			'application_class',
+		], __NAMESPACE__ . '\\' . 'Application');
 
 		/*
 		 * Initialize system paths and set up default paths for interacting with the file system
@@ -381,7 +384,11 @@ class Kernel {
 	 *            and exit immediately
 	 */
 	public function setDeprecated(string $set): self {
-		$this->deprecated = [self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE, self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION, self::DEPRECATED_LOG => self::DEPRECATED_LOG][$set] ?? self::DEPRECATED_IGNORE;
+		$this->deprecated = [
+								self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
+								self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
+								self::DEPRECATED_LOG => self::DEPRECATED_LOG,
+							][$set] ?? self::DEPRECATED_IGNORE;
 		return $this;
 	}
 
@@ -399,9 +406,17 @@ class Kernel {
 		$depth = avalue($arguments, 'depth', 0);
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
-				throw new Exception_Deprecated("${reason} Deprecated: {calling_function}\n{backtrace}", ['reason' => $reason, 'calling_function' => calling_function(), 'backtrace' => _backtrace(4 + $depth), ] + $arguments);
+				throw new Exception_Deprecated("${reason} Deprecated: {calling_function}\n{backtrace}", [
+						'reason' => $reason,
+						'calling_function' => calling_function(),
+						'backtrace' => _backtrace(4 + $depth),
+					] + $arguments);
 			case self::DEPRECATED_LOG:
-				$this->logger->error("${reason} Deprecated: {calling_function}\n{backtrace}", ['reason' => $reason ? $reason : 'DEPRECATED', 'calling_function' => calling_function(), 'backtrace' => _backtrace(4 + $depth), ] + $arguments);
+				$this->logger->error("${reason} Deprecated: {calling_function}\n{backtrace}", [
+						'reason' => $reason ? $reason : 'DEPRECATED',
+						'calling_function' => calling_function(),
+						'backtrace' => _backtrace(4 + $depth),
+					] + $arguments);
 
 				break;
 		}
@@ -442,10 +457,18 @@ class Kernel {
 		if (isset($configuration->deprecated)) {
 			$deprecated = $configuration->deprecated;
 			$this->setDeprecated($deprecated);
-			$this->logger->debug('Setting deprecated handling to {deprecated} => {actual}', ['deprecated' => $deprecated, 'actual' => $this->deprecated]);
+			$this->logger->debug('Setting deprecated handling to {deprecated} => {actual}', [
+				'deprecated' => $deprecated,
+				'actual' => $this->deprecated,
+			]);
 		}
 		if (isset($configuration->assert)) {
-			$ass_settings = ['active' => ASSERT_ACTIVE, 'warning' => ASSERT_WARNING, 'bail' => ASSERT_BAIL, 'quiet' => ASSERT_QUIET_EVAL, ];
+			$ass_settings = [
+				'active' => ASSERT_ACTIVE,
+				'warning' => ASSERT_WARNING,
+				'bail' => ASSERT_BAIL,
+				'quiet' => ASSERT_QUIET_EVAL,
+			];
 			foreach (array_values($ass_settings) as $what) {
 				assert_options($what, 0);
 			}
@@ -454,7 +477,10 @@ class Kernel {
 				if (array_key_exists($code, $ass_settings)) {
 					assert_options($ass_settings[$code], 1);
 				} else {
-					$this->logger->warning('Invalid assert option: {code}, valid options: {settings}', ['code' => $code, 'settings' => array_keys($ass_settings), ]);
+					$this->logger->warning('Invalid assert option: {code}, valid options: {settings}', [
+						'code' => $code,
+						'settings' => array_keys($ass_settings),
+					]);
 				}
 			}
 		}
@@ -462,7 +488,7 @@ class Kernel {
 			assert_options(ASSERT_CALLBACK, $configuration->assert_callback);
 		}
 		if ($this->configuration->path_exists("zesk\Logger::utc_time")) {
-			$this->logger->utc_time = to_bool($this->configuration->path_get("zesk\Logger::utc_time"));
+			$this->logger->utc_time = toBool($this->configuration->path_get("zesk\Logger::utc_time"));
 		}
 	}
 
@@ -518,7 +544,7 @@ class Kernel {
 	public function console($set = null) {
 		if (is_bool($set)) {
 			$this->deprecated('console -> setConsole');
-			$this->setConsole(to_bool($set));
+			$this->setConsole(toBool($set));
 		}
 		return $this->console;
 	}
@@ -539,6 +565,7 @@ class Kernel {
 	 *
 	 * @param string|null $set
 	 * @return string
+	 * @deprecated 2022-05
 	 */
 	public function application_class($set = null) {
 		if ($set !== null) {
@@ -584,9 +611,12 @@ class Kernel {
 	 * @return Application
 	 * @throws Exception_Semantics
 	 */
-	public function createApplication(array $options = []) {
+	public function createApplication(array $options = []): Application {
 		if ($this->application !== null) {
-			throw new Exception_Semantics('{method} application of type {class} was already created', ['method' => __METHOD__, 'class' => get_class($this->application), ]);
+			throw new Exception_Semantics('{method} application of type {class} was already created', [
+				'method' => __METHOD__,
+				'class' => get_class($this->application),
+			]);
 		}
 		$this->application = $this->objects->factory($this->application_class, $this, $options);
 		$this->application->hooks->call(self::HOOK_CREATE_APPLICATION, $this->application);
@@ -600,7 +630,7 @@ class Kernel {
 	 * @throws Exception_Semantics
 	 * @deprecated 2022-02 PSR
 	 */
-	public function create_application(array $options = []) {
+	public function create_application(array $options = []): Application {
 		return self::createApplication($options);
 	}
 

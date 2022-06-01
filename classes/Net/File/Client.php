@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * @package zesk
  * @subpackage model
  */
@@ -67,7 +67,7 @@ class Net_File_Client extends Net_Client implements Net_FileSystem {
 			$entry['owner'] = $stats['owner']['owner'];
 			$entry['group'] = $stats['owner']['group'];
 			$entry['size'] = $stats['size']['size'];
-			$entry['mtime'] = Timestamp::factory()->unix_timestamp($stats['time']['mtime']);
+			$entry['mtime'] = Timestamp::factory()->setUnixTimestamp($stats['time']['mtime']);
 			$entry['mtime_granularity'] = 'second';
 			$entry['name'] = $name;
 			$entries[] = $entry;
@@ -142,13 +142,13 @@ class Net_File_Client extends Net_Client implements Net_FileSystem {
 		$entry['owner'] = $stats['owner']['owner'];
 		$entry['group'] = $stats['owner']['group'];
 		$entry['size'] = $stats['size']['size'];
-		$entry['mtime'] = Timestamp::factory()->unix_timestamp($stats['time']['mtime']);
+		$entry['mtime'] = Timestamp::factory()->setUnixTimestamp($stats['time']['mtime']);
 		$entry['mtime_granularity'] = 'second';
 		return $entry;
 	}
 
 	public function mtime($path, Timestamp $ts) {
-		return touch($path, $ts->unix_timestamp());
+		return touch($path, $ts->unixTimestamp());
 	}
 
 	public function has_feature($feature) {

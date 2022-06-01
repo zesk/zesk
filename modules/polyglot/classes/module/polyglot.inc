@@ -34,7 +34,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	 * @return array
 	 */
 	public function locale_options() {
-		$list = $this->call_hook_arguments('locale_options', [], $this->option_array('locale_options'));
+		$list = $this->call_hook_arguments('locale_options', [], $this->optionArray('locale_options'));
 		$options = [];
 		$where = [];
 		foreach ($list as $locale) {
@@ -112,7 +112,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	 * @throws Exception_File_NotFound
 	 */
 	public function load_locale($locale = null) {
-		$source_files = $this->option_list('source_files');
+		$source_files = $this->optionIterable('source_files');
 		$table = [];
 		foreach ($source_files as $source_file) {
 			$source_file = $this->application->paths->expand($source_file);

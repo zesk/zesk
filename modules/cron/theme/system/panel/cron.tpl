@@ -31,7 +31,7 @@ foreach ([
 		$attributes['class'] = 'error';
 	} else {
 		$last_run = Timestamp::factory($runtime, 'UTC');
-		$before_error = $now->duplicate()->add_unit(-1, $unit);
+		$before_error = $now->duplicate()->addUnit(-1, $unit);
 		if ($last_run->before($before_error)) {
 			$attributes['class'] = 'error';
 			$value = $last_run->format($locale, '{delta}');

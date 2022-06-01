@@ -231,7 +231,7 @@ class HTML {
 		if (URL::valid($src)) {
 			return $src;
 		}
-		$prefix = $application->document_root_prefix();
+		$prefix = $application->documentRootPrefix();
 		if ($prefix) {
 			return path($prefix, $src);
 		}
@@ -386,9 +386,9 @@ class HTML {
 				}
 				$result['id'] = substr($term, 1);
 			} elseif ($char === '.') {
-				$result['class'] = CSS::add_class($result['class'] ?? '', substr($term, 1));
+				$result['class'] = CSS::addClass($result['class'] ?? '', substr($term, 1));
 			} else {
-				$result['class'] = CSS::add_class($result['class'] ?? '', $term);
+				$result['class'] = CSS::addClass($result['class'] ?? '', $term);
 			}
 		}
 		return $result;
@@ -404,7 +404,7 @@ class HTML {
 		return self::tag('span', $mixed, $content);
 	}
 
-	public static function etag($name, string|array $mixed) {
+	public static function etag(string $name, string|array|null $mixed): string {
 		if (func_num_args() > 2) {
 			$content = func_get_arg(2);
 			if (empty($content)) {
@@ -503,11 +503,11 @@ class HTML {
 	 *
 	 * @param array $types
 	 */
-	public static function input_attribute_names(array $types = []): array {
+	public static function inputAttributeNames(array $types = []): array {
 		if (count($types) === 0) {
 			$types = ['core', 'events', 'input'];
 		} else {
-			$types = ArrayTools::change_value_case($types);
+			$types = ArrayTools::changeValueCase($types);
 		}
 		$attr_list = [];
 		if (in_array('core', $types)) {
@@ -622,7 +622,7 @@ class HTML {
 	 * @return array Data attributes
 	 */
 	public static function data_attributes(array $attributes) {
-		return ArrayTools::flatten(ArrayTools::filter_prefix(ArrayTools::kreplace(array_change_key_case($attributes), '_', '-'), 'data-', true));
+		return ArrayTools::flatten(ArrayTools::filterPrefixedValues(ArrayTools::keysReplace(array_change_key_case($attributes), '_', '-'), 'data-', true));
 	}
 
 	/**
@@ -654,7 +654,7 @@ class HTML {
 	 * @return array
 	 */
 	public static function addClass(array $attributes, string $class = ''): array {
-		$attributes['class'] = CSS::add_class($attributes['class'] ?? '', $class);
+		$attributes['class'] = CSS::addClass($attributes['class'] ?? '', $class);
 		return $attributes;
 	}
 
@@ -666,7 +666,7 @@ class HTML {
 	 * @return array
 	 */
 	public static function removeClass(array $attributes, string $class = ''): array {
-		$attributes['class'] = CSS::remove_class($attributes['class'] ?? '', $class);
+		$attributes['class'] = CSS::removeClass($attributes['class'] ?? '', $class);
 		return $attributes;
 	}
 
@@ -1151,7 +1151,7 @@ class HTML {
 	 * @return array
 	 */
 	public static function style_clean(array $attr, array $allowed = null, array $disallowed = []) {
-		return ArrayTools::kfilter($attr, $allowed, $disallowed, true);
+		return ArrayTools::filterKeys($attr, $allowed, $disallowed, true);
 	}
 
 	/**
@@ -1188,7 +1188,7 @@ class HTML {
 				$attr = [];
 			} else {
 				$attr = self::parseAttributes($match[2]);
-				$attr = ArrayTools::kfilter($attr, $include, $exclude, false);
+				$attr = ArrayTools::filterKeys($attr, $include, $exclude, false);
 			}
 			$ss = $match[0];
 			$single = str_ends_with($match[0], '/>') ? '/' : '';
@@ -1229,7 +1229,7 @@ class HTML {
 				if ($styles) {
 					$styles = self::parse_styles($styles);
 					if ($styles) {
-						$styles = ArrayTools::kfilter($styles, $include, $exclude, true);
+						$styles = ArrayTools::filterKeys($styles, $include, $exclude, true);
 						if (count($styles) == 0) {
 							unset($attr['style']);
 						} else {
@@ -1261,9 +1261,9 @@ class HTML {
 	 */
 	public static function cleanTags(string $string, array $allowed_tags = null, array $remove_tags = []): string {
 		if (is_array($allowed_tags)) {
-			$allowed_tags = ArrayTools::change_value_case($allowed_tags);
+			$allowed_tags = ArrayTools::changeValueCase($allowed_tags);
 		}
-		$remove_tags = ArrayTools::change_value_case($remove_tags);
+		$remove_tags = ArrayTools::changeValueCase($remove_tags);
 		$found_tags = self::parse_tags($string);
 		if (!$found_tags) {
 			return $string;
@@ -1471,7 +1471,7 @@ class HTML {
 	 * @param string $string
 	 * @param string $tagName
 	 *            (Returned) The next found tag
-	 * @param integer $nWords
+	 * @param int $nWords
 	 *            (Returned) The number of words found until the next tag
 	 * @return integer The offset until the end of the tag
 	 */
@@ -1654,7 +1654,7 @@ class HTML {
 	public static function input_hidden($name, $value, $attributes = null) {
 		if (is_array($value)) {
 			$result = '';
-			$no_key = ArrayTools::is_list($value);
+			$no_key = ArrayTools::isList($value);
 			$attributes['id'] = null;
 			foreach ($value as $k => $v) {
 				$suffix = $no_key ? '[]' : '[' . $k . ']';
@@ -1889,26 +1889,6 @@ class HTML {
 	 */
 	public static function clean_tags(string $string, array $allowed_tags = null, array $remove_tags = []): string {
 		return self::cleanTags($string, $allowed_tags, $remove_tags);
-	}
-
-	/**
-	 * @param array $attributes
-	 * @param string $class
-	 * @return array
-	 * @deprecated 2022-02 PSR
-	 */
-	public static function add_class(array $attributes, string $class = ''): array {
-		return self::addClass($attributes, $class);
-	}
-
-	/**
-	 * @param array $attributes
-	 * @param string $class
-	 * @return array
-	 * @deprecated 2022-02 PSR
-	 */
-	public static function remove_class(array $attributes, string $class = ''): array {
-		return self::removeClass($attributes, $class);
 	}
 
 	/**

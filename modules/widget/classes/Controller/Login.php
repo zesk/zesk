@@ -35,7 +35,7 @@ class Controller_Login extends Controller_Theme {
 			]);
 		}
 		$logout_url = $this->option('logout_url', '/');
-		if ($this->request->prefer_json()) {
+		if ($this->request->preferJSON()) {
 			$this->json([
 				'status' => true,
 				'redirect' => $logout_url,

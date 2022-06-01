@@ -39,17 +39,17 @@ class Control_Picker_Content_Image extends Control_Picker {
 		}
 		$query->link(User::class, [
 			'alias' => 'user_image',
-		] + $extras)->where('user_image.id', $this->user());
+		] + $extras)->addWhere('user_image.id', $this->user());
 	}
 
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see Control_Picker::theme_variables()
+	 * @see Control_Picker::themeVariables()
 	 */
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
 			'label_search' => $this->application->locale->__('Search uploaded images'),
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 }

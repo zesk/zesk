@@ -4,7 +4,7 @@ declare(strict_types=1);
  * Implementation of iCalendar RRULE
  *
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  *
  * http://www.ietf.org/rfc/rfc2445.txt
  *
@@ -680,7 +680,7 @@ class Rule {
 	 * @param array|null $array
 	 * @return array|null
 	 */
-	private function flip_copy(array $array = null) {
+	private function valuesFlipCopy(array $array = null) {
 		if ($array) {
 			$result = [];
 			foreach ($array as $value) {
@@ -712,9 +712,9 @@ class Rule {
 		$interval = $this->interval;
 		$wkst = $this->wkst;
 		$until = $this->until;
-		$bymonth = self::flip_copy($this->bymonth);
-		$byweekno = self::flip_copy($this->byweekno);
-		$byyearday = self::flip_copy($this->byyearday);
+		$bymonth = self::valuesFlipCopy($this->bymonth);
+		$byweekno = self::valuesFlipCopy($this->byweekno);
+		$byyearday = self::valuesFlipCopy($this->byyearday);
 		$byweekday = null;
 		if ($this->byweekday) {
 			$byweekday = [];
@@ -727,12 +727,12 @@ class Rule {
 				}
 			}
 		}
-		$bymonthday = self::flip_copy($this->bymonthday);
-		$bynmonthday = self::flip_copy($this->bynmonthday);
-		$bysetpos = self::flip_copy($this->bysetpos);
-		$byhour = self::flip_copy($this->byhour);
-		$byminute = self::flip_copy($this->byminute);
-		$bysecond = self::flip_copy($this->bysecond);
+		$bymonthday = self::valuesFlipCopy($this->bymonthday);
+		$bynmonthday = self::valuesFlipCopy($this->bynmonthday);
+		$bysetpos = self::valuesFlipCopy($this->bysetpos);
+		$byhour = self::valuesFlipCopy($this->byhour);
+		$byminute = self::valuesFlipCopy($this->byminute);
+		$bysecond = self::valuesFlipCopy($this->bysecond);
 
 		$ii = new Iterator($this);
 		$ii->rebuild($year, $month);
@@ -825,7 +825,7 @@ class Rule {
 					if ($i) {
 						$time = $timeset[$timepos];
 						$date = Date::factory()->setGregorian($ii->yearordinal + $i);
-						$res = Timestamp::factory(null, $this->dtstart->time_zone())->setDate($date)->setTime($time);
+						$res = Timestamp::factory(null, $this->dtstart->timeZone())->setDate($date)->setTime($time);
 						$res_str = $res->__toString();
 						if (!isset($poslist[$res_str])) {
 							$poslist[$res_str] = $res;
@@ -858,7 +858,7 @@ class Rule {
 					}
 					$date = Date::factory()->setGregorian($ii->yearordinal + $i);
 					foreach ($timeset as $time) {
-						$res = Timestamp::factory(null, $this->dtstart->time_zone())->setDate($date)->setTime($time);
+						$res = Timestamp::factory(null, $this->dtstart->timeZone())->setDate($date)->setTime($time);
 						if ($until && $res->after($until)) {
 							$this->len = $total;
 							return;
@@ -1083,7 +1083,7 @@ class Rule {
 	 *
 	 * @param string $name Name to use in errors
 	 * @param mixed $item Item to check
-	 * @param integer $min Inclusive minimum values allowed
+	 * @param int $min Inclusive minimum values allowed
 	 * @param unknown $max Inclusing maximum values allowed
 	 * @param string $allow_zero
 	 * @param array $map
@@ -1243,9 +1243,9 @@ class Rule {
 	 *
 	 *
 	 * @param string $name Name for debugging
-	 * @param integer $start
+	 * @param int $start
 	 * @param integer|list $byxxx
-	 * @param integer $base
+	 * @param int $base
 	 */
 	private function _construct_byset($name, $start, array $byxxx, $base) {
 		$result = [];
@@ -1274,8 +1274,8 @@ class Rule {
 	/**
 	 * Greatest common divisor of two integers
 	 *
-	 * @param integer $a
-	 * @param integer $b
+	 * @param int $a
+	 * @param int $b
 	 * @return integer
 	 */
 	private static function gcd($a, $b) {
@@ -1299,8 +1299,8 @@ class Rule {
 	/**
 	 * Wacky Python 2 integer division
 	 *
-	 * @param integer $a
-	 * @param integer $b
+	 * @param int $a
+	 * @param int $b
 	 * @return integer
 	 */
 	public static function intdiv($a, $b) {
@@ -1316,8 +1316,8 @@ class Rule {
 	 *
 	 * Works for negative numbers as well.
 	 *
-	 * @param integer $dividend
-	 * @param integer $divisor
+	 * @param int $dividend
+	 * @param int $divisor
 	 * @return array
 	 */
 	public static function divmod($dividend, $divisor) {

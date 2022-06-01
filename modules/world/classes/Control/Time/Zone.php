@@ -27,7 +27,7 @@ class Control_Time_Zone extends Control_Select {
 	 * @return void|mixed|boolean
 	 */
 	public function prefixes_only($set = null) {
-		return $set === null ? $this->optionBool('prefixes_only', false) : $this->setOption('prefixes_only', to_bool($set));
+		return $set === null ? $this->optionBool('prefixes_only', false) : $this->setOption('prefixes_only', toBool($set));
 	}
 
 	/**
@@ -39,13 +39,13 @@ class Control_Time_Zone extends Control_Select {
 		$query = $this->application->orm_registry('zesk\\Time_Zone')->query_select()->where($this->where);
 		if ($this->prefixes_only()) {
 			$query->what('*Name', 'DISTINCT LEFT(Name,LOCATE(\'/\',Name)-1)');
-			$tzs = ArrayTools::clean(ArrayTools::ksuffix($query->to_array('Name', 'Name'), '/'), '');
+			$tzs = ArrayTools::clean(ArrayTools::suffixKeys($query->to_array('Name', 'Name'), '/'), '');
 			$this->control_options($tzs);
 		} else {
 			$query->what('Name', 'Name');
-			$exclude = $this->option_array('exclude');
+			$exclude = $this->optionArray('exclude');
 			if (count($exclude) > 0) {
-				$query->where('Name|NOT LIKE|AND', $exclude);
+				$query->addWhere('Name|NOT LIKE|AND', $exclude);
 			}
 			$tzs = $query->to_array('Name', 'Name');
 			$parents = [];

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -136,7 +136,7 @@ class Controller_PolyGlot extends Controller_Authenticated {
 				'message' => $this->application->locale->__('No permission to update {lang_name}.', $__),
 			]);
 		}
-		$id = $this->request->geti('id');
+		$id = $this->request->getInt('id');
 		$fields = [];
 		foreach (to_list('original;translation;status') as $k) {
 			$fields[$k] = $this->request->get($k);

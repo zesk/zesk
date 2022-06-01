@@ -97,7 +97,7 @@ class Control_Text_Dropdown extends Control_Text {
 		return $this;
 	}
 
-	public function button_label($set = null) {
+	public function buttonLabel($set = null) {
 		if ($set !== null) {
 			$this->theme_variables[self::option_button_label] = $set;
 			$this->setOption(self::option_button_label, $set);
@@ -113,7 +113,7 @@ class Control_Text_Dropdown extends Control_Text {
 	 * @return Control_Text_Dropdown|boolean
 	 */
 	public function select_behavior_enabled($set = null) {
-		return $set === null ? $this->optionBool(self::option_select_behavior_enabled) : $this->setOption(self::option_select_behavior_enabled, to_bool($set));
+		return $set === null ? $this->optionBool(self::option_select_behavior_enabled) : $this->setOption(self::option_select_behavior_enabled, toBool($set));
 	}
 
 	/**
@@ -130,7 +130,7 @@ class Control_Text_Dropdown extends Control_Text {
 	 * @return Control_Text_Dropdown|boolean
 	 */
 	public function plural_behavior_enabled($set = null) {
-		return $set === null ? $this->optionBool(self::option_plural_behavior_enabled) : $this->setOption(self::option_plural_behavior_enabled, to_bool($set));
+		return $set === null ? $this->optionBool(self::option_plural_behavior_enabled) : $this->setOption(self::option_plural_behavior_enabled, toBool($set));
 	}
 
 	public function load() {
@@ -149,19 +149,19 @@ class Control_Text_Dropdown extends Control_Text {
 			}
 		} else {
 			if ($this->required()) {
-				$this->error($this->required_error(), $this->dropdown_column());
+				$this->error($this->requiredError(), $this->dropdown_column());
 				$result = false;
 			}
 		}
 		return parent::validate() && $result;
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
 			'dropdown_id' => $this->dropdown_id(),
 			'dropdown_name' => $this->dropdown_name(),
 			'dropdown_column' => $this->dropdown_column(),
 			'dropdown_value' => $this->dropdown_value(),
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 }

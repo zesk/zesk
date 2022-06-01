@@ -39,5 +39,5 @@ $query_string = to_list($request->query(), null);
 if ($query_string) {
 	$result = ArrayTools::filter($result, $query_string);
 }
-$result['elpased'] = microtime(true) - $application->initialization_time();
+$result['elpased'] = microtime(true) - $application->initializationTime();
 $response->json()->data($result);

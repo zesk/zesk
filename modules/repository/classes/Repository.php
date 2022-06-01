@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage repository
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -159,9 +161,9 @@ abstract class Repository extends Hookable {
 	 */
 	final public function __construct(Application $application, $root = null, array $options = []) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 		if (is_string($root) && !empty($root)) {
-			$this->set_path($root);
+			$this->setPath($root);
 		}
 		$this->initialize();
 	}
@@ -171,7 +173,7 @@ abstract class Repository extends Hookable {
 	 * @param string $suffix
 	 * @return string
 	 */
-	public function path($suffix = null) {
+	public function path(string $suffix = ''): string {
 		if (!$this->path) {
 			throw new Exception_Semantics('Need to set the path before using path call');
 		}
@@ -182,16 +184,16 @@ abstract class Repository extends Hookable {
 	 * Given a path, convert to an absolute path and check it's a proper subdirectory
 	 *
 	 * @param string $suffix
-	 * @throws Exception_Semantics
 	 * @return NULL|string
+	 * @throws Exception_Semantics
 	 */
-	protected function resolve_target($target = null) {
+	protected function resolve_target(string $target = null): string {
 		if (empty($target)) {
 			return $this->path;
 		}
-		$final_path = Directory::is_absolute($target) ? $target : $this->path($target);
+		$final_path = Directory::isAbsolute($target) ? $target : $this->path($target);
 		$final_path = realpath($final_path);
-		if (!begins($this->path, $final_path)) {
+		if (!str_starts_with($this->path, $final_path)) {
 			throw new Exception_Semantics('Passed absolute path {target} (-> {final_path}) must be a subdirectory of {path}', [
 				'target' => $target,
 				'final_path' => $final_path,
@@ -205,7 +207,7 @@ abstract class Repository extends Hookable {
 	 * @param string $path
 	 * @return \zesk\Repository
 	 */
-	public function set_path($path) {
+	public function setPath(string $path): self {
 		$this->path = $path;
 		return $this;
 	}
@@ -221,28 +223,26 @@ abstract class Repository extends Hookable {
 	 *
 	 * @return string
 	 */
-	final public function code() {
+	final public function code(): string {
 		return $this->code;
 	}
 
 	/**
 	 *
 	 * @param Application $application
-	 * @param unknown $type
-	 * @return NULL|Repository
+	 * @param string $type
+	 * @param string|null $root
+	 * @param array $options
+	 * @return Repository
+	 * @throws Exception_Class_NotFound
 	 */
-	public static function factory(Application $application, $type, $root = null, array $options = []) {
-		try {
-			/* @var $repo Module_Repository */
-			$repo = $application->repository_module();
-			$class = $repo->find_repository($type);
-			if (!$class) {
-				return null;
-			}
-			return $application->objects->factory($class, $application, $root, $options);
-		} catch (Exception_Class_NotFound $e) {
-			return null;
+	public static function factory(Application $application, string $type, string $root = null, array $options = []): Repository {
+		$repo = $application->repository_module();
+		$class = $repo->find_repository($type);
+		if (!$class) {
+			throw new Exception_Class_NotFound('Repository {type}', ['type' => $type]);
 		}
+		return $application->objects->factory($class, $application, $root, $options);
 	}
 
 	/**
@@ -251,7 +251,7 @@ abstract class Repository extends Hookable {
 	 * @param string $url
 	 * @return boolean
 	 */
-	protected function validate_url($url) {
+	protected function validate_url(string $url): bool {
 		return URL::valid($url);
 	}
 
@@ -261,21 +261,29 @@ abstract class Repository extends Hookable {
 	 * @param string $set
 	 * @return string|self
 	 */
-	public function url($set = null) {
-		if ($set !== null) {
-			if (empty($set)) {
-				$this->url = null;
-				return $this;
-			}
-			$set = URL::normalize($set);
-			if (!$this->validate_url($set)) {
-				throw new Exception_Syntax('Not a valid URL {url}', [
-					'url' => $set,
-				]);
-			}
-			$this->url = $set;
+	public function setURL(string $set): self {
+		if (empty($set)) {
+			$this->url = null;
 			return $this;
 		}
+		$set = URL::normalize($set);
+		if (!$this->validate_url($set)) {
+			throw new Exception_Syntax('Not a valid URL {url}', [
+				'url' => $set,
+			]);
+		}
+		$this->url = $set;
+		return $this;
+	}
+
+	/**
+	 * Setter/getter for the repository URL. Changing the URL does not update anything until update.
+	 *
+	 * @param string $set
+	 * @return string|self
+	 * @throws Exception_Semantics
+	 */
+	public function url(): string {
 		if ($this->url) {
 			return $this->url;
 		}
@@ -284,25 +292,23 @@ abstract class Repository extends Hookable {
 				'method' => __METHOD__,
 			]);
 		}
-		return $this->info(null, self::INFO_URL);
+		return $this->info('', self::INFO_URL);
 	}
 
 	/**
 	 * Retrieve repository-specific information
 	 *
 	 * @param string $path Path to get info about
-	 * @param string $component Retrieve this component of the info
-	 * @return array|string
+	 * @return array
 	 */
-	abstract public function info($path = null, $component = null);
+	abstract public function info(string $path): array;
 
 	/**
 	 * Check if the directory is a valid directory for this repository
 	 *
-	 * @param string $directory
 	 * @return boolean
 	 */
-	abstract public function validate();
+	abstract public function validate(): bool;
 
 	/**
 	 * Fetch a list of repository status for a target
@@ -312,7 +318,7 @@ abstract class Repository extends Hookable {
 	 *
 	 * @return array[]
 	 */
-	abstract public function status($target = null, $updates = false);
+	abstract public function status(string $target, bool $updates = false);
 
 	/**
 	 * Does the target have changes which need to be sent to the remote?
@@ -320,7 +326,7 @@ abstract class Repository extends Hookable {
 	 * @param string $target
 	 * @return boolean
 	 */
-	abstract public function need_commit($target = null);
+	abstract public function need_commit(string $target): bool;
 
 	/**
 	 * Synchronizes all files beneath $target with repository.
@@ -328,7 +334,7 @@ abstract class Repository extends Hookable {
 	 * @param string $target
 	 * @param string $message
 	 */
-	abstract public function commit($target = null, $message = null);
+	abstract public function commit(string $target, string $message): bool;
 
 	/**
 	 * Does the target need to be updated?
@@ -336,14 +342,14 @@ abstract class Repository extends Hookable {
 	 * @param string $target
 	 * @return boolean
 	 */
-	abstract public function need_update($target = null);
+	abstract public function need_update(string $target): bool;
 
 	/**
 	 * Update repository and get changes from remote
 	 *
 	 * @param string $target
 	 */
-	abstract public function update($target = null);
+	abstract public function update(string $target): void;
 
 	/**
 	 * Undo changes to a target and reset to current branch/tag
@@ -351,19 +357,19 @@ abstract class Repository extends Hookable {
 	 * @param string $target Directory of target directory
 	 * @return boolean
 	 */
-	abstract public function rollback($target = null);
+	abstract public function rollback(string $target): void;
 
 	/**
 	 * Return the latest version string for this repository. Should mimic `zesk version` formatting.
 	 *
 	 * @return string
 	 */
-	abstract public function latest_version();
+	abstract public function latest_version(): string;
 
 	/**
 	 * @return string[]
 	 */
-	public function versions() {
+	public function versions(): array {
 		return [];
 	}
 }

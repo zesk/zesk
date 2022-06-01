@@ -1,12 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * Class for module loading, management, and configuration
  *
  * Ideally we should be able to serialize this entire structure and load again from cache so side-effects should be
  * tracked when loading modules (hooks, etc.) or repeated upon __wakeup() in your module itself.
  *
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -90,7 +92,7 @@ class Modules {
 	 * Dynamically determine the module version
 	 *
 	 * @param mixed $mixed
-	 *        	Array of modules.
+	 *            Array of modules.
 	 */
 	final public function version($mixed = null) {
 		$modules = ($mixed === null) ? array_keys($this->modules) : to_list($mixed);
@@ -153,7 +155,7 @@ class Modules {
 	 * What modules are loaded?
 	 *
 	 * @param string $mixed
-	 *        	Check if one or more module is loaded
+	 *            Check if one or more module is loaded
 	 *
 	 * @return array|boolean
 	 */
@@ -187,16 +189,16 @@ class Modules {
 	 * - status: Most recent action on this module
 	 *
 	 * @param mixed $mixed
-	 *        	Module name or array of module names
+	 *            Module name or array of module names
 	 * @param array $options
-	 *        	Loading options
-	 *        	- "check loaded" set to true to just check if it's loaded.
-	 *        	- "not loaded" set to a value (any value) which is returned when a module is not
-	 *        	loaded
-	 *        	- "check exists" set to true to check if the module exists. If it is, basic
-	 *        	information is passed back (module configuation is not loaded, for example).
-	 *        	- "load" set to false to gather only basic information (including configuration),
-	 *        	but not load the module. (similar to check exists - duplicate functionality?)
+	 *            Loading options
+	 *            - "check loaded" set to true to just check if it's loaded.
+	 *            - "not loaded" set to a value (any value) which is returned when a module is not
+	 *            loaded
+	 *            - "check exists" set to true to check if the module exists. If it is, basic
+	 *            information is passed back (module configuation is not loaded, for example).
+	 *            - "load" set to false to gather only basic information (including configuration),
+	 *            but not load the module. (similar to check exists - duplicate functionality?)
 	 *
 	 * @return Module array of module => module_data as described above, or for single modules, just
 	 *         the module data
@@ -206,25 +208,25 @@ class Modules {
 		if ($mixed === null) {
 			return $this->modules;
 		}
-		$passed_modules = self::clean_name(to_list($mixed));
+		$passed_modules = self::clean_name(toList($mixed));
 		$modules = self::_expand_modules($passed_modules);
 		$result = [];
-		$module_paths = $this->application->module_path();
+		$module_paths = $this->application->modulePath();
 		foreach ($modules as $index => $name) {
 			$name = self::clean_name($name);
-			$module_data = avalue($this->modules, $name);
+			$module_data = $this->modules[$name] ?? null;
 			if (is_array($module_data)) {
 				$result[$name] = $this->modules[$name] + [
-					'status' => 'already loaded',
-				];
+						'status' => 'already loaded',
+					];
 
 				continue;
-			} elseif (avalue($options, 'check loaded')) {
-				$result[$name] = avalue($options, 'not loaded', null);
+			} elseif ($options['check loaded'] ?? false) {
+				$result[$name] = $options['not loaded'] ?? null;
 
 				continue;
 			}
-			$result += $this->_load_one($name, $options);
+			$result += $this->_loadFile($name, $options);
 		}
 		$result = ArrayTools::filter($result, $passed_modules);
 		if (count($passed_modules) === 1) {
@@ -242,7 +244,7 @@ class Modules {
 		$this->application->logger->debug(__METHOD__);
 		$modules = [];
 		foreach ($this->modules as $codename => $module_data) {
-			$modules[$codename] = $this->_reload_one($module_data);
+			$modules[$codename] = $this->_reloadFile($module_data);
 		}
 		$this->modules = $modules;
 		return $this;
@@ -259,9 +261,9 @@ class Modules {
 	 * bin/ - $application->paths->command_path
 	 *
 	 * @param string $module_path
-	 *        	Directory to search for system paths
+	 *            Directory to search for system paths
 	 * @param string $module
-	 *        	Module associated with the system path (used for share directory)
+	 *            Module associated with the system path (used for share directory)
 	 * @return array Array of actually registered paths
 	 */
 	final public function register_paths($module_path = null, $module = null) {
@@ -310,7 +312,7 @@ class Modules {
 				];
 				zesk()->deprecated('Module configuration "autoload_class_prefix" is deprecated for module >>{module}<<, use "autoload_options": { "class_prefix": ... } instead', compact('module'));
 			}
-			$this->application->autoload_path($path, $autoload_options);
+			$this->application->addAutoloadPath($path, $autoload_options);
 		}
 		$path = path($module_path, $theme_path);
 		if (is_dir($path)) {
@@ -364,8 +366,8 @@ class Modules {
 		extract($module_data, EXTR_IF_EXISTS);
 
 		$this->modules[$name] = $module_data + [
-			'loading' => true,
-		];
+				'loading' => true,
+			];
 		array_unshift($this->module_loader, $name);
 		$this->register_paths();
 
@@ -385,7 +387,7 @@ class Modules {
 		// Apply share_path automatically
 		$share_path = apath($module_data, 'configuration.share_path');
 		if ($share_path) {
-			if (!Directory::is_absolute($share_path)) {
+			if (!Directory::isAbsolute($share_path)) {
 				$share_path = $this->application->path($share_path);
 			}
 			$name = apath($module_data, 'configuration.share_path_name', $module_data['name']);
@@ -404,13 +406,13 @@ class Modules {
 	private function _handle_requires($requires, array $options) {
 		// Load dependent modules
 		$result = [];
-		foreach (to_array($requires) as $required_module) {
+		foreach (toArray($requires) as $required_module) {
 			$required_module = self::clean_name($required_module);
 			if (!apath($this->modules, [
 				$required_module,
 				'loaded',
 			])) {
-				$result += $this->_load_one($required_module, $options);
+				$result += $this->_loadFile($required_module, $options);
 			}
 		}
 		return $result;
@@ -428,12 +430,12 @@ class Modules {
 	 * @param array $options Flags
 	 *  "check exists" => true to test for existence of module class (just class_exists)
 	 *  "load" => defaults to true => Load the module and create the Module object and return the initialized structure
-	 * @throws Exception_Directory_NotFound
 	 * @return array
+	 * @throws Exception_Directory_NotFound
 	 */
-	private function _load_one($name, array $options) {
+	private function _loadFile($name, array $options) {
 		if (str_contains($name, '\\')) {
-			return $this->_autoload_one($name, $options);
+			return $this->_autoloadFile($name, $options);
 		}
 
 		$result = [];
@@ -457,7 +459,7 @@ class Modules {
 			return $result;
 		}
 		$module_data += self::_find_module_include($module_data);
-		if (to_bool(avalue($options, 'load', true))) {
+		if (toBool(avalue($options, 'load', true))) {
 			$module_data = $this->_load_module_configuration($module_data);
 			$module_data = $this->_apply_module_configuration($module_data);
 
@@ -480,7 +482,7 @@ class Modules {
 	 */
 	private function _handle_configuration_requires(array $module_data, array $options) {
 		$result = [];
-		$requires = to_list(apath($module_data, 'configuration.requires'));
+		$requires = toList(apath($module_data, 'configuration.requires'));
 		if ($requires) {
 			$result += $this->_handle_requires($requires, $options);
 		}
@@ -495,10 +497,10 @@ class Modules {
 	 *  "check exists" => true to test for existence of module class (just class_exists)
 	 *  "load" => defaults to true => Load the module and create the Module object and return the initialized structure
 	 *
-	 * @throws Exception_Class_NotFound
 	 * @return array
+	 * @throws Exception_Class_NotFound
 	 */
-	private function _autoload_one($name, array $options) {
+	private function _autoloadFile($name, array $options) {
 		$module_data = [
 			'loaded' => false,
 			'name' => $name,
@@ -512,7 +514,7 @@ class Modules {
 			throw new Exception_Class_NotFound($name, 'Loading module');
 		}
 		$result = [];
-		if (to_bool(avalue($options, 'load', true))) {
+		if (toBool(avalue($options, 'load', true))) {
 			$this->modules[$name] = $module_data = $this->_load_module_object($module_data) + $module_data;
 			/* @var $object Module */
 			$object = $module_data['object'];
@@ -527,11 +529,11 @@ class Modules {
 			}
 		}
 		return $result + [
-			$name => $module_data,
-		];
+				$name => $module_data,
+			];
 	}
 
-	public function _reload_one($module_data) {
+	public function _reloadFile($module_data) {
 		$object = $module_data['object'];
 		if ($object) {
 			$module_data = $this->_load_module_configuration($module_data);
@@ -568,9 +570,9 @@ class Modules {
 			if (file_exists($module_conf)) {
 				$raw_module_conf = file_get_contents($module_conf);
 				$configuration = new Configuration($module_variables);
-				Configuration_Parser::factory($extension, $raw_module_conf, new Adapter_Settings_Configuration($configuration))->process();
+				$module_data['configuration'] = [];
+				Configuration_Parser::factory($extension, $raw_module_conf, new Adapter_Settings_Array($module_data['configuration']))->process();
 				$module_data['configuration_file'] = $module_conf;
-				$module_data['configuration'] = $configuration->to_array();
 			}
 		}
 		return $module_data;
@@ -581,8 +583,8 @@ class Modules {
 	 * is ready to be initialized.
 	 *
 	 * @param array $module_data
-	 * @throws Exception_Semantics
 	 * @return Module null
+	 * @throws Exception_Semantics
 	 */
 	private function _load_module_object(array $module_data) {
 		$name = $class = null;
@@ -608,9 +610,9 @@ class Modules {
 				'class' => $class,
 			];
 			return $result + [
-				'path' => $module_object->path(),
-				'object' => $module_object,
-			];
+					'path' => $module_object->path(),
+					'object' => $module_object,
+				];
 		} catch (Exception_Class_NotFound $e) {
 			return [
 				'object' => null,
@@ -640,10 +642,10 @@ class Modules {
 			]);
 			$this->application->hooks->call('exception', $e);
 			return [
-				'object' => null,
-				'status' => 'failed',
-				'initialize_exception' => $e,
-			] + $module_data;
+					'object' => null,
+					'status' => 'failed',
+					'initialize_exception' => $e,
+				] + $module_data;
 		}
 	}
 
@@ -749,7 +751,7 @@ class Modules {
 	 * Is a module loaded?
 	 *
 	 * @param $mixed Modules
-	 *        	to check
+	 *            to check
 	 * @return array boolean
 	 */
 	final public function exists($mixed = null) {
@@ -842,7 +844,7 @@ class Modules {
 	 *
 	 * @param string $module
 	 * @param mixed $append
-	 *        	Value to append to path using path()
+	 *            Value to append to path using path()
 	 * @return string|null Returns null if module not loaded
 	 */
 	final public function path($module, $append = null) {
@@ -858,7 +860,7 @@ class Modules {
 	 *
 	 * @param string $module
 	 * @param mixed $default
-	 *        	Value to return if module is not loaded
+	 *            Value to return if module is not loaded
 	 * @return Module
 	 * @throws Exception_NotFound
 	 */
@@ -875,7 +877,7 @@ class Modules {
 	 * Run hooks across all modules loaded
 	 *
 	 * @param string $hook
-	 *        	Hook name
+	 *            Hook name
 	 * @return mixed
 	 */
 	final public function all_hook($hook) {
@@ -908,9 +910,9 @@ class Modules {
 	 *
 	 * @param string $hook
 	 * @param array $arguments
-	 * @return array list of array(Closure, Arguments)
+	 * @return callable[]
 	 */
-	final public function collect_all_hooks($hook, array $arguments) {
+	final public function collect_all_hooks(string $hook, array $arguments): array {
 		$module_names = $this->modules_with_hook[$hook] ?? null;
 		if (!is_array($module_names)) {
 			$module_names = [];
@@ -945,12 +947,12 @@ class Modules {
 	/**
 	 * List all hooks which would be called by all modules.
 	 *
-	 * @todo This does not match all_hook_arguments called list? (Module::$hook, etc.)
-	 * @todo Add test for this
 	 * @param string $hook
 	 * @param array $arguments
 	 * @param mixed $default
 	 * @return mixed
+	 * @todo This does not match all_hook_arguments called list? (Module::$hook, etc.)
+	 * @todo Add test for this
 	 */
 	final public function all_hook_list(string $hook) {
 		$result = $this->application->hooks->find_all(["zesk\\Module::$hook"]);

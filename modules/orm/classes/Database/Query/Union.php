@@ -7,7 +7,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -21,16 +21,16 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	/**
 	 * Array of queries to UNION
 	 *
-	 * @var array
+	 * @var Database_Query_Select[]
 	 */
-	protected $queries = [];
+	protected array $queries = [];
 
 	/**
 	 * Order by clause
 	 *
-	 * @var string
+	 * @var array
 	 */
-	private $order_by = null;
+	private array $order_by = [];
 
 	/**
 	 * Construct a new UNION select query
@@ -47,7 +47,7 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @param Database $db
 	 * @return Database_Query_Union
 	 */
-	public static function factory(Database $db = null) {
+	public static function factory(Database $db): self {
 		return new Database_Query_Union($db);
 	}
 
@@ -55,7 +55,7 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @param Database_Query_Select $select
 	 * @return $this
 	 */
-	public function union(Database_Query_Select $select) {
+	public function union(Database_Query_Select $select): self {
 		$this->queries[] = $select;
 		return $this;
 	}
@@ -65,18 +65,8 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @return $this
 	 * @throws Exception_Parameter
 	 */
-	public function what($what) {
-		return $this->addWhat($what);
-	}
-
-	/**
-	 * @param $what
-	 * @return $this
-	 * @throws Exception_Parameter
-	 */
 	public function addWhat(string $alias, string $member = ''): self {
 		foreach ($this->queries as $query) {
-			/* @var $query Database_Query_Select */
 			$query->addWhat($alias, $member);
 		}
 		return $this;
@@ -89,7 +79,6 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 */
 	public function from(string $table, string $alias = ''): self {
 		foreach ($this->queries as $query) {
-			/* @var $query Database_Query_Select */
 			$query->from($table, $alias);
 		}
 		return $this;
@@ -99,8 +88,10 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @param string $sql
 	 * @param string $join_id
 	 * @return $this
+	 * @deprecated 2022-05
 	 */
-	public function join(string $sql, string $join_id = ''): string {
+	public function join(string $sql, string $join_id = ''): self {
+		$this->application->deprecated(__METHOD__);
 		return $this->addJoin($sql, $join_id);
 	}
 
@@ -111,8 +102,7 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 */
 	public function addJoin(string $join_sql, string $join_id = ''): self {
 		foreach ($this->queries as $query) {
-			/* @var $query Database_Query_Select */
-			$query->join($join_sql, $join_id);
+			$query->addJoin($join_sql, $join_id);
 		}
 		return $this;
 	}
@@ -122,22 +112,20 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @param mixed $v
 	 * @return $this
 	 */
-	public function where($k, $v = null) {
+	public function addWhere(string $k, mixed $v): self {
 		foreach ($this->queries as $query) {
-			/* @var $query Database_Query_Select */
-			$query->where($k, $v);
+			$query->addWhere($k, $v);
 		}
 		return $this;
 	}
 
 	/**
-	 * @param string $group_by
+	 * @param array $group_by
 	 * @return $this
 	 */
-	public function group_by($group_by) {
+	public function setGroupBy(array $group_by): self {
 		foreach ($this->queries as $query) {
-			/* @var $query Database_Query_Select */
-			$query->group_by($group_by);
+			$query->setGroupBy($group_by);
 		}
 		return $this;
 	}
@@ -146,8 +134,8 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @param string|array $order_by
 	 * @return $this
 	 */
-	public function order_by($order_by) {
-		$this->order_by = $order_by;
+	public function setOrderBy(string|array $order_by): self {
+		$this->order_by = toList($order_by);
 		return $this;
 	}
 
@@ -156,10 +144,9 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @param int $limit
 	 * @return $this
 	 */
-	public function limit($offset = 0, $limit = null) {
+	public function setOffsetLimit(int $offset = 0, int $limit = -1): self {
 		foreach ($this->queries as $query) {
-			/* @var $query Database_Query_Select */
-			$query->limit($offset, $limit);
+			$query->setOffsetLimit($offset, $limit);
 		}
 		return $this;
 	}
@@ -172,9 +159,8 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	public function __toString() {
 		$sql_phrases = [];
 		foreach ($this->queries as $query) {
-			/* @var $query Database_Query_Select */
 			$sql_phrases[] = $query->__toString();
 		}
-		return implode(' UNION ', ArrayTools::wrap($sql_phrases, '(', ')')) . $this->sql()->order_by($this->order_by);
+		return implode(' UNION ', ArrayTools::wrapValues($sql_phrases, '(', ')')) . $this->sql()->order_by($this->order_by);
 	}
 }

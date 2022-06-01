@@ -63,7 +63,7 @@ class PolyGlot_Update extends ORM {
 				$update_locales = $application->orm_registry(__CLASS__)
 					->query_select()
 					->what('locale', 'locale')
-					->where('updated|>=', $server_updated)
+					->addWhere('updated|>=', $server_updated)
 					->to_array(null, 'locale');
 			}
 		} else {
@@ -115,7 +115,7 @@ class PolyGlot_Update extends ORM {
 				$application->orm_registry(__CLASS__)
 					->query_update()
 					->value('updated', Timestamp::now())
-					->where('locale', $update_locale)
+					->addWhere('locale', $update_locale)
 					->execute();
 			} catch (Exception $e) {
 				$application->logger->error('Updating locale {locale} on {server} FAILED due to {message}', [
@@ -156,7 +156,7 @@ class PolyGlot_Update extends ORM {
 	 * @return boolean
 	 */
 	public static function update_locale(Application $application, $path, $locale) {
-		$iterator = PolyGlot_Token::locale_query($application, $locale)->where('status', PolyGlot_Token::status_done)->order_by('updated DESC,original')->iterator('original', 'translation');
+		$iterator = PolyGlot_Token::locale_query($application, $locale)->addWhere('status', PolyGlot_Token::status_done)->order_by('updated DESC,original')->iterator('original', 'translation');
 
 		$target_file = path($path, "$locale.inc");
 

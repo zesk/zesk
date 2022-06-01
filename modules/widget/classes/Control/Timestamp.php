@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 16:35:38 EDT 2008
  */
 namespace zesk;
@@ -20,27 +20,27 @@ class Control_Timestamp extends Control {
 
 	public function future_only($set = null) {
 		if ($set !== null) {
-			return $this->setOption('data-future-only', to_bool($set));
+			return $this->setOption('data-future-only', toBool($set));
 		}
 		return $this->optionBool('data-future-only');
 	}
 
 	public function past_only($set = null) {
 		if ($set !== null) {
-			return $this->setOption('data-past-only', to_bool($set));
+			return $this->setOption('data-past-only', toBool($set));
 		}
 		return $this->optionBool('data-past-only');
 	}
 
 	public function allow_times($set = null) {
 		if ($set !== null) {
-			return $this->setOption('allow_times', to_bool($set));
+			return $this->setOption('allow_times', toBool($set));
 		}
 		return $this->optionBool('allow_times');
 	}
 
 	public function time_control($set = null) {
-		return $set === null ? $this->optionBool('time_control') : $this->setOption('time_control', to_bool($set));
+		return $set === null ? $this->optionBool('time_control') : $this->setOption('time_control', toBool($set));
 	}
 
 	public function load(): void {
@@ -77,7 +77,7 @@ class Control_Timestamp extends Control {
 			return false;
 		}
 		$ts = new Timestamp($value);
-		if ($ts->is_empty() && $this->required()) {
+		if ($ts->isEmpty() && $this->required()) {
 			$this->error_required();
 			return false;
 		}

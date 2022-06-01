@@ -57,7 +57,7 @@ class Parser {
 		$options = [];
 		$whites = to_list(" ;\t");
 		$tr = [
-			'$zesk_root' => $app->zesk_home(),
+			'$zesk_root' => $app->zeskHome(),
 			'$zesk_application_root' => $app->path(),
 		];
 		$routes = [];
@@ -79,7 +79,7 @@ class Parser {
 					if ($value_trimmed === 'null') {
 						$value = null;
 					} elseif ($value_trimmed === 'true' || $value_trimmed === 'false') {
-						$value = to_bool($value_trimmed);
+						$value = toBool($value_trimmed);
 					} elseif (StringTools::begins($value_trimmed, str_split('"\'{[', 1))) {
 						try {
 							$decoded = JSON::decode($value, true);

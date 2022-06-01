@@ -22,7 +22,7 @@ class Server_Packager_APT extends Server_Packager {
 		return $this->exec('apt-show-versions --package={0} | grep -q \'not installed\'', $package);
 	}
 
-	protected function package_remove($package) {
+	protected function package_keysRemove($package) {
 		return $this->exec('apt-get remove {0}', $package);
 	}
 

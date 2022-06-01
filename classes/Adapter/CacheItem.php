@@ -173,7 +173,7 @@ class Adapter_CacheItem implements CacheItemInterface {
 			$time = DateInterval::extend($time)->toSeconds();
 		}
 		if (is_numeric($time)) {
-			$this->expiresAt(Timestamp::now()->add_unit($time, Timestamp::UNIT_SECOND));
+			$this->expiresAt(Timestamp::now()->addUnit($time, Timestamp::UNIT_SECOND));
 		}
 		return $this->_handle_expiration();
 	}

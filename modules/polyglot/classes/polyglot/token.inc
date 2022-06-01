@@ -84,16 +84,16 @@ class PolyGlot_Token extends ORM {
 	 */
 	public function store(): self {
 		$this->md5 = md5($this->original);
-		if ($this->member_is_empty('user')) {
+		if ($this->memberIsEmpty('user')) {
 			$request = $this->application->request();
 			if ($request) {
 				$this->user = $this->application->user($request);
 			}
 		}
-		if ($this->member_is_empty('context')) {
+		if ($this->memberIsEmpty('context')) {
 			$this->context = $this->call_hook('context_default');
 		}
-		if ($this->member_is_empty('status')) {
+		if ($this->memberIsEmpty('status')) {
 			$this->status = self::status_todo;
 		}
 		if ($this->status === self::status_delete) {
@@ -217,7 +217,7 @@ class PolyGlot_Token extends ORM {
 				$app->orm_registry(__CLASS__)
 					->query_update()
 					->value('translation', $entities)
-					->where('id', $id)
+					->addWhere('id', $id)
 					->execute();
 				$app->logger->debug('Updated #{id} {translation} to {entities}', compact('id', 'translation', 'entities'));
 			}

@@ -130,7 +130,7 @@
 				    }
 				    this.send_remove[id] = true;
 			    }
-			    if (this.q_is_empty()) {
+			    if (this.q_isEmpty()) {
 				    this.stop();
 			    } else {
 				    this.start();

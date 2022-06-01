@@ -126,7 +126,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param Database_Table $dbTableObject
 	 * @return array SQL statements to "CREATE TABLE" and any related objects
 	 */
-	abstract public function create_table(Database_Table $dbTableObject);
+	abstract public function createTable(Database_Table $dbTableObject);
 
 	/*====================================================================================================================================*/
 
@@ -153,7 +153,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $sql
 	 * @return string
 	 */
-	abstract public function remove_comments(string $sql): string;
+	abstract public function removeComments(string $sql): string;
 
 	/**
 	 * Compatible
@@ -204,7 +204,7 @@ abstract class Database_SQL extends Hookable {
 	 * @return string
 	 */
 	public function function_max(string $target, bool $expression = false): string {
-		return 'MAX(' . ($expression ? $target : $this->quote_column($target)) . ')';
+		return 'MAX(' . ($expression ? $target : $this->quoteColumn($target)) . ')';
 	}
 
 	/**
@@ -215,7 +215,7 @@ abstract class Database_SQL extends Hookable {
 	 * @return string
 	 */
 	public function function_min(string $target, bool $expression = false): string {
-		return 'MIN(' . ($expression ? $target : $this->quote_column($target)) . ')';
+		return 'MIN(' . ($expression ? $target : $this->quoteColumn($target)) . ')';
 	}
 
 	/**
@@ -246,7 +246,7 @@ abstract class Database_SQL extends Hookable {
 	 * Date addition
 	 *
 	 * @param string $target
-	 * @param integer $number
+	 * @param int $number
 	 * @param string $unit
 	 */
 	abstract public function function_date_add(string $target, int $number, string $units = 'second'): string;
@@ -255,7 +255,7 @@ abstract class Database_SQL extends Hookable {
 	 * Date subtraction
 	 *
 	 * @param string $target
-	 * @param integer $number
+	 * @param int $number
 	 * @param string $unit
 	 */
 	abstract public function function_date_subtract(string $target, int $number, string $unit = 'second'): string;
@@ -283,9 +283,9 @@ abstract class Database_SQL extends Hookable {
 	 */
 	public function table_as(string $table, string $name = ''): string {
 		if (empty($name)) {
-			return $this->quote_table($table);
+			return $this->quoteTable($table);
 		}
-		return $this->quote_table($table) . ' AS ' . $this->quote_table($name);
+		return $this->quoteTable($table) . ' AS ' . $this->quoteTable($name);
 	}
 
 	/**
@@ -297,11 +297,11 @@ abstract class Database_SQL extends Hookable {
 	 * @return string
 	 */
 	public function database_table_as(string $database, string $table, string $name = ''): string {
-		$result = $this->quote_table($database) . '.' . $this->quote_table($table);
+		$result = $this->quoteTable($database) . '.' . $this->quoteTable($table);
 		if (empty($name)) {
 			return $result;
 		}
-		return $result . ' AS ' . $this->quote_table($name);
+		return $result . ' AS ' . $this->quoteTable($name);
 	}
 
 	/**
@@ -311,9 +311,9 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $alias
 	 * @return string
 	 */
-	public function column_alias(string $column, string $alias = ''): string {
-		$column = $column === '*' ? $column : $this->quote_column($column);
-		return empty($alias) ? $column : $this->quote_column($alias) . '.' . $column;
+	public function columnAlias(string $column, string $alias = ''): string {
+		$column = $column === '*' ? $column : $this->quoteColumn($column);
+		return empty($alias) ? $column : $this->quoteColumn($alias) . '.' . $column;
 	}
 
 	/**
@@ -323,9 +323,9 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $alias
 	 * @return string
 	 */
-	public function column_as(string $column, string $alias = ''): string {
-		$column = $this->quote_column($column);
-		return $column . (empty($alias) ? '' : ' AS ' . $this->quote_column($alias));
+	public function columnAs(string $column, string $alias = ''): string {
+		$column = $this->quoteColumn($column);
+		return $column . (empty($alias) ? '' : ' AS ' . $this->quoteColumn($alias));
 	}
 
 	/**
@@ -350,7 +350,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $name
 	 * @return string
 	 */
-	abstract public function quote_table(string $name): string;
+	abstract public function quoteTable(string $name): string;
 
 	/**
 	 * Quote a text string
@@ -358,7 +358,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $text
 	 * @return string
 	 */
-	abstract public function quote_text(string $text): string;
+	abstract public function quoteText(string $text): string;
 
 	/**
 	 * Quote a column name
@@ -366,15 +366,15 @@ abstract class Database_SQL extends Hookable {
 	 * @param string|array $name
 	 * @return string array
 	 */
-	abstract public function quote_column(string $name): string;
+	abstract public function quoteColumn(string $name): string;
 
 	/**
-	 * Reverses, exactly, quote_column
+	 * Reverses, exactly, quoteColumn
 	 *
 	 * @param string $name
 	 * @return string
 	 */
-	abstract public function unquote_column(string $name): string;
+	abstract public function unquoteColumn(string $name): string;
 
 	/**
 	 * Unquote a table
@@ -382,7 +382,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $name
 	 * @return string
 	 */
-	abstract public function unquote_table(string $name): string;
+	abstract public function unquoteTable(string $name): string;
 
 	/**
 	 *
@@ -482,7 +482,7 @@ abstract class Database_SQL extends Hookable {
 				if (is_numeric($k)) {
 					$result[] = '(' . $this->where_clause($v, ($conj !== self::CONJUNCTION_OR) ? self::CONJUNCTION_OR : self::CONJUNCTION_AND, $prefix_in) . ')';
 				} elseif (count($v) === 0) {
-					$result[] = $this->quote_column($new_key) . ' IS NULL';
+					$result[] = $this->quoteColumn($new_key) . ' IS NULL';
 				} else {
 					$conj_sql = [];
 					[$new_key, $new_conj] = $this->parse_conjunction($new_key, $conj);
@@ -555,13 +555,13 @@ abstract class Database_SQL extends Hookable {
 			$result = [];
 			foreach ($what as $as => $select_column) {
 				if (is_numeric($as)) {
-					$result[] = $this->quote_column($select_column);
+					$result[] = $this->quoteColumn($select_column);
 				} else {
 					$literal = ($as[0] === '*');
 					if ($literal) {
-						$result[] = "$select_column AS " . $this->quote_column(substr($as, 1));
+						$result[] = "$select_column AS " . $this->quoteColumn(substr($as, 1));
 					} else {
-						$result[] = $this->column_as($select_column, $as);
+						$result[] = $this->columnAs($select_column, $as);
 					}
 				}
 			}
@@ -621,32 +621,42 @@ abstract class Database_SQL extends Hookable {
 	 * @throws Exception_Unimplemented|Exception_Semantics
 	 */
 	public function select(array $options): string {
-		$distinct = false;
-		$alias = '';
-		$conjunction = 'AND';
-		$having = $what = $tables = $group_by = $order_by = $where = [];
-		$offset = $limit = 0;
-		extract($options, EXTR_IF_EXISTS);
+		$offset = toInteger($options['offset'] ?? 0);
+		$limit = toInteger($options['limit'] ?? -1);
+		$what = $options['what'] ?? [];
+		$distinct = toBool($options['distinct'] ?? false);
+		$alias = strval($options['alias'] ?? '');
+		$conjunction = strval($options['conjunction'] ?? 'AND');
+		$tables = $options['tables'] ?? [];
+		$having = toArray($options['having'] ?? []);
+		$group_by = toArray($options['group_by'] ?? []);
+		$order_by = toArray($options['order_by'] ?? []);
+		$where = toArray($options['where'] ?? []);
 		if (!is_array($what)) {
 			$what = strval($what);
 		}
-		if (!is_array($where)) {
-			$where = [];
+		if (empty($what)) {
+			throw new Exception_Semantics('Need a non-empty what');
 		}
-		$distinct = to_bool($distinct);
 		$where = $this->where($where, $conjunction, $alias);
 		if (is_string($tables)) {
-			$sql_tables = $this->quote_table($tables);
+			$sql_tables = $this->quoteTable($tables);
 		} elseif (is_array($tables)) {
 			if (count($tables) === 0) {
 				throw new Exception_Semantics('Need at least one table');
 			}
 			$alias = key($tables);
+			if (!is_string($alias)) {
+				$alias = '';
+			}
 			$sql_tables = $this->table_as(array_shift($tables), $alias);
 			$sql_tables .= $this->join($tables);
 			$where = ltrim($where);
 		} else {
 			$sql_tables = (string) $tables;
+		}
+		if (empty($sql_tables)) {
+			throw new Exception_Semantics('No table supplied');
 		}
 		$sql = 'SELECT ' . $this->what($what, $distinct) . ' FROM ' . $sql_tables . $where . $this->group_by($group_by) . $this->having($having) . $this->order_by($order_by) . $this->limit($offset, $limit);
 		return trim($sql);
@@ -662,15 +672,14 @@ abstract class Database_SQL extends Hookable {
 	 *
 	 * @param array $options
 	 * @return string
-	 * @throws Exception_Unimplemented
 	 */
-	public function insert(array $options): string {
-		$verb = 'INSERT';
-		$table = $values = $low_priority = null;
-		extract($options, EXTR_IF_EXISTS);
+	public function insert(string $table, array $values, array $options): string {
+		$verb = $options['verb'] ?? 'INSERT';
+		$low_priority = toBool($options['low_priority'] ?? false);
+
 		[$insert_names, $insert_values] = $this->_insert_to_name_values($values);
 		$low_priority = $low_priority ? ' LOW_PRIORITY' : '';
-		return "$verb $low_priority INTO " . $this->quote_table($table) . " (\n\t`" . implode("`,\n\t`", $insert_names) . "`\n) VALUES (\n\t" . implode(",\n\t", $insert_values) . "\n)";
+		return "$verb $low_priority INTO " . $this->quoteTable($table) . " (\n\t`" . implode("`,\n\t`", $insert_names) . "`\n) VALUES (\n\t" . implode(",\n\t", $insert_values) . "\n)";
 	}
 
 	/**
@@ -681,13 +690,12 @@ abstract class Database_SQL extends Hookable {
 	 * @param array $options
 	 * @return string
 	 */
-	public function insert_select(array $options): string {
-		$verb = 'INSERT';
-		$table = $values = $low_priority = $select = null;
-		extract($options, EXTR_IF_EXISTS);
+	public function insert_select(string $table, array $values, string $select_sql, array $options): string {
+		$verb = $options['verb'] ?? 'INSERT';
+		$low_priority = toBool($options['low_priority'] ?? false);
 		[$insert_name] = $this->_insert_to_name_values($values);
 		$low_priority = $low_priority ? ' LOW_PRIORITY' : '';
-		return "$verb $low_priority INTO " . $this->quote_table($table) . " (\n\t`" . implode("`,\n\t`", $insert_name) . "`\n) $select";
+		return "$verb $low_priority INTO " . $this->quoteTable($table) . " (\n\t`" . implode("`,\n\t`", $insert_name) . "`\n) $select_sql";
 	}
 
 	/**
@@ -696,10 +704,8 @@ abstract class Database_SQL extends Hookable {
 	 * @param array $options
 	 * @return string
 	 */
-	public function delete(array $options): string {
-		$table = $where = null;
-		extract($options, EXTR_IF_EXISTS);
-		return 'DELETE FROM ' . $this->quote_table($table) . $this->where($where);
+	public function delete(string $table, array $where, array $options = []): string {
+		return 'DELETE FROM ' . $this->quoteTable($table) . $this->where($where);
 	}
 
 	/**
@@ -708,7 +714,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param array $arr
 	 * @return array(array("name0","name1",..."),array("value0","value1",...))
 	 */
-	private function _insert_to_name_values($arr) {
+	private function _insert_to_name_values(array $arr): array {
 		$insert_names = [];
 		$insert_values = [];
 		foreach ($arr as $k => $v) {
@@ -729,7 +735,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string|array $s
 	 * @return string
 	 */
-	public function group_by($s) {
+	public function group_by(array|string $s): string {
 		if (is_array($s)) {
 			$s = implode(', ', $s);
 		}
@@ -750,7 +756,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $prefix
 	 * @return string
 	 */
-	public function order_by($s, $prefix = '') {
+	public function order_by(string|array $s, string $prefix = ''): string {
 		if (empty($s)) {
 			return '';
 		}
@@ -761,6 +767,10 @@ abstract class Database_SQL extends Hookable {
 		}
 		if (!is_array($s)) {
 			$s = [$s, ];
+		}
+		$s = array_filter($s);
+		if (count($s) === 0) {
+			return '';
 		}
 		$r = [];
 		foreach ($s as $oby) {
@@ -780,11 +790,11 @@ abstract class Database_SQL extends Hookable {
 	/**
 	 * LIMIT clause.
 	 *
-	 * @param integer $offset
-	 * @param integer $limit
+	 * @param int $offset
+	 * @param int $limit
 	 * @return string
 	 */
-	private function limit($offset = 0, $limit = -1) {
+	private function limit(int $offset = 0, int $limit = -1): string {
 		if ($offset == 0) {
 			if ($limit <= 0) {
 				return '';
@@ -806,7 +816,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param boolean $is_compare
 	 * @return string
 	 */
-	protected function pair_to_sql($k, $v, $is_compare = false) {
+	protected function pair_to_sql(string $k, mixed $v, bool $is_compare = false): string {
 		[$k, $cmp] = pair($k, '|', $k, '=');
 		if ($k[0] === '*') {
 			if ($v === null) {
@@ -815,18 +825,18 @@ abstract class Database_SQL extends Hookable {
 			return substr($k, 1) . "$cmp$v";
 		} elseif ($v === null && $is_compare) {
 			if ($cmp === '!=') {
-				return $this->quote_column($k) . ' IS NOT NULL';
+				return $this->quoteColumn($k) . ' IS NOT NULL';
 			} elseif ($cmp === '=') {
-				return $this->quote_column($k) . ' IS NULL';
+				return $this->quoteColumn($k) . ' IS NULL';
 			} else {
-				return $this->quote_column($k) . ' IS NULL';
+				return $this->quoteColumn($k) . ' IS NULL';
 			}
 		} elseif ($cmp === '%') {
-			return $this->quote_column($k) . ' LIKE ' . $this->quote_text("%$v%");
+			return $this->quoteColumn($k) . ' LIKE ' . $this->quoteText("%$v%");
 		} elseif ($cmp === '!%') {
-			return $this->quote_column($k) . ' NOT LIKE ' . $this->quote_text("%$v%");
+			return $this->quoteColumn($k) . ' NOT LIKE ' . $this->quoteText("%$v%");
 		} else {
-			return $this->quote_column($k) . " $cmp " . $this->mixed_to_sql($v);
+			return $this->quoteColumn($k) . " $cmp " . $this->mixed_to_sql($v);
 		}
 	}
 
@@ -844,7 +854,7 @@ abstract class Database_SQL extends Hookable {
 			if (strlen($v) === 0) {
 				return '\'\'';
 			}
-			return $this->quote_text($v);
+			return $this->quoteText($v);
 		}
 		if (is_bool($v)) {
 			return $v ? '1' : '0';
@@ -860,7 +870,7 @@ abstract class Database_SQL extends Hookable {
 				}
 				return '(' . implode(', ', $result) . ')';
 			}
-			return $this->quote_text($v->__toString());
+			return $this->quoteText($v->__toString());
 		}
 		if (is_numeric($v)) {
 			if ($v === INF) {

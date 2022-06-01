@@ -27,7 +27,7 @@ class Class_DBQueryObjectTest extends Class_ORM {
 class DBQueryObjectTest extends ORM {
 	public function validate(): void {
 		$test = Database_Test::$test;
-		$test->assert(!$this->member_is_empty('id'));
-		$test->assert(!$this->member_is_empty('foo'));
+		$test->assert(!$this->memberIsEmpty('id'));
+		$test->assert(!$this->memberIsEmpty('foo'));
 	}
 }

@@ -9,7 +9,7 @@ namespace zesk;
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
-$uri = URL::query_append($this->request->uri(), [
+$uri = URL::queryAppend($this->request->uri(), [
 	'widget::target' => $this->column,
 	'ajax' => 1,
 	'action' => 'selector',
@@ -40,9 +40,9 @@ foreach ($this->objects as $object) {
 
 $list_attributes = HTML::to_attributes($this->list_attributes);
 $list_attributes['id'] = $list_id;
-$list_attributes = HTML::add_class($list_attributes, 'control-picker-state class-' . strtolower($this->object_class));
+$list_attributes = HTML::addClass($list_attributes, 'control-picker-state class-' . strtolower($this->object_class));
 if ($this->selectable) {
-	$list_attributes = HTML::add_class($list_attributes, 'selectable');
+	$list_attributes = HTML::addClass($list_attributes, 'selectable');
 }
 
 echo HTML::tag($this->get('list_tag', 'div'), $list_attributes, implode("\n", $results));

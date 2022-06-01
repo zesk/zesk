@@ -23,7 +23,7 @@ class Net_HTTP_Client_Test extends Test_Unit {
 		$value = __CLASS__;
 		$x->user_agent($value);
 
-		$this->assert_equal($x->user_agent(), $value);
+		$this->assert_equal($x->userAgent(), $value);
 
 		$this->assert($x->method_post() === false);
 
@@ -79,9 +79,9 @@ class Net_HTTP_Client_Test extends Test_Unit {
 		$this->assert(begins($headers['Content-Type'], 'text/html'));
 	}
 
-	public function test_default_user_agent(): void {
+	public function test_default_userAgent(): void {
 		$client = new Net_HTTP_Client($this->application);
-		$this->assert(str_starts_with($client->default_user_agent(), 'zesk'));
+		$this->assert(str_starts_with($client->default_userAgent(), 'zesk'));
 		echo basename(__FILE__) . ": success\n";
 	}
 }

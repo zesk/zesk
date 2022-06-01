@@ -58,7 +58,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head {
 	private function _plugins() {
 		if ($this->plugins === null) {
 			$result = Directory::ls($this->flot_js_path(), '/jquery\.flot\.[a-zA-Z0-9]+]\.js/');
-			$this->plugins = array_flip(ArrayTools::unwrap(ArrayTools::flip_copy($result), 'jquery.flot.', '.js', true));
+			$this->plugins = array_flip(ArrayTools::valuesUnwrap(ArrayTools::valuesFlipCopy($result), 'jquery.flot.', '.js', true));
 		}
 		return $this->plugins;
 	}

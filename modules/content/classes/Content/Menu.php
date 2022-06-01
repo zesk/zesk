@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -29,8 +29,8 @@ class Content_Menu extends ORM {
 		if ($is_home) {
 			$this->query_update()
 				->value('IsHome', false)
-				->where('IsHome', true)
-				->where('ID|!=', $this->id())
+				->addWhere('IsHome', true)
+				->addWhere('ID|!=', $this->id())
 				->execute();
 		}
 		$cc = $this->ContentObjects;
@@ -75,8 +75,8 @@ class Content_Menu extends ORM {
 		$menus_content = [];
 		//$menus_content = array();
 		foreach ($menus->iterator('ID') as $id => $menu) {
-			$menu['IsActive'] = to_bool($menu['IsActive']);
-			$menu['IsHome'] = $is_home = to_bool($menu['IsHome']);
+			$menu['IsActive'] = toBool($menu['IsActive']);
+			$menu['IsHome'] = $is_home = toBool($menu['IsHome']);
 			$parent = intval($menu['Parent']);
 			$name = $menu['Name'];
 			$menu_key = empty($menu['CodeName']) ? self::clean_code_name($name) : $menu['CodeName'];

@@ -36,7 +36,7 @@ As a system hook:
 
 	$application->hooks->add("zesk\\Application::configured_files", function (zesk\Application $app) {
 		$custom = $app->configuration->custom;
-		$app->loader->load_one("etc/custom/$custom");
+		$app->loader->loadFile("etc/custom/$custom");
 	});
 
 As an application hook:
@@ -127,7 +127,7 @@ As a system hook:
 	$application->hooks->add("zesk\\Application::main", function (zesk\Application $app, zesk\Request $request) {
 		if (strpos($request->path(), ".exe") !== false) {
 			$app->log_abuse();
-			return $app->response_factory($request)->status(404, "Not found")->content("Nope.");
+			return $app->responseFactory($request)->status(404, "Not found")->content("Nope.");
 		}
 	});
 
@@ -139,7 +139,7 @@ As an application hook:
 		function hook_main(\zesk\Request $request) {
 			if (strpos($request->path(), ".exe") !== false) {
 				$this->log_abuse();
-				return $this->response_factory($request)->status(404, "Not found")->content("Nope.");
+				return $this->responseFactory($request)->status(404, "Not found")->content("Nope.");
 			}
 		}
 		...
@@ -155,14 +155,14 @@ As an application hook:
 ## `zesk\Application::content`
 ## `zesk\Application::response_output_after`
 
-## - `zesk\Application::main_exception`
+## - `zesk\Application::mainException`
 
 ## `zesk\Application::cache_clear`
 ## `zesk\Application::command`
 ## `zesk\Application::maintenance_context`
 ## `zesk\Application::maintenance`
 ## `zesk\Application::set_cache`
-## `zesk\Application::set_locale`
+## `zesk\Application::setLocale`
 ## `zesk\Application::cache_clear`
 ## `zesk\Application::configured`
 ## `zesk\Application::repositories`
@@ -197,7 +197,7 @@ As a system hook:
 
 	$application->hooks->add("zesk\\Application::configured_files", function (zesk\Application $app) {
 		$custom = $app->configuration->custom;
-		$app->loader->load_one("etc/custom/$custom");
+		$app->loader->loadFile("etc/custom/$custom");
 	});
 
 As an application hook:
@@ -207,7 +207,7 @@ As an application hook:
 		...
 		function hook_configured_files() {
 			$custom = $this->configuration->custom;
-			$this->loader->load_one("etc/custom/$custom");
+			$this->loader->loadFile("etc/custom/$custom");
 		}
 		...
 	}
@@ -240,9 +240,9 @@ As an application hook:
 ## `zesk\Router::construct`
 
 ## `zesk\Request::initialize`
-## `zesk\Request::initialize_from_globals`
-## `zesk\Request::initialize_from_request`
-## `zesk\Request::initialize_from_settings`
+## `zesk\Request::initializeFromGlobals`
+## `zesk\Request::initializeFromRequest`
+## `zesk\Request::initializeFromSettings`
 
 ## `zesk\Response::output_before`
 ## `zesk\Response::output_after`

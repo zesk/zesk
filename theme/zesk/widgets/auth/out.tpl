@@ -3,7 +3,7 @@
  * @package ruler
  * @subpackage page
  * @author kent
- * @copyright Copyright &copy; 2009, Market Ruler, LLC
+ * @copyright Copyright &copy; 2022, Market Ruler, LLC
  * Created on Tue Feb 17 20:42:50 EST 2009 20:42:50
  */
 use zesk\URL;
@@ -29,13 +29,13 @@ if ($this->has('URL')) {
 
 	$attr = $this->has('Attributes') ? HTML::parse_attributes($this->Attributes) : [];
 	if ($host === $current_host) {
-		$out_u = URL::query_format($u, [
+		$out_u = URL::queryFormat($u, [
 			'ref' => $this->request->url(),
 		]);
 	} else {
 		$session = Session_ORM::instance(true);
 		$uk = md5($web_key . $u);
-		$out_u = URL::query_format('/out/', [
+		$out_u = URL::queryFormat('/out/', [
 			'u' => $u,
 			'uk' => $uk,
 			'ref' => $this->request->url(),
@@ -63,7 +63,7 @@ if (md5($web_key . $u) !== $uk) {
 
 $session = Session_ORM::instance(true);
 $session = $session->one_time_create();
-$in_url = URL::query_format(URL::left_host($u) . 'in/', [
+$in_url = URL::queryFormat(URL::left_host($u) . 'in/', [
 	'u' => $u,
 	'uk' => $uk,
 	's' => $session->member('Cookie'),

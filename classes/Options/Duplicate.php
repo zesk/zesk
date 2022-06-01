@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -18,20 +20,20 @@ class Options_Duplicate extends Options {
 	 *
 	 * @var array
 	 */
-	public $map = [];
+	public array $map = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $members = [];
+	public array $members = [];
 
 	/**
 	 *
 	 * @param string $member
 	 * @return boolean
 	 */
-	public function has_member($member) {
+	public function hasMember(string $member): bool {
 		return array_key_exists($member, $this->members);
 	}
 
@@ -40,7 +42,7 @@ class Options_Duplicate extends Options {
 	 * @param string $member
 	 * @return boolean
 	 */
-	public function has_map($member) {
+	public function has_map(string $member): bool {
 		return array_key_exists($member, $this->map);
 	}
 
@@ -50,16 +52,7 @@ class Options_Duplicate extends Options {
 	 * @param mixed $value
 	 * @return self|array
 	 */
-	public function member($member = null, $value = null) {
-		if ($member === null) {
-			return $this->members;
-		}
-		if (is_array($member)) {
-			foreach ($member as $k => $v) {
-				$this->member($k, $v);
-			}
-			return $this;
-		}
+	public function setMember(string $member, mixed $value = null): self {
 		if ($value === null) {
 			unset($this->members[$member]);
 			return $this;
@@ -73,10 +66,10 @@ class Options_Duplicate extends Options {
 	 *
 	 * @param string $member
 	 * @param ORM $old
-	 * @param  ORM $new
+	 * @param ORM $new
 	 * @return self
 	 */
-	public function map($member, $old, $new) {
+	public function map(string $member, ORM $old, ORM $new): self {
 		$this->map[$member][$old->id()] = $new->id();
 		return $this;
 	}
@@ -86,21 +79,23 @@ class Options_Duplicate extends Options {
 	 *
 	 * Sets all inherited members, and maps all object IDs from one copy to another
 	 *
-	 * @param  $object
+	 * @param ORM $object
 	 * @return $this
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
 	 * @throws Exception_Semantics
 	 */
-	public function process_duplicate($object) {
+	public function processDuplicate(ORM $object): self {
 		$members = [];
 		foreach ($this->members as $member => $new_value) {
-			if ($object->has_member($member)) {
+			if ($object->hasMember($member)) {
 				$members[$member] = $new_value;
 			}
 		}
 		foreach ($this->map as $member => $map) {
-			if ($object->has_member($member)) {
-				$id = $object->member_integer($member);
-				$new_id = avalue($map, $id, null);
+			if ($object->hasMember($member)) {
+				$id = $object->memberInteger($member);
+				$new_id = $map[$id] ?? null;
 				if ($new_id !== null) {
 					if (array_key_exists($member, $members)) {
 						throw new Exception_Semantics('Member {member} for object class {class} is already set in the member map', [
@@ -113,7 +108,7 @@ class Options_Duplicate extends Options {
 			}
 		}
 		if (count($members) > 0) {
-			$object->set_member($members);
+			$object->setMembers($members);
 		}
 		return $this;
 	}

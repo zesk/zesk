@@ -21,7 +21,7 @@ namespace zesk;
 	$input_attributes = [
 		'type' => 'text',
 		'class' => 'form-control',
-	] + $this->widget->data_attributes() + $this->widget->input_attributes() + [
+	] + $this->widget->dataAttributes() + $this->widget->inputAttributes() + [
 		'value' => $this->value,
 	];
 	echo HTML::tag('input', $input_attributes, null);

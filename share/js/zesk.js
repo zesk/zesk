@@ -407,10 +407,10 @@
 	    },
 	    getb: function(n) {
 		    var a = arguments, d = a.length > 1 ? a[1] : false;
-		    return to_bool(Zesk.get(n, d));
+		    return toBool(Zesk.get(n, d));
 	    },
 	    set: function(n, v) {
-		    var a = arguments, overwrite = a.length > 2 ? to_bool(a[2]) : true;
+		    var a = arguments, overwrite = a.length > 2 ? toBool(a[2]) : true;
 		    if (!overwrite && typeof X.Zesk.settings[n] !== 'undefined') {
 			    return X.Zesk.settings[n];
 		    }
@@ -453,7 +453,7 @@
 		 */
 	    each: function(x, fn, term_false) {
 		    var i, r;
-		    term_false = to_bool(term_false);
+		    term_false = toBool(term_false);
 		    if (is_array(x)) {
 			    for (i = 0; i < x.length; i++) {
 				    r = fn.call(x[i], i, x[i]);
@@ -954,7 +954,7 @@
 		return x.toString();
 	};
 
-	function to_bool(x) {
+	function toBool(x) {
 		var d = arguments.length > 1 ? arguments[1] : false;
 		if (is_bool(x)) {
 			return x;
@@ -972,7 +972,7 @@
 		}
 		return d;
 	}
-	X.to_bool = to_bool;
+	X.toBool = toBool;
 
 	X.empty = function(v) {
 		return typeof v === "undefined" || v === null || v === "";

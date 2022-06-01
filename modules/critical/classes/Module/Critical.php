@@ -43,7 +43,7 @@ class Module_Critical extends Module {
 	 * @see Module::initialize()
 	 */
 	public function initialize(): void {
-		$emails = $this->option_list(self::setting_email, [], ',');
+		$emails = $this->optionIterable(self::setting_email, [], ',');
 		$bad_emails = [];
 		foreach ($emails as $email) {
 			$email = trim($email);
@@ -93,7 +93,7 @@ class Module_Critical extends Module {
 	 * Log a single alert
 	 *
 	 * @param string $sms_message
-	 * @param integer $frequency
+	 * @param int $frequency
 	 * @return Module_Critical|null
 	 */
 	public function alert($sms_message, $frequency = 3600) {
@@ -198,7 +198,7 @@ class Module_Critical extends Module {
 		}
 		if (count($sends) > 0) {
 			$this->_store_alerts($alerts);
-			$emails = $this->option_list('email', [], ',');
+			$emails = $this->optionIterable('email', [], ',');
 			foreach ($emails as $email) {
 				Mail::sendmail($this->application, $email, $this->option('from'), $this->option('subject'), implode("\n", $sends), false, false, false, [
 					'no_force_to' => true,

@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -36,7 +38,6 @@ class Preference_Test extends Test_ORM {
 	}
 
 	/**
-	 * @expectedException zesk\Exception_Parameter
 	 */
 	public function test_user_set(): void {
 		$user = new User($this->application, 1);
@@ -67,13 +68,10 @@ class Preference_Test extends Test_ORM {
 		$this->assert_instanceof($result, $preference_class);
 		$this->run_test_an_object($pref);
 
-		$result = $this->application->orm_registry($preference_class)
-			->query_delete()
-			->where('user', 1)
-			->execute();
+		$result = $this->application->orm_registry($preference_class)->queryDelete()->addWhere('user', 1)->execute();
 		$this->assert_instanceof($result, __NAMESPACE__ . '\\' . 'Database_Query_Delete');
 		$this->log('Deleted {n} rows from {class}', [
-			'n' => $result->affected_rows(),
+			'n' => $result->affectedRows(),
 			'class' => $preference_class,
 		]);
 
@@ -86,7 +84,7 @@ class Preference_Test extends Test_ORM {
 	}
 
 	/**
-	 * @expectedException zesk\Exception_Parameter
+	 *
 	 */
 	public function test_Preference_set_parameter(): void {
 		$user = new User($this->application, 1);

@@ -5,7 +5,7 @@
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright Copyright &copy; 2016, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -42,7 +42,7 @@ class Database_Exception_SQL extends Database_Exception {
 		$this->sql = $sql;
 		$this->db = $db;
 
-		$message = "Message: $message\nDatabase: " . $this->db->code_name() . "\nSQL: " . rtrim($this->sql) . "\n";
+		$message = "Message: $message\nDatabase: " . $this->db->codeName() . "\nSQL: " . rtrim($this->sql) . "\n";
 		parent::__construct($db, $message, $arguments, $errno, $previous);
 	}
 
@@ -75,7 +75,7 @@ class Database_Exception_SQL extends Database_Exception {
 			'errno' => $this->getCode(),
 			'db' => $this->db, // Deprecated
 			'database' => $this->db,
-			'database_code_name' => $this->db->code_name(),
+			'database_code_name' => $this->db->codeName(),
 			'sql' => $this->sql,
 		] + parent::variables();
 	}

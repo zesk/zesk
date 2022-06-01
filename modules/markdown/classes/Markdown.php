@@ -910,7 +910,7 @@ class Markdown extends Options {
 		//   Returns:    The string, with after processing the following backslash
 		//               escape sequences.
 		//
-		return strtr($text, ArrayTools::kprefix(self::$g_escape_table, '\\'));
+		return strtr($text, ArrayTools::prefixKeys(self::$g_escape_table, '\\'));
 	}
 
 	private function _DoAutoLinks($text) {

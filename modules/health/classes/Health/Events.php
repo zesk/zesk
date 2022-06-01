@@ -26,10 +26,10 @@ namespace zesk;
  */
 class Health_Events extends ORM {
 	public function store(): self {
-		if ($this->member_is_empty('first_msec')) {
+		if ($this->memberIsEmpty('first_msec')) {
 			$this->first_msec = 0;
 		}
-		if ($this->member_is_empty('recent_msec')) {
+		if ($this->memberIsEmpty('recent_msec')) {
 			$this->recent_msec = 0;
 		}
 		return parent::store();
@@ -63,7 +63,7 @@ class Health_Events extends ORM {
 	public function bump($when, $when_msec = 0) {
 		$this->query_update()
 			->value('*total', 'total+1')
-			->where('id', $this->id)
+			->addWhere('id', $this->id)
 			->execute();
 		$this->query_update()
 			->values([

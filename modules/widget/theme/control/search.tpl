@@ -7,5 +7,5 @@ echo $this->theme('zesk/control/text', [
 	'input_group_addon' => HTML::tag('button', [
 		'class' => 'btn btn-default tip',
 		'title' => $this->get('search_title', __('Search')),
-	] + $this->geta('addon_button_attributes', []), HTML::span('.glyphicon .glyphicon-search', '')),
+	] + $this->getArray('addon_button_attributes', []), HTML::span('.glyphicon .glyphicon-search', '')),
 ]);

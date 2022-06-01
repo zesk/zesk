@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage command
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -22,7 +22,7 @@ class Command_Latest extends Command_Base {
 		$git = $this->application->git_module();
 
 		$vendor_path = $this->application->path('vendor/zesk');
-		$zesk_home = $this->application->zesk_home();
+		$zesk_home = $this->application->zeskHome();
 		$vendor_zesk = dirname($zesk_home);
 
 		if ($vendor_zesk !== $vendor_path) {

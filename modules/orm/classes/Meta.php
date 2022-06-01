@@ -14,15 +14,14 @@ class Meta extends ORM {
 	 *
 	 * @var boolean
 	 */
-	protected $_meta_fetch = false;
+	protected bool $_meta_fetch = false;
 
 	/**
 	 *
-	 * @param Application $application
 	 * @param string $name
 	 * @return self
 	 */
-	protected static function class_meta_factory($class, ORM $parent, $name) {
+	protected static function classMetaFactory(string $class, ORM $parent, string $name) {
 		$name = self::clean_code_name($name, '_');
 		return $parent->application->orm_factory($class, [
 			'parent' => $parent,
@@ -33,8 +32,8 @@ class Meta extends ORM {
 	/*
 	 * In child classes, use this for factory
 	 *
-	 public static function meta_factory(Account $parent, $name) {
-	 return parent::class_meta_factory(__CLASS__, $parent, $name);
+	 public static function metaFactory(Account $parent, $name) {
+	 return parent::classMetaFactory(__CLASS__, $parent, $name);
 	 }
 	 */
 
@@ -43,21 +42,21 @@ class Meta extends ORM {
 	 * @param mixed $value
 	 * @return self
 	 */
-	public function meta_set($value) {
+	public function metaSet(string $value): self {
 		$this->_meta_fetch = true;
-		return $this->set_member('value', $value)->store();
+		return $this->setMember('value', $value)->store();
 	}
 
 	/**
 	 *
-	 * @param unknown $default
-	 * @return mixed|array
+	 * @param string $default
+	 * @return string
 	 */
-	public function meta_get($default = null) {
+	public function metaGet(string $default = ''): string {
 		if (!$this->_meta_fetch) {
 			try {
 				$this->fetch();
-			} catch (Exception_ORM_NotFound $e) {
+			} catch (Exception_ORM_NotFound|Exception_ORM_Empty) {
 			}
 			$this->_meta_fetch = true;
 		}

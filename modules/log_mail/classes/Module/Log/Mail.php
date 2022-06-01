@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage Log_Mail
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -33,14 +33,14 @@ class Module_Log_Mail extends Module {
 		$application = $this->application;
 		$delete_after_days = to_integer($this->option('delete_after_days'), 0);
 		if ($delete_after_days > 0) {
-			$delete_before = Timestamp::now()->add_unit(-$delete_after_days, Timestamp::UNIT_DAY);
+			$delete_before = Timestamp::now()->addUnit(-$delete_after_days, Timestamp::UNIT_DAY);
 			/* @var $query zesk\Database_Query_Delete */
 			$class = Log_Mail::class;
 			$n_affected = $application->orm_registry($class)
 				->query_delete()
-				->where('created|<=', $delete_before)
+				->addWhere('created|<=', $delete_before)
 				->exec()
-				->affected_rows();
+				->affectedRows();
 			if ($n_affected > 0) {
 				$application->logger->notice('Deleted {n_affected} {class} rows older than {delete_before}', [
 					'delete_before' => $delete_before,
@@ -85,7 +85,7 @@ class Module_Log_Mail extends Module {
 			'body' => $mail->body,
 		]);
 		$table_name = $log_mail->table();
-		if (!$log_mail->database()->table_exists($table_name)) {
+		if (!$log_mail->database()->tableExists($table_name)) {
 			$app->logger->warning('Can not log message with subject {subject} ... table does not exist', [
 				'subject' => $subject,
 			]);

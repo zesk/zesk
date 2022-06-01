@@ -50,7 +50,7 @@ class Control_reCAPTCHA extends Control {
 	 * @see Widget::is_visible()
 	 */
 	public function is_visible() {
-		return !to_bool(avalue($this->theme_variables, 'verified'));
+		return !toBool(avalue($this->theme_variables, 'verified'));
 	}
 
 	/**
@@ -91,7 +91,7 @@ class Control_reCAPTCHA extends Control {
 		if ($code_type === Net_HTTP::RESPONSE_TYPE_SUCCESS) {
 			try {
 				$data = JSON::decode($result);
-				$success = to_bool(avalue($data, 'success'));
+				$success = toBool(avalue($data, 'success'));
 				$errors = [];
 				$error_codes = avalue($data, 'error-codes', []);
 				foreach ($error_codes as $error_code) {

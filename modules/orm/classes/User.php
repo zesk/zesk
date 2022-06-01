@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage objects
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Fri Apr 02 21:00:12 EDT 2010 21:00:12
  */
 namespace zesk;
@@ -51,7 +51,7 @@ class User extends ORM {
 	 * @param Application $application
 	 */
 	public static function configured(Application $application): void {
-		self::$debug_permission = to_bool($application->configuration->path_get_first([
+		self::$debug_permission = toBool($application->configuration->path_get_first([
 			[
 				__CLASS__,
 				self::option_debug_permission,
@@ -78,7 +78,7 @@ class User extends ORM {
 			error_log(__METHOD__ . ' $this->application->session() returned non-session? ' . type($session) . ' ' . strval($session));
 			return null;
 		}
-		return $session->user_id();
+		return $session->userId();
 	}
 
 	/**

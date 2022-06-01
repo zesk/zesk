@@ -184,7 +184,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		try {
 			$result = $this->exec('dscl . -read /Users/{0} ' . implode(' ', array_keys($map)), $user);
 			$result = self::_parse_dscl_output($result);
-			return self::$users[$user] = ArrayTools::map_keys($result, $map);
+			return self::$users[$user] = ArrayTools::keysMap($result, $map);
 		} catch (Server_Exception $e) {
 		}
 		return null;
@@ -208,7 +208,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 
 		try {
 			$result = $this->exec('dscl . -read /Groups/{0} ' . implode(' ', array_keys($map)), $group);
-			$data = ArrayTools::map_keys(self::_parse_dscl_output($result), $map);
+			$data = ArrayTools::keysMap(self::_parse_dscl_output($result), $map);
 			$data[self::f_group_members] = to_list($data[self::f_group_members], [], ' ');
 			return self::$groups[$group] = $data;
 		} catch (Server_Exception $e) {

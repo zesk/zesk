@@ -73,7 +73,7 @@ class Workflow extends Model {
 	 */
 	public function __construct(Application $application, array $variables = [], array $options = []) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 		$this->variable($variables);
 		$this->_init_steps();
 		$this->_clean_completed();
@@ -240,7 +240,7 @@ class Workflow extends Model {
 			$theme_name = 'steps';
 		}
 		$this->_clean_completed();
-		$themes = ArrayTools::suffix($this->application->classes->hierarchy(get_class($this), __CLASS__), "/$theme_name");
+		$themes = ArrayTools::suffixValues($this->application->classes->hierarchy(get_class($this), __CLASS__), "/$theme_name");
 		return $this->application->theme($themes, [
 			'workflow' => $this,
 			'completed' => $this->completed,
@@ -264,13 +264,13 @@ class Workflow extends Model {
 		return array_key_exists($name, $this->variables) ? $this->variables[$name] : null;
 	}
 
-	public function __set($name, $value): void {
-		$this->variables[$name] = $value;
+	public function __set($key, $value): void {
+		$this->variables[$key] = $value;
 		$this->_inited = true;
 	}
 
-	public function __unset($name): void {
-		unset($this->variables[$name]);
+	public function __unset($key): void {
+		unset($this->variables[$key]);
 	}
 
 	public function __isset($name) {

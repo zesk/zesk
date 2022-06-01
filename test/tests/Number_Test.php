@@ -11,7 +11,7 @@ namespace zesk;
  */
 class Number_Test extends Test_Unit {
 	public function test_format_bytes(): void {
-		$locale = $this->application->locale_registry('en');
+		$locale = $this->application->localeRegistry('en');
 		$tests = [
 			0 => '0 bytes',
 			1 => '1 byte',

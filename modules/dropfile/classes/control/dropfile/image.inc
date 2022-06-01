@@ -33,19 +33,19 @@ class Control_DropFile_Image extends Control_Content_Image {
 		return $this;
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
 			'remove_enabled' => $this->remove_enabled(),
-			'url_upload' => URL::query_append($this->url_upload(), [
+			'url_upload' => URL::queryAppend($this->url_upload(), [
 				'theme' => 'dropfile',
 				'name' => $this->name,
 				'width' => $this->optionInt('width'),
 				'height' => $this->optionInt('height'),
 			]),
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 
 	public function remove_enabled($set = null) {
-		return $set === null ? $this->optionBool('remove_enabled') : $this->setOption('remove_enabled', to_bool($set));
+		return $set === null ? $this->optionBool('remove_enabled') : $this->setOption('remove_enabled', toBool($set));
 	}
 }

@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -15,28 +17,28 @@ class Net_HTTP_UserAgent {
 	 *
 	 * @var string
 	 */
-	protected $user_agent = null;
+	protected string $user_agent;
 
 	/**
 	 * Parsed results from user_agent_test
 	 *
 	 * @var array
 	 */
-	protected $is = null;
+	protected array $is = [];
 
 	/**
 	 * Parsed results from user_agent_test
 	 *
 	 * @var array
 	 */
-	protected $classify = null;
+	protected array $classify = [];
 
 	/**
 	 * Language equivalents of the classification names
 	 *
 	 * @var array
 	 */
-	private static $classifications_names = [
+	private static array $classifications_names = [
 		'platform' => 'Platform',
 		'browser' => 'Web Browser',
 		'mobile' => 'Mobile/Desktop',
@@ -49,7 +51,7 @@ class Net_HTTP_UserAgent {
 	 *
 	 * @var array
 	 */
-	private static $classifications = [
+	private static array $classifications = [
 		'platform' => [
 			'mac' => 'mac',
 			'windows' => 'windows',
@@ -76,7 +78,7 @@ class Net_HTTP_UserAgent {
 	 *
 	 * @var array
 	 */
-	private static $lang_classifications = [
+	private static array $lang_classifications = [
 		'mac' => 'Mac OS X',
 		'windows' => 'Windows',
 		'linux' => 'Linux',
@@ -116,8 +118,8 @@ class Net_HTTP_UserAgent {
 	 *
 	 */
 	public function __wakeup(): void {
-		$this->is = null;
-		$this->classify = null;
+		$this->is = [];
+		$this->classify = [];
 	}
 
 	/**
@@ -147,40 +149,59 @@ class Net_HTTP_UserAgent {
 	 */
 	public function user_agent($set = null) {
 		if ($set !== null) {
-			$this->user_agent = strval($set);
-			$this->is = null;
-			$this->classify = null;
-			return $this;
+			zesk()->deprecated(__METHOD__);
 		}
 		return $this->user_agent;
+	}
+
+	public function userAgent(): string {
+		return $this->user_agent;
+	}
+
+	/**
+	 * Set user agent
+	 *
+	 * @param string $set
+	 * @return self|string
+	 */
+	public function setUserAgent(string $set): self {
+		$this->user_agent = $set;
+		$this->is = [];
+		$this->classify = [];
+		return $this;
 	}
 
 	/**
 	 * Passes criteria passed in?
 	 *
 	 * @param string $criteria
-	 * @return mixed|array
+	 * @return bool
 	 */
-	public function is($criteria = null) {
-		if (!is_array($this->is)) {
+	public function is(string $criteria): bool {
+		if (count($this->is) === 0) {
 			$this->is = self::parse($this->user_agent);
 		}
-		if ($criteria === null) {
-			return $this->is;
-		}
-		return avalue($this->is, $criteria, false);
+		return $this->is[$criteria] ?? false;
 	}
 
 	/**
 	 * Classify user agent and return classificiation
-	 *
-	 * @param string $translate
 	 */
-	public function classify($translate = false) {
-		if (!is_array($this->classify)) {
+	public function classify(): array {
+		if (count($this->classify) === 0) {
 			$this->classify = $this->_classify();
 		}
-		return $translate ? ArrayTools::map_keys(ArrayTools::map_values($this->classify, self::$lang_classifications), self::$lang_classifications) : $this->classify;
+		return $this->classify;
+	}
+
+	/**
+	 * Fetche the English classification strings
+	 *
+	 * @return array
+	 */
+	public function classify_EN(): array {
+		$translations = self::$lang_classifications;
+		return ArrayTools::keysMap(ArrayTools::valuesMap($this->classify(), $translations), $translations);
 	}
 
 	/**
@@ -204,7 +225,7 @@ class Net_HTTP_UserAgent {
 	 * - webkit - A webkit-based browser (Chrome, Safari on iOS systems)
 	 * - chrome - Google's Chrome browser.
 	 * - ie - Internet Explorer on Windows or mobile devices.
-	 * - ie6/ie7/ie8/ie9/ie10 - Specific version if IE.
+	 * - ie6/ie7/ie8/ie9/ie10 - Specific version of IE.
 	 * - firefox - The FireFox browser.
 	 * - safari - Safari browser from Apple (any platform - including Windows.)
 	 * - mac - A browser running on a Macintosh computer running Mac OS.
@@ -212,16 +233,12 @@ class Net_HTTP_UserAgent {
 	 * - windows - A browser running on a Microsoft Windows system
 	 * - mac_intel - Intel-based Mac
 	 * - mac_ppc - PPC-based Mac (dinosaur)
-	 * - string - The original string passed into this function
+	 * - user_agent - The original string passed into this function
 	 *
-	 * @param string $check
-	 *        	Optional. Check for a specific setting in the user agent.
 	 * @param string $user_agent
-	 *        	Optional. The user agent to check. If unspecified, check the
-	 *        	$_SERVER['HTTP_USER_AGENT'].
 	 * @return array string
 	 */
-	public static function parse($user_agent) {
+	public static function parse(string $user_agent): array {
 		// Samples @todo Move to test
 		//
 		// 2012-11-08
@@ -239,18 +256,18 @@ class Net_HTTP_UserAgent {
 		//     Opera/9.80 (Macintosh; Intel Mac OS X 10.7.5; U; en) Presto/2.10.289 Version/12.02
 		$result['user_agent'] = $user_agent;
 
-		$result['string'] = $ua = strtolower($user_agent);
+		$result['low_user_agent'] = $ua = strtolower($user_agent);
 
 		$result['opera'] = (str_contains($ua, 'opera'));
 
 		$result['iphone'] = (str_contains($ua, 'iphone'));
 		$result['ipad'] = (str_contains($ua, 'ipad'));
 		$result['ios'] = $result['iphone'] || $result['ipad'] || (str_contains($ua, 'ios'));
-		foreach (to_list('5;6;7;8;9;10') as $v) {
+		foreach (['5', '6', '7', '8', '9', '10'] as $v) {
 			$result["ios${v}"] = $result['ios'] && (str_contains($ua, "os ${v}_"));
 		}
-		$result['webkit'] = str_contains($ua, 'applewebkit')  ;
-		$result['chrome'] = str_contains($ua, 'chrome/')  ;
+		$result['webkit'] = str_contains($ua, 'applewebkit');
+		$result['chrome'] = str_contains($ua, 'chrome/');
 
 		$result['ie10'] = !$result['opera'] && (str_contains($ua, 'msie 10'));
 		$result['ie9'] = !$result['opera'] && (str_contains($ua, 'msie 9'));
@@ -282,9 +299,9 @@ class Net_HTTP_UserAgent {
 	/**
 	 * Classify user agent
 	 *
-	 * @return unknown[]
+	 * @return array
 	 */
-	private function _classify() {
+	private function _classify(): array {
 		$result = [];
 		foreach (self::$classifications as $type => $tests) {
 			foreach ($tests as $check => $value) {

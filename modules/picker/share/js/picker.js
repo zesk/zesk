@@ -112,7 +112,7 @@
 				}, 500);
 			},
 			submit: function () {
-				$('.item:not(.selected) input', this.$results).remove();
+				$('.item:not(.selected) input', this.$results).keysRemove();
 				return true;
 			},
 			results_ready: function () {
@@ -138,7 +138,7 @@
 				this.refresh_state();
 			},
 			results_clear: function () {
-				$('.item:not(.selected)', this.$results).remove();
+				$('.item:not(.selected)', this.$results).keysRemove();
 				this.refresh_state();
 			},
 			results_success: function (q, data) {
@@ -193,7 +193,7 @@
 	};
 	$[plugin_name] = function () {
 		$('.control-picker-state.selectable .item.selected').off("click.picker").on("click.picker", function () {
-			$(this).remove();
+			$(this).keysRemove();
 		});
 	};
 	$(exports.document).ready(function () {

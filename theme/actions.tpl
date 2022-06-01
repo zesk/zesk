@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -19,11 +19,11 @@ if (!is_array($content)) {
 }
 $buttons = [];
 $ref_name = $this->get('referrer_query_string_name', 'ref');
-$add_ref = $this->getb('add_ref');
+$add_ref = $this->getBool('add_ref');
 foreach ($content as $href => $attrs) {
-	$qs = URL::query_parse_url($href);
+	$qs = URL::queryParseURL($href);
 	if ($add_ref && !array_key_exists($ref_name, $qs)) {
-		$href = URL::query_format($href, [
+		$href = URL::queryFormat($href, [
 			$ref_name => $this->ref,
 		]);
 	}
@@ -48,7 +48,7 @@ foreach ($content as $href => $attrs) {
 		$title = avalue($attrs, 'title');
 		$tag_attrs['title'] = avalue($attrs, 'a_title', $title);
 		$class = avalue($attrs, 'class', $class);
-		$class = CSS::add_class($class, avalue($attrs, '+class'));
+		$class = CSS::addClass($class, avalue($attrs, '+class'));
 	}
 	$visible = avalue($attrs, 'visible', true);
 	if (!$visible) {
@@ -67,4 +67,4 @@ foreach ($content as $href => $attrs) {
 		$buttons[] = HTML::tag($type, $tag_attrs + $input_data_attrs, $title);
 	}
 }
-echo HTML::etag('div', CSS::add_class('.actions', $this->class), implode("\n", $buttons));
+echo HTML::etag('div', CSS::addClass('.actions', $this->class), implode("\n", $buttons));

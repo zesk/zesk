@@ -5,7 +5,7 @@
  * http://stackoverflow.com/questions/149600/php-code-formatter-beautifier-and-php-beautification-in-general
  *
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 

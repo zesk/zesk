@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 /**
@@ -101,8 +103,8 @@ class IPv4 {
 	/**
 	 * Returns integer value of subnet
 	 *
-	 * @param integer $ip_bits
-	 *        	Number of bits between 0 and 32
+	 * @param int $ip_bits
+	 *            Number of bits between 0 and 32
 	 * @return integer
 	 */
 	public static function subnet_mask($ip_bits) {
@@ -113,8 +115,8 @@ class IPv4 {
 	/**
 	 * Returns integer value of subnet available bits
 	 *
-	 * @param integer $ip_bits
-	 *        	Number of bits between 0 and 32
+	 * @param int $ip_bits
+	 *            Number of bits between 0 and 32
 	 * @return integer
 	 */
 	public static function subnet_mask_not($ip_bits) {
@@ -125,8 +127,8 @@ class IPv4 {
 	/**
 	 * Given an IP integer address, convert to "low" IP integer in subnet
 	 *
-	 * @param integer $ip_integer
-	 * @param integer $ip_bits
+	 * @param int $ip_integer
+	 * @param int $ip_bits
 	 * @return integer
 	 */
 	public static function subnet_bits($ip_integer, $ip_bits) {
@@ -204,13 +206,13 @@ class IPv4 {
 	/**
 	 * Convert an integer IP and number of bits to its equivalent string representation
 	 *
-	 * @param integer $ip
-	 *        	An IP integer
-	 * @param integer $ip_bits
-	 *        	An IP number of bits in the mask (from 0 to 32)
+	 * @param int $ip
+	 *            An IP integer
+	 * @param int $ip_bits
+	 *            An IP number of bits in the mask (from 0 to 32)
 	 * @param boolean $star_notation
-	 *        	When true, returns masks of 8, 16 and 24 bits using stars instead of slashes, e.g.
-	 *        	"192.168.*"
+	 *            When true, returns masks of 8, 16 and 24 bits using stars instead of slashes, e.g.
+	 *            "192.168.*"
 	 * @return string An IP and subnet notation string
 	 */
 	public static function mask_to_string($ip, $ip_bits = self::BITS, $star_notation = true) {
@@ -234,7 +236,7 @@ class IPv4 {
 	 * list($low_ip, $high_ip) = self::network("192.168.0.0/24");
 	 *
 	 * @param string $network
-	 *        	An IP network string (see self::mask_to_integers)
+	 *            An IP network string (see self::mask_to_integers)
 	 * @return array of
 	 * @see self::mask_to_integers
 	 */
@@ -293,7 +295,7 @@ class IPv4 {
 	 * Convert a big-endian long integer into an IP address
 	 *
 	 * @param double $ip_integer
-	 *        	A long integer
+	 *            A long integer
 	 * @return string An ip address
 	 */
 	public static function from_integer(mixed $ip_integer): string {
@@ -322,7 +324,7 @@ class IPv4 {
 	 * Internal function to check IP address with optional check for final IP byte to be 0 or another number (usually 1)
 	 *
 	 * @param string $string
-	 * @param integer $low_low
+	 * @param int $low_low
 	 * @return boolean
 	 */
 	private static function _valid(string $string, int $low_low = 0): bool {
@@ -331,7 +333,7 @@ class IPv4 {
 			return false;
 		}
 		[$a, $b, $c, $d] = $x;
-		return integer_between(1, $a, 255) && integer_between(0, $b, 255) && integer_between(0, $c, 255) && integer_between($low_low, $d, 255);
+		return integer_between(1, intval($a), 255) && integer_between(0, intval($b), 255) && integer_between(0, intval($c), 255) && integer_between($low_low, intval($d), 255);
 	}
 
 	/**

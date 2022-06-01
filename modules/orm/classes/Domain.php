@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 /**
@@ -39,9 +41,9 @@ class Domain extends ORM {
 	 */
 	public static function cron_hour(Application $application): void {
 		foreach ([
-			self::url_public_suffix_list => self::public_suffix_list_file($application->paths),
-			self::url_tlds_by_alpha => self::tlds_by_alpha_file($application->paths),
-		] as $url => $path) {
+					 self::url_public_suffix_list => self::publicSuffixListFile($application->paths),
+					 self::url_tlds_by_alpha => self::tldByAlphaFile($application->paths),
+				 ] as $url => $path) {
 			Net_Sync::url_to_file($application, $url, $path);
 		}
 	}
@@ -51,7 +53,7 @@ class Domain extends ORM {
 	 * @param Command_ORM_Schema $command
 	 */
 	public static function schema_updated(Application $application): void {
-		self::update_data_files($application);
+		self::updateDataFiles($application);
 	}
 
 	/**
@@ -59,11 +61,11 @@ class Domain extends ORM {
 	 * @param string $name
 	 * @return \zesk\Domain
 	 */
-	public static function domain_factory(Application $application, $name) {
+	public static function domain_factory(Application $application, string $name): self {
 		$domain = $application->orm_factory(__CLASS__, [
 			'name' => $name,
 		]);
-		return $domain->name_changed();
+		return $domain->nameChanged();
 	}
 
 	/**
@@ -71,8 +73,8 @@ class Domain extends ORM {
 	 *
 	 * @return \zesk\Domain
 	 */
-	protected function name_changed() {
-		$this->tld = $this->compute_tld();
+	protected function nameChanged() {
+		$this->tld = $this->computeTLD();
 		return $this;
 	}
 
@@ -82,7 +84,7 @@ class Domain extends ORM {
 	 * @see \zesk\ORM::store()
 	 */
 	public function store(): self {
-		$this->tld = $this->compute_tld();
+		$this->tld = $this->computeTLD();
 		return parent::store();
 	}
 
@@ -90,9 +92,9 @@ class Domain extends ORM {
 	 *
 	 * @return string
 	 */
-	public function compute_cookie_domain() {
+	public function computeCookieDomain(): string {
 		if (!self::$public_tlds) {
-			$this->load_public_tlds();
+			$this->loadPublicTLDs();
 		}
 		$server = $this->name;
 		$x = explode('.', strrev(strtolower($server)), 4);
@@ -115,9 +117,9 @@ class Domain extends ORM {
 	 *
 	 * @return string
 	 */
-	public function compute_tld() {
+	public function computeTLD(): string {
 		if (!self::$public_tlds) {
-			$this->load_public_tlds();
+			$this->loadPublicTLDs();
 		}
 		$server = $this->name;
 		$x = explode('.', strrev(strtolower($server)), 4);
@@ -138,25 +140,25 @@ class Domain extends ORM {
 	/**
 	 * @return string
 	 */
-	private static function public_suffix_list_file(Paths $paths) {
+	private static function publicSuffixListFile(Paths $paths): string {
 		return $paths->zesk('etc/db/public-tlds.txt');
 	}
 
 	/**
 	 * @return string
 	 */
-	private static function tlds_by_alpha_file(Paths $paths) {
+	private static function tldByAlphaFile(Paths $paths): string {
 		return $paths->zesk('etc/db/tlds.txt');
 	}
 
 	/**
 	 * Update our data files from our remote URLs
 	 */
-	private static function update_data_files(Application $application): void {
+	private static function updateDataFiles(Application $application): void {
 		foreach ([
-			self::url_public_suffix_list => self::public_suffix_list_file($application->paths),
-			self::url_tlds_by_alpha => self::tlds_by_alpha_file($application->paths),
-		] as $url => $path) {
+					 self::url_public_suffix_list => self::publicSuffixListFile($application->paths),
+					 self::url_tlds_by_alpha => self::tldByAlphaFile($application->paths),
+				 ] as $url => $path) {
 			Net_Sync::url_to_file($application, $url, $path);
 		}
 	}
@@ -166,8 +168,8 @@ class Domain extends ORM {
 	 * @return string[]
 	 * Load the public TLDs from the file
 	 */
-	private function load_public_tlds() {
-		$contents = strtolower(File::contents(self::public_suffix_list_file($this->application->paths), self::default_public_suffix_list_file));
-		self::$public_tlds = ArrayTools::flip_copy(ArrayTools::trim_clean(explode("\n", Text::remove_line_comments($contents, '//'))));
+	private function loadPublicTLDs(): void {
+		$contents = strtolower(File::contents(self::publicSuffixListFile($this->application->paths)));
+		self::$public_tlds = ArrayTools::valuesFlipCopy(ArrayTools::listTrimClean(explode("\n", Text::remove_line_comments($contents, '//'))));
 	}
 }

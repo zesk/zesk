@@ -14,8 +14,8 @@ $object = $this->object;
 
 /* @var $data Interface_Data */
 $data = $this->data;
-$feed_update_frequency = $this->geti('feed_update_frequency', 600);
-$limit = $this->geti('limit', null);
+$feed_update_frequency = $this->getInt('feed_update_frequency', 600);
+$limit = $this->getInt('limit', null);
 if ($limit <= 0) {
 	$application->logger->warning('Limit passed to {file} is <= 0 ({limit}), assuming no limit', [
 		'file' => __FILE__,
@@ -36,7 +36,7 @@ if ($data instanceof Interface_Data) {
 $now = Timestamp::now();
 
 if ($content && $updated instanceof Timestamp) {
-	$expires = $updated->add_unit($feed_update_frequency, Timestamp::UNIT_SECOND);
+	$expires = $updated->addUnit($feed_update_frequency, Timestamp::UNIT_SECOND);
 	if ($expires->before($now)) {
 		$data->delete_data([
 			$prefix . 'content',
@@ -49,7 +49,7 @@ if ($content && $updated instanceof Timestamp) {
 
 /* @var $attempted Timestamp */
 $attempted = $data->data($prefix . 'attempted');
-if ($attempted instanceof Timestamp && $attempted->add_unit(60, Timestamp::UNIT_SECOND)->after($now)) {
+if ($attempted instanceof Timestamp && $attempted->addUnit(60, Timestamp::UNIT_SECOND)->after($now)) {
 	$application->logger->warning('Only attempt download once a minute - waiting {n_seconds} {seconds}', [
 		'n_seconds' => $n_seconds = $attempted->difference($now),
 		'seconds' => $locale->plural($locale->__('second'), $n_seconds),

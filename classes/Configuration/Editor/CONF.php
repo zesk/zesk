@@ -13,7 +13,7 @@ namespace zesk;
  * @package zesk
  * @subpackage system
  * @author $Author: kent $
- * @copyright Copyright &copy; 2011, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 class Configuration_Editor_CONF extends Configuration_Editor {
 	/**
@@ -25,7 +25,7 @@ class Configuration_Editor_CONF extends Configuration_Editor {
 	 */
 	public function edit(array $edits) {
 		$parser = new Configuration_Parser_CONF('', null, $this->options);
-		$low_edits = ArrayTools::flip_copy(array_keys($edits), true);
+		$low_edits = ArrayTools::valuesFlipCopy(array_keys($edits), true);
 		$new_lines = [];
 		$lines = explode("\n", $this->content);
 		foreach ($lines as $line) {

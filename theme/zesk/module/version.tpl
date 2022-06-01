@@ -18,7 +18,7 @@ if ($object instanceof Module) {
 	}
 	echo $locale->__('{name} (<code>{codename}</code>) version {version}', [
 		'name' => $object->name(),
-		'codename' => $object->codename(),
+		'codename' => $object->codeName(),
 		'version' => $version,
 	]);
 }

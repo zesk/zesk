@@ -16,7 +16,7 @@ class Control_Currency extends Control_Select_ORM {
 			->what_object()
 			->order_by('name')
 			->orm_iterator() as $object) {
-			$options[$object->id()] = $object->apply_map([
+			$options[$object->id()] = $object->applyMap([
 				'label' => '{name} ({symbol})',
 				'data-symbol' => '{symbol}',
 				'data-format' => '{format}',

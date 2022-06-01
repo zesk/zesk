@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage contact
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 class Contact_Label_Bootstrap {
@@ -111,8 +113,8 @@ class Contact_Label_Bootstrap {
 				Contact_Label::LabelType_Date,
 			],
 		];
-		$clg_exists = $application->orm_registry(Contact_Label_Group::class)->table_exists();
-		$cl_exists = $application->orm_registry(Contact_Label::class)->table_exists();
+		$clg_exists = $application->orm_registry(Contact_Label_Group::class)->tableExists();
+		$cl_exists = $application->orm_registry(Contact_Label::class)->tableExists();
 		if (!$clg_exists || !$cl_exists) {
 			return '';
 		}
@@ -128,7 +130,7 @@ class Contact_Label_Bootstrap {
 				'Group' => $group_name,
 			]);
 			if (!$label->exists()) {
-				$result[] = $label->insert_sql();
+				$result[] = $label->store()->id();
 			}
 		}
 		if (count($result) === 0) {

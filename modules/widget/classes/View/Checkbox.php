@@ -3,13 +3,13 @@
  * @package zesk
  * @subpackage widgets
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Sun Apr 04 21:25:31 EDT 2010 21:25:31
  */
 namespace zesk;
 
 class View_Checkbox extends View {
-	public function render() {
+	public function render(): string {
 		$true_value = $this->option('true_value', $this->option('truevalue', true));
 		//		$false_value	= $this->option("false_value", $this->option("falsevalue", true));
 		$ts = $this->option('true_string', $this->option('truestring', 'Yes'));
@@ -22,9 +22,9 @@ class View_Checkbox extends View {
 				$is_true = ($v !== null);
 			}
 		} else {
-			$is_true = to_bool($v) == to_bool($true_value);
+			$is_true = toBool($v) == toBool($true_value);
 		}
 		$result = $is_true ? $ts : $fs;
-		return $this->object->apply_map($result);
+		return $this->object->applyMap($result);
 	}
 }

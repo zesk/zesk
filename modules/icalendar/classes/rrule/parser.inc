@@ -5,7 +5,7 @@ declare(strict_types=1);
  * Implementation of iCalendar RRULE
  *
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  *
  * http://www.ietf.org/rfc/rfc2445.txt
  *
@@ -165,7 +165,7 @@ class Parser {
 					$rset->$method($value);
 				} elseif (is_string($mixed) || is_numeric($mixed)) {
 					$ts = Timestamp::factory($mixed, $time_zone);
-					if (!$ts->is_empty()) {
+					if (!$ts->isEmpty()) {
 						throw new Exception_Syntax('{tag} value of {value} is not a valid date (empty timestamp)', [
 							'tag' => strtoupper($method),
 							'value' => $mixed,

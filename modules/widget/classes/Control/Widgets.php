@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage control
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -46,7 +46,7 @@ class Control_Widgets extends Control {
 		parent::initialize();
 	}
 
-	protected function validate() {
+	protected function validate(): bool {
 		$valid = true;
 		foreach ($this->children as $w) {
 			/* @var $w Widget */

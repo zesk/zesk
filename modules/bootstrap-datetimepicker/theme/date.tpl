@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -20,16 +20,16 @@ if (empty($id)) {
 $zformat = $this->get('format', '{YYYY}-{MM}-{DD}');
 $value = Timestamp::factory($value)->date()->format($locale, $zformat);
 
-$inline = $this->getb('inline');
+$inline = $this->getBool('inline');
 
 echo $this->theme('zesk/control/text', [
 	'value' => $value,
 	'onchange' => null,
-	'class' => $inline ? CSS::add_class($this->class, 'hidden') : $this->class,
+	'class' => $inline ? CSS::addClass($this->class, 'hidden') : $this->class,
 ]);
 
 $options = $this->get([
-	'inline' => $this->getb('inline'),
+	'inline' => $this->getBool('inline'),
 	'format' => 'YYYY-MM-DD',
 	'toolbarPlacement' => 'bottom',
 	'showTodayButton' => true,

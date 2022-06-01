@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage sqlite3
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace sqlite3;
 
@@ -24,7 +24,7 @@ class Module extends \zesk\Module {
 
 		$module = $this->application->database_module();
 
-		$module->register_scheme('sqlite', Database::class);
-		$module->register_scheme('sqlite3', Database::class);
+		$module->registerScheme('sqlite', Database::class);
+		$module->registerScheme('sqlite3', Database::class);
 	}
 }

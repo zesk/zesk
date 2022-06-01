@@ -147,7 +147,7 @@ abstract class Command_Base extends Command {
 	/**
 	 */
 	public function action_debug_configured($exit = true) {
-		require_once($this->application->zesk_home('command/config.php'));
+		require_once($this->application->zeskHome('command/config.php'));
 		$config = new Command_Config($this->application, [], $this->options());
 		$result = $config->run();
 		if ($exit) {

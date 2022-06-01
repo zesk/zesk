@@ -4,13 +4,13 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2006, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
 
 class View_Currency extends View {
-	public function render() {
+	public function render(): string {
 		$v = $this->value();
 		if (is_numeric($v)) {
 			$v = floatval($v);
@@ -38,7 +38,7 @@ class View_Currency extends View {
 			$view->setOption('currency', $currency);
 		}
 		$request = $application->request() ?? Request::factory($application, 'http://test/');
-		$view->response($application->response_factory($request));
+		$view->response($application->responseFactory($request));
 		$view->request($request);
 		return $view->execute($model);
 	}

@@ -97,7 +97,7 @@ class Control_OrderBy extends Control {
 		if ($list_order_by === true) {
 			$this->list_order_by($this->column());
 		}
-		$cur_sort_names = ArrayTools::clean($this->request->geta($this->list_order_variable(), [], ';'), ['', null]);
+		$cur_sort_names = ArrayTools::clean($this->request->getArray($this->list_order_variable(), [], ';'), ['', null]);
 		$k = $this->list_order_column();
 		$order_var = $this->list_order_variable();
 		$new_order = [];
@@ -146,7 +146,7 @@ class Control_OrderBy extends Control {
 		if ($multisort) {
 			$new_key = implode(';', $new_order);
 			$remove_order = implode(';', $remove_order);
-			$remove_url = URL::query_format($this->option('URI', $this->request->uri()), [
+			$remove_url = URL::queryFormat($this->option('URI', $this->request->uri()), [
 				$order_var => $remove_order,
 			]);
 			$sort_number = ($sort_index !== null) ? HTML::tag('div', [
@@ -158,7 +158,7 @@ class Control_OrderBy extends Control {
 		$new_query = [
 			$order_var => $new_key,
 		];
-		$this->theme_variables['orderby_url'] = URL::query_format($this->option('URI', $this->request->uri()), $new_query);
+		$this->theme_variables['orderby_url'] = URL::queryFormat($this->option('URI', $this->request->uri()), $new_query);
 
 		$this->theme_variables['list_order_column'] = $k;
 		$this->theme_variables['list_order_variable'] = $order_var;

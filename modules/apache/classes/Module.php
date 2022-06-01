@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage system
  * @author Kent M. Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Apache;
 
@@ -42,7 +42,7 @@ class Module extends \zesk\Module {
 		}
 		$mtime = filemtime($this->application->template->find_path('htaccess.tpl'));
 		$htaccess_name = $this->option('htaccess_name', '.htaccess');
-		$index_file = $this->option_list('directory_index', 'index.php', ' ');
+		$index_file = $this->optionIterable('directory_index', 'index.php', ' ');
 		$file = path($docroot, $htaccess_name);
 		$file_mtime = is_file($file) ? filemtime($file) : null;
 		if ($mtime < $file_mtime) {

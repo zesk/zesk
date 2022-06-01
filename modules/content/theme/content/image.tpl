@@ -23,10 +23,10 @@ try {
 		if (true) {
 			$src = Controller_Content_Cache::url_content_image_scaled($image, $this->width, $this->height);
 			if ($this->has('image_src_query_append')) {
-				$src = URL::query_append($src, $this->image_src_query_append);
+				$src = URL::queryAppend($src, $this->image_src_query_append);
 			}
 			// 	echo HTML::tag('img', )
-			$attributes = $this->geta('attributes') + [
+			$attributes = $this->getArray('attributes') + [
 				'src' => $src,
 			] + $this->variables;
 			echo HTML::div('.content-image', HTML::tag('img', ArrayTools::filter($attributes, 'id;class;src;width;height;alt;title')));

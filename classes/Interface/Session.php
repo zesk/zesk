@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -23,50 +25,52 @@ interface Interface_Session extends Interface_Settings {
 	 * Configure session connected to the Request
 	 * @return self
 	 */
-	public function initialize_session(Request $request);
+	public function initializeSession(Request $request): self;
 
 	/**
 	 * Retrieve a unique value for this session
-	 * @return mixed The unique ID of this session
+	 * @return int|string|array The unique ID of this session
 	 */
-	public function id();
+	public function id(): int|string|array;
 
 	/**
 	 * Authenticate a user in the system as being tied to this session. Optionally give the IP address
 	 *
-	 * @param mixed $id The user identifier
-	 * @param integer $ip The ip address
+	 * @param User $user The user identifier
+	 * @param string $ip The ip address (optional)
 	 * @return void
+	 * @throws Exception_Authentication
 	 */
-	public function authenticate($mixed, $ip = false): void;
+	public function authenticate(User $user, string $ip = ''): void;
 
 	/**
 	 * User currently authenticated?
 	 *
 	 * @return boolean
 	 */
-	public function authenticated();
+	public function authenticated(): bool;
 
 	/**
 	 * Unauthorize current user
+	 * @return void
 	 */
-	public function deauthenticate();
+	public function deauthenticate(): void;
 
 	/**
 	 * Retrieve user identifier
-	 * @return mixed User identifier, or null if not set
+	 * @return int User ID
+	 * @throws Exception_NotFound
 	 */
-	public function user_id();
+	public function userId(): int;
 
 	/**
 	 * Retrieve user
 	 * @return User User object
 	 */
-	public function user();
+	public function user(): User;
 
 	/**
-	 *
-	 * @param Response $response Optional response to set cookies
+	 * Delete the session
 	 */
-	public function delete();
+	public function delete(): void;
 }

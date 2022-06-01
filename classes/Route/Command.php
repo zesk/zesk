@@ -13,7 +13,7 @@ class Route_Command extends Route {
 		$debug = $this->optionBool('debug');
 
 		$command = avalue($this->original_options, 'command');
-		$args = $this->option_array('arguments', []);
+		$args = $this->optionArray('arguments', []);
 
 		$command = map($command, $this->named);
 		$args = map($args, $this->args + $this->named);
@@ -24,7 +24,7 @@ class Route_Command extends Route {
 				'args' => $args,
 			]);
 		}
-		$theme_arguments = $this->option_array('theme arguments', []);
+		$theme_arguments = $this->optionArray('theme arguments', []);
 
 		try {
 			$result = $app->process->execute_arguments($command, $args);

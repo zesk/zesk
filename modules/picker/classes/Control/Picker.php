@@ -94,7 +94,7 @@ class Control_Picker extends Control {
 	protected $data_search = [];
 
 	public function where(array $set = null) {
-		return $set ? $this->setOption('where', $set) : $this->option_array('where');
+		return $set ? $this->setOption('where', $set) : $this->optionArray('where');
 	}
 
 	public function data_search(array $set = null, $add = false) {
@@ -128,18 +128,18 @@ class Control_Picker extends Control {
 		}
 		$hierarchy = $this->application->classes->hierarchy($this, __CLASS__);
 		if ($this->theme_item_selector === null) {
-			$this->theme_item_selector = ArrayTools::suffix($hierarchy, '/selector');
+			$this->theme_item_selector = ArrayTools::suffixValues($hierarchy, '/selector');
 		}
 		if ($this->theme_item === null) {
-			$this->theme_item = ArrayTools::suffix($hierarchy, '/item');
+			$this->theme_item = ArrayTools::suffixValues($hierarchy, '/item');
 		}
 		if ($this->theme_item_search === null) {
-			$this->theme_item_search = ArrayTools::suffix($hierarchy, '/search');
+			$this->theme_item_search = ArrayTools::suffixValues($hierarchy, '/search');
 		}
 	}
 
 	public function inline_picker($set = null) {
-		return $set !== null ? $this->setOption('inline_picker', to_bool($set)) : $this->optionBool('inline_picker');
+		return $set !== null ? $this->setOption('inline_picker', toBool($set)) : $this->optionBool('inline_picker');
 	}
 
 	public function search_columns($set = null) {
@@ -166,7 +166,7 @@ class Control_Picker extends Control {
 	}
 
 	public function selectable($set = null) {
-		return $set === null ? $this->optionBool('selectable', true) : $this->setOption('selectable', to_bool($set));
+		return $set === null ? $this->optionBool('selectable', true) : $this->setOption('selectable', toBool($set));
 	}
 
 	public function hook_render(): void {
@@ -176,12 +176,12 @@ class Control_Picker extends Control {
 	}
 
 	public function single_item($set = null) {
-		return $set === null ? $this->optionBool('single_item', $set) : $this->setOption('single_item', to_bool($set));
+		return $set === null ? $this->optionBool('single_item', $set) : $this->setOption('single_item', toBool($set));
 	}
 
 	protected function load(): void {
 		$object = $this->object;
-		$input_name = $object->apply_map($this->name());
+		$input_name = $object->applyMap($this->name());
 		if (!$this->request->has($input_name)) {
 			$object->__set($this->column(), null);
 		} elseif ($this->single_item()) {
@@ -202,7 +202,7 @@ class Control_Picker extends Control {
 		]);
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		$locale = $this->application->locale;
 		$class_object = $this->application->class_orm_registry($this->class);
 		$name = $locale->lower($locale($class_object->name));
@@ -225,7 +225,7 @@ class Control_Picker extends Control {
 			'list_tag' => $this->list_tag,
 			'list_attributes' => $this->list_attributes,
 			'data_search' => $this->data_search,
-			'where' => $this->option_array('where'),
+			'where' => $this->optionArray('where'),
 			'label_save' => $locale('Add selected {names}', [
 				'names' => $names,
 			]),
@@ -235,16 +235,16 @@ class Control_Picker extends Control {
 		] + $this->options_include([
 			'item_selector_none_selected',
 			'item_selector_empty',
-		]) + parent::theme_variables();
+		]) + parent::themeVariables();
 	}
 
 	public function controller() {
 		$response = $this->response();
 		$action = $this->request->get('action');
-		$variables = $this->theme_variables();
+		$variables = $this->themeVariables();
 		if ($action === 'selector') {
 			$content = $this->application->theme($this->theme_item_selector, [
-				'value' => $this->request->geta($this->column()),
+				'value' => $this->request->getArray($this->column()),
 			] + $variables, [
 				'first' => true,
 			]);
@@ -259,7 +259,7 @@ class Control_Picker extends Control {
 				'status' => true,
 			] + $response->html()->to_json());
 		} elseif ($action === 'submit') {
-			$response->json()->data($this->submit_results($response, $variables, $this->request->geta($this->column())) + [
+			$response->json()->data($this->submit_results($response, $variables, $this->request->getArray($this->column())) + [
 				'status' => true,
 			] + $response->html()
 				->to_json());
@@ -268,7 +268,7 @@ class Control_Picker extends Control {
 	}
 
 	private function submit_results(Response $response, array $variables, array $ids) {
-		$iter = $this->_query()->where('X.' . $this->class_object->id_column, $ids)->orm_iterator();
+		$iter = $this->_query()->addWhere('X.' . $this->class_object->id_column, $ids)->orm_iterator();
 		$content = '';
 		foreach ($iter as $object) {
 			$content .= $this->application->theme($this->theme_item, [
@@ -352,7 +352,7 @@ class Control_Picker extends Control {
 		return HTML::tag('form', [
 			'method' => 'post',
 			'class' => 'control-picker-selector',
-			'action' => URL::query_remove($this->request->uri(), 'widget::target;action;q'),
+			'action' => URL::queryKeysRemove($this->request->uri(), 'widget::target;action;q'),
 		] + $this->form_attributes, $content . HTML::input_hidden('action', 'submit') . HTML::input_hidden('widget::target', $this->request->get('widget::target')));
 	}
 }

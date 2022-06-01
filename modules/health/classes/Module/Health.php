@@ -95,10 +95,10 @@ class Module_Health extends Module {
 	 *
 	 * https://wiki.php.net/rfc/deprecations_php_7_2
 	 *
-	 * @param integer $errno
+	 * @param int $errno
 	 * @param string $errstr
 	 * @param string $errfile
-	 * @param integer $errline
+	 * @param int $errline
 	 * @return void|mixed|boolean
 	 */
 	public function error_handler($errno, $errstr, $errfile, $errline) {
@@ -135,7 +135,7 @@ class Module_Health extends Module {
 		if ($set === null) {
 			return $this->disabled;
 		}
-		$this->disabled = to_bool($set);
+		$this->disabled = toBool($set);
 		return $this;
 	}
 
@@ -207,12 +207,12 @@ class Module_Health extends Module {
 		if ($fatal_hours > 0) {
 			$this->purge_event_types($class, $date_column, [
 				'fatal' => true,
-			], Timestamp::now()->add_unit(-abs($fatal_hours), Timestamp::UNIT_HOUR), 'fatal');
+			], Timestamp::now()->addUnit(-abs($fatal_hours), Timestamp::UNIT_HOUR), 'fatal');
 		}
 		if ($non_fatal_hours > 0) {
 			$this->purge_event_types($class, $date_column, [
 				'fatal' => false,
-			], Timestamp::now()->add_unit(-abs($non_fatal_hours), Timestamp::UNIT_HOUR), 'non-fatal');
+			], Timestamp::now()->addUnit(-abs($non_fatal_hours), Timestamp::UNIT_HOUR), 'non-fatal');
 		}
 	}
 
@@ -222,7 +222,7 @@ class Module_Health extends Module {
 		]);
 		$delete->execute();
 		$this->application->logger->warning('Deleted {description} {n} {classes} older than {when}', [
-			'n' => $nrows = $delete->affected_rows(),
+			'n' => $nrows = $delete->affectedRows(),
 			'description' => $description,
 			'classes' => $this->application->locale->plural($class, $nrows),
 			'when' => $when,

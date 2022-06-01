@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -39,7 +39,7 @@ $array_index = $widget->option('array_index');
 if ($array_index !== false && is_array($value)) {
 	$value = avalue($value, $array_index);
 }
-$optgroup = to_bool($this->optgroup);
+$optgroup = toBool($this->optgroup);
 unset($attributes['name']);
 if ($widget->is_single()) {
 	reset($options);
@@ -49,7 +49,7 @@ if ($widget->is_single()) {
 		$single_tag_contents = current($options);
 		$single_tag = $widget->option('single_tag', '');
 		if ($single_tag) {
-			$single_tag_contents = HTML::tag($single_tag, $widget->option_array('single_tag_attributes', []), $single_tag_contents);
+			$single_tag_contents = HTML::tag($single_tag, $widget->optionArray('single_tag_attributes', []), $single_tag_contents);
 		}
 	}
 	if (!$value) {
@@ -64,8 +64,8 @@ if ($widget->is_single()) {
 }
 $escape_values = $this->escape_values;
 $escape_option_group_values = $widget->optionBool('escape_option_group_values', true);
-$attributes = $object->apply_map($attributes);
-$attributes['class'] = CSS::add_class(avalue($attributes, 'class'), 'form-control');
+$attributes = $object->applyMap($attributes);
+$attributes['class'] = CSS::addClass(avalue($attributes, 'class'), 'form-control');
 $attributes['name'] = $name . ($multiple ? '[]' : '');
 $attributes['id'] = $this->id;
 $attributes['multiple'] = $multiple;

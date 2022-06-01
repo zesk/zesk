@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -11,23 +13,33 @@ namespace zesk;
  */
 class Control_Content_Image extends Control {
 	public function initialize(): void {
-		$this->upload(true);
+		$this->setUpload(true);
 		parent::initialize();
 	}
 
-	public function allowed_mime_types($set = null) {
-		if ($set !== null) {
-			$this->setOption('allowed_mime_types', to_list($set));
-			return $this;
-		}
-		return $this->option_array('allowed_mime_types', [
+	/**
+	 * @return array
+	 */
+	public function allowedMimeTypes(): array {
+		return $this->optionArray('allowed_mime_types', [
 			'image/jpeg',
 			'image/gif',
 			'image/png',
 		]);
 	}
 
-	protected function model() {
+	/**
+	 * @param array|string $set
+	 * @return $this
+	 */
+	public function setAllowedMimeType(array|string $set): self {
+		return $this->setOption('allowed_mime_types', toList($set));
+	}
+
+	/**
+	 * @return ORM
+	 */
+	protected function model(): ORM {
 		return new Content_Image($this->application);
 	}
 
@@ -42,7 +54,7 @@ class Control_Content_Image extends Control {
 		} elseif (!$value instanceof Content_Image) {
 			return null;
 		}
-		if ($value === null || !$this->user_can('edit', $value)) {
+		if (!$this->userCan('edit', $value)) {
 			return null;
 		}
 		return $value;
@@ -58,10 +70,11 @@ class Control_Content_Image extends Control {
 	}
 
 	/**
-	 * (non-PHPdoc)
+	 * @return bool
+	 * @throws Exception_Key
 	 * @see Widget::validate()
 	 */
-	protected function validate() {
+	protected function validate(): bool {
 		try {
 			$data = $this->request->file($this->name());
 		} catch (Exception_Upload $e) {
@@ -73,17 +86,13 @@ class Control_Content_Image extends Control {
 			$this->error($e->getMessage());
 			return false;
 		}
-		if ($data === null) {
-			return $this->validate_required();
-		}
-		$name = $type = $size = $tmp_name = null;
-		extract($data, EXTR_IF_EXISTS);
-
-		$allowed = $this->allowed_mime_types();
+		$name = $data['name'] ?? '';
+		$type = $data['type'] ?? '';
+		$allowed = $this->allowedMimeTypes();
 		if (!in_array($type, $allowed)) {
 			$type = MIME::from_filename($name);
 			if (!in_array($type, $allowed)) {
-				$this->error(__('Not allowed to upload files of that type.'));
+				$this->error($this->locale()->__('Not allowed to upload files of that type.'));
 				return false;
 			}
 		}
@@ -94,16 +103,15 @@ class Control_Content_Image extends Control {
 	 * (non-PHPdoc)
 	 * @see Widget::submit()
 	 */
-	public function submit() {
+	public function submit(): bool {
 		try {
 			$data = $this->request->file($this->name());
-			if ($data === null) {
-				return;
-			}
-			$name = $type = $size = $tmp_name = null;
 			extract($data, EXTR_IF_EXISTS);
-
-			$image = Content_Image::register_from_file($this->application, $tmp_name, [
+			$name = $data['name'] ?? '';
+			$tmp_name = $data['tmp_name'] ?? '';
+			// $type = $data['type'] ?? null;
+			// $size = $data['size'] ?? -1;
+			$image = Content_Image::registerFromFile($this->application, $tmp_name, [
 				'path' => File::name_clean($name),
 			]);
 			$this->value($image->id());
@@ -117,11 +125,11 @@ class Control_Content_Image extends Control {
 		return parent::submit();
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
-			'width' => $this->optionInt('width', 200),
-			'height' => $this->optionInt('height', 200),
-			'value' => $this->normalize(),
-		] + parent::theme_variables();
+				'width' => $this->optionInt('width', 200),
+				'height' => $this->optionInt('height', 200),
+				'value' => $this->normalize(),
+			] + parent::themeVariables();
 	}
 }

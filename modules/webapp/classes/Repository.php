@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage webapp
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\WebApp;
 
@@ -36,7 +36,7 @@ class Repository extends ORM {
 	public static function update_all_versions(Application $application, $only_if_empty = false): void {
 		$iterator = $application->orm_registry(__CLASS__)
 			->query_select()
-			->where('active', true)
+			->addWhere('active', true)
 			->orm_iterator();
 		foreach ($iterator as $repo) {
 			if (!$only_if_empty || empty($repo->versions)) {

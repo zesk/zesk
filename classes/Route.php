@@ -195,7 +195,7 @@ abstract class Route extends Hookable {
 
 		$this->compile_route_pattern($pattern);
 		$this->clean_pattern = $this->clean_pattern($pattern);
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 		$this->initialize();
 	}
 
@@ -250,7 +250,7 @@ abstract class Route extends Hookable {
 	 * @return double
 	 */
 	public function weight() {
-		return $this->option_double('weight', 0);
+		return $this->optionFloat('weight', 0);
 	}
 
 	/**
@@ -347,7 +347,7 @@ abstract class Route extends Hookable {
 		$C_QUOTED_WILDCARD = chr(0x04);
 
 		[$methods, $pattern] = pair($pattern, ':', 'GET|POST', $pattern);
-		$this->methods = ArrayTools::flip_assign(to_list($methods, [], '|'), true);
+		$this->methods = ArrayTools::keysFromValues(to_list($methods, [], '|'), true);
 		$replace = [];
 		$parameters = [];
 		$parameter_names = [];
@@ -497,7 +497,7 @@ abstract class Route extends Hookable {
 			if (method_exists($this, $method)) {
 				$arg = $this->$method($arg, $name);
 			} else {
-				$object = $application->model_factory($type);
+				$object = $application->modelFactory($type);
 				if ($object instanceof Model) {
 					$object = $object->call_hook_arguments('router_argument', [
 						$this,
@@ -540,7 +540,7 @@ abstract class Route extends Hookable {
 			}
 			$this->_handle_argument($index, $type_name);
 		}
-		$arguments = $this->option_list('arguments', null);
+		$arguments = $this->optionIterable('arguments', null);
 		if (is_array($arguments)) {
 			foreach ($arguments as $arg) {
 				$this->args[] = is_numeric($arg) ? avalue($this->url_args, $arg, null) : $arg;
@@ -677,10 +677,10 @@ abstract class Route extends Hookable {
 				'{route}' => $this,
 				'{router}' => $this->router,
 			];
-			$this->map_variables += ArrayTools::kwrap($request->variables(), '{request.', '}');
-			$this->map_variables += ArrayTools::kwrap($request->url_variables(), '{url.', '}');
+			$this->map_variables += ArrayTools::wrapKeys($request->variables(), '{request.', '}');
+			$this->map_variables += ArrayTools::wrapKeys($request->urlComponents(), '{url.', '}');
 		}
-		return ArrayTools::map_values($mixed, $this->map_variables);
+		return ArrayTools::valuesMap($mixed, $this->map_variables);
 	}
 
 	private function guess_content_type(): void {
@@ -694,11 +694,11 @@ abstract class Route extends Hookable {
 	 */
 	protected function _before() {
 		$application = $this->application;
-		$response = $application->response_factory($this->request, $this->guess_content_type());
+		$response = $application->responseFactory($this->request, $this->guess_content_type());
 		if ($this->hasOption('cache')) {
 			$cache = $this->option('cache');
 			if (is_scalar($cache)) {
-				if (to_bool($cache)) {
+				if (toBool($cache)) {
 					$response->cache_forever();
 				}
 			} elseif (is_array($cache)) {
@@ -757,10 +757,10 @@ abstract class Route extends Hookable {
 			$permissions[] = [
 				'action' => $this->option('permission'),
 				'context' => $this->option('permission context'),
-				'options' => $this->option_array('permission options'),
+				'options' => $this->optionArray('permission options'),
 			];
 		}
-		$permissions = array_merge($permissions, $this->option_array('permissions', []));
+		$permissions = array_merge($permissions, $this->optionArray('permissions', []));
 		$permissions = $this->_map_variables($permissions, $response);
 		$app = $this->router->application;
 		foreach ($permissions as $permission) {
@@ -835,11 +835,11 @@ abstract class Route extends Hookable {
 	 */
 	public function class_actions() {
 		if ($this->hasOption('class_actions')) {
-			return $this->option_array('class_actions');
+			return $this->optionArray('class_actions');
 		}
 		// $class_actions =
-		$classes = $this->option_list('classes');
-		$actions = $this->option_list('actions');
+		$classes = $this->optionIterable('classes');
+		$actions = $this->optionIterable('actions');
 		if (!$classes) {
 			return [];
 		}

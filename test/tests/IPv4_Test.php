@@ -40,7 +40,7 @@ class IPv4_Test extends Test_Unit {
 	}
 
 	public function test_mask_to_integers(): void {
-		$ips = file($this->application->zesk_home('test/test-data/ip.txt'));
+		$ips = file($this->application->zeskHome('test/test-data/ip.txt'));
 
 		$ip = '192.168.0.248';
 		[$a, $b] = IPv4::mask_to_integers("$ip/29");
@@ -155,7 +155,7 @@ class IPv4_Test extends Test_Unit {
 	}
 
 	public function test_subnet_bits(): void {
-		$ips = file($this->application->zesk_home('test/test-data/ip.txt'));
+		$ips = file($this->application->zeskHome('test/test-data/ip.txt'));
 		foreach ($ips as $ip) {
 			if (empty($ip)) {
 				continue;
@@ -281,6 +281,6 @@ class IPv4_Test extends Test_Unit {
 	 * @dataProvider data_within_network
 	 */
 	public function test_within_network($ip, $network, $result): void {
-		$this->assertEquals($result, IPv4::within_network($ip, $network), "IPv4::within_network($ip, $network) === " . StringTools::from_bool($result));
+		$this->assertEquals($result, IPv4::within_network($ip, $network), "IPv4::within_network($ip, $network) === " . StringTools::fromBool($result));
 	}
 }

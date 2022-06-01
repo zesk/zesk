@@ -59,7 +59,7 @@ class Command_Help extends Command_Base {
 			],
 			'rules_directory' => false,
 		];
-		$zesk_root = $this->application->zesk_home();
+		$zesk_root = $this->application->zeskHome();
 		$nocore = $this->optionBool('no-core');
 		foreach ($this->application->zesk_command_path() as $path => $prefix) {
 			$this->command_paths[] = $path;
@@ -78,7 +78,7 @@ class Command_Help extends Command_Base {
 	}
 
 	public function load_commands(array $command_files): void {
-		$declared_classes_before = ArrayTools::flip_assign(get_declared_classes(), true);
+		$declared_classes_before = ArrayTools::keysFromValues(get_declared_classes(), true);
 		foreach ($command_files as $path => $structure) {
 			[$prefix, $commands] = $structure;
 			foreach ($commands as $command) {
@@ -175,7 +175,7 @@ class Command_Help extends Command_Base {
 	}
 
 	public function save_aliases(array $aliases): bool {
-		$paths = $this->application->configure_include();
+		$paths = $this->application->configureInclude();
 		foreach ($paths as $index => $confpath) {
 			$paths[$index] = dirname($confpath);
 		}

@@ -118,7 +118,7 @@ class Module extends \zesk\Module {
 				}
 			}
 			$node_modules_map = apath($module, 'configuration.node_modules', []);
-			if (is_array($node_modules_map) && count($node_modules_map) > 0 && ArrayTools::is_assoc($node_modules_map)) {
+			if (is_array($node_modules_map) && count($node_modules_map) > 0 && ArrayTools::isAssoc($node_modules_map)) {
 				$result += $this->convert_application_path($command, $node_modules_map, "module $name");
 			}
 		}
@@ -165,10 +165,10 @@ class Module extends \zesk\Module {
 		$app_path = $this->application->path();
 		$map = [
 			'{application_home}' => $app_path,
-			'{zesk_home}' => $this->application->zesk_home(),
+			'{zesk_home}' => $this->application->zeskHome(),
 			/* @deprecated 2018-02 */
 			'{application_root}' => $app_path,
-			'{zesk_root}' => $this->application->zesk_home(),
+			'{zesk_root}' => $this->application->zeskHome(),
 		];
 		if ($context === null) {
 			$context = calling_function();
@@ -176,7 +176,7 @@ class Module extends \zesk\Module {
 		$result = [];
 		foreach ($items as $codename => $path) {
 			$mapped_path = map($path, $map);
-			if (!Directory::is_absolute($mapped_path)) {
+			if (!Directory::isAbsolute($mapped_path)) {
 				$mapped_path = path($app_path, $path);
 			}
 			if (!is_dir($mapped_path)) {

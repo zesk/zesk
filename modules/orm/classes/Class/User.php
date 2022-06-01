@@ -101,10 +101,10 @@ class Class_User extends Class_ORM {
 		}
 		$this->default_hash_method = strtolower($this->default_hash_method);
 		if ($this->hasOption('allowed_hash_methods')) {
-			$this->allowed_hash_methods = $this->option_array('allowed_hash_methods');
+			$this->allowed_hash_methods = $this->optionArray('allowed_hash_methods');
 		}
 		$this->allowed_hash_methods = array_filter($this->allowed_hash_methods, 'strtolower');
-		$algos = ArrayTools::flip_copy(hash_algos(), true);
+		$algos = ArrayTools::valuesFlipCopy(hash_algos(), true);
 		foreach ($this->allowed_hash_methods as $index => $name) {
 			if (!isset($algos[$name])) {
 				$this->application->logger->warning('Algorithm {algo} is not found in {algos}, removing', [

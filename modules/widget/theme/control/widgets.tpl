@@ -36,7 +36,7 @@ foreach ($this->children as $child) {
 		$label = '';
 	}
 	$widget_tag = $child->option('widget_tag', $this->get('widget_tag', 'div'));
-	$widget_attributes = HTML::add_class(to_array($this->widget_attributes), $child->context_class());
+	$widget_attributes = HTML::addClass(to_array($this->widget_attributes), $child->contextClass());
 
 	$cell = $results[$name . '.cell'] = empty($content) ? $content : HTML::tag($widget_tag, $widget_attributes, $label . $content);
 	$results[$name] = $content;
@@ -56,6 +56,6 @@ foreach ($this->children as $child) {
 	}
 }
 if ($this->theme_widgets) {
-	echo map($this->theme($this->theme_widgets), ArrayTools::flatten(ArrayTools::kprefix($results, 'widget.') + ArrayTools::kprefix($this->variables, 'template.') + ArrayTools::kprefix($this->object->variables(), 'object.')));
+	echo map($this->theme($this->theme_widgets), ArrayTools::flatten(ArrayTools::prefixKeys($results, 'widget.') + ArrayTools::prefixKeys($this->variables, 'template.') + ArrayTools::prefixKeys($this->object->variables(), 'object.')));
 }
 echo $hidden;

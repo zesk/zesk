@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage controller
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -22,7 +22,7 @@ class Controller_Search extends Controller_Theme {
 		$query = $this->request->get($this->option('search_query_variable', 'q'));
 		$results = [];
 		$total = $shown = 0;
-		foreach ($this->option_list('search_classes') as $class) {
+		foreach ($this->optionIterable('search_classes') as $class) {
 			try {
 				if (class_exists($class)) {
 					$object = $this->widget_factory($class);

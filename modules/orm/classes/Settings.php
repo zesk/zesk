@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2012, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -158,7 +158,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 							'method' => __METHOD__,
 							'name' => $name,
 						]);
-						$application->orm_registry(__CLASS__)->query_delete()->where('name', $name)->execute();
+						$application->orm_registry(__CLASS__)->query_delete()->addWhere('name', $name)->execute();
 					} else {
 						$application->logger->error('{method}: Bad global {name} can not be unserialized, please fix manually', [
 							'method' => __METHOD__,
@@ -357,13 +357,13 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 *
 	 * @see ORM::__set($member, $value)
 	 */
-	public function __set($name, $value): void {
-		$old_value = $this->application->configuration->path_get($name);
+	public function __set($key, $value): void {
+		$old_value = $this->application->configuration->path_get($key);
 		if ($old_value === $value) {
 			return;
 		}
-		$this->changes[zesk_global_key_normalize($name)] = $value;
-		$this->application->configuration->path_set($name, $value);
+		$this->changes[zesk_global_key_normalize($key)] = $value;
+		$this->application->configuration->path_set($key, $value);
 	}
 
 	/**
@@ -383,7 +383,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 */
 	public function data($name, $value = null) {
 		if ($value === null) {
-			$value = $this->application->orm_registry(__CLASS__)->query_select()->where('name', $name)->addWhat('value', 'value')->one('value');
+			$value = $this->application->orm_registry(__CLASS__)->query_select()->addWhere('name', $name)->addWhat('value', 'value')->one('value');
 			if ($value === null) {
 				return null;
 			}
@@ -436,12 +436,12 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 */
 	public function prefix_updated($old_prefix, $new_prefix) {
 		$update = $this->application->orm_registry(Settings::class)->query_update();
-		$old_prefix_quoted = $update->sql()->quote_text($old_prefix);
+		$old_prefix_quoted = $update->sql()->quoteText($old_prefix);
 		$old_prefix_like_quoted = tr($old_prefix, [
 			'\\' => '\\\\',
 			'_' => '\\_',
 		]);
-		$nrows = $update->value('*name', "REPLACE(name, $old_prefix_quoted, " . $update->database()->quote_text(strtolower($new_prefix)) . ')')->where('name|LIKE', "$old_prefix_like_quoted%")->execute()->affected_rows();
+		$nrows = $update->value('*name', "REPLACE(name, $old_prefix_quoted, " . $update->database()->quoteText(strtolower($new_prefix)) . ')')->addWhere('name|LIKE', "$old_prefix_like_quoted%")->execute()->affectedRows();
 		if ($nrows > 0) {
 			$this->application->logger->notice('Updated {nrows} settings from {old_prefix} to use new prefix {new_prefix}', [
 				'nrows' => $nrows,

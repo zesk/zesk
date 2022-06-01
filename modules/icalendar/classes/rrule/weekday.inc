@@ -3,7 +3,7 @@
  * Implementation of iCalendar RRULE
  *
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  *
  * http://www.ietf.org/rfc/rfc2445.txt
  *
@@ -30,8 +30,8 @@ class Weekday {
 
 	/**
 	 *
-	 * @param integer $weekday
-	 * @param integer $n
+	 * @param int $weekday
+	 * @param int $n
 	 * @throws \zesk\Exception_Range
 	 */
 	public function __construct($weekday, $n = null) {
@@ -50,7 +50,7 @@ class Weekday {
 		return $this->weekday === $other->weekday && $this->n === $other->n;
 	}
 
-	public function render() {
+	public function render(): string {
 		$dname = Rule::$dow[$this->weekday];
 		$n = $this->n;
 		$sign = $n > 0 ? '+' : '';

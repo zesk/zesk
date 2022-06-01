@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 16:31:34 EDT 2008
  */
 namespace zesk;
@@ -38,7 +38,7 @@ class Control_Link_Object extends Control {
 		$widget->initialize();
 		$this->object = $widget->model();
 
-		$values = $this->request->geta($list_name);
+		$values = $this->request->getArray($list_name);
 		$n = 0;
 		$max_objects = $this->maximum_objects();
 		foreach ($values as $index => $value) {
@@ -73,7 +73,7 @@ class Control_Link_Object extends Control {
 	// 	function load() {
 	// 		$list_name = $this->name() . '_list';
 
-	// 		$values = $this->request->geta($list_name, array());
+	// 		$values = $this->request->getArray($list_name, array());
 	// 		foreach ($values as $index => $value) {
 	// 			$this->widgets[$index]->load($this->models[$index]);
 	// 		}
@@ -89,7 +89,7 @@ class Control_Link_Object extends Control {
 		return $this;
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		$list_name = $this->name() . '_list';
 		return [
 			'link_widgets' => $this->widgets,
@@ -98,6 +98,6 @@ class Control_Link_Object extends Control {
 			'minimum_objects' => $this->minimum_objects(),
 			'maximum_objects' => $this->maximum_objects(),
 			'link_values' => $this->object->get($list_name),
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 }

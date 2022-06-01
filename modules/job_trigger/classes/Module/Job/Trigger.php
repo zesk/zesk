@@ -54,7 +54,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 */
 	private function trigger_send_pattern(Server $server) {
 		$url_pattern = $this->option('trigger_url_pattern', 'http://{ip4_internal}/job_trigger');
-		return $server->apply_map($url_pattern);
+		return $server->applyMap($url_pattern);
 	}
 
 	private function compute_hash($timestamp) {
@@ -88,7 +88,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 		$query['timestamp'] = $timestamp = strval(microtime(true));
 		$query['hash'] = $this->compute_hash($timestamp);
 
-		return URL::query_append($url, $query);
+		return URL::queryAppend($url, $query);
 	}
 
 	/**
@@ -149,7 +149,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 			];
 		}
 		return $result + [
-			'elapsed' => microtime(true) - $application->initialization_time(),
+			'elapsed' => microtime(true) - $application->initializationTime(),
 			'now' => Timestamp::now()->format(),
 		];
 	}
@@ -158,8 +158,8 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * Send a notice to all servers that jobs are waiting
 	 */
 	public function trigger_send(): void {
-		$server = $this->application->object_singleton('zesk\\Server');
-		$servers = $server->query_select()->where('alive|>=', Timestamp::now()->add_unit(-1, Timestamp::UNIT_MINUTE))->orm_iterator();
+		$server = $this->application->objectSingleton('zesk\\Server');
+		$servers = $server->query_select()->addWhere('alive|>=', Timestamp::now()->addUnit(-1, Timestamp::UNIT_MINUTE))->orm_iterator();
 		foreach ($servers as $other_server) {
 			if ($other_server->id() === $server->id()) {
 				$this->write_marker();

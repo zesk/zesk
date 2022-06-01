@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 class Control_Radio extends Control_Optionss {
@@ -21,7 +23,7 @@ class Control_Radio extends Control_Optionss {
 	public function validate() {
 		$name = $this->name();
 		$v = $this->request->get($name, $this->option('default', null));
-		$opts = $this->option_array('options', []);
+		$opts = $this->optionArray('options', []);
 		if (array_key_exists($v, $opts)) {
 			$this->value($v);
 		}
@@ -48,13 +50,13 @@ class Control_Radio extends Control_Optionss {
 	/**
 	 * Return the jQuery expression to determine the value of this widget
 	 */
-	public function jquery_value_selected_expression() {
+	public function jquery_value_selected_expression(): string {
 		if ($this->hasOption('value_selected_expression')) {
 			return $this->option('value_selected_expression');
 		}
 		$name = $this->name();
 		if (!$name) {
-			return null;
+			return '';
 		}
 		return "\$(\"input[name=$name]:checked\")";
 	}
@@ -62,13 +64,13 @@ class Control_Radio extends Control_Optionss {
 	/**
 	 * Return the jQuery expression to determine the value of this widget
 	 */
-	public function jquery_target_expression() {
+	public function jquery_target_expression(): string {
 		if ($this->hasOption('jquery_target_expression')) {
 			return $this->option('jquery_target_expression');
 		}
 		$name = $this->name();
 		if (!$name) {
-			return null;
+			return '';
 		}
 		return "\$(\"input[name=$name]\")";
 	}

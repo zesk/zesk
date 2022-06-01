@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2018, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -23,7 +23,7 @@ use zesk\Router\Parser;
  *
  * Methods below require you to actually load the modules for them to work.
  *
- * @method Widget widget_factory($class, array $options = [])
+ * @method Widget widget_factory(string $class, array $options = [])
  *
  * @method Module_ORM orm_module()
  * @method Class_ORM class_orm_registry(string $class)
@@ -83,7 +83,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
 	 *
-	 * @var CacheItemPoolInterface
+	 * @var ?CacheItemPoolInterface
 	 */
 	public ?CacheItemPoolInterface $cache = null;
 
@@ -97,7 +97,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
-	 * @var Configuration_Loader
+	 * @var ?Configuration_Loader
 	 */
 	public ?Configuration_Loader $loader = null;
 
@@ -141,19 +141,19 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
-	 * @var Locale[string]
+	 * @var Locale[]
 	 */
-	private $locales = null;
+	private array $locales = [];
 
 	/**
 	 *
-	 * @var Command
+	 * @var ?Command
 	 */
 	public ?Command $command = null;
 
 	/**
 	 *
-	 * @var Router
+	 * @var ?Router
 	 */
 	public ?Router $router = null;
 
@@ -205,33 +205,33 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 * @deprecated 2018-01
-	 * @var Request
+	 * @var ?Request
 	 */
 	protected ?Request $request = null;
 
 	/**
 	 *
 	 * @deprecated 2018-01
-	 * @var Response
+	 * @var ?Response
 	 */
 	protected ?Response $response = null;
 
 	/**
 	 * @deprecated 2018-01
-	 * @var Interface_Session
+	 * @var ?Interface_Session
 	 */
 	public ?Interface_Session $session = null;
 
 	/**
 	 * @deprecated 2018-01
-	 * @var User
+	 * @var ?User
 	 */
 	public ?User $user = null;
 
 	/**
 	 * Array of calls to create stuff
 	 *
-	 * @var \Closure[string]
+	 * @var Closure[]
 	 */
 	private array $factories = [];
 
@@ -375,7 +375,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	protected function _initialize(Kernel $kernel): void {
 		// Pretty much just copy object references over
-		$this->zesk = $kernel;
 		$this->kernel = $kernel;
 		$this->paths = $kernel->paths;
 		$this->hooks = $kernel->hooks;
@@ -395,7 +394,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		/*
 		 * Speaka-da-language?
 		 */
-		$this->locale = $this->locale_factory();
+		$this->locale = $this->localeFactory();
 
 		/*
 		 * Where various things can be found
@@ -507,45 +506,61 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Clone application
 	 */
 	protected function __clone() {
-		if ($this->configuration) {
-			$this->configuration = clone $this->configuration;
-		}
+		$this->configuration = clone $this->configuration;
 		if ($this->router) {
 			$this->router = clone $this->router;
 		}
-		if ($this->template) {
-			$this->template = clone $this->template;
+		$this->template = clone $this->template;
+		$this->template_stack = clone $this->template_stack;
+	}
+
+	/**
+	 *
+	 * @return Command
+	 * @throws Exception_Semantics
+	 */
+	public function command(): Command {
+		if ($this->command) {
+			return $this->command;
 		}
-		if ($this->template_stack) {
-			$this->template_stack = clone $this->template_stack;
-		}
+
+		throw new Exception_Semantics('No command set');
 	}
 
 	/**
 	 *
 	 * @param Command $set
-	 * @return \zesk\Application|\zesk\Command
+	 * @return self
 	 */
-	public function command(Command $set = null) {
-		if ($set !== null) {
-			$this->command = $set;
-			$this->call_hook('command', $set);
-			return $this;
+	public function setCommand(Command $set): self {
+		if ($this->command) {
+			if ($set === $this->command) {
+				return $this;
+			}
+			$this->command->call_hook('replaced_with', $set);
 		}
-		return $this->command;
+		$this->command = $set;
+		$this->call_hook('command', $set);
+		return $this;
 	}
 
 	/**
 	 * Override in subclasses if it is stored in a different way.
 	 *
-	 * @return string|null|self
+	 * @return string
 	 */
-	public function version($set = null) {
-		if ($set !== null) {
-			$this->setOption(self::OPTION_VERSION, $set);
-			return $this;
-		}
-		return $this->option(self::OPTION_VERSION);
+	public function version(): string {
+		return strval($this->option(self::OPTION_VERSION));
+	}
+
+	/**
+	 * Override in subclasses if it is stored in a different way.
+	 *
+	 * @return self
+	 */
+	public function setVersion(string $set): self {
+		$this->setOption(self::OPTION_VERSION, $set);
+		return $this;
 	}
 
 	/**
@@ -554,7 +569,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param array $includes
 	 * @return string[]
 	 */
-	private function expand_includes(array $includes) {
+	private function expandIncludes(array $includes) {
 		$result = [];
 		foreach ($includes as $include) {
 			$expand = $this->paths->expand($include);
@@ -576,12 +591,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param boolean $reset When false, adds to the existing include list
 	 * @return Application|array
 	 */
-	final public function configure_include($includes = null, $reset = false) {
-		if ($includes === null) {
-			return $this->includes;
-		}
-		$includes = $this->expand_includes(to_list($includes));
-		if ($reset) {
+	final public function configureInclude(array $includes, bool $overwrite = true) {
+		$includes = $this->expandIncludes($includes);
+		if ($overwrite) {
 			$this->includes = $includes;
 		} else {
 			$this->includes += $includes;
@@ -630,16 +642,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param array $options
 	 */
 	private function _configure_files(array $options): void {
-		$configuration = $this->configuration;
-
 		if (count($this->includes) === 0 || array_key_exists('file', $options)) {
-			$this->configure_include($options['includes'] ?? $options['file'] ?? $this->default_includes());
+			$this->configureInclude($options['includes'] ?? $options['file'] ?? $this->defaultConfigurationFiles());
 		}
 		$includes = $this->includes;
 		$files = [];
 		foreach ($includes as $index => $file) {
 			$file = $this->paths->expand($file);
-			if (File::is_absolute($file)) {
+			if (File::isAbsolute($file)) {
 				if (is_file($file)) {
 					$files[] = $file;
 				}
@@ -647,13 +657,16 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			}
 		}
 
-		$this->loader = new Configuration_Loader($files, new Adapter_Settings_Configuration($configuration));
+		$this->configureFiles($files);
+	}
 
+	public function configureFiles(array $files): void {
+		if (!$this->loader) {
+			$this->loader = new Configuration_Loader($files, new Adapter_Settings_Configuration($this->configuration));
+		} else {
+			$this->loader->append_files($files);
+		}
 		$this->loader->load();
-
-		$configuration->deprecated('host_aliases');
-		$configuration->deprecated(__CLASS__ . '::host_aliases');
-		$configuration->deprecated('maintenance_file');
 	}
 
 	/**
@@ -665,7 +678,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$skip_configured_hook = $options['skip_configured'] ?? false;
 
 		// Load hooks
-		$this->hooks->register_class($this->register_hooks);
+		$this->hooks->registerClass($this->register_hooks);
 
 		$application = $this;
 		$this->hooks->add(Hooks::HOOK_EXIT, function () use ($application): void {
@@ -676,14 +689,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			'last' => true,
 		]);
 
-		$this->configure_cache_paths(); // Initial cache paths are set up
+		$this->configureCachePaths(); // Initial cache paths are set up
 
 		$new_options = $this->preconfigure($options);
 		if (is_array($new_options)) {
 			$options = $new_options;
 		}
 
-		$profile = false;
+		$profile = $this->optionBool('profile');
 		if ($profile) {
 			$mtime = microtime(true);
 			// Old conf:: version (PHP5)
@@ -698,53 +711,61 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		}
 
 		// Apply settings from loaded configuration to make settings available to hook_configured_files
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 		if ($this->has_hook('configured_files')) {
 			$this->call_hook('configured_files');
 			// Repopulate Application options after final configurations are loaded
-			$this->inherit_global_options();
+			$this->inheritConfiguration();
 		}
 		$this->modules->load($this->load_modules);
 
-		// Load dynamic modules now
-		$modules = $this->option_list('modules');
-		if (count($modules) > 0) {
-			$this->modules->load($modules);
-		}
+		$this->loadOptionModules();
 
 		// Final cache paths are set up from application options
-		$this->configure_cache_paths();
 
 		if (!$skip_configured_hook) {
 			$this->configured();
 		}
 	}
 
+	protected function loadOptionModules(): void {
+		$modules = $this->optionArray('modules');
+		if (count($modules) > 0) {
+			$this->modules->load($modules);
+		}
+		$this->optionAppend('modules-loaded', $modules);
+		$this->setOption('modules', []);
+	}
+
 	/**
 	 *
 	 * @return boolean
 	 */
-	public function is_configured() {
+	public function isConfigured(): bool {
 		return $this->configured_was_run;
 	}
 
 	/**
 	 * Run fini
-	 * @param string $force
+	 * @param bool $force
 	 * @return boolean
 	 */
-	public function configured($force = false) {
+	public function configured(bool $force = false): bool {
 		if ($force || !$this->configured_was_run) {
 			$this->_configured();
-			$this->configured_was_run = true;
 			return true;
 		}
 		return false;
 	}
 
+	protected array $options_inherit_append = ['modules'];
+
 	private function _configured(): void {
 		// Now run all configurations: System, Modules, then Application
+		$this->inheritConfiguration();
+		$this->loadOptionModules();
 		$this->configured_hooks();
+		$this->configureCachePaths();
 		$this->postconfigure();
 
 		$this->configured_was_run = true;
@@ -752,9 +773,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 */
-	private function configure_cache_paths(): void {
+	private function configureCachePaths(): void {
 		$cache_path = $this->option('cache_path', $this->paths->cache());
-		$this->cache_path = Directory::is_absolute($cache_path) ? $cache_path : $this->path($cache_path);
+		$this->cache_path = Directory::isAbsolute($cache_path) ? $cache_path : $this->path($cache_path);
 		if ($this->hasOption('document_cache')) {
 			$this->document_cache = $this->paths->expand($this->option('document_cache'));
 		}
@@ -780,19 +801,18 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	public function reconfigure() {
 		$this->hooks->call(Hooks::HOOK_RESET, $this);
-		// $this->_initialize($this->kernel);
-		$result = $this->_configure(toArray($this->configuration_options));
+		$this->_configure(toArray($this->configuration_options));
 		$this->modules->reload();
 		$this->_configured();
-		return $result;
+		return $this;
 	}
 
 	/**
 	 *
-	 * @param CacheItemPoolInterface $cahe
+	 * @param CacheItemPoolInterface $interface
 	 * @return \zesk\Application
 	 */
-	final public function set_cache(CacheItemPoolInterface $interface) {
+	final public function setCache(CacheItemPoolInterface $interface) {
 		$this->cache = $interface;
 		$this->call_hook('set_cache');
 		return $this;
@@ -801,10 +821,10 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Clear application cache
 	 */
-	final public function cache_clear(): void {
+	final public function cacheClear(): void {
 		foreach (array_unique([
 			$this->paths->cache(),
-			$this->cache_path(),
+			$this->cachePath(),
 			$this->document_cache(),
 		]) as $path) {
 			if (empty($path)) {
@@ -812,7 +832,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			}
 			$size = Directory::size($path);
 			if ($size > 0) {
-				Directory::delete_contents($path);
+				Directory::deleteContents($path);
 				$this->logger->notice('Deleted {size} bytes in {path}', compact('size', 'path'));
 			} else {
 				$this->logger->notice('{path} is empty.', compact('size', 'path'));
@@ -839,16 +859,20 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	}
 
 	/**
-	 * Get/set maintenance flag
+	 * @return bool
+	 */
+	final public function maintenance(): bool {
+		return toBool($this->optionPath(['maintenance', 'enabled'], false));
+	}
+
+	/**
+	 * Set maintenance flag, this generally affects an application's interface
 	 *
-	 * @param string $set
+	 * @param bool $set
 	 * @return boolean
 	 */
-	final public function maintenance($set = null) {
-		$maintenance_file = $this->maintenance_file();
-		if ($set === null) {
-			return $this->option_path('maintenance.enabled', false);
-		}
+	final public function setMaintenance(bool $set): bool {
+		$maintenance_file = $this->maintenanceFile();
 		$result = $this->call_hook_arguments('maintenance', [
 			$set,
 		], true);
@@ -857,17 +881,17 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 				'application_class' => get_class($this),
 				'value' => $set ? 'true' : 'false',
 			]);
-			return null;
+			return false;
 		}
 		if ($set) {
 			$context = [
 					'time' => date('Y-m-d H:i:s'),
-				] + $this->call_hook_arguments('maintenance_context', [
+				] + toArray($this->call_hook_arguments('maintenance_context', [
 					[
 						'value' => $set,
 					],
-				], []);
-			file_put_contents($this->maintenance_file(), JSON::encode($context));
+				], []));
+			file_put_contents($this->maintenanceFile(), JSON::encode($context));
 		} elseif (file_exists($maintenance_file)) {
 			unlink($maintenance_file);
 			clearstatcache(true, $maintenance_file);
@@ -881,7 +905,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @return array
 	 */
 	private function _load_maintenance() {
-		$file = $this->maintenance_file();
+		$file = $this->maintenanceFile();
 		if (!file_exists($file)) {
 			$result = [
 				'enabled' => false,
@@ -908,7 +932,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @return string
 	 */
-	private function maintenance_file() {
+	private function maintenanceFile() {
 		return $this->option('maintenance_file', $this->path('etc/maintenance.json'));
 	}
 
@@ -916,9 +940,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @param string $class
 	 * @return object
-	 * @deprecated 2017-12 use model_singleton
+	 * @deprecated 2017-12 use modelSingleton
 	 */
-	final public function object_singleton($class) {
+	final public function objectSingleton($class) {
 		$this->deprecated();
 		$args = func_get_args();
 		$args[0] = $this;
@@ -926,7 +950,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		if ($object instanceof $class) {
 			return $object;
 		}
-		return $this->objects->singleton_arguments($class, $args);
+		return $this->objects->singletonArguments($class, $args);
 	}
 
 	/**
@@ -939,15 +963,15 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param string $class
 	 * @return Model
 	 */
-	final public function model_singleton($class) {
+	final public function modelSingleton(string $class): Model {
 		$args = func_get_args();
 		$args[0] = $this;
-		$suffix = strtolower(PHP::clean_function($desired_class = $this->objects->resolve($class)));
+		$suffix = strtolower(PHP::cleanFunction($desired_class = $this->objects->resolve($class)));
 		$object = $this->call_hook_arguments("singleton_$suffix", $args, null);
 		if ($object instanceof $desired_class) {
 			return $object;
 		}
-		return $this->objects->singleton_arguments($desired_class, $args);
+		return $this->objects->singletonArguments($desired_class, $args);
 	}
 
 	/**
@@ -955,7 +979,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @return array
 	 */
-	private function default_includes() {
+	private function defaultConfigurationFiles(): array {
 		$files_default = [];
 		$files_default[] = $this->path('etc/application.json');
 		$files_default[] = $this->path('etc/host/' . strtolower(System::uname()) . '.json');
@@ -969,14 +993,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @return Request
 	 */
-	public function request_factory(Request $inherit = null) {
+	public function requestFactory(Request $inherit = null): Request {
 		$request = new Request($this);
 		if ($inherit) {
-			$request->initialize_from_request($inherit);
+			$request->initializeFromRequest($inherit);
 		} elseif ($this->console()) {
-			$request->initialize_from_settings('http://console/');
+			$request->initializeFromSettings('http://console/');
 		} else {
-			$request->initialize_from_globals();
+			$request->initializeFromGlobals();
 		}
 		return $request;
 	}
@@ -1016,10 +1040,10 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 *
 	 * @param Request $request
-	 * @param unknown $content_type
-	 * @return \zesk\Response
+	 * @param string $content_type
+	 * @return Response
 	 */
-	final public function response_factory(Request $request, $content_type = null) {
+	final public function responseFactory(Request $request, string $content_type = null): Response {
 		return Response::factory($this, $request, $content_type ? [
 			'content_type' => $content_type,
 		] : []);
@@ -1029,10 +1053,10 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @param Request $request
 	 * @param \Exception $exception
-	 * @return \zesk\Response
+	 * @return Response
 	 */
-	private function main_exception(Request $request, \Exception $exception) {
-		$response = $this->response_factory($request, Response::CONTENT_TYPE_HTML);
+	private function mainException(Request $request, \Exception $exception): Response {
+		$response = $this->responseFactory($request, Response::CONTENT_TYPE_HTML);
 
 		try {
 			$response->content = $this->theme($this->classes->hierarchy($exception), [
@@ -1040,13 +1064,13 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 					'response' => $response,
 					'exception' => $exception,
 					'content' => $exception,
-				] + Exception::exception_variables($exception), [
+				] + Exception::exceptionVariables($exception), [
 				'first' => true,
 			]);
 			if (!$exception instanceof Exception_Redirect) {
 				$this->hooks->call('exception', $exception);
 			}
-			$this->call_hook('main_exception', $exception, $response);
+			$this->call_hook('mainException', $exception, $response);
 		} catch (Exception_Redirect $e) {
 			$response->redirect()->handle_exception($e);
 		}
@@ -1059,9 +1083,51 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * If performing sub-requests, this reflects the most-recent request state (a stack).
 	 *
 	 * @return Request
+	 * @throws Exception_Semantics
 	 */
-	final public function request() {
-		return last($this->request_stack);
+	final public function request(): Request {
+		$request = last($this->request_stack);
+		if ($request) {
+			return $request;
+		}
+
+		throw new Exception_Semantics('No request');
+	}
+
+	/**
+	 * @param Request $request
+	 * @return self
+	 */
+	final public function pushRequest(Request $request): self {
+		$this->request_stack[] = $request;
+		$request->setOption('stack_index', count($this->request_stack));
+		return $this;
+	}
+
+	/**
+	 * @param Request $request
+	 * @return self
+	 * @throws Exception_Semantics
+	 */
+	final public function popRequest(Request $request): self {
+		$starting_depth = $request->optionInt('stack_index');
+		$ending_depth = count($this->request_stack);
+		if ($ending_depth !== $starting_depth) {
+			throw new Exception_Semantics('Request ending depth mismatch start {starting_depth} !== end {ending_depth}', [
+				'starting_depth' => $starting_depth,
+				'ending_depth' => $ending_depth,
+			]);
+		}
+		if ($ending_depth !== 0) {
+			$popped = array_pop($this->request_stack);
+			if ($popped !== $request) {
+				throw new Exception_Semantics('Request changed between push and pop? {origial} => {popped}', [
+					'original' => $request->variables(),
+					'popped' => $popped->variables(),
+				]);
+			}
+		}
+		return $this;
 	}
 
 	/**
@@ -1069,7 +1135,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @return Router NULL
 	 */
-	final public function router() {
+	final public function router(): Router {
 		if ($this->router instanceof Router) {
 			return $this->router;
 		}
@@ -1084,37 +1150,37 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * Potentially slow.
 	 *
-	 * @return array of Controller
+	 * @return Controller[]
 	 */
-	final public function controllers() {
+	final public function controllers(): array {
 		return $this->router()->controllers($this);
 	}
 
 	/**
 	 * Initialize variables
 	 *
-	 * @return boolean
+	 * @return void
 	 */
-	private function _templates_initialize(array $variables) {
+	private function _templates_initialize(array $variables): void {
 		$variables['application'] = $this;
 		$variables += $this->template_variables;
 		$variables += $this->call_hook_arguments('template_defaults', [
 			$variables,
 		], []);
 		$this->template->set($variables);
-		return $this->template;
 	}
 
 	/**
 	 *
 	 * @param Request $request
 	 * @return Route
+	 * @throws Exception_Key
 	 * @throws Exception_NotFound
 	 */
-	private function determine_route(Request $request) {
+	private function determineRoute(Request $request): Route {
 		$router = $this->router();
 		$this->logger->debug('App bootstrap took {seconds} seconds', [
-			'seconds' => sprintf('%.3f', microtime(true) - $this->kernel->initialization_time),
+			'seconds' => sprintf('%.3f', microtime(true) - $this->kernel->initializationTime),
 		]);
 		$this->call_hook('router_prematch', $router, $request);
 		$route = $router->match($request);
@@ -1126,7 +1192,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		if (!$route) {
 			$this->call_hook('router_no_match', $request, $router);
 
-			throw new Exception_NotFound('The resource does not exist on this server: {url}', $request->url_variables(), Net_HTTP::STATUS_FILE_NOT_FOUND);
+			throw new Exception_NotFound('The resource does not exist on this server: {url}', $request->urlComponents(), Net_HTTP::STATUS_FILE_NOT_FOUND);
 		}
 		if ($this->optionBool('debug_route')) {
 			$this->logger->debug('Matched route {class} Pattern: "{clean_pattern}" {options}', $route->variables());
@@ -1150,7 +1216,12 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * - Execute it
 	 * - Return response
 	 */
-	public function main(Request $request) {
+	/**
+	 * @param Request $request
+	 * @return Response
+	 * @throws Exception_Semantics
+	 */
+	public function main(Request $request): Response {
 		$starting_depth = count($this->request_stack);
 
 		try {
@@ -1158,36 +1229,19 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			if ($response instanceof Response) {
 				return $response;
 			}
-			$this->request_stack[] = $request;
-			$starting_depth = count($this->request_stack);
-			$route = $this->determine_route($request);
+			$route = $this->pushRequest($request)->determineRoute($request);
 			$response = $route->execute($request);
 		} catch (\Exception $exception) {
-			$response = $this->main_exception($request, $exception);
+			$response = $this->mainException($request, $exception);
 		}
-		$ending_depth = count($this->request_stack);
-		if ($ending_depth !== $starting_depth) {
-			$this->logger->error('Request ending depth mismatch start {starting_depth} !== end {ending_depth}', [
-				'starting_depth' => $starting_depth,
-				'ending_depth' => $ending_depth,
-			]);
-		}
-		if ($ending_depth !== 0) {
-			$popped = array_pop($this->request_stack);
-			if ($popped !== $request) {
-				$this->logger->error('Request changed between push and pop? {origial} => {popped}', [
-					'original' => $request->variables(),
-					'popped' => $popped->variables(),
-				]);
-			}
-		}
+		$this->popRequest($request);
 		return $response;
 	}
 
 	/**
 	 * Utility for index.php file for all public-served content.
 	 */
-	final public function content($path) {
+	final public function content(string $path): string {
 		if (isset($this->content_recursion[$path])) {
 			return '';
 		}
@@ -1198,12 +1252,17 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$url = 'http://localhost/';
 		$url = rtrim(URL::left_host($url), '/') . $path;
 		$request = new Request($this);
-		$request->initialize_from_settings([
-			'url' => $url,
-			'method' => Net_HTTP::METHOD_GET,
-			'data' => '',
-			'variables' => URL::query_parse_url($path),
-		]);
+
+		try {
+			$request->initializeFromSettings([
+				'url' => $url,
+				'method' => Net_HTTP::METHOD_GET,
+				'data' => '',
+				'variables' => URL::queryParseURL($path),
+			]);
+		} catch (Exception_File_NotFound) {
+			/* No files passed, not ever thrown */
+		}
 		$response = $this->main($request);
 		ob_start();
 		$response->output([
@@ -1221,7 +1280,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	public function repositories() {
 		$repos = [
-			'zesk' => $this->zesk_home(),
+			'zesk' => $this->zeskHome(),
 			get_class($this) => $this->path(),
 		];
 		return $this->call_hook_arguments('repositories', [
@@ -1234,15 +1293,15 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * KMD 2018-01 Made this more Response-centric and less content-centric
 	 */
-	public function index() {
+	public function index(): Response {
 		$final_map = [];
 
-		$request = $this->request_factory();
+		$request = $this->requestFactory();
 		$this->call_hook('request', $request);
 		$options = [];
 		if (($response = Response::cached($this->cache, $url = $request->url())) === null) {
 			$response = $this->main($request);
-			$response->cache_save($this->cache, $url);
+			$response->cacheSave($this->cache, $url);
 			$final_map['{page-is-cached}'] = '0';
 		} else {
 			$options['skip_hooks'] = true;
@@ -1250,9 +1309,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			$final_map['{page-is-cached}'] = '1';
 		}
 		$final_map += [
-			'{page-render-time}' => sprintf('%.3f', microtime(true) - $this->kernel->initialization_time),
+			'{page-render-time}' => sprintf('%.3f', microtime(true) - $this->kernel->initializationTime),
 		];
-		if (!$response || $response->is_content_type([
+		if (!$response || $response->isContentType([
 				'text/',
 				'javascript',
 			])) {
@@ -1319,9 +1378,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @return mixed
 	 */
 	final public function theme_find($theme, array $options = []) {
-		$extension = to_bool($options['no_extension'] ?? false) ? '' : $this->option('theme_extension', '.tpl');
-		$all = to_bool($options['all'] ?? false);
-		$theme = $this->clean_template_path($theme) . $extension;
+		$extension = toBool($options['no_extension'] ?? false) ? '' : $this->option('theme_extension', '.tpl');
+		$all = toBool($options['all'] ?? false);
+		$theme = $this->cleanTemplatePath($theme) . $extension;
 		$theme_path = $this->theme_path();
 		$prefixes = array_keys($theme_path);
 		usort($prefixes, fn ($a, $b) => strlen($b) - strlen($a));
@@ -1349,25 +1408,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			$result,
 			$tried_path,
 		];
-	}
-
-	/**
-	 * Add or retrieve the share path for this application - used to serve
-	 * shared content via Controller_Share as well as populate automatically with files within the
-	 * system.
-	 *
-	 * By default, it's /share/
-	 *
-	 * @param unknown $add
-	 * @param unknown $name
-	 * @return array
-	 */
-	final public function share_path(string $add = null, string $name = null) {
-		$list = $this->share_path;
-		if ($add) {
-			$this->addSharePath($add, strval($name));
-		}
-		return $this->sharePath();
 	}
 
 	/**
@@ -1410,7 +1450,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param Locale $set
 	 * @return self
 	 */
-	public function set_locale(Locale $set) {
+	public function setLocale(Locale $set) {
 		$this->locale = $set;
 		$this->call_hook('set_locale', $set);
 		return $this;
@@ -1422,9 +1462,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param string $code
 	 * @param array $extensions
 	 * @param array $options
-	 * @return \zesk\Locale
+	 * @return self
 	 */
-	public function locale_factory(string $code = '', array $extensions = [], array $options = []): Locale {
+	public function localeFactory(string $code = '', array $extensions = [], array $options = []): Locale {
 		return Reader::factory($this->locale_path(), $code, $extensions)->locale($this, $options);
 	}
 
@@ -1436,29 +1476,23 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param array $options
 	 * @return \zesk\Locale
 	 */
-	public function locale_registry(string $code, array $extensions = [], array $options = []) {
+	public function localeRegistry(string $code, array $extensions = [], array $options = []): Locale {
 		$code = Locale::normalize($code);
 		if (isset($this->locales[$code])) {
 			return $this->locales[$code];
 		}
-		return $this->locales[$code] = $this->locale_factory($code, $extensions, $options);
+		return $this->locales[$code] = $this->localeFactory($code, $extensions, $options);
 	}
 
 	/**
-	 * Add or retrieve the locale path for this application - used to load locales
+	 * Retrieve the locale path for this application - used to load locales
 	 *
 	 * By default, it's ./etc/language/
 	 * Must exist in the file system
 	 *
-	 * @param string $add Locale path to add
 	 * @return array
 	 */
-	final public function locale_path(string $add = '') {
-		$list = $this->locale_path;
-		if ($add) {
-			$this->deprecated('use addLocalePath');
-			$this->addLocalePath($add);
-		}
+	final public function localePath(): array {
 		return $this->locale_path;
 	}
 
@@ -1488,7 +1522,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *            Value to set
 	 * @return string Current data_path value
 	 */
-	final public function data_path($suffix = null) {
+	final public function dataPath(string $suffix = ''): string {
 		return $this->paths->data($suffix);
 	}
 
@@ -1515,30 +1549,34 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	final public function zesk_command_path(string|array $add = null, string $prefix = null): array {
 		if ($add !== null) {
-			if (!$prefix) {
-				$prefix = "zesk\Command_";
-			}
-			$debug = $this->debug;
-			$add = to_list($add, [], ':');
-			foreach ($add as $path) {
-				if ($debug && !is_dir($path)) {
-					$this->logger->warning('{method}: adding path "{path}" was not found', [
-						'method' => __METHOD__,
-						'path' => $path,
-					]);
-				}
-				if (!isset($this->zesk_command_path[$path])) {
-					$this->zesk_command_path[$path] = $prefix;
-				} elseif ($debug) {
-					$this->logger->debug('{method}: did not add "{path}" (prefix {prefix}) because it already exists', [
-						'method' => __METHOD__,
-						'path' => $path,
-						'prefix' => $prefix,
-					]);
-				}
-			}
+			$this->application->deprecated('setter/getter');
+			$this->append_zesk_command_path(toArray($add), $prefix === null ? "zesk\Command_" : $prefix);
 		}
 		return $this->zesk_command_path;
+	}
+
+	/**
+	 * @param array $add
+	 * @param string $prefix
+	 * @return void
+	 * @throws Exception_Directory_NotFound
+	 */
+	final public function append_zesk_command_path(array $add, string $prefix = "zesk\Command_"): void {
+		$debug = $this->debug;
+		foreach ($add as $path) {
+			if (!is_dir($path)) {
+				throw new Exception_Directory_NotFound($path);
+			}
+			if (!isset($this->zesk_command_path[$path])) {
+				$this->zesk_command_path[$path] = $prefix;
+			} elseif ($debug) {
+				$this->logger->debug('{method}: did not add "{path}" (prefix {prefix}) because it already exists', [
+					'method' => __METHOD__,
+					'path' => $path,
+					'prefix' => $prefix,
+				]);
+			}
+		}
 	}
 
 	/**
@@ -1550,24 +1588,30 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	}
 
 	/**
-	 * Getter/setter for top theme variable
-	 * @param string|array|Traversable $name
-	 * @param mixed|null $value
-	 * @return mixed|self
+	 * Get top theme variables state
+	 *
+	 * @return array
 	 */
-	final public function theme_variable($name = null, $value = null) {
-		if ($name === null) {
-			return $this->template_stack->top()->variables();
-		}
-		if ($value === null) {
-			return $this->template_stack->top()->get($name);
-		}
-		if (can_iterate($name)) {
-			foreach ($name as $k => $v) {
-				$this->theme_variable($k, $v);
-			}
-			return $this;
-		}
+	final public function themeVariables(): array {
+		return $this->template_stack->top()->variables();
+	}
+
+	/**
+	 * Getter/setter for top theme variable
+	 * @param string $name
+	 * @return mixed
+	 */
+	final public function themeVariable(string $name): mixed {
+		return $this->template_stack->top()->get($name);
+	}
+
+	/**
+	 * Getter/setter for top theme variable
+	 * @param string $name
+	 * @param mixed $value
+	 * @return self
+	 */
+	final public function setThemeVariable(string $name, mixed $value): self {
 		$this->template_stack->top()->set($name, $value);
 		return $this;
 	}
@@ -1575,10 +1619,13 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * theme an element
 	 *
-	 * @param string $type
-	 * @return string
+	 * @param string|array $types
+	 * @param array $arguments
+	 * @param array $options
+	 * @return string|null
+	 * @throws Exception_Semantics
 	 */
-	final public function theme($types, $arguments = [], array $options = []) {
+	final public function theme(string|array $types, array $arguments = [], array $options = []): ?string {
 		if (!is_array($arguments)) {
 			$arguments = [
 				'content' => $arguments,
@@ -1587,10 +1634,10 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$arguments['application'] = $this;
 		$arguments['locale'] = $this->locale;
 
-		$types = to_list($types);
+		$types = toList($types);
 		$extension = ($options['no_extension'] ?? false) ? null : '.tpl';
 		if (count($types) === 1) {
-			$result = $this->_theme_arguments($types[0], $arguments, null, $extension);
+			$result = $this->_themeArguments($types[0], $arguments, null, $extension);
 			if ($result === null) {
 				$this->logger->warning('Theme {type} had no output', [
 					'type' => $types[0],
@@ -1604,7 +1651,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$type = array_shift($types);
 		$arguments['content_previous'] = null;
 		$has_output = false;
-		$content = $this->_theme_arguments($type, $arguments, null, $extension);
+		$content = $this->_themeArguments($type, $arguments, null, $extension);
 		if (!is_array($types)) {
 			// Something's fucked.
 			return $content;
@@ -1622,7 +1669,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			}
 			$type = array_shift($types);
 			$content_previous = $content;
-			$content_next = $this->_theme_arguments($type, $arguments, $content, $extension);
+			$content_next = $this->_themeArguments($type, $arguments, $content, $extension);
 			if ($content_next !== null) {
 				$has_output = true;
 			}
@@ -1645,7 +1692,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param string $path
 	 * @return mixed
 	 */
-	private function clean_template_path($path) {
+	private function cleanTemplatePath(string $path): string {
 		return preg_replace('%[^-_./a-zA-Z0-9]%', '_', strtr(strtolower($path), [
 			'_' => '/',
 			'\\' => '/',
@@ -1661,13 +1708,13 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *            Default content
 	 * @return string
 	 */
-	private function _theme_arguments($type, array $args, $content = null, $extension = '.tpl') {
+	private function _themeArguments(string $type, array $args, string $content = null, $extension = '.tpl'): ?string {
 		if (!empty($extension) && $this->development() && ends($type, $extension)) {
 			throw new Exception_Semantics('Theme called with .tpl suffix - not required {type}', compact('type'));
 		}
 		$type = strtolower($type);
-		array_push($this->theme_stack, $type);
-		$t = new Template($this, $this->clean_template_path($type) . $extension, $args);
+		$this->theme_stack[] = $type;
+		$t = new Template($this, $this->cleanTemplatePath($type) . $extension, $args);
 		if ($t->exists()) {
 			$content = $t->render();
 		}
@@ -1682,13 +1729,12 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *            List of themes
 	 * @return boolean If all exist, returns true, otherwise false
 	 */
-	final public function theme_exists($types, array $args = [], array $options = []) {
+	final public function theme_exists(array|string $types, array $args = []): bool {
 		if (empty($types)) {
 			return false;
 		}
-		$types = to_list($types);
-		foreach ($types as $type) {
-			if (!$this->_theme_exists($type, $args, $options)) {
+		foreach (toList($types) as $type) {
+			if (!$this->_themeExists($type, $args)) {
 				return false;
 			}
 		}
@@ -1704,7 +1750,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param array $options
 	 * @return bool
 	 */
-	private function _theme_exists($type, array $args, array $options) {
+	private function _themeExists(string $type, array $args) {
 		$type = strtolower($type);
 		$object = $args['content'] ?? null;
 		if (is_object($object) && method_exists($object, 'hook_theme')) {
@@ -1728,7 +1774,31 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @return array The ordered list of paths to search for class names
 	 */
 	final public function autoload_path($add = null, $options = true) {
+		if ($add) {
+			$this->application->deprecated(__METHOD__ . ' setter');
+		}
 		return $this->autoloader->path($add, $options);
+	}
+
+	/**
+	 * Set autoload path for the application.
+	 *
+	 * @return array
+	 */
+	final public function autoloadPath(): array {
+		return $this->autoloader->path();
+	}
+
+	/**
+	 * Set autoload path for the application.
+	 *
+	 * @param mixed $add
+	 * @param array|bool|string $options
+	 * @return self
+	 */
+	final public function addAutoloadPath(string $add, array|bool|string $options = []): self {
+		$this->autoloader->addPath($add, $options);
+		return $this;
 	}
 
 	/**
@@ -1768,8 +1838,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *            Optional path to add to the application path
 	 * @return string
 	 */
-	final public function application_class(): string {
-		return $this->kernel->application_class();
+	final public function applicationClass(): string {
+		return $this->kernel->applicationClass();
 	}
 
 	/**
@@ -1777,8 +1847,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param string $path
 	 * @return \zesk\Application
 	 */
-	final public function set_application_root($path) {
-		$this->paths->set_application($path, true);
+	final public function setApplicationRoot(string $path): self {
+		$this->paths->setApplication($path, true);
 		return $this;
 	}
 
@@ -1789,17 +1859,17 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *            Optional path to add to the application path
 	 * @return string
 	 */
-	final public function zesk_home($suffix = null) {
+	final public function zeskHome(string $suffix = ''): string {
 		return $this->paths->zesk($suffix);
 	}
 
 	/**
 	 * Get the cache path for the application
 	 *
-	 * @param unknown $add
+	 * @param string $suffix
 	 * @return string
 	 */
-	final public function cache_path($suffix = null) {
+	final public function cachePath(string $suffix = ''): string {
 		return path($this->cache_path, $suffix);
 	}
 
@@ -1813,18 +1883,17 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * manipulates
 	 * files which depend on this being set correctly) then you should initialize it with
 	 *
-	 * $application->set_document_root(...)
+	 * $application->setDocumentRoot(...)
 	 *
 	 * Currently things which use this are: TODO
 	 *
-	 * @param string $document_root_prefix
 	 * @throws Exception_Directory_NotFound
 	 *
 	 */
 	private function _init_document_root(): void {
 		$http_document_root = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/');
 		if ($http_document_root) {
-			$this->set_document_root($http_document_root);
+			$this->setDocumentRoot($http_document_root);
 		}
 		$this->document_cache = $this->document ? path($this->document, 'cache') : '';
 	}
@@ -1854,7 +1923,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * It may be served from an aliased or shared directory and as such may not appear at the web
 	 * server's root.
 	 *
-	 * To ensure all URLs are generated correctly, you can set $this->document_root_prefix(string) to set
+	 * To ensure all URLs are generated correctly, you can set $this->documentRootPrefix(string) to set
 	 * a portion of the URL which is always prefixed to any generated url.
 	 *
 	 * @param string $set
@@ -1862,14 +1931,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @return self
 	 * @throws Exception_Directory_NotFound
 	 */
-	final public function set_document_root($set, $prefix = null) {
+	final public function setDocumentRoot(string $set, string $prefix = ''): self {
 		if (!is_dir($set)) {
 			throw new Exception_Directory_NotFound($set);
 		}
 		$set = rtrim($set, '/');
 		$this->document = $set;
-		if ($prefix !== null) {
-			$this->document_prefix($prefix);
+		if ($prefix !== '') {
+			$this->setDocumentRootPrefix($prefix);
 		}
 		return $this;
 	}
@@ -1880,19 +1949,19 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * To ensure all URLs are generated correctly, you can set a portion of the URL which is always
 	 * prefixed to any generated url.
-	 *
-	 * @param string $set
-	 *            Optionally set the web root
-	 * @return string The directory
-	 * @throws Exception_Directory_NotFound
-	 * @todo should this be urlescpaed by web_root_prefix function to avoid & and + to be set?
+	 * @return string
 	 */
-	final public function document_root_prefix($set = null) {
-		if ($set !== null) {
-			$this->document_prefix = rtrim($set, '/');
-			return $this;
-		}
+	final public function documentRootPrefix(): string {
 		return $this->document_prefix;
+	}
+
+	/**
+	 * @param string $set
+	 * @return $this
+	 */
+	final public function setDocumentRootPrefix(string $set): self {
+		$this->document_prefix = rtrim($set, '/');
+		return $this;
 	}
 
 	/**
@@ -1951,14 +2020,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Return the development status of this application
 	 *
-	 * @param boolean $set
-	 *            Optionally set value
 	 * @return boolean
 	 */
-	public function development(mixed $set = null): bool {
-		if ($set !== null) {
-			throw new Exception_Deprecated('Set no longer supported');
-		}
+	public function development(): bool {
 		return $this->optionBool('development');
 	}
 
@@ -1969,7 +2033,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @return self
 	 */
 	public function setDevelopment(bool $set): self {
-		return $this->setOption('development', to_bool($set));
+		return $this->setOption('development', toBool($set));
 	}
 
 	/**
@@ -1979,7 +2043,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param array $options
 	 * @return Model
 	 */
-	public function model_factory(string $class, mixed $mixed = null, array $options = []): Model {
+	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
 		return Model::factory($this, $class, $mixed, $options);
 	}
 
@@ -2005,7 +2069,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	public function factory(string $class): object {
 		$arguments = func_get_args();
 		$class = array_shift($arguments);
-		return $this->objects->factory_arguments($class, $arguments);
+		return $this->objects->factoryArguments($class, $arguments);
 	}
 
 	/**
@@ -2017,7 +2081,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *            File to include
 	 * @return mixed Whatever is returned by the include file
 	 */
-	public function load($__file__) {
+	public function load(string $__file__): mixed {
 		$application = $this;
 		return include $__file__;
 	}
@@ -2035,8 +2099,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @throws Exception_Parameter
 	 * @throws Exception_Semantics
 	 */
-	public function factory_arguments(string $class, array $arguments = []): object {
-		return $this->objects->factory_arguments($class, $arguments);
+	public function factoryArguments(string $class, array $arguments = []): object {
+		return $this->objects->factoryArguments($class, $arguments);
 	}
 
 	/**
@@ -2055,7 +2119,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			return null;
 		}
 		$session = $this->session_factory();
-		$session->initialize_session($request);
+		$session->initializeSession($request);
 		$request->setOption(__METHOD__, $session);
 		return $session;
 	}
@@ -2083,7 +2147,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		if (!$require) {
 			return null;
 		}
-		return $this->model_singleton(User::class);
+		return $this->modelSingleton(User::class);
 	}
 
 	/**
@@ -2111,15 +2175,15 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @return double Microseconds initialization time
 	 */
-	final public function initialization_time() {
-		return $this->kernel->initialization_time;
+	final public function initializationTime() {
+		return $this->kernel->initializationTime;
 	}
 
 	/**
 	 *
 	 * @return string
 	 */
-	final public function kernel_copyright_holder() {
+	final public function kernelCopyrightHolder() {
 		return $this->kernel->copyright_holder();
 	}
 
@@ -2128,9 +2192,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @param string $code
 	 * @param callable $callable
-	 * @return callable
+	 * @return ?callable
 	 */
-	private function _register_factory($code, $callable) {
+	private function _registerFactory(string $code, callable $callable): ?callable {
 		$old_factory = $this->factories[$code] ?? null;
 		$this->factories[$code] = $callable;
 		$this->application->logger->debug('Adding factory for {code}', [
@@ -2146,20 +2210,20 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param callable $callable
 	 * @return callable
 	 */
-	final public function register_factory($code, $callable) {
-		return $this->_register_factory($code . '_factory', $callable);
+	final public function registerFactory(string $code, callable $callable): ?callable {
+		return $this->_registerFactory($code . '_factory', $callable);
 	}
 
 	/**
 	 * Register a factory function.
-	 * Returns previous factory registered if ya want to use it.
+	 * Returns previous factory registered if you want to use it.
 	 *
 	 * @param string $code
 	 * @param callable $callable
 	 * @return callable
 	 */
-	final public function register_registry($code, $callable) {
-		return $this->_register_factory($code . '_registry', $callable);
+	final public function registerRegistry(string $code, callable $callable): ?callable {
+		return $this->_registerFactory($code . '_registry', $callable);
 	}
 
 	/**
@@ -2169,13 +2233,13 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *            Method called
 	 * @return \object
 	 */
-	final public function __call($name, array $args) {
+	final public function __call(string $name, array $args): mixed {
 		if (isset($this->factories[$name])) {
 			array_unshift($args, $this);
 			return call_user_func_array($this->factories[$name], $args);
 		}
 		$suffix = '_module';
-		if (ends($name, $suffix)) {
+		if (\str_ends_with($name, $suffix)) {
 			return $this->modules->object(substr($name, 0, -strlen($suffix)));
 		}
 
@@ -2186,30 +2250,18 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		]);
 	}
 
-	/**
-	 *
-	 * @param mixed $add
-	 * @deprecated 2017-12
-	 * @see orm_classes
-	 */
-	final public function classes($add = null) {
-		$this->deprecated();
-		return $this->orm_classes($add);
-	}
-
-	/**
-	 * Create an ORM
-	 *
-	 * @param string $class
-	 * @param array $options
-	 * @return ORM
-	 * @todo Pass application as part of creation call
-	 * @deprecated 2017-12 Blame PHP 7.2
-	 */
-	public function object_factory($class, $mixed = null, array $options = []) {
-		$this->deprecated();
-		return ORM::factory($this, $class, $mixed, $options);
-	}
+	/*---------------------------------------------------------------------------------------------------------*\
+	  ---------------------------------------------------------------------------------------------------------
+	  ---------------------------------------------------------------------------------------------------------
+			 _                               _           _
+		  __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
+		 / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
+		| (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
+		 \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
+				   |_|
+	  ---------------------------------------------------------------------------------------------------------
+	  ---------------------------------------------------------------------------------------------------------
+	\*---------------------------------------------------------------------------------------------------------*/
 
 	/**
 	 *
@@ -2250,20 +2302,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	}
 
 	/**
-	 * Retrieve object or classes from cache
-	 *
-	 * @param string $class
-	 * @param string $component
-	 *            Optional component to retrieve
-	 * @return Ambigous <mixed, array>
-	 * @throws Exception_Semantics
-	 * @deprecated immediately
-	 */
-	public function _class_cache($class, $component = '') {
-		$this->kernel->obsolete();
-	}
-
-	/**
 	 * Access an ORM by class name
 	 *
 	 * @return ORM
@@ -2273,34 +2311,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	final public function object($class, $mixed = null, $options = null) {
 		$this->deprecated();
 		return $this->orm_registry($class, $mixed, $options);
-	}
-
-	/**
-	 * Determine object table name based on class and optional initialization parameters
-	 *
-	 * @param string $class
-	 * @param mixed $mixed
-	 * @param array $options
-	 * @return string|\zesk\Ambigous
-	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options)->table() instead.
-	 */
-	final public function object_table_name($class, $mixed = null, $options = null) {
-		$this->deprecated();
-		return $this->object($class, $mixed, $options)->table();
-	}
-
-	/**
-	 * Determine object table columns based on class and optional initialization parameters
-	 *
-	 * @param string $class
-	 * @param mixed $mixed
-	 * @param array $options
-	 * @return string|\zesk\Ambigous
-	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options)->columns() instead.
-	 */
-	final public function object_table_columns($class, $mixed = null, $options = null) {
-		$this->deprecated();
-		return $this->object($class, $mixed, $options)->columns();
 	}
 
 	/**
@@ -2449,7 +2459,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	private function default_include_path() {
 		$list = array_unique([
 			'/etc',
-			$this->zesk_home('etc'),
+			$this->zeskHome('etc'),
 			$this->path('etc'),
 		]);
 		return $list;
@@ -2465,7 +2475,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	final public function zesk_root($suffix = null) {
 		zesk()->deprecated();
-		return $this->zesk_home($suffix);
+		return $this->zeskHome($suffix);
 	}
 
 	/**
@@ -2478,5 +2488,89 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$this->deprecated();
 		// TODO Remove this
 		return $uri;
+	}
+
+	/**
+	 *
+	 * @param mixed $add
+	 * @deprecated 2017-12
+	 * @see orm_classes
+	 */
+	final public function classes(string|array $add = null): array {
+		$this->deprecated();
+		return $this->orm_classes($add);
+	}
+
+	/**
+	 * Add or retrieve the share path for this application - used to serve
+	 * shared content via Controller_Share as well as populate automatically with files within the
+	 * system.
+	 *
+	 * By default, it's /share/
+	 *
+	 * @param unknown $add
+	 * @param unknown $name
+	 * @return array
+	 * @deprecated 2022-05
+	 */
+	final public function share_path(string $add = null, string $name = null) {
+		$list = $this->share_path;
+		if ($add) {
+			$this->addSharePath($add, strval($name));
+		}
+		return $this->sharePath();
+	}
+
+	/**
+	 * Add or retrieve the locale path for this application - used to load locales
+	 *
+	 * By default, it's ./etc/language/
+	 * Must exist in the file system
+	 *
+	 * @param string $add Locale path to add
+	 * @return array
+	 * @deprecated 2022-05
+	 */
+	final public function locale_path(string $add = ''): array {
+		if ($add) {
+			$this->deprecated('use addLocalePath');
+			$this->addLocalePath($add);
+		}
+		return $this->localePath();
+	}
+
+	/**
+	 * Add or retrieve the data path for this application
+	 *
+	 * @param string $add
+	 *            Value to set
+	 * @return string Current data_path value
+	 * @deprecated 2022-05
+	 */
+	final public function data_path($suffix = null) {
+		$this->application->deprecated(__METHOD__);
+		return $this->dataPath($suffix);
+	}
+
+	/**
+	 * Get the cache path for the application
+	 *
+	 * @param string $suffix
+	 * @return string
+	 * @deprecated 2022-05
+	 */
+	final public function cache_path(string $suffix = ''): string {
+		return $this->cachePath($suffix);
+	}
+
+	/**
+	 *
+	 * @param string $path
+	 * @return \zesk\Application
+	 * @deprecated 2022-05
+	 */
+	final public function set_application_root(string $path): self {
+		$this->setApplicationRoot($path);
+		return $this;
 	}
 }

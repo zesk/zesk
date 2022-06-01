@@ -7,7 +7,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage session
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2011, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -16,15 +16,15 @@ namespace zesk;
  * Sessions inherit some options from the global Application object in the initialize() function
  *
  * @see Class_Session_ORM
- * @property id $id
+ * @property int $id
  * @property string $cookie
  * @property boolean $is_one_time
  * @property User $user
- * @property ip4 $ip
+ * @property string $ip
  * @property Timestamp $created
  * @property Timestamp $modified
- * @property datetime $expires
- * @property datetime $seen
+ * @property Timestamp $expires
+ * @property Timestamp $seen
  * @property integer $sequence_index
  * @property array $data
  * @author kent
@@ -79,7 +79,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public function seen() {
 		$query = $this->query_update();
 		$sql = $query->sql();
-		$query->value('*seen', $sql->now())->value('expires', $this->compute_expires())->value('*sequence_index', 'sequence_index+1')->where('id', $this)->low_priority(true)->execute();
+		$query->value('*seen', $sql->now())->value('expires', $this->compute_expires())->value('*sequence_index', 'sequence_index+1')->addWhere('id', $this)->setLowPriority(true)->execute();
 		$this->call_hook('seen');
 		return $this;
 	}
@@ -131,8 +131,8 @@ class Session_ORM extends ORM implements Interface_Session {
 	 */
 	public function hook_store(): void {
 		$ip = $this->member('ip');
-		if (!IPv4::valid($ip)) {
-			$this->set_member('ip', '127.0.0.1');
+		if (!is_string($ip) || !IPv4::valid($ip)) {
+			$this->setMember('ip', '127.0.0.1');
 		}
 	}
 
@@ -170,7 +170,7 @@ class Session_ORM extends ORM implements Interface_Session {
 			}
 		}
 		$this->set_member('ip', $ip);
-		$this->set_member('expires', Timestamp::now()->add_unit($cookieExpire, Timestamp::UNIT_SECOND));
+		$this->set_member('expires', Timestamp::now()->addUnit($cookieExpire, Timestamp::UNIT_SECOND));
 		$this->store();
 	}
 
@@ -179,8 +179,8 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @see Interface_Session::authenticated()
 	 */
-	public function authenticated() {
-		return $this->member_is_empty('user');
+	public function authenticated(): bool {
+		return $this->memberIsEmpty('user');
 	}
 
 	/**
@@ -188,12 +188,10 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @see Interface_Session::deauthenticate()
 	 */
-	public function deauthenticate() {
-		if ($this->user()) {
-			$this->user()->call_hook('logout');
-		}
-		$this->set_member('user', null);
-		return $this->store();
+	public function deauthenticate(): void {
+		$this->user()->call_hook('logout');
+		$this->setMember('user', null);
+		$this->store();
 	}
 
 	/**
@@ -202,7 +200,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @return
 	 *
 	 */
-	public function expires() {
+	public function expires(): Timestamp {
 		return $this->member_timestamp('expires');
 	}
 
@@ -226,12 +224,12 @@ class Session_ORM extends ORM implements Interface_Session {
 	public static function cron_cluster_minute(Application $application): void {
 		$now = Timestamp::now();
 		$where['expires|<'] = $now;
-		$iter = $application->orm_registry(__CLASS__)->query_select()->where($where)->orm_iterator();
+		$iter = $application->orm_registry(__CLASS__)->querySelect()->appendWhere($where)->ormIterator();
 		foreach ($iter as $session) {
 			/* @var $session Session_ORM */
 			$session->logout_expire();
 		}
-		$application->orm_registry(__CLASS__)->query_delete()->where($where)->execute();
+		$application->orm_registry(__CLASS__)->queryDelete()->appendWhere($where)->execute();
 	}
 
 	/**
@@ -240,7 +238,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 */
 	private function compute_expires(): Timestamp {
 		$expire = $this->cookie_expire();
-		$expires = Timestamp::now()->add_unit($expire, Timestamp::UNIT_SECOND);
+		$expires = Timestamp::now()->addUnit($expire, Timestamp::UNIT_SECOND);
 		return $expires;
 	}
 
@@ -256,9 +254,9 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see \zesk\Interface_Session::initialize_session()
+	 * @see \zesk\Interface_Session::initializeSession()
 	 */
-	public function initialize_session(Request $request) {
+	public function initializeSession(Request $request): self {
 		// Very important: Do not use $this->FOO to set variables; it sets the data instead.
 		$application = $this->application;
 		$cookie_name = $this->cookie_name();
@@ -267,7 +265,7 @@ class Session_ORM extends ORM implements Interface_Session {
 			$this->seen();
 			return $this->found_session();
 		}
-		if (!$request->is_browser()) {
+		if (!$request->isBrowser()) {
 			return $this;
 		}
 		$cookie_value = $this->_generate_cookie();
@@ -296,7 +294,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	/**
 	 *
 	 * @param User $user
-	 * @param integer $expire_seconds Expiration time in seconds, inherits from
+	 * @param int $expire_seconds Expiration time in seconds, inherits from
 	 *    'zesk\Session_ORM::one_time_expire_seconds' if not set. Defaults to 1 day (86400 seconds).
 	 *
 	 * @return Session_ORM
@@ -304,20 +302,24 @@ class Session_ORM extends ORM implements Interface_Session {
 	public static function one_time_create(User $user, $expire_seconds = null) {
 		$app = $user->application;
 		if ($expire_seconds === null) {
-			$expire_seconds = to_integer($app->configuration->path_get([
+			$expire_seconds = toInteger($app->configuration->path_get([
 				__CLASS__,
 				'one_time_expire_seconds',
 			], 86400));
 		}
 		// Only one allowed at any time, I guess.
-		$app->orm_registry(__CLASS__)->query_delete()->where('is_one_time', true)->where('user', $user)->execute();
+		$app->orm_registry(__CLASS__)->queryDelete()->addWhere('is_one_time', true)->addWhere('user', $user)->execute();
 		$session = $app->orm_factory(__CLASS__);
-		$request = $user->application->request();
-		$ip = $request ? $request->ip() : null;
-		$session->set_member([
+
+		try {
+			$ip = $user->application->request()->ip();
+		} catch (Exception_Semantics) {
+			$ip = null;
+		}
+		$session->setMembers([
 			'cookie' => self::_generate_cookie(),
 			'is_one_time' => true,
-			'expires' => Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND),
+			'expires' => Timestamp::now()->addUnit($expire_seconds, Timestamp::UNIT_SECOND),
 			'user' => $user,
 			'ip' => $ip,
 		]);
@@ -329,10 +331,10 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * Given a hash, find the one-time Session
 	 *
 	 * @param Application $application
-	 * @param unknown $hash
+	 * @param string $hash
 	 * @return \zesk\ORM|boolean
 	 */
-	public static function one_time_find(Application $application, $hash) {
+	public static function one_time_find(Application $application, string $hash) {
 		$hash = trim($hash);
 		$onetime = $application->orm_factory(__CLASS__);
 		if ($onetime->find([
@@ -362,7 +364,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @return integer
 	 */
 	public function session_count($nSeconds = 600) {
-		$where['seen|>='] = Timestamp::now()->add_unit(-$nSeconds, Timestamp::UNIT_SECOND);
+		$where['seen|>='] = Timestamp::now()->addUnit(-$nSeconds, Timestamp::UNIT_SECOND);
 		$where['id|!='] = $this->id();
 		return $this->query_select()->what('*X', 'COUNT(id)')->where($where)->one_integer('X');
 	}
@@ -383,7 +385,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @return Object
 	 */
 	public function store(): self {
-		if ($this->member_is_empty('cookie')) {
+		if ($this->memberIsEmpty('cookie')) {
 			$this->delete();
 			return $this;
 		} else {
@@ -391,22 +393,37 @@ class Session_ORM extends ORM implements Interface_Session {
 		}
 	}
 
-	public function user_id() {
-		return $this->member_integer('user');
+	/**
+	 * @return int
+	 * @throws Exception_Convert
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 */
+	public function userId(): int {
+		return $this->memberInteger('user');
 	}
 
-	public function user() {
-		return $this->member_object('user', $this->inherit_options());
+	/**
+	 * @return User
+	 * @throws Exception_Semantics
+	 */
+	public function user(): User {
+		return $this->member_object('user', $this->inheritOptions());
 	}
 
-	public function get($name = null, $default = null) {
-		if ($name === null) {
-			return $this->members['data'];
-		}
-		return avalue($this->members['data'], $name, $default);
+	public function get(string $name, mixed $default = null): mixed {
+		return $this->members['data'][$name] ?? $default;
 	}
 
-	public function eget($name, $default = null) {
+	/**
+	 * @param string $name
+	 * @param mixed|null $default
+	 * @return mixed
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 * @throws Exception_Semantics
+	 */
+	public function eget(string $name, mixed $default = null): mixed {
 		$value = $this->get($name, null);
 		if (!empty($value)) {
 			return $value;
@@ -428,20 +445,21 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @see ORM::__set($member, $value)
 	 */
-	public function __set($name, $value): void {
+	public function __set(string $key, mixed $value): void {
 		if ($value === null) {
-			unset($this->members['data'][$name]);
+			unset($this->members['data'][$key]);
 		} else {
-			$this->members['data'][$name] = $value;
+			$this->members['data'][$key] = $value;
 		}
-		if ($value !== ($this->original[$name] ?? null)) {
+		if ($value !== ($this->original[$key] ?? null)) {
 			$this->changed = true;
 			$this->store();
 		}
 	}
 
-	public function set($name, $value = null): void {
+	public function set(string $name, mixed $value = null): self {
 		$this->__set($name, $value);
+		return $this;
 	}
 
 	public function changed($members = null): bool {
@@ -482,6 +500,6 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @return array
 	 */
 	public function cookie_options() {
-		return $this->option_array('cookie');
+		return $this->optionArray('cookie');
 	}
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 16:27:40 EDT 2008
  */
 
@@ -47,15 +47,15 @@ class Control_Order extends Control {
 			$this->moveUpDown($ID, $verb);
 		}
 		$uri = $this->request->uri();
-		$newURL = URL::query_remove($uri, 'move;message', false);
+		$newURL = URL::queryKeysRemove($uri, 'move;message', false);
 
 		throw new Exception_RedirectTemporary($newURL);
 	}
 
-	public function render() {
+	public function render(): string {
 		$ID = $this->object->id();
 
-		$u = URL::query_format(URL::query_remove($this->request->uri(), 'move', false), [
+		$u = URL::queryFormat(URL::queryKeysRemove($this->request->uri(), 'move', false), [
 			'ID' => $ID,
 		]);
 
@@ -82,7 +82,7 @@ class Control_Order extends Control {
 	}
 
 	private function _where() {
-		return map($this->object->apply_map($this->optionArray('where')), $this->request->variables());
+		return map($this->object->applyMap($this->optionArray('where')), $this->request->variables());
 	}
 
 	private function moveTopBottom($ID, $verb): void {
@@ -98,7 +98,7 @@ class Control_Order extends Control {
 		$db = $this->object->database();
 		$dbsql = $db->sql();
 		$sql = "SELECT $func(`$col`) AS N FROM `$table`" . $dbsql->where($this->_where());
-		$nextOrder = $db->query_one($sql, 'N', 1);
+		$nextOrder = $db->queryOne($sql, 'N', 1);
 		$db->query("UPDATE `$table` SET `$col`=" . ($nextOrder + $delta) . " WHERE ID=$ID");
 	}
 
@@ -124,7 +124,7 @@ class Control_Order extends Control {
 
 		$sqlgen = $db->sql();
 		$sql = "SELECT `$col` AS N FROM `$table` " . $sqlgen->where($where);
-		$thisOrder = $db->query_one($sql, 'N', false);
+		$thisOrder = $db->queryOne($sql, 'N', false);
 		$nextObject = null;
 
 		if (is_numeric($thisOrder)) {
@@ -132,7 +132,7 @@ class Control_Order extends Control {
 			$where['ID|!='] = $ID;
 			$where["$col|$cmp"] = $thisOrder;
 			$sql = "SELECT `ID`,`$col` AS N FROM `$table` " . $sqlgen->where($where) . $sqlgen->order_by($order_by);
-			$nextObject = $db->query_one($sql);
+			$nextObject = $db->queryOne($sql);
 		}
 		if (!$nextObject) {
 			$this->moveTopBottom($ID, $verb == 'up' ? 'top' : 'bottom');

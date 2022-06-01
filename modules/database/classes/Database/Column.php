@@ -2,14 +2,12 @@
 declare(strict_types=1);
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * @package zesk
  * @subpackage database
  */
 
 namespace zesk;
-
-use JetBrains\PhpStorm\Pure;
 
 /**
  *
@@ -77,7 +75,6 @@ class Database_Column extends Options {
 		if ($set !== null) {
 			$this->setTable($set);
 			$this->table->application->deprecated('SetTable');
-			$this->table = $set;
 		}
 		return $this->table;
 	}
@@ -124,9 +121,8 @@ class Database_Column extends Options {
 	 * Get previous name for a column
 	 * @return string
 	 */
-	#[Pure]
 	public function previousName(): string {
-		return $this->option(self::OPTION_PREVIOUS_NAME, '');
+		return strval($this->option(self::OPTION_PREVIOUS_NAME, ''));
 	}
 
 	/**
@@ -195,8 +191,8 @@ class Database_Column extends Options {
 				$that->required(),
 			];
 		}
-		$thisDefault = $data_type->native_type_default($this_native_type, $this->default_value());
-		$thatDefault = $data_type->native_type_default($that_native_type, $that->default_value());
+		$thisDefault = $data_type->native_type_default($this_native_type, $this->defaultValue());
+		$thatDefault = $data_type->native_type_default($that_native_type, $that->defaultValue());
 		if ($thisDefault !== $thatDefault) {
 			$diffs[self::OPTION_DEFAULT] = [
 				$thisDefault,
@@ -209,13 +205,13 @@ class Database_Column extends Options {
 				$thatUn,
 			];
 		}
-		if ($this->is_increment() !== $that->is_increment()) {
+		if ($this->isIncrement() !== $that->isIncrement()) {
 			$diffs[self::OPTION_INCREMENT] = [
-				$this->is_increment(),
-				$that->is_increment(),
+				$this->isIncrement(),
+				$that->isIncrement(),
 			];
 		}
-		$result = $db->column_differences($this, $that, $diffs);
+		$result = $db->columnDifferences($this, $that, $diffs);
 		if (is_array($result)) {
 			$diffs = $result + $diffs;
 		}
@@ -229,8 +225,8 @@ class Database_Column extends Options {
 	 * @return array
 	 */
 	public function attributes_differences(Database $db, Database_Column $that, $filter = null): array {
-		$this_extras = $db->column_attributes($this);
-		$that_extras = $db->column_attributes($that);
+		$this_extras = $db->columnAttributes($this);
+		$that_extras = $db->columnAttributes($that);
 		$diffs = [];
 		if ($filter) {
 			$this_extras = ArrayTools::filter($this_extras, $filter);
@@ -258,7 +254,7 @@ class Database_Column extends Options {
 		$diffs = $this->differences($db, $that);
 		if (count($diffs) > 0 && $debug) {
 			$name = $this->name();
-			$this->table->application->logger->debug("Database_Column::is_similar($name): Incompatible: {dump}", [
+			$this->table->application->logger->debug("Database_Column::isSimilar($name): Incompatible: {dump}", [
 				'dump' => PHP::dump($diffs),
 				'diffs' => $diffs,
 			]);
@@ -271,7 +267,6 @@ class Database_Column extends Options {
 	 *
 	 * @return bool
 	 */
-	#[Pure]
 	final public function hasSQLType(): bool {
 		return $this->hasOption(self::OPTION_SQL_TYPE, true);
 	}
@@ -279,7 +274,6 @@ class Database_Column extends Options {
 	/**
 	 * @return string
 	 */
-	#[Pure]
 	final public function sqlType(): string {
 		return $this->option(self::OPTION_SQL_TYPE, '');
 	}
@@ -301,7 +295,6 @@ class Database_Column extends Options {
 	 * @param bool $checkEmpty
 	 * @return bool
 	 */
-	#[Pure]
 	final public function hasDefaultValue(bool $checkEmpty = false): bool {
 		return $this->hasOption(self::OPTION_DEFAULT, $checkEmpty);
 	}
@@ -310,7 +303,6 @@ class Database_Column extends Options {
 	 *
 	 * @return mixed
 	 */
-	#[Pure]
 	final public function defaultValue(): mixed {
 		return $this->option(self::OPTION_DEFAULT);
 	}
@@ -332,7 +324,7 @@ class Database_Column extends Options {
 	final public function binary($set = null): bool {
 		if ($set !== null) {
 			$this->table->application->deprecated('setter');
-			$this->setBinary(to_bool($set));
+			$this->setBinary(toBool($set));
 		}
 		return $this->optionBool(self::OPTION_BINARY);
 	}
@@ -350,7 +342,6 @@ class Database_Column extends Options {
 	/**
 	 * @return bool
 	 */
-	#[Pure]
 	final public function primaryKey(): bool {
 		return $this->optionBool(self::OPTION_PRIMARY_KEY);
 	}
@@ -389,9 +380,8 @@ class Database_Column extends Options {
 	/**
 	 * @return bool
 	 */
-	#[Pure]
 	final public function isIncrement(): bool {
-		return to_bool($this->firstOption([self::OPTION_SERIAL, self::OPTION_INCREMENT]));
+		return toBool($this->firstOption([self::OPTION_SERIAL, self::OPTION_INCREMENT]), false);
 	}
 
 	/**
@@ -486,7 +476,6 @@ class Database_Column extends Options {
 	/**
 	 * @return bool
 	 */
-	#[Pure]
 	final public function inUniqueIndex(): bool {
 		return $this->hasOption(self::OPTION_UNIQUE, true);
 	}
@@ -494,7 +483,6 @@ class Database_Column extends Options {
 	/**
 	 * @return bool
 	 */
-	#[Pure]
 	final public function inIndex(): bool {
 		return $this->hasOption(self::OPTION_INDEX, true);
 	}
@@ -503,7 +491,6 @@ class Database_Column extends Options {
 	 * @param string $of_type
 	 * @return bool
 	 */
-	#[Pure]
 	final public function isIndex(string $of_type = ''): bool {
 		switch ($of_type) {
 			case Database_Index::TYPE_INDEX:
@@ -520,7 +507,6 @@ class Database_Column extends Options {
 	/**
 	 * @return bool
 	 */
-	#[Pure]
 	public function hasExtras(): bool {
 		return $this->hasOption(self::OPTION_COLUMN_EXTRAS, true);
 	}
@@ -588,7 +574,7 @@ class Database_Column extends Options {
 	}
 
 	/**
-	 * @param $set deprecated
+	 * @param ?bool $set
 	 * @return bool
 	 * @deprecated 2022-05
 	 */
@@ -606,17 +592,6 @@ class Database_Column extends Options {
 	 */
 	public function is_text(): bool {
 		return $this->isText();
-	}
-
-	/**
-	 * @param Database $db
-	 * @param Database_Column $that
-	 * @param $debug
-	 * @return bool
-	 * @deprecated 2022-05
-	 */
-	final public function is_similar(Database $db, Database_Column $that, $debug = false): bool {
-		return $this->isSimilar($db, $that, $debug);
 	}
 
 	/**

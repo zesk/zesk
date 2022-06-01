@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
 echo HTML::tag('a', [
 	'href' => $this->href,
 	'title' => $this->title,
-	'class' => CSS::add_class('btn btn-danger', $this->confirm ? 'confirm' : ''),
+	'class' => CSS::addClass('btn btn-danger', $this->confirm ? 'confirm' : ''),
 	'data-confirm' => $this->get('data-confirm'),
-] + $this->widget->data_attributes(), HTML::tag('span', '.glyphicon .glyphicon-trash', '') . ' ' . $this->link_text);
+] + $this->widget->dataAttributes(), HTML::tag('span', '.glyphicon .glyphicon-trash', '') . ' ' . $this->link_text);
 
 /* $var $response zesk\Response */
 $response = $this->response;

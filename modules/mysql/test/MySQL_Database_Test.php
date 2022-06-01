@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 class MySQL_Database_Test extends Test_Unit {
@@ -70,7 +72,7 @@ CREATE TABLE `tracking_1999` (
 );
 EOF;
 
-		$table = $db->parse_create_table($sql, __METHOD__);
+		$table = $db->parseCreateTable($sql, __METHOD__);
 
 		$this->assert_instanceof($table, 'zesk\\Database_Table');
 
@@ -82,7 +84,7 @@ EOF;
 
 		$test_table = $this->test_table('test_table');
 
-		$db->database_name();
+		$db->databaseName();
 
 		$filename = path($this->test_sandbox('dump.sql'));
 		$options = [];
@@ -114,12 +116,12 @@ EOF;
 			//$db->createDatabase('mysql://test_user:test_pass@localhost/zesk_create_test_db');
 		}
 
-		$db->tables_case_sensitive();
+		$db->tablesCaseSensitive();
 
 		$this->assert($db->can(Database::FEATURE_LIST_TABLES) === true);
 		$this->assert($db->can(Database::FEATURE_CREATE_DATABASE) === true);
 
-		$tables = $db->list_tables();
+		$tables = $db->listTables();
 
 		$debug = false;
 
@@ -129,7 +131,7 @@ EOF;
 					'table' => $table,
 				]);
 			}
-			$sql = $db->query_one("SHOW CREATE TABLE $table", 1);
+			$sql = $db->queryOne("SHOW CREATE TABLE $table", 1);
 			if ($debug) {
 				$this->log('Showing table {table} = {sql}', [
 					'table' => $table,
@@ -139,8 +141,8 @@ EOF;
 			$this->assert_string_begins($sql, 'CREATE TABLE');
 			$this->assert(str_contains($sql, "$table"));
 
-			$dbTableObject = $db->parse_create_table($sql, __METHOD__);
-			$sql = $db->sql()->create_table($dbTableObject);
+			$dbTableObject = $db->parseCreateTable($sql, __METHOD__);
+			$sql = $db->sql()->createTable($dbTableObject);
 			if (!is_array($sql)) {
 				$sqls = [
 					$sql,
@@ -152,7 +154,14 @@ EOF;
 			$this->assert_string_begins($sql, 'CREATE TABLE');
 			$this->assert(str_contains($sql, "$table"));
 
-			$result = $db->table_information($table);
+			$result = $db->tableInformation($table);
+			$this->assertArrayHasKey('engine', $result);
+			$this->assertArrayHasKey('created', $result);
+			$this->assertInstanceOf(Timestamp::class, $result['created']);
+			$this->assertArrayHasKey('updated', $result);
+			$this->assertArrayHasKey('row_count', $result);
+			$this->assertArrayHasKey('data_size', $result);
+			$this->assertArrayHasKey('index_size', $result);
 		}
 
 		$table = null;
@@ -161,7 +170,7 @@ EOF;
 
 		try {
 			$table = 'testtable';
-			$db->database_table($table);
+			$db->databaseTable($table);
 		} catch (Database_Exception_Table_NotFound $e) {
 			$success = true;
 		}
@@ -229,18 +238,29 @@ EOF;
 		$this->assert_equal($sql, "ALTER TABLE `$table_name` CHANGE COLUMN `Foo` `Foo` varchar(33) NULL");
 
 		$query = 'SELECT NOW()';
-		$result = $db->query_array($query);
+		$result = $db->queryArray($query);
 		$this->assertIsArray($result);
 
-		$db->query('SHOW TABLES');
+		$result = $db->query('SHOW TABLES');
 
-		$result = null;
-		$db->affected_rows($result);
+		$success = false;
 
-		$result = null;
+		try {
+			$db->affectedRows($result);
+		} catch (Exception_Semantics) {
+			$success = true;
+		}
+		$this->assertTrue($success, 'affected rows should not work for a resultset');
+
+		$db->query('DROP TABLE IF EXISTS foobar');
+		$db->query('CREATE TABLE foobar ( id int PRIMARY KEY AUTO_INCREMENT )');
+		$db->query('INSERT INTO foobar ( id ) VALUES (1)');
+		$this->assertEquals(1, $db->insertID($result));
+		$result = $db->query('DROP TABLE foobar');
+
+		$db->free($result);
 		$db->free($result);
 
-		$db->insert_id();
 
 		$sql = [];
 		$db->mixed_query($sql);
@@ -249,24 +269,24 @@ EOF;
 		$k = null;
 		$v = null;
 		$default = [];
-		$db->query_array($sql, $k, $v, $default);
+		$db->queryArray($sql, $k, $v, $default);
 
 		$db->now();
 
 		$db->now_utc();
 
-		$tables = $db->list_tables();
+		$tables = $db->listTables();
 		$this->assert(count($tables) > 0, 'Test database should contain at least one table');
 
 		foreach ($tables as $table) {
-			$this->assert_true($db->table_exists($table), "$table returned by list_tables but does not exist?");
+			$this->assert_true($db->tableExists($table), "$table returned by listTables but does not exist?");
 		}
 
 		$word = 'foobar';
-		$db->is_reserved_word($word);
+		$db->isReservedWord($word);
 
 		$sql = 'CREATE TABLE Foo ( ID integer )';
-		$db->parse_create_table($sql, __METHOD__);
+		$db->parseCreateTable($sql, __METHOD__);
 
 		$db = $this->application->database_registry();
 
@@ -275,7 +295,7 @@ EOF;
 		$this->assert(!empty($url));
 
 		$filler = 'ANTIDISESTABLISHMENTARIANISM';
-		$safe_url = $db->safe_url($filler);
+		$safe_url = $db->safeURL($filler);
 		$this->assert(str_contains($safe_url, $filler), "Safe URL $safe_url does not contain $filler");
 
 		$table = new Database_Table($db, $table_name = 'TestTable' . __LINE__);
@@ -295,23 +315,23 @@ EOF;
 
 		$col = 'Hippy';
 		$alias = 'Dippy';
-		$sql = $db->sql()->column_alias($col, $alias);
+		$sql = $db->sql()->columnAlias($col, $alias);
 		$this->assert_equal($sql, '`Dippy`.`Hippy`');
 
-		$db->transaction_start();
+		$db->transactionStart();
 
 		$success = true;
-		$db->transaction_end($success);
+		$db->transactionEnd($success);
 
 		$table = 'random_table';
-		$db->new_database_table($table);
+		$db->newDatabaseTable($table);
 
-		$this->assert_is_string($db->table_prefix());
+		$this->assert_is_string($db->tablePrefix());
 	}
 
 	public function test_estimate_rows(): void {
 		$db = $this->database();
-		$this->assert_true($db->table_exists('test_table'));
+		$this->assert_true($db->tableExists('test_table'));
 		$sql = 'SELECT * FROM test_table';
 		$db->estimate_rows($sql);
 	}

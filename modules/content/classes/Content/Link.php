@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -38,15 +38,15 @@ class Content_Link extends ORM {
 			'*LastClick' => $this->sql()
 				->now(),
 		])
-			->where('ID', $this->id())
+			->addWhere('ID', $this->id())
 			->execute();
 		$this->query_update()
 			->values([
 			'*FirstClick' => $this->sql()
 				->now(),
 		])
-			->where('ID', $this->id())
-			->where('FirstClick', null)
+			->addWhere('ID', $this->id())
+			->addWhere('FirstClick', null)
 			->execute();
 	}
 }

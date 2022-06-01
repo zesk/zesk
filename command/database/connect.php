@@ -2,7 +2,7 @@
 
 /**
  *
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  * @author kent
  *
  */
@@ -72,7 +72,7 @@ class Command_Database_Connect extends Command_Base {
 
 		$name = $this->option('name');
 		$db = $this->application->database_registry($name);
-		[$command, $args] = $db->shell_command();
+		[$command, $args] = $db->shellCommand();
 
 		if ($this->optionBool('debug-connect')) {
 			echo "$command " . implode(' ', $args) . "\n";
@@ -82,7 +82,7 @@ class Command_Database_Connect extends Command_Base {
 			die("Unable to find shell $command in system path:" . implode(', ', $this->application->paths->command()) . "\n");
 		}
 		if ($this->optionBool('echo')) {
-			echo $full_command_path . implode('', ArrayTools::prefix($args, ' ')) . "\n";
+			echo $full_command_path . implode('', ArrayTools::prefixValues($args, ' ')) . "\n";
 		} else {
 			PHP::requires('pcntl', true);
 			$method = 'pcntl_exec';
@@ -97,15 +97,15 @@ class Command_Database_Connect extends Command_Base {
 	 */
 	private function handle_info() {
 		$name = $this->option('name');
-		$db = $this->application->database_module()->register();
+		$db = $this->application->database_module()->databases();
 		if (!$this->optionBool('show-passwords')) {
 			foreach ($db as $key => $url) {
-				$db[$key] = URL::remove_password($url);
+				$db[$key] = URL::removePassword($url);
 			}
 		}
 		if ($this->optionBool('db-name')) {
 			foreach ($db as $key => $url) {
-				$db[$key] = Database::url_parse($url, 'name');
+				$db[$key] = Database::urlParse($url, 'name');
 			}
 		}
 		if ($name) {
@@ -166,7 +166,7 @@ class Command_Database_Connect extends Command_Base {
 				$result = array_merge($grant_statements, $result);
 			}
 		}
-		echo ArrayTools::join_suffix($result, ";\n");
+		echo ArrayTools::joinSuffix($result, ";\n");
 		return 0;
 	}
 }

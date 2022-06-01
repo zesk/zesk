@@ -26,6 +26,6 @@ class Hookable extends \zesk\Hookable {
 	 */
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 	}
 }

@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 abstract class Configuration_Editor extends Options {
-	protected $content = null;
+	protected string $content;
 
 	public function __construct($content = '', array $options = []) {
 		parent::__construct($options);
@@ -10,16 +12,22 @@ abstract class Configuration_Editor extends Options {
 	}
 
 	/**
-	 * Getter/setter for content
+	 * Setter for content
 	 *
 	 * @param string $set
-	 * @return \zesk\Configuration_Editor|string
+	 * @return self
 	 */
-	public function content($set = null) {
-		if ($set !== null) {
-			$this->content = $set;
-			return $this;
-		}
+	public function setContent(string $set): self {
+		$this->content = $set;
+		return $this;
+	}
+
+	/**
+	 * Getter for content
+	 *
+	 * @return string
+	 */
+	public function content(): string {
 		return $this->content;
 	}
 
@@ -28,5 +36,5 @@ abstract class Configuration_Editor extends Options {
 	 * @param array $edits
 	 * @return string New content of configuration file
 	 */
-	abstract public function edit(array $edits);
+	abstract public function edit(array $edits): string;
 }

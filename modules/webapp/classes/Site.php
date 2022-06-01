@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage webapp
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\WebApp;
 
@@ -59,7 +59,7 @@ class Site extends ORM {
 	 */
 	protected function last_priority() {
 		return $this->query_select()
-			->where('instance', $this->instance)
+			->addWhere('instance', $this->instance)
 			->addWhat('*max', 'MAX(priority)')
 			->one_integer('max', -1);
 	}
@@ -129,7 +129,7 @@ class Site extends ORM {
 		$query = $this->query_select('X')->link(Instance::class, [
 			'alias' => 'L',
 			'require' => false,
-		])->where('L.id', null);
+		])->addWhere('L.id', null);
 		$iterator = $query->orm_iterator();
 		foreach ($iterator as $instance) {
 			/* @var $instance self */

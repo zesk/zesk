@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage user
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2013, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -27,10 +27,10 @@ class Preference extends ORM {
 	 * @see ORM::store()
 	 */
 	public function store(): self {
-		if ($this->member_is_empty('user')) {
+		if ($this->memberIsEmpty('user')) {
 			throw new Exception_Parameter('NULL value for user');
 		}
-		if ($this->member_is_empty('type')) {
+		if ($this->memberIsEmpty('type')) {
 			throw new Exception_Parameter('NULL value for type');
 		}
 		return parent::store();
@@ -49,7 +49,7 @@ class Preference extends ORM {
 	}
 
 	public static function user_has_one(User $user, $name) {
-		return $user->application->orm_registry(__CLASS__)->query_select()->join('zesk\\Preference_Type', ['alias' => 'T', ])->where('T.code', $name)->where('X.user', $user)->what('value', 'COUNT(X.value)')->one_integer('value') !== 0;
+		return $user->application->orm_registry(__CLASS__)->query_select()->join('zesk\\Preference_Type', ['alias' => 'T', ])->addWhere('T.code', $name)->addWhere('X.user', $user)->what('value', 'COUNT(X.value)')->one_integer('value') !== 0;
 	}
 
 	/**
@@ -61,16 +61,26 @@ class Preference extends ORM {
 	 *       it works identically first!
 	 */
 	private static function _value_query(User $user, $name) {
-		$query = $user->application->orm_registry(__CLASS__)->query_select()->link(self::type_class, 'type')->where(['X.user' => $user, 'type.code' => $name, ]);
+		$query = $user->application->orm_registry(__CLASS__)->query_select()->link(self::type_class, 'type')->where([
+			'X.user' => $user,
+			'type.code' => $name,
+		]);
 		return $query;
 	}
 
 	public static function user_get(User $user, $pref_name, $default = null) {
 		if (empty($pref_name)) {
-			throw new Exception_Parameter('{method}({user}, {name}, ...) Name is empty', ['method' => __METHOD__, 'user' => $user->id(), 'name' => $pref_name, ]);
+			throw new Exception_Parameter('{method}({user}, {name}, ...) Name is empty', [
+				'method' => __METHOD__,
+				'user' => $user->id(),
+				'name' => $pref_name,
+			]);
 		}
 		$pref_name = strtolower($pref_name);
-		$row = $user->application->orm_registry(__CLASS__)->query_select()->link(self::type_class, ['alias' => 'T', ])->what('value', 'X.value')->what('id', 'X.id')->where('T.code', $pref_name)->where('X.user', $user)->one();
+		$row = $user->application->orm_registry(__CLASS__)->querySelect()->link(self::type_class, ['alias' => 'T', ])->addWhat('value', 'X.value')->addWhat('id', 'X.id')->appendWhere([
+			'T.code' => $pref_name,
+			'X.user' => $user,
+		])->one();
 		if (!is_array($row)) {
 			return $default;
 		}
@@ -79,14 +89,22 @@ class Preference extends ORM {
 		if ($vlen >= 4 && $value[1] === ':' && $value[$vlen - 1] === ';') {
 			return PHP::unserialize($value);
 		} else {
-			$user->application->logger->warning('Invalid preference string for {user}: {key}={value} ({vlen} chars) - deleting ({debug})', ['user' => $user, 'key' => $pref_name, 'value' => $value, 'debug' => PHP::dump($row), 'vlen' => $vlen, ]);
-			$user->application->orm_registry(Preference::class)->query_delete()->where('id', $row['id'])->execute();
+			$user->application->logger->warning('Invalid preference string for {user}: {key}={value} ({vlen} chars) - deleting ({debug})', [
+				'user' => $user,
+				'key' => $pref_name,
+				'value' => $value,
+				'debug' => PHP::dump($row),
+				'vlen' => $vlen,
+			]);
+			$user->application->orm_registry(Preference::class)->query_delete()->addWhere('id', $row['id'])->execute();
 		}
 		return $default;
 	}
 
 	public static function user_get_single(User $user, $name, $default) {
-		$result = $user->application->orm_registry(__CLASS__)->query_select()->join(self::type_class, ['alias' => 'T', ])->where('T.code', $name)->where('X.user', $user)->what('value', 'X.value')->one('value');
+		$result = $user->application->orm_registry(__CLASS__)->querySelect()->join(self::type_class, [
+			'alias' => 'T',
+		])->appendWhere(['T.code' => $name, 'X.user' => $user])->addWhat('value', 'X.value')->one('value');
 		if ($result === null) {
 			return $default;
 		}
@@ -115,8 +133,7 @@ class Preference extends ORM {
 
 	public static function userGet(User $user, array $preferences) {
 		$names = array_keys($preferences);
-		$row = $user->application->orm_registry(__CLASS__)->query_select()->link(self::type_class, ['alias' => 'T', ])
-			->what('value', 'X.value')->what('id', 'X.id')->where('T.code', $names)->where('X.user', $user)->to_array();
+		$row = $user->application->orm_registry(__CLASS__)->querySelect()->link(self::type_class, ['alias' => 'T', ])->addWhat('value', 'X.value')->addWhat('id', 'X.id')->addWhere('T.code', $names)->addWhere('X.user', $user)->toArray();
 		if (!is_array($row)) {
 			return $default;
 		}
@@ -125,8 +142,14 @@ class Preference extends ORM {
 		if ($vlen >= 4 && $value[1] === ':' && $value[$vlen - 1] === ';') {
 			return PHP::unserialize($value);
 		} else {
-			$user->application->logger->warning('Invalid preference string for {user}: {key}={value} ({vlen} chars) - deleting ({debug})', ['user' => $user, 'key' => $pref_name, 'value' => $value, 'debug' => PHP::dump($row), 'vlen' => $vlen, ]);
-			$user->application->orm_registry(Preference::class)->query_delete()->where('id', $row['id'])->execute();
+			$user->application->logger->warning('Invalid preference string for {user}: {key}={value} ({vlen} chars) - deleting ({debug})', [
+				'user' => $user,
+				'key' => $pref_name,
+				'value' => $value,
+				'debug' => PHP::dump($row),
+				'vlen' => $vlen,
+			]);
+			$user->application->orm_registry(Preference::class)->query_delete()->addWhere('id', $row['id'])->execute();
 		}
 		return $default;
 	}
@@ -143,12 +166,16 @@ class Preference extends ORM {
 	private static function _register(User $user, Preference_Type $type, mixed $value): int {
 		$app = $user->application;
 		$dbvalue = serialize($value);
-		$result = $app->orm_registry(__CLASS__)->query_select()->what('id', 'id')->what('value', 'value')->where('user', $user)->where('type', $type)->one();
+		$query = $app->orm_registry(__CLASS__)->querySelect()->addWhat('id')->addWhat('value')->appendWhere([
+			'user' => $user,
+			'type' => $type,
+		]);
+		$result = $query->one(null);
 		if ($result) {
 			if ($result['value'] === $dbvalue) {
 				return intval($result['id']);
 			}
-			$app->orm_registry(__CLASS__)->query_update()->value('value', $dbvalue)->where('id', $result['id'])->execute();
+			$app->orm_registry(__CLASS__)->queryUpdate()->value('value', $dbvalue)->addWhere('id', $result['id'])->execute();
 			return intval($result['id']);
 		}
 		return $app->orm_factory(__CLASS__, ['type' => $type, 'value' => $value, 'user' => $user, ])->store()->id();

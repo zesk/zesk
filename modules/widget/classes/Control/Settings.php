@@ -26,7 +26,7 @@ class Control_Settings extends Control {
 	 * @see Widget::model()
 	 */
 	public function model() {
-		return $this->application->model_factory(Model_Settings::class);
+		return $this->application->modelFactory(Model_Settings::class);
 	}
 
 	protected function initialize(): void {
@@ -57,12 +57,12 @@ class Control_Settings extends Control {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Widget::theme_variables()
+	 * @see Widget::themeVariables()
 	 */
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
 			'column_count_label' => $this->column_count_label,
 			'column_count_widget' => $this->column_count_widget,
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 }

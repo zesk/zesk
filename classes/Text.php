@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage tools
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2016, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * @desc Text Manipulation
  */
 
@@ -118,7 +118,7 @@ class Text {
 	 * Generate a fill string to support ralign and lalign, and modify text
 	 *
 	 * @param string $text Text to right-align
-	 * @param integer $length Number of characters to return
+	 * @param int $length Number of characters to return
 	 * @param string $pad Character used to fill string
 	 * @param string $fill The fill cahracters to be filled in.
 	 * @param boolean $chop_text If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
@@ -148,7 +148,7 @@ class Text {
 	 * Right align a string in a block of characters returned.
 	 *
 	 * @param string $text Text to right-align
-	 * @param integer $length Number of characters to return
+	 * @param int $length Number of characters to return
 	 * @param string $pad Character used to fill string
 	 * @param boolean $chop_text If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
 	 * @return string The text with padding to fill $n characters (aligned right), or the original string (optionally trimmed) if length is greater than $n
@@ -163,7 +163,7 @@ class Text {
 	 * Left align a string in a block of characters returned.
 	 *
 	 * @param string $text Text to left-align
-	 * @param integer $length Number of characters to return
+	 * @param int $length Number of characters to return
 	 * @param string $pad Character used to fill string
 	 * @param bool $chop_text If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
 	 * @return string The text with padding to fill $n characters (aligned left), or the original string (optionally trimmed) if length is greater than $n
@@ -443,7 +443,7 @@ class Text {
 	 *
 	 * @param string $string
 	 *            A string to count words in
-	 * @param integer $limit
+	 * @param int $limit
 	 *            Max words to count
 	 * @return integer The number of words found
 	 */

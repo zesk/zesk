@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2012, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -11,7 +11,7 @@ class CharSet_Test extends Test_Unit {
 	public function test_supported(): void {
 		$charset = null;
 		$result = charset::supported($charset);
-		$this->application->development(true);
+		$this->application->setDevelopment(true);
 		$this->assert(is_array($result));
 		foreach ($result as $charset) {
 			$this->assert(charset::supported($charset) === true);

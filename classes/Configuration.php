@@ -39,11 +39,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	protected array $_data;
 
 	/**
-	 * Is this tree locked? Meaning, I can't edit it at all?
-	 */
-	protected bool $_locked = false;
-
-	/**
 	 * Current iterator index. For iterating, silly.
 	 *
 	 * Does this mean that PHP is not re-entrant? PHP will probably just add a keyword for 'per-thread'.
@@ -64,15 +59,13 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	/**
 	 * Configuration constructor.
 	 * @param array $array
-	 * @param boolean $locked
 	 * @param array $path
 	 */
-	public function __construct(array $array = [], $locked = false, array $path = []) {
+	public function __construct(array $array = [], array $path = []) {
 		$this->_path = $path;
-		$this->_locked = $locked;
 		foreach ($array as $key => $value) {
 			if (is_array($value)) {
-				$array[$key] = new self($value, $locked, $this->_addPath($key));
+				$array[$key] = new self($value, $this->_addPath($key));
 			}
 		}
 		$this->_data = array_change_key_case($array);
@@ -83,12 +76,11 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	/**
 	 *
 	 * @param array $array
-	 * @param boolean $locked
 	 * @param array $path
 	 * @return self
 	 */
-	public static function factory(array $array = [], $locked = false, array $path = []) {
-		return new self($array, $locked, $path);
+	public static function factory(array $array = [], array $path = []): self {
+		return new self($array, $path);
 	}
 
 	/**
@@ -115,7 +107,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param boolean $overwrite
 	 * @return self
 	 */
-	public function merge(Configuration $config, $overwrite = true) {
+	public function merge(Configuration $config, bool $overwrite = true) {
 		foreach ($config as $key => $value) {
 			$key = strtolower($key);
 			if (isset($this->_data[$key])) {
@@ -139,9 +131,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string $key
 	 * @return boolean
 	 */
-	public function has($key) {
-		$key = strtolower($key);
-		return isset($this->_data[$key]);
+	public function has(string $key): bool {
+		return $this->__isset($key);
 	}
 
 	/**
@@ -149,20 +140,16 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string $key
 	 * @return boolean
 	 */
-	public function __isset($key) {
+	public function __isset(string $key): bool {
 		$key = strtolower($key);
 		return isset($this->_data[$key]);
 	}
 
 	/**
 	 * @param $key
-	 * @throws Exception_Lock
 	 */
-	public function __unset($key): void {
+	public function __unset(string $key): void {
 		$key = strtolower($key);
-		if ($this->_locked) {
-			$this->_locked($key, 'delete');
-		}
 		if (isset($this->_data[$key])) {
 			unset($this->_data[$key]);
 			$this->_count = count($this->_data);
@@ -170,20 +157,19 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	}
 
 	/**
-	 *
-	 * @param string $key
-	 * @param mixed $value
-	 * @return self|mixed
-	 * @throws Exception_Lock
+	 * @param string|array $key
+	 * @param mixed|null $value
+	 * @return $this
 	 */
-	public function set($key, $value = null) {
+	public function set(string|array $key, mixed $value = null): self {
 		if (is_array($key)) {
 			foreach ($key as $k => $v) {
 				$this->__set($k, $v);
 			}
 			return $this;
 		}
-		return $this->__set($key, $value);
+		$this->__set($key, $value);
+		return $this;
 	}
 
 	/**
@@ -191,20 +177,15 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @param string $key
 	 * @param mixed $value
-	 * @return mixed
-	 * @throws Exception_Lock
+	 * @return void
 	 */
-	public function __set($key, $value) {
-		if ($this->_locked) {
-			$this->_locked($key, 'set');
-		}
+	public function __set(string $key, mixed $value): void {
 		if (is_array($value)) {
-			$value = new self($value, $this->_locked, $this->_addPath($key));
+			$value = new self($value, $this->_addPath($key));
 		}
 		$key = strtolower($key);
 		$this->_data[$key] = $value;
 		$this->_count = count($this->_data);
-		return $value;
 	}
 
 	/**
@@ -215,7 +196,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function get($key, $default = null) {
+	public function get(string $key, $default = null) {
 		$key = strtolower($key);
 		if (strpos($key, '-') && !isset($this->_data[$key])) {
 			error_log(map('Fetching MISSING key {key} with dash from {func}', [
@@ -327,26 +308,21 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string|array $path
 	 * @param mixed $value
 	 * @return Configuration parent node of final value set
-	 * @throws Exception_Lock
 	 */
-	public function path_set(string|array $path, $value = null) {
+	public function path_set(string|array $path, mixed $value = null): self {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$key = array_pop($path);
 		if (count($path) > 0) {
-			$current = $this->path($path);
-			$current->$key = $value;
-			return $current;
-		} else {
-			$this->$key = $value;
-			return $this;
+			return $this->path($path)->path_set($key, $value);
 		}
+		$this->$key = $value;
+		return $this;
 	}
 
 	/**
 	 * Ensure configuration path is available
 	 * @param array|string $keys
 	 * @return self
-	 * @throws Exception_Lock
 	 */
 	public function path(string|array $keys): self {
 		$keys = is_array($keys) ? $keys : explode(self::key_separator, $keys);
@@ -354,10 +330,9 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 		while (count($keys) > 0) {
 			$next = array_shift($keys);
 			if (!$current->$next instanceof self) {
-				$current = $current->set($next, []);
-			} else {
-				$current = $current->$next;
+				$current->set($next, []);
 			}
+			$current = $current->$next;
 		}
 		return $current;
 	}
@@ -380,13 +355,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 			$current = $current->__get($next);
 		}
 		return $current;
-	}
-
-	/**
-	 * Lock a Configuration so it can not be modified
-	 */
-	public function lock(): void {
-		$this->_locked = true;
 	}
 
 	/**
@@ -546,22 +514,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	private function _addPath($key) {
 		return array_merge($this->_path, [
 			$key,
-		]);
-	}
-
-	/**
-	 * Throw exception when locked
-	 *
-	 * @param string $key
-	 *            Key attempting to modify
-	 * @param string $verb
-	 *            Action attempting to do (debug)
-	 * @throws Exception_Lock
-	 */
-	private function _locked($key, $verb): void {
-		throw new Exception_Lock("Unable to $verb key {key} at {path}", [
-			'key' => $key,
-			'path' => $this->_path,
 		]);
 	}
 

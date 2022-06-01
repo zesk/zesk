@@ -1,12 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
  *
  */
+
 use \DirectoryIterator;
 use \UnexpectedValueException;
 use Psr;
@@ -24,7 +27,7 @@ class Directory extends Hookable {
 	 *
 	 * @var integer
 	 */
-	public static $default_mode = 0o770;
+	public static int $default_mode = 0o770;
 
 	/**
 	 * Implement hooks
@@ -43,12 +46,13 @@ class Directory extends Hookable {
 	/**
 	 * If a directory does not exist, create it. If an error occurs
 	 * @param string $path
-	 * @param string $mode
-	 * @throws Exception_Directory_Create
+	 * @param int|null $mode
+	 * @return string
 	 * @throws Exception_Directory_Permission
-	 * @return unknown
+	 * @throws Exception_Directory_Create
+	 * @throws Exception_File_NotFound
 	 */
-	public static function depend($path, $mode = null) {
+	public static function depend(string $path, int $mode = null): string {
 		if ($mode === null) {
 			$mode = self::default_mode();
 		}
@@ -56,7 +60,7 @@ class Directory extends Hookable {
 			throw new Exception_Directory_Create($path);
 		}
 		$perms = File::stat($path, 'perms');
-		if (!self::octal_equal($perms['octal'], File::mode_to_octal($mode))) {
+		if (intval($perms['octal']) === File::mode_to_octal($mode)) {
 			if (!chmod($path, $mode)) {
 				throw new Exception_Directory_Permission($path, map('Setting {filename} to mode {0}', [sprintf('%04o', $mode)]));
 			}
@@ -68,10 +72,10 @@ class Directory extends Hookable {
 	 * Require a directory to exist at $path and throw an Exception_Directory_NotFound if it does not.
 	 *
 	 * @param string $path
-	 * @throws Exception_Directory_NotFound
 	 * @return string
+	 * @throws Exception_Directory_NotFound
 	 */
-	public static function must($path) {
+	public static function must(string $path): string {
 		if (!is_dir($path)) {
 			throw new Exception_Directory_NotFound($path);
 		}
@@ -81,31 +85,31 @@ class Directory extends Hookable {
 	/**
 	 * If debugging is enabled, log a debug message
 	 *
-	 * @param unknown $message
+	 * @param string|array $message
 	 * @param array $args
 	 */
-	public static function debug($message, array $args = []): void {
+	public static function debug(string|array $message, array $args = []): void {
 		if (self::$debug) {
-			self::$application->logger->debug($message, $args);
+			zesk()->application()->logger->debug($message, $args);
 		}
 	}
 
 	/**
 	 * The default directory mode for new directories
 	 *
-	 * @return integer
+	 * @return int
 	 */
-	public static function default_mode() {
+	public static function default_mode(): int {
 		return self::$default_mode;
 	}
 
 	/**
 	 * Create a directory if it does not exist
 	 * @param string $path Path to create
-	 * @param integer $mode Default mode of directory (UNIX permissions)
+	 * @param int $mode Default mode of directory (UNIX permissions)
 	 * @return string $path of directory if created, null if not
 	 */
-	public static function create($path, $mode = null) {
+	public static function create(string $path, int $mode = null) {
 		if ($mode === null) {
 			$mode = self::default_mode();
 		}
@@ -129,7 +133,7 @@ class Directory extends Hookable {
 	 * @throws Exception_Parameter
 	 * @throws Exception_Directory_NotFound
 	 */
-	public static function duplicate($source, $destination, $recursive = true, $file_copy_function = null) {
+	public static function duplicate(string $source, string $destination, bool $recursive = true, callable $file_copy_function = null) {
 		if (empty($source)) {
 			throw new Exception_Parameter('self::duplicate: Source is empty');
 		}
@@ -143,7 +147,7 @@ class Directory extends Hookable {
 		}
 		$d = new \DirectoryIterator($source);
 		foreach ($d as $f) {
-			/* @var $f FileInfo */
+			/* @var $f \FileInfo */
 			if ($f->isDot()) {
 				continue;
 			}
@@ -167,10 +171,10 @@ class Directory extends Hookable {
 	/**
 	 *
 	 * @param string $path
-	 * @throws Exception_Directory_NotFound
 	 * @return boolean
+	 * @throws Exception_Directory_NotFound
 	 */
-	public static function is_empty($path) {
+	public static function isEmpty(string $path): bool {
 		if (!is_dir($path)) {
 			return true;
 		}
@@ -196,7 +200,7 @@ class Directory extends Hookable {
 		if (!is_dir($path)) {
 			return true;
 		}
-		self::delete_contents($path);
+		self::deleteContents($path);
 		if (!rmdir($path)) {
 			throw new Exception_Directory_Permission($path, __METHOD__ . ' rmdir returned false');
 		}
@@ -206,7 +210,7 @@ class Directory extends Hookable {
 	/**
 	 *
 	 */
-	public static function delete_contents($path) {
+	public static function deleteContents($path) {
 		$x = [];
 
 		try {
@@ -245,7 +249,7 @@ class Directory extends Hookable {
 			}
 			return $mixed;
 		} else {
-			if (self::is_absolute($mixed)) {
+			if (self::isAbsolute($mixed)) {
 				return $mixed;
 			}
 			return path($absolute_root, $mixed);
@@ -259,8 +263,8 @@ class Directory extends Hookable {
 	 * @return boolean
 	 * @see File::is_absolute
 	 */
-	public static function is_absolute($f) {
-		return File::is_absolute($f);
+	public static function isAbsolute($f) {
+		return File::isAbsolute($f);
 	}
 
 	/**
@@ -270,7 +274,7 @@ class Directory extends Hookable {
 	 * @param unknown $prefix
 	 */
 	private static function _legacy_parse_options(array $options, $prefix) {
-		$options = ArrayTools::kunprefix($options, $prefix . '_', true);
+		$options = ArrayTools::keysRemovePrefix($options, $prefix . '_', true);
 		$include_pattern = $exclude_pattern = null;
 		$default = true;
 		extract($options, EXTR_IF_EXISTS);
@@ -290,7 +294,7 @@ class Directory extends Hookable {
 		if ($include_pattern !== null) {
 			$result[$include_pattern] = true;
 		}
-		$result[] = to_bool($default);
+		$result[] = toBool($default);
 		return $result;
 	}
 
@@ -320,9 +324,9 @@ class Directory extends Hookable {
 	 * List a directory recursively
 	 *
 	 * Options work as follows:
-	 *		rules_file = list of rules => true/false - Whether to include a file in the results (matched against FULL PATH)
-	 *		rules_directory = Whether to include a directory in the result (matched against FULL PATH)
-	 *		rules_directory_walk = Whether to walk a directory (matched against FULL PATH)
+	 *        rules_file = list of rules => true/false - Whether to include a file in the results (matched against FULL PATH)
+	 *        rules_directory = Whether to include a directory in the result (matched against FULL PATH)
+	 *        rules_directory_walk = Whether to walk a directory (matched against FULL PATH)
 	 *
 	 * Options take the form:
 	 *  (file|directory|directory_walk)_(include_pattern|exclude_pattern|default)
@@ -337,13 +341,13 @@ class Directory extends Hookable {
 	public static function list_recursive($path, array $options = []) {
 		$options = !is_array($options) ? [] : $options;
 		$options = array_change_key_case($options);
-		$progress = to_bool($options['progress'] ?? false);
+		$progress = toBool($options['progress'] ?? false);
 		$rules_file = self::_list_recursive_rules($options, 'file');
 		$rules_dir = self::_list_recursive_rules($options, 'directory');
 		$rules_dir_walk = self::_list_recursive_rules($options, 'directory_walk');
 
-		$max_results = $options['maximum_results']?? -1;
-		$addpath = to_bool($options['add_path'] ?? false);
+		$max_results = $options['maximum_results'] ?? -1;
+		$addpath = toBool($options['add_path'] ?? false);
 
 		$path = rtrim($path, '/');
 		$d = @opendir($path);
@@ -373,7 +377,7 @@ class Directory extends Hookable {
 				}
 				$result = self::list_recursive($full_path, $options);
 				if (is_array($result)) {
-					$result = ArrayTools::prefix($result, "$prefix$x/");
+					$result = ArrayTools::prefixValues($result, "$prefix$x/");
 					$r = array_merge($r, $result);
 				}
 			} else {
@@ -476,15 +480,15 @@ class Directory extends Hookable {
 	 *
 	 * Try:
 	 *
-	 * 		$dirs = ArrayTools::unsuffix(self::ls($path), "/", true)
+	 *        $dirs = ArrayTools::valuesRemoveSuffix(self::ls($path), "/", true)
 	 *
 	 * To strip the / and return only directories, for example.
 	 *
 	 * @param string $path The directory to list
 	 * @param string $filter A pattern to match against files in the directory. Use null for all matches.
 	 * @param boolean $cat_path Whether to concatenate the path to each resulting file name
-	 * @todo Move this to DirectoryIterater inherited class
 	 * @return array The directory list
+	 * @todo Move this to DirectoryIterater inherited class
 	 */
 	public static function ls($path, $filter = null, $cat_path = false) {
 		if (!is_string($filter)) {
@@ -536,7 +540,7 @@ class Directory extends Hookable {
 				'source' => $source,
 			]);
 		}
-		self::delete_contents($dest);
+		self::deleteContents($dest);
 		foreach (self::list_recursive($source) as $f) {
 			$f_source = path($source, $f);
 			$f_dest = path($dest, $f);
@@ -585,7 +589,7 @@ class Directory extends Hookable {
 	 *   Will delete file names which sort at the top of the list
 	 *
 	 * @param string $directory
-	 * @param integer $total
+	 * @param int $total
 	 * @param string $order_by
 	 * @return integer List of files deleted
 	 */
@@ -598,7 +602,7 @@ class Directory extends Hookable {
 			$order_by = 'name';
 		}
 		if ($order_by === 'name') {
-			$target_files = ArrayTools::flip_copy($files);
+			$target_files = ArrayTools::valuesFlipCopy($files);
 			$sort_flags = SORT_STRING;
 		} elseif ($order_by === 'date') {
 			foreach ($files as $i => $file) {
@@ -626,9 +630,9 @@ class Directory extends Hookable {
 	 * Given a list of paths and a directory name, find the first occurrance of the named directory.
 	 *
 	 * @param array $paths
-	 *        	List of strings representing file system paths
+	 *            List of strings representing file system paths
 	 * @param mixed $directory
-	 *        	Directory to search for, or list of directories to search for (array)
+	 *            Directory to search for, or list of directories to search for (array)
 	 * @return string Full path of found directory, or null if not found
 	 * @see File::find
 	 */
@@ -657,13 +661,13 @@ class Directory extends Hookable {
 	 * Given a list of paths and a directory name, find the first occurrance of the named directory.
 	 *
 	 * @param array $paths
-	 *        	List of strings representing file system paths
+	 *            List of strings representing file system paths
 	 * @param mixed $directory
-	 *        	Directory to search for, or list of directories to search for (array)
+	 *            Directory to search for, or list of directories to search for (array)
 	 * @return string Full path of found directory, or null if not found
 	 * @see File::find_first
 	 */
-	public static function find_all(array $paths, $directory = null) {
+	public static function find_all(array $paths, array|string $directory = '') {
 		$result = [];
 		if (is_array($directory)) {
 			foreach ($paths as $path) {
@@ -683,16 +687,5 @@ class Directory extends Hookable {
 			}
 		}
 		return $result;
-	}
-
-	/**
-	 * Utility function to compare two octal values
-	 *
-	 * @param mixed $a
-	 * @param mixed $b
-	 * @return boolean
-	 */
-	private static function octal_equal($a, $b) {
-		return intval($a) === intval($b);
 	}
 }

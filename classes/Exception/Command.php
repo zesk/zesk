@@ -25,7 +25,7 @@ class Exception_Command extends Exception {
 	/**
 	 *
 	 * @param string $command
-	 * @param integer $resultcode
+	 * @param int $resultcode
 	 * @param array $output
 	 */
 	public function __construct($command, $resultcode, array $output) {

@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 class Database_Query_Union_Test extends Test_Unit {
@@ -39,42 +41,14 @@ class Database_Query_Union_Test extends Test_Unit {
 		$select->addWhereSQL('COUNT(A) != COUNT(B)');
 
 		$group_by = 'ID';
-		$testx->group_by([$group_by]);
+		$testx->setGroupBy([$group_by]);
 
 		$order_by = null;
-		$testx->order_by($order_by);
+		$testx->setOrderBy([]);
 
-		$offset = 0;
-		$limit = null;
-		$testx->limit($offset, $limit);
+		$testx->setOffsetLimit(10, 100);
 
 		$testx->__toString();
-
-		// Hits database TODO
-//		$testx->iterator();
-//
-//		$class = "U";
-//		$options = [];
-//		$testx->orm_iterator($class, $options);
-//
-//		$field = "id";
-//		$default = null;
-//		$testx->one($field, $default);
-//
-//		$class = "User";
-//		$testx->orm($class);
-//
-//		$field = "total";
-//		$testx->one_integer($field, 0);
-//
-//		$field = null;
-//		$default = 0;
-//		$testx->integer($field, $default);
-//
-//		$key = false;
-//		$value = false;
-//		$default = false;
-//		$testx->to_array($key, $value, $default);
 
 		$testx->database();
 

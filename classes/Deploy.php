@@ -96,8 +96,8 @@ class Deploy extends Hookable {
 		if (!$this->failed()) {
 			return $this;
 		}
-		$last_tag = $this->option_path('last_tag');
-		$failed_tag = $this->option_path('failed_tag.name');
+		$last_tag = $this->optionPath('last_tag');
+		$failed_tag = $this->optionPath('failed_tag.name');
 		if (empty($last_tag) || empty($failed_tag)) {
 			//error("Deploy::reset({skip}) Empty tags found last_tag={last_tag} failed_tag={failed_tag}", compact("last_tag", "failed_tag", "skip"));
 			return null;
@@ -308,7 +308,7 @@ class Deploy extends Hookable {
 	protected function hook_extension_sql(array $tag) {
 		$path = $tag['path'];
 		$db = $this->application->database_registry();
-		$sqls = $db->split_sql_commands(file_get_contents($path));
+		$sqls = $db->splitSQLStatements(file_get_contents($path));
 		$result = [
 			'type' => 'sql',
 		];

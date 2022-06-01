@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  *            Created on Tue Jul 15 16:22:33 EDT 2008
  */
+
 namespace zesk;
 
 /**
@@ -16,21 +18,14 @@ namespace zesk;
 class Control_Select_ORM extends Control_Select {
 	/**
 	 *
-	 * @var string
+	 * @var ?Class_ORM
 	 */
+	protected ?Class_ORM $class_object = null;
 
 	/**
-	 *
-	 * @var Class_ORM
+	 * @return ORM
 	 */
-	protected $class_object = null;
-
-	/**
-	 * (non-PHPdoc)
-	 *
-	 * @see Widget::model()
-	 */
-	protected function model() {
+	protected function model(): ORM {
 		$class = $this->class;
 		if (empty($class)) {
 			return parent::model();
@@ -56,20 +51,17 @@ class Control_Select_ORM extends Control_Select {
 			return [];
 		}
 		if ($this->object) {
-			$where = $this->object->apply_map($where);
+			$where = $this->object->applyMap($where);
 		}
 		return $where;
 	}
 
-	public function value($set = null) {
-		if ($set === '') {
-			$this->object->set($this->column(), null);
-			return $this;
-		}
-		return parent::value($set);
+	public function setValue(mixed $set): self {
+		$this->object->set($this->column(), null);
+		return $this;
 	}
 
-	protected function id_column() {
+	protected function idColumn() {
 		return $this->option('idcolumn', $this->class_object->id_column);
 	}
 
@@ -79,7 +71,7 @@ class Control_Select_ORM extends Control_Select {
 			$text_column = $this->class_object->name_column;
 		}
 		$text_column = to_list($text_column);
-		$text_column = array_merge($text_column, $this->option_array('text_columns'));
+		$text_column = array_merge($text_column, $this->optionArray('text_columns'));
 		return $text_column;
 	}
 
@@ -89,20 +81,20 @@ class Control_Select_ORM extends Control_Select {
 		$prefix = $query->alias() . '.';
 
 		$text_column = $this->text_columns();
-		$what = ArrayTools::prefix(ArrayTools::flip_copy($text_column), $prefix);
+		$what = ArrayTools::prefixValues(ArrayTools::valuesFlipCopy($text_column), $prefix);
 		$query->what('id', $prefix . $this->class_object->id_column);
 		$query->what($what, true);
 		$query->order_by($this->option('order_by', $text_column));
 		$query->where($this->_where());
 
 		if (!$this->hasOption('format')) {
-			$this->setOption('format', implode(' ', ArrayTools::wrap(array_keys($what), '{', '}')));
+			$this->setOption('format', implode(' ', ArrayTools::wrapValues(array_keys($what), '{', '}')));
 		}
 		$this->call_hook('options_query', $query);
 		return $this->call_hook('options_query_format', $query);
 	}
 
-	protected function hook_options_query_format(Database_Query_Select $query) {
+	protected function hook_options_queryFormat(Database_Query_Select $query) {
 		$format = $this->option('format');
 		$rows = $query->to_array('id');
 		foreach ($rows as $key => $row) {
@@ -122,7 +114,7 @@ class Control_Select_ORM extends Control_Select {
 						$where,
 					];
 				}
-				$where = $this->option_array('where', []) + $where;
+				$where = $this->optionArray('where', []) + $where;
 			}
 			$this->setOption('where', $where);
 			return $this;

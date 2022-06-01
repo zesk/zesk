@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -33,7 +33,7 @@ foreach ($df as $path => $data) {
 		$rowclass = 'notice';
 	} ?><div class="<?php
 
-echo CSS::add_class('row', $rowclass); ?>">
+echo CSS::addClass('row', $rowclass); ?>">
 	<div class="span1 percent"><?php
 
 echo $this->theme('percent', $used_percent); ?></div>

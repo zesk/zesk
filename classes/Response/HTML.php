@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage Response
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Response;
 
@@ -131,11 +131,11 @@ class HTML extends Type {
 		$response = $this->parent;
 		$this->script_settings = [
 			'zesk' => [
-				'inited' => $application->initialization_time(),
+				'inited' => $application->initializationTime(),
 			],
 		];
-		$this->html_attributes = $response->option_array('html_attributes');
-		$this->body_attributes = $response->option_array('body_attributes');
+		$this->html_attributes = $response->optionArray('html_attributes');
+		$this->body_attributes = $response->optionArray('body_attributes');
 
 		$this->page_theme = $response->option('page_theme', $this->page_theme);
 	}
@@ -183,8 +183,8 @@ class HTML extends Type {
 	 * @param unknown $add
 	 * @return \zesk\Response
 	 */
-	final public function body_add_class($add = null) {
-		$this->body_attributes = HTMLTools::add_class($this->body_attributes, $add);
+	final public function body_addClass($add = null) {
+		$this->body_attributes = HTMLTools::addClass($this->body_attributes, $add);
 		return $this->parent;
 	}
 
@@ -351,7 +351,7 @@ class HTML extends Type {
 				'media' => $options,
 			];
 		}
-		$options = is_array($options) ? ArrayTools::trim_clean($options) : [];
+		$options = is_array($options) ? ArrayTools::listTrimClean($options) : [];
 		$options += [
 			'type' => 'text/css',
 		];
@@ -424,7 +424,7 @@ class HTML extends Type {
 	 */
 	private function link_tags(array $options = []) {
 		$result = [];
-		$stylesheets_inline = to_bool(avalue($options, 'stylesheets_inline'));
+		$stylesheets_inline = toBool(avalue($options, 'stylesheets_inline'));
 		if (!$this->links_sorted) {
 			$this->links_sorted = $this->links;
 			usort($this->links_sorted, 'zesk_sort_weight_array');
@@ -566,7 +566,7 @@ class HTML extends Type {
 			}
 		}
 		return ArrayTools::clean([
-			'elapsed' => microtime(true) - $this->application->initialization_time(),
+			'elapsed' => microtime(true) - $this->application->initializationTime(),
 			'scripts' => count($scripts) ? $scripts : null,
 			'stylesheets' => count($stylesheets) ? $stylesheets : null,
 			'head_tags' => count($head_tags) ? $head_tags : null,
@@ -581,7 +581,7 @@ class HTML extends Type {
 	 * @param unknown $route_expire
 	 */
 	private function resource_path_route($resource_path, $route_expire) {
-		$path = $this->application->cache_path([
+		$path = $this->application->cachePath([
 			'resources',
 			$resource_path,
 		]);
@@ -660,7 +660,7 @@ class HTML extends Type {
 		}
 		$query['_ver'] = date('YmdHis', filemtime($file));
 		return [
-			URL::query_format($path, $query),
+			URL::queryFormat($path, $query),
 			$file,
 		];
 	}
@@ -991,7 +991,7 @@ class HTML extends Type {
 			} else {
 				assert(array_key_exists('src', $attrs));
 				if (avalue($attrs, 'nocache')) {
-					$resource_path = URL::query_append($attrs['src'], [
+					$resource_path = URL::queryAppend($attrs['src'], [
 						$this->parent->option('scripts_nocache_variable', '_r') => md5(microtime()),
 					]);
 					$script_attributes['src'] = $resource_path;
@@ -1165,7 +1165,7 @@ class HTML extends Type {
 	 */
 	public function javascript_inline($script, $options = null) {
 		$options = to_array($options, []);
-		$multiple = to_bool(avalue($options, 'multiple', false));
+		$multiple = toBool(avalue($options, 'multiple', false));
 		$id = array_key_exists('id', $options) ? $options['id'] : md5($script);
 		if ($multiple) {
 			$id = $id . '-' . count($this->scripts);

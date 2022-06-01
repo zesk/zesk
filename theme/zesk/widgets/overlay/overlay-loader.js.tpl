@@ -22,12 +22,12 @@ $this->response->content_type('text/javascript');
 header('Content-Type: text/javascript');
 
 $qs = [];
-$qs['width'] = $this->geti('width', 300);
-$qs['height'] = $this->geti('height', 100);
+$qs['width'] = $this->getInt('width', 300);
+$qs['height'] = $this->getInt('height', 100);
 $qs['where'] = $where;
-$qs['thickness'] = $this->geti('thickness', 20);
+$qs['thickness'] = $this->getInt('thickness', 20);
 
-$timeout = $this->geti('timeout', 30);
+$timeout = $this->getInt('timeout', 30);
 
 ob_start();
 ?>
@@ -133,7 +133,7 @@ ob_start();
 }(window));
 </script>
 <?php
-$map['css_url'] = URL::query_format($this->css_url, $qs);
+$map['css_url'] = URL::queryFormat($this->css_url, $qs);
 $map['iframe_url_prefix'] = $this->iframe_url_prefix;
 $map['timeout'] = $timeout;
 $map['id'] = $id;

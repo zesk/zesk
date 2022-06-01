@@ -28,7 +28,7 @@ class Schedule extends ORM {
 		if (!$last) {
 			$last = Timestamp::now($timezone);
 		} else {
-			$last->time_zone($timezone);
+			$last->setTimeZone($timezone);
 		}
 		return $this->call_hook_arguments("compute_next_$unit", [
 			$last,
@@ -52,7 +52,7 @@ class Schedule extends ORM {
 	protected function hook_compute_next_day(Timestamp $last) {
 		$next = $this->_next_initialize($last);
 		if ($next->before($last, true)) {
-			$next->add_unit(1, Timestamp::UNIT_DAY);
+			$next->addUnit(1, Timestamp::UNIT_DAY);
 		}
 		return $next;
 	}
@@ -61,7 +61,7 @@ class Schedule extends ORM {
 		$next = $this->_next_initialize($last);
 		$next->weekday($this->weekday);
 		if ($next->before($last, true)) {
-			$next->add_unit(7, Timestamp::UNIT_DAY);
+			$next->addUnit(7, Timestamp::UNIT_DAY);
 		}
 		return $next;
 	}
@@ -70,7 +70,7 @@ class Schedule extends ORM {
 		$next = $this->_next_initialize($last);
 		$next->day($this->monthday);
 		if ($next->before($last, true)) {
-			$next->add_unit(1, Timestamp::UNIT_MONTH);
+			$next->addUnit(1, Timestamp::UNIT_MONTH);
 		}
 		return $next;
 	}

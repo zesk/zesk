@@ -17,7 +17,7 @@ extract($members, EXTR_IF_EXISTS);
 ?>
 <div class="contact-view-address contact-view">
 <?php
-if ($this->getb('show_street', true)) {
+if ($this->getBool('show_street', true)) {
 	echo HTML::span('.contact-address-street', $street);
 }
 if ($city && $province) {

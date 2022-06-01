@@ -127,7 +127,7 @@ class Contact_Address extends Contact_Info {
 	 * @return boolean
 	 */
 	public function has_geo() {
-		return !$this->member_is_empty([
+		return !$this->memberIsEmpty([
 			'latitude',
 			'longitude',
 		]);
@@ -215,7 +215,7 @@ class Contact_Address extends Contact_Info {
 	 * @return Contact_Address_Parser
 	 */
 	private function parser() {
-		return $this->application->object_singleton('Contact_Address_Parser');
+		return $this->application->objectSingleton('Contact_Address_Parser');
 	}
 
 	/**

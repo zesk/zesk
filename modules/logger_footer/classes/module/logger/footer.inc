@@ -57,7 +57,7 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 			$result[] = HTML::tag_open('ul');
 			$this->log[] = [
 				'_level_string' => 'info',
-				'_formatted' => sprintf('%.3f', microtime(true) - $this->application->initialization_time()) . ' seconds elapsed',
+				'_formatted' => sprintf('%.3f', microtime(true) - $this->application->initializationTime()) . ' seconds elapsed',
 			];
 			foreach ($this->log as $entry) {
 				$level_class = strtolower($entry['_level_string']);

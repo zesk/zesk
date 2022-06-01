@@ -3,13 +3,13 @@
  * @package zesk
  * @subpackage widgets
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Fri Oct 09 19:22:21 EDT 2009 19:22:21
  */
 namespace zesk;
 
 class View_Graph extends View {
-	public function render() {
+	public function render(): string {
 		$html = $this->response()->html();
 		$html->jquery();
 		$html->javascript('/share/zesk/js/zesk.js', [

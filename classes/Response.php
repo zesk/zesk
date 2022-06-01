@@ -263,7 +263,7 @@ class Response extends Hookable {
 		$this->request = $request;
 		parent::__construct($application, $options);
 		$this->id = self::$response_index++;
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 		if (!$this->content_type) {
 			$this->content_type($this->option('content_type', self::CONTENT_TYPE_HTML));
 		}
@@ -306,7 +306,7 @@ class Response extends Hookable {
 	public function cookie($name, $value = null, array $options = []) {
 		$expire = avalue($options, 'expire', $this->option('cookie_expire'));
 		if ($expire instanceof Timestamp) {
-			$n_seconds = $expire->subtract(Timestamp::now($expire->time_zone()));
+			$n_seconds = $expire->subtract(Timestamp::now($expire->timeZone()));
 		} elseif (is_int($expire)) {
 			$n_seconds = $expire;
 		} else {
@@ -327,10 +327,10 @@ class Response extends Hookable {
 		$secure = avalue($options, 'secure', $this->optionBool('cookie_secure'));
 		$path = avalue($options, 'path', $this->optionBool('cookie_path', '/'));
 		if (!$domain) {
-			$domain = Domain::domain_factory($this->application, $host)->compute_cookie_domain();
+			$domain = Domain::domain_factory($this->application, $host)->computeCookieDomain();
 		}
 		$expire_time = $n_seconds ? time() + $n_seconds : null;
-		if ($this->request->is_browser()) {
+		if ($this->request->isBrowser()) {
 			setcookie($name, null);
 			if (!empty($value)) {
 				setcookie($name, $value, $expire_time, $path, ".$domain", $secure);
@@ -349,7 +349,7 @@ class Response extends Hookable {
 		if ($set === null) {
 			return $this->optionBool('debug_redirect');
 		}
-		return $this->setOption('debug_redirect', to_bool($set));
+		return $this->setOption('debug_redirect', toBool($set));
 	}
 
 	/**
@@ -522,7 +522,7 @@ class Response extends Hookable {
 	 */
 	final public function header_date($name, $value) {
 		if ($value instanceof Timestamp) {
-			$value = $value->unix_timestamp();
+			$value = $value->unixTimestamp();
 		}
 		return $this->header($name, gmdate('D, d M Y H:i:s \G\M\T', $value));
 	}
@@ -603,7 +603,7 @@ class Response extends Hookable {
 			return;
 		}
 		$this->rendering = true;
-		$skip_hooks = to_bool(avalue($options, 'skip_hooks'));
+		$skip_hooks = toBool(avalue($options, 'skip_hooks'));
 		if (!$skip_hooks) {
 			$this->application->call_hook('response_output_before', $this);
 			$this->call_hook('output_before');
@@ -662,9 +662,9 @@ class Response extends Hookable {
 	/**
 	 * Cache for n seconds
 	 *
-	 * @param integer $seconds
+	 * @param int $seconds
 	 *            Number of seconds to cache this content
-	 * @param integer $level
+	 * @param int $level
 	 *            What cache pattern to use to store this content
 	 * @return \zesk\Response
 	 */
@@ -686,7 +686,7 @@ class Response extends Hookable {
 				'scheme' => 'none',
 			];
 		$parts += [
-			'port' => URL::protocol_default_port($parts['scheme']),
+			'port' => URL::protocolDefaultPort($parts['scheme']),
 			'scheme' => 'none',
 			'host' => '_host_',
 			'query' => '_query_',
@@ -702,7 +702,7 @@ class Response extends Hookable {
 	 *            String or list
 	 * @return boolean
 	 */
-	public function is_content_type($mixed) {
+	public function isContentType($mixed) {
 		foreach (to_list($mixed) as $type) {
 			if (str_contains($this->content_type, $type)) {
 				return true;
@@ -729,7 +729,7 @@ class Response extends Hookable {
 	 *            Contents to save
 	 * @return boolean
 	 */
-	public function cache_save(CacheItemPoolInterface $pool, $url) {
+	public function cacheSave(CacheItemPoolInterface $pool, $url) {
 		if ($this->cache_settings === null) {
 			return false;
 		}
@@ -742,7 +742,7 @@ class Response extends Hookable {
 		$pattern = avalue(self::$cache_pattern, $level, self::$cache_pattern[self::CACHE_SCHEME]);
 
 		$item = self::fetch_cache_id($pool, map($pattern, $parts));
-		$response = $this->application->response_factory($this->request);
+		$response = $this->application->responseFactory($this->request);
 		$response->output_handler(Response::CONTENT_TYPE_RAW);
 		$response->content_type($this->content_type());
 		$response->header($this->header());
@@ -856,8 +856,8 @@ class Response extends Hookable {
 	 * @param string $add
 	 * @return Response
 	 */
-	final public function body_add_class($add = null) {
-		return $this->html()->body_add_class($add);
+	final public function body_addClass($add = null) {
+		return $this->html()->body_addClass($add);
 	}
 
 	/**
@@ -1108,7 +1108,7 @@ class Response extends Hookable {
 	 * @return boolean|self
 	 */
 	public function skip_response_headers($set = null) {
-		return $set === null ? $this->optionBool('skip_response_headers') : $this->setOption('skip_response_headers', to_bool($set));
+		return $set === null ? $this->optionBool('skip_response_headers') : $this->setOption('skip_response_headers', toBool($set));
 	}
 
 	/**

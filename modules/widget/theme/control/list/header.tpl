@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -27,14 +27,14 @@ if ($this->render_header_widgets) {
 	if ($this->empty_list_hide_header && $this->list_is_empty) {
 		// No header
 	} else {
-		$list_column_count = $this->geti('list_column_count', 12);
+		$list_column_count = $this->getInt('list_column_count', 12);
 		echo $this->header_prefix;
 		$header_widgets = $this->header_widgets;
 		echo HTML::div_open('.row header');
 		foreach ($header_widgets as $widget) {
 			/* @var $widget Widget */
 			if ($widget->is_visible()) {
-				echo HTML::tag('div', CSS::add_class(".col-xs-$list_column_count .col-sm-" . $widget->option('list_column_width', 2), $widget->context_class()), $widget->render());
+				echo HTML::tag('div', CSS::addClass(".col-xs-$list_column_count .col-sm-" . $widget->option('list_column_width', 2), $widget->contextClass()), $widget->render());
 			}
 		}
 		echo HTML::div_close();

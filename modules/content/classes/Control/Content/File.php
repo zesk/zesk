@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage content
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -46,7 +46,7 @@ class Control_Content_File extends Control_Widgets {
 		return $this->_file_widget;
 	}
 
-	public function submit() {
+	public function submit(): bool {
 		if (!$this->submit_children()) {
 			return $this->required() ? false : true;
 		}

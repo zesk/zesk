@@ -29,13 +29,13 @@ class Database_Exception_Connect extends Exception {
 	 * @param string $url
 	 * @param string $message
 	 * @param array $arguments
-	 * @param integer $errno
+	 * @param int $errno
 	 */
 	public function __construct($url, $message = null, array $arguments = [], int $errno = 0) {
 		if (URL::valid($url)) {
 			$this->url = $url;
-			$arguments['safe_url'] = URL::remove_password($url);
-			$arguments += Database::url_parse($url);
+			$arguments['safe_url'] = URL::removePassword($url);
+			$arguments += Database::urlParse($url);
 			$arguments['database'] = $arguments['name'];
 		} else {
 			$this->url = 'nulldb://null/null';

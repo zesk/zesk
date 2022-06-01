@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jun 17 00:58:51 EDT 2008
  */
 namespace zesk;
@@ -62,12 +62,12 @@ class View_Actions extends View {
 	private function _action_href($action, $add_ref = true) {
 		$object = $this->object;
 		if ($this->hasOption($action . '_href')) {
-			return $object->apply_map($this->option($action . '_href'));
+			return $object->applyMap($this->option($action . '_href'));
 		}
 		if (!$object) {
 			return null;
 		}
-		return $this->application->router()->get_route($action, $object, $this->option_array('route_options'));
+		return $this->application->router()->get_route($action, $object, $this->optionArray('route_options'));
 	}
 
 	/**
@@ -99,15 +99,15 @@ class View_Actions extends View {
 	 * @return array|void
 	 */
 	public function actions(array $set = null) {
-		return $set === null ? $this->option_list('actions') : $this->setOption('actions', $set);
+		return $set === null ? $this->optionIterable('actions') : $this->setOption('actions', $set);
 	}
 
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\View::theme_variables()
+	 * @see \zesk\View::themeVariables()
 	 */
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
 			'actions' => $this->actions(),
 			'add_href' => $this->optionBool('add_href', true),

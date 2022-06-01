@@ -12,7 +12,7 @@ namespace zesk;
 /* @var $content array */
 /* @var $process string */
 $nseconds = intval(microtime(true) - $content['time']);
-$alive = to_bool(avalue($content, 'alive'));
+$alive = toBool(avalue($content, 'alive'));
 $status = avalue($content, 'status');
 $classes = [
 	'daemon-module processes',

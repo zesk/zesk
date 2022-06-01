@@ -24,7 +24,7 @@ class Control_Arrange extends Control_Select {
 	}
 
 	protected function defaults(): void {
-		$this->children_defaults();
+		$this->childrenDefaults();
 		$this->value($this->request->get($this->name()));
 	}
 
@@ -104,7 +104,7 @@ class Control_Arrange extends Control_Select {
 	 * @return Control_Arrange|array
 	 */
 	public function arrange_map(array $set = null) {
-		return $set === null ? $this->option_array('arrange_map') : $this->setOption('arrange_map', $set);
+		return $set === null ? $this->optionArray('arrange_map') : $this->setOption('arrange_map', $set);
 	}
 
 	protected function _fix_options(): void {

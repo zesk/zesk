@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -13,7 +13,7 @@ namespace zesk;
  *
  */
 class View_Tooltip extends View {
-	public function render() {
+	public function render(): string {
 		$response = $this->response();
 		$html = $response->html();
 		$html->jquery();

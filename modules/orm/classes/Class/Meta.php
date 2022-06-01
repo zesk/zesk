@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage orm
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -35,7 +35,7 @@ class Class_Meta extends Class_ORM {
 	protected function configure(ORM $object): void {
 		if (!$this->table) {
 			$this->initialize_database($object);
-			$this->table = $this->database()->table_prefix() . PHP::parse_class(get_class($object));
+			$this->table = $this->database()->tablePrefix() . PHP::parseClass(get_class($object));
 		}
 	}
 }

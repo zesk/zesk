@@ -3,7 +3,7 @@
 /**
  * @package zesk
  * @subpackage kernel
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -86,7 +86,7 @@ class Process {
 
 	/**
 	 *
-	 * @param integer $pid
+	 * @param int $pid
 	 * @throws \Exception_Unimplemented
 	 * @return boolean
 	 */
@@ -166,7 +166,7 @@ class Process {
 	 * @return array Lines output by the command (returned by exec)
 	 * @see exec
 	 */
-	public function execute_arguments(string $command, array $args = [], bool $passthru = false) {
+	public function execute_arguments(string $command, array $args = [], bool $passthru = false): array {
 		foreach ($args as $i => $arg) {
 			$args[$i] = escapeshellarg(strval($arg));
 		}
@@ -183,7 +183,7 @@ class Process {
 		} else {
 			exec($raw_command, $output, $result);
 		}
-		if (intval($result) !== 0) {
+		if ($result !== 0) {
 			throw new Exception_Command($raw_command, $result, is_array($output) ? $output : []);
 		}
 		return $output;

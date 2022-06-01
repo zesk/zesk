@@ -111,7 +111,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 * @return string
 	 */
 	public function source_locations(array $set = null) {
-		return $set !== null ? $this->setOption('source_locations', $set) : $this->option_list('source_locations');
+		return $set !== null ? $this->setOption('source_locations', $set) : $this->optionIterable('source_locations');
 	}
 
 	/**
@@ -164,7 +164,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 */
 	private function handle_source_locations($reason = '') {
 		$source_location = $this->option('source_location');
-		$source_locations = $this->option_list('source_locations');
+		$source_locations = $this->optionIterable('source_locations');
 
 		if ($source_location) {
 			$source_locations[] = $source_location;
@@ -179,7 +179,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 		}
 		$result = [];
 		foreach ($source_locations as $source_location) {
-			if (!!Directory::is_absolute($source_location)) {
+			if (!!Directory::isAbsolute($source_location)) {
 				$source_location = $this->application->path($source_location);
 			}
 			$this->application->logger->debug('{reason}: source_location={source_location}', [

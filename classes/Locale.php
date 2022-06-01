@@ -5,13 +5,12 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Thu Apr 15 16:02:28 EDT 2010 16:02:28
  */
 
 namespace zesk;
 
-use JetBrains\PhpStorm\Pure;
 use zesk\Locale\Writer;
 
 /**
@@ -82,7 +81,7 @@ abstract class Locale extends Hookable {
 		}
 		[$lang, $dialect] = self::parse($locale_string);
 		$lang = strtoupper($lang);
-		$classes = ArrayTools::prefix([
+		$classes = ArrayTools::prefixValues([
 			"${lang}_${dialect}",
 			"${lang}_Default",
 			$lang,
@@ -351,7 +350,7 @@ abstract class Locale extends Hookable {
 	 * @assert_true $applocale->plural_number(0, "woman") === "no women"
 	 *
 	 * @param string $noun
-	 * @param integer $number
+	 * @param int $number
 	 * @return string
 	 */
 	public function plural_number(string $noun, int $number): string {
@@ -381,7 +380,7 @@ abstract class Locale extends Hookable {
 	 * Output a word's plural based on the number given
 	 *
 	 * @param string $noun
-	 * @param integer $number
+	 * @param int $number
 	 *            Number of nouns
 	 * @param string $locale
 	 * @return string
@@ -419,7 +418,7 @@ abstract class Locale extends Hookable {
 	 * English self::pluralize, prefixes with number or "no"
 	 *
 	 * @param string $word
-	 * @param integer $number
+	 * @param int $number
 	 * @return mixed
 	 */
 	public function plural_word(string $word, int $number): string {
@@ -464,7 +463,7 @@ abstract class Locale extends Hookable {
 	/**
 	 * Output a string like "in 3 days", "5 hours ago"
 	 *
-	 * @param integer $ts
+	 * @param int $ts
 	 *            Timestamp to generate string
 	 * @param string $min_unit
 	 *            Minimum unit to output
@@ -474,7 +473,7 @@ abstract class Locale extends Hookable {
 	 */
 	public function now_string(Timestamp|string|int $ts, string $min_unit = '', string $zero_string = '') {
 		if ($ts instanceof Timestamp) {
-			$ts = $ts->unix_timestamp();
+			$ts = $ts->unixTimestamp();
 		} elseif (!is_int($ts) && is_date($ts)) {
 			$ts = parse_time($ts);
 		}
@@ -499,11 +498,11 @@ abstract class Locale extends Hookable {
 	/**
 	 * Output a duration of time as a string
 	 *
-	 * @param integer $delta
+	 * @param int $delta
 	 *            Number of seconds to output
 	 * @param string $min_unit
 	 *            Minimum unit to output, in English: "second", "minute", "hour", "day", "week"
-	 * @param integer $number
+	 * @param int $number
 	 *            Returns the final unit number
 	 * @return string
 	 */
@@ -606,7 +605,7 @@ abstract class Locale extends Hookable {
 	 * Format number
 	 *
 	 * @param float|int $number
-	 * @param integer $decimals
+	 * @param int $decimals
 	 * @return string
 	 */
 	public function number_format(int|float $number, int $decimals = 0): string {
@@ -633,7 +632,6 @@ abstract class Locale extends Hookable {
 	 * @param string $locale
 	 * @return string
 	 */
-	#[Pure]
 	public static function parse_dialect(string $locale): string {
 		if (empty($locale)) {
 			return '';

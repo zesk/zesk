@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Daemon;
 
@@ -180,12 +180,12 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 
 		$this->configure('daemon', true);
 
-		if (!$this->application->is_configured()) {
+		if (!$this->application->isConfigured()) {
 			throw new Exception_Configuration('Application is not configured', 'Application is not configured');
 		}
 
 		if ($this->optionBool('debug-log')) {
-			echo Text::format_pairs(ArrayTools::filter_prefix($this->application->configuration->to_array(), 'log'));
+			echo Text::format_pairs(ArrayTools::filterPrefixedValues($this->application->configuration->to_array(), 'log'));
 		}
 
 		$this->fifo_path = path($this->module->rundir, 'daemon-controller');
@@ -521,7 +521,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	/**
 	 * The unix signal handler for multi-process systems
 	 *
-	 * @param integer $signo
+	 * @param int $signo
 	 *        	The signal number to handle
 	 */
 	public function signal_handler($signo): void {
@@ -580,7 +580,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	/**
 	 * Read a message as server
 	 *
-	 * @param integer $timeout
+	 * @param int $timeout
 	 *        	in seconds
 	 * @return NULL multitype: mixed
 	 */
@@ -727,7 +727,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 *
 	 */
 	private function load_watch(): void {
-		$files = $this->option_list('watch');
+		$files = $this->optionIterable('watch');
 		if (count($files) > 0) {
 			$this->watch_monitor = new File_Monitor_List($files);
 		}

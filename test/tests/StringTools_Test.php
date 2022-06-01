@@ -184,7 +184,7 @@ class StringTools_Test extends Test_Unit {
 	 * @dataProvider to_bool_data
 	 */
 	public function test_from_bool(mixed $mixed, bool $expected): void {
-		$this->assertEquals($expected ? 'true' : 'false', StringTools::from_bool($mixed));
+		$this->assertEquals($expected ? 'true' : 'false', StringTools::fromBool($mixed));
 	}
 
 	/**
@@ -192,7 +192,7 @@ class StringTools_Test extends Test_Unit {
 	 * @dataProvider to_bool_data
 	 */
 	public function test_to_bool_data(mixed $mixed, bool $expected): void {
-		$this->assertEquals($expected, StringTools::to_bool($mixed));
+		$this->assertEquals($expected, StringTools::toBool($mixed));
 	}
 
 	public function test_is_ascii(): void {
@@ -269,7 +269,7 @@ class StringTools_Test extends Test_Unit {
 	}
 
 	public function test_is_utf8(): void {
-		$test_dir = $this->application->zesk_home('test/test-data');
+		$test_dir = $this->application->zeskHome('test/test-data');
 
 		$files = [
 			'utf16-le-no-bom.data' => false,
@@ -467,7 +467,7 @@ class StringTools_Test extends Test_Unit {
 	 * @dataProvider to_bool_data_original
 	 */
 	public function test_to_bool(mixed $value, bool $expected): void {
-		$this->assertEquals($expected, StringTools::to_bool($value));
+		$this->assertEquals($expected, StringTools::toBool($value));
 	}
 
 	public function to_bool_data_original() {

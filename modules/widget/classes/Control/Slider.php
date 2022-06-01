@@ -3,12 +3,12 @@
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
 class Control_Slider extends Control {
-	public function render() {
+	public function render(): string {
 		$html = $this->response()->html();
 		$html->jquery();
 		$html->css('/share/zesk/widgets/slider/slider.css');

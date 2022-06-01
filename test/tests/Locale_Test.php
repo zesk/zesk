@@ -127,7 +127,7 @@ class Locale_Test extends Test_Unit {
 	 * @dataProvider conjunction_data
 	 */
 	public function test_conjunction(array $words, string $conjunction, string $expected): void {
-		$locale = $this->application->locale_registry('en');
+		$locale = $this->application->localeRegistry('en');
 		$this->assertEquals($expected, $locale->conjunction($words, $conjunction));
 	}
 
@@ -135,7 +135,7 @@ class Locale_Test extends Test_Unit {
 		$args = [];
 		foreach (Lists::unique(to_list($id_list)) as $id) {
 			$args[] = [
-				$this->application->locale_factory($id),
+				$this->application->localeFactory($id),
 			];
 		}
 		return $args;
@@ -349,11 +349,11 @@ class Locale_Test extends Test_Unit {
 	}
 
 	public function en_locale() {
-		return $this->application->locale_registry('en');
+		return $this->application->localeRegistry('en');
 	}
 
 	public function fr_locale() {
-		return $this->application->locale_registry('fr');
+		return $this->application->localeRegistry('fr');
 	}
 
 	public function test_plural_word(): void {

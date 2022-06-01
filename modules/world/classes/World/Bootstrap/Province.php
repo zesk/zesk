@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -42,10 +42,10 @@ class World_Bootstrap_Province extends Hookable {
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		$object = $application->modules->object('world');
-		$this->inherit_global_options($object);
+		$this->inheritConfiguration($object);
 		$include_country = $this->option('include_country');
 		if ($include_country) {
-			$this->include_country = array_change_key_case(ArrayTools::flip_assign(to_list($include_country), true));
+			$this->include_country = array_change_key_case(ArrayTools::keysFromValues(to_list($include_country), true));
 		}
 	}
 

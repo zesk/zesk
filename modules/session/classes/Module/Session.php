@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage session
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -34,7 +34,7 @@ class Module_Session extends Module {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->application->register_factory('session', [
+		$this->application->registerFactory('session', [
 			$this,
 			'session_factory',
 		]);
@@ -74,7 +74,7 @@ class Module_Session extends Module {
 	}
 
 	/**
-	 * Returns initialized session. You should call initialize_session on result (2018-01).
+	 * Returns initialized session. You should call initializeSession on result (2018-01).
 	 *
 	 * @param Application $application
 	 * @param string $class

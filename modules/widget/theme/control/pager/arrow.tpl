@@ -40,7 +40,7 @@ if ($disabled) {
 		'class' => 'disabled',
 	];
 } else {
-	$href = URL::query_format($url, [
+	$href = URL::queryFormat($url, [
 		'offset' => $offset,
 	]);
 	if ($this->has('ajax_id')) {
@@ -57,7 +57,7 @@ if ($disabled) {
 	}
 }
 $attrs['title'] = $title;
-$attrs = HTML::add_class($attrs, 'btn btn-sm btn-pager');
+$attrs = HTML::addClass($attrs, 'btn btn-sm btn-pager');
 echo HTML::tag('a', $attrs, HTML::span([
 	'class' => "glyphicon glyphicon-$icon",
 	'disabled' => $disabled,

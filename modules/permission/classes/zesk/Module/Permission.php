@@ -90,11 +90,11 @@ class Module_Permission extends Module {
 	 * @return boolean Ambigous NULL, unknown>|Ambigous <The, mixed, boolean, multitype:Ambigous
 	 *         <The, mixed, boolean> >
 	 */
-	public function user_can(User $user, $action, Model $context = null, $options) {
+	public function userCan(User $user, $action, Model $context = null, $options) {
 		$application = $this->application;
 		$this->prepare_user($user);
 		$options = to_array($options);
-		$warning = to_bool(avalue($options, 'warning', $this->option('warning')));
+		$warning = toBool(avalue($options, 'warning', $this->option('warning')));
 		if ($user->is_root) {
 			return true;
 		}
@@ -118,7 +118,7 @@ class Module_Permission extends Module {
 		}
 		$perms = $this->permissions();
 
-		$parent_classes = empty($class) ? [] : ArrayTools::change_value_case($application->classes->hierarchy($class, 'Model'));
+		$parent_classes = empty($class) ? [] : ArrayTools::changeValueCase($application->classes->hierarchy($class, 'Model'));
 		$parent_classes[] = '*';
 		foreach ($parent_classes as $parent_class) {
 			$perm = apath($perms, [
@@ -187,12 +187,12 @@ class Module_Permission extends Module {
 		if ($user->is_new()) {
 			$roles = $this->application->orm_registry(Role::class)
 				->query_select()
-				->where('is_default', true)
+				->addWhere('is_default', true)
 				->orm_iterator()
 				->to_array('id');
 		} else {
 			// Load user role settings into user before checking
-			$roles = $user->member_query('roles')->orm_iterator()->to_array('id');
+			$roles = $user->memberQuery('roles')->orm_iterator()->to_array('id');
 		}
 		$role_ids = [];
 		/* @var $role Role */
@@ -220,7 +220,7 @@ class Module_Permission extends Module {
 		$user->_roles = $this->application->orm_registry('User_Role')
 			->query_select()
 			->what('Role', 'Role')
-			->where('User', $user)
+			->addWhere('User', $user)
 			->to_array(null, 'Role', []);
 		return $user->_roles;
 	}
@@ -387,7 +387,7 @@ class Module_Permission extends Module {
 	 */
 	private function _role_permissions($code) {
 		$application = $this->application;
-		$paths = $this->option_list('role_paths', [
+		$paths = $this->optionIterable('role_paths', [
 			'./etc/role',
 		]);
 		if (count($paths) === 0) {
@@ -469,7 +469,7 @@ class Module_Permission extends Module {
 
 	/**
 	 */
-	protected function hook_cache_clear(): void {
+	protected function hook_cacheClear(): void {
 		$this->application->orm_registry(Permission::class)
 			->query_delete()
 			->truncate(true)

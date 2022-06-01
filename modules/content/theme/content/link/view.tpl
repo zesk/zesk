@@ -22,7 +22,7 @@ $class = [
 if ($this->class) {
 	$class[] = $this->class;
 }
-$rd_link = URL::query_format('/out', [
+$rd_link = URL::queryFormat('/out', [
 	'link' => $object->id(),
 	'url' => $object->URL,
 	'key' => md5($object->URL . $url_key),

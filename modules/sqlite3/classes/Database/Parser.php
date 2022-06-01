@@ -2,7 +2,7 @@
 
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2012, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * @package zesk
  * @subpackage database
  */
@@ -131,15 +131,15 @@ class Database_Parser extends \zesk\Database_Parser {
 	 *        	Optional desired field.
 	 * @return multitype:string NULL |Ambigous <mixed, array>
 	 */
-	public function parse_sql($sql, $field = null) {
-		$sql = $this->sql()->remove_comments($sql);
+	public function parseSQL($sql, $field = null) {
+		$sql = $this->sql()->removeComments($sql);
 		$sql = trim($sql);
-		$result = parent::parse_sql($sql);
+		$result = parent::parseSQL($sql);
 		if (count($result) === 0) {
 			$matches = null;
 			if (preg_match('/^create\s+(?:unique\s+)?index\s+' . SQLITE_PATTERN_IDENTIFIER . ' on ' . SQLITE_PATTERN_IDENTIFIER . '/i', $sql, $matches)) {
 				$result['command'] = 'create index';
-				$result['table'] = $this->sql()->unquote_table($matches[2]);
+				$result['table'] = $this->sql()->unquoteTable($matches[2]);
 			}
 		}
 		return ($field === null) ? $result : avalue($result, $field, $result);
@@ -271,7 +271,7 @@ class Database_Parser extends \zesk\Database_Parser {
 		return $table_options;
 	}
 
-	public function create_index(Database_Table $table, $sql) {
+	public function createIndex(Database_Table $table, $sql) {
 		$indexes = self::parse_index_sql($table, $sql);
 		return first($indexes);
 	}
@@ -392,10 +392,10 @@ class Database_Parser extends \zesk\Database_Parser {
 	/**
 	 * The money
 	 *
-	 * @see Database_Parser::create_table()
+	 * @see Database_Parser::createTable()
 	 * Parses CREATE TABLE for MySQL and returns a Database_Table
 	 */
-	public function create_table($sql) {
+	public function createTable($sql) {
 		$matches = false;
 		$source_sql = $sql;
 

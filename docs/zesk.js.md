@@ -82,7 +82,6 @@ So, for the module "dropfile", the values are stored:
 
 	modules.dropfile.
 
-### `string zesk.set_path(path, value)`
+### `string zesk.setPath(path, value)`
 
 Get Zesk Settings value within the global state.
-

@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage jquery
  * @author Kent M. Davidson http://www.razzed.com/
- * @copyright Copyright &copy; 2009, Market Acumen, Inc. Created on Thu Mar 19
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc. Created on Thu Mar 19
  *            15:27:08 EDT 2009 15:27:08
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy

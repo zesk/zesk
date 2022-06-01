@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage tag
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Tag;
 
@@ -11,5 +11,5 @@ namespace zesk\Tag;
  * @author kent
  */
 class Controller_Label extends Controller {
-	protected $class = Label::class;
+	protected string $class = Label::class;
 }

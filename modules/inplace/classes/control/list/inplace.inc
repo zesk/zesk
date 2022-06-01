@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage inplace
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -85,7 +85,7 @@ abstract class Control_List_InPlace extends Control_List {
 			$this->id($id = 'control-list-inplace-' . $this->response->id_counter());
 		}
 		$this->list_attributes['id'] = $id;
-		$this->wrap('div', '.control-list-inplace');
+		$this->addWrap('div', '.control-list-inplace');
 	}
 
 	/**
@@ -97,7 +97,7 @@ abstract class Control_List_InPlace extends Control_List {
 		$widgets[] = $w = $this->widget_factory('zesk\Control_Hidden')
 			->names('id', $locale->__('ID'), 'id[]')
 			->id(false)
-			->add_class('selection-id');
+			->addClass('selection-id');
 		$widgets[] = $w = $this->widget_factory('zesk\View_Text')->names('name');
 
 		return $widgets;
@@ -106,9 +106,9 @@ abstract class Control_List_InPlace extends Control_List {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\Control_List::theme_variables()
+	 * @see \zesk\Control_List::themeVariables()
 	 */
-	public function theme_variables() {
+	public function themeVariables(): array {
 		$locale = $this->application->locale;
 		return [
 			'hierarchy_column' => $this->hierarchy_column,
@@ -116,7 +116,7 @@ abstract class Control_List_InPlace extends Control_List {
 			'target' => $this->option('target'),
 			'dismiss_button' => $this->optionBool('dismiss_button', true),
 			'current_user' => $this->user(),
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 
 	/**

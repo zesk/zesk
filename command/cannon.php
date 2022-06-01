@@ -108,14 +108,14 @@ class Command_Cannon extends Command_Base {
 			echo implode("\n", $files) . "\n";
 			return;
 		}
-		$this->skip_when_matches = $this->option_array('skip-when-matches');
+		$this->skip_when_matches = $this->optionArray('skip-when-matches');
 		if (count($this->skip_when_matches) === 0) {
 			$this->skip_when_matches = null;
 		} else {
 			$this->verbose_log("Skipping files which contain: \n\t\"" . implode("\"\n\t\"", $this->skip_when_matches) . "\"\n\n");
 			$stats['skipped'] = 0;
 		}
-		$this->also_match = $this->option_array('also-match');
+		$this->also_match = $this->optionArray('also-match');
 		if (count($this->also_match) === 0) {
 			$this->also_match = null;
 		} else {

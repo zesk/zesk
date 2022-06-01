@@ -3,7 +3,7 @@
  * @package zesk-modules
  * @subpackage tag
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Tag;
 
@@ -50,7 +50,7 @@ abstract class Class_Tag extends Class_ORM {
 			]);
 		}
 		if (!$this->table) {
-			$this->table = $this->option('tag_table_prefix', 'Tag_') . PHP::parse_class($this->foreign_orm);
+			$this->table = $this->option('tag_table_prefix', 'Tag_') . PHP::parseClass($this->foreign_orm);
 		}
 		$this->find_keys = [
 			$this->tag_column,

@@ -184,7 +184,7 @@ class Objects {
 	public function singleton(string $class): object {
 		$arguments = func_get_args();
 		$class = array_shift($arguments);
-		return $this->singleton_arguments($class, $arguments);
+		return $this->singletonArguments($class, $arguments);
 	}
 
 	/**
@@ -253,7 +253,7 @@ class Objects {
 	 * @return object
 	 * @throws Exception_Class_NotFound|Exception_Semantics
 	 */
-	public function singleton_arguments(string $class, array $arguments = [], $use_static = true): object {
+	public function singletonArguments(string $class, array $arguments = [], $use_static = true): mixed {
 		$resolve_class = '';
 		$object = $this->_getSingleton($class, $resolve_class);
 		if ($object) {
@@ -285,12 +285,12 @@ class Objects {
 	 *
 	 * @param string $class
 	 * @return object
-	 * @throws Exception
+	 * @throws Exception_Class_NotFound
 	 */
 	public function factory(string $class): object {
 		$arguments = func_get_args();
 		array_shift($arguments);
-		return $this->factory_arguments($class, $arguments);
+		return $this->factoryArguments($class, $arguments);
 	}
 
 	/**
@@ -299,15 +299,15 @@ class Objects {
 	 * @param string $class
 	 * @param array $arguments
 	 * @return stdClass
-	 * @throws Exception_Semantics|Exception_Class_NotFound
+	 * @throws Exception_Class_NotFound
 	 */
-	public function factory_arguments(string $class, array $arguments): object {
+	public function factoryArguments(string $class, array $arguments): object {
 		$resolve_class = $this->resolve($class);
 
 		try {
 			$rc = new ReflectionClass($resolve_class);
 			if ($rc->isAbstract()) {
-				throw new Exception_Semantics('{this_method}({class} => {resolve_class}) is abstract - can not instantiate', [
+				throw new Exception_Class_NotFound($resolve_class, '{this_method}({class} => {resolve_class}) is abstract - can not instantiate', [
 					'this_method' => __METHOD__,
 					'class' => $class,
 					'resolve_class' => $resolve_class,

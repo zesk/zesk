@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -26,6 +26,6 @@ class Control_Color extends Control_Text {
 	}
 
 	public function targets(array $set = null) {
-		return $set === null ? $this->option_array('targets', []) : $this->setOption('targets', $set);
+		return $set === null ? $this->optionArray('targets', []) : $this->setOption('targets', $set);
 	}
 }

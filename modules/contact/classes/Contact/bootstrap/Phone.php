@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage contact
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -129,7 +129,7 @@ class Contact_Phone_Bootstrap {
 			$name = $a['countryname'];
 			$code = $a['countrycode'];
 			$areaCode = $a['areacode'];
-			$isNANP = to_bool($a['nanp'], false);
+			$isNANP = toBool($a['nanp'], false);
 
 			$country = new Country([
 				'CodeName' => $name,

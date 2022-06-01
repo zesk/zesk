@@ -34,7 +34,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 */
 	public function __construct(Application $application, $mixed = null, array $options = []) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 		$this->application = $application;
 		$this->id = md5(microtime(false));
 		if (is_array($mixed)) {
@@ -47,7 +47,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 *
 	 * @return Session
 	 */
-	public function initialize_session(Request $request) {
+	public function initializeSession(Request $request) {
 		return $this;
 	}
 
@@ -108,8 +108,8 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 *
 	 * @see Interface_Settings::__set()
 	 */
-	public function __set($name, $value): void {
-		$this->data[$name] = $value;
+	public function __set($key, $value): void {
+		$this->data[$key] = $value;
 	}
 
 	/**
@@ -139,7 +139,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 *
 	 * @return mixed|mixed[]|\zesk\Configuration
 	 */
-	private function global_session_user_id() {
+	private function global_session_userId() {
 		return $this->application->configuration->path(__CLASS__)->get('user_id_variable', 'user');
 	}
 
@@ -147,10 +147,10 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Session::user_id()
+	 * @see Interface_Session::userId()
 	 */
-	public function user_id() {
-		return $this->__get($this->global_session_user_id());
+	public function userId() {
+		return $this->__get($this->global_session_userId());
 	}
 
 	/**
@@ -160,7 +160,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 * @see Interface_Session::user()
 	 */
 	public function user() {
-		$user_id = $this->user_id();
+		$user_id = $this->userId();
 		if (empty($user_id)) {
 			return null;
 		}
@@ -168,7 +168,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 		try {
 			return $this->application->orm_factory(__NAMESPACE__ . '\\' . 'User', $user_id)->fetch();
 		} catch (Exception_ORM_NotFound $e) {
-			$this->__set($this->global_session_user_id(), null);
+			$this->__set($this->global_session_userId(), null);
 			return null;
 		}
 	}
@@ -180,8 +180,8 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 * @see Interface_Session::authenticate()
 	 */
 	public function authenticate($id, $ip = false): void {
-		$this->__set($this->global_session_user_id(), ORM::mixed_to_id($id));
-		$this->__set($this->global_session_user_id() . '_IP', $ip);
+		$this->__set($this->global_session_userId(), ORM::mixed_to_id($id));
+		$this->__set($this->global_session_userId() . '_IP', $ip);
 	}
 
 	/**
@@ -191,7 +191,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 * @see Interface_Session::authenticated()
 	 */
 	public function authenticated() {
-		$user = $this->__get($this->global_session_user_id());
+		$user = $this->__get($this->global_session_userId());
 		return !empty($user);
 	}
 
@@ -202,7 +202,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 	 * @see Interface_Session::deauthenticate()
 	 */
 	public function deauthenticate(): void {
-		$this->__set($this->global_session_user_id(), null);
+		$this->__set($this->global_session_userId(), null);
 	}
 
 	/**

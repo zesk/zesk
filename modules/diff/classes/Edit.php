@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Diff;
 
@@ -64,8 +64,8 @@ class Edit {
 	/**
 	 *
 	 * @param string $op
-	 * @param integer $off
-	 * @param integer $len
+	 * @param int $off
+	 * @param int $len
 	 * @param mixed $data
 	 */
 	public function __construct($op, $off, $len, $data = null) {

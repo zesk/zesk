@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage repository
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -54,7 +54,7 @@ abstract class Repository_Command extends Repository {
 	 * @param string $path
 	 * @return \zesk\Repository
 	 */
-	public function set_path($path) {
+	public function setPath($path) {
 		if (empty($path)) {
 			throw new Exception_Parameter('{method} - no path passed', [
 				'method' => __METHOD__,

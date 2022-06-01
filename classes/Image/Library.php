@@ -52,7 +52,7 @@ abstract class Image_Library {
 			} catch (\Exception $e) {
 				$application->logger->error('{class} creation resulted in {e.class}: {e.message}', [
 					'class' => $class,
-				] + ArrayTools::kprefix(Exception::exception_variables($e), 'e.'));
+				] + ArrayTools::prefixKeys(Exception::exception_variables($e), 'e.'));
 				$application->hooks->call('exception', $e);
 				continue;
 			}
@@ -98,10 +98,10 @@ abstract class Image_Library {
 	/**
 	 * Scale an image size to be within a rectangle specified
 
-	 * @param integer $image_width
-	 * @param integer $image_height
-	 * @param integer $width
-	 * @param integer $height
+	 * @param int $image_width
+	 * @param int $image_height
+	 * @param int $width
+	 * @param int $height
 	 * @return multitype:unknown |multitype:number unknown
 	 */
 	public static function constrain_dimensions($image_width, $image_height, $width, $height) {

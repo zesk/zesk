@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -33,7 +33,7 @@ $response->jquery("\$('#colorpicker_$name').farbtastic('#$name'); \$('#$name').o
 
 $result = '';
 
-$attributes = HTML::add_class($attributes, 'form-control');
+$attributes = HTML::addClass($attributes, 'form-control');
 
 $attributes['style'] = "background-color: $value";
 
@@ -57,7 +57,7 @@ if ($this->targets) {
 		}, 500);
 	}());
 	</script><?php
-	$script = HTML::extract_tag_contents('script', ob_get_clean());
+	$script = HTML::extractTagContents('script', ob_get_clean());
 	$response->jquery($script);
 }
 ?>

@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2014, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -27,7 +27,7 @@ class Control_Password extends Control_Text {
 	}
 
 	public function confirm($set = null) {
-		return $set === null ? $this->optionBool('confirm') : $this->setOption('confirm', to_bool($set));
+		return $set === null ? $this->optionBool('confirm') : $this->setOption('confirm', toBool($set));
 	}
 
 	public function label_confirm($set = null) {
@@ -61,7 +61,7 @@ class Control_Password extends Control_Text {
 	 *
 	 * @see parent::validate()
 	 */
-	protected function validate() {
+	protected function validate(): bool {
 		$result = parent::validate();
 		if (!$result) {
 			return $result;
@@ -122,9 +122,9 @@ class Control_Password extends Control_Text {
 		return true;
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
 			'confirm' => $this->optionBool('confirm'),
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 }

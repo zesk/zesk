@@ -26,7 +26,7 @@ class Control_Objects extends Control_Text {
 	}
 
 	protected function load() {
-		$value = $this->request->geta($this->name());
+		$value = $this->request->getArray($this->name());
 		$objects = [];
 		foreach ($value as $id) {
 			try {
@@ -40,11 +40,11 @@ class Control_Objects extends Control_Text {
 		return true;
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
 			'theme_object' => $this->theme_object,
 			'controller' => $this->controller,
 			'controller_url' => $this->controller_url,
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 }

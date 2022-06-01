@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage view
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -36,7 +36,7 @@ class View_Errors extends View {
 	 */
 	public static function html(Application $application, Response $response, array $errors) {
 		$model = new Model($application);
-		$response = $application->response_factory($application->request());
+		$response = $application->responseFactory($application->request());
 		$model->errors = $errors;
 		return $application->widget_factory(__CLASS__, [
 			'column' => 'errors',

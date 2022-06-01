@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 class Exception_Configuration extends Exception {
@@ -10,15 +12,15 @@ class Exception_Configuration extends Exception {
 
 	/**
 	 *
-	 * @param unknown $name
-	 * @param unknown $message
+	 * @param string $name
+	 * @param string $message
 	 * @param array $arguments
 	 * @param Exception $previous
 	 */
-	public function __construct($name, $message, array $arguments = [], Exception $previous = null) {
+	public function __construct(string $name, string $message, array $arguments = [], Exception $previous = null) {
 		$this->name = $name;
 		parent::__construct("Configuration error: {name}: $message", [
-			'name' => $name,
-		] + $arguments, 0, $previous);
+				'name' => $name,
+			] + $arguments, 0, $previous);
 	}
 }

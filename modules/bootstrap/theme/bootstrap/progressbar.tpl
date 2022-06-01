@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -13,13 +13,13 @@ if (real_equal($maximum - $minimum, 0)) {
 	$percent = intval(round($this->value * 100.0 / ($maximum - $minimum)));
 }
 $label = $this->label;
-$text_arguments = $this->geta('text_arguments', []);
+$text_arguments = $this->getArray('text_arguments', []);
 $text_arguments += [
 	'percent' => $percent,
 	'value' => $this->value,
 ];
 echo HTML::tag_open('div', [
-	'class' => CSS::add_class('progress', $this->class),
+	'class' => CSS::addClass('progress', $this->class),
 ]);
 
 if ($this->prefix) {
@@ -27,7 +27,7 @@ if ($this->prefix) {
 }
 
 echo HTML::div([
-	'class' => CSS::add_class('progress-bar', $this->progressbar_class),
+	'class' => CSS::addClass('progress-bar', $this->progressbar_class),
 	'role' => 'progressbar',
 	'aria-valuenow' => $this->value,
 	'aria-valuemin' => $this->get('minimum', 0),

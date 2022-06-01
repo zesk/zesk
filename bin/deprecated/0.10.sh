@@ -121,8 +121,8 @@ echo '`zesk\\Contact_Address_Parser::parse` now takes `$application`'
 php-find.sh 'Contact_Address_Parser::parse'
 pause
 
-echo '`zesk\\Options::inherit_global_options` now takes `$application`'
-php-find.sh '>inherit_global_options('
+echo '`zesk\\Options::inheritConfiguration` now takes `$application`'
+php-find.sh '>inheritConfiguration('
 pause
 
 echo '`zesk\\Net_Sync::url_to_file` now takes `$application`'
@@ -172,5 +172,3 @@ pause
 echo '`Database_Snapshot::temporary_path` now takes `$application`'
 php-find.sh 'Database_Snapshot::temporary_path' 
 pause
-
-

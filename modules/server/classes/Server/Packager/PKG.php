@@ -31,7 +31,7 @@ class Server_Packager_PKG extends Server_Packager {
 		return trim($result[0]);
 	}
 
-	protected function package_remove($package) {
+	protected function package_keysRemove($package) {
 		$full_package = self::installed_name($package);
 		return $this->exec('pkg_delete {0}', $full_package);
 	}

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -23,7 +23,7 @@ if (false) {
 	/* @var $variables array */
 	$variables = $this->variables;
 }
-$ia = $this->geta('attributes');
+$ia = $this->getArray('attributes');
 
 $id = $this->id;
 $button_id = $this->id . '_button';
@@ -32,11 +32,11 @@ $ia['id'] = $button_id;
 
 $class = $this->class;
 if ($this->required) {
-	$class = CSS::add_class($class, 'required');
+	$class = CSS::addClass($class, 'required');
 }
-$ia['class'] = CSS::add_class($class, 'form-control');
+$ia['class'] = CSS::addClass($class, 'form-control');
 
-$ia = $object->apply_map($ia) + [
+$ia = $object->applyMap($ia) + [
 	'value' => $value,
 ];
 
@@ -69,7 +69,7 @@ foreach ($control_options as $code => $attributes) {
 	if (!is_array($attributes)) {
 		continue;
 	}
-	if (to_bool(avalue($attributes, 'selected'))) {
+	if (toBool(avalue($attributes, 'selected'))) {
 		$value = $code;
 		$button_label = $attributes['link_html'];
 	}
@@ -109,8 +109,8 @@ foreach ($control_options as $code => $attributes) {
 	} else {
 		$link_html = $code;
 	}
-	if (to_bool(avalue($attributes, 'selected')) || strval($code) === strval($value)) {
-		$li_attributes = HTML::add_class($li_attributes, 'active');
+	if (toBool(avalue($attributes, 'selected')) || strval($code) === strval($value)) {
+		$li_attributes = HTML::addClass($li_attributes, 'active');
 	}
 	$items[] = HTML::tag('li', $li_attributes, HTML::tag('a', $attributes, $link_html));
 }

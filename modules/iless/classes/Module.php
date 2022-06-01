@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage iless
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\ILess;
 
@@ -37,7 +37,7 @@ class Module extends \zesk\Module {
 	 * @return void|mixed|string
 	 */
 	public function style_name($set = null) {
-		return $set === null ? $this->setOption('style_name', $set) : $this->option('style_name', strtolower($this->application->application_class()));
+		return $set === null ? $this->setOption('style_name', $set) : $this->option('style_name', strtolower($this->application->applicationClass()));
 	}
 
 	/**
@@ -94,7 +94,7 @@ class Module extends \zesk\Module {
 	 * @return string
 	 */
 	protected function hook_process_variable_color($value, array $settings) {
-		$value = CSS::color_normalize($value);
+		$value = CSS::colorNormalize($value);
 		if (empty($value)) {
 			$value = ltrim($settings['default'], '#');
 		}

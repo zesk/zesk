@@ -40,7 +40,7 @@ class Database_Snapshot extends ORM {
 		$now = Timestamp::now();
 		$date = $now->format(null, '{YYYY}-{MM}-{DD}_{hh}-{mm}-{ss}');
 
-		$dbname = $db->database_name();
+		$dbname = $db->databaseName();
 		$filename = "backup-$date-$dbname.sql";
 		$temp = self::temporary_path($db->application, $filename);
 
@@ -69,7 +69,7 @@ class Database_Snapshot extends ORM {
 	}
 
 	public static function restore_latest(Database $db) {
-		$dbname = $db->database_name();
+		$dbname = $db->databaseName();
 
 		/* @var $snapshot Database_Snapshot */
 		$snapshot = $db->application->orm_registry(__CLASS__)
@@ -91,15 +91,15 @@ class Database_Snapshot extends ORM {
 		if ($db === null) {
 			$db = $this->application->database_registry();
 		}
-		if ($db->database_name() !== $this->dbname) {
+		if ($db->databaseName() !== $this->dbname) {
 			throw new Exception_Semantics('Restoring incorrect snapshot name {dbname} onto existing database name {db_database_name} - stopping', [
-				'db_database_name' => $db->database_name(),
+				'db_database_name' => $db->databaseName(),
 				'dbname' => $this->dbname,
 			]);
 		}
 		$now = Timestamp::now();
 		$date = $now->format(null, '{YYYY}-{MM}-{DD}_{hh}-{mm}-{ss}');
-		$dbname = $db->database_name();
+		$dbname = $db->databaseName();
 		$filename = "restore-$date-$dbname.sql";
 		$temp = self::temporary_path($db->application, $filename);
 		file_put_contents($temp, $this->data);

@@ -21,7 +21,7 @@ class Command_Password extends Command_Base {
 		'list' => 'List the active users in the database',
 	];
 
-	public function _option_list() {
+	public function _optionIterable() {
 		/* @var $user User */
 		$user = $this->application->orm_factory('User');
 		$col = $user->column_login();
@@ -40,7 +40,7 @@ class Command_Password extends Command_Base {
 
 	public function run() {
 		if ($this->optionBool('list')) {
-			return $this->_option_list();
+			return $this->_optionIterable();
 		}
 		$login = $this->option('user');
 		if ($login === null) {

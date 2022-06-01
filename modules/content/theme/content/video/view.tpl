@@ -18,7 +18,7 @@ namespace zesk;
 /* @var $class string */
 $class = $this->class;
 
-$class = CSS::add_class($class, 'video');
+$class = CSS::addClass($class, 'video');
 
 /* @var $object Video */
 echo HTML::div_open([

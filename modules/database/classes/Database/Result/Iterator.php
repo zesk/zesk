@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -103,7 +103,7 @@ class Database_Result_Iterator implements \Iterator {
 		$this->_value = $value;
 		$this->_loaded = false;
 		$this->_debug = false;
-		$this->set_key_value($key, $value);
+		$this->set_extract($key, $value);
 	}
 
 	/**
@@ -125,7 +125,7 @@ class Database_Result_Iterator implements \Iterator {
 	 *            Value to use
 	 * @return Database_Result_Iterator
 	 */
-	public function set_key_value(string $key = '', string $value = ''): self {
+	public function set_extract(string $key = '', string $value = ''): self {
 		$this->_key = $key;
 		$this->_value = $value;
 		return $this;
@@ -209,7 +209,7 @@ class Database_Result_Iterator implements \Iterator {
 	 * @return void
 	 */
 	protected function database_next(): void {
-		$row = $this->db->fetch_assoc($this->resource);
+		$row = $this->db->fetchAssoc($this->resource);
 		if (is_array($row)) {
 			$this->_row_index = $this->_row_index + 1;
 			$this->_valid = true;

@@ -94,7 +94,7 @@ class Command_Update extends Command_Base {
 	public function run() {
 		$this->configure('update');
 
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 
 		if ($this->help) {
 			$this->usage();
@@ -249,7 +249,7 @@ class Command_Update extends Command_Base {
 
 	/**
 	 *
-	 * @param integer $result
+	 * @param int $result
 	 */
 	private function after_update($result): void {
 		if ($result !== 0) {
@@ -368,7 +368,7 @@ class Command_Update extends Command_Base {
 			]);
 			return true;
 		}
-		if (!ArrayTools::has_any($data, 'url;urls;versions;composer')) {
+		if (!ArrayTools::hasAnyKey($data, 'url;urls;versions;composer')) {
 			return true;
 		}
 		if ($this->optionBool('list')) {
@@ -477,7 +477,7 @@ class Command_Update extends Command_Base {
 			return;
 		}
 		$composer_command = $this->composer_command();
-		if (!ArrayTools::has_any($composer, 'require;require-dev')) {
+		if (!ArrayTools::hasAnyKey($composer, 'require;require-dev')) {
 			return true;
 		}
 		$composer_version = to_array($application->modules->configuration($name, 'composer_version'));
@@ -691,7 +691,7 @@ class Command_Update extends Command_Base {
 						'hash' => $hash,
 						'new_hash' => $new_hash,
 					]);
-				} elseif (!is_dir($destination) || Directory::is_empty($destination)) {
+				} elseif (!is_dir($destination) || Directory::isEmpty($destination)) {
 					$do_update = true;
 					$this->verbose_log('Destination directory {destination} doesn\'t exist', [
 						'destination' => $destination,

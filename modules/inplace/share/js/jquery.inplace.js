@@ -3,7 +3,7 @@
 * @package zesk
 * @subpackage inplace
 * @author Kent M. Davidson http://www.razzed.com/
-* @copyright Copyright &copy; 2012, Market Acumen, Inc.
+* @copyright Copyright &copy; 2022, Market Acumen, Inc.
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -494,4 +494,3 @@
 	}
 	zesk.add_hook('document::ready', document_ready);
 })(window, window.jQuery);
-

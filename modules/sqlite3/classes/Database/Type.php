@@ -135,7 +135,7 @@ class Database_Type extends \zesk\Database_Data_Type {
 				return intval($default_value);
 			case self::sql_type_double:
 				return floatval($default_value);
-				return to_bool($default_value, false);
+				return toBool($default_value, false);
 			case self::sql_type_datetime:
 				if ($default_value === 0 || $default_value === '0') {
 					return '0000-00-00 00:00:00';

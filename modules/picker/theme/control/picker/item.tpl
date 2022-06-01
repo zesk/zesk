@@ -4,7 +4,7 @@ use zesk\HTML;
 /* @var $object ORM */
 $object = $this->object;
 $id = $object->id();
-echo HTML::div(HTML::add_class([
+echo HTML::div(HTML::addClass([
 	'class' => 'item',
 	'data-id' => $id,
 ], $this->selected ? 'selected' : ''), $object->theme([

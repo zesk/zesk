@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage webapp
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\WebApp;
 
@@ -34,7 +34,7 @@ class Controller extends \zesk\Controller {
 	public function action_scan() {
 		$timer = new Timer();
 		$result = [];
-		$result['applications'] = $this->webapp->cached_webapp_json($this->request->getb('rescan'));
+		$result['applications'] = $this->webapp->cached_webapp_json($this->request->getBool('rescan'));
 		$result['elapsed'] = $timer->elapsed();
 		return $this->json($result);
 	}

@@ -67,7 +67,7 @@ class Hookable_Test extends Test_Unit {
 			'more' => 'dude',
 		]);
 
-		$options->inherit_global_options();
+		$options->inheritConfiguration();
 
 		$options = $options->options();
 		$this->assert_array_key_exists($options, 'test1');

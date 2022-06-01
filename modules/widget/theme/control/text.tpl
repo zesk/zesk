@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /* @var $this Template */
@@ -16,16 +18,16 @@ $variables = $this->variables;
 
 $ia = ArrayTools::filter(to_array($variables), 'style;class;onclick;onchange;ondblclick;onmousedown;onmouseup;onmousemove;onmouseout;onmouseover;onkeypress;onkeydown;onkeyup;onfocus;onblur');
 
-$ia += $widget->data_attributes();
+$ia += $widget->dataAttributes();
 
 $ia['id'] = $this->id;
 $ia['name'] = $name;
 
-$class = $this->class;
+$class = strval($this->class);
 if ($this->required) {
-	$class = CSS::add_class($class, 'required');
+	$class = CSS::addClass($class, 'required');
 }
-$ia['class'] = CSS::add_class($class, 'form-control');
+$ia['class'] = CSS::addClass($class, 'form-control');
 
 $ia['placeholder'] = $this->placeholder;
 
@@ -39,9 +41,9 @@ if ($this->textarea) {
 	echo HTML::tag_open('textarea', $ia) . htmlspecialchars(strval($value)) . HTML::tag_close('textarea');
 } else {
 	$ia['type'] = $this->password ? 'password' : 'text';
-	$ia = $object->apply_map($ia) + [
-		'value' => $value,
-	];
+	$ia = $object->applyMap($ia) + [
+			'value' => $value,
+		];
 	$input = HTML::tag('input', $ia);
 	if ($this->input_group_addon) {
 		$html = HTML::span($this->get('input_group_class', '.input-group-addon'), $this->input_group_addon);

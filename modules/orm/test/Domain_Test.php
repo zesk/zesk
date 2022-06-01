@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 /**
@@ -50,10 +52,11 @@ class Domain_Test extends Test_Unit {
 
 	/**
 	 * @dataProvider cookie_domain_data
-	 * @param unknown $domain
+	 * @param string $domain
+	 * @param string $expected
 	 */
-	public function test_cookie_domains($domain, $expected): void {
-		$cookie_domain = Domain::domain_factory($this->application, $domain)->compute_cookie_domain();
+	public function test_cookie_domains(string $domain, string $expected): void {
+		$cookie_domain = Domain::domain_factory($this->application, $domain)->computeCookieDomain();
 		$this->assert_equal($cookie_domain, $expected, "$domain cookie domain => $cookie_domain !== $expected");
 	}
 }
@@ -64,7 +67,7 @@ class Domain_Test extends Test_Unit {
  * @package    zesk
  * @subpackage test
  * @author     Kent Davidson <kent@marketacumen.com>
- * @copyright  Copyright &copy; 2011, Market Acumen, Inc.
+ * @copyright  Copyright &copy; 2022, Market Acumen, Inc.
  * @deprecated
  */
 
@@ -92,20 +95,20 @@ class Domain_Test extends Test_Unit {
 //	"mhtml:///https://C:Documents and SettingsstarvisionMy DocumentsThank You for Your Order - LakeChamplainChocolates_com.mht" => false,
 //);
 //foreach ($URL::is_tests as $u => $r) {
-//	$this->assert("URL::is('$u') === " . StringTools::from_bool($r), $u);
+//	$this->assert("URL::is('$u') === " . StringTools::fromBool($r), $u);
 //}
 //
 //test_status("URL::protocol_default_port");
-//$this->assert('URL::protocol_default_port("hTtP") === 80');
-//$this->assert('URL::protocol_default_port("http") === 80');
-//$this->assert('URL::protocol_default_port("HTTP") === 80');
-//$this->assert('URL::protocol_default_port("hTtPs") === 443');
-//$this->assert('URL::protocol_default_port("https") === 443');
-//$this->assert('URL::protocol_default_port("HTTPS") === 443');
-//$this->assert('URL::protocol_default_port("ftp") === 21');
-//$this->assert('URL::protocol_default_port("mailto") === 25');
-//$this->assert('URL::protocol_default_port("file") === false');
-//$this->assert('URL::protocol_default_port("foo") === false');
+//$this->assert('URL::protocolDefaultPort("hTtP") === 80');
+//$this->assert('URL::protocolDefaultPort("http") === 80');
+//$this->assert('URL::protocolDefaultPort("HTTP") === 80');
+//$this->assert('URL::protocolDefaultPort("hTtPs") === 443');
+//$this->assert('URL::protocolDefaultPort("https") === 443');
+//$this->assert('URL::protocolDefaultPort("HTTPS") === 443');
+//$this->assert('URL::protocolDefaultPort("ftp") === 21');
+//$this->assert('URL::protocolDefaultPort("mailto") === 25');
+//$this->assert('URL::protocolDefaultPort("file") === false');
+//$this->assert('URL::protocolDefaultPort("foo") === false');
 
 //test_status("Domain::domain_factory");
 //$this->assert('Domain::domain_factory("www.conversionruler.com") === ".conversionruler.com"');
@@ -127,7 +130,7 @@ class Domain_Test extends Test_Unit {
 //	"FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini" => "ftp://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini",
 //);
 //foreach ($urls as $u => $u_final) {
-//	$this->assert("URL::is('$u') === " . StringTools::from_bool(is_string($u_final)));
+//	$this->assert("URL::is('$u') === " . StringTools::fromBool(is_string($u_final)));
 //		$parts = URL::parse($u);
 //	if ($u_final === false) {
 //		$this->assert($u_final === $parts, $u);
@@ -142,7 +145,7 @@ class Domain_Test extends Test_Unit {
 //
 //test_status("URL::normalize");
 //foreach ($urls as $u => $r) {
-//	$this->assert("URL::is('$u') === " . StringTools::from_bool(is_string($r)));
+//	$this->assert("URL::is('$u') === " . StringTools::fromBool(is_string($r)));
 //	if (is_string($r)) { $r = "'$r'"; } else { $r = "false"; }
 //	$this->assert("URL::normalize('$u') === $r");
 //}
@@ -162,7 +165,7 @@ class Domain_Test extends Test_Unit {
 //test_status("URL::normalize");
 //foreach ($norm_urls as $u => $r) {
 //	if (is_string($r)) { $r = "'$r'"; } else { $r = "false"; }
-//	$this->assert("URL::is('$u') === " . StringTools::from_bool(is_string($r)));
+//	$this->assert("URL::is('$u') === " . StringTools::fromBool(is_string($r)));
 //	$this->assert("URL::normalize('$u') === $r", URL::normalize($u));
 //}
 //$URL::left_host_tests = array(

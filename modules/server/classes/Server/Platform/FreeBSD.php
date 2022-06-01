@@ -99,7 +99,7 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 	public function group_create($group, $members = null, $gid = null) {
 		$ma = '';
 		if ($members !== null) {
-			$members = ArrayTools::trim_clean(to_list($members, []));
+			$members = ArrayTools::listTrimClean(to_list($members, []));
 			if (count($members) > 0) {
 				foreach ($members as $member) {
 					if (!$this->group_exists($member)) {

@@ -66,7 +66,7 @@ $lines[] = '# Instance: ' . $instance->code . ' Site: ' . $site->code . ' Type: 
 $lines[] = '';
 if (count($errors) > 0) {
 	$lines[] = '# Errors in instance, no vhost rendered';
-	$lines = array_merge($lines, ArrayTools::prefix($errors, '# '));
+	$lines = array_merge($lines, ArrayTools::prefixValues($errors, '# '));
 	echo implode("\n", $lines) . "\n";
 	return;
 }
@@ -107,14 +107,14 @@ if ($type === 'rewrite-index') {
 		'index_file' => $index_file,
 	]);
 	$rewrite_lines = explode("\n", $rewrite_content);
-	$lines = array_merge($lines, ArrayTools::prefix($rewrite_lines, $tab . $tab));
+	$lines = array_merge($lines, ArrayTools::prefixValues($rewrite_lines, $tab . $tab));
 } else {
 	$lines[] = $tab . $tab . "# WebApp type is $type";
 }
 if (isset($directories[$docroot])) {
 	$docroot_extras = $directories[$docroot];
 	$docroot_extras = map($docroot_extras, $map);
-	$lines = array_merge($lines, ArrayTools::prefix($docroot_extras, $tab . $tab));
+	$lines = array_merge($lines, ArrayTools::prefixValues($docroot_extras, $tab . $tab));
 	unset($directories[$docroot]);
 }
 $lines[] = $tab . '</Directory>';
@@ -122,7 +122,7 @@ $lines[] = '';
 foreach ($directories as $dir => $dirconfig) {
 	$lines[] = $tab . "<Directory $dir>";
 	$dirconfig = map($dirconfig, $map);
-	$lines = array_merge($lines, ArrayTools::prefix($dirconfig, $tab . $tab));
+	$lines = array_merge($lines, ArrayTools::prefixValues($dirconfig, $tab . $tab));
 	$lines[] = $tab . '</Directory>';
 	$lines[] = '';
 }
@@ -141,7 +141,7 @@ if (is_array($aliases) && count($aliases) > 0) {
 	$lines[] = '';
 }
 
-$cronolog = $this->getb('cronolog');
+$cronolog = $this->getBool('cronolog');
 
 $logging = avalue($data, 'logging');
 unset($data['logging']);
@@ -155,7 +155,7 @@ if (is_array($logging)) {
 		} else {
 			$custom_log_command = '${LOG_PATH}/httpd/' . $prefix . '-access.log';
 		}
-		if (avalue($logging, 'proxy') || $this->getb('proxy')) {
+		if (avalue($logging, 'proxy') || $this->getBool('proxy')) {
 			$lines[] = $tab . 'CustomLog $custom_log_command vhost_webapp env=!forwarded';
 			$lines[] = $tab . 'CustomLog $custom_log_command vhost_webapp_proxy env=forwarded';
 		} else {
@@ -170,7 +170,7 @@ if (is_array($logging)) {
 }
 $lines[] = "</VirtualHost>\n";
 $lines[] = '';
-//$lines[] = "# Available keys: " . implode(", ", ArrayTools::remove_values(array_keys($variables), array("")));
+//$lines[] = "# Available keys: " . implode(", ", ArrayTools::valuesRemove(array_keys($variables), array("")));
 
 $lines[] = '# Leftover Data: ' . json_encode($data);
 

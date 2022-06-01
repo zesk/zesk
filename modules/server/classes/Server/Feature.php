@@ -95,7 +95,7 @@ abstract class Server_Feature extends Server_Base {
 			$this->defaults = $this->platform->conf_load($platform_conf_file) + $this->defaults;
 		}
 
-		$this->config->register_types(ArrayTools::kprefix($this->settings, $this->code . '::'), ArrayTools::kprefix($this->defaults, $this->code));
+		$this->config->register_types(ArrayTools::prefixKeys($this->settings, $this->code . '::'), ArrayTools::prefixKeys($this->defaults, $this->code));
 
 		// $this->platform->register_path($this->command_paths);
 

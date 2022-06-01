@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Sun Apr 04 21:44:56 EDT 2010 21:44:56
  */
 namespace zesk;
@@ -15,7 +15,7 @@ namespace zesk;
  */
 class Control_Email extends Control_Text {
 	public function accept_list($set = null) {
-		return $set !== null ? $this->setOption('accept_list', to_bool($set)) : $this->optionBool('accept_list');
+		return $set !== null ? $this->setOption('accept_list', toBool($set)) : $this->optionBool('accept_list');
 	}
 
 	public function validate() {
@@ -23,7 +23,7 @@ class Control_Email extends Control_Text {
 		$v = $this->value();
 		$locale = $this->application->locale;
 		if ($this->accept_list()) {
-			$emails = ArrayTools::trim_clean(to_list($v, [], ','));
+			$emails = ArrayTools::listTrimClean(to_list($v, [], ','));
 			$bad_email = [];
 			foreach ($emails as $email) {
 				if (!is_email($email)) {

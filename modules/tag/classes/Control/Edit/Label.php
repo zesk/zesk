@@ -33,14 +33,14 @@ class Control_Edit_Label extends Control_Edit {
 		$locale = $this->application->locale;
 		$ww[] = $this->widget_factory(Control_Text::class)
 			->names('name', $locale->__('Name'))
-			->add_class('input-lg')
+			->addClass('input-lg')
 			->required(true);
 
 		$ww[] = $w = $this->widget_factory(Control_Button::class)
 			->names('ok', $locale->__('Save changes'))
 			->nolabel(true)
-			->add_class('btn btn-primary');
-		$ww[] = $this->widget_factory(Control_Button_Delete::class)->wrap('div', '.form-group')->nolabel(true);
+			->addClass('btn btn-primary');
+		$ww[] = $this->widget_factory(Control_Button_Delete::class)->addWrap('div', '.form-group')->nolabel(true);
 
 		return $ww;
 	}

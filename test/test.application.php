@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage core
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2012, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -18,4 +18,4 @@ $files = [
 	$application->paths->uid('test.conf'),
 	$application->paths->uid('test.json'),
 ];
-$application->configure_include($files)->configure();
+$application->configureInclude($files)->configure();

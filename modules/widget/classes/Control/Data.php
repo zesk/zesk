@@ -11,11 +11,11 @@ class Control_Data extends Control {
 	}
 
 	public function option_merge($set = null) {
-		return $set === null ? $this->optionBool('merge') : $this->setOption('merge', to_bool($set));
+		return $set === null ? $this->optionBool('merge') : $this->setOption('merge', toBool($set));
 	}
 
 	public function allow_keys($set = null) {
-		return $set === null ? $this->option_list('allow_keys') : $this->setOption('allow_keys', to_list($set));
+		return $set === null ? $this->optionIterable('allow_keys') : $this->setOption('allow_keys', to_list($set));
 	}
 
 	public function load(): void {
@@ -24,7 +24,7 @@ class Control_Data extends Control {
 		if (!is_array($current_value)) {
 			$current_value = [];
 		}
-		$value = $this->request->geta($column);
+		$value = $this->request->getArray($column);
 		if (is_array($value)) {
 			if ($this->hasOption('allow_keys')) {
 				$value = ArrayTools::filter($value, $this->allow_keys());

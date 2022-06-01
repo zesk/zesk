@@ -58,7 +58,7 @@ $show_links = $this->get('show_links', true);
 	if ($show_links && $user->can($contact, 'edit')) {
 		?>
 		<?php
-		if ($user->member_is_empty('Contact')) {
+		if ($user->memberIsEmpty('Contact')) {
 			?>
 		<a href="/account/assign-contact/<?php echo $id?>"
 		onclick="alert('Will make this contact primary contact for account'); return false"
@@ -93,7 +93,7 @@ foreach ($sections as $section => $variables) {
 	$values = [];
 	$query = ORM::class_query($object_class)->link('Contact_Label', [
 		'alias' => 'L',
-	])->what('label_name', 'L.name')->where('contact', $id);
+	])->what('label_name', 'L.name')->addWhere('contact', $id);
 	$values = $query->to_array();
 	if (count($values) > 0) {
 		?><div class="contact-section"
@@ -106,7 +106,7 @@ foreach ($sections as $section => $variables) {
 		} ?></div><?php
 	}
 }
-if (!$contact->member_is_empty('Notes')) {
+if (!$contact->memberIsEmpty('Notes')) {
 	?>
 	<div class="contact-section" id="contact-section-notes">
 		<div class="section-head">

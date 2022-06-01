@@ -285,40 +285,40 @@ class Functions_Test extends Test_Unit {
 	}
 
 	public function test_to_bool(): void {
-		$this->assert(to_bool(true) === true);
-		$this->assert(to_bool(1) === true);
-		$this->assert(to_bool('1') === true);
-		$this->assert(to_bool('t') === true);
-		$this->assert(to_bool('T') === true);
-		$this->assert(to_bool('y') === true);
-		$this->assert(to_bool('Y') === true);
-		$this->assert(to_bool('Yes') === true);
-		$this->assert(to_bool('yES') === true);
-		$this->assert(to_bool('oN') === true);
-		$this->assert(to_bool('on') === true);
-		$this->assert(to_bool('enabled') === true);
-		$this->assert(to_bool('trUE') === true);
-		$this->assert(to_bool('true') === true);
+		$this->assert(toBool(true) === true);
+		$this->assert(toBool(1) === true);
+		$this->assert(toBool('1') === true);
+		$this->assert(toBool('t') === true);
+		$this->assert(toBool('T') === true);
+		$this->assert(toBool('y') === true);
+		$this->assert(toBool('Y') === true);
+		$this->assert(toBool('Yes') === true);
+		$this->assert(toBool('yES') === true);
+		$this->assert(toBool('oN') === true);
+		$this->assert(toBool('on') === true);
+		$this->assert(toBool('enabled') === true);
+		$this->assert(toBool('trUE') === true);
+		$this->assert(toBool('true') === true);
 
-		$this->assert(to_bool(0) === false);
-		$this->assert(to_bool('0') === false);
-		$this->assert(to_bool('f') === false);
-		$this->assert(to_bool('F') === false);
-		$this->assert(to_bool('n') === false);
-		$this->assert(to_bool('N') === false);
-		$this->assert(to_bool('no') === false);
-		$this->assert(to_bool('NO') === false);
-		$this->assert(to_bool('OFF') === false);
-		$this->assert(to_bool('off') === false);
-		$this->assert(to_bool('disabled') === false);
-		$this->assert(to_bool('DISABLED') === false);
-		$this->assert(to_bool('false') === false);
-		$this->assert(to_bool('null') === false);
-		$this->assert(to_bool('') === false);
+		$this->assert(toBool(0) === false);
+		$this->assert(toBool('0') === false);
+		$this->assert(toBool('f') === false);
+		$this->assert(toBool('F') === false);
+		$this->assert(toBool('n') === false);
+		$this->assert(toBool('N') === false);
+		$this->assert(toBool('no') === false);
+		$this->assert(toBool('NO') === false);
+		$this->assert(toBool('OFF') === false);
+		$this->assert(toBool('off') === false);
+		$this->assert(toBool('disabled') === false);
+		$this->assert(toBool('DISABLED') === false);
+		$this->assert(toBool('false') === false);
+		$this->assert(toBool('null') === false);
+		$this->assert(toBool('') === false);
 
-		$this->assert(to_bool('01') === false);
-		$this->assert(to_bool([]) === false);
-		$this->assert(to_bool(new \stdClass()) === true);
+		$this->assert(toBool('01') === false);
+		$this->assert(toBool([]) === false);
+		$this->assert(toBool(new \stdClass()) === true);
 	}
 
 	public static function to_bool_strpos($value, $default = false) {
@@ -379,12 +379,12 @@ class Functions_Test extends Test_Unit {
 	 *
 	 * Updated to test for whether it's 10% faster
 	 *
-	 * @see \to_bool
+	 * @see \toBool
 	 */
 	public function test_to_bool_timing(): void {
 		$value = null;
 		$default = false;
-		to_bool($value, $default);
+		toBool($value, $default);
 		$t = new Timer();
 		for ($i = 0; $i < 100000; $i++) {
 			self::to_bool_strpos('true');
@@ -401,7 +401,7 @@ class Functions_Test extends Test_Unit {
 		$in_array_timing = $t->elapsed();
 		echo 'to_bool_in_array: ' . $t->elapsed() . "\n";
 		$diff = 20;
-		$this->assert($strpos_timing < $in_array_timing * (1 + ($diff / 100)), "strpos to_bool is more than $diff% slower than in_array implementation");
+		$this->assert($strpos_timing < $in_array_timing * (1 + ($diff / 100)), "strpos toBool is more than $diff% slower than in_array implementation");
 	}
 
 	public function test_to_array(): void {
@@ -510,9 +510,9 @@ EOF;
 			'd' => 'e',
 		];
 		$contents = '{dudea}{a}{dudeb}{b}{duDeC}{c}{dudeD}{d}';
-		$v = map($contents, ArrayTools::kprefix($a, $prefix), true);
+		$v = map($contents, ArrayTools::prefixKeys($a, $prefix), true);
 		$this->assert($v === 'b{a}c{b}d{c}e{d}', $v . '=== "b{a}c{b}d{c}e{d}"');
-		$v = map($contents, ArrayTools::kprefix($a, $prefix), false);
+		$v = map($contents, ArrayTools::prefixKeys($a, $prefix), false);
 		$this->assert($v === 'b{a}c{b}{duDeC}{c}{dudeD}{d}', $v . ' === "b{a}c{b}{duDeC}{c}{dudeD}{d}"');
 	}
 

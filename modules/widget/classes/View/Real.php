@@ -3,12 +3,12 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2006, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
 class View_Real extends View {
-	public function render() {
+	public function render(): string {
 		$v = $this->value();
 		$result = '';
 		if (empty($v) || abs($v) < $this->option('zero_epsilon', 0.00001)) {

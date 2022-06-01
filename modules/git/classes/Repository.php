@@ -1,11 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage git
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk\Git;
+
+use zesk\Exception_Unsupported;
 
 /**
  * Git Repository implementation
@@ -43,7 +47,14 @@ class Repository extends \zesk\Repository_Command {
 	public function status($target = null, $updates = false) {
 	}
 
-	public function info($path = null, $component = null): void {
+	/**
+	 * @param string $path
+	 * @param string $component
+	 * @return array
+	 * @throws Exception_Unsupported
+	 */
+	public function info(string $path = '', string $component = ''): array {
+		throw new Exception_Unsupported(__METHOD__);
 	}
 
 	/**

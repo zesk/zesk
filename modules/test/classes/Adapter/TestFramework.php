@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -13,6 +15,16 @@ namespace zesk;
  * @author kent
  */
 class Adapter_TestFramework extends Test implements Interface_Testable {
+	public function assertArrayHasKey(int|string $key, array $array, string $message = ''): void {
+		$this->assertTrue(array_key_exists($key, $array), $message ?: 'Array (keys: \'' . implode('\', \'', array_keys($array)) . "') missing key $key");
+	}
+
+	public function assertArrayHasKeys(array $keys, array $array, string $message = ''): void {
+		foreach ($keys as $key) {
+			$this->assertTrue(array_key_exists($key, $array), $message ?: 'Array (keys: \'' . implode('\', \'', array_keys($array)) . "') missing key $key");
+		}
+	}
+
 	public function assertEquals($expected, $actual, $message = null): void {
 		$this->assert_equal($expected, $actual, $message);
 	}
@@ -51,5 +63,13 @@ class Adapter_TestFramework extends Test implements Interface_Testable {
 
 	public function assertIsArray($object, $message = null) {
 		return $this->assert_is_array($object, $message);
+	}
+
+	public function assertNotEmpty($mixed, $message = null) {
+		return $this->assertFalse(empty($mixed), $message);
+	}
+
+	public function assertEmpty($mixed, $message = null) {
+		return $this->assertTrue(empty($mixed), $message);
 	}
 }

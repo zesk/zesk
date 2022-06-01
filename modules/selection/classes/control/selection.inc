@@ -90,9 +90,9 @@ class Control_Selection extends Control {
 			return;
 		}
 		if ($object->member_boolean('selected')) {
-			$row->row_attributes(HTML::add_class($row->row_attributes(), 'selected'));
+			$row->row_attributes(HTML::addClass($row->row_attributes(), 'selected'));
 		} else {
-			$row->row_attributes(HTML::remove_class($row->row_attributes(), 'selected'));
+			$row->row_attributes(HTML::removeClass($row->row_attributes(), 'selected'));
 		}
 	}
 
@@ -127,7 +127,7 @@ class Control_Selection extends Control {
 	public function controller(): void {
 		$request = $this->request();
 		$response = $this->response();
-		if (!$this->application->development() && !$request->is_post()) {
+		if (!$this->application->development() && !$request->isPost()) {
 			$response->json()->data([
 				'status' => false,
 				'message' => 'Not a POST',
@@ -168,8 +168,8 @@ class Control_Selection extends Control {
 				break;
 			default:
 				$message = null; //__("Updated selection");
-				$add = $request->geta('add');
-				$remove = $request->geta('remove');
+				$add = $request->getArray('add');
+				$remove = $request->getArray('remove');
 				$type->items_update($add, $remove);
 				$result += [
 					'added' => count($add),
@@ -192,16 +192,16 @@ class Control_Selection extends Control {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\Widget::theme_variables()
+	 * @see \zesk\Widget::themeVariables()
 	 */
-	public function theme_variables() {
+	public function themeVariables(): array {
 		$type = $this->selection_type();
-		return parent::theme_variables() + [
+		return parent::themeVariables() + [
 			'target' => $this->option('target', '.row'),
 			'container' => $this->option('container', '.list'),
 			'selection_type' => $type,
 			'count' => $type->count(),
-			'actions' => $this->option_array('actions', []),
+			'actions' => $this->optionArray('actions', []),
 		];
 	}
 
@@ -216,7 +216,7 @@ class Control_Selection extends Control {
 		}
 		$type_id = $this->selection_type()->id();
 		$alias = $query->alias();
-		$id_column = $this->application->orm_registry($query->orm_class())->id_column();
+		$id_column = $this->application->orm_registry($query->orm_class())->idColumn();
 		$table = $this->application->orm_registry(__NAMESPACE__ . '\\Selection_Item')->table();
 		$query->join("LEFT OUTER JOIN $table sel_item ON sel_item.type=$type_id AND sel_item.id=$alias.$id_column");
 		$query->what('*selected', 'sel_item.add');

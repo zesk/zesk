@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -17,7 +17,7 @@ $column = $this->column;
 
 $id = "control-picker-selector-q-$column";
 
-$picker_options = $this->geta('picker_options', []);
+$picker_options = $this->getArray('picker_options', []);
 if (is_array($this->data_search) && count($this->data_search) > 0) {
 	$picker_options['data_search'] = $this->data_search;
 }

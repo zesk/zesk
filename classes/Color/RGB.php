@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2012, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -34,9 +34,9 @@ class Color_RGB {
 
 	/**
 	 *
-	 * @param integer $r
-	 * @param integer $g
-	 * @param integer $b
+	 * @param int $r
+	 * @param int $g
+	 * @param int $b
 	 */
 	public function __construct($r = false, $g = false, $b = false) {
 		if (is_numeric($r) && is_numeric($g) && is_numeric($b)) {
@@ -44,7 +44,7 @@ class Color_RGB {
 			$this->green = clamp(0, $g, 255);
 			$this->blue = clamp(0, $b, 255);
 		} elseif (is_string($r)) {
-			$parts = CSS::color_parse($r);
+			$parts = CSS::colorParse($r);
 			if (is_array($parts)) {
 				[$this->red, $this->green, $this->blue] = $parts;
 			}
@@ -65,7 +65,7 @@ class Color_RGB {
 	 * @return string
 	 */
 	public function __toString() {
-		return CSS::rgb_to_hex([
+		return CSS::rgbToHex([
 			$this->red,
 			$this->green,
 			$this->blue,

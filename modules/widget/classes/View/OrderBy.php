@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 16:01:35 EDT 2008
  */
 namespace zesk;
@@ -16,7 +16,7 @@ namespace zesk;
  *
  */
 class View_OrderBy extends View {
-	public function render() {
+	public function render(): string {
 		$k = $this->option('list_order_column', $this->column());
 		$english = $this->label();
 		$html = $this->optionBool('html');
@@ -64,7 +64,7 @@ class View_OrderBy extends View {
 		if ($multisort) {
 			$new_key = implode(';', $new_order);
 			$remove_order = implode(';', $remove_order);
-			$remove_url = URL::query_format($this->option('URI', $this->request->uri()), [
+			$remove_url = URL::queryFormat($this->option('URI', $this->request->uri()), [
 				$order_var => $remove_order,
 			]);
 			$sort_number = ($sort_index !== null) ? HTML::tag('div', [
@@ -73,7 +73,7 @@ class View_OrderBy extends View {
 		} else {
 			$sort_number = '';
 		}
-		$url = URL::query_format($this->option('URI', $this->request->uri()), [
+		$url = URL::queryFormat($this->option('URI', $this->request->uri()), [
 			$order_var => $new_key,
 		]);
 		$a_tag = HTML::tag('a', [

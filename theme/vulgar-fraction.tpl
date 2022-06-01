@@ -85,7 +85,7 @@ if (real_equal($decimal, 0)) {
 	return;
 }
 
-$decimals = $this->geti('decimals', 1);
+$decimals = $this->getInt('decimals', 1);
 $epsilon = $this->get('epsilon');
 if (!$epsilon) {
 	$epsilon = 0.1** $decimals / 2.0;

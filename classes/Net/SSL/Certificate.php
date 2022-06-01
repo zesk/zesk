@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage net
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -33,7 +33,7 @@ class Net_SSL_Certificate {
 		if ($try_paths === null) {
 			$try_paths = [
 				$application->path('etc/db'),
-				$application->zesk_home('etc/db'),
+				$application->zeskHome('etc/db'),
 			];
 		}
 		$first_valid_dir = null;

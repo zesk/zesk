@@ -4,13 +4,11 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Thu Apr 15 17:19:28 EDT 2010 17:19:28
  */
 
 namespace zesk;
-
-use JetBrains\PhpStorm\Pure;
 
 /**
  *
@@ -50,7 +48,6 @@ class Locale_EN extends Locale {
 	 * {@inheritDoc}
 	 * @see \zesk\Locale::possessive()
 	 */
-	#[Pure]
 	public function possessive(string $owner, string $object): string {
 		if (ends($owner, 's')) {
 			return "$owner' $object";
@@ -63,10 +60,11 @@ class Locale_EN extends Locale {
 	 * English plural exceptions
 	 *
 	 * @param string $s Word to pluralize
-	 * @return plural string, case matched to input, or null if not an exception
+	 * @return ?string plural string case matched to input, or null if not an exception
 	 */
 	private function plural_en_exception(string $s): string|null {
 		$exceptions = [
+			'company' => 'companies',
 			'day' => 'days',
 			'staff' => 'staff',
 			'sheep' => 'sheep',

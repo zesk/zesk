@@ -41,7 +41,7 @@ class Kernel_Test extends Test_Unit {
 		$this->assert_equal($this->order, 2);
 
 		// Test clearing
-		$hooks->remove('test_hook_order');
+		$hooks->keysRemove('test_hook_order');
 
 		$this->order = 0;
 		$hooks->call('test_hook_order', $this);
@@ -88,11 +88,11 @@ class Kernel_Test extends Test_Unit {
 
 		$mixed = null;
 		$nsprefix = __NAMESPACE__ . '\\';
-		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . '\\A'), ArrayTools::prefix(to_list('A;Hookable;Options'), $nsprefix));
-		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . '\\B'), ArrayTools::prefix(to_list('B;A;Hookable;Options'), $nsprefix));
-		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . '\\C'), ArrayTools::prefix(to_list('C;B;A;Hookable;Options'), $nsprefix));
+		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . '\\A'), ArrayTools::prefixValues(to_list('A;Hookable;Options'), $nsprefix));
+		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . '\\B'), ArrayTools::prefixValues(to_list('B;A;Hookable;Options'), $nsprefix));
+		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . '\\C'), ArrayTools::prefixValues(to_list('C;B;A;Hookable;Options'), $nsprefix));
 		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . '\\' . 'HTML'), to_list(__NAMESPACE__ . '\\' . 'HTML'));
-		$this->assert_arrays_equal($app->classes->hierarchy(new A($this->application)), ArrayTools::prefix(to_list('A;Hookable;Options'), __NAMESPACE__ . '\\'));
+		$this->assert_arrays_equal($app->classes->hierarchy(new A($this->application)), ArrayTools::prefixValues(to_list('A;Hookable;Options'), __NAMESPACE__ . '\\'));
 	}
 
 	public function add_hook_was_called($arg): void {
@@ -109,13 +109,13 @@ class Kernel_Test extends Test_Unit {
 	}
 
 	public function test_application_class(): void {
-		$this->assert_is_string($this->application->application_class());
-		$this->assert_class_exists($this->application->application_class());
-		$this->assert_instanceof($this->application, $this->application->application_class());
+		$this->assert_is_string($this->application->applicationClass());
+		$this->assert_class_exists($this->application->applicationClass());
+		$this->assert_instanceof($this->application, $this->application->applicationClass());
 	}
 
 	public function test_autoload_extension(): void {
-		$this->application->autoloader->extension('dude');
+		$this->application->autoloader->addExtension('dude');
 	}
 
 	public function test_autoload_path(): void {
@@ -191,8 +191,8 @@ class Kernel_Test extends Test_Unit {
 	 * @param string $expected
 	 */
 	public function test_clean_function($name, $expected): void {
-		$result = PHP::clean_function($name);
-		$this->assert_equal($result, $expected, 'PHP::clean_function');
+		$result = PHP::cleanFunction($name);
+		$this->assert_equal($result, $expected, 'PHP::cleanFunction');
 	}
 
 	public function provider_clean_class() {
@@ -235,19 +235,21 @@ class Kernel_Test extends Test_Unit {
 		$this->application->console($set);
 	}
 
+	/**
+	 * @expectedException \zesk\Exception_Deprecated
+	 */
 	public function test_deprecated(): void {
-		$set = null;
 		$this->application->deprecated();
 	}
 
 	public function test_development(): void {
 		$app = $this->application;
 		$old_value = $app->development();
-		$app->development(true);
+		$app->setDevelopment(true);
 		$this->assert_true($app->development());
-		$app->development(false);
+		$app->setDevelopment(false);
 		$this->assert_false($app->development());
-		$app->development($old_value);
+		$app->setDevelopment($old_value);
 	}
 
 	public function test_factory(): void {
@@ -275,7 +277,7 @@ class Kernel_Test extends Test_Unit {
 	public function test_get(): void {
 		$configuration = new Configuration();
 		$configuration->a = 'b';
-		$result = $configuration->to_array();
+		$result = $configuration->toArray();
 		$this->assert($result['a'] === 'b');
 	}
 
@@ -351,7 +353,7 @@ class Kernel_Test extends Test_Unit {
 		$this->application->configuration->DUDE = 'smooth';
 		file_put_contents($file, "TEST_VAR=\"\$DUDE move\"\nVAR_2=\"Ha ha! \${TEST_VAR} ex-lax\"\nVAR_3=\"\${DUDE:-default value}\"\nVAR_4=\"\${DOOD:-default value}\"");
 		$overwrite = false;
-		$this->application->loader->load_one($file);
+		$this->application->loader->loadFile($file);
 
 		$globals = [
 			'TEST_VAR' => 'smooth move',
@@ -444,7 +446,7 @@ class Kernel_Test extends Test_Unit {
 
 	public function test_document_root_prefix(): void {
 		$set = null;
-		$this->application->document_root_prefix($set);
+		$this->application->documentRootPrefix($set);
 		echo basename(__FILE__) . ": success\n";
 	}
 

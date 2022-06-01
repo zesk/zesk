@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2006, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -22,7 +22,7 @@ class View_Template extends View {
 		return ($set !== null) ? $this->setOption('template', $set) : $this->option('template');
 	}
 
-	public function render() {
+	public function render(): string {
 		$template = $this->option('template');
 		if ($this->application->theme_exists($template)) {
 			$attr['object'] = $this->object;

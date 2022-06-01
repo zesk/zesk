@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @author kent@marketacumen.com
  * @copyright 2022 Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -188,7 +190,7 @@ abstract class Temporal {
 	 * @param array $options
 	 * @return string
 	 */
-	abstract public function format(Locale $locale = null, $format_string = null, array $options = []);
+	abstract public function format(Locale $locale = null, string $format_string = '', array $options = []): string;
 
 	/**
 	 * Fetch formatting for this object
@@ -197,7 +199,7 @@ abstract class Temporal {
 	 * @param Locale|null $locale
 	 * @return array
 	 */
-	abstract public function formatting(Locale $locale = null, array $options = []);
+	abstract public function formatting(Locale $locale = null, array $options = []): array;
 
 	/**
 	 * Return an array of unit => seconds (integer)
@@ -215,12 +217,12 @@ abstract class Temporal {
 	/**
 	 * Convert from seconds to a greater unit
 	 *
-	 * @param integer $seconds
+	 * @param int $seconds
 	 * @param string $unit
-	 * @throws Exception_Parameter
 	 * @return double
+	 * @throws Exception_Parameter
 	 */
-	public static function convert_units($seconds, $unit = 'second') {
+	public static function convert_units(int|float $seconds, string $unit = self::UNIT_SECOND): float {
 		$seconds_in_unit = self::$UNITS_TRANSLATION_TABLE[$unit] ?? null;
 		if ($seconds_in_unit === null) {
 			throw new Exception_Parameter('Invalid unit name passed to {method}: {unit}', [
@@ -234,23 +236,22 @@ abstract class Temporal {
 	/**
 	 * Convert seconds into a particular unit
 	 *
-	 * @param integer $seconds
-	 *        	Number of seconds to convert to a unit.
+	 * @param int $seconds
+	 *            Number of seconds to convert to a unit.
 	 * @param string $stop_unit
-	 *        	Unit to stop comparing for. If you only want to know how many months away
-	 *        	something is,
-	 *        	specify a higher value.
-	 * @param double $fraction
-	 *        	Returns $seconds divided by total units, can be used to specify 2.435 years, for
-	 *        	example.
+	 *            Unit to stop comparing for. If you only want to know how many months away
+	 *            something is, specify a higher value.
+	 * @param ?float $fraction
+	 *            Returns $seconds divided by total units, can be used to specify 2.435 years, for
+	 *            example.
 	 * @return string The units closest to the number of seconds
 	 */
-	public static function seconds_to_unit($seconds, $stop_unit = 'second', &$fraction = null) {
-		$seconds = intval($seconds);
+	public static function seconds_to_unit(int $seconds, string $stop_unit = self::UNIT_SECOND, float &$fraction = null): string {
 		$translation = self::$UNITS_TRANSLATION_TABLE;
+		$unit = '';
 		foreach ($translation as $unit => $unit_seconds) {
 			if (($seconds > $unit_seconds) || ($stop_unit === $unit)) {
-				$fraction = intval($seconds / $unit_seconds);
+				$fraction = floatval($seconds / $unit_seconds);
 				return $unit;
 			}
 		}

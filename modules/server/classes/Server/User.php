@@ -30,7 +30,7 @@ class Server_User extends Model {
 
 	public function __construct(Application $application, $options = null) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 		$this->user = $this->option('user');
 		$this->group = $this->option('group');
 		$this->home = $this->option('home');

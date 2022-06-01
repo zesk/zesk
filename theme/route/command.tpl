@@ -16,5 +16,5 @@ namespace zesk;
 if ($response->content_type() === 'text/html') {
 	echo HTML::tag('pre', implode("\n", $this->content));
 } else {
-	echo ArrayTools::join_wrap($this->content, '    ', "\n");
+	echo ArrayTools::joinWrap($this->content, '    ', "\n");
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -42,5 +42,5 @@ if (avalue($errors, 'continue', false)) {
 }
 
 echo HTML::etag('div', [
-	'class' => CSS::add_class("alert alert-$class"),
+	'class' => CSS::addClass("alert alert-$class"),
 ], HTML::tags('p', $errors));

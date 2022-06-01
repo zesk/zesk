@@ -8,7 +8,7 @@ class Control_FieldSet extends Control_Widgets {
 
 	public function initialize(): void {
 		$this->prefix .= HTML::tag('legend', $this->label);
-		$this->wrap('fieldset', $this->attributes([
+		$this->addWrap('fieldset', $this->attributes([
 			'class' => 'control-fieldset',
 			'id' => $this->id,
 		], 'fieldset'));

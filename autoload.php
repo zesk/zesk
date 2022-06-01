@@ -7,7 +7,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2012, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk\Kernel;

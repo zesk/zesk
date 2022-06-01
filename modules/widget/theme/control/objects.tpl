@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -20,6 +20,6 @@ if (can_iterate($this->objects)) {
 }
 
 echo HTML::tag('div', [
-	'class' => CSS::add_class('control-objects-results', $this->class_results),
+	'class' => CSS::addClass('control-objects-results', $this->class_results),
 	'id' => 'control-objects-' . $this->name,
 ], $html);

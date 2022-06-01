@@ -15,7 +15,7 @@ class Response_Test extends Test_Unit {
 	 */
 	public function test_body_attributes(): void {
 		$request = new Request($this->application);
-		$response = $this->application->response_factory($request);
+		$response = $this->application->responseFactory($request);
 
 		$add = null;
 
@@ -50,7 +50,7 @@ class Response_Test extends Test_Unit {
 	 */
 	public function test_scripts(): void {
 		$request = new Request($this->application);
-		$response = $this->application->response_factory($request);
+		$response = $this->application->responseFactory($request);
 
 		$type = 'text/javascript';
 		$script = 'alert(\'Hello, world!\');';

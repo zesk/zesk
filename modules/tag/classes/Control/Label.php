@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage tag
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Tag;
 
@@ -11,9 +11,9 @@ namespace zesk\Tag;
  * @author kent
  */
 class Control_Label extends \zesk\Control_Select_ORM {
-	protected $class = Label::class;
+	protected string $class = Label::class;
 
-	protected $options = [
+	protected array $options = [
 		'text_column' => 'name',
 		'id_column' => 'id',
 	];
@@ -34,7 +34,7 @@ class Control_Label extends \zesk\Control_Select_ORM {
 			$options[$label->id()] = $label->name;
 		}
 		if ($this->hasOption('exclude_items')) {
-			foreach ($this->option_list('exclude_items') as $id) {
+			foreach ($this->optionIterable('exclude_items') as $id) {
 				unset($options[$id]);
 			}
 		}

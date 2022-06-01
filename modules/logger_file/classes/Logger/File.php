@@ -198,7 +198,7 @@ class File implements Handler {
 	 */
 	private function update_link() {
 		$linkname = $this->linkname;
-		if (!zeskFile::is_absolute($linkname)) {
+		if (!zeskFile::isAbsolute($linkname)) {
 			$linkname = path(dirname($this->filename), $linkname);
 		}
 		if (!file_exists($linkname)) {

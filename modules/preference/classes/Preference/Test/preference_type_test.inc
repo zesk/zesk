@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -20,10 +22,13 @@ class Preference_Type_Test extends Test_Unit {
 	}
 
 	public function test_object(): void {
-		$x = $this->application->model_factory(Preference_Type::class);
+		$x = $this->application->modelFactory(Preference_Type::class);
+		$this->assertInstanceOf(Preference_Type::class, $x);
 
 		$code_name = 'Poore';
-		$name = false;
-		Preference_Type::register_name($this->application, $code_name, $name);
+		$type = Preference_Type::register_name($this->application, $code_name);
+		$this->assertInstanceOf(Preference_Type::class, $type);
+		$this->assertEquals($code_name, $type->name());
+		$this->assertNotEmpty($type->id());
 	}
 }

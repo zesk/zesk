@@ -15,10 +15,10 @@ namespace zesk;
 /* @var $current_user \User */
 /* @var $object \Content_File */
 echo HTML::tag_open('div', [
-	'class' => CSS::add_class('file', $this->class),
+	'class' => CSS::addClass('file', $this->class),
 ]);
 // TODO Fix this
-$uri = URL::query_append('/download.php', [
+$uri = URL::queryAppend('/download.php', [
 	'FileGroup' => $object->Parent,
 	'ID' => $object->ID,
 ]);

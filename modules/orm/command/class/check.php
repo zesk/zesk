@@ -38,7 +38,7 @@ class Command_Class_Check extends Command_Base {
 	 * @return \zesk\Ambigous[]
 	 */
 	private function all_classes() {
-		return ArrayTools::key_value($this->application->orm_module()->all_classes(), null, 'class');
+		return ArrayTools::extract($this->application->orm_module()->all_classes(), null, 'class');
 	}
 
 	/**

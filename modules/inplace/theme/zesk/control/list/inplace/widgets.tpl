@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -36,7 +36,7 @@ if ($current_user->can('edit', $object)) {
 } else {
 	$attributes = [];
 }
-echo HTML::div(CSS::add_class('.col-xs-8 col-sm-10 action-edit'), HTML::span($attributes, $object->name));
+echo HTML::div(CSS::addClass('.col-xs-8 col-sm-10 action-edit'), HTML::span($attributes, $object->name));
 
 echo HTML::div([
 	'class' => 'col-xs-2 col-sm-1 total tip',

@@ -3,7 +3,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @package zesk
  * @subpackage system
- * @copyright Copyright &copy; 2017, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -162,7 +162,7 @@ abstract class Net_Server_Driver extends Hookable {
 	/**
 	 * Getter/setter for idle_timeout
 	 *
-	 * @param integer $set
+	 * @param int $set
 	 * @return integer|\zesk\Net_Server_Driver
 	 */
 	final public function idle_timeout($set = null) {

@@ -64,7 +64,7 @@ This function is always called before all other functions (submitted/load/valida
 	function submitted(Model $model)
 
 Determine if the widget was submitted as part of a form. Returns true or false. Generally should 
-check the request to see if it was *posted* (`$this->request->is_post()`) or if a value exists
+check the request to see if it was *posted* (`$this->request->isPost()`) or if a value exists
 as part of the query string. 
 
 ## load

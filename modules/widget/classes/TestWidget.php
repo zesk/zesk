@@ -24,10 +24,10 @@ class TestWidget extends Test_Unit {
 		$testx->execute($object);
 
 		$name = 'form-name';
-		$testx->form_name($name);
-
+		$testx->setFormName($name);
+		$this->assertEquals($name, $testx->formName());
 		$default = 'form';
-		$testx->form_name($default);
+		$testx->setFormName($default);
 
 		$parent = $testx->widget_factory('zesk\\Widget');
 		$testx->parent($parent);
@@ -67,8 +67,8 @@ class TestWidget extends Test_Unit {
 
 		$testx->error_required();
 
-		$testx->input_attributes();
-		$testx->input_attributes(['core']);
+		$testx->inputAttributes();
+		$testx->inputAttributes(['core']);
 
 		$default = 'Hey, dude.';
 		$this->assert_equal($testx->empty_string($default)->empty_string(), $default);
@@ -83,7 +83,7 @@ class TestWidget extends Test_Unit {
 
 		$testx->locale();
 
-		$testx->show_size();
+		$testx->showSize();
 	}
 
 	/**

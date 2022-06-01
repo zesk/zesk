@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 /* @var $this zesk\Template */
-$width = $this->geti('width', 300);
-$height = $this->geti('height', 300);
+$width = $this->getInt('width', 300);
+$height = $this->getInt('height', 300);
 
 $corner_image = 'http://static.marketruler.com/share/images/gradient/border-shadow-400x400-20.png';
 if ($width > 400) {
@@ -12,7 +12,7 @@ if ($width > 400) {
 $width_unit = $width . 'px';
 $height_unit = $height . 'px';
 
-$thickness = $this->geti('thickness', 14);
+$thickness = $this->getInt('thickness', 14);
 $thickness_px = $thickness . 'px';
 
 $close_height = 30;

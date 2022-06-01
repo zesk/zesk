@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -13,17 +15,16 @@ abstract class Exception_ORM extends Exception {
 	 * Class of object where error occurred
 	 * @var string
 	 */
-	protected $class = null;
+	protected string $class;
 
 	/**
 	 * Create a new error
-	 * @param string $class Class of this error
-	 * @param string $message Optional message related to context of error
-	 * @param array $arguments Additional arguments
-	 * @param integer $code error code
-	 * @param Exception $previous Previous error
+	 * @param string $class
+	 * @param string|null $message
+	 * @param $arguments
+	 * @param Exception|null $previous
 	 */
-	public function __construct($class, $message = null, $arguments = [], Exception $previous = null) {
+	public function __construct(string $class, string $message = null, $arguments = [], Exception $previous = null) {
 		$this->class = $class;
 		if (empty($message)) {
 			$message = 'Class: {class}';
@@ -31,12 +32,12 @@ abstract class Exception_ORM extends Exception {
 		$arguments += [
 			'class' => $class,
 		];
-		parent::__construct($message, $arguments, null, $previous);
+		parent::__construct($message, $arguments, 0, $previous);
 	}
 
 	public function variables(): array {
 		return parent::variables() + [
-			'class' => $this->class,
-		];
+				'class' => $this->class,
+			];
 	}
 }

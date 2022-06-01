@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -226,8 +226,8 @@ class Image_Library_GD extends Image_Library {
 
 	/**
 	 * Create an image in memory
-	 * @param integer $width
-	 * @param integer $height
+	 * @param int $width
+	 * @param int $height
 	 * @return resource
 	 */
 	private function _imagecreate($width, $height) {
@@ -281,7 +281,7 @@ class Image_Library_GD extends Image_Library {
 	 */
 	private function parse_color($value) {
 		if (is_array($value)) {
-			if (ArrayTools::is_list($value)) {
+			if (ArrayTools::isList($value)) {
 				return $value;
 			}
 			return [
@@ -290,7 +290,7 @@ class Image_Library_GD extends Image_Library {
 				$value['b'],
 			];
 		} elseif (is_string($value)) {
-			return CSS::color_parse($value);
+			return CSS::colorParse($value);
 		} else {
 			return [
 				0,

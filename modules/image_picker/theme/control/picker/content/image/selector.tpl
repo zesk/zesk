@@ -44,7 +44,7 @@ $id = 'control-picker-' . $this->column . '-q';
 		'alias' => 'ucimage',
 	])
 		->what_object(Content_Image::class)
-		->where('X.user', $this->current_user);
+		->addWhere('X.user', $this->current_user);
 	//echo $query->__toString();
 	$iterator = $query->orm_iterator(Content_Image::class);
 	foreach ($iterator as $image) {

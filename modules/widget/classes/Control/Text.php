@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author kent
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Wed Aug 27 22:23:05 EDT 2008 22:23:05
  */
 namespace zesk;
@@ -15,7 +15,7 @@ namespace zesk;
  */
 class Control_Text extends Control {
 	protected function initialize(): void {
-		$this->options += ArrayTools::map_keys($this->options, [
+		$this->options += ArrayTools::keysMap($this->options, [
 			'integer_minimum' => 'value_minimum',
 			'integer_minimum_error' => 'value_minimum_error',
 			'integer_maximum' => 'value_maximum',
@@ -25,16 +25,16 @@ class Control_Text extends Control {
 	}
 
 	public function value_minimum($set = null) {
-		return $set === null ? $this->option_double('value_minimum') : $this->setOption('value_minimum', floatval($set));
+		return $set === null ? $this->optionFloat('value_minimum') : $this->setOption('value_minimum', floatval($set));
 	}
 
 	public function value_maximum($set = null) {
-		return $set === null ? $this->option_double('value_maximum') : $this->setOption('value_maximum', floatval($set));
+		return $set === null ? $this->optionFloat('value_maximum') : $this->setOption('value_maximum', floatval($set));
 	}
 
 	private function _validate_numeric(&$v) {
 		$locale = $this->application->locale;
-		$clamp = to_bool($this->optionBool('value_clamp'));
+		$clamp = toBool($this->optionBool('value_clamp'));
 		$min = $this->optionInt('value_minimum', null);
 		$max = $this->optionInt('value_maximum', null);
 		if ($min !== null && $v < $min) {
@@ -95,7 +95,7 @@ class Control_Text extends Control {
 		return true;
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		return [
 			'placeholder' => $this->option('placeholder', $this->label),
 			'password' => $this->optionBool('password'),
@@ -103,10 +103,10 @@ class Control_Text extends Control {
 			'rows' => $this->optionInt('rows', 3),
 			'cols' => $this->optionInt('cols', 60),
 			'input_group_addon' => $this->option('input_group_addon', null),
-		] + parent::theme_variables();
+		] + parent::themeVariables();
 	}
 
-	protected function validate() {
+	protected function validate(): bool {
 		if (!parent::validate()) {
 			return false;
 		}

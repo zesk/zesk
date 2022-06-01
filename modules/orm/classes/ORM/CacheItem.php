@@ -224,7 +224,7 @@ class ORM_CacheItem implements CacheItemInterface {
 	private function _compute_class_orm_state(Class_ORM $class_orm) {
 		$database = $class_orm->database();
 		$table = $class_orm->table();
-		$info = $database->table_information($table);
+		$info = $database->tableInformation($table);
 		if (!is_array($info)) {
 			return null;
 		}
@@ -234,7 +234,7 @@ class ORM_CacheItem implements CacheItemInterface {
 			Database::TABLE_INFO_ROW_COUNT,
 			Database::TABLE_INFO_UPDATED,
 		]);
-		$result = ArrayTools::trim_clean(ArrayTools::flatten($result));
+		$result = ArrayTools::listTrimClean(ArrayTools::flatten($result));
 		if (count($result) === 0) {
 			return null;
 		}

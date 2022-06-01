@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
 
 use Psr\Cache\InvalidArgumentException;
@@ -15,7 +17,7 @@ use stdClass;
  * @package zesk
  * @subpackage objects
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  *            Created on Fri Apr 02 21:04:09 EDT 2010 21:04:09
  */
 class Controller extends Hookable implements Interface_Theme {
@@ -74,7 +76,7 @@ class Controller extends Hookable implements Interface_Theme {
 	final public function __construct(Application $app, Route $route = null, Response $response = null, array $options = []) {
 		parent::__construct($app, $options);
 
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 
 		$this->router = $app->router;
 		$this->route = $route;
@@ -98,9 +100,9 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array|string $types
 	 * @param array $arguments
 	 * @param array $options
-	 * @return string|null
+	 * @return string
 	 */
-	public function theme($types, $arguments = [], array $options = []) {
+	public function theme(array|string $types, array $arguments = [], array $options = []): string {
 		return $this->application->theme($types, $arguments, $options);
 	}
 
@@ -108,11 +110,10 @@ class Controller extends Hookable implements Interface_Theme {
 	 * Getter/Setter for theme variables. Affects the current TOP template only by default.
 	 *
 	 * @param string $name
-	 * @param mixed $value
 	 * @return mixed
 	 */
-	public function theme_variable($name = null, $value = null) {
-		return $this->application->theme_variable($name, $value);
+	public function themeVariable(string $name): mixed {
+		return $this->application->themeVariable($name);
 	}
 
 	/**
@@ -124,7 +125,7 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 */
 	protected function hook_classes() {
-		return $this->option_list('classes', []);
+		return $this->optionIterable('classes', []);
 	}
 
 	/**
@@ -218,7 +219,7 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * Generic page error
 	 *
-	 * @param integer $code Net_HTTP::Status_XXX
+	 * @param int $code Net_HTTP::Status_XXX
 	 * @param string $message Message
 	 * @return self
 	 */
@@ -331,8 +332,8 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $options Creation options and initial options for model
 	 * @return Model
 	 */
-	public function model_factory(string $class, mixed $mixed = null, array $options = []): Model {
-		return $this->application->model_factory($class, $mixed, $options);
+	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
+		return $this->application->modelFactory($class, $mixed, $options);
 	}
 
 	/**

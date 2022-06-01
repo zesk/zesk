@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2018, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Diff;
 
@@ -102,7 +102,7 @@ class Base {
 	 *
 	 * @param array $a
 	 * @param array $b
-	 * @param integer $dmax Maximum snake sequence? (Not sure what this is)
+	 * @param int $dmax Maximum snake sequence? (Not sure what this is)
 	 * @return Diff
 	 */
 	public function __construct(array $a, array $b, $dmax = null) {

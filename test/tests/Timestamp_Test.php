@@ -192,14 +192,14 @@ class Timestamp_Test extends Test_Unit {
 
 		$x->time();
 
-		$x->is_empty();
+		$x->isEmpty();
 
-		$x->set_empty();
+		$x->setEmpty();
 
 		$value = null;
 		$x->set($value);
 
-		$x->unix_timestamp();
+		$x->unixTimestamp();
 
 		$ts = 1231204;
 		$this->assert($x->setUnixTimestamp($ts) === $x);
@@ -251,12 +251,12 @@ class Timestamp_Test extends Test_Unit {
 
 		$x->ampm();
 
-		$locale = $this->application->locale_registry('en_US');
+		$locale = $this->application->localeRegistry('en_US');
 		$year = 2012;
 		$month = 10;
 		$day = 11;
 		$x->ymd($year, $month, $day);
-		$locale = $this->application->locale_registry('en_US');
+		$locale = $this->application->localeRegistry('en_US');
 		$this->assert_equal($x->format($locale, '{YYYY}:{MM}:{DD}'), '2012:10:11');
 
 		$value = 2011;
@@ -319,7 +319,7 @@ class Timestamp_Test extends Test_Unit {
 		$this->assert_equal($x->format($locale, '{12hh}:{mm}:{ss}'), '10:23:24');
 		$this->assert_equal($x->format($locale, '{12hh}:{mm}:{ss} {ampm}'), '10:23:24 pm');
 		$this->assert_equal($x->format($locale, '{12hh}:{mm}:{ss} {AMPM}'), '10:23:24 PM');
-		$x->add_unit(-12, Timestamp::UNIT_HOUR);
+		$x->addUnit(-12, Timestamp::UNIT_HOUR);
 		$this->assert_equal($x->format($locale, '{12hh}:{mm}:{ss} {AMPM}'), '10:23:24 AM');
 		$this->assert_equal($x->format($locale, '{hh}:{mm}:{ss} {AMPM}'), '10:23:24 AM');
 		$this->assert_equal($x->format($locale, '{hh}:{mm}:{ss} {ampm}'), '10:23:24 am');
@@ -392,7 +392,7 @@ class Timestamp_Test extends Test_Unit {
 
 		$unit = 'second';
 		$n = 1;
-		$x->add_unit($n, $unit);
+		$x->addUnit($n, $unit);
 
 		$x->iso8601();
 
@@ -411,9 +411,9 @@ class Timestamp_Test extends Test_Unit {
 
 		try {
 			echo $test_long_date->format($locale) . "\n";
-			$ts = $test_long_date->unix_timestamp();
+			$ts = $test_long_date->unixTimestamp();
 			$dt = new Timestamp();
-			$dt->unix_timestamp($ts);
+			$dt->unixTimestamp()($ts);
 		} catch (Exception_Convert $e) {
 			$threw = true;
 		}
@@ -426,7 +426,7 @@ class Timestamp_Test extends Test_Unit {
 		} else {
 			$this->assert(!$threw, 'Exception_Convert was thrown? PHP_VERSION_ID=' . PHP_VERSION_ID);
 			$test_long_date_2 = new Timestamp();
-			$test_long_date_2->unix_timestamp($ts);
+			$test_long_date_2->unixTimestamp()($ts);
 			$this->assert($test_long_date_2->__toString() === $test_long_date->__toString(), $test_long_date_2->__toString() . ' === ' . $test_long_date->__toString());
 		}
 	}
@@ -436,7 +436,7 @@ class Timestamp_Test extends Test_Unit {
 	 */
 	public function test_add_unit_deprecated(): void {
 		$t = Timestamp::factory('2000-01-01 00:00:00', 'UTC');
-		$t->add_unit(Timestamp::UNIT_HOUR, 2);
+		$t->addUnit(Timestamp::UNIT_HOUR, 2);
 	}
 
 	public function test_difference(): void {
@@ -448,7 +448,7 @@ class Timestamp_Test extends Test_Unit {
 			$this->assert_negative($last_year->difference($now, $unit), "$unit should be negative");
 		}
 
-		$just_a_sec = Timestamp::factory($now)->add_unit(1, Timestamp::UNIT_SECOND);
+		$just_a_sec = Timestamp::factory($now)->addUnit(1, Timestamp::UNIT_SECOND);
 		foreach ($units as $unit => $seconds) {
 			$this->assert_equal($just_a_sec->difference($now, $unit), intval(round(1 / $seconds, 0)), $unit, false);
 		}
@@ -497,7 +497,7 @@ class Timestamp_Test extends Test_Unit {
 		$this->assertEquals($ts->year(), $new->year(), 'years match');
 		$this->assertEquals($ts->month(), $new->month(), 'months match');
 		$this->assertEquals($ts->day(), $new->day(), 'days match');
-		$this->assertEquals($ts->day_seconds(), $new->day_seconds(), 'day_seconds match');
+		$this->assertEquals($ts->daySeconds(), $new->daySeconds(), 'day_seconds match');
 		$this->assertEquals($ts->hour(), $new->hour(), 'hours match');
 		$this->assertEquals($ts->minute(), $new->minute(), 'minutes match');
 		$this->assertEquals($ts->second(), $new->second(), 'seconds match');

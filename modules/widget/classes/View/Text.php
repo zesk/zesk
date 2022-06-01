@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 15:59:24 EDT 2008
  */
 namespace zesk;
@@ -18,8 +18,8 @@ class View_Text extends View {
 		return $set === null ? $this->option('format') : $this->setOption('format', $set);
 	}
 
-	public function render() {
-		$showSize = $this->show_size();
+	public function render(): string {
+		$showSize = $this->showSize();
 		if ($this->hasOption('value')) {
 			$v = $this->option('value');
 		} else {
@@ -27,7 +27,7 @@ class View_Text extends View {
 		}
 		if ($v === null) {
 			$v = $this->empty_string();
-			if (to_bool($this->empty_string_no_wrap)) {
+			if (toBool($this->empty_string_no_wrap)) {
 				return $v;
 			}
 		}
@@ -73,7 +73,7 @@ class View_Text extends View {
 			}
 		}
 		if ($this->hasOption('format')) {
-			$v = $this->object->apply_map($this->option('format'));
+			$v = $this->object->applyMap($this->option('format'));
 		}
 		if ($this->optionBool('debug')) {
 			dump($this->object);

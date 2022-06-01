@@ -6,7 +6,7 @@
  * @package zesk
  * @subpackage content
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -32,9 +32,9 @@ class Module_Content extends Module implements Interface_Module_Head {
 	 */
 	public function initialize(): void {
 		if ($this->hasOption('content_classes')) {
-			$types = ArrayTools::flip_multiple(self::$all_classes);
+			$types = ArrayTools::valuesFlipAppend(self::$all_classes);
 			$this->model_classes = array_merge($this->model_classes, $types['data']);
-			foreach ($this->option_list('content_classes') as $type) {
+			foreach ($this->optionIterable('content_classes') as $type) {
 				if (!array_key_exists($type, $types)) {
 					$this->application->logger->warning('{method} Unknown content class type {type}', [
 						'method' => __METHOD__,

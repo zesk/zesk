@@ -481,7 +481,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 
 	/**
 	 * Returns true
-	 * @param integer $time
+	 * @param int $time
 	 * @param string $hash
 	 * @return string|boolean
 	 */
@@ -515,7 +515,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @return string|true
 	 */
 	public function check_request_authentication(Request $request) {
-		return $this->check_authentication($request->geti(Controller::QUERY_PARAM_TIME), $request->get(Controller::QUERY_PARAM_HASH));
+		return $this->check_authentication($request->getInt(Controller::QUERY_PARAM_TIME), $request->get(Controller::QUERY_PARAM_HASH));
 	}
 
 	/**
@@ -543,8 +543,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			->link(Server_Data::class, [
 			'alias' => 'd',
 		])
-			->where('d.name', Module::class)
-			->where('d.value', serialize(1));
+			->addWhere('d.name', Module::class)
+			->addWhere('d.value', serialize(1));
 		$iterator = $servers->orm_iterator();
 		$results = [];
 		foreach ($iterator as $server) {
@@ -571,7 +571,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 
 		try {
 			[$time, $hash] = $webapp->generate_authentication();
-			$url = URL::query_append('http://' . $server->ip4_internal . "/webapp/$action", [
+			$url = URL::queryAppend('http://' . $server->ip4_internal . "/webapp/$action", [
 				Controller::QUERY_PARAM_TIME => $time,
 				Controller::QUERY_PARAM_HASH => $hash,
 			] + $query);

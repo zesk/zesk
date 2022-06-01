@@ -1,5 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk\ORM;
+
+use zesk\Database_Exception;
+use zesk\Database_Exception_Duplicate;
+use zesk\Database_Exception_SQL;
+use zesk\Database_Exception_Table_NotFound;
 
 /**
  *
@@ -21,21 +28,25 @@ class Test extends \zesk\Test {
 	/**
 	 * Synchronize the given classes with the database schema
 	 *
-	 * @param list|string $classes
+	 * @param array|string $classes
 	 * @param array $options
-	 * @return array[classname]
+	 * @return array
+	 * @throws Database_Exception
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
 	 */
-	public function schema_synchronize($classes, array $options = []) {
+	public function schema_synchronize(array|string $classes, array $options = []): array {
 		$app = $this->application;
 		$results = [];
-		foreach (to_list($classes) as $class) {
+		foreach (toList($classes) as $class) {
 			$class_object = $this->application->class_orm_registry($class);
 			$db = $class_object->database();
-			$results[$class] = $db->query($app->orm_module()->schema_synchronize($db, [
+			$results[$class] = $db->queries($app->orm_module()->schema_synchronize($db, [
 				$class,
 			], $options + [
-				'follow' => true,
-			]));
+					'follow' => true,
+				]));
 		}
 		return $results;
 	}

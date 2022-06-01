@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage kernel
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -144,7 +144,7 @@ class Hooks {
 	 *
 	 * @param string $hook
 	 */
-	public function _app_call($hook): void {
+	public function _app_call(string $hook): void {
 		try {
 			$this->call($hook, $this->kernel->application());
 		} catch (Exception_Semantics $e) {
@@ -250,7 +250,7 @@ class Hooks {
 	 * $kernel->hooks->add('configured', __CLASS__ . "::configured");
 	 * }
 	 * public static function configured() {
-	 * if ($this->getb('foo::enabled')) {
+	 * if ($this->getBool('foo::enabled')) {
 	 * // Do something important
 	 * }
 	 * }
@@ -261,6 +261,23 @@ class Hooks {
 	 *            List of classes to invoke the static "hooks" method for.
 	 *
 	 * @return array Hook class name eith the time invoked, or an Exception if an error occurred.
+	 */
+	public function registerClass(string|array $classes): self {
+		if (is_array($classes)) {
+			foreach ($classes as $class) {
+				$this->registerClass($class);
+			}
+		} else {
+			$this->_register_class_hooks($classes);
+		}
+		return $this;
+	}
+
+	/**
+	 * @param string|array $class
+	 * @param array $options
+	 * @return bool
+	 * @deprecated 2022-05
 	 */
 	public function register_class(string|array $class, array $options = []) {
 		if (is_string($class)) {
@@ -480,7 +497,7 @@ class Hooks {
 	 * @param string $hook
 	 * @return boolean true if removed, false if not found
 	 */
-	public function remove(string $hook): bool {
+	public function keysRemove(string $hook): bool {
 		$hook = $this->_hook_name($hook);
 		if (isset($this->hooks[$hook])) {
 			unset($this->hooks[$hook]);

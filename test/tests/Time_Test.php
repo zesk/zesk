@@ -14,7 +14,7 @@ class Test_Time extends Test_Unit {
 	 */
 	public function test_invalid_set(): void {
 		$x = new Time();
-		$x->unix_timestamp(true);
+		$x->unixTimestamp()(true);
 	}
 
 	public function test_parse(): void {
@@ -52,9 +52,9 @@ class Test_Time extends Test_Unit {
 		$value = null;
 		$x->set($value);
 
-		$x->is_empty();
+		$x->isEmpty();
 
-		$x->set_empty();
+		$x->setEmpty();
 
 		$x->set_now();
 
@@ -103,7 +103,7 @@ class Test_Time extends Test_Unit {
 
 		$unit = Timestamp::UNIT_SECOND;
 		$n = 1;
-		$x->add_unit($n, $unit);
+		$x->addUnit($n, $unit);
 	}
 
 	/**
@@ -111,6 +111,6 @@ class Test_Time extends Test_Unit {
 	 */
 	public function test_invalid_unit(): void {
 		$time = new Time();
-		$time->add_unit(1, 'money');
+		$time->addUnit(1, 'money');
 	}
 }

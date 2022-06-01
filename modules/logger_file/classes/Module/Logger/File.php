@@ -50,12 +50,12 @@ class Module_Logger_File extends Module {
 	 */
 	public function configured(): void {
 		/* @var $zesk Kernel */
-		$defaults = $this->option_array('defaults');
-		$defaults = ArrayTools::remove($defaults, [
+		$defaults = $this->optionArray('defaults');
+		$defaults = ArrayTools::keysRemove($defaults, [
 			'name',
 			'linkname',
 		]);
-		$files = $this->option_array('files');
+		$files = $this->optionArray('files');
 		$names = [];
 		foreach ($files as $name => $settings) {
 			$settings += $defaults;
@@ -86,7 +86,7 @@ class Module_Logger_File extends Module {
 	 * @return string
 	 */
 	private function _filename_path($filename) {
-		if (!File::is_absolute($filename)) {
+		if (!File::isAbsolute($filename)) {
 			$filename = $this->application->path($filename);
 		}
 		return $filename;

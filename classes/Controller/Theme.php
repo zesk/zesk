@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Fri Apr 02 21:15:05 EDT 2010 21:15:05
  */
 namespace zesk;
@@ -126,14 +126,14 @@ abstract class Controller_Theme extends Controller {
 			} elseif (is_string($output) && !empty($output)) {
 				$content = $output;
 			}
-			if ($this->request->prefer_json()) {
+			if ($this->request->preferJSON()) {
 				$this->json([
 					'content' => $content,
 				] + $this->response->to_json());
 			} else {
 				$this->response->content = $this->theme ? $this->theme($this->theme, [
 					'content' => $content,
-				] + $this->variables(), $this->option_array('theme_options')) : $content;
+				] + $this->variables(), $this->optionArray('theme_options')) : $content;
 			}
 		}
 	}

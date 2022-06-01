@@ -3,7 +3,7 @@
  * @package ruler
  * @subpackage page
  * @author kent
- * @copyright Copyright &copy; 2009, Market Ruler, LLC
+ * @copyright Copyright &copy; 2022, Market Ruler, LLC
  * Created on Tue Feb 17 20:42:50 EST 2009 20:42:50
  */
 namespace zesk;

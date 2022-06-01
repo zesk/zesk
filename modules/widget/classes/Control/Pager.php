@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 16:27:00 EDT 2008
  */
 
@@ -58,17 +58,22 @@ class Control_Pager extends Control {
 	 * {@inheritDoc}
 	 * @see Widget::model()
 	 */
-	public function model() {
+	public function model(): ORM {
 		return new Model_List($this->application);
 	}
 
-	public function preserve_hidden($name, $value = null) {
-		$variables = avalue($this->theme_variables, 'preserve_hidden');
+	/**
+	 * @param string|array $name
+	 * @param mixed|null $value
+	 * @return $this
+	 */
+	public function preserve_hidden(string|array $name, mixed $value = null): self {
+		$variables = $this->theme_variables['preserve_hidden'] ?? [];
 		if (!is_array($variables)) {
 			$variables = [];
 		}
 		if (is_array($name)) {
-			$variables = $name + $variables;
+			$this->theme_variables = $name + $variables;
 			return $this;
 		}
 		$variables[$name] = $value;
@@ -76,14 +81,21 @@ class Control_Pager extends Control {
 		return $this;
 	}
 
-	public function limit_default() {
+	/**
+	 * @return int
+	 */
+	public function limit_default(): int {
 		return $this->optionInt('limit');
 	}
 
+	/**
+	 * @return mixed
+	 * @throws Exception_Semantics
+	 */
 	private function _limit_widget() {
-		$pager_limit_list = $this->pager_limit_list();
+		$pager_limit_list = $this->pagerLimitList();
 
-		$pager_limit_list = ArrayTools::flip_copy($pager_limit_list);
+		$pager_limit_list = ArrayTools::valuesFlipCopy($pager_limit_list);
 
 		$ajax_id = $this->option('ajax_id');
 		$onchange = $ajax_id ? "pager_limit_change.call(this,'$ajax_id')" : 'this.form.submit()';
@@ -91,28 +103,33 @@ class Control_Pager extends Control {
 		$options = [];
 		$options['options'] = $pager_limit_list;
 		$options['onchange'] = $onchange;
-		$options['default'] = $this->request->geti('limit', $this->limit_default());
+		$options['default'] = $this->request->getInt('limit', $this->limit_default());
 		$options['skip_query_condition'] = true;
 		$options['query_column'] = [];
 
 		return $this->widget_factory(Control_Select::class)->names('limit')->required(true)->setOptions($options);
 	}
 
+	/**
+	 * @return void
+	 * @throws Exception_Key
+	 * @throws Exception_Semantics
+	 */
 	protected function initialize(): void {
 		$this->setOption('max_limit', $this->_maximum_limit());
 		$this->limit_widget = $this->_limit_widget();
-		$this->child($this->limit_widget);
+		$this->setChild($this->limit_widget);
 		parent::initialize();
 	}
 
 	protected function defaults(): void {
-		$this->children_defaults();
-		$this->object->set('offset', $this->request->geti('offset', 0));
+		$this->childrenDefaults();
+		$this->object->set('offset', $this->request->getInt('offset', 0));
 	}
 
 	private function _refresh(): void {
 		$object = $this->object;
-		$total = to_integer($object->total, -1);
+		$total = toInteger($object->total, -1);
 		$off = $object->offset;
 		$lim = $object->limit;
 		$last_offset = -1;
@@ -144,7 +161,11 @@ class Control_Pager extends Control {
 		$object->last_offset = $last_offset;
 	}
 
-	protected function hook_total($total): void {
+	/**
+	 * @param int $total
+	 * @return void
+	 */
+	protected function hook_total(int $total): void {
 		$this->object->total = $total;
 		$this->_refresh();
 	}
@@ -159,10 +180,9 @@ class Control_Pager extends Control {
 			throw new Exception_Semantics('Can not call hook_query_list recursively');
 		}
 		$recurse = 1;
-		$query->limit($this->object->offset, $this->object->limit);
+		$query->setOffsetLimit($this->object->offset, $this->object->limit);
 		// KMD 2016-06-15 Why was this commented out?
 		foreach ($this->children as $child) {
-			/* @var $child Widget */
 			if ($child === $this->limit_widget) {
 				continue;
 			}
@@ -211,11 +231,10 @@ class Control_Pager extends Control {
 		$this->limit_widget->control_options($ss);
 	}
 
-	public function pager_limit_list(array $set = null): array {
-		if ($set !== null) {
-			$this->application->deprecated('setter');
-			$this->setPagerLimitList(to_list($set));
-		}
+	/**
+	 * @return array
+	 */
+	public function pagerLimitList(): array {
 		return $this->optionArray('pager_limit_list', ['5', '10', '25', '50', '100']);
 	}
 
@@ -225,16 +244,19 @@ class Control_Pager extends Control {
 	 * @param array $set
 	 * @return self
 	 */
-	public function setPagerLimitList(array $set) {
-		return $this->setOption('pager_limit_list', to_list($set));
+	public function setPagerLimitList(array $set): self {
+		return $this->setOption('pager_limit_list', $set);
 	}
 
-	private function _maximum_limit() {
+	/**
+	 * @return int
+	 */
+	private function _maximum_limit(): int {
 		$n = $this->optionInt('pager_maximum_limit', -1);
 		if ($n > 0) {
 			return $n;
 		}
-		$limit_list = $this->pager_limit_list();
+		$limit_list = $this->pagerLimitList();
 		$max = 0;
 		foreach ($limit_list as $k) {
 			$max = max($max, intval($k));

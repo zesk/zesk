@@ -252,7 +252,7 @@ class Module_Help extends Module_JSLib {
 		if (!$user) {
 			return null;
 		}
-		if (!$this->application->development() && !$request->is_post()) {
+		if (!$this->application->development() && !$request->isPost()) {
 			$response->status(Net_HTTP::STATUS_METHOD_NOT_ALLOWED, 'Requires POST')->json([
 				'error' => $this->application->locale->__('Requires POST data'),
 			]);
@@ -272,7 +272,7 @@ class Module_Help extends Module_JSLib {
 			return;
 		}
 		$application = $this->application;
-		$ids = $request->geta('id', []);
+		$ids = $request->getArray('id', []);
 		foreach ($ids as $id) {
 			$application->orm_factory('zesk\\Help', $id)->show();
 		}
@@ -292,7 +292,7 @@ class Module_Help extends Module_JSLib {
 			return;
 		}
 		$application = $this->application;
-		$ids = $request->geta('id', []);
+		$ids = $request->getArray('id', []);
 		foreach ($ids as $id) {
 			$help = $application->orm_factory('zesk\\Help', $id)->fetch();
 			if ($help) {
@@ -348,8 +348,8 @@ class Module_Help extends Module_JSLib {
 	public function reset_user(User $user) {
 		return $this->application->orm_registry(Help_User::class)
 			->query_delete()
-			->where('user', $user)
+			->addWhere('user', $user)
 			->execute()
-			->affected_rows();
+			->affectedRows();
 	}
 }

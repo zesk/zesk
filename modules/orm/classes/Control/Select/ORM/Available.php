@@ -18,18 +18,18 @@ class Control_Select_ORM_Available extends Control_Select_ORM {
 	protected function hook_options() {
 		$sql = $this->class_object->database()->sql();
 
-		$column = $this->query_column();
+		$column = $this->queryColumn();
 		$column = StringTools::right($column, '.', $column);
 
-		$column = $sql->unquote_column($column);
+		$column = $sql->unquoteColumn($column);
 
 		$query = $this->application->orm_registry($this->class)->query_select();
-		$query->what('id', $column);
-		$query->distinct(true);
-		$query->order_by($this->option('order_by', $column));
-		$query->where($this->_where());
-		$query->where("$column|!=", '');
-		$result = $query->to_array('id', 'id');
+		$query->addWhat('id', $column);
+		$query->setDistinct(true);
+		$query->setOrderBy($this->option('order_by', $column));
+		$query->appendWhere($this->_where());
+		$query->addWhere("$column|!=", '');
+		$result = $query->toArray('id', 'id');
 		return ArrayTools::capitalize(array_change_key_case($result));
 	}
 }

@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2017, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -104,7 +104,7 @@ class Control extends Widget {
 			$this->setOption('query_condition_map', $set);
 			return $this;
 		}
-		return $this->option_array('query_condition_map');
+		return $this->optionArray('query_condition_map');
 	}
 
 	/**
@@ -140,7 +140,7 @@ class Control extends Widget {
 		}
 		$where = [];
 		foreach ($columns as $column) {
-			if (!$query->valid_column($column)) {
+			if (!$query->validColumn($column)) {
 				continue;
 			}
 			$where[$column] = $value;
@@ -158,7 +158,7 @@ class Control extends Widget {
 		if ($this->optionBool('skip_query_condition')) {
 			return false;
 		}
-		$query_condition_map = $this->option_array('query_condition_map');
+		$query_condition_map = $this->optionArray('query_condition_map');
 		$condition = avalue($query_condition_map, strval($value));
 		$column_name = $this->option('query_column_name', $this->label());
 		if (!$condition) {
@@ -171,14 +171,14 @@ class Control extends Widget {
 	}
 
 	final public function refresh($set = null) {
-		return ($set !== null) ? $this->setOption('refresh', to_bool($set)) : $this->optionBool('refresh');
+		return ($set !== null) ? $this->setOption('refresh', toBool($set)) : $this->optionBool('refresh');
 	}
 
 	public function placeholder($set = null) {
 		return ($set !== null) ? $this->setOption('placeholder', $set) : $this->option('placeholder');
 	}
 
-	public function query_column($set = null) {
+	public function queryColumn($set = null) {
 		return ($set !== null) ? $this->setOption('query_column', $set) : $this->option('query_column');
 	}
 
@@ -196,7 +196,7 @@ class Control extends Widget {
 	 * @return boolean|Widget
 	 */
 	protected function sanitize_html($set = null) {
-		return $set === null ? $this->optionBool('sanitize_html', true) : $this->setOption('sanitize_html', to_bool($set));
+		return $set === null ? $this->optionBool('sanitize_html', true) : $this->setOption('sanitize_html', toBool($set));
 	}
 
 	/**
@@ -302,7 +302,7 @@ class Control extends Widget {
 			// <p onmouseover="document.location = 'http://bad-place/';">Move your mouse over this word to get a surprise.</p>
 			// strip_tags with values is NOT safe
 			// TODO Security
-			return strip_tags($value, implode('', ArrayTools::wrap(to_list($allow), '<', '>')));
+			return strip_tags($value, implode('', ArrayTools::wrapValues(to_list($allow), '<', '>')));
 		}
 		return $value;
 	}

@@ -3,7 +3,7 @@
  * @package zesk-modules
  * @subpackage tag
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk\Tag;
 
@@ -97,7 +97,7 @@ class Label extends \zesk\ORM {
 	 */
 	public function generate_code() {
 		return implode('-', array_filter([
-			PHP::clean_function($this->name),
+			PHP::cleanFunction($this->name),
 			substr(md5(microtime(false)), 0, 8),
 		]));
 	}

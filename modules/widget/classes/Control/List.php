@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  *            Created on Tue Jul 15 16:28:30 EDT 2008
  */
 namespace zesk;
@@ -221,7 +221,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @return array|void
 	 */
 	public function where(array $where = null) {
-		return $where === null ? $this->option_array('where') : $this->setOption('where', $where);
+		return $where === null ? $this->optionArray('where') : $this->setOption('where', $where);
 	}
 
 	/**
@@ -249,7 +249,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @return Control_List|boolean
 	 */
 	public function show_pager($set = null) {
-		return $set !== null ? $this->setOption('show_pager', to_bool($set)) : $this->optionBool('show_pager');
+		return $set !== null ? $this->setOption('show_pager', toBool($set)) : $this->optionBool('show_pager');
 	}
 
 	public function default_order_by($set = null) {
@@ -290,7 +290,7 @@ class Control_List extends Control_Widgets_Filter {
 
 	protected function initialize_pager(): void {
 		if ($this->show_pager()) {
-			$options = ArrayTools::kunprefix($this->options, 'pager_', true);
+			$options = ArrayTools::keysRemovePrefix($this->options, 'pager_', true);
 			$this->pager = $this->widget_factory(Control_Pager::class);
 			$this->child($this->pager);
 			$this->children_hook('pager', $this->pager);
@@ -312,7 +312,7 @@ class Control_List extends Control_Widgets_Filter {
 		foreach (to_list('content;empty;footer;header;prefix;row;suffix;row') as $var) {
 			$theme_var = "theme_$var";
 			if (!$this->$theme_var) {
-				$this->$theme_var = ArrayTools::suffix($hierarchy, $var);
+				$this->$theme_var = ArrayTools::suffixValues($hierarchy, $var);
 			}
 		}
 	}
@@ -360,7 +360,7 @@ class Control_List extends Control_Widgets_Filter {
 		$this->_prepare_queries();
 	}
 
-	public function theme_variables() {
+	public function themeVariables(): array {
 		$class_object = $this->class_object;
 		$locale = $this->application->locale;
 		return [
@@ -396,7 +396,7 @@ class Control_List extends Control_Widgets_Filter {
 			'widget_tag' => $this->widget_tag,
 			'widget_attributes' => $this->widget_attributes,
 			'theme_widgets' => $this->theme_widgets,
-		] + parent::theme_variables() + $this->options;
+		] + parent::themeVariables() + $this->options;
 	}
 
 	/**
@@ -407,7 +407,7 @@ class Control_List extends Control_Widgets_Filter {
 	private function _query() {
 		$query = $this->application->orm_registry($this->class)->query_select()->what_object($this->class);
 		if ($this->hasOption('where')) {
-			$query->where($this->option_array('where'));
+			$query->where($this->optionArray('where'));
 		}
 		return $query;
 	}
@@ -428,7 +428,7 @@ class Control_List extends Control_Widgets_Filter {
 
 	final protected function list_what_default() {
 		$pk = $this->class_object->primary_keys;
-		$what = $pk ? implode(',', ArrayTools::prefix($pk, 'X.')) : '*';
+		$what = $pk ? implode(',', ArrayTools::prefixValues($pk, 'X.')) : '*';
 		return $what;
 	}
 
@@ -470,7 +470,7 @@ class Control_List extends Control_Widgets_Filter {
 		if ($name && $this->request->has($name)) {
 			return true;
 		}
-		return $this->request->is_post();
+		return $this->request->isPost();
 	}
 
 	public function hook_initialized(): void {

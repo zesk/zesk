@@ -26,7 +26,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * Is a value set in this object?
 	 * @return boolean
 	 */
-	public function __isset($name): bool {
+	public function __isset(string $name): bool {
 		return apath($this->data, $name, null, ZESK_GLOBAL_KEY_SEPARATOR) !== null;
 	}
 
@@ -34,7 +34,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * Is a value set in this object?
 	 * @return boolean
 	 */
-	public function has($name): bool {
+	public function has(string $name): bool {
 		return $this->__isset($name);
 	}
 
@@ -43,7 +43,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @param mixed $name A string or key value (integer, float)
 	 * @return mixed The value of the session variable, or null if nothing set
 	 */
-	public function __get($name): mixed {
+	public function __get(string $name): mixed {
 		return $this->get($name);
 	}
 
@@ -53,7 +53,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @param mixed $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
-	public function get($name = null, $default = null): mixed {
+	public function get(string $name = null, $default = null): mixed {
 		return apath($this->data, $name, $default, ZESK_GLOBAL_KEY_SEPARATOR);
 	}
 
@@ -63,7 +63,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @param mixed $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
-	public function eget($name, $default = null): mixed {
+	public function eget(string $name, $default = null): mixed {
 		$value = $this->get($name);
 		return empty($value) ? $default : $value;
 	}
@@ -74,7 +74,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @param mixed $name A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
-	public function __set($name, $value): void {
+	public function __set(string $name, mixed $value): void {
 		apath_set($this->data, $name, $value, ZESK_GLOBAL_KEY_SEPARATOR);
 	}
 
@@ -85,7 +85,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 * @return Interface_Settings
 	 */
-	public function set($name, $value = null): self {
+	public function set(string $name, mixed $value = null): self {
 		$this->__set($name, $value);
 		return $this;
 	}

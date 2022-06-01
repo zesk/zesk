@@ -22,7 +22,7 @@ class Exception_DomainLookup extends Exception {
 	 * @param string $host
 	 * @param string $message
 	 * @param array $arguments
-	 * @param integer $code
+	 * @param int $code
 	 * @param Exception $previous
 	 */
 	public function __construct($host, $message, array $arguments = [], $code = null, Exception $previous = null) {

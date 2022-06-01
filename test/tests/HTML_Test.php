@@ -161,7 +161,7 @@ class HTML_Test extends Test_Unit {
 
 	public function dataprovider_request() {
 		$request0 = $this->application->factory(Request::class, $this->application);
-		$request0->initialize_from_settings([
+		$request0->initializeFromSettings([
 			'url' => 'http://localhost/path/',
 		]);
 		return [

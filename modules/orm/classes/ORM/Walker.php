@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage orm
  * @author kent
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 
 /**
@@ -143,7 +143,7 @@ class Walker {
 
 	/**
 	 * Getter/setter for depth
-	 * @param integer $set
+	 * @param int $set
 	 * @return integer|self
 	 */
 	public function depth($set = null) {
@@ -163,7 +163,7 @@ class Walker {
 		if ($set === null) {
 			return $this->class_info;
 		}
-		$this->class_info = to_bool($set);
+		$this->class_info = toBool($set);
 		return $this;
 	}
 
@@ -176,7 +176,7 @@ class Walker {
 		if ($set === null) {
 			return $this->skip_null;
 		}
-		$this->skip_null = to_bool($set);
+		$this->skip_null = toBool($set);
 		return $this;
 	}
 
@@ -307,16 +307,16 @@ class Walker {
 				if (count($list) === 0) {
 					$member = null;
 				} else {
-					$member = ArrayTools::flip_assign($list, true);
+					$member = ArrayTools::keysFromValues($list, true);
 				}
 			} else {
-				$member += ArrayTools::flip_assign($list, true);
+				$member += ArrayTools::keysFromValues($list, true);
 			}
 		} else {
 			if ($append === false) {
-				$member = ArrayTools::flip_assign($list, true);
+				$member = ArrayTools::keysFromValues($list, true);
 			} else {
-				$member += ArrayTools::flip_assign($list, true);
+				$member += ArrayTools::keysFromValues($list, true);
 			}
 		}
 		return $this;
@@ -410,7 +410,7 @@ class Walker {
 			$id = $orm->id();
 			if (is_scalar($id) && $this->class_info) {
 				return [
-					$orm->id_column() => $id,
+					$orm->idColumn() => $id,
 				] + $class_data;
 			}
 			return $id;

@@ -28,7 +28,7 @@ This is a RECOMMENDATION and variations among classes may be permitted depending
 			));
 		}
 		public static function configured(Application $app) {
-			self::$debug = to_bool($app->configuration->path_get(array(__CLASS__, "debug")));
+			self::$debug = toBool($app->configuration->path_get(array(__CLASS__, "debug")));
 		}
 		
 		// Snip
@@ -48,7 +48,7 @@ This is a RECOMMENDATION and variations among classes may be permitted depending
 		 */
 		public function initialize(): void {
 			parent::initialize();
-			$this->inherit_global_options();
+			$this->inheritConfiguration();
 		}
 		
 		/**

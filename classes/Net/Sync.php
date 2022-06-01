@@ -144,7 +144,7 @@ class Net_Sync extends Options {
 		if ($pattern === null) {
 			return $default;
 		}
-		$srcVar = to_bool($pattern, null);
+		$srcVar = toBool($pattern, null);
 		if (is_bool($pattern)) {
 			return $pattern;
 		}

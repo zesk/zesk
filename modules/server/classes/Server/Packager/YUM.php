@@ -23,7 +23,7 @@ class Server_Packager_YUM extends Server_Packager {
 		}
 	}
 
-	protected function package_remove($package) {
+	protected function package_keysRemove($package) {
 		return $this->exec('yum remove {0}', $package);
 	}
 

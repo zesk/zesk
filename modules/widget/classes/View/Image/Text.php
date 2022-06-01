@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Apr 01 16:14:09 EDT 2008
  */
 namespace zesk;
@@ -103,7 +103,7 @@ class View_Image_Text extends View {
 		}
 	}
 
-	public function render() {
+	public function render(): string {
 		$rootdir = $this->option('root_directory', $this->application->path());
 
 		$col = $this->column();
@@ -179,7 +179,7 @@ class View_Image_Text extends View {
 			$text,
 			strval($background),
 			strval($foreground),
-			StringTools::from_bool($transparency),
+			StringTools::fromBool($transparency),
 			$width,
 			$height,
 			$xoff,
@@ -213,7 +213,7 @@ class View_Image_Text extends View {
 			$this->application->hooks->call('file_created', $absolute_cache_path . $fname);
 			\imagedestroy($image);
 		}
-		$attr = $this->option_array('attributes');
+		$attr = $this->optionArray('attributes');
 		$attr['title'] = $this->option('alt', $text);
 		$attr['width'] = $width;
 		$attr['height'] = $height;
@@ -228,7 +228,7 @@ class View_Image_Text extends View {
 		$w = $application->widget_factory(View_Image_Text::class, $attributes);
 		$request = $application->request() ?? Request::factory($application, 'http://test/');
 		$w->request($request);
-		$w->response($application->response_factory($request));
+		$w->response($application->responseFactory($request));
 		return $w->execute($x);
 	}
 
@@ -239,7 +239,7 @@ class View_Image_Text extends View {
 		$w = $application->widget_factory(View_Image_Text::class, $attributes);
 		$request = $application->request() ?? Request::factory($application, 'http://test/');
 		$w->request($request);
-		$w->response($application->response_factory($request));
+		$w->response($application->responseFactory($request));
 		return $w->execute($x);
 	}
 }

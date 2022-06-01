@@ -10,9 +10,7 @@ namespace zesk;
  *
  */
 class Control_ORM_Checklist extends Control_Checklist {
-	protected $class = null;
-
-	protected $objects = [];
+	protected array $objects = [];
 
 	/**
 	 *
@@ -28,7 +26,7 @@ class Control_ORM_Checklist extends Control_Checklist {
 	 * @param array $where
 	 */
 	public function where(array $where = null) {
-		return is_array($where) ? $this->setOption('where', $where) : $this->option_array('where');
+		return is_array($where) ? $this->setOption('where', $where) : $this->optionArray('where');
 	}
 
 	/**
@@ -41,7 +39,7 @@ class Control_ORM_Checklist extends Control_Checklist {
 		$this->objects = [];
 		$control_options = [];
 		$query = $this->application->orm_registry($this->class)->query_select();
-		$query->where($this->option_array('where'));
+		$query->where($this->optionArray('where'));
 		$query->order_by($this->option('order_by', $name_col));
 		$this->call_hook('options_query', $query);
 		$iterator = $query->orm_iterator();
@@ -58,10 +56,10 @@ class Control_ORM_Checklist extends Control_Checklist {
 
 	/**
 	 * (non-PHPdoc)
-	 * @see Control_Options::theme_variables()
+	 * @see Control_Options::themeVariables()
 	 */
-	public function theme_variables() {
-		return parent::theme_variables() + [
+	public function themeVariables(): array {
+		return parent::themeVariables() + [
 			'control_objects' => $this->objects,
 		];
 	}

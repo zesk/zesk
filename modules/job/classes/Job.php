@@ -94,7 +94,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 *        	serializable.
 	 * @param array $arguments
 	 *        	Additional arguments to pass to the hook.
-	 * @param integer $priority
+	 * @param int $priority
 	 *        	Numeric priority between 0 and 255.
 	 * @throws Exception_Parameter
 	 * @throws Exception_Semantics
@@ -139,7 +139,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	/**
 	 * Getter/setter for Priority
 	 *
-	 * @param integer $set
+	 * @param int $set
 	 * @return integer|self
 	 */
 	public function priority($set = null) {
@@ -293,11 +293,11 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 				])
 					->execute();
 				// Race condition if we crash before this executes
-				if (!to_bool($application->orm_factory(__CLASS__)
+				if (!toBool($application->orm_factory(__CLASS__)
 					->query_select()
 					->addWhat('*X', 'COUNT(id)')
 					->where($server_pid)
-					->where('id', $job->id())
+					->addWhere('id', $job->id())
 					->one_integer('X'))) {
 					// Someone else grabbed it.
 					continue;
@@ -361,7 +361,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 					->value('pid', null)
 					->value('server', null)
 					->value('*died', 'died+1')
-					->where('id', $id)
+					->addWhere('id', $id)
 					->execute();
 			}
 		}
@@ -401,7 +401,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 
 		$this->query_update()
 			->values($values)
-			->where('id', $this->id())
+			->addWhere('id', $this->id())
 			->execute();
 	}
 
@@ -426,7 +426,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 				->sql()
 				->now_utc(),
 		])
-			->where('id', $this->id());
+			->addWhere('id', $this->id());
 		if (is_numeric($percent)) {
 			$query->value('progress', $percent);
 		}
@@ -451,7 +451,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			$this->call_hook('completed');
 			return $this->store();
 		}
-		return !$this->member_is_empty('completed');
+		return !$this->memberIsEmpty('completed');
 	}
 
 	/**
@@ -520,7 +520,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			'server' => null,
 			'pid' => null,
 		])
-			->where('id', $this->id())
+			->addWhere('id', $this->id())
 			->execute();
 		return $this;
 	}

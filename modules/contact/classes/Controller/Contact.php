@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage contact
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -90,7 +90,7 @@ class Controller_Contact extends Controller_Authenticated {
 		$vars = [];
 		$n_contacts = $this->application->orm_registry('Contact')
 			->query_select()
-			->where('User', $this->user)
+			->addWhere('User', $this->user)
 			->what('*n_contacts', 'COUNT(X.ID)')
 			->integer('n_contacts');
 		if ($n_contacts === 0) {

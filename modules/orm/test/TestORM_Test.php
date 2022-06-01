@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 class TestORM_Test extends Test_ORM {
@@ -25,11 +27,11 @@ class TestORM_Test extends Test_ORM {
 
 		$x->database();
 
-		$x->id_column();
+		$x->idColumn();
 
 		$x->utc_timestamps();
 
-		$x->select_database();
+		$x->selectDatabase();
 
 		$x->refresh();
 
@@ -68,11 +70,10 @@ class TestORM_Test extends Test_ORM {
 		$def = null;
 		$x->member_timestamp($f, $def);
 
-		$mixed = false;
-		$x->members($mixed);
+		$this->assertEquals([], $x->members([]));
 
 		$f = 'Foo';
-		$x->member_is_empty($f);
+		$x->memberIsEmpty($f);
 
 		$f = 'Foo';
 		$v = null;
@@ -80,10 +81,10 @@ class TestORM_Test extends Test_ORM {
 		$x->set_member($f, $v, $overwrite);
 
 		$mixed = 'Hello';
-		$x->member_remove($mixed);
+		$x->member_keysRemove($mixed);
 
 		$f = 'Foo';
-		$x->has_member($f);
+		$x->hasMember($f);
 
 		//$x->insert();
 
@@ -113,7 +114,7 @@ class TestORM_Test extends Test_ORM {
 		$x->__toString();
 
 		$template_name = 'view';
-		$options = false;
+		$options = [];
 		$x->theme($template_name, $options);
 	}
 
@@ -142,5 +143,36 @@ class TestORM_Test extends Test_ORM {
 		$id1 = null;
 		$order_column = 'OrderIndex';
 		$object->reorder($id0, $id1, $order_column);
+	}
+
+	public function data_mixedToClass() {
+		$test_orm = new TestORM($this->application);
+		return [
+			['ClassName', 'ClassName'],
+			[$test_orm, 'zesk\\TestORM'],
+			[get_class($test_orm), 'zesk\\TestORM'],
+			[$test_orm->class_orm(), 'zesk\\TestORM'],
+			[0, ''],
+			[23.2, ''],
+			[null, ''],
+			['', ''],
+			[new \stdClass(), ''],
+			[[], ''],
+		];
+	}
+
+	/**
+	 * @param mixed $mixed
+	 * @param string $expected_class
+	 * @return void
+	 * @throws Exception_Parameter
+	 * @dataProvider data_mixedToClass
+	 */
+	public function test_mixedToClass(mixed $mixed, string $expected_class): void {
+		try {
+			$this->assertEquals($expected_class, ORM::mixedToClass($mixed));
+		} catch (Exception_Parameter) {
+			$this->assertEquals($expected_class, '', 'mixedToClass should have failed with a parameter exception');
+		}
 	}
 }

@@ -43,16 +43,16 @@ class Forgot extends ORM {
 			'forgot' => $this,
 		];
 
-		$variables += ArrayTools::kprefix($this->members(), 'forgot_');
-		$variables += ArrayTools::kprefix($user->members(), 'user_');
-		$variables += ArrayTools::kprefix($request->variables(), 'request_');
-		$variables += ArrayTools::kprefix($request->url_variables(), 'url_');
+		$variables += ArrayTools::prefixKeys($this->members(), 'forgot_');
+		$variables += ArrayTools::prefixKeys($user->members(), 'user_');
+		$variables += ArrayTools::prefixKeys($request->variables(), 'request_');
+		$variables += ArrayTools::prefixKeys($request->urlComponents(), 'url_');
 
 		$variables = $this->call_hook_arguments('notify_variables', [
 			$variables,
 		], $variables);
 
-		$variables = ArrayTools::kunprefix($this->options, 'notify_', true) + $variables;
+		$variables = ArrayTools::keysRemovePrefix($this->options, 'notify_', true) + $variables;
 
 		/*
 		 * Map subject again
@@ -129,7 +129,7 @@ class Forgot extends ORM {
 	 * @return \zesk\Timestamp
 	 */
 	public function expiration() {
-		return $this->created->duplicate()->add_unit($this->expire_seconds());
+		return $this->created->duplicate()->addUnit($this->expire_seconds());
 	}
 
 	/**
@@ -139,8 +139,8 @@ class Forgot extends ORM {
 	 */
 	public function delete_older(Timestamp $older) {
 		return $this->query_delete()
-			->where('Created|<=', $older)
+			->addWhere('Created|<=', $older)
 			->execute()
-			->affected_rows();
+			->affectedRows();
 	}
 }

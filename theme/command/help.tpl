@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -14,7 +14,7 @@ namespace zesk;
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
 $aliases = to_array($this->aliases);
-$aliases = ArrayTools::flip_multiple($aliases);
+$aliases = ArrayTools::valuesFlipAppend($aliases);
 
 ?># Zesk Command
 

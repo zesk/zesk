@@ -14,7 +14,7 @@ class Controller_Markdown extends Controller_Theme {
 		$file = $this->route->option('file');
 		$content = $this->route->option('content');
 		if ($file) {
-			$search_path = $this->route->option_list('search_path', [
+			$search_path = $this->route->optionIterable('search_path', [
 				$this->application->path(),
 				$this->application->zesk_root(),
 			]);

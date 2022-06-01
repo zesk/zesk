@@ -33,7 +33,7 @@ class Controller_Content_Cache extends Controller_Cache {
 		$app = $image->application;
 		$path = path($app->document_root(), self::cache_prefix($app->configuration), $image->id());
 		if (is_dir($path)) {
-			Directory::delete_contents($path);
+			Directory::deleteContents($path);
 		}
 	}
 
@@ -96,7 +96,7 @@ class Controller_Content_Cache extends Controller_Cache {
 
 	/**
 	 *
-	 * @param integer $id
+	 * @param int $id
 	 * @param string $styles
 	 * @param string $file
 	 */

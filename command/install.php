@@ -91,12 +91,12 @@ class Command_Install extends Command_Base {
 			 */
 			foreach ($install_before as $before_class) {
 				if (array_key_exists($before_class, $objects_by_class)) {
-					$objects_by_class[$before_class]->option_append_list('install_next', $object);
+					$objects_by_class[$before_class]->optionAppend('install_next', $object);
 				}
 			}
 			foreach ($install_after as $after_class) {
 				if (array_key_exists($after_class, $objects_by_class)) {
-					$objects_by_class[$after_class]->option_append_list('install_prev', $object);
+					$objects_by_class[$after_class]->optionAppend('install_prev', $object);
 				}
 			}
 			$object->setOption('installed_tag', false);

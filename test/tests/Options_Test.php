@@ -21,7 +21,7 @@ class Options_Test extends Test_Unit {
 		$selected = false;
 		$testx->options_include($selected);
 
-		$testx->option_keys();
+		$testx->optionKeys();
 
 		$name = null;
 		$checkEmpty = false;
@@ -46,16 +46,16 @@ class Options_Test extends Test_Unit {
 
 		$name = null;
 		$default = false;
-		$testx->option_double($name, $default);
+		$testx->optionFloat($name, $default);
 
 		$name = null;
 		$default = false;
-		$testx->option_array($name, $default);
+		$testx->optionArray($name, $default);
 
 		$name = null;
 		$default = false;
 		$delimiter = ';';
-		$testx->option_list($name, $default, $delimiter);
+		$testx->optionIterable($name, $default, $delimiter);
 	}
 
 	public function test_options_path_simple(): void {
@@ -119,9 +119,9 @@ class Options_Test extends Test_Unit {
 			],
 		]);
 		foreach ($paths as $path) {
-			$this->assert_equal($opts->option_path($path), $path);
+			$this->assert_equal($opts->optionPath($path), $path);
 		}
 
-		$this->assert_null($opts->option_path('a.a.c', null));
+		$this->assert_null($opts->optionPath('a.a.c', null));
 	}
 }

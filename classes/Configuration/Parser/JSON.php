@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -25,7 +27,7 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 	/**
 	 * @return boolean
 	 */
-	public function validate() {
+	public function validate(): bool {
 		try {
 			return is_array(JSON::decode($this->content));
 		} catch (\Exception $e) {
@@ -36,20 +38,23 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 	/**
 	 *
 	 */
-	public function process() {
-		$lower = $overwrite = $interpolate = null;
-		extract($this->options, EXTR_IF_EXISTS);
+	public function process(): void {
+		$lower = $this->options['lower'] ?? false;
+		$interpolate = $this->options['interpolate'] ?? false;
 
 		$result = JSON::decode($this->content);
 
 		if (!is_array($result)) {
-			error_log(map('{method} JSON::decode returned non-array {type}', [
+			$message = '{method} JSON::decode returned non-array {type}';
+			$__ = [
 				'method' => __METHOD__,
 				'type' => type($result),
-			]));
-			return false;
+			];
+			error_log(map($message, $__));
+
+			throw new Exception_File_Format($message, $__);
 		}
-		if ($lower && is_array($result)) {
+		if ($lower) {
 			$result = array_change_key_case($result);
 		}
 		$include = null;
@@ -57,11 +62,10 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 			$include = $result['include'];
 			unset($result['include']);
 		}
-		$result = $this->merge_results($result, [], $interpolate);
+		$this->merge_results($result, [], $interpolate);
 		if ($include) {
 			$this->handle_include($include, $this->option('context'));
 		}
-		return $result;
 	}
 
 	/**
@@ -69,8 +73,8 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 	 *
 	 * @param string $file Name of additional include file
 	 */
-	private function handle_include($file, $context = null): void {
-		if (File::is_absolute($file)) {
+	private function handle_include(string $file, string $context = null): void {
+		if (File::isAbsolute($file)) {
 			$this->loader->append_files([
 				$file,
 			]);
@@ -92,7 +96,7 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 	 * @param array $path
 	 * @param boolean $interpolate
 	 */
-	private function merge_results(array $results, array $path = [], $interpolate = false): void {
+	private function merge_results(array $results, array $path = [], bool $interpolate = false): void {
 		$dependency = $this->dependency;
 		$settings = $this->settings;
 		foreach ($results as $key => $value) {

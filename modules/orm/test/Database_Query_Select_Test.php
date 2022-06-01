@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 class Database_Query_Select_Test extends Test_Unit {
@@ -34,46 +36,42 @@ class Database_Query_Select_Test extends Test_Unit {
 
 		$sql = 'INNER JOIN Person P ON P.ID=U.Person';
 		$join_id = 'person';
-		$testx->join($sql, $join_id);
+		$testx->addJoin($sql, $join_id);
 
 		$k = null;
 		$v = null;
-		$testx->where($k, $v);
+		$testx->addWhere('Name', 2);
 
-		$order_by = null;
-		$testx->order_by($order_by);
+		$testx->setOrderBy(toList('A;B;C'));
 
-		$testx->groupBy(['X']);
+		$testx->setGroupBy(['X']);
 
-		$offset = 0;
-		$limit = null;
-		$testx->limit($offset, $limit);
+		$testx->setOffsetLimit(0, 1000);
 
 		$testx->__toString();
 
 		$testx->iterator();
 
-		$class = null;
-		$testx->orm_iterator($class);
+		$testx->ormIterator('zesk\\User');
 
 
 		// Hits database
 		//
-//		$testx->orm("User");
+		//		$testx->orm("User");
 		//
 		//		$field = "id";
 		//		$default = null;
 		//		$testx->one($field, $default);
 
-//		$field = "field2";
-//		$default = 0;
-//		$testx->one_integer($field, $default);
+		//		$field = "field2";
+		//		$default = 0;
+		//		$testx->one_integer($field, $default);
 
-//		$field = "field1";
-//		$default = 0;
-//		$testx->integer($field, $default);
+		//		$field = "field1";
+		//		$default = 0;
+		//		$testx->integer($field, $default);
 
-//		$testx->to_array();
+		//		$testx->to_array();
 
 		$testx->database();
 
@@ -84,7 +82,7 @@ class Database_Query_Select_Test extends Test_Unit {
 		$x = new Database_Query_Select($db);
 		$x->from($table_name);
 		$x->setWhatString('ID');
-		$x->where('ID', [
+		$x->addWhere('ID', [
 			1,
 			2,
 			3,
@@ -99,7 +97,7 @@ class Database_Query_Select_Test extends Test_Unit {
 		$this->assert_equal($result, $valid_result);
 
 		$x = new Database_Query_Select($db);
-		$x->from($table_name)->setWhatString('ID')->where('ID|!=|AND', [
+		$x->from($table_name)->setWhatString('ID')->addWhere('ID|!=|AND', [
 			1,
 			2,
 			3,
@@ -116,7 +114,7 @@ class Database_Query_Select_Test extends Test_Unit {
 
 		$x = new Database_Query_Select($db);
 		$x->from($table_name)->setWhatString('ID');
-		$x->where('*SUM(Total)|!=|AND', [
+		$x->addWhere('*SUM(Total)|!=|AND', [
 			1,
 			2,
 			3,

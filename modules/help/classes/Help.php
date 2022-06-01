@@ -27,7 +27,7 @@ class Help extends ORM {
 		$query = $this->query_update();
 		$query->value('*show_first', $query->sql()
 			->now())
-			->where('show_first', null)
+			->addWhere('show_first', null)
 			->where([
 			'id' => $this->id(),
 		])

@@ -11,10 +11,10 @@ class CSS_Test extends Test_Unit {
 	public function test_bad_color(): void {
 		$text = '';
 		$default = null;
-		$this->assertEquals(null, CSS::color_parse($text, $default));
+		$this->assertEquals(null, CSS::colorParse($text, $default));
 	}
 
-	public function test_color_parse(): void {
+	public function test_colorParse(): void {
 		$colors = [
 			'rgb(1,2,3)' => '1;2;3',
 			'rgb(256,2,3)' => '255;2;3',
@@ -25,7 +25,7 @@ class CSS_Test extends Test_Unit {
 		];
 		foreach ($colors as $text => $result) {
 			try {
-				$check_result = CSS::color_parse($text);
+				$check_result = CSS::colorParse($text);
 			} catch (Exception_Syntax $e) {
 				$this->assertNull($result, "Parse should fail: $text");
 				continue;
@@ -44,18 +44,18 @@ class CSS_Test extends Test_Unit {
 		}
 	}
 
-	public function test_color_lookup(): void {
+	public function test_colorLookup(): void {
 		$text = 'blue';
-		$this->assertEquals('0000ff', CSS::color_lookup($text));
+		$this->assertEquals('0000ff', CSS::colorLookup($text));
 	}
 
-	public function test_color_format(): void {
+	public function test_colorFormat(): void {
 		$rgb = [250, 206, 190];
-		$this->assertEquals('#FACEBE', CSS::color_format($rgb));
+		$this->assertEquals('#FACEBE', CSS::colorFormat($rgb));
 	}
 
-	public function test_color_normalize(): void {
-		$this->assertEquals('FFFFFF', CSS::color_normalize('#FFF', 'nope'));
+	public function test_colorNormalize(): void {
+		$this->assertEquals('FFFFFF', CSS::colorNormalize('#FFF', 'nope'));
 	}
 
 	/**
@@ -63,16 +63,16 @@ class CSS_Test extends Test_Unit {
 	 * @expectedException zesk\Exception_Syntax
 	 */
 	public function test_color_normalize_blank(): void {
-		CSS::color_normalize('', 'nope');
+		CSS::colorNormalize('', 'nope');
 	}
 
 	public function test_color_table(): void {
 		CSS::color_table();
 	}
 
-	public function test_rgb_to_hex(): void {
+	public function test_rgbToHex(): void {
 		$rgb = null;
 		$default = null;
-		$this->assertEquals('000102', CSS::rgb_to_hex([0, 1, 2]));
+		$this->assertEquals('000102', CSS::rgbToHex([0, 1, 2]));
 	}
 }

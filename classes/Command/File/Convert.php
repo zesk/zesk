@@ -91,10 +91,10 @@ abstract class Command_File_Convert extends Command_Base {
 		$this->configure($this->configuration_file);
 		$app = $this->application;
 		$app->console(true);
-		$request = $app->request_factory();
+		$request = $app->requestFactory();
 		$app->template->set([
 			'request' => $request,
-			'response' => $app->response_factory($request),
+			'response' => $app->responseFactory($request),
 			'stylesheets_inline' => true,
 		]);
 		if ($this->overwrite && $this->optionBool('no-clobber')) {

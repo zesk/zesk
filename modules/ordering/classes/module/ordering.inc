@@ -54,7 +54,7 @@ class Module_Ordering extends zesk\Module {
 	public function move(ORM $object, $previous_id, $next_id) {
 		$query = $this->query_ordering($object);
 		$order_column = $this->order_column($object);
-		$id_column = $object->id_column();
+		$id_column = $object->idColumn();
 
 		// Minimize the number of changes to the database
 		if ($previous_id) {
@@ -64,7 +64,7 @@ class Module_Ordering extends zesk\Module {
 				->one_integer('X');
 			$object->query_update()
 				->value('*' . $order_column, "$order_column + 2")
-				->where("$order_column|>=", $order_index + 1)
+				->addWhere("$order_column|>=", $order_index + 1)
 				->execute();
 			return $object->set($order_column, $order_index + 1)->store();
 		}
@@ -75,7 +75,7 @@ class Module_Ordering extends zesk\Module {
 				->one_integer('X');
 			$object->query_update()
 				->value('*' . $order_column, "$order_column - 2")
-				->where("$order_column|<=", $order_index - 1)
+				->addWhere("$order_column|<=", $order_index - 1)
 				->execute();
 			return $object->set($order_column, $order_index - 1)->store();
 		}
@@ -91,7 +91,7 @@ class Module_Ordering extends zesk\Module {
 	 */
 	public function object_pre_insert(ORM $object, array $members) {
 		$order_column = $this->order_column($object);
-		if ($object->has_member($order_column) && $object->member_is_empty($order_column)) {
+		if ($object->hasMember($order_column) && $object->memberIsEmpty($order_column)) {
 			[$func, $delta] = $object->optionBool('ordering_first') ? [
 				'MIN',
 				-1,
@@ -100,7 +100,7 @@ class Module_Ordering extends zesk\Module {
 				1,
 			];
 			$members[$order_column] = $this->query_ordering($object)->what('*X', "$func(`$order_column`)")->one_integer('X') + $delta;
-			$object->store_member($order_column, true);
+			$object->setMemberStore($order_column, true);
 		}
 		return $members;
 	}

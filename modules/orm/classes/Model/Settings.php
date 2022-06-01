@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -43,7 +43,7 @@ class Model_Settings extends Model {
 	 */
 	public function hook_construct(): void {
 		$this->configuration = $this->application->configuration;
-		$this->inherit_global_options();
+		$this->inheritConfiguration();
 	}
 
 	/**
@@ -192,7 +192,7 @@ class Model_Settings extends Model {
 		$this->application->logger->debug('{method} called', [
 			'method' => __METHOD__,
 		]);
-		$settings = $this->application->model_singleton(Settings::class);
+		$settings = $this->application->modelSingleton(Settings::class);
 		foreach ($this->_changed as $key => $value) {
 			if ($this->optionBool('debug_save')) {
 				$this->application->logger->debug('{method} Saving {key}={value} ({type})', [

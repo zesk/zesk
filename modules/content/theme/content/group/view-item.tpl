@@ -16,7 +16,7 @@ namespace zesk;
 /* @var $object \Content_Group */
 $group_object = $object->group_object();
 
-$query = $group_object->query_select()->where('Parent', $object)->limit(0, $object->DisplayCount);
+$query = $group_object->query_select()->addWhere('Parent', $object)->limit(0, $object->DisplayCount);
 
 $object->call_hook('query_alter', $query);
 

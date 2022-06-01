@@ -53,8 +53,8 @@ class Command_Database_Reset extends Command {
 			return false;
 		}
 		$url = $db->url();
-		$dbname = $db->database_name();
-		$codename = $db->code_name();
+		$dbname = $db->databaseName();
+		$codename = $db->codeName();
 
 		$live_db = $this->hasOption('file') ? $this->option('file') : null;
 		$has_dd = $this->hasOption('dump-directory');
@@ -71,9 +71,9 @@ class Command_Database_Reset extends Command {
 			$this->application->logger->warning('Specifying --file and --dump-directory are incompatible. --dump-directory is ignored.');
 		}
 		if (!$this->option('yes')) {
-			echo "Overwrite\n\t" . URL::remove_password($url) . "\nwith\n\t" . $live_db . '? (y/N) ';
+			echo "Overwrite\n\t" . URL::removePassword($url) . "\nwith\n\t" . $live_db . '? (y/N) ';
 			$reply = fgets(STDIN, 8);
-			if (to_bool(trim($reply)) !== true) {
+			if (toBool(trim($reply)) !== true) {
 				$this->error('Aborting.');
 				return;
 			}

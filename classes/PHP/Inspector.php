@@ -129,7 +129,7 @@ class PHP_Inspector {
 
 	/**
 	 *
-	 * @param integer $index
+	 * @param int $index
 	 * @return array
 	 */
 	private function token($index) {

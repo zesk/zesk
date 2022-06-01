@@ -12,7 +12,7 @@ namespace zesk;
 /* @var $widget \zesk\Widget */
 /* @var $object \zesk\Model */
 /* @var $url string */
-$add_link = $this->getb('add_link');
+$add_link = $this->getBool('add_link');
 if ($this->theme) {
 	$content = $this->theme($this->theme);
 } elseif ($this->content) {
@@ -33,13 +33,13 @@ if (!$add_link) {
 
 $referrer_query_string_name = $this->get('referrer_query_string_name', 'ref');
 
-$attr = $this->geta('a_attributes', []);
+$attr = $this->getArray('a_attributes', []);
 if ($this->onclick) {
 	$attr['onclick'] = $this->onclick;
 }
 
 echo HTML::tag_open('li', $this->get('li_attributes', '.action'));
-echo HTML::a(URL::query_format($object->apply_map($url), [
+echo HTML::a(URL::queryFormat($object->applyMap($url), [
 	$referrer_query_string_name => $request->uri(),
 ]), $attr, $content);
 echo HTML::tag_close('li');

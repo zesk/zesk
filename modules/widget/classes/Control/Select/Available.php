@@ -79,7 +79,7 @@ class Control_Select_Available extends Control_Select {
 			'id' => $column_id,
 			'name' => $column_name,
 		]);
-		$query->where("$column_name|!=", '');
+		$query->addWhere("$column_name|!=", '');
 		$this->control_options(array_change_key_case($query->to_array('id', 'name')));
 	}
 }

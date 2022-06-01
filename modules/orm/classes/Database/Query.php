@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -74,20 +74,9 @@ class Database_Query {
 		$this->application = $db->application;
 		$this->factory = $this->application;
 		$this->type = strtoupper($type);
-		$this->dbname = $db->code_name();
+		$this->dbname = $db->codeName();
 		$this->class = '';
 		$this->class_options = [];
-	}
-
-	/**
-	 * Set the object which creates other objects
-	 *
-	 * @param Interface_Member_Model_Factory $factory
-	 * @return self
-	 */
-	public function set_factory(Interface_Member_Model_Factory $factory): self {
-		$this->application->deprecated('set_factory');
-		return $this->setFactory($factory);
 	}
 
 	/**
@@ -151,8 +140,8 @@ class Database_Query {
 	 *
 	 * @return string
 	 */
-	public function database_name(): string {
-		return $this->db->code_name();
+	public function databaseName(): string {
+		return $this->db->codeName();
 	}
 
 	/**
@@ -175,35 +164,11 @@ class Database_Query {
 	 * Set or get a class associated with this query
 	 *
 	 * @param string $class
-	 * @return string
-	 */
-	public function orm_class(string $class = null): string {
-		if ($class !== null) {
-			$this->application->deprecated('setORMClass now');
-		}
-		return $this->class;
-	}
-
-	/**
-	 * Set or get a class associated with this query
-	 *
-	 * @param string $class
 	 * @return Database_Query string
 	 */
 	public function setORMClass(string $class): self {
 		$this->class = $class;
 		return $this;
-	}
-
-	/**
-	 * Set or get the class options associated with this query
-	 *
-	 * @param ?array $options
-	 * @return mixed
-	 */
-	public function orm_class_options(array $options = null): mixed {
-		$this->application->deprecated('ormClassOptions');
-		return $options ? $this->setORMClassOptions($options) : $this->ormClassOptions();
 	}
 
 	/**
@@ -254,5 +219,43 @@ class Database_Query {
 	 */
 	protected function orm_registry(string $class): ORM {
 		return $this->application->orm_registry($class);
+	}
+
+	/**
+	 * Set or get the class options associated with this query
+	 *
+	 * @param ?array $options
+	 * @return mixed
+	 * @deprecated 2022-05
+	 */
+	public function orm_class_options(array $options = null): mixed {
+		$this->application->deprecated('ormClassOptions');
+		return $options ? $this->setORMClassOptions($options) : $this->ormClassOptions();
+	}
+
+	/**
+	 * Set or get a class associated with this query
+	 *
+	 * @param string $class
+	 * @deprecated 2022-05
+	 * @return string
+	 */
+	public function orm_class(string $class = null): string {
+		if ($class !== null) {
+			$this->application->deprecated('setORMClass now');
+		}
+		return $this->class;
+	}
+
+	/**
+	 * Set the object which creates other objects
+	 *
+	 * @param Interface_Member_Model_Factory $factory
+	 * @deprecated 2022-05
+	 * @return self
+	 */
+	public function set_factory(Interface_Member_Model_Factory $factory): self {
+		$this->application->deprecated('set_factory');
+		return $this->setFactory($factory);
 	}
 }
