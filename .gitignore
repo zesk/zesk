@@ -20,3 +20,4 @@
 /.php-cs-fixer.cache
 /.idea/
 /.history/
+/.phpunit.result.cache

@@ -170,7 +170,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		if (!$this->class_name) {
 			/* @var $class Class_ORM */
-			$class = $this->application->class_orm_registry($this->class);
+			$class = $this->application->class_ormRegistry($this->class);
 			$this->class_name = $class->name;
 		}
 		if ($this->class_name !== null) {
@@ -188,7 +188,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	private function _action_default_arguments(string $action = null, string $id = null): array {
 		$args = func_get_args();
 		if (!empty($id)) {
-			$object = $this->controller_orm_factory($id);
+			$object = $this->controller_ormFactory($id);
 			if ($object) {
 				$args[1] = $object;
 			}
@@ -248,7 +248,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			];
 		}
 		return [
-			$this->controller_orm_factory($parameter),
+			$this->controller_ormFactory($parameter),
 		];
 	}
 
@@ -411,7 +411,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		foreach ($controls as $control => $actual_action) {
 			try {
 				$this->tried_widgets[] = $control;
-				$widget = $this->widget_factory($control, $this->control_options);
+				$widget = $this->widgetFactory($control, $this->control_options);
 				$this->actual_action = $actual_action;
 				$this->permission_actions = $widget->option('permission_actions', $actual_action);
 				$this->widget = $widget;
@@ -430,8 +430,8 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @param string $options
 	 * @return ORM
 	 */
-	protected function controller_orm_factory($mixed = null, $options = null) {
-		return $this->application->orm_factory($this->class, $mixed, to_array($options))->fetch();
+	protected function controller_ormFactory($mixed = null, $options = null) {
+		return $this->application->ormFactory($this->class, $mixed, to_array($options))->fetch();
 	}
 
 	/**
@@ -444,7 +444,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 */
 	protected function orm_from_id($class, $id) {
 		$locale = $this->application->locale;
-		$object = $this->application->orm_factory($class, $id);
+		$object = $this->application->ormFactory($class, $id);
 		$name = $object->class_orm()->name;
 		$__ = [
 			'name' => $name,
@@ -539,7 +539,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				}
 			}
 			if (is_numeric($object)) {
-				$object = $this->controller_orm_factory($object);
+				$object = $this->controller_ormFactory($object);
 				if ($object) {
 					// Backwards compatibility: TODO is this needed anymore - corrupts truth of Request object
 					$this->request->set($object->idColumn(), $object);

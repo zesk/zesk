@@ -103,7 +103,7 @@ class Content_Data extends ORM {
 		if ($register) {
 			$fields = [];
 			$fields['md5hash'] = $md5;
-			$object = $app->orm_factory(__CLASS__, $fields);
+			$object = $app->ormFactory(__CLASS__, $fields);
 			$row = $object->exists();
 			if ($row) {
 				$object->object_status(self::object_status_exists);
@@ -190,7 +190,7 @@ class Content_Data extends ORM {
 		$fields['data'] = $data;
 		$fields['size'] = $size === null ? strlen($data) : $size;
 		$fields['md5hash'] = $hash === null ? md5($data) : $hash;
-		$object = $application->orm_factory(__CLASS__, $fields);
+		$object = $application->ormFactory(__CLASS__, $fields);
 		return ($register) ? $object->register() : $object;
 	}
 
@@ -401,7 +401,7 @@ class Content_Data extends ORM {
 	 */
 	public static function database_size_threshold(Application $application) {
 		/* @var $data Content_Data */
-		$data = $application->orm_registry(__CLASS__);
+		$data = $application->ormRegistry(__CLASS__);
 		$result = $data->optionInt('database_size_threshold', 8 * 1024 * 1024); // Handles most images, which is what we want.
 		if (!self::$checked_db) {
 			$size = $data->database()->feature(Database::FEATURE_MAX_BLOB_SIZE);

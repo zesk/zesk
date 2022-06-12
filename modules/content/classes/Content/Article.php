@@ -272,10 +272,10 @@ class Content_Article extends ORM {
 		$default_value = (avalue($options, 'is_thumb')) ? 150 : 300;
 
 		if (!array_key_exists('image_width', $options)) {
-			$options['image_width'] = $this->member_integer("Photo${member_prefix}Width$image_index", $this->_compute_image_width($global_prefix, $default_value));
+			$options['image_width'] = $this->memberInteger("Photo${member_prefix}Width$image_index", $this->_compute_image_width($global_prefix, $default_value));
 		}
 		if (!array_key_exists('image_height', $options)) {
-			$options['image_height'] = $this->member_integer("Photo${member_prefix}Height$image_index", $this->_compute_image_height($global_prefix, $default_value));
+			$options['image_height'] = $this->memberInteger("Photo${member_prefix}Height$image_index", $this->_compute_image_height($global_prefix, $default_value));
 		}
 		if (!array_key_exists('show_label', $options)) {
 			$options['show_label'] = true;

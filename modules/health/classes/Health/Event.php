@@ -62,7 +62,7 @@ class Health_Event extends ORM {
 		$event['application'] = get_class($application);
 
 		/* @var $class Class_Health_Event */
-		$class = $application->class_orm_registry(__CLASS__);
+		$class = $application->class_ormRegistry(__CLASS__);
 		$data = [];
 		foreach ($event as $k => $value) {
 			if (!array_key_exists($k, $class->column_types)) {
@@ -136,7 +136,7 @@ class Health_Event extends ORM {
 				$settings['when_msec'] = $settings['msec'];
 				unset($settings['msec']);
 			}
-			$event = $application->orm_factory(__CLASS__);
+			$event = $application->ormFactory(__CLASS__);
 			if ($event->initialize($settings)
 				->collate()
 				->store()
@@ -155,7 +155,7 @@ class Health_Event extends ORM {
 	 * @return Health_Event
 	 */
 	public function collate() {
-		$events = $this->application->orm_factory(Health_Events::class);
+		$events = $this->application->ormFactory(Health_Events::class);
 		$this->events = $events->register_from_event($this);
 		return $this;
 	}
@@ -167,14 +167,14 @@ class Health_Event extends ORM {
 	 */
 	public function deduplicate() {
 		$n_samples = $this->optionInt('keep_duplicates', 10);
-		$n_found = $this->application->orm_registry(__CLASS__)
+		$n_found = $this->application->ormRegistry(__CLASS__)
 			->query_select()
 			->addWhat('*n', 'COUNT(id)')
 			->addWhere('events', $this->events)
 			->one_integer('n');
 		if ($n_found > $n_samples) {
 			$sample_offset = intval($n_samples / 2);
-			$ids_to_delete = $this->application->orm_registry(__CLASS__)
+			$ids_to_delete = $this->application->ormRegistry(__CLASS__)
 				->query_select()
 				->addWhat('id', 'X.id')
 				->addWhere('X.events', $this->events)
@@ -188,7 +188,7 @@ class Health_Event extends ORM {
 				'n' => $nrows = $delete_query->affectedRows(),
 				'rows' => $this->application->locale->plural('row', $nrows),
 				'message' => $this->message,
-				'id' => $this->member_integer('events'),
+				'id' => $this->memberInteger('events'),
 				'total' => $this->events->total,
 			]);
 		}

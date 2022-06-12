@@ -37,7 +37,7 @@ class Health_Events extends ORM {
 
 	public function register_from_event(Health_Event $event) {
 		$hash = [
-			$event->member_integer('server'),
+			$event->memberInteger('server'),
 			$event->application,
 			$event->context,
 			$event->type,

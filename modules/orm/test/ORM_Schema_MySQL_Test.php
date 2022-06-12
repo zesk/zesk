@@ -382,10 +382,10 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 	}
 
 	public function test_schema0(): void {
-		$updates = ORM_Schema::update_object($this->application->orm_factory(__NAMESPACE__ . '\\' . 'DBSchemaTest_columns_0'));
+		$updates = ORM_Schema::update_object($this->application->ormFactory(__NAMESPACE__ . '\\' . 'DBSchemaTest_columns_0'));
 		dump($updates);
 		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
-		$updates = ORM_Schema::update_object($this->application->orm_factory(__NAMESPACE__ . '\\' . 'DBSchemaTest_columns_1'));
+		$updates = ORM_Schema::update_object($this->application->ormFactory(__NAMESPACE__ . '\\' . 'DBSchemaTest_columns_1'));
 		dump($updates);
 		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
 	}

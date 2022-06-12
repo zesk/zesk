@@ -8,7 +8,7 @@
 namespace zesk;
 
 class Control_IP extends Control {
-	public function validate() {
+	public function validate(): bool {
 		$value = $this->request->get($this->name());
 		if (IPv4::valid($value)) {
 			$this->value(ip2long($value));

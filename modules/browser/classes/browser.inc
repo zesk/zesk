@@ -29,7 +29,7 @@ class Browser extends ORM {
 		}
 		$md5 = md5($name);
 		/* @var $browser Browser */
-		$browser = $application->orm_factory(__CLASS__, [
+		$browser = $application->ormFactory(__CLASS__, [
 			'md5' => $md5,
 			'name' => $name,
 		]);

@@ -20,7 +20,7 @@ namespace zesk;
 $module = $application->daemontools_module();
 
 /* @var $servers \zesk\Server[] */
-$servers = $application->orm_registry(Server::class)->query_select()->orm_iterator();
+$servers = $application->ormRegistry(Server::class)->query_select()->orm_iterator();
 foreach ($servers as $server) {
 	$last_updated = $module->server_services_last_updated($server);
 	if ($last_updated instanceof Timestamp) {

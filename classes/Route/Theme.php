@@ -30,7 +30,7 @@ class Route_Theme extends Route {
 	 * @throws Exception_File_NotFound
 	 * @return Route_Theme
 	 */
-	public function validate() {
+	public function validate(): bool {
 		$application = $this->router->application;
 		$parameters = $application->variables() + [
 			'route' => $this,

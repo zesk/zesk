@@ -66,7 +66,7 @@ Are synonymous once loaded. To save a global, do:
 	
 Finally, to enable `zesk\Settings` support in an application, simply register its hooks (TODO Is this still true?):
 
-	zesk\Hooks::register_class('Settings');
+	zesk\Hooks::registerClass('Settings');
 
 ... prior to `zesk\Application` configuration.
 
@@ -162,4 +162,3 @@ Linefeed character. Defaults to global defined value `ZESK_DEFAULT_NEWLINE` whic
 ## `zesk_site_root`
 
 a.k.a. `zesk_application_root`
-

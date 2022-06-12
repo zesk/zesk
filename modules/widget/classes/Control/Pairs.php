@@ -9,7 +9,7 @@ class Control_Pairs extends Control {
 		'default' => [],
 	];
 
-	public function validate() {
+	public function validate(): bool {
 		return true;
 	}
 

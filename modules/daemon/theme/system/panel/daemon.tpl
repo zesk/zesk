@@ -16,7 +16,7 @@ namespace zesk;
 /* @var $current_user \User */
 /* @var $server_data_key string */
 /* @var $server_updated_key string */
-$servers = $application->orm_registry(Server::class)->query_select()->orm_iterator();
+$servers = $application->ormRegistry(Server::class)->query_select()->orm_iterator();
 foreach ($servers as $server) {
 	/* @var $server \Server */
 	$data = $server->data($server_data_key);

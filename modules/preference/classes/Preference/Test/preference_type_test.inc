@@ -26,7 +26,7 @@ class Preference_Type_Test extends Test_Unit {
 		$this->assertInstanceOf(Preference_Type::class, $x);
 
 		$code_name = 'Poore';
-		$type = Preference_Type::register_name($this->application, $code_name);
+		$type = Preference_Type::registerName($this->application, $code_name);
 		$this->assertInstanceOf(Preference_Type::class, $type);
 		$this->assertEquals($code_name, $type->name());
 		$this->assertNotEmpty($type->id());

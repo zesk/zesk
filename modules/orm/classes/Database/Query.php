@@ -196,7 +196,7 @@ class Database_Query {
 	 * @return \zesk\Class_ORM
 	 */
 	public function class_orm() {
-		return $this->application->class_orm_registry($this->class);
+		return $this->application->class_ormRegistry($this->class);
 	}
 
 	/**
@@ -217,8 +217,8 @@ class Database_Query {
 	 * @param string $class
 	 * @return \zesk\ORM
 	 */
-	protected function orm_registry(string $class): ORM {
-		return $this->application->orm_registry($class);
+	protected function ormRegistry(string $class): ORM {
+		return $this->application->ormRegistry($class);
 	}
 
 	/**

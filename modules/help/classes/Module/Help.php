@@ -83,7 +83,7 @@ class Module_Help extends Module_JSLib {
 		]);
 		foreach ($helps as $target => $settings) {
 			if ($settings === null) {
-				$item = $application->orm_factory('zesk\\Help')->find([
+				$item = $application->ormFactory('zesk\\Help')->find([
 					'target' => $target,
 				]);
 				if ($item) {
@@ -103,7 +103,7 @@ class Module_Help extends Module_JSLib {
 				}
 			}
 			$settings['target'] = $target;
-			$help = $application->orm_factory(Help::class, $settings)->register();
+			$help = $application->ormFactory(Help::class, $settings)->register();
 			/* @var $help Help */
 			if ($help->object_status() === ORM::object_status_insert) {
 				$this->application->logger->notice('Registered help item for {target}', [
@@ -172,7 +172,7 @@ class Module_Help extends Module_JSLib {
 	public function user_targets(Request $request, Response $response): void {
 		$application = $this->application;
 		$user = $this->_help_auth($request, $response);
-		$query = $this->application->orm_registry('zesk\\Help')
+		$query = $this->application->ormRegistry('zesk\\Help')
 			->query_select()
 			->link('zesk\\Help_User', [
 			'require' => false,
@@ -274,7 +274,7 @@ class Module_Help extends Module_JSLib {
 		$application = $this->application;
 		$ids = $request->getArray('id', []);
 		foreach ($ids as $id) {
-			$application->orm_factory('zesk\\Help', $id)->show();
+			$application->ormFactory('zesk\\Help', $id)->show();
 		}
 		$response->json()->data([
 			'status' => true,
@@ -294,9 +294,9 @@ class Module_Help extends Module_JSLib {
 		$application = $this->application;
 		$ids = $request->getArray('id', []);
 		foreach ($ids as $id) {
-			$help = $application->orm_factory('zesk\\Help', $id)->fetch();
+			$help = $application->ormFactory('zesk\\Help', $id)->fetch();
 			if ($help) {
-				$application->orm_factory('zesk\\Help_User', [
+				$application->ormFactory('zesk\\Help_User', [
 					'help' => $help,
 					'user' => $user,
 					'dismissed' => 'now',
@@ -346,7 +346,7 @@ class Module_Help extends Module_JSLib {
 	 * @return number Number of affected records (number previous marked as "dismissed")
 	 */
 	public function reset_user(User $user) {
-		return $this->application->orm_registry(Help_User::class)
+		return $this->application->ormRegistry(Help_User::class)
 			->query_delete()
 			->addWhere('user', $user)
 			->execute()

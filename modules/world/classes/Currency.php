@@ -71,7 +71,7 @@ class Currency extends ORM {
 		if ($cached) {
 			return $cached;
 		}
-		return $cached = $application->orm_factory(__CLASS__, [
+		return $cached = $application->ormFactory(__CLASS__, [
 			'name' => 'Euro',
 			'code' => 'EUR',
 			'id' => 978,
@@ -93,7 +93,7 @@ class Currency extends ORM {
 		if ($cached) {
 			return $cached;
 		}
-		return $cached = $application->orm_factory(__CLASS__, [
+		return $cached = $application->ormFactory(__CLASS__, [
 			'name' => 'US Dollar',
 			'code' => 'USD',
 			'bank_country' => Country::find_country($application, 'us'),
@@ -107,7 +107,7 @@ class Currency extends ORM {
 	}
 
 	public function precision() {
-		return $this->member_integer('precision', 2);
+		return $this->memberInteger('precision', 2);
 	}
 
 	/**
@@ -117,7 +117,7 @@ class Currency extends ORM {
 	 * @return Currency|null
 	 */
 	public static function from_code(Application $application, $code) {
-		return $application->orm_factory(__CLASS__)->find([
+		return $application->ormFactory(__CLASS__)->find([
 			'code' => $code,
 		]);
 	}

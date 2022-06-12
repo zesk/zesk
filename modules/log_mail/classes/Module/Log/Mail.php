@@ -36,7 +36,7 @@ class Module_Log_Mail extends Module {
 			$delete_before = Timestamp::now()->addUnit(-$delete_after_days, Timestamp::UNIT_DAY);
 			/* @var $query zesk\Database_Query_Delete */
 			$class = Log_Mail::class;
-			$n_affected = $application->orm_registry($class)
+			$n_affected = $application->ormRegistry($class)
 				->query_delete()
 				->addWhere('created|<=', $delete_before)
 				->exec()
@@ -47,7 +47,7 @@ class Module_Log_Mail extends Module {
 					'n_affected' => $n_affected,
 					'class' => $class,
 				]);
-				$object = $application->orm_registry($class);
+				$object = $application->ormRegistry($class);
 				$table = $object->table();
 				$object->database()->query('OPTIMIZE TABLE ' . $table);
 			}
@@ -75,7 +75,7 @@ class Module_Log_Mail extends Module {
 		if ($code === null) {
 			$code = '';
 		}
-		$log_mail = $app->orm_factory(Log_Mail::class, [
+		$log_mail = $app->ormFactory(Log_Mail::class, [
 			'code' => $code,
 			'user' => $user,
 			'session' => $session,

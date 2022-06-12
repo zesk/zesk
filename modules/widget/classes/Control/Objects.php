@@ -30,7 +30,7 @@ class Control_Objects extends Control_Text {
 		$objects = [];
 		foreach ($value as $id) {
 			try {
-				$objects[$id] = $objects = $this->application->orm_factory($this->class, $id)->fetch();
+				$objects[$id] = $objects = $this->application->ormFactory($this->class, $id)->fetch();
 			} catch (Exception $e) {
 				$this->application->hooks->call('exception', $e);
 				return false;

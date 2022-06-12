@@ -96,7 +96,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	public function hook_cron_cluster_minute(): void {
 		$expire_seconds = -abs(to_integer($this->option('expire_seconds'), 3600));
 		$older = Timestamp::now()->addUnit($expire_seconds, Timestamp::UNIT_SECOND);
-		$affected_rows = $this->application->orm_registry(Forgot::class)->delete_older($older);
+		$affected_rows = $this->application->ormRegistry(Forgot::class)->delete_older($older);
 		if ($affected_rows > 0) {
 			$this->application->logger->notice('{method} deleted {affectedRows} forgotten rows', compact('affectedRows') + [
 				'method' => __METHOD__,

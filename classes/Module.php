@@ -103,7 +103,7 @@ class Module extends Hookable {
 				$this->codename = strtolower(StringTools::unprefix(PHP::parseClass(get_class($this)), 'Module_'));
 			}
 		}
-		$this->application->register_class($this->model_classes());
+		$this->application->registerClass($this->model_classes());
 		if (count($this->class_aliases)) {
 			$this->application->objects->setMap($this->class_aliases);
 		}

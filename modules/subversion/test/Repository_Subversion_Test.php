@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @test_modules Git
  * @test_phpunit true
  */
+
 namespace zesk;
 
 use zesk\Subversion\Repository;
@@ -18,31 +20,21 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	 *
 	 * @var string
 	 */
-	protected $repository_class = Repository::class;
+	protected string $repository_class = Repository::class;
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $repository_types = [
+	protected array $repository_types = [
 		'svn',
 		'subversion',
 	];
 
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Repository_TestCase::testConfiguration()
-	 */
-	public function testConfiguration() {
-		$path = parent::testConfiguration();
-		// 		$svn_meta = path($path, ".svn");
-		// 		$this->assertTrue(is_dir($svn_meta), "is_dir($svn_meta)");
-		return $path;
-	}
+	protected array $load_modules = ['subversion'];
 
 	/**
-	 *
+	 * @depends testConfiguration
 	 * @return string
 	 */
 	public function testURL() {
@@ -53,20 +45,10 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	}
 
 	/**
-	 * @depends testConfiguration
-	 * {@inheritDoc}
-	 * @see \zesk\Repository_TestCase::testFactory()
-	 */
-	public function testFactory($path) {
-		return parent::testFactory($path);
-	}
-
-	/**
 	 * @depends testFactory
 	 */
 	public function testInfo(Repository $repo): void {
-		$this->loadConfiguration();
-		$repo->url($this->url);
+		$repo->setURL($this->url);
 		$repo->update();
 		$info = $repo->info();
 		$this->assertArrayHasKeys([
@@ -93,7 +75,7 @@ class Repository_Subversion_Test extends Repository_TestCase {
 		$this->assertStringMatchesFormat('%asvntest%A', $path);
 		$url = $this->url;
 		$this->assertTrue(URL::valid($url), "URL $url is not a valid URL");
-		$repo->url($url);
+		$repo->setURL($url);
 		Directory::deleteContents($path);
 		$this->assertTrue(Directory::isEmpty($path));
 		$this->assertTrue($repo->need_update(), 'Repo should need update');
@@ -116,7 +98,7 @@ class Repository_Subversion_Test extends Repository_TestCase {
 		$this->assertDirectoryExists($branches_dir, "Deleting of $branches_dir failed?");
 		$this->assertFalse($repo->need_update(), 'Repo does needs update after directory "branches" updated');
 
-		$tags = to_array($this->configuration->path_get([
+		$tags = toArray($this->configuration->path_get([
 			__CLASS__,
 			'tags_tests',
 		]));
@@ -142,10 +124,10 @@ class Repository_Subversion_Test extends Repository_TestCase {
 
 	/**
 	 * @depends testFactory
-	 * @expectedException zesk\Exception_Semantics
 	 */
 	public function testNoURL(Repository $repo) {
-		$repo->url(false);
+		$this->expectException(zesk\Exception_Semantics::class);
+		$repo->setURL('');
 		$path = $repo->path();
 		$this->assertStringMatchesFormat('%asvntest%A', $path);
 		Directory::deleteContents($path);
@@ -155,10 +137,11 @@ class Repository_Subversion_Test extends Repository_TestCase {
 
 	/**
 	 * @depends testFactory
-	 * @expectedException zesk\Exception_Syntax
+	 *
 	 */
 	public function testBADURL(Repository $repo) {
-		$repo->url('http:/localhost/path/to/svn');
+		$this->expectException(zesk\Exception_Syntax::class);
+		$repo->setURL('http:/localhost/path/to/svn');
 		return $repo;
 	}
 }

@@ -38,7 +38,7 @@ $id = 'control-picker-' . $this->column . '-q';
 
 	echo $this->object_class_css_class;
 	?>"><?php
-	$query = $application->orm_registry(User_Content_Image::class)
+	$query = $application->ormRegistry(User_Content_Image::class)
 		->query_select()
 		->link(Content_Image::class, [
 		'alias' => 'ucimage',

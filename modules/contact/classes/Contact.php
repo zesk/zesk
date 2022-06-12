@@ -24,7 +24,7 @@ class Contact extends ORM {
 	 * @return integer ID of found object
 	 */
 	public static function find_hash(Application $application, $hash, $where = null) {
-		$query = $application->orm_registry(__CLASS__)->query_select();
+		$query = $application->ormRegistry(__CLASS__)->query_select();
 		$class_object = $query->class_orm();
 		$where['*hash'] = $query->sql()->function_unhex($hash);
 		$id_column = $class_object->id_column;
@@ -86,7 +86,7 @@ class Contact extends ORM {
 	public static function from_email(User $user, $email, $tag = null) {
 		$contact = new Contact();
 		$contact->user = $user;
-		$contact->account = $user->member_integer('account');
+		$contact->account = $user->memberInteger('account');
 		if ($tag instanceof Contact_Tag) {
 			$contact->Tags = $tag;
 		}

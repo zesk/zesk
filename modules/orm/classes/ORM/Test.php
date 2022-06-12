@@ -40,7 +40,7 @@ class Test extends \zesk\Test {
 		$app = $this->application;
 		$results = [];
 		foreach (toList($classes) as $class) {
-			$class_object = $this->application->class_orm_registry($class);
+			$class_object = $this->application->class_ormRegistry($class);
 			$db = $class_object->database();
 			$results[$class] = $db->queries($app->orm_module()->schema_synchronize($db, [
 				$class,

@@ -196,27 +196,39 @@ class Directory extends Hookable {
 	/**
 	 *
 	 */
-	public static function delete($path) {
+	/**
+	 * @param string $path
+	 * @return void
+	 * @throws Exception_Directory_Permission
+	 * @throws Exception_File_Permission
+	 * @throws Exception_Directory_NotFound
+	 */
+	public static function delete(string $path): void {
 		if (!is_dir($path)) {
-			return true;
+			throw new Exception_Directory_NotFound($path);
 		}
 		self::deleteContents($path);
 		if (!rmdir($path)) {
 			throw new Exception_Directory_Permission($path, __METHOD__ . ' rmdir returned false');
 		}
-		return true;
 	}
 
 	/**
-	 *
+	 * @param string $path
+	 * @return void
+	 * @throws Exception_Directory_Permission
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_File_Permission
 	 */
-	public static function deleteContents($path) {
-		$x = [];
+	public static function deleteContents(string $path): void {
+		if (!is_dir($path)) {
+			throw new Exception_Directory_NotFound($path);
+		}
 
 		try {
 			$x = new DirectoryIterator($path);
 		} catch (UnexpectedValueException $e) {
-			return true;
+			return;
 		}
 		foreach ($x as $f) {
 			if ($f->isDot()) {
@@ -224,8 +236,10 @@ class Directory extends Hookable {
 			}
 			$full_path = path($path, $f->getFilename());
 			if ($f->isDir()) {
-				if (!self::delete($full_path)) {
-					throw new Exception_File_Permission($full_path, __CLASS__ . "::delete($full_path) failed");
+				try {
+					self::delete($full_path);
+				} catch (Exception_Directory_NotFound) {
+					// Not sure why but who cares
 				}
 			} else {
 				if (!unlink($full_path)) {
@@ -233,38 +247,33 @@ class Directory extends Hookable {
 				}
 			}
 		}
-		return true;
 	}
 
 	/**
-	 *
+	 * @param string $absolute_root A known valid path in the file system
+	 * @param string $mixed An elements to append to convert to an absolute path at the given roon
+	 * @return string
+	 * @throws Exception_Directory_NotFound
 	 */
-	public static function make_absolute($absolute_root, $mixed) {
+	public static function make_absolute(string $absolute_root, string $mixed): string {
 		if (!is_dir($absolute_root)) {
 			throw new Exception_Directory_NotFound($absolute_root);
 		}
-		if (is_array($mixed)) {
-			foreach ($mixed as $k => $path) {
-				$mixed[$k] = self::make_absolute($absolute_root, $path);
-			}
+		if (self::isAbsolute($mixed)) {
 			return $mixed;
-		} else {
-			if (self::isAbsolute($mixed)) {
-				return $mixed;
-			}
-			return path($absolute_root, $mixed);
 		}
+		return path($absolute_root, $mixed);
 	}
 
 	/**
 	 * Synonym for File::is_absolute
 	 *
-	 * @param string $f
+	 * @param string $path
 	 * @return boolean
 	 * @see File::is_absolute
 	 */
-	public static function isAbsolute($f) {
-		return File::isAbsolute($f);
+	public static function isAbsolute(string $path): bool {
+		return File::isAbsolute($path);
 	}
 
 	/**

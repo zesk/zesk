@@ -118,7 +118,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			'priority' => $priority,
 			'hook_args' => $arguments,
 		];
-		$job = $application->orm_factory(__CLASS__, $members);
+		$job = $application->ormFactory(__CLASS__, $members);
 		$job->find();
 		return $job->set_member($members)->store();
 	}
@@ -131,7 +131,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 */
 	public static function mock_run(Application $application, $id, array $options = []) {
 		/* @var $job Job */
-		$job = $application->orm_factory(__CLASS__, $id)->fetch();
+		$job = $application->ormFactory(__CLASS__, $id)->fetch();
 		$process = new Process_Mock($application, $options);
 		return $job->execute($process);
 	}
@@ -251,7 +251,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		 *
 		 * Deals with the situation below where this process grabs them and then crashes. (you never know)
 		 */
-		$application->orm_registry(__CLASS__)
+		$application->ormRegistry(__CLASS__)
 			->query_update()
 			->values([
 			'pid' => null,
@@ -268,7 +268,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			/*
 			 * Now iterate through available Jobs, and re-sort each iteration in case stuff changes between jobs
 			 */
-			$query = $application->orm_registry(__CLASS__)
+			$query = $application->ormRegistry(__CLASS__)
 				->query_select()
 				->what_object()
 				->where([
@@ -284,7 +284,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			foreach ($iterator as $job) {
 				/* @var $job Job */
 				// Tag the Job as "ours" - this avoids race conditions between multiple servers
-				$application->orm_registry(__CLASS__)
+				$application->ormRegistry(__CLASS__)
 					->query_update()
 					->values($server_pid)
 					->where([
@@ -293,7 +293,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 				])
 					->execute();
 				// Race condition if we crash before this executes
-				if (!toBool($application->orm_factory(__CLASS__)
+				if (!toBool($application->ormFactory(__CLASS__)
 					->query_select()
 					->addWhat('*X', 'COUNT(id)')
 					->where($server_pid)
@@ -303,7 +303,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 					continue;
 				}
 				// We got it. Update our members so it reflects what's in the database
-				$job = $application->orm_factory(__CLASS__, $job->id)->fetch();
+				$job = $application->ormFactory(__CLASS__, $job->id)->fetch();
 				if ($job) {
 					$found_job = true;
 					$logger->info('Server ID # {id}: Running Job # {job_id} - {job_name}', [
@@ -345,7 +345,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 * @param Server $server
 	 */
 	private static function clean_dead_pids(Application $application, Server $server): void {
-		foreach ($application->orm_registry(__CLASS__)
+		foreach ($application->ormRegistry(__CLASS__)
 			->query_select()
 			->what('pid', 'pid')
 			->what('id', 'id')
@@ -356,7 +356,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			->to_array('id', 'pid') as $id => $pid) {
 			if (!$application->process->alive($pid)) {
 				$application->logger->debug('Removing stale PID {pid} from Job # {id}', compact('pid', 'id'));
-				$application->orm_registry(__CLASS__)
+				$application->ormRegistry(__CLASS__)
 					->query_update()
 					->value('pid', null)
 					->value('server', null)

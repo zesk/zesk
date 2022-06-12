@@ -16,7 +16,7 @@ class County extends ORM {
 	public function reassign($new): void {
 		$old_id = intval($this->id);
 		$new_id = empty($new) ? null : ORM::mixed_to_id($new);
-		$this->application->orm_registry(Contact_Address::class)
+		$this->application->ormRegistry(Contact_Address::class)
 			->query_update()
 			->ignore_constraints(true)
 			->value('county', $new_id)
@@ -26,7 +26,7 @@ class County extends ORM {
 
 	public function usage_statistics() {
 		return [
-			'Contact_Address' => $this->application->orm_registry(Contact_Address::class)
+			'Contact_Address' => $this->application->ormRegistry(Contact_Address::class)
 				->query_select()
 				->addWhere('county', $this->id)
 				->addWhat('*total', 'COUNT(X.id)')

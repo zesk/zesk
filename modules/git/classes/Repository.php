@@ -21,30 +21,30 @@ class Repository extends \zesk\Repository_Command {
 	/**
 	 * @var string
 	 */
-	protected $code = 'git';
+	protected string $code = 'git';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $executable = 'git';
+	protected string $executable = 'git';
 
 	/**
 	 * Used in validate function
 	 *
 	 * @var string
 	 */
-	protected $dot_directory = '.git';
+	protected string $dot_directory = '.git';
 
 	/**
 	 * Fetch a list of repository status for a target
 	 *
-	 * @param unknown $target
-	 * @param string $updates
-	 *
-	 * @return array[]
+	 * @param string $target
+	 * @param bool $updates
+	 * @return array
 	 */
-	public function status($target = null, $updates = false) {
+	public function status(string $target, bool $updates = false): array {
+		return [];
 	}
 
 	/**
@@ -63,7 +63,7 @@ class Repository extends \zesk\Repository_Command {
 	 * @param string $target
 	 * @return boolean
 	 */
-	public function need_update($target = null) {
+	public function need_update(string $target): bool {
 		if (!$this->validate()) {
 			return true;
 		}
@@ -79,7 +79,7 @@ class Repository extends \zesk\Repository_Command {
 		return true;
 	}
 
-	public function need_commit($target = null): void {
+	public function need_commit(string $target): bool {
 	}
 
 	/**
@@ -88,7 +88,7 @@ class Repository extends \zesk\Repository_Command {
 	 * @param string $target
 	 * @param string $message
 	 */
-	public function commit($target = null, $message = null): void {
+	public function commit(string $target, string $message): bool {
 	}
 
 	/**
@@ -96,7 +96,7 @@ class Repository extends \zesk\Repository_Command {
 	 *
 	 * @param string $target
 	 */
-	public function update($target = null): void {
+	public function update(string $target): void {
 	}
 
 	/**
@@ -105,15 +105,14 @@ class Repository extends \zesk\Repository_Command {
 	 * @param string $target Directory of target directory
 	 * @return boolean
 	 */
-	public function rollback($target = null) {
+	public function rollback(string $target): void {
 	}
 
 	/**
-	 *
-	 * @param unknown $git
-	 * @return mixed|array
+	 * @return string
+	 * @throws \Exception
 	 */
-	public function latest_version() {
+	public function latest_version(): string {
 		$versions = $this->run_command('tag');
 		return $this->compute_latest_version($versions);
 	}

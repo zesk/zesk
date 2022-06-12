@@ -20,7 +20,7 @@ namespace zesk\WebApp;
  */
 class Cluster extends ORM {
 	public static function find_from_site(Site $site) {
-		return $site->application->orm_factory(self::class)->find([
+		return $site->application->ormFactory(self::class)->find([
 			'sitecode' => $site->code,
 		]);
 	}

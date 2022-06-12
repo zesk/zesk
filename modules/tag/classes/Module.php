@@ -42,7 +42,7 @@ class Module extends \zesk\Module_JSLib {
 	 */
 	public function list_labels() {
 		$application = $this->application;
-		$labels = $application->orm_registry(Label::class)
+		$labels = $application->ormRegistry(Label::class)
 			->query_select()
 			->order_by('X.name')
 			->orm_iterator();

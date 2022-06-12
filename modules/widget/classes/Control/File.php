@@ -66,7 +66,7 @@ class Control_File extends Control {
 	 * {@inheritDoc}
 	 * @see Widget::validate()
 	 */
-	public function validate() {
+	public function validate(): bool {
 		$col = $this->column();
 		$name = $this->name();
 		$filecolumn = $this->file_name_column();

@@ -85,7 +85,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @return self
 	 */
 	public function class_table(string $class, string $alias = ''): self {
-		$object_class = $this->application->class_orm_registry($class);
+		$object_class = $this->application->class_ormRegistry($class);
 		/* @var $object_class Class_ORM */
 		if (count($this->table) === 0) {
 			$this->default_alias = "$alias";

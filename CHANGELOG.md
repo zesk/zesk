@@ -9,9 +9,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 Version 1.0 of Zesk will have:
 
-- Ability to initialize the application context and then serialize the configuration in a way which allows for faster startup (maybe?)
-- PSR-4? - **Yes, for zesk core.**
-- Full composer support for both Zesk as well as commonly used modules - **still need module tested**
+- PSR-4 - **Yes, for zesk core.**
+- Full conversion to `camelCase` methods, PHP standards
+- Full composer support for both Zesk and commonly used modules - **still need module tested**
 - Support for `Monolog` within Zesk core - **needs to be tested**
 - All modules use **namespaces** - **in progress**
 - Website `https://zesk.com` with basic documentation
@@ -628,7 +628,7 @@ Largely refactoring constants to follow **PSR-1** 4.1 (Class constanst upper cas
 - **Moment Module**: Correctly output `$locale->id()` for debugging
 - **Polyglot module**: Enhancements and fixes for dup list count
 - **Widget Module**: Remove warnings to `zesk\Control_Checklist` when iterating over keys
-- **Widget module**: `zesk\Widget->widget_factory()` now inherits response from called `zesk\Widget`
+- **Widget module**: `zesk\Widget->widgetFactory()` now inherits response from called `zesk\Widget`
 
 ### ORM Module
 
@@ -844,7 +844,7 @@ Fixed some issues with the system/debug theme.
 
 ### Changed functionality
 
-- Using `Widget::class` for `->widget_factory()` calls instead of strings.
+- Using `Widget::class` for `->widgetFactory()` calls instead of strings.
 - Removing deprecated `$account` in `zesk\Controller_Authenticated`
 - Having `zesk\Route` with a `template` option will no longer create a route of type `zesk\Route_Theme` - please update your code accordingly and use `theme` option instead.
 - Fixing `zesk\Route_Redirect` to throw `zesk\Exception_Redirect`
@@ -1366,16 +1366,16 @@ OLD method:
 	
 NEW method:
 
-	$application->orm_registry(User::class)->query_select("user")
-	$application->class_orm_registry(User::class)->table()
-	$application->class_orm_registry(User::class);
-	$application->orm_registry()->schema_synchronize();
+	$application->ormRegistry(User::class)->query_select("user")
+	$application->class_ormRegistry(User::class)->table()
+	$application->class_ormRegistry(User::class);
+	$application->ormRegistry()->schema_synchronize();
 
 Two calls are available now from the `zesk\Application`:
 
-	$application->orm_factory($class = null, $mixed = null, array $options = array())
-	$application->class_orm_registry($class = null)
-	$application->orm_registry($class = null)
+	$application->ormFactory($class = null, $mixed = null, array $options = array())
+	$application->class_ormRegistry($class = null)
+	$application->ormRegistry($class = null)
 
 The main difference between a `registry` and `factory` call is that the `registry` call returns the same object each time.
 
@@ -2234,7 +2234,7 @@ More `zesk\` namespace changes, cleanup of `instance` static calls.
  - `CSV::columnIsEmpty`
  - `CSV::columnGet`
 - Removed calls in `preference` module:
- - `Preference_Type::registerName()` (use `Preference_Type::register_name()` instead)
+ - `Preference_Type::registerName()` (use `Preference_Type::registerName()` instead)
 - Removed `zesk::theme_path`
 - Obsoleted classes:
  - `gzip`, `sql`, `widgets`

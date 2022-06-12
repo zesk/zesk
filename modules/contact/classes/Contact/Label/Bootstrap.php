@@ -113,8 +113,8 @@ class Contact_Label_Bootstrap {
 				Contact_Label::LabelType_Date,
 			],
 		];
-		$clg_exists = $application->orm_registry(Contact_Label_Group::class)->tableExists();
-		$cl_exists = $application->orm_registry(Contact_Label::class)->tableExists();
+		$clg_exists = $application->ormRegistry(Contact_Label_Group::class)->tableExists();
+		$cl_exists = $application->ormRegistry(Contact_Label::class)->tableExists();
 		if (!$clg_exists || !$cl_exists) {
 			return '';
 		}
@@ -122,7 +122,7 @@ class Contact_Label_Bootstrap {
 		foreach ($labels as $arr) {
 			[$codename, $group_name, $type] = $arr;
 			$group_name = Contact_Label_Group::register_group($application, $group_name);
-			$label = $application->orm_factory(Contact_Label::class, [
+			$label = $application->ormFactory(Contact_Label::class, [
 				'CodeName' => $codename,
 				'Type' => $type,
 				'Name' => $codename,

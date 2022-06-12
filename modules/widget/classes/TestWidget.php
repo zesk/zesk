@@ -29,7 +29,7 @@ class TestWidget extends Test_Unit {
 		$default = 'form';
 		$testx->setFormName($default);
 
-		$parent = $testx->widget_factory('zesk\\Widget');
+		$parent = $testx->widgetFactory('zesk\\Widget');
 		$testx->parent($parent);
 
 		$required = true;
@@ -90,7 +90,7 @@ class TestWidget extends Test_Unit {
 	 *
 	 */
 	public function test_basics(): void {
-		$testx = $this->application->widget_factory('zesk\\Widget');
+		$testx = $this->application->widgetFactory('zesk\\Widget');
 
 		$this->widget_tests($testx);
 	}

@@ -66,7 +66,7 @@ class Site extends ORM {
 
 	public function domains() {
 		$cluster = Cluster::find_from_site($this);
-		$clusters = $cluster ? $this->application->orm_registry(Domain::class)
+		$clusters = $cluster ? $this->application->ormRegistry(Domain::class)
 			->query_select()
 			->where([
 			'type' => Cluster::class,
@@ -74,7 +74,7 @@ class Site extends ORM {
 		])
 			->orm_iterator()
 			->to_array() : [];
-		$sites = $this->application->orm_registry(Domain::class)
+		$sites = $this->application->ormRegistry(Domain::class)
 			->query_select()
 			->where([
 			'type' => self::class,
@@ -133,7 +133,7 @@ class Site extends ORM {
 		$iterator = $query->orm_iterator();
 		foreach ($iterator as $instance) {
 			/* @var $instance self */
-			$oldid = $instance->member_integer('instance');
+			$oldid = $instance->memberInteger('instance');
 			$this->application->logger->notice('Deleting site #{id} {name} associated with dead instance #{oldid}', $instance->members([
 				'id',
 				'name',

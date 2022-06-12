@@ -144,7 +144,7 @@ class Command_Schema extends Command_Base {
 	 */
 	protected function initialize(): void {
 		parent::initialize();
-		$this->application->register_class("zesk\ORM_Schema_File");
+		$this->application->registerClass("zesk\ORM_Schema_File");
 	}
 
 	/**

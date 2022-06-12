@@ -120,7 +120,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 */
 	protected function parent_support(ORM $object): void {
 		if ($this->parent) {
-			$check_id = $this->object->member_integer($this->parent_member);
+			$check_id = $this->object->memberInteger($this->parent_member);
 			if ($check_id === $this->parent->id()) {
 				$this->object->__set($this->parent_member, $this->parent);
 			} else {

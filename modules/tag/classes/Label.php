@@ -38,7 +38,7 @@ class Label extends \zesk\ORM {
 	public static function label_find(Application $application, $code) {
 		$members = [];
 		$members['code'] = self::clean_code_name($code);
-		return $application->orm_factory(__CLASS__, $members)->find();
+		return $application->ormFactory(__CLASS__, $members)->find();
 	}
 
 	/**
@@ -48,7 +48,7 @@ class Label extends \zesk\ORM {
 	 * @return self
 	 */
 	public static function label_register(Application $application, $name = null, array $attributes = []) {
-		$tag_label = $application->orm_factory(__CLASS__);
+		$tag_label = $application->ormFactory(__CLASS__);
 		$members = ArrayTools::filter($attributes, [
 			'code',
 			'is_internal',
@@ -67,7 +67,7 @@ class Label extends \zesk\ORM {
 				return $object;
 			}
 		}
-		$object = $application->orm_factory(__CLASS__, $members)->register();
+		$object = $application->ormFactory(__CLASS__, $members)->register();
 		$object->seen();
 
 		$cache->set($object);
@@ -124,7 +124,7 @@ class Label extends \zesk\ORM {
 		$result = [];
 		foreach ($subclasses as $subclass) {
 			try {
-				$orm = $app->orm_registry($subclass);
+				$orm = $app->ormRegistry($subclass);
 				/* @var $orm Tag */
 			} catch (\Exception $e) {
 				$orm = null;

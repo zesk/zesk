@@ -30,6 +30,6 @@ class Server_Test extends Test_Unit {
 		$this->assert_instanceof($testx, Server::class);
 		$path = '/';
 		$testx->id = 1;
-		$testx->update_state($path);
+		$testx->updateState($path);
 	}
 }

@@ -66,7 +66,7 @@ class Command_Class_Check extends Command_Base {
 			]);
 			/* @var $class_object Class_ORM */
 			/* @var $object \zesk\ORM */
-			$class_object = $this->application->class_orm_registry($class);
+			$class_object = $this->application->class_ormRegistry($class);
 			if (!$class_object) {
 				$this->error("No such class $arg");
 
@@ -76,7 +76,7 @@ class Command_Class_Check extends Command_Base {
 				'class' => $class,
 				'table' => $class_object->table,
 			];
-			$object = $this->application->orm_registry($class);
+			$object = $this->application->ormRegistry($class);
 			if (!$object) {
 				$logger->notice('Object class {class} does not have an associated object', [
 					'class' => $class,

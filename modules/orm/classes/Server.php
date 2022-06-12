@@ -126,7 +126,7 @@ class Server extends ORM implements Interface_Data {
 	 * Delete servers who are not alive after `option_timeout_seconds` old.
 	 */
 	public static function cron_cluster_minute(Application $application): void {
-		$server = $application->orm_factory(self::class);
+		$server = $application->ormFactory(self::class);
 		/* @var $server Server */
 		$server->bury_dead_servers();
 	}
@@ -157,7 +157,7 @@ class Server extends ORM implements Interface_Data {
 		$server = self::singleton($application);
 
 		try {
-			$server->update_state();
+			$server->updateState();
 		} catch (Exception $e) {
 			$application->logger->error("Exception {class} {code} {file}:{line}\n{message}\n{backtrace}", Exception::exception_variables($e));
 		}
@@ -228,7 +228,7 @@ class Server extends ORM implements Interface_Data {
 				}
 			}
 		}
-		$server = $application->orm_factory(__CLASS__);
+		$server = $application->ormFactory(__CLASS__);
 		$server = $server->_retrieve_singleton();
 		if ($cache) {
 			$item->set($server);
@@ -248,7 +248,7 @@ class Server extends ORM implements Interface_Data {
 			if ($this->find()) {
 				$now = Timestamp::now();
 				if ($now->difference($this->alive) > $this->option(self::option_alive_update_seconds, self::default_alive_update_seconds)) {
-					$this->update_state();
+					$this->updateState();
 				}
 				return $this;
 			}
@@ -315,7 +315,7 @@ class Server extends ORM implements Interface_Data {
 	 * @param string $path
 	 * @return self
 	 */
-	public function updateState(string $path = null) {
+	public function updateState(string $path = null): self {
 		if ($path === null) {
 			$path = $this->option('free_disk_volume', '/');
 		}
@@ -410,30 +410,32 @@ class Server extends ORM implements Interface_Data {
 	 *
 	 * @param string $name
 	 * @param mixed $value
-	 * @return NULL|Server_Data
+	 * @return self
 	 */
-	private function set_data($name, $value = null) {
-		$iterator = $this->member_iterator('data', [
+	public function setData(string $name, mixed $value): self {
+		$iterator = $this->memberIterator('data', [
 			'name' => $name,
 		]);
 		/* @var $data Server_Data */
 		foreach ($iterator as $data) {
 			if ($value === null) {
 				$data->delete();
-				return null;
+				return $this;
 			}
 			$data->value = $value;
-			return $data->store();
+			$data->store();
+			return $this;
 		}
 		if ($value === null) {
-			return null;
+			return $this;
 		}
 		$data = new Server_Data($this->application, [
 			'server' => $this,
 			'name' => $name,
 			'value' => $value,
 		]);
-		return $data->store();
+		$data->store();
+		return $this;
 	}
 
 	/**
@@ -443,8 +445,8 @@ class Server extends ORM implements Interface_Data {
 	 * @param mixed $value
 	 * @return NULL|Server_Data
 	 */
-	private function get_data($name) {
-		$iterator = $this->member_iterator('data', [
+	private function _getData(string $name): mixed {
+		$iterator = $this->memberIterator('data', [
 			'name' => $name,
 		]);
 		/* @var $data Server_Data */
@@ -458,28 +460,15 @@ class Server extends ORM implements Interface_Data {
 	 * Retrieve or store per-server data
 	 *
 	 * @param mixed $name
-	 * @param mixed $value
 	 * @return mixed
 	 * @see Interface_Data::data
 	 */
-	public function data($name, $value = null) {
+	public function data(string $name): mixed {
 		$lock_name = 'server_data_' . $this->memberInteger('id');
 		$acquired_lock = $this->database()->getLock($lock_name, 5);
-		$result = null;
-		if (is_array($name)) {
-			$result = [];
-			foreach ($name as $k => $v) {
-				$result[$k] = $this->set_data($k, $v);
-			}
-		} elseif ($value === null) {
-			$result = $this->get_data($name);
-		} else {
-			$result = $this->set_data($name, $value);
-		}
+		$result = $this->_getData($name);
 		if ($acquired_lock) {
 			$this->database()->releaseLock($lock_name);
-		} else {
-			$this->application->logger->warning('Unable to acquire lock {lock_name}', compact('lock_name'));
 		}
 		return $result;
 	}
@@ -488,44 +477,38 @@ class Server extends ORM implements Interface_Data {
 	 * Delete a data member of this server.
 	 *
 	 * @param mixed $name
-	 * @return boolean true if any values were deleted
+	 * @return $this
 	 * @see Interface_Data::delete_data
 	 */
-	public function deleteData(string $name): bool {
-		return $this->application->orm_registry(Server_Data::class)->queryDelete()->appendWhere([
-				'server' => $this,
-				'name' => $name,
-			])->execute()->affectedRows() > 0;
+	public function deleteData(string|array $name): self {
+		$this->application->ormRegistry(Server_Data::class)->queryDelete()->appendWhere([
+			'server' => $this,
+			'name' => $name,
+		])->execute();
+		return $this;
 	}
 
 	/**
 	 * Delete data members of all servers which match this name.
 	 *
 	 * @param mixed $name
-	 * @return boolean true if any values were deleted
+	 * @return self
 	 */
-	public function deleteAllData(string $name): bool {
-		return $this->application->orm_registry(Server_Data::class)->queryDelete()->appendWhere([
-				'name' => $name,
-			])->execute()->affectedRows() > 0;
+	public function deleteAllData(string $name): self {
+		$this->application->ormRegistry(Server_Data::class)->queryDelete()->appendWhere([
+			'name' => $name,
+		])->execute();
+		return $this;
 	}
 
 	/**
 	 * Query all servers to find servers which match name = value
 	 *
-	 * @param string $name
-	 * @param mixed $value
+	 * @param array $where Use [ "name" => $value } as  basic one
 	 * @return Database_Query_Select
 	 */
-	public function dataQuery($name, $value = null) {
-		if (!is_array($name)) {
-			$where = [
-				$name => $value,
-			];
-		} else {
-			$where = $name;
-		}
-		$query = $this->application->orm_registry(Server::class)->querySelect();
+	public function dataQuery(array $where): Database_Query_Select {
+		$query = $this->application->ormRegistry(Server::class)->querySelect();
 		$query->ormWhat();
 		foreach ($where as $name => $value) {
 			$alias = "data_$name";
@@ -542,22 +525,18 @@ class Server extends ORM implements Interface_Data {
 		return $query;
 	}
 
-	public function aliveIPs($within_seconds = 300) {
-		$ips = $this->query_select()->addWhatIterable([
+	/**
+	 * @param int $within_seconds
+	 * @return array
+	 * @throws Exception_Parameter
+	 */
+	public function aliveIPs(int $within_seconds = 300): array {
+		$ips = $this->querySelect()->addWhatIterable([
 			'ip4_internal' => 'ip4_internal',
 			'ip4_external' => 'ip4_extermal',
-		])->distinct(true)->where([
+		])->distinct(true)->appendWhere([
 			'alive|>=' => Timestamp::now('UTC')->addUnit(-abs($within_seconds), Timestamp::UNIT_SECOND),
-		])->to_array();
+		])->toArray();
 		return array_unique(array_merge(ArrayTools::extract($ips, 'ip4_internal'), ArrayTools::extract($ips, 'ip4_external')));
-	}
-
-	/**
-	 * @param string|null $path
-	 * @return self
-	 * @deprecated 2022-05
-	 */
-	public function update_state(string $path = null) {
-		return $this->updateState($path);
 	}
 }

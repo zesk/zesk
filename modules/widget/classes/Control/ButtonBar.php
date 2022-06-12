@@ -16,7 +16,7 @@ class Control_ButtonBar extends Control {
 		$cancel_label = $this->option('label_cancel', $locale->__('Cancel'));
 
 		if ($ok_label) {
-			$w = $this->widget_factory('Control_Button');
+			$w = $this->widgetFactory('Control_Button');
 			$w->names('OK')->setOption('label_button', $ok_label);
 			$w->class = 'btn primary';
 			$w->type = 'cancel';
@@ -25,10 +25,10 @@ class Control_ButtonBar extends Control {
 				$w->setOption('submit', false);
 				$w->setOption('onclick', $onclick);
 			}
-			$this->child($w);
+			$this->addChild($w);
 		}
 		if ($cancel_label) {
-			$w = $this->widget_factory('Control_Button');
+			$w = $this->widgetFactory('Control_Button');
 			$w->names('Cancel')->setOption('label_button', $cancel_label);
 			$w->class = 'btn';
 			$w->type = 'cancel';
@@ -37,7 +37,7 @@ class Control_ButtonBar extends Control {
 				$w->setOption('submit', false);
 				$w->setOption('onclick', $onclick);
 			}
-			$this->child($w);
+			$this->addChild($w);
 		}
 	}
 

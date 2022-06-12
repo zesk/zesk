@@ -34,11 +34,11 @@ class Control_ORM_Checklist extends Control_Checklist {
 	 * @return mixed[]|array[]
 	 */
 	protected function hook_options() {
-		$object = $this->application->orm_registry($this->class);
+		$object = $this->application->ormRegistry($this->class);
 		$name_col = $object->name_column();
 		$this->objects = [];
 		$control_options = [];
-		$query = $this->application->orm_registry($this->class)->query_select();
+		$query = $this->application->ormRegistry($this->class)->query_select();
 		$query->where($this->optionArray('where'));
 		$query->order_by($this->option('order_by', $name_col));
 		$this->call_hook('options_query', $query);

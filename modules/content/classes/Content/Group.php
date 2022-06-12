@@ -32,7 +32,7 @@ abstract class Content_Group extends ORM {
 	 * @return \zesk\ORM
 	 */
 	public function group_object($mixed = null, $options = null) {
-		return $this->orm_factory($this->group_class, $mixed, $options);
+		return $this->ormFactory($this->group_class, $mixed, $options);
 	}
 
 	protected function order_methods() {

@@ -48,7 +48,7 @@ class Preference_Test extends Test_ORM {
 		$preference_class = __NAMESPACE__ . '\\' . 'Preference';
 
 		$db = $this->application->database_registry();
-		$db->query($this->application->orm_module()->schema_synchronize($db, [
+		$db->queries($this->application->orm_module()->schema_synchronize($db, [
 			$preference_class,
 			__NAMESPACE__ . '\\' . 'Preference_Type',
 		], [
@@ -61,14 +61,14 @@ class Preference_Test extends Test_ORM {
 
 		$pref = new Preference($this->application, [
 			'user' => $user,
-			'type' => Preference_Type::register_name($this->application, 'country'),
+			'type' => Preference_Type::registerName($this->application, 'country'),
 		]);
 		$result = $pref->find();
 		$this->assert_equal($result, $pref);
 		$this->assert_instanceof($result, $preference_class);
 		$this->run_test_an_object($pref);
 
-		$result = $this->application->orm_registry($preference_class)->queryDelete()->addWhere('user', 1)->execute();
+		$result = $this->application->ormRegistry($preference_class)->queryDelete()->addWhere('user', 1)->execute();
 		$this->assert_instanceof($result, __NAMESPACE__ . '\\' . 'Database_Query_Delete');
 		$this->log('Deleted {n} rows from {class}', [
 			'n' => $result->affectedRows(),

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 use PHPUnit\Framework\TestCase;
@@ -8,7 +10,7 @@ class PHPUnit_TestCase extends TestCase {
 	 *
 	 * @var Application
 	 */
-	protected $application = null;
+	protected ?Application $application = null;
 
 	/**
 	 *
@@ -20,14 +22,14 @@ class PHPUnit_TestCase extends TestCase {
 	 *
 	 * @var Configuration
 	 */
-	protected $configuration = null;
+	protected ?Configuration $configuration = null;
 
 	/**
 	 * Current object's configuration (better version than using Options superclass)
 	 *
 	 * @var Configuration
 	 */
-	protected $option = null;
+	protected ?Configuration $option = null;
 
 	/**
 	 * Ensures our zesk variables above are properly populated
@@ -73,15 +75,18 @@ class PHPUnit_TestCase extends TestCase {
 			'class' => get_class($this),
 			'hierarchy' => $this->application->classes->hierarchy(get_class($this)),
 			'when' => date('Y-m-d H:i:s'),
-			'debug' => $this->option->to_array(),
+			'debug' => $this->option->toArray(),
 		]));
 	}
 
 	public function assertPostConditions(): void {
-		File::unlink($this->lastTestCaseFile());
+		try {
+			File::unlink($this->lastTestCaseFile());
+		} catch (Exception_File_Permission) {
+		}
 	}
 
-	private function lastTestCaseFile() {
+	private function lastTestCaseFile(): string {
 		return $this->application->path('.phpunit-testcase-last');
 	}
 
@@ -91,8 +96,8 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param unknown $message
 	 * @return unknown
 	 */
-	public function assertStringIsURL($string, $message = null) {
-		return $this->assertTrue(URL::valid($string), $message ?: "$string is not a URL");
+	public function assertStringIsURL(string $string, string $message = ''): void {
+		$this->assertTrue(URL::valid($string), $message ?: "$string is not a URL");
 	}
 
 	/**
@@ -101,8 +106,8 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param \ArrayAccess $array
 	 * @param string $message Optional message
 	 */
-	public function assertArrayHasKeys($keys, $array, $message = ''): void {
-		$keys = to_list($keys);
+	public function assertArrayHasKeys(string|array $keys, array $array, string $message = ''): void {
+		$keys = toList($keys);
 		foreach ($keys as $key) {
 			$this->assertArrayHasKey($key, $array, "$key: $message");
 		}
@@ -115,7 +120,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param string[] $suffixes
 	 * @return string[]
 	 */
-	public function pathCatenator($path, array $suffixes) {
+	public function pathCatenator(string $path, array $suffixes): array {
 		$result = [];
 		foreach ($suffixes as $suffix) {
 			$result[] = path($path, $suffix);
@@ -129,7 +134,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param array $paths
 	 * @param unknown $message
 	 */
-	public function assertDirectoriesExist(array $paths, $message = null): void {
+	public function assertDirectoriesExist(array $paths, string $message = ''): void {
 		if (!$message) {
 			$message = 'Path does not exist';
 		}
@@ -144,7 +149,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param array $paths
 	 * @param unknown $message
 	 */
-	public function assertDirectoriesNotExist(array $paths, $message = null): void {
+	public function assertDirectoriesNotExist(array $paths, string $message = ''): void {
 		if (!$message) {
 			$message = 'Path should not exist';
 		}
@@ -159,8 +164,8 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param mixed $expected
 	 * @param string|null $message
 	 */
-	public function assertIsInteger($expected, $message = null): void {
-		$this->assertTrue(is_int($expected), $message ?? 'Item expected to be an integer but is a ' . type($expected));
+	public function assertIsInteger(mixed $expected, string $message = ''): void {
+		$this->assertTrue(is_int($expected), $message ?: 'Item expected to be an integer but is a ' . type($expected));
 	}
 
 	/**
@@ -171,7 +176,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param string $contents
 	 * @return void
 	 */
-	protected function debug($contents): void {
+	protected function debug(mixed $contents): void {
 		if (!is_string($contents)) {
 			$contents = var_export($contents, true);
 		}

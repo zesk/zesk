@@ -138,7 +138,7 @@ class Control_Text_Dropdown extends Control_Text {
 		return parent::load();
 	}
 
-	public function validate() {
+	public function validate(): bool {
 		$menu_value = $this->object->get($this->dropdown_column());
 		$menu_dropdown = $this->dropdown_menu();
 		$result = true;

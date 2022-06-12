@@ -31,7 +31,7 @@ class Language extends ORM {
 		if (empty($dialect)) {
 			$dialect = null;
 		}
-		$lang_en = $application->orm_registry(__CLASS__)
+		$lang_en = $application->ormRegistry(__CLASS__)
 			->query_select()
 			->addWhat('name', 'name')
 			->where([
@@ -53,7 +53,7 @@ class Language extends ORM {
 	 * @param Application $application
 	 */
 	public static function clean_table(Application $application): void {
-		$query = $application->orm_registry(__CLASS__)->query_update();
+		$query = $application->ormRegistry(__CLASS__)->query_update();
 		$query->value('dialect', null)->addWhere('dialect', '');
 		$query->execute();
 		if ($query->affectedRows() > 0) {

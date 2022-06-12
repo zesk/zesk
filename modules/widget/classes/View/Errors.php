@@ -38,7 +38,7 @@ class View_Errors extends View {
 		$model = new Model($application);
 		$response = $application->responseFactory($application->request());
 		$model->errors = $errors;
-		return $application->widget_factory(__CLASS__, [
+		return $application->widgetFactory(__CLASS__, [
 			'column' => 'errors',
 		])->response($response)->execute($model);
 	}

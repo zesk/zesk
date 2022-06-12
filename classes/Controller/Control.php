@@ -43,7 +43,7 @@ class Controller_Control extends Controller {
 		}
 
 		$result = [
-			'content' => $this->widget_factory($control)
+			'content' => $this->widgetFactory($control)
 				->names($name, null, $input)
 				->request($this->request)->response($this->response)
 				->json()

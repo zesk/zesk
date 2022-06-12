@@ -94,11 +94,11 @@ abstract class Control_List_InPlace extends Control_List {
 	 */
 	protected function hook_widgets() {
 		$locale = $this->application->locale;
-		$widgets[] = $w = $this->widget_factory('zesk\Control_Hidden')
+		$widgets[] = $w = $this->widgetFactory('zesk\Control_Hidden')
 			->names('id', $locale->__('ID'), 'id[]')
 			->id(false)
 			->addClass('selection-id');
-		$widgets[] = $w = $this->widget_factory('zesk\View_Text')->names('name');
+		$widgets[] = $w = $this->widgetFactory('zesk\View_Text')->names('name');
 
 		return $widgets;
 	}

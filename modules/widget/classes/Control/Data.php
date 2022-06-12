@@ -6,7 +6,7 @@ class Control_Data extends Control {
 		'default' => [],
 	];
 
-	public function validate() {
+	public function validate(): bool {
 		return true;
 	}
 

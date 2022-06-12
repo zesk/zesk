@@ -28,12 +28,12 @@ class Command_WebApp_Domains extends \zesk\Command_Base {
 				if (substr($line, 0, 1) === '#') {
 					continue;
 				}
-				$this->application->orm_factory(Domain::class, [
+				$this->application->ormFactory(Domain::class, [
 					'name' => $line,
 				])->register();
 			}
 		}
-		$result = $this->application->orm_registry(Domain::class)
+		$result = $this->application->ormRegistry(Domain::class)
 			->query_select()
 			->what([
 			'name' => 'name',

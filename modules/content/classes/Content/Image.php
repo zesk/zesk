@@ -44,7 +44,7 @@ class Content_Image extends ORM {
 			}
 			$members['path'] = basename($path);
 		}
-		$image = $application->orm_factory(__CLASS__, $members);
+		$image = $application->ormFactory(__CLASS__, $members);
 		return $register ? $image->register() : $image->store();
 	}
 
@@ -91,7 +91,7 @@ class Content_Image extends ORM {
 		$add = [];
 		if ($get_data) {
 			$add = [
-				'data' => $this->orm_factory('Content_Data')->initialize(ArrayTools::keysRemovePrefix($result, 'data_', true), true),
+				'data' => $this->ormFactory('Content_Data')->initialize(ArrayTools::keysRemovePrefix($result, 'data_', true), true),
 			];
 		}
 		return $add + ArrayTools::keysRemovePrefix($result, 'image_', true);
@@ -291,7 +291,7 @@ class Content_Image extends ORM {
 			$this->application->logger->warning('{class} {id} has empty or missing data "{data}"', [
 				'class' => get_class($this),
 				'id' => $this->id(),
-				'data' => $this->member_integer('data'),
+				'data' => $this->memberInteger('data'),
 			]);
 			return false;
 		}
@@ -456,7 +456,7 @@ class Content_Image extends ORM {
 	 * @see self::reduce_image_dimensions
 	 */
 	public static function downscale_images(Application $application, array $options): void {
-		$query = $application->orm_registry(__CLASS__)->query_select('X');
+		$query = $application->ormRegistry(__CLASS__)->query_select('X');
 		$query->what_object(__CLASS__, 'X', 'image_');
 		$query->link(Content_Data::class, [
 			'alias' => 'D',
@@ -505,7 +505,7 @@ class Content_Image extends ORM {
 		$__ = [
 			'id' => $this->id(),
 			'class' => get_class($this),
-			'data_id' => $this->member_integer('data'),
+			'data_id' => $this->memberInteger('data'),
 			'path' => basename($path),
 			'data_name' => $this->data->md5hash,
 		];
@@ -539,7 +539,7 @@ class Content_Image extends ORM {
 		$__ = [
 			'id' => $this->id(),
 			'class' => get_class($this),
-			'data_id' => $this->member_integer('data'),
+			'data_id' => $this->memberInteger('data'),
 			'width' => $width,
 			'height' => $height,
 			'max_size' => $maximum_file_size,

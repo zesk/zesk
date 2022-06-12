@@ -86,7 +86,7 @@ class Controller_Content_Cache extends Controller_Cache {
 		$prefix = preg_quote(self::cache_prefix($application->configuration));
 		if (preg_match('#^' . $prefix . '([0-9]+)/.*#', $url, $matches)) {
 			try {
-				$image = $application->orm_factory(Content_Image::class, $matches[1])->fetch();
+				$image = $application->ormFactory(Content_Image::class, $matches[1])->fetch();
 				return $image;
 			} catch (Exception_ORM_NotFound $e) {
 			}
@@ -103,7 +103,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	protected function action_image($id, $styles = null, $file = null) {
 		try {
 			/* @var $image Content_Image */
-			$image = $this->application->orm_factory(Content_Image::class, $id)->fetch();
+			$image = $this->application->ormFactory(Content_Image::class, $id)->fetch();
 			$image_file = basename($image->path());
 			$commands = $this->parse_commands($image, $styles);
 			if ($file === null || $file !== $image_file || empty($styles) || $commands === null) {

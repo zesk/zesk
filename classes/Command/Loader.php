@@ -393,6 +393,7 @@ class Command_Loader {
 		if (count($this->search) === 0) {
 			$this->search[] = getcwd();
 		}
+		$root_files = null;
 		foreach ([
 					 $_ZESK,
 					 $_SERVER,

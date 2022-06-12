@@ -6,12 +6,12 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class Model_Login extends ORM {
+class Model_Login extends Model {
 	protected string $login = '';
 
 	protected string $login_password = '';
 
-	protected string $login_password_hash = '';
+	protected string $login_password_hash;
 
 	protected ?User $user = null;
 

@@ -48,7 +48,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 			}
 			$where[] = $w;
 		}
-		$query = $this->application->orm_registry(Language::class)
+		$query = $this->application->ormRegistry(Language::class)
 			->query_select()
 			->what([
 			'code' => 'code',

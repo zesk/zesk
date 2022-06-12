@@ -31,7 +31,7 @@ class Selection_Item extends ORM {
 	 */
 	public function item($class) {
 		try {
-			return $this->orm_factory($class, $this->id)->fetch();
+			return $this->ormFactory($class, $this->id)->fetch();
 		} catch (Exception_ORM_NotFound $e) {
 			return null;
 		}
@@ -45,11 +45,11 @@ class Selection_Item extends ORM {
 	 */
 	public static function copy_duplicate(Application $application, $old_type, $new_type, array $mapping): void {
 		/* @var $class Class_ORM */
-		$members = $application->class_orm_registry(__CLASS__)->column_types;
+		$members = $application->class_ormRegistry(__CLASS__)->column_types;
 		unset($members['type']);
 		$what = ArrayTools::valuesFlipCopy(array_keys($members));
 		$what['*type'] = $new_type;
-		$object = $application->orm_registry(__CLASS__);
+		$object = $application->ormRegistry(__CLASS__);
 		$object->query_insert_select()
 			->what($what)
 			->addWhere('type', $old_type)

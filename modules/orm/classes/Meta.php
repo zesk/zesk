@@ -23,7 +23,7 @@ class Meta extends ORM {
 	 */
 	protected static function classMetaFactory(string $class, ORM $parent, string $name) {
 		$name = self::clean_code_name($name, '_');
-		return $parent->application->orm_factory($class, [
+		return $parent->application->ormFactory($class, [
 			'parent' => $parent,
 			'name' => $name,
 		]);

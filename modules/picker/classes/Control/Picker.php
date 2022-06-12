@@ -117,7 +117,7 @@ class Control_Picker extends Control {
 	protected function initialize(): void {
 		$this->class = $this->application->objects->resolve($this->class);
 		parent::initialize();
-		$this->class_object = $this->application->class_orm_registry($this->class);
+		$this->class_object = $this->application->class_ormRegistry($this->class);
 		if (count($this->search_columns) === 0) {
 			$this->search_columns = [
 				$this->class_object->name_column,
@@ -157,7 +157,7 @@ class Control_Picker extends Control {
 		}
 		foreach ($value as $key => $id) {
 			try {
-				$value[$key] = $this->application->orm_factory($this->class, $id)->fetch();
+				$value[$key] = $this->application->ormFactory($this->class, $id)->fetch();
 			} catch (Exception $e) {
 				unset($value[$key]);
 			}
@@ -204,7 +204,7 @@ class Control_Picker extends Control {
 
 	public function themeVariables(): array {
 		$locale = $this->application->locale;
-		$class_object = $this->application->class_orm_registry($this->class);
+		$class_object = $this->application->class_ormRegistry($this->class);
 		$name = $locale->lower($locale($class_object->name));
 		$names = $locale->plural($name);
 		return [
@@ -313,7 +313,7 @@ class Control_Picker extends Control {
 	}
 
 	private function _query() {
-		return $this->application->orm_registry($this->class)
+		return $this->application->ormRegistry($this->class)
 			->query_select()
 			->what_object($this->class, 'X')
 			->limit(0, $this->optionInt('limit', 25))
@@ -322,7 +322,7 @@ class Control_Picker extends Control {
 
 	private function search_results(array $variables, $q) {
 		$query = $this->_query();
-		$total = $this->application->orm_registry($this->class)->query_select();
+		$total = $this->application->ormRegistry($this->class)->query_select();
 		$this->call_hook('query_list;query', $query);
 		$this->call_hook('query_total;query', $total);
 		$total->what([

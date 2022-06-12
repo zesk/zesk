@@ -47,7 +47,7 @@ class Control_Content_Image extends Control {
 		$value = $this->value();
 		if (is_numeric($value)) {
 			try {
-				$value = $this->application->orm_factory(Content_Image::class, $value)->fetch();
+				$value = $this->application->ormFactory(Content_Image::class, $value)->fetch();
 			} catch (Exception_ORM_NotFound $e) {
 				return null;
 			}

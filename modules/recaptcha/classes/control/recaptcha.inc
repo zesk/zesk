@@ -59,7 +59,7 @@ class Control_reCAPTCHA extends Control {
 	 *
 	 * @see Widget::validate()
 	 */
-	public function validate() {
+	public function validate(): bool {
 		$app = $this->application;
 		$locale = $app->locale;
 		$this->theme_variables['reverify'] = false;

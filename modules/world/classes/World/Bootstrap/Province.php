@@ -71,7 +71,7 @@ class World_Bootstrap_Province extends Hookable {
 		$province_class = Province::class;
 		$country_class = Country::class;
 
-		$x = $application->orm_factory($province_class);
+		$x = $application->ormFactory($province_class);
 		if ($this->optionBool('drop')) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
@@ -81,7 +81,7 @@ class World_Bootstrap_Province extends Hookable {
 			'CA' => self::_province_ca(),
 		];
 		foreach ($countries as $country_code => $map) {
-			$country = $application->orm_factory($country_class, [
+			$country = $application->ormFactory($country_class, [
 				'code' => $country_code,
 			])->find();
 			if (!$country) {
@@ -89,7 +89,7 @@ class World_Bootstrap_Province extends Hookable {
 			}
 			if ($this->is_included($country)) {
 				foreach ($map as $name => $code) {
-					$application->orm_factory($province_class, [
+					$application->ormFactory($province_class, [
 						'country' => $country,
 						'code' => strtoupper($code),
 						'name' => $name,

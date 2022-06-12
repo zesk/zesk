@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Cache\InvalidArgumentException;
 
 /**
  * Stuff that should probably just be part of PHP, but isn't.
@@ -283,7 +284,7 @@ class Kernel {
 		/*
 		 * Zesk's start time in microseconds
 		 */
-		$this->initializationTime = $configuration['init'] ?? microtime(true);
+		$this->initialization_time = $configuration['init'] ?? microtime(true);
 
 		/*
 		 * Create our hooks registry
@@ -331,6 +332,10 @@ class Kernel {
 	}
 
 	/**
+	 * @return void
+	 * @throws Exception_Unsupported
+	 * @throws Exception_Semantics
+	 * @throws InvalidArgumentException
 	 */
 	final public function bootstrap(): void {
 		$this->autoloader = new Autoloader($this);
@@ -363,21 +368,6 @@ class Kernel {
 	/**
 	 * To disable deprecated function, call with boolean value "false"
 	 *
-	 * @param string|null $set
-	 *            Value indicating how to handle deprecated functions: "exception" throws an
-	 *            exception, "log" logs to application error log, "backtrace" to output backtrace
-	 *            and exit immediately
-	 * @deprecated 2022-01
-	 */
-	public function set_deprecated($set) {
-		$this->deprecated = is_string($set) ? strtolower($set) : self::DEPRECATED_IGNORE;
-		$this->deprecated('use setDeprecated');
-		return $this;
-	}
-
-	/**
-	 * To disable deprecated function, call with boolean value "false"
-	 *
 	 * @param string $set
 	 *            Value indicating how to handle deprecated functions: "exception" throws an
 	 *            exception, "log" logs to application error log, "backtrace" to output backtrace
@@ -396,14 +386,15 @@ class Kernel {
 	 * Enables a method to be tagged as "deprecated"
 	 *
 	 * @param string $reason
-	 * @return mixed Current value
+	 * @param array $arguments
+	 * @return void
 	 * @throws Exception_Deprecated
 	 */
 	public function deprecated(string $reason = '', array $arguments = []): void {
 		if ($this->deprecated === self::DEPRECATED_IGNORE) {
 			return;
 		}
-		$depth = avalue($arguments, 'depth', 0);
+		$depth = $arguments['depth'] ?? 0;
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
 				throw new Exception_Deprecated("${reason} Deprecated: {calling_function}\n{backtrace}", [
@@ -456,7 +447,7 @@ class Kernel {
 		$configuration = $this->configuration->path(__CLASS__);
 		if (isset($configuration->deprecated)) {
 			$deprecated = $configuration->deprecated;
-			$this->setDeprecated($deprecated);
+			$this->setDeprecated(strval($deprecated));
 			$this->logger->debug('Setting deprecated handling to {deprecated} => {actual}', [
 				'deprecated' => $deprecated,
 				'actual' => $this->deprecated,
@@ -467,12 +458,11 @@ class Kernel {
 				'active' => ASSERT_ACTIVE,
 				'warning' => ASSERT_WARNING,
 				'bail' => ASSERT_BAIL,
-				'quiet' => ASSERT_QUIET_EVAL,
 			];
-			foreach (array_values($ass_settings) as $what) {
+			foreach ($ass_settings as $what) {
 				assert_options($what, 0);
 			}
-			$assopt = to_list($configuration->assert);
+			$assopt = toList($configuration->assert);
 			foreach ($assopt as $code) {
 				if (array_key_exists($code, $ass_settings)) {
 					assert_options($ass_settings[$code], 1);
@@ -487,7 +477,7 @@ class Kernel {
 		if ($configuration->assert_callback) {
 			assert_options(ASSERT_CALLBACK, $configuration->assert_callback);
 		}
-		if ($this->configuration->path_exists("zesk\Logger::utc_time")) {
+		if ($this->configuration->pathExists("zesk\Logger::utc_time")) {
 			$this->logger->utc_time = toBool($this->configuration->path_get("zesk\Logger::utc_time"));
 		}
 	}
@@ -495,7 +485,7 @@ class Kernel {
 	/**
 	 * Internal call to initialize profiler structure
 	 */
-	private function _profiler() {
+	private function _profiler(): Profiler {
 		if ($this->profiler === null) {
 			$this->profiler = new Profiler($this->hooks);
 		}
@@ -523,9 +513,9 @@ class Kernel {
 	 * Internal profiler to determine who is calling what function how often.
 	 * Debugging only
 	 *
-	 * @param numeric $depth
+	 * @param int $depth
 	 */
-	public function profiler($depth = 2): void {
+	public function profiler(int $depth = 2): void {
 		$profiler = $this->_profiler();
 		$fkey = calling_function($depth + 1, true);
 		if (array_key_exists($fkey, $this->profiler->calls)) {
@@ -536,21 +526,16 @@ class Kernel {
 	}
 
 	/**
-	 * Getter/setter for console
+	 * Getter for console
 	 *
-	 * @param boolean $set
 	 * @return boolean
 	 */
-	public function console($set = null) {
-		if (is_bool($set)) {
-			$this->deprecated('console -> setConsole');
-			$this->setConsole(toBool($set));
-		}
+	public function console(): bool {
 		return $this->console;
 	}
 
 	/**
-	 * Getter/setter for console
+	 * Setter for console
 	 *
 	 * @param boolean $set
 	 * @return self
@@ -558,21 +543,6 @@ class Kernel {
 	public function setConsole(bool $set = false): self {
 		$this->console = $set;
 		return $this;
-	}
-
-	/**
-	 * Getter/setter for application class
-	 *
-	 * @param string|null $set
-	 * @return string
-	 * @deprecated 2022-05
-	 */
-	public function application_class($set = null) {
-		if ($set !== null) {
-			$this->deprecated('setter');
-			$this->setApplicationClass(strval($set));
-		}
-		return $this->applicationClass();
 	}
 
 	/**
@@ -591,7 +561,7 @@ class Kernel {
 	 * @return $this
 	 * @throws Exception_Semantics
 	 */
-	public function setApplicationClass(string $set) {
+	public function setApplicationClass(string $set): self {
 		if ($set === $this->application_class) {
 			return $this;
 		}
@@ -619,6 +589,7 @@ class Kernel {
 			]);
 		}
 		$this->application = $this->objects->factory($this->application_class, $this, $options);
+		$this->paths->created($this->application);
 		$this->application->hooks->call(self::HOOK_CREATE_APPLICATION, $this->application);
 		return $this->application;
 	}

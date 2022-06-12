@@ -8,7 +8,9 @@ namespace zesk;
  * @author kent
  *
  */
-class Model_List extends ORM {
+class Model_List extends Model {
+	protected string $class_name = '';
+
 	public int $offset = 0;
 
 	public int $limit = -1;

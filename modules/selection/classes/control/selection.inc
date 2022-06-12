@@ -44,7 +44,7 @@ class Control_Selection extends Control {
 		if ($this->type) {
 			return $this->type;
 		}
-		return $this->type = $this->application->orm_factory(Selection_Type::class, [
+		return $this->type = $this->application->ormFactory(Selection_Type::class, [
 			'session' => $this->session(),
 			'user' => $this->user(),
 			'code' => $this->selection_code(),
@@ -216,8 +216,8 @@ class Control_Selection extends Control {
 		}
 		$type_id = $this->selection_type()->id();
 		$alias = $query->alias();
-		$id_column = $this->application->orm_registry($query->orm_class())->idColumn();
-		$table = $this->application->orm_registry(__NAMESPACE__ . '\\Selection_Item')->table();
+		$id_column = $this->application->ormRegistry($query->orm_class())->idColumn();
+		$table = $this->application->ormRegistry(__NAMESPACE__ . '\\Selection_Item')->table();
 		$query->join("LEFT OUTER JOIN $table sel_item ON sel_item.type=$type_id AND sel_item.id=$alias.$id_column");
 		$query->what('*selected', 'sel_item.add');
 	}

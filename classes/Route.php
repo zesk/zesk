@@ -213,7 +213,7 @@ abstract class Route extends Hookable {
 	 *
 	 * @return self
 	 */
-	public function validate() {
+	public function validate(): bool {
 		return $this;
 	}
 

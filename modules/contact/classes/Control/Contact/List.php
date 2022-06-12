@@ -7,7 +7,7 @@ class Control_Contact_List extends Control_List {
 	public function hook_widgets() {
 		$widgets = [];
 
-		$widgets[] = $this->widget_factory(View_Text::class)->names('name');
+		$widgets[] = $this->widgetFactory(View_Text::class)->names('name');
 
 		return $widgets;
 	}

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 class Repository_TestCase extends PHPUnit_TestCase {
@@ -6,37 +8,37 @@ class Repository_TestCase extends PHPUnit_TestCase {
 	 *
 	 * @var string
 	 */
-	protected $path = null;
+	protected string $path = '';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $url = null;
+	protected string $url = '';
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $repository_options = [];
+	protected array $repository_options = [];
 
 	/**
 	 * Override in subclasses
 	 *
 	 * @var string
 	 */
-	protected $repository_class = null;
+	protected string $repository_class = '';
 
 	/**
 	 *
 	 */
-	protected $repository_types = [];
+	protected array $repository_types = [];
 
 	/**
 	 *
 	 * @return string
 	 */
-	public function loadConfiguration() {
+	public function loadConfiguration(): string {
 		$this_class = get_class($this);
 		$config_path = [
 			$this_class,
@@ -46,12 +48,12 @@ class Repository_TestCase extends PHPUnit_TestCase {
 			$this_class,
 			'repository_url',
 		];
-		$this->path = rtrim($this->configuration->path_get($config_path), '/');
-		$this->url = rtrim($this->configuration->path_get($config_url), '/');
-		$this->assertNotEmpty($this->path, map('Configuration {config_path} is not set up', [
+		$this->path = rtrim($this->configuration->path_get($config_path, ''), '/');
+		$this->url = rtrim($this->configuration->path_get($config_url, ''), '/');
+		$this->assertNotEmpty($this->path, map('Configuration "{config_path}" is not set up', [
 			'config_path' => $config_path,
 		]));
-		$this->assertNotEmpty($this->url, map('Configuration {config_url} is not set up', [
+		$this->assertNotEmpty($this->url, map('Configuration "{config_url}" is not set up', [
 			'config_url' => $config_url,
 		]));
 		return $this->path;
@@ -60,7 +62,7 @@ class Repository_TestCase extends PHPUnit_TestCase {
 	/**
 	 *
 	 */
-	public function testConfiguration() {
+	public function testConfiguration(): string {
 		$this->loadConfiguration();
 		// Do not assume repo is created here
 		$this->assertStringIsURL($this->url);
@@ -71,7 +73,7 @@ class Repository_TestCase extends PHPUnit_TestCase {
 	/**
 	 * @depends testConfiguration
 	 */
-	public function testFactory($path) {
+	public function testFactory($path): Repository {
 		$this->assertNotCount(0, $this->repository_types, 'Must initialize ' . get_class($this) . '->repository_types to a non-zero list of types');
 		$repo = null;
 		$this->repository_options = to_array($this->configuration->path_get([
@@ -80,10 +82,10 @@ class Repository_TestCase extends PHPUnit_TestCase {
 		]));
 		foreach ($this->repository_types as $repository_type) {
 			$repo = Repository::factory($this->application, $repository_type, $path, [
-				'test_option' => 'dude',
-			] + $this->repository_options);
+					'test_option' => 'dude',
+				] + $this->repository_options);
 			$this->assertInstanceOf($this->repository_class, $repo);
-			$this->assertEquals($path, $repo->path());
+			$this->assertEquals(rtrim($path, '/'), rtrim($repo->path(), '/'));
 			$this->assertEquals($repo->option('test_option'), 'dude');
 		}
 		return $repo;

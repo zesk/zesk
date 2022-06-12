@@ -30,7 +30,7 @@ class Control_Select_ORM extends Control_Select {
 		if (empty($class)) {
 			return parent::model();
 		}
-		return $this->application->orm_factory($this->class);
+		return $this->application->ormFactory($this->class);
 	}
 
 	protected function initialize(): void {
@@ -38,7 +38,7 @@ class Control_Select_ORM extends Control_Select {
 			// Do not use "class" option - is also attribute on HTML tags. Use object_class
 			$this->class = $this->option('object_class');
 		}
-		$class = $this->class_object = $this->application->class_orm_registry($this->class);
+		$class = $this->class_object = $this->application->class_ormRegistry($this->class);
 		if (!$this->hasOption('text_column')) {
 			$this->setOption('text_column', $class->text_column);
 		}
@@ -77,7 +77,7 @@ class Control_Select_ORM extends Control_Select {
 
 	protected function hook_options() {
 		$db = $this->class_object->database();
-		$query = $this->application->orm_registry($this->class)->query_select();
+		$query = $this->application->ormRegistry($this->class)->query_select();
 		$prefix = $query->alias() . '.';
 
 		$text_column = $this->text_columns();

@@ -46,19 +46,12 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * @param string $class
 	 * @param mixed $value
-	 * @return self
-	 * @throws Exception_Semantics
+	 * @return Model
 	 */
-	public static function factory(Application $application, string $class, mixed $value = null, array $options = []): ?Model {
+	public static function factory(Application $application, string $class, mixed $value = null, array $options = []): Model {
 		$object = $application->factory($class, $application, $value, $options);
-		if (!$object instanceof Model) {
-			throw new Exception_Semantics('{method}({class}) is not a subclass of {object_class}', [
-				'method' => __METHOD__,
-				'class' => $class,
-				'object_class' => __CLASS__,
-			]);
-		}
-		return $object->polymorphic_child();
+		assert($object instanceof Model);
+		return $object->polymorphicChild();
 	}
 
 	/**
@@ -72,7 +65,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *            Additional options for object
 	 * @return self
 	 */
-	public function modelFactory(string $class, mixed $mixed = null, array $options = []): self {
+	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
 		return self::factory($this->application, $class, $mixed, $options);
 	}
 
@@ -83,7 +76,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * @return self
 	 */
-	protected function polymorphic_child(): self {
+	protected function polymorphicChild(): self {
 		return $this;
 	}
 
@@ -262,18 +255,11 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	/**
 	 * Does this model have a member?
 	 *
-	 * @param array|string $mixed
+	 * @param string $member
 	 * @return boolean For a list, if ANY member exists, returns true.
 	 */
-	public function has(mixed $mixed = null): bool {
-		if (is_array($mixed)) {
-			$this->application->deprecated('hasAny instead');
-			return $this->hasAny($mixed);
-		}
-		if (is_scalar($mixed)) {
-			return $this->__isset($mixed);
-		}
-		return false;
+	public function has(string $member): bool {
+		return $this->__isset($member);
 	}
 
 	/**
@@ -441,8 +427,8 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	/**
 	 * Is this a new object?
 	 *
-	 * @deprecated 2022-05
 	 * @return boolean
+	 * @deprecated 2022-05
 	 */
 	public function is_new(): bool {
 		return $this->isNew();

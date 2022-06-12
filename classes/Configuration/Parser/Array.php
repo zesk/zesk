@@ -9,7 +9,7 @@ class Configuration_Parser_Array extends Configuration_Parser {
 		}
 	}
 
-	public function validate() {
+	public function validate(): bool {
 		return is_array($this->content);
 	}
 

@@ -37,7 +37,7 @@ class ORM_Schema_Test extends Test_Unit {
 	}
 
 	public function test_update_objects(): void {
-		$object = $this->application->orm_factory(Test_ORM_Schema_User::class);
+		$object = $this->application->ormFactory(Test_ORM_Schema_User::class);
 		ORM_Schema::update_object($object);
 	}
 }

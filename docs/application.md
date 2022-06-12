@@ -139,11 +139,11 @@ Now, broken into smaller sections:
 
 `app()->configure()` is called which consists of the following steps
 
-1. Hooks are registered using `app()->hooks->register_class()` for
+1. Hooks are registered using `app()->hooks->registerClass()` for
  - `zesk\Cache`
  - `zesk\Database`
  - `zesk\Settings`
-1. Hooks are registered using `app()->hooks->register_class()` for classes listed in `app()->register_hooks`
+1. Hooks are registered using `app()->hooks->registerClass()` for classes listed in `app()->register_hooks`
 1. `app()->call_hook("configure")` is called
 1. Application cache paths and document cache paths is computed
 1. `app()->preconfigure()` is called to set up additional paths and configure which files to load

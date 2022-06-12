@@ -175,7 +175,7 @@ So, if we wanted to intercept this via a hook, we could do this in our applicati
 		$sms = $pizza->order->sms_notify;
 		if ($sms) {
 			$order_id = $pizza->order->code;
-			$app->orm_factory("SMS")->submit_message_to($sms, "Your pizza order #$order_id was delivered");
+			$app->ormFactory("SMS")->submit_message_to($sms, "Your pizza order #$order_id was delivered");
 		}
 	});
 

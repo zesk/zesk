@@ -230,7 +230,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 		$this->determine_ansi();
 
-		$this->application->register_class($this->register_classes);
+		$this->application->registerClass($this->register_classes);
 
 		$this->_parse_options();
 

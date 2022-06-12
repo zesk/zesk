@@ -77,7 +77,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	public static function hooks(Application $application): void {
 		$hooks = $application->hooks;
 		// Ensure Database gets a chance to register first
-		$hooks->register_class(Database::class);
+		$hooks->registerClass(Database::class);
 		$hooks->add('configured', __CLASS__ . '::configured', ['first' => true]);
 		$hooks->add(Hooks::HOOK_RESET, function () use ($application): void {
 			$application->objects->settings = null;
@@ -136,7 +136,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$globals = [];
 		$size_loaded = 0;
 		$n_loaded = 0;
-		$object = $application->orm_registry(__CLASS__);
+		$object = $application->ormRegistry(__CLASS__);
 		$fix_bad_globals = $object->optionBool('fix_bad_globals');
 
 		foreach ($object->query_select()->to_array('name', 'value') as $name => $value) {
@@ -158,7 +158,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 							'method' => __METHOD__,
 							'name' => $name,
 						]);
-						$application->orm_registry(__CLASS__)->query_delete()->addWhere('name', $name)->execute();
+						$application->ormRegistry(__CLASS__)->query_delete()->addWhere('name', $name)->execute();
 					} else {
 						$application->logger->error('{method}: Bad global {name} can not be unserialized, please fix manually', [
 							'method' => __METHOD__,
@@ -292,7 +292,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	public function flush(): void {
 		$debug_save = $this->optionBool('debug_save');
 		foreach ($this->changes as $name => $value) {
-			$settings = $this->application->orm_factory(__CLASS__, [
+			$settings = $this->application->ormFactory(__CLASS__, [
 				'name' => $name,
 			]);
 			if ($value === null) {
@@ -383,7 +383,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 */
 	public function data($name, $value = null) {
 		if ($value === null) {
-			$value = $this->application->orm_registry(__CLASS__)->query_select()->addWhere('name', $name)->addWhat('value', 'value')->one('value');
+			$value = $this->application->ormRegistry(__CLASS__)->query_select()->addWhere('name', $name)->addWhat('value', 'value')->one('value');
 			if ($value === null) {
 				return null;
 			}
@@ -435,7 +435,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 * @return integer
 	 */
 	public function prefix_updated($old_prefix, $new_prefix) {
-		$update = $this->application->orm_registry(Settings::class)->query_update();
+		$update = $this->application->ormRegistry(Settings::class)->query_update();
 		$old_prefix_quoted = $update->sql()->quoteText($old_prefix);
 		$old_prefix_like_quoted = tr($old_prefix, [
 			'\\' => '\\\\',

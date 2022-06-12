@@ -108,6 +108,7 @@ class Database_Query_Update extends Database_Query_Edit {
 			'low_priority' => $this->low_priority,
 			'ignore_constraints' => $this->ignore_constraints,
 		]);
-		return $this->setAffectedRows($this->database()->affectedRows($this->result));
+		$this->setAffectedRows($this->database()->affectedRows($this->result));
+		return $this;
 	}
 }

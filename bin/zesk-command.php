@@ -14,9 +14,8 @@
  */
 define('ZESK_ROOT', dirname(__DIR__) . '/' . (str_contains(__FILE__, 'vendor/bin') ? 'zesk/zesk/' : ''));
 
-if (isset($_SERVER['XDEBUG_ENABLED']) && function_exists('xdebug_break')) {
-	call_user_func('xdebug_break');
-}
+/* We love debuggers */
+include ZESK_ROOT . '/xdebug.php';
 
 /**
  * Load the bare minimum

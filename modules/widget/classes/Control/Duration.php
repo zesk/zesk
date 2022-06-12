@@ -29,7 +29,7 @@ class Control_Duration extends Control_Select {
 		}
 		$relative_to = $this->relative_to();
 		if ($relative_to) {
-			$child = $this->parent()->child($relative_to);
+			$child = $this->parent()->addChild($relative_to);
 			if ($child) {
 				$update_func = 'duration_update(\'#' . $this->id() . '\', datetime);';
 				$child->setOption('onchange', $update_func);

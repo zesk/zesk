@@ -805,18 +805,26 @@ abstract class Database extends Hookable {
 	 *            A named field, or an integer index to retrieve
 	 * @param string $default
 	 * @return string
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Key
 	 */
-	final public function queryOne(string $sql, string|int $field = null, mixed $default = null, array $options = []): mixed {
+	final public function queryOne(string $sql, string|int $field = null, array $options = []): mixed {
 		$res = $this->query($sql, $options);
 		$row = is_numeric($field) ? $this->fetchArray($res) : $this->fetchAssoc($res);
 		$this->free($res);
 		if (!is_array($row)) {
-			return $default;
+			throw new Database_Exception_SQL($this, $sql, 'No results', ['field' => $field]);
 		}
 		if ($field === null) {
 			return $row;
 		}
-		return $row[$field] ?? $default;
+		if (!array_key_exists($field, $row)) {
+			throw new Exception_Key('{field} missing in query row: {available}', [
+				'field' => $field,
+				'available' => array_keys($row),
+			]);
+		}
+		return $row[$field];
 	}
 
 	/**
@@ -825,13 +833,12 @@ abstract class Database extends Hookable {
 	 * @param string $sql
 	 * @param int|string|null $field
 	 * @param int $default
-	 * @return number
+	 * @return int
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Key
 	 */
-	final public function queryInteger(string $sql, int|string $field = null, int $default = 0): int {
+	final public function queryInteger(string $sql, int|string $field = null): int {
 		$result = $this->queryOne($sql, $field, null);
-		if ($result === null) {
-			return $default;
-		}
 		return intval($result);
 	}
 
@@ -1272,7 +1279,7 @@ abstract class Database extends Hookable {
 			[$full_match, $class, $no_cache] = $match;
 			// Possible bug: How do we NOT cache table name replacements which are parameterized?, e.g Site_5343 - table {Site} should not cache this result, right?
 			// TODO
-			$table = $this->application->orm_registry($class, null, $options)->table();
+			$table = $this->application->ormRegistry($class, null, $options)->table();
 			if (count($options) === 0 && $no_cache !== '*') {
 				$this->table_name_cache[$full_match] = $table;
 			}
@@ -1327,10 +1334,10 @@ abstract class Database extends Hookable {
 	}
 
 	/**
-	 * @return \DateTimeZone
+	 * @return string
 	 * @throws Exception_Unsupported
 	 */
-	public function timeZone(): \DateTimeZone {
+	public function timeZone(): string {
 		throw new Exception_Unsupported('Database {class} does not support {feature}', [
 			'class' => get_class($this),
 			'feature' => self::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP,

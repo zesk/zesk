@@ -126,7 +126,7 @@ class Control_Checklist extends Control_Optionss {
 	 * @throws Exception_Semantics
 	 */
 	private function control_checkbox_factory(string $name, string $col, string $label, string $value) {
-		return $this->widget_factory(Control_Checkbox::class, [
+		return $this->widgetFactory(Control_Checkbox::class, [
 			'name' => $name . '[]',
 			'column' => $col,
 			'id' => $col,

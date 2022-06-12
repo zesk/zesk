@@ -29,10 +29,10 @@ class Control_Widgets extends Control {
 		if ($this->init_once) {
 			return;
 		}
-		$this->widgets = $widgets = $this->widget_factory(Control::class)->names($this->name() . '_widgets');
+		$this->widgets = $widgets = $this->widgetFactory(Control::class)->names($this->name() . '_widgets');
 		$child_widgets = $this->_widgets();
 		if (count($child_widgets)) {
-			$this->child($widgets);
+			$this->addChild($widgets);
 			$widgets->children($child_widgets);
 		}
 		$this->children = $this->call_hook_arguments('children', [

@@ -64,7 +64,7 @@ class Control_URL extends Control_Text {
 		return $this->optionBool('multiple');
 	}
 
-	public function validate() {
+	public function validate(): bool {
 		$temp = parent::validate();
 		if (!$temp) {
 			return false;

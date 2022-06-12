@@ -58,7 +58,7 @@ class Control_Pager extends Control {
 	 * {@inheritDoc}
 	 * @see Widget::model()
 	 */
-	public function model(): ORM {
+	public function model(): Model {
 		return new Model_List($this->application);
 	}
 
@@ -107,7 +107,7 @@ class Control_Pager extends Control {
 		$options['skip_query_condition'] = true;
 		$options['query_column'] = [];
 
-		return $this->widget_factory(Control_Select::class)->names('limit')->required(true)->setOptions($options);
+		return $this->widgetFactory(Control_Select::class)->names('limit')->setRequired(true)->setOptions($options);
 	}
 
 	/**
@@ -118,7 +118,7 @@ class Control_Pager extends Control {
 	protected function initialize(): void {
 		$this->setOption('max_limit', $this->_maximum_limit());
 		$this->limit_widget = $this->_limit_widget();
-		$this->setChild($this->limit_widget);
+		$this->addChild($this->limit_widget);
 		parent::initialize();
 	}
 

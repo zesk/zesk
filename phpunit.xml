@@ -1,20 +1,23 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.5/phpunit.xsd"
-	verbose="true" backupGlobals="false" bootstrap="zesk.application.php"
-	convertErrorsToExceptions="true" convertWarningsToExceptions="true"
-	convertNoticesToExceptions="true">
-	<testsuites>
-		<testsuite name="subversion">
-			<directory>modules/subversion/test</directory>
-		</testsuite>
-		<testsuite name="git">
-			<directory>modules/git/test</directory>
-		</testsuite>
-	</testsuites>
-	<php>
-		<const name="PHPUNIT" value="true" />
-		<const name="ZESK_EXTRA_MODULES" value="git;subversion" />
-		<!-- To properly get proper SVN version on Mac OS X -->
-		<server name="PATH" value="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin" />
-	</php><!--Test suite for Zesk web application framework -->
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.5/phpunit.xsd"
+         verbose="true" backupGlobals="false" bootstrap="test.application.php"
+         convertErrorsToExceptions="true" convertWarningsToExceptions="true"
+         convertNoticesToExceptions="true">
+    <testsuites>
+        <testsuite name="subversion">
+            <directory>modules/subversion/test</directory>
+        </testsuite>
+        <testsuite name="git">
+            <directory>modules/git/test</directory>
+        </testsuite>
+    </testsuites>
+    <extensions>
+        <extension class="zesk\PHPUnit_TestHooks" />
+    </extensions>
+    <php>
+        <const name="PHPUNIT" value="true"/>
+        <server name="ZESK_EXTRA_MODULES" value=""/>
+        <!-- To properly get proper SVN version on Mac OS X -->
+        <server name="PATH" value="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"/>
+    </php><!--Test suite for Zesk web application framework -->
 </phpunit>

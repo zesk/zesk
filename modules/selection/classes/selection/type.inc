@@ -38,7 +38,7 @@ class Selection_Type extends ORM {
 		/* @var $list Database_Query_Select */
 		$list = clone $list;
 		$alias = $list->alias();
-		$id_column = $this->application->orm_registry($list->orm_class())->idColumn();
+		$id_column = $this->application->ormRegistry($list->orm_class())->idColumn();
 		$list->what([
 			'id' => "$alias.$id_column",
 			'*type' => $this->id(),
@@ -46,7 +46,7 @@ class Selection_Type extends ORM {
 			'*query' => $query->id(),
 		]);
 		$list->limit(0, -1);
-		$this->application->orm_registry(Selection_Item::class)
+		$this->application->ormRegistry(Selection_Item::class)
 			->query_insert()
 			->select($list)
 			->replace(true)
@@ -82,11 +82,11 @@ class Selection_Type extends ORM {
 	 * @see ORM::delete()
 	 */
 	public function delete() {
-		$this->application->orm_registry(Selection_Query::class)
+		$this->application->ormRegistry(Selection_Query::class)
 			->query_delete()
 			->addWhere('type', $this->id)
 			->execute();
-		$this->application->orm_registry(Selection_Item::class)
+		$this->application->ormRegistry(Selection_Item::class)
 			->query_delete()
 			->addWhere('type', $this->id)
 			->execute();
@@ -133,7 +133,7 @@ class Selection_Type extends ORM {
 			$query_id = $row['query'];
 			if ($add !== $op) {
 				if ($op === false && !$query_id) {
-					$this->application->orm_registry(Selection_Item::class)
+					$this->application->ormRegistry(Selection_Item::class)
 						->query_delete()
 						->where([
 						'id' => $id,
@@ -141,7 +141,7 @@ class Selection_Type extends ORM {
 					])
 						->execute();
 				} else {
-					$this->application->orm_registry(Selection_Item::class)
+					$this->application->ormRegistry(Selection_Item::class)
 						->query_update()
 						->value([
 						'add' => $op,
@@ -157,7 +157,7 @@ class Selection_Type extends ORM {
 			unset($items[$id]);
 		}
 		foreach ($items as $id => $op) {
-			$this->application->orm_registry(Selection_Item::class)
+			$this->application->ormRegistry(Selection_Item::class)
 				->query_insert()
 				->values([
 				'add' => intval($op),
@@ -197,7 +197,7 @@ class Selection_Type extends ORM {
 				'action' => $query->add ? $locale->__('Selection_Type:=Added to selection') : $locale->__('Selection_Type:=Removed from selection'),
 			]), HTML::span('.query-action ' . ($query->add ? '.query-action-add' : '.query-action-remove'), '[]'));
 		}
-		$n_added = $this->application->orm_registry('zesk\\Selection_Item')
+		$n_added = $this->application->ormRegistry('zesk\\Selection_Item')
 			->query_select()
 			->where([
 			'type' => $this,
@@ -211,7 +211,7 @@ class Selection_Type extends ORM {
 				'n' => $n_added,
 			]);
 		}
-		$n_excluded = $this->application->orm_registry('zesk\\Selection_Item')
+		$n_excluded = $this->application->ormRegistry('zesk\\Selection_Item')
 			->query_select()
 			->where([
 			'type' => $this,

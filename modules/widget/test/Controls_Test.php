@@ -19,6 +19,20 @@ class Controls_Test extends TestWidget {
 		'Widget',
 	];
 
+	public ?Request $request = null;
+
+	public function setUp(): void {
+		parent::setUp();
+		die(__FILE__);
+		$this->request = $this->application->requestFactory()->initializeFromSettings('http://localhost/testpath?query=testquery#testfrag');
+		$this->application->pushRequest($this->request);
+	}
+
+	public function tearDown(): void {
+		$this->application->popRequest($this->request);
+		parent::tearDown();
+	}
+
 	public function _test_session(): void {
 		$this->application->setOption('session_class', Session_Mock::class);
 	}
@@ -28,15 +42,11 @@ class Controls_Test extends TestWidget {
 	 */
 	public function test_control(string $widget_class, array $options = []): void {
 		$this->_test_session();
-		$request = $this->application->requestFactory()->initializeFromSettings('http://localhost/testpath?query=testquery#testfrag');
-		$this->application->pushRequest($request);
 
-		$control = $this->application->widget_factory($widget_class, $options);
-		$control->setResponse($this->application->responseFactory($request));
+		$control = $this->application->widgetFactory($widget_class, $options);
+		$control->setResponse($this->application->responseFactory($this->request));
 		$this->assert_instanceof($control, Widget::class, "$widget_class is not an instanceof of zesk\\Widget (" . type($control) . ')');
 		$this->widget_tests($control);
-
-		$this->application->popRequest($request);
 	}
 
 	public function controls_to_test() {
@@ -132,6 +142,7 @@ class Controls_Test extends TestWidget {
 		$db = $this->application->database_registry();
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($object->schema());
+
 
 		// 		$options = false;
 		// 		$x = new Control_Object_List_Tree($options);

@@ -667,7 +667,7 @@ class Rule {
 			foreach ($this->byhour as $hour) {
 				foreach ($this->byminute as $minute) {
 					foreach ($this->bysecond as $second) {
-						$this->timeset[] = Time::factory()->hms($hour, $minute, $second);
+						$this->timeset[] = Time::factory()->hms(intval($hour), intval($minute), intval($second));
 					}
 				}
 			}

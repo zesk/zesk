@@ -1036,29 +1036,21 @@ class File {
 	/**
 	 * Is the path an absolute path?
 	 *
-	 * @param string $f
+	 * @param string $path
 	 *            Path to check
 	 * @return boolean
-	 * @throws Exception_Parameter
 	 */
-	public static function isAbsolute($f) {
-		if (!is_string($f)) {
-			throw new Exception_Parameter('{method} First parameter should be string {type} passed', [
-				'method' => __METHOD__,
-				'type' => type($f),
-			]);
-		}
-		$f = strval($f);
-		if ($f === '') {
+	public static function isAbsolute(string $path): bool {
+		if ($path === '') {
 			return false;
 		}
 		if (is_windows()) {
-			if (strlen($f) < 1) {
+			if (strlen($path) < 1) {
 				return false;
 			}
-			return $f[1] === ':' || $f[0] === '\\';
+			return $path[1] === ':' || $path[0] === '\\';
 		} else {
-			return $f[0] === '/';
+			return $path[0] === '/';
 		}
 	}
 
@@ -1073,9 +1065,14 @@ class File {
 	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Permission
 	 */
-	public static function move_atomic($source, $target, $new_target = null) {
+	public static function move_atomic(string $source, string $target, string $new_target = null) {
 		if (!is_file($target)) {
-			return @rename($source, $target);
+			if (!rename($source, $target)) {
+				throw new Exception_File_Permission($target, 'Can not rename {source} to {target}', [
+					'source' => $source,
+					'target' => $target,
+				]);
+			}
 		}
 		if (!is_file($source)) {
 			throw new Exception_File_NotFound($source);
@@ -1089,13 +1086,13 @@ class File {
 			]);
 		}
 		if (!flock($lock, LOCK_EX)) {
-			@unlink($targetLock);
+			unlink($targetLock);
 
 			throw new Exception_File_Locked($targetLock);
 		}
 		$target_temp = $target . ".atomic.$pid";
 		$exception = null;
-		if (!@rename($target, $target_temp)) {
+		if (!rename($target, $target_temp)) {
 			$exception = new Exception_File_Permission($target_temp, 'Can not rename target {target} to temp {target_temp}', compact('target', 'target_temp'));
 		} elseif (!@rename($source, $target)) {
 			if (!@rename($target_temp, $target)) {
@@ -1106,7 +1103,7 @@ class File {
 		}
 		flock($lock, LOCK_UN);
 		fclose($lock);
-		@unlink($targetLock);
+		unlink($targetLock);
 		if ($exception) {
 			throw $exception;
 		}
@@ -1114,7 +1111,7 @@ class File {
 			unlink($target_temp);
 		} else {
 			self::unlink($new_target);
-			@rename($target_temp, $new_target);
+			rename($target_temp, $new_target);
 		}
 		return true;
 	}
@@ -1128,26 +1125,24 @@ class File {
 	 * @throws Exception_File_Permission
 	 * @throws Exception_File_NotFound
 	 */
-	public static function copy_uid_gid($source, $target) {
+	public static function copy_uid_gid(string $source, string $target): string {
 		return self::copy_gid($source, self::copy_uid($source, $target));
 	}
 
 	/**
 	 * Copy uid
 	 *
-	 * @param string $source
-	 *            Source file or folder to copy uid from
-	 * @param string $target
-	 *            Target file or fiolder to copy uid to
+	 * @param string $source Source file or directory to copy uid from
+	 * @param string $target Target file or directory to copy uid to
 	 * @return string $target returned upon success
 	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Permission
 	 */
-	public static function copy_uid($source, $target) {
+	public static function copy_uid(string $source, string $target): string {
 		$target_owner = File::stat($target, 'owner');
 		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['uid'] !== $source_owner['uid']) {
-			if (!@chown($target, $source_owner['uid'])) {
+			if (!chown($target, $source_owner['uid'])) {
 				throw new Exception_File_Permission($target, '{method}({source}, {target}) chown({target}, {gid})', [
 					'method' => __METHOD__,
 					'source' => $source,
@@ -1161,19 +1156,17 @@ class File {
 	/**
 	 * Copy uid and gid
 	 *
-	 * @param string $source
-	 *            Source file or folder to copy gid from
-	 * @param string $target
-	 *            Target file or fiolder to copy gid to
+	 * @param string $source Source file or directory to copy gid from
+	 * @param string $target Target file or directory to copy gid to
 	 * @return string $target returned upon success
 	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Permission
 	 */
-	public static function copy_gid($source, $target) {
+	public static function copy_gid(string $source, string $target): string {
 		$target_owner = File::stat($target, 'owner');
 		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['gid'] !== $source_owner['gid']) {
-			if (!@chgrp($target, $source_owner['gid'])) {
+			if (!chgrp($target, $source_owner['gid'])) {
 				throw new Exception_File_Permission($target, '{method}({source}, {target}) chgrp({target}, {gid})', [
 					'method' => __METHOD__,
 					'source' => $source,

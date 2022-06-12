@@ -312,8 +312,8 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $options
 	 * @return Widget
 	 */
-	public function widget_factory($class, array $options = []) {
-		$widget = $this->application->widget_factory($class, $options);
+	public function widgetFactory($class, array $options = []) {
+		$widget = $this->application->widgetFactory($class, $options);
 		if ($this->response) {
 			$widget->response($this->response);
 		}

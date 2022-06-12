@@ -173,7 +173,7 @@ class Hooks {
 	public function reset(): void {
 		$this->call(Hooks::HOOK_RESET);
 		foreach ($this->resetAllHookClasses() as $class) {
-			$this->register_class($class);
+			$this->registerClass($class);
 		}
 	}
 
@@ -235,7 +235,7 @@ class Hooks {
 	 * A list of classes is passed in which are autoloaded and
 	 * then ::hooks is called for them. Every call is called once and only once, order must not
 	 * matter, but can be
-	 * enforced by calling $hooks->register_class('dependency1;dependency2'); as the first line to
+	 * enforced by calling $hooks->registerClass('dependency1;dependency2'); as the first line to
 	 * your hooks
 	 * registration call.
 	 *
@@ -260,7 +260,7 @@ class Hooks {
 	 * @param mixed $classes
 	 *            List of classes to invoke the static "hooks" method for.
 	 *
-	 * @return array Hook class name eith the time invoked, or an Exception if an error occurred.
+	 * @return self
 	 */
 	public function registerClass(string|array $classes): self {
 		if (is_array($classes)) {
@@ -274,29 +274,9 @@ class Hooks {
 	}
 
 	/**
-	 * @param string|array $class
-	 * @param array $options
-	 * @return bool
-	 * @deprecated 2022-05
-	 */
-	public function register_class(string|array $class, array $options = []) {
-		if (is_string($class)) {
-			return $this->_register_class_hooks($class);
-		}
-		$classes = to_list($class, []);
-		$result = true;
-		foreach ($classes as $class) {
-			if (!$this->register_class($class, $options)) {
-				$result = false;
-			}
-		}
-		return $result;
-	}
-
-	/**
 	 * @return array
 	 */
-	public function hooksCalled() {
+	public function hooksCalled(): array {
 		return $this->hooks_called;
 	}
 
@@ -344,7 +324,7 @@ class Hooks {
 	 * @return true If any hook exists. If null passed then returns an array of keys => arrays
 	 *         described above.
 	 */
-	public function has(string|array $hooks) {
+	public function has(string|array $hooks): bool {
 		if (is_string($hooks)) {
 			$hook = $this->_hook_name($hooks);
 			if ($this->profile_hooks) {
@@ -357,18 +337,16 @@ class Hooks {
 				}
 			}
 			return isset($this->hooks[$hook]);
-		}
-		if (is_array($hooks)) {
+		} else {
+			assert(is_array($hooks));
 			foreach ($hooks as $hook) {
-				$ding = microtime(true);
 				$result = $this->has($hook);
 				if ($result) {
-					return $result;
+					return true;
 				}
 			}
-			return null;
+			return false;
 		}
-		return false;
 	}
 
 	/**
@@ -452,7 +430,7 @@ class Hooks {
 			if ($classes === null) {
 				continue;
 			}
-			//echo "register_class($class) -> "; dump($classes);
+			//echo "registerClass($class) -> "; dump($classes);
 			foreach ($classes as $class) {
 				try {
 					$refl = new \ReflectionClass($class);

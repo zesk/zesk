@@ -24,7 +24,7 @@ class Process_Tools {
 	 */
 	public static function reset_dead_processes(Application $application, string $class, array $where = [], string $pid_field = 'PID'): bool {
 		$where["$pid_field|!="] = null;
-		$ids = $application->orm_registry($class)->query_select()->addWhat('pid', $pid_field)->appendWhere($where)
+		$ids = $application->ormRegistry($class)->query_select()->addWhat('pid', $pid_field)->appendWhere($where)
 			->to_array('pid', 'pid');
 		$dead_pids = [];
 		foreach ($ids as $id) {
@@ -35,7 +35,7 @@ class Process_Tools {
 		if (count($dead_pids) === 0) {
 			return false;
 		}
-		$query = $application->orm_registry($class)->query_update()->value($pid_field, null)->addWhere(
+		$query = $application->ormRegistry($class)->query_update()->value($pid_field, null)->addWhere(
 			$pid_field,
 			$dead_pids
 		)->execute();

@@ -23,7 +23,7 @@ class Command_Password extends Command_Base {
 
 	public function _optionIterable() {
 		/* @var $user User */
-		$user = $this->application->orm_factory('User');
+		$user = $this->application->ormFactory('User');
 		$col = $user->column_login();
 		$iterator = $user->query_select()
 			->addWhat($col)

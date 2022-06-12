@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage widgets
@@ -6,10 +7,10 @@
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Tue Jul 15 16:31:14 EDT 2008
  */
+
 namespace zesk;
 
 use zesk\ORM\JSONWalker;
-use zesk\ORM\Walker;
 
 /**
  *
@@ -53,7 +54,7 @@ class Control_Login extends Control_Edit {
 	 *
 	 * @see Control_Edit::model()
 	 */
-	public function model(): ORM {
+	public function model(): Model {
 		return new Model_Login($this->application);
 	}
 
@@ -64,24 +65,20 @@ class Control_Login extends Control_Edit {
 	 */
 	protected function initialize(): void {
 		$locale = $this->locale();
-		$f = $this->widget_factory(Control_Text::class)->names('login', $this->option('label_login', $locale->__('Email')))
-			->required(true);
+		$f = $this->widgetFactory(Control_Text::class)->names('login', $this->option('label_login', $locale->__('Email')))->setRequired(true);
 
-		$this->child($f);
+		$this->addChild($f);
 
 		if (!$this->option('no_password')) {
-			$f = $this->widget_factory(Control_Password::class)->names('login_password', $this->option('label_password', $locale->__('Password')))
-				->required(true);
+			$f = $this->widgetFactory(Control_Password::class)->names('login_password', $this->option('label_password', $locale->__('Password')))->setRequired(true);
 			$f->setOption('encrypted_column', 'login_password_hash');
 
-			$this->child($f);
+			$this->addChild($f);
 		}
 
-		$f = $this->widget_factory(Control_Button::class);
-		$f->names('login_button', false)
-			->addClass('btn-primary btn-block')
-			->setOption('button_label', $locale->__('Login'));
-		$this->child($f);
+		$f = $this->widgetFactory(Control_Button::class);
+		$f->names('login_button', false)->addClass('btn-primary btn-block')->setOption('button_label', $locale->__('Login'));
+		$this->addChild($f);
 
 		parent::initialize();
 	}
@@ -108,13 +105,10 @@ class Control_Login extends Control_Edit {
 		$object = $this->object;
 		$login = $object->login;
 		$locale = $this->locale();
-		$user = $this->application->orm_factory(User::class);
+		$user = $this->application->ormFactory(User::class);
 		$column_login = $this->option('column_login', $user->column_login());
 		if ($this->option('no_password')) {
-			$user = $this->application->orm_registry(User::class)
-				->query_select()
-				->where($column_login, $object->login)
-				->orm();
+			$user = $this->application->ormRegistry(User::class)->query_select()->where($column_login, $object->login)->orm();
 			if ($user instanceof User) {
 				$this->user = $user;
 				return true;

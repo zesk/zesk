@@ -18,7 +18,7 @@ class Control_Email extends Control_Text {
 		return $set !== null ? $this->setOption('accept_list', toBool($set)) : $this->optionBool('accept_list');
 	}
 
-	public function validate() {
+	public function validate(): bool {
 		$temp = parent::validate();
 		$v = $this->value();
 		$locale = $this->application->locale;

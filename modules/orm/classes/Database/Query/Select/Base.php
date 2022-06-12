@@ -61,11 +61,12 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * Execute query and retrieve a single row or field in each tow
 	 *
 	 * @param string|int|null $field
-	 * @param mixed $default
 	 * @return mixed
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Key
 	 */
-	public function one(string|int|null $field = null, mixed $default = null): mixed {
-		return $this->database()->queryOne($this->__toString(), $field, $default);
+	public function one(string|int|null $field = null): mixed {
+		return $this->database()->queryOne($this->__toString(), $field);
 	}
 
 	/**
@@ -78,8 +79,8 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @return int
 	 * @deprecated 2022-05
 	 */
-	public function one_integer(string|int $field = 0, int $default = 0): int {
-		return $this->integer($field, $default);
+	public function one_integer(string|int $field = 0): int {
+		return $this->integer($field);
 	}
 
 	/**
@@ -91,36 +92,37 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *            Default value to retrieve
 	 * @return integer
 	 */
-	public function double(string|int $field = 0, $default = null) {
-		return to_double($this->one($field), $default);
+	public function double(string|int $field = 0): float {
+		return to_double($this->one($field));
 	}
 
 	/**
 	 * Execute query and retrieve a single field, an integer
 	 *
-	 * @param string|integer $field
-	 *            Field to retrieve
-	 * @param ?int $default
-	 *            Default value to retrieve
-	 * @return ?int
+	 * @param string|int $field
+	 * @return int
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Key
 	 */
-	public function integer(string|int $field = 0, ?int $default = 0): ?int {
-		return $this->database()->queryInteger($this->__toString(), $field, $default);
+	public function integer(string|int $field = 0): int {
+		return $this->database()->queryInteger($this->__toString(), $field);
 	}
 
 	/**
 	 * Execute query and retrieve a single field, a Timestamp
 	 *
-	 * @param string|integer $field
-	 *            Field to retrieve
-	 * @param mixed $default
-	 *            Default value to retrieve
+	 * @param int|string $field Field to retrieve
 	 * @param DateTimeZone|null $timezone
 	 * @return Timestamp
+	 * @return Timestamp
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Convert
+	 * @throws Exception_Key
 	 * @throws Exception_NotFound
+	 * @throws Exception_Parameter
 	 */
-	public function timestamp(int|string $field = 0, Timestamp $default = null, DateTimeZone $timezone = null): Timestamp {
-		$value = $this->database()->queryOne($this->__toString(), $field, $default);
+	public function timestamp(int|string $field = 0, DateTimeZone $timezone = null): Timestamp {
+		$value = $this->database()->queryOne($this->__toString(), $field);
 		if (empty($value)) {
 			throw new Exception_NotFound('Timestamp {field} not found', ['field' => $field]);
 		}
@@ -129,13 +131,12 @@ abstract class Database_Query_Select_Base extends Database_Query {
 
 	/**
 	 *
-	 * @param string $key
-	 * @param string $value
-	 * @param array $default
+	 * @param int|string|null $key
+	 * @param int|string|null $value
 	 * @return array
 	 */
-	public function toArray(int|string $key = null, int|string $value = null, array $default = []) {
-		return $this->database()->queryArray($this->__toString(), $key, $value, $default);
+	public function toArray(int|string $key = null, int|string $value = null): array {
+		return $this->database()->queryArray($this->__toString(), $key, $value);
 	}
 
 	/**
@@ -169,9 +170,12 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	/**
 	 * Execute query and convert to a Model
 	 *
-	 * @param ?string $class Class of object, pass NULL to use already configured class
+	 * @param string|null $class Class of object, pass NULL to use already configured class
 	 * @param array $options Options to pass to object creator
 	 * @return Model
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Key
+	 * @throws Exception_ORM_NotFound
 	 */
 	public function model(string $class = null, array $options = []): Model {
 		$result = $this->one();
@@ -186,14 +190,16 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param string|null $class
 	 * @param array $options
 	 * @return ORM
+	 * @throws Exception_Key
 	 * @throws Exception_ORM_NotFound
 	 */
 	public function orm(string $class = null, array $options = []): ORM {
-		$result = $this->one();
-		if ($result === null) {
+		try {
+			$result = $this->one();
+		} catch (Database_Exception_SQL) {
 			throw new Exception_ORM_NotFound($class);
 		}
-		return $this->application->orm_factory($this->orm_class($class), $result, ['from_database' => true, ] + $options + $this->ormClassOptions());
+		return $this->application->ormFactory($class ?? $this->class, $result, ['from_database' => true, ] + $options + $this->ormClassOptions());
 	}
 
 	/*---------------------------------------------------------------------------------------------------------*\

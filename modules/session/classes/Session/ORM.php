@@ -224,12 +224,12 @@ class Session_ORM extends ORM implements Interface_Session {
 	public static function cron_cluster_minute(Application $application): void {
 		$now = Timestamp::now();
 		$where['expires|<'] = $now;
-		$iter = $application->orm_registry(__CLASS__)->querySelect()->appendWhere($where)->ormIterator();
+		$iter = $application->ormRegistry(__CLASS__)->querySelect()->appendWhere($where)->ormIterator();
 		foreach ($iter as $session) {
 			/* @var $session Session_ORM */
 			$session->logout_expire();
 		}
-		$application->orm_registry(__CLASS__)->queryDelete()->appendWhere($where)->execute();
+		$application->ormRegistry(__CLASS__)->queryDelete()->appendWhere($where)->execute();
 	}
 
 	/**
@@ -261,7 +261,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$application = $this->application;
 		$cookie_name = $this->cookie_name();
 		$cookie_value = $request->cookie($cookie_name);
-		if ($cookie_value && $this->fetch_by_key($cookie_value, 'cookie')) {
+		if ($cookie_value && $this->fetchByKey($cookie_value, 'cookie')) {
 			$this->seen();
 			return $this->found_session();
 		}
@@ -308,8 +308,8 @@ class Session_ORM extends ORM implements Interface_Session {
 			], 86400));
 		}
 		// Only one allowed at any time, I guess.
-		$app->orm_registry(__CLASS__)->queryDelete()->addWhere('is_one_time', true)->addWhere('user', $user)->execute();
-		$session = $app->orm_factory(__CLASS__);
+		$app->ormRegistry(__CLASS__)->queryDelete()->addWhere('is_one_time', true)->addWhere('user', $user)->execute();
+		$session = $app->ormFactory(__CLASS__);
 
 		try {
 			$ip = $user->application->request()->ip();
@@ -332,18 +332,20 @@ class Session_ORM extends ORM implements Interface_Session {
 	 *
 	 * @param Application $application
 	 * @param string $hash
-	 * @return \zesk\ORM|boolean
+	 * @return \zesk\ORM|null
 	 */
-	public static function one_time_find(Application $application, string $hash) {
+	public static function one_time_find(Application $application, string $hash): ?ORM {
 		$hash = trim($hash);
-		$onetime = $application->orm_factory(__CLASS__);
-		if ($onetime->find([
-			'cookie' => $hash,
-			'is_one_time' => true,
-		])) {
-			return $onetime;
+		$onetime = $application->ormFactory(__CLASS__);
+
+		try {
+			return $onetime->find([
+				'cookie' => $hash,
+				'is_one_time' => true,
+			]);
+		} catch (Exception_ORM_NotFound) {
+			return null;
 		}
-		return false;
 	}
 
 	public function one_time_authenticate($user_id, $ip = null) {

@@ -741,7 +741,7 @@ class Class_ORM extends Hookable {
 	 */
 	public function __wakeup(): void {
 		$this->application = __wakeup_application();
-		$this->application->hooks->register_class($this->class);
+		$this->application->hooks->registerClass($this->class);
 	}
 
 	/**
@@ -942,7 +942,7 @@ class Class_ORM extends Hookable {
 			$this->implyColumnTypes();
 		}
 
-		$this->application->hooks->register_class($this->class);
+		$this->application->hooks->registerClass($this->class);
 	}
 
 	protected function initialize_database(ORM $object): void {
@@ -953,7 +953,7 @@ class Class_ORM extends Hookable {
 					'database_group' => $this->database_group,
 				]);
 			}
-			$this->database_name = $this->application->orm_registry($this->database_group)->databaseName();
+			$this->database_name = $this->application->ormRegistry($this->database_group)->databaseName();
 		}
 		if ($this->database_name !== '') {
 			if ($this->database_name === $object->databaseName()) {
@@ -1073,7 +1073,7 @@ class Class_ORM extends Hookable {
 			if ($to_class[0] === '*') {
 				$to_class = $object->member(substr($to_class, 1));
 			}
-			return $this->application->orm_registry($to_class);
+			return $this->application->ormRegistry($to_class);
 		}
 
 		throw new Exception_NotFound();
@@ -1097,7 +1097,7 @@ class Class_ORM extends Hookable {
 
 		$has_alias = $query->findAlias($segment);
 		if ($has_alias) {
-			$to_object = $this->application->orm_registry($has_alias);
+			$to_object = $this->application->ormRegistry($has_alias);
 
 			$link_state['path_walked'][] = $segment;
 			$link_state['path'] = $path;
@@ -1484,7 +1484,7 @@ class Class_ORM extends Hookable {
 		$table = $many_spec['table'] ?? null;
 		$foreign_key = $many_spec['foreign_key'] ?? get_class($this);
 		if ($table === null) {
-			$table = $this->application->orm_registry($many_spec['class'])->table();
+			$table = $this->application->ormRegistry($many_spec['class'])->table();
 		}
 		return ['0-fk_delete-' . $table . '-' . $foreign_key => ['_fk_delete', $table, $foreign_key, ], ];
 	}
@@ -1539,7 +1539,7 @@ class Class_ORM extends Hookable {
 		$link_class = $has_many['link_class'] ?? null;
 		if ($link_class) {
 			$this->application->classes->register($link_class);
-			$table = $this->application->orm_registry($link_class)->table();
+			$table = $this->application->ormRegistry($link_class)->table();
 			if (!$table) {
 				throw new Exception_Configuration("$link_class::table", 'Link class for {class} {link_class} table is empty', [
 					'class' => get_class($object),
@@ -1554,9 +1554,9 @@ class Class_ORM extends Hookable {
 			$table = $has_many['table'] ?? null;
 		}
 		if ($this->inherit_options) {
-			$object = $object->orm_factory($class, null, $object->inheritOptions());
+			$object = $object->ormFactory($class, null, $object->inheritOptions());
 		} else {
-			$object = $this->application->orm_registry($class);
+			$object = $this->application->ormRegistry($class);
 		}
 		if (!$object instanceof ORM) {
 			throw new Exception_Semantics('{class} is not an instance of ORM', compact('class'));
@@ -1741,7 +1741,7 @@ class Class_ORM extends Hookable {
 	 *            This is an insert (vs update)
 	 * @return array
 	 */
-	final public function to_database(ORM $object, array $data, $insert = false) {
+	final public function to_database(ORM $object, array $data, bool $insert = false): array {
 		$data = $object->sql()->to_database($object, $data, $insert);
 		$column_types = $this->column_types;
 		$columns = array_keys(count($data) < count($column_types) ? $data : $column_types);
@@ -1924,7 +1924,7 @@ class Class_ORM extends Hookable {
 					// 						"v" => $v,
 					// 						"full_class" => $full_class
 					// 					));
-					$object->polymorphic($full_class);
+					$object->setPolymorphicLeaf($full_class);
 				}
 
 				break;

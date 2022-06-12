@@ -215,9 +215,9 @@ class Widget extends Hookable {
 	/**
 	 * What we're operating on
 	 *
-	 * @var ORM
+	 * @var Model
 	 */
-	protected ORM $object;
+	protected Model $object;
 
 	/**
 	 * If request contains these values (strict), then ignore them
@@ -331,7 +331,7 @@ class Widget extends Hookable {
 	 * @return Class_ORM
 	 */
 	public function class_orm() {
-		return $this->application->class_orm_registry($this->class);
+		return $this->application->class_ormRegistry($this->class);
 	}
 
 	/**
@@ -405,14 +405,21 @@ class Widget extends Hookable {
 
 	public function traverse_rename($set = null) {
 		if ($set === null) {
-			return $this->traverse_rename;
+			return $this->traverseRename();
 		}
 		$this->application->deprecated('setter');
 		$this->setTraverseRename(toBool($set));
 		return $this;
 	}
 
-	public function setTraverseRename(bool $traverse_rename_on = false) {
+	/**
+	 * @return bool
+	 */
+	public function traverseRename(): bool {
+		return $this->traverse_rename;
+	}
+
+	public function setTraverseRename(bool $traverse_rename_on = false): self {
 		$this->traverse_rename = $traverse_rename_on;
 		return $this;
 	}
@@ -427,14 +434,19 @@ class Widget extends Hookable {
 				if ($this->traverse && $this->traverse_rename) {
 					$w->name($this->name() . '-' . $w->name());
 				}
-				$this->child($w);
+				$this->addChild($w);
 			}
 			return $this;
 		}
 		return $this->children;
 	}
 
-	public function remove_child($name) {
+	/**
+	 * @param string $name
+	 * @return Widget
+	 * @throws Exception_NotFound
+	 */
+	public function removeChild(string $name): Widget {
 		foreach ($this->children as $k => $child) {
 			if ($child->name() === $name) {
 				unset($this->children[$k]);
@@ -445,13 +457,14 @@ class Widget extends Hookable {
 				return $result;
 			}
 		}
-		return null;
+
+		throw new Exception_NotFound($name);
 	}
 
 	/**
 	 * Retrieve all children, indexed by input names (name)
 	 */
-	public function all_children($include_this = false) {
+	public function all_children(bool $include_this = false): array {
 		$result = $include_this ? [
 			$this,
 		] : [];
@@ -462,7 +475,7 @@ class Widget extends Hookable {
 	}
 
 	/**
-	 * Find a child by name (searches grandchildren as well)
+	 * Add a child by name (searches grandchildren as well)
 	 *
 	 * $control = $widget->child("LoginEmail");
 	 *
@@ -472,11 +485,11 @@ class Widget extends Hookable {
 	 * </code>
 	 * Set a child:
 	 * <code>
-	 * $widget->child($email_widget);
+	 * $widget->addChild($email_widget);
 	 * </code>
 	 * Set a child first in the list:
 	 * <code>
-	 * $widget->child($email_widget, "first");
+	 * $widget->addChild($email_widget, "first");
 	 * </code>
 	 * Set many children:
 	 * <code>
@@ -515,6 +528,17 @@ class Widget extends Hookable {
 	}
 
 	/**
+	 * @param Widget $widget
+	 * @param bool $first
+	 * @return $this
+	 * @throws Exception_Semantics
+	 */
+	public function addChild(Widget $widget, bool $first = false): self {
+		$this->_setChild($widget->column(), $widget, $first);
+		return $this;
+	}
+
+	/**
 	 * @param string|Widget $name
 	 * @param string|null $widget
 	 * @return $this|Widget
@@ -522,32 +546,8 @@ class Widget extends Hookable {
 	 * @throws Exception_Semantics
 	 * @deprecated 2022-05
 	 */
-	public function child(string|Widget $name, string $widget = null) {
-		if (is_string($name)) {
-			if ($widget instanceof Widget) {
-				return $this->setChild($name, $widget);
-			}
-			if ($widget === null) {
-				return $this->findChild($name);
-			}
-
-			throw new Exception_Semantics('{class}::child({name}, {widget}) invalid parameters', [
-				'class' => get_class($this),
-				'name' => _dump($name),
-				'widget' => _dump($widget),
-			]);
-		}
-		if ($name instanceof Widget) {
-			/* @var $name Widget */
-			$this->_setChild($name->column(), $name, $widget === 'first');
-			return $this;
-		}
-
-		throw new Exception_Semantics('{class}::child({name}, {widget}) invalid parameters', [
-			'class' => get_class($this),
-			'name' => _dump($name),
-			'widget' => _dump($widget),
-		]);
+	public function child(string $name): Widget {
+		return $this->findChild($name);
 	}
 
 	/**
@@ -636,7 +636,7 @@ class Widget extends Hookable {
 	 * @return Widget
 	 * @throws Exception_Semantics
 	 */
-	public function widget_factory(string $class, array $options = []): Widget {
+	public function widgetFactory(string $class, array $options = []): Widget {
 		$widget = self::factory($this->application, $class, $options);
 		$response = $this->response();
 		if ($response) {
@@ -1180,7 +1180,7 @@ class Widget extends Hookable {
 	/**
 	 * Get/set the locale of this widget
 	 *
-	 * @return Locale|self
+	 * @return self
 	 */
 	public function setLocale(Locale $set): self {
 		$this->locale = $set;
@@ -1188,15 +1188,20 @@ class Widget extends Hookable {
 	}
 
 	/**
-	 * Get/set the display size of this widget (usually how much text is visible)
+	 * Get the display size of this widget (usually how much text is visible)
 	 *
-	 * @param $set integer
-	 *            Valid of the size to display for inputs
+	 * @return int
 	 */
 	public function showSize(): int {
 		return $this->optionInt('show_size', -1);
 	}
 
+	/**
+	 * Set the display size of this widget (usually how much text is visible)
+	 *
+	 * @param int $set
+	 * @return $this
+	 */
 	public function setShowSize(int $set): self {
 		$this->setOption('show_size', $set);
 		return $this;
@@ -2177,11 +2182,11 @@ class Widget extends Hookable {
 	 * Returns the model for this widget.
 	 * If no model returned, then this widget must be invoked with an existing model.
 	 *
-	 * @return ORM
+	 * @return Model
 	 */
-	protected function model(): ORM {
+	protected function model(): Model {
 		$model = $this->call_hook('model_new', $this);
-		if (!$model instanceof ORM) {
+		if (!$model instanceof Model) {
 			$model = $this->application->factory(__NAMESPACE__ . '\\' . 'ORM', $this->application);
 			$model = $this->call_hook('model_alter', $model);
 		}
@@ -2190,10 +2195,10 @@ class Widget extends Hookable {
 
 	/**
 	 *
-	 * @param ORM $object
+	 * @param Model $object
 	 * @return self
 	 */
-	public function ready(ORM $object): self {
+	public function ready(Model $object): self {
 		$this->object = $object;
 		$this->_exec_ready();
 		return $this;
@@ -2374,19 +2379,19 @@ class Widget extends Hookable {
 	/**
 	 * Getter for object
 	 *
-	 * @return ORM
+	 * @return Model
 	 */
-	public function object(): ORM {
+	public function object(): Model {
 		return $this->object;
 	}
 
 	/**
 	 * Setter for object
 	 *
-	 * @param ORM $set
+	 * @param Model $set
 	 * @return $this
 	 */
-	public function setObject(ORM $set): self {
+	public function setObject(Model $set): self {
 		$this->object = $set;
 		$this->call_hook('object', $set);
 		return $this;
@@ -2521,6 +2526,21 @@ class Widget extends Hookable {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function submitUrl(): string {
+		return $this->option('submit_redirect') ?? '';
+	}
+
+	/**
+	 * @param string $set
+	 * @return $this
+	 */
+	public function setSubmitUrl(string $set): self {
+		return $this->setOption('submit_redirect', $set);
+	}
+
+	/**
 	 * Getter/Setter for submit_url_default - URL redirected to upon submit when no ref is found in
 	 * form/query string
 	 *
@@ -2529,6 +2549,26 @@ class Widget extends Hookable {
 	 */
 	public function submit_url_default($set = null) {
 		return $set === null ? $this->option('submit_url_default') : $this->setOption('submit_url_default', $set);
+	}
+
+	/**
+	 * Setter for submit_url_default - URL redirected to upon submit when no ref is found in
+	 * form/query string
+	 *
+	 * @param string $set
+	 */
+	public function setSubmitIUrlDefault(string $set) {
+		return $this->setOption('submit_url_default', $set);
+	}
+
+	/**
+	 * Getter for submit_url_default - URL redirected to upon submit when no ref is found in
+	 * form/query string
+	 *
+	 * @return string
+	 */
+	public function submitUrlDefault(): string {
+		return $this->option('submit_url_default') ?? '';
 	}
 
 	/**
@@ -2543,8 +2583,8 @@ class Widget extends Hookable {
 			return true;
 		}
 		$ref = $this->request->get_not_empty('ref');
-		$submit_url = $this->submit_url();
-		$submit_url_default = $this->submit_url_default();
+		$submit_url = $this->submitUrl();
+		$submit_url_default = $this->submitUrlDefault();
 		if ($this->optionBool('submit_skip_ref')) {
 			$submit_url = $ref ? URL::queryFormat($submit_url, [
 				'ref' => $ref,

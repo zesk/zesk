@@ -139,19 +139,19 @@ abstract class Repository extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected $code = null;
+	protected string $code;
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $path = null;
+	protected string $path;
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $url = null;
+	protected string $url = '';
 
 	/**
 	 *
@@ -187,7 +187,7 @@ abstract class Repository extends Hookable {
 	 * @return NULL|string
 	 * @throws Exception_Semantics
 	 */
-	protected function resolve_target(string $target = null): string {
+	protected function resolve_target(string $target = ''): string {
 		if (empty($target)) {
 			return $this->path;
 		}
@@ -279,8 +279,7 @@ abstract class Repository extends Hookable {
 	/**
 	 * Setter/getter for the repository URL. Changing the URL does not update anything until update.
 	 *
-	 * @param string $set
-	 * @return string|self
+	 * @return string
 	 * @throws Exception_Semantics
 	 */
 	public function url(): string {
@@ -292,7 +291,8 @@ abstract class Repository extends Hookable {
 				'method' => __METHOD__,
 			]);
 		}
-		return $this->info('', self::INFO_URL);
+		$parts = $this->info('');
+		return $parts[self::INFO_URL] ?? '';
 	}
 
 	/**
@@ -318,7 +318,7 @@ abstract class Repository extends Hookable {
 	 *
 	 * @return array[]
 	 */
-	abstract public function status(string $target, bool $updates = false);
+	abstract public function status(string $target, bool $updates = false): array;
 
 	/**
 	 * Does the target have changes which need to be sent to the remote?

@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @test_modules Git
  * @test_phpunit true
  */
+
 namespace zesk;
 
 use zesk\Git\Repository;
@@ -13,49 +15,33 @@ use zesk\Git\Repository;
  *
  */
 class Repository_Git_Test extends Repository_TestCase {
+	protected array $load_modules = ['git'];
+
 	/**
 	 * Override in subclasses
 	 *
 	 * @var string
 	 */
-	protected $repository_class = Repository::class;
+	protected string $repository_class = Repository::class;
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected $repository_types = [
+	protected array $repository_types = [
 		'git',
 	];
 
 	/**
 	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Repository_TestCase::testConfiguration()
-	 */
-	public function testConfiguration() {
-		$path = parent::testConfiguration();
-		return $path;
-	}
-
-	/**
-	 *
+	 * @depends testConfiguration
 	 * @return string
 	 */
 	public function testURL() {
-		parent::testConfiguration();
+		$this->loadConfiguration();
 		$url = $this->url;
 		$this->assertTrue(URL::valid($url), "URL $url is not a valid URL");
 		return $this->url;
-	}
-
-	/**
-	 * @depends testConfiguration
-	 * {@inheritDoc}
-	 * @see \zesk\Repository_TestCase::testFactory()
-	 */
-	public function testFactory($path) {
-		return parent::testFactory($path);
 	}
 
 	/**
@@ -84,7 +70,8 @@ class Repository_Git_Test extends Repository_TestCase {
 	 * @depends testURL
 	 */
 	public function testUpdate(Repository $repo, $url) {
-		parent::testConfiguration();
+		$this->assertNotEmpty($url, "Url \"$url\" is empty");
+		$this->assertTrue(URL::valid($url), "Url \"$url\" is not valid");
 		$path = $repo->path();
 		$this->assertStringMatchesFormat('%agittest%A', $path);
 		$url = $this->url;
@@ -104,13 +91,13 @@ class Repository_Git_Test extends Repository_TestCase {
 			'tags',
 			'branches',
 		]));
-		$tags = to_array($this->configuration->path_get([
+		$tags = toArray($this->configuration->path_get([
 			__CLASS__,
 			'tags_tests',
 		]));
 		foreach ($tags as $tag) {
 			$this->assertFalse($repo->need_update(), 'Repo should no longer need update');
-			$repo->url(glue($url, '/', "tags/$tag"));
+			$repo->setURL(glue($url, '/', "tags/$tag"));
 			$this->assertTrue($repo->need_update(), 'Repo should need update');
 			$repo->update();
 			$this->assertDirectoriesExist($this->pathCatenator($this->path, [
@@ -130,10 +117,10 @@ class Repository_Git_Test extends Repository_TestCase {
 
 	/**
 	 * @depends testFactory
-	 * @expectedException zesk\Exception_Semantics
 	 */
 	public function testNoURL(Repository $repo) {
-		$repo->url(false);
+		$this->expectException(Exception_Semantics::class);
+		$repo->setURL('');
 		$path = $repo->path();
 		$this->assertStringMatchesFormat('%agittest%A', $path);
 		Directory::deleteContents($path);
@@ -143,10 +130,9 @@ class Repository_Git_Test extends Repository_TestCase {
 
 	/**
 	 * @depends testFactory
-	 * @expectedException zesk\Exception_Syntax
 	 */
-	public function testBADURL(Repository $repo) {
-		$repo->url('http:/localhost/path/to/git');
-		return $repo;
+	public function testBADURL(Repository $repo): void {
+		$this->expectException(Exception_Syntax::class);
+		$repo->setURL('http:/localhost/path/to/git');
 	}
 }

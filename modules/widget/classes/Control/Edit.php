@@ -159,7 +159,7 @@ class Control_Edit extends Control {
 	 *
 	 * @see Widget::model()
 	 */
-	public function model(): ORM {
+	public function model(): Model {
 		return $this->modelFactory($this->_class());
 	}
 

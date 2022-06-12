@@ -19,7 +19,7 @@ class PolyGlot_Update extends ORM {
 	 * @return \zesk\ORM
 	 */
 	public static function register_update(Application $application, $locale, User $user = null) {
-		$object = $application->orm_factory(__CLASS__, [
+		$object = $application->ormFactory(__CLASS__, [
 			'locale' => Locale::normalize($locale),
 		]);
 
@@ -51,7 +51,7 @@ class PolyGlot_Update extends ORM {
 			return;
 		}
 		$server_variable_name = __CLASS__ . '::last_update';
-		$update_requested = $application->orm_registry(__CLASS__)
+		$update_requested = $application->ormRegistry(__CLASS__)
 			->query_select()
 			->what('*updated', 'MAX(updated)')
 			->one_timestamp('updated');
@@ -60,14 +60,14 @@ class PolyGlot_Update extends ORM {
 		if ($server_updated) {
 			$server_updated = Timestamp::factory($server_updated);
 			if ($server_updated->before($update_requested)) {
-				$update_locales = $application->orm_registry(__CLASS__)
+				$update_locales = $application->ormRegistry(__CLASS__)
 					->query_select()
 					->what('locale', 'locale')
 					->addWhere('updated|>=', $server_updated)
 					->to_array(null, 'locale');
 			}
 		} else {
-			$update_locales = $application->orm_registry(__CLASS__)
+			$update_locales = $application->ormRegistry(__CLASS__)
 				->query_select()
 				->what('locale', 'locale')
 				->to_array(null, 'locale');
@@ -83,7 +83,7 @@ class PolyGlot_Update extends ORM {
 		foreach ($update_locales as $update_locale) {
 			$dialect = Locale::parse_dialect($update_locale);
 			if (!$dialect) {
-				$expanded_locales = $application->orm_registry(PolyGlot_Token::class)
+				$expanded_locales = $application->ormRegistry(PolyGlot_Token::class)
 					->query_select()
 					->distinct(true)
 					->what('*locale', 'CONCAT(language,\'_\',dialect)')
@@ -112,7 +112,7 @@ class PolyGlot_Update extends ORM {
 
 			try {
 				self::update_locale($application, $path, $update_locale);
-				$application->orm_registry(__CLASS__)
+				$application->ormRegistry(__CLASS__)
 					->query_update()
 					->value('updated', Timestamp::now())
 					->addWhere('locale', $update_locale)

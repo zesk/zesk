@@ -49,7 +49,7 @@ class Preference extends ORM {
 	}
 
 	public static function user_has_one(User $user, $name) {
-		return $user->application->orm_registry(__CLASS__)->query_select()->join('zesk\\Preference_Type', ['alias' => 'T', ])->addWhere('T.code', $name)->addWhere('X.user', $user)->what('value', 'COUNT(X.value)')->one_integer('value') !== 0;
+		return $user->application->ormRegistry(__CLASS__)->query_select()->join('zesk\\Preference_Type', ['alias' => 'T', ])->addWhere('T.code', $name)->addWhere('X.user', $user)->what('value', 'COUNT(X.value)')->one_integer('value') !== 0;
 	}
 
 	/**
@@ -61,7 +61,7 @@ class Preference extends ORM {
 	 *       it works identically first!
 	 */
 	private static function _value_query(User $user, $name) {
-		$query = $user->application->orm_registry(__CLASS__)->query_select()->link(self::type_class, 'type')->where([
+		$query = $user->application->ormRegistry(__CLASS__)->query_select()->link(self::type_class, 'type')->where([
 			'X.user' => $user,
 			'type.code' => $name,
 		]);
@@ -77,7 +77,7 @@ class Preference extends ORM {
 			]);
 		}
 		$pref_name = strtolower($pref_name);
-		$row = $user->application->orm_registry(__CLASS__)->querySelect()->link(self::type_class, ['alias' => 'T', ])->addWhat('value', 'X.value')->addWhat('id', 'X.id')->appendWhere([
+		$row = $user->application->ormRegistry(__CLASS__)->querySelect()->link(self::type_class, ['alias' => 'T', ])->addWhat('value', 'X.value')->addWhat('id', 'X.id')->appendWhere([
 			'T.code' => $pref_name,
 			'X.user' => $user,
 		])->one();
@@ -96,13 +96,13 @@ class Preference extends ORM {
 				'debug' => PHP::dump($row),
 				'vlen' => $vlen,
 			]);
-			$user->application->orm_registry(Preference::class)->query_delete()->addWhere('id', $row['id'])->execute();
+			$user->application->ormRegistry(Preference::class)->query_delete()->addWhere('id', $row['id'])->execute();
 		}
 		return $default;
 	}
 
 	public static function user_get_single(User $user, $name, $default) {
-		$result = $user->application->orm_registry(__CLASS__)->querySelect()->join(self::type_class, [
+		$result = $user->application->ormRegistry(__CLASS__)->querySelect()->join(self::type_class, [
 			'alias' => 'T',
 		])->appendWhere(['T.code' => $name, 'X.user' => $user])->addWhat('value', 'X.value')->one('value');
 		if ($result === null) {
@@ -120,7 +120,7 @@ class Preference extends ORM {
 		$app = $user->application;
 		$result = [];
 		foreach ($values as $name => $value) {
-			$type = Preference_Type::register_name($app, $name);
+			$type = Preference_Type::registerName($app, $name);
 			if (!$type) {
 				$result[$name] = null;
 				continue;
@@ -133,7 +133,7 @@ class Preference extends ORM {
 
 	public static function userGet(User $user, array $preferences) {
 		$names = array_keys($preferences);
-		$row = $user->application->orm_registry(__CLASS__)->querySelect()->link(self::type_class, ['alias' => 'T', ])->addWhat('value', 'X.value')->addWhat('id', 'X.id')->addWhere('T.code', $names)->addWhere('X.user', $user)->toArray();
+		$row = $user->application->ormRegistry(__CLASS__)->querySelect()->link(self::type_class, ['alias' => 'T', ])->addWhat('value', 'X.value')->addWhat('id', 'X.id')->addWhere('T.code', $names)->addWhere('X.user', $user)->toArray();
 		if (!is_array($row)) {
 			return $default;
 		}
@@ -149,7 +149,7 @@ class Preference extends ORM {
 				'debug' => PHP::dump($row),
 				'vlen' => $vlen,
 			]);
-			$user->application->orm_registry(Preference::class)->query_delete()->addWhere('id', $row['id'])->execute();
+			$user->application->ormRegistry(Preference::class)->query_delete()->addWhere('id', $row['id'])->execute();
 		}
 		return $default;
 	}
@@ -166,7 +166,7 @@ class Preference extends ORM {
 	private static function _register(User $user, Preference_Type $type, mixed $value): int {
 		$app = $user->application;
 		$dbvalue = serialize($value);
-		$query = $app->orm_registry(__CLASS__)->querySelect()->addWhat('id')->addWhat('value')->appendWhere([
+		$query = $app->ormRegistry(__CLASS__)->querySelect()->addWhat('id')->addWhat('value')->appendWhere([
 			'user' => $user,
 			'type' => $type,
 		]);
@@ -175,9 +175,9 @@ class Preference extends ORM {
 			if ($result['value'] === $dbvalue) {
 				return intval($result['id']);
 			}
-			$app->orm_registry(__CLASS__)->queryUpdate()->value('value', $dbvalue)->addWhere('id', $result['id'])->execute();
+			$app->ormRegistry(__CLASS__)->queryUpdate()->value('value', $dbvalue)->addWhere('id', $result['id'])->execute();
 			return intval($result['id']);
 		}
-		return $app->orm_factory(__CLASS__, ['type' => $type, 'value' => $value, 'user' => $user, ])->store()->id();
+		return $app->ormFactory(__CLASS__, ['type' => $type, 'value' => $value, 'user' => $user, ])->store()->id();
 	}
 }

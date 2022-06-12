@@ -28,57 +28,57 @@ class Control_RRule extends \zesk\Control {
 		$ww = [];
 		$locale = $this->locale;
 
-		$w = $this->widget_factory(Control_Select::class)
+		$w = $this->widgetFactory(Control_Select::class)
 			->names($name . '_repeat', $locale->__('Repeat'))
 			->control_options(self::repeat_options($locale))
 			->noname($locale->__('None'));
-		$this->child($w);
+		$this->addChild($w);
 		$ww['repeat'] = $w;
 
-		$w = $this->widget_factory('Control_Integer')->names($name . '_interval', $locale->__('Interval'));
-		$this->child($w);
+		$w = $this->widgetFactory('Control_Integer')->names($name . '_interval', $locale->__('Interval'));
+		$this->addChild($w);
 		$ww['interval'] = $w;
 
-		$w = $this->widget_factory(Control_Pills::class)
+		$w = $this->widgetFactory(Control_Pills::class)
 			->names($name . '_weekday')
 			->control_options($this->weekday_options())
 			->multiple(true)
 			->one_or_more(true);
-		$this->child($w);
+		$this->addChild($w);
 		$ww['weekday'] = $w;
 
-		$w = $this->widget_factory(Control_Pills::class)
+		$w = $this->widgetFactory(Control_Pills::class)
 			->names($name . '_monthday')
 			->control_options($this->monthday_options())
 			->multiple(true)
 			->one_or_more(true);
-		$this->child($w);
+		$this->addChild($w);
 		$ww['monthday'] = $w;
 
-		$w = $this->widget_factory(Control_Pills::class)
+		$w = $this->widgetFactory(Control_Pills::class)
 			->names($name . '_yearly')
 			->control_options($this->monthly_options())
 			->multiple(true)
 			->one_or_more(true);
-		$this->child($w);
+		$this->addChild($w);
 		$ww['month'] = $w;
 
-		$w = $this->widget_factory(Control_Select::class)
+		$w = $this->widgetFactory(Control_Select::class)
 			->names($name . '_on_which')
 			->control_options($this->which_day_options())
 			->noname('');
-		$this->child($w);
+		$this->addChild($w);
 		$ww['onwhich'] = $w;
 
-		$w = $this->widget_factory(Control_Select::class)
+		$w = $this->widgetFactory(Control_Select::class)
 			->names($name . '_on_day')
 			->control_options($this->day_choice_options())
 			->noname('');
-		$this->child($w);
+		$this->addChild($w);
 		$ww['onday'] = $w;
 
-		$w = $this->widget_factory(Control_Date::class)->names($name . '_enddate', $locale->__('End Date'))->setOption('inline', true);
-		$this->child($w);
+		$w = $this->widgetFactory(Control_Date::class)->names($name . '_enddate', $locale->__('End Date'))->setOption('inline', true);
+		$this->addChild($w);
 		$ww['enddate'] = $w;
 
 		$this->child_widgets = $ww;

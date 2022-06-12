@@ -32,7 +32,7 @@ class Command_Install extends Command_Base {
 		$errors = [];
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
-			$objects_by_class[$class] = $object = $this->application->orm_factory($class);
+			$objects_by_class[$class] = $object = $this->application->ormFactory($class);
 			if (!$object instanceof ORM) {
 				$this->application->logger->error('{class} is not instance of ORM', [
 					'class' => $class,

@@ -42,7 +42,7 @@ class Control_Widgets_Filter extends Control_Widgets {
 				$this->filter = new Control_Filter($this->application, $options);
 				$this->filter->children($filters);
 				$this->filter->addWrap('div', '.filters');
-				$this->child($this->filter);
+				$this->addChild($this->filter);
 
 				$this->call_hook('initialize_filter');
 			}

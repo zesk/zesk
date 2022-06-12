@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage repository
  * @author kent
  * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -17,50 +19,53 @@ namespace zesk;
  */
 abstract class Repository_Command extends Repository {
 	/**
+	 * Inherited from Application
 	 *
 	 * @var Process
 	 */
-	protected $process = null;
+	protected Process $process;
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $command = null;
+	private string $command;
 
 	/**
 	 * Which this
 	 *
 	 * @var string
 	 */
-	protected $executable = null;
+	protected string $executable = '';
 
 	/**
 	 * Always right after the executable
 	 *
 	 * @var string
 	 */
-	protected $arguments = null;
+	protected string $arguments = '';
 
 	/**
 	 * Used in validate function
 	 *
 	 * @var string
 	 */
-	protected $dot_directory = null;
+	protected string $dot_directory = '';
 
 	/**
 	 *
 	 * @param string $path
-	 * @return \zesk\Repository
+	 * @return $this
+	 * @throws Exception_Parameter
+	 * @throws Exception_Unimplemented
 	 */
-	public function setPath($path) {
+	public function setPath(string $path): self {
 		if (empty($path)) {
 			throw new Exception_Parameter('{method} - no path passed', [
 				'method' => __METHOD__,
 			]);
 		}
-		if ($this->optionBool('find_root') && $root = $this->find_root($path)) {
+		if ($this->optionBool('find_root') && $root = $this->findRoot($path)) {
 			if ($root !== $path) {
 				$this->application->logger->debug('{method} {code} moved to {root} instead of {path}', [
 					'method' => __METHOD__,
@@ -82,6 +87,11 @@ abstract class Repository_Command extends Repository {
 	 * {@inheritDoc}
 	 * @see \zesk\Repository::initialize()
 	 */
+	/**
+	 * @return void
+	 * @throws Exception_NotFound
+	 * @throws Exception_Unimplemented
+	 */
 	protected function initialize(): void {
 		if (!$this->executable) {
 			throw new Exception_Unimplemented('Need to set ->executable to a value');
@@ -89,11 +99,6 @@ abstract class Repository_Command extends Repository {
 		parent::initialize();
 		$this->process = $this->application->process;
 		$this->command = $this->application->paths->which($this->executable);
-		if (!$this->command) {
-			throw new Exception_NotFound('Executable {executable} not found', [
-				'executable' => $this->executable,
-			]);
-		}
 	}
 
 	/**
@@ -102,7 +107,7 @@ abstract class Repository_Command extends Repository {
 	 * @param string $passthru
 	 * @return array
 	 */
-	protected function run_command($suffix, array $arguments = [], $passthru = false) {
+	protected function run_command($suffix, array $arguments = [], bool $passthru = false) {
 		$had_path = !empty($this->path);
 		if ($had_path) {
 			$cwd = getcwd();
@@ -129,7 +134,7 @@ abstract class Repository_Command extends Repository {
 	 * {@inheritDoc}
 	 * @see \zesk\Repository::validate()
 	 */
-	public function validate() {
+	public function validate(): bool {
 		if (!is_dir($this->path)) {
 			return false;
 		}
@@ -144,7 +149,12 @@ abstract class Repository_Command extends Repository {
 	 * {@inheritDoc}
 	 * @see \zesk\Repository::validate()
 	 */
-	protected function find_root($directory) {
+	/**
+	 * @param string $directory
+	 * @return string
+	 * @throws Exception_Unimplemented
+	 */
+	protected function findRoot(string $directory): string {
 		if (!$this->dot_directory) {
 			throw new Exception_Unimplemented('{method} does not support dot_directory setting', [
 				'method' => __METHOD__,
@@ -157,7 +167,7 @@ abstract class Repository_Command extends Repository {
 			}
 			$directory = dirname($directory);
 		}
-		return null;
+		return '';
 	}
 
 	/**

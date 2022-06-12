@@ -122,7 +122,7 @@ class Control_Tags extends Control {
 	 * {@inheritDoc}
 	 * @see \zesk\Widget::validate()
 	 */
-	public function validate() {
+	public function validate(): bool {
 		if (!parent::validate()) {
 			return false;
 		}
@@ -157,8 +157,8 @@ class Control_Tags extends Control {
 		$member = $class_orm->foreign_column;
 
 		$application = $this->application;
-		$selection_item_table = $application->orm_registry(Selection_Item::class)->table();
-		$tags_query = $application->orm_registry($this->orm_class_name())
+		$selection_item_table = $application->ormRegistry(Selection_Item::class)->table();
+		$tags_query = $application->ormRegistry($this->orm_class_name())
 			->query_select('main')
 			->link(Label::class, [
 			'alias' => 'label',
@@ -266,7 +266,7 @@ class Control_Tags extends Control {
 	 * @return boolean
 	 */
 	public function _action_add(Label $label) {
-		$orm = $this->application->orm_registry($this->orm_class_name());
+		$orm = $this->application->ormRegistry($this->orm_class_name());
 		/* @var $orm Tag */
 		$type = $this->selection_type();
 
@@ -288,7 +288,7 @@ class Control_Tags extends Control {
 	 * @return boolean
 	 */
 	public function _action_keysRemove(Label $label) {
-		$orm = $this->application->orm_registry($this->orm_class_name());
+		$orm = $this->application->ormRegistry($this->orm_class_name());
 		/* @var $orm Tag */
 		$type = $this->selection_type();
 

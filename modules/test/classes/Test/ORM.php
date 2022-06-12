@@ -21,10 +21,10 @@ class Test_ORM extends Test_Unit {
 	public function require_tables($classes): void {
 		$classes = to_list($classes);
 		foreach ($classes as $class) {
-			$object = $this->application->orm_registry($class);
+			$object = $this->application->ormRegistry($class);
 			$table = $object->table();
 			if (!$object->database()->tableExists($table)) {
-				$schema = $this->application->orm_factory($class)->schema();
+				$schema = $this->application->ormFactory($class)->schema();
 				$create_sql = strval($schema);
 				$this->test_table_sql($table, $create_sql);
 			}
@@ -38,7 +38,7 @@ class Test_ORM extends Test_Unit {
 	 * @data_provider classes_to_test
 	 */
 	public function run_test_class($class, array $options = []) {
-		return $this->run_test_an_object($this->application->orm_factory($class, $options));
+		return $this->run_test_an_object($this->application->ormFactory($class, $options));
 	}
 
 	/**
@@ -53,11 +53,11 @@ class Test_ORM extends Test_Unit {
 		$options = [
 			'follow' => true,
 		];
-		$results = $this->application->orm_registry()->schema_synchronize($db, [
+		$results = $this->application->orm_module()->schema_synchronize($db, [
 			get_class($object),
 		], $options);
 		if (count($results) > 0) {
-			$db->query($results);
+			$db->queries($results);
 		}
 
 		$this->assert($object->database()->tableExists($table), 'Table not created/exists');
@@ -78,7 +78,7 @@ class Test_ORM extends Test_Unit {
 
 		$object->idColumn();
 
-		$object->utc_Timestamps();
+		$object->utcTimestamps();
 
 		$object->selectDatabase();
 
@@ -89,7 +89,7 @@ class Test_ORM extends Test_Unit {
 		// 		$mixed = "ID";
 		// 		$object->initialize($mixed);
 
-		$object->is_new();
+		$object->isNew();
 
 		$object->clear();
 
@@ -127,10 +127,10 @@ class Test_ORM extends Test_Unit {
 		$f = $test_field;
 		$v = null;
 		$overwrite = true;
-		$object->set_member($f, $v, $overwrite);
+		$object->setMember($f, $v, $overwrite);
 
 		$mixed = $test_field;
-		$object->member_keysRemove($mixed);
+		$object->memberKeysRemove($mixed);
 
 		$f = $test_field;
 		$object->hasMember($f);
@@ -141,11 +141,11 @@ class Test_ORM extends Test_Unit {
 		$where = false;
 		$object->find($where);
 
-		$object->is_duplicate();
+		$object->isDuplicate();
 
 		$value = false;
 		$column = false;
-		$object->fetch_by_key($value, $column);
+		$object->fetchByKey($value, $column);
 
 		try {
 			$object->fetch();

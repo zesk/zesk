@@ -185,7 +185,7 @@ class Module_Permission extends Module {
 			return;
 		}
 		if ($user->is_new()) {
-			$roles = $this->application->orm_registry(Role::class)
+			$roles = $this->application->ormRegistry(Role::class)
 				->query_select()
 				->addWhere('is_default', true)
 				->orm_iterator()
@@ -217,7 +217,7 @@ class Module_Permission extends Module {
 		if (is_array($user->_roles)) {
 			return $user->_roles;
 		}
-		$user->_roles = $this->application->orm_registry('User_Role')
+		$user->_roles = $this->application->ormRegistry('User_Role')
 			->query_select()
 			->what('Role', 'Role')
 			->addWhere('User', $user)
@@ -359,7 +359,7 @@ class Module_Permission extends Module {
 			$this,
 			'_combine_permissions',
 		]);
-		$roles = $application->orm_registry('Role')
+		$roles = $application->ormRegistry('Role')
 			->query_select('X')
 			->what([
 			'id' => 'X.id',
@@ -440,7 +440,7 @@ class Module_Permission extends Module {
 		$default_class = StringTools::left($method, '::');
 		$class_perms = [];
 		/* @var $perm_class \zesk\Class_Permission */
-		$perm_class = $this->application->class_orm_registry(Permission::class);
+		$perm_class = $this->application->class_ormRegistry(Permission::class);
 		$perm_columns = $perm_class->column_types;
 		foreach ($result as $action => $permission_options) {
 			if (is_string($permission_options)) {
@@ -470,7 +470,7 @@ class Module_Permission extends Module {
 	/**
 	 */
 	protected function hook_cacheClear(): void {
-		$this->application->orm_registry(Permission::class)
+		$this->application->ormRegistry(Permission::class)
 			->query_delete()
 			->truncate(true)
 			->execute();

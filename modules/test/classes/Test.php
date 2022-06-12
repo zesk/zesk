@@ -1224,7 +1224,7 @@ class Test extends Hookable {
 		$app = $this->application;
 		$results = [];
 		foreach (to_list($classes) as $class) {
-			$class_object = $app->class_orm_registry($class);
+			$class_object = $app->class_ormRegistry($class);
 			$db = $class_object->database();
 			$results[$class] = $db->queries($app->orm_module()->schema_synchronize($db, [$class, ], $options + ['follow' => true, ]));
 		}

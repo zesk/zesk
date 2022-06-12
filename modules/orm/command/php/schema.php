@@ -21,7 +21,7 @@ class Command_PHP_Schema extends Command {
 		}
 
 		try {
-			$object = $this->application->orm_factory($class);
+			$object = $this->application->ormFactory($class);
 		} catch (Exception_Class_NotFound $e) {
 			echo "/* $class: No such class $class */\n";
 			exit(2);

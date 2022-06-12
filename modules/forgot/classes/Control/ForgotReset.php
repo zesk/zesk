@@ -55,15 +55,15 @@ class Control_ForgotReset extends Control_Edit {
 
 		$ww = [];
 
-		// 		$ww[] = $w = $this->widget_factory(Control_Hidden::class)->names('validate');
-		// 		$w->required(true);
+		// 		$ww[] = $w = $this->widgetFactory(Control_Hidden::class)->names('validate');
+		// 		$w->setRequired(true);
 
-		$ww[] = $w = $this->widget_factory(Control_Password::class)->names('password', $this->option('label_password', $locale->__('New Password')));
+		$ww[] = $w = $this->widgetFactory(Control_Password::class)->names('password', $this->option('label_password', $locale->__('New Password')));
 		$w->setOption('encrypted_column', 'new_password');
 		$w->setOption('confirm', true);
-		$w->required(true);
+		$w->setRequired(true);
 
-		$ww[] = $w = $this->widget_factory(Control_Button::class)->names('submit_forgot_reset', $this->option('label_button', $locale->__('Change password')))->addClass('btn-primary btn-block')->nolabel(true);
+		$ww[] = $w = $this->widgetFactory(Control_Button::class)->names('submit_forgot_reset', $this->option('label_button', $locale->__('Change password')))->addClass('btn-primary btn-block')->nolabel(true);
 
 		return $ww;
 	}

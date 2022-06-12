@@ -55,13 +55,13 @@ class World_Bootstrap_Language extends Hookable {
 	public function bootstrap(): void {
 		$application = $this->application;
 		$prefix = __NAMESPACE__ . '\\';
-		$x = $application->orm_factory($prefix . StringTools::unprefix(__CLASS__, $prefix . 'World_Bootstrap_'));
+		$x = $application->ormFactory($prefix . StringTools::unprefix(__CLASS__, $prefix . 'World_Bootstrap_'));
 		if ($this->optionBool('drop')) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 		$englishCodes = self::_language_codes_en();
 		foreach ($englishCodes as $code => $name) {
-			$x = $application->orm_factory($prefix . 'Language', [
+			$x = $application->ormFactory($prefix . 'Language', [
 				'code' => strtoupper($code),
 				'name' => $name,
 			]);

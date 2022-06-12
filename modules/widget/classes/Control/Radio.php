@@ -20,7 +20,7 @@ class Control_Radio extends Control_Optionss {
 		return true;
 	}
 
-	public function validate() {
+	public function validate(): bool {
 		$name = $this->name();
 		$v = $this->request->get($name, $this->option('default', null));
 		$opts = $this->optionArray('options', []);

@@ -10,7 +10,7 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
-$servers = $application->orm_registry('zesk\\Server')
+$servers = $application->ormRegistry('zesk\\Server')
 	->query_select()
 	->order_by('name_internal')
 	->orm_iterator();

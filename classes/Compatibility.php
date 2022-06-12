@@ -17,12 +17,12 @@ class Compatibility {
 	public const PHP_VERSION_MINIMUM = 50500;
 
 	/**
-	 * @throws Exception
+	 * @throws Exception_Unsupported
 	 */
 	public static function install(): void {
 		$v = self::PHP_VERSION_MINIMUM;
 		if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < $v) {
-			throw new Exception('Zesk requires PHP version {maj}.{min}.{patch} or greater', [
+			throw new Exception_Unsupported('Zesk requires PHP version {maj}.{min}.{patch} or greater', [
 				'maj' => intval($v / 10000),
 				'min' => intval(($v / 100) % 100),
 				'patch' => intval($v % 100),

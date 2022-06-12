@@ -22,7 +22,7 @@ class Selection_Query extends ORM {
 	 */
 	public static function instance(Selection_Type $type, Database_Query_Select $total, Database_Query_Select $list) {
 		$code = md5(serialize(strval($list)));
-		$object = $type->application->orm_factory(__CLASS__, [
+		$object = $type->application->ormFactory(__CLASS__, [
 			'type' => $type,
 			'code' => $code,
 		]);
@@ -63,7 +63,7 @@ class Selection_Query extends ORM {
 	public static function copy_duplicate(Application $application, $old_type, $new_type) {
 		$map = [];
 		/* @var $query Selection_Query */
-		foreach ($application->orm_registry(__CLASS__)
+		foreach ($application->ormRegistry(__CLASS__)
 			->query_select()
 			->addWhere('type', $old_type)
 			->orm_iterator() as $query) {

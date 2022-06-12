@@ -32,7 +32,7 @@ class Control_Order extends Control {
 		return $this->request->get('move') !== null;
 	}
 
-	public function validate() {
+	public function validate(): bool {
 		$verb = $this->request->get('move');
 		$ID = $this->request->get('ID');
 		if (!Lists::contains('up;down;top;bottom', $verb) || $ID == '') {

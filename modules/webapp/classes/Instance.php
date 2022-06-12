@@ -43,7 +43,7 @@ class Instance extends ORM {
 	 */
 	public static function find_from_path(Application $application, Server $server, $webapp_path) {
 		$path = dirname($webapp_path);
-		$instance = $application->orm_factory(self::class, [
+		$instance = $application->ormFactory(self::class, [
 			'path' => $path,
 			'server' => $server,
 		]);
@@ -72,7 +72,7 @@ class Instance extends ORM {
 	 * @return self
 	 */
 	public static function find_from_code(Application $application, Server $server, $code) {
-		$instance = $application->orm_factory(self::class);
+		$instance = $application->ormFactory(self::class);
 		return $instance->find([
 			'code' => $code,
 			'server' => $server,
@@ -102,7 +102,7 @@ class Instance extends ORM {
 		/**
 		 * @var self $instance
 		 */
-		$instance = $application->orm_factory(self::class, [
+		$instance = $application->ormFactory(self::class, [
 			'path' => $path,
 			'server' => $server,
 			'hash' => $hash,
@@ -132,7 +132,7 @@ class Instance extends ORM {
 			if (count($valid_sites) > 0) {
 				$where['id|!=|AND'] = $valid_sites;
 			}
-			$delete = $application->orm_factory(Site::class)->query_delete()->where($where);
+			$delete = $application->ormFactory(Site::class)->query_delete()->where($where);
 			// $application->logger->debug(strval($delete));
 			$delete->execute();
 			$instance->call_hook('after_sites_changed');
@@ -149,7 +149,7 @@ class Instance extends ORM {
 	public function register_site(Generator $generator, array $members) {
 		/* @var $site Site */
 		ksort($members);
-		$site = $this->application->orm_factory(Site::class, [
+		$site = $this->application->ormFactory(Site::class, [
 			'instance' => $this,
 		]);
 		$site_member_names = $site->member_names();
@@ -230,7 +230,7 @@ class Instance extends ORM {
 			'name',
 			'code',
 		]);
-		$this->repository = $this->application->orm_factory(Repository::class, $members)
+		$this->repository = $this->application->ormFactory(Repository::class, $members)
 			->register()
 			->set_member($members)
 			->store();
@@ -249,7 +249,7 @@ class Instance extends ORM {
 		$iterator = $query->orm_iterator();
 		foreach ($iterator as $instance) {
 			/* @var $instance self */
-			$sid = $instance->member_integer('server');
+			$sid = $instance->memberInteger('server');
 			$this->application->logger->notice('Deleting instance #{id} {path} associated with dead server #{sid}', $instance->members([
 				'id',
 				'path',

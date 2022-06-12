@@ -216,7 +216,7 @@ class User extends ORM {
 		// TODO: This will break if everyone else uses the class property. Update ->column_login, or don't use option
 		$column_login = $this->option('column_login', $this->column_login());
 		$this->set_member($column_login, $username);
-		if (!$this->fetch_by_key($username, $column_login)) {
+		if (!$this->fetchByKey($username, $column_login)) {
 			return false;
 		}
 		$this_password = $this->password();

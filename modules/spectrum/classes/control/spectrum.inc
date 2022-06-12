@@ -7,7 +7,7 @@ class Control_Spectrum extends Control {
 	 *
 	 * @see Widget::validate()
 	 */
-	public function validate() {
+	public function validate(): bool {
 		$this->setOption('id', $this->name(), false);
 
 		$color = $this->value();

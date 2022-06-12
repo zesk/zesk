@@ -18,7 +18,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 	 * @see Controller_ORM::_action_default()
 	 */
 	public function _action_default($action = null, $object = null, $options = []) {
-		$control = $this->widget_factory(Control_Picker_Content_Image::class)->names('image');
+		$control = $this->widgetFactory(Control_Picker_Content_Image::class)->names('image');
 		return $this->control($control, $object);
 	}
 

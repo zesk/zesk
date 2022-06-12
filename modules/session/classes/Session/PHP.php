@@ -173,7 +173,7 @@ class Session_PHP implements Interface_Session {
 		}
 
 		try {
-			return $this->application->orm_factory(__NAMESPACE__ . '\\' . 'User', $user_id)->fetch();
+			return $this->application->ormFactory(__NAMESPACE__ . '\\' . 'User', $user_id)->fetch();
 		} catch (Exception_ORM_NotFound $e) {
 			$this->__set($this->global_session_userId(), null);
 

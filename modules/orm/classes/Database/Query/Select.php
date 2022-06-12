@@ -186,7 +186,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 				return false;
 			}
 		}
-		return $this->orm_registry($class)->hasMember($column);
+		return $this->ormRegistry($class)->hasMember($column);
 	}
 
 	/**
@@ -416,7 +416,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		if ($alias === null) {
 			$alias = $this->class_alias($class);
 		}
-		$columns = $this->application->orm_registry($class, $object_mixed, $object_options)->columns();
+		$columns = $this->application->ormRegistry($class, $object_mixed, $object_options)->columns();
 		foreach ($columns as $column) {
 			$this->addWhat($prefix . $column, "$alias.$column");
 		}
@@ -502,7 +502,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 */
 	public function join_object(string $join_type, ORM|string $class, string $alias, array $on, string $table = ''): self {
 		if (is_string($class)) {
-			$object = $this->orm_registry($class);
+			$object = $this->ormRegistry($class);
 		} else {
 			$object = $class;
 			$class = get_class($object);
@@ -574,7 +574,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			];
 		}
 		$path = $mixed['path'] ?? null;
-		$object = $this->orm_registry($this->class);
+		$object = $this->ormRegistry($this->class);
 		if ($path === null) {
 			$target_class = $this->application->objects->resolve($class);
 			$path = $object->link_default_path_to($target_class);
@@ -722,7 +722,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		/* @var $class Class_ORM */
 		$class_name = $this->class;
 		$locale = $this->application->locale;
-		$class = $this->application->class_orm_registry($class_name);
+		$class = $this->application->class_ormRegistry($class_name);
 		$map = [
 			'noun' => $class->name,
 			'nouns' => $locale->plural($class->name),

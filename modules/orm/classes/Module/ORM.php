@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use \Closure;
+
 /**
  * @see Class_ORM
  * @see ORM
@@ -39,27 +41,25 @@ class Module_ORM extends Module {
 	public function initialize(): void {
 		parent::initialize();
 		/**
-		 * @deprecated 2018-01-02
+		 * $application->ormFactory(...)
 		 */
-		$this->application->configuration->deprecated(ORM::class . '::fix_member_objects', ORM::class . '::fix_orm_members');
+		$this->application->registerFactory('orm', Closure::fromCallable([$this, 'ormFactory', ]));
+		/**
+		 * $application->ormRegistry(...)
+		 */
+		$this->application->registerRegistry('orm', Closure::fromCallable([$this, 'ormRegistry', ]));
+		/**
+		 * $application->classORMRegistry(...)
+		 */
+		$classORMRegistry = Closure::fromCallable([$this, 'classORMRegistry', ]);
+		$this->application->registerRegistry('classORM', $classORMRegistry);
+		/** Deprecated 2022-05 */
+		$this->application->registerRegistry('class_orm', $classORMRegistry);
 
 		/**
-		 * $application->orm_factory(...)
+		 * $application->settingsRegistry(...)
 		 */
-		$this->application->registerFactory('orm', [$this, 'orm_factory', ]);
-		/**
-		 * $application->orm_registry(...)
-		 */
-		$this->application->registerRegistry('orm', [$this, 'orm_registry', ]);
-		/**
-		 * $application->class_orm_registry(...)
-		 */
-		$this->application->registerRegistry('class_orm', [$this, 'class_orm_registry', ]);
-
-		/**
-		 * $application->settings_registry(...)
-		 */
-		$this->application->registerRegistry('settings', [$this, 'settings_registry', ]);
+		$this->application->registerRegistry('settings', Closure::fromCallable([$this, 'settingsRegistry', ]));
 
 		/**
 		 * Hook into database table
@@ -68,10 +68,9 @@ class Module_ORM extends Module {
 
 		$this->application->hooks->add('zesk\\Command_Daemon::daemon_hooks', [$this, 'daemon_hooks', ]);
 
-		$self = $this;
-		$this->application->hooks->add(ORM::class . '::router_derived_classes', function (ORM $object, array $classes) use ($self) {
+		$this->application->hooks->add(ORM::class . '::router_derived_classes', function (ORM $object, array $classes) {
 			$class_object = $object->class_orm();
-			if (!is_array($class_object->has_one) || !$class_object->id_column) {
+			if (!$class_object->id_column) {
 				return $classes;
 			}
 			foreach ($class_object->has_one as $member => $class) {
@@ -119,36 +118,18 @@ class Module_ORM extends Module {
 	}
 
 	/**
-	 * Getter/setter for database adapters
 	 *
-	 * @param string $code
-	 * @param ORM_Database_Adapter $adapter
-	 * @return \zesk\Module_ORM|\zesk\ORM_Database_Adapter|\zesk\ORM_Database_Adapter[string]
-	 */
-	public function database_adapter($code = null, ORM_Database_Adapter $adapter = null) {
-		if ($code === null) {
-			return $this->database_adapters;
-		}
-		if ($adapter === null) {
-			return avalue($this->database_adapters, strtolower($code));
-		}
-		$this->database_adapter[strtolower($code)] = $adapter;
-		return $this;
-	}
-
-	/**
-	 *
+	 * @param Application $application
 	 * @param string $class
-	 * @param mixed $mixed
+	 * @param mixed|null $mixed
 	 * @param array $options
+	 * @return ORM
+	 * @throws Exception_Class_NotFound
 	 */
-	public function orm_registry(Application $application, string $class, mixed $mixed = null, array $options = []) {
-		if ($class === null) {
-			return $this;
-		}
+	public function ormRegistry(Application $application, string $class, mixed $mixed = null, array $options = []): ORM {
 		$class = $application->objects->resolve($class);
 		if ($mixed === null && is_array($options) && count($options) > 0) {
-			$result = $this->_class_cache_component($class, 'object');
+			$result = $this->_classCacheComponent($class, $mixed, $options, 'object');
 			if (!$result) {
 				throw new Exception_Class_NotFound($class);
 			}
@@ -159,15 +140,23 @@ class Module_ORM extends Module {
 	}
 
 	/**
+	 * @param Application $application
+	 * @return Settings
+	 * @throws Exception_Class_NotFound
+	 */
+	public function settingsRegistry(Application $application): Settings {
+		return $this->ormRegistry($application, Settings::class);
+	}
+
+	/**
 	 *
 	 * @param Application $application
 	 * @param string $class
 	 * @param mixed|null $mixed
 	 * @param array $options
 	 * @return ORM
-	 * @throws Exception_Semantics
 	 */
-	public function orm_factory(Application $application, string $class, mixed $mixed = null, array $options = []): ORM {
+	public function ormFactory(Application $application, string $class, mixed $mixed = null, array $options = []): ORM {
 		$class = $application->objects->resolve($class);
 		return ORM::factory($application, $class, $mixed, $options);
 	}
@@ -177,12 +166,16 @@ class Module_ORM extends Module {
 	 * @param string $class
 	 * @param mixed $mixed
 	 * @param array $options
+	 * @return Class_ORM
+	 * @throws Exception_Class_NotFound
 	 */
-	public function class_orm_registry(Application $application, $class, $mixed = null, array $options = []) {
-		$result = $this->_class_cache_component($application->objects->resolve($class), 'class');
+	public function classORMRegistry(Application $application, string $class, mixed $mixed = null, array $options = []): Class_ORM {
+		$class = $application->objects->resolve($class);
+		$result = $this->_classCacheComponent($class, $mixed, $options, 'class');
 		if (!$result) {
 			throw new Exception_Class_NotFound($class);
 		}
+		assert($result instanceof Class_ORM);
 		return $result;
 	}
 
@@ -286,7 +279,7 @@ class Module_ORM extends Module {
 			$objects_by_class[$low_class] = true;
 
 			try {
-				$object = $this->application->orm_registry($class);
+				$object = $this->application->ormRegistry($class);
 				$object_db_name = $object->database()->codeName();
 				$updates = ORM_Schema::update_object($object);
 			} catch (Exception_Class_NotFound $e) {
@@ -390,7 +383,7 @@ class Module_ORM extends Module {
 			$result['class'] = $class;
 
 			try {
-				$result['object'] = $object = $this->orm_factory($this->application, $class);
+				$result['object'] = $object = $this->ormFactory($this->application, $class);
 				$result['database'] = $object->databaseName();
 				$result['table'] = $object->table();
 				$result['class'] = get_class($object);
@@ -445,35 +438,40 @@ class Module_ORM extends Module {
 	 *
 	 * @param string $class
 	 * @return array
-	 * @throws Exception_Semantics
 	 */
-	private function _class_cache(string $class): array {
+	/**
+	 * @param string $class
+	 * @param mixed|null $mixed
+	 * @param array $options
+	 * @return array
+	 */
+	private function _classCache(string $class, mixed $mixed = null, array $options = []): array {
 		$low_class = strtolower($class);
 		if (!array_key_exists($low_class, $this->class_cache)) {
-			$object = $this->modelFactory($class, null, ['immutable' => true, ]);
-			if (!$object instanceof ORM) {
-				throw new Exception_Semantics("$class is not an ORM");
-			}
+			$object = $this->modelFactory($class, $mixed, ['immutable' => true, ] + $options);
+			assert($object instanceof ORM);
+			$extras = ['keyed' => $object->hasPrimaryKeys(), 'generic' => count($options) === 0 && empty($mixed)];
 			$this->class_cache[$low_class] = [
-				'table' => $object->table(),
-				'dbname' => $object->databaseName(),
-				'database_name' => $object->databaseName(),
-				'object' => $object,
-				'class' => $object->class_orm(),
-				'id_column' => $object->idColumn(),
-			];
+					'table' => $object->table(),
+					'dbname' => $object->databaseName(),
+					'database_name' => $object->databaseName(),
+					'object' => $object,
+					'class' => $object->class_orm(),
+					'id_column' => $object->idColumn(),
+				] + $extras;
 		}
 		return $this->class_cache[$low_class];
 	}
 
 	/**
 	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
 	 * @param string $component
 	 * @return mixed
-	 * @throws Exception_Semantics
 	 */
-	private function _class_cache_component(string $class, string $component): mixed {
-		$result = $this->_class_cache($class);
+	private function _classCacheComponent(string $class, mixed $mixed, array $options, string $component): mixed {
+		$result = $this->_classCache($class, $mixed, $options);
 		assert(array_key_exists($component, $result));
 		return $result[$component];
 	}
@@ -548,7 +546,7 @@ class Module_ORM extends Module {
 		if (isset($this->registry[$low_class])) {
 			return $this->registry[$low_class];
 		}
-		return $this->registry[$low_class] = $this->application->orm_factory($class);
+		return $this->registry[$low_class] = $this->application->ormFactory($class);
 	}
 
 	/**
@@ -581,7 +579,7 @@ class Module_ORM extends Module {
 	 */
 	public function hook_cron_before(): void {
 		$application = $this->application;
-		$server = $application->orm_factory(Server::class);
+		$server = $application->ormFactory(Server::class);
 		/* @var $server Server */
 		$server->bury_dead_servers();
 	}

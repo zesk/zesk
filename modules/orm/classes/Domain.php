@@ -62,7 +62,7 @@ class Domain extends ORM {
 	 * @return \zesk\Domain
 	 */
 	public static function domain_factory(Application $application, string $name): self {
-		$domain = $application->orm_factory(__CLASS__, [
+		$domain = $application->ormFactory(__CLASS__, [
 			'name' => $name,
 		]);
 		return $domain->nameChanged();

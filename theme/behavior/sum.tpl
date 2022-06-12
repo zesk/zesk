@@ -9,7 +9,7 @@ namespace zesk;
 /* @var $object Model */
 $sum_widgets = [];
 foreach ($this->widgets as $widget_name) {
-	$sum_widgets[$widget_name] = $widget->top()->child($widget_name)->jquery_target_expression();
+	$sum_widgets[$widget_name] = $widget->top()->addChild($widget_name)->jquery_target_expression();
 }
 
 $id = $widget->id();

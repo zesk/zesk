@@ -37,7 +37,7 @@ class Contact_Label extends ORM {
 			'CodeName' => $name,
 			'Type' => $type,
 		];
-		return $application->orm_registry(__CLASS__)
+		return $application->ormRegistry(__CLASS__)
 			->query_select()
 			->what('ID', 'ID')
 			->where($fields)
@@ -59,7 +59,7 @@ class Contact_Label extends ORM {
 			'Type' => $type,
 		];
 
-		$id = $app->orm_registry(__CLASS__)
+		$id = $app->ormRegistry(__CLASS__)
 			->query_select()
 			->what('ID', 'ID')
 			->where($fields)
@@ -73,7 +73,7 @@ class Contact_Label extends ORM {
 			'Name' => $name,
 			'Type' => $type,
 		];
-		return $app->orm_registry(__CLASS__)
+		return $app->ormRegistry(__CLASS__)
 			->query_update()
 			->values($fields)
 			->execute();
@@ -93,7 +93,7 @@ class Contact_Label extends ORM {
 				null,
 			];
 		}
-		return $application->orm_registry(__CLASS__)
+		return $application->ormRegistry(__CLASS__)
 			->query_select()
 			->what([
 			'id' => 'ID',
@@ -138,7 +138,7 @@ class Contact_Label extends ORM {
 	 * @return \zesk\Ambigous
 	 */
 	public static function label_type_options(Application $app, $types = null, $account = null) {
-		$table = $app->orm_registry(__CLASS__)->table();
+		$table = $app->ormRegistry(__CLASS__)->table();
 		$account_where = null;
 		if (!empty($account)) {
 			$account_where = [
@@ -152,7 +152,7 @@ class Contact_Label extends ORM {
 		if ($types !== null) {
 			$where['Type'] = $types;
 		}
-		$rows = $app->orm_registry(__CLASS__)
+		$rows = $app->ormRegistry(__CLASS__)
 			->query_select()
 			->what([
 			'id' => 'ID',

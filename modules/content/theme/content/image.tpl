@@ -12,7 +12,7 @@ try {
 		$id = $this->id;
 		if (is_numeric($id) && !empty($id)) {
 			try {
-				$image = $this->application->orm_factory('zesk\\Content_Image', $id)->fetch();
+				$image = $this->application->ormFactory('zesk\\Content_Image', $id)->fetch();
 			} catch (Exception_ORM_NotFound $e) {
 				$image = null;
 			}

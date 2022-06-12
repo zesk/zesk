@@ -14,16 +14,16 @@ class Control_Edit_County extends Control_Edit {
 
 	protected function hook_widgets() {
 		$locale = $this->application->locale;
-		$ww[] = $this->widget_factory(Control_Text::class)
+		$ww[] = $this->widgetFactory(Control_Text::class)
 			->names('name', $locale->__('Name'))
 			->addClass('input-lg')
-			->required(true);
-		$ww[] = $w = $this->widget_factory('Control_Province')->names('province', $locale->__('Province:=State'));
-		$ww[] = $w = $this->widget_factory('zesk\\Control_Button')
+			->setRequired(true);
+		$ww[] = $w = $this->widgetFactory('Control_Province')->names('province', $locale->__('Province:=State'));
+		$ww[] = $w = $this->widgetFactory('zesk\\Control_Button')
 			->names('ok', $locale->__('Save changes'))
 			->nolabel(true)
 			->addClass('btn btn-primary');
-		$ww[] = $this->widget_factory('zesk\\Control_Button_Delete')->addWrap('div', '.form-group')->nolabel(true);
+		$ww[] = $this->widgetFactory('zesk\\Control_Button_Delete')->addWrap('div', '.form-group')->nolabel(true);
 
 		return $ww;
 	}

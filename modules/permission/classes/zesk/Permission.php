@@ -209,7 +209,7 @@ class Permission extends ORM {
 		if (array_key_exists($name, $cache)) {
 			return $cache[$name];
 		}
-		return $cache[$name] = $application->orm_factory(__CLASS__, $fields)->register();
+		return $cache[$name] = $application->ormFactory(__CLASS__, $fields)->register();
 	}
 
 	/**

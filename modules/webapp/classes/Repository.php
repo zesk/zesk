@@ -34,7 +34,7 @@ class Repository extends ORM {
 	}
 
 	public static function update_all_versions(Application $application, $only_if_empty = false): void {
-		$iterator = $application->orm_registry(__CLASS__)
+		$iterator = $application->ormRegistry(__CLASS__)
 			->query_select()
 			->addWhere('active', true)
 			->orm_iterator();

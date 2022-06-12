@@ -207,10 +207,10 @@ function contact_edit_pair($label, $class, $name, $data, $labels, $section, $sec
 		]));
 	} else {
 		$labels['...'] = __('Custom ...');
-		$w = $this->widget_factory(Control_Select::class)
+		$w = $this->widgetFactory(Control_Select::class)
 			->names($field_name)
 			->control_options($labels)
-			->required(true);
+			->setRequired(true);
 		$w->setOption('onchange', 'contact_label_change.call(this)');
 		$data[$field_name] = $label_value;
 		$label_html = $w->output($data);
@@ -371,7 +371,7 @@ foreach ($sections as $section => $variables) {
 	extract($variables, EXTR_IF_EXISTS);
 	$values = [];
 	if ($id) {
-		$values = $application->orm_registry($object_name)
+		$values = $application->ormRegistry($object_name)
 			->query_select()
 			->what([
 			'Label' => 'Label',

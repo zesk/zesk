@@ -13,7 +13,7 @@ class Control_Color extends Control_Text {
 		parent::initialize();
 	}
 
-	public function validate() {
+	public function validate(): bool {
 		$this->setOption('id', $this->name());
 
 		$name = $this->column();

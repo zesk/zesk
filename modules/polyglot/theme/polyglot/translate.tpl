@@ -38,7 +38,7 @@ $object->status = $this->request->get('s', PolyGlot_Token::status_todo);
 
 $locale_options = array_change_key_case(to_array($this->locale_options));
 asort($locale_options, SORT_LOCALE_STRING);
-$widget = $this->widget_factory(Control_Select::class)
+$widget = $this->widgetFactory(Control_Select::class)
 	->response($response)
 	->names('locale', __('Locale'))
 	->control_options($locale_options)
@@ -50,15 +50,15 @@ foreach ($defaults as $default) {
 		$object->locale = $default;
 	}
 }
-$widget->required(true);
+$widget->setRequired(true);
 
-$status = $this->widget_factory(Control_Select::class)
+$status = $this->widgetFactory(Control_Select::class)
 	->response($response)
 	->names('status', __('Status'))
 	->control_options(PolyGlot_Token::lang_status_filters($locale))
 	->noname(__('All'));
 $status->default_value($object->status);
-$widget->required(true);
+$widget->setRequired(true);
 ?>
 <div id="translate-main" class="filters">
 	<nav class="navbar navbar-default" role="filter">

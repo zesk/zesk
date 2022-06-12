@@ -26,7 +26,7 @@ class Contact_Tag extends ORM {
 	}
 
 	public static function to_array(User $user, $where = null) {
-		$query = $user->application->orm_registry(__CLASS__)->query_select();
+		$query = $user->application->ormRegistry(__CLASS__)->query_select();
 		return $query->addWhere('user', $user)
 			->where($where)
 			->order_by('name')

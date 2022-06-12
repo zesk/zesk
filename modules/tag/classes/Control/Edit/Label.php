@@ -31,16 +31,16 @@ class Control_Edit_Label extends Control_Edit {
 	 */
 	protected function hook_widgets() {
 		$locale = $this->application->locale;
-		$ww[] = $this->widget_factory(Control_Text::class)
+		$ww[] = $this->widgetFactory(Control_Text::class)
 			->names('name', $locale->__('Name'))
 			->addClass('input-lg')
-			->required(true);
+			->setRequired(true);
 
-		$ww[] = $w = $this->widget_factory(Control_Button::class)
+		$ww[] = $w = $this->widgetFactory(Control_Button::class)
 			->names('ok', $locale->__('Save changes'))
 			->nolabel(true)
 			->addClass('btn btn-primary');
-		$ww[] = $this->widget_factory(Control_Button_Delete::class)->addWrap('div', '.form-group')->nolabel(true);
+		$ww[] = $this->widgetFactory(Control_Button_Delete::class)->addWrap('div', '.form-group')->nolabel(true);
 
 		return $ww;
 	}

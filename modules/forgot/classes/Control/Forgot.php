@@ -51,16 +51,16 @@ class Control_Forgot extends Control_Edit {
 
 		$ww = [];
 
-		$ww[] = $w = $this->widget_factory($this->option('widget_login', Control_Text::class))->names('login', $locale->__($this->option('label_login', 'Login')));
-		$w->required(true);
+		$ww[] = $w = $this->widgetFactory($this->option('widget_login', Control_Text::class))->names('login', $locale->__($this->option('label_login', 'Login')));
+		$w->setRequired(true);
 		$w->default_value($this->request->get('login'));
 
-		$ww[] = $w = $this->widget_factory(Control_Button::class)
+		$ww[] = $w = $this->widgetFactory(Control_Button::class)
 			->names('forgot', $this->option('label_button', $locale->__('Send me an email')))
 			->addClass('btn-primary btn-block')
 			->nolabel(true);
 
-		$ww[] = $w = $this->widget_factory(Control_Hidden::class)->names('tzid');
+		$ww[] = $w = $this->widgetFactory(Control_Hidden::class)->names('tzid');
 
 		return $ww;
 	}
@@ -69,13 +69,13 @@ class Control_Forgot extends Control_Edit {
 		return $this->request->get('forgot', '') !== '';
 	}
 
-	public function validate() {
+	public function validate(): bool {
 		if (!parent::validate()) {
 			return false;
 		}
 		$locale = $this->locale();
 		/* @var $user User */
-		$this->auth_user = $this->application->orm_factory(User::class)->login($this->object->login)->find();
+		$this->auth_user = $this->application->ormFactory(User::class)->login($this->object->login)->find();
 		$this->auth_user = $this->call_hook_arguments('find_user', [
 			$this->auth_user,
 		], $this->auth_user);

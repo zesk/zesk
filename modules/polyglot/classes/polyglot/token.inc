@@ -114,7 +114,7 @@ class PolyGlot_Token extends ORM {
 	}
 
 	public static function create(Application $app, $language, $dialect, $original, $translation, $status = null) {
-		$token = $app->orm_factory(__CLASS__, [
+		$token = $app->ormFactory(__CLASS__, [
 			'language' => $language,
 			'dialect' => $dialect,
 			'original' => $original,
@@ -136,7 +136,7 @@ class PolyGlot_Token extends ORM {
 			'language' => $language,
 			'dialect' => $dialect,
 		];
-		$query = $app->orm_registry(__CLASS__)->query_select();
+		$query = $app->ormRegistry(__CLASS__)->query_select();
 		$where = [
 			[
 				$where,
@@ -165,7 +165,7 @@ class PolyGlot_Token extends ORM {
 			'translation',
 			'status',
 		]);
-		$members['user'] = $this->member_integer('user');
+		$members['user'] = $this->memberInteger('user');
 		return $members;
 	}
 
@@ -175,7 +175,7 @@ class PolyGlot_Token extends ORM {
 	 * @return Database_Query_Select
 	 */
 	public static function locale_query(Application $application, $locale) {
-		return $application->orm_registry(__CLASS__)
+		return $application->ormRegistry(__CLASS__)
 			->query_select()
 			->what_object()
 			->where([
@@ -204,7 +204,7 @@ class PolyGlot_Token extends ORM {
 	 * @param Application $app
 	 */
 	public static function htmlentities_all(Application $app): void {
-		$iterator = $app->orm_registry(__CLASS__)
+		$iterator = $app->ormRegistry(__CLASS__)
 			->query_select()
 			->what([
 			'id' => 'id',
@@ -214,7 +214,7 @@ class PolyGlot_Token extends ORM {
 		foreach ($iterator as $id => $translation) {
 			$entities = htmlentities($translation);
 			if ($entities !== $translation) {
-				$app->orm_registry(__CLASS__)
+				$app->ormRegistry(__CLASS__)
 					->query_update()
 					->value('translation', $entities)
 					->addWhere('id', $id)
@@ -239,7 +239,7 @@ class PolyGlot_Token extends ORM {
 	 *
 	 * @return array
 	 */
-	public function validate() {
+	public function validate(): bool {
 		return $this->validator()->check_translation($this->original, $this->translation);
 	}
 }

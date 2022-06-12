@@ -48,7 +48,7 @@ class Database_Snapshot extends ORM {
 			$timer = new Timer();
 			$db->dump($temp);
 			$elapsed = $timer->elapsed();
-			$snap = $app->orm_factory(__CLASS__, [
+			$snap = $app->ormFactory(__CLASS__, [
 				'name' => $app->locale->__('{db_name} snapshot saved on {date}', [
 					'db_name' => $dbname,
 					'date' => $date,
@@ -72,7 +72,7 @@ class Database_Snapshot extends ORM {
 		$dbname = $db->databaseName();
 
 		/* @var $snapshot Database_Snapshot */
-		$snapshot = $db->application->orm_registry(__CLASS__)
+		$snapshot = $db->application->ormRegistry(__CLASS__)
 			->query_select()
 			->what_object()
 			->where([

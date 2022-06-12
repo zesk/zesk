@@ -87,7 +87,7 @@ class Lock extends ORM {
 	 * Delete Locks which have not been used in the past 24 hours
 	 */
 	public static function delete_unused_locks(Application $application) {
-		$n_rows = $application->orm_registry(__CLASS__)
+		$n_rows = $application->ormRegistry(__CLASS__)
 			->query_delete()
 			->where([
 			'used|<=' => Timestamp::now()->addUnit(-1, Timestamp::UNIT_DAY),
@@ -106,7 +106,7 @@ class Lock extends ORM {
 	}
 
 	private static function releaseLock(Lock $lock, $context=''): void {
-		$server_id = $lock->member_integer('server');
+		$server_id = $lock->memberInteger('server');
 		$lock->release();
 		$lock->application->logger->notice('Releasing lock #{id} {code} associated with defunct server # {server_id} (current server ids: {context})', $lock->variables() + [
 			'server_id' => $server_id,
@@ -120,11 +120,11 @@ class Lock extends ORM {
 	public static function delete_unlinked_locks(Application $application) {
 		// Deleting unlinked locks
 		$n_rows = 0;
-		$server_ids = $application->orm_registry(Server::class)->query_select()->to_array(null, 'id');
+		$server_ids = $application->ormRegistry(Server::class)->query_select()->to_array(null, 'id');
 		if (count($server_ids) === 0) {
 			return 0;
 		}
-		$iterator = $application->orm_registry(__CLASS__)
+		$iterator = $application->ormRegistry(__CLASS__)
 			->query_select()
 			->addWhere('X.server|!=|AND', $server_ids)
 			->orm_iterator();
@@ -141,7 +141,7 @@ class Lock extends ORM {
 	public static function delete_dead_pids(Application $application): void {
 		$timeout_seconds = -abs($application->configuration->path_get(__CLASS__ . '::timeout_seconds', 100));
 		$you_are_dead_to_me = Timestamp::now()->addUnit($timeout_seconds, Timestamp::UNIT_SECOND);
-		$iterator = $application->orm_registry(__CLASS__)
+		$iterator = $application->ormRegistry(__CLASS__)
 			->query_select()
 			->where([
 			'server' => Server::singleton($application),
@@ -220,7 +220,7 @@ class Lock extends ORM {
 		self::$locks = [];
 
 		try {
-			$query = $application->orm_registry(__CLASS__)->query_update();
+			$query = $application->ormRegistry(__CLASS__)->query_update();
 			$query->values([
 				'pid' => null,
 				'server' => null,
@@ -242,7 +242,7 @@ class Lock extends ORM {
 	 */
 	public static function server_delete(Server $server): void {
 		$application = $server->application;
-		$query = $application->orm_registry(__CLASS__)->query_delete()->addWhere('server', $server);
+		$query = $application->ormRegistry(__CLASS__)->query_delete()->addWhere('server', $server);
 		$query->execute();
 		if (($n_rows = $query->affectedRows()) > 0) {
 			$application->logger->warning('Deleted {n} {locks} associated with server {name} (#{id})', [
@@ -301,7 +301,7 @@ class Lock extends ORM {
 	 * @param string $code
 	 */
 	private static function _create_lock(Application $application, $code) {
-		$lock = $application->orm_factory(__CLASS__, [
+		$lock = $application->ormFactory(__CLASS__, [
 			'code' => $code,
 		]);
 
@@ -333,7 +333,7 @@ class Lock extends ORM {
 		// Allow a hook to enable inter-server connection, later
 		if (!$this->_is_my_server()) {
 			return $this->application->hooks->call_arguments(__CLASS__ . '::server_is_locked', [
-				$this->member_integer('server'),
+				$this->memberInteger('server'),
 				$this->pid,
 			], true);
 		}
@@ -452,7 +452,7 @@ class Lock extends ORM {
 	 * @return boolean
 	 */
 	private function _is_my_server() {
-		return Server::singleton($this->application)->id === $this->member_integer('server');
+		return Server::singleton($this->application)->id === $this->memberInteger('server');
 	}
 
 	/**
@@ -461,7 +461,7 @@ class Lock extends ORM {
 	 * @return boolean
 	 */
 	private function _is_my_pid() {
-		return $this->application->process->id() === $this->member_integer('pid');
+		return $this->application->process->id() === $this->memberInteger('pid');
 	}
 
 	/**

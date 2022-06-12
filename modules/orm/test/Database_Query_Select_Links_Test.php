@@ -50,7 +50,7 @@ class Database_Query_Select_Links_Test extends Test_Unit {
 
 		/*==== Test ===============================================================*/
 
-		$query = $this->application->orm_registry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select()->link('Test_Account', ['path' => 'Site.Account']);
+		$query = $this->application->ormRegistry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select()->link('Test_Account', ['path' => 'Site.Account']);
 		$query->addWhere('Account.Cancelled', null);
 
 		$test_result = 'SELECT `X`.* FROM `Test_SiteMonitor` AS `X`
@@ -63,7 +63,7 @@ WHERE `Account`.`Cancelled` IS NULL';
 
 		/*==== Test ===============================================================*/
 
-		$query = $this->application->orm_registry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select();
+		$query = $this->application->ormRegistry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select();
 		$query->link(__NAMESPACE__ . '\\' . 'Test_Site');
 		$query->link(__NAMESPACE__ . '\\' . 'Test_Account', 'Site.Account');
 		$query->addWhere('Account.Cancelled', null);
@@ -73,7 +73,7 @@ WHERE `Account`.`Cancelled` IS NULL';
 
 		/*==== Test ===============================================================*/
 
-		$query = $this->application->orm_registry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select();
+		$query = $this->application->ormRegistry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select();
 		$query->link(__NAMESPACE__ . '\\' . 'Test_Site');
 		$query->link(__NAMESPACE__ . '\\' . 'Test_Site');
 		$query->link(__NAMESPACE__ . '\\' . 'Test_Site');
@@ -87,7 +87,7 @@ WHERE `Account`.`Cancelled` IS NULL';
 
 		/*==== Test ===============================================================*/
 
-		$query = $this->application->orm_registry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select();
+		$query = $this->application->ormRegistry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select();
 		$query->link('Test_Account', [
 			'path' => 'Site.Account',
 			'alias' => 'dude',
@@ -103,7 +103,7 @@ WHERE `dude`.`Cancelled` IS NULL';
 
 		/*==== Test ===============================================================*/
 
-		$query = $this->application->orm_registry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select();
+		$query = $this->application->ormRegistry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select();
 		$query->link(__NAMESPACE__ . '\\' . 'Test_Site');
 		$query->link(__NAMESPACE__ . '\\' . 'Test_Account', [
 			'path' => 'Site.Account',
@@ -120,7 +120,7 @@ WHERE `dude`.`Cancelled` IS NULL';
 
 		/*==== Test ===============================================================*/
 
-		$query = $this->application->orm_registry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select();
+		$query = $this->application->ormRegistry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->query_select();
 		$query->link(__NAMESPACE__ . '\\' . 'Test_Site', [
 			'alias' => 'S',
 		]);
@@ -167,7 +167,7 @@ WHERE `Pets_join`.`Person` = 1';
 
 		/*==== Test ===============================================================*/
 
-		$query = $this->application->orm_registry(__NAMESPACE__ . '\\' . 'TestPerson')->query_select();
+		$query = $this->application->ormRegistry(__NAMESPACE__ . '\\' . 'TestPerson')->query_select();
 		$query->link(__NAMESPACE__ . '\\' . 'TestPet');
 		$query->addWhere('Pets.Type', 'cat');
 
@@ -182,7 +182,7 @@ WHERE `Pets`.`Type` = \'cat\'
 
 		/*==== Test ===============================================================*/
 
-		$query = $this->application->orm_registry(__NAMESPACE__ . '\\' . 'TestPerson')->query_select();
+		$query = $this->application->ormRegistry(__NAMESPACE__ . '\\' . 'TestPerson')->query_select();
 		$query->link(__NAMESPACE__ . '\\' . 'TestPet');
 		$query->link(__NAMESPACE__ . '\\' . 'TestPerson');
 		$query->addWhere('Pets.Type', 'cat');

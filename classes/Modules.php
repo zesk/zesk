@@ -204,10 +204,7 @@ class Modules {
 	 *         the module data
 	 *         array
 	 */
-	final public function load($mixed = null, array $options = []) {
-		if ($mixed === null) {
-			return $this->modules;
-		}
+	final public function load(string|array $mixed, array $options = []) {
 		$passed_modules = self::clean_name(toList($mixed));
 		$modules = self::_expand_modules($passed_modules);
 		$result = [];
@@ -446,7 +443,7 @@ class Modules {
 			'base' => $base,
 		];
 
-		$module_data['path'] = $module_path = Directory::find_first($this->application->module_path(), $name);
+		$module_data['path'] = $module_path = Directory::find_first($this->application->modulePath(), $name);
 		if ($module_path === null) {
 			throw new Exception_Directory_NotFound($base, '{class}::module({name}) was not found at {name}', [
 				'class' => get_class($this),
@@ -454,12 +451,12 @@ class Modules {
 				'base' => $base,
 			]);
 		}
-		if (avalue($options, 'check exists')) {
+		if ($options['check exists'] ?? false) {
 			$result[$name] = $module_data;
 			return $result;
 		}
 		$module_data += self::_find_module_include($module_data);
-		if (toBool(avalue($options, 'load', true))) {
+		if (toBool($options['load'] ?? true)) {
 			$module_data = $this->_load_module_configuration($module_data);
 			$module_data = $this->_apply_module_configuration($module_data);
 
@@ -603,7 +600,7 @@ class Modules {
 				]);
 			}
 			if (method_exists($module_object, 'hooks')) {
-				$this->application->hooks->register_class($class);
+				$this->application->hooks->registerClass($class);
 			}
 			$module_object->codename = $name;
 			$result = [

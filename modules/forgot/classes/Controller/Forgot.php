@@ -21,7 +21,7 @@ class Controller_Forgot extends Controller_Theme {
 	 *
 	 */
 	public function action_index() {
-		return $this->control($this->widget_factory(Control_Forgot::class));
+		return $this->control($this->widgetFactory(Control_Forgot::class));
 	}
 
 	/**
@@ -64,7 +64,7 @@ class Controller_Forgot extends Controller_Theme {
 	 * @throws Exception_Semantics
 	 */
 	protected function find_forgot($token) {
-		return $this->application->orm_factory(Forgot::class, [
+		return $this->application->ormFactory(Forgot::class, [
 			'code' => $token,
 		])->find();
 	}
@@ -152,7 +152,7 @@ class Controller_Forgot extends Controller_Theme {
 			return $this->application->theme('forgot/not-valid', $args);
 		}
 		/* @var $forgot Forgot */
-		$forgot = $this->application->orm_factory(Forgot::class, [
+		$forgot = $this->application->ormFactory(Forgot::class, [
 			'code' => $token,
 		])->find();
 		if (!$forgot) {
@@ -178,6 +178,6 @@ class Controller_Forgot extends Controller_Theme {
 			return $forgot->theme('already');
 		}
 
-		return $this->control($this->widget_factory(Control_ForgotReset::class)->validateToken($token));
+		return $this->control($this->widgetFactory(Control_ForgotReset::class)->validateToken($token));
 	}
 }

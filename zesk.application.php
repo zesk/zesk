@@ -9,20 +9,12 @@ declare(strict_types=1);
 
 namespace zesk;
 
-if (isset($_SERVER['XDEBUG_ENABLED']) && function_exists('xdebug_break')) {
-	call_user_func('xdebug_break');
-}
-if (!isset($GLOBALS['__composer_autoload_files'])) {
-	if (is_file(__DIR__ . '/vendor/autoload.php')) {
-		require_once __DIR__ . '/vendor/autoload.php';
-	} else {
-		fprintf(STDERR, "Missing vendor directory\n");
-		exit(1);
-	}
-} else {
-	require_once __DIR__ . '/autoload.php';
-}
+include __DIR__ . '/xdebug.php';
+require_once __DIR__ . '/.autoload-load.php';
 
+/**
+ * The Zesk
+ */
 class ApplicationGenerator {
 	public static function generate(): Application {
 		try {
@@ -32,26 +24,24 @@ class ApplicationGenerator {
 		} catch (Exception_Semantics) {
 			die(__CLASS__ . ' is incorrectly configured');
 		}
-
-		$application->configureInclude([
+		$include_files = [
 			'/etc/zesk.json',
 			$application->path('/etc/zesk.json'),
 			$application->path('etc/host/' . System::uname() . '.json'),
 			$application->paths->uid('zesk.json'),
-		]);
-		$modules = [
-			'GitHub',
 		];
-		if (defined('PHPUNIT')) {
-			$modules[] = 'phpunit';
+		if (isset($_SERVER['ZESK_EXTRA_INCLUDES'])) {
+			$include_files = array_merge($include_files, toList($_SERVER['ZESK_EXTRA_INCLUDES'], [], ':'));
 		}
+		$application->configureInclude($include_files);
+		$modules = [];
 		if (isset($_SERVER['ZESK_EXTRA_MODULES'])) {
 			$modules = array_merge($modules, toList($_SERVER['ZESK_EXTRA_MODULES']));
 		}
 		$application->setOption('modules', array_merge($application->optionArray('modules'), $modules));
 		$application->setOption('version', Version::release());
 
-		return $application;
+		return $application->configure();
 	}
 }
 

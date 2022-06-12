@@ -88,7 +88,7 @@ class Controller_Contact extends Controller_Authenticated {
 		$content = $widget->execute();
 
 		$vars = [];
-		$n_contacts = $this->application->orm_registry('Contact')
+		$n_contacts = $this->application->ormRegistry('Contact')
 			->query_select()
 			->addWhere('User', $this->user)
 			->what('*n_contacts', 'COUNT(X.ID)')

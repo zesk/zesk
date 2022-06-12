@@ -17,22 +17,22 @@ class Control_Content_File extends Control_Widgets {
 	private $_file_widget = null;
 
 	public function model() {
-		return $this->application->orm_factory(Content_File::class);
+		return $this->application->ormFactory(Content_File::class);
 	}
 
 	public function initialize(): void {
 		$prefix = $this->name() . '_';
-		$this->_file_widget = $w = $this->widget_factory('Control_File');
+		$this->_file_widget = $w = $this->widgetFactory('Control_File');
 		$w->setOption([
 			'hash_file' => true,
 		] + $this->options);
 		$w->column = $prefix . 'upload';
 
-		$this->child($w);
+		$this->addChild($w);
 
 		$locale = $this->application->locale;
-		$w = $this->widget_factory(Control_Text::class)->names($prefix . 'desc', $locale->__('Description'))->textarea(true);
-		$this->child($w);
+		$w = $this->widgetFactory(Control_Text::class)->names($prefix . 'desc', $locale->__('Description'))->textarea(true);
+		$this->addChild($w);
 		$this->upload(true);
 
 		parent::initialize();

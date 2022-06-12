@@ -178,13 +178,12 @@ class Time extends Temporal {
 	 * Set the time object
 	 *
 	 *
-	 * @param int|string|Time|Timestamp $value Number of seconds from midnight, a string, Time, or Timestamp
+	 * @param null|int|string|Time|Timestamp $value Values of varying types
 	 * @return Time
-	 * @return $this
 	 * @throws Exception_Parameter
 	 * @throws Exception_Range
 	 */
-	public function set(int|string|Time|Timestamp $value): self {
+	public function set(null|int|string|Time|Timestamp $value): self {
 		if (is_int($value)) {
 			return $this->setUNIXTimestamp($value);
 		} elseif (empty($value)) {
@@ -193,12 +192,11 @@ class Time extends Temporal {
 		} elseif (is_string($value)) {
 			return $this->parse($value);
 		} elseif ($value instanceof Time) {
-			$this->seconds = $value->seconds;
-			$this->milliseconds = $value->milliseconds;
+			$this->setSeconds($value->seconds());
+			$this->setMilliecond($value->millisecond());
 			return $this;
 		} elseif ($value instanceof Timestamp) {
-			$this->seconds = $value->daySeconds();
-			$this->milliseconds = $value->millisecond();
+			$this->setSeconds($value->daySeconds())->setMilliecond($value->millisecond());
 			return $this;
 		}
 
@@ -405,7 +403,7 @@ class Time extends Temporal {
 	}
 
 	/**
-	 * Get/set the second of the day (0 - 86399)
+	 * Get the second of the day (0 - 86399)
 	 *
 	 * @return int
 	 */
@@ -414,13 +412,33 @@ class Time extends Temporal {
 	}
 
 	/**
-	 * Get/set the second of the day
+	 * Set the second of the day
 	 *
 	 * @param int $set
 	 * @return self
 	 */
 	public function setSeconds(int $set): self {
 		$this->seconds = $set;
+		return $this;
+	}
+
+	/**
+	 * Get the milliseconds of the second (0-999)
+	 *
+	 * @return int
+	 */
+	public function millisecond(): int {
+		return $this->milliseconds;
+	}
+
+	/**
+	 * Set the millisecond of the day
+	 *
+	 * @param int $set
+	 * @return self
+	 */
+	public function setMilliecond(int $set): self {
+		$this->milliseconds = $set % 1000;
 		return $this;
 	}
 

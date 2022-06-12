@@ -25,6 +25,7 @@ use zesk\Database_Table;
 use zesk\Database_Column;
 use zesk\ArrayTools;
 use zesk\Exception_Syntax;
+use zesk\Exception_Unsupported;
 use zesk\Text;
 use zesk\PHP;
 use zesk\Timestamp;
@@ -194,6 +195,13 @@ class Database extends \zesk\Database {
 	 * @return mixed|string|array|string
 	 * @throws Exception_Semantics
 	 */
+	/**
+	 * @param string $attribute
+	 * @return string
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Semantics
+	 * @throws \zesk\Exception_Key
+	 */
 	private function _fetchSetting(string $attribute): string {
 		if ($this->hasOption($attribute)) {
 			return $this->option($attribute);
@@ -202,7 +210,8 @@ class Database extends \zesk\Database {
 			throw new Exception_Semantics('No such MySQL variable for attribute {attribute}', compact('attribute'));
 		}
 		$variable = self::$mysql_variables[$attribute];
-		$this->setOption($attribute, $value = $this->queryOne("select $variable", $variable, avalue(self::$mysql_default_attributes, $attribute, null)));
+		$value = $this->queryOne("select $variable", 0);
+		$this->setOption($attribute, $value);
 		return $value;
 	}
 
@@ -544,10 +553,29 @@ class Database extends \zesk\Database {
 	 * @return self|string
 	 */
 	public function time_zone($set = null) {
-		if ($set === null) {
-			return $this->queryOne('SELECT @@time_zone as tz', 'tz', 'UTC');
+		return $this->timeZone();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function timeZone(): string {
+		try {
+			return $this->queryOne('SELECT @@time_zone as tz', 0);
+		} catch (Exception_Key|Database_Exception_SQL) {
+			return 'UTC';
 		}
-		$this->query('SET time_zone=' . $this->quoteText($set));
+	}
+
+	/**
+	 * Set time zone
+	 *
+	 * @param string|\DateTimeZone $zone
+	 * @return \zesk\Database
+	 * @throws Exception_Unsupported
+	 */
+	public function setTimeZone(string|\DateTimeZone $zone): self {
+		$this->query('SET time_zone=' . $this->quoteText(strval($zone)));
 		return $this;
 	}
 

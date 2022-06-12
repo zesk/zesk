@@ -138,7 +138,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			$item->set($domains);
 			$application->cache->save($item);
 		}
-		$application->orm_factory(Domain::class, [
+		$application->ormFactory(Domain::class, [
 			'name' => $domain_name,
 		])->register()->accessed();
 	}
@@ -344,8 +344,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 *
 	 */
 	public function hook_cron_cluster_minute(): void {
-		$this->application->orm_registry(Instance::class)->remove_dead_instances();
-		$this->application->orm_registry(Site::class)->remove_dead_instances();
+		$this->application->ormRegistry(Instance::class)->remove_dead_instances();
+		$this->application->ormRegistry(Site::class)->remove_dead_instances();
 	}
 
 	/**
@@ -537,7 +537,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function server_actions($action) {
 		$app = $this->application;
-		$servers = $app->orm_registry(Server::class)
+		$servers = $app->ormRegistry(Server::class)
 			->query_select()
 			->what_object()
 			->link(Server_Data::class, [

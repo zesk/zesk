@@ -63,7 +63,7 @@ abstract class Tag extends ORM {
 		$result = [];
 		foreach ($subclasses as $subclass) {
 			try {
-				$instance = $application->orm_registry($subclass);
+				$instance = $application->ormRegistry($subclass);
 			} catch (\Exception $e) {
 				continue;
 			}

@@ -80,7 +80,7 @@ class Module_Nominatim extends Module {
 		]);
 		$update->execute();
 
-		$query = $this->application->orm_registry('zesk\\Contact_Address')->query_select()->where([
+		$query = $this->application->ormRegistry('zesk\\Contact_Address')->query_select()->where([
 			[
 				'geocoded' => null,
 				'geocoded|<=' => Timestamp::now()->addUnit(-abs($this->optionInt('geocode_refresh_days', 30)), Timestamp::UNIT_DAY),

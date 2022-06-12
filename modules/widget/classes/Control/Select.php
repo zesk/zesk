@@ -166,7 +166,7 @@ class Control_Select extends Control_Optionss {
 		return ($set !== null) ? $this->setOption('single_tag_attributes', $set) : $this->optionArray('single_tag_attributes');
 	}
 
-	public function validate() {
+	public function validate(): bool {
 		if (toBool(avalue($this->options, 'disabled'))) {
 			return true;
 		}

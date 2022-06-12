@@ -259,15 +259,15 @@ class Control_List extends Control_Widgets_Filter {
 	protected function initialize(): void {
 		$this->initialize_theme_paths();
 
-		$this->class_object = $this->application->class_orm_registry($this->class);
+		$this->class_object = $this->application->class_ormRegistry($this->class);
 
-		$this->row_widget = $row_widget = $this->widget_factory(Control_Row::class);
+		$this->row_widget = $row_widget = $this->widgetFactory(Control_Row::class);
 		$row_widget->names($this->name() . '_row');
 		$row_widget->children($this->row_widgets = $this->call_hook_arguments('widgets', [], []));
 		$row_widget->row_tag($this->row_tag);
 		$row_widget->row_attributes($this->row_attributes);
 		$row_widget->set_theme($this->theme_row);
-		$this->child($row_widget);
+		$this->addChild($row_widget);
 
 		$this->call_hook('row_widget', $this->row_widget);
 
@@ -291,8 +291,8 @@ class Control_List extends Control_Widgets_Filter {
 	protected function initialize_pager(): void {
 		if ($this->show_pager()) {
 			$options = ArrayTools::keysRemovePrefix($this->options, 'pager_', true);
-			$this->pager = $this->widget_factory(Control_Pager::class);
-			$this->child($this->pager);
+			$this->pager = $this->widgetFactory(Control_Pager::class);
+			$this->addChild($this->pager);
 			$this->children_hook('pager', $this->pager);
 		}
 	}
@@ -318,21 +318,21 @@ class Control_List extends Control_Widgets_Filter {
 	}
 
 	private function initialize_header_widgets(): void {
-		$this->header_widget = $header_widget = $this->widget_factory('zesk\\Control_Header')->names($this->name() . '-header');
+		$this->header_widget = $header_widget = $this->widgetFactory('zesk\\Control_Header')->names($this->name() . '-header');
 		$this->header_widgets = [];
 		$included = to_list('list_order_column;show_size;list_order_variable;list_order_by;multisort;list_order_default_ascending;list_order_position;html;list_column_width;widget_save_result;context_class');
 		foreach ($this->row_widgets as $widget) {
 			/* @var $widget Widget */
 			if ($widget->hasOption('list_order_by', true)) {
-				$w = $this->header_widgets[$widget->name()] = $this->widget_factory(Control_OrderBy::class, $widget->options_include($included))->names('' . $widget->name(), $widget->label());
+				$w = $this->header_widgets[$widget->name()] = $this->widgetFactory(Control_OrderBy::class, $widget->options_include($included))->names('' . $widget->name(), $widget->label());
 			} else {
-				$w = $this->header_widgets[$widget->name()] = $this->widget_factory(View_Text::class, $widget->options_include($included))
+				$w = $this->header_widgets[$widget->name()] = $this->widgetFactory(View_Text::class, $widget->options_include($included))
 					->names($widget->name())
 					->setOption('value', $widget->option('label_header', $widget->label()));
 			}
-			$header_widget->child($w);
+			$header_widget->addChild($w);
 		}
-		$this->child($header_widget);
+		$this->addChild($header_widget);
 		$this->call_hook('header_widget', $header_widget);
 	}
 
@@ -405,7 +405,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @return Database_Query_Select
 	 */
 	private function _query() {
-		$query = $this->application->orm_registry($this->class)->query_select()->what_object($this->class);
+		$query = $this->application->ormRegistry($this->class)->query_select()->what_object($this->class);
 		if ($this->hasOption('where')) {
 			$query->where($this->optionArray('where'));
 		}
@@ -486,7 +486,7 @@ class Control_List extends Control_Widgets_Filter {
 			$child->default_value($search_default_value);
 		}
 		if ($this->search_widget) {
-			$this->child($this->search_widget)->default_value($this->search_query);
+			$this->addChild($this->search_widget)->default_value($this->search_query);
 		}
 	}
 

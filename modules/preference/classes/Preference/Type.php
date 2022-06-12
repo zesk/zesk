@@ -22,12 +22,12 @@ class Preference_Type extends ORM {
 	 * @param ?string $name
 	 * @return Preference_Type
 	 */
-	public static function register_name(Application $application, string $code_name, string $name = null): self {
+	public static function registerName(Application $application, string $code_name, string $name = null): self {
 		$fields = [
 			'name' => $name ?: $code_name,
 			'code' => $code_name,
 		];
-		$pref = $application->orm_factory(__CLASS__, $fields);
+		$pref = $application->ormFactory(__CLASS__, $fields);
 		return $pref->register();
 	}
 }

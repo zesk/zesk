@@ -16,7 +16,7 @@ class Controller_Login extends Controller_Theme {
 
 	public function action_login() {
 		$this->call_hook('login');
-		$w = $this->widget_factory(Control_Login::class);
+		$w = $this->widgetFactory(Control_Login::class);
 		return $w->execute();
 	}
 

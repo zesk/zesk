@@ -23,12 +23,12 @@ use zesk\Router\Parser;
  *
  * Methods below require you to actually load the modules for them to work.
  *
- * @method Widget widget_factory(string $class, array $options = [])
+ * @method Widget widgetFactory(string $class, array $options = [])
  *
  * @method Module_ORM orm_module()
- * @method Class_ORM class_orm_registry(string $class)
- * @method ORM orm_registry(string $class, mixed $mixed = null, array $options = [])
- * @method ORM orm_factory(string $class, mixed $mixed = null, array $options = [])
+ * @method Class_ORM class_ormRegistry(string $class)
+ * @method ORM ormRegistry(string $class, mixed $mixed = null, array $options = [])
+ * @method ORM ormFactory(string $class, mixed $mixed = null, array $options = [])
  *
  * @method Database database_registry($name = null)
  * @method Module_Database database_module()
@@ -1819,8 +1819,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param string $class
 	 * @return array This class name and parent classes
 	 */
-	final public function register_class($class) {
-		$this->hooks->register_class($class);
+	final public function registerClass($class) {
+		$this->hooks->registerClass($class);
 		return $this->classes->register($class);
 	}
 
@@ -1848,7 +1848,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @return \zesk\Application
 	 */
 	final public function setApplicationRoot(string $path): self {
-		$this->paths->setApplication($path, true);
+		$this->paths->setApplication($path);
 		return $this;
 	}
 
@@ -2162,13 +2162,23 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	}
 
 	/**
+	 * Console status getter
+	 *
+	 * @return boolean
+	 */
+	public function console(): bool {
+		return $this->kernel->console();
+	}
+
+	/**
 	 * Console status getter/setter
 	 *
 	 * @param boolean $set
-	 * @return boolean
+	 * @return self
 	 */
-	public function console($set = null) {
-		return $this->kernel->console($set);
+	public function setConsole(bool $set): self {
+		$this->kernel->setConsole($set);
+		return $this;
 	}
 
 	/**
@@ -2204,14 +2214,15 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	}
 
 	/**
-	 * Register a factory function
+	 * Register a factory function.
 	 *
 	 * @param string $code
 	 * @param callable $callable
 	 * @return callable
 	 */
 	final public function registerFactory(string $code, callable $callable): ?callable {
-		return $this->_registerFactory($code . '_factory', $callable);
+		$this->_registerFactory($code . '_factory', $callable);
+		return $this->_registerFactory($code . 'Factory', $callable);
 	}
 
 	/**
@@ -2223,7 +2234,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @return callable
 	 */
 	final public function registerRegistry(string $code, callable $callable): ?callable {
-		return $this->_registerFactory($code . '_registry', $callable);
+		$this->_registerFactory($code . '_registry', $callable);
+		return $this->_registerFactory($code . 'Registry', $callable);
 	}
 
 	/**
@@ -2268,11 +2280,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Access a class_object
 	 *
 	 * @return Class_ORM
-	 * @deprecated 2017-12 use $this->class_orm_registry($class)
+	 * @deprecated 2017-12 use $this->class_ormRegistry($class)
 	 */
 	public function class_object($class) {
 		$this->deprecated();
-		return $this->class_orm_registry($class);
+		return $this->class_ormRegistry($class);
 	}
 
 	/**
@@ -2305,12 +2317,12 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Access an ORM by class name
 	 *
 	 * @return ORM
-	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options) instead.
+	 * @deprecated 2017-12 Use ->ormRegistry($class, $mixed, $options) instead.
 	 *
 	 */
 	final public function object($class, $mixed = null, $options = null) {
 		$this->deprecated();
-		return $this->orm_registry($class, $mixed, $options);
+		return $this->ormRegistry($class, $mixed, $options);
 	}
 
 	/**
@@ -2320,7 +2332,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param mixed $mixed
 	 * @param array $options
 	 * @return \zesk\Database
-	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options)->database() instead.
+	 * @deprecated 2017-12 Use ->ormRegistry($class, $mixed, $options)->database() instead.
 	 */
 	final public function object_database($class, $mixed = null, $options = null) {
 		$this->deprecated();
@@ -2330,7 +2342,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 *
 	 * @return Database_Query_Select
-	 * @deprecated 2017-12 Use ->orm_registry($class)->query_select($alias) instead.
+	 * @deprecated 2017-12 Use ->ormRegistry($class)->query_select($alias) instead.
 	 */
 	public function query_select($class, $alias = null) {
 		$this->deprecated();
@@ -2340,7 +2352,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 *
 	 * @return Database_Query_Update
-	 * @deprecated 2017-12 Use ->orm_registry($class)->query_update($alias) instead.
+	 * @deprecated 2017-12 Use ->ormRegistry($class)->query_update($alias) instead.
 	 */
 	public function query_update($class, $alias = null) {
 		$this->deprecated();
@@ -2350,7 +2362,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 *
 	 * @return Database_Query_Insert
-	 * @deprecated 2017-12 Use ->orm_registry($class)->query_insert() instead.
+	 * @deprecated 2017-12 Use ->ormRegistry($class)->query_insert() instead.
 	 *
 	 */
 	public function query_insert($class) {
@@ -2361,7 +2373,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 *
 	 * @return Database_Query_Insert
-	 * @deprecated 2017-12 Use ->orm_registry($class)->query_insert_select($alias) instead.
+	 * @deprecated 2017-12 Use ->ormRegistry($class)->query_insert_select($alias) instead.
 	 */
 	public function query_insert_select($class, $alias = null) {
 		$this->deprecated();
@@ -2371,7 +2383,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 *
 	 * @return Database_Query_Delete
-	 * @deprecated 2017-12 Use ->orm_registry($class)->query_delete() instead.
+	 * @deprecated 2017-12 Use ->ormRegistry($class)->query_delete() instead.
 	 */
 	public function query_delete($class) {
 		$this->deprecated();
@@ -2386,7 +2398,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	public function class_orm($class) {
 		$this->deprecated();
-		return $this->class_orm_registry($class);
+		return $this->class_ormRegistry($class);
 	}
 
 	/**
@@ -2398,14 +2410,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	final public function class_orm_database($class) {
 		$this->deprecated();
-		return $this->orm_registry($class)->database();
+		return $this->ormRegistry($class)->database();
 	}
 
 	/**
 	 *
 	 * @param unknown $class
 	 * @throws Exception_Parameter
-	 * @deprecated 2017-12 use $this->orm_registry()->clear_cache();
+	 * @deprecated 2017-12 use $this->ormRegistry()->clear_cache();
 	 */
 	public function clear_class_cache($class = null) {
 		$this->deprecated();

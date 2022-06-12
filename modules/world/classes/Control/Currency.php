@@ -11,7 +11,7 @@ class Control_Currency extends Control_Select_ORM {
 	protected function hook_options() {
 		$options = [];
 		/* @var $object Currency */
-		foreach ($this->application->orm_registry($this->class)
+		foreach ($this->application->ormRegistry($this->class)
 			->query_select()
 			->what_object()
 			->order_by('name')

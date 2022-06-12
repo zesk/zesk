@@ -12,7 +12,7 @@ class Contact_Label_Group extends ORM {
 		if (empty($name)) {
 			return null;
 		}
-		$g = $app->orm_factory(__CLASS__, [
+		$g = $app->ormFactory(__CLASS__, [
 			'Name' => $name,
 		]);
 		$g->register();

@@ -73,11 +73,11 @@ class Classes {
 
 	/**
 	 * @param Kernel $zesk
-	 * @return mixed|Classes
+	 * @return self
 	 * @throws Exception_Semantics
 	 * @throws InvalidArgumentException
 	 */
-	public static function instance(Kernel $zesk) {
+	public static function instance(Kernel $zesk): self {
 		$cache_item = $zesk->cache->getItem(__CLASS__);
 		if ($cache_item->isHit()) {
 			$classes = $cache_item->get();

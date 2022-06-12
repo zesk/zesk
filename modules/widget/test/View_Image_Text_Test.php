@@ -31,7 +31,7 @@ class View_Image_Text_Test extends TestWidget {
 	}
 
 	public function test_View_Image_Text(): void {
-		$this->test_basics($this->application->widget_factory('View_Image_Text', $this->_test_attributes()));
+		$this->test_basics($this->application->widgetFactory('View_Image_Text', $this->_test_attributes()));
 	}
 
 	/**

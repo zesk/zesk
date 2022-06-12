@@ -81,7 +81,7 @@ class TestORM_Test extends Test_ORM {
 		$x->set_member($f, $v, $overwrite);
 
 		$mixed = 'Hello';
-		$x->member_keysRemove($mixed);
+		$x->memberKeysRemove($mixed);
 
 		$f = 'Foo';
 		$x->hasMember($f);
@@ -90,18 +90,32 @@ class TestORM_Test extends Test_ORM {
 
 		//$x->update();
 
-		$where = false;
-		$x->exists($where);
+		try {
+			$where = '';
+			$x->exists($where);
+			$this->assertFalse(true, 'Should throw');
+		} catch (Exception_ORM_NotFound) {
+			$this->assertTrue(true, 'Not found');
+		}
 
-		$where = false;
-		$x->find($where);
+		try {
+			$where = [];
+			$x->find($where);
+			$this->assertFalse(true, 'Should throw');
+		} catch (Exception_ORM_NotFound) {
+			$this->assertTrue(true, 'Not found');
+		}
 
-		$x->is_duplicate();
+		$x->isDuplicate();
 
-		$value = false;
-		$column = false;
-		$x->fetch_by_key($value, $column);
-
+		try {
+			$value = '';
+			$column = '';
+			$x->fetchByKey($value, $column);
+			$this->assertFalse(true, 'Should throw');
+		} catch (Exception_ORM_NotFound) {
+			$this->assertTrue(true, 'Not found');
+		}
 		//	TODO 	$x->fetch();
 
 		// 	TODO 	$x->Foo = 232;

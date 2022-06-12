@@ -67,7 +67,7 @@ class Command_Locale_Export extends Command_Base {
 
 	protected function load_exclusions() {
 		$column = 'original';
-		$exclusions = $this->application->orm_registry('PolyGlot_Token')
+		$exclusions = $this->application->ormRegistry('PolyGlot_Token')
 			->query_select()
 			->addWhere('status', 'delete')
 			->what([

@@ -20,7 +20,7 @@ class Module extends \zesk\Module {
 	 * @see \zesk\Module::initialize()
 	 */
 	public function initialize(): void {
-		$this->application->register_class(Database::class);
+		$this->application->registerClass(Database::class);
 
 		$module = $this->application->database_module();
 

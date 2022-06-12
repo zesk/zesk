@@ -61,7 +61,7 @@ class Control_Timestamp extends Control {
 		return $this->option('null_string');
 	}
 
-	public function validate() {
+	public function validate(): bool {
 		$value = $this->value();
 		if (!$value instanceof Timestamp && !is_date($value)) {
 			if ($this->null_string() !== null) {

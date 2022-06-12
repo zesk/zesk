@@ -769,8 +769,8 @@ class Template implements Interface_Theme {
 	 * @param array $options
 	 * @return Widget
 	 */
-	final public function widget_factory($class, array $options = []) {
-		return $this->application->widget_factory($class, $options);
+	final public function widgetFactory($class, array $options = []) {
+		return $this->application->widgetFactory($class, $options);
 	}
 
 	/**

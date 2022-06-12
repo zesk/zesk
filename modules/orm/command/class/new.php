@@ -39,7 +39,7 @@ class Command_Class_New extends Command {
 			}
 
 			try {
-				$object = $this->application->orm_factory($class);
+				$object = $this->application->ormFactory($class);
 				$this->error("Class $class already exists");
 
 				continue;

@@ -83,7 +83,7 @@ class Database_Query_Delete extends Database_Query {
 	 * @return string
 	 */
 	public function __toString() {
-		$table = $this->application->orm_registry($this->class)->table();
+		$table = $this->application->ormRegistry($this->class)->table();
 		return $this->sql()->delete($table, $this->where, [
 			'truncate' => $this->truncate,
 		]);

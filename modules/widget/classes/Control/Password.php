@@ -42,12 +42,12 @@ class Control_Password extends Control_Text {
 		// Set up widgets
 		if ($this->confirm) {
 			$locale = $this->application->locale;
-			$w = $this->widget_factory(self::class, [
+			$w = $this->widgetFactory(self::class, [
 				'confirm' => false,
 			])->names($this->column() . '_confirm', $this->option('label_confirm', $locale->__('Control_Password:={label} (Again)', [
 				'label' => $this->label(),
 			])));
-			$this->child($w);
+			$this->addChild($w);
 		}
 		parent::initialize();
 	}

@@ -848,7 +848,7 @@ class Module extends \zesk\Module {
 	 *
 	 */
 	protected function hook_schema_updated(): void {
-		$settings = $this->application->orm_registry(Settings::class);
+		$settings = $this->application->ormRegistry(Settings::class);
 		$this->_fix_settings($settings);
 	}
 }

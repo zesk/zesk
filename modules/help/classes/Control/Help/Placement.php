@@ -14,7 +14,7 @@ class Control_Help_Placement extends Control_Select {
 			'auto left' => 'Automatic (Prefer Left)',
 			'auto right' => 'Automatic (Prefer Right)',
 		]));
-		$this->required(true);
+		$this->setRequired(true);
 		$this->default_value('auto');
 		parent::initialize();
 	}

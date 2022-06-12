@@ -9,7 +9,7 @@
 namespace zesk;
 
 class View extends Widget {
-	public function validate() {
+	public function validate(): bool {
 		return true;
 	}
 

@@ -60,7 +60,7 @@ class Command_Class_Properties extends Command_Base {
 			}
 		}
 		foreach ($classes as $class) {
-			$class_object = $this->application->class_orm_registry($class);
+			$class_object = $this->application->class_ormRegistry($class);
 			if (!$class_object) {
 				$this->error("No such class $arg");
 

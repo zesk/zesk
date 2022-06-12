@@ -61,7 +61,7 @@ So, if I have an object, which requires regular maintenance or checking, I could
 	class Automobile extends ORM {
 		...
 		public static function cron_cluster_month(zesk\Application $application) {
-			foreach ($application->orm_registry("MyObjectName")->query_select()->addWhere("IsActive", true)->orm_iterator() as $auto) {
+			foreach ($application->ormRegistry("MyObjectName")->query_select()->addWhere("IsActive", true)->orm_iterator() as $auto) {
 				$auto->monthly_maintenance();
 			}
 		}

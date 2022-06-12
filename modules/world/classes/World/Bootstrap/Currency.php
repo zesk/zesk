@@ -56,7 +56,7 @@ class World_Bootstrap_Currency extends Hookable {
 
 	public function bootstrap(): void {
 		$prefix = __NAMESPACE__ . '\\';
-		$x = $this->application->orm_factory($prefix . StringTools::unprefix(__CLASS__, $prefix . 'World_Bootstrap_'));
+		$x = $this->application->ormFactory($prefix . StringTools::unprefix(__CLASS__, $prefix . 'World_Bootstrap_'));
 
 		if ($this->optionBool('drop')) {
 			$x->database()->query('TRUNCATE ' . $x->table());
@@ -88,7 +88,7 @@ class World_Bootstrap_Currency extends Hookable {
 		if (substr($name, 0, 1) === '*') {
 			return null;
 		}
-		$country = $this->application->orm_factory('zesk\\Country', [
+		$country = $this->application->ormFactory('zesk\\Country', [
 			'code' => $code,
 			'name' => $name,
 		]);
@@ -135,7 +135,7 @@ class World_Bootstrap_Currency extends Hookable {
 			return null;
 		}
 
-		$currency = $this->application->orm_factory(__NAMESPACE__ . '\\' . 'Currency');
+		$currency = $this->application->ormFactory(__NAMESPACE__ . '\\' . 'Currency');
 		if ($this->is_included($currency)) {
 			if ($this->optionBool('delete_mismatched_ids')) {
 				$found = $currency->find();

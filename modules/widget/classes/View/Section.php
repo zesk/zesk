@@ -13,7 +13,7 @@ class View_Section extends View {
 		'nav' => true,
 	];
 
-	public function validate() {
+	public function validate(): bool {
 		$validate = true;
 		foreach ($this->children as $child) {
 			if (!$child->validate()) {
