@@ -38,7 +38,7 @@ class ulong {
 		if ($x instanceof ulong) {
 			return $copy ? clone $x : $x;
 		}
-		die(gettype($x) . ' ' . get_class($x) . print_r(debug_backtrace()));
+		die(gettype($x) . ' ' . $x::class . print_r(debug_backtrace()));
 	}
 
 	public function get() {

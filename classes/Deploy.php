@@ -329,7 +329,7 @@ class Deploy extends Hookable {
 			} catch (\Exception $e) {
 				$this->application->hooks->call('exception', $e);
 				$result['message'] = map('Exception {class}: {message}', [
-					'class' => get_class($e),
+					'class' => $e::class,
 					'message' => $e->getMessage(),
 				]);
 				$result['exception'] = $e;

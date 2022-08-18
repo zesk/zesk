@@ -94,7 +94,7 @@ class Module extends Hookable {
 	 */
 	final public function __construct(Application $application, array $options = [], array $module_data = []) {
 		parent::__construct($application, $options);
-		$this->application_class = get_class($application);
+		$this->application_class = $application::class;
 		$this->path = $module_data['path'] ?: null;
 		if (!$this->codename) {
 			$this->codename = avalue($module_data, 'name');

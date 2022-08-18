@@ -679,7 +679,7 @@ class Class_ORM extends Hookable {
 	 */
 	public static function instance(ORM $object, array $options = [], string $class = null): Class_ORM {
 		if ($class === null) {
-			$class = get_class($object);
+			$class = $object::class;
 		}
 		$application = $object->application;
 		$lowclass = strtolower($class);
@@ -1123,7 +1123,7 @@ class Class_ORM extends Hookable {
 				$on = [
 					'*' . $generator->columnAlias($to_object->idColumn(), $alias) => $generator->columnAlias($segment, $prev_alias),
 				];
-				$query->join_object($join_type, get_class($to_object), $alias, $on);
+				$query->join_object($join_type, $to_object::class, $alias, $on);
 			}
 			if ($path === '') {
 				return $query;
@@ -1217,13 +1217,13 @@ class Class_ORM extends Hookable {
 		$this_alias = $alias;
 		if ($this_object->has_primary_keys()) {
 			if (ORM::$debug) {
-				$logger->debug(get_class($this_object) . ' is NOT new');
+				$logger->debug($this_object::class . ' is NOT new');
 			}
 			$this_alias = $query_class === get_class($this) ? $query->alias() : $alias;
 			$query->addWhere('*' . $gen->columnAlias($foreign_key, $this_alias), $this_object->id());
 		} else {
 			if (ORM::$debug) {
-				$logger->notice(get_class($this_object) . ' is  new');
+				$logger->notice($this_object::class . ' is  new');
 			}
 		}
 
@@ -1317,7 +1317,7 @@ class Class_ORM extends Hookable {
 		$member = $this->has_many_objects[$class] ?? null;
 		if (!$member) {
 			throw new Exception_Key('No link from {object} to {class}', [
-				'object' => get_class($object),
+				'object' => $object::class,
 				'class' => $class,
 			]);
 		}
@@ -1503,7 +1503,7 @@ class Class_ORM extends Hookable {
 
 		$class = $many_spec['class'];
 		if (!$link instanceof $class) {
-			throw new Exception_Key(get_class($link) . " is not an instanceof $class");
+			throw new Exception_Key($link::class . " is not an instanceof $class");
 		}
 		$table = $many_spec['table'] ?? null;
 		$foreign_key = $many_spec['foreign_key'];
@@ -1542,7 +1542,7 @@ class Class_ORM extends Hookable {
 			$table = $this->application->ormRegistry($link_class)->table();
 			if (!$table) {
 				throw new Exception_Configuration("$link_class::table", 'Link class for {class} {link_class} table is empty', [
-					'class' => get_class($object),
+					'class' => $object::class,
 					'link_class' => $link_class,
 				]);
 			}
@@ -1652,7 +1652,7 @@ class Class_ORM extends Hookable {
 			return null;
 		} catch (Exception $e) {
 			$this->application->hooks->call('exception', $e);
-			$this->application->logger->error('Schema error for ' . $this->class . ' (' . get_class($e) . ': ' . $e->getMessage() . ')');
+			$this->application->logger->error('Schema error for ' . $this->class . ' (' . $e::class . ': ' . $e->getMessage() . ')');
 			return null;
 		}
 	}
@@ -1801,7 +1801,7 @@ class Class_ORM extends Hookable {
 	 * @return string
 	 */
 	protected function polymorphicClassParse(ORM $object, string $column): string {
-		$class = StringTools::unprefix(get_class($object), [$this->polymorphic . '_', get_class($object), ], true);
+		$class = StringTools::unprefix($object::class, [$this->polymorphic . '_', $object::class, ], true);
 		return strtolower($class);
 	}
 
@@ -1880,7 +1880,7 @@ class Class_ORM extends Hookable {
 					$data[$column] = empty($v) ? null : JSON::decode($v);
 				} catch (Exception_Parse $e) {
 					$this->application->logger->error('Unable to parse JSON in {class}->{column} {json}', [
-						'class' => get_class($object),
+						'class' => $object::class,
 						'column' => $column,
 						'json' => $v,
 					]);
@@ -1994,7 +1994,7 @@ class Class_ORM extends Hookable {
 	final public function memberToDatabase(ORM $object, string $column, string $type, array &$data, bool $insert = false): void {
 		if (!array_key_exists($column, $data)) {
 			throw new Exception_Semantics('Can not call {orm}->member_to_database_twice on same column {column} {type} keys: {keys}', [
-				'orm' => get_class($object),
+				'orm' => $object::class,
 				'column' => $column,
 				'type' => $type,
 				'keys' => array_keys($data),

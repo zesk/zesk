@@ -287,12 +287,12 @@ class ORM_CacheItem implements CacheItemInterface {
 		if (count($columns) === 0) {
 			throw new Exception_Semantics('{method}: {class} does not have cache_column_names set in {class_orm}', [
 				'method' => __METHOD__,
-				'class' => get_class($object),
-				'class_orm' => get_class($class_orm),
+				'class' => $object::class,
+				'class_orm' => $class_orm::class,
 			]);
 		}
 		$id = json_encode($object->id());
-		$this->depends[get_class($object) . '-' . $id] = $object;
+		$this->depends[$object::class . '-' . $id] = $object;
 		$this->is_hit = null;
 		return $this;
 	}
@@ -303,7 +303,7 @@ class ORM_CacheItem implements CacheItemInterface {
 	 * @return self
 	 */
 	final public function depends_table(Class_ORM $class) {
-		$this->class_depends[get_class($class)] = $class;
+		$this->class_depends[$class::class] = $class;
 		$this->is_hit = null;
 		return $this;
 	}

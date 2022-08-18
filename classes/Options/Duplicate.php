@@ -100,7 +100,7 @@ class Options_Duplicate extends Options {
 					if (array_key_exists($member, $members)) {
 						throw new Exception_Semantics('Member {member} for object class {class} is already set in the member map', [
 							'member' => $member,
-							'class' => get_class($object),
+							'class' => $object::class,
 						]);
 					}
 					$members[$member] = $new_id;

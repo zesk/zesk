@@ -211,7 +211,7 @@ class Instance extends ORM {
 			$version = $type->version();
 			if (!empty($version)) {
 				$this->appversion = $version;
-				$this->apptype = strtolower(StringTools::unprefix(PHP::parseClass(get_class($type)), 'Type_'));
+				$this->apptype = strtolower(StringTools::unprefix(PHP::parseClass($type::class), 'Type_'));
 				return true;
 			}
 		}

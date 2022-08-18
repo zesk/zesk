@@ -28,7 +28,7 @@ class View_Image_Test extends TestWidget {
 		$tag = HTML::extract_tag_object('img', $img_tag);
 		dump($tag);
 
-		$this->assert_equal(get_class($tag), "zesk\HTML_Tag");
+		$this->assert_equal($tag::class, "zesk\HTML_Tag");
 
 		$w = $tag->option('width');
 		$h = $tag->option('height');

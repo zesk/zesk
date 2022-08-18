@@ -161,7 +161,7 @@ class Permission extends ORM {
 			if (!$context instanceof $class) {
 				if (self::$debug) {
 					$this->application->logger->debug('Permission::check: {context} not instanceof {class}', [
-						'context' => get_class($context),
+						'context' => $context::class,
 						'class' => $class,
 					]);
 				}

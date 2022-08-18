@@ -208,7 +208,7 @@ class UnitTest extends PHPUnit_TestCase {
 		$this->assert(str_starts_with($haystack, $needle), $message);
 	}
 
-	final protected function assert_equal($actual, $expected, string $message = "", $strict = true): void {
+	final protected function assert_equal($actual, $expected, string $message = '', $strict = true): void {
 		$this->assertEquals($expected, $actual, $message);
 		$message .= "\nassert_equal failed:\n  Actual: " . gettype($actual) . ': ' . $this->dump($actual) . "\nExpected: " . gettype($expected) . ': ' . $this->dump($expected);
 		if (is_scalar($actual) && is_scalar($expected)) {
@@ -216,16 +216,16 @@ class UnitTest extends PHPUnit_TestCase {
 				if (abs($actual - $expected) > 0.00001) {
 					$this->fail($message);
 				}
-			} else if ($strict) {
+			} elseif ($strict) {
 				$this->assert($actual === $expected, $message);
 			} else {
 				$this->assert($actual == $expected, $message);
 			}
-		} else if (is_array($actual) && is_array($expected)) {
+		} elseif (is_array($actual) && is_array($expected)) {
 			$this->assert_equal_array($actual, $expected, $message, $strict);
-		} else if (is_object($actual) && is_object($expected)) {
+		} elseif (is_object($actual) && is_object($expected)) {
 			$this->assert_equal_object($actual, $expected, $message, $strict);
-		} else if (is_null($actual) && is_null($expected)) {
+		} elseif (is_null($actual) && is_null($expected)) {
 			return;
 		} else {
 			$this->fail("Unhandled or mismatched types: $message");
@@ -244,7 +244,7 @@ class UnitTest extends PHPUnit_TestCase {
 	}
 
 	final public function assert_equal_object($actual, $expected, $message = ''): void {
-		$this->assert(get_class($actual) === get_class($expected), $message . 'get_class(' . get_class($actual) . ') === get_class(' . get_class($expected) . ')');
+		$this->assert($actual::class === $expected::class, $message . 'get_class(' . $actual::class . ') === get_class(' . $expected::class . ')');
 		$this->assert($actual == $expected, $message . "\n" . $this->dump($actual) . ' !== ' . $this->dump($expected));
 	}
 
@@ -279,10 +279,10 @@ class UnitTest extends PHPUnit_TestCase {
 			}
 			if (is_array($v)) {
 				$this->assert_equal($v, $expected[$k], "[$k] $message", $strict);
-			} else if (is_object($v)) {
-				$this->assert(get_class($v) === get_class($expected[$k]), 'Classes don\'t match ' . get_class($v) . ' === ' . get_class($expected[$k]) . ": $message");
+			} elseif (is_object($v)) {
+				$this->assert($v::class === get_class($expected[$k]), 'Classes don\'t match ' . $v::class . ' === ' . get_class($expected[$k]) . ": $message");
 				$this->assert_equal($v, $expected[$k], "Comparing Key($k) => ");
-			} else if ($strict) {
+			} elseif ($strict) {
 				if ($v !== $expected[$k]) {
 					$this->fail("$message: $k doesn't match: $v !== " . $expected[$k]);
 				}

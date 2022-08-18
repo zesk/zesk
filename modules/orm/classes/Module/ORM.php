@@ -79,7 +79,7 @@ class Module_ORM extends Module {
 					if ($member_object !== null && !$member_object instanceof ORM) {
 						$this->application->logger->error('Member {member} of object {class} should be an object of {expected_class}, returned {type} with value {value}', [
 							'member' => $member,
-							'class' => get_class($object),
+							'class' => $object::class,
 							'expected_class' => $class,
 							'type' => type($member_object),
 							'value' => strval($member_object),
@@ -289,7 +289,7 @@ class Module_ORM extends Module {
 				$logger->error("Unable to synchronize {class} because of {exception_class} {message}\nTRACE: {trace}", [
 					'class' => $class,
 					'message' => $e->getMessage(),
-					'exception_class' => get_class($e),
+					'exception_class' => $e::class,
 					'trace' => $e->getTraceAsString(),
 					'exception' => $e,
 				]);
@@ -386,7 +386,7 @@ class Module_ORM extends Module {
 				$result['object'] = $object = $this->ormFactory($this->application, $class);
 				$result['database'] = $object->databaseName();
 				$result['table'] = $object->table();
-				$result['class'] = get_class($object);
+				$result['class'] = $object::class;
 			} catch (\Exception $e) {
 				$result['object'] = $object = null;
 			}
@@ -421,7 +421,7 @@ class Module_ORM extends Module {
 	 */
 	public function clearNamedCache(string|ORM|Class_ORM $class): self {
 		if ($class instanceof ORM) {
-			$class = get_class($class);
+			$class = $class::class;
 		} elseif ($class instanceof Class_ORM) {
 			$class = $class->class;
 		}

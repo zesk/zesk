@@ -31,7 +31,7 @@ class PHPUnit_TestCase extends TestCase {
 	 */
 	protected ?Configuration $option = null;
 
-	protected $cache_dir = "";
+	protected $cache_dir = '';
 
 	/**
 	 * Ensures our zesk variables above are properly populated
@@ -191,7 +191,6 @@ class PHPUnit_TestCase extends TestCase {
 		fprintf(STDERR, "\n$contents\n");
 	}
 
-
 	/**
 	 * Create a sandbox folder to test with
 	 *
@@ -199,19 +198,19 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param unknown $auto_delete
 	 * @see self::sandbox
 	 */
-	final protected function test_sandbox(string $file = "", bool $auto_delete = true): string {
+	final protected function test_sandbox(string $file = '', bool $auto_delete = true): string {
 		return $this->sandbox($file, $auto_delete);
 	}
 
 	/**
 	 */
-	final public function sandbox(string $file = "", bool $auto_delete = true): string {
+	final public function sandbox(string $file = '', bool $auto_delete = true): string {
 		$cache_dir = $this->application->path('cache/test/' . $this->application->process->id());
 		if (!is_dir($cache_dir)) {
-			if (!mkdir($cache_dir, 0777, true)) {
+			if (!mkdir($cache_dir, 0o777, true)) {
 				$this->fail("test_sandbox: Can't create $cache_dir");
 			}
-			chmod($cache_dir, 0770);
+			chmod($cache_dir, 0o770);
 			if ($auto_delete) {
 				$this->cache_dir = $cache_dir;
 			}

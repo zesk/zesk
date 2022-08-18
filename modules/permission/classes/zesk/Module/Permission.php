@@ -482,7 +482,7 @@ class Module_Permission extends Module {
 	 * @return string
 	 */
 	private function model_permission_class(Model $context) {
-		$default = get_class($context);
+		$default = $context::class;
 		if ($context instanceof ORM) {
 			return $context->class_orm()->option('permission_class', $default);
 		}

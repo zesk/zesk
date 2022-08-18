@@ -479,7 +479,7 @@ class Content_Image extends ORM {
 				$image->reduce_image_dimensions($options);
 			} catch (Exception_File_Format $e) {
 				$application->logger->warning('{class} #{id} - {path} - {data_md5hash} Invalid image format', [
-					'class' => get_class($image),
+					'class' => $image::class,
 					'id' => $image->id(),
 					'path' => $image->path,
 					'data_md5hash' => $data->md5hash,

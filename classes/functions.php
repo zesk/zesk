@@ -113,7 +113,7 @@ function last(array $a, mixed $default = null): mixed {
  * @return string
  */
 function type(mixed $mixed): string {
-	return is_object($mixed) ? get_class($mixed) : gettype($mixed);
+	return is_object($mixed) ? $mixed::class : gettype($mixed);
 }
 
 /**
@@ -224,7 +224,7 @@ function _backtrace(int $n = -1): string {
 			$arg_dump = [];
 			foreach ($args as $index => $arg) {
 				if (is_object($arg)) {
-					$arg_dump[$index] = get_class($arg);
+					$arg_dump[$index] = $arg::class;
 				} elseif (is_scalar($arg)) {
 					$arg_dump[$index] = PHP::dump($arg);
 				} else {
@@ -755,7 +755,7 @@ function map(array|string $mixed, array $map, bool $insensitive = false, string 
 			if (method_exists($v, '__toString')) {
 				$v = strval($v);
 			} else {
-				$v = get_class($v);
+				$v = $v::class;
 			}
 		}
 		$s[$prefix_char . $k . $suffix_char] = $v;

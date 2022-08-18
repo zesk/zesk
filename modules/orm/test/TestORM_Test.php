@@ -164,7 +164,7 @@ class TestORM_Test extends Test_ORM {
 		return [
 			['ClassName', 'ClassName'],
 			[$test_orm, 'zesk\\TestORM'],
-			[get_class($test_orm), 'zesk\\TestORM'],
+			[$test_orm::class, 'zesk\\TestORM'],
 			[$test_orm->class_orm(), 'zesk\\TestORM'],
 			[0, ''],
 			[23.2, ''],

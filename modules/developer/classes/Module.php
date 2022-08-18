@@ -261,7 +261,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		foreach ($router->routes() as $pattern => $route) {
 			echo HTML::tag('h2', $route->clean_pattern) . $this->application->theme('dl', [
 				'content' => [
-					'class' => get_class($route),
+					'class' => $route::class,
 				] + $route->options(),
 			]);
 		}

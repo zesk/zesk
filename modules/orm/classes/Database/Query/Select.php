@@ -505,7 +505,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$object = $this->ormRegistry($class);
 		} else {
 			$object = $class;
-			$class = get_class($object);
+			$class = $object::class;
 		}
 		if (array_key_exists($alias, $this->join_objects)) {
 			throw new Exception_Semantics(__CLASS__ . "::join_object: Same alias $alias added twice");
@@ -541,7 +541,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			if ($cross_db_object !== true) {
 				throw new Exception_Semantics('Database {name} ({class}) does not support cross-database queries, join is not possible', [
 					'name' => $object->databaseName(),
-					'class' => get_class($object),
+					'class' => $object::class,
 				]);
 			}
 			$table_as = $sql->database_table_as($object->database()->databaseName(), $table, $alias);

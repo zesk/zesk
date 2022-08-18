@@ -110,7 +110,7 @@ class Route_Controller extends Route {
 		$app = $this->application;
 		[$controller, $action] = $this->_init_controller($response);
 		$__ = [
-			'class' => get_class($controller),
+			'class' => $controller::class,
 			'action' => $action,
 		];
 		$app->logger->debug('Controller {class} running action {action}', $__);
@@ -138,7 +138,7 @@ class Route_Controller extends Route {
 					if ($action !== 'index') {
 						$app->logger->warning('No such method {method} in {class}', [
 							'method' => $method,
-							'class' => get_class($controller),
+							'class' => $controller::class,
 						]);
 					}
 					$result = $controller->invoke_default_method(array_merge([

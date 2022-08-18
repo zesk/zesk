@@ -105,7 +105,7 @@ class Command_Translate extends Command_Base {
 			return 2;
 		}
 		$this->verbose_log('Using default service {class}', [
-			'class' => get_class($service_object),
+			'class' => $service_object::class,
 		]);
 		$target_file = path($destination, "$target_language.inc");
 

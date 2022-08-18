@@ -22,8 +22,8 @@ class Exception extends \Exception {
 	 */
 	public static function exceptionVariables(\Exception $e): array {
 		return method_exists($e, 'variables') ? $e->variables() : [
-			'exception_class' => get_class($e),
-			'class' => get_class($e),
+			'exception_class' => $e::class,
+			'class' => $e::class,
 			'code' => $e->getCode(),
 			'message' => $e->getMessage(),
 			'file' => $e->getFile(),

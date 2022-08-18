@@ -769,7 +769,7 @@ class Command_Test extends Command_Base {
 			$run_classes = $this->include_file_classes($file);
 		} catch (Exception $e) {
 			$this->log("Unable to include $file without error {class} {message} - fail.", [
-				'class' => get_class($e),
+				'class' => $e::class,
 				'message' => $e->getMessage(),
 			]);
 			return false;

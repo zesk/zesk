@@ -418,7 +418,7 @@ abstract class ORM_Schema extends Hookable {
 			]);
 			;
 		}
-		$object_class = get_class($object);
+		$object_class = $object::class;
 		$schema = $object->database_schema();
 		if (!$schema instanceof ORM_Schema) {
 			$logger->warning('{class} did not return a ORM_Schema ({type})', [

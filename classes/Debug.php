@@ -115,7 +115,7 @@ class Debug {
 				$indent--;
 				$prefix = str_repeat(self::DUMP_SPACER, $indent);
 				if (is_object($x)) {
-					$type = get_class($x);
+					$type = $x::class;
 				} else {
 					$type = 'array';
 				}

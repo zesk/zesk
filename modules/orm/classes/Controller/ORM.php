@@ -205,7 +205,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @return NULL|string|\zesk\Ambigous|mixed|array
 	 */
 	private function _compute_url(ORM $object, $option, $default_action = null, $default_url = null) {
-		$class = get_class($object);
+		$class = $object::class;
 		$url = null;
 		$action = $this->firstOption("$class::${option}_action;${option}_action", $default_action);
 		if ($action) {
@@ -287,14 +287,14 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		if ($user->can($object, 'delete')) {
 			$this->call_hook('delete_before', $object);
 			if (!$object->delete()) {
-				$message = get_class($object) . ':=Unable to delete {class_name-context-object-singular} "{display_name}".';
+				$message = $object::class . ':=Unable to delete {class_name-context-object-singular} "{display_name}".';
 				$result = false;
 			} else {
-				$message = get_class($object) . ':=Deleted {class_name-context-object-singular} "{display_name}".';
+				$message = $object::class . ':=Deleted {class_name-context-object-singular} "{display_name}".';
 				$result = true;
 			}
 		} else {
-			$message = get_class($object) . ':=You do not have permission to delete {class_name-context-object-singular} "{display_name}".';
+			$message = $object::class . ':=You do not have permission to delete {class_name-context-object-singular} "{display_name}".';
 			$result = false;
 		}
 		$message = $object->words($this->application->locale->__($message));
@@ -318,7 +318,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 */
 	public function action_duplicate(ORM $object) {
 		$user = $this->user;
-		$class = get_class($object);
+		$class = $object::class;
 		if ($user->can($object, 'duplicate')) {
 			$new_object = $object->duplicate();
 			if ($new_object) {

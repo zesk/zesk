@@ -145,7 +145,7 @@ class Command_Install extends Command_Base {
 		}
 		if ($object->option('installed_cyclic')) {
 			return [
-				get_class($object),
+				$object::class,
 			];
 		}
 		$errors = [];

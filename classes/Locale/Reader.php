@@ -163,7 +163,7 @@ class Reader {
 						$results += $result;
 					}
 				} catch (\Exception $e) {
-					$this->errors[$file] = get_class($e);
+					$this->errors[$file] = $e::class;
 				}
 			} else {
 				$this->missing[] = $file;

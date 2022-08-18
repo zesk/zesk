@@ -218,9 +218,9 @@ class PHP {
 				return $x->_to_php();
 			}
 			if (method_exists($x, '__toString')) {
-				return 'new ' . get_class($x) . '(' . strval($x) . ')';
+				return 'new ' . $x::class . '(' . strval($x) . ')';
 			}
-			return 'new ' . get_class($x) . '()';
+			return 'new ' . $x::class . '()';
 		} else {
 			return strval($x);
 		}

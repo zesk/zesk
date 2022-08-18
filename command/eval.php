@@ -130,7 +130,7 @@ class Command_Eval extends Command_Base {
 				$last_exit_code = 0;
 			} catch (\Exception $ex) {
 				$content = ob_get_clean();
-				echo '# exception ' . get_class($ex) . "\n";
+				echo '# exception ' . $ex::class . "\n";
 				echo '# message ' . $ex->getMessage() . "\n";
 				echo "# stack trace\n" . $ex->getTraceAsString() . "\n";
 				if ($content) {

@@ -99,10 +99,10 @@ class Classes {
 	public function on_exit(Kernel $kernel): void {
 		if ($this->dirty) {
 			$this->dirty = false;
+
 			try {
 				$kernel->cache->saveDeferred($kernel->cache->getItem(__CLASS__)->set($this));
 			} catch (InvalidArgumentException) {
-
 			}
 		}
 	}
@@ -141,7 +141,7 @@ class Classes {
 		}
 		if (empty($class)) {
 			// Do we need to warn? Not sure if silent failure is best. Probably for now.
-			return "";
+			return '';
 		}
 		$lowercase_class = strtolower($class);
 		$class = $this->class_case[$lowercase_class] ?? $class;
@@ -183,9 +183,9 @@ class Classes {
 	 * @param string $stop_class Return up to and including this class, blank to include all classes.
 	 * @return array
 	 */
-	public function hierarchy(object|string $mixed, string $stop_class = ""): array {
+	public function hierarchy(object|string $mixed, string $stop_class = ''): array {
 		if (!is_string($mixed)) {
-			$mixed = get_class($mixed);
+			$mixed = $mixed::class;
 		}
 		if (array_key_exists($mixed, $this->hierarchy)) {
 			$result = $this->hierarchy[$mixed];
@@ -200,7 +200,7 @@ class Classes {
 			$this->hierarchy[$mixed] = $result;
 			$this->dirty = true;
 		}
-		if ($stop_class === "") {
+		if ($stop_class === '') {
 			return $result;
 		}
 		$stop_result = [];

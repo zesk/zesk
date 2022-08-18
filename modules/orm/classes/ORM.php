@@ -1231,7 +1231,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			$application->hooks->call('exception', $e);
 			$application->logger->error("Fixing not found {member} {member_class} (#{data}) in {class} (#{id})\n{bt}", [
 				'member' => $member,
-				'member_class' => get_class($member),
+				'member_class' => $member::class,
 				'data' => $data,
 				'class' => get_class($this),
 				'id' => $this->id(),
@@ -1454,7 +1454,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			$dynamic_member = $class[0] === '*' ? substr($class, 1) : null;
 			if ($value instanceof ORM) {
 				if ($dynamic_member) {
-					$this->setMember($dynamic_member, get_class($value));
+					$this->setMember($dynamic_member, $value::class);
 				}
 			} elseif ($value !== null) {
 				if ($dynamic_member) {
@@ -2454,7 +2454,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return boolean
 	 */
 	public function is_equal(ORM $that) {
-		return get_class($this) === get_class($that) && $this->id() === $that->id();
+		return get_class($this) === $that::class && $this->id() === $that->id();
 	}
 
 	/**
@@ -2880,7 +2880,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 */
 	public static function mixedToClass(mixed $mixed): string {
 		if ($mixed instanceof ORM) {
-			return get_class($mixed);
+			return $mixed::class;
 		}
 		if ($mixed instanceof Class_ORM) {
 			return $mixed->class;

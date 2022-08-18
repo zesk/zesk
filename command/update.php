@@ -335,7 +335,7 @@ class Command_Update extends Command_Base {
 			$module_object = $this->application->modules->object($module);
 			if ($module_object instanceof Module) {
 				$logger->debug('Running {class}::hook_{name}', [
-					'class' => get_class($module_object),
+					'class' => $module_object::class,
 					'name' => $hook_name,
 				]);
 				$module_object->call_hook($hook_name);

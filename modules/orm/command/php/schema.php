@@ -38,7 +38,7 @@ class Command_PHP_Schema extends Command {
 			exit(1);
 		} else {
 			echo $this->application->theme('command/php/schema', [
-				'class_name' => 'Schema_' . get_class($object),
+				'class_name' => 'Schema_' . $object::class,
 				'schema' => $schema,
 			]);
 		}

@@ -65,7 +65,7 @@ class ORM_Schema_File extends ORM_Schema {
 			$this->application->logger->debug('Parsing SQL {sql} using {parse_class} for class {class}', [
 				'sql' => $sql,
 				'parse_class' => get_class($this->parser),
-				'class' => get_class($class_object),
+				'class' => $class_object::class,
 			]);
 		} else {
 			$path = $this->schema_path();
@@ -77,7 +77,7 @@ class ORM_Schema_File extends ORM_Schema {
 					'path' => $path,
 					'sql' => $this->mapped_sql,
 					'parse_class' => get_class($this->parser),
-					'class' => get_class($class_object),
+					'class' => $class_object::class,
 				]);
 			}
 		}

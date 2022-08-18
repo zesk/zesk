@@ -35,7 +35,7 @@ class ArrayTools {
 		foreach ($array as $k => $v) {
 			if (is_array($v)) {
 				$array[$k] = self::capitalize($v);
-			} else if (is_string($v)) {
+			} elseif (is_string($v)) {
 				$array[$k] = StringTools::capitalize($v);
 			}
 		}
@@ -71,7 +71,7 @@ class ArrayTools {
 		foreach ($a as $k => $v) {
 			if (is_object($v)) {
 				$a[$k] = method_exists($v, '__toString') ? strval($v) : self::simplify(get_object_vars($v));
-			} else if (is_array($v)) {
+			} elseif (is_array($v)) {
 				$a[$k] = self::simplify($v);
 			} else {
 				$a[$k] = flatten($v);
@@ -357,10 +357,10 @@ class ArrayTools {
 			if (is_string($v)) {
 				if (begins($v, $str)) {
 					$arr[$k] = substr($v, $n);
-				} else if ($remove) {
+				} elseif ($remove) {
 					unset($arr[$k]);
 				}
-			} else if (is_array($v)) {
+			} elseif (is_array($v)) {
 				$arr[$k] = self::valuesRemovePrefix($v, $str, $remove);
 			}
 		}
@@ -383,10 +383,10 @@ class ArrayTools {
 			if (is_string($v)) {
 				if (ends($v, $str)) {
 					$arr[$k] = substr($v, 0, -$n);
-				} else if ($remove) {
+				} elseif ($remove) {
 					unset($arr[$k]);
 				}
-			} else if (is_array($v)) {
+			} elseif (is_array($v)) {
 				$arr[$k] = self::valuesRemoveSuffix($v, $str, $remove);
 			}
 		}
@@ -411,10 +411,10 @@ class ArrayTools {
 			if (is_string($v)) {
 				if (begins($v, $prefix) && ends($v, $suffix)) {
 					$arr[$k] = substr($v, $n_prefix, -$n_suffix);
-				} else if ($remove) {
+				} elseif ($remove) {
 					unset($arr[$k]);
 				}
-			} else if (is_array($v)) {
+			} elseif (is_array($v)) {
 				$arr[$k] = ArrayTools::$n_suffix($v, $prefix, $suffix, $remove);
 			}
 		}
@@ -436,7 +436,7 @@ class ArrayTools {
 		foreach ($arr as $k => $v) {
 			if (substr($k, 0, $n) === $str) {
 				$result[substr($k, $n)] = $v;
-			} else if (!$remove) {
+			} elseif (!$remove) {
 				$result[$k] = $v;
 			}
 		}
@@ -458,7 +458,7 @@ class ArrayTools {
 		foreach ($arr as $k => $v) {
 			if (substr($k, -$n) === $str) {
 				$result[substr($k, 0, -$n)] = $v;
-			} else if (!$remove) {
+			} elseif (!$remove) {
 				$result[$k] = $v;
 			}
 		}
@@ -518,7 +518,7 @@ class ArrayTools {
 					if (is_array($val)) {
 						// Arrays are merged recursively
 						$result[$key] = self::merge($result[$key], $val);
-					} else if (is_int($key)) {
+					} elseif (is_int($key)) {
 						// Indexed arrays are appended
 						array_push($result, $val);
 					} else {
@@ -586,7 +586,7 @@ class ArrayTools {
 			foreach ($arrays as $key => $array) {
 				$result[$key] = $array[$value_key] ?? $default_value;
 			}
-		} else if ($value_key == null) {
+		} elseif ($value_key == null) {
 			foreach ($arrays as $array) {
 				if (array_key_exists($key_key, $array)) {
 					$result[$array[$key_key]] = $array;
@@ -647,7 +647,7 @@ class ArrayTools {
 			$new_key = $key_map[$k] ?? $k;
 			if ($new_key !== $k) {
 				$skip[$new_key] = true;
-			} else if (array_key_exists($k, $skip)) {
+			} elseif (array_key_exists($k, $skip)) {
 				continue;
 			}
 			$new_array[$new_key] = $v;
@@ -808,9 +808,9 @@ class ArrayTools {
 		foreach ($a as $i) {
 			if (!is_numeric($i)) {
 				continue;
-			} else if ($min === null) {
+			} elseif ($min === null) {
 				$min = $i;
-			} else if ($i < $min) {
+			} elseif ($i < $min) {
 				$min = $i;
 			}
 		}
@@ -833,9 +833,9 @@ class ArrayTools {
 		foreach ($a as $i) {
 			if (!is_numeric($i)) {
 				continue;
-			} else if ($max === null) {
+			} elseif ($max === null) {
 				$max = $i;
-			} else if ($i > $max) {
+			} elseif ($i > $max) {
 				$max = $i;
 			}
 		}
@@ -1030,7 +1030,7 @@ class ArrayTools {
 	public static function append(array &$arr, string $k, mixed $v = null): void {
 		if (!isset($arr[$k])) {
 			$arr[$k] = $v;
-		} else if (is_array($arr[$k])) {
+		} elseif (is_array($arr[$k])) {
 			$arr[$k][] = $v;
 		} else {
 			$arr[$k] = [
@@ -1078,7 +1078,7 @@ class ArrayTools {
 	public static function prepend(array &$arr, string $k, mixed $v = null): void {
 		if (!isset($arr[$k])) {
 			$arr[$k] = $v;
-		} else if (is_array($arr[$k])) {
+		} elseif (is_array($arr[$k])) {
 			array_unshift($arr[$k], $v);
 		} else {
 			$arr[$k] = [
@@ -1418,7 +1418,7 @@ class ArrayTools {
 	public static function preg_quote(array|string $string, string $delimiter = null): string|array {
 		if (is_string($string)) {
 			return preg_quote($string, $delimiter);
-		} else if (is_array($string)) {
+		} elseif (is_array($string)) {
 			$result = [];
 			foreach ($string as $k => $str) {
 				$result[$k] = self::preg_quote($str, $delimiter);
@@ -1640,7 +1640,7 @@ class ArrayTools {
 		foreach ($array as $k => $v) {
 			if (is_array($v)) {
 				$array[$k] = ArrayTools::scalars($v);
-			} else if ($v !== null && !is_scalar($v)) {
+			} elseif ($v !== null && !is_scalar($v)) {
 				$array[$k] = strval($v);
 			}
 		}

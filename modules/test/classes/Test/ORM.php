@@ -45,7 +45,7 @@ class Test_ORM extends UnitTest {
 	 * @not_test
 	 */
 	final public function run_test_an_object(ORM $object, $test_field = 'ID'): void {
-		$this->log(get_class($object) . ' members: ' . PHP::dump($object->members()));
+		$this->log($object::class . ' members: ' . PHP::dump($object->members()));
 
 		$table = $object->table();
 
@@ -54,7 +54,7 @@ class Test_ORM extends UnitTest {
 			'follow' => true,
 		];
 		$results = $this->application->orm_module()->schema_synchronize($db, [
-			get_class($object),
+			$object::class,
 		], $options);
 		if (count($results) > 0) {
 			$db->queries($results);
@@ -82,7 +82,7 @@ class Test_ORM extends UnitTest {
 
 		$object->selectDatabase();
 
-		$this->log(get_class($object) . ' members: ' . PHP::dump($object->members()));
+		$this->log($object::class . ' members: ' . PHP::dump($object->members()));
 
 		$object->refresh();
 
@@ -108,7 +108,7 @@ class Test_ORM extends UnitTest {
 		$def = null;
 		$object->member($f, $def);
 
-		$this->log(get_class($object) . ' members: ' . PHP::dump($object->members()));
+		$this->log($object::class . ' members: ' . PHP::dump($object->members()));
 
 		$f = $test_field;
 		$object->changed($f);

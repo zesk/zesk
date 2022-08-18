@@ -172,7 +172,7 @@ class JSON {
 						return '{}';
 					}
 				} else {
-					$mixed = get_class($mixed) . ':no-json-method';
+					$mixed = $mixed::class . ':no-json-method';
 				}
 				return self::zencode($mixed);
 			} else {

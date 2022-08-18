@@ -503,7 +503,7 @@ class Walker {
 				return $resolve_method($object, $member, $value, $child_options);
 			}
 			$logger->warning('Invalid resolve method passed into {class} walker: {type}', [
-				'class' => get_class($object),
+				'class' => $object::class,
 				'type' => type($resolve_method),
 			]);
 		}

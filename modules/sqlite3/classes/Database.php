@@ -179,7 +179,7 @@ class Database extends \zesk\Database {
 	final public function fetchAssoc(mixed $result): ?array {
 		if (!$result instanceof SQLite3Result) {
 			throw new Exception_Parameter('Requires a SQLite3Result {class} (of {type}) given', [
-				'class' => get_class($result),
+				'class' => $result::class,
 				'type' => type($result),
 			]);
 		}
@@ -359,7 +359,7 @@ class Database extends \zesk\Database {
 		if (preg_match('/no such table: (.*)/', $message, $matches)) {
 			throw new Database_Exception_Table_NotFound($this, $matches[1]);
 		}
-		die(get_class($e) . "\n" . $e->getMessage() . '<br />' . $e->getTraceAsString());
+		die($e::class . "\n" . $e->getMessage() . '<br />' . $e->getTraceAsString());
 	}
 
 	protected function _query(string $query, array $options = []): mixed {
@@ -451,7 +451,7 @@ class Database extends \zesk\Database {
 			}
 		}
 		if (!$value instanceof Timestamp) {
-			throw new Exception_Unimplemented(__METHOD__ . ' invalid type: ' . gettype($value) . ',' . get_class($value));
+			throw new Exception_Unimplemented(__METHOD__ . ' invalid type: ' . gettype($value) . ',' . $value::class);
 			return '0000-00-00 00:00:00';
 		}
 		if ($value->isEmpty()) {
@@ -472,7 +472,7 @@ class Database extends \zesk\Database {
 			}
 		}
 		if (!$value instanceof Timestamp && !$value instanceof Date) {
-			throw new Exception_Unimplemented(__METHOD__ . ' invalid type: ' . gettype($value) . ',' . get_class($value));
+			throw new Exception_Unimplemented(__METHOD__ . ' invalid type: ' . gettype($value) . ',' . $value::class);
 		}
 		if ($value->isEmpty()) {
 			return 'NULL';
@@ -492,7 +492,7 @@ class Database extends \zesk\Database {
 			}
 		}
 		if (!$value instanceof Timestamp && !$value instanceof Time) {
-			throw new Exception_Unimplemented(__METHOD__ . ' invalid type: ' . gettype($value) . ',' . get_class($value));
+			throw new Exception_Unimplemented(__METHOD__ . ' invalid type: ' . gettype($value) . ',' . $value::class);
 			return '00:00:00';
 		}
 		if ($value->isEmpty()) {
@@ -539,7 +539,7 @@ class Database extends \zesk\Database {
 			}
 		}
 		if (!$value instanceof Timestamp) {
-			throw new Exception_Unimplemented(__METHOD__ . ' invalid type: ' . gettype($value) . ',' . get_class($value));
+			throw new Exception_Unimplemented(__METHOD__ . ' invalid type: ' . gettype($value) . ',' . $value::class);
 			return '00000000000000';
 		}
 		if ($value->isEmpty()) {

@@ -71,7 +71,7 @@ class Command_Server_Install extends Command {
 			$this->usage($e->getMessage());
 		}
 		$this->verbose_log('Configuring {class}', [
-			'class' => get_class($platform),
+			'class' => $platform::class,
 		]);
 
 		$features = null;

@@ -15,7 +15,7 @@ class Exception_Permission extends Exception {
 		parent::__construct('User {user.name} has no permission action={action} class={class} type={type}', [
 			'action' => $action,
 			'object' => $object,
-			'class' => is_object($object) ? get_class($object) : '-',
+			'class' => is_object($object) ? $object::class : '-',
 			'type' => !is_object($object) ? gettype($object) : '',
 			'options' => $options,
 			'user' => $user,

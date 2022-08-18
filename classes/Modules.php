@@ -214,7 +214,7 @@ class Modules {
 					];
 
 				continue;
-			} else if ($options['check loaded'] ?? false) {
+			} elseif ($options['check loaded'] ?? false) {
 				$result[$name] = $options['not loaded'] ?? null;
 
 				continue;
@@ -270,9 +270,9 @@ class Modules {
 			if ($module === null) {
 				$module = avalue($current, 'name');
 			}
-		} else if ($module == null) {
+		} elseif ($module == null) {
 			throw new Exception_Parameter('Require a $module path if not called during module load');
-		} else if (isset($this->modules[$module])) {
+		} elseif (isset($this->modules[$module])) {
 			if (!is_dir($module_path)) {
 				throw new Exception_Directory_NotFound($module_path);
 			}
@@ -592,7 +592,7 @@ class Modules {
 			$module_object = $this->application->factory($class, $this->application, $configuration, $module_data);
 			if (!$module_object instanceof Module) {
 				throw new Exception_Semantics('Module {class} must be a subclass of Module - skipping', [
-					'class' => get_class($module_object),
+					'class' => $module_object::class,
 				]);
 			}
 			if (method_exists($module_object, 'hooks')) {
@@ -623,14 +623,14 @@ class Modules {
 				$object->initialize();
 				if ($this->debug) {
 					$this->application->logger->debug('Initialized module object {class}', [
-						'class' => get_class($object),
+						'class' => $object::class,
 					]);
 				}
 			}
 			return $module_data;
 		} catch (\Exception $e) {
 			$this->application->logger->error('Failed to initialize module object {class}: {message}', [
-				'class' => get_class($object),
+				'class' => $object::class,
 				'message' => $e->getMessage(),
 			]);
 			$this->application->hooks->call('exception', $e);

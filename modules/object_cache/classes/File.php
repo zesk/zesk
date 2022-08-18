@@ -46,7 +46,7 @@ class File extends Base {
 			ksort($id);
 			$id = zeskFile::name_clean(JSON::encode($id));
 		}
-		return $this->cachePath(strtolower(get_class($object)) . "-$id", $create);
+		return $this->cachePath(strtolower($object::class) . "-$id", $create);
 	}
 
 	public function configured(): void {

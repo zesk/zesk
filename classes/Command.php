@@ -257,12 +257,12 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		if (!$this->has_configuration) {
 			$logger->debug('Command {class} does not have configuration, calling {app}->configured()', [
 				'class' => get_class($this),
-				'app' => get_class($application),
+				'app' => $application::class,
 			]);
 			if (!$application->configured()) {
 				$logger->debug('Command {class} {app} WAS ALREADY CONFIGURED!!!!', [
 					'class' => get_class($this),
-					'app' => get_class($application),
+					'app' => $application::class,
 				]);
 			}
 		} else {
@@ -1338,7 +1338,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		} catch (\Exception $e) {
 			$this->error("Exception thrown by command {class} : {exception_class} {message}\n{backtrace}", [
 				'class' => get_class($this),
-				'exception_class' => get_class($e),
+				'exception_class' => $e::class,
 				'message' => $e->getMessage(),
 				'backtrace' => $e->getTraceAsString(),
 				'backtrace-4' => Text::head($e->getTraceAsString(), 6),

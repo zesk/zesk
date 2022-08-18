@@ -35,7 +35,7 @@ class Class_Meta extends Class_ORM {
 	protected function configure(ORM $object): void {
 		if (!$this->table) {
 			$this->initialize_database($object);
-			$this->table = $this->database()->tablePrefix() . PHP::parseClass(get_class($object));
+			$this->table = $this->database()->tablePrefix() . PHP::parseClass($object::class);
 		}
 	}
 }

@@ -181,7 +181,7 @@ class Router extends Hookable {
 	 */
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
-		$this->application_class = get_class($application);
+		$this->application_class = $application::class;
 		$this->call_hook('construct');
 	}
 

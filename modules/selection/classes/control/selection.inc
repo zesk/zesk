@@ -111,7 +111,7 @@ class Control_Selection extends Control {
 		}
 		$this->application->logger->error('{class}: Top widget is not a list: {instead}', [
 			'class' => get_class($this),
-			'instead' => get_class($top),
+			'instead' => $top::class,
 		]);
 		return [
 			null,

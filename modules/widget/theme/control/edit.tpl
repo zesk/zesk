@@ -38,7 +38,7 @@ foreach ($this->widgets as $widget) {
 	$map[$prefix . 'label'] = $label = $nolabel ? '' : HTML::tag('label', to_array($this->label_attributes) + [
 		'for' => $widget->firstOption(to_list('id;column')),
 	], $widget->label());
-	$map[$prefix . 'widget_class'] = get_class($widget);
+	$map[$prefix . 'widget_class'] = $widget::class;
 	$has_errors = $widget->has_errors();
 	$errors = '';
 	$map[$prefix . 'has-error'] = '';

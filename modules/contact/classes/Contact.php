@@ -30,7 +30,7 @@ class Contact extends ORM {
 		$id_column = $class_object->id_column;
 		if (!$id_column) {
 			throw new Exception_Semantics('Find hash on a contact but no ID column {class}', [
-				'class' => get_class($class_object),
+				'class' => $class_object::class,
 			]);
 		}
 		return $query->addWhat($id_column)->where($where)->one_integer($id_column);

@@ -195,7 +195,7 @@ class Objects {
 	 */
 	public function setSingleton(object $object, string $class = null): self {
 		if ($class === null) {
-			$class = get_class($object);
+			$class = $object::class;
 		}
 		$resolved_class = '';
 		$found_object = $this->_getSingleton($class, $resolved_class);

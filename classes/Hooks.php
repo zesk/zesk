@@ -437,7 +437,7 @@ class Hooks {
 				} catch (\Exception $e) {
 					$this->kernel->logger->warning('{class} not found {eclass}: {emessage}', [
 						'class' => $class,
-						'eclass' => get_class($e),
+						'eclass' => $e::class,
 						'emessage' => $e->getMessage(),
 					]);
 

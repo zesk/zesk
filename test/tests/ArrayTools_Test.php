@@ -10,7 +10,6 @@ namespace zesk;
 use \stdClass;
 
 class ArrayTools_Test extends UnitTest {
-
 	public function data_changeValueCase(): array {
 		return [
 			[
@@ -130,7 +129,6 @@ class ArrayTools_Test extends UnitTest {
 				],
 			],
 		];
-
 	}
 
 	public function test_valuesFlipCopy(array $array, bool $lower, array $expected): void {
@@ -159,7 +157,7 @@ class ArrayTools_Test extends UnitTest {
 
 		$prefix = 'a';
 		$suffix = 'bb';
-		$a = ['a' => 'b',];
+		$a = ['a' => 'b', ];
 		$b = [
 			'a' => 'abbb',
 		];
@@ -282,15 +280,15 @@ class ArrayTools_Test extends UnitTest {
 			'c',
 			'd',
 		];
-		$include = "";
-		$exclude = "";
+		$include = '';
+		$exclude = '';
 		$lower = true;
 		$result = ArrayTools::include_exclude($a, 'a;b;e', $exclude, $lower);
 		$this->assert_arrays_equal($result, [
 			'a',
 			'b',
 		]);
-		$result = ArrayTools::include_exclude($a, "", 'a;b;e', $lower);
+		$result = ArrayTools::include_exclude($a, '', 'a;b;e', $lower);
 		$this->assert_arrays_equal($result, [
 			2 => 'c',
 			3 => 'd',
@@ -303,7 +301,7 @@ class ArrayTools_Test extends UnitTest {
 			'd',
 		];
 		// Default is to retain case
-		$result = ArrayTools::include_exclude($a, "", 'a;b;e');
+		$result = ArrayTools::include_exclude($a, '', 'a;b;e');
 		$this->assert_arrays_equal($result, [
 			1 => 'B',
 			2 => 'c',
@@ -450,9 +448,9 @@ class ArrayTools_Test extends UnitTest {
 	public function data_keysMap(): array {
 		return [
 			[
-				["a" => 1],
+				['a' => 1],
 				[],
-				["a" => 1],
+				['a' => 1],
 			],
 			[
 				[
@@ -524,32 +522,31 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals($expected, $result);
 	}
 
-
 	public function data_pairValues(): array {
 		return [
 			[
-				["foo" => "mix=up"],
-				"=",
-				["mix" => "up"],
+				['foo' => 'mix=up'],
+				'=',
+				['mix' => 'up'],
 			],
 			[
-				["foo" => "mix=up"],
-				" ",
-				["foo" => "mix=up"],
+				['foo' => 'mix=up'],
+				' ',
+				['foo' => 'mix=up'],
 			],
 			[
-				[99 => "mix=up"],
-				" ",
-				[99 => "mix=up"],
+				[99 => 'mix=up'],
+				' ',
+				[99 => 'mix=up'],
 			],
 			[
 				[
-					"foo" => "mix=up",
-					"dog = poo",
-					"place=place",
+					'foo' => 'mix=up',
+					'dog = poo',
+					'place=place',
 				],
-				"=",
-				["mix" => "up", "dog " => " poo", "place" => "place"],
+				'=',
+				['mix' => 'up', 'dog ' => ' poo', 'place' => 'place'],
 			],
 		];
 	}
@@ -603,7 +600,6 @@ class ArrayTools_Test extends UnitTest {
 			],
 		];
 	}
-
 
 	/**
 	 * @return void
@@ -1281,10 +1277,10 @@ class ArrayTools_Test extends UnitTest {
 
 	public function data_append(): array {
 		return [
-			[[], "key", 1, ["key" => 1]],
-			[["key" => 1], "key", 3, ["key" => [1, 3]]],
-			[["key" => 1, 3], "key", 5, ["key" => [1, 3, 5]]],
-			[["key" => [1, 3]], "key2", 3, ["key" => [1, 3], "key2" => 3]],
+			[[], 'key', 1, ['key' => 1]],
+			[['key' => 1], 'key', 3, ['key' => [1, 3]]],
+			[['key' => 1, 3], 'key', 5, ['key' => [1, 3, 5]]],
+			[['key' => [1, 3]], 'key2', 3, ['key' => [1, 3], 'key2' => 3]],
 		];
 	}
 
@@ -1383,9 +1379,9 @@ class ArrayTools_Test extends UnitTest {
 
 	public function data_preg_quote(): array {
 		return [
-			["", "", ""],
-			["dude", "d", "\du\de"],
-			["We are #1", "#", "We are \#1"],
+			['', '', ''],
+			['dude', 'd', "\du\de"],
+			['We are #1', '#', "We are \#1"],
 		];
 	}
 
@@ -1402,9 +1398,9 @@ class ArrayTools_Test extends UnitTest {
 
 	public function data_prepend(): array {
 		return [
-			[[], "key", 1, ["key" => 1]],
-			[["key" => 1], "key", 2, ["key" => [2, 1]]],
-			[["key" => [2, 1]], "key", 77.9, ["key" => [77.9, 2, 1]]],
+			[[], 'key', 1, ['key' => 1]],
+			[['key' => 1], 'key', 2, ['key' => [2, 1]]],
+			[['key' => [2, 1]], 'key', 77.9, ['key' => [77.9, 2, 1]]],
 		];
 	}
 

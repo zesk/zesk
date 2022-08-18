@@ -100,7 +100,7 @@ class Date_Test extends UnitTest {
 
 	public function optDate(): void {
 		$d = new Date();
-		$value = "2022-01-03";
+		$value = '2022-01-03';
 		$d->set($value);
 		$d?->set($value);
 	}
@@ -140,25 +140,25 @@ class Date_Test extends UnitTest {
 		$this->assert($x->day() === 20);
 
 		foreach ([
-			         '{YYYY}-{MM}-{DD}' => '2008-08-20',
-			         '{YY}-{MM}-{DD}' => '08-08-20',
-			         '{YY}-{M}-{D}' => '08-8-20',
-			         '{MMM} {DDD}, {YYYY}' => 'Aug 20th, 2008',
-			         '{MMMM} {DDD}, {YYYY}' => 'August 20th, 2008',
-			         '{YYY} {DDDD}' => '{YYY} {DDDD}',
-		         ] as $format_string => $expected) {
+					 '{YYYY}-{MM}-{DD}' => '2008-08-20',
+					 '{YY}-{MM}-{DD}' => '08-08-20',
+					 '{YY}-{M}-{D}' => '08-8-20',
+					 '{MMM} {DDD}, {YYYY}' => 'Aug 20th, 2008',
+					 '{MMMM} {DDD}, {YYYY}' => 'August 20th, 2008',
+					 '{YYY} {DDDD}' => '{YYY} {DDDD}',
+				 ] as $format_string => $expected) {
 			$this->assertEquals($expected, $x->format($this->application->locale, $format_string));
 		}
 
 		$x->parse('1999-12-01');
 		foreach ([
-			         '{YYYY}-{MM}-{DD}' => '1999-12-01',
-			         '{YY}-{MM}-{DD}' => '99-12-01',
-			         '{YY}-{M}-{D}' => '99-12-1',
-			         '{MMM} {DDD}, {YYYY}' => 'Dec 1st, 1999',
-			         '{MMMM} {DDD}, {YYYY}' => 'December 1st, 1999',
-			         '{YYY} {DDDD}' => '{YYY} {DDDD}',
-		         ] as $format_string => $expected) {
+					 '{YYYY}-{MM}-{DD}' => '1999-12-01',
+					 '{YY}-{MM}-{DD}' => '99-12-01',
+					 '{YY}-{M}-{D}' => '99-12-1',
+					 '{MMM} {DDD}, {YYYY}' => 'Dec 1st, 1999',
+					 '{MMMM} {DDD}, {YYYY}' => 'December 1st, 1999',
+					 '{YYY} {DDDD}' => '{YYY} {DDDD}',
+				 ] as $format_string => $expected) {
 			$this->assertEquals($expected, $x->format($this->application->locale, $format_string));
 		}
 	}

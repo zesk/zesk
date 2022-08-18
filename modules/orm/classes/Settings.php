@@ -299,7 +299,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 				$settings->delete();
 				if ($debug_save) {
 					$settings->application->logger->debug('Deleting {class} {name}', [
-						'class' => get_class($settings),
+						'class' => $settings::class,
 						'name' => $name,
 					]);
 				}
@@ -308,7 +308,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 				$settings->store();
 				if ($debug_save) {
 					$settings->application->logger->debug('Saved {class} {name}={value}', [
-						'class' => get_class($settings),
+						'class' => $settings::class,
 						'name' => $name,
 						'value' => $value,
 					]);

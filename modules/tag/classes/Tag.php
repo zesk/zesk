@@ -78,7 +78,7 @@ abstract class Tag extends ORM {
 	 */
 	public static function taggable(ORM $orm) {
 		$app = $orm->application;
-		$class_name = $app->objects->resolve(get_class($orm));
+		$class_name = $app->objects->resolve($orm::class);
 		return self::taggables($app)[$class_name] ?? null;
 	}
 

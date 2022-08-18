@@ -131,7 +131,7 @@ class Server_Configuration_Files extends Server_Configuration {
 			}
 		}
 		$this->application->logger->debug('Configured feature {class} {settings}', [
-			'class' => get_class($feature),
+			'class' => $feature::class,
 			'settings' => Text::format_pairs($settings),
 		]);
 		$feature->setOption($settings);

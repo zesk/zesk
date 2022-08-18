@@ -194,7 +194,7 @@ class Command_Help extends Command_Base {
 				]);
 				return true;
 			} catch (\Exception $e) {
-				echo get_class($e) . ' ' . $e->getMessage();
+				echo $e::class . ' ' . $e->getMessage();
 			}
 		}
 		while (count($paths) > 0) {
@@ -208,7 +208,7 @@ class Command_Help extends Command_Base {
 				]);
 				return true;
 			} catch (\Exception $e) {
-				echo get_class($e) . ' ' . $e->getMessage();
+				echo $e::class . ' ' . $e->getMessage();
 			}
 		}
 		return false;

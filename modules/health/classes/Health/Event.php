@@ -59,7 +59,7 @@ class Health_Event extends ORM {
 			error_log('Error while logging event ' . __METHOD__ . "\n" . $e->getMessage() . "\n" . $e->getTraceAsString());
 			$event['server'] = null;
 		}
-		$event['application'] = get_class($application);
+		$event['application'] = $application::class;
 
 		/* @var $class Class_Health_Event */
 		$class = $application->class_ormRegistry(__CLASS__);

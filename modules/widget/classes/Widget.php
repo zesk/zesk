@@ -1470,7 +1470,7 @@ class Widget extends Hookable {
 				$this->application->logger->warning('{class}::validate() {child_class} named {name} did not validate', [
 					'class' => get_class($this),
 					'name' => $child->name(),
-					'child_class' => get_class($child),
+					'child_class' => $child::class,
 				]);
 				$result = false;
 			}

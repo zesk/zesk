@@ -385,16 +385,16 @@ class DocComment extends Options {
 		foreach ($items as $key => $value) {
 			if (isset($multi_keys[$key])) {
 				$unparsed = $this->unparse_multi_key($value, $key);
-			} else if (isset($param_keys[$key])) {
+			} elseif (isset($param_keys[$key])) {
 				$unparsed = $this->unparse_param_key($value, $key);
-			} else if (isset($list_keys[$key])) {
+			} elseif (isset($list_keys[$key])) {
 				$unparsed = $this->unparse_list_key($value, $key);
 			} else {
 				$unparsed = $this->unparse_default($value, $key);
 			}
 			if (is_string($unparsed)) {
 				$result[] = $unparsed;
-			} else if (is_array($unparsed)) {
+			} elseif (is_array($unparsed)) {
 				$result[] = implode("\n", $unparsed);
 			}
 		}
