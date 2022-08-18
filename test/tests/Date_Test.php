@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -12,8 +14,8 @@ namespace zesk;
  * @author kent
  *
  */
-class Test_Date extends Test_Unit {
-	public function daysInMonthData() {
+class Date_Test extends UnitTest {
+	public function daysInMonthData(): array {
 		return [
 			[1, 2022, 31],
 			[2, 2022, 28],
@@ -44,12 +46,11 @@ class Test_Date extends Test_Unit {
 
 	public function test_weekday_names(): void {
 		$locale = $this->application->locale;
-		$short = false;
-		$names = Date::weekday_names($locale, $short);
-		$this->assertEquals(7, count($names));
+		$names = Date::weekday_names($locale, false);
+		$this->assertCount(7, $names);
 	}
 
-	public function _test_range_fail_parameters() {
+	public function _test_range_fail_parameters(): array {
 		return [
 			[
 				-1,
@@ -90,11 +91,18 @@ class Test_Date extends Test_Unit {
 	}
 
 	/**
-	 * @expectedException zesk\Exception_Range
 	 * @data_provider _test_range_fail_parameters
 	 */
 	public function test_range_fail($y, $m, $d): void {
+		$this->expectException(Exception_Range::class);
 		Date::instance($y, $m, $d);
+	}
+
+	public function optDate(): void {
+		$d = new Date();
+		$value = "2022-01-03";
+		$d->set($value);
+		$d?->set($value);
 	}
 
 	public function test_foo(): void {
@@ -132,27 +140,25 @@ class Test_Date extends Test_Unit {
 		$this->assert($x->day() === 20);
 
 		foreach ([
-			'{YYYY}-{MM}-{DD}' => '2008-08-20',
-			'{YY}-{MM}-{DD}' => '08-08-20',
-			'{YY}-{M}-{D}' => '08-8-20',
-			'{YY}-{MM}-{DD}' => '08-08-20',
-			'{MMM} {DDD}, {YYYY}' => 'Aug 20th, 2008',
-			'{MMMM} {DDD}, {YYYY}' => 'August 20th, 2008',
-			'{YYY} {DDDD}' => '{YYY} {DDDD}',
-		] as $format_string => $expected) {
+			         '{YYYY}-{MM}-{DD}' => '2008-08-20',
+			         '{YY}-{MM}-{DD}' => '08-08-20',
+			         '{YY}-{M}-{D}' => '08-8-20',
+			         '{MMM} {DDD}, {YYYY}' => 'Aug 20th, 2008',
+			         '{MMMM} {DDD}, {YYYY}' => 'August 20th, 2008',
+			         '{YYY} {DDDD}' => '{YYY} {DDDD}',
+		         ] as $format_string => $expected) {
 			$this->assertEquals($expected, $x->format($this->application->locale, $format_string));
 		}
 
 		$x->parse('1999-12-01');
 		foreach ([
-			'{YYYY}-{MM}-{DD}' => '1999-12-01',
-			'{YY}-{MM}-{DD}' => '99-12-01',
-			'{YY}-{M}-{D}' => '99-12-1',
-			'{YY}-{MM}-{DD}' => '99-12-01',
-			'{MMM} {DDD}, {YYYY}' => 'Dec 1st, 1999',
-			'{MMMM} {DDD}, {YYYY}' => 'December 1st, 1999',
-			'{YYY} {DDDD}' => '{YYY} {DDDD}',
-		] as $format_string => $expected) {
+			         '{YYYY}-{MM}-{DD}' => '1999-12-01',
+			         '{YY}-{MM}-{DD}' => '99-12-01',
+			         '{YY}-{M}-{D}' => '99-12-1',
+			         '{MMM} {DDD}, {YYYY}' => 'Dec 1st, 1999',
+			         '{MMMM} {DDD}, {YYYY}' => 'December 1st, 1999',
+			         '{YYY} {DDDD}' => '{YYY} {DDDD}',
+		         ] as $format_string => $expected) {
 			$this->assertEquals($expected, $x->format($this->application->locale, $format_string));
 		}
 	}

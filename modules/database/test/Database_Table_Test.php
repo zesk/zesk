@@ -14,7 +14,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Database_Table_Test extends Test_Unit {
+class Database_Table_Test extends UnitTest {
 	protected array $load_modules = [
 		'MySQL',
 	];

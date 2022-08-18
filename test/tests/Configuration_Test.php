@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class Configuration_Test extends Test_Unit {
+class Configuration_Test extends UnitTest {
 	public function value_types() {
 		return [
 			'Hello',

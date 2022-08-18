@@ -11,7 +11,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Preference_Type_Test extends Test_Unit {
+class Preference_Type_Test extends UnitTest {
 	protected array $load_modules = [
 		'Preference',
 		'MySQL',

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class TestWidget extends Test_Unit {
+class TestWidget extends UnitTest {
 	protected array $load_modules = [
 		'Widget',
 	];

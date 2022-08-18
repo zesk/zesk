@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Lists_Test extends Test_Unit {
+class Lists_Test extends UnitTest {
 	public function append_data_provider() {
 		$lists = [
 			[

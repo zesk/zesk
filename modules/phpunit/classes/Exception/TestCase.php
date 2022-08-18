@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class Exception_TestCase extends Test_Unit {
+class Exception_TestCase extends UnitTest {
 	protected array $load_modules = ['database', 'mysql'];
 
 	public function simple_exceptions() {

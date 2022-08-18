@@ -10,7 +10,7 @@ namespace zesk;
  * @author kent
  *
  */
-class JavaScript_Test extends Test_Unit {
+class JavaScript_Test extends UnitTest {
 	public function data_cleanFunctionName(): array {
 		return [
 			['foobar', 'foo bar'],

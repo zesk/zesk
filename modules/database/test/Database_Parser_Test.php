@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Database_Parser_Test extends Test_Unit {
+class Database_Parser_Test extends UnitTest {
 	protected array $load_modules = [
 		'MySQL',
 	];

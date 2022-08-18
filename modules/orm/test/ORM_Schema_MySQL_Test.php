@@ -12,7 +12,7 @@ namespace zesk;
  * @author kent
  *
  */
-class ORM_Schema_MySQL_Test extends Test_Unit {
+class ORM_Schema_MySQL_Test extends UnitTest {
 	/**
 	 *
 	 * @var array

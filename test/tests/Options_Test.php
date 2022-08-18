@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Options_Test extends Test_Unit {
+class Options_Test extends UnitTest {
 	public function test_options(): void {
 		$options = [];
 		$testx = new Options($options);

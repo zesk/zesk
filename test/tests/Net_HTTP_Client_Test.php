@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Net_HTTP_Client_Test extends Test_Unit {
+class Net_HTTP_Client_Test extends UnitTest {
 	public const TEST_URL = 'https://marketacumen.com/';
 
 	public function test_all(): void {

@@ -21,6 +21,7 @@ RUN set -a && . /etc/env.sh && /root/sbin/envmap.sh < /tmp/xdebug.ini > /usr/loc
 RUN rm /tmp/xdebug.ini
 
 RUN /root/sbin/docker-php-xdebug.sh
+COPY docker/bin/composer-installer.php /usr/local/bin/
 RUN /root/sbin/install-composer.sh
 
 COPY docker/bin/*.sh /usr/local/bin/

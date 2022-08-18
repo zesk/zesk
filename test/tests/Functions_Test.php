@@ -11,7 +11,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Functions_Test extends Test_Unit {
+class Functions_Test extends UnitTest {
 	public function test_path(): void {
 		path();
 

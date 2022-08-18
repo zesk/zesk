@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class ulong_Test extends Test_Unit {
+class ulong_Test extends UnitTest {
 	public function test_ulong(): void {
 		$x = 0;
 		$testx = new ulong($x);

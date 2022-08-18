@@ -11,7 +11,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Overhead_Test extends Test_Unit {
+class Overhead_Test extends UnitTest {
 	protected array $load_modules = [
 		'ORM',
 	];

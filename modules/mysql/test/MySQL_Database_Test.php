@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class MySQL_Database_Test extends Test_Unit {
+class MySQL_Database_Test extends UnitTest {
 	protected array $load_modules = [
 		'MySQL',
 	];

@@ -10,7 +10,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Test_Database_Exception extends Test_Unit {
+class Test_Database_Exception extends UnitTest {
 	protected array $load_modules = ['mysql', 'database'];
 
 	public function database() {

@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Request_Test extends Test_Unit {
+class Request_Test extends UnitTest {
 	public function test_instance(): void {
 		$request = $this->application->request();
 		$this->assert_null($request, __NAMESPACE__ . '\\' . 'Request');

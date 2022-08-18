@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class URL_Test extends Test_Unit {
+class URL_Test extends UnitTest {
 	public function test_parse(): void {
 		$test_urls = [
 			'scheme://user:pass@host/path?query#fragment' => [

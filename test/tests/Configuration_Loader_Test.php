@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/test/classes/conf.inc $
  * @package zesk
@@ -6,6 +7,7 @@
  * @author $Author: kent $
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -13,13 +15,13 @@ namespace zesk;
  * @author kent
  *
  */
-class Configuration_Loader_Test extends Test_Unit {
+class Configuration_Loader_Test extends UnitTest {
 	public function test_implements(): void {
 		$config = new Configuration();
 		$settings = new Adapter_Settings_Configuration($config);
-		$this->assert_instanceof($settings, __NAMESPACE__ . '\\' . 'Adapter_Settings_Configuration');
-		$this->assert_instanceof($settings, __NAMESPACE__ . '\\' . 'Interface_Settings');
-		$this->assert_implements($settings, __NAMESPACE__ . '\\' . 'Interface_Settings');
+		$this->assertInstanceOf(__NAMESPACE__ . '\\' . 'Adapter_Settings_Configuration', $settings);
+		$this->assertInstanceOf(__NAMESPACE__ . '\\' . 'Interface_Settings', $settings);
+		$this->assert_implements(__NAMESPACE__ . '\\' . 'Interface_Settings', $settings);
 	}
 
 	public function test_new(): void {
@@ -86,16 +88,16 @@ class Configuration_Loader_Test extends Test_Unit {
 
 		$files = [];
 		foreach ([
-			$one,
-			path($path, 'nope'),
-			$two,
-			path($path, 'double_nope'),
-			$three,
-		] as $dir) {
+			         $one,
+			         path($path, 'nope'),
+			         $two,
+			         path($path, 'double_nope'),
+			         $three,
+		         ] as $dir) {
 			foreach ([
-				'a.conf',
-				'b.json',
-			] as $f) {
+				         'a.conf',
+				         'b.json',
+			         ] as $f) {
 				$files[] = path($dir, $f);
 			}
 		}

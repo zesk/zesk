@@ -16,6 +16,7 @@ use zesk\Test\Exception;
  *
  * @author kent
  * @category Test
+ * @deprecated 2022 Use PHPUnit
  */
 class Command_Test extends Command_Base {
 	/**

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class UTF16_Test extends Test_Unit {
+class UTF16_Test extends UnitTest {
 	public function test_decode(): void {
 		$str = null;
 		$be = null;

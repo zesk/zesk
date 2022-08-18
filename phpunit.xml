@@ -4,11 +4,8 @@
          convertErrorsToExceptions="true" convertWarningsToExceptions="true"
          convertNoticesToExceptions="true">
     <testsuites>
-        <testsuite name="subversion">
-            <directory>modules/subversion/test</directory>
-        </testsuite>
-        <testsuite name="git">
-            <directory>modules/git/test</directory>
+        <testsuite name="core">
+            <directory>test/tests</directory>
         </testsuite>
     </testsuites>
     <extensions>

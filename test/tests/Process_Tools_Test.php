@@ -9,7 +9,7 @@
  */
 namespace zesk;
 
-class Process_Tools_Test extends Test_Unit {
+class Process_Tools_Test extends UnitTest {
 	protected array $load_modules = [
 		'MySQL',
 	];

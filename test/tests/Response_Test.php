@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Response_Test extends Test_Unit {
+class Response_Test extends UnitTest {
 	/**
 	 *
 	 */

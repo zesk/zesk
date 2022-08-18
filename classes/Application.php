@@ -1180,7 +1180,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	private function determineRoute(Request $request): Route {
 		$router = $this->router();
 		$this->logger->debug('App bootstrap took {seconds} seconds', [
-			'seconds' => sprintf('%.3f', microtime(true) - $this->kernel->initializationTime),
+			'seconds' => sprintf('%.3f', microtime(true) - $this->kernel->initialization_time),
 		]);
 		$this->call_hook('router_prematch', $router, $request);
 		$route = $router->match($request);
@@ -1309,7 +1309,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			$final_map['{page-is-cached}'] = '1';
 		}
 		$final_map += [
-			'{page-render-time}' => sprintf('%.3f', microtime(true) - $this->kernel->initializationTime),
+			'{page-render-time}' => sprintf('%.3f', microtime(true) - $this->kernel->initialization_time),
 		];
 		if (!$response || $response->isContentType([
 				'text/',
@@ -2186,7 +2186,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @return double Microseconds initialization time
 	 */
 	final public function initializationTime() {
-		return $this->kernel->initializationTime;
+		return $this->kernel->initialization_time;
 	}
 
 	/**
@@ -2221,7 +2221,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @return callable
 	 */
 	final public function registerFactory(string $code, callable $callable): ?callable {
+		// Ideally this method will become deprecated
 		$this->_registerFactory($code . '_factory', $callable);
+		// camelCase Factory method
 		return $this->_registerFactory($code . 'Factory', $callable);
 	}
 

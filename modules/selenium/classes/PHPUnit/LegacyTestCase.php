@@ -257,7 +257,7 @@ namespace zesk;
  * @author Shin Ohno <ganchiku at gmail dot com>
  * @author Bjoern Schotte <schotte at mayflower dot de>
  */
-class Test_Selenium_Legacy extends Test_Unit {
+class Test_Selenium_Legacy extends UnitTest {
 	/**
 	 *
 	 * @var string

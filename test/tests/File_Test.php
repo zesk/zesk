@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class File_Test extends Test_Unit {
+class File_Test extends UnitTest {
 	private function _test_atomic_increment(string $path, $start): void {
 		$this->assert(File::atomic_put($path, "$start"), 'Creating initial file');
 		for ($j = 0; $j < 100; $j++) {

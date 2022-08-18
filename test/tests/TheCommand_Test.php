@@ -12,7 +12,7 @@ namespace zesk;
  * @author kent
  *
  */
-class TheCommand_Test extends Test_Unit {
+class TheCommand_Test extends UnitTest {
 	public function test_main(): void {
 		$dir = $this->test_sandbox();
 		$f = $this->test_sandbox('test-file.txt');

@@ -10,7 +10,7 @@ namespace zesk;
 /**
  *
  */
-class Net_FTP_Client_Test extends Test_Unit {
+class Net_FTP_Client_Test extends UnitTest {
 	public function test_basics(): void {
 		$url = 'ftp://user:pass@localhost';
 		$directory = null;

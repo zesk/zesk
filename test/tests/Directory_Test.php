@@ -39,7 +39,7 @@ class testdir {
  * @author kent
  *
  */
-class Directory_Test extends Test_Unit {
+class Directory_Test extends UnitTest {
 	/**
 	 * @expectedException zesk\Exception_Parameter
 	 */

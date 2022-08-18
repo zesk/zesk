@@ -6,7 +6,7 @@ namespace zesk;
 /**
  *
  */
-class IPv4_Test extends Test_Unit {
+class IPv4_Test extends UnitTest {
 	public function test_from_integer(): void {
 		$ipid = null;
 		$this->assert(IPv4::from_integer(3232235720) === '192.168.0.200');

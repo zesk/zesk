@@ -8,7 +8,7 @@ use zesk\Test_Unit;
  * @author kent
  *
  */
-class Diff_Test extends Test_Unit {
+class Diff_Test extends UnitTest {
 	protected array $load_modules = [
 		'diff',
 	];

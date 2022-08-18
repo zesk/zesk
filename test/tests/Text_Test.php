@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class Text_Test extends Test_Unit {
+class Text_Test extends UnitTest {
 	public function test_fill(): void {
 		$n = null;
 		$pad = ' ';

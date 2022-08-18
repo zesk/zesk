@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Number_Test extends Test_Unit {
+class Number_Test extends UnitTest {
 	public function test_format_bytes(): void {
 		$locale = $this->application->localeRegistry('en');
 		$tests = [

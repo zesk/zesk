@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 use zesk\Test_Unit;
 
-class Test_RRule_Rule extends Test_Unit {
+class Test_RRule_Rule extends UnitTest {
 	protected array $load_modules = [
 		'icalendar',
 	];

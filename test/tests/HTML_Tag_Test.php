@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class HTML_Tag_Test extends Test_Unit {
+class HTML_Tag_Test extends UnitTest {
 	public function test_basics(): void {
 		$name = 'div';
 		$attributes = ['class' => 'header'];

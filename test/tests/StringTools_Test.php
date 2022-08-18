@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class StringTools_Test extends Test_Unit {
+class StringTools_Test extends UnitTest {
 	/**
 	 * @return array[]
 	 */

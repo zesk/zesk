@@ -11,7 +11,7 @@ use zesk\Diff\Lines;
  * @author kent
  *
  */
-class Markdown_Test extends Test_Unit {
+class Markdown_Test extends UnitTest {
 	protected array $load_modules = [
 		'markdown',
 		'diff',

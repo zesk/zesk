@@ -11,7 +11,7 @@ namespace zesk;
  * @author kent
  *
  */
-class JSON_Test extends Test_Unit {
+class JSON_Test extends UnitTest {
 	/**
 	 * @expectedException zesk\Exception_Parse
 	 */

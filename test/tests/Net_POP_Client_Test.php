@@ -14,7 +14,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Net_POP_Client_Test extends Test_Unit {
+class Net_POP_Client_Test extends UnitTest {
 	/**
 	 *
 	 * @var string

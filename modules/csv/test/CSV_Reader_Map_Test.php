@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class CSV_Reader_Test extends Test_Unit {
+class CSV_Reader_Test extends UnitTest {
 	protected array $load_modules = [
 		'CSV',
 	];

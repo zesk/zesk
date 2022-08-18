@@ -8,7 +8,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Domain_Test extends Test_Unit {
+class Domain_Test extends UnitTest {
 	protected array $load_modules = [
 		'MySQL',
 		'ORM',

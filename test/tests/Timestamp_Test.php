@@ -11,7 +11,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Timestamp_Test extends Test_Unit {
+class Timestamp_Test extends UnitTest {
 	public function test_instance(): void {
 		$year = $month = $day = $hour = $minute = $second = null;
 		Timestamp::instance($year, $month, $day, $hour, $minute, $second);

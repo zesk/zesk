@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class Controller_Test extends Test_Unit {
+class Controller_Test extends UnitTest {
 	/**
 	 *
 	 */

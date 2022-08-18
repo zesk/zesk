@@ -7,7 +7,7 @@
  */
 namespace zesk;
 
-class CharSet_Test extends Test_Unit {
+class CharSet_Test extends UnitTest {
 	public function test_supported(): void {
 		$charset = null;
 		$result = charset::supported($charset);

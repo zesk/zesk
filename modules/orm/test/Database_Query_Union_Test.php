@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class Database_Query_Union_Test extends Test_Unit {
+class Database_Query_Union_Test extends UnitTest {
 	protected array $load_modules = [
 		'MySQL',
 		'ORM',

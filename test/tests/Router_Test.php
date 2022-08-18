@@ -4,7 +4,7 @@
  */
 namespace zesk;
 
-class Router_Test extends Test_Unit {
+class Router_Test extends UnitTest {
 	public function test_Router(): void {
 		$testx = new Router($this->application);
 

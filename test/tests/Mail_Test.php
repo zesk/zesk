@@ -10,7 +10,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Mail_Test extends Test_Unit {
+class Mail_Test extends UnitTest {
 	/**
 	 *
 	 * @var unknown

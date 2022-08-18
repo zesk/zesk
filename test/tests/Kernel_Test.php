@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class Kernel_Test extends Test_Unit {
+class Kernel_Test extends UnitTest {
 	/**
 	 * @var int
 	 */

@@ -3,15 +3,14 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class CSS_Test extends Test_Unit {
+class CSS_Test extends UnitTest {
 	/**
 	 * @return void@
-	 * @expectedException zesk\Exception_Syntax
 	 */
 	public function test_bad_color(): void {
 		$text = '';
-		$default = null;
-		$this->assertEquals(null, CSS::colorParse($text, $default));
+		$this->expectException(Exception_Syntax::class);
+		$this->assertEquals(null, CSS::colorParse($text));
 	}
 
 	public function test_colorParse(): void {
@@ -60,9 +59,9 @@ class CSS_Test extends Test_Unit {
 
 	/**
 	 * @return void
-	 * @expectedException zesk\Exception_Syntax
 	 */
 	public function test_color_normalize_blank(): void {
+		$this->expectException(Exception_Syntax::class);
 		CSS::colorNormalize('', 'nope');
 	}
 

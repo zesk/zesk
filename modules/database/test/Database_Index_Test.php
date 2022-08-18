@@ -12,7 +12,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Database_Index_Test extends Test_Unit {
+class Database_Index_Test extends UnitTest {
 	protected array $load_modules = [
 		'MySQL',
 	];

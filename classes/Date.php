@@ -437,15 +437,9 @@ class Date extends Temporal {
 	}
 
 	/**
-	 * @param integer|null $set
-	 * @return $this|integer
-	 * @throws Exception_Range
+	 * @return integer
 	 */
-	public function day(int $set = null): int {
-		if ($set !== null) {
-			zesk()->deprecated('setter');
-			$this->setDay($set);
-		}
+	public function day(): int {
 		return $this->day;
 	}
 
@@ -475,14 +469,9 @@ class Date extends Temporal {
 
 	/**
 	 *
-	 * @param int $set
 	 * @return int
 	 */
-	public function year(int $set = null): int {
-		if ($set != null) {
-			zesk()->deprecated('setter');
-			$this->setYear(intval($set));
-		}
+	public function year(): int {
 		return $this->year;
 	}
 
@@ -505,23 +494,11 @@ class Date extends Temporal {
 	/**
 	 * @return int|null
 	 */
-	protected function _weekday(): ?int {
+	public function weekday(): ?int {
 		if (($this->_weekday === null) && (!$this->_refresh())) {
 			return null;
 		}
 		return $this->_weekday;
-	}
-
-	/**
-	 * @param int $set
-	 * @return ?int
-	 */
-	public function weekday(int $set = null): ?int {
-		if ($set !== null) {
-			zesk()->deprecated('setter');
-			$this->setWeekday(intval($set));
-		}
-		return $this->_weekday();
 	}
 
 	/**
@@ -530,9 +507,9 @@ class Date extends Temporal {
 	 * @param int $set
 	 * @return $this
 	 */
-	public function setWeekday(int $set) {
+	public function setWeekday(int $set): self {
 		$set = abs($set) % 7;
-		$weekday = $this->_weekday();
+		$weekday = $this->weekday();
 		if ($weekday === $set) {
 			return $this;
 		}
@@ -549,7 +526,6 @@ class Date extends Temporal {
 	 *
 	 * @inline_test zesk\Date::factory('2020-01-01')->year_day() === 0
 	 * @inline_test zesk\Date::factory('2020-01-02')->year_day() === 1
-	 * @param int $set
 	 * @return int|null
 	 */
 	public function yearday(): ?int {

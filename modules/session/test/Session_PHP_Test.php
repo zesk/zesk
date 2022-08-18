@@ -12,7 +12,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Session_PHP_Test extends Test_Unit {
+class Session_PHP_Test extends UnitTest {
 	protected array $load_modules = [
 		'session',
 	];

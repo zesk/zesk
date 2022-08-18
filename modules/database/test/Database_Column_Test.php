@@ -8,7 +8,7 @@
  */
 namespace zesk;
 
-class Database_Column_Test extends Test_Unit {
+class Database_Column_Test extends UnitTest {
 	protected array $load_modules = [
 		'MySQL',
 	];

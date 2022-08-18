@@ -10,7 +10,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Test_CSV extends Test_Unit {
+class CSV_Test extends UnitTest {
 	protected array $load_modules = [
 		'csv',
 	];

@@ -14,6 +14,7 @@ namespace zesk;
  * base class for all unit tests
  *
  * @author kent
+ * @deprecated 2022
  */
 class Test_Unit extends Adapter_TestFramework {
 }

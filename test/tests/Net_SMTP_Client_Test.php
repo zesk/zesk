@@ -13,7 +13,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Net_SMTP_Client_Test extends Test_Unit {
+class Net_SMTP_Client_Test extends UnitTest {
 	public function test_main(): void {
 		$url = $this->option('url');
 		if (!$url) {

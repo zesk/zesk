@@ -15,7 +15,7 @@ use zesk\Database\QueryResult;
  * @author kent
  *
  */
-class Database_Test extends Test_Unit {
+class Database_Test extends UnitTest {
 	protected array $load_modules = [
 		'MySQL',
 		'ORM',

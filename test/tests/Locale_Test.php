@@ -13,7 +13,7 @@ use zesk\Lists;
  * @author kent
  *
  */
-class Locale_Test extends Test_Unit {
+class Locale_Test extends UnitTest {
 	public function test_plural(): void {
 		$tests = [
 			'Jazz' => 'Jazzes',

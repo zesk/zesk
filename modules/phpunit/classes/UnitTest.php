@@ -8,9 +8,9 @@ namespace zesk;
 
 /**
  * Glue for old tests
- * @deprecated 2022
+ *
  */
-class Adapter_TestFramework extends PHPUnit_TestCase {
+class UnitTest extends PHPUnit_TestCase {
 	/**
 	 *
 	 * @param boolean $condition
@@ -107,7 +107,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase {
 	 * @param mixed $mixed
 	 * @param string $message
 	 */
-	final public function assert_implements($mixed, $instanceof, string $message = ''): void {
+	final public function assert_implements(string $instanceof, mixed $mixed, string $message = ''): void {
 		$interfaces = class_implements($mixed);
 		$this->assert(in_array($instanceof, $interfaces), '!' . type($mixed) . " implements $instanceof (does implement " . implode(', ', $interfaces) . ") $message", false);
 	}

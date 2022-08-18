@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage kernel
  * @author kent
  * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -14,11 +16,11 @@ namespace zesk;
  *
  */
 class HookGroup {
-	public $first = [];
+	public array $first = [];
 
-	public $middle = [];
+	public array $middle = [];
 
-	public $last = [];
+	public array $last = [];
 
 	/**
 	 * Merge two groups together
@@ -26,7 +28,7 @@ class HookGroup {
 	 * @param HookGroup $merge
 	 * @return HookGroup
 	 */
-	public function merge(HookGroup $merge) {
+	public function merge(HookGroup $merge): self {
 		$this->first = array_merge($this->first, $merge->first);
 		$this->middle = array_merge($this->middle, $merge->middle);
 		$this->last = array_merge($this->last, $merge->last);
@@ -38,7 +40,7 @@ class HookGroup {
 	 *
 	 * @return array
 	 */
-	public function definitions() {
+	public function definitions(): array {
 		return $this->first + $this->middle + $this->last;
 	}
 
@@ -47,7 +49,7 @@ class HookGroup {
 	 * @param string $callable_string
 	 * @return boolean
 	 */
-	public function has($callable_string) {
+	public function has(string $callable_string): bool {
 		return isset($this->first[$callable_string]) || isset($this->middle[$callable_string]) || isset($this->last[$callable_string]);
 	}
 }

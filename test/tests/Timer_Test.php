@@ -6,7 +6,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Timer_Test extends Test_Unit {
+class Timer_Test extends UnitTest {
 	public function test_now(): void {
 		Timer::now();
 	}

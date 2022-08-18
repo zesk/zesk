@@ -115,8 +115,8 @@ class Modules {
 	 *
 	 * @return array
 	 */
-	final public function available() {
-		$module_paths = $this->application->module_path();
+	final public function available(): array {
+		$module_paths = $this->application->modulePath();
 		$files = [];
 		$options = [
 			'rules_file' => [
@@ -157,24 +157,20 @@ class Modules {
 	 * @param string $mixed
 	 *            Check if one or more module is loaded
 	 *
-	 * @return array|boolean
+	 * @return array
 	 */
-	final public function loaded($mixed = null) {
+	final public function loaded(string|array $mixed = null): array {
 		if ($mixed === null) {
 			$result = $this->modules;
 		} else {
 			$result = [];
-			$modules = to_list($mixed);
+			$modules = toList($mixed);
 			foreach ($modules as $index => $module) {
 				$module = $modules[$index] = self::clean_name($module);
-				$result[$module] = avalue($this->modules, $module, []);
+				$result[$module] = $this->modules[$module] ?? [];
 			}
 		}
-		$result = ArrayTools::collapse($result, self::status_loaded, false);
-		if ($mixed !== null && count($modules) === 1) {
-			return $result[$modules[0]];
-		}
-		return $result;
+		return ArrayTools::collapse($result, self::status_loaded, false);
 	}
 
 	/**
@@ -218,7 +214,7 @@ class Modules {
 					];
 
 				continue;
-			} elseif ($options['check loaded'] ?? false) {
+			} else if ($options['check loaded'] ?? false) {
 				$result[$name] = $options['not loaded'] ?? null;
 
 				continue;
@@ -274,9 +270,9 @@ class Modules {
 			if ($module === null) {
 				$module = avalue($current, 'name');
 			}
-		} elseif ($module == null) {
+		} else if ($module == null) {
 			throw new Exception_Parameter('Require a $module path if not called during module load');
-		} elseif (isset($this->modules[$module])) {
+		} else if (isset($this->modules[$module])) {
 			if (!is_dir($module_path)) {
 				throw new Exception_Directory_NotFound($module_path);
 			}

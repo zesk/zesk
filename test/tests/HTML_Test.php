@@ -12,7 +12,7 @@ namespace zesk;
  * @author kent
  *
  */
-class HTML_Test extends Test_Unit {
+class HTML_Test extends UnitTest {
 	public function test_style_clean(): void {
 		$attr = [
 			'type' => 'text/javascript',

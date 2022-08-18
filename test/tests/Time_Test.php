@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class Test_Time extends Test_Unit {
+class Test_Time extends UnitTest {
 	public function test_instance(): void {
 		$hh = 0;
 		$mm = 0;

@@ -10,7 +10,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Net_SMTP_Client2_Test extends Test_Unit {
+class Net_SMTP_Client2_Test extends UnitTest {
 	public function test_Net_SMTP_Client(): void {
 		$url = 'smtp://mail.marketacumen.com';
 		$options = [

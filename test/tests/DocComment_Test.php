@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class DocComment_Test extends Test_Unit {
+class DocComment_Test extends UnitTest {
 	public function test_extract(): void {
 		$testfile = ZESK_ROOT . 'classes/ArrayTools.php';
 		$content = file_get_contents($testfile);

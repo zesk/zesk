@@ -10,7 +10,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Template_Test extends Test_Unit {
+class Template_Test extends UnitTest {
 	public function initialize(): void {
 	}
 

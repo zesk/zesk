@@ -13,8 +13,9 @@ namespace zesk;
  * Mapping from old Zesk Test to PHPUnit tests as we migrate to PHPUNit
  *
  * @author kent
+ * @deprecated 2022 Use PHPUnit
  */
-class Adapter_TestFramework extends Test implements Interface_Testable {
+class Deprecated_Adapter_TestFramework extends Test implements Interface_Testable {
 	public function assertArrayHasKey(int|string $key, array $array, string $message = ''): void {
 		$this->assertTrue(array_key_exists($key, $array), $message ?: 'Array (keys: \'' . implode('\', \'', array_keys($array)) . "') missing key $key");
 	}

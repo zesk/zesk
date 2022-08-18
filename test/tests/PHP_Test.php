@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class PHP_Test extends Test_Unit {
+class PHP_Test extends UnitTest {
 	public function test_php_basics(): void {
 		$this->assert_false(!![]);
 		$this->assert_true(!![

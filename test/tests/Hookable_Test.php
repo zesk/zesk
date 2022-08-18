@@ -8,7 +8,7 @@ class hookable_test_a extends Hookable {
 		return $data;
 	}
 }
-class Hookable_Test extends Test_Unit {
+class Hookable_Test extends UnitTest {
 	public static $counter = 0;
 
 	public function test_hook_series(): void {

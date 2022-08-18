@@ -208,9 +208,12 @@ class DocComment extends Options {
 	}
 
 	private function parse_param_key($value) {
-		$lines = ArrayTools::clean(to_list($value, [], "\n"), ['', null]);
+		$lines = ArrayTools::clean(toList($value, [], "\n"), ['', null]);
 		$keys = ArrayTools::field($lines, 1, " \t");
-		$values = ArrayTools::field($lines, null, " \t", 3);
+		$values = [];
+		foreach ($lines as $line) {
+			$values[] = StringTools::field($line, null, " \t", 3);
+		}
 		return ArrayTools::rekey($keys, $values);
 	}
 
@@ -382,16 +385,16 @@ class DocComment extends Options {
 		foreach ($items as $key => $value) {
 			if (isset($multi_keys[$key])) {
 				$unparsed = $this->unparse_multi_key($value, $key);
-			} elseif (isset($param_keys[$key])) {
+			} else if (isset($param_keys[$key])) {
 				$unparsed = $this->unparse_param_key($value, $key);
-			} elseif (isset($list_keys[$key])) {
+			} else if (isset($list_keys[$key])) {
 				$unparsed = $this->unparse_list_key($value, $key);
 			} else {
 				$unparsed = $this->unparse_default($value, $key);
 			}
 			if (is_string($unparsed)) {
 				$result[] = $unparsed;
-			} elseif (is_array($unparsed)) {
+			} else if (is_array($unparsed)) {
 				$result[] = implode("\n", $unparsed);
 			}
 		}

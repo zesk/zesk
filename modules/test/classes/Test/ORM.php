@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class Test_ORM extends Test_Unit {
+class Test_ORM extends UnitTest {
 	public function _test_object() {
 		$this->assert($this->class !== null);
 		return $this->application->objects->factory($this->class);

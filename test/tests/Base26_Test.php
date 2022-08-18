@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class Base26_Test extends Test_Unit {
+class Base26_Test extends UnitTest {
 	public function test_from_integer(): void {
 		$i = null;
 		$nChars = null;

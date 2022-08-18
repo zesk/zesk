@@ -35,7 +35,7 @@ class ArrayTools {
 		foreach ($array as $k => $v) {
 			if (is_array($v)) {
 				$array[$k] = self::capitalize($v);
-			} elseif (is_string($v)) {
+			} else if (is_string($v)) {
 				$array[$k] = StringTools::capitalize($v);
 			}
 		}
@@ -71,7 +71,7 @@ class ArrayTools {
 		foreach ($a as $k => $v) {
 			if (is_object($v)) {
 				$a[$k] = method_exists($v, '__toString') ? strval($v) : self::simplify(get_object_vars($v));
-			} elseif (is_array($v)) {
+			} else if (is_array($v)) {
 				$a[$k] = self::simplify($v);
 			} else {
 				$a[$k] = flatten($v);
@@ -131,13 +131,13 @@ class ArrayTools {
 
 	/**
 	 * @param array $a
-	 * @param $character_list
+	 * @param string $character_list
 	 * @return array
 	 */
-	public static function listTrimHead(array $a, $character_list = self::TRIM_WHITESPACE): array {
+	public static function listTrimHead(array $a, string $character_list = self::TRIM_WHITESPACE): array {
 		while (count($a) > 0) {
 			$item = first($a);
-			if (trim($item, $character_list) === '') {
+			if (empty($item) || (is_scalar($item) && trim(strval($item), $character_list) === '')) {
 				array_shift($a);
 			} else {
 				break;
@@ -156,7 +156,7 @@ class ArrayTools {
 	public static function listTrimTail(array $a, string $character_list = self::TRIM_WHITESPACE): array {
 		while (count($a) > 0) {
 			$item = last($a);
-			if (trim($item, $character_list) === '') {
+			if (empty($item) || (is_scalar($item) && trim(strval($item), $character_list) === '')) {
 				array_pop($a);
 			} else {
 				break;
@@ -357,10 +357,10 @@ class ArrayTools {
 			if (is_string($v)) {
 				if (begins($v, $str)) {
 					$arr[$k] = substr($v, $n);
-				} elseif ($remove) {
+				} else if ($remove) {
 					unset($arr[$k]);
 				}
-			} elseif (is_array($v)) {
+			} else if (is_array($v)) {
 				$arr[$k] = self::valuesRemovePrefix($v, $str, $remove);
 			}
 		}
@@ -383,10 +383,10 @@ class ArrayTools {
 			if (is_string($v)) {
 				if (ends($v, $str)) {
 					$arr[$k] = substr($v, 0, -$n);
-				} elseif ($remove) {
+				} else if ($remove) {
 					unset($arr[$k]);
 				}
-			} elseif (is_array($v)) {
+			} else if (is_array($v)) {
 				$arr[$k] = self::valuesRemoveSuffix($v, $str, $remove);
 			}
 		}
@@ -411,10 +411,10 @@ class ArrayTools {
 			if (is_string($v)) {
 				if (begins($v, $prefix) && ends($v, $suffix)) {
 					$arr[$k] = substr($v, $n_prefix, -$n_suffix);
-				} elseif ($remove) {
+				} else if ($remove) {
 					unset($arr[$k]);
 				}
-			} elseif (is_array($v)) {
+			} else if (is_array($v)) {
 				$arr[$k] = ArrayTools::$n_suffix($v, $prefix, $suffix, $remove);
 			}
 		}
@@ -436,7 +436,7 @@ class ArrayTools {
 		foreach ($arr as $k => $v) {
 			if (substr($k, 0, $n) === $str) {
 				$result[substr($k, $n)] = $v;
-			} elseif (!$remove) {
+			} else if (!$remove) {
 				$result[$k] = $v;
 			}
 		}
@@ -458,7 +458,7 @@ class ArrayTools {
 		foreach ($arr as $k => $v) {
 			if (substr($k, -$n) === $str) {
 				$result[substr($k, 0, -$n)] = $v;
-			} elseif (!$remove) {
+			} else if (!$remove) {
 				$result[$k] = $v;
 			}
 		}
@@ -518,7 +518,7 @@ class ArrayTools {
 					if (is_array($val)) {
 						// Arrays are merged recursively
 						$result[$key] = self::merge($result[$key], $val);
-					} elseif (is_int($key)) {
+					} else if (is_int($key)) {
 						// Indexed arrays are appended
 						array_push($result, $val);
 					} else {
@@ -586,7 +586,7 @@ class ArrayTools {
 			foreach ($arrays as $key => $array) {
 				$result[$key] = $array[$value_key] ?? $default_value;
 			}
-		} elseif ($value_key == null) {
+		} else if ($value_key == null) {
 			foreach ($arrays as $array) {
 				if (array_key_exists($key_key, $array)) {
 					$result[$array[$key_key]] = $array;
@@ -647,7 +647,7 @@ class ArrayTools {
 			$new_key = $key_map[$k] ?? $k;
 			if ($new_key !== $k) {
 				$skip[$new_key] = true;
-			} elseif (array_key_exists($k, $skip)) {
+			} else if (array_key_exists($k, $skip)) {
 				continue;
 			}
 			$new_array[$new_key] = $v;
@@ -675,28 +675,6 @@ class ArrayTools {
 	}
 
 	/**
-	 * Kind of like UNIX "awk '{ print $index }'"
-	 * Null for index means return the whole list as an array
-	 *
-	 * @param array $array
-	 * @param ?int $index
-	 * @param string $delim
-	 *            List of delimiter characters
-	 * @param ?int $max_fields
-	 * @return array
-	 */
-	public static function field(array $array, int $index = null, string $delim = " \t", int $max_fields = null): array {
-		foreach ($array as $k => $v) {
-			if (is_string($v)) {
-				$array[$k] = StringTools::field($v, $index, $delim, $max_fields);
-			} elseif (is_array($v)) {
-				$array[$k] = self::field($v, $index, $delim, $max_fields);
-			}
-		}
-		return $array;
-	}
-
-	/**
 	 * Convert a list of strings to a set of key pairs by dividing them along a delimiter
 	 *
 	 * @inline_test ArrayTools::pairValues(["dog bark", "cat meow", "child coo"]) === ["dog" => "bark", "cat" => "meow", "child" => "coo"];
@@ -707,11 +685,19 @@ class ArrayTools {
 	 *            Delimiter to split on
 	 * @return array
 	 */
-	public static function pairValues(array $array, $delim = ' ') {
+	public static function pairValues(array $array, string $delim = ' '): array {
 		$result = [];
 		foreach ($array as $k => $item) {
-			[$key, $value] = pair($item, $delim, $k, $item);
-			$result[$key] = $value;
+			if (is_string($item)) {
+				[$key, $value] = pair($item, $delim);
+				if ($key) {
+					$result[$key] = $value;
+				} else {
+					$result[$k] = $item;
+				}
+			} else {
+				$result[$k] = $item;
+			}
 		}
 		return $result;
 	}
@@ -756,30 +742,10 @@ class ArrayTools {
 	 * @return boolean
 	 * @see to_list
 	 */
-	public static function has(array $array, string|array $keys): bool {
+	public static function has(array $array, string|array|int $keys): bool {
 		$keys = toList($keys);
 		foreach ($keys as $key) {
 			if (!array_key_exists($key, $array)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Return true if an array has all values specified
-	 *
-	 * @param array $array
-	 * @param string|array $values
-	 *            A key, or an array of keys to check for. If a string, converted to a list via
-	 *            to_list
-	 * @return boolean
-	 * @see to_list
-	 */
-	public static function hasValue(array $array, string|array $values) {
-		$values = toList($values);
-		foreach ($values as $value) {
-			if (!in_array($value, $array)) {
 				return false;
 			}
 		}
@@ -842,9 +808,9 @@ class ArrayTools {
 		foreach ($a as $i) {
 			if (!is_numeric($i)) {
 				continue;
-			} elseif ($min === null) {
+			} else if ($min === null) {
 				$min = $i;
-			} elseif ($i < $min) {
+			} else if ($i < $min) {
 				$min = $i;
 			}
 		}
@@ -867,9 +833,9 @@ class ArrayTools {
 		foreach ($a as $i) {
 			if (!is_numeric($i)) {
 				continue;
-			} elseif ($max === null) {
+			} else if ($max === null) {
 				$max = $i;
-			} elseif ($i > $max) {
+			} else if ($i > $max) {
 				$max = $i;
 			}
 		}
@@ -1064,7 +1030,7 @@ class ArrayTools {
 	public static function append(array &$arr, string $k, mixed $v = null): void {
 		if (!isset($arr[$k])) {
 			$arr[$k] = $v;
-		} elseif (is_array($arr[$k])) {
+		} else if (is_array($arr[$k])) {
 			$arr[$k][] = $v;
 		} else {
 			$arr[$k] = [
@@ -1112,7 +1078,7 @@ class ArrayTools {
 	public static function prepend(array &$arr, string $k, mixed $v = null): void {
 		if (!isset($arr[$k])) {
 			$arr[$k] = $v;
-		} elseif (is_array($arr[$k])) {
+		} else if (is_array($arr[$k])) {
 			array_unshift($arr[$k], $v);
 		} else {
 			$arr[$k] = [
@@ -1452,7 +1418,7 @@ class ArrayTools {
 	public static function preg_quote(array|string $string, string $delimiter = null): string|array {
 		if (is_string($string)) {
 			return preg_quote($string, $delimiter);
-		} elseif (is_array($string)) {
+		} else if (is_array($string)) {
 			$result = [];
 			foreach ($string as $k => $str) {
 				$result[$k] = self::preg_quote($str, $delimiter);
@@ -1674,7 +1640,7 @@ class ArrayTools {
 		foreach ($array as $k => $v) {
 			if (is_array($v)) {
 				$array[$k] = ArrayTools::scalars($v);
-			} elseif ($v !== null && !is_scalar($v)) {
+			} else if ($v !== null && !is_scalar($v)) {
 				$array[$k] = strval($v);
 			}
 		}

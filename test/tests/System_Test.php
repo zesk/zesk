@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class System_Test extends Test_Unit {
+class System_Test extends UnitTest {
 	public function test_host_id(): void {
 		System::host_id();
 	}

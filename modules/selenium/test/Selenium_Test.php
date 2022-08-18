@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class Selenium_Test extends Test_Unit {
+class Selenium_Test extends UnitTest {
 	protected array $load_modules = [
 		'Selenium',
 	];

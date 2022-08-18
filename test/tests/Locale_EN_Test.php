@@ -14,7 +14,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Lang_en_test extends Test_Unit {
+class Locale_EN_Test extends UnitTest {
 	public function test_everything(): void {
 		$testx = $this->application->localeFactory('en');
 
