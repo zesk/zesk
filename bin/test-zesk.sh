@@ -26,14 +26,25 @@ usage() {
   echo $me: Run tests for zesk
   echo
   echo "--coverage    Run coverage tests and output results into $coverage_path"
+  echo
+  echo "Additional arguments passed directly through to PHPUnit"
   exit $code
 }
 
-if [ ! -d $top/vendor ]; then
-  source /usr/local/bin/zesk-bash.sh
-	composer_install
+if [ ! -d "$top/vendor" ]; then
+  if [ -f /usr/local/bin/zesk-bash.sh ]; then
+    source /usr/local/bin/zesk-bash.sh
+  fi
+  if [ -z "$(which composer)" ]; then
+	  composer_install
+  fi
 	cd "$top"
 	composer install
+  if [ ! -d "$top/vendor" ]; then
+    echo "Possible read-only file system" 1>&2
+    echo "Possible permissions issue" 1>&2
+    usage "Composer did not create $top/vendor directory"
+  fi
 fi
 
 need_paths=
@@ -50,7 +61,7 @@ while [ $# -ge 1 ]; do
       echo "Running coverage and storing results in $coverage_path"
       ;;
     *)
-      usage $err_arg "Unknown arg $1"
+      break
       ;;
   esac
   shift
@@ -65,4 +76,4 @@ for d in $need_paths; do
   [ -d $d ] || mkdir -p $d
 done
 
-"$phpunit_bin" $args --log-junit "$junit_results_file"
+"$phpunit_bin" $args --log-junit "$junit_results_file" "$@"

@@ -1,11 +1,26 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 class Text_Test extends UnitTest {
-	public function test_fill(): void {
-		$n = null;
-		$pad = ' ';
-		Text::fill($n, $pad);
+	public function data_fill(): array {
+		return [
+			['          ', 10, ' '],
+			['=-=-=-=-=-', 10, '=-'],
+			['abcabcabca', 10, 'abc'],
+		];
+	}
+
+	/**
+	 * @param string $expected
+	 * @param int $n
+	 * @param string $pad
+	 * @return void
+	 * @dataProvider data_fill
+	 */
+	public function test_fill(string $expected, int $n, string $pad): void {
+		$this->assertEquals($expected, Text::fill($n, $pad));
 	}
 
 	public function test_format_pairs(): void {
@@ -25,8 +40,11 @@ class Text_Test extends UnitTest {
 		$br = "\n";
 		$this->assert_equal(Text::format_pairs($map[0], $prefix, $space, $suffix, $br), "---a: \"A\"\n---b: \"B\"\n");
 		$prefix = '$dude$';
-		$space = 'space';
-		$this->assert_equal(Text::format_pairs($map[1], $prefix, $space, $suffix, $br), "\$dude\$longervar: 1\n\$dude\$bspacespa: \"Hello\"\n");
+		$space = '==';
+		$this->assert_equal(Text::format_pairs($map[1], $prefix, $space, $suffix, $br), "\$dude\$longervar: 1\n\$dude\$b=: \"Hello\"\n");
+		$prefix = '-';
+		$space = '=';
+		$this->assert_equal(Text::format_pairs($map[1], $prefix, $space, $suffix, $br), "-longervar: 1\n-b: \"Hello\"\n");
 
 		$map = [
 			'Name' => 'John',
@@ -44,98 +62,242 @@ class Text_Test extends UnitTest {
 		Text::format_table($table, $prefix);
 	}
 
-	public function test_indent(): void {
-		$text = null;
-		$indent_count = null;
-		$trim_line_white = false;
-		$indent_char = '	';
-		$newline = "\n";
-		Text::indent($text, $indent_count, $trim_line_white, $indent_char, $newline);
+	public function data_indent(): array {
+		return [
+			["    Hello, world\n    How is life\n", "Hello, world\nHow is life", 4, true, ' ', "\n"],
+		];
 	}
 
-	public function test_lalign(): void {
-		$text = null;
-		$n = -1;
-		$pad = ' ';
-		$_trim = false;
-		Text::lalign($text, $n, $pad, $_trim);
+	/**
+	 * @param string $expected
+	 * @param string $text
+	 * @param int $indent_count
+	 * @param bool $trim_line_white
+	 * @param string $indent_char
+	 * @param string $newline
+	 * @return void
+	 * @dataProvider data_indent
+	 */
+	public function test_indent(string $expected, string $text, int $indent_count, bool $trim_line_white, string $indent_char, string $newline): void {
+		$this->assertEquals($expected, Text::indent($text, $indent_count, $trim_line_white, $indent_char, $newline));
 	}
 
-	public function test_lines_wrap(): void {
-		$text = null;
-		$prefix = '';
-		$suffix = '';
-		Text::lines_wrap($text, $prefix, $suffix);
+	public function data_lalign() {
+		return [
+			['Hello--------', 'Hello', 13, '-', true],
+			['Hello========', 'Hello', 13, '=', false],
+			['Hello=======', 'Hello', 12, '=', false],
+			['Hello', 'Hello', 0, '=', false],
+			['Hello', 'Hello', -1, '=', false],
+			['Delic', 'Delicioso', 5, '-', true],
+			['Delicioso', 'Delicioso', 5, '-', false],
+		];
 	}
 
-	public function test_parse_table(): void {
-		$content = null;
-		$num_columns = null;
-		$delimiters = ' 	';
-		$newline = "\n";
-		Text::parse_table($content, $num_columns, $delimiters, $newline);
+	/**
+	 * @param $expected
+	 * @param $text
+	 * @param $n
+	 * @param $pad
+	 * @param $trim
+	 * @return void
+	 * @dataProvider data_lalign
+	 */
+	public function test_lalign($expected, $text, $n, $pad, $trim): void {
+		$this->assertEquals($expected, Text::lalign($text, $n, $pad, $trim));
 	}
 
-	public function test_ralign(): void {
-		$text = null;
-		$n = -1;
-		$pad = ' ';
-		$_trim = false;
-		Text::ralign($text, $n, $pad, $_trim);
+	public function data_lines_wrap(): array {
+		return [
+			["", "", "", "", null, null],
+			["a", "a", "", "", null, null],
+			["a", "a", "", "", null, null],
+			["a", "", "a", "", null, null],
+			["a", "", "", "a", null, null],
+			["a", "", "", "", "a", null],
+			["a", "", "", "", null, "a"],
+			["1\n2", "1\n2", "", "", null, null],
+			["[1]\n[2]", "1\n2", "[", "]", null, null],
+			["{[1]\n[2]}", "1\n2", "[", "]", '{[', ']}'],
+		];
 	}
 
-	public function test_remove_line_comments(): void {
-		$data = null;
-		$line_comment = '#';
-		$alone = true;
-		Text::remove_line_comments($data, $line_comment, $alone);
+	/**
+	 * @param $expected
+	 * @param $text
+	 * @param $prefix
+	 * @param $suffix
+	 * @return void
+	 * @dataProvider data_lines_wrap
+	 */
+	public function test_lines_wrap($expected, $text, $prefix, $suffix, $first_prefix, $last_suffix): void {
+		$this->assertEquals($expected, Text::lines_wrap($text, $prefix, $suffix, $first_prefix, $last_suffix));
 	}
 
-	public function test_set_line_breaks(): void {
-		$string = null;
-		$br = "\n";
-		Text::set_line_breaks($string, $br);
-	}
 
-	public function test_trim_words(): void {
-		$string = null;
-		$wordCount = null;
-		Text::trim_words($string, $wordCount);
-	}
-
-	public function test_words(): void {
-		$string = null;
-		Text::words($string);
-	}
-
-	public function test_format_array(): void {
-		$fields = [
+	function data_parse_table(): array {
+		return [
 			[
-				'A' => 'Apple',
-				'B' => 'Bear',
-			],
-			[
-				'A' => 'Pony',
-				'B' => 'Brown',
-			],
-			[
-				'A' => 'Dog',
-				'B' => 'Billy',
-			],
-			[
-				'A' => 'Fred',
-				'B' => 'Bob',
-			],
-			[
-				'A' => 'Should',
-				'B' => 'You',
+				[
+					["name" => "dude", "region" => "us-west-9", "bytes" => "412"],
+					[
+						"name" => "sue",
+						"region" => "us-west-10",
+						"bytes" => "99991 ignore",
+					],
+				],
+				"name  region   bytes\ndude us-west-9    412\nsue\tus-west-10\t99991 ignore\n\n\n",
+				3,
+				" \t",
+				"\n",
 			],
 		];
-		$padding = ' ';
-		$prefix = ' ';
-		$suffix = ': ';
-		$line_end = "\n";
-		echo Text::format_array($fields, $padding, $prefix, $suffix, $line_end);
+	}
+
+	/**
+	 * @param $expected
+	 * @param $content
+	 * @param $num_columns
+	 * @param $delimiters
+	 * @param $newline
+	 * @return void
+	 * @dataProvider data_parse_table
+	 */
+	public function test_parse_table($expected, $content, $num_columns, $delimiters, $newline): void {
+		$this->assertEquals($expected, Text::parse_table($content, $num_columns, $delimiters, $newline));
+	}
+
+	public function data_ralign() {
+		return [
+			['--------Hello', 'Hello', 13, '-', true],
+			['========Hello', 'Hello', 13, '=', false],
+			['=======Hello', 'Hello', 12, '=', false],
+			['Hello', 'Hello', 0, '=', false],
+			['Hello', 'Hello', -1, '=', false],
+			['Delic', 'Delicioso', 5, '-', true],
+			['Delicioso', 'Delicioso', 5, '-', false],
+		];
+	}
+
+	/**
+	 * @param string $expected
+	 * @param string $text
+	 * @param int $n
+	 * @param string $pad
+	 * @param bool $trim
+	 * @return void
+	 * @dataProvider data_ralign
+	 */
+	public function test_ralign(string $expected, string $text, int $n, string $pad, bool $trim): void {
+		$this->assertEquals($expected, Text::ralign($text, $n, $pad, $trim));
+	}
+
+	public function data_remove_line_comments(): array {
+		return [
+			["", "#", '#', true],
+			["", "#", '#', false],
+			["\n\n\n", "\n\n\n", '#', true],
+			["\n\n\n", "\n\n\n", '#', false],
+			["\n\n", "#\n#\n#", '#', false],
+			["", "#\n#\n#", '#', true],
+			["a#b\na#b\na#", "a#b\na#b\n#b\na#", '#', true],
+			["a\na\n\na", "a#b\na#b\n#b\na#", '#', false],
+			["\nHello # Remove\n", "#\n\n# Bad comment\nHello # Remove\n# Remove also\n", '#', true],
+			["\n\n\nHello \n\n", "#\n\n# Bad comment\nHello # Remove\n# Remove also\n", '#', false],
+		];
+	}
+
+	/**
+	 * @dataProvider data_remove_line_comments
+	 * @param string $expected
+	 * @param string $data
+	 * @param string $line_comment
+	 * @param bool $alone
+	 * @return void
+	 */
+	public function test_remove_line_comments(string $expected, string $data, string $line_comment, bool $alone): void {
+		$this->assertEquals($expected, Text::remove_line_comments($data, $line_comment, $alone));
+	}
+
+
+	function data_set_line_breaks(): array {
+		return [
+			["1x2x3x4x5", "1\r\n2\n3\r4\r\n5", "x"],
+			["1x2x3x4x5x", "1\r\n2\n3\r4\r\n5\r", "x"],
+			["1y2y3y4y5", "1\r\n2\n3\r4\r\n5", "y"],
+		];
+	}
+
+
+	/**
+	 * @param $expected
+	 * @param $string
+	 * @param $br
+	 * @return void
+	 * @dataProvider data_set_line_breaks
+	 */
+	public function test_set_line_breaks($expected, $string, $br): void {
+		$this->assertEquals($expected, Text::set_line_breaks($string, $br));
+	}
+
+	public function data_trim_words(): array {
+		return [
+			['a b c', 'a b c d e f', 3],
+			['a b c d e f', 'a b c d e f', 6],
+			['a b c d e f', 'a b c d e f', 7],
+		];
+	}
+
+	/**
+	 * @return void
+	 * @dataProvider data_trim_words
+	 */
+	public function test_trim_words(string $expected, string $string, int $wordCount): void {
+		$this->assertEquals($expected, Text::trim_words($string, $wordCount));
+	}
+
+	public function data_words(): array {
+		return [
+			[1, 'friend'],
+			[1, 'dog'],
+			[9, 'the  quick  brown   fox jumped over the lazy dog'],
+		];
+	}
+
+	/**
+	 * @param int $expected
+	 * @param string $word
+	 * @return void
+	 * @dataProvider data_words
+	 */
+	public function test_words(int $expected, string $word): void {
+		$this->assertEquals($expected, Text::words($word));
+	}
+
+	public function data_format_array(): array {
+		$fields = [
+			'Kind' => 'Apple',
+			'Consumer' => 'Bear',
+			'Place' => 'Polar',
+		];
+		return [
+			["---- Kind: Apple\n Consumer: Bear\n--- Place: Polar\n", $fields, '-', ' ', ': ', "\n"],
+			["----Kind: Apple\nConsumer: Bear\n---Place: Polar\n", $fields, '-', '', ': ', "\n"],
+		];
+	}
+
+	/**
+	 * @param $expected
+	 * @param $fields
+	 * @param $padding
+	 * @param $prefix
+	 * @param $suffix
+	 * @param $line_end
+	 * @return void
+	 * @dataProvider data_format_array
+	 */
+	public function test_format_array(string $expected, array $fields, string $padding, string $prefix, string $suffix, string $line_end): void {
+		$this->assertEquals($expected, Text::format_array($fields, $padding, $prefix, $suffix, $line_end));
 	}
 
 	public function data_provider_parse_columns() {

@@ -53,7 +53,7 @@ class Text {
 	 * @return string
 	 * @see str_replace()
 	 */
-	public static function set_line_breaks($string, $br = "\n") {
+	public static function set_line_breaks(string $string, string $br = "\n"): string {
 		$temp_char = '\x00\x10\x00';
 		$string = str_replace("\r\n", $temp_char, $string);
 		$string = str_replace("\r", $temp_char, $string);
@@ -76,7 +76,7 @@ class Text {
 	 *            End of line character
 	 * @return string Array formatted
 	 */
-	public static function format_array($fields, $padding = ' ', $prefix = ' ', $suffix = ': ', $line_end = "\n") {
+	public static function format_array(array $fields, string $padding = ' ', string $prefix = ' ', string $suffix = ': ', string $line_end = "\n"): string {
 		$n = 0;
 		foreach ($fields as $k => $v) {
 			$n = max(strlen($k), $n);
@@ -100,7 +100,7 @@ class Text {
 		return $result;
 	}
 
-	public static function lines_wrap($text, $prefix = '', $suffix = '', $first_prefix = null, $last_suffix = null) {
+	public static function lines_wrap(string $text, string $prefix = '', string $suffix = '', string $first_prefix = null, string $last_suffix = null): string {
 		if ($first_prefix === null) {
 			$first_prefix = $prefix;
 		}
@@ -110,7 +110,7 @@ class Text {
 		return $first_prefix . implode("$suffix\n$prefix", explode("\n", $text)) . $last_suffix;
 	}
 
-	public static function fill($n, $pad = ' ') {
+	public static function fill(int $n, string $pad = ' '): string {
 		return substr(str_repeat($pad, $n), 0, $n);
 	}
 
@@ -182,19 +182,18 @@ class Text {
 	 * @param string $line_comment
 	 *            The line comment prefix (e.g. #, or ', etc.)
 	 * @param boolean $alone
-	 *            True if line comments should be along on their own line, otherwise, will trim line
+	 *            True if line comments should be alone on their own line, otherwise, will trim line
 	 *            comments at the end of a line
 	 * @return string The contents with line comments removed
 	 */
-	public static function remove_line_comments($data, $line_comment = '#', $alone = true) {
+	public static function remove_line_comments(string $data, string $line_comment = '#', bool $alone = true): string {
 		$new_data = [];
 		if ($alone) {
 			$line_comment_len = strlen($line_comment);
 			foreach (explode("\n", $data) as $line) {
-				if (substr(ltrim($line), 0, $line_comment_len) == $line_comment) {
-					continue;
+				if (substr(ltrim($line), 0, $line_comment_len) !== $line_comment) {
+					$new_data[] = $line;
 				}
-				$new_data[] = $line;
 			}
 		} else {
 			foreach (explode("\n", $data) as $line) {
@@ -237,7 +236,7 @@ class Text {
 	 * @return string
 	 */
 	public static function format_pairs(array $map, string $prefix = '', string $space = ' ', string $suffix = ': ', string $br = "\n"): string {
-		$n = intval(array_reduce(array_keys($map), fn ($k, $n) => max(strlen(strval($k)), $n), 0));
+		$n = intval(array_reduce(array_keys($map), fn($k, $n) => max(strlen(strval($k)), $n), 0));
 		$r = [];
 		foreach ($map as $k => $v) {
 			$k = strval($k);
@@ -272,14 +271,18 @@ class Text {
 		return implode($delimiter, $result);
 	}
 
-	public static function trim_words($string, $wordCount) {
+	public static function trim_words(string $string, int $wordCount): string {
 		$words = preg_split('/(\s+)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 		$words = array_slice($words, 0, $wordCount * 2 - 1);
 		return implode('', $words);
 	}
 
-	public static function words($string) {
-		return count(preg_split('/(\s+)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE));
+	/**
+	 * @param string $string
+	 * @return int
+	 */
+	public static function words(string $string): int {
+		return count(preg_split('/(\s+)/', $string, -1, PREG_SPLIT_NO_EMPTY));
 	}
 
 	/**
@@ -393,7 +396,7 @@ class Text {
 	 *
 	 * @param string $content
 	 *            Multi-line table to parse.
-	 * @param string $num_columns
+	 * @param int $num_columns
 	 *            Max Number of columns expected.
 	 * @param string $delimiters
 	 *            Delimiter characters
@@ -402,7 +405,7 @@ class Text {
 	 * @return array An array of associative arrays representing the table. Can be passed to
 	 *         outputTable directly.
 	 */
-	public static function parse_table($content, $num_columns, $delimiters = " \t", $newline = "\n") {
+	public static function parse_table(string $content, int $num_columns, string $delimiters = " \t", string $newline = "\n"): array {
 		$lines = explode($newline, $content);
 		$hh = false;
 		while (($line = array_shift($lines)) !== null) {
@@ -414,7 +417,7 @@ class Text {
 			}
 		}
 		if (!$hh) {
-			return null;
+			return [];
 		}
 		$hh = self::split_line($hh, $num_columns);
 		if (count($hh) !== $num_columns) {
@@ -426,7 +429,7 @@ class Text {
 				break;
 			}
 			$ff = self::split_line($line, $num_columns);
-			if (count($hh) !== $num_columns) {
+			if (count($ff) !== $num_columns) {
 				continue;
 			}
 			$row = [];
@@ -527,7 +530,7 @@ class Text {
 						$name .= "-$uindex";
 						$uindex = $uindex + 1;
 					}
-					$headers[$name] = [$start, $length, ];
+					$headers[$name] = [$start, $length,];
 				}
 				$was_space = $space;
 			}
