@@ -178,7 +178,7 @@ class Timestamp_Test extends UnitTest {
 
 		Timestamp::now();
 
-		$x->set_now();
+		$x->setNow();
 
 		$Years = 0;
 		$Months = 0;

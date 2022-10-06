@@ -162,7 +162,7 @@ class Date extends Temporal {
 	 */
 	public static function now(): self {
 		$d = new Date();
-		return $d->set_now();
+		return $d->setNow();
 	}
 
 	/**
@@ -276,7 +276,7 @@ class Date extends Temporal {
 	/**
 	 * @return $this
 	 */
-	public function set_now() {
+	public function setNow() {
 		try {
 			return $this->_setDateArray(getdate());
 		} catch (Exception_Range $e) {

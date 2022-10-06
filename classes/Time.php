@@ -186,16 +186,16 @@ class Time extends Temporal {
 	public function set(null|int|string|Time|Timestamp $value): self {
 		if (is_int($value)) {
 			return $this->setUNIXTimestamp($value);
-		} elseif (empty($value)) {
+		} else if (empty($value)) {
 			$this->setEmpty();
 			return $this;
-		} elseif (is_string($value)) {
+		} else if (is_string($value)) {
 			return $this->parse($value);
-		} elseif ($value instanceof Time) {
+		} else if ($value instanceof Time) {
 			$this->setSeconds($value->seconds());
 			$this->setMilliecond($value->millisecond());
 			return $this;
-		} elseif ($value instanceof Timestamp) {
+		} else if ($value instanceof Timestamp) {
 			$this->setSeconds($value->daySeconds())->setMilliecond($value->millisecond());
 			return $this;
 		}
@@ -228,8 +228,8 @@ class Time extends Temporal {
 	 * @return Time
 	 * @todo Support microseconds
 	 */
-	public function set_now() {
-		return $this->unixTimestamp()(time());
+	public function setNow() {
+		return $this->setUNIXTimestamp(time());
 	}
 
 	/**
@@ -313,23 +313,23 @@ class Time extends Temporal {
 	 */
 	public function parse(string $value): self {
 		foreach ([
-					 '/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/' => [
-						 null,
-						 'hour',
-						 'minute',
-						 'second',
-					 ],
-					 '/([0-9]{1,2}):([0-9]{2})/' => [
-						 null,
-						 'hour',
-						 'minute',
-					 ],
-				 ] as $pattern => $assign) {
+			         '/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/' => [
+				         null,
+				         'setHour',
+				         'setMinute',
+				         'setSecond',
+			         ],
+			         '/([0-9]{1,2}):([0-9]{2})/' => [
+				         null,
+				         'setHour',
+				         'setMinute',
+			         ],
+		         ] as $pattern => $assign) {
 			if (preg_match($pattern, $value, $matches)) {
 				$this->hms(0, 0, 0);
 				foreach ($assign as $index => $method) {
 					if ($method) {
-						$this->$method($matches[$index]);
+						$this->$method(intval($matches[$index]));
 					}
 				}
 				return $this;
@@ -497,7 +497,7 @@ class Time extends Temporal {
 			} else {
 				return 0;
 			}
-		} elseif ($value->isEmpty()) {
+		} else if ($value->isEmpty()) {
 			return 1;
 		}
 		return $this->seconds - $value->seconds;
@@ -642,7 +642,7 @@ class Time extends Temporal {
 		$delta = $a->seconds - $b->seconds;
 		if ($delta < 0) {
 			return -1;
-		} elseif ($delta === 0) {
+		} else if ($delta === 0) {
 			return 0;
 		} else {
 			return 1;

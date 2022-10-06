@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
-class Test_Time extends UnitTest {
+class Time_Test extends UnitTest {
 	public function test_instance(): void {
 		$hh = 0;
 		$mm = 0;
@@ -9,32 +11,20 @@ class Test_Time extends UnitTest {
 		Time::instance($hh, $mm, $ss);
 	}
 
-	/**
-	 * @expectedException zesk\Exception_Parameter
-	 */
-	public function test_invalid_set(): void {
-		$x = new Time();
-		$x->unixTimestamp()(true);
-	}
-
 	public function test_parse(): void {
 		$x = new Time();
 
-		$value = null;
-		$x->parse('23:29:19');
-		$this->assert_equal($x->format(null, '{hh}:{mm}:{ss}'), '23:29:19');
-		$this->assert_equal($x->hour(), 23);
-		$this->assert_equal($x->minute(), 29);
-		$this->assert_equal($x->second(), 19);
+		$x = $x->parse('23:29:19');
+		$this->assertEquals($x->format(null, '{hh}:{mm}:{ss}'), '23:29:19');
+		$this->assertEquals(23, $x->hour());
+		$this->assertEquals(29, $x->minute());
+		$this->assertEquals(19, $x->second());
 	}
 
-	/**
-	 * @expectedException zesk\Exception_Range
-	 */
 	public function test_parse_fail(): void {
 		$x = new Time();
 
-		$value = null;
+		$this->expectException(Exception_Range::class);
 		$x->parse('23:61:19');
 	}
 
@@ -47,16 +37,18 @@ class Test_Time extends UnitTest {
 		$ss = 0;
 		Time::instance($hh, $mm, $ss);
 
-		$x->now();
+		$x = Time::now();
+		$this->assertFalse($x->isEmpty());
+		$this->assertTrue($x->set(null)->isEmpty());
+		$this->assertTrue($x->isEmpty());
+		$this->assertFalse($x->set(1234)->isEmpty());
+		$this->assertFalse($x->isEmpty());
 
-		$value = null;
-		$x->set($value);
+		$this->assertTrue($x->setEmpty()->isEmpty());
+		$this->assertTrue($x->isEmpty());
 
-		$x->isEmpty();
-
-		$x->setEmpty();
-
-		$x->set_now();
+		$x->setNow();
+		$this->assertFalse($x->isEmpty());
 
 		$hh = 0;
 		$mm = 0;
@@ -106,10 +98,8 @@ class Test_Time extends UnitTest {
 		$x->addUnit($n, $unit);
 	}
 
-	/**
-	 * @expectedException zesk\Exception_Parameter
-	 */
 	public function test_invalid_unit(): void {
+		$this->expectException(Exception_Parameter::class);
 		$time = new Time();
 		$time->addUnit(1, 'money');
 	}

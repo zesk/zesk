@@ -283,7 +283,7 @@ class Timestamp extends Temporal {
 		return self::factory('now', self::timezone_utc());
 	}
 
-	public function set_now() {
+	public function setNow() {
 		$this->unixTimestamp()(time());
 		return $this;
 	}
@@ -470,7 +470,7 @@ class Timestamp extends Temporal {
 		$value = preg_replace('/[^0-9]/', ' ', $value);
 		$value = trim(preg_replace('/\s+/', ' ', $value));
 		$values = explode(' ', $value);
-		$this->set_now();
+		$this->setNow();
 		if (!is_array($locale_format)) {
 			$locale_format = explode(';', $locale_format);
 		}
