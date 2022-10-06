@@ -109,16 +109,16 @@ class Text_Test extends UnitTest {
 
 	public function data_lines_wrap(): array {
 		return [
-			["", "", "", "", null, null],
-			["a", "a", "", "", null, null],
-			["a", "a", "", "", null, null],
-			["a", "", "a", "", null, null],
-			["a", "", "", "a", null, null],
-			["a", "", "", "", "a", null],
-			["a", "", "", "", null, "a"],
-			["1\n2", "1\n2", "", "", null, null],
-			["[1]\n[2]", "1\n2", "[", "]", null, null],
-			["{[1]\n[2]}", "1\n2", "[", "]", '{[', ']}'],
+			['', '', '', '', null, null],
+			['a', 'a', '', '', null, null],
+			['a', 'a', '', '', null, null],
+			['a', '', 'a', '', null, null],
+			['a', '', '', 'a', null, null],
+			['a', '', '', '', 'a', null],
+			['a', '', '', '', null, 'a'],
+			["1\n2", "1\n2", '', '', null, null],
+			["[1]\n[2]", "1\n2", '[', ']', null, null],
+			["{[1]\n[2]}", "1\n2", '[', ']', '{[', ']}'],
 		];
 	}
 
@@ -134,16 +134,15 @@ class Text_Test extends UnitTest {
 		$this->assertEquals($expected, Text::lines_wrap($text, $prefix, $suffix, $first_prefix, $last_suffix));
 	}
 
-
-	function data_parse_table(): array {
+	public function data_parse_table(): array {
 		return [
 			[
 				[
-					["name" => "dude", "region" => "us-west-9", "bytes" => "412"],
+					['name' => 'dude', 'region' => 'us-west-9', 'bytes' => '412'],
 					[
-						"name" => "sue",
-						"region" => "us-west-10",
-						"bytes" => "99991 ignore",
+						'name' => 'sue',
+						'region' => 'us-west-10',
+						'bytes' => '99991 ignore',
 					],
 				],
 				"name  region   bytes\ndude us-west-9    412\nsue\tus-west-10\t99991 ignore\n\n\n",
@@ -194,12 +193,12 @@ class Text_Test extends UnitTest {
 
 	public function data_remove_line_comments(): array {
 		return [
-			["", "#", '#', true],
-			["", "#", '#', false],
+			['', '#', '#', true],
+			['', '#', '#', false],
 			["\n\n\n", "\n\n\n", '#', true],
 			["\n\n\n", "\n\n\n", '#', false],
 			["\n\n", "#\n#\n#", '#', false],
-			["", "#\n#\n#", '#', true],
+			['', "#\n#\n#", '#', true],
 			["a#b\na#b\na#", "a#b\na#b\n#b\na#", '#', true],
 			["a\na\n\na", "a#b\na#b\n#b\na#", '#', false],
 			["\nHello # Remove\n", "#\n\n# Bad comment\nHello # Remove\n# Remove also\n", '#', true],
@@ -219,15 +218,13 @@ class Text_Test extends UnitTest {
 		$this->assertEquals($expected, Text::remove_line_comments($data, $line_comment, $alone));
 	}
 
-
-	function data_set_line_breaks(): array {
+	public function data_set_line_breaks(): array {
 		return [
-			["1x2x3x4x5", "1\r\n2\n3\r4\r\n5", "x"],
-			["1x2x3x4x5x", "1\r\n2\n3\r4\r\n5\r", "x"],
-			["1y2y3y4y5", "1\r\n2\n3\r4\r\n5", "y"],
+			['1x2x3x4x5', "1\r\n2\n3\r4\r\n5", 'x'],
+			['1x2x3x4x5x', "1\r\n2\n3\r4\r\n5\r", 'x'],
+			['1y2y3y4y5', "1\r\n2\n3\r4\r\n5", 'y'],
 		];
 	}
-
 
 	/**
 	 * @param $expected

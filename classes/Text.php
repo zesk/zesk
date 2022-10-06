@@ -236,7 +236,7 @@ class Text {
 	 * @return string
 	 */
 	public static function format_pairs(array $map, string $prefix = '', string $space = ' ', string $suffix = ': ', string $br = "\n"): string {
-		$n = intval(array_reduce(array_keys($map), fn($k, $n) => max(strlen(strval($k)), $n), 0));
+		$n = intval(array_reduce(array_keys($map), fn ($k, $n) => max(strlen(strval($k)), $n), 0));
 		$r = [];
 		foreach ($map as $k => $v) {
 			$k = strval($k);
@@ -530,7 +530,7 @@ class Text {
 						$name .= "-$uindex";
 						$uindex = $uindex + 1;
 					}
-					$headers[$name] = [$start, $length,];
+					$headers[$name] = [$start, $length, ];
 				}
 				$was_space = $space;
 			}
