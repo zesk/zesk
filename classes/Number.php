@@ -43,13 +43,24 @@ class Number {
 	}
 
 	/**
-	 * Format bytes
-	 *
-	 * @param unknown $n
-	 * @param number $precision
+	 * @deprecated 2022-10
+	 * @param Locale $locale
+	 * @param int $n
+	 * @param int $precision
 	 * @return string
 	 */
-	public static function format_bytes(Locale $locale, $n, $precision = 1) {
+	public static function format_bytes(Locale $locale, int $n, int $precision = 1): string {
+		return self::formatBytes($locale, $n, $precision);
+	}
+	/**
+	 * Format bytes
+	 *
+	 * @param Locale $locale
+	 * @param int $n
+	 * @param int $precision
+	 * @return string
+	 */
+	public static function formatBytes(Locale $locale, int $n, int $precision = 1): string {
 		if ($n >= 1099511627776) {
 			return $locale('Number::format_bytes:={0} TB', [
 				round(($n / self::$magnitudes['T']), $precision),
@@ -67,9 +78,9 @@ class Number {
 				round($n / self::$magnitudes['K'], $precision),
 			]);
 		} else {
-			return $locale('Number::format_bytes:={0} {1}', [
-				intval($n),
-				$locale->plural($locale('byte'), intval($n)),
+			return $locale->__('Number::format_bytes:={0} {1}', [
+				$n,
+				$locale->plural($locale->__('byte'), intval($n)),
 			]);
 		}
 	}

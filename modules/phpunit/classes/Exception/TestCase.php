@@ -14,7 +14,7 @@ class Exception_TestCase extends UnitTest {
 	}
 
 	/**
-	 * @data_provider simple_exceptions
+	 * @dataProvider simple_exceptions
 	 * @param \Exception $e
 	 */
 	public function exception_test(\Exception $e): void {

@@ -205,15 +205,15 @@ class PHP {
 			$result .= $this->array_value_separator;
 			$result .= str_repeat($this->indent_char, $indent_level * $this->indent_multiple) . $this->array_close_parenthesis_prefix . ')' . $this->array_close_parenthesis_suffix;
 			return $result;
-		} elseif (is_string($x)) {
+		} else if (is_string($x)) {
 			return '"' . addcslashes($x, "\$\"\\\0..\37") . '"';
-		} elseif (is_int($x)) {
+		} else if (is_int($x)) {
 			return "$x";
-		} elseif ($x === null) {
+		} else if ($x === null) {
 			return 'null';
-		} elseif (is_bool($x)) {
+		} else if (is_bool($x)) {
 			return $x ? 'true' : 'false';
-		} elseif (is_object($x)) {
+		} else if (is_object($x)) {
 			if (method_exists($x, '_to_php')) {
 				return $x->_to_php();
 			}
@@ -434,8 +434,13 @@ class PHP {
 			}
 			return $value;
 		}
-		if (is_bool($value)) {
-			return toBool($value);
+		// Convert numeric types first, then boolean
+		if (preg_match('/^\d+$/', $value)) {
+			return toInteger($value);
+		}
+		$boolValue = toBool($value);
+		if (is_bool($boolValue)) {
+			return $boolValue;
 		}
 		if (is_numeric($value)) {
 			return to_double($value);
@@ -445,10 +450,6 @@ class PHP {
 		}
 		if ($value === 'null') {
 			return null;
-		}
-		// Convert numeric types first, then boolean
-		if (preg_match('/^[0-9]+$/', $value)) {
-			return toInteger($value);
 		}
 		if (unquote($value, '{}[]\'\'""') !== $value) {
 			try {

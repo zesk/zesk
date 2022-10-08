@@ -72,12 +72,12 @@ class Functions_Test extends UnitTest {
 			'A' => 'a',
 			'B' => 'b',
 		];
-		$this->assert(avalue($a, '') === 'empty');
-		$this->assert(avalue($a, 'z') === null);
-		$this->assert(avalue($a, '0') === 'zero');
-		$this->assert(avalue($a, 'A') === 'a');
-		$this->assert(avalue($a, 'a') === null);
-		$this->assert(avalue($a, 'a', 'dude') === 'dude');
+		$this->assertEquals('empty', avalue($a, ''));
+		$this->assertNull(avalue($a, 'z'));
+		$this->assertEquals('zero', avalue($a, '0'));
+		$this->assertEquals('a', avalue($a, 'A'));
+		$this->assertNull(avalue($a, 'a'));
+		$this->assertEquals('dude', avalue($a, 'a', 'dude'));
 	}
 
 	public function test___(): void {
@@ -91,7 +91,7 @@ class Functions_Test extends UnitTest {
 	public function test_theme(): void {
 		$app = $this->application;
 
-		$this->assertEquals('42.5123', $app->theme('microsecond', 42.512312));
+		$this->assertEquals('42.5123', $app->theme('microsecond', [42.512312]));
 		$this->assertEquals('42.5%', $app->theme('percent', [
 			42.512312,
 			1,
@@ -100,61 +100,68 @@ class Functions_Test extends UnitTest {
 			42.552312,
 			1,
 		]), );
-		echo $app->theme('percent', [
-				42.552312,
-				1,
-			]) . "\n";
-		$this->assert_equal($app->theme('percent', [
+		$this->assertEquals('42.6%', $app->theme('percent', [
+			42.552312,
+			1,
+		]));
+		$this->assertEquals('43%', $app->theme('percent', [
 			42.552312,
 			0,
-		]), '43%');
+		]), );
 
-		echo $app->theme('control/button', [
-			'label' => 'OK',
-			'object' => new Model($this->application),
-		]);
+		$this->assertEquals('1 KB', $app->theme('bytes', [
+			1024,
+		]));
 	}
 
 	public function test_dump(): void {
 		$x = null;
 		$html = true;
+		ob_start();
 		dump($x, $html);
+		$dumped = ob_get_clean();
+		$this->assertEquals("(null)\n(boolean) true\n", $dumped);
+	}
+
+	public function _backtrace_ob(int $n): int {
+		ob_start();
+		backtrace(false, $n);
+		$content = ob_get_clean();
+		return count(explode("\n", $content));
 	}
 
 	public function test_backtrace(): void {
-		$doExit = false;
-		$n = -1;
-		backtrace($doExit, $n);
-		backtrace($doExit, 0);
-		backtrace($doExit, 1);
-		backtrace($doExit, 2);
+		$this->assertGreaterThan(10, $this->_backtrace_ob(-1));
+		$this->assertGreaterThan(10, $this->_backtrace_ob(0));
+		$this->assertEquals(1, $this->_backtrace_ob(1));
+		$this->assertEquals(2, $this->_backtrace_ob(2));
 	}
 
 	public function bad_dates() {
 		return [
-			'',
+			[''],
 		];
 	}
 
 	public function good_dates() {
 		return [
-			'2012-10-15',
-			'today',
-			'next Tuesday',
-			'+3 days',
-			'October 15th, 2012',
+			['2012-10-15'],
+			['today'],
+			['next Tuesday'],
+			['+3 days'],
+			['October 15th, 2012'],
 		];
 	}
 
 	/**
-	 * @data_provider good_dates
+	 * @dataProvider good_dates
 	 */
 	public function test_is_date($good_date): void {
 		$this->assert(is_date($good_date));
 	}
 
 	/**
-	 * @data_provider bad_dates
+	 * @dataProvider bad_dates
 	 */
 	public function test_is_date_not($bad_date): void {
 		$this->assert(!is_date($bad_date));
@@ -297,6 +304,7 @@ class Functions_Test extends UnitTest {
 		$this->assert(toBool('oN') === true);
 		$this->assert(toBool('on') === true);
 		$this->assert(toBool('enabled') === true);
+		$this->assert(toBool('enaBLed') === true);
 		$this->assert(toBool('trUE') === true);
 		$this->assert(toBool('true') === true);
 
@@ -312,13 +320,14 @@ class Functions_Test extends UnitTest {
 		$this->assert(toBool('off') === false);
 		$this->assert(toBool('disabled') === false);
 		$this->assert(toBool('DISABLED') === false);
+		$this->assert(toBool('DISaBLED') === false);
 		$this->assert(toBool('false') === false);
 		$this->assert(toBool('null') === false);
-		$this->assert(toBool('') === false);
+		$this->assertFalse(toBool(''));
 
-		$this->assert(toBool('01') === false);
-		$this->assert(toBool([]) === false);
-		$this->assert(toBool(new \stdClass()) === true);
+		$this->assertNull(toBool('01'));
+		$this->assertNull(toBool([]));
+		$this->assertTrue(toBool(new \stdClass()));
 	}
 
 	public static function to_bool_strpos($value, $default = false) {
@@ -376,6 +385,7 @@ class Functions_Test extends UnitTest {
 
 	/**
 	 * As of 2017-08 the in_array version is nearly identical in speed to the strpos version and varies test-to-test.
+	 * 2022 in_array in PHP8 is faster, updated toBool wink wink
 	 *
 	 * Updated to test for whether it's 10% faster
 	 *
@@ -391,7 +401,7 @@ class Functions_Test extends UnitTest {
 			self::to_bool_strpos('false');
 		}
 		$strpos_timing = $t->elapsed();
-		echo 'to_bool_strpos: ' . $t->elapsed() . "\n";
+		// echo 'to_bool_strpos: ' . $t->elapsed() . "\n";
 
 		$t = new Timer();
 		for ($i = 0; $i < 100000; $i++) {
@@ -399,47 +409,39 @@ class Functions_Test extends UnitTest {
 			self::to_bool_in_array('false');
 		}
 		$in_array_timing = $t->elapsed();
-		echo 'to_bool_in_array: ' . $t->elapsed() . "\n";
+		// echo 'to_bool_in_array: ' . $t->elapsed() . "\n";
 		$diff = 20;
-		$this->assert($strpos_timing < $in_array_timing * (1 + ($diff / 100)), "strpos toBool is more than $diff% slower than in_array implementation");
+		$this->assert($in_array_timing < $strpos_timing * (1 + ($diff / 100)), "in_array toBool is more than $diff% slower than strpos implementation");
 	}
 
 	public function test_to_array(): void {
-		$this->assertEquals(to_array('foo'), [
+		$this->assertEquals(toArray('foo'), [
 			'foo',
 		]);
-		$this->assertEquals(to_array([
+		$this->assertEquals(toArray([
 			'foo',
 		]), [
 			'foo',
 		]);
-		$this->assertNotEquals(to_array([
+		$this->assertNotEquals(toArray([
 			'foo',
 		]), [
 			'foob',
 		]);
-		$this->assertNotEquals(to_array([
+		$this->assertEquals(toArray([
 			1,
 		]), [
 			'1',
 		]);
-		$this->assertNotEquals(to_array([
-			1,
-		]), [
+		$this->assertEquals(toArray(1, ), [
 			'1',
 		]);
-		$this->assertEquals(to_array(1), [
+		$this->assertEquals(toArray(1), [
 			1,
 		]);
-		$this->assertEquals(to_array('1'), [
+		$this->assertEquals(toArray('1'), [
 			'1',
 		]);
-	}
-
-	public function test_newline(): void {
-		$set = null;
-		newline($set);
-		echo basename(__FILE__) . ": success\n";
 	}
 
 	public function test_map(): void {
@@ -517,14 +519,8 @@ EOF;
 	}
 
 	public function test_integer_between(): void {
-		$min = null;
-		$x = null;
-		$max = null;
-		integer_between($min, $x, $max);
-
 		$this->assert(integer_between(10, 10, 200) === true);
 		$this->assert(integer_between(10, 9, 200) === false);
-		$this->assert(integer_between(10, [], 200) === false);
 		$this->assert(integer_between(10, 200, 200) === true);
 		$this->assert(integer_between(10, 201, 200) === false);
 	}

@@ -17,7 +17,7 @@ class StringTools {
 		$char2 = substr($pattern, 1, 1);
 		if ($char1 == strtolower($char1)) {
 			return strtolower($string);
-		} elseif ($char2 == strtolower($char2)) {
+		} else if ($char2 == strtolower($char2)) {
 			return ucfirst(strtolower($string));
 		} else {
 			return strtoupper($string);
@@ -198,6 +198,28 @@ class StringTools {
 	}
 
 	/**
+	 * Kind of like UNIX "awk '{ print $index }'"
+	 * Null for index means return the whole list as an array
+	 *
+	 * @param array $lines Lines to extract a column of information from
+	 * @param ?int $index Column to fetch
+	 * @param string $delim List of delimiter characters
+	 * @param ?int $max_fields Maximum fields to extract on each line
+	 * @return array
+	 */
+	public static function column(array $lines, int $index = null, string $delim = " \t", int $max_fields = null): array {
+		$array = [];
+		foreach ($lines as $k => $v) {
+			if (is_string($v)) {
+				$array[$k] = self::field($v, $index, $delim, $max_fields);
+			} elseif (is_array($v)) {
+				$array[$k] = self::column($v, $index, $delim, $max_fields);
+			}
+		}
+		return $array;
+	}
+
+	/**
 	 * Determine if a string begins with another string
 	 *
 	 * @param string|array $haystack
@@ -315,8 +337,7 @@ class StringTools {
 	 *            unprefix the string.
 	 * @return string
 	 */
-	public static function unprefix(string|array $string, string|array $prefix, bool $case_insensitive = false):
-	string|array {
+	public static function unprefix(string|array $string, string|array $prefix, bool $case_insensitive = false): string|array {
 		if (is_array($prefix)) {
 			foreach ($prefix as $pre) {
 				$new_string = self::unprefix($string, $pre, $case_insensitive);
@@ -369,7 +390,7 @@ class StringTools {
 		if ($c0 == 0xFE && $c1 == 0xFF) {
 			$be = true;
 			return true;
-		} elseif ($c0 == 0xFF && $c1 == 0xFE) {
+		} else if ($c0 == 0xFF && $c1 == 0xFE) {
 			$be = false;
 			return true;
 		}
@@ -411,11 +432,11 @@ class StringTools {
 			if ($c > 128) {
 				if (($c > 247)) {
 					return false;
-				} elseif ($c > 239) {
+				} else if ($c > 239) {
 					$bytes = 4;
-				} elseif ($c > 223) {
+				} else if ($c > 223) {
 					$bytes = 3;
-				} elseif ($c > 191) {
+				} else if ($c > 191) {
 					$bytes = 2;
 				} else {
 					return false;
@@ -563,7 +584,7 @@ class StringTools {
 			$tab_width = 4;
 		}
 		//	$text =~ s{(.*?)\t}{$1.(' ' x ($g_tab_width - length($1) % $g_tab_width))}ge;
-		return preg_replace_callback('@^(.*?)\t@m', fn ($matches) => $matches[1] . str_repeat(' ', $tab_width - strlen($matches[1]) % $tab_width), $text);
+		return preg_replace_callback('@^(.*?)\t@m', fn($matches) => $matches[1] . str_repeat(' ', $tab_width - strlen($matches[1]) % $tab_width), $text);
 	}
 
 	/**
@@ -648,7 +669,7 @@ class StringTools {
 	 * @return string
 	 */
 	public static function from_camel_case(string $string): string {
-		return preg_replace_callback('/[A-Z]/', fn ($matches) => '_' . strtolower($matches[0]), $string);
+		return preg_replace_callback('/[A-Z]/', fn($matches) => '_' . strtolower($matches[0]), $string);
 	}
 
 	/**

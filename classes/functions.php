@@ -225,7 +225,7 @@ function _backtrace(int $n = -1): string {
 			foreach ($args as $index => $arg) {
 				if (is_object($arg)) {
 					$arg_dump[$index] = $arg::class;
-				} elseif (is_scalar($arg)) {
+				} else if (is_scalar($arg)) {
 					$arg_dump[$index] = PHP::dump($arg);
 				} else {
 					$arg_dump[$index] = type($arg);
@@ -334,6 +334,28 @@ function _dump($x): string {
  * @return ?bool Returns true or false, or null if parsing fails
  */
 function toBool(mixed $value, bool $default = null): ?bool {
+	static $true_values = [
+		1,
+		'1',
+		't',
+		'y',
+		'yes',
+		'on',
+		'enabled',
+		'true',
+	];
+	static $false_values = [
+		0,
+		'',
+		'0',
+		'f',
+		'n',
+		'no',
+		'off',
+		'disabled',
+		'false',
+		'null',
+	];
 	if (is_bool($value)) {
 		return $value;
 	}
@@ -343,12 +365,13 @@ function toBool(mixed $value, bool $default = null): ?bool {
 	if (!is_scalar($value)) {
 		return $default;
 	}
-	$value = strtolower(strval($value));
-	$find = ";$value;";
-	if (str_contains(';1;t;y;yes;on;enabled;true;', $find)) {
+	if (is_string($value)) {
+		$value = strtolower($value);
+	}
+	if (in_array($value, $true_values, true)) {
 		return true;
 	}
-	if (str_contains(';0;f;n;no;off;disabled;false;null;;', $find)) {
+	if (in_array($value, $false_values, true)) {
 		return false;
 	}
 	return $default;
@@ -397,11 +420,11 @@ function to_double(mixed $s, float $def = null): float {
 function toList(mixed $mixed, array $default = [], string $delimiter = ';'): array {
 	if ($mixed === '') {
 		return $default;
-	} elseif (is_scalar($mixed)) {
+	} else if (is_scalar($mixed)) {
 		return explode($delimiter, strval($mixed));
-	} elseif (is_array($mixed)) {
+	} else if (is_array($mixed)) {
 		return $mixed;
-	} elseif (is_object($mixed) && method_exists($mixed, 'to_list')) {
+	} else if (is_object($mixed) && method_exists($mixed, 'to_list')) {
 		return to_list($mixed->to_list());
 	} else {
 		return $default;
@@ -619,10 +642,10 @@ function tr(mixed $mixed, array $map): mixed {
 			$mixed[$k] = tr($v, $map);
 		}
 		return $mixed;
-	} elseif (is_string($mixed)) {
+	} else if (is_string($mixed)) {
 		$map = ArrayTools::flatten($map);
 		return strtr($mixed, $map);
-	} elseif (is_object($mixed)) {
+	} else if (is_object($mixed)) {
 		return $mixed instanceof Hookable ? $mixed->call_hook_arguments('tr', [
 			$map,
 		], $mixed) : $mixed;
@@ -751,7 +774,7 @@ function map(array|string $mixed, array $map, bool $insensitive = false, string 
 					$v = null;
 				}
 			}
-		} elseif (is_object($v)) {
+		} else if (is_object($v)) {
 			if (method_exists($v, '__toString')) {
 				$v = strval($v);
 			} else {
@@ -763,7 +786,7 @@ function map(array|string $mixed, array $map, bool $insensitive = false, string 
 	if ($insensitive) {
 		static $func = null;
 		if (!$func) {
-			$func = fn ($matches) => strtolower($matches[0]);
+			$func = fn($matches) => strtolower($matches[0]);
 		}
 		$mixed = preg_replace_callback_mixed('#' . preg_quote($prefix_char, '/') . '([-:_ =,./\'"A-Za-z0-9]+)' . preg_quote($suffix_char, '/') . '#i', $func, $mixed);
 	}
@@ -945,7 +968,7 @@ function path_from_array(string $separator, array $mixed): string {
 	$r = array_shift($mixed);
 	if (is_array($r)) {
 		$r = path_from_array($separator, $r);
-	} elseif (!is_string($r)) {
+	} else if (!is_string($r)) {
 		$r = '';
 	}
 	foreach ($mixed as $p) {

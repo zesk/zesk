@@ -38,7 +38,7 @@ class Controls_Test extends TestWidget {
 	}
 
 	/**
-	 * @data_provider controls_to_test
+	 * @dataProvider controls_to_test
 	 */
 	public function test_control(string $widget_class, array $options = []): void {
 		$this->_test_session();

@@ -145,26 +145,27 @@ class Directory extends Hookable {
 				throw new Exception_Directory_NotFound("Can't create $destination");
 			}
 		}
-		$d = new \DirectoryIterator($source);
-		foreach ($d as $f) {
-			/* @var $f \FileInfo */
-			if ($f->isDot()) {
+		$directoryIterator = new \DirectoryIterator($source);
+		foreach ($directoryIterator as $fileInfo) {
+			/* @var $fileInfo \FileInfo */
+			if ($fileInfo->isDot()) {
 				continue;
 			}
-			$fpath = path($source, $f->getFilename());
-			if (is_dir($fpath)) {
+			$source_path = path($source, $fileInfo->getFilename());
+			$tqrget_path = path($destination, strval($fileInfo));
+			if (is_dir($source_path)) {
 				if ($recursive) {
-					self::duplicate($fpath, path($destination, $f), $recursive, $file_copy_function);
+					self::duplicate($source_path, $tqrget_path, $recursive, $file_copy_function);
 				}
 			} else {
 				if ($file_copy_function) {
-					$file_copy_function($fpath, path($destination, $f));
+					$file_copy_function($source_path, $tqrget_path);
 				} else {
-					copy($fpath, path($destination, $f));
+					copy($source_path, $tqrget_path);
 				}
 			}
 		}
-		unset($d);
+		unset($directoryIterator);
 		return $destination;
 	}
 
@@ -405,29 +406,30 @@ class Directory extends Hookable {
 
 	/**
 	 * Removes extraneous .
-	 * ./ and ./ from a path
+	 * ./ and ../ from a path
 	 * @param string $p path to clean up
 	 * @return string path with removed dots
+	 * @throws Exception_Syntax
 	 */
-	public static function undot($p) {
+	public static function undot(string $p): string {
 		$r = [];
 		$a = explode('/', $p);
 		$skip = 0;
 
 		$n = count($a);
 		while ($n-- !== 0) {
-			if ($a[$n] == '..') {
+			if ($a[$n] === '..') {
 				$skip = $skip + 1;
-			} elseif ($a[$n] == '.') {
+			} else if ($a[$n] === '.') {
 				// Do nothing
-			} elseif ($skip > 0) {
+			} else if ($skip > 0) {
 				$skip--;
 			} else {
 				array_unshift($r, $a[$n]);
 			}
 		}
 		if ($skip > 0) {
-			return null;
+			throw new Exception_Syntax("Invalid path dots \"{path}\"", ["path" => $p]);
 		}
 		return implode('/', $r);
 	}
@@ -477,7 +479,7 @@ class Directory extends Hookable {
 				if ($directory_function) {
 					call_user_func($directory_function, $fpath, false);
 				}
-			} elseif ($file_function) {
+			} else if ($file_function) {
 				call_user_func($file_function, $fpath);
 			}
 		}
@@ -613,7 +615,7 @@ class Directory extends Hookable {
 		if ($order_by === 'name') {
 			$target_files = ArrayTools::valuesFlipCopy($files);
 			$sort_flags = SORT_STRING;
-		} elseif ($order_by === 'date') {
+		} else if ($order_by === 'date') {
 			foreach ($files as $i => $file) {
 				$target_files[filemtime($file) . ".$i"] = $file;
 			}

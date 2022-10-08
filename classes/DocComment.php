@@ -209,7 +209,7 @@ class DocComment extends Options {
 
 	private function parse_param_key($value) {
 		$lines = ArrayTools::clean(toList($value, [], "\n"), ['', null]);
-		$keys = ArrayTools::field($lines, 1, " \t");
+		$keys = StringTools::column($lines, 1, " \t");
 		$values = [];
 		foreach ($lines as $line) {
 			$values[] = StringTools::field($line, null, " \t", 3);

@@ -186,16 +186,16 @@ class Time extends Temporal {
 	public function set(null|int|string|Time|Timestamp $value): self {
 		if (is_int($value)) {
 			return $this->setUNIXTimestamp($value);
-		} else if (empty($value)) {
+		} elseif (empty($value)) {
 			$this->setEmpty();
 			return $this;
-		} else if (is_string($value)) {
+		} elseif (is_string($value)) {
 			return $this->parse($value);
-		} else if ($value instanceof Time) {
+		} elseif ($value instanceof Time) {
 			$this->setSeconds($value->seconds());
 			$this->setMilliecond($value->millisecond());
 			return $this;
-		} else if ($value instanceof Timestamp) {
+		} elseif ($value instanceof Timestamp) {
 			$this->setSeconds($value->daySeconds())->setMilliecond($value->millisecond());
 			return $this;
 		}
@@ -313,18 +313,18 @@ class Time extends Temporal {
 	 */
 	public function parse(string $value): self {
 		foreach ([
-			         '/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/' => [
-				         null,
-				         'setHour',
-				         'setMinute',
-				         'setSecond',
-			         ],
-			         '/([0-9]{1,2}):([0-9]{2})/' => [
-				         null,
-				         'setHour',
-				         'setMinute',
-			         ],
-		         ] as $pattern => $assign) {
+					 '/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/' => [
+						 null,
+						 'setHour',
+						 'setMinute',
+						 'setSecond',
+					 ],
+					 '/([0-9]{1,2}):([0-9]{2})/' => [
+						 null,
+						 'setHour',
+						 'setMinute',
+					 ],
+				 ] as $pattern => $assign) {
 			if (preg_match($pattern, $value, $matches)) {
 				$this->hms(0, 0, 0);
 				foreach ($assign as $index => $method) {
@@ -497,7 +497,7 @@ class Time extends Temporal {
 			} else {
 				return 0;
 			}
-		} else if ($value->isEmpty()) {
+		} elseif ($value->isEmpty()) {
 			return 1;
 		}
 		return $this->seconds - $value->seconds;
@@ -642,7 +642,7 @@ class Time extends Temporal {
 		$delta = $a->seconds - $b->seconds;
 		if ($delta < 0) {
 			return -1;
-		} else if ($delta === 0) {
+		} elseif ($delta === 0) {
 			return 0;
 		} else {
 			return 1;

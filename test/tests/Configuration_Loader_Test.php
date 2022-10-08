@@ -88,16 +88,16 @@ class Configuration_Loader_Test extends UnitTest {
 
 		$files = [];
 		foreach ([
-					 $one,
-					 path($path, 'nope'),
-					 $two,
-					 path($path, 'double_nope'),
-					 $three,
-				 ] as $dir) {
+			         $one,
+			         path($path, 'nope'),
+			         $two,
+			         path($path, 'double_nope'),
+			         $three,
+		         ] as $dir) {
 			foreach ([
-						 'a.conf',
-						 'b.json',
-					 ] as $f) {
+				         'a.conf',
+				         'b.json',
+			         ] as $f) {
 				$files[] = path($dir, $f);
 			}
 		}
@@ -107,13 +107,13 @@ class Configuration_Loader_Test extends UnitTest {
 
 		$variables = $loader->variables();
 		$this->assert_equal($variables['processed'], [
-			"$path/one/$json_name",
-			"$path/two/$conf_name",
-			"$path/three/$conf_name",
-			"$path/three/$json_name",
+			path($path, "one/$json_name"),
+			path($path, "two/$conf_name"),
+			path($path, "three/$conf_name"),
+			path($path, "three/$json_name"),
 		]);
 
-		$this->assert_arrays_equal(to_array($config), [
+		$this->assert_arrays_equal(toArray($config), [
 			'name' => 'ralph',
 			'rank' => 'admiral',
 			'weight' => 140,

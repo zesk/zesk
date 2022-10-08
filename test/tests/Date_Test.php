@@ -22,7 +22,7 @@ class Date_Test extends UnitTest {
 			[3, 2022, 31],
 			[4, 2022, 30],
 			[5, 2022, 31],
-			[6, 2022, 31],
+			[6, 2022, 30],
 			[7, 2022, 31],
 			[8, 2022, 31],
 			[9, 2022, 30],
@@ -91,7 +91,11 @@ class Date_Test extends UnitTest {
 	}
 
 	/**
-	 * @data_provider _test_range_fail_parameters
+	 * @dataProvider _test_range_fail_parameters
+	 * @param $y
+	 * @param $m
+	 * @param $d
+	 * @return void
 	 */
 	public function test_range_fail($y, $m, $d): void {
 		$this->expectException(Exception_Range::class);

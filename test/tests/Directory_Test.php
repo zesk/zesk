@@ -40,24 +40,26 @@ class testdir {
  *
  */
 class Directory_Test extends UnitTest {
-	/**
-	 * @expectedException zesk\Exception_Parameter
-	 */
-	public function test_is_absolute_param(): void {
-		$f = null;
-		$this->assert_false(Directory::isAbsolute($f));
+	public function data_isAbsolute(): array {
+		return [
+			[true, '/',],
+			[true, '/a',],
+			[true, '/a/b/c',],
+			[false, './'],
+			[false, './place/to/go',],
+			[false, '../place/to/go',],
+			[\is_windows(), '\\windows\\',],
+		];
 	}
 
-	public function test_isAbsolute(): void {
-		$this->assert_true(Directory::isAbsolute('/'));
-		$this->assert_false(Directory::isAbsolute('./'));
-		$this->assert_false(Directory::isAbsolute('./place/to/go'));
-		$this->assert_false(Directory::isAbsolute('../place/to/go'));
-		if (\is_windows()) {
-			$this->assert_true(Directory::isAbsolute('\\windows\\'));
-		} else {
-			$this->assert_false(Directory::isAbsolute('\\windows\\'));
-		}
+	/**
+	 * @param bool $expected
+	 * @param string $path
+	 * @return void
+	 * @dataProvider data_isAbsolute
+	 */
+	public function test_isAbsolute(bool $expected, string $path): void {
+		$this->assertEquals($expected, Directory::isAbsolute($path));
 	}
 
 	public function test_delete(): void {
@@ -90,26 +92,30 @@ class Directory_Test extends UnitTest {
 	public function undot_examples() {
 		return [
 			[
-				'/path/to/a/file/../../foo',
 				'/path/to/foo',
+				'/path/to/a/file/../../foo',
 			],
 			[
-				'/path/to/a/file/../../..foo',
 				'/path/to/..foo',
+				'/path/to/a/file/../../..foo',
 			],
 			[
-				'/path/to/a/file/../../../../../../foo',
 				null,
+				'/path/to/a/file/../../../../../../foo',
 			],
 		];
 	}
 
 	/**
-	 * @data_provider undot_examples
+	 * @dataProvider undot_examples
 	 */
-	public function test_undot($name, $expect): void {
-		$result = Directory::undot($name);
-		$this->assert_equal($result, $expect);
+	public function test_undot(?string $expect, string $name): void {
+		if ($expect === null) {
+			$this->expectException(Exception_Syntax::class);
+			Directory::undot($name);
+		} else {
+			$this->assertEquals($expect, Directory::undot($name));
+		}
 	}
 
 	public function test_list_recursive(): void {
@@ -130,8 +136,6 @@ class Directory_Test extends UnitTest {
 		];
 
 		$results = Directory::list_recursive(ZESK_ROOT, $options);
-		$this->log($results);
-
 		$this->assert_in_array($results, 'test/tests/Directory_Test.php');
 	}
 
@@ -218,19 +222,32 @@ class Directory_Test extends UnitTest {
 	}
 
 	public function test_duplicate(): void {
-		$source = ZESK_ROOT . 'cache/test';
-		$destination = ZESK_ROOT . 'cache/test1';
+		$rando = $this->randomHex(8);
+		$source = ZESK_ROOT . 'cache/test-' . $rando;
+		$destination = ZESK_ROOT . 'cache/test1-' . $rando;
 
-		$this->assert(Directory::delete($source));
+		$this->assertFalse(is_dir($source));
 		$this->assert(mkdir($source, 0o777));
+		$nfiles = 8;
+		for ($i = 0; $i < $nfiles; $i++) {
+			$name = path($source, $this->randomHex(16) . '.txt');
+			$content = $this->randomBytes(1024 * $this->randomInteger(4, 20));
+			file_put_contents($name, $content);
+		}
+		$this->assertFalse(is_dir($destination));
 
 		$recursive = true;
 		$file_copy_function = null;
 		Directory::duplicate($source, $destination, $recursive, $file_copy_function);
 
-		$this->assert(Directory::isEmpty($destination));
+		$this->assertTrue(is_dir($destination));
+		$this->assertFalse(Directory::isEmpty($destination));
 
-		// TODO more tests here as necessary
+		Directory::deleteContents($destination);
+		$this->assertTrue(is_dir($destination));
+		$this->assertTrue(Directory::isEmpty($destination));
+		Directory::delete($destination);
+		$this->assertFalse(is_dir($destination));
 	}
 
 	public function test_create(): void {

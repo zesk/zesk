@@ -1630,6 +1630,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			$arguments = [
 				'content' => $arguments,
 			];
+		} elseif (ArrayTools::isList($arguments)) {
+			$arguments['content'] = first($arguments);
 		}
 		$arguments['application'] = $this;
 		$arguments['locale'] = $this->locale;
@@ -1827,7 +1829,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Return a path relative to the application root
 	 */
-	final public function path($suffix = null) {
+	final public function path(string $suffix = ''): string {
 		return $this->paths->application($suffix);
 	}
 

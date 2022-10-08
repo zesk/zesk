@@ -206,7 +206,7 @@ class JSON_Test extends UnitTest {
 	}
 
 	/**
-	 * @data_provider internal_values
+	 * @dataProvider internal_values
 	 * @param mixed $mixed
 	 */
 	public function test_internal($mixed): void {
@@ -294,7 +294,7 @@ class JSON_Test extends UnitTest {
 	}
 
 	/**
-	 * @data_provider internal_expected_values
+	 * @dataProvider internal_expected_values
 	 * @param unknown $mixed
 	 * @param unknown $expected
 	 */

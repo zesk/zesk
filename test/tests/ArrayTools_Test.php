@@ -131,6 +131,13 @@ class ArrayTools_Test extends UnitTest {
 		];
 	}
 
+	/**
+	 * @param array $array
+	 * @param bool $lower
+	 * @param array $expected
+	 * @return void
+	 * @dataProvider data_valuesFlipCopy
+	 */
 	public function test_valuesFlipCopy(array $array, bool $lower, array $expected): void {
 		$this->assertEquals($expected, ArrayTools::valuesFlipCopy($array, $lower));
 	}
@@ -157,7 +164,7 @@ class ArrayTools_Test extends UnitTest {
 
 		$prefix = 'a';
 		$suffix = 'bb';
-		$a = ['a' => 'b', ];
+		$a = ['a' => 'b',];
 		$b = [
 			'a' => 'abbb',
 		];
@@ -1119,6 +1126,7 @@ class ArrayTools_Test extends UnitTest {
 	public function data_max(): array {
 		return [
 			[
+				513234,
 				[
 					1,
 					2,
@@ -1131,9 +1139,9 @@ class ArrayTools_Test extends UnitTest {
 					52145,
 				],
 				null,
-				513234,
 			],
 			[
+				94123124,
 				[
 					'1',
 					2,
@@ -1145,15 +1153,21 @@ class ArrayTools_Test extends UnitTest {
 					'94123124',
 				],
 				null,
-				94123124,
 			],
-			[[], 44.32, 44.32],
-			[[[], [], [], null, false, true], 44.32, 44.32],
+			[44.32, [], 44.32,],
+			[44.32, [[], [], [], null, false, true], 44.32,],
 		];
 	}
 
-	public function test_max(array $array, mixed $default, mixed $expected): void {
-		$this->assertEquals($expected, ArrayTools::min($array, $default));
+	/**
+	 * @param mixed $expected
+	 * @param array $array
+	 * @param mixed $default
+	 * @return void
+	 * @dataProvider data_max
+	 */
+	public function test_max(mixed $expected, array $array, mixed $default): void {
+		$this->assertEquals($expected, ArrayTools::max($array, $default));
 	}
 
 	public function data_min(): array {
@@ -1277,18 +1291,22 @@ class ArrayTools_Test extends UnitTest {
 
 	public function data_append(): array {
 		return [
-			[[], 'key', 1, ['key' => 1]],
-			[['key' => 1], 'key', 3, ['key' => [1, 3]]],
-			[['key' => 1, 3], 'key', 5, ['key' => [1, 3, 5]]],
-			[['key' => [1, 3]], 'key2', 3, ['key' => [1, 3], 'key2' => 3]],
+			[['key' => 1], [], 'key', 1],
+			[['key' => [1, 3]], ['key' => 1], 'key', 3],
+			[['key' => [1, 3, 5]], ['key' => [1, 3]], 'key', 5],
+			[['key' => [1, 3], 'key2' => 3], ['key' => [1, 3]], 'key2', 3],
 		];
 	}
 
 	/**
-	 * @return voidD
+	 * @param array $expected
+	 * @param array $actual
+	 * @param string $key
+	 * @param mixed $value
+	 * @return void
 	 * @dataProvider data_append
 	 */
-	public function test_append(array $actual, $key, mixed $value, array $expected): void {
+	public function test_append(array $expected, array $actual, string $key, mixed $value): void {
 		ArrayTools::append($actual, $key, $value);
 		$this->assertEquals($expected, $actual);
 	}

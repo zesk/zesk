@@ -99,7 +99,7 @@ class Lists_Test extends UnitTest {
 	}
 
 	/**
-	 * @data_provider append_data_provider
+	 * @dataProvider append_data_provider
 	 */
 	public function test_append($list, $add, $sep, $expected): void {
 		$actual = Lists::append($list, $add, $sep);
@@ -111,7 +111,7 @@ class Lists_Test extends UnitTest {
 	}
 
 	/**
-	 * @data_provider append_data_provider
+	 * @dataProvider append_data_provider
 	 */
 	public function test_appendUnique($list, $add, $sep, $expected): void {
 		if (is_array($expected)) {

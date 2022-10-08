@@ -4,14 +4,14 @@ namespace zesk;
 class Configuration_Test extends UnitTest {
 	public function value_types() {
 		return [
-			'Hello',
-			1,
-			'null',
-			null,
-			false,
-			true,
-			123.423,
-			new \stdClass(),
+			['Hello'],
+			[1],
+			['null'],
+			[null],
+			[false],
+			[true],
+			[123.423],
+			[new \stdClass()],
 		];
 	}
 
@@ -19,7 +19,7 @@ class Configuration_Test extends UnitTest {
 	 * @dataProvider value_types
 	 * @param unknown $value
 	 */
-	public function test_value_types($value): void {
+	public function test_value_types(mixed $value): void {
 		$configuration = new Configuration();
 		$configuration->path_set('TEST::ROOT', $value);
 		$this->assert_equal($configuration->path_get('TEST::ROOT'), $value);

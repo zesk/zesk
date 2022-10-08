@@ -192,10 +192,61 @@ class PHPUnit_TestCase extends TestCase {
 	}
 
 	/**
+	 * @param int $count
+	 * @return string
+	 */
+	protected function randomBytes(int $count = 64): string {
+		try {
+			return random_bytes($count);
+		} catch (\Exception) {
+		}
+
+		try {
+			$result = '';
+			do {
+				$result .= sha1(long2ip(random_int(0, 0xFFFFFFFF)), true);
+			} while (strlen($result) < $count);
+			return $result;
+		} catch (\Exception) {
+		}
+		$result = '';
+		do {
+			$result .= sha1(microtime(false), true);
+		} while (strlen($result) < $count);
+		return $result;
+	}
+
+	/**
+	 * @param int $min
+	 * @param int $max
+	 * @return int
+	 */
+	protected function randomInteger(int $min, int $max): int {
+		try {
+			return random_int($min, $max);
+		} catch (\Exception) {
+			return \rand($min, $max);
+		}
+	}
+
+	/**
+	 * @param int $characters
+	 * @return string
+	 */
+	protected function randomHex(int $characters = 32): string {
+		$result = '';
+		do {
+			$result .= sha1($this->randomBytes());
+		} while (strlen($result) < $characters);
+		return substr($result, 0, $characters);
+	}
+
+	/**
 	 * Create a sandbox folder to test with
 	 *
-	 * @param unknown $file
-	 * @param unknown $auto_delete
+	 * @param string $file
+	 * @param bool $auto_delete
+	 * @return string
 	 * @see self::sandbox
 	 */
 	final protected function test_sandbox(string $file = '', bool $auto_delete = true): string {
@@ -227,7 +278,6 @@ class PHPUnit_TestCase extends TestCase {
 		if ($cache_dir === '') {
 			return;
 		}
-		echo "Deleting $cache_dir ...\n";
 		if (is_dir($cache_dir)) {
 			Directory::delete($cache_dir);
 		}

@@ -1110,7 +1110,7 @@ class ArrayTools {
 	 *            Convert the keys to lowercase. Defaults to "true"
 	 * @return array An array where the keys and values identical (or lowercase equivalent)
 	 */
-	public static function valuesFlipCopy($x, $lower = true) {
+	public static function valuesFlipCopy(array $x, bool $lower = true): array {
 		$result = [];
 		if ($lower) {
 			foreach ($x as $k) {
@@ -1140,7 +1140,7 @@ class ArrayTools {
 	 * @param array $arr
 	 * @return array
 	 */
-	public static function valuesFlipAppend(array $arr) {
+	public static function valuesFlipAppend(array $arr): array {
 		$result = [];
 		foreach ($arr as $k => $v) {
 			if (array_key_exists($v, $result)) {
@@ -1219,7 +1219,7 @@ class ArrayTools {
 	 * @param boolean $before insert before the given key. defaults to inserting after
 	 * @return array merged
 	 */
-	public static function insert(array $arr1, string $key, array $arr2, bool $before = false) {
+	public static function insert(array $arr1, string $key, array $arr2, bool $before = false): array {
 		$result = [];
 		if (!array_key_exists($key, $arr1)) {
 			return $before ? array_merge($arr2, $arr1) : array_merge($arr1, $arr2);
@@ -1245,10 +1245,10 @@ class ArrayTools {
 	 *
 	 * @param array $array An array to create a counter in
 	 * @param string $k Key to increment
-	 * @param integer|float $amount Amount to increment
-	 * @return integer
+	 * @param int|float $amount Amount to increment
+	 * @return int|float
 	 */
-	public static function increment(array &$array, string $k, int|float $amount = 1) {
+	public static function increment(array &$array, string $k, int|float $amount = 1): int|float {
 		if (array_key_exists($k, $array)) {
 			return $array[$k] += $amount;
 		}

@@ -130,7 +130,7 @@ abstract class Locale extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function id() {
+	public function id(): string {
 		return $this->locale_string;
 	}
 
@@ -138,7 +138,7 @@ abstract class Locale extends Hookable {
 	 *
 	 * @return string|NULL
 	 */
-	public function dialect() {
+	public function dialect(): string {
 		return $this->dialect;
 	}
 
@@ -146,7 +146,7 @@ abstract class Locale extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function language() {
+	public function language(): string {
 		return $this->language;
 	}
 
@@ -163,8 +163,8 @@ abstract class Locale extends Hookable {
 	}
 
 	/**
-	 *
-	 * @return array
+	 * @param array $set
+	 * @return $this
 	 */
 	public function setTranslations(array $set): self {
 		$this->translation_table = $set;

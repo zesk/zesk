@@ -76,13 +76,33 @@ class File_Test extends UnitTest {
 		$this->assertEquals($expected, File::base($filename));
 	}
 
-	public function test_checksum(): void {
-		$path = null;
-		File::checksum($path);
+	public function data_checksum(): array {
+		return [
+			[
+				md5(""),
+				"",
+			],
+			[
+				md5("123"),
+				"123",
+			],
+		];
+	}
+
+	/**
+	 * @param string $expected
+	 * @param string $path
+	 * @return void
+	 * @dataProvider data_checksum
+	 */
+	public function test_checksum(string $expected, string $content): void {
+		$path = $this->sandbox($this->randomHex(8) . '.checksum');
+		file_put_contents($path, $content);
+		$this->assertEquals($expected, File::checksum($path));
 	}
 
 	public function test_chmod(): void {
-		$file_name = $this->test_sandbox('chmod-test');
+		$file_name = $this->sandbox('chmod-test');
 		file_put_contents($file_name, 'abc');
 		$mode = 504;
 		$this->assertTrue(File::chmod($file_name, $mode));
@@ -90,7 +110,7 @@ class File_Test extends UnitTest {
 	}
 
 	public function test_contents(): void {
-		$file_name = $this->test_sandbox('chmod-test');
+		$file_name = $this->sandbox('chmod-test');
 		$data = md5(microtime(false));
 		file_put_contents($file_name, $data);
 		$this->assertEquals($data, File::contents($file_name, ''));
@@ -98,16 +118,18 @@ class File_Test extends UnitTest {
 		$this->assertEquals(null, File::contents($file_name . '.notthere'));
 	}
 
-	public function extension_data() {
+	public function data_extension() {
 		return [
-			['foo.XLSX', 'def', true, 'xlsx'],
-			['foo.xlsx', 'def', true, 'xlsx'],
-			['foo.XLSX', 'def', false, 'XLSX'],
-			['foo.xlsx', 'def', false, 'xlsx'],
-			['/path/to/a/filename.XLSX', 'def', true, 'xlsx'],
-			['/path/to/a/filename.xlsx', 'def', true, 'xlsx'],
-			['/path/to/a/filename.XLSX', 'def', false, 'XLSX'],
-			['/path/to/a/filename.xlsx', 'def', false, 'xlsx'],
+			['foo.xLSx', 'xLSx'],
+			['foo.xlsx', 'xlsx'],
+			['foo.', ''],
+			['foo-bar-none', ''],
+			['foo.XlsX', 'XlsX'],
+			['foo.xlsx', 'xlsx'],
+			['/path/to/a/filename.XLSX', 'XLSX'],
+			['/path/to/a/../b/filename.xlsx', 'xlsx'],
+			['/path/t.o/a/filename.XLSX', 'XLSX'],
+			['/p.ath/to/a/filename.xlsx', 'xlsx'],
 		];
 	}
 
@@ -117,10 +139,10 @@ class File_Test extends UnitTest {
 	 * @param bool $lower
 	 * @param string $expected
 	 * @return void
-	 * @dataProvider extension_data
+	 * @dataProvider data_extension
 	 */
-	public function test_extension(string $filename, string $default, bool $lower, string $expected): void {
-		$this->assertEquals($expected, File::extension($filename, $default, $lower));
+	public function test_extension(string $filename, string $expected): void {
+		$this->assertEquals($expected, File::extension($filename));
 	}
 
 	/**

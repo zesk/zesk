@@ -35,7 +35,7 @@ class Test_ORM extends UnitTest {
 	 *
 	 * @param string $class
 	 * @param array $options
-	 * @data_provider classes_to_test
+	 * @dataProvider classes_to_test
 	 */
 	public function run_test_class($class, array $options = []) {
 		return $this->run_test_an_object($this->application->ormFactory($class, $options));
@@ -163,7 +163,7 @@ class Test_ORM extends UnitTest {
 				$object->__set($member, 'stuff' . mt_rand());
 			}
 		}
-		echo PHP::dump($object->members());
+		//echo PHP::dump($object->members());
 		// 		$object->store();
 
 		// 		$object->register();

@@ -57,11 +57,10 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 * @see \zesk\Configuration_Parser::process()
 	 */
 	public function process(): void {
-		$separator = self::SEPARATOR_DEFAULT;
-		$lower = $trim_key = $trim_value = $autotype = $overwrite = $multiline = null;
-		$unquote = self::UNQUOTE_DEFAULT;
-		extract($this->options, EXTR_IF_EXISTS);
-
+		$autotype = toBool($this->options['autotype'] ?? false);
+		$unquote = strval($this->options['unquote'] ?? self::UNQUOTE_DEFAULT);
+		$multiline = toBool($this->options['multiline'] ?? false);
+		$overwrite = toBool($this->options['overwrite'] ?? false);
 		$settings = $this->settings;
 		$dependency = $this->dependency;
 
@@ -114,7 +113,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			 */
 			if ($this->loader && strtolower($key) === 'include') {
 				$this->handle_include($value);
-			} elseif ($append) {
+			} else if ($append) {
 				$append_value = toArray($settings->get($key));
 				$append_value[] = $value;
 				$settings->set($key, $append_value);

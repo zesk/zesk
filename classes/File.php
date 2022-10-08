@@ -329,7 +329,7 @@ class File {
 	 * @throws Exception_File_NotFound
 	 */
 	public static function atomic_increment(string $path): int {
-		$fp = fopen($path, 'r+b');
+		$fp = @fopen($path, 'r+b');
 		if (!$fp) {
 			throw new Exception_File_NotFound($path, 'not found');
 		}

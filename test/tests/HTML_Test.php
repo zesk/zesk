@@ -160,14 +160,13 @@ class HTML_Test extends UnitTest {
 	}
 
 	public function dataprovider_request() {
+		$this->setUp();
 		$request0 = $this->application->factory(Request::class, $this->application);
 		$request0->initializeFromSettings([
 			'url' => 'http://localhost/path/',
 		]);
 		return [
-			[
-				$request0,
-			],
+			[$request0],
 		];
 	}
 
@@ -211,9 +210,9 @@ class HTML_Test extends UnitTest {
 	}
 
 	public function test_clean_style_attributes(): void {
-		$base = '<a style="background-url: foo.gif; background-color: red" href="/">Hello world</a>';
+		$base = '<a style="background-url: foo.gif; background-color: red;" href="/">Hello world</a>';
 		$this->assertEquals('<a style="background-color: red;" href="/">Hello world</a>', HTML::clean_style_attributes($base, ['background-color'], []));
-		$this->assertEquals('<a style="background-url: foo.gif" href="/">Hello world</a>', HTML::clean_style_attributes($base, ['background-url'], []));
+		$this->assertEquals('<a style="background-url: foo.gif;" href="/">Hello world</a>', HTML::clean_style_attributes($base, ['background-url'], []));
 		$this->assertEquals($base, HTML::clean_style_attributes($base, [
 			'background-url',
 			'background-color',
@@ -230,15 +229,15 @@ class HTML_Test extends UnitTest {
 		return [
 			[
 				$simple_html,
-				[],
-				[],
 				$simple_html,
+				[],
+				[],
 			],
 			[
+				'<a href="/"><strong>Bold</strong><em>Italic</em><p>Paragraphs</p></a><h1>Heading</h1>',
 				$simple_html,
 				[],
 				['h2'],
-				'<a href="/"><strong>Bold</strong><em>Italic</em><p>Paragraphs</p></a><h1>Heading</h1>',
 			],
 		];
 	}
@@ -247,7 +246,7 @@ class HTML_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider dataCleanTags
 	 */
-	public function test_cleanTags($string, $allowed_tags, $remove_tags, $expected): void {
+	public function test_cleanTags($expected, $string, $allowed_tags, $remove_tags): void {
 		$this->assertEquals($expected, HTML::cleanTags($string, $allowed_tags, $remove_tags), 'HTML::clean_tags');
 	}
 
@@ -267,12 +266,19 @@ class HTML_Test extends UnitTest {
 
 	public function dataCleanTagsWithoutAttributes() {
 		return [
-			[['a'], '<a href=\'dude\'>Link</a>', '<a href=\'dude\'>Link</a>'],
-			[['a'], '<a href=\'dude\'>Link</a><a>Nolink</a>', '<a href=\'dude\'>Link</a>Nolink'],
+			['<a href=\'dude\'>Link</a>', ['a'], '<a href=\'dude\'>Link</a>'],
+			['<a href=\'dude\'>Link</a>Nolink', ['a'], '<a href=\'dude\'>Link</a><a>Nolink</a>'],
 		];
 	}
 
-	public function testCleanTagsWithoutAttributes($tags, $html, $expected): void {
+	/**
+	 * @param $tags
+	 * @param $html
+	 * @param $expected
+	 * @return void
+	 * @dataProvider dataCleanTagsWithoutAttributes
+	 */
+	public function testCleanTagsWithoutAttributes(string $expected, array $tags, string $html): void {
 		$this->assertEquals($expected, HTML::cleanTagsWithoutAttributes($tags, $html));
 	}
 
@@ -319,7 +325,7 @@ class HTML_Test extends UnitTest {
 	public function dataEllipsis(): array {
 		return [
 			[
-				'<a href="link.gif">this is a word with a lot of</a> ...',
+				'<a href="link.gif">this is a word with </a> ...',
 				'<a href="link.gif">this is a word with a lot of other words in it</a>',
 				20,
 				' ...',
@@ -367,7 +373,7 @@ class HTML_Test extends UnitTest {
 
 	public function data_extractEmails(): array {
 		return [
-			[['info@example.com', 'nowhere@none.com'], '<a href="mailto:info@example.com">nowhere@noone.com</a>'],
+			[['info@example.com', 'nowhere@noone.com'], '<a href="mailto:info@example.com">nowhere@noone.com</a>'],
 		];
 	}
 
@@ -400,9 +406,10 @@ class HTML_Test extends UnitTest {
 	}
 
 	public function data_extractTagObject(): array {
+		$outer_html = '<a href="/">Link</a>';
 		return [
-			[new HTML_Tag('a', ['href' => '/'], 'Link'), 'a', '<a href="/">Link</a>'],
-			[new HTML_Tag('a', ['href' => '/'], 'Link'), 'a', '<a href="">Link</a><a>Loop</a>'],
+			[new HTML_Tag('a', ['href' => '/'], 'Link', $outer_html, 0), 'a', $outer_html],
+			[new HTML_Tag('a', ['href' => '/'], 'Link', $outer_html, 0), 'a', $outer_html . '<a>Loop</a>'],
 		];
 	}
 
@@ -418,9 +425,7 @@ class HTML_Test extends UnitTest {
 	}
 
 	public function test_hidden(): void {
-		$name = null;
-		$value = null;
-		HTML::hidden($name, $value);
+		$this->assertEquals("<input type=\"hidden\" name=\"name\" value=\"secret\" \>", HTML::hidden("name", "secret"));
 	}
 
 	public function test_img(): void {
@@ -436,7 +441,7 @@ class HTML_Test extends UnitTest {
 		$h = false;
 		$text = '';
 		$attrs = [];
-		$this->assertEquals('', HTML::img_compat($this->application, $src, $w, $h, $text, $attrs));
+		$this->assertEquals('<img alt="" title="" src="image.gif" border="0" />', HTML::img_compat($this->application, $src, $w, $h, $text, $attrs));
 	}
 
 	public function test_input(): void {
@@ -476,7 +481,10 @@ class HTML_Test extends UnitTest {
 
 	public function data_isEndTag() {
 		return [
-			[true, '</a>'],
+			['a', '</a>'],
+			['a', '</a   >'],
+			['a', '</    a   >'],
+			['waybetter', '</    waybetter   >'],
 		];
 	}
 
@@ -510,7 +518,10 @@ class HTML_Test extends UnitTest {
 
 	public function data_matchTags() {
 		return [
-			[['a', 'b', 'strong', 'li'], '<a><b></b><strong></strong><li>'],
+			[
+				[['<a>', 'a', ''], ['<b>', 'b', ''], ['<strong>', 'strong', ''], ['<li>', 'li', '']],
+				'<a><b></b><strong></strong><li>',
+			],
 		];
 	}
 
@@ -520,7 +531,7 @@ class HTML_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_matchTags
 	 */
-	public function test_match_tags($expected, $string): void {
+	public function test_match_tags(array $expected, string $string): void {
 		$this->assertEquals($expected, HTML::match_tags($string));
 	}
 
@@ -539,7 +550,7 @@ class HTML_Test extends UnitTest {
 
 	public function data_parseTags(): array {
 		return [
-			[['', ], '<a href="/">Link</a>'],
+			[['',], '<a href="/">Link</a>'],
 		];
 	}
 
@@ -676,11 +687,8 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::tag($name, $mixed, $content));
 	}
 
-	/**
-	 * @expectedException zesk\Exception_Semantics
-	 */
 	public function test_tag_close(): void {
-		$tagName = null;
+		$this->expectException(Exception_Semantics::class);
 		HTML::tag_close('p');
 	}
 
@@ -747,6 +755,12 @@ class HTML_Test extends UnitTest {
 			[$test_phrase_1, $test_phrase_1, 10],
 			['<h1>one two three four five <em>six seven eight</em> nine </h1>', '<h1>one two three four</h1>', 9],
 			['<h1>one two three four five <em>six seven eight</em></h1>', '<h1>one two three four</h1>', 8],
+			['<h1>one two three four five <em>six seven</em></h1>', '<h1>one two three four</h1>', 7],
+			['<h1>one two three four five <em>six</em></h1>', '<h1>one two three four</h1>', 6],
+			['<h1>one two three four five</h1>', '<h1>one two three four</h1>', 5],
+			['<h1>one two three four</h1>', '<h1>one two three four</h1>', 4],
+			['<h1>one two three</h1>', '<h1>one two three four</h1>', 3],
+			['<h1>one two</h1>', '<h1>one two three four</h1>', 2],
 			['<h1>one</h1>', '<h1>one two three four</h1>', 1],
 		];
 	}
