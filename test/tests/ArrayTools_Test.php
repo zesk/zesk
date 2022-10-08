@@ -164,7 +164,7 @@ class ArrayTools_Test extends UnitTest {
 
 		$prefix = 'a';
 		$suffix = 'bb';
-		$a = ['a' => 'b',];
+		$a = ['a' => 'b', ];
 		$b = [
 			'a' => 'abbb',
 		];
@@ -1154,8 +1154,8 @@ class ArrayTools_Test extends UnitTest {
 				],
 				null,
 			],
-			[44.32, [], 44.32,],
-			[44.32, [[], [], [], null, false, true], 44.32,],
+			[44.32, [], 44.32, ],
+			[44.32, [[], [], [], null, false, true], 44.32, ],
 		];
 	}
 

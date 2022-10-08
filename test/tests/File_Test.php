@@ -79,12 +79,12 @@ class File_Test extends UnitTest {
 	public function data_checksum(): array {
 		return [
 			[
-				md5(""),
-				"",
+				md5(''),
+				'',
 			],
 			[
-				md5("123"),
-				"123",
+				md5('123'),
+				'123',
 			],
 		];
 	}

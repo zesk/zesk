@@ -425,7 +425,7 @@ class HTML_Test extends UnitTest {
 	}
 
 	public function test_hidden(): void {
-		$this->assertEquals("<input type=\"hidden\" name=\"name\" value=\"secret\" \>", HTML::hidden("name", "secret"));
+		$this->assertEquals("<input type=\"hidden\" name=\"name\" value=\"secret\" \>", HTML::hidden('name', 'secret'));
 	}
 
 	public function test_img(): void {
@@ -550,7 +550,7 @@ class HTML_Test extends UnitTest {
 
 	public function data_parseTags(): array {
 		return [
-			[['',], '<a href="/">Link</a>'],
+			[['', ], '<a href="/">Link</a>'],
 		];
 	}
 

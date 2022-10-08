@@ -420,16 +420,16 @@ class Directory extends Hookable {
 		while ($n-- !== 0) {
 			if ($a[$n] === '..') {
 				$skip = $skip + 1;
-			} else if ($a[$n] === '.') {
+			} elseif ($a[$n] === '.') {
 				// Do nothing
-			} else if ($skip > 0) {
+			} elseif ($skip > 0) {
 				$skip--;
 			} else {
 				array_unshift($r, $a[$n]);
 			}
 		}
 		if ($skip > 0) {
-			throw new Exception_Syntax("Invalid path dots \"{path}\"", ["path" => $p]);
+			throw new Exception_Syntax('Invalid path dots "{path}"', ['path' => $p]);
 		}
 		return implode('/', $r);
 	}
@@ -479,7 +479,7 @@ class Directory extends Hookable {
 				if ($directory_function) {
 					call_user_func($directory_function, $fpath, false);
 				}
-			} else if ($file_function) {
+			} elseif ($file_function) {
 				call_user_func($file_function, $fpath);
 			}
 		}
@@ -615,7 +615,7 @@ class Directory extends Hookable {
 		if ($order_by === 'name') {
 			$target_files = ArrayTools::valuesFlipCopy($files);
 			$sort_flags = SORT_STRING;
-		} else if ($order_by === 'date') {
+		} elseif ($order_by === 'date') {
 			foreach ($files as $i => $file) {
 				$target_files[filemtime($file) . ".$i"] = $file;
 			}

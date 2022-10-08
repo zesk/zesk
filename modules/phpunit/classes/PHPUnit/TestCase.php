@@ -225,7 +225,7 @@ class PHPUnit_TestCase extends TestCase {
 		try {
 			return random_int($min, $max);
 		} catch (\Exception) {
-			return \rand($min, $max);
+			return \random_int($min, $max);
 		}
 	}
 

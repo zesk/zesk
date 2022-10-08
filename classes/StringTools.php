@@ -17,7 +17,7 @@ class StringTools {
 		$char2 = substr($pattern, 1, 1);
 		if ($char1 == strtolower($char1)) {
 			return strtolower($string);
-		} else if ($char2 == strtolower($char2)) {
+		} elseif ($char2 == strtolower($char2)) {
 			return ucfirst(strtolower($string));
 		} else {
 			return strtoupper($string);
@@ -390,7 +390,7 @@ class StringTools {
 		if ($c0 == 0xFE && $c1 == 0xFF) {
 			$be = true;
 			return true;
-		} else if ($c0 == 0xFF && $c1 == 0xFE) {
+		} elseif ($c0 == 0xFF && $c1 == 0xFE) {
 			$be = false;
 			return true;
 		}
@@ -432,11 +432,11 @@ class StringTools {
 			if ($c > 128) {
 				if (($c > 247)) {
 					return false;
-				} else if ($c > 239) {
+				} elseif ($c > 239) {
 					$bytes = 4;
-				} else if ($c > 223) {
+				} elseif ($c > 223) {
 					$bytes = 3;
-				} else if ($c > 191) {
+				} elseif ($c > 191) {
 					$bytes = 2;
 				} else {
 					return false;
@@ -584,7 +584,7 @@ class StringTools {
 			$tab_width = 4;
 		}
 		//	$text =~ s{(.*?)\t}{$1.(' ' x ($g_tab_width - length($1) % $g_tab_width))}ge;
-		return preg_replace_callback('@^(.*?)\t@m', fn($matches) => $matches[1] . str_repeat(' ', $tab_width - strlen($matches[1]) % $tab_width), $text);
+		return preg_replace_callback('@^(.*?)\t@m', fn ($matches) => $matches[1] . str_repeat(' ', $tab_width - strlen($matches[1]) % $tab_width), $text);
 	}
 
 	/**
@@ -669,7 +669,7 @@ class StringTools {
 	 * @return string
 	 */
 	public static function from_camel_case(string $string): string {
-		return preg_replace_callback('/[A-Z]/', fn($matches) => '_' . strtolower($matches[0]), $string);
+		return preg_replace_callback('/[A-Z]/', fn ($matches) => '_' . strtolower($matches[0]), $string);
 	}
 
 	/**

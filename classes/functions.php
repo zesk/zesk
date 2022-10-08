@@ -225,7 +225,7 @@ function _backtrace(int $n = -1): string {
 			foreach ($args as $index => $arg) {
 				if (is_object($arg)) {
 					$arg_dump[$index] = $arg::class;
-				} else if (is_scalar($arg)) {
+				} elseif (is_scalar($arg)) {
 					$arg_dump[$index] = PHP::dump($arg);
 				} else {
 					$arg_dump[$index] = type($arg);
@@ -420,11 +420,11 @@ function to_double(mixed $s, float $def = null): float {
 function toList(mixed $mixed, array $default = [], string $delimiter = ';'): array {
 	if ($mixed === '') {
 		return $default;
-	} else if (is_scalar($mixed)) {
+	} elseif (is_scalar($mixed)) {
 		return explode($delimiter, strval($mixed));
-	} else if (is_array($mixed)) {
+	} elseif (is_array($mixed)) {
 		return $mixed;
-	} else if (is_object($mixed) && method_exists($mixed, 'to_list')) {
+	} elseif (is_object($mixed) && method_exists($mixed, 'to_list')) {
 		return to_list($mixed->to_list());
 	} else {
 		return $default;
@@ -642,10 +642,10 @@ function tr(mixed $mixed, array $map): mixed {
 			$mixed[$k] = tr($v, $map);
 		}
 		return $mixed;
-	} else if (is_string($mixed)) {
+	} elseif (is_string($mixed)) {
 		$map = ArrayTools::flatten($map);
 		return strtr($mixed, $map);
-	} else if (is_object($mixed)) {
+	} elseif (is_object($mixed)) {
 		return $mixed instanceof Hookable ? $mixed->call_hook_arguments('tr', [
 			$map,
 		], $mixed) : $mixed;
@@ -774,7 +774,7 @@ function map(array|string $mixed, array $map, bool $insensitive = false, string 
 					$v = null;
 				}
 			}
-		} else if (is_object($v)) {
+		} elseif (is_object($v)) {
 			if (method_exists($v, '__toString')) {
 				$v = strval($v);
 			} else {
@@ -786,7 +786,7 @@ function map(array|string $mixed, array $map, bool $insensitive = false, string 
 	if ($insensitive) {
 		static $func = null;
 		if (!$func) {
-			$func = fn($matches) => strtolower($matches[0]);
+			$func = fn ($matches) => strtolower($matches[0]);
 		}
 		$mixed = preg_replace_callback_mixed('#' . preg_quote($prefix_char, '/') . '([-:_ =,./\'"A-Za-z0-9]+)' . preg_quote($suffix_char, '/') . '#i', $func, $mixed);
 	}
@@ -968,7 +968,7 @@ function path_from_array(string $separator, array $mixed): string {
 	$r = array_shift($mixed);
 	if (is_array($r)) {
 		$r = path_from_array($separator, $r);
-	} else if (!is_string($r)) {
+	} elseif (!is_string($r)) {
 		$r = '';
 	}
 	foreach ($mixed as $p) {

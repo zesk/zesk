@@ -52,6 +52,7 @@ class Number {
 	public static function format_bytes(Locale $locale, int $n, int $precision = 1): string {
 		return self::formatBytes($locale, $n, $precision);
 	}
+
 	/**
 	 * Format bytes
 	 *

@@ -42,13 +42,13 @@ class testdir {
 class Directory_Test extends UnitTest {
 	public function data_isAbsolute(): array {
 		return [
-			[true, '/',],
-			[true, '/a',],
-			[true, '/a/b/c',],
+			[true, '/', ],
+			[true, '/a', ],
+			[true, '/a/b/c', ],
 			[false, './'],
-			[false, './place/to/go',],
-			[false, '../place/to/go',],
-			[\is_windows(), '\\windows\\',],
+			[false, './place/to/go', ],
+			[false, '../place/to/go', ],
+			[\is_windows(), '\\windows\\', ],
 		];
 	}
 
