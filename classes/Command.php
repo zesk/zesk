@@ -415,7 +415,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			$extension = File::extension($filename);
 			if ($extension === 'conf') {
 				file_put_contents($filename, "# Created $name on " . date('Y-m-d H:i:s') . " at $filename\n");
-			} else if ($extension === 'json') {
+			} elseif ($extension === 'json') {
 				file_put_contents($filename, JSON::encode([
 					get_class($this) => [
 						'configuration_file' => [
@@ -767,7 +767,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	private function determine_ansi(): void {
 		if ($this->optionBool('no-ansi')) {
 			$this->ansi = false;
-		} else if ($this->optionBool('ansi')) {
+		} elseif ($this->optionBool('ansi')) {
 			$this->ansi = true;
 		} else {
 			// On Windows, enable ANSI for ANSICON and ConEmu only
@@ -1097,7 +1097,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 					$this->error('No arguments supplied');
 				}
 			}
-		} else if (count($this->argv) !== 0 && !$optional_arguments) {
+		} elseif (count($this->argv) !== 0 && !$optional_arguments) {
 			if ($this->optionBool('error_unhandled_arguments')) {
 				$this->error('Unhandled arguments starting at ' . $this->argv[0]);
 			}
@@ -1370,9 +1370,9 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		], $result);
 		if ($result === true) {
 			$result = 0;
-		} else if ($result === false) {
+		} elseif ($result === false) {
 			$result = -1;
-		} else if ($result === null) {
+		} elseif ($result === null) {
 			$result = 0;
 		}
 		assert(count(self::$commands) > 0);
