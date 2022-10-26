@@ -239,9 +239,19 @@ class Text_Test extends UnitTest {
 
 	public function data_trim_words(): array {
 		return [
-			['a b c', 'a b c d e f', 3],
-			['a b c d e f', 'a b c d e f', 6],
-			['a b c d e f', 'a b c d e f', 7],
+			[' nine ten ', ' nine ten ', 2],
+			[' a  ', ' a  b c d ', 1],
+			[' a  b ', ' a  b c d ', 2],
+			[' a  b c ', ' a  b c d ', 3],
+			[' a  b c d ', ' a  b c d ', 4],
+			[' a  b c d ', ' a  b c d ', 5],
+			['a b c   ', 'a b c   d e f   ', 3],
+			['a b c   d e f   ', 'a b c   d e f   ', 6],
+			['a b c   d e f   ', 'a b c   d e f   ', 7],
+			[' nine ten ', ' nine ten ', 3],
+			[' nine ', ' nine ten ', 1],
+			['', ' nine ten ', 0],
+			['', ' nine ten ', -1],
 		];
 	}
 

@@ -473,30 +473,22 @@ class HTML {
 	}
 
 	/**
-	 * self::tags('li', array('first item','second item', etc.)) or
 	 * self::tags('li', array('class' => 'highlight'), array('first item', 'second item'))
 	 *
 	 * @param string $name
-	 * @param mixed $mixed
+	 * @param string|array $attributes
+	 * @param array $items
+	 * @param string $separator
 	 * @return string
+	 * @throws Exception_Semantics
 	 */
-	public static function tags(string $name, string|array $mixed): string {
-		if (func_num_args() > 2) {
-			$attributes = self::toAttributes($mixed);
-			$list = func_get_arg(2);
-		} else {
-			$attributes = [];
-			$list = $mixed;
-		}
-		$list = to_list($list, []);
-		if (count($list) === 0) {
-			return '';
-		}
+	public static function tags(string $name, string|array $attributes, array $items, string $separator = "\n"): string {
+		$attributes = self::toAttributes($attributes);
 		$result = [];
-		foreach ($list as $item) {
+		foreach ($items as $item) {
 			$result[] = self::tag($name, $attributes, $item);
 		}
-		return implode("\n", $result) . "\n";
+		return implode($separator, $result) . $separator;
 	}
 
 	/**
@@ -1116,8 +1108,17 @@ class HTML {
 	/**
 	 * @param string $string
 	 * @return array
+	 * @deprecated 2022-10
 	 */
-	public static function match_tags(string $string): array|null {
+	public static function match_tags(string $string): array {
+		return self::matchTags($string);
+	}
+
+	/**
+	 * @param string $stringx
+	 * @return array
+	 */
+	public static function matchTags(string $string): array {
 		$matches = [];
 		if (!preg_match_all('#<([A-Za-z][A-Za-z0-9]*)([^>]*)/?>#i', $string, $matches, PREG_SET_ORDER)) {
 			return [];
@@ -1125,8 +1126,20 @@ class HTML {
 		return $matches;
 	}
 
+	/**
+	 * @param string $string
+	 * @return array
+	 */
 	public static function parse_tags(string $string): array {
-		$matches = self::match_tags($string);
+		return self::parseTags($string);
+	}
+
+	/**
+	 * @param string $string
+	 * @return array
+	 */
+	public static function parseTags(string $string): array {
+		$matches = self::matchTags($string);
 		$result = [];
 		foreach ($matches as $match) {
 			$result[$match[1]] = self::parseAttributes($match[2]);
@@ -1163,8 +1176,7 @@ class HTML {
 	 */
 	public static function cleanTagsWithoutAttributes(array $tags, string $html) {
 		$empty_tags = implode('|', ArrayTools::preg_quote($tags, '|'));
-		$html = preg_replace('|<(' . $empty_tags . ')>([^<>]*)</\2>|i', '$2', $html);
-		return $html;
+		return preg_replace('|<(' . $empty_tags . ')>([^<>]*)</\1>|i', '$2', $html);
 	}
 
 	/**
@@ -1176,7 +1188,7 @@ class HTML {
 	 * @return string
 	 */
 	public static function cleanTagsAttributes(string $string, array $include = null, array $exclude = []): string {
-		$matches = self::match_tags($string);
+		$matches = self::matchTags($string);
 		if (!$matches) {
 			return $string;
 		}
@@ -1215,7 +1227,7 @@ class HTML {
 	}
 
 	public static function clean_style_attributes(string $string, array $include = null, array $exclude = []): string {
-		$matches = self::match_tags($string);
+		$matches = self::matchTags($string);
 		if (!$matches) {
 			return $string;
 		}
@@ -1268,13 +1280,13 @@ class HTML {
 		if (!$found_tags) {
 			return $string;
 		}
-		$found_tags = array_unique(array_keys($found_tags));
+		$found_tags = array_keys($found_tags);
 		foreach ($found_tags as $k) {
 			$k = strtolower($k);
 			if (is_array($allowed_tags) && !in_array($k, $allowed_tags)) {
-				$string = self::remove_tags($k, $string, false);
+				$string = self::removeTags($k, $string, false);
 			} elseif (in_array($k, $remove_tags)) {
-				$string = self::remove_tags($k, $string, false);
+				$string = self::removeTags($k, $string, false);
 			}
 		}
 		return $string;
@@ -1307,7 +1319,7 @@ class HTML {
 
 	public static function extract_links($content) {
 		$matches = false;
-		$result = preg_match_all('/(http:\/\/|https:\/\/|ftp:\/\/|mailto:)[^\s\'"\/]+(\/[^\s\'"><]*)+/i', $content, $matches, PREG_PATTERN_ORDER);
+		$result = preg_match_all('#(http://|https://|ftp://|mailto:)[^\s\'"/]+(/[^\s\'"><]*)?#i', $content, $matches, PREG_PATTERN_ORDER);
 		if ($result) {
 			return $matches[0];
 		}
@@ -1379,6 +1391,7 @@ class HTML {
 	 * @param $mixed
 	 * @param $delete
 	 * @return mixed
+	 * @deprecated 2022-10
 	 */
 	public static function remove_tags($tag, $mixed, $delete = true) {
 		return self::removeTags($tag, $mixed, $delete);
@@ -1470,54 +1483,94 @@ class HTML {
 	 *
 	 * @param string $string
 	 * @param string $tagName
-	 *            (Returned) The next found tag
+	 *            (Returned) Just the tag name captured
 	 * @param int $nWords
-	 *            (Returned) The number of words found until the next tag
-	 * @return integer The offset until the end of the tag
+	 *            (Returned) The number of words found until the captured tag
+	 * @return integer The offset until the end of the tag capture
+	 * @deprecated 2022-10
+	 * @see self::countUntilTag
 	 */
 	public static function count_until_tag(string $string, string &$tagName, int &$nWords): int {
+		$result = self::countUntilTag($string);
+		$tagMatch = $result['tagMatch'];
+		$nWords = $result['words'];
+		return $result['offset'] + $result['tagMatchLength'];
+	}
+
+	/**
+	 * Count the offset until the tag indicated. Returns the following attributes:
+	 * int offset - number of characters until the tag
+	 * int tagMatchLength - size of match
+	 * int next - offset + tagMatchLength - offset to next section of HTML to parse
+	 * string tagMatch - matched tag
+	 * int words - words found until the tag
+	 * string tagContents - everything inside of the < brackets > of that tag
+	 *
+	 * @param string $string
+	 * @return array
+	 */
+	public static function countUntilTag(string $string): array {
 		$matches = [];
 		if (!preg_match('/<(\/?' . self::RE_TAG_NAME . ')' . self::RE_ATTRIBUTES . '(\/?)>/', $string, $matches, PREG_OFFSET_CAPTURE)) {
-			return -1;
+			return [];
 		}
 
 		//		dump($matches);
-		[$tag, $offset] = array_shift($matches);
+		[$tagMatch, $offset] = array_shift($matches);
 		[$tagName] = array_shift($matches);
 		[$tagClose] = array_shift($matches);
 
-		// 		dump($tag);
-		// 		dump($offset);
-		// 		dump($tagName);
-		// 		dump($tagClose);
-
-		$tagName .= $tagClose;
+		$tagContents = $tagName . $tagClose;
 
 		$nWords = Text::count_words(substr($string, 0, $offset));
-
-		return $offset + strlen($tag);
+		$tagMatchLength = strlen($tagMatch);
+		return [
+			'offset' => $offset,
+			'next' => $offset + $tagMatchLength,
+			'tagMatchLength' => $tagMatchLength,
+			'tagMatch' => $tagMatch,
+			'words' => $nWords,
+			'tagContents' => $tagContents,
+			'tagName' => $tagName,
+		];
 	}
 
-	public static function trim_words($string, $wordCount) {
+	/**
+	 * @param string $string
+	 * @param int $wordCount
+	 * @return string
+	 */
+	public static function trim_words(string $string, int $wordCount): string {
+		return self::trimWords($string, $wordCount);
+	}
+
+	/**
+	 * @param string $string
+	 * @param int $wordCount
+	 * @param bool $mark
+	 * @return string
+	 */
+	public static function trimWords(string $string, int $wordCount, bool $mark = false): string {
 		$stack = [];
 		$result = '';
-		$tagName = null;
 		while (($wordCount >= 0) && (strlen($string) > 0)) {
-			$tagName = '';
-			$nWords = 0;
-			$offset = self::count_until_tag($string, $tagName, $nWords);
-			if ($offset < 0) {
-				// NB ===
+			$nextTag = self::countUntilTag($string);
+			if (count($nextTag) === 0) {
+				// No tags, treat as text
 				$result .= Text::trim_words($string, $wordCount);
 
 				break;
 			}
+			$offset = $nextTag['offset'];
+			$nWords = $nextTag['words'];
 			if ($nWords >= $wordCount) {
-				$result .= Text::trim_words($string, $wordCount);
+				// May contain HTML tags, but they are guaranteed to be beyond what this extracts, always
+				$result .= Text::trim_words(substr($string, 0, $offset), $wordCount);
 
 				break;
 			}
 			$wordCount -= $nWords;
+			$tagName = $nextTag['tagContents'];
 			$n = strlen($tagName);
 			$tagName = strtolower($tagName);
 			if ($tagName[$n - 1] === '/') {
@@ -1528,7 +1581,7 @@ class HTML {
 			}
 			if ($tagName[0] === '/') {
 				$isClose = true;
-				$tagName = substr($tagName, 0, -1);
+				$tagName = substr($tagName, 1);
 			} else {
 				$isClose = false;
 			}
@@ -1545,10 +1598,13 @@ class HTML {
 					$stack[] = $tagName;
 				}
 			}
-			$result .= substr($string, 0, $offset);
-			$string = substr($string, $offset);
+			$next = $nextTag['next'];
+			$result .= substr($string, 0, $next);
+			$string = substr($string, $next);
 		}
-		$result .= '<!-- trimWords -->';
+		if ($mark) {
+			$result .= '<!-- trimWords -->';
+		}
 		while (count($stack) > 0) {
 			$tag_name = array_pop($stack);
 			$result .= "</$tag_name>";
@@ -1556,19 +1612,19 @@ class HTML {
 		return $result;
 	}
 
-	public static function trim_white_space($html) {
+	public static function trim_white_space(string $html): string {
 		$matches = false;
 		$html_white_space = '(?:&nbsp;|\s)';
-		$white_spaces = '(<p>' . $html_white_space . '*</p>|<br\s*/>|<p\s*/>)';
+		$white_spaces = '(<p(?:[^>]*)>' . $html_white_space . '*</p>|<br\s*/>|<br>|<p\s*/>)';
 		// Beginning of String
 		while (preg_match('`^' . $html_white_space . '*' . $white_spaces . '`', $html, $matches)) {
 			$html = substr($html, strlen($matches[0]));
 		}
-		// Middle of string
+		// Two in a row
 		while (preg_match('`(' . $white_spaces . '){2}`', $html, $matches)) {
 			$html = str_replace($matches[0], $matches[1], $html);
 		}
-		// Middle of string
+		// Paragraphs containing just blank stuff
 		while (preg_match('`(<p>' . $html_white_space . '*</p>)`', $html, $matches)) {
 			$html = str_replace($matches[0], '', $html);
 		}
@@ -1576,7 +1632,7 @@ class HTML {
 		while (preg_match('`' . $white_spaces . $html_white_space . '*$`', $html, $matches)) {
 			$html = substr($html, 0, -strlen($matches[0]));
 		}
-		return $html;
+		return trim($html);
 	}
 
 	/**
@@ -1636,23 +1692,25 @@ class HTML {
 		return self::tag('select', ['name' => $name, ] + $attributes + ['id' => $name, ], implode('', $options_html));
 	}
 
-	public static function input_submit($n, $v, $attrs = false) {
-		$attrs['name'] = $n;
-		$attrs['value'] = $v;
-		$attrs['type'] = 'submit';
-		$attrs['id'] ??= $n;
-		return self::tag('input', $attrs, null);
+	public static function input_submit(string $name, string $value, array|string $attributes = []) {
+		$attributes = self::toAttributes($attributes);
+		$attributes['name'] = $name;
+		$attributes['value'] = $value;
+		$attributes['type'] = 'submit';
+		$attributes['id'] ??= $name;
+		return self::tag('input', $attributes, null);
 	}
 
-	public static function input_button($n, $v, $attrs = false) {
-		$attrs['name'] = $n;
-		$attrs['value'] = $v;
-		$attrs['type'] = 'button';
-		$attrs['id'] ??= $n;
-		return self::tag('input', $attrs, null);
+	public static function input_button(string $name, string $value, array|string $attributes = []) {
+		$attributes = self::toAttributes($attributes);
+		$attributes['name'] = $name;
+		$attributes['value'] = $value;
+		$attributes['type'] = 'button';
+		$attributes['id'] ??= $name;
+		return self::tag('input', $attributes, null);
 	}
 
-	public static function input_hidden($name, $value, $attributes = null) {
+	public static function input_hidden(string $name, string|array $value, array|string $attributes = []): string {
 		if (is_array($value)) {
 			$result = '';
 			$no_key = ArrayTools::isList($value);
@@ -1666,8 +1724,8 @@ class HTML {
 		return self::input('hidden', $name, $value, $attributes);
 	}
 
-	public static function input($type, $name, $value, $attributes = null) {
-		$attributes = is_array($attributes) ? $attributes : [];
+	public static function input(string $type, string $name, string $value, array|string $attributes = []): string {
+		$attributes = self::toAttributes($attributes);
 		$type = strtolower($type);
 		$attributes['name'] = $name;
 		if ($type === 'textarea') {

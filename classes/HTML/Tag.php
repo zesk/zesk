@@ -78,7 +78,6 @@ class HTML_Tag extends Options {
 	}
 
 	/**
-	 * Getterfor inner HTML
 	 *
 	 * @return string
 	 */
@@ -90,18 +89,16 @@ class HTML_Tag extends Options {
 	 * Getter/setter for inner HTML
 	 *
 	 * @param string $set
-	 * @return string|self
+	 * @return self
 	 */
 	public function setInnerHTML(string $set): self {
 		$this->inner_html = $set;
-		$this->outer_html = '';
 		return $this;
 	}
 
 	/**
 	 * Getter/setter for outer HTML
 	 *
-	 * @param string $set
 	 * @return string
 	 */
 	public function outerHTML(): string {

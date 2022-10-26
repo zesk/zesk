@@ -304,7 +304,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		$result = $exception ? $app->theme('exception', [
 			'content' => $exception,
 		]) : '';
-		$result .= HTML::tag('ul', '.sql', HTML::tags('li', array_merge([
+		$result .= HTML::tag('ul', '.sql', HTML::tags('li', [], array_merge([
 			'-- ' . $arg . ";\n",
 		], ArrayTools::suffixValues($results, ";\n"))));
 		return $result;

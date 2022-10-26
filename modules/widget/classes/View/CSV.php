@@ -45,7 +45,7 @@ class View_CSV extends View {
 				], $row);
 			}
 		} else {
-			$rows = HTML::tags('tr', $html);
+			$rows = HTML::tags('tr', [], $html);
 		}
 		return HTML::tag('table', $this->optionArray('tableAttributes', [
 			'cellspacing' => 1,

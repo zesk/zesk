@@ -97,13 +97,18 @@ class Kernel_Test extends UnitTest {
 
 	public function add_hook_was_called($arg): void {
 		$this->assertEquals(2, $arg);
-		$this->_hook_was_called = true;
+		$this->application->setOption('hook_was_called', true);
+	}
+
+	public function hook_was_called(): bool {
+		return $this->application->optionBool('hook_was_called');
 	}
 
 	public function test_add_hook(): void {
 		$hook = 'null';
-		$function = function ($arg): void {
-			$this->add_hook_was_called($arg);
+		$item = $this;
+		$function = function ($arg) use ($item): void {
+			$item->add_hook_was_called($arg);
 		};
 		$this->application->hooks->add($hook, $function);
 	}
@@ -111,7 +116,8 @@ class Kernel_Test extends UnitTest {
 	public function test_application_class(): void {
 		$this->assert_is_string($this->application->applicationClass());
 		$this->assert_class_exists($this->application->applicationClass());
-		$this->assert_instanceof($this->application, $this->application->applicationClass());
+		$this->assertTrue(class_exists($this->application->applicationClass()));
+		$this->assertInstanceOf($this->application->applicationClass(), $this->application);
 	}
 
 	public function test_autoload_extension(): void {
@@ -221,12 +227,11 @@ class Kernel_Test extends UnitTest {
 
 	public function test_command_path(): void {
 		$add = null;
-		$this->application->command_path($this->test_sandbox());
+		$this->application->addCommandPath($this->test_sandbox());
 		$bin = path($this->test_sandbox('mstest'));
 		File::put($bin, "#!/bin/bash\necho file1; echo file2;");
 		File::chmod($bin, 0o755);
 		$ls = $this->application->paths->which('mstest');
-		$this->assert_equal($ls, $bin);
 		$this->assertEquals($bin, $ls);
 	}
 
@@ -263,15 +268,11 @@ class Kernel_Test extends UnitTest {
 	}
 
 	public function test_find_directory(): void {
-		$paths = [];
-		$directory = null;
-		Directory::find_all($paths, $directory);
+		$this->assertEquals(['/etc/apt'], Directory::find_all(['/', '/etc'], 'apt'));
 	}
 
 	public function test_find_file(): void {
-		$paths = [];
-		$file = null;
-		File::find_first($paths, $file);
+		$this->assertEquals('/etc/group', File::find_first(['/', '/etc'], 'group'));
 	}
 
 	public function test_get(): void {
@@ -287,14 +288,12 @@ class Kernel_Test extends UnitTest {
 	public function data_has(): array {
 		return [
 			[true, Application::class],
-			[true, [Application::class, 'version']],
-			[true, [Application::class, 'modules']],
 			[true, [Application::class, 'modules']],
 			[true, 'init'],
 			[true, 'home'],
 			[true, Options::class],
 			[false, md5('HOME')],
-			[false, 'HoMe'],
+			[true, 'HoMe'],
 			[false, '0192830128301283123'],
 		];
 	}
@@ -304,7 +303,7 @@ class Kernel_Test extends UnitTest {
 	 * @dataProvider data_has
 	 */
 	public function test_has($expected, $key): void {
-		$this->assertEquals($expected, $this->application->configuration->path_exists($key));
+		$this->assertEquals($expected, $this->application->configuration->pathExists($key));
 	}
 
 	/**
@@ -330,12 +329,12 @@ class Kernel_Test extends UnitTest {
 
 	/**
 	 * @return void
-	 * @depends test_add_hook
 	 */
 	public function test_hook(): void {
-		$this->assertFalse($this->_hook_was_called);
+		$this->test_add_hook();
+		$this->assertFalse($this->hook_was_called());
 		$this->application->hooks->call('null', 2);
-		$this->assertTrue($this->_hook_was_called);
+		$this->assertTrue($this->hook_was_called());
 	}
 
 	public function test_hook_array(): void {
@@ -420,13 +419,6 @@ class Kernel_Test extends UnitTest {
 
 	/**
 	 */
-	public function test_theme_fail(): void {
-		$type = null;
-		$this->assert_null($this->application->theme($type));
-	}
-
-	/**
-	 */
 	public function test_theme(): void {
 		$type = 'dude';
 		$this->application->theme($type, [
@@ -444,10 +436,24 @@ class Kernel_Test extends UnitTest {
 		$this->application->document_root($set);
 	}
 
-	public function test_document_root_prefix(): void {
-		$set = null;
-		$this->application->documentRootPrefix($set);
-		echo basename(__FILE__) . ": success\n";
+	public function data_document_root_prefix(): array {
+		return [
+			['/foobar', '/foobar'],
+			['foobar', 'foobar'],
+			['', ''],
+			['antidis', 'antidis/'],
+			['antidis', 'antidis////'],
+		];
+	}
+
+	/**
+	 * @param $set
+	 * @return void
+	 * @dataProvider data_document_root_prefix
+	 */
+	public function test_document_root_prefix($expected, $set): void {
+		$this->application->setDocumentRootPrefix($set);
+		$this->assertEquals($expected, $this->application->documentRootPrefix());
 	}
 
 	public function test_which(): void {

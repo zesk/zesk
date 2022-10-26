@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -23,7 +25,7 @@ class Net_HTTP_Client_Test extends UnitTest {
 		$value = __CLASS__;
 		$x->user_agent($value);
 
-		$this->assert_equal($x->userAgent(), $value);
+		$this->assert_equal($x->user_agent(), $value);
 
 		$this->assert($x->method_post() === false);
 
@@ -49,12 +51,12 @@ class Net_HTTP_Client_Test extends UnitTest {
 		$default = false;
 		$x->response_header($name, $default);
 
-		$x->go();
-
-		$url = null;
-		Net_HTTP_Client::simpleGet($url);
-
 		$x->domain();
+	}
+
+	public function do_not_test_simpleGet(): void {
+		$url = 'https://127.0.0.1/';
+		Net_HTTP_Client::simpleGet($url);
 	}
 
 	public function test_main(): void {
@@ -62,7 +64,6 @@ class Net_HTTP_Client_Test extends UnitTest {
 
 		$result = Net_HTTP_Client::simpleGet($url);
 		$this->assertIsString($result);
-		$this->log($result);
 		$this->assert(str_contains($result, 'Market Acumen'), $result);
 	}
 
@@ -75,7 +76,6 @@ class Net_HTTP_Client_Test extends UnitTest {
 	public function test_url_headers(): void {
 		$url = self::TEST_URL;
 		$headers = Net_HTTP_Client::url_headers($this->application, $url);
-		$this->log($headers);
 		$this->assert(begins($headers['Content-Type'], 'text/html'));
 	}
 

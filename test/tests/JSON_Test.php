@@ -12,17 +12,13 @@ namespace zesk;
  *
  */
 class JSON_Test extends UnitTest {
-	/**
-	 * @expectedException zesk\Exception_Parse
-	 */
 	public function test_decode(): void {
+		$this->expectException(Exception_Parse::class);
 		JSON::decode('{');
 	}
 
-	/**
-	 * @expectedException zesk\Exception_Parse
-	 */
 	public function test_decode_parse(): void {
+		$this->expectException(Exception_Parse::class);
 		JSON::decode('{');
 	}
 

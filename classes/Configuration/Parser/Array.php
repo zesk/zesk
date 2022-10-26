@@ -5,7 +5,7 @@ namespace zesk;
 class Configuration_Parser_Array extends Configuration_Parser {
 	public function initialize(): void {
 		if (!is_array($this->content)) {
-			$this->content = to_array($this->content);
+			$this->content = toArray($this->content);
 		}
 	}
 
@@ -14,9 +14,8 @@ class Configuration_Parser_Array extends Configuration_Parser {
 	}
 
 	/**
-	 * @return Interface_Settings
 	 */
-	public function process() {
+	public function process(): void {
 		foreach ($this->content as $key => $value) {
 			$key = strtr($key, [
 				'___' => '\\',
@@ -24,6 +23,5 @@ class Configuration_Parser_Array extends Configuration_Parser {
 			]);
 			$this->settings->set($key, $value);
 		}
-		return $this;
 	}
 }

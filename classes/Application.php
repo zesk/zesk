@@ -648,15 +648,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$includes = $this->includes;
 		$files = [];
 		foreach ($includes as $index => $file) {
-			$file = $this->paths->expand($file);
-			if (File::isAbsolute($file)) {
-				if (is_file($file)) {
-					$files[] = $file;
-				}
-				unset($includes[$index]);
-			}
+			$files[] = $this->paths->expand($file);
 		}
-
 		$this->configureFiles($files);
 	}
 
@@ -664,7 +657,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		if (!$this->loader) {
 			$this->loader = new Configuration_Loader($files, new Adapter_Settings_Configuration($this->configuration));
 		} else {
-			$this->loader->append_files($files);
+			$this->loader->appendFiles($files);
 		}
 		$this->loader->load();
 	}
@@ -892,7 +885,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 					],
 				], []));
 			file_put_contents($this->maintenanceFile(), JSON::encode($context));
-		} elseif (file_exists($maintenance_file)) {
+		} else if (file_exists($maintenance_file)) {
 			unlink($maintenance_file);
 			clearstatcache(true, $maintenance_file);
 		}
@@ -997,7 +990,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$request = new Request($this);
 		if ($inherit) {
 			$request->initializeFromRequest($inherit);
-		} elseif ($this->console()) {
+		} else if ($this->console()) {
 			$request->initializeFromSettings('http://console/');
 		} else {
 			$request->initializeFromGlobals();
@@ -1383,7 +1376,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$theme = $this->cleanTemplatePath($theme) . $extension;
 		$theme_path = $this->theme_path();
 		$prefixes = array_keys($theme_path);
-		usort($prefixes, fn ($a, $b) => strlen($b) - strlen($a));
+		usort($prefixes, fn($a, $b) => strlen($b) - strlen($a));
 		$result = [];
 		foreach ($prefixes as $prefix) {
 			if ($prefix === '' || str_starts_with($theme, $prefix)) {
@@ -1569,7 +1562,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			}
 			if (!isset($this->zesk_command_path[$path])) {
 				$this->zesk_command_path[$path] = $prefix;
-			} elseif ($debug) {
+			} else if ($debug) {
 				$this->logger->debug('{method}: did not add "{path}" (prefix {prefix}) because it already exists', [
 					'method' => __METHOD__,
 					'path' => $path,
@@ -1630,7 +1623,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			$arguments = [
 				'content' => $arguments,
 			];
-		} elseif (ArrayTools::isList($arguments)) {
+		} else if (ArrayTools::isList($arguments)) {
 			$arguments['content'] = first($arguments);
 		}
 		$arguments['application'] = $this;
@@ -1806,12 +1799,33 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Get or set the command path for the application.
 	 *
+	 * @return array The ordered list of paths to search for system commands
+	 */
+	final public function commandPath(): array {
+		return $this->paths->command();
+	}
+
+	/**
+	 * Add a path
+	 *
+	 * @param string $path
+	 * @return self
+	 */
+	final public function addCommandPath(string $path): self {
+		$this->paths->addCommand($path);
+		return $this;
+	}
+
+	/**
+	 * Get or set the command path for the application.
+	 *
 	 * @param mixed $add
 	 * @param string $options
 	 * @return array The ordered list of paths to search for class names
+	 * @deprecated 2022-10
 	 */
-	final public function command_path($add = null) {
-		return $this->paths->command($add);
+	final public function command_path() {
+		return $this->commandPath();
 	}
 
 	/**

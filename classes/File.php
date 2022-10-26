@@ -191,11 +191,11 @@ class File {
 	/**
 	 * Require a file or files to exist
 	 *
-	 * @param array $mixed List of files to require
+	 * @param array|string $mixed List of files to require
 	 * @throws Exception_File_NotFound
 	 */
-	public static function depends(array $mixed): void {
-		foreach ($mixed as $f) {
+	public static function depends(array|string $mixed): void {
+		foreach (toList($mixed) as $f) {
 			if (!file_exists($f) || !is_file($f)) {
 				throw new Exception_File_NotFound($f);
 			}
@@ -1094,7 +1094,7 @@ class File {
 		$exception = null;
 		if (!rename($target, $target_temp)) {
 			$exception = new Exception_File_Permission($target_temp, 'Can not rename target {target} to temp {target_temp}', compact('target', 'target_temp'));
-		} elseif (!@rename($source, $target)) {
+		} else if (!@rename($source, $target)) {
 			if (!@rename($target_temp, $target)) {
 				$exception = new Exception_File_Permission($target, 'RECOVERY: Can not rename target temp {target_temp} BACK to target {target}', compact('target', 'target_temp'));
 			} else {
@@ -1216,7 +1216,7 @@ class File {
 	public static function find_first(array $paths, array|string $files = null): string {
 		if (is_string($files)) {
 			$files = [$files];
-		} elseif ($files === null) {
+		} else if ($files === null) {
 			$files = [''];
 		}
 		$all_files = [];

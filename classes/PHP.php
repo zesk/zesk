@@ -185,10 +185,10 @@ class PHP {
 		$no_first_line_indent = toBool(avalue($args, 2));
 		if (is_array($x)) {
 			if (count($x) === 0) {
-				return 'array()';
+				return '[]';
 			}
-			$indent_level = avalue($args, 1, 0);
-			$result = ($no_first_line_indent ? '' : str_repeat($this->indent_char, $indent_level * $this->indent_multiple)) . 'array' . $this->array_open_parenthesis_prefix . '(' . $this->array_open_parenthesis_suffix;
+			$indent_level = $args[1] ?? 0;
+			$result = ($no_first_line_indent ? '' : str_repeat($this->indent_char, $indent_level * $this->indent_multiple)) . $this->array_open_parenthesis_prefix . '[' . $this->array_open_parenthesis_suffix;
 			$items = [];
 			if (ArrayTools::isList($x)) {
 				foreach ($x as $k => $v) {
@@ -203,17 +203,17 @@ class PHP {
 			$result .= implode($sep, $items);
 			$result .= $this->array_trailing_comma ? ',' : '';
 			$result .= $this->array_value_separator;
-			$result .= str_repeat($this->indent_char, $indent_level * $this->indent_multiple) . $this->array_close_parenthesis_prefix . ')' . $this->array_close_parenthesis_suffix;
+			$result .= str_repeat($this->indent_char, $indent_level * $this->indent_multiple) . $this->array_close_parenthesis_prefix . ']' . $this->array_close_parenthesis_suffix;
 			return $result;
-		} elseif (is_string($x)) {
+		} else if (is_string($x)) {
 			return '"' . addcslashes($x, "\$\"\\\0..\37") . '"';
-		} elseif (is_int($x)) {
+		} else if (is_int($x)) {
 			return "$x";
-		} elseif ($x === null) {
+		} else if ($x === null) {
 			return 'null';
-		} elseif (is_bool($x)) {
+		} else if (is_bool($x)) {
 			return $x ? 'true' : 'false';
-		} elseif (is_object($x)) {
+		} else if (is_object($x)) {
 			if (method_exists($x, '_to_php')) {
 				return $x->_to_php();
 			}

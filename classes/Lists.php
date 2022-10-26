@@ -68,7 +68,7 @@ class Lists {
 	 * @return string|array The new list
 	 */
 	public static function append(string|array $list, string|array $item, string $sep = ';'): string|array {
-		$items = ArrayTools::clean(toList($item, [], $sep), null);
+		$items = ArrayTools::clean(toList($item, [''], $sep), null);
 		if (count($items) === 0) {
 			return $list;
 		}
@@ -90,7 +90,7 @@ class Lists {
 	 * @return string|array Result list
 	 */
 	public static function appendUnique(string|array $list, string|array $item, string $sep = ';'): string|array {
-		$items = array_unique(ArrayTools::clean(toList($item, [], $sep), null));
+		$items = array_unique(ArrayTools::clean(toList($item, [''], $sep), null));
 		if (is_array($list)) {
 			return array_unique(array_merge($list, $items));
 		} elseif ($list === '') {
@@ -150,7 +150,7 @@ class Lists {
 		if (strlen($list) == 0) {
 			return '';
 		}
-		$x = explode($list, $sep);
+		$x = explode($sep, $list);
 		array_pop($x);
 		return implode($sep, $x);
 	}

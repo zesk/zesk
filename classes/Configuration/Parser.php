@@ -12,7 +12,7 @@ abstract class Configuration_Parser extends Options {
 	/**
 	 * @var mixed
 	 */
-	protected string $content;
+	protected mixed $content;
 
 	/**
 	 * @var Interface_Settings
@@ -40,7 +40,8 @@ abstract class Configuration_Parser extends Options {
 	 * @return self
 	 * @throws Exception_Class_NotFound
 	 */
-	public static function factory(string $type, string $content, Interface_Settings $settings = null, array $options = []): self {
+	public static function factory(string $type, mixed $content, Interface_Settings $settings = null, array $options =
+	[]): self {
 		$class = __CLASS__ . '_' . PHP::cleanFunction(strtoupper($type));
 		if (!class_exists($class)) {
 			throw new Exception_Class_NotFound($class);
@@ -54,7 +55,7 @@ abstract class Configuration_Parser extends Options {
 	 * @param Interface_Settings $settings
 	 * @param array $options
 	 */
-	final public function __construct(string $content = '', Interface_Settings $settings = null, array $options = []) {
+	final public function __construct(mixed $content = '', Interface_Settings $settings = null, array $options = []) {
 		parent::__construct($options);
 		if (!$settings) {
 			$values = [];
@@ -110,7 +111,7 @@ abstract class Configuration_Parser extends Options {
 	 * @param string $set
 	 * @return self
 	 */
-	public function setContent(string $set): self {
+	public function setContent(mixed $set): self {
 		$this->content = $set;
 		return $this;
 	}
@@ -119,7 +120,7 @@ abstract class Configuration_Parser extends Options {
 	 *
 	 * @return string
 	 */
-	public function content(): string {
+	public function content(): mixed {
 		return $this->content;
 	}
 
@@ -134,7 +135,7 @@ abstract class Configuration_Parser extends Options {
 	abstract public function validate(): bool;
 
 	/**
-	 * @return Interface_Settings
+	 *
 	 */
 	abstract public function process(): void;
 

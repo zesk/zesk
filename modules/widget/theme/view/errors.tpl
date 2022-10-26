@@ -43,4 +43,4 @@ if (avalue($errors, 'continue', false)) {
 
 echo HTML::etag('div', [
 	'class' => CSS::addClass("alert alert-$class"),
-], HTML::tags('p', $errors));
+], HTML::tags('p', [], $errors));

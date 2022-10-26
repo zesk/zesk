@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -89,7 +91,7 @@ class Command_Eval extends Command_Base {
 	 *
 	 * @param mixed $result
 	 */
-	public function output_result($__result, $content = ''): void {
+	public function output_result(mixed $__result, string $content = ''): void {
 		if ($__result === null) {
 			if ($content !== '') {
 				echo $content . "\n";
@@ -105,9 +107,11 @@ class Command_Eval extends Command_Base {
 	/**
 	 * Interactive evaluation of commands
 	 *
-	 * @return number
+	 * @return int
+	 * @throws Exception_Command
+	 * @throws Exception_Semantics
 	 */
-	public function interactive() {
+	public function interactive(): int {
 		$this->history_file_path = $this->application->paths->uid('eval-history.log');
 		$name = get_class($this->application);
 		$last_exit_code = 0;
@@ -148,7 +152,7 @@ class Command_Eval extends Command_Base {
 	/**
 	 * Before evaluate, save global context variables
 	 */
-	private function _before_evaluate(array $vars) {
+	private function _before_evaluate(array $vars): array {
 		$this->before_vars = $vars;
 		return $this->saved_vars;
 	}
@@ -160,7 +164,7 @@ class Command_Eval extends Command_Base {
 	private function _after_evaluate(array $vars): void {
 		$diff = array_diff_assoc($vars, $this->before_vars);
 		foreach ($diff as $k => $v) {
-			if (begins($k, '__')) {
+			if (str_starts_with($k, '__')) {
 				unset($diff[$k]);
 			}
 		}
@@ -176,7 +180,7 @@ class Command_Eval extends Command_Base {
 		}
 	}
 
-	private function _prefix_commmand($string) {
+	private function _prefix_commmand(string $string): string {
 		$string = trim($string, " \n\r\t;");
 		$string = preg_replace('/^return\s/', '', $string);
 		// If contains multiple commands, then no prefix
@@ -185,9 +189,9 @@ class Command_Eval extends Command_Base {
 		}
 		$prefix = 'return';
 		if (StringTools::begins($string, [
-			'echo ',
-			'print ',
-		]) || str_contains($string, ';')) {
+				'echo ',
+				'print ',
+			]) || str_contains($string, ';')) {
 			$prefix = '';
 		}
 		return $prefix . ' ' . $string;
@@ -200,10 +204,10 @@ class Command_Eval extends Command_Base {
 	 * Does NOT support $a &= $b, however.
 	 *
 	 * @param string $__string Arbitrary PHP code
-	 * @throws Exception
 	 * @return mixed
+	 * @throws \Exception
 	 */
-	private function _eval($__string) {
+	private function _eval(string $__string): mixed {
 		$__eval = $this->_prefix_commmand($__string);
 
 		try {

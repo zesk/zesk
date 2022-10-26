@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -71,13 +73,13 @@ class Lists_Test extends UnitTest {
 		];
 		$datum = [];
 		foreach ([
-			false,
-			true,
-		] as $list_is_array) {
+					 false,
+					 true,
+				 ] as $list_is_array) {
 			foreach ([
-				false,
-				true,
-			] as $add_is_array) {
+						 false,
+						 true,
+					 ] as $add_is_array) {
 				foreach ($lists as $list) {
 					foreach ($adds as $add) {
 						foreach ($seps as $sep) {
@@ -86,7 +88,7 @@ class Lists_Test extends UnitTest {
 
 							$datum[] = [
 								$list_is_array ? $list : implode($sep, $list),
-								$add_is_array ? $add : (count($add) === 0 ? null : implode($sep, $add)),
+								$add_is_array ? $add : (count($add) === 0 ? [] : implode($sep, $add)),
 								$sep,
 								$expected,
 							];
@@ -103,11 +105,8 @@ class Lists_Test extends UnitTest {
 	 */
 	public function test_append($list, $add, $sep, $expected): void {
 		$actual = Lists::append($list, $add, $sep);
-		$this->assert_equal(type($actual), type($expected), 'Type of list does not match return type');
-		$this->assert_equal($actual, $expected, map("Lists::append({list}, {add}, \"$sep\")", [
-			'list' => _dump($list),
-			'add' => _dump($add),
-		]), false);
+		$this->assertEquals(type($expected), type($actual));
+		$this->assertEquals($expected, $actual);
 	}
 
 	/**
@@ -120,8 +119,8 @@ class Lists_Test extends UnitTest {
 			$expected = implode($sep, array_unique(explode($sep, $expected)));
 		}
 		$actual = Lists::appendUnique($list, $add, $sep);
-		$this->assert_equal(type($actual), type($expected));
-		$this->assert_equal($actual, $expected);
+		$this->assertEquals(type($expected), type($actual));
+		$this->assertEquals($expected, $actual);
 	}
 
 	public function test_contains(): void {
@@ -137,30 +136,32 @@ class Lists_Test extends UnitTest {
 	}
 
 	public function test_pop(): void {
-		$llist = null;
 		$sep = ';';
-		Lists::pop($llist, $sep);
+		$this->assertEquals('a;b', Lists::pop('a;b;c', $sep));
 	}
 
 	public function test_prepend(): void {
-		$llist = null;
-		$item = null;
-		$sep = ';';
-		Lists::prepend($llist, $item, $sep);
+		$this->assertEquals('a;b;c', Lists::prepend('b;c', 'a'));
 	}
 
-	public function test_keysRemove(): void {
-		$llist = null;
-		$item = null;
-		$sep = ';';
-		Lists::keysRemove($llist, $item, $sep);
+	public function data_keysRemove(): array {
+		return [
+			['a;c;d;e', 'a;b;c;d;e', 'b', ';'],
+			['a;c;d;e', 'a;b;c;d;e', 'b', ';'],
+		];
+	}
+
+	/**
+	 * @return void
+	 * @dataProvider data_keysRemove
+	 */
+	public function test_keysRemove($expected, $list, $item, $sep): void {
+		$this->assertEquals($expected, Lists::keysRemove($list, $item, $sep));
 	}
 
 	public function test_unique(): void {
 		$llist = 'X;a;A;b;b;c;c;D;F;a;X';
 		$sep = ';';
-		$this->assert(Lists::unique($llist, $sep) === 'X;a;A;b;c;D;F');
-
-		echo basename(__FILE__) . ": success\n";
+		$this->assertEquals('X;a;A;b;c;D;F', Lists::unique($llist, $sep));
 	}
 }

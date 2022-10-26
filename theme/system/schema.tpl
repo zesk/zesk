@@ -11,6 +11,6 @@ namespace zesk;
 
 $results = $application->orm_module()->schema_synchronize();
 
-echo HTML::tag('ol', HTML::tags('li', $results));
+echo HTML::tag('ol', HTML::tags('li', [], $results));
 
 $this->response->content_type = 'text/plain';

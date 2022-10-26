@@ -14,7 +14,7 @@ use zesk\Lists;
  *
  */
 class Locale_Test extends UnitTest {
-	public function test_plural(): void {
+	public function data_plural(): array {
 		$tests = [
 			'Jazz' => 'Jazzes',
 			'JAZZ' => 'JAZZES',
@@ -40,12 +40,23 @@ class Locale_Test extends UnitTest {
 			'z' => 'zs',
 			'w' => 'ws',
 		];
+		$result = [];
+		foreach ($tests as $test => $expected) {
+			$result[] = [$expected, $test];
+		}
+		return $result;
+	}
 
+	/**
+	 * @dataProvider data_plural
+	 * @param $expected
+	 * @param $test
+	 * @return void
+	 */
+	public function test_plural($expected, $test): void {
 		$n = 2;
 		$locale = $this->en_locale();
-		foreach ($tests as $test => $result) {
-			$this->assert_equal($locale->plural($test, $n), $result);
-		}
+		$this->assertEquals($expected, $locale->plural($test, $n));
 	}
 
 	public function conjunction_data(): array {
@@ -132,8 +143,9 @@ class Locale_Test extends UnitTest {
 	}
 
 	public function to_locale_list($id_list) {
+		$this->setUp();
 		$args = [];
-		foreach (Lists::unique(to_list($id_list)) as $id) {
+		foreach (Lists::unique(toList($id_list)) as $id) {
 			$args[] = [
 				$this->application->localeFactory($id),
 			];
@@ -302,8 +314,6 @@ class Locale_Test extends UnitTest {
 		foreach ($tests as $test => $result) {
 			$this->assert_equal($locale->plural($test, $n), $result);
 		}
-
-		echo basename(__FILE__) . ": success\n";
 	}
 
 	/**
@@ -394,6 +404,8 @@ class Locale_Test extends UnitTest {
 	}
 
 	public function translation_tests() {
+		$this->setUp();
+
 		$id = 'xy';
 		$xy = Locale::factory($this->application, $id);
 		$xy->translations([

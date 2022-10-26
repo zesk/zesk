@@ -569,22 +569,17 @@ class Hooks {
 	}
 
 	/**
-	 *
-	 * @param string|list $hooks
-	 *            Hooks to call
+	 * @param mixed $hooks
 	 * @param array $arguments
-	 *            Arguments to pass to the first hook
-	 * @param unknown $default
-	 * @param unknown $hook_callback
-	 * @param unknown $result_callback
-	 * @param unknown $return_hint
-	 *            deprecated 2017-11
-	 * @return string|NULL
+	 * @param mixed|null $default
+	 * @param callable|null $hook_callback
+	 * @param callable|null $result_callback
+	 * @param mixed|null $return_hint
+	 * @return mixed|null
+	 * @throws Exception_Deprecated
+	 * @deprecated 2017-11
 	 */
-	public function call_arguments(mixed $hooks, array $arguments = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null, mixed $return_hint = null) {
-		if ($return_hint !== null) {
-			$this->kernel->deprecated('$return_hint passed to {method}', ['method' => __METHOD__, ]);
-		}
+	public function call_arguments(mixed $hooks, array $arguments = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null) {
 		$hooks = $this->collect_hooks($hooks, $arguments);
 		$result = $default;
 		foreach ($hooks as $hook) {

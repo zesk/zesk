@@ -66,7 +66,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 
 		$lines = explode("\n", $this->content);
 		if ($multiline) {
-			$lines = self::join_lines($lines);
+			$lines = self::joinLines($lines);
 		}
 		if ($dependency) {
 			$this->dependency->push($this->option('name', 'unnamed-' . get_class($this)));
@@ -112,8 +112,8 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			 * Now apply to back to our settings, or handle special values
 			 */
 			if ($this->loader && strtolower($key) === 'include') {
-				$this->handle_include($value);
-			} elseif ($append) {
+				$this->handleInclude($value);
+			} else if ($append) {
 				$append_value = toArray($settings->get($key));
 				$append_value[] = $value;
 				$settings->set($key, $append_value);
@@ -134,22 +134,16 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 * @param string $file
 	 *            Name of additional include file
 	 */
-	private function handle_include(string $file): void {
+	private function handleInclude(string $file): void {
 		if (File::isAbsolute($file)) {
-			$this->loader->append_files([
+			$this->loader->appendFiles([
 				$file,
 			]);
 			return;
-		}
-		$files = $missing = [];
-		$path = dirname($this->loader->current());
-		$conf_path = path($path, $file);
-		if (file_exists($conf_path)) {
-			$files[] = $conf_path;
 		} else {
-			$missing[] = $conf_path;
+			$path = dirname($this->loader->current());
+			$this->loader->appendFiles([path($path, $file)]);
 		}
-		$this->loader->append_files($files, $missing);
 	}
 
 	/**
@@ -157,7 +151,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 *
 	 * @param array $lines
 	 */
-	private static function join_lines(array $lines): array {
+	private static function joinLines(array $lines): array {
 		$result = [
 			array_shift($lines),
 		];

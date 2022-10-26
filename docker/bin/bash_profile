@@ -10,7 +10,7 @@ Xdebug_ON() {
     export XDEBUG_ENABLED=1
     echo "XDebug debugging enabled..."
 }
-Xdebug_OFF() {
+Xdebug_off() {
     unset XDEBUG_ENABLED
     echo "XDebug debugging disabled..."
 }

@@ -65,7 +65,7 @@ class PHPUnit_TestCase extends TestCase {
 			}
 			$this->application->logger->debug('{class} options is {option}', [
 				'class' => get_class($this),
-				'option' => $this->option->to_array(),
+				'option' => $this->option->toArray(),
 			]);
 		}
 	}
@@ -116,7 +116,7 @@ class PHPUnit_TestCase extends TestCase {
 	public function assertArrayHasKeys(string|array $keys, array $array, string $message = ''): void {
 		$keys = toList($keys);
 		foreach ($keys as $key) {
-			$this->assertArrayHasKey($key, $array, "$key: $message");
+			$this->assertArrayHasKey($key, $array);
 		}
 	}
 

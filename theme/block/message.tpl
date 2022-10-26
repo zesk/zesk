@@ -12,7 +12,8 @@ namespace zesk;
 /* @var $current_user \zesk\User */
 $messages = $response->redirect_message();
 if (count($messages) > 0) {
-	echo HTML::tag('div', '.messages alert alert-info', '<a class="close" data-dismiss="alert" href="#">&times;</a>' . HTML::tag('ul', HTML::tags('li', $messages)));
+	echo HTML::tag('div', '.messages alert alert-info', '<a class="close" data-dismiss="alert" href="#">&times;</a>'
+		. HTML::tag('ul', HTML::tags('li', [], $messages)));
 	$response->redirect_message_clear();
 	$msec = $application->optionInt('messages_timeout_milliseconds', 4000);
 	$this->response->jquery("setTimeout(function () {\n\t$('.messages').fadeOut('slow');\n}, $msec);");

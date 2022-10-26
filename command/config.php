@@ -41,10 +41,10 @@ class Command_Config extends Command_Base {
 		$result = 0;
 		$variables = $app->loader->variables();
 
-		$loaded = $variables['processed'];
-		$not_loaded = $variables['missing'];
-		$externals = $variables['externals'];
-		$skipped = $variables['skipped'];
+		$loaded = $variables[Configuration_Loader::PROCESSED];
+		$not_loaded = $variables[Configuration_Loader::MISSING];
+		$externals = $variables[Configuration_Loader::EXTERNALS];
+		$skipped = $variables[Configuration_Loader::SKIPPED];
 		[$missing_vars, $warning_top_levels] = $this->collect_misnamed_class_configurations();
 
 		$show_loaded = $show_not_loaded = $show_skipped = $show_externals = $show_missing_classes = $show_top_level_scalar = null;

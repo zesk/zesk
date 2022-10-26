@@ -415,7 +415,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			$extension = File::extension($filename);
 			if ($extension === 'conf') {
 				file_put_contents($filename, "# Created $name on " . date('Y-m-d H:i:s') . " at $filename\n");
-			} elseif ($extension === 'json') {
+			} else if ($extension === 'json') {
 				file_put_contents($filename, JSON::encode([
 					get_class($this) => [
 						'configuration_file' => [
@@ -767,7 +767,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	private function determine_ansi(): void {
 		if ($this->optionBool('no-ansi')) {
 			$this->ansi = false;
-		} elseif ($this->optionBool('ansi')) {
+		} else if ($this->optionBool('ansi')) {
 			$this->ansi = true;
 		} else {
 			// On Windows, enable ANSI for ANSICON and ConEmu only
@@ -1097,7 +1097,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 					$this->error('No arguments supplied');
 				}
 			}
-		} elseif (count($this->argv) !== 0 && !$optional_arguments) {
+		} else if (count($this->argv) !== 0 && !$optional_arguments) {
 			if ($this->optionBool('error_unhandled_arguments')) {
 				$this->error('Unhandled arguments starting at ' . $this->argv[0]);
 			}
@@ -1210,9 +1210,21 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param string|null $default
 	 * @param array|null $completions
 	 * @return string
-	 * @throws Exception_Command
+	 * @throws Exception_Command|Exception_Semantics
 	 */
 	public function prompt(string $message, string $default = null, array $completions = null): string {
+		if ($this->option('non-interactive')) {
+			if ($default === null) {
+				$this->error('Non-interactive set but input is required for {message}', [
+					'message' => $message,
+				]);
+
+				throw new Exception_Semantics('Non-interactive set but input is required for {message}', [
+					'message' => $message,
+				]);
+			}
+			return $default;
+		}
 		$this->_init_history();
 		if ($completions) {
 			$this->completions = $completions;
@@ -1244,12 +1256,15 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param boolean $default
 	 * @return boolean
 	 */
-	public function prompt_yes_no(string $message, bool $default = true): bool {
+	public function prompt_yes_no(string $message, ?bool $default = true): bool {
 		if ($this->optionBool('yes')) {
 			return true;
 		}
 		if ($this->optionBool('no')) {
 			return false;
+		}
+		if ($this->optionBool('non-interactive')) {
+			return true;
 		}
 		do {
 			echo rtrim($message) . ' ' . ($default === null ? '(y/n)' : ($default ? '(Y/n)' : '(y/N)')) . ' ';
@@ -1355,9 +1370,9 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		], $result);
 		if ($result === true) {
 			$result = 0;
-		} elseif ($result === false) {
+		} else if ($result === false) {
 			$result = -1;
-		} elseif ($result === null) {
+		} else if ($result === null) {
 			$result = 0;
 		}
 		assert(count(self::$commands) > 0);

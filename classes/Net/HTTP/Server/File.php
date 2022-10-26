@@ -62,7 +62,7 @@ class Net_HTTP_Server_File extends Net_HTTP_Server {
 						'href' => $f,
 					], $d ? HTML::tag('strong', $f) : $f);
 				}
-				$response->content = HTML::tag('ul', HTML::tags('li', $result));
+				$response->content = HTML::tag('ul', HTML::tags('li', [], $result));
 				$response->content_type = 'text/html';
 				return;
 			}

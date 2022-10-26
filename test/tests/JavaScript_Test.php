@@ -35,19 +35,15 @@ class JavaScript_Test extends UnitTest {
 		JavaScript::obfuscate_end([]);
 	}
 
-	/**
-	 * @expectedException zesk\Exception_Semantics
-	 */
 	public function test_obfuscate_begin2(): void {
 		JavaScript::obfuscate_begin();
-		JavaScript::obfuscate_begin();
+		JavaScript::obfuscate_end();
 	}
 
 	/**
-	 * @depends test_obfuscate_begin2
-	 * @expectedException zesk\Exception_Semantics
 	 */
 	public function test_obfuscate_end(): void {
+		$this->expectException(Exception_Semantics::class);
 		$function_map = [];
 		JavaScript::obfuscate_end($function_map);
 		JavaScript::obfuscate_end($function_map);

@@ -10,9 +10,10 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
+$items = [];
 foreach ($application->modules->all_modules() as $module_data => $module) {
 	/* @var $module \zesk\Module */
 	$items[] = $module->name();
 }
 
-echo HTML::tag('ol', HTML::tags('li', $items));
+echo HTML::tag('ol', HTML::tags('li', [], $items));

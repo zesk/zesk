@@ -75,12 +75,12 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 	 */
 	private function handle_include(string $file, string $context = null): void {
 		if (File::isAbsolute($file)) {
-			$this->loader->append_files([
+			$this->loader->appendFiles([
 				$file,
 			]);
 		} elseif ($context && is_dir($context) && File::path_check($file)) {
 			$full = path($context, $file);
-			$this->loader->append_files([$full]);
+			$this->loader->appendFiles([$full]);
 		} else {
 			error_log(map('{method} {file} context {context} was a no-op', [
 				'method' => __METHOD__,

@@ -113,7 +113,12 @@ class Controller_DNS extends Controller_Theme {
 			if (count($compare_results) === 0) {
 				$result[] = HTML::tag('li', "$name ($type) passed");
 			} else {
-				$result[] = HTML::tag('li', '.error', count($compare_results) === 1 ? "$name ($type) failed: <br />" . implode('', $compare_results) : "$name($type) failed" . HTML::tag('ul', HTML::tags('li', $compare_results)));
+				$result[] = HTML::tag('li', '.error', count($compare_results) === 1 ? "$name ($type) failed: <br />"
+					. implode('', $compare_results) : "$name($type) failed" . HTML::tag('ul', HTML::tags(
+						'li',
+						[],
+						$compare_results
+					)));
 			}
 			// 			$result[] = HTML::tag('pre', var_export($old_result, true));
 			// 			$result[] = HTML::tag('pre', var_export($new_result, true));

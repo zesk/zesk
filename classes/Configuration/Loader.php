@@ -88,31 +88,20 @@ class Configuration_Loader {
 	 * @param Interface_Settings $context
 	 */
 	public function __construct(array $files, Interface_Settings $settings) {
-		$available_targets = [];
-		foreach ($files as $file) {
-			if (is_readable($file)) {
-				$available_targets[] = $file;
-			} else {
-				$this->missing_files[] = $file;
-			}
-		}
 		$this->settings = $settings;
-		$this->files = $available_targets;
+		$this->files = $files;
 		$this->file_monitor = new File_Monitor_List($this->files);
 		$this->dependency = new Configuration_Dependency();
 	}
 
 	/**
-	 * Add additional files to load
+	 * Add additional files to try to load
 	 *
 	 * @param array $files
-	 * @return \zesk\Configuration_Loader
+	 * @return self
 	 */
-	public function append_files(array $files, array $missing = null): self {
+	public function appendFiles(array $files): self {
 		$this->files = array_merge($this->files, $files);
-		if (is_array($missing)) {
-			$this->missing_files = array_merge($this->missing_files, $missing);
-		}
 		return $this;
 	}
 
@@ -157,7 +146,7 @@ class Configuration_Loader {
 		}
 
 		$content = file_get_contents($file);
-		return $this->loadContent($content, $handler ? $handler : File::extension($file), $file);
+		return $this->loadContent($content, $handler ?: File::extension($file), $file);
 	}
 
 	/**

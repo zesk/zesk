@@ -272,8 +272,15 @@ class Text {
 	}
 
 	public static function trim_words(string $string, int $wordCount): string {
+		if ($wordCount <= 0) {
+			return '';
+		}
 		$words = preg_split('/(\s+)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
-		$words = array_slice($words, 0, $wordCount * 2 - 1);
+		// Preserve any leading white space which appears as a blank first word match
+		if ($words[0] === '') {
+			$wordCount = $wordCount + 1;
+		}
+		$words = array_slice($words, 0, $wordCount * 2);
 		return implode('', $words);
 	}
 
@@ -450,8 +457,12 @@ class Text {
 	 *            Max words to count
 	 * @return integer The number of words found
 	 */
-	public static function count_words($string, $limit = -1) {
-		return count(preg_split('/\s+/', trim($string), $limit));
+	public static function count_words(string $string, int $limit = -1): int {
+		$words = trim($string);
+		if ($words === '') {
+			return 0;
+		}
+		return count(preg_split('/\s+/', $words, $limit));
 	}
 
 	/**

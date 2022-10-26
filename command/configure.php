@@ -169,35 +169,10 @@ class Command_Configure extends Command_Base {
 
 	/**
 	 *
-	 * @param string $message
-	 * @param string $default
-	 * @param array $completions
-	 */
-	public function prompt($message, $default = null, array $completions = null): string {
-		if ($this->option('non-interactive')) {
-			if ($default === null) {
-				$this->error('Non-interactive set but input is required for {message}', [
-					'message' => $message,
-				]);
-
-				throw new Exception_Semantics('Non-interactive set but input is required for {message}', [
-					'message' => $message,
-				]);
-			}
-			return $default;
-		}
-		return parent::prompt($message, $default, $completions);
-	}
-
-	/**
-	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Command::prompt_yes_no()
 	 */
-	public function prompt_yes_no($message, $default = true) {
-		if ($this->option('non-interactive')) {
-			return true;
-		}
+	public function prompt_yes_no(string $message, bool $default = true): bool {
 		return parent::prompt_yes_no($message, $default);
 	}
 

@@ -69,7 +69,7 @@ echo PHP::dump($_SERVER);
 </pre>
 <h1>Share Paths</h1>
 <?php
-echo HTML::tag('ul', HTML::tags('li', $application->share_path()));
+echo HTML::tag('ul', HTML::tags('li', [], $application->sharePath()));
 ?>
 <h1>Theme Paths</h1>
 <?php

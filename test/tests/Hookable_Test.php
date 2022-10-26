@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 class hookable_test_a extends Hookable {
@@ -8,6 +10,7 @@ class hookable_test_a extends Hookable {
 		return $data;
 	}
 }
+
 class Hookable_Test extends UnitTest {
 	public static $counter = 0;
 
@@ -23,7 +26,37 @@ class Hookable_Test extends UnitTest {
 		$a = new hookable_test_a($this->application);
 		$result = $a->hookit($data);
 
-		var_dump($result);
+		$this->assertArrayHasKeys(['dude', 'hookit', 'test1', 'test2', 'test3', 'nice'], $result);
+		$this->assertEquals('the', $result['dude']);
+		$this->assertEquals('1', $result['test1']);
+		$this->assertEquals('2', $result['test2']);
+		$this->assertEquals('three', $result['test3']);
+		$this->assertEquals('pony', $result['nice']);
+		$this->assertIsFloat($result['hookit']);
+
+
+		/*array(10) {
+  ["dude"]=>
+  string(3) "the"
+  ["hookit"]=>
+  float(1665288601.921211)
+  ["zesk\Hookable_Test::hook_test3"]=>
+  float(1665288601.921533)
+  ["test3"]=>
+  string(5) "three"
+  ["test1a"]=>
+  string(12) "three not 1a"
+  ["nice"]=>
+  string(4) "pony"
+  ["zesk\Hookable_Test::hook_test2"]=>
+  float(1665288601.9215)
+  ["test2"]=>
+  string(1) "2"
+  ["zesk\Hookable_Test::hook_test1"]=>
+  float(1665288601.921457)
+  ["test1"]=>
+  string(1) "1"
+} */
 	}
 
 	public static function hook_test1(hookable_test_a $object, array $data) {

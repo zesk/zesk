@@ -147,7 +147,7 @@ class IPv4 {
 	 */
 	public static function is_mask(string $string): bool {
 		[$ip, $bits] = pair($string, '/', $string, strval(self::BITS));
-		if (integer_between(8, $bits, self::BITS) && self::_valid($ip)) {
+		if (integer_between(8, intval($bits), self::BITS) && self::_valid($ip)) {
 			return true;
 		}
 		$x = explode('.', $string);
@@ -155,11 +155,11 @@ class IPv4 {
 			return false;
 		}
 		$last = array_pop($x);
-		if ($last !== '*' && !integer_between(0, $last, 255)) {
+		if ($last !== '*' && (!is_numeric($last) || !integer_between(0, intval($last), 255))) {
 			return false;
 		}
 		foreach ($x as $ipi) {
-			if (!integer_between(0, $ipi, 255)) {
+			if (!integer_between(0, intval($ipi), 255)) {
 				return false;
 			}
 		}
@@ -175,8 +175,8 @@ class IPv4 {
 	public static function mask_to_integers($string) {
 		if (!self::is_mask($string)) {
 			return [
-				false,
-				false,
+				null,
+				null,
 			];
 		}
 		[$ip, $bits] = pair($string, '/', $string, strval(self::BITS));
@@ -186,8 +186,8 @@ class IPv4 {
 		} else {
 			$x = explode('.', $string);
 			$last = array_pop($x);
-			if (integer_between(0, $last, 255)) {
-				$x[] = intval($last);
+			if (is_numeric($last) && integer_between(0, intval($last), 255)) {
+				$x[] = $last;
 			}
 			$n = count($x);
 			for ($i = 4; $i > $n; $i--) {
@@ -199,7 +199,7 @@ class IPv4 {
 		}
 		return [
 			self::subnet_bits(self::to_integer($ip), $bits),
-			$bits,
+			intval($bits),
 		];
 	}
 
@@ -215,7 +215,7 @@ class IPv4 {
 	 *            "192.168.*"
 	 * @return string An IP and subnet notation string
 	 */
-	public static function mask_to_string($ip, $ip_bits = self::BITS, $star_notation = true) {
+	public static function mask_to_string($ip, int $ip_bits = self::BITS, bool $star_notation = true) {
 		$ip_bits = to_integer($ip_bits, self::BITS);
 		$ip = floatval($ip);
 		if ($ip_bits === self::BITS) {
@@ -333,7 +333,7 @@ class IPv4 {
 			return false;
 		}
 		[$a, $b, $c, $d] = $x;
-		return integer_between(1, intval($a), 255) && integer_between(0, intval($b), 255) && integer_between(0, intval($c), 255) && integer_between($low_low, intval($d), 255);
+		return strval(intval($a)) === $a && strval(intval($b)) === $b && strval(intval($c)) === $c && strval(intval($d)) === $d && integer_between(1, intval($a), 255) && integer_between(0, intval($b), 255) && integer_between(0, intval($c), 255) && integer_between($low_low, intval($d), 255);
 	}
 
 	/**

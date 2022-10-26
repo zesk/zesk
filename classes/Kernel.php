@@ -91,7 +91,7 @@ class Kernel {
 
 	/**
 	 *
-	 * @var \zesk\Kernel
+	 * @var Kernel
 	 */
 	private static self $singleton;
 
@@ -99,7 +99,7 @@ class Kernel {
 	 *
 	 * @var string
 	 */
-	private string $deprecated = self::DEPRECATED_IGNORE;
+	private string $deprecated = 'ignore';
 
 	/**
 	 *
@@ -120,7 +120,7 @@ class Kernel {
 	 *
 	 * @var array
 	 */
-	public static array $configuration_defaults = [__CLASS__ => ['application_class' => 'zesk\\Application', ], ];
+	public static array $configuration_defaults = [__CLASS__ => ['application_class' => 'zesk\\Application',],];
 
 	/**
 	 *
@@ -254,7 +254,7 @@ class Kernel {
 	 */
 	public static function singleton(): self {
 		if (!self::$singleton) {
-			throw new Exception_Semantics('Need to create singleton with {class}::factory first', ['class' => __CLASS__, ]);
+			throw new Exception_Semantics('Need to create singleton with {class}::factory first', ['class' => __CLASS__,]);
 		}
 		return self::$singleton;
 	}
@@ -354,7 +354,7 @@ class Kernel {
 	 * Add configurated hook
 	 */
 	public function initialize(): void {
-		$this->hooks->add(Hooks::HOOK_CONFIGURED, [$this, 'configured', ]);
+		$this->hooks->add(Hooks::HOOK_CONFIGURED, [$this, 'configured',]);
 	}
 
 	/**
@@ -375,10 +375,10 @@ class Kernel {
 	 */
 	public function setDeprecated(string $set): self {
 		$this->deprecated = [
-								self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
-								self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
-								self::DEPRECATED_LOG => self::DEPRECATED_LOG,
-							][$set] ?? self::DEPRECATED_IGNORE;
+			                    self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
+			                    self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
+			                    self::DEPRECATED_LOG => self::DEPRECATED_LOG,
+		                    ][$set] ?? self::DEPRECATED_IGNORE;
 		return $this;
 	}
 
@@ -419,7 +419,7 @@ class Kernel {
 	 * For cordoning off old, dead code
 	 */
 	public function obsolete(): void {
-		$this->logger->alert('Obsolete function called {function}', ['function' => calling_function(2), ]);
+		$this->logger->alert('Obsolete function called {function}', ['function' => calling_function(2),]);
 		if ($this->application()->development()) {
 			backtrace();
 		}
@@ -566,7 +566,7 @@ class Kernel {
 			return $this;
 		}
 		if ($this->application !== null) {
-			throw new Exception_Semantics('Changing application class to {class} when application already instantiated', ['class' => $set, ]);
+			throw new Exception_Semantics('Changing application class to {class} when application already instantiated', ['class' => $set,]);
 		}
 		$this->application_class = $set;
 		return $this;
@@ -617,9 +617,9 @@ class Kernel {
 				$this->hooks->add(self::HOOK_CREATE_APPLICATION, $callback);
 				return null;
 			} else {
-				throw new Exception_Semantics('Application must be created with {class}::create_application', ['class' => get_class($this), ]);
+				throw new Exception_Semantics('Application must be created with {class}::create_application', ['class' => get_class($this),]);
 			}
-		} elseif (is_callable($callback)) {
+		} else if (is_callable($callback)) {
 			$callback($this->application);
 		}
 		return $this->application;

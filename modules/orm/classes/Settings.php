@@ -196,7 +196,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 			$application->logger->debug('{method} entry', $__);
 		}
 		// If no databases registered, don't bother loading.
-		$databases = $application->database_module()->register();
+		$databases = $application->database_module()->databases();
 		if (count($databases) === 0) {
 			if ($debug_load) {
 				$application->logger->debug('{method} - no databases, not loading configuration', $__);
@@ -338,7 +338,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 *
 	 * @see ORM::get($mixed, $default)
 	 */
-	public function get($name = null, $default = null) {
+	public function get(string $name, mixed $default = null): mixed {
 		return $this->application->configuration->path_get($name, $default);
 	}
 
@@ -357,7 +357,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 *
 	 * @see ORM::__set($member, $value)
 	 */
-	public function __set($key, $value): void {
+	public function __set(string $key, mixed $value): void {
 		$old_value = $this->application->configuration->path_get($key);
 		if ($old_value === $value) {
 			return;
@@ -372,7 +372,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 * @return self
 	 * @see ORM::set($member, $value)
 	 */
-	public function set($name, $value = null) {
+	public function set(string $name, mixed $value = null): self {
 		$this->__set($name, $value);
 		return $this;
 	}
@@ -381,15 +381,32 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 *
 	 * @see Interface_Data::data()
 	 */
-	public function data($name, $value = null) {
+	public function data(string $name): mixed {
+		$value = $this->application->ormRegistry(__CLASS__)->querySelect()->addWhere('name', $name)->addWhat('value', 'value')->one('value');
 		if ($value === null) {
-			$value = $this->application->ormRegistry(__CLASS__)->query_select()->addWhere('name', $name)->addWhat('value', 'value')->one('value');
-			if ($value === null) {
-				return null;
-			}
-			return unserialize($value);
+			return null;
 		}
+		return unserialize($value);
+	}
+
+	/**
+	 *
+	 * @see Interface_Data::data()
+	 */
+	public function setData(string $name, mixed $value): self {
 		$this->__set($name, $value);
+		$this->flush();
+		return $this;
+	}
+
+	/**
+	 *
+	 * @see Interface_Data::deleteData()
+	 */
+	public function deleteData(array|string $name): self {
+		foreach (toArray($name) as $item) {
+			$this->__set($item, null);
+		}
 		$this->flush();
 		return $this;
 	}

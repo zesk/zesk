@@ -1,6 +1,7 @@
 #!/bin/bash
+set -eou pipefail
 
-sedfile=$(mktemp)
+sed_file=$(mktemp)
 for i in $(set | cut -d = -f 1); do
 	case $i in
 	LD_*)
@@ -13,7 +14,7 @@ for i in $(set | cut -d = -f 1); do
 		;;
 	esac
 	val=$(echo ${!i} | sed 's/\//\\\//g')
-	echo "s/{$i}/$val/g" >> $sedfile
+	echo "s/{$i}/$val/g" >> "$sed_file"
 done
-sed -f $sedfile
-rm $sedfile
+sed -f "$sed_file"
+rm "$sed_file"
