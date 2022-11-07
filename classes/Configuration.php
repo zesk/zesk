@@ -558,8 +558,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 			$new_path = implode(self::key_separator, $new_path);
 		}
 		$message_args += compact('old_path', 'new_path') + [
-				'old_type' => type($old_value),
-			];
+			'old_type' => type($old_value),
+		];
 		$logger->warning($message, $message_args);
 		Kernel::singleton()->deprecated($message, $message_args);
 		return true;

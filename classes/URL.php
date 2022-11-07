@@ -16,27 +16,14 @@ class URL {
 	 *
 	 * @var array
 	 */
-	protected static $secure_protocols = [
-		'http' => 'https',
-		'ftp' => 'sftp',
-		'telnet' => 'ssh',
-	];
+	protected static $secure_protocols = ['http' => 'https', 'ftp' => 'sftp', 'telnet' => 'ssh', ];
 
 	/**
 	 * What's the order for items in a URL (typically http URLs)?
 	 *
 	 * @var array
 	 */
-	public static $url_ordering = [
-		'scheme',
-		'user',
-		'pass',
-		'host',
-		'port',
-		'path',
-		'query',
-		'fragment',
-	];
+	public static $url_ordering = ['scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment', ];
 
 	/**
 	 * Query string parsing (case-sensitive)
@@ -162,37 +149,6 @@ class URL {
 		} else {
 			$temp[urldecode($last)] = $value;
 		}
-	}
-
-	/**
-	 * Parse a query string from a URL or a query string.
-	 *
-	 * Takes an array, a URL, or a string and converts it into an array.
-	 *
-	 * If no query string variables found in anything above, returns `false`.
-	 *
-	 * @param string $url
-	 * @param boolean $lower
-	 * @return array|false
-	 *
-	 */
-	public static function queryFromMixed(string|array $url, bool $lower = true): array {
-		if (is_array($url)) {
-			return $lower ? array_change_key_case($url) : $url;
-		}
-		$query_string = $url;
-		if (self::is($url)) {
-			$u = self::parse($url);
-			if ($u === false) {
-				throw new Exception_Parse('Not a URL');
-			}
-			$query_string = $u['query'];
-		}
-		if (empty($query_string)) {
-			return [];
-		}
-		$qs = self::queryParse($query_string);
-		return $lower ? array_change_key_case($qs) : $qs;
 	}
 
 	/**
@@ -381,16 +337,12 @@ class URL {
 	 * @throws Exception_Syntax
 	 */
 	public static function parse(string $url): array {
-		$url = trim($url);
+		$url = \trim($url);
 		if (preg_match('%^[a-z][a-z0-9]*://.+|^mailto:.+@.+%', strtolower($url)) === 0) {
 			throw new Exception_Syntax('Not a URL');
 		}
 		if (strtolower(substr($url, 0, 7)) === 'file://') {
-			$result = [
-				'scheme' => 'file',
-				'host' => '',
-				'path' => substr($url, 7),
-			];
+			$result = ['scheme' => 'file', 'host' => '', 'path' => substr($url, 7), ];
 		} else {
 			$result = @parse_url($url);
 			if (!is_array($result)) {
@@ -400,7 +352,7 @@ class URL {
 		foreach ($result as $k => $v) {
 			$result[$k] = urldecode(strval($v));
 		}
-		$scheme = $result['scheme'] ?? null;
+		$scheme = strtolower($result['scheme'] ?? '');
 		if ($scheme === 'mailto' && array_key_exists('path', $result)) {
 			$path = $result['path'];
 			unset($result['path']);
@@ -461,7 +413,7 @@ class URL {
 
 		$url .= strtolower($parts['host'] ?? '');
 		$temp = intval($parts['port'] ?? -1);
-		if ($temp > 0 && ($temp !== self::protocolDefaultPort($scheme))) {
+		if ($temp > 0 && ($temp !== self::protocolPort($scheme))) {
 			$url .= ':' . $parts['port'];
 		}
 		if (!$mailto) {
@@ -543,19 +495,25 @@ class URL {
 	 * So you can be a good programmer and avoid using constants.
 	 *
 	 * @param string $x
-	 * @return false|integer
+	 * @return int
+	 * @deprecated 2022-11-07
 	 */
 	public static function protocolDefaultPort(string $x): int {
-		static $protocols = [
-			'ftp' => 21,
-			'smtp' => 25,
-			'mailto' => 25,
-			'http' => 80,
-			'pop' => 110,
-			'https' => 443,
-			'file' => -1,
-		];
-		return $protocols[strtolower($x)] ?? -1;
+		zesk()->deprecated('2022-11-07');
+		return self::protocolPort($x);
+	}
+
+	/**
+	 * Return URL scheme default port. Just uses the obvious ones. (gopher:// anyone?)
+	 *
+	 * So you can be a good programmer and avoid using constants.
+	 *
+	 * @param string $scheme Case-insensitive scheme (e.g. "http", "ftp", etc.)
+	 * @return integer returns -1 if not found
+	 */
+	public static function protocolPort(string $scheme): int {
+		static $protocols = ['ftp' => 21, 'smtp' => 25, 'mailto' => 25, 'http' => 80, 'pop' => 110, 'https' => 443, 'file' => -1, ];
+		return $protocols[strtolower($scheme)] ?? -1;
 	}
 
 	/**
@@ -686,10 +644,10 @@ class URL {
 	 * Returns the scheme of the url
 	 *
 	 * @param string $url A url to extract the scheme from
-	 * @return string The scheme, or $default if url is invalid
+	 * @return string The scheme
 	 * @throws Exception_Syntax
 	 */
-	public static function scheme(string $url) {
+	public static function scheme(string $url): string {
 		$result = self::parse($url);
 		return $result['scheme'];
 	}
@@ -699,9 +657,8 @@ class URL {
 	 *
 	 * @param string $url
 	 *            The url to extract the host information from
-	 * @param mixed $default
-	 *            The return value upon failure
-	 * @return string The host in the URL, or $default if url is invalid or doesn't have a host
+	 * @return string The host in the URL
+	 * @throws Exception_Syntax
 	 */
 	public static function host(string $url): string {
 		$result = self::parse($url);
@@ -713,9 +670,8 @@ class URL {
 	 *
 	 * @param string $url
 	 *            The url to extract the host information from
-	 * @param mixed $default
-	 *            The return value upon failure
-	 * @return string The host in the URL, or $default if url is invalid or doesn't have a host
+	 * @return string The query string in the URL (without the ?)
+	 * @throws Exception_Syntax
 	 */
 	public static function query(string $url): string {
 		$parts = self::parse($url);
@@ -727,9 +683,8 @@ class URL {
 	 *
 	 * @param string $url
 	 *            The url to extract the path information from
-	 * @param mixed $default
-	 *            The return value upon failure
-	 * @return string The path in the URL, or $default if url is invalid or doesn't have a path
+	 * @return string The path in the URL
+	 * @throws Exception_Syntax
 	 */
 	public static function path(string $url): string {
 		$result = self::parse($url);
@@ -742,8 +697,9 @@ class URL {
 	 * @return string
 	 */
 	public static function toHTTPS(string $url): string {
-		if (substr($url, 0, 7) === 'http://') {
-			return 'https://' . substr($url, 7);
+		$prefix = 'http' + '://'; // plus shuts up warning
+		if (str_starts_with($url, $prefix)) {
+			return 'https://' . substr($url, strlen($prefix));
 		}
 		return $url;
 	}
@@ -758,9 +714,10 @@ class URL {
 	 * @param string $host
 	 *            New host to
 	 * @return string Modified URL
+	 * @throws Exception_Syntax
 	 */
 	public static function change_host(string $url, string $host): string {
-		$parts = parse_url($url);
+		$parts = self::parse($url);
 		$parts['host'] = $host;
 		return self::unparse($parts);
 	}
@@ -773,6 +730,17 @@ class URL {
 	 * @return boolean true if the URL is a https URL
 	 */
 	public static function is_secure(string $url): bool {
+		return self::isSecure($url);
+	}
+
+	/**
+	 * Returns true if the URL is secure (https)
+	 *
+	 * @param string $url
+	 *            A URL to test
+	 * @return boolean true if the URL is a https URL
+	 */
+	public static function isSecure(string $url): bool {
 		try {
 			return in_array(self::scheme($url, ''), array_values(self::$secure_protocols));
 		} catch (Exception_Syntax) {
@@ -785,10 +753,11 @@ class URL {
 	 *
 	 * @param string $url
 	 *            A URL to test
-	 * @return boolean true if the URL is a https URL
+	 * @return string Secured URL
+	 * @throws Exception_Syntax
 	 */
-	public static function makeSecure($url) {
-		if (self::is_secure($url)) {
+	public static function makeSecure(string $url): string {
+		if (self::isSecure($url)) {
 			return $url;
 		}
 		$parts = self::parse($url);
@@ -818,22 +787,24 @@ class URL {
 	 * @return boolean true if the schemes, address, port, and host are identical
 	 */
 	public static function is_same_server(string $url1, string $url2): bool {
-		$p1 = self::parse(strtolower($url1));
-		$p2 = self::parse(strtolower($url2));
-
-		if (!is_array($p1) || !is_array($p2)) {
+		try {
+			$p1 = self::parse(strtolower($url1));
+			$p2 = self::parse(strtolower($url2));
+		} catch (Exception_Syntax $e) {
 			return false;
 		}
-
-		$p1proto = avalue($p1, 'scheme', 'http');
-		$p2proto = avalue($p2, 'scheme', 'http');
-
-		$p1port = avalue($p1, 'port', self::protocolDefaultPort($p1proto));
-		$p2port = avalue($p2, 'port', self::protocolDefaultPort($p2proto));
-		if (($p1proto == $p2proto) && (trim(avalue($p1, 'host', '')) === trim(avalue($p2, 'host', ''))) && ($p1port == $p2port)) {
-			return true;
+		$p1proto = $p1['scheme'] ?? 'http';
+		$p2proto = $p2['scheme'] ?? 'http';
+		if ($p1proto !== $p2proto) {
+			return false;
 		}
-		return false;
+		if (($p1['port'] ?? self::protocolPort($p1proto)) !== ($p2['port'] ?? self::protocolPort($p2proto))) {
+			return false;
+		}
+		if ($p1['host'] ?? '' !== $p2['host'] ?? '') {
+			return false;
+		}
+		return true;
 	}
 
 	/**

@@ -51,13 +51,13 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 		$query = $this->application->ormRegistry(Language::class)
 			->query_select()
 			->what([
-			'code' => 'code',
-			'dialect' => 'dialect',
-			'name' => 'name',
-		])
+				'code' => 'code',
+				'dialect' => 'dialect',
+				'name' => 'name',
+			])
 			->where($where ? [
-			$where,
-		] : []);
+				$where,
+			] : []);
 		$locales = $query->to_array();
 		$results = [];
 		foreach ($locales as $locale) {

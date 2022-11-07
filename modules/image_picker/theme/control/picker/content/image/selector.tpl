@@ -41,8 +41,8 @@ $id = 'control-picker-' . $this->column . '-q';
 	$query = $application->ormRegistry(User_Content_Image::class)
 		->query_select()
 		->link(Content_Image::class, [
-		'alias' => 'ucimage',
-	])
+			'alias' => 'ucimage',
+		])
 		->what_object(Content_Image::class)
 		->addWhere('X.user', $this->current_user);
 	//echo $query->__toString();

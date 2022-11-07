@@ -42,8 +42,8 @@ if ($this->textarea) {
 } else {
 	$ia['type'] = $this->password ? 'password' : 'text';
 	$ia = $object->applyMap($ia) + [
-			'value' => $value,
-		];
+		'value' => $value,
+	];
 	$input = HTML::tag('input', $ia);
 	if ($this->input_group_addon) {
 		$html = HTML::span($this->get('input_group_class', '.input-group-addon'), $this->input_group_addon);

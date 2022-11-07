@@ -826,8 +826,8 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			return;
 		}
 		$this->log($message, [
-				'severity' => 'error',
-			] + $arguments);
+			'severity' => 'error',
+		] + $arguments);
 	}
 
 	/**
@@ -1311,8 +1311,8 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		$app = $this->application;
 		$bin = $app->zeskHome('bin/zesk.sh');
 		return $app->process->execute_arguments("$bin --search {app_root} $command", [
-				'app_root' => $app->path(),
-			] + $arguments);
+			'app_root' => $app->path(),
+		] + $arguments);
 	}
 
 	/**

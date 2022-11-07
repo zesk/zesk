@@ -127,9 +127,9 @@ class Control_Content_Image extends Control {
 
 	public function themeVariables(): array {
 		return [
-				'width' => $this->optionInt('width', 200),
-				'height' => $this->optionInt('height', 200),
-				'value' => $this->normalize(),
-			] + parent::themeVariables();
+			'width' => $this->optionInt('width', 200),
+			'height' => $this->optionInt('height', 200),
+			'value' => $this->normalize(),
+		] + parent::themeVariables();
 	}
 }

@@ -2143,13 +2143,13 @@ class Class_ORM extends Hookable {
 	public function schemaMap(): array {
 		// Some of these are for MySQL only. Good/bad? TODO
 		return $this->optionArray('schema_map') + [
-				'name' => $this->name,
-				'code_name' => $this->code_name,
-				'table' => $this->table,
-				'extra_keys' => '',
-				'auto_increment' => $this->auto_column ? 'AUTO_INCREMENT' : '',
-				'primary_keys' => implode(',', $this->primary_keys),
-			];
+			'name' => $this->name,
+			'code_name' => $this->code_name,
+			'table' => $this->table,
+			'extra_keys' => '',
+			'auto_increment' => $this->auto_column ? 'AUTO_INCREMENT' : '',
+			'primary_keys' => implode(',', $this->primary_keys),
+		];
 	}
 
 	/**

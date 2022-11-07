@@ -362,9 +362,9 @@ class Module_Permission extends Module {
 		$roles = $application->ormRegistry('Role')
 			->query_select('X')
 			->what([
-			'id' => 'X.id',
-			'code' => 'X.code',
-		])
+				'id' => 'X.id',
+				'code' => 'X.code',
+			])
 			->order_by('X.id')
 			->to_array('id', 'code', []);
 		$options = [

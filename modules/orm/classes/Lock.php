@@ -90,10 +90,10 @@ class Lock extends ORM {
 		$n_rows = $application->ormRegistry(__CLASS__)
 			->query_delete()
 			->where([
-			'used|<=' => Timestamp::now()->addUnit(-1, Timestamp::UNIT_DAY),
-			'server' => null,
-			'pid' => null,
-		])
+				'used|<=' => Timestamp::now()->addUnit(-1, Timestamp::UNIT_DAY),
+				'server' => null,
+				'pid' => null,
+			])
 			->execute()
 			->affectedRows();
 		if ($n_rows > 0) {
@@ -144,9 +144,9 @@ class Lock extends ORM {
 		$iterator = $application->ormRegistry(__CLASS__)
 			->query_select()
 			->where([
-			'server' => Server::singleton($application),
-			'locked|<=' => $you_are_dead_to_me,
-		])
+				'server' => Server::singleton($application),
+				'locked|<=' => $you_are_dead_to_me,
+			])
 			->orm_iterator();
 		/* @var $lock Lock */
 		foreach ($iterator as $lock) {
@@ -281,13 +281,13 @@ class Lock extends ORM {
 	public function release() {
 		$this->query_update()
 			->values([
-			'pid' => null,
-			'server' => null,
-			'locked' => null,
-		])
+				'pid' => null,
+				'server' => null,
+				'locked' => null,
+			])
 			->where([
-			'id' => $this->id,
-		])
+				'id' => $this->id,
+			])
 			->execute();
 		$this->application->logger->debug("Released lock $this->code");
 		$this->pid = null;
@@ -365,8 +365,8 @@ class Lock extends ORM {
 			'*used' => $sql->now(),
 		])
 			->where([
-			'id' => $this->id,
-		] + $where)
+				'id' => $this->id,
+			] + $where)
 			->execute();
 		if ($this->fetch()->_is_mine()) {
 			$this->application->logger->debug("Acquired lock $this->code");

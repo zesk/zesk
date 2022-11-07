@@ -313,18 +313,18 @@ class Time extends Temporal {
 	 */
 	public function parse(string $value): self {
 		foreach ([
-					 '/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/' => [
-						 null,
-						 'setHour',
-						 'setMinute',
-						 'setSecond',
-					 ],
-					 '/([0-9]{1,2}):([0-9]{2})/' => [
-						 null,
-						 'setHour',
-						 'setMinute',
-					 ],
-				 ] as $pattern => $assign) {
+			'/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/' => [
+				null,
+				'setHour',
+				'setMinute',
+				'setSecond',
+			],
+			'/([0-9]{1,2}):([0-9]{2})/' => [
+				null,
+				'setHour',
+				'setMinute',
+			],
+		] as $pattern => $assign) {
 			if (preg_match($pattern, $value, $matches)) {
 				$this->hms(0, 0, 0);
 				foreach ($assign as $index => $method) {

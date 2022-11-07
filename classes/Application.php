@@ -878,12 +878,12 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		}
 		if ($set) {
 			$context = [
-					'time' => date('Y-m-d H:i:s'),
-				] + toArray($this->call_hook_arguments('maintenance_context', [
-					[
-						'value' => $set,
-					],
-				], []));
+				'time' => date('Y-m-d H:i:s'),
+			] + toArray($this->call_hook_arguments('maintenance_context', [
+				[
+					'value' => $set,
+				],
+			], []));
 			file_put_contents($this->maintenanceFile(), JSON::encode($context));
 		} elseif (file_exists($maintenance_file)) {
 			unlink($maintenance_file);
@@ -912,8 +912,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 				];
 			}
 			$result = [
-					'enabled' => true,
-				] + $result;
+				'enabled' => true,
+			] + $result;
 		}
 		return $result;
 	}
@@ -1053,11 +1053,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 		try {
 			$response->content = $this->theme($this->classes->hierarchy($exception), [
-					'request' => $request,
-					'response' => $response,
-					'exception' => $exception,
-					'content' => $exception,
-				] + Exception::exceptionVariables($exception), [
+				'request' => $request,
+				'response' => $response,
+				'exception' => $exception,
+				'content' => $exception,
+			] + Exception::exceptionVariables($exception), [
 				'first' => true,
 			]);
 			if (!$exception instanceof Exception_Redirect) {
@@ -1305,9 +1305,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			'{page-render-time}' => sprintf('%.3f', microtime(true) - $this->kernel->initialization_time),
 		];
 		if (!$response || $response->isContentType([
-				'text/',
-				'javascript',
-			])) {
+			'text/',
+			'javascript',
+		])) {
 			$response->content = strtr($response->content, $final_map);
 		}
 		$response->output($options);
@@ -2072,8 +2072,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	public function member_model_factory(string $member, string $class, mixed $mixed = null, array $options = []): ?Model {
 		return Model::factory($this, $class, $mixed, [
-				'_member' => $member,
-			] + $options);
+			'_member' => $member,
+		] + $options);
 	}
 
 	/**

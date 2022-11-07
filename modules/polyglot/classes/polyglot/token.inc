@@ -179,9 +179,9 @@ class PolyGlot_Token extends ORM {
 			->query_select()
 			->what_object()
 			->where([
-			'dialect' => Locale::parse_dialect($locale),
-			'language' => Locale::parse_language($locale),
-		]);
+				'dialect' => Locale::parse_dialect($locale),
+				'language' => Locale::parse_language($locale),
+			]);
 	}
 
 	/**
@@ -207,9 +207,9 @@ class PolyGlot_Token extends ORM {
 		$iterator = $app->ormRegistry(__CLASS__)
 			->query_select()
 			->what([
-			'id' => 'id',
-			'translation' => 'translation',
-		])
+				'id' => 'id',
+				'translation' => 'translation',
+			])
 			->iterator('id', 'translation');
 		foreach ($iterator as $id => $translation) {
 			$entities = htmlentities($translation);

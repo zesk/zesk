@@ -35,9 +35,9 @@ class Language extends ORM {
 			->query_select()
 			->addWhat('name', 'name')
 			->where([
-			'code' => $language,
-			'dialect' => $dialect,
-		])
+				'code' => $language,
+				'dialect' => $dialect,
+			])
 			->one('name');
 		if ($lang_en) {
 			if (!$locale) {

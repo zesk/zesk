@@ -122,7 +122,7 @@ class CacheItemPool_Array implements CacheItemPoolInterface {
 	 *
 	 * @param string[] $keys
 	 *   An array of keys that should be removed from the pool.
-
+	 *
 	 * @throws InvalidArgumentException
 	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.

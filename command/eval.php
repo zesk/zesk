@@ -189,9 +189,9 @@ class Command_Eval extends Command_Base {
 		}
 		$prefix = 'return';
 		if (StringTools::begins($string, [
-				'echo ',
-				'print ',
-			]) || str_contains($string, ';')) {
+			'echo ',
+			'print ',
+		]) || str_contains($string, ';')) {
 			$prefix = '';
 		}
 		return $prefix . ' ' . $string;

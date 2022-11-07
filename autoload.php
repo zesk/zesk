@@ -41,8 +41,8 @@ class Loader {
 		global $_ZESK;
 
 		return Kernel::factory((is_array($_ZESK) ? $_ZESK : []) + [
-				'init' => self::$init,
-			]);
+			'init' => self::$init,
+		]);
 	}
 }
 

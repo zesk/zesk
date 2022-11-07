@@ -241,9 +241,9 @@ class File {
 			return false;
 		}
 		if (StringTools::contains($x, [
-				'..',
-				'/./',
-			]) !== false) {
+			'..',
+			'/./',
+		]) !== false) {
 			return false;
 		}
 		return true;
@@ -287,8 +287,8 @@ class File {
 	 */
 	public static function map_pathinfo(string $filename, string $pattern): string {
 		return map($pattern, pathinfo($filename) + [
-				'/' => DIRECTORY_SEPARATOR,
-			]);
+			'/' => DIRECTORY_SEPARATOR,
+		]);
 	}
 
 	/**

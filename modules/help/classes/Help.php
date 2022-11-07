@@ -29,16 +29,16 @@ class Help extends ORM {
 			->now())
 			->addWhere('show_first', null)
 			->where([
-			'id' => $this->id(),
-		])
+				'id' => $this->id(),
+			])
 			->execute();
 		$query = $this->query_update();
 		$query->value('*show_recent', $query->sql()
 			->now())
 			->value('*show_count', 'show_count+1')
 			->where([
-			'id' => $this->id(),
-		])
+				'id' => $this->id(),
+			])
 			->execute();
 		return $this;
 	}

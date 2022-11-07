@@ -261,29 +261,29 @@ class Database_MySQL_SQL_Test extends UnitTest {
 		$this->assert($sql->where_clause($where) === '(`Q`.`Site` = 1 OR `Q`.`Site` = 2 OR `Q`.`Site` = 3) AND Q.UTC<=MIN(F.Stats_UTC)', $sql->where_clause($where));
 
 		$this->assert($sql->where_clause([
-				'*Q.UTC|<=' => 'MIN(F.Stats_UTC)',
-			]) === 'Q.UTC<=MIN(F.Stats_UTC)');
+			'*Q.UTC|<=' => 'MIN(F.Stats_UTC)',
+		]) === 'Q.UTC<=MIN(F.Stats_UTC)');
 
 		$this->assert($sql->where_clause([
-				'*FOO' => 0,
-			]) === 'FOO=0');
+			'*FOO' => 0,
+		]) === 'FOO=0');
 		$this->assert($sql->where_clause([
-				'*FOO' => null,
-			]) === 'FOO IS NULL');
+			'*FOO' => null,
+		]) === 'FOO IS NULL');
 		$this->assert($sql->where_clause([
-				'*FOO' => '',
-			]) === 'FOO=');
+			'*FOO' => '',
+		]) === 'FOO=');
 
 		$this->assert($sql->where_clause([
-				'FOO' => 0,
-			]) === '`FOO` = 0');
+			'FOO' => 0,
+		]) === '`FOO` = 0');
 		$this->assert($sql->where_clause([
-				'FOO' => null,
-			]) === '`FOO` IS NULL', $sql->where_clause([
+			'FOO' => null,
+		]) === '`FOO` IS NULL', $sql->where_clause([
 			'FOO' => null,
 		]));
 		$this->assert($sql->where_clause([
-				'FOO' => '',
-			]) === '`FOO` = \'\'');
+			'FOO' => '',
+		]) === '`FOO` = \'\'');
 	}
 }

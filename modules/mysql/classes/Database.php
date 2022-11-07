@@ -251,9 +251,9 @@ class Database extends \zesk\Database {
 		$attributes['extra'] = null;
 		$table = $column->table();
 		return $attributes + [
-				self::ATTRIBUTE_CHARACTER_SET => $table->option(self::ATTRIBUTE_CHARACTER_SET, $this->defaultCharacterSet()),
-				self::ATTRIBUTE_COLLATION => $table->option(self::ATTRIBUTE_COLLATION, $this->defaultCollation()),
-			];
+			self::ATTRIBUTE_CHARACTER_SET => $table->option(self::ATTRIBUTE_CHARACTER_SET, $this->defaultCharacterSet()),
+			self::ATTRIBUTE_COLLATION => $table->option(self::ATTRIBUTE_COLLATION, $this->defaultCollation()),
+		];
 	}
 
 	/**
@@ -389,8 +389,8 @@ class Database extends \zesk\Database {
 		$result = 0;
 		$cmd = 'mysqldump ' . implode(' ', $cmd_options) . ' > {filename}';
 		$this->application->process->execute_arguments($cmd, $parts + [
-				'filename' => $filename,
-			]);
+			'filename' => $filename,
+		]);
 		return file_exists($filename);
 	}
 
@@ -423,8 +423,8 @@ class Database extends \zesk\Database {
 		$result = 0;
 		$cmd = 'mysql ' . implode(' ', $cmd_options) . ' < {filename}';
 		$this->application->process->execute_arguments($cmd, $parts + [
-				'filename' => $filename,
-			]);
+			'filename' => $filename,
+		]);
 		return file_exists($filename);
 	}
 
@@ -1282,9 +1282,9 @@ class Database extends \zesk\Database {
 			$error = mysqli_connect_error();
 			if ($error) {
 				$this->_connection_error($args + [
-						'error' => $error,
-						'errno' => mysqli_connect_errno(),
-					]);
+					'error' => $error,
+					'errno' => mysqli_connect_errno(),
+				]);
 			}
 
 			throw new Database_Exception_Connect($this->url(), "Connection to database $user@$server:$port/$database FAILED, no connection error", $args);
@@ -1357,8 +1357,8 @@ class Database extends \zesk\Database {
 				}
 
 				throw new Database_Exception_SQL($this, $query, $exception->getMessage(), [
-						'sql' => $query,
-					] + Exception::exceptionVariables($exception), $exception->getCode(), $exception);
+					'sql' => $query,
+				] + Exception::exceptionVariables($exception), $exception->getCode(), $exception);
 			}
 			$this->_queryAfter($query, $options);
 			if ($result) {

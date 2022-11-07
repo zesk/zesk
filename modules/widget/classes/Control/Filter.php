@@ -146,16 +146,16 @@ class Control_Filter extends Control {
 	 */
 	public function themeVariables(): array {
 		return [
-				'theme_prefix' => $this->theme_prefix,
-				'theme_header' => $this->theme_header,
-				'filter_tag' => $this->filter_tag,
-				'filter_attributes' => $this->filter_attributes,
-				'widget_tag' => $this->widget_tag,
-				'widget_attributes' => $this->widget_attributes,
-				'widgets' => $this->children(),
-				'theme_widgets' => $this->theme_widgets,
-				'theme_footer' => $this->theme_footer,
-				'theme_suffix' => $this->theme_suffix,
-			] + parent::themeVariables() + $this->options;
+			'theme_prefix' => $this->theme_prefix,
+			'theme_header' => $this->theme_header,
+			'filter_tag' => $this->filter_tag,
+			'filter_attributes' => $this->filter_attributes,
+			'widget_tag' => $this->widget_tag,
+			'widget_attributes' => $this->widget_attributes,
+			'widgets' => $this->children(),
+			'theme_widgets' => $this->theme_widgets,
+			'theme_footer' => $this->theme_footer,
+			'theme_suffix' => $this->theme_suffix,
+		] + parent::themeVariables() + $this->options;
 	}
 }

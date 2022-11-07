@@ -417,16 +417,16 @@ class Repository extends \zesk\Repository_Command {
 		]));
 		$parsed = new \SimpleXMLElement($xml);
 		foreach ([
-					 'url' => 'url',
-					 'relative-url' => 'relative-url',
-					 'repository/root' => 'root',
-					 'repository/uuid' => 'uuid',
-					 'wc-info/wcroot-abspath' => 'working-copy-path',
-					 'wc-info/schedule' => 'working-copy-schedule',
-					 'wc-info/depth' => 'working-copy-depth',
-					 'commit/author' => 'commit-author',
-					 'commit/date' => 'commit-date',
-				 ] as $xpath => $key) {
+			'url' => 'url',
+			'relative-url' => 'relative-url',
+			'repository/root' => 'root',
+			'repository/uuid' => 'uuid',
+			'wc-info/wcroot-abspath' => 'working-copy-path',
+			'wc-info/schedule' => 'working-copy-schedule',
+			'wc-info/depth' => 'working-copy-depth',
+			'commit/author' => 'commit-author',
+			'commit/date' => 'commit-date',
+		] as $xpath => $key) {
 			$result[$key] = strval($parsed->xpath('//entry/' . $xpath)[0]);
 		}
 		return $result;
@@ -454,16 +454,16 @@ class Repository extends \zesk\Repository_Command {
 		}
 		$parsed = new \SimpleXMLElement($xml);
 		foreach ([
-					 'url' => 'url',
-					 'relative-url' => 'relative-url',
-					 'repository/root' => 'root',
-					 'repository/uuid' => 'uuid',
-					 'wc-info/wcroot-abspath' => 'working-copy-path',
-					 'wc-info/schedule' => 'working-copy-schedule',
-					 'wc-info/depth' => 'working-copy-depth',
-					 'commit/author' => self::ENTRY_AUTHOR,
-					 'commit/date' => self::ENTRY_DATE,
-				 ] as $xpath => $key) {
+			'url' => 'url',
+			'relative-url' => 'relative-url',
+			'repository/root' => 'root',
+			'repository/uuid' => 'uuid',
+			'wc-info/wcroot-abspath' => 'working-copy-path',
+			'wc-info/schedule' => 'working-copy-schedule',
+			'wc-info/depth' => 'working-copy-depth',
+			'commit/author' => self::ENTRY_AUTHOR,
+			'commit/date' => self::ENTRY_DATE,
+		] as $xpath => $key) {
 			$result[$key] = strval($parsed->xpath('//entry/' . $xpath)[0]);
 		}
 		return $result;
@@ -488,10 +488,10 @@ class Repository extends \zesk\Repository_Command {
 		$url = rtrim($url, '/') . '/';
 		$min = $mintoken = null;
 		foreach ([
-					 $trunk_directory,
-					 $tags_directory,
-					 $branches_directory,
-				 ] as $token) {
+			$trunk_directory,
+			$tags_directory,
+			$branches_directory,
+		] as $token) {
 			$pos = strpos($url, $token);
 			if ($pos !== false) {
 				if ($min === null || $pos < $min) {

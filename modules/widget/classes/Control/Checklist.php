@@ -87,10 +87,10 @@ class Control_Checklist extends Control_Optionss {
 		}
 
 		throw new Exception_Parameter('{method} {name} {id} Widget not support for value {type} {value}', [
-				'method' => __METHOD__,
-				'type' => gettype($value),
-				'value' => $value,
-			] + $this->options);
+			'method' => __METHOD__,
+			'type' => gettype($value),
+			'value' => $value,
+		] + $this->options);
 	}
 
 	/**

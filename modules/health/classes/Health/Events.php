@@ -67,13 +67,13 @@ class Health_Events extends ORM {
 			->execute();
 		$this->query_update()
 			->values([
-			'recent' => $when,
-			'recent_msec' => $when_msec,
-		])
+				'recent' => $when,
+				'recent_msec' => $when_msec,
+			])
 			->where([
-			'id' => $this->id,
-			'recent|<=' => $when,
-		])
+				'id' => $this->id,
+				'recent|<=' => $when,
+			])
 			->execute();
 		return $this;
 	}

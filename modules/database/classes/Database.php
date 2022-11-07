@@ -1359,12 +1359,12 @@ abstract class Database extends Hookable {
 	 */
 	public function variables(): array {
 		return $this->url_parts + [
-				'type' => $this->type(),
-				'url' => $this->URL,
-				'safeURL' => $this->safe_url,
-				'code' => $this->codeName(),
-				'code_name' => $this->codeName(),
-			];
+			'type' => $this->type(),
+			'url' => $this->URL,
+			'safeURL' => $this->safe_url,
+			'code' => $this->codeName(),
+			'code_name' => $this->codeName(),
+		];
 	}
 
 	/**

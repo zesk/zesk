@@ -1012,43 +1012,43 @@ class ArrayTools_Test extends UnitTest {
 		$this->assert(ArrayTools::isList(new stdClass()) === false);
 		$this->assert(ArrayTools::isList([]) === true);
 		$this->assert(ArrayTools::isList([
-				'1',
-				'3',
-			]) === true);
+			'1',
+			'3',
+		]) === true);
 		$this->assert(ArrayTools::isList([
-				'1',
-				2 => '3',
-			]) === false);
+			'1',
+			2 => '3',
+		]) === false);
 		$this->assert(ArrayTools::isList([
-				'1',
-				2 => '3',
-				4,
-				5 => 'f',
-			]) === false);
+			'1',
+			2 => '3',
+			4,
+			5 => 'f',
+		]) === false);
 		$this->assert(ArrayTools::isList([
-				1,
-				2,
-				3,
-				4,
-				5,
-				9,
-			]) === true);
+			1,
+			2,
+			3,
+			4,
+			5,
+			9,
+		]) === true);
 		$this->assert(ArrayTools::isList(array_merge([
-				1,
-				2,
-				3,
-				4,
-				5,
-				9,
-			], [
-				'a',
-				1,
-				2,
-				3,
-				4,
-				5,
-				9,
-			])) === true);
+			1,
+			2,
+			3,
+			4,
+			5,
+			9,
+		], [
+			'a',
+			1,
+			2,
+			3,
+			4,
+			5,
+			9,
+		])) === true);
 		$faker = new faker();
 		$faker->__set('0', 'zero');
 		$faker->__set('1', 'one');
@@ -1066,43 +1066,43 @@ class ArrayTools_Test extends UnitTest {
 		$this->assert(ArrayTools::isList(new stdClass()) === false);
 		$this->assert(ArrayTools::isList([]) === true);
 		$this->assert(ArrayTools::isList([
-				'1',
-				'3',
-			]) === true);
+			'1',
+			'3',
+		]) === true);
 		$this->assert(ArrayTools::isList([
-				'1',
-				2 => '3',
-			]) === false);
+			'1',
+			2 => '3',
+		]) === false);
 		$this->assert(ArrayTools::isList([
-				'1',
-				2 => '3',
-				4,
-				5 => 'f',
-			]) === false);
+			'1',
+			2 => '3',
+			4,
+			5 => 'f',
+		]) === false);
 		$this->assert(ArrayTools::isList([
-				1,
-				2,
-				3,
-				4,
-				5,
-				9,
-			]) === true);
+			1,
+			2,
+			3,
+			4,
+			5,
+			9,
+		]) === true);
 		$this->assert(ArrayTools::isList(array_merge([
-				1,
-				2,
-				3,
-				4,
-				5,
-				9,
-			], [
-				'a',
-				1,
-				2,
-				3,
-				4,
-				5,
-				9,
-			])) === true);
+			1,
+			2,
+			3,
+			4,
+			5,
+			9,
+		], [
+			'a',
+			1,
+			2,
+			3,
+			4,
+			5,
+			9,
+		])) === true);
 
 		$faker = new faker();
 		$faker->__set('0', 'zero');

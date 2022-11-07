@@ -77,7 +77,7 @@ namespace zesk;
  * name=username
  * </li>
  * </ul>
- <p>
+ * <p>
  * The name may optionally be followed by one or more <i>element-filters</i>, separated from the name by whitespace.  If the <i>filterType</i> is not specified, <b>value</b> is assumed.
  * </p>
  * <ul>
@@ -160,7 +160,7 @@ namespace zesk;
  * css=span#firstChild + span
  * </li>
  * </ul>
- <p>
+ * <p>
  * Currently the css selector locator supports all css1, css2 and css3 selectors except namespace in css3, some pseudo classes(:nth-of-type, :nth-last-of-type, :first-of-type, :last-of-type, :only-of-type, :visited, :hover, :active, :focus, :indeterminate) and pseudo elements(::first-line, ::first-letter, ::selection, ::before, ::after).
  * </p>
  * </li>
@@ -189,20 +189,20 @@ namespace zesk;
  * <p>
  * Element filters can be used with a locator to refine a list of candidate elements.  They are currently used only in the 'name' element-locator.
  * </p>
- <p>
+ * <p>
  * Filters look much like locators, ie.
  * </p>
- <p>
+ * <p>
  *
  * <i>filterType</i><b>=</b><i>argument</i>
  * </p>
  * <p>
  * Supported element-filters are:
  * </p>
- <p>
+ * <p>
  * <b>value=</b><i>valuePattern</i>
  * </p>
- <p>
+ * <p>
  *
  *
  * Matches elements based on their values.  This is particularly useful for refining a list of similarly-named toggle-buttons.
@@ -210,7 +210,7 @@ namespace zesk;
  * <p>
  * <b>index=</b><i>index</i>
  * </p>
- <p>
+ * <p>
  *
  *
  * Selects a single element based on its position in the list (offset from zero).

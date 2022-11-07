@@ -20,7 +20,7 @@ class Exception_Configuration extends Exception {
 	public function __construct(string $name, string $message, array $arguments = [], Exception $previous = null) {
 		$this->name = $name;
 		parent::__construct("Configuration error: {name}: $message", [
-				'name' => $name,
-			] + $arguments, 0, $previous);
+			'name' => $name,
+		] + $arguments, 0, $previous);
 	}
 }

@@ -31,8 +31,8 @@ class Exception_Class_NotFound extends Exception {
 	 */
 	public function __construct($class, $message = null, $arguments = [], \Exception $previous = null) {
 		parent::__construct("$class not found. $message", [
-				'class' => $class,
-			] + toArray($arguments), 0, $previous);
+			'class' => $class,
+		] + toArray($arguments), 0, $previous);
 		$this->class = $class;
 	}
 
@@ -43,7 +43,7 @@ class Exception_Class_NotFound extends Exception {
 	 */
 	public function variables(): array {
 		return parent::variables() + [
-				'class' => $this->class,
-			];
+			'class' => $this->class,
+		];
 	}
 }

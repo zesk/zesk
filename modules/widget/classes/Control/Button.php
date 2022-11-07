@@ -54,8 +54,8 @@ class Control_Button extends Control {
 
 	public function themeVariables(): array {
 		return parent::themeVariables() + [
-				'href' => $this->href(),
-				'button_label' => $this->buttonLabel(),
-			];
+			'href' => $this->href(),
+			'button_label' => $this->buttonLabel(),
+		];
 	}
 }

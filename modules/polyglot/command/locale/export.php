@@ -71,8 +71,8 @@ class Command_Locale_Export extends Command_Base {
 			->query_select()
 			->addWhere('status', 'delete')
 			->what([
-			$column => $column,
-		])
+				$column => $column,
+			])
 			->to_array($column, $column);
 		return $exclusions;
 	}

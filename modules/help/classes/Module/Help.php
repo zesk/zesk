@@ -175,16 +175,16 @@ class Module_Help extends Module_JSLib {
 		$query = $this->application->ormRegistry('zesk\\Help')
 			->query_select()
 			->link('zesk\\Help_User', [
-			'require' => false,
-			'alias' => 'hu',
-			'on' => [
-				'user' => $user,
-			],
-		])
+				'require' => false,
+				'alias' => 'hu',
+				'on' => [
+					'user' => $user,
+				],
+			])
 			->where([
-			'X.active' => true,
-			'hu.user' => null,
-		]);
+				'X.active' => true,
+				'hu.user' => null,
+			]);
 		$helps = $query->orm_iterator();
 		$result = [];
 		$mappables = $application->modules->all_hook_arguments('module_help_map', [], []);

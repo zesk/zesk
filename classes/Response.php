@@ -405,9 +405,9 @@ class Response extends Hookable {
 			$content_type = $this->content_type;
 		}
 		if ($this->application->development() && $this->application->configuration->path_get([
-				__CLASS__,
-				'json_to_html',
-			])) {
+			__CLASS__,
+			'json_to_html',
+		])) {
 			if (in_array($this->content_type, [
 				self::CONTENT_TYPE_JSON,
 			])) {
@@ -683,8 +683,8 @@ class Response extends Hookable {
 	 */
 	private static function _cache_parts($url) {
 		$parts = to_array(URL::parse($url)) + [
-				'scheme' => 'none',
-			];
+			'scheme' => 'none',
+		];
 		$parts += [
 			'port' => URL::protocolDefaultPort($parts['scheme']),
 			'scheme' => 'none',

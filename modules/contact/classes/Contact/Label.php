@@ -96,13 +96,13 @@ class Contact_Label extends ORM {
 		return $application->ormRegistry(__CLASS__)
 			->query_select()
 			->what([
-			'id' => 'ID',
-			'name' => 'Name',
-		])
+				'id' => 'ID',
+				'name' => 'Name',
+			])
 			->where([
-			'Type' => $type,
-			'Account' => $account_where,
-		])
+				'Type' => $type,
+				'Account' => $account_where,
+			])
 			->to_array('id', 'name');
 	}
 
@@ -155,10 +155,10 @@ class Contact_Label extends ORM {
 		$rows = $app->ormRegistry(__CLASS__)
 			->query_select()
 			->what([
-			'id' => 'ID',
-			'name' => 'Name',
-			'type' => 'Type',
-		])
+				'id' => 'ID',
+				'name' => 'Name',
+				'type' => 'Type',
+			])
 			->where($where)
 			->to_array('id');
 

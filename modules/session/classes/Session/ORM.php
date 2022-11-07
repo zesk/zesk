@@ -99,9 +99,9 @@ class Session_ORM extends ORM implements Interface_Session {
 	public static function configured(Application $application): void {
 		// 2017-01-01
 		foreach ([
-					 'Session',
-					 'zesk\\Session',
-				 ] as $class) {
+			'Session',
+			'zesk\\Session',
+		] as $class) {
 			$application->configuration->deprecated([
 				$class,
 				'cookie_name',
@@ -274,8 +274,8 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->set_member('expires', $expires);
 		$this->set_member('ip', $request->ip());
 		$this->set_member('data', to_array($this->data) + [
-				'uri' => $request->uri(),
-			]);
+			'uri' => $request->uri(),
+		]);
 		$cookie_options = $this->cookie_options();
 		$application->hooks->add(Response::class . '::headers', function (Response $response) use ($cookie_name, $cookie_value, $cookie_options): void {
 			$response->cookie($cookie_name, $cookie_value, $cookie_options);

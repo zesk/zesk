@@ -88,16 +88,16 @@ class Configuration_Loader_Test extends UnitTest {
 
 		$files = [];
 		foreach ([
-					 $one,
-					 path($path, 'nope'),
-					 $two,
-					 path($path, 'double_nope'),
-					 $three,
-				 ] as $dir) {
+			$one,
+			path($path, 'nope'),
+			$two,
+			path($path, 'double_nope'),
+			$three,
+		] as $dir) {
 			foreach ([
-						 'a.conf',
-						 'b.json',
-					 ] as $f) {
+				'a.conf',
+				'b.json',
+			] as $f) {
 				$files[] = path($dir, $f);
 			}
 		}

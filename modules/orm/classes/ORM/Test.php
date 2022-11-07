@@ -45,8 +45,8 @@ class Test extends \zesk\Test {
 			$results[$class] = $db->queries($app->orm_module()->schema_synchronize($db, [
 				$class,
 			], $options + [
-					'follow' => true,
-				]));
+				'follow' => true,
+			]));
 		}
 		return $results;
 	}

@@ -1030,9 +1030,9 @@ class Timestamp extends Temporal {
 		if ($this->datetime) {
 			// TODO This doesn't actually honor the current locale
 			$formatting = [
-					'Z' => $this->datetime->format('e'),
-					'ZZZ' => $this->datetime->format('T'),
-				] + $formatting;
+				'Z' => $this->datetime->format('e'),
+				'ZZZ' => $this->datetime->format('T'),
+			] + $formatting;
 		}
 		if ($locale && !($options['nohook'] ?? false)) {
 			$formatting = $locale->application->hooks->call_arguments(__CLASS__ . '::formatting', [

@@ -831,9 +831,9 @@ class Module extends \zesk\Module {
 		$settings->prefix_updated('zesk\\Module_Cron::', __CLASS__ . '::');
 		$nrows = $settings->query_delete()
 			->addWhere('name|LIKE', [
-			'Module_Cron::%',
-			'cron::%',
-		])
+				'Module_Cron::%',
+				'cron::%',
+			])
 			->execute()
 			->affectedRows();
 		if ($nrows > 0) {

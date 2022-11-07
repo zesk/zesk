@@ -541,8 +541,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			->query_select()
 			->what_object()
 			->link(Server_Data::class, [
-			'alias' => 'd',
-		])
+				'alias' => 'd',
+			])
 			->addWhere('d.name', Module::class)
 			->addWhere('d.value', serialize(1));
 		$iterator = $servers->orm_iterator();

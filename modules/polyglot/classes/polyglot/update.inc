@@ -88,14 +88,14 @@ class PolyGlot_Update extends ORM {
 					->distinct(true)
 					->what('*locale', 'CONCAT(language,\'_\',dialect)')
 					->where([
-					'language' => $update_locale,
-					[
-						'dialect|!=' => [
-							null,
-							'',
+						'language' => $update_locale,
+						[
+							'dialect|!=' => [
+								null,
+								'',
+							],
 						],
-					],
-				])
+					])
 					->to_array(null, 'locale');
 				$additional_locales = array_merge($additional_locales, $expanded_locales);
 			}

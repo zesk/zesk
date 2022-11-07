@@ -34,17 +34,17 @@ class Content_Link extends ORM {
 	public function clicked(): void {
 		$this->query_update()
 			->values([
-			'*ClickCount' => 'ClickCount+1',
-			'*LastClick' => $this->sql()
-				->now(),
-		])
+				'*ClickCount' => 'ClickCount+1',
+				'*LastClick' => $this->sql()
+					->now(),
+			])
 			->addWhere('ID', $this->id())
 			->execute();
 		$this->query_update()
 			->values([
-			'*FirstClick' => $this->sql()
-				->now(),
-		])
+				'*FirstClick' => $this->sql()
+					->now(),
+			])
 			->addWhere('ID', $this->id())
 			->addWhere('FirstClick', null)
 			->execute();

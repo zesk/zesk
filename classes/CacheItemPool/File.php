@@ -156,7 +156,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @param string $key
 	 *   The key to delete.
 	 *
-	 1	 * @throws InvalidArgumentException
+	 * 1	 * @throws InvalidArgumentException
 	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 *
@@ -176,7 +176,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *
 	 * @param string[] $keys
 	 *   An array of keys that should be removed from the pool.
-
+	 *
 	 * @throws InvalidArgumentException
 	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.

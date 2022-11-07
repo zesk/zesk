@@ -387,8 +387,8 @@ abstract class Locale extends Hookable {
 	 */
 	final public function plural(string $noun, int $number = 2): string {
 		foreach ([
-					 'Locale::plural::' . $noun,
-				 ] as $k) {
+			'Locale::plural::' . $noun,
+		] as $k) {
 			if ($this->has($k)) {
 				return $this->__($k);
 			}

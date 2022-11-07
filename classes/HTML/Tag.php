@@ -142,12 +142,12 @@ class HTML_Tag extends Options {
 	 */
 	public function _to_php() {
 		return 'new ' . __CLASS__ . '(' . implode(', ', [
-				PHP::dump($this->name),
-				PHP::dump($this->options()),
-				PHP::dump($this->inner_html),
-				PHP::dump($this->outer_html),
-				$this->offset,
-			]) . ')';
+			PHP::dump($this->name),
+			PHP::dump($this->options()),
+			PHP::dump($this->inner_html),
+			PHP::dump($this->outer_html),
+			$this->offset,
+		]) . ')';
 	}
 
 	/**

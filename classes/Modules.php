@@ -210,8 +210,8 @@ class Modules {
 			$module_data = $this->modules[$name] ?? null;
 			if (is_array($module_data)) {
 				$result[$name] = $this->modules[$name] + [
-						'status' => 'already loaded',
-					];
+					'status' => 'already loaded',
+				];
 
 				continue;
 			} elseif ($options['check loaded'] ?? false) {
@@ -359,8 +359,8 @@ class Modules {
 		extract($module_data, EXTR_IF_EXISTS);
 
 		$this->modules[$name] = $module_data + [
-				'loading' => true,
-			];
+			'loading' => true,
+		];
 		array_unshift($this->module_loader, $name);
 		$this->register_paths();
 
@@ -522,8 +522,8 @@ class Modules {
 			}
 		}
 		return $result + [
-				$name => $module_data,
-			];
+			$name => $module_data,
+		];
 	}
 
 	public function _reloadFile($module_data) {
@@ -603,9 +603,9 @@ class Modules {
 				'class' => $class,
 			];
 			return $result + [
-					'path' => $module_object->path(),
-					'object' => $module_object,
-				];
+				'path' => $module_object->path(),
+				'object' => $module_object,
+			];
 		} catch (Exception_Class_NotFound $e) {
 			return [
 				'object' => null,
@@ -635,10 +635,10 @@ class Modules {
 			]);
 			$this->application->hooks->call('exception', $e);
 			return [
-					'object' => null,
-					'status' => 'failed',
-					'initialize_exception' => $e,
-				] + $module_data;
+				'object' => null,
+				'status' => 'failed',
+				'initialize_exception' => $e,
+			] + $module_data;
 		}
 	}
 

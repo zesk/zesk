@@ -44,9 +44,9 @@ class Contact_Tag extends ORM {
 	public function grant_user(User $user): void {
 		$this->query_insert()
 			->values([
-			'user' => $user,
-			'contact_tag' => $this->id(),
-		])
+				'user' => $user,
+				'contact_tag' => $this->id(),
+			])
 			->replace()
 			->execute();
 	}

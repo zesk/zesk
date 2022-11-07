@@ -452,13 +452,13 @@ class Module_ORM extends Module {
 			assert($object instanceof ORM);
 			$extras = ['keyed' => $object->hasPrimaryKeys(), 'generic' => count($options) === 0 && empty($mixed)];
 			$this->class_cache[$low_class] = [
-					'table' => $object->table(),
-					'dbname' => $object->databaseName(),
-					'database_name' => $object->databaseName(),
-					'object' => $object,
-					'class' => $object->class_orm(),
-					'id_column' => $object->idColumn(),
-				] + $extras;
+				'table' => $object->table(),
+				'dbname' => $object->databaseName(),
+				'database_name' => $object->databaseName(),
+				'object' => $object,
+				'class' => $object->class_orm(),
+				'id_column' => $object->idColumn(),
+			] + $extras;
 		}
 		return $this->class_cache[$low_class];
 	}

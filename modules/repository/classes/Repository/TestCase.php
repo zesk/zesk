@@ -82,8 +82,8 @@ class Repository_TestCase extends PHPUnit_TestCase {
 		]));
 		foreach ($this->repository_types as $repository_type) {
 			$repo = Repository::factory($this->application, $repository_type, $path, [
-					'test_option' => 'dude',
-				] + $this->repository_options);
+				'test_option' => 'dude',
+			] + $this->repository_options);
 			$this->assertInstanceOf($this->repository_class, $repo);
 			$this->assertEquals(rtrim($path, '/'), rtrim($repo->path(), '/'));
 			$this->assertEquals($repo->option('test_option'), 'dude');

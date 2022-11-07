@@ -76,8 +76,8 @@ class Database_Snapshot extends ORM {
 			->query_select()
 			->what_object()
 			->where([
-			'dbname' => $dbname,
-		])
+				'dbname' => $dbname,
+			])
 			->order_by('created DESC')
 			->limit(0, 1)
 			->one_object();

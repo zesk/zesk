@@ -460,9 +460,9 @@ class Locale_Test extends UnitTest {
 	 */
 	public function test_translate(Locale $locale): void {
 		foreach ([
-					 'Hello',
-					 'world',
-				 ] as $phrase) {
+			'Hello',
+			'world',
+		] as $phrase) {
 			$this->assert_equal($locale->__($phrase), $locale($phrase));
 		}
 	}

@@ -60,10 +60,10 @@ echo HTML::etag('div', '.control-picker-empty', $this->item_selector_empty);
 <?php
 foreach ($this->objects as $object) {
 		$item_content = $this->theme($this->theme_item, [
-		'object' => $object,
-		'selected' => true,
-		'column' => $this->column,
-	]);
+			'object' => $object,
+			'selected' => true,
+			'column' => $this->column,
+		]);
 		echo $item_content;
 	}
 ?>

@@ -97,7 +97,7 @@ abstract class Image_Library {
 
 	/**
 	 * Scale an image size to be within a rectangle specified
-
+	 *
 	 * @param int $image_width
 	 * @param int $image_height
 	 * @param int $width

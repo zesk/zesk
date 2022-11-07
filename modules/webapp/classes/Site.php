@@ -69,17 +69,17 @@ class Site extends ORM {
 		$clusters = $cluster ? $this->application->ormRegistry(Domain::class)
 			->query_select()
 			->where([
-			'type' => Cluster::class,
-			'target' => $cluster->id(),
-		])
+				'type' => Cluster::class,
+				'target' => $cluster->id(),
+			])
 			->orm_iterator()
 			->to_array() : [];
 		$sites = $this->application->ormRegistry(Domain::class)
 			->query_select()
 			->where([
-			'type' => self::class,
-			'target' => $this->id(),
-		])
+				'type' => self::class,
+				'target' => $this->id(),
+			])
 			->orm_iterator()
 			->to_array();
 

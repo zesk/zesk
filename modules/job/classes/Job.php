@@ -254,9 +254,9 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		$application->ormRegistry(__CLASS__)
 			->query_update()
 			->values([
-			'pid' => null,
-			'server' => null,
-		])
+				'pid' => null,
+				'server' => null,
+			])
 			->where($server_pid)
 			->execute();
 		/*
@@ -272,11 +272,11 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 				->query_select()
 				->what_object()
 				->where([
-				'start|<=' => Timestamp::now('UTC'),
-				'pid' => null,
-				'completed' => null,
-				'died|<=' => self::retry_attempts($application),
-			])
+					'start|<=' => Timestamp::now('UTC'),
+					'pid' => null,
+					'completed' => null,
+					'died|<=' => self::retry_attempts($application),
+				])
 				->order_by('priority DESC,died,start');
 			$logger->debug($query->__toString());
 			$iterator = $query->orm_iterator();
@@ -288,9 +288,9 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 					->query_update()
 					->values($server_pid)
 					->where([
-					'pid' => null,
-					'id' => $job->id(),
-				])
+						'pid' => null,
+						'id' => $job->id(),
+					])
 					->execute();
 				// Race condition if we crash before this executes
 				if (!toBool($application->ormFactory(__CLASS__)
@@ -350,9 +350,9 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			->what('pid', 'pid')
 			->what('id', 'id')
 			->where([
-			'pid|!=' => null,
-			'server' => $server,
-		])
+				'pid|!=' => null,
+				'server' => $server,
+			])
 			->to_array('id', 'pid') as $id => $pid) {
 			if (!$application->process->alive($pid)) {
 				$application->logger->debug('Removing stale PID {pid} from Job # {id}', compact('pid', 'id'));
@@ -517,9 +517,9 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	private function release() {
 		$this->query_update()
 			->value([
-			'server' => null,
-			'pid' => null,
-		])
+				'server' => null,
+				'pid' => null,
+			])
 			->addWhere('id', $this->id())
 			->execute();
 		return $this;

@@ -64,9 +64,9 @@ class Controller_Selection_Item extends Controller_ORM {
 			->query_update()
 			->value('add', 0)
 			->where([
-			'id' => $id,
-			'type' => $type,
-		])
+				'id' => $id,
+				'type' => $type,
+			])
 			->execute();
 
 		if ($this->request->has('target')) {

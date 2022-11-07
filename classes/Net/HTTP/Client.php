@@ -609,7 +609,7 @@ class Net_HTTP_Client extends Hookable {
 		$parts = parse_url($this->url());
 		$host = avalue($parts, 'host');
 		$scheme = avalue($parts, 'scheme');
-		$default_port = URL::protocolDefaultPort($scheme);
+		$default_port = URL::protocolPort($scheme);
 		$port = intval(avalue($parts, 'port', $default_port));
 		if ($port !== $default_port) {
 			$host .= ":$port";

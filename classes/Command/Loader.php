@@ -395,9 +395,9 @@ class Command_Loader {
 		}
 		$root_files = null;
 		foreach ([
-					 $_ZESK,
-					 $_SERVER,
-				 ] as $super) {
+			$_ZESK,
+			$_SERVER,
+		] as $super) {
 			if (!is_array($super)) {
 				continue;
 			}

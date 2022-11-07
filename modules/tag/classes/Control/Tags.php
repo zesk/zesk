@@ -161,18 +161,18 @@ class Control_Tags extends Control {
 		$tags_query = $application->ormRegistry($this->orm_class_name())
 			->query_select('main')
 			->link(Label::class, [
-			'alias' => 'label',
-			'path' => 'tag_label',
-		])
+				'alias' => 'label',
+				'path' => 'tag_label',
+			])
 			->addWhat('id', 'label.id')
 			->addWhat('*total', 'COUNT(DISTINCT items.id)')
 			->join("INNER JOIN $selection_item_table items ON items.id=main.$member")
 			->where([
-			'items.type' => $this->selection_type->id(),
-		])
+				'items.type' => $this->selection_type->id(),
+			])
 			->group_by([
-			'label.id',
-		]);
+				'label.id',
+			]);
 		return $tags_query;
 	}
 

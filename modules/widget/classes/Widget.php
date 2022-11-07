@@ -2350,30 +2350,30 @@ class Widget extends Hookable {
 	 */
 	public function themeVariables(): array {
 		return $this->application->variables() + [
-				'request' => $this->request(),
-				'response' => $this->response(),
-				'widget' => $this,
-				'input_attributes' => $input_attributes = $this->inputAttributes(),
-				'data_attributes' => $data_attributes = $this->dataAttributes(),
-				'attributes' => $input_attributes + $data_attributes,
-				'required' => $this->required(),
-				'name' => $this->name(),
-				'column' => $this->column(),
-				'label' => $this->label(),
-				'id' => $this->id(),
-				'context_class' => $this->contextClass(),
-				'empty_string' => $this->empty_string(),
-				'show_size' => $this->showSize(),
-				'object' => $this->object,
-				'model' => $this->object,
-				'value' => $this->value(),
-				'parent' => $this->parent,
-				'children' => $this->children(),
-				'all_children' => $this->all_children(false),
-				'errors' => $this->errors(),
-				'messages' => $this->messages(),
-				'content_children' => $this->content_children,
-			] + $this->theme_variables + $this->options;
+			'request' => $this->request(),
+			'response' => $this->response(),
+			'widget' => $this,
+			'input_attributes' => $input_attributes = $this->inputAttributes(),
+			'data_attributes' => $data_attributes = $this->dataAttributes(),
+			'attributes' => $input_attributes + $data_attributes,
+			'required' => $this->required(),
+			'name' => $this->name(),
+			'column' => $this->column(),
+			'label' => $this->label(),
+			'id' => $this->id(),
+			'context_class' => $this->contextClass(),
+			'empty_string' => $this->empty_string(),
+			'show_size' => $this->showSize(),
+			'object' => $this->object,
+			'model' => $this->object,
+			'value' => $this->value(),
+			'parent' => $this->parent,
+			'children' => $this->children(),
+			'all_children' => $this->all_children(false),
+			'errors' => $this->errors(),
+			'messages' => $this->messages(),
+			'content_children' => $this->content_children,
+		] + $this->theme_variables + $this->options;
 	}
 
 	/**
@@ -2695,12 +2695,12 @@ class Widget extends Hookable {
 		foreach ($this->behaviors as $item) {
 			[$theme, $options] = $item;
 			$content .= $this->application->theme($theme, $options + [
-					'widget' => $this,
-					'object' => $this->object,
-					'content' => $content,
-					'request' => $this->request,
-					'response' => $this->response(),
-				]);
+				'widget' => $this,
+				'object' => $this->object,
+				'content' => $content,
+				'request' => $this->request,
+				'response' => $this->response(),
+			]);
 		}
 		return $content;
 	}

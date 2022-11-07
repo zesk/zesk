@@ -1133,8 +1133,8 @@ class Test extends Hookable {
 			$object = $application->objects->factory($class, $application);
 		} catch (\Exception $e) {
 			throw new Exception_Invalid('Unable to create {class} - Exception {exception_class}: {message}', [
-					'class' => $class,
-				] + Exception::exception_variables($e));
+				'class' => $class,
+			] + Exception::exception_variables($e));
 		}
 		/* @var $object Test_Unit */
 		if (!$object instanceof Interface_Testable) {

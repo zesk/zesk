@@ -374,9 +374,9 @@ foreach ($sections as $section => $variables) {
 		$values = $application->ormRegistry($object_name)
 			->query_select()
 			->what([
-			'Label' => 'Label',
-			'Value' => 'Value',
-		])
+				'Label' => 'Label',
+				'Value' => 'Value',
+			])
 			->addWhere('contact', $id)
 			->to_array();
 	}

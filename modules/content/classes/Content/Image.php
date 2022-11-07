@@ -605,8 +605,8 @@ class Content_Image extends ORM {
 				$old_data->delete();
 			} else {
 				$this->application->logger->info('{class} #{id}: {path}: {percent} REPLACED Data: {new_data_id}, Previous: {data_id}', $__ + [
-						'new_data_id' => $new_data->id(),
-					]);
+					'new_data_id' => $new_data->id(),
+				]);
 			}
 		}
 		return $result;

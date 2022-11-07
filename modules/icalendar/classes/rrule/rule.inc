@@ -1056,16 +1056,16 @@ class Rule {
 			$original_rule['byweekday'] = $wday_strings;
 		}
 		foreach ([
-					 'BYSETPOS' => 'bysetpos',
-					 'BYMONTH' => 'bymonth',
-					 'BYMONTHDAY' => 'bymonthday',
-					 'BYYEARDAY' => 'byyearday',
-					 'BYWEEKNO' => 'byweekno',
-					 'BYDAY' => 'byweekday',
-					 'BYHOUR' => 'byhour',
-					 'BYMINUTE' => 'byminute',
-					 'BYSECOND' => 'bysecond',
-				 ] as $name => $var) {
+			'BYSETPOS' => 'bysetpos',
+			'BYMONTH' => 'bymonth',
+			'BYMONTHDAY' => 'bymonthday',
+			'BYYEARDAY' => 'byyearday',
+			'BYWEEKNO' => 'byweekno',
+			'BYDAY' => 'byweekday',
+			'BYHOUR' => 'byhour',
+			'BYMINUTE' => 'byminute',
+			'BYSECOND' => 'bysecond',
+		] as $name => $var) {
 			if (isset($original_rule[$var])) {
 				$parts[] = "$name=" . self::list_to_string($original_rule[$var]);
 			}

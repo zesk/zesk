@@ -296,9 +296,9 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 */
 	public function variables(): array {
 		return $this->members() + ArrayTools::prefixKeys($this->class->variables(), '_class_') + [
-				'ORM::class' => get_class($this),
-				__CLASS__ . '::class' => get_class($this),
-			];
+			'ORM::class' => get_class($this),
+			__CLASS__ . '::class' => get_class($this),
+		];
 	}
 
 	/**
@@ -1910,9 +1910,9 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		$rename_pattern = preg_quote($rename_pattern, '#');
 		$rename_pattern = strtr($rename_pattern, ['\\{' => '{', '\\}' => '}', ]);
 		$preg_pattern = '#^' . map($rename_pattern, [
-				'(.*)',
-				'([ 0-9]*)',
-			]) . '$#';
+			'(.*)',
+			'([ 0-9]*)',
+		]) . '$#';
 		$matches = null;
 		// If pattern found, pull out new base name (e.g. "Foo (Copy 2)" => "Foo"
 		$base_name = preg_match($preg_pattern, $name, $matches) ? $matches[1] : $name;
@@ -2291,9 +2291,9 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 
 		try {
 			$result = $this->ormFactory($this->polymorphic_leaf, $this->members, [
-					'initialize' => 'internal',
-					'class_object' => $this->class->polymorphic_inherit_class ? $this->class : null,
-				] + $this->options);
+				'initialize' => 'internal',
+				'class_object' => $this->class->polymorphic_inherit_class ? $this->class : null,
+			] + $this->options);
 			return $result;
 		} catch (Exception_Class_NotFound $e) {
 			$this->application->logger->error('Polymorphic conversion failed to class {polymorphic_leaf} from class {class}', [

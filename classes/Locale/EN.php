@@ -148,10 +148,10 @@ class Locale_EN extends Locale {
 		}
 		$mod_10 = $n % 10;
 		return $n . avalue([
-				1 => 'st',
-				2 => 'nd',
-				3 => 'rd',
-			], $mod_10, 'th');
+			1 => 'st',
+			2 => 'nd',
+			3 => 'rd',
+		], $mod_10, 'th');
 	}
 
 	/**

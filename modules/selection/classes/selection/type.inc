@@ -136,21 +136,21 @@ class Selection_Type extends ORM {
 					$this->application->ormRegistry(Selection_Item::class)
 						->query_delete()
 						->where([
-						'id' => $id,
-						'type' => $this,
-					])
+							'id' => $id,
+							'type' => $this,
+						])
 						->execute();
 				} else {
 					$this->application->ormRegistry(Selection_Item::class)
 						->query_update()
 						->value([
-						'add' => $op,
-						'query' => null,
-					])
+							'add' => $op,
+							'query' => null,
+						])
 						->where([
-						'id' => $id,
-						'type' => $this,
-					])
+							'id' => $id,
+							'type' => $this,
+						])
 						->execute();
 				}
 			}
@@ -160,11 +160,11 @@ class Selection_Type extends ORM {
 			$this->application->ormRegistry(Selection_Item::class)
 				->query_insert()
 				->values([
-				'add' => intval($op),
-				'query' => null,
-				'id' => $id,
-				'type' => $this,
-			])
+					'add' => intval($op),
+					'query' => null,
+					'id' => $id,
+					'type' => $this,
+				])
 				->replace(true)
 				->execute();
 		}
@@ -200,10 +200,10 @@ class Selection_Type extends ORM {
 		$n_added = $this->application->ormRegistry('zesk\\Selection_Item')
 			->query_select()
 			->where([
-			'type' => $this,
-			'query' => null,
-			'add' => 1,
-		])
+				'type' => $this,
+				'query' => null,
+				'add' => 1,
+			])
 			->what('*n', 'COUNT(id)')
 			->one_integer('n');
 		if ($n_added) {
@@ -214,10 +214,10 @@ class Selection_Type extends ORM {
 		$n_excluded = $this->application->ormRegistry('zesk\\Selection_Item')
 			->query_select()
 			->where([
-			'type' => $this,
-			'query' => null,
-			'add' => 0,
-		])
+				'type' => $this,
+				'query' => null,
+				'add' => 0,
+			])
 			->what('*n', 'COUNT(id)')
 			->one_integer('n');
 		if ($n_excluded) {

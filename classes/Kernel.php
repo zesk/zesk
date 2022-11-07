@@ -375,10 +375,10 @@ class Kernel {
 	 */
 	public function setDeprecated(string $set): self {
 		$this->deprecated = [
-								self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
-								self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
-								self::DEPRECATED_LOG => self::DEPRECATED_LOG,
-							][$set] ?? self::DEPRECATED_IGNORE;
+			self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
+			self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
+			self::DEPRECATED_LOG => self::DEPRECATED_LOG,
+		][$set] ?? self::DEPRECATED_IGNORE;
 		return $this;
 	}
 
@@ -398,16 +398,16 @@ class Kernel {
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
 				throw new Exception_Deprecated("${reason} Deprecated: {calling_function}\n{backtrace}", [
-						'reason' => $reason,
-						'calling_function' => calling_function(),
-						'backtrace' => _backtrace(4 + $depth),
-					] + $arguments);
+					'reason' => $reason,
+					'calling_function' => calling_function(),
+					'backtrace' => _backtrace(4 + $depth),
+				] + $arguments);
 			case self::DEPRECATED_LOG:
 				$this->logger->error("${reason} Deprecated: {calling_function}\n{backtrace}", [
-						'reason' => $reason ? $reason : 'DEPRECATED',
-						'calling_function' => calling_function(),
-						'backtrace' => _backtrace(4 + $depth),
-					] + $arguments);
+					'reason' => $reason ? $reason : 'DEPRECATED',
+					'calling_function' => calling_function(),
+					'backtrace' => _backtrace(4 + $depth),
+				] + $arguments);
 
 				break;
 		}

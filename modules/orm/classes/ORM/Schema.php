@@ -267,9 +267,9 @@ abstract class ORM_Schema extends Hookable {
 			$table->columnAdd(new Database_Column($table, $column_name, $column_spec));
 		}
 		foreach ([
-					 'indexes' => Database_Index::TYPE_INDEX,
-					 'unique keys' => Database_Index::TYPE_UNIQUE,
-				 ] as $key => $index_type) {
+			'indexes' => Database_Index::TYPE_INDEX,
+			'unique keys' => Database_Index::TYPE_UNIQUE,
+		] as $key => $index_type) {
 			if (!array_key_exists($key, $table_schema)) {
 				continue;
 			}

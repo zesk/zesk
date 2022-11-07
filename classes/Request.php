@@ -421,9 +421,9 @@ class Request extends Hookable {
 			}
 			$key = "$type/$subtype";
 			$attr['pattern'] = '#' . strtr($key, [
-					'*' => '[^/]+',
-					'+' => '\\+',
-				]) . '#';
+				'*' => '[^/]+',
+				'+' => '\\+',
+			]) . '#';
 			$result[$key] = $attr;
 		}
 		uasort($result, fn ($a, $b) => zesk_sort_weight_array($a, $b));
@@ -885,7 +885,7 @@ class Request extends Hookable {
 	 */
 	public function port(): int {
 		$this->_valid_url_parts();
-		return intval($this->url_parts['port'] || URL::protocolDefaultPort($this->scheme()));
+		return intval($this->url_parts['port'] || URL::protocolPort($this->scheme()));
 	}
 
 	/**
@@ -1093,8 +1093,8 @@ class Request extends Hookable {
 			}
 		}
 		return $result + [
-				'limiting_factor' => $min_key,
-			];
+			'limiting_factor' => $min_key,
+		];
 	}
 
 	/**
@@ -1150,12 +1150,12 @@ class Request extends Hookable {
 			$parts = [];
 		}
 		$this->url_parts = $parts + [
-				'url' => $this->url,
-				'scheme' => 'http',
-				'host' => 'localhost',
-				'port' => 80,
-				'path' => '',
-			];
+			'url' => $this->url,
+			'scheme' => 'http',
+			'host' => 'localhost',
+			'port' => 80,
+			'path' => '',
+		];
 	}
 
 	/**
@@ -1186,9 +1186,9 @@ class Request extends Hookable {
 		$headers = [];
 		foreach ($server as $key => $value) {
 			foreach ([
-						 'http-' => true,
-						 'content-' => false,
-					 ] as $prefix => $unprefix) {
+				'http-' => true,
+				'content-' => false,
+			] as $prefix => $unprefix) {
 				$len = strlen($prefix);
 				if (substr($key, 0, $len) === $prefix) {
 					$headers[$unprefix ? substr($key, $len) : $key] = $value;
@@ -1268,9 +1268,9 @@ class Request extends Hookable {
 			return true;
 		}
 		return $this->acceptPriority([
-				'application/json',
-				'text/html',
-			]) === 'application/json';
+			'application/json',
+			'text/html',
+		]) === 'application/json';
 	}
 
 	/**

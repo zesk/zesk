@@ -351,9 +351,9 @@ class Control_Edit extends Control {
 		$hierarchy = $this->application->classes->hierarchy($this, __CLASS__);
 		foreach ($hierarchy as $index => $class) {
 			$hierarchy[$index] = strtr(strtolower($class), [
-					'_' => '/',
-					'\\' => '/',
-				]) . '/';
+				'_' => '/',
+				'\\' => '/',
+			]) . '/';
 		}
 		// Set default theme to control/foo/prefix, control/foo/header etc.
 		foreach (to_list('prefix;header;footer;suffix') as $var) {
@@ -386,23 +386,23 @@ class Control_Edit extends Control {
 			$this->form_attributes['enctype'] = 'multipart/form-data';
 		}
 		return [
-				'widgets' => $this->children(),
-				'theme_prefix' => $this->theme_prefix,
-				'theme_suffix' => $this->theme_suffix,
-				'theme_header' => $this->theme_header,
-				'theme_row' => $this->theme_row,
-				'theme_footer' => $this->theme_footer,
-				'form_tag' => $this->form_tag,
-				'form_attributes' => $this->form_attributes,
-				'label_attributes' => $this->label_attributes,
-				'widget_tag' => $this->widget_tag,
-				'widget_attributes' => $this->widget_attributes,
-				'widget_wrap_tag' => $this->widget_wrap_tag,
-				'widget_wrap_attributes' => $this->widget_wrap_attributes,
-				'nolabel_widget_wrap_attributes' => $this->nolabel_widget_wrap_attributes ?? $this->widget_wrap_attributes,
-				'form_preserve_hidden' => $this->form_preserve_hidden,
-				'theme_widgets' => $this->theme_widgets,
-				'title' => $this->title(),
-			] + parent::themeVariables() + $this->options;
+			'widgets' => $this->children(),
+			'theme_prefix' => $this->theme_prefix,
+			'theme_suffix' => $this->theme_suffix,
+			'theme_header' => $this->theme_header,
+			'theme_row' => $this->theme_row,
+			'theme_footer' => $this->theme_footer,
+			'form_tag' => $this->form_tag,
+			'form_attributes' => $this->form_attributes,
+			'label_attributes' => $this->label_attributes,
+			'widget_tag' => $this->widget_tag,
+			'widget_attributes' => $this->widget_attributes,
+			'widget_wrap_tag' => $this->widget_wrap_tag,
+			'widget_wrap_attributes' => $this->widget_wrap_attributes,
+			'nolabel_widget_wrap_attributes' => $this->nolabel_widget_wrap_attributes ?? $this->widget_wrap_attributes,
+			'form_preserve_hidden' => $this->form_preserve_hidden,
+			'theme_widgets' => $this->theme_widgets,
+			'title' => $this->title(),
+		] + parent::themeVariables() + $this->options;
 	}
 }

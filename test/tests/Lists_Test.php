@@ -73,13 +73,13 @@ class Lists_Test extends UnitTest {
 		];
 		$datum = [];
 		foreach ([
-					 false,
-					 true,
-				 ] as $list_is_array) {
+			false,
+			true,
+		] as $list_is_array) {
 			foreach ([
-						 false,
-						 true,
-					 ] as $add_is_array) {
+				false,
+				true,
+			] as $add_is_array) {
 				foreach ($lists as $list) {
 					foreach ($adds as $add) {
 						foreach ($seps as $sep) {

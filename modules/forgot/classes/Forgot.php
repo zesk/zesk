@@ -88,9 +88,9 @@ class Forgot extends ORM {
 		$query->value('*updated', $query->sql()
 			->now())
 			->where([
-			'user' => $user,
-			'updated' => null,
-		]);
+				'user' => $user,
+				'updated' => null,
+			]);
 		$query->execute();
 		return $this;
 	}

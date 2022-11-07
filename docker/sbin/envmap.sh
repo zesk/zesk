@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eou pipefail
+set -eo pipefail
 
 sed_file=$(mktemp)
 for i in $(set | cut -d = -f 1); do

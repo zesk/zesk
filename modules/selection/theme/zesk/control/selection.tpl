@@ -113,8 +113,8 @@ if (is_array($this->actions) && count($this->actions) > 0) {
 				$title = $settings['title'];
 			}
 			$settings['href'] = map($href, [
-			'name' => $this->name,
-		]);
+				'name' => $this->name,
+			]);
 			echo HTML::tag('li', HTML::tag('a', $settings, $title));
 		}
 		echo HTML::tag_close('ul');

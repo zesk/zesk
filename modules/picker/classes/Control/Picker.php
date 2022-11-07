@@ -44,7 +44,7 @@ class Control_Picker extends Control {
 	 * subclass_class_name/item
 	 * control/picker/item
 	 *
-
+	 *
 	 * @var string
 	 */
 	protected $theme_item = null;

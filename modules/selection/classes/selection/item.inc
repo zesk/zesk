@@ -58,9 +58,9 @@ class Selection_Item extends ORM {
 			$object->query_update()
 				->value('query', $new_query_id)
 				->where([
-				'query' => $old_query_id,
-				'type' => $new_type,
-			])
+					'query' => $old_query_id,
+					'type' => $new_type,
+				])
 				->execute();
 		}
 	}

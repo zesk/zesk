@@ -36,13 +36,13 @@ class Command_WebApp_Domains extends \zesk\Command_Base {
 		$result = $this->application->ormRegistry(Domain::class)
 			->query_select()
 			->what([
-			'name' => 'name',
-			'active' => 'active',
-		])
+				'name' => 'name',
+				'active' => 'active',
+			])
 			->order_by([
-			'name',
-			'active DESC',
-		])
+				'name',
+				'active DESC',
+			])
 			->to_array('name', 'active');
 		return $this->render_format($result);
 	}
