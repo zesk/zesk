@@ -392,16 +392,16 @@ function toInteger(mixed $s, int $def = 0): int {
 }
 
 /**
- * Ensures a value is an double value.
+ * Ensures a value is a float value.
  * If not, the default value is returned.
  *
  * @param mixed $s
- *            Value to convert to double
- * @param float $def
- *            The default value. Not converted to double.
- * @return double The double value, or $def if it can not be converted to an integer
+ *            Value to convert to float
+ * @param ?float $def
+ *            The default value. Not converted to float.
+ * @return float The value, or $def if it can not be converted to a float
  */
-function to_double(mixed $s, float $def = null): float {
+function toFloat(mixed $s, float $def = null): float {
 	return is_numeric($s) ? floatval($s) : floatval($def);
 }
 
@@ -425,7 +425,7 @@ function toList(mixed $mixed, array $default = [], string $delimiter = ';'): arr
 	} elseif (is_array($mixed)) {
 		return $mixed;
 	} elseif (is_object($mixed) && method_exists($mixed, 'to_list')) {
-		return to_list($mixed->to_list());
+		return toList($mixed->to_list());
 	} else {
 		return $default;
 	}
