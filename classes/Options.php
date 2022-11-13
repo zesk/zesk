@@ -345,16 +345,15 @@ class Options implements \ArrayAccess {
 	 *
 	 * @param string $name Option to retrieve as an array value.
 	 * @param mixed $default Value to return if this option is not set, is not a string or is not an array.
-	 * @param string $delimiter If the value is the string, the delimiter used to convert to an array using {@link explode() explode()}.
 	 * @return array The string exploded by $delimiter, or the array value. The default value is passed back without modification.
 	 * @see is_array(), explode()
 	 */
-	public function optionIterable(string $name, ?iterable $default = [], string $delimiter = ';'): iterable {
+	public function optionIterable(string $name, ?iterable $default = []): iterable {
 		$name = self::_optionKey($name);
 		if (!isset($this->options[$name])) {
-			return to_iterable($default, [], $delimiter);
+			return toIterable($default);
 		}
-		return to_iterable($this->options[$name], $default, $delimiter);
+		return toIterable($this->options[$name]);
 	}
 
 	/**

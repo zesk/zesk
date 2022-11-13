@@ -85,24 +85,24 @@ class URL_Test extends UnitTest {
 		$this->assert($result === $test_result, "$result === $test_result");
 	}
 
-	public function test_unparse(): void {
-		$parts = null;
-		URL::unparse($parts);
-
-		$urls = ['http://www.test.com:81/SIMPLE.html' => 'http://www.test.com:81/SIMPLE.html', 'http://john:dude@www.test.com:81/SIMPLE.html' => 'http://john:dude@www.test.com:81/SIMPLE.html', 'http:/www.test.com/SIMPLE.html' => false, 'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag', 'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag', 'file:///usr/local/etc/php.ini' => 'file:///usr/local/etc/php.ini', 'FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini' => 'ftp://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini', ];
-		foreach ($urls as $u => $u_final) {
-			$this->assert_equal(URL::is($u), is_string($u_final), "Is URL failed: $u");
-			$parts = URL::parse($u);
-			if ($u_final === false) {
-				$this->assert($u_final === $parts, $u);
-			} else {
-				$u1 = URL::unparse($parts);
-				$parts1 = URL::parse($u1);
-				$u2 = URL::unparse($parts1);
-				$this->assert("'$u1' === '$u2'", $u);
-				$this->assert("'$u2' === '$u_final'", $u);
-			}
+	public function data_unparse(): array {
+		$rows = [];
+		foreach (['http://www.test.com:81/SIMPLE.html' => 'http://www.test.com:81/SIMPLE.html', 'http://john:dude@www.test.com:81/SIMPLE.html' => 'http://john:dude@www.test.com:81/SIMPLE.html', 'http:/www.test.com/SIMPLE.html' => false, 'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag', 'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag', 'file:///usr/local/etc/php.ini' => 'file:///usr/local/etc/php.ini', 'FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini' => 'ftp://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini', ] as $u => $u_final) {
+			$rows[] = [$u_final, $u];
 		}
+		return $rows;
+	}
+
+	public function test_unparse(string|bool $expected, string $url): void {
+		if ($expected === false) {
+			$this->expectException(Exception_Syntax::class);
+		}
+		$parts = URL::parse($url);
+		$u1 = URL::unparse($parts);
+		$parts1 = URL::parse($u1);
+		$u2 = URL::unparse($parts1);
+		$this->assertEquals($u1, $u2);
+		$this->assertEquals($u2, $expected);
 	}
 
 	public function data_change_host(): array {
@@ -230,6 +230,9 @@ class URL_Test extends UnitTest {
 	 * @dataProvider data_normalize
 	 */
 	public function test_normalize($expected, $url): void {
+		if ($url === false) {
+			$this->expectException(Exception_Syntax::class);
+		}
 		$this->assertEquals($expected, URL::normalize($url));
 	}
 
@@ -280,7 +283,7 @@ class URL_Test extends UnitTest {
 	}
 
 	public function data_remove_password(): array {
-		return [['http://joe@example.com/', 'http://joe:password@example.com/'], ['http://example.com/', 'https://:password@example.com/'], ];
+		return [['http://joe@example.com/', 'http://joe:password@example.com/'], ['https://example.com/', 'https://:password@example.com/'], ['http://example.com/', 'http://:password@example.com/']];
 	}
 
 	/**
@@ -310,19 +313,7 @@ class URL_Test extends UnitTest {
 
 	public function data_schema(): array {
 		$output = [];
-		foreach ([
-			'http://www.example.com' => 'http',
-			'https://www.example.com' => 'https',
-			'ftp://www.example.com' => 'ftp',
-			'file://foo' => 'file',
-			'mailto:john@doe.com' => 'mailto',
-			'HTTP://www.example.com' => 'http',
-			'HTTPS://www.example.com' => 'https',
-			'FTP://www.example.com' => 'ftp',
-			'FiLe://foo' => 'file',
-			'MaIlTo:john@doe.com' => 'mailto',
-			'mysql://foo:bar@localhost/db_name?table_prefix=323' => 'mysql',
-		] as $url => $expected) {
+		foreach (['http://www.example.com' => 'http', 'https://www.example.com' => 'https', 'ftp://www.example.com' => 'ftp', 'file://foo' => 'file', 'mailto:john@doe.com' => 'mailto', 'HTTP://www.example.com' => 'http', 'HTTPS://www.example.com' => 'https', 'FTP://www.example.com' => 'ftp', 'FiLe://foo' => 'file', 'MaIlTo:john@doe.com' => 'mailto', 'mysql://foo:bar@localhost/db_name?table_prefix=323' => 'mysql', ] as $url => $expected) {
 			$output[] = [$expected, $url];
 		}
 		return $output;

@@ -1832,7 +1832,7 @@ class Class_ORM extends Hookable {
 				if ($v === null) {
 					break;
 				}
-				$data[$column] = to_double($v);
+				$data[$column] = toFloat($v);
 
 				break;
 			case self::type_text:

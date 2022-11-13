@@ -11,6 +11,14 @@ namespace zesk;
  *
  */
 class UnitTest extends PHPUnit_TestCase {
+	public function log($message, array $args): void {
+		echo(map($message, $args) . "\n");
+	}
+
+	final public function option(string $name, mixed $default = null): mixed {
+		return $this->application->configuration->path_get([get_class($this), $name], $default);
+	}
+
 	/**
 	 *
 	 * @param boolean $condition

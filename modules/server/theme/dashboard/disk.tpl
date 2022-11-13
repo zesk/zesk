@@ -13,9 +13,9 @@ namespace zesk;
 /* @var $response zesk\Response */
 /* @var $current_user User */
 /* @var $platform Server_Platform */
-$disk_used_percent_error = to_double($this->disk_used_percent_error ?? $zesk->configuration->path_get(Server::class . '::disk_used_percent_error'), 0.9);
-$disk_used_percent_warning = to_double($this->disk_used_percent_warning ?? $zesk->configuration->path_get(Server::class . '::disk_used_percent_warning'), 0.8);
-$disk_used_percent_notice = to_double($this->disk_used_percent_notice ?? $zesk->configuration->path_get(Server::class . '::disk_used_percent_notice'), 0.7);
+$disk_used_percent_error = toFloat($this->disk_used_percent_error ?? $zesk->configuration->path_get(Server::class . '::disk_used_percent_error'), 0.9);
+$disk_used_percent_warning = toFloat($this->disk_used_percent_warning ?? $zesk->configuration->path_get(Server::class . '::disk_used_percent_warning'), 0.8);
+$disk_used_percent_notice = toFloat($this->disk_used_percent_notice ?? $zesk->configuration->path_get(Server::class . '::disk_used_percent_notice'), 0.7);
 $df = System::volume_info();
 ob_start();
 $status = '';

@@ -15,8 +15,6 @@ class Router_Test extends UnitTest {
 		$this->application->theme_path($this->test_sandbox());
 
 		$url_pattern = 'foo';
-		$defaults = null;
-		$match_options = null;
 		$testx->add_route($url_pattern, [
 			'theme' => 'Router-Test',
 		]);
@@ -24,23 +22,19 @@ class Router_Test extends UnitTest {
 		$request = new Request($this->application, [
 			'url' => 'http://test/',
 		]);
-		$this->assert($testx->match($request) === null);
+		$this->assertNull($testx->match($request));
 
 		$app = $this->application;
 
 		$app->router = $testx;
-		$request = new Request($this->application, [
-			'url' => 'http://www.example.com/foo',
-		]);
+		$request = Request::factory($this->application, 'http://www.example.com/foo');
 		$response = $app->main($request);
 
 		// Avoids doing header() in test code
 		$response->setOption('skip_response_headers', true);
 		$content = $response->render();
 
-		$this->assert_contains($content, $hash);
-
-		$testx->__sleep();
+		$this->assertStringContainsString($hash, $content);
 	}
 
 	public function test_cached(): void {

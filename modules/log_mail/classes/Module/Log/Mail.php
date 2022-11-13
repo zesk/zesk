@@ -102,7 +102,7 @@ class Module_Log_Mail extends Module {
 			} elseif ($log_mail->option('force_to')) {
 				$to = $mail->header(Mail::HEADER_TO);
 				if (!str_contains($to, 'bounce-test')   && !str_contains($to, 'bounce@')) {
-					$mail->header(Mail::HEADER_TO, $log_mail->option('force_to'));
+					$mail->setHeader(Mail::HEADER_TO, $log_mail->option('force_to'));
 				}
 			}
 		}

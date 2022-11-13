@@ -58,18 +58,18 @@ class URL {
 	 *            Query string to parse (Does NOT parse URLs)
 	 * @param string $name
 	 *            Name of field to return, or null to return an array
-	 * @param string $default
+	 * @param ?string $default
 	 *            Value to return if name not found in query string
-	 * @return mixed Parsed query string
+	 * @return ?string Parsed query string
 	 */
-	public static function queryParseInsensitive($qs, $name = null, $default = null) {
+	public static function queryParseInsensitive(string $qs, string $name, string $default = null): ?string {
 		$res = [];
 		parse_str($qs, $res);
-		$res = array_change_key_case($res);
-		if ($name === null) {
-			return $res;
+		if (!is_array($res)) {
+			return $default;
 		}
-		return avalue($res, $name, $default);
+		$res = array_change_key_case($res);
+		return $res[strtolower($name)] ?? $default;
 	}
 
 	/**
@@ -352,8 +352,8 @@ class URL {
 		foreach ($result as $k => $v) {
 			$result[$k] = urldecode(strval($v));
 		}
-		$scheme = strtolower($result['scheme'] ?? '');
-		if ($scheme === 'mailto' && array_key_exists('path', $result)) {
+		$result['scheme'] = strtolower($result['scheme'] ?? '');
+		if ($result['scheme'] === 'mailto' && array_key_exists('path', $result)) {
 			$path = $result['path'];
 			unset($result['path']);
 			[$user, $host] = pairr($path, '@', '', $path);
@@ -399,15 +399,13 @@ class URL {
 		$mailto = ($scheme === 'mailto');
 		$url = $scheme . ($mailto ? ':' : '://');
 
-		$temp = avalue($parts, 'user');
-		if ($temp !== null) {
-			$url .= urlencode($temp);
-
-			$temp = avalue($parts, 'pass');
-			if ($temp !== null) {
-				$url .= ':' . urlencode($parts['pass']);
+		$user = $parts['user'] ?? '';
+		$pass = $parts['pass'] ?? '';
+		if ($user || $pass) {
+			$url .= urlencode($user);
+			if (!empty($pass)) {
+				$url .= ':' . urlencode($pass);
 			}
-
 			$url .= '@';
 		}
 
@@ -417,20 +415,17 @@ class URL {
 			$url .= ':' . $parts['port'];
 		}
 		if (!$mailto) {
-			$temp = $parts['path'] ?? '';
-			if (!empty($temp)) {
-				if ($temp[0] !== '/') {
-					$temp = "/$temp";
+			$path = $parts['path'] ?? '';
+			if (!empty($path)) {
+				if ($path[0] !== '/') {
+					$path = "/$path";
 				}
-				$url .= $temp;
 			} else {
-				$url .= '/';
+				$path = '/';
 			}
+			$url .= $path;
 			$temp = $parts['query'] ?? '';
 			if ($temp) {
-				if (!str_ends_with($url, '/')) {
-					$url .= '/';
-				}
 				$url .= '?' . $temp;
 			}
 
@@ -528,7 +523,8 @@ class URL {
 	 *
 	 * @param string $url
 	 *            A URL to parse
-	 * @return string The normalized URL, or false if the URL is not valid
+	 * @return string The normalized URL
+	 * @throws Exception_Syntax
 	 */
 	public static function normalize(string $url): string {
 		$p = self::parse($url);

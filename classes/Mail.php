@@ -6,6 +6,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -59,51 +60,44 @@ class Mail extends Hookable {
 
 	/**
 	 *
-	 * @var array
 	 */
-	public $headers = [];
+	public array $headers = [];
 
 	/**
 	 *
-	 * @var string
 	 */
-	public $body = '';
+	public string $body = '';
 
 	/**
 	 *
-	 * @var integer
 	 */
-	public $sent = null;
+	public int $sent = 0;
 
 	/**
 	 *
-	 * @var string
 	 */
-	public $method = null;
+	public string $method = '';
 
 	/**
 	 *
-	 * @var boolean
+	 *
 	 */
-	private static $debug = false;
+	private static bool $debug = false;
 
 	/**
 	 *
-	 * @var string
 	 */
-	private static $log = null;
+	private static string $log = '';
 
 	/**
 	 *
-	 * @var resource
 	 */
-	private static $fp = null;
+	private static ?resource $fp = null;
 
 	/**
 	 *
-	 * @var boolean
 	 */
-	private static $disabled = null;
+	private static bool $disabled = false;
 
 	/**
 	 * Create a Mail object
@@ -117,7 +111,7 @@ class Mail extends Hookable {
 		$this->inheritConfiguration();
 		$this->headers = $headers;
 		$this->body = $body;
-		$this->sent = null;
+		$this->sent = 0;
 	}
 
 	/**
@@ -137,21 +131,27 @@ class Mail extends Hookable {
 	 *
 	 * @param string $name
 	 * @param string $set
-	 *        	Value to set
+	 *            Value to set
 	 *
 	 * @return self
 	 */
-	public function header($name, $set = null) {
-		if ($set === null) {
-			return avalue($this->headers, $name, null);
-		}
+	public function header(string $name): array|string {
+		return $this->headers[$name] ?? '';
+	}
+
+	/**
+	 * @param string $name
+	 * @param array|string $set
+	 * @return $this
+	 */
+	public function setHeader(string $name, array|string $set): self {
 		$this->headers[$name] = $set;
 		return $this;
 	}
 
 	/**
 	 *
-	 * @param zesk\Application $application
+	 * @param Application $application
 	 */
 	public static function hooks(Application $application): void {
 		$application->hooks->add(Hooks::HOOK_CONFIGURED, __CLASS__ . '::configured');
@@ -159,7 +159,7 @@ class Mail extends Hookable {
 
 	/**
 	 *
-	 * @param zesk\Application $application
+	 * @param Application $application
 	 */
 	public static function configured(Application $application): void {
 		$config = $application->configuration;
@@ -167,35 +167,25 @@ class Mail extends Hookable {
 		/*
 		 * Load globals
 		 */
-		self::$debug = toBool($config->path_get([
-			__CLASS__,
-			'debug',
-		]));
-		self::$log = $application->paths->expand($config->path_get([
-			__CLASS__,
-			'log',
-		]));
+		self::$debug = toBool($config->path_get([__CLASS__, 'debug', ]));
+		self::$log = $application->paths->expand($config->path_get([__CLASS__, 'log', ]));
 		self::$fp = null;
-		self::$disabled = toBool($config->path_get([
-			__CLASS__,
-			'disabled',
-		]));
+		self::$disabled = toBool($config->path_get([__CLASS__, 'disabled', ]));
 	}
 
 	/**
 	 * Send a Mail object
 	 *
-	 * @return boolean|Mail
+	 * @return self
 	 */
-	public function send() {
-		$smtp_send = $this->option('SMTP_URL');
-
+	public function send(): self {
 		$this->_log($this->headers, $this->body);
 
 		if (!$this->call_hook_arguments('send', [], true)) {
-			return null;
+			$this->method = 'send-hook-false';
+			return $this;
 		}
-		if ($this->sent !== null) {
+		if ($this->sent !== 0) {
 			return $this;
 		}
 		if (self::$debug) {
@@ -204,8 +194,9 @@ class Mail extends Hookable {
 		if (self::$disabled) {
 			$this->sent = time();
 			$this->method = 'disabled';
-			return null;
+			return $this;
 		}
+		$smtp_send = $this->option('SMTP_URL');
 		if ($smtp_send) {
 			return $this->_send_smtp();
 		}
@@ -215,56 +206,66 @@ class Mail extends Hookable {
 	/**
 	 * Internal function to send by echo
 	 *
-	 * @return boolean
+	 * @return self
 	 */
-	private function _send_echo() {
-		$eol = self::mail_eol();
-		echo '<pre class="mail-debug">' . htmlspecialchars(self::render_headers($this->headers) . $eol . $eol . $this->body) . '</pre>';
+	private function _send_echo(): self {
+		$eol = self::mailEOL();
+		$lines = [];
+		$lines[] = '<pre class="mail-debug">';
+		$lines[] = htmlspecialchars(self::renderHeaders($this->headers));
+		$lines[] = $eol . $eol;
+		$lines[] = $this->body;
+		$lines[] = '</pre>';
+		print(implode('', $lines));
+
 		$this->sent = time();
 		$this->method = 'echo';
-		return true;
+		return $this;
 	}
 
 	/**
 	 * Send using SMTP_URL and SMTP_OPTIONS which is, oddly, formatted as HTML attributes optionally
 	 *
-	 * @return Mail|null
+	 * @return Mail
+	 * @throws Exception_Connect|Exception_Syntax
 	 */
-	private function _send_smtp() {
-		$smtp_send = $this->option('SMTP_URL');
-		$to = avalue($this->headers, 'To', null);
-		$from = avalue($this->headers, 'From', null);
+	private function _send_smtp(): self {
+		$url = $this->option('SMTP_URL');
+		$to = $this->headers['To'] ?? null;
+		$from = $this->headers['From'] ?? null;
 		$body = str_replace("\r\n", "\n", $this->body);
 		$body = str_replace("\n", "\r\n", $body);
-		$smtp = new Net_SMTP_Client($this->application, $smtp_send, $this->optionArray('SMTP_OPTIONS'));
+		$smtp = new Net_SMTP_Client($this->application, $url, $this->optionArray('SMTP_OPTIONS'));
 		$this->method = 'smtp';
-		if ($smtp->send($from, $to, self::render_headers($this->headers), $body)) {
+		if ($smtp->send($from, $to, self::renderHeaders($this->headers), $body)) {
 			$this->sent = time();
 			return $this;
 		}
-		return null;
+
+		throw new Exception_Connect('SMTP failed');
 	}
 
 	/**
 	 *
-	 * @return Mail
+	 * @return self
 	 */
-	private function _send_mail() {
-		$to = avalue($this->headers, 'To', null);
-		$from = avalue($this->headers, 'From', null);
+	private function _send_mail(): self {
+		$to = $this->headers['To'] ?? null;
+		$from = $this->headers ['From'] ?? null;
 		$headers = $this->headers;
-		$subject = avalue($this->headers, 'Subject', '');
+		$subject = $this->headers['Subject'] ?? '';
 		unset($headers['To']);
 		unset($headers['Subject']);
 		$body = str_replace("\r", '', $this->body);
 		if ($from) {
-			$from_email = self::parse_address($from, 'email');
-			$mailopts = "-t -f$from_email";
+			$address = self::parse_address($from);
+			$from_email = $address['email'];
+			$options = "-t -f$from_email";
 			ini_set('sendmail_from', $from);
 		} else {
-			$mailopts = null;
+			$options = null;
 		}
-		$result = mail($to, $subject, $body, self::render_headers($headers), $mailopts);
+		$result = mail($to, $subject, $body, self::renderHeaders($headers), $options);
 		if ($from) {
 			ini_restore('sendmail_from');
 		}
@@ -275,90 +276,90 @@ class Mail extends Hookable {
 		return $this;
 	}
 
-	private static function mail_eol() {
+	private static function mailEOL(): string {
 		return \is_windows() ? "\r\n" : "\n";
 	}
 
 	/**
-	 * Set/get Mail debugging
+	 * Get mail debugging status
 	 *
-	 * @param boolean $set
-	 * @return boolean
+	 * @return bool
 	 */
-	public static function debug($set = null) {
-		if ($set !== null) {
-			self::$debug = $set;
-		}
+	public static function debug(): bool {
 		return self::$debug;
 	}
 
-	private static function trim_mail_line($line) {
-		return trim(str_replace([
-			"\r",
-			"\n",
-		], [
-			'',
-			'',
-		], $line));
+	/**
+	 * Set mail debugging
+	 *
+	 * @param bool $set
+	 * @return void
+	 */
+	public static function setDebug(bool $set): void {
+		self::$debug = $set;
 	}
 
-	public static function parse_address($email, $part = null) {
+	private static function trim_mail_line(string $line): string {
+		return trim(str_replace(["\r", "\n", ], ['', '', ], $line));
+	}
+
+	/**
+	 * @param string $email
+	 * @return array
+	 */
+	public static function parse_address(string $email): array {
+		return self::parseAddress($email);
+	}
+
+	/**
+	 * Parse an email address in various form
+	 *
+	 * @param string $email
+	 * @return array
+	 */
+	public static function parseAddress(string $email): array {
 		$matches = [];
 		$result = [];
 		$atom = '[- A-Za-z0-9!#$%&\'*+\/=?^_`{|}~]';
 		$atext = "$atom+";
 		$domain = '[-A-Za-z0-9.]+';
 		$white = '\s+';
-		if (preg_match('/(' . $atext . '|"[^\"]")' . $white . '<(' . $atext . ')@(' . $domain . ')>/', $email, $matches)) {
-			$result['length'] = strlen($matches[0]);
-			$result['text'] = $matches[0];
-			$result['name'] = unquote($matches[1]);
-			$result['email'] = $matches[2] . '@' . strtolower($matches[3]);
-			$result['user'] = $matches[2];
-			$result['host'] = strtolower($matches[3]);
-		} elseif (preg_match('/<(' . $atext . ')@(' . $domain . ')>/', $email, $matches)) {
-			$result['length'] = strlen($matches[0]);
-			$result['text'] = $matches[0];
-			$result['name'] = '';
-			$result['email'] = $matches[1] . '@' . strtolower($matches[2]);
-			$result['user'] = $matches[1];
-			$result['host'] = strtolower($matches[2]);
-		} elseif (preg_match('/(' . $atext . ')@(' . $domain . ')/', $email, $matches)) {
-			$result['length'] = strlen($matches[0]);
-			$result['text'] = $matches[0];
-			$result['name'] = '';
-			$result['email'] = $matches[1] . '@' . strtolower($matches[2]);
-			$result['user'] = $matches[1];
-			$result['host'] = strtolower($matches[2]);
-		} else {
-			return false;
+		$patterns = ['/(' . $atext . '|"[^\"]")' . $white . '<(' . $atext . ')@(' . $domain . ')>/' => [1, 2, 3], '/<(' . $atext . ')@(' . $domain . ')>/' => [null, 1, 2], '/(' . $atext . ')@(' . $domain . ')/' => [null, 1, 2], ];
+		foreach ($patterns as $pattern => $mappings) {
+			if (preg_match($pattern, $email, $matches)) {
+				[$name_index, $user_index, $domain_index] = $mappings;
+				$result['length'] = strlen($matches[0]);
+				$result['text'] = $matches[0];
+				$result['name'] = $name_index ? unquote($matches[$name_index]) : '';
+				$result['user'] = $matches[$user_index];
+				$result['host'] = strtolower($matches[$domain_index]);
+				$result['email'] = $result['user'] . '@' . $result['host'];
+				return $result;
+			}
 		}
-		if ($part) {
-			return avalue($result, $part, "Invalid Part: $part");
-		}
-		return $result;
+		return [];
 	}
 
 	/**
 	 * Identical to sendmail, but truncates the entire message to be 140 characters
 	 * Determined length based on iPhone/AT&T.
 	 *
-	 * @todo Test with alternate providers.
 	 * @param string $to
-	 *        	Email address to send to
+	 *            Email address to send to
 	 * @param string $from
-	 *        	Email address from (may be "Hello" <email@example.com> etc.)
+	 *            Email address from (may be "Hello" <email@example.com> etc.)
 	 * @param string $subject
-	 *        	Optional. Subject of message.
+	 *            Optional. Subject of message.
 	 * @param string $body
-	 *        	Message to send.
+	 *            Message to send.
 	 * @param string $cc
-	 *        	Optional. CC email addresses.
+	 *            Optional. CC email addresses.
 	 * @param string $bcc
-	 *        	Optional. BCC email addresses.
+	 *            Optional. BCC email addresses.
 	 * @param array $headers
-	 *        	Optional extra headers in the form: array("Header-Type: Header Value", "...")
+	 *            Optional extra headers in the form: array("Header-Type: Header Value", "...")
 	 * @return boolean True if email sent, False if not.
+	 * @todo Test with alternate providers.
 	 */
 	public static function send_sms(Application $application, $to, $from, $subject, $body, $cc = false, $bcc = false, $headers = false) {
 		$email_parts = self::parse_address($from);
@@ -377,10 +378,7 @@ class Mail extends Hookable {
 		}
 		$len += strlen('MSG:');
 
-		$remain = to_integer($application->configuration->path_get([
-			__CLASS__,
-			'sms_max_characters',
-		]), 140) - $len;
+		$remain = to_integer($application->configuration->path_get([__CLASS__, 'sms_max_characters', ]), 140) - $len;
 
 		return self::sendmail($application, $to, $from, $subject, substr($body, 0, $remain), $cc, $bcc, $headers);
 	}
@@ -389,22 +387,22 @@ class Mail extends Hookable {
 	 * Send an email to someone.
 	 *
 	 * @param string $to
-	 *        	Email address to send to
+	 *            Email address to send to
 	 * @param string $from
-	 *        	Email address from (may be "Hello" <email@example.com> etc.)
+	 *            Email address from (may be "Hello" <email@example.com> etc.)
 	 * @param string $subject
-	 *        	Optional. Subject of message.
+	 *            Optional. Subject of message.
 	 * @param string $body
-	 *        	Message to send.
+	 *            Message to send.
 	 * @param string $cc
-	 *        	Optional. CC email addresses.
+	 *            Optional. CC email addresses.
 	 * @param string $bcc
-	 *        	Optional. BCC email addresses.
+	 *            Optional. BCC email addresses.
 	 * @param array $headers
-	 *        	Optional extra headers in the form: array("Header-Type: Header Value", "...")
-	 * @return boolean True if email sent, False if not.
+	 *            Optional extra headers in the form: array("Header-Type: Header Value", "...")
+	 * @return self
 	 */
-	public static function sendmail(Application $application, $to, $from, $subject, $body, $cc = false, $bcc = false, $headers = false, array $options = []) {
+	public static function sendmail(Application $application, string $to, string $from, string $subject, string $body, string $cc = null, string $bcc = null, array $headers = [], array $options = []) {
 		$new_headers = [];
 		if (!is_array($headers)) {
 			$headers = [];
@@ -413,10 +411,10 @@ class Mail extends Hookable {
 			$from = self::trim_mail_line($from);
 			$new_headers['From'] = rtrim($from);
 		}
-		if (is_email($cc)) {
+		if (is_string($cc) && is_email($cc)) {
 			$new_headers['Cc'] = ltrim($cc);
 		}
-		if (is_email($bcc)) {
+		if (is_string($bcc) && is_email($bcc)) {
 			$new_headers['Bcc'] = ltrim($bcc);
 		}
 
@@ -427,7 +425,7 @@ class Mail extends Hookable {
 		//	$headers[] = "Content-Type: text/plain";
 
 		foreach ($headers as $header) {
-			[$name, $value] = pair($header, ':', null, null);
+			[$name, $value] = pair($header, ':', '', '');
 			if ($name) {
 				$new_headers[$name] = ltrim($value);
 			}
@@ -442,9 +440,7 @@ class Mail extends Hookable {
 		if (!self::$fp) {
 			self::$fp = fopen(self::$log, 'ab');
 			if (!self::$fp) {
-				$this->application->logger->error('Unable to open mail log {log} - mail logging disabled', [
-					'log' => self::$log,
-				]);
+				$this->application->logger->error('Unable to open mail log {log} - mail logging disabled', ['log' => self::$log, ]);
 				self::$log = null;
 				return;
 			}
@@ -452,7 +448,11 @@ class Mail extends Hookable {
 		fwrite(self::$fp, Text::format_pairs($headers) . "\n" . $body . "\n\n");
 	}
 
-	private static function render_headers(array $headers) {
+	/**
+	 * @param array $headers
+	 * @return string
+	 */
+	private static function renderHeaders(array $headers): string {
 		$mail_eol = "\r\n";
 		$raw_headers = '';
 		foreach ($headers as $name => $value) {
@@ -461,17 +461,38 @@ class Mail extends Hookable {
 		return $raw_headers;
 	}
 
-	public static function mailer(Application $application, array $headers, $body, array $options = []) {
+	/**
+	 * @param Application $application
+	 * @param array $headers
+	 * @param string $body
+	 * @param array $options
+	 * @return Mail
+	 */
+	public static function mailer(Application $application, array $headers, string $body, array $options = []): self {
 		$mail = new Mail($application, $headers, $body, $options);
 		return $mail->send();
 	}
 
-	public static function mail_array(Application $application, $to, $from, $subject, $array, $prefix = '', $suffix = '') {
+	public static function mail_array(Application $application, string $to, string $from, string $subject, array $array, string $prefix = '', string $suffix = '') {
+		return self::mailArray($application, $to, $from, $subject, $array, $prefix, $suffix);
+	}
+
+	/**
+	 * @param Application $application
+	 * @param string $to
+	 * @param string $from
+	 * @param string $subject
+	 * @param array $array
+	 * @param string $prefix
+	 * @param string $suffix
+	 * @return bool
+	 */
+	public static function mailArray(Application $application, string $to, string $from, string $subject, array $array, string $prefix = '', string $suffix = '') {
 		$content = Text::format_pairs($array);
 		return self::sendmail($application, $to, $from, $subject, $prefix . $content . $suffix);
 	}
 
-	public static function map(Application $application, $to, $from, $subject, $filename, $fields, $cc = false, $bcc = false) {
+	public static function map(Application $application, string $to, string $from, string $subject, string $filename, array $fields, string $cc = null, string $bcc = null): self {
 		if (!file_exists($filename)) {
 			return false;
 		}
@@ -486,7 +507,7 @@ class Mail extends Hookable {
 		$subject = trim(map($subject, $fields));
 		$contents = str_replace("\r\n", "\n", $contents);
 		$contents = str_replace("\r", '', $contents);
-		return self::sendmail($to, $from, $subject, $contents, $cc, $bcc);
+		return self::sendmail($application, $to, $from, $subject, $contents, $cc, $bcc);
 	}
 
 	/*
@@ -510,17 +531,17 @@ class Mail extends Hookable {
 	 * Send a text or HTML email, with optional attachments
 	 *
 	 * @param array $mail_options
-	 *        	Options for the mail, required: From, To
+	 *            Options for the mail, required: From, To
 	 * @param array $attachments
-	 *        	Array of arrays containing keys
-	 *        	- "file" The file name to attach (required)
-	 *        	- "name" The name to use in the email for the attachment (uses basename otherwise)
-	 *        	- "content_type" - The content type to use for this attachment (uses MIME
-	 *        	detection otherwise)
+	 *            Array of arrays containing keys
+	 *            - "file" The file name to attach (required)
+	 *            - "name" The name to use in the email for the attachment (uses basename otherwise)
+	 *            - "content_type" - The content type to use for this attachment (uses MIME
+	 *            detection otherwise)
 	 * @return Mail
 	 */
 	public static function multipart_send(Application $application, array $mail_options, $attachments = null) {
-		$eol = self::mail_eol();
+		$eol = self::mailEOL();
 		$mime_boundary = md5(microtime());
 
 		$charset = avalue($mail_options, 'charset', 'UTF-8');
@@ -529,24 +550,15 @@ class Mail extends Hookable {
 		// Common Headers
 		$headers = ArrayTools::filter($mail_options, 'From;To;Reply-To;Return-Path;Cc;Bcc;Return-Receipt-To;Subject');
 		if (!array_key_exists('From', $headers)) {
-			throw new Exception_Semantics('Need to have a From header: {keys} {debug}', [
-				'keys' => array_keys($headers),
-				'debug' => _dump($mail_options),
-			]);
+			throw new Exception_Semantics('Need to have a From header: {keys} {debug}', ['keys' => array_keys($headers), 'debug' => _dump($mail_options), ]);
 		}
 		if (!array_key_exists('To', $headers)) {
-			throw new Exception_Semantics('Need to have a To header: {keys} <pre>{debug}</pre>', [
-				'keys' => array_keys($headers),
-				'debug' => _dump($mail_options),
-			]);
+			throw new Exception_Semantics('Need to have a To header: {keys} <pre>{debug}</pre>', ['keys' => array_keys($headers), 'debug' => _dump($mail_options), ]);
 		}
 		// KMD: 2015-11-05 Removed
 		//	 "Return-Receipt-To"
 		// From below as it should be handled enough by Return-Path for bounces
-		foreach ([
-			'Reply-To',
-			'Return-Path',
-		] as $k) {
+		foreach (['Reply-To', 'Return-Path', ] as $k) {
 			if (!array_key_exists($k, $headers)) {
 				$headers[$k] = $headers['From'];
 			}
@@ -632,14 +644,26 @@ class Mail extends Hookable {
 	/**
 	 * Render an email using a theme
 	 *
-	 * @todo Probably should split $theme_variables and $map_variables, eh? 2016-03-10
+	 * @param Application $application
+	 * @param string|array $theme
+	 * @param array $variables
+	 * @throws Exception_Semantics
+	 */
+	public static function load_theme(Application $application, string|array $theme, array $variables = []) {
+		return self::loadTheme($application, $theme, $variables);
+	}
+
+	/**
+	 * Render an email using a theme
 	 *
 	 * @param Application $application
-	 * @param unknown $theme
-	 * @param unknown $variables
+	 * @param string|array $theme
+	 * @param array $variables
+	 * @return array
+	 * @throws Exception_Semantics
 	 */
-	public static function load_theme(Application $application, $theme, $variables = null) {
-		$variables = to_array($variables);
+	public static function loadTheme(Application $application, string|array $theme, array $variables = []) {
+		$variables = toArray($variables);
 		$variables['application'] = $application;
 		return self::load(map($application->theme($theme, $variables), $variables));
 	}
@@ -656,24 +680,21 @@ class Mail extends Hookable {
 		while (($line = array_shift($lines)) !== false) {
 			$line = trim($line);
 			if (empty($line)) {
-				$content_type = strtolower(avalue($result, 'File-Format', ''));
+				$content_type = strtolower($result['File-Format'] ?? '');
 				$content = implode("\n", $lines);
 				switch ($content_type) {
 					case 'html':
 						$result['body_html'] = $content;
 
 						break;
-					case 'text':
-						$result['body_text'] = $content;
-
-						break;
 					case 'both':
-						$ff_sep = avalue($result, 'File-Format-Separator', '--HTML--');
+						$ff_sep = $result['File-Format-Separator'] ?? '--HTML--';
 						[$text, $html] = explode($ff_sep, $content, 2);
 						$result['body_text'] = rtrim($text);
 						$result['body_html'] = trim($html);
 
 						break;
+					case 'text':
 					default:
 						$result['body_text'] = $content;
 
@@ -682,8 +703,7 @@ class Mail extends Hookable {
 
 				break;
 			} else {
-				$header_type = $header_value = null;
-				[$header_type, $header_value] = pair($line, ':', $line, null);
+				[$header_type, $header_value] = pair($line, ':', $line, '');
 				$result[$header_type] = ltrim($header_value);
 			}
 		}
@@ -720,8 +740,8 @@ class Mail extends Hookable {
 	 * Given a header with RFC2047 encoding of binary/UTF-8 data, convert it into UTF8 string
 	 *
 	 * @param string $header
-	 * @throws Exception_Semantics - only if PHP preg_match_all somehow fails to extract an encoding of B or Q
 	 * @return string
+	 * @throws Exception_Semantics - only if PHP preg_match_all somehow fails to extract an encoding of B or Q
 	 */
 	public static function decode_header($header) {
 		$matches = null;
@@ -778,39 +798,39 @@ class Mail extends Hookable {
 	 * forwarded email which may have whitespaces inserted
 	 *
 	 * @param string $content
-	 *        	raw email message
+	 *            raw email message
 	 * @param array $options
-	 *        	Optional options for parsing
+	 *            Optional options for parsing
 	 * @return array
 	 */
-	public static function parse_headers($content, array $options = []) {
-		$newline = avalue($options, 'newline', "\r\n");
-		$whitespace = avalue($options, 'whitespace', " \t");
-		$line_trim = avalue($options, 'line_trim', false);
+	public static function parse_headers(string $content, array $options = []): array {
+		$newline = $options['newline'] ?? "\r\n";
+		$whitespace = $options['whitespace'] ?? " \t";
+		$line_trim = $options['line_trim'] ?? false;
 		$lines = explode($newline, $content);
 		$headers = [];
-		$curh = null;
-		$curv = '';
+		$curHeader = null;
+		$curValue = '';
 		foreach ($lines as $line) {
 			if (($line_trim && rtrim($line) === '') || $line === '') {
 				break;
 			}
-			if ($curh !== null) {
+			if ($curHeader !== null) {
 				if (str_contains($whitespace, substr($line, 0, 1))) {
-					$curv .= $newline . trim($line);
+					$curValue .= $newline . trim($line);
 				} else {
-					ArrayTools::append($headers, $curh, $curv);
-					$curh = $curv = null;
+					ArrayTools::append($headers, $curHeader, $curValue);
+					$curHeader = $curValue = null;
 				}
 			}
-			if ($curh === null) {
-				[$n, $v] = pair($line, ':', $line, null);
-				$curh = $n;
-				$curv = trim($v);
+			if ($curHeader === null) {
+				[$n, $v] = pair($line, ':', $line, '');
+				$curHeader = $n;
+				$curValue = trim($v);
 			}
 		}
-		if ($curh !== null) {
-			ArrayTools::append($headers, $curh, $curv);
+		if ($curHeader !== null) {
+			ArrayTools::append($headers, $curHeader, $curValue);
 		}
 		return $headers;
 	}

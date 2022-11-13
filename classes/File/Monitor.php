@@ -27,7 +27,7 @@ abstract class File_Monitor {
 		$current = [];
 		foreach ($this->files() as $f) {
 			clearstatcache(false, $f);
-			$current[$f] = @filemtime($f);
+			$current[$f] = file_exists($f) ? filemtime($f) : null;
 		}
 		return $current;
 	}

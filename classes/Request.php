@@ -163,7 +163,7 @@ class Request extends Hookable {
 	 * @param array|Request|null $settings If NULL, uses PHP globals to initialize
 	 * @return self
 	 */
-	public static function factory(Application $application, array|self $settings = null): self {
+	public static function factory(Application $application, string|array|self $settings = null): self {
 		return $application->factory(__CLASS__, $application, $settings);
 	}
 
@@ -177,7 +177,7 @@ class Request extends Hookable {
 	 * @param string|array|Request|null $settings
 	 * @throws Exception_File_NotFound
 	 */
-	public function __construct(Application $application, string|array|Request $settings = null) {
+	public function __construct(Application $application, string|array|self $settings = null) {
 		parent::__construct($application);
 		$this->user_agent = null;
 		$this->inheritConfiguration();
@@ -713,7 +713,7 @@ class Request extends Hookable {
 	 * @return double|mixed
 	 */
 	public function getf($name, $default = false) {
-		return to_double($this->get($name), $default);
+		return toFloat($this->get($name), $default);
 	}
 
 	/**

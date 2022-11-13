@@ -3,6 +3,7 @@
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -13,158 +14,64 @@ namespace zesk;
 class Mail_Test extends UnitTest {
 	/**
 	 *
-	 * @var unknown
 	 */
 	private ?string $url = null;
 
 	/**
 	 *
-	 * @var unknown
 	 */
 	private ?string $email = null;
 
 	/**
-	 *
-	 * @var array
 	 */
-	private array $parts = [];
-
-	/**
-	 */
-	protected function test_outgoing_requirements(): void {
+	public function test_outgoing_requirements(): void {
 		$this->url = $this->option('email_url');
 
 		if (empty($this->url)) {
 			$this->markTestSkipped(__CLASS__ . '::email_url not set');
 		}
-		$this->parts = URL::parse($this->url);
-		if (empty($this->parts)) {
+
+		try {
+			$parts = URL::parse($this->url);
+		} catch (Exception_Syntax) {
 			$this->markTestSkipped(__CLASS__ . "::email not a valid URL: $this->url");
 		}
-		$this->email = $this->option('email', avalue($this->parts, 'user'));
+		$this->email = $this->option('email', $parts['user'] ?? null);
 		if (empty($this->email)) {
 			$this->markTestSkipped(__CLASS__ . '::email set');
 		}
-		if ($this->parts['user'] !== $this->email) {
-			$this->markTestSkipped('User ' . $this->parts['user'] . " !== $this->email\n");
+		if ($parts['user'] !== $this->email) {
+			$this->markTestSkipped('User ' . $parts['user'] . " !== $this->email\n");
 		}
 	}
 
 	public function test_load(): void {
-		$filename = null;
 		$result = Mail::load(file_get_contents($this->application->zesk_root('test/test-data/mail_load.0.txt')));
-		$this->assert_arrays_equal($result, [
-			'File-Format' => 'both',
-			'File-Format-Separator' => '--DOG--',
-			'Subject' => 'This is my dog',
-			'From' => 'support@conversionruler.com',
-			'Reply-To' => 'support@conversionruler.com',
-			'body_text' => 'This is a text email',
-			'body_html' => 'This is an <strong>HTML</strong> message',
-		]);
+		$this->assert_arrays_equal($result, ['File-Format' => 'both', 'File-Format-Separator' => '--DOG--', 'Subject' => 'This is my dog', 'From' => 'support@conversionruler.com', 'Reply-To' => 'support@conversionruler.com', 'body_text' => 'This is a text email', 'body_html' => 'This is an <strong>HTML</strong> message', ]);
 	}
 
 	public function test_parse_address(): void {
 		$email = 'John Doe <john@doe.com>';
 		$part = null;
 		$result = Mail::parse_address($email, $part);
-		$this->assert_arrays_equal($result, [
-			'length' => 23,
-			'text' => 'John Doe <john@doe.com>',
-			'name' => 'John Doe',
-			'email' => 'john@doe.com',
-			'user' => 'john',
-			'host' => 'doe.com',
-		], _dump($result));
+		$this->assert_arrays_equal($result, ['length' => 23, 'text' => 'John Doe <john@doe.com>', 'name' => 'John Doe', 'email' => 'john@doe.com', 'user' => 'john', 'host' => 'doe.com', ], _dump($result));
 	}
 
 	public function test_header_charsets(): void {
 		$header = '=?ISO-8859-1?q?Hello?= =?ISO-8859-2?q?This?= =?ISO-8859-3?q?is?= =?ISO-8859-4?q?a?= =?ISO-8859-5?q?test?= =?ISO-8859-4?X?but_ignore_this_part?= ';
 		$result = Mail::header_charsets($header);
 
-		$this->assert_arrays_equal($result, [
-			'ISO-8859-1',
-			'ISO-8859-2',
-			'ISO-8859-3',
-			'ISO-8859-4',
-			'ISO-8859-5',
-		]);
+		$this->assert_arrays_equal($result, ['ISO-8859-1', 'ISO-8859-2', 'ISO-8859-3', 'ISO-8859-4', 'ISO-8859-5', ]);
 	}
 
 	public function test_decode_header(): void {
-		$headers = [
-			[
-				'=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>',
-				'Keith Moore <moore@cs.utk.edu>',
-				[
-					'US-ASCII',
-				],
-			],
-			[
-				'=?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>',
-				'Keld J' . UTF8::from_charset(chr(hexdec('F8')), 'ISO-8859-1') . 'rn Simonsen <keld@dkuug.dk>',
-				[
-					'ISO-8859-1',
-				],
-			],
-			[
-				'=?ISO-8859-1?Q?Andr=E9?= Pirard <PIRARD@vm1.ulg.ac.be>',
-				'Andr' . chr(hexdec('C3')) . chr(hexdec('A9')) . ' Pirard <PIRARD@vm1.ulg.ac.be>',
-				[
-					'ISO-8859-1',
-				],
-			],
-			[
-				'=?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
- =?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=',
-				'If you can read this you understand the example.',
-				[
-					'ISO-8859-1',
-					'ISO-8859-2',
-				],
-			],
-			[
-				'Nathaniel Borenstein <nsb@thumper.bellcore.com>
- (=?iso-8859-8?b?7eXs+SDv4SDp7Oj08A==?=)',
-				'Nathaniel Borenstein <nsb@thumper.bellcore.com>
- (םולש ןב ילטפנ)',
-				[
-					'ISO-8859-8',
-				],
-			],
-			[
-				'(=?ISO-8859-1?Q?a?=
-       =?ISO-8859-1?Q?b?=)',
-				'(ab)',
-				[
-					'ISO-8859-1',
-					'ISO-8859-1',
-				],
-			],
-			[
-				'?ISO-8859-1?Q?a?=
-       =?ISO-8859-1?Q?b?)',
-				'?ISO-8859-1?Q?a?=
-       =?ISO-8859-1?Q?b?)',
-				[],
-			],
-			[
-				'(=?ISO-8859-1?Q?a_b?=)',
-				'(a b)',
-				[
-					'ISO-8859-1',
-				],
-			],
-			[
-				'(=?ISO-8859-1?Q?a?= =?iso-8859-2?q?_b?=)',
-				'(a b)',
-				[
-					'ISO-8859-1',
-					'ISO-8859-2',
-				],
-			],
-			[
-				'(=?ISO-8859-1?Q?a?=
+		$headers = [['=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>', 'Keith Moore <moore@cs.utk.edu>', ['US-ASCII', ], ], ['=?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>', 'Keld J' . UTF8::from_charset(chr(hexdec('F8')), 'ISO-8859-1') . 'rn Simonsen <keld@dkuug.dk>', ['ISO-8859-1', ], ], ['=?ISO-8859-1?Q?Andr=E9?= Pirard <PIRARD@vm1.ulg.ac.be>', 'Andr' . chr(hexdec('C3')) . chr(hexdec('A9')) . ' Pirard <PIRARD@vm1.ulg.ac.be>', ['ISO-8859-1', ], ], ['=?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
+ =?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=', 'If you can read this you understand the example.', ['ISO-8859-1', 'ISO-8859-2', ], ], ['Nathaniel Borenstein <nsb@thumper.bellcore.com>
+ (=?iso-8859-8?b?7eXs+SDv4SDp7Oj08A==?=)', 'Nathaniel Borenstein <nsb@thumper.bellcore.com>
+ (םולש ןב ילטפנ)', ['ISO-8859-8', ], ], ['(=?ISO-8859-1?Q?a?=
+       =?ISO-8859-1?Q?b?=)', '(ab)', ['ISO-8859-1', 'ISO-8859-1', ], ], ['?ISO-8859-1?Q?a?=
+       =?ISO-8859-1?Q?b?)', '?ISO-8859-1?Q?a?=
+       =?ISO-8859-1?Q?b?)', [], ], ['(=?ISO-8859-1?Q?a_b?=)', '(a b)', ['ISO-8859-1', ], ], ['(=?ISO-8859-1?Q?a?= =?iso-8859-2?q?_b?=)', '(a b)', ['ISO-8859-1', 'ISO-8859-2', ], ], ['(=?ISO-8859-1?Q?a?=
 
 
 
@@ -178,14 +85,7 @@ class Mail_Test extends UnitTest {
 
 
 
-	=?iso-8859-2?q?_b?=)',
-				'(a b)',
-				[
-					'ISO-8859-1',
-					'ISO-8859-2',
-				],
-			],
-		];
+	=?iso-8859-2?q?_b?=)', '(a b)', ['ISO-8859-1', 'ISO-8859-2', ], ], ];
 
 		foreach ($headers as $header) {
 			[$test, $expect, $expected_charsets] = $header;
@@ -203,80 +103,16 @@ class Mail_Test extends UnitTest {
 	}
 
 	public function test_is_encoded_header(): void {
-		$headers = [
-			[
-				'=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>',
-				true,
-			],
-			[
-				'=?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>',
-				true,
-			],
-			[
-				'=?ISO-8859-1?Q?Andr=E9?= Pirard <PIRARD@vm1.ulg.ac.be>',
-				true,
-			],
-			[
-				'=?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
- =?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=',
-				true,
-			],
-			[
-				'Nathaniel Borenstein <nsb@thumper.bellcore.com>
- (=?iso-8859-8?b?7eXs+SDv4SDp7Oj08A==?=)',
-				true,
-			],
-			[
-				'(=?ISO-8859-1?Q?a?=
-       =?ISO-8859-1?Q?b?=)',
-				true,
-			],
-			[
-				'?ISO-8859-1?Q?a?=
-       =?ISO-8859-1?Q?b?)',
-				false,
-			],
-			[
-				'(=??Q?a_b?=)',
-				false,
-			],
-			[
-				'(=?a_b?Q??=)',
-				false,
-			],
-			[
-				'(=?bad-charset?Q?data?=)',
-				true,
-			], // No charset validation, OK
-			[
-				'(=?ISO-8859-1?X?a?=)',
-				false,
-			],
-			[
-				'(=?ISO-8859-1?Y?a?=)',
-				false,
-			],
-			[
-				'(=?ISO-8859-1?q?a?=)',
-				true,
-			],
-			[
-				'(=?ISO-8859-1?Q?a?=)',
-				true,
-			],
-			[
-				'(=?ISO-8859-1?B?a?=)',
-				true,
-			],
-			[
-				'(=?ISO-8859-1?b?a?=)',
-				true,
-			],
-		];
+		$headers = [['=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>', true, ], ['=?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>', true, ], ['=?ISO-8859-1?Q?Andr=E9?= Pirard <PIRARD@vm1.ulg.ac.be>', true, ], ['=?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
+ =?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=', true, ], ['Nathaniel Borenstein <nsb@thumper.bellcore.com>
+ (=?iso-8859-8?b?7eXs+SDv4SDp7Oj08A==?=)', true, ], ['(=?ISO-8859-1?Q?a?=
+       =?ISO-8859-1?Q?b?=)', true, ], ['?ISO-8859-1?Q?a?=
+       =?ISO-8859-1?Q?b?)', false, ], ['(=??Q?a_b?=)', false, ], ['(=?a_b?Q??=)', false, ], ['(=?bad-charset?Q?data?=)', true, ], // No charset validation, OK
+			['(=?ISO-8859-1?X?a?=)', false, ], ['(=?ISO-8859-1?Y?a?=)', false, ], ['(=?ISO-8859-1?q?a?=)', true, ], ['(=?ISO-8859-1?Q?a?=)', true, ], ['(=?ISO-8859-1?B?a?=)', true, ], ['(=?ISO-8859-1?b?a?=)', true, ], ];
 
 		foreach ($headers as $i => $header) {
 			[$test, $expect] = $header;
-			echo "Test $i: $test => " . ($expect ? 'true' : 'false') . "\n";
+			// echo "Test $i: $test => " . ($expect ? 'true' : 'false') . "\n";
 			$result = Mail::is_encoded_header($test);
 			$this->assert($result === $expect);
 			if ($result) {
@@ -329,60 +165,55 @@ Thanks,
 
 	public function test_load_theme(): void {
 		$application = $this->application;
-		$template = null;
-		$options = null;
-		Mail::load_theme($application, $template, $options);
+		$hash = $this->randomHex();
+		$file = $this->sandbox('The-Template.tpl');
+		file_put_contents($file, "File-Format: html\nSubject: Yo\n\nHello <strong>$hash</strong> you are so {verb}");
+		$this->application->theme_path($this->sandbox());
+
+		$options = ['verb' => 'fun'];
+		$this->assertEquals(['Subject' => 'Yo', 'File-Format' => 'html', 'body_html' => "Hello <strong>$hash</strong> you are so fun"], Mail::load_theme($application, 'The-Template', $options));
 	}
 
 	public function test_mail_array(): void {
-		Mail::debug(true);
+		Mail::setDebug(true);
 
-		$to = 'kent@marketacumen.com';
+		$to = 'noone@zesk.com';
 		$from = 'no-reply@' . System::uname();
-		$subject = null;
-		$array = [
-			'Hello' => 'Name',
-			'Boo' => 'FEDF',
-		];
+		$subject = 'This is a subject';
+		$array = ['Hello' => 'Name', 'Boo' => 'FEDF', ];
 		$prefix = '';
 		$suffix = '';
 		Mail::mail_array($this->application, $to, $from, $subject, $array, $prefix, $suffix);
 	}
 
 	public function test_mailer(): void {
-		Mail::debug(true);
-		$headers = [
-			'From' => 'no-reply@zesk.com',
-			'To' => 'noone@example.com',
-			'Subject' => basename(__FILE__),
-		];
+		Mail::setDebug(true);
+		$headers = ['From' => 'no-reply@zesk.com', 'To' => 'noone@example.com', 'Subject' => basename(__FILE__), ];
 		$body = "This is the body\n\n--\nnoone@example.com";
 		Mail::mailer($this->application, $headers, $body);
 	}
 
 	public function test_map(): void {
-		$to = null;
-		$from = null;
-		$subject = null;
-		$filename = null;
-		$fields = null;
-		$cc = false;
-		$bcc = false;
-		Mail::map($this->application, $to, $from, $subject, $filename, $fields, $cc, $bcc);
+		$filename = $this->sandbox('testfile.txt');
+		file_put_contents($filename, 'fucking');
+		$to = 'dude';
+		$from = 'from';
+		$subject = 'subject';
+		$fields = [];
+		$cc = null;
+		$bcc = null;
+		$result = Mail::map($this->application, $to, $from, $subject, $filename, $fields, $cc, $bcc);
+		$this->assertInstanceOf(Mail::class, $result);
 	}
 
 	public function test_parse_headers(): void {
-		$content = null;
-		Mail::parse_headers($content);
+		$this->assertEquals(['Header' => 'Value', 'Another' => 'Thing'], Mail::parse_headers("Header: Value\r\nAnother: Thing"));
 	}
 
 	public function test_multipart_send(): void {
-		Mail::debug(true);
+		Mail::setDebug(true);
 
-		$mail_options = [
-			'From' => 'kent@zesk.com',
-			'To' => 'no-reply@zesk.com',
-		];
+		$mail_options = ['From' => 'noone@zesk.com', 'To' => 'no-reply@zesk.com', ];
 		$attachments = null;
 		Mail::multipart_send($this->application, $mail_options, $attachments);
 	}
@@ -391,10 +222,10 @@ Thanks,
 	 * @depends test_outgoing_requirements
 	 */
 	public function test_send_sms(): void {
-		Mail::debug(true);
+		Mail::setDebug(true);
 
 		$to = 'John@dude.com';
-		$from = 'kent@example.com';
+		$from = 'noone@example.com';
 		$subject = 'You are the man!';
 		$body = 'All work and no play makes Kent a dull boy.
 All work and no play makes Kent a dull boy.
@@ -425,8 +256,8 @@ All work and no play makes Kent a dull boy.
 		$from = 'Don\'t bother replying <no-reply@zesk.com>';
 		$subject = 'Test email: AUTO_DELETE';
 		$body = 'Test body';
-		$cc = false;
-		$bcc = false;
+		$cc = null;
+		$bcc = null;
 		$headers[] = 'X-Bogus-Header: This is a bogus header';
 
 		$this->log("Sending mail to $to");
@@ -437,9 +268,7 @@ All work and no play makes Kent a dull boy.
 		$success = false;
 		$timer = new Timer();
 		do {
-			$pop = new Net_POP_Client($this->application, $pop_url, [
-				'echo_log' => false,
-			]);
+			$pop = new Net_POP_Client($this->application, $pop_url, ['echo_log' => false, ]);
 			$iterator = $pop->iterator();
 			foreach ($iterator as $headers) {
 				$remote_subject = avalue($headers, 'subject');

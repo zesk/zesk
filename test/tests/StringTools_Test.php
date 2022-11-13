@@ -108,13 +108,13 @@ class StringTools_Test extends UnitTest {
 
 	public function ellipsis_word_data(): array {
 		return [
-			['A quick brown fox jumps over the lazy dog.', 1, '...', 'A ...'],
-			['A quick brown fox jumps over the lazy dog.', 5, '...', 'A ...'],
-			['A quick brown fox jumps over the lazy dog.', 10, '...', 'A quick brown fox ...'],
-			['A quick brown fox jumps over the lazy dog.', 15, '...', 'A quick brown fox ...'],
-			['A quick brown fox jumps over the lazy dog.', 20, '...', 'A quick brown fox ...'],
-			['A quick brown fox jumps over the lazy dog.', 25, '...', 'A quick brown fox ...'],
-			['A quick brown fox jumps over the lazy dog.', 30, '...', 'A quick brown fox ...'],
+			['A quick brown fox jumps over the lazy dog.', 1, '...', 'A...'],
+			['A quick brown fox jumps over the lazy dog.', 5, '...', 'A...'],
+			['A quick brown fox jumps over the lazy dog.', 10, '...', 'A quick...'],
+			['A quick brown fox jumps over the lazy dog.', 15, '...', 'A quick brown...'],
+			['A quick brown fox jumps over the lazy dog.', 20, '...', 'A quick brown fox...'],
+			['A quick brown fox jumps over the lazy dog.', 25, '...', 'A quick brown fox jumps...'],
+			['A quick brown fox jumps over the lazy dog.', 30, '...', 'A quick brown fox jumps over...'],
 		];
 	}
 
@@ -172,7 +172,7 @@ class StringTools_Test extends UnitTest {
 			['FALSE', false, ],
 			['off', false, ],
 			[true, true, ],
-			[1, false, ],
+			[1, true, ],
 			[new \stdClass(), true, ],
 			[[1], true, ],
 			[[0], true, ],
@@ -204,13 +204,13 @@ class StringTools_Test extends UnitTest {
 
 	public function is_utf16_data(): array {
 		return [
-			[chr(0xFF) . chr(0xFE) . 'is this utf16', true, chr(0xFF)],
-			[chr(0xFE) . chr(0xFF) . 'is this utf16', true, chr(0xFE)],
-			[chr(0xFF) . chr(0xFF) . 'is this utf16', false, ''],
-			[chr(0xFE) . chr(0xFE) . 'is this utf16', false, ''],
-			['', false, ''],
-			['1', false, ''],
-			['22', false, ''],
+			[chr(0xFF) . chr(0xFE) . 'is this utf16', true, false],
+			[chr(0xFE) . chr(0xFF) . 'is this utf16', true, true],
+			[chr(0xFF) . chr(0xFF) . 'is this utf16', false, false],
+			[chr(0xFE) . chr(0xFE) . 'is this utf16', false, false],
+			['', false, false],
+			['1', false, false],
+			['22', false, false],
 		];
 	}
 
@@ -269,28 +269,33 @@ class StringTools_Test extends UnitTest {
 	}
 
 	public function test_is_utf8(): void {
-		$test_dir = $this->application->zeskHome('test/test-data');
+		$this->assertTrue(StringTools::is_utf8(''));
+		$this->assertTrue(StringTools::is_utf8('????, ???'));
+		$this->assertTrue(StringTools::is_utf8('????, ???'));
+	}
 
-		$files = [
-			'utf16-le-no-bom.data' => false,
-			'utf16-no-bom.data' => false,
-			'iso-latin-1.data' => true,
-			'gb-18030.data' => true,
-			'utf16-le.data' => false,
-			'iso-latin-9.data' => true,
-			'utf16.data' => false,
+	public function data_is_utf8_file(): array {
+		return [
+			['utf16-le-no-bom.data', false, ],
+			['utf16-no-bom.data', false, ],
+			['iso-latin-1.data', true],
+			['gb-18030.data', true],
+			['utf16-le.data', false],
+			['iso-latin-9.data', true],
+			['utf16.data', false],
 		];
-		$str = null;
-		$this->assert(StringTools::is_utf8('') === true);
-		$this->assert(StringTools::is_utf8('????, ???') === true);
-		$this->assert(StringTools::is_utf8('????, ???') === true);
-		foreach ($files as $f => $isutf8) {
-			$content = file_get_contents(path($test_dir, $f));
-			echo "Testing file $f\n";
-			Debug::output(urlencode($content));
-			echo "\n--END--\n";
-			$this->assert(StringTools::is_utf8($content) === $isutf8);
-		}
+	}
+
+	/**
+	 * @param $f
+	 * @param $isutf8
+	 * @return void
+	 * @dataProvider data_is_utf8_file
+	 */
+	public function test_is_utf8_file(string $f, bool $isutf8): void {
+		$test_dir = $this->application->zeskHome('test/test-data');
+		$content = file_get_contents(path($test_dir, $f));
+		$this->assertEquals($isutf8, StringTools::is_utf8($content));
 	}
 
 	public function left_data(): array {
@@ -386,14 +391,14 @@ class StringTools_Test extends UnitTest {
 	 * @dataProvider replace_first_data
 	 */
 	public function test_replace_first(string $search, string $replace, string $content, string $expected): void {
-		$this->assertEquals($expected, StringTools::replace_first($search, $replace, $content) === 'That is a test');
+		$this->assertEquals($expected, StringTools::replace_first($search, $replace, $content));
 	}
 
 	public function right_data(): array {
 		return [
 			['NAME and VALUE', 'and', 'default', ' VALUE', ],
 			['NAME and VALUE', 'and V', 'default', 'ALUE', ],
-			['NAME and VALUE', ' ', 'default', ' and VALUE', ],
+			['NAME and VALUE', ' ', 'default', 'and VALUE', ],
 			['NAME and VALUE', 'D', 'default', 'default', ],
 			['NAME and VALUE', 'D', null, 'NAME and VALUE', ],
 		];
@@ -417,7 +422,7 @@ class StringTools_Test extends UnitTest {
 		return [
 			['NAME and VALUE', 'and', 'default', 'NAME ', ],
 			['NAME and VALUE', 'and V', 'default', 'NAME ', ],
-			['NAME and VALUE', ' ', 'default', 'NAME and ', ],
+			['NAME and VALUE', ' ', 'default', 'NAME and', ],
 			['NAME and VALUE', 'D', 'default', 'default', ],
 			['NAME and VALUE', 'D', null, 'NAME and VALUE', ],
 		];
@@ -442,7 +447,7 @@ class StringTools_Test extends UnitTest {
 		return [
 			['NAME and VALUE', 'and', 'default', ' VALUE', ],
 			['NAME and VALUE', 'and V', 'default', 'ALUE', ],
-			['NAME and VALUE', ' ', 'default', ' and VALUE', ],
+			['NAME and VALUE', ' ', 'default', 'VALUE', ],
 			['NAME and VALUE', 'D', 'default', 'default', ],
 			['NAME and VALUE', 'D', null, 'NAME and VALUE', ],
 		];
@@ -539,7 +544,7 @@ class StringTools_Test extends UnitTest {
 	 * @dataProvider unprefix_data
 	 */
 	public function test_unprefix(string $string, string $prefix, bool $case_insensitive, string $expected): void {
-		$this->assertEquals($expected, StringTools::unprefix($string, $prefix));
+		$this->assertEquals($expected, StringTools::unprefix($string, $prefix, $case_insensitive));
 	}
 
 	/**
@@ -551,7 +556,7 @@ class StringTools_Test extends UnitTest {
 			['string', 'ing', true, 'str'],
 
 			['string', 'ING', false, 'string'],
-			['string', 'ING', true, 'Str'],
+			['string', 'ING', true, 'str'],
 
 			['String', 'ing', false, 'Str'],
 			['String', 'ing', true, 'Str'],
@@ -570,7 +575,7 @@ class StringTools_Test extends UnitTest {
 	 * @dataProvider unsuffix_data
 	 */
 	public function test_unsuffix(string $string, string $prefix, bool $case_insensitive, string $expected): void {
-		$this->assertEquals($expected, StringTools::unsuffix($string, $prefix));
+		$this->assertEquals($expected, StringTools::unsuffix($string, $prefix, $case_insensitive));
 	}
 
 	public function zero_pad_data(): array {

@@ -144,7 +144,7 @@ class StringTools {
 			return $value;
 		}
 		if (is_numeric($value)) {
-			return $default;
+			return !empty($value);
 		}
 		return toBool($value, $default);
 	}
@@ -156,7 +156,7 @@ class StringTools {
 	 * @return string
 	 */
 	public static function fromBool(mixed $bool): string {
-		return toBool($bool) ? 'true' : 'false';
+		return self::toBool($bool) ? 'true' : 'false';
 	}
 
 	/**
@@ -361,16 +361,14 @@ class StringTools {
 	 * @return string
 	 */
 	public static function unsuffix(string|array $string, string $suffix, bool $case_insensitive = false): string|array {
-		if (is_array($suffix)) {
-			foreach ($suffix as $suff) {
-				$new_string = self::unsuffix($string, $suff, $case_insensitive);
-				if ($new_string !== $string) {
-					return $new_string;
-				}
+		if (is_array($string)) {
+			$result = [];
+			foreach ($string as $k => $v) {
+				$result[$k] = self::unsuffix($v, $suffix, $case_insensitive);
 			}
-			return $string;
+			return $result;
 		} else {
-			return self::ends($string, $suffix, $case_insensitive) ? strval(substr($string, 0, -strlen($suffix))) : $string;
+			return self::ends($string, $suffix, $case_insensitive) ? substr($string, 0, -strlen($suffix)) : $string;
 		}
 	}
 
@@ -503,7 +501,7 @@ class StringTools {
 	 *            Content in which to replace string
 	 * @return string
 	 */
-	public static function replace_first($search, $replace, $content) {
+	public static function replace_first(string $search, string $replace, string $content) {
 		$x = explode($search, $content, 2);
 		if (count($x) === 1) {
 			return $content;

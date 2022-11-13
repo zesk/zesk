@@ -20,77 +20,77 @@ class PHP {
 	 *
 	 * @var string
 	 */
-	public $indent_char = ' ';
+	public string $indent_char = ' ';
 
 	/**
 	 * When indenting, use $indent_multiple times $indent_char for each indent level
 	 *
 	 * @var integer
 	 */
-	public $indent_multiple = 4;
+	public int $indent_multiple = 4;
 
 	/**
 	 * Value to separate array values
 	 *
 	 * @var string
 	 */
-	public $array_value_separator = "\n";
+	public string $array_value_separator = "\n";
 
 	/**
-	 * Put a trainling comma on array output
+	 * Put a trailing comma on array output
 	 *
 	 * @var boolean
 	 */
-	public $array_trailing_comma = false;
+	public bool $array_trailing_comma = true;
 
 	/**
 	 * Characters to place before an array arrow =>
 	 *
 	 * @var string
 	 */
-	public $array_arrow_prefix = ' ';
+	public string $array_arrow_prefix = ' ';
 
 	/**
 	 * Characters to place after an array arrow =>
 	 *
 	 * @var string
 	 */
-	public $array_arrow_suffix = ' ';
+	public string $array_arrow_suffix = ' ';
 
 	/**
 	 * Characters to place before an array open parenthesis
 	 *
 	 * @var string
 	 */
-	public $array_open_parenthesis_prefix = '';
+	public string $array_open_parenthesis_prefix = '';
 
 	/**
 	 * Characters to place after an array open parenthesis
 	 *
 	 * @var string
 	 */
-	public $array_open_parenthesis_suffix = "\n";
+	public string $array_open_parenthesis_suffix = "\n";
 
 	/**
 	 * Characters to place before an array close parenthesis
 	 *
 	 * @var string
 	 */
-	public $array_close_parenthesis_prefix = '';
+	public string $array_close_parenthesis_prefix = '';
 
 	/**
 	 * Characters to place after an array close parenthesis
 	 *
 	 * @var string
 	 */
-	public $array_close_parenthesis_suffix = '';
+	public string $array_close_parenthesis_suffix = '';
 
 	/**
 	 * Global dump settings, used when called statically
 	 *
 	 * @var php
 	 */
-	private static $singleton = null;
+	private static ?self $singleton = null;
 
 	/**
 	 * Return global static dump object
@@ -111,16 +111,6 @@ class PHP {
 	 */
 	public static function ini_path() {
 		return get_cfg_var('cfg_file_path');
-	}
-
-	/**
-	 * Set or get the current settings
-	 *
-	 * @param array $set
-	 * @return
-	 */
-	public static function dump_settings(array $set = null) {
-		return self::singleton()->settings($set);
 	}
 
 	/**
@@ -155,23 +145,29 @@ class PHP {
 	}
 
 	/**
+	 * Get the settings for this object
+	 *
+	 * @return array
+	 */
+	public function settings(): array {
+		$x = new ReflectionObject($this);
+		return $x->getProperties();
+	}
+
+	/**
 	 * Get or set the settings in this object
 	 *
 	 * @param array $set
-	 * @return ReflectionProperty[]|$this
+	 * @return self
 	 */
-	public function settings(array $set = null) {
+	public function setSettings(array $set) {
 		$x = new ReflectionObject($this);
-		if (is_array($set)) {
-			foreach ($set as $prop => $value) {
-				if ($x->hasProperty($prop)) {
-					$this->$prop = $value;
-				}
+		foreach ($set as $prop => $value) {
+			if ($x->hasProperty($prop)) {
+				$this->$prop = $value;
 			}
-			return $this;
 		}
-		$result = $x->getProperties();
-		return $result;
+		return $this;
 	}
 
 	/**
@@ -180,9 +176,9 @@ class PHP {
 	 * @param mixed $x
 	 * @return string
 	 */
-	public function render($x) {
+	public function render(mixed $x) {
 		$args = func_get_args();
-		$no_first_line_indent = toBool(avalue($args, 2));
+		$no_first_line_indent = toBool($args[2] ?? false);
 		if (is_array($x)) {
 			if (count($x) === 0) {
 				return '[]';
@@ -199,9 +195,10 @@ class PHP {
 					$items[] = str_repeat($this->indent_char, ($indent_level + 1) * $this->indent_multiple) . $this->render($k) . $this->array_arrow_prefix . '=>' . $this->array_arrow_suffix . $this->render($v, $indent_level + 1, true);
 				}
 			}
-			$sep = ',' . $this->array_value_separator;
+			$comma = ',';
+			$sep = $comma . $this->array_value_separator;
 			$result .= implode($sep, $items);
-			$result .= $this->array_trailing_comma ? ',' : '';
+			$result .= $this->array_trailing_comma ? $comma : '';
 			$result .= $this->array_value_separator;
 			$result .= str_repeat($this->indent_char, $indent_level * $this->indent_multiple) . $this->array_close_parenthesis_prefix . ']' . $this->array_close_parenthesis_suffix;
 			return $result;
@@ -231,7 +228,7 @@ class PHP {
 	 *
 	 * @var Exception
 	 */
-	public static $unserialize_exception = null;
+	public static ?Exception_Syntax $unserialize_exception = null;
 
 	/**
 	 * Temporary error handler during unserialization
@@ -239,7 +236,7 @@ class PHP {
 	 * @param int $errno
 	 * @param string $errstr
 	 */
-	public static function _unserialize_handler($errno, $errstr): void {
+	public static function _unserialize_handler(int $errno, string $errstr): void {
 		self::$unserialize_exception = new Exception_Syntax($errstr, [], $errno);
 	}
 
@@ -252,7 +249,7 @@ class PHP {
 	 * @return mixed
 	 * @throws Exception_Syntax
 	 */
-	public static function unserialize($serialized) {
+	public static function unserialize(string $serialized): mixed {
 		self::$unserialize_exception = null;
 		set_error_handler([
 			__CLASS__,
@@ -372,9 +369,9 @@ class PHP {
 	 * Is this a valid function name, syntactically?
 	 *
 	 * @param string $func
-	 * @return boolean
+	 * @return bool
 	 */
-	public static function valid_function($func) {
+	public static function validFunction(string $func): bool {
 		return self::cleanFunction($func) === $func;
 	}
 
@@ -384,7 +381,7 @@ class PHP {
 	 * @param string $class
 	 * @return boolean
 	 */
-	public static function valid_class($class) {
+	public static function validClass(string $class): bool {
 		return self::cleanClass($class) === $class;
 	}
 
@@ -397,7 +394,7 @@ class PHP {
 	 *            String to clean
 	 * @return string
 	 */
-	public static function cleanFunction($func) {
+	public static function cleanFunction(string $func): string {
 		return preg_replace('/[^a-zA-Z0-9_]/', '_', $func);
 	}
 
@@ -427,10 +424,10 @@ class PHP {
 	 * @return mixed
 	 * @throws Exception_Parse
 	 */
-	public static function autotype(mixed $value, bool $throw = true): mixed {
+	public static function autoType(mixed $value, bool $throw = true): mixed {
 		if (is_array($value)) {
 			foreach ($value as $k => $v) {
-				$value[$k] = self::autotype($v);
+				$value[$k] = self::autoType($v);
 			}
 			return $value;
 		}
@@ -443,7 +440,7 @@ class PHP {
 			return $boolValue;
 		}
 		if (is_numeric($value)) {
-			return to_double($value);
+			return toFloat($value);
 		}
 		if (!is_string($value)) {
 			return $value;

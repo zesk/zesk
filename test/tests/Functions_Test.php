@@ -281,14 +281,14 @@ class Functions_Test extends UnitTest {
 		$this->assert(to_integer([]) === 0);
 	}
 
-	public function test_to_double(): void {
-		$this->assert(to_double(100) === 100.0);
-		$this->assert(to_double(1) === 1.0);
-		$this->assert(to_double('10000') === 10000.0);
-		$this->assert(to_double('-1') === -1.0);
+	public function test_toFloat(): void {
+		$this->assert(toFloat(100) === 100.0);
+		$this->assert(toFloat(1) === 1.0);
+		$this->assert(toFloat('10000') === 10000.0);
+		$this->assert(toFloat('-1') === -1.0);
 
-		$this->assert(to_double('e10000') === 0.0);
-		$this->assert(to_double([]) === 0.0);
+		$this->assert(toFloat('e10000') === 0.0);
+		$this->assert(toFloat([]) === 0.0);
 	}
 
 	public function test_to_bool(): void {

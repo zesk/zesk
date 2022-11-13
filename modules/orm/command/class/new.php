@@ -32,7 +32,7 @@ class Command_Class_New extends Command {
 			$this->usage('Must specify class names to create');
 		}
 		foreach ($names as $class) {
-			if (!PHP::valid_class($class)) {
+			if (!PHP::validClass($class)) {
 				$this->error("Class $class is not a valid class name");
 
 				continue;

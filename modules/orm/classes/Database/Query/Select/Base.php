@@ -62,8 +62,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *
 	 * @param string|int|null $field
 	 * @return mixed
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Key
+	 * @throws Database_Exception_SQL|Exception_Key
 	 */
 	public function one(string|int|null $field = null): mixed {
 		return $this->database()->queryOne($this->__toString(), $field);
@@ -74,9 +73,8 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *
 	 * @param string|int $field
 	 *            Field to retrieve
-	 * @param mixed $default
-	 *            Default value to retrieve
 	 * @return int
+	 * @throws Exception_Key|Database_Exception_SQL
 	 * @deprecated 2022-05
 	 */
 	public function one_integer(string|int $field = 0): int {
@@ -88,12 +86,25 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *
 	 * @param string|integer $field
 	 *            Field to retrieve
-	 * @param mixed $default
-	 *            Default value to retrieve
-	 * @return integer
+	 * @return float
+	 * @deprecated 2022-11 use self::float
+	 * @see self::float
+	 * @throws Exception_Key|Database_Exception_SQL
 	 */
 	public function double(string|int $field = 0): float {
-		return to_double($this->one($field));
+		return self::float($field);
+	}
+
+	/**
+	 * Execute query and retrieve a single field, a double
+	 *
+	 * @param string|integer $field
+	 *            Field to retrieve
+	 * @return float
+	 * @throws Exception_Key|Database_Exception_SQL
+	 */
+	public function float(string|int $field = 0): float {
+		return toFloat($this->one($field));
 	}
 
 	/**
