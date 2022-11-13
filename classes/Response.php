@@ -603,12 +603,12 @@ class Response extends Hookable {
 			return;
 		}
 		$this->rendering = true;
-		$skip_hooks = toBool(avalue($options, 'skip_hooks'));
+		$skip_hooks = toBool($options['skip_hooks'] ?? false);
 		if (!$skip_hooks) {
 			$this->application->call_hook('response_output_before', $this);
 			$this->call_hook('output_before');
 		}
-		if (!avalue($options, 'skip_headers')) {
+		if (!($options['skip_headers'] ?? false)) {
 			$this->response_headers($skip_hooks);
 		}
 		$this->_output_handler()->output($this->content);
