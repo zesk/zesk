@@ -1623,7 +1623,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			$arguments = [
 				'content' => $arguments,
 			];
-		} elseif (ArrayTools::isList($arguments)) {
+		} elseif (ArrayTools::isList($arguments) && count($arguments) > 0) {
 			$arguments['content'] = first($arguments);
 		}
 		$arguments['application'] = $this;
@@ -1688,7 +1688,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @return mixed
 	 */
 	private function cleanTemplatePath(string $path): string {
-		return preg_replace('%[^-_./a-zA-Z0-9]%', '_', strtr(strtolower($path), [
+		return preg_replace('%[^-_./a-zA-Z0-9]%', '_', strtr($path, [
 			'_' => '/',
 			'\\' => '/',
 		]));
@@ -1707,7 +1707,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		if (!empty($extension) && $this->development() && ends($type, $extension)) {
 			throw new Exception_Semantics('Theme called with .tpl suffix - not required {type}', compact('type'));
 		}
-		$type = strtolower($type);
 		$this->theme_stack[] = $type;
 		$t = new Template($this, $this->cleanTemplatePath($type) . $extension, $args);
 		if ($t->exists()) {
