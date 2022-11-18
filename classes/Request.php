@@ -358,7 +358,7 @@ class Request extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function parseAccept(): self {
+	public function parseAccept(): array {
 		$name = Net_HTTP::REQUEST_ACCEPT;
 		$result = $this->_parsedHeader($name);
 		if ($result) {
@@ -431,7 +431,7 @@ class Request extends Hookable {
 	}
 
 	/**
-	 * Helper to determine best choice for response given the Accept: header
+	 * Helper to determine the best choice for response given the Accept: header
 	 *
 	 * @param string|array $available_responses
 	 * @return string|null

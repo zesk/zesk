@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 if (isset($_SERVER['XDEBUG_ENABLED']) && function_exists('xdebug_break')) {
 	if (!($_SERVER['XDEBUG_ACTIVE'] ?? false)) {
-		/* Skip automatic code link by using call_user_func */
+		/* Skip automatic code link by using call_user_func 'cause we're clever */
 		call_user_func('xdebug_break');
 		$_SERVER['XDEBUG_ACTIVE'] = true;
 	}

@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * Integration with operating system. Host name, process ID, system services, load averages, volume info.
@@ -17,6 +18,8 @@ namespace zesk;
  *
  */
 class System {
+	private static $arr;
+
 	/**
 	 *
 	 * @param Application $application
@@ -137,7 +140,6 @@ class System {
 				$application->cache->saveDeferred($cache->expiresAfter($application->configuration->path_get(__METHOD__ . '::expires_after', 60))->set($command));
 			}
 			$interface = null;
-			$flags = null;
 			foreach ($command as $line) {
 				if (preg_match('/^\S/', $line)) {
 					[$interface, $flags] = pair($line, ' ');
@@ -145,14 +147,16 @@ class System {
 					$result[$interface] = ['flags' => ltrim($flags), ];
 				} else {
 					$line = trim($line);
-					$pairs = explode(' ', $line);
+					$pairs = preg_split('/\s+/', $line);
 					$type = rtrim(array_shift($pairs), ':');
-					$id = StringTools::unprefix(array_shift($pairs), 'addr:');
-					$result[$interface][$type][$id] = ['value' => $id, $type => $id, ];
-					while (count($pairs) > 1) {
-						$name = rtrim(array_shift($pairs), ':');
-						$value = array_shift($pairs);
-						$result[$interface][$type][$id][$name] = $value;
+					if ($pairs) {
+						$id = StringTools::unprefix(array_shift($pairs), 'addr:');
+						$result[$interface][$type][$id] = ['value' => $id, $type => $id, ];
+						while (count($pairs) > 1) {
+							$name = rtrim(array_shift($pairs), ':');
+							$value = array_shift($pairs);
+							$result[$interface][$type][$id][$name] = $value;
+						}
 					}
 				}
 			}
@@ -161,22 +165,13 @@ class System {
 				'localhost' => [
 					'inet' => [
 						'127.0.0.1' => [
-							'value' => '127.0.0.1',
-							'inet' => '127.0.0.1',
-							'netmask' => '0xff000000',
+							'value' => '127.0.0.1', 'inet' => '127.0.0.1', 'netmask' => '0xff000000',
 						],
-					],
-					'inet6' => [
+					], 'inet6' => [
 						'::1' => [
-							'value' => '::1',
-							'inet6' => '::1',
-							'prefixlen' => '128',
-						],
-						'fe80::1%lo0' => [
-							'value' => 'fe80::1%lo0',
-							'inet6' => 'fe80::1%lo0',
-							'prefixlen' => '64',
-							'scopeid' => '0x1',
+							'value' => '::1', 'inet6' => '::1', 'prefixlen' => '128',
+						], 'fe80::1%lo0' => [
+							'value' => 'fe80::1%lo0', 'inet6' => 'fe80::1%lo0', 'prefixlen' => '64', 'scopeid' => '0x1',
 						],
 					],
 				],
@@ -216,12 +211,12 @@ class System {
 	 *            Request for a specific volume (passed to df)
 	 * @return array:array
 	 */
-	public static function volume_info($volume = '') {
+	public static function volume_info(string $volume = ''): array {
 		ob_start();
 		$max_tokens = 10;
-		$args = $volume ? ' ' . escapeshellarg($volume) : '';
+		$arg_volume = $volume ? escapeshellarg($volume) . ' ' : '';
 		// Added -P to avoid issue on Mac OS X where Capacity and iused overlap
-		$result = system("/bin/df -P -lk$args 2> /dev/null");
+		$result = system("/bin/df -P -lk ${arg_volume}2> /dev/null");
 		$volume_info = trim(ob_get_clean());
 		if (!$result) {
 			return [];
@@ -233,18 +228,22 @@ class System {
 		// Linux:	Filesystem  1K-blocks       Used Available	Use%		Mounted on
 		// Darwin:  Filesystem  1024-blocks     Used Available  Capacity iused ifree %iused Mounted on
 		// Darwin:  Filesystem   1024-blocks       Used  Available Capacity  Mounted on
-		$normalized_headers = ['1024-blocks' => 'total', '1k-blocks' => 'total', 'avail' => 'free', 'available' => 'free', 'use%' => 'used_percent', 'capacity' => 'used_percent', 'mounted' => 'path', 'mounted on' => 'path', 'filesystem' => 'filesystem', ];
+		$normalized_headers = [
+			'1024-blocks' => 'total', '1k-blocks' => 'total', 'avail' => 'free', 'available' => 'free',
+			'use%' => 'used_percent', 'capacity' => 'used_percent', 'mounted' => 'path', 'mounted on' => 'path',
+			'filesystem' => 'filesystem',
+		];
 		$result = [];
 		foreach ($volume_info as $volume_data) {
 			$row = [];
 			foreach ($volume_data as $field => $value) {
 				$field = strtolower($field);
-				$field = avalue($normalized_headers, $field, $field);
+				$field = $normalized_headers[$field] ?? $field;
 				$row[$field] = $value;
 			}
-			foreach (to_list('total;used;free') as $kbmult) {
-				if (array_key_exists($kbmult, $row)) {
-					$row[$kbmult] *= 1024;
+			foreach (['total', 'used', 'free'] as $kilobyte_multiply) {
+				if (array_key_exists($kilobyte_multiply, $row)) {
+					$row[$kilobyte_multiply] *= 1024;
 				}
 			}
 			$row['used_percent'] = intval(substr($row['used_percent'], 0, -1));
@@ -266,37 +265,37 @@ class System {
 	 *
 	 * @return array:array
 	 */
-	public static function distro($component = null) {
-		static $distro_tips = ['Novell SUSE' => '/etc/SUSE-release', 'Red Hat' => ['/etc/redhat-release', '/etc/redhat_version', ], 'Fedora' => '/etc/fedora-release', 'Slackware' => ['/etc/slackware-release', '/etc/slackware-version', ], 'Debian' => ['/etc/debian_release', '/etc/debian_version', ], 'Mandrake' => '/etc/mandrake-release', 'Yellow dog' => '/etc/yellowdog-release', 'Sun JDS' => '/etc/sun-release', 'Solaris/Sparc' => '/etc/release', 'Gentoo' => '/etc/gentoo-release', 'UnitedLinux' => '/etc/UnitedLinux-release', 'ubuntu' => '/etc/lsb-release', ];
+	public static function distro(): array {
+		static $distro_tips = [
+			'Novell SUSE' => '/etc/SUSE-release', 'Red Hat' => ['/etc/redhat-release', '/etc/redhat_version', ],
+			'Fedora' => '/etc/fedora-release', 'Slackware' => ['/etc/slackware-release', '/etc/slackware-version', ],
+			'Debian' => ['/etc/debian_release', '/etc/debian_version', ], 'Mandrake' => '/etc/mandrake-release',
+			'Yellow dog' => '/etc/yellowdog-release', 'Sun JDS' => '/etc/sun-release',
+			'Solaris/Sparc' => '/etc/release', 'Gentoo' => '/etc/gentoo-release',
+			'UnitedLinux' => '/etc/UnitedLinux-release', 'ubuntu' => '/etc/lsb-release',
+		];
 		static $sysnames = ['Darwin' => 'Mac OS X', ];
 		$relname = php_uname('r');
 		foreach ($distro_tips as $distro => $files) {
-			$files = to_list($files);
-			foreach ($files as $file) {
+			foreach (toList($files) as $file) {
 				if (file_exists($file)) {
 					return ['brand' => $distro, 'distro' => trim(file_get_contents($file)), 'release' => $relname, ];
 				}
 			}
 		}
 		$sysname = php_uname('s');
-		$result = ['brand' => avalue($sysnames, $sysname, $sysname), 'distro' => $sysname, 'release' => $relname, ];
-		if ($component) {
-			if (!isset($result[$component])) {
-				throw new Exception_Parameter('Component should be on of {keys}', ['keys' => array_keys($result), ]);
-			}
-			return $result[$component];
-		}
-		return $result;
+		self::$arr = ['brand' => $sysnames[$sysname] ?? $sysname, 'distro' => $sysname, 'release' => $relname, ];
+		return self::$arr;
 	}
 
 	/**
 	 *
 	 * @return number
 	 */
-	public static function memory_limit() {
+	public static function memory_limit(): int {
 		$limit = ini_get('memory_limit');
 		if (intval($limit) < 0) {
-			return intval(0xFFFFFFFF);
+			return 0xFFFFFFFF;
 		}
 		return Number::parse_bytes($limit);
 	}

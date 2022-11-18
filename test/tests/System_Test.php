@@ -34,7 +34,7 @@ class System_Test extends UnitTest {
 
 	public function test_distro(): void {
 		$default = null;
-		$this->log(_dump(System::distro()));
+		System::distro();
 	}
 
 	public function test_memory_limit(): void {

@@ -75,6 +75,7 @@ class PHP_Test extends UnitTest {
 	public function test_setFeature(string $setting, ?int $value): void {
 		if ($value === null) {
 			$this->expectException(Exception_Unimplemented::class);
+			$value = 1024;
 		}
 		$old_value = PHP::setFeature($setting, $value);
 		$this->assertEquals($value, PHP::setFeature($setting, $old_value));
