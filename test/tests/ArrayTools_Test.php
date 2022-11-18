@@ -316,6 +316,80 @@ class ArrayTools_Test extends UnitTest {
 		]);
 	}
 
+	/**
+	 * @param bool $expected
+	 * @param array $array
+	 * @param string|array $values
+	 * @return void
+	 * @dataProvider data_hasAnyValues
+	 */
+	public function test_hasAnyValue(bool $expected, array $array, string|array $values): void {
+		$this->assertEquals($expected, ArrayTools::hasAnyValue($array, $values));
+	}
+
+	public function data_hasAnyValues(): array {
+		return [
+			[true, ['a', 'b', 'c'], 'a'],
+			[true, ['a', 'b', 'c'], 'b'],
+			[true, ['a', 'b', 'c'], 'c'],
+			[false, ['a', 'b', 'c'], 'd'],
+			[true, ['a', 'b', 'c'], ['a']],
+			[true, ['a', 'b', 'c'], ['b']],
+			[true, ['a', 'b', 'c'], ['c']],
+			[false, ['a', 'b', 'c'], ['d']],
+			[true, ['a', 'b', 'c'], ['a', 'd']],
+			[true, ['a', 'b', 'c'], ['b', 'd']],
+			[true, ['a', 'b', 'c'], ['c', 'd']],
+			[false, ['a', 'b', 'c'], ['d', 'd']],
+		];
+	}
+
+	/**
+	 * @param bool $expected
+	 * @param array $array
+	 * @param string|array $values
+	 * @return void
+	 * @dataProvider data_hasAnyKey
+	 */
+	public function test_hasAnyKey(bool $expected, array $array, string|array|int $keys): void {
+		$this->assertEquals($expected, ArrayTools::hasAnyKey($array, $keys));
+	}
+
+	public function data_hasAnyKey(): array {
+		return [
+			[true, ['a', 'b', 'c'], 0],
+			[true, ['a', 'b', 'c'], 1],
+			[true, ['a', 'b', 'c'], 2],
+			[false, ['a', 'b', 'c'], 'd'],
+			[true, ['a', 'b', 'c'], [0]],
+			[true, ['a', 'b', 'c'], [1]],
+			[true, ['a', 'b', 'c'], [2]],
+			[false, ['a', 'b', 'c'], ['d']],
+			[true, ['a', 'b', 'c'], [0, 'd']],
+			[true, ['a', 'b', 'c'], [1, 'd']],
+			[true, ['a', 'b', 'c'], [2, 'd']],
+			[false, ['a', 'b', 'c'], ['d', 'd']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], 'a'],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], 'b'],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], 'c'],
+			[false, ['a' => 0, 'b' => 1, 'c' => 2], 'd'],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['a']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['b']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['c']],
+			[false, ['a' => 0, 'b' => 1, 'c' => 2], ['d']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['a', 'd']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['b', 'd']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['c', 'd']],
+			[false, ['a' => 0, 'b' => 1, 'c' => 2], ['d', 'd']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['a', 'b']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['b', 'c']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['c', 'a']],
+			[false, ['a' => 0, 'b' => 1, 'c' => 2], ['d', 'd', 0, 1, 2, 3, 4, 5]],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['a', 'b', 'c']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['a', 'b', 'c', 'd']],
+		];
+	}
+
 	public function test_increment(): void {
 		$arr = [];
 		$k = 'item';

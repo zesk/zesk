@@ -46,6 +46,8 @@ class PHP_Test extends UnitTest {
 		$result = new PHP();
 		$settings = $result->setSettings(['array_value_separator' => "\t\t"])->settings();
 		$this->assertArrayHasKey('array_value_separator', $settings);
+		$this->assertArrayNotHasKey('singleton', $settings);
+		$this->assertArrayNotHasKey('unserialize_exception', $settings);
 		$this->assertEquals("\t\t", $settings['array_value_separator']);
 	}
 

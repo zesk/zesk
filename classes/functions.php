@@ -532,7 +532,7 @@ function toIterable(mixed $mixed): iterable {
  * @param int $default
  * @return float
  */
-function to_bytes(string $mixed, int $default = 0): float {
+function toBytes(string $mixed, int $default = 0): float {
 	$mixed = strtolower(trim($mixed));
 	if (is_numeric($mixed)) {
 		return intval($mixed);
@@ -543,6 +543,18 @@ function to_bytes(string $mixed, int $default = 0): float {
 	$b = intval($mixed);
 	$pow = ['g' => 3, 'm' => 2, 'k' => 1][$matches[1]] ?? 0;
 	return $b * (1024 ** $pow);
+}
+
+/**
+ * Converts 20G to integer value
+ *
+ * @param string $mixed
+ * @param int $default
+ * @return float
+ * @deprecated 2022-11
+ */
+function to_bytes(string $mixed, int $default = 0): float {
+	return toBytes($mixed, $default);
 }
 
 /**

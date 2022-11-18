@@ -23,7 +23,8 @@ class System_Test extends UnitTest {
 	}
 
 	public function test_ifconfig(): void {
-		$ifconfig = System::ifconfig($this->application);
+		$interfaces = System::ifconfig($this->application);
+		$this->assertIsArray($interfaces);
 	}
 
 	public function test_load_averages(): void {

@@ -8,6 +8,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -21,10 +22,7 @@ class System {
 	 * @param Application $application
 	 */
 	public static function hooks(Application $app): void {
-		$app->hooks->add(Hooks::HOOK_CONFIGURED, [
-			__CLASS__,
-			'configured',
-		]);
+		$app->hooks->add(Hooks::HOOK_CONFIGURED, [__CLASS__, 'configured', ]);
 	}
 
 	public static function configured(Application $application): void {
@@ -72,12 +70,12 @@ class System {
 	 *
 	 * @return array of interface => $ip
 	 */
-	public static function ip_addresses(Application $application) {
-		$ifconfig = self::ifconfig($application, 'inet;ether');
+	public static function ip_addresses(Application $application): array {
+		$interfaces = self::iffilter(self::ifconfig($application), ['inet', 'ether']);
 		$ips = [];
-		foreach ($ifconfig as $interface => $values) {
+		foreach ($interfaces as $interface => $values) {
 			if (array_key_exists('inet', $values)) {
-				$ip = avalue(array_keys($values['inet']), 0);
+				$ip = first(array_keys($values['inet']));
 				if (IPv4::valid($ip)) {
 					$ips[$interface] = $ip;
 				}
@@ -91,10 +89,10 @@ class System {
 	 *
 	 * @return array of interface => $ip
 	 */
-	public static function mac_addresses(Application $application) {
-		$ifconfig = self::ifconfig($application, 'inet;ether');
+	public static function mac_addresses(Application $application): array {
+		$interfaces = self::ifconfig($application, 'inet;ether');
 		$macs = [];
-		foreach ($ifconfig as $interface => $values) {
+		foreach ($interfaces as $interface => $values) {
 			if (array_key_exists('ether', $values)) {
 				$mac = avalue(array_keys($values['ether']), 0);
 				$macs[$interface] = $mac;
@@ -104,12 +102,30 @@ class System {
 	}
 
 	/**
-	 * Run ifconfig configuration utility and parse results
+	 * Filter ifconfig results to find interfaces with specific subkey(s)
 	 *
-	 * @param string $filter
+	 * @param array $results
+	 * @param array|string|null $filter
 	 * @return array
 	 */
-	public static function ifconfig(Application $application, $filter = null) {
+	public static function iffilter(array $results, array|string $filter = null): array {
+		$output = [];
+		foreach ($results as $interface => $values) {
+			if (is_array($values)) {
+				if (ArrayTools::hasAnyKey($values, $filter)) {
+					$output[$interface] = $values;
+				}
+			}
+		}
+		return $output;
+	}
+
+	/**
+	 * Run ifconfig configuration utility and parse results
+	 *
+	 * @return array
+	 */
+	public static function ifconfig(Application $application) {
 		$result = [];
 
 		try {
@@ -118,27 +134,21 @@ class System {
 				$command = $cache->get();
 			} else {
 				$command = $application->process->execute('ifconfig');
-				$application->cache->saveDeferred($cache->expiresAfter($application->configuration->path_get(__METHOD__ . '::expires_after', 60))
-					->set($command));
+				$application->cache->saveDeferred($cache->expiresAfter($application->configuration->path_get(__METHOD__ . '::expires_after', 60))->set($command));
 			}
 			$interface = null;
 			$flags = null;
 			foreach ($command as $line) {
-				if (preg_match('/^[^\s]/', $line)) {
+				if (preg_match('/^\S/', $line)) {
 					[$interface, $flags] = pair($line, ' ');
 					$interface = rtrim($interface, ':');
-					$result[$interface] = [
-						'flags' => ltrim($flags),
-					];
+					$result[$interface] = ['flags' => ltrim($flags), ];
 				} else {
 					$line = trim($line);
 					$pairs = explode(' ', $line);
 					$type = rtrim(array_shift($pairs), ':');
 					$id = StringTools::unprefix(array_shift($pairs), 'addr:');
-					$result[$interface][$type][$id] = [
-						'value' => $id,
-						$type => $id,
-					];
+					$result[$interface][$type][$id] = ['value' => $id, $type => $id, ];
 					while (count($pairs) > 1) {
 						$name = rtrim(array_shift($pairs), ':');
 						$value = array_shift($pairs);
@@ -146,7 +156,7 @@ class System {
 					}
 				}
 			}
-		} catch (Exception $e) {
+		} catch (Exception) {
 			$result = [
 				'localhost' => [
 					'inet' => [
@@ -172,15 +182,6 @@ class System {
 				],
 			];
 		}
-		if ($filter !== null) {
-			foreach ($result as $interface => $values) {
-				if (is_array($values)) {
-					if (!ArrayTools::hasAnyKey($values, $filter)) {
-						unset($result[$interface]);
-					}
-				}
-			}
-		}
 		return $result;
 	}
 
@@ -204,11 +205,7 @@ class System {
 				$uptime_string = explode(' ', str_replace(',', '', trim(substr($uptime, $pos + strlen($pattern)))));
 			}
 		}
-		$loads = [
-			floatval($uptime_string[0]),
-			floatval($uptime_string[1]),
-			floatval($uptime_string[2]),
-		];
+		$loads = [floatval($uptime_string[0]), floatval($uptime_string[1]), floatval($uptime_string[2]), ];
 		return $loads;
 	}
 
@@ -216,7 +213,7 @@ class System {
 	 * Retrieve volume information in a parsed manner from system call to "df"
 	 *
 	 * @param string $volume
-	 *        	Request for a specific volume (passed to df)
+	 *            Request for a specific volume (passed to df)
 	 * @return array:array
 	 */
 	public static function volume_info($volume = '') {
@@ -236,17 +233,7 @@ class System {
 		// Linux:	Filesystem  1K-blocks       Used Available	Use%		Mounted on
 		// Darwin:  Filesystem  1024-blocks     Used Available  Capacity iused ifree %iused Mounted on
 		// Darwin:  Filesystem   1024-blocks       Used  Available Capacity  Mounted on
-		$normalized_headers = [
-			'1024-blocks' => 'total',
-			'1k-blocks' => 'total',
-			'avail' => 'free',
-			'available' => 'free',
-			'use%' => 'used_percent',
-			'capacity' => 'used_percent',
-			'mounted' => 'path',
-			'mounted on' => 'path',
-			'filesystem' => 'filesystem',
-		];
+		$normalized_headers = ['1024-blocks' => 'total', '1k-blocks' => 'total', 'avail' => 'free', 'available' => 'free', 'use%' => 'used_percent', 'capacity' => 'used_percent', 'mounted' => 'path', 'mounted on' => 'path', 'filesystem' => 'filesystem', ];
 		$result = [];
 		foreach ($volume_info as $volume_data) {
 			$row = [];
@@ -280,56 +267,22 @@ class System {
 	 * @return array:array
 	 */
 	public static function distro($component = null) {
-		static $distro_tips = [
-			'Novell SUSE' => '/etc/SUSE-release',
-			'Red Hat' => [
-				'/etc/redhat-release',
-				'/etc/redhat_version',
-			],
-			'Fedora' => '/etc/fedora-release',
-			'Slackware' => [
-				'/etc/slackware-release',
-				'/etc/slackware-version',
-			],
-			'Debian' => [
-				'/etc/debian_release',
-				'/etc/debian_version',
-			],
-			'Mandrake' => '/etc/mandrake-release',
-			'Yellow dog' => '/etc/yellowdog-release',
-			'Sun JDS' => '/etc/sun-release',
-			'Solaris/Sparc' => '/etc/release',
-			'Gentoo' => '/etc/gentoo-release',
-			'UnitedLinux' => '/etc/UnitedLinux-release',
-			'ubuntu' => '/etc/lsb-release',
-		];
-		static $sysnames = [
-			'Darwin' => 'Mac OS X',
-		];
+		static $distro_tips = ['Novell SUSE' => '/etc/SUSE-release', 'Red Hat' => ['/etc/redhat-release', '/etc/redhat_version', ], 'Fedora' => '/etc/fedora-release', 'Slackware' => ['/etc/slackware-release', '/etc/slackware-version', ], 'Debian' => ['/etc/debian_release', '/etc/debian_version', ], 'Mandrake' => '/etc/mandrake-release', 'Yellow dog' => '/etc/yellowdog-release', 'Sun JDS' => '/etc/sun-release', 'Solaris/Sparc' => '/etc/release', 'Gentoo' => '/etc/gentoo-release', 'UnitedLinux' => '/etc/UnitedLinux-release', 'ubuntu' => '/etc/lsb-release', ];
+		static $sysnames = ['Darwin' => 'Mac OS X', ];
 		$relname = php_uname('r');
 		foreach ($distro_tips as $distro => $files) {
 			$files = to_list($files);
 			foreach ($files as $file) {
 				if (file_exists($file)) {
-					return [
-						'brand' => $distro,
-						'distro' => trim(file_get_contents($file)),
-						'release' => $relname,
-					];
+					return ['brand' => $distro, 'distro' => trim(file_get_contents($file)), 'release' => $relname, ];
 				}
 			}
 		}
 		$sysname = php_uname('s');
-		$result = [
-			'brand' => avalue($sysnames, $sysname, $sysname),
-			'distro' => $sysname,
-			'release' => $relname,
-		];
+		$result = ['brand' => avalue($sysnames, $sysname, $sysname), 'distro' => $sysname, 'release' => $relname, ];
 		if ($component) {
 			if (!isset($result[$component])) {
-				throw new Exception_Parameter('Component should be on of {keys}', [
-					'keys' => array_keys($result),
-				]);
+				throw new Exception_Parameter('Component should be on of {keys}', ['keys' => array_keys($result), ]);
 			}
 			return $result[$component];
 		}

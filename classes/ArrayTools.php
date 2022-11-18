@@ -174,11 +174,7 @@ class ArrayTools {
 	 *            Value which is removed
 	 * @return array
 	 */
-	public static function listTrimClean(array $arr, string $character_list = self::TRIM_WHITESPACE, array $values = [
-		null,
-		'',
-		false,
-	]): array {
+	public static function listTrimClean(array $arr, string $character_list = self::TRIM_WHITESPACE, array $values = [null, '', false, ]): array {
 		return self::clean(self::trim($arr, $character_list), $values);
 	}
 
@@ -762,9 +758,8 @@ class ArrayTools {
 	 * @return boolean
 	 * @see to_list
 	 */
-	public static function hasAnyKey(array $array, array|string $keys): bool {
-		$keys = toList($keys);
-		foreach ($keys as $key) {
+	public static function hasAnyKey(array $array, array|string|int $keys): bool {
+		foreach (toList($keys) as $key) {
 			if (array_key_exists($key, $array)) {
 				return true;
 			}
@@ -783,8 +778,7 @@ class ArrayTools {
 	 * @see to_list
 	 */
 	public static function hasAnyValue(array $array, string|array $values): bool {
-		$values = toList($values);
-		foreach ($values as $value) {
+		foreach (toList($values) as $value) {
 			if (in_array($value, $array)) {
 				return true;
 			}
@@ -1033,10 +1027,7 @@ class ArrayTools {
 		} elseif (is_array($arr[$k])) {
 			$arr[$k][] = $v;
 		} else {
-			$arr[$k] = [
-				$arr[$k],
-				$v,
-			];
+			$arr[$k] = [$arr[$k], $v, ];
 		}
 	}
 
@@ -1081,10 +1072,7 @@ class ArrayTools {
 		} elseif (is_array($arr[$k])) {
 			array_unshift($arr[$k], $v);
 		} else {
-			$arr[$k] = [
-				$v,
-				$arr[$k],
-			];
+			$arr[$k] = [$v, $arr[$k], ];
 		}
 	}
 
@@ -1146,9 +1134,7 @@ class ArrayTools {
 			if (array_key_exists($v, $result)) {
 				$result[$v][] = $k;
 			} else {
-				$result[$v] = [
-					$k,
-				];
+				$result[$v] = [$k, ];
 			}
 		}
 		return $result;
@@ -1521,9 +1507,7 @@ class ArrayTools {
 	public static function keysReplace(array $arr, string $find, string $replace) {
 		$new = [];
 		foreach ($arr as $k => $v) {
-			$new[strtr($k, [
-				$find => $replace,
-			])] = $v;
+			$new[strtr($k, [$find => $replace, ])] = $v;
 		}
 		return $new;
 	}
@@ -1657,9 +1641,7 @@ class ArrayTools {
 	 */
 	public static function filterValues(array $array, int|string|array $values, bool $strict = true): array {
 		if (is_scalar($values)) {
-			$values = [
-				$values,
-			];
+			$values = [$values, ];
 		}
 		$values = to_array($values);
 		if (count($values) === 0) {

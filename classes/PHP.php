@@ -6,8 +6,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use \ReflectionObject;
-use \ReflectionProperty;
+use ReflectionObject;
 
 /**
  *
@@ -88,16 +87,16 @@ class PHP {
 	/**
 	 * Global dump settings, used when called statically
 	 *
-	 * @var php
+	 * @var ?self
 	 */
 	private static ?self $singleton = null;
 
 	/**
 	 * Return global static dump object
 	 *
-	 * @return php
+	 * @return self
 	 */
-	public static function singleton() {
+	public static function singleton(): self {
 		if (!self::$singleton instanceof self) {
 			self::$singleton = new self();
 		}
@@ -109,7 +108,7 @@ class PHP {
 	 *
 	 * @return string
 	 */
-	public static function ini_path() {
+	public static function ini_path(): string {
 		return get_cfg_var('cfg_file_path');
 	}
 
@@ -118,7 +117,7 @@ class PHP {
 	 *
 	 * @return php
 	 */
-	public function settings_one() {
+	public function settings_one(): self {
 		$this->indent_char = '';
 		$this->array_value_separator = ' ';
 		$this->array_open_parenthesis_suffix = '';
@@ -128,9 +127,9 @@ class PHP {
 
 	/**
 	 *
-	 * @return php
+	 * @return array
 	 */
-	public static function dump_settings_one() {
+	public static function dump_settings_one(): array {
 		return self::singleton()->settings_one()->settings();
 	}
 
@@ -140,7 +139,7 @@ class PHP {
 	 * @param mixed $x
 	 * @return string
 	 */
-	public static function dump($x) {
+	public static function dump(mixed $x): string {
 		return self::singleton()->render($x);
 	}
 
@@ -151,7 +150,13 @@ class PHP {
 	 */
 	public function settings(): array {
 		$x = new ReflectionObject($this);
-		return $x->getProperties();
+		$result = [];
+		foreach ($x->getProperties() as $prop) {
+			if ($prop->isPublic()) {
+				$result[$prop->getName()] = $prop->getValue($this);
+			}
+		}
+		return $result;
 	}
 
 	/**
@@ -159,12 +164,20 @@ class PHP {
 	 *
 	 * @param array $set
 	 * @return self
+	 * @throws Exception_Key
 	 */
-	public function setSettings(array $set) {
+	public function setSettings(array $set): self {
 		$x = new ReflectionObject($this);
-		foreach ($set as $prop => $value) {
-			if ($x->hasProperty($prop)) {
-				$this->$prop = $value;
+		foreach ($set as $property_name => $value) {
+			if ($x->hasProperty($property_name)) {
+				$property = $x->getProperty($property_name);
+				if ($property->isPublic()) {
+					$property->setValue($this, $value);
+				} else {
+					throw new Exception_Key($property_name);
+				}
+			} else {
+				throw new Exception_Key($property_name);
 			}
 		}
 		return $this;
@@ -176,7 +189,7 @@ class PHP {
 	 * @param mixed $x
 	 * @return string
 	 */
-	public function render(mixed $x) {
+	public function render(mixed $x): string {
 		$args = func_get_args();
 		$no_first_line_indent = toBool($args[2] ?? false);
 		if (is_array($x)) {
@@ -187,7 +200,7 @@ class PHP {
 			$result = ($no_first_line_indent ? '' : str_repeat($this->indent_char, $indent_level * $this->indent_multiple)) . $this->array_open_parenthesis_prefix . '[' . $this->array_open_parenthesis_suffix;
 			$items = [];
 			if (ArrayTools::isList($x)) {
-				foreach ($x as $k => $v) {
+				foreach ($x as $v) {
 					$items[] = str_repeat($this->indent_char, ($indent_level + 1) * $this->indent_multiple) . $this->render($v, $indent_level + 1, true);
 				}
 			} else {
@@ -215,7 +228,7 @@ class PHP {
 				return $x->_to_php();
 			}
 			if (method_exists($x, '__toString')) {
-				return 'new ' . $x::class . '(' . strval($x) . ')';
+				return 'new ' . $x::class . '(' . $x . ')';
 			}
 			return 'new ' . $x::class . '()';
 		} else {
@@ -226,9 +239,9 @@ class PHP {
 	/**
 	 * Exception logged during unserialization
 	 *
-	 * @var Exception
+	 * @var ?Exception_Syntax
 	 */
-	public static ?Exception_Syntax $unserialize_exception = null;
+	protected static ?Exception_Syntax $unserialize_exception = null;
 
 	/**
 	 * Temporary error handler during unserialization
@@ -251,10 +264,7 @@ class PHP {
 	 */
 	public static function unserialize(string $serialized): mixed {
 		self::$unserialize_exception = null;
-		set_error_handler([
-			__CLASS__,
-			'_unserialize_handler',
-		]);
+		set_error_handler([__CLASS__, '_unserialize_handler', ]);
 		$original = unserialize($serialized);
 		restore_error_handler();
 		if (self::$unserialize_exception) {
@@ -302,7 +312,7 @@ class PHP {
 
 					break;
 				default:
-					$results[$feature] = $result = false;
+					$results[$feature] = false;
 					$errors[] = "Unknown feature \"$feature\"";
 
 					break;
@@ -321,11 +331,12 @@ class PHP {
 	 * if best practices change over time. Wink, wink.
 	 *
 	 * @param string $feature
-	 * @param mixed $value Value to set it to
+	 * @param int|float|string $value Value to set it to
 	 *
 	 * @return mixed Return previous value
+	 * @throws Exception_Unimplemented
 	 */
-	public static function setFeature(string $feature, mixed $value): mixed {
+	public static function setFeature(string $feature, int|float|string $value): mixed {
 		$feature = strtolower($feature);
 		switch ($feature) {
 			case self::FEATURE_TIME_LIMIT:
@@ -334,10 +345,10 @@ class PHP {
 				return $old_value;
 			case self::FEATURE_MEMORY_LIMIT:
 				$old_value = toBytes(ini_get('memory_limit'));
-				ini_set('memory_limit', toBytes($value));
+				ini_set('memory_limit', strval(toBytes($value))); // TODO 8.1 PHP accepts float
 				return $old_value;
 			default:
-				throw new Exception_Unimplemented('No such feature {feature}', compact('feature'));
+				throw new Exception_Unimplemented('No such feature {feature}', ['feature' => $feature]);
 		}
 	}
 
@@ -466,7 +477,7 @@ class PHP {
 	 *
 	 * e.g. PHP::parseClass("zesk\Dude") === "Dude"
 	 *
-	 * As of November 2018, does not appera that PHP have a native function which does this.
+	 * As of November 2018, does not appear that PHP have a native function which does this.
 	 *
 	 * @param string $class
 	 * @return string
@@ -511,11 +522,11 @@ class PHP {
 	}
 
 	/**
-	 * @param $func
+	 * @param string $func
 	 * @return string
 	 * @deprecated 2022-05
 	 */
-	public static function clean_class($func) {
+	public static function clean_class(string $func): string {
 		return self::cleanClass($func);
 	}
 }

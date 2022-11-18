@@ -250,7 +250,7 @@ abstract class Temporal {
 		$translation = self::$UNITS_TRANSLATION_TABLE;
 		$unit = '';
 		foreach ($translation as $unit => $unit_seconds) {
-			if (($seconds > $unit_seconds) || ($stop_unit === $unit)) {
+			if (($seconds >= $unit_seconds) || ($stop_unit === $unit)) {
 				$fraction = floatval($seconds / $unit_seconds);
 				return $unit;
 			}

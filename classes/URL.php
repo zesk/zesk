@@ -16,14 +16,14 @@ class URL {
 	 *
 	 * @var array
 	 */
-	protected static $secure_protocols = ['http' => 'https', 'ftp' => 'sftp', 'telnet' => 'ssh', ];
+	protected static array $secure_protocols = ['http' => 'https', 'ftp' => 'sftp', 'telnet' => 'ssh', ];
 
 	/**
 	 * What's the order for items in a URL (typically http URLs)?
 	 *
 	 * @var array
 	 */
-	public static $url_ordering = ['scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment', ];
+	public static array $url_ordering = ['scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment', ];
 
 	/**
 	 * Query string parsing (case-sensitive)
@@ -542,7 +542,7 @@ class URL {
 	}
 
 	/**
-	 * Return the left-hand portion of the URL up to the specified part
+	 * Return the left-hand portion of the URL up (and including) to the specified part
 	 *
 	 * e.g.
 	 * <code>

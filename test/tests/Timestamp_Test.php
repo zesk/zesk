@@ -12,9 +12,23 @@ namespace zesk;
  *
  */
 class Timestamp_Test extends UnitTest {
-	public function test_instance(): void {
-		$year = $month = $day = $hour = $minute = $second = null;
-		Timestamp::instance($year, $month, $day, $hour, $minute, $second);
+	public function data_instance(): array {
+		return [['2022-11-16 10:32:32', 2022, 11, 16, 10, 32, 32], ['2000-01-01 09:09:02', 2000, 1, 1, 9, 9, 2], ];
+	}
+
+	/**
+	 * @param $string_expected
+	 * @param $year
+	 * @param $month
+	 * @param $day
+	 * @param $hour
+	 * @param $minute
+	 * @param $second
+	 * @return void
+	 * @dataProvider data_instance
+	 */
+	public function test_instance($string_expected, $year, $month, $day, $hour, $minute, $second): void {
+		$this->assertEquals($string_expected, Timestamp::instance($year, $month, $day, $hour, $minute, $second)->format());
 	}
 
 	public function test_utc(): void {
@@ -24,7 +38,9 @@ class Timestamp_Test extends UnitTest {
 	}
 
 	public function test_now(): void {
-		Timestamp::now();
+		$now = Timestamp::now();
+		$nowish = Timestamp::now();
+		$this->assertTrue($nowish->after($now, true));
 	}
 
 	public function test_now_relative(): void {
@@ -43,11 +59,27 @@ class Timestamp_Test extends UnitTest {
 		$this->assert_not_equal($now, $other);
 	}
 
-	public function test_seconds_to_unit(): void {
-		$seconds = null;
-		$divide = false;
-		$stopAtUnit = 'second';
-		Timestamp::seconds_to_unit($seconds, $divide, $stopAtUnit);
+	public function data_seconds_to_unit(): array {
+		return [
+			[Temporal::UNIT_HOUR, 1.0, 3600, Temporal::UNIT_SECOND],
+			[Temporal::UNIT_MINUTE, 1.0, 60, Temporal::UNIT_SECOND],
+			[Temporal::UNIT_SECOND, 1.0, 1, Temporal::UNIT_SECOND],
+		];
+	}
+
+	/**
+	 * @param string $expected
+	 * @param float $expectedFraction
+	 * @param int $seconds
+	 * @param string $stopAtUnit
+	 * @return void
+	 * @dataProvider data_seconds_to_unit
+	 */
+	public function test_seconds_to_unit(string $expected, float $expectedFraction, int $seconds, string $stopAtUnit):
+	void {
+		$fraction = null;
+		$this->assertEquals($expected, Timestamp::seconds_to_unit($seconds, $stopAtUnit, $fraction));
+		$this->assertEquals($expectedFraction, $fraction);
 	}
 
 	public function units_translation_table(): void {
@@ -65,40 +97,18 @@ class Timestamp_Test extends UnitTest {
 	}
 
 	public function bad_months() {
-		return [
-			-1,
-			0,
-			13,
-			14,
-			19,
-			141231241,
-			-12,
-			-11,
-		];
+		return [[-1], [0], [13], [14], [19], [141231241], [-12], [-11], ];
 	}
 
 	public function good_months() {
-		return [
-			1,
-			2,
-			3,
-			4,
-			5,
-			6,
-			7,
-			8,
-			9,
-			10,
-			11,
-			12,
-		];
+		return [[1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11], [12], ];
 	}
 
 	/**
 	 * @dataProvider bad_months
-	 * @expectedException zesk\Exception_Range
 	 */
 	public function test_month_range_bad($month): void {
+		$this->expectException(Exception_Range::class);
 		$x = new Timestamp();
 		$x->month($month);
 	}
@@ -146,17 +156,17 @@ class Timestamp_Test extends UnitTest {
 	}
 
 	/**
-	 * @expectedException zesk\Exception_Range
 	 */
 	public function test_quarter_range_low(): void {
+		$this->expectException(Exception_Range::class);
 		$x = new Timestamp();
 		$x->quarter(0);
 	}
 
 	/**
-	 * @expectedException zesk\Exception_Range
 	 */
 	public function test_quarter_range_high(): void {
+		$this->expectException(Exception_Range::class);
 		$x = new Timestamp();
 		$x->quarter(5);
 	}
@@ -347,10 +357,11 @@ class Timestamp_Test extends UnitTest {
 		$flip = false;
 		Timestamp::units_translation_table();
 
-		$seconds = null;
-		$divide = false;
+		$seconds = 2;
+		$divide = 0;
 		$stopAtUnit = 'second';
-		Timestamp::seconds_to_unit($seconds, $divide, $stopAtUnit);
+		$this->assertEquals('second', Timestamp::seconds_to_unit($seconds, $stopAtUnit, $divide));
+		$this->assertEquals(2.0, $divide);
 
 		$value = new Timestamp();
 		$x->subtract($value);
@@ -413,7 +424,7 @@ class Timestamp_Test extends UnitTest {
 			echo $test_long_date->format($locale) . "\n";
 			$ts = $test_long_date->unixTimestamp();
 			$dt = new Timestamp();
-			$dt->unixTimestamp()($ts);
+			$dt->setUnixTimestamp($ts);
 		} catch (Exception_Convert $e) {
 			$threw = true;
 		}
@@ -426,7 +437,7 @@ class Timestamp_Test extends UnitTest {
 		} else {
 			$this->assert(!$threw, 'Exception_Convert was thrown? PHP_VERSION_ID=' . PHP_VERSION_ID);
 			$test_long_date_2 = new Timestamp();
-			$test_long_date_2->unixTimestamp()($ts);
+			$test_long_date_2->setUnixTimestamp($ts);
 			$this->assert($test_long_date_2->__toString() === $test_long_date->__toString(), $test_long_date_2->__toString() . ' === ' . $test_long_date->__toString());
 		}
 	}
@@ -436,7 +447,7 @@ class Timestamp_Test extends UnitTest {
 	 */
 	public function test_add_unit_deprecated(): void {
 		$t = Timestamp::factory('2000-01-01 00:00:00', 'UTC');
-		$t->addUnit(Timestamp::UNIT_HOUR, 2);
+		$t->addUnit(2, Timestamp::UNIT_HOUR);
 	}
 
 	public function test_difference(): void {
@@ -455,36 +466,26 @@ class Timestamp_Test extends UnitTest {
 	}
 
 	/**
-	 * @expectedException zesk\Exception_Convert
 	 */
 	public function test_parse_fail(): void {
+		$this->expectException(Exception_Convert::class);
 		$x = new Timestamp();
 		$value = 'foo';
 		$x->parse($value);
 	}
 
-	public function serializeExamples() {
+	public function data_serializeExamples(): array {
 		return [
-			[
-				Timestamp::now(),
-			],
-			[
-				Timestamp::factory_ymdhms(2000, 10, 2, 18, 59, 59, 123),
-			],
-			[
-				Timestamp::factory_ymdhms(1970, 12, 31, 18, 59, 59, 123),
-			],
-			[
-				Timestamp::factory_ymdhms(1950, 2, 14, 4, 0, 1, 412),
-			],
-			[
-				Timestamp::factory_ymdhms(1900, 2, 2, 23, 59, 59, 999),
-			],
+			[Timestamp::now(), ],
+			[Timestamp::factory_ymdhms(2000, 10, 2, 18, 59, 59, 123), ],
+			[Timestamp::factory_ymdhms(1970, 12, 31, 18, 59, 59, 123), ],
+			[Timestamp::factory_ymdhms(1950, 2, 14, 4, 0, 1, 412), ],
+			[Timestamp::factory_ymdhms(1900, 2, 2, 23, 59, 59, 999), ],
 		];
 	}
 
 	/**
-	 * @dataProvider serializeExamples
+	 * @dataProvider data_serializeExamples
 	 * @param Timestamp $ts
 	 */
 	public function test_serialize(Timestamp $ts): void {
@@ -493,7 +494,7 @@ class Timestamp_Test extends UnitTest {
 		$this->compare_timestamps($ts, $new);
 	}
 
-	public function compare_timestamps($ts, $new): void {
+	public function compare_timestamps(Timestamp $ts, Timestamp $new): void {
 		$this->assertEquals($ts->year(), $new->year(), 'years match');
 		$this->assertEquals($ts->month(), $new->month(), 'months match');
 		$this->assertEquals($ts->day(), $new->day(), 'days match');
