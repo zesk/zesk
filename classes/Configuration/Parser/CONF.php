@@ -83,7 +83,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			 * Parse and normalize key
 			 */
 			if (str_ends_with($key, '[]')) {
-				$key = StringTools::unsuffix($key, '[]');
+				$key = StringTools::removeSuffix($key, '[]');
 				$append = true;
 			}
 			$found_quote = null;

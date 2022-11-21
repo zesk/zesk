@@ -127,7 +127,7 @@ class Command_Help extends Command_Base {
 			return;
 		}
 		$command_file = $reflection_class->getFileName();
-		$command = StringTools::unprefix($command_file, $this->command_paths);
+		$command = StringTools::removePrefix($command_file, $this->command_paths);
 		$command = File::extension_change(ltrim($command, '/'), null);
 		$command = strtr($command, '/', '-');
 		$docComment = $reflection_class->getDocComment();

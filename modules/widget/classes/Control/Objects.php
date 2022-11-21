@@ -18,7 +18,7 @@ class Control_Objects extends Control_Text {
 			$this->theme_object = $this->theme . '/object';
 		}
 		if ($this->controller === null) {
-			$this->controller = StringTools::unprefix(strtolower(get_class($this)), 'control_');
+			$this->controller = StringTools::removePrefix(strtolower(get_class($this)), 'control_');
 		}
 		if ($this->controller_url === null) {
 			$this->controller_url = "/control/$this->controller/" . $this->column() . '/' . $this->name();

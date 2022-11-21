@@ -17,28 +17,26 @@ class Net_SMTP_Client_Test extends UnitTest {
 	public function test_main(): void {
 		$url = $this->option('url');
 		if (!$url) {
-			$this->markTestIncomplete('No URL specified for ' . __CLASS__);
+			$this->markTestSkipped('No URL specified for ' . __CLASS__);
 		}
 		$from = $this->option('from');
 		if (!$from) {
-			$this->markTestIncomplete('No from specified for ' . __CLASS__);
+			$this->markTestSkipped('No from specified for ' . __CLASS__);
 		}
 		$to = $this->option('to');
 		if (!$to) {
-			$this->markTestIncomplete('No to specified for ' . __CLASS__);
+			$this->markTestSkipped('No to specified for ' . __CLASS__);
 		}
 
 		$options = [
 			'echo_log' => true,
 		];
-		$testx = new Net_SMTP_Client($this->application, $url, $options);
+		$client = new Net_SMTP_Client($this->application, $url, $options);
 
-		echo 'Hello';
-
-		$testx->connect();
+		$client->connect();
 
 		$headers = null;
 		$body = null;
-		$testx->send($from, $to, $headers, $body);
+		$client->send($from, $to, $headers, $body);
 	}
 }

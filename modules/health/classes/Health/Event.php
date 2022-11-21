@@ -73,7 +73,7 @@ class Health_Event extends ORM {
 		$event['data'] = $data;
 
 		$hash = md5($application->process->id() . '-' . mt_rand() . '-' . $microtime);
-		$msec = Text::ralign("$msec", 3, '0');
+		$msec = Text::rightAlign("$msec", 3, '0');
 		$filename = strtr("$when.$msec-$hash.event", [
 			' ' => '-',
 		]);

@@ -116,7 +116,7 @@ abstract class Server_Platform extends Hookable {
 	}
 
 	public function name() {
-		return StringTools::unprefix(get_class($this), __CLASS__);
+		return StringTools::removePrefix(get_class($this), __CLASS__);
 	}
 
 	/**

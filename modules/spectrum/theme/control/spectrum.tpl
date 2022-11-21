@@ -32,7 +32,7 @@ $options = [
 	'preferredFormat' => 'hex6',
 ];
 
-$response->jquery("\$('#$html_id').spectrum(" . JSON::encodex($options) . ');');
+$response->jquery("\$('#$html_id').spectrum(" . JSON::encodeJavaScript($options) . ');');
 $response->javascript('/share/spectrum/spectrum.js', [
 	'share' => true,
 ]);

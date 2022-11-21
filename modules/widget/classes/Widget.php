@@ -264,7 +264,7 @@ class Widget extends Hookable {
 		}
 		if ($this->contextClass() === null) {
 			$cl = get_class($this);
-			$cl = StringTools::rright($cl, '\\', $cl);
+			$cl = StringTools::reverseRight($cl, '\\', $cl);
 			$this->contextClass(strtr(strtolower($cl), '_', '-'));
 		}
 		$this->call_hook('construct');
@@ -666,7 +666,7 @@ class Widget extends Hookable {
 			if (!str_contains($class, '\\') && class_exists("zesk\\$class")) {
 				$widget = $application->factoryArguments('zesk\\' . $class, $args);
 				if ($widget) {
-					$application->deprecated('{method} called with unprefixed class {class}', [
+					$application->deprecated('{method} called with removePrefixed class {class}', [
 						'method' => __METHOD__,
 						'class' => $class,
 					]);
@@ -1774,7 +1774,7 @@ class Widget extends Hookable {
 			}
 			$input_name = $object->applyMap($this->name());
 			if ($this->request_index !== null) {
-				$input_name = StringTools::unsuffix($input_name, '[]');
+				$input_name = StringTools::removeSuffix($input_name, '[]');
 				if ($this->request->has($input_name, false)) {
 					$new_value = $this->request->getArray($input_name);
 					$new_value = $this->sanitize($new_value);

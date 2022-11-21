@@ -849,7 +849,7 @@ class Class_ORM extends Hookable {
 		// In case configure changes it
 		$this_class = $this->class;
 		if ($this->code_name === '') {
-			$this->code_name = StringTools::rright($this_class, '\\');
+			$this->code_name = StringTools::reverseRight($this_class, '\\');
 		}
 		if ($this->name === '') {
 			$this->name = $this->option('name', $this_class);
@@ -1801,7 +1801,7 @@ class Class_ORM extends Hookable {
 	 * @return string
 	 */
 	protected function polymorphicClassParse(ORM $object, string $column): string {
-		$class = StringTools::unprefix($object::class, [$this->polymorphic . '_', $object::class, ], true);
+		$class = StringTools::removePrefix($object::class, [$this->polymorphic . '_', $object::class, ], true);
 		return strtolower($class);
 	}
 

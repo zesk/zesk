@@ -418,7 +418,7 @@ class Command_Configure extends Command_Base {
 
 		foreach ($files as $file) {
 			$this->engine->variable_map([
-				'current_host_path' => rtrim(StringTools::unsuffix($file, $suffix), '/'),
+				'current_host_path' => rtrim(StringTools::removeSuffix($file, $suffix), '/'),
 				'self_path' => dirname($file),
 				'self' => $file,
 			]);

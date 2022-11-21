@@ -55,7 +55,7 @@ class World_Bootstrap_Country extends Hookable {
 	public function bootstrap(): void {
 		$application = $this->application;
 		$prefix = __NAMESPACE__ . '\\';
-		$x = $application->objects->factory($prefix . StringTools::unprefix(__CLASS__, $prefix . 'World_Bootstrap_'), $application);
+		$x = $application->objects->factory($prefix . StringTools::removePrefix(__CLASS__, $prefix . 'World_Bootstrap_'), $application);
 		if ($this->optionBool('drop')) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}

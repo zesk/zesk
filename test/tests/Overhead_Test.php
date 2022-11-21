@@ -33,8 +33,8 @@ class Overhead_Test extends UnitTest {
 		$nusers = count($users);
 		$this->log('{nusers} users fit in {bytes}, or {per_user} per user', [
 			'nusers' => $nusers,
-			'bytes' => Number::format_bytes($this->application->locale, $test_limit),
-			'per_user' => Number::format_bytes($this->application->locale, $test_limit / $nusers),
+			'bytes' => Number::formatBytes($this->application->locale, $test_limit),
+			'per_user' => Number::formatBytes($this->application->locale, intval($test_limit / $nusers)),
 		]);
 	}
 

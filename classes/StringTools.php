@@ -8,8 +8,6 @@ namespace zesk;
 
 /**
  * String manipulation functions, largely based on latin languages.
- *
- * @todo Check multibyte functionality with PHP7
  */
 class StringTools {
 	public static function case_match(string $string, string $pattern): string {
@@ -47,10 +45,11 @@ class StringTools {
 	 * @param string $left
 	 * @param string $right
 	 * @return array
-	 * @see pairr
+	 * @see reversePair
 	 */
-	public static function pairr(string $string, string $delim = '.', mixed $left = null, mixed $right = null) {
-		return pairr($string, $delim, $left, $right);
+	public static function reversePair(string $string, string $delim = '.', mixed $left = null, mixed $right = null):
+	array {
+		return reversePair($string, $delim, $left, $right);
 	}
 
 	/**
@@ -84,7 +83,7 @@ class StringTools {
 	 *            $default
 	 * @return string
 	 */
-	public static function rleft(string $haystack, string $needle, string $default = null): string {
+	public static function reverseLeft(string $haystack, string $needle, string $default = null): string {
 		if (($pos = strrpos($haystack, $needle)) === false) {
 			return $default === null ? $haystack : $default;
 		}
@@ -122,7 +121,7 @@ class StringTools {
 	 *            $default
 	 * @return string
 	 */
-	public static function rright(string $haystack, string $needle, string $default = null): string {
+	public static function reverseRight(string $haystack, string $needle, string $default = null): string {
 		if (($pos = strrpos($haystack, $needle)) === false) {
 			return $default === null ? $haystack : $default;
 		}
@@ -166,15 +165,7 @@ class StringTools {
 	 * @return string
 	 */
 	public static function capitalize(string $phrase): string {
-		if (function_exists('mb_convert_case')) {
-			return mb_convert_case($phrase, MB_CASE_TITLE);
-		} else {
-			$items = explode(' ', strtolower($phrase));
-			foreach ($items as $i => $word) {
-				$items[$i] = ucfirst($word);
-			}
-			return implode(' ', $items);
-		}
+		return mb_convert_case($phrase, MB_CASE_TITLE);
 	}
 
 	/**
@@ -201,7 +192,7 @@ class StringTools {
 	 * Kind of like UNIX "awk '{ print $index }'"
 	 * Null for index means return the whole list as an array
 	 *
-	 * @param array $lines Lines to extract a column of information from
+	 * @param array $lines Array of strings to extract a column of information from
 	 * @param ?int $index Column to fetch
 	 * @param string $delim List of delimiter characters
 	 * @param ?int $max_fields Maximum fields to extract on each line
@@ -212,8 +203,6 @@ class StringTools {
 		foreach ($lines as $k => $v) {
 			if (is_string($v)) {
 				$array[$k] = self::field($v, $index, $delim, $max_fields);
-			} elseif (is_array($v)) {
-				$array[$k] = self::column($v, $index, $delim, $max_fields);
 			}
 		}
 		return $array;
@@ -333,38 +322,46 @@ class StringTools {
 	 *
 	 * @param string $string
 	 * @param mixed $prefix
-	 *            A string or an array of strings to unprefix. First matched string is used to
-	 *            unprefix the string.
+	 *            A string or an array of strings to removePrefix. First matched string is used to
+	 *            removePrefix the string.
 	 * @return string
 	 */
-	public static function unprefix(string|array $string, string|array $prefix, bool $case_insensitive = false): string|array {
-		if (is_array($prefix)) {
+	public static function removePrefix(string|array $string, string|array $prefix, bool $case_insensitive = false): string|array {
+		/* Unwrap string first to make 2nd case simpler */
+		if (is_array($string)) {
+			$result = [];
+			foreach ($string as $item) {
+				$result[] = self::removePrefix($item, $prefix, $case_insensitive);
+			}
+			return $result;
+		} elseif (is_array($prefix)) {
 			foreach ($prefix as $pre) {
-				$new_string = self::unprefix($string, $pre, $case_insensitive);
+				$new_string = self::removePrefix($string, $pre, $case_insensitive);
 				if ($new_string !== $string) {
+					/* remove prefix once and only once */
 					return $new_string;
 				}
 			}
 			return $string;
 		} else {
-			return self::begins($string, $prefix, $case_insensitive) ? strval(substr($string, strlen($prefix))) : $string;
+			return self::begins($string, $prefix, $case_insensitive) ? substr($string, strlen($prefix)) : $string;
 		}
 	}
 
 	/**
 	 * Unsuffix a string (remove a suffix if found at end of a string)
 	 *
-	 * @param string $string
+	 * @param string|array $string
 	 * @param mixed $suffix
-	 *            A string or an array of strings to unsuffix. First matched string is used to
-	 *            unsuffix the string.
+	 *            A string or an array of strings to removeSuffix. First matched string is used to
+	 *            removeSuffix the string.
 	 * @return string
 	 */
-	public static function unsuffix(string|array $string, string $suffix, bool $case_insensitive = false): string|array {
+	public static function removeSuffix(string|array $string, string $suffix, bool $case_insensitive = false): string|array {
 		if (is_array($string)) {
 			$result = [];
 			foreach ($string as $k => $v) {
-				$result[$k] = self::unsuffix($v, $suffix, $case_insensitive);
+				$result[$k] = self::removeSuffix($v, $suffix, $case_insensitive);
 			}
 			return $result;
 		} else {
@@ -401,10 +398,7 @@ class StringTools {
 	 * @param string $str
 	 * @return boolean
 	 */
-	public static function is_ascii($str) {
-		if (strlen($str) < 2) {
-			return true;
-		}
+	public static function is_ascii(string $str): bool {
 		$n = strlen($str);
 		for ($i = 0; $i < $n; $i++) {
 			if (ord($str[$i]) > 128) {
@@ -420,7 +414,7 @@ class StringTools {
 	 * @param string $str
 	 * @return boolean
 	 */
-	public static function is_utf8($str) {
+	public static function is_utf8(string $str): bool {
 		$len = strlen($str);
 		for ($i = 0; $i < $len; $i++) {
 			$c = ord($str[$i]);
@@ -501,7 +495,7 @@ class StringTools {
 	 *            Content in which to replace string
 	 * @return string
 	 */
-	public static function replace_first(string $search, string $replace, string $content) {
+	public static function replace_first(string $search, string $replace, string $content): string {
 		$x = explode($search, $content, 2);
 		if (count($x) === 1) {
 			return $content;
@@ -521,15 +515,13 @@ class StringTools {
 		if ($length < 0) {
 			return $text;
 		}
-		if (StringTools::length($text) < $length) {
+		if (StringTools::length($text) <= $length) {
 			return $text;
 		}
 		$text = StringTools::substr($text, 0, $length);
 		$off = 0;
 		$aa = [
-			' ',
-			"\n",
-			"\t",
+			' ', "\n", "\t",
 		];
 		$letters = StringTools::str_split($text);
 		if (count($letters) >= 0) {
@@ -570,19 +562,19 @@ class StringTools {
 	/**
 	 * Convert tabs to spaces, intelligently.
 	 *
-	 * If no $tab_width is specified, uses 4 for tab width.
+	 * If no $tab_width is not specified (or negative), uses default of 4 for tab width.
 	 *
 	 * @see http://www.nntp.perl.org/group/perl.macperl.anyperl/154
 	 * @param string $text
 	 * @param int $tab_width
 	 * @return string
 	 */
-	public static function detab($text, $tab_width = null) {
-		if ($tab_width === null) {
+	public static function replaceTabs(string $text, int $tab_width = -1, string $replace = ' '): string {
+		if ($tab_width < 0) {
 			$tab_width = 4;
 		}
 		//	$text =~ s{(.*?)\t}{$1.(' ' x ($g_tab_width - length($1) % $g_tab_width))}ge;
-		return preg_replace_callback('@^(.*?)\t@m', fn ($matches) => $matches[1] . str_repeat(' ', $tab_width - strlen($matches[1]) % $tab_width), $text);
+		return preg_replace_callback('@^(.*?)\t@m', fn ($matches) => $matches[1] . ($tab_width > 0 ? str_repeat($replace, $tab_width - strlen($matches[1]) % $tab_width) : ''), $text);
 	}
 
 	/**
@@ -653,7 +645,7 @@ class StringTools {
 	 *            of arrays of strings
 	 * @return string
 	 */
-	public static function csv_quote_rows(array $x): array {
+	public static function csv_quote_rows(array $x): string {
 		$yy = '';
 		foreach ($x as $row) {
 			$yy .= self::csv_quote_row($row);
@@ -692,21 +684,15 @@ class StringTools {
 	 * @return integer
 	 * @see mb_internal_encoding
 	 */
-	public static function length(string $string, string $encoding = 'UTF-8') {
-		if (function_exists('mb_strlen')) {
-			if ($encoding === null) {
-				$encoding = mb_internal_encoding();
-			}
-			return mb_strlen($string, $encoding);
+	public static function length(string $string, string $encoding = 'UTF-8'): int {
+		if ($encoding === '') {
+			$encoding = mb_internal_encoding();
 		}
-		if ($encoding && $encoding !== 'UTF-8') {
-			$string = UTF8::from_charset($string, $encoding);
-		}
-		return strlen(UTF8::to_iso8859($string));
+		return mb_strlen($string, $encoding);
 	}
 
 	/**
-	 * Retrieve a substring of a multi-byte string
+	 * Retrieve a substring of a multibyte string
 	 *
 	 * @param string $string
 	 * @param int $start
@@ -717,32 +703,9 @@ class StringTools {
 	 * @see mb_internal_encoding
 	 */
 	public static function substr(string $string, int $start, int $length, string $encoding = 'UTF-8'): string {
-		if (function_exists('mb_substr')) {
-			if ($encoding === null) {
-				$encoding = mb_internal_encoding();
-			}
-			return mb_substr($string, $start, $length, $encoding);
+		if ($encoding === '') {
+			$encoding = mb_internal_encoding();
 		}
-		// Use preg_match_all to extract characters
-		if ($encoding && $encoding !== 'UTF-8') {
-			$string = UTF8::from_charset($string, $encoding);
-		}
-		preg_match_all('/./us', $string, $match);
-		return implode('', $length === null ? array_slice($match[0], $start) : array_slice($match[0], $start, $length));
-	}
-
-	/**
-	 * Moved to HTML::wrap 2018-02. Leave here for now.
-	 *
-	 * @param string $phrase
-	 * @return string
-	 * @see HTML::wrap
-	 * @deprecated 2019-01
-	 */
-	public static function wrap(string $phrase): string {
-		return call_user_func_array([
-			HTML::class,
-			'wrap',
-		], func_get_args());
+		return mb_substr($string, $start, $length, $encoding);
 	}
 }

@@ -37,7 +37,7 @@ class Template_Test extends UnitTest {
 	public function test_would_exist(): void {
 		$path = 'foo.tpl';
 		$template = new Template($this->application);
-		$template->would_exist($path);
+		$this->assertFalse($template->would_exist($path));
 	}
 
 	public function test_output(): void {
@@ -128,9 +128,6 @@ g (hello4)
 h (hello1)
 } END zesk\Template 0
 EOF;
-		echo $result;
-		$this->assert_equal(trim($result), trim($expect));
-
-		echo basename(__FILE__) . ": success\n";
+		$this->assertEquals(trim($result), trim($expect));
 	}
 }

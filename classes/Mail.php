@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
@@ -92,7 +93,7 @@ class Mail extends Hookable {
 	/**
 	 *
 	 */
-	private static ?resource $fp = null;
+	private static mixed $fp = null;
 
 	/**
 	 *
@@ -106,7 +107,7 @@ class Mail extends Hookable {
 	 * @param string $body
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $headers, $body, array $options = []) {
+	public function __construct(Application $application, array $headers, string $body, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inheritConfiguration();
 		$this->headers = $headers;
@@ -122,18 +123,15 @@ class Mail extends Hookable {
 	 * @param array $options
 	 * @return Mail
 	 */
-	public static function factory(Application $application, array $headers, $body, array $options = []) {
+	public static function factory(Application $application, array $headers, string $body, array $options = []): self {
 		return new self($application, $headers, $body, $options);
 	}
 
 	/**
-	 * Get/Set a header
+	 * Get a header
 	 *
 	 * @param string $name
-	 * @param string $set
-	 *            Value to set
-	 *
-	 * @return self
+	 * @return array|string
 	 */
 	public function header(string $name): array|string {
 		return $this->headers[$name] ?? '';
@@ -324,7 +322,11 @@ class Mail extends Hookable {
 		$atext = "$atom+";
 		$domain = '[-A-Za-z0-9.]+';
 		$white = '\s+';
-		$patterns = ['/(' . $atext . '|"[^\"]")' . $white . '<(' . $atext . ')@(' . $domain . ')>/' => [1, 2, 3], '/<(' . $atext . ')@(' . $domain . ')>/' => [null, 1, 2], '/(' . $atext . ')@(' . $domain . ')/' => [null, 1, 2], ];
+		$patterns = [
+			'/(' . $atext . '|"[^\"]")' . $white . '<(' . $atext . ')@(' . $domain . ')>/' => [1, 2, 3],
+			'/<(' . $atext . ')@(' . $domain . ')>/' => [null, 1, 2],
+			'/(' . $atext . ')@(' . $domain . ')/' => [null, 1, 2],
+		];
 		foreach ($patterns as $pattern => $mappings) {
 			if (preg_match($pattern, $email, $matches)) {
 				[$name_index, $user_index, $domain_index] = $mappings;
@@ -550,10 +552,14 @@ class Mail extends Hookable {
 		// Common Headers
 		$headers = ArrayTools::filter($mail_options, 'From;To;Reply-To;Return-Path;Cc;Bcc;Return-Receipt-To;Subject');
 		if (!array_key_exists('From', $headers)) {
-			throw new Exception_Semantics('Need to have a From header: {keys} {debug}', ['keys' => array_keys($headers), 'debug' => _dump($mail_options), ]);
+			throw new Exception_Semantics('Need to have a From header: {keys} {debug}', [
+				'keys' => array_keys($headers), 'debug' => _dump($mail_options),
+			]);
 		}
 		if (!array_key_exists('To', $headers)) {
-			throw new Exception_Semantics('Need to have a To header: {keys} <pre>{debug}</pre>', ['keys' => array_keys($headers), 'debug' => _dump($mail_options), ]);
+			throw new Exception_Semantics('Need to have a To header: {keys} <pre>{debug}</pre>', [
+				'keys' => array_keys($headers), 'debug' => _dump($mail_options),
+			]);
 		}
 		// KMD: 2015-11-05 Removed
 		//	 "Return-Receipt-To"

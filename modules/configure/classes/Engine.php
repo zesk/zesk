@@ -789,7 +789,7 @@ class Engine extends Hookable {
 		];
 		if (count($sources) === 0) {
 			$this->verbose_log('No file {source} found in {host_paths}', $__);
-			$completions = ArrayTools::suffixValues($this->host_paths, '/' . StringTools::unprefix($source, '/'));
+			$completions = ArrayTools::suffixValues($this->host_paths, '/' . StringTools::removePrefix($source, '/'));
 			$__ = [
 				'source' => $source,
 				'completions' => implode(' ', $this->completions),

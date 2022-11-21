@@ -261,7 +261,7 @@ class Command_Check extends Command_Iterator_File {
 
 	private function fix_suffix(&$contents) {
 		$contents = rtrim($contents);
-		$contents = rtrim(StringTools::unsuffix($contents, '?>')) . "\n";
+		$contents = rtrim(StringTools::removeSuffix($contents, '?>')) . "\n";
 		return true;
 	}
 
@@ -408,7 +408,7 @@ class Command_Check extends Command_Iterator_File {
 				'show-copyright',
 			] as $option) {
 				if ($this->optionBool($option)) {
-					$results = array_merge($results, $this->show_comments($contents, StringTools::unprefix($option, 'show-', $prefix)));
+					$results = array_merge($results, $this->show_comments($contents, StringTools::removePrefix($option, 'show-', $prefix)));
 				}
 			}
 			if (count($results) > 0) {
@@ -438,7 +438,7 @@ class Command_Check extends Command_Iterator_File {
 				}
 			} elseif ($this->optionBool('safe')) {
 				$ext = File::extension($path);
-				$path = StringTools::unsuffix($path, ".$ext") . ".new.$ext";
+				$path = StringTools::removeSuffix($path, ".$ext") . ".new.$ext";
 			}
 			$this->verbose_log("Writing $path");
 			file_put_contents($path, $contents);

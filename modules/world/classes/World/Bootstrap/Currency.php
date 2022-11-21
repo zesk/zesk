@@ -56,7 +56,7 @@ class World_Bootstrap_Currency extends Hookable {
 
 	public function bootstrap(): void {
 		$prefix = __NAMESPACE__ . '\\';
-		$x = $this->application->ormFactory($prefix . StringTools::unprefix(__CLASS__, $prefix . 'World_Bootstrap_'));
+		$x = $this->application->ormFactory($prefix . StringTools::removePrefix(__CLASS__, $prefix . 'World_Bootstrap_'));
 
 		if ($this->optionBool('drop')) {
 			$x->database()->query('TRUNCATE ' . $x->table());

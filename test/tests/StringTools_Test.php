@@ -7,8 +7,14 @@ class StringTools_Test extends UnitTest {
 	/**
 	 * @return array[]
 	 */
-	public function begins_data(): array {
+	public function data_begins(): array {
 		return [
+			['food', '', false, true],
+			['food', '', true, true],
+			['food', 'foo', false, true],
+			['food', ['foo'], false, true],
+			[['food'], 'foo', false, true],
+			[['food'], ['foo'], false, true],
 			['food', 'foo', false, true],
 			['food', 'Foo', true, true],
 			['Food', 'Foo', true, true],
@@ -19,10 +25,10 @@ class StringTools_Test extends UnitTest {
 
 	/**
 	 * @return void
-	 * @dataProvider begins_data
+	 * @dataProvider data_begins
 	 */
-	public function test_begins(string $haystack, string $needle, bool $lower, bool $expected): void {
-		$this->assertEquals($expected, StringTools::begins($haystack, $needle, $lower), "StringTools::begins(\"$haystack\", \"$needle\", " . to_text($lower) . ')');
+	public function test_begins(string|array $haystack, string|array $needle, bool $lower, bool $expected): void {
+		$this->assertEquals($expected, StringTools::begins($haystack, $needle, $lower));
 	}
 
 	public function capitalize_data() {
@@ -107,7 +113,13 @@ class StringTools_Test extends UnitTest {
 	}
 
 	public function ellipsis_word_data(): array {
+		$n = 20;
+		$random_string = $this->randomHex($n);
 		return [
+			[$random_string, -1, '...', $random_string],
+			[$random_string, $n - 1, '!', substr($random_string, 0, -1) . '!'],
+			[$random_string, $n, '...', $random_string],
+			[$random_string, $n + 1, '...', $random_string],
 			['A quick brown fox jumps over the lazy dog.', 1, '...', 'A...'],
 			['A quick brown fox jumps over the lazy dog.', 5, '...', 'A...'],
 			['A quick brown fox jumps over the lazy dog.', 10, '...', 'A quick...'],
@@ -118,6 +130,31 @@ class StringTools_Test extends UnitTest {
 		];
 	}
 
+	public function data_replaceTabs(): array {
+		return [
+			['    Hello', "\tHello", -1, ' '],
+			['A+++Hello', "A\tHello", -1, '+'],
+			['AB??Hello', "AB\tHello", -1, '?'],
+			['ABC_Hello', "ABC\tHello", -1, '_'],
+			['ABCD    Hello', "ABCD\tHello", -1, ' '],
+			['ABCD Hello', "ABCD\tHello", 5, ' '],
+			["  Hello\n  Hello", "\tHello\n\tHello", 2, ' '],
+			[" Hello\n Hello", "\tHello\n\tHello", 1, ' '],
+			["Hello\nHello", "\tHello\n\tHello", 0, ' '],
+		];
+	}
+
+	/**
+	 * @param string $expected
+	 * @param string $text
+	 * @param int $tabwidth
+	 * @return void
+	 * @dataProvider data_replaceTabs
+	 */
+	public function test_replaceTabs(string $expected, string $text, int $tab_width, string $replace): void {
+		$this->assertEquals($expected, StringTools::replaceTabs($text, $tab_width, $replace));
+	}
+
 	/**
 	 * @return void
 	 * @dataProvider ellipsis_word_data
@@ -126,8 +163,49 @@ class StringTools_Test extends UnitTest {
 		$this->assertEquals($expected, StringTools::ellipsis_word($text, $number, $dot_dot_dot));
 	}
 
-	public function ends_data(): array {
+	public function data_contains(): array {
+		$trueTests = [];
+		foreach (array_merge($this->data_begins(), $this->data_ends()) as $test) {
+			[$haystack, $needle, $lower, $expected] = $test;
+			if ($expected) {
+				$trueTests[] = $test;
+			}
+		}
+		return array_merge($trueTests, [
+			[['walking', 'runner'], 'alk', false, true],
+			[['walking', 'runner'], ['alk'], false, true],
+			['walking', ['alk'], false, true],
+			['walking', ['ner'], false, false],
+			['walking', ['kin'], false, true],
+			['walking', ['foo', 'g'], false, true],
+			['walking', ['foo', ''], false, true],
+			['walking', '', false, true],
+			['walking', '', true, true],
+		]);
+	}
+
+	/**
+	 * @param string|array $haystack
+	 * @param string|array $needle
+	 * @param bool $lower
+	 * @param bool $expected
+	 * @return void
+	 * @dataProvider data_contains
+	 */
+	public function test_contains(string|array $haystack, string|array $needle, bool $lower, bool $expected): void {
+		$this->assertEquals($expected, StringTools::contains($haystack, $needle, $lower));
+	}
+
+	public function data_ends(): array {
 		return [
+			['a', '', false, true],
+			['a', '', true, true],
+			[['walking', 'runner'], 'ing', false, true],
+			[['walking', 'runner'], ['ing'], false, true],
+			['walking', ['ing'], false, true],
+			['walking', ['ner'], false, false],
+			['walking', ['g'], false, true],
+			['walking', ['ner', 'g'], false, true],
 			['a', 'A', false, false],
 			['A', 'a', false, false],
 			['a', 'a', false, true],
@@ -144,21 +222,21 @@ class StringTools_Test extends UnitTest {
 	}
 
 	/**
-	 * @param string $haystack
-	 * @param string $needle
+	 * @param string|array $haystack
+	 * @param string|array $needle
 	 * @param bool $lower
 	 * @param bool $expected
 	 * @return void
-	 * @dataProvider ends_data
+	 * @dataProvider data_ends
 	 */
-	public function test_ends(string $haystack, string $needle, bool $lower, bool $expected): void {
-		$this->assertEquals($expected, StringTools::ends($haystack, $needle, $lower), "StringTools::ends(\"$haystack\", \"$needle\", " . to_text($lower) . ')');
+	public function test_ends(string|array $haystack, string|array $needle, bool $lower, bool $expected): void {
+		$this->assertEquals($expected, StringTools::ends($haystack, $needle, $lower));
 	}
 
 	/**
 	 * @return array
 	 */
-	public function to_bool_data(): array {
+	public function data_toBool(): array {
 		return [
 			['', false, ],
 			[null, false, ],
@@ -181,7 +259,7 @@ class StringTools_Test extends UnitTest {
 
 	/**
 	 * @return void
-	 * @dataProvider to_bool_data
+	 * @dataProvider data_toBool
 	 */
 	public function test_from_bool(mixed $mixed, bool $expected): void {
 		$this->assertEquals($expected ? 'true' : 'false', StringTools::fromBool($mixed));
@@ -189,7 +267,7 @@ class StringTools_Test extends UnitTest {
 
 	/**
 	 * @return void
-	 * @dataProvider to_bool_data
+	 * @dataProvider data_toBool
 	 */
 	public function test_to_bool_data(mixed $mixed, bool $expected): void {
 		$this->assertEquals($expected, StringTools::toBool($mixed));
@@ -283,6 +361,8 @@ class StringTools_Test extends UnitTest {
 			['utf16-le.data', false],
 			['iso-latin-9.data', true],
 			['utf16.data', false],
+			['utf8.data', true],
+			['utf8-cn.data', true],
 		];
 	}
 
@@ -367,11 +447,13 @@ class StringTools_Test extends UnitTest {
 	 * @dataProvider pairr_data
 	 */
 	public function test_pairr(string $string, string $delim, string $left, string $right, array $expected): void {
-		$this->assertEquals($expected, StringTools::pairr($string, $delim, $left, $right));
+		$this->assertEquals($expected, StringTools::reversePair($string, $delim, $left, $right));
 	}
 
 	public function replace_first_data(): array {
 		return [
+			['dude', 'bar', 'you pass butter', 'you pass butter'],
+			['bar', 'but', 'you pass barter', 'you pass butter'],
 			['is', 'at', 'This is a test', 'That is a test'],
 			[
 				'DOG',
@@ -437,7 +519,7 @@ class StringTools_Test extends UnitTest {
 	 * @return void
 	 */
 	public function test_rleft(string $haystack, string $needle, ?string $default, string $expected): void {
-		$this->assertEquals($expected, StringTools::rleft($haystack, $needle, $default));
+		$this->assertEquals($expected, StringTools::reverseLeft($haystack, $needle, $default));
 	}
 
 	/**
@@ -462,7 +544,7 @@ class StringTools_Test extends UnitTest {
 	 * @return void
 	 */
 	public function test_rright(string $haystack, string $needle, ?string $default, string $expected): void {
-		$this->assertEquals($expected, StringTools::rright($haystack, $needle, $default));
+		$this->assertEquals($expected, StringTools::reverseRight($haystack, $needle, $default));
 	}
 
 	/**
@@ -520,8 +602,9 @@ class StringTools_Test extends UnitTest {
 	/**
 	 * @return array[]
 	 */
-	public function unprefix_data(): array {
+	public function removePrefix_data(): array {
 		return [
+			[['String', 'stretch'], ['Stri', 'Stre'], true, ['ng', 'tch']],
 			['string', 'str', false, 'ing'],
 			['string', 'str', true, 'ing'],
 
@@ -533,24 +616,30 @@ class StringTools_Test extends UnitTest {
 
 			['String', 'Str', false, 'ing'],
 			['String', 'Str', true, 'ing'],
+			['String', 'Str', false, 'ing'],
+			[['String', 'Stretch'], 'Str', true, ['ing', 'etch']],
+			[['String', 'stretch'], 'Str', false, ['ing', 'stretch']],
+			[['String', 'stretch'], ['Stri', 'Stre'], false, ['ng', 'stretch']],
 		];
 	}
 
 	/**
-	 * @param string $string
-	 * @param string $prefix
-	 * @param string $expected
+	 * @param string|array $string
+	 * @param string|array $prefix
+	 * @param bool $case_insensitive
+	 * @param string|array $expected
 	 * @return void
-	 * @dataProvider unprefix_data
+	 * @dataProvider removePrefix_data
 	 */
-	public function test_unprefix(string $string, string $prefix, bool $case_insensitive, string $expected): void {
-		$this->assertEquals($expected, StringTools::unprefix($string, $prefix, $case_insensitive));
+	public function test_removePrefix(string|array $string, string|array $prefix, bool $case_insensitive, string|array $expected):
+	void {
+		$this->assertEquals($expected, StringTools::removePrefix($string, $prefix, $case_insensitive));
 	}
 
 	/**
 	 * @return array[]
 	 */
-	public function unsuffix_data(): array {
+	public function removeSuffix_data(): array {
 		return [
 			['string', 'ing', false, 'str'],
 			['string', 'ing', true, 'str'],
@@ -563,19 +652,23 @@ class StringTools_Test extends UnitTest {
 
 			['String', 'Ing', false, 'String'],
 			['String', 'Ing', true, 'Str'],
+
+			[['String', 'string', 'Blowing', 'EatING'], 'Ing', true, ['Str', 'str', 'Blow', 'Eat']],
+			[['String', 'string', 'Blowing', 'EatIng'], 'Ing', false, ['String', 'string', 'Blowing', 'Eat']],
 		];
 	}
 
 	/**
-	 * @param string $string
-	 * @param string $prefix
+	 * @param string|array $string
+	 * @param string $suffix
 	 * @param bool $case_insensitive
 	 * @param string $expected
 	 * @return void
-	 * @dataProvider unsuffix_data
+	 * @dataProvider removeSuffix_data
 	 */
-	public function test_unsuffix(string $string, string $prefix, bool $case_insensitive, string $expected): void {
-		$this->assertEquals($expected, StringTools::unsuffix($string, $prefix, $case_insensitive));
+	public function test_removeSuffix(string|array $string, string $suffix, bool $case_insensitive, string|array $expected):
+	void {
+		$this->assertEquals($expected, StringTools::removeSuffix($string, $suffix, $case_insensitive));
 	}
 
 	public function zero_pad_data(): array {
@@ -620,11 +713,11 @@ class StringTools_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider lalign_data
 	 */
-	public function test_lalign(string $text, int $length, string $padding, bool $trim, string $expected): void {
-		$this->assertEquals($expected, Text::lalign($text, $length, $padding, $trim));
+	public function test_leftAlign(string $text, int $length, string $padding, bool $trim, string $expected): void {
+		$this->assertEquals($expected, Text::leftAlign($text, $length, $padding, $trim));
 	}
 
-	public function ralign_data(): array {
+	public function data_rightAlign(): array {
 		return [
 			['text', 10, '-', true, '------text'],
 			['text ', 10, '-', true, '-----text '],
@@ -640,10 +733,10 @@ class StringTools_Test extends UnitTest {
 	 * @param bool $trim
 	 * @param string $expected
 	 * @return void
-	 * @dataProvider ralign_data
+	 * @dataProvider data_rightAlign
 	 */
-	public function test_ralign(string $text, int $length, string $padding, bool $trim, string $expected): void {
-		$this->assertEquals($expected, Text::ralign($text, $length, $padding, $trim));
+	public function test_rightAlign(string $text, int $length, string $padding, bool $trim, string $expected): void {
+		$this->assertEquals($expected, Text::rightAlign($text, $length, $padding, $trim));
 	}
 
 	public function test_filter(): void {
@@ -692,7 +785,35 @@ class StringTools_Test extends UnitTest {
 		}
 	}
 
-	public function test_substr(): void {
+	/**
+	 * @param string $expected
+	 * @param string $string
+	 * @param int $start
+	 * @param int $length
+	 * @param string $encoding
+	 * @return void
+	 * @dataProvider data_substr
+	 */
+	public function test_substr(string $expected, string $string, int $start, int $length, string $encoding): void {
+		$this->assertEquals($expected, StringTools::substr($string, $start, $length, $encoding));
+	}
+
+	public function data_substr(): array {
+		$sample1 = '😉2345🤣789🙄1👍3456789😁';
+		return
+		[
+			['😉', $sample1, 0, 1, ''],
+			['😉', $sample1, 0, 1, 'UTF-8'],
+			['😁', $sample1, -1, 1, ''],
+			['😁', $sample1, -1, 1, 'UTF-8'],
+			['😉2345', $sample1, 0, 5, ''],
+			[$sample1, $sample1, 0, 20, ''],
+			[$sample1, $sample1, 0, 20, 'UTF-8'],
+			['3456789', $sample1, 12, 7, 'UTF-8'],
+		];
+	}
+
+	public function test_PHP_substr(): void {
 		// Never knew this'
 		$foo = 'OK,';
 		$result = substr($foo, 3);
@@ -709,5 +830,75 @@ class StringTools_Test extends UnitTest {
 	public function test_replace_first1(): void {
 		$this->assert(StringTools::replace_first('a', 'b', 'abracadabra') === 'bbracadabra');
 		$this->assert(StringTools::replace_first('bra', 'strap', 'abracadabra') === 'astrapcadabra');
+	}
+
+	/**
+	 * @param array $expected
+	 * @param string $string
+	 * @param int $split_length
+	 * @param string $encoding
+	 * @return void
+	 * @dataProvider data_str_split
+	 */
+	public function test_str_split(array $expected, string $string, int $split_length, string $encoding): void {
+		$this->assertEquals($expected, StringTools::str_split($string, $split_length, $encoding));
+	}
+
+	public function data_str_split(): array {
+		return [
+			[['😉', '🤣', '🙄', '👍'], '😉🤣🙄👍', -1, 'UTF-8'],
+			[['😉', '🤣', '🙄', '👍'], '😉🤣🙄👍', 1, 'UTF-8'],
+			[['😉🤣', '🙄👍'], '😉🤣🙄👍', 2, 'UTF-8'],
+			[['wo', 'rd', 's😉', '🤣🙄', '👍'], 'words😉🤣🙄👍', 2, 'UTF-8'],
+			[['wor', 'ds😉', '🤣🙄👍'], 'words😉🤣🙄👍', 3, 'UTF-8'],
+			[['word', 's😉🤣🙄', '👍'], 'words😉🤣🙄👍', 4, 'UTF-8'],
+		];
+	}
+
+	public function data_csv_quote_row(): array {
+		return [
+			["ID,Name\r\n", ['ID', 'Name']],
+			["\"This \"\"has\"\" quotes\",\"Oxford, is it required?\"\r\n", ['This "has" quotes', 'Oxford, is it required?']],
+			["\"Just a new\nline\",Nothing\r\n", ["Just a new\nline", 'Nothing']],
+			["Simple,Line\r\n", ['Simple', 'Line']],
+		];
+	}
+
+	public function data_length(): array {
+		return [
+			[4, '😉🤣🙄👍', ''],
+			[4, '😉🤣🙄👍', 'UTF-8'],
+			[9, 'words😉🤣🙄👍', 'UTF-8'],
+		];
+	}
+
+	/**
+	 * @dataProvider data_length
+	 */
+	public function test_length(int $expected, string $string, string $encoding): void {
+		$this->assertEquals($expected, StringTools::length($string, $encoding));
+	}
+
+	/**
+	 * @param string $expected
+	 * @param array $row
+	 * @return void
+	 * @dataProvider data_csv_quote_row
+	 */
+	public function test_csv_quote_row(string $expected, array $row): void {
+		$this->assertEquals($expected, StringTools::csv_quote_row($row));
+	}
+
+	/**
+	 * @dataProvider data_csv_quote_row
+	 * @param string $row_expected
+	 * @param array $row
+	 * @return void
+	 */
+	public function test_csv_quote_rows(string $row_expected, array $row): void {
+		$total = $this->randomInteger(3, 100);
+		$expected = str_repeat($row_expected, $total);
+		$rows = array_fill(0, $total, $row);
+		$this->assertEquals($expected, StringTools::csv_quote_rows($rows));
 	}
 }

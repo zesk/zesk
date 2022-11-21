@@ -133,7 +133,7 @@ class Content_Image extends ORM {
 	 * Returns the path, minus the docroot
 	 */
 	public function source() {
-		return StringTools::unprefix($this->path(), $this->application->document_root());
+		return StringTools::removePrefix($this->path(), $this->application->document_root());
 	}
 
 	/**

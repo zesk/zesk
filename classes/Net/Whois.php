@@ -4,11 +4,11 @@ namespace zesk;
 class Net_Whois {
 	private static function clean_domain($domain) {
 		$domain = strtolower(trim($domain));
-		$domain = StringTools::unprefix($domain, [
+		$domain = StringTools::removePrefix($domain, [
 			'http://',
 			'https://',
 		]);
-		$domain = StringTools::unprefix($domain, [
+		$domain = StringTools::removePrefix($domain, [
 			'www.',
 		]);
 		[$domain] = explode('/', $domain, 2);
@@ -18,7 +18,7 @@ class Net_Whois {
 	public static function query($domain) {
 		// fix the domain name:
 		$domain = self::clean_domain($domain);
-		$extension = StringTools::rright($domain, '.');
+		$extension = StringTools::reverseRight($domain, '.');
 		$server = Net_Whois_Servers::server_from_tld($extension);
 		if (!$server) {
 			throw new Exception_NotFound('No whois server for {extension}', [

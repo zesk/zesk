@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
 
 use Psr\Cache\CacheItemInterface;
@@ -109,8 +111,7 @@ class Template implements Interface_Theme {
 	 * @var array
 	 */
 	private static $_stats = [
-		'counts' => [],
-		'times' => [],
+		'counts' => [], 'times' => [],
 	];
 
 	/**
@@ -158,9 +159,9 @@ class Template implements Interface_Theme {
 	 * Construct a new template
 	 *
 	 * @param ?string $path
-	 *        	Relative or absolute path to template
+	 *            Relative or absolute path to template
 	 * @param ?mixed $variables
-	 *        	Name/Value pairs to be set in the template execution
+	 *            Name/Value pairs to be set in the template execution
 	 * @param Application $app
 	 */
 	public function __construct(Application $app, string $path = null, mixed $variables = null) {
@@ -193,16 +194,14 @@ class Template implements Interface_Theme {
 	 * Begin output buffering for a \"theme\", push it on the stack.
 	 *
 	 * @param string $path
-	 *        	Relative and absolute path to template
+	 *            Relative and absolute path to template
 	 * @param ?mixed $variables
 	 * @return self
 	 */
 	public function begin(string $path, mixed $variables = null): self {
 		if (ends($path, '.tpl')) {
 			$this->application->logger->warning('{method} {path} ends with .tpl - now deprecated, use theme names only, called from {calling_function}', [
-				'method' => __METHOD__,
-				'path' => $path,
-				'calling_function' => calling_function(0),
+				'method' => __METHOD__, 'path' => $path, 'calling_function' => calling_function(0),
 			]);
 		} else {
 			$path .= '.tpl';
@@ -220,7 +219,7 @@ class Template implements Interface_Theme {
 	 * and pass an optional variable name for the output content to be applied to the template.
 	 *
 	 * @param array $variables
-	 *        	Optional variables to apply to the template
+	 *            Optional variables to apply to the template
 	 * @param string $content_variable
 	 * @throws Exception_Semantics
 	 */
@@ -312,16 +311,10 @@ class Template implements Interface_Theme {
 	/**
 	 *
 	 * @param string $path
-	 * @param boolean $all Retrieve all valid paths
+	 * @return string|null
 	 */
-	public function find_path($path, $all = false) {
-		if (empty($path)) {
-			return null;
-		}
-		if (begins($path, '/')) {
-			return $path;
-		}
-		return $this->_find_path($path, $all);
+	public function find_path(string $path): string {
+		return $this->_find_path($path);
 	}
 
 	/**
@@ -329,23 +322,22 @@ class Template implements Interface_Theme {
 	 *
 	 * @param string $path
 	 * @param boolean $all
-	 *        	Return all possible paths as keys and whether the file exists as the value
+	 *            Return all possible paths as keys and whether the file exists as the value
 	 * @return array|string
 	 */
-	private function _find_path($path, $all = false) {
+	private function _find_path(string $path): string {
 		if (Directory::isAbsolute($path)) {
-			if ($all) {
-				return [
-					$path => file_exists($path),
-				];
+			if (file_exists($path)) {
+				return $path;
 			}
-			return $path;
+			return '';
 		}
-		$result = $this->application->theme_find($path, [
-			'all' => $all,
-			'no_extension' => true,
-		]);
-		if ($result === null || (is_array($result) && count($result) === 0)) {
+
+		try {
+			return $this->application->theme_find($path, [
+				'no_extension' => true,
+			]);
+		} catch (Exception_NotFound) {
 			$theme_paths = $this->application->theme_path();
 			if (self::$debug) {
 				static $template_path = false;
@@ -353,18 +345,12 @@ class Template implements Interface_Theme {
 					$this->application->logger->debug("theme_path is\n\t" . JSON::encode_pretty($theme_paths));
 					$template_path = true;
 				}
-				$this->application->logger->warning(__('Template::path("{path}") not found in theme_path ({n_paths} paths).', [
-					'path' => $path,
-					'theme_paths' => $theme_paths,
-					'n_paths' => count($theme_paths),
-				]));
+				$this->application->logger->warning('Template::path("{path}") not found in theme_path ({n_paths} paths).', [
+					'path' => $path, 'theme_paths' => $theme_paths, 'n_paths' => count($theme_paths),
+				]);
 			}
-			if (!$all) {
-				return null;
-			}
+			return '';
 		}
-
-		return $result;
 	}
 
 	/**
@@ -373,7 +359,7 @@ class Template implements Interface_Theme {
 	 * @param string $path
 	 * @return boolean
 	 */
-	public function would_exist($path) {
+	public function would_exist(string $path): bool {
 		$path = $this->find_path($path);
 		return file_exists($path);
 	}
@@ -459,9 +445,9 @@ class Template implements Interface_Theme {
 	 * Set a variable to the template
 	 *
 	 * @param string|array $k
-	 *        	Name to set (or array)
+	 *            Name to set (or array)
 	 * @param mixed $v
-	 *        	Value to set
+	 *            Value to set
 	 */
 	public function set($k, $v = null): void {
 		if (is_array($k)) {
@@ -627,8 +613,7 @@ class Template implements Interface_Theme {
 		self::$debug = toBool($config->debug);
 		self::$debug_stack = toBool($config->debug_stack);
 		$application->hooks->add('</body>', [
-			__CLASS__,
-			'profile_output',
+			__CLASS__, 'profile_output',
 		]);
 	}
 
@@ -639,8 +624,7 @@ class Template implements Interface_Theme {
 	public static function hooks(Application $application): void {
 		try {
 			$application->hooks->add('configured', [
-				__CLASS__,
-				'configured',
+				__CLASS__, 'configured',
 			]);
 		} catch (Exception_Semantics $e) {
 		}
@@ -688,7 +672,7 @@ class Template implements Interface_Theme {
 	 *
 	 * @param string $key Key
 	 * @param mixed $value Value
-	 *@see stdClass::__set
+	 * @see stdClass::__set
 	 */
 	public function __set($key, $value): void {
 		$key = self::_template_key($key);
@@ -710,8 +694,7 @@ class Template implements Interface_Theme {
 			return $this->_vars[$key];
 		}
 		return [
-			'variables' => $this->_vars,
-			'self' => $this,
+			'variables' => $this->_vars, 'self' => $this,
 		][$key] ?? null;
 	}
 
@@ -729,7 +712,7 @@ class Template implements Interface_Theme {
 	/**
 	 *
 	 * @param string $key
-	 *@see stdClass::__unset
+	 * @see stdClass::__unset
 	 */
 	public function __unset($key): void {
 		$key = self::_template_key($key);
@@ -750,13 +733,13 @@ class Template implements Interface_Theme {
 	 * of which are now deprecated.
 	 *
 	 * @param mixed $types
-	 *        	Theme, or list of themes
+	 *            Theme, or list of themes
 	 * @param array $arguments
-	 *        	Arguments for the theme to render
+	 *            Arguments for the theme to render
 	 * @param array $options
-	 *        	Extra options which effect how the theme request is interpreted
-	 * @see Application::theme
+	 *            Extra options which effect how the theme request is interpreted
 	 * @return string
+	 * @see Application::theme
 	 */
 	final public function theme(array|string $types, array $arguments = [], array $options = []): ?string {
 		return $this->application->theme($types, $arguments, $options);
@@ -780,7 +763,7 @@ class Template implements Interface_Theme {
 	 * of which are now deprecated.
 	 *
 	 * @param mixed $types
-	 *        	Theme, or list of themes
+	 *            Theme, or list of themes
 	 * @param array $arguments
 	 * @return bool
 	 */

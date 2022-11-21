@@ -297,7 +297,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	 * @return string
 	 */
 	public function jquery_ready() {
-		$json = JSON::encodex(ArrayTools::clean($this->tinymce_options, null));
+		$json = JSON::encodeJavaScript(ArrayTools::clean($this->tinymce_options, null));
 		return $this->application->theme('tinymce/ready.js', [
 			'json' => $json,
 			'base_url' => '/share/' . $this->share_name,
@@ -356,7 +356,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			foreach ($menu as $substitution => $name) {
 				$mce_menu[] = [
 					'text' => $name,
-					'*onclick' => 'function() { editor.insertContent(' . JSON::encodex('{' . $substitution . '}') . '); }',
+					'*onclick' => 'function() { editor.insertContent(' . JSON::encodeJavaScript('{' . $substitution . '}') . '); }',
 				];
 			}
 			$attrs = [

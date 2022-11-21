@@ -224,7 +224,7 @@ class Route_Controller extends Route {
 			/* @var $method \ReflectionMethod */
 			$name = $method->getName();
 			if (begins($name, $action_prefix)) {
-				$action_list[] = StringTools::unprefix($name, $action_prefix);
+				$action_list[] = StringTools::removePrefix($name, $action_prefix);
 			}
 		}
 		$actions[strtolower($reflection->getName())] = $action_list;

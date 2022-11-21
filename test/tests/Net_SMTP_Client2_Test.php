@@ -11,12 +11,28 @@ namespace zesk;
  *
  */
 class Net_SMTP_Client2_Test extends UnitTest {
+	private string $url;
+
+	public function test_outgoing_requirements(): void {
+		$this->url = $this->option('url', '');
+		if (!URL::valid($this->url)) {
+			$this->markTestSkipped(get_class($this) . '::url not valid (' . $this->url . ')');
+		}
+		$parts = URL::parse($this->url);
+		$this->assertArrayHasKeys(['scheme', 'user', 'pass', 'host', 'port'], $parts);
+	}
+
+	/**
+	 * @return void
+	 * @throws Exception_Connect
+	 * @throws Exception_Syntax
+	 * @depends test_outgoing_requirements
+	 */
 	public function test_Net_SMTP_Client(): void {
-		$url = 'smtp://mail.marketacumen.com';
 		$options = [
 			'timeout' => 30,
 		];
-		$x = new Net_SMTP_Client($this->application, $url, $options);
+		$x = new Net_SMTP_Client($this->application, $this->url, $options);
 
 		$x->connect();
 

@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace zesk;
 
@@ -52,7 +53,10 @@ class PHP_Test extends UnitTest {
 	}
 
 	public function data_provider_render(): array {
-		return [[false, 'false', ], [true, 'true', ], [null, 'null', ], [0, '0', ], [0.123, '0.123', ], ['$Hello', '"\\$Hello"', ], [['1', '2', '3', ], '["1", "2", "3", ]', ], ];
+		return [
+			[false, 'false', ], [true, 'true', ], [null, 'null', ], [0, '0', ], [0.123, '0.123', ],
+			['$Hello', '"\\$Hello"', ], [['1', '2', '3', ], '["1", "2", "3", ]', ],
+		];
 	}
 
 	/**
@@ -63,7 +67,10 @@ class PHP_Test extends UnitTest {
 	}
 
 	public function data_setFeature(): array {
-		return [[PHP::FEATURE_MEMORY_LIMIT, 1024 * 1024], [PHP::FEATURE_TIME_LIMIT, 1024 * 1024], ['not-a-feature', null], ];
+		return [
+			[PHP::FEATURE_MEMORY_LIMIT, 128 * 1024 * 1024], [PHP::FEATURE_TIME_LIMIT, 1024 * 1024],
+			['not-a-feature', null],
+		];
 	}
 
 	/**
@@ -82,7 +89,10 @@ class PHP_Test extends UnitTest {
 	}
 
 	public function test_php_references(): void {
-		$bigthing = ['a' => ['kind' => 'letter', 'code' => 65, ], 'b' => ['kind' => 'letter', 'code' => 66, ], '9' => ['kind' => 'number', 'code' => ord('9'), ], ];
+		$bigthing = [
+			'a' => ['kind' => 'letter', 'code' => 65, ], 'b' => ['kind' => 'letter', 'code' => 66, ],
+			'9' => ['kind' => 'number', 'code' => ord('9'), ],
+		];
 
 		$otherarray = [];
 		$otherarray['test'] = &$bigthing['a'];
@@ -90,6 +100,9 @@ class PHP_Test extends UnitTest {
 		unset($otherarray['test']);
 		// Nothing, unset applies only to the key in the array
 
-		$this->assert_arrays_equal($bigthing, ['a' => ['kind' => 'letter', 'code' => 65, ], 'b' => ['kind' => 'letter', 'code' => 66, ], '9' => ['kind' => 'number', 'code' => ord('9'), ], ]);
+		$this->assert_arrays_equal($bigthing, [
+			'a' => ['kind' => 'letter', 'code' => 65, ], 'b' => ['kind' => 'letter', 'code' => 66, ],
+			'9' => ['kind' => 'number', 'code' => ord('9'), ],
+		]);
 	}
 }

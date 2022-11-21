@@ -528,17 +528,20 @@ function toIterable(mixed $mixed): iterable {
 /**
  * Converts 20G to integer value
  *
- * @param string $mixed
+ * @param string|int $mixed
  * @param int $default
- * @return float
+ * @return int
  */
-function toBytes(string $mixed, int $default = 0): float {
+function toBytes(string|int $mixed, int $default = 0): int {
+	if (is_int($mixed)) {
+		return $mixed;
+	}
 	$mixed = strtolower(trim($mixed));
 	if (is_numeric($mixed)) {
 		return intval($mixed);
 	}
 	if (!preg_match('/[0-9]+([gmk])/', $mixed, $matches)) {
-		return to_integer($mixed, $default);
+		return toInteger($mixed, $default);
 	}
 	$b = intval($mixed);
 	$pow = ['g' => 3, 'm' => 2, 'k' => 1][$matches[1]] ?? 0;
@@ -900,7 +903,8 @@ function pair(string $a, string $delim = '.', string $left = '', string $right =
  * @return array A size 2 array containing the left and right portions of the pair
  * @see pair
  */
-function pairr(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
+function reversePair(string $a, string $delim = '.', string $left = '', string $right = '', string
+$include_delimiter = ''): array {
 	$n = strrpos($a, $delim);
 	$delim_len = strlen($delim);
 	return ($n === false) ? [
@@ -910,6 +914,18 @@ function pairr(string $a, string $delim = '.', string $left = '', string $right 
 		substr($a, 0, $n + ($include_delimiter === 'left' ? $delim_len : 0)),
 		substr($a, $n + ($include_delimiter === 'right' ? 0 : $delim_len)),
 	];
+}
+
+/**
+ * @param string $a
+ * @param string $delim
+ * @param string $left
+ * @param string $right
+ * @param string $include_delimiter
+ * @return string[]
+ */
+function pairr(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
+	return reversePair($a, $delim, $left, $right, $include_delimiter);
 }
 
 /**

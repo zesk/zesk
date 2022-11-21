@@ -225,6 +225,6 @@ class Content_File extends ORM {
 			$name = $this->name;
 		}
 		$extension = '.' . MIME::to_extension($this->mime_type());
-		return StringTools::unsuffix(basename($name), $extension) . $extension;
+		return StringTools::removeSuffix(basename($name), $extension) . $extension;
 	}
 }

@@ -105,7 +105,7 @@ class Module_Health extends Module {
 		if ($this->disabled) {
 			return false;
 		}
-		$type = strtolower(StringTools::unprefix(avalue(self::$error_codes, $errno, $errno), 'E_'));
+		$type = strtolower(StringTools::removePrefix(avalue(self::$error_codes, $errno, $errno), 'E_'));
 		$this->log([
 			'type' => $type,
 			'code' => $errno,

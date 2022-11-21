@@ -1337,10 +1337,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *            directories.
 	 * @return array The ordered list of paths to search for theme files as prefix => search list.
 	 */
-	final public function theme_path($add = null, $prefix = null) {
-		if (is_bool($prefix)) {
-			throw new Exception_Parameter('theme_path now takes a string as the 2nd parameter');
-		}
+	final public function theme_path(array|string $add = null, string $prefix = ''): array {
 		if (is_array($add)) {
 			foreach ($add as $k => $v) {
 				if (is_numeric($k)) {
@@ -1352,7 +1349,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			return $this->theme_path;
 		}
 		if ($add) {
-			$prefix = strval($prefix);
 			if (!isset($this->theme_path[$prefix])) {
 				$this->theme_path[$prefix] = [];
 			}
@@ -1364,38 +1360,53 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	}
 
 	/**
+	 * @param $theme
+	 * @param array $options
+	 * @return string
+	 */
+	final public function theme_find($theme, array $options = []): string {
+		[$result] = $this->theme_find_all($theme, $options);
+		if (count($result) > 0) {
+			return $result[0];
+		}
+
+		throw new Exception_NotFound($theme);
+	}
+
+	/**
 	 * Search the theme paths for a target file
 	 *
-	 * @param string $file
-	 * @param boolean $first
-	 * @return mixed
+	 * @param $theme
+	 * @param array $options
+	 * @return array[]
 	 */
-	final public function theme_find($theme, array $options = []) {
+	final public function theme_find_all($theme, array $options = []): array {
 		$extension = toBool($options['no_extension'] ?? false) ? '' : $this->option('theme_extension', '.tpl');
-		$all = toBool($options['all'] ?? false);
+		$all = toBool($options['all'] ?? true);
 		$theme = $this->cleanTemplatePath($theme) . $extension;
 		$theme_path = $this->theme_path();
 		$prefixes = array_keys($theme_path);
 		usort($prefixes, fn ($a, $b) => strlen($b) - strlen($a));
 		$result = [];
+		$tried_path = [];
 		foreach ($prefixes as $prefix) {
 			if ($prefix === '' || str_starts_with($theme, $prefix)) {
 				$suffix = substr($theme, strlen($prefix));
 				foreach ($theme_path[$prefix] as $path) {
 					$path = path($path, $suffix);
 					if (file_exists($path)) {
-						if (!$all) {
-							return $path;
-						}
 						$result[] = $path;
+						if (!$all) {
+							return [
+								$result,
+								$tried_path,
+							];
+						}
 					} else {
 						$tried_path[] = $path;
 					}
 				}
 			}
-		}
-		if (!$all && count($result) === 0) {
-			return null;
 		}
 		return [
 			$result,

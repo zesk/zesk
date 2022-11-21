@@ -1188,10 +1188,10 @@ class Request extends Hookable {
 			foreach ([
 				'http-' => true,
 				'content-' => false,
-			] as $prefix => $unprefix) {
+			] as $prefix => $removePrefix) {
 				$len = strlen($prefix);
 				if (substr($key, 0, $len) === $prefix) {
-					$headers[$unprefix ? substr($key, $len) : $key] = $value;
+					$headers[$removePrefix ? substr($key, $len) : $key] = $value;
 				}
 			}
 		}

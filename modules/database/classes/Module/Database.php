@@ -159,7 +159,7 @@ class Module_Database extends Module {
 			zesk()->deprecated('Using DB_URL - no longer supported after 2016');
 			$old_style = ArrayTools::keysRemovePrefix($application->configuration->toArray(), 'db_url', true);
 			foreach ($old_style as $name => $url) {
-				$name = empty($name) ? 'default' : StringTools::unprefix($name, '_');
+				$name = empty($name) ? 'default' : StringTools::removePrefix($name, '_');
 
 				try {
 					$this->register($name, $url);

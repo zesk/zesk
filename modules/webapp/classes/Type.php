@@ -57,7 +57,7 @@ abstract class Type {
 		$type_names = Directory::ls(__DIR__ . '/Type', '/.*\.php$/', false);
 		$types = [];
 		foreach ($type_names as $type_name) {
-			$type_name = '\\Type_' . StringTools::unsuffix(ltrim($type_name, './'), '.php');
+			$type_name = '\\Type_' . StringTools::removeSuffix(ltrim($type_name, './'), '.php');
 			$class_name = __NAMESPACE__ . $type_name;
 			$type = $application->factory($class_name, $application, $path);
 			$types[] = $type;

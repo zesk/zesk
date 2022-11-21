@@ -525,7 +525,7 @@ class Test extends Hookable {
 					}
 				}
 				$this->log($locale->__('# {class_test}: {status}', [
-					'class_test' => Text::lalign("$class::$name", 80),
+					'class_test' => Text::leftAlign("$class::$name", 80),
 					'status' => $failed ? 'FAIL' : 'OK',
 				]));
 				if (($failed || $this->optionBool('verbose')) && !empty($this->last_test_output)) {
@@ -578,7 +578,7 @@ class Test extends Hookable {
 			$method = "$class$type$function";
 			$left = $method;
 			$right = $descriptor;
-			$line = Text::lalign($left, 50) . " -- $right";
+			$line = Text::leftAlign($left, 50) . " -- $right";
 			if ($file !== __FILE__) {
 				$their_stack[] = $line;
 			}
@@ -1179,7 +1179,7 @@ class Test extends Hookable {
 	 * @return boolean
 	 */
 	private static function _find_test(Application $application, string $class): bool {
-		$low_class = StringTools::unsuffix(strtolower($class), '_test');
+		$low_class = StringTools::removeSuffix(strtolower($class), '_test');
 		$parts = explode('_', $low_class);
 		array_pop($parts);
 		$path = path(implode('/', $parts), 'test', $low_class . '_test.inc');

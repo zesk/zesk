@@ -66,12 +66,12 @@ class Response_Test extends UnitTest {
 
 		$this->assertTrue(is_array($scripts), 'Scripts is array');
 
-		$this->assertContains($script, $content);
-		$this->assertContains('<!--', $content);
-		$this->assertContains('[if IE]', $content);
-		$this->assertContains('<![endif]-->', $content);
-		$this->assertContains('<![endif]-->', $content);
+		$this->assertStringContainsString($script, $content);
+		$this->assertStringContainsString('<!--', $content);
+		$this->assertStringContainsString('[if IE]', $content);
+		$this->assertStringContainsString('<![endif]-->', $content);
+		$this->assertStringContainsString('<![endif]-->', $content);
 
-		$this->assertContains('<!--[if IE]><script type="text/javascript">alert(\'Hello, world!\');</script><![endif]-->', $content);
+		$this->assertStringContainsString('<!--[if IE]><script type="text/javascript">alert(\'Hello, world!\');</script><![endif]-->', $content);
 	}
 }

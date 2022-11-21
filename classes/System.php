@@ -150,7 +150,7 @@ class System {
 					$pairs = preg_split('/\s+/', $line);
 					$type = rtrim(array_shift($pairs), ':');
 					if ($pairs) {
-						$id = StringTools::unprefix(array_shift($pairs), 'addr:');
+						$id = StringTools::removePrefix(array_shift($pairs), 'addr:');
 						$result[$interface][$type][$id] = ['value' => $id, $type => $id, ];
 						while (count($pairs) > 1) {
 							$name = rtrim(array_shift($pairs), ':');

@@ -21,11 +21,12 @@ class Process_Tools {
 	 * @param string $where
 	 * @param string $pid_field
 	 * @return boolean
+	 * @throws Exception_Semantics
 	 */
 	public static function reset_dead_processes(Application $application, string $class, array $where = [], string $pid_field = 'PID'): bool {
 		$where["$pid_field|!="] = null;
 		$ids = $application->ormRegistry($class)->query_select()->addWhat('pid', $pid_field)->appendWhere($where)
-			->to_array('pid', 'pid');
+			->toArray('pid', 'pid');
 		$dead_pids = [];
 		foreach ($ids as $id) {
 			if (!$application->process->alive($id)) {
@@ -35,11 +36,11 @@ class Process_Tools {
 		if (count($dead_pids) === 0) {
 			return false;
 		}
-		$query = $application->ormRegistry($class)->query_update()->value($pid_field, null)->addWhere(
+		$rows = $application->ormRegistry($class)->queryUpdate()->value($pid_field, null)->addWhere(
 			$pid_field,
 			$dead_pids
-		)->execute();
-		$rows = $query->affectedRows();
+		)->execute()->affectedRows();
+
 		$application->logger->warning('Reset {n} dead pids {dead_pids}', ['dead_pids' => $dead_pids, 'n' => $rows, ]);
 		return true;
 	}
@@ -57,7 +58,7 @@ class Process_Tools {
 	 *
 	 * @return array
 	 */
-	public static function process_code_changed_files(Application $application): bool {
+	public static function process_code_changed_files(Application $application): array {
 		return $application->objects->singleton(File_Monitor_Includes::class)->changed_files();
 	}
 }

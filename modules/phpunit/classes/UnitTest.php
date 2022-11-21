@@ -11,7 +11,7 @@ namespace zesk;
  *
  */
 class UnitTest extends PHPUnit_TestCase {
-	public function log($message, array $args): void {
+	public function log($message, array $args = []): void {
 		echo(map($message, $args) . "\n");
 	}
 

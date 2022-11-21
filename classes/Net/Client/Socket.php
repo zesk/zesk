@@ -13,30 +13,35 @@ class Net_Client_Socket extends Net_Client {
 	/**
 	 * Connected socket
 	 *
-	 * @var resource
+	 * @var ?resource
 	 */
-	private $socket;
+	private ?resource $socket;
 
 	/**
-	 * The class name of the exception to throw when errors occur
+	 * Port number to connect
 	 *
-	 * @var unknown_type
+	 * @var int
 	 */
-	protected $default_port = -1;
+	protected int $default_port = -1;
 
 	/**
 	 * Buffered data
 	 *
 	 * @var string
 	 */
-	protected $buffer = '';
+	protected string $buffer = '';
+
+	/**
+	 * @var string
+	 */
+	protected string $greeting = '';
 
 	/**
 	 * Connect to the socket
 	 *
 	 * @see Net_Client::connect()
 	 */
-	public function connect() {
+	public function connect(): string {
 		if ($this->hasOption('eol')) {
 			$this->EOL = $this->option('eol', $this->EOL);
 		}
@@ -44,8 +49,8 @@ class Net_Client_Socket extends Net_Client {
 			return $this->greeting;
 		}
 
-		$host = avalue($this->url_parts, 'host', 'localhost');
-		$port = aevalue($this->url_parts, 'port', $this->default_port);
+		$host = $this->url_parts ['host'] ?? 'localhost';
+		$port = $this->url_parts ['port'] ?? $this->default_port;
 		$timeout = $this->optionInt('timeout', 30);
 
 		$errno = false;
@@ -57,10 +62,10 @@ class Net_Client_Socket extends Net_Client {
 			throw new Exception_Connect("$host:$port", "Could not connect to $host:$port $errstr");
 		}
 		stream_set_timeout($this->socket, $timeout, 0);
-		stream_set_blocking($this->socket, $this->optionBool('blocking', true) ? 1 : 0);
+		stream_set_blocking($this->socket, $this->optionBool('blocking', true));
 		$this->log('Connected.');
 		$this->greeting = $this->read();
-		return true;
+		return $this->greeting;
 	}
 
 	/**
@@ -69,7 +74,7 @@ class Net_Client_Socket extends Net_Client {
 	 * @see Net_Client::disconnect()
 	 */
 	public function disconnect(): void {
-		if (is_resource($this->socket)) {
+		if ($this->socket) {
 			fclose($this->socket);
 			$this->socket = null;
 		}
@@ -80,7 +85,7 @@ class Net_Client_Socket extends Net_Client {
 	 * @see Net_Client::is_connected()
 	 */
 	public function is_connected() {
-		return is_resource($this->socket);
+		return $this->socket !== null;
 	}
 
 	/**
@@ -99,18 +104,18 @@ class Net_Client_Socket extends Net_Client {
 	 *
 	 * @param string $command
 	 *        	Command to run
-	 * @param string $expect
+	 * @param ?string $expect
 	 *        	String to expect from the other side as a response
 	 * @throws Exception_Protocol
-	 * @return boolean
+	 * @return string
 	 */
-	protected function command($command, $expect = null) {
+	protected function command(string $command, string $expect = null): string {
 		$this->write(trim($command));
 
 		if (!is_string($expect)) {
-			return true;
+			return '';
 		}
-		$result = false;
+		$result = '';
 		if (!$this->expect($expect, $result)) {
 			throw new Exception_Protocol("$command expected $expect, received $result");
 		}
@@ -126,14 +131,14 @@ class Net_Client_Socket extends Net_Client {
 	 *        	Found string
 	 * @return boolean
 	 */
-	protected function expect($expect, &$result) {
+	protected function expect(string $expect, string &$result): bool {
 		$result = [];
 		do {
 			$line = $this->read();
 			$result[] = $line;
 		} while (substr($line, 3, 1) === '-');
 		$result = implode("\n", $result);
-		return begins(trim($result), $expect);
+		return str_starts_with(trim($result), $expect);
 	}
 
 	/**
@@ -142,17 +147,33 @@ class Net_Client_Socket extends Net_Client {
 	 * @param string $data
 	 * @return number of bytes written
 	 */
-	public function write($data) {
+	public function write(string $data): int {
 		$this->_check();
 		$this->log($data, '> ');
 		return $this->write_data($data . $this->EOL);
 	}
 
-	public function write_data($data) {
-		return fwrite($this->socket, $data, strlen($data));
+	/**
+	 * @param string $data
+	 * @return int
+	 * @throws Exception_Connect
+	 */
+	public function write_data(string $data): int {
+		$result = fwrite($this->socket, $data, strlen($data));
+		if ($result === false) {
+			throw new Exception_Connect('Disconnected');
+		}
+		return $result;
 	}
 
-	public function read_wait($milliseconds = 600000) {
+	/**
+	 * @param $milliseconds
+	 * @return string
+	 * @throws Exception_Protocol
+	 * @throws Exception_Semantics
+	 * @throws Exception_Timeout
+	 */
+	public function read_wait(int $milliseconds = 600000): string {
 		$timeout = microtime(true) + $milliseconds;
 		do {
 			$status = stream_get_meta_data($this->socket);
@@ -164,16 +185,17 @@ class Net_Client_Socket extends Net_Client {
 			}
 		} while (microtime(true) < $timeout);
 
-		throw new Exception("read_wait timed out after $milliseconds milliseconds");
+		throw new Exception_Timeout("read_wait timed out after $milliseconds milliseconds");
 	}
 
 	/**
 	 * Read data from socket
 	 *
-	 * @throws Exception_Protocol
 	 * @return string
+	 * @throws Exception_Protocol
+	 * @throws Exception_Semantics
 	 */
-	public function read() {
+	public function read(): string {
 		if (($pos = strpos($this->buffer, $this->EOL)) === false) {
 			$this->buffer .= $this->_read($this->optionInt('read_buffer_size', 10240));
 			$pos = strpos($this->buffer, $this->EOL);
@@ -189,7 +211,7 @@ class Net_Client_Socket extends Net_Client {
 		return $line;
 	}
 
-	public function read_data($length) {
+	public function read_data($length): string {
 		if (strlen($this->buffer) > $length) {
 			$data = substr($this->buffer, 0, $length);
 			$this->buffer = substr($this->buffer, $length);
@@ -204,12 +226,12 @@ class Net_Client_Socket extends Net_Client {
 	/**
 	 * Internal read data (unbuffered)
 	 *
-	 * @param inteeger $n_chars
-	 *        	Number of characters
-	 * @throws Exception_Protocol
+	 * @param int $n_chars
 	 * @return string
+	 * @throws Exception_Protocol
+	 * @throws Exception_Semantics
 	 */
-	protected function _read($n_chars = 1024) {
+	protected function _read(int $n_chars = 1024): string {
 		$this->_check();
 		if ($this->optionBool('read_debug')) {
 			echo "->read($n_chars) = ";

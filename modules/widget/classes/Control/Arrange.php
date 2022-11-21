@@ -125,7 +125,7 @@ class Control_Arrange extends Control_Select {
 				$new_key = preg_replace('/-+/', '-', trim(preg_replace('/[^a-z]/', '-', strtolower($key)), '-'));
 				$order_by = $key;
 			} elseif ($what !== null) {
-				$this->what["*$what"] = StringTools::unsuffix(StringTools::unsuffix($order_by, ' ASC', true), ' DESC', true);
+				$this->what["*$what"] = StringTools::removeSuffix(StringTools::removeSuffix($order_by, ' ASC', true), ' DESC', true);
 				$order_by = $what;
 			}
 			$options[$new_key] = $value;

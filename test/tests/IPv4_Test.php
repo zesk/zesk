@@ -38,7 +38,40 @@ class IPv4_Test extends UnitTest {
 		$this->assert(IPv4::is_mask('192.128.0.0/9') === true, 'IPv4::is_mask("192.128.0.0/9") === true');
 	}
 
-	public function test_mask_to_integers(): void {
+	public function data_mask_to_integers(): array {
+		return [
+			[[null, null], '127.0.0.2.3'],
+			[[null, null], '256.0.0'],
+			[[null, null], '1.0.-4'],
+			[[null, null], '1.0.2343'],
+			[[null, null], '1.*.2343'],
+			[[null, null], '127.0.0.1/33'],
+			[[2130706433.0, 32], '127.0.0.1'],
+			[[2130706432.0, 24], '127.0.0'],
+			[[2130706432.0, 16], '127.0'],
+			[[2130706432.0, 8], '127'],
+			[[2130706432.0, 24], '127.0.0.1/24'],
+			[[2130706432.0, 16], '127.0.0.1/16'],
+			[[167772160.0, 8], '10.0.0.1/8'],
+			[[167772160.0, 16], '10.0.0.1/16'],
+			[[167772160.0, 24], '10.0.0.1/24'],
+			[[167772160.0, 25], '10.0.0.1/25'],
+			[[167772160.0, 31], '10.0.0.1/31'],
+			[[167772161.0, 32], '10.0.0.1/32'],
+		];
+	}
+
+	/**
+	 * @param array $expected
+	 * @param string $string
+	 * @return void
+	 * @dataProvider data_mask_to_integers
+	 */
+	public function test_mask_to_integers(array $expected, string $string): void {
+		$this->assertEquals($expected, IPv4::mask_to_integers($string));
+	}
+
+	public function test_mask_to_integers2(): void {
 		$ips = file($this->application->zeskHome('test/test-data/ip.txt'));
 
 		$ip = '192.168.0.248';
@@ -66,16 +99,16 @@ class IPv4_Test extends UnitTest {
 	}
 
 	public function test_mask_to_string(): void {
-		$ip = null;
-		$ipbits = 32;
-		$this->assert(IPv4::mask_to_string($ip, $ipbits) === '0.0.0.0');
+		$ip = 0.0;
+		$ip_bits = 32;
+		$this->assert(IPv4::mask_to_string($ip, $ip_bits) === '0.0.0.0');
 		$this->assert(IPv4::mask_to_string($ip, 24) === '0.0.0.*');
 		$this->assert(IPv4::mask_to_string($ip, 16) === '0.0.*');
 		$this->assert(IPv4::mask_to_string($ip, 8) === '0.*');
 
 		$this->assert(IPv4::mask_to_string(3232235720, 29) === '192.168.0.200/29');
 		$this->assert(IPv4::mask_to_string(3232235720, 29) === '192.168.0.200/29');
-		$this->assertEquals('192.168.0.200/29', IPv4::mask_to_string('3232235720', 29));
+		$this->assertEquals('192.168.0.200/29', IPv4::mask_to_string(3232235720, 29));
 
 		$all_ones = IPv4::to_integer('255.255.255.255');
 		$n = 1;
@@ -163,6 +196,43 @@ class IPv4_Test extends UnitTest {
 		$this->assertEquals($ip_high, $ip_check_high, 'High Check: ' . IPv4::from_integer($ip_high) . ' !== ' . IPv4::from_integer($ip_check_high));
 	}
 
+	public function data_to_integer(): array {
+		return [
+			[floatval(1), 1],
+			[floatval(9999), 9999],
+			[floatval(0xFFFFFFFF), 0xFFFFFFFF],
+			[123123145.0, 123123145.0],
+			[floatval(0xFFFFFFFF), '255.255.255.255'],
+			[0, ''],
+			[0, false],
+			[0, []],
+			[0, null],
+			[16909060.0, '1.2.3.4'],
+			[33752065.0, '2.3.4.1'],
+			[99.0, '0.0.0.99'],
+			[0, '1.0.0.256'],
+			[0, '1.0.256.0'],
+			[0, '1.0.256.0'],
+			[0, '1.256.0.0'],
+			[0, '256.0.0.0'],
+			[3232235736.0, '192.168.0.216'],
+			[4294967288.0, '255.255.255.248'],
+		];
+	}
+
+	/**
+	 * @param float $expected
+	 * @param $mixed
+	 * @return void
+	 * @dataProvider data_to_integer
+	 */
+	public function test_to_integer(float $expected, $mixed): void {
+		$this->assertEquals($expected, IpV4::to_integer($mixed));
+		if (is_string($mixed) && !empty($mixed) && !empty($expected)) {
+			$this->assertEquals($mixed, IpV4::from_integer($expected));
+		}
+	}
+
 	public function test_remote(): void {
 		$request = new Request($this->application);
 		$default = '0.0.0.0';
@@ -195,16 +265,29 @@ class IPv4_Test extends UnitTest {
 		}
 	}
 
-	public function test_subnet_mask_not(): void {
-		$ipbits = null;
-		IPv4::subnet_mask_not($ipbits);
+	public function data_subnet_mask_not(): array {
+		return [
+			[0, 32],
+			[1, 31],
+			[3, 30],
+			[127, 25],
+			[1023, 22], // 10 bits
+			[16383, 18],
+			[65535, 16],
+			[16777215, 8],
+			[268435455, 4],
+			[1073741823, 2],
+			[2147483647, 1],
+			[4294967295, 0],
+		];
 	}
 
-	public function test_to_integer(): void {
-		$mixed = null;
-		IPv4::to_integer($mixed);
-		$this->assert('' . IPv4::to_integer('192.168.0.216') === '3232235736');
-		$this->assert('' . IPv4::to_integer('255.255.255.248') === '4294967288');
+	/**
+	 * @return void
+	 * @dataProvider data_subnet_mask_not
+	 */
+	public function test_subnet_mask_not($expected, $ip_bits): void {
+		$this->assertEquals($expected, IPv4::subnet_mask_not($ip_bits));
 	}
 
 	public function data_valid(): array {
@@ -304,5 +387,36 @@ class IPv4_Test extends UnitTest {
 	 */
 	public function test_within_network($ip, $network, $result): void {
 		$this->assertEquals($result, IPv4::within_network($ip, $network), "IPv4::within_network($ip, $network) === " . StringTools::fromBool($result));
+	}
+
+	public function data_is_private(): array {
+		$r0 = $this->randomInteger(0, 255);
+		$r1 = $this->randomInteger(0, 255);
+		$r2 = $this->randomInteger(0, 255);
+		return [
+			[true, '10.2.3.4'],
+			[true, '10.255.3.4'],
+			[true, '10.2.32.4'],
+			[true, '10.2.3.41'],
+			[true, '0.2.3.41'],
+			[true, '100.64.4.255'],
+			[true, '100.65.255.255'],
+			[false, '100.192.255.255'],
+			[true, "127.$r0.$r1.$r2"],
+			[true, "169.254.$r0.$r1"],
+			[true, "169.254.$r1.$r2"],
+			[false, "169.255.$r1.$r2"],
+			[true, "224.$r1.$r2.$r2"],
+		];
+	}
+
+	/**
+	 * @param $expected
+	 * @param $ip
+	 * @return void
+	 * @dataProvider data_is_private
+	 */
+	public function test_is_private($expected, $ip): void {
+		$this->assertEquals($expected, IPv4::is_private($ip));
 	}
 }

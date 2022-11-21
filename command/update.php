@@ -190,7 +190,7 @@ class Command_Update extends Command_Base {
 				]);
 				$debug = [];
 				foreach ($globbed as $glob) {
-					$module = StringTools::unprefix(dirname($glob), rtrim($path, '/') . '/');
+					$module = StringTools::removePrefix(dirname($glob), rtrim($path, '/') . '/');
 					$data = $this->application->modules->load($module, $module_options);
 					//					$debug['debug'] = _dump($data);
 					if (is_array($data) && array_key_exists('configuration_file', $data)) {
@@ -1001,10 +1001,10 @@ class Command_Update extends Command_Base {
 		$name = $data['name'];
 		if (begins($destination, $path)) {
 			$this->application->logger->error('Module {name} uses module path for updates - deprecated! Use application_root instead.', compact('name'));
-			$destination = StringTools::unprefix($destination, $path);
+			$destination = StringTools::removePrefix($destination, $path);
 		}
 		if (begins($destination, $application_root)) {
-			$destination = StringTools::unprefix($destination, $application_root);
+			$destination = StringTools::removePrefix($destination, $application_root);
 		}
 		/* Disable share-path for now */
 		// 		if (trim($destination, '/') === 'share' && $this->hasOption('share-path')) {

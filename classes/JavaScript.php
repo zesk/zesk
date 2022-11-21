@@ -31,7 +31,7 @@ class JavaScript {
 		$args = func_get_args();
 		$json = [];
 		foreach ($args as $arg) {
-			$json[] = JSON::encodex($arg);
+			$json[] = JSON::encodeJavaScript($arg);
 		}
 		return implode(', ', $json);
 	}

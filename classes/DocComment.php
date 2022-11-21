@@ -150,8 +150,8 @@ class DocComment extends Options {
 	 */
 	public static function clean($string) {
 		$string = trim($string);
-		$string = StringTools::unprefix($string, '/*');
-		$string = StringTools::unsuffix($string, '*/');
+		$string = StringTools::removePrefix($string, '/*');
+		$string = StringTools::removeSuffix($string, '*/');
 		$string = explode("\n", $string);
 		$string = ArrayTools::trim($string);
 		$string = ArrayTools::valuesRemovePrefix($string, '*');

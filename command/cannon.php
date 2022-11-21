@@ -240,12 +240,12 @@ class Command_Cannon extends Command_Base {
 				$line = strtr($line, [
 					"\t" => '    ',
 				]);
-				echo Text::ralign($lineno + 1, 4) . ': ' . strtr($line, [
+				echo Text::rightAlign($lineno + 1, 4) . ': ' . strtr($line, [
 					$rabbit => $search,
 				]) . "\n";
-				echo Text::ralign($lineno + 1, 4) . ': ' . strtr($line, $replace_tr) . "\n";
+				echo Text::rightAlign($lineno + 1, 4) . ': ' . strtr($line, $replace_tr) . "\n";
 				$carrot_line = preg_replace("#[^$rabbit]#", ' ', $line);
-				echo Text::ralign('', 4) . '  ' . strtr($carrot_line, $carrots_tr) . "\n";
+				echo Text::rightAlign('', 4) . '  ' . strtr($carrot_line, $carrots_tr) . "\n";
 			}
 			return count($lines);
 		}

@@ -28,10 +28,10 @@ class CharSet_Test extends UnitTest {
 
 		$all_charsets = charset::supported();
 
-		//echo Text::lalign("SAMPLE", 20) . $every_char . "\n";
+		//echo Text::leftAlign("SAMPLE", 20) . $every_char . "\n";
 		foreach ($all_charsets as $charset) {
 			$result = charset::to_utf8($every_char, $charset);
-			//echo Text::lalign($charset, 20) . $result . "\n";
+			//echo Text::leftAlign($charset, 20) . $result . "\n";
 			if (in_array($charset, [
 				'CP037',
 				'CP1026',

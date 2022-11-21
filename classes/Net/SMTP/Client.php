@@ -27,13 +27,13 @@ class Net_SMTP_Client extends Net_Client_Socket {
 	 *        	Simple FROM
 	 * @param mixed $to
 	 *        	Email address or array of email addresses
-	 * @param mixed $headers
+	 * @param array|string $headers
 	 *        	raw formatted headers, or array of headers (not name-value, array of strings)
 	 * @param string $body
 	 *        	Body to send
 	 * @return boolean
 	 */
-	public function send($from, $to, $headers, $body) {
+	public function send(string $from, string|array $to, array|string $headers, string $body): bool {
 		if (is_string($headers)) {
 			$headers = explode($this->EOL, $headers);
 		}
@@ -58,7 +58,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 		$this->connect();
 		$this->_check();
 		if (!$this->authenticated) {
-			$user = avalue($this->url_parts, 'user');
+			$user = $this->url_parts['user'] ?? null;
 			if ($user) {
 				$this->ehlo();
 				$this->auth();

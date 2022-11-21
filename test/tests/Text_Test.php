@@ -23,6 +23,29 @@ class Text_Test extends UnitTest {
 		$this->assertEquals($expected, Text::fill($n, $pad));
 	}
 
+	public function data_tail(): array {
+		$lines1 = "how\nmany\nlines\ncan\nwe\nmake\nup\na\nb\nc";
+		return [
+			[$lines1, $lines1, 1000],
+			["up\na\nb\nc", $lines1, 4],
+			["a\nb\nc", $lines1, 3],
+			["b\nc", $lines1, 2],
+			['c', $lines1, 1],
+			['', $lines1, 0],
+		];
+	}
+
+	/**
+	 * @param string $expected
+	 * @param string $content
+	 * @param int $lines
+	 * @return void
+	 * @dataProvider data_tail
+	 */
+	public function test_tail(string $expected, string $content, int $lines): void {
+		$this->assertEquals($expected, Text::tail($content, $lines));
+	}
+
 	public function test_format_pairs(): void {
 		$map = [
 			[
@@ -56,10 +79,37 @@ class Text_Test extends UnitTest {
 		$this->assert_equal(Text::format_pairs($map, $prefix, $space, $suffix, $br), " Name: \"John\"\n");
 	}
 
-	public function test_format_table(): void {
-		$table = null;
-		$prefix = '';
-		Text::format_table($table, $prefix);
+	public function data_format_table(): array {
+		$rowset1 = [
+			['ID' => 1, 'Name' => 'Dude', 'Role' => 'Administrator'],
+			['ID' => 2, 'Name' => 'Rod', 'Role' => 'Admin'],
+			['ID' => 3, 'Name' => 'Staff', 'Role' => 'None'],
+			['ID' => 95312, 'Name' => 'Alex', 'Role' => 'CIO'],
+		];
+		$expected1 =
+			"+-------+-------+---------------+\n" .
+			"| ID    | Name  | Role          |\n" .
+			"+-------+-------+---------------+\n" .
+			"| 1     | Dude  | Administrator |\n" .
+			"| 2     | Rod   | Admin         |\n" .
+			"| 3     | Staff | None          |\n" .
+			"| 95312 | Alex  | CIO           |\n" .
+			"+-------+-------+---------------+\n";
+
+		return [
+			[$expected1, $rowset1, ''],
+		];
+	}
+
+	/**
+	 * @param string $expected
+	 * @param array $table
+	 * @param string $prefix
+	 * @return void
+	 * @dataProvider data_format_table
+	 */
+	public function test_format_table(string $expected, array $table, string $prefix): void {
+		$this->assertEquals($expected, Text::format_table($table, $prefix));
 	}
 
 	public function data_indent(): array {
@@ -82,7 +132,7 @@ class Text_Test extends UnitTest {
 		$this->assertEquals($expected, Text::indent($text, $indent_count, $trim_line_white, $indent_char, $newline));
 	}
 
-	public function data_lalign() {
+	public function data_leftAlign() {
 		return [
 			['Hello--------', 'Hello', 13, '-', true],
 			['Hello========', 'Hello', 13, '=', false],
@@ -101,10 +151,10 @@ class Text_Test extends UnitTest {
 	 * @param $pad
 	 * @param $trim
 	 * @return void
-	 * @dataProvider data_lalign
+	 * @dataProvider data_leftAlign
 	 */
-	public function test_lalign($expected, $text, $n, $pad, $trim): void {
-		$this->assertEquals($expected, Text::lalign($text, $n, $pad, $trim));
+	public function test_leftAlign($expected, $text, $n, $pad, $trim): void {
+		$this->assertEquals($expected, Text::leftAlign($text, $n, $pad, $trim));
 	}
 
 	public function data_lines_wrap(): array {
@@ -166,7 +216,7 @@ class Text_Test extends UnitTest {
 		$this->assertEquals($expected, Text::parse_table($content, $num_columns, $delimiters, $newline));
 	}
 
-	public function data_ralign() {
+	public function data_rightAlign() {
 		return [
 			['--------Hello', 'Hello', 13, '-', true],
 			['========Hello', 'Hello', 13, '=', false],
@@ -185,10 +235,10 @@ class Text_Test extends UnitTest {
 	 * @param string $pad
 	 * @param bool $trim
 	 * @return void
-	 * @dataProvider data_ralign
+	 * @dataProvider data_rightAlign
 	 */
-	public function test_ralign(string $expected, string $text, int $n, string $pad, bool $trim): void {
-		$this->assertEquals($expected, Text::ralign($text, $n, $pad, $trim));
+	public function test_rightAlign(string $expected, string $text, int $n, string $pad, bool $trim): void {
+		$this->assertEquals($expected, Text::rightAlign($text, $n, $pad, $trim));
 	}
 
 	public function data_remove_line_comments(): array {

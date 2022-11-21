@@ -323,7 +323,7 @@ class Router extends Hookable {
 		$path = strval($request->path());
 		$method = strval($request->method());
 		if ($this->prefix) {
-			$path = StringTools::unprefix($path, $this->prefix);
+			$path = StringTools::removePrefix($path, $this->prefix);
 		}
 		$path = avalue($this->aliases, $path, $path);
 		foreach ($this->routes() as $route) {

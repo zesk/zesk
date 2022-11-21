@@ -162,7 +162,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			if ($ns) {
 				$ns .= '\\';
 			}
-			$this->class = $ns . StringTools::unprefix($cl, 'Controller_');
+			$this->class = $ns . StringTools::removePrefix($cl, 'Controller_');
 			$this->application->logger->debug('Automatically computed ORM class name {class} from {controller_class}', [
 				'controller_class' => $controller_class,
 				'class' => $this->class,

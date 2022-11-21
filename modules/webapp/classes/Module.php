@@ -418,7 +418,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 
 		$results = [];
 		foreach ($webapps as $webapp_path => $modtime) {
-			$subpath = StringTools::unprefix($webapp_path, $root);
+			$subpath = StringTools::removePrefix($webapp_path, $root);
 			$instance_struct = [
 				'path' => $subpath,
 			];

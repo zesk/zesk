@@ -81,15 +81,16 @@ class JSON {
 	 * Prepare internal objects to simple JSON-capable structures.
 	 *
 	 * @param mixed $mixed
-	 * @param ?array $methods
+	 * @param ?array $methods List of methods to try in objects to convert to JSON form (array)
 	 * @param array $arguments Optional arguments passed to $methods
 	 * @return mixed
+	 * @throws Exception_Semantics
 	 */
-	public static function prepare(mixed $mixed, array $methods = [], array $arguments = []): mixed {
+	public static function prepare(mixed $mixed, array $methods = null, array $arguments = []): mixed {
 		if ($mixed === null) {
 			return null;
 		}
-		if (count($methods) === 0) {
+		if ($methods === null) {
 			$methods = self::$default_methods;
 		}
 		if (is_array($mixed)) {
@@ -138,7 +139,7 @@ class JSON {
 	/**
 	 * Like json_encode, except handles special variable name cases to NOT encode JavaScript
 	 *
-	 * JSON::encode(array('*method' => 'open_window', 'count' => 5)) =
+	 * JSON::zencode(array('*method' => 'open_window', 'count' => 5)) =
 	 * "{'method':open_window,'count':5}"
 	 *
 	 * Useful when you want to pass JS code, variables, or anything JavaScript via JSON
@@ -147,7 +148,7 @@ class JSON {
 	 *            Item to encode using JSON
 	 * @return string JSON string of encoded item
 	 */
-	public static function zencode(mixed $mixed): string {
+	public static function encodeSpecial(mixed $mixed): string {
 		static $recursion = 0;
 		if (is_array($mixed) || is_object($mixed)) {
 			if ($recursion > 10) {
@@ -157,7 +158,7 @@ class JSON {
 			if (!is_object($mixed) && !ArrayTools::isAssoc($mixed)) {
 				foreach ($mixed as $v) {
 					$recursion++;
-					$result[] = self::zencode($v);
+					$result[] = self::encodeSpecial($v);
 					$recursion--;
 				}
 				return '[' . implode(',', $result) . ']';
@@ -174,7 +175,10 @@ class JSON {
 				} else {
 					$mixed = $mixed::class . ':no-json-method';
 				}
-				return self::zencode($mixed);
+				$recursion++;
+				$result = self::encodeSpecial($mixed);
+				$recursion--;
+				return $result;
 			} else {
 				foreach ($mixed as $k => $v) {
 					$k = strval($k);
@@ -182,7 +186,7 @@ class JSON {
 						$result[] = self::quote(substr($k, 1)) . ':' . $v;
 					} else {
 						$recursion++;
-						$result[] = self::quote($k) . ':' . self::zencode($v);
+						$result[] = self::quote($k) . ':' . self::encodeSpecial($v);
 						$recursion--;
 					}
 				}
@@ -217,24 +221,24 @@ class JSON {
 	 *            Item to encode using JSON
 	 * @return string JSON string of encoded item
 	 */
-	public static function encodex(mixed $mixed): string {
+	public static function encodeJavaScript(mixed $mixed): string {
 		if (is_array($mixed) || is_object($mixed)) {
 			$result = [];
 			if (!is_object($mixed) && !ArrayTools::isAssoc($mixed)) {
 				foreach ($mixed as $v) {
-					$result[] = self::encodex($v);
+					$result[] = self::encodeJavaScript($v);
 				}
 				return '[' . implode(',', $result) . ']';
 			} elseif (is_object($mixed) && method_exists($mixed, 'to_json')) {
 				$mixed = $mixed->to_json();
-				return self::encodex($mixed);
+				return self::encodeJavaScript($mixed);
 			} else {
 				foreach ($mixed as $k => $v) {
 					$k = strval($k);
 					if (str_starts_with($k, '*')) {
 						$result[] = self::object_member_name_quote(substr($k, 1)) . ':' . $v;
 					} else {
-						$result[] = self::object_member_name_quote($k) . ':' . self::encodex($v);
+						$result[] = self::object_member_name_quote($k) . ':' . self::encodeJavaScript($v);
 					}
 				}
 				return '{' . implode(',', $result) . '}';
@@ -247,10 +251,8 @@ class JSON {
 			return self::quote($mixed);
 		} elseif (is_resource($mixed)) {
 			return '"' . strval($mixed) . '"';
-		} elseif ($mixed === null) {
-			return 'null';
 		} else {
-			die("Unknown type: $mixed " . gettype($mixed));
+			return 'null';
 		}
 	}
 
@@ -272,22 +274,16 @@ class JSON {
 		if ($result !== null) {
 			return $result;
 		}
-		$e = self::lastError();
-		if (!$e) {
-			$e = new Exception_Parse('Unable to parse JSON: {string}', [
-				'string' => $string,
-			]);
-		}
 
-		throw $e;
+		throw self::lastError();
 	}
 
 	/**
 	 *
 	 * @param int $code
-	 * @return ?string
+	 * @return string
 	 */
-	private static function errorToString(int $code): ?string {
+	private static function errorToString(int $code): string {
 		static $errors = [
 			JSON_ERROR_DEPTH => 'Maximum stack depth has been exceeded',
 			JSON_ERROR_STATE_MISMATCH => 'Malformed JSON',
@@ -297,23 +293,17 @@ class JSON {
 			JSON_ERROR_RECURSION => 'One or more recursive references in the value to be encoded',
 			JSON_ERROR_INF_OR_NAN => 'One or more NAN or INF in value',
 			JSON_ERROR_UNSUPPORTED_TYPE => 'A value of a type that cannot be encoded was given',
+			JSON_ERROR_NONE => 'No error',
 		];
-		if ($code === JSON_ERROR_NONE) {
-			return null;
-		}
 		return $errors[$code] ?? "Unknown code $code";
 	}
 
 	/**
-	 * @return ?Exception_Parse
+	 * @return Exception_Parse
 	 */
-	private static function lastError(): ?Exception_Parse {
+	private static function lastError(): Exception_Parse {
 		$code = json_last_error();
-		$message = self::errorToString($code);
-		if ($message === null) {
-			return null;
-		}
-		return new Exception_Parse($message, [
+		return new Exception_Parse(self::errorToString($code), [
 			'json_last_error' => $code,
 		], $code);
 	}
@@ -321,7 +311,7 @@ class JSON {
 	/**
 	 * Used to track state for internal JSON decoder
 	 *
-	 * @var Exception
+	 * @var ?\Exception
 	 */
 	public static ?\Exception $last_error = null;
 

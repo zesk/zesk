@@ -11,7 +11,7 @@ namespace zesk;
  * @see IPv6
  */
 class IPv4 {
-	public static $private_addresses = [
+	public static array $private_addresses = [
 		[
 			'0.0.0.0/8',
 			0,
@@ -107,7 +107,7 @@ class IPv4 {
 	 *            Number of bits between 0 and 32
 	 * @return integer
 	 */
-	public static function subnet_mask($ip_bits) {
+	public static function subnet_mask(int $ip_bits): int {
 		$ip_bits = clamp(0, $ip_bits, self::BITS);
 		return bindec(str_repeat('1', $ip_bits) . str_repeat('0', self::BITS - $ip_bits));
 	}
@@ -119,7 +119,7 @@ class IPv4 {
 	 *            Number of bits between 0 and 32
 	 * @return integer
 	 */
-	public static function subnet_mask_not($ip_bits) {
+	public static function subnet_mask_not(int $ip_bits): int {
 		$ip_bits = clamp(0, $ip_bits, self::BITS);
 		return bindec(str_repeat('1', self::BITS - $ip_bits));
 	}
@@ -127,16 +127,15 @@ class IPv4 {
 	/**
 	 * Given an IP integer address, convert to "low" IP integer in subnet
 	 *
-	 * @param int $ip_integer
+	 * @param float $ip_integer
 	 * @param int $ip_bits
-	 * @return integer
+	 * @return float
 	 */
-	public static function subnet_bits($ip_integer, $ip_bits) {
+	public static function subnet_bits(float $ip_integer, int $ip_bits): float {
 		if ($ip_bits >= self::BITS) {
 			return $ip_integer;
 		}
-		$ip_integer = $ip_integer - ($ip_integer & self::subnet_mask_not($ip_bits));
-		return $ip_integer;
+		return $ip_integer - ($ip_integer & self::subnet_mask_not($ip_bits));
 	}
 
 	/**
@@ -172,7 +171,7 @@ class IPv4 {
 	 * @param string $string
 	 * @return array
 	 */
-	public static function mask_to_integers($string) {
+	public static function mask_to_integers(string $string): array {
 		if (!self::is_mask($string)) {
 			return [
 				null,
@@ -215,8 +214,8 @@ class IPv4 {
 	 *            "192.168.*"
 	 * @return string An IP and subnet notation string
 	 */
-	public static function mask_to_string($ip, int $ip_bits = self::BITS, bool $star_notation = true) {
-		$ip_bits = to_integer($ip_bits, self::BITS);
+	public static function mask_to_string(float $ip, int $ip_bits = self::BITS, bool $star_notation = true): string {
+		$ip_bits = toInteger($ip_bits, self::BITS);
 		$ip = floatval($ip);
 		if ($ip_bits === self::BITS) {
 			return self::from_integer($ip);
@@ -277,7 +276,7 @@ class IPv4 {
 	 * @param mixed $mixed
 	 * @return double
 	 */
-	public static function to_integer($mixed): float {
+	public static function to_integer(mixed $mixed): float {
 		if (is_int($mixed)) {
 			return $mixed;
 		}
@@ -287,8 +286,16 @@ class IPv4 {
 		if (empty($mixed)) {
 			return 0;
 		}
-		[$a, $b, $c, $d] = explode('.', $mixed, 4) + array_fill(0, 4, 0);
-		return ((((floatval($a) * 256) + floatval($b)) * 256 + floatval($c)) * 256 + floatval($d));
+		$octets = explode('.', $mixed, 4) + array_fill(0, 4, 0);
+		$ip = 0;
+		foreach ($octets as $octet) {
+			$octet = floatval($octet);
+			if ($octet < 0 || $octet > 255) {
+				return 0;
+			}
+			$ip = ($ip * 256.0) + $octet;
+		}
+		return $ip;
 	}
 
 	/**

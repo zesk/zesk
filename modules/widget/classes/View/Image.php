@@ -44,7 +44,7 @@ class View_Image extends View {
 		}
 		$cache = realpath($this->cache_directory());
 		$doc_root = realpath($this->application->document_root());
-		return StringTools::unprefix($cache, $doc_root);
+		return StringTools::removePrefix($cache, $doc_root);
 	}
 
 	private function debug_log($message): void {

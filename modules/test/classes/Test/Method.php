@@ -195,7 +195,7 @@ class Method extends Options {
 				substr(strval(json_encode($arguments)), 0, 80),
 			]);
 			$result = $this->test->_run_test_method($this, $arguments);
-			$this->test->log(Text::lalign($log_line, 80, ' ', true) . ' : ' . ($result ? 'OK' : 'FAIL'));
+			$this->test->log(Text::leftAlign($log_line, 80, ' ', true) . ' : ' . ($result ? 'OK' : 'FAIL'));
 			$last_test = $this->test->last_test_output();
 			if ($last_test) {
 				$this->test->log($last_test, ['severity' => 'error']);

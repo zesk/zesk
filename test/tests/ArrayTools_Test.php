@@ -772,7 +772,7 @@ class ArrayTools_Test extends UnitTest {
 		]);
 	}
 
-	public function test_unprefix(): void {
+	public function test_removePrefix(): void {
 		$arr = [
 			'GooBar',
 			'GooBird',
@@ -791,7 +791,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assert_arrays_equal($result, $result_correct);
 	}
 
-	public function test_unsuffix(): void {
+	public function test_removeSuffix(): void {
 		$arr = [
 			'0-Thing',
 			'1-Thing',

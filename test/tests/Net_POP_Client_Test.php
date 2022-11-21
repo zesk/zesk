@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  * @test_sandbox true
@@ -8,6 +9,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -19,41 +21,43 @@ class Net_POP_Client_Test extends UnitTest {
 	 *
 	 * @var string
 	 */
-	private $url = null;
+	private string $url;
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $email = null;
+	private string $email;
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $parts = [];
+	private array $parts = [];
 
 	/**
 	 */
-	protected function initialize(): void {
-		$this->url = $this->option('email_url');
-
-		if (empty($this->url)) {
-			$this->markTestSkipped(__CLASS__ . '::email_url not set');
+	public function test_outgoing_requirements(): void {
+		$mail = new Mail($this->application, [], '');
+		if (!$mail->option('SMTP_URL')) {
+			$this->markTestSkipped($mail::class . '::SMTP_URL not set');
+		}
+		$this->url = $this->option('url', '');
+		if (!URL::valid($this->url)) {
+			$this->markTestSkipped(get_class($this) . '::url not valid (' . $this->url . ')');
+		}
+		$this->email = $this->option('email');
+		if (!is_email($this->email)) {
+			$this->markTestSkipped(get_class($this) . '::email not valid (' . $this->email . ')');
 		}
 		$this->parts = URL::parse($this->url);
-		if (empty($this->parts)) {
-			$this->markTestSkipped(__CLASS__ . "::email not a valid URL: $this->url");
-		}
-		$this->email = $this->option('email', avalue($this->parts, 'user'));
-		if (empty($this->email)) {
-			$this->markTestSkipped(__CLASS__ . '::email set');
-		}
-		if ($this->parts['user'] !== $this->email) {
-			$this->markTestSkipped('User ' . $this->parts['user'] . " !== $this->email\n");
-		}
+		$this->assertArrayHasKeys(['schene', 'user', 'pass', 'host', 'port'], $this->parts);
 	}
 
+	/**
+	 * @return void
+	 * @depends test_outgoing_requirements
+	 */
 	public function test_mail_delivery(): void {
 		$test_email = $this->email;
 		$test_url = $this->url;
@@ -81,7 +85,7 @@ class Net_POP_Client_Test extends UnitTest {
 			foreach ($iterator as $message_id => $headers) {
 				$subject = avalue($headers, 'subject', '-no-subject-');
 				echo "Examining message id $message_id ... Subject: " . $subject . "\n";
-				if (str_contains($subject, $test_prefix)   || str_contains($subject, __CLASS__)) {
+				if (str_contains($subject, $test_prefix) || str_contains($subject, __CLASS__)) {
 					// Delete other tests
 					echo "Deleting message id $message_id\n";
 					$iterator->current_delete();
@@ -105,18 +109,16 @@ class Net_POP_Client_Test extends UnitTest {
 	}
 
 	/**
-	 * @expectedException zesk\Exception_Authentication
+	 * @depends test_outgoing_requirements
 	 */
 	public function test_bad_password(): void {
+		$this->expectException(Exception_Authentication::class);
 		$parts = ArrayTools::filter($this->parts, 'scheme;host;user');
 		$parts['pass'] = 'bad-password';
 		$test_url = URL::unparse($parts);
 
 		$options = [
-			'echo_log' => true,
-			'read_debug' => true,
-			'debug' => true,
-			'debug_apop' => true,
+			'echo_log' => true, 'read_debug' => true, 'debug' => true, 'debug_apop' => true,
 		];
 		$testx = new Net_POP_Client($this->application, $test_url, $options);
 

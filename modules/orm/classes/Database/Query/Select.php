@@ -316,14 +316,14 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @return $this
 	 */
 	public function removeWhat(string $alias): self {
-		$alias = StringTools::unprefix($alias, '*');
+		$alias = StringTools::removePrefix($alias, '*');
 		unset($this->what[$alias]);
 		unset($this->what["*$alias"]);
 		return $this;
 	}
 
 	public function addWhat(string $alias, string $member = ''): self {
-		$cleaned_alias = StringTools::unprefix($alias, '*');
+		$cleaned_alias = StringTools::removePrefix($alias, '*');
 		unset($this->what[$cleaned_alias]);
 		unset($this->what["*$cleaned_alias"]);
 		$this->what[$alias] = $member === '' ? $alias : $member;
