@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
@@ -6,6 +7,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 class Database_Column_Test extends UnitTest {
@@ -15,15 +17,22 @@ class Database_Column_Test extends UnitTest {
 
 	public function test_main(): void {
 		$db = $this->application->database_registry();
-		var_dump($this->application->database_module()->options());
+
 		$table = new Database_Table($db, __METHOD__);
 
 		$name = 'dude';
 		$x = new Database_Column($table, $name);
 
-		$x->name($name);
+		$this->assertEquals($name, $x->name());
 
-		$x->previousName();
+		$randomName = 'col' . $this->randomHex(12);
+		$x->setName($randomName);
+
+		$this->assertEquals($randomName, $x->name());
+
+		$this->assertEquals('', $x->previousName());
+		$x->setPreviousName($randomName);
+		$this->assertEquals($randomName, $x->previousName());
 
 		$that = new Database_Column($table, 'name', [
 			'sql_type' => 'varchar(16)',
@@ -63,5 +72,37 @@ class Database_Column_Test extends UnitTest {
 
 		$type = '';
 		$x->isIndex($type);
+	}
+
+	/**
+	 * @param array $expected
+	 * @param Database_Column $a
+	 * @param Database_Column $b
+	 * @return void
+	 * @dataProvider data_differences
+	 */
+	public function test_differences(array $expected, Database_Column $a, Database_Column $b): void {
+		$db = $b->table()->database();
+		$result_a = $a->differences($db, $b);
+		$result_b = $b->differences($db, $a);
+		$result_a_keys = array_keys($result_a);
+		$result_b_keys = array_keys($result_b);
+		sort($result_a_keys);
+		sort($result_b_keys);
+		sort($expected);
+		$this->assertEquals($result_a_keys, $result_b_keys);
+		$this->assertEquals($expected, $result_b_keys);
+	}
+
+	public function data_differences(): array {
+		$this->setUp();
+		$db = $this->application->database_registry();
+		$table = new Database_Table($db, __METHOD__);
+		$col1 = new Database_Column($table, 'col1', ['sql_type' => 'varchar(32)', 'not null' => true]);
+		$col2 = new Database_Column($table, 'col1', ['sql_type' => 'varchar(32)', 'not null' => false]);
+		return [
+			[[], $col1, $col1],
+			[['required'], $col1, $col2],
+		];
 	}
 }

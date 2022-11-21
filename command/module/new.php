@@ -107,7 +107,7 @@ class Command_Module_New extends Command {
 		$conf['module_class'] = "$namespace\\$module_class";
 		$conf_path = path($path, "$module.module.json");
 		if (!file_exists($conf_path)) {
-			file_put_contents($conf_path, JSON::encode_pretty($conf));
+			file_put_contents($conf_path, JSON::encodePretty($conf));
 		}
 		$this->log("Created $conf_path");
 	}

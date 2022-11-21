@@ -1414,7 +1414,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 				break;
 			case 'json':
-				echo JSON::encode_pretty($content);
+				echo JSON::encodePretty($content);
 
 				break;
 			case 'text':

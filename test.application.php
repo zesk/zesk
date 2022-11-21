@@ -18,6 +18,7 @@ class TestApplicationFactory {
 	public static function factory(): Application {
 		try {
 			$zesk = Kernel::singleton();
+			$zesk->setDeprecated(Kernel::DEPRECATED_EXCEPTION);
 			$zesk->paths->setApplication(__DIR__);
 			$application = $zesk->createApplication();
 		} catch (Exception_Semantics) {

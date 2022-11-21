@@ -74,13 +74,11 @@ class Database_Table_Test extends UnitTest {
 
 		$table->sql_alter($table);
 
-		$debug = $this->optionBool('debug');
+		$debug = toBool($this->option('debug'), false);
 		$that = $table;
 		$this->assert($table->isSimilar($that, $debug) === true);
 		$that = new Database_Table($db, 'someother');
 		$this->assert($table->isSimilar($that, $debug) === false);
-
-		echo basename(__FILE__) . ": success\n";
 	}
 
 	public function test_main2(): void {

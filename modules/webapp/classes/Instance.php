@@ -152,7 +152,7 @@ class Instance extends ORM {
 		$site = $this->application->ormFactory(Site::class, [
 			'instance' => $this,
 		]);
-		$site_member_names = $site->member_names();
+		$site_member_names = $site->memberNames();
 		$data = ArrayTools::keysRemove($members, $site_member_names);
 		$members = ArrayTools::filter($members, $site_member_names);
 		if (!isset($members['code'])) {

@@ -78,7 +78,7 @@ class PHPUnit_TestCase extends TestCase {
 	public function assertPreConditions(): void {
 		$this->assertInstanceOf(Configuration::class, $this->configuration);
 		$this->assertInstanceOf(Application::class, $this->application);
-		file_put_contents($this->lastTestCaseFile(), JSON::encode_pretty([
+		file_put_contents($this->lastTestCaseFile(), JSON::encodePretty([
 			'class' => get_class($this),
 			'hierarchy' => $this->application->classes->hierarchy(get_class($this)),
 			'when' => date('Y-m-d H:i:s'),

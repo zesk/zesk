@@ -19,11 +19,11 @@ class TestORM_Test extends Test_ORM {
 
 		$x->table();
 
-		$x->find_key();
+		$x->findKey();
 
-		$x->find_keys();
+		$x->findKeys();
 
-		$x->duplicate_keys();
+		$x->duplicateKeys();
 
 		$x->database();
 

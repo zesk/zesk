@@ -342,7 +342,7 @@ class Template implements Interface_Theme {
 			if (self::$debug) {
 				static $template_path = false;
 				if (!$template_path) {
-					$this->application->logger->debug("theme_path is\n\t" . JSON::encode_pretty($theme_paths));
+					$this->application->logger->debug("theme_path is\n\t" . JSON::encodePretty($theme_paths));
 					$template_path = true;
 				}
 				$this->application->logger->warning('Template::path("{path}") not found in theme_path ({n_paths} paths).', [

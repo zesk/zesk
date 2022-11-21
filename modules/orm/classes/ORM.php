@@ -449,15 +449,31 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	/**
 	 * Cache object data
 	 */
-	public function cache($key = null, $data = null) {
+	public function cache(string $key = null, string $data = null) {
+		$this->application->deprecated();
 		if ($key === null) {
-			return to_array($this->call_hook('cache_list'), []);
+			return $this->cacheList();
 		} elseif ($data === null) {
-			return $this->call_hook_arguments('cache_load', [$key, ], null);
+			return $this->cacheLoad($key);
 		} else {
-			$this->call_hook('cacheSave', $key, $data);
-			return $this;
+			return $this->cacheSave($key, $data);
 		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public function cacheList(): array {
+		return toArray($this->call_hook('cachList'), []);
+	}
+
+	public function cacheSave(string $key, string $data) {
+		$this->call_hook('cacheSave', $key, $data);
+		return $this;
+	}
+
+	public function cacheLoad(string $key): ?string {
+		return $this->call_hook_arguments('cache_load', [$key, ], null);
 	}
 
 	/**
@@ -478,8 +494,8 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param mixed $key
 	 * @return boolean
 	 */
-	public function cache_output_begin($key = null) {
-		$data = $this->cache($key);
+	public function cache_output_begin($key = null): bool {
+		$data = $this->cacheLoad($key);
 		if ($data) {
 			echo $data;
 			return false;
@@ -492,16 +508,16 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	/**
 	 * End caching, save output to cache
 	 *
-	 * @return self
+	 * @return void
 	 * @throws Exception_Semantics
 	 */
-	public function cache_output_end() {
+	public function cache_output_end(): void {
 		if (count($this->cache_stack) === 0) {
 			throw new Exception_Semantics(get_class($this) . '::cache_output_end before cache_output_begin');
 		}
 		$content = ob_get_flush();
 		$key = array_pop($this->cache_stack);
-		return $this->cache($key, $content);
+		$this->cacheSave($key, $content);
 	}
 
 	/**
@@ -552,10 +568,10 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	/**
 	 * Default implementation of the object name
 	 */
-	public function name() {
-		$name_col = $this->name_column();
+	public function name(): string {
+		$name_col = $this->nameColumn();
 		if (empty($name_col)) {
-			return null;
+			return '';
 		}
 		return $this->_get($name_col);
 	}
@@ -565,22 +581,21 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return string|null
 	 */
-	final public function name_column() {
+	final public function nameColumn() {
 		return $this->class->name_column;
 	}
 
 	/**
 	 * Retrieves the single find key for an object, if available.
-	 * (Multi-key finds always return null)
 	 *
 	 * @return string|null
 	 */
-	final public function find_key() {
+	final public function findKey(): ?string {
 		$keys = $this->class->find_keys;
 		if (is_array($keys) && count($keys) === 1) {
 			return $keys[0];
 		}
-		return false;
+		return null;
 	}
 
 	/**
@@ -588,7 +603,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return array:string
 	 */
-	final public function find_keys() {
+	final public function findKeys() {
 		return $this->class->find_keys;
 	}
 
@@ -597,7 +612,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return array:string
 	 */
-	final public function duplicate_keys() {
+	final public function duplicateKeys() {
 		return $this->class->duplicate_keys;
 	}
 
@@ -608,8 +623,8 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return array
 	 */
-	public function member_names() {
-		return $this->class->member_names();
+	public function memberNames(): array {
+		return $this->class->memberNames();
 	}
 
 	/**
@@ -617,7 +632,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return array
 	 */
-	public function columns() {
+	public function columns(): array {
 		return array_keys($this->class->column_types);
 	}
 
@@ -626,16 +641,16 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return string
 	 */
-	public function class_name() {
+	public function className(): string {
 		return $this->class->name;
 	}
 
 	/**
 	 * If there's an ID column, return the name of the column
 	 *
-	 * @return string
+	 * @return ?string
 	 */
-	public function idColumn(): string {
+	public function idColumn(): ?string {
 		return $this->class->id_column;
 	}
 
@@ -644,7 +659,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return boolean
 	 */
-	public function hasPrimaryKeys() {
+	public function hasPrimaryKeys(): bool {
 		$pk = $this->class->primary_keys;
 		if (count($pk) === 0) {
 			return false;
@@ -659,16 +674,6 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			}
 		}
 		return true;
-	}
-
-	/**
-	 * Does this object have all primary keys set to a value?
-	 *
-	 * @return boolean
-	 * @deprecated 2022-05
-	 */
-	public function has_primary_keys(): bool {
-		return $this->hasPrimaryKeys();
 	}
 
 	/**
@@ -687,6 +692,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @deprecated 2022-05
 	 */
 	public function primary_keys(): array {
+		$this->application->deprecated(__METHOD__);
 		return $this->primaryKeys();
 	}
 
@@ -697,6 +703,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @deprecated 2022-05
 	 */
 	public function class_code_name(): string {
+		$this->application->deprecated(__METHOD__);
 		return $this->class->code_name;
 	}
 
@@ -713,7 +720,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return Database
 	 * @throws Exception_Semantics
 	 */
-	public function selectDatabase() {
+	public function selectDatabase(): Database {
 		$db = $this->database();
 		if (!$db) {
 			throw new Exception_Semantics('No database configured');
@@ -1213,16 +1220,26 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 
 	/**
 	 *
-	 * @param Exception_ORM_NotFound $e
-	 * @param ?string $member
-	 * @return NULL
-	 * @throws \zesk\Exception_ORM_NotFound
+	 * @return void
+	 * @param string|null $member
+	 * @param mixed|null $data
+	 * @return void
+	 * @throws Database_Exception
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_ORM_Duplicate
+	 * @throws Exception_ORM_Empty
+	 * @throws Exception_ORM_NotFound
+	 * @throws Exception_ORM_Store
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
 	 */
 	private function orm_not_found_exception(Exception_ORM_NotFound $e, string $member = null, mixed $data = null): void {
 		if ($this->optionBool('fix_orm_members') || $this->optionBool('fix_member_objects')) {
 			// Prevent infinite recursion
 			$magic = '__' . __METHOD__;
-			if (avalue($this->members, $magic)) {
+			if ($this->members[$magic] ?? false) {
 				return;
 			}
 			$this->original[$magic] = true;
@@ -1231,7 +1248,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			$application->hooks->call('exception', $e);
 			$application->logger->error("Fixing not found {member} {member_class} (#{data}) in {class} (#{id})\n{bt}", [
 				'member' => $member,
-				'member_class' => $member::class,
+				'member_class' => $this->class->has_one[$member] ?? '-no-has-one-',
 				'data' => $data,
 				'class' => get_class($this),
 				'id' => $this->id(),
@@ -1312,7 +1329,6 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param string $member
 	 * @return mixed
-	 * @throws Exception_Deprecated
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics|Exception_Configuration
 	 */
@@ -2177,7 +2193,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 */
 	public function fetchByKey(mixed $value = null, string $column = ''): ORM {
 		if (empty($column)) {
-			$column = $this->find_key();
+			$column = $this->findKey();
 			if (empty($column)) {
 				$column = $this->class->id_column;
 			}
@@ -2425,7 +2441,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		if ($this->isDuplicate()) {
 			throw new Exception_ORM_Duplicate(get_class($this), $this->error_duplicate(), [
 				'duplicate_keys' => $this->class->duplicate_keys,
-				'name' => $this->class_name(),
+				'name' => $this->className(),
 				'id' => $this->id(),
 				'indefinite_article' => $this->application->locale->indefinite_article($this->class->name),
 			]);
@@ -3100,5 +3116,16 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	public function inherit_options(): array {
 		$this->application->deprecated(__METHOD__);
 		return $this->inheritOptions();
+	}
+
+	/**
+	 * Does this object have all primary keys set to a value?
+	 *
+	 * @return boolean
+	 * @deprecated 2022-05
+	 */
+	public function has_primary_keys(): bool {
+		$this->application->deprecated(__METHOD__);
+		return $this->hasPrimaryKeys();
 	}
 }

@@ -245,7 +245,7 @@ class Command_Version extends Command_Base {
 		];
 
 		try {
-			File::put($schema_file_path, JSON::encode_pretty([
+			File::put($schema_file_path, JSON::encodePretty([
 				'file' => $version_file_path,
 				'reader' => [
 					'json' => $json_path,
@@ -262,7 +262,7 @@ class Command_Version extends Command_Base {
 			if (file_exists($fullpath)) {
 				$this->log('{fullpath} exists already, not overwriting');
 			} else {
-				File::put($fullpath, JSON::encode_pretty([
+				File::put($fullpath, JSON::encodePretty([
 					'zesk\\Application' => [
 						'version' => '0.0.0',
 					],
@@ -366,7 +366,7 @@ class Command_Version extends Command_Base {
 				$file = File::isAbsolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
 				$json_structure = JSON::decode(File::contents($file), true);
 				apath_set($json_structure, $json, $new_version);
-				File::put($file, JSON::encode_pretty($json_structure));
+				File::put($file, JSON::encodePretty($json_structure));
 			};
 		}
 		return function ($schema, $new_version) use ($application_root): void {

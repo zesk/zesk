@@ -27,12 +27,12 @@ class Control_Button_Delete extends Control_Button {
 		if (!$href) {
 			$href = $this->application->router()->get_route('delete', $object);
 		}
-		$class_name = $this->option('class_name', $object->class_name());
+		$class_name = $this->option('class_name', $object->className());
 		$link_text = $locale->__('Delete {name}', [
 			'name' => $class_name,
 		]);
 		$link_text = $this->option('button_label', $link_text);
-		$title = $object->get($object->name_column());
+		$title = $object->get($object->nameColumn());
 		return [
 			'href' => $href,
 			'title' => $title,

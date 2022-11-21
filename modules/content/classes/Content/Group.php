@@ -53,7 +53,7 @@ abstract class Content_Group extends ORM {
 		switch ($this->OrderMethod) {
 			case 'name':
 				$object = ORM::cache_object($this->group_class);
-				return $query->order_by("$alias." . $object->name_column());
+				return $query->order_by("$alias." . $object->nameColumn());
 			case 'order':
 				return $query->order_by("$alias.OrderIndex");
 			case 'created':

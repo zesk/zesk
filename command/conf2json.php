@@ -57,7 +57,7 @@ class Command_CONF2JSON extends Command_Iterator_File {
 			return;
 		}
 		if (count($result) > 0) {
-			file_put_contents($target_name, JSON::encode_pretty($result));
+			file_put_contents($target_name, JSON::encodePretty($result));
 		}
 	}
 

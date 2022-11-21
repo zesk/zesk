@@ -444,7 +444,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			throw new Exception_Unimplemented('Application::$modules no longer supported');
 		}
 
-		$this->module_path($this->path_module_default());
+		$this->module_path($this->defaultModulesPath());
 
 		// Variable state
 		$this->template_stack = new Template_Stack();
@@ -454,9 +454,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		// Stack of currently rendering themes
 		$this->theme_stack = [];
 
-		$this->theme_path($this->path_theme_default());
-		$this->share_path($this->path_share_default(), 'zesk');
-		$this->locale_path($this->path_locale_default());
+		$this->addThemePath($this->defaultThemePath());
+		$this->addSharePath($this->defaultSharePath(), 'zesk');
+		$this->addLocalePath($this->defaultLocalePath());
 	}
 
 	/**
@@ -465,7 +465,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	protected function _initialize_fixme(): void {
 		// These two calls mess up reconfigure and do not reset state correctly.
 		// Need a robust globals monitor to ensure reconfigure resets state back to default
-		// Diffiult issue is class loader modifies state
+		// Difficult issue is that the class loader modifies state
 		$this->factories = [];
 		$this->modules = new Modules($this);
 	}
@@ -474,7 +474,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @return string
 	 */
-	private function path_module_default() {
+	private function defaultModulesPath(): string {
 		return $this->paths->zesk('modules');
 	}
 
@@ -482,7 +482,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @return string
 	 */
-	private function path_theme_default() {
+	private function defaultThemePath(): string {
 		return $this->paths->zesk('theme');
 	}
 
@@ -490,7 +490,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @return string
 	 */
-	private function path_share_default() {
+	private function defaultSharePath(): string {
 		return $this->paths->zesk('share');
 	}
 
@@ -498,7 +498,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @return string
 	 */
-	private function path_locale_default() {
+	private function defaultLocalePath(): string {
 		return $this->paths->zesk('etc/language');
 	}
 
@@ -1338,6 +1338,25 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @return array The ordered list of paths to search for theme files as prefix => search list.
 	 */
 	final public function theme_path(array|string $add = null, string $prefix = ''): array {
+		if ($add) {
+			$this->deprecated(__METHOD__);
+			$this->addThemePath($add, $prefix);
+		}
+		return $this->theme_path;
+	}
+
+	/**
+	 * Add a path to be searched before existing paths
+	 * (first in the list).
+	 *
+	 * @param array|string $add
+	 *            Path to add to the theme path. Pass in null to do nothing.
+	 * @param string $prefix
+	 *            (Optional) Handle theme requests which begin with this prefix. Saves having deep
+	 *            directories.
+	 * @return self
+	 */
+	final public function addThemePath(array|string $add, string $prefix = ''): self {
 		if (is_array($add)) {
 			foreach ($add as $k => $v) {
 				if (is_numeric($k)) {
@@ -1347,8 +1366,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 				}
 			}
 			return $this->theme_path;
-		}
-		if ($add) {
+		} else {
 			if (!isset($this->theme_path[$prefix])) {
 				$this->theme_path[$prefix] = [];
 			}
@@ -1356,7 +1374,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 				array_unshift($this->theme_path[$prefix], $add);
 			}
 		}
-		return $this->theme_path;
+		return $this;
 	}
 
 	/**

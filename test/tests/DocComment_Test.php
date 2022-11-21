@@ -186,8 +186,8 @@ class DocComment_Test extends UnitTest {
 	 * @dataProvider data_provider_parse
 	 */
 	public function test_parse($test, $expected, $unparse_expected): void {
-		$this->assert_equal($parsed = DocComment::instance($test)->variables(), $expected, JSON::encode_pretty($test));
-		$this->assert_equal(DocComment::instance($parsed)->content(), $unparse_expected, JSON::encode_pretty($parsed));
+		$this->assert_equal($parsed = DocComment::instance($test)->variables(), $expected, JSON::encodePretty($test));
+		$this->assert_equal(DocComment::instance($parsed)->content(), $unparse_expected, JSON::encodePretty($parsed));
 	}
 
 	public function data_provider_unparse() {

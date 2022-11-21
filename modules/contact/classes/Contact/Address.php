@@ -73,15 +73,15 @@ class Contact_Address extends Contact_Info {
 	 *
 	 * @return string[string]
 	 */
-	public static function lang_member_names(Locale $locale) {
-		return $locale->__(self::en_lang_member_names());
+	public static function lang_memberNames(Locale $locale) {
+		return $locale->__(self::en_lang_memberNames());
 	}
 
 	/**
 	 *
 	 * @return string[string]
 	 */
-	public static function en_lang_member_names() {
+	public static function en_lang_memberNames() {
 		return [
 			'id' => 'ID',
 			'contact' => 'Contact',

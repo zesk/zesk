@@ -450,7 +450,7 @@ class Command_Test extends Command_Base {
 		}
 		if ($this->test_database_file) {
 			$this->log_db('Before Save');
-			file_put_contents($this->test_database_file, JSON::encode_pretty($this->test_results));
+			file_put_contents($this->test_database_file, JSON::encodePretty($this->test_results));
 		}
 	}
 

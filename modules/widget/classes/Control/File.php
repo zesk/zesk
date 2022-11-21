@@ -30,7 +30,7 @@ class Control_File extends Control {
 	 *
 	 * @return mixed|string
 	 */
-	public function file_name_column() {
+	public function file_nameColumn() {
 		return $this->option('filecolumn', $this->column() . '_FileName');
 	}
 
@@ -41,7 +41,7 @@ class Control_File extends Control {
 	 */
 	public function defaults(): void {
 		parent::defaults();
-		$this->object->set($this->file_name_column(), $this->option('filecolumn_default', ''));
+		$this->object->set($this->file_nameColumn(), $this->option('filecolumn_default', ''));
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Control_File extends Control {
 	public function load(): void {
 		$col = $this->column();
 		$name = $this->name();
-		$filecolumn = $this->file_name_column();
+		$filecolumn = $this->file_nameColumn();
 		if ($this->request->has($name)) {
 			$this->object->set($col, $this->request->get($name));
 		}
@@ -69,7 +69,7 @@ class Control_File extends Control {
 	public function validate(): bool {
 		$col = $this->column();
 		$name = $this->name();
-		$filecolumn = $this->file_name_column();
+		$filecolumn = $this->file_nameColumn();
 
 		$this->object->set($col, $this->request->get($name));
 		$this->object->set($filecolumn, $this->request->get($filecolumn));
@@ -108,7 +108,7 @@ class Control_File extends Control {
 	 * @return \zesk\Model|mixed|NULL|mixed[]|NULL[]|mixed[][]|NULL[][]
 	 */
 	public function filename($set = null) {
-		$name = $this->file_name_column();
+		$name = $this->file_nameColumn();
 		return $set ? $this->object->set($name, $set) : $this->object->get($name);
 	}
 
@@ -139,7 +139,7 @@ class Control_File extends Control {
 	public function submit(): bool {
 		$col = $this->column();
 		$name = $this->name();
-		$filecolumn = $this->file_name_column();
+		$filecolumn = $this->file_nameColumn();
 		$file = $this->_file();
 		if (is_array($file)) {
 			$dest_path = $this->object->applyMap($this->option('dest_path'));

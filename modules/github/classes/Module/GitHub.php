@@ -89,7 +89,7 @@ class Module_GitHub extends Module {
 		$client->request_header(Net_HTTP::REQUEST_CONTENT_TYPE, MIME::TYPE_APPLICATION_JSON);
 		$content = $client->go();
 		if ($client->response_code_type() === 2) {
-			$this->application->logger->info(JSON::encode_pretty(JSON::decode($content)));
+			$this->application->logger->info(JSON::encodePretty(JSON::decode($content)));
 			return true;
 		}
 		$this->application->logger->error('Error with request: {response_code} {response_message} {response_data}', $client->response_variables());

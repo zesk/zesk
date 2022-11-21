@@ -82,7 +82,7 @@ class JSON extends Type {
 			}
 		}
 		$content = zeskJSON::prepare($this->json, $this->json_serializer_methods, $this->json_serializer_arguments);
-		return $this->application->development() ? zeskJSON::encode_pretty($content) : zeskJSON::encode($content);
+		return $this->application->development() ? zeskJSON::encodePretty($content) : zeskJSON::encode($content);
 	}
 
 	/**

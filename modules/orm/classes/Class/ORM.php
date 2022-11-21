@@ -1330,6 +1330,7 @@ class Class_ORM extends Hookable {
 	 * @return array
 	 */
 	final public function member_names(): array {
+		$this->application->deprecated();
 		return $this->memberNames();
 	}
 

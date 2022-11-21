@@ -148,8 +148,8 @@ class Control_Tags extends Control {
 		if (!$this->selection_type) {
 			throw new Exception_Semantics('Need selection_type set');
 		}
-		if (!$this->orm_class_name()) {
-			throw new Exception_Semantics('Need orm_class_name() set');
+		if (!$this->ormClassName()) {
+			throw new Exception_Semantics('Need ormClassName() set');
 		}
 		$class_orm = $this->class_orm();
 		assert($class_orm instanceof Class_Tag);
@@ -158,7 +158,7 @@ class Control_Tags extends Control {
 
 		$application = $this->application;
 		$selection_item_table = $application->ormRegistry(Selection_Item::class)->table();
-		$tags_query = $application->ormRegistry($this->orm_class_name())
+		$tags_query = $application->ormRegistry($this->ormClassName())
 			->query_select('main')
 			->link(Label::class, [
 				'alias' => 'label',
@@ -266,7 +266,7 @@ class Control_Tags extends Control {
 	 * @return boolean
 	 */
 	public function _action_add(Label $label) {
-		$orm = $this->application->ormRegistry($this->orm_class_name());
+		$orm = $this->application->ormRegistry($this->ormClassName());
 		/* @var $orm Tag */
 		$type = $this->selection_type();
 
@@ -288,7 +288,7 @@ class Control_Tags extends Control {
 	 * @return boolean
 	 */
 	public function _action_keysRemove(Label $label) {
-		$orm = $this->application->ormRegistry($this->orm_class_name());
+		$orm = $this->application->ormRegistry($this->ormClassName());
 		/* @var $orm Tag */
 		$type = $this->selection_type();
 

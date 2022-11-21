@@ -81,9 +81,9 @@ class Configuration_Loader_Test extends UnitTest {
 			'FILE_LOADED::THREE_CONF=1',
 		];
 
-		file_put_contents(path($one, $json_name), JSON::encode_pretty($one_json));
+		file_put_contents(path($one, $json_name), JSON::encodePretty($one_json));
 		file_put_contents(path($two, $conf_name), implode("\n", $two_conf));
-		file_put_contents(path($three, $json_name), JSON::encode_pretty($three_json));
+		file_put_contents(path($three, $json_name), JSON::encodePretty($three_json));
 		file_put_contents(path($three, $conf_name), implode("\n", $three_conf));
 
 		$files = [];

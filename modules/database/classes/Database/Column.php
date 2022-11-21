@@ -93,10 +93,7 @@ class Database_Column extends Options {
 	 *
 	 * @return int
 	 */
-	public function size($set = null): int {
-		if ($set !== null) {
-			$this->table->application->deprecated('setter size');
-		}
+	public function size(): int {
 		return $this->optionInt(self::OPTION_SIZE);
 	}
 

@@ -62,7 +62,7 @@ class JSON {
 	 * @param mixed $mixed
 	 * @return string
 	 */
-	public static function encode_pretty(mixed $mixed): string {
+	public static function encodePretty(mixed $mixed): string {
 		return json_encode($mixed, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
 	}
 

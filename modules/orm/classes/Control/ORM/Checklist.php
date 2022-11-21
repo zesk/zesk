@@ -35,7 +35,7 @@ class Control_ORM_Checklist extends Control_Checklist {
 	 */
 	protected function hook_options() {
 		$object = $this->application->ormRegistry($this->class);
-		$name_col = $object->name_column();
+		$name_col = $object->nameColumn();
 		$this->objects = [];
 		$control_options = [];
 		$query = $this->application->ormRegistry($this->class)->query_select();
@@ -51,7 +51,7 @@ class Control_ORM_Checklist extends Control_Checklist {
 	}
 
 	protected function object_format_option_label(ORM $object) {
-		return $object->member($object->name_column());
+		return $object->member($object->nameColumn());
 	}
 
 	/**

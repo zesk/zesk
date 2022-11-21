@@ -180,7 +180,7 @@ class Command_Help extends Command_Base {
 			$paths[$index] = dirname($confpath);
 		}
 		$name = 'command-aliases.json'; // Put this in a single location
-		$content = JSON::encode_pretty($aliases);
+		$content = JSON::encodePretty($aliases);
 		$conf_file = File::find_first($paths, $name);
 		if ($conf_file) {
 			if (file_get_contents($conf_file) === $content) {

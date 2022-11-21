@@ -390,7 +390,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $conjunction "AND" or "OR"
 	 * @return array
 	 */
-	private static function parse_conjunction(string $key, string $conjunction): array {
+	private static function parseConjunction(string $key, string $conjunction): array {
 		foreach (['AND', 'OR', ] as $token) {
 			if (StringTools::ends($key, "|$token", true)) {
 				return [substr($key, 0, -(strlen($token) + 1)), $token, ];
@@ -431,15 +431,15 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $prefix
 	 * @return string
 	 */
-	private function _sql_prefix(string $sql, string $prefix) {
+	private function _sql_prefix(string $sql, string $prefix): string {
 		$sql = trim($sql);
 		if (empty($sql)) {
 			return '';
 		}
-		return " $prefix $sql ";
+		return " $prefix $sql";
 	}
 
-	private static function valid_conjucnction(string $conjunction): string {
+	private static function validConjunction(string $conjunction): string {
 		return strtoupper($conjunction) === self::CONJUNCTION_OR ? self::CONJUNCTION_OR : self::CONJUNCTION_AND;
 	}
 
@@ -461,7 +461,7 @@ abstract class Database_SQL extends Hookable {
 		if (count($arr) === 0) {
 			return '';
 		}
-		$conj = self::valid_conjucnction($conj);
+		$conj = self::validConjunction($conj);
 		$prefix = empty($prefix_in) ? '' : $prefix_in . '.';
 		$result = [];
 		foreach ($arr as $k => $v) {
@@ -485,7 +485,7 @@ abstract class Database_SQL extends Hookable {
 					$result[] = $this->quoteColumn($new_key) . ' IS NULL';
 				} else {
 					$conj_sql = [];
-					[$new_key, $new_conj] = $this->parse_conjunction($new_key, $conj);
+					[$new_key, $new_conj] = $this->parseConjunction($new_key, $conj);
 					foreach ($v as $vv) {
 						$conj_sql[] = $this->pair_to_sql($new_key, $vv, true);
 					}
@@ -500,7 +500,7 @@ abstract class Database_SQL extends Hookable {
 		if (count($result) === 0) {
 			return '';
 		}
-		return implode(' ' . trim($conj) . ' ', $result) . ($suffix ? " $suffix " : '');
+		return implode(" $conj ", $result) . ($suffix ? " $suffix" : '');
 	}
 
 	/**
@@ -594,18 +594,9 @@ abstract class Database_SQL extends Hookable {
 			$name_equals_values[] = $this->pair_to_sql($k, $v);
 		}
 		$options += [
-			'prefix' => '',
-			'update prefix' => '',
-			'update suffix' => '',
-			'table prefix' => '',
-			'table suffix' => '',
-			'set prefix' => '',
-			'set suffix' => '',
-			'values prefix' => '',
-			'values suffix' => '',
-			'where prefix' => '',
-			'where suffix' => '',
-			'suffix' => '',
+			'prefix' => '', 'update prefix' => '', 'update suffix' => '', 'table prefix' => '', 'table suffix' => '',
+			'set prefix' => '', 'set suffix' => '', 'values prefix' => '', 'values suffix' => '', 'where prefix' => '',
+			'where suffix' => '', 'suffix' => '',
 		];
 		$sql = '{prefix}{update prefix}UPDATE{update suffix} {table prefix}';
 		$sql .= $this->update_tables([$alias => $table]) . "{table suffix} {set prefix}SET{set suffix}\n\t{values prefix}";

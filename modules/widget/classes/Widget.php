@@ -344,7 +344,7 @@ class Widget extends Hookable {
 	 */
 	final public function orm_class($set = null) {
 		zesk()->deprecated();
-		return $this->orm_class_name($set);
+		return $this->ormClassName($set);
 	}
 
 	/**
@@ -353,7 +353,7 @@ class Widget extends Hookable {
 	 * @param string $set
 	 * @return \zesk\Widget|string
 	 */
-	final public function orm_class_name($set = null) {
+	final public function ormClassName($set = null) {
 		if ($set !== null) {
 			$this->class = $set;
 			return $this;
@@ -378,7 +378,7 @@ class Widget extends Hookable {
 	final public function find_parent_class_orm() {
 		$parent = $this->parent();
 		while ($parent) {
-			if ($parent->orm_class_name()) {
+			if ($parent->ormClassName()) {
 				return $parent->class_orm();
 			}
 			$parent = $parent->parent();

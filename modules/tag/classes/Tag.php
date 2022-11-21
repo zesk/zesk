@@ -24,7 +24,7 @@ abstract class Tag extends ORM {
 	/**
 	 * @return string
 	 */
-	public function foreign_orm_class_name() {
+	public function foreignORMClassName() {
 		return $this->class->foreign_orm_class_name;
 	}
 
@@ -67,7 +67,7 @@ abstract class Tag extends ORM {
 			} catch (\Exception $e) {
 				continue;
 			}
-			$result[$application->objects->resolve($instance->foreign_orm_class_name())] = $subclass;
+			$result[$application->objects->resolve($instance->foreignORMClassName())] = $subclass;
 		}
 		return $result;
 	}

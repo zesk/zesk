@@ -4,17 +4,28 @@
          convertErrorsToExceptions="true" convertWarningsToExceptions="true"
          convertNoticesToExceptions="true">
     <testsuites>
+        <!--Test suite for Zesk web application framework -->
         <testsuite name="core">
             <directory>test/tests</directory>
         </testsuite>
+        <testsuite name="database">
+            <directory>modules/database/test</directory>
+        </testsuite>
+        <testsuite name="world">
+            <directory>modules/world/test</directory>
+        </testsuite>
     </testsuites>
     <extensions>
-        <extension class="zesk\PHPUnit_TestHooks" />
+        <extension class="zesk\PHPUnit_TestHooks"/>
     </extensions>
     <php>
         <const name="PHPUNIT" value="true"/>
-        <server name="ZESK_EXTRA_MODULES" value=""/>
-        <!-- To properly get proper SVN version on Mac OS X -->
-        <server name="PATH" value="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"/>
-    </php><!--Test suite for Zesk web application framework -->
+    </php>
+    <coverage cacheDirectory="./.zesk-coverage"
+              includeUncoveredFiles="true"
+              processUncoveredFiles="true"
+              pathCoverage="false"
+              ignoreDeprecatedCodeUnits="true"
+              disableCodeCoverageIgnore="true">
+    </coverage>
 </phpunit>

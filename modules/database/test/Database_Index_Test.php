@@ -24,9 +24,10 @@ class Database_Index_Test extends UnitTest {
 	}
 
 	/**
-	 * @expectedException zesk\Exception_NotFound
+	 *
 	 */
 	public function test_add_column_not_found(): void {
+		$this->expectException(Exception_NotFound::class);
 		$table = $this->mytesttable();
 
 		$x = new Database_Index($table, 'testindex', [], Database_Index::TYPE_INDEX);
@@ -70,9 +71,10 @@ class Database_Index_Test extends UnitTest {
 	}
 
 	/**
-	 * @expectedException zesk\Exception_Semantics
+	 *
 	 */
 	public function test_name_required(): void {
+		$this->expectException(Exception_Semantics::class);
 		$table = $this->mytesttable();
 		$name = '';
 		$type = 'INDEX';
