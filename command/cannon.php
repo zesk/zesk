@@ -52,17 +52,17 @@ class Command_Cannon extends Command_Base {
 	 *
 	 * @var boolean
 	 */
-	public $has_configuration = true;
+	public bool $has_configuration = true;
 
 	/**
-	 * @var array
+	 * @var ?array
 	 */
-	private $skip_when_matches = null;
+	private ?array $skip_when_matches = null;
 
 	/**
-	 *
+	 * @var ?array
 	 */
-	private $also_match = null;
+	private ?array $also_match = null;
 
 	/**
 	 *
@@ -79,9 +79,9 @@ class Command_Cannon extends Command_Base {
 		$duplicate = $this->optionBool('duplicate');
 		$show = $this->optionBool('show');
 
-		$this->verbose_log('Verbose enabled.');
+		$this->verboseLog('Verbose enabled.');
 		if ($this->optionBool('dry-run')) {
-			$this->verbose_log('Dry run - nothing will change.');
+			$this->verboseLog('Dry run - nothing will change.');
 		}
 		if ($dir === null && $this->hasOption('files')) {
 			$files = $this->option('files');
@@ -98,9 +98,9 @@ class Command_Cannon extends Command_Base {
 				'.' => '',
 				';' => ',',
 			]));
-			$this->verbose_log('Generating file list ...');
-			$files = $this->_list_files($dir, $extensions);
-			$this->verbose_log('{count} files found', [
+			$this->verboseLog('Generating file list ...');
+			$files = $this->_listFiles($dir, $extensions);
+			$this->verboseLog('{count} files found', [
 				'count' => count($files),
 			]);
 		}
@@ -112,26 +112,26 @@ class Command_Cannon extends Command_Base {
 		if (count($this->skip_when_matches) === 0) {
 			$this->skip_when_matches = null;
 		} else {
-			$this->verbose_log("Skipping files which contain: \n\t\"" . implode("\"\n\t\"", $this->skip_when_matches) . "\"\n\n");
+			$this->verboseLog("Skipping files which contain: \n\t\"" . implode("\"\n\t\"", $this->skip_when_matches) . "\"\n\n");
 			$stats['skipped'] = 0;
 		}
 		$this->also_match = $this->optionArray('also-match');
 		if (count($this->also_match) === 0) {
 			$this->also_match = null;
 		} else {
-			$this->verbose_log("Replacement files MUST contain one of: \n\t\"" . implode("\"\n\t\"", $this->also_match) . "\"\n\n");
+			$this->verboseLog("Replacement files MUST contain one of: \n\t\"" . implode("\"\n\t\"", $this->also_match) . "\"\n\n");
 			$stats['skipped'] = 0;
 		}
 
-		if ($this->has_arg()) {
-			$search = $this->get_arg('search');
+		if ($this->hasArgument()) {
+			$search = $this->getArgument('search');
 		} else {
 			echo ' Search? ';
 			$search = rtrim(fgets(STDIN), "\n\r");
 		}
 		$replace = null;
-		if ($this->has_arg()) {
-			$replace = $this->get_arg('replace');
+		if ($this->hasArgument()) {
+			$replace = $this->getArgument('replace');
 		} elseif (!$show) {
 			echo 'Replace? ';
 			$replace = rtrim(fgets(STDIN), "\n\r");
@@ -140,12 +140,12 @@ class Command_Cannon extends Command_Base {
 			$this->usage('Must have a non-blank search phrase.');
 		}
 		if ($show) {
-			$this->verbose_log('Showing matches only');
+			$this->verboseLog('Showing matches only');
 		} elseif ($backup) {
 			if ($duplicate) {
 				$this->error('--duplicate and --backup are exclusive, ignoring --backup');
 			}
-			$this->verbose_log('Backing up files with matches');
+			$this->verboseLog('Backing up files with matches');
 		}
 		$locale = $this->application->locale;
 		$this->log(" Search: $search (" . $locale->plural_word('character', strlen($search)) . ')');
@@ -155,7 +155,7 @@ class Command_Cannon extends Command_Base {
 			'lines' => 0,
 		];
 		foreach ($files as $file) {
-			$result = $this->_replace_file($file, $search, $replace);
+			$result = $this->_replaceFile($file, $search, $replace);
 			if ($result > 0) {
 				$stats['files']++;
 				$stats['lines'] += $result;
@@ -172,26 +172,32 @@ class Command_Cannon extends Command_Base {
 	/**
 	 * List files
 	 */
-	private function _list_files($dir, array $extensions) {
+	private function _listFiles($dir, array $extensions): array {
 		$options = [];
-		$options['rules_file'] = [
+		$options[Directory::LIST_RULE_FILE] = [
 			'#\.' . implode('|', $extensions) . '$#' => true,
 			'#.*/\.#' => true,
 			false,
 		];
-		$options['rules_directory_walk'] = [
+		$options[Directory::LIST_RULE_DIRECTORY_WALK] = [
 			'#.*/\.#' => false,
 			true,
 		];
-		$options['rules_directory'] = [
+		$options[Directory::LIST_RULE_DIRECTORY] = [
 			false,
 		];
-		$options['add_path'] = true;
+		$options[Directory::LIST_ADD_PATH] = true;
 
 		return Directory::list_recursive($dir, $options);
 	}
 
-	private function _replace_file($file, $search, $replace) {
+	/**
+	 * @param string $file
+	 * @param string $search
+	 * @param string $replace
+	 * @return int
+	 */
+	private function _replaceFile(string $file, string $search, string $replace): int {
 		if (($size = filesize($file)) > $this->optionInt('max_file_size')) {
 			$this->log('Skipping {size} {file}', [
 				'size' => Number::format_bytes($this->application->locale, $size),
@@ -205,7 +211,7 @@ class Command_Cannon extends Command_Base {
 		$dry_run = $this->optionBool('dry-run');
 		$contents = file_get_contents($file);
 		if (!str_contains($contents, $search)) {
-			$this->debug_log("$file: No matches");
+			$this->debugLog("$file: No matches");
 			return 0;
 		}
 		if (is_array($this->skip_when_matches) && StringTools::contains($contents, $this->skip_when_matches)) {
@@ -252,7 +258,7 @@ class Command_Cannon extends Command_Base {
 		if ($duplicate) {
 			$ext = File::extension($file);
 			$dupfile = File::extension_change($file, ".cannon.$ext");
-			$this->verbose_log("Writing $dupfile: " . $locale->plural_word('change', count($lines)));
+			$this->verboseLog("Writing $dupfile: " . $locale->plural_word('change', count($lines)));
 			file_put_contents($dupfile, strtr($contents, [
 				$search => $replace,
 			]));

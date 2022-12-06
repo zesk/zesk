@@ -88,7 +88,7 @@ class PHPUnit_Code_TestCase extends PHPUnit_TestCase {
 			$full_path = path($path, $file);
 
 			try {
-				$result = $process->execute_arguments('{php} -l {file}', [
+				$result = $process->executeArguments('{php} -l {file}', [
 					'php' => $php,
 					'file' => $full_path,
 				]);

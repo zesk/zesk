@@ -14,12 +14,12 @@
 namespace zesk;
 
 class Compatibility {
-	public const PHP_VERSION_MINIMUM = 50500;
+	public const PHP_VERSION_MINIMUM = 80000;
 
 	/**
 	 * @throws Exception_Unsupported
 	 */
-	public static function install(): void {
+	public static function check(): void {
 		$v = self::PHP_VERSION_MINIMUM;
 		if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < $v) {
 			throw new Exception_Unsupported('Zesk requires PHP version {maj}.{min}.{patch} or greater', [

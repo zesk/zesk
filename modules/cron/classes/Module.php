@@ -164,7 +164,7 @@ class Module extends \zesk\Module {
 			$mapped_target = File::temporary($temp_path);
 			file_put_contents($mapped_target, $command->map(trim(file_get_contents($file)) . "\n"));
 			$target = $mapped_target;
-			$command->verbose_log('Mapping crontab file to {mapped_target}', [
+			$command->verboseLog('Mapping crontab file to {mapped_target}', [
 				'mapped_target' => $mapped_target,
 			]);
 		}
@@ -184,7 +184,7 @@ class Module extends \zesk\Module {
 				]);
 			}
 		} catch (\Exception $e) {
-			$command->error('Installing crontab failed {code} {message}', Exception::exception_variables($e));
+			$command->error('Installing crontab failed {code} {message}', Exception::exceptionVariables($e));
 			$result = false;
 		}
 		if ($mapped_target) {
@@ -240,7 +240,7 @@ class Module extends \zesk\Module {
 				'method' => $this->application->hooks->callable_string($method),
 			]);
 		}
-		return Hookable::combine_hook_results($previous_result, $new_result, $arguments);
+		return Hookable::combineHookResults($previous_result, $new_result, $arguments);
 	}
 
 	public function lock_name($set = null) {
@@ -300,7 +300,7 @@ class Module extends \zesk\Module {
 	 * @return void
 	 */
 	public function hook_routes(Router $router): void {
-		$router->add_route($this->page_runner_script(), [
+		$router->addRoute($this->page_runner_script(), [
 			'method' => [
 				$this,
 				'run_js',
@@ -363,7 +363,7 @@ class Module extends \zesk\Module {
 	}
 
 	private function _cron_hooks($method) {
-		$classes = to_list($this->application->configuration->path_get(__CLASS__ . '::classes', [
+		$classes = to_list($this->application->configuration->getPath(__CLASS__ . '::classes', [
 			Application::class,
 			ORM::class,
 		]));
@@ -439,7 +439,7 @@ class Module extends \zesk\Module {
 			$status = $now->difference($last_run, 'second') > 0;
 			$cron_hooks = $this->_cron_hooks($method);
 			$all_hooks = $hooks->find_all($cron_hooks);
-			$all_hooks = array_merge($all_hooks, $this->application->modules->all_hook_list($method));
+			$all_hooks = array_merge($all_hooks, $this->application->modules->all_listHooks($method));
 			foreach ($all_hooks as $hook) {
 				$results[$hooks->callable_string($hook)] = $status;
 			}
@@ -447,7 +447,7 @@ class Module extends \zesk\Module {
 				$last_unit_run = self::_last_cron_run($state, $settings['prefix'], $unit);
 				$status = $now->difference($last_unit_run, $unit) > 0;
 				$unit_hooks = ArrayTools::suffixValues($cron_hooks, "_$unit");
-				$all_hooks = $this->application->modules->all_hook_list($method . "_${unit}");
+				$all_hooks = $this->application->modules->all_listHooks($method . "_${unit}");
 				$all_hooks = array_merge($all_hooks, $hooks->find_all($unit_hooks));
 				foreach ($all_hooks as $hook) {
 					$results[$hooks->callable_string($hook)] = $status;
@@ -566,7 +566,7 @@ class Module extends \zesk\Module {
 
 				try {
 					$this->hook_source = $method . ' second global hooks->all_call';
-					$hooks->all_call_arguments($cron_hooks, $cron_arguments, null, $hook_callback, $result_callback);
+					$hooks->allCallArguments($cron_hooks, $cron_arguments, null, $hook_callback, $result_callback);
 				} catch (Exception $e) {
 					$this->_exception($e, $cron_hooks);
 				}
@@ -591,7 +591,7 @@ class Module extends \zesk\Module {
 					try {
 						$unit_hooks = ArrayTools::suffixValues($cron_hooks, "_$unit");
 						$this->hook_source = $method . " $unit hooks->all_call";
-						$hooks->all_call_arguments($unit_hooks, $cron_arguments, null, $hook_callback, $result_callback);
+						$hooks->allCallArguments($unit_hooks, $cron_arguments, null, $hook_callback, $result_callback);
 					} catch (Exception $e) {
 						$this->_exception($e, $unit_hooks);
 					}

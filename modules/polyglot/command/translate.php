@@ -69,18 +69,18 @@ class Command_Translate extends Command_Base {
 	 */
 	protected function run() {
 		$app = $this->application;
-		$source_language_file = $this->option('language-file', $app->configuration->path_get('Module_PolyGlot::source_file'));
+		$source_language_file = $this->option('language-file', $app->configuration->getPath('Module_PolyGlot::source_file'));
 		if (!$source_language_file) {
 			$this->usage('Need a source --language-file to determine source strings');
 		}
-		$destination = $this->option('destination', $app->configuration->path_get(Locale::class . '::auto_path'));
+		$destination = $this->option('destination', $app->configuration->getPath(Locale::class . '::auto_path'));
 		if (!$destination) {
 			$this->usage('Need a directory --destination {destination} is not a directory');
 		}
 		if (!is_dir($destination)) {
 			$this->usage('Need a directory "{destination}" is not a directory', compact('destination'));
 		}
-		$classes = Service::service_classes($app, 'translate');
+		$classes = Service::serviceClasses($app, 'translate');
 		if ($this->optionBool('list')) {
 			echo ArrayTools::suffixKeys($classes, "\n");
 			return 0;
@@ -96,7 +96,6 @@ class Command_Translate extends Command_Base {
 		$source_language = strtolower($source_language);
 
 		$default_class = first($classes);
-		$classes = ArrayTools::valuesFlipCopy($classes, true);
 		/* @var $service_object Service_Translate */
 		try {
 			$service_object = $this->service_object = Service_Translate::factory_translate($app, $target_language, $source_language);
@@ -104,7 +103,7 @@ class Command_Translate extends Command_Base {
 			$this->error($e->getMessage(), $e->arguments);
 			return 2;
 		}
-		$this->verbose_log('Using default service {class}', [
+		$this->verboseLog('Using default service {class}', [
 			'class' => $service_object::class,
 		]);
 		$target_file = path($destination, "$target_language.inc");

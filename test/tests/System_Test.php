@@ -38,7 +38,7 @@ class System_Test extends UnitTest {
 	}
 
 	public function test_memory_limit(): void {
-		$this->assert_is_integer(System::memory_limit());
+		$this->assertIsInteger(System::memory_limit());
 	}
 
 	public function test_volume_info(): void {

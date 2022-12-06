@@ -49,7 +49,7 @@ class Net_Sync extends Options {
 		if (!isset($options['timeout'])) {
 			$options['timeout'] = 2 * 60 * 1000;
 		}
-		$path = File::validate_writable($path);
+		$path = File::validateWritable($path);
 		$time_to_live = avalue($options, 'time_to_live', 86400); // Once a day
 		if (is_file($path) && $time_to_live > 0) {
 			$mtime = filemtime($path);
@@ -261,11 +261,11 @@ class Net_Sync extends Options {
 		$dst = $this->dst;
 
 		$src_url = $src->url();
-		$src_root = Directory::add_slash($src->url('path'));
+		$src_root = Directory::addSlash($src->url('path'));
 		$src_root_length = strlen($src_root);
 
 		$dst_url = $dst->url();
-		$dst_root = Directory::add_slash($dst->url('path'));
+		$dst_root = Directory::addSlash($dst->url('path'));
 
 		if (!$src->cd($src_root)) {
 			throw new Exception_Directory_NotFound("Source \"$src_url\" directory \"$src_root\" not found");

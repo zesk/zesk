@@ -3,30 +3,47 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class ORMUnitTest extends UnitTest {
-	public function _test_object(): ORM {
-		$this->assert($this->class !== null);
-		return $this->application->objects->factory($this->class);
+class ORMUnitTest extends DatabaseUnitTest {
+	public static function setUpBeforeClass(): void {
+		// pass
 	}
 
-	public function classes_to_test() {
-		return [
-			[
-				'User',
-				[],
-			],
-		];
+	/**
+	 * @param string|array $classes
+	 * @return void
+	 */
+	public function require_tables(string|array $classes): void {
+		zesk()->deprecated(__METHOD__);
+		self::requireORMTables($classes);
 	}
 
-	public function require_tables(array $classes): void {
-		foreach ($classes as $class) {
+	public function requireORMTables(string|array $classes): void {
+		foreach (toList($classes) as $class) {
 			$object = $this->application->ormRegistry($class);
 			$table = $object->table();
 			if (!$object->database()->tableExists($table)) {
 				$schema = $this->application->ormFactory($class)->schema();
 				$create_sql = strval($schema);
-				$this->test_table_sql($table, $create_sql);
+				$this->dropAndCreateTable($table, $create_sql);
 			}
+		}
+	}
+
+	public function truncateClassTables(string $class, bool $related = false): void {
+		$classes = [$class => $class];
+		if ($related) {
+			$class_orm = $this->application->ormFactory($class)->class_orm();
+			foreach ($class_orm->has_one as $member => $member_class) {
+				$classes[$member_class] = $member_class;
+			}
+			foreach ($class_orm->has_many as $member => $fields) {
+				$member_class = $fields['class'];
+				$classes[$member_class] = $member_class;
+			}
+		}
+		foreach ($classes as $class) {
+			$orm = $this->application->ormFactory($class);
+			$orm->queryDelete()->setTruncate(true)->execute();
 		}
 	}
 
@@ -34,16 +51,15 @@ class ORMUnitTest extends UnitTest {
 	 *
 	 * @param string $class
 	 * @param array $options
-	 * @dataProvider classes_to_test
 	 */
-	public function run_test_class($class, array $options = []) {
-		return $this->run_test_an_object($this->application->ormFactory($class, $options));
+	public function assertORMClass(string $class, array $options = [], string $test_field = 'id') {
+		return $this->assertORMObject($this->application->ormFactory($class, $options), $test_field);
 	}
 
 	/**
 	 * @not_test
 	 */
-	final public function run_test_an_object(ORM $object, $test_field = 'ID'): void {
+	final public function assertORMObject(ORM $object, string $test_field = 'id'): void {
 		$table = $object->table();
 		$this->assertIsString($table);
 
@@ -79,7 +95,11 @@ class ORMUnitTest extends UnitTest {
 
 		$object->selectDatabase();
 
-		$this->log($object::class . ' members: ' . PHP::dump($object->members()));
+		$names = $object->memberNames();
+		$this->assertIsArray($names);
+
+		$members = $object->members();
+		$this->assertIsArray($members);
 
 		$object->refresh();
 
@@ -90,59 +110,58 @@ class ORMUnitTest extends UnitTest {
 
 		$object->clear();
 
-		$object->display_name();
+		$object->displayName();
 
 		$object->id();
 
 		$x = $test_field;
 		$object->__get($x);
 
-		$x = $test_field;
 		$v = null;
-		$object->__set($x, $v);
-
 		$f = $test_field;
 		$def = null;
-		$object->member($f, $def);
 
-		$this->log($object::class . ' members: ' . PHP::dump($object->members()));
+		$object->__set($x, $v);
 
-		$f = $test_field;
+		$object->member($f);
+
 		$object->changed($f);
 
 		$object->changed();
 
-		$f = $test_field;
-		$def = null;
 		$object->membere($f, $def);
 
 		$object->members([]);
 
-		$f = $test_field;
 		$object->memberIsEmpty($f);
 
-		$f = $test_field;
-		$v = null;
 		$overwrite = true;
 		$object->setMember($f, $v, $overwrite);
-
-		$mixed = $test_field;
-		$object->memberKeysRemove($mixed);
 
 		$f = $test_field;
 		$object->hasMember($f);
 
-		$where = false;
-		$object->exists($where);
+		try {
+			$this->assertInstanceOf($object::class, $object->exists());
+		} catch (Exception_ORM_NotFound $e) {
+			$this->assertInstanceOf(Exception_ORM_NotFound::class, $e);
+		}
 
-		$where = false;
-		$object->find($where);
+		try {
+			$this->assertInstanceOf($object::class, $object->find());
+		} catch (Exception_ORM_NotFound $e) {
+			$this->assertInstanceOf(Exception_ORM_NotFound::class, $e);
+		}
+
+
 
 		$object->isDuplicate();
 
-		$value = false;
-		$column = false;
-		$object->fetchByKey($value, $column);
+		try {
+			$this->assertInstanceOf($object::class, $object->fetchByKey(2, $test_field));
+		} catch (Exception_ORM_NotFound $e) {
+			$this->assertInstanceOf(Exception_ORM_NotFound::class, $e);
+		}
 
 		try {
 			$object->fetch();
@@ -151,8 +170,7 @@ class ORMUnitTest extends UnitTest {
 		}
 
 		$columns = $object->columns();
-		$this->assert_not_equal(count($columns), 0);
-
+		$this->assertNotEquals(0, count($columns));
 
 		foreach ($columns as $member) {
 			$type = $object->class_orm()->column_types[$member] ?? '';

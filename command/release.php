@@ -28,12 +28,7 @@ class Command_Release extends Command_Base {
 	 *
 	 * @var Repository
 	 */
-	protected $repo = null;
-
-	/**
-	 * @var Module_Repository
-	 */
-	protected $repository = null;
+	protected ?Repository $repo = null;
 
 	/**
 	 *
@@ -52,15 +47,16 @@ class Command_Release extends Command_Base {
 	 * @see \zesk\Command::run()
 	 */
 	public function run() {
-		$this->repository = $this->application->modules->object('Repository');
+		$repository = $this->application->repositoryModule();
 
 		$path = $this->application->path();
 
 		chdir($path);
 
-		$repos = $this->repository->determine_repository($path);
+		$repos = $repository->determineRepository($path);
 		if (count($repos) === 0) {
 			$this->error('No repository detected at {path}', compact('path'));
+			return self::EXIT_CODE_ENVIRONMENT;
 		}
 		if (count($repos) > 1) {
 			if (!$this->hasOption('repo')) {
@@ -72,6 +68,7 @@ class Command_Release extends Command_Base {
 					'repo_code' => $repo_code,
 					'repo_codes' => array_keys($repos),
 				]);
+				return self::EXIT_CODE_ARGUMENTS;
 			}
 			$repo = $repos[$repo_code];
 		} else {
@@ -83,19 +80,20 @@ class Command_Release extends Command_Base {
 		$status = $repo->status($path, true);
 		if (count($status) > 0) {
 			$this->log_status($status);
-			$this->prompt_yes_no('Git status ok?');
+			$this->promptYesNo('Git status ok?');
 		}
 
 		$current_version = $this->application->version();
 		$latest_version = $repo->latest_version();
 
-		if (!$this->prompt_yes_no(__('{name} {last_version} -> {current_version} Versions ok?', [
+		if (!$this->promptYesNo($this->application->locale->__('{name} {latest_version} -> {current_version} Versions ok?', [
 			'name' => get_class($this->application),
-			'last_version' => $last_version,
+			'latest_version' => $latest_version,
 			'current_version' => $current_version,
 		]))) {
-			return 1;
+			return self::EXIT_CODE_ENVIRONMENT;
 		}
+		return self::EXIT_CODE_SUCCESS;
 	}
 
 	private function log_status($status): void {

@@ -42,13 +42,13 @@ class Command_WebApp_API extends Command_Base {
 		$this->webapp = $this->application->webapp_module();
 
 		$result = [];
-		while ($this->has_arg()) {
-			$command = $this->get_arg('command');
+		while ($this->hasArgument()) {
+			$command = $this->getArgument('command');
 			if ($command === '--') {
 				return 0;
 			}
-			if ($this->has_hook("command_$command")) {
-				$result[$command] = $this->call_hook("command_$command");
+			if ($this->hasHook("command_$command")) {
+				$result[$command] = $this->callHook("command_$command");
 			} else {
 				$this->error('No such command {command}', [
 					'command' => $command,
@@ -56,7 +56,7 @@ class Command_WebApp_API extends Command_Base {
 			}
 		}
 		if (count($result) > 0) {
-			$this->render_format($result, $this->option('format'), 'json');
+			$this->renderFormat($result, $this->option('format'), 'json');
 		}
 		return 0;
 	}

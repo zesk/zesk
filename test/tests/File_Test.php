@@ -5,11 +5,11 @@ namespace zesk;
 
 class File_Test extends UnitTest {
 	private function _test_atomic_increment(string $path, $start): void {
-		$this->assert(File::atomic_put($path, "$start"), 'Creating initial file');
+		$this->assertTrue(File::atomic_put($path, "$start"), 'Creating initial file');
 		for ($j = 0; $j < 100; $j++) {
-			$this->assert(($result = File::atomic_increment($path)) === $start + $j + 1, "File::atomic_increment: $result !== " . ($start + $j + 1));
+			$this->assertTrue(($result = File::atomic_increment($path)) === $start + $j + 1, "File::atomic_increment: $result !== " . ($start + $j + 1));
 		}
-		$this->assert(unlink($path), "Deleting $path at end");
+		$this->assertTrue(unlink($path), "Deleting $path at end");
 	}
 
 	/**
@@ -38,7 +38,7 @@ class File_Test extends UnitTest {
 	public function test_atomic_increment(): void {
 		$path = $this->test_sandbox(__FUNCTION__);
 
-		$this->assert(!file_exists($path) || unlink($path), "Deleting $path");
+		$this->assertTrue(!file_exists($path) || unlink($path), "Deleting $path");
 		$exception = false;
 
 		try {
@@ -46,7 +46,7 @@ class File_Test extends UnitTest {
 		} catch (Exception $e) {
 			$exception = true;
 		}
-		$this->assert($exception, 'when file doesn\'t exist, an exception should occur');
+		$this->assertTrue($exception, 'when file doesn\'t exist, an exception should occur');
 
 		$this->_test_atomic_increment($path, 0);
 		$this->_test_atomic_increment($path, 48123192);
@@ -105,8 +105,10 @@ class File_Test extends UnitTest {
 		$file_name = $this->sandbox('chmod-test');
 		file_put_contents($file_name, 'abc');
 		$mode = 504;
-		$this->assertTrue(File::chmod($file_name, $mode));
-		$this->assertFalse(File::chmod($file_name . '.notthere', $mode));
+		File::chmod($file_name, $mode);
+
+		$this->expectException(Exception_File_NotFound::class);
+		File::chmod($file_name . '.notthere', $mode);
 	}
 
 	public function test_contents(): void {

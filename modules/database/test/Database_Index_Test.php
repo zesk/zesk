@@ -17,10 +17,9 @@ class Database_Index_Test extends UnitTest {
 		'MySQL',
 	];
 
-	public function mytesttable() {
+	public function mytesttable(): Database_Table {
 		$database = $this->application->database_registry();
-		$table = new Database_Table($database, 'new_table');
-		return $table;
+		return new Database_Table($database, 'new_table');
 	}
 
 	/**
@@ -66,8 +65,8 @@ class Database_Index_Test extends UnitTest {
 
 		$that = new Database_Index($table, 'another_name');
 		$debug = false;
-		$this->assert($x->isSimilar($that, $debug) === false);
-		$this->assert($x->isSimilar($x, $debug) === true);
+		$this->assertFalse($x->isSimilar($that, $debug));
+		$this->assertTrue($x->isSimilar($x, $debug));
 	}
 
 	/**
@@ -87,15 +86,27 @@ class Database_Index_Test extends UnitTest {
 		$x->sql_index_drop();
 	}
 
-	public function test_determine_type(): void {
-		$this->assert_equal(Database_Index::determineType('unique'), Database_Index::TYPE_UNIQUE);
-		$this->assert_equal(Database_Index::determineType('unique key'), Database_Index::TYPE_UNIQUE);
-		$this->assert_equal(Database_Index::determineType('primary key'), Database_Index::TYPE_PRIMARY);
-		$this->assert_equal(Database_Index::determineType('primary'), Database_Index::TYPE_PRIMARY);
-		$this->assert_equal(Database_Index::determineType('key'), Database_Index::TYPE_INDEX);
-		$this->assert_equal(Database_Index::determineType('index'), Database_Index::TYPE_INDEX);
-		$this->assert_equal(Database_Index::determineType(''), Database_Index::TYPE_INDEX);
-		$this->assert_equal(Database_Index::determineType('Dude'), Database_Index::TYPE_INDEX);
-		$this->assert_equal(Database_Index::determineType('MFNATCFF'), Database_Index::TYPE_INDEX);
+	/**
+	 * @param string $type
+	 * @param string $expected
+	 * @return void
+	 * @dataProvider data_determine_type
+	 */
+	public function test_determine_type(string $type, string $expected): void {
+		$this->assertEquals($expected, Database_Index::determineType($type));
+	}
+
+	public function data_determine_type(): array {
+		return [
+			['unique', Database_Index::TYPE_UNIQUE],
+			['unique key', Database_Index::TYPE_UNIQUE],
+			['primary key', Database_Index::TYPE_PRIMARY],
+			['primary', Database_Index::TYPE_PRIMARY],
+			['key', Database_Index::TYPE_INDEX],
+			['index', Database_Index::TYPE_INDEX],
+			['', Database_Index::TYPE_INDEX],
+			['Dude', Database_Index::TYPE_INDEX],
+			['MFNATCFF', Database_Index::TYPE_INDEX],
+		];
 	}
 }

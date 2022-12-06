@@ -5,20 +5,20 @@
  */
 namespace zesk\Daemon;
 
-use zesk\PHP;
-use zesk\Exception_System;
 use zesk\Application;
-use zesk\Exception_File_Permission;
-use zesk\Timestamp;
-use zesk\Timer;
-use zesk\Command_Base;
-use zesk\Interface_Process;
-use zesk\Text;
-use zesk\Process_Tools;
-use zesk\File_Monitor_List;
 use zesk\ArrayTools;
-use zesk\StringTools;
+use zesk\Command_Base;
 use zesk\Exception_Configuration;
+use zesk\Exception_File_Permission;
+use zesk\Exception_System;
+use zesk\File_Monitor_List;
+use zesk\Interface_Process;
+use zesk\PHP;
+use zesk\Process_Tools;
+use zesk\StringTools;
+use zesk\Text;
+use zesk\Timer;
+use zesk\Timestamp;
 
 /**
  * Run daemons associated with an application.
@@ -185,7 +185,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		}
 
 		if ($this->optionBool('debug-log')) {
-			echo Text::format_pairs(ArrayTools::filterPrefixedValues($this->application->configuration->to_array(), 'log'));
+			echo Text::format_pairs(ArrayTools::filterKeyPrefixes($this->application->configuration->toArray(), 'log'));
 		}
 
 		$this->fifo_path = path($this->module->rundir, 'daemon-controller');
@@ -309,10 +309,10 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			"zesk\Application::daemon",
 			"zesk\Module::daemon",
 		];
-		$daemon_hooks = $this->call_hook_arguments('daemon_hooks', [
+		$daemon_hooks = $this->callHookArguments('daemon_hooks', [
 			$daemon_hooks,
 		], $daemon_hooks);
-		$this->debug_log('Daemon hooks are {daemon_hooks}', [
+		$this->debugLog('Daemon hooks are {daemon_hooks}', [
 			'daemon_hooks' => $daemon_hooks,
 		]);
 		$daemons = $this->application->hooks->find_all($daemon_hooks);
@@ -332,7 +332,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		$new_daemons = [];
 		$max = $this->option('maximum_processes', 100);
 		foreach ($daemons as $daemon) {
-			$process_count = to_integer($configuration->path_get("$daemon::process_count"), 1);
+			$process_count = to_integer($configuration->getPath("$daemon::process_count"), 1);
 			if ($process_count <= 1) {
 				$total_process_count = $total_process_count + 1;
 				$new_daemons[] = $daemon;
@@ -1037,7 +1037,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		$now = microtime(true);
 		if ($this->last_tick === null || $now - $this->last_tick > 1.0) {
 			$this->last_tick = $now;
-			if (Process_Tools::process_code_changed($this->application)) {
+			if (Process_Tools::includesChanged($this->application)) {
 				$this->warning('Code changed - exiting.');
 				$this->quitting = true;
 			}

@@ -33,8 +33,8 @@ class Controller_Cache extends Controller {
 			$this->application->hooks->call('security', $message, $args);
 			return null;
 		}
-		$docroot = $this->application->document_root();
-		$cache_file = Directory::undot(path($docroot, $file));
+		$docroot = $this->application->documentRoot();
+		$cache_file = Directory::removeDots(path($docroot, $file));
 		if (!begins($cache_file, $docroot)) {
 			$this->application->hooks->call('security', 'User cache file "{cache_file}" does not match document root "{docroot}"', [
 				'cache_file' => $cache_file,

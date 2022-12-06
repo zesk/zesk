@@ -160,7 +160,7 @@ class Request extends Hookable {
 	/**
 	 *
 	 * @param Application $application
-	 * @param array|Request|null $settings If NULL, uses PHP globals to initialize
+	 * @param string|array|self|null $settings If NULL, uses PHP globals to initialize
 	 * @return self
 	 */
 	public static function factory(Application $application, string|array|self $settings = null): self {
@@ -176,12 +176,13 @@ class Request extends Hookable {
 	 * @param Application $application
 	 * @param string|array|Request|null $settings
 	 * @throws Exception_File_NotFound
+	 * @throws Exception_Parameter
 	 */
 	public function __construct(Application $application, string|array|self $settings = null) {
 		parent::__construct($application);
 		$this->user_agent = null;
 		$this->inheritConfiguration();
-		$settings = $this->call_hook('construct', $settings);
+		$settings = $this->callHook('construct', $settings);
 		if ($settings instanceof Request) {
 			$this->initializeFromRequest($settings);
 		} elseif (is_array($settings) || is_string($settings)) {
@@ -223,7 +224,7 @@ class Request extends Hookable {
 
 		$this->init = 'globals';
 
-		$this->call_hook([
+		$this->callHook([
 			'initialize',
 			'initializeFromGlobals',
 		]);
@@ -256,7 +257,7 @@ class Request extends Hookable {
 
 		$this->init = 'request';
 
-		$this->call_hook([
+		$this->callHook([
 			'initialize',
 			'initializeFromRequest',
 		]);
@@ -270,6 +271,7 @@ class Request extends Hookable {
 	 * @param string|array|Request $settings
 	 * @return self
 	 * @throws Exception_File_NotFound
+	 * @throws Exception_Parameter
 	 */
 	public function initializeFromSettings(string|array|Request $settings): self {
 		if (is_string($settings)) {
@@ -279,27 +281,22 @@ class Request extends Hookable {
 		} elseif ($settings instanceof Request) {
 			return $this->initializeFromRequest($settings);
 		}
-		assert(is_array($settings));
-		$method = $data = $data_file = $data_raw = null;
-		$url = $uri = '';
-		$ip = $remote_ip = $server_ip = self::DEFAULT_IP;
-		$headers = $cookies = $variables = $files = null;
-		extract($settings, EXTR_OVERWRITE);
-		$this->setMethod($method ? $method : 'GET');
-		$this->uri = $uri;
-		if (is_array($headers)) {
-			foreach ($headers as $k => $v) {
+		$this->setMethod($settings['method'] ?? 'GET');
+		$this->uri = $settings['uri'] ?? '';
+		if (is_array($settings['headers'] ?? null)) {
+			foreach ($settings['headers'] as $k => $v) {
 				$this->setHeader($k, $v);
 			}
 		}
-		$this->cookies = is_array($cookies) ? $cookies : [];
-		$this->variables = is_array($variables) ? $variables : [];
-		$this->files = is_array($files) ? $files : [];
-		$this->url = strval($url);
+		$this->cookies = toArray($settings['cookies'] ?? []);
+		$this->variables = toArray($settings['variables'] ?? []);
+		$this->files = toArray($settings['files'] ?? []);
+		$this->url = $settings['url'] ?? '';
 		$this->url_parts = [];
 		if (!$this->uri) {
 			$this->uri = $this->query() ? URL::queryFormat($this->path(), $this->query()) : $this->path();
 		}
+		$data_file = $settings['data_file'] ?? null;
 		if ($data_file) {
 			if (!is_file($data_file)) {
 				throw new Exception_File_NotFound($data_file, 'Passed {filename} as settings to new Request {settings}', [
@@ -311,16 +308,17 @@ class Request extends Hookable {
 			$this->data = null;
 		} else {
 			$this->data = null;
-			$this->data_raw = strval($data);
+			$this->data_raw = strval($settings['data'] ?? '');
 			$this->data_file = '';
 		}
 		$this->data_inherit = null;
-		$this->ip = $ip;
-		$this->remote_ip = $remote_ip ?? $ip;
-		$this->server_ip = $server_ip;
+		$this->ip = $settings['ip'] ?? self::DEFAULT_IP;
+		$this->remote_ip = $settings['remote_ip'] ?? self::DEFAULT_IP;
+		$this->server_ip = $settings['server_ip'] ?? self::DEFAULT_IP;
+		;
 
 		$this->init = 'settings';
-		$this->call_hook([
+		$this->callHook([
 			'initialize',
 			'initializeFromSettings',
 		]);
@@ -339,7 +337,7 @@ class Request extends Hookable {
 	}
 
 	public function isSecure(): bool {
-		$this->_valid_url_parts();
+		$this->_validURLParts();
 		return $this->url_parts['scheme'] === 'https';
 	}
 
@@ -702,29 +700,29 @@ class Request extends Hookable {
 	 * @return boolean|mixed
 	 */
 	public function getBool(string $name, bool $default = false): bool {
-		return toBool($this->get($name), $default);
+		return toBool($this->get($name, $default), $default);
 	}
 
 	/**
 	 * Retrieve a variable as a double value
 	 *
 	 * @param string $name
-	 * @param mixed $default
-	 * @return double|mixed
+	 * @param float $default
+	 * @return float
 	 */
-	public function getf($name, $default = false) {
-		return toFloat($this->get($name), $default);
+	public function getFloat(string $name, float $default = 0.0): float {
+		return toFloat($this->get($name, $default), $default);
 	}
 
 	/**
 	 * Retrieve a variable as an integer value
 	 *
 	 * @param string $name
-	 * @param mixed $default
-	 * @return integer|mixed
+	 * @param int $default
+	 * @return int
 	 */
-	public function getInt($name, $default = null) {
-		return toInteger($this->get($name), $default);
+	public function getInt(string $name, int $default = null): int {
+		return toInteger($this->get($name, $default), $default);
 	}
 
 	/**
@@ -736,7 +734,7 @@ class Request extends Hookable {
 	 *            For string values, split on this character
 	 * @return array|mixed
 	 */
-	public function getArray(string $name, array $default = [], string $sep = ';') {
+	public function getArray(string $name, array $default = [], string $sep = ';'): array {
 		$x = $this->get($name, $default);
 		if (is_array($x)) {
 			return $x;
@@ -760,9 +758,10 @@ class Request extends Hookable {
 	 * - error - The error associated with the upload
 	 *
 	 * @param string $name
+	 * @param int $index
 	 * @return array
-	 * @throws Exception_Upload
 	 * @throws Exception_Key
+	 * @throws Exception_Upload
 	 */
 	public function file(string $name, int $index = 0): array {
 		if (!array_key_exists($name, $this->files)) {
@@ -804,7 +803,6 @@ class Request extends Hookable {
 	/**
 	 * Get the URL, or set the URL and optionally the path
 	 *
-	 * @param ?string $set
 	 * @return string
 	 */
 	public function url(): string {
@@ -820,8 +818,8 @@ class Request extends Hookable {
 	public function setUrl(string $set): self {
 		$this->url = $set;
 		$this->url_parts = [];
-		$this->_valid_url_parts();
-		$this->uri = $this->_derive_uri();
+		$this->_validURLParts();
+		$this->uri = $this->deriveURI();
 		return $this;
 	}
 
@@ -841,10 +839,10 @@ class Request extends Hookable {
 	 * @return self
 	 */
 	public function setPath(string $set = null): self {
-		$this->_valid_url_parts();
+		$this->_validURLParts();
 		$this->url_parts['path'] = $set;
-		$this->url(URL::unparse($this->url_parts));
-		$this->uri = $this->_derive_uri();
+		$this->url(URL::stringify($this->url_parts));
+		$this->uri = $this->deriveURI();
 		return $this;
 	}
 
@@ -874,7 +872,7 @@ class Request extends Hookable {
 	 * @return string
 	 */
 	public function host(): string {
-		$this->_valid_url_parts();
+		$this->_validURLParts();
 		return $this->url_parts['host'] ?? '';
 	}
 
@@ -884,7 +882,7 @@ class Request extends Hookable {
 	 * @return integer
 	 */
 	public function port(): int {
-		$this->_valid_url_parts();
+		$this->_validURLParts();
 		return intval($this->url_parts['port'] || URL::protocolPort($this->scheme()));
 	}
 
@@ -894,7 +892,7 @@ class Request extends Hookable {
 	 * @return string
 	 */
 	public function scheme(): string {
-		$this->_valid_url_parts();
+		$this->_validURLParts();
 		return $this->url_parts['scheme'] ?? 'http';
 	}
 
@@ -904,7 +902,7 @@ class Request extends Hookable {
 	 * @return string
 	 */
 	public function query(): string {
-		$this->_valid_url_parts();
+		$this->_validURLParts();
 		return $this->url_parts['query'] ?? '';
 	}
 
@@ -942,7 +940,7 @@ class Request extends Hookable {
 	 * @throws Exception_Key
 	 */
 	public function url_variables(string $component = null, mixed $default = ''): string|array {
-		$this->_valid_url_parts();
+		$this->_validURLParts();
 		if ($component === null) {
 			return $this->urlComponents();
 		}
@@ -1141,13 +1139,15 @@ class Request extends Hookable {
 	/**
 	 * Ensure that ->url_parts is available to be read
 	 */
-	private function _valid_url_parts(): void {
+	private function _validURLParts(): void {
 		if (count($this->url_parts)) {
 			return;
 		}
-		$parts = URL::parse($this->url);
-		if (!is_array($parts)) {
-			$parts = [];
+
+		try {
+			$parts = URL::parse($this->url);
+		} catch (Exception_Syntax) {
+			$parts = ['error' => 'syntax'];
 		}
 		$this->url_parts = $parts + [
 			'url' => $this->url,
@@ -1199,20 +1199,35 @@ class Request extends Hookable {
 	}
 
 	/**
+	 * Format the path + query string into a single string
+	 *
 	 * @return string
 	 */
-	private function _derive_uri(): string {
+	private function deriveURI(): string {
 		return $this->query() ? URL::queryFormat($this->path() . $this->query()) : $this->path();
 	}
 
+	/**
+	 * Given a $_SERVER structure, extract the URL parts and generate the complete URL
+	 *
+	 * @param array $server
+	 * @return string
+	 */
 	private function urlFromSERVER(array $server): string {
 		$parts['scheme'] = $this->currentScheme($server);
 		$parts['host'] = $this->currentHost();
 		$parts['port'] = $this->currentPort($server);
 		$parts['path'] = $this->currentURI($server);
-		return URL::unparse($parts);
+		return URL::stringify($parts);
 	}
 
+	/**
+	 * Extract the request scheme, supporting the X-Forwarded-Proto passed in by load balancers which
+	 * represents the original protocol.
+	 *
+	 * @param array $server
+	 * @return string
+	 */
 	private function currentScheme(array $server): string {
 		// Amazon load balancers
 		try {
@@ -1235,6 +1250,9 @@ class Request extends Hookable {
 	}
 
 	/**
+	 * Extract the request port, supporting the X-Forwarded-Port passed in by load balancers which
+	 * represents the original port.
+	 *
 	 * @param array $server
 	 * @return int
 	 */
@@ -1251,6 +1269,7 @@ class Request extends Hookable {
 	}
 
 	/**
+	 * Return the Request URI
 	 * @param array $server
 	 * @return string
 	 */

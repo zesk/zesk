@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use aws\classes\Module;
 use Psr\Log\LogLevel;
 
 /**
@@ -69,7 +70,7 @@ class Module_Logger_File extends Module {
 			$filename = $this->_filename_path($settings['name']);
 			$levels = $settings['level'] ?? null;
 			$handler = new Logger\File($filename, $settings);
-			$this->application->logger->register_handler($name, $handler, $levels);
+			$this->application->logger->registerHandler($name, $handler, $levels);
 			$names[] = $name;
 		}
 		if ($this->debug) {

@@ -6,9 +6,9 @@ namespace zesk;
 
 use Psr\Log\LogLevel as LogLevel;
 use Psr\Log\LoggerInterface as LoggerInterface;
+use zesk\Logger\Handler;
 
 /**
- * TODO, allow use of Monolog as well
  * @author kent
  */
 class Logger implements LoggerInterface {
@@ -16,7 +16,7 @@ class Logger implements LoggerInterface {
 	 *
 	 * @var array
 	 */
-	private static $levels = [
+	private static array $levels = [
 		LogLevel::EMERGENCY => LogLevel::EMERGENCY,
 		LogLevel::ALERT => LogLevel::ALERT,
 		LogLevel::CRITICAL => LogLevel::CRITICAL,
@@ -31,36 +31,38 @@ class Logger implements LoggerInterface {
 	 *
 	 * @var boolean
 	 */
-	private $sending = false;
+	private bool $sending = false;
 
 	/**
 	 *
 	 * @var boolean
 	 */
-	public $utc_time = false;
+	public bool $utc_time = false;
 
 	/**
 	 *
 	 * @var string[]
 	 */
-	private $handler_names = [];
+	private array $handler_names = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $processors = [];
+	private array $processors = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $handlers = [];
+	private array $handlers = [];
 
 	/**
 	 * Output configuration
+	 *
+	 * @return string
 	 */
-	public function dump_config() {
+	public function dump_config(): string {
 		$pairs = [];
 		$pairs['Currently sending'] = $this->sending ? 'yes' : 'no';
 		$pairs['UTC Logging'] = $this->utc_time ? 'yes' : 'no';
@@ -121,7 +123,7 @@ class Logger implements LoggerInterface {
 
 	/**
 	 * Runtime errors that do not require immediate action but should typically
-	 * be logged and monitored.
+	 * be logged and fixed.
 	 *
 	 * @param string $message
 	 * @param array $context
@@ -183,12 +185,12 @@ class Logger implements LoggerInterface {
 	/**
 	 * Logs with an arbitrary level.
 	 *
-	 * @param mixed $level
+	 * @param string $level
 	 * @param string $message
 	 * @param array $context
-	 * @return null
+	 * @return void
 	 */
-	public function log($level, $message, array $context = []) {
+	public function log($level, $message, array $context = []): void {
 		if ($this->sending) {
 			// Doh.
 			return;
@@ -196,22 +198,26 @@ class Logger implements LoggerInterface {
 		if (!isset($this->handlers[$level])) {
 			return;
 		}
-
-		if (is_object($message)) {
-			$message_args = method_exists($message, 'log_variables') ? $message->log_variables() : [];
-			$message = method_exists($message, 'log_message') ? $message->log_message() : strval($message);
-			$context = $message_args + $context;
-		}
-		foreach ($this->processors as $name => $processor) {
-			/* @var $processor \zesk\Logger\Processor */
-			$context = $processor->process($context);
-		}
 		if (is_array($message)) {
 			foreach ($message as $y) {
 				$this->log($level, $y, $context);
 			}
 			return;
 		}
+		if (is_object($message)) {
+			/* @var $message Exceptional */
+			$message_args = method_exists($message, 'logVariables') ? $message->logVariables() : [];
+			$message = method_exists($message, 'logMessage') ? $message->logMessage() : strval($message);
+			$context = $message_args + $context;
+		}
+		$context['_logger'] = $this;
+		foreach ($this->processors as $processor) {
+			/* @var $processor Processor */
+			$context['_processor'] = $processor;
+			$context = $processor->process($context);
+		}
+		unset($context['_processor']);
+
 		$pid = intval(getmypid());
 		$time = microtime(true);
 		$int_time = intval($time);
@@ -233,7 +239,7 @@ class Logger implements LoggerInterface {
 		$this->sending = true;
 		$handlers = $this->handlers[$level];
 		foreach ($handlers as $name => $handler) {
-			/* @var $handler \zesk\Logger\Handler */
+			/* @var $handler Handler */
 			$context['_handler'] = $name;
 
 			try {
@@ -242,72 +248,69 @@ class Logger implements LoggerInterface {
 				PHP::log('{method} {handler} threw {class} at {file}:{line} {message} Backtrace: {backtrace}', [
 					'method' => __METHOD__,
 					'name' => $name,
-				] + Exception::exception_variables($e));
+				] + Exception::exceptionVariables($e));
 			}
 		}
 		$this->sending = false;
 	}
 
 	/**
-	 * @return string[]
+	 * @return array
 	 */
-	public function handler_names() {
+	public function handlerNames(): array {
 		return array_values($this->handler_names);
 	}
 
 	/**
 	 *
-	 * @param unknown $name
+	 * @param string $name
 	 */
-	public function unregister_handler($name, $levels = null) {
-		$levels = $levels === null ? array_keys(self::$levels) : to_list($levels);
-		$nfound = 0;
+	public function unregisterHandler(string|array $name, array $levels = []): int {
+		$levels = count($levels) === 0 ? array_keys(self::$levels) : $levels;
+		$numberFound = 0;
 		if (is_array($name)) {
 			foreach ($name as $n) {
-				$nfound += $this->unregister_handler($n, $levels);
+				$numberFound += $this->unregisterHandler($n, $levels);
 			}
-			return $nfound;
+			return $numberFound;
 		}
-		$lowname = strtolower($name);
-		if (!isset($this->handler_names[$lowname])) {
+		if (!isset($this->handler_names[$name])) {
 			return 0;
 		}
 		foreach ($levels as $level) {
-			if (isset(self::$levels[$level]) && isset(self::$levels[$level][$lowname])) {
-				unset($this->handlers[$level][$lowname]);
-				++$nfound;
+			if (isset(self::$levels[$level]) && isset(self::$levels[$level][$name])) {
+				unset($this->handlers[$level][$name]);
+				++$numberFound;
 			}
 		}
-		unset($this->handler_names[$lowname]);
-		return $nfound;
+		unset($this->handler_names[$name]);
+		return $numberFound;
 	}
 
 	/**
-	 *
-	 * @param unknown $name
-	 * @param unknown $function
-	 * @param unknown $levels
-	 * @return \zesk\Logger
+	 * @param string $name
+	 * @param Handler $handler
+	 * @param array $levels
+	 * @return $this
 	 */
-	public function register_handler($name, \zesk\Logger\Handler $handler, $levels = null) {
-		$levels = $levels === null ? array_keys(self::$levels) : to_list($levels);
-		$lowname = strtolower($name);
+	public function registerHandler(string $name, Handler $handler, array $levels = []): self {
+		$levels = count($levels) === 0 ? array_keys(self::$levels) : $levels;
 		foreach ($levels as $level) {
 			if (isset(self::$levels[$level])) {
-				$this->handlers[$level][$lowname] = $handler;
+				$this->handlers[$level][$name] = $handler;
 			}
 		}
-		$this->handler_names[$lowname] = $name;
+		$this->handler_names[$name] = $name;
 		return $this;
 	}
 
 	/**
 	 *
 	 * @param string $name
-	 * @param \zesk\Logger\Processor $processor
-	 * @return \zesk\Logger
+	 * @param Processor $processor
+	 * @return self
 	 */
-	public function register_processor($name, \zesk\Logger\Processor $processor) {
+	public function registerProcessor(string $name, Processor $processor): self {
 		$this->processors[$name] = $processor;
 		return $this;
 	}
@@ -318,7 +321,7 @@ class Logger implements LoggerInterface {
 	 * @param \zesk\Logger\Processor $processor
 	 * @return \zesk\Logger
 	 */
-	public function unregister_processor($name) {
+	public function unregisterProcessor(string $name) {
 		unset($this->processors[$name]);
 		return $this;
 	}
@@ -326,21 +329,22 @@ class Logger implements LoggerInterface {
 	/**
 	 * @return string[]
 	 */
-	public function processor_names() {
+	public function processorNames(): array {
 		return array_keys($this->processors);
 	}
 
 	/**
 	 * @return array
 	 */
-	public function levels() {
+	public function levels(): array {
 		return self::$levels;
 	}
 
 	/**
+	 * @param string $severity
 	 * @return array
 	 */
-	public function levels_select($severity) {
+	public function levelsSelect(string $severity): array {
 		$result = [];
 		foreach (self::$levels as $k => $v) {
 			$result[$k] = $v;

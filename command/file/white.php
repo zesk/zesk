@@ -28,7 +28,7 @@ class Command_File_White extends Command_Iterator_File {
 
 	protected function process_file(SplFileInfo $file): void {
 		$name = $file->getPathname();
-		$this->verbose_log("whitespace in $name");
+		$this->verboseLog("whitespace in $name");
 		ob_start();
 		$contents = file_get_contents($name);
 		if (!preg_match('/^<\?php/', $contents)) {

@@ -148,7 +148,7 @@ class ORMIterator extends Database_Result_Iterator {
 		if ($this->_valid) {
 			$members = $this->_row;
 			// We do create, then fetch to support polymorphism - if ORM supports factory polymorphism, then shorten this to single factory call
-			$this->object = $this->query->member_model_factory($this->parent_member, $this->class, $members, [
+			$this->object = $this->query->memberModelFactory($this->parent_member, $this->class, $members, [
 				'initialize' => true,
 			] + $this->class_options);
 			$this->id = $this->object->id();
@@ -162,10 +162,10 @@ class ORMIterator extends Database_Result_Iterator {
 	/**
 	 * Convert to an array
 	 *
-	 * @see Database_Result_Iterator::to_array()
+	 * @see Database_Result_Iterator::toArray()
 	 * @return ORM[]
 	 */
-	public function to_array($key = null): array {
+	public function toArray($key = null): array {
 		$result = [];
 		if ($key === null) {
 			foreach ($this as $object) {
@@ -189,6 +189,6 @@ class ORMIterator extends Database_Result_Iterator {
 	 * @return \zesk\ORM[]
 	 */
 	public function to_list(): array {
-		return $this->to_array(false);
+		return $this->toArray(false);
 	}
 }

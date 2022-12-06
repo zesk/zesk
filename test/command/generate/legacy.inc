@@ -5,6 +5,8 @@
  */
 namespace zesk;
 
+use aws\classes\Command;
+
 /**
  * Create tests for code
  *

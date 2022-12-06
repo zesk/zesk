@@ -9,26 +9,21 @@ declare(strict_types=1);
 namespace zesk;
 
 use zesk\Database\QueryResult;
+use function random_int;
 
 /**
  *
  * @author kent
  *
  */
-class Database_Test extends UnitTest {
+class Database_Test extends DatabaseUnitTest {
 	protected array $load_modules = [
 		'MySQL',
 		'ORM',
 	];
 
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Test::initialize()
-	 */
 	public function initialize(): void {
-		require_once __DIR__ . '/Database_Test_Objects.php';
-		$this->schema_synchronize([__NAMESPACE__ . '\\DBQueryObjectTest']);
+		$this->schemaSynchronize([DBQueryObjectTest::class]);
 	}
 
 	// 	function test_table_indexes() {
@@ -42,10 +37,10 @@ class Database_Test extends UnitTest {
 
 	// 		dump($result);
 
-	// 		$this->assert_arrays_equal(array(
+	// 		$this->assertEquals(array(
 	// 			"id"
 	// 		), avalue($result, "PRIMARY"));
-	// 		$this->assert_arrays_equal(array(
+	// 		$this->assertEquals(array(
 	// 			"foo"
 	// 		), avalue($result, "f"));
 	// 	}
@@ -53,7 +48,7 @@ class Database_Test extends UnitTest {
 		$table = 'db_table_indexes_test';
 		$db = $this->application->database_registry();
 
-		$this->test_table($table);
+		$this->prepareTestTable($table);
 
 		$result = $db->tableColumns($table);
 
@@ -71,24 +66,22 @@ class Database_Test extends UnitTest {
 			]),
 		];
 
-		$this->assert_arrays_equal($result, $compare_result);
+		$this->assertEquals($result, $compare_result);
 	}
 
 	/**
 	 * @return void
-	 * @expectedException \zesk\Database_Exception_Table_NotFound
 	 */
 	public function testMissingTable(): void {
 		$db = $this->application->database_registry();
+		$this->expectException(Database_Exception_Table_NotFound::class);
 		$db->tableColumns('table_does_not_exist');
 	}
-
-	public static $test = null;
 
 	public function test_query_object(): void {
 		$db = $this->application->database_registry();
 		$table_name = 'query_object_test';
-		$this->test_table($table_name);
+		$this->prepareTestTable($table_name);
 
 		$db->insert($table_name, [
 			'foo' => 100,
@@ -102,9 +95,6 @@ class Database_Test extends UnitTest {
 
 		$sql = "SELECT * FROM $table_name";
 		$k = 'id';
-		$phpClass = 'DBQueryObjectTest';
-		$options = false;
-		$dbname = '';
 
 		self::$test = $this;
 
@@ -126,7 +116,7 @@ class Database_Test extends UnitTest {
 			'foo' => 300,
 		]);
 
-		$this->assert_arrays_equal($result, $compare_result);
+		$this->assertEquals($result, $compare_result);
 		self::$test = null;
 	}
 
@@ -134,15 +124,14 @@ class Database_Test extends UnitTest {
 		$db = $this->application->database_registry();
 		$table = 'query_array_index_test';
 
-		$this->test_table($table);
+		$this->prepareTestTable($table);
 
 		$sql = "SELECT * FROM $table ORDER BY Foo ASC";
 		$k = 0;
 		$v = 1;
-		$default = [];
-		$result = $db->queryArrayIndex($sql, $k, $v, $default);
+		$result = $db->queryArrayIndex($sql, $k, $v);
 
-		$this->assert_arrays_equal($result, []);
+		$this->assertEquals([], $result);
 
 		$db->insert($table, [
 			'foo' => 10,
@@ -155,7 +144,7 @@ class Database_Test extends UnitTest {
 		]);
 
 		$result = $db->queryArrayIndex($sql);
-		$this->assert_arrays_equal($result, [
+		$this->assertEquals([
 			[
 				0 => '1',
 				1 => '10',
@@ -168,10 +157,10 @@ class Database_Test extends UnitTest {
 				0 => '3',
 				1 => '30',
 			],
-		]);
+		], $result);
 
-		$result = $db->queryArrayIndex($sql, $k, null, $default);
-		$this->assert_arrays_equal($result, [
+		$result = $db->queryArrayIndex($sql, $k, null);
+		$this->assertEquals([
 			'1' => [
 				0 => '1',
 				1 => '10',
@@ -184,15 +173,15 @@ class Database_Test extends UnitTest {
 				0 => '3',
 				1 => '30',
 			],
-		]);
+		], $result);
 
-		$result = $db->queryArrayIndex($sql, null, $v, $default);
+		$result = $db->queryArrayIndex($sql, null, $v);
 
-		$this->assert_arrays_equal($result, [
+		$this->assertEquals([
 			'10',
 			'20',
 			'30',
-		]);
+		], $result);
 	}
 
 	public function test_query_array(): void {
@@ -200,16 +189,15 @@ class Database_Test extends UnitTest {
 
 		$table = 'query_array_test';
 
-		$this->test_table($table);
+		$this->prepareTestTable($table);
 
 		$sql = "SELECT * FROM $table ORDER BY Foo ASC";
 		$k = 'id';
 		$v = 'foo';
-		$default = [];
 
-		$result = $db->queryArray($sql, $k, $v, $default);
+		$result = $db->queryArray($sql, $k, $v);
 
-		$this->assert_arrays_equal($result, []);
+		$this->assertEquals([], $result);
 
 		$db->insert($table, [
 			'foo' => 10,
@@ -222,7 +210,7 @@ class Database_Test extends UnitTest {
 		]);
 
 		$result = $db->queryArray($sql);
-		$this->assert_arrays_equal($result, [
+		$this->assertEquals([
 			[
 				'id' => '1',
 				'foo' => '10',
@@ -235,10 +223,10 @@ class Database_Test extends UnitTest {
 				'id' => '3',
 				'foo' => '30',
 			],
-		]);
+		], $result);
 
-		$result = $db->queryArray($sql, $k, null, $default);
-		$this->assert_arrays_equal($result, [
+		$result = $db->queryArray($sql, $k, null);
+		$this->assertEquals([
 			'1' => [
 				'id' => '1',
 				'foo' => '10',
@@ -251,35 +239,35 @@ class Database_Test extends UnitTest {
 				'id' => '3',
 				'foo' => '30',
 			],
-		]);
+		], $result);
 
-		$result = $db->queryArray($sql, null, 'foo', $default);
+		$result = $db->queryArray($sql, null, 'foo');
 
-		$this->assert_arrays_equal($result, [
+		$this->assertEquals([
 			'10',
 			'20',
 			'30',
-		]);
+		], $result);
 
-		$result = $db->queryArray($sql, null, 'foo', $default);
+		$result = $db->queryArray($sql, null, 'foo');
 
-		$this->assert_arrays_equal($result, [
+		$this->assertEquals([
 			'10',
 			'20',
 			'30',
-		]);
+		], $result);
 
-		$result = $db->queryArray($sql, 'foo', 'id', $default);
+		$result = $db->queryArray($sql, 'foo', 'id');
 
-		$this->assert_arrays_equal($result, [
+		$this->assertEquals([
 			'10' => '1',
 			'20' => '2',
 			'30' => '3',
-		]);
+		], $result);
 
-		$result = $db->queryArray($sql, 'foo', null, $default);
+		$result = $db->queryArray($sql, 'foo', null);
 
-		$this->assert_arrays_equal($result, [
+		$this->assertEquals([
 			'10' => [
 				'id' => '1',
 				'foo' => '10',
@@ -292,7 +280,7 @@ class Database_Test extends UnitTest {
 				'id' => '3',
 				'foo' => '30',
 			],
-		]);
+		], $result);
 	}
 
 	/**
@@ -306,7 +294,7 @@ class Database_Test extends UnitTest {
 		$table = last(explode('::', __METHOD__));
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query("CREATE TABLE $table ( id int )");
-		$total_rows = \random_int(50, 100);
+		$total_rows = random_int(50, 100);
 		for ($i = 0; $i < $total_rows; $i++) {
 			$db->query("INSERT INTO $table ( id ) VALUES ( $i )");
 		}
@@ -345,23 +333,21 @@ class Database_Test extends UnitTest {
 		$default = null;
 		$db->bytesUsed($table, $default);
 
-		$table = $this->test_table('bytesUsed');
+		$table = $this->prepareTestTable('bytesUsed');
 		$status = $db->queryOne('SHOW TABLE STATUS LIKE \'bytesUsed\'');
 
 		Debug::output($status);
 
-		$this->assert(array_key_exists('Name', $status));
-		$this->assert(array_key_exists('Rows', $status));
-		$this->assert(array_key_exists('Data_length', $status));
-		$this->assert(array_key_exists('Index_length', $status));
+		$this->assertArrayHasKey('Name', $status);
+		$this->assertArrayHasKey('Rows', $status);
+		$this->assertArrayHasKey('Data_length', $status);
+		$this->assertArrayHasKey('Index_length', $status);
 	}
 
 	public function test_connect(): void {
 		$db = $this->application->database_registry();
 
-		$name = '';
-		$url = false;
-		$db->connect($name, $url);
+		$db->connect();
 	}
 
 	public function test_reconnect(): void {
@@ -374,25 +360,25 @@ class Database_Test extends UnitTest {
 
 		$table = 'select_map_test';
 
-		$this->test_table($table);
+		$this->prepareTestTable($table);
 
 		$where = [
 			'foo' => 2,
 		];
 		$db->insert($table, $where);
 
-		$this->assert(intval($db->queryOne("SELECT COUNT(*) AS X FROM $table", 'X', 100)) === 1);
+		$this->assertEquals(1, intval($db->queryOne("SELECT COUNT(*) AS X FROM $table", 'X')));
 
 		$where = [
 			'foo' => 3,
 		];
 		$db->insert($table, $where);
 
-		$this->assert(intval($db->queryOne("SELECT COUNT(*) AS X FROM $table", 'X', 100)) === 2);
+		$this->assertEquals(2, intval($db->queryOne("SELECT COUNT(*) AS X FROM $table", 'X')));
 
 		$db->delete($table, $where);
 
-		$this->assert(intval($db->queryOne("SELECT COUNT(*) AS X FROM $table", 'X', 100)) === 1);
+		$this->assertEquals(1, intval($db->queryOne("SELECT COUNT(*) AS X FROM $table", 'X')));
 	}
 
 	public function test_dump(): void {
@@ -414,9 +400,9 @@ class Database_Test extends UnitTest {
 		$name = md5(microtime());
 		$wait_seconds = 0;
 		$result = $db->getLock($name, $wait_seconds);
-		$this->assert_true($result, "getLock(\"$name\") did not return true: " . _dump($result));
+		$this->assertTrue($result, "getLock(\"$name\") did not return true: " . _dump($result));
 		$result = $db->releaseLock($name);
-		$this->assert_true($result, "releaseLock(\"$name\") did not return true: " . _dump($result));
+		$this->assertTrue($result, "releaseLock(\"$name\") did not return true: " . _dump($result));
 	}
 
 	public function test_insert(): void {
@@ -424,9 +410,9 @@ class Database_Test extends UnitTest {
 
 		$table_name = 'insert_test';
 
-		$this->test_table($table_name);
+		$this->prepareTestTable($table_name);
 
-		$this->assert(intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X', 100)) === 0);
+		$this->assertEquals(0, intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X')));
 
 		$t = $table_name;
 		$arr = [
@@ -434,7 +420,7 @@ class Database_Test extends UnitTest {
 		];
 		$db->insert($t, $arr);
 
-		$this->assert(intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X', 100)) === 1);
+		$this->assertEquals(1, intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X')));
 
 		$t = $table_name;
 		$arr = [
@@ -442,7 +428,7 @@ class Database_Test extends UnitTest {
 		];
 		$db->insert($t, $arr);
 
-		$this->assert(intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X', 100)) === 2);
+		$this->assertEquals(2, intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X')));
 
 		$caught = false;
 
@@ -451,12 +437,11 @@ class Database_Test extends UnitTest {
 			$arr = [
 				'foo' => 2,
 			];
-			$dbname = '';
-			$result = $db->insert($t, $arr);
+			$db->insert($t, $arr);
 		} catch (Database_Exception_Duplicate $e) {
 			$caught = true;
 		}
-		$this->assert($caught === true);
+		$this->assertTrue($caught);
 	}
 
 	public function test_query(): void {
@@ -464,7 +449,7 @@ class Database_Test extends UnitTest {
 
 		$table_name = 'query_test';
 
-		$this->test_table($table_name);
+		$this->prepareTestTable($table_name);
 
 		$sql = "SELECT * FROM $table_name";
 		$result = $db->query($sql);
@@ -482,9 +467,9 @@ class Database_Test extends UnitTest {
 		$sql = 'SELECT 23 * 54 AS X';
 		$field = 'X';
 		$default = 0;
-		$this->assert($db->queryInteger($sql, 'X', $default) === 23 * 54);
-		$this->assert($db->queryInteger($sql, 'Y', $default) === 0);
-		$this->assert($db->queryInteger($sql, 'Y', -1) === -1);
+		$this->assertEquals(23 * 54, $db->queryInteger($sql, 'X'));
+		$this->assertEquals(0, $db->queryInteger($sql, 'Y'));
+		$this->assertEquals(-1, $db->queryInteger($sql, 'Y'));
 	}
 
 	public function test_query_one1(): void {
@@ -492,7 +477,7 @@ class Database_Test extends UnitTest {
 
 		$table_name = 'query_object_test';
 
-		$this->test_table($table_name);
+		$this->prepareTestTable($table_name);
 
 		$n = random_int(100, 1000);
 		for ($i = 1; $i <= $n; $i++) {
@@ -501,13 +486,13 @@ class Database_Test extends UnitTest {
 			]);
 		}
 		$sql = "SELECT MAX(ID) AS X FROM $table_name";
-		$this->assert(intval($db->queryOne($sql, 'X', -1)) === $n);
+		$this->assertEquals($n, intval($db->queryOne($sql, 'X')));
 		$sql = "SELECT MIN(ID) AS X FROM $table_name";
-		$this->assert(intval($db->queryOne($sql, 'X', -1)) === 1);
+		$this->assertEquals(1, intval($db->queryOne($sql, 'X')));
 		$sql = "SELECT MAX(Foo) AS X FROM $table_name";
-		$this->assert(intval($db->queryOne($sql, 'X', -1)) === $n * 100);
+		$this->assertEquals($n * 100, intval($db->queryOne($sql, 'X')));
 		$sql = "SELECT MIN(Foo) AS X FROM $table_name";
-		$this->assert(intval($db->queryOne($sql, 'X', -1)) === 100);
+		$this->assertEquals(100, intval($db->queryOne($sql, 'X')));
 	}
 
 	/**
@@ -517,17 +502,17 @@ class Database_Test extends UnitTest {
 		$db = $this->application->database_registry();
 		$name = 'fail';
 		$result = $db->releaseLock($name);
-		$this->assert_false($result);
+		$this->assertFalse($result);
 	}
 
 	public function test_locks(): void {
 		$db = $this->application->database_registry();
 
 		$name = __FUNCTION__;
-		$this->assert_false($db->releaseLock($name));
-		$this->assert_true($db->getLock($name));
-		$this->assert_true($db->getLock($name));
-		$this->assert_true($db->releaseLock($name));
+		$this->assertFalse($db->releaseLock($name));
+		$this->assertTrue($db->getLock($name));
+		$this->assertTrue($db->getLock($name));
+		$this->assertTrue($db->releaseLock($name));
 
 		$intversion = 0;
 		if ($db instanceof \MySQL\Database) {
@@ -536,16 +521,16 @@ class Database_Test extends UnitTest {
 			$intversion = intval($maj) * 10000 + intval($min) * 100 + intval($patch);
 		}
 		if ($intversion >= 50700) {
-			$this->assert_true($db->releaseLock($name));
-			$this->assert_false($db->releaseLock($name));
-			$this->assert_false($db->releaseLock($name));
+			$this->assertTrue($db->releaseLock($name));
+			$this->assertFalse($db->releaseLock($name));
+			$this->assertFalse($db->releaseLock($name));
 		} else {
-			$this->assert_false($db->releaseLock($name));
-			$this->assert_false($db->releaseLock($name));
-			$this->assert_false($db->releaseLock($name));
+			$this->assertFalse($db->releaseLock($name));
+			$this->assertFalse($db->releaseLock($name));
+			$this->assertFalse($db->releaseLock($name));
 		}
 
-		$this->assert($db->getLock($name) === true);
+		$this->assertTrue($db->getLock($name));
 	}
 
 	public function test_replace(): void {
@@ -553,40 +538,40 @@ class Database_Test extends UnitTest {
 
 		$table_name = 'replace_test';
 
-		$this->test_table($table_name);
+		$this->prepareTestTable($table_name);
 
-		$this->assert(intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X', 100)) === 0);
+		$this->assertEquals(0, intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X')));
 
 		$t = $table_name;
 		$arr = [
 			'foo' => 1,
 		];
 		$result = $db->replace($t, $arr);
-		$this->assert($result === 1);
+		$this->assertEquals(1, $result);
 
-		$this->assert(intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X', 100)) === 1);
+		$this->assertEquals(1, intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X')));
 
 		$result = $db->replace($t, $arr);
-		$this->assert($result === 2);
+		$this->assertEquals(1, $result);
 
-		$this->assert(intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X', 100)) === 1);
+		$this->assertEquals(1, intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X')));
 
 		$arr = [
 			'foo' => 2,
 		];
 		$result = $db->replace($t, $arr);
-		$this->assert($result === 3);
+		$this->assertEquals(3, $result);
 
-		$this->assert(intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X', 100)) === 2);
+		$this->assertEquals(2, intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X')));
 
-		$t = $table_name;
-		$arr = [
-			'foo' => 2,
-		];
+//		$t = $table_name;
+//		$arr = [
+//			'foo' => 2,
+//		];
 		$result = $db->replace($t, $arr);
-		$this->assert($result === 4);
+		$this->assertEquals(4, $result);
 
-		$this->assert(intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X', 100)) === 2);
+		$this->assertEquals(2, intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X')));
 	}
 
 	public function test_selectOne(): void {
@@ -596,7 +581,7 @@ class Database_Test extends UnitTest {
 		$order_by = '';
 		$table = 'database_select_one_where';
 
-		$this->test_table($table);
+		$this->prepareTestTable($table);
 		$db->query("INSERT INTO $table (id, foo) VALUES (1, 2)");
 		$result = $db->selectOne($table, $where, $order_by);
 		$this->assertIsArray($result);
@@ -641,10 +626,10 @@ class Database_Test extends UnitTest {
 			'\'\'' => 'empty-string',
 		]);
 		//echo "NEW: $sql\n";
-		$this->assert(!str_contains($sql, '\''));
+		$this->assertStringNotContainsString('\'', $sql);
 
 		$state = null;
-		$this->assert_equal(Database::restring(Database::unstring($sql, $state), $state), $sql);
+		$this->assertEquals(Database::restring(Database::unstring($sql, $state), $state), $sql);
 		$sql = "UPDATE `Metric` SET
 	`Model` = '1',
 	`CodeName` = 'hypog\\'lycemia',
@@ -664,9 +649,9 @@ class Database_Test extends UnitTest {
 		//echo "OLD: $sql\n";
 		$new_sql = Database::unstring($sql, $state);
 		//echo "NEW: $new_sql\n";
-		$this->assert(!str_contains($new_sql, '\''));
+		$this->assertStringNotContainsString('\'', $new_sql);
 		$state = null;
-		$this->assert_equal(Database::restring(Database::unstring($sql, $state), $state), $sql);
+		$this->assertEquals(Database::restring(Database::unstring($sql, $state), $state), $sql);
 	}
 
 	public function test_update(): void {
@@ -674,7 +659,7 @@ class Database_Test extends UnitTest {
 
 		$table = 'database_update_test';
 
-		$this->test_table($table, null, false);
+		$this->prepareTestTable($table, null, false);
 
 		$db->insert($table, [
 			'foo' => 1,
@@ -764,7 +749,7 @@ class Database_Test extends UnitTest {
 
 		$table = 'database_update_test';
 
-		$this->test_table($table);
+		$this->prepareTestTable($table);
 
 		$id = $db->insert($table, [
 			'foo' => 6,
@@ -774,7 +759,7 @@ class Database_Test extends UnitTest {
 			'id' => $id,
 		]);
 
-		$this->assert($row['foo'] == 6);
+		$this->assertEquals(6, $row['foo']);
 
 		$arr = [
 			'foo' => 100,
@@ -790,14 +775,14 @@ class Database_Test extends UnitTest {
 			'id' => $id,
 		]);
 
-		$this->assert($row['foo'] == 100);
+		$this->assertEquals(100, $row['foo']);
 	}
 
 	public function test_update_id_test(): void {
 		$db = $this->application->database_registry();
 		$table = 'db_update_id_test';
 
-		$this->test_table($table);
+		$this->prepareTestTable($table);
 
 		$id = $db->insert($table, [
 			'foo' => 6,
@@ -807,7 +792,7 @@ class Database_Test extends UnitTest {
 			'id' => $id,
 		]);
 
-		$this->assert($row['foo'] == 6);
+		$this->assertEquals(6, $row['foo']);
 
 		$arr = [
 			'foo' => 100,
@@ -820,7 +805,7 @@ class Database_Test extends UnitTest {
 			'id' => $id,
 		]);
 
-		$this->assert($row['foo'] == 100);
+		$this->assertEquals(100, $row['foo']);
 	}
 
 	public function test_url(): void {

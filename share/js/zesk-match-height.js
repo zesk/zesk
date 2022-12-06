@@ -9,7 +9,7 @@
 	};
 
 	if (zesk) {
-		zesk.add_hook('window::load', function() {
+		zesk.addHook('window::load', function() {
 			$('[data-match-height]').each(go);
 		});
 		$(window).off("resize.match-height").on('resize.match-height', function() {

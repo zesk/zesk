@@ -15,7 +15,7 @@ abstract class File_Monitor {
 	 * Create a new File_Monitor
 	 */
 	public function __construct() {
-		$this->file_mtimes = $this->current_mtimes();
+		$this->file_mtimes = $this->currentModificationTimes();
 	}
 
 	/**
@@ -23,7 +23,7 @@ abstract class File_Monitor {
 	 *
 	 * @return array
 	 */
-	private function current_mtimes(): array {
+	private function currentModificationTimes(): array {
 		$current = [];
 		foreach ($this->files() as $f) {
 			clearstatcache(false, $f);
@@ -37,9 +37,9 @@ abstract class File_Monitor {
 	 *
 	 * @return string[]
 	 */
-	public function changed_files(): array {
+	public function changedFiles(): array {
 		$result = [];
-		$current = $this->current_mtimes();
+		$current = $this->currentModificationTimes();
 		foreach ($this->file_mtimes as $filename => $saved_mod_time) {
 			if (!isset($current[$filename])) {
 				error_log(map('Huh? Existing file monitor file {file} no longer monitored?', [
@@ -62,7 +62,7 @@ abstract class File_Monitor {
 	 * @return boolean
 	 */
 	public function changed(): bool {
-		$current = $this->current_mtimes();
+		$current = $this->currentModificationTimes();
 		foreach ($this->file_mtimes as $filename => $saved_mod_time) {
 			if (!isset($current[$filename])) {
 				error_log(map('Huh? Existing file monitor file {file} no longer monitored?', [

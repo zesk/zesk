@@ -30,6 +30,8 @@ class TestApplicationFactory {
 			$application->paths->uid('test.conf'),
 			$application->paths->uid('test.json'),
 		];
+		$application->addAutoloadPath($application->zeskHome('test/classes'), [Autoloader::OPTION_CLASS_PREFIX =>
+		__NAMESPACE__ . '\\', ]);
 		$application->configureInclude($files)->configure();
 		$modules = [];
 		if (defined('PHPUNIT')) {

@@ -36,8 +36,8 @@ class Module extends \zesk\Module {
 			$this,
 			'command_daemontools_service_remove',
 		]);
-		$this->application->theme_path($this->path('theme/system'), 'system');
-		$this->application->theme_path($this->path('theme/service'), 'zesk/daemontools/service');
+		$this->application->addThemePath($this->path('theme/system'), 'system');
+		$this->application->addThemePath($this->path('theme/service'), 'zesk/daemontools/service');
 	}
 
 	/**
@@ -78,7 +78,7 @@ class Module extends \zesk\Module {
 			$service_name = basename(trim($source, '/'));
 		}
 		$target = $this->services_path($service_name);
-		$command->verbose_log('Service target is {target}', [
+		$command->verboseLog('Service target is {target}', [
 			'target' => $target,
 		]);
 		$changed = false;
@@ -152,11 +152,11 @@ class Module extends \zesk\Module {
 		];
 		$changed = null;
 		if (!is_dir($target)) {
-			$command->verbose_log('{command_name} {target} - target does not exist, done', $__);
+			$command->verboseLog('{command_name} {target} - target does not exist, done', $__);
 			return $changed;
 		}
 		$locale = $this->application->locale;
-		$command->verbose_log('{command_name} {target} exists', $__);
+		$command->verboseLog('{command_name} {target} exists', $__);
 		foreach ([
 			$target,
 			path($target, 'log'),
@@ -170,7 +170,7 @@ class Module extends \zesk\Module {
 					$changed = true;
 				}
 			} else {
-				$command->verbose_log('Terminating service {target}', $__);
+				$command->verboseLog('Terminating service {target}', $__);
 			}
 		}
 		if ($command->prompt_yes_no($locale->__('Delete {target}? ', $__), true)) {
@@ -221,7 +221,7 @@ class Module extends \zesk\Module {
 		}
 		$services = [];
 		if (count($svstat_names) > 0) {
-			foreach ($this->application->process->execute_arguments('svstat {*}', $svstat_names) as $line) {
+			foreach ($this->application->process->executeArguments('svstat {*}', $svstat_names) as $line) {
 				$services[] = Service::from_svstat($this->application, $line);
 			}
 		}

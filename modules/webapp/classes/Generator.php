@@ -63,8 +63,8 @@ abstract class Generator extends Hookable {
 		$disk_contents = File::contents($file, null);
 		$file_exists = ($disk_contents === null) ? false : true;
 
-		$compare_disk_contents = $this->call_hook('file_compare_preprocess', $disk_contents);
-		$compare_contents = $this->call_hook('file_compare_preprocess', $contents);
+		$compare_disk_contents = $this->callHook('file_compare_preprocess', $disk_contents);
+		$compare_contents = $this->callHook('file_compare_preprocess', $contents);
 		if ($compare_disk_contents === $compare_contents) {
 			// If our file exists and the replacement is empty, make sure we drop through to delete the file
 			if ($file_exists && $contents === '') {

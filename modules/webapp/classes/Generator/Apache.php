@@ -111,7 +111,7 @@ class Generator_Apache extends Generator {
 			}
 		}
 		$app = $site->application;
-		$data = to_array($site->data);
+		$data = toArray($site->data);
 		$contents = $app->theme('webapp/generator/apache/site', [
 			'generator' => $this,
 			'site' => $site,

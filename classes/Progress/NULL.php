@@ -2,15 +2,15 @@
 namespace zesk;
 
 class Progress_NULL implements Interface_Progress {
-	public function progress($status = null, $percent = null): void {
+	public function progressPush(string $name): void {
 		// No-op
 	}
 
-	public function progress_push($name): void {
+	public function progress(string $status = null, float $percent = null): void {
 		// No-op
 	}
 
-	public function progress_pop(): void {
+	public function progressPop(): void {
 		// No-op
 	}
 }

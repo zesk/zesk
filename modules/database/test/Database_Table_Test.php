@@ -38,7 +38,7 @@ class Database_Table_Test extends UnitTest {
 
 		try {
 			$table->column($name);
-			$this->assertFalse(true, 'Never gets here');
+			$this->fail('Never gets here');
 		} catch (Exception_Key $e) {
 			$this->assertInstanceOf(Exception_Key::class, $e);
 		}
@@ -76,9 +76,9 @@ class Database_Table_Test extends UnitTest {
 
 		$debug = toBool($this->option('debug'), false);
 		$that = $table;
-		$this->assert($table->isSimilar($that, $debug) === true);
+		$this->assertTrue($table->isSimilar($that, $debug));
 		$that = new Database_Table($db, 'someother');
-		$this->assert($table->isSimilar($that, $debug) === false);
+		$this->assertFalse($table->isSimilar($that, $debug));
 	}
 
 	public function test_main2(): void {

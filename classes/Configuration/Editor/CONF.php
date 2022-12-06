@@ -19,13 +19,12 @@ class Configuration_Editor_CONF extends Configuration_Editor {
 	/**
 	 * Save changes to a configuration file
 	 *
-	 * @param unknown $path
 	 * @param array $edits
-	 * @param array $options
+	 * @throws Exception_Semantics
 	 */
-	public function edit(array $edits) {
+	public function edit(array $edits): string {
 		$parser = new Configuration_Parser_CONF('', null, $this->options);
-		$low_edits = ArrayTools::valuesFlipCopy(array_keys($edits), true);
+		$edits_processed = ArrayTools::valuesFlipCopy(array_keys($edits));
 		$new_lines = [];
 		$lines = explode("\n", $this->content);
 		foreach ($lines as $line) {
@@ -33,19 +32,16 @@ class Configuration_Editor_CONF extends Configuration_Editor {
 			if ($result === null) {
 				$new_lines[] = rtrim($line, "\n") . "\n";
 			} else {
-				[$key, $value] = $result;
-				$lowkey = strtolower($key);
-				if (array_key_exists($lowkey, $low_edits)) {
-					$key = $low_edits[$lowkey];
-					unset($low_edits[$lowkey]);
+				[$key] = $result;
+				if (array_key_exists($key, $edits_processed)) {
 					$new_lines[] = $key . '=' . Text::lines_wrap(JSON::encode($edits[$key]), "\t", '', '') . "\n";
-					unset($edits[$key]);
+					unset($edits_processed[$key]);
 				} else {
 					$new_lines[] = rtrim($line, "\n") . "\n";
 				}
 			}
 		}
-		foreach ($low_edits as $low_edit => $key) {
+		foreach ($edits_processed as $key) {
 			$new_lines[] = $key . '=' . JSON::encode($edits[$key]) . "\n";
 		}
 		return implode('', $new_lines);

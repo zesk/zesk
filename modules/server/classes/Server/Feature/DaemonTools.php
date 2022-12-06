@@ -12,7 +12,7 @@ class Server_Feature_Daemontools extends Server_Feature {
 		$tool = path($this->configure_root, 'daemontools-restart.sh');
 		$this->owner($this->install_tool($tool), $this->platform->root_user(), 0o750);
 		if ($this->platform->process_is_running('svscan')) {
-			$this->verbose_log('Daemontools appears to be installed and running correctly ...');
+			$this->verboseLog('Daemontools appears to be installed and running correctly ...');
 			return true;
 		}
 
@@ -36,14 +36,14 @@ class Server_Feature_Daemontools extends Server_Feature {
 			$patch = path($this->configure_root, "$daemontools_ver.errno.patch");
 			$this->exec("patch -d $package_dir < $patch");
 			$this->exec("/package/admin/$daemontools_ver/package/install");
-			$this->verbose_log('Sleeping to allow daemontools to run');
+			$this->verboseLog('Sleeping to allow daemontools to run');
 			$tries = 0;
 			while (!$this->platform->process_is_running('svscan')) {
 				if ($tries >= 5) {
 					throw new Server_Exception('svscan is not running');
 				}
 				sleep(2);
-				$this->verbose_log('Trying to run daemontools');
+				$this->verboseLog('Trying to run daemontools');
 				$this->root_exec('csh -cf \'/command/svscanboot &');
 				++$tries;
 				sleep(2);

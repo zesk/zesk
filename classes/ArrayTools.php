@@ -704,7 +704,10 @@ class ArrayTools {
 	 * @param array $array
 	 * @return boolean
 	 */
-	public static function isAssoc(array $array) {
+	public static function isAssoc(mixed $array): bool {
+		if (!is_array($array)) {
+			return false;
+		}
 		$i = 0;
 		foreach (array_keys($array) as $k) {
 			if ($k !== $i) {
@@ -891,7 +894,7 @@ class ArrayTools {
 	 * @param boolean $case_insensitive Case-insensitive search when true
 	 * @return array
 	 */
-	public static function filterPrefixedValues(array $a, array|string $prefixes, bool $case_insensitive = false): array {
+	public static function filterKeyPrefixes(array $a, array|string $prefixes, bool $case_insensitive = false): array {
 		$prefixes = toList($prefixes);
 		$r = [];
 		foreach ($a as $k => $v) {
@@ -1094,20 +1097,12 @@ class ArrayTools {
 	 *
 	 * @param array $x
 	 *            Array to modify
-	 * @param boolean $lower
-	 *            Convert the keys to lowercase. Defaults to "true"
 	 * @return array An array where the keys and values identical (or lowercase equivalent)
 	 */
-	public static function valuesFlipCopy(array $x, bool $lower = true): array {
+	public static function valuesFlipCopy(array $x): array {
 		$result = [];
-		if ($lower) {
-			foreach ($x as $k) {
-				$result[strtolower($k)] = $k;
-			}
-		} else {
-			foreach ($x as $k) {
-				$result[$k] = $k;
-			}
+		foreach ($x as $k) {
+			$result[$k] = $k;
 		}
 		return $result;
 	}
@@ -1263,83 +1258,65 @@ class ArrayTools {
 	}
 
 	/**
-	 * Given a string and an array of strings, find if string $haystack exists in $needles.
-	 * <em>Case sensitive.</em>
-	 *
-	 * @param string $haystack
-	 * @param array $needles
-	 * @return string|int|null Integer or string key of found needle in $needles
-	 * @see strstr()
-	 * @deprecated
-	 */
-	public static function strstr(string $haystack, array $needles): null|string|int {
-		foreach ($needles as $k => $needle) {
-			if (str_contains($haystack, $needle)) {
-				return $k;
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * Given arrays and string inputs, find if any needles appear in haystack.
 	 * <em>Case sensitive.</em>
 	 *
-	 * @param mixed $haystack
-	 * @param mixed $needles
-	 * @return boolean
-	 * @see strstr()
+	 * @param array|string $haystack
+	 * @param array|string $needles
+	 * @return array|null
+	 * @see str_contains()
 	 */
-	public static function find(mixed $haystack, mixed $needles): bool {
+	public static function find(string|array $haystack, string|array $needles): array|null {
 		if (is_array($haystack)) {
-			foreach ($haystack as $h) {
-				if (self::find($h, $needles)) {
-					return true;
+			foreach ($haystack as $haystack_key => $haystack_value) {
+				$result = self::find($haystack_value, $needles);
+				if ($result) {
+					return array_merge($result, [$haystack_key]);
 				}
 			}
-			return false;
+			return null;
 		}
 		if (is_array($needles)) {
-			foreach ($needles as $needle) {
-				if (self::find($haystack, $needle)) {
-					return true;
+			foreach ($needles as $needle_key => $needle_value) {
+				$result = self::find($haystack, $needle_value);
+				if ($result) {
+					return array_merge($result, [$needle_key]);
 				}
 			}
-			return false;
+			return null;
 		}
-		if (!is_scalar($haystack) || !is_scalar($needles)) {
-			return false;
-		}
-		return str_contains(strval($haystack), strval($needles));
+		return str_contains($haystack, $needles) ? [$haystack, $needles] : null;
 	}
 
 	/**
 	 * Given arrays and string inputs, find if any needles appear in haystack.
 	 * <em>Case insensitive.</em>
 	 *
-	 * @param mixed $haystack
-	 * @param mixed $needles
-	 * @return boolean
-	 * @see strstr()
+	 * @param array|string $haystack
+	 * @param array|string $needle
+	 * @return null|array Returns matching [haystack,needle,haystack-key,needle-key] or [haystack,needle]
+	 * @see stripos()
 	 */
-	public static function findInsensitive($haystack, $needles) {
+	public static function findInsensitive(array|string $haystack, array|string $needle): ?array {
 		if (is_array($haystack)) {
-			foreach ($haystack as $h) {
-				if (self::findInsensitive($h, $needles)) {
-					return true;
+			foreach ($haystack as $haystack_key => $haystack_value) {
+				$result = self::findInsensitive($haystack_value, $needle);
+				if ($result) {
+					return array_merge($result, [$haystack_key]);
 				}
 			}
-			return false;
+			return null;
 		}
-		if (is_array($needles)) {
-			foreach ($needles as $needle) {
-				if (self::findInsensitive($haystack, $needle)) {
-					return true;
+		if (is_array($needle)) {
+			foreach ($needle as $needle_key => $needle_value) {
+				$result = self::findInsensitive($haystack, $needle_value);
+				if ($result) {
+					return array_merge($result, [$needle_key]);
 				}
 			}
-			return false;
+			return null;
 		}
-		return (stripos($haystack, $needles) !== false);
+		return (stripos($haystack, $needle) !== false) ? [$haystack, $needle] : null;
 	}
 
 	/**
@@ -1643,7 +1620,7 @@ class ArrayTools {
 		if (is_scalar($values)) {
 			$values = [$values, ];
 		}
-		$values = to_array($values);
+		$values = toArray($values);
 		if (count($values) === 0) {
 			return $values;
 		}

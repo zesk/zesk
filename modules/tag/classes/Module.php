@@ -56,13 +56,13 @@ class Module extends \zesk\Module_JSLib {
 	 * @return mixed|number|array|unknown
 	 */
 	public function filter_labels($items) {
-		$result = $this->call_hook_arguments('filter_labels', [
+		$result = $this->callHookArguments('filter_labels', [
 			$items,
 		], $items);
 		if (is_iterable($result)) {
 			return $result;
 		}
-		$this->application->logger->warning('{class}::call_hook_arguments("filter_labels") returned non-iterable {type} - nothing was filtered', [
+		$this->application->logger->warning('{class}::callHookArguments("filter_labels") returned non-iterable {type} - nothing was filtered', [
 			'class' => get_class($this),
 			'type' => type($result),
 		]);

@@ -6,10 +6,10 @@ class Class_County extends Class_ORM {
 
 	public string $id_column = 'id';
 
-	public $name_column = 'name';
+	public string $name_column = 'name';
 
 	public array $has_one = [
-		'province' => 'zesk\\Province',
+		'province' => Province::class,
 	];
 
 	public array $column_types = [

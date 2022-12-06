@@ -50,7 +50,7 @@ class Request_Test extends UnitTest {
 		$upload_array = [
 			'tmp_name' => $source,
 		];
-		$this->assert(file_exists($source));
+		$this->assertTrue(file_exists($source));
 		$dest_path = $this->test_sandbox(__FUNCTION__ . '-dest.txt');
 		$options = [];
 		$filename = Request\File::instance($upload_array)->migrate($this->application, $dest_path, $options);

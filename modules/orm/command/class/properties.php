@@ -51,8 +51,8 @@ class Command_Class_Properties extends Command_Base {
 	 */
 	public function run(): void {
 		$classes = [];
-		while ($this->has_arg()) {
-			$arg = $this->get_arg('class');
+		while ($this->hasArgument()) {
+			$arg = $this->getArgument('class');
 			if ($arg === 'all') {
 				$classes = array_merge($classes, $this->all_classes());
 			} else {

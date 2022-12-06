@@ -84,8 +84,8 @@ class Command_File_Rename extends Command_Iterator_File {
 	protected function process_file(SplFileInfo $file): void {
 		$name = $file->getFilename();
 		$newname = str_replace($this->from, $this->to, $name);
-		$this->verbose_log("$name => $newname");
-		$this->verbose_log(bin2hex($name) . ' => ' . bin2hex($newname));
+		$this->verboseLog("$name => $newname");
+		$this->verboseLog(bin2hex($name) . ' => ' . bin2hex($newname));
 		if ($newname !== $name) {
 			$path = $file->getPath();
 			$from = path($path, $name);
@@ -97,7 +97,7 @@ class Command_File_Rename extends Command_Iterator_File {
 				$this->error('Unable to rename {name} to {newname} in {path}', compact('name', 'newname', 'path'));
 				$this->failed++;
 			} else {
-				$this->verbose_log('Renamed {from} to {newname}', compact('from', 'newname'));
+				$this->verboseLog('Renamed {from} to {newname}', compact('from', 'newname'));
 				$this->succeed++;
 			}
 		} else {

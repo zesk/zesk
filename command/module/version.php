@@ -17,13 +17,13 @@ class Command_Module_Version extends Command_Base {
 
 	public function run(): void {
 		$app = $this->application;
-		$modules = $this->arguments_remaining(true);
+		$modules = $this->argumentsRemaining(true);
 		if (count($modules) === 0) {
 			$modules = array_keys($app->modules->load());
 		}
 
 		foreach ($modules as $module) {
-			$this->verbose_log('Checking module {module}', compact('module'));
+			$this->verboseLog('Checking module {module}', compact('module'));
 			$version = $app->modules->version($module);
 			if ($version === null) {
 				$version = '-';

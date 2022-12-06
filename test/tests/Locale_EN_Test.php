@@ -27,13 +27,13 @@ class Locale_EN_Test extends UnitTest {
 
 		$word = 'sheep';
 		$count = 2;
-		$this->assert($testx->plural($word, $count) === 'sheep');
+		$this->assertEquals('sheep', $testx->plural($word, $count));
 
 		$word = 'hour away';
 		$caps = false;
-		$this->assert_equal($testx->indefinite_article($word, []), 'an');
-		$this->assert_equal($testx->indefinite_article($word, ['capitalize' => true]), 'An');
-		$this->assert_equal($testx->indefinite_article('HOUR AWAY', ['capitalize' => true]), 'An');
+		$this->assertEquals($testx->indefinite_article($word, []), 'an');
+		$this->assertEquals($testx->indefinite_article($word, ['capitalize' => true]), 'An');
+		$this->assertEquals($testx->indefinite_article('HOUR AWAY', ['capitalize' => true]), 'An');
 
 		$x = [
 			'lions',
@@ -41,12 +41,12 @@ class Locale_EN_Test extends UnitTest {
 			'bears',
 		];
 		$conj = 'and';
-		$this->assert_equal($testx->conjunction($x, $conj), 'lions, tigers, and bears');
+		$this->assertEquals($testx->conjunction($x, $conj), 'lions, tigers, and bears');
 
 		$s = 'word';
 		$n = 3;
 		$locale = null;
-		$this->assert_equal($testx->plural_number($s, $n), '3 words');
+		$this->assertEquals($testx->plural_number($s, $n), '3 words');
 	}
 
 	public function ordinal_tests() {
@@ -107,6 +107,6 @@ class Locale_EN_Test extends UnitTest {
 	 */
 	public function test_ordinal(int $input, string $result): void {
 		$testx = $this->application->localeRegistry('en');
-		$this->assert_equal($testx->ordinal($input), $result);
+		$this->assertEquals($testx->ordinal($input), $result);
 	}
 }

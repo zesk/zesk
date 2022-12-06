@@ -14,51 +14,24 @@ namespace zesk;
  */
 class Process_Tools {
 	/**
-	 * Check all processes and clear ones which have died
+	 * Test to see if any files have changed in this process.
+	 *
+	 * First method call of this is always false.
 	 *
 	 * @param Application $application
-	 * @param string $class
-	 * @param string $where
-	 * @param string $pid_field
-	 * @return boolean
-	 * @throws Exception_Semantics
+	 * @return bool
 	 */
-	public static function reset_dead_processes(Application $application, string $class, array $where = [], string $pid_field = 'PID'): bool {
-		$where["$pid_field|!="] = null;
-		$ids = $application->ormRegistry($class)->query_select()->addWhat('pid', $pid_field)->appendWhere($where)
-			->toArray('pid', 'pid');
-		$dead_pids = [];
-		foreach ($ids as $id) {
-			if (!$application->process->alive($id)) {
-				$dead_pids[] = $id;
-			}
-		}
-		if (count($dead_pids) === 0) {
-			return false;
-		}
-		$rows = $application->ormRegistry($class)->queryUpdate()->value($pid_field, null)->addWhere(
-			$pid_field,
-			$dead_pids
-		)->execute()->affectedRows();
-
-		$application->logger->warning('Reset {n} dead pids {dead_pids}', ['dead_pids' => $dead_pids, 'n' => $rows, ]);
-		return true;
-	}
-
-	/**
-	 * Test to see if any files have changed in this process. If so - quit and restart.
-	 *
-	 * @return boolean
-	 */
-	public static function process_code_changed(Application $application): bool {
+	public static function includesChanged(Application $application): bool {
 		return $application->objects->singleton(File_Monitor_Includes::class)->changed();
 	}
 
 	/**
+	 * Get a list of the files which have changed since initial check.
 	 *
+	 * @param Application $application
 	 * @return array
 	 */
-	public static function process_code_changed_files(Application $application): array {
-		return $application->objects->singleton(File_Monitor_Includes::class)->changed_files();
+	public static function includesChangedFiles(Application $application): array {
+		return $application->objects->singleton(File_Monitor_Includes::class)->changedFiles();
 	}
 }

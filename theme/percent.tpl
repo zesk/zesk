@@ -18,7 +18,7 @@ namespace zesk;
 /* @var $current_user \zesk\User */
 $decimals = $this->get1('1;decimals');
 if (!$decimals) {
-	$decimals = $application->configuration->path_get_first([
+	$decimals = $application->configuration->getFirstPath([
 		[
 			Locale::class,
 			'percent_decimals',

@@ -28,13 +28,13 @@ class Application_Server extends Application {
 	];
 
 	public function preconfigure(array $options = []): void {
-		$this->zesk_command_path(path($this->modules->path('server'), 'command'));
+		$this->appendZeskCommandPath(path($this->modules->path('server'), 'command'));
 		$this->setDocumentRoot('site');
 	}
 
 	public function hook_head(Request $request, Response $response, Template $template): void {
 		$response->css('/css/server.css', [
-			'root_dir' => $this->document_root(),
+			'root_dir' => $this->documentRoot(),
 		]);
 	}
 

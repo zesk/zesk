@@ -13,23 +13,32 @@ namespace zesk;
  * @property string $name
  */
 class Country extends ORM {
-	public static function find_country(Application $application, $mixed) {
+	/**
+	 * @param Application $application
+	 * @param string|int $mixed
+	 * @return self
+	 * @throws Exception_ORM_Empty
+	 * @throws Exception_ORM_NotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
+	 */
+	public static function findCountry(Application $application, string|int $mixed): self {
 		if (is_numeric($mixed)) {
 			$c = new Country($application, $mixed);
-			if ($c->fetch()) {
-				return $c;
-			}
+			return $c->fetch();
 		} else {
 			$c = new Country($application, [
 				'code' => $mixed,
 			]);
 			return $c->find();
 		}
-		return null;
 	}
 
-	public static function country_codes(Locale $locale = null) {
-		$country_codes = [
+	/**
+	 * @return string[]
+	 */
+	public static function countryCodes_EN(): array {
+		return [
 			'ad' => 'Andorra',
 			'ae' => 'United Arab Emirates',
 			'af' => 'Afghanistan',
@@ -276,9 +285,5 @@ class Country extends ORM {
 			'zm' => 'Zambia',
 			'zw' => 'Zimbabwe',
 		];
-		if ($locale !== null) {
-			return $locale->__($country_codes);
-		}
-		return $country_codes;
 	}
 }

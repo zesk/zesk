@@ -5,15 +5,15 @@ namespace zesk;
 
 class PHP_Test extends UnitTest {
 	public function test_php_basics(): void {
-		$this->assert_false(!![]);
-		$this->assert_true(!![1, ]);
+		$this->assertFalse(!![]);
+		$this->assertTrue(!![1, ]);
 		$truthy = [new \stdClass(), [1, ], ['', ], [0, ], [null, ], ];
 		$falsy = [0, '', null, false, 0.0, ];
 		foreach ($truthy as $true) {
-			$this->assert(!!$true, gettype($true) . ' is not TRUE ' . var_export($true, true));
+			$this->assertTrue(!!$true, gettype($true) . ' is not TRUE ' . var_export($true, true));
 		}
 		foreach ($falsy as $false) {
-			$this->assert(!$false, gettype($false) . ' is not FALSE ' . var_export($false, true));
+			$this->assertTrue(!$false, gettype($false) . ' is not FALSE ' . var_export($false, true));
 		}
 	}
 
@@ -29,13 +29,13 @@ class PHP_Test extends UnitTest {
 		$b->val = 'b';
 
 		$c = $a || $b;
-		$this->assert_equal($c, true);
+		$this->assertEquals($c, true);
 
 		$c = $a || [];
-		$this->assert_equal($c, true);
+		$this->assertEquals($c, true);
 
 		$c = false || [];
-		$this->assert_equal($c, false);
+		$this->assertEquals($c, false);
 	}
 
 	public function test_ini_path(): void {
@@ -63,7 +63,7 @@ class PHP_Test extends UnitTest {
 	 * @dataProvider data_provider_render
 	 */
 	public function test_render($test, $expected): void {
-		$this->assert_equal(PHP::singleton()->settings_one()->render($test), $expected);
+		$this->assertEquals(PHP::singleton()->settings_one()->render($test), $expected);
 	}
 
 	public function data_setFeature(): array {
@@ -100,7 +100,7 @@ class PHP_Test extends UnitTest {
 		unset($otherarray['test']);
 		// Nothing, unset applies only to the key in the array
 
-		$this->assert_arrays_equal($bigthing, [
+		$this->assertEquals($bigthing, [
 			'a' => ['kind' => 'letter', 'code' => 65, ], 'b' => ['kind' => 'letter', 'code' => 66, ],
 			'9' => ['kind' => 'number', 'code' => ord('9'), ],
 		]);

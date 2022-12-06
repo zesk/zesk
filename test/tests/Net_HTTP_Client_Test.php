@@ -25,13 +25,13 @@ class Net_HTTP_Client_Test extends UnitTest {
 		$value = __CLASS__;
 		$x->user_agent($value);
 
-		$this->assert_equal($x->user_agent(), $value);
+		$this->assertEquals($x->user_agent(), $value);
 
-		$this->assert($x->method_post() === false);
+		$this->assertFalse($x->method_post());
 
 		$x->method(Net_HTTP::METHOD_POST);
 
-		$this->assert($x->method_post() === true);
+		$this->assertTrue($x->method_post());
 
 		$x->url();
 
@@ -64,24 +64,23 @@ class Net_HTTP_Client_Test extends UnitTest {
 
 		$result = Net_HTTP_Client::simpleGet($url);
 		$this->assertIsString($result);
-		$this->assert(str_contains($result, 'Market Acumen'), $result);
+		$this->assertTrue(str_contains($result, 'Market Acumen'), $result);
 	}
 
 	public function test_url_content_length(): void {
 		$url = self::TEST_URL . 'images/marketacumen-logo.png';
 		$n = Net_HTTP_Client::url_content_length($this->application, $url);
-		$this->assert($n > 0);
+		$this->assertGreaterThan(0, $n);
 	}
 
 	public function test_url_headers(): void {
 		$url = self::TEST_URL;
 		$headers = Net_HTTP_Client::url_headers($this->application, $url);
-		$this->assert(begins($headers['Content-Type'], 'text/html'));
+		$this->assertStringStartsWith('text/html', $headers['Content-Type']);
 	}
 
 	public function test_default_userAgent(): void {
 		$client = new Net_HTTP_Client($this->application);
-		$this->assert(str_starts_with($client->default_userAgent(), 'zesk'));
-		echo basename(__FILE__) . ": success\n";
+		$this->assertStringStartsWith('zesk', $client->default_userAgent());
 	}
 }

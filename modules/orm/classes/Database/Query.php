@@ -207,8 +207,8 @@ class Database_Query {
 	 * @param array $options
 	 * @return ?Model
 	 */
-	public function member_model_factory(string $member, string $class, mixed $mixed = null, array $options = []): ?Model {
-		return $this->factory->member_model_factory($member, $class, $mixed, $options);
+	public function memberModelFactory(string $member, string $class, mixed $mixed = null, array $options = []): ?Model {
+		return $this->factory->memberModelFactory($member, $class, $mixed, $options);
 	}
 
 	/**

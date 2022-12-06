@@ -127,12 +127,12 @@ class Lists_Test extends UnitTest {
 		$llist = null;
 		$item = null;
 		$sep = ';';
-		$this->assert_true(Lists::contains('a;b;c;d;ee;ff', 'a'));
-		$this->assert_true(Lists::contains('a;b;c;d;ee;ff', 'b'));
-		$this->assert_true(Lists::contains('a;b;c;d;ee;ff', 'c'));
-		$this->assert_true(Lists::contains('a;b;c;d;ee;ff', 'd'));
-		$this->assert_true(Lists::contains('a;b;c;d;ee;ff', 'ee'));
-		$this->assert_true(Lists::contains('a;b;c;d;ee;ff', 'ff'));
+		$this->assertTrue(Lists::contains('a;b;c;d;ee;ff', 'a'));
+		$this->assertTrue(Lists::contains('a;b;c;d;ee;ff', 'b'));
+		$this->assertTrue(Lists::contains('a;b;c;d;ee;ff', 'c'));
+		$this->assertTrue(Lists::contains('a;b;c;d;ee;ff', 'd'));
+		$this->assertTrue(Lists::contains('a;b;c;d;ee;ff', 'ee'));
+		$this->assertTrue(Lists::contains('a;b;c;d;ee;ff', 'ff'));
 	}
 
 	public function test_pop(): void {

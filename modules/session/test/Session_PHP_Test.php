@@ -47,13 +47,13 @@ class Session_PHP_Test extends UnitTest {
 
 	public function session_tests(Interface_Session $session): void {
 		$id = $session->id();
-		$this->assert_is_string($id, 'Session ID is string');
+		$this->assertIsString($id, 'Session ID is string');
 
 		$request = new Request($this->application);
 		$request->initializeFromSettings([
 			'url' => 'http://localhost/',
 		]);
-		$this->assert_false($session->authenticated(), 'Session authenticated');
+		$this->assertFalse($session->authenticated(), 'Session authenticated');
 	}
 
 	/**
@@ -63,7 +63,7 @@ class Session_PHP_Test extends UnitTest {
 	 * @dataProvider data_basic_session
 	 */
 	public function test_user_id_throws(Interface_Session $session): void {
-		$this->assert_null($session->userId(), 'Session user ID did not throw');
+		$this->assertNull($session->userId(), 'Session user ID did not throw');
 	}
 
 	/**
@@ -73,6 +73,6 @@ class Session_PHP_Test extends UnitTest {
 	 * @dataProvider data_basic_session
 	 */
 	public function test_user_throws(Interface_Session $session): void {
-		$this->assert_null($session->user(), 'Session user did not throw');
+		$this->assertNull($session->user(), 'Session user did not throw');
 	}
 }

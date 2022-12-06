@@ -11,7 +11,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Preference_Test extends Test_ORM {
+class Preference_Test extends ORMUnitTest {
 	protected array $load_modules = [
 		'Preference',
 		'MySQL',
@@ -64,9 +64,9 @@ class Preference_Test extends Test_ORM {
 			'type' => Preference_Type::registerName($this->application, 'country'),
 		]);
 		$result = $pref->find();
-		$this->assert_equal($result, $pref);
+		$this->assertEquals($result, $pref);
 		$this->assert_instanceof($result, $preference_class);
-		$this->run_test_an_object($pref);
+		$this->assertORMObject($pref);
 
 		$result = $this->application->ormRegistry($preference_class)->queryDelete()->addWhere('user', 1)->execute();
 		$this->assert_instanceof($result, __NAMESPACE__ . '\\' . 'Database_Query_Delete');
@@ -77,10 +77,10 @@ class Preference_Test extends Test_ORM {
 
 		$name = 'test';
 		$default = 'Monkey';
-		$this->assert_equal(Preference::user_get($user, $name, $default), $default);
+		$this->assertEquals(Preference::user_get($user, $name, $default), $default);
 
 		Preference::userSet($user, [$name => 'Ape']);
-		$this->assert_equal(Preference::user_get($user, $name, $default), 'Ape');
+		$this->assertEquals(Preference::user_get($user, $name, $default), 'Ape');
 	}
 
 	/**

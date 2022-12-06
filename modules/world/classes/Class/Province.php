@@ -24,6 +24,6 @@ class Class_Province extends Class_ORM {
 	];
 
 	public array $has_one = [
-		'country' => 'zesk\\Country',
+		'country' => Country::class,
 	];
 }

@@ -15,7 +15,7 @@ namespace zesk\Git;
 class Module extends \zesk\Module_Repository {
 	public function initialize(): void {
 		parent::initialize();
-		$this->register_repository(Repository::class, [
+		$this->registerRepository(Repository::class, [
 			'git',
 		]);
 	}

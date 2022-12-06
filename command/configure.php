@@ -157,23 +157,14 @@ class Command_Configure extends Command_Base {
 
 		$this->save_configuration_changes();
 
-		$this->debug_log('Variables: {variables}', [
+		$this->debugLog('Variables: {variables}', [
 			'variables' => Text::format_pairs($this->engine->variable_map()),
 		]);
 		if (!$this->configure_user()) {
 			return 99;
 		}
-		$this->verbose_log('Success');
+		$this->verboseLog('Success');
 		return 0;
-	}
-
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Command::prompt_yes_no()
-	 */
-	public function prompt_yes_no(string $message, bool $default = true): bool {
-		return parent::prompt_yes_no($message, $default);
 	}
 
 	/**
@@ -289,7 +280,7 @@ class Command_Configure extends Command_Base {
 	private function load_dirs(bool $output = false): array {
 		$locale = $this->application->locale;
 
-		$this->verbose_log('Loading {environment_files}', [
+		$this->verboseLog('Loading {environment_files}', [
 			'environment_files' => $this->environment_files,
 		]);
 		$env = [];
@@ -329,16 +320,16 @@ class Command_Configure extends Command_Base {
 		$__ = [
 			'alias_file' => $this->alias_file,
 		];
-		$this->verbose_log('Alias file is {alias_file}', $__);
+		$this->verboseLog('Alias file is {alias_file}', $__);
 		$uname = $this->engine->variable_map('uname');
 		if (!is_file($this->alias_file)) {
 			self::file_put_contents_inherit($this->alias_file, "$uname=[]");
-			$this->verbose_log('Created empty {alias_file}', $__);
+			$this->verboseLog('Created empty {alias_file}', $__);
 		}
 		$aliases = [];
 		while (!is_array($host_configs = avalue($aliases = $this->load_conf($this->alias_file), strtolower($uname))) || count(array_diff($host_configs, $this->possible_host_configurations)) !== 0) {
 			$configs = $this->determine_host_configurations();
-			if ($this->prompt_yes_no($locale->__("Save changes to {alias_file} for $uname:{uname}? ", $__ + $this->engine->variable_map()))) {
+			if ($this->promptYesNo($locale->__("Save changes to {alias_file} for $uname:{uname}? ", $__ + $this->engine->variable_map()))) {
 				$this->save_conf($this->alias_file, [
 					$uname => $configs,
 				]);
@@ -384,7 +375,7 @@ class Command_Configure extends Command_Base {
 				'config' => $this->config,
 			];
 			$locale = $this->application->locale;
-			if ($this->prompt_yes_no($locale->__('Save changes to {config}? ', $__))) {
+			if ($this->promptYesNo($locale->__('Save changes to {config}? ', $__))) {
 				$this->save_conf($this->config, ArrayTools::prefixKeys($this->options_include('environment_file;host_setting_name'), __CLASS__ . '::'));
 				$this->log('Wrote {config}', $__);
 			}
@@ -404,14 +395,14 @@ class Command_Configure extends Command_Base {
 		foreach ($this->host_configurations as $host) {
 			$paths[] = path($this->host_path, $host);
 		}
-		$this->verbose_log($locale->__("Configuration paths:\n\t{paths}", [
+		$this->verboseLog($locale->__("Configuration paths:\n\t{paths}", [
 			'paths' => implode("\n\t", $paths),
 		]));
 		$this->engine->host_paths($paths);
 
 		$pattern = $this->option('user_configuration_file', 'users/{user}/configure');
 		$suffix = $this->engine->map($pattern);
-		$files = File::find_all($paths, $suffix);
+		$files = File::findAll($paths, $suffix);
 		$this->log($locale->__("Configuration files:\n\t{files}", [
 			'files' => implode("\n\t", $files),
 		]));
@@ -422,7 +413,7 @@ class Command_Configure extends Command_Base {
 				'self_path' => dirname($file),
 				'self' => $file,
 			]);
-			$this->verbose_log('Processing file {file}', compact('file'));
+			$this->verboseLog('Processing file {file}', compact('file'));
 			$contents = File::contents($file);
 			$contents = Text::remove_line_comments($contents, '#', false);
 			$lines = ArrayTools::listTrimClean(explode("\n", $contents));

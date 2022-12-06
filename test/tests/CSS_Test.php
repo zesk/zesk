@@ -37,7 +37,7 @@ class CSS_Test extends UnitTest {
 				intval($g),
 				intval($b),
 			];
-			$this->assert_arrays_equal($aresult, $check_result, "Color check: $text => $result");
+			$this->assertEquals($aresult, $check_result, "Color check: $text => $result");
 		}
 	}
 

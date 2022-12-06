@@ -36,7 +36,7 @@ class Module extends \zesk\Module_Repository {
 			]);
 		}
 		parent::initialize();
-		$this->register_repository(Repository::class, [
+		$this->registerRepository(Repository::class, [
 			self::TYPE,
 			'subversion',
 		]);
@@ -68,7 +68,7 @@ class Module extends \zesk\Module_Repository {
 					$engine->error($locale->__('Unable to create {target}', $__));
 					return false;
 				}
-				$engine->verbose_log('Created {target}', $__);
+				$engine->verboseLog('Created {target}', $__);
 			}
 			$repo = Repository::factory($this->application, self::TYPE, $target);
 			$repo->url($url);
@@ -76,7 +76,7 @@ class Module extends \zesk\Module_Repository {
 				$engine->log('Repository at {target} has uncommitted changes', $__);
 				$engine->log(array_keys($repo->status()));
 			}
-			if (!$repo->need_update()) {
+			if (!$repo->needUpdate()) {
 				return null;
 			}
 			if (!$engine->prompt_yes_no($locale->__('Update subversion {target} from {url}', $__))) {

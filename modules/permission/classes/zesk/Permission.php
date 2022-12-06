@@ -121,7 +121,7 @@ class Permission extends ORM {
 			return null;
 		}
 		foreach ($before_hook as $hook => $argument) {
-			$result = $this->call_hook_arguments($hook, [
+			$result = $this->callHookArguments($hook, [
 				$user,
 				$argument,
 			], null);
@@ -139,7 +139,7 @@ class Permission extends ORM {
 	 * For each object, calls
 	 *
 	 * <code>
-	 * $object->call_hook($this->hook, User $user, Permission $permission, array $options, )
+	 * $object->callHook($this->hook, User $user, Permission $permission, array $options, )
 	 * </code>
 	 *
 	 * And expects a boolean response. If your call can not decide the permission, then return null
@@ -178,7 +178,7 @@ class Permission extends ORM {
 				}
 				return $result;
 			}
-			$result = $context->call_hook_arguments($hook, [
+			$result = $context->callHookArguments($hook, [
 				$user,
 				$this,
 				$options,

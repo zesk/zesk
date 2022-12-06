@@ -25,7 +25,7 @@ class Command_Locale_Export extends Command_Base {
 	];
 
 	protected function run() {
-		$source_language_file = $this->option('language-file', $this->application->configuration->path_get('zesk\\Module_PolyGlot::source_file'));
+		$source_language_file = $this->option('language-file', $this->application->configuration->getPath('zesk\\Module_PolyGlot::source_file'));
 		if (!$source_language_file) {
 			$this->usage('Need a source --language-file to determine source strings');
 		}
@@ -34,7 +34,7 @@ class Command_Locale_Export extends Command_Base {
 			$this->usage('Need a file --destination {destination}');
 		}
 		$exclusions = $this->optionBool('no-exclude') ? [] : $this->load_exclusions();
-		$source_locale = $this->application->load($source_language_file) + Reader::factory($this->application->locale_path(), 'en_US')->execute();
+		$source_locale = $this->application->load($source_language_file) + Reader::factory($this->application->localePath(), 'en_US')->execute();
 		$csv = new CSV_Writer();
 		$csv->file($destination);
 		$csv->set_headers([
@@ -73,7 +73,7 @@ class Command_Locale_Export extends Command_Base {
 			->what([
 				$column => $column,
 			])
-			->to_array($column, $column);
+			->toArray($column, $column);
 		return $exclusions;
 	}
 }

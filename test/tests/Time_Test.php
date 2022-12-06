@@ -24,7 +24,7 @@ class Time_Test extends UnitTest {
 	public function test_parse_fail(): void {
 		$x = new Time();
 
-		$this->expectException(Exception_Range::class);
+		$this->expectException(\OutOfBoundsException::class);
 		$x->parse('23:61:19');
 	}
 
@@ -55,7 +55,7 @@ class Time_Test extends UnitTest {
 		$ss = 0;
 		$x->hms($hh, $mm, $ss);
 
-		$this->assert($x->seconds() === 0);
+		$this->assertEquals(0, $x->seconds());
 		$value = 1;
 		$x->hour($value);
 
@@ -80,7 +80,7 @@ class Time_Test extends UnitTest {
 		$value = new Time();
 		$x->compare($value);
 
-		$this->assert($value->compare($value) === 0);
+		$this->assertEquals(0, $value->compare($value));
 		$value = new Time();
 		$x->subtract($value);
 

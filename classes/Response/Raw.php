@@ -1,6 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk\Response;
 
+use zesk\Exception_Semantics;
 use zesk\Response;
 use zesk\File;
 use zesk\MIME;
@@ -53,49 +56,58 @@ class Raw extends Type {
 
 	/**
 	 *
+	 * @param string $file
+	 * @return Response
+	 * @throws Exception_File_NotFound
 	 */
-	public function file($file = null) {
-		if ($file === null) {
-			return $this->file;
-		}
+	public function setFile(string $file): Response {
 		if (!file_exists($file)) {
 			throw new Exception_File_NotFound($file);
 		}
-		$this->parent->output_handler(Response::CONTENT_TYPE_RAW);
-		$this->parent->content_type(MIME::from_filename($file));
+		$this->parent->setOutputHandler(Response::CONTENT_TYPE_RAW);
+		$this->parent->setContentType(MIME::from_filename($file));
 		$this->file = $file;
 		return $this->parent;
+	}
+
+	/**
+	 * @throws Exception_Semantics
+	 */
+	public function file(): string {
+		if (empty($this->file)) {
+			throw new Exception_Semantics('file not set');
+		}
+		return $this->file;
 	}
 
 	/**
 	 * Download a file
 	 *
 	 * @param string $file
-	 *        	Full path to file to download
+	 *            Full path to file to download
 	 * @param string $name
-	 *        	File name given to browser to save the file
+	 *            File name given to browser to save the file
 	 * @param string $type
-	 *        	Content disposition type (attachment)
-	 * @return \zesk\Response
+	 *            Content disposition type (attachment)
+	 * @return Response
+	 * @throws Exception_File_NotFound
 	 */
-	final public function download($file, $name = null, $type = null) {
-		if ($name === null) {
+	final public function download(string $file, string $name = '', string $type = '') {
+		if (!$name) {
 			$name = basename($file);
 		}
 		$name = File::name_clean($name);
-		if ($type === null) {
+		if (!$type) {
 			$type = 'attachment';
 		}
-		$this->file($file);
-		return $this->parent->header('Content-Disposition', "$type; filename=\"$name\"")->nocache();
+		return $this->setFile($file)->setHeader('Content-Disposition', "$type; filename=\"$name\"")->nocache();
 	}
 
 	/**
 	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Response\Type::to_json()
+	 * @return array
 	 */
-	public function to_json() {
+	public function toJSON(): array {
 		return [
 			'content' => $this->binary,
 		];

@@ -149,10 +149,10 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
 	public function hook_routes(Router $router): void {
-		$router->add_route(trim($this->option('route_prefix', 'webapp'), '/') . '(/{option action})*', [
+		$router->addRoute(trim($this->option('route_prefix', 'webapp'), '/') . '(/{option action})*', [
 			'controller' => Controller::class,
 		]);
-		$router->add_route('.webapp(/{option action})*', [
+		$router->addRoute('.webapp(/{option action})*', [
 			'controller' => Controller::class,
 		]);
 	}
@@ -381,7 +381,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		Directory::depend($dir, 0o775);
 		if ($value !== null) {
 			File::put($full, JSON::encode($value));
-			$this->call_hook('control_file', $full);
+			$this->callHook('control_file', $full);
 			return $this;
 		}
 		if ($value === false) {
@@ -605,8 +605,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 				$module->response_authentication_failed($controller->response(), $message);
 			}
 		};
-		$router->add_route("/webapp/$message", $options);
-		$router->add_route(".webapp/$message", $options);
+		$router->addRoute("/webapp/$message", $options);
+		$router->addRoute(".webapp/$message", $options);
 		return $this;
 	}
 }

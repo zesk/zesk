@@ -110,8 +110,8 @@ class File implements Handler {
 		$this->prefix = avalue($options, 'prefix', '');
 		$this->suffix = avalue($options, 'suffix', '');
 		$this->middle = avalue($options, 'middle', '');
-		$this->include_patterns = to_array(avalue($options, 'include_patterns', null));
-		$this->exclude_patterns = to_array(avalue($options, 'exclude_patterns', null));
+		$this->include_patterns = toArray(avalue($options, 'include_patterns', null));
+		$this->exclude_patterns = toArray(avalue($options, 'exclude_patterns', null));
 		if (count($this->include_patterns) === 0) {
 			$this->include_patterns = null;
 		}

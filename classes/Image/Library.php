@@ -30,18 +30,20 @@ abstract class Image_Library {
 	 *
 	 * @return boolean
 	 */
-	abstract public function installed();
+	abstract public function installed(): bool;
 
 	/**
 	 * Create one of the available image libraries to manipulate images
 	 *
-	 * @return NULL|Image_Library
+	 * @return Image_Library
+	 * @throws Exception_Configuration
 	 */
-	public static function factory(Application $application) {
-		foreach ([
+	public static function factory(Application $application): Image_Library {
+		$libraries= [
 			'GD',
 			'imagick',
-		] as $type) {
+		];
+		foreach ($libraries as $type) {
 			try {
 				$class = __CLASS__ . '_' . $type;
 				$singleton = $application->factory($class, $application);
@@ -52,13 +54,13 @@ abstract class Image_Library {
 			} catch (\Exception $e) {
 				$application->logger->error('{class} creation resulted in {e.class}: {e.message}', [
 					'class' => $class,
-				] + ArrayTools::prefixKeys(Exception::exception_variables($e), 'e.'));
+				] + ArrayTools::prefixKeys(Exception::exceptionVariables($e), 'e.'));
 				$application->hooks->call('exception', $e);
 				continue;
 			}
 		}
 
-		return null;
+		throw new Exception_Configuration(__CLASS__, 'Need one of {libraries} installed', ['libraries' => $libraries]);
 	}
 
 	/**
@@ -75,7 +77,7 @@ abstract class Image_Library {
 	 * @param array $options
 	 * @return boolean
 	 */
-	abstract public function image_scale($source, $dest, array $options);
+	abstract public function imageScale(string $source, string $dest, array $options): bool;
 
 	/**
 	 * Scale an image in memory
@@ -84,7 +86,7 @@ abstract class Image_Library {
 	 * @param array $options Settings
 	 * @return string
 	 */
-	abstract public function image_scale_data($data, array $options);
+	abstract public function imageScaleData(string $data, array $options): string;
 
 	/**
 	 * Rotate
@@ -93,7 +95,8 @@ abstract class Image_Library {
 	 * @param unknown $degrees
 	 * @param array $options
 	 */
-	abstract public function image_rotate($source, $destination, $degrees, array $options = []);
+	abstract public function imageRotate(string $source, string $destination, float $degrees, array $options = []):
+	bool;
 
 	/**
 	 * Scale an image size to be within a rectangle specified
@@ -102,9 +105,9 @@ abstract class Image_Library {
 	 * @param int $image_height
 	 * @param int $width
 	 * @param int $height
-	 * @return multitype:unknown |multitype:number unknown
+	 * @return array
 	 */
-	public static function constrain_dimensions($image_width, $image_height, $width, $height) {
+	public static function constrainDimensions(int $image_width, int $image_height, int $width, int $height): array {
 		if ($image_width < $width && $image_height < $height) {
 			return [
 				$image_width,

@@ -18,30 +18,37 @@ class Exception_FileSystem extends Exception {
 	 *
 	 * @var string
 	 */
-	protected $filename;
+	protected string $filename;
 
 	/**
 	 *
 	 * @param string $filename
-	 * @param string $message
+	 * @param $message
 	 * @param array $arguments
-	 * @param number $code
+	 * @param int $code
+	 * @param \Throwable|null $previous
 	 */
-	public function __construct($filename = null, $message = '', array $arguments = [], $code = 0) {
+	public function __construct(
+		string $filename = '',
+		$message = '',
+		array $arguments = [],
+		int $code = 0,
+		\Throwable $previous = null
+	) {
 		$this->filename = $filename;
 		if (!str_contains($message, '{filename}')) {
 			$message = "{filename}: $message";
 		}
 		parent::__construct($message, [
 			'filename' => $filename,
-		] + $arguments, $code);
+		] + $arguments, $code, $previous);
 	}
 
 	/**
 	 *
 	 * @return string
 	 */
-	public function filename() {
+	public function filename(): string {
 		return $this->filename;
 	}
 
@@ -49,7 +56,7 @@ class Exception_FileSystem extends Exception {
 	 *
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString(): string {
 		return 'filename: ' . $this->filename . "\n" . parent::__toString();
 	}
 }

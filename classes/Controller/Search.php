@@ -26,7 +26,7 @@ class Controller_Search extends Controller_Theme {
 			try {
 				if (class_exists($class)) {
 					$object = $this->widgetFactory($class);
-					$method = 'controller_search';
+					$method = 'controllerSearch';
 					if (method_exists($object, $method)) {
 						$result = call_user_func([
 							$object,

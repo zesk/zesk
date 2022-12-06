@@ -157,63 +157,63 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		];
 		if (function_exists('phpinfo')) {
 			// Some installations disable this function for security
-			$router->add_route('developer/phpinfo', [
+			$router->addRoute('developer/phpinfo', [
 				'method' => 'phpinfo',
 				'buffer' => true,
 			] + $extras);
 		} else {
-			$router->add_route('developer/phpinfo', [
+			$router->addRoute('developer/phpinfo', [
 				'content' => 'phpinfo function is disabled (usually for security)',
 			]);
 		}
-		$router->add_route('developer/opcache_get_configuration', [
+		$router->addRoute('developer/opcache_get_configuration', [
 			'method' => 'opcache_get_configuration',
 			'json' => true,
 		]);
-		$router->add_route('developer/opcache_get_status', [
+		$router->addRoute('developer/opcache_get_status', [
 			'method' => 'opcache_get_status',
 			'arguments' => [
 				false,
 			],
 			'json' => true,
 		]);
-		$router->add_route('developer/debug', [
+		$router->addRoute('developer/debug', [
 			'theme' => 'system/debug',
 		] + $extras);
-		$router->add_route('developer/forbidden', [
+		$router->addRoute('developer/forbidden', [
 			'theme' => 'developer/forbidden',
 		] + $extras);
-		$router->add_route('system-status', [
+		$router->addRoute('system-status', [
 			'theme' => 'system/status',
 		] + $extras);
-		$router->add_route('developer/routes', [
+		$router->addRoute('developer/routes', [
 			'theme' => 'system/routes',
 		] + $extras);
-		$router->add_route('developer/modules', [
+		$router->addRoute('developer/modules', [
 			'theme' => 'system/modules',
 		] + $extras);
-		$router->add_route('developer/ip', [
+		$router->addRoute('developer/ip', [
 			'method' => [
 				$this,
 				'developer_ip',
 			],
 			'json' => true,
 		] + $extras);
-		$router->add_route('development/includes', [
+		$router->addRoute('development/includes', [
 			'method' => [
 				$this,
 				'development_includes',
 			],
 			'json' => true,
 		] + $extras);
-		$router->add_route('developer/development', [
+		$router->addRoute('developer/development', [
 			'method' => [
 				$this->application,
 				'development',
 			],
 			'json' => true,
 		] + $extras);
-		$router->add_route('developer/session', [
+		$router->addRoute('developer/session', [
 			'method' => [
 				$this,
 				'dump_session',
@@ -223,14 +223,14 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 				'{response}',
 			] + $extras,
 		]);
-		$router->add_route('developer/router', [
+		$router->addRoute('developer/router', [
 			'method' => [
 				$this,
 				'dump_router',
 			],
 			'arguments' => '{router}',
 		] + $extras);
-		$router->add_route('developer/schema(/*)', [
+		$router->addRoute('developer/schema(/*)', [
 			'method' => [
 				$this,
 				'schema',

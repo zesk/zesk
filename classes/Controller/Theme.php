@@ -24,7 +24,7 @@ abstract class Controller_Theme extends Controller {
 	 *
 	 * @var string
 	 */
-	protected $theme = null;
+	protected string $theme = '';
 
 	/**
 	 *
@@ -36,14 +36,14 @@ abstract class Controller_Theme extends Controller {
 	 *
 	 * @var boolean
 	 */
-	private $auto_render = true;
+	private bool $auto_render = true;
 
 	/**
 	 * zesk\Template variables to pass
 	 *
 	 * @var array
 	 */
-	protected $variables = [];
+	protected array $variables = [];
 
 	/**
 	 * Create a new Controller_Template
@@ -58,44 +58,48 @@ abstract class Controller_Theme extends Controller {
 				'class' => get_class($this),
 			]);
 		}
-		if ($this->theme === null) {
-			$this->theme = $this->option('theme', self::DEFAULT_THEME);
+		if ($this->theme === '') {
+			$this->theme = strval($this->option('theme', self::DEFAULT_THEME));
 		}
 		$this->auto_render = $this->optionBool('auto_render', $this->auto_render);
 	}
 
 	/**
+	 * Set auto render value
+	 *
+	 * @return self
+	 */
+	public function setAutoRender(bool $set): self {
+		$this->auto_render = $set;
+		return $this;
+	}
+
+	/**
 	 * Get/set auto render value
 	 *
-	 * @param string $set
-	 * @return Controller_Template|Ambigous <boolean, string, mixed>
+	 * @return bool
 	 */
-	public function auto_render($set = null) {
-		if (is_bool($set)) {
-			if ($set === false && $this->theme) {
-				$this->theme = null;
-			}
-			$this->auto_render = $set;
-			return $this;
-		}
+	public function autoRender(): bool {
 		return $this->auto_render;
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Controller::json()
+	 *
+	 * @param mixed|null $mixed
+	 * @return $this
 	 */
-	public function json($mixed = null) {
-		$this->auto_render(false);
+	public function json(mixed $mixed = null): self {
+		$this->setAutoRender(false);
 		return parent::json($mixed);
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Controller::error()
+	 * @param int $code
+	 * @param string $message
+	 * @return Controller_Theme
 	 */
-	public function error($code, $message = null) {
-		$this->auto_render(false);
+	public function error(int $code, string $message = ''): self {
+		$this->autoRender(false);
 		return parent::error($code, $message);
 	}
 
@@ -107,7 +111,7 @@ abstract class Controller_Theme extends Controller {
 		if ($this->auto_render && $this->theme) {
 			$this->application->logger->error('Exception in controller {this-class} {class}: {message}', [
 				'this-class' => get_class($this),
-			] + Exception::exception_variables($e));
+			] + Exception::exceptionVariables($e));
 		}
 	}
 
@@ -117,7 +121,7 @@ abstract class Controller_Theme extends Controller {
 	 */
 	public function after(string $result = null, string $output = null): void {
 		if ($this->auto_render) {
-			if (!$this->response->is_html()) {
+			if (!$this->response->isHTML()) {
 				return;
 			}
 			$content = null;
@@ -129,7 +133,7 @@ abstract class Controller_Theme extends Controller {
 			if ($this->request->preferJSON()) {
 				$this->json([
 					'content' => $content,
-				] + $this->response->to_json());
+				] + $this->response->toJSON());
 			} else {
 				$this->response->content = $this->theme ? $this->theme($this->theme, [
 					'content' => $content,
@@ -158,10 +162,10 @@ abstract class Controller_Theme extends Controller {
 	protected function control(Control $control, Model $object = null, array $options = []) {
 		$control->response($this->response);
 		$content = $control->execute($object);
-		$this->call_hook(avalue($options, 'hook_execute', 'control_execute'), $control, $object, $options);
+		$this->callHook(avalue($options, 'hook_execute', 'control_execute'), $control, $object, $options);
 		$title = $control->option('title', avalue($options, 'title'));
 		if ($title) {
-			$this->response->title($title, false); // Do not overwrite existing values
+			$this->response->setTitle($title, false); // Do not overwrite existing values
 		}
 		$this->response->response_data([
 			'status' => $status = $control->status(),

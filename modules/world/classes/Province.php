@@ -6,5 +6,8 @@
  */
 namespace zesk;
 
+/**
+ * @see Class_Province
+ */
 class Province extends ORM {
 }

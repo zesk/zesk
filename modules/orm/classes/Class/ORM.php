@@ -1215,7 +1215,7 @@ class Class_ORM extends Hookable {
 		}
 		$logger = $this_object->application->logger;
 		$this_alias = $alias;
-		if ($this_object->has_primary_keys()) {
+		if ($this_object->hasPrimaryKeys()) {
 			if (ORM::$debug) {
 				$logger->debug($this_object::class . ' is NOT new');
 			}
@@ -1820,7 +1820,6 @@ class Class_ORM extends Hookable {
 	 * @throws Exception_Convert
 	 * @throws Exception_Parameter
 	 * @throws Exception_Parse
-	 * @throws Exception_Range
 	 * @throws Exception_Semantics
 	 */
 	private function memberFromDatabase(ORM $object, string $column, string $type, array &$data): void {
@@ -1859,7 +1858,7 @@ class Class_ORM extends Hookable {
 				break;
 			case self::type_id:
 			case self::type_integer:
-				$data[$column] = to_integer($v);
+				$data[$column] = toInteger($v);
 
 				break;
 			case self::type_boolean:
@@ -1910,7 +1909,7 @@ class Class_ORM extends Hookable {
 				break;
 			case self::type_polymorph:
 				if ($v) {
-					if ($this->polymorphic === null) {
+					if (empty($this->polymorphic)) {
 						$this->application->logger->error('{class} has polymorph member {column} but is not polymorphic', [
 							'class' => get_class($this),
 							'column' => $column,
@@ -1947,7 +1946,6 @@ class Class_ORM extends Hookable {
 	 * @throws Exception_Convert
 	 * @throws Exception_Parameter
 	 * @throws Exception_Parse
-	 * @throws Exception_Range
 	 * @throws Exception_Semantics
 	 */
 	private function memberFromArray(ORM $object, string $column, string $type, array &$data): void {

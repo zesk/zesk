@@ -91,7 +91,7 @@ class PolyGlot_Token extends ORM {
 			}
 		}
 		if ($this->memberIsEmpty('context')) {
-			$this->context = $this->call_hook('context_default');
+			$this->context = $this->callHook('context_default');
 		}
 		if ($this->memberIsEmpty('status')) {
 			$this->status = self::status_todo;

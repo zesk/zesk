@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  *
@@ -8,6 +9,7 @@
  * @author $Author: kent $
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -16,11 +18,11 @@ namespace zesk;
  *
  */
 class Server_Configuration_Files extends Server_Configuration {
-	protected $host_path = null;
+	protected string $host_path = '';
 
-	protected $host_aliases = [];
+	protected array $host_aliases = [];
 
-	protected $variables = [];
+	protected array $variables = [];
 
 	public function __construct(Server_Platform $platform, $options = null) {
 		parent::__construct($platform, $options);
@@ -33,7 +35,7 @@ class Server_Configuration_Files extends Server_Configuration {
 	private function _configure_host_path(): void {
 		$this->host_path = $this->option('host_path');
 		if ($this->host_path) {
-			$this->verbose_log('host_path is {host_path}', [
+			$this->verboseLog('host_path is {host_path}', [
 				'host_path' => $this->host_path,
 			]);
 			if (!is_dir($this->host_path)) {
@@ -60,8 +62,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		$alias_hostname = avalue($this->host_aliases(), $hostname, $hostname);
 		if ($alias_hostname !== $hostname) {
 			$app->logger->warning('Server_Configuration_Files _load_configuration: {hostname} aliaesed to {alias_hostname}', [
-				'hostname' => $hostname,
-				'alias_hostname' => $alias_hostname,
+				'hostname' => $hostname, 'alias_hostname' => $alias_hostname,
 			]);
 		}
 		$searched_paths = [];
@@ -85,11 +86,10 @@ class Server_Configuration_Files extends Server_Configuration {
 						continue;
 					}
 					$variables = $this->platform->conf_load($conf, [
-						'variables' => $this->options,
-						'overwrite' => true,
+						'variables' => $this->options, 'overwrite' => true,
 					]);
 					$result = $variables + $result;
-					$this->setOption($variables);
+					$this->setOptions($variables);
 					$app->logger->debug("Loading configuration $conf");
 				}
 				$searched_paths[$path] = true;
@@ -97,9 +97,7 @@ class Server_Configuration_Files extends Server_Configuration {
 			$search_path = $this->search_path();
 		}
 		$app->logger->debug('configuration search path {paths}, files {files}, result {result}', [
-			'paths' => implode(',', $search_path),
-			'files' => implode(',', $files),
-			'result' => PHP::dump($result),
+			'paths' => implode(',', $search_path), 'files' => implode(',', $files), 'result' => PHP::dump($result),
 		]);
 	}
 
@@ -123,7 +121,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		$files = [
 			path($feature->configure_path(), 'feature.conf'),
 		];
-		$files = array_merge($files, File::find_all($this->search_path(), path($shortname, 'feature.conf')));
+		$files = array_merge($files, File::findAll($this->search_path(), path($shortname, 'feature.conf')));
 		$settings = [];
 		foreach ($files as $file) {
 			if (is_file($file)) {
@@ -131,13 +129,12 @@ class Server_Configuration_Files extends Server_Configuration {
 			}
 		}
 		$this->application->logger->debug('Configured feature {class} {settings}', [
-			'class' => $feature::class,
-			'settings' => Text::format_pairs($settings),
+			'class' => $feature::class, 'settings' => Text::format_pairs($settings),
 		]);
-		$feature->setOption($settings);
+		$feature->setOptions($settings);
 	}
 
-	final public function host_aliases() {
+	final public function host_aliases(): array {
 		if (is_array($this->host_aliases)) {
 			return $this->host_aliases;
 		}
@@ -164,50 +161,56 @@ class Server_Configuration_Files extends Server_Configuration {
 			$name = trim($name);
 			$alias = trim($alias);
 			if (array_key_exists($name, $this->host_aliases)) {
-				$this->verbose_log("Alias file $alias_file defines $name twice");
+				$this->verboseLog("Alias file $alias_file defines $name twice");
 			}
 			$this->host_aliases[$name] = $alias;
 		}
 		return $this->host_aliases;
 	}
 
-	public function configuration_files($type, $files, $dest, array $options = []) {
-		$search_path = to_list(avalue($options, 'search_path'), [], ' ');
+	/**
+	 * @param string $type
+	 * @param array $files
+	 * @param string $dest
+	 * @param array $options
+	 * @return array
+	 * @throws Exception_Configuration
+	 * @throws Exception_NotFound
+	 */
+	public function configuration_files(string $type, array $files, string $dest, array $options = []): array {
+		$search_path = toList($options['search_path'] ?? [], ' ');
 		if (empty($search_path)) {
 			$search_path = $this->search_path();
 			foreach ($search_path as $i => $path) {
 				$search_path[$i] = path($path, $type);
 			}
 		}
-		$add_search_path = to_list(avalue($options, '+search_path'), [], ' ');
-		if (is_array($add_search_path)) {
-			$search_path = array_merge($search_path, $add_search_path);
-		}
-		if (Directory::find_first($search_path) === null) {
+		$search_path = array_merge($search_path, toList($options['+search_path'] ?? [], ' '));
+		if (Directory::findFirst($search_path) === null) {
 			if (avalue($options, 'require')) {
 				throw new Exception_Configuration($type, 'Requires directory to be located in {search_path_list}', [
-					'search_path' => $search_path,
-					'search_path_list' => implode(', ', $search_path),
+					'search_path' => $search_path, 'search_path_list' => implode(', ', $search_path),
 				]);
 			}
-			$this->verbose_log("configuration_files $type not found ... skipping");
+			$this->verboseLog("configuration_files $type not found ... skipping");
 			return [];
 		}
 		$updates = [];
-		$files = to_list($files);
+		$files = toList($files);
 		foreach ($files as $mixed) {
 			$source_prefix = path($type, $mixed);
-			if (StringTools::ends($source_prefix, '/')) {
-				$source = Directory::find_first($search_path, $source_prefix);
-			} else {
-				$source = File::find_first($search_path, $source_prefix);
-			}
-			if ($source) {
+
+			try {
+				if (StringTools::ends($source_prefix, '/')) {
+					$source = Directory::findFirst($search_path, $source_prefix);
+				} else {
+					$source = File::findFirst($search_path, $source_prefix);
+				}
 				$dest = path($dest, $source_prefix);
 				$updates[] = [
-					$source,
-					$dest,
+					$source, $dest,
 				];
+			} catch (Exception_NotFound) {
 			}
 		}
 		return $updates;

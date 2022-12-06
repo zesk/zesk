@@ -469,13 +469,14 @@ class StringTools {
 	 *
 	 * @return boolean
 	 */
-	public static function filter($string, array $rules, $default = null) {
+	public static function filter(string $string, array $rules, bool $default = false): bool {
 		foreach ($rules as $pattern => $result) {
 			$result = toBool($result);
-			if (is_numeric($pattern)) {
-				return $result;
-			}
-			if (is_string($pattern) && preg_match($pattern, $string)) {
+			if (is_string($pattern)) {
+				if (preg_match($pattern, $string)) {
+					return $result;
+				}
+			} else {
 				return $result;
 			}
 		}

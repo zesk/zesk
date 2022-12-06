@@ -26,17 +26,19 @@ class TheCommand_Test extends UnitTest {
 
 		$testx = new Command_Base_Test($this->application);
 
-		$this->assert($testx->has_errors() === false, 'Has errors? ' . implode(';', $testx->errors()));
+		$this->assertFalse($testx->hasErrors(), 'Has errors? ' . implode(';', $testx->errors()));
 
 		$file = $testx->option('FILE');
 
-		$this->assert_equal($file, $f, "File option mismatch ($file !== $f) found: " . $testx->__toString());
-		$testx->arguments_remaining();
+		$this->assertEquals($file, $f, "File option mismatch ($file !== $f) found: " . $testx->__toString());
+		$testx->argumentsRemaining();
 
-		$testx->has_errors();
+		$testx->hasErrors();
 		$testx->errors();
 
-		$message = null;
+		$message = 'Help';
+		$testx->error($message);
+		$message = ['Help'];
 		$testx->error($message);
 	}
 }

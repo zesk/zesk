@@ -126,22 +126,22 @@ class Net_HTTP_Client extends Hookable {
 	/**
 	 * Connection timeout in milliseconds
 	 *
-	 * @var integer
+	 * @var int
 	 */
-	private $connect_timeout = 5000;
+	private int $connect_timeout = 5000;
 
-	private $method = Net_HTTP::METHOD_GET;
+	private string $method = Net_HTTP::METHOD_GET;
 
-	private $data = null;
+	private ?string $data = null;
 
-	private $data_file = null;
+	private ?string $data_file = null;
 
 	/**
 	 * Curl retrieval timeout in milliseconds
 	 *
 	 * @var integer
 	 */
-	private $timeout = 5000;
+	private int $timeout = 5000;
 
 	/**
 	 * Whether to recurse when redirected
@@ -301,7 +301,7 @@ class Net_HTTP_Client extends Hookable {
 		if ($set === null) {
 			return $this->destination;
 		}
-		$this->destination = File::validate_writable($set);
+		$this->destination = File::validateWritable($set);
 		return $this;
 	}
 
@@ -1094,9 +1094,9 @@ class Net_HTTP_Client extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function filename() {
+	public function filename(): string {
 		// Content-Disposition: attachment; filename=foo.tar.gz
-		$dispositions = ArrayTools::listTrimClean(explode(';', $this->response_header(Net_HTTP::RESPONSE_CONTENT_DISPOSITION)));
+		$dispositions = ArrayTools::listTrimClean(explode(';', $this->response_header(Net_HTTP::RESPONSE_CONTENT_DISPOSITION, '')));
 		while (($disposition = array_shift($dispositions)) !== null) {
 			[$name, $value] = pair($disposition, '=', null, null);
 			if ($name === 'filename') {

@@ -71,12 +71,12 @@ class Command_Eval extends Command_Base {
 		}
 		$this->handle_base_options();
 		$this->saved_vars = [];
-		while ($this->has_arg()) {
-			$arg = $this->get_arg('eval');
+		while ($this->hasArgument()) {
+			$arg = $this->getArgument('eval');
 			if ($arg === '--') {
 				break;
 			}
-			$this->verbose_log("Evaluating: $arg\n");
+			$this->verboseLog("Evaluating: $arg\n");
 			ob_start();
 			$result = $this->_eval($arg);
 			$this->output_result($result, ob_get_clean());
@@ -216,7 +216,7 @@ class Command_Eval extends Command_Base {
 			extract($this->_before_evaluate(get_defined_vars()), EXTR_SKIP);
 			$__eval = '?' . '><' . "?php\n$__eval;\n";
 			if ($this->optionBool('debug-state')) {
-				$this->verbose_log("RAW PHP EVAL: $__eval");
+				$this->verboseLog("RAW PHP EVAL: $__eval");
 			}
 			$__result = eval($__eval);
 			$this->_after_evaluate(get_defined_vars());

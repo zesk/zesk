@@ -75,7 +75,7 @@ class Type_Zesk extends Type {
 
 		try {
 			$zesk = $this->bin_zesk();
-			$lines = $this->application->process->execute_arguments($zesk . ' --cd {directory} version', [
+			$lines = $this->application->process->executeArguments($zesk . ' --cd {directory} version', [
 				'directory' => $this->path,
 			]);
 			if (count($lines) === 0) {

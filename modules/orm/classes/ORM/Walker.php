@@ -267,21 +267,21 @@ class Walker {
 	 */
 	public function walk(ORM $orm) {
 		if ($this->preprocess_hook) {
-			$orm->class_orm()->call_hook_arguments($this->preprocess_hook, [
+			$orm->class_orm()->callHookArguments($this->preprocess_hook, [
 				$this,
 			], null, null, false);
-			$orm->call_hook_arguments($this->preprocess_hook, [
+			$orm->callHookArguments($this->preprocess_hook, [
 				$this,
 			], null, null, false);
 		}
 		$result = $this->_walk($orm);
 
 		if ($this->postprocess_hook) {
-			$result = $orm->call_hook_arguments($this->postprocess_hook, [
+			$result = $orm->callHookArguments($this->postprocess_hook, [
 				$result,
 				$this,
 			], $result, null, false);
-			$result = $orm->class_orm()->call_hook_arguments($this->postprocess_hook, [
+			$result = $orm->class_orm()->callHookArguments($this->postprocess_hook, [
 				$result,
 				$this,
 			], $result, null, false);

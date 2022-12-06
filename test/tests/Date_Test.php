@@ -37,7 +37,7 @@ class Date_Test extends UnitTest {
 	 * @param int $year
 	 * @param int $expected
 	 * @return void
-	 * @throws Exception_Range
+	 * @throws exceptionVariables
 	 * @dataProvider daysInMonthData
 	 */
 	public function test_daysInMonth(int $month, int $year, int $expected): void {
@@ -98,7 +98,7 @@ class Date_Test extends UnitTest {
 	 * @return void
 	 */
 	public function test_range_fail($y, $m, $d): void {
-		$this->expectException(Exception_Range::class);
+		$this->expectException(\OutOfBoundsException::class);
 		Date::instance($y, $m, $d);
 	}
 
@@ -139,9 +139,9 @@ class Date_Test extends UnitTest {
 		$this->assertInstanceOf(Date::class, $now);
 
 		$x->parse('2008-08-20');
-		$this->assert($x->year() === 2008);
-		$this->assert($x->month() === 8);
-		$this->assert($x->day() === 20);
+		$this->assertEquals(2008, $x->year());
+		$this->assertEquals(8, $x->month());
+		$this->assertEquals(20, $x->day());
 
 		foreach ([
 			'{YYYY}-{MM}-{DD}' => '2008-08-20',

@@ -46,7 +46,7 @@ class Site extends ORM {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\ORM::pre_insert()
+	 * @see \zesk\ORM::prepareInsert()
 	 */
 	public function hook_pre_insert(array $members) {
 		$members['priority'] = $this->last_priority() + 1;
@@ -73,7 +73,7 @@ class Site extends ORM {
 				'target' => $cluster->id(),
 			])
 			->orm_iterator()
-			->to_array() : [];
+			->toArray() : [];
 		$sites = $this->application->ormRegistry(Domain::class)
 			->query_select()
 			->where([
@@ -81,7 +81,7 @@ class Site extends ORM {
 				'target' => $this->id(),
 			])
 			->orm_iterator()
-			->to_array();
+			->toArray();
 
 		return array_merge($clusters, $sites);
 	}

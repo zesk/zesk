@@ -107,7 +107,7 @@ class Module extends Hookable {
 		if (count($this->class_aliases)) {
 			$this->application->objects->setMap($this->class_aliases);
 		}
-		$this->call_hook('construct');
+		$this->callHook('construct');
 		$this->inheritConfiguration();
 	}
 

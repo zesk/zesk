@@ -31,7 +31,7 @@ class CSV_Writer_Test extends UnitTest {
 		} catch (Exception_Semantics $e) {
 			$success = true;
 		}
-		$this->assert($success);
+		$this->assertTrue($success);
 
 		$x->object_names();
 
@@ -46,7 +46,7 @@ class CSV_Writer_Test extends UnitTest {
 		} catch (Exception_Semantics $e) {
 			$success = true;
 		}
-		$this->assert($success);
+		$this->assertTrue($success);
 
 		$success = false;
 
@@ -59,17 +59,17 @@ class CSV_Writer_Test extends UnitTest {
 		} catch (Exception_Key $e) {
 			$success = true;
 		}
-		$this->assert($success);
+		$this->assertTrue($success);
 
 		$set_headers = [
 			'Title',
 			'CodeName',
 			'Something',
 		];
-		$this->assert_equal($x->set_headers($set_headers, false), $x);
+		$this->assertFalse($x->set_headers($set_headers, $x));
 
 		$headers = $x->headers();
-		$this->assert_equal($headers, $set_headers);
+		$this->assertEquals($headers, $set_headers);
 
 		$name = 'omap';
 		$map = [

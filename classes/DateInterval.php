@@ -19,16 +19,28 @@ class DateInterval extends \DateInterval {
 	/**
 	 * Convert a \DateInterval to a zesk\DateInterval
 	 *
+	 * @param string $duration
 	 * @return self
+	 * @throws \Exception
 	 */
-	public static function extend(\DateInterval $interval) {
+	public static function factory(string $duration): self {
+		return new self($duration);
+	}
+
+	/**
+	 * Convert a \DateInterval to a zesk\DateInterval
+	 *
+	 * @return self
+	 * @throws \Exception
+	 */
+	public static function extend(\DateInterval $interval): self {
 		return new self($interval->format(self::INTERVAL_SPEC_FORMAT));
 	}
 
 	/**
-	 * @return double
+	 * @return float
 	 */
-	public function toSeconds() {
+	public function toSeconds(): float {
 		$secs = 0;
 		$secs += $this->y * Temporal::SECONDS_PER_YEAR;
 		$secs += $this->m * Temporal::SECONDS_PER_MONTH;
@@ -45,9 +57,9 @@ class DateInterval extends \DateInterval {
 	 * Update this DateInterval from seconds given
 	 *
 	 * @param double $value
-	 * @return \zesk\DateInterval
+	 * @return DateInterval
 	 */
-	public function fromSeconds($value) {
+	public function fromSeconds(float $value): self {
 		static $units = [
 			's' => Temporal::SECONDS_PER_MINUTE,
 			'i' => Temporal::MINUTES_PER_HOUR,
@@ -79,7 +91,7 @@ class DateInterval extends \DateInterval {
 	 *
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString(): string {
 		return $this->format(self::INTERVAL_SPEC_FORMAT);
 	}
 }

@@ -32,25 +32,24 @@ class Command_Database_Reset extends Command {
 		'dump-directory' => 'Use alternate dump directory. Default is "{default-dump-directory}"',
 	];
 
-	public function __construct($argv = null) {
+	public function initialize(): void {
 		$this->option_help = map($this->option_help, [
-			'default-dump-directory' => $this->default_dump_directory(),
+			'default-dump-directory' => $this->defaultDumpDirectory(),
 		]);
-		parent::__construct($argv);
 	}
 
-	public function default_dump_directory() {
+	public function defaultDumpDirectory(): string {
 		return $this->application->path('sql-dumps/');
 	}
 
-	public function run() {
+	public function run(): int {
 		PHP::requires('pcntl', true);
 
 		$dbname = $this->option('name');
 		$db = $this->application->database_registry($dbname);
 		if (!$db) {
 			$this->error("No such database url for \"$dbname\"\n");
-			return false;
+			return self::EXIT_CODE_ARGUMENTS;
 		}
 		$url = $db->url();
 		$dbname = $db->databaseName();
@@ -59,7 +58,7 @@ class Command_Database_Reset extends Command {
 		$live_db = $this->hasOption('file') ? $this->option('file') : null;
 		$has_dd = $this->hasOption('dump-directory');
 		if (!$live_db) {
-			$dump_dir = $has_dd ? $this->option('dump-directory') : $this->default_dump_directory();
+			$dump_dir = $has_dd ? $this->option('dump-directory') : $this->defaultDumpDirectory();
 			$live_db = Directory::ls($dump_dir, '#^' . $dbname . '.*\.sql\.gz$#', true);
 			if (count($live_db) === 0) {
 				$this->error("No dumps called $dbname found\n");
@@ -75,14 +74,15 @@ class Command_Database_Reset extends Command {
 			$reply = fgets(STDIN, 8);
 			if (toBool(trim($reply)) !== true) {
 				$this->error('Aborting.');
-				return;
+				return self::EXIT_CODE_ENVIRONMENT;
 			}
 		}
 		$db_arg = ($codename !== 'default') ? " --name \"$codename\"" : '';
 		echo "Unpacking live database $live_db ... ";
 		$command = "gunzip -c $live_db | sed \"s/1.79769313486232e+308/'1.79769313486232e+308'/g\" | zesk database-connect$db_arg";
-		$this->verbose_log("Running command: $command");
+		$this->verboseLog("Running command: $command");
 		exec($command);
 		echo " done\n";
+		return self::EXIT_CODE_SUCCESS;
 	}
 }

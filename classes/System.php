@@ -55,7 +55,7 @@ class System {
 	 *
 	 * @return string
 	 */
-	public static function uname() {
+	public static function uname(): string {
 		return php_uname('n');
 	}
 
@@ -137,7 +137,7 @@ class System {
 				$command = $cache->get();
 			} else {
 				$command = $application->process->execute('ifconfig');
-				$application->cache->saveDeferred($cache->expiresAfter($application->configuration->path_get(__METHOD__ . '::expires_after', 60))->set($command));
+				$application->cache->saveDeferred($cache->expiresAfter($application->configuration->getPath(__METHOD__ . '::expires_after', 60))->set($command));
 			}
 			$interface = null;
 			foreach ($command as $line) {

@@ -14,20 +14,20 @@ class Progress_Logger implements Interface_Progress {
 	 *
 	 * @var Logger
 	 */
-	private $logger = null;
+	private Logger $logger;
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $level = null;
+	private string $level;
 
 	/**
 	 *
 	 * @param Logger $logger
 	 * @param string $level
 	 */
-	public function __construct(Logger $logger, $level = 'info') {
+	public function __construct(Logger $logger, string $level = 'info') {
 		$this->logger = $logger;
 		$this->level = $level;
 	}
@@ -39,13 +39,13 @@ class Progress_Logger implements Interface_Progress {
 		]);
 	}
 
-	public function progress_push($name): void {
+	public function progressPush($name): void {
 		$this->logger->log($this->level, 'BEGIN {name} {', [
 			'name' => $name,
 		]);
 	}
 
-	public function progress_pop(): void {
+	public function progressPop(): void {
 		$this->logger->log($this->level, '} END');
 	}
 }

@@ -14,12 +14,12 @@ class DocComment_Test extends UnitTest {
 		$testfile = ZESK_ROOT . 'classes/ArrayTools.php';
 		$content = file_get_contents($testfile);
 		$comments = DocComment::extract($content);
-		$this->assert_is_array($comments);
-		$this->assert(count($comments) > 8, "More than 8 doccomments in $testfile");
+		$this->assertIsArray($comments);
+		$this->assertGreaterThan(8, count($comments), "More than 8 doccomments in $testfile");
 		if (count($comments) > 0) {
 			$text = $comments[0];
 			/* @var $text DocComment */
-			$this->assert_contains($text->content(), '@package zesk');
+			$this->assertStringContainsString('@package zesk', $text->content());
 		}
 	}
 
@@ -54,19 +54,18 @@ class DocComment_Test extends UnitTest {
 		], [
 			DocComment::OPTION_DESC_NO_TAG => true,
 		]);
-		$this->assert_equal($doc->content(), "/**\n * Hello, world\n * \n * @see \zesk\Kernel\n */");
+		$expected = "/**\n * Hello, world\n * \n * @see \zesk\Kernel\n */";
+		$this->assertEquals($expected, $doc->content());
 		$doc->setOption(DocComment::OPTION_DESC_NO_TAG, false);
-		$this->assert_equal($doc->content(), "/**
- * @desc Hello, world
- * @see \zesk\Kernel
- */");
+		$expected = "/**\n * @desc Hello, world\n * @see \zesk\Kernel\n */";
+		$this->assertEquals($doc->content(), $expected);
 	}
 
 	/**
 	 * @dataProvider data_provider_clean
 	 */
 	public function test_clean($test, $expected): void {
-		$this->assert_equal(DocComment::clean($test), $expected);
+		$this->assertEquals(DocComment::clean($test), $expected);
 	}
 
 	/**
@@ -186,11 +185,11 @@ class DocComment_Test extends UnitTest {
 	 * @dataProvider data_provider_parse
 	 */
 	public function test_parse($test, $expected, $unparse_expected): void {
-		$this->assert_equal($parsed = DocComment::instance($test)->variables(), $expected, JSON::encodePretty($test));
-		$this->assert_equal(DocComment::instance($parsed)->content(), $unparse_expected, JSON::encodePretty($parsed));
+		$this->assertEquals($parsed = DocComment::instance($test)->variables(), $expected, JSON::encodePretty($test));
+		$this->assertEquals(DocComment::instance($parsed)->content(), $unparse_expected, JSON::encodePretty($parsed));
 	}
 
-	public function data_provider_unparse() {
+	public function data_provider_content() {
 		return [
 			[
 				[
@@ -206,13 +205,13 @@ class DocComment_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider data_provider_unparse
+	 * @dataProvider data_provider_content
 	 * @param string $test
 	 * @param string $expect
 	 */
-	public function test_unparse($test, $expect): void {
-		$this->assert_is_array($test);
-		$this->assert_is_string($expect);
-		$this->assert_equal(DocComment::instance($test)->content(), $expect);
+	public function test_content($test, $expect): void {
+		$this->assertIsArray($test);
+		$this->assertIsString($expect);
+		$this->assertEquals($expect, DocComment::instance($test)->content());
 	}
 }

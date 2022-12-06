@@ -39,7 +39,7 @@ class Control_Time_Zone extends Control_Select {
 		$query = $this->application->ormRegistry('zesk\\Time_Zone')->query_select()->where($this->where);
 		if ($this->prefixes_only()) {
 			$query->what('*Name', 'DISTINCT LEFT(Name,LOCATE(\'/\',Name)-1)');
-			$tzs = ArrayTools::clean(ArrayTools::suffixKeys($query->to_array('Name', 'Name'), '/'), '');
+			$tzs = ArrayTools::clean(ArrayTools::suffixKeys($query->toArray('Name', 'Name'), '/'), '');
 			$this->control_options($tzs);
 		} else {
 			$query->what('Name', 'Name');
@@ -47,7 +47,7 @@ class Control_Time_Zone extends Control_Select {
 			if (count($exclude) > 0) {
 				$query->addWhere('Name|NOT LIKE|AND', $exclude);
 			}
-			$tzs = $query->to_array('Name', 'Name');
+			$tzs = $query->toArray('Name', 'Name');
 			$parents = [];
 			foreach ($tzs as $tz) {
 				[$region, $name] = pair($tz, '/', 'Miscellaneous', $tz);

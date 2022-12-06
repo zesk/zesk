@@ -57,7 +57,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		if ($application->objects->settings instanceof Interface_Settings) {
 			return $application->objects->settings;
 		}
-		$class = $application->configuration->path_get(__CLASS__ . '::instance_class', __CLASS__);
+		$class = $application->configuration->getPath(__CLASS__ . '::instance_class', __CLASS__);
 		$settings = $application->objects->factory($class, $application);
 		if (!$settings instanceof Interface_Settings) {
 			throw new Exception_Configuration(__CLASS__ . '::instance_class', 'Must be Interface_Settings, class is {class}', [
@@ -93,7 +93,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 */
 	private static function _cache_item(Application $application, CacheItemInterface $item = null) {
 		if ($item) {
-			$expires = $application->configuration->path_get([
+			$expires = $application->configuration->getPath([
 				__CLASS__,
 				'cache_expire_after',
 			], self::SETTINGS_CACHE_EXPIRE_AFTER);
@@ -139,7 +139,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$object = $application->ormRegistry(__CLASS__);
 		$fix_bad_globals = $object->optionBool('fix_bad_globals');
 
-		foreach ($object->query_select()->to_array('name', 'value') as $name => $value) {
+		foreach ($object->query_select()->toArray('name', 'value') as $name => $value) {
 			++$n_loaded;
 			$size_loaded += strlen($value);
 			if (is_string($value)) {
@@ -175,7 +175,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 				'size' => Number::format_bytes($application->locale, $size_loaded),
 			]);
 		}
-		$globals = $application->call_hook_arguments('filter_settings', [
+		$globals = $application->callHookArguments('filter_settings', [
 			$globals,
 		], $globals);
 		return $globals;
@@ -188,7 +188,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$__ = [
 			'method' => __METHOD__,
 		];
-		$debug_load = $application->configuration->path_get([
+		$debug_load = $application->configuration->getPath([
 			__CLASS__,
 			'debug_load',
 		]);
@@ -233,7 +233,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 			$n_loaded = 0;
 			foreach ($globals as $key => $value) {
 				++$n_loaded;
-				$application->configuration->path_set($key, $value);
+				$application->configuration->setPath($key, $value);
 			}
 		} catch (Database_Exception_Table_NotFound $e) {
 			$exception = $e;
@@ -330,7 +330,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 * @return mixed
 	 */
 	public function __get($name): mixed {
-		return $this->application->configuration->path_get($name);
+		return $this->application->configuration->getPath($name);
 	}
 
 	/**
@@ -339,7 +339,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 * @see ORM::get($mixed, $default)
 	 */
 	public function get(string $name, mixed $default = null): mixed {
-		return $this->application->configuration->path_get($name, $default);
+		return $this->application->configuration->getPath($name, $default);
 	}
 
 	/**
@@ -358,12 +358,12 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 * @see ORM::__set($member, $value)
 	 */
 	public function __set(string $key, mixed $value): void {
-		$old_value = $this->application->configuration->path_get($key);
+		$old_value = $this->application->configuration->getPath($key);
 		if ($old_value === $value) {
 			return;
 		}
 		$this->changes[zesk_global_key_normalize($key)] = $value;
-		$this->application->configuration->path_set($key, $value);
+		$this->application->configuration->setPath($key, $value);
 	}
 
 	/**

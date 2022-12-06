@@ -116,7 +116,7 @@ class Parser {
 						$options += $add_options;
 					}
 					foreach ($paths as $path) {
-						$routes[] = $router->add_route($path, $options);
+						$routes[] = $router->addRoute($path, $options);
 					}
 					$options = [];
 					$paths = [
@@ -133,7 +133,7 @@ class Parser {
 			]);
 		} else {
 			foreach ($paths as $path) {
-				$routes[] = $router->add_route($path, $options);
+				$routes[] = $router->addRoute($path, $options);
 			}
 		}
 		return $routes;

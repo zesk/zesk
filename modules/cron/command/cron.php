@@ -39,12 +39,12 @@ class Command_Cron extends \zesk\Command_Base {
 		}
 		if ($this->optionBool('reset')) {
 			$result = $cron->reset();
-			$this->verbose_log($result ? 'Cron reset' : 'Cron reset failed');
+			$this->verboseLog($result ? 'Cron reset' : 'Cron reset failed');
 			return $result ? 0 : 1;
 		}
 		if ($this->optionBool('list')) {
 			$list_status = $cron->list_status();
-			$this->render_format($list_status);
+			$this->renderFormat($list_status);
 			return 0;
 		}
 		if ($this->optionBool('last')) {
@@ -66,9 +66,9 @@ class Command_Cron extends \zesk\Command_Base {
 		}
 		$result = $cron->run();
 		if ($result === null) {
-			$this->verbose_log('Cron is already running.');
+			$this->verboseLog('Cron is already running.');
 		} else {
-			$this->verbose_log('Cron run successfully: ' . implode(', ', $result));
+			$this->verboseLog('Cron run successfully: ' . implode(', ', $result));
 		}
 		return 0;
 	}

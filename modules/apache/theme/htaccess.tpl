@@ -24,6 +24,6 @@ $line[] = '</IfModule>';
 
 $content = implode("\n", $line);
 
-echo $application->hooks->call_arguments('htaccess_alter', [
+echo $application->hooks->callArguments('htaccess_alter', [
 	$content,
 ], $content);

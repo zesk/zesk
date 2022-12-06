@@ -59,7 +59,7 @@ class Server_Feature_HTTPD extends Server_Feature {
 
 		/*
 		 * $host_path = $this->configure_path('httpd'); if (!is_dir($host_path)) { throw new
-		 * Server_Exception("httpd host path $host_path not found"); } $this->verbose_log("httpd
+		 * Server_Exception("httpd host path $host_path not found"); } $this->verboseLog("httpd
 		 * host path is $host_path");
 		 */
 
@@ -67,14 +67,14 @@ class Server_Feature_HTTPD extends Server_Feature {
 
 		$feature_dir = $config->feature_directory('httpd');
 
-		$this->verbose_log('Checking httpd configuration ...');
+		$this->verboseLog('Checking httpd configuration ...');
 		$this->_check_configuration($config, $feature_dir);
 
-		$this->verbose_log('Updating HTTPD Configuration');
+		$this->verboseLog('Updating HTTPD Configuration');
 
 		$changed = $this->update($feature_dir, $httpd_conf_path);
 
-		$this->verbose_log('Checking installed configuration ...');
+		$this->verboseLog('Checking installed configuration ...');
 
 		$this->_check_configuration($config, $httpd_conf_path);
 
@@ -100,7 +100,7 @@ class Server_Feature_HTTPD extends Server_Feature {
 		try {
 			$this->apache_control('-d {0} -f {1} -t', $server_root, $httpd_conf_file);
 		} catch (Server_Exception $e) {
-			$this->verbose_log("Errors in httpd.conf, fix $server_root/$httpd_conf_file and dependencies before restarting httpd");
+			$this->verboseLog("Errors in httpd.conf, fix $server_root/$httpd_conf_file and dependencies before restarting httpd");
 
 			throw $e;
 		}

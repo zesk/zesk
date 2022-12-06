@@ -4,10 +4,6 @@
  */
 namespace zesk;
 
-use zesk\ArrayTools;
-use zesk\PHP;
-use zesk\URL;
-
 /**
  * Dump the database to a file for this application.
  * @category Database

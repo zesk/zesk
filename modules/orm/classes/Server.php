@@ -159,7 +159,7 @@ class Server extends ORM implements Interface_Data {
 		try {
 			$server->updateState();
 		} catch (Exception $e) {
-			$application->logger->error("Exception {class} {code} {file}:{line}\n{message}\n{backtrace}", Exception::exception_variables($e));
+			$application->logger->error("Exception {class} {code} {file}:{line}\n{message}\n{backtrace}", Exception::exceptionVariables($e));
 		}
 	}
 
@@ -192,14 +192,9 @@ class Server extends ORM implements Interface_Data {
 	/**
 	 * Retrieve the default host name
 	 *
-	 * @throws Exception_Parameter
 	 */
-	private static function host_default() {
-		$host = System::uname();
-		if (empty($host)) {
-			throw new Exception_Parameter('No UNAME or HOST defined');
-		}
-		return $host;
+	private static function hostDefault(): string {
+		return System::uname();
 	}
 
 	/**
@@ -212,10 +207,9 @@ class Server extends ORM implements Interface_Data {
 	 * @param Application $application
 	 * @return \zesk\Server
 	 */
-	public static function singleton(Application $application) {
+	public static function singleton(Application $application): self {
 		$cache = $application->cache;
 		/* @var $cache \Psr\Cache\CacheItemPoolInterface */
-		$server = null;
 		if ($cache) {
 			$item = $cache->getItem(__METHOD__);
 			if ($item->isHit()) {
@@ -241,19 +235,20 @@ class Server extends ORM implements Interface_Data {
 	/**
 	 * Register and load this
 	 */
-	protected function _retrieve_singleton() {
-		$this->name = self::host_default();
-
-		try {
-			if ($this->find()) {
-				$now = Timestamp::now();
-				if ($now->difference($this->alive) > $this->option(self::option_alive_update_seconds, self::default_alive_update_seconds)) {
-					$this->updateState();
-				}
-				return $this;
+	/**
+	 * @return $this
+	 * @throws Exception_Key
+	 * @throws Exception_ORM_NotFound
+	 * @throws Exception_Semantics
+	 */
+	protected function _retrieve_singleton(): self {
+		$this->name = self::hostDefault();
+		if ($this->find()) {
+			$now = Timestamp::now();
+			if ($now->difference($this->alive) > $this->option(self::option_alive_update_seconds, self::default_alive_update_seconds)) {
+				$this->updateState();
 			}
-		} catch (Database_Exception_Table_NotFound $e) {
-			return null;
+			return $this;
 		}
 		return $this->refresh_names();
 	}
@@ -264,7 +259,7 @@ class Server extends ORM implements Interface_Data {
 	 */
 	public function refresh_names() {
 		// Set up our names using hooks (may do nothing)
-		$this->call_hook('initialize_names');
+		$this->callHook('initialize_names');
 		// Set all blank values to defaults
 		$this->_initialize_names_defaults();
 
@@ -280,7 +275,7 @@ class Server extends ORM implements Interface_Data {
 	 * Set up some reasonable defaults which define this server relative to other servers
 	 */
 	private function _initialize_names_defaults(): void {
-		$host = self::host_default();
+		$host = self::hostDefault();
 		if (empty($this->name)) {
 			$this->name = $host;
 		}

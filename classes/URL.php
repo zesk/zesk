@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use function trim;
+
 /**
  * Difference between zesk\URL and \URL:: is that we can do new zesk\URL($url) (TODO)
  */
@@ -337,14 +339,14 @@ class URL {
 	 * @throws Exception_Syntax
 	 */
 	public static function parse(string $url): array {
-		$url = \trim($url);
+		$url = trim($url);
 		if (preg_match('%^[a-z][a-z0-9]*://.+|^mailto:.+@.+%', strtolower($url)) === 0) {
 			throw new Exception_Syntax('Not a URL');
 		}
 		if (strtolower(substr($url, 0, 7)) === 'file://') {
 			$result = ['scheme' => 'file', 'host' => '', 'path' => substr($url, 7), ];
 		} else {
-			$result = @parse_url($url);
+			$result = parse_url($url);
 			if (!is_array($result)) {
 				throw new Exception_Syntax('parse_url({url}) failed {type}', ['type' => type($result), 'url' => $url]);
 			}
@@ -364,7 +366,7 @@ class URL {
 				$result['host'] = $host;
 			}
 		}
-		$result['url'] = URL::unparse($result);
+		$result['url'] = URL::stringify($result);
 		return $result;
 	}
 
@@ -394,7 +396,7 @@ class URL {
 	 * @param array $parts
 	 * @return string
 	 */
-	public static function unparse(array $parts): string {
+	public static function stringify(array $parts): string {
 		$scheme = strtolower($parts['scheme'] ?? '');
 		$mailto = ($scheme === 'mailto');
 		$url = $scheme . ($mailto ? ':' : '://');
@@ -481,21 +483,7 @@ class URL {
 	public static function removePassword(string $x): string {
 		$parts = self::parse($x);
 		unset($parts['pass']);
-		return self::unparse($parts);
-	}
-
-	/**
-	 * Return URL scheme default port. Just uses the obvious ones. (gopher:// anyone?)
-	 *
-	 * So you can be a good programmer and avoid using constants.
-	 *
-	 * @param string $x
-	 * @return int
-	 * @deprecated 2022-11-07
-	 */
-	public static function protocolDefaultPort(string $x): int {
-		zesk()->deprecated('2022-11-07');
-		return self::protocolPort($x);
+		return self::stringify($parts);
 	}
 
 	/**
@@ -538,7 +526,7 @@ class URL {
 		if ($proto !== 'mailto') {
 			$p['path'] ??= '/';
 		}
-		return self::unparse($p);
+		return self::stringify($p);
 	}
 
 	/**
@@ -573,7 +561,7 @@ class URL {
 				break;
 			}
 		}
-		return self::unparse($new_parts);
+		return self::stringify($new_parts);
 	}
 
 	/**
@@ -628,7 +616,7 @@ class URL {
 		$parts = self::parse($u);
 		if (array_key_exists('host', $parts)) {
 			$parts['host'] = strtolower(preg_replace('/[^A-Za-z0-9.-]/', '', $parts['host']));
-			$u = self::unparse($parts);
+			$u = self::stringify($parts);
 		}
 		if (!self::is($u)) {
 			throw new Exception_Syntax('Can not repair');
@@ -715,18 +703,7 @@ class URL {
 	public static function change_host(string $url, string $host): string {
 		$parts = self::parse($url);
 		$parts['host'] = $host;
-		return self::unparse($parts);
-	}
-
-	/**
-	 * Returns true if the URL is secure (https)
-	 *
-	 * @param string $url
-	 *            A URL to test
-	 * @return boolean true if the URL is a https URL
-	 */
-	public static function is_secure(string $url): bool {
-		return self::isSecure($url);
+		return self::stringify($parts);
 	}
 
 	/**
@@ -758,7 +735,7 @@ class URL {
 		}
 		$parts = self::parse($url);
 		$parts['scheme'] = self::$secure_protocols[$parts['scheme']] ?? $parts['scheme'];
-		return self::unparse($parts);
+		return self::stringify($parts);
 	}
 
 	/**
@@ -782,7 +759,7 @@ class URL {
 	 *            Another URL to test
 	 * @return boolean true if the schemes, address, port, and host are identical
 	 */
-	public static function is_same_server(string $url1, string $url2): bool {
+	public static function isSameServer(string $url1, string $url2): bool {
 		try {
 			$p1 = self::parse(strtolower($url1));
 			$p2 = self::parse(strtolower($url2));
@@ -812,8 +789,9 @@ class URL {
 	 * @param string $href
 	 *            Href on the page
 	 * @return string Reconciled href, or false if can not be computed
+	 * @throws Exception_Syntax
 	 */
-	public static function compute_href(string $url, string $href): string {
+	public static function computeHREF(string $url, string $href): string {
 		if (empty($href)) {
 			return '';
 		}
@@ -835,23 +813,50 @@ class URL {
 		}
 		if (str_starts_with($href, '#')) {
 			$parts['fragment'] = substr($href, 1);
-			return self::unparse($parts);
+			return self::stringify($parts);
 		}
 		unset($parts['fragment']);
 		if (str_starts_with($href, '?')) {
 			$parts['query'] = substr($href, 1);
-			return self::unparse($parts);
+			return self::stringify($parts);
 		}
 		unset($parts['query']);
 		if (str_starts_with($href, '/')) {
 			$parts['path'] = $href;
-			return self::unparse($parts);
+			return self::stringify($parts);
 		}
 		$path = $parts['path'];
 		$path = dirname($path);
 		$path = path($path, $href);
-		$path = Directory::undot($path);
+		$path = Directory::removeDots($path);
 		$parts['path'] = $path;
-		return self::unparse($parts);
+		return self::stringify($parts);
+	}
+
+	/**
+	 * Return URL scheme default port. Just uses the obvious ones. (gopher:// anyone?)
+	 *
+	 * So you can be a good programmer and avoid using constants.
+	 *
+	 * @param string $x
+	 * @return int
+	 * @deprecated 2022-11-07
+	 */
+	public static function protocolDefaultPort(string $x): int {
+		zesk()->deprecated('2022-11-07');
+		return self::protocolPort($x);
+	}
+
+	/**
+	 * Returns true if the URL is secure (https)
+	 *
+	 * @param string $url
+	 *            A URL to test
+	 * @return boolean true if the URL is a https URL
+	 * @deprecated 2021 probably
+	 */
+	public static function is_secure(string $url): bool {
+		zesk()->deprecated('2021 probably');
+		return self::isSecure($url);
 	}
 }

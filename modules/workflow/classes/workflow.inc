@@ -178,7 +178,7 @@ class Workflow extends Model {
 		if (!$this->dirty) {
 			return;
 		}
-		$this->call_hook('clean');
+		$this->callHook('clean');
 		$this->steps_total = 0;
 		$this->steps_completed = 0;
 		/* @var $step Workflow_Step */
@@ -190,7 +190,7 @@ class Workflow extends Model {
 		}
 		$this->completed = ($this->steps_completed === $this->steps_total);
 		$this->dirty = false;
-		$this->call_hook($this->completed ? 'completed' : 'incomplete');
+		$this->callHook($this->completed ? 'completed' : 'incomplete');
 	}
 
 	/**

@@ -70,7 +70,7 @@ class Command_Schema extends Command_Base {
 	 * @param callable $callable
 	 */
 	public function hook_callback($callable): void {
-		$this->debug_log('{class}: Calling {callable}', [
+		$this->debugLog('{class}: Calling {callable}', [
 			'class' => __CLASS__,
 			'callable' => $this->application->hooks->callable_string($callable),
 		]);
@@ -101,12 +101,12 @@ class Command_Schema extends Command_Base {
 		$app->logger->notice("Running all $suffix hooks {hooks}", [
 			'hooks' => ($all = implode(', ', array_values($all_hooks))) ? $all : '- no hooks found',
 		]);
-		$this->application->hooks->all_call_arguments([$hook_type], [
+		$this->application->hooks->allCallArguments([$hook_type], [
 			$this->application,
 		], null, $hook_callback);
 
 		$hook_type = "schema_$suffix";
-		$all = $app->modules->all_hook_list($hook_type);
+		$all = $app->modules->all_listHooks($hook_type);
 		$hooks_strings = [];
 		if (count($all) !== 0) {
 			$hooks_strings = [];
@@ -121,7 +121,7 @@ class Command_Schema extends Command_Base {
 			$this->application,
 		], null, $hook_callback);
 
-		$app_hooks = $app->hook_list($hook_type);
+		$app_hooks = $app->listHooks($hook_type);
 		$app_hooks_strings = '- no hooks found';
 		if (count($app_hooks) !== 0) {
 			$app_hooks_strings = [];
@@ -132,7 +132,7 @@ class Command_Schema extends Command_Base {
 		$app->logger->notice("Running application $suffix hooks {hooks}", [
 			'hooks' => $app_hooks_strings,
 		]);
-		$app->call_hook_arguments($hook_type, [
+		$app->callHookArguments($hook_type, [
 			$this->application,
 		], null, $hook_callback);
 	}
@@ -169,9 +169,9 @@ class Command_Schema extends Command_Base {
 			$url = $this->option('name');
 		}
 		$classes = null;
-		if ($this->has_arg()) {
-			$classes = $this->arguments_remaining(true);
-			$this->verbose_log('Running on classes {classes}', compact('classes'));
+		if ($this->hasArgument()) {
+			$classes = $this->argumentsRemaining(true);
+			$this->verboseLog('Running on classes {classes}', compact('classes'));
 		}
 
 		$this->synchronize_before();

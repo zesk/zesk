@@ -71,7 +71,7 @@ class Database_Query_Select_Test extends UnitTest {
 		//		$default = 0;
 		//		$testx->integer($field, $default);
 
-		//		$testx->to_array();
+		//		$testx->toArray();
 
 		$testx->database();
 
@@ -94,7 +94,7 @@ class Database_Query_Select_Test extends UnitTest {
 
 		$result = preg_replace('/\s+/', ' ', trim($result));
 		$valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
-		$this->assert_equal($result, $valid_result);
+		$this->assertEquals($result, $valid_result);
 
 		$x = new Database_Query_Select($db);
 		$x->from($table_name)->setWhatString('ID')->addWhere('ID|!=|AND', [
@@ -110,7 +110,7 @@ class Database_Query_Select_Test extends UnitTest {
 
 		$result = preg_replace('/\s+/', ' ', trim($result));
 		$valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
-		$this->assert($result === "$valid_result", "\"$result\" === \"$valid_result\"");
+		$this->assertEquals("$valid_result", "\"$result\" === \"$valid_result\"", $result);
 
 		$x = new Database_Query_Select($db);
 		$x->from($table_name)->setWhatString('ID');
@@ -128,6 +128,6 @@ class Database_Query_Select_Test extends UnitTest {
 		$result = preg_replace('/\s+/', ' ', trim($result));
 		$valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
 
-		$this->assert($result === "$valid_result", "\"$result\" === \"$valid_result\"");
+		$this->assertEquals("$valid_result", "\"$result\" === \"$valid_result\"", $result);
 	}
 }

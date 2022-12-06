@@ -510,7 +510,7 @@ abstract class Database extends Hookable {
 		} else {
 			unset($parts['pass']);
 		}
-		return URL::unparse($parts);
+		return URL::stringify($parts);
 	}
 
 	/**
@@ -521,7 +521,7 @@ abstract class Database extends Hookable {
 	 */
 	final public function connect(): self {
 		$this->_connect();
-		$this->call_hook('connect');
+		$this->callHook('connect');
 		return $this;
 	}
 
@@ -566,7 +566,7 @@ abstract class Database extends Hookable {
 		if ($this->debug) {
 			$this->application->logger->debug('Disconnecting from database {url}', ['url' => $this->safe_url(), ]);
 		}
-		$this->call_hook('disconnect');
+		$this->callHook('disconnect');
 	}
 
 	/**
@@ -752,7 +752,6 @@ abstract class Database extends Hookable {
 	 * @throws Database_Exception_Duplicate
 	 * @throws Database_Exception_SQL
 	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Unimplemented
 	 */
 	public function insert(string $table, array $columns, array $options = []): int {
 		$sql = $this->sql()->insert($table, $columns, $options);
@@ -838,7 +837,7 @@ abstract class Database extends Hookable {
 	 * @throws Exception_Key
 	 */
 	final public function queryInteger(string $sql, int|string $field = null): int {
-		$result = $this->queryOne($sql, $field, null);
+		$result = $this->queryOne($sql, $field, []);
 		return intval($result);
 	}
 

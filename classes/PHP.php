@@ -514,10 +514,14 @@ class PHP {
 
 	/**
 	 *
-	 * @param string $message
+	 * @param \Exception|string $message
 	 * @param array $arguments
 	 */
-	public static function log(string $message, array $arguments = []): void {
+	public static function log(\Exception|string $message, array $arguments = []): void {
+		if ($message instanceof \Exception) {
+			$arguments = Exception::exceptionVariables($message) + $arguments;
+			$message = "{class}: {message} at {file}:{line}\nBacktrace: {backtrace}";
+		}
 		error_log(map($message, $arguments));
 	}
 

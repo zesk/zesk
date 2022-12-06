@@ -165,10 +165,10 @@ class Mail extends Hookable {
 		/*
 		 * Load globals
 		 */
-		self::$debug = toBool($config->path_get([__CLASS__, 'debug', ]));
-		self::$log = $application->paths->expand($config->path_get([__CLASS__, 'log', ]));
+		self::$debug = toBool($config->getPath([__CLASS__, 'debug', ]));
+		self::$log = $application->paths->expand($config->getPath([__CLASS__, 'log', ]));
 		self::$fp = null;
-		self::$disabled = toBool($config->path_get([__CLASS__, 'disabled', ]));
+		self::$disabled = toBool($config->getPath([__CLASS__, 'disabled', ]));
 	}
 
 	/**
@@ -179,7 +179,7 @@ class Mail extends Hookable {
 	public function send(): self {
 		$this->_log($this->headers, $this->body);
 
-		if (!$this->call_hook_arguments('send', [], true)) {
+		if (!$this->callHookArguments('send', [], true)) {
 			$this->method = 'send-hook-false';
 			return $this;
 		}
@@ -380,7 +380,7 @@ class Mail extends Hookable {
 		}
 		$len += strlen('MSG:');
 
-		$remain = to_integer($application->configuration->path_get([__CLASS__, 'sms_max_characters', ]), 140) - $len;
+		$remain = to_integer($application->configuration->getPath([__CLASS__, 'sms_max_characters', ]), 140) - $len;
 
 		return self::sendmail($application, $to, $from, $subject, substr($body, 0, $remain), $cc, $bcc, $headers);
 	}

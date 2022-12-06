@@ -8,12 +8,11 @@ namespace zesk;
  */
 class IPv4_Test extends UnitTest {
 	public function test_from_integer(): void {
-		$this->assert(IPv4::from_integer(3232235720) === '192.168.0.200');
-		$this->assert(IPv4::from_integer('3232235720') === '192.168.0.200');
+		$this->assertEquals('192.168.0.200', IPv4::from_integer(3232235720));
+		$this->assertEquals('192.168.0.200', IPv4::from_integer('3232235720'));
 	}
 
 	public function test_is_mask(): void {
-		$string = null;
 		$this->assertFalse(IPv4::is_mask('-1.0,0,0'));
 		$this->assertFalse(IPv4::is_mask('-1.0.0.0.0'));
 		$this->assertFalse(IPv4::is_mask('1.0.0.0.0'));
@@ -22,20 +21,20 @@ class IPv4_Test extends UnitTest {
 		$this->assertFalse(IPv4::is_mask('0.0.0.0/1'));
 		$this->assertFalse(IPv4::is_mask('0.0.0.0/7'));
 		for ($i = 8; $i < 32; $i++) {
-			$this->assert(IPv4::is_mask("1.0.0.0/$i") === true, "1.0.0.0/$i is apparently not a mask?");
+			$this->assertTrue(IPv4::is_mask("1.0.0.0/$i"), "1.0.0.0/$i is apparently not a mask?");
 		}
-		$this->assert(IPv4::is_mask('0.0.0.0/33') === false);
-		$this->assert(IPv4::is_mask('0.0.0.*') === true);
-		$this->assert(IPv4::is_mask('0.0.*') === true);
-		$this->assert(IPv4::is_mask('0.*') === true);
-		$this->assert(IPv4::is_mask('255.*') === true);
+		$this->assertFalse(IPv4::is_mask('0.0.0.0/33'));
+		$this->assertTrue(IPv4::is_mask('0.0.0.*'));
+		$this->assertTrue(IPv4::is_mask('0.0.*'));
+		$this->assertTrue(IPv4::is_mask('0.*'));
+		$this->assertTrue(IPv4::is_mask('255.*'));
 		$this->assertFalse(IPv4::is_mask('256.*'));
-		$this->assert(IPv4::is_mask('-1.*') === false);
-		$this->assert(IPv4::is_mask('1.*/32') === false);
-		$this->assert(IPv4::is_mask('256.*') === false);
-		$this->assert(IPv4::is_mask('255.255.255.256/32') === false);
-		$this->assert(IPv4::is_mask('255.255.255.256/23') === false);
-		$this->assert(IPv4::is_mask('192.128.0.0/9') === true, 'IPv4::is_mask("192.128.0.0/9") === true');
+		$this->assertFalse(IPv4::is_mask('-1.*'));
+		$this->assertFalse(IPv4::is_mask('1.*/32'));
+		$this->assertFalse(IPv4::is_mask('256.*'));
+		$this->assertFalse(IPv4::is_mask('255.255.255.256/32'));
+		$this->assertFalse(IPv4::is_mask('255.255.255.256/23'));
+		$this->assertTrue(IPv4::is_mask('192.128.0.0/9'));
 	}
 
 	public function data_mask_to_integers(): array {
@@ -76,7 +75,7 @@ class IPv4_Test extends UnitTest {
 
 		$ip = '192.168.0.248';
 		[$a, $b] = IPv4::mask_to_integers("$ip/29");
-		$this->assert(IPv4::from_integer($a) . "/$b" === "$ip/29");
+		$this->assertEquals("$ip/29", IPv4::from_integer($a) . "/$b");
 
 		foreach ($ips as $ip) {
 			$ip = trim($ip);
@@ -101,13 +100,13 @@ class IPv4_Test extends UnitTest {
 	public function test_mask_to_string(): void {
 		$ip = 0.0;
 		$ip_bits = 32;
-		$this->assert(IPv4::mask_to_string($ip, $ip_bits) === '0.0.0.0');
-		$this->assert(IPv4::mask_to_string($ip, 24) === '0.0.0.*');
-		$this->assert(IPv4::mask_to_string($ip, 16) === '0.0.*');
-		$this->assert(IPv4::mask_to_string($ip, 8) === '0.*');
+		$this->assertEquals('0.0.0.0', IPv4::mask_to_string($ip, $ip_bits));
+		$this->assertEquals('0.0.0.*', IPv4::mask_to_string($ip, 24));
+		$this->assertEquals('0.0.*', IPv4::mask_to_string($ip, 16));
+		$this->assertEquals('0.*', IPv4::mask_to_string($ip, 8));
 
-		$this->assert(IPv4::mask_to_string(3232235720, 29) === '192.168.0.200/29');
-		$this->assert(IPv4::mask_to_string(3232235720, 29) === '192.168.0.200/29');
+		$this->assertEquals('192.168.0.200/29', IPv4::mask_to_string(3232235720, 29));
+		$this->assertEquals('192.168.0.200/29', IPv4::mask_to_string(3232235720, 29));
 		$this->assertEquals('192.168.0.200/29', IPv4::mask_to_string(3232235720, 29));
 
 		$all_ones = IPv4::to_integer('255.255.255.255');
@@ -122,7 +121,7 @@ class IPv4_Test extends UnitTest {
 				continue;
 			}
 
-			$this->assert(IPv4::mask_to_string($all_ones, $i) === "255.255.$c.$d/$i", IPv4::mask_to_string($all_ones, $i) . " === 255.255.$c.$d/$i");
+			$this->assertEquals("255.255.$c.$d/$i", IPv4::mask_to_string($all_ones, $i));
 
 			$n = ($n * 2) + 1;
 			if ($m) {
@@ -133,8 +132,8 @@ class IPv4_Test extends UnitTest {
 			}
 		}
 
-		$this->assert(IPv4::mask_to_string(IPv4::to_integer('76.12.128.129'), 29) === '76.12.128.128/29', IPv4::mask_to_string(IPv4::to_integer('76.12.128.129'), 29) . ' === 76.12.128.128/29');
-		$this->assert(IPv4::mask_to_string(IPv4::to_integer('76.12.128.129'), 29) === '76.12.128.128/29', IPv4::mask_to_string(IPv4::to_integer('76.12.128.129'), 29) . ' === 76.12.128.128/29');
+		$this->assertEquals('76.12.128.128/29', IPv4::mask_to_string(IPv4::to_integer('76.12.128.129'), 29));
+		$this->assertEquals('76.12.128.128/29', IPv4::mask_to_string(IPv4::to_integer('76.12.128.129'), 29));
 	}
 
 	public function data_network(): array {
@@ -247,13 +246,13 @@ class IPv4_Test extends UnitTest {
 			}
 			// echo "$ip\n";
 			$ipi = IPv4::to_integer($ip);
-			$this->assert(IPv4::subnet_bits($ipi, 32) === $ipi, IPv4::subnet_bits($ipi, 32) . "=== IPv4::subnet_bits($ipi, 32) === $ipi");
+			$this->assertEquals($ipi, IPv4::subnet_bits($ipi, 32));
 			$delta = ($ipi & 1) ? 1 : 0;
-			$this->assert(IPv4::subnet_bits($ipi, 31) === $ipi - $delta, IPv4::subnet_bits($ipi, 31) . " === IPv4::subnet_bits($ipi, 31) === $ipi - $delta");
+			$this->assertEquals($ipi - $delta, IPv4::subnet_bits($ipi, 31));
 			$delta = ($ipi & 3);
-			$this->assert(IPv4::subnet_bits($ipi, 30) === $ipi - $delta, IPv4::subnet_bits($ipi, 30) . " === IPv4::subnet_bits($ipi, 31) === $ipi - $delta");
+			$this->assertEquals($ipi - $delta, IPv4::subnet_bits($ipi, 30));
 			$delta = ($ipi & 0xFFFF);
-			$this->assert(IPv4::subnet_bits($ipi, 16) === $ipi - $delta, IPv4::subnet_bits($ipi, 16) . " === IPv4::subnet_bits($ipi, 16) === $ipi - $delta");
+			$this->assertEquals($ipi - $delta, IPv4::subnet_bits($ipi, 16));
 		}
 	}
 
@@ -261,7 +260,7 @@ class IPv4_Test extends UnitTest {
 		for ($n = 1; $n <= 32; $n++) {
 			$b = sprintf('%032b', IPv4::subnet_mask($n));
 			$check = str_repeat('1', $n) . str_repeat('0', 32 - $n);
-			$this->assert($b === $check, "IPv4::subnet_mask($n) === $b === $check");
+			$this->assertEquals($check, $b);
 		}
 	}
 

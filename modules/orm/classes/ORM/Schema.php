@@ -154,7 +154,7 @@ abstract class ORM_Schema extends Hookable {
 	 * @param zesk\Application $application
 	 */
 	public static function configured(Application $application): void {
-		if ($application->configuration->debug || $application->configuration->path_get([__CLASS__, 'debug', ])) {
+		if ($application->configuration->debug || $application->configuration->getPath([__CLASS__, 'debug', ])) {
 			self::$debug = true;
 		}
 	}
@@ -450,7 +450,7 @@ abstract class ORM_Schema extends Hookable {
 			try {
 				$actual_table = $db->databaseTable($table->name());
 				$sql_results = array_merge($sql_results, self::update($db, $actual_table, $table));
-				$results = $this->object->call_hook_arguments('schema_update_alter', [
+				$results = $this->object->callHookArguments('schema_update_alter', [
 					$this,
 					$actual_table,
 					$sql_results,
@@ -713,7 +713,7 @@ abstract class ORM_Schema extends Hookable {
 				$result = false;
 			}
 		}
-		$sql_list = $generator->call_hook_arguments('update_alter', [$sql_list, ], $sql_list);
+		$sql_list = $generator->callHookArguments('update_alter', [$sql_list, ], $sql_list);
 		return $sql_list;
 	}
 }

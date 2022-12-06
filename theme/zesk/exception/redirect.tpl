@@ -14,13 +14,13 @@ namespace zesk;
 /* @var $url string */
 if ($response->optionBool('debug_redirect')) {
 	$original_url = $exception->url();
-	$url = $response->redirect()->process_url($original_url);
+	$url = $response->redirect()->processURL($original_url);
 	echo $this->theme('zesk/exception/redirect-debug', [
 		'content' => HTML::a($url, $url),
 		'url' => $url,
 		'original_url' => $original_url,
 	]);
 } else {
-	$url = $response->redirect()->handle_exception($exception);
+	$url = $response->redirect()->handleException($exception);
 	echo HTML::a($url, $url);
 }

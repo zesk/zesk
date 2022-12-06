@@ -78,12 +78,12 @@ class Repository_Subversion_Test extends Repository_TestCase {
 		$repo->setURL($url);
 		Directory::deleteContents($path);
 		$this->assertTrue(Directory::isEmpty($path));
-		$this->assertTrue($repo->need_update(), 'Repo should need update');
+		$this->assertTrue($repo->needUpdate(), 'Repo should need update');
 		$repo->update();
 		$this->assertTrue($repo->validate());
 		$this->assertFalse(Directory::isEmpty($path));
 		$this->assertDirectoryExists(path($this->path, '.svn'));
-		$this->assertFalse($repo->need_update(), 'Repo should no longer need update');
+		$this->assertFalse($repo->needUpdate(), 'Repo should no longer need update');
 		$this->assertDirectoriesExist($this->pathCatenator($this->path, [
 			'.svn',
 			'trunk',
@@ -93,19 +93,19 @@ class Repository_Subversion_Test extends Repository_TestCase {
 		$branches_dir = path($this->path, 'branches');
 		Directory::delete($branches_dir);
 		$this->assertDirectoryNotExists($branches_dir, "Deleting of $branches_dir failed?");
-		$this->assertTrue($repo->need_update(), 'Repo needs update after directory "branches" deleted');
+		$this->assertTrue($repo->needUpdate(), 'Repo needs update after directory "branches" deleted');
 		$repo->update();
 		$this->assertDirectoryExists($branches_dir, "Deleting of $branches_dir failed?");
-		$this->assertFalse($repo->need_update(), 'Repo does needs update after directory "branches" updated');
+		$this->assertFalse($repo->needUpdate(), 'Repo does needs update after directory "branches" updated');
 
-		$tags = toArray($this->configuration->path_get([
+		$tags = toArray($this->configuration->getPath([
 			__CLASS__,
 			'tags_tests',
 		]));
 		foreach ($tags as $tag) {
-			$this->assertFalse($repo->need_update(), 'Repo should no longer need update');
+			$this->assertFalse($repo->needUpdate(), 'Repo should no longer need update');
 			$repo->url(glue($url, '/', "tags/$tag"));
-			$this->assertTrue($repo->need_update(), 'Repo should need update');
+			$this->assertTrue($repo->needUpdate(), 'Repo should need update');
 			$repo->update();
 			$this->assertDirectoriesExist($this->pathCatenator($this->path, [
 				'.svn',

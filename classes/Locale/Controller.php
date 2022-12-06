@@ -18,15 +18,16 @@ class Controller extends \zesk\Controller {
 	public function action_js(): void {
 		$app = $this->application;
 		$code = $this->request->get('ll');
+		$locales = [];
 		if (empty($code)) {
 			$locales = [
 				$app->locale,
 			];
 			$code = $app->locale->id();
 		} else {
-			$codes = array_unique(to_list($code));
+			$codes = array_unique(toList($code));
 			foreach ($codes as $code) {
-				$locales[$code] = Reader::factory($app->locale_path(), $code)->locale($app);
+				$locales[$code] = Reader::factory($app->localePath(), $code)->locale($app);
 			}
 		}
 
@@ -50,7 +51,7 @@ class Controller extends \zesk\Controller {
 		$content = "/* elapsed: {page-render-time}, is_cached: {page-is-cached} */\n";
 		$content .= "(function (exports) {\n\t$load_lines\n}(this));\n";
 
-		$this->response->cache_for($this->optionInt('cache_seconds', 600));
+		$this->response->setCacheFor($this->optionInt('cache_seconds', 600));
 		$this->response->content = $content;
 	}
 }

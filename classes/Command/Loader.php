@@ -246,7 +246,7 @@ class Command_Loader {
 
 		$result = $command_object->go();
 
-		$args = $command_object->arguments_remaining();
+		$args = $command_object->argumentsRemaining();
 		$this->debug('Remaining class arguments: ' . JSON::encode($args));
 		if ($result !== 0) {
 			$this->debug("Command $class returned $result");
@@ -264,7 +264,7 @@ class Command_Loader {
 	 * @return string[]|NULL[]
 	 */
 	private function find_command_class(string $command): array {
-		$paths = $this->application->zesk_command_path();
+		$paths = $this->application->zeskCommandPath();
 		$class = strtr($command, [
 			'/' => '_',
 		]);
@@ -495,7 +495,7 @@ class Command_Loader {
 		}
 		if ($this->zeskIsLoaded()) {
 			$this->debug("Set global $key to $value");
-			$this->application->configuration->path_set($key, $value);
+			$this->application->configuration->setPath($key, $value);
 		} else {
 			global $_ZESK;
 			$key = _zesk_global_key($key);
@@ -520,7 +520,7 @@ class Command_Loader {
 			$this->usage('--unset missing argument');
 		}
 		if ($this->zeskIsLoaded()) {
-			$this->application->configuration->path_set($key, null);
+			$this->application->configuration->setPath($key, null);
 		} else {
 			global $_ZESK;
 			$key = _zesk_global_key($key);

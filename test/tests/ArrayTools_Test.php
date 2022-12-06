@@ -14,28 +14,15 @@ class ArrayTools_Test extends UnitTest {
 		return [
 			[
 				[
-					'a' => 'ABC',
-					'b' => 'BCD',
-					'c' => 'def',
+					'a' => 'ABC', 'b' => 'BCD', 'c' => 'def',
+				], [
+					'a' => 'abc', 'b' => 'bcd', 'c' => 'def',
 				],
+			], [
 				[
-					'a' => 'abc',
-					'b' => 'bcd',
-					'c' => 'def',
-				],
-			],
-			[
-				[
-					'a' => 'A',
-					'b' => 'lowercasething',
-					'C' => 'LoWeRCaSeThInG',
-					'D' => 99,
-				],
-				[
-					'a' => 'a',
-					'b' => 'lowercasething',
-					'C' => 'lowercasething',
-					'D' => 99,
+					'a' => 'A', 'b' => 'lowercasething', 'C' => 'LoWeRCaSeThInG', 'D' => 99,
+				], [
+					'a' => 'a', 'b' => 'lowercasething', 'C' => 'lowercasething', 'D' => 99,
 				],
 			],
 		];
@@ -51,81 +38,35 @@ class ArrayTools_Test extends UnitTest {
 
 	public function data_valuesFlipCopy(): array {
 		$zz = [
-			'A',
-			'B',
-			'C',
+			'A', 'B', 'C',
 		];
 		$x = [
-			'A',
-			'B',
+			'A', 'B',
 		];
 		return [
 			[
-				$zz,
-				true,
-				[
-					'a' => 'A',
-					'b' => 'B',
-					'c' => 'C',
+				$zz, [
+					'A' => 'A', 'B' => 'B', 'C' => 'C',
 				],
-			],
-			[
-				$zz,
-				false,
+			], [
 				[
-					'A' => 'A',
-					'B' => 'B',
-					'C' => 'C',
+					'one', 'two', 'three',
+				], [
+					'one' => 'one', 'two' => 'two', 'three' => 'three',
 				],
-			],
-			[
+			], [
 				[
-					'one',
-					'two',
-					'three',
+					'1', '2', '3', 'fish', '4', '5', '1', '2',
+				], [
+					'1' => '1', '2' => '2', '3' => '3', 'fish' => 'fish', '4' => '4', '5' => '5',
 				],
-				true,
-				[
-					'one' => 'one',
-					'two' => 'two',
-					'three' => 'three',
+			], [
+				$x, [
+					'a' => 'A', 'b' => 'B',
 				],
-			],
-			[
-				[
-					'1',
-					'2',
-					'3',
-					'fish',
-					'4',
-					'5',
-					'1',
-					'2',
-				],
-				true,
-				[
-					'1' => '1',
-					'2' => '2',
-					'3' => '3',
-					'fish' => 'fish',
-					'4' => '4',
-					'5' => '5',
-				],
-			],
-			[
-				$x,
-				true,
-				[
-					'a' => 'A',
-					'b' => 'B',
-				],
-			],
-			[
-				$x,
-				false,
-				[
-					'A' => 'A',
-					'B' => 'B',
+			], [
+				$x, [
+					'A' => 'A', 'B' => 'B',
 				],
 			],
 		];
@@ -133,186 +74,144 @@ class ArrayTools_Test extends UnitTest {
 
 	/**
 	 * @param array $array
-	 * @param bool $lower
 	 * @param array $expected
 	 * @return void
 	 * @dataProvider data_valuesFlipCopy
 	 */
-	public function test_valuesFlipCopy(array $array, bool $lower, array $expected): void {
-		$this->assertEquals($expected, ArrayTools::valuesFlipCopy($array, $lower));
+	public function test_valuesFlipCopy(array $array, array $expected): void {
+		$this->assertEquals($expected, ArrayTools::valuesFlipCopy($array));
 	}
 
-	public function test_wrap(): void {
-		$a = [];
-		$prefix = '';
-		$suffix = '';
-		$this->assert_arrays_equal(ArrayTools::wrapValues($a, $prefix, $suffix), [], '', true, true);
-		$a = [
-			'a',
-		];
-		$this->assert_arrays_equal(ArrayTools::wrapValues($a, $prefix, $suffix), $a);
-
-		$prefix = 'a';
-		$suffix = '';
-		$a = [
-			'a' => 'b',
-		];
-		$b = [
-			'a' => 'ab',
-		];
-		$this->assert_arrays_equal(ArrayTools::wrapValues($a, $prefix, $suffix), $b, '', true, true);
-
-		$prefix = 'a';
-		$suffix = 'bb';
-		$a = ['a' => 'b', ];
-		$b = [
-			'a' => 'abbb',
-		];
-		$this->assert_arrays_equal(ArrayTools::wrapValues($a, $prefix, $suffix), $b, '', true, true);
-
-		$prefix = 'a';
-		$suffix = 'cc';
-		$a = [
-			'a' => 'b',
-			2 => 'b',
-			412312 => 54,
-		];
-		$b = [
-			'a' => 'abcc',
-			2 => 'abcc',
-			412312 => 'a54cc',
-		];
-		$this->assert_arrays_equal(ArrayTools::wrapValues($a, $prefix, $suffix), $b, '', true, true);
-
-		$arr = [
-			'a',
-			'b',
-			'c',
-		];
-		$prefix = '{';
-		$suffix = '}';
-		$result = ArrayTools::wrapValues($arr, $prefix, $suffix);
-		$result_correct = [
-			'{a}',
-			'{b}',
-			'{c}',
-		];
-
-		$this->assert_arrays_equal($result, $result_correct);
+	/**
+	 * @param array $expected
+	 * @param array $array
+	 * @param string $prefix
+	 * @param string $suffix
+	 * @return void
+	 * @dataProvider data_wrap
+	 */
+	public function test_wrap(array $expected, array $array, string $prefix, string $suffix): void {
+		$this->assertEquals($expected, ArrayTools::wrapValues($array, $prefix, $suffix));
 	}
 
-	public function test_prefixKeys(): void {
-		$source = [
-			'a' => 'a',
-			'b' => 'b',
-			'c' => 'c',
+	public function data_wrap(): array {
+		return [
+			[[], [], '', ''], [
+				[
+					'a',
+				], [
+					'a',
+				], '', '',
+			], [
+				[
+					'a' => 'ab',
+				], [
+					'a' => 'b',
+				], 'a', '',
+			], [
+				[
+					'a' => 'abbb',
+				], ['a' => 'b', ], 'a', 'bb',
+			], [
+				[
+					'a' => 'abcc', 2 => 'abcc', 412312 => 'a54cc',
+				], [
+					'a' => 'b', 2 => 'b', 412312 => 54,
+				], 'a', 'cc',
+			], [
+				[
+					'{a}', '{b}', '{c}',
+				], [
+					'a', 'b', 'c',
+				], '{', '}',
+			],
 		];
-		$dest = [
-			'Dudea' => 'a',
-			'Dudeb' => 'b',
-			'Dudec' => 'c',
-		];
+	}
 
-		$this->assert_arrays_equal(ArrayTools::prefixKeys($source, 'Dude'), $dest, 'ArrayTools::kprefix');
+	/**
+	 * @param array $expected
+	 * @param array $array
+	 * @param string $prefix
+	 * @return void
+	 * @dataProvider data_prefixKeys
+	 */
+	public function test_prefixKeys(array $expected, array $array, string $prefix): void {
+		$this->assertEquals($expected, ArrayTools::prefixKeys($array, $prefix));
+	}
+
+	public function data_prefixKeys(): array {
+		return [
+			[
+				[
+					'Dudea' => 'a', 'Dudeb' => 'b', 'Dudec' => 'c', 'Dude9' => 'd',
+				], [
+					'a' => 'a', 'b' => 'b', 'c' => 'c', 9 => 'd',
+				], 'Dude',
+			],
+		];
 	}
 
 	public function test_suffix(): void {
 		$a = [
-			'Boy',
-			'Girl',
-			'Baby',
+			'Boy', 'Girl', 'Baby',
 		];
 		$p = 'Big';
-		$this->assert_arrays_equal(ArrayTools::suffixValues($a, $p), [
-			'BoyBig',
-			'GirlBig',
-			'BabyBig',
+		$this->assertEquals(ArrayTools::suffixValues($a, $p), [
+			'BoyBig', 'GirlBig', 'BabyBig',
 		]);
 		$arr = [
-			0,
-			1,
-			2,
-			3,
-			4,
-			5,
-			6,
+			0, 1, 2, 3, 4, 5, 6,
 		];
 		$str = '-Things';
 		$result = ArrayTools::suffixValues($arr, $str);
 		$result_correct = [
-			'0-Things',
-			'1-Things',
-			'2-Things',
-			'3-Things',
-			'4-Things',
-			'5-Things',
-			'6-Things',
+			'0-Things', '1-Things', '2-Things', '3-Things', '4-Things', '5-Things', '6-Things',
 		];
-		$this->assert_arrays_equal($result, $result_correct);
+		$this->assertEquals($result, $result_correct);
 	}
 
 	public function test_keysRemove(): void {
 		$arr = [
-			0,
-			1,
-			2,
-			3,
-			4,
-			5,
-			6,
+			0, 1, 2, 3, 4, 5, 6,
 		];
 		$keys = '0;2;4;6';
 		$result = ArrayTools::keysRemove($arr, toList($keys));
 		$result_correct = [
-			1 => 1,
-			3 => 3,
-			5 => 5,
+			1 => 1, 3 => 3, 5 => 5,
 		];
-		$this->assert_arrays_equal($result, $result_correct);
+		$this->assertEquals($result, $result_correct);
 	}
 
 	public function data_hasValue(): array {
 		return [
-			[],
-			[],
-			false,
+			[], [], false,
 
 		];
 	}
 
 	public function test_include_exclude(): void {
 		$a = [
-			'a',
-			'b',
-			'c',
-			'd',
+			'a', 'b', 'c', 'd',
 		];
 		$include = '';
 		$exclude = '';
 		$lower = true;
 		$result = ArrayTools::include_exclude($a, 'a;b;e', $exclude, $lower);
-		$this->assert_arrays_equal($result, [
-			'a',
-			'b',
+		$this->assertEquals($result, [
+			'a', 'b',
 		]);
 		$result = ArrayTools::include_exclude($a, '', 'a;b;e', $lower);
-		$this->assert_arrays_equal($result, [
-			2 => 'c',
-			3 => 'd',
+		$this->assertEquals($result, [
+			2 => 'c', 3 => 'd',
 		]);
 
 		$a = [
-			'a',
-			'B',
-			'c',
-			'd',
+			'a', 'B', 'c', 'd',
 		];
 		// Default is to retain case
 		$result = ArrayTools::include_exclude($a, '', 'a;b;e');
-		$this->assert_arrays_equal($result, [
-			1 => 'B',
-			2 => 'c',
-			3 => 'd',
+		$this->assertEquals($result, [
+			1 => 'B', 2 => 'c', 3 => 'd',
 		]);
 	}
 
@@ -329,17 +228,10 @@ class ArrayTools_Test extends UnitTest {
 
 	public function data_hasAnyValues(): array {
 		return [
-			[true, ['a', 'b', 'c'], 'a'],
-			[true, ['a', 'b', 'c'], 'b'],
-			[true, ['a', 'b', 'c'], 'c'],
-			[false, ['a', 'b', 'c'], 'd'],
-			[true, ['a', 'b', 'c'], ['a']],
-			[true, ['a', 'b', 'c'], ['b']],
-			[true, ['a', 'b', 'c'], ['c']],
-			[false, ['a', 'b', 'c'], ['d']],
-			[true, ['a', 'b', 'c'], ['a', 'd']],
-			[true, ['a', 'b', 'c'], ['b', 'd']],
-			[true, ['a', 'b', 'c'], ['c', 'd']],
+			[true, ['a', 'b', 'c'], 'a'], [true, ['a', 'b', 'c'], 'b'], [true, ['a', 'b', 'c'], 'c'],
+			[false, ['a', 'b', 'c'], 'd'], [true, ['a', 'b', 'c'], ['a']], [true, ['a', 'b', 'c'], ['b']],
+			[true, ['a', 'b', 'c'], ['c']], [false, ['a', 'b', 'c'], ['d']], [true, ['a', 'b', 'c'], ['a', 'd']],
+			[true, ['a', 'b', 'c'], ['b', 'd']], [true, ['a', 'b', 'c'], ['c', 'd']],
 			[false, ['a', 'b', 'c'], ['d', 'd']],
 		];
 	}
@@ -357,32 +249,17 @@ class ArrayTools_Test extends UnitTest {
 
 	public function data_hasAnyKey(): array {
 		return [
-			[true, ['a', 'b', 'c'], 0],
-			[true, ['a', 'b', 'c'], 1],
-			[true, ['a', 'b', 'c'], 2],
-			[false, ['a', 'b', 'c'], 'd'],
-			[true, ['a', 'b', 'c'], [0]],
-			[true, ['a', 'b', 'c'], [1]],
-			[true, ['a', 'b', 'c'], [2]],
-			[false, ['a', 'b', 'c'], ['d']],
-			[true, ['a', 'b', 'c'], [0, 'd']],
-			[true, ['a', 'b', 'c'], [1, 'd']],
-			[true, ['a', 'b', 'c'], [2, 'd']],
-			[false, ['a', 'b', 'c'], ['d', 'd']],
-			[true, ['a' => 0, 'b' => 1, 'c' => 2], 'a'],
-			[true, ['a' => 0, 'b' => 1, 'c' => 2], 'b'],
-			[true, ['a' => 0, 'b' => 1, 'c' => 2], 'c'],
-			[false, ['a' => 0, 'b' => 1, 'c' => 2], 'd'],
-			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['a']],
-			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['b']],
-			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['c']],
-			[false, ['a' => 0, 'b' => 1, 'c' => 2], ['d']],
-			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['a', 'd']],
-			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['b', 'd']],
-			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['c', 'd']],
-			[false, ['a' => 0, 'b' => 1, 'c' => 2], ['d', 'd']],
-			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['a', 'b']],
-			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['b', 'c']],
+			[true, ['a', 'b', 'c'], 0], [true, ['a', 'b', 'c'], 1], [true, ['a', 'b', 'c'], 2],
+			[false, ['a', 'b', 'c'], 'd'], [true, ['a', 'b', 'c'], [0]], [true, ['a', 'b', 'c'], [1]],
+			[true, ['a', 'b', 'c'], [2]], [false, ['a', 'b', 'c'], ['d']], [true, ['a', 'b', 'c'], [0, 'd']],
+			[true, ['a', 'b', 'c'], [1, 'd']], [true, ['a', 'b', 'c'], [2, 'd']], [false, ['a', 'b', 'c'], ['d', 'd']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], 'a'], [true, ['a' => 0, 'b' => 1, 'c' => 2], 'b'],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], 'c'], [false, ['a' => 0, 'b' => 1, 'c' => 2], 'd'],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['a']], [true, ['a' => 0, 'b' => 1, 'c' => 2], ['b']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['c']], [false, ['a' => 0, 'b' => 1, 'c' => 2], ['d']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['a', 'd']], [true, ['a' => 0, 'b' => 1, 'c' => 2], ['b', 'd']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['c', 'd']], [false, ['a' => 0, 'b' => 1, 'c' => 2], ['d', 'd']],
+			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['a', 'b']], [true, ['a' => 0, 'b' => 1, 'c' => 2], ['b', 'c']],
 			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['c', 'a']],
 			[false, ['a' => 0, 'b' => 1, 'c' => 2], ['d', 'd', 0, 1, 2, 3, 4, 5]],
 			[true, ['a' => 0, 'b' => 1, 'c' => 2], ['a', 'b', 'c']],
@@ -395,24 +272,23 @@ class ArrayTools_Test extends UnitTest {
 		$k = 'item';
 		$result = ArrayTools::increment($arr, $k);
 		$this->assertEquals(1, $result);
-		$this->assert_arrays_equal($arr, [
+		$this->assertEquals($arr, [
 			'item' => 1,
 		]);
 		$result = ArrayTools::increment($arr, $k);
 		$this->assertEquals(2, $result);
-		$this->assert_arrays_equal($arr, [
+		$this->assertEquals($arr, [
 			'item' => 2,
 		]);
 		$k = 'decimal';
 		$result = ArrayTools::increment($arr, $k, 2.1);
 		$this->assertEquals(2.1, $result);
-		$this->assert_arrays_equal($arr, [
-			'item' => 2,
-			'decimal' => 2.1,
+		$this->assertEquals($arr, [
+			'item' => 2, 'decimal' => 2.1,
 		]);
 		$result = ArrayTools::increment($arr, $k, 3.2);
-		$this->assert_equal($result, 5.3);
-		// 		$this->assert_arrays_equal($arr, array(
+		$this->assertEquals($result, 5.3);
+		// 		$this->assertEquals($arr, array(
 		// 			"item" => 2,
 		// 			"decimal" => 5.3
 		// 		));
@@ -420,175 +296,105 @@ class ArrayTools_Test extends UnitTest {
 
 	public function test_insert(): void {
 		$arr1 = [
-			'x' => 'x',
-			'a' => 'a',
-			'y' => 'y',
+			'x' => 'x', 'a' => 'a', 'y' => 'y',
 		];
 		$key = 'a';
 		$arr2 = [
 			'p' => 'p',
 		];
-		$this->assert_arrays_equal(ArrayTools::insert($arr1, $key, $arr2, false), [
-			'x' => 'x',
-			'a' => 'a',
-			'p' => 'p',
-			'y' => 'y',
-		], 'basic after', true, true);
-		$this->assert_arrays_equal(ArrayTools::insert($arr1, $key, $arr2, true), [
-			'x' => 'x',
-			'p' => 'p',
-			'a' => 'a',
-			'y' => 'y',
-		], 'basic before', true, true);
+		$this->assertEquals(ArrayTools::insert($arr1, $key, $arr2, false), [
+			'x' => 'x', 'a' => 'a', 'p' => 'p', 'y' => 'y',
+		], 'basic after');
+		$this->assertEquals(ArrayTools::insert($arr1, $key, $arr2, true), [
+			'x' => 'x', 'p' => 'p', 'a' => 'a', 'y' => 'y',
+		], 'basic before');
 
 		$arr2 = [
-			'p' => 'p',
-			'q' => 'q',
+			'p' => 'p', 'q' => 'q',
 		];
 
-		$this->assert_arrays_equal(ArrayTools::insert($arr1, $key, $arr2, false), [
-			'x' => 'x',
-			'a' => 'a',
-			'p' => 'p',
-			'q' => 'q',
-			'y' => 'y',
-		], 'multi after', true, true);
-		$this->assert_arrays_equal(ArrayTools::insert($arr1, $key, $arr2, true), [
-			'x' => 'x',
-			'p' => 'p',
-			'q' => 'q',
-			'a' => 'a',
-			'y' => 'y',
-		], 'multi before', true, true);
+		$this->assertEquals(ArrayTools::insert($arr1, $key, $arr2, false), [
+			'x' => 'x', 'a' => 'a', 'p' => 'p', 'q' => 'q', 'y' => 'y',
+		], 'multi after');
+		$this->assertEquals(ArrayTools::insert($arr1, $key, $arr2, true), [
+			'x' => 'x', 'p' => 'p', 'q' => 'q', 'a' => 'a', 'y' => 'y',
+		], 'multi before');
 	}
 
 	public function test_wrapKeys(): void {
 		$arr = [
-			'UserID' => 'UserUser',
-			'UserName' => 'UserUser',
-			'UserDig' => 'UserUser',
+			'UserID' => 'UserUser', 'UserName' => 'UserUser', 'UserDig' => 'UserUser',
 		];
 		$arr_result = [
-			'{UserID}' => 'UserUser',
-			'{UserName}' => 'UserUser',
-			'{UserDig}' => 'UserUser',
+			'{UserID}' => 'UserUser', '{UserName}' => 'UserUser', '{UserDig}' => 'UserUser',
 		];
 		$prefix = '{';
 		$suffix = '}';
 		$result = ArrayTools::wrapKeys($arr, $prefix, $suffix);
-		$this->assert_arrays_equal($result, $arr_result);
+		$this->assertEquals($result, $arr_result);
 	}
 
 	public function test_keysRemovePrefix(): void {
 		$arr = [
-			'UserID' => 'UserUser',
-			'UserName' => 'UserUser',
-			'UserDig' => 'UserUser',
+			'UserID' => 'UserUser', 'UserName' => 'UserUser', 'UserDig' => 'UserUser',
 		];
 		$str = 'User';
 		$result = ArrayTools::keysRemovePrefix($arr, $str);
-		$this->assert_arrays_equal($result, [
-			'ID' => 'UserUser',
-			'Name' => 'UserUser',
-			'Dig' => 'UserUser',
+		$this->assertEquals($result, [
+			'ID' => 'UserUser', 'Name' => 'UserUser', 'Dig' => 'UserUser',
 		]);
 	}
 
 	public function test_keysRemoveSuffix(): void {
 		$arr = [
-			'UserID' => 'UserUser',
-			'UserName' => 'UserUser',
-			'UserDig' => 'UserUser',
+			'UserID' => 'UserUser', 'UserName' => 'UserUser', 'UserDig' => 'UserUser',
 		];
 		$result_correct = [
-			'UserID' => 'UserUser',
-			'UserName' => 'UserUser',
-			'UserDig' => 'UserUser',
+			'UserID' => 'UserUser', 'UserName' => 'UserUser', 'UserDig' => 'UserUser',
 		];
 		$str = 'User';
 		$result = ArrayTools::keysRemoveSuffix($arr, $str);
-		$this->assert_arrays_equal($result, $result_correct);
+		$this->assertEquals($result, $result_correct);
 
 		$arr = [
-			'UserIDUser' => 'UserUser',
-			'UserNameUser' => 'UserUser',
-			'UserDigUser' => 'UserUser',
+			'UserIDUser' => 'UserUser', 'UserNameUser' => 'UserUser', 'UserDigUser' => 'UserUser',
 			'NoSuffix' => 'UserUser',
 		];
 		$result_correct = [
-			'UserID' => 'UserUser',
-			'UserName' => 'UserUser',
-			'UserDig' => 'UserUser',
-			'NoSuffix' => 'UserUser',
+			'UserID' => 'UserUser', 'UserName' => 'UserUser', 'UserDig' => 'UserUser', 'NoSuffix' => 'UserUser',
 		];
 		$str = 'User';
 		$result = ArrayTools::keysRemoveSuffix($arr, $str);
-		$this->assert_arrays_equal($result, $result_correct);
+		$this->assertEquals($result, $result_correct);
 	}
 
 	public function data_keysMap(): array {
 		return [
 			[
-				['a' => 1],
-				[],
-				['a' => 1],
-			],
-			[
+				['a' => 1], [], ['a' => 1],
+			], [
 				[
-					'one' => 1,
-					'two' => 2,
-					'three' => 3,
-					'four' => 4,
+					'one' => 1, 'two' => 2, 'three' => 3, 'four' => 4,
+				], [
+					'one' => 'un', 'two' => 'deux', 'three' => 'trois',
+				], [
+					'un' => 1, 'deux' => 2, 'trois' => 3, 'four' => 4,
 				],
+			], [
 				[
-					'one' => 'un',
-					'two' => 'deux',
-					'three' => 'trois',
+					'a' => 'a', 'b' => 'b', 'Aardvark' => 'animal', 123 => 'one-two-three', 'Zebra' => 'stripes',
+				], [
+					'a' => 'b', 123 => 'Zamboni',
+				], [
+					'b' => 'a', 'Aardvark' => 'animal', 'Zamboni' => 'one-two-three', 'Zebra' => 'stripes',
 				],
+			], [
 				[
-					'un' => 1,
-					'deux' => 2,
-					'trois' => 3,
-					'four' => 4,
-				],
-			],
-			[
-				[
-					'a' => 'a',
-					'b' => 'b',
-					'Aardvark' => 'animal',
-					123 => 'one-two-three',
-					'Zebra' => 'stripes',
-				],
-				[
-					'a' => 'b',
-					123 => 'Zamboni',
-				],
-				[
-					'b' => 'a',
-					'Aardvark' => 'animal',
-					'Zamboni' => 'one-two-three',
-					'Zebra' => 'stripes',
-				],
-			],
-			[
-				[
-					'a' => 'a',
-					'b' => 'b',
-					'Aardvark' => 'animal',
-					123 => 'one-two-three',
-					'Zebra' => 'stripes',
-				],
-				[
-					'a' => 'c',
-					123 => 'Zamboni',
-				],
-				[
-					'b' => 'b',
-					'c' => 'a',
-					'Aardvark' => 'animal',
-					'Zamboni' => 'one-two-three',
-					'Zebra' => 'stripes',
+					'a' => 'a', 'b' => 'b', 'Aardvark' => 'animal', 123 => 'one-two-three', 'Zebra' => 'stripes',
+				], [
+					'a' => 'c', 123 => 'Zamboni',
+				], [
+					'b' => 'b', 'c' => 'a', 'Aardvark' => 'animal', 'Zamboni' => 'one-two-three', 'Zebra' => 'stripes',
 				],
 			],
 		];
@@ -606,28 +412,15 @@ class ArrayTools_Test extends UnitTest {
 	public function data_pairValues(): array {
 		return [
 			[
-				['foo' => 'mix=up'],
-				'=',
-				['mix' => 'up'],
-			],
-			[
-				['foo' => 'mix=up'],
-				' ',
-				['foo' => 'mix=up'],
-			],
-			[
-				[99 => 'mix=up'],
-				' ',
-				[99 => 'mix=up'],
-			],
-			[
+				['foo' => 'mix=up'], '=', ['mix' => 'up'],
+			], [
+				['foo' => 'mix=up'], ' ', ['foo' => 'mix=up'],
+			], [
+				[99 => 'mix=up'], ' ', [99 => 'mix=up'],
+			], [
 				[
-					'foo' => 'mix=up',
-					'dog = poo',
-					'place=place',
-				],
-				'=',
-				['mix' => 'up', 'dog ' => ' poo', 'place' => 'place'],
+					'foo' => 'mix=up', 'dog = poo', 'place=place',
+				], '=', ['mix' => 'up', 'dog ' => ' poo', 'place' => 'place'],
 			],
 		];
 	}
@@ -647,36 +440,17 @@ class ArrayTools_Test extends UnitTest {
 		return [
 			[
 				[
-					1 => 'one',
-					2 => 'two',
-					3 => 'three',
-					4 => 'four',
+					1 => 'one', 2 => 'two', 3 => 'three', 4 => 'four',
+				], [], [
+					1 => 'one', 2 => 'two', 3 => 'three', 4 => 'four',
 				],
-				[],
+			], [
 				[
-					1 => 'one',
-					2 => 'two',
-					3 => 'three',
-					4 => 'four',
-				],
-			],
-			[
-				[
-					1 => 'one',
-					2 => 'two',
-					3 => 'three',
-					4 => 'four',
-				],
-				[
-					'one' => 'un',
-					'two' => 'deux',
-					'three' => 'trois',
-				],
-				[
-					1 => 'un',
-					2 => 'deux',
-					3 => 'trois',
-					4 => 'four',
+					1 => 'one', 2 => 'two', 3 => 'three', 4 => 'four',
+				], [
+					'one' => 'un', 'two' => 'deux', 'three' => 'trois',
+				], [
+					1 => 'un', 2 => 'deux', 3 => 'trois', 4 => 'four',
 				],
 			],
 		];
@@ -694,25 +468,15 @@ class ArrayTools_Test extends UnitTest {
 	public function test_merge(): void {
 		$a1 = [
 			'hello' => [
-				'now' => 'yes',
-				'i' => 'do',
-				'nooooow!' => [
-					'where' => 'are',
-					'you' => 'going',
-					'what' => 'do you mean',
+				'now' => 'yes', 'i' => 'do', 'nooooow!' => [
+					'where' => 'are', 'you' => 'going', 'what' => 'do you mean',
 				],
 			],
 		];
 		$a2 = [
-			'hold-on' => 'no',
-			'hello' => [
-				'now1' => 'yes',
-				'i2' => 'do',
-				'i' => 'don\'t',
-				'nooooow!' => [
-					'where1' => 'are',
-					'you2' => 'going',
-					'what3' => 'do you mean',
+			'hold-on' => 'no', 'hello' => [
+				'now1' => 'yes', 'i2' => 'do', 'i' => 'don\'t', 'nooooow!' => [
+					'where1' => 'are', 'you2' => 'going', 'what3' => 'do you mean',
 				],
 			],
 		];
@@ -720,258 +484,170 @@ class ArrayTools_Test extends UnitTest {
 
 		$correct_result = [
 			'hello' => [
-				'now' => 'yes',
-				'i' => 'don\'t',
-				'nooooow!' => [
-					'where' => 'are',
-					'you' => 'going',
-					'what' => 'do you mean',
-					'where1' => 'are',
-					'you2' => 'going',
+				'now' => 'yes', 'i' => 'don\'t', 'nooooow!' => [
+					'where' => 'are', 'you' => 'going', 'what' => 'do you mean', 'where1' => 'are', 'you2' => 'going',
 					'what3' => 'do you mean',
-				],
-				'now1' => 'yes',
-				'i2' => 'do',
-			],
-			'hold-on' => 'no',
+				], 'now1' => 'yes', 'i2' => 'do',
+			], 'hold-on' => 'no',
 		];
-		$this->assert_arrays_equal($result, $correct_result);
+		$this->assertEquals($result, $correct_result);
 	}
 
 	public function test_prefix(): void {
 		$arr = [
-			0,
-			1,
-			2,
-			3,
-			4,
-			5,
+			0, 1, 2, 3, 4, 5,
 		];
 		$str = 'Homing-Pigeon-';
 		$result = ArrayTools::prefixValues($arr, $str);
 		$result_correct = [
-			'Homing-Pigeon-0',
-			'Homing-Pigeon-1',
-			'Homing-Pigeon-2',
-			'Homing-Pigeon-3',
-			'Homing-Pigeon-4',
+			'Homing-Pigeon-0', 'Homing-Pigeon-1', 'Homing-Pigeon-2', 'Homing-Pigeon-3', 'Homing-Pigeon-4',
 			'Homing-Pigeon-5',
 		];
-		$this->assert_arrays_equal($result, $result_correct);
+		$this->assertEquals($result, $result_correct);
 
 		$a = [
-			'Boy',
-			'Girl',
-			'Baby',
+			'Boy', 'Girl', 'Baby',
 		];
 		$p = 'Big';
-		$this->assert_arrays_equal(ArrayTools::prefixValues($a, $p), [
-			'BigBoy',
-			'BigGirl',
-			'BigBaby',
+		$this->assertEquals(ArrayTools::prefixValues($a, $p), [
+			'BigBoy', 'BigGirl', 'BigBaby',
 		]);
 	}
 
 	public function test_removePrefix(): void {
 		$arr = [
-			'GooBar',
-			'GooBird',
-			'GooPlan',
-			'gooCmon',
+			'GooBar', 'GooBird', 'GooPlan', 'gooCmon',
 		];
 		$str = 'Goo';
 		$result = ArrayTools::valuesRemovePrefix($arr, $str);
 		$result_correct = [
-			'Bar',
-			'Bird',
-			'Plan',
-			'gooCmon',
+			'Bar', 'Bird', 'Plan', 'gooCmon',
 		];
 
-		$this->assert_arrays_equal($result, $result_correct);
+		$this->assertEquals($result, $result_correct);
 	}
 
 	public function test_removeSuffix(): void {
 		$arr = [
-			'0-Thing',
-			'1-Thing',
-			'2-Thing',
-			'3-Thingy',
-			'0-Thing',
+			'0-Thing', '1-Thing', '2-Thing', '3-Thingy', '0-Thing',
 		];
 		$str = '-Thing';
 		$result = ArrayTools::valuesRemoveSuffix($arr, $str);
 		$result_correct = [
-			'0',
-			'1',
-			'2',
-			'3-Thingy',
-			'0',
+			'0', '1', '2', '3-Thingy', '0',
 		];
-		$this->assert_arrays_equal($result, $result_correct);
+		$this->assertEquals($result, $result_correct);
 	}
 
 	public function test_trim(): void {
 		$a = [
-			' foo ',
-			" \n\t\0bar\n\t ",
+			' foo ', " \n\t\0bar\n\t ",
 		];
 		$result = ArrayTools::trim($a);
-		$this->assert_arrays_equal($result, [
-			'foo',
-			'bar',
+		$this->assertEquals($result, [
+			'foo', 'bar',
 		]);
 	}
 
 	public function test_transpose(): void {
 		$arr = [
 			[
-				'1',
-				'2',
-				'3',
-			],
-			[
-				'4',
-				'5',
-				'6',
-			],
-			[
-				'7',
-				'8',
-				'9',
+				'1', '2', '3',
+			], [
+				'4', '5', '6',
+			], [
+				'7', '8', '9',
 			],
 		];
 		$result = ArrayTools::transpose($arr);
-		$this->assert_arrays_equal($result, [
+		$this->assertEquals($result, [
 			[
-				'1',
-				'4',
-				'7',
-			],
-			[
-				'2',
-				'5',
-				'8',
-			],
-			[
-				'3',
-				'6',
-				'9',
+				'1', '4', '7',
+			], [
+				'2', '5', '8',
+			], [
+				'3', '6', '9',
 			],
 		]);
 
 		$arr = [
 			[
-				'1',
-				'2',
-				'3',
-				'4',
-			],
-			[
-				'5',
-				'6',
-				'7',
-				'8',
+				'1', '2', '3', '4',
+			], [
+				'5', '6', '7', '8',
 			],
 		];
 		$result = ArrayTools::transpose($arr);
-		$this->assert_arrays_equal($result, [
+		$this->assertEquals($result, [
 			[
-				'1',
-				'5',
-			],
-			[
-				'2',
-				'6',
-			],
-			[
-				'3',
-				'7',
-			],
-			[
-				'4',
-				'8',
+				'1', '5',
+			], [
+				'2', '6',
+			], [
+				'3', '7',
+			], [
+				'4', '8',
 			],
 		]);
 
 		$result2 = ArrayTools::transpose($result);
-		$this->assert_arrays_equal($result2, $arr);
+		$this->assertEquals($result2, $arr);
 	}
 
-	public function test_filterPrefixedValues(): void {
+	public function test_filterKeyPrefixes(): void {
 		$a = [
-			'AHello' => 94,
-			'Dog' => 34,
-			'Hello' => 1,
-			'hello_there' => 2,
-			'HELLO.THERE' => new stdClass(),
+			'AHello' => 94, 'Dog' => 34, 'Hello' => 1, 'hello_there' => 2, 'HELLO.THERE' => new stdClass(),
 			'Hello.Kitty' => 'Kitty',
 		];
 		$ks = 'hello';
 		$lower = false;
-		$this->assert_arrays_equal(ArrayTools::filterPrefixedValues($a, $ks, true), [
-			'Hello' => 1,
-			'hello_there' => 2,
-			'HELLO.THERE' => new stdClass(),
-			'Hello.Kitty' => 'Kitty',
+		$this->assertEquals(ArrayTools::filterKeyPrefixes($a, $ks, true), [
+			'Hello' => 1, 'hello_there' => 2, 'HELLO.THERE' => new stdClass(), 'Hello.Kitty' => 'Kitty',
 		]);
-		$this->assert_arrays_equal(ArrayTools::filterPrefixedValues($a, $ks, false), [
+		$this->assertEquals(ArrayTools::filterKeyPrefixes($a, $ks, false), [
 			'hello_there' => 2,
 		]);
-		$this->assert_arrays_equal(ArrayTools::filterPrefixedValues($a, [
-			'Hello',
-			'AHello',
+		$this->assertEquals(ArrayTools::filterKeyPrefixes($a, [
+			'Hello', 'AHello',
 		], false), [
-			'AHello' => 94,
-			'Hello' => 1,
-			'Hello.Kitty' => 'Kitty',
+			'AHello' => 94, 'Hello' => 1, 'Hello.Kitty' => 'Kitty',
 		]);
-		$this->assert_arrays_equal(ArrayTools::filterPrefixedValues($a, [
-			'Hello.',
-			'Dog ',
+		$this->assertEquals(ArrayTools::filterKeyPrefixes($a, [
+			'Hello.', 'Dog ',
 		], false), [
 			'Hello.Kitty' => 'Kitty',
 		]);
-		$this->assert_arrays_equal(ArrayTools::filterPrefixedValues($a, [
-			'Hello.',
-			'Dog ',
+		$this->assertEquals(ArrayTools::filterKeyPrefixes($a, [
+			'Hello.', 'Dog ',
 		], true), [
-			'HELLO.THERE' => new stdClass(),
-			'Hello.Kitty' => 'Kitty',
+			'HELLO.THERE' => new stdClass(), 'Hello.Kitty' => 'Kitty',
 		]);
 	}
 
 	public function test_filter(): void {
 		$arr = [
-			'1',
-			'2,3',
-			'4',
+			'1', '2,3', '4',
 		];
 		$include = '0;2';
 		$result = ArrayTools::filter($arr, $include);
-		$this->assert_arrays_equal($result, [
-			'1',
-			2 => '4',
+		$this->assertEquals($result, [
+			'1', 2 => '4',
 		]);
 
 		$include = [
-			0,
-			2,
+			0, 2,
 		];
 		$result = ArrayTools::filter($arr, $include);
-		$this->assert_arrays_equal($result, [
-			'1',
-			2 => '4',
+		$this->assertEquals($result, [
+			'1', 2 => '4',
 		]);
 
 		$include = [
-			'0',
-			'2',
+			'0', '2',
 		];
 		$result = ArrayTools::filter($arr, $include);
-		$this->assert_arrays_equal($result, [
-			'1',
-			2 => '4',
+		$this->assertEquals($result, [
+			'1', 2 => '4',
 		]);
 
 		// $x = null;
@@ -982,20 +658,17 @@ class ArrayTools_Test extends UnitTest {
 		// } catch (Exception $e) {
 		// $got_exception = true;
 		// }
-		// $this->assert($got_exception === true, "Exception should be thrown");
+		// $this->assertTrue($got_exception ), "Exception should be thrown");
 
 		$x = [
-			'A' => 'Kent',
-			'b' => 'Ruler',
-			'C' => 'another',
-			3 => 'dogs',
+			'A' => 'Kent', 'b' => 'Ruler', 'C' => 'another', 3 => 'dogs',
 		];
 
 		$a = $x;
 		$b = 'A;b;C;3';
 		$c = $x;
 		$r = ArrayTools::filter($a, $b);
-		$this->assert_arrays_equal($r, $c, __FILE__ . ':' . __LINE__);
+		$this->assertEquals($r, $c, __FILE__ . ':' . __LINE__);
 
 		$a = $x;
 		$b = 'a;B;c;3';
@@ -1003,7 +676,7 @@ class ArrayTools_Test extends UnitTest {
 			3 => 'dogs',
 		];
 		$r = ArrayTools::filter($a, $b);
-		$this->assert_arrays_equal($r, $c, __FILE__ . ':' . __LINE__);
+		$this->assertEquals($r, $c, __FILE__ . ':' . __LINE__);
 
 		$a = $x;
 		$b = 'A;3';
@@ -1011,225 +684,154 @@ class ArrayTools_Test extends UnitTest {
 		unset($c['C']);
 		unset($c['b']);
 		$r = ArrayTools::filter($a, $b);
-		$this->assert_arrays_equal($r, $c, __FILE__ . ':' . __LINE__);
+		$this->assertEquals($r, $c, __FILE__ . ':' . __LINE__);
 
 		$a = [
-			'A' => 'B',
-			'B',
-			'A',
-			'C' => 'D',
+			'A' => 'B', 'B', 'A', 'C' => 'D',
 		];
 		$ks = 'A;1';
-		$this->assert_arrays_equal(ArrayTools::filter($a, $ks), [
-			'A' => 'B',
-			1 => 'A',
+		$this->assertEquals(ArrayTools::filter($a, $ks), [
+			'A' => 'B', 1 => 'A',
 		]);
 	}
 
 	public function test_find(): void {
-		$haystack = null;
-		$needles = null;
-		ArrayTools::find($haystack, $needles);
-
 		$exclude_files = [
-			'cc_form.php',
-			'want-to-be-complete',
-			'setup/email.php',
-			'import-log.php',
-			'/ab_try.php',
-			'/ab.php',
-			'/keyword/update.php',
-			'/report/reporter.php',
-			'/report/geo.php',
-			'/setup/landings-generate.php',
+			'cc_form.php', 'want-to-be-complete', 'setup/email.php', 'import-log.php', '/ab_try.php', '/ab.php',
+			'/keyword/update.php', '/report/reporter.php', '/report/geo.php', '/setup/landings-generate.php',
 		];
 		$needles = '/setup/landings-generate.php';
-		$this->assert(ArrayTools::find($exclude_files, $needles) !== false, "Can't find $needles in " . implode(', ', $exclude_files));
+		$this->assertIsArray(ArrayTools::find($exclude_files, $needles), "Can't find $needles in " . implode(',
+		', $exclude_files));
 	}
 
 	public function test_has(): void {
 		$array = [
-			0 => 'hello',
-			3 => 'dude',
-			'kitty' => 'cat',
+			0 => 'hello', 3 => 'dude', 'kitty' => 'cat',
 		];
-		$this->assert(ArrayTools::has($array, '0;3') === true);
-		$this->assert(ArrayTools::has($array, 3) === true);
-		$this->assert(ArrayTools::has($array, 0) === true);
-		$this->assert(ArrayTools::has($array, 'kitty') === true);
-		$this->assert(ArrayTools::has($array, 1) === false);
-		$this->assert(ArrayTools::has($array, 'Kitty') === false);
+		$this->assertTrue(ArrayTools::has($array, '0;3'));
+		$this->assertTrue(ArrayTools::has($array, 3));
+		$this->assertTrue(ArrayTools::has($array, 0));
+		$this->assertTrue(ArrayTools::has($array, 'kitty'));
+		$this->assertFalse(ArrayTools::has($array, 1));
+		$this->assertFalse(ArrayTools::has($array, 'Kitty'));
 	}
 
 	public function test_isAssoc(): void {
 		$array = [
-			'',
-			'',
-			'',
-			'',
-			'',
-			'',
-			'',
-			'',
+			'', '', '', '', '', '', '', '',
 		];
-		$this->assert(ArrayTools::isAssoc($array) === false);
+		$this->assertFalse(ArrayTools::isAssoc($array));
 		$array[-1] = '';
-		$this->assert(ArrayTools::isAssoc($array) === true);
+		$this->assertTrue(ArrayTools::isAssoc($array));
 
-		$mixed = null;
-		$this->assert(ArrayTools::isList($mixed) === false);
-		$this->assert(ArrayTools::isList(false) === false);
-		$this->assert(ArrayTools::isList(true) === false);
-		$this->assert(ArrayTools::isList(0) === false);
-		$this->assert(ArrayTools::isList(1) === false);
-		$this->assert(ArrayTools::isList('mixed') === false);
-		$this->assert(ArrayTools::isList(new stdClass()) === false);
-		$this->assert(ArrayTools::isList([]) === true);
-		$this->assert(ArrayTools::isList([
-			'1',
-			'3',
-		]) === true);
-		$this->assert(ArrayTools::isList([
-			'1',
-			2 => '3',
-		]) === false);
-		$this->assert(ArrayTools::isList([
-			'1',
-			2 => '3',
-			4,
-			5 => 'f',
-		]) === false);
-		$this->assert(ArrayTools::isList([
-			1,
-			2,
-			3,
-			4,
-			5,
-			9,
-		]) === true);
-		$this->assert(ArrayTools::isList(array_merge([
-			1,
-			2,
-			3,
-			4,
-			5,
-			9,
+		$this->assertFalse(ArrayTools::isAssoc(null));
+		$this->assertFalse(ArrayTools::isAssoc(false));
+		$this->assertFalse(ArrayTools::isAssoc(true));
+		$this->assertFalse(ArrayTools::isAssoc(0));
+		$this->assertFalse(ArrayTools::isAssoc(1));
+		$this->assertFalse(ArrayTools::isAssoc('mixed'));
+		$this->assertFalse(ArrayTools::isAssoc(new stdClass()));
+		$this->assertFalse(ArrayTools::isAssoc([]));
+		$this->assertFalse(ArrayTools::isAssoc([
+			'1', '3',
+		]));
+		$this->assertTrue(ArrayTools::isAssoc([
+			'1', 2 => '3',
+		]));
+		$this->assertTrue(ArrayTools::isAssoc([
+			'1', 2 => '3', 4, 5 => 'f',
+		]));
+		$this->assertFalse(ArrayTools::isAssoc([
+			1, 2, 3, 4, 5, 9,
+		]));
+		$this->assertFalse(ArrayTools::isAssoc(array_merge([
+			1, 2, 3, 4, 5, 9,
 		], [
-			'a',
-			1,
-			2,
-			3,
-			4,
-			5,
-			9,
-		])) === true);
+			'a', 1, 2, 3, 4, 5, 9,
+		])));
 		$faker = new faker();
 		$faker->__set('0', 'zero');
 		$faker->__set('1', 'one');
-		$this->assert(ArrayTools::isList($faker) === false);
+		$this->assertFalse(ArrayTools::isAssoc($faker));
 	}
 
 	public function test_isList(): void {
 		$mixed = null;
-		$this->assert(ArrayTools::isList($mixed) === false);
-		$this->assert(ArrayTools::isList(false) === false);
-		$this->assert(ArrayTools::isList(true) === false);
-		$this->assert(ArrayTools::isList(0) === false);
-		$this->assert(ArrayTools::isList(1) === false);
-		$this->assert(ArrayTools::isList('mixed') === false);
-		$this->assert(ArrayTools::isList(new stdClass()) === false);
-		$this->assert(ArrayTools::isList([]) === true);
-		$this->assert(ArrayTools::isList([
-			'1',
-			'3',
-		]) === true);
-		$this->assert(ArrayTools::isList([
-			'1',
-			2 => '3',
-		]) === false);
-		$this->assert(ArrayTools::isList([
-			'1',
-			2 => '3',
-			4,
-			5 => 'f',
-		]) === false);
-		$this->assert(ArrayTools::isList([
-			1,
-			2,
-			3,
-			4,
-			5,
-			9,
-		]) === true);
-		$this->assert(ArrayTools::isList(array_merge([
-			1,
-			2,
-			3,
-			4,
-			5,
-			9,
+		$this->assertFalse(ArrayTools::isList($mixed));
+		$this->assertFalse(ArrayTools::isList(false));
+		$this->assertFalse(ArrayTools::isList(true));
+		$this->assertFalse(ArrayTools::isList(0));
+		$this->assertFalse(ArrayTools::isList(1));
+		$this->assertFalse(ArrayTools::isList('mixed'));
+		$this->assertFalse(ArrayTools::isList(new stdClass()));
+		$this->assertTrue(ArrayTools::isList([]));
+		$this->assertTrue(ArrayTools::isList([
+			'1', '3',
+		]));
+		$this->assertFalse(ArrayTools::isList([
+			'1', 2 => '3',
+		]));
+		$this->assertFalse(ArrayTools::isList([
+			'1', 2 => '3', 4, 5 => 'f',
+		]));
+		$this->assertTrue(ArrayTools::isList([
+			1, 2, 3, 4, 5, 9,
+		]));
+		$this->assertTrue(ArrayTools::isList(array_merge([
+			1, 2, 3, 4, 5, 9,
 		], [
-			'a',
-			1,
-			2,
-			3,
-			4,
-			5,
-			9,
-		])) === true);
+			'a', 1, 2, 3, 4, 5, 9,
+		])));
 
 		$faker = new faker();
 		$faker->__set('0', 'zero');
 		$faker->__set('1', 'one');
-		$this->assert(ArrayTools::isList($faker) === false);
+		$this->assertFalse(ArrayTools::isList($faker));
 	}
 
-	public function test_keysFind(): void {
-		$source = [
-			'A' => 'A',
-			'B' => 'B',
+	/**
+	 * @param mixed $expected
+	 * @param array $source
+	 * @param array $source_keys
+	 * @param mixed $default
+	 * @return void
+	 * @dataProvider data_keysFind
+	 */
+	public function test_keysFind(mixed $expected, array $source, array $source_keys, mixed $default): void {
+		$this->assertEquals($expected, ArrayTools::keysFind($source, $source_keys, $default));
+	}
+
+	public function data_keysFind(): array {
+		;
+		return [
+			[
+				'B', [
+					'A' => 'A', 'B' => 'B',
+				], [
+					'B', 'C',
+				], 'Dude',
+			], [
+				null, [
+					'A' => 'A', 'B' => 'B',
+				], [
+					'D', 'C',
+				], null,
+			],
 		];
-		$sourcekeys = [
-			'B',
-			'C',
-		];
-		$default = 'Dude';
-		$this->assert(ArrayTools::keysFind($source, $sourcekeys, $default) === 'B');
 	}
 
 	public function data_max(): array {
 		return [
 			[
-				513234,
-				[
-					1,
-					2,
-					3,
-					4,
-					6,
-					'513234',
-					123,
-					-1,
-					52145,
-				],
-				null,
-			],
-			[
-				94123124,
-				[
-					'1',
-					2,
-					3,
-					99,
-					10000,
-					12,
-					94123123,
-					'94123124',
-				],
-				null,
-			],
-			[44.32, [], 44.32, ],
-			[44.32, [[], [], [], null, false, true], 44.32, ],
+				513234, [
+					1, 2, 3, 4, 6, '513234', 123, -1, 52145,
+				], null,
+			], [
+				94123124, [
+					'1', 2, 3, 99, 10000, 12, 94123123, '94123124',
+				], null,
+			], [44.32, [], 44.32, ], [44.32, [[], [], [], null, false, true], 44.32, ],
 		];
 	}
 
@@ -1248,41 +850,13 @@ class ArrayTools_Test extends UnitTest {
 		return [
 			[
 				[
-					'-412312',
-					4,
-					61234,
-					6123,
-					3,
-					new \stdClass(),
-					[],
-					-51235412,
-					3,
-					123,
-					5,
-				],
-				null,
-				-51235412,
-			],
-			[
+					'-412312', 4, 61234, 6123, 3, new \stdClass(), [], -51235412, 3, 123, 5,
+				], null, -51235412,
+			], [
 				[
-					'1',
-					2,
-					3,
-					99,
-					10000,
-					12,
-					94123123,
-					'94123124',
-					'-23412312',
-					10000,
-					12,
-					94123123,
-				],
-				null,
-				-23412312,
-			],
-			[[], 44.32, 44.32],
-			[[[], [], [], null, false, true], 44.32, 44.32],
+					'1', 2, 3, 99, 10000, 12, 94123123, '94123124', '-23412312', 10000, 12, 94123123,
+				], null, -23412312,
+			], [[], 44.32, 44.32], [[[], [], [], null, false, true], 44.32, 44.32],
 		];
 	}
 
@@ -1301,50 +875,43 @@ class ArrayTools_Test extends UnitTest {
 					'the' => [
 						'deep' => [
 							'portion' => 1231242,
-						],
-						'funzone' => 'pigeon',
+						], 'funzone' => 'pigeon',
 					],
 				],
 			],
 		];
 		$path = 'path.to.the.deep.portion';
 		$default = null;
-		$this->assert(apath($array, $path, $default) === 1231242);
+		$this->assertEquals(1231242, apath($array, $path, $default));
 		$path = 'path.to.the.funzone';
-		$this->assert(apath($array, $path, $default) === 'pigeon');
+		$this->assertEquals('pigeon', apath($array, $path, $default));
 		$path = 'path.to.the.funzone.thing';
-		$this->assert(apath($array, $path, 'uh-uh') === 'uh-uh');
+		$this->assertEquals('uh-uh', apath($array, $path, 'uh-uh'));
 	}
 
-	public function test_stristr(): void {
+	public function test_findInsensitive(): void {
 		$haystack = 'A rather long sentence';
 		$needles = [
-			'Aa',
-			'rathI',
-			'lonGs',
-			'sentance',
+			'Aa', 'rathI', 'lonGs', 'sentance',
 		];
 
-		$this->assertEquals(null, ArrayTools::stristr($haystack, $needles));
+		$this->assertEquals(null, ArrayTools::findInsensitive($haystack, $needles));
 		$haystack = 'A rather long senaatence';
-		$this->assertEquals(0, ArrayTools::stristr($haystack, $needles));
+		$this->assertEquals([$haystack, $needles[0], 0], ArrayTools::findInsensitive($haystack, $needles));
 
 		$haystack = 'A rather long sentence rathI';
-		$this->assertEquals(1, ArrayTools::stristr($haystack, $needles));
+		$this->assertEquals([$haystack, $needles[1], 1], ArrayTools::findInsensitive($haystack, $needles));
 
 		$haystack = 'lonGSA rather long sentence';
-		$this->assertEquals(2, ArrayTools::stristr($haystack, $needles));
+		$this->assertEquals([$haystack, $needles[2], 2], ArrayTools::findInsensitive($haystack, $needles));
 
 		$haystack = 'A rather long sentance';
-		$this->assertEquals(3, ArrayTools::stristr($haystack, $needles));
+		$this->assertEquals([$haystack, $needles[3], 3], ArrayTools::findInsensitive($haystack, $needles));
 	}
 
 	public function test_strstr(): void {
 		$needles = [
-			'Aa',
-			'rathI',
-			'lonGs',
-			'sentance',
+			'Aa', 'rathI', 'lonGs', 'sentance',
 		];
 
 		$haystack = 'A rather long sentence';
@@ -1365,8 +932,7 @@ class ArrayTools_Test extends UnitTest {
 
 	public function data_append(): array {
 		return [
-			[['key' => 1], [], 'key', 1],
-			[['key' => [1, 3]], ['key' => 1], 'key', 3],
+			[['key' => 1], [], 'key', 1], [['key' => [1, 3]], ['key' => 1], 'key', 3],
 			[['key' => [1, 3, 5]], ['key' => [1, 3]], 'key', 5],
 			[['key' => [1, 3], 'key2' => 3], ['key' => [1, 3]], 'key2', 3],
 		];
@@ -1387,15 +953,11 @@ class ArrayTools_Test extends UnitTest {
 
 	public function test_rtrim(): void {
 		$a = [
-			'efgabcdabcdddabad',
-			'ABCabcdddd',
-			'abcdeddddddddddddd',
+			'efgabcdabcdddabad', 'ABCabcdddd', 'abcdeddddddddddddd',
 		];
 		$charlist = 'abcd';
-		$this->assert_equal(ArrayTools::rtrim($a, $charlist), [
-			'efg',
-			'ABC',
-			'abcde',
+		$this->assertEquals(ArrayTools::rtrim($a, $charlist), [
+			'efg', 'ABC', 'abcde',
 		]);
 	}
 
@@ -1408,18 +970,9 @@ class ArrayTools_Test extends UnitTest {
 	public function data_filterKeys(): array {
 		return [
 			[
-				['a' => 1, 'b' => 2],
-				['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4],
-				['a', 'b'],
-				[],
-				true,
-			],
-			[
-				['a' => 1, 'b' => 2],
-				['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4],
-				null,
-				['c', 'd'],
-				true,
+				['a' => 1, 'b' => 2], ['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4], ['a', 'b'], [], true,
+			], [
+				['a' => 1, 'b' => 2], ['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4], null, ['c', 'd'], true,
 			],
 		];
 	}
@@ -1439,14 +992,10 @@ class ArrayTools_Test extends UnitTest {
 
 	public function test_keysLeftTrim(): void {
 		$charlist = 'a';
-		$this->assert_equal(ArrayTools::keysLeftTrim([
-			'aaaab' => 'aaaab',
-			'AAAAb' => 'AAAAb',
-			'baaaa' => 'baaaa',
+		$this->assertEquals(ArrayTools::keysLeftTrim([
+			'aaaab' => 'aaaab', 'AAAAb' => 'AAAAb', 'baaaa' => 'baaaa',
 		], $charlist), [
-			'b' => 'aaaab',
-			'AAAAb' => 'AAAAb',
-			'baaaa' => 'baaaa',
+			'b' => 'aaaab', 'AAAAb' => 'AAAAb', 'baaaa' => 'baaaa',
 		]);
 	}
 
@@ -1459,21 +1008,15 @@ class ArrayTools_Test extends UnitTest {
 	public function test_ltrim(): void {
 		$charlist = 'aA';
 		$this->assertEquals([
-			'aaaab' => 'b',
-			'AAAAb' => 'b',
-			'baaaa' => 'baaaa',
+			'aaaab' => 'b', 'AAAAb' => 'b', 'baaaa' => 'baaaa',
 		], ArrayTools::ltrim([
-			'aaaab' => 'aaaab',
-			'AAAAb' => 'AAAAb',
-			'baaaa' => 'baaaa',
+			'aaaab' => 'aaaab', 'AAAAb' => 'AAAAb', 'baaaa' => 'baaaa',
 		], $charlist));
 	}
 
 	public function data_preg_quote(): array {
 		return [
-			['', '', ''],
-			['dude', 'd', "\du\de"],
-			['We are #1', '#', "We are \#1"],
+			['', '', ''], ['dude', 'd', "\du\de"], ['We are #1', '#', "We are \#1"],
 		];
 	}
 
@@ -1490,8 +1033,7 @@ class ArrayTools_Test extends UnitTest {
 
 	public function data_prepend(): array {
 		return [
-			[[], 'key', 1, ['key' => 1]],
-			[['key' => 1], 'key', 2, ['key' => [2, 1]]],
+			[[], 'key', 1, ['key' => 1]], [['key' => 1], 'key', 2, ['key' => [2, 1]]],
 			[['key' => [2, 1]], 'key', 77.9, ['key' => [77.9, 2, 1]]],
 		];
 	}
@@ -1507,19 +1049,12 @@ class ArrayTools_Test extends UnitTest {
 
 	public function test_listTrimClean(): void {
 		$arr = [
-			"    \n\r\n\n\r\t\t\t\thello\t\n\r",
-			"\n\n\n\r\t\n",
-			' world',
-			' ',
-			'',
-			null,
-			false,
+			"    \n\r\n\n\r\t\t\t\thello\t\n\r", "\n\n\n\r\t\n", ' world', ' ', '', null, false,
 		];
 		$value = '';
 		$result = ArrayTools::listTrimClean($arr);
-		$this->assert_arrays_equal($result, [
-			0 => 'hello',
-			2 => 'world',
+		$this->assertEquals($result, [
+			0 => 'hello', 2 => 'world',
 		]);
 	}
 

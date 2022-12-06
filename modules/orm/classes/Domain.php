@@ -13,6 +13,7 @@ namespace zesk;
 class Domain extends ORM {
 	/**
 	 *
+	 * @todo credit
 	 * @var string
 	 */
 	public const url_public_suffix_list = 'https://publicsuffix.org/list/public_suffix_list.dat';
@@ -25,15 +26,16 @@ class Domain extends ORM {
 
 	/**
 	 *
+	 * @todo credit
 	 * @var string
 	 */
 	public const url_tlds_by_alpha = 'http://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 
 	/**
 	 *
-	 * @var string[string]
+	 * @var array
 	 */
-	private static $public_tlds = null;
+	private static array $public_tlds = [];
 
 	/**
 	 *
@@ -49,8 +51,8 @@ class Domain extends ORM {
 	}
 
 	/**
-	 *
-	 * @param Command_ORM_Schema $command
+	 * @param Application $application
+	 * @return void
 	 */
 	public static function schema_updated(Application $application): void {
 		self::updateDataFiles($application);
@@ -58,10 +60,11 @@ class Domain extends ORM {
 
 	/**
 	 *
+	 * @param Application $application
 	 * @param string $name
-	 * @return \zesk\Domain
+	 * @return Domain
 	 */
-	public static function domain_factory(Application $application, string $name): self {
+	public static function domainFactory(Application $application, string $name): self {
 		$domain = $application->ormFactory(__CLASS__, [
 			'name' => $name,
 		]);
@@ -71,17 +74,28 @@ class Domain extends ORM {
 	/**
 	 * Compute the TLD for a domain
 	 *
-	 * @return \zesk\Domain
+	 * @return $this
 	 */
-	protected function nameChanged() {
+	protected function nameChanged(): self {
 		$this->tld = $this->computeTLD();
 		return $this;
 	}
 
 	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\ORM::store()
+	 * @return $this
+	 * @throws Database_Exception
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_ORM_Duplicate
+	 * @throws Exception_ORM_Empty
+	 * @throws Exception_ORM_Store
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
 	 */
 	public function store(): self {
 		$this->tld = $this->computeTLD();
@@ -93,9 +107,7 @@ class Domain extends ORM {
 	 * @return string
 	 */
 	public function computeCookieDomain(): string {
-		if (!self::$public_tlds) {
-			$this->loadPublicTLDs();
-		}
+		$domains = $this->_lazyLoadTLDs();
 		$server = $this->name;
 		$x = explode('.', strrev(strtolower($server)), 4);
 		$last = null;
@@ -105,7 +117,7 @@ class Domain extends ORM {
 		$default = strrev(implode('.', $x));
 		do {
 			$try = strrev(implode('.', $x));
-			if (isset(self::$public_tlds[$try])) {
+			if (isset($domains[$try])) {
 				return "$last.$try";
 			}
 			$last = strrev(array_pop($x));
@@ -113,14 +125,19 @@ class Domain extends ORM {
 		return $default;
 	}
 
+	private function _lazyLoadTLDs(): array {
+		if (!self::$public_tlds) {
+			self::$public_tlds = $this->loadPublicTLDs($this->application);
+		}
+		return self::$public_tlds;
+	}
+
 	/**
 	 *
 	 * @return string
 	 */
 	public function computeTLD(): string {
-		if (!self::$public_tlds) {
-			$this->loadPublicTLDs();
-		}
+		$domains = $this->_lazyLoadTLDs();
 		$server = $this->name;
 		$x = explode('.', strrev(strtolower($server)), 4);
 		$default = strrev($x[0]);
@@ -129,7 +146,7 @@ class Domain extends ORM {
 		}
 		do {
 			$try = strrev(implode('.', $x));
-			if (isset(self::$public_tlds[$try])) {
+			if (isset($domains[$try])) {
 				return "$try";
 			}
 			array_pop($x);
@@ -164,12 +181,11 @@ class Domain extends ORM {
 	}
 
 	/**
-	 * @param $filename File to load
-	 * @return string[]
 	 * Load the public TLDs from the file
 	 */
-	private function loadPublicTLDs(): void {
-		$contents = strtolower(File::contents(self::publicSuffixListFile($this->application->paths)));
-		self::$public_tlds = ArrayTools::valuesFlipCopy(ArrayTools::listTrimClean(explode("\n", Text::remove_line_comments($contents, '//'))));
+	private static function loadPublicTLDs(Application $application): array {
+		$contents = strtolower(File::contents(self::publicSuffixListFile($application->paths)));
+		$topDomainSuffixList = ArrayTools::listTrimClean(explode("\n", Text::remove_line_comments($contents, '//')));
+		return array_change_key_case(ArrayTools::valuesFlipCopy($topDomainSuffixList));
 	}
 }

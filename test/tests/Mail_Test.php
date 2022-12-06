@@ -46,22 +46,22 @@ class Mail_Test extends UnitTest {
 	}
 
 	public function test_load(): void {
-		$result = Mail::load(file_get_contents($this->application->zesk_root('test/test-data/mail_load.0.txt')));
-		$this->assert_arrays_equal($result, ['File-Format' => 'both', 'File-Format-Separator' => '--DOG--', 'Subject' => 'This is my dog', 'From' => 'support@conversionruler.com', 'Reply-To' => 'support@conversionruler.com', 'body_text' => 'This is a text email', 'body_html' => 'This is an <strong>HTML</strong> message', ]);
+		$result = Mail::load(file_get_contents($this->application->zeskHome('test/test-data/mail_load.0.txt')));
+		$this->assertEquals($result, ['File-Format' => 'both', 'File-Format-Separator' => '--DOG--', 'Subject' => 'This is my dog', 'From' => 'support@conversionruler.com', 'Reply-To' => 'support@conversionruler.com', 'body_text' => 'This is a text email', 'body_html' => 'This is an <strong>HTML</strong> message', ]);
 	}
 
 	public function test_parse_address(): void {
 		$email = 'John Doe <john@doe.com>';
 		$part = null;
 		$result = Mail::parse_address($email, $part);
-		$this->assert_arrays_equal($result, ['length' => 23, 'text' => 'John Doe <john@doe.com>', 'name' => 'John Doe', 'email' => 'john@doe.com', 'user' => 'john', 'host' => 'doe.com', ], _dump($result));
+		$this->assertEquals($result, ['length' => 23, 'text' => 'John Doe <john@doe.com>', 'name' => 'John Doe', 'email' => 'john@doe.com', 'user' => 'john', 'host' => 'doe.com', ], _dump($result));
 	}
 
 	public function test_header_charsets(): void {
 		$header = '=?ISO-8859-1?q?Hello?= =?ISO-8859-2?q?This?= =?ISO-8859-3?q?is?= =?ISO-8859-4?q?a?= =?ISO-8859-5?q?test?= =?ISO-8859-4?X?but_ignore_this_part?= ';
 		$result = Mail::header_charsets($header);
 
-		$this->assert_arrays_equal($result, ['ISO-8859-1', 'ISO-8859-2', 'ISO-8859-3', 'ISO-8859-4', 'ISO-8859-5', ]);
+		$this->assertEquals($result, ['ISO-8859-1', 'ISO-8859-2', 'ISO-8859-3', 'ISO-8859-4', 'ISO-8859-5', ]);
 	}
 
 	public function test_decode_header(): void {
@@ -90,9 +90,9 @@ class Mail_Test extends UnitTest {
 		foreach ($headers as $header) {
 			[$test, $expect, $expected_charsets] = $header;
 			$result = Mail::decode_header($test);
-			$this->assert($result === $expect, "$result === $expect");
+			$this->assertEquals($expect, $result);
 			$charsets = Mail::header_charsets($test);
-			$this->assert_arrays_equal($charsets, $expected_charsets);
+			$this->assertEquals($expected_charsets, $charsets);
 		}
 		$charset = null;
 	}
@@ -114,11 +114,11 @@ class Mail_Test extends UnitTest {
 			[$test, $expect] = $header;
 			// echo "Test $i: $test => " . ($expect ? 'true' : 'false') . "\n";
 			$result = Mail::is_encoded_header($test);
-			$this->assert($result === $expect);
+			$this->assertEquals($result, $expect);
 			if ($result) {
-				$this->assert(count(Mail::header_charsets($test)) !== 0);
+				$this->assertNotEquals(0, count(Mail::header_charsets($test)));
 			} else {
-				$this->assert(count(Mail::header_charsets($test)) === 0);
+				$this->assertEquals(0, count(Mail::header_charsets($test)));
 			}
 		}
 	}
@@ -147,16 +147,16 @@ EOF;
 
 		$result = Mail::load_file($filename);
 
-		$this->assert($result['File-Format'] === 'both');
-		$this->assert($result['Subject'] === 'Test Email');
-		$this->assert($result['From'] === 'support@zesk.com');
-		$this->assert($result['To'] === 'support@example.com');
-		$this->assert($result['body_text'] === 'This is the text email.
+		$this->assertEquals($result['File-Format'], 'both');
+		$this->assertEquals($result['Subject'], 'Test Email');
+		$this->assertEquals($result['From'], 'support@zesk.com');
+		$this->assertEquals($result['To'], 'support@example.com');
+		$this->assertEquals($result['body_text'], 'This is the text email.
 
 Thanks,
 
 http://www.example.com/unsubscribe?email={email}', 'Text failed: ' . $result['body_text']);
-		$this->assert($result['body_html'] === 'This is the <strong>HTML</strong> email.
+		$this->assertEquals($result['body_html'], 'This is the <strong>HTML</strong> email.
 
 Thanks,
 
@@ -168,7 +168,7 @@ Thanks,
 		$hash = $this->randomHex();
 		$file = $this->sandbox('The-Template.tpl');
 		file_put_contents($file, "File-Format: html\nSubject: Yo\n\nHello <strong>$hash</strong> you are so {verb}");
-		$this->application->theme_path($this->sandbox());
+		$this->application->addThemePath($this->sandbox());
 
 		$options = ['verb' => 'fun'];
 		$this->assertEquals(['Subject' => 'Yo', 'File-Format' => 'html', 'body_html' => "Hello <strong>$hash</strong> you are so fun"], Mail::load_theme($application, 'The-Template', $options));
@@ -261,7 +261,16 @@ All work and no play makes Kent a dull boy.
 		$headers[] = 'X-Bogus-Header: This is a bogus header';
 
 		$this->log("Sending mail to $to");
-		$this->assert_instanceof(Mail::sendmail($this->application, $to, $from, $subject, $body, $cc, $bcc, $headers), __NAMESPACE__ . '\\' . 'Mail');
+		$this->assertInstanceOf(Mail::class, Mail::sendmail(
+			$this->application,
+			$to,
+			$from,
+			$subject,
+			$body,
+			$cc,
+			$bcc,
+			$headers
+		));
 
 		$test_mailbox = $to;
 		$n_seconds = 1;
@@ -289,6 +298,6 @@ All work and no play makes Kent a dull boy.
 			$pop->disconnect();
 		} while ($timer->elapsed() < 300);
 
-		$this->assert($success, "Unable to find message with subject $subject in destination folder");
+		$this->assertTrue($success, "Unable to find message with subject $subject in destination folder");
 	}
 }

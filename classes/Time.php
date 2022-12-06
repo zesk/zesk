@@ -18,6 +18,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use OutOfBoundsException;
+
 class Time extends Temporal {
 	/**
 	 *
@@ -116,7 +118,7 @@ class Time extends Temporal {
 	 * @param Application $application
 	 */
 	public static function configured(Application $application): void {
-		self::$default_format_string = $application->configuration->path_get([
+		self::$default_format_string = $application->configuration->getPath([
 			__CLASS__,
 			'format_string',
 		], self::DEFAULT_FORMAT_STRING);
@@ -181,7 +183,7 @@ class Time extends Temporal {
 	 * @param null|int|string|Time|Timestamp $value Values of varying types
 	 * @return Time
 	 * @throws Exception_Parameter
-	 * @throws Exception_Range
+	 * @throws OutOfBoundsException
 	 */
 	public function set(null|int|string|Time|Timestamp $value): self {
 		if (is_int($value)) {
@@ -196,7 +198,7 @@ class Time extends Temporal {
 			$this->setMilliecond($value->millisecond());
 			return $this;
 		} elseif ($value instanceof Timestamp) {
-			$this->setSeconds($value->daySeconds())->setMilliecond($value->millisecond());
+			$this->setUNIXTimestamp($value->unixTimestamp())->setMilliecond($value->millisecond());
 			return $this;
 		}
 
@@ -266,7 +268,7 @@ class Time extends Temporal {
 	 *
 	 * @param int $set
 	 * @return $this
-	 * @throws Exception_Range
+	 * @throws OutOfBoundsException
 	 */
 	public function setUNIXTimestamp(int $set): self {
 		[$hours, $minutes, $seconds] = explode(' ', gmdate('G n s', $set)); // getdate doesn't support UTC
@@ -281,11 +283,11 @@ class Time extends Temporal {
 	 * @param int $mm
 	 * @param int $ss
 	 * @return Time
-	 * @throws Exception_Range
+	 * @throws OutOfBoundsException
 	 */
 	public function hms(int $hh = 0, int $mm = 0, int $ss = 0): self {
 		if (($hh < 0) || ($hh > self::hour_max) || ($mm < 0) || ($mm > self::minute_max) || ($ss < 0) || ($ss > self::second_max)) {
-			throw new Exception_Range("Time::hms($hh,$mm,$ss)");
+			throw new OutOfBoundsException("Time::hms($hh,$mm,$ss)");
 		}
 		$this->seconds = ($hh * self::seconds_per_hour) + ($mm * self::seconds_per_minute) + $ss;
 		return $this;
@@ -309,7 +311,8 @@ class Time extends Temporal {
 	 *
 	 * @param string $value
 	 * @return Time
-	 * @throws Exception_Parameter
+	 * @throws OutOfBoundsException
+	 * @throws Exception_Parse
 	 */
 	public function parse(string $value): self {
 		foreach ([
@@ -340,7 +343,7 @@ class Time extends Temporal {
 		$ts = strtotime($value, $this->unixTimestamp());
 		date_default_timezone_set($tz);
 		if ($ts === false || $ts < 0) {
-			throw new Exception_Parameter(map('Time::parse({0}): Can\'t parse', [$value]));
+			throw new Exception_Parse(map('Time::parse({0}): Can\'t parse', [$value]));
 		}
 		return $this->setUNIXTimestamp($ts);
 	}
@@ -359,6 +362,7 @@ class Time extends Temporal {
 	 *
 	 * @param int $set
 	 * @return self
+	 * @throws OutOfBoundsException
 	 */
 	public function setHour(int $set): self {
 		return $this->hms($set, $this->minute(), $this->second());

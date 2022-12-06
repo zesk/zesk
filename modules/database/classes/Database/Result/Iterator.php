@@ -276,7 +276,7 @@ class Database_Result_Iterator implements \Iterator {
 	 *
 	 * @return array
 	 */
-	public function to_array(): array {
+	public function toArray(): array {
 		$result = [];
 		foreach ($this as $k => $v) {
 			$result[$k] = $v;

@@ -80,7 +80,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$query = $this->query_update();
 		$sql = $query->sql();
 		$query->value('*seen', $sql->now())->value('expires', $this->compute_expires())->value('*sequence_index', 'sequence_index+1')->addWhere('id', $this)->setLowPriority(true)->execute();
-		$this->call_hook('seen');
+		$this->callHook('seen');
 		return $this;
 	}
 
@@ -186,10 +186,10 @@ class Session_ORM extends ORM implements Interface_Session {
 	/**
 	 * De-authenticate
 	 *
-	 * @see Interface_Session::deauthenticate()
+	 * @see Interface_Session::relinquish()
 	 */
-	public function deauthenticate(): void {
-		$this->user()->call_hook('logout');
+	public function relinquish(): void {
+		$this->user()->callHook('logout');
 		$this->setMember('user', null);
 		$this->store();
 	}
@@ -211,7 +211,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		try {
 			$user = $this->user();
 			if ($user) {
-				$user->call_hook('logout_expire');
+				$user->callHook('logout_expire');
 			}
 		} catch (Exception_ORM_NotFound $e) {
 			// User deleted
@@ -273,7 +273,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->set_member('cookie', $cookie_value);
 		$this->set_member('expires', $expires);
 		$this->set_member('ip', $request->ip());
-		$this->set_member('data', to_array($this->data) + [
+		$this->set_member('data', toArray($this->data) + [
 			'uri' => $request->uri(),
 		]);
 		$cookie_options = $this->cookie_options();
@@ -302,7 +302,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public static function one_time_create(User $user, $expire_seconds = null) {
 		$app = $user->application;
 		if ($expire_seconds === null) {
-			$expire_seconds = toInteger($app->configuration->path_get([
+			$expire_seconds = toInteger($app->configuration->getPath([
 				__CLASS__,
 				'one_time_expire_seconds',
 			], 86400));
@@ -410,7 +410,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @throws Exception_Semantics
 	 */
 	public function user(): User {
-		return $this->member_object('user', $this->inheritOptions());
+		return $this->memberObject('user', $this->inheritOptions());
 	}
 
 	public function get(string $name, mixed $default = null): mixed {

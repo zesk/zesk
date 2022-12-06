@@ -21,7 +21,7 @@ class Server_Platform_Linux extends Server_Platform_Unix {
 	private static $groups = [];
 
 	private function network_restart() {
-		$this->verbose_log('Restarting network ...');
+		$this->verboseLog('Restarting network ...');
 		return $this->root_exec('nohup ifup -a --force');
 	}
 
@@ -52,11 +52,11 @@ class Server_Platform_Linux extends Server_Platform_Unix {
 
 	protected function linux_remove_rc(array $services): void {
 		foreach ($services as $service) {
-			$this->verbose_log("Removing /etc/init.d/$service from any startup scripts ...");
+			$this->verboseLog("Removing /etc/init.d/$service from any startup scripts ...");
 			$this->root_exec('update-rc.d -f {0} remove', $service);
 			$path = path('/etc/init.d', $service);
 			if (is_executable($path)) {
-				$this->verbose_log("Stopping $path ...");
+				$this->verboseLog("Stopping $path ...");
 				$this->root_exec("$path stop");
 			}
 			$this->owner($path, 'root', '-rw-r--r--');

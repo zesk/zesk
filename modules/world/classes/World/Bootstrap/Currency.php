@@ -153,10 +153,10 @@ class World_Bootstrap_Currency extends Hookable {
 		return null;
 	}
 
-	private function _codes() {
+	private function _codes(): array {
 		$codes = $this->_somewhat_dated_codes();
 		$valid_ones = $this->_valid_codes();
-		$missing_ones = ArrayTools::valuesFlipCopy($valid_ones, true);
+		$missing_ones = array_change_key_case(ArrayTools::valuesFlipCopy($valid_ones));
 		foreach ($codes as $index => $row) {
 			$code = strtolower($row[2]);
 			if (!isset($missing_ones[$code])) {

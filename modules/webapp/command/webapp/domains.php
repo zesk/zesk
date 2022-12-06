@@ -43,7 +43,7 @@ class Command_WebApp_Domains extends \zesk\Command_Base {
 				'name',
 				'active DESC',
 			])
-			->to_array('name', 'active');
-		return $this->render_format($result);
+			->toArray('name', 'active');
+		return $this->renderFormat($result);
 	}
 }

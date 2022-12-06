@@ -97,13 +97,13 @@ class Database_Parser_Test extends UnitTest {
 			$actual = $parser->splitOrderBy($order_by);
 		}
 
-		$this->assert_equal_array($expected_split, $actual);
+		$this->assertEquals($expected_split, $actual);
 
 		$actual_reverse = $parser->reverseOrderBy($order_by);
 
 		// 		$this->log('reverseOrderBy');
 		// 		$this->log($actual_reverse);
 		// 		$this->log($expected_reverse);
-		$this->assert_equal($actual_reverse, $expected_reverse);
+		$this->assertEquals($actual_reverse, $expected_reverse);
 	}
 }

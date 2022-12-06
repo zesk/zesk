@@ -30,7 +30,7 @@ class Schedule extends ORM {
 		} else {
 			$last->setTimeZone($timezone);
 		}
-		return $this->call_hook_arguments("compute_next_$unit", [
+		return $this->callHookArguments("compute_next_$unit", [
 			$last,
 		], null);
 	}

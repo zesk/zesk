@@ -83,33 +83,30 @@ class URL_Test extends UnitTest {
 		$url = 'http://www.example.com/path/?_foo=bar&number1=or-number-2';
 		$x = URL::left_path($url);
 		$r = 'http://www.example.com/path/';
-		$this->assert($x === $r, "$x === $r");
+		$this->assertEquals($r, $x);
 	}
 
 	public function queryKeysRemove(): void {
 		$u = 'http://www.example.com/?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51';
 		$names = 'marker;a;abcDEF';
-		$isHREF = false;
-		$result = URL::queryKeysRemove($u, $names, $isHREF);
+		$result = URL::queryKeysRemove($u, $names);
 		$test_result = 'http://www.example.com/?b=def&dogfish=HEAD#marker=12&place=51';
-		$this->assert($result === $test_result, "$result === $test_result");
+		$this->assertEquals($test_result, $result);
 
 		$u = '?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51';
 		$names = 'marker;a;abcDEF';
-		$isHREF = false;
-		$result = URL::queryKeysRemove($u, $names, $isHREF);
+		$result = URL::queryKeysRemove($u, $names);
 		$test_result = '?b=def&dogfish=HEAD#marker=12&place=51';
-		$this->assert($result === $test_result, "$result === $test_result");
+		$this->assertEquals($test_result, $result);
 
 		$u = '?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51';
 		$names = 'marker;a;B;abcDEF';
-		$isHREF = false;
-		$result = URL::queryKeysRemove($u, $names, $isHREF);
+		$result = URL::queryKeysRemove($u, $names);
 		$test_result = '?b=def&dogfish=HEAD#marker=12&place=51';
-		$this->assert($result === $test_result, "$result === $test_result");
+		$this->assertEquals($test_result, $result);
 	}
 
-	public function data_unparse(): array {
+	public function data_stringify(): array {
 		$rows = [];
 		foreach (['http://www.test.com:81/SIMPLE.html' => 'http://www.test.com:81/SIMPLE.html', 'http://john:dude@www.test.com:81/SIMPLE.html' => 'http://john:dude@www.test.com:81/SIMPLE.html', 'http:/www.test.com/SIMPLE.html' => false, 'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag', 'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag', 'file:///usr/local/etc/php.ini' => 'file:///usr/local/etc/php.ini', 'FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini' => 'ftp://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini', ] as $u => $u_final) {
 			$rows[] = [$u_final, $u];
@@ -122,16 +119,16 @@ class URL_Test extends UnitTest {
 	 * @param string $url
 	 * @return void
 	 * @throws Exception_Syntax
-	 * @dataProvider data_unparse
+	 * @dataProvider data_stringify
 	 */
-	public function test_unparse(string|bool $expected, string $url): void {
+	public function test_stringify(string|bool $expected, string $url): void {
 		if ($expected === false) {
 			$this->expectException(Exception_Syntax::class);
 		}
 		$parts = URL::parse($url);
-		$u1 = URL::unparse($parts);
+		$u1 = URL::stringify($parts);
 		$parts1 = URL::parse($u1);
-		$u2 = URL::unparse($parts1);
+		$u2 = URL::stringify($parts1);
 		$this->assertEquals($u1, $u2);
 		$this->assertEquals($u2, $expected);
 	}
@@ -152,7 +149,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::change_host($url, $host));
 	}
 
-	public function data_compute_href(): array {
+	public function data_computeHREF(): array {
 		$url = 'http://www.example.com/path/to/file.php?query=value&vale1=412#position';
 		return [
 			['http://www.example.com/path/to/another-file.php?foo=bar#place', $url, 'another-file.php?foo=bar#place'],
@@ -169,10 +166,10 @@ class URL_Test extends UnitTest {
 	 * @param $url
 	 * @param $href
 	 * @return void
-	 * @dataProvider data_compute_href
+	 * @dataProvider data_computeHREF
 	 */
-	public function test_compute_href($expected, $url, $href): void {
-		$this->assertEquals($expected, URL::compute_href($url, $href));
+	public function test_computeHREF($expected, $url, $href): void {
+		$this->assertEquals($expected, URL::computeHREF($url, $href));
 	}
 
 	public function data_host(): array {
@@ -235,7 +232,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::isAbsolute($url));
 	}
 
-	public function data_is_secure(): array {
+	public function data_isSecure(): array {
 		return [[true, 'https://www.example.com/'], [false, 'http://www.example.com/'], [true, 'sftp://user:pass@host/'], [true, 'ssh://user@host'], [false, 'telnet://user@host']];
 	}
 
@@ -243,10 +240,10 @@ class URL_Test extends UnitTest {
 	 * @param bool $expected
 	 * @param string $url
 	 * @return void
-	 * @dataProvider data_is_secure
+	 * @dataProvider data_isSecure
 	 */
 	public function test_is_secure(bool $expected, string $url): void {
-		$this->assertEquals($expected, URL::is_secure($url));
+		$this->assertEquals($expected, URL::isSecure($url));
 	}
 
 	public function data_left(): array {

@@ -25,7 +25,7 @@ class World_Bootstrap_Country extends Hookable {
 	 *
 	 * @var array
 	 */
-	private $include_country = null;
+	private array $include_country;
 
 	/**
 	 *
@@ -46,10 +46,8 @@ class World_Bootstrap_Country extends Hookable {
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inheritConfiguration(Module_World::class);
-		$include_country = $this->option('include_country');
-		if ($include_country) {
-			$this->include_country = array_change_key_case(ArrayTools::keysFromValues(to_list($include_country), true));
-		}
+		$include_country = $this->optionIterable('include_country');
+		$this->include_country = array_change_key_case(ArrayTools::keysFromValues(toList($include_country), true));
 	}
 
 	public function bootstrap(): void {
@@ -71,7 +69,7 @@ class World_Bootstrap_Country extends Hookable {
 
 	private function is_included(Country $country) {
 		if ($this->include_country) {
-			return avalue($this->include_country, strtolower($country->code), false);
+			return $this->include_country[strtolower($country->code)] ?? false;
 		}
 		return true;
 	}
@@ -83,8 +81,10 @@ class World_Bootstrap_Country extends Hookable {
 	 * @global Module_World::geonames_country_cache_file path to location to store country file
 	 *         (defaults to this module)
 	 * @global Module_World::geonames_time_to_live
+	 * @param Application $application
+	 * @return array
 	 */
-	private function load_countryinfo(Application $application) {
+	private function load_countryinfo(Application $application): array {
 		$world_path = $application->modules->path('world');
 		$file = $this->option('geonames_country_cache_file', path($world_path, 'bootstrap-data/countryinfo.txt'));
 		Net_Sync::url_to_file($application, self::url_geonames_country_file, $file, [

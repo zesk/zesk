@@ -123,11 +123,11 @@ class Command_Install extends Command_Base {
 			'install',
 			'post_install',
 		] as $method_name) {
-			$application->call_hook($method_name . '_begin');
+			$application->callHook($method_name . '_begin');
 			foreach ($ordered_objects as $object) {
 				if (method_exists($object, $method_name)) {
 					if ($object instanceof Hookable) {
-						$object->call_hook($method_name);
+						$object->callHook($method_name);
 					}
 					if ($this->optionBool('verbose')) {
 						echo "== $object $method_name\n";
@@ -135,7 +135,7 @@ class Command_Install extends Command_Base {
 					$object->$method_name();
 				}
 			}
-			$application->call_hook($method_name . '_end');
+			$application->callHook($method_name . '_end');
 		}
 	}
 

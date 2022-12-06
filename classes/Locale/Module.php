@@ -59,7 +59,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head, \zesk\
 	 * @param Router $router
 	 */
 	public function hook_routes(Router $router): void {
-		$router->add_route('/locale/{option action}', [
+		$router->addRoute('/locale/{option action}', [
 			'controller' => Controller::class,
 			'arguments' => [
 				1,

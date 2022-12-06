@@ -83,7 +83,7 @@ abstract class Command_Iterator_File extends Command_Base {
 		$this->show_skipped = $this->optionBool('show-skipped');
 		$this->dry_run = $this->optionBool('dry-run');
 		$this->start();
-		$extras = $this->arguments_remaining(true);
+		$extras = $this->argumentsRemaining(true);
 		if ($extras) {
 			foreach ($extras as $extra) {
 				if (is_file($extra)) {
@@ -132,7 +132,7 @@ abstract class Command_Iterator_File extends Command_Base {
 				continue;
 			}
 			if ($fileinfo->isDir()) {
-				//$this->verbose_log("Traversing $dir (from $name)");
+				//$this->verboseLog("Traversing $dir (from $name)");
 				$this->recurse_directory($name);
 			} else {
 				$ext = File::extension($basename);

@@ -59,7 +59,7 @@ class Locale_Test extends UnitTest {
 		$this->assertEquals($expected, $locale->plural($test, $n));
 	}
 
-	public function conjunction_data(): array {
+	public function data_conjunction(): array {
 		return [
 			[
 				['one thing', ],
@@ -135,7 +135,7 @@ class Locale_Test extends UnitTest {
 	 * @param string $conjunction
 	 * @param string $expected
 	 * @return void
-	 * @dataProvider conjunction_data
+	 * @dataProvider data_conjunction
 	 */
 	public function test_conjunction(array $words, string $conjunction, string $expected): void {
 		$locale = $this->application->localeRegistry('en');
@@ -176,7 +176,7 @@ class Locale_Test extends UnitTest {
 	 * @param Locale $locale
 	 */
 	public function test_date_format(Locale $locale): void {
-		$this->assert_is_string($locale->date_format($locale));
+		$this->assertIsString($locale->date_format($locale));
 	}
 
 	/**
@@ -184,7 +184,7 @@ class Locale_Test extends UnitTest {
 	 * @param Locale $locale
 	 */
 	public function test_datetime_format(Locale $locale): void {
-		$this->assert_is_string($locale->datetime_format());
+		$this->assertIsString($locale->datetime_format());
 	}
 
 	/**
@@ -192,11 +192,11 @@ class Locale_Test extends UnitTest {
 	 * @param Locale $locale
 	 */
 	public function test_parse_dialect(Locale $locale): void {
-		$this->assert_equal(Locale::parse_dialect('en_us'), 'US');
-		$this->assert_equal(Locale::parse_dialect('EN_US'), 'US');
-		$this->assert_equal(Locale::parse_dialect('EN_US_Southern'), 'US');
-		$this->assert_equal(Locale::parse_dialect('En'), '');
-		$this->assert_equal(Locale::parse_dialect(''), '');
+		$this->assertEquals(Locale::parse_dialect('en_us'), 'US');
+		$this->assertEquals(Locale::parse_dialect('EN_US'), 'US');
+		$this->assertEquals(Locale::parse_dialect('EN_US_Southern'), 'US');
+		$this->assertEquals(Locale::parse_dialect('En'), '');
+		$this->assertEquals(Locale::parse_dialect(''), '');
 	}
 
 	/**
@@ -205,11 +205,11 @@ class Locale_Test extends UnitTest {
 	 */
 	public function test_duration_string(Locale $locale): void {
 		$number = null;
-		$this->assert_equal($locale->duration_string(1, 'second', $number), '1 second');
-		$this->assert_equal($locale->duration_string(2, 'second', $number), '2 seconds');
-		$this->assert_equal($locale->duration_string(60, 'second', $number), '60 seconds');
-		$this->assert_equal($locale->duration_string(120, 'second', $number), '2 minutes');
-		$this->assert_equal($locale->duration_string(120, 'second', $number), '2 minutes');
+		$this->assertEquals($locale->duration_string(1, 'second', $number), '1 second');
+		$this->assertEquals($locale->duration_string(2, 'second', $number), '2 seconds');
+		$this->assertEquals($locale->duration_string(60, 'second', $number), '60 seconds');
+		$this->assertEquals($locale->duration_string(120, 'second', $number), '2 minutes');
+		$this->assertEquals($locale->duration_string(120, 'second', $number), '2 minutes');
 	}
 
 	/**
@@ -217,15 +217,15 @@ class Locale_Test extends UnitTest {
 	 * @param Locale $locale
 	 */
 	public function test_indefinite_article(Locale $locale): void {
-		$this->assert_equal($locale->indefinite_article('euro', []), 'a');
-		$this->assert_equal($locale->indefinite_article('honor', []), 'an');
+		$this->assertEquals($locale->indefinite_article('euro', []), 'a');
+		$this->assertEquals($locale->indefinite_article('honor', []), 'an');
 	}
 
 	public function test_language(): void {
-		$this->assert_equal(Locale::parse_language('EN_US'), 'en');
-		$this->assert_equal(Locale::parse_language('EN_US_Southern'), 'en');
-		$this->assert_equal(Locale::parse_language('En'), 'en');
-		$this->assert_equal(Locale::parse_language(''), '');
+		$this->assertEquals(Locale::parse_language('EN_US'), 'en');
+		$this->assertEquals(Locale::parse_language('EN_US_Southern'), 'en');
+		$this->assertEquals(Locale::parse_language('En'), 'en');
+		$this->assertEquals(Locale::parse_language(''), '');
 	}
 
 	public function test_negate_word(): void {
@@ -234,9 +234,9 @@ class Locale_Test extends UnitTest {
 	}
 
 	public function test_normalize(): void {
-		$this->assert_equal(Locale::normalize('EN_us'), 'en_US');
-		$this->assert_equal(Locale::normalize('ABCD_EFGH_IJ'), 'ab_EF');
-		$this->assert_equal(Locale::normalize('Fr_Fr'), 'fr_FR');
+		$this->assertEquals(Locale::normalize('EN_us'), 'en_US');
+		$this->assertEquals(Locale::normalize('ABCD_EFGH_IJ'), 'ab_EF');
+		$this->assertEquals(Locale::normalize('Fr_Fr'), 'fr_FR');
 	}
 
 	public function now_string_data(): array {
@@ -261,27 +261,27 @@ class Locale_Test extends UnitTest {
 	 */
 	public function test_ordinal(): void {
 		$locale = $this->en_locale();
-		$this->assert_equal($locale->ordinal(1), '1st');
-		$this->assert_equal($locale->ordinal(2), '2nd');
-		$this->assert_equal($locale->ordinal(3), '3rd');
-		$this->assert_equal($locale->ordinal(11), '11th');
-		$this->assert_equal($locale->ordinal(12), '12th');
-		$this->assert_equal($locale->ordinal(13), '13th');
-		$this->assert_equal($locale->ordinal(21), '21st');
-		$this->assert_equal($locale->ordinal(22), '22nd');
-		$this->assert_equal($locale->ordinal(23), '23rd');
-		$this->assert_equal($locale->ordinal(101), '101st');
-		$this->assert_equal($locale->ordinal(102), '102nd');
-		$this->assert_equal($locale->ordinal(103), '103rd');
-		$this->assert_equal($locale->ordinal(110), '110th');
-		$this->assert_equal($locale->ordinal(111), '111th');
-		$this->assert_equal($locale->ordinal(112), '112th');
-		$this->assert_equal($locale->ordinal(113), '113th');
+		$this->assertEquals($locale->ordinal(1), '1st');
+		$this->assertEquals($locale->ordinal(2), '2nd');
+		$this->assertEquals($locale->ordinal(3), '3rd');
+		$this->assertEquals($locale->ordinal(11), '11th');
+		$this->assertEquals($locale->ordinal(12), '12th');
+		$this->assertEquals($locale->ordinal(13), '13th');
+		$this->assertEquals($locale->ordinal(21), '21st');
+		$this->assertEquals($locale->ordinal(22), '22nd');
+		$this->assertEquals($locale->ordinal(23), '23rd');
+		$this->assertEquals($locale->ordinal(101), '101st');
+		$this->assertEquals($locale->ordinal(102), '102nd');
+		$this->assertEquals($locale->ordinal(103), '103rd');
+		$this->assertEquals($locale->ordinal(110), '110th');
+		$this->assertEquals($locale->ordinal(111), '111th');
+		$this->assertEquals($locale->ordinal(112), '112th');
+		$this->assertEquals($locale->ordinal(113), '113th');
 
 		$locale = $this->fr_locale();
-		$this->assert_equal($locale->ordinal(1, 'fr'), '1r');
-		$this->assert_equal($locale->ordinal(2, 'fr'), '2e');
-		$this->assert_equal($locale->ordinal(21, 'fr'), '21e');
+		$this->assertEquals($locale->ordinal(1, 'fr'), '1r');
+		$this->assertEquals($locale->ordinal(2, 'fr'), '2e');
+		$this->assertEquals($locale->ordinal(21, 'fr'), '21e');
 	}
 
 	public function test_plural2(): void {
@@ -312,7 +312,7 @@ class Locale_Test extends UnitTest {
 		$n = 2;
 		$locale = $this->en_locale();
 		foreach ($tests as $test => $result) {
-			$this->assert_equal($locale->plural($test, $n), $result);
+			$this->assertEquals($locale->plural($test, $n), $result);
 		}
 	}
 
@@ -403,12 +403,16 @@ class Locale_Test extends UnitTest {
 		}
 	}
 
-	public function translation_tests() {
+	/**
+	 * @return array[]
+	 * @throws Exception_Class_NotFound
+	 */
+	public function data_locale_translation(): array {
 		$this->setUp();
 
 		$id = 'xy';
 		$xy = Locale::factory($this->application, $id);
-		$xy->translations([
+		$xy->setTranslations([
 			'cuddle' => 'boink',
 		]);
 		$this->assertInstanceOf(Locale_Default::class, $xy);
@@ -437,12 +441,12 @@ class Locale_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider translation_tests
+	 * @dataProvider data_locale_translation
 	 * @param Locale $locale
 	 * @param string $expected
 	 * @param string $test
 	 */
-	public function test_locale_translation(Locale $locale, $test, $expected): void {
+	public function test_locale_translation(Locale $locale, string $test, string $expected): void {
 		$this->assertEquals($expected, $locale->__($test));
 	}
 
@@ -451,7 +455,7 @@ class Locale_Test extends UnitTest {
 	 */
 	public function test_time_format(Locale $locale): void {
 		$include_seconds = false;
-		$this->assert_is_string($locale->time_format($include_seconds));
+		$this->assertIsString($locale->time_format($include_seconds));
 	}
 
 	/**
@@ -463,7 +467,7 @@ class Locale_Test extends UnitTest {
 			'Hello',
 			'world',
 		] as $phrase) {
-			$this->assert_equal($locale->__($phrase), $locale($phrase));
+			$this->assertEquals($locale->__($phrase), $locale($phrase));
 		}
 	}
 
@@ -475,9 +479,9 @@ class Locale_Test extends UnitTest {
 		$now = time();
 		$in_10 = $locale->now_string($now + 10);
 		$ago_10 = $locale->now_string($now - 10);
-		$this->assert(!str_contains($in_10, 'Locale::'));
-		$this->assert(!str_contains($in_10, 'now_string'));
-		$this->assert(!str_contains($ago_10, 'Locale::'));
-		$this->assert(!str_contains($ago_10, 'now_string'));
+		$this->assertFalse(str_contains($in_10, 'Locale::'));
+		$this->assertFalse(str_contains($in_10, 'now_string'));
+		$this->assertFalse(str_contains($ago_10, 'Locale::'));
+		$this->assertFalse(str_contains($ago_10, 'now_string'));
 	}
 }

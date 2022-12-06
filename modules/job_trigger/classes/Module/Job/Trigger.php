@@ -211,7 +211,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 		if ($this->hasOption('key')) {
 			// Only allowed to receive web requests with some form of shared key security.
 			// If you don't configure this works fine on single-server applications
-			$router->add_route('job_trigger', [
+			$router->addRoute('job_trigger', [
 				'method' => [
 					__CLASS__,
 					'web_job_trigger',
@@ -223,7 +223,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 				],
 			]);
 		}
-		$router->add_route('job_trigger/active', [
+		$router->addRoute('job_trigger/active', [
 			'content' => true,
 			'content type' => Response::CONTENT_TYPE_JSON,
 		]);

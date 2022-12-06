@@ -79,26 +79,26 @@ class Repository_Git_Test extends Repository_TestCase {
 		$repo->url($url);
 		Directory::deleteContents($path);
 		$this->assertTrue(Directory::isEmpty($path));
-		$this->assertTrue($repo->need_update(), 'Repo should need update');
+		$this->assertTrue($repo->needUpdate(), 'Repo should need update');
 		$repo->update();
 		$this->assertTrue($repo->validate());
 		$this->assertFalse(Directory::isEmpty($path));
 		$this->assertDirectoryExists(path($this->path, '.svn'));
-		$this->assertFalse($repo->need_update(), 'Repo should no longer need update');
+		$this->assertFalse($repo->needUpdate(), 'Repo should no longer need update');
 		$this->assertDirectoriesExist($this->pathCatenator($this->path, [
 			'.svn',
 			'trunk',
 			'tags',
 			'branches',
 		]));
-		$tags = toArray($this->configuration->path_get([
+		$tags = toArray($this->configuration->getPath([
 			__CLASS__,
 			'tags_tests',
 		]));
 		foreach ($tags as $tag) {
-			$this->assertFalse($repo->need_update(), 'Repo should no longer need update');
+			$this->assertFalse($repo->needUpdate(), 'Repo should no longer need update');
 			$repo->setURL(glue($url, '/', "tags/$tag"));
-			$this->assertTrue($repo->need_update(), 'Repo should need update');
+			$this->assertTrue($repo->needUpdate(), 'Repo should need update');
 			$repo->update();
 			$this->assertDirectoriesExist($this->pathCatenator($this->path, [
 				'.svn',

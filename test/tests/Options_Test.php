@@ -73,7 +73,7 @@ class Options_Test extends UnitTest {
 		foreach ($paths as $path) {
 			$opts->setOptionPath(explode('.', $path), $path);
 		}
-		$this->assert_arrays_equal($opts->options(), ['a' => ['a' => ['a' => 'a.a.a', 'b' => 'a.a.b', ], 'b' => ['c' => 'a.b.c', 'd' => 'a.b.d', 'e' => 'a.b.e', 'f' => 'a.b.f', ], 'c' => ['a' => 'a.c.a', ], ], 'b' => ['c' => ['a' => 'b.c.a', ], ], 'd' => ['c' => ['a' => 'd.c.a', ], ], ]);
+		$this->assertEquals($opts->options(), ['a' => ['a' => ['a' => 'a.a.a', 'b' => 'a.a.b', ], 'b' => ['c' => 'a.b.c', 'd' => 'a.b.d', 'e' => 'a.b.e', 'f' => 'a.b.f', ], 'c' => ['a' => 'a.c.a', ], ], 'b' => ['c' => ['a' => 'b.c.a', ], ], 'd' => ['c' => ['a' => 'd.c.a', ], ], ]);
 		foreach ($paths as $path) {
 			$this->assertEquals($path, $opts->optionPath(explode('.', $path)));
 		}

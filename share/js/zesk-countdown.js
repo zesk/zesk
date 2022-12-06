@@ -70,5 +70,5 @@
 			element.call(item);
 		});
 	};
-	zesk.add_hook('document::ready', document_ready);
+	zesk.addHook('document::ready', document_ready);
 }(window, window.jQuery));

@@ -6,7 +6,7 @@ namespace zesk;
 class hookable_test_a extends Hookable {
 	public function hookit(array $data) {
 		$data['hookit'] = microtime(true);
-		$data = $this->call_hook('test', $data);
+		$data = $this->callHook('test', $data);
 		return $data;
 	}
 }
@@ -86,16 +86,16 @@ class Hookable_Test extends UnitTest {
 
 		$conf = $this->application->configuration;
 
-		$conf->path_set(hookable_test_a::class . '::test1', 'test1');
-		$conf->path_set(hookable_test_a::class . '::test2', 'test2');
-		$conf->path_set(hookable_test_a::class . '::test3array', [
+		$conf->setPath(hookable_test_a::class . '::test1', 'test1');
+		$conf->setPath(hookable_test_a::class . '::test2', 'test2');
+		$conf->setPath(hookable_test_a::class . '::test3array', [
 			0,
 			false,
 			null,
 		]);
 
 		// No longer honored/merged as of 2016-01-01
-		$conf->path_set(hookable_test_a::class . '::options', $optoptions = [
+		$conf->setPath(hookable_test_a::class . '::options', $optoptions = [
 			'test1' => 'test2',
 			'more' => 'dude',
 		]);
@@ -103,10 +103,10 @@ class Hookable_Test extends UnitTest {
 		$options->inheritConfiguration();
 
 		$options = $options->options();
-		$this->assert_array_key_exists($options, 'test1');
-		$this->assert_array_key_not_exists($options, 'more');
+		$this->assertArrayHasKey('test1', $options);
+		$this->assertArrayNotHasKey('more', $options, );
 
-		$this->assert_equal($options, [
+		$this->assertEquals($options, [
 			'test1' => 'test1',
 			'test2' => 'test2',
 			'test3array' => [

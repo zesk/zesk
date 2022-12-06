@@ -489,7 +489,7 @@ class Database_Parser extends \zesk\Database_Parser {
 
 		$type = avalue($table_options, 'engine', avalue($table_options, 'type', $this->database->defaultEngine()));
 		$table = new Database_Table($this->database, $table, $type, $table_options);
-		$table->source($source_sql);
+		$table->setSource($source_sql);
 		$sql_columns = trim($matches[2]) . ',';
 
 		/*

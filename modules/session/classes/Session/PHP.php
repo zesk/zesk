@@ -209,9 +209,9 @@ class Session_PHP implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Session::deauthenticate()
+	 * @see Interface_Session::relinquish()
 	 */
-	public function deauthenticate(): void {
+	public function relinquish(): void {
 		$this->__set($this->global_session_userId(), null);
 	}
 

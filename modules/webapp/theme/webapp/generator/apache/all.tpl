@@ -26,7 +26,7 @@ $lines[] = '';
 $lines[] = '';
 $lines[] = '';
 
-$docroot = $application->document_root();
+$docroot = $application->documentRoot();
 $lines[] = '<VirtualHost *:80>';
 $namename = 'ServerName';
 $names = [

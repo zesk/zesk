@@ -48,8 +48,8 @@ class Repository_TestCase extends PHPUnit_TestCase {
 			$this_class,
 			'repository_url',
 		];
-		$this->path = rtrim($this->configuration->path_get($config_path, ''), '/');
-		$this->url = rtrim($this->configuration->path_get($config_url, ''), '/');
+		$this->path = rtrim($this->configuration->getPath($config_path, ''), '/');
+		$this->url = rtrim($this->configuration->getPath($config_url, ''), '/');
 		$this->assertNotEmpty($this->path, map('Configuration "{config_path}" is not set up', [
 			'config_path' => $config_path,
 		]));
@@ -76,7 +76,7 @@ class Repository_TestCase extends PHPUnit_TestCase {
 	public function testFactory($path): Repository {
 		$this->assertNotCount(0, $this->repository_types, 'Must initialize ' . get_class($this) . '->repository_types to a non-zero list of types');
 		$repo = null;
-		$this->repository_options = to_array($this->configuration->path_get([
+		$this->repository_options = toArray($this->configuration->getPath([
 			get_class($this),
 			'repository_options',
 		]));

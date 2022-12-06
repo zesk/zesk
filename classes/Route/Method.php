@@ -114,7 +114,7 @@ class Route_Method extends Route {
 		if ($response->content !== null) {
 			return;
 		}
-		if ($response->is_json()) {
+		if ($response->isJSON()) {
 			if ($content !== null) {
 				$response->json()->setData($content);
 				$response->content = null;

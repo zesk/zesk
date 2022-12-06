@@ -21,24 +21,24 @@ class Exception extends \Exception {
 	 * @return array
 	 */
 	public static function exceptionVariables(\Exception $e): array {
-		return method_exists($e, 'variables') ? $e->variables() : [
-			'exception_class' => $e::class,
-			'class' => $e::class,
-			'code' => $e->getCode(),
-			'message' => $e->getMessage(),
-			'file' => $e->getFile(),
-			'line' => $e->getLine(),
-			'trace' => $e->getTrace(),
-			'backtrace' => $e->getTraceAsString(),
-		];
+		return method_exists($e, 'variables') ? $e->variables() : self::phpExceptionVariables($e);
 	}
 
 	/**
 	 * @param \Exception $e
 	 * @return array
-	 * @deprecated 2022-05
 	 */
-	public static function exception_variables(\Exception $e): array {
-		return self::exceptionVariables($e);
+	public static function phpExceptionVariables(\Exception $e): array {
+		return [
+			'exceptionClass' => $e::class,
+			'class' => $e::class,
+			'code' => $e->getCode(),
+			'message' => $e->getMessage(),
+			'rawMessage' => $e->getMessage(),
+			'file' => $e->getFile(),
+			'line' => $e->getLine(),
+			'trace' => $e->getTrace(),
+			'backtrace' => $e->getTraceAsString(),
+		];
 	}
 }

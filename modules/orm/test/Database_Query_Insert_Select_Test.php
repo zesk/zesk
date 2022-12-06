@@ -57,6 +57,6 @@ class Database_Query_Insert_Select_Test extends UnitTest {
 		$sql = preg_replace('/\s+/', ' ', $sql);
 
 		$correct_sql = 'INSERT INTO `test_table` ( `A`, `C`, `D` ) SELECT `B` AS `A`, UTC_TIMESTAMP() AS `C`, `Table`.`Field` AS `D` FROM `from_table` AS `X` INNER JOIN join_table J ON X.JID=J.ID WHERE `X`.`Thing` >= \'20\' GROUP BY 1 ORDER BY Created';
-		$this->assert_equal($sql, $correct_sql);
+		$this->assertEquals($sql, $correct_sql);
 	}
 }

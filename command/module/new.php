@@ -25,7 +25,7 @@ class Command_Module_New extends Command {
 	];
 
 	public function run(): void {
-		$names = $this->arguments_remaining(true);
+		$names = $this->argumentsRemaining(true);
 		if (count($names) === 0) {
 			$this->usage('Must specify module names to create');
 		}
@@ -58,8 +58,8 @@ class Command_Module_New extends Command {
 			$is_app = true;
 		}
 		$app_root = $this->application->path();
-		$zesk_root = $this->application->zesk_root();
-		$module_paths = $this->application->module_path();
+		$zesk_root = $this->application->zeskRoot();
+		$module_paths = $this->application->modulePath();
 		foreach ($module_paths as $module_path) {
 			$path = path($module_path, $module);
 			if ($is_app && begins($path, $app_root)) {
@@ -88,7 +88,7 @@ class Command_Module_New extends Command {
 
 		$tpl_path = path(__DIR__, 'templates');
 		$module_class = PHP::cleanFunction("Module_$name");
-		if ($this->prompt_yes_no("Create $module_class?")) {
+		if ($this->promptYesNo("Create $module_class?")) {
 			$inc_path = explode('/', str_replace('_', '/', $name));
 			array_unshift($inc_path, 'module');
 			array_unshift($inc_path, 'classes');

@@ -50,13 +50,13 @@ class Database_Exceptions extends UnitTest {
 		$this->assertIsString($message);
 		$code = $x->getCode();
 		$this->assertIsInteger($code);
-		$this->assert_is_string($x->__toString());
+		$this->assertIsString($x->__toString());
 
 		// I assume this is here to just make sure they do not explode/coverage, as these are all internal
-		$this->assert_true(is_file($x->getFile()));
-		$this->assert_is_integer($x->getLine());
-		$this->assert_is_array($x->getTrace());
-		$this->assert_is_string($x->getTraceAsString());
+		$this->assertTrue(is_file($x->getFile()));
+		$this->assertIsInteger($x->getLine());
+		$this->assertIsArray($x->getTrace());
+		$this->assertIsString($x->getTraceAsString());
 
 		$this->assertIsString(strval($x));
 	}

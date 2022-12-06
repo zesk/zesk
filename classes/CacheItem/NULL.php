@@ -18,14 +18,14 @@ class CacheItem_NULL implements CacheItemInterface {
 	 *
 	 * @var string
 	 */
-	private $key = null;
+	private string $key = '';
 
 	/**
 	 *
 	 * @param string $key
 	 */
-	public function __construct($key) {
-		$this->key = strval($key);
+	public function __construct(string $key) {
+		$this->key = $key;
 	}
 
 	/**
@@ -37,7 +37,7 @@ class CacheItem_NULL implements CacheItemInterface {
 	 * @return string
 	 *   The key string for this cache item.
 	 */
-	public function getKey() {
+	public function getKey(): string {
 		return $this->key;
 	}
 
@@ -53,7 +53,7 @@ class CacheItem_NULL implements CacheItemInterface {
 	 * @return mixed
 	 *   The value corresponding to this cache item's key, or null if not found.
 	 */
-	public function get() {
+	public function get(): mixed {
 		return null;
 	}
 
@@ -66,7 +66,7 @@ class CacheItem_NULL implements CacheItemInterface {
 	 * @return bool
 	 *   True if the request resulted in a cache hit. False otherwise.
 	 */
-	public function isHit() {
+	public function isHit(): bool {
 		return false;
 	}
 
@@ -83,7 +83,7 @@ class CacheItem_NULL implements CacheItemInterface {
 	 * @return static
 	 *   The invoked object.
 	 */
-	public function set($value) {
+	public function set(mixed $value): self {
 		return $this;
 	}
 
@@ -99,7 +99,7 @@ class CacheItem_NULL implements CacheItemInterface {
 	 * @return static
 	 *   The called object.
 	 */
-	public function expiresAt($expiration) {
+	public function expiresAt($expiration): self {
 		return $this;
 	}
 
@@ -116,7 +116,7 @@ class CacheItem_NULL implements CacheItemInterface {
 	 * @return static
 	 *   The called object.
 	 */
-	public function expiresAfter($time) {
+	public function expiresAfter($time): self {
 		return $this;
 	}
 }

@@ -13,7 +13,7 @@ namespace zesk;
  *
  */
 class Module_World extends Module_JSLib {
-	protected $javascript_paths = [
+	protected array $javascript_paths = [
 		'/share/world/js/module.world.js',
 	];
 
@@ -27,7 +27,7 @@ class Module_World extends Module_JSLib {
 	];
 
 	public function hook_head(Request $request, Response $response, Template $template): void {
-		$currency = $this->call_hook_arguments('currency', [], null);
+		$currency = $this->callHookArguments('currency', [], null);
 		/* @var $currency Currency */
 		if ($currency instanceof Currency) {
 			$this->javascript_settings += [

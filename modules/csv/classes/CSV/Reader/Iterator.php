@@ -104,7 +104,7 @@ class CSV_Reader_Iterator extends Options implements \Iterator {
 	 * @param string|null $value_key
 	 * @return array
 	 */
-	public function to_array($key_key = null, $value_key = null) {
+	public function toArray($key_key = null, $value_key = null) {
 		$result = [];
 		foreach ($this as $index => $row) {
 			$value = $value_key === null ? $row : avalue($row, $value_key);

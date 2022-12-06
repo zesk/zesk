@@ -88,10 +88,10 @@ class RRule_Set_Test extends UnitTest {
 
 					break;
 				}
-				$this->assert_equal($ts->format($locale, '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {ZZZ}'), $expected, "Test #$test_index, result #$index: $description\n$rrule");
+				$this->assertEquals($ts->format($locale, '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {ZZZ}'), $expected, "Test #$test_index, result #$index: $description\n$rrule");
 			}
 			if (!$forever) {
-				$this->assert_equal($index, $total, "Test #$test_index: $description\n\nIterator stopped before results used up: \n\n\t" . implode("\n\t", $results) . "\n\nRule:\n\n$rrule\n");
+				$this->assertEquals($index, $total, "Test #$test_index: $description\n\nIterator stopped before results used up: \n\n\t" . implode("\n\t", $results) . "\n\nRule:\n\n$rrule\n");
 			}
 		}
 	}

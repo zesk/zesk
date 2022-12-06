@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace zesk\Git;
 
+use aws\classes\Module;
 use zesk\Exception_Unsupported;
 
 /**
@@ -63,7 +64,7 @@ class Repository extends \zesk\Repository_Command {
 	 * @param string $target
 	 * @return boolean
 	 */
-	public function need_update(string $target): bool {
+	public function needUpdate(string $target): bool {
 		if (!$this->validate()) {
 			return true;
 		}

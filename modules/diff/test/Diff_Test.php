@@ -19,7 +19,7 @@ class Diff_Test extends UnitTest {
 		$testx = new Binary($a, $b);
 		$this->assert($testx->is_identical());
 		$edits = $testx->edits();
-		$this->assert(count($edits) === 1);
+		$this->assertEquals(1, count($edits));
 	}
 
 	public function test_diff_binary2(): void {
@@ -27,8 +27,8 @@ class Diff_Test extends UnitTest {
 		$b = 'ab';
 		$testx = new Binary($a, $b);
 		$diffs = $testx->diffs();
-		$this->assert(count($diffs) === 1);
-		$this->assert_equal_object(new Edit(Edit::DIFF_INSERT, 1, 1, 'b'), $diffs[0]);
+		$this->assertEquals(1, count($diffs));
+		$this->assertEquals(new Edit(Edit::DIFF_INSERT, 1, 1, 'b'), $diffs[0]);
 	}
 
 	public function test_diff_binary3(): void {
@@ -36,8 +36,8 @@ class Diff_Test extends UnitTest {
 		$b = 'ba';
 		$testx = new Binary($a, $b);
 		$diffs = $testx->diffs();
-		$this->assert(count($diffs) === 1);
-		$this->assert_equal_object(new Edit(Edit::DIFF_INSERT, 0, 1, 'b'), $diffs[0]);
+		$this->assertEquals(1, count($diffs));
+		$this->assertEquals(new Edit(Edit::DIFF_INSERT, 0, 1, 'b'), $diffs[0]);
 	}
 
 	public function test_diff_binary4(): void {
@@ -45,8 +45,8 @@ class Diff_Test extends UnitTest {
 		$b = 'a';
 		$testx = new Binary($a, $b);
 		$diffs = $testx->diffs();
-		$this->assert(count($diffs) === 1);
-		$this->assert_equal_object(new Edit(Edit::DIFF_DELETE, 1, 1), $diffs[0]);
+		$this->assertEquals(1, count($diffs));
+		$this->assertEquals(new Edit(Edit::DIFF_DELETE, 1, 1), $diffs[0]);
 	}
 
 	public function test_diff_binary5(): void {
@@ -54,8 +54,8 @@ class Diff_Test extends UnitTest {
 		$b = 'b';
 		$testx = new Binary($a, $b);
 		$diffs = $testx->diffs();
-		$this->assert(count($diffs) === 1);
-		$this->assert_equal_object(new Edit(Edit::DIFF_DELETE, 0, 1), $diffs[0]);
+		$this->assertEquals(1, count($diffs));
+		$this->assertEquals(new Edit(Edit::DIFF_DELETE, 0, 1), $diffs[0]);
 	}
 
 	public function test_diff_binary6(): void {
@@ -64,9 +64,9 @@ class Diff_Test extends UnitTest {
 
 		$testx = new Binary($a, $b);
 		$diffs = $testx->diffs();
-		$this->assert_equal(count($diffs), 2);
-		$this->assert_equal_object($diffs[0], new Edit(Edit::DIFF_INSERT, 9, 1, "\n"));
-		$this->assert_equal_object($diffs[1], new Edit(Edit::DIFF_INSERT, 21, 4, "new\n"));
+		$this->assertEquals(2);
+		$this->assertEquals($diffs[0], count($diffs), new Edit(Edit::DIFF_INSERT, 9, 1, "\n"));
+		$this->assertEquals($diffs[1], new Edit(Edit::DIFF_INSERT, 21, 4, "new\n"));
 	}
 
 	public function test_diff_binary7(): void {
@@ -75,8 +75,8 @@ class Diff_Test extends UnitTest {
 
 		$testx = new Binary($a, $b);
 		$diffs = $testx->diffs();
-		$this->assert(count($diffs) === 1);
-		$this->assert_equal_object(new Edit(Edit::DIFF_DELETE, 20, 4), $diffs[0]);
+		$this->assertEquals(1, count($diffs));
+		$this->assertEquals(new Edit(Edit::DIFF_DELETE, 20, 4), $diffs[0]);
 	}
 
 	public function test_diff_binary8(): void {
@@ -86,9 +86,9 @@ class Diff_Test extends UnitTest {
 
 		$testx = new Binary($a, $b);
 		$diffs = $testx->diffs();
-		$this->assert(count($diffs) === 2);
-		$this->assert_equal_object(new Edit(Edit::DIFF_DELETE, 20, 3), $diffs[0]);
-		$this->assert_equal_object(new Edit(Edit::DIFF_INSERT, 20, 3, 'new'), $diffs[1]);
+		$this->assertEquals(2, count($diffs));
+		$this->assertEquals(new Edit(Edit::DIFF_DELETE, 20, 3), $diffs[0]);
+		$this->assertEquals(new Edit(Edit::DIFF_INSERT, 20, 3, 'new'), $diffs[1]);
 	}
 
 	public function test_diff_lines(): void {
@@ -100,14 +100,14 @@ class Diff_Test extends UnitTest {
 		$this->log("Sample 2: \n$b");
 		$this->log("Output: \n" . $testx->output());
 
-		$this->assert_equal($testx->diffs(), [
-			new Edit(Edit::DIFF_INSERT, 2, 1, [
+		$this->assertEquals([
+			new Edit(Edit::DIFF_INSERT, $testx->diffs(), 2, 1, [
 				'Line3',
 			]),
 		]);
 		$testx = new Lines($b, $a);
-		$this->assert_equal($testx->diffs(), [
-			new Edit(Edit::DIFF_DELETE, 2, 1),
+		$this->assertEquals([
+			new Edit(Edit::DIFF_DELETE, $testx->diffs(), 2, 1),
 		]);
 	}
 
@@ -128,15 +128,15 @@ class Diff_Test extends UnitTest {
 
 		$diffs0 = $d0->diffs();
 		$diffs1 = $d1->diffs();
-		$this->assert_equal(count($diffs0), count($diffs1), count($diffs0) . ' = count(diffs0) === count(diffs1) = ' . count($diffs1));
+		$this->assertEquals(count($diffs0), count($diffs1), count($diffs0) . ' = count(diffs0) === count(diffs1) = ' . count($diffs1));
 
 		$offset0 = $offset1 = 0;
 		foreach ($diffs0 as $index => $edit0) {
 			/* @var $edit0 Edit */
 			/* @var $edit1 Edit */
 			$edit1 = avalue($diffs1, $index);
-			$this->assert_not_equal($edit0->op, Edit::DIFF_MATCH);
-			$this->assert_not_equal($edit1->op, Edit::DIFF_MATCH);
+			$this->assertNotEquals($edit0->op, Edit::DIFF_MATCH);
+			$this->assertNotEquals($edit1->op, Edit::DIFF_MATCH);
 			$opposite = $edit0->op === Edit::DIFF_DELETE ? Edit::DIFF_INSERT : Edit::DIFF_DELETE;
 
 			$offset0 += $edit0->off;
@@ -154,8 +154,8 @@ class Diff_Test extends UnitTest {
 				$offset1 -= $edit1->len;
 			}
 			//echo " +Length: $offset0 $offset1\n";
-			// 			$this->assert_equal($edit0->off, $edit1->off);
-			// 			$this->assert_equal($edit0->len, $edit1->len);
+			// 			$this->assertEquals($edit0->off, $edit1->off);
+			// 			$this->assertEquals($edit0->len, $edit1->len);
 			// TODO Compute offset and match correctly
 		}
 	}

@@ -39,13 +39,13 @@ class Process_Tools_Test extends UnitTest {
 
 		require_once $php_file;
 
-		$this->assert(Process_Tools::process_code_changed($this->application) === false);
+		$this->assertFalse(Process_Tools::includesChanged($this->application));
 		sleep(1);
 		file_put_contents($php_file, "<?php\ndefine('TEST_PGT',false);\n");
 		clearstatcache();
 		echo filemtime($php_file) . "\n";
 
-		$this->assert(Process_Tools::process_code_changed($this->application) === true);
+		$this->assertTrue(Process_Tools::includesChanged($this->application));
 
 		unlink($php_file);
 
@@ -57,31 +57,34 @@ class Process_Tools_Test extends UnitTest {
 	}
 
 	public function test_code_changed(): void {
-		$result = Process_Tools::process_code_changed($this->application);
-		$this->assert_false($result, 'Process code did not change: ' . implode(',', Process_tools::process_code_changed_files($this->application)));
+		$result = Process_Tools::includesChanged($this->application);
+		$this->assertFalse($result, 'Process code did not change: ' . implode(
+			',',
+			Process_Tools::includesChangedFiles($this->application)
+		));
 
 		$files = get_included_files();
-		$include = $this->test_sandbox('process_code_changed.php');
+		$include = $this->test_sandbox('includesChanged.php');
 		File::put($include, "<?php\n");
 
-		$this->assert_not_in_array($files, $include, 'test file should not be already included');
+		$this->assertNotInArray($include, $files, 'test file should not be already included');
 
 		require_once $include;
 
 		$files = get_included_files();
 
-		$this->assert_in_array($files, $include, 'test file is already included');
+		$this->assertInArray($include, $files, 'test file should be included now');
 
-		$result = Process_Tools::process_code_changed($this->application);
+		$result = Process_Tools::includesChanged($this->application);
 
-		$this->assert_false($result, 'New include does not mean process code changed');
+		$this->assertFalse($result, 'New include does not mean process code changed');
 
 		sleep(1);
 
 		File::put($include, "<?php\n//Hello");
 
-		$result = Process_Tools::process_code_changed($this->application);
+		$result = Process_Tools::includesChanged($this->application);
 
-		$this->assert_true($result, 'Changed include means process code changed');
+		$this->assertTrue($result, 'Changed include means process code changed');
 	}
 }

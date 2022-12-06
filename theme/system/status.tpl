@@ -27,7 +27,7 @@ $result['System::load_averages'] = System::load_averages();
 $result['System::host_id'] = System::host_id();
 $result['System::volume_info'] = System::volume_info();
 
-$result = $application->hooks->call_arguments('system/status', [
+$result = $application->hooks->callArguments('system/status', [
 	$result,
 ], $result);
 

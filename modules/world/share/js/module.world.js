@@ -1,4 +1,4 @@
-zesk.add_hook("document::ready", function() {
+zesk.addHook("document::ready", function() {
 	var 
 	$sources,
 	format_currency = function (amount, precision) {

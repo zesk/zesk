@@ -91,7 +91,7 @@ class Health_Event extends ORM {
 		$defer_event_path = path($path, $name);
 		Directory::depend($defer_event_path);
 		rename($file, path($defer_event_path, basename($file)));
-		Directory::cull_contents($defer_event_path, $application->configuration->path_get(__CLASS__ . '::defer_max_files', 100));
+		Directory::cullContents($defer_event_path, $application->configuration->getPath(__CLASS__ . '::defer_max_files', 100));
 	}
 
 	/**
@@ -109,7 +109,7 @@ class Health_Event extends ORM {
 		}
 		File::unlink($updated_file_path);
 		$files = Directory::ls($path, '/\.event$/', true);
-		$max_size = $application->configuration->path_get('Health_Event::max_event_size', min(4 * 1024 * 1024, System::memory_limit() / 10));
+		$max_size = $application->configuration->getPath('Health_Event::max_event_size', min(4 * 1024 * 1024, System::memory_limit() / 10));
 		foreach ($files as $file) {
 			$size = filesize($file);
 			if ($size > $max_size) {
@@ -180,7 +180,7 @@ class Health_Event extends ORM {
 				->addWhere('X.events', $this->events)
 				->limit($sample_offset, $n_found - $n_samples)
 				->order_by('X.when,X.when_msec')
-				->to_array(null, 'id');
+				->toArray(null, 'id');
 			$delete_query = $this->application->query_delete(__CLASS__);
 			$delete_query->addWhere('id', $ids_to_delete);
 			$delete_query->execute();

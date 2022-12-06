@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class MySQL_Database_Test extends UnitTest {
+class MySQL_Database_Test extends DatabaseUnitTest {
 	protected array $load_modules = [
 		'MySQL',
 	];
@@ -12,8 +12,7 @@ class MySQL_Database_Test extends UnitTest {
 		$mysql = $this->application->database_registry('mysql://root@localhost/mysql', [
 			'connect' => false,
 		]);
-		/* @var $mysql Database_MySQL */
-		$this->assert_true(true);
+		$this->assertInstanceOf(Database::class, $mysql);
 	}
 
 	/**
@@ -23,10 +22,10 @@ class MySQL_Database_Test extends UnitTest {
 	public function database(): Database {
 		$db = $this->application->database_registry();
 
-		$this->assert_in_array([
+		$this->assertTrue(in_array($db->type(), [
 			'mysql',
 			'mysqli',
-		], $db->type(), 'Type must be mysqli or mysql');
+		]), 'Type must be mysqli or mysql');
 		return $db;
 	}
 
@@ -74,7 +73,7 @@ EOF;
 
 		$table = $db->parseCreateTable($sql, __METHOD__);
 
-		$this->assert_instanceof($table, 'zesk\\Database_Table');
+		$this->assertInstanceOf(Database_Table::class, $table);
 
 		echo "Test created because preg_match dies on web2 with above input... due to pcre backtracking stack overflow ... or something like that\n";
 	}
@@ -82,7 +81,7 @@ EOF;
 	public function test_mysql_funcs_1(): void {
 		$db = $this->database();
 
-		$test_table = $this->test_table('test_table');
+		$test_table = $this->prepareTestTable('test_table');
 
 		$db->databaseName();
 
@@ -92,7 +91,7 @@ EOF;
 		$db->dump($filename, $options);
 
 		$db->disconnect();
-		$this->assert_equal($db->connected(), false);
+		$this->assertEquals($db->connected(), false);
 		$success = false;
 
 		try {
@@ -103,11 +102,11 @@ EOF;
 				'auto_connect' => false,
 			]);
 		} catch (Database_Exception_Connect $e) {
-			$this->assert_contains($e->getMessage(), 'Not connected');
+			$this->assertStringContainsString('Not connected', $e->getMessage());
 			$success = true;
 		}
-		$this->assert_equal($db->connected(), false);
-		$this->assert($success);
+		$this->assertEquals($db->connected(), false);
+		$this->assertTrue($success);
 
 		$db->connect();
 
@@ -118,8 +117,8 @@ EOF;
 
 		$db->tablesCaseSensitive();
 
-		$this->assert($db->can(Database::FEATURE_LIST_TABLES) === true);
-		$this->assert($db->can(Database::FEATURE_CREATE_DATABASE) === true);
+		$this->assertTrue($db->can(Database::FEATURE_LIST_TABLES));
+		$this->assertTrue($db->can(Database::FEATURE_CREATE_DATABASE));
 
 		$tables = $db->listTables();
 
@@ -138,8 +137,8 @@ EOF;
 					'sql' => $sql,
 				]);
 			}
-			$this->assert_string_begins($sql, 'CREATE TABLE');
-			$this->assert(str_contains($sql, "$table"));
+			$this->assertStringStartsWith('CREATE TABLE', $sql);
+			$this->assertStringContainsString($table, $sql);
 
 			$dbTableObject = $db->parseCreateTable($sql, __METHOD__);
 			$sql = $db->sql()->createTable($dbTableObject);
@@ -151,8 +150,8 @@ EOF;
 				$sqls = $sql;
 			}
 			$sql = first($sqls);
-			$this->assert_string_begins($sql, 'CREATE TABLE');
-			$this->assert(str_contains($sql, "$table"));
+			$this->assertStringStartsWith('CREATE TABLE', $sql);
+			$this->assertStringContainsString($table, $sql);
 
 			$result = $db->tableInformation($table);
 			$this->assertArrayHasKey('engine', $result);
@@ -174,7 +173,7 @@ EOF;
 		} catch (Database_Exception_Table_NotFound $e) {
 			$success = true;
 		}
-		$this->assert($success === true, "Table $table was found?");
+		$this->assertTrue($success, "Table $table was found?");
 
 		$table = 'testtable';
 		$type = 'InnoDB';
@@ -186,25 +185,25 @@ EOF;
 			$table = new Database_Table($db, 'Foo');
 			$index = new Database_Index($table);
 			$index->type('DUCKY');
-			$this->assert_equal($index->type(), Database_Index::TYPE_INDEX);
+			$this->assertEquals($index->type(), Database_Index::TYPE_INDEX);
 			$sql = $db->sql()->alter_table_index_drop($table, $index);
 			$this->log($sql);
 		} catch (Exception_Semantics $e) {
 			$success = true;
 		}
-		$this->assert($success);
+		$this->assertTrue($success);
 
 		$table = new Database_Table($db, 'Foo');
 		$index = new Database_Index($table, 'dude');
 		$sql = $db->sql()->alter_table_index_drop($table, $index);
-		$this->assert_equal($sql, 'ALTER TABLE `Foo` DROP INDEX `dude`');
+		$this->assertEquals($sql, 'ALTER TABLE `Foo` DROP INDEX `dude`');
 
 		$table = new Database_Table($db, 'Foo');
 		$index = new Database_Index($table, 'dude');
 		$index->setType(Database_Index::TYPE_PRIMARY);
 
 		$sql = $db->sql()->alter_table_index_drop($table, $index);
-		$this->assert_equal($sql, 'ALTER TABLE `Foo` DROP PRIMARY KEY');
+		$this->assertEquals($sql, 'ALTER TABLE `Foo` DROP PRIMARY KEY');
 
 		$table = new Database_Table($db, 'testtable');
 		$name = 'idx';
@@ -227,7 +226,7 @@ EOF;
 		$index->setType(Database_Index::TYPE_PRIMARY);
 
 		$sql = $db->sql()->alter_table_index_add($table, $index);
-		$this->assert_equal($sql, 'ALTER TABLE `Foo` ADD PRIMARY KEY (`ID`)');
+		$this->assertEquals($sql, 'ALTER TABLE `Foo` ADD PRIMARY KEY (`ID`)');
 
 		$table = new Database_Table($db, $table_name = 'TestLine_' . __LINE__);
 		$dbColOld = new Database_Column($table, 'Foo');
@@ -235,7 +234,7 @@ EOF;
 		$dbColNew = new Database_Column($table, 'Foo');
 		$dbColNew->sql_type('varchar(33)');
 		$sql = $db->sql()->alter_table_change_column($table, $dbColOld, $dbColNew);
-		$this->assert_equal($sql, "ALTER TABLE `$table_name` CHANGE COLUMN `Foo` `Foo` varchar(33) NULL");
+		$this->assertEquals($sql, "ALTER TABLE `$table_name` CHANGE COLUMN `Foo` `Foo` varchar(33) NULL");
 
 		$query = 'SELECT NOW()';
 		$result = $db->queryArray($query);
@@ -276,10 +275,10 @@ EOF;
 		$db->now_utc();
 
 		$tables = $db->listTables();
-		$this->assert(count($tables) > 0, 'Test database should contain at least one table');
+		$this->assertGreaterThan(0, count($tables), 'Test database should contain at least one table');
 
 		foreach ($tables as $table) {
-			$this->assert_true($db->tableExists($table), "$table returned by listTables but does not exist?");
+			$this->assertTrue($db->tableExists($table), "$table returned by listTables but does not exist?");
 		}
 
 		$word = 'foobar';
@@ -292,11 +291,11 @@ EOF;
 
 		$url = $db->url();
 
-		$this->assert(!empty($url));
+		$this->assertTrue(!empty($url));
 
 		$filler = 'ANTIDISESTABLISHMENTARIANISM';
 		$safe_url = $db->safeURL($filler);
-		$this->assert(str_contains($safe_url, $filler), "Safe URL $safe_url does not contain $filler");
+		$this->assertStringContainsString($filler, $safe_url);
 
 		$table = new Database_Table($db, $table_name = 'TestTable' . __LINE__);
 		$column = new Database_Column($table, 'hello');
@@ -304,19 +303,19 @@ EOF;
 		$sqlType = null;
 		$after_col = false;
 		$sql = $db->sql()->alter_table_column_add($table, $column);
-		$this->assert_equal($sql, "ALTER TABLE `$table_name` ADD COLUMN `hello` varchar(2) NULL");
+		$this->assertEquals($sql, "ALTER TABLE `$table_name` ADD COLUMN `hello` varchar(2) NULL");
 
 		$table = new Database_Table($db, $table_name = 'TestTable' . __LINE__);
 		$column = new Database_Column($table, 'hello');
 		$column->sql_type('varchar(2)');
 
 		$sql = $db->sql()->alter_table_column_drop($table, $column);
-		$this->assert_equal($sql, "ALTER TABLE `$table_name` DROP COLUMN `hello`");
+		$this->assertEquals($sql, "ALTER TABLE `$table_name` DROP COLUMN `hello`");
 
 		$col = 'Hippy';
 		$alias = 'Dippy';
 		$sql = $db->sql()->columnAlias($col, $alias);
-		$this->assert_equal($sql, '`Dippy`.`Hippy`');
+		$this->assertEquals($sql, '`Dippy`.`Hippy`');
 
 		$db->transactionStart();
 
@@ -326,12 +325,12 @@ EOF;
 		$table = 'random_table';
 		$db->newDatabaseTable($table);
 
-		$this->assert_is_string($db->tablePrefix());
+		$this->assertIsString($db->tablePrefix());
 	}
 
 	public function test_estimate_rows(): void {
 		$db = $this->database();
-		$this->assert_true($db->tableExists('test_table'));
+		$this->assertTrue($db->tableExists('test_table'));
 		$sql = 'SELECT * FROM test_table';
 		$db->estimate_rows($sql);
 	}

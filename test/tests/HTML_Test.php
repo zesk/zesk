@@ -32,8 +32,8 @@ class HTML_Test extends UnitTest {
 	 *
 	 */
 	public function test_parse_attribute(): void {
-		$this->assert_equal(HTML::parseAttributes([]), []);
-		$this->assert_equal(HTML::parseAttributes([
+		$this->assertEquals(HTML::parseAttributes([]), []);
+		$this->assertEquals(HTML::parseAttributes([
 			1,
 			2,
 			3,
@@ -42,9 +42,9 @@ class HTML_Test extends UnitTest {
 			2,
 			3,
 		]);
-		$this->assert_equal(HTML::parseAttributes('1'), ['1' => true]);
+		$this->assertEquals(HTML::parseAttributes('1'), ['1' => true]);
 
-		$this->assert_arrays_equal(HTML::parseAttributes('template="volunteer-help" article="12"'), [
+		$this->assertEquals(HTML::parseAttributes('template="volunteer-help" article="12"'), [
 			'article' => '12',
 			'template' => 'volunteer-help',
 		]);

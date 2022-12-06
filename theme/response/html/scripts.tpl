@@ -26,7 +26,7 @@ foreach ($response->html()->scripts() as $script_tag) {
 	}
 	echo $prefix . HTML::tag($name, $attributes, $content) . $suffix . "\n";
 }
-$jquery_ready = $response->html()->jquery_ready();
+$jquery_ready = $response->html()->jqueryReady();
 if (count($jquery_ready)) {
 	echo HTML::tag('script', [
 		'type' => 'text/javascript',

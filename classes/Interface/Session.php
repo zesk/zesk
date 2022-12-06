@@ -51,21 +51,25 @@ interface Interface_Session extends Interface_Settings {
 	public function authenticated(): bool;
 
 	/**
-	 * Unauthorize current user
+	 * Relinquish the authentication of the current user. Throws Exception_Semantics if not authenticated.
+	 *
 	 * @return void
+	 * @throws Exception_Semantics
 	 */
-	public function deauthenticate(): void;
+	public function relinquish(): void;
 
 	/**
 	 * Retrieve user identifier
 	 * @return int User ID
 	 * @throws Exception_NotFound
+	 * @throws Exception_Authentication
 	 */
 	public function userId(): int;
 
 	/**
 	 * Retrieve user
 	 * @return User User object
+	 * @throws Exception_Authentication
 	 */
 	public function user(): User;
 

@@ -19,21 +19,21 @@ class Response_Test extends UnitTest {
 
 		$add = null;
 
-		$response->html()->body_attributes('goo', 'bar');
-		$response->html()->body_attributes([
+		$response->html()->addBodyAttributes(['goo' => 'bar']);
+		$response->html()->addBodyAttributes([
 			'goo' => 'actual',
 		]);
-		$response->html()->body_attributes([
+		$response->html()->addBodyAttributes([
 			'poo' => 'bar',
 		]);
-		$response->html()->body_attributes('poo', 'actual');
-		$response->html()->body_attributes([
+		$response->html()->addBodyAttributes(['poo' => 'actual']);
+		$response->html()->addBodyAttributes([
 			'dee' => 'foofla',
 		]);
-		$response->html()->body_attributes('dee', 'actual');
-		$response->html()->body_attributes('loo', 'actual');
+		$response->html()->addBodyAttributes(['dee'=> 'actual']);
+		$response->html()->addBodyAttributes(['loo' => 'actual']);
 
-		$attrs = $response->html()->body_attributes();
+		$attrs = $response->html()->bodyAttributes();
 
 		$compare_result = [
 			'goo' => 'actual',
@@ -42,7 +42,7 @@ class Response_Test extends UnitTest {
 			'loo' => 'actual',
 		];
 
-		$this->assert_arrays_equal($attrs, $compare_result);
+		$this->assertEquals($attrs, $compare_result);
 	}
 
 	/**
@@ -54,7 +54,7 @@ class Response_Test extends UnitTest {
 
 		$type = 'text/javascript';
 		$script = 'alert(\'Hello, world!\');';
-		$response->html()->javascript_inline($script, [
+		$response->html()->inlineJavaScript($script, [
 			'browser' => 'ie',
 		]);
 

@@ -139,7 +139,7 @@ class Controller extends \zesk\Controller {
 			$result += [
 				'server' => $server->id(),
 				'keygroup' => md5($this->webapp->key()),
-				'docroot' => $this->application->document_root(),
+				'docroot' => $this->application->documentRoot(),
 			];
 		}
 		$this->json($result);

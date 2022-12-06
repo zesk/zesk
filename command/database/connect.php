@@ -117,7 +117,7 @@ class Command_Database_Connect extends Command_Base {
 				return -1;
 			}
 		}
-		$this->render_format($db);
+		$this->renderFormat($db);
 		return 0;
 	}
 
@@ -135,7 +135,7 @@ class Command_Database_Connect extends Command_Base {
 				$db[$name] = false;
 			}
 		}
-		$this->render_format($db);
+		$this->renderFormat($db);
 		return 0;
 	}
 

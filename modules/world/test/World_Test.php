@@ -1,22 +1,20 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class World_Test extends Test_ORM {
+class World_Test extends ORMUnitTest {
 	protected array $load_modules = [
 		'World',
 		'MySQL',
 	];
 
-	public function initialize(): void {
-		$db = $this->application->database_registry();
-		$this->assert_not_null($db, 'Database not connected');
-		$this->require_tables(Country::class);
-	}
-
-	public function classes_to_test() {
+	public function classes_to_test(): array {
 		return [
 			[
 				City::class,
+				[],
+			],
+			[
+				County::class,
 				[],
 			],
 			[
@@ -27,10 +25,17 @@ class World_Test extends Test_ORM {
 				Province::class,
 				[],
 			],
-			[
-				Currency::class,
-				[],
-			],
 		];
+	}
+
+	/**
+	 *
+	 * @param string $class
+	 * @param array $options
+	 * @dataProvider classes_to_test
+	 */
+	public function test_classes(string $class, array $options = []): void {
+		$this->truncateClassTables($class);
+		$this->assertORMClass($class, $options);
 	}
 }

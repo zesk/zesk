@@ -8,9 +8,13 @@
  */
 namespace zesk\Apache;
 
+use zesk\Exception_Directory_NotFound;
+use zesk\Exception_File_Permission;
+use zesk\Exception_Semantics;
+
 /**
  * Apache module integrates with Apache server and your web application, specifically - Generation
- * of a .htaccess to allow for pretty URLs in the $application->document_root() - Generation of an
+ * of a .htaccess to allow for pretty URLs in the $application->documentRoot() - Generation of an
  * Apache Include to set up aliases for the share directories within the system for faster serving
  * (avoids Controller_Share)
  *
@@ -33,17 +37,20 @@ class Module extends \zesk\Module {
 	 *
 	 * zesk eval '$app->apache_module()->generate_htaccess()'
 	 *
-	 * @return boolean
+	 * @return boolean True if file was written, false if cached version exists.
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_File_Permission
+	 * @throws Exception_Semantics
 	 */
-	public function generate_htaccess() {
-		$docroot = $this->application->document_root();
-		if (!is_dir($docroot)) {
-			return false;
+	public function generate_htaccess(): bool {
+		$document_root = $this->application->documentRoot();
+		if (!is_dir($document_root)) {
+			throw new Exception_Directory_NotFound($document_root, 'Document root missing');
 		}
 		$mtime = filemtime($this->application->template->find_path('htaccess.tpl'));
 		$htaccess_name = $this->option('htaccess_name', '.htaccess');
 		$index_file = $this->optionIterable('directory_index', 'index.php', ' ');
-		$file = path($docroot, $htaccess_name);
+		$file = path($document_root, $htaccess_name);
 		$file_mtime = is_file($file) ? filemtime($file) : null;
 		if ($mtime < $file_mtime) {
 			return false;
@@ -51,8 +58,7 @@ class Module extends \zesk\Module {
 		$contents = $this->application->theme('htaccess', [
 			'directory_index' => implode(' ', $index_file),
 		]);
-		file_put_contents($file, $contents);
-		return true;
+		return File::put($file, $contents);
 	}
 
 	/**

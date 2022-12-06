@@ -82,21 +82,21 @@ class Control_Select_ORM extends Control_Select {
 
 		$text_column = $this->text_columns();
 		$what = ArrayTools::prefixValues(ArrayTools::valuesFlipCopy($text_column), $prefix);
-		$query->what('id', $prefix . $this->class_object->id_column);
-		$query->what($what, true);
-		$query->order_by($this->option('order_by', $text_column));
-		$query->where($this->_where());
+		$query->addWhat('id', $prefix . $this->class_object->id_column);
+		$query->addWhatIterable($what);
+		$query->setOrderBy($this->option('order_by', $text_column));
+		$query->appendWhere($this->_where());
 
 		if (!$this->hasOption('format')) {
 			$this->setOption('format', implode(' ', ArrayTools::wrapValues(array_keys($what), '{', '}')));
 		}
-		$this->call_hook('options_query', $query);
-		return $this->call_hook('options_query_format', $query);
+		$this->callHook('options_query', $query);
+		return $this->callHook('options_query_format', $query);
 	}
 
 	protected function hook_options_queryFormat(Database_Query_Select $query) {
 		$format = $this->option('format');
-		$rows = $query->to_array('id');
+		$rows = $query->toArray('id');
 		foreach ($rows as $key => $row) {
 			$rows[$key] = map($format, $row);
 		}

@@ -220,7 +220,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		}
 		$this->start = $when;
 		$this->completed = null;
-		$this->call_hook('start');
+		$this->callHook('start');
 		return $this->store();
 	}
 
@@ -315,7 +315,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 					try {
 						$job->execute($process);
 					} catch (\Exception $e) {
-						$job->data('execute_exception', ArrayTools::flatten(Exception::exception_variables($e)));
+						$job->data('execute_exception', ArrayTools::flatten(Exception::exceptionVariables($e)));
 						$job->died(); // Stops permanently
 					}
 					$job->release();
@@ -353,7 +353,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 				'pid|!=' => null,
 				'server' => $server,
 			])
-			->to_array('id', 'pid') as $id => $pid) {
+			->toArray('id', 'pid') as $id => $pid) {
 			if (!$application->process->alive($pid)) {
 				$application->logger->debug('Removing stale PID {pid} from Job # {id}', compact('pid', 'id'));
 				$application->ormRegistry(__CLASS__)
@@ -377,17 +377,17 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			if ($class && !class_exists($class, true)) {
 				throw new Exception_Class_NotFound($class);
 			}
-			$this->call_hook('execute_before');
+			$this->callHook('execute_before');
 			$result = call_user_func_array($this->hook, array_merge([
 				$this,
-			], to_array($this->hook_args)));
-			$this->call_hook('execute_after;execute_success');
+			], toArray($this->hook_args)));
+			$this->callHook('execute_after;execute_success');
 		} catch (Exception_Interrupt $e) {
-			$this->call_hook('execute_after;execute_interrupt', $e);
+			$this->callHook('execute_after;execute_interrupt', $e);
 			$process->terminate();
 			return;
 		} catch (\Exception $e) {
-			$this->call_hook('execute_after;execute_exception', $e);
+			$this->callHook('execute_after;execute_exception', $e);
 
 			throw $e;
 		}
@@ -405,7 +405,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			->execute();
 	}
 
-	public function progress_push($name): void {
+	public function progressPush($name): void {
 		// TODO
 	}
 
@@ -448,7 +448,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		if (is_bool($set)) {
 			$this->completed = Timestamp::now();
 			$this->last_exit = $set;
-			$this->call_hook('completed');
+			$this->callHook('completed');
 			return $this->store();
 		}
 		return !$this->memberIsEmpty('completed');
@@ -485,7 +485,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 * @return mixed|\zesk\Configuration|array
 	 */
 	public static function retry_attempts(Application $application) {
-		return $application->configuration->path_get(__METHOD__, 100);
+		return $application->configuration->getPath(__METHOD__, 100);
 	}
 
 	/**

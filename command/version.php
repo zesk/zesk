@@ -196,7 +196,7 @@ class Command_Version extends Command_Base {
 				]);
 				return self::EXIT_CODE_VERSION_UPDATE_UNCHANGED;
 			} else {
-				$hooks = $this->application->modules->all_hook_list('version_updated');
+				$hooks = $this->application->modules->all_listHooks('version_updated');
 				$params = [
 					'previous_version' => $version_raw,
 					'version' => $new_version_raw,

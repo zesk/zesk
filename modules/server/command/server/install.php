@@ -60,7 +60,7 @@ class Command_Server_Install extends Command {
 	protected function run(): void {
 		$this->configure('server-install');
 
-		$this->verbose_log('Running {class}', [
+		$this->verboseLog('Running {class}', [
 			'class' => __CLASS__,
 		]);
 
@@ -70,21 +70,21 @@ class Command_Server_Install extends Command {
 		} catch (Exception $e) {
 			$this->usage($e->getMessage());
 		}
-		$this->verbose_log('Configuring {class}', [
+		$this->verboseLog('Configuring {class}', [
 			'class' => $platform::class,
 		]);
 
 		$features = null;
-		if ($this->has_arg()) {
+		if ($this->hasArgument()) {
 			$features = [];
 			do {
-				$feature = $this->get_arg('feature');
+				$feature = $this->getArgument('feature');
 				if ($platform->feature_exists($feature)) {
 					$features[] = $feature;
 				} else {
 					$this->error('Ignoring feature {feature} - unknown', compact('feature'));
 				}
-			} while ($this->has_arg());
+			} while ($this->hasArgument());
 			if (count($features) === 0) {
 				$this->usage('No features to configure, aborting.');
 			}

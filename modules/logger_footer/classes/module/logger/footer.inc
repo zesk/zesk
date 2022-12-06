@@ -4,6 +4,8 @@
  */
 namespace zesk;
 
+use aws\classes\Module;
+
 /**
  *
  * @author kent
@@ -25,7 +27,7 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 	public function initialize(): void {
 		parent::initialize();
 		if (!$this->application->console()) {
-			$this->application->logger->register_handler(__CLASS__, $this);
+			$this->application->logger->registerHandler(__CLASS__, $this);
 		}
 	}
 

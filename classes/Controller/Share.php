@@ -40,8 +40,8 @@ class Controller_Share extends Controller {
 	 */
 	public function build_directory(): void {
 		$app = $this->application;
-		$share_paths = $this->application->share_path();
-		$document_root = $app->document_root();
+		$share_paths = $this->application->sharePath();
+		$document_root = $app->documentRoot();
 		foreach ($share_paths as $name => $path) {
 			$app->logger->info('Reviewing {name} => {path}', [
 				'name' => $name,
@@ -71,7 +71,7 @@ class Controller_Share extends Controller {
 	public function path_to_file($path) {
 		$uri = StringTools::removePrefix($path, '/');
 		$uri = pair($uri, '/', '', $uri)[1];
-		$share_paths = $this->application->share_path();
+		$share_paths = $this->application->sharePath();
 		foreach ($share_paths as $name => $path) {
 			if (empty($name) || begins($uri, "$name/")) {
 				$file = path($path, StringTools::removePrefix($uri, "$name/"));
@@ -134,7 +134,7 @@ class Controller_Share extends Controller {
 	 * @param string $file
 	 */
 	private function build($path, $file): void {
-		$target = path($this->application->document_root(), $path);
+		$target = path($this->application->documentRoot(), $path);
 		Directory::depend(dirname($target), 0o775);
 		$status = copy($file, $target);
 		$this->application->logger->notice('Copied {file} to {target} - {status}', [
@@ -150,8 +150,8 @@ class Controller_Share extends Controller {
 	private function share_debug() {
 		$content = '';
 		$content .= HTML::tag('h1', 'Server') . HTML::tag('pre', PHP::dump($_SERVER));
-		$content .= HTML::tag('h1', 'Request headers') . HTML::tag('pre', PHP::dump($this->request->header()));
-		$content .= HTML::tag('h1', 'Shares') . HTML::tag('pre', PHP::dump($this->application->share_path()));
+		$content .= HTML::tag('h1', 'Request headers') . HTML::tag('pre', PHP::dump($this->request->headers()));
+		$content .= HTML::tag('h1', 'Shares') . HTML::tag('pre', PHP::dump($this->application->sharePath()));
 		return $content;
 	}
 
@@ -164,7 +164,7 @@ class Controller_Share extends Controller {
 		$path = explode('/', trim($path, '/'));
 		array_shift($path);
 		$share = array_shift($path);
-		$shares = $application->share_path();
+		$shares = $application->sharePath();
 		if (array_key_exists($share, $shares)) {
 			return path($shares[$share], implode('/', $path));
 		}
@@ -179,7 +179,7 @@ class Controller_Share extends Controller {
 		/* @var $locale \zesk\Locale */
 		$logger->debug(__METHOD__);
 		if ($this->optionBool('build')) {
-			$share_dir = path($this->application->document_root(), $this->option_share_prefix());
+			$share_dir = path($this->application->documentRoot(), $this->option_share_prefix());
 			if (is_dir($share_dir)) {
 				$logger->notice('{class}::hook_cache_clear - deleting {share_dir}', [
 					'class' => __CLASS__,

@@ -11,6 +11,7 @@ namespace zesk;
  */
 
 use \DirectoryIterator;
+use SplFileInfo;
 use \UnexpectedValueException;
 use Psr;
 
@@ -27,7 +28,7 @@ class Directory extends Hookable {
 	 *
 	 * @var integer
 	 */
-	public static int $default_mode = 0o770;
+	public static int $default_mode = 504; /* 0o0770 */
 
 	/**
 	 * Implement hooks
@@ -60,12 +61,34 @@ class Directory extends Hookable {
 			throw new Exception_Directory_Create($path);
 		}
 		$perms = File::stat($path, 'perms');
-		if (intval($perms['octal']) === File::mode_to_octal($mode)) {
+		if (strval($perms['octal']) === File::mode_to_octal($mode)) {
 			if (!chmod($path, $mode)) {
 				throw new Exception_Directory_Permission($path, map('Setting {filename} to mode {0}', [sprintf('%04o', $mode)]));
 			}
 		}
 		return $path;
+	}
+
+	/**
+	 * Change directory mode (iff directory exists)
+	 *
+	 * @param string $directory
+	 * @param int $mode
+	 * @return void
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Directory_Permission
+	 */
+	public static function chmod(string $directory, int $mode = 504 /* 0o770 */): void {
+		if (!is_dir($directory)) {
+			throw new Exception_Directory_NotFound($directory, 'Can not set mode to {mode}', [
+				'mode' => File::mode_to_octal($mode),
+			]);
+		}
+		if (!chmod($directory, $mode)) {
+			throw new Exception_Directory_Permission($directory, 'Can not set mode to {mode}', [
+				'mode' => File::mode_to_octal($mode),
+			]);
+		}
 	}
 
 	/**
@@ -109,8 +132,8 @@ class Directory extends Hookable {
 	 * @param int $mode Default mode of directory (UNIX permissions)
 	 * @return string $path of directory if created, null if not
 	 */
-	public static function create(string $path, int $mode = null) {
-		if ($mode === null) {
+	public static function create(string $path, int $mode = -1) {
+		if ($mode < 0) {
 			$mode = self::default_mode();
 		}
 		if (is_dir($path)) {
@@ -129,11 +152,12 @@ class Directory extends Hookable {
 	 * @param string $source
 	 * @param string $destination
 	 * @param boolean $recursive
-	 * @param Closure $file_copy_function
+	 * @param ?callable $file_copy_function
 	 * @throws Exception_Parameter
 	 * @throws Exception_Directory_NotFound
 	 */
-	public static function duplicate(string $source, string $destination, bool $recursive = true, callable $file_copy_function = null) {
+	public static function duplicate(string $source, string $destination, bool $recursive = true, callable
+	$file_copy_function = null): string {
 		if (empty($source)) {
 			throw new Exception_Parameter('self::duplicate: Source is empty');
 		}
@@ -147,7 +171,7 @@ class Directory extends Hookable {
 		}
 		$directoryIterator = new \DirectoryIterator($source);
 		foreach ($directoryIterator as $fileInfo) {
-			/* @var $fileInfo \FileInfo */
+			/* @var $fileInfo SplFileInfo */
 			if ($fileInfo->isDot()) {
 				continue;
 			}
@@ -174,14 +198,15 @@ class Directory extends Hookable {
 	 * @param string $path
 	 * @return boolean
 	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Directory_Permission
 	 */
 	public static function isEmpty(string $path): bool {
 		if (!is_dir($path)) {
-			return true;
+			throw new Exception_Directory_NotFound($path);
 		}
 		$d = opendir($path);
 		if (!is_resource($d)) {
-			throw new Exception_Directory_NotFound("Can't opendir on $path");
+			throw new Exception_Directory_Permission("Can't opendir($path)");
 		}
 		while (($f = readdir($d)) !== false) {
 			if ($f === '.' || $f === '..') {
@@ -251,12 +276,24 @@ class Directory extends Hookable {
 	}
 
 	/**
+	 * @param string $absolute_root
+	 * @param string $mixed
+	 * @return string
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Directory_NotFound
+	 */
+	public static function make_absolute(string $absolute_root, string $mixed): string {
+		zesk()->deprecated(__METHOD__);
+		return self::makeAbsolute($absolute_root, $mixed);
+	}
+
+	/**
 	 * @param string $absolute_root A known valid path in the file system
 	 * @param string $mixed An elements to append to convert to an absolute path at the given roon
 	 * @return string
 	 * @throws Exception_Directory_NotFound
 	 */
-	public static function make_absolute(string $absolute_root, string $mixed): string {
+	public static function makeAbsolute(string $absolute_root, string $mixed): string {
 		if (!is_dir($absolute_root)) {
 			throw new Exception_Directory_NotFound($absolute_root);
 		}
@@ -281,13 +318,14 @@ class Directory extends Hookable {
 	 * Covert old-style options into new
 	 *
 	 * @param array $options
-	 * @param unknown $prefix
+	 * @param string $prefix
+	 * @return array
 	 */
-	private static function _legacy_parse_options(array $options, $prefix) {
+	private static function _legacyParseOptions(array $options, string $prefix, bool $default): array {
 		$options = ArrayTools::keysRemovePrefix($options, $prefix . '_', true);
-		$include_pattern = $exclude_pattern = null;
-		$default = true;
-		extract($options, EXTR_IF_EXISTS);
+		$include_pattern = $options['include_pattern'] ?? null;
+		$exclude_pattern = $options['exclude_pattern'] ?? null;
+		$default = $options['default'] ?? $default;
 		if ($include_pattern === false) {
 			return [
 				false,
@@ -311,8 +349,8 @@ class Directory extends Hookable {
 	/**
 	 *
 	 */
-	private static function _list_recursive_rules(array $options, $name) {
-		$k = 'rules_' . $name;
+	private static function _listRecursiveRules(array $options, string $name, bool $default): array {
+		$k = self::RULE_PREFIX . $name;
 		if (array_key_exists($k, $options)) {
 			if (is_bool($options[$k])) {
 				return [
@@ -321,13 +359,41 @@ class Directory extends Hookable {
 			}
 			if (!is_array($options[$k])) {
 				throw new Exception_Parameter('Recursive rules {key} must be boolean or an array, {type} passed', [
-					'key' => $k,
-					'type' => type($options[$k]),
+					'key' => $k, 'type' => type($options[$k]),
 				]);
 			}
 			return $options[$k];
 		}
-		return self::_legacy_parse_options($options, $name);
+		return self::_legacyParseOptions($options, $name, $default);
+	}
+
+	public const RULE_PREFIX = 'rules_';
+
+	public const RULE_SUFFIX_FILE = 'file';
+
+	public const RULE_SUFFIX_DIRECTORY = 'directory';
+
+	public const RULE_SUFFIX_DIRECTORY_WALK = 'directory_walk';
+
+	/**
+	 * Option rule for listRecursive
+	 */
+	public const LIST_RULE_DIRECTORY = self::RULE_PREFIX . self::RULE_SUFFIX_DIRECTORY;
+
+	/**
+	 * Option rule for listRecursive
+	 */
+	public const LIST_RULE_FILE = self::RULE_PREFIX . self::RULE_SUFFIX_FILE;
+
+	/**
+	 * Option rule for listRecursive. Rules specify whether a directory should be traversed.
+	 */
+	public const LIST_RULE_DIRECTORY_WALK = self::RULE_PREFIX . self::RULE_SUFFIX_DIRECTORY_WALK;
+
+	public const LIST_ADD_PATH = 'add_path';
+
+	public static function list_recursive(string $path, array $options = []): array {
+		return self::listRecursive($path, $options);
 	}
 
 	/**
@@ -347,17 +413,19 @@ class Directory extends Hookable {
 	 * @param string $path
 	 * @param array $options
 	 * @return array
+	 * @throws Exception_Parameter
 	 */
-	public static function list_recursive($path, array $options = []) {
+	public static function listRecursive(string $path, array $options = []): array {
 		$options = !is_array($options) ? [] : $options;
 		$options = array_change_key_case($options);
-		$progress = toBool($options['progress'] ?? false);
-		$rules_file = self::_list_recursive_rules($options, 'file');
-		$rules_dir = self::_list_recursive_rules($options, 'directory');
-		$rules_dir_walk = self::_list_recursive_rules($options, 'directory_walk');
+		$progress = $options['progress'] ?? null;
+		/* @var $progress Psr\Log\LoggerInterface */
+		$rules_file = self::_listRecursiveRules($options, self::RULE_SUFFIX_FILE, false);
+		$rules_dir = self::_listRecursiveRules($options, self::RULE_SUFFIX_DIRECTORY, false);
+		$rules_dir_walk = self::_listRecursiveRules($options, self::RULE_SUFFIX_DIRECTORY_WALK, true);
 
 		$max_results = $options['maximum_results'] ?? -1;
-		$addpath = toBool($options['add_path'] ?? false);
+		$addpath = toBool($options[self::LIST_ADD_PATH] ?? false);
 
 		$path = rtrim($path, '/');
 		$d = @opendir($path);
@@ -366,7 +434,7 @@ class Directory extends Hookable {
 		}
 		$r = [];
 		$options['add_path'] = false;
-		$prefix = $addpath ? (substr($path, -1) === '/' ? $path : "$path/") : '';
+		$prefix = $addpath ? (str_ends_with($path, '/') ? $path : "$path/") : '';
 		while (($x = readdir($d)) !== false) {
 			if ($x === '.' || $x === '..') {
 				continue;
@@ -380,16 +448,14 @@ class Directory extends Hookable {
 				if (!StringTools::filter($full_path, $rules_dir_walk)) {
 					continue;
 				}
-				if ($progress && $progress instanceof Psr\Log\LoggerInterface) {
+				if ($progress instanceof Psr\Log\LoggerInterface) {
 					$progress->notice('Listing {full_path}', [
 						'full_path' => $full_path,
 					]);
 				}
 				$result = self::list_recursive($full_path, $options);
-				if (is_array($result)) {
-					$result = ArrayTools::prefixValues($result, "$prefix$x/");
-					$r = array_merge($r, $result);
-				}
+				$result = ArrayTools::prefixValues($result, "$prefix$x/");
+				$r = array_merge($r, $result);
 			} else {
 				if (!StringTools::filter($full_path, $rules_file)) {
 					continue;
@@ -411,7 +477,7 @@ class Directory extends Hookable {
 	 * @return string path with removed dots
 	 * @throws Exception_Syntax
 	 */
-	public static function undot(string $p): string {
+	public static function removeDots(string $p): string {
 		$r = [];
 		$a = explode('/', $p);
 		$skip = 0;
@@ -437,7 +503,7 @@ class Directory extends Hookable {
 	/**
 	 *
 	 */
-	public static function add_slash($p) {
+	public static function addSlash(string $p): string {
 		if (!$p) {
 			return $p;
 		}
@@ -450,7 +516,7 @@ class Directory extends Hookable {
 	 * @param string $path
 	 * @return string
 	 */
-	public static function strip_slash(string $path): string {
+	public static function stripSlash(string $path): string {
 		return rtrim($path, '/');
 	}
 
@@ -496,27 +562,22 @@ class Directory extends Hookable {
 	 * To strip the / and return only directories, for example.
 	 *
 	 * @param string $path The directory to list
-	 * @param string $filter A pattern to match against files in the directory. Use null for all matches.
+	 * @param null|string $filter A pattern to match against files in the directory. Use null for all matches.
 	 * @param boolean $cat_path Whether to concatenate the path to each resulting file name
 	 * @return array The directory list
 	 * @todo Move this to DirectoryIterater inherited class
 	 */
-	public static function ls($path, $filter = null, $cat_path = false) {
-		if (!is_string($filter)) {
-			$filter = null;
-		}
+	public static function ls(string $path, string $filter = null, bool $cat_path = false): array {
 		$r = [];
 		if (!is_dir($path)) {
 			throw new Exception_Directory_NotFound($path, '{method}: {path} is not a directory', [
-				'method' => __METHOD__,
-				'path' => $path,
+				'method' => __METHOD__, 'path' => $path,
 			]);
 		}
 		$d = opendir($path);
 		if (!is_resource($d)) {
 			throw new Exception_Directory_NotFound($path, '{method}: {path} is not readable', [
-				'method' => __METHOD__,
-				'path' => $path,
+				'method' => __METHOD__, 'path' => $path,
 			]);
 		}
 		$path = rtrim($path, '/');
@@ -535,9 +596,18 @@ class Directory extends Hookable {
 	}
 
 	/**
-	 *
+	 * @param string $source
+	 * @param string $dest
+	 * @param bool $create
+	 * @return void
+	 * @throws Exception_Directory_Create
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Directory_Permission
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_File_Permission
+	 * @throws Exception_Parameter
 	 */
-	public static function copy($source, $dest, $create = false) {
+	public static function copy(string $source, string $dest, bool $create = false): void {
 		if (!is_dir($source)) {
 			throw new Exception_Directory_NotFound($source, 'Copying to {dest}', [
 				'dest' => $dest,
@@ -564,16 +634,15 @@ class Directory extends Hookable {
 				}
 			}
 		}
-		return true;
 	}
 
 	/**
-	 * Compute the size of the files in a path
+	 * Compute the size of the files in a path. Does not handle integer overflow?
 	 *
 	 * @param string $path
 	 * @return number
 	 */
-	public static function size($path) {
+	public static function size(string $path): float {
 		$n = 0;
 		if (!is_dir($path)) {
 			return is_file($path) ? filesize($path) : 0;
@@ -599,12 +668,14 @@ class Directory extends Hookable {
 	 *
 	 *   Will delete file names which sort at the top of the list
 	 *
-	 * @param string $directory
-	 * @param int $total
-	 * @param string $order_by
-	 * @return integer List of files deleted
+	 * @param string $directory The directory
+	 * @param int $total The number of files to allow in this directory
+	 * @param string $order_by "name" or "date" are allowed
+	 * @return array List of files deleted
+	 * @throws Exception_Parameter|Exception_Directory_NotFound
 	 */
-	public static function cull_contents($directory, $total, $order_by = 'name', $ascending = true) {
+	public static function cullContents(string $directory, int $total, string $order_by = 'name', bool $ascending =
+	true): array {
 		$files = self::ls($directory, null, true);
 		if (count($files) < $total) {
 			return [];
@@ -640,14 +711,13 @@ class Directory extends Hookable {
 	/**
 	 * Given a list of paths and a directory name, find the first occurrance of the named directory.
 	 *
-	 * @param array $paths
-	 *            List of strings representing file system paths
-	 * @param mixed $directory
-	 *            Directory to search for, or list of directories to search for (array)
-	 * @return string Full path of found directory, or null if not found
+	 * @param array $paths List of strings representing file system paths
+	 * @param array|string|null $directory Directory to search for, or list of directories suffixes to search for
+	 * @return string
+	 * @throws Exception_NotFound
 	 * @see File::find
 	 */
-	public static function find_first(array $paths, $directory = null) {
+	public static function findFirst(array $paths, array|string $directory = null): string {
 		if (is_array($directory)) {
 			foreach ($paths as $path) {
 				foreach ($directory as $d) {
@@ -665,7 +735,10 @@ class Directory extends Hookable {
 				}
 			}
 		}
-		return null;
+
+		throw new Exception_NotFound('No directory exists {paths}, {directory}', [
+			'paths' => $paths, 'directory' => $directory,
+		]);
 	}
 
 	/**
@@ -675,10 +748,10 @@ class Directory extends Hookable {
 	 *            List of strings representing file system paths
 	 * @param mixed $directory
 	 *            Directory to search for, or list of directories to search for (array)
-	 * @return string Full path of found directory, or null if not found
+	 * @return array All possible paths which actually exist
 	 * @see File::find_first
 	 */
-	public static function find_all(array $paths, array|string $directory = '') {
+	public static function findAll(array $paths, array|string $directory = ''): array {
 		$result = [];
 		if (is_array($directory)) {
 			foreach ($paths as $path) {
@@ -698,5 +771,35 @@ class Directory extends Hookable {
 			}
 		}
 		return $result;
+	}
+
+	/*===============================================================================================================*\
+	 *      _                               _           _
+	 *   __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
+	 *  / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
+	 * | (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
+	 *  \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
+	 *             |_|
+	\*===============================================================================================================*/
+
+	/**
+	 * @param array $paths
+	 * @param $directory
+	 * @return string|null
+	 * @throws Exception_Deprecated
+	 */
+	public static function find_first(array $paths, $directory = null) {
+		zesk()->deprecated(__METHOD__);
+		return self::findFirst($paths, $directory);
+	}
+
+	/**
+	 * @param array $paths
+	 * @param array|string $directory
+	 * @return array|string
+	 */
+	public static function find_all(array $paths, array|string $directory = ''): array {
+		zesk()->deprecated(__METHOD__);
+		return self::findAll($paths, $directory);
 	}
 }

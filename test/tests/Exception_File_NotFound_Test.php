@@ -7,7 +7,7 @@
  */
 namespace zesk;
 
-class Exception_File_NotFound_Test extends Exception_TestCase {
+class Exception_OutOfBoundsExceptionest extends Exception_TestCase {
 	public function test_basics(): void {
 		$testx = new Exception_File_NotFound();
 		$this->exception_test($testx);

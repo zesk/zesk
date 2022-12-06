@@ -68,7 +68,7 @@ class Class_User extends Class_ORM {
 	 * Allowable hash methods
 	 *
 	 * @see hash
-	 * @var string
+	 * @var array
 	 */
 	public array $allowed_hash_methods = [
 		'md5',
@@ -81,9 +81,8 @@ class Class_User extends Class_ORM {
 	];
 
 	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Class_ORM::initialize()
+	 * @return void
+	 * @throws Exception_Configuration
 	 */
 	protected function initialize(): void {
 		$this->column_types[$this->id_column] = self::type_id;
@@ -104,12 +103,12 @@ class Class_User extends Class_ORM {
 			$this->allowed_hash_methods = $this->optionArray('allowed_hash_methods');
 		}
 		$this->allowed_hash_methods = array_filter($this->allowed_hash_methods, 'strtolower');
-		$algos = ArrayTools::valuesFlipCopy(hash_algos(), true);
+		$algorithms = ArrayTools::valuesFlipCopy(hash_algos());
 		foreach ($this->allowed_hash_methods as $index => $name) {
-			if (!isset($algos[$name])) {
+			if (!isset($algorithms[$name])) {
 				$this->application->logger->warning('Algorithm {algo} is not found in {algos}, removing', [
 					'algo' => $name,
-					'algos' => array_values($algos),
+					'algos' => array_values($algorithms),
 				]);
 				unset($this->allowed_hash_methods[$index]);
 			}

@@ -418,7 +418,7 @@ function toFloat(mixed $s, float $def = null): float {
  * @return array or $default
  */
 function toList(mixed $mixed, array $default = [], string $delimiter = ';'): array {
-	if ($mixed === '') {
+	if ($mixed === '' || $mixed === null) {
 		return $default;
 	} elseif (is_scalar($mixed)) {
 		return explode($delimiter, strval($mixed));
@@ -451,7 +451,7 @@ function toArray(mixed $mixed, array $default = []): array {
 		];
 	}
 	if (is_object($mixed) && method_exists($mixed, 'to_array')) {
-		return $mixed->to_array();
+		return $mixed->toArray();
 	}
 	return $default;
 }
@@ -494,7 +494,8 @@ function to_text(mixed $mixed): string {
  * @deprecated 2022-01
  */
 function to_iterator(mixed $mixed): iterable {
-	return to_iterable($mixed);
+	zesk()->deprecated(__METHOD__);
+	return toIterable($mixed);
 }
 
 /**
@@ -502,8 +503,10 @@ function to_iterator(mixed $mixed): iterable {
  *
  * @param mixed $mixed
  * @return iterable
+ * @deprecated 2022-12
  */
 function to_iterable(mixed $mixed): iterable {
+	zesk()->deprecated(__METHOD__);
 	return toIterable($mixed);
 }
 
@@ -661,7 +664,7 @@ function tr(mixed $mixed, array $map): mixed {
 		$map = ArrayTools::flatten($map);
 		return strtr($mixed, $map);
 	} elseif (is_object($mixed)) {
-		return $mixed instanceof Hookable ? $mixed->call_hook_arguments('tr', [
+		return $mixed instanceof Hookable ? $mixed->callHookArguments('tr', [
 			$map,
 		], $mixed) : $mixed;
 	} else {
@@ -763,8 +766,8 @@ function kmap(array $target, array $map, bool $insensitive = false, string $pref
  * Passing in "insensitive" to true will return a string which has unmatched tokens in lowercase.
  * So:
  *
- * @test_inline $this->assert_equal(map("{a}{B}", array("a" => "ala")), "ala{B}");
- * @test_inline $this->assert_equal(map("{a}{B}", array("a" => "ala"), true), "ala{b}");
+ * @test_inline $this->assertEquals(map("{a}{B}", array("a" => "ala")), "ala{B}");
+ * @test_inline $this->assertEquals(map("{a}{B}", array("a" => "ala"), true), "ala{b}");
  *
  * @param mixed $mixed Target to modify
  * @param array $map Array of name => value of search => replace
@@ -812,8 +815,8 @@ function map(array|string $mixed, array $map, bool $insensitive = false, string 
 /**
  * Clean map tokens from a string
  *
- * @test_inline $this->assert_equal(map_clean("He wanted {n} days"), "He wanted  days");
- * @test_inline $this->assert_equal(map_clean("{}{}{}{}{}{all}{of}{this}{is}{removed}except}{}"),"except}");
+ * @test_inline $this->assertEquals(map_clean("He wanted {n} days"), "He wanted  days");
+ * @test_inline $this->assertEquals(map_clean("{}{}{}{}{}{all}{of}{this}{is}{removed}except}{}"),"except}");
  *
  * @param mixed $mixed
  * @param string $prefix_char

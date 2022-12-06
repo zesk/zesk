@@ -109,62 +109,57 @@ abstract class Temporal {
 	/**
 	 *
 	 * @var integer
-	 * @todo PHP7 use calculation
 	 */
-	public const DAYS_PER_QUARTER = 91.3125; // self::DAYS_PER_YEAR / 4;
+	public const DAYS_PER_QUARTER = self::DAYS_PER_YEAR / 4;
 
 	/**
 	 * @var double
-	 * @todo PHP7 use calculation
 	 */
-	public const DAYS_PER_MONTH = 30.4375; // self::DAYS_PER_YEAR / self::MONTHS_PER_YEAR;
+	public const DAYS_PER_MONTH = self::DAYS_PER_YEAR / self::MONTHS_PER_YEAR;
 
 	/**
 	 * @var integer
-	 * @todo PHP7 use calculation
 	 */
-	public const SECONDS_PER_DAY = 86400; // self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR * self::HOURS_PER_DAY;
+	public const SECONDS_PER_DAY = self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR * self::HOURS_PER_DAY;
 
 	/**
 	 * @var integer
-	 * @todo PHP7 use calculation
 	 */
-	public const SECONDS_PER_WEEK = 604800; // self::SECONDS_PER_DAY * self::DAYS_PER_WEEK;
+	public const SECONDS_PER_WEEK = self::SECONDS_PER_DAY * self::DAYS_PER_WEEK;
 
 	/**
 	 *
 	 * @var double
-	 * @todo PHP7 use calculation
 	 */
-	public const SECONDS_PER_YEAR = 31557600; // self::SECONDS_PER_DAY * self::DAYS_PER_YEAR;
-
-	/**
-	 *
-	 * @todo PHP7 use calculation
-	 * @var double
-	 */
-	public const SECONDS_PER_QUARTER = 7889400; // self::SECONDS_PER_DAY * self::DAYS_PER_QUARTER;
+	public const SECONDS_PER_YEAR = self::SECONDS_PER_DAY * self::DAYS_PER_YEAR;
 
 	/**
 	 *
 	 * @todo PHP7 use calculation
 	 * @var double
 	 */
-	public const SECONDS_PER_MONTH = 2629800; // self::SECONDS_PER_YEAR / self::MONTHS_PER_YEAR;
+	public const SECONDS_PER_QUARTER = self::SECONDS_PER_DAY * self::DAYS_PER_QUARTER;
 
 	/**
 	 *
 	 * @todo PHP7 use calculation
 	 * @var double
 	 */
-	public const SECONDS_PER_HOUR = 3600; // self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR;
+	public const SECONDS_PER_MONTH = self::SECONDS_PER_YEAR / self::MONTHS_PER_YEAR;
+
+	/**
+	 *
+	 * @todo PHP7 use calculation
+	 * @var double
+	 */
+	public const SECONDS_PER_HOUR = self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR;
 
 	/**
 	 * Translate units into seconds
 	 *
 	 * @var array
 	 */
-	public static $UNITS_TRANSLATION_TABLE = [
+	public static array $UNITS_TRANSLATION_TABLE = [
 		self::UNIT_YEAR => self::SECONDS_PER_YEAR,
 		self::UNIT_QUARTER => self::SECONDS_PER_QUARTER,
 		self::UNIT_MONTH => self::SECONDS_PER_MONTH, // 365*86400/12 (average 30.42 days)
@@ -181,7 +176,7 @@ abstract class Temporal {
 	 *
 	 * @return string
 	 */
-	abstract public function sql();
+	abstract public function sql(): string;
 
 	/**
 	 * Format
@@ -206,31 +201,35 @@ abstract class Temporal {
 	 *
 	 * @return array
 	 */
-	public static function units_translation_table($unit = null) {
-		$result = self::$UNITS_TRANSLATION_TABLE;
-		if ($unit !== null) {
-			return avalue($result, $unit, null);
+	public static function unitsTranslationTable(): array {
+		return self::$UNITS_TRANSLATION_TABLE;
+	}
+
+	/**
+	 * Return seconds for a unit
+	 *
+	 * @param string $unit
+	 * @return int
+	 * @throws Exception_Key
+	 */
+	public static function unitToSeconds(string $unit): int {
+		$result = self::unitsTranslationTable();
+		if (!array_key_exists($unit, $result)) {
+			throw new Exception_Key($unit);
 		}
-		return $result;
+		return $result[$unit];
 	}
 
 	/**
 	 * Convert from seconds to a greater unit
 	 *
-	 * @param int $seconds
+	 * @param int|float $seconds
 	 * @param string $unit
-	 * @return double
-	 * @throws Exception_Parameter
+	 * @return float
+	 * @throws Exception_Key
 	 */
-	public static function convert_units(int|float $seconds, string $unit = self::UNIT_SECOND): float {
-		$seconds_in_unit = self::$UNITS_TRANSLATION_TABLE[$unit] ?? null;
-		if ($seconds_in_unit === null) {
-			throw new Exception_Parameter('Invalid unit name passed to {method}: {unit}', [
-				'method' => __METHOD__,
-				'unit' => $unit,
-			]);
-		}
-		return floatval($seconds / $seconds_in_unit);
+	public static function convertUnits(int|float $seconds, string $unit = self::UNIT_SECOND): float {
+		return floatval($seconds / self::unitToSeconds($unit));
 	}
 
 	/**
@@ -246,7 +245,7 @@ abstract class Temporal {
 	 *            example.
 	 * @return string The units closest to the number of seconds
 	 */
-	public static function seconds_to_unit(int $seconds, string $stop_unit = self::UNIT_SECOND, float &$fraction = null): string {
+	public static function secondsToUnit(int $seconds, string $stop_unit = self::UNIT_SECOND, float &$fraction = null): string {
 		$translation = self::$UNITS_TRANSLATION_TABLE;
 		$unit = '';
 		foreach ($translation as $unit => $unit_seconds) {

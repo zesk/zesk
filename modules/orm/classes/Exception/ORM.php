@@ -19,13 +19,14 @@ abstract class Exception_ORM extends Exception {
 
 	/**
 	 * Create a new error
-	 * @param string $class
+	 * @param string|object $class
 	 * @param string|null $message
 	 * @param $arguments
 	 * @param Exception|null $previous
 	 */
-	public function __construct(string $class, string $message = null, $arguments = [], Exception $previous = null) {
-		$this->class = $class;
+	public function __construct(string|object $class, string $message = null, $arguments = [], Exception $previous =
+	null) {
+		$this->class = is_object($class) ? $class::class : $class;
 		if (empty($message)) {
 			$message = 'Class: {class}';
 		}

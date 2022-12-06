@@ -60,8 +60,8 @@ abstract class Server_Configuration extends Hookable {
 		$this->inheritConfiguration();
 	}
 
-	final public function verbose_log($message, array $args = []) {
-		return $this->platform->verbose_log($message, $args);
+	final public function verboseLog($message, array $args = []) {
+		return $this->platform->verboseLog($message, $args);
 	}
 
 	final public function variables(): array {
@@ -224,18 +224,18 @@ abstract class Server_Configuration extends Hookable {
 	/**
 	 * Return an array of hostname => aliasname
 	 */
-	public function host_aliases() {
+	public function host_aliases(): array {
 		return [];
 	}
 
 	/**
-	 *
-	 * @param unknown $type
-	 * @param unknown $files
-	 * @param unknown $dest
+	 * @param string $type
+	 * @param array $files
+	 * @param string $dest
 	 * @param array $options
+	 * @return array
 	 */
-	abstract public function configuration_files($type, $files, $dest, array $options = []);
+	abstract public function configuration_files(string $type, array $files, string $dest, array $options = []): array;
 
 	/**
 	 *

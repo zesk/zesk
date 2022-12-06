@@ -48,7 +48,7 @@ class Command_Classes extends Command_Base {
 		if ($format === 'text' || empty($format)) {
 			echo Text::format_table($rows);
 		} else {
-			$this->render_format($rows);
+			$this->renderFormat($rows);
 		}
 		return 0;
 	}

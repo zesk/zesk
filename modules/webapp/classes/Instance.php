@@ -119,7 +119,7 @@ class Instance extends ORM {
 		$changes = $instance->changes();
 		if (count($changes) !== 0 || !$updated instanceof Timestamp || $updated->before($mtime)) {
 			$instance->store();
-			$instance->call_hook('before_sites_changed');
+			$instance->callHook('before_sites_changed');
 			$valid_sites = [];
 
 			foreach (to_list(avalue($json, 'sites')) as $site_members) {
@@ -135,7 +135,7 @@ class Instance extends ORM {
 			$delete = $application->ormFactory(Site::class)->query_delete()->where($where);
 			// $application->logger->debug(strval($delete));
 			$delete->execute();
-			$instance->call_hook('after_sites_changed');
+			$instance->callHook('after_sites_changed');
 		}
 
 		return $instance;
@@ -174,7 +174,7 @@ class Instance extends ORM {
 			->store();
 		$site->data = $data;
 		$errors = $site->validate_structure();
-		$errors = array_merge($errors, to_array($generator->validate($members + $data)));
+		$errors = array_merge($errors, toArray($generator->validate($members + $data)));
 		$site->errors = $errors;
 		$site->valid = count($errors) === 0;
 		return $site->store();

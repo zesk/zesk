@@ -7,12 +7,15 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Psr\Log\LogLevel;
+use zesk\Logger\Handler;
+
 /**
  *
  * @author kent
  *
  */
-abstract class Command_Base extends Command {
+abstract class Command_Base extends Command implements Handler {
 	/**
 	 *
 	 * @var boolean
@@ -36,7 +39,7 @@ abstract class Command_Base extends Command {
 	 */
 	public function log(mixed $message, array $arguments = []): void {
 		if ($this->quiet) {
-			$severity = avalue($arguments, 'severity', 'info');
+			$severity = $arguments['severity'] ?? LogLevel::INFO;
 			if (array_key_exists($severity, self::$quiet_levels)) {
 				return;
 			}
@@ -99,9 +102,9 @@ abstract class Command_Base extends Command {
 			return;
 		}
 		$debug = $this->optionBool('debug');
-		$severity = $this->option('severity', $this->option('log-level', $debug ? 'debug' : 'info'));
+		$severity = $this->option('severity', $this->option('log_level', $debug ? 'debug' : 'info'));
 		$logger = $this->application->logger;
-		$all_levels = $logger->levels_select($severity);
+		$all_levels = $logger->levelsSelect($severity);
 
 		if (($filename = $this->option('log')) !== null) {
 			$modules = $this->application->modules->load('Logger_File');
@@ -111,12 +114,12 @@ abstract class Command_Base extends Command {
 			} else {
 				$log_file->fp(self::stdout());
 			}
-			$logger->register_handler('Command', $log_file, $all_levels);
+			$logger->registerHandler('Command', $log_file, $all_levels);
 			if ($this->option('debug_log_file')) {
 				$logger->info('Registered {log_file} for {all_levels}', compact('log_file', 'all_levels'));
 			}
 		} else {
-			$logger->register_handler('Command', $this, $all_levels);
+			$logger->registerHandler('Command', $this, $all_levels);
 			if ($this->option('debug_log_file')) {
 				$logger->info('Registered generic logger {all_levels}', compact('all_levels'));
 			}
@@ -131,7 +134,7 @@ abstract class Command_Base extends Command {
 			$this->usage();
 		}
 		if ($this->optionBool('debug-config')) {
-			$this->application->add_hook(\zesk\Hooks::HOOK_CONFIGURED, [
+			$this->application->addHook(\zesk\Hooks::HOOK_CONFIGURED, [
 				$this,
 				'action_debug_configured',
 			]);

@@ -130,7 +130,7 @@ class PolyGlot_Update extends ORM {
 			$server->data($server_variable_name, time());
 		}
 		$lock->release();
-		$application->call_hook('polyglot_update');
+		$application->callHook('polyglot_update');
 	}
 
 	/**

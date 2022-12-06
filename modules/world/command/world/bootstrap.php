@@ -50,8 +50,8 @@ class Command_World_Bootstrap extends Command_Base {
 			return 1;
 		}
 		if ($this->optionBool('drop')) {
-			$this->verbose_log('Truncating all tables ... may cause ID renumbering.');
-			$this->application->configuration->path_set('zesk\\Module_World::drop', true);
+			$this->verboseLog('Truncating all tables ... may cause ID renumbering.');
+			$this->application->configuration->setPath('zesk\\Module_World::drop', true);
 		}
 		foreach ($straps as $strap) {
 			$class = self::$straps[$strap];

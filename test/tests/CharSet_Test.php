@@ -8,16 +8,30 @@
 namespace zesk;
 
 class CharSet_Test extends UnitTest {
-	public function test_supported(): void {
-		$charset = null;
-		$result = charset::supported($charset);
-		$this->application->setDevelopment(true);
-		$this->assert(is_array($result));
+	/**
+	 * @return array
+	 */
+	public function data_supported(): array {
+		$result = charset::supported();
+		$tests = [];
 		foreach ($result as $charset) {
-			$this->assert(charset::supported($charset) === true);
-			$this->assert(charset::supported($charset . '-No') === false);
-			$result = charset::to_utf8('Hello, world', $charset);
+			$tests[] = [$charset];
 		}
+		return $tests;
+	}
+
+	/**
+	 * @param string $charset
+	 * @return void
+	 * @throws Exception_Convert
+	 * @throws Exception_File_Format
+	 * @dataProvider data_supported
+	 */
+	public function test_isSupported(string $charset): void {
+		$this->assertTrue(charset::isSupported($charset));
+		$this->assertFalse(charset::isSupported($charset . '-No'));
+		$result = charset::to_utf8('Hello, world', $charset);
+		$this->assertIsString($result);
 	}
 
 	public function to_utf8(): void {
@@ -45,9 +59,9 @@ class CharSet_Test extends UnitTest {
 				'US-ASCII-QUOTES',
 				'ZDINGBAT',
 			])) {
-				$this->assert($result !== $every_char, "Failed for charset $charset");
+				$this->assertNotEquals($result, $every_char, "Failed for charset $charset");
 			} else {
-				$this->assert($result === $every_char, "Failed for charset $charset");
+				$this->assertEquals($result, $every_char, "Failed for charset $charset");
 			}
 		}
 
@@ -70,7 +84,7 @@ class CharSet_Test extends UnitTest {
 			echo "$charset\n";
 			echo "$result\n";
 			echo "-\n";
-			$this->assert($result === $expect, "$result === $expect");
+			$this->assertEquals($result, $expect);
 		}
 	}
 }

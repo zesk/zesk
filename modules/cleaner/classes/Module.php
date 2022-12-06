@@ -8,6 +8,7 @@
  */
 namespace zesk\Cleaner;
 
+use zesk\Exception_Parameter;
 use zesk\File;
 use zesk\Directory;
 use zesk\TimeSpan;
@@ -37,7 +38,10 @@ class Module extends \zesk\Module {
 		foreach ($directories as $code => $settings) {
 			$path = $extensions = $lifetime = null;
 			extract($settings, EXTR_IF_EXISTS);
-			if (!$path) {
+			$lifetime = $settings['lifetime'] ?? null;
+			$extensions = $settings['extensions'] ?? null;
+			$path = $settings['path'] ?? null;
+			if (!is_string($path)) {
 				$this->application->logger->warning('{class}::directories::{code}::path is not set, skipping entry', [
 					'class' => $this->class,
 					'code' => $code,
@@ -49,35 +53,30 @@ class Module extends \zesk\Module {
 			if (!$extensions) {
 				$extensions = null;
 			} else {
-				$extensions = to_list($extensions);
+				$extensions = toList($extensions);
 			}
-			$span = new TimeSpan($lifetime);
-			if (!$span->valid()) {
-				$this->application->logger->warning('{class}::directories::{code}::lifetime is not a valid time span value ({lifetime} is type {lifetime-type}), skipping entry', [
-					'class' => __CLASS__,
-					'code' => $code,
-					'lifetime' => $lifetime,
-					'lifetime-type' => type($lifetime),
-				]);
-
-				continue;
+			if ($lifetime) {
+				$this->cleanPath($path, $extensions, TimeSpan::factory($lifetime)->seconds());
 			}
-			$this->clean_path($path, $extensions, $span->seconds());
 		}
 	}
 
 	/**
 	 * Remove old files in a path
 	 *
-	 * @param string $extension
+	 * @param string $path
+	 * @param array $extensions
+	 * @param int $lifetime_seconds
+	 * @return array
+	 * @throws Exception_Parameter
 	 */
-	public function clean_path($path, $extensions = null, $lifetime_seconds = 604800) {
+	public function cleanPath(string $path, array $extensions = [], int $lifetime_seconds = 604800): array {
 		$list_attributes = [
 			'rules_directory_walk' => true,
 			'rules_directory' => false,
 			'add_path' => true,
 		];
-		if (is_array($extensions) && count($extensions) > 0) {
+		if (count($extensions) > 0) {
 			$list_attributes['rules_file'] = [
 				"#\.(" . implode('|', $extensions) . ')$#' => true,
 				false,
@@ -90,18 +89,9 @@ class Module extends \zesk\Module {
 		$now = time();
 		$modified_after = $now - $lifetime_seconds;
 		$deleted = [];
-		foreach ($files as $file) {
-			if (!is_file($file)) {
-				continue;
-			}
-			$filemtime = filemtime($file);
-			if ($filemtime < $modified_after) {
-				$this->application->logger->debug('Deleting old file {file} modified on {when}, more than {delta} seconds ago', [
-					'file' => $file,
-					'when' => date('Y-m-d H:i:s'),
-					'delta' => $now - $filemtime,
-				]);
-				@unlink($file);
+		foreach (File::deleteModifiedBefore($files, $modified_after) as $file => $result) {
+			if (array_key_exists('deleted', $result)) {
+				$this->application->logger->debug('Deleting old file {file} modified on {when}, more than {delta} seconds ago', $result);
 				$deleted[] = $file;
 			}
 		}

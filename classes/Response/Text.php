@@ -14,7 +14,7 @@ class Text extends Type {
 		echo $content;
 	}
 
-	public function to_json() {
+	public function toJSON(): array {
 		return [];
 	}
 }

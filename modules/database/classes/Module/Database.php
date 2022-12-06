@@ -64,8 +64,8 @@ class Module_Database extends Module {
 	 * @deprecated 2022-04
 	 */
 	public function database_default($set = null): string {
+		$this->application->deprecated('Setter/getter deprecated ' . __METHOD__);
 		if ($set !== null) {
-			$this->application->deprecated('Setter/getter deprecated ' . __METHOD__);
 			$this->setDatabaseDefault($set);
 		}
 		return $this->databaseDefault();
@@ -113,18 +113,19 @@ class Module_Database extends Module {
 	 * @param string $url
 	 * @param bool $is_default
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Exception_Syntax
 	 */
 	public function register(string $name, string $url, bool $is_default = false): string {
-		if (!URL::valid($url)) {
-			throw new Exception_Semantics('{url} is not a valid database URL ({name})', compact('name', 'url'));
+		try {
+			$url = URL::normalize($url);
+		} catch (Exception_Syntax $e) {
+			throw new Exception_Syntax('{url} is not a valid database URL ({name})', [
+				'name' => $name, 'url' => $url,
+			], 0, $e);
 		}
-		$url = URL::normalize($url);
 		if (array_key_exists($name, $this->databases) && $url !== $this->names[$name]) {
 			$this->application->logger->debug('Changing database url {name} {url} (old is {old})', [
-				'name' => $name,
-				'url' => $url,
-				'old' => $this->names[$name],
+				'name' => $name, 'url' => $url, 'old' => $this->names[$name],
 			]);
 			$this->databases[$name]->changeURL($url);
 		}
@@ -198,7 +199,7 @@ class Module_Database extends Module {
 		}
 		$database_default_config_path = [__CLASS__, 'default', ];
 		if ($config->pathExists($database_default_config_path)) {
-			$this->setDatabaseDefault($config->path_get($database_default_config_path));
+			$this->setDatabaseDefault($config->getPath($database_default_config_path));
 		}
 	}
 
@@ -247,9 +248,7 @@ class Module_Database extends Module {
 		}
 		if (array_key_exists($scheme, $this->scheme_to_class) && $this->scheme_to_class[$scheme] !== $classname) {
 			$this->application->logger->warning('Registered {scheme} overrides {old_classname} with {classname}', [
-				'scheme' => $scheme,
-				'classname' => $classname,
-				'old_classname' => $this->scheme_to_class[$scheme],
+				'scheme' => $scheme, 'classname' => $classname, 'old_classname' => $this->scheme_to_class[$scheme],
 			]);
 		}
 		$this->scheme_to_class[$scheme] = $classname;
@@ -295,8 +294,7 @@ class Module_Database extends Module {
 		$class = $this->getRegisteredScheme($scheme);
 		if (!$class) {
 			throw new Exception_NotFound('Database scheme {scheme} does not have a registered handler. Available schemes: {schemes}', [
-				'scheme' => $scheme,
-				'schemes' => $this->validSchemes(),
+				'scheme' => $scheme, 'schemes' => $this->validSchemes(),
 			]);
 		}
 		return $this->application->factory($class, $this->application, null, $options);
@@ -312,28 +310,25 @@ class Module_Database extends Module {
 	 * @return Database
 	 */
 	public function app_database_registry(Application $application, $mixed = null, $options = []) {
-		return $this->database_registry($mixed, $options);
+		return $this->databaseRegistry($mixed, $options);
 	}
 
 	/**
 	 *
 	 * Create or find a database
 	 *
-	 * @param string $url
-	 *            Connection URL in the form
-	 *            dbtype://user:password@host/databasename?option0=value0&option1=value1. Currently
-	 *            MySQL and SQLite3 supported.
+	 * @param string|null $mixed
+	 * @param array $options
 	 * @return Database
-	 * @throws Exception_NotFound
+	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_Unknown_Schema
-	 * @throws Exception
-	 * @throws Exception_Unimplemented
 	 * @throws Exception_Configuration
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_Syntax
 	 */
-	public function database_registry(string $mixed = null, array $options = []): Database {
-		$options = toArray($options);
+	public function databaseRegistry(string $mixed = null, array $options = []): Database {
 		$application = $this->application;
-		$original = $mixed;
 		if ($mixed !== null && URL::valid($mixed)) {
 			$url = URL::normalize($mixed);
 			$codename = array_flip($this->names)[$url] ?? $url;
@@ -344,20 +339,13 @@ class Module_Database extends Module {
 					$mixed = 'default';
 				}
 			}
-			$url = $this->codeToURL($mixed);
-			$codename = $mixed;
 			if (count($this->names) === 0) {
 				throw new Exception_Configuration(__CLASS__ . '::names', 'No default database URL configured: "{default}" {id}', [
-					'default' => $this->databaseDefault(),
-					'id' => spl_object_id($this),
+					'default' => $this->databaseDefault(), 'id' => spl_object_id($this),
 				]);
 			}
-			if (!$url) {
-				throw new Exception_NotFound('Database not found: "{name}" from databases: {databases}', [
-					'name' => $original,
-					'databases' => array_keys($this->names),
-				]);
-			}
+			$url = $this->codeToURL($mixed);
+			$codename = $mixed;
 		}
 		$safe_url = URL::removePassword($url);
 		if (toBool($options['reuse'] ?? true)) {
@@ -373,15 +361,9 @@ class Module_Database extends Module {
 
 		try {
 			$db = $application->objects->factory($class, $application, $url, $options);
-		} catch (Exception $e) {
-			$application->hooks->call('exception', $e);
-
-			throw $e;
-		}
-		if (!$db instanceof Database) {
-			throw new Exception_Unimplemented('Database::factory({url}) {scheme} did not return a Database', [
-				'url' => $safe_url,
-				'scheme' => $scheme,
+		} catch (Exception_Class_NotFound) {
+			throw new Database_Exception_Unknown_Schema('Unknown class {class} returned for scheme {scheme}', [
+				'class' => $class, 'scheme' => $scheme,
 			]);
 		}
 		$db->setCodeName($codename);
@@ -403,9 +385,9 @@ class Module_Database extends Module {
 	/**
 	 *
 	 * @param array $info
-	 * @return string
+	 * @return array
 	 */
-	public function hook_info(array $info) {
+	public function hook_info(array $info): array {
 		$default = $this->option('default');
 		if (empty($default)) {
 			$default = '';
@@ -413,19 +395,21 @@ class Module_Database extends Module {
 		if ($default) {
 			try {
 				$url = $this->codeToURL($default);
+
+				try {
+					$safe_url = URL::removePassword($url);
+				} catch (Exception_Syntax) {
+					$safe_url = '-url-parse-failed-syntax-';
+				}
 				$info['default'] = [
-					'value' => $default,
-					'title' => 'Default database',
+					'value' => $default, 'title' => 'Default database',
 				];
 				$info['default_url'] = [
-					'value' => URL::removePassword($url),
-					'title' => 'Default URL (Safe)',
+					'value' => $safe_url, 'title' => 'Default URL (Safe)',
 				];
 			} catch (Exception_NotFound) {
 				$info['default'] = [
-					'value' => $default,
-					'error' => 'No database',
-					'valid_values' => array_keys($this->names),
+					'value' => $default, 'error' => 'No database', 'valid_values' => array_keys($this->names),
 				];
 			}
 		}

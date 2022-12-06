@@ -24,10 +24,10 @@ class Command_Database_Export extends Command {
 		}
 		$parts = parse_url($url);
 
-		echo 'DB_URL=' . $this->shell_quote($url) . "\n";
-		echo 'DB_HOST=' . $this->shell_quote(avalue($parts, 'host', '')) . "\n";
-		echo 'DB_USER=' . $this->shell_quote(avalue($parts, 'user', '')) . "\n";
-		echo 'DB_PASSWORD=' . $this->shell_quote(avalue($parts, 'pass', '')) . "\n";
-		echo 'DB_NAME=' . $this->shell_quote(ltrim(avalue($parts, 'path', ''), '/')) . "\n";
+		echo 'DB_URL=' . $this->shellQuote($url) . "\n";
+		echo 'DB_HOST=' . $this->shellQuote(avalue($parts, 'host', '')) . "\n";
+		echo 'DB_USER=' . $this->shellQuote(avalue($parts, 'user', '')) . "\n";
+		echo 'DB_PASSWORD=' . $this->shellQuote(avalue($parts, 'pass', '')) . "\n";
+		echo 'DB_NAME=' . $this->shellQuote(ltrim(avalue($parts, 'path', ''), '/')) . "\n";
 	}
 }

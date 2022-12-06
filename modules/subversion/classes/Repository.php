@@ -321,7 +321,7 @@ class Repository extends \zesk\Repository_Command {
 	 * @param string $target
 	 * @return boolean
 	 */
-	public function need_update(string $target): bool {
+	public function needUpdate(string $target): bool {
 		if (!$this->validate()) {
 			return true;
 		}

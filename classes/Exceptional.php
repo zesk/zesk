@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace zesk;
 
@@ -24,19 +25,26 @@ trait Exceptional {
 	 * Construct a new exception
 	 *
 	 * @param string $message
-	 *        	Class not found
+	 *            Class not found
 	 * @param array $arguments
-	 *        	Arguments to assist in examining this exception
+	 *            Arguments to assist in examining this exception
 	 * @param int $code
-	 *        	An integer error code value, if applicable
+	 *            An integer error code value, if applicable
 	 * @param \Exception|null $previous
-	 *        	Previous exception which may have spawned this one
+	 *            Previous exception which may have spawned this one
 	 */
-	public function __construct(string $message = '', array $arguments = [], int $code = 0, \Exception $previous = null) {
+	public function __construct(string $message = '', array $arguments = [], int $code = 0, \Throwable $previous = null) {
 		$this->arguments = $arguments;
 		$this->raw_message = $message;
 		$map_message = strval(map($message, $this->arguments));
 		parent::__construct($map_message, intval($code), $previous);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getRawMessage(): string {
+		return $this->raw_message;
 	}
 
 	/**
@@ -46,37 +54,27 @@ trait Exceptional {
 	 */
 	public function variables(): array {
 		return [
-			'exception_class' => get_class($this),
-			'class' => get_class($this),
-			'code' => $this->getCode(),
-			'message' => $this->getMessage(),
-			'file' => $this->getFile(),
-			'line' => $this->getLine(),
-			'trace' => $this->getTrace(),
-			'backtrace' => $this->getTraceAsString(),
-			'raw_message' => $this->raw_message,
-			'arguments' => $this->arguments,
-			'previous' => $this->getPrevious(),
-		];
+			'rawMessage' => $this->raw_message, 'arguments' => $this->arguments,
+		] + Exception::phpExceptionVariables($this);
 	}
 
 	/**
 	 * Used by zesk\Logger::log
 	 *
-	 * @see Logger::log
 	 * @return array
+	 * @see Logger::log
 	 */
-	public function log_variables(): array {
+	public function logVariables(): array {
 		return $this->variables();
 	}
 
 	/**
 	 * Used by zesk\Logger::log
 	 *
-	 * @see Logger::log
 	 * @return string
+	 * @see Logger::log
 	 */
-	public function log_message(): string {
+	public function logMessage(): string {
 		return $this->getMessage();
 	}
 }

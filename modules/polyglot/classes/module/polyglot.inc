@@ -34,7 +34,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	 * @return array
 	 */
 	public function locale_options() {
-		$list = $this->call_hook_arguments('locale_options', [], $this->optionArray('locale_options'));
+		$list = $this->callHookArguments('locale_options', [], $this->optionArray('locale_options'));
 		$options = [];
 		$where = [];
 		foreach ($list as $locale) {
@@ -83,20 +83,20 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 		$base = [
 			'controller' => Controller_PolyGlot::class,
 		];
-		$router->add_route('polyglot', $base);
-		$router->add_route('polyglot/load/{dialect}', $base + [
+		$router->addRoute('polyglot', $base);
+		$router->addRoute('polyglot/load/{dialect}', $base + [
 			'action' => 'load',
 			'arguments' => [
 				2,
 			],
 		]);
-		$router->add_route('polyglot/token/{dialect}', $base + [
+		$router->addRoute('polyglot/token/{dialect}', $base + [
 			'action' => 'token',
 			'arguments' => [
 				2,
 			],
 		]);
-		$router->add_route('polyglot/update/{dialect}', $base + [
+		$router->addRoute('polyglot/update/{dialect}', $base + [
 			'action' => 'update',
 			'arguments' => [
 				2,

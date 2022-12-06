@@ -21,14 +21,14 @@ class Configuration_Test extends UnitTest {
 	 */
 	public function test_value_types(mixed $value): void {
 		$configuration = new Configuration();
-		$configuration->path_set('TEST::ROOT', $value);
-		$this->assert_equal($configuration->path_get('TEST::ROOT'), $value);
-		$this->assert_equal($configuration->path_get('test::RooT'), $value);
-		$this->assert_equal($configuration->path_get([
+		$configuration->setPath('TEST::ROOT', $value);
+		$this->assertEquals($configuration->getPath('TEST::ROOT'), $value);
+		$this->assertEquals($configuration->getPath('test::RooT'), $value);
+		$this->assertEquals($configuration->getPath([
 			'test',
 			'RooT',
 		]), $value);
-		$this->assert_equal($configuration->path_get([
+		$this->assertEquals($configuration->getPath([
 			'Test',
 			'Root',
 		]), $value);

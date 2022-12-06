@@ -61,7 +61,7 @@ class Command_Help extends Command_Base {
 		];
 		$zesk_root = $this->application->zeskHome();
 		$nocore = $this->optionBool('no-core');
-		foreach ($this->application->zesk_command_path() as $path => $prefix) {
+		foreach ($this->application->zeskCommandPath() as $path => $prefix) {
 			$this->command_paths[] = $path;
 			if ($nocore && begins($path, $zesk_root)) {
 				continue;
@@ -82,14 +82,14 @@ class Command_Help extends Command_Base {
 		foreach ($command_files as $path => $structure) {
 			[$prefix, $commands] = $structure;
 			foreach ($commands as $command) {
-				$this->verbose_log('Scanning {command}', compact('command'));
+				$this->verboseLog('Scanning {command}', compact('command'));
 				$command_file = path($path, $command);
 				if (strcasecmp($command_file, __FILE__) === 0) {
 					continue;
 				}
 
 				try {
-					$this->verbose_log("Including $command_file");
+					$this->verboseLog("Including $command_file");
 					require_once $command_file;
 				} catch (\Exception $e) {
 					$this->error('Error processing {command_file}: {exception}', [
@@ -104,24 +104,24 @@ class Command_Help extends Command_Base {
 			if (array_key_exists($class, $declared_classes_before)) {
 				continue;
 			}
-			$this->verbose_log("Registering $class");
+			$this->verboseLog("Registering $class");
 			$this->application->classes->register($class);
 		}
 	}
 
 	public function process_class($class): void {
-		$this->verbose_log("Checking $class");
+		$this->verboseLog("Checking $class");
 
 		try {
 			$reflection_class = new \ReflectionClass($class);
 		} catch (Exception_Class_NotFound $e) {
-			$this->verbose_log('{class} can not be loaded, skipping', [
+			$this->verboseLog('{class} can not be loaded, skipping', [
 				'class' => $class,
 			]);
 			return;
 		}
 		if ($reflection_class->isAbstract()) {
-			$this->verbose_log('{class} is abstract, skipping', [
+			$this->verboseLog('{class} is abstract, skipping', [
 				'class' => $class,
 			]);
 			return;
@@ -145,7 +145,7 @@ class Command_Help extends Command_Base {
 					]);
 				} else {
 					$this->aliases[$alias] = $command;
-					$this->verbose_log('Alias for `zesk {command}` is `zesk {alias}`', [
+					$this->verboseLog('Alias for `zesk {command}` is `zesk {alias}`', [
 						'command' => $command,
 						'alias' => $alias,
 					]);
@@ -181,7 +181,7 @@ class Command_Help extends Command_Base {
 		}
 		$name = 'command-aliases.json'; // Put this in a single location
 		$content = JSON::encodePretty($aliases);
-		$conf_file = File::find_first($paths, $name);
+		$conf_file = File::findFirst($paths, $name);
 		if ($conf_file) {
 			if (file_get_contents($conf_file) === $content) {
 				return false;

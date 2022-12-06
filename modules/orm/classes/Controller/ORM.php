@@ -209,7 +209,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		$url = null;
 		$action = $this->firstOption("$class::${option}_action;${option}_action", $default_action);
 		if ($action) {
-			$url = $this->router->get_route($action, $object);
+			$url = $this->router->getRoute($action, $object);
 		}
 		if (!$url) {
 			$url = $this->firstOption("$class::${option}_url;${option}_url", $default_url);
@@ -285,7 +285,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		$user = $this->user;
 		if ($user->can($object, 'delete')) {
-			$this->call_hook('delete_before', $object);
+			$this->callHook('delete_before', $object);
 			if (!$object->delete()) {
 				$message = $object::class . ':=Unable to delete {class_name-context-object-singular} "{display_name}".';
 				$result = false;
@@ -354,7 +354,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			 * @var $response Response
 			 */
 			$response = $this->response;
-			if (!$response->is_json()) {
+			if (!$response->isJSON()) {
 				$content = $response->content;
 				if (!empty($result)) {
 					$content .= $result;
@@ -362,7 +362,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				if ($output) {
 					$content .= $output;
 				}
-				$output_json = $response->is_html() ? $response->html()->to_json() : $response->to_json();
+				$output_json = $response->isHTML() ? $response->html()->toJSON() : $response->toJSON();
 				$json = $response->response_data() + [
 					'status' => true,
 					'content' => $content,
@@ -371,9 +371,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 
 				$this->json($json);
 			}
-			$this->auto_render(false);
-		} elseif ($this->response->is_json()) {
-			$this->auto_render(false);
+			$this->autoRender(false);
+		} elseif ($this->response->isJSON()) {
+			$this->autoRender(false);
 		}
 		parent::after($result, $output);
 	}
@@ -431,7 +431,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @return ORM
 	 */
 	protected function controller_ormFactory($mixed = null, $options = null) {
-		return $this->application->ormFactory($this->class, $mixed, to_array($options))->fetch();
+		return $this->application->ormFactory($this->class, $mixed, toArray($options))->fetch();
 	}
 
 	/**

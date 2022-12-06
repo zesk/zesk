@@ -17,6 +17,6 @@ class Module_Markdown extends Module implements Interface_Module_Routes {
 			'weight' => -10,
 			'page template' => null,
 		];
-		$router->add_route('markdown', $options);
+		$router->addRoute('markdown', $options);
 	}
 }

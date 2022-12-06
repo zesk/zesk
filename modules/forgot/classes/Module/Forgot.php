@@ -10,6 +10,8 @@
  */
 namespace zesk;
 
+use aws\classes\Module;
+
 /**
  * Forgotten password support
  *
@@ -42,7 +44,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 * @param Router $router
 	 */
 	public function hook_routes(Router $router): void {
-		$router->add_route('forgot(/{option action}(/{hash}))', $this->optionArray('route_options') + [
+		$router->addRoute('forgot(/{option action}(/{hash}))', $this->optionArray('route_options') + [
 			'controller' => Controller_Forgot::class,
 			'classes' => [
 				Forgot::class,

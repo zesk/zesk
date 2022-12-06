@@ -10,16 +10,34 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use resource;
+
 /**
  *
  * @author kent
  */
 abstract class Command extends Hookable implements Logger\Handler, Interface_Prompt {
 	/**
+	 * Success
+	 */
+	public const EXIT_CODE_SUCCESS = 0;
+
+	/**
+	 * Environment requirements are not met (including PHP build)
+	 */
+	public const EXIT_CODE_ENVIRONMENT = 2;
+
+	/**
+	 * When the command can not run due to improper, incomplete, or missing arguments
+	 */
+	public const EXIT_CODE_ARGUMENTS = 2;
+
+	/**
+	 * Where to wrap the help lines
 	 *
 	 * @var integer
 	 */
-	protected $wordwrap = 120;
+	protected int $wordwrap = 120;
 
 	/**
 	 * Application running this command
@@ -33,32 +51,32 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @var boolean
 	 */
-	public $has_configuration = false;
+	public bool $has_configuration = false;
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $program;
+	private string $program;
 
 	/**
 	 * Original arguments passed to command, unchanged, unedited.
 	 *
 	 * @var array
 	 */
-	private $arguments = [];
+	private array $arguments = [];
 
 	/**
 	 * errors encountered during command processing.
 	 *
 	 * @var array
 	 */
-	private $errors = [];
+	private array $errors = [];
 
 	/**
 	 * Does the terminal support ANSI colors?
 	 *
-	 * @var array
+	 * @var bool
 	 */
 	protected bool $ansi = false;
 
@@ -72,15 +90,9 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @var array
 	 */
-	public static $ansi_styles = [
-		'emergency' => '31;31m',
-		'critical' => '31;31m',
-		'error' => '31;31m',
-		'warning' => '40;33m',
-		'success' => '0;32m',
-		'info' => '33;33m',
-		'debug' => '37;40m',
-		'reset' => '0m',
+	public static array $ansi_styles = [
+		'emergency' => '31;31m', 'critical' => '31;31m', 'error' => '31;31m', 'warning' => '40;33m',
+		'success' => '0;32m', 'info' => '33;33m', 'debug' => '37;40m', 'reset' => '0m',
 	];
 
 	/**
@@ -88,7 +100,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @var string
 	 */
-	protected $help = null;
+	protected string $help = '';
 
 	/**
 	 * Debugging enabled for this command
@@ -147,7 +159,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @var string
 	 */
-	protected ?string $config = null;
+	protected string $config = '';
 
 	/**
 	 * Configuration for this command (if any)
@@ -166,7 +178,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	/**
 	 * Path for the history file for ->prompt (set in subclasses to keep history)
 	 *
-	 * @var string
+	 * @var ?string
 	 */
 	protected ?string $history_file_path = null;
 
@@ -174,7 +186,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @var resource
 	 */
-	private $history_file = null;
+	private mixed $history_file = null;
 
 	/**
 	 * Autocomplete possibilities - set before prompt for default behavior
@@ -201,9 +213,10 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * Command line arguments can be passed in. If null, uses command-line arguments from
 	 * superglobals.
 	 *
-	 * @param array $argv
+	 * @param ?array $argv
+	 * @param array $options Additional options
 	 */
-	public function __construct(Application $application, $argv = null, array $options = []) {
+	public function __construct(Application $application, array $argv = null, array $options = []) {
 		parent::__construct($application, $options);
 
 		$argv ??= $_SERVER['argv'] ?? null;
@@ -214,7 +227,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 		$this->initialize();
 
-		$this->setOptions($this->parse_option_defaults($this->option_defaults));
+		$this->setOptions($this->parseOptionDefaults($this->option_defaults));
 
 		if (is_array($argv) || $application->console()) {
 			$this->program = array_shift($argv);
@@ -232,18 +245,16 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 		$this->application->registerClass($this->register_classes);
 
-		$this->_parse_options();
+		$this->_parseOptions();
 
 		if ($this->debug) {
 			$application->logger->debug('{class}({args})', [
-				'class' => get_class($this),
-				'args' => var_export($argv, true),
+				'class' => get_class($this), 'args' => var_export($argv, true),
 			]);
 		}
 
-		if ($this->has_errors()) {
-			//$this->usage();
-			exit(1);
+		if ($this->hasErrors()) {
+			$this->usage(null, ['exit_code' => self::EXIT_CODE_ARGUMENTS]);
 		}
 	}
 
@@ -256,13 +267,11 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		/* @var $command_object Command */
 		if (!$this->has_configuration) {
 			$logger->debug('Command {class} does not have configuration, calling {app}->configured()', [
-				'class' => get_class($this),
-				'app' => $application::class,
+				'class' => get_class($this), 'app' => $application::class,
 			]);
 			if (!$application->configured()) {
 				$logger->debug('Command {class} {app} WAS ALREADY CONFIGURED!!!!', [
-					'class' => get_class($this),
-					'app' => $application::class,
+					'class' => get_class($this), 'app' => $application::class,
 				]);
 			}
 		} else {
@@ -292,19 +301,13 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	/**
 	 * Load command options from a configuration file.
 	 *
-	 * KMD 2015-01-30 Changed semantics of default file to use to be the most
-	 *
 	 * @param string $name
-	 *            basename of configuration file
-	 * @param boolean $create
-	 *            Create a blank file if it doesn't exist
-	 * @return array List of files and a default file
+	 * @return array
 	 */
-	private function _configuration_config($name) {
+	private function _configuration_config(string $name): array {
 		$file = File::name_clean(strtolower($name));
 		$suffixes = [
-			"$file.conf",
-			"$file.json",
+			"$file.conf", "$file.json",
 		];
 		$paths = $this->configuration_path();
 		$files = [];
@@ -315,31 +318,17 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		}
 
 		try {
-			$default = File::find_first(array_reverse($files));
+			$default = File::findFirst(array_reverse($files));
 		} catch (Exception_NotFound) {
 			$default = last($files);
 		}
 		$result = [
-			'files' => $files,
-			'default' => $default,
+			'files' => $files, 'default' => $default,
 		];
 		if (empty($default)) {
 			$result['default'] = path(first($paths), $file);
 		}
 		return $result;
-	}
-
-	/**
-	 * Retrieve the full path of the default configuration file, using user and system configuration
-	 * paths.
-	 *
-	 * @param string $name
-	 *            Name of the configuration file we're looking for (e.g. update)
-	 * @return string First path found, or null if not found
-	 */
-	public function default_configuration_file($name) {
-		$path = $this->configuration_path();
-		return File::find_first($path, $name . '.conf');
 	}
 
 	/**
@@ -354,21 +343,22 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @param string $name
 	 *            Configuration file name to use (either /etc/zesk/$name.conf or ~/.zesk/$name.conf)
+	 * @param bool $create
 	 * @return string LAST configuration file path
+	 * @throws Exception_Parameter
 	 */
-	protected function configure($name, $create = false) {
+	protected function configure(string $name, bool $create = false): string {
 		$configure_options = $this->_configuration_config($name);
 		$this->config = $filename = $configure_options['default'];
 		if ($this->optionBool('no-config')) {
-			$this->verbose_log('Configuration file {name} not loaded due to --no-config option', [
+			$this->verboseLog('Configuration file {name} not loaded due to --no-config option', [
 				'name' => $name,
 			]);
 			return $filename;
 		}
 		if (empty($filename)) {
 			throw new Exception_Parameter('No configuration file name for {name}', [
-				'name' => $name,
-				'create' => $create,
+				'name' => $name, 'create' => $create,
 			]);
 		}
 
@@ -377,18 +367,13 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		$app->configureInclude($configure_options['files']);
 		$app->reconfigure();
 
-		try {
-			$this->inheritConfiguration();
-		} catch (Exception_Lock $e) {
-			// Noop
-		}
+		$this->inheritConfiguration();
 
 		$exists = file_exists($filename);
 		if ($exists || $create) {
 			if ($exists) {
-				$this->verbose_log('Loading {name} configuration from {config}', [
-					'name' => $name,
-					'config' => $filename,
+				$this->verboseLog('Loading {name} configuration from {config}', [
+					'name' => $name, 'config' => $filename,
 				]);
 			} else {
 				$this->write_default_configuration($name, $filename);
@@ -408,9 +393,8 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		if (!is_writable(dirname($filename))) {
 			$this->error('Can not write {name} configuration file ({filename}) - directory is not writable', compact('name', 'filename'));
 		} else {
-			$this->verbose_log('Creating {name} configuration file ({filename})', [
-				'name' => $name,
-				'filename' => $filename,
+			$this->verboseLog('Creating {name} configuration file ({filename})', [
+				'name' => $name, 'filename' => $filename,
 			]);
 			$extension = File::extension($filename);
 			if ($extension === 'conf') {
@@ -419,9 +403,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 				file_put_contents($filename, JSON::encode([
 					get_class($this) => [
 						'configuration_file' => [
-							'created' => date('Y-m-d H:i:s'),
-							'file' => $filename,
-							'name' => $name,
+							'created' => date('Y-m-d H:i:s'), 'file' => $filename, 'name' => $name,
 						],
 					],
 				]));
@@ -492,63 +474,84 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		return false;
 	}
 
-	protected function arg_to_DateTime($arg) {
-		if (!is_date($arg)) {
-			$this->usage("Need to format like a date: $arg");
+	/**
+	 * @param string $arg
+	 * @return Timestamp
+	 * @throws Exception_Parameter
+	 */
+	protected function arg_to_DateTime(string $arg): Timestamp {
+		try {
+			return Timestamp::factory($arg);
+		} catch (Exception_Convert|Exception_Parameter) {
+			$this->error('Need to format like a date: {arg}', ['arg' => $arg]);
+
+			throw new Exception_Parameter($arg);
 		}
-		return Timestamp::factory($arg);
 	}
 
-	protected function arg_to_Date($arg) {
-		if (!is_date($arg)) {
-			$this->usage("Need to format like a date: $arg");
+	/**
+	 * @param string $arg
+	 * @return Date
+	 * @throws Exception_Parameter
+	 */
+	protected function arg_to_Date(string $arg): Date {
+		try {
+			return Date::factory($arg);
+		} catch (Exception_Convert|Exception_Parameter|Exception_Parse) {
+			$this->error('Need to format like a date: {arg}', ['arg' => $arg]);
+
+			throw new Exception_Parameter($arg);
 		}
-		return new Date($arg);
 	}
 
 	/**
 	 *
-	 * @param unknown $type
+	 * @param string $type
 	 * @return string
 	 */
-	private function default_help($type) {
-		switch ($type) {
-			case 'dir':
-				return 'This option is followed by a path';
-			case 'dir+':
-			case 'dir[]':
-				return 'This option is followed by a path, and may be specified multiple times';
-			case 'file':
-				return 'This option is followed by a file path';
-			case 'file[]':
-				return 'This option is followed by a file path, and may be specified multiple times';
-			case 'string':
-				return 'This option is followed by a single string';
-			case 'string*':
-			case 'string[]':
-				return 'This option is followed by a single string, may be specified more than once.';
-			case 'boolean':
-				return 'This presence of this option turns this feature on.';
-			case 'list':
-				return 'This option is followed by a list.';
-			case 'integer':
-				return 'This option is followed by a integer value';
-			case 'real':
-				return 'This option is followed by a decimal value';
-			case 'date':
-				return 'This option is followed by a date value';
-			case 'datetime':
-				return 'This option is followed by a date value';
-			case 'time':
-				return 'This option is followed by a time value';
-		}
-		return "Unkown type: $type";
+	private function defaultHelp(string $type): string {
+		return match ($type) {
+			'dir' => 'This option is followed by a path',
+			'dir+', 'dir[]' => 'This option is followed by a path, and may be specified multiple times',
+			'file' => 'This option is followed by a file path',
+			'file[]' => 'This option is followed by a file path, and may be specified multiple times',
+			'string' => 'This option is followed by a single string',
+			'string*', 'string[]' => 'This option is followed by a single string, may be specified more than once.',
+			'boolean' => 'This presence of this option turns this feature on.',
+			'list' => 'This option is followed by a list.',
+			'integer' => 'This option is followed by a integer value',
+			'real' => 'This option is followed by a decimal value',
+			'date' => 'This option is followed by a date value',
+			'datetime' => 'This option is followed by a date and time value',
+			'time' => 'This option is followed by a time value',
+			default => "Unkown type: $type",
+		};
 	}
+
+	/**
+	 * @var array|string[]
+	 */
+	private static array $argType = [
+		'dir' =>'dir',
+		'dir+'=>'dir',
+		'dir[]'=>'dir',
+		'string*'=> 'string',
+		'string[]'=>'string',
+		'string'=>'string',
+		'list'=>'item1;item2;...',
+		'integer'=>'number',
+		'real' => 'real-number',
+		'path' => 'path',
+		'file' => 'file',
+		'file[]' => 'file',
+		'boolean' => '',
+	];
 
 	/**
 	 * Output the usage information
-	 *
-	 * @param string $message
+	 * @param array|string|null $message
+	 * @param array $arguments
+	 * @return void
 	 */
 	public function usage(array|string $message = null, array $arguments = []): void {
 		$max_length = 0;
@@ -557,49 +560,9 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		$aliases = ArrayTools::valuesFlipAppend(ArrayTools::prefixKeys($this->option_chars, '-'));
 		foreach ($this->option_types as $k => $type) {
 			$cmd = "--$k" . ArrayTools::joinPrefix($aliases[$k] ?? [], '|');
-			switch ($type) {
-				case 'dir':
-				case 'dir+':
-				case 'dir[]':
-					$cmd .= ' dir';
-
-					break;
-				case 'string':
-					$cmd .= ' string';
-
-					break;
-				case 'string[]':
-				case 'string*':
-					$cmd .= ' string';
-
-					break;
-				case 'list':
-					$cmd .= ' item1;item2;...';
-
-					break;
-				case 'integer':
-					$cmd .= ' number';
-
-					break;
-				case 'real':
-					$cmd .= ' real-number';
-
-					break;
-				case 'path':
-					$cmd .= ' path';
-
-					break;
-				case 'file':
-				case 'file[]':
-					$cmd .= ' file';
-
-					break;
-				case 'boolean':
-					break;
-				default:
-					$cmd .= " $type";
-
-					break;
+			$append = self::$argType[$type] ?? $type;
+			if ($append) {
+				$cmd .= " $append";
 			}
 			if ($k == '*' || $k == '+') {
 				$cmd = '...';
@@ -628,21 +591,19 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		$max_length += 4;
 		$wrap_len = $this->wordwrap - $max_length - 1;
 		foreach ($commands as $k => $cmd) {
-			$help = explode("\n", wordwrap($this->option_help[$k] ?? $this->default_help($this->option_types[$k]), $wrap_len, "\n"));
+			$help = explode("\n", wordwrap($this->option_help[$k] ?? $this->defaultHelp($this->option_types[$k]), $wrap_len, "\n"));
 			$help = implode("\n" . str_repeat(' ', $max_length + 1), $help);
 			$result[] = $cmd . str_repeat(' ', $max_length - strlen($cmd) + 1) . $help;
 		}
-		foreach (array_keys($types) as $type) {
-			switch ($type) {
-				case 'list':
-					$result[] = '';
-					$result[] = 'Lists are delimited by semicolons: item1;item2;item3';
-
-					break;
-			}
+		$types = array_keys($types);
+		if (in_array('list', $types)) {
+			$result[] = '';
+			$result[] = 'Lists are delimited by semicolons: item1;item2;item3';
 		}
-		$this->error($result);
-		exit(($message === null) ? 0 : 1);
+		$this->error($result, $arguments);
+		if ($this->optionBool('exit')) {
+			exit(($message === null) ? 0 : $arguments['exit_code'] ?? self::EXIT_CODE_ENVIRONMENT);
+		}
 	}
 
 	/**
@@ -650,7 +611,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @return boolean
 	 */
-	public function has_errors() {
+	public function hasErrors(): bool {
 		return count($this->errors) !== 0;
 	}
 
@@ -659,28 +620,28 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @return array
 	 */
-	public function errors() {
+	public function errors(): array {
 		return $this->errors;
 	}
 
 	/**
 	 * Parse the option default values
 	 *
-	 * @param string $options
+	 * @param array $options
 	 * @return array
 	 */
-	private function parse_option_defaults($options = false) {
+	private function parseOptionDefaults(array $options = []): array {
 		foreach ($this->option_types as $k => $t) {
-			$newk = self::_optionKey($k);
+			$newKey = self::_optionKey($k);
 			switch (strtolower($t)) {
 				case 'boolean':
-					$options[$newk] = toBool($options[$k] ?? false);
+					$options[$newKey] = toBool($options[$k] ?? false);
 
 					break;
 				default:
 					$v = $options[$k] ?? null;
 					if ($v !== null) {
-						$options[$newk] = $v;
+						$options[$newKey] = $v;
 					}
 
 					break;
@@ -693,11 +654,8 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @var boolean[severity]
 	 */
-	private static $severity_is_error = [
-		'emergency' => true,
-		'alert' => true,
-		'critical' => true,
-		'error' => true,
+	private static array $severity_is_error = [
+		'emergency' => true, 'alert' => true, 'critical' => true, 'error' => true,
 	];
 
 	/**
@@ -705,16 +663,16 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * Do not do anything if a theme is currently being rendered.
 	 *
 	 * @param string|array $message
-	 * @param array $arguments
+	 * @param array $context
 	 */
-	public function log(mixed $message, array $arguments = []): void {
-		if ($this->application->theme_current() !== null) {
+	public function log(mixed $message, array $context = []): void {
+		if ($this->application->themeCurrent() !== null) {
 			return;
 		}
 		if (is_array($message)) {
 			if (ArrayTools::isList($message)) {
 				foreach ($message as $m) {
-					$this->logline($m, $arguments);
+					$this->logLine($m, $context);
 				}
 				return;
 			}
@@ -722,18 +680,18 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		} else {
 			$message = strval($message);
 		}
-		$this->logline($message, $arguments);
+		$this->logLine($message, $context);
 	}
 
 	/**
 	 * Log a single line to stderr or stdout
 	 *
 	 * @param string $message
-	 * @param array $arguments
+	 * @param array $context
 	 */
-	private function logline($message, array $arguments = []): void {
-		$newline = toBool($arguments['newline'] ?? true);
-		$message = rtrim(map($message, $arguments));
+	private function logLine(string $message, array $context = []): void {
+		$newline = toBool($context['newline'] ?? true);
+		$message = rtrim(map($message, $context));
 		$suffix = '';
 		if ($newline) {
 			if (strlen($message) == 0 || $message[strlen($message) - 1] !== "\n") {
@@ -741,7 +699,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			}
 		}
 		$prefix = '';
-		$severity = strtolower($arguments['_severity'] ?? $arguments['severity'] ?? 'none');
+		$severity = strtolower($context['_severity'] ?? $context['severity'] ?? 'none');
 		if ($severity && !$this->ansi) {
 			$prefix = strtoupper($severity) . ': ';
 		}
@@ -787,16 +745,14 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	private function ansi_annotate($prefix, $suffix, $severity = 'info') {
 		if (!$this->ansi || !array_key_exists($severity, self::$ansi_styles)) {
 			return [
-				$prefix,
-				$suffix,
+				$prefix, $suffix,
 			];
 		}
 		$prefix = self::ANSI_ESCAPE . self::$ansi_styles[$severity] . $prefix;
 		$suffix = explode("\n", $suffix);
 		$suffix = implode(self::ANSI_ESCAPE . self::$ansi_styles['reset'] . "\n", $suffix);
 		return [
-			$prefix,
-			$suffix,
+			$prefix, $suffix,
 		];
 	}
 
@@ -818,10 +774,10 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 	/**
 	 *
-	 * @param string $message
+	 * @param string|array $message
 	 * @param array $arguments
 	 */
-	public function error($message, array $arguments = []): void {
+	public function error(string|array $message, array $arguments = []): void {
 		if (!$message) {
 			return;
 		}
@@ -835,7 +791,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @param string $message
 	 */
-	protected function debug_log($message, array $arguments = []): void {
+	protected function debugLog(string|array $message, array $arguments = []): void {
 		if ($this->optionBool('debug') || $this->debug) {
 			$this->log($message, $arguments);
 		}
@@ -844,41 +800,31 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	/**
 	 * Log messages to the logger at $level
 	 *
-	 * @param string $message
+	 * @param string|array $message
 	 * @param array $arguments
-	 * @param int $level
 	 */
-	public function verbose_log($message, array $arguments = []): void {
+	public function verboseLog(string|array $message, array $arguments = []): void {
 		if ($this->optionBool('verbose')) {
 			$this->log($message, $arguments);
 		}
 	}
 
 	/**
-	 * Peek at the next argument to be processed
-	 *
-	 * @return string null
-	 */
-	protected function peek_arg() {
-		return $this->argv[0] ?? null;
-	}
-
-	/**
 	 * Return original arguments passed to this command (not affected by parsing, etc)
 	 *
-	 * @return multitype:
+	 * @return array:
 	 */
-	public function arguments() {
+	public function arguments(): array {
 		return $this->arguments;
 	}
 
 	/**
 	 * Retrieve remaining arguments to be processed, optionally deleting them
 	 *
-	 * @param string $clean
+	 * @param bool $clean
 	 * @return array
 	 */
-	public function arguments_remaining($clean = false) {
+	public function argumentsRemaining(bool $clean = false): array {
 		$result = $this->argv;
 		if ($clean) {
 			$this->argv = [];
@@ -889,23 +835,32 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	/**
 	 * Is there an argument waiting to be processed?
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function has_arg() {
-		return count($this->argv) > 0;
+	protected function hasArgument(): bool {
+		if (count($this->argv) === 0) {
+			return false;
+		}
+		if ($this->argv[0] === '--') {
+			return false;
+		}
+		return true;
 	}
 
 	/**
-	 * Assumes "has_arg()" is true
+	 * Assumes "hasArgument()" is true
 	 *
 	 * @param string $arg
 	 *            Argument name
 	 *
 	 * @return string
+	 * @throws Exception_Semantics
 	 */
-	protected function get_arg($arg) {
+	protected function getArgument(string $arg): string {
 		if (count($this->argv) === 0) {
 			$this->error("No argument parameter for $arg");
+
+			throw new Exception_Semantics('No arguments');
 		}
 		return array_shift($this->argv);
 	}
@@ -913,7 +868,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	/**
 	 * Parse command-line options for this command
 	 */
-	private function _parse_options(): void {
+	private function _parseOptions(): void {
 		$this->argv = $this->arguments;
 		$optional_arguments = isset($this->option_types['*']);
 		$eatExtras = isset($this->option_types['+']) || $optional_arguments;
@@ -925,20 +880,20 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 				continue;
 			}
-			if (substr($arg, 0, 1) == '-') {
+			if (str_starts_with($arg, '-')) {
 				$saveArg = $arg;
 				if (strlen($arg) === 1) {
 					break;
 				}
 				if ($arg[1] == '-') {
 					$arg = substr($arg, 2);
-					if ($arg === false) {
+					if ($arg === '') {
 						break;
 					}
 				} else {
 					$arg = substr($arg, 1);
-					$argl = strlen($arg);
-					if ($argl > 1) {
+					$argLength = strlen($arg);
+					if ($argLength > 1) {
 						// Break -abcd into -a -b -c -d
 						for ($i = 0; $i < strlen($arg); $i++) {
 							array_unshift($this->argv, '-' . $arg[$i]);
@@ -958,122 +913,102 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 				}
 
 				$format = $this->option_types[$arg];
-				$this->debug_log("Found arg \"$saveArg\" with format \"$format\"");
+				$this->debugLog("Found arg \"$saveArg\" with format \"$format\"");
 				switch (strtolower($this->option_types[$arg])) {
 					case 'boolean':
 						$option_values[$arg] = true;
 						$this->setOption($arg, !$this->optionBool($arg));
-						$this->debug_log("Set $arg to " . ($this->optionBool($arg) ? 'ON' : 'off'));
+						$this->debugLog("Set $arg to " . ($this->optionBool($arg) ? 'ON' : 'off'));
 
 						break;
 					case 'string':
-						$param = $this->get_arg($arg);
-						if ($param !== null) {
-							$option_values[$arg] = true;
-							$this->setOption($arg, $param);
-							$this->debug_log("Set $arg to \"$param\"");
-						}
+						$param = $this->getArgument($arg);
+						$option_values[$arg] = true;
+						$this->setOption($arg, $param);
+						$this->debugLog("Set $arg to \"$param\"");
 						break;
 					case 'string[]':
 					case 'string*':
-						$param = $this->get_arg($arg);
-						if ($param !== null) {
-							$option_values[$arg] = true;
-							$this->optionAppend($arg, $param);
-							$this->debug_log("Added \"$arg\" to \"$param\"");
-						}
+						$param = $this->getArgument($arg);
+						$option_values[$arg] = true;
+						$this->optionAppend($arg, $param);
+						$this->debugLog("Added \"$arg\" to \"$param\"");
 						break;
 					case 'integer':
-						$param = $this->get_arg($arg);
-						if ($param !== null) {
-							if (!is_numeric($param)) {
-								$this->error("Integer argument \"$saveArg\" not followed by number");
-							} else {
-								$param = intval($param);
-								$option_values[$arg] = true;
-								$this->setOption($arg, $param);
-								$this->debug_log("Set $arg to $param");
-							}
+						$param = $this->getArgument($arg);
+						if (!is_numeric($param)) {
+							$this->error("Integer argument \"$saveArg\" not followed by number");
+						} else {
+							$param = intval($param);
+							$option_values[$arg] = true;
+							$this->setOption($arg, $param);
+							$this->debugLog("Set $arg to $param");
 						}
 						break;
 					case 'list':
-						$param = $this->get_arg($arg);
-						if ($param !== null) {
-							$option_values[$arg] = true;
-							$this->setOption($arg, to_list($param, []));
-							$this->debug_log("Set $arg to list: $param");
-						}
+						$param = $this->getArgument($arg);
+						$option_values[$arg] = true;
+						$this->setOption($arg, to_list($param, []));
+						$this->debugLog("Set $arg to list: $param");
 						break;
 					case 'dir':
-						$param = $this->get_arg($arg);
-						if ($param !== null) {
-							if (!is_dir($param)) {
-								$this->error("Argument \"--$arg $param\" is not a directory.");
-							} else {
-								$option_values[$arg] = true;
-								$this->setOption($arg, $param);
-								$this->debug_log("Set directory $arg to $param");
-							}
+						$param = $this->getArgument($arg);
+						if (!is_dir($param)) {
+							$this->error("Argument \"--$arg $param\" is not a directory.");
+						} else {
+							$option_values[$arg] = true;
+							$this->setOption($arg, $param);
+							$this->debugLog("Set directory $arg to $param");
 						}
 						break;
 					case 'dir+':
 					case 'dir[]':
-						$param = $this->get_arg($arg);
-						if ($param !== null) {
-							if (!is_dir($param)) {
-								$this->error("Argument \"--$arg $param\" is not a directory.");
-							} else {
-								$option_values[$arg] = true;
-								$this->optionAppend($arg, $param);
-								$this->debug_log("Added direcory $arg to list: $param");
-							}
+						$param = $this->getArgument($arg);
+						if (!is_dir($param)) {
+							$this->error("Argument \"--$arg $param\" is not a directory.");
+						} else {
+							$option_values[$arg] = true;
+							$this->optionAppend($arg, $param);
+							$this->debugLog("Added direcory $arg to list: $param");
 						}
 						break;
 					case 'file':
-						$param = $this->get_arg($arg);
-						if ($param !== null) {
-							if (!$this->validate_file($param)) {
-								$this->error("Argument \"--$arg $param\" is not a file or link.");
-							} else {
-								$option_values[$arg] = true;
-								$this->setOption($arg, $param);
-								$this->debug_log("Set file $arg to file: $param");
-							}
+						$param = $this->getArgument($arg);
+						if (!$this->validateFileArgument($param)) {
+							$this->error("Argument \"--$arg $param\" is not a file or link.");
+						} else {
+							$option_values[$arg] = true;
+							$this->setOption($arg, $param);
+							$this->debugLog("Set file $arg to file: $param");
 						}
 
 						break;
 					case 'file+':
 					case 'file[]':
-						$param = $this->get_arg($arg);
-						if ($param !== null) {
-							if (!$this->validate_file($param)) {
-								$this->error("Argument \"--$arg $param\" is not a file.");
-							} else {
-								$option_values[$arg] = true;
-								$this->optionAppend($arg, $param);
-								$this->debug_log("Added file $arg to list: $param");
-							}
+						$param = $this->getArgument($arg);
+						if (!$this->validateFileArgument($param)) {
+							$this->error("Argument \"--$arg $param\" is not a file.");
+						} else {
+							$option_values[$arg] = true;
+							$this->optionAppend($arg, $param);
+							$this->debugLog("Added file $arg to list: $param");
 						}
 
 						break;
 					case 'datetime':
-						$param = $this->get_arg($arg);
-						if ($param !== null) {
-							$option_values[$arg] = true;
-							$param = $this->arg_to_DateTime($param);
-							$this->setOption($arg, $param);
-							$this->debug_log("Added datetime $arg: $param");
-						}
+						$param = $this->getArgument($arg);
+						$option_values[$arg] = true;
+						$param = $this->arg_to_DateTime($param);
+						$this->setOption($arg, $param);
+						$this->debugLog("Added datetime $arg: $param");
 
 						break;
 					case 'date':
-						$param = $this->get_arg($arg);
-						if ($param !== null) {
-							$option_values[$arg] = true;
-							$param = $this->arg_to_Date($param);
-							$this->setOption($arg, $param);
-							$this->debug_log("Added date $arg: $param");
-						}
+						$param = $this->getArgument($arg);
+						$option_values[$arg] = true;
+						$param = $this->arg_to_Date($param);
+						$this->setOption($arg, $param);
+						$this->debugLog("Added date $arg: $param");
 
 						break;
 					default:
@@ -1084,7 +1019,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 						break;
 				}
 			} else {
-				$this->debug_log("Stopping parsing at $arg (not a switch, shifting back into stack)");
+				$this->debugLog("Stopping parsing at $arg (not a switch, shifting back into stack)");
 				array_unshift($this->argv, $arg);
 
 				break;
@@ -1094,7 +1029,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		if ($eatExtras) {
 			if (count($this->argv) === 0) {
 				if (!$optional_arguments) {
-					$this->error('No arguments supplied');
+					$this->error('{class} - No arguments supplied', ['class' => get_class($this)]);
 				}
 			}
 		} elseif (count($this->argv) !== 0 && !$optional_arguments) {
@@ -1103,7 +1038,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			}
 		}
 
-		$this->option_values = $this->options_include(array_keys($option_values));
+		$this->option_values = $this->options(array_keys($option_values));
 	}
 
 	/**
@@ -1112,7 +1047,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param string $var
 	 * @return string
 	 */
-	public static function shell_quote($var) {
+	public static function shellQuote(string $var): string {
 		return '"' . str_replace('"', '\"', $var) . '"';
 	}
 
@@ -1129,31 +1064,41 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * Handle managing history and history file, initialization of history file
 	 *
 	 * @return void
+	 * @throws Exception_File_Permission
 	 */
-	private function _init_history() {
-		if ($this->history_file !== null) {
+	private function _init_history(): void {
+		if ($this->history_file) {
 			// Have history file and is open for writing
-			return null;
+			return;
 		}
-		if ($this->history_file_path === null) {
+		if ($this->history_file_path === '') {
 			// No history file specified, no-op
-			return null;
+			return;
 		}
-		if (is_file($this->history_file_path) && $this->has_readline()) {
-			foreach (File::lines($this->history_file_path) as $line) {
-				readline_add_history($line);
+		if ($this->history_file_path && $this->has_readline()) {
+			try {
+				foreach (File::lines($this->history_file_path) as $line) {
+					readline_add_history($line);
+				}
+			} catch (Exception_File_NotFound) {
+				// pass
 			}
 		}
-		$this->history_file = fopen($this->history_file_path, 'ab');
+
+		try {
+			$this->history_file = File::open($this->history_file_path, 'ab');
+		} catch (Exception_File_Permission $e) {
+			$this->application->logger->error('Unable to open history file {filename} with mode {mode}', $e->variables());
+		}
 	}
 
 	/**
 	 * Function which may be overridden by subclasses to return a list of possible completions for the current readline request
 	 *
-	 * @return string[]
+	 * @return array
 	 */
-	public function default_completion_function() {
-		return $this->completions;
+	public function default_completion_function(string $command): string {
+		return ArrayTools::filterKeyPrefixes($this->completions, $command);
 	}
 
 	/**
@@ -1164,7 +1109,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	protected function completion_function($function = null): void {
 		if ($this->has_readline()) {
 			if ($function === null) {
-				$function = __CLASS__ . '::default_completion_function';
+				$function = [__CLASS__, 'default_completion_function'];
 			}
 			readline_completion_function($function);
 		}
@@ -1246,7 +1191,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			}
 		}
 
-		throw new Exception_Command('Exited.');
+		throw new Exception_Command('Exited.', 0, []);
 	}
 
 	/**
@@ -1256,7 +1201,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param boolean $default
 	 * @return boolean
 	 */
-	public function prompt_yes_no(string $message, ?bool $default = true): bool {
+	public function promptYesNo(string $message, ?bool $default = true): bool {
 		if ($this->optionBool('yes')) {
 			return true;
 		}
@@ -1269,14 +1214,11 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		do {
 			echo rtrim($message) . ' ' . ($default === null ? '(y/n)' : ($default ? '(Y/n)' : '(y/N)')) . ' ';
 			$this->completions = ($default === null ? [
-				'yes',
-				'no',
+				'yes', 'no',
 			] : ($default ? [
-				'yes',
-				'no',
+				'yes', 'no',
 			] : [
-				'no',
-				'yes',
+				'no', 'yes',
 			]));
 			$result = trim(fgets(STDIN));
 			$result = ($result === '') ? $default : toBool($result, null);
@@ -1298,7 +1240,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		if (count($args) === 1 && is_array($args[0])) {
 			$args = $args[0];
 		}
-		return $this->application->process->execute_arguments($command, $args);
+		return $this->application->process->executeArguments($command, $args);
 	}
 
 	/**
@@ -1310,7 +1252,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	protected function zesk_cli(string $command, array $arguments = []): array {
 		$app = $this->application;
 		$bin = $app->zeskHome('bin/zesk.sh');
-		return $app->process->execute_arguments("$bin --search {app_root} $command", [
+		return $app->process->executeArguments("$bin --search {app_root} $command", [
 			'app_root' => $app->path(),
 		] + $arguments);
 	}
@@ -1326,13 +1268,13 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	protected function passthru(string $command): array {
 		$args = func_get_args();
 		array_shift($args);
-		return $this->application->process->execute_arguments($command, $args, true);
+		return $this->application->process->executeArguments($command, $args, true);
 	}
 
 	/**
 	 * Main entry point for running a command
 	 *
-	 * @return numeric
+	 * @return int
 	 */
 	final public function go(): int {
 		self::$commands[] = $this;
@@ -1340,9 +1282,9 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		// Moved from Command_Loader
 		$this->application_configure();
 
-		$this->call_hook('run_before');
+		$this->callHook('run_before');
 
-		if ($this->has_errors()) {
+		if ($this->hasErrors()) {
 			$this->usage();
 		}
 
@@ -1351,12 +1293,9 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		} catch (Exception_File_NotFound $e) {
 			$this->error('File not found {filename}', $e->variables());
 		} catch (\Exception $e) {
-			$this->error("Exception thrown by command {class} : {exception_class} {message}\n{backtrace}", [
-				'class' => get_class($this),
-				'exception_class' => $e::class,
-				'message' => $e->getMessage(),
-				'backtrace' => $e->getTraceAsString(),
-				'backtrace-4' => Text::head($e->getTraceAsString(), 6),
+			$this->error("Exception thrown by command {class} : {exceptionClass} {message}\n{backtrace}", [
+				'class' => get_class($this), 'exception_class' => $e::class, 'message' => $e->getMessage(),
+				'backtrace' => $e->getTraceAsString(), 'backtrace-4' => Text::head($e->getTraceAsString(), 6),
 			]);
 			$this->application->hooks->call('exception', $e);
 			if ($this->optionBool('debug', $this->application->development())) {
@@ -1365,7 +1304,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			$code = intval($e->getCode());
 			return ($code === 0) ? -1 : $code;
 		}
-		$result = $this->call_hook_arguments('run_after', [
+		$result = $this->callHookArguments('run_after', [
 			$result,
 		], $result);
 		if ($result === true) {
@@ -1396,7 +1335,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param string $default_format
 	 * @return boolean
 	 */
-	public function render_format(string|array $content, string $format = null, string $default_format = 'text'): bool {
+	public function renderFormat(string|array $content, string $format = null, string $default_format = 'text'): bool {
 		if ($format === null) {
 			$format = $this->option('format', $default_format);
 		}
@@ -1441,8 +1380,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		$comment = $reflection_class->getDocComment();
 		$parsed = DocComment::instance($comment)->variables();
 		return implode("\n", array_filter([
-			$parsed['desc'] ?? null,
-			$parsed['description'] ?? null,
+			$parsed['desc'] ?? null, $parsed['description'] ?? null,
 		]));
 	}
 
@@ -1461,7 +1399,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param string $file
 	 * @return boolean
 	 */
-	public function validate_file(string $file): bool {
+	public function validateFileArgument(string $file): bool {
 		return is_file($file) || is_link($file);
 	}
 

@@ -27,30 +27,27 @@ interface Interface_Process {
 	public function setApplication(Application $set): self;
 
 	/**
-	 * Getter for done state
-	 *
-	 * @param
-	 *        	boolean
+	 * Is this process done?
 	 */
-	public function done();
+	public function done(): bool;
 
 	/**
 	 * Kill/interrupt this process.
 	 * Harsher than ->terminate();
 	 */
-	public function kill();
+	public function kill(): void;
 
 	/**
 	 * Terminate this process.
 	 * Nice way to do it.
 	 */
-	public function terminate();
+	public function terminate(): void;
 
 	/**
 	 * Take a nap.
 	 * I love naps.
 	 */
-	public function sleep($seconds = 1.0);
+	public function sleep($seconds = 1.0): void;
 
 	/**
 	 * Logging tool for processes
@@ -58,5 +55,5 @@ interface Interface_Process {
 	 * @param string $message
 	 * @param array $args
 	 */
-	public function log($message, array $args = []);
+	public function log(string $message, array $args = []): void;
 }

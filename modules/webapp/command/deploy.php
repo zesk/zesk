@@ -49,14 +49,14 @@ class Command_Deploy extends \zesk\Command_Base {
 		$webapp = $application->webapp_module();
 
 		$server = Server::singleton($application);
-		if (!$this->has_arg()) {
+		if (!$this->hasArgument()) {
 			$instances = $webapp->instance_factory(true);
 			foreach (ArrayTools::collapse($instances, 'instance') as $instance) {
 				$this->log(' #{id} {code}: {name} ({appversion})', $instance->members());
 			}
 			return 0;
 		}
-		$appcode = $this->get_arg('instancecode');
+		$appcode = $this->getArgument('instancecode');
 		$instance = Instance::find_from_code($application, $server, $appcode);
 		if (!$instance) {
 			$this->error('Unable to find instance "{code}"', [
@@ -65,9 +65,9 @@ class Command_Deploy extends \zesk\Command_Base {
 			return 1;
 		}
 		$data = $instance->load_json();
-		$appinstances = to_array(avalue($data, 'instances', []));
-		if (count($appinstances) > 0 && !$this->has_arg()) {
-			$appinstance = $this->get_arg('instance');
+		$appinstances = toArray(avalue($data, 'instances', []));
+		if (count($appinstances) > 0 && !$this->hasArgument()) {
+			$appinstance = $this->getArgument('instance');
 			if (!array_key_exists($appinstance, $appinstances)) {
 				$this->error('Unknown instance type "{appinstance}", must be one of {appinstances}', [
 					'appinstance' => $appinstance,
@@ -105,7 +105,7 @@ class Command_Deploy extends \zesk\Command_Base {
 		$db->query($results);
 
 		$this->log('Running upgrade scripts');
-		$application->call_hook('upgrade');
+		$application->callHook('upgrade');
 
 		$this->log('Replicating to other systems ...');
 		$this->replicate();

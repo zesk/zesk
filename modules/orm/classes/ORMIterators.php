@@ -43,7 +43,7 @@ class ORMIterators extends ORMIterator {
 			foreach ($this->objects_prefixes as $prefix => $class_name) {
 				[$alias, $class] = $class_name;
 				$members = ArrayTools::keysRemovePrefix($this->_row, $prefix, true);
-				$object = $result[$alias] = $this->query->member_model_factory($this->parent_member . '.' . $prefix, $class, $members, [
+				$object = $result[$alias] = $this->query->memberModelFactory($this->parent_member . '.' . $prefix, $class, $members, [
 					'initialize' => true,
 				] + $this->class_options);
 				if (!$first) {

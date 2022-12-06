@@ -209,13 +209,13 @@ class Module_ORM extends Module {
 	 */
 	private function _classes(): array {
 		$classes = [];
-		$model_classes = $this->application->call_hook_arguments('orm_classes', [], []);
+		$model_classes = $this->application->callHookArguments('orm_classes', [], []);
 		$this->application->logger->debug('Classes from {class}->model_classes = {value}', [
 			'class' => get_class($this),
 			'value' => $model_classes,
 		]);
-		$classes = $classes + ArrayTools::valuesFlipCopy($model_classes, true);
-		$all_classes = $this->call_hook_arguments('classes', [$classes, ], $classes);
+		$classes = $classes + ArrayTools::valuesFlipCopy($model_classes);
+		$all_classes = $this->callHookArguments('classes', [$classes, ], $classes);
 		/* @var $module Module */
 		foreach ($this->application->modules->all_modules() as $name => $module) {
 			$module_classes = $module->model_classes();
@@ -223,7 +223,7 @@ class Module_ORM extends Module {
 				'name' => $name,
 				'value' => $module_classes,
 			]);
-			$all_classes = array_merge($all_classes, ArrayTools::valuesFlipCopy($module_classes, true));
+			$all_classes = array_merge($all_classes, ArrayTools::valuesFlipCopy($module_classes));
 		}
 		$this->application->classes->register(array_values($all_classes));
 		ksort($all_classes);
@@ -271,12 +271,11 @@ class Module_ORM extends Module {
 				]);
 			}
 			$class = $resolved_class;
-			$low_class = strtolower($class);
-			if (isset($objects_by_class[$low_class])) {
+			if (isset($objects_by_class[$class])) {
 				continue;
 			}
 			$logger->debug("Parsing $class");
-			$objects_by_class[$low_class] = true;
+			$objects_by_class[$class] = true;
 
 			try {
 				$object = $this->application->ormRegistry($class);
@@ -286,7 +285,7 @@ class Module_ORM extends Module {
 				$logger->error('Unable to synchronize {class} because it can not be found', ['class' => $class, ]);
 				continue;
 			} catch (Database_Exception $e) {
-				$logger->error("Unable to synchronize {class} because of {exception_class} {message}\nTRACE: {trace}", [
+				$logger->error("Unable to synchronize {class} because of {exceptionClass} {message}\nTRACE: {trace}", [
 					'class' => $class,
 					'message' => $e->getMessage(),
 					'exception_class' => $e::class,
@@ -375,8 +374,7 @@ class Module_ORM extends Module {
 		$rows = [];
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
-			$low_class = strtolower($class);
-			if (array_key_exists($low_class, $objects_by_class)) {
+			if (array_key_exists($class, $objects_by_class)) {
 				continue;
 			}
 			$result = [];
@@ -390,7 +388,7 @@ class Module_ORM extends Module {
 			} catch (\Exception $e) {
 				$result['object'] = $object = null;
 			}
-			$objects_by_class[$low_class] = $result;
+			$objects_by_class[$class] = $result;
 			if ($object) {
 				$dependencies = $object->dependencies();
 				if (is_array($dependencies['requires'] ?? null)) {
@@ -516,7 +514,7 @@ class Module_ORM extends Module {
 			$logger->warning('The database schema is out of sync, please update: {sql}', ['sql' => implode(";\n", $results) . ";\n", ]);
 			//TODO How to communicate with main UI?
 			// 				$router = $this->router();
-			// 				$url = $router->get_route("schema_synchronize", $application);
+			// 				$url = $router->getRoute("schema_synchronize", $application);
 			// 				$message = $url ? HTML::wrap(__("The database schema is out of sync, please [update it immediately.]"), HTML::a($url, '[]')) : __("The database schema is out of sync, please update it immediately.");
 			// 				Response::instance($application)->redirect_message($message, array(
 			// 					"url" => $url

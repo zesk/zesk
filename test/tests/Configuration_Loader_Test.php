@@ -21,7 +21,7 @@ class Configuration_Loader_Test extends UnitTest {
 		$settings = new Adapter_Settings_Configuration($config);
 		$this->assertInstanceOf(__NAMESPACE__ . '\\' . 'Adapter_Settings_Configuration', $settings);
 		$this->assertInstanceOf(__NAMESPACE__ . '\\' . 'Interface_Settings', $settings);
-		$this->assert_implements(__NAMESPACE__ . '\\' . 'Interface_Settings', $settings);
+		$this->assertImplements(__NAMESPACE__ . '\\' . 'Interface_Settings', $settings);
 	}
 
 	public function test_new(): void {
@@ -106,14 +106,14 @@ class Configuration_Loader_Test extends UnitTest {
 		$loader->load();
 
 		$variables = $loader->variables();
-		$this->assert_equal($variables['processed'], [
+		$this->assertEquals($variables['processed'], [
 			path($path, "one/$json_name"),
 			path($path, "two/$conf_name"),
 			path($path, "three/$conf_name"),
 			path($path, "three/$json_name"),
 		]);
 
-		$this->assert_arrays_equal(toArray($config), [
+		$this->assertEquals(toArray($config), [
 			'name' => 'ralph',
 			'rank' => 'admiral',
 			'weight' => 140,
@@ -193,10 +193,10 @@ class Configuration_Loader_Test extends UnitTest {
 		$parser->process();
 
 		foreach ($actual as $k => $set) {
-			$this->assert_equal($set, $results[$k], "Key $k did not match");
+			$this->assertEquals($set, $results[$k], "Key $k did not match");
 			unset($actual[$k]);
 		}
-		$this->assert(count($actual) === 0);
+		$this->assertEquals(0, count($actual));
 	}
 
 	public function provider_test_no_dependencies() {
@@ -218,7 +218,7 @@ class Configuration_Loader_Test extends UnitTest {
 
 	/**
 	 * @dataProvider provider_test_no_dependencies
-	 * @param unknown $files
+	 * @param array $files
 	 */
 	public function test_no_dependencies(array $files): void {
 		$dir = dirname(__DIR__) . '/test-data/';
@@ -228,67 +228,4 @@ class Configuration_Loader_Test extends UnitTest {
 		$loader->load();
 		$this->assertEquals([], $loader->externals());
 	}
-
-	// 	function test_edit() {
-	// 		$path = $this->test_sandbox(__FUNCTION__ . ".conf");
-	// 		file_put_contents($path, "MONKEY=MAN\nDoG=\"CANINE\"");
-	// 		$edits = array(
-	// 			"MONKEY" => "APE"
-	// 		);
-	// 		$options = array();
-	// 		conf::edit($path, $edits, $options);
-	// 		$result = conf::load($path, array(
-	// 			"lower" => false
-	// 		));
-	// 		$this->assert_arrays_equal($result, array(
-	// 			"MONKEY" => "APE",
-	// 			"DoG" => "CANINE"
-	// 		));
-	// 	}
-	// 	function test_globals() {
-	// 		$paths = null;
-	// 		$options = array();
-	// 		conf::globals($paths, $options);
-	// 	}
-
-	// 	/**
-	// 	 * @expectedException Exception_File_NotFound
-	// 	 */
-	// 	function test_load_not_found() {
-	// 		$path = $this->test_sandbox(__FUNCTION__ . ".conf");
-	// 		$options = array();
-	// 		conf::load($path, $options);
-	// 	}
-	// 	function test_load_inherit() {
-	// 		$files = array(
-	// 			"one.conf",
-	// 			"two.conf"
-	// 		);
-	// 		$paths = array(
-	// 			$this->test_sandbox('foo'),
-	// 			$this->test_sandbox('bar')
-	// 		);
-	// 		$options = array();
-	// 		conf::load_inherit($files, $paths, $options);
-	// 	}
-	// 	function test_options_default() {
-	// 		$options = array();
-	// 		conf::options_default($options);
-	// 	}
-	// 	function test_parse() {
-	// 		$lines = array(
-	// 			'DEE=BER',
-	// 			'FOO=BAR',
-	// 			'DUDE=${FOO}/${DEE}',
-	// 			'DUDE=no-overwrite',
-	// 			'export BOO=${UNDEF:-boo-boo}'
-	// 		);
-	// 		$options = array(
-	// 			'lower' => false
-	// 		);
-	// 		$result = conf::parse($lines, $options);
-	// 		echo Text::format_array($result);
-	// 		$this->assert($result['DUDE'] === 'BAR/BER', $result['DUDE'] . ' === ' . 'BAR/BER');
-	// 		$this->assert($result['BOO'] === 'boo-boo', $result['BOO'] . ' === ' . 'boo-boo');
-	// 	}
 }

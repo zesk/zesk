@@ -10,7 +10,7 @@ class Color_RGB_Test extends UnitTest {
 		$b = 255;
 		$x = new Color_RGB($r, $g, $b);
 
-		$this->assert_equal($x->__toString(), '0102FF');
+		$this->assertEquals($x->__toString(), '0102FF');
 	}
 
 	public function data_factory(): array {

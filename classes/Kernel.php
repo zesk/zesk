@@ -112,7 +112,6 @@ class Kernel {
 	 *
 	 * @see self::profiler()
 	 * @see self::profile_timer()
-	 * @var \stdClass
 	 */
 	private ?Profiler $profiler = null;
 
@@ -120,7 +119,11 @@ class Kernel {
 	 *
 	 * @var array
 	 */
-	public static array $configuration_defaults = [__CLASS__ => ['application_class' => 'zesk\\Application', ], ];
+	public static array $configuration_defaults = [
+		__CLASS__ => [
+			'application_class' => Application::class,
+		],
+	];
 
 	/**
 	 *
@@ -130,7 +133,7 @@ class Kernel {
 
 	/**
 	 *
-	 * @var CacheItemPoolInterface
+	 * @var ?CacheItemPoolInterface
 	 */
 	public ?CacheItemPoolInterface $cache = null;
 
@@ -187,7 +190,7 @@ class Kernel {
 	 * @see self::console()
 	 * @var boolean
 	 */
-	private bool $console = false;
+	private bool $console;
 
 	/**
 	 *
@@ -238,7 +241,9 @@ class Kernel {
 	 *
 	 * @param array $configuration
 	 * @return self
-	 * @throws Exception
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unsupported
+	 * @throws InvalidArgumentException
 	 */
 	public static function factory(array $configuration = []): self {
 		$zesk = new self($configuration);
@@ -250,7 +255,8 @@ class Kernel {
 	/**
 	 * Fetch the kernel singleton. Avoid this call whenever possible.
 	 *
-	 * @return self
+	 * @return static
+	 * @throws Exception_Semantics
 	 */
 	public static function singleton(): self {
 		if (!self::$singleton) {
@@ -272,8 +278,6 @@ class Kernel {
 
 		/**
 		 * Set default console
-		 *
-		 * @var boolean
 		 */
 		$this->console = PHP_SAPI === 'cli';
 		/*
@@ -282,7 +286,7 @@ class Kernel {
 		$this->newline = $this->console ? "\n" : "<br />\n";
 
 		/*
-		 * Zesk's start time in microseconds
+		 * Zesk start time in microseconds
 		 */
 		$this->initialization_time = $configuration['init'] ?? microtime(true);
 
@@ -315,9 +319,8 @@ class Kernel {
 		 */
 		$this->configuration = Configuration::factory(self::$configuration_defaults)->merge(Configuration::factory($configuration));
 
-		$this->application_class = $this->configuration->path_get([
-			__CLASS__,
-			'application_class',
+		$this->application_class = $this->configuration->getPath([
+			__CLASS__, 'application_class',
 		], __NAMESPACE__ . '\\' . 'Application');
 
 		/*
@@ -334,20 +337,14 @@ class Kernel {
 	/**
 	 * @return void
 	 * @throws Exception_Unsupported
-	 * @throws Exception_Semantics
-	 * @throws InvalidArgumentException
 	 */
 	final public function bootstrap(): void {
+		Compatibility::check();
+
 		$this->autoloader = new Autoloader($this);
 		$this->classes = Classes::instance($this);
 
 		$this->initialize();
-
-		Compatibility::install();
-
-		if (PHP_VERSION_ID < 50000) {
-			die('Zesk works in PHP 5 only.');
-		}
 	}
 
 	/**
@@ -358,28 +355,22 @@ class Kernel {
 	}
 
 	/**
-	 *
-	 * @return number
-	 */
-	public function process_id() {
-		return $this->process->id();
-	}
-
-	/**
 	 * To disable deprecated function, call with boolean value "false"
 	 *
 	 * @param string $set
 	 *            Value indicating how to handle deprecated functions: "exception" throws an
 	 *            exception, "log" logs to application error log, "backtrace" to output backtrace
 	 *            and exit immediately
+	 * @return string Previous value
 	 */
-	public function setDeprecated(string $set): self {
+	public function setDeprecated(string $set): string {
+		$old = $this->deprecated;
 		$this->deprecated = [
 			self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
 			self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
 			self::DEPRECATED_LOG => self::DEPRECATED_LOG,
 		][$set] ?? self::DEPRECATED_IGNORE;
-		return $this;
+		return $old;
 	}
 
 	/**
@@ -398,14 +389,12 @@ class Kernel {
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
 				throw new Exception_Deprecated("${reason} Deprecated: {calling_function}\n{backtrace}", [
-					'reason' => $reason,
-					'calling_function' => calling_function(),
+					'reason' => $reason, 'calling_function' => calling_function(),
 					'backtrace' => _backtrace(4 + $depth),
 				] + $arguments);
 			case self::DEPRECATED_LOG:
 				$this->logger->error("${reason} Deprecated: {calling_function}\n{backtrace}", [
-					'reason' => $reason ? $reason : 'DEPRECATED',
-					'calling_function' => calling_function(),
+					'reason' => $reason ? $reason : 'DEPRECATED', 'calling_function' => calling_function(),
 					'backtrace' => _backtrace(4 + $depth),
 				] + $arguments);
 
@@ -449,15 +438,12 @@ class Kernel {
 			$deprecated = $configuration->deprecated;
 			$this->setDeprecated(strval($deprecated));
 			$this->logger->debug('Setting deprecated handling to {deprecated} => {actual}', [
-				'deprecated' => $deprecated,
-				'actual' => $this->deprecated,
+				'deprecated' => $deprecated, 'actual' => $this->deprecated,
 			]);
 		}
 		if (isset($configuration->assert)) {
 			$ass_settings = [
-				'active' => ASSERT_ACTIVE,
-				'warning' => ASSERT_WARNING,
-				'bail' => ASSERT_BAIL,
+				'active' => ASSERT_ACTIVE, 'warning' => ASSERT_WARNING, 'bail' => ASSERT_BAIL,
 			];
 			foreach ($ass_settings as $what) {
 				assert_options($what, 0);
@@ -468,8 +454,7 @@ class Kernel {
 					assert_options($ass_settings[$code], 1);
 				} else {
 					$this->logger->warning('Invalid assert option: {code}, valid options: {settings}', [
-						'code' => $code,
-						'settings' => array_keys($ass_settings),
+						'code' => $code, 'settings' => array_keys($ass_settings),
 					]);
 				}
 			}
@@ -478,7 +463,7 @@ class Kernel {
 			assert_options(ASSERT_CALLBACK, $configuration->assert_callback);
 		}
 		if ($this->configuration->pathExists("zesk\Logger::utc_time")) {
-			$this->logger->utc_time = toBool($this->configuration->path_get("zesk\Logger::utc_time"));
+			$this->logger->utc_time = toBool($this->configuration->getPath("zesk\Logger::utc_time"));
 		}
 	}
 
@@ -584,8 +569,7 @@ class Kernel {
 	public function createApplication(array $options = []): Application {
 		if ($this->application !== null) {
 			throw new Exception_Semantics('{method} application of type {class} was already created', [
-				'method' => __METHOD__,
-				'class' => get_class($this->application),
+				'method' => __METHOD__, 'class' => get_class($this->application),
 			]);
 		}
 		$this->application = $this->objects->factory($this->application_class, $this, $options);

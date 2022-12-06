@@ -27,7 +27,7 @@ class Command_Class_New extends Command {
 	];
 
 	public function run(): void {
-		$names = $this->arguments_remaining(true);
+		$names = $this->argumentsRemaining(true);
 		if (count($names) === 0) {
 			$this->usage('Must specify class names to create');
 		}

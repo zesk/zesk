@@ -4,11 +4,11 @@ namespace zesk;
 class ulong_Test extends UnitTest {
 	public function test_ulong(): void {
 		$x = 0;
-		$testx = new ulong($x);
+		$testx = new UnsignedLong($x);
 
 		$x = 1;
 		$copy = false;
-		ulong::to_ulong($x, $copy);
+		UnsignedLong::factory($x, $copy);
 
 		$testx->get();
 
@@ -43,6 +43,6 @@ class ulong_Test extends UnitTest {
 	public function test_to_ulong(): void {
 		$x = 1234123;
 		$copy = false;
-		ulong::to_ulong($x, $copy);
+		UnsignedLong::factory($x, $copy);
 	}
 }

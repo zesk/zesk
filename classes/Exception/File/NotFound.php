@@ -7,15 +7,25 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Throwable;
+
 /**
  *
  * @author kent
  *
  */
 class Exception_File_NotFound extends Exception_FileSystem {
-	public function __construct($filename = null, $message = '', array $arguments = [], $code = 0) {
+	/**
+	 * @param $filename
+	 * @param $message
+	 * @param array $arguments
+	 * @param int $code
+	 * @param Throwable|null $previous
+	 */
+	public function __construct($filename = '', $message = '', array $arguments = [], int $code = 0, Throwable
+	$previous = null) {
 		parent::__construct($filename, $message === '' ? '{filename} not found' : $message, [
 			'filename' => $filename,
-		] + $arguments, $code);
+		] + $arguments, $code, $previous);
 	}
 }

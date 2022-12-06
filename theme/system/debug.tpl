@@ -57,7 +57,7 @@ echo HTML::tag('pre', JSON::encode_pretty($application->autoloader->path()));
 <pre>
 <?php
 
-echo PHP::dump($application->configuration->to_array());
+echo PHP::dump($application->configuration->toArray());
 ?>
 </pre>
 <h1>$_SERVER</h1>
@@ -73,19 +73,19 @@ echo HTML::tag('ul', HTML::tags('li', [], $application->sharePath()));
 ?>
 <h1>Theme Paths</h1>
 <?php
-echo HTML::tag('pre', JSON::encode_pretty($application->theme_path()));
+echo HTML::tag('pre', JSON::encode_pretty($application->themePath()));
 ?>
 <h1>Databases</h1>
 <p>Default database is <?php
-echo HTML::tag('strong', $application->database_module()->database_default());
+echo HTML::tag('strong', $application->database_module()->databaseDefault());
 ?></p>
 <pre>
 <?php
 
-echo Text::format_pairs($application->database_module()->register())?>
+echo Text::format_pairs($application->database_module()->databases())?>
 </pre>
 <h1>Hooks</h1>
 <pre>
 <?php
-echo implode('<br />', array_keys($application->hooks->has()))?>
+echo implode('<br />', array_keys($application->hooks->all()))?>
 </pre>

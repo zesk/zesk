@@ -74,7 +74,7 @@ abstract class Locale extends Hookable {
 	 */
 	public static function factory(Application $application, string $locale_string = '', array $options = []): self {
 		if (!$locale_string) {
-			$locale_string = $application->configuration->path_get([
+			$locale_string = $application->configuration->getPath([
 				__CLASS__,
 				'default',
 			], 'en_US');

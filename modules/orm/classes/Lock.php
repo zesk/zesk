@@ -120,7 +120,7 @@ class Lock extends ORM {
 	public static function delete_unlinked_locks(Application $application) {
 		// Deleting unlinked locks
 		$n_rows = 0;
-		$server_ids = $application->ormRegistry(Server::class)->query_select()->to_array(null, 'id');
+		$server_ids = $application->ormRegistry(Server::class)->query_select()->toArray(null, 'id');
 		if (count($server_ids) === 0) {
 			return 0;
 		}
@@ -139,7 +139,7 @@ class Lock extends ORM {
 	 * Delete Locks associated with this server which do not have a valid PID
 	 */
 	public static function delete_dead_pids(Application $application): void {
-		$timeout_seconds = -abs($application->configuration->path_get(__CLASS__ . '::timeout_seconds', 100));
+		$timeout_seconds = -abs($application->configuration->getPath(__CLASS__ . '::timeout_seconds', 100));
 		$you_are_dead_to_me = Timestamp::now()->addUnit($timeout_seconds, Timestamp::UNIT_SECOND);
 		$iterator = $application->ormRegistry(__CLASS__)
 			->query_select()
@@ -332,7 +332,7 @@ class Lock extends ORM {
 		// Each server is responsible for keeping locks clean.
 		// Allow a hook to enable inter-server connection, later
 		if (!$this->_is_my_server()) {
-			return $this->application->hooks->call_arguments(__CLASS__ . '::server_is_locked', [
+			return $this->application->hooks->callArguments(__CLASS__ . '::server_is_locked', [
 				$this->memberInteger('server'),
 				$this->pid,
 			], true);

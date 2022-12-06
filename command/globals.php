@@ -11,12 +11,6 @@ namespace zesk;
 class Command_Globals extends Command_Base {
 	/**
 	 *
-	 * @var string
-	 */
-	protected $help = 'Output all globals.';
-
-	/**
-	 *
 	 * @var array
 	 */
 	protected array $option_types = [
@@ -40,12 +34,12 @@ class Command_Globals extends Command_Base {
 	 */
 	public function run(): void {
 		PHP::dump_settings_one();
-		$globals = $this->application->configuration->to_array();
+		$globals = $this->application->configuration->toArray();
 		ksort($globals);
-		$args = $this->arguments_remaining(true);
+		$args = $this->argumentsRemaining(true);
 		if (count($args) > 0) {
 			$globals = ArrayTools::filter($globals, $args);
 		}
-		$this->render_format($globals);
+		$this->renderFormat($globals);
 	}
 }

@@ -117,7 +117,7 @@ class Model_Settings extends Model {
 			}
 			$this->_changed[$key] = $value;
 		} elseif (array_key_exists($key, $this->variables)) {
-			$this->configuration->path_set($key, $value);
+			$this->configuration->setPath($key, $value);
 		} else {
 			if ($this->optionBool('debug_variables')) {
 				$this->application->logger->warning('{method} STATE ONLY value for key {key} {new_value} (old value was {old_value})', [
@@ -143,8 +143,8 @@ class Model_Settings extends Model {
 			return $this->_changed[$key];
 		}
 		if (array_key_exists($key, $this->variables)) {
-			$result = $this->configuration->path_get($key);
-			return $result instanceof Configuration ? $result->to_array() : $result;
+			$result = $this->configuration->getPath($key);
+			return $result instanceof Configuration ? $result->toArray() : $result;
 		}
 		$this->application->logger->debug('{variable} not permitted in {class}, using local state instead', [
 			'variable' => $key,
@@ -157,7 +157,7 @@ class Model_Settings extends Model {
 		$result = $this->configuration->paths_get($this->variables);
 		foreach ($result as $k => $v) {
 			if ($v instanceof Configuration) {
-				$result[$k] = to_array($v->to_array());
+				$result[$k] = toArray($v->toArray());
 			}
 		}
 		return $result;
@@ -204,7 +204,7 @@ class Model_Settings extends Model {
 			}
 			$settings->set($key, $value);
 		}
-		$this->call_hook('stored');
+		$this->callHook('stored');
 		$this->_changed = [];
 		return parent::store();
 	}

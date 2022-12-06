@@ -34,7 +34,7 @@ if (!is_array($hostnames) || count($hostnames) === 0) {
 	return;
 }
 
-$path = Directory::add_slash($path);
+$path = Directory::addSlash($path);
 if ($node_application && $application->development() && ends($path, '/build/')) {
 	$path = StringTools::unsuffix($path, '/build/') . '/public/';
 }

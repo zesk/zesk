@@ -76,7 +76,7 @@ class Control_Forgot extends Control_Edit {
 		$locale = $this->locale();
 		/* @var $user User */
 		$this->auth_user = $this->application->ormFactory(User::class)->login($this->object->login)->find();
-		$this->auth_user = $this->call_hook_arguments('find_user', [
+		$this->auth_user = $this->callHookArguments('find_user', [
 			$this->auth_user,
 		], $this->auth_user);
 		if ($this->optionBool('not_found_error', true) && !$this->auth_user) {

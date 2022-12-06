@@ -35,7 +35,7 @@ class Command_Latest extends Command_Base {
 		}
 
 		chdir($zesk_home);
-		$repos = $git->determine_repository($zesk_home);
+		$repos = $git->determineRepository($zesk_home);
 
 		if (count($repos) === 0) {
 			$old = "$vendor_zesk/zesk.COMPOSER";

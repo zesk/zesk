@@ -8,5 +8,5 @@ namespace zesk;
  * Add this to modules to enforce correct hook syntax for hook_routes
  */
 interface Interface_Module_Routes {
-	public function hook_routes(Router $router);
+	public function hook_routes(Router $router): void;
 }

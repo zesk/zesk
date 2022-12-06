@@ -182,8 +182,8 @@ class Hooks {
 	 * @param string $name
 	 * @return string
 	 */
-	public static function clean_name($name) {
-		return trim(strtolower($name));
+	public static function clean_name(string $name): string {
+		return trim($name);
 	}
 
 	/**
@@ -193,7 +193,7 @@ class Hooks {
 	 *            Hook name
 	 * @param boolean $alias
 	 */
-	private function _hook_name(string $name, bool $alias = false): string {
+	private function _hookName(string $name, bool $alias = false): string {
 		$name = self::clean_name($name);
 		return !$alias ? $name : ($this->hook_aliases[$name] ?? $name);
 	}
@@ -204,7 +204,7 @@ class Hooks {
 	 * @param string $hook
 	 */
 	public function unhook(string $hook): void {
-		$hook = $this->_hook_name($hook, true);
+		$hook = $this->_hookName($hook, true);
 		unset($this->hooks[$hook]);
 	}
 
@@ -213,11 +213,11 @@ class Hooks {
 	 * @param array $hooks
 	 * @return array
 	 */
-	private function hook_load_definitions(iterable $hooks): array {
+	private function hookLoadDefinitions(iterable $hooks): array {
 		$definitions = [];
 		$found = [];
 		foreach ($hooks as $hook) {
-			$hook = $this->_hook_name($hook);
+			$hook = $this->_hookName($hook);
 			if (isset($found[$hook])) {
 				continue;
 			}
@@ -326,7 +326,7 @@ class Hooks {
 	 */
 	public function has(string|array $hooks): bool {
 		if (is_string($hooks)) {
-			$hook = $this->_hook_name($hooks);
+			$hook = $this->_hookName($hooks);
 			if ($this->profile_hooks) {
 				$ding = microtime(true);
 				if (!isset($this->hook_cache[$hook])) {
@@ -384,8 +384,8 @@ class Hooks {
 	 *
 	 * @return void
 	 */
-	public function add(string $hook, callable $function, array $options = []): void {
-		$hook = $this->_hook_name($hook, true);
+	public function add(string $hook, array|callable $function, array $options = []): void {
+		$hook = $this->_hookName($hook, true);
 		if (!array_key_exists($hook, $this->hooks)) {
 			$hook_group = new HookGroup();
 			$this->hooks[$hook] = $hook_group;
@@ -476,7 +476,7 @@ class Hooks {
 	 * @return boolean true if removed, false if not found
 	 */
 	public function keysRemove(string $hook): bool {
-		$hook = $this->_hook_name($hook);
+		$hook = $this->_hookName($hook);
 		if (isset($this->hooks[$hook])) {
 			unset($this->hooks[$hook]);
 			return true;
@@ -493,7 +493,7 @@ class Hooks {
 	 */
 	public function setAlias(string $old_name, string $new_name): ?string {
 		$previous = $this->hook_aliases[$old_name] ?? null;
-		$new_name = $this->_hook_name($new_name);
+		$new_name = $this->_hookName($new_name);
 		if ($old_name === $new_name) {
 			return $previous;
 		}
@@ -515,7 +515,7 @@ class Hooks {
 	 * @return bool
 	 */
 	public function clearAlias(string $name): bool {
-		$name = $this->_hook_name($name, false);
+		$name = $this->_hookName($name, false);
 		if (isset($this->hook_aliases[$name])) {
 			unset($this->hook_aliases[$name]);
 			return true;
@@ -529,7 +529,7 @@ class Hooks {
 	 * @return string|null
 	 */
 	public function getAlias(string $name): ?string {
-		$name = $this->_hook_name($name, false);
+		$name = $this->_hookName($name, false);
 		return $this->hook_aliases[$name] ?? null;
 	}
 
@@ -565,7 +565,7 @@ class Hooks {
 	public function call(mixed $hook): mixed {
 		$arguments = func_get_args();
 		array_shift($arguments);
-		return $this->call_arguments($hook, $arguments);
+		return $this->callArguments($hook, $arguments);
 	}
 
 	/**
@@ -576,15 +576,14 @@ class Hooks {
 	 * @param callable|null $result_callback
 	 * @param mixed|null $return_hint
 	 * @return mixed|null
-	 * @throws Exception_Deprecated
 	 * @deprecated 2017-11
 	 */
-	public function call_arguments(mixed $hooks, array $arguments = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null) {
-		$hooks = $this->collect_hooks($hooks, $arguments);
+	public function callArguments(mixed $hooks, array $arguments = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null) {
+		$hooks = $this->collectHooks($hooks, $arguments);
 		$result = $default;
 		foreach ($hooks as $hook) {
 			[$callable, $arguments] = $hook;
-			$result = Hookable::hook_results($result, $callable, $arguments, $hook_callback, $result_callback);
+			$result = Hookable::hookResults($result, $callable, $arguments, $hook_callback, $result_callback);
 		}
 		return $result;
 	}
@@ -597,14 +596,14 @@ class Hooks {
 	 *            Arguments to pass to the first hook
 	 * @return array[array]
 	 */
-	public function collect_hooks(mixed $hooks, array $arguments = []): array {
-		$definitions = $this->hook_load_definitions(to_iterable($hooks));
+	public function collectHooks(mixed $hooks, array $arguments = []): array {
+		$definitions = $this->hookLoadDefinitions(toIterable($hooks));
 		$hooks = [];
 		if (count($definitions) === 0) {
 			return $hooks;
 		}
 		foreach ($definitions as $callable_string => $options) {
-			$options_arguments = to_array(avalue($options, 'arguments'));
+			$options_arguments = toArray(avalue($options, 'arguments'));
 			$hooks[] = [
 				$options['callable'],
 				count($options_arguments) > 0 ? array_merge($options_arguments, $arguments) : $arguments,
@@ -617,16 +616,12 @@ class Hooks {
 	 * Invoke a global hook by type
 	 *
 	 * @param list|string $methods
-	 * @param array $arguments
-	 * @param mixed $default
-	 * @param callable $hook_callback
-	 * @param callable $result_callback
 	 * @return mixed
 	 */
-	public function all_call($methods) {
+	public function allCall($methods): mixed {
 		$args = func_get_args();
 		$methods = array_shift($args);
-		return $this->all_call_arguments($methods, $args);
+		return $this->allCallArguments($methods, $args);
 	}
 
 	/**
@@ -640,12 +635,12 @@ class Hooks {
 	 * @return mixed
 	 * @see self::find_all
 	 */
-	public function all_call_arguments(array $methods, array $arguments = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null): mixed {
+	public function allCallArguments(array $methods, array $arguments = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null): mixed {
 		$methods = $this->find_all($methods);
 		$result = $default;
 		foreach ($methods as $class_method) {
-			$result = $this->call_arguments($class_method, $arguments, $result, $hook_callback, $result_callback);
-			$result = Hookable::hook_results($result, $class_method, $arguments, $hook_callback, $result_callback);
+			$result = $this->callArguments($class_method, $arguments, $result, $hook_callback, $result_callback);
+			$result = Hookable::hookResults($result, $class_method, $arguments, $hook_callback, $result_callback);
 		}
 		return $result;
 	}
@@ -680,26 +675,6 @@ class Hooks {
 		}
 		return $result;
 	}
-
-	/**
-	 *
-	 * @deprecated 2019-07
-	 * @var string
-	 */
-	public const hook_database_configure = self::HOOK_DATABASE_CONFIGURE;
-
-	/**
-	 * @deprecated 2019-07
-	 * @var string
-	 */
-	public const hook_reset = self::HOOK_RESET;
-
-	/**
-	 *
-	 * @deprecated 2019-07
-	 * @var string
-	 */
-	public const hook_exit = self::HOOK_EXIT;
 
 	/**
 	 *

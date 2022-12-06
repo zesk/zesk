@@ -4,8 +4,6 @@
  */
 namespace zesk;
 
-use RRule\Iterator;
-
 /**
  * Interface_Settings adapter
  */

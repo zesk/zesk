@@ -164,7 +164,7 @@ class Module_Health extends Module {
 		if ($this->disabled) {
 			return;
 		}
-		$event = $this->call_hook_arguments('log', [
+		$event = $this->callHookArguments('log', [
 			$event,
 		], $event);
 		$event_object = Health_Event::event_log($this->application, $event, $this->path);

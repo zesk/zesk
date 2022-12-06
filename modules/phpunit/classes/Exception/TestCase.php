@@ -18,11 +18,11 @@ class Exception_TestCase extends UnitTest {
 	 * @param \Exception $e
 	 */
 	public function exception_test(\Exception $e): void {
-		$this->assert_is_string($e->getMessage());
+		$this->assertIsString($e->getMessage());
 
-		$this->assert_is_integer($e->getCode());
+		$this->assertIsInteger($e->getCode());
 
-		$this->assert_is_string($e->getFile());
+		$this->assertIsString($e->getFile());
 
 		$e->getLine();
 
@@ -33,6 +33,17 @@ class Exception_TestCase extends UnitTest {
 		$e->getTraceAsString();
 
 		$e->__toString();
+
+		$variables = Exception::exceptionVariables($e);
+		$this->assertEquals($e::class, $variables['class']);
+		$this->assertEquals($e::class, $variables['exceptionClass']);
+		$this->assertEquals($e->getCode(), $variables['code']);
+		$this->assertEquals($e->getMessage(), $variables['message']);
+		$this->assertEquals($e->getFile(), $variables['file']);
+		$this->assertEquals($e->getLine(), $variables['line']);
+		$this->assertIsArray($variables['trace']);
+		$this->assertIsString($variables['backtrace'], 'backtrace is string');
+		$this->assertIsString($variables['rawMessage'], 'rawMessage is string');
 	}
 
 	public function test_database(): Database {

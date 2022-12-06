@@ -16,7 +16,7 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
-$response->title($title = $locale('Search results for &ldquo;{query}&rdquo;', [
+$response->setTitle($title = $locale('Search results for &ldquo;{query}&rdquo;', [
 	'query' => $this->query,
 ]));
 echo HTML::tag('h1', $title);

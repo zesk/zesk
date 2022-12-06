@@ -388,7 +388,7 @@ class Database extends \zesk\Database {
 		$cmd_options[] = implode(' ', $tables);
 		$result = 0;
 		$cmd = 'mysqldump ' . implode(' ', $cmd_options) . ' > {filename}';
-		$this->application->process->execute_arguments($cmd, $parts + [
+		$this->application->process->executeArguments($cmd, $parts + [
 			'filename' => $filename,
 		]);
 		return file_exists($filename);
@@ -422,7 +422,7 @@ class Database extends \zesk\Database {
 		$cmd_options[] = $database;
 		$result = 0;
 		$cmd = 'mysql ' . implode(' ', $cmd_options) . ' < {filename}';
-		$this->application->process->execute_arguments($cmd, $parts + [
+		$this->application->process->executeArguments($cmd, $parts + [
 			'filename' => $filename,
 		]);
 		return file_exists($filename);

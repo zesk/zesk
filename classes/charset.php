@@ -9,30 +9,24 @@
  */
 namespace zesk;
 
-use \DirectoryIterator;
+use DirectoryIterator;
 
 class charset {
 	/**
 	 *
 	 */
-	private static $tables = [];
+	private static array $tables = [];
 
 	/**
 	 * Convert an array of strings or a string from the given charset to UTF-8.
-	 * @param array|string $data
+	 * @param string $data
 	 * @param string $charset
 	 * @param array $missing
-	 * @return array|string
+	 * @return string
 	 * @throws Exception_Convert
 	 * @throws Exception_File_Format
 	 */
-	public static function to_utf8($data, $charset, &$missing = []) {
-		if (is_array($data)) {
-			foreach ($data as $k => $v) {
-				$data[$k] = self::to_utf8($v, $charset, $missing);
-			}
-			return $data;
-		}
+	public static function to_utf8(string $data, string $charset, array &$missing = []): string {
 		$charset = strtoupper($charset);
 		if ($charset === 'ISO-8859-1') {
 			return utf8_encode($data);
@@ -53,9 +47,9 @@ class charset {
 			if ($u < 0x80) {
 				$result .= chr($u);
 			} elseif ($u < 0x800) {
-				$result .= /*                                                      */ chr(($u >> 6) + 0xC0) /*    */ . chr(($u & 0x3F) + 0x80);
+				$result .= chr(($u >> 6) + 0xC0) . chr(($u & 0x3F) + 0x80);
 			} elseif ($u < 0x10000) {
-				$result .= /*                    */ chr(($u >> 12) + 0xE0) /*    */ . chr((($u >> 6) & 0x3F) + 0x80) . chr(($u & 0x3F) + 0x80);
+				$result .= chr(($u >> 12) + 0xE0) . chr((($u >> 6) & 0x3F) + 0x80) . chr(($u & 0x3F) + 0x80);
 			} elseif ($u < 0x200000) {
 				$result .= chr(($u >> 18) + 0xF0) . chr((($u >> 12) & 0x3F) + 0x80) . chr((($u >> 6) & 0x3F) + 0x80) . chr(($u & 0x3F) + 0x80);
 			}
@@ -71,7 +65,7 @@ class charset {
 	 * @param string $charset
 	 * @return array
 	 */
-	private static function load_table($charset) {
+	private static function load_table(string $charset): array {
 		if (!array_key_exists($charset, self::$tables)) {
 			$path = self::charset_path($charset);
 			if (!file_exists($path)) {
@@ -101,10 +95,10 @@ class charset {
 	/**
 	 * Files are stored in ZESK_ROOT/etc/charset-data/
 	 *
-	 * @param string $charset Charset path to return (optional)
+	 * @param ?string $charset Charset path to return (optional)
 	 * @return string Path to charset files or individual charset file
 	 */
-	private static function charset_path($charset = null) {
+	private static function charset_path(string $charset = null): string {
 		return ZESK_ROOT . 'etc/charset-data/' . ($charset === null ? '' : strtolower($charset) . '.txt');
 	}
 
@@ -113,12 +107,9 @@ class charset {
 	 * of all of the supported charsets.
 	 *
 	 * @param string $charset
-	 * @return string[]|boolean
+	 * @return boolean
 	 */
-	public static function supported($charset = null) {
-		if ($charset === null) {
-			return self::list_all();
-		}
+	public static function isSupported(string $charset): bool {
 		return file_exists(self::charset_path($charset));
 	}
 
@@ -127,7 +118,7 @@ class charset {
 	 *
 	 * @return string[]
 	 */
-	private static function list_all() {
+	public static function supported(): array {
 		$iter = new DirectoryIterator(self::charset_path());
 		$result = [];
 		foreach ($iter as $file) {
@@ -138,7 +129,7 @@ class charset {
 			if ($name[0] === '.') {
 				continue;
 			}
-			if (substr($name, -4) === '.txt') {
+			if (str_ends_with($name, '.txt')) {
 				$result[] = strtoupper(substr($name, 0, -4));
 			}
 		}

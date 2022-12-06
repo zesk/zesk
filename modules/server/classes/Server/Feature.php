@@ -77,13 +77,13 @@ abstract class Server_Feature extends Server_Base {
 			$this->configure_root = StringTools::removeSuffix($class, '.inc');
 		}
 
-		$this->call_hook('construct');
+		$this->callHook('construct');
 
 		$this->commands = to_list($this->commands, []);
 		$this->packages = to_list($this->packages, []);
 		$this->dependencies = to_list($this->dependencies, []);
-		$this->settings = to_array($this->settings, []);
-		$this->defaults = to_array($this->defaults, []);
+		$this->settings = toArray($this->settings, []);
+		$this->defaults = toArray($this->defaults, []);
 
 		$platform_name = strtolower($this->platform->name());
 		$platform_conf_file = path($this->configure_root, 'platform', $platform_name . '.conf');
@@ -159,7 +159,7 @@ abstract class Server_Feature extends Server_Base {
 		$installing = true;
 		$this->feature_install($this->features);
 		$this->package_install($this->packages);
-		$this->call_hook('install');
+		$this->callHook('install');
 		$installing = false;
 	}
 

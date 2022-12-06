@@ -39,7 +39,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 				$this->__set($k, $v);
 			}
 		}
-		$this->call_hook('construct');
+		$this->callHook('construct');
 	}
 
 	/**
@@ -177,7 +177,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @param mixed $value
 	 * @return void
 	 */
-	public function offsetSet($offset, $value): void {
+	public function offsetSet($offset, mixed $value): void {
 		$this->__set($offset, $value);
 	}
 

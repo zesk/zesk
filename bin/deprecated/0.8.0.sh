@@ -4,7 +4,7 @@ zesk cannon zesk::hooks 'zesk()->hook->register_class'
 zesk cannon zesk::has_hook 'zesk()->hook->has'
 zesk cannon zesk::hook_arguments 'zesk()->hook->call_arguments'
 zesk cannon 'zesk::hook(' 'zesk()->hook->call('
-zesk cannon 'zesk::hook_array(' 'zesk()->hook->call_arguments('
+zesk cannon 'zesk::hook_array(' 'zesk()->hook->callArguments('
 
 
 zesk cannon zesk::class_hierarchy 'zesk()->classes->hierarchy'

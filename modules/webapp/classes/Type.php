@@ -43,7 +43,7 @@ abstract class Type {
 			throw new Exception_Directory_NotFound($path);
 		}
 		$this->path = $path;
-		$this->priority = $application->configuration->path_get(get_class($this), 'priority', $this->priority);
+		$this->priority = $application->configuration->getPath(get_class($this), 'priority', $this->priority);
 	}
 
 	/**

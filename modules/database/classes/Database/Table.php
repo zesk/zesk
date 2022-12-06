@@ -425,7 +425,7 @@ class Database_Table extends Hookable {
 				'table' => $this->name,
 			]);
 		}
-		$this->call_hook('column_add', $dbCol);
+		$this->callHook('column_add', $dbCol);
 
 		if (!$dbCol->hasSQLType()) {
 			throw new Exception_Semantics("{method}: No SQL type for column {column} in table {table}\noptions: {options}", [

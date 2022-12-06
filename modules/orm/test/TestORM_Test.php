@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class TestORM_Test extends Test_ORM {
+class TestORM_Test extends ORMUnitTest {
 	protected array $load_modules = [
 		'MySQL',
 		'ORM',
@@ -42,7 +42,7 @@ class TestORM_Test extends Test_ORM {
 
 		$x->clear();
 
-		$x->display_name();
+		$x->displayName();
 
 		$x->id();
 
@@ -135,15 +135,13 @@ class TestORM_Test extends Test_ORM {
 	public function test_object(): void {
 		$sTable = 'TestORM';
 
-		$this->test_table($sTable);
+		$this->prepareTestTable($sTable);
 
 		$mixed = null;
 		$options = [];
 		$x = new TestORM($this->application, $mixed, $options);
 
 		$this->object_tests($x);
-
-		echo basename(__FILE__) . ": success\n";
 	}
 
 	/**

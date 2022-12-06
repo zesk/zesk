@@ -22,7 +22,7 @@ class Number_Test extends UnitTest {
 		];
 
 		foreach ($tests as $n => $result) {
-			$this->assert_equal(Number::format_bytes($locale, $n), $result, "Number::format_bytes(\$locale, $n)");
+			$this->assertEquals(Number::format_bytes($locale, $n), $result, "Number::format_bytes(\$locale, $n)");
 		}
 	}
 }

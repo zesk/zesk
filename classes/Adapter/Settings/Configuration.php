@@ -42,7 +42,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * @return mixed The value of the session variable, or null if nothing set
 	 */
 	public function __get(string $name): mixed {
-		return $this->configuration->path_get($name);
+		return $this->configuration->getPath($name);
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
 	public function get(string $name = null, mixed $default = null): mixed {
-		return $this->configuration->path_get($name, $default);
+		return $this->configuration->getPath($name, $default);
 	}
 
 	/**
@@ -62,7 +62,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
 	public function __set(string $name, mixed $value): void {
-		$this->configuration->path_set($name, $value);
+		$this->configuration->setPath($name, $value);
 	}
 
 	/**
@@ -73,7 +73,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * @return Interface_Settings
 	 */
 	public function set(string $name, mixed $value = null): self {
-		$this->configuration->path_set($name, $value);
+		$this->configuration->setPath($name, $value);
 		return $this;
 	}
 

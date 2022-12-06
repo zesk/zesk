@@ -20,6 +20,6 @@ class Net_FTP_Client_Test extends UnitTest {
 		$isOn = true;
 		$testx->passive($isOn);
 
-		$this->assert(!$testx->is_connected());
+		$this->assertFalse($testx->is_connected());
 	}
 }

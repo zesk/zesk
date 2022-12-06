@@ -93,7 +93,7 @@ class Module_Permission extends Module {
 	public function userCan(User $user, $action, Model $context = null, $options) {
 		$application = $this->application;
 		$this->prepare_user($user);
-		$options = to_array($options);
+		$options = toArray($options);
 		$warning = toBool(avalue($options, 'warning', $this->option('warning')));
 		if ($user->is_root) {
 			return true;
@@ -189,10 +189,10 @@ class Module_Permission extends Module {
 				->query_select()
 				->addWhere('is_default', true)
 				->orm_iterator()
-				->to_array('id');
+				->toArray('id');
 		} else {
 			// Load user role settings into user before checking
-			$roles = $user->memberQuery('roles')->orm_iterator()->to_array('id');
+			$roles = $user->memberQuery('roles')->orm_iterator()->toArray('id');
 		}
 		$role_ids = [];
 		/* @var $role Role */
@@ -221,7 +221,7 @@ class Module_Permission extends Module {
 			->query_select()
 			->what('Role', 'Role')
 			->addWhere('User', $user)
-			->to_array(null, 'Role', []);
+			->toArray(null, 'Role', []);
 		return $user->_roles;
 	}
 
@@ -353,7 +353,7 @@ class Module_Permission extends Module {
 			$lock->expect(10);
 		}
 		$result = [];
-		$result['class'] = $application->hooks->all_call_arguments(self::$hook_methods, [
+		$result['class'] = $application->hooks->allCallArguments(self::$hook_methods, [
 			$application,
 		], [], null, [
 			$this,
@@ -366,7 +366,7 @@ class Module_Permission extends Module {
 				'code' => 'X.code',
 			])
 			->order_by('X.id')
-			->to_array('id', 'code', []);
+			->toArray('id', 'code', []);
 		$options = [
 			'overwrite' => true,
 			'trim' => true,

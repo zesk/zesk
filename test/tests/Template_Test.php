@@ -15,7 +15,7 @@ class Template_Test extends UnitTest {
 	}
 
 	public function test_begin(): void {
-		$this->application->theme_path($this->test_sandbox());
+		$this->application->addThemePath($this->test_sandbox());
 
 		file_put_contents($this->test_sandbox('good.tpl'), '<?php echo 3.14159;');
 		$path = null;
@@ -26,7 +26,7 @@ class Template_Test extends UnitTest {
 		$result = $template->end([
 			'bad' => 1,
 		]);
-		$this->assert_equal($result, '3.14159');
+		$this->assertEquals($result, '3.14159');
 	}
 
 	public function test_find_path(): void {
@@ -41,7 +41,7 @@ class Template_Test extends UnitTest {
 	}
 
 	public function test_output(): void {
-		$this->application->theme_path($this->test_sandbox());
+		$this->application->addThemePath($this->test_sandbox());
 
 		$files = [];
 		for ($i = 0; $i < 5; $i++) {

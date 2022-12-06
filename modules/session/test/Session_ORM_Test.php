@@ -13,7 +13,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Session_ORM_Test extends Test_ORM {
+class Session_ORM_Test extends ORMUnitTest {
 	protected array $load_modules = [
 		'MySQL',
 		'Session',
@@ -69,7 +69,7 @@ class Session_ORM_Test extends Test_ORM {
 		$ip = '10.0.0.1';
 		$testx->authenticate($user_id, $ip);
 
-		$testx->deauthenticate();
+		$testx->relinquish();
 
 		$testx->hash();
 
@@ -82,8 +82,8 @@ class Session_ORM_Test extends Test_ORM {
 
 		$resx = $testx->one_time_create($user, 2);
 		$this->assert($resx instanceof Session_ORM);
-		$this->assert_true($resx->memberBool('is_one_time'));
-		$this->assert_not_equal($resx->member('cookie'), $testx->member('cookie'));
+		$this->assertTrue($resx->memberBool('is_one_time'));
+		$this->assertNotEquals($resx->member('cookie'), $testx->member('cookie'));
 
 		$testx->A = 'A';
 		$testx->B = 'B';
@@ -101,7 +101,7 @@ class Session_ORM_Test extends Test_ORM {
 			'Wilder_thang',
 		]);
 
-		$this->assert_arrays_equal($result, [
+		$this->assertEquals($result, [
 			'A' => 'B',
 			'B' => 'A',
 			'Cat-like' => 'Cat',

@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
@@ -6,6 +7,7 @@
  * @author kent
  * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -45,12 +47,12 @@ abstract class Version {
 	/**
 	 * Fetch a file within the ZESK ROOT and return the trimmed contents
 	 *
-	 * @return string
 	 * @param string $name
 	 * @param mixed $default
+	 * @return string
 	 */
-	private static function _file($name, $default): string {
-		return trim(File::contents(path(ZESK_ROOT, $name), $default));
+	private static function _file(string $name, string $default): string {
+		return trim(File::contents(path(ZESK_ROOT, $name)) ?? $default);
 	}
 
 	/**
@@ -59,7 +61,7 @@ abstract class Version {
 	 * @return string
 	 */
 	public static function release(): string {
-		if (self::$release === '') {
+		if (!self::$release) {
 			self::$release = self::_file(self::PATH_RELEASE, '-no-release-file-');
 		}
 		return self::$release;
@@ -68,11 +70,11 @@ abstract class Version {
 	/**
 	 * Zesk release date
 	 *
-	 * @since 0.13.0
 	 * @return string
+	 * @since 0.13.0
 	 */
-	public static function date() {
-		if (self::$date === '') {
+	public static function date(): string {
+		if (!self::$date) {
 			self::$date = self::_file(self::PATH_RELEASE_DATE, '-no-release-date-');
 		}
 		return self::$date;
@@ -81,7 +83,7 @@ abstract class Version {
 	/**
 	 * Zesk version
 	 */
-	public static function string(Locale $locale) {
+	public static function string(Locale $locale): string {
 		return $locale->__(__METHOD__ . ':={release} (on {date})', self::variables());
 	}
 
@@ -91,8 +93,7 @@ abstract class Version {
 	 */
 	public static function variables(): array {
 		return [
-			'release' => self::release(),
-			'date' => self::date(),
+			'release' => self::release(), 'date' => self::date(),
 		];
 	}
 }

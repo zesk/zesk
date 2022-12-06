@@ -16,15 +16,15 @@ class Command_Cache extends Command_Base {
 	];
 
 	protected function run(): int {
-		if ($this->has_arg()) {
+		if ($this->hasArgument()) {
 			do {
-				$arg = $this->get_arg('command');
+				$arg = $this->getArgument('command');
 				$this->run_arg($arg);
-			} while ($this->has_arg());
+			} while ($this->hasArgument());
 		} else {
 			$this->run_arg('print');
 		}
-		return $this->has_errors() ? 1 : 0;
+		return $this->hasErrors() ? 1 : 0;
 	}
 
 	protected function run_arg($arg) {

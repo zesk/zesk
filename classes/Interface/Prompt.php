@@ -8,5 +8,5 @@
 namespace zesk;
 
 interface Interface_Prompt {
-	public function prompt(string $message, string $default = null, array $completions = null): string;
+	public function prompt(string $message, string $default = '', array $completions = []): string;
 }

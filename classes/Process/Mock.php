@@ -66,11 +66,11 @@ class Process_Mock extends Hookable implements Interface_Process {
 	 * @param
 	 *            boolean
 	 */
-	public function done() {
+	public function done(): bool {
 		if ($this->timer->elapsed() > $this->quit_after) {
 			return true;
 		}
-		return $this->call_hook_arguments('done', [], $this->done);
+		return $this->callHookArguments('done', [], $this->done);
 	}
 
 	/**
@@ -103,7 +103,7 @@ class Process_Mock extends Hookable implements Interface_Process {
 	 * @param string $message
 	 * @param array $args
 	 */
-	public function log($message, array $args = []): void {
+	public function log(string $message, array $args = []): void {
 		$this->application->logger->log($args['severity'] ?? 'info', $message, $args);
 	}
 }

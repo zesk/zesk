@@ -5,6 +5,8 @@
  */
 namespace zesk;
 
+use aws\classes\Module;
+
 /**
  * Module object for Critical alerts
  *
@@ -42,6 +44,11 @@ class Module_Critical extends Module {
 	 *
 	 * @see Module::initialize()
 	 */
+	/**
+	 * @return void
+	 * @throws Exception_Configuration
+	 * @throws Exception_Parameter
+	 */
 	public function initialize(): void {
 		$emails = $this->optionIterable(self::setting_email, [], ',');
 		$bad_emails = [];
@@ -55,7 +62,7 @@ class Module_Critical extends Module {
 		}
 		$global_name = __CLASS__ . '::' . self::setting_email;
 		if (count($this->emails) === 0) {
-			throw new Exception_Configuration($global_name, "No emails configured in $global_name");
+			throw new Exception_Configuration($global_name, 'No emails configured in {name}', ['name' => $global_name]);
 		}
 		if (count($bad_emails) > 0) {
 			$this->alert("$global_name invalid email address: " . implode(',', $bad_emails));
@@ -76,7 +83,7 @@ class Module_Critical extends Module {
 	 */
 	private function _fetch_alerts() {
 		$settings = Settings::singleton($this->application);
-		return to_array($settings->get(self::setting_critical_alerts, []));
+		return toArray($settings->get(self::setting_critical_alerts, []));
 	}
 
 	/**
@@ -96,22 +103,12 @@ class Module_Critical extends Module {
 	 * @param int $frequency
 	 * @return Module_Critical|null
 	 */
-	public function alert($sms_message, $frequency = 3600) {
-		if (!is_numeric($frequency)) {
-			throw new Exception_Parameter('Parameter 2 to {method} should be integer value {value} is of type {type}', [
-				'method' => __METHOD__,
-				'value' => to_text($frequency),
-				'type' => type($frequency),
-			]);
-		}
+	public function alert(string $sms_message, int $frequency = 3600) {
 		$map = [
 			'when' => date('Y-m-d H:i:s'),
 		];
 
-		try {
-			$map['server'] = Server::singleton($this->application)->name;
-		} catch (Exception $e) {
-		}
+		$map['server'] = Server::singleton($this->application)->name;
 		$lock = Lock::instance($this->application, __METHOD__);
 		if ($lock->acquire(self::lock_timeout) === null) {
 			$this->application->logger->error('Unable to lock {method}: Message not sent {sms_message}', [
@@ -123,10 +120,10 @@ class Module_Critical extends Module {
 		$alerts = $this->_fetch_alerts();
 
 		$alert_id = md5($sms_message);
-		$alert = avalue($alerts, $alert_id, []);
-		$alert['frequency'] = min(avalue($alert, 'frequency', $frequency), $frequency);
-		$alert['first'] = avalue($alert, 'first', time());
-		$alert['count'] = $map['count'] = avalue($alert, 'count', 0) + 1;
+		$alert = $alerts[$alert_id] ?? [];
+		$alert['frequency'] = min($alert['frequency'] ?? $frequency, $frequency);
+		$alert['first'] ??= time();
+		$alert['count'] = $map['count'] = ($alert['count'] ?? 0) + 1;
 		$alert['recent'] = time();
 		$alert['message'] = map($sms_message, $map);
 		$alerts[$alert_id] = $alert;

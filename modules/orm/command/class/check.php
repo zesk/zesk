@@ -49,8 +49,8 @@ class Command_Class_Check extends Command_Base {
 	public function run(): void {
 		$logger = $this->application->logger;
 		$classes = [];
-		while ($this->has_arg()) {
-			$arg = $this->get_arg('class');
+		while ($this->hasArgument()) {
+			$arg = $this->getArgument('class');
 			if ($arg === 'all') {
 				$classes = array_merge($classes, $this->all_classes());
 			} else {
@@ -61,7 +61,7 @@ class Command_Class_Check extends Command_Base {
 			$classes = $this->all_classes();
 		}
 		foreach ($classes as $class) {
-			$this->verbose_log('Checking class {class}', [
+			$this->verboseLog('Checking class {class}', [
 				'class' => $class,
 			]);
 			/* @var $class_object Class_ORM */

@@ -186,7 +186,7 @@ abstract class Server_Platform extends Hookable {
 			'class' => get_class($this->config),
 		]);
 		if ($this->optionBool('verbose')) {
-			$this->verbose_log('Verbose mode on.');
+			$this->verboseLog('Verbose mode on.');
 		}
 		$this->tool_path = $this->option('tool_path', '/sbin');
 	}
@@ -520,12 +520,12 @@ abstract class Server_Platform extends Hookable {
 		 */
 		$aws = $this->application->modules->object('aws');
 		$awareness = $aws->awareness();
-		$this->verbose_log('Using awareness');
-		$this->verbose_log(Text::format_pairs($awareness));
+		$this->verboseLog('Using awareness');
+		$this->verboseLog(Text::format_pairs($awareness));
 		$user_data = avalue($awareness, 'UserData');
 		$user_data = $this->conf_parse($user_data);
-		$this->verbose_log('Parsed awareness data:');
-		$this->verbose_log(Text::format_pairs($user_data));
+		$this->verboseLog('Parsed awareness data:');
+		$this->verboseLog(Text::format_pairs($user_data));
 		// Store into globals
 		$this->application->configuration->paths_set($user_data);
 		// Then copy into here
@@ -542,7 +542,7 @@ abstract class Server_Platform extends Hookable {
 
 		$this->packager->configure();
 
-		$this->call_hook('configure_features');
+		$this->callHook('configure_features');
 		$feature_list = $this->config->feature_list();
 		$this->application->logger->debug('Feature list is {features}', [
 			'features' => implode(', ', $feature_list),
@@ -552,11 +552,11 @@ abstract class Server_Platform extends Hookable {
 		}
 		foreach ($this->features as $feature_name => $feature) {
 			/* @var $feature Server_Feature */
-			$this->verbose_log("$feature_name preconfigure ...");
+			$this->verboseLog("$feature_name preconfigure ...");
 			$feature->preconfigure();
 			$dependencies = $feature->dependencies();
 		}
-		$this->verbose_log('All services preconfigured');
+		$this->verboseLog('All services preconfigured');
 	}
 
 	/**
@@ -624,7 +624,7 @@ abstract class Server_Platform extends Hookable {
 	final public function package_install($package) {
 		$package = to_list($package);
 		foreach ($package as $p) {
-			$this->verbose_log("Installing package $p");
+			$this->verboseLog("Installing package $p");
 			$this->packager->install($p);
 		}
 		return $this;
@@ -727,7 +727,7 @@ abstract class Server_Platform extends Hookable {
 	 */
 	final public function exec_array($command, array $arguments) {
 		$command = $this->_format_command($command, $arguments);
-		$this->verbose_log('Server_Platform::exec ' . $command);
+		$this->verboseLog('Server_Platform::exec ' . $command);
 		$return = $result = null;
 		exec($command, $result, $return);
 		if (intval($return) === 0) {
@@ -928,19 +928,19 @@ abstract class Server_Platform extends Hookable {
 			$source_contents = $this->_map($source_contents, $map);
 			$source_checksum = md5($source_contents);
 			if (!$this->files->file_exists($dest) || $source_checksum !== $this->files->md5_file($dest)) {
-				$this->verbose_log("Writing (map) $source -> $dest");
+				$this->verboseLog("Writing (map) $source -> $dest");
 				$this->replace_file_contents($source_contents, $dest, $options);
 				return true;
 			}
 		} else {
 			$source_checksum = $this->files->md5_file($source);
 			if (!file_exists($dest) || $source_checksum !== md5_file($dest)) {
-				$this->verbose_log("Writing $source -> $dest");
+				$this->verboseLog("Writing $source -> $dest");
 				$this->replace_file($source, $dest, $options);
 				return true;
 			}
 		}
-		$this->verbose_log("Unchanged $source -> $dest");
+		$this->verboseLog("Unchanged $source -> $dest");
 		return false;
 	}
 
@@ -1003,7 +1003,7 @@ abstract class Server_Platform extends Hookable {
 			$copy = true;
 		}
 		if (!$copy) {
-			$this->verbose_log("update_catenate $relative_file unchanged to $dest");
+			$this->verboseLog("update_catenate $relative_file unchanged to $dest");
 		}
 		return $this->replace_file_contents($contents, $dest, $options);
 	}
@@ -1020,7 +1020,7 @@ abstract class Server_Platform extends Hookable {
 		$this->root_exec("svc -t /service/$name");
 	}
 
-	public function verbose_log($message, array $args = []): void {
+	public function verboseLog($message, array $args = []): void {
 		if ($this->optionBool('verbose')) {
 			$this->application->logger->debug($message, $args);
 		}

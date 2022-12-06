@@ -121,7 +121,7 @@ class Route_Controller extends Route {
 				'before_' . $action_method,
 				'before',
 			], []);
-			$controller->call_hook('before');
+			$controller->callHook('before');
 
 			$arguments_method = $this->option('arguments method', $this->option('arguments method prefix', 'arguments_') . $action_method);
 			$method = $this->option('method', $this->action_method_prefix() . $action_method);
@@ -153,7 +153,7 @@ class Route_Controller extends Route {
 					$result,
 					$contents,
 				]);
-				$controller->call_hook('after');
+				$controller->callHook('after');
 			}
 		} catch (Exception_Redirect $e) {
 			throw $e;
@@ -212,10 +212,10 @@ class Route_Controller extends Route {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\Route::class_actions()
+	 * @see \zesk\Route::classActions()
 	 */
-	public function class_actions() {
-		$actions = parent::class_actions();
+	public function classActions() {
+		$actions = parent::classActions();
 		[$reflection] = $this->_determine_class_action();
 		$action_prefix = $this->action_method_prefix();
 		$action_list = [];
@@ -238,8 +238,8 @@ class Route_Controller extends Route {
 	 * @param unknown $options
 	 * @return number
 	 */
-	protected function get_route_map($action, $object = null, $options = null) {
-		$map = parent::get_route_map($action, $object, $options);
+	protected function getRouteMap($action, $object = null, $options = null) {
+		$map = parent::getRouteMap($action, $object, $options);
 		$url = map($this->clean_pattern, $map);
 		if (!$this->match($url)) {
 			throw new Exception_Invalid('{method} {pattern} does not match {url} - route {original_pattern} is corrupt', [
@@ -250,7 +250,7 @@ class Route_Controller extends Route {
 		$this->_map_options();
 		[$controller] = $this->_init_controller($this->response);
 		if ($controller) {
-			$map = $controller->get_route_map($action, $object, $options) + $map;
+			$map = $controller->getRouteMap($action, $object, $options) + $map;
 		}
 		$this->_unmap_options();
 		return $map;

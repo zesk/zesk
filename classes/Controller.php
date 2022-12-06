@@ -91,7 +91,7 @@ class Controller extends Hookable implements Interface_Theme {
 		}
 
 		$this->initialize();
-		$this->call_hook('initialize');
+		$this->callHook('initialize');
 	}
 
 	/**
@@ -166,7 +166,7 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * @param string $action
 	 */
-	public function _action_default(string $action = null): mixed {
+	public function _action_default(string $action = ''): mixed {
 		$this->error_404($action ? "Action $action" : 'default action');
 	}
 
@@ -197,11 +197,11 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param mixed $mixed
 	 * @return self
 	 */
-	public function json($mixed = null) {
-		$mixed = $this->call_hook_arguments('json', [
+	public function json(mixed $mixed = null): self {
+		$mixed = $this->callHookArguments('json', [
 			$mixed,
 		], $mixed);
-		$this->response->json()->data($mixed);
+		$this->response->json()->setData($mixed);
 		return $this;
 	}
 
@@ -211,8 +211,8 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param string $message
 	 * @return self
 	 */
-	public function error_404($message = null) {
-		$this->error(Net_HTTP::STATUS_FILE_NOT_FOUND, "Page not found $message");
+	public function error_404(string $message = ''): self {
+		$this->error(Net_HTTP::STATUS_FILE_NOT_FOUND, trim("Page not found $message"));
 		return $this;
 	}
 
@@ -223,7 +223,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param string $message Message
 	 * @return self
 	 */
-	public function error($code, $message = null) {
+	public function error(int $code, string $message = ''): self {
 		$this->response->status($code);
 		$this->response->content_type('text/html');
 		$this->response->content = $message;
@@ -233,18 +233,12 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * Execute an optional method
 	 *
-	 * @param string $name
-	 * @param array $arguments
-	 * @return mixed
-	 */
-
-	/**
 	 * @param $name
 	 * @param array $arguments
 	 * @return array|mixed
 	 */
-	final public function optional_method($name, array $arguments) {
-		$names = to_list($name);
+	final public function optional_method(array|string $name, array $arguments) {
+		$names = toList($name);
 		foreach ($names as $name) {
 			if ($this->has_method($name)) {
 				return $this->invoke_method($name, $arguments);
@@ -258,7 +252,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param string $name
 	 * @return boolean
 	 */
-	final public function has_method($name) {
+	final public function has_method(string $name): bool {
 		return method_exists($this, $name);
 	}
 
@@ -268,7 +262,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $arguments
 	 * @return mixed
 	 */
-	final public function invoke_method($name, array $arguments) {
+	final public function invoke_method(string $name, array $arguments): mixed {
 		return call_user_func_array([
 			$this,
 			$name,
@@ -280,7 +274,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $arguments
 	 * @return mixed
 	 */
-	final public function invoke_default_method(array $arguments) {
+	final public function invoke_default_method(array $arguments): mixed {
 		if (empty($this->method_default_action)) {
 			$this->method_default_action = $this->route->option('method default', '_action_default');
 		}
@@ -297,11 +291,11 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 *
 	 * @param string $action
-	 * @param string $object
-	 * @param string $options
+	 * @param mixed $object
+	 * @param array $options
 	 * @return array:
 	 */
-	public function get_route_map($action = null, $object = null, $options = null) {
+	public function getRouteMap(string $action = '', mixed $object = null, array $options = []): array {
 		return [];
 	}
 
@@ -312,7 +306,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $options
 	 * @return Widget
 	 */
-	public function widgetFactory($class, array $options = []) {
+	public function widgetFactory(string $class, array $options = []): Widget {
 		$widget = $this->application->widgetFactory($class, $options);
 		if ($this->response) {
 			$widget->response($this->response);
@@ -347,7 +341,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	final public static function all(Application $application) {
+	final public static function all(Application $application): array {
 		$paths = $application->autoloader->path();
 		$item = $application->cache->getItem(__CLASS__);
 		if ($item->isHit()) {
@@ -373,7 +367,7 @@ class Controller extends Hookable implements Interface_Theme {
 					$application->logger->debug('Found controller {controller_inc}', compact('controller_inc'));
 
 					try {
-						$controller_inc = File::extension_change($controller_inc, null);
+						$controller_inc = File::setExtension($controller_inc, '');
 						$class_name = $class_prefix . 'Controller_' . strtr($controller_inc, '/', '_');
 						$application->logger->debug('class name is {class_name}', compact('class_name'));
 						$reflectionClass = new ReflectionClass($class_name);
@@ -382,7 +376,7 @@ class Controller extends Hookable implements Interface_Theme {
 							$controller = $reflectionClass->newInstance($application);
 							$found[$reflectionClass->getName()] = [
 								'path' => path($controller_path, $controller_inc),
-								'classes' => $controller->call_hook('classes', [], []),
+								'classes' => $controller->callHook('classes', [], []),
 							];
 						}
 					} catch (ReflectionException $e) {

@@ -88,7 +88,7 @@ class Command_GitHub extends Command_Base {
 		} catch (\Exception $e) {
 			$this->error('Running {this_class} but unknown exception {class} {message}', [
 				'this_class' => get_class($this),
-			] + Exception::exception_variables($e));
+			] + Exception::exceptionVariables($e));
 			return self::EXIT_CODE_GITHUB_MODULE;
 		}
 	}

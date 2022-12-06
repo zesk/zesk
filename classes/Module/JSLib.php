@@ -12,28 +12,28 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 *
 	 * @var array
 	 */
-	protected $css_paths = [];
+	protected array $css_paths = [];
 
 	/**
 	 * Array of options to pass to Response::css for each css_paths
 	 *
 	 * @var array
 	 */
-	protected $css_options = [];
+	protected array $css_options = [];
 
 	/**
 	 * Array of options to pass to Response::javascript for each javascript_paths
 	 *
 	 * @var array
 	 */
-	protected $javascript_options = [];
+	protected array $javascript_options = [];
 
 	/**
 	 * Array of strings of JS to load, or array of path (key) => $options to load
 	 *
 	 * @var array
 	 */
-	protected $javascript_paths = [];
+	protected array $javascript_paths = [];
 
 	/**
 	 * Settings which will be exposed in the client browser using the key
@@ -42,7 +42,7 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 *
 	 * @var array
 	 */
-	protected $javascript_settings = [];
+	protected array $javascript_settings = [];
 
 	/**
 	 * An array of key => value pairs which are set as globals for this module
@@ -61,40 +61,50 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 *
 	 * @var array
 	 */
-	protected $javascript_settings_inherit = [];
+	protected array $javascript_settings_inherit = [];
 
 	/**
 	 * jQuery ready code
 	 *
 	 * @var array
 	 */
-	protected $jquery_ready = [];
+	protected array $jquery_ready = [];
 
 	/**
 	 * Where the jQuery code should run (higher numbers are later)
 	 * @var integer
 	 */
-	protected $jquery_ready_weight = -1000;
+	protected int $jquery_ready_weight = -1000;
 
 	/**
 	 * Disabled setter/getter
 	 *
-	 * @param unknown $set
-	 * @return Module_jQuery_Unveil|mixed|boolean
+	 * @return bool
 	 */
-	public function disabled($set = null) {
-		if ($set) {
-			$this->setOption('disabled', toBool($set));
-			return $this;
-		}
-		return $this->optionBool('disabled', false);
+	public function disabled(): bool {
+		return $this->optionBool('disabled');
 	}
 
-	public function javascript_settings() {
+	/**
+	 * @param bool $set
+	 * @return $this
+	 */
+	public function setDisabled(bool $set): self {
+		$this->setOption('disabled', $set);
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function javascript_settings(): array {
 		return $this->compute_javascript_settings()->javascript_settings;
 	}
 
-	public function compute_javascript_settings() {
+	/**
+	 * @return array
+	 */
+	public function compute_javascript_settings(): array {
 		if ($this->javascript_settings_inherit) {
 			foreach ($this->javascript_settings_inherit as $key => $value) {
 				if ($this->hasOption($key)) {
@@ -162,7 +172,7 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 * @param Response $response
 	 */
 	public function ready(Response $response): void {
-		$this->call_hook('ready');
+		$this->callHook('ready');
 		foreach ($this->jquery_ready as $code) {
 			$response->jquery($code, $this->jquery_ready_weight);
 		}

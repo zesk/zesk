@@ -46,6 +46,6 @@ class Net_SMTP_Client2_Test extends UnitTest {
 		$body = 'Sent on ' . gmdate("Y-m-d H:i:s\n");
 		$result = $x->send($from, $to, $headers, $body);
 
-		$this->assert($result === true);
+		$this->assertTrue($result);
 	}
 }

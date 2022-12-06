@@ -238,7 +238,7 @@ abstract class Repository extends Hookable {
 	 */
 	public static function factory(Application $application, string $type, string $root = null, array $options = []): Repository {
 		$repo = $application->repository_module();
-		$class = $repo->find_repository($type);
+		$class = $repo->findRepository($type);
 		if (!$class) {
 			throw new Exception_Class_NotFound('Repository {type}', ['type' => $type]);
 		}
@@ -342,7 +342,7 @@ abstract class Repository extends Hookable {
 	 * @param string $target
 	 * @return boolean
 	 */
-	abstract public function need_update(string $target): bool;
+	abstract public function needUpdate(string $target): bool;
 
 	/**
 	 * Update repository and get changes from remote

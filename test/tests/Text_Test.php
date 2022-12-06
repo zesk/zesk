@@ -61,13 +61,13 @@ class Text_Test extends UnitTest {
 		$space = ' ';
 		$suffix = ': ';
 		$br = "\n";
-		$this->assert_equal(Text::format_pairs($map[0], $prefix, $space, $suffix, $br), "---a: \"A\"\n---b: \"B\"\n");
+		$this->assertEquals(Text::format_pairs($map[0], $prefix, $space, $suffix, $br), "---a: \"A\"\n---b: \"B\"\n");
 		$prefix = '$dude$';
 		$space = '==';
-		$this->assert_equal(Text::format_pairs($map[1], $prefix, $space, $suffix, $br), "\$dude\$longervar: 1\n\$dude\$b=: \"Hello\"\n");
+		$this->assertEquals(Text::format_pairs($map[1], $prefix, $space, $suffix, $br), "\$dude\$longervar: 1\n\$dude\$b=: \"Hello\"\n");
 		$prefix = '-';
 		$space = '=';
-		$this->assert_equal(Text::format_pairs($map[1], $prefix, $space, $suffix, $br), "-longervar: 1\n-b: \"Hello\"\n");
+		$this->assertEquals(Text::format_pairs($map[1], $prefix, $space, $suffix, $br), "-longervar: 1\n-b: \"Hello\"\n");
 
 		$map = [
 			'Name' => 'John',
@@ -76,7 +76,7 @@ class Text_Test extends UnitTest {
 		$space = ' ';
 		$suffix = ': ';
 		$br = "\n";
-		$this->assert_equal(Text::format_pairs($map, $prefix, $space, $suffix, $br), " Name: \"John\"\n");
+		$this->assertEquals(Text::format_pairs($map, $prefix, $space, $suffix, $br), " Name: \"John\"\n");
 	}
 
 	public function data_format_table(): array {
@@ -743,6 +743,6 @@ class Text_Test extends UnitTest {
 	 * @dataProvider data_provider_parse_columns
 	 */
 	public function test_parse_columns($content, array $expected): void {
-		$this->assert_equal(Text::parse_columns(is_array($content) ? $content : explode("\n", $content)), $expected);
+		$this->assertEquals(Text::parse_columns(is_array($content) ? $content : explode("\n", $content)), $expected);
 	}
 }

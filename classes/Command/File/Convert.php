@@ -78,7 +78,7 @@ abstract class Command_File_Convert extends Command_Base {
 		$target_prefix = $this->option('target-path');
 		$new_file = $this->overwrite ? $file : File::extension_change($file, ".$extension");
 		$new_file = path(dirname($new_file), $target_prefix, basename($new_file));
-		return Directory::undot($new_file);
+		return Directory::removeDots($new_file);
 	}
 
 	/**
@@ -87,7 +87,7 @@ abstract class Command_File_Convert extends Command_Base {
 	 * @see Command::run()
 	 */
 	protected function run(): void {
-		$this->verbose_log('Configuring using config file: ' . $this->configuration_file);
+		$this->verboseLog('Configuring using config file: ' . $this->configuration_file);
 		$this->configure($this->configuration_file);
 		$app = $this->application;
 		$app->console(true);
@@ -108,12 +108,12 @@ abstract class Command_File_Convert extends Command_Base {
 		$content = fread(STDIN, 1024);
 		fseek(STDIN, 0);
 		if ($content === false || $content === '') {
-			$args = $this->arguments_remaining(true);
+			$args = $this->argumentsRemaining(true);
 			if (count($args)) {
 				$files = $args;
 			} else {
 				$cwd = getcwd();
-				$this->verbose_log('Listing {cwd}', compact('cwd'));
+				$this->verboseLog('Listing {cwd}', compact('cwd'));
 				$files = Directory::list_recursive($cwd, [
 					'file_include_pattern' => '/\.(' . $this->source_extension_pattern . ')$/',
 					'file_default' => false,

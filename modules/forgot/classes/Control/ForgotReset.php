@@ -133,7 +133,7 @@ class Control_ForgotReset extends Control_Edit {
 			return false;
 		}
 		$this->auth_user = $found->user;
-		$this->auth_user = $this->call_hook_arguments('find_user', [
+		$this->auth_user = $this->callHookArguments('find_user', [
 			$this->auth_user,
 		], $this->auth_user);
 		if ($this->optionBool('not_found_error', true) && !$this->auth_user) {

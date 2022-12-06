@@ -10,9 +10,9 @@ namespace zesk;
  *
  */
 interface Interface_Progress {
-	public function progress_push($name);
+	public function progressPush(string $name): void;
 
-	public function progress_pop();
+	public function progress(string $status = null, float $percent = null): void;
 
-	public function progress($status = null, $percent = null);
+	public function progressPop(): void;
 }

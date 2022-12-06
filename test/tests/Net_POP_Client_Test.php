@@ -72,7 +72,7 @@ class Net_POP_Client_Test extends UnitTest {
 
 		$mail = Mail::sendmail($this->application, $test_email, 'no-reply@zesk.com', "Test Subject: $test_key", "This is not a comment. I hold a mild disdain for writing comments, but find them useful when others write them.\n$test_key");
 
-		$this->assert_instanceof($mail, 'zesk\\Mail');
+		$this->assertInstanceOf(Mail::class, $mail);
 
 		$n_seconds = 1;
 		$success = false;
@@ -103,7 +103,7 @@ class Net_POP_Client_Test extends UnitTest {
 			$n_seconds *= 2;
 		} while ($timer->elapsed() < 300);
 
-		$this->assert($success, "Ran out of time trying to find $test_prefix");
+		$this->assertTrue($success, "Ran out of time trying to find $test_prefix");
 
 		echo basename(__FILE__) . ": success\n";
 	}
@@ -115,7 +115,7 @@ class Net_POP_Client_Test extends UnitTest {
 		$this->expectException(Exception_Authentication::class);
 		$parts = ArrayTools::filter($this->parts, 'scheme;host;user');
 		$parts['pass'] = 'bad-password';
-		$test_url = URL::unparse($parts);
+		$test_url = URL::stringify($parts);
 
 		$options = [
 			'echo_log' => true, 'read_debug' => true, 'debug' => true, 'debug_apop' => true,

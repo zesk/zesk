@@ -72,7 +72,7 @@ class JSON {
 	 */
 	private static array $default_methods = [
 		'json',
-		'to_json',
+		'toJSON',
 		'toJSON',
 		'__toJSON',
 	];
@@ -163,8 +163,8 @@ class JSON {
 				}
 				return '[' . implode(',', $result) . ']';
 			} elseif (is_object($mixed)) {
-				if (method_exists($mixed, 'to_json')) {
-					$mixed = $mixed->to_json();
+				if (method_exists($mixed, 'toJSON')) {
+					$mixed = $mixed->toJSON();
 				} elseif (method_exists($mixed, '__toString')) {
 					$mixed = strval($mixed);
 				} elseif ($mixed instanceof stdClass) {
@@ -229,8 +229,8 @@ class JSON {
 					$result[] = self::encodeJavaScript($v);
 				}
 				return '[' . implode(',', $result) . ']';
-			} elseif (is_object($mixed) && method_exists($mixed, 'to_json')) {
-				$mixed = $mixed->to_json();
+			} elseif (is_object($mixed) && method_exists($mixed, 'toJSON')) {
+				$mixed = $mixed->toJSON();
 				return self::encodeJavaScript($mixed);
 			} else {
 				foreach ($mixed as $k => $v) {

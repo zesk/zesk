@@ -18,36 +18,36 @@ class CacheItem implements CacheItemInterface {
 	 *
 	 * @var string
 	 */
-	private $key;
+	private string $key;
 
 	/**
 	 *
 	 * @var mixed
 	 */
-	private $value;
+	private mixed $value;
 
 	/**
 	 *
 	 * @var mixed
 	 */
-	private $is_hit;
+	private bool $is_hit;
 
 	/**
 	 *
-	 * @var Timestamp
+	 * @var ?Timestamp
 	 */
-	private $expiration = null;
+	private ?Timestamp $expiration = null;
 
 	/**
 	 * CacheItem constructor.
-	 * @param $key
-	 * @param mixed $value
+	 * @param string $key
+	 * @param mixed|null $value
 	 * @param bool $isHit
 	 */
-	public function __construct($key, $value = null, $isHit = true) {
-		$this->key = strval($key);
+	public function __construct(string $key, mixed $value = null, bool $isHit = true) {
+		$this->key = $key;
 		$this->value = $value;
-		$this->is_hit = boolval($isHit);
+		$this->is_hit = $isHit;
 	}
 
 	/**
@@ -59,7 +59,7 @@ class CacheItem implements CacheItemInterface {
 	 * @return string
 	 *   The key string for this cache item.
 	 */
-	public function getKey() {
+	public function getKey(): string {
 		return $this->key;
 	}
 
@@ -75,7 +75,7 @@ class CacheItem implements CacheItemInterface {
 	 * @return mixed
 	 *   The value corresponding to this cache item's key, or null if not found.
 	 */
-	public function get() {
+	public function get(): mixed {
 		return $this->is_hit && !$this->expired() ? $this->value : null;
 	}
 
@@ -88,7 +88,7 @@ class CacheItem implements CacheItemInterface {
 	 * @return bool
 	 *   True if the request resulted in a cache hit. False otherwise.
 	 */
-	public function isHit() {
+	public function isHit(): bool {
 		return $this->is_hit && !$this->expired();
 	}
 
@@ -105,7 +105,7 @@ class CacheItem implements CacheItemInterface {
 	 * @return static
 	 *   The invoked object.
 	 */
-	public function set($value) {
+	public function set(mixed $value): self {
 		$this->is_hit = true;
 		$this->value = $value;
 		return $this;
@@ -123,7 +123,7 @@ class CacheItem implements CacheItemInterface {
 	 * @return static
 	 *   The called object.
 	 */
-	public function expiresAt($expiration) {
+	public function expiresAt($expiration): self {
 		$this->expiration = $expiration ? Timestamp::factory($expiration) : null;
 		return $this;
 	}
@@ -142,7 +142,7 @@ class CacheItem implements CacheItemInterface {
 	 *   The called object.
 	 * @throws Exception_Parameter
 	 */
-	public function expiresAfter($time) {
+	public function expiresAfter($time): self {
 		$this->expiration = $time ? Timestamp::now()->addUnit($time) : null;
 		return $this;
 	}
@@ -150,14 +150,14 @@ class CacheItem implements CacheItemInterface {
 	/**
 	 * @return Timestamp|null
 	 */
-	public function expiration() {
+	public function expiration(): ?Timestamp {
 		return $this->expiration;
 	}
 
 	/**
 	 * @return boolean
 	 */
-	public function expired() {
+	public function expired(): bool {
 		if (!$this->expiration instanceof Timestamp) {
 			return false;
 		}

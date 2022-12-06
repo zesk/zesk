@@ -18,11 +18,11 @@ class Command_Maintenance extends Command_Base {
 	}
 
 	public function run() {
-		if (!$this->has_arg()) {
+		if (!$this->hasArgument()) {
 			echo $this->application->maintenance();
 			return 0;
 		}
-		$arg = $this->get_arg('value');
+		$arg = $this->getArgument('value');
 		$this->message = $arg;
 		$bool = toBool($arg, null);
 		if ($bool === null) {

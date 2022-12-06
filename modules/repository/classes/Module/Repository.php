@@ -15,23 +15,23 @@ class Module_Repository extends Module {
 	 *
 	 * @var array
 	 */
-	private $repository_types = [];
+	private array $repository_types = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $repository_classes = [];
+	private array $repository_classes = [];
 
 	/**
 	 *
 	 * @param string $class
 	 * @param array $aliases
 	 */
-	private function _register_repository($class, array $aliases = []) {
+	private function _registerRepository(string $class, array $aliases = []): self {
 		$this->repository_classes[$class] = $aliases;
 		foreach ($aliases as $alias) {
-			$this->repository_types[strtolower($alias)] = $class;
+			$this->repository_types[$alias] = $class;
 		}
 		$this->application->classes->register($class);
 		return $this;
@@ -39,50 +39,52 @@ class Module_Repository extends Module {
 
 	/**
 	 *
-	 * @param string $class
-	 * @param array $aliases
+	 * @param string $type
+	 * @return string
+	 * @throws Exception_NotFound
 	 */
-	private function _find_repository($type) {
-		$lowtype = strtolower($type);
-		if (array_key_exists($lowtype, $this->repository_types)) {
-			return $this->repository_types[$lowtype];
+	private function _findRepository(string $type): string {
+		if (array_key_exists($type, $this->repository_types)) {
+			return $this->repository_types[$type];
 		}
-		return null;
+
+		throw new Exception_NotFound($type);
 	}
 
 	/**
-	 * Return master module
+	 * Return master module in case this module is subclassed
+	 *
 	 * @return self
 	 */
-	public function singleton() {
-		return $this->application->modules->object('Repository');
+	public function singleton(): self {
+		return $this->application->repositoryModule();
 	}
 
 	/**
 	 *
 	 * @param string $class
 	 * @param array $aliases
-	 * @return Module_Repository
+	 * @return self
 	 */
-	public function register_repository($class, array $aliases = []) {
-		return $this->singleton()->_register_repository($class, $aliases);
+	public function registerRepository(string $class, array $aliases = []): self {
+		return $this->singleton()->_registerRepository($class, $aliases);
 	}
 
 	/**
 	 *
 	 * @param string $type
-	 * @return string|NULL
+	 * @return string
+	 * @throws Exception_NotFound
 	 */
-	public function find_repository($type) {
-		return $this->singleton()->_find_repository($type);
+	public function findRepository(string $type): string {
+		return $this->singleton()->_findRepository($type);
 	}
 
 	/**
-	 * Singleton function
-	 * @param unknown $directory
-	 * @return \zesk\Repository[]
+	 * @param string $directory
+	 * @return Repository[]
 	 */
-	protected function _determine_repositories($directory) {
+	protected function _determineRepositories(string $directory): array {
 		$repos = [];
 		foreach ($this->repository_classes as $class => $aliases) {
 			/* @var $repo Repository */
@@ -100,16 +102,18 @@ class Module_Repository extends Module {
 	 * @param string $directory
 	 * @return Repository[]
 	 */
-	public function determine_repository($directory) {
-		return $this->singleton()->_determine_repositories($directory);
+	public function determineRepository(string $directory): array {
+		return $this->singleton()->_determineRepositories($directory);
 	}
 
 	/**
 	 *
 	 * @param string $directory
+	 * @return Repository
+	 * @throws Exception_NotFound
 	 */
-	public function factory($directory) {
-		$repos = $this->determine_repository($directory);
+	public function factory(string $directory): Repository {
+		$repos = $this->determineRepository($directory);
 		if (count($repos) > 1) {
 			$this->application->logger->warning('{method} multiple repositories detected ({repos}), using first {repo}', [
 				'method' => __METHOD__,

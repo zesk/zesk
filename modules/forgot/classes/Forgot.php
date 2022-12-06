@@ -48,7 +48,7 @@ class Forgot extends ORM {
 		$variables += ArrayTools::prefixKeys($request->variables(), 'request_');
 		$variables += ArrayTools::prefixKeys($request->urlComponents(), 'url_');
 
-		$variables = $this->call_hook_arguments('notify_variables', [
+		$variables = $this->callHookArguments('notify_variables', [
 			$variables,
 		], $variables);
 
@@ -61,7 +61,7 @@ class Forgot extends ORM {
 			$variables[$key] = map($variables[$key], $variables);
 		}
 
-		$mail = $this->call_hook('notify', $variables);
+		$mail = $this->callHook('notify', $variables);
 		if ($mail instanceof Mail) {
 			return $mail;
 		}
@@ -83,7 +83,7 @@ class Forgot extends ORM {
 		$user->password($plaintext_password, true)->store();
 		$this->updated = 'now';
 		$this->store();
-		$this->call_hook('validated');
+		$this->callHook('validated');
 		$query = $this->query_update();
 		$query->value('*updated', $query->sql()
 			->now())

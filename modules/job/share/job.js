@@ -1,6 +1,6 @@
 (function(exports, $) {
 	var zesk = exports.zesk;
-	zesk.add_hook("document::ready", function() {
+	zesk.addHook("document::ready", function() {
 		var Job = function($element) {
 			this.$element = $element;
 			this.id = $element.data("id");

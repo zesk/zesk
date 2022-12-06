@@ -51,7 +51,7 @@ class User extends ORM {
 	 * @param Application $application
 	 */
 	public static function configured(Application $application): void {
-		self::$debug_permission = toBool($application->configuration->path_get_first([
+		self::$debug_permission = toBool($application->configuration->getFirstPath([
 			[
 				__CLASS__,
 				self::option_debug_permission,
@@ -254,8 +254,8 @@ class User extends ORM {
 		}
 		$session = $this->application->session($request);
 		$session->authenticate($this->id(), $request->ip());
-		$this->call_hook('authenticated', $request, $response, $session);
-		$this->application->call_hook('user_authenticated', $this, $request, $response, $session);
+		$this->callHook('authenticated', $request, $response, $session);
+		$this->application->callHook('user_authenticated', $this, $request, $response, $session);
 		$this->application->modules->all_hook('user_authenticated', $this, $request, $response, $session);
 		return $this;
 	}
@@ -313,13 +313,13 @@ class User extends ORM {
 	 * @param mixed $action
 	 *        	Can be an array of actions, all of which must pass, or a string of actions whose
 	 *        	separator determines if the meaning is "AND" or "OR" for each permission.
-	 * @param mixed $context
+	 * @param ?ORM $context
 	 *        	ORM on which to act
 	 * @param mixed $object
 	 *        	Extra optional settings, permission-specific
 	 * @return boolean
 	 */
-	public function can($actions, $context = null, array $options = []) {
+	public function can($actions, ORM $context = null, array $options = []) {
 		// Sanitize input
 		if ($actions instanceof Model) {
 			[$actions, $context] = [
@@ -338,14 +338,14 @@ class User extends ORM {
 		$result = false; // By default, don't allow anything
 		// Allow multiple actions
 		$is_or = is_string($actions) && strpos($actions, '|');
-		$actions = to_list($actions, [], $is_or ? '|' : ';');
+		$actions = toList($actions, [], $is_or ? '|' : ';');
 		$default_result = $this->option('can', false);
 		foreach ($actions as $action) {
 			$action = self::clean_permission($action);
 			$skiplog = false;
 
 			try {
-				$result = $this->call_hook_arguments('can', [
+				$result = $this->callHookArguments('can', [
 					$action,
 					$context,
 					$options,
@@ -353,12 +353,12 @@ class User extends ORM {
 			} catch (\Exception $e) {
 				$result = false;
 				$skiplog = true;
-				$this->application->logger->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {exception_class} {message}\n{backtrace}", [
+				$this->application->logger->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {exceptionClass} {message}\n{backtrace}", [
 					'action' => $action,
 					'context' => $context,
 					'result' => $result,
 					'roles' => $this->_roles,
-				] + Exception::exception_variables($e));
+				] + Exception::exceptionVariables($e));
 			}
 			if (self::$debug_permission && !$skiplog) {
 				$this->application->logger->debug('User::can({action},{context}) = {result} (Roles {roles}) ({extra})', [
@@ -386,8 +386,9 @@ class User extends ORM {
 			$default_hook = 'permission_fail';
 		}
 		$hook_option_name = $default_hook . '_hook';
-		if (($hook = avalue($options, $hook_option_name, $this->option($hook_option_name))) !== null) {
-			$this->call_hook_arguments(is_string($hook) ? $hook : $default_hook, [
+		$hook = $options[$hook_option_name] ?? $this->option($hook_option_name);
+		if ($hook !== null) {
+			$this->callHookArguments(is_string($hook) ? $hook : $default_hook, [
 				$actions,
 				$context,
 				$options,
@@ -403,7 +404,7 @@ class User extends ORM {
 	 * @param ORM $object
 	 * @return boolean
 	 */
-	public function can_edit($object) {
+	public function canEdit(ORM $object): bool {
 		return $this->can('edit', $object);
 	}
 
@@ -413,7 +414,7 @@ class User extends ORM {
 	 * @param ORM $object
 	 * @return boolean
 	 */
-	public function can_view($object) {
+	public function canView(ORM $object): bool {
 		return $this->can('view', $object);
 	}
 
@@ -421,9 +422,9 @@ class User extends ORM {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see \zesk\ORM::display_name()
+	 * @see \zesk\ORM::displayName()
 	 */
-	public function display_name() {
+	public function displayName(): string {
 		return $this->member($this->column_login());
 	}
 
@@ -433,7 +434,7 @@ class User extends ORM {
 	 * @param ORM $object
 	 * @return boolean
 	 */
-	public function can_delete($object) {
+	public function canDelete(ORM $object): bool {
 		return $this->can('delete', $object);
 	}
 
@@ -442,7 +443,7 @@ class User extends ORM {
 	 *
 	 * @return array
 	 */
-	public static function permissions(Application $application) {
+	public static function permissions(Application $application): array {
 		return parent::default_permissions($application, __CLASS__) + [
 			__CLASS__ . '::become' => [
 				'title' => __('Become another user'),
@@ -463,7 +464,7 @@ class User extends ORM {
 	 *        	Default options to pass to "can" function
 	 * @return array
 	 */
-	public function filter_actions(array $actions, Model $context = null, array $options = []) {
+	public function filterActions(array $actions, Model $context = null, array $options = []): array {
 		$actions_passed = [];
 		foreach ($actions as $href => $attributes) {
 			if (is_array($attributes) && array_key_exists('permission', $attributes)) {

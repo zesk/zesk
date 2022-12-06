@@ -27,7 +27,6 @@ class JSON extends Type {
 
 	/**
 	 *
-	 * @param \zesk\Response $response
 	 */
 	public function initialize(): void {
 		$this->json = null;
@@ -40,9 +39,9 @@ class JSON extends Type {
 	/**
 	 *
 	 * @param mixed $set
-	 * @return \zesk\Response|array
+	 * @return Response
 	 */
-	public function setData(mixed $set) {
+	public function setData(mixed $set): Response {
 		$this->parent->content_type(Response::CONTENT_TYPE_JSON);
 		$this->json = $set;
 		return $this->parent;
@@ -50,28 +49,26 @@ class JSON extends Type {
 
 	/**
 	 *
-	 * @param mixed $set ignored
 	 * @return mixed
 	 */
-	public function data($set = null) {
-		assert($set === null);
+	public function data(): mixed {
 		return $this->json;
 	}
 
 	/**
 	 *
-	 * @return array
+	 * @return mixed
 	 */
-	public function to_json() {
-		return $this->json;
+	public function toJSON(): string {
+		return $this->render(null);
 	}
 
 	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Response\Type::render()
+	 * @param array|string|null $content
+	 * @return string
+	 * @throws \zesk\Exception_Semantics
 	 */
-	public function render($content) {
+	public function render(array|string|null $content): string {
 		if (is_array($content)) {
 			$this->json = $content;
 		} elseif (is_string($content)) {

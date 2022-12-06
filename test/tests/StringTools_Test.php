@@ -275,7 +275,7 @@ class StringTools_Test extends UnitTest {
 
 	public function test_is_ascii(): void {
 		$str = 'string';
-		$this->assert(StringTools::is_ascii($str));
+		$this->assertTrue(StringTools::is_ascii($str));
 		$str = chr(255) . chr(254) . 'Hello';
 		$this->assertFalse(StringTools::is_ascii($str));
 	}
@@ -742,8 +742,8 @@ class StringTools_Test extends UnitTest {
 	public function test_filter(): void {
 		$name = null;
 		$default = true;
-		$this->assert(StringTools::filter($name, [], true) === true);
-		$this->assert(StringTools::filter($name, [], false) === false);
+		$this->assertTrue(StringTools::filter($name, [], true));
+		$this->assertFalse(StringTools::filter($name, [], false));
 		$tests = [
 			[
 				'foo.php',
@@ -781,7 +781,7 @@ class StringTools_Test extends UnitTest {
 		];
 		foreach ($tests as $index => $test) {
 			[$name, $rules, $default, $result] = $test;
-			$this->assert_equal(StringTools::filter($name, $rules, $default), $result, "Test #$index failed: $name");
+			$this->assertEquals(StringTools::filter($name, $rules, $default), $result, "Test #$index failed: $name");
 		}
 	}
 
@@ -819,17 +819,17 @@ class StringTools_Test extends UnitTest {
 		$result = substr($foo, 3);
 		if (PHP_VERSION_ID > 0o70000) {
 			// Fixed in 7.0
-			$this->assert_equal(gettype($result), 'string');
-			$this->assert_equal($result, '');
+			$this->assertEquals('string', gettype($result));
+			$this->assertEquals('', $result);
 		} else {
-			$this->assert_equal(gettype($result), 'boolean');
-			$this->assert_equal($result, false);
+			$this->assertEquals('boolean', gettype($result));
+			$this->assertEquals(false, $result);
 		}
 	}
 
 	public function test_replace_first1(): void {
-		$this->assert(StringTools::replace_first('a', 'b', 'abracadabra') === 'bbracadabra');
-		$this->assert(StringTools::replace_first('bra', 'strap', 'abracadabra') === 'astrapcadabra');
+		$this->assertEquals('bbracadabra', StringTools::replace_first('a', 'b', 'abracadabra'));
+		$this->assertEquals('astrapcadabra', StringTools::replace_first('bra', 'strap', 'abracadabra'));
 	}
 
 	/**

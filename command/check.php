@@ -144,9 +144,9 @@ class Command_Check extends Command_Iterator_File {
 		$this->prefixes_gremlins = map($this->prefixes_gremlins, $this->options_include('php-bin-path'));
 		if ($this->optionBool('show-package') || $this->optionBool('show-subpackage') || $this->optionBool('show-author') || $this->optionBool('show-copyright')) {
 			$this->show = true;
-			$this->verbose_log('Show is on.');
+			$this->verboseLog('Show is on.');
 		}
-		$this->verbose_log('Fix is ' . ($this->optionBool('fix') ? 'on' : 'off') . '.');
+		$this->verboseLog('Fix is ' . ($this->optionBool('fix') ? 'on' : 'off') . '.');
 		$this->changed = 0;
 	}
 
@@ -155,7 +155,7 @@ class Command_Check extends Command_Iterator_File {
 		$options = ' -d error_reporting=\'E_ALL|E_STRICT\'';
 		exec("php -l$options \"$path\" 2>&1", $output, $result_var);
 		if ($result_var !== 0) {
-			$this->verbose_log("lint result is $result_var");
+			$this->verboseLog("lint result is $result_var");
 		}
 		return intval($result_var);
 	}
@@ -170,7 +170,7 @@ class Command_Check extends Command_Iterator_File {
 
 	private function recomment(&$contents, $term, $function, $add_function = null) {
 		$translate = [];
-		$comment_options = $this->application->configuration->path(DocComment::class)->to_array();
+		$comment_options = $this->application->configuration->path(DocComment::class)->toArray();
 		$comments = DocComment::extract($contents, $comment_options);
 		foreach ($comments as $comment) {
 			/* @var $comment DocComment */
@@ -339,22 +339,22 @@ class Command_Check extends Command_Iterator_File {
 				return;
 			}
 		}
-		$this->verbose_log("Processing $path ...");
+		$this->verboseLog("Processing $path ...");
 		$contents = file_get_contents($path);
 		$ext = pathinfo($path, PATHINFO_EXTENSION);
 		$errors = [];
 		$changed = false;
 		$prefix = avalue($this->optionBool('gremlins') ? $this->prefixes_gremlins : $this->prefixes, $ext);
 		if ($prefix !== null) {
-			$prefix = to_array($prefix);
+			$prefix = toArray($prefix);
 			if (!StringTools::begins($contents, $prefix)) {
 				$details = substr($contents, 0, 40);
-				$this->verbose_log("Incorrect prefix: \"{details}\"\n should be one of: {prefix}", compact('details') + [
+				$this->verboseLog("Incorrect prefix: \"{details}\"\n should be one of: {prefix}", compact('details') + [
 					'prefix' => ArrayTools::joinWrap($prefix, '"', "\"\n"),
 				]);
 				if ($this->optionBool('fix') && $this->fix_prefix($contents)) {
 					$changed = true;
-					$this->verbose_log('Fixed prefix');
+					$this->verboseLog('Fixed prefix');
 				} else {
 					$errors['prefix'] = $details;
 				}
@@ -362,20 +362,20 @@ class Command_Check extends Command_Iterator_File {
 		}
 		$multi_tag = count(explode('<?', $contents)) > 2;
 		if ($multi_tag) {
-			$this->verbose_log('Multi-tag file');
+			$this->verboseLog('Multi-tag file');
 		}
 		if (StringTools::ends(trim($contents), '?>')) {
-			$this->verbose_log('Need to trim PHP closing tag');
+			$this->verboseLog('Need to trim PHP closing tag');
 			$details = substr($contents, 0, 40);
 			if ($this->optionBool('fix') && $this->fix_suffix($contents)) {
-				$this->verbose_log('Fixed suffix');
+				$this->verboseLog('Fixed suffix');
 				$changed = true;
 			} else {
 				$errors['suffix'] = $details;
 			}
 		}
 		if ($this->optionBool('fix') && !StringTools::ends($contents, "\n")) {
-			$this->verbose_log('Terminate with newline');
+			$this->verboseLog('Terminate with newline');
 			$contents .= "\n";
 			$changed = true;
 		}
@@ -384,19 +384,19 @@ class Command_Check extends Command_Iterator_File {
 			$errors['lint'] = $output;
 		}
 		if ($this->optionBool('copyright') && $this->recopyright($contents)) {
-			$this->verbose_log('copyright changed');
+			$this->verboseLog('copyright changed');
 			$changed = true;
 		}
 		if ($this->optionBool('author') && $this->reauthor($contents)) {
-			$this->verbose_log('author changed');
+			$this->verboseLog('author changed');
 			$changed = true;
 		}
 		if ($this->option('package') && $this->set_package($contents)) {
-			$this->verbose_log('package changed');
+			$this->verboseLog('package changed');
 			$changed = true;
 		}
 		if ($this->option('subpackage') && $this->set_subpackage($contents)) {
-			$this->verbose_log('subpackage changed');
+			$this->verboseLog('subpackage changed');
 			$changed = true;
 		}
 		if ($this->show) {
@@ -419,7 +419,7 @@ class Command_Check extends Command_Iterator_File {
 			$this->log[$path] = $errors;
 		}
 		if ($changed) {
-			$this->verbose_log('File changed ...');
+			$this->verboseLog('File changed ...');
 			if ($this->lint_php($contents) !== 0) {
 				file_put_contents("$path.failed", $contents);
 				$this->log("Lint failed on modified file, see $path.failed");
@@ -440,7 +440,7 @@ class Command_Check extends Command_Iterator_File {
 				$ext = File::extension($path);
 				$path = StringTools::removeSuffix($path, ".$ext") . ".new.$ext";
 			}
-			$this->verbose_log("Writing $path");
+			$this->verboseLog("Writing $path");
 			file_put_contents($path, $contents);
 			$this->changed++;
 		}
@@ -449,7 +449,7 @@ class Command_Check extends Command_Iterator_File {
 	protected function finish() {
 		$n_found = count($this->log);
 		if ($n_found === 0) {
-			$this->verbose_log('No issues found.');
+			$this->verboseLog('No issues found.');
 			return 0;
 		}
 		$prefix = trim($this->option('prefix', ''));

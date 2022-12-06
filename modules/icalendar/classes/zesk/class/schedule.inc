@@ -11,7 +11,6 @@ class Class_Schedule extends Class_ORM {
 
 	/**
 	 *
-	 * @var unknown
 	 */
 	public array $has_one = [
 		'account' => 'Account',

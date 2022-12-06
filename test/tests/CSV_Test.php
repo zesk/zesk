@@ -45,6 +45,6 @@ class CSV_Test extends UnitTest {
 			'""',
 		];
 		$newx = CSV::quote_row($x);
-		$this->assert($newx === ',\',a long line with many spaces,"""Quotes""",""""""' . "\r\n");
+		$this->assertEquals(',\',a long line with many spaces,"""Quotes""",""""""' . "\r\n", $newx);
 	}
 }

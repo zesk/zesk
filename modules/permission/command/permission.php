@@ -29,21 +29,21 @@ class Command_Permission extends Command_Base {
 	 * @see \zesk\Command::run()
 	 */
 	public function run() {
-		$command = $this->get_arg('command');
+		$command = $this->getArgument('command');
 		if (!$command) {
 			return $this->usage();
 		}
 		$this->module = $this->application->modules->object('permission');
 		$hook = "command_$command";
-		if (!$this->has_hook($hook)) {
+		if (!$this->hasHook($hook)) {
 			$this->usage('Unknown command {command}', [
 				'command' => $command,
 			]);
 		}
-		return $this->call_hook($hook);
+		return $this->callHook($hook);
 	}
 
 	public function hook_command_hooks() {
-		return $this->render_format(array_values($this->module->hook_methods()));
+		return $this->renderFormat(array_values($this->module->hook_methods()));
 	}
 }

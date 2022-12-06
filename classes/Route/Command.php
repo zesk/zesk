@@ -27,7 +27,7 @@ class Route_Command extends Route {
 		$theme_arguments = $this->optionArray('theme arguments', []);
 
 		try {
-			$result = $app->process->execute_arguments($command, $args);
+			$result = $app->process->executeArguments($command, $args);
 			if ($debug) {
 				$app->logger->debug('{class}: Result is {result}', [
 					'class' => get_class($this),

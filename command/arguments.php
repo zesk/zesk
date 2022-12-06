@@ -19,7 +19,7 @@ class Command_Arguments extends Command {
 	];
 
 	protected function run(): int {
-		$arguments = $this->arguments_remaining(true);
+		$arguments = $this->argumentsRemaining(true);
 		echo json_encode($arguments) . "\n";
 		return 0;
 	}

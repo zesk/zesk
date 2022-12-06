@@ -41,7 +41,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @see ORM::fetch_if_exists
 	 * @var string
 	 */
-	public const object_status_exists = 'exists';
+	public const STATUS_EXISTS = 'exists';
 
 	/**
 	 * Previous call resulted in the saving of the existing object in the database
@@ -50,7 +50,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @see ORM::fetch_if_exists
 	 * @var string
 	 */
-	public const object_status_insert = 'insert';
+	public const STATUS_INSERT = 'insert';
 
 	/**
 	 * Previous call failed or has an unknown result
@@ -59,7 +59,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @see ORM::fetch_if_exists
 	 * @var string
 	 */
-	public const object_status_unknown = 'failed';
+	public const STATUS_UNKNOWN = 'failed';
 
 	/**
 	 * ORM debugging
@@ -220,7 +220,9 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return self
 	 */
 	public function ormFactory(string $class, mixed $mixed = null, array $options = []): self {
-		return $this->modelFactory($class, $mixed, $options);
+		$object = $this->modelFactory($class, $mixed, $options);
+		assert($object instanceof ORM);
+		return $object;
 	}
 
 	/**
@@ -296,8 +298,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 */
 	public function variables(): array {
 		return $this->members() + ArrayTools::prefixKeys($this->class->variables(), '_class_') + [
-			'ORM::class' => get_class($this),
-			__CLASS__ . '::class' => get_class($this),
+			'ORM::class' => get_class($this), __CLASS__ . '::class' => get_class($this),
 		];
 	}
 
@@ -464,23 +465,23 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return array
 	 */
 	public function cacheList(): array {
-		return toArray($this->call_hook('cachList'), []);
+		return toArray($this->callHook('cachList'), []);
 	}
 
 	public function cacheSave(string $key, string $data) {
-		$this->call_hook('cacheSave', $key, $data);
+		$this->callHook('cacheSave', $key, $data);
 		return $this;
 	}
 
 	public function cacheLoad(string $key): ?string {
-		return $this->call_hook_arguments('cache_load', [$key, ], null);
+		return $this->callHookArguments('cache_load', [$key, ], null);
 	}
 
 	/**
 	 * Cache object data
 	 */
 	public function cache_dirty($key = null): void {
-		$this->call_hook('cache_dirty', $key);
+		$this->callHook('cache_dirty', $key);
 	}
 
 	/**
@@ -523,12 +524,13 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	/**
 	 *
 	 * @return Database
+	 * @throws Exception_Configuration|Exception_NotFound
 	 */
 	public function database(): Database {
 		if ($this->database instanceof Database) {
 			return $this->database;
 		}
-		return $this->database = $this->application->database_registry($this->database_name);
+		return $this->database = $this->application->databaseRegistry($this->database_name);
 	}
 
 	/**
@@ -718,14 +720,11 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 
 	/**
 	 * @return Database
-	 * @throws Exception_Semantics
+	 * @throws Exception_Configuration
+	 * @throws Exception_NotFound
 	 */
 	public function selectDatabase(): Database {
-		$db = $this->database();
-		if (!$db) {
-			throw new Exception_Semantics('No database configured');
-		}
-		return $db->selectDatabase($db->databaseName());
+		return $this->database()->selectDatabase($this->databaseName());
 	}
 
 	/**
@@ -733,7 +732,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return self
 	 */
 	public function refresh(): self {
-		if ($this->need_load && $this->can_fetch()) {
+		if ($this->need_load && $this->canFetch()) {
 			$this->fetch();
 		}
 		$this->need_load = false;
@@ -809,7 +808,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			$this->initializeDefaults();
 		}
 		if (!$this->need_load) {
-			$this->call_hook('initialized');
+			$this->callHook('initialized');
 		}
 		return $this;
 	}
@@ -845,9 +844,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			}
 			$where = $this->members($pk);
 			$sql = $this->sql()->select([
-				'what' => ['*X' => 'COUNT(*)', ],
-				'tables' => $this->table(),
-				'where' => $where,
+				'what' => ['*X' => 'COUNT(*)', ], 'tables' => $this->table(), 'where' => $where,
 			]);
 
 			$this->is_new_cached = !toBool($this->database()->queryInteger($sql, 'X'));
@@ -861,7 +858,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return ORM
 	 */
-	public function clear() {
+	public function clear(): self {
 		$this->members = $this->class->column_defaults;
 		$this->store_queue = [];
 		return $this;
@@ -872,12 +869,12 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return string
 	 */
-	public function display_name() {
+	public function displayName(): string {
 		$name_column = $this->class->name_column;
 		if (!$name_column) {
 			return '';
 		}
-		return $this->member($name_column);
+		return strval($this->member($name_column));
 	}
 
 	/**
@@ -889,9 +886,9 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @throws Exception_Semantics
 	 */
 	public function setId(mixed $set): self {
-		$idcol = $this->class->id_column;
-		if (is_string($idcol)) {
-			return $this->set($idcol, $set);
+		$id_column = $this->class->id_column;
+		if (is_string($id_column)) {
+			return $this->set($id_column, $set);
 		}
 
 		/**
@@ -902,9 +899,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			$ids = toList($set);
 			if (count($ids) !== count($pk)) {
 				$this->application->logger->warning('{class}::id("{set}") mismatches primary keys (expected {npk})', [
-					'class' => get_class($this),
-					'set' => $set,
-					'npk' => count($pk),
+					'class' => get_class($this), 'set' => $set, 'npk' => count($pk),
 				]);
 			}
 			foreach ($pk as $index => $k) {
@@ -926,9 +921,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			}
 			if (count($missing) > 0) {
 				$this->application->logger->warning('{class}::id("{set}") missing primary keys: {k}', [
-					'class' => get_class($this),
-					'set' => JSON::encode($set),
-					'ks' => implode(',', $missing),
+					'class' => get_class($this), 'set' => JSON::encode($set), 'ks' => implode(',', $missing),
 				]);
 			}
 			$this->setMembers($set);
@@ -936,9 +929,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		}
 
 		throw new Exception_Parameter('{class}::id("{value}" {type}) unknown parameter: ', [
-			'class' => get_class($this),
-			'value' => _dump($set),
-			'type' => type($set),
+			'class' => get_class($this), 'value' => _dump($set), 'type' => type($set),
 		]);
 	}
 
@@ -1004,9 +995,9 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 */
 	public function queryInsert(): Database_Query_Insert {
 		$query = new Database_Query_Insert($this->database());
-		$query->orm_class(get_class($this));
-		$query->orm_class_options($this->inheritOptions());
-		return $query->into($this->table())->valid_columns($this->columns());
+		$query->setORMClass(get_class($this));
+		$query->setORMClassOptions($this->inheritOptions());
+		return $query->setInto($this->table())->setValidColumns($this->columns());
 	}
 
 	/**
@@ -1017,8 +1008,8 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 */
 	public function queryInsertSelect(string $alias = ''): Database_Query_Insert_Select {
 		$query = new Database_Query_Insert_Select($this->database());
-		$query->orm_class(get_class($this));
-		$query->orm_class_options($this->inheritOptions());
+		$query->setORMClass(get_class($this));
+		$query->setORMClassOptions($this->inheritOptions());
 		$query->from($this->table(), $alias);
 		return $query->into($this->table());
 	}
@@ -1030,7 +1021,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 */
 	public function queryUpdate(string $alias = ''): Database_Query_Update {
 		$query = new Database_Query_Update($this->database());
-		$query->setORMClassOptions($this->inherit_Options());
+		$query->setORMClassOptions($this->inheritOptions());
 		return $query->setORMClass(get_class($this))->setTable($this->table(), $alias)->setValidColumns($this->columns(), $alias);
 	}
 
@@ -1047,12 +1038,15 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	/**
 	 * Retrieve an iterator for the current object
 	 *
-	 * @param $alias string
+	 * @param Database_Query_Select $query
+	 * @param array $options
 	 * @return ORMIterator
 	 */
 	public function iterator(Database_Query_Select $query, array $options = []): ORMIterator {
 		$class = $options['iterator_class'] ?? ORMIterator::class;
-		return $this->application->factory($class, get_class($this), $query, $this->inheritOptions() + $options);
+		$object = $this->application->factory($class, get_class($this), $query, $this->inheritOptions() + $options);
+		assert($object instanceof ORMIterator);
+		return $object;
 	}
 
 	/**
@@ -1067,7 +1061,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
 	 */
-	protected function memberIterator(string $member, array $where = []) {
+	protected function memberIterator(string $member, array $where = []): ORMIterator {
 		$has_many = $this->class->hasMany($this, $member);
 		if (!$this->hasPrimaryKeys()) {
 			throw new Exception_Semantics('Can not iterate on an uninitialized object {class}', [
@@ -1097,9 +1091,12 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param $member string
 	 *            Many member
-	 * @param $object ORM
+	 * @param ORM|null $object ORM
 	 *            ORM related to this member, optionally returned
 	 * @return Database_Query_Select
+	 * @throws Exception_Configuration
+	 * @throws Exception_Key
+	 * @throws Exception_Semantics
 	 */
 	public function memberQuery(string $member, ORM &$object = null): Database_Query_Select {
 		return $this->class->memberQuery($this, $member, $object);
@@ -1110,9 +1107,12 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param $member string
 	 *            Many member
-	 * @param $object ORM
+	 * @param ORM|null $object ORM
 	 *            ORM related to this member, optionally returned
 	 * @return Database_Query_Update
+	 * @throws Exception_Configuration
+	 * @throws Exception_Key
+	 * @throws Exception_Semantics
 	 * @todo Unimplemented
 	 */
 	public function memberQueryUpdate(string $member, ORM &$object = null): Database_Query_Update {
@@ -1123,21 +1123,21 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param string $member
 	 */
-	private function memberForeignList(string $member) {
-		if ($this->is_new()) {
-			return array_keys(to_array(avalue($this->members, $member, [])));
+	private function memberForeignList(string $member): array {
+		if ($this->isNew()) {
+			return array_keys(toArray($this->members[$member] ?? []));
 		}
 		return $this->class->memberForeignList($this, $member);
 	}
 
-	private function memberForeignExists($member, $id) {
-		if ($this->is_new()) {
+	private function memberForeignExists(string $member, int|string|array $id) {
+		if ($this->isNew()) {
 			return apath($this->members, [$member, $id, ]) !== null;
 		}
 		return $this->class->memberForeignExists($this, $member, $id);
 	}
 
-	private function memberForeignDelete($member): void {
+	private function memberForeignDelete(string $member): void {
 		$queue = $this->class->memberForeignDelete($this, $member);
 		if (is_array($queue)) {
 			$this->store_queue += $queue;
@@ -1148,7 +1148,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	}
 
 	private function memberForeignAdd($member, ORM $object): void {
-		$foreign_keys = $object->members($object->primary_keys());
+		$foreign_keys = $object->members($object->primaryKeys());
 		$hash = json_encode($foreign_keys);
 		$this->members[$member][$hash] = $object;
 		$this->store_queue += $this->class->memberForeignAdd($this, $member, $object);
@@ -1212,54 +1212,45 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *            Current data stored in member
 	 * @param array $options
 	 *            Options to create when creating object
-	 * @return ORM|null
+	 * @return ORM
 	 */
-	public function member_model_factory(string $member, string $class, mixed $mixed = null, array $options = []): ?Model {
+	public function memberModelFactory(string $member, string $class, mixed $mixed = null, array $options = []): ORM {
 		return $this->ormFactory($class, $mixed, $options); //->refresh();
 	}
 
 	/**
 	 *
-	 * @return void
 	 * @param string|null $member
 	 * @param mixed|null $data
 	 * @return void
-	 * @throws Database_Exception
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_ORM_Duplicate
-	 * @throws Exception_ORM_Empty
+	 * @return void
 	 * @throws Exception_ORM_NotFound
-	 * @throws Exception_ORM_Store
-	 * @throws Exception_Semantics
-	 * @throws Exception_Unimplemented
 	 */
 	private function orm_not_found_exception(Exception_ORM_NotFound $e, string $member = null, mixed $data = null): void {
 		if ($this->optionBool('fix_orm_members') || $this->optionBool('fix_member_objects')) {
-			// Prevent infinite recursion
-			$magic = '__' . __METHOD__;
-			if ($this->members[$magic] ?? false) {
-				return;
+			try {
+				// Prevent infinite recursion
+				$magic = '__' . __METHOD__;
+				if ($this->members[$magic] ?? false) {
+					return;
+				}
+				$this->original[$magic] = true;
+				$this->members[$magic] = true;
+				$application = $this->application;
+				$application->hooks->call('exception', $e);
+				$application->logger->error("Fixing not found {member} {member_class} (#{data}) in {class} (#{id})\n{bt}", [
+					'member' => $member, 'member_class' => $this->class->has_one[$member] ?? '-no-has-one-',
+					'data' => $data, 'class' => get_class($this), 'id' => $this->id(), 'bt' => _backtrace(),
+				]);
+				if ($member) {
+					$this->members[$member] = null;
+				}
+				$this->store();
+				unset($this->original[$magic]);
+				unset($this->members[$magic]);
+			} catch (\Exception $oh_no) {
+				$application->logger->critical('Exception while doing ORM Not found:{class} {message} ', Exception::exceptionVariables($oh_no));
 			}
-			$this->original[$magic] = true;
-			$this->members[$magic] = true;
-			$application = $this->application;
-			$application->hooks->call('exception', $e);
-			$application->logger->error("Fixing not found {member} {member_class} (#{data}) in {class} (#{id})\n{bt}", [
-				'member' => $member,
-				'member_class' => $this->class->has_one[$member] ?? '-no-has-one-',
-				'data' => $data,
-				'class' => get_class($this),
-				'id' => $this->id(),
-				'bt' => _backtrace(),
-			]);
-			if ($member) {
-				$this->members[$member] = null;
-			}
-			$this->store();
-			unset($this->original[$magic]);
-			unset($this->members[$magic]);
 		} else {
 			throw $e;
 		}
@@ -1269,20 +1260,25 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * Retrieve a member which is another ORM
 	 *
 	 * @param string $member
-	 * @param mixed $options
+	 * @param array $options
+	 * @return ORM|null
 	 * @throws Exception_Key
+	 * @throws Exception_ORM_NotFound
 	 * @throws Exception_Semantics
 	 */
-	final protected function member_object(string $member, array $options = []): ORM {
+	final protected function memberObject(string $member, array $options = []): ?ORM {
 		$this->refresh();
-		$data = $this->members[$member] ?? null;
-		if (!$data) {
+
+		if (!array_key_exists($member, $this->members)) {
 			throw new Exception_Key($member);
+		}
+		$data = $this->members[$member];
+		if ($data === null) {
+			return null;
 		}
 		if (!array_key_exists($member, $this->class->has_one)) {
 			throw new Exception_Semantics('Accessing {class}::member_object but {member} is not in has_one', [
-				'class' => get_class($this),
-				'member' => $member,
+				'class' => get_class($this), 'member' => $member,
 			]);
 		}
 		$class = $this->class->has_one[$member];
@@ -1294,14 +1290,12 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		}
 		if ($this->optionBool('debug')) {
 			$this->application->logger->debug('Loading {class} member {member} with id {data}', [
-				'class' => get_class($this),
-				'member' => $member,
-				'data' => $data,
+				'class' => get_class($this), 'member' => $member, 'data' => $data,
 			]);
 		}
 
 		try {
-			$object = $this->member_model_factory($member, $class, $data, $options + $this->inheritOptions());
+			$object = $this->memberModelFactory($member, $class, $data, $options + $this->inheritOptions());
 			$this->members[$member] = $object;
 			return $object;
 		} catch (Exception_ORM_NotFound $e) {
@@ -1329,8 +1323,18 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param string $member
 	 * @return mixed
+	 * @throws Database_Exception
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Configuration
 	 * @throws Exception_Key
-	 * @throws Exception_Semantics|Exception_Configuration
+	 * @throws Exception_ORM_Duplicate
+	 * @throws Exception_ORM_Empty
+	 * @throws Exception_ORM_NotFound
+	 * @throws Exception_ORM_Store
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
 	 */
 	protected function _get(string $member): mixed {
 		if (($method = ($this->class->getters[$member] ?? null)) !== null) {
@@ -1347,7 +1351,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			return $this->memberIterator($member, $many['iterator_where'] ?? []);
 		}
 		if (array_key_exists($member, $this->class->has_one)) {
-			return $this->member_object($member, $this->inheritOptions());
+			return $this->memberObject($member, $this->inheritOptions());
 		}
 		return $this->member($member);
 	}
@@ -1358,10 +1362,14 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param string $key
 	 * @return mixed
 	 */
+	/**
+	 * @param string $key
+	 * @return mixed
+	 */
 	public function __get(string $key): mixed {
 		try {
 			return $this->_get($key);
-		} catch (Exception_Key|Exception_Semantics) {
+		} catch (\Exception) {
 			return null;
 		}
 	}
@@ -1400,8 +1408,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 				$value = [$find_keys[0] => $value, ];
 			} else {
 				throw new Exception_Parameter('ORM {class} has multiple find keys {keys}, memberFind requires array parameter', [
-					'class' => get_class($this),
-					'keys' => $find_keys,
+					'class' => get_class($this), 'keys' => $find_keys,
 				]);
 			}
 		}
@@ -1441,8 +1448,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 				throw new Exception_Semantics("ORM setter \"$method\" for " . get_class($this) . ' does not exist');
 			}
 			call_user_func_array([$this, $method, ], [
-				$value,
-				$key,
+				$value, $key,
 				/* Allow simple case to be written more easily */
 			]);
 			return;
@@ -1477,9 +1483,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 					$class = $this->member($dynamic_member);
 					if (empty($class)) {
 						throw new Exception_Semantics('Must set member {member} with class before using non-ORM __set on class {class} with value {value}', [
-							'member' => $dynamic_member,
-							'class' => get_class($this),
-							'value' => $value,
+							'member' => $dynamic_member, 'class' => get_class($this), 'value' => $value,
 						]);
 					}
 				}
@@ -1508,8 +1512,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		}
 
 		throw new Exception_Key('No such links {member} in {class}', [
-			'member' => $member,
-			'class' => get_class($this),
+			'member' => $member, 'class' => get_class($this),
 		]);
 	}
 
@@ -1531,7 +1534,6 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param $member string Name of member
 	 * @return boolean
 	 * @throws Exception_Key
-	 * @throws Exception_Deprecated
 	 */
 	public function memberBool(string $member): bool {
 		$this->refresh();
@@ -1543,8 +1545,9 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param string $member
 	 * @return Timestamp
-	 * @throws Exception_Deprecated
+	 * @throws Exception_Convert
 	 * @throws Exception_Key
+	 * @throws Exception_Parameter
 	 */
 	public function memberTimestamp(string $member): Timestamp {
 		$this->refresh();
@@ -1559,7 +1562,6 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * Retrieve a member as an integer
 	 * @param string $member
 	 * @return int
-	 * @throws Exception_Deprecated
 	 * @throws Exception_Key
 	 * @throws Exception_Convert
 	 */
@@ -1576,8 +1578,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		}
 
 		throw new Exception_Convert('Unable to convert {value} of {type} to integer', [
-			'value' => $value,
-			'type' => type($value),
+			'value' => $value, 'type' => type($value),
 		]);
 	}
 
@@ -1614,7 +1615,6 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param array $data
 	 * @param bool $append
 	 * @return $this
-	 * @throws Exception_Deprecated
 	 * @throws Exception_Key
 	 */
 	public function setMemberData(string $member, array $data, bool $append = false): self {
@@ -1627,7 +1627,6 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param string $member
 	 * @return array
-	 * @throws Exception_Deprecated
 	 * @throws Exception_Key
 	 */
 	public function memberData(string $member): array {
@@ -1654,19 +1653,6 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Have any of the members given changed in this object?
-	 *
-	 * @param array|string $members
-	 *            Array or list of members
-	 * @return boolean
-	 * @deprecated 2022-05
-	 * @see self::membersChanged
-	 */
-	public function members_changed(array|string $members): bool {
-		return $this->membersChanged($members);
 	}
 
 	/**
@@ -1794,7 +1780,6 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	/**
 	 * @param string $member
 	 * @return mixed
-	 * @throws Exception_Deprecated
 	 * @throws Exception_Key
 	 */
 	public function memberRemove(string $member): mixed {
@@ -1821,15 +1806,14 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param string $member
 	 * @param bool $store
-	 * @return $this
+	 * @return void
 	 * @throws Exception_Key
 	 */
-	private function _setStoreMember(string $member, bool $store): self {
+	private function _setStoreMember(string $member, bool $store): void {
 		if (!array_key_exists($member, $this->store_columns)) {
 			throw new Exception_Key($member);
 		}
 		$this->store_columns[$member] = $store;
-		return $this;
 	}
 
 	/**
@@ -1859,6 +1843,8 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	}
 
 	/**
+	 * Fetch the store state for a member
+	 *
 	 * @param string $member
 	 * @return bool
 	 * @throws Exception_Key
@@ -1896,7 +1882,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	protected function defaultDuplicateRenamePatterns(): array {
 		$patterns = [];
 		$patterns[] = '';
-		$limit = min($this->option('dupliate_rename_limit', 100), 1000);
+		$limit = min($this->option('duplicate_rename_limit', 100), 1000);
 		for ($i = 1; $i < $limit; $i++) {
 			$patterns[] = " $i";
 		}
@@ -1926,14 +1912,13 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		$rename_pattern = preg_quote($rename_pattern, '#');
 		$rename_pattern = strtr($rename_pattern, ['\\{' => '{', '\\}' => '}', ]);
 		$preg_pattern = '#^' . map($rename_pattern, [
-			'(.*)',
-			'([ 0-9]*)',
+			'(.*)', '([ 0-9]*)',
 		]) . '$#';
 		$matches = null;
 		// If pattern found, pull out new base name (e.g. "Foo (Copy 2)" => "Foo"
 		$base_name = preg_match($preg_pattern, $name, $matches) ? $matches[1] : $name;
 		// Gather patterns to be used for new names (must include spacing if needed
-		$patterns = $this->call_hook_arguments('duplicate_rename_patterns', [], null);
+		$patterns = $this->callHookArguments('duplicate_rename_patterns', [], null);
 		if (!is_array($patterns)) {
 			$patterns = $this->defaultDuplicateRenamePatterns();
 		}
@@ -1953,20 +1938,18 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	}
 
 	/**
-	 * @param Options_Duplicate|null $options
+	 * @param Interface_Duplicate|null $options Any subclass of options
 	 * @return self
 	 * @throws Exception_Deprecated
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
 	 */
-	protected function duplicate(Options_Duplicate &$options = null): self {
-		if ($options === null) {
-			$options = new Options_Duplicate($this->inheritOptions());
-		}
+	public function duplicate(Interface_Duplicate &$options = null): self {
 		$member_names = ArrayTools::valuesRemove(array_keys($this->class->column_types), $this->class->primary_keys);
 		$this->application->logger->debug('member_names={names}', ['names' => $member_names, ]);
-		$new_object = $this->ormFactory(get_class($this), $this->members($member_names), array_merge($this->inheritOptions(), $options->options()));
-		$options->processDuplicate($new_object);
+		$new_object_options = array_merge($this->inheritOptions(), $options ? $options->options() : []);
+		$new_object = $this->ormFactory(get_class($this), $this->members($member_names), $new_object_options);
+		$options?->processDuplicate($new_object);
 		return $new_object;
 	}
 
@@ -1981,13 +1964,11 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * Note final data structure will be trimed down to values which exist in $this->store_columns
 	 *
 	 * @return array
+	 * @throws Exception_Configuration
+	 * @throws Exception_NotFound
 	 */
-	/**
-	 * @return array
-	 * @throws Exception_Semantics
-	 */
-	protected function pre_insert() {
-		$members = $this->call_hook_arguments('pre_insert', [$this->members, ], $this->members);
+	protected function prepareInsert(): array {
+		$members = $this->callHookArguments('pre_insert', [$this->members, ], $this->members);
 		$members = $this->_filterStoreMembers($members);
 		$this->selectDatabase();
 		return $this->toDatabase($members, true);
@@ -1998,21 +1979,20 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @throws Database_Exception
 	 * @throws Database_Exception_SQL
 	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_NotFound
 	 * @throws Exception_ORM_Duplicate
 	 * @throws Exception_ORM_Empty
 	 * @throws Exception_ORM_Store
-	 * @throws Exception_Semantics
-	 * @throws Exception_Unimplemented
 	 */
 	private function insert(): int {
 		if ($this->optionBool('disable_database') || $this->optionBool('disable_database_insert')) {
 			return 0;
 		}
-		$members = $this->pre_insert();
+		$members = $this->prepareInsert();
 		if (count($members) === 0) {
 			throw new Exception_ORM_Empty(get_class($this), '{class}: All members: {members} Store members: {store}', [
-				'members' => array_keys($this->members),
-				'store' => $this->store_columns,
+				'members' => array_keys($this->members), 'store' => $this->store_columns,
 			]);
 		}
 
@@ -2021,27 +2001,29 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 				$auto_id = $this->database()->insert($this->table(), $members);
 				if ($auto_id > 0) {
 					$this->setMember($this->class->auto_column, $auto_id);
-					$this->call_hook('insert');
+					$this->callHook('insert');
 					return $auto_id;
 				}
 
 				throw new Exception_ORM_Store(get_class($this), 'Unable to insert (no id)');
 			}
 			$result = $this->database()->insert($this->table(), $members, ['id' => false, ]);
-			$this->call_hook('insert');
+			$this->callHook('insert');
 			return $result;
 		} catch (Database_Exception_Duplicate $e) {
-			$this->call_hook('insert_failed', $e);
+			$this->callHook('insert_failed', $e);
 
 			throw new Exception_ORM_Duplicate(get_class($this), $e->getMessage());
 		}
 	}
 
 	/**
-	 * @return bool
+	 * @return void
 	 * @throws Database_Exception_Duplicate
 	 * @throws Database_Exception_SQL
 	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_NotFound
 	 * @throws Exception_ORM_Store
 	 * @throws Exception_Semantics
 	 * @throws Exception_Unimplemented
@@ -2070,12 +2052,11 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			$locale = $this->application->locale;
 
 			throw new Exception_Semantics($locale->__('Updating {class} without a where clause {primary_keys}', [
-				'class' => get_class($this),
-				'primary_keys' => implode(', ', $this->class->primary_keys),
+				'class' => get_class($this), 'primary_keys' => implode(', ', $this->class->primary_keys),
 			]));
 		}
 		foreach ($members as $member => $value) {
-			if (begins($member, '*')) {
+			if (str_starts_with($member, '*')) {
 				continue;
 			}
 			if (!array_key_exists($member, $this->original)) {
@@ -2085,12 +2066,11 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 				unset($members[$member]);
 			}
 		}
-		$members = $this->call_hook('update_alter', $members);
+		$members = $this->callHook('update_alter', $members);
 		if (count($members) === 0) {
 			if (self::$debug) {
 				$this->application->logger->debug('Update of {class}:{id} - no changes', [
-					'class' => get_class($this),
-					'id' => $this->id(),
+					'class' => get_class($this), 'id' => $this->id(),
 				]);
 			}
 			return;
@@ -2098,11 +2078,11 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 
 		try {
 			$result = $this->database()->update($this->table(), $members, $where);
-			$this->call_hook('update', $members);
+			$this->callHook('update', $members, $result);
 			$this->original = $this->members + $this->original;
 			return;
 		} catch (\Exception $e) {
-			$this->call_hook('update_failed');
+			$this->callHook('update_failed');
 
 			throw $e;
 		}
@@ -2113,30 +2093,41 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param array $where How to find this object (uses default ->exists where clause)
 	 * @return self
+	 * @throws Exception_Key
 	 * @throws Exception_ORM_NotFound
-	 *
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
 	 */
 	public function find(array $where = []): ORM {
 		$data = $this->exists($where);
 		return $this->initialize($data, true)->polymorphicChild();
 	}
 
-	public function fetch_if_exists($where = null) {
-		$row = $this->exists($where);
-		if (is_array($row)) {
-			return $this->object_status(self::object_status_exists)->initialize($row, true);
+	/**
+	 * @param string|array $where
+	 * @return $this
+	 * @throws Exception_Key
+	 * @throws Exception_ORM_NotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
+	 */
+	public function fetch_if_exists(string|array $where = ''): self {
+		try {
+			return $this->setObjectStatus(self::STATUS_EXISTS)->initialize($this->exists($where), true);
+		} catch (\Exception $e) {
+			$this->setObjectStatus(self::STATUS_UNKNOWN);
+
+			throw $e;
 		}
-		$this->object_status(self::object_status_unknown);
-		return null;
 	}
 
 	/**
 	 * @param string|array $where
 	 * @return array
-	 * @throws Exception_ORM_NotFound
+	 * @throws Exception_Configuration
 	 * @throws Exception_Key
+	 * @throws Exception_NotFound
 	 * @throws Exception_ORM_NotFound
-	 * @throws Exception_Semantics
 	 */
 	public function exists(string|array $where = ''): array {
 		if (is_string($where) && !empty($where)) {
@@ -2144,10 +2135,10 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 				$where = [$where => $this->member($where), ];
 			}
 		}
-		if (!is_array($where)) {
+		if (!is_array($where) || count($where) === 0) {
 			$find_keys = $this->class->find_keys;
 			if (empty($find_keys)) {
-				throw new Exception_Semantics('No find keys for class {class}', ['class' => get_class($this)]);
+				throw new Exception_ORM_NotFound($this, 'No find keys for class {class}', ['class' => get_class($this)]);
 			}
 			$where = $this->class->duplicate_where;
 			foreach ($find_keys as $k) {
@@ -2161,14 +2152,19 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		$query->setOrderBy($this->class->find_order_by);
 
 		try {
-			return $query->one(null);
-		} catch (Database_Exception_SQL|Exception_Key|Exception_Semantics) {
-			throw new Exception_ORM_NotFound(get_class($this));
+			return $query->one();
+		} catch (Database_Exception_SQL|Exception_Key) {
+			throw new Exception_ORM_NotFound($this);
 		}
 	}
 
 	/**
 	 * @return bool
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
 	 */
 	public function isDuplicate(): bool {
 		$duplicate_keys = $this->class->duplicate_keys;
@@ -2189,6 +2185,8 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param mixed|null $value
 	 * @param string $column
 	 * @return ORM
+	 * @throws Exception_Configuration
+	 * @throws Exception_NotFound
 	 * @throws Exception_ORM_NotFound
 	 */
 	public function fetchByKey(mixed $value = null, string $column = ''): ORM {
@@ -2203,9 +2201,8 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			return $this->initialize($this->exists([$column => $value, ]), true)->polymorphicChild();
 		} catch (Exception_Parameter|Database_Exception_SQL|Exception_Semantics|Exception_Key $previous) {
 			throw new Exception_ORM_NotFound(get_class($this), 'fetchByKey({value}, {column})', [
-				'value' => $value,
-				'column' => $column,
-			], 0, $previous);
+				'value' => $value, 'column' => $column,
+			]);
 		}
 	}
 
@@ -2214,12 +2211,11 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @throws Exception_Semantics
 	 * @throws Exception_Unimplemented
 	 */
-	protected function fetch_query() {
+	protected function fetchQuery(): string {
 		$primary_keys = $this->class->primary_keys;
 		if (count($primary_keys) === 0) {
 			throw new Exception_Semantics('{get_class} {method} can not access fetch_query when there\'s no primary keys defined', [
-				'get_class' => get_class($this),
-				'method' => __METHOD__,
+				'get_class' => get_class($this), 'method' => __METHOD__,
 			]);
 		}
 		$keys = $this->members($primary_keys);
@@ -2229,7 +2225,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 
 	/**
 	 * @param array $data
-	 * @param $insert
+	 * @param bool $insert
 	 * @return array
 	 */
 	private function toDatabase(array $data, bool $insert = false): array {
@@ -2243,6 +2239,14 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		return $this->_deleted($this->members);
 	}
 
+	/**
+	 * @param bool $set
+	 * @return $this
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
+	 */
 	public function setDeleted(bool $set): self {
 		$col = $this->class->column_deleted;
 		if ($col) {
@@ -2271,8 +2275,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	/**
 	 * Is this object polymorphic (multiple classes handling a single table)
 	 *
-	 * @param ?string $set Set polymorphic class - used internally from Class_ORM
-	 * @return self|boolean
+	 * @return boolean
 	 */
 	public function polymorphic(): bool {
 		return $this->class->polymorphic !== null;
@@ -2313,18 +2316,21 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			return $result;
 		} catch (Exception_Class_NotFound $e) {
 			$this->application->logger->error('Polymorphic conversion failed to class {polymorphic_leaf} from class {class}', [
-				'polymorphic_leaf' => $this->polymorphic_leaf,
-				'class' => get_class($this),
+				'polymorphic_leaf' => $this->polymorphic_leaf, 'class' => get_class($this),
 			]);
 			$this->application->hooks->call('exception', $e);
 			return $this;
 		}
 	}
 
-	private function can_fetch() {
+	/**
+	 * Are the primary keys for this object non-null?
+	 *
+	 * @return bool
+	 */
+	private function canFetch(): bool {
 		foreach ($this->class->primary_keys as $pk) {
-			$v = avalue($this->members, $pk);
-			if (empty($v)) {
+			if (!($this->members[$pk] ?? null)) {
 				return false;
 			}
 		}
@@ -2334,44 +2340,59 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	/**
 	 * @param array $mixed
 	 * @return $this
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Configuration
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
 	 * @throws Exception_ORM_Empty
 	 * @throws Exception_ORM_NotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
 	 */
 	public function fetch(array $mixed = []): self {
-		$mixed = $this->call_hook('fetch_enter', $mixed);
+		if (!$this->canFetch()) {
+			throw new Exception_ORM_Empty(get_class($this), '{class}: Missing primary key {primary_keys} values: {values}', [
+				'primary_keys' => $this->class->primary_keys, 'values' => $this->members($this->class->primary_keys),
+			]);
+		}
+		$mixed = $this->callHook('fetch_enter', $mixed);
 		if (count($mixed) !== 0) {
 			$this->initialize($mixed)->polymorphicChild();
 		}
 		$hook_args = func_get_args();
 		$this->need_load = false;
-		if (!$this->can_fetch()) {
-			throw new Exception_ORM_Empty(get_class($this), '{class}: Missing primary key {primary_keys} values: {values}', [
-				'primary_keys' => $this->class->primary_keys,
-				'values' => $this->members($this->class->primary_keys),
-			]);
-		}
 		$this->selectDatabase();
-		$obj = $this->fetch_object();
+		$obj = $this->fetchObject();
 		if (!$obj) {
-			if (($result = $this->call_hook_arguments('fetch_not_found', $hook_args, null)) !== null) {
+			if (($result = $this->callHookArguments('fetch_not_found', $hook_args, null)) !== null) {
 				return $result;
 			}
 
 			throw new Exception_ORM_NotFound(get_class($this), 'Fetching {id}', $this->variables());
 		}
 		if ($this->_deleted($obj)) {
-			if (($result = $this->call_hook_arguments('fetch_deleted', $hook_args, null)) !== null) {
+			if (($result = $this->callHookArguments('fetch_deleted', $hook_args, null)) !== null) {
 				return $result;
 			}
 
 			$this->orm_not_found_exception(new Exception_ORM_NotFound(get_class($this)), '-this-', $this->id());
 		}
 		$result = $this->initialize($obj, true)->polymorphicChild();
-		return $result->call_hook_arguments('fetch', $hook_args, $result);
+		return $result->callHookArguments('fetch', $hook_args, $result);
 	}
 
-	protected function fetch_object() {
-		$sql = $this->fetch_query();
+	/**
+	 * @return array
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Configuration
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
+	 */
+	protected function fetchObject(): array {
+		$sql = $this->fetchQuery();
 		return $this->database()->queryOne($sql);
 	}
 
@@ -2380,7 +2401,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return array
 	 */
-	public function store_errors() {
+	public function storeErrors(): array {
 		return $this->optionArray('store_error', []);
 	}
 
@@ -2390,15 +2411,15 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return string
 	 */
-	private function error_duplicate() {
-		return $this->option('duplicate_error', '{indefinite_article} {name} with that name already exists. ({id})');
+	private function error_duplicate(): string {
+		return strval($this->option('duplicate_error', '{indefinite_article} {name} with that name already exists. ({id})'));
 	}
 
-	protected function error_store($member, $message) {
+	protected function setMemberStoreError(string $member, string $message): self {
 		$errors = $this->optionArray('store_error', []);
 		$errors[$member] = $message;
 		$this->setOption('store_error', $errors);
-		return null;
+		return $this;
 	}
 
 	protected function store_queue(): void {
@@ -2410,12 +2431,15 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	}
 
 	/**
-	 *
-	 * x     * @return $this
+	 * @return $this
 	 * @throws Database_Exception
 	 * @throws Database_Exception_Duplicate
 	 * @throws Database_Exception_SQL
 	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
 	 * @throws Exception_ORM_Duplicate
 	 * @throws Exception_ORM_Empty
 	 * @throws Exception_ORM_Store
@@ -2440,14 +2464,12 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		 */
 		if ($this->isDuplicate()) {
 			throw new Exception_ORM_Duplicate(get_class($this), $this->error_duplicate(), [
-				'duplicate_keys' => $this->class->duplicate_keys,
-				'name' => $this->className(),
-				'id' => $this->id(),
+				'duplicate_keys' => $this->class->duplicate_keys, 'name' => $this->className(), 'id' => $this->id(),
 				'indefinite_article' => $this->application->locale->indefinite_article($this->class->name),
 			]);
 		}
-		$this->store_object_members();
-		$this->call_hook('store');
+		$this->storeMembers();
+		$this->callHook('store');
 		/*
 		 * Insert/Update
 		 */
@@ -2460,25 +2482,25 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		$this->is_new_cached = null;
 		$this->storing = false;
 		$this->original = $this->toDatabase($this->members);
-		$this->call_hook('stored');
+		$this->callHook('stored');
 		return $this;
 	}
 
 	/**
 	 *
-	 * @param ORM $orm
+	 * @param ORM $that
 	 * @return boolean
 	 */
-	public function is_equal(ORM $that) {
+	public function isEqual(ORM $that): bool {
 		return get_class($this) === $that::class && $this->id() === $that->id();
 	}
 
 	/**
 	 * Store any objects which are members, first
 	 */
-	private function store_object_members(): void {
+	private function storeMembers(): void {
 		/*
-		 * Store subobjects
+		 * Store child objects
 		 */
 		foreach ($this->class->has_one as $member => $class) {
 			if ($class[0] === '*') {
@@ -2500,7 +2522,22 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		}
 	}
 
-	protected function pre_register(): void {
+	/**
+	 * @return void
+	 * @throws Database_Exception
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 * @throws Exception_ORM_Duplicate
+	 * @throws Exception_ORM_Empty
+	 * @throws Exception_ORM_Store
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
+	 */
+	protected function beforeRegister(): void {
 		foreach ($this->class->has_one as $member => $class) {
 			if ($class[0] === '*') {
 				$class = $this->member(substr($class, 1));
@@ -2519,53 +2556,59 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * Register an object based on its "find_keys"
 	 * Register means "create it if it doesn't exist, find it if it does"
 	 *
-	 * @return self The ID of the registered object. Also the status is set to what happened, see
-	 *         self::status_foo definitions either "insert", or "exists".
-	 * @see ORM::status_exists
+	 * @param array|string $where
+	 * @return $this
+	 * @throws Database_Exception
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 * @throws Exception_ORM_Duplicate
+	 * @throws Exception_ORM_Empty
+	 * @throws Exception_ORM_Store
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
+	 * @see ORM::statusExists
 	 * @see ORM::status_insert
 	 * @see ORM::status_unknown
 	 */
-	public function register($where = null) {
+	public function register(array|string $where = ''): self {
 		// If we have all of our primary keys and has an auto_column, then don't bother registering.
 		// Handles case when pre_register registers any objects within it. If everything is loaded OK, then we know
 		// these are valid objects.
-		if ($this->has_primary_keys() && $this->class->auto_column && !$this->optionBool(self::option_ignore_auto_column)) {
+		if ($this->hasPrimaryKeys() && $this->class->auto_column && !$this->optionBool(self::option_ignore_auto_column)) {
 			return $this;
 		}
-		$this->pre_register();
-		$data = $this->exists($where);
-		if ($data === null) {
-			try {
-				$result = $this->store();
-				if (!$result) {
-					$this->object_status(self::object_status_unknown);
-					return null;
-				}
-				return $result->object_status(self::object_status_insert);
-			} catch (Database_Exception_Duplicate $e) {
-				$data = $this->exists($where);
-				if ($data === null) {
-					throw $e;
-				}
-			}
-			$result = $this->initialize($data, true)->polymorphicChild()->store();
-		} else {
+		$this->beforeRegister();
+
+		try {
+			$data = $this->exists($where);
 			$result = $this->initialize($data, true)->polymorphicChild();
+			return $result->setObjectStatus(self::STATUS_EXISTS);
+		} catch (Exception_ORM_NotFound) {
 		}
-		return $result->object_status(self::object_status_exists);
+		return $this->store()->setObjectStatus(self::STATUS_INSERT);
 	}
 
 	/**
 	 * Set/get result of object operation
 	 *
 	 * @param string $set
-	 * @return string|$this
+	 * @return self
 	 */
-	public function object_status($set = null) {
-		if ($set !== null) {
-			$this->status = $set;
-			return $this;
-		}
+	public function setObjectStatus(string $set): self {
+		$this->status = $set;
+		return $this;
+	}
+
+	/**
+	 * Get result of object operation
+	 *
+	 * @return string
+	 */
+	public function objectStatus(): string {
 		return $this->status;
 	}
 
@@ -2573,64 +2616,16 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return boolean
 	 */
-	public function status_exists() {
-		return $this->status === self::object_status_exists;
+	public function statusExists(): bool {
+		return $this->status === self::STATUS_EXISTS;
 	}
 
 	/**
 	 *
 	 * @return boolean
 	 */
-	public function status_created() {
-		return $this->status === self::object_status_insert;
-	}
-
-	private function _column_deleted_value() {
-		return [$this->class->column_deleted => true, ];
-		// TODO: Support dates
-	}
-
-	/**
-	 * Delete rows for this object where
-	 *
-	 * @param string $column
-	 * @param string $class
-	 * @return Database_Query_Delete
-	 * @todo ID should not be hardcoded below. Is this used? 2018-01 KMD
-	 *
-	 */
-	protected function delete_unlinked_column($column, $class) {
-		$link_class = $this->application->class_ormRegistry($class);
-		$link_id_column = $link_class->id_column;
-		if (!$link_id_column) {
-			$__ = ['method' => __METHOD__, 'column' => $column, 'class' => $class, ];
-
-			throw new Exception_Semantics('{method}({column}, {class}): {class} does not have an id column', $__);
-		}
-		$unlinked = $this->querySelect()->link($class, [
-			'alias' => 'Link',
-			'require' => false,
-		])->addWhere('Link.' . $link_id_column, null)->addWhat($column, $column)->toArray(null, $column);
-		if (count($unlinked) === 0) {
-			return 0;
-		}
-		return $this->queryDelete()->addWhere($column, $unlinked)->execute()->affectedRows();
-	}
-
-	/**
-	 * For each of the "has_one" - if the target object does not exist, then delete this object, too
-	 *
-	 * Use with caution!
-	 */
-	protected function delete_unlinked() {
-		$result = [];
-		foreach ($this->class->has_one as $column => $class) {
-			if ($class[0] === '*') {
-				continue;
-			}
-			$result[$column] = $this->delete_unlinked_column($column, $class);
-		}
-		return $result;
+	public function statusCreated(): bool {
+		return $this->status === self::STATUS_INSERT;
 	}
 
 	/**
@@ -2650,6 +2645,17 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 
 	/**
 	 * Delete an object from the database
+	 *
+	 * @return void
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
 	 */
 	public function delete(): void {
 		if ($this->isNew()) {
@@ -2668,10 +2674,10 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		$this->selectDatabase();
 		$this->database()->delete($this->table, $where);
 		if ($this->database()->affectedRows() === 0) {
-			$this->call_hook('delete_already');
+			$this->callHook('delete_already');
 			return;
 		}
-		$this->call_hook('delete');
+		$this->callHook('delete');
 	}
 
 	/**
@@ -2680,21 +2686,22 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param $class string
 	 * @return string
 	 */
-	public function link_default_path_to($class) {
+	public function link_default_path_to(string $class): string {
 		return $this->class->link_default_path_to($class);
 	}
 
 	/**
 	 * Walk path to $class while updating the query
 	 *
-	 * @param $class mixed
-	 * @param $mixed array
+	 * @param Database_Query_Select $query
+	 * @param array $link_state
 	 *            An array of link settings, or a string indicating the path to link to
 	 *            The settings in the array are:
 	 *            <code>
 	 *            "path" => "ORM_Member.NextORM_Member.Column"
 	 *            </code>
 	 * @return Database_Query_Select
+	 * @throws Exception_Configuration
 	 * @throws Exception_Semantics
 	 */
 	public function linkWalk(Database_Query_Select $query, array $link_state = []): Database_Query_Select {
@@ -2707,7 +2714,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param Walker $options
 	 * @return array
 	 */
-	public function walk(Walker $options) {
+	public function walk(Walker $options): array {
 		return $options->walk($this);
 	}
 
@@ -2717,7 +2724,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param JSONWalker $options
 	 * @return array
 	 */
-	public function json(JSONWalker $options) {
+	public function json(JSONWalker $options): array {
 		return $options->walk($this);
 	}
 
@@ -2726,11 +2733,22 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param Widget $source
 	 * @return $this
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Configuration
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_ORM_Empty
+	 * @throws Exception_ORM_NotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Permission
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
 	 */
-	protected function hook_control_loaded(Widget $source) {
+	protected function hook_control_loaded(Widget $source): self {
 		/* @var $object ORM */
-		$id = $source->request()->get($source->option('id_name', $this->class->id_column, null));
-		if ($this->is_new() && !empty($id)) {
+		$id = $source->request()->get($source->option('id_name', $this->class->id_column));
+		if ($this->isNew() && !empty($id)) {
 			$object = $this->initialize($id)->fetch();
 			if (!$source->userCan('edit', $object)) {
 				throw new Exception_Permission('edit', $object);
@@ -2744,23 +2762,27 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param Control $control
 	 * @return string
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
 	 */
-	protected function hook_control_message_cancel(Control $control) {
+	protected function hook_control_message_cancel(Control $control): string {
 		$locale = $this->application->locale;
 		$cancelMessage = $control->option('cancel_message', $locale->__('No changes were made to the {class_name-context-object-singular}.'));
 		$cancelNewMessage = $control->option('cancel_new_message', $locale->__('{class_name-context-subject-singular} was not created.'));
-		return $this->is_new() ? $cancelNewMessage : $cancelMessage;
+		return $this->isNew() ? $cancelNewMessage : $cancelMessage;
 	}
 
 	/**
 	 * Hook to return message
 	 *
 	 * @param Control $control
-	 * @return Ambigous <Model, Model, mixed, Hookable, string, array, number>
+	 * @return string
 	 */
-	protected function hook_control_message_store(Control $control) {
+	protected function hook_control_message_store(Control $control): string {
 		$locale = $this->application->locale;
-		$is_new = $this->is_new();
+		$is_new = $this->isNew();
 		$default_message = !$is_new ? $locale->__('Control:={class_name-context-subject-singular} "{display_name}" was updated.') : $locale->__('Control_ORM_Edit:={class_name-context-subject-singular} "{display_name}" was added.');
 		$store_message = $control->option('store_message', $default_message);
 		if ($is_new) {
@@ -2775,9 +2797,9 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param Control $control
 	 * @return string
 	 */
-	protected function hook_control_message_store_error(Control $control) {
+	protected function hook_control_message_store_error(Control $control): string {
 		$locale = $this->application->locale;
-		$name = strtolower($this->display_name());
+		$name = strtolower($this->displayName());
 		$message = $locale->__('{class_name-context-subject-indefinite-article} with that name already exists');
 		$message = $this->option('store_error', $message);
 		return $message;
@@ -2800,25 +2822,17 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		$prefix = $class . '::';
 		return [
 			$prefix . 'view' => [
-				'title' => $locale->__('View {object}', $__),
-				'class' => $class,
+				'title' => $locale->__('View {object}', $__), 'class' => $class,
 				'before_hook' => ['allowed_if_all' => ["$class::view all", ], ],
-			],
-			$prefix . 'view all' => ['title' => $locale->__('View all {objects}', $__), ],
-			$prefix . 'edit' => [
-				'title' => $locale->__('Edit {object}', $__),
-				'class' => $class,
+			], $prefix . 'view all' => ['title' => $locale->__('View all {objects}', $__), ], $prefix . 'edit' => [
+				'title' => $locale->__('Edit {object}', $__), 'class' => $class,
 				'before_hook' => ['allowed_if_all' => ["$class::edit all", ], ],
-			],
-			$prefix . 'edit all' => ['title' => $locale->__('Edit all {objects}', $__), ],
+			], $prefix . 'edit all' => ['title' => $locale->__('Edit all {objects}', $__), ],
 			$prefix . 'new' => ['title' => $locale->__('Create {objects}', $__), ],
-			$prefix . 'delete all' => ['title' => $locale->__('Delete any {objects}', $__), ],
-			$prefix . 'delete' => [
+			$prefix . 'delete all' => ['title' => $locale->__('Delete any {objects}', $__), ], $prefix . 'delete' => [
 				'title' => $locale->__('Delete {object}', $__),
-				'before_hook' => ['allowed_if_all' => ["$class::delete all", ], ],
-				'class' => $class,
-			],
-			$prefix . 'list' => ['title' => $locale->__('List {objects}', $__), ],
+				'before_hook' => ['allowed_if_all' => ["$class::delete all", ], ], 'class' => $class,
+			], $prefix . 'list' => ['title' => $locale->__('List {objects}', $__), ],
 		];
 	}
 
@@ -2827,7 +2841,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return string
 	 * @see Debug::_dump
 	 */
-	public function _debug_dump() {
+	public function _debug_dump(): string {
 		$rows['primary_keys'] = $this->id();
 		$rows['class'] = get_class($this->class);
 		$rows['database'] = $this->database()->codeName();
@@ -2855,8 +2869,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		$spec['class_name-context-subject-indefinite-article'] = $locale->indefinite_article($name, true);
 		$spec['class_name-plural'] = $locale->plural($name);
 
-		$name = $this->display_name();
-		$spec['display_name'] = $name;
+		$spec['display_name'] = $this->displayName();
 
 		return $spec;
 	}
@@ -2868,8 +2881,8 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param string $arg
 	 * @return self
 	 */
-	protected function hook_router_argument(Route $route, $arg) {
-		return $this->id($arg)->fetch();
+	protected function hook_router_argument(Route $route, string $arg): self {
+		return $this->setId($arg)->fetch();
 	}
 
 	/**
@@ -2877,17 +2890,9 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return array
 	 */
-	public function schema_map() {
+	public function schema_map(): array {
 		return $this->optionArray('schema_map') + ['table' => $this->table(), ];
 	}
-
-	/*==================================================================================================================================*/
-	/*==================================================================================================================================*/
-	/*==================================================================================================================================*/
-	/* DEPRECATED BELOW
-	 /*==================================================================================================================================*/
-	/*==================================================================================================================================*/
-	/*==================================================================================================================================*/
 
 	/**
 	 * @param mixed $mixed
@@ -2908,11 +2913,20 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		throw new Exception_Parameter('mixedToClass takes ORM ORMClass or String {type} given', ['type' => gettype($mixed)]);
 	}
 
+	/*==================================================================================================================================*/
+	/*==================================================================================================================================*/
+	/*==================================================================================================================================*/
+	/* DEPRECATED BELOW
+	 /*==================================================================================================================================*/
+	/*==================================================================================================================================*/
+	/*==================================================================================================================================*/
+
 	/**
 	 * @param string $member
 	 * @param mixed $value
 	 * @return bool
 	 * @deprecated 2022-05
+	 * @codeCoverageIgnore
 	 */
 	public function is_linked(string $member, mixed $value): bool {
 		return $this->isLinked($member, $value);
@@ -2929,6 +2943,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @throws Exception_Key
 	 * @throws Exception_Deprecated
 	 * @deprecated 2022-05
+	 * @codeCoverageIgnore
 	 */
 	public function member_boolean(string $member, mixed $def = null): bool {
 		if ($def !== null) {
@@ -2945,6 +2960,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param $def mixed
 	 *            Use this value if member does not exist
 	 * @return Timestamp
+	 * @codeCoverageIgnore
 	 */
 	public function member_timestamp(string $member, mixed $def = null): Timestamp {
 		if ($def !== null) {
@@ -2962,10 +2978,11 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return mixed
 	 * @throws Exception_Deprecated
 	 * @throws Exception_Key
+	 * @codeCoverageIgnore
 	 * @deprecated 2022-05
 	 */
 	public function member_data(string $member, array|string $mixed = null, mixed $value = null): mixed {
-		$data = to_array($this->member($member));
+		$data = toArray($this->member($member));
 		if (is_array($mixed)) {
 			return $this->setMemberData($member, $mixed, boolval($value));
 		} elseif (is_string($mixed)) {
@@ -2984,6 +3001,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	/**
 	 * @param $member
 	 * @return void
+	 * @codeCoverageIgnore
 	 * @deprecated 2022-05
 	 */
 	public function memberKeysRemove(string|array $member): void {
@@ -2998,6 +3016,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param string $member
 	 * @param mixed|null $def
+	 * @codeCoverageIgnore
 	 * @return mixed
 	 * @throws Exception_Deprecated
 	 * @throws Exception_Semantics
@@ -3017,6 +3036,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return Database_Query_Select
 	 * @deprecated 2022-05
 	 * @see ORM::querySelect()
+	 * @codeCoverageIgnore
 	 */
 	public function query_select(string $alias = ''): Database_Query_Select {
 		return $this->querySelect($alias);
@@ -3028,6 +3048,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return Database_Query_Insert
 	 * @deprecated 2022-05
 	 * @see ORM::queryInsert()
+	 * @codeCoverageIgnore
 	 */
 	public function query_insert(): Database_Query_Insert {
 		return $this->queryInsert();
@@ -3039,6 +3060,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return Database_Query_Update
 	 * @deprecated 2022-05
 	 * @see ORM::queryUpdate()
+	 * @codeCoverageIgnore
 	 */
 	public function query_update(string $alias = ''): Database_Query_Update {
 		return $this->queryUpdate($alias);
@@ -3049,6 +3071,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param string $alias
 	 * @return Database_Query_Insert_Select
+	 * @codeCoverageIgnore
 	 * @deprecated 2022-05
 	 */
 	public function query_insert_select(string $alias = ''): Database_Query_Insert_Select {
@@ -3061,6 +3084,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return Database_Query_Delete
 	 * @deprecated 2022-05
 	 * @see ORM::queryDelete()
+	 * @codeCoverageIgnore
 	 */
 	public function query_delete(): Database_Query_Delete {
 		return $this->queryDelete();
@@ -3071,6 +3095,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return boolean
 	 * @deprecated 2022-05
+	 * @codeCoverageIgnore
 	 */
 	public function utc_timestamps(): bool {
 		return $this->utcTimestamps();
@@ -3082,6 +3107,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return string
 	 * @see ORM::databaseName()
 	 * @deprecated 2022-01
+	 * @codeCoverageIgnore
 	 */
 	public function database_name(): string {
 		return $this->databaseName();
@@ -3095,6 +3121,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param boolean $overwrite
 	 * @return $this
 	 * @deprecated 2022-05
+	 * @codeCoverageIgnore
 	 */
 	public function set_member($member, $v = null, $overwrite = true) {
 		$this->refresh();
@@ -3112,6 +3139,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return array
 	 * @deprecated 2022-05
 	 * @see ORM::inheritOptions()
+	 * @codeCoverageIgnore
 	 */
 	public function inherit_options(): array {
 		$this->application->deprecated(__METHOD__);
@@ -3123,9 +3151,37 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @return boolean
 	 * @deprecated 2022-05
+	 * @codeCoverageIgnore
 	 */
 	public function has_primary_keys(): bool {
 		$this->application->deprecated(__METHOD__);
 		return $this->hasPrimaryKeys();
+	}
+
+	/**
+	 * Set/get result of object operation
+	 *
+	 * @return string
+	 * @deprecated 2022-11
+	 * @codeCoverageIgnore
+	 */
+	public function object_status(): string {
+		$this->application->deprecated(__METHOD__);
+		return $this->status;
+	}
+
+	/**
+	 * Have any of the members given changed in this object?
+	 *
+	 * @param array|string $members
+	 *            Array or list of members
+	 * @return boolean
+	 * @deprecated 2022-05
+	 * @see self::membersChanged
+	 * @codeCoverageIgnore
+	 */
+	public function members_changed(array|string $members): bool {
+		$this->application->deprecated(__METHOD__);
+		return $this->membersChanged($members);
 	}
 }

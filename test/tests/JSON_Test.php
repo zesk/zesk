@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use stdClass;
+
 /**
  *
  * @author kent
@@ -22,10 +24,14 @@ class JSON_Test extends UnitTest {
 		JSON::decode('{');
 	}
 
+	/**
+	 * @return void
+	 * @throws Exception_Semantics
+	 */
 	public function test_malencode(): void {
 		$content = file_get_contents($this->application->path('test/test-data/json/malencode.txt'));
 		$content = ['Hello' => JSON::prepare($content)];
-		$this->assert_string_begins(json_encode($content), '{"Hello":');
+		$this->assertStringContainsString('{"Hello":', json_encode($content));
 	}
 
 	public function data_prepare(): array {
@@ -86,7 +92,7 @@ class JSON_Test extends UnitTest {
 				'{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","*do encode result":"document.referrer","6":null,"dog":null}',
 				[
 					[
-						'Hello' => 'Dude', '1241`2' => 'odd', '__2341' => 2, 'a459123' => new \stdClass(),
+						'Hello' => 'Dude', '1241`2' => 'odd', '__2341' => 2, 'a459123' => new stdClass(),
 					], false, true, 12312312, 'A string', 'A string', '*do encode result' => 'document.referrer', null,
 					'dog' => null,
 				],
@@ -135,7 +141,7 @@ class JSON_Test extends UnitTest {
 				'{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","don\'t encode result":document.referrer,"6":null,"dog":null}',
 				[
 					[
-						'Hello' => 'Dude', '1241`2' => 'odd', '__2341' => 2, 'a459123' => new \stdClass(),
+						'Hello' => 'Dude', '1241`2' => 'odd', '__2341' => 2, 'a459123' => new stdClass(),
 					], false, true, 12312312, 'A string', 'A string', '*don\'t encode result' => 'document.referrer',
 					null, 'dog' => null,
 				],
@@ -144,10 +150,10 @@ class JSON_Test extends UnitTest {
 	}
 
 	/**
-	 * @param $expected
-	 * @param $mixed
-	 * @return void
 	 * @dataProvider data_encodeJavaScript
+	 * @param string $expected
+	 * @param mixed $mixed
+	 * @return void
 	 */
 	public function test_encodeJavaScript(string $expected, mixed $mixed): void {
 		$this->assertEquals($expected, JSON::encodeJavaScript($mixed));
@@ -163,7 +169,7 @@ class JSON_Test extends UnitTest {
 				'{"0":{Hello:"Dude","1241`2":"odd",__2341:2,a459123:{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","don\'t encode result":document.referrer,"6":null,dog:null}',
 				[
 					[
-						'Hello' => 'Dude', '1241`2' => 'odd', '__2341' => 2, 'a459123' => new \stdClass(),
+						'Hello' => 'Dude', '1241`2' => 'odd', '__2341' => 2, 'a459123' => new stdClass(),
 					], false, true, 12312312, 'A string', 'A string', '*don\'t encode result' => 'document.referrer',
 					null, 'dog' => null,
 				],
@@ -174,8 +180,10 @@ class JSON_Test extends UnitTest {
 	/**
 	 * @return void
 	 * @dataProvider data_object_member_name_quote
+	 * @param string $name
+	 * @param string $expected
 	 */
-	public function test_object_member_name_quote($name, $expected): void {
+	public function test_object_member_name_quote(string $name, string $expected): void {
 		$this->assertEquals($expected, JSON::object_member_name_quote($name));
 	}
 
@@ -186,13 +194,25 @@ class JSON_Test extends UnitTest {
 		];
 	}
 
-	public function test_quote(): void {
-		$m = null;
-		$this->assert(JSON::quote('this.is.a.word') === '"this.is.a.word"');
-		$this->assert(JSON::quote('thingy') === '"thingy"', '"' . JSON::quote('thingy') . '" === "thingy"');
-		$this->assert(JSON::quote('2thingy') === '"2thingy"');
-		$this->assert(JSON::quote('thingy2') === '"thingy2"');
-		$this->assert(JSON::quote('th-ingy2') === '"th-ingy2"');
+	/**
+	 * @param string $expected
+	 * @param string $mixed
+	 * @return void
+	 * @dataProvider data_quote
+	 */
+	public function test_quote(string $expected, string $mixed): void {
+		$this->assertEquals($expected, JSON::quote($mixed));
+	}
+
+	public function data_quote(): array {
+		return [
+			['"\\\\t\\\\n\\\\r\\\\"', '\t\n\r\\'],
+			['"this.is.a.word"', 'this.is.a.word'],
+			['"thingy"', 'thingy'],
+			['"2thingy"', '2thingy'],
+			['"thingy2"', 'thingy2'],
+			['"th-ingy2"', 'th-ingy2'],
+		];
 	}
 
 	public function data_valid_member_name(): array {
@@ -203,20 +223,22 @@ class JSON_Test extends UnitTest {
 	}
 
 	/**
-	 * @return void
 	 * @dataProvider data_valid_member_name
+	 * @param bool $expected
+	 * @param string $name
+	 * @return void
 	 */
-	public function test_valid_member_name($expected, $name): void {
+	public function test_valid_member_name(bool $expected, string $name): void {
 		$this->assertEquals($expected, JSON::valid_member_name($name));
 	}
 
-	public function internal_values() {
-		$obj = new \stdClass();
+	public function internal_values(): array {
+		$obj = new stdClass();
 		$obj->foo = 'foo';
 		$obj->_thing_to_save = [
 			'1', '2', '5',
 		];
-		$obj->another = new \stdClass();
+		$obj->another = new stdClass();
 
 		return [
 			[
@@ -246,15 +268,17 @@ class JSON_Test extends UnitTest {
 	/**
 	 * @dataProvider internal_values
 	 * @param mixed $mixed
+	 * @return void
+	 * @throws Exception_Semantics
 	 */
-	public function test_internal($mixed): void {
+	public function test_internal(mixed $mixed): void {
 		$encode = JSON::encode($mixed);
-		$decode = JSON::zesk_decode($encode, false);
+		$decode = JSON::zesk_decode($encode);
 		$encode2 = JSON::encode($decode);
-		$this->assert_equal($encode, $encode2);
+		$this->assertEquals($encode, $encode2);
 	}
 
-	public function data_zesk_decode() {
+	public function data_zesk_decode(): array {
 		return [
 			[
 				'{ "fructose.marketacumen.com": "fructose" }', [
@@ -317,7 +341,7 @@ class JSON_Test extends UnitTest {
 	 * @param string $mixed
 	 * @param mixed $expected
 	 */
-	public function test_zesk_decode(string $mixed, $expected): void {
+	public function test_zesk_decode(string $mixed, mixed $expected): void {
 		$actual = JSON::zesk_decode($mixed);
 		$this->assertEquals($expected, $actual);
 	}

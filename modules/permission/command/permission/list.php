@@ -30,7 +30,7 @@ class Command_Permission_List extends Command_Base {
 				]));
 			}
 		}
-		$this->render_format($perms);
+		$this->renderFormat($perms);
 		return 0;
 	}
 }

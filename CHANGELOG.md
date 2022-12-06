@@ -671,7 +671,7 @@ Enhancements to the `zesk\Repository` and `Subversion` modules were related to t
 - Repository work to fix `zesk\Subversion\Repository`
 - `zesk configure` command uses app locale
 - `zesk configure` updates to yarn command
-- `zesk\Repository::pre_update` and `zesk\Repository::post_update` were deprecated and removed (and unused). Use `zesk\Repository::need_update` and `zesk\Repository::need_commit` instead. Note that `zesk\Git\Repository` is largely unimplemented.
+- `zesk\Repository::pre_update` and `zesk\Repository::postUpdate` were deprecated and removed (and unused). Use `zesk\Repository::need_update` and `zesk\Repository::need_commit` instead. Note that `zesk\Git\Repository` is largely unimplemented.
 - adding `ArrayTools::findInsensitive()` and using in `zesk configure`
 - `configure composer` and `yarn` commands added
 - fixing `zesk\Subversion\Repository::need_update()` to check remote
@@ -1187,7 +1187,7 @@ Main changes were to fix a bug with login where the `zesk\User::hook_login` hook
 
 #### Hookable call chains
 
-- `zesk\Hookable::call_hook_arguments` now uses the `$default` value as the initial `$result`
+- `zesk\Hookable::callHookArguments` now uses the `$default` value as the initial `$result`
 - `zesk\Hookable::collect_hooks` to treat all hooks identically or support alternate accumulation strategies
 
 #### Documentation and Release

@@ -45,11 +45,11 @@ class Controller_Control extends Controller {
 		$result = [
 			'content' => $this->widgetFactory($control)
 				->names($name, null, $input)
-				->request($this->request)->response($this->response)
+				->setRequest($this->request)->response($this->response)
 				->json()
 				->execute(),
 		];
-		$result += $this->response->to_json();
+		$result += $this->response->toJSON();
 		return $this->json($result);
 	}
 }

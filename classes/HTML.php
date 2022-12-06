@@ -213,7 +213,7 @@ class HTML {
 	 * @return string
 	 */
 	public static function img_compat(Application $app, $src, $w = null, $h = null, $text = '', $attrs = false) {
-		$attrs = to_array($attrs, []);
+		$attrs = toArray($attrs, []);
 		$attrs['width'] = $w ?? $attrs['width'] ?? null;
 		$attrs['height'] = $h ?? $attrs['height'] ?? null;
 		return self::img($app, $src, $text, $attrs);
@@ -247,7 +247,7 @@ class HTML {
 	 * @return string
 	 */
 	public static function img(Application $app, string $src, string $text = '', array $attrs = []) {
-		return self::_img(self::href($app, $src), $text, $attrs, path($app->document_root(), $src));
+		return self::_img(self::href($app, $src), $text, $attrs, path($app->documentRoot(), $src));
 	}
 
 	/**
@@ -461,7 +461,7 @@ class HTML {
 		}
 		if (array_key_exists($name, self::$attributes_alter)) {
 			// TODO - avoid globals, but this is used EVERYWHERE without a context
-			$result = Kernel::singleton()->hooks->call_arguments(__METHOD__ . "::$name", [
+			$result = Kernel::singleton()->hooks->callArguments(__METHOD__ . "::$name", [
 				$attributes,
 				$content,
 			], $attributes);
@@ -614,7 +614,7 @@ class HTML {
 	 * @return array Data attributes
 	 */
 	public static function data_attributes(array $attributes) {
-		return ArrayTools::flatten(ArrayTools::filterPrefixedValues(ArrayTools::keysReplace(array_change_key_case($attributes), '_', '-'), 'data-', true));
+		return ArrayTools::flatten(ArrayTools::filterKeyPrefixes(ArrayTools::keysReplace(array_change_key_case($attributes), '_', '-'), 'data-', true));
 	}
 
 	/**
@@ -645,7 +645,7 @@ class HTML {
 	 * @param mixed $class
 	 * @return array
 	 */
-	public static function addClass(array $attributes, string $class = ''): array {
+	public static function addClass(array $attributes, string|array $class = ''): array {
 		$attributes['class'] = CSS::addClass($attributes['class'] ?? '', $class);
 		return $attributes;
 	}
@@ -1673,7 +1673,7 @@ class HTML {
 	 * @return string HTML
 	 */
 	public static function select($name, $value, array $options, $attributes = null) {
-		$attributes = array_change_key_case(to_array($attributes, []));
+		$attributes = array_change_key_case(toArray($attributes, []));
 		$options_html = [];
 		foreach ($options as $option_value => $label) {
 			if (is_array($label)) {

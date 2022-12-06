@@ -10,9 +10,11 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use \DateTimeZone;
-use \DateTime;
-use \DateInterval;
+use DateTimeInterface;
+use DateTimeZone;
+use DateTime;
+use DateInterval;
+use OutOfBoundsException;
 
 /**
  * Timestamp class is similar to PHP DateTime, it used to be called DateTime, and ZDateTime.
@@ -39,7 +41,7 @@ class Timestamp extends Temporal {
 	 *
 	 * @var string
 	 */
-	private static $default_format_string = self::DEFAULT_FORMAT_STRING;
+	private static string $default_format_string = self::DEFAULT_FORMAT_STRING;
 
 	/**
 	 * https://en.wikipedia.org/wiki/Year_2038_problem
@@ -50,15 +52,15 @@ class Timestamp extends Temporal {
 
 	/**
 	 *
-	 * @var DateTime
+	 * @var ?DateTime
 	 */
-	protected $datetime = null;
+	protected ?DateTime $datetime = null;
 
 	/**
 	 *
 	 * @var DateTimeZone
 	 */
-	protected $tz = null;
+	protected DateTimeZone $tz;
 
 	/**
 	 *
@@ -123,22 +125,12 @@ class Timestamp extends Temporal {
 	public const DATETIME_FORMAT_YEARDAY = 'z';
 
 	/**
-	 * Copy kernel upon hook intiailization to avoid globals later. Is this a good pattern? KMD 2018-01
-	 *
-	 * @var Kernel
-	 */
-	private static $kernel = null;
-
-	/**
 	 * Add global configuration
 	 *
-	 * @param Kernel $kernel
+	 * @param Application $app
 	 */
-	public static function hooks(Application $kernel): void {
-		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, [__CLASS__, 'configured', ]);
-		$kernel->configuration->deprecated('Timestamp', __CLASS__);
-		$kernel->hooks->setAlias('Timestamp::formatting', __CLASS__ . '::formatting');
-		self::$kernel = $kernel;
+	public static function hooks(Application $app): void {
+		$app->hooks->add(Hooks::HOOK_CONFIGURED, [__CLASS__, 'configured', ]);
 	}
 
 	/**
@@ -146,14 +138,16 @@ class Timestamp extends Temporal {
 	 * @param Application $application
 	 */
 	public static function configured(Application $application): void {
-		self::$default_format_string = $application->configuration->path_get([__CLASS__, 'format_string', ], self::DEFAULT_FORMAT_STRING);
+		self::$default_format_string = $application->configuration->getPath([
+			__CLASS__, 'format_string',
+		], self::DEFAULT_FORMAT_STRING);
 	}
 
 	/**
 	 *
-	 * @return NULL|\DateTimeZone
+	 * @return DateTimeZone
 	 */
-	public static function timezone_utc() {
+	public static function timezone_utc(): DateTimeZone {
 		static $utc = null;
 		if (!$utc) {
 			$utc = new DateTimeZone('UTC');
@@ -162,37 +156,37 @@ class Timestamp extends Temporal {
 	}
 
 	/**
-	 * @return \DateTimeZone
+	 * @return DateTimeZone
 	 */
-	public static function timezone_local() {
-		// Global settings ok?
-		// @todo
-		$tz = self::$kernel->configuration->path_get([__CLASS__, 'timezone_local', ], date_default_timezone_get());
-		return new DateTimeZone($tz);
+	public static function timezone_local(): DateTimeZone {
+		return new DateTimeZone(date_default_timezone_get());
 	}
 
 	/**
 	 * Construct a new Timestamp consisting of a Date and a Time
 	 *
-	 * @param null|\DateTimeInterface|int|string|Time|Date|Timestamp $value
+	 * @param null|DateTimeInterface|int|string|Time|Date|Timestamp $value
 	 * @param DateTimeZone|null $timezone
 	 * @throws Exception_Convert
 	 * @throws Exception_Parameter
 	 */
-	public function __construct(null|\DateTimeInterface|int|string|Time|Date|Timestamp $value = '', DateTimeZone $timezone = null) {
+	public function __construct(null|DateTimeInterface|int|string|Time|Date|Timestamp $value = '', DateTimeZone $timezone = null) {
 		$this->milliseconds = 0;
-		if ($value instanceof \DateTimeInterface) {
+		if ($value instanceof DateTimeInterface) {
 			$this->tz = $value->getTimezone();
 
 			try {
 				$this->datetime = new DateTime('now', $this->tz);
-			} catch (\Exception $e) {
+			} catch (\Exception) {
 			}
 			$this->setUnixTimestamp($value->getTimestamp());
 		} else {
 			$this->tz = $timezone === null ? self::timezone_local() : $timezone;
 			if ($value !== null && $value !== '0000-00-00 00:00:00' && $value !== '0000-00-00') {
-				$this->datetime = new DateTime('now', $this->tz);
+				try {
+					$this->datetime = new DateTime('now', $this->tz);
+				} catch (\Exception) {
+				}
 			}
 			$this->set($value);
 		}
@@ -200,7 +194,7 @@ class Timestamp extends Temporal {
 
 	/**
 	 */
-	public function __clone() {
+	public function __clone(): void {
 		if ($this->datetime) {
 			$this->datetime = clone $this->datetime;
 		}
@@ -244,23 +238,26 @@ class Timestamp extends Temporal {
 	 * Syntactic sugar, for example:
 	 * Timestamp::factory($value)->format("{MMM} {DDD}");
 	 *
-	 * @param null|string|int|Date|Time|Timestamp $value
+	 * @param string|int|Date|Time|Timestamp|null $value
 	 * @param string|DateTimeZone|null $timezone
-	 * @return Timestamp
+	 * @return static
+	 * @throws Exception_Convert
+	 * @throws Exception_Parameter
 	 */
 	public static function factory(null|string|int|Date|Time|Timestamp $value, string|DateTimeZone $timezone = null): self {
 		if (!$timezone instanceof DateTimeZone) {
 			$timezone = empty($timezone) ? null : new DateTimeZone($timezone);
 		}
-		return new Timestamp($value, $timezone);
+		return new self($value, $timezone);
 	}
 
 	/**
 	 * Return new Timestamp date time representing now
 	 *
+	 * @param string|DateTimeZone|null $timezone
 	 * @return Timestamp
 	 */
-	public static function now(string|DateTimeZone $timezone = null) {
+	public static function now(string|DateTimeZone $timezone = null): self {
 		return self::factory('now', $timezone);
 	}
 
@@ -270,7 +267,7 @@ class Timestamp extends Temporal {
 	 *
 	 * @return Timestamp
 	 */
-	public static function utc_now() {
+	public static function utc_now(): self {
 		return self::factory('now', self::timezone_utc());
 	}
 
@@ -305,7 +302,6 @@ class Timestamp extends Temporal {
 	/**
 	 * Set/get the time component of this Timestamp
 	 *
-	 * @param Time $time
 	 * @return Time Timestamp
 	 */
 	public function time(): Time {
@@ -324,11 +320,8 @@ class Timestamp extends Temporal {
 	}
 
 	/**
-	 * Set the integer value of this Timestamp
+	 * Get the integer value of this Timestamp
 	 *
-	 * @param int $set
-	 *            Value to set
-	 * @return Timestamp integer
 	 * @see Timestamp::unixTimestamp()
 	 */
 	public function integer(): int {
@@ -349,7 +342,7 @@ class Timestamp extends Temporal {
 	 *
 	 * @return Timestamp
 	 */
-	public function setEmpty() {
+	public function setEmpty(): self {
 		$this->datetime = null;
 		return $this;
 	}
@@ -385,7 +378,9 @@ class Timestamp extends Temporal {
 			return $this->setUnixTimestamp($value->unixTimestamp());
 		}
 
-		throw new Exception_Parameter("Invalid value passed to {method} ... {backtrace}\nVALUE={value}", ['method' => __METHOD__, 'backtrace' => _backtrace(), 'value' => to_array($value), ]);
+		throw new Exception_Parameter("Invalid value passed to {method} ... {backtrace}\nVALUE={value}", [
+			'method' => __METHOD__, 'backtrace' => _backtrace(), 'value' => toArray($value),
+		]);
 	}
 
 	/**
@@ -393,7 +388,7 @@ class Timestamp extends Temporal {
 	 *
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString(): string {
 		if ($this->isEmpty()) {
 			return '';
 		}
@@ -405,7 +400,7 @@ class Timestamp extends Temporal {
 	 *
 	 * @return string
 	 */
-	public function json() {
+	public function json(): string {
 		return $this->format(null, self::FORMAT_JSON);
 	}
 
@@ -414,7 +409,7 @@ class Timestamp extends Temporal {
 	 *
 	 * @return DateTime
 	 */
-	private function _datetime() {
+	private function _datetime(): DateTime {
 		if ($this->datetime === null) {
 			$this->datetime = new DateTime('now', $this->tz);
 		}
@@ -424,9 +419,9 @@ class Timestamp extends Temporal {
 	/**
 	 * Retrieve the DateTime
 	 *
-	 * @return DateTime
+	 * @return ?DateTime
 	 */
-	public function datetime() {
+	public function datetime(): ?DateTime {
 		return $this->datetime;
 	}
 
@@ -464,8 +459,8 @@ class Timestamp extends Temporal {
 		if (!is_array($locale_format)) {
 			$locale_format = explode(';', $locale_format);
 		}
-		foreach ($locale_format as $dcodes) {
-			$dcodes = str_split($dcodes, 1);
+		foreach ($locale_format as $dcode) {
+			$dcodes = str_split($dcode);
 			if (count($values) !== count($dcodes)) {
 				continue;
 			}
@@ -478,7 +473,9 @@ class Timestamp extends Temporal {
 							return $this->parse_locale_string(substr($value, 0, 2) . '/' . substr($value, 2, 2) . '/' . substr($value, 4));
 						}
 
-						throw new Exception_Convert('Timestamp::parse_locale_string({value},{locale_format}): Unknown format', ['value' => $value, 'locale_format' => $locale_format, ]);
+						throw new Exception_Convert('Timestamp::parse_locale_string({value},{locale_format}): Unknown format', [
+							'value' => $value, 'locale_format' => $locale_format,
+						]);
 					case 'M':
 						$this->setMonth(intval($values[$i]));
 
@@ -506,7 +503,10 @@ class Timestamp extends Temporal {
 	 * @return array
 	 */
 	private function _month_names_en(): array {
-		static $m = ['jan' => 1, 'feb' => 2, 'mar' => 3, 'apr' => 4, 'may' => 5, 'jun' => 6, 'jul' => 7, 'aug' => 8, 'sep' => 9, 'oct' => 10, 'nov' => 11, 'dec' => 12, ];
+		static $m = [
+			'jan' => 1, 'feb' => 2, 'mar' => 3, 'apr' => 4, 'may' => 5, 'jun' => 6, 'jul' => 7, 'aug' => 8, 'sep' => 9,
+			'oct' => 10, 'nov' => 11, 'dec' => 12,
+		];
 		return $m;
 	}
 
@@ -569,26 +569,26 @@ class Timestamp extends Temporal {
 	 * @param int $set
 	 * @return Timestamp, number
 	 */
-	public function quarter($set = null): int {
+	public function quarter(mixed $set = null): int {
 		if ($set !== null) {
 			zesk()->deprecated('setter');
 			$this->setQuarter(intval($set));
 		}
-		return $this->datetime ? intval(($this->month() - 1) / 4) + 1 : -1;
+		return $this->datetime ? intval(($this->month() - 1) * (4 / 12)) + 1 : -1;
 	}
 
 	/**
 	 * Set a 1-based quarter (1,2,3,4)
 	 *
 	 * @param int $set
-	 * @return Timestamp, number
+	 * @return Timestamp
 	 */
 	public function setQuarter(int $set): self {
 		if ($set < 1 || $set > 4) {
-			throw new Exception_Range(map('Timestamp::quarter({0})', [_dump($set)]));
+			throw new \OutOfBoundsException("Timestamp::quarter($set)");
 		}
-		$set = abs($set - 1) % 4;
-		$quarter = $this->quarter() - 1;
+		/* $set is 0-3 */
+		$quarter = $this->quarter();
 		if ($quarter === $set) {
 			return $this;
 		}
@@ -597,28 +597,24 @@ class Timestamp extends Temporal {
 	}
 
 	/**
-	 * Get/Set month
+	 * Get month
 	 *
-	 * @param string $set
-	 * @return Timestamp number
+	 * @return int
 	 */
-	public function month($set = null): int {
-		if ($set !== null) {
-			zesk()->deprecated('setter');
-			$this->setMonth(intval($set));
-		}
+	public function month(): int {
 		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_MONTH)) : -1;
 	}
 
 	/**
 	 * Get/Set month
 	 *
-	 * @param string $set
+	 * @param int $set
 	 * @return Timestamp number
+	 * @throws OutOfBoundsException
 	 */
 	public function setMonth(int $set) {
 		if ($set < 1 || $set > 12) {
-			throw new Exception_Range('Month must be between 1 and 12 ({0} passed)', [$set, ]);
+			throw new OutOfBoundsException("Month must be between 1 and 12 ($set passed)");
 		}
 		$this->_datetime()->setDate($this->year(), $set, $this->day());
 		return $this;
@@ -627,13 +623,9 @@ class Timestamp extends Temporal {
 	/**
 	 * Get/Set day of month
 	 *
-	 * @param string $set
-	 * @return Timestamp number
+	 * @return int
 	 */
-	public function day($set = null): int {
-		if ($set !== null) {
-			$this->setDay(intval($set));
-		}
+	public function day(): int {
 		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_DAY)) : -1;
 	}
 
@@ -643,24 +635,20 @@ class Timestamp extends Temporal {
 	 * @param int $set
 	 * @return self
 	 */
-	public function setDay(int $set) {
+	public function setDay(int $set): self {
 		if ($set < 0 || $set > 31) {
-			throw new Exception_Range('Month must be between 1 and 12 ({0} passed)', [$set, ]);
+			throw new OutOfBoundsException("Day must be between 1 and 31 ($set passed)");
 		}
 		$this->_datetime()->setDate($this->year(), $this->month(), $set);
 		return $this;
 	}
 
 	/**
-	 * This this today?
+	 * Is this today?
 	 *
 	 * @return bool
 	 */
-	public function today($set = null): bool {
-		if ($set !== null) {
-			$this->setToday();
-			zesk()->deprecated('setter');
-		}
+	public function today(): bool {
 		return $this->datetime->format('Y-m-d') === date('Y-m-d');
 	}
 
@@ -678,9 +666,14 @@ class Timestamp extends Temporal {
 	 *
 	 * @param int $set
 	 * @return Timestamp
+	 * @throws Exception_Semantics
 	 */
 	public function setWeekdayPast(int $set): self {
-		return $this->setWeekday($set)->addUnit(-7, self::UNIT_DAY);
+		try {
+			return $this->setWeekday($set)->addUnit(-7, self::UNIT_DAY);
+		} catch (Exception_Key) {
+			return $this;
+		}
 	}
 
 	/**
@@ -994,7 +987,9 @@ class Timestamp extends Temporal {
 			$formatting = ['Z' => $this->datetime->format('e'), 'ZZZ' => $this->datetime->format('T'), ] + $formatting;
 		}
 		if ($locale && !($options['nohook'] ?? false)) {
-			$formatting = $locale->application->hooks->call_arguments(__CLASS__ . '::formatting', [$this, $locale, $formatting, $options, ], $formatting);
+			$formatting = $locale->application->hooks->callArguments(__CLASS__ . '::formatting', [
+				$this, $locale, $formatting, $options,
+			], $formatting);
 		}
 		return $formatting;
 	}
@@ -1140,15 +1135,29 @@ class Timestamp extends Temporal {
 	 * @param int $hours
 	 * @param int $minutes
 	 * @param int $seconds
+	 * @param int $milliseconds
 	 * @return $this
 	 * @throws Exception_Semantics
 	 */
-	public function add(int $years = 0, int $months = 0, int $days = 0, int $hours = 0, int $minutes = 0, int $seconds = 0): self {
+	public function add(int $years = 0, int $months = 0, int $days = 0, int $hours = 0, int $minutes = 0, int
+	$seconds = 0, int $milliseconds = 0): self {
 		if ($this->datetime === null) {
 			throw new Exception_Semantics('Adding to a empty Timestamp');
 		}
 		$this->_addUnit($years, 'Y')->_addUnit($months, 'M')->_addUnit($days, 'D');
 		$this->_addUnit($hours, 'H', true)->_addUnit($minutes, 'M', true)->_addUnit($seconds, 'S', true);
+		if ($milliseconds !== 0) {
+			$this->milliseconds += $milliseconds;
+			if ($this->milliseconds < 0) {
+				$seconds = intval($this->milliseconds / 1000) - 1;
+				$this->milliseconds = ($this->milliseconds % 1000) + 1000;
+				$this->_addUnit($seconds, 'S', true);
+			} else {
+				$this->_addUnit(intval($this->milliseconds / 1000), 'S', true);
+				$this->milliseconds = ($this->milliseconds % 1000);
+			}
+		}
+
 		return $this;
 	}
 
@@ -1298,7 +1307,7 @@ class Timestamp extends Temporal {
 			case self::UNIT_YEAR:
 				return $this->year();
 			default:
-				throw new Exception_Parameter("Timestamp::unit($unit, $value): Bad unit");
+				throw new Exception_Parameter('Timestamp::unit({unit}): Bad unit', ['unit' => $unit]);
 		}
 	}
 
@@ -1310,31 +1319,23 @@ class Timestamp extends Temporal {
 	 * @param int $value
 	 *            Value to set
 	 * @return Timestamp integer
-	 * @throws Exception_Parameter
+	 * @throws Exception_Key|\OutOfBoundsException
 	 */
 	public function setUnit(string $unit, int $value): self {
-		switch ($unit) {
-			case self::UNIT_MILLISECOND:
-				return $this->setMillisecond($value);
-			case self::UNIT_SECOND:
-				return $this->setSecond($value);
-			case self::UNIT_MINUTE:
-				return $this->setMinute($value);
-			case self::UNIT_HOUR:
-				return $this->setHour($value);
-			case self::UNIT_WEEKDAY:
-				return $this->setWeekday($value);
-			case self::UNIT_DAY:
-				return $this->setDay($value);
-			case self::UNIT_MONTH:
-				return $this->setMonth($value);
-			case self::UNIT_QUARTER:
-				return $this->setQuarter($value);
-			case self::UNIT_YEAR:
-				return $this->setYear($value);
-			default:
-				throw new Exception_Parameter("Timestamp::unit($unit, $value): Bad unit");
-		}
+		return match ($unit) {
+			self::UNIT_MILLISECOND => $this->setMillisecond($value),
+			self::UNIT_SECOND => $this->setSecond($value),
+			self::UNIT_MINUTE => $this->setMinute($value),
+			self::UNIT_HOUR => $this->setHour($value),
+			self::UNIT_WEEKDAY => $this->setWeekday($value),
+			self::UNIT_DAY => $this->setDay($value),
+			self::UNIT_MONTH => $this->setMonth($value),
+			self::UNIT_QUARTER => $this->setQuarter($value),
+			self::UNIT_YEAR => $this->setYear($value),
+			default => throw new Exception_Key($unit, [
+				'unit' => $unit, 'value' => $value,
+			]),
+		};
 	}
 
 	/**
@@ -1342,35 +1343,26 @@ class Timestamp extends Temporal {
 	 *
 	 * @param int $n_units
 	 *            Number of units to add (may be negative)
-	 * @param string $units
+	 * @param string $unit
 	 *            One of millisecond, second, minute, hour, weekday, day, month, quarter, year
 	 * @return Timestamp
-	 * @throws Exception_Parameter
+	 * @throws Exception_Key|Exception_Semantics
 	 */
-	public function addUnit($n_units = 1, $units = self::UNIT_SECOND) {
-		switch ($units) {
-			case self::UNIT_MILLISECOND:
-				return $this->add(0, 0, 0, 0, 0, intval(round($n_units * self::MILLISECONDS_PER_SECONDS)));
-			case self::UNIT_SECOND:
-				return $this->add(0, 0, 0, 0, 0, $n_units);
-			case self::UNIT_MINUTE:
-				return $this->add(0, 0, 0, 0, $n_units);
-			case self::UNIT_HOUR:
-				return $this->add(0, 0, 0, $n_units);
-			case self::UNIT_WEEKDAY:
-			case self::UNIT_DAY:
-				return $this->add(0, 0, $n_units);
-			case self::UNIT_WEEK:
-				return $this->add(0, 0, $n_units * self::DAYS_PER_WEEK);
-			case self::UNIT_MONTH:
-				return $this->add(0, $n_units);
-			case self::UNIT_QUARTER:
-				return $this->add(0, $n_units * self::MONTHS_PER_QUARTER);
-			case self::UNIT_YEAR:
-				return $this->add($n_units);
-			default:
-				throw new Exception_Parameter('{method)({n_units}, {units}): Invalid unit', ['method' => __METHOD__, 'n_units' => $n_units, 'units' => $units, ]);
-		}
+	public function addUnit(int|float $n_units = 1, string $unit = self::UNIT_SECOND): self {
+		return match ($unit) {
+			self::UNIT_MILLISECOND => $this->add(0, 0, 0, 0, 0, intval(round($n_units * self::MILLISECONDS_PER_SECONDS))),
+			self::UNIT_SECOND => $this->add(0, 0, 0, 0, 0, $n_units),
+			self::UNIT_MINUTE => $this->add(0, 0, 0, 0, $n_units),
+			self::UNIT_HOUR => $this->add(0, 0, 0, $n_units),
+			self::UNIT_WEEKDAY, self::UNIT_DAY => $this->add(0, 0, $n_units),
+			self::UNIT_WEEK => $this->add(0, 0, $n_units * self::DAYS_PER_WEEK),
+			self::UNIT_MONTH => $this->add(0, $n_units),
+			self::UNIT_QUARTER => $this->add(0, $n_units * self::MONTHS_PER_QUARTER),
+			self::UNIT_YEAR => $this->add($n_units),
+			default => throw new Exception_Key('{method)({n_units}, {units}): Invalid unit', [
+				'method' => __METHOD__, 'n_units' => $n_units, 'units' => $unit,
+			]),
+		};
 	}
 
 	/**
@@ -1379,7 +1371,7 @@ class Timestamp extends Temporal {
 	 * @param string $sep
 	 * @return string
 	 */
-	private function _ymd_format($sep = '-') {
+	private function _ymd_format(string $sep = '-'): string {
 		return $this->year() . $sep . StringTools::zero_pad($this->month()) . $sep . StringTools::zero_pad($this->day());
 	}
 
@@ -1389,7 +1381,7 @@ class Timestamp extends Temporal {
 	 * @param string $sep
 	 * @return string
 	 */
-	private function _hms_format($sep = ':') {
+	private function _hms_format(string $sep = ':'): string {
 		return StringTools::zero_pad($this->hour()) . $sep . StringTools::zero_pad($this->minute()) . $sep . StringTools::zero_pad($this->second());
 	}
 
@@ -1398,60 +1390,67 @@ class Timestamp extends Temporal {
 	 *
 	 * @return string
 	 */
-	public function sql() {
+	public function sql(): string {
 		return $this->_ymd_format() . ' ' . $this->_hms_format();
 	}
 
 	/**
 	 * Get or set a iso8601 date format
 	 *
-	 * @param string $set
-	 *            Date to set as an integer timestamp, or an ISO8601 formatted date
-	 * @return Timestamp string
-	 * @throws Exception_Syntax
+	 * @return string
 	 * @see http://en.wikipedia.org/wiki/ISO_8601
 	 */
-	public function iso8601($set = null) {
+	public function iso8601(mixed $set = null): string {
 		if ($set !== null) {
-			if (is_numeric($set)) {
-				return $this->unixTimestamp()($set);
-			}
-			$value = trim($set);
-			// if (preg_match('/[0-9]{4}-([0-9]{2}-[0-9]{2}|W[0-9]{2}|[0-9]{3})(T[0-9]{2}(:?[0-9]{2}(:?[0-9]{2}))/',
-			// $value, $matches)) {
-			// TODO support iso8601 latest
-			// }
-			[$dd, $tt] = pair(strtoupper($value), 'T');
-			if ($dd === '0000') {
-				$this->setEmpty();
-				return $this;
-			}
-			if ($dd === false || $tt === false) {
-				throw new Exception_Syntax(map('Timestamp::iso8601({0}) - invalid date format', [$set]));
-			}
-			[$hh, $mm, $ss] = explode(':', $tt, 3);
-			$this->ymdhms(intval(substr($dd, 0, 4)), intval(substr($dd, 4, 2)), intval(substr($dd, 6, 2)), intval($hh), intval($mm), intval($ss));
-			return $this;
+			zesk()->deprecated(__METHOD__);
 		}
 		return $this->_ymd_format('') . 'T' . $this->_hms_format();
 	}
 
 	/**
+	 * @param string $set
+	 * @return $this
+	 * @throws Exception_Syntax
+	 */
+	public function setISO8601(string $set): self {
+		$value = trim($set);
+		// if (preg_match('/[0-9]{4}-([0-9]{2}-[0-9]{2}|W[0-9]{2}|[0-9]{3})(T[0-9]{2}(:?[0-9]{2}(:?[0-9]{2}))/',
+		// $value, $matches)) {
+		// TODO support iso8601 latest
+		// }
+		[$dd, $tt] = pair(strtoupper($value), 'T');
+		if ($dd === '0000') {
+			$this->setEmpty();
+			return $this;
+		}
+		if ($dd === false || $tt === false) {
+			throw new Exception_Syntax(map('Timestamp::iso8601({0}) - invalid date format', [$set]));
+		}
+		[$hh, $mm, $ss] = explode(':', $tt, 3);
+		$this->ymdhms(intval(substr($dd, 0, 4)), intval(substr($dd, 4, 2)), intval(substr($dd, 6, 2)), intval($hh), intval($mm), intval($ss));
+		return $this;
+	}
+
+	/**
 	 * Create a new Timestamp with explicit values
 	 *
-	 * @param int $year
-	 * @param int $month
-	 * @param int $day
-	 * @param int $hour
-	 * @param int $minute
-	 * @param int $second
+	 * @param ?int $year
+	 * @param ?int $month
+	 * @param ?int $day
+	 * @param ?int $hour
+	 * @param ?int $minute
+	 * @param ?int $second
+	 * @param ?int $millisecond
 	 * @return Timestamp
 	 * @see Timestamp::factory_ymdhms
 	 */
-	public static function instance($year = null, $month = null, $day = null, $hour = null, $minute = null, $second = null) {
+	public static function instance(int $year = null, int $month = null, int $day = null, int $hour = null, int $minute = null, int $second = null, int $millisecond = null): self {
 		$dt = new Timestamp();
 		$dt->ymd($year, $month, $day);
 		$dt->hms($hour, $minute, $second);
+		if ($millisecond !== null) {
+			$dt->setMillisecond($millisecond);
+		}
 		return $dt;
 	}
 

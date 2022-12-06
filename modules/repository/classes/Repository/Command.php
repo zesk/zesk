@@ -115,7 +115,7 @@ abstract class Repository_Command extends Repository {
 		}
 
 		try {
-			$result = $this->process->execute_arguments($this->command . $this->arguments . " $suffix", $arguments, $passthru);
+			$result = $this->process->executeArguments($this->command . $this->arguments . " $suffix", $arguments, $passthru);
 			if ($had_path) {
 				chdir($cwd);
 			}
