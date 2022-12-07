@@ -79,14 +79,14 @@ class Request extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected string $data_file = self::default_data_file;
+	protected string $dataFile = self::default_data_file;
 
 	/**
 	 * Inherit data from another object
 	 *
 	 * @var ?Request
 	 */
-	protected ?Request $data_inherit = null;
+	protected ?Request $dataInherit = null;
 
 	/**
 	 * Parsed request variables (see $_REQUEST)
@@ -113,7 +113,7 @@ class Request extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected array $url_parts = [
+	protected array $urlParts = [
 		'host' => null, 'scheme' => null, 'path' => null,
 	];
 
@@ -121,7 +121,7 @@ class Request extends Hookable {
 	 *
 	 * @var ?Net_HTTP_UserAgent
 	 */
-	protected ?Net_HTTP_UserAgent $user_agent = null;
+	protected ?Net_HTTP_UserAgent $userAgent = null;
 
 	/**
 	 * Way to mock IP addresses if needed.
@@ -138,7 +138,7 @@ class Request extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected string $server_ip = self::DEFAULT_IP;
+	protected string $serverIP = self::DEFAULT_IP;
 
 	/**
 	 * Remote IP address
@@ -147,7 +147,7 @@ class Request extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected string $remote_ip = self::DEFAULT_IP;
+	protected string $remoteIP = self::DEFAULT_IP;
 
 	/**
 	 *
@@ -180,7 +180,7 @@ class Request extends Hookable {
 	 */
 	public function __construct(Application $application, string|array|self $settings = null) {
 		parent::__construct($application);
-		$this->user_agent = null;
+		$this->userAgent = null;
 		$this->inheritConfiguration();
 		$settings = $this->callHook('construct', $settings);
 		if ($settings instanceof Request) {
@@ -203,12 +203,12 @@ class Request extends Hookable {
 	public function initializeFromGlobals(): self {
 		$this->data_raw = null;
 		$this->data = null;
-		$this->data_file = self::default_data_file;
-		$this->data_inherit = null;
+		$this->dataFile = self::default_data_file;
+		$this->dataInherit = null;
 
 		$this->ip = $this->_findRemoteKey($_SERVER);
-		$this->remote_ip = $_SERVER['REMOTE_ADDR'] ?? self::DEFAULT_IP;
-		$this->server_ip = $_SERVER['SERVER_ADDR'] ?? self::DEFAULT_IP;
+		$this->remoteIP = $_SERVER['REMOTE_ADDR'] ?? self::DEFAULT_IP;
+		$this->serverIP = $_SERVER['SERVER_ADDR'] ?? self::DEFAULT_IP;
 
 		$this->setMethod($_SERVER ['REQUEST_METHOD'] ?? Net_HTTP::METHOD_GET);
 		$this->uri = $_SERVER['REQUEST_URI'] ?? self::DEFAULT_URI;
@@ -217,7 +217,7 @@ class Request extends Hookable {
 		$this->url = $this->urlFromSERVER($_SERVER);
 		$this->files = is_array($_FILES) ? $_FILES : [];
 
-		$this->url_parts = [];
+		$this->urlParts = [];
 
 		$this->requestData = $this->defaultRequestData();
 
@@ -244,14 +244,14 @@ class Request extends Hookable {
 		$this->requestData = $request->requestData;
 		$this->files = $request->files;
 		$this->url = $request->url;
-		$this->url_parts = $request->url_parts;
+		$this->urlParts = $request->urlParts;
 		$this->data_raw = $request->data_raw; // Note: Loads data once if necessary
 		$this->data = $request->data; // Note: Loads data once if necessary
-		$this->data_inherit = $request;
-		$this->data_file = $request->data_file;
+		$this->dataInherit = $request;
+		$this->dataFile = $request->dataFile;
 		$this->ip = $request->ip;
-		$this->remote_ip = $request->remote_ip;
-		$this->server_ip = $request->server_ip;
+		$this->remoteIP = $request->remoteIP;
+		$this->serverIP = $request->serverIP;
 
 		$this->init = 'request';
 
@@ -289,7 +289,7 @@ class Request extends Hookable {
 		$this->requestData = toArray($settings['requestData'] ?? []);
 		$this->files = toArray($settings['files'] ?? []);
 		$this->url = $settings['url'] ?? '';
-		$this->url_parts = [];
+		$this->urlParts = [];
 		if (!$this->uri) {
 			$this->uri = $this->query() ? URL::queryFormat($this->path(), $this->query()) : $this->path();
 		}
@@ -300,18 +300,18 @@ class Request extends Hookable {
 					'settings' => $settings,
 				]);
 			}
-			$this->data_file = $data_file;
+			$this->dataFile = $data_file;
 			$this->data_raw = null;
 			$this->data = null;
 		} else {
 			$this->data = null;
 			$this->data_raw = strval($settings['data'] ?? '');
-			$this->data_file = '';
+			$this->dataFile = '';
 		}
-		$this->data_inherit = null;
+		$this->dataInherit = null;
 		$this->ip = $settings['ip'] ?? self::DEFAULT_IP;
-		$this->remote_ip = $settings['remote_ip'] ?? self::DEFAULT_IP;
-		$this->server_ip = $settings['server_ip'] ?? self::DEFAULT_IP;
+		$this->remoteIP = $settings['remote_ip'] ?? self::DEFAULT_IP;
+		$this->serverIP = $settings['server_ip'] ?? self::DEFAULT_IP;
 
 		$this->init = 'settings';
 		$this->callHook([
@@ -333,7 +333,7 @@ class Request extends Hookable {
 
 	public function isSecure(): bool {
 		$this->_validURLParts();
-		return $this->url_parts['scheme'] === 'https';
+		return $this->urlParts['scheme'] === 'https';
 	}
 
 	/**
@@ -459,11 +459,11 @@ class Request extends Hookable {
 	 */
 	public function data(): array {
 		if ($this->data_raw === null) {
-			if ($this->data_inherit) {
+			if ($this->dataInherit) {
 				$this->data_raw = null;
-				$this->data = $this->data_inherit->data();
+				$this->data = $this->dataInherit->data();
 			} else {
-				$this->data_raw = file_get_contents($this->data_file);
+				$this->data_raw = file_get_contents($this->dataFile);
 			}
 		}
 		if ($this->data === null) {
@@ -763,16 +763,16 @@ class Request extends Hookable {
 			'headers' => $this->headers,
 			'cookies' => $this->cookies,
 			'data' => $this->data(),
-			'dataFile' => $this->data_file,
-			'inherited' => $this->data_inherit !== null,
+			'dataFile' => $this->dataFile,
+			'inherited' => $this->dataInherit !== null,
 			'requestData' => $this->requestData,
 			'files' => $this->files,
 			'url' => $this->url,
-			'urlParts' => $this->url_parts,
-			'userAgent' => $this->user_agent?->classify(),
+			'urlParts' => $this->urlParts,
+			'userAgent' => $this->userAgent?->classify(),
 			'ip' => $this->ip,
-			'serverIP' => $this->server_ip,
-			'remoteIP' => $this->remote_ip,
+			'serverIP' => $this->serverIP,
+			'remoteIP' => $this->remoteIP,
 			'initialized' => $this->init,
 			'DEFAULT_URI' => self::DEFAULT_URI,
 			'DEFAULT_IP' => self::DEFAULT_IP,
@@ -806,7 +806,7 @@ class Request extends Hookable {
 	 */
 	public function setUrl(string $set): self {
 		$this->url = $set;
-		$this->url_parts = [];
+		$this->urlParts = [];
 		$this->_validURLParts();
 		$this->uri = $this->deriveURI();
 		return $this;
@@ -829,8 +829,8 @@ class Request extends Hookable {
 	 */
 	public function setPath(string $set = null): self {
 		$this->_validURLParts();
-		$this->url_parts['path'] = $set;
-		$this->url(URL::stringify($this->url_parts));
+		$this->urlParts['path'] = $set;
+		$this->url(URL::stringify($this->urlParts));
 		$this->uri = $this->deriveURI();
 		return $this;
 	}
@@ -862,7 +862,7 @@ class Request extends Hookable {
 	 */
 	public function host(): string {
 		$this->_validURLParts();
-		return $this->url_parts['host'] ?? '';
+		return $this->urlParts['host'] ?? '';
 	}
 
 	/**
@@ -872,7 +872,7 @@ class Request extends Hookable {
 	 */
 	public function port(): int {
 		$this->_validURLParts();
-		return intval($this->url_parts['port'] || URL::protocolPort($this->scheme()));
+		return intval($this->urlParts['port'] || URL::protocolPort($this->scheme()));
 	}
 
 	/**
@@ -882,7 +882,7 @@ class Request extends Hookable {
 	 */
 	public function scheme(): string {
 		$this->_validURLParts();
-		return $this->url_parts['scheme'] ?? 'http';
+		return $this->urlParts['scheme'] ?? 'http';
 	}
 
 	/**
@@ -892,7 +892,7 @@ class Request extends Hookable {
 	 */
 	public function query(): string {
 		$this->_validURLParts();
-		return $this->url_parts['query'] ?? '';
+		return $this->urlParts['query'] ?? '';
 	}
 
 	/**
@@ -900,7 +900,7 @@ class Request extends Hookable {
 	 * @return array
 	 */
 	public function urlComponents(): array {
-		return $this->url_parts;
+		return $this->urlParts;
 	}
 
 	/**
@@ -910,8 +910,8 @@ class Request extends Hookable {
 	 * @throws Exception_Key
 	 */
 	public function urlComponent(string $component): ?string {
-		if (array_key_exists($component, $this->url_parts)) {
-			return $this->url_parts[$component];
+		if (array_key_exists($component, $this->urlParts)) {
+			return $this->urlParts[$component];
 		}
 
 		throw new Exception_key($component);
@@ -984,15 +984,15 @@ class Request extends Hookable {
 	 * @return Net_HTTP_UserAgent
 	 */
 	public function userAgent(): Net_HTTP_UserAgent {
-		if (!$this->user_agent instanceof Net_HTTP_UserAgent) {
+		if (!$this->userAgent instanceof Net_HTTP_UserAgent) {
 			try {
 				$uaString = $this->header(Net_HTTP::REQUEST_USER_AGENT);
 			} catch (Exception_Key) {
 				$uaString = '';
 			}
-			$this->user_agent = new Net_HTTP_UserAgent($uaString);
+			$this->userAgent = new Net_HTTP_UserAgent($uaString);
 		}
-		return $this->user_agent;
+		return $this->userAgent;
 	}
 
 	/**
@@ -1010,7 +1010,7 @@ class Request extends Hookable {
 	 * @return string
 	 */
 	public function remoteIP(): string {
-		return $this->remote_ip;
+		return $this->remoteIP;
 	}
 
 	/**
@@ -1019,7 +1019,7 @@ class Request extends Hookable {
 	 * @return mixed
 	 */
 	public function serverIP(): string {
-		return $this->server_ip;
+		return $this->serverIP;
 	}
 
 	/**
@@ -1114,7 +1114,7 @@ class Request extends Hookable {
 	 * Ensure that ->url_parts is available to be read
 	 */
 	private function _validURLParts(): void {
-		if (count($this->url_parts)) {
+		if (count($this->urlParts)) {
 			return;
 		}
 
@@ -1123,7 +1123,7 @@ class Request extends Hookable {
 		} catch (Exception_Syntax) {
 			$parts = ['error' => 'syntax'];
 		}
-		$this->url_parts = $parts + [
+		$this->urlParts = $parts + [
 			'url' => $this->url, 'scheme' => 'http', 'host' => 'localhost', 'port' => 80, 'path' => '',
 		];
 	}
