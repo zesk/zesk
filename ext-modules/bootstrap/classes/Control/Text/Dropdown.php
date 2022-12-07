@@ -38,10 +38,10 @@ class Control_Text_Dropdown extends Control_Text {
 	 */
 	public function dropdown_menu(array $set = null) {
 		if ($set !== null) {
-			$this->theme_variables['dropdown_menu'] = $this->dropdown_menu = $set;
+			$this->themeVariables['dropdown_menu'] = $this->dropdown_menu = $set;
 			return $this;
 		}
-		return $this->theme_variables['dropdown_menu'];
+		return $this->themeVariables['dropdown_menu'];
 	}
 
 	public function dropdown_column($set = null) {
@@ -67,9 +67,9 @@ class Control_Text_Dropdown extends Control_Text {
 
 	public function dropdown_default($set = null) {
 		if ($set === null) {
-			return avalue($this->theme_variables, 'dropdown_default');
+			return avalue($this->themeVariables, 'dropdown_default');
 		}
-		$this->theme_variables['dropdown_default'] = $set;
+		$this->themeVariables['dropdown_default'] = $set;
 		return $this;
 	}
 
@@ -99,7 +99,7 @@ class Control_Text_Dropdown extends Control_Text {
 
 	public function buttonLabel($set = null) {
 		if ($set !== null) {
-			$this->theme_variables[self::option_button_label] = $set;
+			$this->themeVariables[self::option_button_label] = $set;
 			$this->setOption(self::option_button_label, $set);
 			return $this;
 		}

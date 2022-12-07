@@ -21,7 +21,7 @@ use zesk\Locale;
 use zesk\Application;
 use zesk\Hookable;
 use zesk\ArrayTools;
-use zesk\HTML;
+use zesk\Exception_Semantics;
 
 /**
  * A regular expression pattern for matching email addresses anywhere (should delimit both ends in
@@ -363,6 +363,7 @@ function toBool(mixed $value, bool $default = null): ?bool {
 		return true;
 	}
 	if (!is_scalar($value)) {
+		/* is_scalar(null) === false */
 		return $default;
 	}
 	if (is_string($value)) {
@@ -626,7 +627,7 @@ function aevalue(array $a, string|int $k, mixed $default = null): mixed {
  *
  * @param mixed $mixed
  * @return string
- * @throws \zesk\Exception_Semantics
+ * @throws Exception_Semantics
  */
 function flatten(mixed $mixed): string {
 	if (is_array($mixed)) {
@@ -639,7 +640,7 @@ function flatten(mixed $mixed): string {
 		return method_exists($mixed, '__toString') ? strval($mixed) : flatten(get_object_vars($mixed));
 	}
 	if (is_scalar($mixed)) {
-		return strval($mixed);
+		return $mixed;
 	}
 	return JSON::encode($mixed);
 }

@@ -869,7 +869,6 @@ class Markdown extends Options {
 	}
 
 	private function _FormParagraphs($text) {
-
 		// Strip leading and trailing lines:
 		$text = trim($text, "\n");
 

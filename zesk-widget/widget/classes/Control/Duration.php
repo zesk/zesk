@@ -37,7 +37,7 @@ class Control_Duration extends Control_Select {
 			}
 		}
 		$locale->__('Control_Duration:={duration} (ends at {end_time}');
-		$this->theme_variables['data-format'] = $this->option('time_format', $locale->__('Control_Duration::time_format:={12hh}:{mm} {ampm}'));
+		$this->themeVariables['data-format'] = $this->option('time_format', $locale->__('Control_Duration::time_format:={12hh}:{mm} {ampm}'));
 	}
 
 	public function render(): string {

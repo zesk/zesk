@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk\Response;
 
+use zesk\Exception_Semantics;
 use zesk\JSON as zeskJSON;
 use zesk\Response;
 use zesk\ORM\JSONWalker;
@@ -42,7 +43,7 @@ class JSON extends Type {
 	 * @return Response
 	 */
 	public function setData(mixed $set): Response {
-		$this->parent->content_type(Response::CONTENT_TYPE_JSON);
+		$this->parent->setContentType(Response::CONTENT_TYPE_JSON);
 		$this->json = $set;
 		return $this->parent;
 	}
@@ -57,16 +58,17 @@ class JSON extends Type {
 
 	/**
 	 *
-	 * @return mixed
+	 * @return array
+	 * @throws Exception_Semantics
 	 */
-	public function toJSON(): string {
-		return $this->render(null);
+	public function toJSON(): array {
+		return zeskJSON::prepare($this->json, $this->json_serializer_methods, $this->json_serializer_arguments);
 	}
 
 	/**
 	 * @param array|string|null $content
 	 * @return string
-	 * @throws \zesk\Exception_Semantics
+	 * @throws Exception_Semantics
 	 */
 	public function render(array|string|null $content): string {
 		if (is_array($content)) {
@@ -78,14 +80,14 @@ class JSON extends Type {
 				$this->json = $content;
 			}
 		}
-		$content = zeskJSON::prepare($this->json, $this->json_serializer_methods, $this->json_serializer_arguments);
+		$content = $this->toJSON();
 		return $this->application->development() ? zeskJSON::encodePretty($content) : zeskJSON::encode($content);
 	}
 
 	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Response\Type::output()
+	 * @param $content
+	 * @return void
+	 * @throws Exception_Semantics
 	 */
 	public function output($content): void {
 		echo $this->render($content);

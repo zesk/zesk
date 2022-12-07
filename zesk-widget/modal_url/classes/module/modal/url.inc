@@ -21,7 +21,7 @@ class Module_Modal_URL extends zesk\Module_JSLib {
 		$response->javascript('/share/modal_url/js/jquery.modal_url.js', [
 			'share' => true,
 		]);
-		$response->javascript_inline($this->application->theme('modal/url', [
+		$response->inlineJavaScript($this->application->theme('modal/url', [
 			'id' => 'modal_url-modal',
 			'dismiss_button' => $this->optionBool('dismiss_button', true),
 		]), [

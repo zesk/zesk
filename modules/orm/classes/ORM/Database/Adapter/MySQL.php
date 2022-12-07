@@ -43,8 +43,8 @@ class ORM_Database_Adapter_MySQL extends ORM_Database_Adapter {
 				return true;
 			case 'varchar':
 				zesk()->deprecated();
-			// fall through
-			// no break
+				// fall through
+				// no break
 			case Class_ORM::type_string:
 				if (!is_numeric($size)) {
 					$column->setOption('sql_type', $is_bin ? 'blob' : 'text');

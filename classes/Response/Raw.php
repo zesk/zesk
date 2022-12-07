@@ -92,7 +92,7 @@ class Raw extends Type {
 	 * @return Response
 	 * @throws Exception_File_NotFound
 	 */
-	final public function download(string $file, string $name = '', string $type = '') {
+	final public function download(string $file, string $name = '', string $type = ''): Response {
 		if (!$name) {
 			$name = basename($file);
 		}
@@ -100,7 +100,7 @@ class Raw extends Type {
 		if (!$type) {
 			$type = 'attachment';
 		}
-		return $this->setFile($file)->setHeader('Content-Disposition', "$type; filename=\"$name\"")->nocache();
+		return $this->setFile($file)->setHeader('Content-Disposition', "$type; filename=\"$name\"")->noCache();
 	}
 
 	/**

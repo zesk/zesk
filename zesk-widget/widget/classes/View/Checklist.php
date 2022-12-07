@@ -9,7 +9,6 @@
 namespace zesk;
 
 class View_Checklist extends View {
-
 	// 	function defaults(Model $object) {
 	// 		if ($this->hasOption("table")) {
 	// 			$table = $this->option("table");

@@ -130,7 +130,7 @@ class Database_SQL extends \zesk\Database_SQL {
 					$column_sql = $column->sql_type();
 					return "ALTER TABLE $table_name CHANGE $column_name $column_sql PRIMARY KEY";
 				}
-			// no break
+				// no break
 			case Database_Index::TYPE_INDEX:
 				break;
 			default:
@@ -275,7 +275,7 @@ class Database_SQL extends \zesk\Database_SQL {
 				if ($default === null) {
 					return ' DEFAULT 0';
 				}
-			// no break
+				// no break
 			default:
 				break;
 		}

@@ -41,7 +41,7 @@ if ($job->dead()) {
 		} else {
 			echo HTML::div('.message dead col-sm-12', '');
 		}
-		?>
+?>
 		</div>
 	</div>
 </div>

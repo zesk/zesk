@@ -109,7 +109,7 @@ class Widget extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected array $theme_variables = [];
+	protected array $themeVariables = [];
 
 	/**
 	 * Class for context of this widget (typically, the outside HTML tag)
@@ -1776,7 +1776,7 @@ class Widget extends Hookable {
 			if ($this->request_index !== null) {
 				$input_name = StringTools::removeSuffix($input_name, '[]');
 				if ($this->request->has($input_name, false)) {
-					$new_value = $this->request->getArray($input_name);
+					$new_value = $this->request->getList($input_name);
 					$new_value = $this->sanitize($new_value);
 					$new_value = avalue($new_value, $this->request_index);
 					if ($new_value !== null && $new_value !== '') {
@@ -2234,8 +2234,8 @@ class Widget extends Hookable {
 		if (!$this->_initialize) {
 			$this->childrenInitialize();
 		}
-		if ($this->hasOption('theme_variables')) {
-			$this->theme_variables += $this->optionArray('theme_variables');
+		if ($this->hasOption('themeVariables')) {
+			$this->themeVariables += $this->optionArray('themeVariables');
 		}
 		$this->_initialize = true;
 	}
@@ -2339,7 +2339,7 @@ class Widget extends Hookable {
 	 * @return self
 	 */
 	public function setThemeVariables(array $set, bool $append = true): self {
-		$this->theme_variables = $append ? $set : $set + $this->theme_variables;
+		$this->themeVariables = $append ? $set : $set + $this->themeVariables;
 		return $this;
 	}
 
@@ -2373,7 +2373,7 @@ class Widget extends Hookable {
 			'errors' => $this->errors(),
 			'messages' => $this->messages(),
 			'content_children' => $this->content_children,
-		] + $this->theme_variables + $this->options;
+		] + $this->themeVariables + $this->options;
 	}
 
 	/**
@@ -2582,7 +2582,7 @@ class Widget extends Hookable {
 			// Continue
 			return true;
 		}
-		$ref = $this->request->get_not_empty('ref');
+		$ref = $this->request->getNotEmpty('ref');
 		$submit_url = $this->submitUrl();
 		$submit_url_default = $this->submitUrlDefault();
 		if ($this->optionBool('submit_skip_ref')) {

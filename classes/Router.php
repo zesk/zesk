@@ -212,12 +212,16 @@ class Router extends Hookable {
 	/**
 	 * Whether this router is cached; performance optimization
 	 *
-	 * @return Router
 	 * @param string $id
+	 * @return Router
 	 * @throws Exception_NotFound
 	 */
 	public function cached(string $id = ''): Router {
-		$item = $this->application->cache->getItem(__CLASS__);
+		try {
+			$item = $this->application->cache->getItem(__CLASS__);
+		} catch (\InvalidArgumentException $e) {
+			throw new Exception_NotFound($e->getMessage());
+		}
 		if (!$item->isHit()) {
 			throw new Exception_NotFound('Not cached');
 		}
@@ -336,8 +340,8 @@ class Router extends Hookable {
 	 */
 	public function match(Request $request): Route {
 		$this->request = $request;
-		$path = strval($request->path());
-		$method = strval($request->method());
+		$path = $request->path();
+		$method = $request->method();
 		if ($this->prefix) {
 			$path = StringTools::removePrefix($path, $this->prefix);
 		}
@@ -369,7 +373,7 @@ class Router extends Hookable {
 			$options['weight'] = ($this->weight_index++) / 1000;
 		}
 		$this->sorted = false;
-		return $this->routes[$path] = $route = $this->_add_route_id($this->_registerRoute(Route::factory($this, $path, $options)));
+		return $this->routes[$path] = $this->_add_route_id($this->_registerRoute(Route::factory($this, $path, $options)));
 	}
 
 	/**
@@ -490,7 +494,7 @@ class Router extends Hookable {
 		$options = toArray($options);
 		$route = $options['current_route'] ?? null;
 		if ($route instanceof Route) {
-			$options += $route->arguments_named();
+			$options += $route->argumentsNamed();
 		}
 		if (is_object($object) && $object instanceof Hookable) {
 			$try_classes = $app->classes->hierarchy($object, Model::class);

@@ -26,7 +26,7 @@ class Control_Checklist_Bitmask extends Control_Checklist {
 	protected function load(): void {
 		$name = $this->name();
 		$result = 0;
-		foreach ($this->request->getArray($name) as $item) {
+		foreach ($this->request->getList($name) as $item) {
 			$result = $result | intval($item);
 		}
 		$this->value($result);

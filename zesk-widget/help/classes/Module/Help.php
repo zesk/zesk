@@ -272,7 +272,7 @@ class Module_Help extends Module_JSLib {
 			return;
 		}
 		$application = $this->application;
-		$ids = $request->getArray('id', []);
+		$ids = $request->getList('id', []);
 		foreach ($ids as $id) {
 			$application->ormFactory('zesk\\Help', $id)->show();
 		}
@@ -292,7 +292,7 @@ class Module_Help extends Module_JSLib {
 			return;
 		}
 		$application = $this->application;
-		$ids = $request->getArray('id', []);
+		$ids = $request->getList('id', []);
 		foreach ($ids as $id) {
 			$help = $application->ormFactory('zesk\\Help', $id)->fetch();
 			if ($help) {

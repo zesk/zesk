@@ -39,7 +39,7 @@ $application->logger->error("Exception: {exception_class}\nMessage: {message}\nS
 			'content' => $exception->getTrace(),
 		]);
 	}
-	?>
+?>
 </div>
 <?php
 echo $this->end();

@@ -24,7 +24,7 @@ class Control_Data extends Control {
 		if (!is_array($current_value)) {
 			$current_value = [];
 		}
-		$value = $this->request->getArray($column);
+		$value = $this->request->getList($column);
 		if (is_array($value)) {
 			if ($this->hasOption('allow_keys')) {
 				$value = ArrayTools::filter($value, $this->allow_keys());

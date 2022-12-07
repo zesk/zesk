@@ -168,8 +168,8 @@ class Control_Selection extends Control {
 				break;
 			default:
 				$message = null; //__("Updated selection");
-				$add = $request->getArray('add');
-				$remove = $request->getArray('remove');
+				$add = $request->getList('add');
+				$remove = $request->getList('remove');
 				$type->items_update($add, $remove);
 				$result += [
 					'added' => count($add),

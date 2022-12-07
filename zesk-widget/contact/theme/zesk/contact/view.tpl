@@ -68,21 +68,21 @@ $show_links = $this->get('show_links', true);
 		<a href="/contact/edit/<?php echo $id?>" class="action-button">Edit</a>
 	<?php
 	}
-	?>
+?>
 	<div class="contact-person">
 		<?php echo HTML::etag('h1', '.person-full-name', $person->full_name())?>
 		<?php
-		if ($person->Title && $person->Company) {
-			?>
+	if ($person->Title && $person->Company) {
+		?>
 		<h2 class="person-title-company"><?php echo $person->Title?>, <?php echo $person->Company?></h2>
 		<?php
-		} else {
-			?>
+	} else {
+		?>
 		<?php echo HTML::etag('h2', '.person-title', $person->Title)?>
 		<?php echo HTML::etag('h2', '.person-company', $person->Company)?>
 		<?php
-		}
-		?>
+	}
+?>
 	</div>
 <?php
 

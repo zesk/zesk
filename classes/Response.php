@@ -290,15 +290,53 @@ class Response extends Hookable {
 	}
 
 	/**
+	 *
+	 * @return string
+	 */
+	public function statusMessage(): string {
+		return $this->status_message;
+	}
+
+	/**
+	 *
+	 * @param string $error_string
+	 * @return $this
+	 */
+	public function setStatusMessage(string $error_string): self {
+		$this->status_message = $error_string;
+		return $this;
+	}
+
+	/**
+	 * If code is unknown, coverts to 500 automatically
+	 * Also sets status message if not passed in; uses default.
+	 *
+	 * @param int $error_code
+	 * @param ?string $error_string
+	 * @return $this
+	 */
+	public function setStatus(int $error_code, string $error_string = null): self {
+		$codes = Net_HTTP::$status_text;
+		$code = array_key_exists($error_code, $codes) ? $error_code : 500;
+		$this->status_code = $code;
+		if ($error_string === null) {
+			$error_string = $codes[$code] ?? (array_key_exists($error_code, $codes) ? '' : "Unknown code $error_code");
+		}
+		$this->setStatusMessage($error_string);
+		return $this;
+	}
+
+	/**
 	 * These are not saved as part of cached headers, generally speaking
 	 *
 	 * @param string $name
 	 * @param string $value
 	 * @param array $options
-	 * @return self
+	 * @throws Exception_Semantics
+	 * @return ?self
 	 */
-	public function cookie(string $name, mixed $value = null, array $options = []) {
-		$expire = avalue($options, 'expire', $this->option('cookie_expire'));
+	public function setCookie(string $name, array|string $value = null, array $options = []): ?self {
+		$expire = $options['expire'] ?? $this->option('cookie_expire');
 		if ($expire instanceof Timestamp) {
 			$n_seconds = $expire->subtract(Timestamp::now($expire->timeZone()));
 		} elseif (is_int($expire)) {
@@ -323,21 +361,38 @@ class Response extends Hookable {
 			$domain = Domain::domainFactory($this->application, $host)->computeCookieDomain();
 		}
 		$expire_time = $n_seconds ? time() + $n_seconds : null;
-		if ($this->request->isBrowser()) {
-			setcookie($name, null);
-			if (!empty($value)) {
-				setcookie($name, $value, $expire_time, $path, ".$domain", $secure);
-			}
+		if (!$this->request->isBrowser()) {
+			throw new Exception_Semantics('Not a browser');
+		}
+		setcookie($name, null);
+		if (!empty($value)) {
+			setcookie($name, $value, $expire_time, $path, ".$domain", $secure);
 		}
 		return $this;
+	}
+
+	/**
+	 * These are not saved as part of cached headers, generally speaking
+	 *
+	 * @param string $name
+	 * @param string $value
+	 * @param array $options
+	 * @return self
+	 * @deprecated 2022-12
+	 */
+	public function cookie(string $name, mixed $value = null, array $options = []) {
+		$this->application->deprecated(__METHOD__);
+		return $this->setCookie($name, $value, $options);
 	}
 
 	/**
 	 * Set up redirect debugging
 	 *
 	 * @return bool
+	 * @deprecated 2022-12
 	 */
 	public function debug_redirect(): bool {
+		$this->application->deprecated(__METHOD__);
 		return $this->debugRedirect();
 	}
 
@@ -401,7 +456,7 @@ class Response extends Hookable {
 		if ($do_hooks) {
 			$this->callHook('headers');
 		}
-		if (begins($this->content_type, 'text/')) {
+		if (str_starts_with($this->content_type, 'text/')) {
 			if (empty($this->charset)) {
 				$this->charset = 'utf-8';
 			}
@@ -412,9 +467,7 @@ class Response extends Hookable {
 		if ($this->application->development() && $this->application->configuration->getPath([
 			__CLASS__, 'json_to_html',
 		])) {
-			if (in_array($this->content_type, [
-				self::CONTENT_TYPE_JSON,
-			])) {
+			if ($this->content_type == self::CONTENT_TYPE_JSON) {
 				$content_type = 'text/html; charset=' . $this->charset;
 			}
 		}
@@ -479,7 +532,7 @@ class Response extends Hookable {
 	 *
 	 * @return \zesk\Response
 	 */
-	final public function nocache() {
+	final public function noCache(): self {
 		$this->cache_settings = [];
 		$this->header('Cache-Control', 'no-cache, must-revalidate');
 		$this->header('Pragma', 'no-cache');
@@ -522,19 +575,6 @@ class Response extends Hookable {
 	 */
 	final public function contentType(): string {
 		return $this->content_type;
-	}
-
-	/**
-	 * Getter/setter for output handler for this response. Generally affects which
-	 * Type handles output. If you want to force a handler, specify it as a parameter
-	 * to force handler usage upon output. See \zesk\Response\Raw for pattern which uses this.
-	 *
-	 * @param ?string $set
-	 * @return self|string
-	 */
-	final public function output_handler(string $set = null): self|string {
-		$this->application->deprecated(__METHOD__);
-		return $set ? $this->setOutputHandler($set) : $this->outputHandler();
 	}
 
 	/**
@@ -896,13 +936,12 @@ class Response extends Hookable {
 	 *
 	 * @param string $type String of content type to find/create.
 	 * @return Type
-	 * @throws Exception_Semantics When no content type is set
 	 */
 	private function _type(string $type): Type {
 		if (isset($this->types[$type])) {
 			return $this->types[$type];
 		}
-		if (!isset(self::$type_classes[$type])) {
+		if (!array_key_exists($type, self::$type_classes)) {
 			return $this->_type(self::CONTENT_TYPE_RAW);
 		}
 		return $this->types[$type] = $this->application->factory(self::$type_classes[$type], $this);
@@ -953,9 +992,7 @@ class Response extends Hookable {
 	/**
 	 * Get/set HTML attributes
 	 *
-	 * @param string $add
-	 * @param string $value
-	 * @return Response|string[]
+	 * @return array
 	 */
 	final public function htmlAttributes(): array {
 		return $this->html()->attributes();
@@ -1001,7 +1038,10 @@ class Response extends Hookable {
 		return $this->html()->setMetaKeywords($content);
 	}
 
-	final public function metaKeywords(): string {
+	/**
+	 * @return array
+	 */
+	final public function metaKeywords(): array {
 		return $this->html()->metaKeywords();
 	}
 
@@ -1018,7 +1058,7 @@ class Response extends Hookable {
 	 * Set meta description text
 	 *
 	 * @param string $content
-	 * @return Response|string
+	 * @return self
 	 */
 	final public function setMetaDescription(string $content): self {
 		return $this->html()->setMetaDescription($content);
@@ -1042,17 +1082,37 @@ class Response extends Hookable {
 	/**
 	 * Set the page theme to use to render the final HTML output
 	 *
+	 * @return string
+	 */
+	final public function pageTheme(): string {
+		return $this->html()->pageTheme();
+	}
+
+	/**
+	 * Set the page theme to use to render the final HTML output
+	 *
+	 * @param string $set
+	 * @return self
+	 */
+	final public function setPageTheme(string $set): self {
+		$this->html()->setPageTheme($set);
+		return $this;
+	}
+
+	/**
+	 * Set the page theme to use to render the final HTML output
+	 *
 	 * @param null|string $set
 	 * @return self|string
 	 */
-	final public function page_theme($set = false) {
-		return $this->html()->page_theme($set);
+	final public function page_theme(string $set = null): string|self {
+		return $set ? $this->setPageTheme($set) : $this->pageTheme();
 	}
 
 	/**
 	 * Register a javascript to be put on the page
 	 *
-	 * @param string $path
+	 * @param string|array $path
 	 *            File path to serve for the javascript
 	 * @param array $options
 	 *            Optional settings: type (defaults to text/javascript), browser (defaults to all
@@ -1060,7 +1120,7 @@ class Response extends Hookable {
 	 *            cdn (defaults to false)
 	 * @return Response
 	 */
-	final public function javascript($path, $options = null) {
+	final public function javascript(string|array $path, array $options = []) {
 		return $this->html()->javascript($path, $options);
 	}
 
@@ -1068,10 +1128,11 @@ class Response extends Hookable {
 	 * Include JavaScript to be included inline in the page
 	 *
 	 * @param string $script
-	 * @param string $options
+	 * @param array $options
 	 * @return Response
+	 * @throws Exception_Semantics
 	 */
-	final public function javascript_inline($script, $options = null) {
+	final public function inlineJavaScript(string $script, array $options = []): self§ {
 		return $this->html()->inlineJavaScript($script, $options);
 	}
 
@@ -1087,10 +1148,11 @@ class Response extends Hookable {
 	/**
 	 * Require jQuery on the page, and optionally add a ready script
 	 *
-	 * @param string $add_ready_script
-	 * @param string $weight
+	 * @param string|array|null $add_ready_script
+	 * @param int $weight
+	 * @return Response
 	 */
-	final public function jquery($add_ready_script = null, $weight = null) {
+	final public function jquery(string|array $add_ready_script = null, int $weight = 0) {
 		return $this->html()->jquery($add_ready_script, $weight);
 	}
 
@@ -1101,10 +1163,9 @@ class Response extends Hookable {
 	/**
 	 * Fetch JSON handler
 	 *
-	 * @param string $set
 	 * @return JSON
 	 */
-	final public function json() {
+	final public function json(): JSON {
 		if (func_num_args() !== 0) {
 			zesk()->deprecated('{method} takes NO arguments', [
 				'method' => __METHOD__,
@@ -1126,16 +1187,30 @@ class Response extends Hookable {
 	 * response data
 	 * </code>
 	 *
-	 * @param array $extras
-	 * @param string $add
-	 * @return array|Response
+	 * @param array $data
+	 * @param bool $add
+	 * @return Response
 	 */
-	final public function response_data(array $data = null, $add = true) {
-		if ($data === null) {
-			return $this->response_data;
-		}
+	final public function setResponseData(array $data, bool $add = true): self {
 		$this->response_data = $add ? $data + $this->response_data : $data;
 		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	final public function responseData(): array {
+		return $this->response_data;
+	}
+
+	/**
+	 * @param array|null $data
+	 * @param bool $add
+	 * @return array|$this
+	 */
+	final public function response_data(array $data = null, bool $add = true): self|array {
+		$this->application->deprecated(__METHOD__);
+		return ($data === null) ? $this->responseData() : $this->setResponseData($data, $add);
 	}
 
 	/*====================================================================================================*\
@@ -1148,19 +1223,31 @@ class Response extends Hookable {
 	 * @param string $set
 	 * @return Raw
 	 */
-	final public function raw() {
+	final public function raw(): Raw {
 		return $this->_type(self::CONTENT_TYPE_RAW);
 	}
 
 	/**
 	 * Output a file
 	 *
-	 * @param unknown $file
-	 * @return string|\zesk\Response
+	 * @param string|null $file
+	 * @return string|$this
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_Semantics
+	 */
+	final public function file(string $file = null): string|self {
+		return $file ? $this->setRawFile($file) : $this->raw()->file();
+	}
+
+	/**
+	 * Output a file
+	 *
+	 * @param string $file
+	 * @return $this
 	 * @throws Exception_File_NotFound
 	 */
-	final public function file($file = null) {
-		return $this->raw()->file($file);
+	final public function setRawFile(string $file): self {
+		return $this->raw()->setFile($file);
 	}
 
 	/**
@@ -1172,9 +1259,10 @@ class Response extends Hookable {
 	 *            File name given to browser to save the file
 	 * @param string $type
 	 *            Content disposition type (attachment)
-	 * @return \zesk\Response
+	 * @return Response
+	 * @throws Exception_File_NotFound
 	 */
-	final public function download($file, $name = null, $type = null) {
+	final public function download(string $file, string $name = null, string $type = null): Response {
 		return $this->raw()->download($file, $name, $type);
 	}
 
@@ -1185,30 +1273,27 @@ class Response extends Hookable {
 	/**
 	 * Fetch Redirect handler
 	 *
-	 * @param string $url
-	 * @param string $message
 	 * @return Redirect
 	 */
-	final public function redirect($url = null, $message = null) {
+	final public function redirect(string $url = null): Redirect {
 		if ($url) {
 			$this->application->deprecated('[method} support for URL and message is deprecated 2018-01', [
 				'method' => __METHOD__,
 			]);
-			return $this->redirect()->url($url, $message);
 		}
-		$this->output_handler(self::HANDLER_REDIRECT);
-		return $this->_type(self::HANDLER_REDIRECT);
+		return $this->setOutputHandler(self::HANDLER_REDIRECT)->_type(self::HANDLER_REDIRECT);
 	}
 
 	/**
 	 * If ref is passed in by request, redirect to that location, otherwise, redirect to passed in
-	 * URL
+	 * URL.
 	 *
 	 * @param string $url
-	 * @param string $message
-	 *            Already-localized message to display to user on redirected page
+	 * @param string|null $message Already-localized message to display to user on redirected page
+	 * @return void
+	 * @throws Exception_Redirect
 	 */
-	public function redirect_default($url, $message = null): void {
+	public function redirectDefault(string $url, string $message = null): void {
 		$ref = $this->request->get('ref', '');
 		if (!empty($ref)) {
 			$url = $ref;
@@ -1218,10 +1303,10 @@ class Response extends Hookable {
 
 	/**
 	 *
-	 * @return \zesk\Response
+	 * @return self
 	 */
-	public function redirect_message_clear() {
-		$this->redirect()->message_clear();
+	public function redirectMessageClear(): self {
+		$this->redirect()->messageClear();
 		return $this;
 	}
 
@@ -1230,30 +1315,45 @@ class Response extends Hookable {
 	 * @param string $message
 	 * @return \zesk\Response
 	 */
-	public function redirect_message($message = null) {
-		return $this->redirect()->message($message);
+	public function setRedirectMessage(string $message) {
+		return $this->redirect()->setMessage($message);
+	}
+
+	/**
+	 *
+	 * @return string
+	 */
+	public function redirectMessage(): string {
+		return $this->redirect()->message();
+	}
+
+	/**
+	 * Getter/setter for skipping response headers (uses PHP header()) during output
+	 *
+	 * @return bool
+	 */
+	public function skipResponseHeaders(): bool {
+		return $this->optionBool('skip_response_headers');
 	}
 
 	/**
 	 * Getter/setter for skipping response headers (uses PHP header()) during output
 	 *
 	 * @param boolean $set
-	 * @return boolean|self
+	 * @return self
 	 */
-	public function skip_response_headers($set = null) {
-		return $set === null ? $this->optionBool('skip_response_headers') : $this->setOption('skip_response_headers', toBool($set));
+	public function setSkipResponseHeaders(bool $set): self {
+		return $this->setOption('skip_response_headers', $set);
 	}
 
 	/**
-	 * Getter/setter for content
+	 * Getter for content
 	 *
-	 * @param string|NULL $content
-	 * @return \zesk\Response|string
+	 * @return string
 	 */
-	public function content($content = null) {
+	public function content($content = null): string {
 		if ($content !== null) {
-			$this->content = $content;
-			return $this;
+			$this->application->deprecated(__METHOD__ . ' setter');
 		}
 		return $this->content;
 	}
@@ -1262,10 +1362,35 @@ class Response extends Hookable {
 	 * Getter/setter for content
 	 *
 	 * @param string|NULL $content
-	 * @return \zesk\Response|string
+	 * @return self
 	 */
 	public function setContent(string $content = null): self {
 		$this->content = $content;
 		return $this;
+	}
+
+	/**
+	 * Getter/setter for output handler for this response. Generally affects which
+	 * Type handles output. If you want to force a handler, specify it as a parameter
+	 * to force handler usage upon output. See \zesk\Response\Raw for pattern which uses this.
+	 *
+	 * @param ?string $set
+	 * @return self|string
+	 * @deprecated 2022-12
+	 */
+	final public function output_handler(string $set = null): self|string {
+		$this->application->deprecated(__METHOD__);
+		return $set ? $this->setOutputHandler($set) : $this->outputHandler();
+	}
+
+	/**
+	 *
+	 * @param string $message
+	 * @return \zesk\Response
+	 * @deprecated 2022-12
+	 */
+	public function redirect_message($message = null) {
+		$this->application->deprecated(__METHOD__);
+		return $this->redirect()->message($message);
 	}
 }

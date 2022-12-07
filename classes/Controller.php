@@ -142,17 +142,30 @@ class Controller extends Hookable implements Interface_Theme {
 	}
 
 	/**
+	 * Get request
+	 *
+	 * @return Request
+	 * @throws Exception_Semantics
+	 */
+	public function request(Request $set = null): Request {
+		if ($set) {
+			$this->application->deprecated(__METHOD__ . ' setter');
+		}
+		if (!$this->request) {
+			throw new Exception_Semantics('Request not set');
+		}
+		return $this->request;
+	}
+
+	/**
 	 * Get/set request
 	 *
 	 * @param Request $set
-	 * @return Controller|Request
+	 * @return self
 	 */
-	public function request(Request $set = null) {
-		if ($set) {
-			$this->request = $set;
-			return $this;
-		}
-		return $this->request;
+	public function setRequest(Request $set): self {
+		$this->request = $set;
+		return $this;
 	}
 
 	/**
@@ -225,7 +238,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 */
 	public function error(int $code, string $message = ''): self {
 		$this->response->status($code);
-		$this->response->content_type('text/html');
+		$this->response->setContentType('text/html');
 		$this->response->content = $message;
 		return $this;
 	}

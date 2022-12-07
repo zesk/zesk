@@ -19,5 +19,5 @@ if (!$this->hide_sort_icon) {
 		'href' => $this->orderby_url,
 		'alt' => $this->alt,
 	], HTML::span('title', $english) . $suffix);
-	?>
+?>
 </div>

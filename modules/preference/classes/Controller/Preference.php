@@ -91,7 +91,7 @@ class Controller_Preference extends Controller {
 					'type' => $type,
 					'route' => [
 						'indexed' => $this->route->arguments_indexed(),
-						'named' => $this->route->arguments_named(),
+						'named' => $this->route->argumentsNamed(),
 					],
 					'path' => $this->request->path(),
 					'whitelist' => array_keys($this->whitelist),

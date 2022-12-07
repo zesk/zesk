@@ -209,7 +209,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	}
 
 	public function action_spellchecker(Request $request, Response $response): void {
-		$params = $request->getArray('params');
+		$params = $request->getList('params');
 		$ll = $this->application->locale;
 		if (!is_array($params)) {
 			$response->json()->data([

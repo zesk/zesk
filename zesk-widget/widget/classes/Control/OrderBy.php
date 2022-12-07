@@ -97,7 +97,7 @@ class Control_OrderBy extends Control {
 		if ($list_order_by === true) {
 			$this->list_order_by($this->column());
 		}
-		$cur_sort_names = ArrayTools::clean($this->request->getArray($this->list_order_variable(), [], ';'), ['', null]);
+		$cur_sort_names = ArrayTools::clean($this->request->getList($this->list_order_variable(), [], ';'), ['', null]);
 		$k = $this->list_order_column();
 		$order_var = $this->list_order_variable();
 		$new_order = [];
@@ -158,15 +158,15 @@ class Control_OrderBy extends Control {
 		$new_query = [
 			$order_var => $new_key,
 		];
-		$this->theme_variables['orderby_url'] = URL::queryFormat($this->option('URI', $this->request->uri()), $new_query);
+		$this->themeVariables['orderby_url'] = URL::queryFormat($this->option('URI', $this->request->uri()), $new_query);
 
-		$this->theme_variables['list_order_column'] = $k;
-		$this->theme_variables['list_order_variable'] = $order_var;
-		$this->theme_variables['ascending'] = $ascending;
-		$this->theme_variables['selected'] = $selected;
-		$this->theme_variables['sort_order'] = $sort_order;
-		$this->theme_variables['alt'] = $alt;
-		$this->theme_variables['sort_number'] = $sort_number;
-		$this->theme_variables['sort_order'] = $sort_order;
+		$this->themeVariables['list_order_column'] = $k;
+		$this->themeVariables['list_order_variable'] = $order_var;
+		$this->themeVariables['ascending'] = $ascending;
+		$this->themeVariables['selected'] = $selected;
+		$this->themeVariables['sort_order'] = $sort_order;
+		$this->themeVariables['alt'] = $alt;
+		$this->themeVariables['sort_number'] = $sort_number;
+		$this->themeVariables['sort_order'] = $sort_order;
 	}
 }

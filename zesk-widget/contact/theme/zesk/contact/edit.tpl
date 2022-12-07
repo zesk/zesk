@@ -342,7 +342,7 @@ $fields = [
 					}
 					echo HTML::tag('li', $link);
 				}
-				?></ul>
+?></ul>
 			</div>
 		</div>
 		<div class="contact-person">

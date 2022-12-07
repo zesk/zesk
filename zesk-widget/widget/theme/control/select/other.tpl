@@ -15,7 +15,7 @@ namespace zesk;
 				'data-value' => $value,
 			], $label));
 		}
-		?></ul>
+?></ul>
 	</div>
 	<?php
 	$input_attributes = [
@@ -24,6 +24,6 @@ namespace zesk;
 	] + $this->widget->dataAttributes() + $this->widget->inputAttributes() + [
 		'value' => $this->value,
 	];
-	echo HTML::tag('input', $input_attributes, null);
-	?>
+echo HTML::tag('input', $input_attributes, null);
+?>
 </div>

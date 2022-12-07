@@ -45,7 +45,6 @@ class PHPUnit_TestCase extends TestCase {
 	 * Ensures our zesk variables above are properly populated
 	 */
 	public function setUp(): void {
-
 		/*
 		 * Set up our state
 		 */

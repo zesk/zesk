@@ -233,7 +233,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			] + $options);
 			return;
 		}
-		$this->response->redirect_default($redirect_url, $message);
+		$this->response->redirectDefault($redirect_url, $message);
 	}
 
 	/**
@@ -309,7 +309,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			]);
 			return;
 		}
-		$this->response->redirect_default($redirect_url, $message);
+		$this->response->redirectDefault($redirect_url, $message);
 	}
 
 	/**

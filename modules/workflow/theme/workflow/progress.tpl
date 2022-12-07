@@ -8,6 +8,6 @@ $percent = intval($this->steps_completed * 100 / $this->steps_total);
 		echo __('{percent}% complete', [
 			'percent' => $percent,
 		]);
-		?></label>
+?></label>
 	</div>
 </div>

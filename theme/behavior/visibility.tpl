@@ -96,7 +96,7 @@ if ($hide_values === null && $show_values === null) {
 }(window.jQuery));
 <?php
 } else {
-		?>
+	?>
 (function ($) {
 	var update = function () {
 		var
@@ -114,5 +114,5 @@ if ($hide_values === null && $show_values === null) {
 	{target-expression}.change(update);
 }(window.jQuery));
 <?php
-	}
+}
 $response->html()->jquery(map(ob_get_clean(), $map));

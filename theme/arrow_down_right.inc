@@ -25,36 +25,36 @@ $this->state_url = htmlspecialchars($this->state_url);
 	<a class="toggle-arrow"
 		href="javascript:arrow_down_right<?php
 		echo $suffix;
-		?>('<?php
-		echo $this->id_class;
-		?>','<?php
-		echo $this->state_url;
-		?>')"><img alt=""
+?>('<?php
+echo $this->id_class;
+?>','<?php
+echo $this->state_url;
+?>')"><img alt=""
 		src="<?php
-		echo $application->url('/share/images/toggle/small-' . ($this->is_open ? 'down' : 'right') . '.gif');
-		?>"
+echo $application->url('/share/images/toggle/small-' . ($this->is_open ? 'down' : 'right') . '.gif');
+?>"
 		id="<?php
-		echo $this->id_class;
-		?>_img" /></a><?php
-		echo "<$this->label_tag>";
-		?><a <?php
-		if (isset($this->class)) {
-			?>
+echo $this->id_class;
+?>_img" /></a><?php
+echo "<$this->label_tag>";
+?><a <?php
+if (isset($this->class)) {
+	?>
 		class="<?php
-			echo $this->class; ?>" <?php
-		}
-		?>
+	echo $this->class; ?>" <?php
+}
+?>
 		href="javascript:arrow_down_right<?php
 
-		echo $suffix;
-		?>('<?php
+echo $suffix;
+?>('<?php
 
-		echo $this->id_class;
-		?>','<?php
+echo $this->id_class;
+?>','<?php
 
-		echo $this->state_url;
-		?>')"><?php
-		echo $this->title;
-		?></a><?php
-		echo "</$this->label_tag>";
-		?></div>
+echo $this->state_url;
+?>')"><?php
+echo $this->title;
+?></a><?php
+echo "</$this->label_tag>";
+?></div>

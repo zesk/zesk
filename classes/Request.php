@@ -93,7 +93,7 @@ class Request extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected array $variables = [];
+	protected array $requestData = [];
 
 	/**
 	 * Parsed file uploads (see $_FILES)
@@ -114,9 +114,7 @@ class Request extends Hookable {
 	 * @var array
 	 */
 	protected array $url_parts = [
-		'host' => null,
-		'scheme' => null,
-		'path' => null,
+		'host' => null, 'scheme' => null, 'path' => null,
 	];
 
 	/**
@@ -157,6 +155,8 @@ class Request extends Hookable {
 	 */
 	protected string $init = 'class';
 
+	public const DEFAULT_URI = '/';
+
 	/**
 	 *
 	 * @param Application $application
@@ -192,14 +192,13 @@ class Request extends Hookable {
 		}
 	}
 
-	public const DEFAULT_URI = '/';
-
 	/**
 	 * Create a Request from PHP Superglobals $_SERVER, $_COOKIE, $_GET, $_REQUEST
 	 *
 	 * Supports PUT, POST, GET and POST with application/json Content-Type parsing of JSON
 	 *
 	 * @return self
+	 * @throws Exception_Invalid
 	 */
 	public function initializeFromGlobals(): self {
 		$this->data_raw = null;
@@ -220,13 +219,12 @@ class Request extends Hookable {
 
 		$this->url_parts = [];
 
-		$this->variables = $this->defaultRequest();
+		$this->requestData = $this->defaultRequestData();
 
 		$this->init = 'globals';
 
 		$this->callHook([
-			'initialize',
-			'initializeFromGlobals',
+			'initialize', 'initializeFromGlobals',
 		]);
 
 		return $this;
@@ -243,7 +241,7 @@ class Request extends Hookable {
 		$this->uri = $request->uri;
 		$this->headers = $request->headers;
 		$this->cookies = $request->cookies;
-		$this->variables = $request->variables;
+		$this->requestData = $request->requestData;
 		$this->files = $request->files;
 		$this->url = $request->url;
 		$this->url_parts = $request->url_parts;
@@ -258,8 +256,7 @@ class Request extends Hookable {
 		$this->init = 'request';
 
 		$this->callHook([
-			'initialize',
-			'initializeFromRequest',
+			'initialize', 'initializeFromRequest',
 		]);
 
 		return $this;
@@ -289,7 +286,7 @@ class Request extends Hookable {
 			}
 		}
 		$this->cookies = toArray($settings['cookies'] ?? []);
-		$this->variables = toArray($settings['variables'] ?? []);
+		$this->requestData = toArray($settings['requestData'] ?? []);
 		$this->files = toArray($settings['files'] ?? []);
 		$this->url = $settings['url'] ?? '';
 		$this->url_parts = [];
@@ -315,12 +312,10 @@ class Request extends Hookable {
 		$this->ip = $settings['ip'] ?? self::DEFAULT_IP;
 		$this->remote_ip = $settings['remote_ip'] ?? self::DEFAULT_IP;
 		$this->server_ip = $settings['server_ip'] ?? self::DEFAULT_IP;
-		;
 
 		$this->init = 'settings';
 		$this->callHook([
-			'initialize',
-			'initializeFromSettings',
+			'initialize', 'initializeFromSettings',
 		]);
 
 		return $this;
@@ -371,8 +366,7 @@ class Request extends Hookable {
 		} catch (Exception_Key) {
 			return [
 				'*/*' => [
-					'q' => 1,
-					'pattern' => '#[^/]+/[^/]+#',
+					'q' => 1, 'pattern' => '#[^/]+/[^/]+#',
 				],
 			];
 		}
@@ -419,8 +413,7 @@ class Request extends Hookable {
 			}
 			$key = "$type/$subtype";
 			$attr['pattern'] = '#' . strtr($key, [
-				'*' => '[^/]+',
-				'+' => '\\+',
+				'*' => '[^/]+', '+' => '\\+',
 			]) . '#';
 			$result[$key] = $attr;
 		}
@@ -564,39 +557,11 @@ class Request extends Hookable {
 	}
 
 	/**
-	 * Is this used anywhere?
-	 *
-	 * @return bool
-	 */
-	public function isAjax(): bool {
-		if ($this->getBool('ajax')) {
-			return true;
-		}
-		return $this->get('ajax_id', null) !== null;
-	}
-
-	/**
-	 * Is this an AJAX call?
-	 *
-	 * @return boolean
-	 * @deprecated 2018-03-29 Use prefer_json exclusively
-	 *
-	 */
-	public function is_ajax(): bool {
-		$this->application->deprecated(__METHOD__);
-		return $this->isAjax();
-	}
-
-	/**
-	 * Set or get the method for this request
+	 * Get the method for this request
 	 *
 	 * @return string
 	 */
-	public function method(string $set = null): string {
-		if ($set !== null) {
-			$this->application->deprecated('setter 2022-01');
-			$this->setMethod($set);
-		}
+	public function method(): string {
 		return $this->method;
 	}
 
@@ -605,14 +570,13 @@ class Request extends Hookable {
 	 *
 	 * @param string $method
 	 * @return $this
-	 * @throws Exception_Parameter
+	 * @throws Exception_Invalid
 	 */
 	public function setMethod(string $method): self {
 		$method = strtoupper($method);
 		if (!array_key_exists($method, Net_HTTP::$methods)) {
-			throw new Exception_Parameter('Unknown method in {method_name}({method}', [
-				'method_name' => __METHOD__,
-				'method' => $method,
+			throw new Exception_Invalid('Unknown method in {method_name}({method}', [
+				'method_name' => __METHOD__, 'method' => $method,
 			]);
 		}
 		$this->method = Net_HTTP::$methods[$method];
@@ -628,10 +592,10 @@ class Request extends Hookable {
 	 * @return mixed
 	 */
 	public function set(string $name, string|array $value = null, bool $overwrite = true): self {
-		if (!$overwrite && array_key_exists($name, $this->variables)) {
+		if (!$overwrite && array_key_exists($name, $this->requestData)) {
 			return false;
 		}
-		$this->variables[$name] = $value;
+		$this->requestData[$name] = $value;
 		return $this;
 	}
 
@@ -645,7 +609,7 @@ class Request extends Hookable {
 	 *
 	 * @return mixed
 	 */
-	public function get1(array|string $names, mixed $default = null): mixed {
+	public function getFirst(array|string $names, mixed $default = null): mixed {
 		$names = toList($names);
 		foreach ($names as $name) {
 			if ($this->has($name)) {
@@ -658,13 +622,12 @@ class Request extends Hookable {
 	/**
 	 * Retrieve a non-empty value from the request
 	 *
-	 * @param string $name
-	 *            Value to retrieve. Pass null to retrieve all non-empty values
+	 * @param string $name Value to retrieve.
 	 * @param mixed $default
-	 * @return array|mixed
+	 * @return mixed
 	 */
-	public function get_not_empty(string $name, mixed $default = null): mixed {
-		return $this->variables[$name] ?? $default;
+	public function getNotEmpty(string $name, mixed $default = null): mixed {
+		return array_key_exists($name, $this->requestData) ? (empty($this->requestData[$name]) ? $default : $this->requestData[$name]) : $default;
 	}
 
 	/**
@@ -675,7 +638,7 @@ class Request extends Hookable {
 	 * @return mixed
 	 */
 	public function get(string $name, mixed $default = null): mixed {
-		return $this->variables[$name] ?? $default;
+		return $this->requestData[$name] ?? $default;
 	}
 
 	/**
@@ -686,10 +649,10 @@ class Request extends Hookable {
 	 * @return boolean
 	 */
 	public function has(string $name, bool $check_empty = false): bool {
-		if (!array_key_exists($name, $this->variables)) {
+		if (!array_key_exists($name, $this->requestData)) {
 			return false;
 		}
-		return !$check_empty || !empty($this->variables[$name]);
+		return !$check_empty || !empty($this->requestData[$name]);
 	}
 
 	/**
@@ -697,10 +660,10 @@ class Request extends Hookable {
 	 *
 	 * @param string $name
 	 * @param mixed $default
-	 * @return boolean|mixed
+	 * @return bool
 	 */
 	public function getBool(string $name, bool $default = false): bool {
-		return toBool($this->get($name, $default), $default);
+		return toBool($this->get($name), $default);
 	}
 
 	/**
@@ -711,7 +674,7 @@ class Request extends Hookable {
 	 * @return float
 	 */
 	public function getFloat(string $name, float $default = 0.0): float {
-		return toFloat($this->get($name, $default), $default);
+		return toFloat($this->get($name), $default);
 	}
 
 	/**
@@ -721,8 +684,8 @@ class Request extends Hookable {
 	 * @param int $default
 	 * @return int
 	 */
-	public function getInt(string $name, int $default = null): int {
-		return toInteger($this->get($name, $default), $default);
+	public function getInt(string $name, int $default = 0): int {
+		return toInteger($this->get($name), $default);
 	}
 
 	/**
@@ -732,10 +695,10 @@ class Request extends Hookable {
 	 * @param mixed $default
 	 * @param string $sep
 	 *            For string values, split on this character
-	 * @return array|mixed
+	 * @return array
 	 */
-	public function getArray(string $name, array $default = [], string $sep = ';'): array {
-		$x = $this->get($name, $default);
+	public function getList(string $name, array $default = [], string $sep = ';'): array {
+		$x = $this->get($name);
 		if (is_array($x)) {
 			return $x;
 		}
@@ -789,15 +752,41 @@ class Request extends Hookable {
 	}
 
 	/**
+	 * Retrieve system variables for this request (method, url, etc.)
+	 *
+	 * @return array
+	 */
+	public function variables(): array {
+		return [
+			'method' => $this->method,
+			'uri' => $this->uri,
+			'headers' => $this->headers,
+			'cookies' => $this->cookies,
+			'data' => $this->data(),
+			'dataFile' => $this->data_file,
+			'inherited' => $this->data_inherit !== null,
+			'requestData' => $this->requestData,
+			'files' => $this->files,
+			'url' => $this->url,
+			'urlParts' => $this->url_parts,
+			'userAgent' => $this->user_agent?->classify(),
+			'ip' => $this->ip,
+			'serverIP' => $this->server_ip,
+			'remoteIP' => $this->remote_ip,
+			'initialized' => $this->init,
+			'DEFAULT_URI' => self::DEFAULT_URI,
+			'DEFAULT_IP' => self::DEFAULT_IP,
+		];
+	}
+
+	/**
 	 * Retrieve all REQUEST variables for this request.
 	 * Does not include object attributes such as URL or others.
 	 *
 	 * @return array
-	 * @see self::urlComponents()
-	 *
 	 */
-	public function variables(): array {
-		return $this->variables;
+	public function requestData(): array {
+		return $this->requestData;
 	}
 
 	/**
@@ -829,7 +818,7 @@ class Request extends Hookable {
 	 * @return string
 	 */
 	public function path(): string {
-		return $this->url_variables('path');
+		return $this->urlVariables('path');
 	}
 
 	/**
@@ -908,11 +897,7 @@ class Request extends Hookable {
 
 	/**
 	 * Retrieve the URL component
-	 * @param string $component
-	 * @return array|string
-	 * @throws Exception_Key
-	 * @deprecated 2017-12
-	 * @see Request::urlComponents()
+	 * @return array
 	 */
 	public function urlComponents(): array {
 		return $this->url_parts;
@@ -935,11 +920,11 @@ class Request extends Hookable {
 	/**
 	 * Retrieve the URL component
 	 *
-	 * @param string $component
+	 * @param ?string $component
 	 * @return array|string
 	 * @throws Exception_Key
 	 */
-	public function url_variables(string $component = null, mixed $default = ''): string|array {
+	public function urlVariables(string $component = null, mixed $default = ''): string|array {
 		$this->_validURLParts();
 		if ($component === null) {
 			return $this->urlComponents();
@@ -969,10 +954,9 @@ class Request extends Hookable {
 	/**
 	 * Parse the range value
 	 *
-	 * @return NULL
 	 * @todo make this an object, maybe?
 	 */
-	public function range_parse() {
+	public function range_parse(): string {
 		$range = $this->header('Range');
 
 		$matches = null;
@@ -987,7 +971,11 @@ class Request extends Hookable {
 	 * @return boolean
 	 */
 	public function isBrowser(): bool {
-		return $this->header(Net_HTTP::REQUEST_USER_AGENT) !== null;
+		try {
+			return $this->header(Net_HTTP::REQUEST_USER_AGENT) !== null;
+		} catch (Exception_Key) {
+			return false;
+		}
 	}
 
 	/**
@@ -997,26 +985,31 @@ class Request extends Hookable {
 	 */
 	public function userAgent(): Net_HTTP_UserAgent {
 		if (!$this->user_agent instanceof Net_HTTP_UserAgent) {
-			$this->user_agent = new Net_HTTP_UserAgent($this->header(Net_HTTP::REQUEST_USER_AGENT));
+			try {
+				$uaString = $this->header(Net_HTTP::REQUEST_USER_AGENT);
+			} catch (Exception_Key) {
+				$uaString = '';
+			}
+			$this->user_agent = new Net_HTTP_UserAgent($uaString);
 		}
 		return $this->user_agent;
 	}
 
 	/**
-	 * Retrieve the IP address of the requestor, taking proxy server headers into consideration.
+	 * Retrieve the IP address of the request, taking proxy server headers into consideration.
 	 *
-	 * @return ?float
+	 * @return string
 	 */
 	public function ip(): string {
 		return $this->ip;
 	}
 
 	/**
-	 * Retrieve the IP address of the requestor, ignoring any proxy servers
+	 * Retrieve the IP address of the request, ignoring any proxy servers
 	 *
-	 * @return mixed|NULL
+	 * @return string
 	 */
-	public function remote_ip(): string {
+	public function remoteIP(): string {
 		return $this->remote_ip;
 	}
 
@@ -1025,7 +1018,7 @@ class Request extends Hookable {
 	 *
 	 * @return mixed
 	 */
-	public function server_ip(): string {
+	public function serverIP(): string {
 		return $this->server_ip;
 	}
 
@@ -1043,15 +1036,6 @@ class Request extends Hookable {
 	}
 
 	/**
-	 *
-	 * @param string $check Check value for user agent
-	 * @return bool
-	 */
-	public function user_agent_is(string $check): bool {
-		return $this->userAgentIs($check);
-	}
-
-	/**
 	 * @param string $check
 	 * @return
 	 */
@@ -1065,23 +1049,13 @@ class Request extends Hookable {
 	 * @see Options::__toString()
 	 */
 	public function __toString() {
-		return PHP::dump([
-			'method' => $this->method,
-			'uri' => $this->uri,
-			'url' => $this->url,
-			'data' => $this->data(),
-			'headers' => $this->headers,
-			'files' => $this->files,
-			'cookies' => $this->cookies,
-			'variables' => $this->variables,
-		]);
+		return PHP::dump($this->variables());
 	}
 
 	public static function maxUploadSizes(): array {
 		$result = [
 			'upload_max_filesize' => to_bytes(ini_get('upload_max_filesize'), 0),
-			'post_max_size' => to_bytes(ini_get('post_max_size')),
-			'memory_limit' => to_bytes(ini_get('memory_limit')),
+			'post_max_size' => to_bytes(ini_get('post_max_size')), 'memory_limit' => to_bytes(ini_get('memory_limit')),
 		];
 		$min_key = $min_value = null;
 		foreach ($result as $key => $value) {
@@ -1150,11 +1124,7 @@ class Request extends Hookable {
 			$parts = ['error' => 'syntax'];
 		}
 		$this->url_parts = $parts + [
-			'url' => $this->url,
-			'scheme' => 'http',
-			'host' => 'localhost',
-			'port' => 80,
-			'path' => '',
+			'url' => $this->url, 'scheme' => 'http', 'host' => 'localhost', 'port' => 80, 'path' => '',
 		];
 	}
 
@@ -1163,7 +1133,7 @@ class Request extends Hookable {
 	 *
 	 * @return array
 	 */
-	private function defaultRequest(): array {
+	private function defaultRequestData(): array {
 		if ($this->method === Net_HTTP::METHOD_PUT) {
 			// Support JSON
 			return $this->data() + $_GET;
@@ -1186,8 +1156,7 @@ class Request extends Hookable {
 		$headers = [];
 		foreach ($server as $key => $value) {
 			foreach ([
-				'http-' => true,
-				'content-' => false,
+				'http-' => true, 'content-' => false,
 			] as $prefix => $removePrefix) {
 				$len = strlen($prefix);
 				if (substr($key, 0, $len) === $prefix) {
@@ -1287,8 +1256,7 @@ class Request extends Hookable {
 			return true;
 		}
 		return $this->acceptPriority([
-			'application/json',
-			'text/html',
+			'application/json', 'text/html',
 		]) === 'application/json';
 	}
 
@@ -1301,9 +1269,7 @@ class Request extends Hookable {
 	 */
 	private static function _findRemoteKey(array $server): string {
 		$ks = [
-			'HTTP_CLIENT_IP',
-			'HTTP_X_FORWARDED_FOR',
-			'REMOTE_ADDR',
+			'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR',
 		];
 		foreach ($ks as $k) {
 			if (!isset($server[$k])) {
@@ -1322,5 +1288,30 @@ class Request extends Hookable {
 			}
 		}
 		return self::DEFAULT_IP;
+	}
+
+	/**
+	 *
+	 * @param string $check Check value for user agent
+	 * @return bool
+	 * @deprecated 2022-12
+	 */
+	public function user_agent_is(string $check): bool {
+		$this->application->deprecated(__METHOD__);
+		return $this->userAgentIs($check);
+	}
+
+	/**
+	 * Is this used anywhere?
+	 *
+	 * @return bool
+	 * @deprecated 2022-12
+	 */
+	public function isAjax(): bool {
+		$this->application->deprecated(__METHOD__);
+		if ($this->getBool('ajax')) {
+			return true;
+		}
+		return $this->get('ajax_id', null) !== null;
 	}
 }

@@ -45,22 +45,22 @@ $dev = $this->application->development();
 	echo $dev ? $class : strtr($class, '_', ' ')?>
 		<!--  <?php
 		echo $class;
-		?> -->
+?> -->
 	</h1>
 	<p>The computer error given was:</p>
 	<?php
 	echo HTML::tag('code', $message);
-	if ($dev) {
-		?><p>The call stack is:</p><?php
-		echo $this->theme('exception/trace', [
-			'content' => $trace,
-		]); ?>
+if ($dev) {
+	?><p>The call stack is:</p><?php
+	echo $this->theme('exception/trace', [
+		'content' => $trace,
+	]); ?>
 	<?php
-	}
-	if ($this->suffix) {
-		echo HTML::tag('p', $this->suffix);
-	}
-	?>
+}
+if ($this->suffix) {
+	echo HTML::tag('p', $this->suffix);
+}
+?>
 </div>
 <?php
 echo $this->end();

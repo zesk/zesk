@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage exception
  * @author kent
  * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -38,37 +40,46 @@ class Exception_Redirect extends Exception {
 	 * @param string $url
 	 * @param string $message
 	 */
-	public function __construct($url, $message = null, array $arguments = []) {
+	public function __construct(string $url, string $message = null, array $arguments = []) {
 		$this->url = $url;
 		parent::__construct($message, $arguments);
 	}
 
 	/**
 	 *
-	 * @param unknown $set
-	 * @return \zesk\Exception_Redirect|string
+	 * @param mixed $set
+	 * @return string
 	 */
-	public function url($set = null) {
+	public function url(mixed $set = null): string {
 		if ($set !== null) {
-			$this->url = $set;
-			return $this;
+			$this->parent->application->deprecated(__METHOD__ . ' setter');
 		}
 		return $this->url;
 	}
 
 	/**
 	 *
-	 * @return string|NULL
+	 * @param string $set
+	 * @return self
 	 */
-	public function status_message() {
-		return avalue($this->arguments, self::RESPONSE_STATUS_MESSAGE);
+	public function setURL(string $set): self {
+		$this->url = $set;
+		return $this;
 	}
 
 	/**
 	 *
-	 * @return integer|NULL
+	 * @return string
 	 */
-	public function status_code() {
-		return avalue($this->arguments, self::RESPONSE_STATUS_CODE);
+	public function statusMessage(): string {
+		return $this->arguments[self::RESPONSE_STATUS_MESSAGE] ?? '';
+	}
+
+	/**
+	 *
+	 * @return int
+	 */
+	public function statusCode(): int {
+		return toInteger($this->arguments[self::RESPONSE_STATUS_CODE] ?? -1, -1);
 	}
 }

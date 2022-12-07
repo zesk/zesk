@@ -54,7 +54,7 @@ $__ = [
 			'n' => $this->count,
 			'nouns' => $locale->plural($this->label, $this->count),
 		]));
-		?>
+?>
 		<span class="caret"></span>
 	</button>
 	<?php
@@ -62,33 +62,33 @@ $__ = [
 		'class' => 'dropdown-menu',
 		'role' => 'menu',
 	]);
-	echo HTML::tag('li', [
-		'role' => 'presentation',
-		'class' => 'dropdown-header',
-	], $locale('Control_Selection::selection_menu_header:=Modify selection ...', $__));
+echo HTML::tag('li', [
+	'role' => 'presentation',
+	'class' => 'dropdown-header',
+], $locale('Control_Selection::selection_menu_header:=Modify selection ...', $__));
 
-	$plural_noun = $locale->plural($this->label, 2);
-	foreach ([
-		'none' => $locale('Control_Selection::clear_selection:=Clear selection', $__),
-		'add-all' => $locale('Control_Selection::add_all:=Add {total} matching {nouns_total}', $__),
-		'remove-all' => $locale('Control_Selection::remove_all:=Remove {total} matching {nouns_total}', $__),
-	] as $k => $v) {
-		echo HTML::tag('li', HTML::tag('a', [
-			'data-select-action' => $k,
-		], $v));
-	}
-	echo HTML::tag('li', [
-		'role' => 'presentation',
-		'class' => 'dropdown-header',
-	], $locale('... or select individual {nouns} below', [
-		'nouns' => $plural_noun,
-	]));
-	echo HTML::tag_close('ul');
-	?>
+$plural_noun = $locale->plural($this->label, 2);
+foreach ([
+	'none' => $locale('Control_Selection::clear_selection:=Clear selection', $__),
+	'add-all' => $locale('Control_Selection::add_all:=Add {total} matching {nouns_total}', $__),
+	'remove-all' => $locale('Control_Selection::remove_all:=Remove {total} matching {nouns_total}', $__),
+] as $k => $v) {
+	echo HTML::tag('li', HTML::tag('a', [
+		'data-select-action' => $k,
+	], $v));
+}
+echo HTML::tag('li', [
+	'role' => 'presentation',
+	'class' => 'dropdown-header',
+], $locale('... or select individual {nouns} below', [
+	'nouns' => $plural_noun,
+]));
+echo HTML::tag_close('ul');
+?>
 </div>
 <?php
 if (is_array($this->actions) && count($this->actions) > 0) {
-		?>
+	?>
 <div class="btn-group control-selection-actions-menu">
 	<button type="button" class="btn btn-default dropdown-toggle"
 		data-toggle="dropdown">
@@ -103,22 +103,22 @@ if (is_array($this->actions) && count($this->actions) > 0) {
 		'class' => 'dropdown-menu',
 		'role' => 'menu',
 	]);
-		foreach ($this->actions as $href => $settings) {
-			if (is_string($settings)) {
-				$title = $settings;
-				$settings = [];
-			} elseif (!is_array($settings)) {
-				continue;
-			} else {
-				$title = $settings['title'];
-			}
-			$settings['href'] = map($href, [
-				'name' => $this->name,
-			]);
-			echo HTML::tag('li', HTML::tag('a', $settings, $title));
+	foreach ($this->actions as $href => $settings) {
+		if (is_string($settings)) {
+			$title = $settings;
+			$settings = [];
+		} elseif (!is_array($settings)) {
+			continue;
+		} else {
+			$title = $settings['title'];
 		}
-		echo HTML::tag_close('ul');
+		$settings['href'] = map($href, [
+			'name' => $this->name,
+		]);
+		echo HTML::tag('li', HTML::tag('a', $settings, $title));
 	}
+	echo HTML::tag_close('ul');
+}
 ?>
 	</div>
 <?php

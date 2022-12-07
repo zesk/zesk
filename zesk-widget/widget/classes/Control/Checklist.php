@@ -208,7 +208,7 @@ class Control_Checklist extends Control_Optionss {
 	 */
 	protected function load(): void {
 		$name = $this->name();
-		$values = $this->request->getArray($name);
+		$values = $this->request->getList($name);
 		foreach ($values as $value) {
 			try {
 				$child = $this->findChild($this->_child_name($value));
@@ -227,7 +227,7 @@ class Control_Checklist extends Control_Optionss {
 	 * @see Widget::submit()
 	 */
 	public function submit(): bool {
-		$values = $this->request->getArray($this->name());
+		$values = $this->request->getList($this->name());
 		if ($this->valueIsList()) {
 			$this->value(implode($this->option_separator(), $values));
 		} else {

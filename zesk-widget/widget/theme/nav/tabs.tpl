@@ -69,50 +69,50 @@ $title = $response->html()->title();
 	<ul class="nav nav-tabs">
 	<?php
 	$content = '';
-	$selected_tab = $first_name = null;
-	foreach ($this->children as $widget) {
-		$name = $widget->column();
-		if ($first_name === null) {
-			$first_name = $name;
-		}
-		if ($name === $this->selected_tab) {
-			$selected_tab = $name;
-			break;
-		}
+$selected_tab = $first_name = null;
+foreach ($this->children as $widget) {
+	$name = $widget->column();
+	if ($first_name === null) {
+		$first_name = $name;
 	}
-	if ($selected_tab === null) {
-		$selected_tab = $first_name;
+	if ($name === $this->selected_tab) {
+		$selected_tab = $name;
+		break;
 	}
-	/* @var $widget Widget */
-	foreach ($navs as $widget) {
-		$widget_content = $widget->render();
-		if (empty($widget_content)) {
-			continue;
-		}
-		$errors = $widget->children_errors();
-		$name = $widget->column();
-		$item_class = $name === $selected_tab ? 'active' : '';
-		$item_class = CSS::addClass($item_class, $widget->contextClass());
-		echo HTML::tag('li', [
-			'id' => 'nav-link-' . $widget->id(),
-			'class' => CSS::addClass($item_class, count($errors) > 0 ? 'error' : ''),
-		], HTML::tag('a', [
-			'href' => '#' . $name,
-			'data-toggle' => 'tab',
-		], $widget->label() . HTML::etag('span', '.badge error', count($errors))));
-		$content .= HTML::tag('div', [
-			'id' => $name,
-			'class' => 'tab-pane' . ($name === $selected_tab ? ' active' : ''),
-		], $widget_content);
-		$widget->content = '';
-		$widget->content_children = '';
+}
+if ($selected_tab === null) {
+	$selected_tab = $first_name;
+}
+/* @var $widget Widget */
+foreach ($navs as $widget) {
+	$widget_content = $widget->render();
+	if (empty($widget_content)) {
+		continue;
 	}
-	?>
+	$errors = $widget->children_errors();
+	$name = $widget->column();
+	$item_class = $name === $selected_tab ? 'active' : '';
+	$item_class = CSS::addClass($item_class, $widget->contextClass());
+	echo HTML::tag('li', [
+		'id' => 'nav-link-' . $widget->id(),
+		'class' => CSS::addClass($item_class, count($errors) > 0 ? 'error' : ''),
+	], HTML::tag('a', [
+		'href' => '#' . $name,
+		'data-toggle' => 'tab',
+	], $widget->label() . HTML::etag('span', '.badge error', count($errors))));
+	$content .= HTML::tag('div', [
+		'id' => $name,
+		'class' => 'tab-pane' . ($name === $selected_tab ? ' active' : ''),
+	], $widget_content);
+	$widget->content = '';
+	$widget->content_children = '';
+}
+?>
 	</ul>
 	<div class="tab-content"><?php
 
-	echo $content;
-	?></div>
+echo $content;
+?></div>
 </div>
 <?php
 /* @var $widget Widget */

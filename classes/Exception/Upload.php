@@ -49,7 +49,7 @@ class Exception_Upload extends Exception {
 		UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help. Introduced in PHP 5.2.0.',
 	];
 
-	public function __construct(int $error_code, \Exception $previous = null) {
+	public function __construct(int|string $error_code, \Exception $previous = null) {
 		parent::__construct(self::$messages[$error_code] ?? 'Unknown error code {error_code}', [
 			'error_code' => $error_code,
 		], $error_code, $previous);

@@ -101,8 +101,8 @@ class Net_HTTP_UserAgent {
 	 *
 	 * @param string $user_agent
 	 */
-	public function __construct($user_agent = null) {
-		$this->user_agent($user_agent);
+	public function __construct(string $user_agent) {
+		$this->setUserAgent($user_agent);
 	}
 
 	/**
@@ -147,7 +147,7 @@ class Net_HTTP_UserAgent {
 	 * @param string $set
 	 * @return self|string
 	 */
-	public function user_agent($set = null) {
+	public function user_agent(string $set = null) {
 		if ($set !== null) {
 			zesk()->deprecated(__METHOD__);
 		}
@@ -162,7 +162,7 @@ class Net_HTTP_UserAgent {
 	 * Set user agent
 	 *
 	 * @param string $set
-	 * @return self|string
+	 * @return self
 	 */
 	public function setUserAgent(string $set): self {
 		$this->user_agent = $set;
@@ -195,7 +195,7 @@ class Net_HTTP_UserAgent {
 	}
 
 	/**
-	 * Fetche the English classification strings
+	 * Fetch the English classification strings
 	 *
 	 * @return array
 	 */

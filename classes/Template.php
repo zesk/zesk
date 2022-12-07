@@ -528,7 +528,7 @@ class Template implements Interface_Theme {
 	 * Output
 	 *
 	 * @return string
-	 * @throws \Exception
+	 * @throws Exception_Redirect
 	 */
 	public function render(): string {
 		if (!$this->_path) {
@@ -545,6 +545,8 @@ class Template implements Interface_Theme {
 
 		try {
 			$this->return = include($this->_path);
+		} catch (Exception_Redirect $redirect) {
+			throw $redirect;
 		} catch (\Exception $_template_exception) {
 			$alt_exception = $this->application->hooks->call('exception', $_template_exception);
 			if ($alt_exception instanceof \Exception) {
@@ -559,7 +561,7 @@ class Template implements Interface_Theme {
 		}
 		$contents = ob_get_clean();
 		if ($_template_exception) {
-			throw $_template_exception;
+			$contents .= '<!-- TEMPLATE_EXCEPTION: ' . $_template_exception::class . ' -->';
 		}
 		if (self::$profile) {
 			ArrayTools::increment(self::$_stats['times'], $this->_path, microtime(true) - $__start);
@@ -714,9 +716,9 @@ class Template implements Interface_Theme {
 	 *            Arguments for the theme to render
 	 * @param array $options
 	 *            Extra options which effect how the theme request is interpreted
-	 * @see Application::theme
 	 * @return string|null
 	 * @throws Exception_Semantics
+	 * @see Application::theme
 	 */
 	final public function theme(array|string $types, array $arguments = [], array $options = []): ?string {
 		return $this->application->theme($types, $arguments, $options);

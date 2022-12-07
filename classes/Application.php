@@ -1011,10 +1011,10 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @return Router
 	 */
-	protected function hook_router() {
-		$router_file = File::extension_change($this->file, 'router');
+	protected function hook_router(): Router {
+		$router_file = File::setExtension($this->file, 'router');
 		$exists = is_file($router_file);
-		$cache = $this->option('cache_router', null);
+		$cache = $this->optionBool('cache_router');
 
 		$router = Router::factory($this);
 		if (!$exists) {
@@ -1024,7 +1024,10 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			$result = $router;
 		} else {
 			$mtime = strval(filemtime($router_file));
-			if (($result = $router->cached($mtime)) === null) {
+
+			try {
+				$result = $router->cached($mtime);
+			} catch (Exception_NotFound) {
 				$parser = new Parser(file_get_contents($router_file), $router_file);
 				$parser->execute($router, [
 					'_source' => $router_file,
@@ -1119,7 +1122,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		if ($ending_depth !== 0) {
 			$popped = array_pop($this->request_stack);
 			if ($popped !== $request) {
-				throw new Exception_Semantics('Request changed between push and pop? {origial} => {popped}', [
+				throw new Exception_Semantics('Request changed between push and pop? {original} => {popped}', [
 					'original' => $request->variables(), 'popped' => $popped->variables(),
 				]);
 			}
@@ -1615,7 +1618,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param array $arguments
 	 * @param array $options
 	 * @return string|null
-	 * @throws Exception_Semantics
+	 * @throws Exception_Redirect
 	 */
 	final public function theme(string|array $types, array $arguments = [], array $options = []): ?string {
 		if (!is_array($arguments)) {
@@ -1699,14 +1702,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param ?string $content Default content
 	 * @param string $extension
 	 * @return ?string
-	 * @throws Exception_Semantics
+	 * @throws Exception_Redirect
 	 */
 	private function _themeArguments(string $type, array $args, string $content = null, string $extension = '.tpl'): ?string {
-		if (!empty($extension) && $this->development() && str_ends_with($type, $extension)) {
-			throw new Exception_Semantics('Theme called with {extension} suffix - not required {type}', [
-				'type' => $type, 'extension' => $extension,
-			]);
-		}
 		$this->theme_stack[] = $type;
 		$t = new Template($this, $this->cleanTemplatePath($type) . $extension, $args);
 		if ($t->exists()) {

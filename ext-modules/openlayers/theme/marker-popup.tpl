@@ -71,7 +71,7 @@ $(document).ready(function () {
 </script>
 <?php
 
-$response->javascript_inline(HTML::extract_tag_contents('script', ob_get_clean()));
+$response->inlineJavaScript(HTML::extract_tag_contents('script', ob_get_clean()));
 
 echo HTML::tag('div', "#$id .openlayers-map .openlayers-map-marker-popup", '');
 echo HTML::tag('div', [

@@ -15,8 +15,8 @@ if (!$this->site_key) {
 	], '');
 }
 if ($this->reverify) {
-	$response->javascript_inline('function recaptcha_onload() { recaptcha.reset(); }');
+	$response->inlineJavaScript('function recaptcha_onload() { recaptcha.reset(); }');
 } else {
-	$response->javascript_inline('function recaptcha_onload() { }');
+	$response->inlineJavaScript('function recaptcha_onload() { }');
 }
 echo $this->verified_html;

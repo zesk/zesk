@@ -24,4 +24,4 @@ if (count($errors) === 0) {
 ?><div class="alert alert-error">
 	<a class="close" data-dismiss="alert" href="#">&times;</a><?php
 	echo $this->theme($application->zesk_root('theme/zesk/view/errors'));
-	?></div>
+?></div>

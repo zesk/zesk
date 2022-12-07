@@ -26,7 +26,7 @@ class Control_Objects extends Control_Text {
 	}
 
 	protected function load() {
-		$value = $this->request->getArray($this->name());
+		$value = $this->request->getList($this->name());
 		$objects = [];
 		foreach ($value as $id) {
 			try {

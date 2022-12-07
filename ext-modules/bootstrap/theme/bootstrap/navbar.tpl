@@ -12,18 +12,18 @@ $request = $this->request;
 				'class' => 'brand',
 				'href' => $this->get('title_href', '/'),
 			], $this->title);
-			?>
+?>
 			<ul class="nav">
 				<?php
-				foreach ((array) $this->menu as $link => $item) {
-					$active = $request->path() == $link;
-					echo HTML::tag('li', [
-						'class' => $active ? 'active' : '',
-					], HTML::tag('a', [
-						'href' => $link,
-					], $item));
-				}
-				?>
+	foreach ((array) $this->menu as $link => $item) {
+		$active = $request->path() == $link;
+		echo HTML::tag('li', [
+			'class' => $active ? 'active' : '',
+		], HTML::tag('a', [
+			'href' => $link,
+		], $item));
+	}
+?>
 			</ul>
 		</div>
 	</div>

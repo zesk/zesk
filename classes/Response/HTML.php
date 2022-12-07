@@ -12,6 +12,8 @@ namespace zesk\Response;
 use zesk\Exception_Directory_Create;
 use zesk\Exception_Directory_Permission;
 use zesk\Exception_File_NotFound;
+use zesk\Exception_Key;
+use zesk\Exception_Redirect;
 use zesk\URL;
 use zesk\Response;
 use zesk\MIME;
@@ -234,9 +236,9 @@ class HTML extends Type {
 	 * Get/set meta description text
 	 *
 	 * @param string $content
-	 * @return self
+	 * @return Response
 	 */
-	public function setMetaDescription(string $content): self {
+	public function setMetaDescription(string $content): Response {
 		return $this->setMeta('description', $content);
 	}
 
@@ -252,7 +254,7 @@ class HTML extends Type {
 			return $this->meta[$name];
 		}
 
-		throw new Exception_Key($name, 'No meta tag with name');
+		throw new Exception_Key('No meta tag with key "{key}"', ['key' => $name]);
 	}
 
 	/**
@@ -268,7 +270,7 @@ class HTML extends Type {
 			return implode('', toList($meta['content']));
 		}
 
-		throw new Exception_Key($name, 'Meta tag has no content');
+		throw new Exception_Key('Meta tag "{key}" has no content', ['key' => $name]);
 	}
 
 	/**
@@ -288,14 +290,12 @@ class HTML extends Type {
 	/**
 	 * Get/Set shortcut icon
 	 *
-	 * @param string $path
+	 * @param ?string $path
 	 * @return Response|string
+	 * @throws Exception_Semantics
 	 */
-	public function shortcut_icon($path = null) {
-		if ($path === null) {
-			return $this->link('shortcut icon');
-		}
-		return $this->setShortcutIcon($path);
+	public function shortcut_icon(string $path = null): string|Response {
+		return $path === null ? $this->shortcutIcon() : $this->setShortcutIcon($path);
 	}
 
 	/**
@@ -393,15 +393,13 @@ class HTML extends Type {
 	/**
 	 * Add a css to the page
 	 *
-	 * @param string $path
-	 *            Path to css file
-	 * @param array $options
+	 * @param string $styles CSS code
+	 * @param array|string $options Media type or tag options
 	 *            Optional options: media (defaults to screen), type (defults to text/css), browser
-	 *            (may be
-	 *            ie, ie6, ie7), and cdn (boolean to prefix with cdn path)
-	 * @return void
+	 *            (may be ie, ie6, ie7), and cdn (boolean to prefix with cdn path)
+	 * @return Response
 	 */
-	public function css_inline(string $styles, array|string $options = []) {
+	public function cssInline(string $styles, array|string $options = []): Response {
 		if (is_string($options)) {
 			$options = [
 				'media' => $options,
@@ -419,14 +417,9 @@ class HTML extends Type {
 	/**
 	 * Set the page theme to use to render the final HTML output
 	 *
-	 * @param null|string $set
-	 * @return \zesk\Response|string
+	 * @return string
 	 */
-	public function page_theme($set = false) {
-		if ($set !== false) {
-			$this->page_theme = $set;
-			return $this->parent;
-		}
+	public function pageTheme(): string {
 		return $this->page_theme;
 	}
 
@@ -436,16 +429,16 @@ class HTML extends Type {
 	 * @param string $set
 	 * @return Response
 	 */
-	public function setPageTheme(string $set) {
+	public function setPageTheme(string $set): Response {
 		$this->page_theme = $set;
 		return $this->parent;
 	}
 
 	/**
 	 *
-	 * @return \zesk\Response[]|string[]
+	 * @return array
 	 */
-	public function theme_variables(): array {
+	public function themeVariables(): array {
 		return [
 			'page_theme' => $this->page_theme, 'request' => $this->parent->request, 'response' => $this->parent,
 		];
@@ -462,7 +455,7 @@ class HTML extends Type {
 	 *
 	 */
 	public function links(): array {
-		return $this->link_tags($this->linkOptions());
+		return $this->linkTags($this->linkOptions());
 	}
 
 	/**
@@ -487,7 +480,7 @@ class HTML extends Type {
 	 * @param array $options
 	 * @return array
 	 */
-	private function link_tags(array $options = []) {
+	private function linkTags(array $options = []): array {
 		$result = [];
 		$stylesheets_inline = toBool(avalue($options, 'stylesheets_inline'));
 		if (count($this->links_sorted) !== count($this->links)) {
@@ -569,17 +562,18 @@ class HTML extends Type {
 	 *
 	 * @param string $content Page body content
 	 * @return string HTML page
+	 * @throws Exception_Redirect
 	 */
 	public function render(string $content): string {
 		return $this->application->theme($this->page_theme, [
 			'content' => $content,
-		] + $this->theme_variables());
+		] + $this->themeVariables());
 	}
 
 	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Response\Type::output()
+	 * @param string $content
+	 * @return void
+	 * @throws Exception_Redirect
 	 */
 	public function output(string $content): void {
 		echo $this->render($content);
@@ -614,7 +608,7 @@ class HTML extends Type {
 				$ready[] = $content;
 			}
 		}
-		$link_tags = $this->link_tags();
+		$link_tags = $this->linkTags();
 		$stylesheets = [];
 		$head_tags = [];
 		foreach ($link_tags as $tag) {
@@ -1113,7 +1107,9 @@ class HTML extends Type {
 				if (($after = $this->findWeight($options['after'], 'max')) !== null) {
 					if ($before !== null) {
 						if ($after <= $before) {
-							throw new Exception_Semantics('{path} has a computed {before} weight which is greater than the after weight {after}', compact('path', 'before', 'after'));
+							throw new Exception_Semantics('{path} has a computed {before} weight which is greater than the after weight {after}', [
+								'path' => $path, 'before' => $before, 'after' => $after,
+							]);
 						} else {
 							$options['weight'] = $before - 1;
 						}
@@ -1146,6 +1142,7 @@ class HTML extends Type {
 	 * Add to JavaScript script settings
 	 *
 	 * @param array $settings
+	 * @return $this
 	 */
 	final public function addJavascriptSettings(array $settings): self {
 		$this->script_settings = ArrayTools::merge($this->script_settings, $settings);
@@ -1155,7 +1152,7 @@ class HTML extends Type {
 	/**
 	 * Add to JavaScript script settings
 	 *
-	 * @param array $settings
+	 * @return array
 	 */
 	final public function javascriptSettings(): array {
 		return $this->script_settings;
@@ -1171,28 +1168,21 @@ class HTML extends Type {
 	/**
 	 * Register a javascript to be put on the page
 	 *
-	 * @param string|array $path
-	 *            File path to serve for the javascript
-	 * @param array $options
-	 *            Optional settings: type (defaults to text/javascript), browser (defaults to all
-	 *            browsers),
-	 *            cdn (defaults to false)
+	 * @param string|array $paths File path(s) to serve for the javascript
+	 * @param array $options Optional settings: type (defaults to text/javascript), browser (defaults to all
+	 *            browsers), cdn (defaults to false)
 	 * @return Response
 	 * @throws Exception_Semantics
 	 */
-	public function javascript(string|array $path, array $options = []): Response {
-		if (empty($path)) {
-			return $this->parent;
-		}
-		if (is_array($path)) {
-			$result = [];
-			foreach ($path as $index => $path) {
+	public function javascript(string|array $paths, array $options = []): Response {
+		if (is_array($paths)) {
+			foreach ($paths as $path) {
 				$this->javascript($path, $options);
 			}
 			return $this->parent;
 		}
-		$options['src'] = $path;
-		return $this->scriptAdd($path, $options);
+		$options['src'] = $paths;
+		return $this->scriptAdd($paths, $options);
 	}
 
 	/**
@@ -1250,15 +1240,12 @@ class HTML extends Type {
 	 * @return Response
 	 */
 	public function jquery(string|array $add_ready_script = '', int $weight = 0): Response {
-		$weight = intval($weight);
 		$this->_jquery();
 		if (is_array($add_ready_script)) {
 			foreach ($add_ready_script as $add) {
 				$this->jquery($add, $weight);
 			}
-			return $this->parent;
-		}
-		if ($add_ready_script !== null) {
+		} elseif (is_string($add_ready_script)) {
 			$hash = md5($add_ready_script);
 			$this->jquery[$weight][$hash] = $add_ready_script;
 		}

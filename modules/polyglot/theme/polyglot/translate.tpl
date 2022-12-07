@@ -70,10 +70,10 @@ $widget->setRequired(true);
 			<form class="navbar-form" role="filter" method="GET">
 				<div class="form-group control-active"><?php
 				echo $widget->execute();
-				?></div>
+?></div>
 				<div class="form-group control-active"><?php
-				echo $status->execute();
-				?></div>
+echo $status->execute();
+?></div>
 				<div class="form-group control-search">
 					<div class="input-group">
 						<input id="q" name="q" class="form-control" placeholder="Search"
@@ -92,8 +92,8 @@ $widget->setRequired(true);
 					<div id="search-progress" style="display: none"></div>
 					<div id="search-status" style="display: none">
 						<span class="total"></span><?php
-						echo __('total');
-						?></div>
+		echo __('total');
+?></div>
 				</div>
 				<?php
 				if ($can_update_live) {
@@ -101,7 +101,7 @@ $widget->setRequired(true);
 
 					echo __('Update Live'); ?></button><?php
 				}
-				?></form>
+?></form>
 		</div>
 	</nav>
 	<form id="translate-form" style="display: none">
@@ -130,7 +130,7 @@ $widget->setRequired(true);
 		<div class="collapse clearfix" id="translate-help">
 			<div class="well"><?php
 			echo $this->theme('polyglot/translate-help-header');
-			?><h3>Keyboard</h3>
+?><h3>Keyboard</h3>
 				<p>Navigate with Ctrl-&rarr;, Ctrl-&larr;, &uarr;, &darr;. When the
 					translator editor is closed, use arrow keys to choose the first or
 					last item in the displayed list.</p>
@@ -177,8 +177,8 @@ $widget->setRequired(true);
 						(contains user content not applicable to all sites, etc.). <strong>CAUTION:
 							Deleting a phrase will remove it from all available translations.</strong></li>
 				</ul><?php
-				echo $this->theme('polyglot/translate-help-footer');
-				?></div>
+	echo $this->theme('polyglot/translate-help-footer');
+?></div>
 		</div>
 	</form>
 	<div class="row header">

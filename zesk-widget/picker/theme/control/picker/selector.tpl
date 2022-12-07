@@ -56,16 +56,16 @@ echo HTML::etag('div', '.control-picker-empty', $this->item_selector_empty);
 	class="control-picker-results class-<?php
 
 	echo $this->object_class_css_class;
-	?>">
+?>">
 <?php
 foreach ($this->objects as $object) {
-		$item_content = $this->theme($this->theme_item, [
-			'object' => $object,
-			'selected' => true,
-			'column' => $this->column,
-		]);
-		echo $item_content;
-	}
+	$item_content = $this->theme($this->theme_item, [
+		'object' => $object,
+		'selected' => true,
+		'column' => $this->column,
+	]);
+	echo $item_content;
+}
 ?>
 </div>
 <?php

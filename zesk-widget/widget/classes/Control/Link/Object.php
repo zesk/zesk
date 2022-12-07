@@ -38,7 +38,7 @@ class Control_Link_Object extends Control {
 		$widget->initialize();
 		$this->object = $widget->model();
 
-		$values = $this->request->getArray($list_name);
+		$values = $this->request->getList($list_name);
 		$n = 0;
 		$max_objects = $this->maximum_objects();
 		foreach ($values as $index => $value) {

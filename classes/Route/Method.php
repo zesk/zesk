@@ -83,8 +83,8 @@ class Route_Method extends Route {
 		$method = $this->options['method'];
 		$arguments = $this->args;
 
-		$construct_arguments = $this->_map_variables($this->optionArray('construct arguments'));
-		$method = $this->_map_variables($method);
+		$construct_arguments = $this->_mapVariables($this->optionArray('construct arguments'));
+		$method = $this->_mapVariables($method);
 		ob_start();
 
 		try {

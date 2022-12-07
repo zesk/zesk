@@ -19,40 +19,40 @@ $id = 'control-picker-' . $this->column . '-q';
 <div class="form-group control-text">
 	<input class="input-lg required form-control" id="<?php
 	echo $id;
-	?>"
+?>"
 		name="q" type="text"
 		placeholder="<?php
-		echo $locale->__($this->label_search)?>"
+	echo $locale->__($this->label_search)?>"
 		data-picker-empty-search="1" />
 </div>
 <div class="dropfile image-picker-dropfile"
 	data-dropfile-url="/image_picker/upload"><?php
-	if ($this->request->user_agent_is('mobile')) {
-		echo $locale->__('Tap here to upload a photo');
-	} else {
-		echo $locale->__('Drag images here to upload (or click)');
-	}
-	?></div>
+if ($this->request->user_agent_is('mobile')) {
+	echo $locale->__('Tap here to upload a photo');
+} else {
+	echo $locale->__('Drag images here to upload (or click)');
+}
+?></div>
 <div
 	class="control-picker-results class-<?php
 
-	echo $this->object_class_css_class;
-	?>"><?php
-	$query = $application->ormRegistry(User_Content_Image::class)
-		->query_select()
-		->link(Content_Image::class, [
-			'alias' => 'ucimage',
-		])
-		->what_object(Content_Image::class)
-		->addWhere('X.user', $this->current_user);
-	//echo $query->__toString();
-	$iterator = $query->orm_iterator(Content_Image::class);
-	foreach ($iterator as $image) {
-		echo $this->theme('control/picker/content/image/item', [
-			'object' => $image,
-		]);
-	}
-	?></div>
+echo $this->object_class_css_class;
+?>"><?php
+$query = $application->ormRegistry(User_Content_Image::class)
+	->query_select()
+	->link(Content_Image::class, [
+		'alias' => 'ucimage',
+	])
+	->what_object(Content_Image::class)
+	->addWhere('X.user', $this->current_user);
+//echo $query->__toString();
+$iterator = $query->orm_iterator(Content_Image::class);
+foreach ($iterator as $image) {
+	echo $this->theme('control/picker/content/image/item', [
+		'object' => $image,
+	]);
+}
+?></div>
 <?php
 $response->response_data([
 	'context_class' => 'modal-lg',

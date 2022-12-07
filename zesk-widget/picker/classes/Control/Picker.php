@@ -106,9 +106,9 @@ class Control_Picker extends Control {
 	}
 
 	public function picker_options(array $set = null, $add = true) {
-		$options = toArray(avalue($this->theme_variables, 'picker_options', []));
+		$options = toArray(avalue($this->themeVariables, 'picker_options', []));
 		if ($set !== null) {
-			$this->theme_variables['picker_options'] = $add ? $set + $options : $set;
+			$this->themeVariables['picker_options'] = $add ? $set + $options : $set;
 			return $this;
 		}
 		return $options;
@@ -244,7 +244,7 @@ class Control_Picker extends Control {
 		$variables = $this->themeVariables();
 		if ($action === 'selector') {
 			$content = $this->application->theme($this->theme_item_selector, [
-				'value' => $this->request->getArray($this->column()),
+				'value' => $this->request->getList($this->column()),
 			] + $variables, [
 				'first' => true,
 			]);
@@ -259,7 +259,7 @@ class Control_Picker extends Control {
 				'status' => true,
 			] + $response->html()->toJSON());
 		} elseif ($action === 'submit') {
-			$response->json()->data($this->submit_results($response, $variables, $this->request->getArray($this->column())) + [
+			$response->json()->data($this->submit_results($response, $variables, $this->request->getList($this->column())) + [
 				'status' => true,
 			] + $response->html()
 				->toJSON());

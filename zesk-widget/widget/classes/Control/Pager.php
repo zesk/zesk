@@ -68,16 +68,16 @@ class Control_Pager extends Control {
 	 * @return $this
 	 */
 	public function preserve_hidden(string|array $name, mixed $value = null): self {
-		$variables = $this->theme_variables['preserve_hidden'] ?? [];
+		$variables = $this->themeVariables['preserve_hidden'] ?? [];
 		if (!is_array($variables)) {
 			$variables = [];
 		}
 		if (is_array($name)) {
-			$this->theme_variables = $name + $variables;
+			$this->themeVariables = $name + $variables;
 			return $this;
 		}
 		$variables[$name] = $value;
-		$this->theme_variables['preserve_hidden'] = $variables;
+		$this->themeVariables['preserve_hidden'] = $variables;
 		return $this;
 	}
 

@@ -42,7 +42,7 @@ class Controller_Login extends Controller_Theme {
 			]);
 		} else {
 			$locale = $this->application->locale;
-			$this->response->redirect_default($logout_url, $locale->__('You have logged out.'));
+			$this->response->redirectDefault($logout_url, $locale->__('You have logged out.'));
 		}
 	}
 }

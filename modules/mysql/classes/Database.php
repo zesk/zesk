@@ -1366,7 +1366,7 @@ class Database extends \zesk\Database {
 			}
 			$message = mysqli_error($this->Connection);
 			$errno = mysqli_errno($this->Connection);
-			if ($errno === 2006 && $this->auto_reconnect) /* CR_SERVER_GONE_ERROR */ {
+			if ($errno === 2006 && $this->auto_reconnect) { /* CR_SERVER_GONE_ERROR */
 				$this->application->logger->warning('Reconnecting to database {url}', [
 					'url' => $this->safeURL(),
 				]);

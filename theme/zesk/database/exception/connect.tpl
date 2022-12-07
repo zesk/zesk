@@ -9,9 +9,9 @@ $this->begin('body/exception');
 		echo HTML::tag('em', $this->database)?>
 		at <em><?php
 		echo $this->host;
-		?></em>, connecting as user <?php
-		echo HTML::tag('em', '' . $this->user);
-		?>. Please check:</p>
+?></em>, connecting as user <?php
+echo HTML::tag('em', '' . $this->user);
+?>. Please check:</p>
 	<ul>
 		<li><a href="http://zesk.com/database-exception-connect#running">That
 				it's running.</a></li>
@@ -22,5 +22,5 @@ $this->begin('body/exception');
 		?><p>The computer error given was:</p><?php
 		echo HTML::tag('code', $this->message);
 	}
-	?></div><?php
-	echo $this->end();
+?></div><?php
+echo $this->end();
