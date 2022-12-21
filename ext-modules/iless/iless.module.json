@@ -6,11 +6,10 @@
 	"github": "mishal/iless",
 	"url_license": "https://raw.githubusercontent.com/mishal/iless/master/LICENSE",
 	"license": "mit",
-	"autoload_options": {
-		"lower": false,
-		"class_prefix": "zesk\\ILess\\"
+	"autoload": {
+		"classPrefix": "zesk\\ILess\\"
 	},
-	"zesk_command_path": "classes/Command",
-	"zesk_command_class_prefix": "zesk\\ILess\\Command_",
-	"module_class": "zesk\\ILess\\Module"
+	"zeskCommandPath": "classes/Command",
+	"zeskCommandClassPrefix": "zesk\\ILess\\Command_",
+	"moduleClass": "zesk\\ILess\\Module"
 }

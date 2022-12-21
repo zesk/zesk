@@ -147,19 +147,19 @@ class TimeSpan extends Temporal {
 		$mm = $minutes % 60;
 		$hours = floor($seconds / 3600);
 		$hh = $hours % 24;
-		$days = floor($seconds / 86400);
+		$days = intval(floor($seconds / 86400));
 
 		return [
 			'negative' => $this->invert ? '-' : '',
 			'seconds' => $seconds,
-			'ss' => StringTools::zero_pad($ss, 2),
+			'ss' => StringTools::zeroPad($ss, 2),
 			'minutes' => $minutes,
-			'mm' => StringTools::zero_pad($mm, 2),
+			'mm' => StringTools::zeroPad($mm, 2),
 			'hours' => $hours,
-			'hh' => StringTools::zero_pad($hh, 2),
+			'hh' => StringTools::zeroPad($hh, 2),
 			'days' => $days,
-			'dd' => StringTools::zero_pad($days, 2),
-			'ddd' => StringTools::zero_pad($days % 365, 3),
+			'dd' => StringTools::zeroPad($days, 2),
+			'ddd' => StringTools::zeroPad($days % 365, 3),
 		];
 	}
 }

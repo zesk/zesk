@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
  * @author kent
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk\Trie;
 
 class Node {
@@ -28,34 +30,25 @@ class Node {
 	public array $next = [];
 
 	/**
-	 *
-	 * @var boolean
-	 */
-	private bool $end_of_word = false;
-
-	/**
 	 * Create a new node
 	 *
-	 * @param string $word
-	 * @param boolean $endOfWord End of word flag
+	 * @param ?string $word
 	 */
-	public function __construct(string $word = '', bool $endOfWord = false) {
+	public function __construct(string $word = null) {
 		$this->next = [];
-		if ($word !== '') {
+		if ($word !== null) {
 			$this->add($word);
 		}
-		$this->setEndOfWord($endOfWord);
 	}
 
 	/**
 	 * Create a new node
 	 *
-	 * @param string $word
-	 * @param boolean $endOfWord End of word flag
+	 * @param ?string $word
 	 * @return self
 	 */
-	public static function factory(string $word, bool $endOfWord = false): self {
-		return new self($word, $endOfWord);
+	public static function factory(?string $word = null): self {
+		return new self($word);
 	}
 
 	/**
@@ -63,8 +56,8 @@ class Node {
 	 *
 	 * @return bool
 	 */
-	public function isEndOfWord(): bool {
-		return $this->end_of_word;
+	public function isEnd(): bool {
+		return array_key_exists('', $this->next);
 	}
 
 	/**
@@ -73,8 +66,12 @@ class Node {
 	 * @param bool $set True when end of word.
 	 * @return self
 	 */
-	public function setEndOfWord(bool $set): self {
-		$this->end_of_word = $set;
+	public function setEnd(bool $set): self {
+		if ($set) {
+			$this->next[''] = 1;
+		} else {
+			unset($this->next['']);
+		}
 		return $this;
 	}
 
@@ -85,29 +82,32 @@ class Node {
 	 */
 	public function add(string $word): self {
 		if (strlen($word) === 0) {
-			$this->setEndOfWord(true);
+			$this->setEnd(true);
 			return $this;
 		}
 		$char = $word[0];
 		$remain = substr($word, 1);
-		$next = $this->next[$char] ?? null;
+		if (!array_key_exists($char, $this->next)) {
+			$this->next[$char] = $remain === '' ? 1 : $remain;
+			return $this;
+		}
+		$next = $this->next[$char];
 		if (is_string($next)) {
 			// Ok, it was simply a completion, so let's convert it into a Node with two entries
-			unset($this->next[$word]);
-			$this->next[$char] = self::factory($next)->add($remain);
-		} elseif ($next instanceof Node) {
-			// It's a Node, traverse one letter deeper in our word
-			$next->add($remain);
-		} elseif ($next === 1) {
-			// This represents a completion for this word, convert it into another Node to package both
-			$this->next[$char] = $remain === '' ? 1 : self::factory($remain);
-		} else {
-			// Nothing found. So make this word a completion at this point, and add a single character node below
-			$this->next[$word] = 1;
-			if (strlen($word) > 1) {
-				$this->next[$char] = $remain;
-			}
+			$this->next[$char] = $newNode = self::factory($next);
+			$newNode->add($remain);
+			return $this;
 		}
+		if ($next === 1) {
+			if ($remain === '') {
+				return $this;
+			}
+			$this->next[$char] = $newNode = self::factory($remain);
+			$newNode->add('');
+			return $this;
+		}
+		assert($next instanceof Node);
+		$next->add($remain);
 		return $this;
 	}
 
@@ -115,11 +115,8 @@ class Node {
 	 * Clean the trie after building to remove unnecessary keys
 	 */
 	public function clean(): void {
-		// Remove all single letter tags which map to strings
-		foreach ($this->next as $k => $v) {
-			if (strlen($k) === 1 && is_string($v)) {
-				unset($this->next[$k]);
-			} elseif ($v instanceof Node) {
+		foreach ($this->next as $v) {
+			if ($v instanceof Node) {
 				$v->clean();
 			}
 			ksort($this->next);
@@ -179,7 +176,7 @@ class Node {
 			foreach ($this->next as $k => $v) {
 				if ($v instanceof self) {
 					if ($v->optimizable()) {
-						$merged += $this->merge($k);
+						$merged += $v->merge($k);
 					} else {
 						$merged += $v->optimize();
 					}
@@ -205,35 +202,34 @@ class Node {
 		foreach ($this->next as $k => $v) {
 			if ($v instanceof Node) {
 				$json[$k] = $v->toJSON();
-			} elseif (strlen($k) > 1 && array_key_exists($k[0], $this->next) && $this->next[$k[0]] instanceof self
-				&& $this->next[$k[0]]->find(substr($k, 1))) {
-				continue;
 			} else {
 				$json[$k] = $v;
 			}
-		}
-		if ($this->isEndOfWord()) {
-			$json[''] = 1;
 		}
 		return $json;
 	}
 
 	public function find(string $word): bool {
-		if (strlen($word) === 0 && $this->isEndOfWord()) {
-			return true;
+		if (strlen($word) === 0) {
+			if (array_key_exists('', $this->next)) {
+				return $this->next[''] === 1;
+			}
+			return false;
 		}
-		if (array_key_exists($word, $this->next) && $this->next[$word] === 1) {
-			return true;
+		$char = $word[0];
+		if (!array_key_exists($char, $this->next)) {
+			return false;
 		}
-		$first = $word[0];
+		$next = $this->next[$char];
 		$remain = substr($word, 1);
-		$next = $this->next[$first] ?? null;
-		if ($next instanceof self) {
-			return $next->find($remain);
-		} elseif (is_string($next)) {
+		if ($next === 1) {
+			return ($remain === '');
+		}
+		if (is_string($next)) {
 			return $next === $remain;
 		}
-		return false;
+		assert($next instanceof Node);
+		return $next->find($remain);
 	}
 
 	/**

@@ -82,13 +82,13 @@ class Control_Optionss extends Control {
 	}
 
 	private function _init_default_option(): void {
-		$default = avalue($this->options, 'default');
+		$default = $this->options['default'] ?? null;
 		if ($this->has_control_option($default)) {
 			return;
 		}
-		$noname = avalue($this->options, 'noname');
+		$noname = $this->options['noname'] ?? null;
 		if ($noname) {
-			$this->options['default'] = strval(avalue($this->options, 'novalue', ''));
+			$this->options['default'] = strval($this->options['novalue'] ?? '');
 			return;
 		}
 		$this->options['default'] = key($this->control_options);
@@ -103,10 +103,10 @@ class Control_Optionss extends Control {
 		$new_options = [];
 		foreach ($options as $k => $v) {
 			if (is_array($v)) {
-				$k = StringTools::ellipsis_word($k, $show_size, $ellipsis);
+				$k = StringTools::ellipsisWord($k, $show_size, $ellipsis);
 				$new_options[$k] = $this->ellipsis_options($v);
 			} else {
-				$new_options[$k] = StringTools::ellipsis_word($v, $show_size, $ellipsis);
+				$new_options[$k] = StringTools::ellipsisWord($v, $show_size, $ellipsis);
 			}
 		}
 		return $new_options;
@@ -134,11 +134,11 @@ class Control_Optionss extends Control {
 	 */
 	protected function has_control_option($key) {
 		$key = strval($key);
-		$noname = avalue($this->options, 'noname');
-		if ($noname && $key === strval(avalue($this->options, 'novalue', ''))) {
+		$noname = $this->options['noname'] ?? null;
+		if ($noname && $key === strval($this->options['novalue'] ?? '')) {
 			return true;
 		}
-		if (toBool(avalue($this->options, 'optgroup'))) {
+		if (toBool($this->options['optgroup'] ?? null)) {
 			return $this->_hasOption_group($key);
 		}
 		if (array_key_exists($key, $this->control_options)) {

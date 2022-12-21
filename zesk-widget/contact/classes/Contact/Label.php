@@ -10,7 +10,7 @@ namespace zesk;
  *
  * @see Class_Contact_Label
  */
-class Contact_Label extends ORM {
+class Contact_Label extends ORMBase {
 	public const LabelType_Address = 1;
 
 	public const LabelType_Company = 2;
@@ -38,9 +38,9 @@ class Contact_Label extends ORM {
 			'Type' => $type,
 		];
 		return $application->ormRegistry(__CLASS__)
-			->query_select()
-			->what('ID', 'ID')
-			->where($fields)
+			->querySelect()
+			->addWhat('ID', 'ID')
+			->appendWhere($fields)
 			->one('ID', null);
 	}
 
@@ -51,7 +51,7 @@ class Contact_Label extends ORM {
 	 * @param Account $account
 	 * @return \zesk\unknown
 	 */
-	public static function register_local(ORM $account, $type, $name) {
+	public static function register_local(ORMBase $account, $type, $name) {
 		$app = $account->application;
 		$fields = [
 			'Account' => $account,
@@ -60,7 +60,7 @@ class Contact_Label extends ORM {
 		];
 
 		$id = $app->ormRegistry(__CLASS__)
-			->query_select()
+			->querySelect()
 			->what('ID', 'ID')
 			->where($fields)
 			->one('ID', null);
@@ -94,12 +94,12 @@ class Contact_Label extends ORM {
 			];
 		}
 		return $application->ormRegistry(__CLASS__)
-			->query_select()
-			->what([
+			->querySelect()
+			->addWhatIterable([
 				'id' => 'ID',
 				'name' => 'Name',
 			])
-			->where([
+			->appendWhere([
 				'Type' => $type,
 				'Account' => $account_where,
 			])
@@ -128,7 +128,7 @@ class Contact_Label extends ORM {
 	 * @return string
 	 */
 	public function type_name() {
-		return $this->Name . ' ' . avalue($this->type_names(), $this->Type, 'Unknown Type');
+		return $this->Name . ' ' . $this->type_names()[$this->Type] ?? 'Unknown Type';
 	}
 
 	/**
@@ -153,20 +153,20 @@ class Contact_Label extends ORM {
 			$where['Type'] = $types;
 		}
 		$rows = $app->ormRegistry(__CLASS__)
-			->query_select()
-			->what([
+			->querySelect()
+			->addWhatIterable([
 				'id' => 'ID',
 				'name' => 'Name',
 				'type' => 'Type',
 			])
-			->where($where)
+			->appendWhere($where)
 			->toArray('id');
 
 		$result = [];
 		$type_names = self::type_names();
 		foreach ($rows as $id => $row) {
 			$name = $row['name'];
-			$type_name = avalue($type_names, $row['type'], 'Unknown-' . $row['type']);
+			$type_name = $type_names[$row['type']] ?? 'Unknown-' . $row['type'];
 			$result[$type_name][$id] = $name;
 		}
 		return $result;

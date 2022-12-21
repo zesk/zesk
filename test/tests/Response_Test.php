@@ -58,7 +58,7 @@ class Response_Test extends UnitTest {
 			'browser' => 'ie',
 		]);
 
-		$content = $this->application->theme('response/html/scripts', [
+		$content = $this->application->theme('zesk/Response/HTML/scripts', [
 			'response' => $response,
 			'jquery_ready' => [],
 		]);

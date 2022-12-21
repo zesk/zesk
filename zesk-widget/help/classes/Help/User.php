@@ -8,5 +8,5 @@ namespace zesk;
  * @author kent
  *
  */
-class Help_User extends ORM {
+class Help_User extends ORMBase {
 }

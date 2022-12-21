@@ -69,7 +69,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		$scripts = HTML::extract_tags('script', $content);
 		foreach ($scripts as $script) {
 			$src = $script->option('src');
-			if (begins($src, '/static/js/') && strpos($src, 'bundle.')) {
+			if (str_starts_with($src, '/static/js/') && strpos($src, 'bundle.')) {
 				return $content;
 			}
 		}
@@ -106,7 +106,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * @return \zesk\Route|\zesk\Request|NULL
 	 */
 	public function router_matched(Application $app, Request $request, Router $router, Route $route) {
-		if ($route->optionBool('react') && $request->method() === Net_HTTP::METHOD_GET && !$request->preferJSON()) {
+		if ($route->optionBool('react') && $request->method() === HTTP::METHOD_GET && !$request->preferJSON()) {
 			return $this->react_page_route($router)->setRequest($request);
 		}
 		return null;
@@ -140,7 +140,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	public function hook_head(Request $request, Response $response, Template $template): void {
 		$app = $this->application;
 		$docroot = $app->documentRoot();
-		if (ends($docroot, '/build')) {
+		if (str_ends_with($docroot, '/build')) {
 			$source = path($docroot, 'index.html');
 
 			try {
@@ -254,8 +254,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		}
 		$conf = Configuration_Parser::factory('conf', File::contents($dotenv));
 		$settings = $conf->process();
-		$host = aevalue($_SERVER, 'HOST', $settings->get('host', $default_host));
-		$port = aevalue($_SERVER, 'PORT', $settings->get('port', $default_port));
+		$host = $_SERVER[ 'HOST'] ??  $settings->get('host', $default_host);
+		$port = $_SERVER[ 'PORT'] ??  $settings->get('port', $default_port);
 		return $this->proxy_prefix = "http://$host:$port";
 	}
 
@@ -271,7 +271,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 			return null;
 		}
 		$http = new Net_HTTP_Client($this->application);
-		$http->proxy_request($request, $proxy_prefix);
+		$http->proxyRequest($request, $proxy_prefix);
 
 		try {
 			$http->go();
@@ -288,7 +288,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	}
 
 	public function not_found_handler(Request $request, Response $response): void {
-		$response->status(Net_HTTP::STATUS_FILE_NOT_FOUND);
+		$response->setStatus(HTTP::STATUS_FILE_NOT_FOUND);
 	}
 
 	/**
@@ -297,7 +297,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * @param Response $response
 	 */
 	public function json_handler(Request $request, Response $response): void {
-		$response->page_theme(null);
+		$response->setPageTheme('');
 		$this->copy_to_response($this->_proxy_path($request), $response);
 		$response->setCacheFor(5);
 	}
@@ -316,7 +316,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 				if (!$http) {
 					throw new Exception_System('Unable to determine local hostname to connect to');
 				}
-				$http->proxy_response($response);
+				$http->proxyResponse($response);
 				$response->setCacheFor(5);
 			} else {
 				$path = $request->path();
@@ -326,10 +326,10 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		} catch (Exception_File_NotFound $e) {
 			$debug = '';
 			if ($app->development()) {
-				$debug = "\n" . $e->filename();
+				$debug = "\n" . $e->path();
 			}
-			$response->status(Net_HTTP::STATUS_FILE_NOT_FOUND, 'Not found');
-			$response->content_type(MIME::from_filename($request->path()));
+			$response->setStatus(HTTP::STATUS_FILE_NOT_FOUND, 'Not found');
+			$response->setContentType(MIME::fromExtension($request->path()));
 			return '/* ReactJS File not found' . $debug . ' */';
 		}
 	}
@@ -340,8 +340,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * @param Response $response
 	 */
 	private function copy_to_response(Net_HTTP_Client $client, Response $response): void {
-		$response->status($client->response_code(), $client->response_message());
-		$response->content_type($client->content_type());
+		$response->setStatus($client->response_code(), $client->response_message());
+		$response->setContentType($client->content_type());
 		$response->content = $client->content();
 	}
 }

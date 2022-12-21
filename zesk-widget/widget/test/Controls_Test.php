@@ -209,7 +209,7 @@ class Controls_Test extends TestWidget {
 	}
 }
 
-class Class_Test_COLT_Object extends Class_ORM {
+class Class_Test_COLT_Object extends Class_Base {
 	public string $table = 'Test_COLT_Object';
 
 	public string $id_column = 'ID';
@@ -220,13 +220,13 @@ class Class_Test_COLT_Object extends Class_ORM {
 	];
 }
 
-class Test_COLT_Object extends ORM {
+class Test_COLT_Object extends ORMBase {
 	public function schema(): string|array|ORM_Schema|null {
 		return 'CREATE TABLE `' . $this->table() . '` ( ID int(11) unsigned PRIMARY KEY AUTO_INCREMENT NOT NULL, Foo varchar(23) NOT NULL )';
 	}
 }
 
-class Class_Test_COL_Object extends Class_ORM {
+class Class_Test_COL_Object extends Class_Base {
 	public string $table = __CLASS__;
 
 	public string $id_column = 'ID';
@@ -237,5 +237,5 @@ class Class_Test_COL_Object extends Class_ORM {
 	];
 }
 
-class Test_COL_Object extends ORM {
+class Test_COL_Object extends ORMBase {
 }

@@ -11,7 +11,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Selection_Query extends ORM {
+class Selection_Query extends ORMBase {
 	/**
 	 * Fetch or create a query
 	 *
@@ -38,7 +38,7 @@ class Selection_Query extends ORM {
 	}
 
 	public function reorder() {
-		$this->order_index = $this->query_select('X')
+		$this->order_index = $this->querySelect('X')
 			->addWhere('X.type', $this->type)
 			->what('*N', 'MAX(X.order_index)')
 			->one_integer('N', 0) + 1;
@@ -64,9 +64,9 @@ class Selection_Query extends ORM {
 		$map = [];
 		/* @var $query Selection_Query */
 		foreach ($application->ormRegistry(__CLASS__)
-			->query_select()
+			->querySelect()
 			->addWhere('type', $old_type)
-			->orm_iterator() as $query) {
+			->ormIterator() as $query) {
 			$old_id = $query->id;
 			$query->id = null;
 			$query->type = $new_type;

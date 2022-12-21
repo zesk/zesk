@@ -37,7 +37,7 @@ if ($widget->option('refresh', false)) {
 }
 $array_index = $widget->option('array_index');
 if ($array_index !== false && is_array($value)) {
-	$value = avalue($value, $array_index);
+	$value = $value[$array_index] ?? null;
 }
 $optgroup = toBool($this->optgroup);
 unset($attributes['name']);
@@ -65,7 +65,7 @@ if ($widget->is_single()) {
 $escape_values = $this->escape_values;
 $escape_option_group_values = $widget->optionBool('escape_option_group_values', true);
 $attributes = $object->applyMap($attributes);
-$attributes['class'] = CSS::addClass(avalue($attributes, 'class'), 'form-control');
+$attributes['class'] = CSS::addClass($attributes['class'] ?? null, 'form-control');
 $attributes['name'] = $name . ($multiple ? '[]' : '');
 $attributes['id'] = $this->id;
 $attributes['multiple'] = $multiple;

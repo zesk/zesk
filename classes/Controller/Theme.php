@@ -162,8 +162,8 @@ abstract class Controller_Theme extends Controller {
 	protected function control(Control $control, Model $object = null, array $options = []) {
 		$control->response($this->response);
 		$content = $control->execute($object);
-		$this->callHook(avalue($options, 'hook_execute', 'control_execute'), $control, $object, $options);
-		$title = $control->option('title', avalue($options, 'title'));
+		$this->callHook($options['hook_execute'] ?? 'control_execute', $control, $object, $options);
+		$title = $control->option('title', $options['title'] ?? null);
 		if ($title) {
 			$this->response->setTitle($title, false); // Do not overwrite existing values
 		}

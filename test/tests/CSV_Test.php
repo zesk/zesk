@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -20,9 +22,7 @@ class CSV_Test extends UnitTest {
 	 */
 	public function quote_data(): array {
 		return [
-			['foo', 'foo'],
-			["fo\no", "\"fo\no\""],
-			['fo"o', '"fo""o"'],
+			['foo', 'foo'], ["fo\no", "\"fo\no\""], ['fo"o', '"fo""o"'],
 		];
 	}
 
@@ -33,18 +33,28 @@ class CSV_Test extends UnitTest {
 	 * @dataProvider quote_data
 	 */
 	public function test_quote(string $item, string $expected): void {
-		$this->assertEquals($expected, CSV_Reader::quote($item));
+		$this->assertEquals($expected, StringTools::csvQuote($item));
+		$this->assertEquals("$expected\r\n", StringTools::csvQuoteRow([$item]));
+		$this->assertEquals("$expected\r\n$expected\r\n", StringTools::csvQuoteRows([[$item], [$item]]));
 	}
 
-	public function test_quote_row(): void {
-		$x = [
-			'',
-			'\'',
-			'a long line with many spaces',
-			'"Quotes"',
-			'""',
+	public function data_csvQuoteRow(): array {
+		return [
+			[
+				',\',a long line with many spaces,"""Quotes""",""""""' . "\r\n", [
+					'', '\'', 'a long line with many spaces', '"Quotes"', '""',
+				],
+			],
 		];
-		$newx = CSV::quote_row($x);
-		$this->assertEquals(',\',a long line with many spaces,"""Quotes""",""""""' . "\r\n", $newx);
+	}
+
+	/**
+	 * @param string $expected
+	 * @param array $row
+	 * @return void
+	 * @dataProvider data_csvQuoteRow
+	 */
+	public function test_csvQuoteRow(string $expected, array $row): void {
+		$this->assertEquals($expected, StringTools::csvQuoteRow($row));
 	}
 }

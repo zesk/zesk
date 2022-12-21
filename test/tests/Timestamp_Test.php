@@ -441,26 +441,12 @@ class Timestamp_Test extends UnitTest {
 		$this->assertEquals($test_long_date->date()->format($locale), '2064-08-16');
 		$threw = false;
 
-		try {
-			echo $test_long_date->format($locale) . "\n";
-			$ts = $test_long_date->unixTimestamp();
-			$dt = new Timestamp();
-			$dt->setUnixTimestamp($ts);
-		} catch (Exception_Convert $e) {
-			$threw = true;
-		}
-		$should_throw = PHP_VERSION_ID < 50209;
-		if (php_uname('s') === 'Darwin') {
-			$should_throw = PHP_VERSION_ID <= 50400 ? true : false;
-		}
-		if ($should_throw) {
-			$this->assertTrue($threw, 'Exception_Convert was not thrown? PHP_VERSION_ID=' . PHP_VERSION_ID);
-		} else {
-			$this->assertFalse($threw, 'Exception_Convert was thrown? PHP_VERSION_ID=' . PHP_VERSION_ID);
-			$test_long_date_2 = new Timestamp();
-			$test_long_date_2->setUnixTimestamp($ts);
-			$this->assertEquals($test_long_date->__toString(), $test_long_date_2->__toString());
-		}
+		$ts = $test_long_date->unixTimestamp();
+		$dt = new Timestamp();
+		$dt->setUnixTimestamp($ts);
+		$test_long_date_2 = new Timestamp();
+		$test_long_date_2->setUnixTimestamp($ts);
+		$this->assertEquals($test_long_date->__toString(), $test_long_date_2->__toString());
 	}
 
 	/**

@@ -197,7 +197,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 */
 	private function handle_source_location($source_location): void {
 		if (is_dir($source_location) || is_dir(dirname($source_location))) {
-			$master = path($this->application->path(), dirname($this->option('share_path')), 'less');
+			$master = path($this->application->path(), dirname($this->option('sharePath')), 'less');
 			if (!is_dir($master)) {
 				$this->application->logger->error('Bootstrap master directory moved from "{master}" to {source_location} - update Module_Bootstrap code', compact('master', 'source_location'));
 				return;

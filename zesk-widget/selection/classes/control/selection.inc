@@ -128,7 +128,7 @@ class Control_Selection extends Control {
 		$request = $this->request();
 		$response = $this->response();
 		if (!$this->application->development() && !$request->isPost()) {
-			$response->json()->data([
+			$response->json()->setData([
 				'status' => false,
 				'message' => 'Not a POST',
 			]);
@@ -182,7 +182,7 @@ class Control_Selection extends Control {
 		if ($count === 0 && !$already_cleared) {
 			$type->items_clear();
 		}
-		$response->json()->data($result + [
+		$response->json()->setData($result + [
 			'status' => $status,
 			'message' => $message,
 			'count' => $count,

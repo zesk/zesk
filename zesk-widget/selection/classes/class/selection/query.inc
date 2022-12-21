@@ -8,7 +8,7 @@ namespace zesk;
  * @see Selection_Query
  * @author kent
  */
-class Class_Selection_Query extends Class_ORM {
+class Class_Selection_Query extends Class_Base {
 	public string $id_column = 'id';
 
 	public array $has_one = [

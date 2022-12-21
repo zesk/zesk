@@ -387,7 +387,7 @@ class JSON {
 			]);
 		}
 		foreach ($begins as $match => $value) {
-			if (begins($string, $match)) {
+			if (str_starts_with($string, $match)) {
 				return [
 					strlen($match),
 					$value,

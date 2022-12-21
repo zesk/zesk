@@ -13,7 +13,7 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
-/* @var $object \zesk\ORM */
+/* @var $object \zesk\ORMBase */
 /* @var $widget Widget */
 if (!$request instanceof Request) {
 	$request = $application->request();
@@ -28,11 +28,11 @@ if (!is_array($table_attributes)) {
 
 $invisibles = '';
 $form_attributes = $this->getArray('form_attributes');
-$form_attributes['method'] = avalue($form_attributes, 'method', 'post');
+$form_attributes['method'] ??= 'post';
 if ($this->ajax) {
 	$invisibles .= HTML::hidden('ajax', 1);
 }
-$form_attributes['class'] = CSS::addClass(avalue($form_attributes, 'class'), 'form-' . $this->get('form-style', 'horizontal'));
+$form_attributes['class'] = CSS::addClass($form_attributes['class'] ?? null, 'form-' . $this->get('form-style', 'horizontal'));
 
 $form_attributes['role'] = 'form';
 echo HTML::tag_open('form', $form_attributes);

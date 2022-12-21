@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace zesk;
 
 /**
- * @see theme/zesk/exception/redirect
+ * @see
  * @author kent
  * @see Exception_RedirectTemporary
  */
@@ -19,7 +19,7 @@ class Exception_Redirect extends Exception {
 	 *
 	 * @var string
 	 */
-	public $url = null;
+	public string $url = '';
 
 	/**
 	 * Pass as an argument to set the `zesk\Response::status_code()`
@@ -40,9 +40,9 @@ class Exception_Redirect extends Exception {
 	 * @param string $url
 	 * @param string $message
 	 */
-	public function __construct(string $url, string $message = null, array $arguments = []) {
+	public function __construct(string $url, string $message = '', array $arguments = [], \Throwable $previous = null) {
 		$this->url = $url;
-		parent::__construct($message, $arguments);
+		parent::__construct($message, $arguments, 0, $previous);
 	}
 
 	/**

@@ -49,7 +49,7 @@ class Locale_EN extends Locale {
 	 * @see \zesk\Locale::possessive()
 	 */
 	public function possessive(string $owner, string $object): string {
-		if (ends($owner, 's')) {
+		if (str_ends_with($owner, 's')) {
 			return "$owner' $object";
 		} else {
 			return "$owner's $object";
@@ -126,9 +126,7 @@ class Locale_EN extends Locale {
 		$first_letter = substr($check_word, 0, 1);
 		$article = 'a';
 		if (str_contains('aeiouh', $first_letter)) {
-			if (StringTools::begins($check_word, explode(';', 'eur;un;uni;use;u.;one-'))) {
-				$article = 'a';
-			} else { // Removed hon for honor, honest
+			if (!StringTools::begins($check_word, explode(';', 'eur;un;uni;use;u.;one-'))) {
 				$article = 'an';
 			}
 		}
@@ -140,19 +138,24 @@ class Locale_EN extends Locale {
 	 * {@inheritDoc}
 	 * @see \zesk\Locale::ordinal()
 	 */
-	public function ordinal(int $n): string {
-		$n = floatval($n);
-		$mod_100 = $n % 100;
+	public function ordinal(int $number): string {
+		$number = floatval($number);
+		$mod_100 = $number % 100;
 		if ($mod_100 > 10 && $mod_100 < 20) {
-			return $n . 'th';
+			return $number . 'th';
 		}
-		$mod_10 = $n % 10;
-		return $n . avalue([
-			1 => 'st',
-			2 => 'nd',
-			3 => 'rd',
-		], $mod_10, 'th');
+		$mod_10 = $number % 10;
+		return $number . (self::$enOrdinalSuffixes[$mod_10] ?? 'th');
 	}
+
+	/**
+	 * @var string[]
+	 */
+	public static array $enOrdinalSuffixes = [
+		1 => 'st',
+		2 => 'nd',
+		3 => 'rd',
+	];
 
 	/**
 	 * @todo Probably should remove this 2018-01
@@ -174,7 +177,7 @@ class Locale_EN extends Locale {
 			'un',
 		];
 		foreach ($negative_prefixes as $prefix) {
-			if (begins($word, $prefix, true)) {
+			if (str_starts_with(strtolower($word), $prefix)) {
 				return StringTools::case_match(trim(substr($word, strlen($prefix))), $word);
 			}
 		}

@@ -8,11 +8,20 @@
         <testsuite name="core">
             <directory>test/tests</directory>
         </testsuite>
+        <testsuite name="orm">
+            <directory>modules/ORM/test</directory>
+        </testsuite>
+        <testsuite name="csv">
+            <directory>modules/CSV/test</directory>
+        </testsuite>
+        <testsuite name="diff">
+            <directory>modules/Diff/test</directory>
+        </testsuite>
         <testsuite name="database">
-            <directory>modules/database/test</directory>
+            <directory>modules/Database/test</directory>
         </testsuite>
         <testsuite name="world">
-            <directory>modules/world/test</directory>
+            <directory>modules/World/test</directory>
         </testsuite>
     </testsuites>
     <extensions>

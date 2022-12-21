@@ -1,12 +1,11 @@
 {
 	"name": "Zesk Widgets",
-	"autoload_options": {
-		"class_prefix": "zesk\\",
-		"lower": false
+	"autoload": {
+		"classPrefix": "zesk\\"
 	},
-	"module_class": "zesk\\Module_Widget",
+	"moduleClass": "zesk\\Module_Widget",
 	"requires": [
 		"orm"
 	],
-	"theme_path_prefix": "zesk"
+	"themePathPrefix": "zesk"
 }

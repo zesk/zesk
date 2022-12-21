@@ -186,6 +186,7 @@ class Process {
 	 */
 	public function executeArguments(string $command, array $args = [], bool $passThru = false): array {
 		$raw_command = $this->generateCommand($command, $args);
+		$output = [];
 		if ($passThru) {
 			passthru($raw_command, $result);
 		} else {
@@ -220,8 +221,8 @@ class Process {
 	public function executeBackground(string $command, array $args = [], string $stdout = '', string $stderr = ''):
 	int {
 		$raw_command = $this->generateCommand($command, $args);
-		$stdout = $stdout ?: '/dev/null';
-		$stderr = $stderr ?: '/dev/null';
+		$stdout = escapeshellarg($stdout ?: '/dev/null');
+		$stderr = escapeshellarg($stderr ?: '/dev/null');
 		$processId = shell_exec("$raw_command > $stdout 2> $stderr & echo $!");
 		if (!$processId) {
 			throw new Exception_Command("shell_exec($raw_command) failed", 254, []);

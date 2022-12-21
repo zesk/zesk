@@ -22,7 +22,7 @@ if (empty($id)) {
 
 $value = $this->value;
 
-if (!begins($value, '#')) {
+if (!str_starts_with($value, '#')) {
 	$value = "#$value";
 }
 

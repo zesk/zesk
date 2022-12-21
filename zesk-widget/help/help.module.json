@@ -4,9 +4,8 @@
 		"bootstrap",
 		"jquery"
 	],
-	"autoload_options": {
-		"class_prefix": "zesk\\",
-		"lower": false
+	"autoload": {
+		"classPrefix": "zesk\\"
 	},
-	"module_class": "zesk\\Module_Help"
+	"moduleClass": "zesk\\Module_Help"
 }

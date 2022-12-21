@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Throwable;
+
 class Exception extends \Exception {
 	use Exceptional;
 
@@ -20,25 +22,28 @@ class Exception extends \Exception {
 	 * @param \Exception $e
 	 * @return array
 	 */
-	public static function exceptionVariables(\Exception $e): array {
-		return method_exists($e, 'variables') ? $e->variables() : self::phpExceptionVariables($e);
+	public static function exceptionVariables(Throwable $e): array {
+		return method_exists($e, 'variables') ? $e->variables() :
+			($e instanceof \Error ? self::phpExceptionVariables($e, 'error') : self::phpExceptionVariables($e));
 	}
 
 	/**
 	 * @param \Exception $e
 	 * @return array
 	 */
-	public static function phpExceptionVariables(\Exception $e): array {
+	public static function phpExceptionVariables(Throwable $e, string $prefix = 'exception'): array {
 		return [
-			'exceptionClass' => $e::class,
-			'class' => $e::class,
-			'code' => $e->getCode(),
+			"${prefix}Class" => $e::class,
+			"${prefix}Code" => $e->getCode(),
 			'message' => $e->getMessage(),
 			'rawMessage' => $e->getMessage(),
 			'file' => $e->getFile(),
 			'line' => $e->getLine(),
 			'trace' => $e->getTrace(),
 			'backtrace' => $e->getTraceAsString(),
+			/* 2022-12 Deprecated - overlaps */
+			'class' => $e::class,
+			'code' => $e->getCode(),
 		];
 	}
 }

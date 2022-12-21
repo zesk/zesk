@@ -10,6 +10,9 @@
  */
 namespace zesk;
 
+use DirectoryIterator;
+use SplFileInfo;
+
 /**
  *
  * @author kent
@@ -21,7 +24,7 @@ abstract class Command_Iterator_File extends Command_Base {
 	 *
 	 * @var array
 	 */
-	protected $extensions = [
+	protected array $extensions = [
 		'php',
 		'phpt',
 		'inc',
@@ -35,19 +38,19 @@ abstract class Command_Iterator_File extends Command_Base {
 	 *
 	 * @var boolean
 	 */
-	protected $include_hidden = false;
+	protected bool $include_hidden = false;
 
 	/**
 	 *
 	 * @var boolean
 	 */
-	protected $show_skipped = false;
+	protected bool $show_skipped = false;
 
 	/**
 	 *
 	 * @var boolean
 	 */
-	protected $dry_run = false;
+	protected bool $dry_run = false;
 
 	/**
 	 * (non-PHPdoc)
@@ -70,34 +73,33 @@ abstract class Command_Iterator_File extends Command_Base {
 	 *
 	 * @see Command::run()
 	 */
-	public function run(): void {
+	public function run(): int {
 		if ($this->optionBool('help')) {
 			$this->usage();
 		}
 		$dir = $this->option('directory', getcwd());
 		if (!is_dir($dir)) {
 			$this->usage("$dir is not a directory");
-			exit(1);
 		}
 		$this->include_hidden = $this->optionBool('include-hidden');
 		$this->show_skipped = $this->optionBool('show-skipped');
 		$this->dry_run = $this->optionBool('dry-run');
 		$this->start();
-		$extras = $this->argumentsRemaining(true);
+		$extras = $this->argumentsRemaining();
 		if ($extras) {
 			foreach ($extras as $extra) {
 				if (is_file($extra)) {
-					$this->process_file(new \SplFileInfo($extra));
+					$this->process_file(new SplFileInfo($extra));
 				} elseif (is_dir($extra)) {
-					$this->recurse_directory($extra);
+					$this->recurseDirectory($extra);
 				} else {
 					$this->log("### Unknown file or directory $extra");
 				}
 			}
 		} else {
-			$this->recurse_directory($dir);
+			$this->recurseDirectory($dir);
 		}
-		$this->finish();
+		return $this->finish();
 	}
 
 	/**
@@ -109,31 +111,35 @@ abstract class Command_Iterator_File extends Command_Base {
 	 * @param SplFileInfo $file
 	 * @return boolean Return false to stop processing
 	 */
-	abstract protected function process_file(\SplFileInfo $file);
+	abstract protected function process_file(SplFileInfo $file): bool;
 
 	/**
 	 */
-	abstract protected function finish();
+	abstract protected function finish(): int;
 
 	/**
+	 * Returns false if recursion ended by processing.
 	 *
-	 * @param string $dir
+	 * @param string $path
+	 * @return bool
 	 */
-	private function recurse_directory($dir) {
-		$iterator = new \DirectoryIterator($dir);
-		foreach ($iterator as $fileinfo) {
+	private function recurseDirectory(string $path): bool {
+		$iterator = new DirectoryIterator($path);
+		foreach ($iterator as $fileInfo) {
 			/* @var $f SplFileInfo */
-			$name = $fileinfo->getPathname();
-			if ($fileinfo->isDot()) {
+			$name = $fileInfo->getPathname();
+			if ($fileInfo->isDot()) {
 				continue;
 			}
 			$basename = basename($name);
 			if ($basename[0] === '.' && !$this->include_hidden) {
 				continue;
 			}
-			if ($fileinfo->isDir()) {
+			if ($fileInfo->isDir()) {
 				//$this->verboseLog("Traversing $dir (from $name)");
-				$this->recurse_directory($name);
+				if (!$this->recurseDirectory($name)) {
+					return false;
+				}
 			} else {
 				$ext = File::extension($basename);
 				if (count($this->extensions) > 0 && !in_array($ext, $this->extensions)) {
@@ -141,8 +147,8 @@ abstract class Command_Iterator_File extends Command_Base {
 						$this->log("Skipping $name");
 					}
 				} else {
-					$result = $this->process_file($fileinfo);
-					if ($result === false) {
+					$result = $this->process_file($fileInfo);
+					if (!$result) {
 						return $result;
 					}
 				}

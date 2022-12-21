@@ -5,6 +5,9 @@
 
 namespace zesk;
 
+use function md5;
+use function microtime;
+
 /**
  *
  * @author kent
@@ -24,7 +27,7 @@ class Options_Test extends UnitTest {
 		$this->assertEquals(['item', 'thing', 'space_underscore_dash_'], $options->optionKeys());
 
 
-		$key = \md5(\microtime());
+		$key = md5(microtime());
 		$options->setOption($key, 0);
 		$this->assertEquals(0, $options->option($key));
 
@@ -57,6 +60,35 @@ class Options_Test extends UnitTest {
 
 		$options->setOption($key, ['thing1', 'thing2', '99']);
 		$this->assertEquals(['thing1', 'thing2', '99'], $options->optionIterable($key, []));
+	}
+
+	public function data_hasAny(): array {
+		$testOptions = new Options(['one' => 1, 'two' => 2, 'three space' => 3, 'four-dash' => 4, 'five-😀' => 5]);
+		return [
+			[true, ['one', 'two'], $testOptions],
+			[true, 'one', $testOptions],
+			[true, 'two', $testOptions],
+			[true, 'three space', $testOptions],
+			[true, 'three_space', $testOptions],
+			[true, 'three-space', $testOptions],
+			[true, 'four dash', $testOptions],
+			[true, 'four-dash', $testOptions],
+			[true, 'four_dash', $testOptions],
+			[true, 'five-😀', $testOptions],
+			[false, 'five-😀-', $testOptions],
+			[true, ['no', 'no', 'no', 'two'], $testOptions],
+		];
+	}
+
+	/**
+	 * @param bool $expected
+	 * @param $hasAny
+	 * @param Options $testOptions
+	 * @return void
+	 * @dataProvider data_hasAny
+	 */
+	public function test_hasAny(bool $expected, $hasAny, Options $testOptions): void {
+		$this->assertEquals($expected, $testOptions->hasAnyOption($hasAny));
 	}
 
 	public function test_options_path_simple(): void {

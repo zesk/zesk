@@ -21,28 +21,57 @@ class Module extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected string $application_class;
+	private string $applicationClass;
 
 	/**
 	 * Module code name
 	 *
 	 * @var string
 	 */
-	protected string $codename = '';
+	private string $name = '';
 
 	/**
 	 * Path to this module
 	 *
 	 * @var string
 	 */
-	protected string $path;
+	private string $path;
+
+	/**
+	 * Class of the module
+	 *
+	 * @var string
+	 */
+	private string $class;
+
+	/**
+	 * @var string
+	 */
+	private string $configurationFile = '';
+
+	/**
+	 * Path in global configuration to fetch this Module's options
+	 *
+	 * @var string|array|mixed
+	 */
+	private string|array $optionsPath = '';
+
+	/**
+	 * @var string
+	 */
+	private string $configurationData = '';
+
+	/**
+	 * @var array
+	 */
+	private array $configuration = [];
 
 	/**
 	 * List of associated model classes
 	 *
 	 * @var array
 	 */
-	protected array $model_classes = [];
+	protected array $modelClasses = [];
 
 	/**
 	 * Array of old_class => new_class
@@ -51,20 +80,16 @@ class Module extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected array $class_aliases = [];
+	protected array $classAliases = [];
 
 	/**
-	 *
-	 * @ignore
-	 *
 	 */
 	public function __sleep() {
 		return [
-			'application_class',
-			'codename',
-			'path',
-			'model_classes',
-			'class_aliases',
+			'application_class', 'name', 'path', 'model_classes', 'class_aliases',
+			'class', 'path', 'configuration',
+			'configurationFile',
+			'configurationData',
 		];
 	}
 
@@ -73,14 +98,14 @@ class Module extends Hookable {
 	 *
 	 * @return string
 	 */
-	final public function path($suffix = null) {
-		return $suffix ? path($this->path, $suffix) : $this->path;
+	final public function path(string $suffix = ''): string {
+		return path($this->path, $suffix);
 	}
 
 	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Hookable::__wakeup()
+	 * @return void
+	 * @throws Exception_Configuration
+	 * @throws Exception_Unsupported
 	 */
 	public function __wakeup(): void {
 		parent::__wakeup();
@@ -88,35 +113,78 @@ class Module extends Hookable {
 	}
 
 	/**
+	 * @return string
+	 */
+	private function _defaultCodeName(): string {
+		return strtolower(StringTools::removePrefix(PHP::parseClass(get_class($this)), [
+			'Module_', 'Module',
+		]));
+	}
+
+	/**
 	 * Create Module
 	 *
-	 * @param string $options
+	 * @param Application $application
+	 * @param array $options
+	 * @param array $moduleFactoryState
+	 * @throws Exception_Unsupported
 	 */
-	final public function __construct(Application $application, array $options = [], array $module_data = []) {
+	final public function __construct(Application $application, array $options = [], array $moduleFactoryState = []) {
 		parent::__construct($application, $options);
-		$this->application_class = $application::class;
-		$this->path = $module_data['path'] ?: null;
-		if (!$this->codename) {
-			$this->codename = avalue($module_data, 'name');
-			if (!$this->codename) {
-				// Code name used in JavaScript settings
-				$this->codename = strtolower(StringTools::removePrefix(PHP::parseClass(get_class($this)), 'Module_'));
-			}
+		$this->applicationClass = $application::class;
+		$this->class = $moduleFactoryState['class'];
+		$this->path = $moduleFactoryState['path'];
+		$this->name = $this->name ?: $moduleFactoryState['name'] ?? $this->_defaultCodeName();
+		$this->optionsPath = $moduleFactoryState['optionsPath'] ?? '';
+		$this->configuration = $moduleFactoryState['configuration'];
+		$this->configurationFile = $moduleFactoryState['configurationFile'] ?? '';
+		$this->configurationData = $moduleFactoryState['configurationData'] ?? '';
+		$moduleFactoryState = ArrayTools::filterKeys($moduleFactoryState, null, [
+			'class', 'path', 'name', 'configuration', 'configurationFile', 'configurationData', 'optionsPath',
+		]);
+		if (count($moduleFactoryState)) {
+			throw new Exception_Unsupported('Need to support module fields: {keys}', [
+				'keys' => array_keys($moduleFactoryState),
+			]);
 		}
-		$this->application->registerClass($this->model_classes());
-		if (count($this->class_aliases)) {
-			$this->application->objects->setMap($this->class_aliases);
+		$this->application->registerClass($this->modelClasses());
+		if (count($this->classAliases)) {
+			$this->application->objects->setMap($this->classAliases);
 		}
 		$this->callHook('construct');
 		$this->inheritConfiguration();
 	}
 
+	final public function moduleConfiguration(): array {
+		return $this->configuration;
+	}
+
+	final public function moduleConfigurationFile(): array {
+		return $this->configurationFile;
+	}
+
 	/**
+	 * Clean a module name
 	 *
-	 * @param string $pathm
+	 * @param string $module
+	 * @return string
 	 */
-	final public function register_paths($path) {
-		return $this->application->modules->register_paths($path, $this->codename);
+	public static function cleanName(string $module): string {
+		return trim(File::name_clean($module), '- ');
+	}
+
+	/**
+	 * @return string
+	 */
+	public function baseName(): string {
+		return basename($this->name);
+	}
+
+	final public function moduleData(): array {
+		return [
+			'path' => $this->path, 'base' => $this->baseName(), 'name' => $this->name,
+			'configuration' => $this->configuration, 'configurationFile' => $this->configurationFile,
+		];
 	}
 
 	/**
@@ -132,16 +200,34 @@ class Module extends Hookable {
 
 	/**
 	 * Override in subclasses - called upon load
+	 * @throws Exception_Configuration
+	 * @throws Exception_Unsupported
 	 */
 	public function initialize(): void {
+		if ($this->optionBool('fakeConfigurationException')) {
+			throw new Exception_Configuration([$this::class, 'fake']);
+		}
+		if ($this->optionBool('fakeUnsupportedException')) {
+			throw new Exception_Unsupported(__METHOD__);
+		}
 	}
 
 	/**
+	 * @return void
+	 */
+	public function shutdown(): void {
+		if ($this->optionBool('debugShutdown')) {
+			$this->application->logger->debug($this::class . '::shutdown');
+		}
+	}
+
+	/**
+	 * Retrieve the display name for UI for this module
 	 *
 	 * @return string
 	 */
 	final public function name(): string {
-		return $this->option('name', $this->codename);
+		return $this->option('name', $this->name);
 	}
 
 	/**
@@ -149,16 +235,16 @@ class Module extends Hookable {
 	 *
 	 * @return string
 	 */
-	final public function codeName() {
-		return $this->codename;
+	final public function codeName(): string {
+		return $this->name;
 	}
 
 	/**
 	 * Override in subclasses - called upon Application::classes
 	 * @return string[]
 	 */
-	public function model_classes() {
-		return $this->model_classes;
+	public function modelClasses(): array {
+		return $this->modelClasses;
 	}
 
 	/**
@@ -177,6 +263,11 @@ class Module extends Hookable {
 	 * @return string
 	 */
 	public function version(): string {
-		return $this->application->modules->version($this->codename);
+		try {
+			$version = $this->option('version') ?? $this->configuration['version'] ?? \zesk\Module\Version::extractVersion($this->configuration);
+		} catch (Exception_NotFound|Exception_File_NotFound) {
+			return '';
+		}
+		return $version;
 	}
 }

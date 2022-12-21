@@ -26,7 +26,7 @@ class Locale_ES extends Locale {
 	}
 
 	public function noun_semantic_plural(string $word, int $count = 2): string {
-		if (ends($word, 's')) {
+		if (str_ends_with($word, 's')) {
 			return $word . 'es';
 		}
 		return $count !== 1 ? "$word" . 's' : $word;
@@ -46,12 +46,12 @@ class Locale_ES extends Locale {
 		return "$object de $owner";
 	}
 
-	public function ordinal(int $n, string $gender = 'm'): string {
+	public function ordinal(int $number, string $gender = 'm'): string {
 		// TODO: Primero, 1o? no idea
 		if ($gender === 'm') {
-			return $n . 'o';
+			return $number . 'o';
 		} else {
-			return $n . 'a';
+			return $number . 'a';
 		}
 	}
 

@@ -17,36 +17,36 @@ class Classes {
 	 *
 	 * @var integer
 	 */
-	protected $version = self::VERSION;
+	protected int $version = self::VERSION;
 
 	/**
 	 * Lowercase class name -> capitalized class name
 	 *
 	 * @var array
 	 */
-	protected $class_case = [];
+	protected array $class_case = [];
 
 	/**
 	 * Registry of class names
 	 *
 	 * @var array
 	 */
-	protected $classes = [];
+	protected array $classes = [];
 
 	/**
 	 * @var array
 	 */
-	protected $subclasses = [];
+	protected array $subclasses = [];
 
 	/**
 	 * @var array
 	 */
-	protected $hierarchy = [];
+	protected array $hierarchy = [];
 
 	/**
 	 * @var boolean
 	 */
-	protected $dirty = false;
+	protected bool $dirty = false;
 
 	/**
 	 * Classes constructor.
@@ -54,6 +54,16 @@ class Classes {
 	 */
 	public function __construct(Kernel $zesk) {
 		$this->initialize($zesk);
+		$this->loadDeclared();
+	}
+
+	/**
+	 * @return void
+	 */
+	private function loadDeclared(): void {
+		foreach (get_declared_classes() as $class) {
+			$this->register($class);
+		}
 	}
 
 	/**
@@ -61,14 +71,10 @@ class Classes {
 	 * @param Kernel $kernel
 	 */
 	public function initialize(Kernel $kernel): void {
-		$kernel->hooks->add('exit', [
-			$this,
-			'on_exit',
-		], [
-			'arguments' => [
-				$kernel,
-			],
-		]);
+		$classes = $this;
+		$kernel->hooks->add(Hooks::HOOK_EXIT, function () use ($kernel, $classes): void {
+			$classes->saveClassesToCache($kernel);
+		});
 	}
 
 	/**
@@ -96,13 +102,14 @@ class Classes {
 	 * @param Kernel $kernel
 	 * @return void
 	 */
-	public function on_exit(Kernel $kernel): void {
+	public function saveClassesToCache(Kernel $kernel): void {
 		if ($this->dirty) {
 			$this->dirty = false;
 
 			try {
 				$kernel->cache->saveDeferred($kernel->cache->getItem(__CLASS__)->set($this));
-			} catch (InvalidArgumentException) {
+			} catch (InvalidArgumentException $e) {
+				PHP::log($e);
 			}
 		}
 	}

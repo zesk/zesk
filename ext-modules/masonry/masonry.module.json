@@ -1,7 +1,7 @@
 {
 	"name": "Masonry",
 	"destination": "vendor/components/masonry/",
-	"share_path": "vendor/components/masonry/",
+	"sharePath": "vendor/components/masonry/",
 	"urls": {
 		"https://github.com/desandro/masonry/zipball/master": "${DESTINATION}",
 		"http://masonry.desandro.com/masonry.pkgd.min.js": "${DESTINATION}",

@@ -40,9 +40,9 @@ class Controller_Share extends Controller {
 	 */
 	public function build_directory(): void {
 		$app = $this->application;
-		$share_paths = $this->application->sharePath();
+		$sharePaths = $this->application->sharePath();
 		$document_root = $app->documentRoot();
-		foreach ($share_paths as $name => $path) {
+		foreach ($sharePaths as $name => $path) {
 			$app->logger->info('Reviewing {name} => {path}', [
 				'name' => $name,
 				'path' => $path,
@@ -65,15 +65,15 @@ class Controller_Share extends Controller {
 
 	/**
 	 *
-	 * @param unknown $path
-	 * @return string
+	 * @param string $path
+	 * @return ?string
 	 */
-	public function path_to_file($path) {
+	public function pathToFile(string $path): ?string {
 		$uri = StringTools::removePrefix($path, '/');
 		$uri = pair($uri, '/', '', $uri)[1];
-		$share_paths = $this->application->sharePath();
-		foreach ($share_paths as $name => $path) {
-			if (empty($name) || begins($uri, "$name/")) {
+		$sharePaths = $this->application->sharePath();
+		foreach ($sharePaths as $name => $path) {
+			if (empty($name) || str_starts_with($uri, "$name/")) {
 				$file = path($path, StringTools::removePrefix($uri, "$name/"));
 				if (!is_dir($file) && file_exists($file)) {
 					return $file;
@@ -95,7 +95,7 @@ class Controller_Share extends Controller {
 			$this->response->content = $this->share_debug();
 			return null;
 		}
-		$file = $this->path_to_file($this->request->path());
+		$file = $this->pathToFile($this->request->path());
 		if (!$file) {
 			$this->error_404();
 			return null;
@@ -103,19 +103,19 @@ class Controller_Share extends Controller {
 		$mod = $this->request->header('If-Modified-Since');
 		$fmod = filemtime($file);
 		if ($mod && $fmod <= strtotime($mod)) {
-			$this->response->status(Net_HTTP::STATUS_NOT_MODIFIED);
-			$this->response->content_type(MIME::from_filename($file));
+			$this->response->setStatus(HTTP::STATUS_NOT_MODIFIED);
+			$this->response->setContentType(MIME::fromExtension($file));
 			$this->response->content = '';
 			if ($this->optionBool('build')) {
 				$this->build($original_uri, $file);
 			}
 			return null;
-			$this->response->header('X-Debug', 'Mod - ' . strtotime($mod) . ' FMod - ' . strtotime($fmod));
 		}
 
 		$request = $this->request;
 		if ($request->get('_ver')) {
 			// Versioned resources are timestamped, expire never
+			$this->response->setHeaderDate('Expires', strtotime('+1 year'));
 			$this->response->header_date('Expires', strtotime('+1 year'));
 		} else {
 			$this->response->header_date('Expires', strtotime('+1 hour'));

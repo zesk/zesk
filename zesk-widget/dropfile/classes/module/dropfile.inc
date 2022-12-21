@@ -61,8 +61,8 @@ class Module_DropFile extends Module_JSLib {
 	 * @see Module::initialize()
 	 */
 	public function initialize(): void {
-		$this->javascript_settings = $this->options_include($this->javascript_include_settings);
-		$this->application->configuration->path_set([
+		$this->javascript_settings = $this->options($this->javascript_include_settings);
+		$this->application->configuration->setPath([
 			Controller_Image_Picker::class,
 			'upload_theme_map',
 			'dropfile',

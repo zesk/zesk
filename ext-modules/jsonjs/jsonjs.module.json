@@ -8,10 +8,9 @@
     },
     "url_license": "https://raw2.github.com/douglascrockford/JSON-js/master/json2.js",
     "destination": "vendor/components/jsonjs/",
-    "share_path": "vendor/components/jsonjs/",
-    "autoload_options": {
-    	"class_prefix": "zesk\\JSONJS\\",
-    	"lower": false
+    "sharePath": "vendor/components/jsonjs/",
+    "autoload": {
+    	"classPrefix": "zesk\\JSONJS\\"
     },
-    "module_class": "zesk\\JSONJS\\Module"
+    "moduleClass": "zesk\\JSONJS\\Module"
 }

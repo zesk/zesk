@@ -22,10 +22,10 @@ class Exception_File_NotFound extends Exception_FileSystem {
 	 * @param int $code
 	 * @param Throwable|null $previous
 	 */
-	public function __construct($filename = '', $message = '', array $arguments = [], int $code = 0, Throwable
+	public function __construct(string $path = '', $message = '', array $arguments = [], int $code = 0, Throwable
 	$previous = null) {
-		parent::__construct($filename, $message === '' ? '{filename} not found' : $message, [
-			'filename' => $filename,
+		parent::__construct($path, $message === '' ? '{path} not found' : $message, [
+			'path' => $path,
 		] + $arguments, $code, $previous);
 	}
 }

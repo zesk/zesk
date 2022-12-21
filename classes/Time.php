@@ -552,7 +552,7 @@ class Time extends Temporal {
 		$x['m'] = $this->minute();
 		$x['s'] = $this->second();
 		foreach ($x as $k => $v) {
-			$x[$k . substr($k, -1)] = StringTools::zero_pad($v);
+			$x[$k . substr($k, -1)] = StringTools::zeroPad($v);
 		}
 		$x['day_seconds'] = $this->seconds;
 		$ampm = $this->ampm();
@@ -587,7 +587,7 @@ class Time extends Temporal {
 	 * @return string
 	 */
 	private function _hms_format(string $sep = ':'): string {
-		return StringTools::zero_pad($this->hour()) . $sep . StringTools::zero_pad($this->minute()) . $sep . StringTools::zero_pad($this->second());
+		return StringTools::zeroPad($this->hour()) . $sep . StringTools::zeroPad($this->minute()) . $sep . StringTools::zeroPad($this->second());
 	}
 
 	/**

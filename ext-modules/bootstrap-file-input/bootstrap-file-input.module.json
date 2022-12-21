@@ -3,7 +3,7 @@
 	"urls": {
 		"http://gregpike.net/demos/bootstrap-file-input/bootstrap.file-input.js": "vendor/components/bootstrap-file-input/"
 	},
-	"share_path": "vendor/components/bootstrap-file-input/",
+	"sharePath": "vendor/components/bootstrap-file-input/",
 	"version_data": {
 		"file": "vendor/components/bootstrap.file-input.js",
 		"pattern": "/Bootstrap v([0-9.]+)/"

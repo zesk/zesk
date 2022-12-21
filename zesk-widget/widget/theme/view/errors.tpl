@@ -32,7 +32,7 @@ if (count($errors) === 0) {
 	return;
 }
 
-if (avalue($errors, 'continue', false)) {
+if ($errors['continue'] ?? false) {
 	unset($errors['continue']);
 	$label = $this->get('continue_label', '');
 	$class = $this->get('continue_class', 'continue');

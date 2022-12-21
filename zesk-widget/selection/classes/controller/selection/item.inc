@@ -21,9 +21,9 @@ class Controller_Selection_Item extends Controller_ORM {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\Controller_ORM::widget_control_classes()
+	 * @see \zesk\Controller_ORM::widgetControlClasses()
 	 */
-	protected function widget_control_classes($action) {
+	protected function widgetControlClasses($action) {
 		if ($action === 'list') {
 			$type_class = strtolower($this->type->class);
 			$widget_control_classes = $this->optionArray('widget_control_classes');
@@ -31,7 +31,7 @@ class Controller_Selection_Item extends Controller_ORM {
 				return $widget_control_classes[$type_class];
 			}
 		}
-		return parent::widget_control_classes($action);
+		return parent::widgetControlClasses($action);
 	}
 
 	/**

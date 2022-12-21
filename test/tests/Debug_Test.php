@@ -24,6 +24,9 @@ class Debug_Test extends UnitTest {
 	}
 
 	public function test_output(): void {
-		Debug::output();
+		ob_start();
+		Debug::output($random = $this->randomHex());
+		$content = ob_get_clean();
+		$this->assertStringContainsString($random, $content);
 	}
 }

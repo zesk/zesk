@@ -7,12 +7,18 @@
  */
 namespace zesk;
 
+use zesk\ORM\Exception_Store;
+
 /**
  * @see Class_Content_Menu
  * @author kent
  *
  */
-class Content_Menu extends ORM {
+class Content_Menu extends ORMBase {
+	/**
+	 * @return $this
+	 * @throws Exception_Store
+	 */
 	public function store(): self {
 		$this->CodeName = $this->clean_code_name($this->CodeName);
 		if ($this->Parent === 0 || $this->Parent === '0' || $this->Parent === '') {
@@ -36,7 +42,7 @@ class Content_Menu extends ORM {
 		$cc = $this->ContentObjects;
 		$result = $this->register_content();
 		if (!$result) {
-			return null;
+			throw new Exception_Store(get_class($this));
 		}
 		if ($cc === $this->ContentObjects) {
 			return $this;
@@ -67,7 +73,7 @@ class Content_Menu extends ORM {
 
 		$first = true;
 		$parent_to_code = [];
-		$menus = $this->query_select()->setWhatString('ID,Name,CodeName,Parent,ContentObjects,ContentTemplate,ContentLayout,IsActive,IsHome');
+		$menus = $this->querySelect()->setWhatString('ID,Name,CodeName,Parent,ContentObjects,ContentTemplate,ContentLayout,IsActive,IsHome');
 		$menus->order_by('Parent,OrderIndex');
 
 		$result = [];
@@ -132,7 +138,7 @@ class Content_Menu extends ORM {
 	 */
 	public function menu_children($x) {
 		$menus = $this->_menus();
-		return avalue($menus, $x);
+		return $menus[$x] ?? null;
 	}
 
 	/**
@@ -181,15 +187,15 @@ class Content_Menu extends ORM {
 
 	/**
 	 *
-	 * @param unknown $uri
-	 * @return mixed|array|NULL|unknown
+	 * @param string $uri
+	 * @return null|array|string
 	 */
-	public function menu_find($uri) {
+	public function menu_find(string $uri): null|array|string {
 		$content = $this->_menus_content();
 		$uri = trim($uri, '/');
 		$uri_parts = explode('/', $uri);
 		if (count($uri_parts) === 1) {
-			return avalue($content, "/$uri");
+			return $content["/$uri"] ?? null;
 		}
 		$uri = "/$uri/";
 		$max_len = -1;
@@ -209,28 +215,14 @@ class Content_Menu extends ORM {
 
 	/**
 	 *
-	 * @param unknown $uri
-	 * @param unknown $default
-	 * @return string
-	 */
-	public function menu_content($uri, $default = null) {
-		$menu = $this->menu_find($uri);
-		if (!is_array($menu)) {
-			return $default;
-		}
-		return $this->layout($menu);
-	}
-
-	/**
-	 *
 	 * @param array $menu
 	 * @param array $options
 	 * @return string
 	 */
 	public function layout(array $menu, array $options = []) {
 		$objects_string = $menu['ContentObjects'];
-		$template = aevalue($menu, 'ContentTemplate', 'default');
-		$layout_string = avalue($menu, 'ContentLayout');
+		$template = $menu['ContentTemplate'] ?? 'default';
+		$layout_string = $menu['ContentLayout'] ?? null;
 
 		$layout = HTML::parse_attributes($layout_string);
 

@@ -4,7 +4,7 @@ namespace zesk;
 /**
  * Class_Contact_Info
  */
-abstract class Class_Contact_Info extends Class_ORM {
+abstract class Class_Contact_Info extends Class_Base {
 	/**
 	 *
 	 * @var string

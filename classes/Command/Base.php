@@ -34,17 +34,18 @@ abstract class Command_Base extends Command implements Handler {
 
 	/**
 	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Command::log()
+	 * @param mixed $message
+	 * @param array $context
+	 * @return void
 	 */
-	public function log(mixed $message, array $arguments = []): void {
+	public function log(mixed $message, array $context = []): void {
 		if ($this->quiet) {
-			$severity = $arguments['severity'] ?? LogLevel::INFO;
+			$severity = $context['severity'] ?? LogLevel::INFO;
 			if (array_key_exists($severity, self::$quiet_levels)) {
 				return;
 			}
 		}
-		parent::log($message, $arguments);
+		parent::log($message, $context);
 	}
 
 	/**
@@ -66,15 +67,14 @@ abstract class Command_Base extends Command implements Handler {
 		$this->option_types['help'] = 'boolean';
 
 		$this->option_help['log'] = 'Name of the log file to output log messages to (default is stdout, use - to use stdout)';
-		$this->option_help['log-level'] = '(Deprecated) Use --severity.';
 		$this->option_help['severity'] = 'Maximum log severity to output';
-		$this->option_help['debug'] = 'Debugging logging enabled';
+		$this->option_help['debug'] = 'Debugging logging enabled (implies --severity debug)';
 		$this->option_help['debug-config'] = 'Output the configuration load order similar to the zesk config command.';
-		$this->option_help['no-config'] = "Do not load the configuration for this command when $this->configure(\"name\") is called";
-		$this->option_help['verbose'] = 'Output more messages to assist in debugging problems, or just for fun.';
-		$this->option_help['ansi'] = 'Force ANSI colors in output';
-		$this->option_help['no-ansi'] = 'Disable ANSI colors in output';
-		$this->option_help['quiet'] = 'Supress all log messages to stdout overriding --verbose and --debug.';
+		$this->option_help['no-config'] = 'Do not load the command configuration for this command (error when no configuration exists)';
+		$this->option_help['verbose'] = 'Be more verbose';
+		$this->option_help['ansi'] = 'Force ANSI colors in output (defaults to true if a console is detected)';
+		$this->option_help['no-ansi'] = 'Disable ANSI colors in output (overrides any automatic detection)';
+		$this->option_help['quiet'] = 'Suppress all log messages to stdout overriding --verbose and --debug.';
 		$this->option_help['help'] = 'This help.';
 
 		if (isset($this->option_types['format']) && !isset($this->option_help['format'])) {

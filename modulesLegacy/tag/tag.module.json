@@ -1,0 +1,12 @@
+{
+	"name": "Tag Module",
+	"description": "Add a tag to any database object",
+	"themePathPrefix": "zesk/tag/",
+	"autoload": {
+		"classPrefix": "zesk\\Tag\\"
+	},
+	"requires": [
+		"ORM"
+	],
+	"moduleClass": "zesk\\Tag\\Module"
+}

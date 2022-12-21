@@ -62,6 +62,21 @@ class Locale_Test extends UnitTest {
 	public function data_conjunction(): array {
 		return [
 			[
+				['Apples', 'Pears', 'Frogs'],
+				'and',
+				'Apples, Pears, and Frogs',
+			],
+			[
+				['Apples', 'Pears', 'Frogs'],
+				'',
+				'Apples, Pears, or Frogs',
+			],
+			[
+				['Apples', 'Pears', 'Frogs'],
+				'no',
+				'Apples, Pears, no Frogs',
+			],
+			[
 				['one thing', ],
 				'',
 				'one thing',

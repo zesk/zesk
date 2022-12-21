@@ -29,7 +29,7 @@ class View_Time_Zone extends View_Text {
 		} elseif (!$this->optionBool('HTML')) {
 			$text = htmlspecialchars($text);
 		}
-		$attrs = $object->applyMap($this->options_include('target;class;onclick'));
+		$attrs = $object->applyMap($this->options(toList('target;class;onclick')));
 		$uri = $this->request->uri();
 		$add_ref = $this->option('add_ref', URL::queryKeysRemove($uri, 'message'));
 		if ($add_ref) {

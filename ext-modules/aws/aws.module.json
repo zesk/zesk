@@ -4,10 +4,9 @@
 		"require": "aws/aws-sdk-php:^3.17"
 	},
 	"url_license": "http://aws.amazon.com/apache2.0/",
-	"zesk_command_class_prefix": "zesk\\AWS\\Command_",
-	"autoload_options": {
-		"lower": false,
-		"class_prefix": "zesk\\AWS\\"
+	"zeskCommandClassPrefix": "zesk\\AWS\\Command_",
+	"autoload": {
+		"classPrefix": "zesk\\AWS\\"
 	},
-	"module_class": "zesk\\AWS\\Module"
+	"moduleClass": "zesk\\AWS\\Module"
 }

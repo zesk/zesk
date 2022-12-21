@@ -138,10 +138,10 @@ class UTF16 {
 	 * Syntactic sugar function?
 	 *
 	 * @param string $mixed
-	 * @param string|null $be
+	 * @param bool|null $be
 	 * @return string
 	 */
-	public static function to_iso8859(string $mixed, string &$be = null): string {
+	public static function to_iso8859(string $mixed, bool &$be = null): string {
 		return UTF16::decode($mixed, $be);
 	}
 }

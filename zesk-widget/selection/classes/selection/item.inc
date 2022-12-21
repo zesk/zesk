@@ -6,11 +6,11 @@ namespace zesk;
  * @see Class_Selection_Item
  * @author kent
  * @property Selection_Type $type
- * @property ORM $id
+ * @property ORMBase $id
  * @property boolean $add
  * @property Selection_Query $query
  */
-class Selection_Item extends ORM {
+class Selection_Item extends ORMBase {
 	/**
 	 * Value in "add" for items which should be removed from the query
 	 *
@@ -44,7 +44,7 @@ class Selection_Item extends ORM {
 	 * @param array $mapping
 	 */
 	public static function copy_duplicate(Application $application, $old_type, $new_type, array $mapping): void {
-		/* @var $class Class_ORM */
+		/* @var $class Class_Base */
 		$members = $application->class_ormRegistry(__CLASS__)->column_types;
 		unset($members['type']);
 		$what = ArrayTools::valuesFlipCopy(array_keys($members));

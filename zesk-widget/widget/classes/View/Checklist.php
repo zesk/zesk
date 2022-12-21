@@ -14,9 +14,9 @@ class View_Checklist extends View {
 	// 			$table = $this->option("table");
 	// 			$linkCol = $this->option("column");
 	// 			$idCol = $this->optionget("idcolumn");
-	// 			$id = avalue($object, "ID");
+	// 			$id = $object["ID"] ?? null;
 	// 			if (!empty($id)) {
-	// 				$v = d  b::queryArray("SELECT `$idCol`,`$linkCol` FROM `$table` WHERE `$idCol`=" . avalue($object, "ID"), false, $linkCol);
+	// 				$v = d  b::queryArray("SELECT `$idCol`,`$linkCol` FROM `$table` WHERE `$idCol`=" . $object["ID"] ?? null, false, $linkCol);
 	// 			} else {
 	// 				$v = array();
 	// 			}

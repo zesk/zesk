@@ -122,7 +122,7 @@ If a site is not served from a rooted web site (e.g. `http://example.com/path/to
 Search path for shell or external commands. Similar to `$PATH` in `bash`, if not set it will use `$_SERVER['PATH']` which is separated by an operating-specific separator. 
 A semicolon-separated list of paths in the file-system.
 
-## `zesk_command_path`
+## `zeskCommandPath`
 
 Search path for zesk shell commands, invoked by [zesk.sh](zesk.sh.md). Similar to `command_path`, semicolon-separated. Defaults to "$ZESK_ROOT/command".
 

@@ -3,11 +3,10 @@
 	"composer": {
 		"require": "components/three.js"
 	},
-	"share_path": "vendor/components/three.js",
+	"sharePath": "vendor/components/three.js",
 	"url_license": "https://raw2.github.com/mrdoob/three.js/master/LICENSE",
-	"autoload_options": {
-		"prefix": "zesk\\ThreeJS\\",
-		"lower": false
+	"autoload": {
+		"prefix": "zesk\\ThreeJS\\"
 	},
-	"module_class": "zesk\\ThreeJS\\Module"
+	"moduleClass": "zesk\\ThreeJS\\Module"
 }

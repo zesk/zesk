@@ -12,7 +12,7 @@ class View_Real extends View {
 		$v = $this->value();
 		$result = '';
 		if (empty($v) || abs($v) < $this->option('zero_epsilon', 0.00001)) {
-			$result = avalue($this->options, 'empty_string', '0');
+			$result = $this->options['empty_string'] ?? '0';
 			if ($this->optionBool('empty_string_no_wrap')) {
 				return $result;
 			}

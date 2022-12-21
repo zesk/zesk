@@ -43,6 +43,13 @@ trait Exceptional {
 	/**
 	 * @return string
 	 */
+	public function codeName(): string {
+		return StringTools::removePrefix(PHP::parseClass(get_class($this)), ['Exception_', 'Exception']);
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getRawMessage(): string {
 		return $this->raw_message;
 	}
@@ -53,8 +60,10 @@ trait Exceptional {
 	 * @return array
 	 */
 	public function variables(): array {
-		return [
-			'rawMessage' => $this->raw_message, 'arguments' => $this->arguments,
+		return $this->arguments + [
+			'rawMessage' => $this->raw_message,
+			'arguments' => $this->arguments,
+			'codeName' => $this->codeName(),
 		] + Exception::phpExceptionVariables($this);
 	}
 

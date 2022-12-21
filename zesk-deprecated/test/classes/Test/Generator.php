@@ -308,10 +308,10 @@ class Test_Generator extends Options {
 				$param_list[] = '$' . $k;
 				$contents[] = '$' . $k . ' = ' . PHP::dump($v) . ';';
 			}
-			if (begins($method, 'new ')) {
+			if (str_starts_with($method, 'new ')) {
 				$prefix = '$testx = ';
 				$has_non_static_methods = true;
-			} elseif (begins($method, '::')) {
+			} elseif (str_starts_with($method, '::')) {
 				$method_name = str_replace('::', '', $method);
 				$method_object = $x->getMethod($method_name);
 				$methodParams = $method_object->getParameters();
@@ -319,7 +319,7 @@ class Test_Generator extends Options {
 				self::generate_static_class_method_test($file, $dest_path, $class, $method_name, $methodParams);
 
 				continue;
-			} elseif (begins($method, '->')) {
+			} elseif (str_starts_with($method, '->')) {
 				$prefix = '$testx';
 				$has_non_static_methods = true;
 			} else {

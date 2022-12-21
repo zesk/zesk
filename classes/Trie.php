@@ -8,6 +8,7 @@
  */
 namespace zesk;
 
+use stdClass;
 use zesk\Trie\Node;
 
 /**
@@ -109,6 +110,20 @@ class Trie extends Options {
 	 */
 	public function toJSON(): array {
 		return $this->root->toJSON();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function words(): array {
+		$temp = new stdClass();
+		$temp->items = [];
+		$method = function ($word) use ($temp): void {
+			$temp->items[] = $word;
+		};
+		$this->walk($method);
+		unset($method);
+		return $temp->items;
 	}
 
 	/**

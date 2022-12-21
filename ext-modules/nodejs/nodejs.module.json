@@ -1,8 +1,7 @@
 {
 	"name": "NodeJS",
-	"autoload_options": {
-		"class_prefix": "zesk\\NodeJS\\",
-		"lower": false
+	"autoload": {
+		"classPrefix": "zesk\\NodeJS\\"
 	},
-	"module_class": "zesk\\NodeJS\\Module"
+	"moduleClass": "zesk\\NodeJS\\Module"
 }

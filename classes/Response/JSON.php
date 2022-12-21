@@ -3,8 +3,8 @@ namespace zesk\Response;
 
 use zesk\Exception_Semantics;
 use zesk\JSON as zeskJSON;
-use zesk\Response;
 use zesk\ORM\JSONWalker;
+use zesk\Response;
 
 class JSON extends Type {
 	/**

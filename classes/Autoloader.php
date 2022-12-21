@@ -24,7 +24,7 @@ class Autoloader {
 	 *
 	 * @var string
 	 */
-	public const OPTION_CLASS_PREFIX = 'class_prefix';
+	public const OPTION_CLASS_PREFIX = 'classPrefix';
 
 	/**
 	 * Used in ->path("path/to", [ Autoloader::CLASS_PREFIX => "foo\\", Autoloader::LOWER => false ]);
@@ -100,7 +100,7 @@ class Autoloader {
 	public bool $debug = false;
 
 	/**
-	 * Set to false to throw an Exception_Class_NotFound from autoloader.
+	 * Set to false in order to throw an Exception_Class_NotFound from autoloader.
 	 * Useful when only using Zesk autoloader or is guaranteed to run last.
 	 *
 	 * @var boolean
@@ -127,6 +127,7 @@ class Autoloader {
 	/**
 	 * Create default autoloader for most of Zesk
 	 * @param Kernel $kernel
+	 * @throws Exception_Directory_NotFound
 	 */
 	public function __construct(Kernel $kernel) {
 		$this->kernel = $kernel;
@@ -153,12 +154,11 @@ class Autoloader {
 	}
 
 	/**
-	 * Retrieve the autoload cache structure, optionally creating the autoload cache directory if
-	 * needed.
+	 * Retrieve the autoloader cache structure, optionally creating if needed.
 	 *
 	 * @return ?CacheItemInterface
 	 */
-	private function _autoload_cache(): ?CacheItemInterface {
+	private function _autoloadCache(): ?CacheItemInterface {
 		try {
 			return $this->kernel->cache->getItem('autoload_cache');
 		} catch (InvalidArgumentException) {
@@ -168,6 +168,10 @@ class Autoloader {
 
 	private function _autoload_cache_save(CacheItemInterface $item): void {
 		$this->kernel->cache->saveDeferred($item);
+	}
+
+	public function shutdown(): void {
+		// Pass
 	}
 
 	/**
@@ -203,18 +207,17 @@ class Autoloader {
 	 * @see $this->no_exception
 	 */
 	public function load(string $class, bool $no_exception = false): string {
-		$lowercase_class = strtolower($class);
-		$cache = $this->_autoload_cache();
+		$cache = $this->_autoloadCache();
 		$include = null;
 		$cache_items = $cache?->get();
 
 		if (!is_array($cache_items)) {
 			$cache_items = [];
 		}
-		if (array_key_exists($lowercase_class, $cache_items)) {
-			$include = $cache_items[$lowercase_class];
+		if (array_key_exists($class, $cache_items)) {
+			$include = $cache_items[$class];
 			if (!is_file($include)) {
-				unset($cache_items[$lowercase_class]);
+				unset($cache_items[$class]);
 				$include = null;
 			}
 		}
@@ -233,7 +236,7 @@ class Autoloader {
 					'backtrace' => Text::indent(_backtrace(), 1),
 				]);
 			}
-			$cache_items[$lowercase_class] = $include;
+			$cache_items[$class] = $include;
 			$cache->set($cache_items);
 			$this->_autoload_cache_save($cache);
 		}
@@ -263,16 +266,16 @@ class Autoloader {
 	 *            A list of extensions to search for in each target path. If supplied, is forced.
 	 * @return array[string]
 	 */
-	public function possibilities(string $file_prefix, array $extensions = null) {
+	public function possibilities(string $file_prefix, array $extensions = null): array {
 		$result = [];
 		foreach ($this->path() as $path => $options) {
-			$class_prefix = rtrim($options[self::OPTION_CLASS_PREFIX], '_');
-			if ($class_prefix !== '') {
-				if (!str_ends_with($class_prefix, '\\')) {
-					$class_prefix .= '_';
+			$classPrefix = rtrim($options[self::OPTION_CLASS_PREFIX], '_');
+			if ($classPrefix !== '') {
+				if (!str_ends_with($classPrefix, '\\')) {
+					$classPrefix .= '_';
 				}
-				$len = strlen($class_prefix);
-				if (strcasecmp(substr($file_prefix, 0, $len), $class_prefix) === 0) {
+				$len = strlen($classPrefix);
+				if (strcmp(substr($file_prefix, 0, $len), $classPrefix) === 0) {
 					$path_file_prefix = substr($file_prefix, $len);
 				} else {
 					// Class doesn't begin with prefix, skip
@@ -367,11 +370,15 @@ class Autoloader {
 	 *            is ignored.
 	 *            - last - Set as last autoload path.
 	 *            - extensions - Array or ;-separated string containing extensions to look for
-	 *            - class_prefix - Only load classes which match this prefix from this path
+	 *            - classPrefix - Only load classes which match this prefix from this path
 	 *
 	 * @return void
+	 * @throws Exception_Directory_NotFound
 	 */
-	public function addPath(string $add, string|bool|array $options = []): array {
+	public function addPath(string $add, string|array $options = []): void {
+		if (!is_dir($add)) {
+			throw new Exception_Directory_NotFound($add);
+		}
 		if (is_string($options)) {
 			$options = [
 				$options => true,
@@ -382,7 +389,7 @@ class Autoloader {
 			];
 		}
 		if (isset($options[self::OPTION_EXTENSIONS])) {
-			$options[self::OPTION_EXTENSIONS] = to_list($options[self::OPTION_EXTENSIONS]);
+			$options[self::OPTION_EXTENSIONS] = toList($options[self::OPTION_EXTENSIONS]);
 		}
 		$options += [
 			self::OPTION_CLASS_PREFIX => self::OPTION_CLASS_PREFIX_DEFAULT,
@@ -390,15 +397,12 @@ class Autoloader {
 		];
 		if ($options[self::OPTION_FIRST] ?? null) {
 			$this->first[$add] = $options;
-			$this->cached = null;
 		} elseif ($options[self::OPTION_LAST] ?? null) {
 			$this->last[$add] = $options;
-			$this->cached = null;
 		} else {
 			$this->paths[$add] = $options;
-			$this->cached = null;
 		}
-		return $this->path();
+		$this->cached = null;
 	}
 
 	/**

@@ -1,8 +1,7 @@
 {
 	"name": "Content module",
-	"autoload_options": {
-		"lower": false,
-		"class_prefix": "zesk\\"
+	"autoload": {
+		"classPrefix": "zesk\\"
 	},
-	"module_class": "zesk\\Module_Content"
+	"moduleClass": "zesk\\Module_Content"
 }

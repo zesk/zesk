@@ -5,12 +5,11 @@
 	"strip_components": 1,
 	"github": "openlayers/openlayers",
 	"destination": "vendor/components/openlayers",
-	"share_path": "vendor/components/openlayers",
+	"sharePath": "vendor/components/openlayers",
 	"url_license": "https://raw.githubusercontent.com/openlayers/openlayers/master/LICENSE.md",
-	"autoload_options": {
-		"class_prefix": "zesk\\OpenLayers4\\",
-		"lower": false
+	"autoload": {
+		"classPrefix": "zesk\\OpenLayers4\\"
 	},
-	"theme_path_prefix": "openlayers",
-	"module_class": "zesk\\OpenLayers4\\Module"
+	"themePathPrefix": "openlayers",
+	"moduleClass": "zesk\\OpenLayers4\\Module"
 }

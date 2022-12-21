@@ -7,7 +7,7 @@
  */
 namespace zesk;
 
-class Contact_Label_Group extends ORM {
+class Contact_Label_Group extends ORMBase {
 	public static function register_group(Application $app, $name) {
 		if (empty($name)) {
 			return null;

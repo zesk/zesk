@@ -18,8 +18,6 @@ class Template_Test extends UnitTest {
 		$this->application->addThemePath($this->test_sandbox());
 
 		file_put_contents($this->test_sandbox('good.tpl'), '<?php echo 3.14159;');
-		$path = null;
-		$options = false;
 		$template = new Template($this->application);
 		$template->begin('good.tpl');
 
@@ -31,13 +29,13 @@ class Template_Test extends UnitTest {
 
 	public function test_find_path(): void {
 		$template = new Template($this->application);
-		$template->find_path('template.tpl');
+		$template->findPath('template.tpl');
 	}
 
 	public function test_would_exist(): void {
 		$path = 'foo.tpl';
 		$template = new Template($this->application);
-		$this->assertFalse($template->would_exist($path));
+		$this->assertFalse($template->wouldExist($path));
 	}
 
 	public function test_output(): void {
@@ -46,9 +44,9 @@ class Template_Test extends UnitTest {
 		$files = [];
 		for ($i = 0; $i < 5; $i++) {
 			$files[$i] = $f = $this->test_sandbox($i . '.tpl');
-			$pushpop = 'echo "PUSH {\\n" . zesk\\Text::indent($application->theme("' . ($i + 1) . "\", array(\"i\" => $i)), 1) . \"} POP\\n\";";
-			$content = <<<END
-<?php
+			$pushPop = 'echo "PUSH {\\n" . zesk\\Text::indent($application->theme("' . ($i + 1) . "\", array(\"i\" => $i)), 1) . \"} POP\\n\";";
+			$content = '<' . "?php\n";
+			$content .= <<<END
 echo "BEGIN zesk\Template $i {\\n";
 \$this->v$i = "hello$i";
 \$this->g = "hello$i";
@@ -64,13 +62,12 @@ echo "} END zesk\Template $i";
 END;
 
 			$map = [
-				'pushpop' => ($i !== 4) ? $pushpop : "echo \"LEAF\\n\";\n",
+				'pushpop' => ($i !== 4) ? $pushPop : "echo \"LEAF\\n\";\n",
 			];
 
 			file_put_contents($f, map($content, $map));
 		}
 
-		$path = null;
 		$options = [
 			'application' => $this->application,
 		];

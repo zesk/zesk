@@ -15,7 +15,7 @@ namespace zesk;
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
 
-/* @var $object ORM */
+/* @var $object ORMBase */
 try {
 	$url = $router->get_route('edit', $this->object);
 } catch (Exception_ORM_NotFound $e) {

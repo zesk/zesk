@@ -31,7 +31,7 @@ class Contact_Builder_Address extends Contact_Builder_Base {
 			'value' => $value,
 		];
 		$data = map($data, $map);
-		$low_label = avalue($data, 'Label', 'home');
+		$low_label = $data['Label'] ?? 'home';
 		if (array_key_exists('Street_Line', $data)) {
 			$item = $import->has_item($this->contact_class, $low_label);
 			if (!is_array($item)) {

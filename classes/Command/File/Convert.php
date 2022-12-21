@@ -12,33 +12,33 @@ namespace zesk;
  */
 abstract class Command_File_Convert extends Command_Base {
 	/**
-	 * Scan for files matching this extension pattern (no delimeters), use vertical bar only
+	 * Scan for files matching this extension pattern (no delimiters), use vertical bar only
 	 *
 	 * e.g. Use "inc|php|tpl" to match files ending with those extensions
 	 *
 	 * @var string
 	 */
-	protected $source_extension_pattern = null;
+	protected string $source_extension_pattern = '';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $destination_extension = null;
+	protected string $destination_extension = '';
 
 	/**
 	 * Overwrite files (when true, implies destination_extension is null)
 	 *
 	 * @var boolean
 	 */
-	protected $overwrite = false;
+	protected bool $overwrite = false;
 
 	/**
 	 * Override in subclasses to modify the configuration file loaded by this command.
 	 *
 	 * @var string
 	 */
-	protected $configuration_file = 'file-convert';
+	protected string $configuration_file = 'file-convert';
 
 	/**
 	 *
@@ -73,10 +73,13 @@ abstract class Command_File_Convert extends Command_Base {
 		parent::initialize();
 	}
 
-	private function target_filename($file) {
+	/**
+	 * @throws Exception_Syntax
+	 */
+	private function target_filename(string $file): string {
 		$extension = trim($this->option('extension', $this->destination_extension), '.');
 		$target_prefix = $this->option('target-path');
-		$new_file = $this->overwrite ? $file : File::extension_change($file, ".$extension");
+		$new_file = $this->overwrite ? $file : File::setExtension($file, ".$extension");
 		$new_file = path(dirname($new_file), $target_prefix, basename($new_file));
 		return Directory::removeDots($new_file);
 	}
@@ -86,7 +89,7 @@ abstract class Command_File_Convert extends Command_Base {
 	 * {@inheritDoc}
 	 * @see Command::run()
 	 */
-	protected function run(): void {
+	protected function run(): int {
 		$this->verboseLog('Configuring using config file: ' . $this->configuration_file);
 		$this->configure($this->configuration_file);
 		$app = $this->application;
@@ -108,18 +111,23 @@ abstract class Command_File_Convert extends Command_Base {
 		$content = fread(STDIN, 1024);
 		fseek(STDIN, 0);
 		if ($content === false || $content === '') {
-			$args = $this->argumentsRemaining(true);
+			$args = $this->argumentsRemaining();
 			if (count($args)) {
 				$files = $args;
 			} else {
 				$cwd = getcwd();
 				$this->verboseLog('Listing {cwd}', compact('cwd'));
 				$files = Directory::list_recursive($cwd, [
-					'file_include_pattern' => '/\.(' . $this->source_extension_pattern . ')$/',
-					'file_default' => false,
-					'directory_default' => false,
-					'directory_walk_exclude_pattern' => '#/\.#',
-					'add_path' => true,
+					Directory::LIST_RULE_FILE => [
+						'/\.(' . $this->source_extension_pattern . ')$/' => true,
+						false,
+					],
+					Directory::LIST_RULE_DIRECTORY_WALK => [
+						'#/\.#' => false,
+						true,
+					],
+					Directory::LIST_RULE_DIRECTORY => false,
+					Directory::LIST_ADD_PATH => true,
 				]);
 			}
 			$overwrite = $this->overwrite;

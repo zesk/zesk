@@ -9,10 +9,9 @@
 	"strip_components": 1,
 	"url_license": "https://github.com/malsup/form/blob/master/README.md",
 	"destination": "vendor/components/jquery-form/",
-	"share_path": "vendor/components/jquery-form/",
-	"module_class": "zesk\\Module_jQuery_Form",
-	"autoload_options": {
-		"class_prefix": "zesk\\",
-		"lower": false
+	"sharePath": "vendor/components/jquery-form/",
+	"moduleClass": "zesk\\Module_jQuery_Form",
+	"autoload": {
+		"classPrefix": "zesk\\"
 	}
 }

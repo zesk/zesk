@@ -18,6 +18,7 @@ class Compatibility {
 
 	/**
 	 * @throws Exception_Unsupported
+	 * @codeCoverageIgnore
 	 */
 	public static function check(): void {
 		$v = self::PHP_VERSION_MINIMUM;

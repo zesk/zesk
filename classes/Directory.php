@@ -20,28 +20,36 @@ use Psr;
  */
 class Directory extends Hookable {
 	/**
-	 * @var boolean
-	 */
-	public static $debug = false;
-
-	/**
 	 *
 	 * @var integer
 	 */
-	public static int $default_mode = 504; /* 0o0770 */
+	private static int $defaultMode = 504; /* 0o0770 */
 
 	/**
-	 * Implement hooks
+	 * Souped up fstat.
+	 *
+	 * @thanks
+	 *
+	 * @param mixed $path
+	 *            Path or resource to check
+	 * @param ?string $section
+	 *            Section to retrieve, or null for all sections
+	 * @return array
+	 * @throws Exception_Directory_NotFound
+	 * @see File::stat
 	 */
-	public static function hooks(Application $application): void {
-		$application->hooks->add('configured', __CLASS__ . '::configured');
-	}
-
-	/**
-	 * configured hook
-	 */
-	public static function configured(Application $application): void {
-		self::$default_mode = $application->configuration->path(__CLASS__)->get('default_mode', self::$default_mode);
+	public static function stat(string $path, string $section = null): array {
+		clearstatcache(false, $path);
+		$ss = @stat($path);
+		if (!$ss) {
+			throw new Exception_Directory_NotFound($path);
+		}
+		$ss['path'] = $path;
+		$s = File::expandStats($ss);
+		if ($section !== null) {
+			return $s[$section] ?? [];
+		}
+		return $s;
 	}
 
 	/**
@@ -51,19 +59,25 @@ class Directory extends Hookable {
 	 * @return string
 	 * @throws Exception_Directory_Permission
 	 * @throws Exception_Directory_Create
-	 * @throws Exception_File_NotFound
 	 */
 	public static function depend(string $path, int $mode = null): string {
 		if ($mode === null) {
-			$mode = self::default_mode();
+			$mode = self::defaultMode();
 		}
 		if (!self::create($path, $mode)) {
 			throw new Exception_Directory_Create($path);
 		}
-		$perms = File::stat($path, 'perms');
+
+		try {
+			$perms = Directory::stat($path, 'perms');
+		} catch (Exception_Directory_NotFound) {
+			throw new Exception_Directory_Permission($path, 'Can not stat {path}');
+		}
 		if (strval($perms['octal']) === File::mode_to_octal($mode)) {
 			if (!chmod($path, $mode)) {
-				throw new Exception_Directory_Permission($path, map('Setting {filename} to mode {0}', [sprintf('%04o', $mode)]));
+				throw new Exception_Directory_Permission($path, 'Setting {path} to mode {mode}', [
+					'mode' => sprintf('%04o', $mode),
+				]);
 			}
 		}
 		return $path;
@@ -106,15 +120,12 @@ class Directory extends Hookable {
 	}
 
 	/**
-	 * If debugging is enabled, log a debug message
+	 * The default directory mode for new directories
 	 *
-	 * @param string|array $message
-	 * @param array $args
+	 * @return int
 	 */
-	public static function debug(string|array $message, array $args = []): void {
-		if (self::$debug) {
-			zesk()->application()->logger->debug($message, $args);
-		}
+	public static function defaultMode(): int {
+		return self::$defaultMode;
 	}
 
 	/**
@@ -122,8 +133,8 @@ class Directory extends Hookable {
 	 *
 	 * @return int
 	 */
-	public static function default_mode(): int {
-		return self::$default_mode;
+	public static function setDefaultMode(int $mode): void {
+		self::$defaultMode = $mode;
 	}
 
 	/**
@@ -134,7 +145,7 @@ class Directory extends Hookable {
 	 */
 	public static function create(string $path, int $mode = -1) {
 		if ($mode < 0) {
-			$mode = self::default_mode();
+			$mode = self::defaultMode();
 		}
 		if (is_dir($path)) {
 			return $path;
@@ -156,8 +167,7 @@ class Directory extends Hookable {
 	 * @throws Exception_Parameter
 	 * @throws Exception_Directory_NotFound
 	 */
-	public static function duplicate(string $source, string $destination, bool $recursive = true, callable
-	$file_copy_function = null): string {
+	public static function duplicate(string $source, string $destination, bool $recursive = true, callable $file_copy_function = null): string {
 		if (empty($source)) {
 			throw new Exception_Parameter('self::duplicate: Source is empty');
 		}
@@ -165,7 +175,7 @@ class Directory extends Hookable {
 			throw new Exception_Parameter('self::duplicate: Destination is empty');
 		}
 		if (!is_dir($destination)) {
-			if (!mkdir($destination, self::default_mode(), true)) {
+			if (!mkdir($destination, self::defaultMode(), true)) {
 				throw new Exception_Directory_NotFound("Can't create $destination");
 			}
 		}
@@ -674,8 +684,7 @@ class Directory extends Hookable {
 	 * @return array List of files deleted
 	 * @throws Exception_Parameter|Exception_Directory_NotFound
 	 */
-	public static function cullContents(string $directory, int $total, string $order_by = 'name', bool $ascending =
-	true): array {
+	public static function cullContents(string $directory, int $total, string $order_by = 'name', bool $ascending = true): array {
 		$files = self::ls($directory, null, true);
 		if (count($files) < $total) {
 			return [];
@@ -749,7 +758,7 @@ class Directory extends Hookable {
 	 * @param mixed $directory
 	 *            Directory to search for, or list of directories to search for (array)
 	 * @return array All possible paths which actually exist
-	 * @see File::find_first
+	 * @see File::findFirst
 	 */
 	public static function findAll(array $paths, array|string $directory = ''): array {
 		$result = [];

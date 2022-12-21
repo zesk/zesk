@@ -34,7 +34,7 @@ class Control_Widgets_Filter extends Control_Widgets {
 		if ($this->filter === null) {
 			$filters = $this->callHook('filters');
 			if (count($filters) > 0) {
-				$options = $this->options_include('URI;filter_preserve_include;filter_preserve_exclude;ajax_id;filter_form_id');
+				$options = $this->options(toList('URI;filter_preserve_include;filter_preserve_exclude;ajax_id;filter_form_id'));
 				$options = ArrayTools::keysMap($options, [
 					'filter_form_id' => 'form_id',
 				]);

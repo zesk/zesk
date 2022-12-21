@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Selection_Item extends Class_ORM {
+class Class_Selection_Item extends Class_Base {
 	public array $primary_keys = [
 		'type',
 		'id',

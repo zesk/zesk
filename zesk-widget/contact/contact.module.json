@@ -3,9 +3,9 @@
     "requires": [
         "world"
     ],
-    "autoload_options": {
-        "class_prefix": "zesk\\",
+    "autoload": {
+        "classPrefix": "zesk\\",
         "lower": false
     },
-    "module_class": "zesk\\Module_Contact"
+    "moduleClass": "zesk\\Module_Contact"
 }

@@ -351,7 +351,7 @@ class ArrayTools {
 		$n = strlen($str);
 		foreach ($arr as $k => $v) {
 			if (is_string($v)) {
-				if (begins($v, $str)) {
+				if (str_starts_with($v, $str)) {
 					$arr[$k] = substr($v, $n);
 				} elseif ($remove) {
 					unset($arr[$k]);
@@ -377,7 +377,7 @@ class ArrayTools {
 		$n = strlen($str);
 		foreach ($arr as $k => $v) {
 			if (is_string($v)) {
-				if (ends($v, $str)) {
+				if (str_ends_with($v, $str)) {
 					$arr[$k] = substr($v, 0, -$n);
 				} elseif ($remove) {
 					unset($arr[$k]);
@@ -405,7 +405,7 @@ class ArrayTools {
 		$n_suffix = strlen($suffix);
 		foreach ($arr as $k => $v) {
 			if (is_string($v)) {
-				if (begins($v, $prefix) && ends($v, $suffix)) {
+				if (str_starts_with($v, $prefix) && str_ends_with($v, $suffix)) {
 					$arr[$k] = substr($v, $n_prefix, -$n_suffix);
 				} elseif ($remove) {
 					unset($arr[$k]);
@@ -658,7 +658,7 @@ class ArrayTools {
 	 * @param array $value_map Array of old_value => new_value to convert
 	 * @return array The converted array
 	 */
-	public static function valuesMap(array $array, array $value_map) {
+	public static function valuesMap(array $array, array $value_map): array {
 		if (count($value_map) === 0) {
 			return $array;
 		}
@@ -953,9 +953,9 @@ class ArrayTools {
 	 *
 	 * @param array $array_to_filter
 	 *            A reference to an array to filter
-	 * @param array|string $include
+	 * @param ?array $include
 	 *            A list of array keys to explicitly include, or null to include all items
-	 * @param array|string $exclude
+	 * @param array $exclude
 	 *            A list of array keys to explicitly exclude, or empty to exclude no items
 	 * @param bool $lower
 	 *            Whether the array keys are case-sensitive or not
@@ -1643,7 +1643,7 @@ class ArrayTools {
 	public static function filterValuesEndWith(array $array, $ends) {
 		$result = [];
 		foreach ($array as $k => $v) {
-			if (ends($v, $ends)) {
+			if (str_ends_with($v, $ends)) {
 				$result[$k] = $v;
 			}
 		}

@@ -29,7 +29,7 @@ class System {
 	}
 
 	public static function configured(Application $application): void {
-		self::host_id($application->configuration->get('HOST', aevalue($_ENV, 'HOST', aevalue($_SERVER, 'HOST', 'localhost'))));
+		self::host_id($application->configuration->get('HOST', $_ENV[ 'HOST'] ??  $_SERVER['HOST'] ?? 'localhost'));
 	}
 
 	/**
@@ -97,7 +97,7 @@ class System {
 		$macs = [];
 		foreach ($interfaces as $interface => $values) {
 			if (array_key_exists('ether', $values)) {
-				$mac = avalue(array_keys($values['ether']), 0);
+				$mac = array_keys($values['ether'])[0] ?? null;
 				$macs[$interface] = $mac;
 			}
 		}

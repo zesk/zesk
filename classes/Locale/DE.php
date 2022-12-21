@@ -42,12 +42,12 @@ class Locale_DE extends Locale {
 		return "$object des $owner";
 	}
 
-	public function ordinal(int $n): string {
+	public function ordinal(int $number): string {
 		// TODO: Do this
-		if ($n === 1) {
-			return $n . 'r';
+		if ($number === 1) {
+			return $number . 'r';
 		}
-		return $n . 'e';
+		return $number . 'e';
 	}
 
 	public function negate_word(string $word, string $preferred_prefix = ''): string {

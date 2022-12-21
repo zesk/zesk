@@ -1,0 +1,10 @@
+{
+	"name": "Git source code control",
+	"requires": [
+		"Repository"
+	],
+	"autoload": {
+		"classPrefix": "zesk\\Git\\"
+	},
+	"moduleClass": "zesk\\Git\\Module"
+}

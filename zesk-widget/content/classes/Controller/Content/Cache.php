@@ -44,7 +44,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	 */
 	private function _correct_url_redirect($image_file, $styles): void {
 		$this->response->setCacheFor(60);
-		$this->response->redirect($this->router->prefix() . $this->route->url_replace([
+		$this->response->redirect($this->router->prefix() . $this->route->urlReplace([
 			'file' => $image_file,
 			'styles' => $styles,
 		]));
@@ -114,7 +114,7 @@ class Controller_Content_Cache extends Controller_Cache {
 			}
 			$image_data = $image->data;
 			if (!$image_data instanceof Content_Data) {
-				$this->response->status(404, 'Not Found 1');
+				$this->response->setStatus(404, 'Not Found 1');
 				$this->response->setCacheFor(60, Response::CACHE_PATH);
 				return;
 			}
@@ -124,9 +124,9 @@ class Controller_Content_Cache extends Controller_Cache {
 			}
 			$this->request_to_file($data);
 		} catch (Exception_ORM_NotFound $e) {
-			$this->response->status(404, 'Not Found 2');
+			$this->response->setStatus(404, 'Not Found 2');
 			$this->response->setCacheFor(60, Response::CACHE_PATH);
-			$this->response->json()->data([
+			$this->response->json()->setData([
 				'message' => $e->getMessage(),
 			]);
 			return;
@@ -173,7 +173,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	protected function apply_commands(array $commands, $data) {
 		$original = $data;
 		foreach ($commands as $command) {
-			$hook = avalue($command, 'hook');
+			$hook = $command['hook'] ?? null;
 			if (!$hook) {
 				continue;
 			}

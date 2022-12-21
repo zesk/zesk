@@ -5,6 +5,8 @@
  */
 namespace zesk;
 
+use Throwable;
+
 /**
  *
  * @author kent
@@ -23,9 +25,11 @@ class Exception_DomainLookup extends Exception {
 	 * @param string $message
 	 * @param array $arguments
 	 * @param int $code
-	 * @param Exception $previous
+	 * @param Throwable $previous
 	 */
-	public function __construct($host, $message, array $arguments = [], $code = null, Exception $previous = null) {
+	public function __construct(string $host, string $message, array $arguments = [], int $code = 0, Throwable
+	$previous =
+	null) {
 		$this->host = $host;
 		if (!str_contains($message, '{host}')) {
 			$message = "{host}: $message";

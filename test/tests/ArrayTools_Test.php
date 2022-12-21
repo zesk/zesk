@@ -37,15 +37,12 @@ class ArrayTools_Test extends UnitTest {
 	}
 
 	public function data_valuesFlipCopy(): array {
-		$zz = [
-			'A', 'B', 'C',
-		];
-		$x = [
-			'A', 'B',
-		];
+		// ordering is backwards - [input, expected]
 		return [
 			[
-				$zz, [
+				[
+					'A', 'B', 'C',
+				], [
 					'A' => 'A', 'B' => 'B', 'C' => 'C',
 				],
 			], [
@@ -61,11 +58,15 @@ class ArrayTools_Test extends UnitTest {
 					'1' => '1', '2' => '2', '3' => '3', 'fish' => 'fish', '4' => '4', '5' => '5',
 				],
 			], [
-				$x, [
+				[
 					'a' => 'A', 'b' => 'B',
+				], [
+					'A' => 'A', 'B' => 'B',
 				],
 			], [
-				$x, [
+				[
+					'A', 'B',
+				], [
 					'A' => 'A', 'B' => 'B',
 				],
 			],
@@ -287,7 +288,7 @@ class ArrayTools_Test extends UnitTest {
 			'item' => 2, 'decimal' => 2.1,
 		]);
 		$result = ArrayTools::increment($arr, $k, 3.2);
-		$this->assertEquals($result, 5.3);
+		$this->assertEqualsWithDelta($result, 5.3, 0.000001);
 		// 		$this->assertEquals($arr, array(
 		// 			"item" => 2,
 		// 			"decimal" => 5.3

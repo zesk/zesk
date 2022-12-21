@@ -59,7 +59,7 @@ class Control_Content_File extends Control_Widgets {
 		try {
 			$member->Content_Data = Content_Data::from_path($this->_file_widget->path(), false);
 			$member->Name = $member->Original = $this->_file_widget->original_name();
-			$member->MIMEType = MIME::from_filename($member->Original);
+			$member->MIMEType = MIME::fromExtension($member->Original);
 			$member->Description = $this->object->get($prefix . 'desc');
 			$member->store();
 			$this->value($member);

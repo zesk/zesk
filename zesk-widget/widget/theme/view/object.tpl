@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
-use zesk\ORM;
+use zesk\ORM\ORMBase;
 use zesk\HTML;
 
-/* @var $object ORM */
+/* @var $object ORMBase */
 $object = $this->object;
-/* @var $class_object Class_ORM */
+/* @var $class_object Class_Base */
 $class_object = $this->class_object;
 
 $format = $this->format;
@@ -19,7 +19,7 @@ if ($this->hidden_input) {
 
 if (!empty($value)) {
 	$col_object = null;
-	if ($value instanceof ORM) {
+	if ($value instanceof ORMBase) {
 		$col_object = $value;
 	} elseif (is_numeric($value) && intval($value) !== 0) {
 		try {

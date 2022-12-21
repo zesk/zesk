@@ -7,9 +7,8 @@
 			"tijsverkoyen/css-to-inline-styles"
 		]
 	},
-	"autoload_options": {
-		"class_prefix": "zesk\\CSSInline\\",
-		"lower": false
+	"autoload": {
+		"classPrefix": "zesk\\CSSInline\\"
 	},
-	"module_class": "zesk\\CSSInline\\Module"
+	"moduleClass": "zesk\\CSSInline\\Module"
 }

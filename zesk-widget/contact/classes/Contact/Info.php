@@ -11,7 +11,7 @@ namespace zesk;
  * Contact_Info
  * @property \zesk\Contact $contact
  */
-abstract class Contact_Info extends ORM {
+abstract class Contact_Info extends ORMBase {
 	/**
 	 * @see Contact_Label::LabelType_Foo
 	 *
@@ -41,7 +41,7 @@ abstract class Contact_Info extends ORM {
 	 * @todo
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\ORM::store()
+	 * @see \zesk\ORMBase::store()
 	 */
 	public function store(): self {
 		$result = parent::store();
@@ -56,7 +56,7 @@ abstract class Contact_Info extends ORM {
 	 * Effective no-op
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\ORM::register()
+	 * @see \zesk\ORMBase::register()
 	 */
 	public function register($where = null) {
 		$result = parent::register($where);

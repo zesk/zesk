@@ -11,7 +11,7 @@ class Control_Spectrum extends Control {
 		$this->setOption('id', $this->name(), false);
 
 		$color = $this->value();
-		if (begins($color, '#')) {
+		if (str_starts_with($color, '#')) {
 			$color = substr($color, 1);
 			$this->value($color);
 		}

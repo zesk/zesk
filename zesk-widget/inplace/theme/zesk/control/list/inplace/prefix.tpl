@@ -4,7 +4,7 @@ namespace zesk;
 /* @var $locale Locale */
 /* @var $parent Widget */
 $parent = $this->widget->parent();
-/* @var $class_object Class_ORM */
+/* @var $class_object Class_Base */
 $class_object = $this->list_class_object;
 
 $name = $locale($class_object->name);

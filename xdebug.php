@@ -13,10 +13,11 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
-if (boolval($_SERVER['XDEBUG_ENABLED'] ?? 0) && function_exists('xdebug_break')) {
+if (($_SERVER['XDEBUG_ENABLED'] ?? 0) && function_exists('xdebug_break')) {
 	if (!($_SERVER['XDEBUG_ACTIVE'] ?? false)) {
 		/* Skip automatic code link by using call_user_func 'cause we're clever */
 		call_user_func('xdebug_break');
+
 		$_SERVER['XDEBUG_ACTIVE'] = true;
 	}
 }

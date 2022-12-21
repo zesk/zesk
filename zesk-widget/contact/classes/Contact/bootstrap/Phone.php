@@ -37,7 +37,7 @@ class Contact_Phone_Bootstrap {
 		}
 		$x = new Contact_Phone_AreaCode();
 		if ($drop) {
-			$x->database()->query_select('TRUNCATE ' . $x->table());
+			$x->database()->querySelect('TRUNCATE ' . $x->table());
 		}
 
 		$csv = new CSV_Reader();

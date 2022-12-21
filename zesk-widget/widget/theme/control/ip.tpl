@@ -14,7 +14,7 @@ if (is_numeric($value)) {
 $attrs = [];
 $attrs['placeholder'] = __('IP Address');
 $attrs['name'] = $name;
-$attrs['id'] = avalue($attrs, 'id', $attrs['name']);
+$attrs['id'] ??= $attrs['name'];
 $attrs['value'] = $value;
 $attrs = $widget->inputAttributes() + $attrs;
 

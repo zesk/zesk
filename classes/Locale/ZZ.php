@@ -82,8 +82,8 @@ class Locale_ZZ extends Locale {
 	 * {@inheritDoc}
 	 * @see \zesk\Locale::ordinal()
 	 */
-	public function ordinal(int $n): string {
-		return "{ordinal($n)}";
+	public function ordinal(int $number): string {
+		return "{ordinal($number)}";
 	}
 
 	/**

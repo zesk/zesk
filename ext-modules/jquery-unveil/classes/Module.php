@@ -50,7 +50,7 @@ class Module extends Module_JSLib {
 		if (!array_key_exists('src', $attributes)) {
 			return null;
 		}
-		$class = avalue($attributes, 'class', '');
+		$class = $attributes['class'] ?? '';
 		if (Lists::contains($class, 'veil', ' ')) {
 			return null;
 		}

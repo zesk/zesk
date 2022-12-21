@@ -17,7 +17,7 @@ namespace zesk;
  * @property Timestamp $checked
  * @property Timestamp $missing
  */
-class Content_Data extends ORM {
+class Content_Data extends ORMBase {
 	/**
 	 * Whether we checked the database for max allowed packet size
 	 *
@@ -201,7 +201,7 @@ class Content_Data extends ORM {
 	 */
 	private function _filepath() {
 		assert($this->type === 'data');
-		$path = avalue($this->data, 'path');
+		$path = $this->data['path'] ?? null;
 		return $this->application->paths->data($path);
 	}
 
@@ -427,20 +427,20 @@ class Content_Data extends ORM {
 	 * Run cron hourly to check files in file system to make sure they are still consistent.
 	 */
 	public static function cron_hourly(Application $application): void {
-		foreach ($application->class_query(__CLASS__)->addWhere('*checked|<=', 'DATE_SUB(UTC_TIMESTAMP(),INTERVAL 1 DAY)')->orm_iterator() as $object) {
+		foreach ($application->class_query(__CLASS__)->addWhere('*checked|<=', 'DATE_SUB(UTC_TIMESTAMP(),INTERVAL 1 DAY)')->ormIterator() as $object) {
 			$object->validate_and_repair();
 		}
 		$threshold = self::database_size_threshold($application);
 		foreach ($application->class_query(__CLASS__)
 			->addWhere('*size|<=', $threshold)
 			->addWhere('type', 'path')
-			->orm_iterator() as $object) {
+			->ormIterator() as $object) {
 			$object->switch_storage();
 		}
 		foreach ($application->class_query(__CLASS__)
 			->addWhere('*size|>', $threshold)
 			->addWhere('type', 'data')
-			->orm_iterator() as $object) {
+			->ormIterator() as $object) {
 			$object->switch_storage();
 		}
 	}

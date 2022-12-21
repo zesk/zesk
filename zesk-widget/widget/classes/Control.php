@@ -159,7 +159,7 @@ class Control extends Widget {
 			return false;
 		}
 		$query_condition_map = $this->optionArray('query_condition_map');
-		$condition = avalue($query_condition_map, strval($value));
+		$condition = $query_condition_map[strval($value)] ?? null;
 		$column_name = $this->option('query_column_name', $this->label());
 		if (!$condition) {
 			$condition = __('{column_name} is {value}', compact('column_name', 'value'));

@@ -317,7 +317,7 @@ class HTML extends Type {
 	 */
 	public function setShortcutIcon(string $path): Response {
 		$attrs = [];
-		$type = MIME::from_filename($path);
+		$type = MIME::fromExtension($path);
 		$this->setLink('shortcut icon', $path, $type, $attrs);
 		$this->setLink('icon', $path, $type, $attrs);
 		return $this->parent;
@@ -375,10 +375,10 @@ class HTML extends Type {
 	 *                root_dir for files which need to be found
 	 *                share bool for share files
 	 *
-	 * @return self
+	 * @return Response
 	 * @throws Exception_Semantics
 	 */
-	public function css(string $path, array|string $options = []): self {
+	public function css(string $path, array|string $options = []): Response {
 		if (is_string($options)) {
 			$options = [
 				'media' => $options,
@@ -482,7 +482,7 @@ class HTML extends Type {
 	 */
 	private function linkTags(array $options = []): array {
 		$result = [];
-		$stylesheets_inline = toBool(avalue($options, 'stylesheets_inline'));
+		$stylesheets_inline = toBool($options['stylesheets_inline'] ?? null);
 		if (count($this->links_sorted) !== count($this->links)) {
 			$this->links_sorted = $this->links;
 			usort($this->links_sorted, 'zesk_sort_weight_array');
@@ -522,7 +522,7 @@ class HTML extends Type {
 						$attrs,
 					], $attrs);
 					// Only cache and group stylesheets, for now.
-					if ($rel === 'stylesheet' && $cache_links && $file_path && !avalue($attrs, 'nocache')) {
+					if ($rel === 'stylesheet' && $cache_links && $file_path && !$attrs['nocache'] ?? null) {
 						$cached_media[$media][$href] = $file_path;
 						continue;
 					}
@@ -1011,7 +1011,7 @@ class HTML extends Type {
 			if (array_key_exists('callback', $attrs)) {
 				$attrs['content'] = call_user_func($attrs['callback']);
 			}
-			$script = $this->browserConditionals(avalue($attrs, 'browser'));
+			$script = $this->browserConditionals(strval($attrs ['browser'] ?? ''));
 			if (array_key_exists('content', $attrs)) {
 				$script += [
 					'name' => 'script', 'attributes' => $script_attributes, 'content' => $attrs['content'],

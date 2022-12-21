@@ -8,27 +8,9 @@ As well, note that all Zesk JavaScript depend on having jQuery present.
 
 ## Functions
 
-### `mixed avalue(Object object, string key, mixed default)` Retrieve a optional value from an object
-
-Returns a value in JavaScript Object `object`, or `default` if `key` not present. The following:
-
-	var v = avalue(obj, 'time', 20);
-	
-can be more succinctly be written in JavaScript as:
-
-	var v = obj.time || 20;
-	
-The function still proves useful, however.
-
-### `mixed object_path(Object object, string path, mixed default)` Retrieve a value from a deep object
-
-Like `avalue`, but traverses an object hierarchy.
-
-	var v = object_path(obj, 'thing.to.retrieve', 20);
-
 ### Type functions
 
-- `boolean is_bool(value)` - Returns true if vaue is a JavaScript boolean 
+- `boolean is_bool(value)` - Returns true if value is a JavaScript boolean 
 - `boolean is_numeric(value)` - Returns true if vaue is an JavaScript number
 - `boolean is_string(value)` - Returns true if vaue is a JavaScript string
 - `boolean is_array(value)` - Returns true if vaue is a JavaScript array

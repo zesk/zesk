@@ -6,6 +6,7 @@ declare(strict_types=1);
  * @copyright &copy; 2022 Market Acumen, Inc.
  * @author kent
  */
+
 namespace zesk;
 
 /**
@@ -21,7 +22,7 @@ class Version_Test extends UnitTest {
 		$date = Version::date();
 		$this->assertStringStartsNotWith('-', $date);
 		$this->assertTrue(is_date($date), "is_date($date)");
-		$this->assertLessThan(12, Timestamp::now()->difference(Timestamp::factory($date), Temporal::UNIT_DAY), "Released within 12 months ($date)");
+		$this->assertLessThan(12.0, Timestamp::now()->difference(Timestamp::factory($date), Temporal::UNIT_MONTH), "Released within 12 months ($date)");
 
 		$string = Version::string($this->application->locale);
 		$this->assertStringContainsString($date, $string);

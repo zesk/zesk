@@ -50,7 +50,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head {
 	 * @return string
 	 */
 	private function flot_js_path() {
-		return $this->application->path($this->option('share_path'));
+		return $this->application->path($this->option('sharePath'));
 	}
 
 	/**

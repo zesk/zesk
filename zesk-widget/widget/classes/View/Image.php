@@ -128,7 +128,7 @@ class View_Image extends View {
 		$actualHeight = $object->get($this->option('HeightColumn', 'Height'));
 
 		$value = $object->applyMap($this->option('src', '{src}'));
-		//avalue($object, $this->column('src'));
+		//$object[$this->column('src')] ?? null;
 
 		if (empty($value)) {
 			$this->debugLog('Empty value for src...');

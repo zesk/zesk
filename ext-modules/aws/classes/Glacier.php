@@ -37,7 +37,7 @@ class Glacier extends Hookable {
 		if (is_object($this->glacier_client)) {
 			return;
 		}
-		$options = $this->options_include('key;secret;credentials;token;credentials;region');
+		$options = $this->options(['key', 'secret', 'credentials', 'token', 'credentials', 'region']);
 		$this->glacier_client = GlacierClient::factory($options);
 	}
 

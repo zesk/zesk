@@ -8,6 +8,8 @@ declare(strict_types=1);
  */
 namespace zesk;
 
+use \stdClass;
+
 /**
  * Generic test class
  */
@@ -31,6 +33,7 @@ class Generic_Test extends UnitTest {
 	 * @param $expected
 	 * @param $tested
 	 * @return void
+	 * @dataProvider data_something
 	 */
 	public function test_something($expected, $tested): void {
 		$this->assertEquals($expected, !(!($tested)), type($tested) . ' failed');

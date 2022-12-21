@@ -48,7 +48,7 @@ if [ ! -d "$top/vendor" ]; then
 fi
 
 need_paths=
-args=
+args=("--disallow-test-output")
 coverage_path=./test-coverage
 coverage_cache=./.zesk-coverage
 cd "$top"
@@ -56,7 +56,7 @@ while [ $# -ge 1 ]; do
   case $1 in
     --coverage)
       need_paths="$need_paths $coverage_cache $coverage_path"
-      args="$args --coverage-cache $coverage_cache --coverage-filter ./classes --coverage-filter ./command --coverage-filter ./modules --coverage-html $coverage_path"
+      args+=("--coverage-cache" "$coverage_cache" "--coverage-filter" "./classes" "--coverage-filter" "./command" "--coverage-filter" "./modules" "--coverage-html" "$coverage_path")
       export XDEBUG_MODE=coverage
       echo "Running coverage and storing results in $coverage_path"
       ;;
@@ -76,4 +76,4 @@ for d in $need_paths; do
   [ -d $d ] || mkdir -p $d
 done
 
-"$phpunit_bin" $args --log-junit "$junit_results_file" "$@"
+"$phpunit_bin" "${args[@]}" --log-junit "$junit_results_file" "$@"

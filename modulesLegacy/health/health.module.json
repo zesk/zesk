@@ -1,0 +1,13 @@
+{
+	"name": "Health",
+	"autoload": {
+		"extensions": [
+			"php"
+		],
+		"classPrefix": "zesk\\"
+	},
+	"moduleClass": "zesk\\Module_Health",
+	"requires": [
+		"ORM"
+	]
+}

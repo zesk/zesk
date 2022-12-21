@@ -41,21 +41,22 @@ class bash {
 				$dependencies[$variable] = true;
 			}
 		}
-		if (str_contains($value, '$')) {
-			foreach ([
-				'/\$([A-Za-z0-9_]+)/',
-				'/\$\{([^}]+)\}/',
-			] as $pattern) {
-				// Correctly handle $FOO values within a set value (like sh or bash would support)
-				if (preg_match_all($pattern, $value, $matches, PREG_SET_ORDER)) {
-					foreach ($matches as $match) {
-						$variable = $match[1];
-						if ($lower_dependencies) {
-							$variable = strtolower($variable);
-						}
-						$value = str_replace($match[0], strval($settings->get($variable, '')), $value);
-						$dependencies[$variable] = true;
+		if (!str_contains($value, '$')) {
+			return $value;
+		}
+		foreach ([
+			'/\$([A-Za-z0-9_]+)/',
+			'/\$\{([^}]+)\}/',
+		] as $pattern) {
+			// Correctly handle $FOO values within a set value (like sh or bash would support)
+			if (preg_match_all($pattern, $value, $matches, PREG_SET_ORDER)) {
+				foreach ($matches as $match) {
+					$variable = $match[1];
+					if ($lower_dependencies) {
+						$variable = strtolower($variable);
 					}
+					$value = str_replace($match[0], strval($settings->get($variable, '')), $value);
+					$dependencies[$variable] = true;
 				}
 			}
 		}

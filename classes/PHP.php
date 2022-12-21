@@ -442,15 +442,18 @@ class PHP {
 			}
 			return $value;
 		}
-		// Convert numeric types first, then boolean
-		if (preg_match('/^\d+$/', $value)) {
-			return toInteger($value);
+		if (is_object($value)) {
+			return $value;
 		}
-		$boolValue = toBool($value);
+		// Convert numeric types first, then boolean
+		$boolValue = toBool($value, null);
 		if (is_bool($boolValue)) {
 			return $boolValue;
 		}
 		if (is_numeric($value)) {
+			if (preg_match('/^\d+$/', "$value")) {
+				return toInteger($value);
+			}
 			return toFloat($value);
 		}
 		if (!is_string($value)) {
@@ -509,7 +512,7 @@ class PHP {
 	 * @return string[]
 	 */
 	public static function parseNamespaceClass(string $class): array {
-		return pairr($class, '\\', '', $class);
+		return reversePair($class, '\\', '', $class);
 	}
 
 	/**

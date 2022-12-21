@@ -1,0 +1,11 @@
+{
+	"name": "Forgotten Password",
+	"autoload": {
+		"classPrefix": "zesk\\"
+	},
+	"moduleClass": "zesk\\Module_Forgot",
+	"requires": [
+		"Session",
+		"ORM"
+	]
+}

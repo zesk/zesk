@@ -46,7 +46,25 @@ use zesk\Exception_Semantics;
  */
 const PREG_PATTERN_EMAIL_USERNAME_CHAR = '[-a-z0-9!#$%&\'*+\\/=?^_`{|}~]';
 const PREG_PATTERN_EMAIL_USERNAME = '(?:' . PREG_PATTERN_EMAIL_USERNAME_CHAR . '+(?:\\.' . PREG_PATTERN_EMAIL_USERNAME_CHAR . '+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")';
-const PREG_PATTERN_EMAIL_DOMAIN = '(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])';
+const PREG_PATTERN_IP4_DIGIT = '(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])';
+const PREG_PATTERN_IP4_DIGIT1 = '(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9][0-9]|[1-9])';
+
+const PREG_PATTERN_IP4_0 = '(?:' . PREG_PATTERN_IP4_DIGIT . '\.){3}' . PREG_PATTERN_IP4_DIGIT;
+const PREG_PATTERN_IP4_1 = PREG_PATTERN_IP4_DIGIT1 . '\.(?:' . PREG_PATTERN_IP4_DIGIT . '\.){2}' .
+	PREG_PATTERN_IP4_DIGIT1;
+
+const PREG_PATTERN_IP6 = '[a-z0-9-]*[a-z0-9]:' . '(?:' . '[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f]' . ')+';
+
+const PREG_PATTERN_ALPHANUMERIC_CHAR = '[a-z0-9]';
+const PREG_PATTERN_ALPHANUMERIC_DASH_CHAR = '[a-z0-9-]';
+const PREG_PATTERN_EMAIL_DOMAIN_SINGLE = '(?:' . PREG_PATTERN_ALPHANUMERIC_CHAR . '(?:' . PREG_PATTERN_ALPHANUMERIC_DASH_CHAR . '*' . PREG_PATTERN_ALPHANUMERIC_CHAR . ')?' . '\.)*' . PREG_PATTERN_ALPHANUMERIC_CHAR . '(?:' . PREG_PATTERN_ALPHANUMERIC_DASH_CHAR . '*' . PREG_PATTERN_ALPHANUMERIC_CHAR . ')?';
+const PREG_PATTERN_EMAIL_DOMAIN_DOTTED = '(?:' . PREG_PATTERN_ALPHANUMERIC_CHAR . '(?:' . PREG_PATTERN_ALPHANUMERIC_DASH_CHAR . '*' . PREG_PATTERN_ALPHANUMERIC_CHAR . ')?' . '\.)+' . PREG_PATTERN_ALPHANUMERIC_CHAR . '(?:' . PREG_PATTERN_ALPHANUMERIC_DASH_CHAR . '*' . PREG_PATTERN_ALPHANUMERIC_CHAR . ')?';
+const PREG_PATTERN_EMAIL_DOMAIN_IP = '\[' . '(?:' . PREG_PATTERN_IP4_0 . '|' . PREG_PATTERN_IP6 . ')' . '\]';
+
+const PREG_PATTERN_EMAIL_DOMAIN = '(?:' . PREG_PATTERN_EMAIL_DOMAIN_DOTTED . '|' . PREG_PATTERN_EMAIL_DOMAIN_IP . ')';
+
+const PREG_PATTERN_EMAIL_SIMPLE_DOMAIN = '(?:' . PREG_PATTERN_EMAIL_DOMAIN_SINGLE . '|' . PREG_PATTERN_EMAIL_DOMAIN_IP . ')';
+
 
 /**
  * A regular expression pattern for matching email addresses, undelimited. Should run case-insensitive.
@@ -56,9 +74,10 @@ const PREG_PATTERN_EMAIL_DOMAIN = '(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z
  */
 
 const PREG_PATTERN_EMAIL = PREG_PATTERN_EMAIL_USERNAME . '@' . PREG_PATTERN_EMAIL_DOMAIN;
+const PREG_PATTERN_SIMPLE_EMAIL = PREG_PATTERN_EMAIL_USERNAME . '@' . PREG_PATTERN_EMAIL_SIMPLE_DOMAIN;
 
 /**
- * Key used to seaparate paths in the globals array
+ * Key used to separate paths in the globals array
  */
 const ZESK_GLOBAL_KEY_SEPARATOR = '::';
 
@@ -72,7 +91,7 @@ const ZESK_GLOBAL_KEY_SEPARATOR = '::';
 function zesk(): ?Kernel {
 	try {
 		return Kernel::singleton();
-	} catch (Exception $e) {
+	} catch (Exception) {
 		return null;
 	}
 }
@@ -113,91 +132,7 @@ function last(array $a, mixed $default = null): mixed {
  * @return string
  */
 function type(mixed $mixed): string {
-	return is_object($mixed) ? $mixed::class : gettype($mixed);
-}
-
-/**
- * Does string begin with another string?
- *
- * @param string $string
- * @param string $prefix
- * @return boolean
- * @see \zesk\StringTools::begins
- * @deprecated 2022-02
- * @see str_starts_with
- */
-function begins(string $haystack, string $needle): bool {
-	return str_starts_with($haystack, $needle);
-}
-
-/**
- * Does string begin with another string (case-insensitive)?
- *
- * @param string $string
- * @param string $prefix
- * @return boolean
- * @see \zesk\StringTools::beginsi
- * @see str_starts_with
- * @deprecated 2022-02
- */
-function beginsi(string $haystack, string $needle): bool {
-	$n = strlen($needle);
-	if ($n === 0) {
-		return true;
-	}
-	return strcasecmp(substr($haystack, 0, $n), $needle) === 0;
-}
-
-/**
- * Does string end with another string?
- *
- * @param string $string
- * @param string $prefix
- * @return boolean
- * @see \zesk\StringTools::ends
- * @see str_ends_with()
- * @deprecated 2022-02
- */
-function ends(string $haystack, string $needle): bool {
-	$n = strlen($needle);
-	if ($n === 0) {
-		return true;
-	}
-	return (substr($haystack, -$n) === $needle);
-}
-
-/**
- * Does string end with another string (insensitive)?
- *
- * @param string $string
- * @param string $prefix
- * @return boolean
- * @see \zesk\StringTools::endsi
- * @see str_ends_with()
- * @deprecated 2022-02
- */
-function endsi(string $haystack, string $needle): bool {
-	$n = strlen($needle);
-	if ($n === 0) {
-		return true;
-	}
-	return strcasecmp(substr($haystack, -$n), $needle) === 0;
-}
-
-/**
- * Set or get the newline character.
- * Probably should deprecate this for an output class.
- *
- * @param ?string $set
- * @return string
- * @deprecated 2017-12
- */
-function newline(string $set = null): string {
-	if ($set !== null) {
-		zesk()->newline = $set;
-		return $set;
-	}
-	return zesk()->newline;
+	return is_resource($mixed) ? get_resource_type($mixed) : (is_object($mixed) ? $mixed::class : gettype($mixed));
 }
 
 /**
@@ -265,6 +200,7 @@ function backtrace(bool $exit = true, int $n = -1): void {
  * which don't have the autoloader set yet.
  *
  * @param int $depth
+ * @param bool $include_line
  * @return string
  * @see debug_backtrace()
  * @see Debug::calling_function
@@ -311,7 +247,7 @@ if (!function_exists('dump')) {
  * @return string string representation of the value
  * @see print_r, dump
  */
-function _dump($x): string {
+function _dump(mixed $x): string {
 	return Debug::dump($x);
 }
 
@@ -333,28 +269,12 @@ function _dump($x): string {
  *            A value to return if parsing is unsuccessful
  * @return ?bool Returns true or false, or null if parsing fails
  */
-function toBool(mixed $value, bool $default = null): ?bool {
+function toBool(mixed $value, ?bool $default = false): ?bool {
 	static $true_values = [
-		1,
-		'1',
-		't',
-		'y',
-		'yes',
-		'on',
-		'enabled',
-		'true',
+		1, '1', 't', 'y', 'yes', 'on', 'enabled', 'true',
 	];
 	static $false_values = [
-		0,
-		'',
-		'0',
-		'f',
-		'n',
-		'no',
-		'off',
-		'disabled',
-		'false',
-		'null',
+		0, '', '0', 'f', 'n', 'no', 'off', 'disabled', 'false', 'null',
 	];
 	if (is_bool($value)) {
 		return $value;
@@ -393,6 +313,16 @@ function toInteger(mixed $s, int $def = 0): int {
 }
 
 /**
+ * Convert to a valid array key
+ *
+ * @param mixed $key
+ * @return string|int
+ */
+function toKey(mixed $key): string|int {
+	return is_int($key) ? $key : strval($key);
+}
+
+/**
  * Ensures a value is a float value.
  * If not, the default value is returned.
  *
@@ -403,7 +333,7 @@ function toInteger(mixed $s, int $def = 0): int {
  * @return float The value, or $def if it can not be converted to a float
  */
 function toFloat(mixed $s, float $def = null): float {
-	return is_numeric($s) ? floatval($s) : floatval($def);
+	return floatval(is_numeric($s) ? $s : $def);
 }
 
 /**
@@ -475,42 +405,6 @@ function toText(mixed $mixed): string {
 	}
 	return strval($mixed);
 }
-
-/**
- * Converts a PHP value to a string, usually for debugging.
- *
- * @param mixed $mixed
- * @return string
- * @deprecated 2022-02
- */
-function to_text(mixed $mixed): string {
-	return toText($mixed);
-}
-
-/**
- * Converts an object into an iterator, suitable for a foreach
- *
- * @param mixed $mixed
- * @return array|Iterator
- * @deprecated 2022-01
- */
-function to_iterator(mixed $mixed): iterable {
-	zesk()->deprecated(__METHOD__);
-	return toIterable($mixed);
-}
-
-/**
- * Gently coerce things to iterable
- *
- * @param mixed $mixed
- * @return iterable
- * @deprecated 2022-12
- */
-function to_iterable(mixed $mixed): iterable {
-	zesk()->deprecated(__METHOD__);
-	return toIterable($mixed);
-}
-
 /**
  * Gently coerce things to iterable
  *
@@ -553,83 +447,13 @@ function toBytes(string|int $mixed, int $default = 0): int {
 }
 
 /**
- * Converts 20G to integer value
- *
- * @param string $mixed
- * @param int $default
- * @return float
- * @deprecated 2022-11
- */
-function to_bytes(string $mixed, int $default = 0): float {
-	return toBytes($mixed, $default);
-}
-
-/**
- * Localize a string to the current locale.
- *
- * @param string $phrase
- *            Phrase to translate
- * @return string
- * @deprecated 2017-12 Use $application->locale->__($phrase) instead.
- * @see Locale::__invoke
- */
-function __(array|string $phrase): string {
-	$args = func_get_args();
-	$locale = Kernel::singleton()->application()->locale;
-	array_shift($args);
-	return count($args) === 1 && is_array($args[0]) ? $locale($phrase, $args[0]) : $locale($phrase, $args);
-}
-
-/**
- * Shorthand for array_key_exists($k,$a) ? $a[$k] : $default.
- * Asserts $a is an array, $k is a string or numeric.
- *
- * NOTE: In PHP 7 this will go away and we can use
- *
- * $foo = $a['key'] ?? $default;
- *
- * FINALLY.
- * @param array $a
- *            An array to look in
- * @param string $k
- *            The key to look for
- * @param mixed $default
- *            A value to return if $a[$k] is not set
- * @return mixed The value of $a[$k], or $default if not set
- * @deprecated 2022-01 PHP8
- * @see https://wiki.php.net/rfc/isset_ternary
- */
-function avalue(array $a, string|int $k, mixed $default = null): mixed {
-	$k = strval($k);
-	return array_key_exists($k, $a) ? $a[$k] : $default;
-}
-
-/**
- * Shorthand for array_key_exists($k,$a) || !empty($a[$k]) ? $a[$k] : $default.
- * Asserts $a is an array.
- * @param array $a
- *            An array to look in
- * @param string $k
- *            The key to look for
- * @param mixed $default
- *            A value to return if $a[$k] is not set or is empty
- * @return mixed The value of $a[$k] if non-empty, or $default if not set or empty
- * @deprecated 2022-01 PHP8
- *
- */
-function aevalue(array $a, string|int $k, mixed $default = null): mixed {
-	$k = strval($k);
-	return array_key_exists($k, $a) && !empty($a[$k]) ? $a[$k] : $default;
-}
-
-/**
  * Convert a deep object into a flat one (string)
  *
  * @param mixed $mixed
- * @return string
+ * @return string|int|float
  * @throws Exception_Semantics
  */
-function flatten(mixed $mixed): string {
+function flatten(mixed $mixed): string|int|float {
 	if (is_array($mixed)) {
 		$mixed = ArrayTools::flatten($mixed);
 	}
@@ -730,8 +554,8 @@ function preg_replace_callback_mixed(string $pattern, callable $callback, array|
  *            Suffix character for tokens (defaults to "}")
  * @return array
  */
-function amap(array $target, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array {
-	return map(kmap($target, $map, $insensitive, $prefix_char, $suffix_char), $map, $insensitive, $prefix_char, $suffix_char);
+function mapKeysAndValues(array $target, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array {
+	return map(mapKeys($target, $map, $insensitive, $prefix_char, $suffix_char), $map, $insensitive, $prefix_char, $suffix_char);
 }
 
 /**
@@ -741,15 +565,14 @@ function amap(array $target, array $map, bool $insensitive = false, string $pref
  *            Array to modify keys
  * @param array $map
  *            Array of name => value of search => replace
- * @param boolean $insensitive
- *            Case sensitive search/replace (defaults to true)
+ * @param bool $insensitive Case-sensitive search/replace (defaults to true)
  * @param string $prefix_char
  *            Prefix character for tokens (defaults to "{")
  * @param string $suffix_char
  *            Suffix character for tokens (defaults to "}")
  * @return array
  */
-function kmap(array $target, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array {
+function mapKeys(array $target, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array {
 	$new_mixed = [];
 	foreach ($target as $key => $value) {
 		$new_mixed[map($key, $map, $insensitive, $prefix_char, $suffix_char)] = $value;
@@ -767,12 +590,9 @@ function kmap(array $target, array $map, bool $insensitive = false, string $pref
  * Passing in "insensitive" to true will return a string which has unmatched tokens in lowercase.
  * So:
  *
- * @test_inline $this->assertEquals(map("{a}{B}", array("a" => "ala")), "ala{B}");
- * @test_inline $this->assertEquals(map("{a}{B}", array("a" => "ala"), true), "ala{b}");
- *
  * @param mixed $mixed Target to modify
  * @param array $map Array of name => value of search => replace
- * @param boolean $insensitive Case sensitive search/replace (defaults to false)
+ * @param boolean $insensitive Case-sensitive search/replace (defaults to false)
  * @param string $prefix_char Prefix character for tokens (defaults to "{")
  * @param string $suffix_char Suffix character for tokens (defaults to "}")
  * @return array|string
@@ -817,14 +637,14 @@ function map(array|string $mixed, array $map, bool $insensitive = false, string 
  * Clean map tokens from a string
  *
  * @test_inline $this->assertEquals(map_clean("He wanted {n} days"), "He wanted  days");
- * @test_inline $this->assertEquals(map_clean("{}{}{}{}{}{all}{of}{this}{is}{removed}except}{}"),"except}");
+ * @test_inline $this->assertEquals(map_clean();
  *
  * @param mixed $mixed
  * @param string $prefix_char
  * @param string $suffix_char
  * @return mixed
  */
-function map_clean(string $mixed, string $prefix_char = '{', string $suffix_char = '}'): string {
+function mapClean(string $mixed, string $prefix_char = '{', string $suffix_char = '}'): string {
 	$delimiter = '#';
 	$suffix = preg_quote($suffix_char, $delimiter);
 	return preg_replace_mixed($delimiter . preg_quote($prefix_char, $delimiter) . '[^' . $suffix . ']*' . $suffix . $delimiter, '', $mixed);
@@ -836,8 +656,8 @@ function map_clean(string $mixed, string $prefix_char = '{', string $suffix_char
  * @param string $string
  * @return boolean
  */
-function can_map(string $string, string $prefix_char = '{', string $suffix_char = '}'): bool {
-	$tokens = map_tokens($string, $prefix_char, $suffix_char);
+function mapHasTokens(string $string, string $prefix_char = '{', string $suffix_char = '}'): bool {
+	$tokens = mapExtractTokens($string, $prefix_char, $suffix_char);
 	return count($tokens) !== 0;
 }
 
@@ -849,7 +669,7 @@ function can_map(string $string, string $prefix_char = '{', string $suffix_char 
  * @param string $suffix_char
  * @return array
  */
-function map_tokens(string $subject, string $prefix_char = '{', string $suffix_char = '}'): array {
+function mapExtractTokens(string $subject, string $prefix_char = '{', string $suffix_char = '}'): array {
 	$delimiter = '#';
 	$prefix = preg_quote($prefix_char, $delimiter);
 	$suffix = preg_quote($suffix_char, $delimiter);
@@ -881,8 +701,7 @@ function pair(string $a, string $delim = '.', string $left = '', string $right =
 	$n = strpos($a, $delim);
 	$delim_len = strlen($delim);
 	return ($n === false) ? [
-		$left,
-		$right,
+		$left, $right,
 	] : [
 		substr($a, 0, $n + ($include_delimiter === 'left' ? $delim_len : 0)),
 		substr($a, $n + ($include_delimiter === 'right' ? 0 : $delim_len)),
@@ -907,29 +726,15 @@ function pair(string $a, string $delim = '.', string $left = '', string $right =
  * @return array A size 2 array containing the left and right portions of the pair
  * @see pair
  */
-function reversePair(string $a, string $delim = '.', string $left = '', string $right = '', string
-$include_delimiter = ''): array {
+function reversePair(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
 	$n = strrpos($a, $delim);
 	$delim_len = strlen($delim);
 	return ($n === false) ? [
-		$left,
-		$right,
+		$left, $right,
 	] : [
 		substr($a, 0, $n + ($include_delimiter === 'left' ? $delim_len : 0)),
 		substr($a, $n + ($include_delimiter === 'right' ? 0 : $delim_len)),
 	];
-}
-
-/**
- * @param string $a
- * @param string $delim
- * @param string $left
- * @param string $right
- * @param string $include_delimiter
- * @return string[]
- */
-function pairr(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
-	return reversePair($a, $delim, $left, $right, $include_delimiter);
 }
 
 /**
@@ -987,8 +792,8 @@ function unquote(string $string_to_unquote, string $quotes = '\'\'""', string &$
  * Generic function to create paths correctly. Note that any double-separators are removed and converted to single-slashes so
  * this is unsuitable for use with URLs. Use glue() instead.
  *
- * @param string separator Token used to divide path
- * @param array mixed List of path items, or array of path items to concatenate
+ * @param string $separator Token used to divide path
+ * @param array $mixed List of path items, or array of path items to concatenate
  * @return string with a properly formatted path
  * @see glue
  * @see domain
@@ -1022,12 +827,12 @@ function path_from_array(string $separator, array $mixed): string {
  * Create a file path and ensure only one slash appears between path entries. Do not use this
  * with URLs, use glue instead.
  *
- * @param mixed path Variable list of path items, or array of path items to concatenate
+ * @param array|string $path Variable list of path items, or array of path items to concatenate
  * @return string with a properly formatted path
  * @see glue
  * @see domain
  */
-function path(/* dir, dir, ... */): string {
+function path(array|string $path /* dir, dir, ... */): string {
 	$args = func_get_args();
 	$r = path_from_array('/', $args);
 	return preg_replace('|(/\.)+/|', '/', $r); // TODO Test this doesn't munge foo/.bar
@@ -1036,12 +841,12 @@ function path(/* dir, dir, ... */): string {
 /**
  * Create a domain name ensure one and only one dot appears between entries
  *
- * @param mixed path Variable list of path items, or array of path items to concatenate
+ * @param array|string $domain Variable list of path items, or array of path items to concatenate
  * @return string with a properly formatted domain path
  * @see glue
  * @see domain
  */
-function domain(/* name, name, ... */): string {
+function domain(array|string $domain /* name, name, ... */): string {
 	$args = func_get_args();
 	return trim(path_from_array('.', $args), '.');
 }
@@ -1089,6 +894,7 @@ function real_equal(float $a, float $b, float $epsilon = 1e-5): bool {
 function can_iterate(mixed $mixed): bool {
 	return is_array($mixed) || $mixed instanceof Traversable;
 }
+
 /**
  * Is this value close (enough) to zero? Handles rounding errors with double-precision values.
  *
@@ -1197,6 +1003,26 @@ function is_date(mixed $x): bool {
  */
 function is_email(string $email): bool {
 	return preg_match('/^' . PREG_PATTERN_EMAIL . '$/i', $email) !== 0;
+}
+
+/**
+ * Determine if a string is a possible email address
+ *
+ * @param string $email
+ * @return boolean
+ */
+function is_simple_email(string $email): bool {
+	return preg_match('/^' . PREG_PATTERN_SIMPLE_EMAIL . '$/i', $email) !== 0;
+}
+
+/**
+ * Determine if a string is a valid IP4 address
+ *
+ * @param string $content
+ * @return boolean
+ */
+function is_ip4(string $content): bool {
+	return preg_match('/^' . PREG_PATTERN_IP4_1 . '$/i', $content) !== 0;
 }
 
 /**
@@ -1313,9 +1139,7 @@ const ZESK_INTERNAL_WEIGHT_LAST = 'zesk-last';
  */
 function zesk_weight(string|float|int $weight): float {
 	static $weights = [
-		ZESK_INTERNAL_WEIGHT_FIRST => -1e300,
-		ZESK_WEIGHT_FIRST => -1e299,
-		ZESK_WEIGHT_LAST => 1e299,
+		ZESK_INTERNAL_WEIGHT_FIRST => -1e300, ZESK_WEIGHT_FIRST => -1e299, ZESK_WEIGHT_LAST => 1e299,
 		ZESK_INTERNAL_WEIGHT_LAST => 1e300,
 	];
 	return floatval($weights[strval($weight)] ?? $weight);
@@ -1373,22 +1197,8 @@ function zesk_sort_weight_array_reverse(array $a, array $b): int {
  */
 function _zesk_global_key(string $key): array {
 	return explode(ZESK_GLOBAL_KEY_SEPARATOR, strtr(strtolower($key), [
-		'__' => ZESK_GLOBAL_KEY_SEPARATOR,
-		'.' => '_',
-		'/' => '_',
-		'-' => '_',
-		' ' => '_',
+		'__' => ZESK_GLOBAL_KEY_SEPARATOR, '.' => '_', '/' => '_', '-' => '_', ' ' => '_',
 	]));
-}
-
-/**
- * Normalize a zesk global key and return a string
- *
- * @param string $key
- * @return string
- */
-function zesk_global_key_normalize(string $key): string {
-	return implode(ZESK_GLOBAL_KEY_SEPARATOR, _zesk_global_key($key));
 }
 
 /**
@@ -1492,4 +1302,65 @@ function to_integer(mixed $s, int $def = 0): int {
  */
 function to_bool(mixed $value, bool $default = null): ?bool {
 	return toBool($value, $default);
+}
+
+/**
+ * @param string $a
+ * @param string $delim
+ * @param string $left
+ * @param string $right
+ * @param string $include_delimiter
+ * @return string[]
+ * @deprecated 2022-12
+ */
+function pairr(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
+	zesk()->deprecated(__METHOD__);
+	return reversePair($a, $delim, $left, $right, $include_delimiter);
+}
+
+
+/**
+ * Converts 20G to integer value
+ *
+ * @param string $mixed
+ * @param int $default
+ * @return float
+ * @deprecated 2022-11
+ */
+function to_bytes(string $mixed, int $default = 0): float {
+	zesk()->deprecated(__METHOD__);
+	return toBytes($mixed, $default);
+}
+
+
+/**
+ * Converts an object into an iterator, suitable for a foreach
+ *
+ * @param mixed $mixed
+ * @return array|Iterator
+ * @throws \zesk\Exception_Deprecated
+ * @deprecated 2022-01
+ */
+function to_iterator(mixed $mixed): iterable {
+	zesk()->deprecated(__METHOD__);
+	return toIterable($mixed);
+}
+
+
+
+/**
+ * Localize a string to the current locale.
+ *
+ * @param string $phrase
+ *            Phrase to translate
+ * @return string
+ * @deprecated 2017-12 Use $application->locale->__($phrase) instead.
+ * @see Locale::__invoke
+ */
+function __(array|string $phrase): string {
+	zesk()->deprecated(__METHOD__);
+	$args = func_get_args();
+	$locale = Kernel::singleton()->application()->locale;
+	array_shift($args);
+	return count($args) === 1 && is_array($args[0]) ? $locale($phrase, $args[0]) : $locale($phrase, $args);
 }

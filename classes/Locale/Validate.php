@@ -46,11 +46,11 @@ class Validate extends Hookable {
 	 */
 	public function check_translation($source, $translation) {
 		[$group, $phrase] = pair($source, ':=', null, $source);
-		$methods = to_list('token_names;braces');
+		$methods = toList('token_names;braces');
 		if ($group !== null) {
 			$check_methods = array_change_key_case($this->optionArray('group_check_methods', []));
 			foreach ($check_methods as $check_method => $methods_list) {
-				if (beginsi($group, $check_method)) {
+				if (str_starts_with($group, $check_method)) {
 					$methods = $methods_list;
 
 					break;

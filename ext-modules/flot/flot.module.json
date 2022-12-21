@@ -11,10 +11,9 @@
         "key": "version"
     },
     "destination": "vendor/components/flot/",
-    "share_path": "vendor/components/flot/",
-	"autoload_options": {
-		"class_prefix": "zesk\\Flot\\",
-		"lower": false
+    "sharePath": "vendor/components/flot/",
+	"autoload": {
+		"classPrefix": "zesk\\Flot\\"
 	},
-	"module_class": "zesk\\Flot\\Module"
+	"moduleClass": "zesk\\Flot\\Module"
 }

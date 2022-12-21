@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class Class_User_Content_Image extends Class_ORM {
+class Class_User_Content_Image extends Class_Base {
 	public array $primary_keys = [
 		'user',
 		'image',

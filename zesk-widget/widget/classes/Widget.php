@@ -328,7 +328,7 @@ class Widget extends Hookable {
 	/**
 	 * Retrieve the class object for this widget
 	 *
-	 * @return Class_ORM
+	 * @return Class_Base
 	 */
 	public function class_orm() {
 		return $this->application->class_ormRegistry($this->class);
@@ -373,7 +373,7 @@ class Widget extends Hookable {
 	}
 
 	/**
-	 * @return Class_ORM
+	 * @return Class_Base
 	 */
 	final public function find_parent_class_orm() {
 		$parent = $this->parent();
@@ -916,7 +916,7 @@ class Widget extends Hookable {
 	 * @param mixed $set
 	 * @return self
 	 */
-	public function json(array $set) {
+	public function json(array $set): self {
 		$this->response()->json()->setData($set);
 		return $this;
 	}
@@ -1212,9 +1212,9 @@ class Widget extends Hookable {
 	 *
 	 * @return boolean
 	 */
-	protected function is_new() {
+	protected function isNew() {
 		if (method_exists($this->object, 'is_new')) {
-			return $this->object->is_new();
+			return $this->object->isNew();
 		}
 		return false;
 	}
@@ -1517,7 +1517,7 @@ class Widget extends Hookable {
 			}
 		} elseif (is_object($v)) {
 			if ($v instanceof Object) {
-				return !$v->is_new();
+				return !$v->isNew();
 			}
 			return !empty($v);
 		}
@@ -1778,7 +1778,7 @@ class Widget extends Hookable {
 				if ($this->request->has($input_name, false)) {
 					$new_value = $this->request->getList($input_name);
 					$new_value = $this->sanitize($new_value);
-					$new_value = avalue($new_value, $this->request_index);
+					$new_value = $new_value[$this->request_index] ?? null;
 					if ($new_value !== null && $new_value !== '') {
 						$this->save_new_value($new_value);
 					}
@@ -1884,7 +1884,7 @@ class Widget extends Hookable {
 	 * @return mixed
 	 */
 	public function controller() {
-		$this->response()->json()->data([
+		$this->response()->json()->setData([
 			'status' => false,
 			'message' => $this->application->locale->__('{class} does not implement controller method', [
 				'class' => get_class($this),
@@ -2208,6 +2208,7 @@ class Widget extends Hookable {
 	 * Initialize widgets before any other execution function
 	 *
 	 * @return void
+	 * @throws Exception_Semantics
 	 */
 	protected function initialize(): void {
 		$response = $this->response();
@@ -2620,7 +2621,7 @@ class Widget extends Hookable {
 				]);
 			}
 			$json += $response->html()->toJSON();
-			$response->json()->data($json);
+			$response->json()->setData($json);
 			// Stop processing
 			return false;
 		}

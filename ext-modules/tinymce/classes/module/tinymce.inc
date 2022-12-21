@@ -176,7 +176,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		$this->tinymce_options['script_url'] = $script_url = '/share/' . $this->share_name . '/tinymce.min.js';
 		$this->javascript_paths[$script_url] = [];
 
-		$app->share_path($vendor_path, $this->share_name);
+		$app->sharePath($vendor_path, $this->share_name);
 	}
 
 	/**
@@ -212,7 +212,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		$params = $request->getList('params');
 		$ll = $this->application->locale;
 		if (!is_array($params)) {
-			$response->json()->data([
+			$response->json()->setData([
 				'error' => $ll->__('Invalid server request. Please contact an administrator.'),
 			]);
 			return;
@@ -220,7 +220,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		$lang = avalue($params, 'lang', $this->application->locale->language());
 		$words = to_list(avalue($params, 'words'));
 		if (!function_exists('pspell_new')) {
-			$response->json()->data([
+			$response->json()->setData([
 				'error' => $ll->__('PSpell is not installed on the server. Please contact an administrator.'),
 			]);
 			return;
@@ -237,7 +237,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 				$result_words[$word] = pspell_suggest($dictlink, $word);
 			}
 		}
-		$response->json()->data([
+		$response->json()->setData([
 			'words' => [
 				'doog' => [
 					'dog',
@@ -251,7 +251,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	/**
 	 */
 	protected function hook_configured(): void {
-		$this->tinymce_options = $this->options_include(array_keys($this->tinymce_options)) + $this->tinymce_options;
+		$this->tinymce_options = $this->options(array_keys($this->tinymce_options)) + $this->tinymce_options;
 	}
 
 	/**

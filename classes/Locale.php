@@ -38,9 +38,9 @@ abstract class Locale extends Hookable {
 	/**
 	 * Used only when $this->auto is true
 	 *
-	 * @var array
+	 * @var string
 	 */
-	private array $locale_phrase_context = [];
+	private string $locale_phrase_context = '';
 
 	/**
 	 * The locale string, e.g. "en_US", etc.
@@ -56,7 +56,7 @@ abstract class Locale extends Hookable {
 
 	/**
 	 *
-	 * @var string|null
+	 * @var string
 	 */
 	private string $dialect = '';
 
@@ -64,6 +64,24 @@ abstract class Locale extends Hookable {
 	 * @var array
 	 */
 	private array $translation_table = [];
+
+	/**
+	 * Constructor
+	 *
+	 * @param Application $application
+	 * @param string $locale_string
+	 * @param array $options
+	 */
+	public function __construct(Application $application, $locale_string, array $options = []) {
+		parent::__construct($application, $options);
+		$this->locale_string = $locale_string;
+		[$this->language, $this->dialect] = self::parse($locale_string);
+		$this->inheritConfiguration();
+		$auto = $this->option('auto');
+		if ($auto === true || $auto === $this->language || $auto === $this->locale_string) {
+			$this->auto = true;
+		}
+	}
 
 	/**
 	 *
@@ -90,7 +108,9 @@ abstract class Locale extends Hookable {
 		foreach ($classes as $class_name) {
 			try {
 				if (class_exists($class_name, true)) {
-					return $application->factory($class_name, $application, $locale_string, $options);
+					$locale = $application->factory($class_name, $application, $locale_string, $options);
+					assert($locale instanceof Locale);
+					return $locale;
 				}
 			} catch (Exception_Class_NotFound $e) {
 			}
@@ -99,30 +119,6 @@ abstract class Locale extends Hookable {
 		throw new Exception_Class_NotFound(first($classes), 'No matching classes: {classes}', [
 			'classes' => $classes,
 		]);
-	}
-
-	/**
-	 * Constructor
-	 *
-	 * @param Application $application
-	 * @param string $locale_string
-	 * @param array $options
-	 */
-	public function __construct(Application $application, $locale_string, array $options = []) {
-		parent::__construct($application, $options);
-		$this->locale_string = $locale_string;
-		[$this->language, $this->dialect] = self::parse($locale_string);
-		$this->inheritConfiguration();
-		$auto = $this->option('auto');
-		if ($auto === true || $auto === $this->language || $auto === $this->locale_string) {
-			$this->auto = true;
-		}
-		if ($this->auto) {
-			$application->hooks->add('exit', [
-				$this,
-				'shutdown',
-			]);
-		}
 	}
 
 	/**
@@ -136,7 +132,7 @@ abstract class Locale extends Hookable {
 
 	/**
 	 *
-	 * @return string|NULL
+	 * @return string
 	 */
 	public function dialect(): string {
 		return $this->dialect;
@@ -257,9 +253,9 @@ abstract class Locale extends Hookable {
 	private function auto_add_phrase(string $phrase): void {
 		$this->locale_phrases[$phrase] = time();
 		if (!$this->locale_phrase_context) {
-			$request = $this->application->request();
-			if ($request) {
-				$this->locale_phrase_context = $request->url();
+			try {
+				$this->locale_phrase_context = $this->application->request()->url();
+			} catch (Exception_Semantics $e) {
 			}
 		}
 	}
@@ -320,15 +316,11 @@ abstract class Locale extends Hookable {
 	abstract public function indefinite_article(string $word, array $context = []): string;
 
 	/**
-	 * Join a phrase together with a conjuction, e.g.
+	 * Join a phrase together with a conjunction, e.g.
 	 *
-	 * @assert_true $app->locale->conjunction(array("Apples","Pears","Frogs"), "and") === "Apples, Pears, and Frogs"
-	 *
-	 * @param array $words
-	 *            Words to join together in a conjuction
-	 * @param string $conjunction
-	 *            Conjunction to use. Defaults to translation of "or"
-	 * @return unknown
+	 * @param array $words Words to join together in a conjunction
+	 * @param string $conj Conjunction to use. Defaults to translation of "or"
+	 * @return string
 	 */
 	public function conjunction(array $words, string $conj = ''): string {
 		if ($conj === '') {
@@ -386,12 +378,9 @@ abstract class Locale extends Hookable {
 	 * @return string
 	 */
 	final public function plural(string $noun, int $number = 2): string {
-		foreach ([
-			'Locale::plural::' . $noun,
-		] as $k) {
-			if ($this->has($k)) {
-				return $this->__($k);
-			}
+		$k = 'Locale::plural::' . $noun;
+		if ($this->has($k)) {
+			return $this->__($k);
 		}
 		$result = $this->noun_semantic_plural($noun, $number);
 		if ($this->auto) {
@@ -539,10 +528,10 @@ abstract class Locale extends Hookable {
 	/**
 	 * Format currency values
 	 *
-	 * @param double $value
+	 * @param float $value
 	 * @return string
 	 */
-	public function format_currency(string $value): string {
+	public function format_currency(float $value): string {
 		$save = setlocale(LC_MONETARY, 0);
 		$id = $this->id();
 		if ($save !== $id) {
@@ -558,7 +547,7 @@ abstract class Locale extends Hookable {
 	/**
 	 * Format percent values
 	 *
-	 * @param double $value
+	 * @param string $value
 	 * @return string
 	 */
 	public function format_percent(string $value): string {
@@ -571,6 +560,9 @@ abstract class Locale extends Hookable {
 	 * Dump untranslated phrases
 	 */
 	public function shutdown(): void {
+		if (!$this->auto) {
+			return;
+		}
 		if (count($this->locale_phrases) === 0) {
 			return;
 		}
@@ -587,7 +579,12 @@ abstract class Locale extends Hookable {
 			return;
 		}
 		$writer = new Writer($this->application, path($path, $this->id() . '-auto.php'));
-		$writer->append($this->locale_phrases, $this->locale_phrase_context);
+
+		try {
+			$writer->append($this->locale_phrases, $this->locale_phrase_context);
+		} catch (Exception_Unimplemented|Exception_File_NotFound|Exception_File_Permission $e) {
+			PHP::log($e);
+		}
 	}
 
 	/**

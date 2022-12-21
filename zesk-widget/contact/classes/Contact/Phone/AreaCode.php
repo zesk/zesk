@@ -10,5 +10,5 @@ namespace zesk;
 /**
  * @see Class_Contact_Phone_AreaCode
  */
-class Contact_Phone_AreaCode extends ORM {
+class Contact_Phone_AreaCode extends ORMBase {
 }

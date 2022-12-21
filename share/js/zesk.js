@@ -60,7 +60,7 @@
 		}
 		return def;
 	}
-	
+
 	function is_bool(a) {
 		return gettype(a) === 'boolean';
 	}
@@ -204,7 +204,7 @@
 		    var attributes, content, args = arguments;
 		    if (is_object(mixed)) {
 			    attributes = mixed;
-			    content = avalue(args, 2, null);
+			    content = args[2] ?? null;
 		    } else if (args.length > 2) {
 			    attributes = html.to_attributes(mixed);
 			    content = args[2];
@@ -219,7 +219,7 @@
 		    var attributes, content, args = arguments, result = "";
 		    if (is_object(mixed)) {
 			    attributes = mixed;
-			    content = avalue(args, 2, null);
+			    content = args[2] ?? null;
 		    } else if (args.length > 2) {
 			    attributes = html.to_attributes(mixed);
 			    content = args[2];
@@ -239,7 +239,7 @@
 		path = to_list(path, [], ".");
 		for (k = 0; k < path.length; k++) {
 			if (k === path.length - 1) {
-				return avalue(curr, path[k], def);
+				return curr[path[k]] ?? null;
 			}
 			curr = avalue(curr, path[k]);
 			if (curr === null) {
@@ -342,8 +342,8 @@
 	    		return v;
 	    	},
 	    	delete_cookie = function (name, dom) {
-	    		var 
-	    		now = new Date(), 
+	    		var
+	    		now = new Date(),
 	    		e = new Date(now.getTime() - 86400);
 	    		d.cookie = name + '=; path=/; expires=' + e.toGMTString() + (dom ? '; domain=' + dom : '');
 	    	};
@@ -442,7 +442,7 @@
 	    },
 	    /**
 		 * Iterate over an object, calling a function once per element
-		 * 
+		 *
 		 * @param object|array
 		 *            x
 		 * @param function
@@ -618,7 +618,7 @@
 					self[this] = mixed[this];
 				}
 			});
-		} else if (is_url(mixed)) { 
+		} else if (is_url(mixed)) {
 			this.parse(mixed);
 		} else if (is_string(mixed)) {
 			this.path = mixed;
@@ -731,7 +731,7 @@
 	    },
 	    /**
 		 * Join elements of an array by wrapping each one with a prefix/suffix
-		 * 
+		 *
 		 * @param string
 		 *            prefix
 		 * @param string

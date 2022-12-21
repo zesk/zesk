@@ -15,12 +15,18 @@ require_once __DIR__ . '/.autoload-load.php';
  * Test Application
  */
 class TestApplicationFactory {
+	public static ?Application $callback_application;
+
 	public static function factory(): Application {
 		try {
 			$zesk = Kernel::singleton();
+			$zesk->application(function ($app): void {
+				self::$callback_application = $app;
+			});
 			$zesk->setDeprecated(Kernel::DEPRECATED_EXCEPTION);
 			$zesk->paths->setApplication(__DIR__);
 			$application = $zesk->createApplication();
+			assert($application === self::$callback_application);
 		} catch (Exception_Semantics) {
 			die(__CLASS__ . ' is incorrectly configured');
 		}

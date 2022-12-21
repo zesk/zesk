@@ -46,7 +46,7 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * Request associated with this controller
 	 */
-	public ?Request $request = null;
+	public Request $request;
 
 	/**
 	 * Response associated with this controller
@@ -56,39 +56,37 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * Router associated with this controller
 	 */
-	public ?Router $router = null;
+	public Router $router;
 
 	/**
 	 * Route which brought us here
 	 *
 	 */
-	public ?Route $route = null;
+	public Route $route;
 
 	/**
 	 * Controller constructor.
 	 *
 	 * @param Application $app
-	 * @param Route|null $route
+	 * @param Route $route
 	 * @param Response|null $response
 	 * @param array $options
-	 * @throws Exception_Lock
 	 */
-	final public function __construct(Application $app, Route $route = null, Response $response = null, array $options = []) {
+	final public function __construct(Application $app, Route $route, Response $response = null, array $options = []) {
 		parent::__construct($app, $options);
 
+		// TODO Candidate to remove this and pass from calling factory
 		$this->inheritConfiguration();
 
-		$this->router = $app->router;
 		$this->route = $route;
-		$this->request = $route ? $route->request() : null;
-		$this->response = $response;
+		$this->router = $route->router;
+		$this->request = $route->request();
+		$this->response = $response ?? Response::factory($app, $this->request);
 
-		if ($response) {
-			$this->application->logger->debug('{class}::__construct Response ID {id}', [
-				'class' => get_class($this),
-				'id' => $response->id(),
-			]);
-		}
+		$this->application->logger->debug('{class}::__construct Response ID {id}', [
+			'class' => get_class($this),
+			'id' => $this->response->id(),
+		]);
 
 		$this->initialize();
 		$this->callHook('initialize');
@@ -186,9 +184,11 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * Executed after the controller action
 	 *
+	 * @param string|array|Response|null $result
+	 * @param string $output
 	 * @return void
 	 */
-	public function after(string $result = null, string $output = null): void {
+	public function after(string|array|Response|null $result, string $output = ''): void {
 		// pass
 	}
 
@@ -225,39 +225,37 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @return self
 	 */
 	public function error_404(string $message = ''): self {
-		$this->error(Net_HTTP::STATUS_FILE_NOT_FOUND, trim("Page not found $message"));
+		$this->error(HTTP::STATUS_FILE_NOT_FOUND, rtrim("Page not found $message"));
 		return $this;
 	}
 
 	/**
 	 * Generic page error
 	 *
-	 * @param int $code Net_HTTP::Status_XXX
+	 * @param int $code HTTP::Status_XXX
 	 * @param string $message Message
 	 * @return self
 	 */
 	public function error(int $code, string $message = ''): self {
-		$this->response->status($code);
-		$this->response->setContentType('text/html');
-		$this->response->content = $message;
+		$this->response?->setStatus($code, $message);
+		$this->response?->setContent($message);
 		return $this;
 	}
 
 	/**
 	 * Execute an optional method
 	 *
-	 * @param $name
+	 * @param array|string $names
 	 * @param array $arguments
-	 * @return array|mixed
+	 * @return mixed
 	 */
-	final public function optional_method(array|string $name, array $arguments) {
-		$names = toList($name);
-		foreach ($names as $name) {
-			if ($this->has_method($name)) {
-				return $this->invoke_method($name, $arguments);
+	final public function optionalMethod(array|string $names, array $arguments): mixed {
+		foreach (toList($names) as $name) {
+			if ($this->hasMethod($name)) {
+				return $this->invokeMethod($name, $arguments);
 			}
 		}
-		return $arguments;
+		return null;
 	}
 
 	/**
@@ -265,7 +263,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param string $name
 	 * @return boolean
 	 */
-	final public function has_method(string $name): bool {
+	final public function hasMethod(string $name): bool {
 		return method_exists($this, $name);
 	}
 
@@ -275,7 +273,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $arguments
 	 * @return mixed
 	 */
-	final public function invoke_method(string $name, array $arguments): mixed {
+	final public function invokeMethod(string $name, array $arguments): mixed {
 		return call_user_func_array([
 			$this,
 			$name,
@@ -287,14 +285,14 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $arguments
 	 * @return mixed
 	 */
-	final public function invoke_default_method(array $arguments): mixed {
+	final public function invokeDefaultMethod(array $arguments): mixed {
 		if (empty($this->method_default_action)) {
 			$this->method_default_action = $this->route->option('method default', '_action_default');
 		}
 		if (empty($this->method_default_arguments)) {
 			$this->method_default_arguments = $this->option('arguments method default', '_arguments_default');
 		}
-		$arguments = $this->optional_method($this->method_default_arguments, $arguments);
+		$arguments = $this->optionalMethod($this->method_default_arguments, $arguments);
 		return call_user_func_array([
 			$this,
 			$this->method_default_action,
@@ -310,21 +308,6 @@ class Controller extends Hookable implements Interface_Theme {
 	 */
 	public function getRouteMap(string $action = '', mixed $object = null, array $options = []): array {
 		return [];
-	}
-
-	/**
-	 * Create a widget, and inherit this Controller's response
-	 *
-	 * @param string $class Widget class to create
-	 * @param array $options
-	 * @return Widget
-	 */
-	public function widgetFactory(string $class, array $options = []): Widget {
-		$widget = $this->application->widgetFactory($class, $options);
-		if ($this->response) {
-			$widget->response($this->response);
-		}
-		return $widget;
 	}
 
 	/**
@@ -371,7 +354,7 @@ class Controller extends Hookable implements Interface_Theme {
 		foreach ($paths as $path => $options) {
 			$controller_path = path($path, 'controller');
 			if (is_dir($controller_path)) {
-				$class_prefix = avalue($options, 'class_prefix', '');
+				$classPrefix = $options['classPrefix'] ?? '';
 				$controller_incs = Directory::list_recursive($controller_path, $list_options);
 				foreach ($controller_incs as $controller_inc) {
 					if (str_contains("/$controller_inc", '/.')) {
@@ -381,7 +364,7 @@ class Controller extends Hookable implements Interface_Theme {
 
 					try {
 						$controller_inc = File::setExtension($controller_inc, '');
-						$class_name = $class_prefix . 'Controller_' . strtr($controller_inc, '/', '_');
+						$class_name = $classPrefix . 'Controller_' . strtr($controller_inc, '/', '_');
 						$application->logger->debug('class name is {class_name}', compact('class_name'));
 						$reflectionClass = new ReflectionClass($class_name);
 						if (!$reflectionClass->isAbstract()) {

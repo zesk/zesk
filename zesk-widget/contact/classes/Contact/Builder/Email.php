@@ -23,7 +23,7 @@ class Contact_Builder_Email extends Contact_Builder_Base {
 		if (!is_email($value)) {
 			throw new Exception_Syntax(__('Not a valid email address.'));
 		}
-		$parts = Mail::parse_address($value);
+		$parts = Mail::parseAddress($value);
 		if (!$parts) {
 			throw new Exception_Syntax(__('Unable to parse email address.'));
 		}

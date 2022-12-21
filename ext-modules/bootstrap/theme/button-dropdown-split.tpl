@@ -2,7 +2,7 @@
 namespace zesk;
 
 $style = $this->style || $this->arg2;
-if ($style && !begins($style, 'btn-')) {
+if ($style && !str_starts_with($style, 'btn-')) {
 	$style = 'btn-';
 }
 ?>

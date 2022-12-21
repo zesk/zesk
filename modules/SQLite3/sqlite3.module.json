@@ -1,0 +1,11 @@
+{
+	"moduleClass": "sqlite3\\Module",
+	"requires": [
+		"Database"
+	],
+	"autoload": {
+		"classPrefix": "sqlite3\\"
+	},
+	"name": "SQLite3 Database Interface",
+	"description": "The SQLite3 database API using the PHP SQLite3 API. INCOMPLETE."
+}

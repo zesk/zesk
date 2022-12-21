@@ -15,7 +15,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Contact extends ORM {
+class Contact extends ORMBase {
 	/**
 	 *
 	 * @param Application $application
@@ -24,7 +24,7 @@ class Contact extends ORM {
 	 * @return integer ID of found object
 	 */
 	public static function find_hash(Application $application, $hash, $where = null) {
-		$query = $application->ormRegistry(__CLASS__)->query_select();
+		$query = $application->ormRegistry(__CLASS__)->querySelect();
 		$class_object = $query->class_orm();
 		$where['*hash'] = $query->sql()->function_unhex($hash);
 		$id_column = $class_object->id_column;
@@ -63,7 +63,7 @@ class Contact extends ORM {
 	}
 
 	public function store(): self {
-		$is_new = $this->is_new();
+		$is_new = $this->isNew();
 		if ($is_new) {
 			if ($this->memberIsEmpty('account')) {
 				$this->account = $this->application->modelSingleton($this->option('account_model_singleton_class', 'zesk\\Account'));
@@ -120,7 +120,7 @@ class Contact extends ORM {
 		return !$this->memberIsEmpty('Verified');
 	}
 
-	public function is_connected(User $user) {
+	public function isConnected(User $user) {
 		$user_account_id = $user->memberInteger('account');
 		if ($user->memberInteger('account') === $user_account_id) {
 			return true;

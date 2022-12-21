@@ -73,6 +73,10 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 		$this->_count = count($this->_data);
 	}
 
+	public function normalizeKey(string $key): string {
+		return implode(ZESK_GLOBAL_KEY_SEPARATOR, _zesk_global_key($key));
+	}
+
 	/**
 	 *
 	 * @param array $array
@@ -236,35 +240,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 			$result[$path] = $this->setPath(toList($path, [], self::key_separator), $value);
 		}
 		return $result;
-	}
-
-	/**
-	 * Get multiple paths at once, using the key value as the default value
-	 *
-	 * @param array $paths
-	 * @return array
-	 * @deprecated 2022-12
-	 */
-	public function paths_get(array $paths) {
-		zesk()->deprecated(__METHOD__);
-		$result = [];
-		foreach ($paths as $path => $default) {
-			$result[$path] = $this->getPath($path, $default);
-		}
-		return $result;
-	}
-
-	/**
-	 * Retrieve a path using self::key_separator
-	 *
-	 * @param string|array $path
-	 * @param mixed $default
-	 * @return mixed
-	 * @deprecated 2022-12
-	 */
-	public function path_get(string|array $path, mixed $default = null): mixed {
-		zesk()->deprecated(__METHOD__);
-		return $this->getPath($path, $default);
 	}
 
 	/**
@@ -636,5 +611,34 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	public function path_set(string|array $path, mixed $value = null): self {
 		zesk()->deprecated(__METHOD__);
 		return $this->setPath($path, $value);
+	}
+
+	/**
+	 * Get multiple paths at once, using the key value as the default value
+	 *
+	 * @param array $paths
+	 * @return array
+	 * @deprecated 2022-12
+	 */
+	public function paths_get(array $paths) {
+		zesk()->deprecated(__METHOD__);
+		$result = [];
+		foreach ($paths as $path => $default) {
+			$result[$path] = $this->getPath($path, $default);
+		}
+		return $result;
+	}
+
+	/**
+	 * Retrieve a path using self::key_separator
+	 *
+	 * @param string|array $path
+	 * @param mixed $default
+	 * @return mixed
+	 * @deprecated 2022-12
+	 */
+	public function path_get(string|array $path, mixed $default = null): mixed {
+		zesk()->deprecated(__METHOD__);
+		return $this->getPath($path, $default);
 	}
 }

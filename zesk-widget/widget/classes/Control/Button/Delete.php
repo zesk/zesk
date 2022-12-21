@@ -4,7 +4,7 @@ namespace zesk;
 class Control_Button_Delete extends Control_Button {
 	/**
 	 *
-	 * @var ORM
+	 * @var ORMBase
 	 */
 	public $object = null;
 
@@ -13,14 +13,14 @@ class Control_Button_Delete extends Control_Button {
 	];
 
 	public function is_visible() {
-		if ($this->object->is_new()) {
+		if ($this->object->isNew()) {
 			return false;
 		}
 		return $this->userCan('delete', $this->object);
 	}
 
 	public function themeVariables(): array {
-		/* @var $object ORM */
+		/* @var $object ORMBase */
 		$object = $this->object;
 		$locale = $this->application->locale;
 		$href = $this->option('href');

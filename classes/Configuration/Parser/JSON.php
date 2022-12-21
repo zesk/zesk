@@ -14,7 +14,7 @@ namespace zesk;
 class Configuration_Parser_JSON extends Configuration_Parser {
 	protected array $options = [
 		'overwrite' => true,
-		'lower' => true,
+		'lower' => false,
 		'interpolate' => true,
 	];
 

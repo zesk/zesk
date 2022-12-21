@@ -63,7 +63,7 @@ class StringTools_Test extends UnitTest {
 	 * @dataProvider to_camel_data
 	 */
 	public function test_to_camel_case($test, $expected): void {
-		$this->assertEquals($expected, StringTools::to_camel_case($test));
+		$this->assertEquals($expected, StringTools::toCamelCase($test));
 	}
 
 	/**
@@ -81,7 +81,7 @@ class StringTools_Test extends UnitTest {
 	 * @dataProvider from_camel_data
 	 */
 	public function test_from_camel_case($test, $expected): void {
-		$this->assertEquals($expected, StringTools::from_camel_case($test));
+		$this->assertEquals($expected, StringTools::fromCamelCase($test));
 	}
 
 	public function case_match_data(): array {
@@ -160,7 +160,7 @@ class StringTools_Test extends UnitTest {
 	 * @dataProvider ellipsis_word_data
 	 */
 	public function test_ellipsis_word($text, $number, $dot_dot_dot, $expected): void {
-		$this->assertEquals($expected, StringTools::ellipsis_word($text, $number, $dot_dot_dot));
+		$this->assertEquals($expected, StringTools::ellipsisWord($text, $number, $dot_dot_dot));
 	}
 
 	public function data_contains(): array {
@@ -275,9 +275,9 @@ class StringTools_Test extends UnitTest {
 
 	public function test_is_ascii(): void {
 		$str = 'string';
-		$this->assertTrue(StringTools::is_ascii($str));
+		$this->assertTrue(StringTools::isASCII($str));
 		$str = chr(255) . chr(254) . 'Hello';
-		$this->assertFalse(StringTools::is_ascii($str));
+		$this->assertFalse(StringTools::isASCII($str));
 	}
 
 	public function is_utf16_data(): array {
@@ -298,7 +298,7 @@ class StringTools_Test extends UnitTest {
 	 */
 	public function test_is_utf16(string $content, bool $isUTF16, bool $beShouldBe): void {
 		$be = false;
-		$this->assertEquals($isUTF16, StringTools::is_utf16($content, $be));
+		$this->assertEquals($isUTF16, StringTools::isUTF16($content, $be));
 		if ($isUTF16) {
 			$this->assertEquals($beShouldBe, $be, 'BOM matches');
 		}
@@ -347,9 +347,9 @@ class StringTools_Test extends UnitTest {
 	}
 
 	public function test_is_utf8(): void {
-		$this->assertTrue(StringTools::is_utf8(''));
-		$this->assertTrue(StringTools::is_utf8('????, ???'));
-		$this->assertTrue(StringTools::is_utf8('????, ???'));
+		$this->assertTrue(StringTools::isUTF8(''));
+		$this->assertTrue(StringTools::isUTF8('????, ???'));
+		$this->assertTrue(StringTools::isUTF8('????, ???'));
 	}
 
 	public function data_is_utf8_file(): array {
@@ -375,7 +375,7 @@ class StringTools_Test extends UnitTest {
 	public function test_is_utf8_file(string $f, bool $isutf8): void {
 		$test_dir = $this->application->zeskHome('test/test-data');
 		$content = file_get_contents(path($test_dir, $f));
-		$this->assertEquals($isutf8, StringTools::is_utf8($content));
+		$this->assertEquals($isutf8, StringTools::isUTF8($content));
 	}
 
 	public function left_data(): array {
@@ -473,7 +473,7 @@ class StringTools_Test extends UnitTest {
 	 * @dataProvider replace_first_data
 	 */
 	public function test_replace_first(string $search, string $replace, string $content, string $expected): void {
-		$this->assertEquals($expected, StringTools::replace_first($search, $replace, $content));
+		$this->assertEquals($expected, StringTools::replaceFirst($search, $replace, $content));
 	}
 
 	public function right_data(): array {
@@ -692,7 +692,7 @@ class StringTools_Test extends UnitTest {
 	 * @dataProvider zero_pad_data
 	 */
 	public function test_zero_pad(string $string, int $length, string $expected): void {
-		$this->assertEquals($expected, StringTools::zero_pad($string, $length));
+		$this->assertEquals($expected, StringTools::zeroPad($string, $length));
 	}
 
 	public function lalign_data(): array {
@@ -740,8 +740,7 @@ class StringTools_Test extends UnitTest {
 	}
 
 	public function test_filter(): void {
-		$name = null;
-		$default = true;
+		$name = '';
 		$this->assertTrue(StringTools::filter($name, [], true));
 		$this->assertFalse(StringTools::filter($name, [], false));
 		$tests = [
@@ -795,7 +794,7 @@ class StringTools_Test extends UnitTest {
 	 * @dataProvider data_substr
 	 */
 	public function test_substr(string $expected, string $string, int $start, int $length, string $encoding): void {
-		$this->assertEquals($expected, StringTools::substr($string, $start, $length, $encoding));
+		$this->assertEquals($expected, StringTools::substring($string, $start, $length, $encoding));
 	}
 
 	public function data_substr(): array {
@@ -817,19 +816,13 @@ class StringTools_Test extends UnitTest {
 		// Never knew this'
 		$foo = 'OK,';
 		$result = substr($foo, 3);
-		if (PHP_VERSION_ID > 0o70000) {
-			// Fixed in 7.0
-			$this->assertEquals('string', gettype($result));
-			$this->assertEquals('', $result);
-		} else {
-			$this->assertEquals('boolean', gettype($result));
-			$this->assertEquals(false, $result);
-		}
+		$this->assertEquals('string', gettype($result));
+		$this->assertEquals('', $result);
 	}
 
 	public function test_replace_first1(): void {
-		$this->assertEquals('bbracadabra', StringTools::replace_first('a', 'b', 'abracadabra'));
-		$this->assertEquals('astrapcadabra', StringTools::replace_first('bra', 'strap', 'abracadabra'));
+		$this->assertEquals('bbracadabra', StringTools::replaceFirst('a', 'b', 'abracadabra'));
+		$this->assertEquals('astrapcadabra', StringTools::replaceFirst('bra', 'strap', 'abracadabra'));
 	}
 
 	/**
@@ -841,7 +834,7 @@ class StringTools_Test extends UnitTest {
 	 * @dataProvider data_str_split
 	 */
 	public function test_str_split(array $expected, string $string, int $split_length, string $encoding): void {
-		$this->assertEquals($expected, StringTools::str_split($string, $split_length, $encoding));
+		$this->assertEquals($expected, StringTools::split($string, $split_length, $encoding));
 	}
 
 	public function data_str_split(): array {
@@ -886,7 +879,7 @@ class StringTools_Test extends UnitTest {
 	 * @dataProvider data_csv_quote_row
 	 */
 	public function test_csv_quote_row(string $expected, array $row): void {
-		$this->assertEquals($expected, StringTools::csv_quote_row($row));
+		$this->assertEquals($expected, StringTools::csvQuoteRow($row));
 	}
 
 	/**
@@ -899,6 +892,6 @@ class StringTools_Test extends UnitTest {
 		$total = $this->randomInteger(3, 100);
 		$expected = str_repeat($row_expected, $total);
 		$rows = array_fill(0, $total, $row);
-		$this->assertEquals($expected, StringTools::csv_quote_rows($rows));
+		$this->assertEquals($expected, StringTools::csvQuoteRows($rows));
 	}
 }

@@ -11,10 +11,9 @@
 	],
 	"destination": "vendor/components/jquery-unveil",
 	"strip_components": 1,
-	"share_path": "vendor/components/jquery-unveil",
-	"module_class": "zesk\\jQueryUnveil\\Module",
-	"autoload_options": {
-		"class_prefix": "zesk\\jQueryUnveil\\",
-		"lower": false
+	"sharePath": "vendor/components/jquery-unveil",
+	"moduleClass": "zesk\\jQueryUnveil\\Module",
+	"autoload": {
+		"classPrefix": "zesk\\jQueryUnveil\\"
 	}
 }

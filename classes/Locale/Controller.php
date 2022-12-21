@@ -44,7 +44,7 @@ class Controller extends \zesk\Controller {
 				$load_lines[] = "/* No translations for $id */";
 			}
 		}
-		$this->response->content_type('text/javascript');
+		$this->response->setContentType('text/javascript');
 		$load_lines[] = 'exports.Locale.locale(' . JavaScript::arguments($app->locale->id()) . ');';
 
 		$load_lines = implode("\n\t", $load_lines);

@@ -1,7 +1,7 @@
 {
 	"name": "Multi-page selections",
-	"autoload_options": {
-		"class_prefix": "zesk\\"
+	"autoload": {
+		"classPrefix": "zesk\\"
 	},
-	"module_class": "zesk\\Module_Selection"
+	"moduleClass": "zesk\\Module_Selection"
 }

@@ -123,7 +123,7 @@ class preg implements \ArrayAccess, \Iterator {
 	 * @param offset
 	 */
 	public function offsetGet($offset): int {
-		return avalue($this->matches, $offset);
+		return $this->matches[$offset] ?? null;
 	}
 
 	/**

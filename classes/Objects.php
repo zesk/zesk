@@ -7,9 +7,11 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use \ReflectionClass;
-use \ReflectionException;
-use \LogicException;
+use ReflectionClass;
+use ReflectionException;
+use LogicException;
+use ReflectionMethod;
+use stdClass;
 
 /**
  * Manage object creation, singletons, and object sharing across the system
@@ -18,12 +20,6 @@ use \LogicException;
  * @property $session \Interface_Session
  */
 class Objects {
-	/**
-	 *
-	 * @var Interface_Settings
-	 */
-	public ?Interface_Settings $settings = null;
-
 	/**
 	 *
 	 * @var Database[]
@@ -40,7 +36,7 @@ class Objects {
 	 *
 	 * @var array
 	 */
-	private array $singletons_caller = [];
+	private array $singletonsCaller = [];
 
 	/**
 	 *
@@ -51,7 +47,7 @@ class Objects {
 	/**
 	 * If value is true, allow only a single write
 	 *
-	 * @var boolean[member]
+	 * @var array
 	 */
 	private array $write_members;
 
@@ -71,14 +67,25 @@ class Objects {
 	 *
 	 */
 	public function reset(): void {
-		$this->settings = null;
 		$this->databases = [];
 		$this->singletons = [];
-		$this->singletons_caller = [];
+		$this->singletonsCaller = [];
 		$this->debug = [];
 		$this->mapping = [];
 		$this->read_members = ['application' => true, 'settings' => true, 'user' => true, 'session' => true, ];
 		$this->write_members = ['user' => false, 'application' => true, 'settings' => true, 'session' => true, ];
+	}
+
+	public function shutdown(): void {
+		foreach ($this->singletons as $singleton) {
+			try {
+				if (method_exists($singleton, 'shutdown')) {
+					$singleton->shutdown();
+				}
+			} catch (\Exception $e) {
+				PHP::log('{method} {message}}', ['method' => __METHOD__] + Exception::exceptionVariables($e));
+			}
+		}
 	}
 
 	/**
@@ -140,8 +147,7 @@ class Objects {
 		}
 
 		throw new Exception_Key('Unable to access {member} in {method}', [
-			'member' => $member,
-			'method' => __METHOD__,
+			'member' => $member, 'method' => __METHOD__,
 		]);
 	}
 
@@ -154,8 +160,7 @@ class Objects {
 	public function __set(string $member, mixed $value): void {
 		if (!isset($this->write_members[$member])) {
 			throw new Exception_Key('Unable to set {member} in {method}', [
-				'member' => $member,
-				'method' => __METHOD__,
+				'member' => $member, 'method' => __METHOD__,
 			]);
 		}
 		if (!$this->write_members[$member]) {
@@ -169,29 +174,31 @@ class Objects {
 		}
 
 		throw new Exception_Key('Unable to write {member} a second time in {method} (first call from {first_calling_function}', [
-			'member' => $member,
-			'method' => __METHOD__,
+			'member' => $member, 'method' => __METHOD__,
 			'first_calling_function' => $this->debug['first_call'][$member],
 		]);
 	}
 
 	/**
-	 * Getter/setter for singletons in the system
+	 * Get singleton of class, by default uses the static `singleton` method.
 	 *
 	 * @param string $class
 	 * @return object
+	 * @throws Exception_Class_NotFound
 	 */
 	public function singleton(string $class): object {
 		$arguments = func_get_args();
 		$class = array_shift($arguments);
-		return $this->singletonArguments($class, $arguments);
+		return $this->singletonArgumentsStatic($class, $arguments);
 	}
 
 	/**
-	 * Getter/setter for singletons in the system
+	 * Set singleton of class
 	 *
-	 * @param object $class
-	 * @return object|self
+	 * @param object $object
+	 * @param string|null $class The resolved class to save this class under.
+	 * @return $this
+	 * @throws Exception_Semantics
 	 */
 	public function setSingleton(object $object, string $class = null): self {
 		if ($class === null) {
@@ -201,12 +208,11 @@ class Objects {
 		$found_object = $this->_getSingleton($class, $resolved_class);
 		if ($found_object) {
 			if ($found_object === $object) {
-				return $object;
+				return $this;
 			}
 
 			throw new Exception_Semantics('Singletons should not change existing {found_object} !== set {object}', [
-				'found_object' => $found_object,
-				'object' => $found_object,
+				'found_object' => $found_object, 'object' => $found_object,
 			]);
 		}
 		$this->_setSingleton($object, $resolved_class);
@@ -214,35 +220,33 @@ class Objects {
 	}
 
 	/**
-	 * Set a singleton
+	 * Get a singleton
 	 *
 	 * @param string $class
-	 * @param string $resolve_class
+	 * @param string $resolveClass
 	 * @return ?object
 	 */
-	private function _getSingleton(string $class, string &$resolve_class): ?object {
-		$resolve_class = $this->resolve($class);
-		$low_class = strtolower($resolve_class);
-		return $this->singletons[$low_class] ?? null;
+	private function _getSingleton(string $class, string &$resolveClass): ?object {
+		$resolveClass = $this->resolve($class);
+		return $this->singletons[$resolveClass] ?? null;
 	}
 
 	/**
+	 * Set a singleton
 	 *
 	 * @param mixed $object
 	 * @return mixed
 	 * @throws Exception_Semantics
 	 */
-	private function _setSingleton(object $object, string $resolved_class): object {
-		$low_class = strtolower($resolved_class);
-		if (isset($this->singletons[$low_class])) {
+	private function _setSingleton(object $object, string $resolvedClass): object {
+		if (isset($this->singletons[$resolvedClass])) {
 			throw new Exception_Semantics('{method}(Object of {class_name}) Can not set singleton {class_name} twice, originally set in {first_caller}', [
-				'method' => __METHOD__,
-				'class_name' => $class_name,
-				'first_caller' => $this->singletons_caller[$low_class],
+				'method' => __METHOD__, 'class_name' => $resolvedClass,
+				'first_caller' => $this->singletonsCaller[$resolvedClass],
 			]);
 		}
-		$this->singletons_caller[$low_class] = calling_function(2);
-		$this->singletons[$low_class] = $object;
+		$this->singletonsCaller[$resolvedClass] = calling_function(2);
+		$this->singletons[$resolvedClass] = $object;
 		return $object;
 	}
 
@@ -250,33 +254,62 @@ class Objects {
 	 *
 	 * @param string $class
 	 * @param array $arguments
-	 * @return object
-	 * @throws Exception_Class_NotFound|Exception_Semantics
+	 * @param array $staticMethods List of static methods to look for in class.
+	 * @return mixed
+	 * @throws Exception_Class_NotFound
 	 */
-	public function singletonArguments(string $class, array $arguments = [], $use_static = true): mixed {
-		$resolve_class = '';
-		$object = $this->_getSingleton($class, $resolve_class);
+	public function singletonArgumentsStatic(string $class, array $arguments = [], array $staticMethods = ['singleton']): mixed {
+		$resolveClass = '';
+		$object = $this->_getSingleton($class, $resolveClass);
 		if ($object) {
 			return $object;
 		}
 
 		try {
-			$rc = new ReflectionClass($resolve_class);
-			if ($use_static) {
-				$static_methods = ['singleton', 'master', ];
-				foreach ($static_methods as $method) {
-					if ($rc->hasMethod($method)) {
-						$refl_method = $rc->getMethod($method);
-						/* @var $method ReflectionMethod */
-						if ($refl_method->isStatic()) {
-							return $this->_setSingleton($refl_method->invokeArgs(null, $arguments), $resolve_class);
-						}
+			$rc = new ReflectionClass($resolveClass);
+			foreach ($staticMethods as $method) {
+				if ($rc->hasMethod($method)) {
+					$reflectionMethod = $rc->getMethod($method);
+					/* @var $method ReflectionMethod */
+					if ($reflectionMethod->isStatic()) {
+						return $this->_setSingleton($reflectionMethod->invokeArgs(null, $arguments), $resolveClass);
 					}
 				}
 			}
-			return $this->_setSingleton($rc->newInstanceArgs($arguments), $resolve_class);
+
+			throw new Exception_Class_NotFound($resolveClass);
 		} catch (ReflectionException|LogicException $e) {
-			throw new Exception_Class_NotFound($resolve_class, null, null, $e);
+			throw new Exception_Class_NotFound($resolveClass, '', [], $e);
+		} catch (Exception_Semantics $e) {
+			/* NEVER from _setSingleton */
+			throw new Exception_Class_NotFound($resolveClass, 'Semantics SHOULD NOT HAPPEN as getSingleton returned
+			null', [], $e);
+		}
+	}
+
+	/**
+	 *
+	 * @param string $class
+	 * @param array $arguments
+	 * @return mixed
+	 * @throws Exception_Class_NotFound
+	 */
+	public function singletonArguments(string $class, array $arguments = []): mixed {
+		$resolveClass = '';
+		$object = $this->_getSingleton($class, $resolveClass);
+		if ($object) {
+			return $object;
+		}
+
+		try {
+			$rc = new ReflectionClass($resolveClass);
+			return $this->_setSingleton($rc->newInstanceArgs($arguments), $resolveClass);
+		} catch (ReflectionException|LogicException $e) {
+			throw new Exception_Class_NotFound($resolveClass, '', [], $e);
+		} catch (Exception_Semantics $e) {
+			/* NEVER from _setSingleton */
+			throw new Exception_Class_NotFound($resolveClass, 'Semantics SHOULD NOT HAPPEN as getSingleton returned
+			null', [], $e);
 		}
 	}
 
@@ -302,15 +335,13 @@ class Objects {
 	 * @throws Exception_Class_NotFound
 	 */
 	public function factoryArguments(string $class, array $arguments): object {
-		$resolve_class = $this->resolve($class);
+		$resolveClass = $this->resolve($class);
 
 		try {
-			$rc = new ReflectionClass($resolve_class);
+			$rc = new ReflectionClass($resolveClass);
 			if ($rc->isAbstract()) {
-				throw new Exception_Class_NotFound($resolve_class, '{this_method}({class} => {resolve_class}) is abstract - can not instantiate', [
-					'this_method' => __METHOD__,
-					'class' => $class,
-					'resolve_class' => $resolve_class,
+				throw new Exception_Class_NotFound($resolveClass, '{this_method}({class} => {resolve_class}) is abstract - can not instantiate', [
+					'this_method' => __METHOD__, 'class' => $class, 'resolve_class' => $resolveClass,
 				]);
 			}
 			return $rc->newInstanceArgs($arguments);
@@ -318,12 +349,8 @@ class Objects {
 		}
 
 		throw new Exception_Class_NotFound($class, "{method}({class} => {resolve_class}, {args}) {message}\nBacktrace: {backtrace}", [
-			'method' => __METHOD__,
-			'class' => $class,
-			'resolve_class' => $resolve_class,
-			'args' => array_keys($arguments),
-			'message' => $e->getMessage(),
-			'backtrace' => $e->getTraceAsString(),
+			'method' => __METHOD__, 'class' => $class, 'resolve_class' => $resolveClass,
+			'args' => array_keys($arguments), 'message' => $e->getMessage(), 'backtrace' => $e->getTraceAsString(),
 		]);
 	}
 }

@@ -4,15 +4,14 @@
 		"require": "eonasdan/bootstrap-datetimepicker"
 	},
 	"github": "eonasdan/bootstrap-datetimepicker",
-	"share_path": "vendor/eonasdan/bootstrap-datetimepicker/build/",
+	"sharePath": "vendor/eonasdan/bootstrap-datetimepicker/build/",
 	"strip_components": 1,
 	"depends": [
 		"moment"
 	],
-	"autoload_options": {
-		"class_prefix": "zesk\\Bootstrap3\\DateTimePicker\\",
-		"lower": false
+	"autoload": {
+		"classPrefix": "zesk\\Bootstrap3\\DateTimePicker\\"
 	},
-	"module_class": "zesk\\Bootstrap3\\DateTimePicker\\Module",
-	"theme_path_prefix": "zesk/control"
+	"moduleClass": "zesk\\Bootstrap3\\DateTimePicker\\Module",
+	"themePathPrefix": "zesk/control"
 }

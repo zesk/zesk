@@ -13,7 +13,7 @@ namespace zesk;
  */
 class Functions_Test extends UnitTest {
 	public function test_path(): void {
-		path();
+		$this->assertEquals('nothing', path('nothing'));
 
 		$this->assertEquals('a/b', path('a', 'b'));
 		$this->assertEquals('a/b', path('a/', 'b'));
@@ -32,44 +32,15 @@ class Functions_Test extends UnitTest {
 		$this->assertEquals('/publish/nfs/monitor-services/control/ruler-reader', $result);
 	}
 
-	public function test_aevalue(): void {
-		$a = [
-			'a' => null, 'b' => 0, 'c' => '', 'd' => [], 'e' => '0',
-		];
-		$ak = array_keys($a);
-		foreach ($ak as $k) {
-			$this->assertEquals('-EMPTY-', aevalue($a, $k, '-EMPTY-'));
-		}
-		$b = [
-			'a' => 'null', 'b' => '1', 'c' => ' ', 'd' => [
-				'a',
-			],
-		];
-		foreach ($b as $k => $v) {
-			$this->assertEquals($v, aevalue($b, $k, '-EMPTY-'));
-		}
-	}
-
-	public function test_avalue(): void {
-		$this->assertNull(avalue([], ''));
-
-		$a = [
-			'' => 'empty', '0' => 'zero', 'A' => 'a', 'B' => 'b',
-		];
-		$this->assertEquals('empty', avalue($a, ''));
-		$this->assertNull(avalue($a, 'z'));
-		$this->assertEquals('zero', avalue($a, '0'));
-		$this->assertEquals('a', avalue($a, 'A'));
-		$this->assertNull(avalue($a, 'a'));
-		$this->assertEquals('dude', avalue($a, 'a', 'dude'));
-	}
-
-	public function test___(): void {
-		$language = 'en';
-		$this->assertEquals('one', __('one', $language));
-
+	public function test_locale___(): void {
 		$locale = $this->application->locale;
 		$this->assertEquals([], $locale->__([], ['ignored' => true]));
+	}
+
+	public function test_deprecated__(): void {
+		$this->expectException(Exception_Deprecated::class);
+
+		$this->assertEquals('one', __('one'));
 	}
 
 	public function test_theme(): void {

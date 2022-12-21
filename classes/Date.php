@@ -246,7 +246,7 @@ class Date extends Temporal {
 		if ($this->isEmpty()) {
 			return '';
 		}
-		return $this->year . '-' . StringTools::zero_pad($this->month) . '-' . StringTools::zero_pad($this->day);
+		return $this->year . '-' . StringTools::zeroPad($this->month) . '-' . StringTools::zeroPad($this->day);
 	}
 
 	/**
@@ -834,7 +834,7 @@ class Date extends Temporal {
 	 * @return string
 	 */
 	private function _ymd_format(string $sep = '-'): string {
-		return $this->year . $sep . StringTools::zero_pad($this->month) . $sep . StringTools::zero_pad($this->day);
+		return $this->year . $sep . StringTools::zeroPad($this->month) . $sep . StringTools::zeroPad($this->day);
 	}
 
 	/**
@@ -864,7 +864,7 @@ class Date extends Temporal {
 		$x['W'] = $w;
 
 		foreach ($x as $k => $v) {
-			$x[$k . $k] = StringTools::zero_pad($v, 2);
+			$x[$k . $k] = StringTools::zeroPad($v, 2);
 		}
 
 		$x['YYYY'] = $y = strval($this->year);

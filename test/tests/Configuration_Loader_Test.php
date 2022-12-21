@@ -113,7 +113,7 @@ class Configuration_Loader_Test extends UnitTest {
 			path($path, "three/$json_name"),
 		]);
 
-		$this->assertEquals(toArray($config), [
+		$this->assertEquals([
 			'name' => 'ralph',
 			'rank' => 'admiral',
 			'weight' => 140,
@@ -135,7 +135,7 @@ class Configuration_Loader_Test extends UnitTest {
 			'zesk\\user' => [
 				'class' => 'User',
 			],
-		]);
+		], toArray($config));
 	}
 
 	public function test_load_globals_lines1(): void {

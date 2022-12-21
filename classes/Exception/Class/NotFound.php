@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Throwable;
+
 /**
  *
  * @author kent
@@ -17,7 +19,7 @@ class Exception_Class_NotFound extends Exception {
 	 *
 	 * @var string
 	 */
-	public $class = null;
+	public string $class = '';
 
 	/**
 	 * Construct a new exception
@@ -26,14 +28,15 @@ class Exception_Class_NotFound extends Exception {
 	 *            Class not found
 	 * @param array $arguments
 	 *            Arguments to assist in examining this exception
-	 * @param ?\Exception $previous
+	 * @param null|Throwable $previous
 	 *            Previous exception which may have spawned this one
 	 */
-	public function __construct($class, $message = null, $arguments = [], \Exception $previous = null) {
-		parent::__construct("$class not found. $message", [
-			'class' => $class,
+	public function __construct(?string $class, string $message = '', $arguments = [], Throwable $previous = null) {
+		$this->class = $class === null ? 'null' : $class;
+		;
+		parent::__construct("{class} not found. $message", [
+			'class' => $this->class,
 		] + toArray($arguments), 0, $previous);
-		$this->class = $class;
 	}
 
 	/**

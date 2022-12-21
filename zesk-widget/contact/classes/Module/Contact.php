@@ -2,7 +2,7 @@
 namespace zesk;
 
 class Module_Contact extends Module {
-	protected array $model_classes = [
+	protected array $modelClasses = [
 		'zesk\\Contact',
 		'zesk\\Contact_Label',
 		'zesk\\Contact_Address',

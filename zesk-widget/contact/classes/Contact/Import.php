@@ -74,7 +74,7 @@ abstract class Contact_Import extends Options {
 		$keys = $this->contact_hash_keys();
 		$hash = [];
 		foreach ($keys as $k) {
-			$hash[] = avalue($row, $k, '');
+			$hash[] = $row[$k] ?? '';
 		}
 		return md5(implode('|', $hash));
 	}
@@ -198,7 +198,7 @@ abstract class Contact_Import extends Options {
 		$dup_contact = Contact::find_hash($contact_hash, [
 			'account' => $account,
 		]);
-		$contact = new Contact(avalue($this->objects, 'contact', []));
+		$contact = new Contact($this->objects['contact'] ?? []);
 		$contact->memberCanStore('*Hash');
 		$contact->set_member('*Hash', $contact_hash);
 		$contact->account = $account;
@@ -221,7 +221,7 @@ abstract class Contact_Import extends Options {
 				continue;
 			}
 			foreach ($items as $item) {
-				$object = ORM::factory($contact_class, $item);
+				$object = ORMBase::factory($contact_class, $item);
 				if (array_key_exists('Label', $item)) {
 					$object->label = $this->registerLabel($object, $item['Label']);
 				}
@@ -241,7 +241,7 @@ abstract class Contact_Import extends Options {
 			return false;
 		}
 		$objects = $this->objects[$type];
-		return avalue($objects, $id);
+		return $objects[$id] ?? null;
 	}
 
 	public function set_item($type, $id, $data): void {

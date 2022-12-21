@@ -143,7 +143,7 @@ class Response extends Hookable {
 	 *
 	 * @var int
 	 */
-	public int $status_code = Net_HTTP::STATUS_OK;
+	public int $status_code = HTTP::STATUS_OK;
 
 	/**
 	 * Status message
@@ -275,18 +275,15 @@ class Response extends Hookable {
 	/**
 	 *
 	 * @param int $error_code
-	 * @param string $error_string
-	 * @return $this
+	 * @param ?string $error_string
+	 * @return int
 	 */
-	public function status(int $error_code, string $error_string = null): self {
-		$codes = Net_HTTP::$status_text;
-		$code = array_key_exists($error_code, $codes) ? $error_code : 500;
-		if ($error_string === null) {
-			$error_string = avalue($codes, $code);
+	public function status(int $error_code = -1, string $error_string = null): int {
+		if ($error_code !== -1) {
+			$this->application->deprecated(__METHOD__ . ' setter');
+			$this->setStatus($error_code, $error_string);
 		}
-		$this->status_code = $code;
-		$this->status_message = $error_string;
-		return $this;
+		return $this->status_code;
 	}
 
 	/**
@@ -316,7 +313,7 @@ class Response extends Hookable {
 	 * @return $this
 	 */
 	public function setStatus(int $error_code, string $error_string = null): self {
-		$codes = Net_HTTP::$status_text;
+		$codes = HTTP::$status_text;
 		$code = array_key_exists($error_code, $codes) ? $error_code : 500;
 		$this->status_code = $code;
 		if ($error_string === null) {
@@ -371,20 +368,14 @@ class Response extends Hookable {
 		return $this;
 	}
 
-	/**
-	 * These are not saved as part of cached headers, generally speaking
-	 *
-	 * @param string $name
-	 * @param string $value
-	 * @param array $options
-	 * @return self
-	 * @deprecated 2022-12
-	 */
-	public function cookie(string $name, mixed $value = null, array $options = []) {
-		$this->application->deprecated(__METHOD__);
-		return $this->setCookie($name, $value, $options);
-	}
-
+	/*===============================================================================================================*\
+	 *      _                               _           _
+	 *   __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
+	 *  / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
+	 * | (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
+	 *  \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
+	 *            |_|
+	\*===============================================================================================================*/
 	/**
 	 * Set up redirect debugging
 	 *
@@ -430,14 +421,14 @@ class Response extends Hookable {
 	 *
 	 * @throws Exception_Semantics
 	 */
-	private function response_headers(bool $skip_hooks = false): void {
+	private function responseHeaders(bool $skip_hooks = false): void {
 		static $called = false;
 
 		$do_hooks = !$skip_hooks;
 		if ($do_hooks) {
 			$this->callHook('headers_before');
 		}
-		if ($this->optionBool('skip_response_headers')) {
+		if ($this->optionBool(self::OPTION_SKIP_HEADERS)) {
 			return;
 		}
 		if ($called) {
@@ -472,9 +463,9 @@ class Response extends Hookable {
 			}
 		}
 		$code = $this->status_code;
-		if ($code !== Net_HTTP::STATUS_OK) {
+		if ($code !== HTTP::STATUS_OK) {
 			$message = $this->status_message;
-			$message = $message ? $message : avalue(Net_HTTP::$status_text, $code, 'No error message');
+			$message = $message ? $message : HTTP::$status_text[$code] ?? 'No error message';
 			$this->_header('HTTP/1.0 ' . $this->status_code . ' ' . $message);
 		}
 		$this->_header('Content-Type: ' . $content_type);
@@ -534,9 +525,9 @@ class Response extends Hookable {
 	 */
 	final public function noCache(): self {
 		$this->cache_settings = [];
-		$this->header('Cache-Control', 'no-cache, must-revalidate');
-		$this->header('Pragma', 'no-cache');
-		$this->header('Expires', '-1');
+		$this->setHeader('Cache-Control', 'no-cache, must-revalidate');
+		$this->setHeader('Pragma', 'no-cache');
+		$this->setHeader('Expires', '-1');
 		return $this;
 	}
 
@@ -613,7 +604,7 @@ class Response extends Hookable {
 	 */
 	final public function header_date(string $name, int|Timestamp $value): self {
 		$this->application->deprecated(__METHOD__);
-		return $this->headerDate($name, $value);
+		return $this->setHeaderDate($name, $value);
 	}
 
 	/**
@@ -623,11 +614,11 @@ class Response extends Hookable {
 	 * @param int|Timestamp $value
 	 * @return $this
 	 */
-	final public function headerDate(string $name, int|Timestamp $value): self {
+	final public function setHeaderDate(string $name, int|Timestamp $value): self {
 		if ($value instanceof Timestamp) {
 			$value = $value->unixTimestamp();
 		}
-		return $this->header($name, gmdate('D, d M Y H:i:s \G\M\T', $value));
+		return $this->setHeader($name, gmdate('D, d M Y H:i:s \G\M\T', $value));
 	}
 
 	/**
@@ -642,7 +633,7 @@ class Response extends Hookable {
 		if ($lowName === 'content-type') {
 			return $this->contentType();
 		}
-		$name = Net_HTTP::$response_headers[$lowName] ?? $name;
+		$name = HTTP::$response_headers[$lowName] ?? $name;
 		if (array_key_exists($name, $this->headers)) {
 			return $this->headers[$name];
 		}
@@ -685,7 +676,7 @@ class Response extends Hookable {
 		if ($lowName === 'content-type') {
 			return $this->setContentType(toText($value));
 		}
-		$name = Net_HTTP::$response_headers[$lowName] ?? $name;
+		$name = HTTP::$response_headers[$lowName] ?? $name;
 		$this->headers[$name] = $value;
 		return $this;
 	}
@@ -720,6 +711,8 @@ class Response extends Hookable {
 		return ob_get_clean();
 	}
 
+	public const OPTION_SKIP_HEADERS = 'skipHeaders';
+
 	/**
 	 * Echo response
 	 *
@@ -735,8 +728,8 @@ class Response extends Hookable {
 			$this->application->callHook('response_output_before', $this);
 			$this->callHook('output_before');
 		}
-		if (!($options['skip_headers'] ?? false)) {
-			$this->response_headers($skip_hooks);
+		if (!($options[self::OPTION_SKIP_HEADERS] ?? $this->optionBool(self::OPTION_SKIP_HEADERS))) {
+			$this->responseHeaders($skip_hooks);
 		}
 		$this->_output_handler()->output($this->content);
 		if (!$skip_hooks) {
@@ -872,8 +865,8 @@ class Response extends Hookable {
 		$parts = toArray($this->cache_settings['parts'] ?? []) + self::cacheURLParts($url);
 		$item = self::fetchCacheID($pool, map($pattern, $parts));
 		$response = $this->application->responseFactory($this->request);
-		$response->output_handler(Response::CONTENT_TYPE_RAW);
-		$response->content_type($this->content_type());
+		$response->setOutputHandler(Response::CONTENT_TYPE_RAW);
+		$response->setContentType($this->contentType());
 
 		$headers = toArray($this->cache_settings['headers'] ?? []);
 		$response->setHeaders($headers + $this->headers());
@@ -1100,16 +1093,6 @@ class Response extends Hookable {
 	}
 
 	/**
-	 * Set the page theme to use to render the final HTML output
-	 *
-	 * @param null|string $set
-	 * @return self|string
-	 */
-	final public function page_theme(string $set = null): string|self {
-		return $set ? $this->setPageTheme($set) : $this->pageTheme();
-	}
-
-	/**
 	 * Register a javascript to be put on the page
 	 *
 	 * @param string|array $path
@@ -1120,7 +1103,7 @@ class Response extends Hookable {
 	 *            cdn (defaults to false)
 	 * @return Response
 	 */
-	final public function javascript(string|array $path, array $options = []) {
+	final public function javascript(string|array $path, array $options = []): Response {
 		return $this->html()->javascript($path, $options);
 	}
 
@@ -1140,19 +1123,21 @@ class Response extends Hookable {
 	 * Add to JavaScript script settings
 	 *
 	 * @param array $settings
+	 * @deprecated 2022-12
 	 */
 	final public function javascript_settings(array $settings = null) {
+		$this->application->deprecated(__METHOD__);
 		return $this->html()->javascript_settings($settings);
 	}
 
 	/**
 	 * Require jQuery on the page, and optionally add a ready script
 	 *
-	 * @param string|array|null $add_ready_script
+	 * @param string|array $add_ready_script
 	 * @param int $weight
 	 * @return Response
 	 */
-	final public function jquery(string|array $add_ready_script = null, int $weight = 0) {
+	final public function jquery(string|array $add_ready_script = '', int $weight = 0): Response {
 		return $this->html()->jquery($add_ready_script, $weight);
 	}
 
@@ -1333,7 +1318,7 @@ class Response extends Hookable {
 	 * @return bool
 	 */
 	public function skipResponseHeaders(): bool {
-		return $this->optionBool('skip_response_headers');
+		return $this->optionBool(self::OPTION_SKIP_HEADERS);
 	}
 
 	/**
@@ -1343,7 +1328,7 @@ class Response extends Hookable {
 	 * @return self
 	 */
 	public function setSkipResponseHeaders(bool $set): self {
-		return $this->setOption('skip_response_headers', $set);
+		return $this->setOption(self::OPTION_SKIP_HEADERS, $set);
 	}
 
 	/**
@@ -1392,5 +1377,31 @@ class Response extends Hookable {
 	public function redirect_message($message = null) {
 		$this->application->deprecated(__METHOD__);
 		return $this->redirect()->message($message);
+	}
+
+	/**
+	 * Set the page theme to use to render the final HTML output
+	 *
+	 * @param null|string $set
+	 * @return self|string
+	 * @deprecated 2022-12
+	 */
+	final public function page_theme(string $set = null): string|self {
+		$this->application->deprecated(__METHOD__);
+		return $set ? $this->setPageTheme($set) : $this->pageTheme();
+	}
+
+	/**
+	 * These are not saved as part of cached headers, generally speaking
+	 *
+	 * @param string $name
+	 * @param string $value
+	 * @param array $options
+	 * @return self
+	 * @deprecated 2022-12
+	 */
+	public function cookie(string $name, mixed $value = null, array $options = []): Response {
+		$this->application->deprecated(__METHOD__);
+		return $this->setCookie($name, $value, $options);
 	}
 }

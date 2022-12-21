@@ -1,7 +1,15 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage test
+ * @author kent
+ * @copyright &copy; 2022, Market Acumen, Inc.
+ */
 declare(strict_types=1);
 
 namespace zesk;
+
+use zesk\Command\Loader;
 
 class Kernel_Test extends UnitTest {
 	/**
@@ -13,6 +21,27 @@ class Kernel_Test extends UnitTest {
 	 * @var bool
 	 */
 	public bool $_hook_was_called = false;
+
+	public function test_patterns(): void {
+		for ($i = 0; $i < 255; $i++) {
+			$this->assertTrue(preg_match('/^' . PREG_PATTERN_IP4_DIGIT . '$/', strval($i)) !== 0);
+		}
+		for ($i = -255; $i < 0; $i++) {
+			$this->assertFalse(preg_match('/^' . PREG_PATTERN_IP4_DIGIT . '$/', strval($i)) !== 0);
+		}
+		for ($i = 256; $i < 32767; $i++) {
+			$this->assertFalse(preg_match('/^' . PREG_PATTERN_IP4_DIGIT . '$/', strval($i)) !== 0);
+		}
+		for ($i = 1; $i < 255; $i++) {
+			$this->assertTrue(preg_match('/^' . PREG_PATTERN_IP4_DIGIT1 . '$/', strval($i)) !== 0);
+		}
+		for ($i = -255; $i < 1; $i++) {
+			$this->assertFalse(preg_match('/^' . PREG_PATTERN_IP4_DIGIT1 . '$/', strval($i)) !== 0);
+		}
+		for ($i = 256; $i < 32767; $i++) {
+			$this->assertFalse(preg_match('/^' . PREG_PATTERN_IP4_DIGIT1 . '$/', strval($i)) !== 0);
+		}
+	}
 
 	public static function _test_hook_order_1st(Kernel_Test $test): void {
 		$test->assertEquals($test->order, 0);
@@ -122,43 +151,35 @@ class Kernel_Test extends UnitTest {
 		$add = null;
 		$lower_class = true;
 		$this->application->autoloader->path($this->test_sandbox('lower-prefix'), [
-			'lower' => true, 'class_prefix' => 'zesk\\Autoloader',
+			'lower' => true, 'classPrefix' => 'zesk\\Autoloader',
 		]);
 	}
 
-	public function test_autoload_search(): void {
+	/**
+	 * @param null|string $expected
+	 * @param string $class
+	 * @param array $extensions
+	 * @return void
+	 * @dataProvider data_autoloadSearch
+	 */
+	public function test_autoloadSearch(null|string $expected, string $class, array $extensions, array $modules): void {
+		if (count($modules)) {
+			$this->application->modules->load($modules);
+		}
 		$autoloader = $this->application->autoloader;
-		$class = 'zesk\\Kernel';
-		$extension = 'php';
-		$tried_path = null;
-		$result = $autoloader->search($class, [
-			$extension,
-		], $tried_path);
-		$this->assertEquals($result, ZESK_ROOT . 'classes/Kernel.php');
+		$tried_path = [];
+		$this->assertEquals($expected, $autoloader->search($class, $extensions, $tried_path));
+	}
 
-		$class = 'zesk\\Controller_Theme';
-
-		$result = $autoloader->search($class, [
-			$extension, 'sql',
-		], $tried_path);
-		$this->assertEquals($result, ZESK_ROOT . 'classes/Controller/Theme.php');
-
-		$class = 'zesk\\Class_User';
-		$this->application->modules->load('orm');
-		$result = $autoloader->search($class, [
-			'sql', 'php',
-		], $tried_path);
-		$this->assertEquals($result, $this->application->modules->path('orm', 'classes/Class/User.sql'));
-
-		$result = $autoloader->search($class, [
-			'other', 'inc', 'sql',
-		], $tried_path);
-		$this->assertEquals($result, $this->application->modules->path('orm', 'classes/Class/User.sql'));
-
-		$result = $autoloader->search($class, [
-			'other', 'none',
-		], $tried_path);
-		$this->assertNull($result);
+	public function data_autoloadSearch(): array {
+		return [
+			[ZESK_ROOT . 'classes/Kernel.php', Kernel::class, ['php'], []],
+			[ZESK_ROOT . 'classes/Controller/Theme.php', Controller_Theme::class, ['php', 'sql'], []],
+			[ZESK_ROOT . 'modules/ORM/classes/Class/User.sql', 'zesk\\ORM\\Class_User', ['sql', 'php'], ['ORM']],
+			[ZESK_ROOT . 'modules/ORM/classes/Class/User.php', 'zesk\\ORM\\Class_User', ['php', 'sql'], ['ORM']],
+			[ZESK_ROOT . 'modules/ORM/classes/Class/User.sql', 'zesk\\ORM\\Class_User', ['other', 'inc', 'sql', ], ['ORM']],
+			[null, 'zesk\\ORM\\User', ['other', 'none', ], ['ORM']],
+		];
 	}
 
 	public function provider_clean_function() {
@@ -354,6 +375,66 @@ class Kernel_Test extends UnitTest {
 		$this->application->addModulePath($this->test_sandbox());
 	}
 
+	/**
+	 * @param $expected
+	 * @param $input
+	 * @param array $map
+	 * @param bool $insensitive
+	 * @return void
+	 */
+	public function test_mapDefaults(): void {
+		// Require defaults to work
+		$this->assertEquals('brackets', map('{what}', ['what' => 'brackets']));
+		$this->assertEquals('{what}', map('{what}', ['What' => 'brackets']));
+		$this->assertEquals('bracketsNoCase', map('{what}', ['What' => 'bracketsNoCase'], true));
+	}
+
+	public function data_map(): array {
+		return [
+			['ala{B}{c}{C}[D][d]', '{a}{B}{c}{C}[D][d]', ['a' => 'ala'], false, '{', '}'],
+			['ala{b}{c}{c}[D][d]', '{a}{B}{c}{C}[D][d]', ['a' => 'ala'], true, '{', '}'],
+			['ala[B]{c}{C}[D][d]', '[a][B]{c}{C}[D][d]', ['a' => 'ala'], false, '[', ']'],
+			['ala[b]{c}{C}[d][d]', '[a][B]{c}{C}[D][d]', ['a' => 'ala'], true, '[', ']'],
+		];
+	}
+
+	/**
+	 * @param string|array $expected
+	 * @param string|array $test
+	 * @param array $map
+	 * @param bool $case
+	 * @param string $prefix
+	 * @param string $suffix
+	 * @return void
+	 * @dataProvider data_map
+	 */
+	public function test_map(string|array $expected, string|array $test, array $map, bool $case, string $prefix, string $suffix): void {
+		$this->assertEquals($expected, map($test, $map, $case, $prefix, $suffix));
+	}
+
+	/**
+	 * @param string $expected
+	 * @param string $test
+	 * @param string $prefix
+	 * @param string $suffix
+	 * @return void
+	 * @dataProvider data_mapClean
+	 */
+	public function test_mapClean(string $expected, string $test, string $prefix, string $suffix): void {
+		$this->assertTrue(mapHasTokens($test));
+		$this->assertEquals($expected, mapClean($test, $prefix, $suffix));
+	}
+
+	public function data_mapClean(): array {
+		return [
+			['He wanted  [days]', 'He wanted {n} [days]', '{', '}', ],
+			['He wanted {n} ', 'He wanted {n} [days]', '[', ']', ],
+			['He wanted {n} [days]', 'He wanted {n} [days]', '[', '}', ],
+			['He wanted ', 'He wanted {n} [days]', '{', ']', ],
+			['except}', '{}{}{}{}{}{all}{of}{this}{is}{removed}except}{}', '{', '}', ],
+		];
+	}
+
 	public function test_path_from_array(): void {
 		$separator = '^';
 		$mixed = [
@@ -381,11 +462,11 @@ class Kernel_Test extends UnitTest {
 		$this->assertEquals(9876, $this->application->configuration->getPath('a::b::c'));
 	}
 
-	public function test_share_path(): void {
+	public function test_sharePath(): void {
 		$this->application->addSharePath($this->test_sandbox(), 'dude');
 	}
 
-	public function test_share_path_not(): void {
+	public function test_sharePath_not(): void {
 		$this->expectException(Exception_Directory_NotFound::class);
 		$this->application->addSharePath(path($this->test_sandbox(), 'not-a-dir'), 'dude');
 	}
@@ -394,7 +475,7 @@ class Kernel_Test extends UnitTest {
 		$this->application->documentRoot($this->test_sandbox());
 	}
 
-	public function test_theme_path(): void {
+	public function test_themePath(): void {
 		$prefix = '';
 		$result = $this->application->addThemePath(__DIR__, $prefix);
 		$this->assertInstanceOf(Application::class, $result);
@@ -439,16 +520,85 @@ class Kernel_Test extends UnitTest {
 
 	public function test_which(): void {
 		$command = 'ls';
-		$this->application->paths->which($command);
+		$this->assertFileExists($this->application->paths->which($command));
 	}
 
-	public function test_zesk_command_path(): void {
+	public function test_which_fail(): void {
+		$command = 'ls';
+		$this->expectException(Exception_NotFound::class);
+		$this->application->paths->which('notacommandtofind');
+	}
+
+	public function test_zeskCommandPath(): void {
 		$file = $this->test_sandbox('testlike.php');
 		$contents = file_get_contents($this->application->zeskHome('test/test-data/testlike.php'));
 		file_put_contents($file, $contents);
+		$loader = Loader::factory()->setApplication($this->application);
+		$this->application->addZeskCommandPath($this->test_sandbox());
+		$pid = $this->application->process->id();
+		$className = 'TestCommand' . $pid;
+		$randomShortcut = $this->randomHex();
+		$shortcuts = ['test-command', $randomShortcut];
+		$testCommand = [];
+		$testCommand[] = '<?' . "php\n namespace zesk;";
+		$testCommand[] = "class $className extends Command_Base {";
+		$testCommand[] = '	protected array $shortcuts = ' . PHP::dump($shortcuts) . ';';
+		$testCommand[] = '	function run(): int {';
+		$testCommand[] = '		echo getcwd();';
+		$testCommand[] = '		return 0;';
+		$testCommand[] = '	}';
+		$testCommand[] = '}';
 
-		$loader = Command_Loader::factory();
-		$this->application->appendZeskCommandPath($this->test_sandbox());
+		File::put($this->test_sandbox('testCommand.php'), implode("\n", $testCommand));
+		$allShortcuts = $loader->collectCommandShortcuts();
+
+		$this->assertArrayHasKeys($shortcuts, $allShortcuts);
+		$this->assertEquals(__NAMESPACE__ . '\\' . $className, $allShortcuts['test-command']);
+		$this->assertEquals(__NAMESPACE__ . '\\' . $className, $allShortcuts[$randomShortcut]);
+	}
+
+	public function test_kernel_functions(): void {
+		$start = microtime(true);
+		$app = $this->application;
+		$this->assertStringContainsString('Market Acumen', $app->kernelCopyrightHolder());
+
+		$this->assertTrue($app->console());
+		$app->setConsole(false);
+		$this->assertFalse($app->console());
+		$app->setConsole(true);
+
+		$kernel = Kernel::singleton();
+
+		$ff = $this->test_sandbox('inc.php');
+		file_put_contents($ff, '<?' . "php\nreturn true;");
+		$this->assertTrue($kernel->load($ff));
+
+		/* Coverage */
+		Kernel::includes();
+		$this->application->configuration->setPath([get_class($kernel->logger), 'utc_time'], true);
+		$this->application->configuration->setPath([$kernel::class, 'assert_callback'], 'backtrace');
+		foreach (['active', 'warning', 'bail'] as $assertSetting) {
+			$this->application->configuration->setPath([$kernel::class, 'assert'], $assertSetting);
+			$kernel->configured();
+		}
+		foreach (['backtrace', 'ignore', 'log'] as $deprecatedSetting) {
+			$this->application->configuration->setPath([$kernel::class, 'deprecated'], $deprecatedSetting);
+			$kernel->configured();
+		}
+		$this->application->configuration->setPath([$kernel::class, 'deprecated'], 'log');
+		$kernel->configured();
+		$kernel->deprecated('Adios');
+		$this->application->configuration->setPath([$kernel::class, 'deprecated'], 'backtrace');
+		$kernel->configured();
+
+		$this->application->configuration->setPath([$kernel::class, 'assert'], 'badsetting');
+
+		$kernel->profile_timer(__METHOD__, microtime(true) - $start);
+
+		$kernel->setApplicationClass($kernel->applicationClass());
+
+		$this->expectException(Exception_Configuration::class);
+		$kernel->configured();
 	}
 }
 

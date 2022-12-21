@@ -37,7 +37,7 @@ class Module_Help extends Module_JSLib {
 	 *
 	 * @return array
 	 */
-	protected array $model_classes = [
+	protected array $modelClasses = [
 		'zesk\\Help',
 		'zesk\\Help_User',
 	];
@@ -76,7 +76,7 @@ class Module_Help extends Module_JSLib {
 	 */
 	public function hook_cron_cluster(): void {
 		$application = $this->application;
-		$helps = $application->modules->all_hook_arguments('module_help', [], []);
+		$helps = $application->modules->allHookArguments('module_help', [], []);
 		$this->application->logger->notice('{class}::cron found {count} help items', [
 			'count' => count($helps),
 			'class' => __CLASS__,
@@ -173,7 +173,7 @@ class Module_Help extends Module_JSLib {
 		$application = $this->application;
 		$user = $this->_help_auth($request, $response);
 		$query = $this->application->ormRegistry('zesk\\Help')
-			->query_select()
+			->querySelect()
 			->link('zesk\\Help_User', [
 				'require' => false,
 				'alias' => 'hu',
@@ -185,9 +185,9 @@ class Module_Help extends Module_JSLib {
 				'X.active' => true,
 				'hu.user' => null,
 			]);
-		$helps = $query->orm_iterator();
+		$helps = $query->ormIterator();
 		$result = [];
-		$mappables = $application->modules->all_hook_arguments('module_help_map', [], []);
+		$mappables = $application->modules->allHookArguments('module_help_map', [], []);
 		if (count($mappables) === 0) {
 			$mappables = [];
 		}
@@ -217,7 +217,7 @@ class Module_Help extends Module_JSLib {
 		if ($application->development()) {
 			$result[] = strval($query);
 		}
-		$response->json()->data($result);
+		$response->json()->setData($result);
 	}
 
 	/**
@@ -231,7 +231,7 @@ class Module_Help extends Module_JSLib {
 	private function _help_auth(Request $request, Response $response) {
 		$user = $this->application->user($request, false);
 		if (!$user || !$user->authenticated($request)) {
-			$response->status(Net_HTTP::STATUS_UNAUTHORIZED, 'Requires user')->json([
+			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Requires user')->json()->setData([
 				'error' => $this->application->locale->__('Requires user'),
 			]);
 			return null;
@@ -253,7 +253,7 @@ class Module_Help extends Module_JSLib {
 			return null;
 		}
 		if (!$this->application->development() && !$request->isPost()) {
-			$response->status(Net_HTTP::STATUS_METHOD_NOT_ALLOWED, 'Requires POST')->json([
+			$response->setStatus(HTTP::STATUS_METHOD_NOT_ALLOWED, 'Requires POST')->json()->setData([
 				'error' => $this->application->locale->__('Requires POST data'),
 			]);
 			return null;
@@ -276,7 +276,7 @@ class Module_Help extends Module_JSLib {
 		foreach ($ids as $id) {
 			$application->ormFactory('zesk\\Help', $id)->show();
 		}
-		$response->json()->data([
+		$response->json()->setData([
 			'status' => true,
 			'message' => 'Marked',
 		]);
@@ -311,7 +311,7 @@ class Module_Help extends Module_JSLib {
 				$result[$id] = false;
 			}
 		}
-		$response->json()->data($result);
+		$response->json()->setData($result);
 	}
 
 	/**
@@ -323,14 +323,14 @@ class Module_Help extends Module_JSLib {
 	public function user_reset(Request $request, Response $response): void {
 		$locale = $this->application->locale;
 		if (($user = $this->_help_auth($request, $response)) === null) {
-			$response->json()->data([
+			$response->json()->setData([
 				'status' => false,
 				'message' => $locale->__('You are not logged in'),
 			]);
 			return;
 		}
 		$n = $this->reset_user($user);
-		$response->json()->data([
+		$response->json()->setData([
 			'status' => true,
 			'message' => $locale->__('Removed {n} {entries}', [
 				'n' => $n,

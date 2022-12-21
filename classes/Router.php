@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
@@ -6,6 +7,7 @@
  * @author kent
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 use stdClass;
@@ -140,12 +142,7 @@ class Router extends Hookable {
 	 */
 	public function __sleep() {
 		return array_merge([
-			'application_class',
-			'reverse_routes',
-			'routes',
-			'prefix',
-			'default_route',
-			'aliases',
+			'application_class', 'reverse_routes', 'routes', 'prefix', 'default_route', 'aliases',
 		], parent::__sleep());
 	}
 
@@ -157,7 +154,7 @@ class Router extends Hookable {
 		foreach ($this->routes as $route) {
 			$route->application = $this->application;
 			$route->router = $this;
-			$this->_add_route_id($route);
+			$this->_addRouteID($route);
 		}
 		$this->request = $this->application->request();
 		$this->sorted = false;
@@ -192,8 +189,7 @@ class Router extends Hookable {
 	 */
 	public static function hooks(Application $kernel): void {
 		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, [
-			__CLASS__,
-			'configured',
+			__CLASS__, 'configured',
 		]);
 	}
 
@@ -334,8 +330,7 @@ class Router extends Hookable {
 	 * Match a request to this router. Return a Route. Returned route will have ->request() set to this object.
 	 *
 	 * @param Request $request
-	 * @return Route|null
-	 * @todo make this not O(n)
+	 * @return Route
 	 * @throws Exception_NotFound
 	 */
 	public function match(Request $request): Route {
@@ -354,7 +349,7 @@ class Router extends Hookable {
 			}
 		}
 
-		throw new Exception_NotFound('No match for {method} {path}', $request->variables());
+		throw new Exception_NotFound('No match for {method} {url}', $request->variables());
 	}
 
 	/**
@@ -365,7 +360,7 @@ class Router extends Hookable {
 	 * @return Route
 	 */
 	public function addRoute(string $path, array $options): Route {
-		if ($path === 'index' || $path === '.') {
+		if ($path === '.') {
 			$this->default_route = $path;
 			$path = '';
 		}
@@ -373,18 +368,18 @@ class Router extends Hookable {
 			$options['weight'] = ($this->weight_index++) / 1000;
 		}
 		$this->sorted = false;
-		return $this->routes[$path] = $this->_add_route_id($this->_registerRoute(Route::factory($this, $path, $options)));
+		return $this->routes[$path] = $this->_addRouteID($this->_registerRoute(Route::factory($this, $path, $options)));
 	}
 
 	/**
 	 *
 	 * @param Route $route
-	 * @return \zesk\Route
+	 * @return Route
 	 */
-	private function _add_route_id(Route $route) {
+	private function _addRouteID(Route $route): Route {
 		$id = $route->option('id');
 		if (!$id) {
-			$id = $route->clean_pattern;
+			$id = $route->getPattern();
 		}
 		$this->by_id[strtolower($id)] = $route;
 		return $route;
@@ -393,12 +388,12 @@ class Router extends Hookable {
 	/**
 	 * Load a Router file
 	 *
-	 * @see Parser
 	 * @param string $contents
 	 * @param array $add_options
 	 * @return void
+	 * @see Parser
 	 */
-	public function import(string $contents, array $add_options = null): void {
+	public function import(string $contents, array $add_options = []): void {
 		$parser = new Parser($contents);
 		$parser->execute($this, $add_options);
 	}
@@ -429,8 +424,7 @@ class Router extends Hookable {
 	 * @return Route
 	 * @throws Exception_NotFound
 	 */
-	private function _findRoute(array $routes, string $action, Model $object = null, array $options = []):
-	Route {
+	private function _findRoute(array $routes, string $action, Model $object = null, array $options = []): Route {
 		$options = toArray($options, []);
 		foreach ($routes as $route) {
 			assert($route instanceof Route);
@@ -443,8 +437,9 @@ class Router extends Hookable {
 			}
 		}
 
-		throw new Exception_NotFound('Can not find route for {action} {object}', ['action' => $action, 'object' =>
-			$object, ]);
+		throw new Exception_NotFound('Can not find route for {action} {object}', [
+			'action' => $action, 'object' => $object,
+		]);
 	}
 
 	/**
@@ -475,18 +470,20 @@ class Router extends Hookable {
 	 * Uses current route's context to determine new route.
 	 *
 	 * @param string $action
-	 * @param mixed $object An instance of a Model, a name of a model class, a name of a Controller class
-	 * @param array $options
-	 *        	"query" => (string or array). Append query string to URL
-	 *        	"inherit_current_route" => (boolean). Use variables from current route when
-	 *        	generating this route.
+	 * @param null|string|array|Model $object An instance of a Model, a name of a model class, a name of a Controller
+	 * class
+	 * @param array|string $options
+	 *            "query" => (string or array). Append query string to URL
+	 *            "inherit_current_route" => (boolean). Use variables from current route when
+	 *            generating this route.
 	 *
-	 * @return string|null
+	 * @return string
+	 * @throws Exception_NotFound
 	 */
-	public function getRoute($action, $object = null, $options = null) {
+	public function getRoute(string $action, string|array|Model $object = null, string|array $options = []): string {
 		$original_action = $action;
 		$app = $this->application;
-		if (is_string($options) && begins($options, '?')) {
+		if (is_string($options) && str_starts_with($options, '?')) {
 			$options = [
 				'query' => URL::queryParse($options),
 			];
@@ -496,44 +493,35 @@ class Router extends Hookable {
 		if ($route instanceof Route) {
 			$options += $route->argumentsNamed();
 		}
-		if (is_object($object) && $object instanceof Hookable) {
+		if ($object) {
 			$try_classes = $app->classes->hierarchy($object, Model::class);
 			$options += $object->callHookArguments('route_options', [
-				$this,
-				$action,
+				$this, $action,
 			], []) + [
 				'derived_classes' => [],
 			];
-			if ($object instanceof Model) {
-				$options['derived_classes'] += $this->derived_classes($object);
-			}
+			$options['derived_classes'] += $this->derived_classes($object);
 		} elseif (is_string($object)) {
 			$try_classes = [
 				$object,
 			];
 		} elseif (is_array($object)) {
 			$try_classes = $object;
-		} else {
-			throw new Exception_Unsupported('Object of type {class} not supported in {method}', [
-				'class' => type($object),
-				'method' => __METHOD__,
-			]);
 		}
 		$try_classes[] = '*';
 		foreach ($try_classes as $try_class) {
 			foreach ([
-				$action,
-				'*',
+				$action, '*',
 			] as $try_action) {
 				if ($try_class !== '*') {
 					$try_class = strtolower($app->objects->resolve($try_class));
 				}
-				$try_actions = avalue($this->reverse_routes, $try_class);
+				$try_actions = $this->reverse_routes[$try_class] ?? null;
 				if (!is_array($try_actions)) {
 					continue;
 				}
 				$try_action = strtolower($try_action);
-				$try_routes = avalue($try_actions, $try_action);
+				$try_routes = $try_actions[$try_action] ?? null;
 				if (!is_array($try_routes)) {
 					continue;
 				}
@@ -541,9 +529,7 @@ class Router extends Hookable {
 				try {
 					$url = $this->_findRoute($try_routes, $action, $object, $options);
 					$url = $app->hooks->callArguments(__CLASS__ . '::getRoute_alter', [
-						$action,
-						$object,
-						$options,
+						$action, $object, $options,
 					], $url);
 					return $this->prefix . $url;
 				} catch (Exception_NotFound) {
@@ -552,19 +538,14 @@ class Router extends Hookable {
 			}
 		}
 		$url = $this->callHookArguments('getRoute', [
-			$action,
-			$object,
-			$options,
+			$action, $object, $options,
 		], null);
 		if (empty($url)) {
-			$app->logger->warning('No reverse route for {classes}->{action} {backtrace}', [
-				'classes' => $try_classes,
-				'action' => $original_action,
-				'backtrace' => _backtrace(),
+			throw new Exception_NotFound('No reverse route for {classes}->{action} {backtrace}', [
+				'classes' => $try_classes, 'action' => $original_action, 'backtrace' => _backtrace(),
 			]);
-			return null;
 		}
-		return URL::queryAppend($this->prefix . $url, avalue($options, 'query', []));
+		return URL::queryAppend($this->prefix . $url, $options ['query'] ?? []);
 	}
 
 	/**
@@ -572,7 +553,7 @@ class Router extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function controllers() {
+	public function controllers(): array {
 		$controllers = Controller::all($this->application);
 		$result = [];
 		$objects = $this->application->objects;

@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use ArrayAccess;
+
 /**
  * The Options object is universally used to tag various objects in the system with optional
  * configuration settings and values.
@@ -32,7 +34,7 @@ namespace zesk;
  * @package zesk
  * @subpackage system
  */
-class Options implements \ArrayAccess {
+class Options implements ArrayAccess {
 	/**
 	 * Character used for space
 	 * @var string
@@ -99,16 +101,16 @@ class Options implements \ArrayAccess {
 	}
 
 	/**
-	 * Checks an option to see if it is set and optionally if it has a non-empty value.
+	 * Does any option exist (and check empty, optionally)?
 	 *
-	 * @param string $name The name of the option key to check
-	 * @param bool $check_empty True if you want to ensure that the value is non-empty (e.g. not null, 0, "0", "", array(), or false)
+	 * @param string|iterable $name The name of the option key to check
+	 * @param bool $checkEmpty True if you want to ensure that the value is non-empty (e.g. not null, 0, "0", "", array(), or false)
 	 * @return bool
 	 * @see empty()
 	 */
-	public function hasAnyOption(iterable $name, bool $check_empty = false): bool {
-		foreach ($name as $k) {
-			if ($this->hasOption($k, $check_empty)) {
+	public function hasAnyOption(string|iterable $name, bool $checkEmpty = false): bool {
+		foreach (toIterable($name) as $k) {
+			if ($this->hasOption($k, $checkEmpty)) {
 				return true;
 			}
 		}
@@ -119,16 +121,16 @@ class Options implements \ArrayAccess {
 	 * Checks an option to see if it is set and optionally if it has a non-empty value.
 	 *
 	 * @param string $name The name of the option key to check
-	 * @param bool $check_empty True if you want to ensure that the value is non-empty (e.g. not null, 0, "0", "", array(), or false)
+	 * @param bool $checkEmpty True if you want to ensure that the value is non-empty (e.g. not null, 0, "0", "", array(), or false)
 	 * @return bool
 	 * @see empty()
 	 */
-	public function hasOption(string $name, bool $check_empty = false): bool {
+	public function hasOption(string $name, bool $checkEmpty = false): bool {
 		$name = self::_optionKey($name);
 		if (!array_key_exists($name, $this->options)) {
 			return false;
 		}
-		return !$check_empty || !empty($this->options[$name]);
+		return !$checkEmpty || !empty($this->options[$name]);
 	}
 
 	/**
@@ -212,6 +214,15 @@ class Options implements \ArrayAccess {
 	 */
 	public function option(string $name, mixed $default = null): mixed {
 		return $this->options[self::_optionKey($name)] ?? $default;
+	}
+
+	/**
+	 * @param string $name
+	 * @param mixed|null $default
+	 * @return mixed
+	 */
+	public function optionString(string $name, string $default = ''): string {
+		return strval($this->options[self::_optionKey($name)] ?? $default);
 	}
 
 	/**
@@ -405,11 +416,11 @@ class Options implements \ArrayAccess {
 
 	/**
 	 * @param int|string $offset
-	 * @return int
+	 * @return mixed
 	 * @see ArrayAccess::offsetGet
 	 */
-	public function offsetGet($offset): int {
-		return avalue($this->options, self::_optionKey($offset));
+	public function offsetGet($offset): mixed {
+		return $this->options[self::_optionKey($offset)] ?? null;
 	}
 
 	/**
@@ -428,27 +439,5 @@ class Options implements \ArrayAccess {
 	 */
 	public function offsetUnset($offset): void {
 		unset($this->options[self::_optionKey($offset)]);
-	}
-
-	/* ************************************************************************
-	 *      _                               _           _
-	 *   __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
-	 *  / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
-	 * | (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
-	 *  \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
-	 *            |_|
-	 */
-
-	/**
-	 * options_include
-	 *
-	 * @return array A array of options for this object. Keys are all lowercase.
-	 * @deprecated 2022-01
-	 */
-	public function options_include($selected = null): array {
-		if ($selected === null) {
-			return $this->options;
-		}
-		return $this->options(toList($selected));
 	}
 }

@@ -4,7 +4,7 @@
  */
 
 use aws\classes\Module;
-use zesk\ORM;
+use zesk\ORM\ORMBase;
 
 /**
  *
@@ -18,26 +18,26 @@ class Module_Ordering extends zesk\Module {
 	 * @see Module::initialize()
 	 */
 	public function initialize(): void {
-		$this->application->hooks->add(ORM::class . '::pre_insert', [
+		$this->application->hooks->add(ORMBase::class . '::pre_insert', [
 			$this,
 			'object_pre_insert',
 		]);
 	}
 
 	/**
-	 * @param ORM $object
+	 * @param ORMBase $object
 	 * @return zesk\Database_Query_Select
 	 */
-	private function query_ordering(ORM $object) {
-		return $object->callHook('query_ordering', $object->query_select('X'));
+	private function query_ordering(ORMBase $object) {
+		return $object->callHook('query_ordering', $object->querySelect('X'));
 	}
 
 	/**
 	 * Name of the column used for ordering (must be an integer field)
-	 * @param ORM $object
+	 * @param ORMBase $object
 	 * @return string
 	 */
-	private function order_column(ORM $object) {
+	private function order_column(ORMBase $object) {
 		return $object->class_option('order_column', $this->option('default_order_column', 'order_index'));
 	}
 
@@ -48,7 +48,7 @@ class Module_Ordering extends zesk\Module {
 	 *
 	 * Uses an ordering/weight column in $object to reorder. Updates
 	 *
-	 * @param ORM $object ORM to move
+	 * @param ORMBase $object ORM to move
 	 * @param mixed $previous_id ID of object which, after updating, will be before $object in the list
 	 * @param mixed $next_id ID of object which, after updating, will be after $object in the list
 	 */
@@ -59,8 +59,8 @@ class Module_Ordering extends zesk\Module {
 
 		// Minimize the number of changes to the database
 		if ($previous_id) {
-			$order_index = $object->query_select('X')
-				->what('X', $order_column)
+			$order_index = $object->querySelect('X')
+				->addWhat('X', $order_column)
 				->where($id_column, $previous_id)
 				->one_integer('X');
 			$object->query_update()
@@ -70,8 +70,8 @@ class Module_Ordering extends zesk\Module {
 			return $object->set($order_column, $order_index + 1)->store();
 		}
 		if ($next_id) {
-			$order_index = $object->query_select('X')
-				->what('X', $order_column)
+			$order_index = $object->querySelect('X')
+				->addWhat('X', $order_column)
 				->where($id_column, $next_id)
 				->one_integer('X');
 			$object->query_update()
@@ -86,11 +86,11 @@ class Module_Ordering extends zesk\Module {
 	/**
 	 * Implements ORM::hook_pre_insert
 	 *
-	 * @param ORM $object
+	 * @param ORMBase $object
 	 * @param array $members
 	 * @return array
 	 */
-	public function object_pre_insert(ORM $object, array $members) {
+	public function object_pre_insert(ORMBase $object, array $members) {
 		$order_column = $this->order_column($object);
 		if ($object->hasMember($order_column) && $object->memberIsEmpty($order_column)) {
 			[$func, $delta] = $object->optionBool('ordering_first') ? [

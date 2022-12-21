@@ -135,8 +135,8 @@ class Module extends \zesk\Module {
 		$variables = [];
 		foreach ($types as $name => $settings) {
 			$settings['name'] = $name;
-			$type = avalue($settings, 'type', 'normal');
-			$value = $this->application->configuration->getPath($name, avalue($settings, 'default', null));
+			$type = $settings['type'] ?? 'normal';
+			$value = $this->application->configuration->getPath($name, $settings['default'] ?? null);
 			$variables[$name] = $this->callHookArguments("process_variables_$type", [
 				$value,
 				$settings,

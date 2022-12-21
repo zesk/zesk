@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 cannon_opts="--verbose"
 
 #zesk cannon  --also-match 'extends Object'  'log::' '$this->application->logger->'
@@ -11,7 +11,7 @@ pause() {
 
 zesk cannon Session_Database Session_ORM
 zesk cannon 'zesk\Object' 'zesk\ORM'
-zesk cannon 'Class_Object' 'Class_ORM'
+zesk cannon 'Class_Object' 'Class_Base'
 zesk cannon 'Exception_Object' 'Exception_ORM'
 zesk cannon 'Controller_Object' 'Controller_ORM'
 zesk cannon '(Object $' '(ORM $'

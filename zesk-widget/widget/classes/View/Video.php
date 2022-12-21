@@ -115,7 +115,7 @@ standby="' . $standby_string . '" type="application/x-oleobject" width="' . $wid
 	public function quicktime_player_html($path) {
 		$width = $this->optionInt('width');
 		$height = $this->optionInt('height');
-		$attrs = $this->options_include('name;id;tabindex;hspace;vspace;border;align;class;title;accesskey;noexternaldata');
+		$attrs = $this->options(toList('name;id;tabindex;hspace;vspace;border;align;class;title;accesskey;noexternaldata'));
 
 		$attrs['classid'] = 'clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B';
 		$attrs['width'] = $width;
@@ -133,7 +133,7 @@ standby="' . $standby_string . '" type="application/x-oleobject" width="' . $wid
 		foreach ($oparams as $k => $v) {
 			$oparams_content .= self::html_param_tag($k, $v);
 		}
-		$embed_attrs = $this->options_include('name;align;tabindex;autoplay');
+		$embed_attrs = $this->options(toList('name;align;tabindex;autoplay'));
 		$embed_attrs['src'] = $this->href($path, false);
 		$embed_attrs['width'] = $width;
 		$embed_attrs['height'] = $height;

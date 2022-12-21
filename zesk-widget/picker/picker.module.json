@@ -4,10 +4,9 @@
         "inplace",
         "bootstrap"
     ],
-	"autoload_options": {
-		"class_prefix": "zesk\\",
-		"lower": false
+	"autoload": {
+		"classPrefix": "zesk\\"
 	},
-	"theme_path_prefix": "zesk/",
-	"module_class": "zesk\\Module_Picker"
+	"themePathPrefix": "zesk/",
+	"moduleClass": "zesk\\Module_Picker"
 }

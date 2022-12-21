@@ -71,11 +71,11 @@ class FIFO {
 		}
 		if (file_exists($this->path)) {
 			if (!unlink($this->path)) {
-				throw new Exception_File_Permission($this->path, 'unlink(\'{filename}\')');
+				throw new Exception_File_Permission($this->path, 'unlink(\'{path}\')');
 			}
 		}
 		if (!posix_mkfifo($this->path, $mode)) {
-			throw new Exception_File_Permission($this->path, 'posix_mkfifo {filename}');
+			throw new Exception_File_Permission($this->path, 'posix_mkfifo {path}');
 		}
 		$this->created = true;
 		$this->_beforeRead();
@@ -163,7 +163,7 @@ class FIFO {
 	private function _beforeRead(): void {
 		$this->r = fopen($this->path, 'r+b');
 		if (!$this->r) {
-			throw new Exception_File_Permission($this->path, 'fopen(\'{filename}\', \'r\')');
+			throw new Exception_File_Permission($this->path, 'fopen(\'{path}\', \'r\')');
 		}
 	}
 

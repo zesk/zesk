@@ -82,7 +82,7 @@ class Control_Picker extends Control {
 
 	/**
 	 *
-	 * @var Class_ORM
+	 * @var Class_Base
 	 */
 	protected $class_object = null;
 
@@ -106,7 +106,7 @@ class Control_Picker extends Control {
 	}
 
 	public function picker_options(array $set = null, $add = true) {
-		$options = toArray(avalue($this->themeVariables, 'picker_options', []));
+		$options = toArray($this->themeVariables['picker_options'] ?? []);
 		if ($set !== null) {
 			$this->themeVariables['picker_options'] = $add ? $set + $options : $set;
 			return $this;
@@ -232,7 +232,7 @@ class Control_Picker extends Control {
 			'label_search' => $locale('Search {names}', [
 				'names' => $names,
 			]),
-		] + $this->options_include([
+		] + $this->options([
 			'item_selector_none_selected',
 			'item_selector_empty',
 		]) + parent::themeVariables();
@@ -248,18 +248,18 @@ class Control_Picker extends Control {
 			] + $variables, [
 				'first' => true,
 			]);
-			$response->json()->data([
+			$response->json()->setData([
 				'content' => $this->wrap_form($content),
 				'status' => true,
 			] + $response->html()->toJSON());
 		} elseif ($action === 'search') {
-			$response->json()->data($this->search_results($variables, $this->request->get('q')) + [
+			$response->json()->setData($this->search_results($variables, $this->request->get('q')) + [
 				'class_object_name' => $variables['class_object_name'],
 				'class_object_names' => $variables['class_object_names'],
 				'status' => true,
 			] + $response->html()->toJSON());
 		} elseif ($action === 'submit') {
-			$response->json()->data($this->submit_results($response, $variables, $this->request->getList($this->column())) + [
+			$response->json()->setData($this->submit_results($response, $variables, $this->request->getList($this->column())) + [
 				'status' => true,
 			] + $response->html()
 				->toJSON());
@@ -268,7 +268,7 @@ class Control_Picker extends Control {
 	}
 
 	private function submit_results(Response $response, array $variables, array $ids) {
-		$iter = $this->_query()->addWhere('X.' . $this->class_object->id_column, $ids)->orm_iterator();
+		$iter = $this->_query()->addWhere('X.' . $this->class_object->id_column, $ids)->ormIterator();
 		$content = '';
 		foreach ($iter as $object) {
 			$content .= $this->application->theme($this->theme_item, [
@@ -314,22 +314,22 @@ class Control_Picker extends Control {
 
 	private function _query() {
 		return $this->application->ormRegistry($this->class)
-			->query_select()
-			->what_object($this->class, 'X')
+			->querySelect()
+			->ormWhat($this->class, 'X')
 			->limit(0, $this->optionInt('limit', 25))
 			->order_by($this->option('order_by'));
 	}
 
 	private function search_results(array $variables, $q) {
 		$query = $this->_query();
-		$total = $this->application->ormRegistry($this->class)->query_select();
+		$total = $this->application->ormRegistry($this->class)->querySelect();
 		$this->callHook('query_list;query', $query);
 		$this->callHook('query_total;query', $total);
-		$total->what([
+		$total->addWhat([
 			'*total' => 'COUNT(DISTINCT X.' . $this->class_object->id_column . ')',
 		]);
 		$results = [];
-		foreach ($query->orm_iterator() as $id => $object) {
+		foreach ($query->ormIterator() as $id => $object) {
 			$results[$id] = $this->application->theme($this->theme_item, [
 				'object' => $object,
 				'id' => $id,

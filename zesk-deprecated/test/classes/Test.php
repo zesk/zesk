@@ -195,7 +195,7 @@ class Test extends Hookable {
 			if ($expected_exception === $error_class) {
 				$this->stats['pass']++;
 				$this->test_results[$name] = null;
-				$this->test_status[$name] = avalue($this->test_status, $name, true);
+				$this->test_status[$name] ??= true;
 			} else {
 				$this->stats['fail']++;
 				$this->test_status[$name] = false;
@@ -215,7 +215,7 @@ class Test extends Hookable {
 				$this->test_status[$name] = false;
 			} elseif ($this->test_result === true) {
 				$this->stats['pass']++;
-				$this->test_status[$name] = avalue($this->test_status, $name, true);
+				$this->test_status[$name] ??= true;
 			} elseif ($this->test_result === null) {
 				$this->stats['skip']++;
 				$this->test_status[$name] = null;
@@ -298,7 +298,7 @@ class Test extends Hookable {
 				return true;
 			}
 		}
-		if (!begins($name, 'test_')) {
+		if (!str_starts_with($name, 'test_')) {
 			return false;
 		}
 		foreach (to_list('not_test;skip;notest;no_test;nottest') as $k) {
@@ -508,8 +508,7 @@ class Test extends Hookable {
 			if ($this->can_run_test($name)) {
 				if ($this->optionBool('debug_test_method')) {
 					$this->log($locale->__('# Running {class}::{name}', [
-						'class' => get_class($this),
-						'name' => $name,
+						'class' => get_class($this), 'name' => $name,
 					]));
 				}
 				$test->run();
@@ -517,16 +516,14 @@ class Test extends Hookable {
 				if (!$failed) {
 					if (($offset = strpos($this->last_test_output, self::PHP_ERROR_MARIAH)) !== false) {
 						$this->log('Test output contained {mariah} at offset {n}', [
-							'mariah' => self::PHP_ERROR_MARIAH,
-							'n' => $offset,
+							'mariah' => self::PHP_ERROR_MARIAH, 'n' => $offset,
 						]);
 						$this->test_status[$name] = false;
 						$failed = true;
 					}
 				}
 				$this->log($locale->__('# {class_test}: {status}', [
-					'class_test' => Text::leftAlign("$class::$name", 80),
-					'status' => $failed ? 'FAIL' : 'OK',
+					'class_test' => Text::leftAlign("$class::$name", 80), 'status' => $failed ? 'FAIL' : 'OK',
 				]));
 				if (($failed || $this->optionBool('verbose')) && !empty($this->last_test_output)) {
 					$this->application->logger->info("Last test output:\n{output}--- End of output", ['output' => "\n" . Text::indent($this->last_test_output, 1, true), ]);
@@ -1000,7 +997,7 @@ class Test extends Hookable {
 			$this->cache_dir = $cache_dir;
 			chmod($cache_dir, 0o770);
 			if ($auto_delete) {
-				$this->application->hooks->add('exit', [$this, '_test_sandbox_shutdown', ]);
+				$this->application->hooks->add(Hooks::HOOK_EXIT, [$this, '_test_sandbox_shutdown', ]);
 			}
 		}
 		return path($cache_dir, $file);
@@ -1052,7 +1049,7 @@ class Test extends Hookable {
 	 * @param unknown_type $extra_cols
 	 * @param unknown_type $uniq
 	 */
-	final protected function test_table_object(ORM $object): void {
+	final protected function test_table_object(ORMBase $object): void {
 		$this->test_table_sql($object->table(), $object->schema());
 		$object->schema_changed();
 	}
@@ -1134,8 +1131,7 @@ class Test extends Hookable {
 		/* @var $object Test_Unit */
 		if (!$object instanceof Interface_Testable) {
 			throw new Exception_Invalid('{class} is not an instance of {testable_class}', [
-				'class' => $class,
-				'testable_class' => Interface_Testable::class,
+				'class' => $class, 'testable_class' => Interface_Testable::class,
 			]);
 		}
 		$object->setOptions($options);

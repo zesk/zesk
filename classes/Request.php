@@ -188,7 +188,7 @@ class Request extends Hookable {
 		} elseif (is_array($settings) || is_string($settings)) {
 			$this->initializeFromSettings($settings);
 		} elseif ($settings === null) {
-			$this->init = 'not-inited';
+			$this->init = 'uninitialized';
 		}
 	}
 
@@ -210,7 +210,7 @@ class Request extends Hookable {
 		$this->remoteIP = $_SERVER['REMOTE_ADDR'] ?? self::DEFAULT_IP;
 		$this->serverIP = $_SERVER['SERVER_ADDR'] ?? self::DEFAULT_IP;
 
-		$this->setMethod($_SERVER ['REQUEST_METHOD'] ?? Net_HTTP::METHOD_GET);
+		$this->setMethod($_SERVER ['REQUEST_METHOD'] ?? HTTP::METHOD_GET);
 		$this->uri = $_SERVER['REQUEST_URI'] ?? self::DEFAULT_URI;
 		$this->headers = self::httpHeadersFromSERVER($_SERVER);
 		$this->cookies = $_COOKIE;
@@ -340,9 +340,10 @@ class Request extends Hookable {
 	 * Retrieve the content type of the request
 	 *
 	 * @return string
+	 * @throws Exception_Key
 	 */
 	public function contentType(): string {
-		$type = explode(';', $this->header(Net_HTTP::REQUEST_CONTENT_TYPE));
+		$type = explode(';', $this->header(HTTP::REQUEST_CONTENT_TYPE));
 		return strtolower(array_shift($type));
 	}
 
@@ -352,7 +353,7 @@ class Request extends Hookable {
 	 * @return array
 	 */
 	public function parseAccept(): array {
-		$name = Net_HTTP::REQUEST_ACCEPT;
+		$name = HTTP::REQUEST_ACCEPT;
 		$result = $this->_parsedHeader($name);
 		if ($result) {
 			return $result;
@@ -455,7 +456,7 @@ class Request extends Hookable {
 	 * Retrieve raw POST or PUT data from this request
 	 *
 	 * @return array
-	 * @todo Validate method vefore retrieving?
+	 * @todo Validate method before retrieving?
 	 */
 	public function data(): array {
 		if ($this->data_raw === null) {
@@ -467,32 +468,44 @@ class Request extends Hookable {
 			}
 		}
 		if ($this->data === null) {
-			$content_type = StringTools::left($this->contentType(), ';');
-			switch ($content_type) {
-				case 'application/json':
-					$this->data = strlen($this->data_raw) > 0 ? JSON::decode($this->data_raw) : [];
-					break;
-				case 'application/x-www-form-urlencoded':
-					$this->data = [];
-					parse_str($this->data_raw, $this->data);
-					break;
-				case 'multipart/form-data':
-					// Where is this taken from data_raw? TODO
-					$this->data = $_REQUEST;
-					break;
-				default:
-					$this->data = [];
-					break;
+			try {
+				$content_type = StringTools::left($this->contentType(), ';');
+				switch ($content_type) {
+					case 'application/json':
+						$this->data = strlen($this->data_raw) > 0 ? JSON::decode($this->data_raw) : [];
+						break;
+					case 'application/x-www-form-urlencoded':
+						$this->data = [];
+						parse_str($this->data_raw, $this->data);
+						break;
+					case 'multipart/form-data':
+						// Where is this taken from data_raw? TODO
+						$this->data = $_REQUEST;
+						break;
+					default:
+						$this->data = [];
+						break;
+				}
+			} catch (Exception_Key) {
+				/* No content type, set to empty */
+				$this->data = [];
 			}
 		}
 		return $this->data;
 	}
 
 	/**
+	 * @return string
+	 */
+	public function rawData(): string {
+		return $this->data_raw;
+	}
+
+	/**
 	 * @return array
 	 */
 	public function headers(): array {
-		return ArrayTools::keysMap($this->headers, Net_HTTP::$request_headers);
+		return ArrayTools::keysMap($this->headers, HTTP::$request_headers);
 	}
 
 	/**
@@ -553,7 +566,7 @@ class Request extends Hookable {
 	 * @return bool
 	 */
 	public function isPost(): bool {
-		return $this->method === Net_HTTP::METHOD_POST;
+		return $this->method === HTTP::METHOD_POST;
 	}
 
 	/**
@@ -574,12 +587,12 @@ class Request extends Hookable {
 	 */
 	public function setMethod(string $method): self {
 		$method = strtoupper($method);
-		if (!array_key_exists($method, Net_HTTP::$methods)) {
+		if (!array_key_exists($method, HTTP::$methods)) {
 			throw new Exception_Invalid('Unknown method in {method_name}({method}', [
 				'method_name' => __METHOD__, 'method' => $method,
 			]);
 		}
-		$this->method = Net_HTTP::$methods[$method];
+		$this->method = HTTP::$methods[$method];
 		return $this;
 	}
 
@@ -972,7 +985,7 @@ class Request extends Hookable {
 	 */
 	public function isBrowser(): bool {
 		try {
-			return $this->header(Net_HTTP::REQUEST_USER_AGENT) !== null;
+			return $this->header(HTTP::REQUEST_USER_AGENT) !== null;
 		} catch (Exception_Key) {
 			return false;
 		}
@@ -986,7 +999,7 @@ class Request extends Hookable {
 	public function userAgent(): Net_HTTP_UserAgent {
 		if (!$this->userAgent instanceof Net_HTTP_UserAgent) {
 			try {
-				$uaString = $this->header(Net_HTTP::REQUEST_USER_AGENT);
+				$uaString = $this->header(HTTP::REQUEST_USER_AGENT);
 			} catch (Exception_Key) {
 				$uaString = '';
 			}
@@ -1029,7 +1042,7 @@ class Request extends Hookable {
 	 */
 	public function referrer(): string {
 		try {
-			return $this->header(Net_HTTP::REQUEST_REFERRER);
+			return $this->header(HTTP::REQUEST_REFERRER);
 		} catch (Exception_Key) {
 			return '';
 		}
@@ -1134,11 +1147,11 @@ class Request extends Hookable {
 	 * @return array
 	 */
 	private function defaultRequestData(): array {
-		if ($this->method === Net_HTTP::METHOD_PUT) {
+		if ($this->method === HTTP::METHOD_PUT) {
 			// Support JSON
 			return $this->data() + $_GET;
 		}
-		if ($this->method === Net_HTTP::METHOD_POST) {
+		if ($this->method === HTTP::METHOD_POST) {
 			// Support JSON
 			return $this->data() + $_GET;
 		}
@@ -1252,9 +1265,6 @@ class Request extends Hookable {
 	 * @return boolean
 	 */
 	public function preferJSON(): bool {
-		if ($this->isAjax()) {
-			return true;
-		}
 		return $this->acceptPriority([
 			'application/json', 'text/html',
 		]) === 'application/json';

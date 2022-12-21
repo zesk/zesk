@@ -12,7 +12,7 @@ use Psr\Cache\CacheItemInterface;
 /**
  * Simple template engine which uses PHP includes.
  * Supports variables passed into the template, returned from the template,
- * and inherited templates by setting up Application::theme_paths
+ * and inherited templates by setting up Application::themePaths
  * Templates can be "stacked" to inherit parent variables settings.
  * Changing template values within the template (e.g. `$this->frame = "foo";`) will then bubble up
  * to parent templates.
@@ -28,7 +28,7 @@ use Psr\Cache\CacheItemInterface;
  *
  * @package zesk
  * @subpackage system
- * @see Application::theme_paths
+ * @see Application::themePaths
  * @author kent
  */
 class Template implements Interface_Theme {
@@ -76,7 +76,7 @@ class Template implements Interface_Theme {
 	 *
 	 * @var array
 	 */
-	private array $_vars_changed = [];
+	private array $_changed = [];
 
 	/**
 	 * Number of pushes to this template
@@ -153,7 +153,6 @@ class Template implements Interface_Theme {
 	 */
 	public function __construct(Application $app, string $path = '', array|self $variables = null) {
 		$this->application = $app;
-		$this->stack = $app->template_stack;
 
 		$this->_vars = [];
 		if ($variables instanceof Template) {
@@ -165,9 +164,9 @@ class Template implements Interface_Theme {
 				}
 				$this->__set(strval($k), $v);
 			}
-			$this->_vars_changed = [];
+			$this->_changed = [];
 		}
-		assert(count($this->_vars_changed) === 0);
+		assert(count($this->_changed) === 0);
 		if ($path) {
 			$this->_original_path = $path;
 			$this->setPath($path);
@@ -208,7 +207,7 @@ class Template implements Interface_Theme {
 	 * @param array $variables Optional variables to apply to the template
 	 * @param string $content_variable
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Exception_Semantics|Exception_Redirect
 	 */
 	public function end(array $variables = [], string $content_variable = 'content'): string {
 		if (count($this->wrappers) === 0) {
@@ -226,19 +225,11 @@ class Template implements Interface_Theme {
 	}
 
 	/**
-	 * Push the variable stack
-	 *
-	 * @return Template
+	 * @return self
 	 */
-	public function push() {
-		$top = $this->stack->top();
-		$this->stack->push($this);
+	public function push(): self {
+		$top = $this->application->pushTemplate($this);
 		$this->_vars += $top->variables();
-		if (self::$debug_stack) {
-			$this->application->logger->debug('Push {path}', [
-				'path' => $this->_path,
-			]);
-		}
 		$this->_running++;
 		return $this;
 	}
@@ -250,18 +241,8 @@ class Template implements Interface_Theme {
 	 * @throws Exception_Semantics
 	 */
 	public function pop(): self {
-		$stack = $this->stack;
-		$top = $stack->pop();
-		if (self::$debug_stack) {
-			$this->application->logger->debug('Pop {path}', [
-				'path' => $top->_path,
-			]);
-		}
+		$top = $this->application->popTemplate();
 		if ($top !== $this) {
-			if ($top === null) {
-				throw new Exception_Semantics('Template::pop: Popped beyond the top!');
-			}
-
 			throw new Exception_Semantics("Popped template ($top->_path) not this ($this->_path)");
 		}
 		if (--$this->_running < 0) {
@@ -270,10 +251,10 @@ class Template implements Interface_Theme {
 		/*
 		 * If we have a stack and variables changed
 		 */
-		if (count($this->_vars_changed) === 0) {
+		if (count($this->_changed) === 0) {
 			return $this;
 		}
-		$stack->variables($this->_vars_changed);
+		$this->application->topTemplate()->set($this->_changed);
 		return $this;
 	}
 
@@ -291,28 +272,17 @@ class Template implements Interface_Theme {
 	 *
 	 * @return array
 	 */
-	public function values() {
+	public function values(): array {
 		return $this->_vars;
-	}
-
-	/**
-	 *
-	 * @param string $path
-	 * @return string|null
-	 */
-	public function find_path(string $path): string {
-		return $this->_find_path($path);
 	}
 
 	/**
 	 * Find template path
 	 *
 	 * @param string $path
-	 * @param boolean $all
-	 *            Return all possible paths as keys and whether the file exists as the value
-	 * @return array|string
+	 * @return string
 	 */
-	private function _find_path(string $path): string {
+	public function findPath(string $path): string {
 		if (Directory::isAbsolute($path)) {
 			if (file_exists($path)) {
 				return $path;
@@ -325,15 +295,15 @@ class Template implements Interface_Theme {
 				'no_extension' => true,
 			]);
 		} catch (Exception_NotFound) {
-			$theme_paths = $this->application->themePath();
+			$themePaths = $this->application->themePath();
 			if (self::$debug) {
 				static $template_path = false;
 				if (!$template_path) {
-					$this->application->logger->debug("theme_path is\n\t" . JSON::encodePretty($theme_paths));
+					$this->application->logger->debug("themePath is\n\t" . JSON::encodePretty($themePaths));
 					$template_path = true;
 				}
-				$this->application->logger->warning('Template::path("{path}") not found in theme_path ({n_paths} paths).', [
-					'path' => $path, 'theme_paths' => $theme_paths, 'n_paths' => count($theme_paths),
+				$this->application->logger->warning('Template::path("{path}") not found in themePath ({n_paths} paths).', [
+					'path' => $path, 'themePaths' => $themePaths, 'n_paths' => count($themePaths),
 				]);
 			}
 			return '';
@@ -346,8 +316,8 @@ class Template implements Interface_Theme {
 	 * @param string $path
 	 * @return boolean
 	 */
-	public function would_exist(string $path): bool {
-		$path = $this->find_path($path);
+	public function wouldExist(string $path): bool {
+		$path = $this->findPath($path);
 		return file_exists($path);
 	}
 
@@ -371,7 +341,7 @@ class Template implements Interface_Theme {
 	 * @return $this
 	 */
 	public function setPath(string $set): self {
-		$this->_path = $this->find_path($set);
+		$this->_path = $this->findPath($set);
 		return $this;
 	}
 
@@ -405,10 +375,13 @@ class Template implements Interface_Theme {
 	 * @return string
 	 */
 	public function objectName(): string {
-		$contents = File::contents($this->_path, '');
-		$matches = null;
-		if (!preg_match('/Name:\s*\"([^\"]+)\"/', $contents, $matches)) {
-			return $matches[1];
+		try {
+			$contents = File::contents($this->_path, '');
+			$matches = [];
+			if (!preg_match('/Name:\s*\"([^\"]+)\"/', $contents, $matches)) {
+				return $matches[1];
+			}
+		} catch (Exception_File_NotFound|Exception_File_Permission) {
 		}
 		return basename($this->_path);
 	}
@@ -419,7 +392,7 @@ class Template implements Interface_Theme {
 	 * @return array
 	 */
 	public function changed(): array {
-		return $this->_vars_changed;
+		return $this->_changed;
 	}
 
 	/**
@@ -599,19 +572,6 @@ class Template implements Interface_Theme {
 	}
 
 	/**
-	 * Implements ::hooks
-	 * @param Application $application
-	 */
-	public static function hooks(Application $application): void {
-		try {
-			$application->hooks->add(Hooks::HOOK_CONFIGURED, [
-				__CLASS__, 'configured',
-			]);
-		} catch (Exception_Semantics $e) {
-		}
-	}
-
-	/**
 	 *
 	 * @return string
 	 */
@@ -658,7 +618,7 @@ class Template implements Interface_Theme {
 	public function __set(string|int $key, mixed $value): void {
 		$key = self::_template_key($key);
 		if ($this->_running > 0) {
-			$this->_vars_changed[$key] = $value;
+			$this->_changed[$key] = $value;
 		}
 		$this->_vars[$key] = $value;
 	}

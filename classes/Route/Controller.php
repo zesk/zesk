@@ -79,24 +79,17 @@ class Route_Controller extends Route {
 	/**
 	 *
 	 * @param Response|null $response
-	 * @return array
 	 * @throws Exception_Class_NotFound
 	 */
-	private function _initController(Response $response = null): array {
+	private function _initController(Response $response = null): void {
 		if ($this->controller instanceof Controller) {
-			return [
-				$this->controller, $this->controller_action,
-			];
+			return;
 		}
 
 		[$class, $this->controller_action] = $this->_determineClassAction();
 
 		/* @var $controller Controller */
 		$this->controller = $class->newInstance($this->application, $this, $response, $this->optionArray('controller options') + $this->options);
-
-		return [
-			$this->controller, $this->controller_action,
-		];
 	}
 
 	/**
@@ -117,43 +110,49 @@ class Route_Controller extends Route {
 	 */
 	public function _execute(Response $response): Response {
 		$app = $this->application;
-		[$controller, $action] = $this->_initController($response);
+		$this->_initController($response);
+		$controller = $this->controller;
+		assert($controller instanceof Controller);
+		$action = $this->controller_action;
+		assert($action !== '');
+
 		$__ = [
 			'class' => $controller::class, 'action' => $action,
 		];
 		$app->logger->debug('Controller {class} running action {action}', $__);
-		$action_method = str_replace('-', '_', $action);
+		$actionMethod = str_replace('-', '_', $action);
 
 		try {
-			$controller->optional_method([
-				'before_' . $action_method, 'before',
+			$controller->optionalMethod([
+				'before_' . $actionMethod, 'before',
 			], []);
 			$controller->callHook('before');
 
-			$arguments_method = $this->option('arguments method', $this->option('arguments method prefix', 'arguments_') . $action_method);
-			$method = $this->option('method', $this->actionMethodPrefix() . $action_method);
+			$argumentsMethod = $this->option('arguments method', $this->option('arguments method prefix', 'arguments_') . $actionMethod);
+			$method = $this->option('method', $this->actionMethodPrefix() . $actionMethod);
 			$method = map($method, [
 				'method' => $this->request->method(),
 			]);
 
-			if ($response->status_code === Net_HTTP::STATUS_OK) {
+			if ($response->status_code === HTTP::STATUS_OK) {
 				ob_start();
-				if ($controller->has_method($method)) {
-					$args = $controller->optional_method($arguments_method, $this->args);
-					$result = $controller->invoke_method($method, $args);
+				if ($controller->hasMethod($method)) {
+					$result = $controller->optionalMethod($argumentsMethod, $this->args);
+					$args = is_array($result) ? $result : $this->args;
+					$result = $controller->invokeMethod($method, $args);
 				} else {
 					if ($action !== 'index') {
 						$app->logger->warning('No such method {method} in {class}', [
 							'method' => $method, 'class' => $controller::class,
 						]);
 					}
-					$result = $controller->invoke_default_method(array_merge([
+					$result = $controller->invokeDefaultMethod(array_merge([
 						$action,
 					], $this->args));
 				}
 				$contents = ob_get_clean();
-				$controller->optional_method([
-					'after_' . $action_method, 'after',
+				$controller->optionalMethod([
+					'after_' . $actionMethod, 'after',
 				], [
 					$result, $contents,
 				]);
@@ -163,8 +162,8 @@ class Route_Controller extends Route {
 			throw $e;
 		} catch (\Exception $e) {
 			$app->hooks->call('exception', $e);
-			$controller->optional_method([
-				'exception_' . $action_method, 'exception',
+			$controller->optionalMethod([
+				'exception_' . $actionMethod, 'exception',
 			], [
 				$e,
 			]);
@@ -249,10 +248,8 @@ class Route_Controller extends Route {
 			] + $this->variables());
 		}
 		$this->_mapOptions();
-		[$controller] = $this->_initController();
-		if ($controller) {
-			$map = $controller->getRouteMap($action, $object, $options) + $map;
-		}
+		$this->_initController();
+		$map = $this->controller->getRouteMap($action, $object, $options) + $map;
 		$this->_unmapOptions();
 		return $map;
 	}

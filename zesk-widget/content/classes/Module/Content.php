@@ -25,7 +25,7 @@ class Module_Content extends Module implements Interface_Module_Head {
 		'zesk\Content_Video' => 'video',
 	];
 
-	public array $model_classes = [];
+	public array $modelClasses = [];
 
 	/**
 	 *
@@ -35,7 +35,7 @@ class Module_Content extends Module implements Interface_Module_Head {
 	public function initialize(): void {
 		if ($this->hasOption('content_classes')) {
 			$types = ArrayTools::valuesFlipAppend(self::$all_classes);
-			$this->model_classes = array_merge($this->model_classes, $types['data']);
+			$this->modelClasses = array_merge($this->modelClasses, $types['data']);
 			foreach ($this->optionIterable('content_classes') as $type) {
 				if (!array_key_exists($type, $types)) {
 					$this->application->logger->warning('{method} Unknown content class type {type}', [
@@ -45,11 +45,11 @@ class Module_Content extends Module implements Interface_Module_Head {
 
 					continue;
 				}
-				$this->model_classes = array_merge($this->model_classes, $types[$type]);
+				$this->modelClasses = array_merge($this->modelClasses, $types[$type]);
 			}
-			$this->model_classes = array_unique($this->model_classes);
+			$this->modelClasses = array_unique($this->modelClasses);
 		} else {
-			$this->model_classes = array_keys(self::$all_classes);
+			$this->modelClasses = array_keys(self::$all_classes);
 		}
 	}
 

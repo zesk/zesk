@@ -48,9 +48,9 @@ class Redirect extends Type {
 	 *
 	 * @todo Move this elsewhere. Response addon?
 	 * @param string $message
-	 * @return \zesk\Response
+	 * @return Response
 	 */
-	public function addMessage(string $message, array $attributes = []) {
+	public function addMessage(string $message, array $attributes = []): Response {
 		$session = $this->session();
 		$messages = toArray($session->get(self::SESSION_KEY_REDIRECT_STATE));
 		$messages[md5($message)] = ['content' => $message] + $attributes;
@@ -149,7 +149,7 @@ class Redirect extends Type {
 		$this->parent->setHeader('Location', $url);
 		$status_code = $exception->statusCode();
 		if (!$status_code) {
-			$status_code = Net_HTTP::STATUS_MOVED_PERMANENTLY;
+			$status_code = HTTP::STATUS_MOVED_PERMANENTLY;
 		}
 		$this->parent->status_code = $status_code;
 		$status_message = $exception->statusMessage();

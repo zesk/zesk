@@ -1,10 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 class Control_SortOrder extends Control {
 	protected $options = [
-		'name' => 'so',
-		'column' => 'sort_order',
+		'name' => 'so', 'column' => 'sort_order',
 	];
 
 	/**
@@ -42,7 +43,7 @@ class Control_SortOrder extends Control {
 	public function hook_after_query_list(Database_Query_Select $query): void {
 		$parser = $query->parser();
 		$order_by_original = $parser->splitOrderBy($query->order_by());
-		$this->list_default_ascending = !endsi(first($order_by_original), ' desc');
+		$this->list_default_ascending = !str_ends_with(strtolower(first($order_by_original)), ' desc');
 		if ($this->ascending === null) {
 			$this->ascending = $this->list_default_ascending;
 		}
@@ -60,8 +61,7 @@ class Control_SortOrder extends Control {
 	 */
 	public function themeVariables(): array {
 		return parent::themeVariables() + [
-			'ascending' => $this->ascending,
-			'list_default_ascending' => $this->list_default_ascending,
+			'ascending' => $this->ascending, 'list_default_ascending' => $this->list_default_ascending,
 			'uri' => $this->option('uri', $this->request->uri()),
 		];
 	}

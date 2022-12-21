@@ -35,7 +35,7 @@ Your application file solely handles setting up the context (configuration) for 
 	/*
 	 * Allow our application to be found
 	 */
-	$kernel->autoloader->path(__DIR__ . '/classes', array("class_prefix" => "awesome\\"));
+	$kernel->autoloader->path(__DIR__ . '/classes', array("classPrefix" => "awesome\\"));
 	
 	return $kernel
 		->applicationClass(Application::class)

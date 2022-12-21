@@ -29,7 +29,7 @@ class View_Tooltip extends View {
 		 *	interval: 100,   // number = milliseconds of polling interval
 		 *	timeout: 0,   // number = milliseconds delay before onMouseOut function call
 		 */
-		$options = $this->options_include('sensitivity;interval;timeout');
+		$options = $this->options(toList('sensitivity;interval;timeout'));
 		$html->jquery('$(\'#' + $this->option('target_id') + '\').hoverBubble(\'#' + $id + '\',' . json_encode($options) . ');');
 		return HTML::tag('div', [
 			'id' => $id,

@@ -246,7 +246,7 @@ class File {
 	/**
 	 * Generate an MD5 checksum for a file
 	 *
-	 * @return string An md5 checksum of the file
+	 * @return string md5 checksum of the file
 	 */
 	/**
 	 * @param string $path File to generate a checksum for
@@ -354,7 +354,7 @@ class File {
 	 * @return boolean true if successful, false if 100ms passes and can't
 	 * @throws Exception_File_NotFound
 	 */
-	public static function atomic_put(string $path, string $data): bool {
+	public static function atomicPut(string $path, string $data): bool {
 		$fp = fopen($path, 'w+b');
 		if (!is_resource($fp)) {
 			throw new Exception_File_NotFound($path, 'File::atomic_put not found');
@@ -385,16 +385,15 @@ class File {
 	 */
 	public static function atomic(string $path, mixed $data = null): mixed {
 		if ($data !== null) {
-			return self::atomic_put($path, serialize($data));
+			return self::atomicPut($path, serialize($data));
 		}
-		if (($result = File::contents($path, null)) !== null) {
-			$result = unserialize($result);
-			if ($result === false) {
-				return null;
-			}
-			return $result;
+
+		try {
+			$result = File::contents($path);
+			return PHP::unserialize($result);
+		} catch (Exception) {
+			return null;
 		}
-		return null;
 	}
 
 	/**
@@ -402,12 +401,12 @@ class File {
 	 *
 	 * @param string $path Directory for temporary file
 	 * @param string $ext Extension to place on temporary file
-	 * @param int $mode Directory creation mode (e.g. 0700)
+	 * @param ?int $mode Directory creation mode (e.g. 0700)
 	 * @return string
 	 * @throws Exception_Directory_Create
 	 * @throws Exception_Directory_Permission
 	 */
-	public static function temporary(string $path, string $ext = 'tmp', int $mode = null) {
+	public static function temporary(string $path, string $ext = 'tmp', int $mode = null): string {
 		return path(Directory::depend($path, $mode), md5(microtime()) . '.' . ltrim($ext, '.'));
 	}
 
@@ -418,10 +417,7 @@ class File {
 	 *            File path to extract the extension from
 	 * @return string The file name without the extension
 	 */
-	public static function base(string $filename, $lower = false): string {
-		if ($lower !== false) {
-			zesk()->deprecated('lower parameter');
-		}
+	public static function base(string $filename): string {
 		$filename = basename($filename);
 		$dot = strrpos($filename, '.');
 		if ($dot === false) {
@@ -454,18 +450,24 @@ class File {
 	}
 
 	/**
-	 * Like file_get_contents but allows the return of a default string when file doesn't exist
+	 * file_get_contents with exceptions
 	 *
-	 * @param string $filename
-	 *            The file to retrieve
-	 * @return ?string The file contents, or null
+	 * @param string $filename The file to retrieve
+	 * @return string The file contents
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_File_Permission
 	 */
-	public static function contents(string $filename): string|null {
+	public static function contents(string $filename): string {
 		if (file_exists($filename)) {
-			$contents = file_get_contents($filename);
-			return is_string($contents) ? $contents : null;
+			$contents = @file_get_contents($filename);
+			if (is_string($contents)) {
+				return $contents;
+			}
+
+			throw new Exception_File_Permission($filename);
 		}
-		return null;
+
+		throw new Exception_File_NotFound($filename);
 	}
 
 	/**
@@ -473,17 +475,22 @@ class File {
 	 *
 	 * @param string $filename
 	 * @param string $content
+	 * @return int Bytes written
 	 * @throws Exception_File_Permission
 	 */
-	public static function append(string $filename, string $content): void {
+	public static function append(string $filename, string $content): int {
 		$mode = file_exists($filename) ? 'a' : 'w';
 		if (!is_resource($f = fopen($filename, $mode))) {
-			throw new Exception_File_Permission('Can not open {filename} with mode {mode} to append {n} bytes of content', [
-				'filename' => $filename, 'mode' => $mode, 'n' => strlen($content),
+			throw new Exception_File_Permission($filename, 'Can not open {path} with mode {mode} to append {n} bytes of content', [
+				'mode' => $mode, 'n' => strlen($content),
 			]);
 		}
-		fwrite($f, $content);
+		$result = fwrite($f, $content);
 		fclose($f);
+		if ($result === false) {
+			throw new Exception_File_Permission($filename, 'Can not write {n} bytes', ['n' => strlen($content)]);
+		}
+		return $result;
 	}
 
 	/**
@@ -509,7 +516,7 @@ class File {
 	 * @throws Exception_File_Permission
 	 */
 	public static function unlink(string $path): void {
-		if (!is_dir($dir = dirname($path))) {
+		if (!is_dir(dirname($path))) {
 			return;
 		}
 		if (!is_file($path)) {
@@ -523,7 +530,8 @@ class File {
 	/**
 	 * Like filesize but throws an error when file not found
 	 *
-	 * @param $filename
+	 * @param string $filename
+	 * @return int
 	 * @throws Exception_File_NotFound
 	 */
 	public static function size(string $filename): int {
@@ -685,11 +693,11 @@ class File {
 	 * @return string
 	 */
 	public static function setExtension(string $file, string $new_extension): string {
-		[$prefix, $file] = pairr($file, '/', '', $file);
+		[$prefix, $file] = reversePair($file, '/', '', $file);
 		if ($prefix) {
 			$prefix .= '/';
 		}
-		[$base] = pairr($file, '.', $file);
+		[$base] = reversePair($file, '.', $file);
 		if ($new_extension) {
 			$base .= '.' . ltrim($new_extension, '.');
 		}
@@ -712,7 +720,7 @@ class File {
 	 * @param string $method Callable function to convert id to name
 	 * @return NULL|string
 	 */
-	private static function _name_from_id(mixed $id, callable $method): ?string {
+	private static function _name_from_id(mixed $id, string $method): ?string {
 		if (!function_exists($method)) {
 			return null;
 		}
@@ -726,7 +734,7 @@ class File {
 	/**
 	 *
 	 * @param int $uid
-	 * @return string
+	 * @return ?string
 	 */
 	private static function name_from_uid(int $uid): ?string {
 		return self::_name_from_id($uid, 'posix_getpwuid');
@@ -748,23 +756,62 @@ class File {
 	 *
 	 * @thanks
 	 *
-	 * @param mixed $path
-	 *            Path or resource to check
-	 * @param string $section
-	 *            Section to retrieve, or null for all sections
+	 * @param string $path Path to check
+	 * @param ?string $section Section to retrieve, or null for all sections
 	 * @return array
 	 * @throws Exception_File_NotFound
 	 */
 	public static function stat(string $path, string $section = null): array {
-		$is_res = is_resource($path);
-		if (!$is_res) {
-			clearstatcache(false, $path);
-		}
-		$ss = $is_res ? @fstat($path) : @stat($path);
+		clearstatcache(false, $path);
+		$ss = @stat($path);
 		if (!$ss) {
-			throw new Exception_File_NotFound($is_res ? _dump($path) : $path);
+			throw new Exception_File_NotFound($path);
 		}
+		$ss['path'] = $path;
+		$s = self::expandStats($ss);
+		if ($section !== null) {
+			return $s[$section] ?? [];
+		}
+		return $s;
+	}
+
+	/**
+	 * Thanks webmaster at askapache dot com
+	 * Souped up fstat.
+	 * Rewritten slightly.
+	 *
+	 * @thanks
+	 *
+	 * @param resource $path
+	 *            Path or resource to check
+	 * @param ?string $section
+	 *            Section to retrieve, or null for all sections
+	 * @return array
+	 * @throws Exception_File_NotFound
+	 */
+	public static function resourceStat(mixed $path, string $section = null): array {
+		assert(is_resource($path));
+		$ss = @fstat($path);
+		if (!$ss) {
+			throw new Exception_File_NotFound(_dump($path));
+		}
+		$ss['is_resource'] = true;
+		$s = self::expandStats($ss);
+		if ($section !== null) {
+			return $s[$section] ?? [];
+		}
+		return $s;
+	}
+
+	/**
+	 * @param array $ss
+	 * @return array[]
+	 */
+	public static function expandStats(array $ss): array {
 		$o777 = 511; /* 0o777 */
+
+		$is_res = $ss['is_resource'] ?? false;
+		$path = $ss['path'] ?? null;
 		$p = $ss['mode'];
 		$mode_string = self::mode_to_string($p);
 		$type = self::$mask_to_chars[$p & self::MASK_FTYPE];
@@ -776,8 +823,8 @@ class File {
 				'octal' => sprintf('%o', ($p & $o777)),  /* Octal without a zero prefix */
 				'octal0' => self::mode_to_octal($p),  /* Octal with a zero prefix */
 				'decimal' => intval($p) & $o777,  /* Decimal value, truncated */
-				'fileperms' => $is_res ? null : @fileperms($path),  /* Permissions */
-				'mode' => $p, /* Raw permissions value returned by fstat */
+				'fileperms' => is_string($path) ? @fileperms($path) : null  /* Permissions */, 'mode' => $p,
+				/* Raw permissions value returned by fstat */
 			], 'owner' => [
 				'uid' => $ss['uid'], 'gid' => $ss['gid'], 'fileowner' => $ss['uid'], 'filegroup' => $ss['gid'],
 				'owner' => self::name_from_uid($ss['uid']), 'group' => self::name_from_gid($ss['gid']),
@@ -810,9 +857,6 @@ class File {
 		if (!$is_res) {
 			clearstatcache(false, $path);
 		}
-		if ($section !== null) {
-			return $s[$section] ?? [];
-		}
 		return $s;
 	}
 
@@ -823,17 +867,16 @@ class File {
 	 *
 	 * @return integer
 	 * @throws Exception_Semantics
-	 * @global integer File::trim::maximum_file_size Size of file to use alternate method for
 	 */
-	public static function trim_maximum_file_size() {
+	public static function trim_maximum_file_size(): int {
 		$app = Kernel::singleton()->application();
-		$result = to_integer($app->configuration->getPath([
-			"zesk\file", 'trim', 'maximum_file_size',
+		$result = toInteger($app->configuration->getPath([
+			self::class, 'trim', 'maximum_file_size',
 		]));
 		if ($result) {
 			return $result;
 		}
-		$memory_limit = to_bytes(ini_get('memory_limit'));
+		$memory_limit = toBytes(ini_get('memory_limit'));
 		return intval($memory_limit / 2);
 	}
 
@@ -845,17 +888,16 @@ class File {
 	 * @return integer
 	 * @throws Exception_Lock
 	 * @throws Exception_Semantics
-	 * @global integer File::trim::read_buffer_size Size of file to use alternate method for
 	 */
 	public static function trim_read_buffer_size(): int {
 		$app = Kernel::singleton()->application();
-		$result = to_integer($app->configuration->getPath([
-			"zesk\file", 'trim', 'read_buffer_size',
+		$result = toInteger($app->configuration->getPath([
+			self::class, 'trim', 'read_buffer_size',
 		]));
 		if ($result) {
 			return $result;
 		}
-		$memory_limit = to_bytes(ini_get('memory_limit'));
+		$memory_limit = toBytes(ini_get('memory_limit'));
 		$default_trim_read_buffer_size = clamp(10240, $memory_limit / 4, 1048576);
 		return intval($default_trim_read_buffer_size);
 	}
@@ -876,7 +918,6 @@ class File {
 	 * @throws Exception_File_Permission
 	 * @throws Exception_Lock
 	 * @throws Exception_Semantics
-	 * @global integer File::trim::maximum_file_size Size of file to use alternate method for
 	 */
 	public static function trim(string $path, int $offset = 0, int $length = null): bool {
 		if (!is_file($path)) {
@@ -955,7 +996,7 @@ class File {
 	 * @throws Exception_File_Permission
 	 * @throws Exception_File_NotFound
 	 */
-	public static function head($filename, $length = 1024) {
+	public static function head(string $filename, int $length = 1024): string {
 		if (!is_file($filename)) {
 			throw new Exception_File_NotFound($filename);
 		}
@@ -977,21 +1018,24 @@ class File {
 	 * @param string $suffix
 	 * @return boolean
 	 */
-	public static function rotate($path, $size_limit = 10485760, $keep_count = 7, $suffix = '') {
-		if (file_exists($path) && ($size_limit === null || filesize($path) > $size_limit)) {
-			if (file_exists("$path.$keep_count$suffix")) {
-				@unlink("$path.$keep_count$suffix");
-			}
-			$n = intval($keep_count);
-			while ($n-- !== 0) {
-				if (file_exists("$path.$n$suffix")) {
-					@rename("$path.$n$suffix", "$path." . ($n + 1) . $suffix);
-				}
-			}
-			@rename($path, "$path.0$suffix");
-			return true;
+	public static function rotate(string $path, int $size_limit = 10485760, int $keep_count = 7, string $suffix = ''): bool {
+		if (!file_exists($path)) {
+			return false;
 		}
-		return false;
+		if ($size_limit > 0 && filesize($path) < $size_limit) {
+			return false;
+		}
+		if (file_exists("$path.$keep_count$suffix")) {
+			@unlink("$path.$keep_count$suffix");
+		}
+		$n = $keep_count;
+		while ($n-- !== 0) {
+			if (file_exists("$path.$n$suffix")) {
+				@rename("$path.$n$suffix", "$path." . ($n + 1) . $suffix);
+			}
+		}
+		@rename($path, "$path.0$suffix");
+		return true;
 	}
 
 	/**
@@ -1021,12 +1065,13 @@ class File {
 	 *
 	 * @param string $source
 	 * @param string $target
-	 * @return bool
+	 * @param string|null $new_target
+	 * @return void
 	 * @throws Exception_File_Locked
 	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Permission
 	 */
-	public static function move_atomic(string $source, string $target, string $new_target = null): void {
+	public static function moveAtomic(string $source, string $target, string $new_target = null): void {
 		if (!is_file($target)) {
 			if (!rename($source, $target)) {
 				throw new Exception_File_Permission($target, 'Can not rename {source} to {target}', [
@@ -1041,11 +1086,10 @@ class File {
 		$targetLock = $target . '.atomic-lock';
 		$lock = fopen($targetLock, 'w+b');
 		if (!$lock) {
-			throw new Exception_File_Permission('Can not create lock file {targetLock}', [
-				'targetLock' => $targetLock,
-			]);
+			throw new Exception_File_Permission($targetLock, 'Can not create lock file');
 		}
 		if (!flock($lock, LOCK_EX)) {
+			fclose($lock);
 			unlink($targetLock);
 
 			throw new Exception_File_Locked($targetLock);
@@ -1212,50 +1256,6 @@ class File {
 			}
 		}
 		return $result;
-	}
-
-	/*===============================================================================================================*\
-	 *      _                               _           _
-	 *   __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
-	 *  / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
-	 * | (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
-	 *  \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
-	 *             |_|
-	\*===============================================================================================================*/
-	/**
-	 * @param array $paths
-	 * @param array|string $file
-	 * @return array
-	 * @deprecated 2022-11
-	 */
-	public static function find_all(array $paths, array|string $file): array {
-		zesk()->deprecated();
-		return self::findALl($paths, $file);
-	}
-
-	/**
-	 * Change a file extension from one extension to another (string manipulation)
-	 *
-	 * @param string $file
-	 * @param string $new_extension Extension with or without a "." in it (it's removed). If null, then extension is removed completely (no dot, either.)
-	 * @return string
-	 * @deprecated 2022-05
-	 */
-	public static function extension_change(string $file, string $new_extension): string {
-		zesk()->deprecated('use setExtension');
-		return self::setExtension($file, $new_extension);
-	}
-
-	/**
-	 * @param array $paths
-	 * @param array|string|null $files
-	 * @return string
-	 * @throws Exception_NotFound
-	 * @deprecated 2022-11
-	 */
-	public static function find_first(array $paths, array|string $files = null): string {
-		zesk()->deprecated(__METHOD__);
-		return self::findFirst($paths, $files);
 	}
 
 	/**

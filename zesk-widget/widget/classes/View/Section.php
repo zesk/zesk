@@ -37,7 +37,7 @@ class View_Section extends View {
 		$content = $this->render();
 		if ($this->preferJSON()) {
 			$response = $this->response();
-			$response->json()->data([
+			$response->json()->setData([
 				'status' => true,
 				'content' => $content,
 				'title' => $response->html()->title(),

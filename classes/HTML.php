@@ -337,7 +337,7 @@ class HTML {
 	 */
 	public static function a_prefix(Request $request, $href, $mixed) {
 		$args = func_get_args();
-		return self::a_condition(begins($request->uri(), $href), $href, $mixed, $args[3] ?? null);
+		return self::a_condition(str_starts_with($request->uri(), $href), $href, $mixed, $args[3] ?? null);
 	}
 
 	/**

@@ -12,12 +12,11 @@ declare(strict_types=1);
 namespace zesk;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Psr\Cache\InvalidArgumentException;
 
 /**
  * Stuff that should probably just be part of PHP, but isn't.
  */
-require_once __DIR__ . '/functions.php';
+require_once(__DIR__ . '/functions.php');
 
 class Profiler {
 	/**
@@ -85,27 +84,21 @@ class Kernel {
 	 * Do nothing when deprecated functions are called.
 	 * Production only. Default setting.
 	 *
-	 * @var null
+	 * @var string
 	 */
 	public const DEPRECATED_IGNORE = 'ignore';
 
 	/**
 	 *
-	 * @var Kernel
+	 * @var ?Kernel
 	 */
-	private static self $singleton;
+	private static ?self $singleton = null;
 
 	/**
 	 *
 	 * @var string
 	 */
 	private string $deprecated = 'ignore';
-
-	/**
-	 *
-	 * @var array
-	 */
-	private array $initialize_configuration = [];
 
 	/**
 	 * For storing profiling information
@@ -119,9 +112,9 @@ class Kernel {
 	 *
 	 * @var array
 	 */
-	public static array $configuration_defaults = [
+	public static array $configurationDefaults = [
 		__CLASS__ => [
-			'application_class' => Application::class,
+			'applicationClass' => Application::class,
 		],
 	];
 
@@ -202,7 +195,7 @@ class Kernel {
 	 *
 	 * @var string
 	 */
-	protected string $application_class = '';
+	protected string $applicationClass = '';
 
 	/**
 	 *
@@ -214,26 +207,19 @@ class Kernel {
 	 * Include related classes
 	 */
 	public static function includes(): void {
-		require_once __DIR__ . '/Exceptional.php';
-		require_once __DIR__ . '/Exception.php';
-		require_once __DIR__ . '/Process.php';
-		require_once __DIR__ . '/Logger.php';
+		/* Order here matters */
+		foreach ([
+			'Exceptional.php', 'Exception.php', 'Process.php', 'Logger.php',
 
-		require_once __DIR__ . '/Configuration.php';
-		require_once __DIR__ . '/Options.php';
-		require_once __DIR__ . '/Hookable.php';
-		require_once __DIR__ . '/Hooks.php';
-		require_once __DIR__ . '/HookGroup.php';
-		require_once __DIR__ . '/Paths.php';
-		require_once __DIR__ . '/Autoloader.php';
-		require_once __DIR__ . '/Classes.php';
-		require_once __DIR__ . '/Objects.php';
+			'Configuration.php', 'Options.php', 'Hookable.php', 'Hooks.php', 'HookGroup.php', 'Paths.php',
+			'Autoloader.php', 'Classes.php', 'Objects.php',
 
-		require_once __DIR__ . '/Compatibility.php';
-		require_once __DIR__ . '/PHP.php';
+			'Compatibility.php', 'PHP.php',
 
-		require_once __DIR__ . '/CacheItem.php';
-		require_once __DIR__ . '/CacheItemPool/Array.php';
+			'CacheItem.php', 'CacheItemPool/Array.php',
+		] as $include) {
+			require_once __DIR__ . "/$include";
+		}
 	}
 
 	/**
@@ -241,15 +227,21 @@ class Kernel {
 	 *
 	 * @param array $configuration
 	 * @return self
-	 * @throws Exception_Semantics
 	 * @throws Exception_Unsupported
-	 * @throws InvalidArgumentException
+	 * @throws Exception_Directory_NotFound
 	 */
 	public static function factory(array $configuration = []): self {
 		$zesk = new self($configuration);
 		assert(self::$singleton !== null);
 		$zesk->bootstrap();
 		return $zesk;
+	}
+
+	public static function terminate(): void {
+		$kernel = self::$singleton;
+		self::$singleton = null;
+		$kernel->shutdown();
+		unset($kernel);
 	}
 
 	/**
@@ -273,8 +265,6 @@ class Kernel {
 		error_reporting(E_ALL | E_STRICT);
 
 		self::$singleton = $this;
-
-		$this->initialize_configuration = $configuration;
 
 		/**
 		 * Set default console
@@ -317,10 +307,10 @@ class Kernel {
 		/*
 		 * Configuration of components in the system
 		 */
-		$this->configuration = Configuration::factory(self::$configuration_defaults)->merge(Configuration::factory($configuration));
+		$this->configuration = Configuration::factory(self::$configurationDefaults)->merge(Configuration::factory($configuration));
 
-		$this->application_class = $this->configuration->getPath([
-			__CLASS__, 'application_class',
+		$this->applicationClass = $this->configuration->getFirstPath([
+			[__CLASS__, 'applicationClass', ], [__CLASS__, 'application_class', ],
 		], __NAMESPACE__ . '\\' . 'Application');
 
 		/*
@@ -331,12 +321,13 @@ class Kernel {
 		/*
 		 * Manage object creation, singletons, and object sharing
 		 */
-		$this->objects = new Objects($this);
+		$this->objects = new Objects();
 	}
 
 	/**
 	 * @return void
 	 * @throws Exception_Unsupported
+	 * @throws Exception_Directory_NotFound
 	 */
 	final public function bootstrap(): void {
 		Compatibility::check();
@@ -347,8 +338,29 @@ class Kernel {
 		$this->initialize();
 	}
 
+	final public function __destruct() {
+		$this->shutdown();
+	}
+
 	/**
-	 * Add configurated hook
+	 * @return void
+	 */
+	private function shutdown(): void {
+		if ($this->application) {
+			$this->logger->debug(__METHOD__);
+			$this->application?->shutdown();
+			$this->objects->shutdown();
+			$this->hooks->shutdown();
+			$this->classes->saveClassesToCache($this);
+			$this->autoloader->shutdown();
+			$this->paths->shutdown();
+			$this->cache?->commit();
+			$this->application = null;
+		}
+	}
+
+	/**
+	 * Add configured hook
 	 */
 	public function initialize(): void {
 		$this->hooks->add(Hooks::HOOK_CONFIGURED, [$this, 'configured', ]);
@@ -388,28 +400,26 @@ class Kernel {
 		$depth = $arguments['depth'] ?? 0;
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
-				throw new Exception_Deprecated("${reason} Deprecated: {calling_function}\n{backtrace}", [
+				throw new Exception_Deprecated("{reason} Deprecated: {calling_function}\n{backtrace}", [
 					'reason' => $reason, 'calling_function' => calling_function(),
 					'backtrace' => _backtrace(4 + $depth),
 				] + $arguments);
 			case self::DEPRECATED_LOG:
-				$this->logger->error("${reason} Deprecated: {calling_function}\n{backtrace}", [
-					'reason' => $reason ? $reason : 'DEPRECATED', 'calling_function' => calling_function(),
+				$this->logger->error("{reason} Deprecated: {calling_function}\n{backtrace}", [
+					'reason' => $reason ?: 'DEPRECATED', 'calling_function' => calling_function(),
 					'backtrace' => _backtrace(4 + $depth),
 				] + $arguments);
-
 				break;
 		}
-		backtrace();
-		exit();
 	}
 
 	/**
 	 * For cordoning off old, dead code
+	 * @codeCoverageIgnore
 	 */
 	public function obsolete(): void {
 		$this->logger->alert('Obsolete function called {function}', ['function' => calling_function(2), ]);
-		if ($this->application()->development()) {
+		if ($this->application?->development()) {
 			backtrace();
 		}
 	}
@@ -431,6 +441,7 @@ class Kernel {
 
 	/**
 	 * Load configuration
+	 * @throws Exception_Configuration
 	 */
 	final public function configured(): void {
 		$configuration = $this->configuration->path(__CLASS__);
@@ -441,29 +452,32 @@ class Kernel {
 				'deprecated' => $deprecated, 'actual' => $this->deprecated,
 			]);
 		}
-		if (isset($configuration->assert)) {
+		if ($configuration->has('assert')) {
 			$ass_settings = [
 				'active' => ASSERT_ACTIVE, 'warning' => ASSERT_WARNING, 'bail' => ASSERT_BAIL,
 			];
 			foreach ($ass_settings as $what) {
 				assert_options($what, 0);
 			}
-			$assopt = toList($configuration->assert);
-			foreach ($assopt as $code) {
+			$assertionOptions = toList($configuration->get('assert'));
+			foreach ($assertionOptions as $code) {
 				if (array_key_exists($code, $ass_settings)) {
 					assert_options($ass_settings[$code], 1);
 				} else {
-					$this->logger->warning('Invalid assert option: {code}, valid options: {settings}', [
+					throw new Exception_Configuration([
+						__CLASS__, 'assert',
+					], 'Invalid assert option: {code}, valid options: {settings}', [
 						'code' => $code, 'settings' => array_keys($ass_settings),
 					]);
 				}
 			}
 		}
-		if ($configuration->assert_callback) {
-			assert_options(ASSERT_CALLBACK, $configuration->assert_callback);
+		if ($configuration->has('assert_callback')) {
+			assert_options(ASSERT_CALLBACK, $configuration->get('assert_callback'));
 		}
-		if ($this->configuration->pathExists("zesk\Logger::utc_time")) {
-			$this->logger->utc_time = toBool($this->configuration->getPath("zesk\Logger::utc_time"));
+		$logUTC = [Logger::class, 'utc_time'];
+		if ($this->configuration->pathExists($logUTC)) {
+			$this->logger->utc_time = toBool($this->configuration->getPath($logUTC));
 		}
 	}
 
@@ -502,11 +516,11 @@ class Kernel {
 	 */
 	public function profiler(int $depth = 2): void {
 		$profiler = $this->_profiler();
-		$fkey = calling_function($depth + 1, true);
-		if (array_key_exists($fkey, $this->profiler->calls)) {
-			$profiler->calls[$fkey]++;
+		$functionKey = calling_function($depth + 1);
+		if (array_key_exists($functionKey, $this->profiler->calls)) {
+			$profiler->calls[$functionKey]++;
 		} else {
-			$profiler->calls[$fkey] = 1;
+			$profiler->calls[$functionKey] = 1;
 		}
 	}
 
@@ -536,7 +550,7 @@ class Kernel {
 	 * @return string
 	 */
 	public function applicationClass(): string {
-		return $this->application_class;
+		return $this->applicationClass;
 	}
 
 	/**
@@ -547,13 +561,13 @@ class Kernel {
 	 * @throws Exception_Semantics
 	 */
 	public function setApplicationClass(string $set): self {
-		if ($set === $this->application_class) {
+		if ($set === $this->applicationClass) {
 			return $this;
 		}
 		if ($this->application !== null) {
 			throw new Exception_Semantics('Changing application class to {class} when application already instantiated', ['class' => $set, ]);
 		}
-		$this->application_class = $set;
+		$this->applicationClass = $set;
 		return $this;
 	}
 
@@ -565,6 +579,7 @@ class Kernel {
 	 * @param array $options
 	 * @return Application
 	 * @throws Exception_Semantics
+	 * @throws Exception_Class_NotFound
 	 */
 	public function createApplication(array $options = []): Application {
 		if ($this->application !== null) {
@@ -572,7 +587,9 @@ class Kernel {
 				'method' => __METHOD__, 'class' => get_class($this->application),
 			]);
 		}
-		$this->application = $this->objects->factory($this->application_class, $this, $options);
+		$app = $this->objects->factory($this->applicationClass, $this, $options);
+		assert($app instanceof Application);
+		$this->application = $app;
 		$this->paths->created($this->application);
 		$this->application->hooks->call(self::HOOK_CREATE_APPLICATION, $this->application);
 		return $this->application;
@@ -580,17 +597,7 @@ class Kernel {
 
 	/**
 	 *
-	 * @param array $options
-	 * @return Application
-	 * @throws Exception_Semantics
-	 * @deprecated 2022-02 PSR
-	 */
-	public function create_application(array $options = []): Application {
-		return self::createApplication($options);
-	}
-
-	/**
-	 *
+	 * @param callable|null $callback
 	 * @return ?Application
 	 * @throws Exception_Semantics
 	 */
@@ -626,7 +633,7 @@ class Kernel {
 	 *
 	 * @return string
 	 */
-	public function copyright_holder(): string {
+	public function copyrightHolder(): string {
 		return 'Market Acumen, Inc.';
 	}
 }

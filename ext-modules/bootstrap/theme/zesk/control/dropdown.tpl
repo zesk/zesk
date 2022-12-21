@@ -69,7 +69,7 @@ foreach ($control_options as $code => $attributes) {
 	if (!is_array($attributes)) {
 		continue;
 	}
-	if (toBool(avalue($attributes, 'selected'))) {
+	if (toBool($attributes['selected'] ?? null)) {
 		$value = $code;
 		$button_label = $attributes['link_html'];
 	}
@@ -109,7 +109,7 @@ foreach ($control_options as $code => $attributes) {
 	} else {
 		$link_html = $code;
 	}
-	if (toBool(avalue($attributes, 'selected')) || strval($code) === strval($value)) {
+	if (toBool($attributes['selected'] ?? null) || strval($code) === strval($value)) {
 		$li_attributes = HTML::addClass($li_attributes, 'active');
 	}
 	$items[] = HTML::tag('li', $li_attributes, HTML::tag('a', $attributes, $link_html));

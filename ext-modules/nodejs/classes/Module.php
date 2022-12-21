@@ -110,7 +110,7 @@ class Module extends \zesk\Module {
 		}
 		$result = [];
 		foreach (to_list($this->application->modules->load()) as $name => $module) {
-			$path = avalue($module, 'path');
+			$path = $module['path'] ?? null;
 			if ($path) {
 				$path = path($module['path'], 'node_modules');
 				if (is_dir($path)) {

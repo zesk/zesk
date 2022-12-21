@@ -203,7 +203,7 @@ class Awareness extends Hookable {
 		if (!is_string($mixed)) {
 			return null;
 		}
-		$suffix = avalue(self::$setting_to_suffix, $mixed);
+		$suffix = self::$setting_to_suffix[$mixed] ?? null;
 		$cache = $this->cache;
 		$values = toArray($cache->get());
 		if (!array_key_exists($suffix, $values)) {
@@ -254,7 +254,7 @@ class Awareness extends Hookable {
 	 */
 	private function fetch($suffix) {
 		if ($this->optionBool('mock')) {
-			return avalue($this->mock_settings(), $suffix);
+			return $this->mock_settings()[$suffix] ?? null;
 		}
 		$url = glue(self::$url, '/', "meta-data/$suffix");
 		$result = null;

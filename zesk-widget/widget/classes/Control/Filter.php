@@ -98,11 +98,11 @@ class Control_Filter extends Control {
 
 	/**
 	 *
-	 * @see Widget::model()
-	 * @return ORM
+	 * @return ORMBase
+	 *@see Widget::model()
 	 */
-	public function model(): ORM {
-		return new ORM($this->application);
+	public function model(): ORMBase {
+		return new ORMBase($this->application);
 	}
 
 	/**

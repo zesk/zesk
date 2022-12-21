@@ -39,14 +39,14 @@ if ($this->request->user_agent_is('mobile')) {
 echo $this->object_class_css_class;
 ?>"><?php
 $query = $application->ormRegistry(User_Content_Image::class)
-	->query_select()
+	->querySelect()
 	->link(Content_Image::class, [
 		'alias' => 'ucimage',
 	])
-	->what_object(Content_Image::class)
+	->ormWhat(Content_Image::class)
 	->addWhere('X.user', $this->current_user);
 //echo $query->__toString();
-$iterator = $query->orm_iterator(Content_Image::class);
+$iterator = $query->ormIterator(Content_Image::class);
 foreach ($iterator as $image) {
 	echo $this->theme('control/picker/content/image/item', [
 		'object' => $image,

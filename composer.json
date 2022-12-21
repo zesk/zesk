@@ -6,11 +6,15 @@
     "psr/log": "^1.0",
     "components/jquery": "^3.2",
     "psr/cache": "^1.0",
-    "mishal/iless": "^2.",
     "ext-calendar": "*",
     "ext-json": "*",
-    "ext-posix": "*",
-    "ext-xdebug": "*"
+    "ext-posix": "*"
+  },
+  "suggest": {
+    "ext-xdebug": "*",
+    "ext-curl": "*",
+    "ext-imap": "*",
+    "ext-readline": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "*",
@@ -48,9 +52,9 @@
   "homepage": "https://zesk.com",
   "autoload-dev": {
     "classmap": [
+      "modules/ORM/test/classes/ORMUnitTest.php",
       "modules/phpunit/classes/PHPUnit/TestCase.php",
-      "modules/repository/classes/Repository/TestCase.php",
-      "modules/selenium/classes/TestCase.php"
+      "modules/Repository/classes/TestCase.php"
     ]
   }
 }

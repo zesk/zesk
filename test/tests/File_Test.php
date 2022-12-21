@@ -5,7 +5,7 @@ namespace zesk;
 
 class File_Test extends UnitTest {
 	private function _test_atomic_increment(string $path, $start): void {
-		$this->assertTrue(File::atomic_put($path, "$start"), 'Creating initial file');
+		$this->assertTrue(File::atomicPut($path, "$start"), 'Creating initial file');
 		for ($j = 0; $j < 100; $j++) {
 			$this->assertTrue(($result = File::atomic_increment($path)) === $start + $j + 1, "File::atomic_increment: $result !== " . ($start + $j + 1));
 		}
@@ -15,7 +15,7 @@ class File_Test extends UnitTest {
 	/**
 	 * @return array
 	 */
-	public function data_absolute_path() {
+	public function data_absolute_path(): array {
 		return [
 			['/whatever', '/whatever', 'does not matter'],
 			['/whatever', '/whatever', null],
@@ -55,7 +55,7 @@ class File_Test extends UnitTest {
 	public function test_atomic_put(): void {
 		$path = $this->test_sandbox('foo');
 		$data = 'hello';
-		File::atomic_put($path, $data);
+		File::atomicPut($path, $data);
 	}
 
 	public function base_data(): array {
@@ -115,9 +115,21 @@ class File_Test extends UnitTest {
 		$file_name = $this->sandbox('chmod-test');
 		$data = md5(microtime(false));
 		file_put_contents($file_name, $data);
-		$this->assertEquals($data, File::contents($file_name, ''));
-		$this->assertEquals($data, File::contents($file_name . '.notthere') ?? $data);
-		$this->assertEquals(null, File::contents($file_name . '.notthere'));
+		$this->assertEquals($data, File::contents($file_name));
+	}
+
+	public function test_contents_no(): void {
+		$file_name = $this->sandbox('notthere');
+		$this->expectException(Exception_File_NotFound::class);
+		File::contents($file_name);
+	}
+
+	public function test_contents_noperm(): void {
+		$file_name = $this->sandbox('badperm');
+		file_put_contents($file_name, $this->randomBytes(1024));
+		File::chmod($file_name, 0o100);
+		$this->expectException(Exception_File_Permission::class);
+		File::contents($file_name);
 	}
 
 	public function data_extension() {

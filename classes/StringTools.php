@@ -97,7 +97,7 @@ class StringTools {
 	 *            String to slice up
 	 * @param string $needle
 	 *            String to find
-	 * @param string $default
+	 * @param ?string $default
 	 *            Default string to return if not found. If null, returns $str, otherwise returns
 	 *            $default
 	 * @return string
@@ -116,7 +116,7 @@ class StringTools {
 	 *            String to slice up
 	 * @param string $needle
 	 *            String to find
-	 * @param string $default
+	 * @param ?string $default
 	 *            Default string to return if not found. If null, returns $str, otherwise returns
 	 *            $default
 	 * @return string
@@ -244,13 +244,12 @@ class StringTools {
 	/**
 	 * Determine if a string contains with another string
 	 *
-	 * @param string $haystack
+	 * @param array|string $haystack
 	 *            String to search
-	 * @param string $needle
+	 * @param array|string $needle
 	 *            String to find
-	 * @param boolean $case_insensitive
-	 *            Case insensitive comparison
-	 * @return boolean Whether the haystack contains the needle
+	 * @param bool $case_insensitive Case insensitive comparison
+	 * @return bool Whether the haystack contains the needle
 	 * @see StringTools::begins, StringTools::ends
 	 */
 	public static function contains(array|string $haystack, array|string $needle, bool $case_insensitive = false): bool {
@@ -280,9 +279,8 @@ class StringTools {
 	 *            A string or array of strings to search
 	 * @param array|string $needle
 	 *            A string or array of strings to find
-	 * @param boolean $case_insensitive
-	 *            Case insensitive comparison
-	 * @return boolean
+	 * @param bool $case_insensitive Case insensitive comparison
+	 * @return bool
 	 */
 	public static function ends(array|string $haystack, array|string $needle, bool $case_insensitive = false): bool {
 		if (is_array($haystack)) {
@@ -320,11 +318,11 @@ class StringTools {
 	/**
 	 * Unprefix a string (remove a prefix if found at start of a string)
 	 *
-	 * @param string $string
-	 * @param mixed $prefix
-	 *            A string or an array of strings to removePrefix. First matched string is used to
+	 * @param string|array $string
+	 * @param string|array $prefix A string or an array of strings to removePrefix. First matched string is used to
 	 *            removePrefix the string.
-	 * @return string
+	 * @param bool $case_insensitive
+	 * @return string|array
 	 */
 	public static function removePrefix(string|array $string, string|array $prefix, bool $case_insensitive = false): string|array {
 		/* Unwrap string first to make 2nd case simpler */
@@ -349,13 +347,13 @@ class StringTools {
 	}
 
 	/**
-	 * Unsuffix a string (remove a suffix if found at end of a string)
+	 * Remove suffixes from string values (remove a suffix iff found at end of a string)
 	 *
 	 * @param string|array $string
 	 * @param mixed $suffix
 	 *            A string or an array of strings to removeSuffix. First matched string is used to
 	 *            removeSuffix the string.
-	 * @return string
+	 * @return string|array
 	 */
 	public static function removeSuffix(string|array $string, string $suffix, bool $case_insensitive = false): string|array {
 		if (is_array($string)) {
@@ -376,7 +374,7 @@ class StringTools {
 	 * @param string $str
 	 * @return boolean
 	 */
-	public static function is_utf16(string $str, bool &$be = false): bool {
+	public static function isUTF16(string $str, bool &$be = false): bool {
 		if (strlen($str) < 2) {
 			return false;
 		}
@@ -398,7 +396,7 @@ class StringTools {
 	 * @param string $str
 	 * @return boolean
 	 */
-	public static function is_ascii(string $str): bool {
+	public static function isASCII(string $str): bool {
 		$n = strlen($str);
 		for ($i = 0; $i < $n; $i++) {
 			if (ord($str[$i]) > 128) {
@@ -414,7 +412,7 @@ class StringTools {
 	 * @param string $str
 	 * @return boolean
 	 */
-	public static function is_utf8(string $str): bool {
+	public static function isUTF8(string $str): bool {
 		$len = strlen($str);
 		for ($i = 0; $i < $len; $i++) {
 			$c = ord($str[$i]);
@@ -465,11 +463,11 @@ class StringTools {
 	 *
 	 * @param string $string A string to match
 	 * @param array $rules A list of patterns and how to handle them
-	 * @param boolean $default The default value to return if all rules are parsed and nothing matches
+	 * @param ?bool $default The default value to return if all rules are parsed and nothing matches
 	 *
-	 * @return boolean
+	 * @return ?bool
 	 */
-	public static function filter(string $string, array $rules, bool $default = false): bool {
+	public static function filter(string $string, array $rules, bool $default = null): ?bool {
 		foreach ($rules as $pattern => $result) {
 			$result = toBool($result);
 			if (is_string($pattern)) {
@@ -496,7 +494,7 @@ class StringTools {
 	 *            Content in which to replace string
 	 * @return string
 	 */
-	public static function replace_first(string $search, string $replace, string $content): string {
+	public static function replaceFirst(string $search, string $replace, string $content): string {
 		$x = explode($search, $content, 2);
 		if (count($x) === 1) {
 			return $content;
@@ -508,24 +506,24 @@ class StringTools {
 	 * Add an ellipsis into a string at a word boundary and at a certain string length.
 	 *
 	 * @param string $text
-	 * @param number $length
+	 * @param int $length
 	 * @param string $dot_dot_dot
 	 * @return string
 	 */
-	public static function ellipsis_word(string $text, int $length = 20, string $dot_dot_dot = ' ...'): string {
+	public static function ellipsisWord(string $text, int $length = 20, string $dot_dot_dot = ' ...'): string {
 		if ($length < 0) {
 			return $text;
 		}
 		if (StringTools::length($text) <= $length) {
 			return $text;
 		}
-		$text = StringTools::substr($text, 0, $length);
+		$text = StringTools::substring($text, 0, $length);
 		$off = 0;
 		$aa = [
 			' ', "\n", "\t",
 		];
-		$letters = StringTools::str_split($text);
-		if (count($letters) >= 0) {
+		$letters = StringTools::split($text);
+		if (count($letters) >= 1) {
 			$i = count($letters) - 1;
 			while ($i >= 0) {
 				if (in_array($letters[$i], $aa)) {
@@ -539,19 +537,17 @@ class StringTools {
 		if ($off === 0) {
 			$off = $length;
 		}
-		return StringTools::substr($text, 0, $off) . $dot_dot_dot;
+		return StringTools::substring($text, 0, $off) . $dot_dot_dot;
 	}
 
 	/**
 	 * Pad a string with zeros up to the length specified.
 	 *
-	 * @param number $number
-	 *            Number to pad
-	 * @param number $length
-	 *            Number of characters to pad
+	 * @param int|string $number Number to pad
+	 * @param int $length Number of characters to pad
 	 * @return string
 	 */
-	public static function zero_pad($number, $length = 2) {
+	public static function zeroPad(int|string $number, int $length = 2): string {
 		$number = strval($number);
 		$number_length = strlen($number);
 		if ($number_length >= $length) {
@@ -591,14 +587,14 @@ class StringTools {
 	 * @param string $string
 	 * @return array
 	 */
-	public static function str_split(string $string, int $split_length = 1, string $encoding = 'UTF-8') {
+	public static function split(string $string, int $split_length = 1, string $encoding = 'UTF-8'): array {
 		if ($split_length < 1) {
 			$split_length = 1;
 		}
 		$ret = [];
 		$len = self::length($string, $encoding);
 		for ($i = 0; $i < $len; $i += $split_length) {
-			$ret[] = self::substr($string, $i, $split_length, $encoding);
+			$ret[] = self::substring($string, $i, $split_length, $encoding);
 		}
 		return $ret;
 	}
@@ -618,7 +614,7 @@ class StringTools {
 	 *            A value to write to a CSV file
 	 * @return string A correctly quoted CSV value
 	 */
-	public static function csv_quote(string $x): string {
+	public static function csvQuote(string $x): string {
 		if ((str_contains($x, '"')) || (str_contains($x, ',')) || (str_contains($x, "\n"))) {
 			return '"' . str_replace('"', '""', $x) . '"';
 		}
@@ -631,10 +627,10 @@ class StringTools {
 	 * @param array $x
 	 * @return string
 	 */
-	public static function csv_quote_row(array $x): string {
+	public static function csvQuoteRow(array $x): string {
 		$yy = [];
 		foreach ($x as $col) {
-			$yy[] = self::csv_quote($col);
+			$yy[] = self::csvQuote($col);
 		}
 		return implode(',', $yy) . "\r\n";
 	}
@@ -646,10 +642,10 @@ class StringTools {
 	 *            of arrays of strings
 	 * @return string
 	 */
-	public static function csv_quote_rows(array $x): string {
+	public static function csvQuoteRows(array $x): string {
 		$yy = '';
 		foreach ($x as $row) {
-			$yy .= self::csv_quote_row($row);
+			$yy .= self::csvQuoteRow($row);
 		}
 		return $yy;
 	}
@@ -659,17 +655,17 @@ class StringTools {
 	 * @param string $string
 	 * @return string
 	 */
-	public static function from_camel_case(string $string): string {
+	public static function fromCamelCase(string $string): string {
 		return preg_replace_callback('/[A-Z]/', fn ($matches) => '_' . strtolower($matches[0]), $string);
 	}
 
 	/**
 	 * Converts camel_case_string_to_convert to camelCaseStringToConvert
 	 *
-	 * @param $string
+	 * @param string $string
 	 * @return string
 	 */
-	public static function to_camel_case(string $string): string {
+	public static function toCamelCase(string $string): string {
 		$result = '';
 		foreach (explode('_', $string) as $i => $token) {
 			$result .= $i === 0 ? strtolower($token) : strtoupper($token[0]) . strtolower(substr($token, 1));
@@ -678,7 +674,7 @@ class StringTools {
 	}
 
 	/**
-	 * Retreve the length of a mutti-byte string
+	 * Retrieve the length of a multibyte string
 	 *
 	 * @param string $string
 	 * @param string $encoding
@@ -703,7 +699,7 @@ class StringTools {
 	 * @see mb_substr
 	 * @see mb_internal_encoding
 	 */
-	public static function substr(string $string, int $start, int $length, string $encoding = 'UTF-8'): string {
+	public static function substring(string $string, int $start, int $length, string $encoding = 'UTF-8'): string {
 		if ($encoding === '') {
 			$encoding = mb_internal_encoding();
 		}

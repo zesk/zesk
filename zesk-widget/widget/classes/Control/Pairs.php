@@ -19,7 +19,7 @@ class Control_Pairs extends Control {
 		$values = $this->request->getList($col . '_value');
 		$result = [];
 		foreach ($names as $k => $name) {
-			$value = avalue($values, $k);
+			$value = $values[$k] ?? null;
 			if (!empty($name) || !empty($value)) {
 				$result[$name] = $value;
 			}

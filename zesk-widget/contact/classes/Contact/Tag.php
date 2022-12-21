@@ -13,7 +13,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Contact_Tag extends ORM {
+class Contact_Tag extends ORMBase {
 	public static function register_tag($name, $user) {
 		$x = new self([
 			'name' => $name,
@@ -26,7 +26,7 @@ class Contact_Tag extends ORM {
 	}
 
 	public static function toArray(User $user, $where = null) {
-		$query = $user->application->ormRegistry(__CLASS__)->query_select();
+		$query = $user->application->ormRegistry(__CLASS__)->querySelect();
 		return $query->addWhere('user', $user)
 			->where($where)
 			->order_by('name')

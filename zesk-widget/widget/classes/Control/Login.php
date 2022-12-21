@@ -108,7 +108,7 @@ class Control_Login extends Control_Edit {
 		$user = $this->application->ormFactory(User::class);
 		$column_login = $this->option('column_login', $user->column_login());
 		if ($this->option('no_password')) {
-			$user = $this->application->ormRegistry(User::class)->query_select()->where($column_login, $object->login)->orm();
+			$user = $this->application->ormRegistry(User::class)->querySelect()->where($column_login, $object->login)->orm();
 			if ($user instanceof User) {
 				$this->user = $user;
 				return true;
@@ -129,7 +129,7 @@ class Control_Login extends Control_Edit {
 			}
 		}
 		if ($failed) {
-			$this->response()->status(Net_HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
+			$this->response()->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
 			$this->application->logger->warning('User login failed for user {login}', [
 				'login' => $login,
 				'password_hash' => $object->login_password_hash,

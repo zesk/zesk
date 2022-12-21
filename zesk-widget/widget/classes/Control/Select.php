@@ -167,7 +167,7 @@ class Control_Select extends Control_Optionss {
 	}
 
 	public function validate(): bool {
-		if (toBool(avalue($this->options, 'disabled'))) {
+		if (toBool($this->options['disabled'] ?? null)) {
 			return true;
 		}
 		// If nothing was submitted, then we are still valid.
@@ -203,7 +203,7 @@ class Control_Select extends Control_Optionss {
 		if ($this->multiple()) {
 			$text_values = [];
 			foreach ($value as $val) {
-				$text_values[] = $text_value = avalue($this->control_options, strval($val));
+				$text_values[] = $text_value = $this->control_options[strval($val)] ?? null;
 			}
 			return implode(', ', $text_values);
 		}
@@ -216,7 +216,7 @@ class Control_Select extends Control_Optionss {
 			}
 			return null;
 		}
-		$text_value = avalue($this->control_options, $key);
+		$text_value = $this->control_options[$key] ?? null;
 		return $text_value;
 	}
 

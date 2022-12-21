@@ -9,10 +9,9 @@
 		}
 	},
 	"destination": "vendor/components/chosen",
-	"share_path": "vendor/components/chosen",
-	"autoload_options": {
-		"class_prefix": "zesk\\",
-		"lower": false
+	"sharePath": "vendor/components/chosen",
+	"autoload": {
+		"classPrefix": "zesk\\"
 	},
-	"module_class": "zesk\\Module_Chosen"
+	"moduleClass": "zesk\\Module_Chosen"
 }

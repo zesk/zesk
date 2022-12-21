@@ -353,7 +353,6 @@ class Timestamp extends Temporal {
 	 * @param null|string|int|Date|Time|Timestamp $value
 	 * @return $this
 	 * @throws Exception_Convert
-	 * @throws Exception_Parameter
 	 */
 	public function set(null|string|int|Date|Time|Timestamp $value): self {
 		if (empty($value)) {
@@ -374,13 +373,8 @@ class Timestamp extends Temporal {
 			$this->setTime($value);
 			return $this;
 		}
-		if ($value instanceof Timestamp) {
-			return $this->setUnixTimestamp($value->unixTimestamp());
-		}
-
-		throw new Exception_Parameter("Invalid value passed to {method} ... {backtrace}\nVALUE={value}", [
-			'method' => __METHOD__, 'backtrace' => _backtrace(), 'value' => toArray($value),
-		]);
+		assert($value instanceof Timestamp);
+		return $this->setUnixTimestamp($value->unixTimestamp());
 	}
 
 	/**
@@ -533,7 +527,13 @@ class Timestamp extends Temporal {
 		if ($parsed === false) {
 			throw new Exception_Convert(map('Timestamp::parse({0})', [$value]));
 		}
-		$datetime = new DateTime($value, $this->tz);
+
+		try {
+			$datetime = new DateTime($value, $this->tz);
+		} catch (\Exception $e) {
+			PHP::log($e->getMessage());
+			$datetime = null;
+		}
 		$this->datetime = $datetime;
 		return $this;
 	}
@@ -1341,7 +1341,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Add a unit to this Timestamp.
 	 *
-	 * @param int $n_units
+	 * @param int|float $n_units
 	 *            Number of units to add (may be negative)
 	 * @param string $unit
 	 *            One of millisecond, second, minute, hour, weekday, day, month, quarter, year
@@ -1372,7 +1372,7 @@ class Timestamp extends Temporal {
 	 * @return string
 	 */
 	private function _ymd_format(string $sep = '-'): string {
-		return $this->year() . $sep . StringTools::zero_pad($this->month()) . $sep . StringTools::zero_pad($this->day());
+		return $this->year() . $sep . StringTools::zeroPad($this->month()) . $sep . StringTools::zeroPad($this->day());
 	}
 
 	/**
@@ -1382,7 +1382,7 @@ class Timestamp extends Temporal {
 	 * @return string
 	 */
 	private function _hms_format(string $sep = ':'): string {
-		return StringTools::zero_pad($this->hour()) . $sep . StringTools::zero_pad($this->minute()) . $sep . StringTools::zero_pad($this->second());
+		return StringTools::zeroPad($this->hour()) . $sep . StringTools::zeroPad($this->minute()) . $sep . StringTools::zeroPad($this->second());
 	}
 
 	/**

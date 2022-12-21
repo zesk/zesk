@@ -22,7 +22,7 @@ class View_Errors extends View {
 	 * @return string
 	 */
 	public static function one_error(array $errors, $name, $prefix = '<br />') {
-		$error_string = avalue($errors, $name);
+		$error_string = $errors[$name] ?? null;
 		if (!$error_string) {
 			return '';
 		}

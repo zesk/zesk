@@ -9,7 +9,7 @@ $object = $this->get1('object;content');
 /* @var $object Contact_Address  */
 $members = $object->members();
 foreach (to_list('street;city;province') as $k) {
-	$members[$k] = StringTools::capitalize(avalue($members, $k));
+	$members[$k] = StringTools::capitalize($members[$k] ?? null);
 }
 $street = $city = $province = $postalcode = $country = null;
 extract($members, EXTR_IF_EXISTS);

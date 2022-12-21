@@ -25,9 +25,17 @@ class Timer_Test extends UnitTest {
 		$x->elapsed();
 
 		$comment = '';
-		$x->output($comment);
+		$content = $x->output($comment);
+		$this->assertStringContainsString('Elapsed:', $content);
+		$this->assertStringContainsString('Total:', $content);
+		$this->assertStringContainsString('second', $content);
 
-		$comment = '';
-		$x->dump($comment);
+		ob_start();
+		$x->dump('');
+		$content = ob_get_clean();
+
+		$this->assertStringContainsString('Elapsed:', $content);
+		$this->assertStringContainsString('Total:', $content);
+		$this->assertStringContainsString('second', $content);
 	}
 }

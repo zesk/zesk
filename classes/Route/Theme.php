@@ -18,7 +18,7 @@ class Route_Theme extends Route {
 	protected function initialize(): void {
 		parent::initialize();
 		$theme = $this->option('theme');
-		if (map_clean($theme) !== $theme) {
+		if (mapClean($theme) !== $theme) {
 			$this->dynamic_theme = true;
 		}
 	}
@@ -35,23 +35,22 @@ class Route_Theme extends Route {
 			'route' => $this,
 		];
 		$parameters += $this->options + $this->named;
-		$args = map($this->optionArray('theme arguments', []), $parameters) + $parameters;
+		$args = map($this->optionArray('theme arguments'), $parameters) + $parameters;
 		$theme = $this->option('theme');
 		if ($application->themeExists($theme, $args)) {
 			return true;
 		}
 
-		throw new Exception_File_NotFound('No theme {theme} found in {theme_paths}', [
+		throw new Exception_File_NotFound('No theme {theme} found in {themePaths}', [
 			'theme' => $theme,
-			'theme_paths' => $application->themePath(),
+			'themePaths' => $application->themePath(),
 		]);
 	}
 
 	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 * @see Route::_execute()
+	 * @param Response $response
+	 * @return Response
+	 * @throws Exception_Redirect
 	 */
 	public function _execute(Response $response): Response {
 		$application = $this->router->application;
@@ -59,14 +58,14 @@ class Route_Theme extends Route {
 			'route' => $this,
 		];
 		$parameters += $this->options + $this->named;
-		$args = map($this->optionArray('theme arguments', []), $parameters) + $parameters;
+		$args = map($this->optionArray('theme arguments'), $parameters) + $parameters;
 		$mapped_theme = $theme = $this->option('theme');
 		$theme_options = $this->optionArray('theme options');
 		if ($this->dynamic_theme) {
 			$mapped_theme = map($theme, $parameters);
-			if (!$application->themeExists($mapped_theme, $args, $theme_options)) { //TODO
-				$response->status(Net_HTTP::STATUS_FILE_NOT_FOUND);
-				$response->content = "Theme $mapped_theme not found";
+			if (!$application->themeExists($mapped_theme, $args)) {
+				$response->setStatus(HTTP::STATUS_FILE_NOT_FOUND);
+				$response->setContent("Theme $mapped_theme not found");
 				return $response;
 			}
 			$application->logger->debug('Executing theme={theme} mapped_theme={mapped_theme} args={args}', compact('theme', 'mapped_theme', 'args'));

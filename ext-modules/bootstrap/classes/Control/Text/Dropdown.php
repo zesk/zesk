@@ -67,7 +67,7 @@ class Control_Text_Dropdown extends Control_Text {
 
 	public function dropdown_default($set = null) {
 		if ($set === null) {
-			return avalue($this->themeVariables, 'dropdown_default');
+			return $this->themeVariables['dropdown_default'] ?? null;
 		}
 		$this->themeVariables['dropdown_default'] = $set;
 		return $this;

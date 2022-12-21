@@ -57,6 +57,6 @@ if ($this->label_checkbox) {
 	$result = HTML::tag('div', '.checkbox' . $disabled_class, HTML::tag('label', $label_attr, $result . $this->label_checkbox));
 }
 echo $result;
-if (!ends($name, ']')) {
+if (!str_ends_with($name, ']')) {
 	echo HTML::hidden($name . '_ckbx', 1);
 }

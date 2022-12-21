@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-class Class_Contact_Tag_Contact extends Class_ORM {
+class Class_Contact_Tag_Contact extends Class_Base {
 	public array $primary_keys = [
 		'contact',
 		'contact_tag',

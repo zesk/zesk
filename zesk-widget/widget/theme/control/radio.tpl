@@ -10,7 +10,7 @@ $col = $widget->column();
 $name = $widget->name();
 $opts = $this->control_options;
 $base_attrs = $widget->options_include(HTML::inputAttributeNames());
-$id_base = avalue($base_attrs, 'id', $name);
+$id_base = $base_attrs['id'] ?? $name;
 $base_attrs['name'] = $name;
 $base_attrs['type'] = 'radio';
 $result = '';
@@ -29,7 +29,7 @@ foreach ($opts as $k => $v) {
 			'label' => $v,
 		];
 	}
-	$label = avalue($v, 'label', '');
+	$label = $v['label'] ?? '';
 	unset($v['label']);
 	$attrs += $v;
 	$attrs['value'] = $k;

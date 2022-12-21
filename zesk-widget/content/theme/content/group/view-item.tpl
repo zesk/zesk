@@ -16,12 +16,12 @@ namespace zesk;
 /* @var $object \Content_Group */
 $group_object = $object->group_object();
 
-$query = $group_object->query_select()->addWhere('Parent', $object)->limit(0, $object->DisplayCount);
+$query = $group_object->querySelect()->addWhere('Parent', $object)->limit(0, $object->DisplayCount);
 
 $object->callHook('query_alter', $query);
 
 $theme = $object->option('group_item_theme', 'view');
 
-foreach ($query->orm_iterator() as $object) {
+foreach ($query->ormIterator() as $object) {
 	echo $object->theme($theme);
 }

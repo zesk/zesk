@@ -1,0 +1,12 @@
+{
+	"name": "Object Relational Mapping",
+	"autoload": {
+		"classPrefix": "zesk\\ORM\\"
+	},
+	"requires": [
+		"Database"
+	],
+	"moduleClass": "zesk\\ORM\\Module",
+	"zeskCommandPath": "classes/Command",
+	"themePathPrefix": "zesk/ORM"
+}

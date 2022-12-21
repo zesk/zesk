@@ -37,7 +37,7 @@ class Request_Test extends UnitTest {
 		$this->assertEquals([], $request->data());
 
 		$this->assertEquals(['Content-Type' => 'text/plain; yothis is ignored'], $request->headers());
-		$this->assertEquals('text/plain; yothis is ignored', $request->header(Net_HTTP::REQUEST_CONTENT_TYPE));
+		$this->assertEquals('text/plain; yothis is ignored', $request->header(HTTP::REQUEST_CONTENT_TYPE));
 	}
 
 	/**

@@ -24,7 +24,7 @@ foreach ($dropdown as $url => $cache_item) {
 			'role' => 'separator',
 			'class' => 'divider',
 		], '');
-	} elseif (begins($url, '*')) {
+	} elseif (str_starts_with($url, '*')) {
 		if (is_string($cache_item)) {
 			$cache_item = [
 				'header-text' => $cache_item,

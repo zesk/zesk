@@ -206,7 +206,7 @@ class Image_Library_GD extends Image_Library {
 	 * @throws Exception_System
 	 */
 	private function _imageOutput(GdImage $dst, string $dest = ''): string|bool {
-		$type = MIME::from_filename($dest);
+		$type = MIME::fromExtension($dest);
 		$output = self::$output_map[$type] ?? 'png';
 		$method = "image$output";
 		if ($dest === '') {

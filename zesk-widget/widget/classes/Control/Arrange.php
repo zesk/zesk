@@ -31,7 +31,7 @@ class Control_Arrange extends Control_Select {
 	private function order_by($val) {
 		$options = $this->control_options();
 		$map = $this->arrange_map();
-		return avalue($map, strval($val));
+		return $map[strval($val)] ?? null;
 	}
 
 	/**

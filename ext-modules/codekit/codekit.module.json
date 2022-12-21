@@ -1,9 +1,8 @@
 {
     "name": "CodeKit",
     "description": "Adds auto-refresh functionality for CodeKit 2",
-	"autoload_options": {
-		"class_prefix": "zesk\\CodeKit\\",
-		"lower": false
+	"autoload": {
+		"classPrefix": "zesk\\CodeKit\\"
 	},
-	"module_class": "zesk\\CodeKit\\Module"
+	"moduleClass": "zesk\\CodeKit\\Module"
 }

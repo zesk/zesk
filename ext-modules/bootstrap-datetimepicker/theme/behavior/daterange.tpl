@@ -11,7 +11,7 @@ namespace zesk;
 /* @var $response Response */
 /* @var $current_user User */
 /* @var $widget Widget */
-/* @var $object ORM */
+/* @var $object ORMBase */
 /* @var $content string */
 $options = [
 	'title' => $locale->__('Choose your dates'),

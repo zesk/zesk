@@ -18,7 +18,7 @@ class Control_Color extends Control_Text {
 
 		$name = $this->column();
 		$color = $this->value();
-		if (begins($color, '#')) {
+		if (str_starts_with($color, '#')) {
 			$color = substr($color, 1);
 			$this->value($color);
 		}

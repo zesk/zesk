@@ -64,7 +64,7 @@ The locale names are used when loading files. All language files are (typically)
 	${language}.inc
 	${language}_${dialect}.inc
 
-Use the call `zesk\Locale::locale_path($path_to_add)` to add a directory to search for locale files.
+Use the call `zesk\Locale::localePath($path_to_add)` to add a directory to search for locale files.
 
 This allows modules and applications to add their own translations for strings within their modules.
 
@@ -83,4 +83,3 @@ You can then copy this file to your locale path.
 	${ZESK_SITE_ROOT}/etc/language/${locale}.inc
 	
 And edit with the new language features.
-	

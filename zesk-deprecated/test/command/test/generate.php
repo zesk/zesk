@@ -100,7 +100,7 @@ class Command_Test_Generate extends Command_Iterator_File {
 		}
 		foreach ($this->autoload_paths as $path => $options) {
 			$path = rtrim($path, '/') . '/';
-			if (begins($file, $path)) {
+			if (str_starts_with($file, $path)) {
 				return substr($file, strlen($path));
 			}
 		}

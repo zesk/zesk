@@ -1,10 +1,19 @@
-<?php declare(strict_types=1);
+<?php
+/**
+ * @package zesk
+ * @subpackage test
+ * @author kent
+ * @copyright &copy; 2022, Market Acumen, Inc.
+ */
+declare(strict_types=1);
 /**
  * @no_buffer true
  * @author kent
  * @sandbox false
  */
 namespace zesk;
+
+use zesk\ORM\User;
 
 /**
  *

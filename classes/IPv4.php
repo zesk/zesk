@@ -324,23 +324,17 @@ class IPv4 {
 	 * @return bool
 	 */
 	public static function valid(string $string): bool {
-		return self::_valid($string, 1);
+		return is_ip4($string);
 	}
 
 	/**
-	 * Internal function to check IP address with optional check for final IP byte to be 0 or another number (usually 1)
+	 * Internal function to check IP address check for final IP byte to be ok as 0
 	 *
 	 * @param string $string
-	 * @param int $low_low
 	 * @return boolean
 	 */
-	private static function _valid(string $string, int $low_low = 0): bool {
-		$x = explode('.', $string);
-		if (count($x) != 4) {
-			return false;
-		}
-		[$a, $b, $c, $d] = $x;
-		return strval(intval($a)) === $a && strval(intval($b)) === $b && strval(intval($c)) === $c && strval(intval($d)) === $d && integer_between(1, intval($a), 255) && integer_between(0, intval($b), 255) && integer_between(0, intval($c), 255) && integer_between($low_low, intval($d), 255);
+	private static function _valid(string $string): bool {
+		return preg_match('#^' . PREG_PATTERN_IP4_0 . '$#i', $string) !== 0;
 	}
 
 	/**

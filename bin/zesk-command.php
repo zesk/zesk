@@ -26,4 +26,10 @@ require_once ZESK_ROOT . 'classes/Command/Loader.php';
 /**
  * Run a zesk command and exit
  */
-exit(zesk\Command_Loader::factory()->run());
+$command = zesk\Command\Loader::factory();
+
+try {
+	exit($command->terminate($command->run()));
+} catch (\Throwable $e) {
+	fprintf(STDERR, "%s @ %s:%s\n", $e->getMessage(), $e->getFile(), $e->getLine());
+}

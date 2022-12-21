@@ -85,10 +85,7 @@ class Paths {
 		$this->_initializeZesk($config);
 		$this->_initializeSystem();
 
-		$zesk->hooks->add(Hooks::HOOK_CONFIGURED, [
-			$this,
-			'configured',
-		]);
+		$zesk->hooks->add(Hooks::HOOK_CONFIGURED, $this->configured(...));
 	}
 
 	/**
@@ -191,7 +188,7 @@ class Paths {
 		} elseif (ZESK_ROOT !== $zesk_root) {
 			die('Two versions of zesk: First "' . ZESK_ROOT . "\", then us \"$zesk_root\"\n");
 		}
-		$config->path(__CLASS__)->set('root', ZESK_ROOT);
+		$config->path(__CLASS__)->set('root', $zesk_root);
 	}
 
 	/**
@@ -249,6 +246,13 @@ class Paths {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function shutdown(): void {
+		// Pass. Maybe delete temporary directory.
+	}
+
+	/**
 	 * Get/Set data storage path
 	 *
 	 * @param string $suffix
@@ -302,12 +306,12 @@ class Paths {
 	 *     "/" Absolute path
 	 *     "~/" User directory (if exists)
 	 *     "./" Application path
+	 *     "~z/" Zesk code path
 	 *
 	 * @param mixed $file
 	 * @return string
 	 */
 	public function expand(string $file): string {
-		$file = strval($file);
 		if ($file === '') {
 			return $file;
 		}
@@ -319,6 +323,9 @@ class Paths {
 		}
 		if (str_starts_with($file, './')) {
 			return $this->application(substr($file, 2));
+		}
+		if (str_starts_with($file, '~z/')) {
+			return $this->zesk(substr($file, 2));
 		}
 		return $file;
 	}
@@ -365,7 +372,7 @@ class Paths {
 			'cache' => $this->cache,
 			'home' => $this->home,
 			'uid' => $this->uid,
-			'command' => $this->command(),
+			'command' => implode(':', $this->command()),
 		];
 	}
 }

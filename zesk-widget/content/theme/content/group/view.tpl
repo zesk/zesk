@@ -16,7 +16,7 @@ namespace zesk;
 /* @var $object Content_Group */
 $menu = $this->menu;
 
-$menu_remain = avalue($menu, 'MenuRemain');
+$menu_remain = $menu['MenuRemain'] ?? null;
 
 $group_object = $object->group_object();
 if (is_string($menu_remain)) {

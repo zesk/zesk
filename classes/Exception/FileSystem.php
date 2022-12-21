@@ -8,6 +8,8 @@
  */
 namespace zesk;
 
+use Throwable;
+
 /**
  *
  * @author kent
@@ -18,29 +20,29 @@ class Exception_FileSystem extends Exception {
 	 *
 	 * @var string
 	 */
-	protected string $filename;
+	protected string $path;
 
 	/**
 	 *
-	 * @param string $filename
-	 * @param $message
+	 * @param string $path
+	 * @param string $message
 	 * @param array $arguments
 	 * @param int $code
-	 * @param \Throwable|null $previous
+	 * @param Throwable|null $previous
 	 */
 	public function __construct(
-		string $filename = '',
-		$message = '',
+		string $path = '',
+		string $message = '',
 		array $arguments = [],
 		int $code = 0,
-		\Throwable $previous = null
+		Throwable $previous = null
 	) {
-		$this->filename = $filename;
-		if (!str_contains($message, '{filename}')) {
-			$message = "{filename}: $message";
+		$this->path = $path;
+		if (!str_contains($message, '{path}')) {
+			$message = "{path}: $message";
 		}
 		parent::__construct($message, [
-			'filename' => $filename,
+			'path' => $path,
 		] + $arguments, $code, $previous);
 	}
 
@@ -48,8 +50,8 @@ class Exception_FileSystem extends Exception {
 	 *
 	 * @return string
 	 */
-	public function filename(): string {
-		return $this->filename;
+	public function path(): string {
+		return $this->path;
 	}
 
 	/**
@@ -57,6 +59,12 @@ class Exception_FileSystem extends Exception {
 	 * @return string
 	 */
 	public function __toString(): string {
-		return 'filename: ' . $this->filename . "\n" . parent::__toString();
+		$path = $this->path();
+		$result = parent::__toString();
+		if (str_contains($result, $path)) {
+			return $result;
+		}
+		// Theory is this is unreachable KMD
+		return "path: $path\n$result";
 	}
 }

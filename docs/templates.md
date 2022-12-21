@@ -8,7 +8,7 @@ Templates are essentially PHP include files with some special features:
 Simple template engine which uses PHP includes.
 
 Supports variables passed into the template, returned from the template,
-and inherited templates by setting up `app()->theme_path($add_theme_path)`
+and inherited templates by setting up `app()->themePath($add_themePath)`
 
 Templates are "stacked" to inherit parent variables settings.
 

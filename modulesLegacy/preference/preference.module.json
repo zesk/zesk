@@ -1,0 +1,11 @@
+{
+	"name": "User preferences",
+	"autoload": {
+		"classPrefix": "zesk\\"
+	},
+	"moduleClass": "zesk\\Module_Preference",
+	"requires": [
+		"ORM",
+		"MySQL"
+	]
+}

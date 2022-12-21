@@ -96,7 +96,7 @@ if ($this->select_behavior_enabled && empty($dropdown_value)) {
 		if (!is_array($attributes)) {
 			continue;
 		}
-		if (toBool(avalue($attributes, 'selected'))) {
+		if (toBool($attributes['selected'] ?? null)) {
 			$dropdown_value = $code;
 			break;
 		}
@@ -127,7 +127,7 @@ foreach ($this->dropdown_menu as $code => $attributes) {
 	} else {
 		$link_html = $code;
 	}
-	if (toBool(avalue($attributes, 'selected')) || $code === $dropdown_value) {
+	if (toBool($attributes['selected'] ?? null) || $code === $dropdown_value) {
 		$li_attributes = HTML::addClass($li_attributes, 'active');
 	}
 	$html .= HTML::tag('li', $li_attributes, HTML::tag('a', $attributes, $link_html));

@@ -82,7 +82,7 @@ class Control_File extends Control {
 			return false;
 		}
 		if (is_array($file)) {
-			$fname = basename(avalue($file, 'name'));
+			$fname = basename($file['name'] ?? null);
 			$this->object->set($col, $fname);
 			$checksum_col = $this->firstOption(['checksum_column', 'ChecksumColumn']);
 			if ($checksum_col) {
@@ -128,7 +128,7 @@ class Control_File extends Control {
 	 * @return mixed|array
 	 */
 	public function original_name() {
-		return avalue($this->_file(), 'name', null);
+		return $this->_file()['name'] ?? null;
 	}
 
 	/**

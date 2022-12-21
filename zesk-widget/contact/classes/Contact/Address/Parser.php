@@ -228,7 +228,7 @@ class Contact_Address_Parser {
 							if (empty($cc)) {
 								break;
 							}
-							if (!avalue($address, $k . '_id')) {
+							if (!$address[$k . '_id'] ?? null) {
 								$address[$k . '_id'] = $cc->id();
 							}
 						} else {

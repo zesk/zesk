@@ -23,7 +23,7 @@ class Control_List extends Control_Widgets_Filter {
 
 	/**
 	 *
-	 * @var Class_ORM
+	 * @var Class_Base
 	 */
 	protected $class_object = null;
 
@@ -257,7 +257,7 @@ class Control_List extends Control_Widgets_Filter {
 	}
 
 	protected function initialize(): void {
-		$this->initialize_theme_paths();
+		$this->initialize_themePaths();
 
 		$this->class_object = $this->application->class_ormRegistry($this->class);
 
@@ -302,7 +302,7 @@ class Control_List extends Control_Widgets_Filter {
 	 *
 	 * @return void
 	 */
-	protected function initialize_theme_paths(): void {
+	protected function initialize_themePaths(): void {
 		$hierarchy = $this->application->classes->hierarchy($this, __CLASS__);
 		foreach ($hierarchy as $index => $class) {
 			$hierarchy[$index] = strtr(strtolower($class), '_', '/') . '/';
@@ -320,13 +320,13 @@ class Control_List extends Control_Widgets_Filter {
 	private function initialize_header_widgets(): void {
 		$this->header_widget = $header_widget = $this->widgetFactory('zesk\\Control_Header')->names($this->name() . '-header');
 		$this->header_widgets = [];
-		$included = to_list('list_order_column;show_size;list_order_variable;list_order_by;multisort;list_order_default_ascending;list_order_position;html;list_column_width;widget_save_result;context_class');
+		$included = toList('list_order_column;show_size;list_order_variable;list_order_by;multisort;list_order_default_ascending;list_order_position;html;list_column_width;widget_save_result;context_class');
 		foreach ($this->row_widgets as $widget) {
 			/* @var $widget Widget */
 			if ($widget->hasOption('list_order_by', true)) {
-				$w = $this->header_widgets[$widget->name()] = $this->widgetFactory(Control_OrderBy::class, $widget->options_include($included))->names('' . $widget->name(), $widget->label());
+				$w = $this->header_widgets[$widget->name()] = $this->widgetFactory(Control_OrderBy::class, $widget->options($included))->names('' . $widget->name(), $widget->label());
 			} else {
-				$w = $this->header_widgets[$widget->name()] = $this->widgetFactory(View_Text::class, $widget->options_include($included))
+				$w = $this->header_widgets[$widget->name()] = $this->widgetFactory(View_Text::class, $widget->options($included))
 					->names($widget->name())
 					->setOption('value', $widget->option('label_header', $widget->label()));
 			}
@@ -405,7 +405,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @return Database_Query_Select
 	 */
 	private function _query() {
-		$query = $this->application->ormRegistry($this->class)->query_select()->what_object($this->class);
+		$query = $this->application->ormRegistry($this->class)->querySelect()->ormWhat($this->class);
 		if ($this->hasOption('where')) {
 			$query->where($this->optionArray('where'));
 		}

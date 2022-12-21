@@ -6,11 +6,11 @@
   },
   "name": "Test Framework for Zesk",
   "url_license": "https://zesk.com/license",
-  "module_class": "zesk\\Test\\Module",
-  "autoload_options": {
-    "fuck_class_prefix": "zesk\\",
-    "class_prefix": "zesk\\",
+  "moduleClass": "zesk\\Test\\Module",
+  "autoload": {
+    "fuck_classPrefix": "zesk\\",
+    "classPrefix": "zesk\\",
     "lower": false
   },
-  "zesk_command_class_prefix": "zesk\\Command_"
+  "zeskCommandClassPrefix": "zesk\\Command_"
 }

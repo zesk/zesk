@@ -10,11 +10,10 @@
 	"IGNORE_node_modules": {
 		"jquery": "vendor/components/jquery"
 	},
-	"share_path": "vendor/components/jquery",
-	"autoload_options": {
-		"class_prefix": "zesk\\",
-		"lower": false
+	"sharePath": "vendor/components/jquery",
+	"autoload": {
+		"classPrefix": "zesk\\"
 	},
-	"module_class": "zesk\\Module_jQuery",
+	"moduleClass": "zesk\\Module_jQuery",
 	"url_license": "https://jquery.org/license/"
 }

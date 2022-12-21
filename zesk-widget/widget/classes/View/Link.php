@@ -60,7 +60,7 @@ class View_Link extends View_Text {
 		if ($is_empty && $this->optionBool('empty_no_link', false)) {
 			return $text;
 		}
-		$attrs = $object->applyMap($this->options_include('target;class;onclick;title;id'));
+		$attrs = $object->applyMap($this->options(toList('target;class;onclick;title;id')));
 		$add_ref = $this->option('add_ref', URL::queryKeysRemove($this->request->uri(), 'message'));
 		if ($add_ref) {
 			$href = URL::queryFormat(URL::queryKeysRemove($href, 'ref'), [
@@ -68,7 +68,7 @@ class View_Link extends View_Text {
 			]);
 		}
 		$attrs['href'] = $href;
-		$attrs['title'] = avalue($attrs, 'title', $href);
+		$attrs['title'] ??= $href;
 		$show_size = $this->showSize();
 		$text = $show_size > 0 ? HTML::ellipsis($text, $this->showSize(), $this->option('ellipsis', '&hellip;')) : $text;
 		$result = HTML::tag('a', $attrs, $text);

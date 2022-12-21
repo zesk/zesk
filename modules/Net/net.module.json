@@ -1,0 +1,11 @@
+
+{
+	"name": "Net",
+	"moduleClass": "zesk\\Net\\Module",
+	"autoload": {
+		"classPrefix": "zesk\\Net\\"
+	},
+	"requires": [
+		"Mail"
+	]
+}

@@ -6,7 +6,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Content_Menu extends Class_ORM {
+class Class_Content_Menu extends Class_Base {
 	public array $find_keys = [
 		'code',
 	];

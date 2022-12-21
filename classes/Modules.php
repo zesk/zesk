@@ -3,13 +3,15 @@ declare(strict_types=1);
 /**
  * Class for module loading, management, and configuration
  *
- * Ideally we should be able to serialize this entire structure and load again from cache so side-effects should be
+ * Ideally we should be able to serialize this entire structure and load again from cache so side effects should be
  * tracked when loading modules (hooks, etc.) or repeated upon __wakeup() in your module itself.
  *
  * @copyright &copy; 2022, Market Acumen, Inc.
  */
 
 namespace zesk;
+
+use Throwable;
 
 /**
  * Module loading and management
@@ -19,18 +21,6 @@ namespace zesk;
  *
  */
 class Modules {
-	/**
-	 *
-	 * @var string
-	 */
-	public const status_failed = 'failed';
-
-	/**
-	 *
-	 * @var string
-	 */
-	public const status_loaded = 'loaded';
-
 	/**
 	 *
 	 * @var boolean
@@ -44,32 +34,22 @@ class Modules {
 	private Application $application;
 
 	/**
-	 * Stack of currently loading modules.
-	 * Top item is current module loading. First item is top of stack.
-	 *
-	 * @var array
-	 */
-	private array $module_loader = [];
-
-	/**
 	 * Loaded modules in the system
-	 *
-	 * @var array of module name => array of module information (class of Module)
 	 */
-	private array $modules = [];
+	private CaseArray $modules;
 
 	/**
 	 * Loaded modules in the system
 	 *
 	 * @var array of hook name => list of module names (ordered)
 	 */
-	private array $modules_with_hook = [];
+	private array $modulesWithHook = [];
 
 	/**
 	 *
 	 * @var string
 	 */
-	private string $module_class_prefix = 'Module_';
+	private string $moduleClassPrefix;
 
 	/**
 	 * Create the Modules
@@ -78,93 +58,88 @@ class Modules {
 	 */
 	public function __construct(Application $application) {
 		$this->application = $application;
-		$this->module_class_prefix = $application->configuration->getPath([
-			__CLASS__, 'module_class_prefix',
-		], $this->module_class_prefix);
+		$this->modules = new CaseArray();
+		$this->moduleClassPrefix = $application->configuration->getPath([
+			__CLASS__, 'moduleClassPrefix',
+		], Module::class . '_');
 		$this->debug = $application->configuration->getPath([
 			__CLASS__, 'debug',
 		], $this->debug);
 	}
 
-	/**
-	 * Dynamically determine the module version
-	 *
-	 * @param mixed $mixed
-	 *            Array of modules.
-	 */
-	final public function version($mixed = null) {
-		$modules = ($mixed === null) ? array_keys($this->modules) : to_list($mixed);
-		$result = [];
-		foreach ($modules as $module) {
-			$module = self::clean_name($module);
-			$result[$module] = $version = $this->_module_version($module);
-			if ($version) {
-				$this->modules[$module]['version'] = $version;
-			}
+	public function shutdown(): void {
+		if ($this->debug) {
+			$this->application->logger->debug(__METHOD__);
 		}
-		if (is_string($mixed) && count($result) === 1) {
-			return $version;
+		foreach ($this->modules as $module) {
+			$module->shutdown();
 		}
-		return $result;
+		$this->modules = new CaseArray();
+		$this->modulesWithHook = [];
+		$this->moduleClassPrefix = '';
 	}
 
 	/**
-	 * Return list of available modules
+	 * Current list of loaded modules in the system
+	 *
+	 * @return array
+	 */
+	final public function moduleNames(): array {
+		return $this->modules->keys();
+	}
+
+	/**
+	 * Dynamically determine the module version
+	 *
+	 * @param string $module
+	 * @return string
+	 * @throws Exception_NotFound
+	 */
+	final public function version(string $module): string {
+		return $this->module($module)->version();
+	}
+
+	/**
+	 * Return list of available modules (list of names)
 	 *
 	 * @return array
 	 */
 	final public function available(): array {
 		$module_paths = $this->application->modulePath();
 		$files = [];
+		/* Walk all non-dot directories, looking for .module.json files */
 		$options = [
-			'rules_file' => [
-				'#.*\.module\.(inc|conf|json)$#' => true, false,
-			], 'rules_directory_walk' => [
+			Directory::LIST_RULE_FILE => [
+				'#\.module\.json$#' => true, false,
+			], Directory::LIST_RULE_DIRECTORY_WALK => [
 				'#/\.#' => false, true,
-			], 'rules_directory' => false,
+			], Directory::LIST_RULE_DIRECTORY => false,
 		];
 		foreach ($module_paths as $module_path) {
 			$files[$module_path] = Directory::list_recursive($module_path, $options);
 		}
-		$dirs = [];
-		foreach ($files as $module_path => $files) {
-			foreach ($files as $file) {
-				$module = dirname($file);
-				$dirs[dirname($file)][$module] = $module;
-			}
-		}
 		$available = [];
-		foreach ($dirs as $path => $modules) {
-			asort($modules);
-			foreach ($modules as $module) {
-				$available[$module] = $this->load($module, [
-					'load' => false,
-				]);
+		foreach ($files as $module_files) {
+			foreach ($module_files as $module_file) {
+				$module = dirname($module_file);
+
+				try {
+					$available[$module] = $this->_findModulePath($module);
+				} catch (Exception_Directory_NotFound) {
+				}
 			}
 		}
-		return $available;
+		return array_keys($available);
 	}
 
 	/**
-	 * What modules are loaded?
+	 * Is a module loaded?
 	 *
-	 * @param string $mixed
-	 *            Check if one or more module is loaded
-	 *
-	 * @return array
+	 * @param string $name
+	 * @return bool
 	 */
-	final public function loaded(string|array $mixed = null): array {
-		if ($mixed === null) {
-			$result = $this->modules;
-		} else {
-			$result = [];
-			$modules = toList($mixed);
-			foreach ($modules as $index => $module) {
-				$module = $modules[$index] = self::clean_name($module);
-				$result[$module] = $this->modules[$module] ?? [];
-			}
-		}
-		return ArrayTools::collapse($result, self::status_loaded, false);
+	final public function loaded(string $name): bool {
+		return $this->modules->offsetExists($name);
 	}
 
 	/**
@@ -178,71 +153,61 @@ class Modules {
 	 * - configuration_file: The configuration file (full absolute path)
 	 * - status: Most recent action on this module
 	 *
-	 * @param mixed $mixed
-	 *            Module name or array of module names
-	 * @param array $options
-	 *            Loading options
-	 *            - "check loaded" set to true to just check if it's loaded.
-	 *            - "not loaded" set to a value (any value) which is returned when a module is not
-	 *            loaded
-	 *            - "check exists" set to true to check if the module exists. If it is, basic
-	 *            information is passed back (module configuation is not loaded, for example).
-	 *            - "load" set to false to gather only basic information (including configuration),
-	 *            but not load the module. (similar to check exists - duplicate functionality?)
-	 *
-	 * @return array of module => module_data as described above, or for single modules, just
-	 *         the module data
-	 *         array
+	 * @param mixed $mixed Module names (;-delimited) or array of module names
+	 * @return array|Module
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
 	 * @throws Exception_Directory_NotFound single case only
+	 * @throws Exception_Invalid
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unsupported
 	 */
-	final public function load(string|array $mixed, array $options = []): array {
-		$passed_modules = self::clean_name(toList($mixed));
-		$modules = self::_expand_modules($passed_modules);
+	final public function load(string|array $mixed): Module|array {
+		$passed_modules = self::cleanName(toList($mixed));
+		$modules = self::_expandModulePaths($passed_modules);
 		$result = [];
 		$isSingle = count($passed_modules) === 1;
 		foreach ($modules as $name) {
-			$name = self::clean_name($name);
-			$module_data = $this->modules[$name] ?? null;
-			if (is_array($module_data)) {
-				$result[$name] = $this->modules[$name] + [
-					'status' => 'already loaded',
-				];
-
-				continue;
-			} elseif ($options['check loaded'] ?? false) {
-				$result[$name] = $options['not loaded'] ?? null;
-
-				continue;
-			}
-
-			try {
-				$result += $this->_loadFile($name, $options);
-			} catch (Exception_Directory_NotFound $e) {
-				if ($isSingle) {
-					throw $e;
+			$name = self::cleanName($name);
+			if ($this->modules->offsetExists($name)) {
+				$result[$name] = $this->modules[$name];
+			} else {
+				try {
+					$result[$name] = $this->_loadModule($name);
+				} catch (Exception_Invalid|Exception_Directory_NotFound $e) {
+					if ($isSingle) {
+						throw $e;
+					}
+					$result[$name] = $e;
 				}
-				$result += [$name => $e];
 			}
 		}
 		$result = ArrayTools::filter($result, $passed_modules);
-		if (count($passed_modules) === 1) {
-			return $result[strtolower($passed_modules[0])];
+		if ($isSingle) {
+			$single = $result[first($passed_modules)];
+			if ($single instanceof Exception_Configuration || $single instanceof Exception_Directory_NotFound || $single instanceof Exception_Invalid || $single instanceof Exception_Semantics || $single instanceof Exception_Unsupported) {
+				throw $single;
+			}
+			assert($single instanceof Module);
+			return $single;
 		}
 		return $result;
 	}
 
 	/**
 	 *
-	 * @param array $options
-	 * @return \zesk\Modules
+	 * @return Modules
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Invalid
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unsupported
 	 */
-	final public function reload(array $options = []) {
-		$this->application->logger->debug(__METHOD__);
-		$modules = [];
-		foreach ($this->modules as $codename => $module_data) {
-			$modules[$codename] = $this->_reloadFile($module_data);
+	final public function reload(): self {
+		foreach ($this->modules as $codename => $module) {
+			$this->modules[$codename] = $this->_reloadModule($module);
 		}
-		$this->modules = $modules;
 		return $this;
 	}
 
@@ -251,379 +216,292 @@ class Modules {
 	 * Either a specified path
 	 * or uses the current module's path, looks for the following directories and registers:
 	 * classes/ - $application->autoloader->path
-	 * theme/ - Application::theme_path
-	 * share/ - Application::share_path
-	 * command/ - Application::zesk_command_path
+	 * theme/ - Application::themePath
+	 * share/ - Application::sharePath
+	 * command/ - Application::zeskCommandPath
 	 * bin/ - $application->paths->command_path
 	 *
-	 * @param string $module_path
-	 *            Directory to search for system paths
-	 * @param string $module
-	 *            Module associated with the system path (used for share directory)
-	 * @return array Array of actually registered paths
+	 * @param string $name Directory to search for system paths
+	 * @param string $modulePath Module associated with the system path (used for share directory)
+	 * @return void Array of actually registered paths
 	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Parameter
 	 * @throws Exception_Semantics
 	 */
-	final public function register_paths(string $module_path = '', string $module = ''): array {
-		$current_name = first($this->module_loader);
-		$current = [];
-		if ($current_name) {
-			$current = $this->modules[$current_name] ?? [];
-			if ($module_path === '') {
-				$module_path = $current['path'] ?? '';
-			}
-			if ($module === '') {
-				$module = $current['name'] ?? '';
-			}
-		} elseif ($module == null) {
-			throw new Exception_Parameter('Require a $module path if not called during module load');
-		} elseif (isset($this->modules[$module])) {
-			if (!is_dir($module_path)) {
-				throw new Exception_Directory_NotFound($module_path);
-			}
-		} else {
-			throw new Exception_Semantics('Can not call register paths unless during module load.');
+	private function registerPaths(string $name, string $modulePath, array $configuration): void {
+		if (!is_dir($modulePath)) {
+			throw new Exception_Directory_NotFound($modulePath);
 		}
-		$configuration = avalue($current, 'configuration', []);
-		$result = [];
-		$autoload_class_prefix = $configuration['autoload_class_prefix'] ?? '';
-		$autoload_path = $configuration['autoload_path'] ?? 'classes';
-		$autoload_options = toArray($configuration['autoload_options'] ?? []);
-		$theme_path = $configuration['theme_path'] ?? 'theme';
-		$theme_path_prefix = $configuration ['theme_path_prefix'] ?? '';
-		$zesk_command_path = $configuration['zesk_command_path'] ?? 'command';
-		$deprecated_class_prefix = $configuration['zesk_command_path_class_prefix'] ?? '';
-		if ($deprecated_class_prefix) {
-			$this->application->deprecated("$module_path uses deprecated zesk_command_path_class_prefix. Use zesk_command_class_prefix instead.");
+		if ($this->modules->offsetExists($name)) {
+			throw new Exception_Semantics('Already registered module {name}', ['name' => $name]);
 		}
-		$zesk_command_path_class_prefix = apath($configuration, 'zesk_command_class_prefix', $deprecated_class_prefix);
-		$locale_path = apath($configuration, 'locale_path', 'etc/language');
-		if (!$module_path) {
-			return $result;
-		}
-		$path = path($module_path, $autoload_path);
-		if (is_dir($path)) {
-			$result['autoload_path'] = $path;
-			if ($autoload_class_prefix) {
-				$autoload_options += [
-					'class_prefix' => $autoload_class_prefix,
-				];
-				$this->application->deprecated('Module configuration "autoload_class_prefix" is deprecated for module >>{module}<<, use "autoload_options": { "class_prefix": ... } instead', compact('module'));
-			}
-			$this->application->addAutoloadPath($path, $autoload_options);
-		}
-		$path = path($module_path, $theme_path);
-		if (is_dir($path)) {
-			$result['theme_path'] = $path;
-			$result['theme_path_prefix'] = $theme_path_prefix;
-			$this->application->addThemePath($path, $theme_path_prefix);
-		}
-		if (!$module) {
-			return $result;
-		}
-		$path = path($module_path, 'share');
-		if (is_dir($path)) {
-			$result['share_path'] = $path;
-			$this->application->addSharePath($path, $module);
-		}
-		$path = path($module_path, $zesk_command_path);
-		if (is_dir($path)) {
-			if (!$current) {
-				backtrace();
-			}
-			$result['zesk_command_path'] = $path;
-			$prefix = 'Command_';
-			if ($zesk_command_path_class_prefix) {
-				$prefix = $zesk_command_path_class_prefix;
-				if ($prefix !== PHP::cleanClass($prefix)) {
-					$this->application->logger->error('zesk_command_path_class_prefix specified in module {name} configuration is not a valid class prefix "{prefix}"', [
-						'name' => $current['name'], 'prefix' => $prefix,
-					]);
-				}
-			}
-			$this->application->appendZeskCommandPath($path, $zesk_command_path_class_prefix);
-		}
-		$path = path($module_path, $locale_path);
-		if (is_dir($path)) {
-			$result['locale_path'] = $path;
-			$this->application->addLocalePath($path);
-		}
-		return $result;
+		$this->_handleAutoloadPath($modulePath, $configuration);
+		$this->_handleThemePath($modulePath, $configuration);
+		$this->_handleLocalePath($modulePath, $configuration);
+		$this->_handleZeskCommandPath($modulePath, $configuration);
+		$this->_handleSharePath($modulePath, $configuration, $name);
 	}
 
 	/**
-	 * Load module based on setup options
-	 *
-	 * @param array $module_data
-	 *
-	 * @return array
-	 */
-	private function _load_module_configuration(array $module_data): array {
-		$name = $path = null;
-		extract($module_data, EXTR_IF_EXISTS);
-
-		$this->modules[$name] = $module_data + [
-			'loading' => true,
-		];
-		array_unshift($this->module_loader, $name);
-		$this->register_paths();
-
-		array_shift($this->module_loader);
-		unset($this->modules[$name]['loading']);
-
-		$module_data['loaded'] = true;
-		$module_data['loaded_time'] = microtime(true);
-		$module_data += [
-			'status' => self::status_loaded,
-		];
-
-		return $module_data;
-	}
-
-	private function _handle_share_path(array $module_data): array {
-		// Apply share_path automatically
-		$share_path = apath($module_data, 'configuration.share_path');
-		if ($share_path) {
-			if (!Directory::isAbsolute($share_path)) {
-				$share_path = $this->application->path($share_path);
-			}
-			$name = apath($module_data, 'configuration.share_path_name', $module_data['name']);
-			if (!is_dir($share_path)) {
-				$this->application->logger->critical('Module {module} share path "{share_path}" is not a directory', [
-					'module' => $name, 'share_path' => $share_path,
-				]);
-			} else {
-				$this->application->addSharePath($share_path, $name);
-			}
-		}
-		return $module_data;
-	}
-
-	private function _handle_requires($requires, array $options): array {
-		// Load dependent modules
-		$result = [];
-		foreach (toArray($requires) as $required_module) {
-			$required_module = self::clean_name($required_module);
-			if (!apath($this->modules, [
-				$required_module, 'loaded',
-			])) {
-				$result += $this->_loadFile($required_module, $options);
-			}
-		}
-		return $result;
-	}
-
-	private function _apply_module_configuration(array $module_data): array {
-		$module_data = $this->_handle_share_path($module_data);
-		return $module_data;
-	}
-
-	/**
-	 * Load a single module by name
-	 *
-	 * @param string $name
-	 * @param array $options Flags
-	 *  "check exists" => true to test for existence of module class (just class_exists)
-	 *  "load" => defaults to true => Load the module and create the Module object and return the initialized structure
-	 * @return array
+	 * @param string $modulePath
+	 * @param array $moduleConfiguration
+	 * @return void
 	 * @throws Exception_Directory_NotFound
 	 */
-	private function _loadFile(string $name, array $options): array {
-		if (str_contains($name, '\\')) {
-			return $this->_autoloadFile($name, $options);
+	private function _handleAutoloadPath(string $modulePath, array $moduleConfiguration): void {
+		$app = $this->application;
+		$autoload = toArray($moduleConfiguration['autoload'] ?? []);
+		$this->_handleModuleDefaults($modulePath, 'path', $moduleConfiguration, 'classes', function ($path) use ($app, $autoload): void {
+			$app->addAutoloadPath($path, $autoload);
+		});
+	}
+
+	/**
+	 * @param string $modulePath
+	 * @param array $moduleConfiguration
+	 * @return void
+	 * @throws Exception_Directory_NotFound
+	 */
+	private function _handleThemePath(string $modulePath, array $moduleConfiguration): void {
+		$app = $this->application;
+		$themePathPrefix = $moduleConfiguration['themePathPrefix'] ?? '';
+		$this->_handleModuleDefaults($modulePath, 'themePath', $moduleConfiguration, 'theme', function ($path) use ($app, $themePathPrefix): void {
+			$app->addThemePath($path, $themePathPrefix);
+		});
+	}
+
+	/**
+	 * @param string $modulePath
+	 * @param array $moduleConfiguration
+	 * @return void
+	 * @throws Exception_Directory_NotFound
+	 */
+	private function _handleLocalePath(string $modulePath, array $moduleConfiguration): void {
+		$app = $this->application;
+		$this->_handleModuleDefaults($modulePath, 'localePath', $moduleConfiguration, 'etc/language', function ($path) use ($app): void {
+			$app->addLocalePath($path);
+		});
+	}
+
+	/**
+	 * @param string $modulePath
+	 * @param array $moduleConfiguration
+	 * @return void
+	 * @throws Exception_Directory_NotFound
+	 */
+	private function _handleZeskCommandPath(string $modulePath, array $moduleConfiguration): void {
+		$app = $this->application;
+		$zeskCommandPathClassPrefix = $moduleConfiguration['zeskCommandClassPrefix'] ?? '';
+		$this->_handleModuleDefaults($modulePath, 'zeskCommandPath', $moduleConfiguration, 'command', function ($path) use ($app, $zeskCommandPathClassPrefix): void {
+			$app->addZeskCommandPath($path, $zeskCommandPathClassPrefix);
+		});
+	}
+
+	/**
+	 * @param string $moduleName
+	 * @param string $modulePath
+	 * @param array $moduleConfiguration
+	 * @return void
+	 * @throws Exception_Directory_NotFound
+	 */
+	private function _handleSharePath(string $modulePath, array $moduleConfiguration, string $moduleName): void {
+		$sharePathName = $moduleConfiguration['sharePathName'] ?? $moduleName;
+		$app = $this->application;
+		$this->_handleModuleDefaults($modulePath, 'sharePath', $moduleConfiguration, $moduleName, function ($path) use ($app, $sharePathName): void {
+			$app->addSharePath($path, $sharePathName);
+		});
+	}
+
+	/**
+	 * @param string $modulePath
+	 * @param string $configurationKey
+	 * @param array $configuration
+	 * @param string $default
+	 * @param callable $adder
+	 * @return void
+	 * @throws Exception_Directory_NotFound
+	 */
+	private function _handleModuleDefaults(string $modulePath, string $configurationKey, array $configuration, string $default, callable $adder): void {
+		if ($configurationValue = $configuration[$configurationKey] ?? null) {
+			$path = path($modulePath, $configurationValue);
+			$adder($path);
+		} else {
+			$path = path($modulePath, $default);
+			if (is_dir($path)) {
+				$adder($path);
+			}
 		}
+	}
 
-		$result = [];
-		$base = self::module_base_name($name);
-		$module_data = [
-			'loaded' => false, 'name' => $name, 'base' => $base,
-		];
+	/**
+	 * @param string|array $requires List of required modules
+	 * @return void
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Invalid
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unsupported
+	 */
+	private function _handleRequires(string|array $requires): void {
+		foreach (toArray($requires) as $required_module) {
+			$required_module = self::cleanName($required_module);
+			if (!$this->modules->offsetExists($required_module)) {
+				$this->_loadModule($required_module);
+			}
+		}
+	}
 
+	/**
+	 * @param string $name
+	 * @return string
+	 * @throws Exception_Directory_NotFound
+	 */
+	private function _findModulePath(string $name): string {
 		try {
-			$module_data['path'] = Directory::findFirst($this->application->modulePath(), $name);
+			return Directory::findFirst($this->application->modulePath(), $name);
 		} catch (Exception_NotFound) {
-			throw new Exception_Directory_NotFound($base, '{class}::module({name}) was not found at {name}', [
-				'class' => get_class($this), 'name' => $name, 'base' => $base,
+			throw new Exception_Directory_NotFound($name, '{class}::module({name}) was not found at {name} (base is {base})', [
+				'class' => get_class($this), 'name' => $name, 'base' => self::moduleBaseName($name),
 			]);
 		}
-		if ($options['check exists'] ?? false) {
-			$result[$name] = $module_data;
-			return $result;
-		}
-		$module_data += self::_find_module_include($module_data);
-		if (toBool($options['load'] ?? true)) {
-			$module_data = $this->_load_module_configuration($module_data);
-			$module_data = $this->_apply_module_configuration($module_data);
-
-			$this->modules[$name] = $module_data;
-			$result += $this->_handle_configuration_requires($module_data, $options);
-			$this->modules[$name] = $module_data = $this->_load_module_object($name, $module_data) + $module_data;
-
-			$module_data = $this->_initialize_module_object($module_data);
-		}
-
-		$result[$name] = $module_data;
-		return $result;
 	}
 
 	/**
-	 *
-	 * @param array $module_data
-	 * @param array $options
-	 * @return array
-	 */
-	private function _handle_configuration_requires(array $module_data, array $options): array {
-		$result = [];
-		$requires = toList(apath($module_data, 'configuration.requires'));
-		if ($requires) {
-			$result += $this->_handle_requires($requires, $options);
-		}
-		return $result;
-	}
-
-	/**
-	 * Return an array to build the modules structure, specifically for class-based module names
-	 *
-	 * @param string $name Module name
-	 * @param array $options Flags
-	 *  "check exists" => true to test for existence of module class (just class_exists)
-	 *  "load" => defaults to true => Load the module and create the Module object and return the initialized structure
-	 *
-	 * @return array
+	 * @param string $name
+	 * @return Module
 	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Invalid
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unsupported
 	 */
-	private function _autoloadFile(string $name, array $options): array {
-		$module_data = [
-			'loaded' => false, 'name' => $name, 'class' => $name,
-		];
-		if ($options['check exists'] ?? false) {
-			if (class_exists($name, true)) {
-				return $module_data;
-			}
+	private function _loadModule(string $name): Module {
+		assert(!str_contains($name, '\\'));
 
-			throw new Exception_Class_NotFound($name, 'Loading module');
-		}
-		$result = [];
-		if (toBool($options['load'] ?? true)) {
-			$this->modules[$name] = $module_data = $this->_load_module_object($name, $module_data) + $module_data;
-			/* @var $object Module */
-			$object = $module_data['object'];
-			if ($object) {
-				$module_data['path'] = $object->path();
-				$module_data += self::_find_module_include($module_data);
-				$module_data = $this->_load_module_configuration($module_data);
-				$result += $this->_handle_configuration_requires($module_data, $options);
-				$module_data = $this->_apply_module_configuration($module_data);
+		$moduleFactoryState['path'] = $path = $this->_findModulePath($name);
+		$moduleFactoryState['configurationFile'] = $file = path($path, $name . '.module.json');
+		[$data, $configuration] = self::_loadModuleJSON($file);
 
-				$module_data = $this->_initialize_module_object($module_data);
-			}
-		}
-		return $result + [
-			$name => $module_data,
-		];
+		$this->registerPaths($name, $path, $configuration);
+
+		$requires = toList($configuration['requires'] ?? []);
+		$this->_handleRequires($requires);
+
+		$moduleFactoryState['configurationData'] = $data;
+		$moduleFactoryState['configuration'] = $configuration;
+
+		return $this->modules[$name] = $this->_moduleInitialize($this->_createModuleObject($name, $moduleFactoryState));
 	}
 
-	public function _reloadFile($module_data) {
-		$object = $module_data['object'];
-		if ($object) {
-			$module_data = $this->_load_module_configuration($module_data);
-			$module_data = $this->_apply_module_configuration($module_data);
-
-			$module_data = $this->_initialize_module_object($module_data);
-		}
-		return $module_data;
+	/**
+	 * @param Module $module
+	 * @return Module
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Invalid
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unsupported
+	 */
+	public function _reloadModule(Module $module): Module {
+		// Paths are taken from the module configuration which comes from a file. Should not have to re-do, ever.
+		// $this->registerPaths($module->name(), $module->path(), $module->moduleConfiguration());
+		$this->_handleRequires(toList($module->moduleConfiguration()['requires'] ?? []));
+		return $this->_moduleInitialize($module);
 	}
 
 	/**
 	 * Finds the module configuration file and loads it.
 	 *
-	 * @param array $module_data
-	 * @return array
+	 * @throws Exception_Invalid
 	 */
-	private static function _find_module_include(array $module_data): array {
-		$name = $base = $path = null;
-		extract($module_data, EXTR_IF_EXISTS);
-		$module_variables = [
-			'module_path' => $path, 'name' => $name, 'module' => $name,
-		];
-		$parser_config = self::module_configuration_options();
-		foreach ([
-			'json' => path($path, "$base.module.json"), 'conf' => path($path, "$base.module.conf"),
-		] as $extension => $module_conf) {
-			if (!file_exists($module_conf)) {
-				continue;
-			}
-			$raw_module_conf = file_get_contents($module_conf);
-			$module_data['configuration'] = ($module_data['configuration'] ?? []) + $module_variables;
-			Configuration_Parser::factory($extension, $raw_module_conf, new Adapter_Settings_Array($module_data['configuration']), $parser_config)->process();
-			$module_data['configuration_file'] = $module_conf;
+	private static function _loadModuleJSON(string $file): array {
+		$raw_module_conf = file_get_contents($file);
+		$extension = File::extension($file);
+		$config = [];
+
+		try {
+			Configuration_Parser::factory($extension, $raw_module_conf, new Adapter_Settings_Array($config))->process();
+		} catch (Exception_Class_NotFound $e) {
+			throw new Exception_Invalid('Unable to load extension {extension} for configuration file {file}', [
+				'extension' => $extension, 'file' => $file,
+			], 0, $e);
 		}
-		return $module_data;
+		return [$raw_module_conf, $config];
+	}
+
+	private function defaultModuleClass(string $name): string {
+		return $this->moduleClassPrefix . PHP::cleanClass(self::moduleBaseName($name));
 	}
 
 	/**
 	 * Instantiate the module object. Does NOT call initialize, calling function MUST call initialize when object
 	 * is ready to be initialized.
 	 *
-	 * @param array $module_data
-	 * @return Module null
-	 * @throws Exception_Semantics
+	 * @param string $name
+	 * @param array $moduleFactoryState
+	 * @return Module
+	 * @throws Exception_Class_NotFound
 	 */
-	private function _load_module_object($name, array $module_data): array {
-		extract($module_data, EXTR_IF_EXISTS);
-		$class = $module_data['class'] ?? '';
-		$configuration = $module_data['configuration'] ?? [];
+	private function _createModuleObject(string $name, array $moduleFactoryState): Module {
+		$class = $moduleFactoryState['class'] ?? $moduleFactoryState['configuration']['moduleClass'] ?? '';
 		if (!$class) {
-			$class = $configuration['module_class'] ?? ($this->module_class_prefix . PHP::cleanClass($module_data['base']));
-		}
+			$class = $this->defaultModuleClass($name);
+			$configurationPath = [$class];
 
-		try {
-			/* @var $module_object Module */
-			$module_data['name'] = $name;
-			$module_object = $this->application->factory($class, $this->application, $configuration, $module_data);
-			if (!$module_object instanceof Module) {
-				throw new Exception_Semantics('Module {class} must be a subclass of Module - skipping', [
-					'class' => $module_object::class,
-				]);
+			try {
+				return $this->_moduleFactory($class, $configurationPath, $moduleFactoryState);
+			} catch (Exception_Class_NotFound) {
 			}
-			if (method_exists($module_object, 'hooks')) {
-				$this->application->hooks->registerClass($class);
-			}
-			$result = [
-				'class' => $class,
-			];
-			return $result + [
-				'path' => $module_object->path(), 'object' => $module_object,
-			];
-		} catch (Exception_Class_NotFound $e) {
-			return [
-				'object' => null, 'class' => null, 'missing_class' => $e->class,
-			];
+			$class = Module::class;
+			$configurationPath = [Module::class, $name];
+		} else {
+			$configurationPath = [$class];
 		}
+		$module_object = $this->_moduleFactory($class, $configurationPath, $moduleFactoryState);
+		assert($module_object instanceof Module);
+		$this->application->hooks->registerClass($class);
+		return $module_object;
 	}
 
-	private function _initialize_module_object(array $module_data) {
-		$object = $module_data['object'];
+	/**
+	 * @param string $class
+	 * @param array $moduleOptionsConfigurationPath
+	 * @param array $moduleFactoryState
+	 * @return Module
+	 * @throws Exception_Class_NotFound
+	 */
+	private function _moduleFactory(string $class, array $moduleOptionsConfigurationPath, array $moduleFactoryState): Module {
+		$moduleFactoryState['class'] = $class;
+		$moduleFactoryState['optionsPath'] = $moduleOptionsConfigurationPath;
+		$module = $this->application->factory($class, $this->application, $this->application->configuration->path($moduleOptionsConfigurationPath)->toArray(), $moduleFactoryState);
+		assert($module instanceof Module);
+		return $module;
+	}
 
+	/**
+	 * @param Module $object
+	 * @return Module
+	 * @throws Exception_Configuration
+	 * @throws Exception_Unsupported
+	 */
+	private function _moduleInitialize(Module $object): Module {
 		try {
-			if ($object) {
-				$object->initialize();
-				if ($this->debug) {
-					$this->application->logger->debug('Initialized module object {class}', [
-						'class' => $object::class,
-					]);
-				}
+			$object->initialize();
+			if ($this->debug) {
+				$this->application->logger->debug('Initialized module object {class}', [
+					'class' => $object::class,
+				]);
 			}
-			return $module_data;
-		} catch (\Exception $e) {
+			return $object;
+		} catch (Exception_Configuration|Exception_Unsupported $e) {
 			$this->application->logger->error('Failed to initialize module object {class}: {message}', [
 				'class' => $object::class, 'message' => $e->getMessage(),
 			]);
 			$this->application->hooks->call('exception', $e);
-			return [
-				'object' => null, 'status' => 'failed', 'initialize_exception' => $e,
-			] + $module_data;
+
+			throw $e;
 		}
 	}
 
@@ -640,7 +518,7 @@ class Modules {
 	 * @param array $modules
 	 * @return array
 	 */
-	private static function _expand_modules(array $modules) {
+	private static function _expandModulePaths(array $modules): array {
 		$result = [];
 		foreach ($modules as $module) {
 			$parts = explode('/', $module);
@@ -650,158 +528,40 @@ class Modules {
 				$result[] = implode('/', $module);
 			}
 		}
-		return $result;
+		return array_unique($result);
 	}
 
 	/**
-	 * Given a module, find its version
+	 * Can a module be loaded?
 	 *
 	 * @param string $name
-	 * @return string
+	 * @return bool
 	 */
-	private function _module_version($name) {
-		$module = $this->load($name, [
-			'load' => false,
-		]);
-		$configuration = avalue($module, 'configuration', []);
-		if (is_array($configuration)) {
-			$version = avalue($configuration, 'version');
-			if ($version !== null) {
-				return $version;
-			}
-			$version_data = avalue($configuration, 'version_data');
-			if (is_array($version_data)) {
-				$file = $pattern = $key = null;
-				extract($version_data, EXTR_IF_EXISTS);
-				if ($file && file_exists($file)) {
-					$contents = file_get_contents($file);
-					if ($pattern) {
-						$matches = null;
-						if (preg_match($pattern, $contents, $matches)) {
-							$version = avalue($matches, 1, $matches[0]);
-							return $version;
-						}
-					}
-					if ($key) {
-						switch ($ext = File::extension($file)) {
-							case 'phps':
-								$data = unserialize($contents);
-
-								break;
-							case 'json':
-								$data = JSON::decode($contents, true);
-
-								break;
-							default:
-								return null;
-						}
-						$version = apath($data, $key, null);
-						return $version;
-					}
-				}
-			}
-		}
-
+	final public function exists(string $name): bool {
 		try {
-			$object = $this->object($name);
-			return $object->option('version');
-		} catch (Exception $e) {
-			return null;
+			$this->_findModulePath($name);
+			return true;
+		} catch (Throwable) {
+			return false;
 		}
-	}
-
-	/**
-	 * Module conf::load settings
-	 *
-	 * @param array $variables
-	 */
-	private static function module_configuration_options() {
-		$options = [
-			'lower' => true, 'trim' => true, 'multiline' => true, 'unquote' => '\'\'""',
-		];
-		return $options;
-	}
-
-	/**
-	 * Is a module loaded?
-	 *
-	 * @param $mixed Modules
-	 *            to check
-	 * @return array boolean
-	 */
-	final public function exists(string|array|null $mixed = null) {
-		if ($mixed === null) {
-			return array_fill_keys(array_keys($this->modules), true);
-		}
-		$result = [];
-		$modules = toList($mixed);
-		$module_paths = $this->application->modulePath();
-		foreach ($modules as $module) {
-			$module = self::clean_name($module);
-			if (array_key_exists($module, $this->modules)) {
-				$result[$module] = true;
-			} else {
-				try {
-					File::findFirst([
-						Directory::findFirst($module_paths, $module),
-					], [
-						"$module.module.php", "$module.application.php", "$module.module.json", "$module.module.conf",
-					]);
-					$result[$module] = true;
-				} catch (Exception_NotFound) {
-					$result[$module] = false;
-				}
-			}
-		}
-		if (count($modules) === 1) {
-			return $result[$modules[0]];
-		}
-		return $result;
 	}
 
 	/**
 	 * @return array
 	 */
-	final public function all_modules(): array {
-		$result = [];
-		foreach ($this->modules as $name => $data) {
-			if (!array_key_exists('object', $data)) {
-				continue;
-			}
-			$module = $data['object'];
-			/* @var $module Module */
-			if ($module) {
-				$result[$name] = $module;
-			}
-		}
-		return $result;
-	}
-
-	/**
-	 * Retrieve information about a loaded module
-	 *
-	 * @param string $module
-	 * @param string $option
-	 * @param mixed $default
-	 * @return mixed
-	 */
-	final public function data(string $module, string $option, mixed $default = null): mixed {
-		$module_data = $this->load($module, [
-			'check loaded' => true, 'not loaded' => [],
-		]);
-		return $module_data[$option] ?? $default;
+	final public function all(): array {
+		return $this->modules->getArrayCopy();
 	}
 
 	/**
 	 * Retrieve configuration information about a loaded module
 	 *
 	 * @param string $module
-	 * @param array|string $option_path
-	 * @param mixed $default
-	 * @return mixed
+	 * @return array
+	 * @throws Exception_NotFound
 	 */
-	final public function configuration(string $module, array|string $option_path, mixed $default = null): mixed {
-		return apath($this->data($module, 'configuration', []), $option_path, $default);
+	final public function configuration(string $module): array {
+		return $this->module($module)->moduleConfiguration();
 	}
 
 	/**
@@ -809,32 +569,45 @@ class Modules {
 	 *
 	 * @param string $module
 	 * @param string $append Value to append to path using path()
-	 * @return string Returns empty string if module not loaded
+	 * @return string
+	 * @throws Exception_NotFound
 	 */
 	final public function path(string $module, string $append = ''): string {
-		$path = $this->data($module, 'path');
-		if (!$path) {
-			return '';
-		}
-		return path($path, $append);
+		return $this->module($module)->path($append);
 	}
 
 	/**
 	 * Get Module
 	 *
 	 * @param string $module
-	 * @param mixed $default
-	 *            Value to return if module is not loaded
 	 * @return Module
 	 * @throws Exception_NotFound
 	 */
 	final public function object(string $module): Module {
-		$result = $this->data($module, 'object');
-		if ($result instanceof Module) {
-			return $result;
+		$module = self::cleanName($module);
+		if ($this->modules->offsetExists($module)) {
+			return $this->modules[$module];
 		}
 
-		throw new Exception_NotFound('No module object for {module} found', compact('module'));
+		throw new Exception_NotFound('No module object for {module} found', ['module' => $module]);
+	}
+
+	/**
+	 * @param string $module
+	 * @return Module
+	 * @throws Exception_NotFound
+	 */
+	final public function get(string $module): Module {
+		return $this->object($module);
+	}
+
+	/**
+	 * @param string $module
+	 * @return Module
+	 * @throws Exception_NotFound
+	 */
+	final public function module(string $module): Module {
+		return $this->object($module);
 	}
 
 	/**
@@ -843,10 +616,10 @@ class Modules {
 	 * @param string $hook Hook name
 	 * @return mixed
 	 */
-	final public function all_hook(string $hook): mixed {
+	final public function allHook(string $hook): mixed {
 		$arguments = func_get_args();
 		array_shift($arguments);
-		return $this->all_hook_arguments($hook, $arguments);
+		return $this->allHookArguments($hook, $arguments);
 	}
 
 	/**
@@ -856,10 +629,12 @@ class Modules {
 	 * @param string $hook
 	 * @param array $arguments
 	 * @param mixed $default
+	 * @param callable|null $hook_callback
+	 * @param callable|null $result_callback
 	 * @return mixed
 	 */
-	final public function all_hook_arguments(string $hook, array $arguments, mixed $default = null, callable $hook_callback = null, callable $result_callback = null): mixed {
-		$hooks = $this->collect_all_hooks($hook, $arguments);
+	final public function allHookArguments(string $hook, array $arguments, mixed $default = null, callable $hook_callback = null, callable $result_callback = null): mixed {
+		$hooks = $this->collectAllHooks($hook, $arguments);
 		$result = $default;
 		foreach ($hooks as $item) {
 			[$callable, $arguments] = $item;
@@ -875,32 +650,21 @@ class Modules {
 	 * @param array $arguments
 	 * @return callable[]
 	 */
-	final public function collect_all_hooks(string $hook, array $arguments): array {
-		$module_names = $this->modules_with_hook[$hook] ?? null;
+	final public function collectAllHooks(string $hook, array $arguments): array {
+		$module_names = $this->modulesWithHook[$hook] ?? null;
 		if (!is_array($module_names)) {
 			$module_names = [];
-			foreach ($this->modules as $name => $data) {
-				if (!array_key_exists('object', $data)) {
-					continue;
-				}
-				/* @var $module Module */
-				if (($module = $data['object']) !== null && $module->hasHook($hook)) {
+			foreach ($this->modules as $name => $module) {
+				if ($module->hasHook($hook)) {
 					$module_names[] = $name;
 				}
 			}
-			$this->modules_with_hook[$hook] = $module_names;
+			$this->modulesWithHook[$hook] = $module_names;
 		}
 		$hooks = [];
 		foreach ($module_names as $module_name) {
-			$module = $this->modules[$module_name]['object'];
-			if ($module instanceof Module) {
-				$hooks = array_merge($hooks, $module->collectHooks($hook, $arguments));
-			} else {
-				$this->application->logger->error("While calling hook {hook} for module for {module_name} is not of type zesk\Module ({value} is of type {type})", [
-					'hook' => $hook, 'module_name' => $module_name, 'value' => to_text($module),
-					'type' => type($module),
-				]);
-			}
+			$module = $this->modules[$module_name];
+			$hooks = array_merge($hooks, $module->collectHooks($hook, $arguments));
 		}
 		return $hooks;
 	}
@@ -909,23 +673,17 @@ class Modules {
 	 * List all hooks which would be called by all modules.
 	 *
 	 * @param string $hook
-	 * @param array $arguments
-	 * @param mixed $default
-	 * @return mixed
-	 * @todo This does not match all_hook_arguments called list? (Module::$hook, etc.)
+	 * @return array
 	 * @todo Add test for this
+	 * @todo This does not match all_hook_arguments called list? (Module::$hook, etc.)
 	 */
-	final public function all_listHooks(string $hook) {
-		$result = $this->application->hooks->find_all(["zesk\\Module::$hook"]);
+	final public function listAllHooks(string $hook): array {
+		$result = $this->application->hooks->findAll(["zesk\\Module::$hook"]);
 		if (count($result) > 0) {
-			$this->application->deprecated('Static cache clear hook is deprecated: ' . _dump($result));
+			$this->application->deprecated("Static hook collection for $hook is deprecated: " . _dump($result));
 		}
-		foreach ($this->modules as $name => $data) {
-			$module = avalue($data, 'object');
-			/* @var $module Module */
-			if ($module) {
-				$result = array_merge($result, $module->listHooks($hook, true));
-			}
+		foreach ($this->modules as $module) {
+			$result = array_merge($result, $module->listHooks($hook, true));
 		}
 		return $result;
 	}
@@ -933,20 +691,17 @@ class Modules {
 	/**
 	 * Clean a module name
 	 *
-	 * @param string|array $module
-	 * @return string|array
+	 * @param array|string $modules
+	 * @return array|string
 	 */
-	public static function clean_name($module) {
-		if (is_array($module)) {
-			foreach ($module as $index => $m) {
-				$module[$index] = self::clean_name($m);
-			}
-			return $module;
+	public static function cleanName(array|string $modules): array|string {
+		if (is_string($modules)) {
+			return Module::cleanName($modules);
 		}
-		if (str_contains($module, '\\')) {
-			return PHP::clean_class($module);
+		foreach ($modules as $k => $name) {
+			$modules[$k] = Module::cleanName($name);
 		}
-		return preg_replace('|[^-/_0-9a-z]|', '', strtolower($module));
+		return $modules;
 	}
 
 	/**
@@ -961,7 +716,7 @@ class Modules {
 	 * @param string $module
 	 * @return string
 	 */
-	private static function module_base_name($module) {
-		return basename(self::clean_name($module));
+	private static function moduleBaseName(string $module): string {
+		return basename(self::cleanName($module));
 	}
 }

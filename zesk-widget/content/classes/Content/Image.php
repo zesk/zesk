@@ -25,7 +25,7 @@ namespace zesk;
  * @property integer $width
  * @property integer $height
  */
-class Content_Image extends ORM {
+class Content_Image extends ORMBase {
 	/**
 	 * Register from a known file - will copy to database
 	 *
@@ -67,10 +67,10 @@ class Content_Image extends ORM {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\ORM::fetchObject()
+	 * @see \zesk\ORMBase::fetchObject()
 	 */
 	protected function fetchObject() {
-		$query = $this->query_select('X');
+		$query = $this->querySelect('X');
 		$get_data = false;
 		if ($get_data) {
 			$query->link('Content_Data', [
@@ -107,12 +107,12 @@ class Content_Image extends ORM {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see ORM::store()
+	 * @see ORMBase::store()
 	 */
 	public function store(): self {
 		$this->_update_sizes();
 		if ($this->memberIsEmpty('mime_type')) {
-			$this->mime_type = MIME::from_filename($this->path);
+			$this->mime_type = MIME::fromExtension($this->path);
 		}
 		return parent::store();
 	}
@@ -155,11 +155,11 @@ class Content_Image extends ORM {
 	 * @return unknown Ambigous unknown>
 	 */
 	private function fix_extension($path, $rawfile) {
-		if (MIME::from_filename($path) === $this->mime_type) {
+		if (MIME::fromExtension($path) === $this->mime_type) {
 			return $path;
 		}
 		$extension = self::determine_extension($rawfile);
-		return $extension ? File::extension_change($path, $extension) : $path;
+		return $extension ? File::setExtension($path, $extension) : $path;
 	}
 
 	/**
@@ -394,7 +394,7 @@ class Content_Image extends ORM {
 		if (!is_array($exif)) {
 			return 'unsupported';
 		}
-		$orientation = avalue($exif, 'Orientation', 'none');
+		$orientation = $exif['Orientation'] ?? 'none';
 		$rotate = null;
 		switch ($orientation) {
 			case 'none':
@@ -456,19 +456,19 @@ class Content_Image extends ORM {
 	 * @see self::reduce_image_dimensions
 	 */
 	public static function downscale_images(Application $application, array $options): void {
-		$query = $application->ormRegistry(__CLASS__)->query_select('X');
-		$query->what_object(__CLASS__, 'X', 'image_');
+		$query = $application->ormRegistry(__CLASS__)->querySelect('X');
+		$query->ormWhat(__CLASS__, 'X', 'image_');
 		$query->link(Content_Data::class, [
 			'alias' => 'D',
 		]);
-		$query->what_object(Content_Data::class, 'D', 'data_');
+		$query->ormWhat(Content_Data::class, 'D', 'data_');
 		$query->addWhere('D.type', 'path');
-		$size = avalue($options, 'size');
+		$size = $options['size'] ?? null;
 		if ($size) {
 			$query->addWhere('D.size|>=', $size);
 		}
 
-		$iterator = $query->orms_iterator();
+		$iterator = $query->ormIterators();
 		foreach ($iterator as $row) {
 			/* @var $image Content_Image */
 			/* @var $data Content_Data */
@@ -600,7 +600,7 @@ class Content_Image extends ORM {
 		$this->data = $new_data;
 		$result = $this->store();
 		if ($result) {
-			if (avalue($options, 'delete')) {
+			if ($options['delete'] ?? null) {
 				$this->application->logger->notice('{class} #{id}: {path}: {percent} REPLACED Data: {new_data_id}, Deleting old image data: {data_id}', $__);
 				$old_data->delete();
 			} else {

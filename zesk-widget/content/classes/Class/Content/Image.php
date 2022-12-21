@@ -8,7 +8,7 @@ namespace zesk;
  * @see Content_Image
  * @author kent
  */
-class Class_Content_Image extends Class_ORM {
+class Class_Content_Image extends Class_Base {
 	/**
 	 *
 	 * @var string

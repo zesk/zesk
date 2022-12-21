@@ -12,7 +12,7 @@ namespace zesk;
  * @author kent
  * @see Content_File
  */
-class Class_Content_File extends Class_ORM {
+class Class_Content_File extends Class_Base {
 	/**
 	 *
 	 * @var string

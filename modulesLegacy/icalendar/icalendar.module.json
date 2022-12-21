@@ -1,0 +1,10 @@
+{
+	"moduleClass": "zesk\\Module_iCalendar",
+	"name": "iCalendar",
+	"autoloader_options": {
+		"lower": false
+	},
+	"requires": [
+		"ORM"
+	]
+}

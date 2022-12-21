@@ -11,10 +11,9 @@
 		"respondjs"
 	],
 	"url_license": "https://github.com/twbs/bootstrap/blob/master/LICENSE",
-	"share_path": "vendor/twbs/bootstrap/dist",
-	"autoload_options": {
-		"class_prefix": "zesk\\",
-		"lower": false
+	"sharePath": "vendor/twbs/bootstrap/dist",
+	"autoload": {
+		"classPrefix": "zesk\\"
 	},
-	"module_class": "zesk\\Module_Bootstrap"
+	"moduleClass": "zesk\\Module_Bootstrap"
 }

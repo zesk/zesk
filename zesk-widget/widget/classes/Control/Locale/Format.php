@@ -43,7 +43,7 @@ class Control_Locale_Format extends Control_Select {
 
 	public function submit(): bool {
 		$val = $this->value();
-		$settings = avalue(self::$locale_to_settings, $val, []);
+		$settings = self::$locale_to_settings[$val] ?? [];
 		$this->object->set($settings);
 		return parent::submit();
 	}

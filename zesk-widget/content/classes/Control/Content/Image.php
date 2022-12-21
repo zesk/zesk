@@ -37,9 +37,9 @@ class Control_Content_Image extends Control {
 	}
 
 	/**
-	 * @return ORM
+	 * @return ORMBase
 	 */
-	protected function model(): ORM {
+	protected function model(): ORMBase {
 		return new Content_Image($this->application);
 	}
 
@@ -90,7 +90,7 @@ class Control_Content_Image extends Control {
 		$type = $data['type'] ?? '';
 		$allowed = $this->allowedMimeTypes();
 		if (!in_array($type, $allowed)) {
-			$type = MIME::from_filename($name);
+			$type = MIME::fromExtension($name);
 			if (!in_array($type, $allowed)) {
 				$this->error($this->locale()->__('Not allowed to upload files of that type.'));
 				return false;

@@ -25,7 +25,7 @@ Unfortunately, for now, this directory path is reserved. TODO: Change it to some
 
 But here's how it works. You register a `share path` using:
 
-	app()->share_path("/path/to/somwhere", "prefix");
+	app()->sharePath("/path/to/somwhere", "prefix");
 	
 So that now when I visit:
 
@@ -69,4 +69,4 @@ Setting up a module share path should be done in one of the following places:
 
 - The `name.module.php` file which is `require_once`d in PHP when your module is loaded.
 - Your module's `zesk\Module::initialize` call (called right after creation of your `zesk\Module` subclass)
-- By declaring a "share_path" setting in `your.module.conf` or `your.module.json` at the root of your module directory
+- By declaring a "sharePath" setting in `your.module.conf` or `your.module.json` at the root of your module directory

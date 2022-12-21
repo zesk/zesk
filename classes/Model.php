@@ -7,24 +7,34 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use ArrayAccess;
+use TypeError;
+
 /**
  *
  * @author kent
  *
  */
-class Model extends Hookable implements \ArrayAccess, Interface_Factory {
+class Model extends Hookable implements ArrayAccess, Interface_Factory {
+	public const OPTION_DEFAULT_THEME = 'default_theme';
+
+	/**
+	 *
+	 */
+	public const DEFAULT_OPTION_DEFAULT_THEME = 'view';
+
 	/**
 	 * Option for theme path prefix for themes associated with this model
 	 *
 	 * @var string
 	 */
-	public const option_theme_path_prefix = 'theme_path_prefix';
+	public const OPTION_THEME_PATH_PREFIX = 'themePathPrefix';
 
 	/**
 	 *
 	 * @var boolean
 	 */
-	protected $_inited = false;
+	protected bool $_initialized = false;
 
 	/**
 	 *
@@ -36,7 +46,9 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 		parent::__construct($application, $options);
 		if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
-				$this->__set($k, $v);
+				if (!str_starts_with($k, '_')) {
+					$this->__set($k, $v);
+				}
 			}
 		}
 		$this->callHook('construct');
@@ -44,9 +56,12 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 
 	/**
 	 *
+	 * @param Application $application
 	 * @param string $class
 	 * @param mixed $value
+	 * @param array $options
 	 * @return Model
+	 * @throws Exception_Class_NotFound
 	 */
 	public static function factory(Application $application, string $class, mixed $value = null, array $options = []): Model {
 		$object = $application->factory($class, $application, $value, $options);
@@ -64,6 +79,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @param $options array
 	 *            Additional options for object
 	 * @return self
+	 * @throws Exception_Class_NotFound
 	 */
 	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
 		return self::factory($this->application, $class, $mixed, $options);
@@ -83,22 +99,20 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	/**
 	 * Get/set the ID for this model
 	 *
-	 * @return mixed
+	 * @return int|string|array
 	 */
-	public function id(): mixed {
-		return null;
+	public function id(): int|string|array {
+		return 0;
 	}
 
 	/**
 	 * Get/set the ID for this model
 	 *
-	 * @param mixed $set
+	 * @param int|string|array $set
 	 * @return self
 	 */
-	public function setId(mixed $set): self {
-		throw new Exception_Unimplemented('Model of {class} does not support setting ID', [
-			'class' => get_class($this),
-		]);
+	public function setId(int|string|array $set): self {
+		return $this;
 	}
 
 	/**
@@ -107,7 +121,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @return boolean
 	 */
 	public function isNew(): bool {
-		return $this->inited();
+		return $this->initialized();
 	}
 
 	/**
@@ -123,7 +137,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 			}
 		}
 		$result['_class'] = get_class($this);
-		$result['_parent_class'] = get_parent_class($this);
+		$result['_parentClass'] = get_parent_class($this);
 		return $result;
 	}
 
@@ -131,7 +145,11 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * Convert values in this object with map
 	 */
 	public function map(array $map): self {
-		$this->set(map($this->variables(), $map));
+		foreach (map($this->variables(), $map) as $key => $value) {
+			if (!str_starts_with($key, '_')) {
+				$this->__set($key, $value);
+			}
+		}
 		return $this;
 	}
 
@@ -144,10 +162,10 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 		if ($mixed instanceof Model) {
 			return $mixed->map($this->variables());
 		}
-		if (is_bool($mixed) || is_null($mixed) || is_numeric($mixed) || is_resource($mixed)) {
-			return $mixed;
+		if (is_string($mixed) || is_array($mixed)) {
+			return map($mixed, $this->variables());
 		}
-		return map($mixed, $this->variables());
+		return $mixed;
 	}
 
 	/**
@@ -157,17 +175,17 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @return boolean
 	 */
 	public function offsetExists($offset): bool {
-		return $this->__isset($offset);
+		return $this->__isset(toKey($offset));
 	}
 
 	/**
 	 * ArrayAccess offsetGet
 	 *
 	 * @param mixed $offset
-	 * @return int
+	 * @return mixed
 	 */
-	public function offsetGet($offset): int {
-		return $this->__get($offset);
+	public function offsetGet($offset): mixed {
+		return $this->__get(toKey($offset));
 	}
 
 	/**
@@ -178,7 +196,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @return void
 	 */
 	public function offsetSet($offset, mixed $value): void {
-		$this->__set($offset, $value);
+		$this->__set(toKey($offset), $value);
 	}
 
 	/**
@@ -188,7 +206,7 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @return void
 	 */
 	public function offsetUnset($offset): void {
-		$this->__unset($offset);
+		$this->__unset(toKey($offset));
 	}
 
 	/**
@@ -210,22 +228,6 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	}
 
 	/**
-	 *
-	 * @param mixed $mixed
-	 *            Model value to retrieve
-	 * @param mixed $default
-	 *            Value to return if not found
-	 * @return mixed
-	 */
-	public function getMultiple(array $mixed) {
-		$result = [];
-		foreach ($mixed as $k => $v) {
-			$result[$k] = $this->__get($k, $v);
-		}
-		return $result;
-	}
-
-	/**
 	 * @param string $mixed
 	 * @param mixed|null $default
 	 * @return mixed
@@ -240,16 +242,31 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	/**
 	 * Does this model have any of the members requested?
 	 *
-	 * @param iterable $mixed
+	 * @param string|iterable $mixed
 	 * @return bool
 	 */
-	public function hasAny(iterable $mixed): bool {
-		foreach ($mixed as $k) {
-			if ($this->has($k)) {
+	public function hasAny(string|iterable $mixed): bool {
+		foreach (toIterable($mixed) as $k) {
+			if ($this->__isset(toKey($k))) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Does this model have all of the members requested?
+	 *
+	 * @param string|iterable $mixed
+	 * @return bool
+	 */
+	public function hasAll(string|iterable $mixed): bool {
+		foreach (toIterable($mixed) as $k) {
+			if (!$this->__isset(toKey($k))) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -267,8 +284,8 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * @return boolean
 	 */
-	public function inited(): bool {
-		return $this->_inited;
+	public function initialized(): bool {
+		return $this->_initialized;
 	}
 
 	/**
@@ -307,8 +324,14 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @see Options::__set()
 	 */
 	public function __set(string $key, mixed $value): void {
-		$this->$key = $value;
-		$this->_inited = true;
+		try {
+			$this->$key = $value;
+			$this->_initialized = true;
+		} catch (TypeError) {
+			PHP::log('Unable to set {class}::{key} to type {type}', [
+				'class' => $this::class, 'key' => $key, 'type' => type($value),
+			]);
+		}
 	}
 
 	/**
@@ -316,30 +339,23 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * @param string $key
 	 */
 	public function __unset(string $key): void {
-		unset($this->$key);
+		try {
+			unset($this->$key);
+		} catch (TypeError) {
+			PHP::log('Unable to unset {class}::{key} to null', [
+				'class' => $this::class, 'key' => $key,
+			]);
+		}
 	}
 
 	/**
 	 * Is a member set?
 	 *
-	 * @param string $key
+	 * @param int|string $key
 	 * @return boolean
 	 */
-	public function __isset(string $key): bool {
+	public function __isset(int|string $key): bool {
 		return isset($this->$key);
-	}
-
-	/**
-	 * Convert a theme name (or names) into clean paths for finding theme templates
-	 *
-	 * @param string $name
-	 * @return string
-	 */
-	private static function _clean_theme_name(string $name): string {
-		return strtr(strtolower($name), [
-			'_' => '/',
-			'\\' => '/',
-		]);
 	}
 
 	/**
@@ -355,13 +371,13 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 *
 	 * In the theme path. If the theme_name begins with a slash or a period, no conversion is done.
 	 *
-	 * @param string|array|null $theme_name
-	 * @return string
+	 * @param string|array $theme_names
+	 * @return array
 	 */
-	public function theme_paths(string|array $theme_names = null): array {
-		if ($theme_names === null) {
+	public function themePaths(string|array $theme_names = ''): array {
+		if ($theme_names === '') {
 			$theme_names = [
-				$this->option('default_theme', 'view'),
+				$this->option(self::OPTION_DEFAULT_THEME, self::DEFAULT_OPTION_DEFAULT_THEME),
 			];
 		} elseif (is_string($theme_names)) {
 			if ($theme_names[0] === '/' || $theme_names[0] === '.') {
@@ -372,42 +388,43 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 			$theme_names = [
 				$theme_names,
 			];
-		} elseif (!is_array($theme_names)) {
-			return [];
 		}
 		$result = [];
 		foreach ($this->application->classes->hierarchy(get_class($this), __CLASS__) as $class) {
 			$result = array_merge($result, ArrayTools::prefixValues($theme_names, $class . '/'));
 		}
-		if ($this->hasOption(self::option_theme_path_prefix)) {
-			$result_prefix = ArrayTools::prefixValues($result, rtrim($this->option(self::option_theme_path_prefix), '/') . '/');
+		if ($this->hasOption(self::OPTION_THEME_PATH_PREFIX)) {
+			$result_prefix = ArrayTools::prefixValues($result, rtrim($this->option(self::OPTION_THEME_PATH_PREFIX), '/') . '/');
 			$result = array_merge($result_prefix, $result);
 		}
-		return array_map([__CLASS__, '_clean_theme_name'], $result);
+		return array_map(function ($name) {
+			return strtr($name, [
+				'_' => '/', '\\' => '/',
+			]);
+		}, $result);
 	}
 
 	/**
 	 * Output this
 	 *
-	 * @param string $theme_name
+	 * @param array|string $theme_names
 	 *            Theme or list of themes to invoke (first found is used)
-	 * @param array $variables
-	 *            Variables to be passed to the template
+	 * @param array|string $variables
+	 *            Variables to be passed to the template.
 	 * @param string $default
 	 *            Default value if no theme is found
 	 * @return string
+	 * @throws Exception_Redirect
 	 */
-	public function theme(array|string $theme_name = null, string|array $variables = null, string $default = '') {
+	public function theme(array|string $theme_names = '', string|array $variables = [], string $default = ''): string {
 		$variables = is_string($variables) ? [
 			'content' => $variables,
-		] : (array) $variables;
+		] : $variables;
 		$variables += [
-			'object' => $this,
-			strtolower(get_class($this)) => $this,
+			'object' => $this, strtolower(get_class($this)) => $this,
 		];
-		return $this->application->theme($this->theme_paths($theme_name), $variables, [
-			'default' => $default,
-			'first' => true,
+		return $this->application->theme($this->themePaths($theme_names), $variables, [
+			'default' => $default, 'first' => true,
 		]);
 	}
 
@@ -415,22 +432,22 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	 * Convert a variable to an ID. IDs may be arrays.
 	 *
 	 * @param $mixed mixed
-	 * @return mixed
+	 * @return int|string|array
+	 * @throws Exception_Convert
 	 */
-	public static function mixed_to_id(mixed $mixed): mixed {
+	public static function mixedToID(mixed $mixed): int|string|array {
 		if ($mixed instanceof Model) {
 			return $mixed->id();
 		}
-		return to_integer($mixed);
-	}
+		if (is_numeric($mixed)) {
+			return toInteger($mixed);
+		}
+		if (is_string($mixed)) {
+			return $mixed;
+		}
 
-	/**
-	 * Is this a new object?
-	 *
-	 * @return boolean
-	 * @deprecated 2022-05
-	 */
-	public function is_new(): bool {
-		return $this->isNew();
+		throw new Exception_Convert('Unable to convert {mixed} ({type}) to ID', [
+			'mixed' => $mixed, 'type' => type($mixed),
+		]);
 	}
 }

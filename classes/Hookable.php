@@ -26,20 +26,6 @@ class Hookable extends Options {
 	private array $_hooks = [];
 
 	/**
-	 * Set in subclasses to have options append upon inherit
-	 *
-	 * @var array
-	 */
-	protected array $options_inherit_append = [];
-
-	/**
-	 * Set in subclasses to have options overwrite (always) upon inherit
-	 *
-	 * @var array
-	 */
-	protected array $options_inherit_overwrite = [];
-
-	/**
 	 *
 	 * @param Application $application
 	 * @param array $options
@@ -355,11 +341,11 @@ class Hookable extends Options {
 	 * @param string $class
 	 * @return array
 	 */
-	public function default_options(string $class): array {
+	public function defaultOptions(string $class): array {
 		$class = strtolower($class);
 		// Class hierarchy is given from child -> parent
 		$config = new Configuration();
-		foreach ($this->_defaultOptions($class) as $subclass => $configuration) {
+		foreach ($this->_defaultOptions($class) as $configuration) {
 			// Child options override parent options
 			$config->merge($configuration, false);
 		}
@@ -370,42 +356,10 @@ class Hookable extends Options {
 	 * Load options for this object based on the application configuration loaded.
 	 * Only overwrites values which are NOT set.
 	 *
-	 * @param ?string $class
-	 *            Inherit globals from this class
+	 * @param string $class Inherit globals from this class
 	 * @return $this
 	 */
-	final public function inheritConfiguration(string $class = null): self {
-		if ($class === null) {
-			$class = get_class($this);
-		}
-		$options = $this->default_options($class);
-		foreach ($this->options_inherit_append as $append_key) {
-			if ($this->hasOption($append_key) && array_key_exists($append_key, $options)) {
-				$items = $this->optionArray($append_key);
-				$this->setOption($append_key, array_merge($items, toArray($options[$append_key])));
-			}
-		}
-		foreach ($options as $key => $value) {
-			$key = self::_optionKey($key);
-			if (!array_key_exists($key, $this->options) || in_array($key, $this->options_inherit_overwrite)) {
-				$this->options[$key] = $value;
-			}
-		}
-		return $this;
-	}
-
-	/**
-	 * Load options for this object based on globals loaded.
-	 * Only overwrites values which are NOT set.
-	 *
-	 * @param ?string $class
-	 *            Inherit globals from this class
-	 * @return $this
-	 * @deprecated 2022-01
-	 * @codeCoverageIgnore
-	 */
-	final public function inherit_global_options(string $class = null): self {
-		$this->application->deprecated(__METHOD__);
-		return $this->inheritConfiguration($class);
+	final public function inheritConfiguration(string $class = ''): self {
+		return $this->setOptions($this->defaultOptions($class ?: get_class($this)), false);
 	}
 }

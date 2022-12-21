@@ -61,9 +61,9 @@ class Control_OrderBy extends Control {
 			$reverse_order_by = [];
 			foreach ($list_order_by as $token) {
 				$lowtoken = strtolower($token);
-				if (ends($lowtoken, ' desc')) {
+				if (str_ends_with($lowtoken, ' desc')) {
 					$reverse_order_by[] = substr($token, 0, -5);
-				} elseif (ends($lowtoken, ' asc')) {
+				} elseif (str_ends_with($lowtoken, ' asc')) {
 					$reverse_order_by[] = substr($token, 0, -4) . ' DESC';
 				} else {
 					$reverse_order_by[] = "$token DESC";

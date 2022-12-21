@@ -15,7 +15,7 @@ namespace zesk;
  * @property User $user
  * @property Timestamp $created
  */
-class Selection_Type extends ORM {
+class Selection_Type extends ORMBase {
 	/**
 	 * Modify the current selection list using the queries
 	 *
@@ -62,7 +62,7 @@ class Selection_Type extends ORM {
 			->addWhere('add', true)
 			->distinct(true)
 			->group_by('id')
-			->orm_iterator();
+			->ormIterator();
 	}
 
 	/**
@@ -71,7 +71,7 @@ class Selection_Type extends ORM {
 	 * @return boolean True if it's the user's original selection
 	 */
 	public function is_original() {
-		return !begins($this->code, '*');
+		return !str_starts_with($this->code, '*');
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Selection_Type extends ORM {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see ORM::delete()
+	 * @see ORMBase::delete()
 	 */
 	public function delete() {
 		$this->application->ormRegistry(Selection_Query::class)
@@ -98,7 +98,7 @@ class Selection_Type extends ORM {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see ORM::duplicate($options)
+	 * @see ORMBase::duplicate($options)
 	 */
 	public function duplicate(Options_Duplicate &$options = null) {
 		$dup = parent::duplicate($options);
@@ -198,7 +198,7 @@ class Selection_Type extends ORM {
 			]), HTML::span('.query-action ' . ($query->add ? '.query-action-add' : '.query-action-remove'), '[]'));
 		}
 		$n_added = $this->application->ormRegistry('zesk\\Selection_Item')
-			->query_select()
+			->querySelect()
 			->where([
 				'type' => $this,
 				'query' => null,
@@ -212,7 +212,7 @@ class Selection_Type extends ORM {
 			]);
 		}
 		$n_excluded = $this->application->ormRegistry('zesk\\Selection_Item')
-			->query_select()
+			->querySelect()
 			->where([
 				'type' => $this,
 				'query' => null,

@@ -13,7 +13,7 @@ namespace zesk;
  * @see Class_Content_Article
  * @author kent
  */
-class Content_Article extends ORM {
+class Content_Article extends ORMBase {
 	/**
 	 *
 	 * @return string[][]|number[][]
@@ -36,7 +36,7 @@ class Content_Article extends ORM {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see ORM::store()
+	 * @see ORMBase::store()
 	 */
 	public function store(): self {
 		if (empty($this->parent)) {
@@ -83,7 +83,7 @@ class Content_Article extends ORM {
 			}
 			$contents = HTML::remove_tags('meta', $contents);
 		}
-		$temp = avalue($meta, 'language');
+		$temp = $meta['language'] ?? null;
 		if ($temp) {
 			$fields['Language'] = $temp;
 		} else {
@@ -92,12 +92,12 @@ class Content_Article extends ORM {
 		if (count($meta) == 0) {
 			return $fields;
 		}
-		$kw = avalue($meta, 'keywords');
+		$kw = $meta['keywords'] ?? null;
 		if ($kw) {
 			$fields['AutoKeywords'] = false;
 			$fields['Keywords'] = $kw;
 		}
-		$description = avalue($meta, 'description');
+		$description = $meta['description'] ?? null;
 		if (!$description) {
 			return $fields;
 		}
@@ -267,9 +267,9 @@ class Content_Article extends ORM {
 	public function image($image_index = 0, $options = []) {
 		$options['image_path'] = '/data/article';
 
-		$member_prefix = (avalue($options, 'is_thumb')) ? 'Thumb' : '';
-		$global_prefix = (avalue($options, 'is_thumb')) ? 'thumb_' : '';
-		$default_value = (avalue($options, 'is_thumb')) ? 150 : 300;
+		$member_prefix = ($options['is_thumb'] ?? null) ? 'Thumb' : '';
+		$global_prefix = ($options['is_thumb'] ?? null) ? 'thumb_' : '';
+		$default_value = ($options['is_thumb'] ?? null) ? 150 : 300;
 
 		if (!array_key_exists('image_width', $options)) {
 			$options['image_width'] = $this->memberInteger("Photo${member_prefix}Width$image_index", $this->_compute_image_width($global_prefix, $default_value));

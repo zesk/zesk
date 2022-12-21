@@ -58,9 +58,9 @@ class Configuration_Loader {
 
 	/**
 	 *
-	 * @var File_Monitor_List
+	 * @var FilesMonitor
 	 */
-	private File_Monitor_List $file_monitor;
+	private FilesMonitor $file_monitor;
 
 	/**
 	 *
@@ -90,7 +90,7 @@ class Configuration_Loader {
 	public function __construct(array $files, Interface_Settings $settings) {
 		$this->settings = $settings;
 		$this->files = $files;
-		$this->file_monitor = new File_Monitor_List($this->files);
+		$this->file_monitor = new FilesMonitor($this->files);
 		$this->dependency = new Configuration_Dependency();
 	}
 

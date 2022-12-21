@@ -11,11 +11,11 @@ class Trie_Test extends UnitTest {
 		$aa_json = [
 			'a' => [
 				'a' => [
-					'hed' => 1,
-					'lii' => 1,
+					'h' => 'ed',
+					'l' => 'ii',
 					'r' => [
-						'gh' => 1,
-						'ti' => 1,
+						'g' => 'h',
+						't' => 'i',
 					],
 				],
 				'b' => [
@@ -26,46 +26,59 @@ class Trie_Test extends UnitTest {
 							'k' => 1,
 							's' => 1,
 						],
-						'ft' => 1,
-						'ka' => 1,
-						'mp' => 1,
-						'nd' => 1,
+						'f' => 't',
+						'k' => 'a',
+						'm' => 'p',
+						'n' => 'd',
 						's' => [
 							'e' => 1,
 							'h' => 1,
 							'k' => 1,
 						],
-						'te' => 1,
-						'ya' => 1,
+						't' => 'e',
+						'y' => 'a',
 					],
 					'b' => [
-						'as' => 1,
+						'a' => 's',
 						'e' => [
 							'd' => 1,
 							's' => 1,
 							'y' => 1,
 						],
-						'ot' => 1,
+						'o' => 't',
 					],
-					'cee' => 1,
+					'c' => 'ee',
 					'e' => [
 						'a' => [
 							'm' => 1,
 							'r' => 1,
 						],
-						'le' => 1,
-						'ts' => 1,
+						'l' => 'e',
+						't' => 's',
 					],
-					'hor' => 1,
+					'h' => 'or',
 					'i' => [
-						'de' => 1,
-						'es' => 1,
+						'd' => 'e',
+						'e' => 's',
 					],
 				],
 			],
 		];
 		$aptitude_json = [
-
+			'a' => [
+				'' => 1,
+				'p' => [
+					't' => [
+						'' => 1,
+						'e' => 'd',
+						'i' => 'tude',
+					],
+				],
+				't' => [
+					'' => 1,
+					'e' => 1,
+				],
+			],
 		];
 		return [
 			[
@@ -106,19 +119,32 @@ class Trie_Test extends UnitTest {
 		$x = new Trie(['lower' => true]);
 		sort($words);
 
+		$wordsDesc = implode(',', array_slice($words, 0, 5)) . ' (' . count($words) . ')';
 		$added = [];
 		$previous = '';
 		foreach ($words as $word) {
 			$x->add($word);
 			$added[] = $word;
 			sort($added);
-			$this->assertEquals($added, $this->get_words($x), "After adding $word (previous $previous)");
+			$loopWords = $x->words();
+			sort($loopWords);
+			$this->assertEquals($added, $loopWords, "$wordsDesc: After adding $word (previous $previous)");
 			$previous = $word;
 		}
-		$x->optimize();
-		$json = $x->toJSON();
-		echo "\n\n" . PHP::dump($json) . "\n\n";
-		$this->assertEquals($expected, $json);
+		$finalWords = $x->words();
+		sort($finalWords);
+		$this->assertEquals($words, $finalWords, "$wordsDesc: final words");
 		$this->assertEquals($words, $this->get_words($x));
+
+		$x->optimize();
+
+		$optimizedWords = $x->words();
+		sort($optimizedWords);
+		$this->assertEquals($words, $optimizedWords, "$wordsDesc: optimized words");
+
+		$json = $x->toJSON();
+//		echo "\nEXPECTED:\n" . PHP::dump($expected) . "\n\n";
+//		echo "\nACTUAL:\n" . PHP::dump($json) . "\n\n";
+		$this->assertEquals($expected, $json, "$wordsDesc: JSON");
 	}
 }

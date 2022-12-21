@@ -105,4 +105,39 @@ class PHP_Test extends UnitTest {
 			'9' => ['kind' => 'number', 'code' => ord('9'), ],
 		]);
 	}
+
+	/**
+	 * @param $expected
+	 * @param $mixed
+	 * @param bool $throw
+	 * @return void
+	 * @throws Exception_Parse
+	 * @dataProvider data_autoType
+	 */
+	public function test_autoType($expected, $mixed, bool $throw = false): void {
+		if ($throw) {
+			$this->expectException(Exception_Parse::class);
+		}
+		$this->assertEquals($expected, PHP::autoType($mixed, $throw));
+	}
+
+	public function data_autoType(): array {
+		$stdClass = new \stdClass();
+		return
+		[
+			[12093019, '12093019'],
+			[0, '0'],
+			[1, '1'],
+			[8675309, '8675309'],
+			[99.999, '99.999'],
+			[$stdClass, $stdClass],
+			[null, 'null'],
+			['User', 'User'],
+			[[], '[]'],
+			[[1, 2, 3], '[1,2,3]'],
+			[[1, 2, 3], '[1,2,3,]', true],
+			[[1, 2, 3], '{1,2,3}', true],
+			[['hello' => 'world'], '{"hello":"world"}'],
+		];
+	}
 }

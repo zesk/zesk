@@ -28,7 +28,7 @@ class Controller_Control extends Controller {
 		if (!is_array(self::$allowed)) {
 			self::$allowed = array_change_key_case(ArrayTools::keysFromValues($this->optionIterable('allowed_controls'), true));
 		}
-		return avalue(self::$allowed, strtolower($control), false);
+		return self::$allowed[strtolower($control)] ?? false;
 	}
 
 	public function action_control($control, $name, $input) {

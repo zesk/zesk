@@ -33,9 +33,9 @@ class Raw extends Type {
 	 */
 	public function headers(): void {
 		if ($this->file) {
-			$this->parent->content_type(MIME::from_filename($this->file));
-			$this->parent->header('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', filemtime($this->file)));
-			$this->parent->header('Content-Length', filesize($this->file));
+			$this->parent->setContentType(MIME::fromExtension($this->file));
+			$this->parent->setHeader('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', filemtime($this->file)));
+			$this->parent->setHeader('Content-Length', filesize($this->file));
 		}
 	}
 
@@ -65,7 +65,7 @@ class Raw extends Type {
 			throw new Exception_File_NotFound($file);
 		}
 		$this->parent->setOutputHandler(Response::CONTENT_TYPE_RAW);
-		$this->parent->setContentType(MIME::from_filename($file));
+		$this->parent->setContentType(MIME::fromExtension($file));
 		$this->file = $file;
 		return $this->parent;
 	}

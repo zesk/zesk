@@ -25,7 +25,7 @@ class Control_Filter_Query extends Control_Select {
 			$this->control_options = [];
 		}
 		foreach ($set as $code => $options) {
-			$title = avalue($options, 'title', $code);
+			$title = $options['title'] ?? $code;
 			$this->control_options[$code] = $title;
 			$this->query_options[$code] = $options;
 		}
@@ -51,7 +51,7 @@ class Control_Filter_Query extends Control_Select {
 			'name' => $this->name(),
 			'id' => $this->id(),
 			'value' => $value,
-			'text_value' => avalue($this->control_options, strval($value), $value),
+			'text_value' => $this->control_options[strval($value)] ?? $value,
 			'label' => $this->label(),
 			'column' => $this->column(),
 		];
@@ -60,7 +60,7 @@ class Control_Filter_Query extends Control_Select {
 	protected function _filter_where(Database_Query_Select $query, $value): void {
 		$map = $this->filter_map();
 		$value = ArrayTools::scalars($value);
-		$query->where(amap($value, $map));
+		$query->where(mapKeysAndValues($value, $map));
 	}
 
 	protected function _filter_condition(Database_Query_Select $query, $value): void {
@@ -69,17 +69,17 @@ class Control_Filter_Query extends Control_Select {
 
 	protected function _filter_what(Database_Query_Select $query, $value): void {
 		$map = $this->filter_map();
-		$query->what(amap($value, $map));
+		$query->what(mapKeysAndValues($value, $map));
 	}
 
 	protected function _filter_order_by(Database_Query_Select $query, $value): void {
 		$map = $this->filter_map();
-		$query->order_by(amap($value, $map));
+		$query->order_by(mapKeysAndValues($value, $map));
 	}
 
 	protected function _filter_join(Database_Query_Select $query, $value): void {
 		$map = $this->filter_map();
-		$query->join(amap($value, $map));
+		$query->join(mapKeysAndValues($value, $map));
 	}
 
 	protected function _filter_link(Database_Query_Select $query, $value): void {

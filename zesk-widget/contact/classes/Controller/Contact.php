@@ -89,7 +89,7 @@ class Controller_Contact extends Controller_Authenticated {
 
 		$vars = [];
 		$n_contacts = $this->application->ormRegistry('Contact')
-			->query_select()
+			->querySelect()
 			->addWhere('User', $this->user)
 			->what('*n_contacts', 'COUNT(X.ID)')
 			->integer('n_contacts');

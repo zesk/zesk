@@ -5,6 +5,8 @@
  */
 namespace zesk;
 
+use Throwable;
+
 /**
  * @author kent
  *
@@ -14,27 +16,35 @@ class Exception_Command extends Exception {
 	 *
 	 * @var string
 	 */
-	public $command = null;
+	private string $command;
 
 	/**
 	 *
 	 * @var array
 	 */
-	public $output = null;
+	private array $output;
 
 	/**
 	 *
 	 * @param string $command
-	 * @param int $resultcode
+	 * @param int $code
 	 * @param array $output
 	 */
-	public function __construct(string $command, int $resultcode, array $output) {
-		parent::__construct("{command} exited with result {resultcode}\nOUTPUT:\n{output}\nEND OUTPUT", [
-			'resultcode' => $resultcode,
-			'command' => strval($command),
+	public function __construct(string $command, int $code, array $output, Throwable $previous = null) {
+		parent::__construct("{command} exited with result {resultCode}\nOUTPUT:\n{output}\nEND OUTPUT", [
+			'resultCode' => $code,
+			'command' => $command,
 			'output' => $output,
-		], $resultcode);
-		$this->command = strval($command);
+		], $code, $previous);
+		$this->command = $command;
 		$this->output = $output;
+	}
+
+	public function getOutput(): array {
+		return $this->output;
+	}
+
+	public function getCommand(): string {
+		return $this->command;
 	}
 }

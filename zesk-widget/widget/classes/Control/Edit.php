@@ -202,7 +202,7 @@ class Control_Edit extends Control {
 		}
 		parent::initialize();
 
-		$this->initialize_theme_paths();
+		$this->initialize_themePaths();
 
 		$this->form_attributes['action'] = $this->request->path();
 
@@ -242,7 +242,7 @@ class Control_Edit extends Control {
 		$message = map($this->option('delete_redirect_message'), $vars);
 		$response = $this->response();
 		if ($this->preferJSON()) {
-			$response->json()->data([
+			$response->json()->setData([
 				'result' => true,
 				'message' => $message,
 				'redirect' => $url,
@@ -347,7 +347,7 @@ class Control_Edit extends Control {
 	 *
 	 * @return void
 	 */
-	protected function initialize_theme_paths(): void {
+	protected function initialize_themePaths(): void {
 		$hierarchy = $this->application->classes->hierarchy($this, __CLASS__);
 		foreach ($hierarchy as $index => $class) {
 			$hierarchy[$index] = strtr(strtolower($class), [
@@ -363,7 +363,7 @@ class Control_Edit extends Control {
 				$this->$theme_var = ArrayTools::suffixValues($hierarchy, $var);
 				$debug_type = 'default';
 			}
-			if ($this->optionBool('debug_theme_paths')) {
+			if ($this->optionBool('debug_themePaths')) {
 				$this->application->logger->debug('{class}->{theme_var} theme ({debug_type}) is {paths}', [
 					'debug_type' => $debug_type,
 					'class' => get_class($this),

@@ -5,14 +5,47 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace zesk\Command;
+
+use Throwable;
+use zesk\Application;
+use zesk\Command;
+use zesk\Directory;
+use zesk\Exception;
+use zesk\Exception_Class_NotFound;
+use zesk\Exception_Exited;
+use zesk\Exception_File_Format;
+use zesk\Exception_File_NotFound;
+use zesk\Exception_NotFound;
+use zesk\Exception_Parameter;
+use zesk\Exception_Semantics;
+use zesk\File;
+use zesk\JSON;
+use zesk\Kernel;
+use zesk\Locale;
+use function apath_set;
 
 /**
  * Loads a Zesk Command from the command-line
  *
  * @author kent
  */
-class Command_Loader {
+class Loader {
+	/**
+	 *
+	 */
+	public const EXIT_CODE_SUCCESS = 0;
+
+	/**
+	 * Error with environment
+	 */
+	public const EXIT_CODE_ENVIRONMENT = 1;
+
+	/**
+	 * Problem with command arguments
+	 */
+	public const EXIT_CODE_ARGUMENTS = 2;
+
 	/**
 	 * Search these paths to find application
 	 *
@@ -26,13 +59,6 @@ class Command_Loader {
 	 * @var string
 	 */
 	private string $command = '';
-
-	/**
-	 * Was Zesk loaded?
-	 *
-	 * @var string
-	 */
-	private bool $is_loaded = false;
 
 	/**
 	 * List of config files to load after loading application
@@ -49,11 +75,11 @@ class Command_Loader {
 	private array $loaded_configs = [];
 
 	/**
-	 * Command alaises
+	 * Shortcut to classname
 	 *
 	 * @var array
 	 */
-	private array $aliases = [];
+	protected array $commands = [];
 
 	/**
 	 *
@@ -75,13 +101,7 @@ class Command_Loader {
 	public ?Application $application = null;
 
 	/**
-	 *
-	 * @var string
-	 */
-	public const configure_options = 'application::configure_options';
-
-	/**
-	 * Set up PHP basics so we can detect errors while testing, etc.
+	 * Set up PHP basics, to allow detecting errors while testing, etc.
 	 */
 	public function __construct() {
 		global $_ZESK;
@@ -90,7 +110,7 @@ class Command_Loader {
 			$_ZESK = [];
 		}
 
-		$_ZESK['zesk\application']['configure_options']['skip_configured'] = true; // Is honored 2018-03-10 KMD
+		$_ZESK['zesk\Application']['configure_options']['skip_configured'] = true; // Is honored 2018-03-10 KMD
 
 		ini_set('error_prepend_string', "\nPHP-ERROR " . str_repeat('=', 80) . "\n");
 		ini_set('error_append_string', "\n" . str_repeat('*', 80) . "\n");
@@ -109,23 +129,38 @@ class Command_Loader {
 	 *
 	 * @return array
 	 */
-	public function context() {
+	public function context(): array {
 		return $this->global_context;
+	}
+
+	/**
+	 * Use this outside of a CLI context, use this to set the application context.
+	 *
+	 * @param Application $application
+	 * @return $this
+	 */
+	public function setApplication(Application $application): self {
+		$this->application = $application;
+		return $this;
 	}
 
 	/**
 	 * Run the command.
 	 * Main entry point into this class after initialization, normally.
+	 * @return int
+	 * @throws Exception_Exited
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
 	 */
-	public function run() {
-		if (!array_key_exists('argv', $_SERVER)) {
-			die('No argv key in $_SERVER\n');
+	public function run(): int {
+		if (!array_key_exists('argv', $_SERVER) || !is_array($_SERVER['argv'])) {
+			throw new Exception_Parameter('No argv in $_SERVER');
 		}
 
 		$args = $_SERVER['argv'];
 		assert(is_array($args));
 		$args = $this->fix_zend_studio_arguments($args);
-		$args = $this->argument_sugar($args);
+		$args = $this->argumentSugar($args);
 		$this->command = array_shift($args);
 
 		/*
@@ -151,41 +186,116 @@ class Command_Loader {
 		 *
 		 * Each command handles its own arguments itself.
 		 */
-		$first_command = null;
 		while (count($args) > 0) {
 			$arg = array_shift($args);
 			if (str_starts_with($arg, '--')) {
-				$func = 'handle_' . substr($arg, 2);
-				if (method_exists($this, $func)) {
-					$args = $this->$func($args);
-
-					continue;
-				}
-				array_unshift($args, substr($arg, 2));
-				$args = $this->handle_set($args);
-
+				$args = $this->handleCoreArguments($arg, $args);
 				continue;
 			}
-			if (!class_exists('zesk\\Kernel', false)) {
-				$first_command = $this->find_application();
-
-				require_once $first_command;
-				$this->application = $this->zeskLoaded($first_command);
-				$this->application->console(true);
-				if ($this->application->configuration->debug || $this->debug) {
-					$this->debug = true;
+			if (!class_exists(Kernel::class, false)) {
+				$exitCode = $this->bootstrapApplication();
+				if ($exitCode !== 0) {
+					return $exitCode;
 				}
-				$this->debug("Loaded application file $first_command\n");
-				$this->application->objects->setSingleton($this);
 			}
-			if (str_starts_with($arg, '/') && is_file($arg)) {
-				require_once $arg;
-
+			if ($this->isIncludeCommand($arg)) {
+				$exitCode = $this->runIncludeCommand($arg);
+				if ($exitCode !== 0) {
+					return $exitCode;
+				}
 				continue;
 			}
-			$args = $this->run_command($arg, $args);
+
+			try {
+				$args = $this->runCommand($arg, $args);
+			} catch (Exception_NotFound $e) {
+				$this->error(map("{command} not found: {commands}\n", $e->variables()));
+				return self::EXIT_CODE_ARGUMENTS;
+			}
+		}
+		return self::EXIT_CODE_SUCCESS;
+	}
+
+	/**
+	 * @return int
+	 * @throws Exception_Exited
+	 * @throws Exception_Semantics
+	 */
+	private function bootstrapApplication(): int {
+		$first_command = $this->findApplication();
+		if (!$first_command) {
+			return self::EXIT_CODE_ENVIRONMENT;
+		}
+
+		require_once $first_command;
+		$exitCode = $this->zeskLoaded($first_command);
+		if ($exitCode) {
+			return $exitCode;
+		}
+
+		if ($this->application->configuration->debug || $this->debug || $this->application->optionBool(Application::OPTION_DEBUG)) {
+			$this->debug = true;
+		}
+		$this->debug("Loaded application file $first_command\n");
+		$this->application->objects->setSingleton($this);
+		return 0;
+	}
+
+	/**
+	 * @param string $arg
+	 * @param array $args
+	 * @return array
+	 * @throws Exception_File_Format
+	 */
+	private function handleCoreArguments(string $arg, array $args): array {
+		return match ($arg) {
+			'--cd' => $this->handleCD($args),
+			'--config' => $this->handleConfig($args),
+			'--define' => $this->handle_define($args),
+			'--search' => $this->handle_search($args),
+			'--set' => $this->handle_set($args),
+			'--unset' => $this->handle_unset($args),
+			default => $this->handle_set(array_merge([substr($arg, 2)], $args)),
+		};
+	}
+
+	/**
+	 * @param string $arg
+	 * @return bool
+	 */
+	private function isIncludeCommand(string $arg): bool {
+		return str_starts_with($arg, '/') || str_starts_with($arg, './');
+	}
+
+	/**
+	 * @param string $arg
+	 * @return int
+	 */
+	private function runIncludeCommand(string $arg): int {
+		try {
+			File::depends($arg);
+		} catch (Exception_File_NotFound) {
+			$this->error("File not found: $arg");
+			return self::EXIT_CODE_ARGUMENTS;
+		}
+
+		try {
+			require_once($arg);
+		} catch (\Throwable $e) {
+			$this->error(map("require_once($arg) threw error: {class} {message}\n", ['arg' => $arg] + Exception::exceptionVariables($e)));
+			return self::EXIT_CODE_ARGUMENTS;
 		}
 		return 0;
+	}
+
+	/**
+	 * @return void
+	 */
+	public function terminate(int $exit): int {
+		if (class_exists(Kernel::class, false)) {
+			Kernel::terminate();
+		}
+		return $exit;
 	}
 
 	/**
@@ -200,9 +310,9 @@ class Command_Loader {
 	/**
 	 * Determine the STDERR file
 	 *
-	 * @return string|unknown|resource
+	 * @return resource
 	 */
-	private function stderr() {
+	private function stderr(): mixed {
 		if (defined('STDERR')) {
 			return STDERR;
 		}
@@ -215,39 +325,137 @@ class Command_Loader {
 	}
 
 	/**
-	 * Run a command
-	 *
-	 * @param string $arg
-	 * @param array $args
 	 * @return array
 	 */
-	public function run_command(string $arg, array $args) {
+	public function collectCommands(): array {
+		$failures = [];
+		foreach ($this->application->zeskCommandPath() as $path => $prefix) {
+			if (is_numeric($path)) {
+				$path = $prefix;
+			}
+			if (is_file($path)) {
+				try {
+					$this->application->load($path);
+				} catch (Throwable $e) {
+					$failures[$path] = $e;
+				}
+			} elseif (is_dir($path)) {
+				try {
+					$commands = Directory::listRecursive($path, [
+						Directory::LIST_RULE_FILE => [
+							"#\.php$#" => true, false,
+						], Directory::LIST_RULE_DIRECTORY_WALK => [
+							"#/\.#" => false, true,
+						], Directory::LIST_RULE_DIRECTORY => false, Directory::LIST_ADD_PATH => true,
+					]);
+					foreach ($commands as $commandInclude) {
+						try {
+							include_once($commandInclude);
+						} catch (Throwable $e) {
+							$failures[$commandInclude] = $e;
+						}
+					}
+				} catch (Exception_Parameter) {
+				}
+			}
+		}
+		if (count($failures)) {
+			foreach ($failures as $path => $throwable) {
+				$this->application->logger->error('Command {path} failed {message}', Exception::exceptionVariables($throwable) + ['path' => $path]);
+			}
+		}
+		$this->application->classes->register(get_declared_classes());
+		return $this->application->classes->subclasses(Command::class);
+	}
+
+	public function collectCommandShortcuts(): array {
+		$allShortcuts = [];
+		$failures = [];
+		foreach ($this->collectCommands() as $commandClass) {
+			try {
+				$reflectionClass = new \ReflectionClass($commandClass);
+				if ($reflectionClass->isAbstract()) {
+					continue;
+				}
+				$instance = $reflectionClass->newInstanceArgs([$this->application]);
+			} catch (\ReflectionException $e) {
+				$failures[$commandClass] = $e;
+				$instance = null;
+			}
+			if (!$instance instanceof Command) {
+				continue;
+			}
+			$shortcuts = $instance->shortcuts();
+			foreach ($shortcuts as $shortcut) {
+				if (array_key_exists($shortcut, $allShortcuts)) {
+					if (str_starts_with($commandClass, __NAMESPACE__ . '\\')) {
+						$this->application->logger->info('Shortcut {shortcut} for {previousClass} overridden by handler {class}', [
+							'shortcut' => $shortcut, 'class' => $commandClass,
+							'previousClass' => $allShortcuts[$shortcut],
+						]);
+						$allShortcuts[$shortcut] = $commandClass;
+					} else {
+						$this->application->logger->debug('Shortcut {shortcut} for {class} will not override existing handler {currentClass}', [
+							'shortcut' => $shortcut, 'class' => $commandClass,
+							'currentClass' => $allShortcuts[$shortcut],
+						]);
+					}
+				} else {
+					$allShortcuts[$shortcut] = $commandClass;
+				}
+			}
+		}
+		if (count($failures)) {
+			foreach ($failures as $path => $throwable) {
+				$this->application->logger->error('Command {path} failed {message}', Exception::exceptionVariables($throwable) + ['path' => $path]);
+			}
+		}
+		return $allShortcuts;
+	}
+
+	/**
+	 * Run a command
+	 *
+	 * @param string $shortcut
+	 * @param array $args
+	 * @return array
+	 * @throws Exception_NotFound
+	 */
+	public function runCommand(string $shortcut, array $args): array {
+		$commands = $this->collectCommandShortcuts();
+		if (!array_key_exists($shortcut, $commands)) {
+			throw new Exception_NotFound('Command {command} not found', [
+				'command' => $shortcut, 'commands' => array_keys($commands),
+			]);
+		}
+		$class = $commands[$shortcut];
 		$application = $this->application;
-		$command = $this->aliases[$arg] ?? $arg;
-		$command = strtr($command, [
-			'_' => '/',
-			'-' => '/',
-		]);
-		[$class, $path] = $this->find_command_class($command);
-		if (!$class) {
-			return $args;
+		/* @var $command Command */
+		try {
+			$command = $application->objects->factory($class, $application, array_merge([
+				$shortcut,
+			], $args), [
+				'debug' => $this->debug,
+			]);
+		} catch (Exception_Class_NotFound $e) {
+			throw new Exception_NotFound('Command {command} not found', ['command' => $shortcut], 404, $e);
 		}
-		if (!class_exists($class, false)) {
-			$this->error("Command class $class does not exist in $path ... skipping\n");
-			return $args;
+		$application->setCommand($command);
+
+		try {
+			$result = $command->parseArguments(array_merge([$shortcut], $args))->go();
+		} catch (Exception_Parameter $e) {
+			$command->usage($e->getMessage(), $e->variables() + ['exitCode' => Command::EXIT_CODE_ARGUMENTS]);
+			$result = Command::EXIT_CODE_ARGUMENTS;
 		}
-		/* @var $command_object Command */
-		$command_object = $application->objects->factory($class, $application, array_merge([
-			$arg,
-		], $args), [
-			'debug' => $this->debug,
-		]);
-		$application->setCommand($command_object);
 
-		$result = $command_object->go();
+		$args = $command->argumentsRemaining(false);
 
-		$args = $command_object->argumentsRemaining();
-		$this->debug('Remaining class arguments: ' . JSON::encode($args));
+		try {
+			$this->debug('Remaining class arguments: ' . JSON::encode($args));
+		} catch (Exception_Semantics) {
+			// JSON failed, bah
+		}
 		if ($result !== 0) {
 			$this->debug("Command $class returned $result");
 		}
@@ -258,57 +466,13 @@ class Command_Loader {
 	}
 
 	/**
-	 *
-	 * @param Application $application
-	 * @param unknown $command
-	 * @return string[]|NULL[]
-	 */
-	private function find_command_class(string $command): array {
-		$paths = $this->application->zeskCommandPath();
-		$class = strtr($command, [
-			'/' => '_',
-		]);
-		$try_files = [];
-		foreach ($paths as $path => $prefix) {
-			$try_files[path($path, $command . '.inc')] = $prefix; // DEPRECATED TODO 2017-03
-			$try_files[path($path, strtolower($command) . '.php')] = $prefix;
-			$try_files[path($path, ucfirst($command) . '.php')] = $prefix;
-			$try_files[path($path, strtoupper($command) . '.php')] = $prefix;
-		}
-		foreach ($try_files as $file => $prefix) {
-			if (is_file($file)) {
-				if (File::extension($file) === 'inc') {
-					/**
-					 *
-					 * @deprecated 2017-01
-					 */
-					$new_file = File::extension_change($file, 'php');
-					$this->error("Command files ending with .inc are deprecated in Zesk 0.9.0, please rename\n\n\tmv $file $new_file\n\nto use the .php extension\n");
-				}
-				require_once $file;
-				return [
-					$prefix . $class,
-					$file,
-				];
-			}
-		}
-		$this->debug("Search path: \n\t{paths}", [
-			'paths' => implode("\n\t", ArrayTools::suffixValues(array_keys($paths), "/$command.php")),
-		]);
-		$this->error("Ignoring command $command - not found\n");
-		return [
-			null,
-			null,
-		];
-	}
-
-	/**
 	 * Show usage
 	 *
 	 * @param string $error
-	 * @param number $exit_code
+	 * @param int $exitCode
+	 * @return void
 	 */
-	private function usage($error = null, $exit_code = 1): void {
+	private function usage(string $error = '', int $exitCode = Command::EXIT_CODE_ARGUMENTS): int {
 		if ($error) {
 			$message[] = $error;
 			$message[] = '';
@@ -321,7 +485,7 @@ class Command_Loader {
 		$message[] = 'Finally, --define name=value defines a name in the PHP scope, or --define name defines name to be true';
 
 		fwrite(STDERR, implode("\n", $message) . "\n");
-		exit($exit_code);
+		return $exitCode;
 	}
 
 	/**
@@ -372,9 +536,9 @@ class Command_Loader {
 	 * Provide some syntactic sugar for input arguments, converting ___ to \
 	 *
 	 * @param array $args
-	 * @return string
+	 * @return array
 	 */
-	private function argument_sugar(array $args) {
+	private function argumentSugar(array $args): array {
 		foreach ($args as $index => $arg) {
 			$args[$index] = strtr($arg, [
 				'___' => '\\',
@@ -383,33 +547,39 @@ class Command_Loader {
 		return $args;
 	}
 
-	/**
-	 * Find the application file from the CWD or the search directory
-	 *
-	 * @return string
-	 */
-	public function find_application() {
+	private function getApplicationPatterns(): array {
 		global $_ZESK;
-		if (count($this->search) === 0) {
-			$this->search[] = getcwd();
-		}
 		$root_files = null;
-		foreach ([
-			$_ZESK,
-			$_SERVER,
-		] as $super) {
-			if (!is_array($super)) {
-				continue;
-			}
-			$root_files = array_key_exists('zesk_root_files', $super) ? $super['zesk_root_files'] : null;
-			if ($root_files) {
-				break;
+		$keys = ['ZESK_APPLICATION_PATTERNS', 'zesk_root_files'];
+		foreach ($keys as $key) {
+			foreach ([
+				$_ZESK, $_SERVER,
+			] as $super) {
+				if (!is_array($super)) {
+					continue;
+				}
+				$root_files = $super[$key] ?? null;
+				if ($root_files) {
+					break;
+				}
 			}
 		}
 		if (!$root_files) {
 			$root_files = '*.application.php';
 		}
-		$root_files = explode(' ', $root_files);
+		return explode(' ', $root_files);
+	}
+
+	/**
+	 * Find the application file from the CWD or the search directory
+	 *
+	 * @return string
+	 */
+	public function findApplication(): string {
+		$root_files = $this->getApplicationPatterns();
+		if (count($this->search) === 0) {
+			$this->search[] = getcwd();
+		}
 		foreach ($this->search as $dir) {
 			while (!empty($dir)) {
 				foreach ($root_files as $root_file) {
@@ -426,42 +596,40 @@ class Command_Loader {
 				}
 			}
 		}
-		$this->usage('No zesk ' . implode(', ', $root_files) . ' found in: ' . implode(', ', $this->search));
-		return null;
+		$this->error('No zesk ' . implode(', ', $root_files) . ' found in: ' . implode(', ', $this->search) . "\n");
+		return '';
 	}
 
 	/**
 	 *
 	 * @param string $arg
-	 * @return Application
+	 * @return int
+	 * @throws Exception_Exited
 	 */
-	private function zeskLoaded(string $arg) {
-		if ($this->is_loaded) {
-			return $this->application;
+	private function zeskLoaded(string $arg): int {
+		if ($this->application instanceof Application) {
+			return 0;
 		}
 		if (!$this->zeskIsLoaded()) {
-			$this->usage("Zesk not initialized correctly.\n\n    $arg\n\nmust contain reference to:\n\n    require_once '" . ZESK_ROOT . "autoload.php';\n\n");
+			return $this->usage("Zesk not initialized correctly.\n\n    $arg\n\nmust contain reference to:\n\n    require_once '" . ZESK_ROOT . "autoload.php';\n\n");
 		}
-		$this->is_loaded = true;
-		$kernel = Kernel::singleton();
-		$kernel->autoloader->addPath(ZESK_ROOT . 'command', [
-			'class_prefix' => 'zesk\\Command',
-			'lower' => true,
-		]);
-		$app = $kernel->application();
-		$this->aliases = [];
-		$loader = new Configuration_Loader([
-			$app->path('etc/command-aliases.json'),
-			$app->zeskHome('etc/command-aliases.json'),
-		], new Adapter_Settings_Array($this->aliases));
-		$loader->load();
-		if (count($this->wait_configs) > 0) {
-			$this->debug('Loading ' . implode(', ', $this->wait_configs) . ' ...');
-			$app->configureFiles($this->wait_configs);
-			$this->loaded_configs = array_merge($this->loaded_configs, $this->wait_configs);
-			$this->wait_configs = [];
+
+		try {
+			$app = Kernel::singleton()->application();
+			$app->setConsole(true);
+			$this->application = $app;
+			if (count($this->wait_configs) > 0) {
+				$this->debug('Loading ' . implode(', ', $this->wait_configs) . ' ...');
+				$app->configureFiles($this->wait_configs);
+				$this->loaded_configs = array_merge($this->loaded_configs, $this->wait_configs);
+				$this->wait_configs = [];
+			}
+
+			$this->commands = $this->collectCommandShortcuts();
+			return 0;
+		} catch (Exception_Semantics $e) {
+			throw new Exception_Exited('No application', [], 0, $e);
 		}
-		return $app;
 	}
 
 	/**
@@ -473,7 +641,8 @@ class Command_Loader {
 	}
 
 	/**
-	 * Handle --set
+	 * Handle --set name=value
+	 * Handle --name=value
 	 *
 	 * Consumes one additional argument of form name=value
 	 *
@@ -487,8 +656,7 @@ class Command_Loader {
 		}
 
 		[$key, $value] = explode('=', $pair, 2) + [
-			null,
-			true,
+			null, true,
 		];
 		if ($key === 'debug') {
 			$this->debug = true;
@@ -500,7 +668,7 @@ class Command_Loader {
 			global $_ZESK;
 			$key = _zesk_global_key($key);
 			$this->global_context[implode(ZESK_GLOBAL_KEY_SEPARATOR, $key)] = $value;
-			\apath_set($_ZESK, $key, $value, ZESK_GLOBAL_KEY_SEPARATOR);
+			apath_set($_ZESK, $key, $value, ZESK_GLOBAL_KEY_SEPARATOR);
 			$this->debug('Set global ' . implode(ZESK_GLOBAL_KEY_SEPARATOR, $key) . " to $value");
 		}
 		return $args;
@@ -525,7 +693,7 @@ class Command_Loader {
 			global $_ZESK;
 			$key = _zesk_global_key($key);
 			$this->global_context[implode(ZESK_GLOBAL_KEY_SEPARATOR, $key)] = null;
-			\apath_set($_ZESK, $key, null, ZESK_GLOBAL_KEY_SEPARATOR);
+			apath_set($_ZESK, $key, null, ZESK_GLOBAL_KEY_SEPARATOR);
 		}
 		return $args;
 	}
@@ -534,9 +702,9 @@ class Command_Loader {
 	 * Handle --cd
 	 *
 	 * @param array $args
-	 * @return aray
+	 * @return array
 	 */
-	private function handle_cd(array $args): array {
+	private function handleCD(array $args): array {
 		$arg = array_shift($args);
 		if ($arg === null) {
 			$this->usage('--cd missing argument');
@@ -552,16 +720,15 @@ class Command_Loader {
 	 * Handle --define
 	 *
 	 * @param array $args
-	 * @return aray
+	 * @return array
 	 */
 	private function handle_define(array $args): array {
 		$arg = array_shift($args);
 		if ($arg === null) {
-			$this->usage('--cd missing argument');
+			$this->usage('--define missing argument');
 		}
 		[$name, $value] = explode('=', $arg, 2) + [
-			$arg,
-			true,
+			$arg, true,
 		];
 		if (!defined($name)) {
 			define($name, $value);
@@ -597,8 +764,9 @@ class Command_Loader {
 	 *
 	 * @param array $args
 	 * @return array
+	 * @throws Exception_File_Format
 	 */
-	private function handle_config(array $args): array {
+	private function handleConfig(array $args): array {
 		$arg = array_shift($args);
 		if ($arg === null) {
 			$this->usage('--config missing argument');
@@ -607,7 +775,7 @@ class Command_Loader {
 			$this->usage("$arg is not a file to load configuration");
 		}
 		if ($this->zeskIsLoaded()) {
-			/* @var $locale \zesk\Locale */
+			/* @var $locale Locale */
 			$this->debug('Loading configuration file {file}', [
 				'file' => $arg,
 			]);
@@ -638,6 +806,7 @@ class Command_Loader {
 	 * Output a debug message
 	 *
 	 * @param string $message
+	 * @param array $context
 	 * @return void
 	 */
 	private function debug(string $message, array $context = []): void {

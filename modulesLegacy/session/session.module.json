@@ -1,0 +1,10 @@
+{
+	"name": "Session",
+	"autoload": {
+		"classPrefix": "zesk\\"
+	},
+	"moduleClass": "zesk\\Module_Session",
+	"requires": [
+		"ORM "
+	]
+}

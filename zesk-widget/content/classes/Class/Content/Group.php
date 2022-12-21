@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Content_Group extends Class_ORM {
+class Class_Content_Group extends Class_Base {
 	/**
 	 *
 	 * @var array

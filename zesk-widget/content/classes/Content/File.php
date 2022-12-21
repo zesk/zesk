@@ -20,7 +20,7 @@ namespace zesk;
  * @property Timestamp $created
  * @property Timestamp $modified
  */
-class Content_File extends ORM {
+class Content_File extends ORMBase {
 	/**
 	 * User-configurable settings
 	 *
@@ -39,11 +39,11 @@ class Content_File extends ORM {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see ORM::store()
+	 * @see ORMBase::store()
 	 */
 	public function store(): self {
 		if (!$this->mime) {
-			$this->mime = MIME::from_filename($this->originalName);
+			$this->mime = MIME::fromExtension($this->originalName);
 		}
 		return parent::store();
 	}
@@ -121,7 +121,7 @@ class Content_File extends ORM {
 	 * @return string
 	 */
 	protected function add_extension($name) {
-		$extension = MIME::to_extension($this->mime_type());
+		$extension = MIME::toExtension($this->mime_type());
 		if (!$extension) {
 			return $name;
 		}
@@ -175,7 +175,7 @@ class Content_File extends ORM {
 		$data = Content_Data::copy_from_path($this->application, $path, $copy);
 
 		$file = $this->application->object_fatcory(__CLASS__);
-		$file->original = avalue($options, 'original', $path);
+		$file->original = $options['original'] ?? $path;
 		if ($file->find([
 			'original' => $file->original,
 		])) {
@@ -224,7 +224,7 @@ class Content_File extends ORM {
 		if (!$name) {
 			$name = $this->name;
 		}
-		$extension = '.' . MIME::to_extension($this->mime_type());
+		$extension = '.' . MIME::toExtension($this->mime_type());
 		return StringTools::removeSuffix(basename($name), $extension) . $extension;
 	}
 }

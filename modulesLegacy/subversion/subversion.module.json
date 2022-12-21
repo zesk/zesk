@@ -1,0 +1,10 @@
+{
+	"name": "Subversion source code repository",
+	"requires": [
+		"Repository"
+	],
+	"autoload": {
+		"classPrefix": "zesk\\Subversion\\"
+	},
+	"moduleClass": "zesk\\Subversion\\Module"
+}

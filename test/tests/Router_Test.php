@@ -5,7 +5,24 @@
 namespace zesk;
 
 class Router_Test extends UnitTest {
+	public function test_Router_sleep(): void {
+		$router = new Router($this->application);
+		$router->addRoute('foo', ['content' => 'bar']);
+		$routes = $router->routes();
+		$this->assertCount(1, $routes);
+
+		$data = serialize($router);
+
+		$result = PHP::unserialize($data);
+
+		$this->assertInstanceOf(Router::class, $result);
+		$routes = $result->routes();
+		$this->assertCount(1, $routes);
+	}
+
 	public function test_Router(): void {
+		$this->application->setDocumentRootPrefix('');
+
 		$testx = new Router($this->application);
 
 		$hash = md5(microtime());
@@ -31,7 +48,7 @@ class Router_Test extends UnitTest {
 		$response = $app->main($request);
 
 		// Avoids doing header() in test code
-		$response->setOption('skip_response_headers', true);
+		$response->setOption(Response::OPTION_SKIP_HEADERS, true);
 		$content = $response->render();
 
 		$this->assertStringContainsString($hash, $content);
