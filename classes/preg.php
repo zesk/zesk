@@ -8,6 +8,9 @@
  */
 namespace zesk;
 
+use ArrayAccess;
+use Iterator;
+
 /**
  * Usage:
  * <code>
@@ -23,60 +26,30 @@ namespace zesk;
  * @author kent
  *
  */
-class preg implements \ArrayAccess, \Iterator {
+class preg implements ArrayAccess, Iterator {
 	/**
 	 *
 	 * @var string
 	 */
-	private $pattern = null;
-
-	/**
-	 *
-	 * @var string
-	 */
-	private $text = null;
-
-	/**
-	 *
-	 * @var integer
-	 */
-	private $flag = null;
-
-	/**
-	 *
-	 * @var mixed
-	 */
-	private $current = null;
-
-	/**
-	 *
-	 * @var integer
-	 */
-	private $offset = null;
+	private string $text;
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $matches = null;
+	private array $matches = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $offsets = [];
+	private array $offsets = [];
 
 	/**
 	 *
 	 */
-	private function __construct($pattern, $text, $flag = PREG_SET_ORDER, $offset = 0) {
-		$this->pattern = $pattern;
+	private function __construct(string $pattern, string $text, int $flag = PREG_SET_ORDER, int $offset = 0) {
 		$this->text = $text;
-		$this->flag = $flag;
-		$this->offset = $offset;
-		if ($flag === null) {
-			$flag = PREG_SET_ORDER;
-		}
 		$flag |= PREG_OFFSET_CAPTURE;
 		if (!preg_match_all($pattern, $text, $this->matches, $flag, $offset)) {
 			$this->matches = [];
@@ -96,56 +69,94 @@ class preg implements \ArrayAccess, \Iterator {
 	/**
 	 *
 	 */
-	public static function matches($pattern, $text, $flag = PREG_SET_ORDER, $offset = 0) {
-		return new preg($pattern, $text, $flag, $offset);
+	public static function matches(string $pattern, string $text, int $flag = PREG_SET_ORDER, int $offset = 0): self {
+		return new self($pattern, $text, $flag, $offset);
 	}
 
 	/**
-	 *
+	 * @return string
 	 */
-	public function replace_current($replace) {
-		$key = $this->key();
-		$offset = $this->offsets[$key][0];
-		$match = $this->matches[$key][0];
-		$match_len = strlen($match);
-		$this->text = substr($this->text, 0, $offset) . $replace . substr($this->text, $offset + $match_len);
-
-		// We've changed our text, adjust all later offsets - used above
-		$delta = strlen($replace) - $match_len;
-		while (++$key <= count($this->offsets) - 1) {
-			$this->offsets[$key][0] += $delta;
-		}
-
+	public function text(): string {
 		return $this->text;
 	}
 
 	/**
-	 * @param offset
+	 * @param string $replace
+	 * @return string
 	 */
-	public function offsetGet($offset): int {
+	public function replaceCurrent(string $replace): string {
+		return $this->replaceOffset($this->key(), $replace);
+	}
+
+	/**
+	 * @param int $key
+	 * @param string $replace
+	 * @return string
+	 */
+	private function replaceOffset(int $key, string $replace): string {
+		$offset = $this->offsets[$key][0];
+		$match = $this->matches[$key][0];
+		$match_len = strlen($match);
+		$this->text = substr($this->text, 0, $offset) . $replace . substr($this->text, $offset + $match_len);
+		$this->adjustOffsets($key, strlen($replace) - $match_len);
+		return $this->text;
+	}
+
+	/**
+	 * @param int $key
+	 * @param int $delta
+	 * @return void
+	 */
+	private function adjustOffsets(int $key, int $delta): void {
+		// We've changed our text, adjust all later offsets - used above
+		while (++$key <= count($this->offsets) - 1) {
+			if (array_key_exists($key, $this->offsets)) {
+				$this->offsets[$key][0] += $delta;
+				$this->offsets[$key][1] += $delta;
+			}
+		}
+	}
+
+	/**
+	 * @param string|int $offset
+	 * @return mixed
+	 */
+	public function offsetGet(mixed $offset): mixed {
 		return $this->matches[$offset] ?? null;
 	}
 
 	/**
-	 * @param offset
+	 * @param string|int $offset
 	 */
-	public function offsetExists($offset): bool {
+	public function offsetExists(mixed $offset): bool {
 		return array_key_exists($offset, $this->matches);
 	}
 
 	/**
-	 * @param offset
-	 * @param value
+	 * @param string|int $offset
+	 * @param mixed $value
+	 * @return void
+	 * @throws Exception_Key
 	 */
-	public function offsetSet($offset, $value): void {
+	public function offsetSet(mixed $offset, mixed $value): void {
+		if (!isset($this->matches[$offset])) {
+			throw new Exception_Key("$offset");
+		}
+		$newMatch = is_array($value) ? $value[0] : (is_string($value) ? $value : strval($value));
+		$this->replaceOffset(intval($offset), $newMatch);
 		$this->matches[$offset] = $value;
 	}
 
 	/**
-	 * @param offset
+	 * @param string|int $offset
+	 * @throws Exception_Key
 	 */
 	public function offsetUnset($offset): void {
+		if (!isset($this->matches[$offset])) {
+			throw new Exception_Key("$offset");
+		}
 		unset($this->matches[$offset]);
+		unset($this->offsets[$offset]);
 	}
 
 	public function current(): mixed {

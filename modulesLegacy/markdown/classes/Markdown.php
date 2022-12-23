@@ -587,7 +587,7 @@ class Markdown extends Options {
 			$h_level = strlen($match[1]);
 			$title = $this->_RunSpanGamut($match[2]);
 			$id = $this->id_from_title($title);
-			$text = $preg->replace_current("<h$h_level id=\"$id\">" . $title . "</h$h_level>\n\n");
+			$text = $preg->replaceCurrent("<h$h_level id=\"$id\">" . $title . "</h$h_level>\n\n");
 		}
 
 		return $text;

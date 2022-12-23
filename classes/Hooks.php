@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Closure;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
@@ -70,13 +71,6 @@ class Hooks {
 	 * @var array
 	 */
 	private array $hooks = [];
-
-	/**
-	 * Hook alias table for old-call to new-call.
-	 *
-	 * @var array of oldname => newname
-	 */
-	private array $hookAliases = [];
 
 	/**
 	 *
@@ -153,7 +147,6 @@ class Hooks {
 	 */
 	private function resetAllHookClasses(): array {
 		$this->hooks = [];
-		$this->hookAliases = [];
 		$this->hooksCalled = [];
 		$this->hooksFailed = [];
 		$all_hook_classes = $this->allHookClasses;
@@ -184,14 +177,11 @@ class Hooks {
 	/**
 	 * Given a passed-in hook name, normalize it and return the internal name
 	 *
-	 * @param string $name
-	 *            Hook name
-	 * @param boolean $alias
+	 * @param string $name  Hook name
 	 * @return string
 	 */
-	private function _hookName(string $name, bool $alias = false): string {
-		$name = self::clean_name($name);
-		return !$alias ? $name : ($this->hookAliases[$name] ?? $name);
+	private function _hookName(string $name): string {
+		return self::clean_name($name);
 	}
 
 	/**
@@ -200,7 +190,7 @@ class Hooks {
 	 * @param string $hook
 	 */
 	public function unhook(string $hook): void {
-		$hook = $this->_hookName($hook, true);
+		$hook = $this->_hookName($hook);
 		unset($this->hooks[$hook]);
 	}
 
@@ -376,7 +366,7 @@ class Hooks {
 	 * @return void
 	 */
 	public function add(string $hook, array|callable $function, array $options = []): void {
-		$hook = $this->_hookName($hook, true);
+		$hook = $this->_hookName($hook);
 		if (!array_key_exists($hook, $this->hooks)) {
 			$hook_group = new HookGroup();
 			$this->hooks[$hook] = $hook_group;
@@ -422,7 +412,7 @@ class Hooks {
 			foreach ($this->kernel->classes->subclasses($class) as $class) {
 				try {
 					$reflectionClass = new ReflectionClass($class);
-				} catch (ReflectionException $e) {
+				} catch (ReflectionException) {
 					continue;
 				}
 				if (!$reflectionClass->hasMethod($method)) {
@@ -445,73 +435,14 @@ class Hooks {
 	 * Remove hooks - use with caution
 	 *
 	 * @param string $hook
-	 * @return boolean true if removed, false if not found
+	 * @throws Exception_Key
 	 */
-	public function keysRemove(string $hook): bool {
+	public function remove(string $hook): void {
 		$hook = $this->_hookName($hook);
-		if (isset($this->hooks[$hook])) {
-			unset($this->hooks[$hook]);
-			return true;
+		if (!isset($this->hooks[$hook])) {
+			throw new Exception_Key($hook);
 		}
-		return false;
-	}
-
-	/**
-	 * Add an alias
-	 *
-	 * @param string $old_name
-	 * @param string $new_name
-	 * @return ?string old alias
-	 */
-	public function setAlias(string $old_name, string $new_name): ?string {
-		$previous = $this->hookAliases[$old_name] ?? null;
-		$new_name = $this->_hookName($new_name);
-		if ($old_name === $new_name) {
-			return $previous;
-		}
-		$this->hookAliases[$old_name] = $new_name;
-		if (array_key_exists($old_name, $this->hooks)) {
-			$old_hooks = $this->hooks[$old_name];
-			if (isset($this->hooks[$new_name])) {
-				$this->hooks[$new_name]->merge($old_hooks);
-				unset($this->hooks[$old_name]);
-			}
-		}
-		return $previous;
-	}
-
-	/**
-	 * Delete an alias
-	 *
-	 * @param string $name
-	 * @return bool
-	 */
-	public function clearAlias(string $name): bool {
-		$name = $this->_hookName($name, false);
-		if (isset($this->hookAliases[$name])) {
-			unset($this->hookAliases[$name]);
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Retrieve a single alias
-	 * @param string $name
-	 * @return string|null
-	 */
-	public function getAlias(string $name): ?string {
-		$name = $this->_hookName($name, false);
-		return $this->hookAliases[$name] ?? null;
-	}
-
-	/**
-	 * Retrieve all aliases (old => new)
-	 *
-	 * @return array
-	 */
-	public function aliases(): array {
-		return $this->hookAliases;
+		unset($this->hooks[$hook]);
 	}
 
 	/**
@@ -612,7 +543,7 @@ class Hooks {
 			return is_object($callable[0]) ? strtolower(get_class($callable[0])) . '::' . $callable[1] : implode('::', $callable);
 		} elseif (is_string($callable)) {
 			return $callable;
-		} elseif ($callable instanceof \Closure) {
+		} elseif ($callable instanceof Closure) {
 			return 'Closure';
 		}
 		return 'Unknown: ' . type($callable);
@@ -639,7 +570,6 @@ class Hooks {
 			PHP::log($e);
 		}
 		$this->hooks = [];
-		$this->hookAliases = [];
 		$this->hooksCalled = [];
 		$this->hooksFailed = [];
 		$this->hookCache = [];

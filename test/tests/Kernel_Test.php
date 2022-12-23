@@ -70,7 +70,7 @@ class Kernel_Test extends UnitTest {
 		$this->assertEquals($this->order, 2);
 
 		// Test clearing
-		$hooks->keysRemove('test_hook_order');
+		$hooks->remove('test_hook_order');
 
 		$this->order = 0;
 		$hooks->call('test_hook_order', $this);

@@ -32,12 +32,12 @@ class Module extends \zesk\Module {
 
 	/**
 	 *
-	 * @param unknown $content
-	 * @param unknown $css
+	 * @param string $content
+	 * @param ?string $css
 	 * @throws Exception_Semantics
 	 * @return unknown
 	 */
-	public function process_html($content, $css = null) {
+	public function process_html(string $content, string $css = null) {
 		// create instance
 		$cssToInlineStyles = new CssToInlineStyles();
 
@@ -47,10 +47,10 @@ class Module extends \zesk\Module {
 			if (!$css_tags) {
 				throw new Exception_Semantics('No style tags found in HTML content to apply');
 			}
-			$html = HTML::remove_tags('style', $content);
+			$html = HTML::removeTags('style', $content);
 			$css = '';
 			foreach ($css_tags as $tag) {
-				$css .= $tag->inner_html() . "\n";
+				$css .= $tag->innerHTML() . "\n";
 			}
 		}
 

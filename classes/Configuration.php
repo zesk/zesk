@@ -184,7 +184,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param mixed $value
 	 * @return void
 	 */
-	public function __set(string $key, mixed $value): void {
+	public function __set(mixed $key, mixed $value): void {
 		if (is_array($value)) {
 			$value = new self($value, $this->_addPath($key));
 		}
@@ -286,7 +286,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string $key
 	 * @return self
 	 */
-	public function __get($key) {
+	public function __get(string $key) {
 		$key = strtolower($key);
 		return $this->_data[$key] ?? null;
 	}
@@ -356,7 +356,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	/**
 	 * Convert entire structure to an array, recursively
 	 *
-	 * @param int $depth How deep to traverse (null for infinite)
+	 * @param int|null $depth How deep to traverse (null for infinite)
 	 * @return array
 	 */
 	public function toArray(int $depth = null): array {
@@ -380,12 +380,11 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 */
 	public function toList(): array {
 		$result = [];
-		foreach ($this->_data as $key => $value) {
+		foreach ($this->_data as $value) {
 			if ($value instanceof self) {
 				continue;
-			} else {
-				$result[] = $value;
 			}
+			$result[] = $value;
 		}
 		return $result;
 	}
@@ -476,7 +475,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @param mixed $offset
 	 * @param mixed $value
-	 * @throws Exception_Lock
 	 * @see ArrayAccess
 	 */
 	public function offsetSet(mixed $offset, mixed $value): void {
@@ -486,7 +484,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	/**
 	 *
 	 * @param mixed $offset
-	 * @throws Exception_Lock
 	 * @see ArrayAccess
 	 */
 	public function offsetUnset(mixed $offset): void {
@@ -511,9 +508,9 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param array|string $old_path
 	 * @param string|array|null $new_path
 	 * @return boolean Returns true if OLD value still found and (optionally) mapped to new
-	 * @throws Exception_Lock|Exception_Semantics|Exception_Deprecated
+	 * @throws Exception_Semantics|Exception_Deprecated
 	 */
-	final public function deprecated(string|array $old_path, string|array $new_path = null) {
+	final public function deprecated(string|array $old_path, string|array $new_path = null): bool {
 		$old_value = $this->walk($old_path);
 		if ($old_value === null) {
 			return false;

@@ -4,10 +4,28 @@ declare(strict_types=1);
 namespace zesk;
 
 class hookable_test_a extends Hookable {
+	public static Application $app;
+
 	public function hookit(array $data) {
 		$data['hookit'] = microtime(true);
 		$data = $this->callHook('test', $data);
 		return $data;
+	}
+
+	public static function appendTracking(string $whatever): void {
+		$calls = toArray(self::$app->configuration->get('hookable'));
+		$calls[] = $whatever;
+		self::$app->configuration->set('hookable', $calls);
+	}
+
+	public static function doit(): void {
+		self::appendTracking(__METHOD__);
+	}
+}
+
+class hookable_test_b extends hookable_test_a {
+	public static function doit(): void {
+		self::appendTracking(__METHOD__);
 	}
 }
 
@@ -59,6 +77,14 @@ class Hookable_Test extends UnitTest {
 } */
 	}
 
+	public function test_allCall(): void {
+		$this->application->classes->register(hookable_test_b::class);
+		hookable_test_a::$app = $this->application;
+		$this->application->hooks->allCall(hookable_test_a::class . '::doit');
+		$results = toArray($this->application->configuration->get('hookable'));
+		$this->assertEquals([hookable_test_a::class . '::doit', hookable_test_b::class . '::doit'], $results);
+	}
+
 	public static function hook_test1(hookable_test_a $object, array $data) {
 		$data[__METHOD__] = microtime(true);
 		$data['test1'] = '1';
@@ -89,15 +115,12 @@ class Hookable_Test extends UnitTest {
 		$conf->setPath(hookable_test_a::class . '::test1', 'test1');
 		$conf->setPath(hookable_test_a::class . '::test2', 'test2');
 		$conf->setPath(hookable_test_a::class . '::test3array', [
-			0,
-			false,
-			null,
+			0, false, null,
 		]);
 
 		// No longer honored/merged as of 2016-01-01
 		$conf->setPath(hookable_test_a::class . '::options', $optoptions = [
-			'test1' => 'test2',
-			'more' => 'dude',
+			'test1' => 'test2', 'more' => 'dude',
 		]);
 
 		$options->inheritConfiguration();
@@ -107,14 +130,9 @@ class Hookable_Test extends UnitTest {
 		$this->assertArrayNotHasKey('more', $options, );
 
 		$this->assertEquals($options, [
-			'test1' => 'test1',
-			'test2' => 'test2',
-			'test3array' => [
-				0,
-				false,
-				null,
-			],
-			'options' => $optoptions,
+			'test1' => 'test1', 'test2' => 'test2', 'test3array' => [
+				0, false, null,
+			], 'options' => $optoptions,
 		]);
 	}
 }

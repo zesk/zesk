@@ -26,10 +26,10 @@ class HTML_Tag extends Options {
 
 	/**
 	 * Contents between tags.
-	 * If false, then singleton tag, e.g. <tag />
+	 * If empty, then singleton tag, e.g. <tag />
 	 * @var string
 	 */
-	private string $inner_html = '';
+	private string $innerHTML = '';
 
 	/**
 	 * Original, outer HTML including tag itself.
@@ -37,7 +37,7 @@ class HTML_Tag extends Options {
 	 * If null, means it has not been matched in a document, or has been edited.
 	 * @var string
 	 */
-	private string $outer_html = '';
+	private string $outerHTML = '';
 
 	/**
 	 * Offset to where the tag is in the found context
@@ -63,8 +63,8 @@ class HTML_Tag extends Options {
 		parent::__construct($attributes);
 
 		$this->name = $name;
-		$this->inner_html = $inner_html;
-		$this->outer_html = $outer_html;
+		$this->innerHTML = $inner_html;
+		$this->outerHTML = $outer_html;
 		$this->offset = $offset;
 	}
 
@@ -74,7 +74,7 @@ class HTML_Tag extends Options {
 	 * @return boolean
 	 */
 	public function isSingle(): bool {
-		return $this->inner_html === '';
+		return $this->innerHTML === '';
 	}
 
 	/**
@@ -82,7 +82,7 @@ class HTML_Tag extends Options {
 	 * @return string
 	 */
 	public function innerHTML(): string {
-		return $this->inner_html;
+		return $this->innerHTML;
 	}
 
 	/**
@@ -92,7 +92,7 @@ class HTML_Tag extends Options {
 	 * @return self
 	 */
 	public function setInnerHTML(string $set): self {
-		$this->inner_html = $set;
+		$this->innerHTML = $set;
 		return $this;
 	}
 
@@ -102,7 +102,7 @@ class HTML_Tag extends Options {
 	 * @return string
 	 */
 	public function outerHTML(): string {
-		return $this->outer_html;
+		return $this->outerHTML;
 	}
 
 	/**
@@ -112,7 +112,7 @@ class HTML_Tag extends Options {
 	 * @return self
 	 */
 	public function setOuterHTML(string $set): self {
-		$this->outer_html = $set;
+		$this->outerHTML = $set;
 		return $this;
 	}
 
@@ -144,8 +144,8 @@ class HTML_Tag extends Options {
 		return 'new ' . __CLASS__ . '(' . implode(', ', [
 			PHP::dump($this->name),
 			PHP::dump($this->options()),
-			PHP::dump($this->inner_html),
-			PHP::dump($this->outer_html),
+			PHP::dump($this->innerHTML),
+			PHP::dump($this->outerHTML),
 			$this->offset,
 		]) . ')';
 	}
@@ -153,49 +153,9 @@ class HTML_Tag extends Options {
 	/**
 	 * Convert to string
 	 *
-	 * {@inheritDoc}
-	 * @see Options::__toString()
+	 * @return string
 	 */
 	public function __toString() {
-		return HTML::tag($this->name, $this->options(), $this->inner_html);
-	}
-
-	/**
-	 * Getter/setter for outer HTML
-	 *
-	 * @param string $set
-	 * @return string
-	 * @deprecated 2022-01
-	 */
-	public function outer_html($set = null) {
-		if ($set !== null) {
-			$this->setOuterHTML(strval($set));
-		}
-		return $this->outerHTML();
-	}
-
-	/**
-	 * Getter/setter for inner HTML
-	 *
-	 * @param string $set
-	 * @return string
-	 * @deprecated 2022-01
-	 */
-	public function inner_html($set = null) {
-		if ($set !== null) {
-			$this->setInnerHTML(strval($set));
-		}
-		return $this->innerHTML();
-	}
-
-	/**
-	 * Is this a single tag (no close tag, ends with '\>')
-	 *
-	 * @return boolean
-	 * @deprecated 2022-01
-	 * @see isSingle
-	 */
-	public function is_single(): bool {
-		return $this->isSingle();
+		return HTML::tag($this->name, $this->options(), $this->innerHTML !== '' ? $this->innerHTML : null);
 	}
 }
