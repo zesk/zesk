@@ -163,7 +163,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		$primary = $oldColumn->table()->primary() === null;
 
 		// OK to add increment column if no old increment column exists
-		$increment = $oldColumn->is_increment() ? false : true;
+		$increment = $oldColumn->isIncrement() ? false : true;
 
 		$newType = $this->database_column_native_type($newColumn, $increment, $primary);
 		$previous_name = $oldColumn->name();
@@ -181,7 +181,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @return string
 	 * @throws Exception_Semantics
 	 */
-	public function alter_table_column_drop(Database_Table $table, string $columnNameName): string {
+	public function alter_table_column_drop(Database_Table $table, Database_Column|string $columnNameName): string {
 		return 'ALTER TABLE ' . $this->quoteTable($table->name()) . ' DROP COLUMN ' . $this->quoteColumn(strval($columnNameName));
 	}
 

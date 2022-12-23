@@ -45,7 +45,7 @@ abstract class Tag extends ORMBase {
 	 * @return integer
 	 */
 	public function reassign($old, $new) {
-		return $this->query_update('X')
+		return $this->queryUpdate('X')
 			->value('X.tag_label', $new)
 			->addWhere('X.tag_label', $old)
 			->execute()

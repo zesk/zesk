@@ -323,7 +323,7 @@ abstract class Schema extends Hookable {
 					throw new Exception_Syntax(get_class($this) . " should contain an array of table schemas\n" . var_export($table_schema));
 				}
 				if (self::$debug) {
-					$logger->debug('ORM_Schema: ' . $this->class_object->class . " \"$table_name\"");
+					$logger->debug('Schema: ' . $this->class_object->class . " \"$table_name\"");
 				}
 				/* @var $table Database_Table */
 				try {
@@ -396,7 +396,7 @@ abstract class Schema extends Hookable {
 		$object_class = $object::class;
 		$schema = $object->database_schema();
 		if (!$schema instanceof Schema) {
-			$logger->warning('{class} did not return a ORM_Schema ({type})', [
+			$logger->warning('{class} did not return a Schema ({type})', [
 				'class' => $object_class, 'type' => type($schema),
 			]);
 			return [];
@@ -484,7 +484,7 @@ abstract class Schema extends Hookable {
 		$generator = $db->sql();
 
 		if (self::$debug) {
-			$logger->debug('ORM_Schema::debug is enabled');
+			$logger->debug('Schema::debug is enabled');
 		}
 		$table = $db_table_old->name();
 		if ($db_table_new->isSimilar($db_table_old, self::$debug)) {
@@ -498,7 +498,7 @@ abstract class Schema extends Hookable {
 		}
 
 		if (self::$debug) {
-			$logger->debug("ORM_Schema::update: \"{table}\" tables differ:\nDatabase: \n{dbOld}\nCode:\n{dbNew}", [
+			$logger->debug("Schema::update: \"{table}\" tables differ:\nDatabase: \n{dbOld}\nCode:\n{dbNew}", [
 				'table' => $table, 'dbOld' => Text::indent($db_table_old->source()),
 				'dbNew' => Text::indent($db_table_new->source()),
 			]);

@@ -33,7 +33,7 @@ class Content_Menu extends ORMBase {
 			return $result;
 		}
 		if ($is_home) {
-			$this->query_update()
+			$this->queryUpdate()
 				->value('IsHome', false)
 				->addWhere('IsHome', true)
 				->addWhere('ID|!=', $this->id())

@@ -134,8 +134,8 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	public function __toString(): string {
 		try {
 			return $this->toSQL();
-		} catch (\Throwable $e) {
-			PHP::log($e);
+		} catch (Exception_Semantics $e) {
+			$this->application->logger->error($e->getRawMessage(), $e->variables());
 			return '';
 		}
 	}

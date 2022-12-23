@@ -19,7 +19,7 @@ class County extends ORMBase {
 		$old_id = intval($this->id);
 		$new_id = empty($new) ? null : ORMBase::mixedToID($new);
 		$this->application->ormRegistry(Contact_Address::class)
-			->query_update()
+			->queryUpdate()
 			->ignore_constraints(true)
 			->value('county', $new_id)
 			->addWhere('county', $old_id)

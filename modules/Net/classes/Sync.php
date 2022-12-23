@@ -94,7 +94,7 @@ class Sync extends Options {
 	 * @param array $options
 	 * @return string[]|string[]
 	 */
-	private static function _fetch_url(Application $application, $url, array $options = []) {
+	private static function _fetch_url(Application $application, string $url, array $options = []): array {
 		$milliseconds = toInteger($options['timeout'] ?? null);
 		$user_agent = $options['user_agent'] ?? null;
 
@@ -106,9 +106,9 @@ class Sync extends Options {
 		$temp_file_name = File::temporary($temporary_path);
 		$client->setFollowLocation(true);
 		if ($user_agent) {
-			$client->userAgent($user_agent);
+			$client->setUserAgent($user_agent);
 		}
-		$client->destination($temp_file_name);
+		$client->setDestination($temp_file_name);
 
 		$result = $client->go();
 

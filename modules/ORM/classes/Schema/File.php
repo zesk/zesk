@@ -18,7 +18,7 @@ use zesk\Database_Table;
  * Handle schema definitions which are SQL files on disk
  *
  * @author kent
- * @see ORM_Schema
+ * @see Schema
  */
 class Schema_File extends Schema {
 	/**
@@ -196,7 +196,7 @@ class Schema_File extends Schema {
 	/**
 	 * Convert this schema object into the array-based schema
 	 *
-	 * @see ORM_Schema::schema()
+	 * @see Schema::schema()
 	 * @return array
 	 */
 	public function schema(): array {

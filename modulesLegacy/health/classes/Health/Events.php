@@ -61,11 +61,11 @@ class Health_Events extends ORMBase {
 	}
 
 	public function bump($when, $when_msec = 0) {
-		$this->query_update()
+		$this->queryUpdate()
 			->value('*total', 'total+1')
 			->addWhere('id', $this->id)
 			->execute();
-		$this->query_update()
+		$this->queryUpdate()
 			->values([
 				'recent' => $when,
 				'recent_msec' => $when_msec,

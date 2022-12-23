@@ -16,8 +16,7 @@ class Class_Currency extends Class_Base {
 	public string $id_column = 'id';
 
 	public array $find_keys = [
-		'bank_country',
-		'code',
+		'bank_country', 'code',
 	];
 
 	public string $text_column = 'name';
@@ -25,19 +24,13 @@ class Class_Currency extends Class_Base {
 	public string $name = 'Currency';
 
 	public array $has_one = [
-		'bank_country' => 'zesk\\Country',
+		'bank_country' => Country::class,
 	];
 
 	public array $column_types = [
-		'id' => self::TYPE_ID,
-		'bank_country' => self::TYPE_OBJECT,
-		'name' => self::TYPE_STRING,
-		'code' => self::TYPE_STRING,
-		'symbol' => self::TYPE_STRING,
-		'fractional' => self::TYPE_INTEGER,
-		'fractional_units' => self::TYPE_STRING,
-		'format' => self::TYPE_STRING,
-		'precision' => self::TYPE_INTEGER,
+		'id' => self::TYPE_ID, 'bank_country' => self::TYPE_OBJECT, 'name' => self::TYPE_STRING,
+		'code' => self::TYPE_STRING, 'symbol' => self::TYPE_STRING, 'fractional' => self::TYPE_INTEGER,
+		'fractional_units' => self::TYPE_STRING, 'format' => self::TYPE_STRING, 'precision' => self::TYPE_INTEGER,
 	];
 
 	public array $column_defaults = [

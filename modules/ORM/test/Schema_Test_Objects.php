@@ -4,7 +4,7 @@ namespace zesk\ORM;
 /**
  *
  */
-class Class_BaseUnitTest_Schema_User extends Class_User {
+class Class_ORMUnitTest_Schema_User extends Class_User {
 }
 
 /**

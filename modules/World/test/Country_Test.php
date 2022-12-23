@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace zesk\World;
 
+use zesk\Database_Exception_SQL;
+use zesk\Exception_Key;
 use zesk\ORM\ORMUnitTest;
 use zesk\ORM\Exception_ORMNotFound;
 

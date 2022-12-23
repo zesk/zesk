@@ -9,6 +9,10 @@
 namespace zesk\World;
 
 use zesk\Application;
+use zesk\ArrayTools;
+use zesk\Hookable;
+use zesk\Net\Sync;
+use zesk\StringTools;
 
 /**
  *
@@ -35,8 +39,8 @@ class World_Bootstrap_Country extends Hookable {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Application $application, array $options = []) {
-		return $application->factory(__CLASS__, $application, $options);
+	public static function factory(Application $application, array $options = []): self {
+		return new self($application, $options);
 	}
 
 	/**
@@ -47,7 +51,7 @@ class World_Bootstrap_Country extends Hookable {
 	 */
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
-		$this->inheritConfiguration(Module_World::class);
+		$this->inheritConfiguration(Module::class);
 		$include_country = $this->optionIterable('include_country');
 		$this->include_country = array_change_key_case(ArrayTools::keysFromValues(toList($include_country), true));
 	}
@@ -79,17 +83,14 @@ class World_Bootstrap_Country extends Hookable {
 	/**
 	 * Fetch and synchronize country source files
 	 *
-	 * @return multitype:unknown array
-	 * @global Module_World::geonames_country_cache_file path to location to store country file
-	 *         (defaults to this module)
-	 * @global Module_World::geonames_time_to_live
 	 * @param Application $application
 	 * @return array
+	 * @throws \zesk\Exception_NotFound
 	 */
 	private function load_countryinfo(Application $application): array {
 		$world_path = $application->modules->path('world');
 		$file = $this->option('geonames_country_cache_file', path($world_path, 'bootstrap-data/countryinfo.txt'));
-		Net_Sync::url_to_file($application, self::url_geonames_country_file, $file, [
+		Sync::url_to_file($application, self::url_geonames_country_file, $file, [
 			'time_to_live' => $this->option('geonames_time_to_live', 86400 * 30),
 		]);
 		$fp = fopen($file, 'rb');

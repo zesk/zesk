@@ -11,7 +11,7 @@ class Currency_Test extends ORMUnitTest {
 	];
 
 	public function initialize(): void {
-		$this->application->orm_module()->schema_synchronize(null, [
+		$this->application->ormModule()->schema_synchronize(null, [
 			Currency::class,
 		], [
 			'follow' => true,

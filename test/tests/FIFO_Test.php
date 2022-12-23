@@ -94,7 +94,7 @@ class FIFO_Test extends UnitTest {
 	 * @dataProvider data_fifo_dataSet
 	 */
 	public function test_fifo_writer(array $expected): void {
-		$dir = $this->test_sandbox('', false);
+		$dir = $this->test_sandbox();
 
 		$writer_path = path($dir, 'writer.fifo');
 		$reader_path = path($dir, 'reader.fifo');
@@ -107,18 +107,21 @@ class FIFO_Test extends UnitTest {
 
 		// Our process reads from the writer and writes to the reader
 		$echoCode = ['<?php'];
-		$echoCode[] = 'echo "echo server started";';
+		$echoCode[] = 'echo "echo server started" . PHP_EOL;';
 		$echoCode[] = 'fflush(STDOUT);';
 		$echoCode[] = '$w = new zesk\FIFO({writer_path}, true);';
 		$echoCode[] = '$r = new zesk\FIFO({reader_path}, false);';
+		$echoCode[] = '$index = 0;';
 		$echoCode[] = 'try { while (true) {';
+		$echoCode[] = '    echo $index++ . PHP_EOL;';
 		$echoCode[] = '    $r->write($w->read(10));';
 		$echoCode[] = '} } catch (Exception) {}';
-		$echoCode[] = 'echo "echo server terminated";';
+		$echoCode[] = 'echo "echo server terminated" . PHP_EOL;';
 		$echoCode[] = 'fflush(STDOUT);';
 		$echoCode[] = 'return 0;';
 		$script = map(implode("\n", $echoCode), $map);
 		$scriptPath = path($dir, 'echo.php');
+		$this->streamCapture(STDOUT);
 		file_put_contents($scriptPath, $script);
 		$pid = $this->zeskEvalFileProcess($scriptPath);
 		$this->assertGreaterThan(0, $pid, "echo.php pid $pid");

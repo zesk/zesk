@@ -54,7 +54,7 @@ class Module_Nominatim extends Module {
 			return;
 		}
 		// Keep our database clean. Set lat/long to null when close to zero.
-		$update = $this->application->query_update('zesk\\Contact_Address')->values([
+		$update = $this->application->queryUpdate('zesk\\Contact_Address')->values([
 			'latitude' => null, 'longitude' => null, 'geocoded' => null,
 		]);
 		$sql = $update->sql();
@@ -67,7 +67,7 @@ class Module_Nominatim extends Module {
 		$update->execute();
 
 		// Set geocoded date to created date when lat/long are set
-		$update = $this->application->query_update('zesk\\Contact_Address')->values([
+		$update = $this->application->queryUpdate('zesk\\Contact_Address')->values([
 			'*geocoded' => 'created',
 		])->where([
 			[

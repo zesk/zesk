@@ -12,7 +12,7 @@ namespace zesk\CSV;
 use zesk\UnitTest;
 use zesk\Exception_Key;
 
-class CSV_Reader_Test extends UnitTest {
+class CSV_Reader_Map_Test extends UnitTest {
 	protected array $load_modules = [
 		'CSV',
 	];
@@ -21,7 +21,7 @@ class CSV_Reader_Test extends UnitTest {
 		$x = new MapReader();
 
 		$f = $this->test_sandbox('test.csv');
-		file_put_contents($f, "A,B,C,D,E,F,G\n0,1,2,3,4,5,6\na,b,c,d,e,f,g\n");
+		file_put_contents($f, str_repeat("A,B,C,D,E,F,G\n0,1,2,3,4,5,6\na,b,c,d,e,f,g\n", 10));
 		$x->setFilename($f);
 
 		$x->read_headers();
@@ -33,19 +33,29 @@ class CSV_Reader_Test extends UnitTest {
 		$map = [
 			'A' => 'Dude',
 		];
-		$x->readMap('Hello', $map);
-
-		$x->readMap('');
-
-		$success = false;
+		$success = [];
 
 		try {
-			$name = null;
-			$x->readMap('nokey');
-		} catch (Exception_Key $e) {
-			$success = true;
+			$x->readMap('Hello', $map);
+			$success[] = false;
+		} catch (Exception_Key) {
+			$success[] = true;
 		}
-		$this->assertTrue($success);
+
+		try {
+			$x->readMap('');
+			$success[] = false;
+		} catch (Exception_Key) {
+			$success[] = true;
+		}
+
+		try {
+			$x->readMap('nokey');
+			$success[] = false;
+		} catch (Exception_Key $e) {
+			$success[] = true;
+		}
+		$this->assertCount(count($success), array_filter($success));
 
 		$x->read_row();
 

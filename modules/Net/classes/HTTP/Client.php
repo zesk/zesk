@@ -117,9 +117,9 @@ class Client extends Hookable {
 
 	/**
 	 *
-	 * @var string
+	 * @var bool|string
 	 */
-	private string $content;
+	private bool|string $content;
 
 	/**
 	 *
@@ -787,10 +787,10 @@ class Client extends Hookable {
 		if (!function_exists('curl_init')) {
 			throw new Exception_Unsupported('Net_HTTP_Client::go(): CURL not integrated!');
 		}
-		$url = $this->option('URL');
-		if (empty($url)) {
+		if (empty($this->url)) {
 			throw new Exception_Parameter('Net_HTTP_Client::go called with no URL specified');
 		}
+		$url = $this->url;
 
 		$httpHeaders = $this->_methodOpen();
 		$this->_curl_opts_method();

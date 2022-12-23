@@ -1,7 +1,8 @@
 {
 	"name": "World - Internationalization and related (Country, Locale, Currency, Time Zone)",
 	"requires": [
-		"ORM"
+		"ORM",
+		"Net"
 	],
 	"autoload": {
 		"classPrefix": "zesk\\World\\"

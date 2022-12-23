@@ -5,6 +5,7 @@ namespace zesk\ORM;
 
 use zesk\Exception_Parameter;
 use zesk\Exception_Semantics;
+use zesk\Timestamp;
 
 class TestORM_Test extends ORMUnitTest {
 	protected array $load_modules = [
@@ -31,7 +32,7 @@ class TestORM_Test extends ORMUnitTest {
 
 		$x->idColumn();
 
-		$x->utc_timestamps();
+		$x->utcTimestamps();
 
 		$x->selectDatabase();
 
@@ -49,27 +50,21 @@ class TestORM_Test extends ORMUnitTest {
 		$x->id();
 
 		$f = 'Foo';
+		$def = null;
+		$v = null;
+
 		$x->__get($f);
 
-		$f = 'Foo';
-		$v = null;
 		$x->__set($f, $v);
 
-		$f = 'Foo';
 		$x->setMember($f, 'bar');
 
-		$f = 'Foo';
-		$x->members_changed($f);
+		$x->membersChanged($f);
 
 		$x->changed();
 
-		$f = 'Foo';
-		$def = null;
-		$x->membere($f, $def);
-
-		$f = 'Foo';
-		$def = null;
-		$x->member_timestamp($f, $def);
+		$x->setMember($f, '2022-12-22 08:55:45');
+		$this->assertInstanceOf(Timestamp::class, $x->member_timestamp($f, $def));
 
 		$this->assertEquals([], $x->members([]));
 
@@ -79,10 +74,7 @@ class TestORM_Test extends ORMUnitTest {
 		$f = 'Foo';
 		$v = null;
 		$overwrite = true;
-		$x->set_member($f, $v, $overwrite);
-
-		$mixed = 'Hello';
-		$x->memberKeysRemove($mixed);
+		$x->setMember($f, $v, $overwrite);
 
 		$f = 'Foo';
 		$x->hasMember($f);
@@ -145,26 +137,14 @@ class TestORM_Test extends ORMUnitTest {
 		$this->object_tests($x);
 	}
 
-	/**
-	 * @no_test
-	 * @expectedException Exception_Semantics
-	 *
-	 * @param ORMBase $object
-	 */
-	public function test_object_ordering_fail(ORMBase $object): void {
-		$id0 = null;
-		$id1 = null;
-		$order_column = 'OrderIndex';
-		$object->reorder($id0, $id1, $order_column);
-	}
-
 	public function data_mixedToClass() {
+		$this->setUp();
 		$test_orm = new TestORM($this->application);
 		return [
 			['ClassName', 'ClassName'],
-			[$test_orm, 'zesk\\TestORM'],
-			[$test_orm::class, 'zesk\\TestORM'],
-			[$test_orm->class_orm(), 'zesk\\TestORM'],
+			[$test_orm, 'zesk\\ORM\\TestORM'],
+			[$test_orm::class, 'zesk\\ORM\\TestORM'],
+			[$test_orm->class_orm(), 'zesk\\ORM\\TestORM'],
 			[0, ''],
 			[23.2, ''],
 			[null, ''],

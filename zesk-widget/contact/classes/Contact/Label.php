@@ -74,7 +74,7 @@ class Contact_Label extends ORMBase {
 			'Type' => $type,
 		];
 		return $app->ormRegistry(__CLASS__)
-			->query_update()
+			->queryUpdate()
 			->values($fields)
 			->execute();
 	}

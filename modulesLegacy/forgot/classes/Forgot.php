@@ -84,7 +84,7 @@ class Forgot extends ORMBase {
 		$this->updated = 'now';
 		$this->store();
 		$this->callHook('validated');
-		$query = $this->query_update();
+		$query = $this->queryUpdate();
 		$query->value('*updated', $query->sql()
 			->now())
 			->where([

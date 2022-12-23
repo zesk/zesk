@@ -32,7 +32,7 @@ class Content_Link extends ORMBase {
 	}
 
 	public function clicked(): void {
-		$this->query_update()
+		$this->queryUpdate()
 			->values([
 				'*ClickCount' => 'ClickCount+1',
 				'*LastClick' => $this->sql()
@@ -40,7 +40,7 @@ class Content_Link extends ORMBase {
 			])
 			->addWhere('ID', $this->id())
 			->execute();
-		$this->query_update()
+		$this->queryUpdate()
 			->values([
 				'*FirstClick' => $this->sql()
 					->now(),

@@ -5,14 +5,16 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Net\SMTP;
+
+use zesk\Net\SocketClient;
 
 /**
  *
  * @author kent
  *
  */
-class Net_SMTP_Client extends Net_Client_Socket {
+class Client extends SocketClient {
 	/**
 	 * Default port to connect to
 	 *

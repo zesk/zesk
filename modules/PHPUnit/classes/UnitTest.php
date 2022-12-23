@@ -55,6 +55,8 @@ class UnitTest extends PHPUnit_TestCase {
 	}
 
 	/**
+	 * Run a PHP include file and return lines of output as an array.
+	 *
 	 * @param string $includeFile
 	 * @return array
 	 * @throws Exception_Command
@@ -64,6 +66,8 @@ class UnitTest extends PHPUnit_TestCase {
 	}
 
 	/**
+	 * Run a PHP include file in the background and return the PID of the process.
+	 *
 	 * @param string $includeFile
 	 * @return int
 	 * @throws Exception_Command

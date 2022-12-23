@@ -27,7 +27,7 @@ class DBSchemaTest4 extends ORMBase {
 
 	public static $test_table2 = '';
 
-	public function schema(): ORM_Schema|array|string|null {
+	public function schema(): Schema|array|string|null {
 		$table = self::$test_table;
 		$table2 = self::$test_table2;
 		return "CREATE TABLE `$table` (
@@ -68,9 +68,9 @@ class Class_DBSchemaTest5 extends Class_Base {
 	];
 }
 class DBSchemaTest5 extends ORMBase {
-	public static $test_table = null;
+	public static string $test_table = '';
 
-	public function schema(): string|array|null|ORM_Schema {
+	public function schema(): string|array|null|Schema {
 		return 'CREATE TABLE `{table}` (
 		`ID` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
 		`Hash` binary(16) NOT NULL,
@@ -107,9 +107,9 @@ class Class_DBSchemaTest6 extends Class_Base {
 	}
 }
 class DBSchemaTest6 extends ORMBase {
-	public static $test_table = null;
+	public static string $test_table = '';
 
-	public function schema(): string|array|null|ORM_Schema {
+	public function schema(): string|array|null|Schema {
 		return 'CREATE TABLE `{table}` (
 		`ID` int(11) unsigned NOT NULL auto_increment,
 		`Hash` char(32) NOT NULL,
@@ -149,9 +149,9 @@ class Class_DBSchemaTest7 extends Class_Base {
 	}
 }
 class DBSchemaTest7 extends ORMBase {
-	public static $test_table = null;
+	public static string $test_table = '';
 
-	public function schema(): string|array|null|ORM_Schema {
+	public function schema(): string|array|null|Schema {
 		return 'CREATE TABLE `{table}` (
 	`ID` int(11) unsigned NOT NULL auto_increment,
 	`Hash` char(32) NOT NULL,
@@ -184,9 +184,9 @@ class Class_DBSchemaTest8 extends Class_Base {
 	}
 }
 class DBSchemaTest8 extends ORMBase {
-	public static $test_table = null;
+	public static string $test_table = '';
 
-	public function schema(): string|array|null|ORM_Schema {
+	public function schema(): string|array|null|Schema {
 		return 'CREATE TABLE `{table}` (
 			`ID` int(11) unsigned NOT NULL auto_increment,
 			`Hash` char(32) NOT NULL,
@@ -209,7 +209,7 @@ class Class_DBSchemaTest_columns_0 extends Class_Base {
 	];
 }
 class DBSchemaTest_columns_0 extends ORMBase {
-	public function schema(): string|array|null|ORM_Schema {
+	public function schema(): string|array|null|Schema {
 		return 'CREATE TABLE `{table}` (
 					`ID` int(11) unsigned NOT NULL auto_increment,
 					`Hash` char(32) NOT NULL,
@@ -239,7 +239,7 @@ class Class_DBSchemaTest_columns_1 extends Class_Base {
 	];
 }
 class DBSchemaTest_columns_1 extends ORMBase {
-	public function schema(): string|array|null|ORM_Schema {
+	public function schema(): string|array|null|Schema {
 		return 'CREATE TABLE `{table}` (
 					`ID` int(11) unsigned NOT NULL auto_increment,
 					`Hash` char(32) NOT NULL,

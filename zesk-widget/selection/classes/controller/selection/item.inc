@@ -61,7 +61,7 @@ class Controller_Selection_Item extends Controller_ORM {
 			return;
 		}
 		$this->application->ormRegistry($this->class)
-			->query_update()
+			->queryUpdate()
 			->value('add', 0)
 			->where([
 				'id' => $id,

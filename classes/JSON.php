@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace zesk;
 
 use __PHP_Incomplete_Class;
-use http\Exception\RuntimeException;
 use stdClass;
 
 if (!defined('JSON_INVALID_UTF8_IGNORE')) {

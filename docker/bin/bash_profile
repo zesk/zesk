@@ -14,3 +14,10 @@ Xdebug_off() {
     unset XDEBUG_ENABLED
     echo "XDebug debugging disabled..."
 }
+consoleRed() {
+    echo -en "\033[31m"
+}
+
+consoleNormal() {
+    echo -en "\033[0m"
+}

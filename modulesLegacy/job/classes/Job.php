@@ -252,7 +252,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 		 * Deals with the situation below where this process grabs them and then crashes. (you never know)
 		 */
 		$application->ormRegistry(__CLASS__)
-			->query_update()
+			->queryUpdate()
 			->values([
 				'pid' => null,
 				'server' => null,
@@ -285,7 +285,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 				/* @var $job Job */
 				// Tag the Job as "ours" - this avoids race conditions between multiple servers
 				$application->ormRegistry(__CLASS__)
-					->query_update()
+					->queryUpdate()
 					->values($server_pid)
 					->where([
 						'pid' => null,
@@ -357,7 +357,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 			if (!$application->process->alive($pid)) {
 				$application->logger->debug('Removing stale PID {pid} from Job # {id}', compact('pid', 'id'));
 				$application->ormRegistry(__CLASS__)
-					->query_update()
+					->queryUpdate()
 					->value('pid', null)
 					->value('server', null)
 					->value('*died', 'died+1')
@@ -399,7 +399,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 
 		$this->process = null;
 
-		$this->query_update()
+		$this->queryUpdate()
 			->values($values)
 			->addWhere('id', $this->id())
 			->execute();
@@ -421,7 +421,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 		// 		$now = microtime(true);
 		// 		if ($this->last_progress === null || $now - $this->last_progress > 0.1) {
 		// 			$this->last_progress = $now;
-		$query = $this->query_update()->values([
+		$query = $this->queryUpdate()->values([
 			'*updated' => $this->database()
 				->sql()
 				->nowUTC(),
@@ -515,7 +515,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 * @return \zesk\Job
 	 */
 	private function release() {
-		$this->query_update()
+		$this->queryUpdate()
 			->value([
 				'server' => null,
 				'pid' => null,

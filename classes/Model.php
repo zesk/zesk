@@ -413,10 +413,10 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 *            Variables to be passed to the template.
 	 * @param string $default
 	 *            Default value if no theme is found
-	 * @return string
+	 * @return ?string
 	 * @throws Exception_Redirect
 	 */
-	public function theme(array|string $theme_names = '', string|array $variables = [], string $default = ''): string {
+	public function theme(array|string $theme_names = '', string|array $variables = [], string $default = ''): ?string {
 		$variables = is_string($variables) ? [
 			'content' => $variables,
 		] : $variables;

@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 namespace zesk\ORM;
 
+use zesk\Database;
 use zesk\DatabaseUnitTest;
 
-class ORMUnitTest extends DatabaseUnitTest {
+abstract class ORMUnitTest extends DatabaseUnitTest {
 	public static function setUpBeforeClass(): void {
 		// pass
 	}
@@ -81,13 +82,19 @@ class ORMUnitTest extends DatabaseUnitTest {
 		$schema = $object->schema();
 		$this->assertInstanceOf(Schema::class, $schema);
 
-		$this->assertIsString($object->findKey());
+		$findKeys = $object->findKeys();
+
+		if (count($findKeys) > 1) {
+			$this->assertNull($object->findKey());
+		} else {
+			$this->assertIsString($object->findKey());
+		}
 
 		$this->assertIsArray($object->findKeys());
 
 		$this->assertIsArray($object->duplicateKeys());
 
-		$this>assertInstanceOf(Database::class, $object->database());
+		$this->assertInstanceOf(Database::class, $object->database());
 
 		$this->assertIsString($object->className());
 
@@ -131,8 +138,6 @@ class ORMUnitTest extends DatabaseUnitTest {
 
 		$object->changed();
 
-		$object->membere($f, $def);
-
 		$object->members([]);
 
 		$object->memberIsEmpty($f);
@@ -154,7 +159,6 @@ class ORMUnitTest extends DatabaseUnitTest {
 		} catch (Exception_ORMNotFound $e) {
 			$this->assertInstanceOf(Exception_ORMNotFound::class, $e);
 		}
-
 
 
 		$object->isDuplicate();

@@ -16,7 +16,7 @@ class Class_TestORM extends Class_Base {
 		'Foo' => self::TYPE_INTEGER,
 	];
 
-	public function schema(ORMBase $object): string|array|ORM_Schema {
+	public function schema(ORMBase $object): string|array|Schema {
 		$table = $this->table;
 		return [
 			"CREATE TABLE $table ( ID integer unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY, Name varchar(32) NOT NULL, Price decimal(12,2), Foo integer NULL )",
@@ -39,7 +39,7 @@ class Class_TestORMTag extends Class_Base {
 		'Parent' => TestORM::class,
 	];
 
-	public function schema(ORMBase $object): string|array|ORM_Schema {
+	public function schema(ORMBase $object): string|array|Schema {
 		$table = $this->table;
 		return [
 			"CREATE TABLE $table ( ID integer unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY, Name varchar(32) NOT NULL, Parent integer NOT NULL )",

@@ -52,15 +52,9 @@ class Lock extends ORMBase {
 	 * Register all zesk hooks.
 	 */
 	public static function hooks(Application $application): void {
-		$application->hooks->add(Server::class . '::delete', [
-			__CLASS__, 'server_delete',
-		]);
-		$application->hooks->add(Hooks::HOOK_RESET, function () use ($application): void {
-			self::releaseAll($application);
-		});
-		$application->hooks->add(Hooks::HOOK_EXIT, [
-			__CLASS__, 'releaseAll',
-		], ['first' => true]);
+		$application->hooks->add(Server::class . '::delete', self::server_delete(...));
+		$application->hooks->add(Hooks::HOOK_RESET, self::releaseAll(...));
+		$application->hooks->add(Hooks::HOOK_EXIT, self::releaseAll(...), ['first' => true]);
 	}
 
 	/**
@@ -75,6 +69,7 @@ class Lock extends ORMBase {
 	 * @throws Exception_Parameter
 	 * @throws Exception_Semantics
 	 * @throws Exception_Unimplemented
+	 * @throws Database_Exception_SQL
 	 */
 	public static function instance(Application $application, string $code): self {
 		/* @var $lock Lock */

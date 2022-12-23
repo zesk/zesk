@@ -11,8 +11,8 @@ namespace zesk\World;
 
 use zesk\Interface_Module_Head;
 use zesk\Module_JSLib;
+use zesk\ORM\Interface_Schema_Updated;
 use zesk\Request;
-use zesk\Application;
 use zesk\Response;
 use zesk\Template;
 
@@ -21,7 +21,7 @@ use zesk\Template;
  * @author kent
  *
  */
-class Module extends Module_JSLib implements Interface_Module_Head {
+class Module extends Module_JSLib implements Interface_Module_Head, Interface_Schema_Updated {
 	protected array $javascript_paths = [
 		'/share/world/js/module.world.js',
 	];
@@ -36,7 +36,7 @@ class Module extends Module_JSLib implements Interface_Module_Head {
 	];
 
 	public function hook_head(Request $request, Response $response, Template $template): void {
-		$currency = $this->callHookArguments('currency', [], null);
+		$currency = $this->callHookArguments('currency');
 		/* @var $currency Currency */
 		if ($currency instanceof Currency) {
 			$this->javascript_settings += [

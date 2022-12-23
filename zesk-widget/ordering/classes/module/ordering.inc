@@ -63,7 +63,7 @@ class Module_Ordering extends zesk\Module {
 				->addWhat('X', $order_column)
 				->where($id_column, $previous_id)
 				->one_integer('X');
-			$object->query_update()
+			$object->queryUpdate()
 				->value('*' . $order_column, "$order_column + 2")
 				->addWhere("$order_column|>=", $order_index + 1)
 				->execute();
@@ -74,7 +74,7 @@ class Module_Ordering extends zesk\Module {
 				->addWhat('X', $order_column)
 				->where($id_column, $next_id)
 				->one_integer('X');
-			$object->query_update()
+			$object->queryUpdate()
 				->value('*' . $order_column, "$order_column - 2")
 				->addWhere("$order_column|<=", $order_index - 1)
 				->execute();

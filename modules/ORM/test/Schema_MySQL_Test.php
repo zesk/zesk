@@ -7,25 +7,22 @@ declare(strict_types=1);
 
 namespace zesk\ORM;
 
+use zesk\Database;
+
 /**
  *
  * @author kent
  *
  */
-class ORM_Schema_MySQL_Test extends ORMUnitTest {
+class Schema_MySQL_Test extends ORMUnitTest {
 	/**
 	 *
 	 * @var array
 	 */
 	protected array $load_modules = ['MySQL', 'ORM', ];
 
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\PHPUnit_TestCase::initialize()
-	 */
 	public function initialize(): void {
-		include_once __DIR__ . '/ORM_Schema_MySQL_Test_Objects.php';
+		include_once __DIR__ . '/Schema_MySQL_Test_Objects.php';
 	}
 
 	/**
@@ -33,7 +30,7 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 	 * @return Database
 	 */
 	public function db() {
-		$testx = $this->application->database_registry();
+		$testx = $this->application->databaseRegistry();
 
 		$this->assertEquals('mysql', $testx->type());
 		return $testx;
@@ -43,12 +40,12 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 		$sql0 = 'CREATE TABLE test ( id integer unsigned NOT NULL, created datetime NULL ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 		$sql1 = 'CREATE TABLE test ( id integer unsigned NOT NULL, created timestamp NULL ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$table0 = $db->parseCreateTable($sql0, __METHOD__);
 		$table1 = $db->parseCreateTable($sql1, __METHOD__);
 
-		$result = ORM_Schema::update($db, $table0, $table1, false);
+		$result = Schema::update($db, $table0, $table1, false);
 
 		$datatype = $db->data_type();
 
@@ -75,7 +72,7 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 
 		$table = __FUNCTION__;
 		$sql = map($sql, compact('table'));
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$result = $db->query("DROP TABLE IF EXISTS $table");
 		$this->assertEquals(null, $result->resource());
@@ -83,7 +80,7 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 		$this->assertFalse($db->tableExists($table), "$table should not exist");
 
 		foreach ($sql as $key => $create) {
-			$result = ORM_Schema::tableSynchronize($db, $create, false);
+			$result = Schema::tableSynchronize($db, $create, false);
 			$this->log('Running SQL {key} ({n}) {result}', ['key' => $key, 'n' => count($result), 'result' => $result]);
 			$db->queries($result);
 		}
@@ -108,10 +105,10 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 		KEY `phrase` (`Phrase`(64))
 		);";
 
-		ORM_Schema::debug(true);
+		Schema::debug(true);
 
 		/* @var $db Database */
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 
@@ -127,8 +124,8 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 
 		$db_table = $db->databaseTable($table_name);
 
-		ORM_Schema::$debug = true;
-		$result = ORM_Schema::update($db, $db_table, $object_table);
+		Schema::$debug = true;
+		$result = Schema::update($db, $db_table, $object_table);
 
 		$this->assertEquals([], $result);
 	}
@@ -150,9 +147,9 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 		INDEX phrase ( Phrase(64) )
 		);";
 
-		ORM_Schema::debug(true);
+		Schema::debug(true);
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
@@ -169,7 +166,7 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 
 		$db_table = $db->databaseTable($table_name);
 
-		$result = ORM_Schema::update($db, $db_table, $object_table);
+		$result = Schema::update($db, $db_table, $object_table);
 
 		$this->assertEquals([], $result);
 	}
@@ -199,9 +196,9 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 		KEY `time` (`ActionTime`)
 		) AUTO_INCREMENT=1426";
 
-		ORM_Schema::debug(true);
+		Schema::debug(true);
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
@@ -218,7 +215,7 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 
 		$db_table = $db->databaseTable($table_name);
 
-		$result = ORM_Schema::update($db, $db_table, $object_table);
+		$result = Schema::update($db, $db_table, $object_table);
 
 		$this->assertEquals([], $result);
 	}
@@ -236,9 +233,9 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 		);
 		";
 
-		ORM_Schema::debug(true);
+		Schema::debug(true);
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
@@ -255,7 +252,7 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 
 		$db_table = $db->databaseTable($table_name);
 
-		$result = ORM_Schema::update($db, $db_table, $object_table);
+		$result = Schema::update($db, $db_table, $object_table);
 
 		$this->assertEquals([], $result);
 
@@ -267,14 +264,14 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 
 		DBSchemaTest4::$test_table2 = $table2 = 'temp_test_multi_create2';
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query("DROP TABLE IF EXISTS $table2");
 
 		$object = new DBSchemaTest4($this->application);
 
-		$result = ORM_Schema::update_object($object);
+		$result = Schema::update_object($object);
 		$db->queries($result);
 		$this->log($result);
 
@@ -289,7 +286,7 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 		$this->assertFalse($db->tableExists($table2));
 
 		$object = new DBSchemaTest4($this->application);
-		$result = ORM_Schema::update_object($object);
+		$result = Schema::update_object($object);
 		$db->queries($result);
 
 		$this->assertTrue($db->tableExists($table));
@@ -302,43 +299,43 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 	}
 
 	public function test_5(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		DBSchemaTest5::$test_table = $table = 'keywords_test';
 		$db->query("DROP TABLE IF EXISTS $table");
 
 		$object = new DBSchemaTest5($this->application);
-		$result = ORM_Schema::update_object($object);
+		$result = Schema::update_object($object);
 		$db->queries($result);
 
 		$this->assertTrue($db->tableExists($table));
 
-		ORM_Schema::debug(true);
+		Schema::debug(true);
 
 		$object = new DBSchemaTest5($this->application);
-		$result = ORM_Schema::update_object($object);
+		$result = Schema::update_object($object);
 		$this->assertEquals([], $result);
 	}
 
 	public function test_6(): void {
 		$table = 'keywords_test';
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$db->query("DROP TABLE IF EXISTS $table");
 
 		DBSchemaTest6::$test_table = $table;
 		$object = new DBSchemaTest6($this->application);
-		$result = ORM_Schema::update_object($object);
+		$result = Schema::update_object($object);
 		$db->queries($result);
 
 		$this->assertTrue($db->tableExists($table));
 
-		ORM_Schema::debug(true);
+		Schema::debug(true);
 
 		DBSchemaTest7::$test_table = $table;
 		$object = new DBSchemaTest7($this->application);
-		$result = ORM_Schema::update_object($object);
+		$result = Schema::update_object($object);
 
 		$check_result = ['ALTER TABLE `keywords_test` ADD COLUMN `Proto` tinyint NOT NULL DEFAULT 0 AFTER `Protocol`', ];
 
@@ -350,35 +347,43 @@ class ORM_Schema_MySQL_Test extends ORMUnitTest {
 	public function test_8(): void {
 		$table = 'bigint_test';
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$db->query("DROP TABLE IF EXISTS $table");
 
 		DBSchemaTest8::$test_table = $table;
 		$object = new DBSchemaTest8($this->application);
-		$result = ORM_Schema::update_object($object);
+		$result = Schema::update_object($object);
 		$db->queries($result);
 
 		$this->assertTrue($db->tableExists($table));
 
-		ORM_Schema::debug(true);
+		Schema::debug(true);
 
 		$object = new DBSchemaTest8($this->application);
-		$result = ORM_Schema::update_object($object);
+		$result = Schema::update_object($object);
 
 		$this->assertEquals([], $result);
 
 		$db->query("DROP TABLE IF EXISTS $table");
-
-		echo basename(__FILE__) . ": Success.\n";
 	}
 
 	public function test_schema0(): void {
-		$updates = ORM_Schema::update_object($this->application->ormFactory(__NAMESPACE__ . '\\' . 'DBSchemaTest_columns_0'));
-		dump($updates);
+		$updates = Schema::update_object($this->application->ormFactory(__NAMESPACE__ . '\\' . 'DBSchemaTest_columns_0'));
+		$expected = [
+			"CREATE TABLE `DBSchemaTest_columns_0` (\n\t`ID` int(11) unsigned AUTO_INCREMENT PRIMARY KEY NOT NULL,\n\t`Hash` char(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,\n\t`Protocol` varchar(7) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',\n\t`Domain` int(11) unsigned NULL DEFAULT NULL,\n\t`Port` smallint(11) unsigned NULL,\n\t`URI` int(11) unsigned NULL DEFAULT NULL,\n\t`QueryString` int(11) unsigned NULL DEFAULT NULL,\n\t`Title` int(11) unsigned NULL,\n\t`Fragment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,\n\t`Frag` int(11) unsigned NULL\n) ",
+			'ALTER TABLE `DBSchemaTest_columns_0` ADD INDEX `domain` TYPE BTREE (`Domain`)',
+			'ALTER TABLE `DBSchemaTest_columns_0` ADD INDEX `title` TYPE BTREE (`Title`)',
+			'ALTER TABLE `DBSchemaTest_columns_0` ADD UNIQUE `Hash` TYPE BTREE (`Hash`)', '-- database type mysqli',
+			"-- sql MySQL\Database_SQL",
+		];
+		$this->assertEquals($expected, $updates);
 		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
-		$updates = ORM_Schema::update_object($this->application->ormFactory(__NAMESPACE__ . '\\' . 'DBSchemaTest_columns_1'));
-		dump($updates);
-		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
+		$updates = Schema::update_object($this->application->ormFactory(__NAMESPACE__ . '\\' . 'DBSchemaTest_columns_1'));
+		$expected = [
+			"CREATE TABLE `DBSchemaTest_columns_1` (\n\t`ID` int(11) unsigned AUTO_INCREMENT NOT NULL,\n\t`Hash` char(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,\n\t`Protocol` varchar(7) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',\n\t`Domain` int(11) unsigned NULL DEFAULT NULL,\n\t`Port` smallint(11) unsigned NULL,\n\t`URI` int(11) unsigned NULL DEFAULT NULL\n) ",
+			'-- database type mysqli', "-- sql MySQL\Database_SQL",
+		];
+		$this->assertEquals($expected, $updates);
 	}
 }

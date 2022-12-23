@@ -24,7 +24,7 @@ namespace zesk;
  */
 class Help extends ORMBase {
 	public function show() {
-		$query = $this->query_update();
+		$query = $this->queryUpdate();
 		$query->value('*show_first', $query->sql()
 			->now())
 			->addWhere('show_first', null)
@@ -32,7 +32,7 @@ class Help extends ORMBase {
 				'id' => $this->id(),
 			])
 			->execute();
-		$query = $this->query_update();
+		$query = $this->queryUpdate();
 		$query->value('*show_recent', $query->sql()
 			->now())
 			->value('*show_count', 'show_count+1')

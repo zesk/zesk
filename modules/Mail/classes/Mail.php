@@ -8,7 +8,29 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\Mail;
+
+use zesk\Application;
+use zesk\ArrayTools;
+use zesk\Exception_Connect;
+use zesk\Exception_Convert;
+use zesk\Exception_Deprecated;
+use zesk\Exception_File_Format;
+use zesk\Exception_File_NotFound;
+use zesk\Exception_File_Permission;
+use zesk\Exception_Key;
+use zesk\Exception_Parameter;
+use zesk\Exception_Redirect;
+use zesk\Exception_Syntax;
+use zesk\File;
+use zesk\Hookable;
+use zesk\Hooks;
+use zesk\MIME;
+use zesk\Net\SMTP\Client;
+use zesk\Text;
+use zesk\UTF8;
+use zesk\Version;
+use function is_windows;
 
 /**
  *
@@ -103,6 +125,7 @@ class Mail extends Hookable {
 	/**
 	 * Create a Mail object
 	 *
+	 * @param Application $application
 	 * @param array $headers
 	 * @param string $body
 	 * @param array $options
@@ -118,6 +141,7 @@ class Mail extends Hookable {
 	/**
 	 * Create a Mail object
 	 *
+	 * @param Application $application
 	 * @param array $headers
 	 * @param string $body
 	 * @param array $options
@@ -175,6 +199,7 @@ class Mail extends Hookable {
 	 * Send a Mail object
 	 *
 	 * @return self
+	 * @throws Exception_Connect|Exception_Syntax
 	 */
 	public function send(): self {
 		$this->_log($this->headers, $this->body);
@@ -241,7 +266,7 @@ class Mail extends Hookable {
 		$from = $this->headers['From'] ?? null;
 		$body = str_replace("\r\n", "\n", $this->body);
 		$body = str_replace("\n", "\r\n", $body);
-		$smtp = new Net_SMTP_Client($this->application, $url, $this->optionArray('SMTP_OPTIONS'));
+		$smtp = new Client($this->application, $url, $this->optionArray('SMTP_OPTIONS'));
 		$this->method = 'smtp';
 		if ($smtp->send($from, $to, self::renderHeaders($this->headers), $body)) {
 			$this->sent = time();
@@ -292,7 +317,7 @@ class Mail extends Hookable {
 	 * @return string
 	 */
 	private static function mailEOL(): string {
-		return \is_windows() ? "\r\n" : "\n";
+		return is_windows() ? "\r\n" : "\n";
 	}
 
 	/**
@@ -333,13 +358,13 @@ class Mail extends Hookable {
 		$matches = [];
 		$result = [];
 		$atom = '[- A-Za-z0-9!#$%&\'*+\/=?^_`{|}~]';
-		$atext = "$atom+";
+		$aText = "$atom+";
 		$domain = '[-A-Za-z0-9.]+';
 		$white = '\s+';
 		$patterns = [
-			'/(' . $atext . '|"[^\"]")' . $white . '<(' . $atext . ')@(' . $domain . ')>/' => [1, 2, 3],
-			'/<(' . $atext . ')@(' . $domain . ')>/' => [null, 1, 2],
-			'/(' . $atext . ')@(' . $domain . ')/' => [null, 1, 2],
+			'/(' . $aText . '|"[^\"]")' . $white . '<(' . $aText . ')@(' . $domain . ')>/' => [1, 2, 3],
+			'/<(' . $aText . ')@(' . $domain . ')>/' => [null, 1, 2],
+			'/(' . $aText . ')@(' . $domain . ')/' => [null, 1, 2],
 		];
 		foreach ($patterns as $pattern => $mappings) {
 			if (preg_match($pattern, $email, $matches)) {
@@ -361,20 +386,13 @@ class Mail extends Hookable {
 	 * Identical to sendmail, but truncates the entire message to be 140 characters
 	 * Determined length based on iPhone/AT&T.
 	 *
-	 * @param string $to
-	 *            Email address to send to
-	 * @param string $from
-	 *            Email address from (may be "Hello" <email@example.com> etc.)
-	 * @param string $subject
-	 *            Optional. Subject of message.
-	 * @param string $body
-	 *            Message to send.
-	 * @param string $cc
-	 *            Optional. CC email addresses.
-	 * @param string $bcc
-	 *            Optional. BCC email addresses.
-	 * @param array $headers
-	 *            Optional extra headers in the form: array("Header-Type: Header Value", "...")
+	 * @param string $to Email address to send to
+	 * @param string $from  Email address from (maybe "Hello" <email@example.com> etc.)
+	 * @param string $subject Optional. Subject of message.
+	 * @param string $body Message to send.
+	 * @param string $cc Optional. CC email addresses.
+	 * @param string $bcc Optional. BCC email addresses.
+	 * @param array $headers Optional extra headers in the form: array("Header-Type: Header Value", "...")
 	 * @return Mail unsent email
 	 * @throws Exception_Syntax
 	 */
@@ -409,23 +427,19 @@ class Mail extends Hookable {
 	}
 
 	/**
-	 * Send an email to someone.
+	 * Send email to someone.
 	 *
-	 * @param string $to
-	 *            Email address to send to
-	 * @param string $from
-	 *            Email address from (may be "Hello" <email@example.com> etc.)
-	 * @param string $subject
-	 *            Optional. Subject of message.
-	 * @param string $body
-	 *            Message to send.
-	 * @param string $cc
-	 *            Optional. CC email addresses.
-	 * @param string $bcc
-	 *            Optional. BCC email addresses.
-	 * @param array $headers
-	 *            Optional extra headers in the form: array("Header-Type: Header Value", "...")
+	 * @param Application $application
+	 * @param string $to Email address to send to
+	 * @param string $from Email address from (e.g. "Hello" <email@example.com> etc.)
+	 * @param string $subject Optional. Subject of message.
+	 * @param string $body Message to send.
+	 * @param string $cc Optional. CC email addresses.
+	 * @param string $bcc Optional. BCC email addresses.
+	 * @param array $headers Optional extra headers in the form: array("Header-Type: Header Value", "...")
+	 * @param array $options
 	 * @return self
+	 * @throws Exception_Syntax
 	 */
 	public static function sendmail(Application $application, string $to, string $from, string $subject, string $body, string $cc = '', string $bcc = '', array $headers = [], array $options = []): self {
 		$new_headers = [];
@@ -454,7 +468,7 @@ class Mail extends Hookable {
 		$new_headers['Date'] = gmdate('D, d M Y H:i:s \G\M\T', time());
 
 		foreach ($headers as $header) {
-			[$name, $value] = pair($header, ':', '', '');
+			[$name, $value] = pair($header, ':');
 			if ($name) {
 				$new_headers[$name] = ltrim($value);
 			}
@@ -501,7 +515,21 @@ class Mail extends Hookable {
 		return new Mail($application, $headers, $body, $options);
 	}
 
+	/**
+	 * @param Application $application
+	 * @param string $to
+	 * @param string $from
+	 * @param string $subject
+	 * @param array $array
+	 * @param string $prefix
+	 * @param string $suffix
+	 * @return static
+	 * @throws Exception_Syntax
+	 * @throws Exception_Syntax
+	 * @throws Exception_Deprecated
+	 */
 	public static function mail_array(Application $application, string $to, string $from, string $subject, array $array, string $prefix = '', string $suffix = ''): self {
+		$application->deprecated(__METHOD__);
 		return self::mailArray($application, $to, $from, $subject, $array, $prefix, $suffix);
 	}
 
@@ -513,7 +541,8 @@ class Mail extends Hookable {
 	 * @param array $array
 	 * @param string $prefix
 	 * @param string $suffix
-	 * @return bool
+	 * @return Mail
+	 * @throws Exception_Syntax
 	 */
 	public static function mailArray(Application $application, string $to, string $from, string $subject, array $array, string $prefix = '', string $suffix = ''): self {
 		$content = Text::format_pairs($array);
@@ -527,8 +556,8 @@ class Mail extends Hookable {
 	 * @param string $subject
 	 * @param string $filename
 	 * @param array $fields
-	 * @param string|null $cc
-	 * @param string|null $bcc
+	 * @param string $cc
+	 * @param string $bcc
 	 * @return static
 	 * @throws Exception_File_NotFound
 	 * @throws Exception_Syntax
@@ -577,7 +606,7 @@ class Mail extends Hookable {
 	 * @return self
 	 * @throws Exception_Parameter
 	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws Exception_File_Permission|Exception_Key
 	 */
 	public static function multipartFactory(Application $application, array $mail_options, array $attachments = []): self {
 		$eol = self::mailEOL();
@@ -596,7 +625,7 @@ class Mail extends Hookable {
 			]);
 		}
 		if (!array_key_exists('To', $headers)) {
-			throw new Exception_Parameter('Need to have a To header: {keys} <pre>{debug}</pre>', [
+			throw new Exception_Parameter('Need to have a \"To\" header: {keys} <pre>{debug}</pre>', [
 				'keys' => array_keys($headers), 'debug' => _dump($mail_options),
 			]);
 		}
@@ -705,9 +734,11 @@ class Mail extends Hookable {
 	 * @param Application $application
 	 * @param string|array $theme
 	 * @param array $variables
-	 * @throws Exception_Semantics
+	 * @return array
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Redirect
 	 */
-	public static function load_theme(Application $application, string|array $theme, array $variables = []) {
+	public static function load_theme(Application $application, string|array $theme, array $variables = []): array {
 		zesk()->deprecated(__METHOD__);
 		return self::loadTheme($application, $theme, $variables);
 	}
@@ -719,9 +750,9 @@ class Mail extends Hookable {
 	 * @param string|array $theme
 	 * @param array $variables
 	 * @return array
-	 * @throws Exception_Semantics
+	 * @throws Exception_Redirect
 	 */
-	public static function loadTheme(Application $application, string|array $theme, array $variables = []) {
+	public static function loadTheme(Application $application, string|array $theme, array $variables = []): array {
 		$variables = toArray($variables);
 		$variables['application'] = $application;
 		return self::load(map($application->theme($theme, $variables), $variables));
@@ -762,7 +793,7 @@ class Mail extends Hookable {
 
 				break;
 			} else {
-				[$header_type, $header_value] = pair($line, ':', $line, '');
+				[$header_type, $header_value] = pair($line, ':', $line);
 				$result[$header_type] = ltrim($header_value);
 			}
 		}
@@ -793,7 +824,7 @@ class Mail extends Hookable {
 		if (!preg_match_all(self::RFC2047HEADER, $header, $matches, PREG_PATTERN_ORDER)) {
 			return [];
 		}
-		return array_map('strtoupper', $matches[1]);
+		return array_map(strtoupper(...), $matches[1]);
 	}
 
 	/**
@@ -816,18 +847,11 @@ class Mail extends Hookable {
 		foreach ($matches as $header_match) {
 			[$match, $charset, $encoding, $data] = $header_match;
 			$encoding = strtoupper($encoding);
-			switch ($encoding) {
-				case 'B':
-					$data = base64_decode($data);
-
-					break;
-				case 'Q':
-					$data = quoted_printable_decode(str_replace('_', ' ', $data));
-
-					break;
-				default:
-					throw new Exception_Syntax("preg_match_all is busted: didn't find B or Q in encoding $header");
-			}
+			$data = match ($encoding) {
+				'B' => base64_decode($data),
+				'Q' => quoted_printable_decode(str_replace('_', ' ', $data)),
+				default => throw new Exception_Syntax("preg_match_all is busted: didn't find B or Q in encoding $header"),
+			};
 
 			try {
 				$data = UTF8::from_charset($data, $charset);
@@ -877,7 +901,7 @@ class Mail extends Hookable {
 				}
 			}
 			if ($curHeader === null) {
-				[$n, $v] = pair($line, ':', $line, '');
+				[$n, $v] = pair($line, ':', $line);
 				$curHeader = $n;
 				$curValue = trim($v);
 			}

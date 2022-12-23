@@ -8,6 +8,18 @@
  */
 namespace zesk\World;
 
+use zesk\Database_Exception_SQL;
+use zesk\Exception_Configuration;
+use zesk\Exception_Convert;
+use zesk\Exception_Deprecated;
+use zesk\Exception_Key;
+use zesk\Exception_Parameter;
+use zesk\Exception_Semantics;
+use zesk\Exception_Unimplemented;
+use zesk\ORM\Exception_ORMDuplicate;
+use zesk\ORM\Exception_ORMEmpty;
+use zesk\ORM\Exception_ORMNotFound;
+use zesk\ORM\Exception_Store;
 use zesk\ORM\ORMBase;
 use zesk\Application;
 
@@ -41,17 +53,17 @@ class Currency extends ORMBase {
 	/**
 	 * Format a currency for output
 	 *
-	 * @param number $value
+	 * @param float|int $value
 	 * @return string
 	 */
-	public function format($value = 0) {
+	public function format(float|int $value = 0): string {
 		$locale = $this->application->locale;
 		$decimals = $this->option('decimal_point', $locale->__('Currency::decimal_point:=.'));
 		$thousands = $this->option('thousands_separator', $locale->__('Currency::thousands_separator:=.'));
 		return map($this->format, [
 			'value_raw' => $value,
-			'value_decimal' => $intvalue = intval($value),
-			'value_fraction' => substr(strval(abs($value - $intvalue)), 2),
+			'value_decimal' => $intValue = intval($value),
+			'value_fraction' => substr(strval(abs($value - $intValue)), 2),
 			'minus' => $value < 0 ? '-' : '',
 			'plus' => $value > 0 ? '+' : '',
 			'decimal' => $decimals,
@@ -60,14 +72,25 @@ class Currency extends ORMBase {
 		] + $this->members());
 	}
 
-	public function symbol_left(): string {
+	public function symbol_left(): bool {
 		return str_starts_with($this->format, '{symbol}');
 	}
 
 	/**
 	 * Get Euros
 	 *
+	 * @param Application $application
 	 * @return Currency
+	 * @throws Exception_Configuration
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
+	 * @throws Exception_ORMDuplicate
+	 * @throws Exception_ORMEmpty
+	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Store
 	 */
 	public static function euro(Application $application): Currency {
 		$cached = $application->ormFactory(Currency::class, [
@@ -87,13 +110,25 @@ class Currency extends ORMBase {
 	/**
 	 * Get US dollars
 	 *
+	 * @param Application $application
 	 * @return Currency
+	 * @throws Exception_Configuration
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 * @throws Exception_ORMDuplicate
+	 * @throws Exception_ORMEmpty
+	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
+	 * @throws Exception_Store
+	 * @throws Exception_Unimplemented
+	 * @throws Database_Exception_SQL
 	 */
-	public static function usd(Application $application) {
+	public static function usd(Application $application): Currency {
 		$cached = $application->ormFactory(__CLASS__, [
 			'name' => 'US Dollar',
 			'code' => 'USD',
-			'bank_country' => Country::find_country($application, 'us'),
+			'bank_country' => Country::findCountry($application, 'us'),
 			'id' => 840,
 			'symbol' => '$',
 			'format' => '{symbol}{amount}',
@@ -105,17 +140,29 @@ class Currency extends ORMBase {
 		return $cached;
 	}
 
-	public function precision() {
-		return $this->memberInteger('precision', 2);
+	/**
+	 */
+	public function precision(): int {
+		try {
+			return $this->memberInteger('precision');
+		} catch (Exception_Key|Exception_Convert) {
+			return 2;
+		}
 	}
 
 	/**
 	 * Look up a Currency object based on its code
 	 *
+	 * @param Application $application
 	 * @param string $code
-	 * @return Currency|null
+	 * @return Currency
+	 * @throws Exception_Configuration
+	 * @throws Exception_Key
+	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
 	 */
-	public static function from_code(Application $application, $code) {
+	public static function fromCode(Application $application, string $code): Currency {
 		return $application->ormFactory(__CLASS__)->find([
 			'code' => $code,
 		]);

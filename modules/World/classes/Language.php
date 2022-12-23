@@ -60,7 +60,7 @@ class Language extends ORMBase {
 	 * @param Application $application
 	 */
 	public static function clean_table(Application $application): void {
-		$query = $application->ormRegistry(__CLASS__)->query_update();
+		$query = $application->ormRegistry(__CLASS__)->queryUpdate();
 		$query->value('dialect', null)->addWhere('dialect', '');
 		$query->execute();
 		if ($query->affectedRows() > 0) {

@@ -14,7 +14,7 @@ use zesk\Exception_Syntax;
 use zesk\Interface_Member_Model_Factory;
 use zesk\ORM\Interface_Duplicate;
 
-use zesk\ORM\Schema as ORM_Schema;
+use zesk\ORM\Schema as Schema;
 use zesk\Application;
 use zesk\Database;
 use zesk\Timestamp;
@@ -404,16 +404,16 @@ class ORMBase extends Model implements Interface_Member_Model_Factory {
 
 	/**
 	 *
-	 * @return ?ORM_Schema
+	 * @return ?Schema
 	 */
-	final public function database_schema(): ?ORM_Schema {
+	final public function database_schema(): ?Schema {
 		return $this->class->database_schema($this);
 	}
 
 	/**
 	 *
 	 */
-	public function schema(): ORM_Schema|array|string|null {
+	public function schema(): Schema|array|string|null {
 		return $this->class->schema($this);
 	}
 
@@ -1677,20 +1677,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory {
 	}
 
 	/**
-	 * @param string $member
-	 * @param mixed|null $def
-	 * @return mixed
-	 * @throws Exception_Key
-	 */
-	public function membere(string $member, mixed $def = null): mixed {
-		$value = $this->member($member);
-		if (empty($value)) {
-			return $def;
-		}
-		return $value;
-	}
-
-	/**
 	 * Passing in NULL for $mixed will fetch ALL members, including those which may be "extra" as returned by a custom query, for example.
 	 *
 	 * @param array|string|null $mixed
@@ -2093,7 +2079,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory {
 	 * @throws Exception_Semantics
 	 * @throws Exception_Configuration
 	 */
-	public function find(array $where = []): ORMBase {
+	public function find(array $where = []): self {
 		$data = $this->exists($where);
 		return $this->initialize($data, true)->polymorphicChild();
 	}
@@ -2996,86 +2982,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory {
 	}
 
 	/**
-	 * @param $member
-	 * @return void
-	 * @codeCoverageIgnore
-	 * @deprecated 2022-05
-	 */
-	public function memberKeysRemove(string|array $member): void {
-		$member = toList($member);
-		foreach ($member as $m) {
-			unset($this->members[$m]);
-		}
-	}
-
-	/**
-	 * Retrieve a member as an integer
-	 *
-	 * @param string $member
-	 * @param mixed|null $def
-	 * @codeCoverageIgnore
-	 * @return mixed
-	 * @throws Exception_Deprecated
-	 * @throws Exception_Semantics
-	 */
-	public function member_integer(string $member, mixed $def = null): mixed {
-		try {
-			return $this->memberInteger($member);
-		} catch (Exception_Key) {
-			return $def;
-		}
-	}
-
-	/**
-	 * Retrieve a query for the current object
-	 *
-	 * @param string $alias
-	 * @return Database_Query_Select
-	 * @deprecated 2022-05
-	 * @see ORMBase::querySelect()
-	 * @codeCoverageIgnore
-	 */
-	public function query_select(string $alias = ''): Database_Query_Select {
-		return $this->querySelect($alias);
-	}
-
-	/**
-	 * Create an insert query for this object
-	 *
-	 * @return Database_Query_Insert
-	 * @deprecated 2022-05
-	 * @see ORMBase::queryInsert()
-	 * @codeCoverageIgnore
-	 */
-	public function query_insert(): Database_Query_Insert {
-		return $this->queryInsert();
-	}
-
-	/**
-	 * Create an update query for this object
-	 *
-	 * @return Database_Query_Update
-	 * @deprecated 2022-05
-	 * @see ORMBase::queryUpdate()
-	 * @codeCoverageIgnore
-	 */
-	public function query_update(string $alias = ''): Database_Query_Update {
-		return $this->queryUpdate($alias);
-	}
-
-	/**
-	 * Create an insert -> select query for this object
-	 *
-	 * @param string $alias
-	 * @return Database_Query_Insert_Select
-	 * @codeCoverageIgnore
-	 * @deprecated 2022-05
-	 */
-	public function query_insert_select(string $alias = ''): Database_Query_Insert_Select {
-		return $this->queryInsertSelect($alias);
-	}
-
-	/**
 	 * Create an delete query for this object
 	 *
 	 * @return Database_Query_Delete
@@ -3095,6 +3001,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory {
 	 * @codeCoverageIgnore
 	 */
 	public function utc_timestamps(): bool {
+		zesk()->deprecated(__METHOD__);
 		return $this->utcTimestamps();
 	}
 
@@ -3107,6 +3014,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory {
 	 * @codeCoverageIgnore
 	 */
 	public function database_name(): string {
+		zesk()->deprecated(__METHOD__);
 		return $this->databaseName();
 	}
 
@@ -3121,6 +3029,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory {
 	 * @codeCoverageIgnore
 	 */
 	public function set_member($member, $v = null, $overwrite = true) {
+		zesk()->deprecated(__METHOD__);
 		$this->refresh();
 		if (is_array($member)) {
 			foreach ($member as $k => $v) {

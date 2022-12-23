@@ -113,7 +113,7 @@ class PolyGlot_Update extends ORMBase {
 			try {
 				self::update_locale($application, $path, $update_locale);
 				$application->ormRegistry(__CLASS__)
-					->query_update()
+					->queryUpdate()
 					->value('updated', Timestamp::now())
 					->addWhere('locale', $update_locale)
 					->execute();

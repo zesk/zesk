@@ -77,7 +77,7 @@ class Session_ORM extends ORMBase implements Interface_Session {
 	 * @throws Exception_Semantics
 	 */
 	public function seen() {
-		$query = $this->query_update();
+		$query = $this->queryUpdate();
 		$sql = $query->sql();
 		$query->value('*seen', $sql->now())->value('expires', $this->compute_expires())->value('*sequence_index', 'sequence_index+1')->addWhere('id', $this)->setLowPriority(true)->execute();
 		$this->callHook('seen');

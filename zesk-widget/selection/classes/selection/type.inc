@@ -142,7 +142,7 @@ class Selection_Type extends ORMBase {
 						->execute();
 				} else {
 					$this->application->ormRegistry(Selection_Item::class)
-						->query_update()
+						->queryUpdate()
 						->value([
 							'add' => $op,
 							'query' => null,

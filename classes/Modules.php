@@ -423,6 +423,10 @@ class Modules {
 
 		try {
 			Configuration_Parser::factory($extension, $raw_module_conf, new Adapter_Settings_Array($config))->process();
+		} catch (Exception_Parse $e) {
+			throw new Exception_Invalid('{message} loading configuration file {file}', [
+				'message' => $e->getMessage(), 'file' => $file,
+			], 0, $e);
 		} catch (Exception_Class_NotFound $e) {
 			throw new Exception_Invalid('Unable to load extension {extension} for configuration file {file}', [
 				'extension' => $extension, 'file' => $file,

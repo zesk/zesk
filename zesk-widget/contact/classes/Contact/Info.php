@@ -27,7 +27,7 @@ abstract class Contact_Info extends ORMBase {
 	private function _update_contact(): void {
 		// 		if ($this->class->contact_object_field !== null) {
 		// 			$table = ORM::class_table_name('Contact');
-		// 			$this->query_update()->values(array(
+		// 			$this->queryUpdate()->values(array(
 		// 				$this->class->contact_object_field => $this->id()
 		// 			))->where(array(
 		// 				'id' => $this->Contact,

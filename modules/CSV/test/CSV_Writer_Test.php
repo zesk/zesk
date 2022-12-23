@@ -22,7 +22,7 @@ class CSV_Writer_Test extends UnitTest {
 		$x = new Writer();
 
 		$f = $this->test_sandbox('csv_writer.csv');
-		$x->file($f);
+		$x->setFile($f);
 
 		$success = false;
 
@@ -66,11 +66,9 @@ class CSV_Writer_Test extends UnitTest {
 		$this->assertTrue($success);
 
 		$set_headers = [
-			'Title',
-			'CodeName',
-			'Something',
+			'Title', 'CodeName', 'Something',
 		];
-		$this->assertInstanceOf(Base::class, $x->set_headers($set_headers, true));
+		$this->assertInstanceOf(Base::class, $x->set_headers($set_headers, false));
 
 		$headers = $x->headers();
 		$this->assertEquals($headers, $set_headers);
@@ -92,14 +90,18 @@ class CSV_Writer_Test extends UnitTest {
 		$map = [
 			'B' => 'Title',
 		];
-		$x->setObject($name, $fields);
+		$x->setObject($name, $map);
 
 		$row = [];
 		$x->setRow($row);
 
-		$col = 'foo';
-		$data = null;
-		$x->setColumn($col, $data);
+		foreach ([
+			'Title' => 'whatever',
+			'CodeName' => __METHOD__,
+			'Something' => $this->randomHex(12),
+		] as $col => $data) {
+			$x->setColumn($col, $data);
+		}
 
 		$x->writeRow();
 
@@ -114,40 +116,24 @@ class CSV_Writer_Test extends UnitTest {
 
 	public function badkeys() {
 		return [
-			['f!rst'],
-			['2ECOND'],
-			['THURD'],
-			['4'],
-			['random'],
-			['5 '],
-			['six'],
+			['f!rst'], ['2ECOND'], ['THURD'], ['4'], ['random'], [5], ['5 '], ['six'],
 		];
 	}
 
 	public function goodkeys() {
 		return [
-			['first'],
-			['SECOND'],
-			['tHIRD'],
-			['4th'],
-			[5],
-			['5'],
+			['first'], ['SECOND'], ['tHIRD'], ['4th'], ['5'],
 		];
 	}
 
 	/**
 	 * @dataProvider badkeys
 	 */
-	public function test_badkey(string $badkey): void {
+	public function test_badkey(string|int $badkey): void {
 		$this->expectException(Exception_Key::class);
 		$x = new Writer();
 		$x->set_headers([
-			'First',
-			'Second',
-			'Third',
-			'4th',
-			'5',
-			'6',
+			'First', 'Second', 'Third', '4th', '5', '6',
 		], false);
 
 		$x->add_object_map('test', [
@@ -161,12 +147,7 @@ class CSV_Writer_Test extends UnitTest {
 	public function test_goodkey(string $key): void {
 		$x = new Writer();
 		$x->set_headers([
-			'First',
-			'Second',
-			'Third',
-			'4th',
-			'5',
-			'6.0',
+			'First', 'Second', 'Third', '4th', '5', '6.0',
 		], false);
 
 		$x->add_object_map('test', [

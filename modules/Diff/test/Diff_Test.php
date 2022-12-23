@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk\Diff;
 
 use zesk\UnitTest;
@@ -17,7 +19,7 @@ class Diff_Test extends UnitTest {
 		$a = 'a';
 		$b = 'a';
 		$testx = new Binary($a, $b);
-		$this->assert($testx->isIdentical());
+		$this->assertTrue($testx->isIdentical());
 		$edits = $testx->edits();
 		$this->assertEquals(1, count($edits));
 	}
@@ -64,8 +66,8 @@ class Diff_Test extends UnitTest {
 
 		$testx = new Binary($a, $b);
 		$diffs = $testx->diffs();
-		$this->assertEquals(2);
-		$this->assertEquals($diffs[0], count($diffs), new Edit(Edit::DIFF_INSERT, 9, 1, "\n"));
+		$this->assertCount(2, $diffs);
+		$this->assertEquals($diffs[0], new Edit(Edit::DIFF_INSERT, 9, 1, "\n"));
 		$this->assertEquals($diffs[1], new Edit(Edit::DIFF_INSERT, 21, 4, "new\n"));
 	}
 
@@ -101,14 +103,14 @@ class Diff_Test extends UnitTest {
 		$this->log("Output: \n" . $testx->output());
 
 		$this->assertEquals([
-			new Edit(Edit::DIFF_INSERT, $testx->diffs(), 2, 1, [
+			new Edit(Edit::DIFF_INSERT, 2, 1, [
 				'Line3',
 			]),
-		]);
+		], $testx->diffs());
 		$testx = new Lines($b, $a);
 		$this->assertEquals([
-			new Edit(Edit::DIFF_DELETE, $testx->diffs(), 2, 1),
-		]);
+			new Edit(Edit::DIFF_DELETE, 2, 1),
+		], $testx->diffs());
 	}
 
 	public function test_diff_text(): void {
@@ -142,7 +144,7 @@ class Diff_Test extends UnitTest {
 			$offset0 += $edit0->off;
 			$offset1 += $edit1->off;
 
-			echo " Offsets: $offset0 $offset1\n";
+			// echo " Offsets: $offset0 $offset1\n";
 			if ($edit0->op === Edit::DIFF_INSERT) {
 				$offset0 += $edit0->len;
 			} else {

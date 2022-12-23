@@ -129,7 +129,7 @@ class Writer extends Base {
 	 * @param string $name
 	 * @param array $map
 	 * @param array|null $defaultMap
-	 * @return Writer
+	 * @return self
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
 	 */
@@ -155,7 +155,7 @@ class Writer extends Base {
 		if (is_array($defaultMap)) {
 			$this->WriteMapGroupDefault[strtolower($name)] = array_change_key_case($defaultMap);
 		}
-		return true;
+		return $this;
 	}
 
 	/**
@@ -206,7 +206,9 @@ class Writer extends Base {
 			if ($index === null) {
 				throw new Exception_Key("CSV_Writer::add_translation_map($column_name, ...) Column not found");
 			}
-			$this->WriteTranslationMap[$index] = $map;
+			foreach (toList($index) as $index) {
+				$this->WriteTranslationMap[$index] = $map;
+			}
 		}
 		return $this;
 	}
@@ -228,7 +230,7 @@ class Writer extends Base {
 
 		$fields = array_change_key_case($fields);
 
-		if (is_array($this->WriteMapGroupDefault[$lowName])) {
+		if (is_array($this->WriteMapGroupDefault[$lowName] ?? false)) {
 			foreach ($this->WriteMapGroupDefault[$lowName] as $k => $v) {
 				$fields[$k] ??= $v;
 			}
@@ -296,7 +298,9 @@ class Writer extends Base {
 		if ($i === null) {
 			return false;
 		}
-		$this->Row[$i] = $data;
+		foreach (toList($i) as $i) {
+			$this->Row[$i] = $data;
+		}
 		return true;
 	}
 
@@ -331,8 +335,8 @@ class Writer extends Base {
 	/**
 	 * Enter description here...
 	 *
-	 * @param unknown_type $row
-	 * @return unknown
+	 * @param array $row
+	 * @return string
 	 */
 	protected function _formatRow(array $row): string {
 		$d = $this->Delimiter;
