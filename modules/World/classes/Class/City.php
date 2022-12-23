@@ -22,9 +22,9 @@ class Class_City extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'province' => self::type_object,
-		'county' => self::type_object,
-		'name' => self::type_string,
+		'id' => self::TYPE_ID,
+		'province' => self::TYPE_OBJECT,
+		'county' => self::TYPE_OBJECT,
+		'name' => self::TYPE_STRING,
 	];
 }

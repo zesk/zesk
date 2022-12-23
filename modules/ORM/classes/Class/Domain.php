@@ -21,8 +21,8 @@ class Class_Domain extends Class_Base {
 	 * @var array
 	 */
 	public array $column_types = [
-		'id' => self::type_id,
-		'name' => self::type_string,
-		'tld' => self::type_string,
+		'id' => self::TYPE_ID,
+		'name' => self::TYPE_STRING,
+		'tld' => self::TYPE_STRING,
 	];
 }

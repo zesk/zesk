@@ -20,6 +20,11 @@ use const EXTR_OVERWRITE;
  * @see Net_HTTP_Server_Request
  */
 class Request extends Hookable {
+	/**
+	 * Default URI
+	 */
+	public const DEFAULT_URI = '/';
+
 	public const DEFAULT_IP = '0.0.0.0';
 
 	/**
@@ -155,8 +160,6 @@ class Request extends Hookable {
 	 */
 	protected string $init = 'class';
 
-	public const DEFAULT_URI = '/';
-
 	/**
 	 *
 	 * @param Application $application
@@ -190,6 +193,10 @@ class Request extends Hookable {
 		} elseif ($settings === null) {
 			$this->init = 'uninitialized';
 		}
+	}
+
+	public function __sleep() {
+		return array_merge(parent::__sleep(), ['method', 'uri', 'headers', 'headers_parsed', 'cookies', 'data_raw', 'data', 'dataFile', 'dataInherit', 'requestData', 'files', 'url', 'urlParts', 'userAgent', 'ip', 'serverIP', 'remoteIP', 'init']);
 	}
 
 	/**
@@ -326,11 +333,6 @@ class Request extends Hookable {
 	 *
 	 * @return boolean
 	 */
-	public function is_secure(): bool {
-		$this->application->deprecated(__METHOD__);
-		return $this->isSecure();
-	}
-
 	public function isSecure(): bool {
 		$this->_validURLParts();
 		return $this->urlParts['scheme'] === 'https';

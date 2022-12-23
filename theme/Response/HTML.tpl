@@ -29,11 +29,11 @@ $application->hooks->callArguments('response_html_start', $hook_parameters);
 	$application->callHookArguments('headers', $hook_parameters);
 
 	$application->modules->allHookArguments('html', $hook_parameters);
-	echo $this->theme('zesk/Response/HTML/head/doctype');
+	echo $this->theme('Response/HTML/head/doctype');
 	$application->hooks->callArguments('<html>', $hook_parameters);
 	echo HTML::tag_open('html', $response->htmlAttributes());
 	{
-		echo $this->theme('zesk/Response/HTML/head', [
+		echo $this->theme('Response/HTML/head', [
 			'hook_parameters' => $hook_parameters,
 		]);
 		echo HTML::tag_open('body', $response->bodyAttributes());
@@ -49,7 +49,7 @@ $application->hooks->callArguments('response_html_start', $hook_parameters);
 					break;
 				}
 			}
-			echo $this->theme('zesk/Response/HTML/scripts');
+			echo $this->theme('Response/HTML/scripts');
 			echo $application->hooks->callArguments('</body>', $hook_parameters, '');
 		}
 		$application->modules->allHookArguments('foot', $hook_parameters);

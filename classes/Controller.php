@@ -79,7 +79,7 @@ class Controller extends Hookable implements Interface_Theme {
 		$this->inheritConfiguration();
 
 		$this->route = $route;
-		$this->router = $route->router;
+		$this->router = $route->router();
 		$this->request = $route->request();
 		$this->response = $response ?? Response::factory($app, $this->request);
 

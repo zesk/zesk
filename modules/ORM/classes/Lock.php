@@ -60,7 +60,7 @@ class Lock extends ORMBase {
 		});
 		$application->hooks->add(Hooks::HOOK_EXIT, [
 			__CLASS__, 'releaseAll',
-		], 'first');
+		], ['first' => true]);
 	}
 
 	/**
@@ -247,13 +247,14 @@ class Lock extends ORMBase {
 		$application->logger->debug(__METHOD__);
 
 		try {
+			$server = Server::singleton($application);
 			$query = $application->ormRegistry(__CLASS__)->queryUpdate();
 			$query->setValues([
 				'pid' => null, 'server' => null, 'locked' => null,
 			])->appendWhere([
-				'pid' => $application->process->id(), 'server' => Server::singleton($application),
+				'pid' => $application->process->id(), 'server' => $server,
 			])->execute();
-		} catch (Database_Exception_Table_NotFound $e) {
+		} catch (Exception_ORMNotFound|Database_Exception_Table_NotFound $e) {
 			// Ignore for now - likely database misconfigured
 		}
 	}

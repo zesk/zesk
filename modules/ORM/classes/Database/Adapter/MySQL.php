@@ -33,17 +33,17 @@ class Database_Adapter_MySQL extends Database_Adapter {
 			throw new Exception_Semantics(__CLASS__ . '::type_set_sql_type(...): "Type" is not set! ' . print_r($column, true));
 		}
 		switch (strtolower($type_name)) {
-			case Class_Base::type_id:
+			case Class_Base::TYPE_ID:
 				$column->setOption('primary_key', true);
 				$column->setOption('sql_type', 'integer');
 				$column->increment(true);
 				$column->setOption('unsigned', true);
 				return ;
-			case Class_Base::type_object:
+			case Class_Base::TYPE_OBJECT:
 				$column->setOption('sql_type', 'integer');
 				$column->setOption('unsigned', true);
 				return ;
-			case Class_Base::type_integer:
+			case Class_Base::TYPE_INTEGER:
 				$column->setOption('sql_type', 'integer');
 				return ;
 			case Class_Base::type_character:
@@ -54,7 +54,7 @@ class Database_Adapter_MySQL extends Database_Adapter {
 				$column->setOption('sql_type', 'text');
 				return;
 			case 'varchar':
-			case Class_Base::type_string:
+			case Class_Base::TYPE_STRING:
 				if (!is_numeric($size)) {
 					$column->setOption('sql_type', $is_bin ? 'blob' : 'text');
 				} else {
@@ -65,7 +65,7 @@ class Database_Adapter_MySQL extends Database_Adapter {
 				$column->setOption('sql_type', 'bit(1)');
 				return ;
 			case 'varbinary':
-			case Class_Base::type_serialize:
+			case Class_Base::TYPE_SERIALIZE:
 			case Class_Base::type_binary:
 			case Class_Base::type_hex:
 			case Class_Base::type_hex32:
@@ -89,7 +89,7 @@ class Database_Adapter_MySQL extends Database_Adapter {
 			case Class_Base::type_real:
 				$column->setOption('sql_type', 'real');
 				return ;
-			case Class_Base::type_double:
+			case Class_Base::TYPE_FLOAT:
 				$column->setOption('sql_type', 'double');
 				return ;
 			case Class_Base::type_date:
@@ -99,9 +99,9 @@ class Database_Adapter_MySQL extends Database_Adapter {
 				$column->setOption('sql_type', 'time');
 				return ;
 			case Class_Base::type_datetime:
-			case Class_Base::type_modified:
+			case Class_Base::TYPE_MODIFIED:
 			case Class_Base::type_created:
-			case Class_Base::type_timestamp:
+			case Class_Base::TYPE_TIMESTAMP:
 				$column->setOption('sql_type', 'timestamp');
 				return ;
 			case 'checksum':

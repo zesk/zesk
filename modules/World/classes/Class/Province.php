@@ -20,10 +20,10 @@ class Class_Province extends Class_Base {
 	public string $name = 'Province:=State';
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'country' => self::type_object,
-		'code' => self::type_string,
-		'name' => self::type_string,
+		'id' => self::TYPE_ID,
+		'country' => self::TYPE_OBJECT,
+		'code' => self::TYPE_STRING,
+		'name' => self::TYPE_STRING,
 	];
 
 	public array $find_keys = [

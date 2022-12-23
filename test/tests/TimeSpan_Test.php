@@ -61,7 +61,7 @@ class TimeSpan_Test extends UnitTest {
 		return [
 			['3 negarinos ago'],
 			['not a date'],
-			['3.4.1.2'],
+			['99.64.1.2'],
 		];
 	}
 

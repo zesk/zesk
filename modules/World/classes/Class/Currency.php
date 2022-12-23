@@ -29,15 +29,15 @@ class Class_Currency extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'bank_country' => self::type_object,
-		'name' => self::type_string,
-		'code' => self::type_string,
-		'symbol' => self::type_string,
-		'fractional' => self::type_integer,
-		'fractional_units' => self::type_string,
-		'format' => self::type_string,
-		'precision' => self::type_integer,
+		'id' => self::TYPE_ID,
+		'bank_country' => self::TYPE_OBJECT,
+		'name' => self::TYPE_STRING,
+		'code' => self::TYPE_STRING,
+		'symbol' => self::TYPE_STRING,
+		'fractional' => self::TYPE_INTEGER,
+		'fractional_units' => self::TYPE_STRING,
+		'format' => self::TYPE_STRING,
+		'precision' => self::TYPE_INTEGER,
 	];
 
 	public array $column_defaults = [

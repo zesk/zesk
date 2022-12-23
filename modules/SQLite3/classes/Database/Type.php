@@ -19,12 +19,12 @@ use zesk\Exception_Semantics;
  */
 class Database_Type extends Database_Data_Type {
 	protected array $sql_type_natives = [
-		self::sql_type_string => [
+		self::SQL_TYPE_STRING => [
 			'char',
 			'varchar',
 			'text',
 		],
-		self::sql_type_integer => [
+		self::SQL_TYPE_INTEGER => [
 			'bit',
 			'int',
 			'tinyint',
@@ -33,16 +33,16 @@ class Database_Type extends Database_Data_Type {
 			'bigint',
 			'integer',
 		],
-		self::sql_type_double => [
+		self::SQL_TYPE_DOUBLE => [
 			'decimal',
 		],
-		self::sql_type_date => [
+		self::SQL_TYPE_DATE => [
 			'date',
 		],
-		self::sql_type_time => [
+		self::SQL_TYPE_TIME => [
 			'time',
 		],
-		self::sql_type_datetime => [
+		self::SQL_TYPE_DATETIME => [
 			'datetime',
 			'timestamp',
 		],
@@ -73,7 +73,7 @@ class Database_Type extends Database_Data_Type {
 		$is_bin = $type->optionBool('binary');
 		$size = $type->optionInt('size');
 		switch (strtolower($type_name)) {
-			case Class_Base::type_integer:
+			case Class_Base::TYPE_INTEGER:
 				switch ($size) {
 					case 1:
 						$type->setOption('sql_type', 'tinyint');
@@ -122,17 +122,17 @@ class Database_Type extends Database_Data_Type {
 		//echo "$newtype = $this->native_type_to_sql_type($type, $type)\n";
 		$type = $newtype;
 		switch ($type) {
-			case self::sql_type_string:
+			case self::SQL_TYPE_STRING:
 				return strval($default_value);
-			case self::sql_type_blob:
-			case self::sql_type_text:
+			case self::SQL_TYPE_BLOB:
+			case self::SQL_TYPE_TEXT:
 				return null;
-			case self::sql_type_integer:
+			case self::SQL_TYPE_INTEGER:
 				return intval($default_value);
-			case self::sql_type_double:
+			case self::SQL_TYPE_DOUBLE:
 				return floatval($default_value);
 				return toBool($default_value, false);
-			case self::sql_type_datetime:
+			case self::SQL_TYPE_DATETIME:
 				if ($default_value === 0 || $default_value === '0') {
 					return '0000-00-00 00:00:00';
 				}

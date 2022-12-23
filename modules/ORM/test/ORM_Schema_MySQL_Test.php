@@ -5,14 +5,14 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace zesk\ORM;
 
 /**
  *
  * @author kent
  *
  */
-class ORM_Schema_MySQL_Test extends UnitTest {
+class ORM_Schema_MySQL_Test extends ORMUnitTest {
 	/**
 	 *
 	 * @var array

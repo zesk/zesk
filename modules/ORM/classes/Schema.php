@@ -27,21 +27,21 @@ use zesk\Exception_Semantics;
 use zesk\Exception_Syntax;
 
 abstract class Schema extends Hookable {
-	public const type_id = Class_Base::type_id;
+	public const type_id = Class_Base::TYPE_ID;
 
 	/**
 	 *
 	 * Plain old text data in the database
 	 * @var string
 	 */
-	public const type_string = Class_Base::type_string;
+	public const type_string = Class_Base::TYPE_STRING;
 
 	/**
 	 * Refers to a system object (usually by ID)
 	 *
 	 * @var string
 	 */
-	public const type_object = Class_Base::type_object;
+	public const type_object = Class_Base::TYPE_OBJECT;
 
 	/**
 	 * Upon initial save, set to current date
@@ -55,22 +55,22 @@ abstract class Schema extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_modified = Class_Base::type_modified;
+	public const type_modified = Class_Base::TYPE_MODIFIED;
 
 	/**
 	 * String information called using serialize/unserialize
 	 *
 	 * @var string
 	 */
-	public const type_serialize = Class_Base::type_serialize;
+	public const type_serialize = Class_Base::TYPE_SERIALIZE;
 
-	public const type_integer = Class_Base::type_integer;
+	public const type_integer = Class_Base::TYPE_INTEGER;
 
-	public const type_double = Class_Base::type_double;
+	public const type_double = Class_Base::TYPE_FLOAT;
 
 	public const type_boolean = Class_Base::type_boolean;
 
-	public const type_timestamp = Class_Base::type_timestamp;
+	public const type_timestamp = Class_Base::TYPE_TIMESTAMP;
 
 	public const type_hex = Class_Base::type_hex;
 

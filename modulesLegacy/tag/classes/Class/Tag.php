@@ -56,8 +56,8 @@ abstract class Class_Tag extends Class_Base {
 			$this->tag_column,
 			$this->foreign_column,
 		];
-		$this->column_types[$this->tag_column] = self::type_object;
-		$this->column_types[$this->foreign_column] = self::type_object;
+		$this->column_types[$this->tag_column] = self::TYPE_OBJECT;
+		$this->column_types[$this->foreign_column] = self::TYPE_OBJECT;
 
 		$this->has_one[$this->tag_column] = Label::class;
 

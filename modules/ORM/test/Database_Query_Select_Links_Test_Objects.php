@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @not_test
  */
 
-namespace zesk;
+namespace zesk\ORM;
 
 class Class_Test_SiteMonitor extends Class_Base {
 	public string $id_column = 'ID';
@@ -14,9 +14,9 @@ class Class_Test_SiteMonitor extends Class_Base {
 	];
 
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Name' => self::type_string,
-		'Site' => self::type_object,
+		'ID' => self::TYPE_ID,
+		'Name' => self::TYPE_STRING,
+		'Site' => self::TYPE_OBJECT,
 	];
 }
 
@@ -31,9 +31,9 @@ class Class_Test_Site extends Class_Base {
 	];
 
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Name' => self::type_string,
-		'Account' => self::type_object,
+		'ID' => self::TYPE_ID,
+		'Name' => self::TYPE_STRING,
+		'Account' => self::TYPE_OBJECT,
 	];
 }
 
@@ -49,11 +49,11 @@ class Class_Test_Account extends Class_Base {
 	];
 
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Name' => self::type_string,
-		'Primary_Site' => self::type_object,
-		'Recent_Site' => self::type_object,
-		'Cancelled' => self::type_timestamp,
+		'ID' => self::TYPE_ID,
+		'Name' => self::TYPE_STRING,
+		'Primary_Site' => self::TYPE_OBJECT,
+		'Recent_Site' => self::TYPE_OBJECT,
+		'Cancelled' => self::TYPE_TIMESTAMP,
 	];
 }
 
@@ -66,7 +66,7 @@ class Test_Account extends ORMBase {
 class Class_TestPerson extends Class_Base {
 	public string $id_column = 'PersonID';
 
-	public function schema(ORMBase $object): array|string|ORM_Schema {
+	public function schema(ORMBase $object): array|string|Schema {
 		return [
 			'CREATE TABLE {table} ( PersonID integer unsigned NOT NULL AUTO_INCREMENT, Name varchar(64), Parent integer unsigned NULL, PRIMARY KEY (PersonID) )',
 		];
@@ -93,16 +93,16 @@ class Class_TestPerson extends Class_Base {
 	];
 
 	public array $column_types = [
-		'PersonID' => Class_Base::type_id,
-		'Name' => Class_Base::type_string,
-		'Parent' => Class_Base::type_object,
+		'PersonID' => Class_Base::TYPE_ID,
+		'Name' => Class_Base::TYPE_STRING,
+		'Parent' => Class_Base::TYPE_OBJECT,
 	];
 }
 
 class Class_TestPersonPet extends Class_Base {
 	public array $column_types = [
-		'Person' => Class_Base::type_object,
-		'Pet' => Class_Base::type_object,
+		'Person' => Class_Base::TYPE_OBJECT,
+		'Pet' => Class_Base::TYPE_OBJECT,
 	];
 
 	public array $has_one = [
@@ -110,7 +110,7 @@ class Class_TestPersonPet extends Class_Base {
 		'Pet' => TestPet::class,
 	];
 
-	public function schema(ORMBase $object): array|string|ORM_Schema {
+	public function schema(ORMBase $object): array|string|Schema {
 		return [
 			'CREATE TABLE {table} ( Person integer unsigned NOT NULL, Pet integer unsigned NOT NULL, UNIQUE ppet (Person, Pet), UNIQUE pperson (Pet, Person) )',
 		];
@@ -137,9 +137,9 @@ class Class_TestPet extends Class_Base {
 	public string $id_column = 'PetID';
 
 	public array $column_types = [
-		'PetID' => self::type_id,
-		'Name' => self::type_string,
-		'Type' => self::type_object,
+		'PetID' => self::TYPE_ID,
+		'Name' => self::TYPE_STRING,
+		'Type' => self::TYPE_OBJECT,
 	];
 
 	public function schema(ORMBase $object): string {

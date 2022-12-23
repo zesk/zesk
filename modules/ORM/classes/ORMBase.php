@@ -942,7 +942,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory {
 			}
 			assert(array_key_exists($id_column, $this->class->column_types));
 			$type = $this->class->column_types[$id_column];
-			return $type === Class_Base::type_id || $type === Class_Base::type_integer ? intval($id) : strval($id);
+			return $type === Class_Base::TYPE_ID || $type === Class_Base::TYPE_INTEGER ? intval($id) : strval($id);
 		}
 		/**
 		 * No ID columns

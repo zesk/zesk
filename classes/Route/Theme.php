@@ -53,7 +53,7 @@ class Route_Theme extends Route {
 	 * @throws Exception_Redirect
 	 */
 	public function _execute(Response $response): Response {
-		$application = $this->router->application;
+		$application = $this->application;
 		$parameters = $application->variables() + [
 			'route' => $this,
 		];

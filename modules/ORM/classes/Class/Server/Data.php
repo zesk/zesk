@@ -22,10 +22,10 @@ class Class_Server_Data extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'server' => self::type_object,
-		'name' => self::type_string,
-		'value' => self::type_serialize,
+		'id' => self::TYPE_ID,
+		'server' => self::TYPE_OBJECT,
+		'name' => self::TYPE_STRING,
+		'value' => self::TYPE_SERIALIZE,
 	];
 
 	public array $has_one = [

@@ -8,7 +8,7 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-include __DIR__ . '/xdebug.php';
+require_once __DIR__ . '/xdebug.php';
 require_once __DIR__ . '/.autoload-load.php';
 
 /**

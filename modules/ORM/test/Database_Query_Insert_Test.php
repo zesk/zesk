@@ -2,14 +2,14 @@
 /**
  *
  */
-namespace zesk;
+namespace zesk\ORM;
 
 /**
  *
  * @author kent
  *
  */
-class Database_Query_Insert_Test extends UnitTest {
+class Database_Query_Insert_Test extends ORMUnitTest {
 	protected array $load_modules = [
 		'MySQL',
 		'ORM',
@@ -22,7 +22,7 @@ class Database_Query_Insert_Test extends UnitTest {
 		 * $
 		 *
 		 * @package zesk
-		 * @subpackage test
+		 * @subpackage test33
 		 * @author Kent Davidson <kent@marketacumen.com>
 		 * @copyright Copyright &copy; 2022, Market Acumen, Inc.
 		 */
@@ -30,8 +30,8 @@ class Database_Query_Insert_Test extends UnitTest {
 		$testx = new Database_Query_Insert($db);
 
 		$table = 'TABLENAME';
-		$testx->into($table);
-		$testx->valid_columns(['thing', 'ID']);
+		$testx->setInto($table);
+		$testx->setValidColumns(['thing', 'ID']);
 
 		$name = 'thing';
 		$value = null;
@@ -40,19 +40,19 @@ class Database_Query_Insert_Test extends UnitTest {
 		$values = [
 			'ID' => '23',
 		];
-		$testx->values($values);
+		$testx->setValues($values);
 
 		$low_priority = true;
 		$testx->setLowPriority($low_priority);
 
-		$testx->replace();
+		$testx->setReplace(true);
 
-		$testx->__toString();
+		$this->assertEquals("REPLACE  LOW_PRIORITY INTO `TABLENAME` (\n	`thing`,\n	`ID`\n) VALUES (\n	NULL,\n	'23'\n)", $testx->__toString());
 
 		$columns = [
 			'ID',
 		];
-		$testx->valid_columns($columns);
+		$testx->setValidColumns($columns);
 
 		$testx->database();
 

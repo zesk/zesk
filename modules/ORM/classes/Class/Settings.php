@@ -10,9 +10,9 @@ class Class_Settings extends Class_Base {
 	public string $id_column = 'name';
 
 	public array $column_types = [
-		'name' => self::type_string,
-		'value' => self::type_serialize,
-		'modified' => self::type_modified,
+		'name' => self::TYPE_STRING,
+		'value' => self::TYPE_SERIALIZE,
+		'modified' => self::TYPE_MODIFIED,
 	];
 
 	/**

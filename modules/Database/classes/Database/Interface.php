@@ -21,6 +21,11 @@ interface Database_Interface {
 	public function feature(string $feature): mixed;
 
 	/**
+	 * @return string
+	 */
+	public function version(): string;
+
+	/**
 	 * @param string $feature
 	 * @param string|bool $set
 	 * @return $this

@@ -60,7 +60,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_id = 'id';
+	public const TYPE_ID = 'id';
 
 	/**
 	 * Plain old text data in the database
@@ -74,7 +74,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_string = 'string';
+	public const TYPE_STRING = 'string';
 
 	/**
 	 * This column serves as text data for polymorphic objects
@@ -91,7 +91,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_object = self::type_orm;
+	public const TYPE_OBJECT = self::type_orm;
 
 	/**
 	 * Refers to a system object (usually by ID)
@@ -112,7 +112,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_modified = 'modified';
+	public const TYPE_MODIFIED = 'modified';
 
 	/**
 	 * String information called using serialize/unserialize.
@@ -120,7 +120,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_serialize = 'serialize';
+	public const TYPE_SERIALIZE = 'serialize';
 
 	/**
 	 * Convert data to/from a JSON string in the database.
@@ -135,7 +135,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_integer = 'integer';
+	public const TYPE_INTEGER = 'integer';
 
 	/**
 	 * Database string (char)
@@ -161,7 +161,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_double = 'double';
+	public const TYPE_FLOAT = 'double';
 
 	/**
 	 *
@@ -191,7 +191,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_timestamp = 'timestamp';
+	public const TYPE_TIMESTAMP = 'timestamp';
 
 	/**
 	 *
@@ -221,7 +221,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_ip4 = 'ip4';
+	public const TYPE_IP4 = 'ip4';
 
 	/**
 	 *
@@ -889,7 +889,7 @@ class Class_Base extends Hookable {
 
 		if ($this->auto_column === '') {
 			$auto_type = $this->column_types[$this->id_column] ?? null;
-			$this->auto_column = ($auto_type === null || $auto_type === self::type_id) ? $this->id_column : '';
+			$this->auto_column = ($auto_type === null || $auto_type === self::TYPE_ID) ? $this->id_column : '';
 		}
 		if (empty($this->find_keys)) {
 			$this->find_keys = $this->primary_keys;
@@ -921,13 +921,13 @@ class Class_Base extends Hookable {
 					$this->has_one[$member] = $class = $app->objects->resolve($class);
 					ArrayTools::append($this->has_one_flip, $class, $member);
 				}
-				if (isset($this->column_types[$member]) && $this->column_types[$member] !== self::type_object) {
+				if (isset($this->column_types[$member]) && $this->column_types[$member] !== self::TYPE_OBJECT) {
 					$this->application->logger->warning('Class {class} column {member} type is not {object} and will be overwritten: {type}', [
-						'class' => get_class($this), 'member' => $member, 'object' => self::type_object,
+						'class' => get_class($this), 'member' => $member, 'object' => self::TYPE_OBJECT,
 						'type' => $this->column_types[$member],
 					]);
 				}
-				$this->column_types[$member] = self::type_object;
+				$this->column_types[$member] = self::TYPE_OBJECT;
 			}
 		}
 		if (count($this->column_types) === 0) {
@@ -1226,7 +1226,8 @@ class Class_Base extends Hookable {
 	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Semantics
 	 */
-	final public function _hasManyQuery(ORMBase $this_object, Database_Query_Select $query, array $many_spec, string &$alias = 'J', string $link_alias = '', bool $join_type = true, bool $reverse = false): bool {
+	final public function _hasManyQuery(ORMBase $this_object, Database_Query_Select $query, array $many_spec, string
+	&$alias = 'J', string $link_alias = '', bool|string $join_type = true, bool $reverse = false): bool {
 		$result = false;
 		$table = $many_spec['table'] ?? null;
 		$foreign_key = $many_spec['foreign_key'];
@@ -1834,7 +1835,7 @@ class Class_Base extends Hookable {
 	private function _memberDefault(string $column, string $type, array &$data): void {
 		$data[$column] = match ($type) {
 			self::type_polymorph => '',
-			self::type_created, self::type_modified => 'now',
+			self::type_created, self::TYPE_MODIFIED => 'now',
 			default => null,
 		};
 	}
@@ -1887,7 +1888,7 @@ class Class_Base extends Hookable {
 		switch ($type) {
 			case self::type_real:
 			case self::type_float:
-			case self::type_double:
+			case self::TYPE_FLOAT:
 			case self::type_decimal:
 				if ($v === null) {
 					break;
@@ -1896,7 +1897,7 @@ class Class_Base extends Hookable {
 
 				break;
 			case self::type_text:
-			case self::type_string:
+			case self::TYPE_STRING:
 				if ($v === null) {
 					break;
 				}
@@ -1908,7 +1909,7 @@ class Class_Base extends Hookable {
 				$data[$column] = Hexadecimal::encode($v);
 
 				break;
-			case self::type_object:
+			case self::TYPE_OBJECT:
 				if (empty($v)) {
 					$data[$column] = null;
 				} else {
@@ -1916,8 +1917,8 @@ class Class_Base extends Hookable {
 				}
 
 				break;
-			case self::type_id:
-			case self::type_integer:
+			case self::TYPE_ID:
+			case self::TYPE_INTEGER:
 				$data[$column] = toInteger($v);
 
 				break;
@@ -1925,7 +1926,7 @@ class Class_Base extends Hookable {
 				$data[$column] = toBool($v);
 
 				break;
-			case self::type_serialize:
+			case self::TYPE_SERIALIZE:
 				$data[$column] = $result = empty($v) ? null : @unserialize($v);
 				if ($result === false && $v !== 'b:0;') {
 					$this->application->logger->error('unserialize of {n} bytes failed: {data}', [
@@ -1947,8 +1948,8 @@ class Class_Base extends Hookable {
 
 				break;
 			case self::type_created:
-			case self::type_modified:
-			case self::type_timestamp:
+			case self::TYPE_MODIFIED:
+			case self::TYPE_TIMESTAMP:
 			case self::type_datetime:
 				$data[$column] = $v === '0000-00-00 00:00:00' || empty($v) ? null : Timestamp::factory($v);
 
@@ -1962,7 +1963,7 @@ class Class_Base extends Hookable {
 
 				break;
 			case self::type_ip:
-			case self::type_ip4:
+			case self::TYPE_IP4:
 				$data[$column] = $v === null ? null : IPv4::from_integer($v);
 
 				break;
@@ -2011,11 +2012,11 @@ class Class_Base extends Hookable {
 		switch ($type) {
 			case self::type_hex:
 			case self::type_hex32:
-			case self::type_serialize:
+			case self::TYPE_SERIALIZE:
 			case self::type_json:
 				break;
 			case self::type_ip:
-			case self::type_ip4:
+			case self::TYPE_IP4:
 				if (is_int($data[$column])) {
 					$data[$column] = IPv4::from_integer($data[$column]);
 				}
@@ -2071,17 +2072,17 @@ class Class_Base extends Hookable {
 				break;
 			case self::type_real:
 			case self::type_float:
-			case self::type_double:
+			case self::TYPE_FLOAT:
 			case self::type_decimal:
 				$data[$column] = $v === null || $v === '' ? null : floatval($v);
 
 				break;
 			case self::type_text:
-			case self::type_string:
+			case self::TYPE_STRING:
 				$data[$column] = $v === null ? null : strval($v);
 
 				break;
-			case self::type_object:
+			case self::TYPE_OBJECT:
 				$data[$column] = $v === null ? null : ORMBase::mixedToID($v);
 
 				break;
@@ -2097,8 +2098,8 @@ class Class_Base extends Hookable {
 				$data[$column] = Hexadecimal::decode($v);
 
 				break;
-			case self::type_id:
-			case self::type_integer:
+			case self::TYPE_ID:
+			case self::TYPE_INTEGER:
 				$data[$column] = $v === null ? null : toInteger($v, intval($v));
 
 				break;
@@ -2110,7 +2111,7 @@ class Class_Base extends Hookable {
 				$data[$column] = toBool($v) ? 1 : 0;
 
 				break;
-			case self::type_serialize:
+			case self::TYPE_SERIALIZE:
 				$data[$column] = serialize($v);
 
 				break;
@@ -2125,12 +2126,12 @@ class Class_Base extends Hookable {
 				}
 
 				break;
-			case self::type_modified:
+			case self::TYPE_MODIFIED:
 				unset($data[$column]);
 				$data["*$column"] = $this->sqlNow($object);
 
 				break;
-			case self::type_timestamp:
+			case self::TYPE_TIMESTAMP:
 			case self::type_datetime:
 				if (empty($v)) {
 					$data[$column] = null;
@@ -2170,7 +2171,7 @@ class Class_Base extends Hookable {
 				}
 
 				break;
-			case self::type_ip4:
+			case self::TYPE_IP4:
 			case self::type_ip:
 				if ($v === null) {
 					$data[$column] = 'NULL';

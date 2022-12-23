@@ -88,15 +88,15 @@ class Class_User extends Class_Base {
 	 * @throws Exception_Configuration
 	 */
 	protected function initialize(): void {
-		$this->column_types[$this->id_column] = self::type_id;
+		$this->column_types[$this->id_column] = self::TYPE_ID;
 		if ($this->column_login && !isset($this->column_types[$this->column_login])) {
-			$this->column_types[$this->column_login] = self::type_string;
+			$this->column_types[$this->column_login] = self::TYPE_STRING;
 		}
 		if ($this->column_email && !isset($this->column_types[$this->column_email])) {
-			$this->column_types[$this->column_email] = self::type_string;
+			$this->column_types[$this->column_email] = self::TYPE_STRING;
 		}
 		if ($this->column_password && !isset($this->column_types[$this->column_password])) {
-			$this->column_types[$this->column_password] = self::type_string;
+			$this->column_types[$this->column_password] = self::TYPE_STRING;
 		}
 		if ($this->hasOption('default_hash_method')) {
 			$this->default_hash_method = $this->option('default_hash_method');

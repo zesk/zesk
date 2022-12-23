@@ -2,14 +2,14 @@
 /**
  *
  */
-namespace zesk;
+namespace zesk\ORM;
 
 /**
  *
  * @author kent
  *
  */
-class ORM_Schema_Test extends UnitTest {
+class ORM_Schema_Test extends ORMUnitTest {
 	protected array $load_modules = [
 		'MySQL',
 		'ORM',

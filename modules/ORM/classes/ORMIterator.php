@@ -4,6 +4,8 @@
  */
 namespace zesk\ORM;
 
+use zesk\Database_Result_Iterator;
+
 /**
  *
  * @author kent

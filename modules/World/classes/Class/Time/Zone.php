@@ -27,7 +27,7 @@ class Class_Time_Zone extends Class_Base {
 	];
 
 	public array $column_types = [
-		'Name' => self::type_string,
-		'Time_zone_id' => self::type_string,
+		'Name' => self::TYPE_STRING,
+		'Time_zone_id' => self::TYPE_STRING,
 	];
 }

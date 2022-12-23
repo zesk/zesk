@@ -26,10 +26,10 @@ class Class_Language extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'code' => self::type_string,
-		'dialect' => self::type_string,
-		'name' => self::type_string,
+		'id' => self::TYPE_ID,
+		'code' => self::TYPE_STRING,
+		'dialect' => self::TYPE_STRING,
+		'name' => self::TYPE_STRING,
 	];
 
 	/**

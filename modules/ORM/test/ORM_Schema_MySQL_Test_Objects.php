@@ -2,7 +2,7 @@
 /**
  *
  */
-namespace zesk;
+namespace zesk\ORM;
 
 /**
  *
@@ -16,10 +16,10 @@ class Class_DBSchemaTest4 extends Class_Base {
 	}
 
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Depth' => self::type_integer,
-		'CodeName' => self::type_string,
-		'Name' => self::type_string,
+		'ID' => self::TYPE_ID,
+		'Depth' => self::TYPE_INTEGER,
+		'CodeName' => self::TYPE_STRING,
+		'Name' => self::TYPE_STRING,
 	];
 }
 class DBSchemaTest4 extends ORMBase {
@@ -57,14 +57,14 @@ class Class_DBSchemaTest5 extends Class_Base {
 	}
 
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Hash' => self::type_string,
-		'Phrase' => self::type_string,
+		'ID' => self::TYPE_ID,
+		'Hash' => self::TYPE_STRING,
+		'Phrase' => self::TYPE_STRING,
 		'Created' => self::type_created,
-		'Modified' => self::type_modified,
-		'Status' => self::type_integer,
-		'IsOrganic' => self::type_string,
-		'LastUsed' => self::type_timestamp,
+		'Modified' => self::TYPE_MODIFIED,
+		'Status' => self::TYPE_INTEGER,
+		'IsOrganic' => self::TYPE_STRING,
+		'LastUsed' => self::TYPE_TIMESTAMP,
 	];
 }
 class DBSchemaTest5 extends ORMBase {
@@ -88,17 +88,17 @@ class DBSchemaTest5 extends ORMBase {
 }
 class Class_DBSchemaTest6 extends Class_Base {
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Hash' => self::type_string,
-		'Protocol' => self::type_string,
-		'Proto' => self::type_object,
-		'Domain' => self::type_object,
-		'Port' => self::type_integer,
-		'URI' => self::type_object,
-		'QueryString' => self::type_object,
-		'Title' => self::type_object,
-		'Fragment' => self::type_string,
-		'Frag' => self::type_object,
+		'ID' => self::TYPE_ID,
+		'Hash' => self::TYPE_STRING,
+		'Protocol' => self::TYPE_STRING,
+		'Proto' => self::TYPE_OBJECT,
+		'Domain' => self::TYPE_OBJECT,
+		'Port' => self::TYPE_INTEGER,
+		'URI' => self::TYPE_OBJECT,
+		'QueryString' => self::TYPE_OBJECT,
+		'Title' => self::TYPE_OBJECT,
+		'Fragment' => self::TYPE_STRING,
+		'Frag' => self::TYPE_OBJECT,
 	];
 
 	public function initialize(): void {
@@ -130,17 +130,17 @@ class DBSchemaTest6 extends ORMBase {
 }
 class Class_DBSchemaTest7 extends Class_Base {
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Hash' => self::type_string,
-		'Protocol' => self::type_string,
-		'Proto' => self::type_object,
-		'Domain' => self::type_object,
-		'Port' => self::type_integer,
-		'URI' => self::type_object,
-		'QueryString' => self::type_object,
-		'Title' => self::type_object,
-		'Fragment' => self::type_string,
-		'Frag' => self::type_object,
+		'ID' => self::TYPE_ID,
+		'Hash' => self::TYPE_STRING,
+		'Protocol' => self::TYPE_STRING,
+		'Proto' => self::TYPE_OBJECT,
+		'Domain' => self::TYPE_OBJECT,
+		'Port' => self::TYPE_INTEGER,
+		'URI' => self::TYPE_OBJECT,
+		'QueryString' => self::TYPE_OBJECT,
+		'Title' => self::TYPE_OBJECT,
+		'Fragment' => self::TYPE_STRING,
+		'Frag' => self::TYPE_OBJECT,
 	];
 
 	public function initialize(): void {
@@ -173,9 +173,9 @@ class DBSchemaTest7 extends ORMBase {
 }
 class Class_DBSchemaTest8 extends Class_Base {
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Hash' => self::type_string,
-		'Size' => self::type_integer,
+		'ID' => self::TYPE_ID,
+		'Hash' => self::TYPE_STRING,
+		'Size' => self::TYPE_INTEGER,
 	];
 
 	public function initialize(): void {
@@ -197,15 +197,15 @@ class DBSchemaTest8 extends ORMBase {
 }
 class Class_DBSchemaTest_columns_0 extends Class_Base {
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Hash' => self::type_string,
-		'Protocol' => self::type_string,
-		'Domain' => self::type_object,
-		'Port' => self::type_integer,
-		'URI' => self::type_object,
-		'QueryString' => self::type_object,
-		'Fragment' => self::type_string,
-		'Frag' => self::type_object,
+		'ID' => self::TYPE_ID,
+		'Hash' => self::TYPE_STRING,
+		'Protocol' => self::TYPE_STRING,
+		'Domain' => self::TYPE_OBJECT,
+		'Port' => self::TYPE_INTEGER,
+		'URI' => self::TYPE_OBJECT,
+		'QueryString' => self::TYPE_OBJECT,
+		'Fragment' => self::TYPE_STRING,
+		'Frag' => self::TYPE_OBJECT,
 	];
 }
 class DBSchemaTest_columns_0 extends ORMBase {
@@ -230,12 +230,12 @@ class DBSchemaTest_columns_0 extends ORMBase {
 }
 class Class_DBSchemaTest_columns_1 extends Class_Base {
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Hash' => self::type_string,
-		'Protocol' => self::type_string,
-		'Domain' => self::type_object,
-		'Port' => self::type_integer,
-		'URI' => self::type_object,
+		'ID' => self::TYPE_ID,
+		'Hash' => self::TYPE_STRING,
+		'Protocol' => self::TYPE_STRING,
+		'Domain' => self::TYPE_OBJECT,
+		'Port' => self::TYPE_INTEGER,
+		'URI' => self::TYPE_OBJECT,
 	];
 }
 class DBSchemaTest_columns_1 extends ORMBase {

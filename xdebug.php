@@ -7,17 +7,25 @@ declare(strict_types=1);
  * superglobal `$_SERVER['XDEBUG_ACTIVE']` as a boolean flag to indicate this has occurred. Multiple inclusions of this
  * file will call `xdebug_break` once and only the first time.
  *
+ * Also try `isset($GLOBALS['xdebug_break_if_enabled']) && $GLOBALS['xdebug_break_if_enabled']();`
+ *
  * @package zesk
  * @subpackage core
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
-if (($_SERVER['XDEBUG_ENABLED'] ?? 0) && function_exists('xdebug_break')) {
-	if (!($_SERVER['XDEBUG_ACTIVE'] ?? false)) {
-		/* Skip automatic code link by using call_user_func 'cause we're clever */
-		call_user_func('xdebug_break');
-
-		$_SERVER['XDEBUG_ACTIVE'] = true;
+$xdebug_break_if_enabled = function (): void {
+	// Hide from scope
+	$function = 'xdebug_break';
+	$marker = 'XDEBUG_ACTIVE';
+	if (($_SERVER['XDEBUG_ENABLED'] ?? 0) && function_exists($function)) {
+		if (!($_SERVER[$marker] ?? false)) {
+			$_SERVER[$marker] = true;
+			/* Skip automatic code link by using call_user_func 'cause we're clever */
+			call_user_func($function);
+		}
 	}
-}
+};
+
+$xdebug_break_if_enabled();

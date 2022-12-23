@@ -348,9 +348,9 @@ class Kernel {
 	private function shutdown(): void {
 		if ($this->application) {
 			$this->logger->debug(__METHOD__);
+			$this->hooks->shutdown();
 			$this->application?->shutdown();
 			$this->objects->shutdown();
-			$this->hooks->shutdown();
 			$this->classes->saveClassesToCache($this);
 			$this->autoloader->shutdown();
 			$this->paths->shutdown();

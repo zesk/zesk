@@ -102,12 +102,8 @@ class Command_ClassCheck extends CommandBase {
 			$missing = [];
 			foreach ($table_columns as $column => $column_options) {
 				if (!array_key_exists($column, $class_object->column_types)) {
-					try {
-						$guessed = $this->guess_type($class_object->database(), $column, $column_options['type']);
-					} catch (Exception_Class_NotFound) {
-						$guessed = 'text';
-					}
-					$missing[] = "'$column' => self::type_" . $guessed . ',';
+					$guessed = $this->guessType($class_object->database(), $column, $column_options['type']);
+					$missing[] = "'$column' => self::TYPE_" . $guessed . ',';
 				}
 			}
 			if (count($missing)) {
@@ -128,7 +124,7 @@ class Command_ClassCheck extends CommandBase {
 					$this->error('{class} defined $has_one[{column}] but does not exist, please add it: $column_types => "{column}" => self::type_object,', $error_args + [
 						'column' => $column,
 					]);
-				} elseif ($class_object->column_types[$column] !== Class_Base::type_object) {
+				} elseif ($class_object->column_types[$column] !== Class_Base::TYPE_OBJECT) {
 					$this->error('{class} defined $has_one[{column}] but wrong type {type}: $column_types => "{column}" => self::type_object,', $error_args + [
 						'column' => $column,
 						'type' => $class_object->column_types[$column],
@@ -145,12 +141,12 @@ class Command_ClassCheck extends CommandBase {
 	 * @var array
 	 */
 	public static array $guess_names = [
-		'timestamp' => [
-			'created' => 'created',
-			'modified' => 'modified',
+		'TIMESTAMP' => [
+			'CREATED' => 'TYPE_CREATED',
+			'MODIFIED' => 'TYPE_MODIFIED',
 		],
-		'integer' => [
-			'id' => 'id',
+		'INTEGER' => [
+			'ID' => 'TYPE_ID',
 		],
 	];
 
@@ -159,8 +155,8 @@ class Command_ClassCheck extends CommandBase {
 	 * @var array
 	 */
 	public static array $guess_types = [
-		'timestamp' => 'timestamp',
-		'blob' => 'serialize',
+		'TIMESTAMP' => 'TYPE_TIMESTAMP',
+		'BLOB' => 'TYPE_SERIALIZE',
 	];
 
 	/**
@@ -169,12 +165,11 @@ class Command_ClassCheck extends CommandBase {
 	 * @param string $name
 	 * @param string $type
 	 * @return string
-	 * @throws Exception_Class_NotFound
 	 */
-	private function guess_type(Database $db, string $name, string $type): string {
-		$schema_type = (self::$guess_names[$type] ?? [])[strtolower($name)] ?? null;
+	private function guessType(Database $db, string $name, string $type): string {
+		$schema_type = (self::$guess_names[strtoupper($type)] ?? [])[strtoupper($name)] ?? null;
 		if ($schema_type) {
-			return $schema_type;
+			return strtoupper($schema_type);
 		}
 		if (array_key_exists($type, self::$guess_types)) {
 			return self::$guess_types[$type];

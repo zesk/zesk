@@ -9,7 +9,10 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class Database_Query_Select_Test extends UnitTest {
+use zesk\ORM\Database_Query_Select;
+use zesk\ORM\Server;
+
+class Database_Query_Select_Test extends DatabaseUnitTest {
 	protected array $load_modules = [
 		'MySQL',
 		'ORM',
@@ -22,37 +25,36 @@ class Database_Query_Select_Test extends UnitTest {
 	public function test_main(): void {
 		$table_name = 'Database_Query_Select';
 
-		$this->test_table($table_name);
+		$this->prepareTestTable($table_name);
 
 		$db = $this->application->database_registry();
-		$testx = new Database_Query_Select($db);
+		$select = new Database_Query_Select($db);
 
-		$testx->setWhatString('*');
-		$testx->addWhat('X', 'COUNT(ID)');
-		$testx->addWhat('Y', 'SUM(Total)');
+		$select->setWhatString('*');
+		$select->addWhat('X', 'COUNT(ID)');
+		$select->addWhat('Y', 'SUM(Total)');
 
 		$alias = '';
-		$testx->from($table_name, $alias);
+		$select->from($table_name, $alias);
 
 		$sql = 'INNER JOIN Person P ON P.ID=U.Person';
 		$join_id = 'person';
-		$testx->addJoin($sql, $join_id);
+		$select->addJoin($sql, $join_id);
 
-		$k = null;
-		$v = null;
-		$testx->addWhere('Name', 2);
 
-		$testx->setOrderBy(toList('A;B;C'));
+		$select->addWhere('Name', 2);
 
-		$testx->setGroupBy(['X']);
+		$select->setOrderBy(toList('A;B;C'));
 
-		$testx->setOffsetLimit(0, 1000);
+		$select->setGroupBy(['X']);
 
-		$testx->__toString();
+		$select->setOffsetLimit(0, 1000);
 
-		$testx->iterator();
+		$select->__toString();
 
-		$testx->ormIterator('zesk\\User');
+		$select->iterator();
+
+		$select->ormIterator('zesk\\User');
 
 
 		// Hits database
@@ -73,10 +75,10 @@ class Database_Query_Select_Test extends UnitTest {
 
 		//		$testx->toArray();
 
-		$testx->database();
+		$select->database();
 
 		$class = Server::class;
-		$testx->setORMClass($class);
+		$select->setORMClass($class);
 
 		$db = $this->application->database_registry();
 		$x = new Database_Query_Select($db);
@@ -92,9 +94,7 @@ class Database_Query_Select_Test extends UnitTest {
 		$result = strval($x);
 		$valid_result = 'SELECT ID FROM `Database_Query_Select` WHERE (`ID` = 1 OR `ID` = 2 OR `ID` = 3 OR `ID` = 4)';
 
-		$result = preg_replace('/\s+/', ' ', trim($result));
-		$valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
-		$this->assertEquals($result, $valid_result);
+		$this->assertSQLEquals($result, $valid_result);
 
 		$x = new Database_Query_Select($db);
 		$x->from($table_name)->setWhatString('ID')->addWhere('ID|!=|AND', [
@@ -103,14 +103,11 @@ class Database_Query_Select_Test extends UnitTest {
 			3,
 			4,
 		]);
-		$result = strval($x);
 
 		$result = strval($x);
 		$valid_result = 'SELECT ID FROM `Database_Query_Select` WHERE (`ID` != 1 AND `ID` != 2 AND `ID` != 3 AND `ID` != 4)';
 
-		$result = preg_replace('/\s+/', ' ', trim($result));
-		$valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
-		$this->assertEquals("$valid_result", "\"$result\" === \"$valid_result\"", $result);
+		$this->assertSQLEquals($result, $valid_result);
 
 		$x = new Database_Query_Select($db);
 		$x->from($table_name)->setWhatString('ID');
@@ -125,9 +122,6 @@ class Database_Query_Select_Test extends UnitTest {
 		$result = strval($x);
 		$valid_result = 'SELECT ID FROM `Database_Query_Select` WHERE (SUM(Total)!=1 AND SUM(Total)!=2 AND SUM(Total)!=3 AND SUM(Total)!=4)';
 
-		$result = preg_replace('/\s+/', ' ', trim($result));
-		$valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
-
-		$this->assertEquals("$valid_result", "\"$result\" === \"$valid_result\"", $result);
+		$this->assertSQLEquals($valid_result, $result);
 	}
 }

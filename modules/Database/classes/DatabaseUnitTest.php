@@ -139,4 +139,12 @@ class DatabaseUnitTest extends UnitTest {
 		}
 		return $results;
 	}
+
+	final protected function sqlNormalizeTrim(string $sql): string {
+		return preg_replace('/\s+/', ' ', trim($sql));
+	}
+
+	final protected function assertSQLEquals(string $expected, string $sql, string $message = ''): void {
+		$this->assertEquals($this->sqlNormalizeTrim($expected), $this->sqlNormalizeTrim($sql), $message);
+	}
 }

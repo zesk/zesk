@@ -75,21 +75,25 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 */
 	public static function singleton(Application $application): Interface_Settings {
 		return $application->settings();
-//		if ($application->objects->settings instanceof Interface_Settings) {
-//			return $application->objects->settings;
-//		}
-//		$class = $application->configuration->getPath(__CLASS__ . '::instance_class', __CLASS__);
-//		$settings = $application->objects->factory($class, $application);
-//		if (!$settings instanceof Interface_Settings) {
-//			throw new Exception_Configuration(__CLASS__ . '::instance_class', 'Must be Interface_Settings, class is {class}', [
-//				'class' => $class,
-//			]);
-//		}
-//		$application->hooks->add(Hooks::HOOK_EXIT, [
-//			$settings,
-//			'flush_instance',
-//		]);
-//		return $application->objects->settings = $settings;
+		//		if ($application->objects->settings instanceof Interface_Settings) {
+		//			return $application->objects->settings;
+		//		}
+		//		$class = $application->configuration->getPath(__CLASS__ . '::instance_class', __CLASS__);
+		//		$settings = $application->objects->factory($class, $application);
+		//		if (!$settings instanceof Interface_Settings) {
+		//			throw new Exception_Configuration(__CLASS__ . '::instance_class', 'Must be Interface_Settings, class is {class}', [
+		//				'class' => $class,
+		//			]);
+		//		}
+		//		$application->hooks->add(Hooks::HOOK_EXIT, [
+		//			$settings,
+		//			'flush_instance',
+		//		]);
+		//		return $application->objects->settings = $settings;
+	}
+
+	public function hook_initialized(): void {
+		$this->application->hooks->add(Hooks::HOOK_EXIT, $this->flush_instance(...));
 	}
 
 	/**
@@ -99,7 +103,7 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 		$hooks = $application->hooks;
 		// Ensure Database gets a chance to register first
 		$hooks->registerClass(Database::class);
-		$hooks->add('configured', self::configured(...), ['first' => true]);
+		$hooks->add(Hooks::HOOK_CONFIGURED, self::configured(...), ['first' => true]);
 		$application->configuration->path(__CLASS__);
 	}
 
@@ -123,8 +127,7 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 */
 	private static function _setCacheItem(Application $application, CacheItemInterface $item): void {
 		$expires = $application->configuration->getPath([
-			__CLASS__,
-			'cache_expire_after',
+			__CLASS__, 'cache_expire_after',
 		], self::SETTINGS_CACHE_EXPIRE_AFTER);
 		if ($expires) {
 			$item->expiresAfter($expires);
@@ -173,22 +176,18 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 					$globals[$name] = $value = self::unserialize($application, $value);
 					if ($debug_load) {
 						$application->logger->debug('{method} Loaded {name}={value}', [
-							'method' => __METHOD__,
-							'name' => $name,
-							'value' => $value,
+							'method' => __METHOD__, 'name' => $name, 'value' => $value,
 						]);
 					}
 				} catch (Exception_Syntax $e) {
 					if ($fix_bad_globals) {
 						$application->logger->warning('{method}: Bad global {name} can not be unserialized - DELETING', [
-							'method' => __METHOD__,
-							'name' => $name,
+							'method' => __METHOD__, 'name' => $name,
 						]);
 						$application->ormRegistry(__CLASS__)->query_delete()->addWhere('name', $name)->execute();
 					} else {
 						$application->logger->error('{method}: Bad global {name} can not be unserialized, please fix manually', [
-							'method' => __METHOD__,
-							'name' => $name,
+							'method' => __METHOD__, 'name' => $name,
 						]);
 					}
 				}
@@ -196,8 +195,7 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 		}
 		if ($debug_load) {
 			$application->logger->debug('{method} - loaded {n} globals {size} of data', [
-				'method' => __METHOD__,
-				'n' => $n_loaded,
+				'method' => __METHOD__, 'n' => $n_loaded,
 				'size' => Number::format_bytes($application->locale, $size_loaded),
 			]);
 		}
@@ -211,26 +209,29 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 * configured Hook
 	 */
 	public static function configured(Application $application): void {
+		$settings = self::singleton($application);
+		if (!$settings instanceof Settings) {
+			$application->logger->debug('Application settings singleton was a {class}, skipping', [
+				'class' => $settings::class,
+			]);
+		}
 		$__ = [
 			'method' => __METHOD__,
 		];
 		$debug_load = $application->configuration->getPath([
-			__CLASS__,
-			'debug_load',
+			__CLASS__, 'debug_load',
 		]);
 		if ($debug_load) {
 			$application->logger->debug('{method} entry', $__);
 		}
 		// If no databases registered, don't bother loading.
-		$databases = $application->database_module()->databases();
+		$databases = $application->databaseModule()->databases();
 		if (count($databases) === 0) {
 			if ($debug_load) {
 				$application->logger->debug('{method} - no databases, not loading configuration', $__);
 			}
 			return;
 		}
-		$application->configuration->deprecated('Settings', __CLASS__);
-		$settings = self::singleton($application);
 		$cache_disabled = $settings->optionBool('cache_disabled');
 		$exception = null;
 
@@ -261,30 +262,17 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 				++$n_loaded;
 				$application->configuration->setPath($key, $value);
 			}
-		} catch (Database_Exception_Table_NotFound $e) {
-			$exception = $e;
-		} catch (Database_Exception_Connect $e) {
-			$exception = $e;
-		} catch (Database_Exception_Unknown_Schema $e) {
-			$exception = $e;
-		} catch (Database_Exception_Database_NotFound $e) {
-			$exception = $e;
-		} catch (Exception_Semantics $e) {
-			// Columns may have changed
-			$exception = $e;
-		} catch (Exception_Configuration $e) {
-			// App is not configured
-		} catch (\Exception $e) {
+		} catch (\Throwable $e) {
 			// Database is misconfigured/misnamed
 			$exception = $e;
 		}
 		if ($exception) {
 			$application->hooks->call('exception', $exception);
-			$settings->_db_down($exception);
+			$settings->setDatabaseDown($exception);
 		}
 	}
 
-	private function _db_down(\Exception $exception = null) {
+	private function setDatabaseDown(\Exception $exception = null) {
 		$this->db_down = $exception !== null;
 		$this->db_down_why = $exception;
 		return $this;
@@ -299,10 +287,7 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 		}
 		if ($this->db_down && !$force) {
 			$this->application->logger->debug('{method}: Database is down, can not save changes {changes} because of {e}', [
-				'method' => __METHOD__,
-				'class' => __CLASS__,
-				'changes' => $this->changes,
-				'e' => $this->db_down_why,
+				'method' => __METHOD__, 'class' => __CLASS__, 'changes' => $this->changes, 'e' => $this->db_down_why,
 			]);
 			return;
 		}
@@ -315,6 +300,22 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	/**
 	 * Internal function to write all settings store in this object to the database instantly.
 	 */
+	/**
+	 * @return void
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Deprecated
+	 * @throws Exception_Key
+	 * @throws Exception_ORMDuplicate
+	 * @throws Exception_ORMEmpty
+	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Semantics
+	 * @throws Exception_Store
+	 * @throws InvalidArgumentException
+	 * @throws \zesk\Database_Exception_Duplicate
+	 * @throws \zesk\Exception_Unimplemented
+	 */
 	public function flush(): void {
 		$debug_save = $this->optionBool('debug_save');
 		foreach ($this->changes as $name => $value) {
@@ -325,8 +326,7 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 				$settings->delete();
 				if ($debug_save) {
 					$settings->application->logger->debug('Deleting {class} {name}', [
-						'class' => $settings::class,
-						'name' => $name,
+						'class' => $settings::class, 'name' => $name,
 					]);
 				}
 			} else {
@@ -334,9 +334,7 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 				$settings->store();
 				if ($debug_save) {
 					$settings->application->logger->debug('Saved {class} {name}={value}', [
-						'class' => $settings::class,
-						'name' => $name,
-						'value' => $value,
+						'class' => $settings::class, 'name' => $name, 'value' => $value,
 					]);
 				}
 			}
@@ -434,9 +432,9 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 
 	/**
 	 *
-	 * @see Interface_Data::deleteData()
 	 * @param array|string $name
 	 * @return $this
+	 * @see Interface_Data::deleteData()
 	 */
 	public function deleteData(array|string $name): self {
 		foreach (toArray($name) as $item) {
@@ -444,17 +442,6 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 		}
 		$this->flush();
 		return $this;
-	}
-
-	/**
-	 *
-	 * @see Interface_Data::delete_data()
-	 * @param $name
-	 * @return $this
-	 */
-	public function delete_data(array|string $name): self {
-		$this->application->deprecated(__METHOD__);
-		return $this->deleteData($name);
 	}
 
 	/**
@@ -489,15 +476,12 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 		$update = $this->application->ormRegistry(Settings::class)->queryUpdate();
 		$old_prefix_quoted = $update->sql()->quoteText($old_prefix);
 		$old_prefix_like_quoted = tr($old_prefix, [
-			'\\' => '\\\\',
-			'_' => '\\_',
+			'\\' => '\\\\', '_' => '\\_',
 		]);
 		$rowCount = $update->value('*name', "REPLACE(name, $old_prefix_quoted, " . $update->database()->quoteText(strtolower($new_prefix)) . ')')->addWhere('name|LIKE', "$old_prefix_like_quoted%")->execute()->affectedRows();
 		if ($rowCount > 0) {
 			$this->application->logger->notice('Updated {rowCount} settings from {old_prefix} to use new prefix {new_prefix}', [
-				'rowCount' => $rowCount,
-				'old_prefix' => $old_prefix,
-				'new_prefix' => $new_prefix,
+				'rowCount' => $rowCount, 'old_prefix' => $old_prefix, 'new_prefix' => $new_prefix,
 			]);
 		}
 		return $rowCount;

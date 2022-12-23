@@ -337,9 +337,9 @@ class Module extends BaseModule {
 		$name = self::_last_cron_variable($prefix, $unit);
 		if ($object instanceof Server) {
 			/* @var $object Server */
-			$object->delete_all_data($name);
+			$object->deleteAllData($name);
 		} else {
-			$object->delete_data($name, null);
+			$object->deleteData($name, null);
 		}
 	}
 

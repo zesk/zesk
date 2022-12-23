@@ -443,11 +443,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param array $on
 	 * @param string $table
 	 * @return $this
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Semantics
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
+	 * @throws Exception_Semantics
+	 * @throws \zesk\Database_Exception_Connect
+	 * @throws \zesk\Exception_NotFound
 	 */
 	public function join_object(string $join_type, ORMBase|string $class, string $alias, array $on, string $table = ''): self {
 		if (is_string($class)) {
@@ -636,6 +635,14 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @throws Exception_Semantics
 	 */
 	public function toSQL(): string {
+		return $this->selectToSQL();
+	}
+
+	/**
+	 * @return string
+	 * @throws Exception_Semantics
+	 */
+	public function selectToSQL(): string {
 		return $this->generated_sql = $this->db->sql()->select([
 			'what' => $this->what_sql ?: $this->what, 'distinct' => $this->distinct, 'tables' => $this->tables,
 			'where' => $this->where, 'having' => $this->having, 'group_by' => $this->group_by,

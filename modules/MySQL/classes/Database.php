@@ -102,7 +102,7 @@ class Database extends \zesk\Database {
 	 *
 	 * @var string
 	 */
-	public const attribute_version = 'version';
+	public const ATTRIBUTE_VERSION = 'version';
 
 	/**
 	 *
@@ -159,7 +159,7 @@ class Database extends \zesk\Database {
 	private static array $mysql_variables = [
 		self::ATTRIBUTE_ENGINE => '@@default_storage_engine',
 		self::ATTRIBUTE_CHARACTER_SET => '@@character_set_database',
-		self::ATTRIBUTE_COLLATION => '@@collation_database', self::attribute_version => '@@version',
+		self::ATTRIBUTE_COLLATION => '@@collation_database', self::ATTRIBUTE_VERSION => '@@version',
 	];
 
 	/**
@@ -186,18 +186,14 @@ class Database extends \zesk\Database {
 	 * Retrieve a database setting and store it locally as an option
 	 *
 	 * @param string $attribute
-	 * @return mixed|string|array|string
-	 * @throws Exception_Semantics
-	 */
-	/**
-	 * @param string $attribute
+	 * @param bool $force
 	 * @return string
 	 * @throws Database_Exception_SQL
+	 * @throws Exception_Key
 	 * @throws Exception_Semantics
-	 * @throws \zesk\Exception_Key
 	 */
-	private function _fetchSetting(string $attribute): string {
-		if ($this->hasOption($attribute)) {
+	private function _fetchSetting(string $attribute, bool $force = false): string {
+		if (!$force && $this->hasOption($attribute)) {
 			return $this->option($attribute);
 		}
 		if (!array_key_exists($attribute, self::$mysql_variables)) {
@@ -447,14 +443,13 @@ class Database extends \zesk\Database {
 			}
 			$this->query($sql);
 		}
-		$this->version_settings();
+		$this->_versionSettings();
 	}
 
-	private function version_settings(): void {
-		$this->setOption(self::attribute_version, null);
-		$this->_fetchSetting(self::attribute_version);
+	private function _versionSettings(): void {
+		$this->_fetchSetting(self::ATTRIBUTE_VERSION, true);
 
-		$version = $this->version;
+		$version = $this->optionString('version');
 		if (preg_match('/([0-9]+)\.([0-9]+)\.([0-9]+)/', $version, $matches)) {
 			[$v, $major, $minor, $patch] = $matches;
 			if ($major !== '5' && $major !== '8') {
@@ -940,6 +935,14 @@ class Database extends \zesk\Database {
 				'name' => $name,
 			]);
 		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function version(): string {
+		/* This is setup in version_settings() */
+		return $this->optionString('version');
 	}
 
 	/**

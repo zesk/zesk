@@ -7,9 +7,9 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\ORM;
 
-class Database_Query_Select_Links_Test extends UnitTest {
+class Database_Query_Select_Links_Test extends ORMUnitTest {
 	protected array $load_modules = [
 		'MySQL',
 		'ORM',
@@ -22,7 +22,7 @@ class Database_Query_Select_Links_Test extends UnitTest {
 	 */
 	public function initialize(): void {
 		require_once __DIR__ . '/Database_Query_Select_Links_Test_Objects.php';
-		$this->schema_synchronize(['zesk\\TestPerson']);
+		$this->schemaSynchronize([TestPerson::class]);
 	}
 
 	public function sep(): void {
@@ -168,7 +168,7 @@ WHERE `Pets_join`.`Person` = 1';
 		/*==== Test ===============================================================*/
 
 		$query = $this->application->ormRegistry(__NAMESPACE__ . '\\' . 'TestPerson')->querySelect();
-		$query->link(__NAMESPACE__ . '\\' . 'TestPet');
+		$query->link(TestPet::class);
 		$query->addWhere('Pets.Type', 'cat');
 
 		$test_result = '

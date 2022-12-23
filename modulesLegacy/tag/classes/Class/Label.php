@@ -54,15 +54,15 @@ class Class_Label extends Class_Base {
 	 * @var array
 	 */
 	public array $column_types = [
-		'id' => self::type_id,
-		'code' => self::type_string,
-		'name' => self::type_string,
+		'id' => self::TYPE_ID,
+		'code' => self::TYPE_STRING,
+		'name' => self::TYPE_STRING,
 		'is_internal' => self::type_boolean,
 		'is_translated' => self::type_boolean,
-		'owner' => self::type_object,
+		'owner' => self::TYPE_OBJECT,
 		'created' => self::type_created,
-		'modified' => self::type_modified,
-		'last_used' => self::type_timestamp,
+		'modified' => self::TYPE_MODIFIED,
+		'last_used' => self::TYPE_TIMESTAMP,
 	];
 
 	/**

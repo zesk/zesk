@@ -97,20 +97,6 @@ class Router extends Hookable {
 	protected string $prefix = '/';
 
 	/**
-	 * State variable - should be reset
-	 *
-	 * @var Route
-	 */
-	public ?Route $route = null;
-
-	/**
-	 * State variable - should be reset
-	 *
-	 * @var Request
-	 */
-	public Request $request;
-
-	/**
 	 *
 	 * @var string
 	 */
@@ -149,14 +135,11 @@ class Router extends Hookable {
 	/**
 	 */
 	public function __wakeup(): void {
+		parent::__wakeup();
 		$this->by_id = [];
-		$this->application = __wakeup_application();
 		foreach ($this->routes as $route) {
-			$route->application = $this->application;
-			$route->router = $this;
-			$this->_addRouteID($route);
+			$route->wakeupConnect($this);
 		}
-		$this->request = $this->application->request();
 		$this->sorted = false;
 	}
 
@@ -334,7 +317,6 @@ class Router extends Hookable {
 	 * @throws Exception_NotFound
 	 */
 	public function match(Request $request): Route {
-		$this->request = $request;
 		$path = $request->path();
 		$method = $request->method();
 		if ($this->prefix) {

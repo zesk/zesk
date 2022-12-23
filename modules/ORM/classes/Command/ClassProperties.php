@@ -32,16 +32,16 @@ class Command_ClassProperties extends Command_Base {
 	 * @var array
 	 */
 	public static array $types_map = [
-		Class_Base::type_serialize => 'array',
+		Class_Base::TYPE_SERIALIZE => 'array',
 		Class_Base::type_ip => 'string',
 		Class_Base::type_created => Timestamp::class,
-		Class_Base::type_modified => Timestamp::class,
-		Class_Base::type_timestamp => Timestamp::class,
+		Class_Base::TYPE_MODIFIED => Timestamp::class,
+		Class_Base::TYPE_TIMESTAMP => Timestamp::class,
 		Class_Base::type_time => Time::class,
 		Class_Base::type_date => Date::class,
 		Class_Base::type_hex => 'string',
 		Class_Base::type_text => 'string',
-		Class_Base::type_id => 'integer',
+		Class_Base::TYPE_ID => 'integer',
 	];
 
 	/**

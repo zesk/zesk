@@ -7,9 +7,11 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\ORM;
 
-class Database_Query_Union_Test extends UnitTest {
+use zesk\DatabaseUnitTest;
+
+class Database_Query_Union_Test extends DatabaseUnitTest {
 	protected array $load_modules = [
 		'MySQL',
 		'ORM',
@@ -18,7 +20,7 @@ class Database_Query_Union_Test extends UnitTest {
 	public function test_main(): void {
 		$table_name = 'Database_Query_Union';
 
-		$this->test_table($table_name);
+		$this->prepareTestTable($table_name);
 
 		$db = $this->application->database_registry();
 		$testx = new Database_Query_Union($db);
@@ -43,7 +45,6 @@ class Database_Query_Union_Test extends UnitTest {
 		$group_by = 'ID';
 		$testx->setGroupBy([$group_by]);
 
-		$order_by = null;
 		$testx->setOrderBy([]);
 
 		$testx->setOffsetLimit(10, 100);

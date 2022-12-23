@@ -68,16 +68,17 @@ class PHP_Test extends UnitTest {
 
 	public function data_setFeature(): array {
 		return [
-			[PHP::FEATURE_MEMORY_LIMIT, 128 * 1024 * 1024], [PHP::FEATURE_TIME_LIMIT, 1024 * 1024],
+			[PHP::FEATURE_MEMORY_LIMIT, 128 * 1024 * 1024], [PHP::FEATURE_TIME_LIMIT, null],
 			['not-a-feature', null],
 		];
 	}
 
 	/**
-	 * @param $setting
-	 * @param $value
-	 * @return void
 	 * @dataProvider data_setFeature
+	 * @param string $setting
+	 * @param int|null $value
+	 * @return void
+	 * @throws Exception_Unimplemented
 	 */
 	public function test_setFeature(string $setting, ?int $value): void {
 		if ($value === null) {

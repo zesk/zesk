@@ -13,7 +13,7 @@ class Class_Lock extends Class_Base {
 	public string $id_column = 'id';
 
 	public array $has_one = [
-		'server' => 'zesk\\Server',
+		'server' => Server::class,
 	];
 
 	public array $find_keys = [
@@ -21,11 +21,11 @@ class Class_Lock extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'code' => self::type_string,
-		'pid' => self::type_integer,
-		'server' => self::type_object,
-		'locked' => self::type_timestamp,
-		'used' => self::type_timestamp,
+		'id' => self::TYPE_ID,
+		'code' => self::TYPE_STRING,
+		'pid' => self::TYPE_INTEGER,
+		'server' => self::TYPE_OBJECT,
+		'locked' => self::TYPE_TIMESTAMP,
+		'used' => self::TYPE_TIMESTAMP,
 	];
 }

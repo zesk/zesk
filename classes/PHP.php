@@ -341,7 +341,9 @@ class PHP {
 		switch ($feature) {
 			case self::FEATURE_TIME_LIMIT:
 				$old_value = ini_get('max_execution_time');
-				set_time_limit(intval($value));
+				if (!set_time_limit(intval($value))) {
+					throw new Exception_Unimplemented('set_time_limit failed');
+				}
 				return $old_value;
 			case self::FEATURE_MEMORY_LIMIT:
 				$old_value = toBytes(ini_get('memory_limit'));

@@ -353,12 +353,12 @@ class Database_SQL extends \zesk\Database_SQL {
 		}
 		$bt = $data_type->native_type_to_sql_type($type, $type);
 		switch ($bt) {
-			case Database_Data_Type::sql_type_text:
-			case Database_Data_Type::sql_type_blob:
+			case Database_Data_Type::SQL_TYPE_TEXT:
+			case Database_Data_Type::SQL_TYPE_BLOB:
 				return '';
-			case Database_Data_Type::sql_type_double:
+			case Database_Data_Type::SQL_TYPE_DOUBLE:
 				return ' DEFAULT ' . floatval($default);
-			case Database_Data_Type::sql_type_integer:
+			case Database_Data_Type::SQL_TYPE_INTEGER:
 				return ' DEFAULT ' . intval($default);
 			case 'boolean':
 				// TODO This is probably not reachable

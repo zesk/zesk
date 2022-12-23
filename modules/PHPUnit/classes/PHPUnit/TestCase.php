@@ -297,4 +297,12 @@ class PHPUnit_TestCase extends TestCase {
 		stream_filter_register('testIntercept', StreamIntercept::class);
 		stream_filter_append($stream, 'testIntercept');
 	}
+
+	public function option(string $name, mixed $default = null): mixed {
+		return $this->configuration?->getPath($name, $default);
+	}
+
+	public function optionBool(string $name, bool $default = false): bool {
+		return toBool($this->configuration?->getPath($name, $default), null) ?? $default;
+	}
 }

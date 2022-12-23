@@ -8,6 +8,12 @@
  */
 namespace zesk\ORM;
 
+use zesk\Database_Column;
+use zesk\Database_Exception_Schema;
+use zesk\Database_Index;
+use zesk\Database_Parser;
+use zesk\Database_Table;
+
 /**
  * Handle schema definitions which are SQL files on disk
  *
@@ -230,7 +236,7 @@ class Schema_File extends Schema {
 			} elseif ($statement === 'create index') {
 				if ($table) {
 					$result = $this->parser->createIndex($table, $sql);
-					$table->source($sql, true);
+					$table->setSource($sql, true);
 					if (!$result) {
 						throw new Database_Exception_Schema($db, $sql, 'Can not parse CREATE INDEX statement in {file} result={result}', $__ + [
 							'result' => _dump($result),

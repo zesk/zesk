@@ -131,7 +131,7 @@ class Route_Controller extends Route {
 			$argumentsMethod = $this->option('arguments method', $this->option('arguments method prefix', 'arguments_') . $actionMethod);
 			$method = $this->option('method', $this->actionMethodPrefix() . $actionMethod);
 			$method = map($method, [
-				'method' => $this->request->method(),
+				'method' => $this->request()->method(),
 			]);
 
 			if ($response->status_code === HTTP::STATUS_OK) {

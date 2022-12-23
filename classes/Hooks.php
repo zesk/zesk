@@ -389,9 +389,9 @@ class Hooks {
 			return;
 		}
 		$options['callable'] = $function;
-		if (isset($options['first'])) {
+		if ($options['first'] ?? false) {
 			$hook_group->first = array_merge([$callable_string => $options, ], $hook_group->first);
-		} elseif (isset($options['last'])) {
+		} elseif ($options['last'] ?? false) {
 			$hook_group->last[$callable_string] = $options;
 		} else {
 			$hook_group->middle[$callable_string] = $options;

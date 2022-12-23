@@ -10,10 +10,10 @@ class Class_TestORM extends Class_Base {
 	];
 
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Name' => self::type_string,
-		'Price' => self::type_double,
-		'Foo' => self::type_integer,
+		'ID' => self::TYPE_ID,
+		'Name' => self::TYPE_STRING,
+		'Price' => self::TYPE_FLOAT,
+		'Foo' => self::TYPE_INTEGER,
 	];
 
 	public function schema(ORMBase $object): string|array|ORM_Schema {
@@ -30,9 +30,9 @@ class Class_TestORMTag extends Class_Base {
 	public string $id_column = 'ID';
 
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Name' => self::type_string,
-		'Parent' => self::type_object,
+		'ID' => self::TYPE_ID,
+		'Name' => self::TYPE_STRING,
+		'Parent' => self::TYPE_OBJECT,
 	];
 
 	public array $has_one = [

@@ -6,9 +6,22 @@ declare(strict_types=1);
  * @copyright &copy; 2022, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\ORM;
 
+use zesk\Database;
 use zesk\Database\QueryResult;
+use zesk\Database_Exception_Duplicate;
+use zesk\Database_Exception_SQL;
+use zesk\Database_Exception_Table_NotFound;
+use zesk\Database_Table;
+use zesk\Database_Column;
+use zesk\DatabaseUnitTest;
+use zesk\Debug;
+use zesk\Exception_Key;
+use zesk\Exception_Semantics;
+use zesk\File;
+use zesk\PHP;
+use zesk\StringTools;
 use function random_int;
 
 /**
@@ -17,19 +30,21 @@ use function random_int;
  *
  */
 class Database_Test extends DatabaseUnitTest {
+	public static null|self $test = null;
+
 	protected array $load_modules = [
-		'MySQL',
-		'ORM',
+		'MySQL', 'ORM',
 	];
 
 	public function initialize(): void {
+		require_once __DIR__ . '/Database_Test_Objects.php';
 		$this->schemaSynchronize([DBQueryObjectTest::class]);
 	}
 
 	// 	function test_table_indexes() {
 	// 		$table = "db_table_indexes_test";
 
-	// 		$db = $this->application->database_registry();
+	// 		$db = $this->application->databaseRegistry();
 	// 		$this->test_table($table);
 
 	// 		$dbname = "";
@@ -46,7 +61,7 @@ class Database_Test extends DatabaseUnitTest {
 	// 	}
 	public function test_table_columns(): void {
 		$table = 'db_table_indexes_test';
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$this->prepareTestTable($table);
 
@@ -55,14 +70,9 @@ class Database_Test extends DatabaseUnitTest {
 		$compare_table = new Database_Table($db, $table);
 		$compare_result = [
 			'id' => new Database_Column($compare_table, 'id', [
-				'sql_type' => 'int(11) unsigned',
-				'not null' => true,
-				'serial' => true,
-			]),
-			'foo' => new Database_Column($compare_table, 'foo', [
-				'sql_type' => 'int(11)',
-				'not null' => true,
-				'serial' => false,
+				'sql_type' => 'int(11) unsigned', 'not null' => true, 'serial' => true,
+			]), 'foo' => new Database_Column($compare_table, 'foo', [
+				'sql_type' => 'int(11)', 'not null' => true, 'serial' => false,
 			]),
 		];
 
@@ -73,13 +83,13 @@ class Database_Test extends DatabaseUnitTest {
 	 * @return void
 	 */
 	public function testMissingTable(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$this->expectException(Database_Exception_Table_NotFound::class);
 		$db->tableColumns('table_does_not_exist');
 	}
 
 	public function test_query_object(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$table_name = 'query_object_test';
 		$this->prepareTestTable($table_name);
 
@@ -98,22 +108,19 @@ class Database_Test extends DatabaseUnitTest {
 
 		self::$test = $this;
 
-		$result = $db->queryArray($sql, $k, null);
+		$result = $db->queryArray($sql, $k);
 		foreach ($result as $k => $v) {
 			$result[$k] = new DBQueryObjectTest($this->application, $v);
 		}
 
 		$compare_result[1] = new DBQueryObjectTest($this->application, [
-			'id' => 1,
-			'foo' => 100,
+			'id' => 1, 'foo' => 100,
 		]);
 		$compare_result[2] = new DBQueryObjectTest($this->application, [
-			'id' => 2,
-			'foo' => 200,
+			'id' => 2, 'foo' => 200,
 		]);
 		$compare_result[3] = new DBQueryObjectTest($this->application, [
-			'id' => 3,
-			'foo' => 300,
+			'id' => 3, 'foo' => 300,
 		]);
 
 		$this->assertEquals($result, $compare_result);
@@ -121,7 +128,7 @@ class Database_Test extends DatabaseUnitTest {
 	}
 
 	public function test_query_array_index(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$table = 'query_array_index_test';
 
 		$this->prepareTestTable($table);
@@ -146,46 +153,34 @@ class Database_Test extends DatabaseUnitTest {
 		$result = $db->queryArrayIndex($sql);
 		$this->assertEquals([
 			[
-				0 => '1',
-				1 => '10',
-			],
-			[
-				0 => '2',
-				1 => '20',
-			],
-			[
-				0 => '3',
-				1 => '30',
+				0 => '1', 1 => '10',
+			], [
+				0 => '2', 1 => '20',
+			], [
+				0 => '3', 1 => '30',
 			],
 		], $result);
 
 		$result = $db->queryArrayIndex($sql, $k, null);
 		$this->assertEquals([
 			'1' => [
-				0 => '1',
-				1 => '10',
-			],
-			'2' => [
-				0 => '2',
-				1 => '20',
-			],
-			'3' => [
-				0 => '3',
-				1 => '30',
+				0 => '1', 1 => '10',
+			], '2' => [
+				0 => '2', 1 => '20',
+			], '3' => [
+				0 => '3', 1 => '30',
 			],
 		], $result);
 
 		$result = $db->queryArrayIndex($sql, null, $v);
 
 		$this->assertEquals([
-			'10',
-			'20',
-			'30',
+			'10', '20', '30',
 		], $result);
 	}
 
 	public function test_query_array(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$table = 'query_array_test';
 
@@ -212,73 +207,52 @@ class Database_Test extends DatabaseUnitTest {
 		$result = $db->queryArray($sql);
 		$this->assertEquals([
 			[
-				'id' => '1',
-				'foo' => '10',
-			],
-			[
-				'id' => '2',
-				'foo' => '20',
-			],
-			[
-				'id' => '3',
-				'foo' => '30',
+				'id' => '1', 'foo' => '10',
+			], [
+				'id' => '2', 'foo' => '20',
+			], [
+				'id' => '3', 'foo' => '30',
 			],
 		], $result);
 
 		$result = $db->queryArray($sql, $k, null);
 		$this->assertEquals([
 			'1' => [
-				'id' => '1',
-				'foo' => '10',
-			],
-			'2' => [
-				'id' => '2',
-				'foo' => '20',
-			],
-			'3' => [
-				'id' => '3',
-				'foo' => '30',
+				'id' => '1', 'foo' => '10',
+			], '2' => [
+				'id' => '2', 'foo' => '20',
+			], '3' => [
+				'id' => '3', 'foo' => '30',
 			],
 		], $result);
 
 		$result = $db->queryArray($sql, null, 'foo');
 
 		$this->assertEquals([
-			'10',
-			'20',
-			'30',
+			'10', '20', '30',
 		], $result);
 
 		$result = $db->queryArray($sql, null, 'foo');
 
 		$this->assertEquals([
-			'10',
-			'20',
-			'30',
+			'10', '20', '30',
 		], $result);
 
 		$result = $db->queryArray($sql, 'foo', 'id');
 
 		$this->assertEquals([
-			'10' => '1',
-			'20' => '2',
-			'30' => '3',
+			'10' => '1', '20' => '2', '30' => '3',
 		], $result);
 
 		$result = $db->queryArray($sql, 'foo', null);
 
 		$this->assertEquals([
 			'10' => [
-				'id' => '1',
-				'foo' => '10',
-			],
-			'20' => [
-				'id' => '2',
-				'foo' => '20',
-			],
-			'30' => [
-				'id' => '3',
-				'foo' => '30',
+				'id' => '1', 'foo' => '10',
+			], '20' => [
+				'id' => '2', 'foo' => '20',
+			], '30' => [
+				'id' => '3', 'foo' => '30',
 			],
 		], $result);
 	}
@@ -289,7 +263,7 @@ class Database_Test extends DatabaseUnitTest {
 	 * @throws Database_Exception_SQL
 	 */
 	public function test_affected_rows(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$table = last(explode('::', __METHOD__));
 		$db->query("DROP TABLE IF EXISTS $table");
@@ -304,39 +278,48 @@ class Database_Test extends DatabaseUnitTest {
 	}
 
 	public function test_auto_table_names(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
-		$set = null;
-		$db->auto_table_names($set);
+		$db->setAutoTableNames(true);
+		$db->setAutoTableNames(false);
 	}
 
-	public function test_auto_table_names_options(): void {
-		$db = $this->application->database_registry();
+	public function data_setAutoTableNamesOptions(): array {
+		return [
+			[['name' => 'value'], ],
+		];
+	}
 
-		$set = null;
-		$db->auto_table_names_options($set);
+	/**
+	 * @param array $set
+	 * @return void
+	 * @dataProvider data_setAutoTableNamesOptions
+	 */
+	public function test_setAutoTableNamesOptions(array $set): void {
+		$db = $this->application->databaseRegistry();
+
+		$db->setAutoTableNamesOptions($set);
+		$this->assertEquals($set, $db->autoTableNamesOptions());
 	}
 
 	public function test_auto_table_names_replace(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$this->application->objects->setMap(['ponies' => User::class]);
 
 		$this->assertEquals('SELECT * FROM `User`', $db->autoTableRename('SELECT * FROM {ponies}'));
 	}
 
 	public function test_bytesUsed(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		//echo DB_URL ."\n";
 		//$db->debug();
 		$table = null;
 		$default = null;
-		$db->bytesUsed($table, $default);
+		$this->assertGreaterThan(0, $db->bytesUsed());
 
 		$table = $this->prepareTestTable('bytesUsed');
 		$status = $db->queryOne('SHOW TABLE STATUS LIKE \'bytesUsed\'');
-
-		Debug::output($status);
 
 		$this->assertArrayHasKey('Name', $status);
 		$this->assertArrayHasKey('Rows', $status);
@@ -345,18 +328,18 @@ class Database_Test extends DatabaseUnitTest {
 	}
 
 	public function test_connect(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$db->connect();
 	}
 
 	public function test_reconnect(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$db->reconnect();
 	}
 
 	public function test_query_one(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$table = 'select_map_test';
 
@@ -382,31 +365,29 @@ class Database_Test extends DatabaseUnitTest {
 	}
 
 	public function test_dump(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$db->dump(File::temporary($this->sandbox(), '.dbdump'));
 	}
 
 	public function test_fetch_array(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$res = $db->query('SELECT 1 AS A,2 AS B,3 as C,4 AS D,5 as E,\'string\' AS F');
 		$db->fetchArray($res);
 	}
 
 	public function test_getLock(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$name = md5(microtime());
 		$wait_seconds = 0;
-		$result = $db->getLock($name, $wait_seconds);
-		$this->assertTrue($result, "getLock(\"$name\") did not return true: " . _dump($result));
-		$result = $db->releaseLock($name);
-		$this->assertTrue($result, "releaseLock(\"$name\") did not return true: " . _dump($result));
+		$db->getLock($name, $wait_seconds);
+		$db->releaseLock($name);
 	}
 
 	public function test_insert(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$table_name = 'insert_test';
 
@@ -445,7 +426,7 @@ class Database_Test extends DatabaseUnitTest {
 	}
 
 	public function test_query(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$table_name = 'query_test';
 
@@ -462,18 +443,16 @@ class Database_Test extends DatabaseUnitTest {
 	}
 
 	public function test_query_integer(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$sql = 'SELECT 23 * 54 AS X';
-		$field = 'X';
-		$default = 0;
 		$this->assertEquals(23 * 54, $db->queryInteger($sql, 'X'));
+		$this->expectException(Exception_Key::class);
 		$this->assertEquals(0, $db->queryInteger($sql, 'Y'));
-		$this->assertEquals(-1, $db->queryInteger($sql, 'Y'));
 	}
 
 	public function test_query_one1(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$table_name = 'query_object_test';
 
@@ -499,42 +478,39 @@ class Database_Test extends DatabaseUnitTest {
 	 * @always_fail
 	 */
 	public function test_releaseLock(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$name = 'fail';
-		$result = $db->releaseLock($name);
-		$this->assertFalse($result);
+		$this->expectException(Exception_Semantics::class);
+		$db->releaseLock($name);
 	}
 
 	public function test_locks(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$name = __FUNCTION__;
-		$this->assertFalse($db->releaseLock($name));
-		$this->assertTrue($db->getLock($name));
-		$this->assertTrue($db->getLock($name));
-		$this->assertTrue($db->releaseLock($name));
+		$db->getLock($name);
+		$db->getLock($name);
+		$db->getLock($name);
+
+		$db->releaseLock($name);
 
 		$intversion = 0;
 		if ($db instanceof \MySQL\Database) {
-			$version = $db->version;
+			$version = $db->version();
 			[$maj, $min, $patch, $rest] = explode('.', $version, 4) + array_fill(0, 4, 0);
 			$intversion = intval($maj) * 10000 + intval($min) * 100 + intval($patch);
 		}
 		if ($intversion >= 50700) {
-			$this->assertTrue($db->releaseLock($name));
-			$this->assertFalse($db->releaseLock($name));
-			$this->assertFalse($db->releaseLock($name));
+			$db->releaseLock($name);
+			$db->releaseLock($name);
 		} else {
-			$this->assertFalse($db->releaseLock($name));
-			$this->assertFalse($db->releaseLock($name));
-			$this->assertFalse($db->releaseLock($name));
+			$this->expectException(Exception_Semantics::class);
+			$db->releaseLock($name);
 		}
-
-		$this->assertTrue($db->getLock($name));
 	}
 
 	public function test_replace(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$table_name = 'replace_test';
 
@@ -552,7 +528,7 @@ class Database_Test extends DatabaseUnitTest {
 		$this->assertEquals(1, intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X')));
 
 		$result = $db->replace($t, $arr);
-		$this->assertEquals(1, $result);
+		$this->assertEquals(2, $result);
 
 		$this->assertEquals(1, intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X')));
 
@@ -564,10 +540,10 @@ class Database_Test extends DatabaseUnitTest {
 
 		$this->assertEquals(2, intval($db->queryOne("SELECT COUNT(*) AS X FROM `$table_name`", 'X')));
 
-//		$t = $table_name;
-//		$arr = [
-//			'foo' => 2,
-//		];
+		//		$t = $table_name;
+		//		$arr = [
+		//			'foo' => 2,
+		//		];
 		$result = $db->replace($t, $arr);
 		$this->assertEquals(4, $result);
 
@@ -575,7 +551,7 @@ class Database_Test extends DatabaseUnitTest {
 	}
 
 	public function test_selectOne(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$where = [];
 		$order_by = '';
@@ -588,7 +564,7 @@ class Database_Test extends DatabaseUnitTest {
 	}
 
 	public function test_table_exists(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$this->assertFalse($db->tableExists(''));
 		$this->assertFalse($db->tableExists('random_table_which_should_not_exist'));
@@ -602,7 +578,7 @@ class Database_Test extends DatabaseUnitTest {
 	}
 
 	public function test_unstring(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$sql = "UPDATE `Metric` SET
 	`Model` = '1',
@@ -655,7 +631,7 @@ class Database_Test extends DatabaseUnitTest {
 	}
 
 	public function test_update(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$table = 'database_update_test';
 
@@ -701,38 +677,27 @@ class Database_Test extends DatabaseUnitTest {
 			[
 				[
 					'foo' => '99',
-				],
-				[
+				], [
 					'foo' => 1,
-				],
-				1,
-			],
-			[
+				], 1,
+			], [
 				[
 					'foo' => '99',
-				],
-				[
+				], [
 					'foo' => 2,
-				],
-				3,
-			],
-			[
+				], 3,
+			], [
 				[
 					'foo' => '99',
-				],
-				[
+				], [
 					'foo' => 3,
-				],
-				7,
-			],
-			[
+				], 7,
+			], [
 				[
 					'foo' => 0,
-				],
-				[
+				], [
 					'foo' => 99,
-				],
-				11,
+				], 11,
 			],
 		];
 
@@ -745,7 +710,7 @@ class Database_Test extends DatabaseUnitTest {
 	}
 
 	public function test_update1(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$table = 'database_update_test';
 
@@ -764,9 +729,6 @@ class Database_Test extends DatabaseUnitTest {
 		$arr = [
 			'foo' => 100,
 		];
-		$idname = 'id';
-		$low_priority = false;
-		$dbname = '';
 		$db->update($table, $arr, [
 			'foo' => 6,
 		]);
@@ -779,7 +741,7 @@ class Database_Test extends DatabaseUnitTest {
 	}
 
 	public function test_update_id_test(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$table = 'db_update_id_test';
 
 		$this->prepareTestTable($table);
@@ -809,7 +771,7 @@ class Database_Test extends DatabaseUnitTest {
 	}
 
 	public function test_url(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$this->assertIsString($db->url());
 		$this->assertIsString($db->url(''));
 		$this->assertIsString($db->url('user'));

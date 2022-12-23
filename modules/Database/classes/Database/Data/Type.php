@@ -15,55 +15,47 @@ abstract class Database_Data_Type {
 	 *
 	 * @var string
 	 */
-	public const sql_type_id = 'id';
+	public const SQL_TYPE_ID = 'id';
 
 	/**
 	 * Text
-	 * @var string
 	 */
-	public const sql_type_string = 'string';
+	public const SQL_TYPE_STRING = 'string';
 
 	/**
 	 * Numbers of varying integer precisions
-	 * @var string
 	 */
-	public const sql_type_integer = 'integer';
+	public const SQL_TYPE_INTEGER = 'integer';
 
 	/**
 	 * Floating point double precision numbers
-	 * @var string
 	 */
-	public const sql_type_double = 'double';
+	public const SQL_TYPE_DOUBLE = 'double';
 
 	/**
 	 * Date
-	 * @var string
 	 */
-	public const sql_type_date = 'date';
+	public const SQL_TYPE_DATE = 'date';
 
 	/**
 	 * Time
-	 * @var string
 	 */
-	public const sql_type_time = 'time';
+	public const SQL_TYPE_TIME = 'time';
 
 	/**
 	 * Timestamp
-	 * @var string
 	 */
-	public const sql_type_datetime = 'datetime';
+	public const SQL_TYPE_DATETIME = 'datetime';
 
 	/**
 	 * Large binary data
-	 * @var string
 	 */
-	public const sql_type_blob = 'blob';
+	public const SQL_TYPE_BLOB = 'blob';
 
 	/**
 	 * Large text data
-	 * @var unknown
 	 */
-	public const sql_type_text = 'text';
+	public const SQL_TYPE_TEXT = 'text';
 
 	/**
 	 * Construct Database_Data_Type
@@ -73,32 +65,42 @@ abstract class Database_Data_Type {
 		$this->database = $database;
 	}
 
+	/**
+	 * Is the specification for the subclass of SQL_TYPE to native types (not parameterized)
+	 *
+	 * @var array
+	 */
 	protected array $sql_type_natives = [
-		self::sql_type_string => [
+		self::SQL_TYPE_STRING => [
 			'char',
 			'varchar',
 			'text',
 		],
-		self::sql_type_integer => [
-			self::sql_type_integer,
+		self::SQL_TYPE_INTEGER => [
+			self::SQL_TYPE_INTEGER,
 			'bit',
 		],
-		self::sql_type_double => [
+		self::SQL_TYPE_DOUBLE => [
 			'decimal',
 		],
-		self::sql_type_date => [
+		self::SQL_TYPE_DATE => [
 			'date',
 		],
-		self::sql_type_time => [
+		self::SQL_TYPE_TIME => [
 			'time',
 		],
-		self::sql_type_datetime => [
+		self::SQL_TYPE_DATETIME => [
 			'datetime',
 		],
 	];
 
+	/**
+	 * Mapping of aliases to sql types
+	 *
+	 * @var array
+	 */
 	protected array $sql_type_native_aliases = [
-		'int' => 'integer',
+		'int' => self::SQL_TYPE_INTEGER,
 	];
 
 	/**
@@ -107,12 +109,12 @@ abstract class Database_Data_Type {
 	 * @var array
 	 */
 	protected array $sql_type_to_php_type = [
-		self::sql_type_string => 'string',
-		self::sql_type_integer => 'integer',
-		self::sql_type_double => 'double',
-		self::sql_type_date => 'string',
-		self::sql_type_time => 'string',
-		self::sql_type_datetime => 'integer',
+		self::SQL_TYPE_STRING => 'string',
+		self::SQL_TYPE_INTEGER => 'integer',
+		self::SQL_TYPE_DOUBLE => 'double',
+		self::SQL_TYPE_DATE => 'string',
+		self::SQL_TYPE_TIME => 'string',
+		self::SQL_TYPE_DATETIME => 'integer',
 	];
 
 	protected string $pattern_native_type = '/([a-z]+)\(([^)]*)\)/';
@@ -122,15 +124,15 @@ abstract class Database_Data_Type {
 	 * @param string $type
 	 * @return string
 	 */
-	public function native_type_to_data_type(string $type) {
-		return $this->sql_type_to_php_type[$this->native_type_to_sql_type($type, 'string')] ?? null;
+	public function native_type_to_data_type(string $type): string {
+		return $this->sql_type_to_php_type[$this->native_type_to_sql_type($type, 'string')] ?? '';
 	}
 
 	public function is_text($native_type) {
 		$sql_type = $this->native_type_to_sql_type($native_type, '');
 		return in_array($sql_type, [
-			self::sql_type_string,
-			self::sql_type_text,
+			self::SQL_TYPE_STRING,
+			self::SQL_TYPE_TEXT,
 		]);
 	}
 
@@ -209,7 +211,7 @@ abstract class Database_Data_Type {
 			return false;
 		}
 		// Sizes don't matter with integer types
-		if ($bt0 !== self::sql_type_integer && $s0 !== $s1) {
+		if ($bt0 !== self::SQL_TYPE_INTEGER && $s0 !== $s1) {
 			return false;
 		}
 		if ($t0 === $t1) {
@@ -246,124 +248,9 @@ abstract class Database_Data_Type {
 		if ($bt0 !== $bt1) {
 			return false;
 		}
-		switch ($bt0) {
-			case self::sql_type_date:
-				return $t0 === $t1;
-			case self::sql_type_datetime:
-				return $t0 === $t1;
-			case self::sql_type_double:
-				return $t0 === $t1 && $s0 === $s1;
-			case self::sql_type_id:
-				return $t0 === $t1;
-			case self::sql_type_integer:
-				return $t0 === $t1;
-			case self::sql_type_time:
-				return $t0 === $t1;
-			case self::sql_type_blob:
-			case self::sql_type_text:
-			case self::sql_type_string:
-			default:
-				return $t0 === $t1 && $s0 === $s1;
-		}
+		return match ($bt0) {
+			self::SQL_TYPE_DATETIME, self::SQL_TYPE_ID, self::SQL_TYPE_INTEGER, self::SQL_TYPE_TIME, self::SQL_TYPE_DATE => $t0 === $t1,
+			default => $t0 === $t1 && $s0 === $s1,
+		};
 	}
-
-	/*
-	 * Type Manipulation
-	 */
-	/**
-	 * Given an internal type and size settings on a database column, generate the database SQL type
-	 * for the column. Uses Class_O_R_M::type_foo constants for base type definitions.
-	 *
-	 * @param Database_Column $type
-	 */
-//	 	public function type_set_sql_type(Database_Column $type) {
-//	 		$type_name = $type->option("type", false);
-//	 		$is_bin = $type->optionBool("binary");
-//	 		$size = $type->optionInt("size");
-//	 		if (!$type_name) {
-//	 			throw new Exception_Semantics(__CLASS__ . "::type_set_sql_type(...): \"Type\" is not set! " . print_r($type, true));
-//	 		}
-//	 		switch (strtolower($type_name)) {
-//	 			case Class_O_R_M::type_id:
-//	 				$type->setOption("primary_key", true);
-//	 				$type->setOption("sql_type", "integer");
-//	 				$type->increment(true);
-//	 				$type->setOption("unsigned", true);
-//	 				return true;
-//	 			case Class_O_R_M::type_object:
-//	 				$type->setOption("sql_type", "integer");
-//	 				$type->setOption("unsigned", true);
-//	 				return true;
-//	 			case Class_O_R_M::type_integer:
-//	 				$type->setOption("sql_type", "integer");
-//	 				return true;
-//	 			case Class_O_R_M::type_character:
-//	 				$size = !is_numeric($size) ? 1 : $size;
-//	 				$type->setOption("sql_type", "char($size)");
-//	 				return true;
-//	 			case Class_O_R_M::type_text:
-//	 				$type->setOption("sql_type", "text");
-//	 				return true;
-//	 			case "varchar":
-//	 				zesk()->deprecated();
-//	 			// fall through
-//	 			case Class_O_R_M::type_string:
-//	 				if (!is_numeric($size)) {
-//	 					$type->setOption("sql_type", $is_bin ? "blob" : "text");
-//	 				} else {
-//	 					$type->setOption("sql_type", $is_bin ? "varbinary($size)" : "varchar($size)");
-//	 				}
-//	 				return true;
-//	 			case Class_O_R_M::type_boolean:
-//	 				$type->setOption("sql_type", "bit(1)");
-//	 				return true;
-//	 			case "varbinary":
-//	 			case Class_O_R_M::type_serialize:
-//	 			case Class_O_R_M::type_binary:
-//	 				if (!is_numeric($size)) {
-//	 					$type->setOption("sql_type", "blob");
-//	 				} else {
-//	 					$type->setOption("sql_type", "varbinary($size)");
-//	 				}
-//	 				$type->binary(true);
-//	 				return true;
-//	 			case Class_O_R_M::type_byte:
-//	 				$type->setOption("sql_type", "tinyint(1)");
-//	 				$type->setOption("Unsigned", true);
-//	 				return true;
-//	 			case Class_O_R_M::type_decimal:
-//	 				$intP = $type->firstOption("integer_precision", 10);
-//	 				$decP = $type->firstOption("decimal_precision", 2);
-//	 				$width = $intP + $decP;
-//	 				$type->setOption("sql_type", "decimal($width,$decP)");
-//	 				return true;
-//	 			case Class_O_R_M::type_real:
-//	 				$type->setOption("sql_type", "real");
-//	 				return true;
-//	 			case Class_O_R_M::type_double:
-//	 				$type->setOption("sql_type", "double");
-//	 				return true;
-//	 			case Class_O_R_M::type_date:
-//	 				$type->setOption("sql_type", "date");
-//	 				return true;
-//	 			case Class_O_R_M::type_time:
-//	 				$type->setOption("sql_type", "time");
-//	 				return true;
-//	 			case Class_O_R_M::type_datetime:
-//	 			case Class_O_R_M::type_modified:
-//	 			case Class_O_R_M::type_created:
-//	 			case Class_O_R_M::type_timestamp:
-//	 				$type->setOption("sql_type", "timestamp");
-//	 				return true;
-//	 			case "checksum":
-//	 				zesk()->deprecated(); // ?? This used anywhere?
-//	 				$type->setOption("sql_type", "char(32)");
-//	 				return true;
-//	 			case "password":
-//	 				zesk()->deprecated(); // ?? This used anywhere?
-//	 				$type->setOption("sql_type", "varchar(32)");
-//	 				return true;
-//	 		}
-//	 		throw new Exception_Unimplemented(__CLASS__ . "::type_set_sql_type($type_name) unknown");
-//	 	}
 }

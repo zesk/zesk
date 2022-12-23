@@ -22,7 +22,9 @@ class Class_Meta extends Class_Base {
 	];
 
 	public array $column_types = [
-		'parent' => self::type_object, 'name' => self::type_string, 'value' => self::type_serialize,
+		'parent' => self::TYPE_OBJECT,
+		'name' => self::TYPE_STRING,
+		'value' => self::TYPE_SERIALIZE,
 	];
 
 	/**

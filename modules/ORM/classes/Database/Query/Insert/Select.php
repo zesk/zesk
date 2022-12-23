@@ -141,10 +141,11 @@ class Database_Query_Insert_Select extends Database_Query_Select {
 	}
 
 	/**
+	 * @throws Exception_Semantics
 	 * @return string
 	 */
 	public function toSQL(): string {
-		return $this->sql()->insert_select($this->into, $this->what, parent::__toString(), [
+		return $this->sql()->insert_select($this->into, $this->what, $this->selectToSQL(), [
 			'verb' => $this->verb, 'low_priority' => $this->low_priority,
 		]);
 	}

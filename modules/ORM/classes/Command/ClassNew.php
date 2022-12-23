@@ -2,20 +2,20 @@
 /**
  *
  */
-namespace zesk\ORM\Command;
+namespace zesk\ORM;
 
-use zesk\Command;
 use zesk\Exception;
 use zesk\Exception_Class_NotFound;
 use zesk\Exception_Unimplemented;
 use zesk\PHP;
+use zesk\Command_Base as CommandBase;
 
 /**
  * Add a module to zesk, creating basic class names and configuration files.
  *
  * @category Modules
  */
-class Command_ClassNew extends Command {
+class Command_ClassNew extends CommandBase {
 	protected array $option_types = [
 		'app' => 'boolean',
 		'zesk' => 'boolean',

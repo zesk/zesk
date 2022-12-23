@@ -21,16 +21,16 @@ class Class_Server extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'name' => self::type_string,
-		'name_internal' => self::type_string,
-		'name_external' => self::type_string,
-		'ip4_internal' => self::type_ip4,
-		'ip4_external' => self::type_ip4,
-		'free_disk' => self::type_integer,
-		'free_disk_units' => self::type_string,
-		'load' => self::type_double,
-		'alive' => self::type_modified,
+		'id' => self::TYPE_ID,
+		'name' => self::TYPE_STRING,
+		'name_internal' => self::TYPE_STRING,
+		'name_external' => self::TYPE_STRING,
+		'ip4_internal' => self::TYPE_IP4,
+		'ip4_external' => self::TYPE_IP4,
+		'free_disk' => self::TYPE_INTEGER,
+		'free_disk_units' => self::TYPE_STRING,
+		'load' => self::TYPE_FLOAT,
+		'alive' => self::TYPE_MODIFIED,
 	];
 
 	public array $has_many = [

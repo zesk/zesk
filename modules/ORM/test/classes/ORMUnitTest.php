@@ -176,7 +176,7 @@ class ORMUnitTest extends DatabaseUnitTest {
 
 		foreach ($columns as $member) {
 			$type = $object->class_orm()->column_types[$member] ?? '';
-			if ($type === Class_Base::type_string) {
+			if ($type === Class_Base::TYPE_STRING) {
 				$object->__set($member, 'stuff' . mt_rand());
 			}
 		}

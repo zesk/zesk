@@ -76,14 +76,14 @@ abstract class Route extends Hookable {
 	 *
 	 * @var Request
 	 */
-	protected Request $request;
+	private Request $request;
 
 	/**
 	 * The router
 	 *
 	 * @var Router
 	 */
-	public Router $router;
+	private Router $router;
 
 	/**
 	 * Original options before being mapped
@@ -95,14 +95,14 @@ abstract class Route extends Hookable {
 	 *
 	 * @var string
 	 */
-	private string $originalPattern;
+	protected string $originalPattern;
 
 	/**
 	 * Pattern with replaceable variables
 	 *
 	 * @var string
 	 */
-	private string $cleanPattern;
+	protected string $cleanPattern;
 
 	/**
 	 * HTTP Methods to match
@@ -142,7 +142,7 @@ abstract class Route extends Hookable {
 	/**
 	 * @var bool
 	 */
-	private bool $argsValid = false;
+	protected bool $argsValid = false;
 
 	/**
 	 * Named arguments (name => value pairs)
@@ -178,6 +178,13 @@ abstract class Route extends Hookable {
 	}
 
 	/**
+	 * @return Router
+	 */
+	public function router(): Router {
+		return $this->router;
+	}
+
+	/**
 	 * Return the cleaned pattern for PREG
 	 *
 	 * @return string
@@ -193,14 +200,22 @@ abstract class Route extends Hookable {
 	 */
 	public function __sleep() {
 		return array_merge(parent::__sleep(), [
-			'original_options', 'originalPattern', 'cleanPattern', 'pattern', 'methods', 'types', 'url_args', 'args',
-			'named', 'byClass',
+			'original_options',
+			'originalPattern',
+			'cleanPattern',
+			'methods',
+			'pattern',
+			'types',
+			'urlParts',
+			'args',
+			'argsValid',
+			'named',
+			'byClass',
 		]);
 	}
 
-	public function __wakeup(): void {
-		parent::__wakeup();
-		$this->router = $this->application->router;
+	public function wakeupConnect(Router $router): void {
+		$this->router = $router;
 	}
 
 	/**

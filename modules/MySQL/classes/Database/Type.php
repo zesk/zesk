@@ -14,19 +14,19 @@ class Database_Type extends Database_Data_Type {
 	 * @var array
 	 */
 	protected array $sql_type_natives = [
-		self::sql_type_string => [
+		self::SQL_TYPE_STRING => [
 			'char',
 			'varchar',
 		],
-		self::sql_type_blob => [
+		self::SQL_TYPE_BLOB => [
 			'blob',
 			'longblob',
 		],
-		self::sql_type_text => [
+		self::SQL_TYPE_TEXT => [
 			'text',
 			'longtext',
 		],
-		self::sql_type_integer => [
+		self::SQL_TYPE_INTEGER => [
 			'bit',
 			'int',
 			'tinyint',
@@ -35,16 +35,16 @@ class Database_Type extends Database_Data_Type {
 			'bigint',
 			'integer',
 		],
-		self::sql_type_double => [
+		self::SQL_TYPE_DOUBLE => [
 			'decimal',
 		],
-		self::sql_type_date => [
+		self::SQL_TYPE_DATE => [
 			'date',
 		],
-		self::sql_type_time => [
+		self::SQL_TYPE_TIME => [
 			'time',
 		],
-		self::sql_type_datetime => [
+		self::SQL_TYPE_DATETIME => [
 			'datetime',
 			'timestamp',
 		],
@@ -82,16 +82,16 @@ class Database_Type extends Database_Data_Type {
 	public function sql_type_default(string $native_type, mixed $default_value = null): mixed {
 		$type = $this->native_type_to_sql_type($native_type, $native_type);
 		switch ($type) {
-			case self::sql_type_string:
+			case self::SQL_TYPE_STRING:
 				return strval($default_value);
-			case self::sql_type_blob:
-			case self::sql_type_text:
+			case self::SQL_TYPE_BLOB:
+			case self::SQL_TYPE_TEXT:
 				return null;
-			case self::sql_type_integer:
+			case self::SQL_TYPE_INTEGER:
 				return is_numeric($default_value) ? intval($default_value) : null;
-			case self::sql_type_double:
+			case self::SQL_TYPE_DOUBLE:
 				return is_numeric($default_value) ? floatval($default_value) : null;
-			case self::sql_type_datetime:
+			case self::SQL_TYPE_DATETIME:
 				if ($default_value === 0 || $default_value === '0') {
 					$invalid_dates_ok = $this->database->optionBool('invalid_dates_ok');
 					return $invalid_dates_ok ? '0000-00-00 00:00:00' : 'CURRENT_TIMESTAMP';

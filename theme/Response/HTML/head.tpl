@@ -15,10 +15,10 @@ echo HTML::tag_open('head');
 {
 	echo $application->modules->allHookArguments('head', $hook_parameters, '');
 	echo $application->hooks->callArguments('<head>', $hook_parameters, '');
-	echo $this->theme('response/html/head/title');
-	echo $this->theme('response/html/head/metas');
-	echo $this->theme('response/html/head/links');
-	echo $this->theme('response/html/head/styles');
+	echo $this->theme('Response/HTML/head/title');
+	echo $this->theme('Response/HTML/head/metas');
+	echo $this->theme('Response/HTML/head/links');
+	echo $this->theme('Response/HTML/head/styles');
 	echo $application->hooks->callArguments('</head>', $hook_parameters, '');
 	echo $application->modules->allHookArguments('head_close', $hook_parameters, '');
 }

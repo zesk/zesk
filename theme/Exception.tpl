@@ -14,8 +14,8 @@ namespace zesk;
 /* @var $current_user \User */
 
 /* @var $exception Exception */
-if ($response->status_code === Net_HTTP::STATUS_OK) {
-	$response->setStatus(Net_HTTP::STATUS_INTERNAL_SERVER_ERROR, 'Exception');
+if ($response->status_code === HTTP::STATUS_OK) {
+	$response->setStatus(HTTP::STATUS_INTERNAL_SERVER_ERROR, 'Exception');
 }
 $exception = $this->exception;
 $class = get_class($this->exception);

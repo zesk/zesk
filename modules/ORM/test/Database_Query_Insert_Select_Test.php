@@ -13,35 +13,24 @@ use zesk\Exception_Semantics;
 
 class Database_Query_Insert_Select_Test extends ORMUnitTest {
 	protected array $load_modules = [
-		'MySQL',
-		'ORM',
+		'MySQL', 'ORM',
 	];
 
 	public function test_main(): void {
 		$db = $this->application->database_registry();
 		$testx = new Database_Query_Insert_Select($db);
 
-		try {
-			$this->assertEquals('', $testx->__toString());
-		} catch (Exception_Semantics $e) {
-			$success = true;
-		}
-		$this->assertTrue($success);
+		$this->assertEquals('', $testx->__toString());
 
 		$table = 'from_table';
 		$alias = 'X';
 		$testx->from($table, $alias);
 
-		$db = null;
 		$table = 'test_table';
 		$testx->into($table);
 
-		echo $testx->__toString();
-
 		$testx->addWhatIterable([
-			'A' => 'B',
-			'*C' => 'UTC_TIMESTAMP()',
-			'D' => 'Table.Field',
+			'A' => 'B', '*C' => 'UTC_TIMESTAMP()', 'D' => 'Table.Field',
 		]);
 
 		$sql = 'INNER JOIN join_table J ON X.JID=J.ID';
