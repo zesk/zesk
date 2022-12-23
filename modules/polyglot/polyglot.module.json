@@ -1,8 +1,0 @@
-{
-	"name": "Polyglot module to automate web translations",
-	"autoload_options": {
-		"class_prefix": "zesk\\",
-		"lower": true
-	},
-	"module_class": "zesk\\Module_PolyGlot"
-}

@@ -1,45 +1,44 @@
 <?php
+declare(strict_types=1);
 /**
- * @copyright &copy; 2016 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 class Model_Login extends Model {
-	protected $login = null;
+	protected string $login = '';
 
-	protected $login_password = null;
+	protected string $login_password = '';
 
-	protected $login_password_hash = null;
+	protected string $login_password_hash;
 
-	/**
-	 *
-	 * @var User
-	 */
-	protected $user = null;
+	protected ?User $user = null;
 
-	public function login($login = null) {
-		if ($login !== null) {
-			$this->login = $login;
-			return $this;
-		}
+	public function login(): string {
 		return $this->login;
 	}
 
-	public function __set($name, $value) {
-		if ($name === "login_password") {
+	public function setLogin(string $login): self {
+		$this->login = $login;
+		return $this;
+	}
+
+	public function __set(string $key, mixed $value): void {
+		if ($key === 'login_password') {
 			$this->login_password_hash = strtoupper(md5($value));
 			$this->login_password = $value;
 			return;
 		}
-		parent::__set($name, $value);
+		parent::__set($key, $value);
 	}
 
-	public function __unset($name) {
-		if ($name === "login_password") {
-			$this->login_password = null;
-			$this->login_password_hash = null;
+	public function __unset(string $key): void {
+		if ($key === 'login_password') {
+			$this->login_password = '';
+			$this->login_password_hash = '';
 		} else {
-			parent::__unset($name);
+			parent::__unset($key);
 		}
 	}
 }

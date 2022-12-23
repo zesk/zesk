@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -43,7 +43,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
 	 */
 	public function __get($name) {
 		$name = strtolower($name);
-		return isset($this->data[$name]) ? $this->data[$name] : null;
+		return $this->data[$name] ?? null;
 	}
 
 	/**
@@ -54,7 +54,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
 	 */
 	public function get($name = null, $default = null) {
 		$name = strtolower($name);
-		return isset($this->data[$name]) ? $this->data[$name] : $default;
+		return $this->data[$name] ?? $default;
 	}
 
 	/**
@@ -74,7 +74,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
 	 * @param mixed $name A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
-	public function __set($name, $value) {
+	public function __set($name, $value): void {
 		$this->data[strtolower($name)] = $value;
 	}
 
@@ -94,7 +94,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
 	 *
 	 * @return Iterator
 	 */
-	public function variables() {
+	public function variables(): array {
 		return $this->data;
 	}
 }

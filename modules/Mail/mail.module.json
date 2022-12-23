@@ -1,0 +1,7 @@
+{
+	"name": "Mail Module",
+	"moduleClass": "zesk\\Mail\\Module",
+	"autoload": {
+		"classPrefix": "zesk\\Mail\\"
+	}
+}

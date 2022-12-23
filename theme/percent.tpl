@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage theme
  * @author kent
- * @copyright &copy; 2018 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -16,17 +16,17 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
-$decimals = $this->get1("1;decimals");
+$decimals = $this->get1('1;decimals');
 if (!$decimals) {
-	$decimals = $application->configuration->path_get_first(array(
-		array(
+	$decimals = $application->configuration->getFirstPath([
+		[
 			Locale::class,
-			"percent_decimals",
-		),
-		array(
+			'percent_decimals',
+		],
+		[
 			Locale::class,
-			"numeric_decimals",
-		),
-	), 0);
+			'numeric_decimals',
+		],
+	], 0);
 }
-echo sprintf("%.${decimals}f", $this->get1("0;content")) . "%";
+echo sprintf("%.${decimals}f", $this->get1('0;content')) . '%';

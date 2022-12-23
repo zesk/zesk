@@ -1,49 +1,60 @@
 {
-	"name": "zesk/zesk",
-	"description": "The Zesk Application Framework",
-	"require": {
-		"php": ">=7.0",
-		"psr/log": "^1.0",
-		"components/jquery": "^3.2",
-		"psr/cache": "^1.0",
-		"mishal/iless": "^2.",
-      "ext-calendar": "*",
-      "ext-json": "*",
-      "ext-posix": "*"
-    },
-	"require-dev": {
-		"phpunit/phpunit": "*",
-		"phpunit/php-invoker": "*",
-		"friendsofphp/php-cs-fixer": "^2.13"
-	},
-	"authors": [
-		{
-			"name": "Kent Davidson",
-			"email": "getsupport@marketacumen.com"
-		}
-	],
-	"scripts": {
-		
-	},
-	"keywords": [
-		"zesk",
-		"application",
-		"framework"
-	],
-	"autoload": {
-		"files": [
-			"autoload.php"
-		]
-	},
-	"bin": [
-		"bin/zesk",
-		"bin/zesk.sh",
-		"bin/link-vendor-to-dev-zesk.sh",
-		"bin/daemon-bouncer.sh",
-		"bin/php-find.sh",
-		"bin/zesk-command.php"
-	],
-	"type": "library",
-	"license": "MIT",
-	"homepage": "https://zesk.com"
+  "name": "zesk/zesk",
+  "description": "The Zesk Application Framework",
+  "require": {
+    "php": ">=8.1",
+    "psr/log": "^1.0",
+    "components/jquery": "^3.2",
+    "psr/cache": "^1.0",
+    "ext-calendar": "*",
+    "ext-json": "*",
+    "ext-posix": "*"
+  },
+  "suggest": {
+    "ext-xdebug": "*",
+    "ext-curl": "*",
+    "ext-imap": "*",
+    "ext-readline": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*",
+    "phpunit/php-invoker": "*",
+    "friendsofphp/php-cs-fixer": "^3.4"
+  },
+  "authors": [
+    {
+      "name": "Kent Davidson",
+      "email": "getsupport@marketacumen.com"
+    }
+  ],
+  "scripts": {
+  },
+  "keywords": [
+    "zesk",
+    "application",
+    "framework"
+  ],
+  "autoload": {
+    "files": [
+      "autoload.php"
+    ]
+  },
+  "bin": [
+    "bin/zesk",
+    "bin/zesk.sh",
+    "bin/link-vendor-to-dev-zesk.sh",
+    "bin/daemon-bouncer.sh",
+    "bin/php-find.sh",
+    "bin/zesk-command.php"
+  ],
+  "type": "library",
+  "license": "MIT",
+  "homepage": "https://zesk.com",
+  "autoload-dev": {
+    "classmap": [
+      "modules/ORM/test/classes/ORMUnitTest.php",
+      "modules/phpunit/classes/PHPUnit/TestCase.php",
+      "modules/Repository/classes/TestCase.php"
+    ]
+  }
 }

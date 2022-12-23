@@ -17,8 +17,8 @@ zesk cannon --skip-when-matches 'namespace zesk' --verbose 'Zesk_User_Role' 'zes
 zesk cannon --skip-when-matches 'namespace zesk' --verbose 'Zesk_User' 'zesk\User'
 zesk cannon --verbose 'tion->module->' 'tion->modules->'
 zesk cannon --verbose 'app->module->' 'app->modules->'
-zesk cannon --verbose '>hook_array(' '>call_hook_arguments('
-zesk cannon --verbose '>hook(' '>call_hook('
+zesk cannon --verbose '>hook_array(' '>callHookArguments('
+zesk cannon --verbose '>hook(' '>callHook('
 zesk cannon --verbose url:: URL::
 zesk cannon --verbose js:: JavaScript::
 zesk cannon --verbose json:: JSON::

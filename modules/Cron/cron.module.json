@@ -1,0 +1,11 @@
+{
+	"name": "Cron",
+	"moduleClass": "zesk\\Cron\\Module",
+	"autoload": {
+		"classPrefix": "zesk\\Cron\\"
+	},
+	"zeskCommandClassPrefix": "zesk\\Cron\\Command_",
+	"requires": [
+		"ORM"
+	]
+}

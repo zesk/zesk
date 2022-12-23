@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\Response;
 
 use zesk\Response;
@@ -11,20 +11,18 @@ use zesk\Application;
  */
 abstract class Type {
 	/**
-	 *
-	 * @var \zesk\Application
+	 * @var Application
 	 */
-	protected $application = null;
+	protected Application $application;
+
+	/**
+	 * @var Response
+	 */
+	protected Response $parent;
 
 	/**
 	 *
-	 * @var \zesk\Response
-	 */
-	protected $parent = null;
-
-	/**
-	 *
-	 * @param \zesk\Response $response
+	 * @param Response $response
 	 */
 	final public function __construct(Response $response) {
 		$this->parent = $response;
@@ -35,24 +33,24 @@ abstract class Type {
 	/**
 	 * Output any special headers
 	 */
-	protected function headers() {
+	protected function headers(): void {
 	}
 
 	/**
 	 * Override in subclasses to extend constructor. Make sure to call parent::initialize()!
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 	}
 
 	/**
 	 *
-	 * @param unknown $content
-	 * @return boolean
+	 * @param string $content
+	 * @return string
 	 */
-	public function render($content) {
+	public function render(string $content): string {
 		ob_start();
 		$this->output($content);
-		return ob_end_clean();
+		return ob_get_clean();
 	}
 
 	/**
@@ -60,12 +58,12 @@ abstract class Type {
 	 * @param mixed $content
 	 * @return void
 	 */
-	abstract public function output($content);
+	abstract public function output(string $content): void;
 
 	/**
 	 * Convert to JSON array
 	 *
 	 * @return array
 	 */
-	abstract public function to_json();
+	abstract public function toJSON(): array;
 }

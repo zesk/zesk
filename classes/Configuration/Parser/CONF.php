@@ -1,10 +1,12 @@
 <?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage Configuration
  * @author kent
- * @copyright &copy; 2020 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -13,25 +15,29 @@ namespace zesk;
  *
  */
 class Configuration_Parser_CONF extends Configuration_Parser {
-	protected $options = array(
-		"overwrite" => true,
-		"trim_key" => true,
-		"separator" => '=',
-		"trim_value" => true,
-		"autotype" => true,
-		"lower" => true,
-		"multiline" => true,
-		"unquote" => '\'\'""',
-	);
+	public const SEPARATOR_DEFAULT = '=';
+
+	public const UNQUOTE_DEFAULT = '\'\'""';
+
+	protected array $options = [
+		'overwrite' => true,
+		'trim_key' => true,
+		'separator' => self::SEPARATOR_DEFAULT,
+		'trim_value' => true,
+		'autotype' => true,
+		'lower' => true,
+		'multiline' => true,
+		'unquote' => self::UNQUOTE_DEFAULT,
+	];
 
 	/**
 	 */
-	public function initialize() {
+	public function initialize(): void {
 	}
 
 	/**
 	 */
-	public function validate() {
+	public function validate(): bool {
 		return true;
 	}
 
@@ -40,58 +46,60 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 * {@inheritDoc}
 	 * @see \zesk\Configuration_Parser::editor()
 	 */
-	public function editor($content = null, array $options = array()) {
+	public function editor(string $content = '', array $options = []): Configuration_Editor {
 		return new Configuration_Editor_CONF($content, $options);
 	}
 
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\Configuration_Parser::process()
 	 * @return Interface_Settings
+	 * @see \zesk\Configuration_Parser::process()
 	 */
-	public function process() {
-		$separator = $lower = $trim_key = $unquote = $trim_value = $autotype = $overwrite = $multiline = null;
-		extract($this->options, EXTR_IF_EXISTS);
-
+	public function process(): void {
+		$autotype = toBool($this->options['autotype'] ?? false);
+		$unquote = strval($this->options['unquote'] ?? self::UNQUOTE_DEFAULT);
+		$multiline = toBool($this->options['multiline'] ?? false);
+		$overwrite = toBool($this->options['overwrite'] ?? false);
 		$settings = $this->settings;
 		$dependency = $this->dependency;
 
 		$lines = explode("\n", $this->content);
 		if ($multiline) {
-			$lines = self::join_lines($lines);
+			$lines = self::joinLines($lines);
 		}
 		if ($dependency) {
-			$this->dependency->push($this->option("name", "unnamed-" . get_class($this)));
+			$this->dependency->push($this->option('name', 'unnamed-' . get_class($this)));
 		}
-		$lower = $this->option("lower");
+		$lower = $this->option('lower');
 		foreach ($lines as $line) {
 			$parse_result = $this->parse_line($line);
 			if ($parse_result === null) {
 				continue;
 			}
 			$append = false;
-			list($key, $value) = $parse_result;
+			[$key, $value] = $parse_result;
 			/**
 			 * Parse and normalize key
 			 */
-			if (ends($key, '[]')) {
-				$key = StringTools::unsuffix($key, "[]");
+			if (str_ends_with($key, '[]')) {
+				$key = StringTools::removeSuffix($key, '[]');
 				$append = true;
 			}
 			$found_quote = null;
-			$key = strtr($key, array(
-				"___" => "\\",
-				"__" => "::",
-			));
+			$key = strtr($key, [
+				'___' => '\\',
+				'__' => '::',
+			]);
 			/**
 			 * Parse and normalize value
 			 */
+			$found_quote = '';
 			if ($unquote) {
 				$value = unquote($value, $unquote, $found_quote);
 			}
-			$dependencies = array();
-			if ($found_quote !== "'") {
+			$dependencies = [];
+			if ($found_quote !== '\'') {
 				$value = bash::substitute($value, $settings, $dependencies, $lower);
 			}
 			if (!$found_quote) {
@@ -103,52 +111,39 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			/**
 			 * Now apply to back to our settings, or handle special values
 			 */
-			if ($this->loader && strtolower($key) === "include") {
-				$this->handle_include($value);
+			if ($this->loader && strtolower($key) === 'include') {
+				$this->handleInclude($value);
 			} elseif ($append) {
-				$append_value = to_array($settings->get($key));
+				$append_value = toArray($settings->get($key));
 				$append_value[] = $value;
 				$settings->set($key, $append_value);
-				if ($dependency) {
-					$dependency->defines($key, array_keys($dependencies));
-				}
+				$dependency?->defines($key, array_keys($dependencies));
 			} else {
 				if ($overwrite || !$settings->has($key)) {
 					$settings->set($key, $value);
-					if ($dependency) {
-						$dependency->defines($key, array_keys($dependencies));
-					}
+					$dependency?->defines($key, array_keys($dependencies));
 				}
 			}
 		}
-		if ($dependency) {
-			$dependency->pop();
-		}
-		return $settings;
+		$dependency?->pop();
 	}
 
 	/**
 	 * Handle include files specially
 	 *
 	 * @param string $file
-	 *        	Name of additional include file
+	 *            Name of additional include file
 	 */
-	private function handle_include($file) {
-		if (File::is_absolute($file)) {
-			$this->loader->append_files(array(
+	private function handleInclude(string $file): void {
+		if (File::isAbsolute($file)) {
+			$this->loader->appendFiles([
 				$file,
-			));
+			]);
 			return;
-		}
-		$files = $missing = array();
-		$path = dirname($this->loader->current());
-		$conf_path = path($path, $file);
-		if (file_exists($conf_path)) {
-			$files[] = $conf_path;
 		} else {
-			$missing[] = $conf_path;
+			$path = dirname($this->loader->current());
+			$this->loader->appendFiles([path($path, $file)]);
 		}
-		$this->loader->append_files($files, $missing);
 	}
 
 	/**
@@ -156,16 +151,16 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 *
 	 * @param array $lines
 	 */
-	private static function join_lines(array $lines) {
-		$result = array(
+	private static function joinLines(array $lines): array {
+		$result = [
 			array_shift($lines),
-		);
+		];
 		$last = 0;
 		foreach ($lines as $line) {
-			if (in_array(substr($line, 0, 1), array(
+			if (in_array(substr($line, 0, 1), [
 				"\t",
-				" ",
-			))) {
+				' ',
+			])) {
 				$result[$last] .= "\n$line";
 			} else {
 				$result[] = $line;
@@ -179,36 +174,34 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 * Shared by Configuration_Editor_CONF
 	 *
 	 * @param string $line
-	 * @return array
+	 * @return ?array
 	 */
-	public function parse_line($line) {
-		$separator = $trim_key = $trim_value = $lower = null;
-		extract($this->options, EXTR_IF_EXISTS);
-
+	public function parse_line(string $line): ?array {
+		$separator = $this->options['separator'] ?? '=';
 		$line = trim($line);
-		if (substr($line, 0, 1) == "#") {
+		if (str_starts_with($line, '#')) {
 			return null;
 		}
 		$matches = false;
 		if (preg_match('/^export\s+/', $line, $matches)) {
 			$line = substr($line, strlen($matches[0]));
 		}
-		list($key, $value) = pair($line, $separator, null, null);
+		[$key, $value] = pair($line, $separator);
 		if (!$key) {
 			return null;
 		}
-		if ($trim_key) {
+		if ($this->options['trim_key'] ?? false) {
 			$key = trim($key);
 		}
-		if ($trim_value) {
+		if ($this->options['trim_value'] ?? false) {
 			$value = trim($value);
 		}
-		if ($lower) {
+		if ($this->options['lower'] ?? false) {
 			$key = strtolower($key);
 		}
-		return array(
+		return [
 			$key,
 			$value,
-		);
+		];
 	}
 }

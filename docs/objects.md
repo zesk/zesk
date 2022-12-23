@@ -12,15 +12,15 @@ Objects support an Object-Relational Mapping interface; to create an object in t
 
 ## Definining `zesk\Class_Foo`
 
-When defining your class, you much subclass `zesk\Class_ORM` which is the base class for all `zesk\Class_Foo` classes.
+When defining your class, you much subclass `zesk\Class_Base` which is the base class for all `zesk\Class_Foo` classes.
 
 In this case:
 
 	namespace awesome;
-	class Class_Task extends zesk\Class_ORM {
-		public $id_column = "id";
+	class Class_Task extends zesk\Class_Base {
+		public string $id_column = "id";
 		
-		public $column_types = [
+		public array $column_types = [
 			"id" => self::type_id,
 			"name" => self::type_string,
 			"created" => self::type_created,
@@ -52,7 +52,7 @@ In order to get Zesk to see our ORM instance, we have to pass it back as a class
 - Via the `zesk\Module_ORM` [hook](hooks.md) `classes`
 - Via a module's `$model_classes` protected member (easily overridden in subclasses)
 - Via a module's `model_classes()` method (which defaults to returning the value of the `$model_classes` member above)
-- Reference the class name from any other `zesk\Class_ORM` via the `$has_one` or `$has_many` members.
+- Reference the class name from any other `zesk\Class_Base` via the `$has_one` or `$has_many` members.
 
 In our case, we'll add it our our main application:
 
@@ -105,4 +105,3 @@ For sites which connect to multiple databases, it will output a SQL comment indi
 	-- zesk database-schema --name central --update
 
 ## Keeping PHP code in-sync with SQL
-

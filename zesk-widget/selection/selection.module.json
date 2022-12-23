@@ -1,0 +1,7 @@
+{
+	"name": "Multi-page selections",
+	"autoload": {
+		"classPrefix": "zesk\\"
+	},
+	"moduleClass": "zesk\\Module_Selection"
+}

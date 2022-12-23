@@ -1,14 +1,16 @@
 <?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage exception
  * @author kent
- * @copyright &copy; 2019 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
- * @see theme/zesk/exception/redirect
+ * @see
  * @author kent
  * @see Exception_RedirectTemporary
  */
@@ -17,20 +19,20 @@ class Exception_Redirect extends Exception {
 	 *
 	 * @var string
 	 */
-	public $url = null;
+	public string $url = '';
 
 	/**
 	 * Pass as an argument to set the `zesk\Response::status_code()`
 	 *
 	 * @var string
 	 */
-	const RESPONSE_STATUS_CODE = "status_code";
+	public const RESPONSE_STATUS_CODE = 'status_code';
 
 	/**
 	 * Pass as an argument to set the `zesk\Response::status_message()`
 	 * @var string
 	 */
-	const RESPONSE_STATUS_MESSAGE = "status_message";
+	public const RESPONSE_STATUS_MESSAGE = 'status_message';
 
 	/**
 	 * Create a redirect
@@ -38,37 +40,46 @@ class Exception_Redirect extends Exception {
 	 * @param string $url
 	 * @param string $message
 	 */
-	public function __construct($url, $message = null, array $arguments = array()) {
+	public function __construct(string $url, string $message = '', array $arguments = [], \Throwable $previous = null) {
 		$this->url = $url;
-		parent::__construct($message, $arguments);
+		parent::__construct($message, $arguments, 0, $previous);
 	}
 
 	/**
 	 *
-	 * @param unknown $set
-	 * @return \zesk\Exception_Redirect|string
+	 * @param mixed $set
+	 * @return string
 	 */
-	public function url($set = null) {
+	public function url(mixed $set = null): string {
 		if ($set !== null) {
-			$this->url = $set;
-			return $this;
+			$this->parent->application->deprecated(__METHOD__ . ' setter');
 		}
 		return $this->url;
 	}
 
 	/**
 	 *
-	 * @return string|NULL
+	 * @param string $set
+	 * @return self
 	 */
-	public function status_message() {
-		return avalue($this->arguments, self::RESPONSE_STATUS_MESSAGE);
+	public function setURL(string $set): self {
+		$this->url = $set;
+		return $this;
 	}
 
 	/**
 	 *
-	 * @return integer|NULL
+	 * @return string
 	 */
-	public function status_code() {
-		return avalue($this->arguments, self::RESPONSE_STATUS_CODE);
+	public function statusMessage(): string {
+		return $this->arguments[self::RESPONSE_STATUS_MESSAGE] ?? '';
+	}
+
+	/**
+	 *
+	 * @return int
+	 */
+	public function statusCode(): int {
+		return toInteger($this->arguments[self::RESPONSE_STATUS_CODE] ?? -1, -1);
 	}
 }

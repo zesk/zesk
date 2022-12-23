@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\Logger;
 
 interface Handler {
@@ -7,5 +7,5 @@ interface Handler {
 	 * @param array $context
 	 * @return void
 	 */
-	public function log($message, array $context = array());
+	public function log(string $message, array $context = []): void;
 }

@@ -1,8 +1,0 @@
-{
-	"name": "Diff",
-	"description": "Diff tools",
-	"autoload_options": {
-		"class_prefix": "zesk\\Diff\\"
-	},
-	"module_class": "zesk\\Diff\\Module"
-}

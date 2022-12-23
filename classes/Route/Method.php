@@ -1,7 +1,10 @@
 <?php
+declare(strict_types=1);
+
 namespace zesk;
 
 use ReflectionMethod;
+use Throwable;
 
 /**
  *
@@ -9,85 +12,111 @@ use ReflectionMethod;
  *
  */
 class Route_Method extends Route {
-	public function validate() {
-		$application = $this->router->application;
-		$function = $this->options['method'];
+	/**
+	 * Method to call
+	 */
+	public const OPTION_METHOD = 'method';
+
+	/**
+	 * Whether to load the class using the autoloader or whether it should already be loaded.
+	 */
+	public const OPTION_AUTOLOAD = 'autoload';
+
+	/**
+	 * @return bool
+	 * @throws Exception_Parameter
+	 */
+	public function validate(): bool {
+		$function = $this->option(self::OPTION_METHOD);
 		$class = $method = null;
 		if (is_string($function)) {
-			list($class, $method) = pair($function, "::", null, $function);
+			[$class, $method] = pair($function, '::', '', $function);
 		}
-		list($include, $require) = $this->_do_includues();
+		[$include, $require] = $this->_includeFiles();
 		if ($class) {
-			if (!class_exists($class, $this->option_bool('autoload', true))) {
-				throw new Exception_Parameter("No such class found {class}", array(
-					"class" => $class,
-				));
+			if (!class_exists($class, $this->optionBool(self::OPTION_AUTOLOAD, true))) {
+				throw new Exception_Parameter('No such class found {class}', [
+					'class' => $class,
+				]);
 			}
 			if (!method_exists($class, $method)) {
-				throw new Exception_Parameter("No such method {class}::{method} exists in $require or $include for {pattern}", array(
-					'class' => $class,
-					'require' => $require,
-					'include' => $include,
-					'pattern' => $this->pattern,
-					'method' => $method,
-				));
+				throw new Exception_Parameter("No such method {class}::{method} exists in $require or $include for {pattern}", $this->variables() + [
+					'require' => $require, 'include' => $include, 'method' => $method,
+				]);
 			}
 		} elseif (is_string($function)) {
 			if (!function_exists($function)) {
-				throw new Exception_Parameter("No such function exists in {require} or {include} for {pattern}", array(
-					"require" => $require,
-					"include" => $include,
-					"pattern" => $this->pattern,
-				));
+				throw new Exception_Parameter('No such function exists in {require} or {include} for {pattern}', $this->variables() + [
+					'require' => $require, 'include' => $include,
+				]);
 			}
 		} elseif (!is_callable($function)) {
-			throw new Exception_Parameter("Not callable: {callable} for {pattern}", array(
-				"callable" => Hooks::callable_string($function),
-				"pattern" => $this->pattern,
-			));
+			throw new Exception_Parameter('Not callable: {callable} for {pattern}', $this->variables() + [
+				'callable' => Hooks::callable_string($function), 'pattern' => $this->pattern,
+			]);
 		}
+		return true;
 	}
+
+	public const OPTION_INCLUDE = 'include';
+
+	public const OPTION_REQUIRE = 'require';
 
 	/**
 	 * Do includes if specified
 	 *
-	 * @return mixed[]|array[]
+	 * @return void
+	 * @throws Exception_File_NotFound
 	 */
-	private function _do_includues() {
-		$include = avalue($this->options, 'include');
-		$require = avalue($this->options, 'require');
-		if ($require) {
-			require_once $require;
-		} elseif ($include) {
-			include_once $include;
+	private function _includeFiles(): void {
+		$includes = $this->optionList(self::OPTION_INCLUDE);
+		$requires = $this->optionList(self::OPTION_REQUIRE);
+		foreach ($requires as $require) {
+			File::depends($require);
+
+			try {
+				require_once($require);
+			} catch (Throwable $t) {
+				throw new Exception_File_NotFound($require, 'Loading route {pattern} require: {require}', [
+					'require' => $require,
+				] + $this->variables(), 0, $t);
+			}
 		}
-		return array(
-			$include,
-			$require,
-		);
+		foreach ($includes as $include) {
+			try {
+				$this->application->load($include);
+			} catch (Throwable $t) {
+				throw new Exception_File_NotFound($require, 'Loading route {pattern} include: {include}', [
+					'include' => $include,
+				] + $this->variables(), 0, $t);
+			}
+		}
 	}
 
 	/**
 	 *
-	 * {@inheritDoc}
-	 * @see Route::_execute()
+	 * @param Response $response
+	 * @return Response
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_Redirect
 	 */
-	protected function _execute(Response $response) {
+	protected function _execute(Response $response): Response {
+		$response->setContent(null);
 		$app = $this->router->application;
-		$this->_do_includues();
+		$this->_includeFiles();
 
 		$method = $this->options['method'];
 		$arguments = $this->args;
 
-		$construct_arguments = $this->_map_variables($this->option_array("construct arguments"));
-		$method = $this->_map_variables($method);
+		$construct_arguments = $this->_mapVariables($this->optionArray('construct arguments'));
+		$method = $this->_mapVariables($method);
 		ob_start();
 
 		try {
-			if (is_string($method) && strpos($method, "::") !== false) {
-				list($class, $method) = pair($method, '::', 'stdClass', $method);
+			if (is_string($method) && str_contains($method, '::')) {
+				[$class, $method] = pair($method, '::', 'stdClass', $method);
 				$method = new ReflectionMethod($class, $method);
-				$object = $method->isStatic() ? null : $app->objects->factory_arguments($class, $construct_arguments);
+				$object = $method->isStatic() ? null : $app->objects->factoryArguments($class, $construct_arguments);
 				$content = $method->invokeArgs($object, $arguments);
 			} else {
 				$content = call_user_func_array($method, $arguments);
@@ -96,41 +125,41 @@ class Route_Method extends Route {
 			throw $e;
 		} catch (\Exception $e) {
 			$content = null;
-			$app->hooks->call("exception", $e);
-			$app->logger->error("{class}::_execute() Running {method} threw exception {e}", array(
-				"class" => __CLASS__,
-				"method" => $app->hooks->callable_string($method),
-				"e" => $e,
-			));
+			$app->hooks->call('exception', $e);
+			$app->logger->error('{class}::_execute() Running {method} threw exception {e}', [
+				'class' => __CLASS__, 'method' => $app->hooks->callable_string($method), 'e' => $e,
+			]);
 		}
 		if ($content instanceof Response) {
 			return $content;
 		}
 		$buffer = ob_get_clean();
 		if ($response->content !== null) {
-			return;
+			return $response;
 		}
-		if ($response->is_json()) {
+		if ($response->isJSON()) {
 			if ($content !== null) {
-				$response->json()->data($content);
+				$response->json()->setData($content);
+				$response->content = null;
 			}
-			return;
+			return $response;
 		}
-		if (!$this->option_bool('no-buffer')) {
+		if (!$this->optionBool('no-buffer')) {
 			if ($content === null && !empty($buffer)) {
 				$content = $buffer;
-			} elseif ($this->option_bool('buffer')) {
+			} elseif ($this->optionBool('buffer')) {
 				$content = $buffer;
 			}
 		}
 		if (empty($content)) {
-			$content = $this->option("empty content", "");
+			$content = $this->option('empty content', '');
 		}
 		if ($content !== null) {
 			if (is_array($content)) {
-				$content = ArrayTools::join_wrap($content, $this->option("join_prefix", ""), $this->option("join_suffix", ""));
+				$content = ArrayTools::joinWrap($content, $this->option('join_prefix', ''), $this->option('join_suffix', ''));
 			}
-			$response->content = $this->option("prefix", "") . $content . $this->option("suffix", "");
+			$response->content = $this->option('prefix', '') . $content . $this->option('suffix', '');
 		}
+		return $response;
 	}
 }

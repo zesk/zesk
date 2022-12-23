@@ -1,0 +1,16 @@
+{
+  "composer": {
+    "require": [
+      "phpunit/phpunit:^6"
+    ]
+  },
+  "name": "Test Framework for Zesk",
+  "url_license": "https://zesk.com/license",
+  "moduleClass": "zesk\\Test\\Module",
+  "autoload": {
+    "fuck_classPrefix": "zesk\\",
+    "classPrefix": "zesk\\",
+    "lower": false
+  },
+  "zeskCommandClassPrefix": "zesk\\Command_"
+}

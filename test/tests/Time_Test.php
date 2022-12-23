@@ -1,44 +1,34 @@
 <?php
+declare(strict_types=1);
+
 namespace zesk;
 
-class Test_Time extends Test_Unit {
-	public function test_instance() {
+class Time_Test extends UnitTest {
+	public function test_instance(): void {
 		$hh = 0;
 		$mm = 0;
 		$ss = 0;
 		Time::instance($hh, $mm, $ss);
 	}
 
-	/**
-	 * @expectedException zesk\Exception_Parameter
-	 */
-	public function test_invalid_set() {
-		$x = new Time();
-		$x->unix_timestamp(true);
-	}
-
-	public function test_parse() {
+	public function test_parse(): void {
 		$x = new Time();
 
-		$value = null;
-		$x->parse("23:29:19");
-		$this->assert_equal($x->format(null, "{hh}:{mm}:{ss}"), "23:29:19");
-		$this->assert_equal($x->hour(), 23);
-		$this->assert_equal($x->minute(), 29);
-		$this->assert_equal($x->second(), 19);
+		$x = $x->parse('23:29:19');
+		$this->assertEquals($x->format(null, '{hh}:{mm}:{ss}'), '23:29:19');
+		$this->assertEquals(23, $x->hour());
+		$this->assertEquals(29, $x->minute());
+		$this->assertEquals(19, $x->second());
 	}
 
-	/**
-	 * @expectedException zesk\Exception_Range
-	 */
-	public function test_parse_fail() {
+	public function test_parse_fail(): void {
 		$x = new Time();
 
-		$value = null;
-		$x->parse("23:61:19");
+		$this->expectException(\OutOfBoundsException::class);
+		$x->parse('23:61:19');
 	}
 
-	public function test_basics() {
+	public function test_basics(): void {
 		$value = null;
 		$x = new Time($value);
 
@@ -47,23 +37,25 @@ class Test_Time extends Test_Unit {
 		$ss = 0;
 		Time::instance($hh, $mm, $ss);
 
-		$x->now();
+		$x = Time::now();
+		$this->assertFalse($x->isEmpty());
+		$this->assertTrue($x->set(null)->isEmpty());
+		$this->assertTrue($x->isEmpty());
+		$this->assertFalse($x->set(1234)->isEmpty());
+		$this->assertFalse($x->isEmpty());
 
-		$value = null;
-		$x->set($value);
+		$this->assertTrue($x->setEmpty()->isEmpty());
+		$this->assertTrue($x->isEmpty());
 
-		$x->is_empty();
-
-		$x->set_empty();
-
-		$x->set_now();
+		$x->setNow();
+		$this->assertFalse($x->isEmpty());
 
 		$hh = 0;
 		$mm = 0;
 		$ss = 0;
 		$x->hms($hh, $mm, $ss);
 
-		$this->assert($x->seconds() === 0);
+		$this->assertEquals(0, $x->seconds());
 		$value = 1;
 		$x->hour($value);
 
@@ -88,7 +80,7 @@ class Test_Time extends Test_Unit {
 		$value = new Time();
 		$x->compare($value);
 
-		$this->assert($value->compare($value) === 0);
+		$this->assertEquals(0, $value->compare($value));
 		$value = new Time();
 		$x->subtract($value);
 
@@ -103,14 +95,12 @@ class Test_Time extends Test_Unit {
 
 		$unit = Timestamp::UNIT_SECOND;
 		$n = 1;
-		$x->add_unit($n, $unit);
+		$x->addUnit($n, $unit);
 	}
 
-	/**
-	 * @expectedException zesk\Exception_Parameter
-	 */
-	public function test_invalid_unit() {
+	public function test_invalid_unit(): void {
+		$this->expectException(Exception_Parameter::class);
 		$time = new Time();
-		$time->add_unit(1, "money");
+		$time->addUnit(1, 'money');
 	}
 }

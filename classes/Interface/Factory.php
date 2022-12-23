@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2017, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -18,5 +18,5 @@ interface Interface_Factory {
 	 * @param array $options
 	 * @return Model
 	 */
-	public function model_factory($class, $mixed = null, array $options = array());
+	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model;
 }

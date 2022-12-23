@@ -2,7 +2,7 @@
 
 This license is a legal agreement between you and Market Acumen, Inc. for the use of Zesk (the "Software"). By obtaining the Software you agree to comply with the terms and conditions of this license.
 
-## Copyright &copy; 2007-2018 Market Acumen, Inc.
+## Copyright &copy; 2022, Market Acumen, Inc.
 
 All rights reserved.
 

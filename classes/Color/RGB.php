@@ -1,10 +1,12 @@
 <?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2012, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -33,30 +35,38 @@ class Color_RGB {
 	public $blue = 0;
 
 	/**
-	 *
-	 * @param integer $r
-	 * @param integer $g
-	 * @param integer $b
+	 * @param int|string|array $r
+	 * @param int $g
+	 * @param int $b
+	 * @throws Exception_Syntax
 	 */
-	public function __construct($r = false, $g = false, $b = false) {
-		if (is_numeric($r) && is_numeric($g) && is_numeric($b)) {
+	public function __construct(int|string|array $r = 0, int $g = 0, int $b = 0) {
+		if (is_int($r)) {
 			$this->red = clamp(0, $r, 255);
 			$this->green = clamp(0, $g, 255);
 			$this->blue = clamp(0, $b, 255);
-		} elseif (is_string($r)) {
-			$parts = CSS::color_parse($r);
-			if (is_array($parts)) {
-				list($this->red, $this->green, $this->blue) = $parts;
-			}
+		} elseif (is_string($r) || is_numeric($r)) {
+			[$this->red, $this->green, $this->blue] = CSS::colorParse($r);
 		} elseif (is_array($r)) {
 			if (array_key_exists('r', $r)) {
 				$this->red = $r['r'];
 				$this->green = $r['g'];
 				$this->blue = $r['b'];
 			} else {
-				list($this->red, $this->green, $this->blue) = $r;
+				[$this->red, $this->green, $this->blue] = $r;
 			}
 		}
+	}
+
+	/**
+	 * @param int|string|array $r
+	 * @param ?int $g
+	 * @param ?int $b
+	 * @return static
+	 * @throws Exception_Syntax
+	 */
+	public static function factory(int|string|array $r = 0, int $g = 0, int $b = 0): self {
+		return new self($r, $g, $b);
 	}
 
 	/**
@@ -65,10 +75,8 @@ class Color_RGB {
 	 * @return string
 	 */
 	public function __toString() {
-		return CSS::rgb_to_hex(array(
-			$this->red,
-			$this->green,
-			$this->blue,
-		));
+		return CSS::rgbToHex([
+			$this->red, $this->green, $this->blue,
+		]);
 	}
 }

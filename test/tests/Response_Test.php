@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -9,69 +9,69 @@ namespace zesk;
  * @author kent
  *
  */
-class Response_Test extends Test_Unit {
+class Response_Test extends UnitTest {
 	/**
 	 *
 	 */
-	public function test_body_attributes() {
+	public function test_body_attributes(): void {
 		$request = new Request($this->application);
-		$response = $this->application->response_factory($request);
+		$response = $this->application->responseFactory($request);
 
 		$add = null;
 
-		$response->html()->body_attributes("goo", "bar");
-		$response->html()->body_attributes(array(
-			"goo" => "actual",
-		));
-		$response->html()->body_attributes(array(
-			"poo" => "bar",
-		));
-		$response->html()->body_attributes("poo", "actual");
-		$response->html()->body_attributes(array(
-			"dee" => "foofla",
-		));
-		$response->html()->body_attributes("dee", "actual");
-		$response->html()->body_attributes("loo", "actual");
+		$response->html()->addBodyAttributes(['goo' => 'bar']);
+		$response->html()->addBodyAttributes([
+			'goo' => 'actual',
+		]);
+		$response->html()->addBodyAttributes([
+			'poo' => 'bar',
+		]);
+		$response->html()->addBodyAttributes(['poo' => 'actual']);
+		$response->html()->addBodyAttributes([
+			'dee' => 'foofla',
+		]);
+		$response->html()->addBodyAttributes(['dee'=> 'actual']);
+		$response->html()->addBodyAttributes(['loo' => 'actual']);
 
-		$attrs = $response->html()->body_attributes();
+		$attrs = $response->html()->bodyAttributes();
 
-		$compare_result = array(
-			"goo" => "actual",
-			"poo" => "actual",
-			"dee" => "actual",
-			"loo" => "actual",
-		);
+		$compare_result = [
+			'goo' => 'actual',
+			'poo' => 'actual',
+			'dee' => 'actual',
+			'loo' => 'actual',
+		];
 
-		$this->assert_arrays_equal($attrs, $compare_result);
+		$this->assertEquals($attrs, $compare_result);
 	}
 
 	/**
 	 *
 	 */
-	public function test_scripts() {
+	public function test_scripts(): void {
 		$request = new Request($this->application);
-		$response = $this->application->response_factory($request);
+		$response = $this->application->responseFactory($request);
 
-		$type = "text/javascript";
-		$script = "alert('Hello, world!');";
-		$response->html()->javascript_inline($script, array(
+		$type = 'text/javascript';
+		$script = 'alert(\'Hello, world!\');';
+		$response->html()->inlineJavaScript($script, [
 			'browser' => 'ie',
-		));
+		]);
 
-		$content = $this->application->theme("response/html/scripts", array(
-			"response" => $response,
-			'jquery_ready' => array(),
-		));
+		$content = $this->application->theme('Response/HTML/scripts', [
+			'response' => $response,
+			'jquery_ready' => [],
+		]);
 		$scripts = $response->html()->scripts();
 
-		$this->assertTrue(is_array($scripts), "Scripts is array");
+		$this->assertTrue(is_array($scripts), 'Scripts is array');
 
-		$this->assertContains($script, $content);
-		$this->assertContains("<!--", $content);
-		$this->assertContains("[if IE]", $content);
-		$this->assertContains("<![endif]-->", $content);
-		$this->assertContains("<![endif]-->", $content);
+		$this->assertStringContainsString($script, $content);
+		$this->assertStringContainsString('<!--', $content);
+		$this->assertStringContainsString('[if IE]', $content);
+		$this->assertStringContainsString('<![endif]-->', $content);
+		$this->assertStringContainsString('<![endif]-->', $content);
 
-		$this->assertContains('<!--[if IE]><script type="text/javascript">alert(\'Hello, world!\');</script><![endif]-->', $content);
+		$this->assertStringContainsString('<!--[if IE]><script type="text/javascript">alert(\'Hello, world!\');</script><![endif]-->', $content);
 	}
 }

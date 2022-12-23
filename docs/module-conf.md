@@ -71,9 +71,9 @@ Or
 
 Generally, this is used to dynamically determine the version of the software when the URL to download is always bleeding-edge (e.g. new versions overwrite the old ones, etc.). 
 
-## `share_path` (path or list of paths)
+## `sharePath` (path or list of paths)
 
-When this module is loaded, a `Application::share_path` directory is added automatically. (See [sharing](share.md)). As well, this is used for correctly creating a "local" share path for the application in the web root.
+When this module is loaded, a `Application::sharePath` directory is added automatically. (See [sharing](share.md)). As well, this is used for correctly creating a "local" share path for the application in the web root.
 
 ## `requires` (array of other module names)
 
@@ -139,7 +139,7 @@ Versions is the preferred method of specifying a module which needs to be downlo
 			}
 		},
 		"destination": "vendor/components/chosen",
-		"share_path": "vendor/components/chosen"
+		"sharePath": "vendor/components/chosen"
 	}
 
 Note in this example, the token `{version}` is replaced in every value with the key (e.g. either "1.4.1" or "1.4.2" above, depending on context).
@@ -160,19 +160,19 @@ The name of the subclass of `zesk\Module` to instantiate for this module.
 
 The name of the autoload path relative to the module path to use for autoloading. Defaults to `classes`.
 
-## `autoload_class_prefix` (string)
+## `autoload_classPrefix` (string)
 
 The name of the class to prefix all classes which appear in autoload path. e.g. "mymodule\\" or "zesk\\" for example. Defaults to blank string.
 
-## `zesk_command_path` (string)
+## `zeskCommandPath` (string)
 
 The name of the zesk command path relative to the module path to use for autoloading. Defaults to `command`.
 
-## `zesk_command_class_prefix` (string)
+## `zeskCommandClassPrefix` (string)
 
 A string to prefix before any command classes prior to invokation. Defaults to `Commmand_`. Commands are converted to class names by converting non-alphanumeric characters to underscores, then prefixing with this string.
 
-## `locale_path` (string)
+## `localePath` (string)
 
 Path to the locale files for this module relative to the module path. Defaults to `etc/language`.
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -9,4 +9,4 @@ namespace zesk;
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
-echo Number::format_bytes($locale, $this->content, $this->get1("1;precision"));
+echo Number::formatBytes($locale, $this->content, intval($this->get1('1;precision', 1)));

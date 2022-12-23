@@ -1,0 +1,11 @@
+{
+	"name": "Help",
+	"requires": [
+		"bootstrap",
+		"jquery"
+	],
+	"autoload": {
+		"classPrefix": "zesk\\"
+	},
+	"moduleClass": "zesk\\Module_Help"
+}

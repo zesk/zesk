@@ -1,11 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Exception/Authentication.php $
  * @package zesk
  * @subpackage system
  * @author $Author: kent $
- * @copyright Copyright &copy; 2011, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 

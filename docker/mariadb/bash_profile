@@ -1,0 +1,13 @@
+#!/bin/bash
+[ -f /usr/local/bin/zesk-bash.sh ] && source /usr/local/bin/zesk-bash.sh && container_prompt docker-mariadb
+
+maria() {
+    if [ -z "$MARIADB_ROOT_PASSWORD" ]; then
+        echo "No MARIADB_ROOT_PASSWORD"
+        return 1
+    fi
+    mysql -u root -p"$MARIADB_ROOT_PASSWORD" "$@"
+}
+my() {
+    maria "$@"
+}

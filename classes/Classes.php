@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace zesk;
 
 use Psr\Cache\InvalidArgumentException;
@@ -8,85 +10,89 @@ class Classes {
 	 *
 	 * @var integer
 	 */
-	const VERSION = 5;
+	public const VERSION = 5;
 
 	/**
 	 * Version number of serialized file
 	 *
 	 * @var integer
 	 */
-	protected $version = self::VERSION;
+	protected int $version = self::VERSION;
 
 	/**
 	 * Lowercase class name -> capitalized class name
 	 *
 	 * @var array
 	 */
-	protected $class_case = array();
+	protected array $class_case = [];
 
 	/**
 	 * Registry of class names
 	 *
 	 * @var array
 	 */
-	protected $classes = array();
+	protected array $classes = [];
 
 	/**
 	 * @var array
 	 */
-	protected $subclasses = array();
+	protected array $subclasses = [];
 
 	/**
 	 * @var array
 	 */
-	protected $hierarchy = array();
+	protected array $hierarchy = [];
 
 	/**
 	 * @var boolean
 	 */
-	protected $dirty = false;
+	protected bool $dirty = false;
 
 	/**
 	 * Classes constructor.
 	 * @param Kernel $zesk
-	 * @throws Exception_Semantics
 	 */
 	public function __construct(Kernel $zesk) {
 		$this->initialize($zesk);
+		$this->loadDeclared();
+	}
+
+	/**
+	 * @return void
+	 */
+	private function loadDeclared(): void {
+		foreach (get_declared_classes() as $class) {
+			$this->register($class);
+		}
 	}
 
 	/**
 	 * Register hooks
 	 * @param Kernel $kernel
-	 * @throws Exception_Semantics
 	 */
-	public function initialize(Kernel $kernel) {
-		$kernel->hooks->add("exit", array(
-			$this,
-			"on_exit",
-		), array(
-			"arguments" => array(
-				$kernel,
-			),
-		));
+	public function initialize(Kernel $kernel): void {
+		$classes = $this;
+		$kernel->hooks->add(Hooks::HOOK_EXIT, function () use ($kernel, $classes): void {
+			$classes->saveClassesToCache($kernel);
+		});
 	}
 
 	/**
 	 * @param Kernel $zesk
-	 * @return mixed|Classes
-	 * @throws Exception_Semantics
-	 * @throws InvalidArgumentException
+	 * @return self
 	 */
-	public static function instance(Kernel $zesk) {
-		$cache_item = $zesk->cache->getItem(__CLASS__);
-		if ($cache_item->isHit()) {
-			$classes = $cache_item->get();
-			if ($classes instanceof self && $classes->version === self::VERSION) {
-				$classes->initialize($zesk);
+	public static function instance(Kernel $zesk): self {
+		try {
+			$cache_item = $zesk->cache->getItem(__CLASS__);
+			if ($cache_item->isHit()) {
+				$classes = $cache_item->get();
+				if ($classes instanceof self && $classes->version === self::VERSION) {
+					$classes->initialize($zesk);
+				}
 			} else {
 				$classes = new self($zesk);
 			}
-		} else {
+		} catch (InvalidArgumentException) {
 			$classes = new self($zesk);
 		}
 		return $classes;
@@ -94,12 +100,17 @@ class Classes {
 
 	/**
 	 * @param Kernel $kernel
-	 * @throws InvalidArgumentException
+	 * @return void
 	 */
-	public function on_exit(Kernel $kernel) {
+	public function saveClassesToCache(Kernel $kernel): void {
 		if ($this->dirty) {
 			$this->dirty = false;
-			$kernel->cache->saveDeferred($kernel->cache->getItem(__CLASS__)->set($this));
+
+			try {
+				$kernel->cache->saveDeferred($kernel->cache->getItem(__CLASS__)->set($this));
+			} catch (InvalidArgumentException $e) {
+				PHP::log($e);
+			}
 		}
 	}
 
@@ -107,11 +118,11 @@ class Classes {
 	 *
 	 * @param string $class
 	 */
-	private function _add($class) {
+	private function _add(string $class): void {
 		$this->class_case[strtolower($class)] = $class;
 		$parent_classes = $this->hierarchy($class);
-		$this->classes[$class] = array();
-		$this->subclasses[$class] = array();
+		$this->classes[$class] = [];
+		$this->subclasses[$class] = [];
 		$this->dirty = true;
 		array_shift($parent_classes);
 		foreach ($parent_classes as $parent_class) {
@@ -122,27 +133,25 @@ class Classes {
 	}
 
 	/**
-	 * Register a global hook by class
+	 * Register a global hook by class - returns same type passed.
 	 *
-	 * @return array
+	 * @param string|array $class
+	 * @return string|array
 	 */
-	public function register($class = null) {
+	public function register(string|array $class): string|array {
 		if (is_array($class)) {
-			$result = array();
+			$result = [];
 			foreach ($class as $classy) {
 				$result[$classy] = $this->register($classy);
 			}
 			return $result;
 		}
-		if ($class === null) {
-			return $this->classes;
-		}
 		if (empty($class)) {
 			// Do we need to warn? Not sure if silent failure is best. Probably for now.
-			return null;
+			return '';
 		}
-		$lowclass = strtolower($class);
-		$class = isset($this->class_case[$lowclass]) ? $this->class_case[$lowclass] : $class;
+		$lowercase_class = strtolower($class);
+		$class = $this->class_case[$lowercase_class] ?? $class;
 		if (!array_key_exists($class, $this->classes)) {
 			$this->_add($class);
 		}
@@ -155,11 +164,11 @@ class Classes {
 	 * @param string $class
 	 * @return string[]
 	 */
-	public function subclasses($class) {
-		$classes = array(
+	public function subclasses(string $class): array {
+		$classes = [
 			$class,
-		);
-		$result = array();
+		];
+		$result = [];
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
 			if (empty($class)) {
@@ -177,42 +186,31 @@ class Classes {
 	/**
 	 * Retrieve a class hierarchy from leaf to base
 	 *
-	 * @param mixed $mixed
-	 *        	An object or string to find class hierarchy for
-	 * @param string $stop_class
-	 *        	Return up to and including this class
+	 * @param object|string $mixed An object or string to find class hierarchy for
+	 * @param string $stop_class Return up to and including this class, blank to include all classes.
 	 * @return array
 	 */
-	public function hierarchy($mixed, $stop_class = null) {
-		if ($mixed === null) {
-			return $this->hierarchy;
-		}
-		if (is_object($mixed)) {
-			$mixed = get_class($mixed);
-		} elseif (is_array($mixed)) {
-			$result = array();
-			foreach ($mixed as $key) {
-				$result[$key] = $this->hierarchy($key, $stop_class);
-			}
-			return $result;
+	public function hierarchy(object|string $mixed, string $stop_class = ''): array {
+		if (!is_string($mixed)) {
+			$mixed = $mixed::class;
 		}
 		if (array_key_exists($mixed, $this->hierarchy)) {
 			$result = $this->hierarchy[$mixed];
 		} else {
 			$parent = get_parent_class($mixed);
-			$result = array(
+			$result = [
 				$mixed,
-			);
+			];
 			if ($parent !== false) {
 				$result = array_merge($result, $this->hierarchy($parent));
 			}
 			$this->hierarchy[$mixed] = $result;
 			$this->dirty = true;
 		}
-		if ($stop_class === null) {
+		if ($stop_class === '') {
 			return $result;
 		}
-		$stop_result = array();
+		$stop_result = [];
 		foreach ($result as $class) {
 			$stop_result[] = $class;
 			if ($class === $stop_class) {

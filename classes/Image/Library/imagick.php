@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
 /**
- * @copyright &copy; 2016 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 class Image_Library_imagick extends Image_Library {
@@ -9,93 +11,73 @@ class Image_Library_imagick extends Image_Library {
 	 *
 	 * @var string
 	 */
-	const command_default = "convert";
+	public const command_default = 'convert';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const command_scale = '{command} -antialias -matte -geometry "{width}x{height}" {source} {destination}';
+	public const command_scale = '{command} -antialias -matte -geometry "{width}x{height}" {source} {destination}';
 
 	/**
 	 *
-	 * @return string|\zesk\NULL
+	 * @return string
+	 * @throws Exception_NotFound
 	 */
-	private function shell_command() {
-		$command = $this->application->configuration->path_get(array(
-			__CLASS__,
-			"command",
-		), self::command_default);
-		$which = $this->application->paths->which($command);
-		if (!$which) {
-			throw new Exception_Configuration(array(
-				__CLASS__,
-				"command",
-			), "Command {command} not found in path {paths}", array(
-				"command" => $command,
-				"paths" => $this->application->paths->command(),
-			));
-		}
-		return $which;
+	private function shellCommand(): string {
+		$command = $this->application->configuration->getPath([
+			__CLASS__, 'command',
+		], self::command_default);
+		return $this->application->paths->which($command);
 	}
 
 	/**
 	 *
-	 * @return string|\zesk\NULL
+	 * @return string
+	 * @throws Exception_NotFound
 	 */
-	private function shell_command_scale() {
-		$command = $this->shell_command();
-		$pattern = $this->application->configuration->path_get(array(
-			__CLASS__,
-			"command_scale",
-		), self::command_scale);
-		$scale_command = map($pattern, array(
-			"command" => $command,
-		));
-		if (empty($scale_command)) {
-			throw new Exception_Configuration(array(
-				__CLASS__,
-				"command_scale",
-			), "Is an empty string?");
-		}
-		return $scale_command;
+	private function shellCommandScale(): string {
+		$command = $this->shellCommand();
+		$pattern = $this->application->configuration->getPath([
+			__CLASS__, 'command_scale',
+		], self::command_scale);
+		return map($pattern, [
+			'command' => $command,
+		]);
 	}
 
 	/**
 	 *
 	 * @return boolean
 	 */
-	public function installed() {
-		$which = $this->shell_command();
-		if ($which) {
+	public function installed(): bool {
+		try {
+			$this->shellCommand();
 			return true;
+		} catch (Exception_NotFound) {
+			return false;
 		}
-		return false;
 	}
 
 	/**
-	 *
-	 * @param unknown $source
-	 * @return resource
+	 * @param string $data
+	 * @param array $options
+	 * @return string
+	 * @throws Exception_Command
+	 * @throws Exception_Directory_Create
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Directory_Permission
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_File_Permission
+	 * @throws Exception_NotFound
 	 */
-	private function _imageload($source) {
-		return imagecreatefromstring(file_get_contents($source));
-	}
-
-	private function _imagecreate($width, $height) {
-		if (!$res = @imagecreatetruecolor($width, $height)) {
-			$res = imagecreate($width, $height);
-		}
-		return $res;
-	}
-
-	public function image_scale_data($data, array $options) {
+	public function imageScaleData(string $data, array $options): string {
 		$extension = Content_Image::determine_extension_simple_data($data);
 		$source = File::temporary($this->application->paths->temporary(), $extension);
 		$dest = File::temporary($this->application->paths->temporary(), $extension);
 		file_put_contents($source, $data);
 		$result = null;
-		if ($this->image_scale($source, $dest, $options)) {
+		if ($this->imageScale($source, $dest, $options)) {
 			$result = file_get_contents($dest);
 		}
 		unlink($source);
@@ -103,47 +85,55 @@ class Image_Library_imagick extends Image_Library {
 		return $result;
 	}
 
-	public function image_scale($source, $dest, array $options) {
-		list($actual_width, $actual_height) = getimagesize($source);
-		$width = $actual_width;
-		$height = $actual_height;
-		extract($options, EXTR_IF_EXISTS);
-		if (avalue($_SERVER, 'WINDIR')) {
-			$win_path = str_replace('/', '\\', dirname($dest));
-			if (!@mkdir($win_path, 0770, true)) {
-				die("can't make directory $win_path");
-			}
-			copy($source, $dest);
-			return true;
-		}
+	/**
+	 * @param string $source
+	 * @param string $dest
+	 * @param array $options
+	 * @return bool
+	 * @throws Exception_Command
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_File_Permission
+	 * @throws Exception_NotFound
+	 */
+	public function imageScale(string $source, string $dest, array $options): bool {
+		File::depends($source);
+		Directory::must(dirname($dest));
+		[$actual_width, $actual_height] = getimagesize($source);
+		$width = $options['width'] ?? $actual_width;
+		$height = $options['height'] ?? $actual_height;
 
-		$map = array(
-			"source" => escapeshellarg($source),
-			"destination" => escapeshellarg($dest),
-			"width" => $width,
-			"height" => $height,
-		);
+		$map = [
+			'source' => escapeshellarg($source), 'destination' => escapeshellarg($dest), 'width' => $width,
+			'height' => $height,
+		];
 
-		$cmd = $this->shell_command_scale();
+		$cmd = $this->shellCommandScale();
 		$cmd = map($cmd, $map);
 
 		try {
-			$lines = $this->application->process->execute_arguments($cmd);
+			$this->application->process->executeArguments($cmd);
 			if (file_exists($dest)) {
-				@chmod($dest, 0644);
+				chmod($dest, /* 0o644 */ 420);
 				$this->application->hooks->call('file_created', $dest);
 				return true;
 			}
 		} catch (\Exception $e) {
-			if (file_exists($dest)) {
-				@unlink($dest);
-			}
+			File::unlink($dest);
 
 			throw $e;
 		}
 	}
 
-	public function image_rotate($source, $destination, $degrees, array $options = array()) {
-		throw new Exception_Unimplemented("TODO");
+	/**
+	 * @param string $source
+	 * @param string $destination
+	 * @param float $degrees
+	 * @param array $options
+	 * @return bool
+	 * @throws Exception_Unimplemented
+	 */
+	public function imageRotate(string $source, string $destination, float $degrees, array $options = []): bool {
+		throw new Exception_Unimplemented('TODO');
 	}
 }

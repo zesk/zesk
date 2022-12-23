@@ -1,7 +1,7 @@
 /*
  * $Id: zesk.js 4300 2017-03-02 23:13:46Z kent $
  *
- * Copyright (C) 2007 Market Acumen, Inc. All rights reserved
+ * Copyright (C) 2022 Market Acumen, Inc. All rights reserved
  */
 
 /* Globals storage container */
@@ -60,7 +60,7 @@
 		}
 		return def;
 	}
-	
+
 	function is_bool(a) {
 		return gettype(a) === 'boolean';
 	}
@@ -204,7 +204,7 @@
 		    var attributes, content, args = arguments;
 		    if (is_object(mixed)) {
 			    attributes = mixed;
-			    content = avalue(args, 2, null);
+			    content = args[2] ?? null;
 		    } else if (args.length > 2) {
 			    attributes = html.to_attributes(mixed);
 			    content = args[2];
@@ -219,7 +219,7 @@
 		    var attributes, content, args = arguments, result = "";
 		    if (is_object(mixed)) {
 			    attributes = mixed;
-			    content = avalue(args, 2, null);
+			    content = args[2] ?? null;
 		    } else if (args.length > 2) {
 			    attributes = html.to_attributes(mixed);
 			    content = args[2];
@@ -239,7 +239,7 @@
 		path = to_list(path, [], ".");
 		for (k = 0; k < path.length; k++) {
 			if (k === path.length - 1) {
-				return avalue(curr, path[k], def);
+				return curr[path[k]] ?? null;
 			}
 			curr = avalue(curr, path[k]);
 			if (curr === null) {
@@ -342,8 +342,8 @@
 	    		return v;
 	    	},
 	    	delete_cookie = function (name, dom) {
-	    		var 
-	    		now = new Date(), 
+	    		var
+	    		now = new Date(),
 	    		e = new Date(now.getTime() - 86400);
 	    		d.cookie = name + '=; path=/; expires=' + e.toGMTString() + (dom ? '; domain=' + dom : '');
 	    	};
@@ -407,10 +407,10 @@
 	    },
 	    getb: function(n) {
 		    var a = arguments, d = a.length > 1 ? a[1] : false;
-		    return to_bool(Zesk.get(n, d));
+		    return toBool(Zesk.get(n, d));
 	    },
 	    set: function(n, v) {
-		    var a = arguments, overwrite = a.length > 2 ? to_bool(a[2]) : true;
+		    var a = arguments, overwrite = a.length > 2 ? toBool(a[2]) : true;
 		    if (!overwrite && typeof X.Zesk.settings[n] !== 'undefined') {
 			    return X.Zesk.settings[n];
 		    }
@@ -442,7 +442,7 @@
 	    },
 	    /**
 		 * Iterate over an object, calling a function once per element
-		 * 
+		 *
 		 * @param object|array
 		 *            x
 		 * @param function
@@ -453,7 +453,7 @@
 		 */
 	    each: function(x, fn, term_false) {
 		    var i, r;
-		    term_false = to_bool(term_false);
+		    term_false = toBool(term_false);
 		    if (is_array(x)) {
 			    for (i = 0; i < x.length; i++) {
 				    r = fn.call(x[i], i, x[i]);
@@ -618,7 +618,7 @@
 					self[this] = mixed[this];
 				}
 			});
-		} else if (is_url(mixed)) { 
+		} else if (is_url(mixed)) {
 			this.parse(mixed);
 		} else if (is_string(mixed)) {
 			this.path = mixed;
@@ -731,7 +731,7 @@
 	    },
 	    /**
 		 * Join elements of an array by wrapping each one with a prefix/suffix
-		 * 
+		 *
 		 * @param string
 		 *            prefix
 		 * @param string
@@ -954,7 +954,7 @@
 		return x.toString();
 	};
 
-	function to_bool(x) {
+	function toBool(x) {
 		var d = arguments.length > 1 ? arguments[1] : false;
 		if (is_bool(x)) {
 			return x;
@@ -972,7 +972,7 @@
 		}
 		return d;
 	}
-	X.to_bool = to_bool;
+	X.toBool = toBool;
 
 	X.empty = function(v) {
 		return typeof v === "undefined" || v === null || v === "";

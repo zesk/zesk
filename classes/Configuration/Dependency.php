@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -12,20 +12,20 @@ class Configuration_Dependency {
 	 *
 	 * @var array (Stack)
 	 */
-	protected $context = array();
+	protected $context = [];
 
 	/**
 	 * Key of variable => dependencies
 	 *
 	 * @var array
 	 */
-	protected $definitions = array();
+	protected $definitions = [];
 
 	/**
 	 * Current list of external variables which affect final state
 	 * @var array
 	 */
-	protected $externals = array();
+	protected $externals = [];
 
 	/**
 	 *
@@ -38,13 +38,13 @@ class Configuration_Dependency {
 
 	public function pop() {
 		if (count($this->context) === 0) {
-			throw new Exception_Semantics("Popped once to many times?");
+			throw new Exception_Semantics('Popped once to many times?');
 		}
 		array_pop($this->context);
 		return $this;
 	}
 
-	public function defines($variable, array $dependencies = array()) {
+	public function defines($variable, array $dependencies = []) {
 		$context = last($this->context);
 		if (count($dependencies) === 0) {
 			unset($this->externals[$variable]);
@@ -55,10 +55,10 @@ class Configuration_Dependency {
 				}
 			}
 		}
-		$this->definitions[$variable] = array(
-			"context" => $context,
-			"dependencies" => $dependencies,
-		);
+		$this->definitions[$variable] = [
+			'context' => $context,
+			'dependencies' => $dependencies,
+		];
 		return $this;
 	}
 

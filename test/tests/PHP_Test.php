@@ -1,39 +1,19 @@
 <?php
+declare(strict_types=1);
+
 namespace zesk;
 
-class PHP_Test extends Test_Unit {
-	public function test_php_basics() {
-		$this->assert_false(!!array());
-		$this->assert_true(!!array(
-			1,
-		));
-		$truthy = array(
-			new \stdClass(),
-			array(
-				1,
-			),
-			array(
-				"",
-			),
-			array(
-				0,
-			),
-			array(
-				null,
-			),
-		);
-		$falsy = array(
-			0,
-			"",
-			null,
-			false,
-			0.0,
-		);
+class PHP_Test extends UnitTest {
+	public function test_php_basics(): void {
+		$this->assertFalse(!![]);
+		$this->assertTrue(!![1, ]);
+		$truthy = [new \stdClass(), [1, ], ['', ], [0, ], [null, ], ];
+		$falsy = [0, '', null, false, 0.0, ];
 		foreach ($truthy as $true) {
-			$this->assert(!!$true, gettype($true) . " is not TRUE " . var_export($true, true));
+			$this->assertTrue(!!$true, gettype($true) . ' is not TRUE ' . var_export($true, true));
 		}
 		foreach ($falsy as $false) {
-			$this->assert(!$false, gettype($false) . " is not FALSE " . var_export($false, true));
+			$this->assertTrue(!$false, gettype($false) . ' is not FALSE ' . var_export($false, true));
 		}
 	}
 
@@ -42,101 +22,123 @@ class PHP_Test extends Test_Unit {
 	 *
 	 * JS: var a = arg || {};
 	 */
-	public function test_php_andor() {
+	public function test_php_andor(): void {
 		$a = new \stdClass();
-		$a->val = "a";
+		$a->val = 'a';
 		$b = new \stdClass();
-		$b->val = "b";
+		$b->val = 'b';
 
 		$c = $a || $b;
-		$this->assert_equal($c, true);
+		$this->assertEquals($c, true);
 
-		$c = $a || array();
-		$this->assert_equal($c, true);
+		$c = $a || [];
+		$this->assertEquals($c, true);
 
-		$c = false || array();
-		$this->assert_equal($c, false);
+		$c = false || [];
+		$this->assertEquals($c, false);
 	}
 
-	public function data_provider_render() {
-		return array(
-			array(
-				false,
-				"false",
-			),
-			array(
-				true,
-				"true",
-			),
-			array(
-				null,
-				"null",
-			),
-			array(
-				0,
-				"0",
-			),
-			array(
-				0.123,
-				"0.123",
-			),
-			array(
-				"\$Hello",
-				"\"\\\$Hello\"",
-			),
-			array(
-				array(
-					"1",
-					"2",
-					"3",
-				),
-				"array(\"1\", \"2\", \"3\" )",
-			),
-		);
+	public function test_ini_path(): void {
+		$file = PHP::ini_path();
+		$this->assertFileExists($file);
+	}
+
+	public function test_setSettings(): void {
+		$result = new PHP();
+		$settings = $result->setSettings(['array_value_separator' => "\t\t"])->settings();
+		$this->assertArrayHasKey('array_value_separator', $settings);
+		$this->assertArrayNotHasKey('singleton', $settings);
+		$this->assertArrayNotHasKey('unserialize_exception', $settings);
+		$this->assertEquals("\t\t", $settings['array_value_separator']);
+	}
+
+	public function data_provider_render(): array {
+		return [
+			[false, 'false', ], [true, 'true', ], [null, 'null', ], [0, '0', ], [0.123, '0.123', ],
+			['$Hello', '"\\$Hello"', ], [['1', '2', '3', ], '["1", "2", "3", ]', ],
+		];
 	}
 
 	/**
 	 * @dataProvider data_provider_render
 	 */
-	public function test_render($test, $expected) {
-		$this->assert_equal(PHP::singleton()->settings_one()->render($test), $expected);
+	public function test_render($test, $expected): void {
+		$this->assertEquals(PHP::singleton()->settings_one()->render($test), $expected);
 	}
 
-	public function test_php_references() {
-		$bigthing = array(
-			"a" => array(
-				"kind" => "letter",
-				"code" => 65,
-			),
-			"b" => array(
-				"kind" => "letter",
-				"code" => 66,
-			),
-			"9" => array(
-				"kind" => "number",
-				"code" => ord('9'),
-			),
-		);
+	public function data_setFeature(): array {
+		return [
+			[PHP::FEATURE_MEMORY_LIMIT, 128 * 1024 * 1024], [PHP::FEATURE_TIME_LIMIT, null],
+			['not-a-feature', null],
+		];
+	}
 
-		$otherarray = array();
-		$otherarray["test"] = &$bigthing['a'];
+	/**
+	 * @dataProvider data_setFeature
+	 * @param string $setting
+	 * @param int|null $value
+	 * @return void
+	 * @throws Exception_Unimplemented
+	 */
+	public function test_setFeature(string $setting, ?int $value): void {
+		if ($value === null) {
+			$this->expectException(Exception_Unimplemented::class);
+			$value = 1024;
+		}
+		$old_value = PHP::setFeature($setting, $value);
+		$this->assertEquals($value, PHP::setFeature($setting, $old_value));
+	}
+
+	public function test_php_references(): void {
+		$bigthing = [
+			'a' => ['kind' => 'letter', 'code' => 65, ], 'b' => ['kind' => 'letter', 'code' => 66, ],
+			'9' => ['kind' => 'number', 'code' => ord('9'), ],
+		];
+
+		$otherarray = [];
+		$otherarray['test'] = &$bigthing['a'];
 		// What happens to $bigthing?
-		unset($otherarray["test"]);
+		unset($otherarray['test']);
 		// Nothing, unset applies only to the key in the array
 
-		$this->assert_arrays_equal($bigthing, array(
-			"a" => array(
-				"kind" => "letter",
-				"code" => 65,
-			),
-			"b" => array(
-				"kind" => "letter",
-				"code" => 66,
-			),
-			"9" => array(
-				"kind" => "number",
-				"code" => ord('9'),
-			),
-		));
+		$this->assertEquals($bigthing, [
+			'a' => ['kind' => 'letter', 'code' => 65, ], 'b' => ['kind' => 'letter', 'code' => 66, ],
+			'9' => ['kind' => 'number', 'code' => ord('9'), ],
+		]);
+	}
+
+	/**
+	 * @param $expected
+	 * @param $mixed
+	 * @param bool $throw
+	 * @return void
+	 * @throws Exception_Parse
+	 * @dataProvider data_autoType
+	 */
+	public function test_autoType($expected, $mixed, bool $throw = false): void {
+		if ($throw) {
+			$this->expectException(Exception_Parse::class);
+		}
+		$this->assertEquals($expected, PHP::autoType($mixed, $throw));
+	}
+
+	public function data_autoType(): array {
+		$stdClass = new \stdClass();
+		return
+		[
+			[12093019, '12093019'],
+			[0, '0'],
+			[1, '1'],
+			[8675309, '8675309'],
+			[99.999, '99.999'],
+			[$stdClass, $stdClass],
+			[null, 'null'],
+			['User', 'User'],
+			[[], '[]'],
+			[[1, 2, 3], '[1,2,3]'],
+			[[1, 2, 3], '[1,2,3,]', true],
+			[[1, 2, 3], '{1,2,3}', true],
+			[['hello' => 'world'], '{"hello":"world"}'],
+		];
 	}
 }

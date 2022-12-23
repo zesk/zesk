@@ -1,10 +1,12 @@
 <?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage Controller
  * @author kent
- * @copyright &copy; 2018 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -19,34 +21,47 @@ class Controller_Cache extends Controller {
 	 * Useful for populating a file system from alternate sources such as share paths, or from the database or a remote store, for example.
 	 *
 	 * @param string $contents
-	 * @return NULL|\zesk\Response Returns NULL if a problem occurred, or zesk\Response to serve contents as file.
+	 * @return Response|null
 	 */
-	protected function request_to_file($contents) {
+	protected function request_to_file(string $contents): ?Response {
 		$file = $this->request->path();
 		if (!File::path_check($file)) {
-			$message = "User accessed {file} which contains suspicious path components while trying to write {contents_size} bytes.";
-			$args = array(
-				"file" => $file,
-				"contents_size" => strlen($contents),
-			);
+			$message = 'User accessed {file} which contains suspicious path components while trying to write {contents_size} bytes.';
+			$args = [
+				'file' => $file, 'contents_size' => strlen($contents),
+			];
 			$this->application->logger->error($message, $args);
-			$this->application->hooks->call("security", $message, $args);
+			$this->application->hooks->call('security', $message, $args);
 			return null;
 		}
-		$docroot = $this->application->document_root();
-		$cache_file = Directory::undot(path($docroot, $file));
-		if (!begins($cache_file, $docroot)) {
-			$this->application->hooks->call("security", "User cache file \"{cache_file}\" does not match document root \"{docroot}\"", array(
-				"cache_file" => $cache_file,
-				"docroot" => $docroot,
-			));
+		$documentRoot = $this->application->documentRoot();
+
+		try {
+			$cache_file = Directory::removeDots(path($documentRoot, $file));
+		} catch (Exception_Syntax) {
 			return null;
 		}
-		if ($this->request->get('nocache') === $this->option("nocache_key", microtime(true))) {
-			return $this->response->content_type(MIME::from_filename($cache_file))->header('Content-Length', strlen($contents))->content($contents);
+		if (!str_starts_with($cache_file, $documentRoot)) {
+			$this->application->hooks->call('security', 'User cache file "{cache_file}" does not match document root "{docroot}"', [
+				'cache_file' => $cache_file, 'docroot' => $documentRoot,
+			]);
+			return null;
 		}
-		Directory::depend(dirname($cache_file), $this->option("cache_directory_mode", 0775));
+		if ($this->request->get('nocache') === $this->option('nocache_key', microtime(true))) {
+			return $this->response->setContentType(MIME::fromExtension($cache_file))->setHeader('Content-Length', strlen($contents))->setContent($contents);
+		}
+
+		try {
+			Directory::depend(dirname($cache_file), $this->option('cache_directory_mode', 0o775));
+		} catch (Exception_Directory_Permission|Exception_Directory_Create) {
+			return null;
+		}
 		file_put_contents($cache_file, $contents);
-		return $this->response->file($cache_file);
+
+		try {
+			return $this->response->setRawFile($cache_file);
+		} catch (Exception_File_NotFound) {
+			return null;
+		}
 	}
 }

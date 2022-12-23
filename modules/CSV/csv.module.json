@@ -1,0 +1,7 @@
+{
+	"name": "CSV Reader/Writer",
+	"autoload": {
+		"classPrefix": "zesk\\CSV\\"
+	},
+	"moduleClass": "zesk\\CSV\\Module"
+}

@@ -1,9 +1,0 @@
-{
-	"name": "Cleaner",
-	"description": "Want to delete files after a certain time period using cron? This is your module.",
-	"autoload_options": {
-		"class_prefix": "zesk\\Cleaner\\",
-		"lower": false
-	},
-	"module_class": "zesk\\Cleaner\\Module"
-}

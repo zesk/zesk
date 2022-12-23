@@ -1,0 +1,7 @@
+{
+	"name": "PHPUnit_Test_Generator",
+	"autoload": {
+		"classPrefix": "zesk\\PHPUnit\\TestGenerator\\"
+	},
+	"moduleClass": "zesk\\PHPUnit\\TestGenerator\\Module"
+}

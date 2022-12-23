@@ -1,0 +1,7 @@
+{
+	"name": "Source code repository tools",
+	"autoload": {
+		"classPrefix": "zesk\\Repository\\"
+	},
+	"moduleClass": "zesk\\Repository\\Module"
+}

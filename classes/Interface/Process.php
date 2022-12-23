@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -16,35 +16,38 @@ interface Interface_Process {
 	 *
 	 * @return Application
 	 */
-	public function application(Application $set = null);
+	public function application(): Application;
 
 	/**
-	 * Getter for done state
+	 * Set current application
 	 *
-	 * @param
-	 *        	boolean
+	 * @param Application $set
+	 * @return $this
 	 */
-	public function done();
+	public function setApplication(Application $set): self;
+
+	/**
+	 * Is this process done?
+	 */
+	public function done(): bool;
 
 	/**
 	 * Kill/interrupt this process.
 	 * Harsher than ->terminate();
-	 *
-	 * @param string $interrupt
 	 */
-	public function kill();
+	public function kill(): void;
 
 	/**
 	 * Terminate this process.
 	 * Nice way to do it.
 	 */
-	public function terminate();
+	public function terminate(): void;
 
 	/**
 	 * Take a nap.
 	 * I love naps.
 	 */
-	public function sleep($seconds = 1.0);
+	public function sleep($seconds = 1.0): void;
 
 	/**
 	 * Logging tool for processes
@@ -52,5 +55,5 @@ interface Interface_Process {
 	 * @param string $message
 	 * @param array $args
 	 */
-	public function log($message, array $args = array());
+	public function log(string $message, array $args = []): void;
 }

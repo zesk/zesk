@@ -1,0 +1,13 @@
+{
+	"name": "Permission",
+	"hooks": [
+		"Module::permissions"
+	],
+	"autoload": {
+		"lower": false
+	},
+	"moduleClass": "zesk\\Module_Permission",
+	"requires": [
+		"orm"
+	]
+}

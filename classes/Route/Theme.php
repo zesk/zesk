@@ -1,13 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 class Route_Theme extends Route {
 	/**
 	 * Whether the theme path is set by variables
 	 *
-	 * @var unknown
+	 * @var bool
 	 */
-	protected $dynamic_theme = false;
+	protected bool $dynamic_theme = false;
 
 	/**
 	 *
@@ -15,12 +15,11 @@ class Route_Theme extends Route {
 	 *
 	 * @see Route::initialize()
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
-		$theme = $this->option("theme");
-		if (map_clean($theme) !== $theme) {
+		$theme = $this->option('theme');
+		if (mapClean($theme) !== $theme) {
 			$this->dynamic_theme = true;
-			return;
 		}
 	}
 
@@ -28,59 +27,58 @@ class Route_Theme extends Route {
 	 * Validate this route
 	 *
 	 * @throws Exception_File_NotFound
-	 * @return Route_Theme
+	 * @return bool
 	 */
-	public function validate() {
+	public function validate(): bool {
 		$application = $this->router->application;
-		$parameters = $application->variables() + array(
+		$parameters = $application->variables() + [
 			'route' => $this,
-		);
+		];
 		$parameters += $this->options + $this->named;
-		$args = map($this->option_array("theme arguments", array()), $parameters) + $parameters;
-		$theme_options = $this->option_array("theme options");
-		$theme = $this->option("theme");
-		if ($application->theme_exists($theme, $args, $theme_options)) {
-			return $this;
+		$args = map($this->optionArray('theme arguments'), $parameters) + $parameters;
+		$theme = $this->option('theme');
+		if ($application->themeExists($theme, $args)) {
+			return true;
 		}
 
-		throw new Exception_File_NotFound("No theme {theme} found in {theme_paths}", array(
-			"theme" => $theme,
-			"theme_paths" => $application->theme_path(),
-		));
+		throw new Exception_File_NotFound('No theme {theme} found in {themePaths}', [
+			'theme' => $theme,
+			'themePaths' => $application->themePath(),
+		]);
 	}
 
 	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 * @see Route::_execute()
+	 * @param Response $response
+	 * @return Response
+	 * @throws Exception_Redirect
 	 */
-	public function _execute(Response $response) {
-		$application = $this->router->application;
-		$parameters = $application->variables() + array(
+	public function _execute(Response $response): Response {
+		$application = $this->application;
+		$parameters = $application->variables() + [
 			'route' => $this,
-		);
+		];
 		$parameters += $this->options + $this->named;
-		$args = map($this->option_array("theme arguments", array()), $parameters) + $parameters;
+		$args = map($this->optionArray('theme arguments'), $parameters) + $parameters;
 		$mapped_theme = $theme = $this->option('theme');
-		$theme_options = $this->option_array("theme options");
+		$theme_options = $this->optionArray('theme options');
 		if ($this->dynamic_theme) {
 			$mapped_theme = map($theme, $parameters);
-			if (!$application->theme_exists($mapped_theme, $args, $theme_options)) { //TODO
-				$response->status(Net_HTTP::STATUS_FILE_NOT_FOUND);
-				$response->content = "Theme $mapped_theme not found";
-				return;
+			if (!$application->themeExists($mapped_theme, $args)) {
+				$response->setStatus(HTTP::STATUS_FILE_NOT_FOUND);
+				$response->setContent("Theme $mapped_theme not found");
+				return $response;
 			}
-			$application->logger->debug("Executing theme={theme} mapped_theme={mapped_theme} args={args}", compact("theme", "mapped_theme", "args"));
+			$application->logger->debug('Executing theme={theme} mapped_theme={mapped_theme} args={args}', compact('theme', 'mapped_theme', 'args'));
 		}
 		$content = $application->theme($mapped_theme, $args, $theme_options); //TODO
 		$response->content = $content;
 
-		$json_html = $this->option("json_html", false);
-		if ($json_html && $response->is_json() || $this->option_bool('json')) {
-			$response->json()->data($response->html()->to_json() + array(
-				"status" => true,
-			));
+		$json_html = $this->option('json_html', false);
+		if ($json_html && $response->isJSON() || $this->optionBool('json')) {
+			$response->json()->setData($response->html()->toJSON() + [
+				'status' => true,
+			]);
 		}
+		return $response;
 	}
 }

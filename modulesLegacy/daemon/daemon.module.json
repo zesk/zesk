@@ -1,0 +1,11 @@
+{
+	"name": "Daemon",
+	"autoload": {
+		"classPrefix": "zesk\\Daemon\\"
+	},
+	"moduleClass": "zesk\\Daemon\\Module",
+	"zeskCommandClassPrefix": "zesk\\Daemon\\Command_",
+	"requires": [
+		"ORM"
+	]
+}

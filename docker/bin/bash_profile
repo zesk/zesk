@@ -1,0 +1,23 @@
+#!/bin/bash
+. /usr/local/bin/zesk-bash.sh && container_prompt
+if [ -d "/zesk" ]; then
+    PATH=$PATH:/zesk/bin:/zesk/vendor/bin
+fi
+T-php() {
+    tail -F /usr/local/var/log/php-error.log
+}
+Xdebug_ON() {
+    export XDEBUG_ENABLED=1
+    echo "XDebug debugging enabled..."
+}
+Xdebug_off() {
+    unset XDEBUG_ENABLED
+    echo "XDebug debugging disabled..."
+}
+consoleRed() {
+    echo -en "\033[31m"
+}
+
+consoleNormal() {
+    echo -en "\033[0m"
+}

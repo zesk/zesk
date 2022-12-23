@@ -1,0 +1,15 @@
+{
+	"name": "Selenium Testing Suite",
+	"autoload": {
+		"classPrefix": "zesk\\Selenium\\"
+	},
+	"moduleClass": "zesk\\Selenium\\Module",
+	"requires": [
+		"PHPUnit"
+	],
+	"composer": {
+		"require-dev": [
+			"facebook/webdriver"
+		]
+	}
+}

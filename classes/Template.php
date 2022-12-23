@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
 
 use Psr\Cache\CacheItemInterface;
@@ -10,7 +12,7 @@ use Psr\Cache\CacheItemInterface;
 /**
  * Simple template engine which uses PHP includes.
  * Supports variables passed into the template, returned from the template,
- * and inherited templates by setting up Application::theme_paths
+ * and inherited templates by setting up Application::themePaths
  * Templates can be "stacked" to inherit parent variables settings.
  * Changing template values within the template (e.g. `$this->frame = "foo";`) will then bubble up
  * to parent templates.
@@ -26,7 +28,7 @@ use Psr\Cache\CacheItemInterface;
  *
  * @package zesk
  * @subpackage system
- * @see Application::theme_paths
+ * @see Application::themePaths
  * @author kent
  */
 class Template implements Interface_Theme {
@@ -34,13 +36,13 @@ class Template implements Interface_Theme {
 	 *
 	 * @var Application
 	 */
-	public $application = null;
+	public Application $application;
 
 	/**
 	 *
 	 * @var Template_Stack
 	 */
-	public $stack = null;
+	public Template_Stack $stack;
 
 	/**
 	 * Stack of Template for begin/end
@@ -48,70 +50,56 @@ class Template implements Interface_Theme {
 	 * @var array of Template
 	 * @see Template::inherited_variables
 	 */
-	private $wrappers = array();
+	private array $wrappers = [];
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $_original_path = null;
+	private string $_original_path = '';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public $_path = null;
+	public string $_path = '';
 
 	/**
 	 * Template variables
 	 *
 	 * @var array
 	 */
-	private $_vars;
+	private array $_vars;
 
 	/**
 	 * Template variables which have changed
 	 *
 	 * @var array
 	 */
-	private $_vars_changed = array();
+	private array $_changed = [];
 
 	/**
 	 * Number of pushes to this template
 	 *
-	 * @var integer
+	 * @var int
 	 */
-	private $_running = 0;
-
-	/**
-	 * Parent template
-	 *
-	 * @var Template
-	 */
-	public $_parent = null;
+	private int $_running = 0;
 
 	/**
 	 * The return value of the template
 	 *
 	 * @var mixed
 	 */
-	public $return = null;
-
-	/**
-	 *
-	 * @var CacheItemInterface
-	 */
-	protected $paths_cache = null;
+	public mixed $return = null;
 
 	/**
 	 * Template statistics
 	 *
 	 * @var array
 	 */
-	private static $_stats = array(
-		'counts' => array(),
-		'times' => array(),
-	);
+	private static array $_stats = [
+		'counts' => [], 'times' => [],
+	];
 
 	/**
 	 * Whether to profile all templates.
@@ -119,70 +107,69 @@ class Template implements Interface_Theme {
 	 *
 	 * @var boolean
 	 */
-	private static $profile = false;
+	private static bool $profile = false;
 
 	/**
 	 * Whether to wrap all non-empty templates with HTML comments (caution!)
 	 *
 	 * @var boolean
 	 */
-	private static $wrap = false;
+	private static bool $wrap = false;
 
 	/**
 	 * Debugging on
 	 *
 	 * @var boolean
 	 */
-	private static $debug = false;
+	private static bool $debug = false;
 
 	/**
 	 * Set to true to debug the push/pop stack
 	 *
 	 * @var boolean
 	 */
-	public static $debug_stack = false;
+	public static bool $debug_stack = false;
 
 	/**
 	 * Construct a new template
 	 *
 	 * @param Application $app
 	 * @param string $path
-	 * @param array|Template| $variables
+	 * @param array $variables
 	 * @return self
 	 */
-	public static function factory(Application $app, $path = null, $variables = null) {
+	public static function factory(Application $app, string $path = '', array|self $variables = []): self {
 		return new self($app, $path, $variables);
 	}
 
 	/**
 	 * Construct a new template
 	 *
-	 * @param string $path
-	 *        	Relative or absolute path to template
-	 * @param array $variables
-	 *        	Name/Value pairs to be set in the template execution
+	 * @param ?string $path
+	 *            Relative or absolute path to template
+	 * @param ?mixed $variables
+	 *            Name/Value pairs to be set in the template execution
 	 * @param Application $app
 	 */
-	public function __construct(Application $app, $path = null, $variables = null) {
+	public function __construct(Application $app, string $path = '', array|self $variables = null) {
 		$this->application = $app;
-		$this->stack = $app->template_stack;
 
-		$this->_vars = array();
+		$this->_vars = [];
 		if ($variables instanceof Template) {
 			$this->_vars = $variables->variables() + $this->_vars;
 		} elseif (is_array($variables)) {
 			foreach ($variables as $k => $v) {
-				if (substr($k, 0, 1) === '_') {
+				if (is_string($k) && str_starts_with($k, '_')) {
 					continue;
 				}
-				$this->__set($k, $v);
+				$this->__set(strval($k), $v);
 			}
-			$this->_vars_changed = array();
+			$this->_changed = [];
 		}
-		assert(count($this->_vars_changed) === 0);
+		assert(count($this->_changed) === 0);
 		if ($path) {
 			$this->_original_path = $path;
-			$this->path($path);
+			$this->setPath($path);
 		}
 		if (self::$profile) {
 			ArrayTools::increment(self::$_stats['counts'], $this->_path);
@@ -193,19 +180,17 @@ class Template implements Interface_Theme {
 	 * Begin output buffering for a \"theme\", push it on the stack.
 	 *
 	 * @param string $path
-	 *        	Relative and absolute path to template
-	 * @param array $variables
-	 * @return Template
+	 *            Relative and absolute path to template
+	 * @param ?mixed $variables
+	 * @return self
 	 */
-	public function begin($path, $variables = false) {
-		if (ends($path, ".tpl")) {
-			$this->application->logger->warning("{method} {path} ends with .tpl - now deprecated, use theme names only, called from {calling_function}", array(
-				"method" => __METHOD__,
-				"path" => $path,
-				"calling_function" => calling_function(0),
-			));
+	public function begin(string $path, mixed $variables = null): self {
+		if (str_ends_with($path, '.tpl')) {
+			$this->application->logger->warning('{method} {path} ends with .tpl - now deprecated, use theme names only, called from {calling_function}', [
+				'method' => __METHOD__, 'path' => $path, 'calling_function' => calling_function(0),
+			]);
 		} else {
-			$path .= ".tpl";
+			$path .= '.tpl';
 		}
 		$this->wrappers[] = $t = new Template($this->application, $path, $variables);
 		$t->push();
@@ -219,20 +204,20 @@ class Template implements Interface_Theme {
 	 * Complete output buffering, passing additional variables to be added to the template,
 	 * and pass an optional variable name for the output content to be applied to the template.
 	 *
-	 * @param array $variables
-	 *        	Optional variables to apply to the template
+	 * @param array $variables Optional variables to apply to the template
 	 * @param string $content_variable
-	 * @throws Exception_Semantics
+	 * @return string
+	 * @throws Exception_Semantics|Exception_Redirect
 	 */
-	public function end($variables = array(), $content_variable = "content") {
+	public function end(array $variables = [], string $content_variable = 'content'): string {
 		if (count($this->wrappers) === 0) {
-			throw new Exception_Semantics("Template::end when no template on the wrapper stack");
+			throw new Exception_Semantics('Template::end when no template on the wrapper stack');
 		}
 		$t = array_pop($this->wrappers);
 		/* @var $t Template */
 		$t->pop();
 		if (!$t->_path) {
-			return null;
+			return '';
 		}
 		$variables[$content_variable] = ob_get_clean();
 		$t->set($variables);
@@ -240,19 +225,11 @@ class Template implements Interface_Theme {
 	}
 
 	/**
-	 * Push the variable stack
-	 *
-	 * @return Template
+	 * @return self
 	 */
-	public function push() {
-		$top = $this->stack->top();
-		$this->stack->push($this);
+	public function push(): self {
+		$top = $this->application->pushTemplate($this);
 		$this->_vars += $top->variables();
-		if (self::$debug_stack) {
-			$this->application->logger->debug("Push {path}", array(
-				"path" => $this->_path,
-			));
-		}
 		$this->_running++;
 		return $this;
 	}
@@ -263,31 +240,21 @@ class Template implements Interface_Theme {
 	 * @return $this
 	 * @throws Exception_Semantics
 	 */
-	public function pop() {
-		$stack = $this->stack;
-		$top = $stack->pop();
-		if (self::$debug_stack) {
-			$this->application->logger->debug("Pop {path}", array(
-				"path" => $top->_path,
-			));
-		}
+	public function pop(): self {
+		$top = $this->application->popTemplate();
 		if ($top !== $this) {
-			if ($top === null) {
-				throw new Exception_Semantics("Template::pop: Popped beyond the top!");
-			}
-
 			throw new Exception_Semantics("Popped template ($top->_path) not this ($this->_path)");
 		}
 		if (--$this->_running < 0) {
-			throw new Exception_Semantics("Template::pop negative running");
+			throw new Exception_Semantics('Template::pop negative running');
 		}
 		/*
 		 * If we have a stack and variables changed
 		 */
-		if (count($this->_vars_changed) === 0) {
+		if (count($this->_changed) === 0) {
 			return $this;
 		}
-		$stack->variables($this->_vars_changed);
+		$this->application->topTemplate()->set($this->_changed);
 		return $this;
 	}
 
@@ -296,7 +263,7 @@ class Template implements Interface_Theme {
 	 *
 	 * @return array
 	 */
-	public function variables() {
+	public function variables(): array {
 		return $this->_vars;
 	}
 
@@ -305,66 +272,42 @@ class Template implements Interface_Theme {
 	 *
 	 * @return array
 	 */
-	public function values() {
+	public function values(): array {
 		return $this->_vars;
-	}
-
-	/**
-	 *
-	 * @param string $path
-	 * @param boolean $all Retrieve all valid paths
-	 */
-	public function find_path($path, $all = false) {
-		if (empty($path)) {
-			return null;
-		}
-		if (begins($path, "/")) {
-			return $path;
-		}
-		return $this->_find_path($path, $all);
 	}
 
 	/**
 	 * Find template path
 	 *
 	 * @param string $path
-	 * @param boolean $all
-	 *        	Return all possible paths as keys and whether the file exists as the value
-	 * @return array|string
+	 * @return string
 	 */
-	private function _find_path($path, $all = false) {
-		if (Directory::is_absolute($path)) {
-			if ($all) {
-				return array(
-					$path => file_exists($path),
-				);
+	public function findPath(string $path): string {
+		if (Directory::isAbsolute($path)) {
+			if (file_exists($path)) {
+				return $path;
 			}
-			return $path;
+			return '';
 		}
-		$result = $this->application->theme_find($path, array(
-			"all" => $all,
-			"no_extension" => true,
-		));
-		if ($result === null || (is_array($result) && count($result) === 0)) {
-			$theme_paths = $this->application->theme_path();
+
+		try {
+			return $this->application->themeFind($path, [
+				'no_extension' => true,
+			]);
+		} catch (Exception_NotFound) {
+			$themePaths = $this->application->themePath();
 			if (self::$debug) {
 				static $template_path = false;
 				if (!$template_path) {
-					$this->application->logger->debug("theme_path is\n\t" . JSON::encode_pretty($theme_paths));
+					$this->application->logger->debug("themePath is\n\t" . JSON::encodePretty($themePaths));
 					$template_path = true;
 				}
-				$this->application->logger->warning(__("Template::path(\"{path}\") not found in theme_path ({n_paths} paths).", array(
-					'path' => $path,
-					'theme_paths' => $theme_paths,
-					'n_paths' => count($theme_paths),
-				)));
+				$this->application->logger->warning('Template::path("{path}") not found in themePath ({n_paths} paths).', [
+					'path' => $path, 'themePaths' => $themePaths, 'n_paths' => count($themePaths),
+				]);
 			}
-			if (!$all) {
-				return null;
-			}
+			return '';
 		}
-
-		return $result;
 	}
 
 	/**
@@ -373,8 +316,8 @@ class Template implements Interface_Theme {
 	 * @param string $path
 	 * @return boolean
 	 */
-	public function would_exist($path) {
-		$path = $this->find_path($path);
+	public function wouldExist(string $path): bool {
+		$path = $this->findPath($path);
 		return file_exists($path);
 	}
 
@@ -387,10 +330,19 @@ class Template implements Interface_Theme {
 	 */
 	public function path($set = null) {
 		if ($set !== null) {
-			$this->_path = $this->find_path($set);
-			return $this;
+			$this->application->deprecated('setter/getter combo deprecated');
+			return $this->setPath($set);
 		}
 		return $this->_path;
+	}
+
+	/**
+	 * @param string $set Value to set the path to
+	 * @return $this
+	 */
+	public function setPath(string $set): self {
+		$this->_path = $this->findPath($set);
+		return $this;
 	}
 
 	/**
@@ -398,33 +350,40 @@ class Template implements Interface_Theme {
 	 *
 	 * @return boolean
 	 */
-	public function exists() {
-		return file_exists($this->_path);
+	public function exists(): bool {
+		return $this->_path && file_exists($this->_path);
 	}
 
 	/**
 	 *
 	 * @return string
 	 */
-	public function className() {
-		return "Template";
+	public function className(): string {
+		return 'Template';
 	}
 
 	/**
+	 * Template return code
 	 *
 	 * @return mixed
 	 */
-	public function result() {
+	public function result(): mixed {
 		return $this->return;
 	}
 
-	public function object_name() {
-		$contents = File::contents($this->_path, null);
-		$matches = null;
-		if (!preg_match('/Name:\s*\"([^\"]+)\"/', $contents, $matches)) {
-			return basename($this->_path);
+	/**
+	 * @return string
+	 */
+	public function objectName(): string {
+		try {
+			$contents = File::contents($this->_path, '');
+			$matches = [];
+			if (!preg_match('/Name:\s*\"([^\"]+)\"/', $contents, $matches)) {
+				return $matches[1];
+			}
+		} catch (Exception_File_NotFound|Exception_File_Permission) {
 		}
-		return $matches[1];
+		return basename($this->_path);
 	}
 
 	/**
@@ -432,37 +391,35 @@ class Template implements Interface_Theme {
 	 *
 	 * @return array
 	 */
-	public function changed() {
-		return $this->_vars_changed;
+	public function changed(): array {
+		return $this->_changed;
 	}
 
 	/**
 	 * Is a variable set in this template (and non-null)?
 	 *
-	 * @param string|integer $k
+	 * @param string|int $k
 	 * @return bool
 	 */
-	public function has($k) {
+	public function has(string|int $k): bool {
 		return $this->__isset($k);
 	}
 
 	/**
 	 * Set a variable to the template
 	 *
-	 * @param string|array $k
-	 *        	Name to set (or array)
-	 * @param mixed $v
-	 *        	Value to set
+	 * @param array|string|Template|int $key Thing to set
+	 * @param mixed $value Value to set (string or int $key only)
 	 */
-	public function set($k, $v = null) {
-		if (is_array($k)) {
-			foreach ($k as $k0 => $v0) {
+	public function set(array|string|int|Template $key, mixed $value = null): void {
+		if (is_array($key)) {
+			foreach ($key as $k0 => $v0) {
 				$this->__set($k0, $v0);
 			}
-		} elseif ($k instanceof Template) {
-			$this->inherit($k);
+		} elseif ($key instanceof Template) {
+			$this->inherit($key);
 		} else {
-			$this->__set($k, $v);
+			$this->__set($key, $value);
 		}
 	}
 
@@ -473,7 +430,7 @@ class Template implements Interface_Theme {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function get($k, $default = null) {
+	public function get(array|string|int $k, mixed $default = null): mixed {
 		if (is_array($k)) {
 			foreach ($k as $key => $default) {
 				$k[$key] = $this->get($key, $default);
@@ -490,12 +447,12 @@ class Template implements Interface_Theme {
 	/**
 	 * Get first key value matching, or default
 	 *
-	 * @param string $keys
+	 * @param string|array $keys
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function get1($keys, $default = null) {
-		foreach (to_list($keys) as $key) {
+	public function get1(string|array $keys, mixed $default = null): mixed {
+		foreach (toList($keys) as $key) {
 			if ($this->__isset($key)) {
 				return $this->__get($key);
 			}
@@ -506,34 +463,34 @@ class Template implements Interface_Theme {
 	/**
 	 * Get a value and convert it to an integer, or return $default
 	 *
-	 * @param string $k
-	 * @param mixed $default
+	 * @param string|int $key
+	 * @param int $default
 	 * @return integer
 	 */
-	public function geti($k, $default = null) {
-		return to_integer($this->__get($k), $default);
+	public function getInt(string|int $key, int $default = 0): int {
+		return toInteger($this->__get($key), $default);
 	}
 
 	/**
 	 * Get a value and convert it to an boolean, or return $default
 	 *
-	 * @param string $k
+	 * @param string|int $k
 	 * @param mixed $default
 	 * @return boolean
 	 */
-	public function getb($k, $default = null) {
-		return to_bool($this->__get($k), $default);
+	public function getBool(string|int $key, bool $default = false): bool {
+		return toBool($this->__get($key), $default);
 	}
 
 	/**
 	 * Get a value if it's an array, or return $default
 	 *
-	 * @param string $k
+	 * @param string|int $key
 	 * @param mixed $default
 	 * @return boolean
 	 */
-	public function geta($k, $default = array()) {
-		$value = $this->__get($k);
+	public function getArray(string|int $key, array $default = []): array {
+		$value = $this->__get($key);
 		if (is_array($value)) {
 			return $value;
 		}
@@ -541,44 +498,43 @@ class Template implements Interface_Theme {
 	}
 
 	/**
-	 * Get a value if it's an array, or return $default
-	 *
-	 * @param string $k
-	 * @param mixed $default
-	 * @param string $delimiter How to split string lists
-	 * @return boolean
-	 */
-	public function get_list($k, $default = array(), $delimiter = ";") {
-		return to_list($this->__get($k), $default, $delimiter);
-	}
-
-	/**
 	 * Output
 	 *
 	 * @return string
+	 * @throws Exception_Redirect
 	 */
-	public function render() {
+	public function render(): string {
 		if (!$this->_path) {
-			return null;
+			return '';
 		}
 		$__start = microtime(true);
 		ob_start();
 		$this->push();
-		extract(array(
-			"application" => $this->application,
-		) + $this->_vars, EXTR_SKIP); // Avoid overwriting $this
+		extract([
+			'application' => $this->application,
+		] + $this->_vars, EXTR_SKIP); // Avoid overwriting $this
 		// This name is fairly unique to avoid conflicts with variables set in our include.
 		$_template_exception = null;
 
 		try {
 			$this->return = include($this->_path);
+		} catch (Exception_Redirect $redirect) {
+			throw $redirect;
 		} catch (\Exception $_template_exception) {
-			$this->application->hooks->call("exception", $_template_exception);
+			$alt_exception = $this->application->hooks->call('exception', $_template_exception);
+			if ($alt_exception instanceof \Exception) {
+				$_template_exception = $alt_exception;
+			}
 		}
-		$this->pop();
+
+		try {
+			$this->pop();
+		} catch (Exception_Semantics $e) {
+			$this->application->logger->error('pop semantics error {path}', $this->variables());
+		}
 		$contents = ob_get_clean();
 		if ($_template_exception) {
-			throw $_template_exception;
+			$contents .= '<!-- TEMPLATE_EXCEPTION: ' . $_template_exception::class . ' -->';
 		}
 		if (self::$profile) {
 			ArrayTools::increment(self::$_stats['times'], $this->_path, microtime(true) - $__start);
@@ -595,47 +551,31 @@ class Template implements Interface_Theme {
 	 * @param string $key
 	 * @return string
 	 */
-	private static function _template_key($key) {
+	private static function _template_key(string $key): string {
 		return strtolower($key);
 	}
 
 	/**
 	 *
 	 * @param Application $application
-	 * @throws Exception_Lock
-	 * @throws Exception_Semantics
+	 * @return void
 	 */
-	public static function configured(Application $application) {
+	public static function configured(Application $application): void {
 		$config = $application->configuration->path(__CLASS__);
-		self::$profile = to_bool($config->profile);
-		self::$wrap = to_bool($config->wrap);
-		self::$debug = to_bool($config->debug);
-		self::$debug_stack = to_bool($config->debug_stack);
-		$application->hooks->add('</body>', array(
-			__CLASS__,
-			'profile_output',
-		));
-	}
-
-	/**
-	 * Implements ::hooks
-	 * @param Application $application
-	 */
-	public static function hooks(Application $application) {
-		try {
-			$application->hooks->add('configured', array(
-				__CLASS__,
-				'configured',
-			));
-		} catch (Exception_Semantics $e) {
-		}
+		self::$profile = toBool($config->profile);
+		self::$wrap = toBool($config->wrap);
+		self::$debug = toBool($config->debug);
+		self::$debug_stack = toBool($config->debug_stack);
+		$application->hooks->add('</body>', [
+			__CLASS__, 'profileOutput',
+		]);
 	}
 
 	/**
 	 *
 	 * @return string
 	 */
-	public static function profile_output($_, Response $response) {
+	public static function profileOutput($_, Response $response): string {
 		if (!self::$profile) {
 			return '';
 		}
@@ -652,11 +592,11 @@ class Template implements Interface_Theme {
 	 * passed in object. So if it's an array (name/value pairs), or a Template, it sets multiple
 	 * values. If you pass in a string, and a value it's the same as __set
 	 *
-	 * @param Template|string|arary $mixed
+	 * @param array|Template|string|int $mixed
 	 * @param $value When $mixed is a string, the value to set it to
 	 * @return $this
 	 */
-	public function inherit($mixed, $value = null) {
+	public function inherit(array|Template|string|int $mixed, mixed $value = null): self {
 		if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
 				$this->__set($k, $v);
@@ -671,52 +611,51 @@ class Template implements Interface_Theme {
 
 	/**
 	 *
-	 * @param string $key Key
+	 * @param string|int $key Key
 	 * @param mixed $value Value
-	 *@see stdClass::__set
+	 * @see stdClass::__set
 	 */
-	public function __set($key, $value) {
+	public function __set(string|int $key, mixed $value): void {
 		$key = self::_template_key($key);
 		if ($this->_running > 0) {
-			$this->_vars_changed[$key] = $value;
+			$this->_changed[$key] = $value;
 		}
 		$this->_vars[$key] = $value;
 	}
 
 	/**
 	 *
-	 * @param string $key
+	 * @param string|int $key
 	 * @return mixed
 	 * @see stdClass::__get
 	 */
-	public function __get($key) {
+	public function __get(string|int $key): mixed {
 		$key = self::_template_key($key);
 		if (array_key_exists($key, $this->_vars)) {
 			return $this->_vars[$key];
 		}
-		return array(
-			'variables' => $this->_vars,
-			'self' => $this,
-		)[$key] ?? null;
+		return [
+			'variables' => $this->_vars, 'self' => $this,
+		][$key] ?? null;
 	}
 
 	/**
 	 *
-	 * @param string $key
+	 * @param string|int $key
 	 * @return bool
 	 * @see stdClass::__isset
 	 */
-	public function __isset($key) {
+	public function __isset(string|int $key): bool {
 		$key = self::_template_key($key);
 		return isset($this->_vars[$key]);
 	}
 
 	/**
 	 *
-	 * @param string $key
-	 *@see stdClass::__unset
+	 * @param string|int $key
+	 * @see stdClass::__unset
 	 */
-	public function __unset($key) {
+	public function __unset(string|int $key): void {
 		$key = self::_template_key($key);
 		unset($this->_vars[$key]);
 	}
@@ -724,26 +663,24 @@ class Template implements Interface_Theme {
 	/**
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString(): string {
 		return PHP::dump($this->_original_path);
 	}
 
 	/**
 	 * Output theme within a template.
 	 *
-	 * 2016-01-12 Moving away from globals. Use in templates instead of zesk::theme or theme, both
-	 * of which are now deprecated.
-	 *
-	 * @param mixed $types
-	 *        	Theme, or list of themes
+	 * @param array|string $types
+	 *            Theme, or list of themes
 	 * @param array $arguments
-	 *        	Arguments for the theme to render
+	 *            Arguments for the theme to render
 	 * @param array $options
-	 *        	Extra options which effect how the theme request is interpreted
+	 *            Extra options which effect how the theme request is interpreted
+	 * @return string|null
+	 * @throws Exception_Semantics
 	 * @see Application::theme
-	 * @return string
 	 */
-	final public function theme($types, $arguments = array(), array $options = array()) {
+	final public function theme(array|string $types, array $arguments = [], array $options = []): ?string {
 		return $this->application->theme($types, $arguments, $options);
 	}
 
@@ -754,8 +691,8 @@ class Template implements Interface_Theme {
 	 * @param array $options
 	 * @return Widget
 	 */
-	final public function widget_factory($class, array $options = array()) {
-		return $this->application->widget_factory($class, $options);
+	final public function widgetFactory(string $class, array $options = []): Widget {
+		return $this->application->widgetFactory($class, $options);
 	}
 
 	/**
@@ -765,11 +702,11 @@ class Template implements Interface_Theme {
 	 * of which are now deprecated.
 	 *
 	 * @param mixed $types
-	 *        	Theme, or list of themes
+	 *            Theme, or list of themes
 	 * @param array $arguments
 	 * @return bool
 	 */
-	final public function theme_exists($types, $arguments = array()) {
-		return $this->application->theme_exists($types, $arguments);
+	final public function themeExists(string|array $types, array $arguments = []): bool {
+		return $this->application->themeExists($types, $arguments);
 	}
 }

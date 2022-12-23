@@ -10,9 +10,12 @@
  * @package zesk
  * @subpackage bin
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2019, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
-define('ZESK_ROOT', dirname(__DIR__) . '/' . (strpos(__FILE__, 'vendor/bin') !== false ? 'zesk/zesk/' : ''));
+define('ZESK_ROOT', dirname(__DIR__) . '/' . (str_contains(__FILE__, 'vendor/bin') ? 'zesk/zesk/' : ''));
+
+/* We love debuggers */
+include ZESK_ROOT . '/xdebug.php';
 
 /**
  * Load the bare minimum
@@ -23,4 +26,10 @@ require_once ZESK_ROOT . 'classes/Command/Loader.php';
 /**
  * Run a zesk command and exit
  */
-exit(zesk\Command_Loader::factory()->run());
+$command = zesk\Command\Loader::factory();
+
+try {
+	exit($command->terminate($command->run()));
+} catch (\Throwable $e) {
+	fprintf(STDERR, "%s @ %s:%s\n", $e->getMessage(), $e->getFile(), $e->getLine());
+}

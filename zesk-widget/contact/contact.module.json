@@ -1,0 +1,11 @@
+{
+    "name": "Contact",
+    "requires": [
+        "world"
+    ],
+    "autoload": {
+        "classPrefix": "zesk\\",
+        "lower": false
+    },
+    "moduleClass": "zesk\\Module_Contact"
+}

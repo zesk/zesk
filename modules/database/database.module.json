@@ -1,9 +1,0 @@
-{
-	"name": "Database",
-	"description": "Database abstractions for Database, Table, Columns, Indexes, etc.",
-	"autoload_options": {
-		"class_prefix": "zesk\\",
-		"lower": false
-	},
-	"module_class": "zesk\\Module_Database"
-}

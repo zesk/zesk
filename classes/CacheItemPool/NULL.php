@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 /**
- * @copyright &copy; 2017 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -49,8 +49,8 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
 	 *   key is not found. However, if no keys are specified then an empty
 	 *   traversable MUST be returned instead.
 	 */
-	public function getItems(array $keys = array()) {
-		$result = array();
+	public function getItems(array $keys = []) {
+		$result = [];
 		foreach ($keys as $index => $key) {
 			$result[$index] = $this->getItem($key);
 		}
@@ -110,7 +110,7 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
 	 *
 	 * @param string[] $keys
 	 *   An array of keys that should be removed from the pool.
-
+	 *
 	 * @throws InvalidArgumentException
 	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.

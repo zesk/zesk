@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Place functions needed to maintain compatibility with previous versions of PHP
  *
@@ -9,24 +9,25 @@
  * @package zesk
  * @subpackage core
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2017, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
 class Compatibility {
-	const PHP_VERSION_MINIMUM = 50500;
+	public const PHP_VERSION_MINIMUM = 80000;
 
 	/**
-	 * @throws Exception
+	 * @throws Exception_Unsupported
+	 * @codeCoverageIgnore
 	 */
-	public static function install() {
+	public static function check(): void {
 		$v = self::PHP_VERSION_MINIMUM;
 		if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < $v) {
-			throw new Exception("Zesk requires PHP version {maj}.{min}.{patch} or greater", array(
-				"maj" => intval($v / 10000),
-				"min" => intval(($v / 100) % 100),
-				"patch" => intval($v % 100),
-			));
+			throw new Exception_Unsupported('Zesk requires PHP version {maj}.{min}.{patch} or greater', [
+				'maj' => intval($v / 10000),
+				'min' => intval(($v / 100) % 100),
+				'patch' => intval($v % 100),
+			]);
 		}
 	}
 }

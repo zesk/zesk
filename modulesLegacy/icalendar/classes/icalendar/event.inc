@@ -1,0 +1,15 @@
+<?php declare(strict_types=1);
+/**
+ * @package zesk
+ * @subpackage system
+ * @author Kent Davidson <kent@marketacumen.com>
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ */
+
+/**
+ * Base class for all iCalendar objects
+ */
+class iCalendar_Event extends iCalendar {
+	public function __construct() {
+	}
+}

@@ -64,7 +64,7 @@ Note that any file paths passed to the zesk command should be relative to the cu
 
 If the parameter is not a file, then Zesk looks to see if it corresponds to a command by searching the paths listed by:
 
-	zesk::zesk_command_path();
+	zesk::zeskCommandPath();
 	
 > Note: This is different from `zesk::command_path()` which is the path used to find shell commands in the system.
 
@@ -132,7 +132,7 @@ The equivalent can be written as a `Command` class:
 
 	<?php
 	class Command_Module extends Command {
-		protected $option_types = array("+" => "string");
+		protected array $option_types = array("+" => "string");
 		function run() {
 			zesk::module($this->get_arg("module"));
 		}
@@ -159,4 +159,3 @@ Some commands can specify an terminating string, which **should** be standardize
 	zesk eval "echo zesk()->configuration->init;" "zesk()->hooks->call('alert')" -- globals
 	
 For example the `eval` command stops when it encounters the `--` argument, and then passes control to the next command.
-

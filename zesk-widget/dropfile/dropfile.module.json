@@ -1,0 +1,12 @@
+{
+	"name": "Dropfile",
+	"description": "A simple drag-and-drop file upload tool using jQuery",
+	"autoload": {
+		"classPrefix": "zesk\\",
+		"lower": true
+	},
+	"moduleClass": "zesk\\Module_DropFile",
+	"depends": [
+		"jquery"
+	]
+}

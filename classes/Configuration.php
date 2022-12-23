@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 use ArrayAccess;
@@ -20,12 +22,12 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @var string
 	 */
-	const key_separator = "::";
+	public const key_separator = '::';
 
 	/**
 	 * Path to get to this configuration location
 	 */
-	protected $_path = array();
+	protected array $_path = [];
 
 	/**
 	 * Our datum, datum, datum, datum, datum, datum, datum, dat-u-u-u-um.
@@ -34,50 +36,36 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @var Configuration[]
 	 */
-	protected $_data = null;
-
-	/**
-	 * Is this tree locked? Meaning, I can't edit it at all?
-	 *
-	 * @var boolean $locked
-	 */
-	protected $_locked = false;
+	protected array $_data;
 
 	/**
 	 * Current iterator index. For iterating, silly.
 	 *
 	 * Does this mean that PHP is not re-entrant? PHP will probably just add a keyword for 'per-thread'.
 	 * Yikes.
-	 *
-	 * @var integer
 	 */
-	protected $_index;
+	protected int $_index;
 
 	/**
 	 * Number of configuration items
-	 *
-	 * @var integer
 	 */
-	protected $_count;
+	protected int $_count;
 
 	/**
-	 *
-	 * @var boolean
+	 * Skip the next iteration
 	 */
-	protected $_skip_next = false;
+	protected bool $_skip_next = false;
 
 	/**
 	 * Configuration constructor.
 	 * @param array $array
-	 * @param boolean $locked
 	 * @param array $path
 	 */
-	public function __construct(array $array = array(), $locked = false, array $path = array()) {
+	public function __construct(array $array = [], array $path = []) {
 		$this->_path = $path;
-		$this->_locked = $locked;
 		foreach ($array as $key => $value) {
 			if (is_array($value)) {
-				$array[$key] = new self($value, $locked, $this->_add_path($key));
+				$array[$key] = new self($value, $this->_addPath($key));
 			}
 		}
 		$this->_data = array_change_key_case($array);
@@ -85,22 +73,25 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 		$this->_count = count($this->_data);
 	}
 
+	public function normalizeKey(string $key): string {
+		return implode(ZESK_GLOBAL_KEY_SEPARATOR, _zesk_global_key($key));
+	}
+
 	/**
 	 *
 	 * @param array $array
-	 * @param boolean $locked
 	 * @param array $path
 	 * @return self
 	 */
-	public static function factory(array $array = array(), $locked = false, array $path = array()) {
-		return new self($array, $locked, $path);
+	public static function factory(array $array = [], array $path = []): self {
+		return new self($array, $path);
 	}
 
 	/**
 	 * Copy a configuration
 	 */
 	public function __clone() {
-		$array = array();
+		$array = [];
 		foreach ($this->_data as $key => $value) {
 			if ($value instanceof self) {
 				$array[$key] = clone $value;
@@ -120,7 +111,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param boolean $overwrite
 	 * @return self
 	 */
-	public function merge(Configuration $config, $overwrite = true) {
+	public function merge(Configuration $config, bool $overwrite = true): self {
 		foreach ($config as $key => $value) {
 			$key = strtolower($key);
 			if (isset($this->_data[$key])) {
@@ -144,9 +135,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string $key
 	 * @return boolean
 	 */
-	public function has($key) {
-		$key = strtolower($key);
-		return isset($this->_data[$key]);
+	public function has(string $key): bool {
+		return $this->__isset($key);
 	}
 
 	/**
@@ -154,20 +144,17 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string $key
 	 * @return boolean
 	 */
-	public function __isset($key) {
+	public function __isset(string $key): bool {
 		$key = strtolower($key);
 		return isset($this->_data[$key]);
 	}
 
 	/**
-	 * @param $key
-	 * @throws Exception_Lock
+	 * @param string $key
+	 * @return void
 	 */
-	public function __unset($key) {
+	public function __unset(string $key): void {
 		$key = strtolower($key);
-		if ($this->_locked) {
-			$this->_locked($key, "delete");
-		}
 		if (isset($this->_data[$key])) {
 			unset($this->_data[$key]);
 			$this->_count = count($this->_data);
@@ -175,20 +162,19 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	}
 
 	/**
-	 *
-	 * @param string $key
-	 * @param mixed $value
-	 * @return self|mixed
-	 * @throws Exception_Lock
+	 * @param string|array $key
+	 * @param mixed|null $value
+	 * @return $this
 	 */
-	public function set($key, $value = null) {
+	public function set(string|array $key, mixed $value = null): self {
 		if (is_array($key)) {
 			foreach ($key as $k => $v) {
 				$this->__set($k, $v);
 			}
 			return $this;
 		}
-		return $this->__set($key, $value);
+		$this->__set($key, $value);
+		return $this;
 	}
 
 	/**
@@ -196,39 +182,34 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @param string $key
 	 * @param mixed $value
-	 * @return mixed
-	 * @throws Exception_Lock
+	 * @return void
 	 */
-	public function __set($key, $value) {
-		if ($this->_locked) {
-			$this->_locked($key, "set");
-		}
+	public function __set(mixed $key, mixed $value): void {
 		if (is_array($value)) {
-			$value = new self($value, $this->_locked, $this->_add_path($key));
+			$value = new self($value, $this->_addPath($key));
 		}
 		$key = strtolower($key);
 		$this->_data[$key] = $value;
 		$this->_count = count($this->_data);
-		return $value;
 	}
 
 	/**
 	 * Same as __get but allows a default value
 	 *
 	 * @param string $key
-	 *        	Key to retrieve
+	 *            Key to retrieve
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function get($key, $default = null) {
+	public function get(string $key, mixed $default = null): mixed {
 		$key = strtolower($key);
-		if (strpos($key, "-") && !isset($this->_data[$key])) {
-			error_log(map("Fetching MISSING key {key} with dash from {func}", array(
-				"key" => $key,
-				"func" => calling_function(1),
-			)));
+		if (strpos($key, '-') && !isset($this->_data[$key])) {
+			error_log(map('Fetching MISSING key {key} with dash from {func}', [
+				'key' => $key,
+				'func' => calling_function(1),
+			]));
 		}
-		return isset($this->_data[$key]) ? $this->_data[$key] : $default;
+		return $this->_data[$key] ?? $default;
 	}
 
 	/**
@@ -237,11 +218,10 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param array $paths
 	 * @param mixed $default
 	 * @return mixed
-	 * @throws Exception_Lock
 	 */
-	public function path_get_first(array $paths, $default = null) {
+	public function getFirstPath(array $paths, mixed $default = null): mixed {
 		foreach ($paths as $path) {
-			if (($result = $this->path_get($path)) !== null) {
+			if (($result = $this->getPath($path)) !== null) {
 				return $result;
 			}
 		}
@@ -253,27 +233,11 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @param array $paths
 	 * @return Configuration[]
-	 * @throws Exception_Lock
 	 */
-	public function paths_set(array $paths) {
-		$result = array();
+	public function setPaths(array $paths): array {
+		$result = [];
 		foreach ($paths as $path => $value) {
-			$result[$path] = $this->path_set(to_list($path, array(), self::key_separator), $value);
-		}
-		return $result;
-	}
-
-	/**
-	 * Get multiple paths at once, using the key value as the default value
-	 *
-	 * @param array $paths
-	 * @return array
-	 * @throws Exception_Lock
-	 */
-	public function paths_get(array $paths) {
-		$result = array();
-		foreach ($paths as $path => $default) {
-			$result[$path] = $this->path_get($path, $default);
+			$result[$path] = $this->setPath(toList($path, [], self::key_separator), $value);
 		}
 		return $result;
 	}
@@ -284,9 +248,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string|array $path
 	 * @param mixed $default
 	 * @return mixed
-	 * @throws Exception_Lock
 	 */
-	public function path_get($path, $default = null) {
+	public function getPath(string|array $path, mixed $default = null): mixed {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$current = $this;
 		$key = array_pop($path);
@@ -297,16 +260,15 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 			}
 		}
 		$result = $current->get($key, $default);
-		return $result instanceof self ? $result->to_array() : $result;
+		return $result instanceof self ? $result->toArray() : $result;
 	}
 
 	/**
 	 * Does a path exist?
-	 *
-	 * @param string $path
-	 * @return boolean
+	 * @param string|array $path
+	 * @return bool
 	 */
-	public function path_exists($path) {
+	public function pathExists(string|array $path): bool {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$current = $this;
 		$key = array_pop($path);
@@ -324,9 +286,9 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string $key
 	 * @return self
 	 */
-	public function __get($key) {
+	public function __get(string $key) {
 		$key = strtolower($key);
-		return isset($this->_data[$key]) ? $this->_data[$key] : null;
+		return $this->_data[$key] ?? null;
 	}
 
 	/**
@@ -335,37 +297,31 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string|array $path
 	 * @param mixed $value
 	 * @return Configuration parent node of final value set
-	 * @throws Exception_Lock
 	 */
-	public function path_set($path, $value = null) {
+	public function setPath(string|array $path, mixed $value = null): self {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$key = array_pop($path);
 		if (count($path) > 0) {
-			$current = $this->path($path);
-			$current->$key = $value;
-			return $current;
-		} else {
-			$this->$key = $value;
-			return $this;
+			return $this->path($path)->setPath($key, $value);
 		}
+		$this->$key = $value;
+		return $this;
 	}
 
 	/**
 	 * Ensure configuration path is available
 	 * @param array|string $keys
 	 * @return self
-	 * @throws Exception_Lock
 	 */
-	public function path($keys) {
+	public function path(string|array $keys): self {
 		$keys = is_array($keys) ? $keys : explode(self::key_separator, $keys);
 		$current = $this;
 		while (count($keys) > 0) {
 			$next = array_shift($keys);
 			if (!$current->$next instanceof self) {
-				$current = $current->set($next, array());
-			} else {
-				$current = $current->$next;
+				$current->set($next, []);
 			}
+			$current = $current->$next;
 		}
 		return $current;
 	}
@@ -377,7 +333,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function walk($keys, $default = null) {
+	public function walk(string|array $keys, mixed $default = null): mixed {
 		$keys = is_array($keys) ? $keys : explode(self::key_separator, $keys);
 		$current = $this;
 		while (count($keys) > 0) {
@@ -391,32 +347,24 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	}
 
 	/**
-	 * Lock a Configuration so it can not be modified
-	 */
-	public function lock() {
-		$this->_locked = true;
-	}
-
-	/**
 	 * Retrieve value
 	 */
-	public function value() {
+	public function value(): array {
 		return $this->_data;
 	}
 
 	/**
 	 * Convert entire structure to an array, recursively
 	 *
-	 * @param integer $depth How deep to traverse (null for infinite)
+	 * @param int|null $depth How deep to traverse (null for infinite)
 	 * @return array
-	 * @throws Exception_Lock
 	 */
-	public function to_array($depth = null) {
-		$result = array();
+	public function toArray(int $depth = null): array {
+		$result = [];
 		foreach ($this->_data as $key => $value) {
 			if ($value instanceof self) {
 				if ($depth === null || $depth > 0) {
-					$result[$key] = $value->to_array($depth > 0 ? $depth - 1 : null);
+					$result[$key] = $value->toArray($depth > 0 ? $depth - 1 : null);
 				}
 			} else {
 				$result[$key] = $value;
@@ -430,14 +378,13 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @return array
 	 */
-	public function to_list() {
-		$result = array();
-		foreach ($this->_data as $key => $value) {
+	public function toList(): array {
+		$result = [];
+		foreach ($this->_data as $value) {
 			if ($value instanceof self) {
 				continue;
-			} else {
-				$result[] = $value;
 			}
+			$result[] = $value;
 		}
 		return $result;
 	}
@@ -446,19 +393,20 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * Defined by Iterator interface
 	 *
 	 * @return mixed
+	 *
 	 */
-	public function current() {
+	public function current(): mixed {
 		$this->_skip_next = false;
 		return current($this->_data);
 	}
 
 	/**
 	 *
+	 * @return string|int|null
 	 * @see Iterator
 	 *
-	 * @return mixed
 	 */
-	public function key() {
+	public function key(): string|int|null {
 		return key($this->_data);
 	}
 
@@ -466,7 +414,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @see Iterator
 	 */
-	public function next() {
+	public function next(): void {
 		if ($this->_skip_next) {
 			$this->_skip_next = false;
 			return;
@@ -479,7 +427,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @see Iterator
 	 */
-	public function rewind() {
+	public function rewind(): void {
 		$this->_skip_next = false;
 		reset($this->_data);
 		$this->_index = 0;
@@ -487,11 +435,11 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 
 	/**
 	 *
+	 * @return boolean
 	 * @see Iterator
 	 *
-	 * @return boolean
 	 */
-	public function valid() {
+	public function valid(): bool {
 		return $this->_index < $this->_count;
 	}
 
@@ -499,48 +447,46 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @return integer
 	 */
-	public function count() {
+	public function count(): int {
 		return $this->_count;
 	}
 
 	/**
 	 *
-	 * @see ArrayAccess
 	 * @param mixed $offset
 	 * @return boolean
+	 * @see ArrayAccess
 	 */
-	public function offsetExists($offset) {
+	public function offsetExists(mixed $offset): bool {
 		return $this->__isset($offset);
 	}
 
 	/**
 	 *
-	 * @see ArrayAccess
 	 * @param mixed $offset
 	 * @return mixed
+	 * @see ArrayAccess
 	 */
-	public function offsetGet($offset) {
+	public function offsetGet(mixed $offset): mixed {
 		return $this->__get($offset);
 	}
 
 	/**
 	 *
-	 * @see ArrayAccess
 	 * @param mixed $offset
 	 * @param mixed $value
-	 * @throws Exception_Lock
+	 * @see ArrayAccess
 	 */
-	public function offsetSet($offset, $value) {
+	public function offsetSet(mixed $offset, mixed $value): void {
 		$this->__set($offset, $value);
 	}
 
 	/**
 	 *
-	 * @see ArrayAccess
 	 * @param mixed $offset
-	 * @throws Exception_Lock
+	 * @see ArrayAccess
 	 */
-	public function offsetUnset($offset) {
+	public function offsetUnset(mixed $offset): void {
 		$this->__unset($offset);
 	}
 
@@ -550,60 +496,44 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string $key
 	 * @return array
 	 */
-	private function _add_path($key) {
-		return array_merge($this->_path, array(
+	private function _addPath(string $key): array {
+		return array_merge($this->_path, [
 			$key,
-		));
-	}
-
-	/**
-	 * Throw exception when locked
-	 *
-	 * @param string $key
-	 *        	Key attempting to modify
-	 * @param string $verb
-	 *        	Action attempting to do (debug)
-	 * @throws Exception_Lock
-	 */
-	private function _locked($key, $verb) {
-		throw new Exception_Lock("Unable to $verb key {key} at {path}", array(
-			"key" => $key,
-			"path" => $this->_path,
-		));
+		]);
 	}
 
 	/**
 	 * Returns true if old configuration option is still being used
 	 *
 	 * @param array|string $old_path
-	 * @param array|string $new_path
+	 * @param string|array|null $new_path
 	 * @return boolean Returns true if OLD value still found and (optionally) mapped to new
-	 * @throws Exception_Lock|Exception_Semantics|Exception_Deprecated
+	 * @throws Exception_Semantics|Exception_Deprecated
 	 */
-	final public function deprecated($old_path, $new_path = null) {
+	final public function deprecated(string|array $old_path, string|array $new_path = null): bool {
 		$old_value = $this->walk($old_path);
 		if ($old_value === null) {
 			return false;
 		}
 		$logger = Kernel::singleton()->application()->logger;
 		if ($new_path == null) {
-			$logger->warning("Global configuration option {old_path} is deprecated, remove it", compact("old_path"));
+			$logger->warning('Global configuration option {old_path} is deprecated, remove it', compact('old_path'));
 			return true;
 		}
-		$message_args = array();
-		if (!$this->path_exists($new_path)) {
-			$this->path_set($new_path, $old_value);
-			$message = "Global configuration option \"{old_path}\" is deprecated ({old_value}), use existing \"{new_path}\"";
-			$message_args['old_value'] = to_array($old_value);
+		$message_args = [];
+		if (!$this->pathExists($new_path)) {
+			$this->setPath($new_path, $old_value);
+			$message = 'Global configuration option "{old_path}" is deprecated ({old_value}), use existing "{new_path}"';
+			$message_args['old_value'] = toArray($old_value);
 		} else {
 			$new_value = $this->walk($new_path);
 			if ($new_value instanceof self && $old_value instanceof self) {
-				$message = "Global configuration option {old_path} is deprecated ({old_value}), use existing \"{new_path}\" (merged)";
+				$message = 'Global configuration option {old_path} is deprecated ({old_value}), use existing "{new_path}" (merged)';
 				$new_value->merge($old_value);
-				$this->path_set($old_path, null);
-				$message_args['old_value'] = to_array($old_value);
+				$this->setPath($old_path, null);
+				$message_args['old_value'] = toArray($old_value);
 			} else {
-				$message = "Global configuration option {old_path} ({old_type}) is deprecated, use existing {new_path} (NOT merged)";
+				$message = 'Global configuration option {old_path} ({old_type}) is deprecated, use existing {new_path} (NOT merged)';
 			}
 		}
 		if (is_array($old_path)) {
@@ -612,11 +542,100 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 		if (is_array($new_path)) {
 			$new_path = implode(self::key_separator, $new_path);
 		}
-		$message_args += compact("old_path", "new_path") + array(
-			"old_type" => type($old_value),
-		);
+		$message_args += compact('old_path', 'new_path') + [
+			'old_type' => type($old_value),
+		];
 		$logger->warning($message, $message_args);
 		Kernel::singleton()->deprecated($message, $message_args);
 		return true;
+	}
+
+	/**
+	 * Does a path exist?
+	 *
+	 * @param string|array $path
+	 * @return boolean
+	 * @deprecated 2022-02 PSR
+	 */
+	public function path_exists(string|array $path) {
+		zesk()->deprecated(__METHOD__);
+		return $this->pathExists($path);
+	}
+
+	/**
+	 *
+	 * @param $depth
+	 * @return mixed
+	 * @deprecated 2022-02
+	 */
+	public function to_array(int $depth = null): array {
+		zesk()->deprecated(__METHOD__);
+		return $this->toArray($depth);
+	}
+
+	/**
+	 * Convert entire structure to a list
+	 *
+	 * @return array
+	 * @deprecated 2022-02
+	 */
+	public function to_list() {
+		zesk()->deprecated(__METHOD__);
+		return $this->toList();
+	}
+
+	/**
+	 * Set multiple paths to multiple values
+	 *
+	 * @param array $paths
+	 * @return Configuration[]
+	 * @throws Exception_Lock
+	 * @deprecated 2022-12
+	 */
+	public function paths_set(array $paths) {
+		zesk()->deprecated(__METHOD__);
+		return $this->setPaths($paths);
+	}
+
+	/**
+	 * Given a path into the configuration tree, set a value
+	 *
+	 * @param string|array $path
+	 * @param mixed $value
+	 * @return Configuration parent node of final value set
+	 * @deprecated 2022-12
+	 */
+	public function path_set(string|array $path, mixed $value = null): self {
+		zesk()->deprecated(__METHOD__);
+		return $this->setPath($path, $value);
+	}
+
+	/**
+	 * Get multiple paths at once, using the key value as the default value
+	 *
+	 * @param array $paths
+	 * @return array
+	 * @deprecated 2022-12
+	 */
+	public function paths_get(array $paths) {
+		zesk()->deprecated(__METHOD__);
+		$result = [];
+		foreach ($paths as $path => $default) {
+			$result[$path] = $this->getPath($path, $default);
+		}
+		return $result;
+	}
+
+	/**
+	 * Retrieve a path using self::key_separator
+	 *
+	 * @param string|array $path
+	 * @param mixed $default
+	 * @return mixed
+	 * @deprecated 2022-12
+	 */
+	public function path_get(string|array $path, mixed $default = null): mixed {
+		zesk()->deprecated(__METHOD__);
+		return $this->getPath($path, $default);
 	}
 }

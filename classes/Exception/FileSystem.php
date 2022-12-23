@@ -1,12 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
+
+use Throwable;
 
 /**
  *
@@ -18,38 +20,51 @@ class Exception_FileSystem extends Exception {
 	 *
 	 * @var string
 	 */
-	protected $filename;
+	protected string $path;
 
 	/**
 	 *
-	 * @param string $filename
+	 * @param string $path
 	 * @param string $message
 	 * @param array $arguments
-	 * @param number $code
+	 * @param int $code
+	 * @param Throwable|null $previous
 	 */
-	public function __construct($filename = null, $message = "", array $arguments = array(), $code = 0) {
-		$this->filename = $filename;
-		if (strpos($message, "{filename}") === false) {
-			$message = "{filename}: $message";
+	public function __construct(
+		string $path = '',
+		string $message = '',
+		array $arguments = [],
+		int $code = 0,
+		Throwable $previous = null
+	) {
+		$this->path = $path;
+		if (!str_contains($message, '{path}')) {
+			$message = "{path}: $message";
 		}
-		parent::__construct($message, array(
-			"filename" => $filename,
-		) + $arguments, $code);
+		parent::__construct($message, [
+			'path' => $path,
+		] + $arguments, $code, $previous);
 	}
 
 	/**
 	 *
 	 * @return string
 	 */
-	public function filename() {
-		return $this->filename;
+	public function path(): string {
+		return $this->path;
 	}
 
 	/**
 	 *
 	 * @return string
 	 */
-	public function __toString() {
-		return "filename: " . $this->filename . "\n" . parent::__toString();
+	public function __toString(): string {
+		$path = $this->path();
+		$result = parent::__toString();
+		if (str_contains($result, $path)) {
+			return $result;
+		}
+		// Theory is this is unreachable KMD
+		return "path: $path\n$result";
 	}
 }

@@ -1,22 +1,22 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage locale
  * @author kent
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Thu Jan 22 12:10:40 EST 2009 12:10:40
  */
-$tt = array();
+$tt = [];
 
 // @deprecated 2018-02
-$tt['plural:=day'] = "dní";
-$tt['Language:=en_US'] = "Angličtina (US)";
-$tt['Language:=en_GB'] = "Angličtina (UK)";
-$tt['Language:=es_ES'] = "Španielčina (Španielsko)";
-$tt['Language:=fr_FR'] = "Francúzština (Francúzsko)";
-$tt['Language:=de_DE'] = "Nemčina (Nemecko)";
+$tt['plural:=day'] = 'dní';
+$tt['Language:=en_US'] = 'Angličtina (US)';
+$tt['Language:=en_GB'] = 'Angličtina (UK)';
+$tt['Language:=es_ES'] = 'Španielčina (Španielsko)';
+$tt['Language:=fr_FR'] = 'Francúzština (Francúzsko)';
+$tt['Language:=de_DE'] = 'Nemčina (Nemecko)';
 
-$tt += array(
+$tt += [
 	'Language:=Afar' => 'Afar',
 	'Language:=Abkhazian' => 'Abkhazian',
 	'Language:=Afrikaans' => 'Afrikaans',
@@ -160,6 +160,6 @@ $tt += array(
 
 	'Language:=French (Canada)' => 'French (Canada)',
 	'Language:=French (France)' => 'French (France)',
-);
+];
 
 return $tt;

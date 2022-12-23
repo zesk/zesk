@@ -1,8 +1,12 @@
 <?php
+declare(strict_types=1);
 /**
- * @copyright &copy; 2016 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
+
+use GdImage;
 
 /**
  *
@@ -10,13 +14,9 @@ namespace zesk;
  *
  */
 class Image_Library_GD extends Image_Library {
-	private static $output_map = array(
-		'png' => 'png',
-		'gif' => 'gif',
-		'jpeg' => 'jpeg',
-		'jpg' => 'jpeg',
-		'jpg' => 'jpeg',
-	);
+	private static array $output_map = [
+		'png' => 'png', 'gif' => 'gif', 'jpeg' => 'jpeg', 'jpg' => 'jpeg', 'jpg' => 'jpeg',
+	];
 
 	/**
 	 * Background color allocated upon image create
@@ -29,38 +29,9 @@ class Image_Library_GD extends Image_Library {
 	 *
 	 * @return boolean
 	 */
-	public function installed() {
-		return function_exists("imagecreate");
+	public function installed(): bool {
+		return function_exists('imagecreate');
 	}
-
-	/*
-	 * TODO Remove this 2016-09
-	 *
-	 private function _image_transparency_setup($src, $dst) {
-	 imagealphablending($dst, false);
-
-	 // get and reallocate transparency-color
-	 $transparent_index = imagecolortransparent($src);
-	 if ($transparent_index >= 0) {
-	 $transparent_color = imagecolorsforindex($src, $transparent_index);
-	 $transparent_index = imagecolorallocatealpha(dst, $transparent_color['red'], $transparent_color['green'], $transparent_color['blue'], 127);
-	 imagefill($dst, 0, 0, $transparent_index);
-	 }
-	 return $transparent_index;
-	 }
-	 private function _image_transparency_finish($src, $dst, $state) {
-	 imagealphablending($dst, false);
-
-	 // get and reallocate transparency-color
-	 $transparent_index = imagecolortransparent($src);
-	 if ($transparent_index >= 0) {
-	 $transparent_color = imagecolorsforindex($src, $transparent_index);
-	 $transparent_index = imagecolorallocatealpha(dst, $transparent_color['red'], $transparent_color['green'], $transparent_color['blue'], 127);
-	 imagefill($dst, 0, 0, $transparent_index);
-	 }
-	 return $transparent_index;
-	 }
-	 */
 
 	/**
 	 *
@@ -69,25 +40,20 @@ class Image_Library_GD extends Image_Library {
 	 * @param array $options
 	 * @return boolean|string
 	 */
-	private function _image_scale_resource($src, $dest, array $options) {
+	private function _image_scale_resource(resource $src, string $dest, array $options): string {
 		// Must convert to int to ensure "divide by zero" test below works
 		$actual_width = intval(imagesx($src));
 		$actual_height = intval(imagesy($src));
-
-		// Extract settings
-		unset($options['src']);
-		unset($options['dest']);
-		unset($options['options']);
-		$width = $actual_width;
-		$height = $actual_height;
-		$zoom = false;
-		$crop = false;
-		$skew = false;
-		extract($options, EXTR_IF_EXISTS);
+		$width = $options['width'] ?? $actual_width;
+		$height = $options['height'] ?? $actual_height;
+		$zoom = $options['zoom'] ?? false;
+		$crop = $options['crop'] ?? false;
+		$skew = $options['skew'] ?? false;
+		$antialias = $options['antialias'] ?? true;
 
 		// Yeah, right. Avoid divide by zero below as well.
 		if (($actual_width === $width && $actual_height === $height) || $actual_width === 0 || $actual_height === 0) {
-			return $this->_imageoutput($src, $dest);
+			return $this->_imageOutput($src, $dest);
 		}
 
 		// Basic save values, compute aspect ratio
@@ -114,9 +80,9 @@ class Image_Library_GD extends Image_Library {
 			}
 		}
 		if ($zoom) {
+			$width = $original_width;
+			$height = $original_height;
 			if ($crop) {
-				$width = $original_width;
-				$height = $original_height;
 				// Maintain aspect ratio
 				if ($ratio_scaled < $ratio) {
 					$src_width = intval($actual_width / $ratio);
@@ -127,8 +93,6 @@ class Image_Library_GD extends Image_Library {
 					$src_y = round(($actual_height - $src_height) / 2);
 				}
 			} else {
-				$width = $original_width;
-				$height = $original_height;
 				// Maintain aspect ratio
 				if ($ratio_scaled > $ratio) {
 					$scaling = $height / $src_height;
@@ -145,45 +109,40 @@ class Image_Library_GD extends Image_Library {
 			}
 		}
 
-		$dst = $this->_imagecreate($width, $height);
+		$dst = $this->_imageCreate($width, $height);
 
-		$high_quals = true;
-		if (function_exists('imageantialias')) {
-			imageantialias($src, $high_quals);
-			imageantialias($dst, $high_quals);
+		if ($antialias && function_exists('imageantialias')) {
+			imageantialias($src, $antialias);
+			imageantialias($dst, $antialias);
 		}
-		imagealphablending($dst, $high_quals);
-		imagesavealpha($dst, $high_quals);
+		imagealphablending($dst, $antialias);
+		imagesavealpha($dst, $antialias);
 		imagecopyresampled($dst, $src, $dst_x, $dst_y, $src_x, $src_y, $dst_width, $dst_height, $src_width, $src_height);
 		if ($zoom) {
 			// imagefill($dst, 0, 0, $this->bg_color);
 			// imagefill($dst, $dst_x + $dst_width, $dst_y + $dst_height, $this->bg_color);
 		}
-		return $this->_imageoutput($dst, $dest);
+		return $this->_imageOutput($dst, $dest);
 	}
 
 	/**
-	 * @todo Fix error
 	 *
-	 * PHP Fatal error:  imagecreatefromstring(): gd-png: fatal libpng error: invalid literal/length code in /publish/apps/zesk-0.15.6a/classes/Image/Library/GD.php on line 174
-	 *
-	 * Validate beforehand?
-	 *
-	 * {@inheritDoc}
-	 * @see Image_Library::image_scale_data()
+	 * @param string $data
+	 * @param array $options
+	 * @return string
+	 * @throws Exception_Semantics
 	 */
-	public function image_scale_data($data, array $options) {
+	public function imageScaleData(string $data, array $options): string {
 		if (empty($data)) {
-			throw new Exception_Semantics("{method} passed an empty string", array(
-				"method" => __METHOD__,
-			));
+			throw new Exception_Semantics('{method} passed an empty string', [
+				'method' => __METHOD__,
+			]);
 		}
 		$src = @imagecreatefromstring($data);
 		if (!is_resource($src)) {
-			throw new Exception_Semantics("{method} passed an invalid string of {n} bytes", array(
-				"n" => strlen($data),
-				"method" => __METHOD__,
-			));
+			throw new Exception_Semantics('{method} passed an invalid string of {n} bytes', [
+				'n' => strlen($data), 'method' => __METHOD__,
+			]);
 		}
 		return $this->_image_scale_resource($src, null, $options);
 	}
@@ -193,45 +152,43 @@ class Image_Library_GD extends Image_Library {
 	 * @throws \zesk\Exception_File_NotFound
 	 * @throws \zesk\Exception_Semantics
 	 * {@inheritDoc}
-	 * @see Image_Library::image_scale()
+	 * @see Image_Library::imageScale()
 	 */
-	public function image_scale($source, $dest, array $options) {
-		$src = $this->_imageload($source);
+	public function imageScale(string $source, string $dest, array $options): string {
+		$src = $this->_imageLoad($source);
 		return $this->_image_scale_resource($src, $dest, $options);
 	}
 
 	/**
 	 * Load an image from a source file on disk
 	 *
-	 * @throws \zesk\Exception_File_NotFound
-	 * @throws \zesk\Exception_Semantics
 	 * @param string $source image file path to load
-	 * @return resource
+	 * @return GdImage
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_Semantics
 	 */
-	private function _imageload($source) {
+	private function _imageLoad(string $source): GdImage {
 		$contents = @file_get_contents($source);
 		if (!is_string($contents)) {
 			throw new Exception_File_NotFound($source, __METHOD__);
 		}
-		$src = @imagecreatefromstring($contents);
-		if (!is_resource($src)) {
-			throw new Exception_Semantics("{method} passed an invalid string from {source} of {n} bytes", array(
-				"n" => strlen($contents),
-				"source" => $source,
-				"method" => __METHOD__,
-			));
+		$src = imagecreatefromstring($contents);
+		if (!$src instanceof GdImage) {
+			throw new Exception_Semantics('{method} passed an invalid string from {source} of {n} bytes', [
+				'n' => strlen($contents), 'source' => $source, 'method' => __METHOD__,
+			]);
 		}
 		return $src;
 	}
 
 	/**
 	 * Create an image in memory
-	 * @param integer $width
-	 * @param integer $height
-	 * @return resource
+	 * @param int $width
+	 * @param int $height
+	 * @return GdImage
 	 */
-	private function _imagecreate($width, $height) {
-		if (!$res = @imagecreatetruecolor($width, $height)) {
+	private function _imageCreate(int $width, int $height): GdImage {
+		if (!$res = imagecreatetruecolor($width, $height)) {
 			$res = imagecreate($width, $height);
 		}
 		imagesavealpha($res, true);
@@ -243,19 +200,21 @@ class Image_Library_GD extends Image_Library {
 	/**
 	 * Output image
 	 *
-	 * @param resource $dst
-	 * @param mixed $dest Filename to output to, or if null, returns image data
-	 * @return boolean|string
+	 * @param GdImage $dst
+	 * @param mixed $dest Filename to output to, or if blank, returns image data
+	 * @return string|bool
+	 * @throws Exception_System
 	 */
-	private function _imageoutput($dst, $dest) {
-		$type = MIME::from_filename($dest);
-		$output = avalue(self::$output_map, $type, 'png');
+	private function _imageOutput(GdImage $dst, string $dest = ''): string|bool {
+		$type = MIME::fromExtension($dest);
+		$output = self::$output_map[$type] ?? 'png';
 		$method = "image$output";
-		if ($dest === null) {
+		if ($dest === '') {
 			ob_start();
+			$dest = null;
 		}
 		switch ($method) {
-			case "imagejpeg":
+			case 'imagejpeg':
 				$result = $method($dst, $dest, 100);
 
 				break;
@@ -268,7 +227,7 @@ class Image_Library_GD extends Image_Library {
 			$data = ob_get_clean();
 		}
 		if ($result === false) {
-			return null;
+			throw new Exception_System('{method} returned false {dest}', ['method' => $method, 'dest' => $dest]);
 		}
 		return $dest ? $result : $data;
 	}
@@ -279,24 +238,21 @@ class Image_Library_GD extends Image_Library {
 	 * @param mixed $value
 	 * @return integer[]
 	 */
-	private function parse_color($value) {
+	private function parseColor(array|string $value): array {
+		$defaultColor = [0, 0, 0, ];
 		if (is_array($value)) {
-			if (ArrayTools::is_list($value)) {
-				return $value;
+			if (ArrayTools::isList($value)) {
+				return array_slice(array_values($value), 0, 3);
 			}
-			return array(
-				$value['r'],
-				$value['g'],
-				$value['b'],
-			);
-		} elseif (is_string($value)) {
-			return CSS::color_parse($value);
+			return [
+				$value['r'] ?? 0, $value['g'] ?? 0, $value['b'] ?? 0,
+			];
 		} else {
-			return array(
-				0,
-				0,
-				0,
-			);
+			try {
+				return CSS::colorParse($value);
+			} catch (Exception_Syntax $e) {
+				return $defaultColor;
+			}
 		}
 	}
 
@@ -304,21 +260,26 @@ class Image_Library_GD extends Image_Library {
 	 * @throws \zesk\Exception_File_NotFound
 	 * @throws \zesk\Exception_Semantics
 	 * {@inheritDoc}
-	 * @see \zesk\Image_Library::image_rotate()
+	 * @see \zesk\Image_Library::imageRotate()
 	 */
-	public function image_rotate($source, $destination, $degrees, array $options = array()) {
-		$source_resource = $this->_imageload($source);
-		$bgcoloroption = avalue($options, 'background_color', 0);
-		$bgcolor = 0;
-		if ($bgcoloroption) {
-			list($r, $g, $b) = $this->parse_color($bgcoloroption);
-			$bgcolor = imagecolorallocate($source_resource, $r, $g, $b);
+	public function imageRotate(string $source, string $destination, float $degrees, array $options = []): bool {
+		$source_resource = $this->_imageLoad($source);
+		$backgroundColor = $options['background_color'] ?? 0;
+		$gdBackgroundColor = 0;
+		if ($backgroundColor) {
+			[$r, $g, $b] = $this->parseColor($backgroundColor);
+			$gdBackgroundColor = imagecolorallocate($source_resource, $r, $g, $b);
 		}
-		$rotate = imagerotate($source_resource, $degrees, $bgcolor);
-		if ($bgcolor) {
-			imagecolordeallocate($source_resource, $bgcolor);
+		$rotate = imagerotate($source_resource, $degrees, $gdBackgroundColor);
+		if ($gdBackgroundColor) {
+			imagecolordeallocate($source_resource, $gdBackgroundColor);
 		}
-		$result = $this->_imageoutput($rotate, $destination);
+
+		try {
+			$result = $this->_imageOutput($rotate, $destination);
+		} catch (Exception_System) {
+			$result = false;
+		}
 		imagedestroy($source_resource);
 		return $result;
 	}

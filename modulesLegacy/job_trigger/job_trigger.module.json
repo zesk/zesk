@@ -1,0 +1,7 @@
+{
+	"name": "Job Trigger",
+	"autoload": {
+		"classPrefix": "zesk\\"
+	},
+	"moduleClass": "zesk\\Module_Job_Trigger"
+}

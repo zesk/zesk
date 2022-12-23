@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 /**
- * @copyright &copy; 2016 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -9,16 +9,15 @@ namespace zesk;
  *
  */
 class Model_List extends Model {
-	public $offset = 0;
+	protected string $class_name = '';
 
-	public $limit = -1;
+	public int $offset = 0;
 
-	public $total = -1;
+	public int $limit = -1;
 
-	public $filter = null;
+	public int $total = -1;
 
-	/**
-	 * @var Model_List
-	 */
+	public array $filter = [];
+
 	public $pager = null;
 }

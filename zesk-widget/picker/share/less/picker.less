@@ -1,0 +1,149 @@
+@selected-border-color: #000;
+@selected-background-color: #EEE;
+@selected-color: #000;
+
+@picker-hover-background-color: #EEE;
+
+@unselected-border-color: #AAA;
+@unselected-background-color: #FFF;
+@unselected-color: #AAA;
+
+@border-size: 1px;
+
+@spacing: 10px;
+
+.clearfix() {
+    &:before,
+    &:after {
+      content: " "; // 1
+      display: table; // 2
+    }
+    &:after {
+      clear: both;
+    }
+}
+.control-picker-item() {
+	color: @unselected-color;
+	background-color: @unselected-background-color;
+	border: @border-size solid @unselected-border-color;
+
+	display: block;
+	float: left;
+	border-radius: @spacing;
+	padding: (@spacing/2) @spacing;
+	margin-right: @spacing;
+	margin-bottom: @spacing;
+	transition: border-color 0.3s;
+	transition: color 0.3s;
+	transition: background-color 0.3s;
+	.checked, .unchecked {
+		font-size: 3em;
+		position: absolute;
+		right: 10px;
+		top: 14px;
+	}
+	.checked {
+		display: none;
+	}
+	.unchecked {
+		display: block;
+	}
+	&.selected {
+		.checked {
+			display: block;
+		}
+		.unchecked {
+			display: none;
+		}
+		border: @border-size solid @selected-border-color;
+		background-color: @selected-background-color;
+		color: @selected-color;
+	}
+
+}
+.control-picker-item-hover() {
+	// Was selected, now is not
+	&.selected-over {
+		// color: @unselected-border-color;
+		background-color: @picker-hover-background-color;
+		// border-color: @unselected-border-color;
+		.checked {
+			display: none;
+		}
+		.unchecked {
+			display: block;
+		}
+	}
+	&.unselected-over {
+		background-color: @picker-hover-background-color;
+		color: @selected-color;
+		// background-color: @selected-background-color;
+		// border-color: @selected-border-color;
+		.checked {
+			display: none;
+		}
+		.unchecked {
+			display: block;
+		}
+	}
+	&.selected {
+		&.selected-over {
+			color: @unselected-color;
+			// color: @selected-border-color;
+			// background-color: @unselected-background-color;
+			// border-color: @unselected-border-color;
+			.checked {
+				display: block;
+			}
+			.unchecked {
+				display: none;
+			}
+		}
+		&.unselected-over {
+			// Going from unselected to selected
+			color: @selected-color;
+			// background-color: @selected-background-color;
+			// border-color: @selected-border-color;
+			.checked {
+				color: @selected-color;
+				display: block;
+			}
+			.unchecked {
+				display: none;
+			}
+		}
+	}
+}
+
+.control-picker-state {
+	padding: @spacing 0;
+	.item {
+		.control-picker-item();
+	}
+	.clearfix()
+}
+.control-picker-state.selectable {
+	padding: @spacing 0;
+	.item {
+		.control-picker-item-hover();
+	}
+}
+
+.control-picker-selector {
+	.control-picker-none-selected {
+		font-size: 100%;
+		font-weight: bold;
+		border: 1px solid #EEE;
+		padding: 10px;
+		margin: 0 0 10px;
+		border-radius: 5px;
+	}
+	.control-picker-results {
+		padding: 0;
+		.item {
+			.control-picker-item();
+			.control-picker-item-hover();
+		}
+		.clearfix();
+	}
+}

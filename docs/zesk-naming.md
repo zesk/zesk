@@ -124,7 +124,7 @@ TODO
 
 Classes which inherit from `Hookable` have hook functionality built in. To invoke a hook:
 
-    $x->call_hook('notify', $emails);
+    $x->callHook('notify', $emails);
 
 Hook names within a class are [Lower Underscore](naming-styles-definitions.md) and generally are message phrases, such a:
 
@@ -151,7 +151,7 @@ The `Hookable` class invokes `hook_`*`message`* first, then calls the class hier
 			if ($location->within_radius(100 * Location::METERS)) {
 				$this->arrived = Timestamp::now();
 				$this->store();
-				$this->call_hook("delivered", $location);
+				$this->callHook("delivered", $location);
 			}
 		}
 	}
@@ -175,7 +175,7 @@ So, if we wanted to intercept this via a hook, we could do this in our applicati
 		$sms = $pizza->order->sms_notify;
 		if ($sms) {
 			$order_id = $pizza->order->code;
-			$app->orm_factory("SMS")->submit_message_to($sms, "Your pizza order #$order_id was delivered");
+			$app->ormFactory("SMS")->submit_message_to($sms, "Your pizza order #$order_id was delivered");
 		}
 	});
 

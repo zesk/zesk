@@ -66,7 +66,7 @@ Are synonymous once loaded. To save a global, do:
 	
 Finally, to enable `zesk\Settings` support in an application, simply register its hooks (TODO Is this still true?):
 
-	zesk\Hooks::register_class('Settings');
+	zesk\Hooks::registerClass('Settings');
 
 ... prior to `zesk\Application` configuration.
 
@@ -122,7 +122,7 @@ If a site is not served from a rooted web site (e.g. `http://example.com/path/to
 Search path for shell or external commands. Similar to `$PATH` in `bash`, if not set it will use `$_SERVER['PATH']` which is separated by an operating-specific separator. 
 A semicolon-separated list of paths in the file-system.
 
-## `zesk_command_path`
+## `zeskCommandPath`
 
 Search path for zesk shell commands, invoked by [zesk.sh](zesk.sh.md). Similar to `command_path`, semicolon-separated. Defaults to "$ZESK_ROOT/command".
 
@@ -162,4 +162,3 @@ Linefeed character. Defaults to global defined value `ZESK_DEFAULT_NEWLINE` whic
 ## `zesk_site_root`
 
 a.k.a. `zesk_application_root`
-

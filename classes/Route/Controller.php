@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
 
 use \ReflectionClass;
@@ -14,46 +16,50 @@ use \ReflectionClass;
  */
 class Route_Controller extends Route {
 	/**
+	 * Lazy evaluation of the reflection class to instantiate the controller
 	 *
-	 * @var ReflectionClass
+	 * @var ?ReflectionClass
 	 */
-	protected $class = null;
+	protected ?ReflectionClass $class = null;
 
 	/**
 	 *
 	 * @var string The class which was instantiated.
 	 */
-	protected $class_name = null;
+	protected string $class_name = '';
 
 	/**
+	 * Lazy evaluation of the controller
 	 *
-	 * @var Controller
+	 * @var ?Controller
 	 */
-	protected $controller = null;
+	protected ?Controller $controller = null;
 
 	/**
+	 * The action to invoke
 	 *
 	 * @var string
 	 */
-	protected $controller_action = null;
+	protected string $controller_action = '';
 
-	protected function initialize() {
-		$action = $this->option("action", "");
+	/**
+	 * @return void
+	 * @throws Exception_Parameter
+	 */
+	protected function initialize(): void {
+		$action = $this->option('action', '');
 		if (!is_string($action)) {
-			throw new Exception_Parameter("Action must be a string: {type}", array(
-				"type" => type($action),
-			));
+			throw new Exception_Parameter('Action must be a string: {type}', [
+				'type' => type($action),
+			]);
 		}
 	}
 
 	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 * @see Route::__sleep()
+	 * @return array|string[]
 	 */
 	public function __sleep() {
-		return array_merge(array(), parent::__sleep());
+		return array_merge([], parent::__sleep());
 	}
 
 	/**
@@ -62,111 +68,107 @@ class Route_Controller extends Route {
 	 *
 	 * @see Route::__wakeup()
 	 */
-	public function __wakeup() {
+	public function __wakeup(): void {
 		parent::__wakeup();
 		$this->class = null;
-		$this->class_name = null;
+		$this->class_name = '';
 		$this->controller = null;
-		$this->controller_action = null;
+		$this->controller_action = '';
 	}
 
 	/**
 	 *
-	 * @return multitype:Controller string
+	 * @param Response|null $response
+	 * @throws Exception_Class_NotFound
 	 */
-	private function _init_controller(Response $response = null) {
+	private function _initController(Response $response = null): void {
 		if ($this->controller instanceof Controller) {
-			return array(
-				$this->controller,
-				$this->controller_action,
-			);
+			return;
 		}
 
-		list($class, $this->controller_action) = $this->_determine_class_action();
+		[$class, $this->controller_action] = $this->_determineClassAction();
 
 		/* @var $controller Controller */
-		$this->controller = $class->newInstance($this->application, $this, $response, $this->option_array("controller options") + $this->options);
-
-		return array(
-			$this->controller,
-			$this->controller_action,
-		);
+		$this->controller = $class->newInstance($this->application, $this, $response, $this->optionArray('controller options') + $this->options);
 	}
 
 	/**
 	 *
 	 * @return string
 	 */
-	public function action_method_prefix() {
-		return $this->option('method prefix', 'action_');
+	public function actionMethodPrefix(): string {
+		return strval($this->option('method prefix', 'action_'));
 	}
 
 	/**
 	 * Execute this route
 	 *
-	 * @see Route::_execute()
+	 * @param Response $response
+	 * @return Response
+	 * @throws Exception_System
+	 * @throws Exception_Redirect
 	 */
-	public function _execute(Response $response) {
+	public function _execute(Response $response): Response {
 		$app = $this->application;
-		list($controller, $action) = $this->_init_controller($response);
-		$__ = array(
-			'class' => get_class($controller),
-			'action' => $action,
-		);
-		$app->logger->debug("Controller {class} running action {action}", $__);
-		$action_method = str_replace("-", "_", $action);
+		$this->_initController($response);
+		$controller = $this->controller;
+		assert($controller instanceof Controller);
+		$action = $this->controller_action;
+		assert($action !== '');
+
+		$__ = [
+			'class' => $controller::class, 'action' => $action,
+		];
+		$app->logger->debug('Controller {class} running action {action}', $__);
+		$actionMethod = str_replace('-', '_', $action);
 
 		try {
-			$controller->optional_method(array(
-				'before_' . $action_method,
-				"before",
-			), array());
-			$controller->call_hook("before");
+			$controller->optionalMethod([
+				'before_' . $actionMethod, 'before',
+			], []);
+			$controller->callHook('before');
 
-			$arguments_method = $this->option('arguments method', $this->option('arguments method prefix', 'arguments_') . $action_method);
-			$method = $this->option('method', $this->action_method_prefix() . $action_method);
-			$method = map($method, array(
-				"method" => $this->request->method(),
-			));
+			$argumentsMethod = $this->option('arguments method', $this->option('arguments method prefix', 'arguments_') . $actionMethod);
+			$method = $this->option('method', $this->actionMethodPrefix() . $actionMethod);
+			$method = map($method, [
+				'method' => $this->request()->method(),
+			]);
 
-			if ($response->status_code === Net_HTTP::STATUS_OK) {
+			if ($response->status_code === HTTP::STATUS_OK) {
 				ob_start();
-				if ($controller->has_method($method)) {
-					$args = $controller->optional_method($arguments_method, $this->args);
-					$result = $controller->invoke_method($method, $args);
+				if ($controller->hasMethod($method)) {
+					$result = $controller->optionalMethod($argumentsMethod, $this->args);
+					$args = is_array($result) ? $result : $this->args;
+					$result = $controller->invokeMethod($method, $args);
 				} else {
-					if ($action !== "index") {
-						$app->logger->warning("No such method {method} in {class}", array(
-							"method" => $method,
-							"class" => get_class($controller),
-						));
+					if ($action !== 'index') {
+						$app->logger->warning('No such method {method} in {class}', [
+							'method' => $method, 'class' => $controller::class,
+						]);
 					}
-					$result = $controller->invoke_default_method(array_merge(array(
+					$result = $controller->invokeDefaultMethod(array_merge([
 						$action,
-					), $this->args));
+					], $this->args));
 				}
 				$contents = ob_get_clean();
-				$controller->optional_method(array(
-					'after_' . $action_method,
-					"after",
-				), array(
-					$result,
-					$contents,
-				));
-				$controller->call_hook("after");
+				$controller->optionalMethod([
+					'after_' . $actionMethod, 'after',
+				], [
+					$result, $contents,
+				]);
+				$controller->callHook('after');
 			}
 		} catch (Exception_Redirect $e) {
 			throw $e;
-		} catch (Exception $e) {
-			$app->hooks->call("exception", $e);
-			$controller->optional_method(array(
-				'exception_' . $action_method,
-				"exception",
-			), array(
+		} catch (\Exception $e) {
+			$app->hooks->call('exception', $e);
+			$controller->optionalMethod([
+				'exception_' . $actionMethod, 'exception',
+			], [
 				$e,
-			));
+			]);
 
-			throw $e;
+			throw new Exception_System('Unhandled exception {class}', Exception::exceptionVariables($e), 0, $e);
 		}
 		return $response;
 	}
@@ -174,11 +176,11 @@ class Route_Controller extends Route {
 	/**
 	 * Determine the class of the controller and the action to run
 	 *
-	 * @throws Exception_Class_NotFound
 	 * @return array
+	 * @throws Exception_Class_NotFound
 	 */
-	private function _determine_class_action() {
-		$class_name = $this->option("controller");
+	private function _determineClassAction(): array {
+		$class_name = $this->option('controller');
 		$options = ($this->named ?? []) + $this->options;
 
 		$this->class = $reflectionClass = null;
@@ -186,45 +188,42 @@ class Route_Controller extends Route {
 		try {
 			$this->class = $reflectionClass = new ReflectionClass($class_name);
 			$this->class_name = $class_name;
-			$this->log("Controller {class_name} created", array(
-				"class_name" => $class_name,
-			));
+			$this->log('Controller {class_name} created', [
+				'class_name' => $class_name,
+			]);
 		} catch (\ReflectionException $e) {
-		} catch (Exception_Class_NotFound $e) {
 		}
 		if (!$reflectionClass) {
-			throw new Exception_Class_NotFound($class_name, map("Controller {controller} not found", array(
+			throw new Exception_Class_NotFound($class_name, map('Controller {controller} not found', [
 				'controller' => $class_name,
-			)));
+			]));
 		}
 		if ($reflectionClass->isAbstract()) {
-			throw new Exception_Class_NotFound('Class {class_name} is abstract, can not instantiate', array(
+			throw new Exception_Class_NotFound('Class {class_name} is abstract, can not instantiate', [
 				'class_name' => $class_name,
-			));
+			]);
 		}
-		$action = aevalue($options, "action", $this->option("default action", "index"));
-		return array(
-			$reflectionClass,
-			$action,
-		);
+		$action = $options['action'] ?? $this->option('default action', 'index');
+		return [
+			$reflectionClass, $action,
+		];
 	}
 
 	/**
 	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Route::class_actions()
+	 * @return array
+	 * @throws Exception_Class_NotFound
 	 */
-	public function class_actions() {
-		$actions = parent::class_actions();
-		list($reflection) = $this->_determine_class_action();
-		$action_prefix = $this->action_method_prefix();
-		$action_list = array();
+	public function classActions(): array {
+		$actions = parent::classActions();
+		[$reflection] = $this->_determineClassAction();
+		$action_prefix = $this->actionMethodPrefix();
+		$action_list = [];
 		/* @var $reflection \ReflectionClass */
 		foreach ($reflection->getMethods(\ReflectionMethod::IS_PROTECTED | \ReflectionMethod::IS_PUBLIC) as $method) {
-			/* @var $method \ReflectionMethod */
 			$name = $method->getName();
-			if (begins($name, $action_prefix)) {
-				$action_list[] = StringTools::unprefix($name, $action_prefix);
+			if (str_starts_with($name, $action_prefix)) {
+				$action_list[] = StringTools::removePrefix($name, $action_prefix);
 			}
 		}
 		$actions[strtolower($reflection->getName())] = $action_list;
@@ -232,27 +231,26 @@ class Route_Controller extends Route {
 	}
 
 	/**
-	 *
-	 * @param unknown $action
-	 * @param unknown $object
-	 * @param unknown $options
-	 * @return number
+	 * @param string $action
+	 * @param Model|null $object
+	 * @param array $options
+	 * @return array
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Invalid
+	 * @throws Exception_NotFound
 	 */
-	protected function get_route_map($action, $object = null, $options = null) {
-		$map = parent::get_route_map($action, $object, $options);
+	protected function getRouteMap(string $action, Model $object = null, array $options = []): array {
+		$map = parent::getRouteMap($action, $object, $options);
 		$url = map($this->clean_pattern, $map);
 		if (!$this->match($url)) {
-			throw new Exception_Invalid("{method} {pattern} does not match {url} - route {original_pattern} is corrupt", [
-				"method" => __METHOD__,
-				"url" => $url,
+			throw new Exception_Invalid('{method} {pattern} does not match {url} - route {original_pattern} is corrupt', [
+				'method' => __METHOD__, 'url' => $url,
 			] + $this->variables());
 		}
-		$this->_map_options();
-		list($controller) = $this->_init_controller($this->response);
-		if ($controller) {
-			$map = $controller->get_route_map($action, $object, $options) + $map;
-		}
-		$this->_unmap_options();
+		$this->_mapOptions();
+		$this->_initController();
+		$map = $this->controller->getRouteMap($action, $object, $options) + $map;
+		$this->_unmapOptions();
 		return $map;
 	}
 }

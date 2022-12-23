@@ -1,14 +1,21 @@
 <?php
+declare(strict_types=1);
 
 /**
- * Loads Zesk and allows access to all functionality.
+ * Loads Zesk and allows access to all functionality. Does not create an application.
  *
  * @package zesk
  * @subpackage core
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2012, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk\Kernel;
+
+use zesk\Kernel;
+use zesk\Exception_Unsupported;
+
+require_once(__DIR__ . '/xdebug.php');
 
 /**
  * @global array $_ZESK To initialize the configuration of Zesk, set this global to an array before including this file
@@ -22,26 +29,23 @@ class Loader {
 	 *
 	 * @var double
 	 */
-	private static $init;
+	private static float $init;
 
 	/**
 	 *
-	 * @return \zesk\Kernel
+	 * @return Kernel
+	 * @throws Exception_Unsupported
 	 */
-	public static function kernel() {
-		self::$init = microtime(true);
-		require_once __DIR__ . "/classes/Kernel.php";
-	}
-
-	public static function factory() {
+	public static function kernel(): Kernel {
 		global $_ZESK;
 
-		return \zesk\Kernel::factory((is_array($_ZESK) ? $_ZESK : array()) + array(
-			"init" => self::$init,
-		));
+		self::$init = microtime(true);
+		require_once __DIR__ . '/classes/Kernel.php';
+
+		return Kernel::factory((is_array($_ZESK) ? $_ZESK : []) + [
+			'init' => self::$init,
+		]);
 	}
 }
 
-Loader::kernel();
-
-return Loader::factory();
+return Loader::kernel();

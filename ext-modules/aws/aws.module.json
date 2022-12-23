@@ -1,0 +1,12 @@
+{
+	"name": "Amazon Web Services",
+	"composer": {
+		"require": "aws/aws-sdk-php:^3.17"
+	},
+	"url_license": "http://aws.amazon.com/apache2.0/",
+	"zeskCommandClassPrefix": "zesk\\AWS\\Command_",
+	"autoload": {
+		"classPrefix": "zesk\\AWS\\"
+	},
+	"moduleClass": "zesk\\AWS\\Module"
+}

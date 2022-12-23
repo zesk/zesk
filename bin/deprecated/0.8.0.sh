@@ -4,7 +4,7 @@ zesk cannon zesk::hooks 'zesk()->hook->register_class'
 zesk cannon zesk::has_hook 'zesk()->hook->has'
 zesk cannon zesk::hook_arguments 'zesk()->hook->call_arguments'
 zesk cannon 'zesk::hook(' 'zesk()->hook->call('
-zesk cannon 'zesk::hook_array(' 'zesk()->hook->call_arguments('
+zesk cannon 'zesk::hook_array(' 'zesk()->hook->callArguments('
 
 
 zesk cannon zesk::class_hierarchy 'zesk()->classes->hierarchy'
@@ -15,7 +15,7 @@ zesk cannon zesk::version 'zesk\Version::release'
 
 fix_manually() {
 	local pattern message
-	
+
 	pattern=$1
 	message=$2
 	echo "Manual fix for $1 - $message"
@@ -32,11 +32,11 @@ fix_manually 'zesk::data_path' 'Use "$zesk->paths->data = newvalue" instead'
 # global deprecated -> zesk::deprecated
 # global assert -> zesk::assert
 # global assert_callback -> zesk::assert_callback
-# global share_path is now zesk::paths::share
+# global sharePath is now zesk::paths::share
 # global command_path is now zesk::paths::commands
 # global document_cache is now zesk::paths::document_cache
 # global uid_path is now zesk::paths::uid
-# global zesk_command_path is now zesk::paths::zesk_commands
+# global zeskCommandPath is now zesk::paths::zesk_commands
 # global zesk::data_path is now zesk::paths::data
 # global zesk::temporary_path is now zesk::paths::temporary
 # global zesk::cache_path is now zesk::paths::cache

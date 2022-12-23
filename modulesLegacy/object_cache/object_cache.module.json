@@ -1,0 +1,10 @@
+{
+	"name": "Object Cache",
+	"description": "Provides mechanisms for caching information related to Objects and then clearing that caching information based on criteria.",
+	"author": "Kent M. Davidson",
+	"author_email": "kent@marketacumen.com",
+	"autoload": {
+		"classPrefix": "zesk\\"
+	},
+	"moduleClass": "zesk\\Module_Object_Cache"
+}

@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package zesk
  * @subpackage kernel
- * @copyright &copy; 2017 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -18,27 +18,27 @@ class Process {
 	 *
 	 * @var boolean
 	 */
-	public $debug = false;
+	public bool $debug = false;
 
 	/**
 	 *
 	 * @var Application
 	 */
-	private $application = null;
+	private Application $application;
 
 	/**
 	 *
 	 */
 	public function __sleep() {
-		return array(
-			"debug",
-		);
+		return [
+			'debug',
+		];
 	}
 
 	/**
 	 *
 	 */
-	public function __wakeup() {
+	public function __wakeup(): void {
 		$this->application = __wakeup_application();
 	}
 
@@ -47,10 +47,10 @@ class Process {
 	 */
 	public function __construct(Application $application) {
 		$this->application = $application;
-		$application->hooks->add(Hooks::HOOK_CONFIGURED, array(
+		$application->hooks->add(Hooks::HOOK_CONFIGURED, [
 			$this,
-			"configured",
-		));
+			'configured',
+		]);
 	}
 
 	/**
@@ -58,7 +58,7 @@ class Process {
 	 *
 	 * @return integer
 	 */
-	public function id() {
+	public function id(): int {
 		return intval(getmypid());
 	}
 
@@ -67,7 +67,7 @@ class Process {
 	 *
 	 * @return string
 	 */
-	public function user() {
+	public function user(): string {
 		return posix_getlogin();
 	}
 
@@ -75,26 +75,39 @@ class Process {
 	 *
 	 * @param Application $application
 	 */
-	public function configured(Application $application) {
-		$key = array(
+	public function configured(Application $application): void {
+		$key = [
 			__CLASS__,
-			"debug_execute",
-		);
-		$application->configuration->deprecated("zesk::debug_execute", $key);
-		$this->debug = $application->configuration->path_get($key);
+			'debug_execute',
+		];
+		$application->configuration->deprecated('zesk::debug_execute', $key);
+		$this->debug = toBool($application->configuration->getPath($key), false);
 	}
 
 	/**
 	 *
-	 * @param integer $pid
+	 * @param int $pid
 	 * @throws \Exception_Unimplemented
 	 * @return boolean
 	 */
-	public function alive($pid) {
-		if (!function_exists("posix_kill")) {
-			throw new Exception_Unimplemented("Need --with-pcntl");
+	public static function alive(int $pid): bool {
+		if (!function_exists('posix_kill')) {
+			throw new Exception_Unimplemented('Need --with-pcntl');
 		}
-		return posix_kill($pid, 0) ? true : false;
+		return posix_kill($pid, 0);
+	}
+
+	/**
+	 *
+	 * @param int $pid
+	 * @throws \Exception_Unimplemented
+	 * @return boolean
+	 */
+	public static function term(int $pid): bool {
+		if (!function_exists('posix_kill')) {
+			throw new Exception_Unimplemented('Need --with-pcntl');
+		}
+		return posix_kill($pid, SIGTERM);
 	}
 
 	/**
@@ -121,21 +134,27 @@ class Process {
 	 *
 	 * @param string $command
 	 * @return array Lines output by the command (returned by exec)
-	 * @see exec
-	 * @see self::execute_arguments
 	 * @throws Exception_Command
+	 * @see self::executeArguments
+	 * @see exec
 	 */
-	public function execute($command) {
+	public function execute(string $command): array {
 		$args = func_get_args();
 		array_shift($args);
-		if ($command[0] === "|") {
+		if ($command[0] === '|') {
 			$command = substr($command, 1);
 			$passthru = true;
 		} else {
 			$passthru = false;
 		}
-		return $this->execute_arguments($command, $args, $passthru);
+		return $this->executeArguments($command, $args, $passthru);
 	}
+
+	public const EXEC = 'exec';
+
+	public const PASS = 'pass';
+
+	public const SHELL = 'shell';
 
 	/**
 	 * Execute a shell command with arguments supplied as an array
@@ -160,32 +179,54 @@ class Process {
 	 *        	Command to run
 	 * @param array $args
 	 *        	Arguments to escape and pass into the command
-	 * @param boolean $passthru
-	 *        	Whether to use passthru vs exec
+	 * @param bool $passThru Whether to use passthru vs exec
 	 * @throws Exception_Command
 	 * @return array Lines output by the command (returned by exec)
 	 * @see exec
 	 */
-	public function execute_arguments($command, array $args = array(), $passthru = false) {
-		foreach ($args as $i => $arg) {
-			$args[$i] = escapeshellarg($arg);
-		}
-		$args["*"] = implode(" ", array_values($args));
-		$raw_command = map($command, $args);
-		$result = 0;
-		$output = array();
-		if ($this->debug) {
-			$this->application->logger->debug("Running command: {raw_command}", compact("raw_command"));
-		}
-		if ($passthru) {
+	public function executeArguments(string $command, array $args = [], bool $passThru = false): array {
+		$raw_command = $this->generateCommand($command, $args);
+		$output = [];
+		if ($passThru) {
 			passthru($raw_command, $result);
-			$output = null;
 		} else {
 			exec($raw_command, $output, $result);
 		}
-		if (intval($result) !== 0) {
-			throw new Exception_Command($raw_command, $result, is_array($output) ? $output : array());
+		if ($result !== 0) {
+			throw new Exception_Command($raw_command, $result, is_array($output) ? $output : []);
 		}
 		return $output;
+	}
+
+	private function generateCommand($command, array $args): string {
+		foreach ($args as $i => $arg) {
+			$args[$i] = escapeshellarg(strval($arg));
+		}
+		$args['*'] = implode(' ', array_values($args));
+		$raw_command = map($command, $args);
+		if ($this->debug) {
+			$this->application->logger->debug('Running command: {raw_command}', compact('raw_command'));
+		}
+		return $raw_command;
+	}
+
+	/**
+	 * @param string $command Command
+	 * @param array $args Arguments
+	 * @param string $stdout Optional output file
+	 * @param string $stderr Optional error file
+	 * @return int Process ID of background process
+	 * @throws Exception_Command
+	 */
+	public function executeBackground(string $command, array $args = [], string $stdout = '', string $stderr = ''):
+	int {
+		$raw_command = $this->generateCommand($command, $args);
+		$stdout = escapeshellarg($stdout ?: '/dev/null');
+		$stderr = escapeshellarg($stderr ?: '/dev/null');
+		$processId = shell_exec("$raw_command > $stdout 2> $stderr & echo $!");
+		if (!$processId) {
+			throw new Exception_Command("shell_exec($raw_command) failed", 254, []);
+		}
+		return intval($processId);
 	}
 }

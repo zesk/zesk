@@ -1,10 +1,12 @@
 <?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -12,9 +14,9 @@ namespace zesk;
  * @author kent
  *
  */
-class Lang_en_test extends Test_Unit {
-	public function test_everything() {
-		$testx = $this->application->locale_factory("en");
+class Locale_EN_Test extends UnitTest {
+	public function test_everything(): void {
+		$testx = $this->application->localeFactory('en');
 
 		$testx->date_format();
 
@@ -25,86 +27,86 @@ class Lang_en_test extends Test_Unit {
 
 		$word = 'sheep';
 		$count = 2;
-		$this->assert($testx->plural($word, $count) === 'sheep');
+		$this->assertEquals('sheep', $testx->plural($word, $count));
 
 		$word = 'hour away';
 		$caps = false;
-		$this->assert_equal($testx->indefinite_article($word, false), 'an');
-		$this->assert_equal($testx->indefinite_article($word, true), 'An');
-		$this->assert_equal($testx->indefinite_article("HOUR AWAY", true), 'An');
+		$this->assertEquals($testx->indefinite_article($word, []), 'an');
+		$this->assertEquals($testx->indefinite_article($word, ['capitalize' => true]), 'An');
+		$this->assertEquals($testx->indefinite_article('HOUR AWAY', ['capitalize' => true]), 'An');
 
-		$x = array(
-			"lions",
-			"tigers",
-			"bears",
-		);
-		$conj = "and";
-		$this->assert_equal($testx->conjunction($x, $conj), "lions, tigers, and bears");
+		$x = [
+			'lions',
+			'tigers',
+			'bears',
+		];
+		$conj = 'and';
+		$this->assertEquals($testx->conjunction($x, $conj), 'lions, tigers, and bears');
 
-		$s = "word";
+		$s = 'word';
 		$n = 3;
 		$locale = null;
-		$this->assert_equal($testx->plural_number($s, $n), "3 words");
+		$this->assertEquals($testx->plural_number($s, $n), '3 words');
 	}
 
 	public function ordinal_tests() {
-		return array(
-			array(
-				'1',
-				'1st',
-			),
-			array(
+		return [
+			[
 				1,
 				'1st',
-			),
-			array(
-				'0',
-				'0th',
-			),
-			array(
+			],
+			[
+				1,
+				'1st',
+			],
+			[
 				0,
 				'0th',
-			),
-			array(
-				'11',
+			],
+			[
+				0,
+				'0th',
+			],
+			[
+				11,
 				'11th',
-			),
-			array(
-				'101',
+			],
+			[
+				101,
 				'101st',
-			),
-			array(
-				'2',
+			],
+			[
+				2,
 				'2nd',
-			),
-			array(
-				'12',
+			],
+			[
+				12,
 				'12th',
-			),
-			array(
-				'21',
+			],
+			[
+				21,
 				'21st',
-			),
-			array(
-				'22',
+			],
+			[
+				22,
 				'22nd',
-			),
-			array(
-				'99',
+			],
+			[
+				99,
 				'99th',
-			),
-			array(
-				'100000001',
+			],
+			[
+				100000001,
 				'100000001st',
-			),
-		);
+			],
+		];
 	}
 
 	/**
-	 * @data_provider ordinal_tests
+	 * @dataProvider ordinal_tests
 	 */
-	public function test_ordinal($input, $result) {
-		$testx = $this->application->locale_registry("en");
-		$this->assert_equal($testx->ordinal($input), $result);
+	public function test_ordinal(int $input, string $result): void {
+		$testx = $this->application->localeRegistry('en');
+		$this->assertEquals($testx->ordinal($input), $result);
 	}
 }

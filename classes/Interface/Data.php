@@ -1,27 +1,35 @@
 <?php
+declare(strict_types=1);
+
 namespace zesk;
 
 interface Interface_Data {
 	/**
-	 * Getter/setter for data.
+	 * Getter for data.
 	 *
-	 * When value === null, gets data, otherwise sets it
+	 * @param string $name
+	 * @return mixed
+	 */
+	public function data(string $name): mixed;
+
+	/**
+	 * Setter for data.
 	 *
 	 * This method should have immediate effect (in the database, on disk, etc.)
 	 *
 	 * @param string $name
 	 * @param mixed $value
-	 * @return mixed|Interface_Data
+	 * @return $this
 	 */
-	public function data($name, $value = null);
+	public function setData(string $name, mixed $value): self;
 
 	/**
 	 * Delete data
 	 *
 	 * This method should have immediate effect (in the database, on disk, etc.)
 	 *
-	 * @param string|list $name
-	 * @return boolean
+	 * @param array|string $name of datum to delete
+	 * @return $this
 	 */
-	public function delete_data($name);
+	public function deleteData(array|string $name): self;
 }

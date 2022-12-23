@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -15,27 +15,28 @@ class Controller extends \zesk\Controller {
 	/**
 	 *
 	 */
-	public function action_js() {
+	public function action_js(): void {
 		$app = $this->application;
 		$code = $this->request->get('ll');
+		$locales = [];
 		if (empty($code)) {
-			$locales = array(
+			$locales = [
 				$app->locale,
-			);
+			];
 			$code = $app->locale->id();
 		} else {
-			$codes = array_unique(to_list($code));
+			$codes = array_unique(toList($code));
 			foreach ($codes as $code) {
-				$locales[$code] = Reader::factory($app->locale_path(), $code)->locale($app);
+				$locales[$code] = Reader::factory($app->localePath(), $code)->locale($app);
 			}
 		}
 
-		$translations = array();
+		$translations = [];
 		foreach ($locales as $id => $locale) {
 			/* @var $locale Locale  */
 			$translations[$id] = $locale->translations();
 		}
-		$load_lines = array();
+		$load_lines = [];
 		foreach ($translations as $id => $tt) {
 			if (count($tt) > 0) {
 				$load_lines[] = 'exports.Locale.load(' . JavaScript::arguments($code, $tt) . ');';
@@ -43,14 +44,14 @@ class Controller extends \zesk\Controller {
 				$load_lines[] = "/* No translations for $id */";
 			}
 		}
-		$this->response->content_type("text/javascript");
+		$this->response->setContentType('text/javascript');
 		$load_lines[] = 'exports.Locale.locale(' . JavaScript::arguments($app->locale->id()) . ');';
 
 		$load_lines = implode("\n\t", $load_lines);
 		$content = "/* elapsed: {page-render-time}, is_cached: {page-is-cached} */\n";
 		$content .= "(function (exports) {\n\t$load_lines\n}(this));\n";
 
-		$this->response->cache_for($this->option_integer("cache_seconds", 600));
+		$this->response->setCacheFor($this->optionInt('cache_seconds', 600));
 		$this->response->content = $content;
 	}
 }

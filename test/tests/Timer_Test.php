@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -6,12 +6,12 @@ namespace zesk;
  * @author kent
  *
  */
-class Timer_Test extends Test_Unit {
-	public function test_now() {
+class Timer_Test extends UnitTest {
+	public function test_now(): void {
 		Timer::now();
 	}
 
-	public function test_basics() {
+	public function test_basics(): void {
 		$initTime = false;
 		$offset = 0;
 		$x = new Timer($initTime, $offset);
@@ -25,9 +25,17 @@ class Timer_Test extends Test_Unit {
 		$x->elapsed();
 
 		$comment = '';
-		$x->output($comment);
+		$content = $x->output($comment);
+		$this->assertStringContainsString('Elapsed:', $content);
+		$this->assertStringContainsString('Total:', $content);
+		$this->assertStringContainsString('second', $content);
 
-		$comment = '';
-		$x->dump($comment);
+		ob_start();
+		$x->dump('');
+		$content = ob_get_clean();
+
+		$this->assertStringContainsString('Elapsed:', $content);
+		$this->assertStringContainsString('Total:', $content);
+		$this->assertStringContainsString('second', $content);
 	}
 }

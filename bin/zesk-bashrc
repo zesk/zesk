@@ -5,22 +5,12 @@ if [ -z "$ZESK_ROOT" ]; then
 	export ZESK_ROOT
 fi
 
-alias z=zesk
-alias zesk-connect='zesk database-connect'
-alias zesk-install='zesk install'
-alias zesk-schema='zesk database-schema'
-
 #
 # File Converters
 #
-alias php-mo='$ZESK_ROOT/modules/php-mo/bin/php-mo.php'
+alias php-mo="$ZESK_ROOT/modules/php-mo/bin/php-mo.php"
 alias markdown='zesk module markdown markdown'
 
-#
-# Schema updates, show changes
-#
-zesk-schema-update() {
-	zesk-schema --update $*
-}
+export PATH="$PATH:$ZESK_ROOT/bin"
 
-export PATH=$PATH:$ZESK_ROOT/bin
+alias ZeskBash='docker compose exec php bash'

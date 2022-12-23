@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Fri Apr 02 21:15:05 EDT 2010 21:15:05
  */
 namespace zesk;
@@ -18,32 +18,32 @@ abstract class Controller_Theme extends Controller {
 	 *
 	 * @var string
 	 */
-	protected $default_content_type = Response::CONTENT_TYPE_HTML;
+	protected ?string $default_content_type = Response::CONTENT_TYPE_HTML;
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected $theme = null;
+	protected string $theme = '';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const DEFAULT_THEME = 'body/default';
+	public const DEFAULT_THEME = 'body/default';
 
 	/**
 	 *
 	 * @var boolean
 	 */
-	private $auto_render = true;
+	private bool $auto_render = true;
 
 	/**
 	 * zesk\Template variables to pass
 	 *
 	 * @var array
 	 */
-	protected $variables = array();
+	protected array $variables = [];
 
 	/**
 	 * Create a new Controller_Template
@@ -51,51 +51,55 @@ abstract class Controller_Theme extends Controller {
 	 * @param Application $app
 	 * @param array $options
 	 */
-	protected function initialize() {
+	protected function initialize(): void {
 		parent::initialize();
-		if ($this->has_option("template")) {
-			$this->application->deprecated("{class} is using option template - should not @deprecated 2017-11", array(
-				"class" => get_class($this),
-			));
+		if ($this->hasOption('template')) {
+			$this->application->deprecated('{class} is using option template - should not @deprecated 2017-11', [
+				'class' => get_class($this),
+			]);
 		}
-		if ($this->theme === null) {
-			$this->theme = $this->option('theme', self::DEFAULT_THEME);
+		if ($this->theme === '') {
+			$this->theme = strval($this->option('theme', self::DEFAULT_THEME));
 		}
-		$this->auto_render = $this->option_bool('auto_render', $this->auto_render);
+		$this->auto_render = $this->optionBool('auto_render', $this->auto_render);
+	}
+
+	/**
+	 * Set auto render value
+	 *
+	 * @return self
+	 */
+	public function setAutoRender(bool $set): self {
+		$this->auto_render = $set;
+		return $this;
 	}
 
 	/**
 	 * Get/set auto render value
 	 *
-	 * @param string $set
-	 * @return Controller_Template|Ambigous <boolean, string, mixed>
+	 * @return bool
 	 */
-	public function auto_render($set = null) {
-		if (is_bool($set)) {
-			if ($set === false && $this->theme) {
-				$this->theme = null;
-			}
-			$this->auto_render = $set;
-			return $this;
-		}
+	public function autoRender(): bool {
 		return $this->auto_render;
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Controller::json()
+	 *
+	 * @param mixed|null $mixed
+	 * @return $this
 	 */
-	public function json($mixed = null) {
-		$this->auto_render(false);
+	public function json(mixed $mixed = null): self {
+		$this->setAutoRender(false);
 		return parent::json($mixed);
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Controller::error()
+	 * @param int $code
+	 * @param string $message
+	 * @return Controller_Theme
 	 */
-	public function error($code, $message = null) {
-		$this->auto_render(false);
+	public function error(int $code, string $message = ''): self {
+		$this->autoRender(false);
 		return parent::error($code, $message);
 	}
 
@@ -103,11 +107,11 @@ abstract class Controller_Theme extends Controller {
 	 *
 	 * @param Exception $e
 	 */
-	public function exception(\Exception $e) {
+	public function exception(\Exception $e): void {
 		if ($this->auto_render && $this->theme) {
-			$this->application->logger->error("Exception in controller {this-class} {class}: {message}", array(
-				"this-class" => get_class($this),
-			) + Exception::exception_variables($e));
+			$this->application->logger->error('Exception in controller {this-class} {class}: {message}', [
+				'this-class' => get_class($this),
+			] + Exception::exceptionVariables($e));
 		}
 	}
 
@@ -115,9 +119,9 @@ abstract class Controller_Theme extends Controller {
 	 * (non-PHPdoc)
 	 * @see Controller::after()
 	 */
-	public function after($result = null, $output = null) {
+	public function after(string $result = null, string $output = null): void {
 		if ($this->auto_render) {
-			if (!$this->response->is_html()) {
+			if (!$this->response->isHTML()) {
 				return;
 			}
 			$content = null;
@@ -126,14 +130,14 @@ abstract class Controller_Theme extends Controller {
 			} elseif (is_string($output) && !empty($output)) {
 				$content = $output;
 			}
-			if ($this->request->prefer_json()) {
-				$this->json(array(
+			if ($this->request->preferJSON()) {
+				$this->json([
 					'content' => $content,
-				) + $this->response->to_json());
+				] + $this->response->toJSON());
 			} else {
-				$this->response->content = $this->theme ? $this->theme($this->theme, array(
-					"content" => $content,
-				) + $this->variables(), $this->option_array("theme_options")) : $content;
+				$this->response->content = $this->theme ? $this->theme($this->theme, [
+					'content' => $content,
+				] + $this->variables(), $this->optionArray('theme_options')) : $content;
 			}
 		}
 	}
@@ -142,10 +146,10 @@ abstract class Controller_Theme extends Controller {
 	 * (non-PHPdoc)
 	 * @see Controller::variables()
 	 */
-	public function variables() {
-		return array(
+	public function variables(): array {
+		return [
 			'theme' => $this->theme,
-		) + parent::variables() + $this->variables;
+		] + parent::variables() + $this->variables;
 	}
 
 	/**
@@ -155,19 +159,19 @@ abstract class Controller_Theme extends Controller {
 	 * @param Model $object
 	 * @param array $options
 	 */
-	protected function control(Control $control, Model $object = null, array $options = array()) {
+	protected function control(Control $control, Model $object = null, array $options = []) {
 		$control->response($this->response);
 		$content = $control->execute($object);
-		$this->call_hook(avalue($options, "hook_execute", "control_execute"), $control, $object, $options);
-		$title = $control->option('title', avalue($options, 'title'));
+		$this->callHook($options['hook_execute'] ?? 'control_execute', $control, $object, $options);
+		$title = $control->option('title', $options['title'] ?? null);
 		if ($title) {
-			$this->response->title($title, false); // Do not overwrite existing values
+			$this->response->setTitle($title, false); // Do not overwrite existing values
 		}
-		$this->response->response_data(array(
+		$this->response->response_data([
 			'status' => $status = $control->status(),
 			'message' => array_values($control->messages()),
 			'error' => array_values($control->children_errors()),
-		));
+		]);
 		return $content;
 	}
 }

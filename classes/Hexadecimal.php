@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -13,7 +13,7 @@ class Hexadecimal {
 	 *
 	 * @var string
 	 */
-	const codes = "0123456789ABCDEF";
+	public const codes = '0123456789ABCDEF';
 
 	/**
 	 * Decode a hexadecimal string
@@ -21,8 +21,8 @@ class Hexadecimal {
 	 * @param string $hexadecimal
 	 * @return string
 	 */
-	public static function decode($hexadecimal) {
-		$r = "";
+	public static function decode(string $hexadecimal) {
+		$r = '';
 		$x = preg_replace('/[^' . self::codes . ']/', '', strtoupper($hexadecimal));
 		$n = strlen($x);
 		for ($i = 0; $i < $n; $i = $i + 2) {
@@ -38,9 +38,9 @@ class Hexadecimal {
 	 * @param string $plaintext
 	 * @return string Hexadecimal-encoded string
 	 */
-	public static function encode($plaintext) {
+	public static function encode(string $plaintext): string {
 		$h = self::codes;
-		$r = "";
+		$r = '';
 		$n = strlen($plaintext);
 		for ($i = 0; $i < $n; $i++) {
 			$r .= $h[(ord($plaintext[$i]) >> 4) & 0x0F] . $h[ord($plaintext[$i]) & 0x0F];

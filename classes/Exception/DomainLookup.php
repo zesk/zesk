@@ -1,9 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
  */
 namespace zesk;
+
+use Throwable;
 
 /**
  *
@@ -22,12 +24,14 @@ class Exception_DomainLookup extends Exception {
 	 * @param string $host
 	 * @param string $message
 	 * @param array $arguments
-	 * @param integer $code
-	 * @param Exception $previous
+	 * @param int $code
+	 * @param Throwable $previous
 	 */
-	public function __construct($host, $message, array $arguments = array(), $code = null, Exception $previous = null) {
+	public function __construct(string $host, string $message, array $arguments = [], int $code = 0, Throwable
+	$previous =
+	null) {
 		$this->host = $host;
-		if (strpos($message, '{host}') === false) {
+		if (!str_contains($message, '{host}')) {
 			$message = "{host}: $message";
 		}
 		$arguments['host'] = $host;

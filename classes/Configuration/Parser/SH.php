@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage Configuration
  * @author kent
- * @copyright &copy; 2020 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 

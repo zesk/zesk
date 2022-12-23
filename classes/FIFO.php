@@ -1,10 +1,14 @@
 <?php
+declare(strict_types=1);
 /**
  * @copyright &copy; 2017 Zesk Foundation
  * @author kent
  * @category Management
  */
+
 namespace zesk;
+
+use aws\classes\Hookable;
 
 /**
  * FIFO is a simple mechanism to support inter-process communication
@@ -22,58 +26,59 @@ class FIFO {
 	 *
 	 * @var resource
 	 */
-	private $r = null;
+	private mixed $r = null;
 
 	/**
 	 * FP to fifo: Writer
 	 *
 	 * @var resource
 	 */
-	private $w = null;
+	private mixed $w = null;
 
 	/**
 	 * Path to fifo
 	 *
 	 * @var string
 	 */
-	private $path;
+	private string $path;
 
 	/**
 	 * Whether this object created the FIFO (and therefore should destroy it!)
 	 *
 	 * @var boolean
 	 */
-	private $created = false;
+	private bool $created = false;
 
 	/**
 	 * Create the FIFO
 	 *
 	 * @param string $path Full path name
 	 * @param bool $create Create the FIFO if it doesn't exist (assumes READER)
-	 * @param integer $mode File mode to create the FIFO (uses umask)
+	 * @param int $mode File mode to create the FIFO (uses umask)
 	 * @throws Exception_Directory_NotFound
 	 * @throws Exception_File_Permission
 	 */
-	public function __construct($path, $create = false, $mode = 0600) {
+	public function __construct(string $path, bool $create = false, int $mode = 384 /* 0o600 */) {
 		$this->path = $path;
-		if ($create) {
-			$dir = dirname($this->path);
-			if (!is_dir($dir)) {
-				throw new Exception_Directory_NotFound($dir, "Creating fifo {path}", array(
-					"path" => $this->path,
-				));
-			}
-			if (file_exists($this->path)) {
-				if (!unlink($this->path)) {
-					throw new Exception_File_Permission($this->path, "unlink('{filename}')");
-				}
-			}
-			if (!posix_mkfifo($this->path, $mode)) {
-				throw new Exception_File_Permission($this->path, "posix_mkfifo {filename}");
-			}
-			$this->created = true;
-			$this->_before_read();
+		if (!$create) {
+			return;
 		}
+		$dir = dirname($this->path);
+		if (!is_dir($dir)) {
+			throw new Exception_Directory_NotFound($dir, 'Creating fifo {path}', [
+				'path' => $this->path,
+			]);
+		}
+		if (file_exists($this->path)) {
+			if (!unlink($this->path)) {
+				throw new Exception_File_Permission($this->path, 'unlink(\'{path}\')');
+			}
+		}
+		if (!posix_mkfifo($this->path, $mode)) {
+			throw new Exception_File_Permission($this->path, 'posix_mkfifo {path}');
+		}
+		$this->created = true;
+		$this->_beforeRead();
 	}
 
 	/**
@@ -93,7 +98,7 @@ class FIFO {
 	 *
 	 * @return string
 	 */
-	public function path() {
+	public function path(): string {
 		return $this->path;
 	}
 
@@ -102,19 +107,13 @@ class FIFO {
 	 *
 	 * @param mixed $message
 	 * @return bool
+	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Permission
 	 */
-	public function write($message = null) {
-		if (!$this->_before_write()) {
-			return false;
-		}
-		if ($message === null) {
-			$n = 0;
-			$data = "";
-		} else {
-			$data = serialize($message);
-			$n = strlen($data);
-		}
+	public function write(mixed $message = null): bool {
+		$this->_beforeWrite();
+		$data = serialize($message);
+		$n = strlen($data);
 		fwrite($this->w, "$n\n$data");
 		fflush($this->w);
 		return true;
@@ -123,44 +122,37 @@ class FIFO {
 	/**
 	 * Read a message from client process
 	 *
-	 * @param integer $timeout
-	 *        	in seconds
+	 * @param float $timeout in seconds
 	 * @return mixed
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_Syntax
 	 */
-	public function read($timeout) {
-		$readers = array(
+	public function read(float $timeout): mixed {
+		$readers = [
 			$this->r,
-		);
-		$writers = array();
+		];
+		$writers = [];
 		$sec = intval($timeout);
-		$usec = ($timeout - $sec) * 1000000;
-		if (@stream_select($readers, $writers, $except, $sec, $usec)) {
+		$microseconds = intval(($timeout - $sec) * 1000000.0);
+		if (stream_select($readers, $writers, $except, $sec, $microseconds)) {
 			$n = intval(fgets($this->r));
-			if ($n === 0) {
-				return array();
-			}
-			return unserialize(fread($this->r, $n));
+			return PHP::unserialize(fread($this->r, $n));
 		}
-		return null;
+
+		throw new Exception_File_NotFound($this->path, 'FIFO closed');
 	}
 
 	/**
 	 * Open write FIFO
 	 *
+	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Permission
 	 */
-	private function _before_write() {
+	private function _beforeWrite(): void {
 		if (!file_exists($this->path)) {
-			error_log(map("FIFO does not exist at {path}", array(
-				"path" => $this->path,
-			)));
-			return false;
+			throw new Exception_File_NotFound($this->path, __METHOD__);
 		}
-		$this->w = fopen($this->path, "wb");
-		if (!$this->w) {
-			throw new Exception_File_Permission($this->path, "fopen('{filename}', 'w')");
-		}
-		return true;
+		$this->w = File::open($this->path, 'wb');
 	}
 
 	/**
@@ -168,17 +160,17 @@ class FIFO {
 	 *
 	 * @throws Exception_File_Permission
 	 */
-	private function _before_read() {
-		$this->r = fopen($this->path, "r+b");
+	private function _beforeRead(): void {
+		$this->r = fopen($this->path, 'r+b');
 		if (!$this->r) {
-			throw new Exception_File_Permission($this->path, "fopen('{filename}', 'r')");
+			throw new Exception_File_Permission($this->path, 'fopen(\'{path}\', \'r\')');
 		}
 	}
 
 	/**
 	 * Close read FIFO
 	 */
-	private function _close_read() {
+	private function _closeRead(): void {
 		if ($this->r) {
 			fclose($this->r);
 			$this->r = null;
@@ -188,7 +180,7 @@ class FIFO {
 	/**
 	 * Close write FIFO
 	 */
-	private function _close_write() {
+	private function _closeWrite(): void {
 		if ($this->w) {
 			fclose($this->w);
 			$this->w = null;
@@ -198,8 +190,8 @@ class FIFO {
 	/**
 	 * Close all FIFOs
 	 */
-	public function close() {
-		$this->_close_read();
-		$this->_close_write();
+	public function close(): void {
+		$this->_closeRead();
+		$this->_closeWrite();
 	}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  *
@@ -10,45 +10,43 @@ namespace zesk;
  * @author kent
  *
  */
-class Template_Test extends Test_Unit {
-	public function initialize() {
+class Template_Test extends UnitTest {
+	public function initialize(): void {
 	}
 
-	public function test_begin() {
-		$this->application->theme_path($this->test_sandbox());
+	public function test_begin(): void {
+		$this->application->addThemePath($this->test_sandbox());
 
-		file_put_contents($this->test_sandbox("good.tpl"), "<?php echo 3.14159;");
-		$path = null;
-		$options = false;
+		file_put_contents($this->test_sandbox('good.tpl'), '<?php echo 3.14159;');
 		$template = new Template($this->application);
-		$template->begin("good.tpl");
+		$template->begin('good.tpl');
 
-		$result = $template->end(array(
-			"bad" => 1,
-		));
-		$this->assert_equal($result, "3.14159");
+		$result = $template->end([
+			'bad' => 1,
+		]);
+		$this->assertEquals($result, '3.14159');
 	}
 
-	public function test_find_path() {
+	public function test_find_path(): void {
 		$template = new Template($this->application);
-		$template->find_path("template.tpl");
+		$template->findPath('template.tpl');
 	}
 
-	public function test_would_exist() {
-		$path = "foo.tpl";
+	public function test_would_exist(): void {
+		$path = 'foo.tpl';
 		$template = new Template($this->application);
-		$template->would_exist($path);
+		$this->assertFalse($template->wouldExist($path));
 	}
 
-	public function test_output() {
-		$this->application->theme_path($this->test_sandbox());
+	public function test_output(): void {
+		$this->application->addThemePath($this->test_sandbox());
 
-		$files = array();
+		$files = [];
 		for ($i = 0; $i < 5; $i++) {
-			$files[$i] = $f = $this->test_sandbox($i . ".tpl");
-			$pushpop = "echo \"PUSH {\\n\" . zesk\\Text::indent(\$application->theme(\"" . ($i + 1) . "\", array(\"i\" => $i)), 1) . \"} POP\\n\";";
-			$content = <<<END
-<?php
+			$files[$i] = $f = $this->test_sandbox($i . '.tpl');
+			$pushPop = 'echo "PUSH {\\n" . zesk\\Text::indent($application->theme("' . ($i + 1) . "\", array(\"i\" => $i)), 1) . \"} POP\\n\";";
+			$content = '<' . "?php\n";
+			$content .= <<<END
 echo "BEGIN zesk\Template $i {\\n";
 \$this->v$i = "hello$i";
 \$this->g = "hello$i";
@@ -63,18 +61,17 @@ echo "h (" . \$this->h. ")\\n";
 echo "} END zesk\Template $i";
 END;
 
-			$map = array(
-				'pushpop' => ($i !== 4) ? $pushpop : "echo \"LEAF\\n\";\n",
-			);
+			$map = [
+				'pushpop' => ($i !== 4) ? $pushPop : "echo \"LEAF\\n\";\n",
+			];
 
 			file_put_contents($f, map($content, $map));
 		}
 
-		$path = null;
-		$options = array(
-			"application" => $this->application,
-		);
-		$x = new Template($this->application, "0.tpl", $options);
+		$options = [
+			'application' => $this->application,
+		];
+		$x = new Template($this->application, '0.tpl', $options);
 		$result = $x->render();
 
 		$expect = <<<EOF
@@ -128,9 +125,6 @@ g (hello4)
 h (hello1)
 } END zesk\Template 0
 EOF;
-		echo $result;
-		$this->assert_equal(trim($result), trim($expect));
-
-		echo basename(__FILE__) . ": success\n";
+		$this->assertEquals(trim($result), trim($expect));
 	}
 }

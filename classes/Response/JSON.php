@@ -1,84 +1,95 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk\Response;
 
+use zesk\Exception_Semantics;
 use zesk\JSON as zeskJSON;
-use zesk\Response;
 use zesk\ORM\JSONWalker;
+use zesk\Response;
 
 class JSON extends Type {
 	/**
+	 * Typically an array
 	 *
-	 * @var array
+	 * @var mixed
 	 */
-	private $json = array();
+	private mixed $json = null;
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $json_serializer_arguments = null;
+	private array $json_serializer_arguments = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $json_serializer_methods = null;
+	private array $json_serializer_methods = [];
 
 	/**
 	 *
-	 * @param \zesk\Response $response
 	 */
-	public function initialize() {
-		$this->json = array();
-		$this->json_serializer_arguments = array(
+	public function initialize(): void {
+		$this->json = null;
+		$this->json_serializer_arguments = [
 			JSONWalker::factory(),
-		);
-		$this->json_serializer_methods = null;
+		];
+		$this->json_serializer_methods = [];
 	}
 
 	/**
 	 *
 	 * @param mixed $set
-	 * @return \zesk\Response|array
+	 * @return Response
 	 */
-	public function data($set = null) {
-		if ($set !== null) {
-			$this->parent->content_type(Response::CONTENT_TYPE_JSON);
-			$this->json = $set;
-			return $this->parent;
-		}
+	public function setData(mixed $set): Response {
+		$this->parent->setContentType(Response::CONTENT_TYPE_JSON);
+		$this->json = $set;
+		return $this->parent;
+	}
+
+	/**
+	 *
+	 * @return mixed
+	 */
+	public function data(): mixed {
 		return $this->json;
 	}
 
 	/**
 	 *
 	 * @return array
+	 * @throws Exception_Semantics
 	 */
-	public function to_json() {
-		return $this->json;
+	public function toJSON(): array {
+		return zeskJSON::prepare($this->json, $this->json_serializer_methods, $this->json_serializer_arguments);
 	}
 
 	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Response\Type::render()
+	 * @param array|string|null $content
+	 * @return string
+	 * @throws Exception_Semantics
 	 */
-	public function render($content) {
+	public function render(array|string|null $content): string {
 		if (is_array($content)) {
 			$this->json = $content;
 		} elseif (is_string($content)) {
-			$this->json['content'] = $content;
+			if (is_array($this->json)) {
+				$this->json['content'] = $content;
+			} else {
+				$this->json = $content;
+			}
 		}
-		$content = zeskJSON::prepare($this->json, $this->json_serializer_methods, $this->json_serializer_arguments);
-		return $this->application->development() ? zeskJSON::encode_pretty($content) : zeskJSON::encode($content);
+		$content = $this->toJSON();
+		return $this->application->development() ? zeskJSON::encodePretty($content) : zeskJSON::encode($content);
 	}
 
 	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Response\Type::output()
+	 * @param $content
+	 * @return void
+	 * @throws Exception_Semantics
 	 */
-	public function output($content) {
+	public function output($content): void {
 		echo $this->render($content);
 	}
 }

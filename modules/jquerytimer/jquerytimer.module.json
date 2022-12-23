@@ -1,8 +1,0 @@
-{
-	"name": "jQuery Timer Plugin",
-	"autoload_options": {
-		"class_prefix": "zesk\\",
-		"lower": false
-	},
-	"module_class": "zesk\\Module_jQueryTimer"
-}

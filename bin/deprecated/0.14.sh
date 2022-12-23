@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 cannon_opts="--verbose"
 
 #zesk cannon  --also-match 'extends Object'  'log::' '$this->application->logger->'
@@ -11,14 +11,14 @@ pause() {
 
 zesk cannon Session_Database Session_ORM
 zesk cannon 'zesk\Object' 'zesk\ORM'
-zesk cannon 'Class_Object' 'Class_ORM'
+zesk cannon 'Class_Object' 'Class_Base'
 zesk cannon 'Exception_Object' 'Exception_ORM'
 zesk cannon 'Controller_Object' 'Controller_ORM'
 zesk cannon '(Object $' '(ORM $'
 zesk cannon '(zesk\Object $' '(zesk\ORM $'
 zesk cannon '(\zesk\Object $' '(\zesk\ORM $'
 zesk cannon '>_polymorphic(' '>polymorphic_child('
-zesk cannon '>object_factory(' '>model_factory('
+zesk cannon '>orm_factory(' '>modelFactory('
 zesk cannon 'protected function _polymorphic(' 'protected function polymorphic_child('
 zesk cannon object_aliases class_aliases
 zesk cannon object_classes model_classes
@@ -46,10 +46,10 @@ zesk cannon Objects_Iterator ORMIterators
 #zesk cannon '>application_root(' '>path('
 #pause
 #
-#echo 'Function `zesk\Options::inherit_global_options` moved `zesk\Hookable::inherit_global_options` and `$application` parameter removed'
-#zesk cannon '>inherit_global_options($this->application)' '>inherit_global_options()'
-#zesk cannon '>inherit_global_options($application,' '>inherit_global_options('
-#zesk cannon '>inherit_global_options($application)' '>inherit_global_options()'
+#echo 'Function `zesk\Options::inheritConfiguration` moved `zesk\Hookable::inheritConfiguration` and `$application` parameter removed'
+#zesk cannon '>inheritConfiguration($this->application)' '>inheritConfiguration()'
+#zesk cannon '>inheritConfiguration($application,' '>inheritConfiguration('
+#zesk cannon '>inheritConfiguration($application)' '>inheritConfiguration()'
 #pause
 #
 #echo '`zesk\Options::__construct` now requires an array parameter'

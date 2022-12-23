@@ -1,12 +1,14 @@
 <?php
+declare(strict_types=1);
 /**
  * DocComment parsing tools
  *
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2017, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -18,8 +20,8 @@ class DocComment extends Options {
 	/**
 	 * For patterns which are keyed by the first token in the DocComment
 	 *
-	 *     @name key0 value0 and things
-	 *     @name key1 value1 and others
+	 * @name key0 value0 and things
+	 * @name key1 value1 and others
 	 *
 	 * Converted to:
 	 *
@@ -27,13 +29,13 @@ class DocComment extends Options {
 	 *
 	 * @var string
 	 */
-	const OPTION_MULTI_KEYS = "multi_keys"; // List of keys which
+	public const OPTION_MULTI_KEYS = 'multi_keys'; // List of keys which
 
 	/**
 	 * For patterns which are keyed by the second token in the DocComment
 	 *
-	 *     @property type0 $var0 Comments about var0
-	 *     @property type1 $var1 Comments about var1
+	 * @property type0 $var0 Comments about var0
+	 * @property type1 $var1 Comments about var1
 	 *
 	 * Converted to:
 	 *
@@ -44,13 +46,13 @@ class DocComment extends Options {
 	 *
 	 * @var string
 	 */
-	const OPTION_PARAM_KEYS = "param_keys";
+	public const OPTION_PARAM_KEYS = 'param_keys';
 
 	/**
 	 * For patterns which are lists of items and
 	 *
-	 *     @see ClassName
-	 *     @see OtherClassName, DocComment
+	 * @see ClassName
+	 * @see OtherClassName, DocComment
 	 *
 	 * Converted to:
 	 *
@@ -60,7 +62,7 @@ class DocComment extends Options {
 	 *
 	 * @var string
 	 */
-	const OPTION_LIST_KEYS = "list_keys";
+	public const OPTION_LIST_KEYS = 'list_keys';
 
 	/**
 	 * For output, move @desc tags to the top of the DocComment and place a space between it and other content.
@@ -81,36 +83,63 @@ class DocComment extends Options {
 	 *
 	 * @var string
 	 */
-	const OPTION_DESC_NO_TAG = "desc_no_tag";
+	public const OPTION_DESC_NO_TAG = 'desc_no_tag';
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $content = "";
+	private string $content = '';
+
+	/**
+	 * We are formatting
+	 *
+	 * @var bool
+	 */
+	private bool $format_mode;
+
+	private bool $_parsed = false;
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $variables = array();
+	private array $variables = [];
+
+	/**
+	 * String is parsed, array is unparsed
+	 *
+	 * @param array|string $content
+	 * @param array $options
+	 */
+	public function __construct(array|string $content, array $options = []) {
+		parent::__construct($options);
+		if (is_array($content)) {
+			$this->setVariables($content);
+			$this->format_mode = true;
+		} else {
+			$this->setContent($content);
+			$this->format_mode = false;
+		}
+	}
 
 	/**
 	 * Retrieve all DocComment blocks in content as strings. Resulting strings are ready to be consumed.
 	 *
 	 * @param string $content
+	 * @param array $options
 	 * @return DocComment[]
 	 */
-	public static function extract($content, array $options = array()) {
+	public static function extract(string $content, array $options = []): array {
 		$matches = null;
 		if (!preg_match_all('#[\t ]*/\*\*[^*]*\*+([^/*][^*]*\*+)*/#s', $content, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE)) {
-			return array();
+			return [];
 		}
-		$result = array();
+		$result = [];
 		foreach ($matches[0] as $index => $match) {
 			$options['index'] = $index;
 			$options['length'] = strlen($content);
-			list($content, $options['offset']) = $match;
+			[$content, $options['offset']] = $match;
 			$result[] = DocComment::instance($content, $options);
 		}
 		return $result;
@@ -118,66 +147,111 @@ class DocComment extends Options {
 
 	/**
 	 *
-	 * @param unknown $content
+	 * @param array|string $content
 	 * @param array $options
-	 * @return \zesk\DocComment
+	 * @return self
 	 */
-	public static function instance($content, array $options = array()) {
+	public static function instance(array|string $content, array $options = []): self {
 		return new self($content, $options);
 	}
 
 	/**
-	 * String is parsed, array is unparsed
+	 * Removes stars from beginning and end of DocComments
 	 *
-	 * @param string|array $content
+	 * @param string $string A DocComment string to clean
+	 * @return string the cleaned DocComment
 	 */
-	public function __construct($content, array $options = array()) {
-		parent::__construct($options);
-		if (is_array($content)) {
-			$this->variables($content);
-		} else {
-			$this->content(strval($content));
-		}
+	public static function clean(string $string): string {
+		// Clean ends of our strings
+		$string = trim($string);
+		// Remove /* and */ from string ends
+		$string = StringTools::removePrefix($string, '/*');
+		$string = StringTools::removeSuffix($string, '*/');
+		// Break into lines
+		$string = explode("\n", $string);
+		// Trim all lines for whitespace
+		$string = ArrayTools::trim($string);
+		// Remove prefix "*" from any line
+		$string = ArrayTools::valuesRemovePrefix($string, '*');
+		// And trim whitespace one final time
+		$string = ArrayTools::trim($string);
+		// What we have left is a clean string with the DocComment annotation removed and all whitespace removed
+		// at the start and end of each line
+		// blank lines are kept intact
+		return implode("\n", $string);
 	}
 
 	/**
-	 * Removes stars from beginning and end of doccomments
+	 * Set the variables for this DocComment
 	 *
-	 * @param string $string A doccomment string to clean
-	 * @return string the cleaned doccomment
+	 * @param array $set
+	 * @return $this
 	 */
-	public static function clean($string) {
-		$string = trim($string);
-		$string = StringTools::unprefix($string, "/*");
-		$string = StringTools::unsuffix($string, "*/");
-		$string = explode("\n", $string);
-		$string = ArrayTools::trim($string);
-		$string = ArrayTools::unprefix($string, "*");
-		$string = ArrayTools::trim($string);
-		$string = implode("\n", $string);
+	public function setVariables(array $set): self {
+		$this->variables = $set;
+		$this->format_mode = true;
+		return $this;
+	}
 
-		return $string;
+	/**
+	 * Retrieve the variables for the DocComment
+	 *
+	 * @return array
+	 */
+	public function variables(): array {
+		if ($this->format_mode) {
+			return $this->variables;
+		}
+		return $this->parse($this->content);
+	}
+
+	/**
+	 * @param string $set
+	 * @return $this
+	 */
+	public function setContent(string $set): self {
+		$this->content = $set;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function content(): string {
+		return $this->format_mode ? $this->format($this->variables) : $this->content;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function __toString() {
+		return $this->content();
 	}
 
 	/**
 	 *
 	 * @return array
 	 */
-	private function multi_keys() {
-		$keys = $this->option_list(self::OPTION_MULTI_KEYS);
-		$keys = array_unique($keys);
-		return $keys;
+	private function multiKeys(): array {
+		$keys = $this->optionIterable(self::OPTION_MULTI_KEYS);
+		return array_unique($keys);
 	}
 
-	private function parse_multi_key($value, $key) {
-		return ArrayTools::kpair(ArrayTools::clean(explode("\n", $value)), " ");
+	/**
+	 *
+	 *
+	 * @param string $lines
+	 * @return array
+	 */
+	private function parseMultiKey(string $lines): array {
+		return ArrayTools::pairValues(ArrayTools::clean(explode("\n", $lines)), ' ');
 	}
 
-	private function unparse_multi_key($value, $key) {
+	private function formatMultiKey($value, $key): array {
 		if (!is_array($value)) {
-			return array(
+			return [
 				"@$key $value",
-			);
+			];
 		}
 		foreach ($value as $name => $value) {
 			$result[] = "@$key $name $value";
@@ -189,26 +263,31 @@ class DocComment extends Options {
 	 * Format is @foo
 	 * @return array
 	 */
-	private function param_keys() {
-		$keys = $this->option_list(self::OPTION_PARAM_KEYS);
-		$keys[] = "property";
-		$keys[] = "param";
-		$keys[] = "global"; // Dunno. Are there any other doccomments like this?
-		$keys = array_unique($keys);
-		return $keys;
+	private function parameterKeys(): array {
+		$keys = $this->optionIterable(self::OPTION_PARAM_KEYS);
+		$keys[] = 'property';
+		$keys[] = 'param';
+		$keys[] = 'global'; // Dunno. Are there any other doccomments like this?
+		return array_unique($keys);
 	}
 
-	private function list_keys() {
-		$keys = $this->option_list(self::OPTION_LIST_KEYS);
-		$keys[] = "see";
-		$keys = array_unique($keys);
-		return $keys;
+	private function listKeys(): array {
+		$keys = $this->optionIterable(self::OPTION_LIST_KEYS);
+		$keys[] = 'see';
+		return array_unique($keys);
 	}
 
-	private function parse_param_key($value, $key) {
-		$lines = ArrayTools::clean(to_list($value, array(), "\n"));
-		$keys = ArrayTools::field($lines, 1, " \t");
-		$values = ArrayTools::field($lines, null, " \t", 3);
+	/**
+	 * @param string $value
+	 * @return array
+	 */
+	private function parseParameterKey(string $value): array {
+		$lines = ArrayTools::clean(toList($value, [], "\n"), ['', null]);
+		$keys = StringTools::column($lines, 1, " \t");
+		$values = [];
+		foreach ($lines as $line) {
+			$values[] = StringTools::field($line, null, " \t", 3);
+		}
 		return ArrayTools::rekey($keys, $values);
 	}
 
@@ -216,12 +295,12 @@ class DocComment extends Options {
 	 *
 	 * @param array $value
 	 * @param string $key
-	 * @return string
+	 * @return array
 	 */
-	private function unparse_param_key(array $value, $key) {
-		$result = array();
+	private function formatParameterKey(array $value, string $key): array {
+		$result = [];
 		foreach ($value as $variable_name => $type_name_etc) {
-			$result[] = "@$key " . implode(" ", $type_name_etc);
+			$result[] = "@$key " . implode(' ', $type_name_etc);
 		}
 		return $result;
 	}
@@ -229,89 +308,58 @@ class DocComment extends Options {
 	/**
 	 * Handle items which may have more than one entry and is a simple list
 	 *
-	 * @param mixed $value
-	 * @param string $key
-	 * @return string|array
+	 * @param string $value
+	 * @return array
 	 */
-	private function parse_list_key($value, $key) {
-		$value = ArrayTools::trim_clean(explode("\n", $value));
-		return $value;
+	private function parse_list_key(string $value): array {
+		return ArrayTools::listTrimClean(explode("\n", $value));
 	}
 
-	private function unparse_list_key($value, $key) {
+	private function formatListKey($value, $key): string {
 		if (!is_array($value)) {
-			$value = ArrayTools::trim_clean(explode("\n", $value));
+			$value = ArrayTools::listTrimClean(explode("\n", $value));
 		}
 		$prefix = "@$key ";
 		return $prefix . implode("\n$prefix", $value);
 	}
 
-	public function variables(array $set = null) {
-		if ($set === null) {
-			if ($this->variables === null) {
-				return $this->parse($this->content);
-			}
-			return $this->variables;
-		}
-		$this->variables = $set;
-		$this->content = null;
-		return $this;
-	}
-
-	public function content($set = null) {
-		if ($set === null) {
-			if ($this->content === null) {
-				return $this->unparse($this->variables);
-			}
-			return $this->content;
-		}
-		$this->content = $set;
-		$this->variables = null;
-		return $this;
-	}
-
-	public function __toString() {
-		return $this->content();
-	}
-
 	/**
 	 *
 	 * @param string $string
-	 * @param array $options
 	 */
-	private function parse($string) {
+	private function parse(string $string): array {
 		$string = self::clean($string);
 		$lines = explode("\n", $string);
-		$result = array();
-		$current_tag = "desc";
+		$result = [];
+		$current_tag = 'desc';
 		foreach ($lines as $line) {
 			$matches = null;
 			if (preg_match('/^\@([-A-Za-z_]+)/', $line, $matches)) {
 				$current_tag = $matches[1];
 				$line = substr($line, strlen($matches[0]));
 			}
-			$old_value = isset($result[$current_tag]) ? $result[$current_tag] : "";
+			$old_value = $result[$current_tag] ?? '';
 			if ($old_value) {
 				$old_value .= "\n ";
 			}
-			$result[$current_tag] = rtrim($old_value, " ") . trim($line);
+			$result[$current_tag] = rtrim($old_value, ' ') . trim($line);
 		}
 		// Convert values to a keyed array based on first token in the string
-		$handled = array();
-		foreach ($this->multi_keys() as $key) {
+		$handled = [];
+		foreach ($this->multiKeys() as $key) {
 			if (isset($result[$key]) && !isset($handled[$key])) {
 				$handled[$key] = true;
-				$result[$key] = $this->parse_multi_key($result[$key], $key);
+				$result[$key] = $this->parseMultiKey($result[$key]);
 			}
 		}
-		foreach ($this->param_keys() as $key) {
+		foreach ($this->parameterKeys() as $key) {
 			if (isset($result[$key]) && !isset($handled[$key])) {
 				$handled[$key] = true;
-				$result[$key] = $this->parse_param_key($result[$key], $key);
+				$result[$key] = $this->parseParameterKey($result[$key], $key);
 			}
 		}
 		// Remaining keys turn into arrays or strings depending
-		foreach ($this->list_keys() as $key) {
+		foreach ($this->listKeys() as $key) {
 			if (isset($result[$key]) && !isset($handled[$key])) {
 				$handled[$key] = true;
 				$result[$key] = $this->parse_list_key($result[$key], $key);
@@ -330,8 +378,8 @@ class DocComment extends Options {
 	 * @param string $key
 	 * @return string
 	 */
-	private function unparse_default($value, $key) {
-		$spaces = str_repeat(" ", strlen($key) + 2);
+	private function formatDefault(string|array $value, string $key): string {
+		$spaces = str_repeat(' ', strlen($key) + 2);
 		$join = "\n$spaces";
 		return "@$key " . (is_array($value) ? implode($join, $value) : implode($join, explode("\n", $value)));
 	}
@@ -341,27 +389,27 @@ class DocComment extends Options {
 	 * @param array $items
 	 * @return string
 	 */
-	private function unparse(array $items) {
-		$multi_keys = ArrayTools::flip_assign($this->multi_keys(), true);
-		$param_keys = ArrayTools::flip_assign($this->param_keys(), true);
-		$list_keys = ArrayTools::flip_assign($this->list_keys(), true);
+	private function format(array $items): string {
+		$multi_keys = ArrayTools::keysFromValues($this->multiKeys(), true);
+		$param_keys = ArrayTools::keysFromValues($this->parameterKeys(), true);
+		$list_keys = ArrayTools::keysFromValues($this->listKeys(), true);
 
-		$result = array();
-		if ($this->option_bool(self::OPTION_DESC_NO_TAG) && isset($items['desc'])) {
-			$value = to_list(trim($items['desc']), array(), "\n");
+		$result = [];
+		if ($this->optionBool(self::OPTION_DESC_NO_TAG) && isset($items['desc'])) {
+			$value = toList(trim($items['desc']), [], "\n");
 			$value = trim(implode("\n", ArrayTools::trim($value))) . "\n";
 			$result[] = $value;
 			unset($items['desc']);
 		}
 		foreach ($items as $key => $value) {
 			if (isset($multi_keys[$key])) {
-				$unparsed = $this->unparse_multi_key($value, $key);
+				$unparsed = $this->formatMultiKey($value, $key);
 			} elseif (isset($param_keys[$key])) {
-				$unparsed = $this->unparse_param_key($value, $key);
+				$unparsed = $this->formatParameterKey($value, $key);
 			} elseif (isset($list_keys[$key])) {
-				$unparsed = $this->unparse_list_key($value, $key);
+				$unparsed = $this->formatListKey($value, $key);
 			} else {
-				$unparsed = $this->unparse_default($value, $key);
+				$unparsed = $this->formatDefault($value, $key);
 			}
 			if (is_string($unparsed)) {
 				$result[] = $unparsed;

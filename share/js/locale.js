@@ -1,5 +1,5 @@
 /**
- * Copyright &copy; 2017 Market Acumen, Inc.
+ * Copyright &copy; 2022, Market Acumen, Inc.
  */
 (function (root, factory) {
     if (typeof module === 'object' && module.exports) {

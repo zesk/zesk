@@ -1,138 +1,148 @@
 <?php
+declare(strict_types=1);
+
 namespace zesk;
 
 abstract class Configuration_Parser extends Options {
 	/**
-	 * @var Display name
+	 * @var string
 	 */
-	protected $name;
+	protected string $name;
 
 	/**
 	 * @var mixed
 	 */
-	protected $content = null;
+	protected mixed $content;
 
 	/**
 	 * @var Interface_Settings
 	 */
-	protected $settings = null;
+	protected Interface_Settings $settings;
 
 	/**
 	 *
-	 * @var Configuration_Dependency
+	 * @var ?Configuration_Dependency
 	 */
-	protected $dependency = null;
+	protected ?Configuration_Dependency $dependency = null;
 
 	/**
 	 *
-	 * @var Configuration_Loader
+	 * @var ?Configuration_Loader
 	 */
-	protected $loader = null;
+	protected ?Configuration_Loader $loader = null;
 
 	/**
 	 *
-	 * @param unknown $type
-	 * @param mixed $content
-	 * @param Interface_Settings $settings
+	 * @param string $type
+	 * @param string $content
+	 * @param ?Interface_Settings $settings
 	 * @param array $options
-	 * @return Configuration_Parser
+	 * @return self
+	 * @throws Exception_Class_NotFound
 	 */
-	public static function factory($type, $content, Interface_Settings $settings = null, array $options = array()) {
-		$class = __CLASS__ . "_" . PHP::clean_function(strtoupper($type));
+	public static function factory(string $type, mixed $content, Interface_Settings $settings = null, array $options =
+	[]): self {
+		$class = __CLASS__ . '_' . PHP::cleanFunction(strtoupper($type));
+		if (!class_exists($class)) {
+			throw new Exception_Class_NotFound($class);
+		}
 		return new $class($content, $settings, $options);
 	}
 
 	/**
 	 *
-	 * @param unknown $content
+	 * @param string $content
 	 * @param Interface_Settings $settings
 	 * @param array $options
 	 */
-	final public function __construct($content, Interface_Settings $settings = null, array $options = array()) {
+	final public function __construct(mixed $content = '', Interface_Settings $settings = null, array $options = []) {
 		parent::__construct($options);
 		if (!$settings) {
-			$values = array();
+			$values = [];
 			$settings = new Adapter_Settings_Array($values);
 		}
-		$this->settings($settings);
-		$this->content($content);
-		$this->initialize();
+		$this->setSettings($settings)->setContent($content)->initialize();
 	}
 
 	/**
-	 * Getter/setter for settings
+	 * Setter for settings
 	 *
 	 * @param Interface_Settings $settings
+	 * @return $this
+	 */
+	public function setSettings(Interface_Settings $settings): self {
+		$this->settings = $settings;
+		return $this;
+	}
+
+	/**
+	 * Getter for settings
+	 *
 	 * @return Interface_Settings
 	 */
-	public function settings(Interface_Settings $settings = null) {
-		if ($settings) {
-			$this->settings = $settings;
-			return $this;
-		}
+	public function settings(): Interface_Settings {
 		return $this->settings;
 	}
 
 	/**
-	 * Getter/setter for settings
+	 * Setter
 	 *
-	 * @param Interface_Settings $settings
-	 * @return Interface_Settings
+	 * @param Configuration_Dependency $dependency
+	 * @return self
 	 */
-	public function configuration_dependency(Configuration_Dependency $dependency = null) {
-		if ($dependency) {
-			$this->dependency = $dependency;
-			return $this;
-		}
-		return $this->dependency;
+	public function setConfigurationDependency(Configuration_Dependency $dependency): self {
+		$this->dependency = $dependency;
+		return $this;
 	}
 
 	/**
-	 * Getter/setter for settings
+	 * Setter for loader
 	 *
-	 * @param Interface_Settings $settings
-	 * @return Interface_Settings
+	 * @param Configuration_Loader $loader
+	 * @return $this
 	 */
-	public function configuration_loader(Configuration_Loader $loader = null) {
-		if ($loader) {
-			$this->loader = $loader;
-			return $this;
-		}
-		return $this->loader;
+	public function setConfigurationLoader(Configuration_Loader $loader): self {
+		$this->loader = $loader;
+		return $this;
 	}
 
 	/**
 	 *
-	 * @param mixed $set
-	 * @return string|\zesk\Configuration_Parser
+	 * @param string $set
+	 * @return self
 	 */
-	public function content($set = null) {
-		if ($set === null) {
-			return $this->content;
-		}
+	public function setContent(mixed $set): self {
 		$this->content = $set;
 		return $this;
 	}
 
 	/**
 	 *
+	 * @return string
 	 */
-	abstract public function initialize();
+	public function content(): mixed {
+		return $this->content;
+	}
 
 	/**
 	 *
 	 */
-	abstract public function validate();
+	abstract public function initialize(): void;
 
 	/**
-	 * @return Interface_Settings
+	 *
 	 */
-	abstract public function process();
+	abstract public function validate(): bool;
+
+	/**
+	 *
+	 */
+	abstract public function process(): void;
 
 	/**
 	 * @return Configuration_Editor
 	 */
-	public function editor($content = null, array $options = array()) {
+	public function editor(string $content, array $options = []): Configuration_Editor {
 		throw new Exception_Unimplemented(__METHOD__);
 	}
 }

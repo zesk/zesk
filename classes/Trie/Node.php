@@ -1,18 +1,14 @@
 <?php
+declare(strict_types=1);
 /**
- * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Trie/Node.php $
  * @package zesk
  * @subpackage system
- * @author $Author: kent $
- * @copyright Copyright &copy; 2011, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk\Trie;
 
-/**
- *
- * @author kent
- *
- */
 class Node {
 	/**
 	 * The next array is keyed by single letters and strings. When the key is a single letter, it contains:
@@ -20,7 +16,7 @@ class Node {
 	 * - additional Nodes
 	 * - the number 1 - meaning it's a completion letter
 	 *
-	 * When the key is a string of more than 1 letter or is the character '$', it ALWAYS has the value 1
+	 * When the key is a string of more than 1 letter or is the character '', it ALWAYS has the value 1
 	 *
 	 * - there is some duplication in that adding a string will add:
 	 *
@@ -31,93 +27,96 @@ class Node {
 	 *
 	 * @var array
 	 */
-	public $next = array();
-
-	/**
-	 *
-	 * @var boolean
-	 */
-	private $end_of_word = false;
+	public array $next = [];
 
 	/**
 	 * Create a new node
 	 *
-	 * @param string $word
-	 * @param boolean $eow End of word flag
+	 * @param ?string $word
 	 */
-	public function __construct($word = null, $eow = false) {
-		$this->next = array();
+	public function __construct(string $word = null) {
+		$this->next = [];
 		if ($word !== null) {
 			$this->add($word);
 		}
-		$this->term($eow);
 	}
 
 	/**
 	 * Create a new node
 	 *
-	 * @param string $word
-	 * @param boolean $eow End of word flag
+	 * @param ?string $word
 	 * @return self
 	 */
-	public static function factory($word, $eow = false) {
-		return new self($word, $eow);
+	public static function factory(?string $word = null): self {
+		return new self($word);
 	}
 
 	/**
-	 * Does this node represent the end of a word? (getter/setter)
+	 * Does this node represent the end of a word?
 	 *
-	 * @param bool $set Whether this is the end of a word or not (boolean)
-	 * @return boolean|$this
+	 * @return bool
 	 */
-	public function term($set = null) {
-		if ($set !== null) {
-			$this->end_of_word = boolval($set);
-			return $this;
+	public function isEnd(): bool {
+		return array_key_exists('', $this->next);
+	}
+
+	/**
+	 * Set whether this node represents the end of a word.
+	 *
+	 * @param bool $set True when end of word.
+	 * @return self
+	 */
+	public function setEnd(bool $set): self {
+		if ($set) {
+			$this->next[''] = 1;
+		} else {
+			unset($this->next['']);
 		}
-		return $this->end_of_word;
+		return $this;
 	}
 
 	/**
 	 *
 	 * @param string $word
+	 * @return Node Added node
 	 */
-	public function add($word) {
+	public function add(string $word): self {
 		if (strlen($word) === 0) {
-			$this->end_of_word = true;
+			$this->setEnd(true);
 			return $this;
 		}
 		$char = $word[0];
-		$next = $this->next[$char] ?? null;
+		$remain = substr($word, 1);
+		if (!array_key_exists($char, $this->next)) {
+			$this->next[$char] = $remain === '' ? 1 : $remain;
+			return $this;
+		}
+		$next = $this->next[$char];
 		if (is_string($next)) {
 			// Ok, it was simply a completion, so let's convert it into a Node with two entries
-			unset($this->next[$word]);
-			$this->next[$char] = self::factory($next)->add(substr($word, 1));
-		} elseif ($next instanceof Node) {
-			// It's a Node, traverse one letter deeper in our word
-			$next->add(substr($word, 1));
-		} elseif ($next === 1) {
-			// This represents a completion for this word, convert it into another Node to package both
-			$this->next[$char] = self::factory(substr($word, 1), true);
-		} else {
-			// Nothing found. So make this word a completion at this point, and add a single character node below
-			$this->next[$word] = 1;
-			if (strlen($word) > 1) {
-				$this->next[$char] = substr($word, 1);
-			}
+			$this->next[$char] = $newNode = self::factory($next);
+			$newNode->add($remain);
+			return $this;
 		}
+		if ($next === 1) {
+			if ($remain === '') {
+				return $this;
+			}
+			$this->next[$char] = $newNode = self::factory($remain);
+			$newNode->add('');
+			return $this;
+		}
+		assert($next instanceof Node);
+		$next->add($remain);
 		return $this;
 	}
 
 	/**
 	 * Clean the trie after building to remove unnecessary keys
 	 */
-	public function clean() {
-		// Remove all single letter tags which map to strings
-		foreach ($this->next as $k => $v) {
-			if (strlen($k) === 1 && is_string($v)) {
-				unset($this->next[$k]);
-			} elseif ($v instanceof Node) {
+	public function clean(): void {
+		foreach ($this->next as $v) {
+			if ($v instanceof Node) {
 				$v->clean();
 			}
 			ksort($this->next);
@@ -129,7 +128,7 @@ class Node {
 	 *
 	 * @return boolean
 	 */
-	private function optimizable() {
+	private function optimizable(): bool {
 		if (count($this->next) === 1) {
 			return true;
 		}
@@ -149,21 +148,21 @@ class Node {
 	 * @param string $phrase MUST be associated with a value in ->next which is a Node
 	 * @return number Number of nodes merged
 	 */
-	private function merge($phrase) {
-		// $phrase MUST
+	private function merge(string $phrase): int {
+		assert(array_key_exists($phrase, $this->next));
 		$node = $this->next[$phrase];
 		unset($this->next[$phrase]);
 		assert($node instanceof self);
-		$nmerged = 0;
+		$numberMerged = 0;
 		foreach ($node->next as $k => $v) {
-			if ($k === '$') {
+			if ($k === '') {
 				$this->next[$phrase] = 1;
 			} else {
 				$this->next[$phrase . $k] = $v;
 			}
-			$nmerged++;
+			$numberMerged++;
 		}
-		return $nmerged;
+		return $numberMerged;
 	}
 
 	/**
@@ -171,20 +170,20 @@ class Node {
 	 *
 	 * @return number
 	 */
-	public function optimize() {
+	public function optimize(): int {
 		$merged = 0;
 		if ($this->optimizable()) {
 			foreach ($this->next as $k => $v) {
 				if ($v instanceof self) {
 					if ($v->optimizable()) {
-						$merged += $this->merge($k);
+						$merged += $v->merge($k);
 					} else {
 						$merged += $v->optimize();
 					}
 				}
 			}
 		} else {
-			foreach ($this->next as $k => $v) {
+			foreach ($this->next as $v) {
 				if ($v instanceof self) {
 					$merged += $v->optimize();
 				}
@@ -196,13 +195,13 @@ class Node {
 	/**
 	 * Convert to JSON
 	 *
-	 * @return string[]
+	 * @return array
 	 */
-	public function to_json() {
-		$json = array();
+	public function toJSON(): array {
+		$json = [];
 		foreach ($this->next as $k => $v) {
 			if ($v instanceof Node) {
-				$json[$k] = $v->to_json();
+				$json[$k] = $v->toJSON();
 			} else {
 				$json[$k] = $v;
 			}
@@ -210,20 +209,45 @@ class Node {
 		return $json;
 	}
 
+	public function find(string $word): bool {
+		if (strlen($word) === 0) {
+			if (array_key_exists('', $this->next)) {
+				return $this->next[''] === 1;
+			}
+			return false;
+		}
+		$char = $word[0];
+		if (!array_key_exists($char, $this->next)) {
+			return false;
+		}
+		$next = $this->next[$char];
+		$remain = substr($word, 1);
+		if ($next === 1) {
+			return ($remain === '');
+		}
+		if (is_string($next)) {
+			return $next === $remain;
+		}
+		assert($next instanceof Node);
+		return $next->find($remain);
+	}
+
 	/**
 	 * Walk trie nodes
 	 * @param callable $function
 	 * @param string $word Current word state
 	 */
-	public function walk($function, $word) {
+	public function walk(callable $function, string $word): void {
 		foreach ($this->next as $k => $v) {
+			if (strlen($k) > 1 && array_key_exists($k[0], $this->next)) {
+				continue;
+			}
 			if ($v === 1) {
-				if ($k === '$') {
-					$k = '';
-				}
 				call_user_func($function, "$word$k");
 			} elseif ($v instanceof Node) {
 				$v->walk($function, "$word$k");
+			} elseif (is_string($v)) {
+				call_user_func($function, "$word$k$v");
 			}
 		}
 	}

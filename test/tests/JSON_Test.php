@@ -1,149 +1,290 @@
 <?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
+
+use stdClass;
 
 /**
  *
  * @author kent
  *
  */
-class JSON_Test extends Test_Unit {
-	/**
-	 * @expectedException zesk\Exception_Parameter
-	 */
-	public function test_decode() {
-		JSON::decode(null);
+class JSON_Test extends UnitTest {
+	public function test_decode(): void {
+		$this->expectException(Exception_Parse::class);
+		JSON::decode('{');
+	}
+
+	public function test_decode_parse(): void {
+		$this->expectException(Exception_Parse::class);
+		JSON::decode('{');
 	}
 
 	/**
-	 * @expectedException zesk\Exception_Parse
+	 * @return void
+	 * @throws Exception_Semantics
 	 */
-	public function test_decode_parse() {
-		JSON::decode("{");
-	}
-
-	public function test_malencode() {
+	public function test_malencode(): void {
 		$content = file_get_contents($this->application->path('test/test-data/json/malencode.txt'));
-		$content = array("Hello" => JSON::prepare($content));
-		$this->assert_string_begins(json_encode($content), '{"Hello":');
+		$content = ['Hello' => JSON::prepare($content)];
+		$this->assertStringContainsString('{"Hello":', json_encode($content));
 	}
 
-	public function test_decode_null() {
-		$this->assert_equal(JSON::decode("null"), null);
-	}
+	public function data_prepare(): array {
+		$thing1 = new class {
+			public function doit(): array {
+				return ['yes' => 'works'];
+			}
 
-	public function test_encode() {
-		$mixed = null;
-		$this->assert_equal(JSON::encode($mixed), "null");
+			public function doit_again($param): array {
+				return ['param' => $param];
+			}
 
-		$mixed = array(
-			array(
-				"Hello" => "Dude",
-				"1241`2" => "odd",
-				"__2341" => 2,
-				"a459123" => new \stdClass(),
-			),
-			false,
-			true,
-			12312312,
-			"A string",
-			'A string',
-			"*don't encode result" => "document.referrer",
-			null,
-			"dog" => null,
-		);
-		$expected = '{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","*don\'t encode result":"document.referrer","6":null,"dog":null}';
-		$this->assert_equal(JSON::encode($mixed), $expected);
-	}
+			public function __toString(): string {
+				return 'thing one';
+			}
+		};
+		$thing2 = new class {
+			public string $kind = 'thing';
 
-	public function test_encodex() {
-		$mixed = null;
-		$this->assert_equal(JSON::encodex($mixed), "null");
-	}
+			public string $type = 'class';
 
-	public function test_object_member_name_quote() {
-		$name = null;
-		JSON::object_member_name_quote($name);
-	}
-
-	public function test_quote() {
-		$m = null;
-		$this->assert(JSON::quote("this.is.a.word") === "\"this.is.a.word\"");
-		$this->assert(JSON::quote("thingy") === "\"thingy\"", "\"" . JSON::quote("thingy") . "\" === \"thingy\"");
-		$this->assert(JSON::quote("2thingy") === "\"2thingy\"");
-		$this->assert(JSON::quote("thingy2") === "\"thingy2\"");
-		$this->assert(JSON::quote("th-ingy2") === "\"th-ingy2\"");
-	}
-
-	public function test_valid_member_name() {
-		$name = null;
-		$this->assert_equal(JSON::valid_member_name($name), false);
-	}
-
-	public function internal_values() {
-		$obj = new \stdClass();
-		$obj->foo = "foo";
-		$obj->_thing_to_save = array(
-			"1",
-			"2",
-			"5",
-		);
-		$obj->another = new \stdClass();
-
-		return array(
-			array(
-				null,
-			),
-			array(
-				true,
-			),
-			array(
-				false,
-			),
-			array(
-				array(),
-			),
-			array(
-				array(
-					"a" => "b",
-				),
-			),
-			array(
-				array(
-					array(
-						"hello" => "world",
-						"how" => "zit",
-					),
-				),
-			),
-			array(
-				$obj,
-			),
-		);
+			public int $id = 1232;
+		};
+		$this->assertEquals(['yes' => 'works'], $thing1->doit());
+		$this->assertEquals(['param' => 'yo'], $thing1->doit_again('yo'));
+		$random_string = $this->randomHex(16);
+		return [
+			[null, null, [], []], [[], [], [], []], [['a'], ['a'], [], []], [['a' => 'b'], ['a' => 'b'], [], []],
+			[['yes' => 'works'], $thing1, ['doit'], []], [['param' => 'a'], $thing1, ['doit_again'], ['a']],
+			[['param' => $random_string], $thing1, ['doit_again'], [$random_string]],
+			['thing one', $thing1, ['not_found'], []],
+			[['kind' => 'thing', 'type' => 'class', 'id' => 1232], $thing2, ['not_found'], []],
+		];
 	}
 
 	/**
-	 * @data_provider internal_values
-	 * @param mixed $mixed
+	 * @param $expected
+	 * @param $mixed
+	 * @param $methods
+	 * @param $arguments
+	 * @return void
+	 * @throws Exception_Semantics
+	 * @dataProvider data_prepare
 	 */
-	public function test_internal($mixed) {
-		$encode = JSON::encode($mixed);
-		$decode = JSON::zesk_decode($encode, false);
-		$encode2 = JSON::encode($decode);
-		$this->assert_equal($encode, $encode2);
+	public function test_prepare($expected, $mixed, $methods, $arguments): void {
+		$this->assertEquals($expected, JSON::prepare($mixed, $methods, $arguments));
 	}
 
-	public function internal_expected_values() {
-		return array(
-			array(
-				'{ "fructose.marketacumen.com": "fructose" }',
-				array(
+	public function test_decode_null(): void {
+		$this->assertNull(JSON::decode('null'));
+	}
+
+	public function data_encode(): array {
+		return [
+			[null, fopen('php://stdin', 'rb')],
+			['null', null, ],
+			[
+				'{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","*do encode result":"document.referrer","6":null,"dog":null}',
+				[
+					[
+						'Hello' => 'Dude', '1241`2' => 'odd', '__2341' => 2, 'a459123' => new stdClass(),
+					], false, true, 12312312, 'A string', 'A string', '*do encode result' => 'document.referrer', null,
+					'dog' => null,
+				],
+			],
+		];
+	}
+
+	/**
+	 * @param string|null $expected
+	 * @param mixed $mixed
+	 * @return void
+	 * @throws Exception_Semantics
+	 * @dataProvider data_encode
+	 */
+	public function test_encode(?string $expected, mixed $mixed): void {
+		if ($expected === null) {
+			$this->expectException(Exception_Semantics::class);
+		}
+		$this->assertEquals($expected, JSON::encode($mixed));
+	}
+
+	/**
+	 * @param string|null $expected
+	 * @param mixed $mixed
+	 * @return void
+	 * @dataProvider data_encodeSpecial
+	 */
+	public function test_encodeSpecial(?string $expected, mixed $mixed): void {
+		if ($expected === null) {
+			$this->expectException(Exception_Semantics::class);
+		}
+		$this->assertEquals($expected, JSON::encodeSpecial($mixed));
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public function data_encodeSpecial(): array {
+		return [
+			[
+				'null', null,
+			], [
+				'[0,1,2,3]', [0, 1, 2, 3],
+			],
+			[
+				'{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","don\'t encode result":document.referrer,"6":null,"dog":null}',
+				[
+					[
+						'Hello' => 'Dude', '1241`2' => 'odd', '__2341' => 2, 'a459123' => new stdClass(),
+					], false, true, 12312312, 'A string', 'A string', '*don\'t encode result' => 'document.referrer',
+					null, 'dog' => null,
+				],
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider data_encodeJavaScript
+	 * @param string $expected
+	 * @param mixed $mixed
+	 * @return void
+	 */
+	public function test_encodeJavaScript(string $expected, mixed $mixed): void {
+		$this->assertEquals($expected, JSON::encodeJavaScript($mixed));
+	}
+
+	public function data_encodeJavaScript(): array {
+		return [
+			[
+				'null', null,
+			], [
+				'[0,1,2,3]', [0, 1, 2, 3],
+			], [
+				'{"0":{Hello:"Dude","1241`2":"odd",__2341:2,a459123:{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","don\'t encode result":document.referrer,"6":null,dog:null}',
+				[
+					[
+						'Hello' => 'Dude', '1241`2' => 'odd', '__2341' => 2, 'a459123' => new stdClass(),
+					], false, true, 12312312, 'A string', 'A string', '*don\'t encode result' => 'document.referrer',
+					null, 'dog' => null,
+				],
+			],
+		];
+	}
+
+	/**
+	 * @return void
+	 * @dataProvider data_object_member_name_quote
+	 * @param string $name
+	 * @param string $expected
+	 */
+	public function test_object_member_name_quote(string $name, string $expected): void {
+		$this->assertEquals($expected, JSON::object_member_name_quote($name));
+	}
+
+	public function data_object_member_name_quote(): array {
+		return [
+			['', '""'], ['a', 'a'], ['dude_123', 'dude_123'], [' ', '" "'], ['a b', '"a b"'], ['@#', '"@#"'],
+			['Equalit\'', '"Equalit\'"'], ['egalité', '"egalité"'],
+		];
+	}
+
+	/**
+	 * @param string $expected
+	 * @param string $mixed
+	 * @return void
+	 * @dataProvider data_quote
+	 */
+	public function test_quote(string $expected, string $mixed): void {
+		$this->assertEquals($expected, JSON::quote($mixed));
+	}
+
+	public function data_quote(): array {
+		return [
+			['"\\\\t\\\\n\\\\r\\\\"', '\t\n\r\\'],
+			['"this.is.a.word"', 'this.is.a.word'],
+			['"thingy"', 'thingy'],
+			['"2thingy"', '2thingy'],
+			['"thingy2"', 'thingy2'],
+			['"th-ingy2"', 'th-ingy2'],
+		];
+	}
+
+	public function data_valid_member_name(): array {
+		return [
+			[false, ''], [true, 'a'], [true, 'dude_123'], [false, ' '], [false, 'a b'], [false, '@#'],
+			[false, 'Equalit\''], [false, 'egalité'],
+		];
+	}
+
+	/**
+	 * @dataProvider data_valid_member_name
+	 * @param bool $expected
+	 * @param string $name
+	 * @return void
+	 */
+	public function test_valid_member_name(bool $expected, string $name): void {
+		$this->assertEquals($expected, JSON::valid_member_name($name));
+	}
+
+	public function internal_values(): array {
+		$obj = new stdClass();
+		$obj->foo = 'foo';
+		$obj->_thing_to_save = [
+			'1', '2', '5',
+		];
+		$obj->another = new stdClass();
+
+		return [
+			[
+				null,
+			], [
+				true,
+			], [
+				false,
+			], [
+				[],
+			], [
+				[
+					'a' => 'b',
+				],
+			], [
+				[
+					[
+						'hello' => 'world', 'how' => 'zit',
+					],
+				],
+			], [
+				$obj,
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider internal_values
+	 * @param mixed $mixed
+	 * @return void
+	 * @throws Exception_Semantics
+	 */
+	public function test_internal(mixed $mixed): void {
+		$encode = JSON::encode($mixed);
+		$decode = JSON::zesk_decode($encode);
+		$encode2 = JSON::encode($decode);
+		$this->assertEquals($encode, $encode2);
+	}
+
+	public function data_zesk_decode(): array {
+		return [
+			[
+				'{ "fructose.marketacumen.com": "fructose" }', [
 					'fructose.marketacumen.com' => 'fructose',
-				),
-			),
-			array(
+				],
+			], [
 				'{
     "glossary": {
         "title": "example glossary",
@@ -165,60 +306,43 @@ class JSON_Test extends Test_Unit {
             }
         }
     }
-}',
-				array(
-					"glossary" => array(
-						"title" => "example glossary",
-						"GlossDiv" => array(
-							"title" => "S",
-							"GlossList" => array(
-								"GlossEntry" => array(
-									"ID" => "SGML",
-									"SortAs" => "SGML",
-									"GlossTerm" => "Standard Generalized Markup Language",
-									"Acronym" => "SGML",
-									"Abbrev" => "ISO 8879:1986",
-									"GlossDef" => array(
-										"para" => "A meta-markup language, used to create markup languages such as DocBook.",
-										"GlossSeeAlso" => array(
-											"GML",
-											"XML",
-										),
-									),
-									"GlossSee" => "markup",
-								),
-							),
-						),
-					),
-				),
-			),
-			array(
+}', [
+					'glossary' => [
+						'title' => 'example glossary', 'GlossDiv' => [
+							'title' => 'S', 'GlossList' => [
+								'GlossEntry' => [
+									'ID' => 'SGML', 'SortAs' => 'SGML',
+									'GlossTerm' => 'Standard Generalized Markup Language', 'Acronym' => 'SGML',
+									'Abbrev' => 'ISO 8879:1986', 'GlossDef' => [
+										'para' => 'A meta-markup language, used to create markup languages such as DocBook.',
+										'GlossSeeAlso' => [
+											'GML', 'XML',
+										],
+									], 'GlossSee' => 'markup',
+								],
+							],
+						],
+					],
+				],
+			], [
 				'{"truly":true,"falsely":false,"nullish":null,"floaty":  -5.812342e+24,"intlike":51231412,"listy":[0,1,2,3,5]}',
-				array(
-					"truly" => true,
-					"falsely" => false,
-					"nullish" => null,
-					"floaty" => -58123.42e+20,
-					"intlike" => 51231412,
-					"listy" => array(
-						0,
-						1,
-						2,
-						3,
-						5,
-					),
-				),
-			),
-		);
+				[
+					'truly' => true, 'falsely' => false, 'nullish' => null, 'floaty' => -58123.42e+20,
+					'intlike' => 51231412, 'listy' => [
+						0, 1, 2, 3, 5,
+					],
+				],
+			],
+		];
 	}
 
 	/**
-	 * @data_provider internal_expected_values
-	 * @param unknown $mixed
-	 * @param unknown $expected
+	 * @dataProvider data_zesk_decode
+	 * @param string $mixed
+	 * @param mixed $expected
 	 */
-	public function test_parser($mixed, $expected) {
+	public function test_zesk_decode(string $mixed, mixed $expected): void {
 		$actual = JSON::zesk_decode($mixed);
-		$this->assert_equal($actual, $expected);
+		$this->assertEquals($expected, $actual);
 	}
 }

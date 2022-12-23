@@ -1,13 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Trie.php $
  * @package zesk
  * @subpackage system
  * @author $Author: kent $
- * @copyright Copyright &copy; 2014, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
+use stdClass;
 use zesk\Trie\Node;
 
 /**
@@ -22,46 +23,47 @@ class Trie extends Options {
 	 *
 	 * @var Node
 	 */
-	private $root = null;
+	private Node $root;
 
 	/**
 	 *
-	 * @var string
+	 * @var bool
 	 */
-	private $lower = false;
+	private bool $lower;
 
 	/**
 	 *
-	 * @var string
+	 * @var bool
 	 */
-	private $cleaned = false;
+	private bool $cleaned = false;
 
 	/**
 	 *
-	 * @var string
+	 * @var bool
 	 */
-	private $optimized = false;
+	private bool $optimized = false;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	public $n_optimized = 0;
+	public int $numberOptimized = 0;
 
 	/**
 	 *
 	 * @param array $options
 	 */
-	public function __construct(array $options = array()) {
+	public function __construct(array $options = []) {
 		parent::__construct($options);
-		$this->lower = $this->option_bool('lower');
+		$this->lower = $this->optionBool('lower');
 		$this->root = new Node();
 	}
 
 	/**
+	 * Add a word
 	 * @param string $word
 	 */
-	public function add($word) {
+	public function add(string $word): void {
 		if ($this->lower) {
 			$word = strtolower($word);
 		}
@@ -72,8 +74,9 @@ class Trie extends Options {
 
 	/**
 	 * Clean a trie
+	 * @return $this
 	 */
-	public function clean() {
+	public function clean(): self {
 		if ($this->cleaned) {
 			return $this;
 		}
@@ -85,32 +88,48 @@ class Trie extends Options {
 
 	/**
 	 * Optimize trie
+	 * @return int
 	 */
-	public function optimize() {
+	public function optimize(): int {
 		$this->clean();
 		if ($this->optimized) {
-			return $this;
+			return $this->numberOptimized;
 		}
+		$this->numberOptimized = 0;
 		while (($optimized = $this->root->optimize()) > 0) {
-			$this->n_optimized += $optimized;
+			$this->numberOptimized += $optimized;
 		}
 		$this->optimized = true;
-		return $this;
+		return $this->numberOptimized;
 	}
 
 	/**
-	 * Convert to JSON
+	 * Convert to a structure which can be output as JSON
 	 *
-	 * @return string
+	 * @return array
 	 */
-	public function to_json() {
-		return JSON::encode($this->root->to_json());
+	public function toJSON(): array {
+		return $this->root->toJSON();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function words(): array {
+		$temp = new stdClass();
+		$temp->items = [];
+		$method = function ($word) use ($temp): void {
+			$temp->items[] = $word;
+		};
+		$this->walk($method);
+		unset($method);
+		return $temp->items;
 	}
 
 	/**
 	 * Walk the entire trie and call "function" on each node
 	 */
-	public function walk($function) {
+	public function walk(callable $function): void {
 		$this->root->walk($function, '');
 	}
 }

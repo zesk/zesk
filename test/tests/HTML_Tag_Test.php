@@ -1,22 +1,36 @@
-<?php
+<?php declare(strict_types=1);
 namespace zesk;
 
-class HTML_Tag_Test extends Test_Unit {
-	public function test_basics() {
-		$name = null;
-		$attributes = array();
-		$contents = false;
-		$testx = new HTML_Tag($name, $attributes, $contents);
+class HTML_Tag_Test extends UnitTest {
+	public function test_basics(): void {
+		$name = 'div';
+		$attributes = ['class' => 'header'];
+		$contents = '<title>Hello</title>';
+		$tag = new HTML_Tag($name, $attributes, $contents);
 
-		$testx->contents();
+		$tag->contents();
 
-		$testx->inner_html();
+		$tag->innerHTML();
 
-		$contents = null;
-		$testx->inner_html($contents);
+		$tag->setInnerHTML(HTML::tag('div', 'hello'));
 
-		$testx->outer_html();
+		$tag->outerHTML();
 
-		$testx->outer_html("<tag>");
+		$tag->setOuterHTML(HTML::tag('wrap', 'content'));
+
+		$expected = "new zesk\HTML_Tag(\"div\", [\n    \"class\" => \"header\",\n], \"<div>hello</div>\", \"<wrap>content</wrap>\", -1)";
+		$this->assertEquals($expected, PHP::dump($tag));
+
+		$tag->setContents('Foo');
+		$expected = "new zesk\HTML_Tag(\"div\", [\n    \"class\" => \"header\",\n], \"Foo\", \"<wrap>content</wrap>\", -1)";
+		$this->assertEquals($expected, PHP::dump($tag));
+
+		$this->assertEquals('<div class="header">Foo</div>', $tag->__toString());
+
+		$this->assertFalse($tag->isSingle());
+		$tag->setContents('');
+		$this->assertTrue($tag->isSingle());
+
+		$this->assertEquals('<div class="header" />', $tag->__toString());
 	}
 }

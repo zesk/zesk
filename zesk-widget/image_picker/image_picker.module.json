@@ -1,0 +1,12 @@
+{
+	"name": "Image Picker",
+	"requires": [
+		"dropfile",
+		"picker"
+	],
+	"autoload": {
+		"classPrefix": "zesk\\"
+	},
+	"themePathPrefix": "zesk/",
+	"moduleClass": "zesk\\Module_Image_Picker"
+}

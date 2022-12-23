@@ -1,12 +1,15 @@
 <?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage Locale
  * @author kent
- * @copyright &copy; 2018 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk\Locale;
 
+use zesk\Exception_File_Format;
 use zesk\File;
 use zesk\JSON;
 use zesk\Exception_Unsupported;
@@ -21,64 +24,64 @@ class Reader {
 	 *
 	 * @var string
 	 */
-	const ERROR_NOT_ARRAY = "ERROR_NOT_ARRAY";
+	public const ERROR_NOT_ARRAY = 'ERROR_NOT_ARRAY';
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $id = null;
+	private string $id = '';
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $language = null;
+	private string $language = '';
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $dialect = null;
+	private string $dialect = '';
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $paths = array();
+	private array $paths = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $extensions = array();
+	private array $extensions = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $errors = array();
+	private array $errors = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $loaded = array();
+	private array $loaded = [];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private $missing = array();
+	private array $missing = [];
 
 	/**
 	 *
 	 * @param array $paths
-	 * @param unknown $locale
+	 * @param string $locale
 	 * @param array $extensions
-	 * @return \zesk\Locale\Reader
+	 * @return self
 	 */
-	public static function factory(array $paths, $id, array $extensions = array()) {
+	public static function factory(array $paths, string $id, array $extensions = []): self {
 		return new self($paths, $id, $extensions);
 	}
 
@@ -89,17 +92,17 @@ class Reader {
 	 * @param unknown $dialect
 	 * @param array $extensions
 	 */
-	public function __construct(array $paths, $id, array $extensions = array()) {
+	public function __construct(array $paths, string $id, array $extensions = []) {
 		$this->paths = $paths;
-		list($language, $dialect) = Locale::parse($id);
+		[$language, $dialect] = Locale::parse($id);
 		$this->id = Locale::normalize($id);
 		$this->language = $language;
 		$this->dialect = $dialect;
-		$this->extensions = count($extensions) ? $extensions : array(
-			"php",
-			"inc",
-			"json",
-		);
+		$this->extensions = count($extensions) ? $extensions : [
+			'php',
+			'inc',
+			'json',
+		];
 	}
 
 	/**
@@ -107,7 +110,7 @@ class Reader {
 	 *
 	 * @return array
 	 */
-	public function missing() {
+	public function missing(): array {
 		return $this->missing;
 	}
 
@@ -116,7 +119,7 @@ class Reader {
 	 *
 	 * @return array
 	 */
-	public function loaded() {
+	public function loaded(): array {
 		return $this->loaded;
 	}
 
@@ -126,7 +129,7 @@ class Reader {
 	 *
 	 * @return string[string]
 	 */
-	public function errors() {
+	public function errors(): array {
 		return $this->errors;
 	}
 
@@ -136,8 +139,8 @@ class Reader {
 	 * @param array $options
 	 * @return Locale
 	 */
-	public function locale(Application $application, array $options = array()) {
-		return Locale::factory($application, $this->id, $options)->translations($this->execute());
+	public function locale(Application $application, array $options = []): Locale {
+		return Locale::factory($application, $this->id, $options)->setTranslations($this->execute());
 	}
 
 	/**
@@ -145,11 +148,11 @@ class Reader {
 	 *
 	 * @return array
 	 */
-	public function execute() {
-		$this->loaded = array();
-		$this->errors = array();
-		$this->missing = array();
-		$results = array();
+	public function execute(): array {
+		$this->loaded = [];
+		$this->errors = [];
+		$this->missing = [];
+		$results = [];
 		foreach ($this->files() as $file) {
 			if (file_exists($file)) {
 				try {
@@ -160,7 +163,7 @@ class Reader {
 						$results += $result;
 					}
 				} catch (\Exception $e) {
-					$this->errors[$file] = get_class($e);
+					$this->errors[$file] = $e::class;
 				}
 			} else {
 				$this->missing[] = $file;
@@ -173,15 +176,15 @@ class Reader {
 	 *
 	 * @return string[]
 	 */
-	public function files() {
-		$files = array();
-		$prefixes = array(
-			"all",
+	public function files(): array {
+		$files = [];
+		$prefixes = [
+			'all',
 			$this->language,
 
-		);
+		];
 		if ($this->dialect) {
-			$prefixes[] = $this->language . "_" . $this->dialect;
+			$prefixes[] = $this->language . '_' . $this->dialect;
 		}
 		foreach ($this->paths as $path) {
 			foreach ($prefixes as $prefix) {
@@ -195,33 +198,36 @@ class Reader {
 
 	/**
 	 * Load a file
+	 *
 	 * @param string $file
 	 * @return array
-	 * @throws Exception_Unsupported
-	 * @return \zesk\Locale\unknown|\zesk\the
+	 * @throws Exception_Unsupported|Exception_File_Format
 	 */
-	private function load($file) {
+	private function load(string $file): array {
 		$extension = File::extension($file);
-		if (in_array($extension, array(
-			"php",
-			"inc",
-		))) {
-			return $this->_require($file);
+		if (in_array($extension, [
+			'php',
+			'inc',
+		])) {
+			$result = $this->_require($file);
+		} elseif ($extension === 'json') {
+			$result = JSON::decode(File::contents($file));
+		} else {
+			throw new Exception_Unsupported('Locale file {file} extension {extension} not supported', [
+				'file' => $file,
+				'extension' => $extension,
+			]);
 		}
-		if ($extension === "json") {
-			return JSON::decode(File::contents($file));
+		if (!is_array($result)) {
+			throw new Exception_File_Format($file, 'Should result in an array {type} loaded', ['type' => type($result)]);
 		}
-
-		throw new Exception_Unsupported("Locale file {file} extension {extension} not supported", array(
-			"file" => $file,
-			"extension" => $extension,
-		));
+		return $result;
 	}
 
 	/**
 	 *
-	 * @param unknown $file
-	 * @return unknown
+	 * @param string $file
+	 * @return mixed
 	 */
 	private function _require($file) {
 		return require $file;

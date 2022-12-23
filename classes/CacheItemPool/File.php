@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 /**
- * @copyright &copy; 2017 Market Acumen, Inc.
+ * @copyright &copy; 2022, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -23,7 +23,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *
 	 * @var CacheItem[]
 	 */
-	private $deferred = array();
+	private $deferred = [];
 
 	/**
 	 *
@@ -73,10 +73,10 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 */
 	public function getItem($key) {
 		if (!is_string($key)) {
-			throw new Exception_Parameter("{method} passed {type}, needs string", array(
-				"method" => __METHOD__,
-				"type" => type($key),
-			));
+			throw new Exception_Parameter('{method} passed {type}, needs string', [
+				'method' => __METHOD__,
+				'type' => type($key),
+			]);
 		}
 		$cache_file = $this->cache_file($key);
 		// Previously did "is_file", then "file_get_contents", but a race condition would create warnings in our logs when files were deleted
@@ -110,8 +110,8 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *   key is not found. However, if no keys are specified then an empty
 	 *   traversable MUST be returned instead.
 	 */
-	public function getItems(array $keys = array()) {
-		$result = array();
+	public function getItems(array $keys = []) {
+		$result = [];
 		foreach ($keys as $index => $key) {
 			$result[$index] = $this->getItem($key);
 		}
@@ -146,7 +146,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *   True if the pool was successfully cleared. False if there was an error.
 	 */
 	public function clear() {
-		Directory::delete_contents($this->path);
+		Directory::deleteContents($this->path);
 		return true;
 	}
 
@@ -156,7 +156,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @param string $key
 	 *   The key to delete.
 	 *
-	 1	 * @throws InvalidArgumentException
+	 * 1	 * @throws InvalidArgumentException
 	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 *
@@ -176,7 +176,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *
 	 * @param string[] $keys
 	 *   An array of keys that should be removed from the pool.
-
+	 *
 	 * @throws InvalidArgumentException
 	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
@@ -202,7 +202,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	public function save(CacheItemInterface $item) {
 		$key = $item->getKey();
 		$file = $this->cache_file($key);
-		Directory::depend(dirname($file), 0770);
+		Directory::depend(dirname($file), 0o770);
 		File::put($file, serialize($item));
 		return false;
 	}
@@ -231,7 +231,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 		foreach ($this->deferred as $item) {
 			$this->save($item);
 		}
-		$this->deferred = array();
+		$this->deferred = [];
 	}
 
 	/**
@@ -243,7 +243,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	private function cache_name($key) {
 		$clean = File::name_clean($key);
 		$hash = md5($key);
-		return substr($hash, 0, 1) . "/" . substr($hash, 1) . '^' . substr($clean, 0, 32);
+		return substr($hash, 0, 1) . '/' . substr($hash, 1) . '^' . substr($clean, 0, 32);
 	}
 
 	/**

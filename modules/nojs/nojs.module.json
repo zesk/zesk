@@ -1,8 +1,0 @@
-{
-	"name": "No JavaScript warning",
-	"module_class": "zesk\\NoJS\\Module",
-	"autoload_options": {
-		"class_prefix": "zesk\\NoJS\\",
-		"lower": false
-	}
-}

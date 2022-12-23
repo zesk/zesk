@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  *
  */
@@ -9,9 +9,9 @@ namespace zesk;
  */
 class Adapter_Settings_Configuration implements Interface_Settings {
 	/**
-	 * @var \zesk\Configuration
+	 * @var Configuration
 	 */
-	protected $configuration = null;
+	protected Configuration $configuration;
 
 	/**
 	 *
@@ -24,15 +24,15 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * Is a value set in this object?
 	 * @return boolean
 	 */
-	public function __isset($name) {
-		return $this->configuration->path_exists($name);
+	public function __isset(string $name): bool {
+		return $this->configuration->pathExists($name);
 	}
 
 	/**
 	 * Is a value set in this object?
 	 * @return boolean
 	 */
-	public function has($name) {
+	public function has(string $name): bool {
 		return $this->__isset($name);
 	}
 
@@ -41,8 +41,8 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * @param mixed $name A string or key value (integer, float)
 	 * @return mixed The value of the session variable, or null if nothing set
 	 */
-	public function __get($name) {
-		return $this->configuration->path_get($name);
+	public function __get(string $name): mixed {
+		return $this->configuration->getPath($name);
 	}
 
 	/**
@@ -51,8 +51,8 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * @param mixed $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
-	public function get($name = null, $default = null) {
-		return $this->configuration->path_get($name, $default);
+	public function get(string $name = null, mixed $default = null): mixed {
+		return $this->configuration->getPath($name, $default);
 	}
 
 	/**
@@ -61,8 +61,8 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * @param mixed $name A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
-	public function __set($name, $value) {
-		$this->configuration->path_set($name, $value);
+	public function __set(string $name, mixed $value): void {
+		$this->configuration->setPath($name, $value);
 	}
 
 	/**
@@ -72,8 +72,9 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 * @return Interface_Settings
 	 */
-	public function set($name, $value = null) {
-		$this->configuration->path_set($name, $value);
+	public function set(string $name, mixed $value = null): self {
+		$this->configuration->setPath($name, $value);
+		return $this;
 	}
 
 	/**
@@ -81,7 +82,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 *
 	 * @return Iterator
 	 */
-	public function variables() {
-		return $this->configuration->to_array();
+	public function variables(): iterable {
+		return $this->configuration->toArray();
 	}
 }

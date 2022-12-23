@@ -1,9 +1,13 @@
 <?php
+declare(strict_types=1);
 
 /**
  *
  */
+
 namespace zesk;
+
+use Throwable;
 
 /**
  *
@@ -11,9 +15,17 @@ namespace zesk;
  *
  */
 class Exception_File_NotFound extends Exception_FileSystem {
-	public function __construct($filename = null, $context = null) {
-		parent::__construct($filename, "{filename} not found {context}", array(
-			"context" => $context,
-		));
+	/**
+	 * @param $filename
+	 * @param $message
+	 * @param array $arguments
+	 * @param int $code
+	 * @param Throwable|null $previous
+	 */
+	public function __construct(string $path = '', $message = '', array $arguments = [], int $code = 0, Throwable
+	$previous = null) {
+		parent::__construct($path, $message === '' ? '{path} not found' : $message, [
+			'path' => $path,
+		] + $arguments, $code, $previous);
 	}
 }

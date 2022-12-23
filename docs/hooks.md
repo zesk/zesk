@@ -42,13 +42,13 @@ So, there are basically two places to register and call hooks, in zesk:
 ## Call a hook
 
     zesk()->hooks->call($hook, ...);
-	zesk()->hooks->call_arguments($hook, array $arguments, $default=null);
+	zesk()->hooks->callArguments($hook, array $arguments, $default=null);
 	
 And in any object which inherits "Hookable" which ... is most of them:
 
     /* @var $u User */
     $u = User::instance();
-	if ($u->call_hook("allowed_request", $request)) {
+	if ($u->callHook("allowed_request", $request)) {
 		// fun stuff
 	}
 
@@ -57,7 +57,7 @@ a default value to be returned when no hook exists:
 
 	/* @var $u User */
 	$u = User::instance();
-	if ($u->call_hook_arguments("allowed_request", array($request), true)) {
+	if ($u->callHookArguments("allowed_request", array($request), true)) {
 		// fun stuff
 	}
 
@@ -86,7 +86,7 @@ Let's handle these each in order:
 
 You'll note that [`zesk\Hookable`](`hookable.md`) inherits from [`zesk\Options`](options.md) so it inherits the ability to set arbitrary options on any `Hookable` object. There's a special option called "hooks" which allows the user to define a hook to be called. You can then turn this on and off for a specific object if you wish:
 
-	$this->option_append("hooks", "delete", "project_deleted");
+	DEPRECATED TODO $this->option_append("hooks", "delete", "project_deleted");
 	
 Then the method `project_deleted` will be called with our object upon deletion.
 
@@ -100,7 +100,7 @@ How do you get your hook called, you say? In one of three ways:
 
 - Call `zesk()->hooks->add($hook, $function)` to register your hook in the global hook tables
 - Create a method called "`hook_$hook`" inside of a hookable class or subclass.
-- Register your class with `zesk()->classes->register()` and then invoke using `zesk()->hooks->all_call($method)`
+- Register your class with `zesk()->classes->register()` and then invoke using `zesk()->hooks->allCall($method)`
 
 `zesk()->hooks->call` and `zesk()->hooks->call_arguments` are essentially just buckets where you can register your hook. 
 Zesk global hooks are registration-based. 
@@ -114,7 +114,7 @@ named
 		}
 	}
 	$foo = new Foo();
-	$foo->call_hook("dee");
+	$foo->callHook("dee");
 
 Then your method will be called at the appropriate time.
 

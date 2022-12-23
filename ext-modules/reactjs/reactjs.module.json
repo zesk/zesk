@@ -1,0 +1,10 @@
+{
+	"name": "ReactJS",
+	"autoload": {
+		"classPrefix": "zesk\\ReactJS\\"
+	},
+	"moduleClass": "zesk\\ReactJS\\Module",
+	"requires": [
+		"NodeJS"
+	]
+}

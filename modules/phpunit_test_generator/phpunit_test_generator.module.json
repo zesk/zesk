@@ -1,8 +1,0 @@
-{
-	"name": "PHPUnit_Test_Generator",
-	"autoload_options": {
-		"class_prefix": "zesk\\PHPUnit\\TestGenerator\\",
-		"lower": false
-	},
-	"module_class": "zesk\\PHPUnit\\TestGenerator\\Module"
-}

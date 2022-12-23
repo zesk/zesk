@@ -1,0 +1,13 @@
+{
+	"name": "Server",
+	"autoload": {
+		"classPrefix": "zesk\\",
+		"extensions": [
+			"php"
+		]
+	},
+	"moduleClass": "zesk\\Module_Server",
+	"depends": [
+		"diff"
+	]
+}

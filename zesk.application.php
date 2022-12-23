@@ -1,51 +1,48 @@
 <?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage core
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2012, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
-if (!isset($GLOBALS['__composer_autoload_files'])) {
-	if (is_file(__DIR__ . '/vendor/autoload.php')) {
-		require_once __DIR__ . '/vendor/autoload.php';
-	} else {
-		fprintf(STDERR, "Missing vendor directory\n");
-		exit(1);
-	}
-} else {
-	require_once __DIR__ . '/autoload.php';
-}
-class ApplicationConfigurator {
-	public static function configure() {
-		$zesk = Kernel::singleton();
-		$zesk->paths->set_application(__DIR__);
+include __DIR__ . '/xdebug.php';
+require_once __DIR__ . '/.autoload-load.php';
 
-		$application = $zesk->create_application();
-
-		$application->configure_include(array(
-			"/etc/zesk.json",
-			$application->path("/etc/zesk.json"),
-			$application->path("etc/host/" . System::uname() . ".json"),
-			$application->paths->uid("zesk.json"),
-		));
-		$modules = array(
-			"GitHub",
-		);
-		if (defined("PHPUNIT")) {
-			$modules[] = "phpunit";
+/**
+ * The Zesk
+ */
+class ApplicationGenerator {
+	public static function generate(): Application {
+		try {
+			$zesk = Kernel::singleton();
+			$zesk->paths->setApplication(__DIR__);
+			$application = $zesk->createApplication();
+		} catch (Exception_Semantics) {
+			die(__CLASS__ . ' is incorrectly configured');
 		}
-		if (defined("ZESK_EXTRA_MODULES")) {
-			$modules = array_merge($modules, to_list(ZESK_EXTRA_MODULES));
+		$include_files = [
+			'/etc/zesk.json',
+			$application->path('/etc/zesk.json'),
+			$application->path('etc/host/' . System::uname() . '.json'),
+			$application->paths->uid('zesk.json'),
+		];
+		if (isset($_SERVER['ZESK_EXTRA_INCLUDES'])) {
+			$include_files = array_merge($include_files, toList($_SERVER['ZESK_EXTRA_INCLUDES'], [], ':'));
 		}
-		$application->set_option("modules", $modules);
-		$application->configure();
+		$application->configureInclude($include_files);
+		$modules = [];
+		if (isset($_SERVER['ZESK_EXTRA_MODULES'])) {
+			$modules = array_merge($modules, toList($_SERVER['ZESK_EXTRA_MODULES']));
+		}
+		$application->setOption('modules', array_merge($application->optionArray('modules'), $modules));
+		$application->setOption('version', Version::release());
 
-		$application->set_option("version", Version::release());
-
-		return $application;
+		return $application->configure();
 	}
 }
 
-return ApplicationConfigurator::configure();
+return ApplicationGenerator::generate();

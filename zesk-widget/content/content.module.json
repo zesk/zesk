@@ -1,0 +1,7 @@
+{
+	"name": "Content module",
+	"autoload": {
+		"classPrefix": "zesk\\"
+	},
+	"moduleClass": "zesk\\Module_Content"
+}

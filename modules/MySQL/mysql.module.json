@@ -1,0 +1,14 @@
+{
+	"name": "MySQL Database",
+	"description": "Database abstraction for MySQL using PHP mysqli APIs.",
+	"requires": [
+		"Database"
+	],
+	"autoload": {
+		"classPrefix": "MySQL\\",
+		"extensions": [
+			"php"
+		]
+	},
+	"moduleClass": "MySQL\\Module"
+}
