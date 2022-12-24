@@ -239,9 +239,9 @@
 		path = to_list(path, [], ".");
 		for (k = 0; k < path.length; k++) {
 			if (k === path.length - 1) {
-				return curr[path[k]] ?? null;
+				return curr[path[k]] || null;
 			}
-			curr = avalue(curr, path[k]);
+			curr = curr[path[k]] || null;
 			if (curr === null) {
 				return def;
 			}
@@ -403,7 +403,7 @@
 	    },
 	    get: function(n) {
 		    var a = arguments;
-		    return avalue(X.Zesk.settings, n, a.length > 1 ? a[1] : null);
+		    return X.Zesk.settings[n] || (a.length > 1 ? a[1] : null);
 	    },
 	    getb: function(n) {
 		    var a = arguments, d = a.length > 1 ? a[1] : false;
@@ -772,19 +772,19 @@
 	    },
 	    left: function(delim, def) {
 		    var pos = this.indexOf(delim);
-		    return (pos < 0) ? avalue(arguments, 1, def || this) : this.substr(0, pos);
+		    return (pos < 0) ? (arguments[1] || def || this) : this.substr(0, pos);
 	    },
 	    rleft: function(delim, def) {
 		    var pos = this.lastIndexOf(delim);
-		    return (pos < 0) ? avalue(arguments, 1, def || this) : this.substr(0, pos);
+		    return (pos < 0) ? (arguments[1] || def || this) : this.substr(0, pos);
 	    },
 	    right: function(delim, def) {
 		    var pos = this.indexOf(delim);
-		    return (pos < 0) ? avalue(arguments, 1, def || this) : this.substr(pos + delim.length);
+		    return (pos < 0) ? (arguments[1] || def || this) : this.substr(pos + delim.length);
 	    },
 	    rright: function(delim, def) {
 		    var pos = this.lastIndexOf(delim);
-		    return (pos < 0) ? avalue(arguments, 1, def || this) : this.substr(pos + delim.length);
+		    return (pos < 0) ? (arguments[1] || def || this) : this.substr(pos + delim.length);
 	    },
 	    ltrim: function() {
 		    return this.replace(/^\s+/, '');
