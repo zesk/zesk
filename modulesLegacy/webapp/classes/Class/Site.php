@@ -25,16 +25,16 @@ class Class_Site extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'instance' => self::type_object,
-		'name' => self::type_string,
-		'code' => self::type_string,
-		'type' => self::type_string,
-		'priority' => self::type_integer,
-		'path' => self::type_string,
-		'data' => self::type_json,
-		'errors' => self::type_json,
-		'valid' => self::type_boolean,
+		'id' => self::TYPE_ID,
+		'instance' => self::TYPE_OBJECT,
+		'name' => self::TYPE_STRING,
+		'code' => self::TYPE_STRING,
+		'type' => self::TYPE_STRING,
+		'priority' => self::TYPE_INTEGER,
+		'path' => self::TYPE_STRING,
+		'data' => self::TYPE_JSON,
+		'errors' => self::TYPE_JSON,
+		'valid' => self::TYPE_BOOL,
 	];
 
 	public array $has_one = [

@@ -16,12 +16,12 @@ class Class_Domain extends Class_Base {
 	public $codename = 'WebApp_Domain';
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'name' => self::type_string,
-		'type' => self::type_string,
-		'target' => self::type_object,
-		'active' => self::type_boolean,
-		'accessed' => self::type_timestamp,
+		'id' => self::TYPE_ID,
+		'name' => self::TYPE_STRING,
+		'type' => self::TYPE_STRING,
+		'target' => self::TYPE_OBJECT,
+		'active' => self::TYPE_BOOL,
+		'accessed' => self::TYPE_TIMESTAMP,
 	];
 
 	public array $find_keys = [

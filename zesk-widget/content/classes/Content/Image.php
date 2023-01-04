@@ -340,8 +340,8 @@ class Content_Image extends ORMBase {
 			trigger_error(__CLASS__ . "::_update_sizes(): getimagesize failed on \"$path\"" . _backtrace(), E_USER_WARNING);
 			return false;
 		}
-		$this->set_member('width', $result[0]);
-		$this->set_member('height', $result[1]);
+		$this->setMember('width', $result[0]);
+		$this->setMember('height', $result[1]);
 		return true;
 	}
 

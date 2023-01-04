@@ -215,8 +215,8 @@ class Class_Test_COLT_Object extends Class_Base {
 	public string $id_column = 'ID';
 
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Foo' => self::type_string,
+		'ID' => self::TYPE_ID,
+		'Foo' => self::TYPE_STRING,
 	];
 }
 
@@ -232,8 +232,8 @@ class Class_Test_COL_Object extends Class_Base {
 	public string $id_column = 'ID';
 
 	public array $column_types = [
-		'ID' => self::type_id,
-		'Foo' => self::type_string,
+		'ID' => self::TYPE_ID,
+		'Foo' => self::TYPE_STRING,
 	];
 }
 

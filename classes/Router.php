@@ -12,6 +12,7 @@ namespace zesk;
 
 use stdClass;
 use zesk\Router\Parser;
+use Psr\Cache\InvalidArgumentException;
 
 /**
  * @see Route
@@ -149,9 +150,12 @@ class Router extends Hookable {
 	 * @param Application $application
 	 * @param array $options
 	 * @return self
+	 * @throws Exception_Class_NotFound
 	 */
 	public static function factory(Application $application, array $options = []): self {
-		return $application->factory(__CLASS__, $application, $options);
+		$result = $application->factory(__CLASS__, $application, $options);
+		assert($result instanceof self);
+		return $result;
 	}
 
 	/**
@@ -166,21 +170,15 @@ class Router extends Hookable {
 	}
 
 	/**
-	 *
-	 * @param Application $kernel
-	 * @throws Exception_Semantics
-	 */
-	public static function hooks(Application $kernel): void {
-		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, [
-			__CLASS__, 'configured',
-		]);
-	}
-
-	/**
 	 * Cache this router
+	 * @throws Exception_NotFound
 	 */
 	public function cache(string $id): self {
-		$item = $this->application->cache->getItem(__CLASS__);
+		try {
+			$item = $this->application->cache->getItem(__CLASS__);
+		} catch (InvalidArgumentException $e) {
+			throw new Exception_NotFound($e->getMessage());
+		}
 		$value = new stdClass();
 		$value->id = $id;
 		$value->router = $this;
@@ -198,7 +196,7 @@ class Router extends Hookable {
 	public function cached(string $id = ''): Router {
 		try {
 			$item = $this->application->cache->getItem(__CLASS__);
-		} catch (\InvalidArgumentException $e) {
+		} catch (InvalidArgumentException $e) {
 			throw new Exception_NotFound($e->getMessage());
 		}
 		if (!$item->isHit()) {
@@ -224,7 +222,7 @@ class Router extends Hookable {
 		$b_weight = zesk_weight($b->option('weight'));
 		$a->setOption('computed_weight', $a_weight);
 		$b->setOption('computed_weight', $b_weight);
-		$delta = floatval($a_weight) - floatval($b_weight);
+		$delta = intval($a_weight - $b_weight);
 		if ($delta === 0) {
 			return 0;
 		}
@@ -373,6 +371,7 @@ class Router extends Hookable {
 	 * @param string $contents
 	 * @param array $add_options
 	 * @return void
+	 * @throws Exception_Syntax
 	 * @see Parser
 	 */
 	public function import(string $contents, array $add_options = []): void {
@@ -406,8 +405,8 @@ class Router extends Hookable {
 	 * @return Route
 	 * @throws Exception_NotFound
 	 */
-	private function _findRoute(array $routes, string $action, Model $object = null, array $options = []): Route {
-		$options = toArray($options, []);
+	private function _findRoute(array $routes, string $action, Model $object = null, array $options = []): string {
+		$options = toArray($options);
 		foreach ($routes as $route) {
 			assert($route instanceof Route);
 			$url = $route->getRoute($action, $object, $options);
@@ -429,11 +428,11 @@ class Router extends Hookable {
 	 * @param array $by_class
 	 * @param Model $add
 	 * @param string $stop_class
-	 * @return \zesk\Model|mixed
+	 * @return array
 	 */
-	public static function add_derived_classes(array $by_class, Model $add, $stop_class = null) {
+	public static function add_derived_classes(array $by_class, Model $add, string $stop_class = ''): array {
 		$id = $add->id();
-		foreach ($add->application->classes->hierarchy($add, $stop_class ? $stop_class : 'zesk\\Model') as $class) {
+		foreach ($add->application->classes->hierarchy($add, $stop_class ?: Model::class) as $class) {
 			$by_class[$class] = $id;
 		}
 		return $by_class;
@@ -441,10 +440,9 @@ class Router extends Hookable {
 
 	private function derived_classes(Model $object) {
 		$by_class = [];
-		$by_class = $object->callHookArguments('router_derived_classes', [
+		return $object->callHookArguments('router_derived_classes', [
 			$by_class,
 		], $by_class);
-		return $by_class;
 	}
 
 	/**
@@ -521,7 +519,7 @@ class Router extends Hookable {
 		}
 		$url = $this->callHookArguments('getRoute', [
 			$action, $object, $options,
-		], null);
+		]);
 		if (empty($url)) {
 			throw new Exception_NotFound('No reverse route for {classes}->{action} {backtrace}', [
 				'classes' => $try_classes, 'action' => $original_action, 'backtrace' => _backtrace(),
@@ -534,6 +532,7 @@ class Router extends Hookable {
 	 * Retrieve a list of all known controllers
 	 *
 	 * @return array
+	 * @throws Exception_Class_NotFound
 	 */
 	public function controllers(): array {
 		$controllers = Controller::all($this->application);

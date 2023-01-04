@@ -214,11 +214,11 @@ class Control_Selection extends Control {
 			// TODO Why is this called twice while listing?
 			return;
 		}
-		$type_id = $this->selection_type()->id();
+		$TYPE_ID = $this->selection_type()->id();
 		$alias = $query->alias();
 		$id_column = $this->application->ormRegistry($query->orm_class())->idColumn();
 		$table = $this->application->ormRegistry(__NAMESPACE__ . '\\Selection_Item')->table();
-		$query->join("LEFT OUTER JOIN $table sel_item ON sel_item.type=$type_id AND sel_item.id=$alias.$id_column");
+		$query->join("LEFT OUTER JOIN $table sel_item ON sel_item.type=$TYPE_ID AND sel_item.id=$alias.$id_column");
 		$query->what('*selected', 'sel_item.add');
 	}
 }

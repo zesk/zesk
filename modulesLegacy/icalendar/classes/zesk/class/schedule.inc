@@ -21,13 +21,13 @@ class Class_Schedule extends Class_Base {
 	 * @var array
 	 */
 	public array $column_types = [
-		'id' => self::type_id,
-		'account' => self::type_object,
-		'frequency' => self::type_integer,
-		'unit' => self::type_string,
-		'weekday' => self::type_integer,
-		'monthday' => self::type_integer,
-		'hour' => self::type_integer,
+		'id' => self::TYPE_ID,
+		'account' => self::TYPE_OBJECT,
+		'frequency' => self::TYPE_INTEGER,
+		'unit' => self::TYPE_STRING,
+		'weekday' => self::TYPE_INTEGER,
+		'monthday' => self::TYPE_INTEGER,
+		'hour' => self::TYPE_INTEGER,
 	];
 
 	public array $column_defaults = [

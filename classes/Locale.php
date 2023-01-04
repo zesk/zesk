@@ -100,8 +100,8 @@ abstract class Locale extends Hookable {
 		[$lang, $dialect] = self::parse($locale_string);
 		$lang = strtoupper($lang);
 		$classes = ArrayTools::prefixValues([
-			"${lang}_${dialect}",
-			"${lang}_Default",
+			"{$lang}_$dialect",
+			"{$lang}_Default",
 			$lang,
 			'Default',
 		], __CLASS__ . '_');

@@ -115,7 +115,7 @@ abstract class Tag extends ORMBase {
 			$this->foreign_column() => 'id',
 		]);
 		// @todo log issue against this and fix
-		$query = $this->query_delete()->where([
+		$query = $this->queryDelete()->where([
 			'tag_label' => $label,
 			'*' . $this->foreign_column() . '| IN ' => '(' . strval($selected_query) . ')',
 		]);

@@ -102,7 +102,7 @@ class Command_Schema extends Command_Base {
 
 		$app = $this->application;
 
-		$hook_type = "zesk\ORM::schema_$suffix";
+		$hook_type = ORMBase::class . "::schema_$suffix";
 		$all_hooks = $this->application->hooks->findAll([$hook_type]);
 
 		$app->logger->notice("Running all $suffix hooks {hooks}", [
@@ -163,7 +163,7 @@ class Command_Schema extends Command_Base {
 		if ($this->optionBool('debug')) {
 			Schema::$debug = true;
 		}
-		$url = null;
+		$url = '';
 		if ($this->hasOption('url')) {
 			$url = $this->option('url');
 			if (!URL::valid($url)) {
@@ -180,7 +180,7 @@ class Command_Schema extends Command_Base {
 
 		$this->synchronize_before();
 
-		$database = $application->database_registry($url);
+		$database = $application->databaseRegistry($url);
 		$this->results = $results = $application->orm_module()->schema_synchronize($database, $classes, [
 			'skip_others' => true,
 			'check' => $this->optionBool('check'),

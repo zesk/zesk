@@ -57,10 +57,10 @@ class Class_Label extends Class_Base {
 		'id' => self::TYPE_ID,
 		'code' => self::TYPE_STRING,
 		'name' => self::TYPE_STRING,
-		'is_internal' => self::type_boolean,
-		'is_translated' => self::type_boolean,
+		'is_internal' => self::TYPE_BOOL,
+		'is_translated' => self::TYPE_BOOL,
 		'owner' => self::TYPE_OBJECT,
-		'created' => self::type_created,
+		'created' => self::TYPE_CREATED,
 		'modified' => self::TYPE_MODIFIED,
 		'last_used' => self::TYPE_TIMESTAMP,
 	];

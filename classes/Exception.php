@@ -33,8 +33,8 @@ class Exception extends \Exception {
 	 */
 	public static function phpExceptionVariables(Throwable $e, string $prefix = 'exception'): array {
 		return [
-			"${prefix}Class" => $e::class,
-			"${prefix}Code" => $e->getCode(),
+			"{$prefix}Class" => $e::class,
+			"{$prefix}Code" => $e->getCode(),
 			'message' => $e->getMessage(),
 			'rawMessage' => $e->getMessage(),
 			'file' => $e->getFile(),

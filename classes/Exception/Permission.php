@@ -5,13 +5,19 @@
  */
 namespace zesk;
 
+use Throwable;
+use zesk\ORM\ORMBase;
+use zesk\ORM\User;
+
 /**
  *
  * @author kent
  *
  */
 class Exception_Permission extends Exception {
-	public function __construct(User $user, $action, Model $object = null, array $options = [], $previous = null) {
+	public function __construct(User $user, $action, ORMBase $object = null, array $options = [], Throwable
+	$previous =
+	null) {
 		parent::__construct('User {user.name} has no permission action={action} class={class} type={type}', [
 			'action' => $action,
 			'object' => $object,
@@ -20,7 +26,7 @@ class Exception_Permission extends Exception {
 			'options' => $options,
 			'user' => $user,
 			'user.name' => strval($user),
-		]);
+		], 0, $previous);
 	}
 
 	public function action() {

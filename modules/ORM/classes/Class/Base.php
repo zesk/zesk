@@ -14,8 +14,11 @@ declare(strict_types=1);
 namespace zesk\ORM;
 
 use Psr\Cache\InvalidArgumentException;
+use zesk\Database_Exception_Connect;
 use zesk\Database_Exception_SQL;
 use zesk\Exception as BaseException;
+use zesk\Exception_Deprecated;
+use zesk\Exception_NotFound;
 use zesk\Hookable;
 use zesk\ArrayTools;
 use zesk\StringTools;
@@ -67,7 +70,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_text = 'text';
+	public const TYPE_TEXT = 'text';
 
 	/**
 	 * Plain old text data in the database (varchar)
@@ -84,28 +87,28 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_polymorph = 'polymorph';
+	public const TYPE_POLYMORPH = 'polymorph';
 
 	/**
 	 * Refers to a system object (usually by ID)
 	 *
 	 * @var string
 	 */
-	public const TYPE_OBJECT = self::type_orm;
+	public const TYPE_OBJECT = self::TYPE_ORM;
 
 	/**
 	 * Refers to a system object (usually by ID)
 	 *
 	 * @var string
 	 */
-	public const type_orm = 'orm';
+	public const TYPE_ORM = 'orm';
 
 	/**
 	 * Upon initial save, set to current date
 	 *
 	 * @var string
 	 */
-	public const type_created = 'created';
+	public const TYPE_CREATED = 'created';
 
 	/**
 	 * Upon all saves, updates to current date
@@ -128,7 +131,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_json = 'json';
+	public const TYPE_JSON = 'json';
 
 	/**
 	 * Convert data to/from an integer
@@ -142,7 +145,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_character = 'character';
+	public const TYPE_CHARACTER = 'character';
 
 	/**
 	 * Single-precision floating point number
@@ -155,37 +158,37 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_float = 'float';
+	public const TYPE_FLOAT = 'float';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const TYPE_FLOAT = 'double';
+	public const TYPE_DOUBLE = 'double';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const type_decimal = 'decimal';
+	public const TYPE_DECIMAL = 'decimal';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const type_byte = 'byte';
+	public const TYPE_BYTE = 'byte';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const type_binary = 'binary';
+	public const TYPE_BINARY = 'binary';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const type_boolean = 'boolean';
+	public const TYPE_BOOL = 'boolean';
 
 	/**
 	 *
@@ -197,25 +200,25 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_datetime = 'datetime';
+	public const TYPE_DATETIME = 'datetime';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const type_date = 'date';
+	public const TYPE_DATE = 'date';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const type_time = 'time';
+	public const TYPE_TIME = 'time';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const type_ip = 'ip';
+	public const TYPE_IP = 'ip';
 
 	/**
 	 *
@@ -227,19 +230,19 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_crc32 = 'crc32';
+	public const TYPE_CRC32 = 'crc32';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const type_hex32 = 'hex';
+	public const TYPE_HEX32 = 'hex';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const type_hex = 'hex';
+	public const TYPE_HEX = 'hex';
 
 	/**
 	 * Application class associated with this Class_Base
@@ -838,11 +841,9 @@ class Class_Base extends Hookable {
 	 * Constructor
 	 * @param ORMBase $object
 	 * @param array $options
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Semantics
-	 * @throws Exception_Unimplemented|Exception_Class_NotFound
+	 * @throws Exception_Unimplemented
 	 */
 	public function __construct(ORMBase $object, array $options = []) {
 		$app = $object->application;
@@ -934,6 +935,9 @@ class Class_Base extends Hookable {
 			$this->dynamic_columns = true;
 		}
 		$this->initialize_database($object);
+		if (!$this->load_database_columns && count($this->column_types) > 0 && count($this->primary_keys) === 0) {
+			throw new Exception_Unimplemented('No support for database synchronized column without primary_keys defined {class}', ['class' => get_class($this)]);
+		}
 		$this->init_columns();
 		$this->_columnDefaults();
 		$this->initialize();
@@ -947,8 +951,6 @@ class Class_Base extends Hookable {
 	/**
 	 * @param ORMBase $object
 	 * @return void
-	 * @throws Exception_Configuration
-	 * @throws Exception_ORMNotFound
 	 */
 	protected function initialize_database(ORMBase $object): void {
 		if (!empty($this->database_group) && $this->database_group !== $this->class) {
@@ -963,7 +965,7 @@ class Class_Base extends Hookable {
 			if ($this->database_name === $object->databaseName()) {
 				$this->database = $object->database();
 			} else {
-				$this->database = $this->application->database_registry($this->database_name);
+				$this->database = $this->application->databaseRegistry($this->database_name, ['connect' => false]);
 			}
 		}
 		if ($this->database === null) {
@@ -987,22 +989,22 @@ class Class_Base extends Hookable {
 	}
 
 	/**
+	 * @return void
+	 * @throws Exception_Unimplemented
+	 */
+	final protected function checkColumnLoading(): void {
+		if (!$this->load_database_columns && count($this->column_types) > 0 && count($this->primary_keys) === 0) {
+			throw new Exception_Unimplemented('No support for database synchronized column without primary_keys defined {class}', ['class' => get_class($this)]);
+		}
+	}
+
+	/**
 	 * Load columns from database
 	 *
 	 * @return boolean
-	 * @throws Exception_Unimplemented
 	 */
 	final public function init_columns(): bool {
-		if (!$this->load_database_columns && count($this->column_types) > 0) {
-			if (!count($this->primary_keys)) {
-				throw new Exception_Unimplemented('No support for database synchronized column without primary_keys defined {class}', ['class' => get_class($this)]);
-			}
-			return true;
-		}
-		if (!$this->load_columns()) {
-			return false;
-		}
-		return true;
+		return $this->load_columns();
 	}
 
 	/**
@@ -1081,8 +1083,20 @@ class Class_Base extends Hookable {
 	 * @param ORMBase $object
 	 * @param string $segment
 	 * @return ORMBase
+	 * @throws Database_Exception_Connect
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Convert
 	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Parse
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unimplemented
+	 * @throws Exception_Deprecated
 	 */
 	private function _findNextObject(ORMBase $object, string $segment): ORMBase {
 		if (array_key_exists($segment, $this->has_one)) {
@@ -1101,10 +1115,13 @@ class Class_Base extends Hookable {
 	 * @param Database_Query_Select $query
 	 * @param array $link_state
 	 * @return Database_Query_Select
+	 * @throws Database_Exception_Connect
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
 	 * @throws Exception_Key
-	 * @throws Exception_Semantics|Exception_ORMNotFound
+	 * @throws Exception_NotFound
+	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Semantics
 	 */
 	final public function linkWalk(ORMBase $object, Database_Query_Select $query, array $link_state = []): Database_Query_Select {
 		$generator = $this->database()->sql();
@@ -1220,10 +1237,9 @@ class Class_Base extends Hookable {
 	 * @param bool $join_type true=INNER false=LEFT OUTER
 	 * @param bool $reverse If linking from far object to this
 	 * @return bool true if intermediate table is used, false if not
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
+	 * @throws Database_Exception_Connect
 	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
+	 * @throws Exception_NotFound
 	 * @throws Exception_Semantics
 	 */
 	final public function _hasManyQuery(ORMBase $this_object, Database_Query_Select $query, array $many_spec, string
@@ -1296,21 +1312,20 @@ class Class_Base extends Hookable {
 		ORMBase $this_object,
 		Database_Query_Update $query,
 		array $many_spec,
-		string &$alias = 'J',
+		string $alias = 'J',
 		string $link_alias = '',
 		bool $join_type = true,
 		bool $reverse =
 		false
 	): Database_Query_Update {
-		throw new Exception_Unimplemented(__METHOD__, [
-			'orm' => $this_object,
-			'query' => $query,
-			'many_spec' => $many_spec,
-			'alias' => $alias,
-			'link_alias' => $link_alias,
-			'join_type' => $join_type,
-			'reverse' => $reverse,
-		]);
+		if ($query->table()) {
+			/* How did I get here */
+			throw new Exception_Unimplemented(__METHOD__, [
+				'orm' => $this_object, 'query' => $query, 'many_spec' => $many_spec, 'alias' => $alias,
+				'link_alias' => $link_alias, 'join_type' => $join_type, 'reverse' => $reverse,
+			]);
+		}
+		return $query;
 	}
 
 	/**
@@ -1320,10 +1335,9 @@ class Class_Base extends Hookable {
 	 * @param string $alias
 	 * @param bool $reverse
 	 * @return Database_Query_Select
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
+	 * @throws Database_Exception_Connect
 	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
+	 * @throws Exception_NotFound
 	 * @throws Exception_Semantics
 	 */
 	final public function hasManyQueryDefault(ORMBase $object, array $many_spec, string $alias = 'J', bool $reverse = false): Database_Query_Select {
@@ -1357,8 +1371,10 @@ class Class_Base extends Hookable {
 	 * @param ORMBase $object
 	 * @param string $class
 	 * @return array
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
 	 * @throws Exception_Key
-	 * @throws Exception_Semantics|Exception_Configuration
+	 * @throws Exception_Semantics
 	 */
 	final public function hasManyObject(ORMBase $object, string $class): array {
 		$class = $this->application->objects->resolve($class);
@@ -1413,6 +1429,7 @@ class Class_Base extends Hookable {
 	 * @param ORMBase $object
 	 * @param string $member
 	 * @return array
+	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
@@ -1437,10 +1454,11 @@ class Class_Base extends Hookable {
 	 * @param ORMBase|null $object
 	 *            Returned object class which represents the target object type
 	 * @return Database_Query_Select
+	 * @throws Database_Exception_Connect
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
 	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
+	 * @throws Exception_NotFound
 	 * @throws Exception_Semantics
 	 */
 	final public function memberQuery(ORMBase $this_object, string $member, ORMBase &$object = null): Database_Query_Select {
@@ -1460,6 +1478,7 @@ class Class_Base extends Hookable {
 	 * @param string $member
 	 * @param ORMBase|null $object Returned object class which represents the target object type
 	 * @return Database_Query_Update
+	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
@@ -1479,10 +1498,11 @@ class Class_Base extends Hookable {
 	 * @param ORMBase $object
 	 * @param string $member
 	 * @return array
+	 * @throws Database_Exception_Connect
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
 	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
+	 * @throws Exception_NotFound
 	 * @throws Exception_Semantics
 	 */
 	final public function memberForeignList(ORMBase $object, string $member): array {
@@ -1500,12 +1520,13 @@ class Class_Base extends Hookable {
 	 * @param string $member
 	 * @param mixed $id
 	 * @return bool
+	 * @throws Database_Exception_Connect
+	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
 	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
+	 * @throws Exception_NotFound
 	 * @throws Exception_Semantics
-	 * @throws Database_Exception_SQL
 	 */
 	final public function memberForeignExists(ORMBase $object, string $member, mixed $id): bool {
 		if (!isset($this->has_many[$member])) {
@@ -1522,6 +1543,7 @@ class Class_Base extends Hookable {
 	 * @param ORMBase $object
 	 * @param string $member
 	 * @return array[]
+	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
@@ -1544,6 +1566,7 @@ class Class_Base extends Hookable {
 	 * @param string $member
 	 * @param ORMBase $link
 	 * @return array[]
+	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
@@ -1576,7 +1599,10 @@ class Class_Base extends Hookable {
 	 * @param ORMBase $object
 	 * @param array $has_many
 	 * @return array
-	 * @throws Exception_Semantics|Exception_Configuration|Exception_Key
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Key
+	 * @throws Exception_Semantics
 	 * @todo Remove dependencies on "table" use "link_class" instead
 	 */
 	private function hasManyInit(ORMBase $object, array $has_many): array {
@@ -1806,11 +1832,10 @@ class Class_Base extends Hookable {
 	 * @param boolean $insert
 	 *            This is an insert (vs update)
 	 * @return array
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
+	 * @throws Database_Exception_Connect
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
+	 * @throws Exception_NotFound
 	 * @throws Exception_Semantics
 	 */
 	final public function to_database(ORMBase $object, array $data, bool $insert = false): array {
@@ -1834,8 +1859,8 @@ class Class_Base extends Hookable {
 	 */
 	private function _memberDefault(string $column, string $type, array &$data): void {
 		$data[$column] = match ($type) {
-			self::type_polymorph => '',
-			self::type_created, self::TYPE_MODIFIED => 'now',
+			self::TYPE_POLYMORPH => '',
+			self::TYPE_CREATED, self::TYPE_MODIFIED => 'now',
 			default => null,
 		};
 	}
@@ -1863,7 +1888,7 @@ class Class_Base extends Hookable {
 	 * @return string
 	 */
 	protected function polymorphicClassParse(ORMBase $object, string $column): string {
-		$class = StringTools::removePrefix($object::class, [$this->polymorphic . '_', $object::class, ], true);
+		$class = StringTools::removePrefix($object::class, [$this->polymorphic . '_', $object::class, ]);
 		return strtolower($class);
 	}
 
@@ -1887,16 +1912,16 @@ class Class_Base extends Hookable {
 		$v = $data[$column];
 		switch ($type) {
 			case self::type_real:
-			case self::type_float:
 			case self::TYPE_FLOAT:
-			case self::type_decimal:
+			case self::TYPE_DOUBLE:
+			case self::TYPE_DECIMAL:
 				if ($v === null) {
 					break;
 				}
 				$data[$column] = toFloat($v);
 
 				break;
-			case self::type_text:
+			case self::TYPE_TEXT:
 			case self::TYPE_STRING:
 				if ($v === null) {
 					break;
@@ -1904,8 +1929,8 @@ class Class_Base extends Hookable {
 				$data[$column] = strval($v);
 
 				break;
-			case self::type_hex:
-			case self::type_hex32:
+			case self::TYPE_HEX:
+			case self::TYPE_HEX32:
 				$data[$column] = Hexadecimal::encode($v);
 
 				break;
@@ -1922,7 +1947,7 @@ class Class_Base extends Hookable {
 				$data[$column] = toInteger($v);
 
 				break;
-			case self::type_boolean:
+			case self::TYPE_BOOL:
 				$data[$column] = toBool($v);
 
 				break;
@@ -1935,7 +1960,7 @@ class Class_Base extends Hookable {
 				}
 
 				break;
-			case self::type_json:
+			case self::TYPE_JSON:
 				try {
 					$data[$column] = empty($v) ? null : JSON::decode($v);
 				} catch (Exception_Parse $e) {
@@ -1947,27 +1972,27 @@ class Class_Base extends Hookable {
 				}
 
 				break;
-			case self::type_created:
+			case self::TYPE_CREATED:
 			case self::TYPE_MODIFIED:
 			case self::TYPE_TIMESTAMP:
-			case self::type_datetime:
+			case self::TYPE_DATETIME:
 				$data[$column] = $v === '0000-00-00 00:00:00' || empty($v) ? null : Timestamp::factory($v);
 
 				break;
-			case self::type_date:
+			case self::TYPE_DATE:
 				$data[$column] = $v === '0000-00-00' || empty($v) ? null : Date::factory($v);
 
 				break;
-			case self::type_time:
+			case self::TYPE_TIME:
 				$data[$column] = empty($v) ? null : Time::factory($v);
 
 				break;
-			case self::type_ip:
+			case self::TYPE_IP:
 			case self::TYPE_IP4:
 				$data[$column] = $v === null ? null : IPv4::from_integer($v);
 
 				break;
-			case self::type_polymorph:
+			case self::TYPE_POLYMORPH:
 				if ($v) {
 					if (empty($this->polymorphic)) {
 						$this->application->logger->error('{class} has polymorph member {column} but is not polymorphic', [
@@ -2010,12 +2035,12 @@ class Class_Base extends Hookable {
 	 */
 	private function memberFromArray(ORMBase $object, string $column, string $type, array &$data): void {
 		switch ($type) {
-			case self::type_hex:
-			case self::type_hex32:
+			case self::TYPE_HEX:
+			case self::TYPE_HEX32:
 			case self::TYPE_SERIALIZE:
-			case self::type_json:
+			case self::TYPE_JSON:
 				break;
-			case self::type_ip:
+			case self::TYPE_ID:
 			case self::TYPE_IP4:
 				if (is_int($data[$column])) {
 					$data[$column] = IPv4::from_integer($data[$column]);
@@ -2034,9 +2059,8 @@ class Class_Base extends Hookable {
 	 *
 	 * @param ORMBase $object
 	 * @return string
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_ORMNotFound
+	 * @throws Database_Exception_Connect
+	 * @throws Exception_NotFound
 	 */
 	private function sqlNow(ORMBase $object): string {
 		$generator = $object->database()->sql();
@@ -2051,11 +2075,10 @@ class Class_Base extends Hookable {
 	 * @param string $type
 	 * @param array $data
 	 * @param bool $insert If this is an insertion
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
+	 * @throws Database_Exception_Connect
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
+	 * @throws Exception_NotFound
 	 * @throws Exception_Semantics
 	 */
 	final public function memberToDatabase(ORMBase $object, string $column, string $type, array &$data, bool $insert = false): void {
@@ -2066,18 +2089,18 @@ class Class_Base extends Hookable {
 		}
 		$v = $data[$column];
 		switch ($type) {
-			case self::type_polymorph:
+			case self::TYPE_POLYMORPH:
 				$data[$column] = $this->polymorphicClassParse($object, $column);
 
 				break;
 			case self::type_real:
-			case self::type_float:
 			case self::TYPE_FLOAT:
-			case self::type_decimal:
+			case self::TYPE_DOUBLE:
+			case self::TYPE_DECIMAL:
 				$data[$column] = $v === null || $v === '' ? null : floatval($v);
 
 				break;
-			case self::type_text:
+			case self::TYPE_TEXT:
 			case self::TYPE_STRING:
 				$data[$column] = $v === null ? null : strval($v);
 
@@ -2086,15 +2109,15 @@ class Class_Base extends Hookable {
 				$data[$column] = $v === null ? null : ORMBase::mixedToID($v);
 
 				break;
-			case self::type_crc32:
+			case self::TYPE_CRC32:
 				if (isset($this->crc_column)) {
 					$data["*$column"] = 'CRC32(' . $this->database()->quoteName($object->member($this->crc_column)) . ')';
 				}
 				unset($data[$column]);
 
 				break;
-			case self::type_hex:
-			case self::type_hex32:
+			case self::TYPE_HEX:
+			case self::TYPE_HEX32:
 				$data[$column] = Hexadecimal::decode($v);
 
 				break;
@@ -2103,11 +2126,11 @@ class Class_Base extends Hookable {
 				$data[$column] = $v === null ? null : toInteger($v, intval($v));
 
 				break;
-			case self::type_byte:
+			case self::TYPE_BYTE:
 				$data[$column] = toInteger($v, $v) % 255;
 
 				break;
-			case self::type_boolean:
+			case self::TYPE_BOOL:
 				$data[$column] = toBool($v) ? 1 : 0;
 
 				break;
@@ -2115,11 +2138,11 @@ class Class_Base extends Hookable {
 				$data[$column] = serialize($v);
 
 				break;
-			case self::type_json:
+			case self::TYPE_JSON:
 				$data[$column] = JSON::encode($v);
 
 				break;
-			case self::type_created:
+			case self::TYPE_CREATED:
 				unset($data[$column]);
 				if ($insert) {
 					$data["*$column"] = $this->sqlNow($object);
@@ -2132,7 +2155,7 @@ class Class_Base extends Hookable {
 
 				break;
 			case self::TYPE_TIMESTAMP:
-			case self::type_datetime:
+			case self::TYPE_DATETIME:
 				if (empty($v)) {
 					$data[$column] = null;
 				} elseif ($v === 'now') {
@@ -2145,7 +2168,7 @@ class Class_Base extends Hookable {
 				}
 
 				break;
-			case self::type_date:
+			case self::TYPE_DATE:
 				if (empty($v)) {
 					$data[$column] = null;
 				} elseif ($v === 'now') {
@@ -2158,7 +2181,7 @@ class Class_Base extends Hookable {
 				}
 
 				break;
-			case self::type_time:
+			case self::TYPE_TIME:
 				if (empty($v)) {
 					$data[$column] = null;
 				} elseif ($v === 'now') {
@@ -2172,19 +2195,14 @@ class Class_Base extends Hookable {
 
 				break;
 			case self::TYPE_IP4:
-			case self::type_ip:
+			case self::TYPE_IP:
 				if ($v === null) {
 					$data[$column] = 'NULL';
 					return;
 				}
-
-				try {
-					$gen = $this->database()->sql();
-					$data["*$column"] = $gen->function_ip2long($gen->quoteText($v));
-					unset($data[$column]);
-				} catch (Exception_Class_NotFound) {
-					// TODO: Should we do something here?
-				}
+				$gen = $this->database()->sql();
+				$data["*$column"] = $gen->function_ip2long($gen->quoteText($v));
+				unset($data[$column]);
 				break;
 			default:
 				throw new Exception_Semantics("Invalid column type $type");
@@ -2195,7 +2213,6 @@ class Class_Base extends Hookable {
 	 * Guess column types
 	 *
 	 * Updates internal $this->column_types
-	 * @throws Exception_Class_NotFound
 	 */
 	private function implyColumnTypes(): void {
 		$data_type = $this->database()->data_type();
@@ -2257,8 +2274,9 @@ class Class_Base extends Hookable {
 				if ($link_class) {
 					$result['requires'][] = $link_class;
 				}
-			} catch (Exception_Configuration|Exception_Key|Exception_Semantics) {
-				// pass
+			} catch (Exception_Class_NotFound|Exception_Configuration|Exception_Key|Exception_Semantics $e) {
+				// WTF you need to not have this happen ever after configuration. TODO
+				$this->application->logger->error($e);
 			}
 		}
 

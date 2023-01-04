@@ -92,7 +92,7 @@ class Database_Type extends Database_Data_Type {
 						return true;
 				}
 				// no break
-			case Class_Base::type_boolean:
+			case Class_Base::TYPE_BOOL:
 				$type->setOption('sql_type', 'tinyint');
 				return true;
 			default:

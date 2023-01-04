@@ -22,6 +22,7 @@ class Controller_Cache extends Controller {
 	 *
 	 * @param string $contents
 	 * @return Response|null
+	 * @throws Exception_Key
 	 */
 	protected function request_to_file(string $contents): ?Response {
 		$file = $this->request->path();
@@ -42,13 +43,16 @@ class Controller_Cache extends Controller {
 			return null;
 		}
 		if (!str_starts_with($cache_file, $documentRoot)) {
-			$this->application->hooks->call('security', 'User cache file "{cache_file}" does not match document root "{docroot}"', [
-				'cache_file' => $cache_file, 'docroot' => $documentRoot,
+			$this->application->hooks->call('security', 'User cache file "{cache_file}" does not match document root "{documentRoot}"', [
+				'cache_file' => $cache_file, 'documentRoot' => $documentRoot,
 			]);
 			return null;
 		}
 		if ($this->request->get('nocache') === $this->option('nocache_key', microtime(true))) {
-			return $this->response->setContentType(MIME::fromExtension($cache_file))->setHeader('Content-Length', strlen($contents))->setContent($contents);
+			return $this->response->setContentType(MIME::fromExtension($cache_file))->setHeader(
+				'Content-Length',
+				strval(strlen($contents))
+			)->setContent($contents);
 		}
 
 		try {

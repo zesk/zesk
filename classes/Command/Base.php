@@ -11,7 +11,7 @@ use Psr\Log\LogLevel;
 use zesk\Logger\Handler;
 
 /**
- *
+ * @see Command
  * @author kent
  *
  */
@@ -107,7 +107,7 @@ abstract class Command_Base extends Command implements Handler {
 		$all_levels = $logger->levelsSelect($severity);
 
 		if (($filename = $this->option('log')) !== null) {
-			$modules = $this->application->modules->load('Logger_File');
+			$this->application->modules->load('Logger_File');
 			$log_file = new Logger\File();
 			if ($filename !== '-') {
 				$log_file->filename($filename);
@@ -127,11 +127,15 @@ abstract class Command_Base extends Command implements Handler {
 	}
 
 	/**
+	 * @return void
+	 * @throws Exception_Exited
 	 */
 	protected function hook_run_before(): void {
 		$this->configure_logging();
 		if ($this->optionBool('help')) {
 			$this->usage();
+
+			throw new Exception_Exited();
 		}
 		if ($this->optionBool('debug-config')) {
 			$this->application->addHook(\zesk\Hooks::HOOK_CONFIGURED, [

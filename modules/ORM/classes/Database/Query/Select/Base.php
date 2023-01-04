@@ -134,6 +134,18 @@ abstract class Database_Query_Select_Base extends Database_Query implements Sele
 	}
 
 	/**
+	 * Execute query and retrieve a single field, an integer
+	 *
+	 * @param string|int $field
+	 * @return string
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Key
+	 */
+	public function string(string|int $field = 0): string {
+		return strval($this->one($field));
+	}
+
+	/**
 	 * Execute query and retrieve a single field, a Timestamp
 	 *
 	 * @param int|string $field Field to retrieve

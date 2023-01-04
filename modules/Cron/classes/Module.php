@@ -18,7 +18,7 @@ use zesk\Exception_Directory_Permission;
 use zesk\Exception_File_NotFound;
 use zesk\Exception_File_Permission;
 use zesk\Request;
-use zesk\Lock;
+use zesk\ORM\Lock;
 use zesk\Application;
 use zesk\Hookable;
 use zesk\System;
@@ -30,7 +30,7 @@ use zesk\Timestamp;
 use zesk\ArrayTools;
 use zesk\Exception;
 use zesk\Exception_Parameter;
-use zesk\Server;
+use zesk\ORM\Server;
 use zesk\PHP;
 use zesk\File;
 use zesk\ORM\ORMBase;
@@ -57,7 +57,7 @@ class Module extends BaseModule {
 	 *
 	 * @var string
 	 */
-	protected $lock_name = __CLASS__;
+	protected string $lock_name = __CLASS__;
 
 	/**
 	 * Debugging - place to accumulate called methods so we
@@ -65,20 +65,19 @@ class Module extends BaseModule {
 	 *
 	 * @var array
 	 */
-	private $methods = null;
+	private array $methods = [];
 
 	/**
 	 * Cached value for scopes
 	 *
 	 * @var array
 	 */
-	private $scopes = null;
+	private array $scopes = [];
 
 	/**
-	 *
-	 * @var integer
+	 * microtime
 	 */
-	private $start = null;
+	private float $start;
 
 	/**
 	 * The following functions are called within Module, Object, and Application classes:
@@ -93,7 +92,7 @@ class Module extends BaseModule {
 	 *
 	 * @var array
 	 */
-	public static $intervals = [
+	public static array $intervals = [
 		'minute', 'hour', 'day', 'week', 'month', 'year',
 	];
 
@@ -102,7 +101,7 @@ class Module extends BaseModule {
 	 *
 	 * @var string
 	 */
-	protected $hook_source = null;
+	protected string $hook_source = '';
 
 	/**
 	 * Set up our module
@@ -226,9 +225,9 @@ class Module extends BaseModule {
 		if ($elapsed > ($elapsed_warn = $this->optionFloat('elapsed_warn', 2))) {
 			$locale = $this->application->locale;
 			$this->application->logger->warning('Cron: {method} took {elapsed} {seconds} (exceeded {elapsed_warn} {elapsed_warn_seconds})', [
-				'elapsed' => sprintf('%.3f', $elapsed), 'seconds' => $locale->plural('second', $elapsed),
+				'elapsed' => sprintf('%.3f', $elapsed), 'seconds' => $locale->plural('second', intval($elapsed)),
 				'elapsed_warn' => sprintf('%.3f', $elapsed_warn),
-				'elapsed_warn_seconds' => $locale->plural('second', int($elapsed_warn)),
+				'elapsed_warn_seconds' => $locale->plural('second', intval($elapsed_warn)),
 				'method' => $this->application->hooks->callable_string($method),
 			]);
 		}
@@ -237,16 +236,27 @@ class Module extends BaseModule {
 
 	public function lock_name($set = null) {
 		if ($set !== null) {
-			$name = strval($set);
-			if (empty($name)) {
-				throw new Exception_Parameter('Blank lock name for {method} {set}', [
-					'method' => __METHOD__, 'set' => $set,
-				]);
-			}
-			$this->lock_name = $name;
-			return $this;
+			return $this->setLockName($set);
 		}
+		return $this->lockName();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function lockName(): string {
 		return $this->lock_name;
+	}
+
+	public function setLockName(string $set): self {
+		$name = strval($set);
+		if (empty($name)) {
+			throw new Exception_Parameter('Blank lock name for {method} {set}', [
+				'method' => __METHOD__, 'set' => $set,
+			]);
+		}
+		$this->lock_name = $name;
+		return $this;
 	}
 
 	/**
@@ -307,7 +317,7 @@ class Module extends BaseModule {
 	 *
 	 * @return string
 	 */
-	private static function _cron_variable_prefix($suffix = '', $system = false) {
+	private static function _cron_variable_prefix(string $suffix = '') {
 		return __CLASS__ . '::last' . ($suffix ? "_$suffix" : '') . '::' . System::uname();
 	}
 
@@ -316,7 +326,7 @@ class Module extends BaseModule {
 	 *
 	 * @return string
 	 */
-	private static function _last_cron_variable($prefix, $unit) {
+	private static function _last_cron_variable(string $prefix, string $unit): string {
 		return __CLASS__ . '::last' . $prefix . ($unit ? "_$unit" : '');
 	}
 
@@ -336,7 +346,6 @@ class Module extends BaseModule {
 	private static function _cron_reset(Interface_Data $object, $prefix = '', $unit = null): void {
 		$name = self::_last_cron_variable($prefix, $unit);
 		if ($object instanceof Server) {
-			/* @var $object Server */
 			$object->deleteAllData($name);
 		} else {
 			$object->deleteData($name, null);
@@ -359,12 +368,8 @@ class Module extends BaseModule {
 		if (is_array($this->scopes)) {
 			return $this->scopes;
 		}
-		/* @var $server Server */
 		$server = Server::singleton($application);
-		/* @var $settings Settings */
-		$settings = $application->callHook('settings');
-		if (!$settings instanceof Interface_Settings) {
-		}
+		$settings = $application->settings();
 
 		return $this->scopes = [
 			'cron_server' => [
@@ -420,8 +425,9 @@ class Module extends BaseModule {
 			foreach (self::$intervals as $unit) {
 				$last_unit_run = self::_last_cron_run($state, $settings['prefix'], $unit);
 				$status = $now->difference($last_unit_run, $unit) > 0;
-				$unit_hooks = ArrayTools::suffixValues($cron_hooks, "_$unit");
-				$all_hooks = $this->application->modules->listAllHooks($method . "_${unit}");
+				$unit_hooks = ArrayTools::suffixValues($cron_hooks, "_
+				$unit");
+				$all_hooks = $this->application->modules->listAllHooks($method . '_' . $unit);
 				$all_hooks = array_merge($all_hooks, $hooks->findAll($unit_hooks));
 				foreach ($all_hooks as $hook) {
 					$results[$hooks->callable_string($hook)] = $status;
@@ -449,7 +455,7 @@ class Module extends BaseModule {
 			$results[$method] = $last_run;
 			foreach (self::$intervals as $unit) {
 				$last_unit_run = self::_last_cron_run($state, $settings['prefix'], $unit);
-				$results["${method}_${unit}"] = $last_unit_run;
+				$results[$method . '_' . $unit] = $last_unit_run;
 			}
 		}
 		return $results;
@@ -524,7 +530,7 @@ class Module extends BaseModule {
 		 * Now only run scopes for which we acquired a lock. Exceptions are passed to a hook and logged.
 		 */
 		foreach ($scopes as $method => $settings) {
-			$this->hook_source = null;
+			$this->hook_source = '';
 			$state = $settings['state'];
 			/* @var $state Interface_Data */
 			$last_run = self::_last_cron_run($state);
@@ -662,7 +668,7 @@ class Module extends BaseModule {
 	 * @param int $minute_to_hit
 	 *            Minute of the hour to hit
 	 */
-	public static function hourly(Interface_Settings $settings, $prefix, $minute_to_hit = 0) {
+	public static function hourly(Interface_Settings $settings, string $prefix, int $minute_to_hit = 0): bool {
 		if (empty($prefix)) {
 			throw new Exception_Parameter('Prefix mus be non-empty to hourly');
 		}
@@ -729,7 +735,7 @@ class Module extends BaseModule {
 	 * @param int $hour_to_hit
 	 *            Hour of the day to hit, 0 ... 23
 	 */
-	public static function daily_hour_of_day(Interface_Settings $settings, $prefix, $hour_to_hit) {
+	public static function daily_hour_of_day(Interface_Settings $settings, string $prefix, int $hour_to_hit): bool {
 		if (empty($prefix)) {
 			throw new Exception_Parameter('Prefix mus be non-empty to daily_hour_of_day');
 		}
@@ -786,27 +792,5 @@ class Module extends BaseModule {
 				'title' => 'Cron Tasks', 'module_class' => __CLASS__,
 			],
 		];
-	}
-
-	protected function _fix_settings(Settings $settings): void {
-		// Changed class structure on 2016-11-23
-		$settings->prefix_updated('Module_Cron::', __CLASS__ . '::');
-		$settings->prefix_updated('zesk\\Module_Cron::', __CLASS__ . '::');
-		$nrows = $settings->query_delete()->addWhere('name|LIKE', [
-			'Module_Cron::%', 'cron::%',
-		])->execute()->affectedRows();
-		if ($nrows > 0) {
-			$this->application->logger->notice('{class}: Deleted {nrows} settings to using old prefixes', [
-				'nrows' => $nrows, 'class' => __CLASS__,
-			]);
-		}
-	}
-
-	/**
-	 *
-	 */
-	protected function hook_schema_updated(): void {
-		$settings = $this->application->ormRegistry(Settings::class);
-		$this->_fix_settings($settings);
 	}
 }

@@ -13,8 +13,8 @@ class Class_Help_User extends Class_Base {
 	];
 
 	public array $column_types = [
-		'help' => self::type_object,
-		'user' => self::type_object,
-		'dismissed' => self::type_created,
+		'help' => self::TYPE_OBJECT,
+		'user' => self::TYPE_OBJECT,
+		'dismissed' => self::TYPE_CREATED,
 	];
 }

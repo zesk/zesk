@@ -262,7 +262,7 @@ class Lock extends ORMBase {
 	 */
 	public static function server_delete(Server $server): void {
 		$application = $server->application;
-		$query = $application->ormRegistry(__CLASS__)->query_delete()->addWhere('server', $server);
+		$query = $application->ormRegistry(__CLASS__)->queryDelete()->addWhere('server', $server);
 		$query->execute();
 		if (($n_rows = $query->affectedRows()) > 0) {
 			$application->logger->warning('Deleted {n} {locks} associated with server {name} (#{id})', [

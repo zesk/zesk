@@ -48,12 +48,12 @@ class Health_Events extends ORMBase {
 			'hash' => md5(implode('|', $hash)),
 			'date' => new Date($event->when),
 		];
-		$this->set_member($fields);
+		$this->setMember($fields);
 		if ($this->find()) {
 			$this->bump($event->when, $event->when_msec);
 			return $this;
 		}
-		$this->set_member($event->members('server;application;context;type;message;fatal'));
+		$this->setMember($event->members('server;application;context;type;message;fatal'));
 		$this->first = $this->recent = $event->when;
 		$this->first_msec = $this->recent_msec = $event->when_msec;
 		$this->total = 1;

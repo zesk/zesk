@@ -146,7 +146,7 @@ Now, broken into smaller sections:
 1. Hooks are registered using `app()->hooks->registerClass()` for classes listed in `app()->register_hooks`
 1. `app()->callHook("configure")` is called
 1. Application cache paths and document cache paths is computed
-1. `app()->preconfigure()` is called to set up additional paths and configure which files to load
+1. `app()->beforeConfigure()` is called to set up additional paths and configure which files to load
 1. Application configuration files are loaded and stored in the global `Configuration` state
 1. `app()->callHook("configured_files")` is called to handle extending or mananging file configuration state before modules are loaded
 1. Modules are loaded, and each module object is created and linked to our application instance, and each `zesk\Module->initialize()` call is called (which can register additional hooks). If your module throws an exception during the `initialize()` call, the object is discarded and the exception stored

@@ -300,8 +300,8 @@ class Parser {
 		//  September 2010
 		//  Every 10 minutes
 		//  Every 3 days
-		$short_months = Date::month_names($locale, 'en', true);
-		$short_dow = Date::weekday_names($locale, 'en', true);
+		$short_months = Date::month_names($locale, true);
+		$short_dow = Date::weekday_names($locale, true);
 		$short_months = ArrayTools::changeValueCase($short_months);
 		$short_dow = ArrayTools::changeValueCase($short_dow);
 		//		$original_text = $text;
@@ -320,16 +320,16 @@ class Parser {
 			'units-opt' => ' every ([0-9]+ |other )?(min|minute|sec|second|hr|hour|day|week|month)s?',
 			'month-days' => '([1-3]?[0-9])(?:nd|st|th|rd)',
 			'time' => '(?:at )?([0-9]{1,2})(?::([0-9]{2}))?( ?[ap]m?)?',
-			'months' => '(' . strtolower(implode('|', Date::month_names($locale, 'en'))) . ')',
+			'months' => '(' . strtolower(implode('|', Date::month_names($locale))) . ')',
 			'short-months' => '(' . strtolower(implode('|', $short_months)) . ')',
-			'dow' => '(' . strtolower(implode('|', Date::weekday_names($locale, 'en'))) . ')',
+			'dow' => '(' . strtolower(implode('|', Date::weekday_names($locale))) . ')',
 			'short-dow' => '(' . implode('|', $short_dow) . ')',
 			'years' => '([0-9]{4})',
 		];
 
 		$debug = false;
 		if ($debug) {
-			echo HTML::tag('h1', false, "$text");
+			echo HTML::tag('h1', [], "$text");
 		}
 		$result = [];
 		foreach ($time_patterns as $item => $pattern) {

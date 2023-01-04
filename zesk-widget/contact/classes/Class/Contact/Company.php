@@ -7,14 +7,14 @@ class Class_Contact_Company extends Class_Contact_Info {
 	public string $id_column = 'id';
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'name' => self::type_string,
-		'code' => self::type_string,
-		'description' => self::type_string,
-		'logo' => self::type_object,
-		'tax_id' => self::type_string,
-		'address' => self::type_object,
-		'created' => self::type_created,
-		'modified' => self::type_modified,
+		'id' => self::TYPE_ID,
+		'name' => self::TYPE_STRING,
+		'code' => self::TYPE_STRING,
+		'description' => self::TYPE_STRING,
+		'logo' => self::TYPE_OBJECT,
+		'tax_id' => self::TYPE_STRING,
+		'address' => self::TYPE_OBJECT,
+		'created' => self::TYPE_CREATED,
+		'modified' => self::TYPE_MODIFIED,
 	];
 }

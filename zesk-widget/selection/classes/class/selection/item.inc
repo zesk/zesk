@@ -21,9 +21,9 @@ class Class_Selection_Item extends Class_Base {
 	];
 
 	public array $column_types = [
-		'type' => self::type_object,
-		'id' => self::type_object,
-		'add' => self::type_boolean,
-		'query' => self::type_object,
+		'type' => self::TYPE_OBJECT,
+		'id' => self::TYPE_OBJECT,
+		'add' => self::TYPE_BOOL,
+		'query' => self::TYPE_OBJECT,
 	];
 }

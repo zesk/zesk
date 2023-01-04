@@ -200,7 +200,7 @@ abstract class Contact_Import extends Options {
 		]);
 		$contact = new Contact($this->objects['contact'] ?? []);
 		$contact->memberCanStore('*Hash');
-		$contact->set_member('*Hash', $contact_hash);
+		$contact->setMember('*Hash', $contact_hash);
 		$contact->account = $account;
 		$contact->user = $this->optionInt('User');
 		// 		$contact->Duplicate = $dup_contact;

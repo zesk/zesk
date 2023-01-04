@@ -38,7 +38,7 @@ class Configuration_Loader {
 	/**
 	 * Files which could be loaded, but do not exist
 	 *
-	 * @var \array
+	 * @var array
 	 */
 	private array $missing_files = [];
 
@@ -84,8 +84,7 @@ class Configuration_Loader {
 	/**
 	 *
 	 * @param array $files
-	 * @param array $paths
-	 * @param Interface_Settings $context
+	 * @param Interface_Settings $settings
 	 */
 	public function __construct(array $files, Interface_Settings $settings) {
 		$this->settings = $settings;
@@ -141,7 +140,7 @@ class Configuration_Loader {
 	 */
 	public function loadFile(string $file, string $handler = ''): self {
 		if (!file_exists($file)) {
-			$this->skipped_content[] = $file;
+			$this->missing_files[] = $file;
 			return $this;
 		}
 

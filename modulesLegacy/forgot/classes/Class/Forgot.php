@@ -24,13 +24,13 @@ class Class_Forgot extends Class_Base {
 	 * @var array
 	 */
 	public array $column_types = [
-		'id' => self::type_id,
-		'login' => self::type_string,
-		'user' => self::type_object,
-		'session' => self::type_object,
-		'code' => self::type_hex,
-		'created' => self::type_created,
-		'updated' => self::type_timestamp,
+		'id' => self::TYPE_ID,
+		'login' => self::TYPE_STRING,
+		'user' => self::TYPE_OBJECT,
+		'session' => self::TYPE_OBJECT,
+		'code' => self::TYPE_HEX,
+		'created' => self::TYPE_CREATED,
+		'updated' => self::TYPE_TIMESTAMP,
 	];
 
 	/**

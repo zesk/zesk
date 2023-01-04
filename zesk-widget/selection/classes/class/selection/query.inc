@@ -21,14 +21,14 @@ class Class_Selection_Query extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'type' => self::type_object,
-		'code' => self::type_hex,
-		'order_index' => self::type_integer,
-		'title' => self::type_text,
+		'id' => self::TYPE_ID,
+		'type' => self::TYPE_OBJECT,
+		'code' => self::TYPE_HEX,
+		'order_index' => self::TYPE_INTEGER,
+		'title' => self::TYPE_TEXT,
 		'query_total' => self::type_serialize,
 		'query_list' => self::type_serialize,
-		'created' => self::type_created,
-		'add' => self::type_boolean,
+		'created' => self::TYPE_CREATED,
+		'add' => self::TYPE_BOOL,
 	];
 }

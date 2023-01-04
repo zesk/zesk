@@ -1008,7 +1008,6 @@ abstract class Database extends Hookable implements Database_Interface {
 	 * @throws Database_Exception_Duplicate
 	 * @throws Database_Exception_SQL
 	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Unimplemented
 	 */
 	public function update(string $table, array $values, array $where = [], array $options = []): QueryResult {
 		$sql = $this->sql()->update(['table' => $table, 'values' => $values, 'where' => $where, ] + $options);

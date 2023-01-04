@@ -217,7 +217,7 @@ class Module_Health extends Module {
 	}
 
 	private function purge_event_types($class, $date_column, array $where, Timestamp $when, $description): void {
-		$delete = $this->application->ormRegistry($class)->query_delete()->where($where + [
+		$delete = $this->application->ormRegistry($class)->queryDelete()->where($where + [
 			"$date_column|<=" => $when,
 		]);
 		$delete->execute();

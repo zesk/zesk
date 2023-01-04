@@ -12,10 +12,10 @@ class Class_Contact_URL extends Class_Contact_Info {
 	];
 
 	public array $column_types = [
-		'id' => self::type_integer,
-		'contact' => self::type_object,
-		'label' => self::type_object,
-		'hash' => self::type_integer,
-		'value' => self::type_string,
+		'id' => self::TYPE_INTEGER,
+		'contact' => self::TYPE_OBJECT,
+		'label' => self::TYPE_OBJECT,
+		'hash' => self::TYPE_INTEGER,
+		'value' => self::TYPE_STRING,
 	];
 }

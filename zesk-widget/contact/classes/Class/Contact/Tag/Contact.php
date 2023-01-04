@@ -13,7 +13,7 @@ class Class_Contact_Tag_Contact extends Class_Base {
 	];
 
 	public array $column_types = [
-		'contact' => self::type_object,
-		'contact_tag' => self::type_object,
+		'contact' => self::TYPE_OBJECT,
+		'contact_tag' => self::TYPE_OBJECT,
 	];
 }

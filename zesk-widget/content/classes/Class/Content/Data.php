@@ -23,13 +23,13 @@ class Class_Content_Data extends Class_Base {
 	 * @var array
 	 */
 	public array $column_types = [
-		'id' => self::type_id,
-		'size' => self::type_integer,
-		'md5hash' => self::type_hex,
-		'type' => self::type_string,
-		'data' => self::type_serialize,
-		'checked' => self::type_timestamp,
-		'missing' => self::type_timestamp,
+		'id' => self::TYPE_ID,
+		'size' => self::TYPE_INTEGER,
+		'md5hash' => self::TYPE_HEX,
+		'type' => self::TYPE_STRING,
+		'data' => self::TYPE_SERIALIZE,
+		'checked' => self::TYPE_TIMESTAMP,
+		'missing' => self::TYPE_TIMESTAMP,
 	];
 
 	/**

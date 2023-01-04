@@ -15,13 +15,13 @@ class Command_Config extends Command_Base {
 	 *
 	 * @var string
 	 */
-	private $sep = "\n\t";
+	private string $sep = "\n\t";
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $suffix = "\n\n";
+	private string $suffix = "\n\n";
 
 	protected array $option_types = [
 		'loaded' => 'boolean',
@@ -32,10 +32,18 @@ class Command_Config extends Command_Base {
 		'top-level-scalar' => 'boolean',
 	];
 
+	protected array $option_help = [
+		'loaded' => 'Show loaded configuration files',
+		'not-loaded' => 'Show configuration files which would be loaded but were not because they did not exist',
+		'skipped' => 'Show configuration files which are skipped for any reason',
+		'externals' => 'Show external variables which affect the configuration',
+		'missing-classes' => 'Show missing classes in the configuration root',
+		'top-level-scalar' => 'Show top-level configuration settings which are scalars (globals or environment variables)',
+	];
+
 	/**
 	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Command::run()
+	 * @return int
 	 */
 	public function run(): int {
 		$app = $this->application;
@@ -47,28 +55,27 @@ class Command_Config extends Command_Base {
 		$skipped = $variables[Configuration_Loader::SKIPPED];
 		[$missing_vars, $warning_top_levels] = $this->collect_misnamed_class_configurations();
 
-		$show_loaded = $show_not_loaded = $show_skipped = $show_externals = $show_missing_classes = $show_top_level_scalar = null;
-		extract($this->show_flags(), EXTR_IF_EXISTS);
+		$flags = $this->show_flags();
 
-		if ($show_loaded) {
-			echo $this->output_list('INFO: Loaded configuration files:', $loaded);
+		if ($flags['show_loaded']) {
+			echo $this->outputList('INFO: Loaded configuration files:', $loaded);
 		}
-		if ($show_not_loaded) {
-			echo $this->output_list('NOTICE: Not loaded configuration files (file not found):', $not_loaded);
+		if ($flags['show_not_loaded']) {
+			echo $this->outputList('NOTICE: Not loaded configuration files (file not found):', $not_loaded);
 		}
 
-		if ($show_skipped && count($skipped) > 0) {
-			echo $this->output_list('ERROR: Skipped due to syntax errors:', $skipped);
+		if ($flags['show_skipped'] && count($skipped) > 0) {
+			echo $this->outputList('ERROR: Skipped due to syntax errors:', $skipped);
 		}
-		if ($show_externals && count($externals) > 0) {
-			echo $this->output_list('INFO: Dependency variables:', $externals);
+		if ($flags['show_externals'] && count($externals) > 0) {
+			echo $this->outputList('INFO: Dependency variables:', $externals);
 		}
-		if ($show_missing_classes && count($missing_vars) > 0) {
+		if ($flags['show_missing_classes'] && count($missing_vars) > 0) {
 			sort($missing_vars);
-			echo $this->output_list('WARNING: Variables have no corresponding class:', $missing_vars);
+			echo $this->outputList('WARNING: Variables have no corresponding class:', $missing_vars);
 		}
-		if ($show_top_level_scalar && count($warning_top_levels) > 0) {
-			echo $this->output_list('NOTICE: Top-level variables which are scalar:', $warning_top_levels);
+		if ($flags['show_top_level_scalar'] && count($warning_top_levels) > 0) {
+			echo $this->outputList('NOTICE: Top-level variables which are scalar:', $warning_top_levels);
 		}
 		return 0;
 	}
@@ -85,7 +92,6 @@ class Command_Config extends Command_Base {
 			'missing_classes' => false,
 			'top_level_scalar' => false,
 		];
-		$result = [];
 		foreach ($flags as $flag => $default) {
 			if ($this->optionBool($flag)) {
 				// if any value is true, return the actual values
@@ -128,7 +134,7 @@ class Command_Config extends Command_Base {
 	 * @param array $list
 	 * @return string
 	 */
-	private function output_list(string $title, array $list): string {
+	private function outputList(string $title, array $list): string {
 		return $title . $this->sep . implode($this->sep, $list) . $this->suffix;
 	}
 }

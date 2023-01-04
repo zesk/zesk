@@ -213,6 +213,21 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	}
 
 	/**
+	 * Get a value and ensure it's a string
+	 *
+	 * @param string $key
+	 * @return string
+	 * @throws Exception_Semantics
+	 */
+	public function getString(string $key): string {
+		$node = $this->get($key);
+		if (!is_scalar($node)) {
+			throw new Exception_Semantics('Value can not be converted to string {type}', ['type' => gettype($node)]);
+		}
+		return strval($node);
+	}
+
+	/**
 	 * Given a list of paths into the configuration tree, return the first one which has a value
 	 *
 	 * @param array $paths

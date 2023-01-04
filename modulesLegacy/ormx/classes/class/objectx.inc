@@ -9,7 +9,7 @@ class Class_BaseX extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_object,
+		'id' => self::TYPE_OBJECT,
 	];
 
 	protected function configure(ORMBase $object): void {

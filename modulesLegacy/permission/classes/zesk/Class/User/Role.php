@@ -20,10 +20,10 @@ class Class_User_Role extends Class_Base {
 	];
 
 	public array $column_types = [
-		'user' => self::type_object,
-		'role' => self::type_object,
-		'created' => self::type_created,
-		'creator' => self::type_object,
+		'user' => self::TYPE_OBJECT,
+		'role' => self::TYPE_OBJECT,
+		'created' => self::TYPE_CREATED,
+		'creator' => self::TYPE_OBJECT,
 	];
 
 	public array $has_one = [

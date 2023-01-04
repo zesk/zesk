@@ -46,11 +46,11 @@ class Database_Adapter_MySQL extends Database_Adapter {
 			case Class_Base::TYPE_INTEGER:
 				$column->setOption('sql_type', 'integer');
 				return ;
-			case Class_Base::type_character:
+			case Class_Base::TYPE_CHARACTER:
 				$size = !is_numeric($size) ? 1 : $size;
 				$column->setOption('sql_type', "char($size)");
 				return ;
-			case Class_Base::type_text:
+			case Class_Base::TYPE_TEXT:
 				$column->setOption('sql_type', 'text');
 				return;
 			case 'varchar':
@@ -61,14 +61,14 @@ class Database_Adapter_MySQL extends Database_Adapter {
 					$column->setOption('sql_type', $is_bin ? "varbinary($size)" : "varchar($size)");
 				}
 				return ;
-			case Class_Base::type_boolean:
+			case Class_Base::TYPE_BOOL:
 				$column->setOption('sql_type', 'bit(1)');
 				return ;
 			case 'varbinary':
 			case Class_Base::TYPE_SERIALIZE:
-			case Class_Base::type_binary:
-			case Class_Base::type_hex:
-			case Class_Base::type_hex32:
+			case Class_Base::TYPE_BINARY:
+			case Class_Base::TYPE_HEX:
+			case Class_Base::TYPE_HEX32:
 				if (!is_numeric($size)) {
 					$column->setOption('sql_type', 'blob');
 				} else {
@@ -76,11 +76,11 @@ class Database_Adapter_MySQL extends Database_Adapter {
 				}
 				$column->binary(true);
 				return ;
-			case Class_Base::type_byte:
+			case Class_Base::TYPE_BYTE:
 				$column->setOption('sql_type', 'tinyint(1)');
 				$column->setOption('Unsigned', true);
 				return ;
-			case Class_Base::type_decimal:
+			case Class_Base::TYPE_DECIMAL:
 				$intP = $column->optionInt('integer_precision', 10);
 				$decP = $column->optionInt('decimal_precision', 2);
 				$width = $intP + $decP;
@@ -89,18 +89,18 @@ class Database_Adapter_MySQL extends Database_Adapter {
 			case Class_Base::type_real:
 				$column->setOption('sql_type', 'real');
 				return ;
-			case Class_Base::TYPE_FLOAT:
+			case Class_Base::TYPE_DOUBLE:
 				$column->setOption('sql_type', 'double');
 				return ;
-			case Class_Base::type_date:
+			case Class_Base::TYPE_DATE:
 				$column->setOption('sql_type', 'date');
 				return ;
-			case Class_Base::type_time:
+			case Class_Base::TYPE_TIME:
 				$column->setOption('sql_type', 'time');
 				return ;
-			case Class_Base::type_datetime:
+			case Class_Base::TYPE_DATETIME:
 			case Class_Base::TYPE_MODIFIED:
-			case Class_Base::type_created:
+			case Class_Base::TYPE_CREATED:
 			case Class_Base::TYPE_TIMESTAMP:
 				$column->setOption('sql_type', 'timestamp');
 				return ;

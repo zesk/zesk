@@ -10,14 +10,14 @@ class Class_BaseX_Field extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'class' => self::type_string,
-		'active' => self::type_string,
-		'column' => self::type_string,
-		'name' => self::type_string,
-		'help' => self::type_string,
-		'type' => self::type_string,
-		'order_index' => self::type_integer,
+		'id' => self::TYPE_ID,
+		'class' => self::TYPE_STRING,
+		'active' => self::TYPE_STRING,
+		'column' => self::TYPE_STRING,
+		'name' => self::TYPE_STRING,
+		'help' => self::TYPE_STRING,
+		'type' => self::TYPE_STRING,
+		'order_index' => self::TYPE_INTEGER,
 		'data' => self::type_serialize,
 	];
 }

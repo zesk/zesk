@@ -22,11 +22,11 @@ class Class_Selection_Type extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'code' => self::type_text,
-		'class' => self::type_text,
-		'user' => self::type_object,
-		'created' => self::type_created,
+		'id' => self::TYPE_ID,
+		'code' => self::TYPE_TEXT,
+		'class' => self::TYPE_TEXT,
+		'user' => self::TYPE_OBJECT,
+		'created' => self::TYPE_CREATED,
 	];
 
 	public array $has_many = [

@@ -27,7 +27,7 @@ class Content_Menu extends ORMBase {
 		if ($this->CodeName === 'home') {
 			$this->IsHome = 'true';
 		}
-		$is_home = $this->member_boolean('IsHome');
+		$is_home = $this->memberBool('IsHome');
 		$result = parent::store();
 		if (!$result) {
 			return $result;

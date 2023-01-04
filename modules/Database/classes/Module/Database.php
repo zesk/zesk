@@ -49,26 +49,23 @@ class Module_Database extends Module {
 	 */
 	public function initialize(): void {
 		$application = $this->application;
-		$application->registerRegistry('database', [$this, 'app_database_registry', ]);
-		$application->registerFactory('database', [$this, 'app_database_registry', ]);
-		$application->hooks->add(Hooks::HOOK_DATABASE_CONFIGURE, [$this, '_configured', ], ['first' => true]);
-		$application->hooks->add('exit', [$this, 'disconnectAll', ], ['last' => true]);
-		$application->hooks->add('pcntl_fork-child', [$this, 'reconnectAll', ]);
+		$application->registerRegistry('database', $this->app_database_registry(...));
+		$application->registerFactory('database', $this->app_database_registry(...));
+		$application->hooks->add(Hooks::HOOK_DATABASE_CONFIGURE, $this->_configured(...), ['first' => true]);
+		$application->hooks->add('exit', $this->disconnectAll(...), ['last' => true]);
+		$application->hooks->add('pcntl_fork-child', $this->reconnectAll(...));
+	}
+
+	public function setDebug(bool $set): self {
+		$this->application->configuration->setPath([Database::class, Database::OPTION_DEBUG], $set);
+		return $this;
 	}
 
 	/**
-	 * Set or get the default internal database name
-	 *
-	 * @param string $set
-	 * @return string
-	 * @deprecated 2022-04
+	 * @return bool
 	 */
-	public function database_default($set = null): string {
-		$this->application->deprecated('Setter/getter deprecated ' . __METHOD__);
-		if ($set !== null) {
-			$this->setDatabaseDefault($set);
-		}
-		return $this->databaseDefault();
+	public function debug(): bool {
+		return toBool($this->application->configuration->getPath([Database::class, Database::OPTION_DEBUG]));
 	}
 
 	/**

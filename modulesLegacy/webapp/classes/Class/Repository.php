@@ -51,15 +51,15 @@ class Class_Repository extends Class_Base {
 	 * @var array
 	 */
 	public array $column_types = [
-		'id' => self::type_id,
-		'code' => self::type_string,
-		'type' => self::type_polymorph,
-		'name' => self::type_string,
-		'url' => self::type_string,
-		'versions' => self::type_json,
-		'remote_hash' => self::type_string,
-		'updated' => self::type_modified,
-		'active' => self::type_boolean,
+		'id' => self::TYPE_ID,
+		'code' => self::TYPE_STRING,
+		'type' => self::TYPE_POLYMORPH,
+		'name' => self::TYPE_STRING,
+		'url' => self::TYPE_STRING,
+		'versions' => self::TYPE_JSON,
+		'remote_hash' => self::TYPE_STRING,
+		'updated' => self::TYPE_MODIFIED,
+		'active' => self::TYPE_BOOL,
 	];
 
 	/**

@@ -44,10 +44,10 @@ class Role extends ORMBase {
 	 * @return boolean
 	 */
 	public function is_root(): bool {
-		return $this->member_boolean('is_root');
+		return $this->memberBool('is_root');
 	}
 
 	public function is_default(): bool {
-		return $this->member_boolean('is_default');
+		return $this->memberBool('is_default');
 	}
 }

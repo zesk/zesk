@@ -15,20 +15,20 @@ class Class_Health_Event extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'events' => self::type_object,
-		'when' => self::type_timestamp,
-		'when_msec' => self::type_integer,
-		'server' => self::type_object,
-		'application' => self::type_string,
-		'context' => self::type_string,
-		'type' => self::type_string,
-		'fatal' => self::type_boolean,
-		'message' => self::type_string,
-		'file' => self::type_string,
-		'line' => self::type_integer,
-		'backtrace' => self::type_serialize,
-		'data' => self::type_serialize,
+		'id' => self::TYPE_ID,
+		'events' => self::TYPE_OBJECT,
+		'when' => self::TYPE_TIMESTAMP,
+		'when_msec' => self::TYPE_INTEGER,
+		'server' => self::TYPE_OBJECT,
+		'application' => self::TYPE_STRING,
+		'context' => self::TYPE_STRING,
+		'type' => self::TYPE_STRING,
+		'fatal' => self::TYPE_BOOL,
+		'message' => self::TYPE_STRING,
+		'file' => self::TYPE_STRING,
+		'line' => self::TYPE_INTEGER,
+		'backtrace' => self::TYPE_SERIALIZE,
+		'data' => self::TYPE_SERIALIZE,
 	];
 
 	public array $column_defaults = [

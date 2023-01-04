@@ -148,7 +148,7 @@ abstract class Server_Feature extends Server_Base {
 	public function initialize(): void {
 	}
 
-	public function preconfigure(): void {
+	public function beforeConfigure(): void {
 	}
 
 	public function install(): void {
@@ -204,8 +204,8 @@ abstract class Server_Feature extends Server_Base {
 		return $this->platform->configuration_files($type, $files, $dest, $options);
 	}
 
-	final public function database_preconfigure($urls) {
+	final public function database_beforeConfigure($urls) {
 		$urls = to_list($urls);
-		return $this->platform->database_preconfigure($urls);
+		return $this->platform->database_beforeConfigure($urls);
 	}
 }

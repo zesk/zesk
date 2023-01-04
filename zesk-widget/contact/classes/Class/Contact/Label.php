@@ -17,14 +17,14 @@ class Class_Contact_Label extends Class_Base {
 	 * @var array
 	 */
 	public array $column_types = [
-		'id' => self::type_integer,
-		'account' => self::type_object,
-		'group' => self::type_object,
-		'type' => self::type_object,
-		'code' => self::type_string,
-		'name' => self::type_string,
-		'created' => self::type_created,
-		'modified' => self::type_modified,
+		'id' => self::TYPE_INTEGER,
+		'account' => self::TYPE_OBJECT,
+		'group' => self::TYPE_OBJECT,
+		'type' => self::TYPE_OBJECT,
+		'code' => self::TYPE_STRING,
+		'name' => self::TYPE_STRING,
+		'created' => self::TYPE_CREATED,
+		'modified' => self::TYPE_MODIFIED,
 	];
 
 	/**

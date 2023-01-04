@@ -23,40 +23,40 @@ class Schema_Forgot extends ORM_Schema {
 			'{table}' => [
 				'columns' => [
 					'id' => [
-						'type' => self::type_id,
+						'type' => self::TYPE_ID,
 						'previous_name' => 'ID',
 					],
 					'login' => [
-						'type' => self::type_string,
+						'type' => self::TYPE_STRING,
 						'not null' => false,
 						'size' => 128,
 					],
 					'user' => [
-						'type' => self::type_object,
+						'type' => self::TYPE_OBJECT,
 						'class' => User::class,
 						'not null' => true,
 						'previous_name' => 'User',
 					],
 					'session' => [
-						'type' => self::type_object,
+						'type' => self::TYPE_OBJECT,
 						'class' => 'zesk\\Session',
 						'not null' => true,
 						'previous_name' => 'Session',
 					],
 					'code' => [
-						'type' => self::type_binary, //'varbinary',
+						'type' => self::TYPE_BINARY, //'varbinary',
 						'size' => 16,
 						'not null' => true,
 						'previous_name' => 'Code',
 					],
 					'created' => [
-						'type' => self::type_timestamp,
+						'type' => self::TYPE_TIMESTAMP,
 						'not null' => true,
 						'default' => 'CURRENT_TIMESTAMP',
 						'previous_name' => 'Created',
 					],
 					'updated' => [
-						'type' => self::type_timestamp,
+						'type' => self::TYPE_TIMESTAMP,
 						'not null' => false,
 						'previous_name' => 'Updated',
 					],

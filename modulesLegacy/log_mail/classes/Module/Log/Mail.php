@@ -37,7 +37,7 @@ class Module_Log_Mail extends Module {
 			/* @var $query zesk\Database_Query_Delete */
 			$class = Log_Mail::class;
 			$n_affected = $application->ormRegistry($class)
-				->query_delete()
+				->queryDelete()
 				->addWhere('created|<=', $delete_before)
 				->exec()
 				->affectedRows();

@@ -29,7 +29,7 @@ class Class_Server extends Class_Base {
 		'ip4_external' => self::TYPE_IP4,
 		'free_disk' => self::TYPE_INTEGER,
 		'free_disk_units' => self::TYPE_STRING,
-		'load' => self::TYPE_FLOAT,
+		'load' => self::TYPE_DOUBLE,
 		'alive' => self::TYPE_MODIFIED,
 	];
 

@@ -132,7 +132,7 @@ class Instance extends ORM {
 			if (count($valid_sites) > 0) {
 				$where['id|!=|AND'] = $valid_sites;
 			}
-			$delete = $application->ormFactory(Site::class)->query_delete()->where($where);
+			$delete = $application->ormFactory(Site::class)->queryDelete()->where($where);
 			// $application->logger->debug(strval($delete));
 			$delete->execute();
 			$instance->callHook('after_sites_changed');
@@ -168,9 +168,9 @@ class Instance extends ORM {
 		if (!isset($members['type'])) {
 			$members['type'] = 'standard';
 		}
-		$site = $site->set_member($members)
+		$site = $site->setMember($members)
 			->register()
-			->set_member($members)
+			->setMember($members)
 			->store();
 		$site->data = $data;
 		$errors = $site->validate_structure();
@@ -232,7 +232,7 @@ class Instance extends ORM {
 		]);
 		$this->repository = $this->application->ormFactory(Repository::class, $members)
 			->register()
-			->set_member($members)
+			->setMember($members)
 			->store();
 		;
 		$this->store();

@@ -42,12 +42,12 @@ class Server_Feature_HTTPD extends Server_Feature {
 		}
 	}
 
-	public function preconfigure(): void {
+	public function beforeConfigure(): void {
 		/* @var $users Server_Feature_Users */
 		$users = $this->config->feature('users');
 		$users->require_user($this->config->variable('httpd::user'));
 		$users->require_group($this->config->variable('httpd::group'));
-		parent::preconfigure();
+		parent::beforeConfigure();
 	}
 
 	public function configure(): void {

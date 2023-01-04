@@ -57,7 +57,7 @@ namespace server;
 // 			throw new \zesk\Exception("Register failed");
 // 		}
 // 		if ($server->object_status() == ORM::object_status_exists) {
-// 			$server->set_member($fields)->store();
+// 			$server->setMember($fields)->store();
 // 			$key = $server->data(self::data_key);
 // 		} else {
 // 			$key = md5(microtime() . $PublicIP . mt_rand());
@@ -88,7 +88,7 @@ namespace server;
 // 		$object_values = ArrayTools::include_exclude($values, $fields);
 // 		$data_values = ArrayTools::include_exclude($values, null, $fields);
 // 		if (count($object_values) > 0) {
-// 			$server->set_member($object_values)->store();
+// 			$server->setMember($object_values)->store();
 // 		}
 // 		if (count($data_values) > 0) {
 // 			$server->data($data_values);

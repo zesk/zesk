@@ -31,10 +31,9 @@ class Command_Cron extends \zesk\Command_Base {
 		'reset' => 'Reset all cron state information, forcing all cron tasks to run next time cron is run.',
 	];
 
-	public function run() {
+	public function run(): int {
 		try {
-			/* @var $cron Module */
-			$cron = $this->application->modules->object('cron');
+			$cron = $this->application->cronModule();
 		} catch (Exception_NotFound $e) {
 			$this->error('Cron module is not enabled');
 			return 1;

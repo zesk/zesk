@@ -290,9 +290,13 @@ class Modules {
 	 */
 	private function _handleZeskCommandPath(string $modulePath, array $moduleConfiguration): void {
 		$app = $this->application;
-		$zeskCommandPathClassPrefix = $moduleConfiguration['zeskCommandClassPrefix'] ?? '';
-		$this->_handleModuleDefaults($modulePath, 'zeskCommandPath', $moduleConfiguration, 'command', function ($path) use ($app, $zeskCommandPathClassPrefix): void {
-			$app->addZeskCommandPath($path, $zeskCommandPathClassPrefix);
+		if (array_key_exists('zeskCommandClassPrefix', $moduleConfiguration)) {
+			throw new Exception_Deprecated('zeskCommandClassPrefix in {modulePath} is deprecated (just use zeskCommandPath)', [
+				'modulePath' => $modulePath,
+			]);
+		}
+		$this->_handleModuleDefaults($modulePath, 'zeskCommandPath', $moduleConfiguration, 'command', function ($path) use ($app): void {
+			$app->addZeskCommandPath($path);
 		});
 	}
 

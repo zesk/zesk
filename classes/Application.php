@@ -12,9 +12,10 @@ namespace zesk;
 
 use Closure;
 use Psr\Cache\CacheItemPoolInterface;
-use Repository\classes\Module_Repository;
+use zesk\Repository\Module as RepositoryModule;
 use zesk\Locale\Reader;
 use zesk\ORM\Interface_Session;
+use zesk\ORM\User;
 use zesk\Router\Parser;
 
 /**
@@ -32,7 +33,7 @@ use zesk\Router\Parser;
  * @method Module_Database database_module()
  * @method Module_Permission permission_module()
  * @method Module_Job job_module()
- * @method Module_Repository repository_module()
+ * @method RepositoryModule repository_module()
  * @method Cron\Module cron_module()
  *
  * @method ORM\Module ormModule()
@@ -48,6 +49,7 @@ use zesk\Router\Parser;
  * @method Module_Job jobModule()
  * @method Repository\Module repositoryModule()
  * @method Cron\Module cronModule()
+ * @method Mail\Module mailModule()
  *
  * @method Interface_Session session_factory()
  * @method Interface_Session sessionFactory()
@@ -248,13 +250,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @var array
 	 */
-	private array $configuration_options = [];
-
-	/**
-	 * Configuration options
-	 *
-	 * @var array
-	 */
 	protected array $template_variables = [];
 
 	/**
@@ -344,13 +339,19 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	private array $content_recursion = [];
 
 	/**
+	 * @var bool
+	 */
+	private bool $profile = false;
+
+	/**
 	 *
 	 * @param Kernel $kernel Zesk kernel for core functionality
 	 * @param array $options Options passed in by zesk\Kernel::create_application($options)
+	 * @throws Exception_System
 	 */
 	public function __construct(Kernel $kernel, array $options = []) {
 		parent::__construct($this, $options);
-		$this->_initialize($kernel);
+		$this->_initialize($kernel); /* throws Exception_System */
 		$this->_initialize_fixme();
 		$this->setOption('maintenance', $this->_load_maintenance());
 	}
@@ -645,33 +646,29 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * - If ZESK_CONFIG_PATH changes or INCLUDE changes in a configuration file load sequence, it
 	 * continues to load
 	 */
-	final public function configure(array $options = []): self {
-		$this->configuration_options = $options + toArray($this->configuration->path(__CLASS__)->configure_options);
-		$this->_configure($this->configuration_options);
+	final public function configure(): self {
+		$this->_configure();
 		return $this;
 	}
 
 	/**
 	 * Run preconfiguration setup
 	 */
-	protected function preconfigure(array $options) {
-		return $options;
+	protected function beforeConfigure(): void {
 	}
 
 	/**
 	 * Run post configuration setup
 	 */
-	protected function postconfigure(): void {
+	protected function afterConfigure(): void {
 	}
 
 	/**
 	 * Load configuration files
-	 *
-	 * @param array $options
 	 */
-	private function _configure_files(array $options): void {
-		if (count($this->includes) === 0 || array_key_exists('file', $options)) {
-			$this->configureInclude($options['includes'] ?? $options['file'] ?? $this->defaultConfigurationFiles());
+	private function _configureFiles(): void {
+		if (count($this->includes) === 0) {
+			$this->configureInclude($this->defaultConfigurationFiles());
 		}
 		$includes = $this->includes;
 		$files = [];
@@ -691,13 +688,17 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	}
 
 	/**
+	 * @return void
+	 */
+	public function configuredFiles(): void {
+		/* Function called after files are loaded */
+	}
+
+	/**
 	 * Complete configuration process
 	 *
-	 * @param array $options
 	 */
-	private function _configure(array $options): void {
-		$skip_configured_hook = $options['skip_configured'] ?? false;
-
+	private function _configure(): void {
 		// Load hooks
 		$this->hooks->registerClass($this->register_hooks);
 
@@ -712,41 +713,24 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 		$this->configureCachePaths(); // Initial cache paths are set up
 
-		$new_options = $this->preconfigure($options);
-		if (is_array($new_options)) {
-			$options = $new_options;
-		}
+		$this->beforeConfigure();
 
-		$profile = $this->optionBool('profile');
-		if ($profile) {
+		if ($this->profile) {
 			$mtime = microtime(true);
-			// Old conf:: version (PHP5)
-			// 0.011868953704834
-			// 0.012212038040161
-			// New conf/PHP7
-			// 0.0060791969299316
+			$this->_configureFiles();
+			$this->kernel->profileTimer('_configure_files', microtime(true) - $mtime);
+		} else {
+			$this->_configureFiles();
 		}
-		$this->_configure_files($options);
-		if ($profile) {
-			$this->kernel->profile_timer('_configure_files', microtime(true) - $mtime);
-		}
-
-		// Apply settings from loaded configuration to make settings available to hook_configured_files
+		$this->configuredFiles();
+		/* Load any settings from configuration for module load */
 		$this->inheritConfiguration();
-		if ($this->hasHook('configured_files')) {
-			$this->callHook('configured_files');
-			// Repopulate Application options after final configurations are loaded
-			$this->inheritConfiguration();
-		}
-		$this->modules->load($this->load_modules);
 
+		/* Load modules etc. */
+		$this->modules->load($this->load_modules);
 		$this->loadOptionModules();
 
-		// Final cache paths are set up from application options
-
-		if (!$skip_configured_hook) {
-			$this->configured();
-		}
+		$this->configured();
 	}
 
 	/**
@@ -798,9 +782,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		// Now run all configurations: System, Modules, then Application
 		Template::configured($this);
 		$this->inheritConfiguration();
-		$this->configured_hooks();
+		$this->configuredHooks();
 		$this->configureCachePaths();
-		$this->postconfigure();
+		$this->afterConfigure();
 	}
 
 	/**
@@ -815,7 +799,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 */
-	private function configured_hooks(): void {
+	private function configuredHooks(): void {
 		$hook_callback = $result_callback = null;
 		foreach ([Hooks::HOOK_DATABASE_CONFIGURE, Hooks::HOOK_CONFIGURED] as $hook) {
 			$this->hooks->callArguments($hook, [
@@ -827,13 +811,20 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	}
 
 	/**
-	 * Runs configuration again, using same options as previous configuration.
+	 * Runs configuration again
 	 *
 	 * @see Application::configure
+	 * @return $this
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Invalid
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unsupported
 	 */
-	public function reconfigure() {
+	public function reconfigure(): self {
 		$this->hooks->call(Hooks::HOOK_RESET, $this);
-		$this->_configure(toArray($this->configuration_options));
+		$this->_configure();
 		$this->modules->reload();
 		$this->_configured();
 		return $this;
@@ -1817,7 +1808,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			return true;
 		}
 		// TODO is this called?
-		if ($this->hooks->has("theme_${type}")) {
+		if ($this->hooks->has("theme_$type")) {
 			return true;
 		}
 		if ($this->themeFind($type)) {
@@ -2274,7 +2265,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$session = $this->optionalSession($request);
 
 		try {
-			return $session?->user();
+			$user = $session?->user();
+			assert($user instanceof User);
+			return $user;
 		} catch (Exception_Authentication) {
 			return null;
 		}
@@ -2288,10 +2281,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	private function sessionUser(Request $request): ?User {
 		$user = $this->requireSession($request)->user();
 		if ($user) {
+			assert($user instanceof User);
 			return $user;
 		}
 
-		throw new Exception_Authentication('No session user');
+		throw new Exception_Authentication('No sessionUser');
 	}
 
 	/**

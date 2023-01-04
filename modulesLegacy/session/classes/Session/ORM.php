@@ -161,7 +161,7 @@ class Session_ORM extends ORMBase implements Interface_Session {
 	 */
 	public function authenticate($user_id, $ip = null): void {
 		$cookieExpire = $this->cookie_expire();
-		$this->set_member('user', ORMBase::mixedToID($user_id));
+		$this->setMember('user', ORMBase::mixedToID($user_id));
 		if ($ip === null) {
 			// This is not necessary, probably should remove TODO KMD 2018-01
 			$request = $this->application->request();
@@ -169,8 +169,8 @@ class Session_ORM extends ORMBase implements Interface_Session {
 				$ip = $request->ip();
 			}
 		}
-		$this->set_member('ip', $ip);
-		$this->set_member('expires', Timestamp::now()->addUnit($cookieExpire, Timestamp::UNIT_SECOND));
+		$this->setMember('ip', $ip);
+		$this->setMember('expires', Timestamp::now()->addUnit($cookieExpire, Timestamp::UNIT_SECOND));
 		$this->store();
 	}
 
@@ -201,7 +201,7 @@ class Session_ORM extends ORMBase implements Interface_Session {
 	 *
 	 */
 	public function expires(): Timestamp {
-		return $this->member_timestamp('expires');
+		return $this->memberTimestamp('expires');
 	}
 
 	/**
@@ -270,10 +270,10 @@ class Session_ORM extends ORMBase implements Interface_Session {
 		}
 		$cookie_value = $this->_generate_cookie();
 		$expires = $this->compute_expires();
-		$this->set_member('cookie', $cookie_value);
-		$this->set_member('expires', $expires);
-		$this->set_member('ip', $request->ip());
-		$this->set_member('data', toArray($this->data) + [
+		$this->setMember('cookie', $cookie_value);
+		$this->setMember('expires', $expires);
+		$this->setMember('ip', $request->ip());
+		$this->setMember('data', toArray($this->data) + [
 			'uri' => $request->uri(),
 		]);
 		$cookie_options = $this->cookie_options();

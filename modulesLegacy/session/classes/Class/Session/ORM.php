@@ -23,17 +23,17 @@ class Class_Session_ORM extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'cookie' => self::type_string,
-		'is_one_time' => self::type_boolean,
-		'user' => self::type_object,
-		'ip' => self::type_ip4,
-		'created' => self::type_created,
-		'modified' => self::type_modified,
-		'expires' => self::type_datetime,
-		'seen' => self::type_datetime,
-		'sequence_index' => self::type_integer,
-		'data' => self::type_serialize,
+		'id' => self::TYPE_ID,
+		'cookie' => self::TYPE_STRING,
+		'is_one_time' => self::TYPE_BOOL,
+		'user' => self::TYPE_OBJECT,
+		'ip' => self::TYPE_IP4,
+		'created' => self::TYPE_CREATED,
+		'modified' => self::TYPE_MODIFIED,
+		'expires' => self::TYPE_DATETIME,
+		'seen' => self::TYPE_DATETIME,
+		'sequence_index' => self::TYPE_INTEGER,
+		'data' => self::TYPE_SERIALIZE,
 	];
 
 	public string $code_name = 'Session';

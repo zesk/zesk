@@ -16,9 +16,9 @@ class Class_Contact_Tag extends Class_Contact_Info {
 	];
 
 	public array $column_types = [
-		'id' => self::type_integer,
-		'user' => self::type_object,
-		'name' => self::type_string,
+		'id' => self::TYPE_INTEGER,
+		'user' => self::TYPE_OBJECT,
+		'name' => self::TYPE_STRING,
 	];
 
 	public array $find_keys = [

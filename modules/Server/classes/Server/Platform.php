@@ -552,11 +552,11 @@ abstract class Server_Platform extends Hookable {
 		}
 		foreach ($this->features as $feature_name => $feature) {
 			/* @var $feature Server_Feature */
-			$this->verboseLog("$feature_name preconfigure ...");
-			$feature->preconfigure();
+			$this->verboseLog("$feature_name beforeConfigure ...");
+			$feature->beforeConfigure();
 			$dependencies = $feature->dependencies();
 		}
-		$this->verboseLog('All services preconfigured');
+		$this->verboseLog('All services beforeConfigured');
 	}
 
 	/**
@@ -1062,7 +1062,7 @@ abstract class Server_Platform extends Hookable {
 		return $changed;
 	}
 
-	final public function database_preconfigure($urls): void {
+	final public function database_beforeConfigure($urls): void {
 		// TODO
 		$urls = to_list($urls);
 		foreach ($urls as $url) {

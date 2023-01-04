@@ -15,6 +15,8 @@ use Closure;
  * @category Management
  */
 class Command_Version extends Command_Base {
+	protected array $shortcuts = ['version', 'v'];
+
 	protected array $option_types = [
 		'tag' => 'string',
 		'zesk' => 'boolean',

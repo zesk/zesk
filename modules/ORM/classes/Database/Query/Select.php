@@ -12,14 +12,13 @@ declare(strict_types=1);
 
 namespace zesk\ORM;
 
-use zesk\Exception_Class_NotFound;
 use zesk\Exception_Configuration;
 use zesk\Exception_Deprecated;
 use zesk\Exception_Key;
-use zesk\Exception_Unimplemented;
 use zesk\ORM\QueryTrait\Where;
 use zesk\Database;
 use zesk\ArrayTools;
+use zesk\PHP;
 use zesk\StringTools;
 use zesk\Exception_Semantics;
 use zesk\RuntimeException;
@@ -445,8 +444,6 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @return $this
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
-	 * @throws \zesk\Database_Exception_Connect
-	 * @throws \zesk\Exception_NotFound
 	 */
 	public function join_object(string $join_type, ORMBase|string $class, string $alias, array $on, string $table = ''): self {
 		if (is_string($class)) {

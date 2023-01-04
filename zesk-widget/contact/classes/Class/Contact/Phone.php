@@ -7,11 +7,11 @@ class Class_Contact_Phone extends Class_Contact_Info {
 	public string $id_column = 'id';
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'contact' => self::type_object,
-		'label' => self::type_object,
-		'value' => self::type_string,
-		'created' => self::type_created,
-		'modified' => self::type_modified,
+		'id' => self::TYPE_ID,
+		'contact' => self::TYPE_OBJECT,
+		'label' => self::TYPE_OBJECT,
+		'value' => self::TYPE_STRING,
+		'created' => self::TYPE_CREATED,
+		'modified' => self::TYPE_MODIFIED,
 	];
 }

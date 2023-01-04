@@ -104,7 +104,7 @@ class Kernel {
 	 * For storing profiling information
 	 *
 	 * @see self::profiler()
-	 * @see self::profile_timer()
+	 * @see self::profileTimer()
 	 */
 	private ?Profiler $profiler = null;
 
@@ -499,7 +499,7 @@ class Kernel {
 	 * @param float $seconds
 	 *            How long it took
 	 */
-	public function profile_timer(string $item, float $seconds): void {
+	public function profileTimer(string $item, float $seconds): void {
 		$profiler = $this->_profiler();
 		if (array_key_exists($item, $profiler->times)) {
 			$profiler->times[$item] = $profiler->times[$item] + $seconds;

@@ -41,8 +41,7 @@ class Hookable extends Options {
 	/**
 	 * Save nothing herein. (Explicitly ignores $this->application)
 	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Options::__sleep()
+	 * @return string[]
 	 */
 	public function __sleep() {
 		return parent::__sleep();
@@ -132,6 +131,7 @@ class Hookable extends Options {
 	 *            necessary.
 	 * @param array $args Optional. An array of parameters to pass to the hook.
 	 * @return array
+	 * @throws Exception_Deprecated
 	 */
 	final public function collectHooks(array|string $types, array $args = []): array {
 		if (empty($types)) {

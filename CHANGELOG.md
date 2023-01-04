@@ -343,7 +343,7 @@ Version added to support modern MySQL docker containers enforcement of `Timestam
 - Fixing support for `zesk\ORM->dependencies()` and related `zesk\Class_Base->dependencies(ORM $object)`
 - Minor documentation updates to `zesk\Meta` class and `zesk\Class_Meta`
 - Moved `zesk\ORM->dependencies()` to `zesk\Class_Base`
-- `zesk\ORM` fixing error/warning when dynamically typed `zesk\Class_Base::type_object` members are loaded with blank values.
+- `zesk\ORM` fixing error/warning when dynamically typed `zesk\Class_Base::TYPE_OBJECT` members are loaded with blank values.
 - `zesk\Server::singleton` now has secondary check to expire cache based on `zesk\Server` alive setting.
 - `zesk\Server` now supports `->delete_all_data` to delete a data member across all servers.
 - `zesk database-dump` now does not crash
@@ -848,7 +848,7 @@ Fixed some issues with the system/debug theme.
 - Removing deprecated `$account` in `zesk\Controller_Authenticated`
 - Having `zesk\Route` with a `template` option will no longer create a route of type `zesk\Route_Theme` - please update your code accordingly and use `theme` option instead.
 - Fixing `zesk\Route_Redirect` to throw `zesk\Exception_Redirect`
-- `zesk\Class_Base`: The `$column_types` values are automatically initialized to `self::type_object` by `$has_one` entries
+- `zesk\Class_Base`: The `$column_types` values are automatically initialized to `self::TYPE_OBJECT` by `$has_one` entries
 - Allow `zesk\Route::arguments_by_class()` before route execution
 - `zesk\Timestamp::add_unit` no longer supports `("second", 1)` argument syntax
 - `zesk\Route_Controller` option `controller prefix` and `controller prefixes` is no longer used. The `controller` option must be a fully-qualified class name of a `zesk\Controller` subclass.
@@ -1205,7 +1205,7 @@ Main changes were to fix a bug with login where the `zesk\User::hook_login` hook
 
 - Fixing `zesk\ORM` hook invocation for cache hooks (use `_` not `-`)
 - Adding per-database adapters to ORM for mapping from ORM types to SQL types - see `zesk\ORM_Database_Adapter_MySQL`
-- Adding support for `zesk\Class_Base::type_binary` and fixing existing `Schema_Foo` class types for new `ORM`
+- Adding support for `zesk\Class_Base::TYPE_BINARY` and fixing existing `Schema_Foo` class types for new `ORM`
 
 ### Incompatible changes
 

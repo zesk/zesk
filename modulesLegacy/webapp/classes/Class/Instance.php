@@ -61,17 +61,17 @@ class Class_Instance extends Class_Base {
 	 * @var array
 	 */
 	public array $column_types = [
-		'id' => self::type_id,
-		'server' => self::type_object,
-		'repository' => self::type_object,
-		'path' => self::type_string,
-		'code' => self::type_string,
-		'name' => self::type_string,
-		'json' => self::type_json,
-		'appversion' => self::type_string,
-		'apptype' => self::type_string,
-		'hash' => self::type_hex,
-		'updated' => self::type_modified,
-		'serving' => self::type_timestamp,
+		'id' => self::TYPE_ID,
+		'server' => self::TYPE_OBJECT,
+		'repository' => self::TYPE_OBJECT,
+		'path' => self::TYPE_STRING,
+		'code' => self::TYPE_STRING,
+		'name' => self::TYPE_STRING,
+		'json' => self::TYPE_JSON,
+		'appversion' => self::TYPE_STRING,
+		'apptype' => self::TYPE_STRING,
+		'hash' => self::TYPE_HEX,
+		'updated' => self::TYPE_MODIFIED,
+		'serving' => self::TYPE_TIMESTAMP,
 	];
 }

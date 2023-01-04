@@ -21,11 +21,11 @@ class Class_Role extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'code' => self::type_string,
-		'name' => self::type_string,
-		'is_root' => self::type_boolean,
-		'is_default' => self::type_boolean,
+		'id' => self::TYPE_ID,
+		'code' => self::TYPE_STRING,
+		'name' => self::TYPE_STRING,
+		'is_root' => self::TYPE_BOOL,
+		'is_default' => self::TYPE_BOOL,
 	];
 
 	public array $has_many = [

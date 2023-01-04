@@ -22,10 +22,10 @@ class Class_Preference_Type extends Class_Base {
 	public string $name_column = 'name';
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'code' => self::type_string,
-		'name' => self::type_string,
-		'description' => self::type_string,
+		'id' => self::TYPE_ID,
+		'code' => self::TYPE_STRING,
+		'name' => self::TYPE_STRING,
+		'description' => self::TYPE_STRING,
 	];
 
 	public array $has_many = [

@@ -28,24 +28,24 @@ class Class_Health_Events extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
+		'id' => self::TYPE_ID,
 
-		'date' => self::type_date,
-		'hash' => self::type_hex,
+		'date' => self::TYPE_DATE,
+		'hash' => self::TYPE_HEX,
 
-		'server' => self::type_object,
-		'application' => self::type_string,
-		'context' => self::type_string,
-		'type' => self::type_string,
-		'message' => self::type_string,
-		'fatal' => self::type_boolean,
+		'server' => self::TYPE_OBJECT,
+		'application' => self::TYPE_STRING,
+		'context' => self::TYPE_STRING,
+		'type' => self::TYPE_STRING,
+		'message' => self::TYPE_STRING,
+		'fatal' => self::TYPE_BOOL,
 
-		'first' => self::type_timestamp,
-		'first_msec' => self::type_integer,
-		'recent' => self::type_timestamp,
-		'recent_msec' => self::type_integer,
+		'first' => self::TYPE_TIMESTAMP,
+		'first_msec' => self::TYPE_INTEGER,
+		'recent' => self::TYPE_TIMESTAMP,
+		'recent_msec' => self::TYPE_INTEGER,
 
-		'total' => self::type_integer,
+		'total' => self::TYPE_INTEGER,
 	];
 
 	public array $column_defaults = [

@@ -216,7 +216,7 @@ class System {
 		$max_tokens = 10;
 		$arg_volume = $volume ? escapeshellarg($volume) . ' ' : '';
 		// Added -P to avoid issue on Mac OS X where Capacity and iused overlap
-		$result = system("/bin/df -P -lk ${arg_volume}2> /dev/null");
+		$result = system("/bin/df -P -lk {$arg_volume}2> /dev/null");
 		$volume_info = trim(ob_get_clean());
 		if (!$result) {
 			return [];

@@ -9,14 +9,14 @@ class Class_Browser extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'md5' => self::type_hex32,
-		'is_phone' => self::type_boolean,
-		'is_tablet' => self::type_boolean,
-		'is_desktop' => self::type_boolean,
+		'id' => self::TYPE_ID,
+		'md5' => self::TYPE_HEX32,
+		'is_phone' => self::TYPE_BOOL,
+		'is_tablet' => self::TYPE_BOOL,
+		'is_desktop' => self::TYPE_BOOL,
 		'tags' => self::type_serialize,
-		'name' => self::type_string,
-		'created' => self::type_created,
-		'parsed' => self::type_timestamp,
+		'name' => self::TYPE_STRING,
+		'created' => self::TYPE_CREATED,
+		'parsed' => self::TYPE_TIMESTAMP,
 	];
 }

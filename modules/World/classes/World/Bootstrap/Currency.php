@@ -146,13 +146,13 @@ class World_Bootstrap_Currency extends Hookable {
 				$found = $currency->find();
 				if ($found->id() !== $id) {
 					$currency->delete();
-					$currency->set_member($fields)->store();
+					$currency->setMember($fields)->store();
 				} else {
 					return $currency->store();
 				}
 			} else {
 				$currency->find();
-				return $currency->set_member($fields)->store();
+				return $currency->setMember($fields)->store();
 			}
 		}
 		return null;

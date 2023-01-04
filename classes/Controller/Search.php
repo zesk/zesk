@@ -15,17 +15,17 @@ namespace zesk;
 class Controller_Search extends Controller_Theme {
 	/**
 	 *
-	 * @throws Exception_Class_NotFound
 	 * @return string
+	 * @throws Exception_Class_NotFound|Exception_Redirect
 	 */
-	protected function action_index() {
+	protected function action_index(): string {
 		$query = $this->request->get($this->option('search_query_variable', 'q'));
 		$results = [];
 		$total = $shown = 0;
 		foreach ($this->optionIterable('search_classes') as $class) {
 			try {
 				if (class_exists($class)) {
-					$object = $this->widgetFactory($class);
+					$object = $this->application->factory($class);
 					$method = 'controllerSearch';
 					if (method_exists($object, $method)) {
 						$result = call_user_func([

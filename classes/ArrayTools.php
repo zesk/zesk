@@ -700,6 +700,7 @@ class ArrayTools {
 
 	/**
 	 * Returns whether an array is an associative array (true) or a simple list (false).
+	 * Anything not an array is considered false.
 	 *
 	 * @param array $array
 	 * @return boolean
@@ -720,11 +721,12 @@ class ArrayTools {
 
 	/**
 	 * Returns whether an array is an associative array (false) or a simple list (true).
+	 * Anything not an array is considered false.
 	 *
 	 * @param mixed $mixed
 	 * @return boolean
 	 */
-	public static function isList($mixed) {
+	public static function isList(mixed $mixed): bool {
 		if (!is_array($mixed)) {
 			return false;
 		}

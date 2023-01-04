@@ -5,7 +5,7 @@ class Class_Contact extends Class_Base {
 	public string $id_column = 'id';
 
 	public array $column_types = [
-		'id' => self::type_id,
+		'id' => self::TYPE_ID,
 	];
 
 	public array $has_many = [

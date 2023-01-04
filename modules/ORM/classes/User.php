@@ -34,13 +34,13 @@ class User extends ORMBase implements Interface_Userlike {
 	 *
 	 * @var string
 	 */
-	public const option_debug_permission = 'debug_permission';
+	public const OPTION_DEBUG_PERMISSION = 'debug_permission';
 
 	/**
 	 *
-	 * @var string
+	 * @var bool
 	 */
-	public static $debug_permission = false;
+	public static bool $debug_permission = false;
 
 	/**
 	 * Syntactic sygar; types this member.
@@ -51,7 +51,7 @@ class User extends ORMBase implements Interface_Userlike {
 
 	/**
 	 *
-	 * @param Kernel $application
+	 * @param Application $application
 	 */
 	public static function hooks(Application $application): void {
 		$application->configuration->path(__CLASS__);
@@ -66,11 +66,11 @@ class User extends ORMBase implements Interface_Userlike {
 		self::$debug_permission = toBool($application->configuration->getFirstPath([
 			[
 				__CLASS__,
-				self::option_debug_permission,
+				self::OPTION_DEBUG_PERMISSION,
 			],
 			[
 				'User',
-				self::option_debug_permission,
+				self::OPTION_DEBUG_PERMISSION,
 			],
 		]));
 	}
@@ -130,7 +130,7 @@ class User extends ORMBase implements Interface_Userlike {
 	public function login($set = null) {
 		$column = $this->column_login();
 		if ($set !== null) {
-			return $this->set_member($column, $set);
+			return $this->setMember($column, $set);
 		}
 		return $this->member($column);
 	}
@@ -150,7 +150,7 @@ class User extends ORMBase implements Interface_Userlike {
 			]);
 		}
 		if ($set !== null) {
-			return $this->set_member($column, $set);
+			return $this->setMember($column, $set);
 		}
 		return $this->member($column);
 	}
@@ -174,7 +174,7 @@ class User extends ORMBase implements Interface_Userlike {
 	public function password($set = null, $plaintext = true) {
 		$column = $this->column_password();
 		if ($set !== null) {
-			return $this->set_member($column, $plaintext ? $this->_generate_hash($set) : $set);
+			return $this->setMember($column, $plaintext ? $this->_generate_hash($set) : $set);
 		}
 		return $this->member($column);
 	}
@@ -229,7 +229,7 @@ class User extends ORMBase implements Interface_Userlike {
 	public function authenticate($username, $password, $use_hash = true, $case_sensitive = true) {
 		// TODO: This will break if everyone else uses the class property. Update ->column_login, or don't use option
 		$column_login = $this->option('column_login', $this->column_login());
-		$this->set_member($column_login, $username);
+		$this->setMember($column_login, $username);
 		if (!$this->fetchByKey($username, $column_login)) {
 			return false;
 		}
@@ -280,12 +280,12 @@ class User extends ORMBase implements Interface_Userlike {
 	 * Checks that user can perform action optionally on object
 	 *
 	 * @param string $action
-	 * @param Model $context
+	 * @param ORMBase $context
 	 * @param array $options
 	 * @throws Exception_Permission
 	 * @return User
 	 */
-	public function must($action, Model $context = null, array $options = []) {
+	public function must(string $action, ORMBase $context = null, array $options = []) {
 		if (!$this->can($action, $context, $options)) {
 			throw new Exception_Permission($this, $action, $context, $options);
 		}
@@ -325,30 +325,21 @@ class User extends ORMBase implements Interface_Userlike {
 	 * continue.
 	 *
 	 * @param mixed $action
-	 *        	Can be an array of actions, all of which must pass, or a string of actions whose
-	 *        	separator determines if the meaning is "AND" or "OR" for each permission.
+	 *
 	 * @param ?ORMBase $context
-	 *        	ORM on which to act
+	 *
 	 * @param mixed $object
-	 *        	Extra optional settings, permission-specific
+	 *
 	 * @return boolean
 	 */
-	public function can($actions, ORMBase $context = null, array $options = []) {
-		// Sanitize input
-		if ($actions instanceof Model) {
-			[$actions, $context] = [
-				$context,
-				$actions,
-			];
-		}
-		if ($context && !$context instanceof Model) {
-			$this->application->logger->warning('Non model passed as $context to {method} ({type})', [
-				'method' => __METHOD__,
-				'type' => type($context),
-			]);
-			$context = null;
-		}
-
+	/**
+	 * @param string|array $actions Can be an array of actions, all of which must pass, or a string of actions whose
+	 *        	separator determines if the meaning is "AND" or "OR" for each permission.
+	 * @param ORMBase|null $context ORM on which to act
+	 * @param array $options Extra optional settings, permission-specific
+	 * @return bool
+	 */
+	public function can(string|array $actions, ORMBase $context = null, array $options = []) {
 		$result = false; // By default, don't allow anything
 		// Allow multiple actions
 		$is_or = is_string($actions) && strpos($actions, '|');
@@ -356,7 +347,7 @@ class User extends ORMBase implements Interface_Userlike {
 		$default_result = $this->option('can', false);
 		foreach ($actions as $action) {
 			$action = self::clean_permission($action);
-			$skiplog = false;
+			$skipLog = false;
 
 			try {
 				$result = $this->callHookArguments('can', [
@@ -365,16 +356,15 @@ class User extends ORMBase implements Interface_Userlike {
 					$options,
 				], $default_result);
 			} catch (\Exception $e) {
-				$result = false;
-				$skiplog = true;
+				$skipLog = true;
 				$this->application->logger->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {exceptionClass} {message}\n{backtrace}", [
 					'action' => $action,
 					'context' => $context,
-					'result' => $result,
+					'result' => false,
 					'roles' => $this->_roles,
 				] + Exception::exceptionVariables($e));
 			}
-			if (self::$debug_permission && !$skiplog) {
+			if (self::$debug_permission && !$skipLog) {
 				$this->application->logger->debug('User::can({action},{context}) = {result} (Roles {roles}) ({extra})', [
 					'action' => $action,
 					'context' => $context,
@@ -409,7 +399,7 @@ class User extends ORMBase implements Interface_Userlike {
 			]);
 		}
 
-		return $result;
+		return (bool) $result;
 	}
 
 	/**

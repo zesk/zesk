@@ -8,9 +8,9 @@ declare(strict_types=1);
 namespace zesk;
 
 use Psr\Cache\InvalidArgumentException;
-use \ReflectionClass;
-use \ReflectionException;
+use ReflectionClass;
 use stdClass;
+use Throwable;
 
 /**
  *
@@ -99,6 +99,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $arguments
 	 * @param array $options
 	 * @return string
+	 * @throws Exception_Redirect
 	 */
 	public function theme(array|string $types, array $arguments = [], array $options = []): string {
 		return $this->application->theme($types, $arguments, $options);
@@ -116,14 +117,14 @@ class Controller extends Hookable implements Interface_Theme {
 
 	/**
 	 */
-	public function class_actions() {
+	public function class_actions(): array {
 		return [];
 	}
 
 	/**
 	 */
-	protected function hook_classes() {
-		return $this->optionIterable('classes', []);
+	protected function hook_classes(): array {
+		return $this->optionIterable('classes');
 	}
 
 	/**
@@ -140,23 +141,16 @@ class Controller extends Hookable implements Interface_Theme {
 	}
 
 	/**
-	 * Get request
+	 * Get request (always set)
 	 *
 	 * @return Request
-	 * @throws Exception_Semantics
-	 */
-	public function request(Request $set = null): Request {
-		if ($set) {
-			$this->application->deprecated(__METHOD__ . ' setter');
-		}
-		if (!$this->request) {
-			throw new Exception_Semantics('Request not set');
-		}
+	 * x	 */
+	public function request(): Request {
 		return $this->request;
 	}
 
 	/**
-	 * Get/set request
+	 * Set request
 	 *
 	 * @param Request $set
 	 * @return self
@@ -176,9 +170,10 @@ class Controller extends Hookable implements Interface_Theme {
 
 	/**
 	 * @param string $action
+	 * @return mixed
 	 */
 	public function _action_default(string $action = ''): mixed {
-		$this->error_404($action ? "Action $action" : 'default action');
+		return $this->error_404($action ? "Action $action" : 'default action');
 	}
 
 	/**
@@ -335,20 +330,25 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param Application $application
 	 * @return array
 	 *
-	 * @throws InvalidArgumentException
 	 */
 	final public static function all(Application $application): array {
 		$paths = $application->autoloader->path();
-		$item = $application->cache->getItem(__CLASS__);
-		if ($item->isHit()) {
+
+		try {
+			$item = $application->cache->getItem(__CLASS__);
+		} catch (InvalidArgumentException) {
+			$item = null;
+		}
+		if ($item && $item->isHit()) {
 			$value = $item->get();
 			if (count($paths) === $value->n_paths) {
 				return $value->all;
 			}
 		}
 		$list_options = [
-			'file_include_pattern' => '/\.(inc|php)$/',
-			'directory_default' => false,
+			Directory::LIST_RULE_FILE => ['/\.(php)$/' => true, false],
+			Directory::LIST_RULE_DIRECTORY_WALK => ['#/\.#' => false, true],
+			Directory::LIST_RULE_DIRECTORY => false,
 		];
 		$found = [];
 		foreach ($paths as $path => $options) {
@@ -375,8 +375,7 @@ class Controller extends Hookable implements Interface_Theme {
 								'classes' => $controller->callHook('classes', [], []),
 							];
 						}
-					} catch (ReflectionException $e) {
-					} catch (\Exception $e) {
+					} catch (Throwable $e) {
 						$application->logger->error('Exception creating controller {controller_inc} {e}', compact('controller_inc', 'e'));
 					}
 				}
@@ -386,7 +385,9 @@ class Controller extends Hookable implements Interface_Theme {
 		$value = new stdClass();
 		$value->all = $found;
 		$value->n_paths = count($paths);
-		$application->cache->saveDeferred($item->set($value));
+		if ($item) {
+			$application->cache->saveDeferred($item->set($value));
+		}
 		return $found;
 	}
 
@@ -395,7 +396,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 *
 	 * @return string
 	 */
-	public function _to_php() {
+	public function _to_php(): string {
 		return '$application, ' . PHP::dump($this->options);
 	}
 }

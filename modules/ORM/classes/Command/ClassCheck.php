@@ -121,11 +121,11 @@ class Command_ClassCheck extends CommandBase {
 					$this->error("{class} defined \$has_one[$column] but does not exist in SQL", $error_args);
 				}
 				if (!array_key_exists($column, $class_object->column_types)) {
-					$this->error('{class} defined $has_one[{column}] but does not exist, please add it: $column_types => "{column}" => self::type_object,', $error_args + [
+					$this->error('{class} defined $has_one[{column}] but does not exist, please add it: $column_types => "{column}" => self::TYPE_OBJECT,', $error_args + [
 						'column' => $column,
 					]);
 				} elseif ($class_object->column_types[$column] !== Class_Base::TYPE_OBJECT) {
-					$this->error('{class} defined $has_one[{column}] but wrong type {type}: $column_types => "{column}" => self::type_object,', $error_args + [
+					$this->error('{class} defined $has_one[{column}] but wrong type {type}: $column_types => "{column}" => self::TYPE_OBJECT,', $error_args + [
 						'column' => $column,
 						'type' => $class_object->column_types[$column],
 					]);

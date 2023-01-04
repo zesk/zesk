@@ -43,7 +43,7 @@ class Content_Article extends ORMBase {
 			$this->parent = null;
 		}
 		if ($this->memberIsEmpty('slug')) {
-			$this->set_member('slug', self::clean_code_name($this->member('title')));
+			$this->setMember('slug', self::clean_code_name($this->member('title')));
 		}
 		return parent::store();
 	}

@@ -15,4 +15,15 @@ class Module extends BaseModule {
 	public function appMailFactory(Application $application, array $headers = [], string $body = '', array $options = []): Mail {
 		return new Mail($application, $headers, $body, $options);
 	}
+
+	public function setDebug(bool $set): void {
+		$this->application->configuration->setPath([Mail::class, Mail::OPTION_DEBUG], true);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function debug(): bool {
+		return toBool($this->application->configuration->getPath([Mail::class, Mail::OPTION_DEBUG]));
+	}
 }

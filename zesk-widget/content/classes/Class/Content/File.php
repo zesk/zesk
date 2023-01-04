@@ -24,15 +24,15 @@ class Class_Content_File extends Class_Base {
 	 * @var array
 	 */
 	public array $column_types = [
-		'id' => self::type_id,
-		'mime' => self::type_string,
-		'original' => self::type_string,
-		'name' => self::type_string,
-		'data' => self::type_object,
-		'description' => self::type_string,
-		'user' => self::type_object,
-		'created' => self::type_created,
-		'modified' => self::type_modified,
+		'id' => self::TYPE_ID,
+		'mime' => self::TYPE_STRING,
+		'original' => self::TYPE_STRING,
+		'name' => self::TYPE_STRING,
+		'data' => self::TYPE_OBJECT,
+		'description' => self::TYPE_STRING,
+		'user' => self::TYPE_OBJECT,
+		'created' => self::TYPE_CREATED,
+		'modified' => self::TYPE_MODIFIED,
 	];
 
 	/**

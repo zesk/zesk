@@ -13,7 +13,7 @@ class Class_User_Content_Image extends Class_Base {
 	];
 
 	public array $column_types = [
-		'user' => self::type_object,
-		'image' => self::type_object,
+		'user' => self::TYPE_OBJECT,
+		'image' => self::TYPE_OBJECT,
 	];
 }

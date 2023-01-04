@@ -120,7 +120,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 		];
 		$job = $application->ormFactory(__CLASS__, $members);
 		$job->find();
-		return $job->set_member($members)->store();
+		return $job->setMember($members)->store();
 	}
 
 	/**

@@ -184,7 +184,7 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 						$application->logger->warning('{method}: Bad global {name} can not be unserialized - DELETING', [
 							'method' => __METHOD__, 'name' => $name,
 						]);
-						$application->ormRegistry(__CLASS__)->query_delete()->addWhere('name', $name)->execute();
+						$application->ormRegistry(__CLASS__)->queryDelete()->addWhere('name', $name)->execute();
 					} else {
 						$application->logger->error('{method}: Bad global {name} can not be unserialized, please fix manually', [
 							'method' => __METHOD__, 'name' => $name,

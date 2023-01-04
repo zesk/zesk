@@ -24,18 +24,18 @@ class Class_Log_Mail extends Class_Base {
 	 * @var array
 	 */
 	public array $column_types = [
-		'id' => self::type_id,
-		'session' => self::type_object,
-		'user' => self::type_object,
-		'code' => self::type_string,
-		'from' => self::type_string,
-		'to' => self::type_string,
-		'subject' => self::type_string,
-		'body' => self::type_string,
-		'created' => self::type_created,
-		'sent' => self::type_timestamp,
-		'type' => self::type_string,
-		'data' => self::type_serialize,
+		'id' => self::TYPE_ID,
+		'session' => self::TYPE_OBJECT,
+		'user' => self::TYPE_OBJECT,
+		'code' => self::TYPE_STRING,
+		'from' => self::TYPE_STRING,
+		'to' => self::TYPE_STRING,
+		'subject' => self::TYPE_STRING,
+		'body' => self::TYPE_STRING,
+		'created' => self::TYPE_CREATED,
+		'sent' => self::TYPE_TIMESTAMP,
+		'type' => self::TYPE_STRING,
+		'data' => self::TYPE_SERIALIZE,
 	];
 
 	public array $has_one = [

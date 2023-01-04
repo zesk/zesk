@@ -16,7 +16,7 @@ abstract class Controller_Theme extends Controller {
 	/**
 	 * Default content type for Response generated upon instantiation.
 	 *
-	 * @var string
+	 * @var ?string
 	 */
 	protected ?string $default_content_type = Response::CONTENT_TYPE_HTML;
 
@@ -46,27 +46,31 @@ abstract class Controller_Theme extends Controller {
 	protected array $variables = [];
 
 	/**
+	 *
+	 */
+	public const OPTION_THEME = 'theme';
+
+	/**
+	 *
+	 */
+	public const OPTION_AUTO_RENDER = 'auto_render';
+
+	/**
 	 * Create a new Controller_Template
 	 *
-	 * @param Application $app
-	 * @param array $options
 	 */
 	protected function initialize(): void {
 		parent::initialize();
-		if ($this->hasOption('template')) {
-			$this->application->deprecated('{class} is using option template - should not @deprecated 2017-11', [
-				'class' => get_class($this),
-			]);
-		}
 		if ($this->theme === '') {
-			$this->theme = strval($this->option('theme', self::DEFAULT_THEME));
+			$this->theme = $this->optionString(self::OPTION_THEME, self::DEFAULT_THEME);
 		}
-		$this->auto_render = $this->optionBool('auto_render', $this->auto_render);
+		$this->auto_render = $this->optionBool(self::OPTION_AUTO_RENDER, $this->auto_render);
 	}
 
 	/**
 	 * Set auto render value
 	 *
+	 * @param bool $set
 	 * @return self
 	 */
 	public function setAutoRender(bool $set): self {
@@ -86,7 +90,7 @@ abstract class Controller_Theme extends Controller {
 	/**
 	 *
 	 * @param mixed|null $mixed
-	 * @return $this
+	 * @return self
 	 */
 	public function json(mixed $mixed = null): self {
 		$this->setAutoRender(false);
@@ -99,7 +103,7 @@ abstract class Controller_Theme extends Controller {
 	 * @return Controller_Theme
 	 */
 	public function error(int $code, string $message = ''): self {
-		$this->autoRender(false);
+		$this->setAutoRender(false);
 		return parent::error($code, $message);
 	}
 
@@ -116,10 +120,11 @@ abstract class Controller_Theme extends Controller {
 	}
 
 	/**
-	 * (non-PHPdoc)
+	 * @throws Exception_Semantics
+	 * @throws Exception_Redirect
 	 * @see Controller::after()
 	 */
-	public function after(string $result = null, string $output = null): void {
+	public function after(string|array|Response|null $result, string $output = ''): void {
 		if ($this->auto_render) {
 			if (!$this->response->isHTML()) {
 				return;
@@ -143,35 +148,11 @@ abstract class Controller_Theme extends Controller {
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Controller::variables()
+	 *
 	 */
 	public function variables(): array {
 		return [
 			'theme' => $this->theme,
 		] + parent::variables() + $this->variables;
-	}
-
-	/**
-	 * TODO Clean this up
-	 *
-	 * @param Control $control
-	 * @param Model $object
-	 * @param array $options
-	 */
-	protected function control(Control $control, Model $object = null, array $options = []) {
-		$control->response($this->response);
-		$content = $control->execute($object);
-		$this->callHook($options['hook_execute'] ?? 'control_execute', $control, $object, $options);
-		$title = $control->option('title', $options['title'] ?? null);
-		if ($title) {
-			$this->response->setTitle($title, false); // Do not overwrite existing values
-		}
-		$this->response->response_data([
-			'status' => $status = $control->status(),
-			'message' => array_values($control->messages()),
-			'error' => array_values($control->children_errors()),
-		]);
-		return $content;
 	}
 }

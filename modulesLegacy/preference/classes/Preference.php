@@ -96,7 +96,7 @@ class Preference extends ORMBase {
 				'debug' => PHP::dump($row),
 				'vlen' => $vlen,
 			]);
-			$user->application->ormRegistry(Preference::class)->query_delete()->addWhere('id', $row['id'])->execute();
+			$user->application->ormRegistry(Preference::class)->queryDelete()->addWhere('id', $row['id'])->execute();
 		}
 		return $default;
 	}
@@ -149,7 +149,7 @@ class Preference extends ORMBase {
 				'debug' => PHP::dump($row),
 				'vlen' => $vlen,
 			]);
-			$user->application->ormRegistry(Preference::class)->query_delete()->addWhere('id', $row['id'])->execute();
+			$user->application->ormRegistry(Preference::class)->queryDelete()->addWhere('id', $row['id'])->execute();
 		}
 		return $default;
 	}

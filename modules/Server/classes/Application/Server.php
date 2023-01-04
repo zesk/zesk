@@ -27,7 +27,7 @@ class Application_Server extends Application {
 		'Database',
 	];
 
-	public function preconfigure(array $options = []): void {
+	public function beforeConfigure(array $options = []): void {
 		$this->addZeskCommandPath(path($this->modules->path('server'), 'command'));
 		$this->setDocumentRoot('site');
 	}

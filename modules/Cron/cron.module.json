@@ -4,7 +4,7 @@
 	"autoload": {
 		"classPrefix": "zesk\\Cron\\"
 	},
-	"zeskCommandClassPrefix": "zesk\\Cron\\Command_",
+	"zeskCommandPath": "command",
 	"requires": [
 		"ORM"
 	]

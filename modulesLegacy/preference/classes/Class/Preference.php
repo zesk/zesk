@@ -17,10 +17,10 @@ class Class_Preference extends Class_Base {
 	 * @var unknown
 	 */
 	public array $column_types = [
-		'id' => self::type_id,
-		'user' => self::type_object,
-		'type' => self::type_object,
-		'value' => self::type_serialize,
+		'id' => self::TYPE_ID,
+		'user' => self::TYPE_OBJECT,
+		'type' => self::TYPE_OBJECT,
+		'value' => self::TYPE_SERIALIZE,
 	];
 
 	/**

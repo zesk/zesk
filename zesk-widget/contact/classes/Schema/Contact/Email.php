@@ -15,40 +15,40 @@ class Schema_Contact_Email extends ORM_Schema {
 			'{table}' => [
 				'columns' => [
 					'id' => [
-						'type' => self::type_id,
+						'type' => self::TYPE_ID,
 					],
 					'contact' => [
-						'type' => self::type_object,
+						'type' => self::TYPE_OBJECT,
 						'not null' => true,
 					],
 					'label' => [
-						'type' => self::type_object,
+						'type' => self::TYPE_OBJECT,
 						'not null' => false,
 					],
 					'value' => [
 						'not null' => true,
 						'size' => 128,
 						'sql_type' => 'varchar',
-						'type' => self::type_string,
+						'type' => self::TYPE_STRING,
 					],
 					'created' => [
 						'not null' => true,
 						'default' => '0',
-						'type' => self::type_created,
+						'type' => self::TYPE_CREATED,
 					],
 					'modified' => [
 						'not null' => true,
 						'default' => '0',
-						'type' => self::type_modified,
+						'type' => self::TYPE_MODIFIED,
 					],
 					'verified' => [
 						'not null' => false,
 						'default' => 0,
-						'type' => self::type_timestamp,
+						'type' => self::TYPE_TIMESTAMP,
 					],
 					'opt_out' => [
 						'default' => false,
-						'type' => self::type_boolean,
+						'type' => self::TYPE_BOOL,
 					],
 				],
 				'primary keys' => [

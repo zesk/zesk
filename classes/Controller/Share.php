@@ -14,6 +14,14 @@ namespace zesk;
  * @see docs/share.md
  */
 class Controller_Share extends Controller {
+	/**
+	 * Whether to build the share directory as files are requested.
+	 *
+	 * Configure your webserver to run the main script upon missing file and
+	 * serve the file if it exists otherwise.
+	 */
+	public const OPTION_BUILD = 'build';
+
 	public const SHARE_PREFIX_DEFAULT = 'share';
 
 	/**
@@ -27,8 +35,8 @@ class Controller_Share extends Controller {
 	 *
 	 * @return string
 	 */
-	public function option_share_prefix() {
-		return $this->option(self::OPTION_SHARE_PREFIX, self::SHARE_PREFIX_DEFAULT);
+	public function option_share_prefix(): string {
+		return $this->optionString(self::OPTION_SHARE_PREFIX, self::SHARE_PREFIX_DEFAULT);
 	}
 
 	/**
@@ -36,6 +44,9 @@ class Controller_Share extends Controller {
 	 *
 	 * This could be used in say, a build step for an application.
 	 *
+	 * @throws Exception_Directory_Create
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Directory_Permission
 	 * @throws Exception_File_Permission
 	 */
 	public function build_directory(): void {
@@ -51,7 +62,7 @@ class Controller_Share extends Controller {
 			foreach ($files as $file) {
 				$base = basename($file);
 				$source = path($path, $file);
-				if (substr($base, 0, 1) !== '.' && is_file($source)) {
+				if (!str_starts_with($base, '.') && is_file($source)) {
 					$target_file = path($document_root, $this->option_share_prefix(), $name, $file);
 					Directory::depend(dirname($target_file), 0o777);
 					if (!copy($source, $target_file)) {
@@ -89,27 +100,37 @@ class Controller_Share extends Controller {
 	 *
 	 * @see Controller::_action_default()
 	 */
-	public function _action_default($action = null): mixed {
-		$uri = StringTools::removePrefix($original_uri = $this->request->path(), '/');
+	public function _action_default($action = null): Response {
+		$original_uri = $this->request->path();
+		$uri = StringTools::removePrefix($original_uri, '/');
 		if ($this->application->development() && $uri === 'share/debug') {
 			$this->response->content = $this->share_debug();
-			return null;
+			return $this->response;
 		}
-		$file = $this->pathToFile($this->request->path());
+		$path = $this->request->path();
+		$file = $this->pathToFile($path);
 		if (!$file) {
 			$this->error_404();
-			return null;
+			return $this->response;
 		}
-		$mod = $this->request->header('If-Modified-Since');
+
+		try {
+			$mod = $this->request->header('If-Modified-Since');
+		} catch (Exception_Key) {
+			$mod = null;
+		}
 		$fmod = filemtime($file);
 		if ($mod && $fmod <= strtotime($mod)) {
 			$this->response->setStatus(HTTP::STATUS_NOT_MODIFIED);
-			$this->response->setContentType(MIME::fromExtension($file));
-			$this->response->content = '';
-			if ($this->optionBool('build')) {
-				$this->build($original_uri, $file);
+
+			try {
+				$this->response->setContentType(MIME::fromExtension($file));
+			} catch (Exception_Key) {
+				$this->application->logger->warning('No content type for {file}', ['file' => $file]);
 			}
-			return null;
+			$this->response->content = '';
+			$this->_buildOption($original_uri, $file);
+			return $this->response;
 		}
 
 		$request = $this->request;
@@ -120,11 +141,30 @@ class Controller_Share extends Controller {
 		} else {
 			$this->response->header_date('Expires', strtotime('+1 hour'));
 		}
-		$this->response->raw()->file($file);
-		if ($this->optionBool('build')) {
-			$this->build($original_uri, $file);
+
+		try {
+			$this->response->raw()->setFile($file);
+		} catch (Exception_File_NotFound) {
+			$this->error_404($path);
+			return $this->response;
 		}
-		return null;
+		$this->_buildOption($original_uri, $file);
+		return $this->response;
+	}
+
+	/**
+	 * @param string $original_uri
+	 * @param string $file
+	 * @return void
+	 */
+	private function _buildOption(string $original_uri, string $file): void {
+		if ($this->optionBool(self::OPTION_BUILD)) {
+			try {
+				$this->build($original_uri, $file);
+			} catch (Exception_Directory_Permission|Exception_Directory_Create $e) {
+				$this->application->logger->error($e);
+			}
+		}
 	}
 
 	/**
@@ -132,8 +172,10 @@ class Controller_Share extends Controller {
 	 *
 	 * @param string $path
 	 * @param string $file
+	 * @throws Exception_Directory_Create
+	 * @throws Exception_Directory_Permission
 	 */
-	private function build($path, $file): void {
+	private function build(string $path, string $file): void {
 		$target = path($this->application->documentRoot(), $path);
 		Directory::depend(dirname($target), 0o775);
 		$status = copy($file, $target);
@@ -147,9 +189,8 @@ class Controller_Share extends Controller {
 	/**
 	 * Output debug information during development
 	 */
-	private function share_debug() {
-		$content = '';
-		$content .= HTML::tag('h1', 'Server') . HTML::tag('pre', PHP::dump($_SERVER));
+	private function share_debug(): string {
+		$content = HTML::tag('h1', 'Server') . HTML::tag('pre', PHP::dump($_SERVER));
 		$content .= HTML::tag('h1', 'Request headers') . HTML::tag('pre', PHP::dump($this->request->headers()));
 		$content .= HTML::tag('h1', 'Shares') . HTML::tag('pre', PHP::dump($this->application->sharePath()));
 		return $content;
@@ -157,10 +198,12 @@ class Controller_Share extends Controller {
 
 	/**
 	 *
+	 * @param Application $application
 	 * @param string $path
 	 * @return string
+	 * @throws Exception_Key
 	 */
-	public static function realpath(Application $application, $path) {
+	public static function realpath(Application $application, string $path): string {
 		$path = explode('/', trim($path, '/'));
 		array_shift($path);
 		$share = array_shift($path);
@@ -168,7 +211,8 @@ class Controller_Share extends Controller {
 		if (array_key_exists($share, $shares)) {
 			return path($shares[$share], implode('/', $path));
 		}
-		return null;
+
+		throw new Exception_Key($share);
 	}
 
 	/**
@@ -176,22 +220,29 @@ class Controller_Share extends Controller {
 	 */
 	public function hook_cacheClear(): void {
 		$logger = $this->application->logger;
-		/* @var $locale \zesk\Locale */
 		$logger->debug(__METHOD__);
-		if ($this->optionBool('build')) {
-			$share_dir = path($this->application->documentRoot(), $this->option_share_prefix());
-			if (is_dir($share_dir)) {
-				$logger->notice('{class}::hook_cache_clear - deleting {share_dir}', [
-					'class' => __CLASS__,
-					'share_dir' => $share_dir,
-				]);
+		if (!$this->optionBool(self::OPTION_BUILD)) {
+			return;
+		}
+		$share_dir = path($this->application->documentRoot(), $this->option_share_prefix());
+		if (is_dir($share_dir)) {
+			$logger->notice('{class}::hook_cache_clear - deleting {share_dir}', [
+				'class' => __CLASS__,
+				'share_dir' => $share_dir,
+			]);
+
+			try {
 				Directory::delete($share_dir);
-			} else {
-				$logger->notice('{class}::hook_cache_clear - would delete {share_dir} but it is not found', [
-					'class' => __CLASS__,
-					'share_dir' => $share_dir,
-				]);
+			} catch (Exception_Directory_NotFound) {
+				// pass
+			} catch (Exception_File_Permission|Exception_Directory_Permission $e) {
+				$logger->error($e);
 			}
+		} else {
+			$logger->notice('{class}::hook_cache_clear - would delete {share_dir} but it is not found', [
+				'class' => __CLASS__,
+				'share_dir' => $share_dir,
+			]);
 		}
 	}
 }

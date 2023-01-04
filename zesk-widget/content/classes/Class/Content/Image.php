@@ -62,16 +62,16 @@ class Class_Content_Image extends Class_Base {
 	 * @var array
 	 */
 	public array $column_types = [
-		'id' => self::type_id,
-		'data' => self::type_object,
-		'width' => self::type_integer,
-		'height' => self::type_integer,
-		'mime_type' => self::type_string,
-		'path' => self::type_string,
-		'title' => self::type_string,
-		'description' => self::type_string,
-		'created' => self::type_created,
-		'modified' => self::type_modified,
+		'id' => self::TYPE_ID,
+		'data' => self::TYPE_OBJECT,
+		'width' => self::TYPE_INTEGER,
+		'height' => self::TYPE_INTEGER,
+		'mime_type' => self::TYPE_STRING,
+		'path' => self::TYPE_STRING,
+		'title' => self::TYPE_STRING,
+		'description' => self::TYPE_STRING,
+		'created' => self::TYPE_CREATED,
+		'modified' => self::TYPE_MODIFIED,
 	];
 
 	/**

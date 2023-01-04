@@ -110,7 +110,7 @@ class Module_Help extends Module_JSLib {
 					'target' => $target,
 				]);
 			} elseif ($this->optionBool('cron_update')) {
-				$help->set_member($settings)->store();
+				$help->setMember($settings)->store();
 			}
 		}
 	}
@@ -347,7 +347,7 @@ class Module_Help extends Module_JSLib {
 	 */
 	public function reset_user(User $user) {
 		return $this->application->ormRegistry(Help_User::class)
-			->query_delete()
+			->queryDelete()
 			->addWhere('user', $user)
 			->execute()
 			->affectedRows();

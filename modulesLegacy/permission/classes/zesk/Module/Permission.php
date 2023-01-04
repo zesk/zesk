@@ -471,7 +471,7 @@ class Module_Permission extends Module {
 	 */
 	protected function hook_cacheClear(): void {
 		$this->application->ormRegistry(Permission::class)
-			->query_delete()
+			->queryDelete()
 			->truncate(true)
 			->execute();
 	}

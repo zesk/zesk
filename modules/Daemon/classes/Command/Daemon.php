@@ -29,17 +29,21 @@ use zesk\Timestamp;
  * @category Management
  */
 class Command_Daemon extends Command_Base implements Interface_Process {
+	protected array $shortcuts = ['daemon'];
+
 	/**
 	 *
 	 * @var string
 	 */
-	protected $help = 'Run daemons associated with an application. Runs a continual process for each daemon hook encountered, and restarts daemons as needed when they fail. Individual control over selected processes by using --up --down, and --bounce. You can run multiple processes per method by adding a configuration option `ClassName::daemon::process_count`. Note that this process will only fork a maximum of 100 child processes unless you increase the limit using configuration option `Command_Daemon::maximum_processes`.';
+	protected string $help = 'Run daemons associated with an application. Runs a continual process for each daemon hook encountered, and restarts daemons as needed when they fail. Individual control over selected processes by using --up --down, and --bounce. You can run multiple processes per method by adding a configuration option `ClassName::daemon::process_count`. Note that this process will only fork a maximum of 100 child processes unless you increase the limit using configuration option `Command_Daemon::maximum_processes`.';
 
 	/**
 	 *
 	 * @var FilesMonitor
 	 */
-	private $watch_monitor = null;
+	private FilesMonitor|null $watch_monitor = null;
+
+	public const OPTION_NO_FORK = 'no-fork';
 
 	/**
 	 *
@@ -47,7 +51,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 */
 	protected array $option_types = [
 		'debug-log' => 'boolean',
-		'nofork' => 'boolean',
+		self::OPTION_NO_FORK => 'boolean',
 		'nohup' => 'boolean',
 		'stop' => 'boolean',
 		'kill' => 'boolean',
@@ -69,7 +73,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 */
 	protected array $option_help = [
 		'debug-log' => 'Output log information',
-		'nofork' => 'Don\'t fork - useful for debugging single processes',
+		self::OPTION_NO_FORK => 'Don\'t fork - useful for debugging single processes',
 		'nohup' => 'Fork and run as a daemon process, ignore HUP signals',
 		'stop' => 'Stop all daemon processes',
 		'kill' => 'Kill all daemon processes',
@@ -90,70 +94,70 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 *
 	 * @var resource
 	 */
-	private $fifo_r = null;
+	private mixed $fifo_r = null;
 
 	/**
 	 * FP to fifo: Write on client
 	 *
 	 * @var resource
 	 */
-	private $fifo_w = null;
+	private mixed $fifo_w = null;
 
 	/**
 	 * Path to fifo
 	 *
 	 * @var string
 	 */
-	private $fifo_path = null;
+	private string $fifo_path;
 
 	/**
 	 * Module daemon
 	 *
 	 * @var Module
 	 */
-	protected $module = null;
+	protected Module $module;
 
 	/**
 	 * Am I the parent?
 	 *
 	 * @var boolean
 	 */
-	private $parent = true;
+	private bool $parent = true;
 
 	/**
 	 * Name of this daemon.
 	 * May have a ^ suffix for processes which should have multiple instances.
 	 *
-	 * @var boolean
+	 * @var string
 	 */
-	private $name = true;
+	private string $name = '';
 
 	/**
 	 * Method of this daemon
 	 *
-	 * @var boolean
+	 * @var string
 	 */
-	private $method = true;
+	private string $method = '';
 
 	/**
 	 *
 	 * @var boolean
 	 */
-	private $quitting = false;
+	private bool $quitting = false;
 
 	/**
 	 * Logging for database file read/writes
 	 *
 	 * @var boolean
 	 */
-	private $db_debug = false;
+	private bool $db_debug = false;
 
 	/**
 	 * Set to true in subclasses to skip Application configuration until ->go
 	 *
 	 * @var boolean
 	 */
-	public $has_configuration = false;
+	public bool $has_configuration = true;
 
 	/**
 	 * Signal names to strings
@@ -169,12 +173,21 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	];
 
 	/**
+	 * @param Application $set
+	 * @return Interface_Process
+	 */
+	public function setApplication(Application $set): Interface_Process {
+		$this->application = $set;
+		return $this;
+	}
+
+	/**
 	 * Command MAIN
 	 *
 	 * @see Command::run()
 	 */
-	public function run() {
-		$this->module = $this->application->modules->object('daemon');
+	public function run(): int {
+		$this->module = $this->application->daemonModule();
 
 		PHP::requires('pcntl', true);
 
@@ -188,7 +201,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			echo Text::format_pairs(ArrayTools::filterKeyPrefixes($this->application->configuration->toArray(), 'log'));
 		}
 
-		$this->fifo_path = path($this->module->rundir, 'daemon-controller');
+		$this->fifo_path = path($this->module->runPath, 'daemon-controller');
 
 		if ($this->optionBool('kill')) {
 			return $this->command_stop(SIGKILL);
@@ -197,29 +210,28 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			return $this->command_stop();
 		}
 		if ($this->optionBool('list')) {
-			return $this->command_list();
+			return $this->commandList();
 		}
 		if ($this->optionBool('stat')) {
 			return $this->command_stat();
 		}
 		if ($this->hasOption('up')) {
-			return $this->command_state($this->option('up'), 'up');
+			return $this->commandState($this->option('up'), 'up');
 		}
 		if ($this->hasOption('down')) {
-			return $this->command_state($this->option('down'), 'down');
+			return $this->commandState($this->option('down'), 'down');
 		}
 		if ($this->hasOption('bounce')) {
-			return $this->command_state($this->option('bounce'), 'down', 'up');
+			return $this->commandState($this->option('bounce'), 'down', 'up');
 		}
 
 		return $this->command_run();
 	}
 
-	public function application(Application $set = null) {
-		if ($set) {
-			$this->application = $set;
-			return $this;
-		}
+	/**
+	 * @return Application
+	 */
+	public function application(): Application {
 		return $this->application;
 	}
 
@@ -242,13 +254,16 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	}
 
 	/**
-	 * Get/set daemon process database
-	 *
-	 * @param array $database
 	 * @return array
+	 * @throws Exception_File_Permission
+	 * @throws \zesk\Exception_Syntax
 	 */
-	private function _process_database(array $database = null) {
-		return $this->module->process_database($database);
+	private function loadProcessDatabase(): array {
+		return $this->module->loadProcessDatabase();
+	}
+
+	private function saveProcessDatabase(array $database): void {
+		$this->module->saveProcessDatabase($database);
 	}
 
 	/**
@@ -256,8 +271,8 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 *
 	 * @return number
 	 */
-	final public function command_stop($signal = SIGTERM) {
-		$database = $this->_process_database();
+	final public function command_stop($signal = SIGTERM): int {
+		$database = $this->loadProcessDatabase();
 		if (count($database) === 0) {
 			$this->application->logger->error('Not running.');
 			return 1;
@@ -269,8 +284,8 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			$this->application->logger->error('Parent process has been terminated - killing children');
 			var_dump($database);
 			foreach ($database as $name => $settings) {
-				$pid = $status = $time = null;
-				extract($settings, EXTR_IF_EXISTS);
+				$pid = $settings['pid'];
+				$status = $settings['status'];
 				if ($status === 'up') {
 					if (!posix_kill($pid, $signal)) {
 						$this->application->logger->notice('Dead process {name} ({pid})', compact('name', 'pid'));
@@ -285,7 +300,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 				}
 			}
 			if ($changed) {
-				$this->_process_database($database);
+				$this->saveProcessDatabase($database);
 			}
 			return 0;
 		}
@@ -304,7 +319,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 *
 	 * @return Closure[]
 	 */
-	private function daemons() {
+	private function daemons(): array {
 		$daemon_hooks = [
 			"zesk\Application::daemon",
 			"zesk\Module::daemon",
@@ -324,9 +339,9 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 *
 	 * @param array $daemons
 	 * @throws Exception_System
-	 * @return string[]|unknown[]
+	 * @return string[]
 	 */
-	private function daemons_expand(array $daemons) {
+	private function daemons_expand(array $daemons): array {
 		$total_process_count = 0;
 		$configuration = $this->application->configuration;
 		$new_daemons = [];
@@ -359,25 +374,24 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 *
 	 * @return number
 	 */
-	final public function command_list() {
-		$nl = $this->application->kernel->newline;
+	final public function commandList(): int {
 		$daemons = $this->daemons();
-		echo implode($nl, $daemons) . $nl;
+		echo Daemon . phpimplode(PHP_EOL, $daemons) . PHP_EOL;
 		return 0;
 	}
 
 	/**
 	 *
-	 * @param unknown $name
-	 * @param unknown $want
-	 * @param unknown $newstate
-	 * @return number
+	 * @param string $name
+	 * @param string $want
+	 * @param string $newState
+	 * @return int
 	 */
-	final public function command_state($name, $want, $newstate = null) {
-		$database = $this->_process_database();
+	final public function commandState(string $name, string $want, string $newState = ''): int {
+		$database = $this->loadProcessDatabase();
 		if ($name === 'all') {
 			foreach ($database as $name => $settings) {
-				$this->_command_state($database, $name, $settings, $want, $newstate);
+				$this->_commandState($database, $name, $settings, $want, $newState);
 			}
 			return 0;
 		}
@@ -387,7 +401,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			foreach ($database as $procname => $settings) {
 				if (stripos($procname, $name) !== false) {
 					$this->application->logger->notice('Matched process name {procname}', compact('procname'));
-					$this->_command_state($database, $procname, $settings, $want, $newstate);
+					$this->_commandState($database, $procname, $settings, $want, $newState);
 					$found = true;
 				}
 			}
@@ -402,27 +416,29 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			]);
 			return 2;
 		}
-		return $this->_command_state($database, $name, $settings, $want);
+		return $this->_commandState($database, $name, $settings, $want);
 	}
 
 	/**
 	 * Change state of a daemon process
 	 *
-	 * @param
-	 *        	process name $name
-	 * @param array $settings
-	 * @param unknown $want
+	 * @param array $database
+	 * @param string $name Daemon name
+	 * @param array $settings Current settings
+	 * @param string $want Desired state
+	 * @param string $newState
 	 * @return number
 	 */
-	private function _command_state(array $database, $name, array $settings, $want, $newstate = null) {
-		$pid = $status = null;
-		extract($settings, EXTR_IF_EXISTS);
+	private function _commandState(array $database, string $name, array $settings, string $want, string $newState = ''):
+	int {
+		$pid = $settings['pid'];
+		$status = $settings['status'];
 		if ($status === $want) {
 			return 0;
 		}
-		$database[$name]['status'] = $newstate === null ? $want : $newstate;
+		$database[$name]['status'] = $newState === '' ? $want : $newState;
 		$database[$name]['time'] = microtime(true);
-		$this->_process_database($database);
+		$this->saveProcessDatabase($database);
 		if ($want === 'down') {
 			$this->send([
 				$name => null,
@@ -456,18 +472,18 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * @return number
 	 */
 	final public function command_stat() {
-		$database = $this->_process_database();
+		$database = $this->loadProcessDatabase();
 		$changed = false;
 		foreach ($database as $name => $settings) {
-			$pid = $status = $time = null;
-			extract($settings, EXTR_IF_EXISTS);
+			$pid = $settings['pid'];
+			$status = $settings['status'];
 			if ($status === 'up' && !posix_kill($pid, 0)) {
 				unset($database[$name]);
 				$changed = true;
 			}
 		}
 		if ($changed) {
-			$this->_process_database($database);
+			$this->saveProcessDatabase($database);
 		}
 		if (count($database) === 0) {
 			echo "Not running.\n";
@@ -475,10 +491,11 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			$pairs = [];
 			$now = microtime(true);
 			foreach ($database as $name => $settings) {
-				$pid = $status = $time = null;
-				extract($settings, EXTR_IF_EXISTS);
+				$pid = $settings['pid'];
+				$time = $settings['time'];
+				$status = $settings['status'];
 				$delta = round($now - $time);
-				$is_running = $pid ? posix_kill($pid, 0) : false;
+				$is_running = $pid && posix_kill($pid, 0);
 				$want = '';
 				$status_text = $status;
 				$suffix = " (pid $pid)";
@@ -493,7 +510,10 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 						$suffix = '';
 					}
 				}
-				$pairs[$name] = "$status_text$suffix, " . $this->application->locale->plural_number('second', $delta) . $want;
+				$pairs[$name] = "$status_text$suffix, " . $this->application->locale->plural_number(
+					'second',
+					intval($delta)
+				) . $want;
 			}
 			echo Text::format_pairs($pairs);
 		}
@@ -561,12 +581,12 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 *
 	 * @param string $message
 	 */
-	private function send($message = null): void {
-		if ($this->nofork) {
+	private function send(mixed $message = ''): void {
+		if ($this->optionBool(self::OPTION_NO_FORK)) {
 			return;
 		}
 		$this->_fifo_write();
-		if ($message === null) {
+		if ($message === '') {
 			$n = 0;
 			$data = '';
 		} else {
@@ -580,11 +600,10 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	/**
 	 * Read a message as server
 	 *
-	 * @param int $timeout
-	 *        	in seconds
-	 * @return NULL multitype: mixed
+	 * @param int $timeout in seconds
+	 * @return mixed
 	 */
-	private function read($timeout) {
+	private function read(int $timeout): mixed {
 		if ($this->quitting) {
 			return null;
 		}
@@ -596,11 +615,11 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		];
 		$writers = [];
 		$except = [];
-		$sec = intval($timeout);
+		$sec = $timeout;
 		$usec = ($timeout - $sec) * 1000000;
 
 		declare(ticks = 1) {
-			// KMD: Safely ignore E_WARNING about interrupted system call here
+			// KMD: Safely ignore E_WARNING about interrupted system call here TODO 2023 PHP 8.1
 			set_error_handler(fn () => true, E_WARNING);
 			$result = @stream_select($readers, $writers, $except, $sec, $usec);
 			restore_error_handler();
@@ -615,7 +634,10 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		}
 	}
 
-	private function daemonize() {
+	/**
+	 * @return int
+	 */
+	private function daemonize(): int {
 		if ($this->optionBool('nofork')) {
 			return 0;
 		}
@@ -649,8 +671,8 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * @throws Exception_File_Permission
 	 * @return number
 	 */
-	final public function command_run() {
-		$database = $this->_process_database();
+	final public function command_run(): int {
+		$database = $this->loadProcessDatabase();
 		assert(is_array($database));
 		$my_db_pid = apath($database, 'me.pid');
 		if ($my_db_pid !== null && posix_kill($my_db_pid, 0)) {
@@ -662,23 +684,22 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 
 		if ($this->optionBool('nohup')) {
 			$pid = $this->daemonize();
-			if ($pid === 0) {
-				/* We are the child */
-			} else {
+			if ($pid !== 0) {
 				$this->log("Launched daemon PID $pid\n");
 				return 0;
 			}
+			/* We are the child */
 		}
 		$database['me'] = [
 			'pid' => $this->application->process->id(),
 			'status' => 'up',
 			'time' => microtime(true),
 		];
-		$this->_process_database($database);
+		$this->saveProcessDatabase($database);
 		$this->application->logger->notice('Daemon run successfully.');
 		self::instance($this);
 
-		PHP::feature('time_limit', $this->optionInt('time_limit', 0));
+		PHP::setFeature('time_limit', $this->optionInt('time_limit', 0));
 		$daemons = $this->daemons();
 		$this->application->logger->debug('Daemons to run: ' . implode(', ', $daemons));
 
@@ -779,7 +800,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			'child' => $child,
 		]);
 		while (true) {
-			$status = null;
+			$status = 0;
 			$result = pcntl_waitpid($child, $status, WNOHANG);
 			if ($result !== 0) {
 				usleep(100);
@@ -797,9 +818,9 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	/**
 	 * Read messages from FIFO and update the database, if needed
 	 *
-	 * @param unknown $timeout
+	 * @param int $timeout
 	 */
-	private function read_fifo($timeout): void {
+	private function read_fifo(int $timeout): void {
 		if ($this->debug) {
 			$this->application->logger->debug('Server waiting for data in FIFO (timeout is {timeout} seconds)', [
 				'timeout' => $timeout,
@@ -814,7 +835,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		if (!is_array($result)) {
 			return;
 		}
-		$database = $this->_process_database();
+		$database = $this->loadProcessDatabase();
 		foreach ($result as $name => $pid) {
 			if (is_numeric($pid)) {
 				if (!array_key_exists($name, $database)) {
@@ -832,7 +853,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 					$name,
 					'pid',
 				]);
-				$status = null;
+				$status = 0;
 				pcntl_waitpid($childpid, $status);
 				if ($pid === 'down') {
 					$database[$name]['status'] = 'down';
@@ -846,7 +867,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 				]);
 			}
 		}
-		$this->_process_database($database);
+		$this->saveProcessDatabase($database);
 	}
 
 	/**
@@ -854,23 +875,23 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 */
 	private function run_children(): void {
 		$daemons = $this->daemons();
-		$database = $this->_process_database();
+		$database = $this->loadProcessDatabase();
 		foreach ($daemons as $name) {
 			$settings = $database[$name] ?? null;
 			if ($settings === null) {
 				$settings = $this->run_child($name);
 				if (is_array($settings)) {
 					$database[$name] = $settings;
-					$this->_process_database($database);
+					$this->saveProcessDatabase($database);
 				}
 			} else {
-				$status = $pid = null;
-				extract($settings, EXTR_IF_EXISTS);
-				$pcntl_status = null;
+				$pid = $settings['pid'];
+				$status = $settings['status'];
+				$pcntl_status = 0;
 				if (($wait = pcntl_waitpid($pid, $pcntl_status, WNOHANG)) > 0) {
 					$this->application->logger->debug('Child process {name} {pid} exited with {pcntl_status} (result = {wait})', compact('name', 'wait', 'pcntl_status', 'pid'));
 					unset($database[$name]);
-					$this->_process_database($database);
+					$this->saveProcessDatabase($database);
 
 					continue;
 				}
@@ -898,7 +919,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 					$settings = $this->run_child($name);
 					if (is_array($settings)) {
 						$database[$name] = $settings;
-						$this->_process_database($database);
+						$this->saveProcessDatabase($database);
 					}
 				} else {
 					$errno = posix_get_last_error();
@@ -909,7 +930,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 						'strerror' => posix_strerror($errno),
 					]);
 					unset($database[$name]);
-					$this->_process_database($database);
+					$this->saveProcessDatabase($database);
 				}
 			}
 		}
@@ -1029,7 +1050,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 *
 	 * @return boolean
 	 */
-	public function done() {
+	public function done(): bool {
 		pcntl_signal_dispatch();
 		if ($this->quitting) {
 			return true;
@@ -1062,7 +1083,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		$this->quitting = true;
 		$pid = $this->application->process->id();
 		if ($this->parent) {
-			$database = $this->_process_database();
+			$database = $this->loadProcessDatabase();
 			foreach ($database as $name => $pid) {
 				if ($pid !== $pid) {
 					posix_kill($pid, SIGKILL);
@@ -1091,8 +1112,8 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		while (count($database) > 1) {
 			usleep(intval(0.1 * 1000000));
 			foreach ($database as $name => $settings) {
-				$pid = $status = null;
-				extract($settings, EXTR_IF_EXISTS);
+				$pid = $settings['pid'];
+				$status = $settings['status'];
 				if ($pid === $this->application->process->id()) {
 					continue;
 				}
@@ -1101,7 +1122,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 
 					continue;
 				}
-				$status = null;
+				$status = 0;
 				$result = pcntl_waitpid($pid, $status, WNOHANG);
 				if ($result === -1) {
 					$this->application->logger->error('pcntl_waitpid({pid}, {status}, WNOHANG) returned -1, child died? {name}', [
@@ -1146,13 +1167,13 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		}
 		$this->quitting = true;
 		if ($this->parent) {
-			$database = $this->_process_database();
+			$database = $this->loadProcessDatabase();
 			if (count($database) > 0) {
 				$this->shutdown_children($database);
 			} else {
 				$this->application->logger->error('Database is empty on termination? ...');
 			}
-			usleep(0.1 * 1000000);
+			usleep(intval(0.1 * 1000000));
 			$this->application->logger->debug('Deleting FIFO and database ...');
 			unlink($this->fifo_path);
 			$this->module->unlink_database();

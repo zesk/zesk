@@ -17,22 +17,22 @@ class Class_Help extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'target' => self::type_string,
-		'type' => self::type_string,
-		'title' => self::type_string,
-		'placement' => self::type_string,
-		'content' => self::type_string,
-		'map' => self::type_serialize,
-		'content_wraps' => self::type_serialize,
-		'content_url' => self::type_string,
-		'require_user' => self::type_integer,
-		'active' => self::type_boolean,
-		'created' => self::type_created,
-		'modified' => self::type_modified,
-		'show_first' => self::type_timestamp,
-		'show_recent' => self::type_timestamp,
-		'show_count' => self::type_integer,
+		'id' => self::TYPE_ID,
+		'target' => self::TYPE_STRING,
+		'type' => self::TYPE_STRING,
+		'title' => self::TYPE_STRING,
+		'placement' => self::TYPE_STRING,
+		'content' => self::TYPE_STRING,
+		'map' => self::TYPE_SERIALIZE,
+		'content_wraps' => self::TYPE_SERIALIZE,
+		'content_url' => self::TYPE_STRING,
+		'require_user' => self::TYPE_INTEGER,
+		'active' => self::TYPE_BOOL,
+		'created' => self::TYPE_CREATED,
+		'modified' => self::TYPE_MODIFIED,
+		'show_first' => self::TYPE_TIMESTAMP,
+		'show_recent' => self::TYPE_TIMESTAMP,
+		'show_count' => self::TYPE_INTEGER,
 	];
 
 	public array $column_defaults = [

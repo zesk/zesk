@@ -593,7 +593,7 @@ class Kernel_Test extends UnitTest {
 
 		$this->application->configuration->setPath([$kernel::class, 'assert'], 'badsetting');
 
-		$kernel->profile_timer(__METHOD__, microtime(true) - $start);
+		$kernel->profileTimer(__METHOD__, microtime(true) - $start);
 
 		$kernel->setApplicationClass($kernel->applicationClass());
 

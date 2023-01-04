@@ -15,13 +15,13 @@ class Class_Content_Group extends Class_Base {
 	 * @var array
 	 */
 	public array $column_types = [
-		'id' => self::type_id,
-		'code' => self::type_string,
-		'name' => self::type_string,
-		'body' => self::type_string,
-		'created' => self::type_created,
-		'modified' => self::type_modified,
-		'order_by' => self::type_string,
+		'id' => self::TYPE_ID,
+		'code' => self::TYPE_STRING,
+		'name' => self::TYPE_STRING,
+		'body' => self::TYPE_STRING,
+		'created' => self::TYPE_CREATED,
+		'modified' => self::TYPE_MODIFIED,
+		'order_by' => self::TYPE_STRING,
 	];
 
 	/**

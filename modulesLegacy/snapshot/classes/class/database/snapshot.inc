@@ -5,11 +5,11 @@ class Class_Database_Snapshot extends Class_Base {
 	public string $id_column = 'id';
 
 	public array $column_types = [
-		'id' => self::type_id,
-		'name' => self::type_string,
-		'dbname' => self::type_string,
+		'id' => self::TYPE_ID,
+		'name' => self::TYPE_STRING,
+		'dbname' => self::TYPE_STRING,
 		'elapsed' => self::type_double,
-		'created' => self::type_string,
-		'data' => self::type_string,
+		'created' => self::TYPE_STRING,
+		'data' => self::TYPE_STRING,
 	];
 }

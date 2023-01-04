@@ -12,7 +12,7 @@ class Class_TestORM extends Class_Base {
 	public array $column_types = [
 		'ID' => self::TYPE_ID,
 		'Name' => self::TYPE_STRING,
-		'Price' => self::TYPE_FLOAT,
+		'Price' => self::TYPE_DOUBLE,
 		'Foo' => self::TYPE_INTEGER,
 	];
 

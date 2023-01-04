@@ -64,7 +64,7 @@ class TestORM_Test extends ORMUnitTest {
 		$x->changed();
 
 		$x->setMember($f, '2022-12-22 08:55:45');
-		$this->assertInstanceOf(Timestamp::class, $x->member_timestamp($f, $def));
+		$this->assertInstanceOf(Timestamp::class, $x->memberTimestamp($f, $def));
 
 		$this->assertEquals([], $x->members([]));
 

@@ -15,25 +15,25 @@ class Schema_Contact_Date extends ORM_Schema {
 			'{table}' => [
 				'columns' => [
 					'id' => [
-						'type' => self::type_id,
+						'type' => self::TYPE_ID,
 					],
 					'contact' => [
-						'type' => self::type_object,
+						'type' => self::TYPE_OBJECT,
 					],
 					'label' => [
-						'type' => self::type_object,
+						'type' => self::TYPE_OBJECT,
 					],
 					'value' => [
 						'not null' => true,
-						'type' => self::type_date,
+						'type' => self::TYPE_DATE,
 					],
 					'created' => [
 						'not null' => true,
-						'type' => self::type_timestamp,
+						'type' => self::TYPE_TIMESTAMP,
 						'default' => '0000-00-00 00:00:00',
 					],
 					'modified' => [
-						'type' => self::type_timestamp,
+						'type' => self::TYPE_TIMESTAMP,
 						'not null' => true,
 						'default' => '0000-00-00 00:00:00',
 					],

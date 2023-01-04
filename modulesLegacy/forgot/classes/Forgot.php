@@ -138,7 +138,7 @@ class Forgot extends ORMBase {
 	 * @return integer
 	 */
 	public function delete_older(Timestamp $older) {
-		return $this->query_delete()
+		return $this->queryDelete()
 			->addWhere('Created|<=', $older)
 			->execute()
 			->affectedRows();

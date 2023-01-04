@@ -13,12 +13,16 @@ use zesk\Command;
 use zesk\Directory;
 use zesk\Exception;
 use zesk\Exception_Class_NotFound;
+use zesk\Exception_Configuration;
+use zesk\Exception_Directory_NotFound;
 use zesk\Exception_Exited;
 use zesk\Exception_File_Format;
 use zesk\Exception_File_NotFound;
+use zesk\Exception_Invalid;
 use zesk\Exception_NotFound;
 use zesk\Exception_Parameter;
 use zesk\Exception_Semantics;
+use zesk\Exception_Unsupported;
 use zesk\File;
 use zesk\JSON;
 use zesk\Kernel;
@@ -419,7 +423,13 @@ class Loader {
 	 * @param string $shortcut
 	 * @param array $args
 	 * @return array
+	 * @throws Exception_Class_NotFound
 	 * @throws Exception_NotFound
+	 * @throws Exception_Semantics
+	 * @throws Exception_Configuration
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Invalid
+	 * @throws Exception_Unsupported
 	 */
 	public function runCommand(string $shortcut, array $args): array {
 		$commands = $this->collectCommandShortcuts();
@@ -445,7 +455,7 @@ class Loader {
 		try {
 			$result = $command->parseArguments(array_merge([$shortcut], $args))->go();
 		} catch (Exception_Parameter $e) {
-			$command->usage($e->getMessage(), $e->variables() + ['exitCode' => Command::EXIT_CODE_ARGUMENTS]);
+			$command->usage($e->getRawMessage(), $e->variables() + ['exitCode' => Command::EXIT_CODE_ARGUMENTS]);
 			$result = Command::EXIT_CODE_ARGUMENTS;
 		}
 
