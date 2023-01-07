@@ -72,13 +72,6 @@ abstract class Route extends Hookable {
 	public const OPTION_HTML = 'html';
 
 	/**
-	 * The request which resulted in this Route
-	 *
-	 * @var Request
-	 */
-	private Request $request;
-
-	/**
 	 * The router
 	 *
 	 * @var Router
@@ -225,26 +218,6 @@ abstract class Route extends Hookable {
 	}
 
 	/**
-	 * Getter/setter for request. Always non-null.
-	 *
-	 * @return Request
-	 */
-	public function request(): Request {
-		return $this->request;
-	}
-
-	/**
-	 * Getter/setter for request. Is set to non-null when matched.
-	 *
-	 * @param Request $set
-	 * @return self
-	 */
-	public function setRequest(Request $set): self {
-		$this->request = $set;
-		return $this;
-	}
-
-	/**
 	 * Set up this route
 	 */
 	protected function initialize(): void {
@@ -362,13 +335,9 @@ abstract class Route extends Hookable {
 		$options = self::preprocessOptions($pattern, $options);
 		foreach ($types as $k => $class) {
 			if (array_key_exists($k, $options)) {
-				try {
-					$route = $router->application->factory($class, $router, $pattern, $options);
-					assert($route instanceof Route);
-					return $route;
-				} catch (Exception_Class_NotFound) {
-					// Never
-				}
+				$route = $router->application->factory($class, $router, $pattern, $options);
+				assert($route instanceof Route);
+				return $route;
 			}
 		}
 		return new Route_Content($router, $pattern, $options);
@@ -678,8 +647,7 @@ abstract class Route extends Hookable {
 		return $x;
 	}
 
-	private function _computeVariablesMap(Response $response): array {
-		$request = $this->request;
+	private function _computeVariablesMap(Request $request, Response $response): array {
 		$result = [
 			'{application}' => $this->application, '{request}' => $request, '{response}' => $response,
 			'{route}' => $this, '{router}' => $this->router,
@@ -693,14 +661,15 @@ abstract class Route extends Hookable {
 	 * Convert array values to objects
 	 *
 	 * @param mixed $mixed
-	 * @param Response|null $response
+	 * @param Request $request
+	 * @param Response $response
 	 * @return mixed
 	 */
-	protected function _mapVariables(mixed $mixed, Response $response = null): mixed {
+	protected function _mapVariables(Request $request, Response $response, mixed $mixed): mixed {
 		if (!is_array($mixed)) {
 			return $mixed;
 		}
-		return ArrayTools::valuesMap($mixed, $this->_computeVariablesMap($response));
+		return ArrayTools::valuesMap($mixed, $this->_computeVariablesMap($request, $response));
 	}
 
 	/**
@@ -716,11 +685,12 @@ abstract class Route extends Hookable {
 	}
 
 	/**
+	 * @param Request $request
 	 * @return Response
 	 */
-	private function responseFactory(): Response {
+	private function responseFactory(Request $request): Response {
 		$application = $this->application;
-		$response = $application->responseFactory($this->request, $this->guess_content_type());
+		$response = $application->responseFactory($request, $this->guess_content_type());
 		if ($this->hasOption(self::OPTION_CACHE)) {
 			$cache = $this->option(self::OPTION_CACHE);
 			if (is_scalar($cache)) {
@@ -758,27 +728,29 @@ abstract class Route extends Hookable {
 	/**
 	 * Overridable method before execution
 	 *
+	 * @param Request $request
 	 * @return Response
 	 * @throws Exception_NotFound
 	 * @throws Exception_Syntax
 	 */
-	protected function _before(): Response {
-		$response = $this->responseFactory();
+	protected function _before(Request $request): Response {
+		$response = $this->responseFactory($request);
 		$this->_processArguments();
-		$this->args = $this->_mapVariables($this->args, $response);
+		$this->args = $this->_mapVariables($request, $response, $this->args);
 		return $response;
 	}
 
 	/**
 	 * Execute the route
 	 *
+	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
 	 * @throws Exception_NotFound
 	 * @throws Exception_Redirect
 	 * @throws Exception_System
 	 */
-	abstract protected function _execute(Response $response): Response;
+	abstract protected function _execute(Request $request, Response $response): Response;
 
 	/**
 	 * Overridable method after execution
@@ -793,7 +765,7 @@ abstract class Route extends Hookable {
 	/**
 	 * @throws Exception_Permission
 	 */
-	protected function _permissions(Response $response): void {
+	protected function _permissions(Request $request, Response $response): void {
 		$permission = $this->option('permission');
 		$permissions = [];
 		if ($permission) {
@@ -803,7 +775,7 @@ abstract class Route extends Hookable {
 			];
 		}
 		$permissions = array_merge($permissions, $this->optionArray('permissions'));
-		$permissions = $this->_mapVariables($permissions, $response);
+		$permissions = $this->_mapVariables($request, $response, $permissions);
 		$app = $this->router->application;
 		foreach ($permissions as $permission) {
 			$action = '';
@@ -823,7 +795,7 @@ abstract class Route extends Hookable {
 				]);
 				$context = null;
 			}
-			$app->requireUser($response->request)->must($action, $context, $options);
+			$app->requireUser($request)->must($action, $context, $options);
 		}
 	}
 
@@ -849,27 +821,28 @@ abstract class Route extends Hookable {
 	/**
 	 * Execute the route and return a Response
 	 *
+	 * @param Request $request
 	 * @return Response
-	 * @throws Exception_Redirect
 	 * @throws Exception_Permission
+	 * @throws Exception_Redirect
 	 */
-	final public function execute(): Response {
+	final public function execute(Request $request): Response {
 		$this->_mapOptions();
 
 		try {
-			$response = $this->_before();
+			$response = $this->_before($request);
 			$this->_processArguments();
 		} catch (Exception_NotFound|Exception_Syntax $e) {
-			return $this->responseFactory()->setStatus(HTTP::STATUS_FILE_NOT_FOUND, $e->codeName());
+			return $this->responseFactory($request)->setStatus(HTTP::STATUS_FILE_NOT_FOUND, $e->codeName());
 		}
-		$this->_permissions($response);
+		$this->_permissions($request, $response);
 		$template = Template::factory($this->application, '', [
-			'response' => $response, 'route' => $this, 'request' => $this->request(),
+			'response' => $response, 'route' => $this, 'request' => $request,
 			'routeVariables' => $this->variables(),
 		])->push();
 
 		try {
-			$response = $this->_execute($response);
+			$response = $this->_execute($request, $response);
 		} catch (Exception_System $e) {
 			$response->setStatus($e->getCode() ?: HTTP::STATUS_INTERNAL_SERVER_ERROR);
 		} catch (Exception_NotFound $e) {

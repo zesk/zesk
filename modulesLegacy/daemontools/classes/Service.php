@@ -57,11 +57,11 @@ class Service extends Model {
 	}
 
 	/**
-	 * @param string|integer $name
+	 * @param string|integer $key
 	 * @return mixed
 	 */
-	public function __get(string|integer $name): mixed {
-		return $this->option($name);
+	public function __get(string|integer $key): mixed {
+		return $this->option($key);
 	}
 
 	/**

@@ -260,8 +260,8 @@ class Workflow extends Model {
 	/*
 	 * Only place to access ->$name is here
 	 */
-	public function __get($name) {
-		return array_key_exists($name, $this->variables) ? $this->variables[$name] : null;
+	public function __get($key) {
+		return array_key_exists($key, $this->variables) ? $this->variables[$key] : null;
 	}
 
 	public function __set($key, $value): void {
@@ -273,7 +273,7 @@ class Workflow extends Model {
 		unset($this->variables[$key]);
 	}
 
-	public function __isset($name) {
-		return isset($this->variables[$name]);
+	public function __isset($key) {
+		return isset($this->variables[$key]);
 	}
 }

@@ -450,10 +450,10 @@ function toBytes(string|int $mixed, int $default = 0): int {
  * Convert a deep object into a flat one (string)
  *
  * @param mixed $mixed
- * @return string|int|float
+ * @return string|int|float|bool
  * @throws Exception_Semantics
  */
-function flatten(mixed $mixed): string|int|float {
+function flatten(mixed $mixed): string|int|float|bool {
 	if (is_array($mixed)) {
 		$mixed = ArrayTools::flatten($mixed);
 	}

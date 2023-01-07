@@ -29,6 +29,7 @@ use zesk\Database_Exception_SQL;
 use zesk\Database_Exception_Duplicate;
 use zesk\Database_Exception_Table_NotFound;
 
+use zesk\Exception as zeskException;
 use zesk\Exception_Configuration;
 use zesk\Exception_Convert;
 use zesk\Exception_Parameter;
@@ -280,7 +281,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @throws Exception_Key
 	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Parameter
 	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
@@ -371,17 +371,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param string $mixed
 	 * @param mixed|null $default
 	 * @return mixed
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	public function get(string $mixed, mixed $default = null): mixed {
@@ -395,7 +388,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param $value mixed
 	 *            Value to set
 	 * @return ORMBase $this
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
@@ -403,7 +395,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @throws Exception_Key
 	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Parameter
 	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
@@ -444,15 +435,15 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 		$this->classValid = false;
 		$this->class = Class_Base::instance($this, [], $this->class_name);
 		$this->classValid = true;
-		if (!$this->table) {
-			$this->table = $this->class->table;
-		}
 		if (!$this->database_name) {
 			$this->database_name = $this->class->database_name;
 		}
 		$this->database = $this->application->databaseModule()->databaseRegistry($this->database_name, [
 			'connect' => false,
 		]);
+		if (!$this->table) {
+			$this->table = $this->class->table;
+		}
 		$this->store_columns = ArrayTools::keysFromValues(array_keys($this->class->column_types), true);
 		$this->store_queue = [];
 		$this->original = [];
@@ -738,24 +729,17 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	/**
 	 * Ensure this object is loaded from database if needed
 	 * @return self
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function refresh(): self {
 		if ($this->need_load && $this->canFetch()) {
-			$this->fetch();
+			try {
+				$this->fetch();
+				$this->need_load = false;
+			} catch (Throwable $e) {
+				throw new Exception_ORMEmpty(get_class($this), $e->getMessage(), zeskException::exceptionVariables($e), $e);
+			}
 		}
-		$this->need_load = false;
 		return $this;
 	}
 
@@ -766,10 +750,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param array $mixed
 	 * @param mixed $initialize
 	 * @return void
-	 * @throws Database_Exception_Connect
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Parameter
 	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
@@ -800,7 +783,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	/**
 	 * @param mixed $id
 	 * @return void
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
@@ -808,7 +790,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @throws Exception_Key
 	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Parameter
 	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
@@ -831,7 +812,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param mixed $mixed
 	 * @param mixed $initialize
 	 * @return $this
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
@@ -839,7 +819,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @throws Exception_Key
 	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Parameter
 	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
@@ -861,6 +840,13 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function initializing(): bool {
+		return !$this->classValid;
+	}
+
+	/**
 	 * @param bool $isNew
 	 * @return $this
 	 */
@@ -871,39 +857,31 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 
 	/**
 	 * @return bool
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function isNew(): bool {
 		if (is_bool($this->is_new_cached)) {
 			return $this->is_new_cached;
 		}
-		$auto_column = $this->class->auto_column;
-		if ($auto_column && !$this->optionBool(self::OPTION_IGNORE_AUTO_COLUMN)) {
-			$auto = $this->member($auto_column);
-			return empty($auto);
-		}
-		if (count($pk = $this->class->primary_keys) > 0) {
-			if ($this->memberIsEmpty($pk)) {
-				return true;
-			}
-			$where = $this->members($pk);
-			$sql = $this->sql()->select([
-				'what' => ['*X' => 'COUNT(*)', ], 'tables' => $this->table(), 'where' => $where,
-			]);
 
-			$this->is_new_cached = !toBool($this->database()->queryInteger($sql, 'X'));
-			return $this->is_new_cached;
+		try {
+			$auto_column = $this->class->auto_column;
+			if ($auto_column && !$this->optionBool(self::OPTION_IGNORE_AUTO_COLUMN)) {
+				$auto = $this->member($auto_column);
+				return empty($auto);
+			}
+			if (count($pk = $this->class->primary_keys) > 0) {
+				if ($this->memberIsEmpty($pk)) {
+					return true;
+				}
+				$where = $this->members($pk);
+				$sql = $this->sql()->select([
+					'what' => ['*X' => 'COUNT(*)', ], 'tables' => $this->table(), 'where' => $where,
+				]);
+				$this->is_new_cached = !toBool($this->database()->queryInteger($sql, 'X'));
+				return $this->is_new_cached;
+			}
+		} catch (Throwable $t) {
+			$this->application->logger->error(__METHOD__ . ' threw {exceptionClass} {message}', zeskException::exceptionVariables($t));
 		}
 		return true; // Always new
 	}
@@ -942,7 +920,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param int|string|array $set
 	 * @return $this
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
@@ -950,7 +927,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @throws Exception_Key
 	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Parameter
 	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
@@ -1006,18 +982,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 
 	/**
 	 * @return int|string|array
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function id(): int|string|array {
 		$id_column = $this->class->id_column;
@@ -1043,7 +1008,11 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 		/**
 		 * Multiple ID columns
 		 */
-		return $this->members($pk);
+		try {
+			return $this->members($pk);
+		} catch (Throwable $t) {
+			throw new Exception_ORMEmpty(self::class, 'Fetching ID with {pk}', ['pk' => $pk], $t);
+		}
 	}
 
 	/**
@@ -1142,11 +1111,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param $where mixed
 	 *            Optional where query
 	 * @return ORMIterator
-	 * @throws Database_Exception_Connect
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Semantics
 	 */
 	protected function memberIterator(string $member, array $where = []): ORMIterator {
@@ -1182,11 +1149,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param ORMBase|null $object ORM
 	 *            ORM related to this member, optionally returned
 	 * @return Database_Query_Select
-	 * @throws Database_Exception_Connect
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Semantics
 	 */
 	public function memberQuery(string $member, ORMBase &$object = null): Database_Query_Select {
@@ -1202,7 +1167,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *            ORM related to this member, optionally returned
 	 * @return Database_Query_Update
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
 	 * @throws Exception_Unimplemented
@@ -1216,17 +1180,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param string $member
 	 * @return array
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	private function memberForeignList(string $member): array {
@@ -1240,17 +1196,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param string $member
 	 * @param int|string|array $id
 	 * @return bool
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	private function memberForeignExists(string $member, int|string|array $id): bool {
@@ -1264,7 +1213,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param string $member
 	 * @return void
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
 	 */
@@ -1278,17 +1226,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param $member
 	 * @param ORMBase $object
 	 * @return void
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	private function memberForeignAdd($member, ORMBase $object): void {
@@ -1302,20 +1242,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param $table
 	 * @param $foreign_key
 	 * @return void
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_Duplicate
 	 * @throws Database_Exception_SQL
 	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	private function _fk_delete($table, $foreign_key): void {
 		$sql = $this->sql()->delete($table, [$foreign_key => $this->id()]);
@@ -1326,23 +1256,16 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param ORMBase $object
 	 * @param string $update_key
 	 * @return void
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 * @throws Exception_Store
 	 */
 	private function _fk_store(ORMBase $object, string $update_key): void {
-		$object->set($update_key, $this->id())->store();
+		try {
+			$object->set($update_key, $this->id())->store();
+		} catch (zeskException $e) {
+			throw new Exception_Store($object::class, '{ormClass}::_fk_store({updateKey}) - {exceptionClass} {message}', [
+				'ormClass' => $object::class, 'update_key' => $update_key,
+			] + $e->variables(), $e);
+		}
 	}
 
 	/**
@@ -1350,27 +1273,21 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param string $table
 	 * @param array $replace
 	 * @return void
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 * @throws Exception_Store
 	 */
 	private function _fk_link_store(ORMBase $object, string $table, array $replace): void {
-		if ($object->isNew() || $object->changed()) {
-			$object->store();
+		try {
+			if ($object->isNew() || $object->changed()) {
+				$object->store();
+			}
+			$map = ['Foreign' => $this->id(), 'Far' => $object->id(), ];
+			$replace = map($replace, $map);
+			$this->database()->replace($table, $replace);
+		} catch (zeskException $e) {
+			throw new Exception_Store($object::class, '{ormClass}::_fk_store({table}, {replace}) - {exceptionClass} {message}', [
+				'ormClass' => $object::class, 'table' => $table, 'replace' => $replace,
+			] + $e->variables(), $e);
 		}
-		$map = ['Foreign' => $this->id(), 'Far' => $object->id(), ];
-		$this->database()->replace($table, map($replace, $map));
 	}
 
 	/**
@@ -1391,17 +1308,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param string $member
 	 * @return mixed
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	protected function original(string $member): mixed {
@@ -1476,21 +1386,13 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param string $member
 	 * @param array $options
-	 * @return ORMBase|null
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
+	 * @return self
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
-	final protected function memberObject(string $member, array $options = []): ?ORMBase {
+	final protected function memberObject(string $member, array $options = []): self {
 		$this->refresh();
 
 		if (!array_key_exists($member, $this->members)) {
@@ -1498,7 +1400,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 		}
 		$data = $this->members[$member];
 		if ($data === null) {
-			return null;
+			throw new Exception_ORMEmpty("$member is null");
 		}
 		if (!array_key_exists($member, $this->class->has_one)) {
 			throw new Exception_Semantics('Accessing {class}::member_object but {member} is not in has_one', [
@@ -1522,11 +1424,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 			$object = $this->memberModelFactory($member, $class, $data, $options + $this->inheritOptions());
 			$this->members[$member] = $object;
 			return $object;
-		} catch (Exception_ORMNotFound $e) {
-			$this->orm_not_found_exception($e, $member, $data);
+		} catch (Throwable $e) {
+			throw new Exception_ORMNotFound($class, $e->getMessage(), [], $e);
 		}
-
-		throw new Exception_Key($member);
 	}
 
 	/**
@@ -1546,17 +1446,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param string $member
 	 * @return mixed
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	protected function _get(string $member): mixed {
@@ -1601,17 +1494,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	/**
 	 * @param string $key
 	 * @return void
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	public function __unset(string $key): void {
@@ -1631,7 +1516,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param int|string|array $value
 	 * @return $this
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
@@ -1674,7 +1558,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param string $key
 	 * @param mixed $value
 	 * @return void
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
@@ -1682,7 +1565,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @throws Exception_Key
 	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Parameter
 	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
@@ -1749,17 +1631,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	/**
 	 * @param string $member
 	 * @return array
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	public function links(string $member): array {
@@ -1776,17 +1650,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param string $member
 	 * @param mixed $value
 	 * @return bool
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	public function isLinked(string $member, mixed $value): bool {
@@ -1801,18 +1668,8 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param $member string Name of member
 	 * @return boolean
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function memberBool(string $member): bool {
 		$this->refresh();
@@ -1824,18 +1681,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param string $member
 	 * @return Timestamp
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function memberTimestamp(string $member): Timestamp {
 		$this->refresh();
@@ -1850,18 +1699,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * Retrieve a member as an integer
 	 * @param string $member
 	 * @return int
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function memberInteger(string $member): int {
 		$this->refresh();
@@ -1887,18 +1727,8 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param string $member Field to retrieve
 	 * @return mixed
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function member(string $member): mixed {
 		$this->refresh();
@@ -1924,18 +1754,8 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param array $data
 	 * @param bool $append
 	 * @return $this
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function setMemberData(string $member, array $data, bool $append = false): self {
 		$existing = $this->memberData($member);
@@ -1947,18 +1767,8 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param string $member
 	 * @return array
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function memberData(string $member): array {
 		return toArray($this->member($member));
@@ -1970,17 +1780,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param mixed $members
 	 *            Array or list of members
 	 * @return boolean
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	public function membersChanged(string|array $members): bool {
@@ -2006,17 +1809,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param array|string $members List of members to test for changes
 	 * @return boolean
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	public function changed(array|string $members = ''): bool {
@@ -2047,17 +1843,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param array|string|null $mixed
 	 * @return array
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	public function members(array|string $mixed = null): array {
@@ -2068,16 +1856,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	/**
 	 * @param array|string|null $mixed
 	 * @return array
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	public function rawMembers(array|string $mixed = null): array {
@@ -2134,21 +1915,12 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param mixed $value
 	 * @param boolean $overwrite
 	 * @return $this
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function setMember(string $member, mixed $value = null, bool $overwrite = true): self {
-		$this->refresh();
+		try {
+			$this->refresh();
+		} catch (Exception_ORMEmpty) {
+		}
 		if ($overwrite || !array_key_exists($member, $this->members)) {
 			if ($member === $this->class->auto_column || in_array($member, $this->class->primary_keys)) {
 				$this->is_new_cached = null;
@@ -2162,18 +1934,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param array $members
 	 * @param bool $overwrite
 	 * @return $this
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function setMembers(array $members, bool $overwrite = true): self {
 		foreach ($members as $key => $value) {
@@ -2187,18 +1947,8 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param string $member
 	 * @return mixed
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function memberRemove(string $member): mixed {
 		$data = $this->member($member);
@@ -2316,7 +2066,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param Database_Query_Select $select
 	 * @param ?string $rename_pattern
 	 * @return $this
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
@@ -2369,17 +2118,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	/**
 	 * @param Interface_Duplicate|null $options Any subclass of options
 	 * @return self
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	public function duplicate(Interface_Duplicate $options = null): self {
@@ -2404,10 +2145,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * Note final data structure will be trimmed down to values which exist in $this->store_columns
 	 *
 	 * @return array
-	 * @throws Database_Exception_Connect
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Semantics
 	 */
 	protected function prepareInsert(): array {
@@ -2419,19 +2159,12 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 
 	/**
 	 * @return void
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMDuplicate
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 * @throws Exception_Store
 	 */
@@ -2452,9 +2185,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 				if ($auto_id > 0) {
 					$this->setMember($this->class->auto_column, $auto_id);
 					$this->callHook('insert', $auto_id);
+					return;
+				} else {
+					throw new Exception_Store(get_class($this), 'Unable to insert (no id)');
 				}
-
-				throw new Exception_Store(get_class($this), 'Unable to insert (no id)');
 			}
 			$result = $this->database()->insert($this->table(), $members, ['id' => false, ]);
 			$this->callHook('insert', $result);
@@ -2467,19 +2201,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 
 	/**
 	 * @return void
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 * @throws Exception_Store
 	 */
@@ -2545,7 +2270,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param array $where How to find this object (uses default ->exists where clause)
 	 * @return self
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
@@ -2566,7 +2290,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	/**
 	 * @param string|array $where
 	 * @return $this
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
@@ -2592,17 +2315,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	/**
 	 * @param string|array $where
 	 * @return array
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	public function exists(string|array $where = ''): array {
@@ -2636,17 +2352,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 
 	/**
 	 * @return bool
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	public function isDuplicate(): bool {
@@ -2668,7 +2377,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param mixed|null $value
 	 * @param string $column
 	 * @return ORMBase
-	 * @throws Database_Exception_Connect
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
 	 * @throws Exception_Convert
@@ -2696,17 +2404,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 
 	/**
 	 * @return Database_Query_Select|string
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	protected function fetchQuery(): Database_Query_Select|string {
@@ -2724,10 +2425,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param array $data
 	 * @param bool $insert
 	 * @return array
-	 * @throws Database_Exception_Connect
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Semantics
 	 */
 	private function toDatabase(array $data, bool $insert = false): array {
@@ -2744,7 +2444,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	/**
 	 * @param bool $set
 	 * @return $this
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
@@ -2752,7 +2451,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @throws Exception_Key
 	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Parameter
 	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
@@ -2852,7 +2550,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	/**
 	 * @param array $mixed
 	 * @return $this
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
@@ -2899,22 +2596,16 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 
 	/**
 	 * @return array
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	protected function fetchObject(): array {
 		$sql = $this->fetchQuery();
-		return $this->database()->queryOne($sql);
+		return $this->database()->queryOne(strval($sql));
 	}
 
 	/**
@@ -2953,19 +2644,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 
 	/**
 	 * @return $this
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 * @throws Exception_Store
 	 */
 	public function store(): self {
@@ -2984,11 +2663,19 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 		/**
 		 * When duplicating, we want to check is_duplicate only, so remove exists - not sure
 		 */
-		if ($this->isDuplicate()) {
-			throw new Exception_ORMDuplicate(get_class($this), $this->error_duplicate(), [
-				'duplicate_keys' => $this->class->duplicate_keys, 'name' => $this->className(), 'id' => $this->id(),
-				'indefinite_article' => $this->application->locale->indefinite_article($this->class->name),
-			]);
+		try {
+			if ($this->isDuplicate()) {
+				throw new Exception_ORMDuplicate(get_class($this), $this->error_duplicate(), [
+					'duplicate_keys' => $this->class->duplicate_keys, 'name' => $this->className(), 'id' => $this->id(),
+					'indefinite_article' => $this->application->locale->indefinite_article($this->class->name),
+				]);
+			}
+		} catch (Database_Exception_SQL $e) {
+		} catch (Exception_Class_NotFound $e) {
+		} catch (Exception_Key $e) {
+		} catch (Exception_Semantics $e) {
+		} catch (Exception_ORMDuplicate $e) {
+		} catch (Exception_ORMEmpty $e) {
 		}
 		$this->storeMembers();
 		$this->callHook('store');
@@ -3019,18 +2706,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param ORMBase $that
 	 * @return boolean
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function isEqual(ORMBase $that): bool {
 		return $this::class === $that::class && $this->id() === $that->id();
@@ -3039,13 +2715,11 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	/**
 	 * Store any objects which are members, first
 	 * @return void
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Parameter
@@ -3078,7 +2752,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 
 	/**
 	 * @return void
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
@@ -3114,7 +2787,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param array|string $where
 	 * @return $this
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
@@ -3218,20 +2890,11 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * Delete an object from the database
 	 *
 	 * @return void
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_Duplicate
 	 * @throws Database_Exception_SQL
 	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
 	public function delete(): void {
 		if ($this->isNew()) {
@@ -3278,12 +2941,16 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *            "path" => "ORM_Member.NextORM_Member.Column"
 	 *            </code>
 	 * @return Database_Query_Select
-	 * @throws Database_Exception_Connect
+	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
+	 * @throws Exception_Convert
 	 * @throws Exception_Key
 	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	public function linkWalk(Database_Query_Select $query, array $link_state = []): Database_Query_Select {
@@ -3295,6 +2962,17 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param Walker $options
 	 * @return array
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Convert
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
+	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Parse
+	 * @throws Exception_Semantics
 	 */
 	public function walk(Walker $options): array {
 		return $options->walk($this);
@@ -3305,6 +2983,17 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param JSONWalker $options
 	 * @return array
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Convert
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
+	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Parse
+	 * @throws Exception_Semantics
 	 */
 	public function json(JSONWalker $options): array {
 		return $options->walk($this);
@@ -3371,15 +3060,26 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	public function words(): array {
 		$locale = $this->application->locale;
 		$name = $this->class->name;
+		$namePlural = $locale->plural($name);
+		$localeName = $locale->__($name);
+		$localeNameLower = strtolower($localeName);
+		$localeNameTitleCase = StringTools::capitalize($localeNameLower);
+		$localeNameLowerPlural = $locale->plural($localeNameLower);
+		$localeNameCapitalized = ucfirst($localeNameLower);
+		$localeNameCapitalizedPlural = ucfirst($localeNameLowerPlural);
+
 		$spec['class_name-raw'] = $name;
-		$spec['class_name'] = $spec['class_name-singular'] = $locale->__($name);
-		$spec['class_name-context-object'] = $spec['class_name-context-object-singular'] = $locale_class_name = strtolower($spec['class_name']);
-		$spec['class_name-context-object-plural'] = $locale->plural($locale_class_name);
-		$spec['class_name-context-subject'] = $spec['class_name-context-subject-singular'] = ucfirst($locale_class_name);
-		$spec['class_name-context-subject-plural'] = ucfirst($spec['class_name-context-object-plural']);
-		$spec['class_name-context-title'] = StringTools::capitalize($spec['class_name-context-object']);
+		$spec['class_name'] = $localeName;
+		$spec['class_name-singular'] = $localeName;
+		$spec['class_name-context-object'] = $localeNameLower;
+		$spec['class_name-context-object-singular'] = $localeNameLower;
+		$spec['class_name-context-object-plural'] = $localeNameLowerPlural;
+		$spec['class_name-context-subject'] = $localeNameCapitalized;
+		$spec['class_name-context-subject-singular'] = $localeNameCapitalized;
+		$spec['class_name-context-subject-plural'] = $localeNameCapitalizedPlural;
+		$spec['class_name-context-title'] = $localeNameTitleCase;
 		$spec['class_name-context-subject-indefinite-article'] = $locale->indefinite_article($name, true);
-		$spec['class_name-plural'] = $locale->plural($name);
+		$spec['class_name-plural'] = $namePlural;
 
 		$spec['display_name'] = $this->displayName();
 
@@ -3392,7 +3092,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @param Route $route
 	 * @param string $arg
 	 * @return self
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration

@@ -58,10 +58,10 @@ class JSON extends Type {
 
 	/**
 	 *
-	 * @return array
+	 * @return mixed
 	 * @throws Exception_Semantics
 	 */
-	public function toJSON(): array {
+	public function toJSON(): mixed {
 		return zeskJSON::prepare($this->json, $this->json_serializer_methods, $this->json_serializer_arguments);
 	}
 

@@ -14,10 +14,9 @@ declare(strict_types=1);
 namespace zesk\ORM;
 
 use Psr\Cache\InvalidArgumentException;
-use zesk\Database_Exception_Connect;
+use Throwable;
 use zesk\Database_Exception_SQL;
 use zesk\Exception as BaseException;
-use zesk\Exception_Deprecated;
 use zesk\Exception_NotFound;
 use zesk\Hookable;
 use zesk\ArrayTools;
@@ -938,6 +937,7 @@ class Class_Base extends Hookable {
 		if (!$this->load_database_columns && count($this->column_types) > 0 && count($this->primary_keys) === 0) {
 			throw new Exception_Unimplemented('No support for database synchronized column without primary_keys defined {class}', ['class' => get_class($this)]);
 		}
+		$this->checkColumnLoading();
 		$this->init_columns();
 		$this->_columnDefaults();
 		$this->initialize();
@@ -961,15 +961,10 @@ class Class_Base extends Hookable {
 			}
 			$this->database_name = $this->application->ormRegistry($this->database_group)->databaseName();
 		}
-		if ($this->database_name !== '') {
-			if ($this->database_name === $object->databaseName()) {
-				$this->database = $object->database();
-			} else {
-				$this->database = $this->application->databaseRegistry($this->database_name, ['connect' => false]);
-			}
-		}
-		if ($this->database === null) {
+		if ($this->database_name === $object->databaseName() && !$object->initializing()) {
 			$this->database = $object->database();
+		} else {
+			$this->database = $this->application->databaseRegistry($this->database_name, ['connect' => false]);
 		}
 	}
 
@@ -1083,20 +1078,9 @@ class Class_Base extends Hookable {
 	 * @param ORMBase $object
 	 * @param string $segment
 	 * @return ORMBase
-	 * @throws Database_Exception_Connect
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 * @throws Exception_Unimplemented
-	 * @throws Exception_Deprecated
 	 */
 	private function _findNextObject(ORMBase $object, string $segment): ORMBase {
 		if (array_key_exists($segment, $this->has_one)) {
@@ -1115,12 +1099,16 @@ class Class_Base extends Hookable {
 	 * @param Database_Query_Select $query
 	 * @param array $link_state
 	 * @return Database_Query_Select
-	 * @throws Database_Exception_Connect
+	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
+	 * @throws Exception_Convert
 	 * @throws Exception_Key
 	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	final public function linkWalk(ORMBase $object, Database_Query_Select $query, array $link_state = []): Database_Query_Select {
@@ -1237,13 +1225,16 @@ class Class_Base extends Hookable {
 	 * @param bool $join_type true=INNER false=LEFT OUTER
 	 * @param bool $reverse If linking from far object to this
 	 * @return bool true if intermediate table is used, false if not
-	 * @throws Database_Exception_Connect
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Semantics
 	 */
-	final public function _hasManyQuery(ORMBase $this_object, Database_Query_Select $query, array $many_spec, string
-	&$alias = 'J', string $link_alias = '', bool|string $join_type = true, bool $reverse = false): bool {
+	final public function _hasManyQuery(ORMBase $this_object, Database_Query_Select $query, array $many_spec, string &$alias = 'J', string $link_alias = '', bool|string $join_type = true, bool $reverse = false): bool {
+		try {
+			$id = $this_object->id();
+		} catch (Throwable $t) {
+			throw new Exception_ORMEmpty($this_object::class, 'ID fetch resulted in {class} {message}', BaseException::exceptionVariables($t), $t);
+		}
 		$result = false;
 		$table = $many_spec['table'] ?? null;
 		$foreign_key = $many_spec['foreign_key'];
@@ -1278,7 +1269,7 @@ class Class_Base extends Hookable {
 				$logger->debug($this_object::class . ' is NOT new');
 			}
 			$this_alias = $query_class === get_class($this) ? $query->alias() : $alias;
-			$query->addWhere('*' . $gen->columnAlias($foreign_key, $this_alias), $this_object->id());
+			$query->addWhere('*' . $gen->columnAlias($foreign_key, $this_alias), $id);
 		} else {
 			if (ORMBase::$debug) {
 				$logger->notice($this_object::class . ' is  new');
@@ -1297,7 +1288,6 @@ class Class_Base extends Hookable {
 	/**
 	 * Adds an intermediate join clause to a query for the has_many specified
 	 *
-	 * @todo implement this
 	 * @param ORMBase $this_object
 	 * @param Database_Query_Update $query
 	 * @param array $many_spec
@@ -1307,17 +1297,9 @@ class Class_Base extends Hookable {
 	 * @param bool $reverse If linking from far object to this
 	 * @return Database_Query_Update
 	 * @throws Exception_Unimplemented
+	 * @todo implement this
 	 */
-	final public function _hasManyQueryUpdate(
-		ORMBase $this_object,
-		Database_Query_Update $query,
-		array $many_spec,
-		string $alias = 'J',
-		string $link_alias = '',
-		bool $join_type = true,
-		bool $reverse =
-		false
-	): Database_Query_Update {
+	final public function _hasManyQueryUpdate(ORMBase $this_object, Database_Query_Update $query, array $many_spec, string $alias = 'J', string $link_alias = '', bool $join_type = true, bool $reverse = false): Database_Query_Update {
 		if ($query->table()) {
 			/* How did I get here */
 			throw new Exception_Unimplemented(__METHOD__, [
@@ -1335,9 +1317,8 @@ class Class_Base extends Hookable {
 	 * @param string $alias
 	 * @param bool $reverse
 	 * @return Database_Query_Select
-	 * @throws Database_Exception_Connect
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Semantics
 	 */
 	final public function hasManyQueryDefault(ORMBase $object, array $many_spec, string $alias = 'J', bool $reverse = false): Database_Query_Select {
@@ -1372,7 +1353,6 @@ class Class_Base extends Hookable {
 	 * @param string $class
 	 * @return array
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
 	 */
@@ -1430,7 +1410,6 @@ class Class_Base extends Hookable {
 	 * @param string $member
 	 * @return array
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
 	 */
@@ -1454,11 +1433,9 @@ class Class_Base extends Hookable {
 	 * @param ORMBase|null $object
 	 *            Returned object class which represents the target object type
 	 * @return Database_Query_Select
-	 * @throws Database_Exception_Connect
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Semantics
 	 */
 	final public function memberQuery(ORMBase $this_object, string $member, ORMBase &$object = null): Database_Query_Select {
@@ -1479,7 +1456,6 @@ class Class_Base extends Hookable {
 	 * @param ORMBase|null $object Returned object class which represents the target object type
 	 * @return Database_Query_Update
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
 	 * @throws Exception_Unimplemented
@@ -1498,11 +1474,9 @@ class Class_Base extends Hookable {
 	 * @param ORMBase $object
 	 * @param string $member
 	 * @return array
-	 * @throws Database_Exception_Connect
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Semantics
 	 */
 	final public function memberForeignList(ORMBase $object, string $member): array {
@@ -1520,12 +1494,10 @@ class Class_Base extends Hookable {
 	 * @param string $member
 	 * @param mixed $id
 	 * @return bool
-	 * @throws Database_Exception_Connect
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Semantics
 	 */
 	final public function memberForeignExists(ORMBase $object, string $member, mixed $id): bool {
@@ -1544,7 +1516,6 @@ class Class_Base extends Hookable {
 	 * @param string $member
 	 * @return array[]
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
 	 */
@@ -1567,7 +1538,6 @@ class Class_Base extends Hookable {
 	 * @param ORMBase $link
 	 * @return array[]
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
 	 */
@@ -1600,7 +1570,6 @@ class Class_Base extends Hookable {
 	 * @param array $has_many
 	 * @return array
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
 	 * @todo Remove dependencies on "table" use "link_class" instead
@@ -1612,11 +1581,6 @@ class Class_Base extends Hookable {
 		if ($link_class) {
 			$this->application->classes->register($link_class);
 			$table = $this->application->ormRegistry($link_class)->table();
-			if (!$table) {
-				throw new Exception_Configuration("$link_class::table", 'Link class for {class} {link_class} table is empty', [
-					'class' => $object::class, 'link_class' => $link_class,
-				]);
-			}
 			if (array_key_exists('table', $has_many)) {
 				$this->application->logger->warning('Key "table" is ignored in has many definition: {table}', $has_many);
 			}
@@ -1726,7 +1690,7 @@ class Class_Base extends Hookable {
 				'class' => $this->class, 'searches' => "\n" . implode("\n\t", $schema->searches()) . "\n",
 				'exception' => $e,
 			], $e);
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			$this->application->hooks->call('exception', $e);
 
 			throw new Exception_ORMNotFound($this->class, 'Schema error for {class} Exception: {previousClass}', [
@@ -1832,10 +1796,9 @@ class Class_Base extends Hookable {
 	 * @param boolean $insert
 	 *            This is an insert (vs update)
 	 * @return array
-	 * @throws Database_Exception_Connect
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Semantics
 	 */
 	final public function to_database(ORMBase $object, array $data, bool $insert = false): array {
@@ -1952,7 +1915,7 @@ class Class_Base extends Hookable {
 
 				break;
 			case self::TYPE_SERIALIZE:
-				$data[$column] = $result = empty($v) ? null : @unserialize($v);
+				$data[$column] = $result = empty($v) ? null : unserialize($v);
 				if ($result === false && $v !== 'b:0;') {
 					$this->application->logger->error('unserialize of {n} bytes failed: {data}', [
 						'n' => strlen($v), 'data' => substr($v, 0, 100),
@@ -2059,8 +2022,6 @@ class Class_Base extends Hookable {
 	 *
 	 * @param ORMBase $object
 	 * @return string
-	 * @throws Database_Exception_Connect
-	 * @throws Exception_NotFound
 	 */
 	private function sqlNow(ORMBase $object): string {
 		$generator = $object->database()->sql();
@@ -2075,10 +2036,9 @@ class Class_Base extends Hookable {
 	 * @param string $type
 	 * @param array $data
 	 * @param bool $insert If this is an insertion
-	 * @throws Database_Exception_Connect
 	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Semantics
 	 */
 	final public function memberToDatabase(ORMBase $object, string $column, string $type, array &$data, bool $insert = false): void {
@@ -2274,7 +2234,7 @@ class Class_Base extends Hookable {
 				if ($link_class) {
 					$result['requires'][] = $link_class;
 				}
-			} catch (Exception_Class_NotFound|Exception_Configuration|Exception_Key|Exception_Semantics $e) {
+			} catch (Exception_Class_NotFound|Exception_Key|Exception_Semantics $e) {
 				// WTF you need to not have this happen ever after configuration. TODO
 				$this->application->logger->error($e);
 			}

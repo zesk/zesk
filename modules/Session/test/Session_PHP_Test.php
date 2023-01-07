@@ -4,7 +4,12 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace zesk\Session\Session\test;
+
+use zesk\Interface_Session;
+use zesk\Request;
+use zesk\UnitTest;
+use zesk\zesk;
 
 /**
  * @todo inherit from Session_Test

@@ -18,7 +18,6 @@ use zesk\Database_Exception_SQL;
 use zesk\Database_Exception_Table_NotFound;
 use zesk\Exception_Deprecated;
 use zesk\Exception_Semantics;
-use zesk\Exception_Unimplemented;
 use zesk\ORM\QueryTrait\Affected;
 use zesk\ORM\QueryTrait\Where;
 
@@ -81,6 +80,7 @@ class Database_Query_Update extends Database_Query_Edit {
 		try {
 			return $this->toSQL();
 		} catch (Throwable $e) {
+			$this->application->logger->error($e);
 			return '';
 		}
 	}
@@ -109,7 +109,6 @@ class Database_Query_Update extends Database_Query_Edit {
 	 * @return self
 	 * @throws Exception_Deprecated
 	 * @throws Exception_Semantics
-	 * @throws Exception_Unimplemented
 	 * @throws Database_Exception_Duplicate
 	 * @throws Database_Exception_SQL
 	 * @throws Database_Exception_Table_NotFound
@@ -124,15 +123,13 @@ class Database_Query_Update extends Database_Query_Edit {
 	/**
 	 * @return $this
 	 * @throws Exception_Semantics
-	 * @throws Exception_Unimplemented
 	 * @throws Database_Exception_Duplicate
 	 * @throws Database_Exception_SQL
 	 * @throws Database_Exception_Table_NotFound
 	 */
 	public function execute(): self {
 		$this->result = $this->database()->update($this->table(), $this->values, $this->where, [
-			'low_priority' => $this->low_priority,
-			'ignore_constraints' => $this->ignore_constraints,
+			'low_priority' => $this->low_priority, 'ignore_constraints' => $this->ignore_constraints,
 		]);
 		$this->setAffectedRows($this->database()->affectedRows($this->result));
 		return $this;

@@ -13,9 +13,6 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 $id = $this->id;
-if (empty($id)) {
-	$this->id = $id = 'datetimepicker-' . $response->id_counter();
-}
 
 $zformat = $this->get('format', '{YYYY}-{MM}-{DD}');
 $value = Timestamp::factory($value)->date()->format($locale, $zformat);

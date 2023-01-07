@@ -105,8 +105,9 @@ class Command_Schema extends Command_Base {
 		$hook_type = ORMBase::class . "::schema_$suffix";
 		$all_hooks = $this->application->hooks->findAll([$hook_type]);
 
+		$all = implode(', ', array_keys($all_hooks));
 		$app->logger->notice("Running all $suffix hooks {hooks}", [
-			'hooks' => ($all = implode(', ', array_values($all_hooks))) ? $all : '- no hooks found',
+			'hooks' => $all ?: '- no hooks found',
 		]);
 		$this->application->hooks->allCallArguments([$hook_type], [
 			$this->application,

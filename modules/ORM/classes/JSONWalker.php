@@ -22,7 +22,7 @@ class JSONWalker extends Walker {
 	 *
 	 * @var array
 	 */
-	private $resolve_methods = [
+	protected array $resolve_methods = [
 		'json',
 	];
 
@@ -31,28 +31,28 @@ class JSONWalker extends Walker {
 	 *
 	 * @var string
 	 */
-	protected $preprocess_hook = 'json_options';
+	protected string $preprocess_hook = 'json_options';
 
 	/**
 	 * Hook called on ORM class and object after walked
 	 * @var string
 	 */
-	protected $postprocess_hook = 'json';
+	protected string $postprocess_hook = 'json';
 
 	/**
 	 *
 	 * @return self
 	 */
-	public static function factory() {
+	public static function factory(): self {
 		return new self();
 	}
 
 	/**
 	 * Create a new one of what I am
 	 *
-	 * @return \zesk\ORM\JSONWalker
+	 * @return self
 	 */
-	public function child() {
+	public function child(): self {
 		return self::factory()->inherit($this);
 	}
 }

@@ -8,6 +8,8 @@
  */
 namespace zesk;
 
+use zesk\Session\Session\classes\Session_ORM;
+
 /* @var $this \zesk\Template */
 /* @var $locale \zesk\Locale */
 /* @var $application \zesk\Application */

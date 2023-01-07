@@ -7,6 +7,8 @@
  */
 namespace zesk;
 
+use zesk\Session\Session\classes\SessionORM;
+
 /**
  * @see Log_Mail
  * @author kent
@@ -39,7 +41,7 @@ class Class_Log_Mail extends Class_Base {
 	];
 
 	public array $has_one = [
-		'session' => Session_ORM::class,
+		'session' => SessionORM::class,
 		'user' => User::class,
 	];
 

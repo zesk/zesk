@@ -16,7 +16,7 @@ echo HTML::tag_open('ol', '.exception-trace');
 $skip_frames = $request->getInt('skip_frames', 10);
 $frames = $request->getInt('frames', 20);
 foreach ($trace as $index => $trace_item) {
-	echo $this->theme('exception/trace-item', [
+	echo $this->theme('Exception/TraceItem', [
 		'content' => $trace_item,
 	]);
 	if ($frames > 0 && $index >= $frames - 1) {

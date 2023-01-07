@@ -30,7 +30,7 @@ class Route_Theme extends Route {
 	 * @return bool
 	 */
 	public function validate(): bool {
-		$application = $this->router->application;
+		$application = $this->application;
 		$parameters = $application->variables() + [
 			'route' => $this,
 		];
@@ -48,11 +48,12 @@ class Route_Theme extends Route {
 	}
 
 	/**
+	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
 	 * @throws Exception_Redirect
 	 */
-	public function _execute(Response $response): Response {
+	public function _execute(Request $request, Response $response): Response {
 		$application = $this->application;
 		$parameters = $application->variables() + [
 			'route' => $this,

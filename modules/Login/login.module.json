@@ -1,0 +1,10 @@
+{
+	"name": "Login",
+	"autoload": {
+		"classPrefix": "zesk\\Login\\"
+	},
+	"moduleClass": "zesk\\Login\\Module",
+	"requires": [
+		"ORM "
+	]
+}

@@ -12,11 +12,12 @@ namespace zesk;
 
 use Closure;
 use Psr\Cache\CacheItemPoolInterface;
-use zesk\Repository\Module as RepositoryModule;
 use zesk\Locale\Reader;
-use zesk\ORM\Interface_Session;
+use zesk\Interface_Session;
 use zesk\ORM\User;
+use zesk\Repository\Module as RepositoryModule;
 use zesk\Router\Parser;
+use zesk\Session\Session\classes\Module_Session;
 
 /**
  * Core web application object for Zesk.
@@ -1203,7 +1204,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			'seconds' => sprintf('%.3f', microtime(true) - $this->kernel->initialization_time),
 		]);
 		$this->callHook('router_prematch', $router, $request);
-		$route = $router->match($request);
+		$route = $router->matchRequest($request);
 		$this->_templates_initialize([
 			'router' => $router, 'route' => $route, 'request' => $request,
 		]);
@@ -1244,7 +1245,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 				return $response;
 			}
 			$route = $this->pushRequest($request)->determineRoute($request);
-			$response = $route->execute();
+			$response = $route->execute($request);
 		} catch (\Exception $exception) {
 			$response = $this->mainException($request, $exception);
 		}
@@ -1324,7 +1325,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		if (!$response || $response->isContentType([
 			'text/', 'javascript',
 		])) {
-			$response->content = strtr($response->content, $final_map);
+			if ($response->content !== null) {
+				$response->content = strtr($response->content, $final_map);
+			}
 		}
 		$response->output($options);
 		return $response;

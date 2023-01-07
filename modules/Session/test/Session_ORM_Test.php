@@ -6,16 +6,22 @@ declare(strict_types=1);
  * @copyright &copy; 2022, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\Session\Session\test;
 
 use ORMUnitTest;
+use zesk\Exception_Convert;
+use zesk\Exception_Deprecated;
+use zesk\Exception_Key;
+use zesk\Session\Session\classes\SessionORM;
+use zesk\User;
+use zesk\zesk;
 
 /**
- * @see Session_ORM
+ * @see SessionORM
  * @author kent
  *
  */
-class Session_ORM_Test extends ORMUnitTest {
+class SessionORM_Test extends ORMUnitTest {
 	protected array $load_modules = [
 		'MySQL',
 		'Session',
@@ -29,7 +35,7 @@ class Session_ORM_Test extends ORMUnitTest {
 	 * @expectedException zesk\Exception_Convert
 	 */
 	public function test_no_userId(): void {
-		$testx = new Session_ORM($this->application);
+		$testx = new SessionORM($this->application);
 		$testx->userId();
 	}
 
@@ -40,13 +46,13 @@ class Session_ORM_Test extends ORMUnitTest {
 	 * @throws Exception_Key
 	 */
 	public function test_userId(): void {
-		$testx = new Session_ORM($this->application);
+		$testx = new SessionORM($this->application);
 		$testx->setMember('user', 2);
 		$testx->userId();
 	}
 
 	public function test_main(): void {
-		$testx = new Session_ORM($this->application);
+		$testx = new SessionORM($this->application);
 
 		$user = new User($this->application);
 		$user_table = $user->table();
@@ -59,7 +65,7 @@ class Session_ORM_Test extends ORMUnitTest {
 
 		$db->queries($this->application->orm_module()->schema_synchronize($db, [
 			User::class,
-			Session_ORM::class,
+			SessionORM::class,
 		], [
 			'follow' => true,
 		]));
@@ -76,14 +82,14 @@ class Session_ORM_Test extends ORMUnitTest {
 		$testx->hash();
 
 		$hash = 'ABC';
-		$find = Session_ORM::one_time_find($this->application, $hash);
+		$find = SessionORM::one_time_find($this->application, $hash);
 
 
 		$user = new User($this->application, 1);
 		$user->fetch();
 
 		$resx = $testx->one_time_create($user, 2);
-		$this->assert($resx instanceof Session_ORM);
+		$this->assert($resx instanceof SessionORM);
 		$this->assertTrue($resx->memberBool('is_one_time'));
 		$this->assertNotEquals($resx->member('cookie'), $testx->member('cookie'));
 

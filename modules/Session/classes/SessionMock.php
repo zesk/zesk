@@ -5,22 +5,32 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace zesk\Session;
+
+use Throwable;
+use zesk\Application;
+use zesk\Exception_Authentication;
+use zesk\Hookable;
+use zesk\Interface_UserLike;
+use zesk\Interface_Session;
+use zesk\ORM\ORMBase;
+use zesk\ORM\User;
+use zesk\Request;
 
 /**
  */
-class Session_PHP implements Interface_Session {
+class SessionMock extends Hookable implements Interface_Session {
 	/**
 	 *
 	 * @var string
 	 */
-	private bool $started;
+	protected string $id;
 
 	/**
 	 *
-	 * @var Application
+	 * @var array
 	 */
-	private Application $application;
+	private array $data = [];
 
 	/**
 	 *
@@ -29,33 +39,23 @@ class Session_PHP implements Interface_Session {
 	 * @param array $options
 	 */
 	public function __construct(Application $application, mixed $mixed = null, array $options = []) {
+		parent::__construct($application, $options);
+		$this->inheritConfiguration();
 		$this->application = $application;
-		$this->started = false;
+		$this->id = md5(microtime());
+		if (is_array($mixed)) {
+			$this->data = $mixed;
+		}
 	}
 
 	/**
 	 * Singleton interface to retrieve current session
 	 *
+	 * @param Request $request
 	 * @return self
 	 */
 	public function initializeSession(Request $request): self {
-		$this->need();
 		return $this;
-	}
-
-	public function need(): void {
-		if ($this->started) {
-			return;
-		}
-		if (!$this->application->console()) {
-			session_start();
-		} else {
-			global $_SESSION;
-			if (!isset($_SESSION)) {
-				$_SESSION = [];
-			}
-		}
-		$this->started = true;
 	}
 
 	/**
@@ -65,16 +65,15 @@ class Session_PHP implements Interface_Session {
 	 * @see Interface_Session::id()
 	 */
 	public function id(): int|string|array {
-		return session_id();
+		return $this->id;
 	}
 
-	public function has(string $name): bool {
+	public function has(int|string $name): bool {
 		return $this->__isset($name);
 	}
 
-	public function __isset(string $name): bool {
-		$this->need();
-		return isset($_SESSION[$name]);
+	public function __isset(int|string $key): bool {
+		return isset($this->data[$key]);
 	}
 
 	/**
@@ -83,12 +82,11 @@ class Session_PHP implements Interface_Session {
 	 *
 	 * @see Interface_Settings::get()
 	 */
-	public function get(string $name, mixed $default = null): mixed {
-		$this->need();
+	public function get(int|string|null $name = null, mixed $default = null): mixed {
 		if ($name === null) {
-			return $_SESSION;
+			return $this->data;
 		}
-		return $_SESSION[$name] ?? $default;
+		return $this->data[$name] ?? $default;
 	}
 
 	/**
@@ -97,9 +95,8 @@ class Session_PHP implements Interface_Session {
 	 *
 	 * @see Interface_Settings::__get()
 	 */
-	public function __get(string $name): mixed {
-		$this->need();
-		return $_SESSION[$name] ?? null;
+	public function __get(int|string $key): mixed {
+		return $this->data[$key] ?? null;
 	}
 
 	/**
@@ -108,9 +105,8 @@ class Session_PHP implements Interface_Session {
 	 *
 	 * @see Interface_Settings::__set()
 	 */
-	public function __set(string $name, mixed $value): void {
-		$this->need();
-		$_SESSION[$name] = $value;
+	public function __set(int|string $key, mixed $value): void {
+		$this->data[$key] = $value;
 	}
 
 	/**
@@ -119,19 +115,9 @@ class Session_PHP implements Interface_Session {
 	 *
 	 * @see Interface_Settings::set()
 	 */
-	public function set(string $name, $value = null): self {
+	public function set(int|string $name, mixed $value = null): self {
 		$this->__set($name, $value);
 		return $this;
-	}
-
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 * @see Interface_Settings::filter()
-	 */
-	public function filter(string|array $list): array {
-		return ArrayTools::filter($_SESSION, $list);
 	}
 
 	/**
@@ -139,7 +125,7 @@ class Session_PHP implements Interface_Session {
 	 * @return string
 	 */
 	private function global_session_userId(): string {
-		return $this->application->configuration->path('session')->get('user_id_variable', 'user');
+		return $this->application->configuration->getPath([__CLASS__, 'user_id_variable'], 'user');
 	}
 
 	/**
@@ -149,48 +135,40 @@ class Session_PHP implements Interface_Session {
 	 * @see Interface_Session::userId()
 	 */
 	public function userId(): int {
-		$result = $this->__get($this->global_session_userId());
-		if (is_int($result)) {
-			return $result;
-		}
-
-		throw new Exception_NotFound();
+		return $this->__get($this->global_session_userId());
 	}
 
 	/**
 	 *
+	 * {@inheritdoc}
 	 *
-	 * @return User
-	 * @throws Exception_Authentication
-	 * @throws Exception_ORM_Empty
-	 * @throws Exception_ORM_NotFound
 	 * @see Interface_Session::user()
 	 */
-	public function user(): User {
+	public function user(): Interface_UserLike {
 		$user_id = $this->userId();
 		if (empty($user_id)) {
-			throw new Exception_Authentication('Not authenticated');
+			throw new Exception_Authentication('No user ID');
 		}
 
 		try {
-			return $this->application->ormFactory(__NAMESPACE__ . '\\' . 'User', $user_id)->fetch();
-		} catch (Exception_ORM_NotFound $e) {
+			$user = $this->application->ormFactory(User::class, $user_id)->fetch();
+			assert($user instanceof Interface_UserLike);
+			return $user;
+		} catch (Throwable $e) {
 			$this->__set($this->global_session_userId(), null);
 
-			throw $e;
+			throw new Exception_Authentication('User not found {user_id}', ['user_id' => $user_id], 0, $e);
 		}
 	}
 
 	/**
 	 *
-	 * @param User $user
-	 * @param string $ip
-	 * @return void
-	 * @throws Exception_Deprecated
+	 * {@inheritdoc}
+	 *
 	 * @see Interface_Session::authenticate()
 	 */
-	public function authenticate(User $user, string $ip = ''): void {
-		$this->__set($this->global_session_userId(), $user->id());
+	public function authenticate(Interface_UserLike $user, $ip = false): void {
+		$this->__set($this->global_session_userId(), ORMBase::mixedToID($user));
 		$this->__set($this->global_session_userId() . '_IP', $ip);
 	}
 
@@ -222,7 +200,7 @@ class Session_PHP implements Interface_Session {
 	 * @see Interface_Settings::variables()
 	 */
 	public function variables(): array {
-		return $_SESSION;
+		return $this->data;
 	}
 
 	/**
@@ -232,8 +210,6 @@ class Session_PHP implements Interface_Session {
 	 * @see Interface_Session::delete()
 	 */
 	public function delete(): void {
-		if (!$this->application->console()) {
-			session_destroy();
-		}
+		$this->data = [];
 	}
 }

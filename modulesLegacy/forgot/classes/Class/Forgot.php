@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
+use zesk\Session\Session\classes\SessionORM;
+
 /**
  * @see Forgot
  */
@@ -39,7 +41,7 @@ class Class_Forgot extends Class_Base {
 	 */
 	public array $has_one = [
 		'user' => User::class,
-		'session' => Session_ORM::class,
+		'session' => SessionORM::class,
 	];
 
 	/**

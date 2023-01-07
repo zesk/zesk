@@ -9,7 +9,7 @@ $response = $this->response;
 
 $id = $this->id;
 if (!$id) {
-	$this->id = $id = 'dashboard-widget-' . $response->id_counter();
+	$this->id = $id = 'dashboard-widget-server';
 }
 echo HTML::tag_open('div', [
 	'class' => CSS::addClass('dashboard-widget', $this->class),

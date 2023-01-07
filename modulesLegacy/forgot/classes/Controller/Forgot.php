@@ -138,9 +138,9 @@ class Controller_Forgot extends Controller_Theme {
 
 	/**
 	 *
-	 * @param unknown $token
+	 * @param string $token
 	 */
-	public function action_validate($token) {
+	public function action_validate(string $token) {
 		$locale = $this->application->locale;
 		$prefer_json = $this->request->preferJSON();
 		if (!preg_match('/[0-9a-f]{32}/i', $token)) {

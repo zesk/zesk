@@ -7,11 +7,13 @@
  */
 namespace zesk;
 
+use zesk\Session\Session\classes\SessionORM;
+
 /**
  *
  * @see Class_Log_Mail
  * @property id $id
- * @property Session_ORM $session
+ * @property SessionORM $session
  * @property User $user
  * @property string $code
  * @property string $from

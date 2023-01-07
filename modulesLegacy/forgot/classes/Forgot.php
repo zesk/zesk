@@ -4,6 +4,8 @@
  */
 namespace zesk;
 
+use zesk\Session\Session\classes\SessionORM;
+
 /**
  *
  * @author kent
@@ -11,7 +13,7 @@ namespace zesk;
  * @property id $id
  * @property string $login
  * @property User $user
- * @property Session_ORM $session
+ * @property SessionORM $session
  * @property hex $code
  * @property Timestamp $created
  * @property Timestamp $updated

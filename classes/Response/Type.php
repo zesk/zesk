@@ -63,7 +63,7 @@ abstract class Type {
 	/**
 	 * Convert to JSON array
 	 *
-	 * @return array
+	 * @return mixed
 	 */
-	abstract public function toJSON(): array;
+	abstract public function toJSON(): mixed;
 }

@@ -31,7 +31,7 @@ class Redirect extends Type {
 	 *
 	 * @todo Move this elsewhere. Response addon?
 	 */
-	public function message_clear(): void {
+	public function messageClear(): void {
 		try {
 			$this->session()->redirect_message = null;
 		} catch (\Exception $e) {

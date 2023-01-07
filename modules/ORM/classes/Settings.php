@@ -349,11 +349,11 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	/**
 	 * Override get to retrieve from global state
 	 *
-	 * @param string $name Setting to retrieve
+	 * @param string $key Setting to retrieve
 	 * @return mixed
 	 */
-	public function __get(string $name): mixed {
-		return $this->application->configuration->getPath($name);
+	public function __get(string $key): mixed {
+		return $this->application->configuration->getPath($key);
 	}
 
 	/**

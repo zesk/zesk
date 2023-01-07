@@ -16,7 +16,7 @@ $longitude = $this->longitude;
 $zoom = $this->getInt('zoom', 14);
 $message = $this->message;
 
-$id = 'openlayers-map-' . $response->id_counter();
+$id = $this->get('id', 'openlayers-map');
 
 $width = $this->getInt('width', null);
 $height = $this->getInt('height', null);

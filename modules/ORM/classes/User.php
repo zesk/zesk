@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
@@ -7,16 +8,16 @@
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  * Created on Fri Apr 02 21:00:12 EDT 2010 21:00:12
  */
+
 namespace zesk\ORM;
 
+use Throwable;
 use zesk\Application;
+use zesk\Exception_Authentication;
 use zesk\Exception_Permission;
-use zesk\Exception_Semantics;
 use zesk\Exception_Unsupported;
 use zesk\Hooks;
-use zesk\Interface_Session;
-use zesk\Interface_Userlike;
-use zesk\Kernel;
+use zesk\Interface_UserLike;
 use zesk\Model;
 use zesk\Request;
 use zesk\Response;
@@ -28,7 +29,7 @@ use zesk\Response;
  *
  * @author kent
  */
-class User extends ORMBase implements Interface_Userlike {
+class User extends ORMBase implements Interface_UserLike {
 	/**
 	 * Boolean value to enable debugging of permissions
 	 *
@@ -58,6 +59,12 @@ class User extends ORMBase implements Interface_Userlike {
 		$application->hooks->add(Hooks::HOOK_CONFIGURED, __CLASS__ . '::configured');
 	}
 
+	public function authenticationData(): array {
+		return $this->members($this->optionIterable('authenticationDataMembers', [
+			$this->column_login(), $this->column_email(),
+		]));
+	}
+
 	/**
 	 *
 	 * @param Application $application
@@ -65,12 +72,9 @@ class User extends ORMBase implements Interface_Userlike {
 	public static function configured(Application $application): void {
 		self::$debug_permission = toBool($application->configuration->getFirstPath([
 			[
-				__CLASS__,
-				self::OPTION_DEBUG_PERMISSION,
-			],
-			[
-				'User',
-				self::OPTION_DEBUG_PERMISSION,
+				__CLASS__, self::OPTION_DEBUG_PERMISSION,
+			], [
+				'User', self::OPTION_DEBUG_PERMISSION,
 			],
 		]));
 	}
@@ -78,19 +82,10 @@ class User extends ORMBase implements Interface_Userlike {
 	/**
 	 * Session user ID
 	 *
-	 * @return integer
+	 * @return int
 	 */
-	public function session_user_id(Request $request) {
-		try {
-			$session = $this->application->session($request);
-		} catch (Exception $e) {
-			return null;
-		}
-		if (!$session instanceof Interface_Session) {
-			error_log(__METHOD__ . ' $this->application->session() returned non-session? ' . type($session) . ' ' . strval($session));
-			return null;
-		}
-		return $session->userId();
+	public function session_user_id(Request $request): int {
+		return $this->application->session($request)->userId();
 	}
 
 	/**
@@ -98,7 +93,7 @@ class User extends ORMBase implements Interface_Userlike {
 	 *
 	 * @return string
 	 */
-	public function column_login() {
+	public function column_login(): string {
 		return $this->class->column_login;
 	}
 
@@ -107,7 +102,7 @@ class User extends ORMBase implements Interface_Userlike {
 	 *
 	 * @return string
 	 */
-	public function column_password() {
+	public function column_password(): string {
 		return $this->class->column_password;
 	}
 
@@ -116,7 +111,7 @@ class User extends ORMBase implements Interface_Userlike {
 	 *
 	 * @return string
 	 */
-	public function column_email() {
+	public function column_email(): string {
 		return $this->class->column_email;
 	}
 
@@ -127,12 +122,19 @@ class User extends ORMBase implements Interface_Userlike {
 	 *
 	 * @return User
 	 */
-	public function login($set = null) {
-		$column = $this->column_login();
-		if ($set !== null) {
-			return $this->setMember($column, $set);
+	public function setLogin(string $set): self {
+		return $this->setMember($this->column_login(), $set);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function login(): string {
+		try {
+			return $this->member($this->column_login());
+		} catch (Throwable) {
+			return '';
 		}
-		return $this->member($column);
 	}
 
 	/**
@@ -142,26 +144,46 @@ class User extends ORMBase implements Interface_Userlike {
 	 *
 	 * @return User
 	 */
-	public function email($set = null) {
-		$column = $this->column_email();
-		if (!$column) {
-			throw new Exception_Semantics('No email column in {class}', [
-				'class' => get_class($this),
-			]);
+	public function setEmail(string $set): self {
+		return $this->setMember($this->column_email(), $set);
+	}
+
+	/**
+	 * Get or set the email column value
+	 *
+	 * @param string $set
+	 *
+	 * @return User
+	 */
+	public function email(): string {
+		try {
+			return $this->member($this->column_email());
+		} catch (Throwable) {
+			return '';
 		}
-		if ($set !== null) {
-			return $this->setMember($column, $set);
-		}
-		return $this->member($column);
 	}
 
 	/**
 	 * Override in subclasses to perform a final check before loading a user from the Session
 	 *
-	 * @return boolean
+	 * @param Request $request
+	 * @return bool
 	 */
-	public function check_user() {
+	public function check_user(Request $request): bool {
 		return true;
+	}
+
+	/**
+	 * Get/set the password field
+	 *
+	 * @return string
+	 */
+	public function password(): string {
+		try {
+			return $this->member($this->column_password());
+		} catch (Throwable) {
+			return '';
+		}
 	}
 
 	/**
@@ -169,30 +191,27 @@ class User extends ORMBase implements Interface_Userlike {
 	 *
 	 * @param string $set
 	 * @param boolean $plaintext When set is non-null, whether value is plain text or not.
-	 * @return string|User
+	 * @return User
 	 */
-	public function password($set = null, $plaintext = true) {
+	public function setPassword(string $set, bool $plaintext = true): self {
 		$column = $this->column_password();
-		if ($set !== null) {
-			return $this->setMember($column, $plaintext ? $this->_generate_hash($set) : $set);
-		}
-		return $this->member($column);
+		return $this->setMember($column, $plaintext ? $this->_generate_hash($set) : $set);
 	}
 
 	/**
 	 *
 	 * @return string
 	 */
-	public function password_method() {
-		return strtolower(trim($this->member($this->class->column_hash_method, $this->class->default_hash_method)));
+	public function password_method(): string {
+		return strtolower(trim($this->member($this->class->column_hash_method) ?? $this->class->default_hash_method));
 	}
 
 	/**
 	 *
-	 * @param string $plaintext
+	 * @param string $string
 	 * @return string
 	 */
-	private function _generate_hash($string) {
+	private function _generate_hash(string $string): string {
 		return $this->generate_hash($string, $this->class->column_password_is_binary);
 	}
 
@@ -210,9 +229,7 @@ class User extends ORMBase implements Interface_Userlike {
 		}
 
 		throw new Exception_Unsupported('Invalid hash algorithm {algo} in User {id}, using default', [
-			'algo' => $algo,
-			'id' => $this->id(),
-			'default' => $this->class->default_hash_method,
+			'algo' => $algo, 'id' => $this->id(), 'default' => $this->class->default_hash_method,
 		]);
 	}
 
@@ -220,19 +237,16 @@ class User extends ORMBase implements Interface_Userlike {
 	 * Check a username and password.
 	 * Will not authenticate user until ->authenticated($request, $response) is called.
 	 *
-	 * @param string $username
 	 * @param string $password
-	 * @param string $use_hash
-	 * @param string $case_sensitive
-	 * @return boolean
+	 * @param bool $use_hash
+	 * @param bool $case_sensitive
+	 * @return self
+	 * @throws Exception_Authentication
+	 * @throws Exception_Unsupported
 	 */
-	public function authenticate($username, $password, $use_hash = true, $case_sensitive = true) {
+	public function authenticate(string $password, bool $use_hash = true, bool $case_sensitive = true): self {
 		// TODO: This will break if everyone else uses the class property. Update ->column_login, or don't use option
 		$column_login = $this->option('column_login', $this->column_login());
-		$this->setMember($column_login, $username);
-		if (!$this->fetchByKey($username, $column_login)) {
-			return false;
-		}
 		$this_password = $this->password();
 		if ($use_hash) {
 			$auth_test = strcasecmp($this->generate_hash($password, false), $this_password) === 0;
@@ -240,19 +254,21 @@ class User extends ORMBase implements Interface_Userlike {
 			$auth_test = $case_sensitive ? ($password === $this_password) : strcasecmp($password, $this_password) === 0;
 		}
 		if ($auth_test) {
-			return true;
+			return $this;
 		}
-		return false;
+
+		throw new Exception_Authentication($this->login());
 	}
 
 	/**
 	 * Get/set authentication status
 	 *
 	 * @param Request $request Required. Request to match this user against.
-	 * @param Response $response Optional. If supplied, authenticates this user in the associated response (generally, by setting a cookie.)
+	 * @param null|Response $response Optional. If supplied, authenticates this user in the associated response
+	 * (generally, by setting a cookie.)
 	 * @return NULL|User
 	 */
-	public function authenticated(Request $request, Response $response = null) {
+	public function authenticated(Request $request, Response $response = null): ?User {
 		$matches = ($this->session_user_id($request) === $this->id());
 		if ($response === null) {
 			if ($this->isNew()) {
@@ -282,8 +298,8 @@ class User extends ORMBase implements Interface_Userlike {
 	 * @param string $action
 	 * @param ORMBase $context
 	 * @param array $options
-	 * @throws Exception_Permission
 	 * @return User
+	 * @throws Exception_Permission
 	 */
 	public function must(string $action, ORMBase $context = null, array $options = []) {
 		if (!$this->can($action, $context, $options)) {
@@ -294,10 +310,7 @@ class User extends ORMBase implements Interface_Userlike {
 
 	final public static function clean_permission($string) {
 		return strtolower(strtr($string, [
-			' ' => '_',
-			'.' => '_',
-			'-' => '_',
-			'__' => '::',
+			' ' => '_', '.' => '_', '-' => '_', '__' => '::',
 		]));
 	}
 
@@ -334,7 +347,7 @@ class User extends ORMBase implements Interface_Userlike {
 	 */
 	/**
 	 * @param string|array $actions Can be an array of actions, all of which must pass, or a string of actions whose
-	 *        	separator determines if the meaning is "AND" or "OR" for each permission.
+	 *            separator determines if the meaning is "AND" or "OR" for each permission.
 	 * @param ORMBase|null $context ORM on which to act
 	 * @param array $options Extra optional settings, permission-specific
 	 * @return bool
@@ -351,25 +364,17 @@ class User extends ORMBase implements Interface_Userlike {
 
 			try {
 				$result = $this->callHookArguments('can', [
-					$action,
-					$context,
-					$options,
+					$action, $context, $options,
 				], $default_result);
 			} catch (\Exception $e) {
 				$skipLog = true;
 				$this->application->logger->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {exceptionClass} {message}\n{backtrace}", [
-					'action' => $action,
-					'context' => $context,
-					'result' => false,
-					'roles' => $this->_roles,
+					'action' => $action, 'context' => $context, 'result' => false, 'roles' => $this->_roles,
 				] + Exception::exceptionVariables($e));
 			}
 			if (self::$debug_permission && !$skipLog) {
 				$this->application->logger->debug('User::can({action},{context}) = {result} (Roles {roles}) ({extra})', [
-					'action' => $action,
-					'context' => $context,
-					'result' => $result,
-					'roles' => $this->_roles,
+					'action' => $action, 'context' => $context, 'result' => $result, 'roles' => $this->_roles,
 				]);
 			}
 			if ($is_or) {
@@ -393,9 +398,7 @@ class User extends ORMBase implements Interface_Userlike {
 		$hook = $options[$hook_option_name] ?? $this->option($hook_option_name);
 		if ($hook !== null) {
 			$this->callHookArguments(is_string($hook) ? $hook : $default_hook, [
-				$actions,
-				$context,
-				$options,
+				$actions, $context, $options,
 			]);
 		}
 
@@ -450,8 +453,7 @@ class User extends ORMBase implements Interface_Userlike {
 	public static function permissions(Application $application): array {
 		return parent::default_permissions($application, __CLASS__) + [
 			__CLASS__ . '::become' => [
-				'title' => __('Become another user'),
-				'class' => 'User',
+				'title' => __('Become another user'), 'class' => 'User',
 			],
 		];
 	}
@@ -463,9 +465,9 @@ class User extends ORMBase implements Interface_Userlike {
 	 *
 	 * @param array $actions
 	 * @param Model $context
-	 *        	Default context to pass to "can" function
+	 *            Default context to pass to "can" function
 	 * @param array $options
-	 *        	Default options to pass to "can" function
+	 *            Default options to pass to "can" function
 	 * @return array
 	 */
 	public function filterActions(array $actions, Model $context = null, array $options = []): array {
@@ -476,9 +478,7 @@ class User extends ORMBase implements Interface_Userlike {
 				unset($attributes['permission']);
 				if (is_array($permission)) {
 					[$a_permission, $a_context, $a_options] = $permission + ([
-						null,
-						null,
-						[],
+						null, null, [],
 					]);
 					if ($this->can($a_permission, $a_context, $a_options)) {
 						$actions_passed[$href] = $attributes;

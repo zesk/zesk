@@ -5,9 +5,7 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk\ORM;
-
-use zesk\Request;
+namespace zesk;
 
 /**
  *
@@ -38,12 +36,12 @@ interface Interface_Session extends Interface_Settings {
 	/**
 	 * Authenticate a user in the system as being tied to this session. Optionally give the IP address
 	 *
-	 * @param Interface_Userlike $user The user identifier
+	 * @param Interface_UserLike $user The user identifier
 	 * @param string $ip The ip address (optional)
 	 * @return void
 	 * @throws Exception_Authentication
 	 */
-	public function authenticate(Interface_Userlike $user, string $ip = ''): void;
+	public function authenticate(Interface_UserLike $user, string $ip = ''): void;
 
 	/**
 	 * User currently authenticated?
@@ -63,17 +61,16 @@ interface Interface_Session extends Interface_Settings {
 	/**
 	 * Retrieve user identifier
 	 * @return int User ID
-	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Authentication
 	 */
 	public function userId(): int;
 
 	/**
 	 * Retrieve user
-	 * @return Interface_Userlike User object
+	 * @return Interface_UserLike User object
 	 * @throws Exception_Authentication
 	 */
-	public function user(): Interface_Userlike;
+	public function user(): Interface_UserLike;
 
 	/**
 	 * Delete the session

@@ -1,11 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
  * @author kent
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
- * Created on Fri Apr 02 21:15:05 EDT 2010 21:15:05
  */
+
 namespace zesk;
 
 /**
@@ -16,9 +17,9 @@ abstract class Controller_Theme extends Controller {
 	/**
 	 * Default content type for Response generated upon instantiation.
 	 *
-	 * @var ?string
+	 * @var string
 	 */
-	protected ?string $default_content_type = Response::CONTENT_TYPE_HTML;
+	protected string $default_content_type = Response::CONTENT_TYPE_HTML;
 
 	/**
 	 *
@@ -90,21 +91,22 @@ abstract class Controller_Theme extends Controller {
 	/**
 	 *
 	 * @param mixed|null $mixed
-	 * @return self
+	 * @return Response
 	 */
-	public function json(mixed $mixed = null): self {
+	public function json(Response $response, mixed $mixed = null): Response {
 		$this->setAutoRender(false);
-		return parent::json($mixed);
+		return $response->json()->setData($mixed);
 	}
 
 	/**
+	 * @param Response $response
 	 * @param int $code
 	 * @param string $message
-	 * @return Controller_Theme
+	 * @return Response
 	 */
-	public function error(int $code, string $message = ''): self {
+	public function error(Response $response, int $code, string $message = ''): Response {
 		$this->setAutoRender(false);
-		return parent::error($code, $message);
+		return parent::error($response, $code, $message);
 	}
 
 	/**
@@ -112,7 +114,7 @@ abstract class Controller_Theme extends Controller {
 	 * @param Exception $e
 	 */
 	public function exception(\Exception $e): void {
-		if ($this->auto_render && $this->theme) {
+		if ($this->autoRender() && $this->theme) {
 			$this->application->logger->error('Exception in controller {this-class} {class}: {message}', [
 				'this-class' => get_class($this),
 			] + Exception::exceptionVariables($e));
@@ -124,27 +126,24 @@ abstract class Controller_Theme extends Controller {
 	 * @throws Exception_Redirect
 	 * @see Controller::after()
 	 */
-	public function after(string|array|Response|null $result, string $output = ''): void {
-		if ($this->auto_render) {
-			if (!$this->response->isHTML()) {
-				return;
+	public function after(Request $request, Response $response): Response {
+		if ($this->autoRender()) {
+			if (!$response->isHTML()) {
+				return $response;
 			}
-			$content = null;
-			if (is_string($result)) {
-				$content = $result;
-			} elseif (is_string($output) && !empty($output)) {
-				$content = $output;
+			$content = $response->content();
+			if ($request->preferJSON()) {
+				$response->json()->setData(['content' => $content] + $response->toJSON());
+				return $response;
 			}
-			if ($this->request->preferJSON()) {
-				$this->json([
+			if ($this->theme) {
+				$content = $this->theme($this->theme, [
 					'content' => $content,
-				] + $this->response->toJSON());
-			} else {
-				$this->response->content = $this->theme ? $this->theme($this->theme, [
-					'content' => $content,
-				] + $this->variables(), $this->optionArray('theme_options')) : $content;
+				] + $this->variables(), $this->optionArray('theme_options'));
 			}
+			return $response->setContent($content);
 		}
+		return $response;
 	}
 
 	/**

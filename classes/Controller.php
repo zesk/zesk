@@ -22,36 +22,27 @@ use Throwable;
  */
 class Controller extends Hookable implements Interface_Theme {
 	/**
-	 * Method to use as default action in this Controller.
-	 * Must be a valid method name. If not specified, can be overridden by calling Route.
-	 */
-	protected ?string $method_default_action = null;
-
-	/**
-	 * Method to use as default action argument collector in this Controller.
-	 * Must be a valid method name. Method itself returns an array (arguments)
-	 * to be passed to the above function.
-	 *
-	 * If not specified, can be overridden by calling Route.
-	 */
-	protected ?string $method_default_arguments = null;
-
-	/**
 	 * Default content type for Response generated upon instantiation.
 	 *
 	 * Can be overridden by setting global "default_content_type" option for this class
 	 */
-	protected ?string $default_content_type = null;
+	protected string $default_content_type = '';
 
-	/**
-	 * Request associated with this controller
-	 */
-	public Request $request;
+	protected array $argumentMethods = [
+		'arguments_{METHOD}_{action}', 'arguments_{action}',
+	];
 
-	/**
-	 * Response associated with this controller
-	 */
-	public ?Response $response = null;
+	protected array $actionMethods = [
+		'action_{METHOD}_{action}', 'action_{action}',
+	];
+
+	protected array $beforeMethods = [
+		'before_{METHOD}_{action}', 'before_{action}',
+	];
+
+	protected array $afterMethods = [
+		'after_{METHOD}_{action}', 'after_{action}',
+	];
 
 	/**
 	 * Router associated with this controller
@@ -69,10 +60,9 @@ class Controller extends Hookable implements Interface_Theme {
 	 *
 	 * @param Application $app
 	 * @param Route $route
-	 * @param Response|null $response
 	 * @param array $options
 	 */
-	final public function __construct(Application $app, Route $route, Response $response = null, array $options = []) {
+	final public function __construct(Application $app, Route $route, array $options = []) {
 		parent::__construct($app, $options);
 
 		// TODO Candidate to remove this and pass from calling factory
@@ -80,13 +70,6 @@ class Controller extends Hookable implements Interface_Theme {
 
 		$this->route = $route;
 		$this->router = $route->router();
-		$this->request = $route->request();
-		$this->response = $response ?? Response::factory($app, $this->request);
-
-		$this->application->logger->debug('{class}::__construct Response ID {id}', [
-			'class' => get_class($this),
-			'id' => $this->response->id(),
-		]);
 
 		$this->initialize();
 		$this->callHook('initialize');
@@ -106,18 +89,8 @@ class Controller extends Hookable implements Interface_Theme {
 	}
 
 	/**
-	 * Getter/Setter for theme variables. Affects the current TOP template only by default.
-	 *
-	 * @param string $name
-	 * @return mixed
 	 */
-	public function themeVariable(string $name): mixed {
-		return $this->application->themeVariable($name);
-	}
-
-	/**
-	 */
-	public function class_actions(): array {
+	public function classActions(): array {
 		return [];
 	}
 
@@ -128,12 +101,73 @@ class Controller extends Hookable implements Interface_Theme {
 	}
 
 	/**
+	 * Execute this route
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param string $action
+	 * @param array $arguments
+	 * @return Response
+	 * @throws Exception_NotFound
+	 */
+	final public function execute(Request $request, Response $response, string $action = '', array $arguments = []): Response {
+		$wrapperArguments = [$request, $response, $arguments, $action];
+		$app = $this->application;
+		$requestMap = [
+			'method' => strtolower($request->method()),
+			'action' => $action ?: 'index',
+			'METHOD' => strtoupper($request->method()),
+		];
+		$beforeMethod = $this->determineMethod($this->beforeMethods, $requestMap, false);
+		$argumentsMethod = $this->determineMethod($this->argumentMethods, $requestMap, false);
+		$actionMethod = $this->determineMethod($this->actionMethods, $requestMap, true);
+		$afterMethod = $this->determineMethod($this->afterMethods, $requestMap, false);
+		$__ = $requestMap + [
+			'class' => $this::class, 'actionMethod' => $actionMethod,
+		];
+		$app->logger->debug('Controller {class} running action {method} {action} -> {actionMethod}', $__);
+
+		$this->optionalMethod($beforeMethod, $wrapperArguments);
+		$this->callHookArguments('before', $wrapperArguments);
+		if ($response->status_code !== HTTP::STATUS_OK) {
+			return $response;
+		}
+		$arguments = $this->optionalMethod($argumentsMethod, $wrapperArguments, $arguments);
+		if (!is_array($arguments)) {
+			throw new Exception_NotFound("$argumentsMethod did not return an array", [
+				'argumentsMethod' => $argumentsMethod,
+			]);
+		}
+		ob_start();
+		$result = $this->invokeMethod($actionMethod, $arguments);
+		$contents = ob_get_clean();
+		if ($result instanceof Response) {
+			$response = $result;
+		}
+		if (strlen($contents)) {
+			if (!$this->optionBool('captureOutput')) {
+				$this->application->logger->warning('Controller {actionMethod} output {bytes} bytes: {contents}', [
+					'actionMethod' => $actionMethod, 'bytes' => strlen($contents), 'contents' => $contents,
+				]);
+			}
+			if (is_string($result)) {
+				$contents .= $result;
+			}
+			$response->setContent($contents);
+		}
+		if (is_string($result)) {
+			$response->setContent($result);
+		}
+		$this->callHookArguments('after', $wrapperArguments);
+		$this->optionalMethod($afterMethod, $wrapperArguments);
+		return $response;
+	}
+
+	/**
 	 * Stub for override - initialize the controller - called after __construct is done but before hook_initialize
 	 * Note that:
 	 * <code>
-	 * $this->request
 	 * $this->route
-	 * $this->response
 	 * </code>
 	 * May all possibly be NULL upon this function called.
 	 */
@@ -141,50 +175,13 @@ class Controller extends Hookable implements Interface_Theme {
 	}
 
 	/**
-	 * Get request (always set)
-	 *
-	 * @return Request
-	 * x	 */
-	public function request(): Request {
-		return $this->request;
-	}
-
-	/**
-	 * Set request
-	 *
-	 * @param Request $set
-	 * @return self
-	 */
-	public function setRequest(Request $set): self {
-		$this->request = $set;
-		return $this;
-	}
-
-	/**
-	 * Executed before the controller action
-	 *
-	 * @return void
-	 */
-	public function before(): void {
-	}
-
-	/**
+	 * @param Request $request
+	 * @param Response $response
 	 * @param string $action
 	 * @return mixed
 	 */
-	public function _action_default(string $action = ''): mixed {
-		return $this->error_404($action ? "Action $action" : 'default action');
-	}
-
-	/**
-	 * Executed after the controller action
-	 *
-	 * @param string|array|Response|null $result
-	 * @param string $output
-	 * @return void
-	 */
-	public function after(string|array|Response|null $result, string $output = ''): void {
-		// pass
+	public function _actionDefault(Request $request, Response $response, array $arguments, string $action): Response {
+		return $this->error_404($response, $action ? "Action $action" : 'default action');
 	}
 
 	/**
@@ -192,49 +189,49 @@ class Controller extends Hookable implements Interface_Theme {
 	 */
 	public function variables(): array {
 		return [
-			'application' => $this->application,
-			'controller' => $this,
-			'request' => $this->request,
-			'response' => $this->response,
+			'application' => $this->application, 'controller' => $this,
 		];
 	}
 
 	/**
 	 * Update all settings to return a JSON response
 	 *
+	 * @param Response $response
 	 * @param mixed $mixed
-	 * @return self
+	 * @return Response
 	 */
-	public function json(mixed $mixed = null): self {
+	public function responseJSON(Response $response, mixed $mixed = null): Response {
 		$mixed = $this->callHookArguments('json', [
 			$mixed,
 		], $mixed);
-		$this->response->json()->setData($mixed);
-		return $this;
+		$response->json()->setData($mixed);
+		return $response;
 	}
 
 	/**
 	 * Page not found error
 	 *
+	 * @param Response $response
 	 * @param string $message
-	 * @return self
+	 * @return Response
 	 */
-	public function error_404(string $message = ''): self {
-		$this->error(HTTP::STATUS_FILE_NOT_FOUND, rtrim("Page not found $message"));
-		return $this;
+	public function error_404(Response $response, string $message = ''): Response {
+		$this->error($response, HTTP::STATUS_FILE_NOT_FOUND, rtrim("Page not found $message"));
+		return $response;
 	}
 
 	/**
 	 * Generic page error
 	 *
+	 * @param Response $response
 	 * @param int $code HTTP::Status_XXX
 	 * @param string $message Message
-	 * @return self
+	 * @return Response
 	 */
-	public function error(int $code, string $message = ''): self {
-		$this->response?->setStatus($code, $message);
-		$this->response?->setContent($message);
-		return $this;
+	public function error(Response $response, int $code, string $message = ''): Response {
+		$response->setStatus($code, $message);
+		$response->setContent($message);
+		return $response;
 	}
 
 	/**
@@ -244,13 +241,13 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $arguments
 	 * @return mixed
 	 */
-	final public function optionalMethod(array|string $names, array $arguments): mixed {
+	final public function optionalMethod(array|string $names, array $arguments, mixed $default = null): mixed {
 		foreach (toList($names) as $name) {
 			if ($this->hasMethod($name)) {
 				return $this->invokeMethod($name, $arguments);
 			}
 		}
-		return null;
+		return $default;
 	}
 
 	/**
@@ -270,27 +267,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 */
 	final public function invokeMethod(string $name, array $arguments): mixed {
 		return call_user_func_array([
-			$this,
-			$name,
-		], $arguments);
-	}
-
-	/**
-	 *
-	 * @param array $arguments
-	 * @return mixed
-	 */
-	final public function invokeDefaultMethod(array $arguments): mixed {
-		if (empty($this->method_default_action)) {
-			$this->method_default_action = $this->route->option('method default', '_action_default');
-		}
-		if (empty($this->method_default_arguments)) {
-			$this->method_default_arguments = $this->option('arguments method default', '_arguments_default');
-		}
-		$arguments = $this->optionalMethod($this->method_default_arguments, $arguments);
-		return call_user_func_array([
-			$this,
-			$this->method_default_action,
+			$this, $name,
 		], $arguments);
 	}
 
@@ -347,8 +324,7 @@ class Controller extends Hookable implements Interface_Theme {
 		}
 		$list_options = [
 			Directory::LIST_RULE_FILE => ['/\.(php)$/' => true, false],
-			Directory::LIST_RULE_DIRECTORY_WALK => ['#/\.#' => false, true],
-			Directory::LIST_RULE_DIRECTORY => false,
+			Directory::LIST_RULE_DIRECTORY_WALK => ['#/\.#' => false, true], Directory::LIST_RULE_DIRECTORY => false,
 		];
 		$found = [];
 		foreach ($paths as $path => $options) {
@@ -398,5 +374,25 @@ class Controller extends Hookable implements Interface_Theme {
 	 */
 	public function _to_php(): string {
 		return '$application, ' . PHP::dump($this->options);
+	}
+
+	/**
+	 * @param array $methods
+	 * @param array $requestMap
+	 * @param bool $require
+	 * @return string
+	 * @throws Exception_NotFound
+	 */
+	private function determineMethod(array $methods, array $requestMap, bool $require): string {
+		foreach ($methods as $argumentMethod) {
+			$argumentMethod = map($argumentMethod, $requestMap);
+			if ($this->hasMethod($argumentMethod)) {
+				return $argumentMethod;
+			}
+		}
+		if ($require) {
+			throw new Exception_NotFound('{path} ({method}) not found', $requestMap);
+		}
+		return '';
 	}
 }

@@ -15,7 +15,17 @@ namespace zesk\ORM;
 
 use Psr\Log\LoggerInterface;
 use zesk\ArrayTools;
+use zesk\Database_Exception_SQL;
+use zesk\Exception_Class_NotFound;
+use zesk\Exception_Configuration;
+use zesk\Exception_Convert;
+use zesk\Exception_Key;
+use zesk\Exception_NotFound;
+use zesk\Exception_Parameter;
+use zesk\Exception_Parse;
+use zesk\Exception_Semantics;
 use zesk\StringTools;
+use zesk\Timestamp;
 
 /**
  * Traverse ORM objects to convert into various output formats
@@ -64,7 +74,7 @@ class Walker {
 	 *
 	 * @var array
 	 */
-	private array $resolve_methods = [];
+	protected array $resolve_methods = [];
 
 	/**
 	 * Member => function pairs to output members using callbacks
@@ -92,19 +102,19 @@ class Walker {
 	 *
 	 * @var string
 	 */
-	protected $preprocess_hook = 'walk';
+	protected string $preprocess_hook = 'walk';
 
 	/**
 	 * Hook called on ORM class and object after walked
 	 * @var string
 	 */
-	protected $postprocess_hook = 'walked';
+	protected string $postprocess_hook = 'walked';
 
 	public function variables(): array {
 		return [
-			'include_members' => $this->include_members(), 'exclude_members' => $this->exclude_members(),
-			'resolve_methods' => $this->resolve_methods(), 'members_handler' => array_keys($this->members_handler),
-			'resolve_objects' => $this->resolve_objects(),
+			'include_members' => $this->includeMembers(), 'exclude_members' => $this->excludeMembers(),
+			'resolve_methods' => $this->resolveMethods(), 'members_handler' => array_keys($this->members_handler),
+			'resolve_objects' => $this->resolveObjects(),
 		];
 	}
 
@@ -112,16 +122,16 @@ class Walker {
 	 *
 	 * @return self
 	 */
-	public static function factory() {
+	public static function factory(): self {
 		return new self();
 	}
 
 	/**
 	 * Create a new one of what I am
 	 *
-	 * @return \zesk\ORM\Walker
+	 * @return Walker
 	 */
-	public function child() {
+	public function child(): self {
 		return self::factory()->inherit($this);
 	}
 
@@ -131,73 +141,95 @@ class Walker {
 	 * @param self $from
 	 * @return self
 	 */
-	public function inherit(self $from) {
-		return $this->class_info($from->class_info())->skip_null($from->skip_null())->resolve_methods($from->resolve_methods());
+	public function inherit(self $from): self {
+		return $this->setClassInfo($from->classInfo())->setSkipNull($from->skipNull())->setResolveMethods($from->resolveMethods());
 	}
 
 	/**
-	 * Getter/setter for depth
+	 * Setter for depth
+	 *
 	 * @param int $set
-	 * @return integer|self
+	 * @return self
 	 */
-	public function depth($set = null) {
-		if ($set === null) {
-			return $this->depth;
-		}
-		$this->depth = intval($set);
+	public function setDepth(int $set): self {
+		$this->depth = $set;
 		return $this;
 	}
 
 	/**
-	 * Getter/setter for class info
-	 * @param boolean $set
-	 * @return boolean|self
+	 * Getter for depth
+	 *
+	 * @return int
 	 */
-	public function class_info($set = null) {
-		if ($set === null) {
-			return $this->class_info;
-		}
-		$this->class_info = toBool($set);
+	public function depth(): int {
+		return $this->depth;
+	}
+
+	/**
+	 * Setter for class info
+	 * @param bool $set
+	 * @return self
+	 */
+	public function setClassInfo(bool $set): self {
+		$this->class_info = $set;
 		return $this;
 	}
 
 	/**
-	 * Getter/setter for skip null
-	 * @param boolean $set
-	 * @return boolean|self
+	 * Getter for class info
+	 * @return bool
 	 */
-	public function skip_null($set = null) {
-		if ($set === null) {
-			return $this->skip_null;
-		}
-		$this->skip_null = toBool($set);
+	public function classInfo(): bool {
+		return $this->class_info;
+	}
+
+	/**
+	 * @param bool $set
+	 * @return $this
+	 */
+	public function setSkipNull(bool $set): self {
+		$this->skip_null = $set;
 		return $this;
 	}
 
 	/**
-	 * Getter/setter for members to explicitly include in output
-	 *
-	 * The default value is null. To set it back to null pass in an empty array.
-	 *
-	 * @param array $members
-	 * @param boolean $append
-	 * @return array|null|self
+	 * @return bool
 	 */
-	public function include_members(array $members = null, $append = false) {
-		return $this->_get_set_unique($this->include_members, $members, $append, true);
+	public function skipNull(): bool {
+		return $this->skip_null;
 	}
 
 	/**
-	 * Getter/setter for members to explicitly exclude in output
+	 * Getter for members to explicitly include in output
 	 *
-	 * The default value is null. To set it back to null pass in an empty array.
-	 *
-	 * @param array $members
-	 * @param boolean $append
-	 * @return array|null|self
+	 * @return array
 	 */
-	public function exclude_members(array $members = null, $append = false) {
-		return $this->_get_set_unique($this->exclude_members, $members, $append, false);
+	public function includeMembers(): array {
+		return array_keys($this->include_members);
+	}
+
+	public function setIncludeMembers(array $members, bool $append = false): self {
+		$this->include_members = $this->_set_unique($this->include_members, $members, $append, true);
+		return $this;
+	}
+
+	/**
+	 * Getter for members to explicitly exclude in output
+	 *
+	 * @return array
+	 */
+	public function excludeMembers(): array {
+		return array_keys($this->exclude_members);
+	}
+
+	/**
+	 * @param array|null $members
+	 * @param bool $append
+	 * @return $this
+	 */
+	public function setExcludeMembers(array $members = null, bool $append = false): self {
+		$this->exclude_members = $this->_set_unique($this->exclude_members, $members, $append);
+		return $this;
 	}
 
 	/**
@@ -205,33 +237,53 @@ class Walker {
 	 *
 	 * The default value is the one method "json".
 	 *
-	 * @param array $members
-	 * @param boolean $append
-	 * @return array|null|self
+	 * @return array
 	 */
-	public function resolve_methods(array $methods = null, $prepend = false) {
-		return $this->_get_set_list($this->resolve_methods, $methods, false, $prepend);
+	public function resolveMethods(): array {
+		return $this->resolve_methods;
+	}
+
+	/**
+	 * @param array $methods
+	 * @return $this
+	 */
+	public function setResolveMethods(array $methods): self {
+		$this->resolve_methods = $methods;
+		return $this;
 	}
 
 	/**
 	 *
-	 * @param array $handlers
-	 * @param string $append
-	 * @return array|\zesk\ORM\JSONWalker
+	 * @return array
 	 */
-	public function members_handler(array $handlers = null, $append = false) {
-		return $this->_get_set_object($this->members_handler, $handlers, $append);
+	public function membersHandler(): array {
+		return $this->members_handler;
+	}
+
+	/**
+	 * @param array $handlers
+	 * @param bool $append
+	 * @return $this
+	 */
+	public function setMembersHandler(array $handlers, bool $append = false): self {
+		$this->members_handler = $append ? $handlers + $this->members_handler : $handlers;
+		return $this;
 	}
 
 	/**
 	 * List of member dotted paths to resolve in JSON
 	 *
-	 * @param array $handlers
-	 * @param string $append
-	 * @return array|\zesk\ORM\JSONWalker
+	 * @param array $resolve_objects
+	 * @param bool $append
+	 * @return $this
 	 */
-	public function resolve_objects(array $resolve_objects = null, $append = false) {
-		return $this->_get_set_unique($this->resolve_objects, $resolve_objects, $append);
+	public function setResolveObjects(array $resolve_objects, bool $append = false): self {
+		$this->resolve_objects = $this->_set_unique($this->resolve_objects, $resolve_objects, $append);
+		return $this;
+	}
+
+	public function resolveObjects(): array {
+		return $this->resolve_objects;
 	}
 
 	/**
@@ -245,12 +297,20 @@ class Walker {
 	 *
 	 * You can permit all resolve_objects paths by setting this to an empty array, so use with caution.
 	 *
-	 * @param array $handlers
-	 * @param string $append
-	 * @return array|\zesk\ORM\JSONWalker
+	 * @param array $allow_resolve_objects
+	 * @param bool $append
+	 * @return self
 	 */
-	public function allow_resolve_objects(array $allow_resolve_objects = null, $append = false) {
-		return $this->_get_set_unique($this->allow_resolve_objects, $allow_resolve_objects, $append, true);
+	public function setAllowResolveObjects(array $allow_resolve_objects, bool $append = false): self {
+		$this->allow_resolve_objects = $this->_set_unique($this->allow_resolve_objects, $allow_resolve_objects, $append, true);
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function allowResolveObjects(): array {
+		return $this->allow_resolve_objects;
 	}
 
 	/**
@@ -258,42 +318,42 @@ class Walker {
 	 * specific resolution options for complex structures in the database.
 	 *
 	 * @param ORMBase $orm
+	 * @return int|string|array
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Convert
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
+	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Parse
+	 * @throws Exception_Semantics
 	 */
-	public function walk(ORMBase $orm) {
+	public function walk(ORMBase $orm): int|string|array {
 		if ($this->preprocess_hook) {
 			$orm->class_orm()->callHookArguments($this->preprocess_hook, [
 				$this,
-			], null, null, null);
+			]);
 			$orm->callHookArguments($this->preprocess_hook, [
 				$this,
-			], null, null, null);
+			]);
 		}
 		$result = $this->_walk($orm);
 
 		if ($this->postprocess_hook) {
 			$result = $orm->callHookArguments($this->postprocess_hook, [
 				$result, $this,
-			], $result, null, null);
+			], $result);
 			$result = $orm->class_orm()->callHookArguments($this->postprocess_hook, [
 				$result, $this,
-			], $result, null, null);
+			], $result);
 		}
 		return $result;
 	}
 
-	/**
-	 * Getter setter for a unique, unordered list of values to be saved herein.
-	 *
-	 * @param array $member Reference to $this->member
-	 * @param array $list Items to add or set in the list
-	 * @param string $append True to append to the list
-	 * @param string $allow_null True to allow empty/null lists
-	 * @return self|array
-	 */
-	private function _get_set_unique(&$member, array $list = null, $append = false, $allow_null = false) {
-		if ($list === null) {
-			return $allow_null ? ($member === null ? null : array_keys($member)) : array_keys($member);
-		}
+	private function _set_unique(null|array $member, array $list, bool $append = false, bool $allow_null = false): array {
 		if ($allow_null) {
 			if (!is_array($member) || $append === false) {
 				if (count($list) === 0) {
@@ -311,51 +371,7 @@ class Walker {
 				$member += ArrayTools::keysFromValues($list, true);
 			}
 		}
-		return $this;
-	}
-
-	/**
-	 * Handle ordered list of non-unique items
-	 *
-	 * @param array $member
-	 * @param array $list
-	 * @param boolean $append
-	 * @param boolean $prepend
-	 * @return array|self
-	 */
-	private function _get_set_list(&$member, array $list = null, $append = false, $prepend = false) {
-		if ($list === null) {
-			return $member;
-		}
-		if ($append === true) {
-			$member = array_merge($member, $list);
-		} elseif ($prepend === true) {
-			$member = array_merge($list, $member);
-		} else {
-			$member = $list;
-		}
-		return $this;
-	}
-
-	/**
-	 * Handle ordered list of unique items (name/value pairs)
-	 *
-	 * @param array $member
-	 * @param array $list
-	 * @param boolean $append
-	 * @param boolean $prepend
-	 * @return array|self
-	 */
-	private function _get_set_object(&$member, array $object = null, $append = false, $prepend = false) {
-		if ($object === null) {
-			return $member;
-		}
-		if ($append === true) {
-			$member += $object;
-		} else {
-			$member = $object;
-		}
-		return $this;
+		return $member;
 	}
 
 	/**
@@ -364,11 +380,11 @@ class Walker {
 	 * @return array
 	 */
 	private function process_resolve_objects(LoggerInterface $logger): array {
-		$allow_resolve_objects = $this->allow_resolve_objects();
+		$allow_resolve_objects = $this->allowResolveObjects();
 
 		$resolve_object_match = [];
 
-		foreach ($this->resolve_objects() as $member_path) {
+		foreach ($this->resolveObjects() as $member_path) {
 			if (is_array($allow_resolve_objects) && count($allow_resolve_objects) !== 0 && !StringTools::begins($allow_resolve_objects, $member_path)) {
 				$logger->warning('Not allowed to traverse {member_path} as it is not included in {allow_resolve_objects}', compact('allow_resolve_objects', 'member_path'));
 			} else {
@@ -390,9 +406,21 @@ class Walker {
 	 * specific resolution options for complex structures in the database.
 	 *
 	 * @param ORMBase $orm
+	 * @return int|string|array
+	 * @throws Exception_ORMEmpty
+	 * @throws Exception_ORMNotFound
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Convert
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Parse
+	 * @throws Exception_Semantics
 	 */
-	private function _walk(ORMBase $orm) {
-		/* Convert to JSONable structure */
+	private function _walk(ORMBase $orm): int|string|array {
+		/* Convert to JSON structure */
 		$class_data = $this->class_info ? [
 			'_class' => get_class($this), '_parent_class' => get_parent_class($this),
 			'_primary_keys' => $orm->members($orm->primaryKeys()),
@@ -413,8 +441,8 @@ class Walker {
 		/* Handle "resolve_objects" list and "allow_resolve_objects" checks */
 		$resolve_object_match = $this->process_resolve_objects($logger);
 		/* Copy things to JSON */
-		$exclude_members = $this->exclude_members; // Yes, we want the keys => true version
-		$include_members = $this->include_members();
+		$exclude_members = $this->excludeMembers(); // Yes, we want the keys => true version
+		$include_members = $this->includeMembers();
 		if (empty($include_members)) {
 			$include_members = null;
 		}
@@ -435,40 +463,54 @@ class Walker {
 	}
 
 	/**
-	 * JSONify a single member
+	 * JSON a single member
 	 *
 	 * @param ORMBase $orm
 	 * @param string $member
 	 * @param mixed $value
+	 * @param array $resolve_object_match
 	 * @param LoggerInterface $logger
-	 * @return unknown
+	 * @return int|string|null|ORMBase|Timestamp
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Convert
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Parse
+	 * @throws Exception_Semantics
 	 */
-	private function _walk_member(ORMBase $orm, string $member, $value, array $resolve_object_match, LoggerInterface
-	$logger): int|string|null|ORM|Timestamp {
+	private function _walk_member(
+		ORMBase $orm,
+		string $member,
+		mixed $value,
+		array $resolve_object_match,
+		LoggerInterface	$logger
+	): int|string|null|ORMBase|Timestamp {
 		$handler = $this->members_handler[$member] ?? null;
 		if (is_callable($handler) || function_exists($handler)) {
 			return $handler($value, $orm, $this);
 		}
 		// Inherit depth -1, and resolve_methods
-		$child_options = $this->child()->depth($this->depth - 1)->resolve_methods($this->resolve_methods());
+		$child_options = $this->child()->setDepth($this->depth - 1)->setResolveMethods($this->resolveMethods());
 		if (array_key_exists($member, $resolve_object_match)) {
 			try {
 				$value = $orm->get($member);
-			} catch (Exception_ORMEmpty $e) {
-				$value = null;
-			} catch (Exception_ORMNotFound $e) {
+			} catch (Exception_ORMEmpty|Exception_ORMNotFound) {
 				$value = null;
 			}
-			$child_options->resolve_objects($resolve_object_match[$member]);
+			$child_options->setResolveObjects($resolve_object_match[$member]);
 			// We null out "allow_resolve_objects" as those were checked once, above and are not necessary
-			$child_options->allow_resolve_objects([]);
-			// Reset the depth to override depth restrictions above
+			$child_options->setAllowResolveObjects([]);
+			// Reset the depth to override depth restrictions
 			// Override above depth as we are traversing along the specified path
-			$child_options->depth(1);
+			$child_options->setDepth(1);
 		}
 		if ($value === null) {
-			return $value;
-		} elseif (is_scalar($value)) {
+			return null;
+		}
+		if (is_scalar($value)) {
 			return $value;
 		} elseif (is_object($value)) {
 			return $this->resolve_object($orm, $member, $value, $child_options, $logger);
@@ -486,13 +528,7 @@ class Walker {
 	 * @param LoggerInterface $logger
 	 * @return mixed
 	 */
-	private function resolve_object(
-		ORMBase $object,
-		string $member,
-		mixed $value,
-		Walker $child_options,
-		LoggerInterface $logger
-	): string {
+	private function resolve_object(ORMBase $object, string $member, mixed $value, Walker $child_options, LoggerInterface $logger): string {
 		foreach ($this->resolve_methods as $resolve_method) {
 			if (is_string($resolve_method) && method_exists($value, $resolve_method)) {
 				return $value->$resolve_method($child_options);

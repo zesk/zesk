@@ -48,7 +48,7 @@ class Route_Command extends Route {
 	 */
 	public const DEFAULT_OPTION_FAILED_THEME = 'route/command/failed';
 
-	protected function _execute(Response $response): Response {
+	protected function _execute(Request $request, Response $response): Response {
 		$app = $response->application;
 
 		$debug = $this->optionBool(self::OPTION_DEBUG);
@@ -80,10 +80,9 @@ class Route_Command extends Route {
 			$app->hooks->call('exception', $e);
 			$failedTheme = $this->option(self::OPTION_FAILED_THEME, self::DEFAULT_OPTION_FAILED_THEME);
 			$content = $app->theme($failedTheme, [
-				'content' => $e->output, 'failed' => true,
+				'content' => $e->getOutput(), 'failed' => true,
 			] + $e->variables() + $theme_arguments);
 		}
-		$response->content = $content;
-		return $response;
+		return $response->setContent($content);
 	}
 }

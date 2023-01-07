@@ -22,9 +22,13 @@ class Route_Method extends Route {
 	 */
 	public const OPTION_AUTOLOAD = 'autoload';
 
+	public const OPTION_INCLUDE = 'include';
+
+	public const OPTION_REQUIRE = 'require';
+
 	/**
 	 * @return bool
-	 * @throws Exception_Parameter
+	 * @throws Exception_Parameter|Exception_File_NotFound
 	 */
 	public function validate(): bool {
 		$function = $this->option(self::OPTION_METHOD);
@@ -58,19 +62,15 @@ class Route_Method extends Route {
 		return true;
 	}
 
-	public const OPTION_INCLUDE = 'include';
-
-	public const OPTION_REQUIRE = 'require';
-
 	/**
-	 * Do includes if specified
+	 * Perform includes if specified
 	 *
-	 * @return void
+	 * @return array
 	 * @throws Exception_File_NotFound
 	 */
-	private function _includeFiles(): void {
-		$includes = $this->optionList(self::OPTION_INCLUDE);
-		$requires = $this->optionList(self::OPTION_REQUIRE);
+	private function _includeFiles(): array {
+		$includes = $this->optionIterable(self::OPTION_INCLUDE);
+		$requires = $this->optionIterable(self::OPTION_REQUIRE);
 		foreach ($requires as $require) {
 			File::depends($require);
 
@@ -91,25 +91,27 @@ class Route_Method extends Route {
 				] + $this->variables(), 0, $t);
 			}
 		}
+		return [$includes, $requires];
 	}
 
 	/**
 	 *
+	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
 	 * @throws Exception_File_NotFound
 	 * @throws Exception_Redirect
 	 */
-	protected function _execute(Response $response): Response {
+	protected function _execute(Request $request, Response $response): Response {
 		$response->setContent(null);
-		$app = $this->router->application;
+		$app = $this->application;
 		$this->_includeFiles();
 
 		$method = $this->options['method'];
 		$arguments = $this->args;
 
-		$construct_arguments = $this->_mapVariables($this->optionArray('construct arguments'));
-		$method = $this->_mapVariables($method);
+		$construct_arguments = $this->_mapVariables($request, $response, $this->optionArray('construct arguments'));
+		$method = $this->_mapVariables($request, $response, $method);
 		ob_start();
 
 		try {
@@ -123,7 +125,7 @@ class Route_Method extends Route {
 			}
 		} catch (Exception_Redirect $e) {
 			throw $e;
-		} catch (\Exception $e) {
+		} catch (Throwable $e) {
 			$content = null;
 			$app->hooks->call('exception', $e);
 			$app->logger->error('{class}::_execute() Running {method} threw exception {e}', [

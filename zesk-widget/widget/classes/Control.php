@@ -121,7 +121,11 @@ class Control extends Widget {
 		return $columns;
 	}
 
-	protected function hook_query(Database_Query_Select $query) {
+	/**
+	 * @param Database_Query_Select $query
+	 * @return bool
+	 */
+	protected function hook_query(Database_Query_Select $query): bool {
 		$debug = false;
 		$columns = $this->query_columns();
 		if (!$columns) {

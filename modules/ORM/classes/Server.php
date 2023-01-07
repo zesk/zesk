@@ -102,13 +102,8 @@ class Server extends ORMBase implements Interface_Data {
 	 * @var array
 	 */
 	private static $disk_units_list = [
-		self::DISK_UNITS_BYTES,
-		self::DISK_UNITS_KILOBYTES,
-		self::DISK_UNITS_MEGABYTES,
-		self::DISK_UNITS_GIGABYTES,
-		self::DISK_UNITS_TERABYTES,
-		self::DISK_UNITS_PETABYTES,
-		self::DISK_UNITS_EXABYTES,
+		self::DISK_UNITS_BYTES, self::DISK_UNITS_KILOBYTES, self::DISK_UNITS_MEGABYTES, self::DISK_UNITS_GIGABYTES,
+		self::DISK_UNITS_TERABYTES, self::DISK_UNITS_PETABYTES, self::DISK_UNITS_EXABYTES,
 	];
 
 	/**
@@ -152,8 +147,7 @@ class Server extends ORMBase implements Interface_Data {
 	 */
 	public static function hooks(Application $zesk): void {
 		$zesk->hooks->add(Hooks::HOOK_CONFIGURED, [
-			__CLASS__,
-			'configured',
+			__CLASS__, 'configured',
 		]);
 	}
 
@@ -223,14 +217,16 @@ class Server extends ORMBase implements Interface_Data {
 	 * @return Server
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
-	 * @throws InvalidArgumentException
 	 */
 	public static function singleton(Application $application): self {
 		$cache = $application->cache;
-		/* @var $cache \Psr\Cache\CacheItemPoolInterface */
+		$item = null;
 		if ($cache) {
-			$item = $cache->getItem(__METHOD__);
-			if ($item->isHit()) {
+			try {
+				$item = $cache->getItem(__METHOD__);
+			} catch (InvalidArgumentException) {
+			}
+			if ($item && $item->isHit()) {
 				$server = $item->get();
 				if ($server instanceof Server) {
 					$one_minute_ago = Timestamp::now()->addUnit(-60);
@@ -242,7 +238,7 @@ class Server extends ORMBase implements Interface_Data {
 		}
 		$server = $application->ormFactory(__CLASS__);
 		$server = $server->_findSingleton();
-		if ($cache) {
+		if ($cache && $item) {
 			$item->set($server);
 			$item->expiresAfter(60);
 			$cache->saveDeferred($item);
@@ -255,28 +251,20 @@ class Server extends ORMBase implements Interface_Data {
 	 */
 	/**
 	 * @return $this
-	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Semantics
-	 * @throws Exception_Parameter
 	 */
 	protected function _findSingleton(): self {
 		$this->name = self::hostDefault();
 
+		$orm = $this->find();
+		$now = Timestamp::now();
+
 		try {
-			$orm = $this->find();
-			$now = Timestamp::now();
 			if ($now->difference($this->alive) > $this->option(self::option_alive_update_seconds, self::default_alive_update_seconds)) {
 				$orm->updateState();
 			}
 			return $this;
-		} catch (Exception_Configuration $e) {
-		} catch (Exception_Key $e) {
-		} catch (Exception_Parameter $e) {
-		} catch (Exception_Semantics $e) {
-		} catch (Exception_ORMNotFound $e) {
+		} catch (Exception_Parameter) {
 		}
-
 		return $this->refresh_names();
 	}
 
@@ -395,8 +383,7 @@ class Server extends ORMBase implements Interface_Data {
 	 */
 	private function _db_tz_is_utc(string $tz): bool {
 		return in_array(strtolower($tz), [
-			'utc',
-			'+00:00',
+			'utc', '+00:00',
 		]);
 	}
 
@@ -421,8 +408,7 @@ class Server extends ORMBase implements Interface_Data {
 			date_default_timezone_set('UTC');
 		}
 		return [
-			$old_tz,
-			$old_php_tz,
+			$old_tz, $old_php_tz,
 		];
 	}
 
@@ -476,9 +462,7 @@ class Server extends ORMBase implements Interface_Data {
 			return $this;
 		}
 		$data = new Server_Data($this->application, [
-			'server' => $this,
-			'name' => $name,
-			'value' => $value,
+			'server' => $this, 'name' => $name, 'value' => $value,
 		]);
 		$data->store();
 		return $this;
@@ -537,8 +521,7 @@ class Server extends ORMBase implements Interface_Data {
 	 */
 	public function deleteData(string|array $name): self {
 		$this->application->ormRegistry(Server_Data::class)->queryDelete()->appendWhere([
-			'server' => $this,
-			'name' => $name,
+			'server' => $this, 'name' => $name,
 		])->execute();
 		return $this;
 	}
@@ -576,8 +559,7 @@ class Server extends ORMBase implements Interface_Data {
 		foreach ($where as $name => $value) {
 			$alias = "data_$name";
 			$query->link(Server_Data::class, [
-				'alias' => $alias,
-				'on' => [
+				'alias' => $alias, 'on' => [
 					'name' => $name,
 				],
 			]);
@@ -596,8 +578,7 @@ class Server extends ORMBase implements Interface_Data {
 	 */
 	public function aliveIPs(int $within_seconds = 300): array {
 		$ips = $this->querySelect()->addWhatIterable([
-			'ip4_internal' => 'ip4_internal',
-			'ip4_external' => 'ip4_extermal',
+			'ip4_internal' => 'ip4_internal', 'ip4_external' => 'ip4_extermal',
 		])->setDistinct()->appendWhere([
 			'alive|>=' => Timestamp::now('UTC')->addUnit(-abs($within_seconds), Timestamp::UNIT_SECOND),
 		])->toArray();

@@ -189,25 +189,31 @@ class Module_Database extends Module {
 	 * Internal function to load database settings from globals
 	 */
 	public function _configured(): void {
-		$id = spl_object_id($this);
-		$this->_legacy_configured();
-
 		$application = $this->application;
 		$config = $application->configuration;
 
-		$databases = toArray($config->path([__CLASS__, 'names', ]));
+		$defaultDatabaseName = 'default';
+		$database_default_config_path = [__CLASS__, 'default', ];
+		if ($config->pathExists($database_default_config_path)) {
+			$defaultDatabaseName = $config->getPath($database_default_config_path);
+			$this->setDatabaseDefault($defaultDatabaseName);
+		}
+
+		$configPathDatabaseNames = [__CLASS__, 'names', ];
+		$databases = toArray($config->path($configPathDatabaseNames));
 		foreach ($databases as $name => $database) {
 			$name = strtolower($name);
+			if (!is_string($database)) {
+				throw new Exception_Configuration($configPathDatabaseNames, 'Value for {name} is not a string: {databases}', [
+					'databases' => JSON::encodePretty($databases), 'name' => $name,
+				]);
+			}
 
 			try {
-				$this->register($name, $database);
+				$this->register($name, $database, $name === $defaultDatabaseName);
 			} catch (Exception_Semantics $e) {
 				$application->logger->critical($e->raw_message, $e->variables());
 			}
-		}
-		$database_default_config_path = [__CLASS__, 'default', ];
-		if ($config->pathExists($database_default_config_path)) {
-			$this->setDatabaseDefault($config->getPath($database_default_config_path));
 		}
 	}
 

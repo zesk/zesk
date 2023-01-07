@@ -1,17 +1,5 @@
 -- Database: mysql
 
---  COLUMN: ID -> id
---  COLUMN: Cookie -> cookie
---  COLUMN: User -> user
---  COLUMN: IP -> ip
---  COLUMN: Created -> created
---  COLUMN: Modified -> modified
---  COLUMN: Expires -> expires
---  COLUMN: Seen -> seen
---  COLUMN: IsOneTime -> is_one_time
---  COLUMN: SequenceIndex -> sequence_index
---  COLUMN: Data -> data
-
 CREATE TABLE `{table}` (
 	`id` int(11) unsigned not null auto_increment,
 	`cookie` varchar(32) not null default '',

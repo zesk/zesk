@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  * @package zesk
@@ -6,8 +7,13 @@
  * @author $Author: kent $
  * @copyright Copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk\ORM;
 
+use zesk\ArrayTools;
+use zesk\Database_Exception_Duplicate;
+use zesk\Database_Exception_SQL;
+use zesk\Database_Exception_Table_NotFound;
 use zesk\Exception_Authentication;
 use zesk\Exception_Configuration;
 use zesk\Exception_Deprecated;
@@ -21,6 +27,8 @@ use zesk\Exception_Class_NotFound;
 use zesk\HTML;
 use zesk\HTTP;
 use zesk\Model;
+use zesk\Request;
+use zesk\Response;
 use zesk\StringTools;
 use zesk\ORM\Exception_ORMNotFound as Exception_ORM_NotFound;
 
@@ -63,13 +71,6 @@ abstract class Controller extends Controller_Authenticated {
 	protected string $class_name_locale = '';
 
 	/**
-	 * URL to redirect to if Control_${this->class}_List
-	 *
-	 * @var string
-	 */
-	protected string $not_found_url = '';
-
-	/**
 	 * Message to pass to failed page
 	 *
 	 * @var string
@@ -81,77 +82,6 @@ abstract class Controller extends Controller_Authenticated {
 	 * @var string
 	 */
 	protected string $not_found_content = 'Page not found';
-
-	/**
-	 * Action default (override in subclasses)
-	 *
-	 * @var string
-	 */
-	protected string $action_default = '';
-
-	protected ?string $method_default_action = '_default_action_object';
-
-	/**
-	 *
-	 * @var array
-	 */
-	protected array $actions = [
-		'index' => [
-			'List',
-			'Index',
-		],
-		'list' => [
-			'List',
-			'Index',
-		],
-		'new' => [
-			'New',
-			'Edit',
-		],
-		'edit' => 'Edit',
-		'delete' => [
-			'Delete',
-		],
-		'duplicate' => [
-			'Edit',
-		],
-	];
-
-	protected array $control_options = [];
-
-	/**
-	 * Action which was found from ->actions above
-	 *
-	 * @var string
-	 */
-	protected string $actual_action = '';
-
-	/**
-	 * Permissions which are required for this object to continue
-	 *
-	 * @var string
-	 */
-	protected string $permission_actions = '';
-
-	/**
-	 * List of widgets tried when loading controller widget
-	 *
-	 * @var array of string
-	 */
-	protected array $tried_widgets = [];
-
-	/**
-	 *
-	 * @var Widget
-	 */
-	protected ?Widget $widget = null;
-
-	/**
-	 * Action related to above widget
-	 *
-	 * @var string
-	 */
-	protected string $widget_action = '';
 
 	/**
 	 *
@@ -186,8 +116,7 @@ abstract class Controller extends Controller_Authenticated {
 			}
 			$this->class = $ns . StringTools::removePrefix($cl, 'Controller_');
 			$this->application->logger->debug('Automatically computed ORM class name {class} from {controller_class}', [
-				'controller_class' => $controller_class,
-				'class' => $this->class,
+				'controller_class' => $controller_class, 'class' => $this->class,
 			]);
 		}
 		if (!$this->class_name) {
@@ -209,7 +138,7 @@ abstract class Controller extends Controller_Authenticated {
 	private function _action_default_arguments(string $action = null, string $id = null): array {
 		$args = func_get_args();
 		if (!empty($id)) {
-			$object = $this->controller_ormFactory($id);
+			$object = $this->ormFactory($id);
 			if ($object) {
 				$args[1] = $object;
 			}
@@ -225,11 +154,10 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param string $default_url
 	 * @return string
 	 */
-	private function _compute_url(ORMBase $object, string $option, string $default_action = '', string $default_url =
-	''): string {
+	private function _compute_url(ORMBase $object, string $option, string $default_action = '', string $default_url = ''): string {
 		$class = $object::class;
 		$url = '';
-		$action = $this->firstOption(["$class::${option}_action", "${option}_action"], $default_action);
+		$action = $this->firstOption(["$class::{$option}_action", "{$option}_action"], $default_action);
 		if ($action) {
 			try {
 				$url = $this->router->getRoute($action, $object);
@@ -237,7 +165,7 @@ abstract class Controller extends Controller_Authenticated {
 			}
 		}
 		if (!$url) {
-			$url = $this->firstOption(["$class::${option}_url", "${option}_url"], $default_url);
+			$url = $this->firstOption(["$class::{$option}_url", "{$option}_url"], $default_url);
 		}
 		return $url;
 	}
@@ -254,8 +182,7 @@ abstract class Controller extends Controller_Authenticated {
 		if ($format === 'json') {
 			$this->setAutoRender(false);
 			$this->response->json()->setData([
-				'message' => $message,
-				'redirect_url' => $redirect_url,
+				'message' => $message, 'redirect_url' => $redirect_url,
 			] + $options);
 			return;
 		}
@@ -274,13 +201,13 @@ abstract class Controller extends Controller_Authenticated {
 			];
 		}
 		return [
-			$this->controller_ormFactory($parameter),
+			$this->ormFactory($parameter),
 		];
 	}
 
 	/**
 	 *
-	 * @param unknown $parameter
+	 * @param mixed $parameter
 	 * @return ORMBase[]
 	 */
 	public function arguments_delete(mixed $parameter): array {
@@ -301,47 +228,55 @@ abstract class Controller extends Controller_Authenticated {
 	}
 
 	/**
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array $arguments
+	 * @return array
+	 * @throws Exception_Parameter
+	 */
+	public function arguments_DELETE_index(Request $request, Response $response, array $arguments): array {
+		$first = first($arguments);
+		if (!$first instanceof ORMBase) {
+			throw new Exception_Parameter('Need ORMBase as first parameter {first} ({type})', [
+				'type' => type($first), 'first' => $first,
+			]);
+		}
+		return [$first, $response];
+	}
+
+	/**
 	 *
 	 * @param ORMBase $object
 	 * @return mixed|void
 	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Redirect
 	 */
-	public function action_delete(ORMBase $object) {
-		$widget = $this->_actionFindWidget('delete');
-		if ($widget) {
-			return $this->_action_default('delete');
-		}
+	public function action_DELETE_index(ORMBase $object, Response $response): Response {
 		$user = $this->user;
 		if ($user->can('delete', $object)) {
+			$words = $object->words();
 			$this->callHook('delete_before', $object);
 
 			try {
 				$object->delete();
-				$message = $object::class . ':=Deleted {class_name-context-object-singular} "{display_name}".';
 				$result = true;
-			} catch (Exception_ORMNotFound|Exception_Configuration|Exception_Unimplemented|Exception_Deprecated
-			|Exception_Key|Exception_Semantics) {
+				$message = $object::class . ':=Deleted {class_name-context-object-singular} "{display_name}".';
+			} catch (Database_Exception_Duplicate|Database_Exception_Table_NotFound|Database_Exception_SQL|Exception_Key|Exception_ORMEmpty $e) {
 				$message = $object::class . ':=Unable to delete {class_name-context-object-singular} "{display_name}".';
 				$result = false;
 			}
 		} else {
-			$message = $object::class . ':=You do not have permission to delete {class_name-context-object-singular} "{display_name}".';
+			$words = ArrayTools::filterKeyPrefixes($object->words(), 'class_');
+			$message = $object::class . ':=You do not have permission to delete {class_name-context-object-singular}.';
 			$result = false;
 		}
-		$message = $this->application->locale->__($message, $object->words());
-		$redirect_url = $this->_compute_url($object, $result ? 'delete_next' : 'delete_failed', '/', $this->request->get('ref') ?? '/');
-		$format = $this->request->get('format');
-		if ($format === 'json' || $this->request->preferJSON()) {
-			$this->setAutoRender(false);
-			$this->response->json()->setData([
-				'message' => $message,
-				'status' => $result,
-				'redirect_url' => $redirect_url,
-			]);
-			return;
-		}
-		$this->response->redirectDefault($redirect_url, $message);
+		$localeMessage = $this->application->locale->__($message, $words);
+		return $response->json()->setData([
+			'message' => $localeMessage,
+			'rawMessage' => $message,
+			'words' => $words,
+			'status' => $result,
+		]);
 	}
 
 	/**
@@ -349,7 +284,7 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param ORMBase $object
 	 * @throws Exception_Redirect
 	 */
-	public function action_duplicate(ORMBase $object): void {
+	public function action_POST_duplicate(ORMBase $object): void {
 		$user = $this->user;
 		$class = $object::class;
 		if ($user->can('duplicate', $object)) {
@@ -370,99 +305,18 @@ abstract class Controller extends Controller_Authenticated {
 		$redirect_url = $this->_compute_url($object, $result ? 'duplicate_next' : 'duplicate_fail', 'list', $this->request->get('ref'));
 		$walker = JSONWalker::factory();
 		$this->_redirect_response($redirect_url, $message, [
-			'status' => $result,
-			'original_object' => $object->json($walker),
-			'object' => $new_object->json($walker),
+			'status' => $result, 'original_object' => $object->json($walker), 'object' => $new_object->json($walker),
 		]);
-	}
-
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Controller_Template::after()
-	 */
-	public function after(string $result = null, string $output = null): void {
-		if ($this->request->preferJSON()) {
-			/**
-			 * @var $response Response
-			 */
-			$response = $this->response;
-			if (!$response->isJSON()) {
-				$content = $response->content;
-				if (!empty($result)) {
-					$content .= $result;
-				}
-				if ($output) {
-					$content .= $output;
-				}
-				$output_json = $response->isHTML() ? $response->html()->toJSON() : $response->toJSON();
-				$json = $response->response_data() + [
-					'status' => true,
-					'content' => $content,
-					'microtime' => microtime(true),
-				] + $output_json;
-
-				$this->json($json);
-			}
-			$this->autoRender(false);
-		} elseif ($this->response->isJSON()) {
-			$this->autoRender(false);
-		}
-		parent::after($result, $output);
-	}
-
-	/**
-	 *
-	 * @param string $action
-	 * @return string[]
-	 */
-	protected function widgetControlClasses(string $action): array {
-		$actual_actions = $this->actions[$action] ?? null;
-		$actual_actions = toList($actual_actions);
-		$this->tried_widgets = [];
-		$controls = [];
-		[$namespace, $class] = reversePair($this->class, '\\', '', $this->class);
-		foreach ($actual_actions as $actual_action) {
-			$controls[$namespace . '\\Control_' . $actual_action . '_' . $class] = $actual_action;
-		}
-		return $controls;
-	}
-
-	/**
-	 *
-	 * @param string $action
-	 * @return Widget
-	 * @throws Exception_ORMNotFound
-	 */
-	private function _actionFindWidget(string $action): Widget {
-		if ($this->widget_action === $action && $this->widget) {
-			return $this->widget;
-		}
-		$controls = $this->widgetControlClasses($action);
-		foreach ($controls as $control => $actual_action) {
-			try {
-				$this->tried_widgets[] = $control;
-				$widget = $this->widgetFactory($control, $this->control_options);
-				$this->actual_action = $actual_action;
-				$this->permission_actions = $widget->option('permission_actions', $actual_action);
-				$this->widget = $widget;
-				$this->widget_action = $action;
-				return $this->widget;
-			} catch (Exception_Class_NotFound $e) {
-			}
-		}
-
-		throw new Exception_ORMNotFound('Action not found {action}', ['action' => $action]);
 	}
 
 	/**
 	 * Override in subclasses to get unique factory behavior (say, dependent on other objects in the route)
 	 *
-	 * @param string $mixed
-	 * @param string $options
+	 * @param mixed $mixed
+	 * @param array $options
 	 * @return ORMBase
 	 */
-	protected function controller_ormFactory($mixed = null, $options = null) {
+	protected function ormFactory(mixed $mixed = null, array $options = null): ORMBase {
 		return $this->application->ormFactory($this->class, $mixed, toArray($options))->fetch();
 	}
 
@@ -472,10 +326,9 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param string $class
 	 * @param mixed $id
 	 * @return ORMBase
-	 *@throws Exception_Parameter
+	 * @throws Exception_Parameter
 	 */
-	protected function orm_from_id($class, $id) {
-		$locale = $this->application->locale;
+	protected function orm_from_id(string $class, int|string|array $id): ORMBase {
 		$object = $this->application->ormFactory($class, $id);
 		$name = $object->class_orm()->name;
 		$__ = [
@@ -505,11 +358,9 @@ abstract class Controller extends Controller_Authenticated {
 	 *
 	 * {@inheritDoc}
 	 * @throws Exception_ORMNotFound|Exception_Authentication|Exception_Permission
-	 *@see \zesk\Controller::_action_default()
+	 * @see \zesk\Controller::_action_default()
 	 */
 	public function _action_default_object(string $action = null, mixed $object = null): mixed {
-		$this->application->logger->debug("Controller_ORM::_action_default($action)");
-
 		try {
 			$router = $this->router;
 			$route = $this->route;
@@ -524,8 +375,7 @@ abstract class Controller extends Controller_Authenticated {
 					$url .= "?$query";
 				}
 				$this->application->logger->debug('Action {action} not found in {actions}', [
-					'action' => $action,
-					'actions' => $this->actions,
+					'action' => $action, 'actions' => $this->actions,
 				]);
 				return $this->response->redirect($url);
 			}
@@ -557,8 +407,7 @@ abstract class Controller extends Controller_Authenticated {
 				if ($ajax) {
 					$this->error(HTTP::STATUS_UNAUTHORIZED);
 					$this->json([
-						'status' => false,
-						'message' => $e->getMessage(),
+						'status' => false, 'message' => $e->getMessage(),
 					]);
 				} else {
 					throw $e;
@@ -566,7 +415,7 @@ abstract class Controller extends Controller_Authenticated {
 				}
 			}
 			if (is_numeric($object)) {
-				$object = $this->controller_ormFactory($object);
+				$object = $this->ormFactory($object);
 				if ($object) {
 					// Backwards compatibility: TODO is this needed anymore - corrupts truth of Request object
 					$this->request->set($object->idColumn(), $object);
@@ -590,9 +439,7 @@ abstract class Controller extends Controller_Authenticated {
 			}
 			$widget->setOption('class_name', $this->class_name);
 			return $this->control($widget, $object, [
-				'title' => $title,
-				'action' => $action,
-				'route_action' => $action,
+				'title' => $title, 'action' => $action, 'route_action' => $action,
 			]);
 		} catch (Exception_Class_NotFound $e) {
 			$this->application->hooks->call('exception', $e);

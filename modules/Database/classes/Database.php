@@ -167,7 +167,7 @@ abstract class Database extends Hookable implements Database_Interface {
 	/**
 	 * URL without password
 	 *
-	 * @var string
+	 * @var null|string
 	 */
 	protected ?string $safe_url = null;
 
@@ -198,6 +198,8 @@ abstract class Database extends Hookable implements Database_Interface {
 	 * @param Application $application
 	 * @param string $url
 	 * @param array $options
+	 * @throws Exception_Key
+	 * @throws Exception_Syntax
 	 */
 	public function __construct(Application $application, string $url = '', array $options = []) {
 		parent::__construct($application, $options);
@@ -246,6 +248,7 @@ abstract class Database extends Hookable implements Database_Interface {
 	 * Retrieve additional column attributes which are supported by this database, in the form
 	 * array("attribute1" => "default_value1")
 	 *
+	 * @param Database_Column $column
 	 * @return array
 	 */
 	public function columnAttributes(Database_Column $column): array {
@@ -314,7 +317,6 @@ abstract class Database extends Hookable implements Database_Interface {
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
-	 * @throws Exception_Unimplemented
 	 */
 	public function selectOne(string $table, array $where, string|array $order_by = []): array {
 		$sql = $this->sql()->select([
@@ -327,6 +329,8 @@ abstract class Database extends Hookable implements Database_Interface {
 	 * Change URL associated with this database and related settings
 	 *
 	 * @param string $url
+	 * @throws Exception_Key
+	 * @throws Exception_Syntax
 	 */
 	private function _initURL(string $url): void {
 		$this->url_parts = $parts = self::urlParse($url);
@@ -340,11 +344,12 @@ abstract class Database extends Hookable implements Database_Interface {
 	 * Parse SQL to determine type of command
 	 *
 	 * @param string $sql SQL to parse
-	 * @param ?string $field Optional desired field.
+	 * @param string $field Optional desired field.
 	 * @return string|array
 	 */
-	public function parseSQL(string $sql, string $field = null): string|array {
-		return $this->parser()->parseSQL($sql, $field);
+	public function parseSQL(string $sql, string $field = ''): string|array {
+		$result = $this->parser()->parseSQL($sql);
+		return $field !== '' ? $result[$field] ?? '' : $result;
 	}
 
 	/**
@@ -475,6 +480,8 @@ abstract class Database extends Hookable implements Database_Interface {
 	 * @param string $url
 	 * @return self
 	 * @throws Database_Exception_Connect
+	 * @throws Exception_Key
+	 * @throws Exception_Syntax
 	 */
 	public function changeURL(string $url): self {
 		$connected = $this->connected();
@@ -600,6 +607,7 @@ abstract class Database extends Hookable implements Database_Interface {
 
 	/**
 	 * Reconnect the database
+	 * @throws Database_Exception_Connect
 	 */
 	public function reconnect(): self {
 		$this->disconnect();
@@ -609,7 +617,6 @@ abstract class Database extends Hookable implements Database_Interface {
 	/**
 	 * Can I create another database in the current connection?
 	 *
-	 * @return boolean
 	 */
 	public function can(string $permission): bool {
 		return false;
@@ -619,6 +626,9 @@ abstract class Database extends Hookable implements Database_Interface {
 	 * Create a new database with the current connection
 	 *
 	 * @param string $url
+	 * @param array $hosts
+	 * @return bool
+	 * @throws Exception_Unimplemented
 	 */
 	public function createDatabase(string $url, array $hosts): bool {
 		throw new Exception_Unimplemented(get_class($this) . "::createDatabase($url)");
@@ -627,7 +637,6 @@ abstract class Database extends Hookable implements Database_Interface {
 	/**
 	 * Does this table exist?
 	 *
-	 * @return boolean
 	 */
 	abstract public function tableExists(string $table_name): bool;
 
@@ -1261,7 +1270,7 @@ abstract class Database extends Hookable implements Database_Interface {
 	}
 
 	public function autoTableRename(string $sql, array $options = []): string {
-		$matches = false;
+		$matches = [];
 		$state = null;
 		$sql = self::unstring($sql, $state);
 		$sql = map($sql, $this->table_name_cache, true);

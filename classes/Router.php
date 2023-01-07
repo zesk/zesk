@@ -16,48 +16,67 @@ use Psr\Cache\InvalidArgumentException;
 
 /**
  * @see Route
+ *
  * Router
- * Handles converting a URL Path to a method invokation, with a special case for Controller objects.
+ *
+ * Handles converting a URL Path to a method, with a special case for Controller objects.
  * Support for permissions, automatic variable conversion as well.
+ *
  * Basic setup is pattern -> array of settings
+ *
  * Pattern is a URL path, excluding / prefix , with optional variables included, e.g.
+ *
  * /foo/bar/dee
+ *
  * You can specify optional sections using parenthesis ()
+ *
  * The settings available are:
- * controller Controller to invoke, can include variable name
- * controller prefixes A list of controller prefixes to use, overrides the default Router prefixes
- * controller options Array of options to set on the controller upon creation
- * action The action to invoke in the controller
- * arguments The arguments to the action. If values are numeric, specifies the URL part to pass
- * as an argument. Keys
- * may be specified, but are ignored.
+ *
+ * "controller" Controller to invoke, can include variable name
+ * "controller prefixes" A list of controller prefixes to use, overrides the default Router prefixes
+ * "controller options" Array of options to set on the controller upon creation
+ * "action" The action to invoke in the controller
+ * "arguments" The arguments to the action. If values are numeric, specifies the URL part to pass
+ * as an argument. Keys may be specified, but are ignored.
+ *
  * For a template, it's:
- * template Template to load, may include variables names
- * arguments Name/value pairs passed to the template. If values are numeric, specifies the URL
- * part to pass as an
- * argument.
+ *
+ * "template" Template to load, may include variables names
+ * "arguments" Name/value pairs passed to the template. If values are numeric, specifies the URL
+ * part to pass as an argument.
+ *
  * For a method it's:
- * method Name of method to invoke. For class methods, specify array("ClassName" =>
- * "method_name"), or
+ *
+ * "method" Name of method to invoke. For class methods, specify array("ClassName" => "method_name"), or
  * ClassName::method_name
  * arguments The arguments to the action. For numeric values, specifies the URL part to pass as
  * an argument.
- * For all routes
- * content type Set the response content type to this
- * status code Set the response status code
- * status message Set the response status message
- * redirect After invokation, redirect to here
- * The pattern syntax is:
- * {variable-name} An untyped variable, or string.
- * {type variable-name} Typed variable name. Type can be integer, double, string, array, list,
- * comma-list, dash-list, semicolon-list, option, or an object type.
- * {type } An unnamed variable, can be referenced by the URL path order
- * e.g.
- * You can also group parameters as option by specifying
- * The following "magic" URI will invoke Controller_{Controller}::action_{action} with optional
- * parameter:
  *
- * {controller}/{action}(/{ID:+})
+ * For all routes
+ *
+ * "content" type Set the response content type to this
+ * "status code" Set the response status code
+ * "status message" Set the response status message
+ * "redirect" After invokation, redirect to here
+ *
+ * The pattern syntax is:
+ *
+ * {variable-name} An untyped variable, or string.
+ * {type variable-name} Typed variable name.
+ * {type} An unnamed variable, can be referenced by the URL path order
+ *
+ * Type can be:
+ * - integer
+ * - double
+ * - string
+ * - array
+ * - list
+ * - comma-list
+ * - dash-list
+ * - semicolon-list
+ * - option
+ * - or a class
+ *
  */
 class Router extends Hookable {
 	/**
@@ -212,30 +231,9 @@ class Router extends Hookable {
 	}
 
 	/**
-	 *
-	 * @param Route $a
-	 * @param Route $b
-	 * @return number
-	 */
-	public static function compareWeight(Route $a, Route $b): int {
-		$a_weight = zesk_weight($a->option('weight'));
-		$b_weight = zesk_weight($b->option('weight'));
-		$a->setOption('computed_weight', $a_weight);
-		$b->setOption('computed_weight', $b_weight);
-		$delta = intval($a_weight - $b_weight);
-		if ($delta === 0) {
-			return 0;
-		}
-		if ($delta < 0) {
-			return -1;
-		}
-		return 1;
-	}
-
-	/**
 	 */
 	private function _sort(): void {
-		uasort($this->routes, [__CLASS__, 'compareWeight']);
+		uasort($this->routes, Route::compareWeight(...));
 	}
 
 	/**
@@ -310,26 +308,35 @@ class Router extends Hookable {
 	/**
 	 * Match a request to this router. Return a Route. Returned route will have ->request() set to this object.
 	 *
-	 * @param Request $request
+	 * @param string $path
+	 * @param string $method
 	 * @return Route
 	 * @throws Exception_NotFound
 	 */
-	public function match(Request $request): Route {
-		$path = $request->path();
-		$method = $request->method();
+	public function match(string $path, string $method = HTTP::METHOD_GET): Route {
 		if ($this->prefix) {
 			$path = StringTools::removePrefix($path, $this->prefix);
 		}
 		$path = $this->aliases[$path] ?? $path;
 		foreach ($this->routes() as $route) {
 			if ($route->match($path, $method)) {
-				$route->setRequest($request);
 				$this->log('debug', 'Matched {path} to {route}', compact('path', 'route'));
 				return $route;
 			}
 		}
 
-		throw new Exception_NotFound('No match for {method} {url}', $request->variables());
+		throw new Exception_NotFound('No match for {path} ({method})', ['method' => $method, 'path' => $path]);
+	}
+
+	/**
+	 * Match a request to this router. Return a Route. Returned route will have ->request() set to this object.
+	 *
+	 * @param Request $request
+	 * @return Route
+	 * @throws Exception_NotFound
+	 */
+	public function matchRequest(Request $request): Route {
+		return $this->match($request->path(), $request->method());
 	}
 
 	/**
@@ -384,11 +391,11 @@ class Router extends Hookable {
 	 * @return Route
 	 */
 	private function _registerRoute(Route $route): Route {
-		$class_actions = $route->classActions();
-		if (!$class_actions) {
+		$classActions = $route->classActions();
+		if (!$classActions) {
 			return $route;
 		}
-		foreach ($class_actions as $class => $actions) {
+		foreach ($classActions as $class => $actions) {
 			$class = $this->application->objects->resolve($class);
 			foreach ($actions as $action) {
 				$this->reverse_routes[strtolower($class)][strtolower($action)][] = $route;

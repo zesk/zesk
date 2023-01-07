@@ -9,118 +9,44 @@ declare(strict_types=1);
 
 namespace zesk\ORM;
 
-use zesk\Controller_Login;
-use zesk\URL;
+use zesk\Exception_Authentication;
+use zesk\Interface_UserLike;
+use zesk\Request;
+use zesk\Response;
 use zesk\HTTP;
-use zesk\Exception_RedirectTemporary;
 use zesk\Controller_Theme;
 
 /**
- * @see Controller_Template_Login
  * @see Controller_Theme
  * @author kent
  *
  */
 class Controller_Authenticated extends Controller_Theme {
 	/**
-	 * Page to redirect to if not logged in
-	 *
-	 * @var string
-	 */
-	protected string $login_redirect = '';
-
-	/**
-	 * Message to display when user not logged in (after redirect)
-	 *
-	 * @var string
-	 */
-	protected string $login_redirect_message = '';
-
-	/**
 	 * Current logged in user
 	 *
-	 * @var User|null
+	 * @var Interface_UserLike|null
 	 */
-	public ?User $user = null;
+	public Interface_UserLike|null $user = null;
 
 	/**
 	 * Current session
 	 *
 	 * @var Interface_Session|null
 	 */
-	public ?Interface_Session $session = null;
+	public Interface_Session|null $session = null;
 
 	/**
+	 * @param Request $request
+	 * @param Response $response
 	 * @return void
+	 * @throws Exception_Authentication
 	 */
-	protected function initialize(): void {
-		parent::initialize();
-
-		if (!$this->login_redirect_message) {
-			$this->login_redirect_message = $this->application->locale->__($this->option('login_redirect_message', 'Please log in first.'));
-		}
-		$this->session = $this->application->session($this->request, false);
+	protected function hook_before(Request $request, Response $response): void {
+		$this->session = $this->application->session($request, false);
 		$this->user = $this->session?->user();
-	}
-
-	/**
-	 * @return void
-	 */
-	public function default_login_redirect(): void {
-		if (!$this->login_redirect) {
-			try {
-				$this->login_redirect = $this->router->getRoute('login', Controller_Login::class) ?: null;
-			} catch (\zesk\Exception_NotFound) {
-			}
-			if (!$this->login_redirect) {
-				$this->login_redirect = '/login';
-			}
-		}
-	}
-
-	/**
-	 * @return void
-	 * @throws Exception_RedirectTemporary
-	 */
-	public function check_authenticated(): void {
-		if (!$this->optionBool('login_redirect', true)) {
-			return;
-		}
 		if (!$this->session || !$this->user) {
-			$this->login_redirect();
-		}
-	}
-
-	/**
-	 * @return void
-	 * @throws Exception_RedirectTemporary
-	 */
-	public function before(): void {
-		parent::before();
-		$this->check_authenticated();
-	}
-
-	/**
-	 * If not logged in, redirect
-	 * @return void
-	 * @throws Exception_RedirectTemporary
-	 */
-	protected function login_redirect(): void {
-		$this->default_login_redirect();
-		if (!$this->user || !$this->user->authenticated($this->request)) {
-			if ($this->response->isJSON()) {
-				$this->json([
-					'status' => false, 'message' => $this->login_redirect_message, 'route' => $this->login_redirect,
-					'referrer' => $this->request->uri(),
-				]);
-				$this->response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Need to authenticate');
-			} else {
-				$url = URL::queryFormat($this->login_redirect, [
-					'ref' => $this->request->uri(),
-				]);
-
-				throw new Exception_RedirectTemporary($url, $this->login_redirect_message);
-			}
+			$response->setStatus(HTTP::STATUS_UNAUTHORIZED);
 		}
 	}
 

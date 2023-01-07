@@ -442,8 +442,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param array $on
 	 * @param string $table
 	 * @return $this
-	 * @throws Exception_Key
-	 * @throws Exception_Semantics
+	 * @throws Exception_Semantics|Exception_Key
 	 */
 	public function join_object(string $join_type, ORMBase|string $class, string $alias, array $on, string $table = ''): self {
 		if (is_string($class)) {

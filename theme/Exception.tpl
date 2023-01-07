@@ -52,7 +52,7 @@ $dev = $this->application->development();
 	echo HTML::tag('code', $message);
 if ($dev) {
 	?><p>The call stack is:</p><?php
-	echo $this->theme('exception/trace', [
+	echo $this->theme('Exception/Trace', [
 		'content' => $trace,
 	]); ?>
 	<?php

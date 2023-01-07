@@ -8,11 +8,12 @@ namespace zesk;
  */
 class Route_Content extends Route {
 	/**
+	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
 	 * @throws Exception_NotFound
 	 */
-	protected function _execute(Response $response): Response {
+	protected function _execute(Request $request, Response $response): Response {
 		$file = $this->option('file');
 		if ($file) {
 			try {
