@@ -20,6 +20,10 @@ class Class_Server extends Class_Base {
 		'name',
 	];
 
+	public array $duplicate_keys = [
+		'ip4_internal',
+	];
+
 	public array $column_types = [
 		'id' => self::TYPE_ID,
 		'name' => self::TYPE_STRING,
@@ -34,8 +38,8 @@ class Class_Server extends Class_Base {
 	];
 
 	public array $has_many = [
-		'data' => [
-			'class' => Server_Data::class,
+		'metas' => [
+			'class' => ServerMeta::class,
 			'foreign_key' => 'server',
 		],
 	];

@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use ReflectionClass;
 use ReflectionException;
 
 /**
@@ -157,15 +158,15 @@ class UnitTest extends PHPUnit_TestCase {
 	 * @throws ReflectionException
 	 */
 	public function exposePrivateMethod(string $class, array $methods): array {
-		$refl = new \ReflectionClass($class);
+		$reflectionClass = new ReflectionClass($class);
 		$results = [];
 		foreach ($methods as $method) {
-			$cmethod = $refl->getMethod($method);
-			$cmethod->setAccessible(true);
-			$results[$method] = function ($object) use ($cmethod) {
+			$classMethod = $reflectionClass->getMethod($method);
+			$classMethod->setAccessible(true);
+			$results[$method] = function ($object) use ($classMethod) {
 				$args = func_get_args();
 				array_shift($args);
-				return $cmethod->invokeArgs($object, $args);
+				return $classMethod->invokeArgs($object, $args);
 			};
 		}
 		return $results;

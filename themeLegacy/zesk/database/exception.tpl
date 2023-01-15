@@ -32,7 +32,7 @@ $application->logger->error("Exception: {exception_class}\nMessage: {message}\nS
 <div class="error">
 	<p>There was a database error.</p>
 	<?php
-	if ($this->application->development()) {
+	if ($this->themes->development()) {
 		?><p>The computer error given was:</p><?php
 		echo HTML::tag('code', $exception->getMessage()); ?><p>The call stack is:</p><?php
 		echo $this->theme('exception/trace', [

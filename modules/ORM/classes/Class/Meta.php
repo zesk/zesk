@@ -40,7 +40,7 @@ class Class_Meta extends Class_Base {
 	protected function configure(ORMBase $object): void {
 		if (!$this->table) {
 			try {
-				$this->initialize_database($object);
+				$this->initializeDatabase($object);
 			} catch (Exception_Configuration $e) {
 				throw new Exception_ORMNotFound(self::class, __METHOD__, $e->variables(), $e);
 			}

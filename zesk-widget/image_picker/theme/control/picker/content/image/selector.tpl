@@ -54,7 +54,8 @@ foreach ($iterator as $image) {
 }
 ?></div>
 <?php
-$response->response_data([
+$response->setResponseData([
+
 	'context_class' => 'modal-lg',
 ], true);
 

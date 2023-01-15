@@ -10,5 +10,6 @@
 			"php"
 		]
 	},
-	"moduleClass": "MySQL\\Module"
+	"moduleClass": "MySQL\\Module",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

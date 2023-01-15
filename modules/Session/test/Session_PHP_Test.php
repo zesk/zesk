@@ -9,7 +9,7 @@ namespace zesk\Session\Session\test;
 use zesk\Interface_Session;
 use zesk\Request;
 use zesk\UnitTest;
-use zesk\zesk;
+use zesk;
 
 /**
  * @todo inherit from Session_Test
@@ -58,7 +58,7 @@ class Session_PHP_Test extends UnitTest {
 		$request->initializeFromSettings([
 			'url' => 'http://localhost/',
 		]);
-		$this->assertFalse($session->authenticated(), 'Session authenticated');
+		$this->assertFalse($session->isAuthenticated(), 'Session authenticated');
 	}
 
 	/**

@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace zesk\ORM;
 
-use PHPUnit\Runner\Hook;
 use zesk\Application;
 use zesk\Database_Exception;
 use zesk\Database_Exception_Duplicate;
@@ -18,11 +17,11 @@ use zesk\Database_Exception_SQL;
 use zesk\Database_Exception_Table_NotFound;
 use zesk\Exception_Configuration;
 use zesk\Exception_Key;
-use zesk\Exception_Lock;
 use zesk\Exception_Parameter;
 use zesk\Exception_Semantics;
 use zesk\Exception_Timeout;
 use zesk\Exception_Unimplemented;
+use zesk\Exception_Unsupported;
 use zesk\Hooks;
 use zesk\Temporal;
 use zesk\Timer;
@@ -249,7 +248,7 @@ class Lock extends ORMBase {
 			])->appendWhere([
 				'pid' => $application->process->id(), 'server' => $server,
 			])->execute();
-		} catch (Exception_ORMNotFound|Database_Exception_Table_NotFound $e) {
+		} catch (Exception_Unsupported|Exception_ORMNotFound|Database_Exception_Table_NotFound $e) {
 			// Ignore for now - likely database misconfigured
 		}
 	}

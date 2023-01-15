@@ -27,7 +27,7 @@ echo PHP::dump($_COOKIE);
 <h1>Session</h1>
 <?php
 $login = '<em>None</em>';
-if ($session && $session->authenticated()) {
+if ($session && $session->isAuthenticated()) {
 	$user = $session->user();
 	$login = '<em>Authenticated, no user.</em>';
 	if ($user instanceof User) {

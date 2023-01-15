@@ -7,5 +7,6 @@
 	"autoload": {
 		"classPrefix": "zesk\\World\\"
 	},
-	"moduleClass": "zesk\\World\\Module"
+	"moduleClass": "zesk\\World\\Module",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

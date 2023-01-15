@@ -82,9 +82,11 @@ class User extends ORMBase implements Interface_UserLike {
 	/**
 	 * Session user ID
 	 *
+	 * @param Request $request
 	 * @return int
+	 * @throws Exception_Authentication
 	 */
-	public function session_user_id(Request $request): int {
+	public function sessionUserId(Request $request): int {
 		return $this->application->session($request)->userId();
 	}
 
@@ -245,8 +247,6 @@ class User extends ORMBase implements Interface_UserLike {
 	 * @throws Exception_Unsupported
 	 */
 	public function authenticate(string $password, bool $use_hash = true, bool $case_sensitive = true): self {
-		// TODO: This will break if everyone else uses the class property. Update ->column_login, or don't use option
-		$column_login = $this->option('column_login', $this->column_login());
 		$this_password = $this->password();
 		if ($use_hash) {
 			$auth_test = strcasecmp($this->generate_hash($password, false), $this_password) === 0;
@@ -269,7 +269,7 @@ class User extends ORMBase implements Interface_UserLike {
 	 * @return NULL|User
 	 */
 	public function authenticated(Request $request, Response $response = null): ?User {
-		$matches = ($this->session_user_id($request) === $this->id());
+		$matches = ($this->sessionUserId($request) === $this->id());
 		if ($response === null) {
 			if ($this->isNew()) {
 				return null;
@@ -282,8 +282,8 @@ class User extends ORMBase implements Interface_UserLike {
 		if ($matches) {
 			return $this;
 		}
-		$session = $this->application->session($request);
-		$session->authenticate($this->id(), $request->ip());
+		$session = $this->application->requireSession($request);
+		$session->authenticate($this, $request, $response);
 		$this->callHook('authenticated', $request, $response, $session);
 		$this->application->callHook('user_authenticated', $this, $request, $response, $session);
 		$this->application->modules->allHook('user_authenticated', $this, $request, $response, $session);

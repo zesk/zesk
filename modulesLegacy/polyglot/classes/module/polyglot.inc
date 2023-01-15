@@ -8,7 +8,9 @@ namespace zesk;
 /**
  *
  */
-use zesk\Locale\Reader;
+
+use Module;
+use Reader;
 
 /**
  *
@@ -73,7 +75,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 
 	/**
 	 *
-	 * @see Module::hook_routes
+	 * @see \zesk\zesk\Cron\Module::hook_routes
 	 *
 	 * {@inheritdoc}
 	 *

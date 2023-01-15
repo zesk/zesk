@@ -1077,34 +1077,6 @@ class Test extends Hookable {
 	 * @param string $dbname
 	 */
 	final protected function test_table_match($table, array $match = [], $dbname = ''): void {
-		$db = $this->application->database_registry();
-		$headers = null;
-		$header_row = null;
-		$dbrows = [];
-		foreach ($match as $row) {
-			if (!$headers) {
-				$headers = $row;
-				$header_row = $row;
-			} else {
-				$mapped_row = [];
-				foreach ($headers as $k => $label) {
-					if ($label[0] === '-') {
-						continue;
-					}
-					$mapped_row[$label] = $row[$k];
-				}
-				$dbrows[] = $mapped_row;
-			}
-		}
-		$headers = [];
-		foreach ($header_row as $header) {
-			if ($header[0] === '-') {
-				continue;
-			}
-			$headers[] = $header;
-		}
-		$rows = $db->queryArray('SELECT ' . implode(',', $headers) . " FROM $table");
-		$this->assertEquals($rows, $dbrows, "Matching $table to row values", false);
 	}
 
 	/**
@@ -1192,18 +1164,6 @@ class Test extends Hookable {
 	 * @return Closure[]
 	 */
 	public function expose_method(string $class, array $methods): array {
-		$refl = new \ReflectionClass($class);
-		$results = [];
-		foreach ($methods as $method) {
-			$cmethod = $refl->getMethod($method);
-			$cmethod->setAccessible(true);
-			$results[$method] = function ($object) use ($cmethod) {
-				$args = func_get_args();
-				array_shift($args);
-				return $cmethod->invokeArgs($object, $args);
-			};
-		}
-		return $results;
 	}
 
 	/**

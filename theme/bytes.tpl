@@ -1,12 +1,5 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-/* @var $this \zesk\Template */
-/* @var $application \zesk\Application */
-/* @var $locale \zesk\Locale */
-/* @var $session \zesk\Session */
-/* @var $router \zesk\Router */
-/* @var $route \zesk\Route */
-/* @var $request \zesk\Request */
-/* @var $response \zesk\Response */
-echo Number::formatBytes($locale, $this->content, intval($this->get1('1;precision', 1)));
+/* @var $application Application */
+echo Number::formatBytes($application->locale, $this->content, intval($this->getFirst('1;precision', 1)));

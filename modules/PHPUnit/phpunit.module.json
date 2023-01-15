@@ -7,5 +7,6 @@
 	},
 	"composer": {
 		"require": "phpunit/phpunit"
-	}
+	},
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

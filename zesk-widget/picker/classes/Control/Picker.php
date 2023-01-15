@@ -337,7 +337,7 @@ class Control_Picker extends Control {
 				'first' => true,
 			]);
 		}
-		$total = $total->one_integer('total');
+		$total = $total->integer('total');
 		$result = [
 			'results' => $results,
 			'total' => $total,

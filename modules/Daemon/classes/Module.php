@@ -78,8 +78,8 @@ class Module extends \zesk\Module {
 				$pid = $settings['pid'];
 				$database[$process]['alive'] = $application->process->alive($pid);
 			}
-			$server->setData(__CLASS__ . '::process_database', $database);
-			$server->setData(__CLASS__ . '::process_database_updated', Timestamp::now());
+			$server->setMeta(__CLASS__ . '::process_database', $database);
+			$server->setMeta(__CLASS__ . '::process_database_updated', Timestamp::now());
 		} catch (Exception_Syntax|Exception_File_Permission|Exception_Semantics|Exception_Key
 		|InvalidArgumentException $e) {
 			$this->application->logger->error($e->getRawMessage(), $e->variables());

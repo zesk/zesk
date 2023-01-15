@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace zesk\Kernel;
 
+use zesk\Exception_Directory_NotFound;
 use zesk\Kernel;
 use zesk\Exception_Unsupported;
 
@@ -34,13 +35,13 @@ class Loader {
 	/**
 	 *
 	 * @return Kernel
-	 * @throws Exception_Unsupported
+	 * @throws Exception_Unsupported|Exception_Directory_NotFound
 	 */
 	public static function kernel(): Kernel {
 		global $_ZESK;
 
 		self::$init = microtime(true);
-		require_once __DIR__ . '/classes/Kernel.php';
+		require_once __DIR__ . '/zesk/Kernel.php';
 
 		return Kernel::factory((is_array($_ZESK) ? $_ZESK : []) + [
 			'init' => self::$init,

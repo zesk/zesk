@@ -19,7 +19,7 @@ class TestApplicationFactory {
 
 	public static function factory(): Application {
 		try {
-			$zesk = Kernel::singleton();
+			$zesk = Kernel::factory();
 			$zesk->application(function ($app): void {
 				self::$callback_application = $app;
 			});
@@ -38,7 +38,7 @@ class TestApplicationFactory {
 		];
 		$application->addAutoloadPath($application->zeskHome('test/classes'), [Autoloader::OPTION_CLASS_PREFIX =>
 		__NAMESPACE__ . '\\', ]);
-		$application->configureInclude($files)->configure();
+		$application->configureInclude($files);
 		$modules = [];
 		if (defined('PHPUNIT')) {
 			$modules[] = 'phpunit';

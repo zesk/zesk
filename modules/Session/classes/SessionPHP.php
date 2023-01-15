@@ -208,9 +208,9 @@ class SessionPHP implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Session::authenticated()
+	 * @see Interface_Session::isAuthenticated()
 	 */
-	public function authenticated(): bool {
+	public function isAuthenticated(): bool {
 		$user = $this->__get($this->globalSessionUserId());
 		return !empty($user);
 	}

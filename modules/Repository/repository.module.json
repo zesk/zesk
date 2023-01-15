@@ -3,5 +3,6 @@
 	"autoload": {
 		"classPrefix": "zesk\\Repository\\"
 	},
-	"moduleClass": "zesk\\Repository\\Module"
+	"moduleClass": "zesk\\Repository\\Module",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

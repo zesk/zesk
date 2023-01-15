@@ -12,5 +12,34 @@ alias php-mo="$ZESK_ROOT/modules/php-mo/bin/php-mo.php"
 alias markdown='zesk module markdown markdown'
 
 export PATH="$PATH:$ZESK_ROOT/bin"
+export ZESK_DOCKER_COMPOSE="${ZESK_ROOT}/docker-compose.yml"
 
-alias ZeskBash='docker compose exec php bash'
+#
+# Output an option to SKIP pseudo-tty allocation if stdin is NOT a terminal
+# e.g. docker-compose exec $(docker_compose_tty) instance psql
+#
+docker_no_tty() {
+  if [ ! -t 0 ]; then
+    echo -T
+  fi
+}
+
+#
+# Output an option to do pseudo-tty allocation if stdin is a terminal
+# e.g. docker exec $(docker_tty) instance psql
+#
+docker_tty() {
+  if [ -t 0 ]; then
+    echo -t
+  fi
+}
+
+Zesk() {
+  local user
+  user=$1
+  shift
+  docker compose -f "${ZESK_DOCKER_COMPOSE}" exec $(docker_no_tty) -u "${user}" php "$@"
+}
+
+alias ZeskRootBash='Zesk root bash'
+alias ZeskBash='Zesk www-data bash'

@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace zesk\Session;
 
 use Exception;
-use \zesk\Exception as zeskException;
+use zesk\Exception as zeskException;
 use Throwable;
 use zesk\Application;
 use zesk\Database_Exception;
@@ -24,17 +24,16 @@ use zesk\Exception_Authentication;
 use zesk\Exception_Class_NotFound;
 use zesk\Exception_Configuration;
 use zesk\Exception_Convert;
-use zesk\Exception_Deprecated;
 use zesk\Exception_Key;
 use zesk\Exception_NotFound;
 use zesk\Exception_Parameter;
 use zesk\Exception_Parse;
+use zesk\HTTP;
 use zesk\Interface_UserLike;
 use zesk\ORM\Exception_ORMDuplicate;
 use zesk\ORM\Exception_ORMEmpty;
 use zesk\ORM\Exception_ORMNotFound;
 use zesk\Exception_Semantics;
-use zesk\Hooks;
 use zesk\ORM\Exception_Store;
 use zesk\Interface_Session;
 use zesk\IPv4;
@@ -63,6 +62,34 @@ use function random_int;
  * @author kent
  */
 class SessionORM extends ORMBase implements Interface_Session {
+	public const OPTION_METHOD = 'method';
+
+	public const METHOD_COOKIE = 'cookie';
+
+	public const METHOD_AUTHORIZATION = 'authorization';
+
+	public const MEMBER_ID = 'id';
+
+	public const MEMBER_TOKEN = 'token';
+
+	public const MEMBER_SEEN = 'seen';
+
+	public const MEMBER_TYPE = 'type';
+
+	public const MEMBER_EXPIRES = 'expires';
+
+	public const MEMBER_IP = 'ip';
+
+	public const MEMBER_DATA = 'data';
+
+	public const MEMBER_USER = 'user';
+
+	public const TYPE_ONE_TIME = 'one-time';
+
+	public const TYPE_COOKIE = 'cookie';
+
+	public const TYPE_AUTHORIZATION_KEY = 'auth-key';
+
 	/**
 	 * Original session data (to see if things change)
 	 *
@@ -120,44 +147,9 @@ class SessionORM extends ORMBase implements Interface_Session {
 	public function seen(): self {
 		$query = $this->queryUpdate();
 		$sql = $query->sql();
-		$query->value('*seen', $sql->now())->value('expires', $this->computeExpires())->value('*sequence_index', 'sequence_index+1')->addWhere('id', $this)->setLowPriority(true)->execute();
+		$query->value('*' . self::MEMBER_SEEN, $sql->now())->value(self::MEMBER_EXPIRES, $this->computeExpires())->value('*sequence_index', 'sequence_index+1')->addWhere(self::MEMBER_ID, $this)->setLowPriority(true)->execute();
 		$this->callHook('seen');
 		return $this;
-	}
-
-	/**
-	 * Register hooks
-	 * @param Application $application
-	 */
-	public static function hooks(Application $application): void {
-		$application->hooks->add(Hooks::HOOK_CONFIGURED, self::configured(...));
-	}
-
-	/**
-	 *
-	 * @param Application $application
-	 * @throws Exception_Deprecated
-	 * @throws Exception_Semantics
-	 */
-	public static function configured(Application $application): void {
-		// 2017-01-01
-		foreach ([
-			'Session', 'zesk\\Session',
-		] as $class) {
-			$application->configuration->deprecated([
-				$class, 'cookie_name',
-			], [
-				"zesk\Application", 'session', 'cookie', 'name',
-			]);
-			$application->configuration->deprecated([
-				$class, 'cookie_expire',
-			], [
-				"zesk\Application", 'session', 'cookie', 'expire',
-			]);
-		}
-		$application->configuration->deprecated('Session::cookie_expire_round');
-		$application->configuration->deprecated('zesk\\Session::cookie_expire_round');
-		$application->configuration->deprecated("zesk\Application::session::cookie::expire_round");
 	}
 
 	/**
@@ -187,10 +179,10 @@ class SessionORM extends ORMBase implements Interface_Session {
 	 *
 	 * @return string
 	 */
-	private static function _generateCookie(): string {
+	private static function _generateToken(): string {
 		try {
 			$rand = random_int(PHP_INT_MIN, PHP_INT_MAX);
-		} catch (Exception) {
+		} catch (Throwable) {
 			$rand = random_int(PHP_INT_MIN, PHP_INT_MAX);
 		}
 		return md5(dechex($rand) . microtime());
@@ -220,9 +212,10 @@ class SessionORM extends ORMBase implements Interface_Session {
 	/**
 	 * Are we authenticated?
 	 *
-	 * @see Interface_Session::authenticated()
+	 * @see Interface_Session::isAuthenticated()
+	 * @return bool
 	 */
-	public function authenticated(): bool {
+	public function isAuthenticated(): bool {
 		return !$this->memberIsEmpty('user');
 	}
 
@@ -230,14 +223,20 @@ class SessionORM extends ORMBase implements Interface_Session {
 	 * De-authenticate
 	 *
 	 * @return void
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
 	 * @throws Exception_Key
+	 * @throws Exception_ORMDuplicate
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Semantics
+	 * @throws Exception_Store
 	 * @see Interface_Session::relinquish()
 	 */
 	public function relinquish(): void {
-		$this->user()->callHook('logout');
+		try {
+			$this->user()->callHook('logout');
+		} catch (Exception_Authentication) {
+		}
 		$this->setMember('user', null);
 		$this->store();
 	}
@@ -252,7 +251,7 @@ class SessionORM extends ORMBase implements Interface_Session {
 	 * @throws Exception_Parameter
 	 */
 	public function expires(): Timestamp {
-		return $this->memberTimestamp('expires');
+		return $this->memberTimestamp(self::MEMBER_EXPIRES);
 	}
 
 	/**
@@ -272,8 +271,7 @@ class SessionORM extends ORMBase implements Interface_Session {
 	 * Run once a minute
 	 */
 	public static function cron_cluster_minute(Application $application): void {
-		$now = Timestamp::now();
-		$where['expires|<'] = $now;
+		$where = [self::MEMBER_EXPIRES . '|<' => Timestamp::now()];
 		$iter = $application->ormRegistry(__CLASS__)->querySelect()->appendWhere($where)->ormIterator();
 		foreach ($iter as $session) {
 			/* @var $session SessionORM */
@@ -307,54 +305,117 @@ class SessionORM extends ORMBase implements Interface_Session {
 	}
 
 	/**
+	 * @return $this
+	 */
+	public function foundSession(): self {
+		return $this;
+	}
+
+	/**
 	 *
 	 *
+	 * @return $this
+	 * @throws Exception_ORMNotFound
+	 * @see Interface_Session::initializeSession()
+	 */
+	public function fetchSession(string $token, string $type): self {
+		// Very important: Do not use $this->FOO to set variables; it sets the data instead.
+		try {
+			if ($token && ($session = $this->fetch([
+				self::MEMBER_TOKEN => $token, self::MEMBER_TYPE => $type,
+			]))) {
+				return $session->foundSession();
+			}
+		} catch (Throwable) {
+		}
+
+		throw new Exception_ORMNotFound(self::class);
+	}
+
+	/**
+	 * @param Request $request
+	 * @return $this
+	 */
+	public function initializeSession(Request $request): self {
+		$methods = [
+			self::METHOD_COOKIE => $this->initializeCookieSession(...),
+			self::METHOD_AUTHORIZATION => $this->initializeAuthorizationSession(...),
+		];
+		$method = $methods[$this->option(self::OPTION_METHOD)] ?? null;
+		if ($method) {
+			return $method($request);
+		}
+		$this->application->logger->warning('{class}::{option} is not set to one of {methods} - no session will load', [
+			'methods' => array_keys($methods), 'class' => self::class, 'option' => self::OPTION_METHOD,
+		]);
+		return $this;
+	}
+
+	public function newSession(Request $request, string $type): self {
+		$this->setMember(self::MEMBER_IP, $request->ip());
+		$this->setMember(self::MEMBER_TOKEN, $this->_generateToken());
+		$this->setMember(self::MEMBER_TYPE, $type);
+		$this->setMember(self::MEMBER_EXPIRES, $this->computeExpires());
+		return $this;
+	}
+
+	protected function initializeCookieSession(Request $request): self {
+		$type = self::TYPE_COOKIE;
+		$cookie_name = $this->cookieName();
+
+		try {
+			$cookie_value = $request->cookie($cookie_name);
+			return $this->fetchSession($cookie_value, $type);
+		} catch (Exception_ORMNotFound|Exception_Key) {
+		}
+		$this->newSession($request, $type);
+
+		$cookie_options = $this->cookieOptions();
+		$cookie_value = $this->member(self::MEMBER_TOKEN);
+		$session = $this;
+		$this->application->hooks->add(Response::class . '::headers', function (Response $response) use (
+			$cookie_name,
+			$cookie_value,
+			$cookie_options,
+			$session
+		): void {
+			$response->setCookie($cookie_name, $cookie_value, $cookie_options);
+			$session->store();
+		});
+		return $session;
+	}
+
+	/**
+	 * Loads, never saves.
+	 *
+	 * @param Request $request
+	 * @return $this
+	 */
+	protected function initializeAuthorizationSession(Request $request): self {
+		$type = self::TYPE_AUTHORIZATION_KEY;
+
+		try {
+			$token = $request->header(HTTP::REQUEST_AUTHORIZATION);
+			return $this->fetchSession($token, $type);
+		} catch (Exception_ORMNotFound|Exception_Key) {
+		}
+		$this->setMember(self::MEMBER_IP, $request->ip());
+		return $this;
+	}
+
+	/**
 	 * @param Request $request
 	 * @return $this
 	 * @throws Database_Exception_Duplicate
 	 * @throws Database_Exception_SQL
 	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws Exception_ORMDuplicate
 	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 * @see Interface_Session::initializeSession()
+	 * @throws Exception_Store
 	 */
-	public function initializeSession(Request $request): self {
-		// Very important: Do not use $this->FOO to set variables; it sets the data instead.
-		$application = $this->application;
-		$cookie_name = $this->cookieName();
-
-		try {
-			$cookie_value = $request->cookie($cookie_name);
-		} catch (Exception_Key) {
-			$cookie_value = '';
-		}
-		if ($cookie_value && $this->fetchByKey($cookie_value, 'cookie')) {
-			$this->seen();
-			return $this->found_session();
-		}
-		if (!$request->isBrowser()) {
-			return $this;
-		}
-		$cookie_value = $this->_generateCookie();
-		$expires = $this->computeExpires();
-		$this->setMember('cookie', $cookie_value);
-		$this->setMember('expires', $expires);
-		$this->setMember('ip', $request->ip());
-		$this->setMember('data', toArray($this->data) + [
-			'uri' => $request->uri(),
-		]);
-		$cookie_options = $this->cookie_options();
-		$application->hooks->add(Response::class . '::headers', function (Response $response) use ($cookie_name, $cookie_value, $cookie_options): void {
-			$response->setCookie($cookie_name, $cookie_value, $cookie_options);
-		});
-		return $this->store();
+	public function createAuthorizationSession(Request $request): self {
+		return $this->newSession($request, self::TYPE_AUTHORIZATION_KEY)->store();
 	}
 
 	/**
@@ -364,7 +425,16 @@ class SessionORM extends ORMBase implements Interface_Session {
 	 * @throws Exception_ORMEmpty
 	 */
 	public function hash(): string {
-		return $this->member('cookie');
+		return $this->member(self::MEMBER_TOKEN);
+	}
+
+	/**
+	 * @return string
+	 * @throws Exception_Key
+	 * @throws Exception_ORMEmpty
+	 */
+	public function token(): string {
+		return $this->member(self::MEMBER_TOKEN);
 	}
 
 	/**
@@ -379,9 +449,12 @@ class SessionORM extends ORMBase implements Interface_Session {
 	 * @throws Database_Exception_SQL
 	 * @throws Database_Exception_Table_NotFound
 	 * @throws Exception_Key
+	 * @throws Exception_ORMDuplicate
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Semantics
+	 * @throws Exception_Store
 	 */
-	public static function oneTimeCreate(User $user, int $expire_seconds = -1): self {
+	public static function oneTimeCreate(User $user, string $ip, int $expire_seconds = -1): self {
 		$app = $user->application;
 		if ($expire_seconds < 0) {
 			$expire_seconds = toInteger($app->configuration->getPath([
@@ -389,18 +462,14 @@ class SessionORM extends ORMBase implements Interface_Session {
 			], 86400));
 		}
 		// Only one allowed at any time, I guess.
-		$app->ormRegistry(__CLASS__)->queryDelete()->addWhere('is_one_time', true)->addWhere('user', $user)->execute();
+		$app->ormRegistry(__CLASS__)->queryDelete()->appendWhere([
+			self::MEMBER_TYPE => self::TYPE_ONE_TIME, self::MEMBER_USER => $user,
+		])->execute();
 		$session = $app->ormFactory(__CLASS__);
 		assert($session instanceof self);
-
-		try {
-			$ip = $user->application->request()->ip();
-		} catch (Exception_Semantics) {
-			$ip = null;
-		}
 		$session->setMembers([
-			'cookie' => self::_generateCookie(), 'is_one_time' => true,
-			'expires' => Timestamp::now()->addUnit($expire_seconds), 'user' => $user, 'ip' => $ip,
+			self::MEMBER_TOKEN => self::_generateToken(), self::MEMBER_TYPE => self::TYPE_ONE_TIME,
+			self::MEMBER_EXPIRES => Timestamp::now()->addUnit($expire_seconds), self::MEMBER_USER => $user, $ip => $ip,
 		]);
 		$session->store();
 		return $session;
@@ -421,7 +490,7 @@ class SessionORM extends ORMBase implements Interface_Session {
 
 		try {
 			return $onetime->find([
-				'cookie' => $hash, 'is_one_time' => true,
+				self::MEMBER_TOKEN => $hash, self::MEMBER_TYPE => self::TYPE_ONE_TIME,
 			]);
 		} catch (Throwable $t) {
 			throw new Exception_ORMNotFound(__CLASS__, 'No session with hash {hash}', ['hash' => $hash], $t);
@@ -433,18 +502,23 @@ class SessionORM extends ORMBase implements Interface_Session {
 	 * @param int $user_id
 	 * @param string $ip
 	 * @return $this
-	 * @throws Exception_Convert
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Authentication
 	 * @throws Exception_Key
+	 * @throws Exception_ORMDuplicate
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Semantics
+	 * @throws Exception_Store
 	 */
 	public function oneTimeAuthenticate(int $user_id, string $ip = ''): self {
 		if (!$this->is_one_time) {
 			throw new Exception_Semantics('Not a one-time session');
 		}
-		$this->cookie = $this->_generateCookie();
-		$this->is_one_time = false;
+		$this->setMember(self::MEMBER_TOKEN, $this->_generateToken());
+		$this->setMember(self::MEMBER_TYPE, self::TYPE_COOKIE);
 		$this->authenticate($user_id, $ip);
-		$this->store();
 		return $this;
 	}
 
@@ -512,7 +586,7 @@ class SessionORM extends ORMBase implements Interface_Session {
 	 */
 	public function user(): User {
 		try {
-			$user = $this->memberObject('user', $this->inheritOptions());
+			$user = $this->memberObject(self::MEMBER_USER, $this->inheritOptions());
 			assert($user instanceof User);
 			return $user;
 		} catch (Throwable $t) {
@@ -529,8 +603,8 @@ class SessionORM extends ORMBase implements Interface_Session {
 	 *
 	 * @see ORMBase::__get($member)
 	 */
-	public function __get(int|string $name): mixed {
-		return $this->members['data'][$name] ?? null;
+	public function __get(int|string $key): mixed {
+		return $this->members['data'][$key] ?? null;
 	}
 
 	/**
@@ -570,17 +644,9 @@ class SessionORM extends ORMBase implements Interface_Session {
 
 	/**
 	 *
-	 * @return self
-	 */
-	public function found_session() {
-		return $this;
-	}
-
-	/**
-	 *
 	 * @return array
 	 */
-	public function cookie_options() {
+	public function cookieOptions(): array {
 		return $this->optionArray('cookie');
 	}
 }

@@ -16,7 +16,7 @@ use zesk\Timestamp;
 use zesk\Application;
 use zesk\Request;
 use zesk\JSON;
-use zesk\Server_Data;
+use zesk\ServerMeta;
 use zesk\URL;
 use zesk\Net_HTTP_Client;
 use zesk\Exception_Syntax;
@@ -540,7 +540,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$servers = $app->ormRegistry(Server::class)
 			->querySelect()
 			->ormWhat()
-			->link(Server_Data::class, [
+			->link(ServerMeta::class, [
 				'alias' => 'd',
 			])
 			->addWhere('d.name', Module::class)

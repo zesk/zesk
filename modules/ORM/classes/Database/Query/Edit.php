@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace zesk\ORM;
 
-use zesk\Exception_Semantics;
+use zesk\Exception_Key;
 
 /**
  *
@@ -122,7 +122,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @param string|array $name Alternately, pass an array as this value to update multiple values
 	 * @param mixed $value When $name is a string, this is the value set
 	 * @return self
-	 * @throws Exception_Semantics
+	 * @throws Exception_Key
 	 */
 	public function value(array|string $name, mixed $value = null): self {
 		if (is_array($name)) {
@@ -141,11 +141,11 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * If not, throw an exception.
 	 *
 	 * @param string $name
-	 * @throws Exception_Semantics
+	 * @throws Exception_Key
 	 */
 	private function check_column(string $name): void {
 		if (!$this->validColumn($name)) {
-			throw new Exception_Semantics('Column {name} is not in table {table} (columns are {columns})', [
+			throw new Exception_Key('Column {name} is not in table {table} (columns are {columns})', [
 				'name' => $name,
 				'table' => $this->table,
 				'columns' => $this->valid_columns,
@@ -168,7 +168,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 *
 	 * @param array $values When null, return the current values to be set (array)
 	 * @return self
-	 * @throws Exception_Semantics
+	 * @throws Exception_Key
 	 */
 	public function setValues(array $values): self {
 		return $this->value($values);

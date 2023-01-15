@@ -36,6 +36,9 @@ RUN mkdir /root/.zesk/
 
 RUN echo -n zesk > /etc/docker-role
 
+RUN chsh -s /bin/bash www-data
+
+USER www-data
 ADD ./ /zesk
 WORKDIR /zesk
 

@@ -438,7 +438,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @return integer
 	 */
 	final public function total() {
-		return $this->query_total()->limit(0, 1)->one_integer('total', 0);
+		return $this->query_total()->limit(0, 1)->integer('total', 0);
 	}
 
 	final public function force_limit($limit) {

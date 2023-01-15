@@ -15,7 +15,7 @@ namespace zesk;
  * @global boolean db-connect Set this global to alternate database
  * @aliases db-reset
  */
-class Command_Database_Reset extends Command {
+class Command_Reset extends Command {
 	protected array $option_types = [
 		'name' => 'string',
 		'yes' => 'boolean',

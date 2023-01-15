@@ -171,7 +171,7 @@ class Health_Event extends ORMBase {
 			->querySelect()
 			->addWhat('*n', 'COUNT(id)')
 			->addWhere('events', $this->events)
-			->one_integer('n');
+			->integer('n');
 		if ($n_found > $n_samples) {
 			$sample_offset = intval($n_samples / 2);
 			$ids_to_delete = $this->application->ormRegistry(__CLASS__)

@@ -71,38 +71,38 @@ interface Database_Interface {
 	public function listTables(): array;
 
 	/**
-	 * @param string $table_name
+	 * @param string $tableName
 	 * @return bool
 	 */
-	public function tableExists(string $table_name): bool;
+	public function tableExists(string $tableName): bool;
 
 	/**
-	 * @param string $table_name
+	 * @param string $tableName
 	 * @return array
 	 */
-	public function tableInformation(string $table_name): array;
+	public function tableInformation(string $tableName): array;
 
 	/**
-	 * @param string $table_name
+	 * @param string $tableName
 	 * @return array
 	 */
-	public function tableColumns(string $table_name): array;
+	public function tableColumns(string $tableName): array;
 
 	/**
 	 * Generate a Database_Table based on inspection
 	 *
-	 * @param string $table_name
+	 * @param string $tableName
 	 * @return Database_Table
 	 * @throws Database_Exception_Table_NotFound
 	 * @throws Exception_Unsupported
 	 */
-	public function databaseTable(string $table_name): Database_Table;
+	public function databaseTable(string $tableName): Database_Table;
 
 	/**
-	 * @param string $table_name
+	 * @param string $tableName
 	 * @return int
 	 */
-	public function bytesUsed(string $table_name = ''): int;
+	public function bytesUsed(string $tableName = ''): int;
 
 	/*========================================================================================\
 	 *

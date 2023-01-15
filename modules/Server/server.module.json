@@ -9,5 +9,6 @@
 	"moduleClass": "zesk\\Module_Server",
 	"depends": [
 		"diff"
-	]
+	],
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

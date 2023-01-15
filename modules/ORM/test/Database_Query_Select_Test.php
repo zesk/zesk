@@ -11,6 +11,7 @@ namespace zesk;
 
 use zesk\ORM\Database_Query_Select;
 use zesk\ORM\Server;
+use zesk\DatabaseUnitTest;
 
 class Database_Query_Select_Test extends DatabaseUnitTest {
 	protected array $load_modules = [
@@ -67,7 +68,7 @@ class Database_Query_Select_Test extends DatabaseUnitTest {
 
 		//		$field = "field2";
 		//		$default = 0;
-		//		$testx->one_integer($field, $default);
+		//		$testx->integer($field, $default);
 
 		//		$field = "field1";
 		//		$default = 0;

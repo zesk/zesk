@@ -14,6 +14,7 @@ namespace zesk\ORM;
 use Throwable;
 use zesk\Database;
 use zesk\Database_Exception_Duplicate;
+use zesk\Database_Exception_NoResults;
 use zesk\Database_Exception_SQL;
 use zesk\Database_Exception_Table_NotFound;
 use zesk\Exception_Deprecated;
@@ -124,7 +125,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	 * @return $this
 	 * @throws Exception_Semantics
 	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_NoResults
 	 * @throws Database_Exception_Table_NotFound
 	 */
 	public function execute(): self {

@@ -6,5 +6,6 @@
 	"autoload": {
 		"classPrefix": "zesk\\Git\\"
 	},
-	"moduleClass": "zesk\\Git\\Module"
+	"moduleClass": "zesk\\Git\\Module",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

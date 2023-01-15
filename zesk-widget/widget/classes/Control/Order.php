@@ -39,7 +39,7 @@ class Control_Order extends Control {
 			return true;
 		}
 		if ($this->optionBool('debug')) {
-			$this->response()->debug_redirect(true);
+			$this->response()->setDebugRedirect(true);
 		}
 		if (Lists::contains('top;bottom', $verb)) {
 			$this->moveTopBottom($ID, $verb);

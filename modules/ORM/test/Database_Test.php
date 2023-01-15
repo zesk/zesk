@@ -10,18 +10,17 @@ namespace zesk\ORM;
 
 use zesk\Database;
 use zesk\Database\QueryResult;
+use zesk\Database_Column;
 use zesk\Database_Exception_Duplicate;
 use zesk\Database_Exception_SQL;
 use zesk\Database_Exception_Table_NotFound;
 use zesk\Database_Table;
-use zesk\Database_Column;
-use zesk\DatabaseUnitTest;
-use zesk\Debug;
 use zesk\Exception_Key;
 use zesk\Exception_Semantics;
 use zesk\File;
 use zesk\PHP;
 use zesk\StringTools;
+use zesk\DatabaseUnitTest;
 use function random_int;
 
 /**
@@ -597,7 +596,7 @@ class Database_Test extends DatabaseUnitTest {
 	Modified=UTC_TIMESTAMP()	 WHERE `ID` = '4';";
 		$state = null;
 		//echo "OLD: $sql\n";
-		$sql = Database::unstring($sql, $state);
+		$sql = Database::removeStringTokens($sql, $state);
 		$sql = strtr($sql, [
 			'\'\'' => 'empty-string',
 		]);
@@ -605,7 +604,7 @@ class Database_Test extends DatabaseUnitTest {
 		$this->assertStringNotContainsString('\'', $sql);
 
 		$state = null;
-		$this->assertEquals(Database::restring(Database::unstring($sql, $state), $state), $sql);
+		$this->assertEquals(Database::replaceStringTokens(Database::removeStringTokens($sql, $state), $state), $sql);
 		$sql = "UPDATE `Metric` SET
 	`Model` = '1',
 	`CodeName` = 'hypog\\'lycemia',
@@ -623,11 +622,11 @@ class Database_Test extends DatabaseUnitTest {
 	Modified=UTC_TIMESTAMP()	 WHERE `ID` = '4';";
 		$state = null;
 		//echo "OLD: $sql\n";
-		$new_sql = Database::unstring($sql, $state);
+		$new_sql = Database::removeStringTokens($sql, $state);
 		//echo "NEW: $new_sql\n";
 		$this->assertStringNotContainsString('\'', $new_sql);
 		$state = null;
-		$this->assertEquals(Database::restring(Database::unstring($sql, $state), $state), $sql);
+		$this->assertEquals(Database::replaceStringTokens(Database::removeStringTokens($sql, $state), $state), $sql);
 	}
 
 	public function test_update(): void {

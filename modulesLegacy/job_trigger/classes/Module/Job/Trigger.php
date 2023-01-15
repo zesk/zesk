@@ -4,6 +4,8 @@
  */
 namespace zesk;
 
+use zesk\ORM\Server;
+
 /**
  * Module to allow jobs to be activated via mechanism which isn't polling the database.
  *
@@ -44,7 +46,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * Create the directory for the marker file if it does not exist and return the path to the marker file
 	 */
 	private function marker_file() {
-		$path = $this->application->data_path('job_trigger');
+		$path = $this->application->dataPath('job_trigger');
 		Directory::depend($path);
 		return path($path, 'trigger');
 	}
@@ -95,9 +97,9 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * Check the security tokens passed to us
 	 *
 	 * @param string $hash
-	 * @param string $timestamp
+	 * @param float $timestamp
 	 */
-	public function check_security($hash, $timestamp) {
+	public function check_security($hash, float $timestamp) {
 		if (!$this->hasOption('key')) {
 			$this->application->logger->error('Can not check security! need to configure {class}::key global', [
 				'class' => __CLASS__,
@@ -158,7 +160,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * Send a notice to all servers that jobs are waiting
 	 */
 	public function trigger_send(): void {
-		$server = $this->application->objectSingleton('zesk\\Server');
+		$server = $this->application->modelSingleton(Server::class);
 		$servers = $server->querySelect()->addWhere('alive|>=', Timestamp::now()->addUnit(-1, Timestamp::UNIT_MINUTE))->ormIterator();
 		foreach ($servers as $other_server) {
 			if ($other_server->id() === $server->id()) {

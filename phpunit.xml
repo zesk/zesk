@@ -6,7 +6,7 @@
     <testsuites>
         <!--Test suite for Zesk web application framework -->
         <testsuite name="core">
-            <directory>test/tests</directory>
+            <directory>test/core</directory>
         </testsuite>
         <testsuite name="orm">
             <directory>modules/ORM/test</directory>
@@ -19,6 +19,9 @@
         </testsuite>
         <testsuite name="database">
             <directory>modules/Database/test</directory>
+        </testsuite>
+        <testsuite name="preference">
+            <directory>modules/Preference/test</directory>
         </testsuite>
         <testsuite name="world">
             <directory>modules/World/test</directory>

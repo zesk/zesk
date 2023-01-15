@@ -1,10 +1,12 @@
 {
 	"name": "Login",
 	"autoload": {
-		"classPrefix": "zesk\\Login\\"
+		"classPrefix": "zesk\\Login\\",
+		"path": "zesk/Login"
 	},
 	"moduleClass": "zesk\\Login\\Module",
 	"requires": [
 		"ORM "
-	]
+	],
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

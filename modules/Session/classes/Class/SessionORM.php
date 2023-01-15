@@ -28,15 +28,24 @@ class Class_SessionORM extends Class_Base {
 	];
 
 	public array $column_types = [
-		'id' => self::TYPE_ID, 'cookie' => self::TYPE_STRING, 'is_one_time' => self::TYPE_BOOL,
-		'user' => self::TYPE_OBJECT, 'ip' => self::TYPE_IP4, 'created' => self::TYPE_CREATED,
-		'modified' => self::TYPE_MODIFIED, 'expires' => self::TYPE_DATETIME, 'seen' => self::TYPE_DATETIME,
-		'sequence_index' => self::TYPE_INTEGER, 'data' => self::TYPE_SERIALIZE,
+		'id' => self::TYPE_ID,
+		SessionORM::MEMBER_TOKEN => self::TYPE_STRING,
+		SessionORM::MEMBER_TYPE => self::TYPE_STRING,
+		SessionORM::MEMBER_USER => self::TYPE_OBJECT,
+		SessionORM::MEMBER_IP => self::TYPE_IP4,
+		'created' => self::TYPE_CREATED,
+		'modified' => self::TYPE_MODIFIED,
+		SessionORM::MEMBER_EXPIRES => self::TYPE_DATETIME,
+		'seen' => self::TYPE_DATETIME,
+		'sequence_index' => self::TYPE_INTEGER,
+		SessionORM::MEMBER_DATA => self::TYPE_SERIALIZE,
 	];
 
 	public string $code_name = 'Session';
 
 	public array $column_defaults = [
-		'data' => [], 'sequence_index' => 0, 'ip' => '127.0.0.1',
+		'data' => [],
+		'sequence_index' => 0,
+		'ip' => '127.0.0.1',
 	];
 }

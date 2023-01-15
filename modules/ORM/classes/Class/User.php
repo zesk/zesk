@@ -67,6 +67,10 @@ class Class_User extends Class_Base {
 	 */
 	public string $default_hash_method = 'md5';
 
+	public array $find_keys = [
+		'login_email',
+	];
+
 	/**
 	 * Allowable hash methods
 	 *

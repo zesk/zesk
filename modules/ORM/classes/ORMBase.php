@@ -76,7 +76,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * Previous call resulted in a new object retrieved from the database which exists
 	 *
 	 * @see ORMBase::register
-	 * @see ORMBase::fetch_if_exists
 	 * @var string
 	 */
 	public const STATUS_EXISTS = 'exists';
@@ -85,7 +84,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * Previous call resulted in the saving of the existing object in the database
 	 *
 	 * @see ORMBase::register
-	 * @see ORMBase::fetch_if_exists
 	 * @var string
 	 */
 	public const STATUS_INSERT = 'insert';
@@ -94,7 +92,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * Previous call failed or has an unknown result
 	 *
 	 * @see ORMBase::register
-	 * @see ORMBase::fetch_if_exists
 	 * @var string
 	 */
 	public const STATUS_UNKNOWN = 'failed';
@@ -483,21 +480,11 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	}
 
 	/**
-	 * Are the fields in this object determined dynamically?
-	 *
-	 * @return boolean
-	 */
-	public function dynamic_columns(): bool {
-		return $this->class->dynamic_columns;
-	}
-
-	/**
 	 * Call when the schema of an object has changed and needs to be refreshed
+	 * @throws Exception_Semantics
 	 */
-	public function schema_changed(): void {
-		if ($this->class->dynamic_columns) {
-			$this->class->init_columns();
-		}
+	public function schemaChanged(): void {
+		$this->class->schemaChanged();
 	}
 
 	/**
@@ -934,7 +921,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	public function setId(int|string|array $set): self {
 		$id_column = $this->class->id_column;
 		if (is_string($id_column)) {
-			/* TODO KMD Should I assert $set is not an array here? */
 			return $this->set($id_column, $set);
 		}
 
@@ -1119,7 +1105,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	protected function memberIterator(string $member, array $where = []): ORMIterator {
 		$has_many = $this->class->hasMany($this, $member);
 		if (!$this->hasPrimaryKeys()) {
-			throw new Exception_Semantics('Can not iterate on an uninitialized object {class}', [
+			throw new Exception_Key('Can not iterate on an uninitialized object {class}', [
 				'class' => get_class($this),
 			]);
 		}
@@ -1390,7 +1376,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @throws Exception_Key
 	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Semantics
 	 */
 	final protected function memberObject(string $member, array $options = []): self {
 		$this->refresh();
@@ -1403,7 +1388,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 			throw new Exception_ORMEmpty("$member is null");
 		}
 		if (!array_key_exists($member, $this->class->has_one)) {
-			throw new Exception_Semantics('Accessing {class}::member_object but {member} is not in has_one', [
+			throw new Exception_Key('Accessing {class}::member_object but {member} is not in has_one', [
 				'class' => get_class($this), 'member' => $member,
 			]);
 		}
@@ -1516,16 +1501,11 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 *
 	 * @param int|string|array $value
 	 * @return $this
-	 * @throws Database_Exception_SQL
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
 	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 */
 	public function memberFind(int|string|array $value): self {
@@ -1731,7 +1711,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * @throws Exception_ORMEmpty
 	 */
 	public function member(string $member): mixed {
-		$this->refresh();
+		if (!in_array($member, $this->class->primary_keys)) {
+			$this->refresh();
+		}
 		if (array_key_exists($member, $this->members)) {
 			return $this->members[$member];
 		}
@@ -1874,7 +1856,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 		foreach ($mixed as $member) {
 			try {
 				$result[$member] = $this->_get($member);
-			} catch (Exception_ORMNotFound) {
+			} catch (Exception_ORMNotFound|Exception_ORMEmpty) {
 				$result[$member] = null; // TODO Maybe use a dummy, empty object? or a NULL ORM? 2018-03 KMD
 			}
 		}
@@ -2268,47 +2250,24 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	/**
 	 * Returns a new object which contains the found ORM, or null if not found
 	 *
-	 * @param array $where How to find this object (uses default ->exists where clause)
+	 * @param string|array $where How to find this object (uses default ->exists where clause)
 	 * @return self
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
 	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
 	 */
-	public function find(array $where = []): self {
-		$data = $this->exists($where);
-		return $this->initialize($data, true)->polymorphicChild();
-	}
-
-	/**
-	 * @param string|array $where
-	 * @return $this
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 */
-	public function fetch_if_exists(string|array $where = ''): self {
+	public function find(string|array $where = []): self {
 		try {
-			return $this->setObjectStatus(self::STATUS_EXISTS)->initialize($this->exists($where), true);
-		} catch (\Exception $e) {
-			$this->setObjectStatus(self::STATUS_UNKNOWN);
+			$data = $this->exists($where);
+		} catch (Exception_Semantics|Exception_Key|Exception_Convert $e) {
+			throw new Exception_ORMNotFound(self::class, 'Error during exists {exceptionClass} {message}', $e->variables(), $e);
+		}
 
+		try {
+			return $this->initialize($data, true)->polymorphicChild()->setObjectStatus(self::STATUS_EXISTS);
+		} catch (Exception_ORMEmpty $e) {
 			throw $e;
+		} catch (Throwable $e) {
+			throw new Exception_ORMEmpty(self::class, 'Error during initialize {exceptionClass} {message}', zeskException::exceptionVariables($e), $e);
 		}
 	}
 
@@ -2663,19 +2622,11 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 		/**
 		 * When duplicating, we want to check is_duplicate only, so remove exists - not sure
 		 */
-		try {
-			if ($this->isDuplicate()) {
-				throw new Exception_ORMDuplicate(get_class($this), $this->error_duplicate(), [
-					'duplicate_keys' => $this->class->duplicate_keys, 'name' => $this->className(), 'id' => $this->id(),
-					'indefinite_article' => $this->application->locale->indefinite_article($this->class->name),
-				]);
-			}
-		} catch (Database_Exception_SQL $e) {
-		} catch (Exception_Class_NotFound $e) {
-		} catch (Exception_Key $e) {
-		} catch (Exception_Semantics $e) {
-		} catch (Exception_ORMDuplicate $e) {
-		} catch (Exception_ORMEmpty $e) {
+		if ($this->isDuplicate()) {
+			throw new Exception_ORMDuplicate(get_class($this), $this->error_duplicate(), [
+				'duplicate_keys' => $this->class->duplicate_keys, 'name' => $this->className(), 'id' => $this->id(),
+				'indefinite_article' => $this->application->locale->indefinite_article($this->class->name),
+			]);
 		}
 		$this->storeMembers();
 		$this->callHook('store');

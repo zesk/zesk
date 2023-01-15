@@ -4,7 +4,7 @@
  */
 namespace zesk;
 
-use zesk\Locale\Reader;
+use Reader;
 
 /**
  *

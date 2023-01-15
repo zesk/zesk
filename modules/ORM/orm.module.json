@@ -8,5 +8,6 @@
 	],
 	"moduleClass": "zesk\\ORM\\Module",
 	"zeskCommandPath": "classes/Command",
-	"themePathPrefix": "zesk/ORM"
+	"themePathPrefix": "zesk/ORM",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

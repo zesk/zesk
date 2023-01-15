@@ -1,0 +1,9 @@
+{
+	"name": "Locale Module",
+	"autoload": {
+		"classPrefix": "zesk\\Locale\\",
+		"path": "zesk/Locale"
+	},
+	"moduleClass": "zesk\\Locale\\Module",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
+}

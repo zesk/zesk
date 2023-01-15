@@ -14,7 +14,7 @@ use zesk\Exception_Deprecated;
 use zesk\Exception_Key;
 use zesk\Session\Session\classes\SessionORM;
 use zesk\User;
-use zesk\zesk;
+use zesk;
 
 /**
  * @see SessionORM

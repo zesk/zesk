@@ -7,5 +7,6 @@
 		"classPrefix": "sqlite3\\"
 	},
 	"name": "SQLite3 Database Interface",
-	"description": "The SQLite3 database API using the PHP SQLite3 API. INCOMPLETE."
+	"description": "The SQLite3 database API using the PHP SQLite3 API. INCOMPLETE.",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

@@ -139,22 +139,22 @@ abstract class Database_Data_Type {
 	/**
 	 * Override this method to convert the default value to the database canonical default.
 	 *
-	 * @param string $type
+	 * @param string $native_type
 	 *            sql type
-	 * @param mixed $default_value
+	 * @param string|int|null $default_value
 	 *            default value supplied
-	 * @return mixed Canonical default for this type
+	 * @return string|int|null Canonical default for this type
 	 */
-	abstract public function sql_type_default(string $type, mixed $default_value = null): mixed;
+	abstract public function sql_type_default(string $native_type, string|int|null $default_value = null): string|int|null;
 
 	/**
 	 * Given a native type, convert default value to the correct type
 	 *
 	 * @param string $type sql type
-	 * @param mixed $default_value  default value supplied
-	 * @return string Canonical default for this type
+	 * @param string|int|null $default_value  default value supplied
+	 * @return string|int|null Canonical default for this type
 	 */
-	public function native_type_default(string $type, mixed $default_value = null) {
+	public function native_type_default(string $type, string|int $default_value = null): string|int|null {
 		return $this->sql_type_default($this->parse_native_type($type), $default_value);
 	}
 

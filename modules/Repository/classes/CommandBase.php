@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace zesk\Repository;
 
+use Module;
 use zesk\Exception_Command;
 use zesk\Exception_NotFound;
 use zesk\Exception_Parameter;
@@ -19,7 +20,7 @@ use zesk\Process;
  * For repository tools which are invoked via an external command (e.g. most of them)
  *
  * @author kent
- * @see Module
+ * @see \zesk\Login\Module
  * @see \zesk\Git\Repository
  * @see \zesk\Subversion\Repository
  */

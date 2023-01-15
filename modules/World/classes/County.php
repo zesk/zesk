@@ -32,7 +32,7 @@ class County extends ORMBase {
 				->querySelect()
 				->addWhere('county', $this->id)
 				->addWhat('*total', 'COUNT(X.id)')
-				->one_integer('total'),
+				->integer('total'),
 		];
 	}
 

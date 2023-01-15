@@ -15,9 +15,11 @@ namespace zesk\ORM;
 
 use Psr\Cache\InvalidArgumentException;
 use Throwable;
+use zesk\Database_Exception_Connect;
 use zesk\Database_Exception_SQL;
 use zesk\Exception as BaseException;
 use zesk\Exception_NotFound;
+use zesk\Exception_Syntax;
 use zesk\Hookable;
 use zesk\ArrayTools;
 use zesk\StringTools;
@@ -50,12 +52,37 @@ use zesk\Exception_Class_NotFound;
  * @see ORMBase
  */
 class Class_Base extends Hookable {
+	/**
+	 * Class name
+	 */
+	public const OPTION_NAME = 'name';
+
+	/**
+	 * Table name
+	 */
+	public const OPTION_TABLE = 'table';
+
+	/**
+	 * Table prefix used when table is computed.
+	 */
+	public const OPTION_TABLE_PREFIX = 'table_prefix';
+
+	/**
+	 * ID column for this table
+	 */
+	public const OPTION_ID_COLUMN = 'id_column';
+
+	/**
+	 * Default ID column when nothing specified
+	 */
+	public const DEFAULT_OPTION_ID_COLUMN = 'id';
+
 	public const HAS_MANY_INITIALIZED = '*init*';
 
 	/**
 	 *
 	 */
-	public const ID_AUTOASSIGN = '*';
+	public const ID_AUTOMATIC = '*';
 
 	/**
 	 * For ID columns
@@ -117,7 +144,7 @@ class Class_Base extends Hookable {
 	public const TYPE_MODIFIED = 'modified';
 
 	/**
-	 * String information called using serialize/unserialize.
+	 * String information called using serialize
 	 * Column should be a blob (not text)
 	 *
 	 * @var string
@@ -151,7 +178,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const type_real = 'real';
+	public const TYPE_REAL = 'real';
 
 	/**
 	 *
@@ -259,6 +286,9 @@ class Class_Base extends Hookable {
 
 	/**
 	 * String name of the database to use
+	 * <code>
+	 * public string $database_name = "tracker";
+	 * </code>
 	 *
 	 * @var string
 	 */
@@ -275,15 +305,12 @@ class Class_Base extends Hookable {
 	protected string $database_group = '';
 
 	/**
-	 * Database name where this object resides.
+	 * Database where this object can be fetched and stored.
 	 * If not specified, the default database.
-	 * <code>
-	 * protected $database = "tracker";
-	 * </code>
 	 *
-	 * @var ?Database
+	 * @var Database
 	 */
-	private ?Database $database = null;
+	private Database $database;
 
 	/**
 	 * Database table name
@@ -395,7 +422,7 @@ class Class_Base extends Hookable {
 	 * protected $column_types = array("column" => "type",...)
 	 * </code>
 	 * Can specify special database types:
-	 * - "hex" does hex/unhex
+	 * - "hex" does hex encoding and decoding
 	 * - "integer" converts to integer
 	 * - "boolean" converts to boolean from integer
 	 * - "serialize" serializes PHP objects
@@ -404,13 +431,6 @@ class Class_Base extends Hookable {
 	 * @var array
 	 */
 	public array $column_types = [];
-
-	/**
-	 * Whether to dynamically load the object columns from the database
-	 *
-	 * @var boolean
-	 */
-	public bool $load_database_columns = false;
 
 	/**
 	 * Member defaults: fill in only defaults you want to set
@@ -437,7 +457,7 @@ class Class_Base extends Hookable {
 	 *
 	 * @var string
 	 */
-	public string $id_column = self::ID_AUTOASSIGN;
+	public string $id_column = self::ID_AUTOMATIC;
 
 	/**
 	 * Name of the columns which uniquely identifies this object in the table.
@@ -503,7 +523,7 @@ class Class_Base extends Hookable {
 	public bool $utc_timestamps = true;
 
 	/**
-	 * Whether this object has its columns determined programmatically.
+	 * Whether this object has its columns determined programmatically based on what the database schema is.
 	 * Set by ORM class, read-only by subclasses
 	 *
 	 * @var boolean
@@ -798,7 +818,7 @@ class Class_Base extends Hookable {
 	 * @param bool $first
 	 * @return void
 	 */
-	private function addHasManyObject(string $class, string $member, bool $first = false): void {
+	private function _addHasManyObject(string $class, string $member, bool $first = false): void {
 		$class = $this->application->objects->resolve($class);
 		if ($first) {
 			ArrayTools::prepend($this->has_many_objects, $class, $member);
@@ -821,28 +841,18 @@ class Class_Base extends Hookable {
 				'class' => get_class($this), 'member' => $member,
 			]);
 		}
-		$this->addHasManyObject($many_spec['class'], $member, toBool($many_spec['default'] ?? false));
+		$this->_addHasManyObject($many_spec['class'], $member, toBool($many_spec['default'] ?? false));
 		$this->has_many[$member] = map($many_spec, ['table' => $this->table, ]);
 		return $this;
 	}
-
-	public const OPTION_NAME = 'name';
-
-	public const OPTION_TABLE = 'table';
-
-	public const OPTION_TABLE_PREFIX = 'table_prefix';
-
-	public const OPTION_ID_COLUMN_DEFAULT = 'id_column_default';
-
-	public const DEFAULT_OPTION_ID_COLUMN_DEFAULT = 'id';
 
 	/**
 	 * Constructor
 	 * @param ORMBase $object
 	 * @param array $options
-	 * @throws Exception_Key
 	 * @throws Exception_Semantics
-	 * @throws Exception_Unimplemented
+	 * @throws Exception_NotFound
+	 * @throws Exception_Key
 	 */
 	public function __construct(ORMBase $object, array $options = []) {
 		$app = $object->application;
@@ -851,8 +861,39 @@ class Class_Base extends Hookable {
 		// Handle polymorphic classes - create correct Class and use correct base class
 		$this->class = $object->class_orm_name();
 
+		/* May change $this->>class */
 		$this->configure($object);
-		// In case configure changes it
+
+		$this->application->classes->register($this->class);
+		$this->application->hooks->registerClass($this->class);
+
+		$this->deriveClassConfiguration($object);
+		$this->initializeDatabase($object);
+		$this->_initializeColumnTypes();
+		$this->_columnDefaults();
+		if (count($this->members) === 0) {
+			$this->deriveMembers();
+		}
+		$this->initialize();
+	}
+
+	/**
+	 * If blank, sets:
+	 *
+	 * $this->>codeName
+	 * $this->>name
+	 * $this->>table
+	 *
+	 * Sets:
+	 *
+	 * $this->>id_column
+	 *
+	 * @param ORMBase $object
+	 * @return void
+	 * @throws Exception_Semantics
+	 * @throws Exception_Key
+	 */
+	private function deriveClassConfiguration(ORMBase $object): void {
 		$this_class = $this->class;
 		if ($this->code_name === '') {
 			$this->code_name = StringTools::reverseRight($this_class, '\\');
@@ -867,15 +908,22 @@ class Class_Base extends Hookable {
 				$this->table = $prefix . $this->code_name;
 			}
 		}
+		$this->derivePrimaryKeysAndID();
+		$this->deriveFindAndDuplicates();
+		$this->_deriveLinkOne();
+		$this->_deriveLinkMany();
+	}
+
+	private function derivePrimaryKeysAndID(): void {
 		/* Automatic promotion here of primary_keys should be avoided - id_column should probably just be internal */
 		if (count($this->primary_keys) > 0) {
 			if (count($this->primary_keys) === 1) {
 				$this->id_column = $this->primary_keys[0];
-			} elseif ($this->id_column === self::ID_AUTOASSIGN) {
+			} elseif ($this->id_column === self::ID_AUTOMATIC) {
 				$this->id_column = '';
 			}
-		} elseif ($this->id_column === self::ID_AUTOASSIGN) {
-			$this->id_column = $this->option(self::OPTION_ID_COLUMN_DEFAULT, self::DEFAULT_OPTION_ID_COLUMN_DEFAULT);
+		} elseif ($this->id_column === self::ID_AUTOMATIC) {
+			$this->id_column = $this->optionString(self::OPTION_ID_COLUMN, self::DEFAULT_OPTION_ID_COLUMN);
 			if ($this->id_column) {
 				assert(count($this->primary_keys) === 0);
 				$this->primary_keys = [$this->id_column, ];
@@ -886,39 +934,51 @@ class Class_Base extends Hookable {
 		} else {
 			$this->primary_keys = [$this->id_column, ];
 		}
-
 		if ($this->auto_column === '') {
 			$auto_type = $this->column_types[$this->id_column] ?? null;
 			$this->auto_column = ($auto_type === null || $auto_type === self::TYPE_ID) ? $this->id_column : '';
 		}
+	}
+
+	private function deriveFindAndDuplicates(): void {
 		if (empty($this->find_keys)) {
 			$this->find_keys = $this->primary_keys;
 		}
 		if (empty($this->duplicate_keys)) {
 			$this->duplicate_keys = [];
 		}
-		$this->_addDeferLinkMany($this_class);
-		if (!empty($this->has_many)) {
+	}
+
+	/**
+	 * @throws Exception_Semantics
+	 * @throws Exception_Key
+	 */
+	private function _deriveLinkMany(): void {
+		$this->_addDeferLinkMany($this->class);
+		if (count($this->has_many) !== 0) {
 			foreach ($this->has_many as $member => $many_spec) {
 				if (!is_array($many_spec)) {
 					throw new Exception_Semantics('many_spec for class {class} must have array value for member {member}', [
-						'class' => $this_class, 'member' => $member,
+						'class' => $this->class, 'member' => $member,
 					]);
 				}
 				if (!array_key_exists('class', $many_spec)) {
 					throw new Exception_Semantics('many_spec for class {class} must contain key \'class\' for member {member}', [
-						'class' => $this_class, 'member' => $member,
+						'class' => $this->class, 'member' => $member,
 					]);
 				}
-				$this->addHasManyObject($many_spec['class'], $member, toBool($many_spec['default'] ?? false));
+				$this->_addHasManyObject($many_spec['class'], $member, toBool($many_spec['default'] ?? false));
 			}
 			$this->has_many = map($this->has_many, ['table' => $this->table, ]);
 		}
-		if (!empty($this->has_one)) {
+	}
+
+	private function _deriveLinkOne(): void {
+		if (count($this->has_one) !== 0) {
 			$this->has_one_flip = [];
 			foreach ($this->has_one as $member => $class) {
 				if ($class[0] !== '*') {
-					$this->has_one[$member] = $class = $app->objects->resolve($class);
+					$this->has_one[$member] = $class = $this->application->objects->resolve($class);
 					ArrayTools::append($this->has_one_flip, $class, $member);
 				}
 				if (isset($this->column_types[$member]) && $this->column_types[$member] !== self::TYPE_OBJECT) {
@@ -930,29 +990,38 @@ class Class_Base extends Hookable {
 				$this->column_types[$member] = self::TYPE_OBJECT;
 			}
 		}
-		if (count($this->column_types) === 0) {
-			$this->dynamic_columns = true;
-		}
-		$this->initialize_database($object);
-		if (!$this->load_database_columns && count($this->column_types) > 0 && count($this->primary_keys) === 0) {
-			throw new Exception_Unimplemented('No support for database synchronized column without primary_keys defined {class}', ['class' => get_class($this)]);
-		}
-		$this->checkColumnLoading();
-		$this->init_columns();
-		$this->_columnDefaults();
-		$this->initialize();
-		if (count($this->column_types) === 0 && count($this->table_columns) > 0) {
-			$this->implyColumnTypes();
-		}
-
-		$this->application->hooks->registerClass($this->class);
 	}
 
 	/**
+	 * @return void
+	 * @throws Exception_Semantics
+	 */
+	public function schemaChanged(): void {
+		if ($this->dynamic_columns) {
+			$this->_initializeColumnTypes();
+		}
+	}
+
+	private function deriveMembers(): void {
+		foreach ($this->column_types as $column_name => $column_type) {
+			$this->members[$column_name] = [
+				'type' => $column_type, 'default' => $this->column_defaults[$column_name] ?? null,
+			];
+		}
+		foreach ($this->has_many as $column_name => $manyStruct) {
+			$this->members[$column_name] = ['type' => 'many'] + $manyStruct;
+		}
+	}
+
+	/**
+	 * Sets $this->>database_name based on $this->>database_group (if set)
+	 * Sets $this->>database to a valid value (not connected)
+	 *
 	 * @param ORMBase $object
 	 * @return void
+	 * @throws Exception_NotFound
 	 */
-	protected function initialize_database(ORMBase $object): void {
+	protected function initializeDatabase(ORMBase $object): void {
 		if (!empty($this->database_group) && $this->database_group !== $this->class) {
 			if ($this->database_name !== '') {
 				$this->application->logger->warning('database_name value {database_name} is ignored, using database_group {database_group}', [
@@ -964,7 +1033,15 @@ class Class_Base extends Hookable {
 		if ($this->database_name === $object->databaseName() && !$object->initializing()) {
 			$this->database = $object->database();
 		} else {
-			$this->database = $this->application->databaseRegistry($this->database_name, ['connect' => false]);
+			try {
+				$this->database = $this->application->databaseModule()->databaseRegistry($this->database_name, [
+					'connect' => false,
+				]);
+			} catch (Database_Exception_Connect $e) {
+				throw new Exception_NotFound('databaseRegistry({name}) connect error when connect is false', [
+					'name' => $this->database_name,
+				], 0, $e);
+			}
 		}
 	}
 
@@ -984,34 +1061,39 @@ class Class_Base extends Hookable {
 	}
 
 	/**
-	 * @return void
-	 * @throws Exception_Unimplemented
-	 */
-	final protected function checkColumnLoading(): void {
-		if (!$this->load_database_columns && count($this->column_types) > 0 && count($this->primary_keys) === 0) {
-			throw new Exception_Unimplemented('No support for database synchronized column without primary_keys defined {class}', ['class' => get_class($this)]);
-		}
-	}
-
-	/**
 	 * Load columns from database
 	 *
-	 * @return boolean
+	 * @return void
+	 * @throws Exception_Semantics
 	 */
-	final public function init_columns(): bool {
-		return $this->load_columns();
+	final public function _initializeColumnTypes(): void {
+		if (count($this->column_types) === 0) {
+			$this->dynamic_columns = true;
+		}
+		if (!$this->dynamic_columns) {
+			return;
+		}
+		/* Loaded already or initialized already */
+		if (count($this->table_columns) !== 0) {
+			return;
+		}
+		/* Loaded already or initialized already */
+		if (count($this->column_types) > 0 && count($this->primary_keys) === 0) {
+			throw new Exception_Semantics('No support for database synchronized column without primary_keys defined {class}', ['class' => get_class($this)]);
+		}
+		$this->_loadColumns();
+		if (count($this->column_types) === 0 && count($this->table_columns) > 0) {
+			$this->_implyColumnTypes();
+		}
 	}
 
 	/**
 	 * Load database columns from database/cache
 	 *
-	 * @return boolean
+	 * @return void
+	 * @throws Exception_Semantics
 	 */
-	private function load_columns(): bool {
-		if (count($this->table_columns)) {
-			return false;
-		}
-		$return = false;
+	private function _loadColumns(): void {
 		$pool = $this->application->cache;
 		$table = $this->table;
 
@@ -1019,9 +1101,8 @@ class Class_Base extends Hookable {
 			$cache = $pool->getItem(__CLASS__ . "::column_cache::$table");
 			if ($cache->isHit()) {
 				$this->table_columns = $cache->get();
-				return true;
+				return;
 			}
-			$return = true;
 		} catch (InvalidArgumentException) {
 			$cache = null;
 		}
@@ -1037,16 +1118,15 @@ class Class_Base extends Hookable {
 				$pool->saveDeferred($cache->set($this->table_columns));
 			}
 		} catch (BaseException $e) {
-			$this->application->hooks->call('exception', $e);
 			if ($cache) {
 				try {
 					$pool->deleteItem($cache->getKey());
 				} catch (InvalidArgumentException) {
 				}
 			}
-			$this->table_columns = [];
+
+			throw new Exception_Semantics('No database table columns for {table}', ['table' => $table]);
 		}
-		return $return;
 	}
 
 	/**
@@ -1354,7 +1434,6 @@ class Class_Base extends Hookable {
 	 * @return array
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Key
-	 * @throws Exception_Semantics
 	 */
 	final public function hasManyObject(ORMBase $object, string $class): array {
 		$class = $this->application->objects->resolve($class);
@@ -1411,7 +1490,6 @@ class Class_Base extends Hookable {
 	 * @return array
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Key
-	 * @throws Exception_Semantics
 	 */
 	final public function hasMany(ORMBase $object, string $member): array {
 		if (!array_key_exists($member, $this->has_many)) {
@@ -1517,7 +1595,6 @@ class Class_Base extends Hookable {
 	 * @return array[]
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Key
-	 * @throws Exception_Semantics
 	 */
 	final public function memberForeignDelete(ORMBase $object, string $member): array {
 		if (!isset($this->has_many[$member])) {
@@ -1539,7 +1616,6 @@ class Class_Base extends Hookable {
 	 * @return array[]
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Key
-	 * @throws Exception_Semantics
 	 */
 	final public function memberForeignAdd(ORMBase $this_object, string $member, ORMBase $link): array {
 		$many_spec = $this->hasMany($this_object, $member);
@@ -1571,7 +1647,6 @@ class Class_Base extends Hookable {
 	 * @return array
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Key
-	 * @throws Exception_Semantics
 	 * @todo Remove dependencies on "table" use "link_class" instead
 	 */
 	private function hasManyInit(ORMBase $object, array $has_many): array {
@@ -1593,15 +1668,12 @@ class Class_Base extends Hookable {
 		} else {
 			$object = $this->application->ormRegistry($class);
 		}
-		if (!$object instanceof ORMBase) {
-			throw new Exception_Semantics('{class} is not an instance of ORM', compact('class'));
-		}
 		if ($table === true) {
 			// Clean up reference
 			$has_many_object = $object->class_orm()->hasManyObject($object, $class);
 			$table = $has_many_object['table'] ?? null;
 			if (!is_string($table)) {
-				throw new Exception_Semantics('{my_class} references table in {class}, but no table found for have_many', compact('my_class', 'class'));
+				throw new Exception_Class_NotFound($class, '{my_class} references table in {class}, but no table found for have_many', compact('my_class', 'class'));
 			}
 			$has_many['table'] = $table;
 		}
@@ -1729,15 +1801,14 @@ class Class_Base extends Hookable {
 	}
 
 	/**
-	 * Set up ->column_defaults
+	 * Set up ->column_defaults so all members have values
 	 */
 	private function _columnDefaults(): void {
-		$column_types = $this->column_types;
 		foreach (array_keys($this->column_types) as $column) {
 			if (array_key_exists($column, $this->column_defaults)) {
 				continue;
 			}
-			$this->_memberDefault($column, $column_types[$column] ?? null, $this->column_defaults);
+			$this->column_defaults[$column] = $this->_memberDefault($column);
 		}
 	}
 
@@ -1815,13 +1886,11 @@ class Class_Base extends Hookable {
 	}
 
 	/**
-	 * @param string $column
 	 * @param string $type
-	 * @param array $data
-	 * @return void
+	 * @return string|null
 	 */
-	private function _memberDefault(string $column, string $type, array &$data): void {
-		$data[$column] = match ($type) {
+	private function _memberDefault(string $type): string|null {
+		return match ($type) {
 			self::TYPE_POLYMORPH => '',
 			self::TYPE_CREATED, self::TYPE_MODIFIED => 'now',
 			default => null,
@@ -1874,7 +1943,7 @@ class Class_Base extends Hookable {
 	private function memberFromDatabase(ORMBase $object, string $column, string $type, array &$data): void {
 		$v = $data[$column];
 		switch ($type) {
-			case self::type_real:
+			case self::TYPE_REAL:
 			case self::TYPE_FLOAT:
 			case self::TYPE_DOUBLE:
 			case self::TYPE_DECIMAL:
@@ -1915,13 +1984,14 @@ class Class_Base extends Hookable {
 
 				break;
 			case self::TYPE_SERIALIZE:
-				$data[$column] = $result = empty($v) ? null : unserialize($v);
-				if ($result === false && $v !== 'b:0;') {
+				try {
+					$data[$column] = empty($v) ? null : PHP::unserialize($v);
+				} catch (Exception_Syntax) {
 					$this->application->logger->error('unserialize of {n} bytes failed: {data}', [
 						'n' => strlen($v), 'data' => substr($v, 0, 100),
 					]);
+					$data[$column] = null;
 				}
-
 				break;
 			case self::TYPE_JSON:
 				try {
@@ -2053,7 +2123,7 @@ class Class_Base extends Hookable {
 				$data[$column] = $this->polymorphicClassParse($object, $column);
 
 				break;
-			case self::type_real:
+			case self::TYPE_REAL:
 			case self::TYPE_FLOAT:
 			case self::TYPE_DOUBLE:
 			case self::TYPE_DECIMAL:
@@ -2174,7 +2244,7 @@ class Class_Base extends Hookable {
 	 *
 	 * Updates internal $this->column_types
 	 */
-	private function implyColumnTypes(): void {
+	private function _implyColumnTypes(): void {
 		$data_type = $this->database()->data_type();
 		foreach ($this->table_columns as $name => $sql_type) {
 			$this->column_types[$name] = $data_type->native_type_to_data_type($sql_type);
@@ -2234,7 +2304,7 @@ class Class_Base extends Hookable {
 				if ($link_class) {
 					$result['requires'][] = $link_class;
 				}
-			} catch (Exception_Class_NotFound|Exception_Key|Exception_Semantics $e) {
+			} catch (Exception_Class_NotFound|Exception_Key $e) {
 				// WTF you need to not have this happen ever after configuration. TODO
 				$this->application->logger->error($e);
 			}

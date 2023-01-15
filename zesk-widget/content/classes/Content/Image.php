@@ -435,7 +435,7 @@ class Content_Image extends ORMBase {
 	 * @return mixed|boolean
 	 */
 	public function hook_permission(User $user, Permission $perm) {
-		$is_mine = toBool($this->memberQuery('users')->addWhere('users.id', $user)->what('*n', 'COUNT(users.id)')->one_integer('n'));
+		$is_mine = toBool($this->memberQuery('users')->addWhere('users.id', $user)->what('*n', 'COUNT(users.id)')->integer('n'));
 		return $is_mine;
 	}
 

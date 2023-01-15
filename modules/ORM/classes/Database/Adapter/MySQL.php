@@ -86,7 +86,7 @@ class Database_Adapter_MySQL extends Database_Adapter {
 				$width = $intP + $decP;
 				$column->setOption('sql_type', "decimal($width,$decP)");
 				return ;
-			case Class_Base::type_real:
+			case Class_Base::TYPE_REAL:
 				$column->setOption('sql_type', 'real');
 				return ;
 			case Class_Base::TYPE_DOUBLE:

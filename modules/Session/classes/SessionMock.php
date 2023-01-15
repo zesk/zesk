@@ -174,11 +174,10 @@ class SessionMock extends Hookable implements Interface_Session {
 
 	/**
 	 *
-	 * {@inheritdoc}
-	 *
-	 * @see Interface_Session::authenticated()
+	 * @see Interface_Session::isAuthenticated()
+	 * @return bool
 	 */
-	public function authenticated(): bool {
+	public function isAuthenticated(): bool {
 		$user = $this->__get($this->global_session_userId());
 		return !empty($user);
 	}

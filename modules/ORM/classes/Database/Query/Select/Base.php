@@ -11,6 +11,9 @@ declare(strict_types=1);
 namespace zesk\ORM;
 
 use DateTimeZone;
+use zesk\Database_Exception_Duplicate;
+use zesk\Database_Exception_NoResults;
+use zesk\Database_Exception_Table_NotFound;
 use zesk\Exception_Parameter;
 use zesk\Database_Result_Iterator;
 use zesk\Database_Exception_SQL;
@@ -74,24 +77,13 @@ abstract class Database_Query_Select_Base extends Database_Query implements Sele
 	 *
 	 * @param string|int|null $field
 	 * @return mixed
-	 * @throws Database_Exception_SQL|Exception_Key
+	 * @throws Database_Exception_NoResults
+	 * @throws Exception_Key
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_Table_NotFound
 	 */
 	public function one(string|int|null $field = null): mixed {
 		return $this->database()->queryOne($this->__toString(), $field);
-	}
-
-	/**
-	 * Execute query and retrieve a single field, a Timestamp
-	 *
-	 * @param string|int $field
-	 *            Field to retrieve
-	 * @return int
-	 * @throws Exception_Key|Database_Exception_SQL
-	 * @deprecated 2022-05
-	 */
-	public function one_integer(string|int $field = 0): int {
-		$this->application->deprecated(__METHOD__);
-		return $this->integer($field);
 	}
 
 	/**
@@ -115,7 +107,7 @@ abstract class Database_Query_Select_Base extends Database_Query implements Sele
 	 * @param string|integer $field
 	 *            Field to retrieve
 	 * @return float
-	 * @throws Exception_Key|Database_Exception_SQL
+	 * @throws Exception_Key|Database_Exception_NoResults
 	 */
 	public function float(string|int $field = 0): float {
 		return toFloat($this->one($field));
@@ -126,7 +118,7 @@ abstract class Database_Query_Select_Base extends Database_Query implements Sele
 	 *
 	 * @param string|int $field
 	 * @return int
-	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_NoResults
 	 * @throws Exception_Key
 	 */
 	public function integer(string|int $field = 0): int {

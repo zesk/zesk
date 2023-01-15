@@ -33,7 +33,7 @@ class Contact extends ORMBase {
 				'class' => $class_object::class,
 			]);
 		}
-		return $query->addWhat($id_column)->where($where)->one_integer($id_column);
+		return $query->addWhat($id_column)->where($where)->integer($id_column);
 	}
 
 	public function full_name($default = '') {

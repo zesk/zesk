@@ -528,17 +528,6 @@ class Database extends \zesk\Database {
 	}
 
 	/**
-	 * Get/set time zone
-	 *
-	 * @param string $set
-	 *            Time zone to Settings
-	 * @return self|string
-	 */
-	public function time_zone($set = null) {
-		return $this->timeZone();
-	}
-
-	/**
 	 * @return string
 	 */
 	public function timeZone(): string {
@@ -1117,8 +1106,8 @@ class Database extends \zesk\Database {
 	 *
 	 * @see Database::_query()
 	 */
-	final public function query(string $query, array $options = []): DatabaseQueryResult {
-		if (empty($query)) {
+	final public function query(string $sql, array $options = []): DatabaseQueryResult {
+		if (empty($sql)) {
 			throw new Exception_Parameter('Empty query');
 		}
 		if (!$this->connected()) {
@@ -1130,25 +1119,25 @@ class Database extends \zesk\Database {
 		}
 		$tries = 0;
 		do {
-			$query = $this->_queryBefore($query, $options);
+			$sql = $this->_queryBefore($sql, $options);
 
 			try {
-				$result = mysqli_query($this->Connection, $query);
+				$result = mysqli_query($this->Connection, $sql);
 			} catch (\mysqli_sql_exception $exception) {
 				$exception_code = $exception->getCode();
 				$message = $exception->getMessage();
 				if ($exception_code === 1062 || stripos($message, 'duplicate') !== false) {
-					throw new Database_Exception_Duplicate($this, $query, $exception->getMessage(), [], $exception_code, $exception);
+					throw new Database_Exception_Duplicate($this, $sql, $exception->getMessage(), [], $exception_code, $exception);
 				}
 				if ($exception_code === 1146) {
-					throw new Database_Exception_Table_NotFound($this, $query);
+					throw new Database_Exception_Table_NotFound($this, $sql);
 				}
 
-				throw new Database_Exception_SQL($this, $query, $exception->getMessage(), [
-					'sql' => $query,
+				throw new Database_Exception_SQL($this, $sql, $exception->getMessage(), [
+					'sql' => $sql,
 				] + Exception::exceptionVariables($exception), $exception->getCode(), $exception);
 			}
-			$this->_queryAfter($query, $options);
+			$this->_queryAfter($sql, $options);
 			if ($result) {
 				return new QueryResult($this, $result);
 			}
@@ -1163,7 +1152,7 @@ class Database extends \zesk\Database {
 				break;
 			}
 		} while (++$tries < 10);
-		$this->_mysql_throw_error($query, $errno, $message);
+		$this->_mysql_throw_error($sql, $errno, $message);
 	}
 
 	/**

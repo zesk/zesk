@@ -108,7 +108,12 @@ abstract class Database_Parser extends Hookable {
 	 *
 	 * @param Database $db
 	 * @param string $sql
+	 * @param string $source
 	 * @return Database_Parser
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_Parameter
 	 */
 	public static function parseFactory(Database $db, string $sql, string $source): Database_Parser {
 		$app = $db->application;

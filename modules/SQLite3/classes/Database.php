@@ -14,11 +14,13 @@ use Exception;
 use SQLite3;
 use SQLite3Result;
 use SQLite3Stmt;
+use SQLiteException;
 use Throwable;
 
 use zesk\Database\QueryResult as BaseQueryResult;
 
 // Zesk classes
+use zesk\Database_Exception_NoResults;
 use zesk\Exception_File_NotFound;
 use zesk\PHP;
 use zesk\Directory;
@@ -229,7 +231,7 @@ class Database extends \zesk\Database implements Database_Interface {
 	 *
 	 * @param string $table_name
 	 * @return array
-	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_NoResults
 	 */
 	public function tableInformation(string $table_name): array {
 		$safeSQL = map('SELECT * FROM sqlite_master WHERE type=\'table\' AND name=\'{name}\'', [
@@ -239,7 +241,7 @@ class Database extends \zesk\Database implements Database_Interface {
 		try {
 			$result = $this->queryOne($safeSQL);
 		} catch (Exception_Key $key) {
-			throw new Database_Exception_SQL($this, $safeSQL, 'Key error {message}', [
+			throw new Database_Exception_NoResults($this, $safeSQL, 'Key error {message}', [
 				'message' => $key->getMessage(),
 			], $key->getCode(), $key);
 		}
@@ -516,7 +518,7 @@ class Database extends \zesk\Database implements Database_Interface {
 			if ($result instanceof SQLite3Result) {
 				return $result;
 			}
-		} catch (\SQLiteException $e) {
+		} catch (SQLiteException $e) {
 			throw new Database_Exception_SQL($this, $statement->getSQL(true));
 		}
 

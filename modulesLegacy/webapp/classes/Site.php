@@ -61,7 +61,7 @@ class Site extends ORM {
 		return $this->querySelect()
 			->addWhere('instance', $this->instance)
 			->addWhat('*max', 'MAX(priority)')
-			->one_integer('max', -1);
+			->integer('max', -1);
 	}
 
 	public function domains() {

@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace zesk\ORM;
 
 use Psr\Cache\InvalidArgumentException;
+use Throwable;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Database;
@@ -18,16 +19,18 @@ use zesk\Database_Exception;
 use zesk\Database_Exception_Duplicate;
 use zesk\Database_Exception_SQL;
 use zesk\Database_Exception_Table_NotFound;
+use zesk\Exception_Class_NotFound;
 use zesk\Exception_Configuration;
-use zesk\Exception_Deprecated;
+use zesk\Exception_Convert;
 use zesk\Exception_Key;
+use zesk\Exception_NotFound;
 use zesk\Exception_Parameter;
+use zesk\Exception_Parse;
 use zesk\Exception_Semantics;
 use zesk\Exception_Timeout;
-use zesk\Exception_Unimplemented;
+use zesk\Exception_Unsupported;
 use zesk\Hooks;
 use zesk\Interface_Data;
-use zesk\Kernel;
 use zesk\System;
 use zesk\Timestamp;
 
@@ -37,7 +40,7 @@ use zesk\Timestamp;
  * Represents a server (virtual or physical)
  *
  * @see Class_Server
- * @see Server_Data
+ * @see ServerMeta
  * @property int $id
  * @property string $name
  * @property string $name_internal
@@ -47,8 +50,18 @@ use zesk\Timestamp;
  * @property integer $free_disk
  * @property double $load
  * @property Timestamp $alive
+ * @property ORMIterator $metas
  */
 class Server extends ORMBase implements Interface_Data {
+	public const MEMBER_METAS = 'metas';
+
+	public const DEFAULT_OPTION_FREE_DISK_VOLUME = '/';
+
+	/**
+	 *
+	 */
+	public const OPTION_FREE_DISK_VOLUME = 'free_disk_volume';
+
 	/**
 	 * 1 = 1024^0
 	 *
@@ -101,7 +114,7 @@ class Server extends ORMBase implements Interface_Data {
 	 *
 	 * @var array
 	 */
-	private static $disk_units_list = [
+	private static array $disk_units_list = [
 		self::DISK_UNITS_BYTES, self::DISK_UNITS_KILOBYTES, self::DISK_UNITS_MEGABYTES, self::DISK_UNITS_GIGABYTES,
 		self::DISK_UNITS_TERABYTES, self::DISK_UNITS_PETABYTES, self::DISK_UNITS_EXABYTES,
 	];
@@ -110,20 +123,20 @@ class Server extends ORMBase implements Interface_Data {
 	 *
 	 * @var string
 	 */
-	public const option_alive_update_seconds = 'alive_update_seconds';
+	public const OPTION_ALIVE_UPDATE_SECONDS = 'alive_update_seconds';
 
 	/**
 	 * Number of seconds after which the server status should be updated
 	 *
 	 * @var integer
 	 */
-	public const default_alive_update_seconds = 30;
+	public const DEFAULT_ALIVE_UPDATE_SECONDS = 30;
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const option_timeout_seconds = 'timeout_seconds';
+	public const OPTION_TIMEOUT_SECONDS = 'timeout_seconds';
 
 	/**
 	 *
@@ -142,57 +155,56 @@ class Server extends ORMBase implements Interface_Data {
 	}
 
 	/**
-	 *
-	 * @param Kernel $zesk
-	 */
-	public static function hooks(Application $zesk): void {
-		$zesk->hooks->add(Hooks::HOOK_CONFIGURED, [
-			__CLASS__, 'configured',
-		]);
-	}
-
-	/**
-	 */
-	public static function configured(Application $application): void {
-		$application->configuration->deprecated('FDISK_PRIMARY', __CLASS__ . '::free_disk_volume');
-	}
-
-	/**
 	 * Once a minute, update the state
 	 *
 	 * @param Application $application
 	 */
 	public static function cron_minute(Application $application): void {
-		$server = self::singleton($application);
-
 		try {
+			$server = self::singleton($application);
 			$server->updateState();
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			$application->logger->error("Exception {class} {code} {file}:{line}\n{message}\n{backtrace}", Exception::exceptionVariables($e));
 		}
 	}
 
 	/**
 	 * Run intermittently once per cluster to clean away dead Server records
+	 * @throws Exception_Timeout
 	 */
 	public function bury_dead_servers(): void {
-		$lock = Lock::instance($this->application, __CLASS__ . '::bury_dead_servers');
-		if ($lock->acquire() === null) {
-			return;
+		try {
+			$lock = Lock::instance($this->application, __CLASS__ . '::bury_dead_servers');
+		} catch (Throwable $e) {
+			throw new Exception_Timeout('Unable to get lock instance {name}', [], 0, $e);
 		}
+		$lock = $lock->acquire();
+
 		$query = $this->querySelect();
 		$pushed = $this->push_utc();
 
-		$timeout_seconds = -abs($this->optionInt('timeout_seconds', self::default_timeout_seconds));
-		$dead_to_me = Timestamp::now('UTC')->addUnit($timeout_seconds, Timestamp::UNIT_SECOND);
-		$iterator = $query->where([
+		$timeout_seconds = -abs($this->optionInt(self::OPTION_TIMEOUT_SECONDS, self::default_timeout_seconds));
+
+		try {
+			$dead_to_me = Timestamp::now('UTC');
+			$dead_to_me->addUnit($timeout_seconds);
+		} catch (Exception_Key|Exception_Semantics $e) {
+			$this->application->logger->error($e);
+			return;
+		}
+		$iterator = $query->appendWhere([
 			'alive|<=' => $dead_to_me,
 		])->ormIterator();
 		/* @var $server Server */
 		foreach ($iterator as $server) {
 			// Delete this way so hooks get called per dead server
-			$this->application->logger->warning('Burying dead server {name} (#{id}), last alive on {alive}', $server->members());
-			$server->delete();
+			try {
+				$this->application->logger->warning('Burying dead server {name} (#{id}), last alive on {alive}', $server->members());
+				$server->delete();
+			} catch (Throwable $t) {
+				$this->application->logger->error($t);
+				return;
+			}
 		}
 		$this->pop_utc($pushed);
 		$lock->release();
@@ -237,6 +249,7 @@ class Server extends ORMBase implements Interface_Data {
 			}
 		}
 		$server = $application->ormFactory(__CLASS__);
+		assert($server instanceof self);
 		$server = $server->_findSingleton();
 		if ($cache && $item) {
 			$item->set($server);
@@ -248,57 +261,63 @@ class Server extends ORMBase implements Interface_Data {
 
 	/**
 	 * Register and load this
-	 */
-	/**
 	 * @return $this
 	 */
 	protected function _findSingleton(): self {
 		$this->name = self::hostDefault();
 
-		$orm = $this->find();
-		$now = Timestamp::now();
-
 		try {
-			if ($now->difference($this->alive) > $this->option(self::option_alive_update_seconds, self::default_alive_update_seconds)) {
+			$orm = $this->find();
+			assert($orm instanceof self);
+			$now = Timestamp::now();
+
+			try {
+				$delta = $now->difference($this->alive);
+			} catch (Exception_Parameter) {
+				$delta = 0;
+			}
+			if ($delta > $this->option(self::OPTION_ALIVE_UPDATE_SECONDS, self::DEFAULT_ALIVE_UPDATE_SECONDS)) {
 				$orm->updateState();
 			}
 			return $this;
-		} catch (Exception_Parameter) {
+		} catch (Exception_ORMNotFound) {
+			return $this->registerDefaultServer();
 		}
-		return $this->refresh_names();
 	}
 
 	/**
 	 *
 	 * @return Server
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
-	 * @throws Exception_ORMEmpty
+	 * @throws Exception_Convert
 	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_ORMEmpty
 	 * @throws Exception_ORMNotFound
 	 * @throws Exception_Parameter
+	 * @throws Exception_Parse
 	 * @throws Exception_Semantics
 	 * @throws Exception_Store
-	 * @throws Exception_Deprecated
-	 * @throws Exception_Unimplemented
 	 */
-	public function refresh_names(): self {
+	private function registerDefaultServer(): self {
 		// Set up our names using hooks (may do nothing)
 		$this->callHook('initialize_names');
 		// Set all blank values to defaults
-		$this->_initialize_names_defaults();
+		$this->_initializeNameDefaults();
 
 		try {
 			return $this->store();
-		} catch (Exception_ORMDuplicate $dup) {
-			$this->find();
+		} catch (Exception_ORMDuplicate) {
+			return $this->find();
 		}
-		return $this;
 	}
 
 	/**
 	 * Set up some reasonable defaults which define this server relative to other servers
 	 */
-	private function _initialize_names_defaults(): void {
+	private function _initializeNameDefaults(): void {
 		$host = self::hostDefault();
 		if (empty($this->name)) {
 			$this->name = $host;
@@ -331,20 +350,13 @@ class Server extends ORMBase implements Interface_Data {
 	/**
 	 * Update server state
 	 *
-	 * @param string|null $path
+	 * @param string $path
 	 * @return self
-	 * @throws Exception_Configuration
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_Key
 	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Semantics
-	 * @throws Exception_Unimplemented
-	 * @throws Database_Exception_SQL
 	 */
-	public function updateState(string $path = null): self {
-		if ($path === null) {
-			$path = $this->option('free_disk_volume', '/');
+	public function updateState(string $path = ''): self {
+		if ($path === '') {
+			$path = $this->optionString(self::OPTION_FREE_DISK_VOLUME, self::DEFAULT_OPTION_FREE_DISK_VOLUME);
 		}
 		$volume_info = System::volume_info();
 		$info = $volume_info[$path] ?? null;
@@ -353,24 +365,27 @@ class Server extends ORMBase implements Interface_Data {
 			$units = self::$disk_units_list;
 			$free = $info['free'];
 			while ($free > 4294967295 && count($units) > 1) {
-				$free = round($free / 1024, 0);
+				$free = round($free / 1024);
 				array_shift($units);
 			}
 			$update['free_disk'] = $free;
 			$update['free_disk_units'] = $units[0];
 		}
+
 		$pushed = $this->push_utc();
-		$update['load'] = first(System::load_averages());
-		$update['*alive'] = $this->sql()->now();
 
 		try {
+			$update['load'] = first(System::load_averages());
+			$update['*alive'] = $this->sql()->now();
 			$this->queryUpdate()->setValues($update)->appendWhere($this->members($this->primaryKeys()))->execute();
-		} catch (Database_Exception|Exception_Semantics $e) {
+			$this->pop_utc($pushed);
+			return $this->fetch();
+		} catch (Throwable $e) {
 			// Runtime error - never occur
 			$this->application->hooks->call('exception', $e);
+
+			throw new Exception_ORMNotFound(self::class, 'Updating alive', [], $e);
 		}
-		$this->pop_utc($pushed);
-		return $this->fetch();
 	}
 
 	/**
@@ -392,13 +407,19 @@ class Server extends ORMBase implements Interface_Data {
 	 */
 	private function push_utc(): array {
 		$db = $this->database();
+
 		if ($db->can(Database::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP)) {
-			$old_tz = $db->timeZone();
-			if (!$this->_db_tz_is_utc($old_tz)) {
-				// From https://stackoverflow.com/questions/2934258/how-do-i-get-the-current-time-zone-of-mysql#2934271
-				// UTC fails on virgin MySQL installations
-				// TODO this is (?) specific to MySQL - need to modify for different databases
-				$db->setTimeZone('+00:00');
+			try {
+				$old_tz = $db->timeZone();
+				if (!$this->_db_tz_is_utc($old_tz)) {
+					// From https://stackoverflow.com/questions/2934258/how-do-i-get-the-current-time-zone-of-mysql#2934271
+					// UTC fails on virgin MySQL installations
+					// TODO this is (?) specific to MySQL - need to modify for different databases
+					$db->setTimeZone('+00:00');
+				}
+			} catch (Exception_Unsupported) {
+				// never
+				$old_tz = null;
 			}
 		} else {
 			$old_tz = null;
@@ -434,21 +455,12 @@ class Server extends ORMBase implements Interface_Data {
 	 * @param string $name
 	 * @param mixed $value
 	 * @return self
-	 * @throws Exception_Configuration
-	 * @throws Exception_Deprecated
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Semantics
-	 * @throws Exception_Store
-	 * @throws Exception_Unimplemented
 	 */
-	public function setData(string $name, mixed $value): self {
-		$iterator = $this->memberIterator('data', [
+	public function setMeta(string $name, mixed $value): self {
+		$iterator = $this->memberIterator(self::MEMBER_METAS, [
 			'name' => $name,
 		]);
-		/* @var $data Server_Data */
+		/* @var $data ServerMeta */
 		foreach ($iterator as $data) {
 			if ($value === null) {
 				$data->delete();
@@ -461,7 +473,7 @@ class Server extends ORMBase implements Interface_Data {
 		if ($value === null) {
 			return $this;
 		}
-		$data = new Server_Data($this->application, [
+		$data = new ServerMeta($this->application, [
 			'server' => $this, 'name' => $name, 'value' => $value,
 		]);
 		$data->store();
@@ -472,16 +484,16 @@ class Server extends ORMBase implements Interface_Data {
 	 * Get server data object
 	 *
 	 * @param string $name
-	 * @return NULL|Server_Data
+	 * @return NULL|ServerMeta
 	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_Semantics
 	 */
-	private function _getData(string $name): mixed {
-		$iterator = $this->memberIterator('data', [
+	private function _getMeta(string $name): mixed {
+		$iterator = $this->memberIterator(self::MEMBER_METAS, [
 			'name' => $name,
 		]);
-		/* @var $data Server_Data */
+		/* @var $data ServerMeta */
 		foreach ($iterator as $data) {
 			return $data->value;
 		}
@@ -499,10 +511,10 @@ class Server extends ORMBase implements Interface_Data {
 	 * @throws Exception_Semantics
 	 * @throws Exception_Timeout
 	 */
-	public function data(string $name): mixed {
+	public function meta(string $name): mixed {
 		$lock_name = 'server_data_' . $this->memberInteger('id');
 		$this->database()->getLock($lock_name, 5);
-		$result = $this->_getData($name);
+		$result = $this->_getMeta($name);
 		$this->database()->releaseLock($lock_name);
 		return $result;
 	}
@@ -520,7 +532,7 @@ class Server extends ORMBase implements Interface_Data {
 	 * @see Interface_Data::delete_data
 	 */
 	public function deleteData(string|array $name): self {
-		$this->application->ormRegistry(Server_Data::class)->queryDelete()->appendWhere([
+		$this->application->ormRegistry(ServerMeta::class)->queryDelete()->appendWhere([
 			'server' => $this, 'name' => $name,
 		])->execute();
 		return $this;
@@ -538,7 +550,7 @@ class Server extends ORMBase implements Interface_Data {
 	 * @throws Exception_Semantics
 	 */
 	public function deleteAllData(string $name): self {
-		$this->application->ormRegistry(Server_Data::class)->queryDelete()->appendWhere([
+		$this->application->ormRegistry(ServerMeta::class)->queryDelete()->appendWhere([
 			'name' => $name,
 		])->execute();
 		return $this;
@@ -558,7 +570,7 @@ class Server extends ORMBase implements Interface_Data {
 		$query->ormWhat();
 		foreach ($where as $name => $value) {
 			$alias = "data_$name";
-			$query->link(Server_Data::class, [
+			$query->link(ServerMeta::class, [
 				'alias' => $alias, 'on' => [
 					'name' => $name,
 				],
@@ -580,7 +592,7 @@ class Server extends ORMBase implements Interface_Data {
 		$ips = $this->querySelect()->addWhatIterable([
 			'ip4_internal' => 'ip4_internal', 'ip4_external' => 'ip4_extermal',
 		])->setDistinct()->appendWhere([
-			'alive|>=' => Timestamp::now('UTC')->addUnit(-abs($within_seconds), Timestamp::UNIT_SECOND),
+			'alive|>=' => Timestamp::now('UTC')->addUnit(-abs($within_seconds)),
 		])->toArray();
 		return array_unique(array_merge(ArrayTools::extract($ips, 'ip4_internal'), ArrayTools::extract($ips, 'ip4_external')));
 	}

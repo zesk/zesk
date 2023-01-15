@@ -18,7 +18,7 @@ require_once __DIR__ . '/.autoload-load.php';
 class ApplicationGenerator {
 	public static function generate(): Application {
 		try {
-			$zesk = Kernel::singleton();
+			$zesk = Kernel::factory();
 			$zesk->paths->setApplication(__DIR__);
 			$application = $zesk->createApplication();
 		} catch (Exception_Semantics) {

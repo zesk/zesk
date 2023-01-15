@@ -5,6 +5,8 @@
  */
 namespace zesk;
 
+use Controller;
+
 /**
  *
  * @author kent
@@ -209,7 +211,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	 * {@inheritdoc}
 	 * @param array $options
 	 * @param object $object
-	 * @see Controller::getRouteMap()
+	 * @see \zesk\Login\Controller::getRouteMap()
 	 */
 	public function getRouteMap($action = null, $object = null, $options = null) {
 		if ($action === 'image') {

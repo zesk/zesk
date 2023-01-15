@@ -20,8 +20,8 @@ include ZESK_ROOT . '/xdebug.php';
 /**
  * Load the bare minimum
  */
-require_once ZESK_ROOT . 'classes/functions.php';
-require_once ZESK_ROOT . 'classes/Command/Loader.php';
+require_once ZESK_ROOT . 'zesk/functions.php';
+require_once ZESK_ROOT . 'zesk/Command/Loader.php';
 
 /**
  * Run a zesk command and exit

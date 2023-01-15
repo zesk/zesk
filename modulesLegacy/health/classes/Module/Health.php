@@ -24,7 +24,7 @@ class Module_Health extends Module {
 	public function initialize(): void {
 		parent::initialize();
 		$this->disabled = $this->optionBool('disabled');
-		$this->path = $path = $this->option('event_path', $this->application->data_path('health-events'));
+		$this->path = $path = $this->option('event_path', $this->application->dataPath('health-events'));
 		Directory::depend($path);
 		set_error_handler([
 			$this,

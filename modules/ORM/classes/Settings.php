@@ -410,7 +410,7 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 * @throws Database_Exception_SQL
 	 * @throws Exception_Key
 	 */
-	public function data(string $name): mixed {
+	public function meta(string $name): mixed {
 		$value = $this->application->ormRegistry(__CLASS__)->querySelect()->addWhere('name', $name)->addWhat('value', 'value')->one('value');
 		if ($value === null) {
 			return null;
@@ -424,7 +424,7 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 * @param mixed $value
 	 * @return $this
 	 */
-	public function setData(string $name, mixed $value): self {
+	public function setMeta(string $name, mixed $value): self {
 		$this->__set($name, $value);
 		$this->flush();
 		return $this;

@@ -31,29 +31,4 @@ class Test_Database_Exception extends UnitTest {
 			$this->_test_exception($x, 'hello world!', $code);
 		}
 	}
-
-	/**
-	 *
-	 * @param Database_Exception $x
-	 * @param unknown $expected_message
-	 * @param unknown $expected_code
-	 */
-	protected function _test_exception(Database_Exception $x, $expected_message = null, $expected_code = null): void {
-		$message = $x->getMessage();
-		if ($expected_message !== null) {
-			$this->assertEquals($message, $expected_message);
-		}
-		$code = $x->getCode();
-		if ($expected_code !== null) {
-			$this->assertEquals($code, $expected_code);
-		}
-
-		$this->assertIsString($x->__toString());
-
-		// I assume this is here to just make sure they do not explode/coverage, as these are all internal
-		$this->assertTrue(is_file($x->getFile()));
-		$this->assertIsInteger($x->getLine());
-		$this->assertIsArray($x->getTrace());
-		$this->assertIsString($x->getTraceAsString());
-	}
 }

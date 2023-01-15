@@ -20,7 +20,7 @@ $servers = $application->ormRegistry(Server::class)->querySelect()->ormIterator(
 foreach ($servers as $server) {
 	/* @var $server \Server */
 	$data = $server->data($server_data_key);
-	$last_updated = $server->data($server_updated_key);
+	$last_updated = $server->meta($server_updated_key);
 	if ($last_updated instanceof Timestamp) {
 		$updated = $this->theme([
 			'system/panel/daemon/updated',

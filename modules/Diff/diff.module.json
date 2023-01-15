@@ -4,5 +4,6 @@
 	"autoload": {
 		"classPrefix": "zesk\\Diff\\"
 	},
-	"moduleClass": "zesk\\Diff\\Module"
+	"moduleClass": "zesk\\Diff\\Module",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

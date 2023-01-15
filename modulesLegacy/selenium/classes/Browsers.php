@@ -51,7 +51,7 @@ class Selenium_Browsers {
 			throw new Exception_Configuration("zesk\Application::url_available_browsers", 'Not a URL {url}', compact('url'));
 		}
 
-		$path = $application->data_path('all_browsers.json');
+		$path = $application->dataPath('all_browsers.json');
 		$dir = dirname($path);
 		Directory::depend($dir);
 

@@ -7,5 +7,6 @@
 	"requires": [
 		"ORM"
 	],
-	"zeskCommandPath": "classes/Command"
+	"zeskCommandPath": "classes/Command",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

@@ -9,7 +9,7 @@
  */
 namespace zesk;
 
-use zesk\Locale\Validate;
+use Validate;
 use zesk\ORM\JSONWalker;
 
 /**

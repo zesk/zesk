@@ -8,7 +8,7 @@ namespace zesk;
  * Dump the database to a file for this application.
  * @category Database
  */
-class Command_Database_Dump extends Command_Base {
+class Command_Dump extends Command_Base {
 	protected array $load_modules = [
 		'database',
 	];

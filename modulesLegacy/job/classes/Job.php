@@ -166,7 +166,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 */
 	public function refresh_interval() {
 		$value = $this->sql()->function_date_diff($this->sql()->nowUTC(), 'updated');
-		$n_seconds = $this->querySelect()->addWhat('*delta', $value)->one_integer('delta');
+		$n_seconds = $this->querySelect()->addWhat('*delta', $value)->integer('delta');
 		$mag = 1;
 		while ($n_seconds > $mag) {
 			$mag *= 10;
@@ -298,7 +298,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 					->addWhat('*X', 'COUNT(id)')
 					->where($server_pid)
 					->addWhere('id', $job->id())
-					->one_integer('X'))) {
+					->integer('X'))) {
 					// Someone else grabbed it.
 					continue;
 				}
