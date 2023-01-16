@@ -64,7 +64,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @throws Exception_Class_NotFound
 	 */
 	public static function factory(Application $application, string $class, mixed $value = null, array $options = []): Model {
-		$object = $application->factory($class, $application, $value, $options);
+		$object = $application->factoryArguments($class, [$application, $value, $options]);
 		assert($object instanceof Model);
 		return $object->polymorphicChild();
 	}
@@ -75,7 +75,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @param $class string
 	 *            Class to create
 	 * @param $mixed mixed
-	 *            ID or array to intialize object
+	 *            ID or array to initialize object
 	 * @param $options array
 	 *            Additional options for object
 	 * @return self
@@ -86,7 +86,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	}
 
 	/**
-	 * Convert to true form, should be subclass of current class.
+	 * Convert to true form, MUST BE a subclass of current class
 	 *
 	 * Override in subclasses to get custom polymorphic behavior.
 	 *
@@ -221,7 +221,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 *
 	 * @param mixed $mixed
 	 *            Settings to retrieve a model from somewhere
-	 * @return self Or null if can not be found
+	 * @return self
 	 */
 	public function fetch(array $mixed = []): self {
 		return $this;
@@ -255,7 +255,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	}
 
 	/**
-	 * Does this model have all of the members requested?
+	 * Does this have all members?
 	 *
 	 * @param string|iterable $mixed
 	 * @return bool
@@ -423,7 +423,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 		$variables += [
 			'object' => $this, strtolower(get_class($this)) => $this,
 		];
-		return $this->application->theme($this->themePaths($theme_names), $variables, [
+		return $this->application->themes->theme($this->themePaths($theme_names), $variables, [
 			'default' => $default, 'first' => true,
 		]);
 	}

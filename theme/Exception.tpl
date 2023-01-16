@@ -38,7 +38,7 @@ if (!$exception instanceof Exception) {
 	$message = $exception->getMessage();
 	$trace = $exception->getTrace();
 }
-$dev = $this->themes->development();
+$dev = $application->development();
 ?>
 <div class="exception-error">
 	<h1><?php

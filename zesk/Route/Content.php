@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 /**
@@ -23,6 +25,19 @@ class Route_Content extends Route {
 			}
 		}
 		$content = $this->option('content', $this->option('default content'));
+		$map = [];
+		foreach ($this->optionIterable('map') as $item) {
+			$map[$item] = match ($item) {
+				'request' => $request->variables(),
+				'response' => $response->toJSON(),
+				'route' => $this->options() + ['class' => get_class($this)],
+				default => [],
+			};
+		}
+		if (count($map)) {
+			$map = ArrayTools::keysFlatten($map, '.') + array_map(JSON::encodePretty(...), $map);
+			$content = map($content, $map);
+		}
 		if ($this->option('json')) {
 			return $response->json()->setData($content);
 		} else {

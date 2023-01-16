@@ -41,11 +41,10 @@
   },
   "bin": [
     "bin/zesk",
-    "bin/zesk.sh",
+    "bin/zesk-command.php",
     "bin/link-vendor-to-dev-zesk.sh",
     "bin/daemon-bouncer.sh",
     "bin/php-find.sh",
-    "bin/zesk-command.php"
   ],
   "type": "library",
   "license": "MIT",

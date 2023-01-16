@@ -327,7 +327,7 @@ class Objects {
 	}
 
 	/**
-	 * Create a new class based on name
+	 * Create a new class based on name. All class names are resolved here.
 	 *
 	 * @param string $class
 	 * @param array $arguments

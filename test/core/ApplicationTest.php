@@ -49,7 +49,7 @@ class ApplicationTest extends UnitTest {
 	}
 
 	public function test_application_basics(): void {
-		$newApplication = $this->application->factory(TestAppplication::class, Kernel::singleton(), [
+		$newApplication = $this->application->factory(TestApplication::class, Kernel::singleton(), [
 			'isSecondary' => true, 'version' => '1.0.0',
 		]);
 
@@ -83,5 +83,24 @@ class ApplicationTest extends UnitTest {
 
 		$newApplication->configureInclude([]);
 		$newApplication->reconfigure();
+
+		$rootRequest = Request::factory($newApplication, 'http://www.example.com/home');
+		$wantedIP = '10.0.0.71';
+		$rootRequest->initializeFromSettings([Request::OPTION_REMOTE_IP => $wantedIP] + $rootRequest->variables());
+		$deeperRequest = Request::factory($newApplication, $rootRequest);
+
+		$this->assertEquals($wantedIP, $deeperRequest->remoteIP());
+		$this->requestRoundTrip($rootRequest, 'home', '10.0.0.71');
+
+		$this->requestRoundTrip($rootRequest, 'dump/route', "{\n    \"content\": \"{route}\",\n    \"map\": [\n        \"route\"\n    ],\n    \"weight\": 0.002,\n    \"class\": \"zesk\\\\Route_Content\"\n}");
+	}
+
+	private function requestRoundTrip(Request $rootRequest, string $uri, string $expected): void {
+		$newApplication = $rootRequest->application;
+		$anotherRequest = Request::factory($newApplication, $rootRequest);
+		$anotherRequest->setPath($uri);
+		$anotherResponse = $newApplication->main($anotherRequest);
+		$this->assertEquals(Response::CONTENT_TYPE_HTML, $anotherResponse->contentType());
+		$this->assertEquals($expected, $anotherResponse->content());
 	}
 }

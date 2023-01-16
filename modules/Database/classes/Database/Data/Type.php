@@ -143,18 +143,18 @@ abstract class Database_Data_Type {
 	 *            sql type
 	 * @param string|int|null $default_value
 	 *            default value supplied
-	 * @return string|int|null Canonical default for this type
+	 * @return string|int|float|null Canonical default for this type
 	 */
-	abstract public function sql_type_default(string $native_type, string|int|null $default_value = null): string|int|null;
+	abstract public function sql_type_default(string $native_type, string|int|null $default_value = null): string|int|float|null;
 
 	/**
 	 * Given a native type, convert default value to the correct type
 	 *
 	 * @param string $type sql type
-	 * @param string|int|null $default_value  default value supplied
-	 * @return string|int|null Canonical default for this type
+	 * @param string|int|float|null $default_value  default value supplied
+	 * @return string|int|float|null Canonical default for this type
 	 */
-	public function native_type_default(string $type, string|int $default_value = null): string|int|null {
+	public function native_type_default(string $type, string|int|float|null $default_value = null): string|int|float|null {
 		return $this->sql_type_default($this->parse_native_type($type), $default_value);
 	}
 

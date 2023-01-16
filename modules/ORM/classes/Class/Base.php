@@ -15,11 +15,17 @@ namespace zesk\ORM;
 
 use Psr\Cache\InvalidArgumentException;
 use Throwable;
+use zesk\Database_Column;
 use zesk\Database_Exception_Connect;
 use zesk\Database_Exception_SQL;
+use zesk\Database_Index;
+use zesk\Database_Parser;
 use zesk\Exception as BaseException;
+use zesk\Exception_File_NotFound;
+use zesk\Exception_File_Permission;
 use zesk\Exception_NotFound;
 use zesk\Exception_Syntax;
+use zesk\File;
 use zesk\Hookable;
 use zesk\ArrayTools;
 use zesk\StringTools;
@@ -731,7 +737,9 @@ class Class_Base extends Hookable {
 			return self::$classes[$lowClass];
 		}
 		$class_class = self::objectToClass($class);
-		$instance = self::$classes[$lowClass] = $application->objects->factory($class_class, $object, $options);
+		$instance = self::$classes[$lowClass] = $application->objects->factoryArguments($class_class, [
+			$object, $options,
+		]);
 		assert($instance instanceof Class_Base);
 		self::$classes_dirty = true;
 		return $instance;
@@ -867,12 +875,13 @@ class Class_Base extends Hookable {
 		$this->application->classes->register($this->class);
 		$this->application->hooks->registerClass($this->class);
 
-		$this->deriveClassConfiguration($object);
 		$this->initializeDatabase($object);
+		$this->configureColumns($object);
+		$this->_deriveClassConfiguration($object);
 		$this->_initializeColumnTypes();
 		$this->_columnDefaults();
 		if (count($this->members) === 0) {
-			$this->deriveMembers();
+			$this->_deriveMembers();
 		}
 		$this->initialize();
 	}
@@ -893,7 +902,7 @@ class Class_Base extends Hookable {
 	 * @throws Exception_Semantics
 	 * @throws Exception_Key
 	 */
-	private function deriveClassConfiguration(ORMBase $object): void {
+	private function _deriveClassConfiguration(ORMBase $object): void {
 		$this_class = $this->class;
 		if ($this->code_name === '') {
 			$this->code_name = StringTools::reverseRight($this_class, '\\');
@@ -908,13 +917,13 @@ class Class_Base extends Hookable {
 				$this->table = $prefix . $this->code_name;
 			}
 		}
-		$this->derivePrimaryKeysAndID();
-		$this->deriveFindAndDuplicates();
+		$this->_derivePrimaryKeysAndID();
+		$this->_deriveFindAndDuplicates();
 		$this->_deriveLinkOne();
 		$this->_deriveLinkMany();
 	}
 
-	private function derivePrimaryKeysAndID(): void {
+	private function _derivePrimaryKeysAndID(): void {
 		/* Automatic promotion here of primary_keys should be avoided - id_column should probably just be internal */
 		if (count($this->primary_keys) > 0) {
 			if (count($this->primary_keys) === 1) {
@@ -940,7 +949,7 @@ class Class_Base extends Hookable {
 		}
 	}
 
-	private function deriveFindAndDuplicates(): void {
+	private function _deriveFindAndDuplicates(): void {
 		if (empty($this->find_keys)) {
 			$this->find_keys = $this->primary_keys;
 		}
@@ -1002,14 +1011,42 @@ class Class_Base extends Hookable {
 		}
 	}
 
-	private function deriveMembers(): void {
+	/**
+	 * Set up the ->members value as it should be populated for forwards compatibility.
+	 *
+	 * Ultimately this will be member -> self::memberID(...)
+	 *
+	 * @return void
+	 */
+	private function _deriveMembers(): void {
 		foreach ($this->column_types as $column_name => $column_type) {
+			$default = $this->column_defaults[$column_name] ?? null;
 			$this->members[$column_name] = [
-				'type' => $column_type, 'default' => $this->column_defaults[$column_name] ?? null,
-			];
+				'type' => $column_type, 'default' => $default,
+			] + (($default === null) ? ['null' => true] : []) + ($this->members[$column_name] ?? []);
+			unset($this->members[$column_name]['idPrimaryKey']);
+		}
+		foreach ($this->primary_keys as $primary_key) {
+			$this->members[$primary_key]['primaryKey'] = true;
+		}
+		if ($this->id_column) {
+			$this->members[$this->id_column]['id'] = true;
+			$this->members[$this->id_column]['idPrimaryKey'] = true;
+		}
+		if ($this->auto_column) {
+			$this->members[$this->auto_column]['increment'] = true;
+		}
+		foreach ($this->has_one as $column_name => $className) {
+			$this->members[$column_name]['class'] = $className;
 		}
 		foreach ($this->has_many as $column_name => $manyStruct) {
 			$this->members[$column_name] = ['type' => 'many'] + $manyStruct;
+		}
+		foreach ($this->find_keys as $find_key) {
+			$this->members[$find_key]['findKey'] = true;
+		}
+		foreach ($this->duplicate_keys as $duplicate_key) {
+			$this->members[$duplicate_key]['duplicateKey'] = true;
 		}
 	}
 
@@ -1046,6 +1083,16 @@ class Class_Base extends Hookable {
 	}
 
 	/**
+	 * Set up any columns which need to be set up automatically.
+	 *
+	 * @param ORMBase $object
+	 * @return void
+	 */
+	protected function configureColumns(ORMBase $object): void {
+		// pass
+	}
+
+	/**
 	 * Configure a class prior to instantiation
 	 *
 	 * Only thing set is "$this->class"
@@ -1069,8 +1116,7 @@ class Class_Base extends Hookable {
 	final public function _initializeColumnTypes(): void {
 		if (count($this->column_types) === 0) {
 			$this->dynamic_columns = true;
-		}
-		if (!$this->dynamic_columns) {
+		} elseif (!$this->dynamic_columns) {
 			return;
 		}
 		/* Loaded already or initialized already */
@@ -1707,10 +1753,7 @@ class Class_Base extends Hookable {
 	 * @return Database
 	 */
 	final public function database(): Database {
-		if ($this->database instanceof Database) {
-			return $this->database;
-		}
-		return $this->database = $this->application->database_registry($this->database_name);
+		return $this->database;
 	}
 
 	/**
@@ -1769,6 +1812,75 @@ class Class_Base extends Hookable {
 				'previousClass' => $e::class,
 			] + Exception::exceptionVariables($e), $e);
 		}
+	}
+
+	/**
+	 * @return void
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_File_Permission
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_Parameter
+	 */
+	protected function configureFromSQL(): void {
+		$sqlScriptFile = $this->inheritSql(get_class($this));
+		$this->configireFromSQLScript($this->database(), File::contents($sqlScriptFile), $sqlScriptFile);
+	}
+
+	/**
+	 * @param Database $database
+	 * @param string $sqlScript
+	 * @param string $context
+	 * @return void
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_Parameter
+	 */
+	private function configireFromSQLScript(Database $database, string $sqlScript, string $context = ''): void {
+		$dataType = $database->data_type();
+		foreach ($database->splitSQLStatements($sqlScript) as $sqlStatement) {
+			if ($database->parseSQLCommand($sqlStatement) === Database_Parser::COMMAND_CREATE_TABLE) {
+				$column_types = [];
+				$table = $database->parseCreateTable($sqlStatement);
+				$primary_keys = [];
+				foreach ($table->columns() as $column) {
+					/* @var $column Database_Column */
+					$sqlType = $column->sqlType();
+					$column_types[$column->name()] = $dataType->native_type_to_data_type($sqlType);
+					if ($column->isIndex(Database_Index::TYPE_PRIMARY)) {
+						$primary_keys[] = $column->name();
+					}
+				}
+				$this->primary_keys = $primary_keys;
+				$this->column_types = $column_types;
+				return;
+			}
+		}
+
+		throw new Exception_NotFound('No CREATE TABLE found in {context}: {sqlScript}', [
+			'context' => $context, 'sqlScript' => $sqlScript,
+		]);
+	}
+
+	/**
+	 * @param string $class
+	 * @return string
+	 * @throws Exception_NotFound
+	 */
+	private function inheritSql(string $class): string {
+		$subclasses = $this->application->classes->hierarchy($class);
+		foreach ($subclasses as $subclass) {
+			$sql = $this->application->autoloader->search($subclass, ['sql']);
+			if ($sql) {
+				return $sql;
+			}
+		}
+
+		throw new Exception_NotFound('No SQL for {class} ({subclasses})', [
+			'class' => $class, 'subclasses' => $subclasses,
+		]);
 	}
 
 	/**
@@ -2073,7 +2185,7 @@ class Class_Base extends Hookable {
 			case self::TYPE_SERIALIZE:
 			case self::TYPE_JSON:
 				break;
-			case self::TYPE_ID:
+			case self::TYPE_IP:
 			case self::TYPE_IP4:
 				if (is_int($data[$column])) {
 					$data[$column] = IPv4::from_integer($data[$column]);

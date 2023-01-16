@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace MySQL;
 
+use zesk\Database as zeskDatabase;
 use zesk\Database_Table;
 use zesk\Database_Column;
 use zesk\Database_Index;
@@ -139,7 +140,7 @@ class Database_Parser extends \zesk\Database_Parser {
 	 *
 	 * @var Database
 	 */
-	protected $database = null;
+	protected zeskDatabase $database;
 
 	/**
 	 * Parse DEFAULT and other options on a column

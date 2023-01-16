@@ -21,6 +21,40 @@ class Request extends Hookable {
 	use GetTyped;
 
 	/**
+	 * fromSettings
+	 */
+	public const OPTION_METHOD = 'method';
+
+	public const OPTION_HEADERS = 'headers';
+
+	public const OPTION_URI = 'uri';
+
+	public const OPTION_COOKIES = 'cookies';
+
+	public const OPTION_REQUEST_DATA = 'requestData';
+
+	public const OPTION_FILES = 'files';
+
+	public const OPTION_DATA_FILE = 'dataFile';
+
+	public const OPTION_IP = 'ip';
+
+	public const OPTION_REMOTE_IP = 'remoteIP';
+
+	public const OPTION_SERVER_IP = 'serverIP';
+
+	public const OPTION_DATA = 'data';
+
+	public const OPTION_URL = 'url';
+
+	public const OPTION_USER_AGENT = 'userAgent';
+
+	/**
+	 * NOT fromSettings
+	 */
+	public const OPTION_URL_PARTS = 'urlParts';
+
+	/**
 	 * Default URI
 	 */
 	public const DEFAULT_URI = '/';
@@ -32,14 +66,14 @@ class Request extends Hookable {
 	 *
 	 * @var string
 	 */
-	public const default_data_file = 'php://input';
+	public const DATA_FILE_DEFAULT = 'php://input';
 
 	/**
 	 * Method of request GET, POST, PUT, POST, DELETE etc.
 	 *
 	 * @var string
 	 */
-	protected string $method = 'GET';
+	protected string $method = HTTP::METHOD_GET;
 
 	/**
 	 * Requested URI
@@ -64,15 +98,6 @@ class Request extends Hookable {
 	protected array $cookies = [];
 
 	/**
-	 * RAW data as POSTed or PUTted
-	 *
-	 * When this value is null then need to load from $this->data_file
-	 *
-	 * @var mixed
-	 */
-	protected ?string $data_raw;
-
-	/**
 	 * Processed data converted to internal structure
 	 *
 	 * @var ?array
@@ -84,14 +109,7 @@ class Request extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected string $dataFile = self::default_data_file;
-
-	/**
-	 * Inherit data from another object
-	 *
-	 * @var ?Request
-	 */
-	protected ?Request $dataInherit = null;
+	protected string $dataFile = self::DATA_FILE_DEFAULT;
 
 	/**
 	 * Parsed request variables (see $_REQUEST)
@@ -124,9 +142,9 @@ class Request extends Hookable {
 
 	/**
 	 *
-	 * @var ?Net_HTTP_UserAgent
+	 * @var ?UserAgent
 	 */
-	protected ?Net_HTTP_UserAgent $userAgent = null;
+	protected ?UserAgent $userAgent = null;
 
 	/**
 	 * Way to mock IP addresses if needed.
@@ -186,7 +204,7 @@ class Request extends Hookable {
 	}
 
 	public function __sleep() {
-		return array_merge(parent::__sleep(), ['method', 'uri', 'headers', 'headers_parsed', 'cookies', 'data_raw', 'data', 'dataFile', 'dataInherit', 'requestData', 'files', 'url', 'urlParts', 'userAgent', 'ip', 'serverIP', 'remoteIP', 'init']);
+		return array_merge(parent::__sleep(), ['method', 'uri', 'headers', 'headers_parsed', 'cookies', 'data_raw', 'data', 'dataFile', 'requestData', 'files', 'url', 'urlParts', 'userAgent', 'ip', 'serverIP', 'remoteIP', 'init']);
 	}
 
 	/**
@@ -198,10 +216,7 @@ class Request extends Hookable {
 	 * @throws Exception_Parameter|Exception_Parse
 	 */
 	public function initializeFromGlobals(): self {
-		$this->data_raw = null;
-		$this->data = null;
-		$this->dataFile = self::default_data_file;
-		$this->dataInherit = null;
+		$this->dataFile = self::DATA_FILE_DEFAULT;
 
 		$this->ip = $this->_findRemoteKey($_SERVER);
 		$this->remoteIP = $_SERVER['REMOTE_ADDR'] ?? self::DEFAULT_IP;
@@ -220,7 +235,7 @@ class Request extends Hookable {
 
 		$this->init = 'globals';
 
-		$this->initializeData();
+		$this->_initializeData();
 
 		$this->callHook([
 			'initialize', 'initializeFromGlobals',
@@ -234,7 +249,6 @@ class Request extends Hookable {
 	 *
 	 * @param Request $request
 	 * @return self
-	 * @throws Exception_Parse
 	 */
 	public function initializeFromRequest(Request $request): self {
 		$this->method = $request->method;
@@ -245,17 +259,13 @@ class Request extends Hookable {
 		$this->files = $request->files;
 		$this->url = $request->url;
 		$this->urlParts = $request->urlParts;
-		$this->data_raw = $request->data_raw; // Note: Loads data once if necessary
 		$this->data = $request->data; // Note: Loads data once if necessary
-		$this->dataInherit = $request;
 		$this->dataFile = $request->dataFile;
 		$this->ip = $request->ip;
 		$this->remoteIP = $request->remoteIP;
 		$this->serverIP = $request->serverIP;
 
 		$this->init = 'request';
-
-		$this->initializeData();
 
 		$this->callHook([
 			'initialize', 'initializeFromRequest',
@@ -280,22 +290,23 @@ class Request extends Hookable {
 		} elseif ($settings instanceof Request) {
 			return $this->initializeFromRequest($settings);
 		}
-		$this->setMethod($settings['method'] ?? 'GET');
-		$this->uri = $settings['uri'] ?? '';
-		if (is_array($settings['headers'] ?? null)) {
-			foreach ($settings['headers'] as $k => $v) {
+		$this->setMethod($settings[self::OPTION_METHOD] ?? 'GET');
+		$this->uri = $settings[self::OPTION_URI] ?? '';
+		if (is_array($settings[self::OPTION_HEADERS] ?? null)) {
+			foreach ($settings[self::OPTION_HEADERS] as $k => $v) {
 				$this->setHeader($k, $v);
 			}
 		}
-		$this->cookies = toArray($settings['cookies'] ?? []);
-		$this->requestData = toArray($settings['requestData'] ?? []);
-		$this->files = toArray($settings['files'] ?? []);
-		$this->url = $settings['url'] ?? '';
+		$this->userAgent = $settings[self::OPTION_USER_AGENT] ?? null;
+		$this->cookies = toArray($settings[self::OPTION_COOKIES] ?? []);
+		$this->requestData = toArray($settings[self::OPTION_REQUEST_DATA] ?? []);
+		$this->files = toArray($settings[self::OPTION_FILES] ?? []);
+		$this->url = $settings[self::OPTION_URL] ?? '';
 		$this->urlParts = [];
 		if (!$this->uri) {
 			$this->uri = $this->query() ? URL::queryFormat($this->path(), $this->query()) : $this->path();
 		}
-		$data_file = $settings['data_file'] ?? null;
+		$data_file = $settings[self::OPTION_DATA_FILE] ?? null;
 		if ($data_file) {
 			if (!is_file($data_file)) {
 				throw new Exception_File_NotFound($data_file, 'Passed {filename} as settings to new Request {settings}', [
@@ -303,21 +314,19 @@ class Request extends Hookable {
 				]);
 			}
 			$this->dataFile = $data_file;
-			$this->data_raw = null;
-			$this->data = null;
+			$this->data = $settings[self::OPTION_DATA] ?? null;
 		} else {
-			$this->data = null;
-			$this->data_raw = strval($settings['data'] ?? '');
+			$this->data = $settings[self::OPTION_DATA] ?? [];
 			$this->dataFile = '';
 		}
-		$this->dataInherit = null;
-		$this->ip = $settings['ip'] ?? self::DEFAULT_IP;
-		$this->remoteIP = $settings['remote_ip'] ?? self::DEFAULT_IP;
-		$this->serverIP = $settings['server_ip'] ?? self::DEFAULT_IP;
+		$this->ip = $settings[self::OPTION_IP] ?? self::DEFAULT_IP;
+		$this->remoteIP = $settings[self::OPTION_REMOTE_IP] ?? self::DEFAULT_IP;
+		$this->serverIP = $settings[self::OPTION_SERVER_IP] ?? self::DEFAULT_IP;
 
 		$this->init = 'settings';
 
-		$this->initializeData();
+		$this->_initializeData();
+		$this->_validURLParts();
 
 		$this->callHook([
 			'initialize', 'initializeFromSettings',
@@ -458,38 +467,34 @@ class Request extends Hookable {
 	 * @return void
 	 * @throws Exception_Parse
 	 */
-	private function initializeData(): void {
-		if ($this->data_raw === null) {
-			if ($this->dataInherit) {
-				$this->data_raw = null;
-				$this->data = $this->dataInherit->data();
-			} else {
-				$this->data_raw = file_get_contents($this->dataFile);
-			}
+	private function _initializeData(): void {
+		$this->data = [];
+		if (!$this->dataFile) {
+			return;
 		}
-		if ($this->data === null) {
-			try {
-				$content_type = StringTools::left($this->contentType(), ';');
-				switch ($content_type) {
-					case 'application/json':
-						$this->data = strlen($this->data_raw) > 0 ? JSON::decode($this->data_raw) : [];
-						break;
-					case 'application/x-www-form-urlencoded':
-						$this->data = [];
-						parse_str($this->data_raw, $this->data);
-						break;
-					case 'multipart/form-data':
-						// Where is this taken from data_raw? TODO
-						$this->data = $_REQUEST;
-						break;
-					default:
-						$this->data = [];
-						break;
-				}
-			} catch (Exception_Key) {
-				/* No content type, set to empty */
-				$this->data = [];
+		$rawData = file_get_contents($this->dataFile);
+		if ($rawData === '') {
+			return;
+		}
+
+		try {
+			$content_type = StringTools::left($this->contentType(), ';');
+			switch ($content_type) {
+				case 'application/json':
+					$this->data = strlen($rawData) > 0 ? JSON::decode($rawData) : [];
+					break;
+				case 'application/x-www-form-urlencoded':
+					parse_str($rawData, $this->data);
+					break;
+				case 'multipart/form-data':
+					/* Why NOT rawData? TODO KMD 2023 */
+					$this->data = $_REQUEST;
+					break;
+				default:
+					break;
 			}
+		} catch (Exception_Key) {
+			/* No content type, set to empty */
 		}
 	}
 
@@ -506,7 +511,7 @@ class Request extends Hookable {
 	 * @return string
 	 */
 	public function rawData(): string {
-		return $this->data_raw;
+		return $this->rawData;
 	}
 
 	/**
@@ -694,21 +699,20 @@ class Request extends Hookable {
 	 */
 	public function variables(): array {
 		return [
-			'method' => $this->method,
-			'uri' => $this->uri,
-			'headers' => $this->headers,
-			'cookies' => $this->cookies,
-			'data' => $this->data(),
-			'dataFile' => $this->dataFile,
-			'inherited' => $this->dataInherit !== null,
-			'requestData' => $this->requestData,
-			'files' => $this->files,
-			'url' => $this->url,
-			'urlParts' => $this->urlParts,
-			'userAgent' => $this->userAgent?->classify(),
-			'ip' => $this->ip,
-			'serverIP' => $this->serverIP,
-			'remoteIP' => $this->remoteIP,
+			self::OPTION_METHOD => $this->method,
+			self::OPTION_URI => $this->uri,
+			self::OPTION_HEADERS => $this->headers,
+			self::OPTION_COOKIES => $this->cookies,
+			self::OPTION_DATA => $this->data(),
+			self::OPTION_DATA_FILE => $this->dataFile,
+			self::OPTION_REQUEST_DATA => $this->requestData,
+			self::OPTION_FILES => $this->files,
+			self::OPTION_URL => $this->url,
+			self::OPTION_URL_PARTS => $this->urlParts,
+			self::OPTION_USER_AGENT => $this->userAgent?->classify(),
+			self::OPTION_IP => $this->ip,
+			self::OPTION_SERVER_IP => $this->serverIP,
+			self::OPTION_REMOTE_IP => $this->remoteIP,
 			'initialized' => $this->init,
 			'DEFAULT_URI' => self::DEFAULT_URI,
 			'DEFAULT_IP' => self::DEFAULT_IP,
@@ -904,16 +908,16 @@ class Request extends Hookable {
 	/**
 	 * Return user agent object
 	 *
-	 * @return Net_HTTP_UserAgent
+	 * @return UserAgent
 	 */
-	public function userAgent(): Net_HTTP_UserAgent {
-		if (!$this->userAgent instanceof Net_HTTP_UserAgent) {
+	public function userAgent(): UserAgent {
+		if (!$this->userAgent instanceof UserAgent) {
 			try {
 				$uaString = $this->header(HTTP::REQUEST_USER_AGENT);
 			} catch (Exception_Key) {
 				$uaString = '';
 			}
-			$this->userAgent = new Net_HTTP_UserAgent($uaString);
+			$this->userAgent = new UserAgent($uaString);
 		}
 		return $this->userAgent;
 	}

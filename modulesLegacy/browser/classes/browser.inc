@@ -36,7 +36,7 @@ class Browser extends ORMBase {
 		if (!$browser->find()) {
 			$browser->md5 = md5($name);
 			$browser->name = $name;
-			$browser->tags = $tags = Net_HTTP_UserAgent::parse($name);
+			$browser->tags = $tags = UserAgent::parse($name);
 			$browser->is_phone = $tags['phone'];
 			$browser->is_tablet = $tags['tablet'];
 			$browser->is_desktop = $tags['desktop'];

@@ -176,7 +176,7 @@ class Module extends BaseModule {
 	 * @throws Exception_Class_NotFound
 	 */
 	public function ormFactory(Application $application, string $class, mixed $mixed = null, array $options = []): ORMBase {
-		$class = $application->objects->resolve($class);
+		// $class is resolved deeper
 		$orm = ORMBase::factory($application, $class, $mixed, $options);
 		assert($orm instanceof ORMBase);
 		return $orm;

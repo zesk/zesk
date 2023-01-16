@@ -11,34 +11,34 @@ namespace zesk;
  * @author kent
  *
  */
-class Net_HTTP_UserAgent {
+class UserAgent {
 	/**
 	 * User agent raw string
 	 *
 	 * @var string
 	 */
-	protected string $user_agent;
+	protected string $userAgent;
 
 	/**
 	 * Parsed results from user_agent_test
 	 *
 	 * @var array
 	 */
-	protected array $is = [];
+	private array $is = [];
 
 	/**
 	 * Parsed results from user_agent_test
 	 *
 	 * @var array
 	 */
-	protected array $classify = [];
+	private array $classify = [];
 
 	/**
 	 * Language equivalents of the classification names
 	 *
 	 * @var array
 	 */
-	private static array $classifications_names = [
+	private static array $langClassifcationNames = [
 		'platform' => 'Platform',
 		'browser' => 'Web Browser',
 		'mobile' => 'Mobile/Desktop',
@@ -78,7 +78,7 @@ class Net_HTTP_UserAgent {
 	 *
 	 * @var array
 	 */
-	private static array $lang_classifications = [
+	private static array $langClassifications = [
 		'mac' => 'Mac OS X',
 		'windows' => 'Windows',
 		'linux' => 'Linux',
@@ -101,7 +101,7 @@ class Net_HTTP_UserAgent {
 	 *
 	 * @param string $user_agent
 	 */
-	public function __construct(string $user_agent) {
+	public function __construct(string $user_agent = '') {
 		$this->setUserAgent($user_agent);
 	}
 
@@ -110,26 +110,8 @@ class Net_HTTP_UserAgent {
 	 * @param string $user_agent
 	 * @return self
 	 */
-	public static function factory($user_agent = null) {
+	public static function factory(string $user_agent = ''): self {
 		return new self($user_agent);
-	}
-
-	/**
-	 *
-	 */
-	public function __wakeup(): void {
-		$this->is = [];
-		$this->classify = [];
-	}
-
-	/**
-	 *
-	 * @return string[]
-	 */
-	public function __sleep() {
-		return [
-			'user_agent',
-		];
 	}
 
 	/**
@@ -138,24 +120,11 @@ class Net_HTTP_UserAgent {
 	 * @return string
 	 */
 	public function __toString() {
-		return PHP::dump($this->user_agent);
-	}
-
-	/**
-	 * Get/set user agent
-	 *
-	 * @param string $set
-	 * @return self|string
-	 */
-	public function user_agent(string $set = null) {
-		if ($set !== null) {
-			zesk()->deprecated(__METHOD__);
-		}
-		return $this->user_agent;
+		return PHP::dump($this->userAgent);
 	}
 
 	public function userAgent(): string {
-		return $this->user_agent;
+		return $this->userAgent;
 	}
 
 	/**
@@ -165,7 +134,7 @@ class Net_HTTP_UserAgent {
 	 * @return self
 	 */
 	public function setUserAgent(string $set): self {
-		$this->user_agent = $set;
+		$this->userAgent = $set;
 		$this->is = [];
 		$this->classify = [];
 		return $this;
@@ -178,10 +147,7 @@ class Net_HTTP_UserAgent {
 	 * @return bool
 	 */
 	public function is(string $criteria): bool {
-		if (count($this->is) === 0) {
-			$this->is = self::parse($this->user_agent);
-		}
-		return $this->is[$criteria] ?? false;
+		return $this->attributes()[$criteria] ?? false;
 	}
 
 	/**
@@ -195,23 +161,28 @@ class Net_HTTP_UserAgent {
 	}
 
 	/**
+	 * Return all attributes
+	 * @return array
+	 */
+	public function attributes(): array {
+		if (count($this->is) === 0) {
+			$this->is = self::parse($this->userAgent);
+		}
+		return $this->is;
+	}
+
+	/**
 	 * Fetch the English classification strings
 	 *
 	 * @return array
 	 */
 	public function classify_EN(): array {
-		$translations = self::$lang_classifications;
-		return ArrayTools::keysMap(ArrayTools::valuesMap($this->classify(), $translations), $translations);
+		$translations = self::$langClassifications;
+		return ArrayTools::keysMap(ArrayTools::valuesMap($this->classify(), $translations), self::$langClassifcationNames);
 	}
 
 	/**
-	 * Check what the current browser is.
-	 * Generally, this is discouraged, but it makes sense in a few cases - generally if you are
-	 * downloading
-	 * software which is platform-specific and want to present that one first (or only), or if you
-	 * need to give instructions to the user and it's different
-	 * for each browser or platform. (Ctrl vs. Command comes to mind when offering key
-	 * equivalents...)
+	 * Run tests against the current user agent.
 	 *
 	 * The array returned has the following values:
 	 *
@@ -222,7 +193,12 @@ class Net_HTTP_UserAgent {
 	 * - ios5 - A browser running iOS5
 	 * - ios6 - A browser running iOS6
 	 * - ios7 - A browser running iOS7
+	 * - ios8 - A browser running iOS8
+	 * - ios9 - A browser running iOS9
+	 * - ios10 - A browser running iOS10
 	 * - webkit - A webkit-based browser (Chrome, Safari on iOS systems)
+	 * - chrome - Google's Chrome browser.
+	 * - kindle - Kindle tablet
 	 * - chrome - Google's Chrome browser.
 	 * - ie - Internet Explorer on Windows or mobile devices.
 	 * - ie6/ie7/ie8/ie9/ie10 - Specific version of IE.
@@ -231,32 +207,18 @@ class Net_HTTP_UserAgent {
 	 * - mac - A browser running on a Macintosh computer running Mac OS.
 	 * - linux - A browser running on the Linux operating system.
 	 * - windows - A browser running on a Microsoft Windows system
-	 * - mac_intel - Intel-based Mac
-	 * - mac_ppc - PPC-based Mac (dinosaur)
-	 * - user_agent - The original string passed into this function
+	 * - macIntel - Intel-based Mac
+	 * - macPPC - PPC-based Mac (dinosaur)
+	 * - userAgent - The original string passed into this function
+	 * - lowUserAgent - The original string passed into this function, lowercase.
 	 *
-	 * @param string $user_agent
+	 * @param string $userAgent
 	 * @return array string
 	 */
-	public static function parse(string $user_agent): array {
-		// Samples @todo Move to test
-		//
-		// 2012-11-08
-		// Chrome on MacOS X
-		//     Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11
-		// Safari on MacOS X
-		//     Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/536.26.17 (KHTML, like Gecko) Version/6.0.2 Safari/536.26.17
-		// Firefox on MacOS X
-		//     Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:16.0) Gecko/20100101 Firefox/16.0
-		// Firefox on Windows XP
-		//     Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.8) Gecko/20100202 Firefox/3.5.8 (.NET CLR 3.5.30729)
-		// Safari on Windows XP
-		//     Mozilla/5.0 (Windows NT 5.1) AppleWebKit/534.57.2 (KHTML, like Gecko) Version/5.1.7 Safari/534.57.2
-		// Opera on Mac OS X
-		//     Opera/9.80 (Macintosh; Intel Mac OS X 10.7.5; U; en) Presto/2.10.289 Version/12.02
-		$result['user_agent'] = $user_agent;
+	public static function parse(string $userAgent): array {
+		$result['userAgent'] = $userAgent;
 
-		$result['low_user_agent'] = $ua = strtolower($user_agent);
+		$result['lowUserAgent'] = $ua = strtolower($userAgent);
 
 		$result['opera'] = (str_contains($ua, 'opera'));
 
@@ -285,11 +247,11 @@ class Net_HTTP_UserAgent {
 
 		$result['linux'] = (str_contains($ua, 'linux'));
 		$result['windows'] = (str_contains($ua, 'windows'));
-		$result['mac_intel'] = $result['mac'] && (str_contains($ua, 'intel'));
-		$result['mac_ppc'] = $result['mac'] && (!str_contains($ua, 'intel'));
+		$result['macIntel'] = $result['mac'] && (str_contains($ua, 'intel'));
+		$result['macPPC'] = $result['mac'] && (!str_contains($ua, 'intel'));
 
 		$result['mobile'] = $result['ios'] || (str_contains($ua, 'mobile'));
-		$result['phone'] = $result['iphone'];
+		$result['phone'] = $result['iphone']; // TODO This seems wrong - android phones?
 		$result['tablet'] = !$result['phone'] && ($result['ipad'] || $result['kindle'] || $result['surface']);
 		$result['desktop'] = !$result['phone'] && !$result['tablet'];
 

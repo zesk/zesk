@@ -26,7 +26,7 @@ class Database_Adapter_MySQL extends Database_Adapter {
 	 * @throws Exception_Deprecated
 	 */
 	public function database_column_set_type(Database_Column $column): void {
-		$type_name = $column->option('type', false);
+		$type_name = $column->optionString('type');
 		$is_bin = $column->optionBool('binary');
 		$size = $column->optionInt('size');
 		if (!$type_name) {
@@ -34,35 +34,35 @@ class Database_Adapter_MySQL extends Database_Adapter {
 		}
 		switch (strtolower($type_name)) {
 			case Class_Base::TYPE_ID:
-				$column->setOption('primary_key', true);
-				$column->setOption('sql_type', 'integer');
-				$column->increment(true);
+				$column->setPrimaryKey(true);
+				$column->setSQLType('integer');
+				$column->setIncrement(true);
 				$column->setOption('unsigned', true);
 				return ;
 			case Class_Base::TYPE_OBJECT:
-				$column->setOption('sql_type', 'integer');
+				$column->setSQLType('integer');
 				$column->setOption('unsigned', true);
 				return ;
 			case Class_Base::TYPE_INTEGER:
-				$column->setOption('sql_type', 'integer');
+				$column->setSQLType('integer');
 				return ;
 			case Class_Base::TYPE_CHARACTER:
 				$size = !is_numeric($size) ? 1 : $size;
-				$column->setOption('sql_type', "char($size)");
+				$column->setSQLType("char($size)");
 				return ;
 			case Class_Base::TYPE_TEXT:
-				$column->setOption('sql_type', 'text');
+				$column->setSQLType('text');
 				return;
 			case 'varchar':
 			case Class_Base::TYPE_STRING:
 				if (!is_numeric($size)) {
-					$column->setOption('sql_type', $is_bin ? 'blob' : 'text');
+					$column->setSQLType($is_bin ? 'blob' : 'text');
 				} else {
-					$column->setOption('sql_type', $is_bin ? "varbinary($size)" : "varchar($size)");
+					$column->setSQLType($is_bin ? "varbinary($size)" : "varchar($size)");
 				}
 				return ;
 			case Class_Base::TYPE_BOOL:
-				$column->setOption('sql_type', 'bit(1)');
+				$column->setSQLType('bit(1)');
 				return ;
 			case 'varbinary':
 			case Class_Base::TYPE_SERIALIZE:
@@ -70,47 +70,47 @@ class Database_Adapter_MySQL extends Database_Adapter {
 			case Class_Base::TYPE_HEX:
 			case Class_Base::TYPE_HEX32:
 				if (!is_numeric($size)) {
-					$column->setOption('sql_type', 'blob');
+					$column->setSQLType('blob');
 				} else {
-					$column->setOption('sql_type', "varbinary($size)");
+					$column->setSQLType("varbinary($size)");
 				}
 				$column->binary(true);
 				return ;
 			case Class_Base::TYPE_BYTE:
-				$column->setOption('sql_type', 'tinyint(1)');
+				$column->setSQLType('tinyint(1)');
 				$column->setOption('Unsigned', true);
 				return ;
 			case Class_Base::TYPE_DECIMAL:
 				$intP = $column->optionInt('integer_precision', 10);
 				$decP = $column->optionInt('decimal_precision', 2);
 				$width = $intP + $decP;
-				$column->setOption('sql_type', "decimal($width,$decP)");
+				$column->setSQLType("decimal($width,$decP)");
 				return ;
 			case Class_Base::TYPE_REAL:
-				$column->setOption('sql_type', 'real');
+				$column->setSQLType('real');
 				return ;
 			case Class_Base::TYPE_DOUBLE:
-				$column->setOption('sql_type', 'double');
+				$column->setSQLType('double');
 				return ;
 			case Class_Base::TYPE_DATE:
-				$column->setOption('sql_type', 'date');
+				$column->setSQLType('date');
 				return ;
 			case Class_Base::TYPE_TIME:
-				$column->setOption('sql_type', 'time');
+				$column->setSQLType('time');
 				return ;
 			case Class_Base::TYPE_DATETIME:
 			case Class_Base::TYPE_MODIFIED:
 			case Class_Base::TYPE_CREATED:
 			case Class_Base::TYPE_TIMESTAMP:
-				$column->setOption('sql_type', 'timestamp');
+				$column->setSQLType('timestamp');
 				return ;
 			case 'checksum':
 				zesk()->deprecated(); // ?? This used anywhere?
-				$column->setOption('sql_type', 'char(32)');
+				$column->setSQLType('char(32)');
 				return ;
 			case 'password':
 				zesk()->deprecated(); // ?? This used anywhere?
-				$column->setOption('sql_type', 'varchar(32)');
+				$column->setSQLType('varchar(32)');
 				return ;
 		}
 
