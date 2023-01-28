@@ -1,7 +1,7 @@
 #!/bin/bash
-export APPLICATION_ROOT="$(cd $(dirname "$BASH_SOURCE")/..; pwd)"
+top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit; pwd)"
 
-PATH=$APPLICATION_ROOT/vendor/bin:$PATH
+PATH=$top/vendor/bin:$PATH
 
 php_fixer=php-cs-fixer
 fixer=$(which $php_fixer)
