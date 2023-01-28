@@ -81,9 +81,13 @@ World: false';
 			Command_CWD::class => [
 				[[], 0, "/zesk/\n"],
 			],
-			Command_Config::class => [
+			Command_Configuration::class => [
 				[['--loaded'], 0, '#/zesk/test/etc/test.json#'],
 				[['--not-loaded'], 0, '#/zesk/test/etc/nope.json#'],
+				[['--skipped'], 0, '#/zesk/test/etc/bad.json#'],
+				[['--externals'], 0, '#WEB_KEY.*\n.*ANOTHER_KEY#'],
+				[['--missing-classes'], 0, "Missing classes: [\n    \"not\\\\AClass\"\n]\n"],
+				[['--top-level-scalar'], 0, '#HOME.*\n.*API_KEY#'],
 			],
 		];
 	}
@@ -138,6 +142,7 @@ World: false';
 	 * @dataProvider dataIncludeClasses
 	 */
 	public function test_command(string $class, array $testArguments, int $expectedStatus, string $expectedOutput): void {
+		$this->testApplication->configure();
 		$this->assertCommandClass($class, $testArguments, $expectedStatus, $expectedOutput);
 	}
 }

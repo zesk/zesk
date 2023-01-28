@@ -40,27 +40,21 @@ class Configuration_Loader {
 	 *
 	 * @var array
 	 */
-	private array $missing_files = [];
+	private array $missingFiles = [];
 
 	/**
 	 * Files which could be loaded, but do not exist
 	 *
 	 * @var \array
 	 */
-	private array $processed_content = [];
+	private array $processedFiles = [];
 
 	/**
 	 * Files which could be loaded, but do not exist
 	 *
 	 * @var \array
 	 */
-	private array $skipped_content = [];
-
-	/**
-	 *
-	 * @var FilesMonitor
-	 */
-	private FilesMonitor $file_monitor;
+	private array $skippedFiles = [];
 
 	/**
 	 *
@@ -89,7 +83,6 @@ class Configuration_Loader {
 	public function __construct(array $files, Interface_Settings $settings) {
 		$this->settings = $settings;
 		$this->files = $files;
-		$this->file_monitor = new FilesMonitor($this->files);
 		$this->dependency = new Configuration_Dependency();
 	}
 
@@ -122,9 +115,8 @@ class Configuration_Loader {
 			try {
 				$this->current = $file;
 				$this->loadFile($file);
-				$this->current = '';
-			} catch (Exception_File_Format $e) {
-				error_log(map('Unable to parse configuration file {file} - no parser', compact('file')));
+			} catch (Exception_Parse) {
+				// Logged to $this->>skippedFiles
 			}
 			$this->current = '';
 		}
@@ -136,11 +128,11 @@ class Configuration_Loader {
 	 * @param string $file Path to file to load
 	 * @param string $handler Extension to use to load class (CONF, SH, JSON)
 	 * @return self
-	 * @throws Exception_File_Format
+	 * @throws Exception_Parse
 	 */
 	public function loadFile(string $file, string $handler = ''): self {
 		if (!file_exists($file)) {
-			$this->missing_files[] = $file;
+			$this->missingFiles[] = $file;
 			return $this;
 		}
 
@@ -154,7 +146,7 @@ class Configuration_Loader {
 	 * @param string $content Content to load
 	 * @param string $handler Extension to use to load class (CONF, SH, JSON)
 	 * @return self
-	 * @throws Exception_File_Format
+	 * @throws Exception_Parse
 	 */
 	public function loadContent(string $content, string $handler, string $file_name = ''): self {
 		if (!$file_name) {
@@ -164,7 +156,7 @@ class Configuration_Loader {
 		try {
 			$parser = Configuration_Parser::factory($handler, $content, $this->settings);
 		} catch (Exception_Class_NotFound $e) {
-			$this->skipped_content[] = $file_name;
+			$this->skippedFiles[] = $file_name;
 
 			throw new Exception_File_Format($file_name, 'Unable to parse configuration handler {handler} - no parser', [
 				'handler' => $handler,
@@ -172,8 +164,15 @@ class Configuration_Loader {
 		}
 		$parser->setConfigurationDependency($this->dependency);
 		$parser->setConfigurationLoader($this);
-		$parser->process();
-		$this->processed_content[] = $file_name;
+
+		try {
+			$parser->process();
+			$this->processedFiles[] = $file_name;
+		} catch (Exception_Parse $e) {
+			$this->skippedFiles[] = $file_name;
+
+			throw $e;
+		}
 		return $this;
 	}
 
@@ -192,9 +191,9 @@ class Configuration_Loader {
 	 */
 	public function variables(): array {
 		return [
-			self::PROCESSED => $this->processed_content,
-			self::MISSING => $this->missing_files,
-			self::SKIPPED => $this->skipped_content,
+			self::PROCESSED => $this->processedFiles,
+			self::MISSING => $this->missingFiles,
+			self::SKIPPED => $this->skippedFiles,
 			self::EXTERNALS => $this->externals(),
 		];
 	}

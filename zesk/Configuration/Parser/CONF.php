@@ -15,19 +15,49 @@ namespace zesk;
  *
  */
 class Configuration_Parser_CONF extends Configuration_Parser {
-	public const SEPARATOR_DEFAULT = '=';
+	public const OPTION_AUTO_TYPE = 'autoType';
 
-	public const UNQUOTE_DEFAULT = '\'\'""';
+	public const OPTION_UNQUOTE = 'unquote';
+
+	public const OPTION_MULTILINE = 'multiline';
+
+	public const OPTION_OVERWRITE = 'overwrite';
+
+	public const OPTION_TRIM_KEY = 'trimKey';
+
+	public const OPTION_TRIM_VALUE = 'trimValue';
+
+	public const OPTION_LOWER = 'lower';
+
+	public const OPTION_NAME = 'name';
+
+	public const OPTION_SEPARATOR = 'separator';
+
+	public const DEFAULT_AUTO_TYPE = true;
+
+	public const DEFAULT_OVERWRITE = true;
+
+	public const DEFAULT_TRIM_KEY = true;
+
+	public const DEFAULT_TRIM_VALUE = true;
+
+	public const DEFAULT_LOWER = false;
+
+	public const DEFAULT_SEPARATOR = '=';
+
+	public const DEFAULT_MULTILINE = true;
+
+	public const DEFAULT_UNQUOTE = '\'\'""';
 
 	protected array $options = [
-		'overwrite' => true,
-		'trim_key' => true,
-		'separator' => self::SEPARATOR_DEFAULT,
-		'trim_value' => true,
-		'autotype' => true,
-		'lower' => true,
-		'multiline' => true,
-		'unquote' => self::UNQUOTE_DEFAULT,
+		self::OPTION_OVERWRITE => self::DEFAULT_OVERWRITE,
+		self::OPTION_TRIM_KEY => self::DEFAULT_TRIM_KEY,
+		self::OPTION_SEPARATOR => self::DEFAULT_SEPARATOR,
+		self::OPTION_TRIM_VALUE => self::DEFAULT_TRIM_VALUE,
+		self::OPTION_AUTO_TYPE => self::DEFAULT_AUTO_TYPE,
+		self::OPTION_LOWER => self::DEFAULT_LOWER,
+		self::OPTION_MULTILINE => self::DEFAULT_MULTILINE,
+		self::OPTION_UNQUOTE => self::DEFAULT_UNQUOTE,
 	];
 
 	/**
@@ -44,7 +74,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\Configuration_Parser::editor()
+	 * @see Configuration_Parser::editor
 	 */
 	public function editor(string $content = '', array $options = []): Configuration_Editor {
 		return new Configuration_Editor_CONF($content, $options);
@@ -52,15 +82,16 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 
 	/**
 	 *
-	 * {@inheritDoc}
-	 * @return Interface_Settings
-	 * @see \zesk\Configuration_Parser::process()
+	 * @return void
+	 * @throws Exception_Parse
+	 * @throws Exception_Semantics
+	 * @see Configuration_Parser::process
 	 */
 	public function process(): void {
-		$autotype = toBool($this->options['autotype'] ?? false);
-		$unquote = strval($this->options['unquote'] ?? self::UNQUOTE_DEFAULT);
-		$multiline = toBool($this->options['multiline'] ?? false);
-		$overwrite = toBool($this->options['overwrite'] ?? false);
+		$autoType = toBool($this->options[self::OPTION_AUTO_TYPE]);
+		$unquote = strval($this->options[self::OPTION_UNQUOTE]);
+		$multiline = toBool($this->options[self::OPTION_MULTILINE]);
+		$overwrite = toBool($this->options[self::OPTION_OVERWRITE]);
 		$settings = $this->settings;
 		$dependency = $this->dependency;
 
@@ -69,11 +100,11 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			$lines = self::joinLines($lines);
 		}
 		if ($dependency) {
-			$this->dependency->push($this->option('name', 'unnamed-' . get_class($this)));
+			$this->dependency->push($this->option(self::OPTION_NAME, 'unnamed-' . get_class($this)));
 		}
-		$lower = $this->option('lower');
+		$lower = $this->optionBool(self::OPTION_LOWER, self::DEFAULT_LOWER);
 		foreach ($lines as $line) {
-			$parse_result = $this->parse_line($line);
+			$parse_result = $this->parseLine($line);
 			if ($parse_result === null) {
 				continue;
 			}
@@ -103,7 +134,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 				$value = bash::substitute($value, $settings, $dependencies, $lower);
 			}
 			if (!$found_quote) {
-				if ($autotype) {
+				if ($autoType) {
 					$value = PHP::autotype($value);
 				}
 			}
@@ -139,7 +170,6 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			$this->loader->appendFiles([
 				$file,
 			]);
-			return;
 		} else {
 			$path = dirname($this->loader->current());
 			$this->loader->appendFiles([path($path, $file)]);
@@ -150,6 +180,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 * Allow multi-line settings by placing additional lines beginning with whitespace
 	 *
 	 * @param array $lines
+	 * @return array
 	 */
 	private static function joinLines(array $lines): array {
 		$result = [
@@ -176,8 +207,8 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 * @param string $line
 	 * @return ?array
 	 */
-	public function parse_line(string $line): ?array {
-		$separator = $this->options['separator'] ?? '=';
+	public function parseLine(string $line): ?array {
+		$separator = $this->options[self::OPTION_SEPARATOR];
 		$line = trim($line);
 		if (str_starts_with($line, '#')) {
 			return null;
@@ -190,13 +221,13 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		if (!$key) {
 			return null;
 		}
-		if ($this->options['trim_key'] ?? false) {
+		if ($this->options[self::OPTION_TRIM_KEY]) {
 			$key = trim($key);
 		}
-		if ($this->options['trim_value'] ?? false) {
+		if ($this->options[self::OPTION_TRIM_VALUE]) {
 			$value = trim($value);
 		}
-		if ($this->options['lower'] ?? false) {
+		if ($this->options[self::OPTION_LOWER]) {
 			$key = strtolower($key);
 		}
 		return [

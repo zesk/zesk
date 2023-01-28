@@ -12,7 +12,7 @@ namespace zesk;
 use Closure;
 
 /**
- * @see IncludeFileMonitor
+ * @see IncludeFilesMonitor
  * @see FilesMonitor
  */
 abstract class FileMonitor {
@@ -38,7 +38,18 @@ abstract class FileMonitor {
 	 * Create a new File_Monitor
 	 */
 	public function __construct() {
+		$this->initialize();
+	}
+
+	/**
+	 * Initialize the object
+	 *
+	 * @return $this
+	 */
+	protected function initialize(): self {
 		$this->fileModificationTimes = $this->currentModificationTimes();
+		$this->deletedFiles = [];
+		return $this;
 	}
 
 	/**
@@ -46,7 +57,7 @@ abstract class FileMonitor {
 	 * @return self
 	 */
 	public function setOnDeleted(callable|Closure $callable): self {
-		$this->onDeleted = $callable instanceof Closure ? $callable : Closure::fromCallable($callable);
+		$this->onDeleted = $callable instanceof Closure ? $callable : $callable(...);
 		return $this;
 	}
 

@@ -1,27 +1,28 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
+use Throwable;
+
 /**
  * List configuration files which are examined and loaded for the application.
+ *
+ * Practical uses for this tool:
+ *
+ * - "loaded" - What's affecting the current configuration? Configure or change existing configuration files.
+ * - "not-loaded" - Add a local development or determine why files are not loading.
+ * - "skipped" - Determine files which have errors
+ * - "externals" - Determine required environment for application (these are variables in the configuration files
+ * which are not defined within the files themselves)
+ * - "missing-classes" - May show configuration classes which are deprecated.
+ * - "top-level-scalar" - Most configuration is 2-levels deep (["className", "option"]) - top-level scalar values
+ * typically are environment values.
  *
  * @category Debugging
  * @author kent
  *
  */
-class Command_Config extends Command_Base {
+class Command_Configuration extends Command_Base {
 	protected array $shortcuts = ['conf', 'config', 'configuration'];
-
-	/**
-	 *
-	 * @var string
-	 */
-	private string $sep = "\n\t";
-
-	/**
-	 *
-	 * @var string
-	 */
-	private string $suffix = "\n\n";
 
 	protected array $option_types = [
 		'loaded' => 'boolean',
@@ -49,34 +50,27 @@ class Command_Config extends Command_Base {
 		$app = $this->application;
 		$variables = $app->loader->variables();
 
-		$loaded = $variables[Configuration_Loader::PROCESSED];
-		$not_loaded = $variables[Configuration_Loader::MISSING];
-		$externals = $variables[Configuration_Loader::EXTERNALS];
-		$skipped = $variables[Configuration_Loader::SKIPPED];
-		[$missing_vars, $warning_top_levels] = $this->collect_misnamed_class_configurations();
+		[$missingClasses, $warning_top_levels] = $this->collectMisnamedClassConfigurations();
+		$variables['-missing-classes-'] = $missingClasses;
+		$variables['-warning-top-'] = $warning_top_levels;
 
 		$flags = $this->show_flags();
 
-		if ($flags['show_loaded']) {
-			echo $this->outputList('INFO: Loaded configuration files:', $loaded);
+		$result = [];
+		foreach ([
+			'show_loaded' => ['Loaded', Configuration_Loader::PROCESSED],
+			'show_not_loaded' => ['Missing', Configuration_Loader::MISSING],
+			'show_skipped' => ['Skipped', Configuration_Loader::SKIPPED],
+			'show_externals' => ['External variables', Configuration_Loader::EXTERNALS],
+			'show_missing_classes' => ['Missing classes', '-missing-classes-'],
+			'show_top_level_scalar' => ['Top-level variables which are scalar', '-warning-top-'],
+		] as $flag => [$key, $variablesKey]) {
+			$list = $variables[$variablesKey];
+			if ($flags[$flag] && count($list)) {
+				$result[$key] = $this->outputList($list);
+			}
 		}
-		if ($flags['show_not_loaded']) {
-			echo $this->outputList('NOTICE: Not loaded configuration files (file not found):', $not_loaded);
-		}
-
-		if ($flags['show_skipped'] && count($skipped) > 0) {
-			echo $this->outputList('ERROR: Skipped due to syntax errors:', $skipped);
-		}
-		if ($flags['show_externals'] && count($externals) > 0) {
-			echo $this->outputList('INFO: Dependency variables:', $externals);
-		}
-		if ($flags['show_missing_classes'] && count($missing_vars) > 0) {
-			sort($missing_vars);
-			echo $this->outputList('WARNING: Variables have no corresponding class:', $missing_vars);
-		}
-		if ($flags['show_top_level_scalar'] && count($warning_top_levels) > 0) {
-			echo $this->outputList('NOTICE: Top-level variables which are scalar:', $warning_top_levels);
-		}
+		$this->renderFormat($result);
 		return 0;
 	}
 
@@ -106,7 +100,7 @@ class Command_Config extends Command_Base {
 	 *
 	 * @return
 	 */
-	public function collect_misnamed_class_configurations(): array {
+	public function collectMisnamedClassConfigurations(): array {
 		$config = $this->application->configuration;
 		$missing = $warning = [];
 		foreach ($config as $key => $next) {
@@ -115,7 +109,7 @@ class Command_Config extends Command_Base {
 					if (!class_exists($key, true)) {
 						$missing[] = $key;
 					}
-				} catch (Exception_Class_NotFound $e) {
+				} catch (Throwable $e) {
 					$missing[] = $key;
 				}
 			} else {
@@ -129,12 +123,10 @@ class Command_Config extends Command_Base {
 	}
 
 	/**
-	 *
-	 * @param string $title
 	 * @param array $list
-	 * @return string
+	 * @return array
 	 */
-	private function outputList(string $title, array $list): string {
-		return $title . $this->sep . implode($this->sep, $list) . $this->suffix;
+	private function outputList(array $list): array {
+		return $list;
 	}
 }

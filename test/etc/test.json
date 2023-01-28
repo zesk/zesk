@@ -3,5 +3,9 @@
 		"path": "Overwritten",
 		"applicationClass": "Overwritten",
 		"description": "Test Application"
+	},
+	"API_KEY": "${WEB_KEY} ${ANOTHER_KEY} ${anotherKey} $WEB_KEY",
+	"not\\AClass": {
+		"But looks": "like one"
 	}
 }

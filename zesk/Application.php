@@ -1284,10 +1284,13 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * Load configuration files
 	 */
 	private function _configureFiles(): void {
-		if (count($this->includes) === 0) {
-			$this->configureInclude($this->defaultConfigurationFiles());
+		try {
+			if (count($this->includes) === 0) {
+				$this->configureInclude($this->defaultConfigurationFiles());
+			}
+			$this->configureFiles($this->includes());
+		} catch (Exception_Parse) {
 		}
-		$this->configureFiles($this->includes());
 	}
 
 	/**

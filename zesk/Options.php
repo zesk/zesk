@@ -39,7 +39,7 @@ class Options implements ArrayAccess {
 	 * Character used for space
 	 * @var string
 	 */
-	public const OPTION_SPACE = '_';
+	public const CHARACTER_OPTION_SPACE = '_';
 
 	/**
 	 * An associative array of lower-case strings pointing to mixed values. $options should
@@ -248,11 +248,11 @@ class Options implements ArrayAccess {
 	 * @return string normalized key name
 	 */
 	final protected static function _optionKey(string|int $name): string {
-		return strtolower(strtr(trim(strval($name)), [
-			'-' => self::OPTION_SPACE,
-			'_' => self::OPTION_SPACE,
-			' ' => self::OPTION_SPACE,
-		]));
+		return strtr(trim(strval($name)), [
+			'-' => self::CHARACTER_OPTION_SPACE,
+			'_' => self::CHARACTER_OPTION_SPACE,
+			' ' => self::CHARACTER_OPTION_SPACE,
+		]);
 	}
 
 	/**

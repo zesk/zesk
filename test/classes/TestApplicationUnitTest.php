@@ -32,6 +32,7 @@ class TestApplicationUnitTest extends UnitTest {
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Directory_Create
 	 * @throws Exception_Directory_Permission
+	 * @throws Exception_Directory_NotFound
 	 */
 	private function newApplicationFactory(array $options = []): TestApplication {
 		$cacheDir = $this->application->cachePath('testApp/fileCache');
@@ -47,6 +48,7 @@ class TestApplicationUnitTest extends UnitTest {
 			'isSecondary' => true, Application::OPTION_VERSION => '1.0.0',
 		]);
 		$newApplication->configureInclude([
+			$this->application->path('test/etc/bad.json'),
 			$this->application->path('test/etc/test.json'),
 			$this->application->path('test/etc/nope.json'),
 		]);

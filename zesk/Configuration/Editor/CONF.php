@@ -28,7 +28,7 @@ class Configuration_Editor_CONF extends Configuration_Editor {
 		$new_lines = [];
 		$lines = explode("\n", $this->content);
 		foreach ($lines as $line) {
-			$result = $parser->parse_line($line);
+			$result = $parser->parseLine($line);
 			if ($result === null) {
 				$new_lines[] = rtrim($line, "\n") . "\n";
 			} else {

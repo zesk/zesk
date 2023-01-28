@@ -36,7 +36,7 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 	}
 
 	/**
-	 *
+	 * @throws Exception_Parse
 	 */
 	public function process(): void {
 		$lower = $this->options['lower'] ?? false;
@@ -52,7 +52,7 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 			];
 			error_log(map($message, $__));
 
-			throw new Exception_File_Format($message, $__);
+			throw new Exception_Parse($message, $__);
 		}
 		if ($lower) {
 			$result = array_change_key_case($result);

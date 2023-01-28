@@ -68,7 +68,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 				$array[$key] = new self($value, $this->_addPath($key));
 			}
 		}
-		$this->_data = array_change_key_case($array);
+		$this->_data = $array;
 		$this->_index = 0;
 		$this->_count = count($this->_data);
 	}
@@ -113,7 +113,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 */
 	public function merge(Configuration $config, bool $overwrite = true): self {
 		foreach ($config as $key => $value) {
-			$key = strtolower($key);
 			if (isset($this->_data[$key])) {
 				$this_value = $this->_data[$key];
 				if ($value instanceof self && $this_value instanceof self) {
@@ -145,7 +144,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return boolean
 	 */
 	public function __isset(string $key): bool {
-		$key = strtolower($key);
 		return isset($this->_data[$key]);
 	}
 
@@ -154,7 +152,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return void
 	 */
 	public function __unset(string $key): void {
-		$key = strtolower($key);
 		if (isset($this->_data[$key])) {
 			unset($this->_data[$key]);
 			$this->_count = count($this->_data);
@@ -188,7 +185,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 		if (is_array($value)) {
 			$value = new self($value, $this->_addPath($key));
 		}
-		$key = strtolower($key);
 		$this->_data[$key] = $value;
 		$this->_count = count($this->_data);
 	}
@@ -202,7 +198,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return mixed
 	 */
 	public function get(string $key, mixed $default = null): mixed {
-		$key = strtolower($key);
 		if (strpos($key, '-') && !isset($this->_data[$key])) {
 			error_log(map('Fetching MISSING key {key} with dash from {func}', [
 				'key' => $key,
@@ -314,7 +309,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return self
 	 */
 	public function __get(string $key) {
-		$key = strtolower($key);
 		return $this->_data[$key] ?? null;
 	}
 

@@ -27,10 +27,14 @@ class FilesMonitor extends FileMonitor {
 
 	/**
 	 *
-	 * {@inheritDoc}
-	 * @see \zesk\FileMonitor::files()
+	 * @see FileMonitor::files()
 	 */
 	protected function files(): array {
 		return $this->files;
+	}
+
+	public function setFiles(array $files): self {
+		$this->files = $files;
+		return $this->initialize();
 	}
 }

@@ -68,7 +68,7 @@ class PHP_Test extends UnitTest {
 
 	public function data_setFeature(): array {
 		return [
-			[PHP::FEATURE_MEMORY_LIMIT, 256 * 1024 * 1024], [PHP::FEATURE_TIME_LIMIT, null],
+			[PHP::FEATURE_MEMORY_LIMIT, 512 * 1024 * 1024], [PHP::FEATURE_TIME_LIMIT, null],
 			['not-a-feature', null],
 		];
 	}
