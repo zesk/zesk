@@ -2,7 +2,7 @@
 
 /**
  * @package zesk
- * @subpackage model
+ * @subpackage World
  * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
@@ -58,8 +58,7 @@ class Bootstrap_Country extends Hookable {
 
 	public function bootstrap(): void {
 		$application = $this->application;
-		$prefix = __NAMESPACE__ . '\\';
-		$x = $application->objects->factory($prefix . StringTools::removePrefix(__CLASS__, $prefix . 'World_Bootstrap_'), $application);
+		$x = $application->ormFactory(Country::class);
 		if ($this->optionBool('drop')) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}

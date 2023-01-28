@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 namespace zesk\World;
 
-use World\Class\Time\Class_Time_Zone;
+use zesk\ORM\ORMBase;
 
 /**
- * @see Class_Time_Zone
+ * @see Class_TimeZone
  * @author kent
  *
  */
-class Time_Zone extends ORMBase {
+class TimeZone extends ORMBase {
 }

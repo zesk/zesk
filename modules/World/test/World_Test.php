@@ -24,13 +24,13 @@ class World_Test extends ORMUnitTest {
 		$this->setUp();
 		return [
 			[
-				City::class, [City::MEMBER_PROVINCE => $this->sampleProvince()],
+				City::class, [City::MEMBER_PROVINCE => $this->sampleProvince()], [],
 			], [
-				County::class, [],
+				County::class, [], [],
 			], [
-				Country::class, [],
+				Country::class, [], [],
 			], [
-				Province::class, [],
+				Province::class, [], [],
 			],
 		];
 	}

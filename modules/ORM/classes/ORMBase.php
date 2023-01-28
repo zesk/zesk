@@ -8,7 +8,6 @@ declare(strict_types=1);
 namespace zesk\ORM;
 
 use Throwable;
-use World\Class\Class_Base;
 use zesk\Database_Exception_Connect;
 use zesk\Database_Exception_NoResults;
 use zesk\Exception_Class_NotFound;

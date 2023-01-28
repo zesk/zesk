@@ -6,7 +6,6 @@ declare(strict_types=1);
 
 namespace zesk\ORM;
 
-use World\Class\Class_Base;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Command;
