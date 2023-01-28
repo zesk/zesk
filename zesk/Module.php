@@ -22,7 +22,7 @@ class Module extends Hookable {
 	 *
 	 * @var string
 	 */
-	private string $name = '';
+	protected string $name = '';
 
 	/**
 	 * Path to this module
@@ -61,8 +61,7 @@ class Module extends Hookable {
 	 */
 	public function __sleep() {
 		return [
-			'application_class', 'name', 'path', 'model_classes', 'class_aliases', 'class', 'path', 'configuration',
-			'configurationFile', 'configurationData',
+			'name', 'path', 'configuration', 'configurationFile', 'configurationData', 'modelClasses', 'classAliases',
 		];
 	}
 
@@ -90,9 +89,13 @@ class Module extends Hookable {
 	 * @return string
 	 */
 	private function _defaultCodeName(): string {
-		return strtolower(StringTools::removePrefix(PHP::parseClass(get_class($this)), [
-			'Module_', 'Module',
-		]));
+		$class = strtr(get_class($this), '\\', '_');
+		return StringTools::removeSuffix(StringTools::removePrefix($class, [
+			'zesk_Module_',
+			'Module_',
+			'Module',
+			'zesk_',
+		]), ['_Module', 'Module']);
 	}
 
 	/**
@@ -129,7 +132,7 @@ class Module extends Hookable {
 		return $this->configuration;
 	}
 
-	final public function moduleConfigurationFile(): array {
+	final public function moduleConfigurationFile(): string {
 		return $this->configurationFile;
 	}
 

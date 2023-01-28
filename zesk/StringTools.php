@@ -422,13 +422,22 @@ class StringTools {
 	 * @param bool $case_insensitive
 	 * @return string|array
 	 */
-	public static function removeSuffix(string|array $string, string $suffix, bool $case_insensitive = false): string|array {
+	public static function removeSuffix(string|array $string, array|string $suffix, bool $case_insensitive = false):
+	string|array {
 		if (is_array($string)) {
 			$result = [];
 			foreach ($string as $k => $v) {
 				$result[$k] = self::removeSuffix($v, $suffix, $case_insensitive);
 			}
 			return $result;
+		} elseif (is_array($suffix)) {
+			foreach ($suffix as $suff) {
+				$new_string = self::removeSuffix($string, $suff, $case_insensitive);
+				if ($new_string !== $string) {
+					return $new_string;
+				}
+			}
+			return $string;
 		} else {
 			return self::ends($string, $suffix, $case_insensitive) ? substr($string, 0, -strlen($suffix)) : $string;
 		}

@@ -78,6 +78,13 @@ World: false';
 				[['--all'], 0, File::contents($this->application->path('test/test-data/license.txt'))],
 				[['--all', '--json'], 0, File::contents($this->application->path('test/test-data/license.json'))],
 			],
+			Command_CWD::class => [
+				[[], 0, "/zesk/\n"],
+			],
+			Command_Config::class => [
+				[['--loaded'], 0, '#/zesk/test/etc/test.json#'],
+				[['--not-loaded'], 0, '#/zesk/test/etc/nope.json#'],
+			],
 		];
 	}
 

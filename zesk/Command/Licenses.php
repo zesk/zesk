@@ -22,6 +22,7 @@ class Command_Licenses extends Command_Base {
 	];
 
 	private array $codeToLabel = [
+		'description' => 'Description',
 		'licenses' => 'Licenses',
 		'urlProject' => 'Project URL',
 		'urlLicense' => 'License URL',

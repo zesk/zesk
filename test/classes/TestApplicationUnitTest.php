@@ -46,6 +46,10 @@ class TestApplicationUnitTest extends UnitTest {
 		] + $options + [
 			'isSecondary' => true, Application::OPTION_VERSION => '1.0.0',
 		]);
+		$newApplication->configureInclude([
+			$this->application->path('test/etc/test.json'),
+			$this->application->path('test/etc/nope.json'),
+		]);
 		$this->assertInstanceOf(TestApplication::class, $newApplication);
 		return $newApplication;
 	}

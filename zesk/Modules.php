@@ -389,7 +389,7 @@ class Modules {
 		assert(!str_contains($name, '\\'));
 
 		$moduleFactoryState['path'] = $path = $this->_findModulePath($name);
-		$moduleFactoryState['configurationFile'] = $file = path($path, $name . '.module.json');
+		$moduleFactoryState['configurationFile'] = $file = first(glob("$path/*\.module\.json"));
 		[$data, $configuration] = self::_loadModuleJSON($file);
 
 		$this->registerPaths($name, $path, $configuration);

@@ -28,6 +28,8 @@ class Module extends BaseModule implements Interface_Schema_Updated {
 	 */
 	public const OPTION_INCLUDE_COUNTRY = 'includeCountry';
 
+	protected string $name = 'World';
+
 	protected array $modelClasses = [
 		Currency::class,
 		City::class,

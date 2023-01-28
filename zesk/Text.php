@@ -241,7 +241,7 @@ class Text {
 	 * @return string
 	 */
 	public static function format_pairs(array $map, string $prefix = '', string $space = ' ', string $suffix = ': ', string $br = PHP_EOL): string {
-		$n = array_reduce(array_keys($map), fn ($k, $n) => max(strlen(strval($k)), $n), 0);
+		$n = array_reduce(array_keys($map), fn ($n, $k) => max(strlen(strval($k)), $n), 0);
 		$r = [];
 		foreach ($map as $k => $v) {
 			$k = strval($k);

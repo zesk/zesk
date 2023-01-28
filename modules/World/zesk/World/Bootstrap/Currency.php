@@ -11,10 +11,11 @@ namespace zesk\World;
 
 use zesk\Application;
 use zesk\ArrayTools;
+use zesk\File;
 use zesk\Hookable;
+use zesk\JSON;
 use zesk\ORM\Exception_ORMEmpty;
 use zesk\ORM\Exception_ORMNotFound;
-use zesk\StringTools;
 
 /**
  * @see Currency
@@ -45,10 +46,12 @@ class Bootstrap_Currency extends Hookable {
 	}
 
 	/**
-	 * @param mixed $options
-	 * @global Module_World::include_country List of country codes to include
 	 *
-	 * @global Module_World::include_currency List of currency codes to include
+	 * @param Application $application
+	 * @param array $options
+	 *
+	 * @see Module::OPTION_INCLUDE_CURRENCY
+	 * @see Module::OPTION_INCLUDE_COUNTRY
 	 */
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
@@ -71,11 +74,11 @@ class Bootstrap_Currency extends Hookable {
 		}
 		$codes = $this->_codes();
 		foreach ($codes as $row) {
-			$this->process_row($row);
+			$this->processRow($row);
 		}
 	}
 
-	private function is_included(Currency $currency) {
+	private function isIncluded(Currency $currency) {
 		if ($this->include_country) {
 			if ($currency->memberIsEmpty('bank_country')) {
 				return false;
@@ -92,9 +95,9 @@ class Bootstrap_Currency extends Hookable {
 	/**
 	 * @param string $code
 	 * @param string $name
-	 * @return Country
+	 * @return null|Country
 	 */
-	private function determine_country(string $code, string $name): Country {
+	private function determineCountry(string $code, string $name): null|Country {
 		if (empty($name)) {
 			return null;
 		}
@@ -107,32 +110,39 @@ class Bootstrap_Currency extends Hookable {
 
 		try {
 			$result = $country->find(Country::MEMBER_CODE);
-			/** @var Country $result */
-			return $result;
-		} catch (Exception_ORMNotFound|Exception_ORMEmpty $e) {
+		} catch (Exception_ORMNotFound|Exception_ORMEmpty) {
+			try {
+				$result = $country->find([
+					Country::MEMBER_NAME . '|LIKE' => $name,
+				]);
+			} catch (Exception_ORMNotFound|Exception_ORMEmpty) {
+				return null;
+			}
 		}
-		return $country->find([
-			Country::MEMBER_NAME . '|LIKE' => $name,
-		]);
+		/** @var Country $result */
+		return $result;
 	}
 
-	private function process_row(array $row) {
-		[$country_name, $name, $codeName, $code_number, $symbol, $fractional_string] = $row;
-
-		$name = $row[0];
+	private function processRow(array $row): void {
+		$countryName = $row[0];
+		$name = $row[1];
+		$codeName = $row[2];
+		$codeNumber = $row[3];
+		$symbol = $row[4];
+		$fractional_string = $row[5];
 		$code = strtolower(substr($codeName, 0, 2));
 
-		$country = $this->determine_country($code, $name);
+		$country = $this->determineCountry($code, $countryName);
 		if (!$country && !$this->optionBool('include_no_country')) {
-			return null;
+			return;
 		}
 		$fields['bank_country'] = $country;
 		if (empty($symbol)) {
 			$symbol = $codeName;
 		}
 
-		$fields['id'] = $id = intval($row[3]);
-		$fields['name'] = $row[1];
+		$fields['id'] = $id = intval($codeNumber);
+		$fields['name'] = $name;
 		$fields['code'] = $codeName;
 		$fields['symbol'] = $symbol;
 		[$fractional, $units] = pair($fractional_string, ' ');
@@ -142,25 +152,25 @@ class Bootstrap_Currency extends Hookable {
 
 		if (empty($id)) {
 			$this->application->logger->debug('Unknown id for currency {code} {name}', $fields);
-			return null;
+			return;
 		}
 
 		$currency = $this->application->ormFactory(Currency::class);
-		if ($this->is_included($currency)) {
+		/* @var $currency Currency */
+		if ($this->isIncluded($currency)) {
 			if ($this->optionBool('delete_mismatched_ids')) {
 				$found = $currency->find();
 				if ($found->id() !== $id) {
 					$currency->delete();
-					$currency->setMember($fields)->store();
+					$currency->setMembers($fields)->store();
 				} else {
-					return $currency->store();
+					$currency->store();
 				}
 			} else {
 				$currency->find();
-				return $currency->setMember($fields)->store();
+				$currency->setMembers($fields)->store();
 			}
 		}
-		return null;
 	}
 
 	private function _codes(): array {
@@ -190,11 +200,10 @@ class Bootstrap_Currency extends Hookable {
 	/**
 	 * https://gist.githubusercontent.com/Fluidbyte/2973986/raw/b0d1722b04b0a737aade2ce6e055263625a0b435/Common-Currency.json
 	 */
-	public function _somwhat_recent_codes(): array {
+	public function _somewhat_recent_codes(): array {
 		$file = $this->application->modules->path('world', 'bootstrap-data/currency.json');
 		File::depends($file);
-		$currencies = JSON::decode(file_get_contents($file));
-		return $currencies;
+		return JSON::decode(file_get_contents($file));
 	}
 
 	public static function _process_somewhat_dated_codes(): array {
