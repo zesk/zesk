@@ -65,7 +65,7 @@ class Command_Licenses extends Command_Base {
 				}
 				$licenseInfo = ArrayTools::filterKeys($licenseInfo, null, ['name']);
 				echo Text::format_pairs(ArrayTools::keysMap($licenseInfo, $this->codeToLabel));
-				echo "\n\n";
+				echo PHP_EOL;
 			}
 		}
 		return 0;

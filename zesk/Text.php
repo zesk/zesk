@@ -28,13 +28,7 @@ class Text {
 	 * @param string $newline
 	 * @return string
 	 */
-	public static function indent(
-		string $text,
-		int $indent_count = 1,
-		bool $trim_line_white = false,
-		string $indent_char =	"\t",
-		string $newline = "\n"
-	): string {
+	public static function indent(string $text, int $indent_count = 1, bool $trim_line_white = false, string $indent_char = "\t", string $newline = "\n"): string {
 		$lines = explode($newline, $text);
 		$indent_string = is_string($indent_count) ? $indent_count : str_repeat($indent_char, $indent_count);
 		foreach ($lines as $i => $line) {
@@ -159,8 +153,7 @@ class Text {
 	 * @param boolean $chop_text If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
 	 * @return string The text with padding to fill $n characters (aligned right), or the original string (optionally trimmed) if length is greater than $n
 	 */
-	public static function rightAlign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false)
-	: string {
+	public static function rightAlign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false): string {
 		$fill = '';
 		$text = self::_align_helper($text, $length, $pad, $fill, $chop_text);
 		return $fill . $text;
@@ -175,8 +168,7 @@ class Text {
 	 * @param bool $chop_text If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
 	 * @return string The text with padding to fill $n characters (aligned left), or the original string (optionally trimmed) if length is greater than $n
 	 */
-	public static function leftAlign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false):
-	string {
+	public static function leftAlign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false): string {
 		$fill = '';
 		$text = self::_align_helper($text, $length, $pad, $fill, $chop_text);
 		return $text . $fill;
@@ -243,7 +235,7 @@ class Text {
 	 * @param string $br End of line character
 	 * @return string
 	 */
-	public static function format_pairs(array $map, string $prefix = '', string $space = ' ', string $suffix = ': ', string $br = "\n"): string {
+	public static function format_pairs(array $map, string $prefix = '', string $space = ' ', string $suffix = ': ', string $br = PHP_EOL): string {
 		$n = intval(array_reduce(array_keys($map), fn ($k, $n) => max(strlen(strval($k)), $n), 0));
 		$r = [];
 		foreach ($map as $k => $v) {
