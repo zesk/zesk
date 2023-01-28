@@ -5,8 +5,12 @@
 
 namespace zesk\Locale;
 
+use zesk\Exception_Class_NotFound;
+use zesk\HTTP;
 use zesk\JavaScript;
-use zesk\Reader;
+use zesk\Locale;
+use zesk\Request;
+use zesk\Response;
 
 /**
  * @see Locale
@@ -14,12 +18,37 @@ use zesk\Reader;
  *
  */
 class Controller extends \zesk\Controller {
+	protected array $argumentMethods = [
+	];
+
+	protected array $actionMethods = [
+		'action_{METHOD}_js',
+	];
+
+	protected array $beforeMethods = [
+	];
+
+	protected array $afterMethods = [
+	];
+
+	/**
+	 * Allow API usage
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @return Response
+	 */
+	public function action_OPTIONS_js(Request $request, Response $response): Response {
+		assert($request->method() === HTTP::METHOD_OPTIONS);
+		return $this->handleOPTIONS($response, 'js');
+	}
+
 	/**
 	 *
 	 */
-	public function action_js(): void {
+	public function action_GET_js(Request $request, Response $response): Response {
 		$app = $this->application;
-		$code = $this->request->get('ll');
+		$code = $request->get('ll');
 		$locales = [];
 		if (empty($code)) {
 			$locales = [
@@ -29,13 +58,17 @@ class Controller extends \zesk\Controller {
 		} else {
 			$codes = array_unique(toList($code));
 			foreach ($codes as $code) {
-				$locales[$code] = Reader::factory($app->localePath(), $code)->locale($app);
+				try {
+					$locales[$code] = Reader::factory($app->localePath(), $code)->locale($app);
+				} catch (Exception_Class_NotFound) {
+					// pass
+				}
 			}
 		}
 
 		$translations = [];
 		foreach ($locales as $id => $locale) {
-			/* @var $locale \zesk\Locale\Locale */
+			/* @var $locale Locale */
 			$translations[$id] = $locale->translations();
 		}
 		$load_lines = [];
@@ -46,14 +79,15 @@ class Controller extends \zesk\Controller {
 				$load_lines[] = "/* No translations for $id */";
 			}
 		}
-		$this->response->setContentType('text/javascript');
+		$response->setContentType('text/javascript');
 		$load_lines[] = 'exports.Locale.locale(' . JavaScript::arguments($app->locale->id()) . ');';
 
 		$load_lines = implode("\n\t", $load_lines);
 		$content = "/* elapsed: {page-render-time}, is_cached: {page-is-cached} */\n";
 		$content .= "(function (exports) {\n\t$load_lines\n}(this));\n";
 
-		$this->response->setCacheFor($this->optionInt('cache_seconds', 600));
-		$this->response->content = $content;
+		$response->setCacheFor($this->optionInt('cache_seconds', 600));
+		$response->content = $content;
+		return $response;
 	}
 }

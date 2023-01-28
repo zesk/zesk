@@ -42,7 +42,7 @@ class Command_Cache extends Command_Base {
 	}
 
 	protected function _exec_print(): int {
-		print(get_class($this->application->cache) . "\n");
+		print(get_class($this->application->cacheItemPool()) . "\n");
 		return 0;
 	}
 

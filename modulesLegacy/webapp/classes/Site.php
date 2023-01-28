@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage webapp
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk\WebApp;
 
@@ -21,7 +21,7 @@ namespace zesk\WebApp;
  * @property array $errors
  * @property boolean $valid
  */
-class Site extends ORM {
+class Site extends ORMBase {
 	/**
 	 *
 	 * @var string
@@ -46,7 +46,7 @@ class Site extends ORM {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\ORMBase::prepareInsert()
+	 * @see ORMBase::prepareInsert()
 	 */
 	public function hook_pre_insert(array $members) {
 		$members['priority'] = $this->last_priority() + 1;

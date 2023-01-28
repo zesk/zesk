@@ -6,7 +6,7 @@ declare(strict_types=1);
  *
  * This is where the magic happens for ORMs
  *
- * Copyright &copy; 2022, Market Acumen, Inc.
+ * Copyright &copy; 2023, Market Acumen, Inc.
  * @author kent
  * @see ORMBase
  */
@@ -1140,17 +1140,17 @@ class Class_Base extends Hookable {
 	 * @throws Exception_Semantics
 	 */
 	private function _loadColumns(): void {
-		$pool = $this->application->cache;
+		$pool = $this->application->cacheItemPool();
 		$table = $this->table;
 
 		try {
-			$cache = $pool->getItem(__CLASS__ . "::column_cache::$table");
-			if ($cache->isHit()) {
-				$this->table_columns = $cache->get();
+			$cacheItem = $pool->getItem(__CLASS__ . "::column_cache::$table");
+			if ($cacheItem->isHit()) {
+				$this->table_columns = $cacheItem->get();
 				return;
 			}
 		} catch (InvalidArgumentException) {
-			$cache = null;
+			$cacheItem = null;
 		}
 
 		try {
@@ -1160,13 +1160,13 @@ class Class_Base extends Hookable {
 				$name = $object->name();
 				$this->table_columns[$name] = $object->sql_type();
 			}
-			if ($cache) {
-				$pool->saveDeferred($cache->set($this->table_columns));
+			if ($cacheItem) {
+				$pool->saveDeferred($cacheItem->set($this->table_columns));
 			}
 		} catch (BaseException $e) {
-			if ($cache) {
+			if ($cacheItem) {
 				try {
-					$pool->deleteItem($cache->getKey());
+					$pool->deleteItem($cacheItem->getKey());
 				} catch (InvalidArgumentException) {
 				}
 			}

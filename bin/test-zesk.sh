@@ -56,7 +56,7 @@ while [ $# -ge 1 ]; do
   case $1 in
     --coverage)
       need_paths="$need_paths $coverage_cache $coverage_path"
-      args+=("--coverage-cache" "$coverage_cache" "--coverage-filter" "./classes" "--coverage-filter" "./command" "--coverage-filter" "./modules" "--coverage-html" "$coverage_path")
+      args+=("--coverage-cache" "$coverage_cache" "--coverage-filter" "./zesk" "--coverage-filter" "./theme" "--coverage-filter" "./modules" "--coverage-html" "$coverage_path")
       export XDEBUG_MODE=coverage
       echo "Running coverage and storing results in $coverage_path"
       ;;

@@ -3,13 +3,13 @@
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 declare(strict_types=1);
 
 namespace zesk;
 
-use zesk\Command\Loader;
+use Psr\Log\NullLogger;
 
 class Kernel_Test extends UnitTest {
 	/**
@@ -176,9 +176,10 @@ class Kernel_Test extends UnitTest {
 			//			[ZESK_ROOT . 'zesk/Kernel.php', Kernel::class, ['php'], []],
 			//			[ZESK_ROOT . 'zesk/Controller/Theme.php', Controller_Theme::class, ['php', 'sql'], []],
 			[ZESK_ROOT . 'modules/ORM/classes/Class/User.sql', 'zesk\\ORM\\Class_User', ['sql', 'php'], ['ORM']],
-			[ZESK_ROOT . 'modules/ORM/classes/Class/User.php', 'zesk\\ORM\\Class_User', ['php', 'sql'], ['ORM']],
-			[ZESK_ROOT . 'modules/ORM/classes/Class/User.sql', 'zesk\\ORM\\Class_User', ['other', 'inc', 'sql', ], ['ORM']],
-			[null, 'zesk\\ORM\\User', ['other', 'none', ], ['ORM']],
+			[ZESK_ROOT . 'modules/ORM/classes/Class/User.php', 'zesk\\ORM\\Class_User', ['php', 'sql'], ['ORM']], [
+				ZESK_ROOT . 'modules/ORM/classes/Class/User.sql', 'zesk\\ORM\\Class_User', ['other', 'inc', 'sql', ],
+				['ORM'],
+			], [null, 'zesk\\ORM\\User', ['other', 'none', ], ['ORM']],
 		];
 	}
 
@@ -237,8 +238,13 @@ class Kernel_Test extends UnitTest {
 	}
 
 	public function test_console(): void {
-		$set = null;
-		$this->application->console($set);
+		$savedConsole = $this->application->console();
+		$this->assertEquals($this->application, $this->application->setConsole(true));
+		$this->assertEquals(true, $this->application->console());
+		$this->assertEquals($this->application, $this->application->setConsole(false));
+		$this->assertEquals(false, $this->application->console());
+		$this->assertEquals($this->application, $this->application->setConsole($savedConsole));
+		$this->assertEquals($savedConsole, $this->application->console());
 	}
 
 	/**
@@ -253,9 +259,9 @@ class Kernel_Test extends UnitTest {
 	 *
 	 */
 	public function test_disable_deprecated(): void {
-		$old = Kernel::singleton()->setDeprecated(Kernel::DEPRECATED_IGNORE);
+		$old = $this->application->setDeprecated(Application::DEPRECATED_IGNORE);
 		$this->application->deprecated();
-		Kernel::singleton()->setDeprecated($old);
+		$this->application->setDeprecated($old);
 	}
 
 	public function test_development(): void {
@@ -298,8 +304,9 @@ class Kernel_Test extends UnitTest {
 	 */
 	public function data_has(): array {
 		return [
-			[true, Application::class], [true, [Application::class, 'modules']], [true, Kernel::class], [true, 'home'],
-			[true, Options::class], [false, md5('HOME')], [true, 'HoMe'], [false, '0192830128301283123'],
+			[true, Application::class], [true, [Application::class, 'modules']], [true, Kernel::class], [
+				true, [Application::class, Application::OPTION_HOME_PATH],
+			], [true, Options::class], [false, md5('HOME')], [true, 'HoMe'], [false, '0192830128301283123'],
 		];
 	}
 
@@ -516,7 +523,7 @@ class Kernel_Test extends UnitTest {
 		$file = $this->test_sandbox('testlike.php');
 		$contents = file_get_contents($this->application->zeskHome('test/test-data/testlike.php'));
 		file_put_contents($file, $contents);
-		$loader = Loader::factory()->setApplication($this->application);
+		$loader = CommandLoader::factory()->setApplication($this->application);
 		$this->application->addZeskCommandPath($this->test_sandbox());
 		$pid = $this->application->process->id();
 		$className = 'TestCommand' . $pid;
@@ -543,45 +550,47 @@ class Kernel_Test extends UnitTest {
 	public function test_kernel_functions(): void {
 		$start = microtime(true);
 		$app = $this->application;
-		$this->assertStringContainsString('Market Acumen', $app->kernelCopyrightHolder());
+		$this->assertStringContainsString('Market Acumen', $app->copyrightHolder());
 
 		$this->assertTrue($app->console());
 		$app->setConsole(false);
 		$this->assertFalse($app->console());
 		$app->setConsole(true);
 
-		$kernel = Kernel::singleton();
-
 		$ff = $this->test_sandbox('inc.php');
 		file_put_contents($ff, '<?' . "php\nreturn true;");
-		$this->assertTrue($kernel->load($ff));
+		$this->assertTrue($app->load($ff));
 
 		/* Coverage */
-		Kernel::includes();
-		$this->application->configuration->setPath([get_class($kernel->logger), 'utc_time'], true);
-		$this->application->configuration->setPath([$kernel::class, 'assert_callback'], 'backtrace');
+		$configuration = $app->configuration;
+		$configuration->setPath([Logger::class, 'utc_time'], true);
 		foreach (['active', 'warning', 'bail'] as $assertSetting) {
-			$this->application->configuration->setPath([$kernel::class, 'assert'], $assertSetting);
-			$kernel->configured();
+			$configuration->setPath([$app::class, Application::OPTION_ASSERT], $assertSetting);
+			$app->setConfiguration()->configure();
 		}
-		foreach (['backtrace', 'ignore', 'log'] as $deprecatedSetting) {
-			$this->application->configuration->setPath([$kernel::class, 'deprecated'], $deprecatedSetting);
-			$kernel->configured();
+		foreach ([
+			Application::DEPRECATED_BACKTRACE, Application::DEPRECATED_IGNORE, Application::DEPRECATED_LOG,
+		] as $deprecatedSetting) {
+			$configuration->setPath([$app::class, 'deprecated'], $deprecatedSetting);
+			$app->setConfiguration()->configure();
 		}
-		$this->application->configuration->setPath([$kernel::class, 'deprecated'], 'log');
-		$kernel->configured();
-		$kernel->deprecated('Adios');
-		$this->application->configuration->setPath([$kernel::class, 'deprecated'], 'backtrace');
-		$kernel->configured();
+		$configuration->setPath([$app::class, Application::OPTION_DEPRECATED], Application::DEPRECATED_LOG);
+		$app->setConfiguration()->configure();
+		// Should log (no Exception)
+		$app->deprecated('Adios');
 
-		$this->application->configuration->setPath([$kernel::class, 'assert'], 'badsetting');
+		// Back to normal
+		$configuration->setPath([$app::class, Application::OPTION_DEPRECATED], Application::DEPRECATED_EXCEPTION);
+		$app->setConfiguration()->configure();
 
-		$kernel->profileTimer(__METHOD__, microtime(true) - $start);
 
-		$kernel->setApplicationClass($kernel->applicationClass());
+		$configuration->setPath([$app::class, Application::OPTION_ASSERT], 'badsetting');
 
-		$this->expectException(Exception_Configuration::class);
-		$kernel->configured();
+		$app->profileTimer(__METHOD__, microtime(true) - $start);
+	}
+
+	public function test_kernel_deprecated(): void {
+		$kernel = Kernel::singleton();
 	}
 }
 

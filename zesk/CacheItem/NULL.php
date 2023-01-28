@@ -4,6 +4,7 @@
  */
 namespace zesk;
 
+use DateTimeInterface;
 use Psr\Cache\CacheItemInterface;
 
 /**
@@ -18,7 +19,7 @@ class CacheItem_NULL implements CacheItemInterface {
 	 *
 	 * @var string
 	 */
-	private string $key = '';
+	private string $key;
 
 	/**
 	 *
@@ -47,7 +48,7 @@ class CacheItem_NULL implements CacheItemInterface {
 	 * The value returned must be identical to the value originally stored by set().
 	 *
 	 * If isHit() returns false, this method MUST return null. Note that null
-	 * is a legitimate cached value, so the isHit() method SHOULD be used to
+	 * is a legitimate value to cache, so the isHit() method SHOULD be used to
 	 * differentiate between "null value was found" and "no value was found."
 	 *
 	 * @return mixed
@@ -90,7 +91,7 @@ class CacheItem_NULL implements CacheItemInterface {
 	/**
 	 * Sets the expiration time for this cache item.
 	 *
-	 * @param \DateTimeInterface|null $expiration
+	 * @param DateTimeInterface|null $expiration
 	 *   The point in time after which the item MUST be considered expired.
 	 *   If null is passed explicitly, a default value MAY be used. If none is set,
 	 *   the value should be stored permanently or for as long as the

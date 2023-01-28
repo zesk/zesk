@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 /**
  * Date
- * @author Kent M. Davidson <kent@marketacumen.com>
+ * @author kent
  * @package zesk
  * @subpackage model
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * @see Base,DateTime,Time
  */
 
@@ -1019,7 +1019,7 @@ class Date extends Temporal {
 		try {
 			return $this->ymd(intval($year), intval($month), intval($day));
 		} catch (\OutOfBoundsException $e) {
-			zesk()->logger->critical("jdtogregorian returned date with invalid range ($set) go:" . self::_gregorian_offset());
+			PHP::log("jdtogregorian returned date with invalid range ($set) go:" . self::_gregorian_offset());
 			return $this;
 		}
 	}

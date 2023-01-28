@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage locale
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Locale;
@@ -13,8 +13,14 @@ namespace zesk\Locale;
  *
  */
 
+use zesk\Exception_File_NotFound;
+use zesk\Exception_File_Permission;
+use zesk\Exception_Semantics;
+use zesk\Exception_Unimplemented;
 use zesk\Interface_Module_Head;
 use zesk\Interface_Module_Routes;
+use zesk\Locale;
+use zesk\PHP;
 use zesk\Request;
 use zesk\Response;
 use zesk\Router;
@@ -46,7 +52,7 @@ class Module extends \zesk\Module implements Interface_Module_Head, Interface_Mo
 			]);
 			return;
 		}
-		$writer = new Writer($this->application, path($path, $locale->id() . '-auto.php'));
+		$writer = new Writer($this->application, path($path, $locale->id() . '-auto.php'), $locale->id());
 
 		try {
 			$writer->append($phrases, $phrasesContext);
@@ -62,12 +68,17 @@ class Module extends \zesk\Module implements Interface_Module_Head, Interface_Mo
 	 * @param Response $response
 	 */
 	public function hook_head(Request $request, Response $response, Template $template): void {
-		$response->javascript('/share/zesk/js/locale.js', [
-			'weight' => -20, 'share' => true,
-		]);
-		$response->javascript('/locale/js?ll=' . $this->application->locale->id(), [
-			'weight' => -10, 'is_route' => true, 'route_expire' => 3600, /* once an hour */
-		]);
+		try {
+			$response->html()->javascript('/share/Locale/js/locale.js', [
+				'weight' => -20, 'share' => true,
+			]);
+			$response->html()->javascript('/locale/js?ll=' . $this->application->locale->id(), [
+				'weight' => -10, 'is_route' => true, 'route_expire' => 3600, /* once an hour */
+			]);
+		} catch (Exception_Semantics $e) {
+			/* Should never happen - only if options contain 'after' or 'before' */
+			PHP::log($e);
+		}
 	}
 
 	/**

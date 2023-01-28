@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author $Author: kent $
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -275,13 +275,18 @@ class File {
 	 * @param string $filename
 	 *            Filename to map
 	 * @param string $pattern
-	 *            A destination pattern containing {dirname}, {basename}, {extension}, {filename},
-	 *            and {/} for directory separator
+	 *            A destination pattern containing {dirname}, {dirnamePrefix}, {basename}, {extension}, {filename},
+	 *            and {/} for directory separator. {dirnamePrefix} is a derived value which matches characters before
+	 *            the filename and includes a trailing DIRECTORY_SEPARATOR if non-blank.
 	 * @return string
 	 */
-	public static function map_pathinfo(string $filename, string $pattern): string {
-		return map($pattern, pathinfo($filename) + [
-			'/' => DIRECTORY_SEPARATOR,
+	public static function mapPathInfo(string $filename, string $pattern): string {
+		$pathInfo = pathinfo($filename);
+		$dirName = $pathInfo['dirname'] ?? '.';
+		$sep = DIRECTORY_SEPARATOR;
+		$pathInfo['dirnamePrefix'] = $dirName !== '.' || str_starts_with($filename, ".$sep") ? $dirName . $sep : '';
+		return map($pattern, $pathInfo + [
+			'/' => $sep,
 		]);
 	}
 
@@ -291,8 +296,8 @@ class File {
 	 * @param string $filename
 	 * @return string
 	 */
-	public static function strip_extension(string $filename): string {
-		return self::map_pathinfo($filename, '{dirname}{/}{filename}');
+	public static function stripExtension(string $filename): string {
+		return self::mapPathInfo($filename, '{dirnamePrefix}{filename}');
 	}
 
 	/**
@@ -564,7 +569,7 @@ class File {
 	public static function open(string $filename, string $mode): mixed {
 		$res = fopen($filename, $mode);
 		if (!$res) {
-			throw new Exception_File_Permission($filename, 'File::open("{filename}", "{mode}") failed', [
+			throw new Exception_File_Permission($filename, 'File::open("{path}", "{mode}") failed', [
 				'mode' => $mode,
 			]);
 		}

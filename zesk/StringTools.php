@@ -10,6 +10,102 @@ namespace zesk;
  * String manipulation functions, largely based on latin languages.
  */
 class StringTools {
+	/**
+	 * Breaks a string in half at a given delimiter, and returns default values if delimiter is not
+	 * found.
+	 *
+	 * Usage is generally:
+	 *
+	 * list($table, $field) = pair($thing, ".", $default_table, $thing);
+	 *
+	 * @param string $a A string to parse into a pair
+	 * @param string $delim The delimiter to break the string apart
+	 * @param string $left The default left value if delimiter is not found
+	 * @param string $right The default right value if delimiter is not found
+	 * @param string $include_delimiter If "left" includes the delimiter in the left value, if "right" includes the
+	 *  delimiter in the right value Any other value the delimiter is stripped from the results
+	 * @return array A size 2 array containing the left and right portions of the pair
+	 */
+	public static function pair(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
+		$n = strpos($a, $delim);
+		$delim_len = strlen($delim);
+		return ($n === false) ? [
+			$left, $right,
+		] : [
+			substr($a, 0, $n + ($include_delimiter === 'left' ? $delim_len : 0)),
+			substr($a, $n + ($include_delimiter === 'right' ? 0 : $delim_len)),
+		];
+	}
+
+	/**
+	 * Same as pair, but does a reverse search for the delimiter
+	 *
+	 * @param string $a
+	 *            A string to parse into a pair
+	 * @param string $delim
+	 *            The delimiter to break the string apart
+	 * @param string $left
+	 *            The default left value if delimiter is not found
+	 * @param string $right
+	 *            The default right value if delimiter is not found
+	 * @param string $include_delimiter
+	 *            If "left" includes the delimiter in the left value
+	 *            If "right" includes the delimiter in the right value
+	 *          Any other value the delimiter is stripped from the results
+	 * @return array A size 2 array containing the left and right portions of the pair
+	 * @see pair
+	 */
+	public static function reversePair(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
+		$n = strrpos($a, $delim);
+		$delim_len = strlen($delim);
+		return ($n === false) ? [
+			$left, $right,
+		] : [
+			substr($a, 0, $n + ($include_delimiter === 'left' ? $delim_len : 0)),
+			substr($a, $n + ($include_delimiter === 'right' ? 0 : $delim_len)),
+		];
+	}
+
+	/**
+	 * Generic function to create paths correctly. Note that any double-separators are removed and converted to single-slashes so
+	 * this is unsuitable for use with URLs. Use glue() instead.
+	 *
+	 * @param string $separator Token used to divide path
+	 * @param array $mixed List of path items, or array of path items to concatenate
+	 * @return string with a properly formatted path
+	 * @see glue
+	 * @see domain
+	 * @inline_test path_from_array("/", ["", "", ""]) === "/"
+	 * @inline_test path_from_array("/", ["", null, false]) === "/"
+	 * @inline_test path_from_array("/", ["", "", "", null, false, "a", "b"]) === "/a/b"
+	 */
+	public static function joinArray(string $separator, array $mixed): string {
+		$r = array_shift($mixed);
+		if (is_array($r)) {
+			$r = self::joinArray($separator, $r);
+		} elseif (!is_string($r)) {
+			$r = '';
+		}
+		foreach ($mixed as $p) {
+			if ($p === null) {
+				continue;
+			}
+			if (is_array($p)) {
+				$p = self::joinArray($separator, $p);
+			}
+			if (is_string($p)) {
+				$r .= ((substr($r, -1) === $separator || substr($p, 0, 1) === $separator)) ? $p : $separator . $p;
+			}
+		}
+		$separator_quoted = preg_quote($separator);
+		return preg_replace("|$separator_quoted$separator_quoted+|", $separator, $r);
+	}
+
+	/**
+	 * @param string $string
+	 * @param string $pattern
+	 * @return string
+	 */
 	public static function case_match(string $string, string $pattern): string {
 		$char1 = substr($pattern, 0, 1);
 		$char2 = substr($pattern, 1, 1);
@@ -20,36 +116,6 @@ class StringTools {
 		} else {
 			return strtoupper($string);
 		}
-	}
-
-	/**
-	 * Synonym for pair - split a string into a pair with defaults
-	 *
-	 * @param string $string
-	 * @param string $delim
-	 * @param string $left
-	 * @param string $right
-	 * @return array
-	 * @see pair
-	 */
-	public static function pair(string $string, string $delim = '.', mixed $left = null, mixed $right = null): array {
-		return pair($string, $delim, $left, $right);
-	}
-
-	/**
-	 * Synonym for pairr - split a string into a pair with defaults, searching backwards for
-	 * delimiter
-	 *
-	 * @param string $string
-	 * @param string $delim
-	 * @param string $left
-	 * @param string $right
-	 * @return array
-	 * @see reversePair
-	 */
-	public static function reversePair(string $string, string $delim = '.', mixed $left = null, mixed $right = null):
-	array {
-		return reversePair($string, $delim, $left, $right);
 	}
 
 	/**
@@ -159,7 +225,7 @@ class StringTools {
 	}
 
 	/**
-	 * Capitalize words in a sentence -> Captialize Words In A Sentence.
+	 * Capitalize words in a sentence -> Capitalize Words In A Sentence.
 	 *
 	 * @param string $phrase
 	 * @return string
@@ -216,7 +282,7 @@ class StringTools {
 	 * @param string|array $needle
 	 *            String(s) to find
 	 * @param boolean $case_insensitive
-	 *            Case insensitive comparison
+	 *            Case-insensitive comparison
 	 * @return boolean Whether any haystack begins with any needle
 	 * @see begins
 	 */
@@ -316,7 +382,7 @@ class StringTools {
 	}
 
 	/**
-	 * Unprefix a string (remove a prefix if found at start of a string)
+	 * Remove prefix from a string (if found at start of a string)
 	 *
 	 * @param string|array $string
 	 * @param string|array $prefix A string or an array of strings to removePrefix. First matched string is used to
@@ -353,6 +419,7 @@ class StringTools {
 	 * @param mixed $suffix
 	 *            A string or an array of strings to removeSuffix. First matched string is used to
 	 *            removeSuffix the string.
+	 * @param bool $case_insensitive
 	 * @return string|array
 	 */
 	public static function removeSuffix(string|array $string, string $suffix, bool $case_insensitive = false): string|array {
@@ -372,6 +439,7 @@ class StringTools {
 	 * Based on presence of BOM
 	 *
 	 * @param string $str
+	 * @param bool $be
 	 * @return boolean
 	 */
 	public static function isUTF16(string $str, bool &$be = false): bool {
@@ -482,7 +550,7 @@ class StringTools {
 	}
 
 	/**
-	 * Replace first occurrance of a strings in another string
+	 * Replace first occurrence of a strings in another string
 	 *
 	 * If not found, return the content unchanged.
 	 *
@@ -564,6 +632,7 @@ class StringTools {
 	 * @see http://www.nntp.perl.org/group/perl.macperl.anyperl/154
 	 * @param string $text
 	 * @param int $tab_width
+	 * @param string $replace
 	 * @return string
 	 */
 	public static function replaceTabs(string $text, int $tab_width = -1, string $replace = ' '): string {
@@ -575,7 +644,7 @@ class StringTools {
 	}
 
 	/**
-	 * Split a multi-byte string into characters/glyphs
+	 * Split a multibyte string into characters/glyphs
 	 *
 	 * If the optional split_length parameter is specified, the returned array will be broken down
 	 * into chunks with each being split_length in length, otherwise each chunk will be one
@@ -585,6 +654,8 @@ class StringTools {
 	 * length of string, the entire string is returned as the first (and only) array element.
 	 *
 	 * @param string $string
+	 * @param int $split_length
+	 * @param string $encoding
 	 * @return array
 	 */
 	public static function split(string $string, int $split_length = 1, string $encoding = 'UTF-8'): array {
@@ -610,26 +681,26 @@ class StringTools {
 	 *
 	 * "Hello", he said.
 	 *
-	 * @param string $x
+	 * @param string $cell
 	 *            A value to write to a CSV file
 	 * @return string A correctly quoted CSV value
 	 */
-	public static function csvQuote(string $x): string {
-		if ((str_contains($x, '"')) || (str_contains($x, ',')) || (str_contains($x, "\n"))) {
-			return '"' . str_replace('"', '""', $x) . '"';
+	public static function csvQuote(string $cell): string {
+		if ((str_contains($cell, '"')) || (str_contains($cell, ',')) || (str_contains($cell, "\n"))) {
+			return '"' . str_replace('"', '""', $cell) . '"';
 		}
-		return $x;
+		return $cell;
 	}
 
 	/**
 	 * Quote a single CSV row
 	 *
-	 * @param array $x
+	 * @param array $row
 	 * @return string
 	 */
-	public static function csvQuoteRow(array $x): string {
+	public static function csvQuoteRow(array $row): string {
 		$yy = [];
-		foreach ($x as $col) {
+		foreach ($row as $col) {
 			$yy[] = self::csvQuote($col);
 		}
 		return implode(',', $yy) . "\r\n";
@@ -638,13 +709,13 @@ class StringTools {
 	/**
 	 * Quote multiple CSV rows
 	 *
-	 * @param array $x
+	 * @param array $rows
 	 *            of arrays of strings
 	 * @return string
 	 */
-	public static function csvQuoteRows(array $x): string {
+	public static function csvQuoteRows(array $rows): string {
 		$yy = '';
-		foreach ($x as $row) {
+		foreach ($rows as $row) {
 			$yy .= self::csvQuoteRow($row);
 		}
 		return $yy;

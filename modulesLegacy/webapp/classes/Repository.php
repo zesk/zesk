@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage webapp
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk\WebApp;
 
@@ -14,7 +14,7 @@ use zesk\Application;
  * @author kent
  *
  */
-class Repository extends ORM {
+class Repository extends ORMBase {
 	/**
 	 * Every hour, update all versions, but only if they are blank
 	 *

@@ -4,8 +4,8 @@
  *
  * @package zesk
  * @subpackage widgets
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  *
  * @see Control_Select
  * @see Control_Select_Other

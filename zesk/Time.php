@@ -4,14 +4,14 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 /**
  * Time of day
  *
- * @author Kent M. Davidson <kent@marketacumen.com>
+ * @author kent
  * @package zesk
  * @subpackage model
  */

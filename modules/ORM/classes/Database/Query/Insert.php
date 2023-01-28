@@ -6,21 +6,21 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
 
+use Throwable;
 use zesk\Database;
 use zesk\Database\QueryResult;
 use zesk\Database_Exception;
 use zesk\Database_Exception_Duplicate;
 use zesk\Database_Exception_SQL;
 use zesk\Database_Exception_Table_NotFound;
-use zesk\Exception_Class_NotFound;
 use zesk\Exception_Deprecated;
-use zesk\Exception_Parameter;
 use zesk\Exception_Semantics;
+use zesk\PHP;
 
 /**
  *
@@ -139,7 +139,7 @@ class Database_Query_Insert extends Database_Query_Edit {
 	public function __toString() {
 		try {
 			return $this->toSQL();
-		} catch (\Throwable $t) {
+		} catch (Throwable $t) {
 			PHP::log($t);
 			return '';
 		}
@@ -223,16 +223,5 @@ class Database_Query_Insert extends Database_Query_Edit {
 	 */
 	public function result(): ?int {
 		return $this->result;
-	}
-
-	/**
-	 * @return $this
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound|Database_Exception
-	 * @deprecated 2022-05
-	 */
-	public function exec(): self {
-		return $this->execute();
 	}
 }

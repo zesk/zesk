@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2017 Zesk Foundation
+ * @copyright &copy; 2023 Market Acumen, Inc.
  * @author kent
  * @category Management
  */

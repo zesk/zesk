@@ -22,6 +22,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 
 	/**
 	 * Is a value set in this object?
+	 * @param string $name
 	 * @return boolean
 	 */
 	public function __isset(string $name): bool {
@@ -30,6 +31,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 
 	/**
 	 * Is a value set in this object?
+	 * @param string $name
 	 * @return boolean
 	 */
 	public function has(string $name): bool {
@@ -48,22 +50,11 @@ class Adapter_Settings_Array implements Interface_Settings {
 	/**
 	 * Retrieve a value from the settings, returning a default value if not set
 	 * @param mixed $name A string or key value (integer, float)
-	 * @param mixed $default A value to return if the session value is null
+	 * @param mixed|null $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
-	public function get(string $name = null, $default = null): mixed {
+	public function get(string $name = null, mixed $default = null): mixed {
 		return apath($this->data, $name, $default, ZESK_GLOBAL_KEY_SEPARATOR);
-	}
-
-	/**
-	 * Retrieve a value from the settings, returning a default value if empty or not set
-	 * @param mixed $name A string or key value (integer, float)
-	 * @param mixed $default A value to return if the session value is null
-	 * @return mixed The value of the session variable, or $default if nothing set
-	 */
-	public function eget(string $name, $default = null): mixed {
-		$value = $this->get($name);
-		return empty($value) ? $default : $value;
 	}
 
 	/**
@@ -81,7 +72,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 *
 	 * @param mixed $name A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
-	 * @return Interface_Settings
+	 * @return self
 	 */
 	public function set(string $name, mixed $value = null): self {
 		$this->__set($name, $value);

@@ -6,8 +6,8 @@ declare(strict_types=1);
  * Dates and times are stored using UTC.
  * @package zesk
  * @subpackage session
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Session;

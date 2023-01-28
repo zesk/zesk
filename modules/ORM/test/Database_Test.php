@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
@@ -772,11 +772,10 @@ class Database_Test extends DatabaseUnitTest {
 	public function test_url(): void {
 		$db = $this->application->databaseRegistry();
 		$this->assertIsString($db->url());
-		$this->assertIsString($db->url(''));
-		$this->assertIsString($db->url('user'));
-		$this->assertIsString($db->url('scheme'));
-		$this->assertIsString($db->url('name'));
-		$this->assertIsString($db->url('host'));
-		$this->assertIsString($db->url('pass'));
+		$this->assertIsString($db->urlComponent('user'));
+		$this->assertIsString($db->urlComponent('scheme'));
+		$this->assertIsString($db->urlComponent('name'));
+		$this->assertIsString($db->urlComponent('host'));
+		$this->assertIsString($db->urlComponent('pass'));
 	}
 }

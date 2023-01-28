@@ -141,7 +141,7 @@ class Controls_Test extends TestWidget {
 		$object = new Test_COLT_Object($this->application);
 		$table = $object->table();
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($object->schema());
 
@@ -187,7 +187,7 @@ class Controls_Test extends TestWidget {
 	}
 
 	public function test_Control_Link_Object(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$table = 'Test_LinkObject';
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query("CREATE TABLE $table ( A int(11) unsigned NOT NULL, B int(11) unsigned NOT NULL, UNIQUE ab (A,B) )");

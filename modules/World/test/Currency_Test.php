@@ -22,10 +22,12 @@ class Currency_Test extends ORMUnitTest {
 	 * @return array[]
 	 */
 	public function classes_to_test(): array {
+		$this->setUp();
+
 		return [
 			[
 				Currency::class,
-				[],
+				[Currency::MEMBER_BANK_COUNTRY => Country::findCountry($this->application, 'US')],
 			],
 		];
 	}
@@ -36,7 +38,7 @@ class Currency_Test extends ORMUnitTest {
 	 * @param array $options
 	 * @dataProvider classes_to_test
 	 */
-	public function test_classes(string $class, array $options = []): void {
-		$this->assertORMClass($class, $options);
+	public function test_classes(string $class, mixed $mixed = null, array $options = []): void {
+		$this->assertORMClass($class, $mixed, $options);
 	}
 }

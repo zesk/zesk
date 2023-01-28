@@ -56,7 +56,7 @@ class Route_Controller extends Route {
 				'type' => type($action),
 			]);
 		}
-		$this->controller = $this->_controllerFactory();
+		$this->controller = $this->controller();
 	}
 
 	/**
@@ -105,7 +105,7 @@ class Route_Controller extends Route {
 	 * @return Controller
 	 * @throws Exception_Class_NotFound
 	 */
-	private function _controllerFactory(): Controller {
+	public function controller(): Controller {
 		$reflectionClass = $this->_controllerReflection();
 
 		try {
@@ -193,7 +193,7 @@ class Route_Controller extends Route {
 			] + $this->variables());
 		}
 		$this->_mapOptions();
-		$controller = $this->_controllerFactory();
+		$controller = $this->controller();
 		$map = $controller->getRouteMap($action, $object, $options) + $map;
 		$this->_unmapOptions();
 		return $map;

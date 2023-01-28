@@ -1,11 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk;
 
+use InvalidArgumentException;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Throwable;
 
 /**
  *
@@ -17,41 +21,47 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *
 	 * @var string
 	 */
-	private $path = null;
+	private string $path = '';
 
 	/**
 	 *
 	 * @var CacheItem[]
 	 */
-	private $deferred = [];
+	private array $deferred = [];
 
 	/**
 	 *
 	 * @param string $path
 	 * @throws Exception_Directory_NotFound
 	 */
-	public function __construct($path) {
+	public function __construct(string $path) {
 		if (!is_dir($path)) {
 			throw new Exception_Directory_NotFound($path);
 		}
-		$this->path($path);
+		$this->setPath($path);
 	}
 
 	/**
 	 * Path setter/getter. Setting path will write deferred items to new path.
 	 *
 	 * @param string $path
+	 * @return self
 	 * @throws Exception_Directory_NotFound
-	 * @return \zesk\CacheItemPool_File|string
 	 */
-	public function path($path = null) {
-		if ($path !== null) {
-			if (!is_dir($path)) {
-				throw new Exception_Directory_NotFound($path);
-			}
-			$this->path = realpath($path);
-			return $this;
+	public function setPath(string $path): self {
+		if (!is_dir($path)) {
+			throw new Exception_Directory_NotFound($path);
 		}
+		$this->path = realpath($path);
+		return $this;
+	}
+
+	/**
+	 * Path getter
+	 *
+	 * @return string
+	 */
+	public function path(): string {
 		return $this->path;
 	}
 
@@ -64,31 +74,30 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @param string $key
 	 *   The key for which to return the corresponding Cache Item.
 	 *
+	 * @return CacheItemInterface
+	 *   The corresponding Cache Item.
 	 * @throws InvalidArgumentException
 	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 *
-	 * @return CacheItemInterface
-	 *   The corresponding Cache Item.
 	 */
-	public function getItem($key) {
+	public function getItem($key): CacheItemInterface {
 		if (!is_string($key)) {
-			throw new Exception_Parameter('{method} passed {type}, needs string', [
-				'method' => __METHOD__,
-				'type' => type($key),
-			]);
+			throw new InvalidArgumentException(map('{method} passed {type}, needs string', [
+				'method' => __METHOD__, 'type' => type($key),
+			]));
 		}
-		$cache_file = $this->cache_file($key);
+		$cache_file = $this->cacheFile($key);
 		// Previously did "is_file", then "file_get_contents", but a race condition would create warnings in our logs when files were deleted
 		// So, since file_get_contents is probably doing an is_file check internally anyway, just skip it since handling is identical
-		$contents = @file_get_contents($cache_file);
+		$contents = is_readable($cache_file) ? file_get_contents($cache_file) : null;
 		if (is_string($contents)) {
 			try {
-				$item = PHP::unserialize(@$contents);
+				$item = PHP::unserialize($contents);
 				if ($item instanceof CacheItem && !$item->expired()) {
 					return $item;
 				}
-			} catch (\Exception $e) {
+			} catch (Throwable) {
 			}
 		}
 		return new CacheItem($key, null, false);
@@ -100,17 +109,17 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @param string[] $keys
 	 *   An indexed array of keys of items to retrieve.
 	 *
-	 * @throws InvalidArgumentException
-	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
-	 *   MUST be thrown.
-	 *
-	 * @return array|\Traversable
+	 * @return iterable
 	 *   A traversable collection of Cache Items keyed by the cache keys of
 	 *   each item. A Cache item will be returned for each key, even if that
 	 *   key is not found. However, if no keys are specified then an empty
 	 *   traversable MUST be returned instead.
+	 * @throws InvalidArgumentException
+	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
+	 *   MUST be thrown.
+	 *
 	 */
-	public function getItems(array $keys = []) {
+	public function getItems(array $keys = []): iterable {
 		$result = [];
 		foreach ($keys as $index => $key) {
 			$result[$index] = $this->getItem($key);
@@ -128,15 +137,15 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @param string $key
 	 *   The key for which to check existence.
 	 *
+	 * @return bool
+	 *   True if item exists in the cache, false otherwise.
 	 * @throws InvalidArgumentException
 	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 *
-	 * @return bool
-	 *   True if item exists in the cache, false otherwise.
 	 */
-	public function hasItem($key) {
-		return is_file($this->cache_file($key));
+	public function hasItem($key): bool {
+		return is_file($this->cacheFile($key));
 	}
 
 	/**
@@ -145,8 +154,12 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if the pool was successfully cleared. False if there was an error.
 	 */
-	public function clear() {
-		Directory::deleteContents($this->path);
+	public function clear(): bool {
+		try {
+			Directory::deleteContents($this->path);
+		} catch (Exception_File_Permission|Exception_Directory_Permission|Exception_Directory_NotFound) {
+			return false;
+		}
 		return true;
 	}
 
@@ -156,17 +169,18 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @param string $key
 	 *   The key to delete.
 	 *
-	 * 1	 * @throws InvalidArgumentException
+	 * 1     * @return bool
+	 *   True if the item was successfully removed. False if there was an error.
+	 * @throws InvalidArgumentException
 	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 *
-	 * @return bool
-	 *   True if the item was successfully removed. False if there was an error.
 	 */
-	public function deleteItem($key) {
+	public function deleteItem($key): bool {
 		try {
-			return File::unlink($this->cache_file($key));
-		} catch (Exception_File_Permission $e) {
+			File::unlink($this->cacheFile($key));
+			return true;
+		} catch (Exception_File_Permission) {
 			return false;
 		}
 	}
@@ -177,17 +191,21 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @param string[] $keys
 	 *   An array of keys that should be removed from the pool.
 	 *
+	 * @return bool
+	 *   True if the items were successfully removed. False if there was an error.
 	 * @throws InvalidArgumentException
 	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 *
-	 * @return bool
-	 *   True if the items were successfully removed. False if there was an error.
 	 */
-	public function deleteItems(array $keys) {
+	public function deleteItems(array $keys): bool {
+		$success = true;
 		foreach ($keys as $key) {
-			$this->deleteItem($key);
+			if (!$this->deleteItem($key)) {
+				$success = false;
+			}
 		}
+		return $success;
 	}
 
 	/**
@@ -199,12 +217,17 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if the item was successfully persisted. False if there was an error.
 	 */
-	public function save(CacheItemInterface $item) {
+	public function save(CacheItemInterface $item): bool {
 		$key = $item->getKey();
-		$file = $this->cache_file($key);
-		Directory::depend(dirname($file), 0o770);
-		File::put($file, serialize($item));
-		return false;
+		$file = $this->cacheFile($key);
+
+		try {
+			Directory::depend(dirname($file), 0o770);
+			File::put($file, serialize($item));
+			return true;
+		} catch (Exception_Directory_Create|Exception_Directory_Permission|Exception_File_Permission) {
+			return false;
+		}
 	}
 
 	/**
@@ -216,8 +239,8 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @return bool
 	 *   False if the item could not be queued or if a commit was attempted and failed. True otherwise.
 	 */
-	public function saveDeferred(CacheItemInterface $item) {
-		$this->deferred[$this->cache_name($item->getKey())] = $item;
+	public function saveDeferred(CacheItemInterface $item): bool {
+		$this->deferred[$this->cacheName($item->getKey())] = $item;
 		return true;
 	}
 
@@ -227,11 +250,12 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if all not-yet-saved items were successfully saved or there were none. False otherwise.
 	 */
-	public function commit() {
+	public function commit(): bool {
 		foreach ($this->deferred as $item) {
 			$this->save($item);
 		}
 		$this->deferred = [];
+		return true;
 	}
 
 	/**
@@ -240,7 +264,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @param string $key
 	 * @return string
 	 */
-	private function cache_name($key) {
+	private function cacheName(string $key): string {
 		$clean = File::name_clean($key);
 		$hash = md5($key);
 		return substr($hash, 0, 1) . '/' . substr($hash, 1) . '^' . substr($clean, 0, 32);
@@ -252,7 +276,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @param string $key
 	 * @return string
 	 */
-	private function cache_file($key) {
-		return path($this->path, $this->cache_name($key));
+	private function cacheFile(string $key): string {
+		return path($this->path, $this->cacheName($key));
 	}
 }

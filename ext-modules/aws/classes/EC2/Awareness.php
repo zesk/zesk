@@ -17,7 +17,7 @@ use zesk\System;
 /**
  * Collect, store, and manage EC2 Awareness meta data
  *
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  * @author kent
  *
  */
@@ -134,7 +134,7 @@ class Awareness extends Hookable {
 		$this->inheritConfiguration();
 
 		try {
-			$this->cache = $this->application->cache->getItem(__CLASS__);
+			$this->cache = $this->application->cacheItemPool()->getItem(__CLASS__);
 		} catch (\InvalidArgumentException) {
 			$this->cache = null;
 		}

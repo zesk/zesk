@@ -3,8 +3,8 @@
  * @version $Id: Preference.php 4412 2017-03-08 05:16:44Z kent $
  * @package zesk
  * @subpackage user
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk\Preference;
 

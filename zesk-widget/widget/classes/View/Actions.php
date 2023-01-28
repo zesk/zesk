@@ -3,8 +3,8 @@
 /**
  * @package zesk
  * @subpackage widgets
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * Created on Tue Jun 17 00:58:51 EDT 2008
  */
 namespace zesk;

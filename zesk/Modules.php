@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Ideally we should be able to serialize this entire structure and load again from cache so side effects should be
  * tracked when loading modules (hooks, etc.) or repeated upon __wakeup() in your module itself.
  *
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -112,6 +112,15 @@ class Modules {
 	 * @return array
 	 */
 	final public function available(): array {
+		return array_keys($this->availableConfiguration());
+	}
+
+	/**
+	 * Return [moduleName => configurationFilePath]
+	 *
+	 * @return array
+	 */
+	final public function availableConfiguration(): array {
 		$module_paths = $this->application->modulePath();
 		$files = [];
 		/* Walk all non-dot directories, looking for .module.json files */
@@ -139,7 +148,7 @@ class Modules {
 				}
 			}
 		}
-		return array_keys($available);
+		return $available;
 	}
 
 	/**
@@ -358,11 +367,14 @@ class Modules {
 	 * @throws Exception_Directory_NotFound
 	 */
 	private function _findModulePath(string $name): string {
+		$modulePath = $this->application->modulePath();
+
 		try {
-			return Directory::findFirst($this->application->modulePath(), $name);
+			return Directory::findFirst($modulePath, $name);
 		} catch (Exception_NotFound) {
-			throw new Exception_Directory_NotFound($name, '{class}::module({name}) was not found at {name} (base is {base})', [
-				'class' => get_class($this), 'name' => $name, 'base' => self::moduleBaseName($name),
+			throw new Exception_Directory_NotFound($name, '{name} was not found in {modulePath}', [
+				'class' => get_class($this), 'name' => $name, 'modulePath' => $modulePath, 'base' =>
+					self::moduleBaseName($name),
 			]);
 		}
 	}

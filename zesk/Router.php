@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -193,14 +193,14 @@ class Router extends Hookable {
 	 */
 	public function cache(string $id): self {
 		try {
-			$item = $this->application->cache->getItem(__CLASS__);
+			$item = $this->application->cacheItemPool()->getItem(__CLASS__);
 		} catch (InvalidArgumentException $e) {
 			throw new Exception_NotFound($e->getMessage());
 		}
 		$value = new stdClass();
 		$value->id = $id;
 		$value->router = $this;
-		$this->application->cache->saveDeferred($item->set($value));
+		$this->application->cacheItemPool()->saveDeferred($item->set($value));
 		return $this;
 	}
 
@@ -213,7 +213,7 @@ class Router extends Hookable {
 	 */
 	public function cached(string $id = ''): Router {
 		try {
-			$item = $this->application->cache->getItem(__CLASS__);
+			$item = $this->application->cacheItemPool()->getItem(__CLASS__);
 		} catch (InvalidArgumentException $e) {
 			throw new Exception_NotFound($e->getMessage());
 		}
@@ -283,8 +283,10 @@ class Router extends Hookable {
 	}
 
 	/**
+	 * Direct mapping of path -> new path during match
+	 *
 	 * @param string $from
-	 * @param string $to
+	 * @param string $to - The ID of the route to match
 	 * @return $this
 	 */
 	public function addAlias(string $from, string $to): self {
@@ -368,6 +370,7 @@ class Router extends Hookable {
 			$id = $route->getPattern();
 		}
 		$this->by_id[strtolower($id)] = $route;
+		$route->wasAdded($this);
 		return $route;
 	}
 
@@ -535,18 +538,18 @@ class Router extends Hookable {
 	}
 
 	/**
-	 * Retrieve a list of all known controllers
+	 * Retrieve a list of all controllers in the router
 	 *
 	 * @return array
 	 * @throws Exception_Class_NotFound
 	 */
 	public function controllers(): array {
-		$controllers = Controller::all($this->application);
-		$result = [];
-		$objects = $this->application->objects;
-		foreach ($controllers as $controller => $settings) {
-			$result[$controller] = $objects->factory($controller, $this->application);
+		$controllers = [];
+		foreach ($this->routes as $route) {
+			if ($route instanceof Route_Controller || method_exists($route, 'controller')) {
+				$controllers[] = $route->controller();
+			}
 		}
-		return $result;
+		return $controllers;
 	}
 }

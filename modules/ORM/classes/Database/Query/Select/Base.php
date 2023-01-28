@@ -4,8 +4,8 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Ruler, LLC
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Ruler, LLC
  */
 
 namespace zesk\ORM;
@@ -118,8 +118,10 @@ abstract class Database_Query_Select_Base extends Database_Query implements Sele
 	 *
 	 * @param string|int $field
 	 * @return int
-	 * @throws Database_Exception_NoResults
 	 * @throws Exception_Key
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_NoResults
+	 * @throws Database_Exception_Table_NotFound
 	 */
 	public function integer(string|int $field = 0): int {
 		return $this->database()->queryInteger($this->__toString(), $field);
@@ -238,17 +240,5 @@ abstract class Database_Query_Select_Base extends Database_Query implements Sele
 			throw new ORMNotFound($class);
 		}
 		return $this->application->ormFactory($class ?? $this->class, $result, ['from_database' => true, ] + $options + $this->ormClassOptions());
-	}
-
-	/**
-	 * @param int|string|null $key
-	 * @param int|string|null $value
-	 * @param array $default
-	 * @return array
-	 * @deprecated 2022-04
-	 */
-	public function to_array(int|string $key = null, int|string $value = null, array $default = []): array {
-		$this->application->deprecated(__METHOD__);
-		return $this->toArray($key, $value, $default);
 	}
 }

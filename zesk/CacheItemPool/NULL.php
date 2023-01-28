@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -22,14 +22,10 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
 	 * @param string $key
 	 *   The key for which to return the corresponding Cache Item.
 	 *
-	 * @throws InvalidArgumentException
-	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
-	 *   MUST be thrown.
-	 *
 	 * @return CacheItemInterface
 	 *   The corresponding Cache Item.
 	 */
-	public function getItem($key) {
+	public function getItem($key): CacheItemInterface {
 		return new CacheItem_NULL($key);
 	}
 
@@ -39,17 +35,13 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
 	 * @param string[] $keys
 	 *   An indexed array of keys of items to retrieve.
 	 *
-	 * @throws InvalidArgumentException
-	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
-	 *   MUST be thrown.
-	 *
-	 * @return array|\Traversable
+	 * @return array
 	 *   A traversable collection of Cache Items keyed by the cache keys of
 	 *   each item. A Cache item will be returned for each key, even if that
 	 *   key is not found. However, if no keys are specified then an empty
 	 *   traversable MUST be returned instead.
 	 */
-	public function getItems(array $keys = []) {
+	public function getItems(array $keys = []): array {
 		$result = [];
 		foreach ($keys as $index => $key) {
 			$result[$index] = $this->getItem($key);
@@ -67,14 +59,10 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
 	 * @param string $key
 	 *   The key for which to check existence.
 	 *
-	 * @throws InvalidArgumentException
-	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
-	 *   MUST be thrown.
-	 *
 	 * @return bool
 	 *   True if item exists in the cache, false otherwise.
 	 */
-	public function hasItem($key) {
+	public function hasItem($key): bool {
 		return false;
 	}
 
@@ -84,7 +72,7 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if the pool was successfully cleared. False if there was an error.
 	 */
-	public function clear() {
+	public function clear(): bool {
 		return true;
 	}
 
@@ -94,14 +82,10 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
 	 * @param string $key
 	 *   The key to delete.
 	 *
-	 * @throws InvalidArgumentException
-	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
-	 *   MUST be thrown.
-	 *
 	 * @return bool
 	 *   True if the item was successfully removed. False if there was an error.
 	 */
-	public function deleteItem($key) {
+	public function deleteItem($key): bool {
 		return true;
 	}
 
@@ -111,14 +95,10 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
 	 * @param string[] $keys
 	 *   An array of keys that should be removed from the pool.
 	 *
-	 * @throws InvalidArgumentException
-	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
-	 *   MUST be thrown.
-	 *
 	 * @return bool
 	 *   True if the items were successfully removed. False if there was an error.
 	 */
-	public function deleteItems(array $keys) {
+	public function deleteItems(array $keys): bool {
 		return true;
 	}
 
@@ -131,7 +111,7 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if the item was successfully persisted. False if there was an error.
 	 */
-	public function save(CacheItemInterface $item) {
+	public function save(CacheItemInterface $item): bool {
 		return false;
 	}
 
@@ -144,7 +124,7 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
 	 * @return bool
 	 *   False if the item could not be queued or if a commit was attempted and failed. True otherwise.
 	 */
-	public function saveDeferred(CacheItemInterface $item) {
+	public function saveDeferred(CacheItemInterface $item): bool {
 		return false;
 	}
 
@@ -154,7 +134,7 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if all not-yet-saved items were successfully saved or there were none. False otherwise.
 	 */
-	public function commit() {
+	public function commit(): bool {
 		return false;
 	}
 }

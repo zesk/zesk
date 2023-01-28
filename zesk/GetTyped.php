@@ -92,6 +92,21 @@ trait GetTyped {
 	}
 
 	/**
+	 * Get a value and convert it to a string, or return $default
+	 *
+	 * @param string|int $key
+	 * @param string $default
+	 * @return string
+	 */
+	public function getString(string|int $key, string $default = ''): string {
+		$r = $this->__get($key);
+		if ($r !== null) {
+			return strval($r);
+		}
+		return $default;
+	}
+
+	/**
 	 * Retrieve a variable as a double value
 	 *
 	 * @param string $name

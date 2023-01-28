@@ -5,7 +5,7 @@
  * @package ruler
  * @subpackage aws
  * @author $Author: kent $
- * @copyright Copyright &copy; 2022, Market Ruler, LLC
+ * @copyright Copyright &copy; 2023, Market Ruler, LLC
  */
 namespace aws\classes;
 

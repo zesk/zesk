@@ -1,7 +1,9 @@
 {
 	"name": "Daemon",
+	"description": "Easy daemonization for your multi-process application.",
 	"autoload": {
-		"classPrefix": "zesk\\Daemon\\"
+		"classPrefix": "zesk\\Daemon\\",
+		"path": "zesk/Daemon/"
 	},
 	"moduleClass": "zesk\\Daemon\\Module",
 	"requires": [

@@ -51,7 +51,7 @@ class Selection_Item extends ORMBase {
 		$what['*type'] = $new_type;
 		$object = $application->ormRegistry(__CLASS__);
 		$object->queryInsertSelect()
-			->addWhatIterable($what)
+			->appendWhat($what)
 			->addWhere('type', $old_type)
 			->execute();
 		foreach ($mapping as $old_query_id => $new_query_id) {

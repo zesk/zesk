@@ -70,10 +70,11 @@ class Command_Install extends Command_Base {
 		 * Now, reorder the classes based on dependencies within them.
 		 */
 		foreach ($objects_by_class as $class => $object) {
-			$requires = $conflicts = $install_before = $install_after = [];
 			$dependencies = $object->dependencies();
-			extract($dependencies, EXTR_IF_EXISTS);
-
+			$install_after = $dependencies['install_after'] ?? [];
+			$install_before = $dependencies['install_before'] ?? [];
+			$conflicts = $dependencies['conflicts'] ?? [];
+			$requires = $dependencies['requires'] ?? [];
 			$requires = toList($requires);
 			foreach ($requires as $require_class) {
 				$require = $objects_by_class[$require_class] ?? null;

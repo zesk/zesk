@@ -1,0 +1,13 @@
+{
+	"name": "Job",
+	"description": "Run background tasks which take a long time in a uniform manner.",
+	"requires": [
+		"ORM",
+		"Daemon"
+	],
+	"autoload": {
+		"classPrefix": "zesk\\Job\\",
+		"path": "zesk\\Job\\"
+	},
+	"moduleClass": "zesk\\Job\\Module"
+}

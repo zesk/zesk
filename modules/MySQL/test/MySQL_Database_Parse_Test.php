@@ -65,7 +65,7 @@ CREATE TABLE `TestTable` (
 EOF;
 
 	public function test_schema(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$table = $db->parseCreateTable(self::$schema, __METHOD__);
 		$this->assert_instanceof($table, 'zesk\\Database_Table');
 		$week = $table->column('Week');

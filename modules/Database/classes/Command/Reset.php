@@ -46,7 +46,7 @@ class Command_Reset extends Command {
 		PHP::requires('pcntl', true);
 
 		$dbname = $this->option('name');
-		$db = $this->application->database_registry($dbname);
+		$db = $this->application->databaseRegistry($dbname);
 		if (!$db) {
 			$this->error("No such database url for \"$dbname\"\n");
 			return self::EXIT_CODE_ARGUMENTS;

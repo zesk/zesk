@@ -11,8 +11,8 @@ class Module_reCAPTCHA extends Module {
 					'Control_reCAPTCHA',
 					$key,
 				];
-				if (!$configuration->path_get($target)) {
-					$configuration->path_set($target, $this->option($key));
+				if (!$configuration->getPath($target)) {
+					$configuration->setPath($target, $this->option($key));
 				}
 			} else {
 				$this->application->logger->critical('RECAPTCHA is misconfigured (no {key})', compact('key'));

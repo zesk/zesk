@@ -4,8 +4,8 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage server
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
@@ -15,9 +15,13 @@ use zesk\Database_Exception;
 use zesk\Database_Exception_Duplicate;
 use zesk\Database_Exception_SQL;
 use zesk\Database_Exception_Table_NotFound;
+use zesk\Exception_Class_NotFound;
 use zesk\Exception_Configuration;
+use zesk\Exception_Convert;
 use zesk\Exception_Key;
+use zesk\Exception_NotFound;
 use zesk\Exception_Parameter;
+use zesk\Exception_Parse;
 use zesk\Exception_Semantics;
 use zesk\Exception_Timeout;
 use zesk\Exception_Unimplemented;
@@ -62,13 +66,16 @@ class Lock extends ORMBase {
 	 * @param Application $application
 	 * @param string $code
 	 * @return Lock
+	 * @throws Database_Exception_SQL
 	 * @throws Exception_Configuration
 	 * @throws Exception_Key
 	 * @throws Exception_ORMEmpty
 	 * @throws Exception_Parameter
 	 * @throws Exception_Semantics
-	 * @throws Exception_Unimplemented
-	 * @throws Database_Exception_SQL
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Convert
+	 * @throws Exception_NotFound
+	 * @throws Exception_Parse
 	 */
 	public static function instance(Application $application, string $code): self {
 		/* @var $lock Lock */

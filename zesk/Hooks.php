@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage kernel
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -33,12 +33,14 @@ class Hooks {
 	public const HOOK_CONFIGURED = 'configured';
 
 	/**
+	 * Reset the entire zesk application context
 	 *
 	 * @var string
 	 */
 	public const HOOK_RESET = 'reset';
 
 	/**
+	 * Called when the process is going to exit
 	 *
 	 * @var string
 	 */
@@ -53,9 +55,9 @@ class Hooks {
 
 	/**
 	 *
-	 * @var Kernel
+	 * @var Application
 	 */
-	public Kernel $kernel;
+	public Application $application;
 
 	/**
 	 * Determine which hooks are looked at/tested for existence.
@@ -99,22 +101,10 @@ class Hooks {
 
 	/**
 	 *
-	 * @param Kernel $kernel
+	 * @param Application $application
 	 */
-	public function __construct(Kernel $kernel) {
-		$this->kernel = $kernel;
-		$hooks = $this;
-		/*  TODO PHP7 use closure */
-		register_shutdown_function(function () use ($hooks): void {
-			try {
-				$hooks->call(self::HOOK_EXIT, $this->kernel->application());
-			} catch (Throwable) {
-				// Be the river.
-			}
-		});
-		register_shutdown_function(function () use ($hooks): void {
-			$hooks->_applicationExitCheck();
-		});
+	public function __construct(Application $application) {
+		$this->application = $application;
 	}
 
 	private static array $fatalErrors = [
@@ -125,7 +115,7 @@ class Hooks {
 	/**
 	 * Shutdown function to log errors
 	 */
-	public function _applicationExitCheck(): void {
+	private function _applicationExitCheck(): void {
 		$prefix = 'Application Exit Check: ';
 		if ($err = error_get_last()) {
 			if (isset(self::$fatalErrors[$err['type']])) {
@@ -177,7 +167,7 @@ class Hooks {
 	/**
 	 * Given a passed-in hook name, normalize it and return the internal name
 	 *
-	 * @param string $name  Hook name
+	 * @param string $name Hook name
 	 * @return string
 	 */
 	private function _hookName(string $name): string {
@@ -218,12 +208,12 @@ class Hooks {
 	/**
 	 * Called on classes which may register hooks in Zesk using $hooks->add().
 	 *
-	 * A list of classes is passed in which are autoloaded and
-	 * then ::hooks is called for them. Every call is called once and only once, order must not
-	 * matter, but can be
+	 * A list of classes are loaded using the Autoloader and then ::hooks is called for each class
+	 * if it exists.
+	 *
+	 * Every call is called once and only once per-Application, order must not matter, but can be
 	 * enforced by calling $hooks->registerClass('dependency1;dependency2'); as the first line to
-	 * your hooks
-	 * registration call.
+	 * your hooks registration call.
 	 *
 	 * Note that the chosen "::hooks" calls should pretty much do one thing: call`$hooks->add(...)`
 	 * and that's it,
@@ -278,7 +268,7 @@ class Hooks {
 		}
 		if (method_exists($class, 'hooks')) {
 			try {
-				call_user_func([$class, 'hooks', ], $this->kernel->application());
+				call_user_func([$class, 'hooks', ], $this->application);
 				$this->hooksCalled[$lowClass] = microtime(true);
 			} catch (Throwable $e) {
 				$this->hooksCalled[$lowClass] = $e;
@@ -286,9 +276,10 @@ class Hooks {
 				$this->call('exception', $e);
 			}
 		} elseif ($this->debug) {
-			$this->kernel->logger->debug('{__CLASS__}::{__FUNCTION__} Class {class} does not have method hooks', [
+			$args = [
 				'__CLASS__' => __CLASS__, '__FUNCTION__' => __FUNCTION__, 'class' => $class,
-			]);
+			];
+			$this->application->logger->debug('{__CLASS__}::{__FUNCTION__} Class {class} does not have method hooks', $args);
 			$this->hooksCalled[$lowClass] = false;
 		}
 	}
@@ -352,11 +343,11 @@ class Hooks {
 	 *
 	 * - 'first' - boolean. Optional. Invoke this hook first before all other hooks
 	 * - 'last' - boolean. Optional. Invoke this hook last after all other hooks
-	 * - 'arguments' - array. A list of arguments to pass to the hook. Any additional argments are
+	 * - 'arguments' - array. A list of arguments to pass to the hook. Any additional arguments are
 	 * passed after these.
 	 *
 	 * @param string $hook
-	 *            Hook name. Can be any string. Typically of the form CLASS::method
+	 *            Hook name. Can be any string, typically CLASS::method
 	 * @param mixed $function
 	 *            A function or class name, or an array to specify an object method or object static
 	 *            method.
@@ -373,9 +364,11 @@ class Hooks {
 		} else {
 			$hook_group = $this->hooks[$hook];
 		}
-		$callable_string = $this->callable_string($function);
+		$callable_string = $options['id'] ?? $this->callable_string($function);
 		if ($hook_group->has($callable_string)) {
-			$this->kernel->logger->debug('Duplicate registration of hook {callable}', ['callable' => $callable_string, ]);
+			$this->application->logger->debug('Duplicate registration of hook {callable}', [
+				'callable' => $callable_string,
+			]);
 			return;
 		}
 		$options['callable'] = $function;
@@ -397,11 +390,7 @@ class Hooks {
 	public function findAll(array|string $class_methods): array {
 		$methods = [];
 
-		try {
-			$application = $this->kernel->application();
-		} catch (Exception_Semantics) {
-			return [];
-		}
+		$application = $this->application;
 		foreach (toList($class_methods) as $class_method) {
 			[$class, $method] = pair($class_method, '::', '', $class_method);
 			if ($class === '') {
@@ -409,7 +398,7 @@ class Hooks {
 			}
 			$application->hooks->registerClass($class);
 			$application->classes->register($class);
-			foreach ($this->kernel->classes->subclasses($class) as $class) {
+			foreach ($application->classes->subclasses($class) as $class) {
 				try {
 					$reflectionClass = new ReflectionClass($class);
 				} catch (ReflectionException) {
@@ -565,10 +554,11 @@ class Hooks {
 
 	public function shutdown(): void {
 		try {
-			$this->call(Hooks::HOOK_EXIT, $this->kernel->application());
-		} catch (\Exception $e) {
+			$this->call(Hooks::HOOK_EXIT, $this->application);
+		} catch (Throwable $e) {
 			PHP::log($e);
 		}
+		$this->_applicationExitCheck();
 		$this->hooks = [];
 		$this->hooksCalled = [];
 		$this->hooksFailed = [];

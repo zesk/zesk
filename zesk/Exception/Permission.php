@@ -7,7 +7,6 @@ namespace zesk;
 
 use Throwable;
 use zesk\ORM\ORMBase;
-use zesk\ORM\User;
 
 /**
  *
@@ -15,7 +14,7 @@ use zesk\ORM\User;
  *
  */
 class Exception_Permission extends Exception {
-	public function __construct(User $user, $action, ORMBase $object = null, array $options = [], Throwable
+	public function __construct(Interface_UserLike $user, $action, ORMBase $object = null, array $options = [], Throwable
 	$previous =
 	null) {
 		parent::__construct('User {user.name} has no permission action={action} class={class} type={type}', [

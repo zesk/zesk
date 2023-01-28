@@ -128,7 +128,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function register_domain(Application $application, Request $request): void {
 		$domain_name = $request->host();
-		$item = $application->cache->getItem(__METHOD__);
+		$item = $application->cacheItemPool()->getItem(__METHOD__);
 		if ($item->isHit()) {
 			$domains = $item->get();
 			if (isset($domains[$domain_name])) {
@@ -136,7 +136,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			}
 			$domains[$domain_name] = true;
 			$item->set($domains);
-			$application->cache->save($item);
+			$application->cacheItemPool()->save($item);
 		}
 		$application->ormFactory(Domain::class, [
 			'name' => $domain_name,
@@ -186,7 +186,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @return string
 	 */
 	public function binary() {
-		return $this->application->paths->cache('webapp/public/index.php');
+		return $this->application->cachePath('webapp/public/index.php');
 	}
 
 	/**
@@ -227,7 +227,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	public function generate_binary() {
 		$configurations = $this->application->loader->variables()[Configuration_Loader::PROCESSED] ?? null;
 
-		$path = $this->application->paths->cache('webapp/public/');
+		$path = $this->application->cachePath('webapp/public/');
 		Directory::depend($path, 0o775);
 
 		File::put(path($path, 'index.php'), "<?php\n\$app = require_once \"../webapp.config.php\");\n\$app->index();\n");
@@ -281,12 +281,12 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function cached_webapp_json($rescan = false) {
 		$app = $this->application;
-		$cached = $app->cache->getItem(__METHOD__);
+		$cached = $app->pool->getItem(__METHOD__);
 		if (!$cached->isHit()) {
 			$files = $this->scan_webapp_json();
 			$cached->set($files);
 			$cached->expiresAfter(3600);
-			$this->application->cache->saveDeferred($cached);
+			$this->application->cacheItemPool()->saveDeferred($cached);
 			return $files;
 		}
 		if (!$rescan) {

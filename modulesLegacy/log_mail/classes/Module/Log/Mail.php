@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage Log_Mail
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -39,7 +39,7 @@ class Module_Log_Mail extends Module {
 			$n_affected = $application->ormRegistry($class)
 				->queryDelete()
 				->addWhere('created|<=', $delete_before)
-				->exec()
+				->execute()
 				->affectedRows();
 			if ($n_affected > 0) {
 				$application->logger->notice('Deleted {n_affected} {class} rows older than {delete_before}', [

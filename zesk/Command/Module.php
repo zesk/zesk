@@ -38,7 +38,7 @@ class Command_Module extends Command_Base {
 			try {
 				$this->application->modules->load($module);
 			} catch (Exception $e) {
-				$this->error('Failed loading module {module}: {class} {message}', ['module' => $module] + $e->variables());
+				$this->error('Failed loading module: {message}', $e->variables());
 				return 1;
 			}
 		} while ($this->hasArgument());
@@ -50,6 +50,7 @@ class Command_Module extends Command_Base {
 		$modules = $this->application->modules;
 		$loadedModules = [];
 		$moduleNames = $onlyLoaded ? $modules->moduleNames() : $modules->available();
+		sort($moduleNames);
 		foreach ($moduleNames as $moduleName) {
 			$loadedModules[$moduleName] = $modules->loaded($moduleName);
 		}

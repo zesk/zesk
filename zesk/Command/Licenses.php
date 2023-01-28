@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 /**
@@ -7,35 +9,63 @@ namespace zesk;
  * @category Tools
  */
 class Command_Licenses extends Command_Base {
+	protected array $shortcuts = ['licenses'];
+
 	protected array $option_types = [
 		'all' => 'boolean',
+		'json' => 'boolean',
 	];
 
 	protected array $option_help = [
 		'all' => 'Do all modules instead of just those loaded',
+		'json' => 'Output JSON structure',
+	];
+
+	private array $codeToLabel = [
+		'licenses' => 'Licenses',
+		'urlProject' => 'Project URL',
+		'urlLicense' => 'License URL',
 	];
 
 	protected function run(): int {
 		$modules = $this->application->modules;
-		$modules = $this->optionBool('all') ? $modules->available() : $modules->load();
-		foreach ($modules as $name => $module_data) {
-			$configuration = toArray($module_data['configuration'] ?? null);
-
-			$url_license = $url_project = $project_url = $licenses = $description = null;
-			extract($configuration, EXTR_IF_EXISTS);
-			if ($project_url !== null) {
-				$this->application->logger->notice('Module {name} uses deprecated setting PROJECT_URL update to URL_PROJECT', compact('name'));
+		$moduleData = [];
+		if ($this->optionBool('all')) {
+			foreach ($modules->availableConfiguration() as $module => $configPath) {
+				try {
+					$moduleData[$module] = JSON::decode(File::contents($configPath));
+				} catch (Exception_Parse) {
+					$this->error('Unable to parse {module} {configPath}', [
+						'module' => $module, 'configPath' => $configPath,
+					]);
+				}
 			}
-			if ($url_license || $licenses) {
-				$desc = $description ? ": $description" : '';
-				echo "$name$desc\n";
-				if ($url_license) {
-					echo 'License information: ' . $url_license . "\n";
+		} else {
+			foreach ($modules->moduleNames() as $moduleName) {
+				$moduleData[$moduleName] = $modules->object($moduleName)->moduleConfiguration();
+			}
+		}
+		$result = [];
+		foreach ($moduleData as $moduleName => $moduleConfiguration) {
+			$info = array_filter(ArrayTools::filterKeys($moduleConfiguration, ['name', 'description']));
+			$licenseInfo = array_filter(ArrayTools::filterKeys($moduleConfiguration, [
+				'urlProject', 'urlLicense', 'licenses',
+			]));
+			if (count($licenseInfo)) {
+				$result[$moduleName] = $info + $licenseInfo;
+			}
+		}
+		if ($this->optionBool('json')) {
+			echo JSON::encodePretty($result);
+		} else {
+			foreach ($result as $moduleName => $licenseInfo) {
+				echo "=== $moduleName ===\n";
+				if (array_key_exists('licenses', $licenseInfo)) {
+					$licenseInfo['licenses'] = implode(', ', $licenseInfo['licenses']);
 				}
-				if ($licenses) {
-					echo '      License types: ' . implode(', ', to_list($licenses)) . "\n";
-				}
-				echo "\n";
+				$licenseInfo = ArrayTools::filterKeys($licenseInfo, null, ['name']);
+				echo Text::format_pairs(ArrayTools::keysMap($licenseInfo, $this->codeToLabel));
+				echo "\n\n";
 			}
 		}
 		return 0;

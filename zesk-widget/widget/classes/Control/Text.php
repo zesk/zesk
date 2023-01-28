@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage widgets
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * Created on Wed Aug 27 22:23:05 EDT 2008 22:23:05
  */
 namespace zesk;

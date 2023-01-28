@@ -3,8 +3,8 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -28,7 +28,7 @@ class Database_Query_Select_Test extends DatabaseUnitTest {
 
 		$this->prepareTestTable($table_name);
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$select = new Database_Query_Select($db);
 
 		$select->setWhatString('*');
@@ -81,7 +81,7 @@ class Database_Query_Select_Test extends DatabaseUnitTest {
 		$class = Server::class;
 		$select->setORMClass($class);
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$x = new Database_Query_Select($db);
 		$x->from($table_name);
 		$x->setWhatString('ID');

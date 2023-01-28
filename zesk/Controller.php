@@ -17,7 +17,7 @@ use Throwable;
  * @package zesk
  * @subpackage objects
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  *            Created on Fri Apr 02 21:04:09 EDT 2010 21:04:09
  */
 class Controller extends Hookable implements Interface_Theme {
@@ -126,6 +126,7 @@ class Controller extends Hookable implements Interface_Theme {
 		];
 		$app->logger->debug('Controller {class} running action {method} {action} -> {actionMethod}', $__);
 
+		$this->before($request, $response);
 		$this->optionalMethod($beforeMethod, $wrapperArguments);
 		$this->callHookArguments('before', $wrapperArguments);
 		if ($response->status_code !== HTTP::STATUS_OK) {
@@ -166,6 +167,7 @@ class Controller extends Hookable implements Interface_Theme {
 		}
 		$this->callHookArguments('after', $wrapperArguments);
 		$this->optionalMethod($afterMethod, $wrapperArguments);
+		$this->after($request, $response);
 		return $response;
 	}
 
@@ -181,13 +183,24 @@ class Controller extends Hookable implements Interface_Theme {
 	}
 
 	/**
+	 * Controller call is called before every action
+	 *
 	 * @param Request $request
 	 * @param Response $response
-	 * @param string $action
-	 * @return mixed
+	 * @return void
 	 */
-	public function _actionDefault(Request $request, Response $response, array $arguments, string $action): Response {
-		return $this->error_404($response, $action ? "Action $action" : 'default action');
+	protected function before(Request $request, Response $response): void {
+	}
+
+	/**
+	 * Controller call is called after every action
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @return void
+	 */
+	protected function after(Request $request, Response $response): Response {
+		return $response;
 	}
 
 	/**
@@ -299,6 +312,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param mixed $mixed Model initialization parameter (id, array, etc.)
 	 * @param array $options Creation options and initial options for model
 	 * @return Model
+	 * @throws Exception_Class_NotFound
 	 */
 	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
 		return $this->application->modelFactory($class, $mixed, $options);
@@ -345,57 +359,50 @@ class Controller extends Hookable implements Interface_Theme {
 		$paths = $application->autoloader->path();
 
 		try {
-			$item = $application->cache->getItem(__CLASS__);
+			$item = $application->cacheItemPool()->getItem(__CLASS__);
 		} catch (InvalidArgumentException) {
 			$item = null;
 		}
 		if ($item && $item->isHit()) {
 			$value = $item->get();
-			if (count($paths) === $value->n_paths) {
-				return $value->all;
+			if (count($paths) === $value['pathCount']) {
+				return $value['all'];
 			}
 		}
 		$list_options = [
 			Directory::LIST_RULE_FILE => ['/\.(php)$/' => true, false],
 			Directory::LIST_RULE_DIRECTORY_WALK => ['#/\.#' => false, true], Directory::LIST_RULE_DIRECTORY => false,
 		];
-		$found = [];
 		foreach ($paths as $path => $options) {
-			$controller_path = path($path, 'controller');
-			if (is_dir($controller_path)) {
-				$classPrefix = $options['classPrefix'] ?? '';
-				$controller_incs = Directory::list_recursive($controller_path, $list_options);
-				foreach ($controller_incs as $controller_inc) {
-					if (str_contains("/$controller_inc", '/.')) {
-						continue;
-					}
-					$application->logger->debug('Found controller {controller_inc}', compact('controller_inc'));
+			$allIncludes = Directory::list_recursive($path, $list_options);
+			foreach ($allIncludes as $controllerInclude) {
+				if (!StringTools::contains($controllerInclude, ['/Controller', 'Controller/'])) {
+					continue;
+				}
+				$application->logger->debug('Found controller {controller_inc}', compact('controller_inc'));
 
-					try {
-						$controller_inc = File::setExtension($controller_inc, '');
-						$class_name = $classPrefix . 'Controller_' . strtr($controller_inc, '/', '_');
-						$application->logger->debug('class name is {class_name}', compact('class_name'));
-						$reflectionClass = new ReflectionClass($class_name);
-						if (!$reflectionClass->isAbstract()) {
-							/* @var $controller Controller */
-							$controller = $reflectionClass->newInstance($application);
-							$found[$reflectionClass->getName()] = [
-								'path' => path($controller_path, $controller_inc),
-								'classes' => $controller->callHook('classes', [], []),
-							];
-						}
-					} catch (Throwable $e) {
-						$application->logger->error('Exception creating controller {controller_inc} {e}', compact('controller_inc', 'e'));
-					}
+				try {
+					$application->load($controllerInclude);
+				} catch (Throwable $e) {
+					$application->logger->error('Exception creating controller {controller_inc} {e}', compact('controller_inc', 'e'));
 				}
 			}
 		}
-		ksort($found);
-		$value = new stdClass();
-		$value->all = $found;
-		$value->n_paths = count($paths);
+		$application->classes->register(get_declared_classes());
+		$controllers = $application->classes->register(Controller::class);
+		foreach ($controllers as $controllerClass) {
+			$reflectionClass = new ReflectionClass($controllerClass);
+			if ($reflectionClass->isAbstract()) {
+				continue;
+			}
+			$found[] = $controllerClass;
+		}
+		sort($found);
+		$value = [];
+		$value['all'] = $found;
+		$value['pathCount'] = count($paths);
 		if ($item) {
-			$application->cache->saveDeferred($item->set($value));
+			$application->cacheItemPool()->saveDeferred($item->set($value));
 		}
 		return $found;
 	}

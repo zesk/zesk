@@ -9,7 +9,7 @@ use zesk\ORM\ORM_Schema;
  * @package zesk
  * @subpackage forgot
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 class Schema_Forgot extends ORM_Schema {
 	/**

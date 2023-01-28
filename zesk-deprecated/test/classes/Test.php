@@ -1062,7 +1062,7 @@ class Test extends Hookable {
 	 * @param unknown_type $uniq
 	 */
 	final public function test_table_sql($name, $create_sql): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$db->query("DROP TABLE IF EXISTS `$name`");
 		$db->query($create_sql);
 		if (!$this->optionBool('debug_keep_tables')) {
@@ -1179,7 +1179,7 @@ class Test extends Hookable {
 		foreach (to_list($classes) as $class) {
 			$class_object = $app->class_ormRegistry($class);
 			$db = $class_object->database();
-			$results[$class] = $db->queries($app->orm_module()->schema_synchronize($db, [$class, ], $options + ['follow' => true, ]));
+			$results[$class] = $db->queries($app->ormModule()->schema_synchronize($db, [$class, ], $options + ['follow' => true, ]));
 		}
 		return $results;
 	}

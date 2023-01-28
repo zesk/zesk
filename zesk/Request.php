@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 /**
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * @package zesk
  * @subpackage system
  */
@@ -184,10 +184,10 @@ class Request extends Hookable {
 	 * @param string|array|self|null $settings If NULL, uses PHP globals to initialize
 	 * @return self
 	 * @throws Exception_File_NotFound
-	 * @throws Exception_Parameter|Exception_Parse
+	 * @throws Exception_Parameter|Exception_Parse|Exception_Class_NotFound
 	 */
 	public static function factory(Application $application, string|array|self $settings = null): self {
-		$request = new self($application);
+		$request = $application->factoryArguments(self::class, [$application, $settings]);
 		return $request->initializeFromSettings($settings);
 	}
 

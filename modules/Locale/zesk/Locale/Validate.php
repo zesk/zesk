@@ -1,10 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
 
+namespace zesk\Locale;
+
 use zesk\Application;
 use zesk\Exception_Configuration;
+use zesk\Exception_Key;
 use zesk\Exception_Semantics;
 use zesk\Hookable;
 use zesk\JSON;
@@ -17,6 +21,21 @@ use zesk\StringTools;
  */
 class Validate extends Hookable {
 	/**
+	 * @see self::checkTranslationTokenNames()
+	 */
+	public const METHOD_TOKEN_NAMES = 'tokenNames';
+
+	/**
+	 * @see self::checkTranslationBraces()
+	 */
+	public const METHOD_BRACES = 'braces';
+
+	/**
+	 * @see self::checkTranslationTokenCount()
+	 */
+	public const METHOD_TOKEN_COUNT = 'tokenCount';
+
+	/**
 	 *
 	 * @param Application $application
 	 * @param array $options
@@ -26,22 +45,27 @@ class Validate extends Hookable {
 		$this->inheritConfiguration();
 	}
 
+	private function defaultMethodsToClosures(): array {
+		return [
+			self::METHOD_TOKEN_NAMES => $this->checkTranslationTokenNames(...),
+			self::METHOD_BRACES => $this->checkTranslationBraces(...),
+			self::METHOD_TOKEN_COUNT => $this->checkTranslationTokenCount(...),
+		];
+	}
+
 	/**
 	 * @param array $methodNames
 	 * @return array
-	 * @throws Exception_Configuration
+	 * @throws Exception_Key
 	 */
 	private function checkMethodsToClosures(array $methodNames): array {
-		$methods = [
-			'tokenNames' => $this->check_translation_token_names(...),
-			'braces' => $this->check_translation_braces(...),
-			'tokenCount' => $this->check_translation_token_count(...),
-		];
+		$methods = $this->defaultMethodsToClosures();
 		$results = [];
 		foreach ($methodNames as $methodName) {
 			if (!is_string($methodName) || !array_key_exists($methodName, $methods)) {
-				throw new Exception_Configuration(self::class . '::groupCheckMethods', 'Need strings {keys}', ['keys' => array_keys($methods)]);
+				throw new Exception_Key($methodName);
 			}
+			$results[$methodName] = $methods[$methodName];
 		}
 		return $results;
 	}
@@ -66,14 +90,25 @@ class Validate extends Hookable {
 	 * @return array
 	 * @throws Exception_Configuration
 	 */
-	public function check_translation(string $source, string $translation): array {
+	public function checkTranslation(string $source, string $translation): array {
 		[$group] = pair($source, ':=', '', $source);
-		$methods = $this->checkMethodsToClosures(['tokenNames', 'tokenCount', 'braces']);
+		$methods = $this->defaultMethodsToClosures();
 		if ($group !== '') {
-			$check_methods = array_change_key_case($this->optionArray('group_check_methods'));
+			/*
+			 * If we have a group text, like 'zesk\ORM\User:=Email Address'
+			 * groupCheckMethods is an array if the form:
+			 *
+			 */
+			$check_methods = array_change_key_case($this->optionArray('groupCheckMethods'));
 			foreach ($check_methods as $check_method => $methods_list) {
 				if (str_starts_with($group, $check_method)) {
-					$methods = $this->checkMethodsToClosures($methods_list);
+					try {
+						$methods = $this->checkMethodsToClosures($methods_list);
+					} catch (Exception_Key) {
+						throw new Exception_Configuration(self::class . '::groupCheckMethods', 'Need strings {keys}', [
+							'keys' => array_keys($methods),
+						]);
+					}
 					break;
 				}
 			}
@@ -90,7 +125,7 @@ class Validate extends Hookable {
 	 * @param string $string
 	 * @return string[]
 	 */
-	private function extract_tokens(string $string): array {
+	private function extractTokens(string $string): array {
 		$matches = [];
 		preg_match_all('/\{[^}]+}/', $string, $matches, PREG_PATTERN_ORDER);
 		$matches = $matches[0];
@@ -104,7 +139,7 @@ class Validate extends Hookable {
 	 * @param string $string
 	 * @return array
 	 */
-	private function extract_braces(string $string): array {
+	private function extractBraces(string $string): array {
 		$matches = [];
 		preg_match_all('/[\[\]]/', $string, $matches, PREG_PATTERN_ORDER);
 		return $matches[0];
@@ -117,10 +152,10 @@ class Validate extends Hookable {
 	 * @param string $translation
 	 * @return string[] An array of errors found in the two strings when compared
 	 */
-	public function check_translation_token_count(string $source, string $translation): array {
+	public function checkTranslationTokenCount(string $source, string $translation): array {
 		$source = StringTools::right($source, ':=', $source);
-		$source_matches = $this->extract_tokens($source);
-		$translation_matches = $this->extract_tokens($translation);
+		$source_matches = $this->extractTokens($source);
+		$translation_matches = $this->extractTokens($translation);
 		$errors = [];
 		$n = count($source_matches) - count($translation_matches);
 		$locale = $this->application->locale;
@@ -143,10 +178,10 @@ class Validate extends Hookable {
 	 * @param string $translation
 	 * @return string[] An array of errors found in the two strings when compared
 	 */
-	public function check_translation_token_names(string $source, string $translation): array {
+	public function checkTranslationTokenNames(string $source, string $translation): array {
 		$source = StringTools::right($source, ':=', $source);
-		$source_matches = $this->extract_tokens($source);
-		$translation_matches = $this->extract_tokens($translation);
+		$source_matches = $this->extractTokens($source);
+		$translation_matches = $this->extractTokens($translation);
 		$errors = [];
 		if ($translation_matches !== $source_matches) {
 			$locale = $this->application->locale;
@@ -174,10 +209,10 @@ class Validate extends Hookable {
 	 * @return string[] An array of errors found when the two strings are compared
 	 * @throws Exception_Semantics
 	 */
-	public function check_translation_braces(string $source, string $translation): array {
+	public function checkTranslationBraces(string $source, string $translation): array {
 		$source = StringTools::right($source, ':=', $source);
-		$source_matches = $this->extract_braces($source);
-		$translation_matches = $this->extract_braces($translation);
+		$source_matches = $this->extractBraces($source);
+		$translation_matches = $this->extractBraces($translation);
 		$stack = 0;
 		$errors = [];
 		$locale = $this->application->locale;

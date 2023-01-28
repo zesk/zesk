@@ -95,7 +95,7 @@ class Contact_Label extends ORMBase {
 		}
 		return $application->ormRegistry(__CLASS__)
 			->querySelect()
-			->addWhatIterable([
+			->appendWhat([
 				'id' => 'ID',
 				'name' => 'Name',
 			])
@@ -154,7 +154,7 @@ class Contact_Label extends ORMBase {
 		}
 		$rows = $app->ormRegistry(__CLASS__)
 			->querySelect()
-			->addWhatIterable([
+			->appendWhat([
 				'id' => 'ID',
 				'name' => 'Name',
 				'type' => 'Type',

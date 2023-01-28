@@ -11,7 +11,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
 	/**
 	 *
 	 */
-	protected $data = null;
+	protected array $data;
 
 	/**
 	 *
@@ -30,9 +30,10 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
 
 	/**
 	 * Is a value set in this object?
+	 * @param int|string $name
 	 * @return boolean
 	 */
-	public function has($name) {
+	public function has(int|string $name): bool {
 		return $this->__isset($name);
 	}
 
@@ -41,7 +42,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
 	 * @param mixed $name A string or key value (integer, float)
 	 * @return mixed The value of the session variable, or null if nothing set
 	 */
-	public function __get($name) {
+	public function __get(int|string $name): mixed {
 		$name = strtolower($name);
 		return $this->data[$name] ?? null;
 	}
@@ -52,29 +53,18 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
 	 * @param mixed $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
-	public function get($name = null, $default = null) {
+	public function get(int|string $name, mixed $default = null): mixed {
 		$name = strtolower($name);
-		return $this->data[$name] ?? $default;
-	}
-
-	/**
-	 * Retrieve a value from the settings, returning a default value if empty or not set
-	 * @param mixed $name A string or key value (integer, float)
-	 * @param mixed $default A value to return if the session value is null
-	 * @return mixed The value of the session variable, or $default if nothing set
-	 */
-	public function eget($name, $default = null) {
-		$name = strtolower($name);
-		return isset($this->data[$name]) && !empty($this->data[$name]) ? $this->data[$name] : $default;
+		return $this->__get[$name] ?? $default;
 	}
 
 	/**
 	 * Store a value to a settings
 	 *
-	 * @param mixed $name A string or key value (integer, float)
+	 * @param int|string $name A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
-	public function __set($name, $value): void {
+	public function __set(int|string $name, mixed $value): void {
 		$this->data[strtolower($name)] = $value;
 	}
 
@@ -83,16 +73,17 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
 	 *
 	 * @param mixed $name A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
-	 * @return Interface_Settings
+	 * @return self
 	 */
-	public function set($name, $value = null) {
+	public function set(int|string $name, mixed $value = null): self {
 		$this->data[strtolower($name)] = $value;
+		return $this;
 	}
 
 	/**
 	 * Retrieve a list of all settings variables as an array
 	 *
-	 * @return Iterator
+	 * @return array
 	 */
 	public function variables(): array {
 		return $this->data;

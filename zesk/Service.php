@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 class Service extends Hookable {
@@ -20,7 +22,7 @@ class Service extends Hookable {
 	 */
 	public static function validType(Application $application, string $type): bool {
 		$types = self::validTypes($application);
-		return array_key_exists($type, $types);
+		return in_array($type, $types);
 	}
 
 	/**
@@ -29,9 +31,8 @@ class Service extends Hookable {
 	 * @return array
 	 */
 	public static function validTypes(Application $application): array {
-		$types = ArrayTools::changeValueCase($application->classes->register(self::class));
-		$types = ArrayTools::valuesRemovePrefix($types, self::class . '_');
-		return ArrayTools::valuesFlipCopy($types);
+		$types = $application->classes->register(self::class);
+		return ArrayTools::valuesRemovePrefix($types, [self::class . '_', self::class . '\\']);
 	}
 
 	/**
@@ -43,7 +44,7 @@ class Service extends Hookable {
 	 */
 	public static function serviceClasses(Application $application, string $type): array {
 		if (self::validType($application, $type)) {
-			return $application->classes->register(self::class . '_' . $type);
+			return $application->classes->register(self::class);
 		}
 		return [];
 	}
@@ -57,17 +58,14 @@ class Service extends Hookable {
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Semantics
 	 */
-	public static function factory(Application $application, string $type): self {
+	public static function factory(Application $application, string $type, array $arguments = []): self {
 		if (!self::validType($application, $type)) {
 			throw new Exception_Semantics('Invalid service type {type}', [
 				'type' => $type,
 			]);
 		}
-		$args = func_get_args();
-		array_shift($args);
-		array_shift($args);
-		array_unshift($args, $application);
-		$class = $application->configuration->getPath(__NAMESPACE__ . "\\Service_$type::class");
+		array_unshift($arguments, $application);
+		$class = $application->configuration->getPath([self::class, $type]);
 		if (!$class) {
 			$classes = self::serviceClasses($application, $type);
 			if (count($classes) === 0) {
@@ -78,6 +76,6 @@ class Service extends Hookable {
 			$class = array_shift($classes);
 		}
 		assert(class_exists($class, false));
-		return $application->objects->factory($class, $args);
+		return $application->objects->factory($class, $arguments);
 	}
 }

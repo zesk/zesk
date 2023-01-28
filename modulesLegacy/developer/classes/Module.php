@@ -283,11 +283,11 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		}
 		if ($arg) {
 			// TODO Potentical security issue - pass in URL value here
-			$db = $this->application->database_registry($arg);
+			$db = $this->application->databaseRegistry($arg);
 		} else {
-			$db = $this->application->database_registry();
+			$db = $this->application->databaseRegistry();
 		}
-		$results = $app->orm_module()->schema_synchronize($db, $classes, [
+		$results = $app->ormModule()->schema_synchronize($db, $classes, [
 			'follow' => false,
 		]);
 		$exception = null;
@@ -295,10 +295,10 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 			try {
 				foreach ($results as $index => $sql) {
 					$db->query($results);
-					$results[$index] = HTML::tag('span', '.alert alert-success', $results[$index]);
+					$results[$index] = HTML::tag('span', '.alert alert-success', $sql);
 				}
 			} catch (Exception $exception) {
-				$results[$index] = HTML::tag('span', '.alert alert-danger', $results[$index]);
+				$results[$index] = HTML::tag('span', '.alert alert-danger', $sql);
 			}
 		}
 		$result = $exception ? $app->theme('exception', [

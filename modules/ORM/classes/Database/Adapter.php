@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage ORM
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk\ORM;
 

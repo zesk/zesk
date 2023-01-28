@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 /**
- * @author Kent M. Davidson <kent@marketacumen.com>
+ * @author kent
  * @package zesk
  * @subpackage subpackage
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk;
 

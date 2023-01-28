@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage kernel
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -120,7 +120,7 @@ class Hookable extends Options {
 	 * callable stored in $this->options['hooks']['hello'] (if it exists)
 	 * Any zesk hooks registered as (in order):
 	 * 1. User::hello
-	 * 2. zesk\User::hello
+	 * 2. zesk\ORM\User::hello
 	 * 3. zesk\ORM::hello
 	 * 3. zesk\Model::hello
 	 * 4. Hookable::hello
@@ -343,7 +343,6 @@ class Hookable extends Options {
 	 * @return array
 	 */
 	public function defaultOptions(string $class): array {
-		$class = strtolower($class);
 		// Class hierarchy is given from child -> parent
 		$config = new Configuration();
 		foreach ($this->_defaultOptions($class) as $configuration) {
@@ -354,13 +353,29 @@ class Hookable extends Options {
 	}
 
 	/**
-	 * Load options for this object based on the application configuration loaded.
-	 * Only overwrites values which are NOT set.
+	 * Set options based on the application configuration.
 	 *
-	 * @param string $class Inherit globals from this class
+	 * Only sets options if not set already.
+	 *
+	 * @param string $class Class to inherit configuration from
 	 * @return $this
 	 */
 	final public function inheritConfiguration(string $class = ''): self {
-		return $this->setOptions($this->defaultOptions($class ?: get_class($this)), false);
+		return $this->configure($class, false);
+	}
+
+	private function configure(string $class = '', bool $overwrite = true): self {
+		return $this->setOptions($this->defaultOptions($class ?: get_class($this)), $overwrite);
+	}
+
+	/**
+	 * Set options based on the application configuration.
+	 *
+	 * Overwrites all options from global configuration.
+	 *
+	 * @return $this
+	 */
+	final public function setConfiguration(string $class = ''): self {
+		return $this->configure($class);
 	}
 }

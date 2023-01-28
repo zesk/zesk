@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /**
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk\ORM;
 
@@ -30,7 +30,7 @@ class Command_Classes extends Command_Base {
 
 	public function run(): int {
 		$application = $this->application;
-		$classes = $application->orm_module()->all_classes();
+		$classes = $application->ormModule()->all_classes();
 		$objects_by_class = [];
 		$is_table = false;
 		$rows = [];

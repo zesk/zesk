@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -194,6 +194,8 @@ class Themes implements Interface_Theme {
 	}
 
 	/**
+	 * This structure is ["prefix" => ["path0","path1"]]
+	 *
 	 * @return array
 	 */
 	final public function themePath(): array {

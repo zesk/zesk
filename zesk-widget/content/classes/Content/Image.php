@@ -4,8 +4,8 @@ declare(strict_types=1);
 /**
  * @package zesk-lite
  * @subpackage image
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -67,7 +67,7 @@ class Content_Image extends ORMBase {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\ORMBase::fetchObject()
+	 * @see ORMBase::fetchObject()
 	 */
 	protected function fetchObject() {
 		$query = $this->querySelect('X');

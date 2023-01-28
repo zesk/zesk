@@ -3,8 +3,8 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
@@ -22,7 +22,7 @@ class Database_Query_Union_Test extends DatabaseUnitTest {
 
 		$this->prepareTestTable($table_name);
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$testx = new Database_Query_Union($db);
 
 		$select = new Database_Query_Select($db);

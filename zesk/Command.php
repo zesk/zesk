@@ -4,8 +4,8 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage system
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -19,6 +19,12 @@ use Throwable;
  * @author kent
  */
 abstract class Command extends Hookable implements Logger\Handler, Interface_Prompt {
+	public const OPTION_ANSI = 'ansi';
+
+	public const OPTION_NO_ANSI = 'no-ansi';
+
+	public const END_OF_ARGUMENT_MARKER = '--';
+
 	/**
 	 * Success
 	 */
@@ -75,13 +81,6 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @var array
 	 */
 	private array $errors = [];
-
-	/**
-	 * Does the terminal support ANSI colors?
-	 *
-	 * @var bool
-	 */
-	protected bool $ansi = false;
 
 	/**
 	 *
@@ -319,7 +318,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		if (is_dir(($path = $this->application->path('etc')))) {
 			$paths[] = $path;
 		}
-		$uid_path = $this->application->paths->uid();
+		$uid_path = $this->application->paths->userHome();
 		if ($uid_path) {
 			$paths[] = $uid_path;
 		}
@@ -384,7 +383,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @throws Exception_Invalid
 	 * @throws Exception_Parameter
 	 * @throws Exception_Semantics
-	 * @throws Exception_Unsupported
+	 * @throws Exception_Unsupported|Exception_NotFound
 	 */
 	protected function configure(string $name, bool $create = false): string {
 		$configure_options = $this->_configurationFiles($name);
@@ -508,7 +507,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	protected function arg_to_DateTime(string $arg): Timestamp {
 		try {
 			return Timestamp::factory($arg);
-		} catch (Exception_Convert|Exception_Parameter) {
+		} catch (Exception_Convert) {
 			$this->error('Need to format like a date: {arg}', ['arg' => $arg]);
 
 			throw new Exception_Parameter($arg);
@@ -733,9 +732,9 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * Is the terminal an ANSI terminal?
 	 */
 	private function isANSI(): bool {
-		if ($this->optionBool('no-ansi')) {
+		if ($this->optionBool(self::OPTION_NO_ANSI)) {
 			return false;
-		} elseif ($this->optionBool('ansi')) {
+		} elseif ($this->optionBool(self::OPTION_ANSI)) {
 			return true;
 		} else {
 			// On Windows, enable ANSI for ANSICON and ConEmu only
@@ -850,8 +849,6 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		$this->argv = array_merge($arguments, $this->argv);
 		return $this;
 	}
-
-	public const END_OF_ARGUMENT_MARKER = '--';
 
 	/**
 	 * Is there an argument waiting to be processed?
@@ -1115,7 +1112,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		try {
 			$this->history_file = File::open($this->history_file_path, 'ab');
 		} catch (Exception_File_Permission $e) {
-			$this->application->logger->error('Unable to open history file {filename} with mode {mode}', $e->variables());
+			$this->application->logger->error('{message}', $e->variables());
 		}
 	}
 
@@ -1281,9 +1278,9 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 */
 	protected function zesk_cli(string $command, array $arguments = []): array {
 		$app = $this->application;
-		$bin = $app->zeskHome('bin/zesk.sh');
-		return $app->process->executeArguments("$bin --search {app_root} $command", [
-			'app_root' => $app->path(),
+		$bin = $app->zeskHome('bin/zesk');
+		return $app->process->executeArguments("$bin --search {appRoot} $command", [
+			'appRoot' => $app->path(),
 		] + $arguments);
 	}
 
@@ -1295,21 +1292,22 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @return array
 	 * @throws Exception_Command
 	 */
-	protected function passthru(string $command): array {
+	protected function passThru(string $command): array {
 		$args = func_get_args();
 		array_shift($args);
 		return $this->application->process->executeArguments($command, $args, true);
 	}
 
+	public const HOOK_RUN_BEFORE = 'runBefore';
+
+	public const HOOK_RUN_AFTER = 'runAfter';
+
 	/**
 	 * Main entry point for running a command
 	 *
 	 * @return int
-	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Invalid
-	 * @throws Exception_Semantics
+	 * @throws Exception_NotFound
 	 * @throws Exception_Unsupported
 	 */
 	final public function go(): int {
@@ -1319,7 +1317,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		$this->applicationConfigure();
 
 		try {
-			$this->callHook('run_before');
+			$this->callHookArguments(self::HOOK_RUN_BEFORE);
 		} catch (Exception_Exited $e) {
 			return $e->getCode();
 		}
@@ -1330,7 +1328,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 		try {
 			$result = $this->run();
-			$result = $this->callHookArguments('run_after', [
+			$result = $this->callHookArguments(self::HOOK_RUN_AFTER, [
 				$result,
 			], $result);
 			if (is_bool($result)) {
@@ -1368,38 +1366,67 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		return last(self::$commands);
 	}
 
+	public const OPTION_FORMAT = 'format';
+
+	/**
+	 * --format html
+	 */
+	public const FORMAT_HTML = 'html';
+
+	/**
+	 * --format text
+	 */
+	public const FORMAT_TEXT = 'text';
+
+	/**
+	 * --format json
+	 */
+	public const FORMAT_JSON = 'json';
+
+	/**
+	 * --format serialize
+	 */
+	public const FORMAT_SERIALIZE = 'serialize';
+
+	/**
+	 * Output as parsable PHP
+	 *
+	 * --format php
+	 */
+	public const FORMAT_PHP = 'php';
+
 	/**
 	 *
 	 * @param string|array $content
-	 * @param ?string $format
+	 * @param string $format
 	 * @param string $default_format
 	 * @return boolean
 	 */
-	public function renderFormat(string|array $content, string $format = null, string $default_format = 'text'): bool {
-		if ($format === null) {
-			$format = $this->option('format', $default_format);
+	public function renderFormat(string|array $content, string $format = '', string $default_format = self::FORMAT_TEXT): bool {
+		if ($format === '') {
+			$format = $this->optionString(self::OPTION_FORMAT, $default_format);
 		}
 		switch ($format) {
-			case 'html':
+			case self::FORMAT_HTML:
 				try {
 					echo $this->application->themes->theme('dl', $content);
 				} catch (Exception_Redirect $e) {
 					echo $e->url();
 				}
 				break;
-			case 'php':
+			case self::FORMAT_PHP:
 				echo PHP::dump($content);
 
 				break;
-			case 'serialize':
+			case self::FORMAT_SERIALIZE:
 				echo serialize($content);
 
 				break;
-			case 'json':
+			case self::FORMAT_JSON:
 				echo JSON::encodePretty($content);
 
 				break;
-			case 'text':
+			case self::FORMAT_TEXT:
 				echo Text::format_pairs($content);
 
 				break;
@@ -1413,7 +1440,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	}
 
 	/**
-	 * Add help from the doccomment.
+	 * Add help from the docComment.
 	 * One place for docs is preferred.
 	 *
 	 * @return string

@@ -3,7 +3,7 @@
  * @package zesk-modules
  * @subpackage tag
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk\Tag;
 
@@ -29,7 +29,7 @@ use zesk\PHP;
  * @property Timestamp $modified
  * @property Timestamp $last_used
  */
-class Label extends \zesk\ORMBase {
+class Label extends ORMBase {
 	/**
 	 *
 	 * @param unknown $code
@@ -59,7 +59,7 @@ class Label extends \zesk\ORMBase {
 			'name' => $name,
 		];
 		$members['code'] = self::clean_code_name($members['code']);
-		$cache = $application->cache->getItem(__CLASS__ . '-' . $members['code']);
+		$cache = $application->cacheItemPool()->getItem(__CLASS__ . '-' . $members['code']);
 		if ($cache->isHit()) {
 			$object = $cache->get();
 			if ($object instanceof self) {
@@ -71,7 +71,7 @@ class Label extends \zesk\ORMBase {
 		$object->seen();
 
 		$cache->set($object);
-		$application->cache->saveDeferred($cache);
+		$application->cacheItemPool()->saveDeferred($cache);
 		return $object;
 	}
 
@@ -105,7 +105,7 @@ class Label extends \zesk\ORMBase {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\ORMBase::store()
+	 * @see ORMBase::store()
 	 */
 	public function store(): self {
 		if (empty($this->code)) {

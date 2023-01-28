@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage git
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Git;

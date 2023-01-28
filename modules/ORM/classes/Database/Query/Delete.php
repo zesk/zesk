@@ -111,24 +111,6 @@ class Database_Query_Delete extends Database_Query {
 	}
 
 	/**
-	 * Execute syntax is now identical, stop using this method, use ->execute() with new semantics
-	 *
-	 * @return Database_Query_Delete
-	 * @throws Database_Exception
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Deprecated
-	 * @throws Exception_Semantics
-	 * @deprecated 2018-02
-	 * @see self::execute()
-	 */
-	public function exec(): self {
-		zesk()->deprecated();
-		return $this->execute();
-	}
-
-	/**
 	 *
 	 * @return mixed
 	 */

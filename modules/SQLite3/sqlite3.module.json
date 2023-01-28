@@ -1,10 +1,11 @@
 {
-	"moduleClass": "sqlite3\\Module",
+	"moduleClass": "zesk\\SQLite3\\Module",
 	"requires": [
 		"Database"
 	],
 	"autoload": {
-		"classPrefix": "sqlite3\\"
+		"classPrefix": "zesk\\SQLite3\\",
+		"path": "zesk/SQLite3/"
 	},
 	"name": "SQLite3 Database Interface",
 	"description": "The SQLite3 database API using the PHP SQLite3 API. INCOMPLETE.",

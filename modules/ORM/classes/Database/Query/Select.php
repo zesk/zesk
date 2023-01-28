@@ -7,7 +7,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
@@ -293,7 +293,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param iterable $what Keys are alias, values are member
 	 * @return $this
 	 */
-	public function addWhatIterable(iterable $what): self {
+	public function appendWhat(iterable $what): self {
 		foreach ($what as $alias => $member) {
 			$this->addWhat($alias, $member);
 		}

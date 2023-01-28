@@ -2,8 +2,8 @@
 /**
  * @package zesk
  * @subpackage default
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -16,7 +16,7 @@ abstract class Content_Group extends ORMBase {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\ORMBase::store()
+	 * @see ORMBase::store()
 	 */
 	public function store(): self {
 		if (empty($this->CodeName)) {
@@ -29,7 +29,7 @@ abstract class Content_Group extends ORMBase {
 	 *
 	 * @param unknown $mixed
 	 * @param unknown $options
-	 * @return \zesk\ORMBase
+	 * @return ORMBase
 	 */
 	public function group_object($mixed = null, $options = null) {
 		return $this->ormFactory($this->group_class, $mixed, $options);

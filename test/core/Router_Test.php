@@ -86,7 +86,7 @@ class Router_Test extends UnitTest {
 		$mtime = 'yes';
 		$router = new Router($this->application);
 		$router->cache($mtime);
-		$this->application->cache->commit();
+		$this->application->cacheItemPool()->commit();
 		$router->cached($mtime);
 	}
 }

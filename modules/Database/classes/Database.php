@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 /**
- * @author Kent M. Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * @package zesk
  * @subpackage database
  */
@@ -404,15 +404,20 @@ abstract class Database extends Hookable implements Database_Interface {
 	/**
 	 * Retrieve URL or url component
 	 *
+	 * @return string
+	 */
+	public function url(): string {
+		return $this->URL;
+	}
+
+	/**
+	 * Retrieve URL or url component
+	 *
 	 * @param string $component
 	 * @return string
 	 * @throws Exception_Key
 	 */
-	public function url(string $component = ''): string {
-		$url = $this->URL;
-		if ($component === '') {
-			return $url;
-		}
+	public function urlComponent(string $component): string {
 		if (array_key_exists($component, $this->url_parts)) {
 			return $this->url_parts[$component];
 		}
@@ -427,7 +432,7 @@ abstract class Database extends Hookable implements Database_Interface {
 	 */
 	final public function type(): string {
 		try {
-			return $this->url('scheme');
+			return $this->urlComponent('scheme');
 		} catch (Exception_Key) {
 			/* not reachable */
 			return '';
@@ -441,7 +446,7 @@ abstract class Database extends Hookable implements Database_Interface {
 	 */
 	public function databaseName(): string {
 		try {
-			return ltrim($this->url('path'), '/');
+			return ltrim($this->urlComponent('path'), '/');
 		} catch (Exception_Key) {
 			/* not reachable */
 			return '';
@@ -798,7 +803,7 @@ abstract class Database extends Hookable implements Database_Interface {
 	 * @param mixed $result
 	 *            The result of a query command.
 	 * @return void
-	 * @see Database::query
+	 * @see \zesk\SQLite3\Database::query
 	 */
 	abstract public function free(QueryResult $result): void;
 
@@ -1394,7 +1399,7 @@ abstract class Database extends Hookable implements Database_Interface {
 	 */
 	public function supportsScheme(string $scheme): bool {
 		try {
-			$class = $this->application->database_module()->getRegisteredScheme($scheme);
+			$class = $this->application->databaseModule()->getRegisteredScheme($scheme);
 			return $this instanceof $class;
 		} catch (Exception_Key) {
 			return false;

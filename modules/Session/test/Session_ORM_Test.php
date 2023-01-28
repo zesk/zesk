@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Session\Session\test;
@@ -63,7 +63,7 @@ class SessionORM_Test extends ORMUnitTest {
 		$db->query("DROP TABLE IF EXISTS `$table`");
 		$db->query("DROP TABLE IF EXISTS `$user_table`");
 
-		$db->queries($this->application->orm_module()->schema_synchronize($db, [
+		$db->queries($this->application->ormModule()->schema_synchronize($db, [
 			User::class,
 			SessionORM::class,
 		], [

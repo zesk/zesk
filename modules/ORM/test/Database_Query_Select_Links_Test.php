@@ -3,8 +3,8 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
@@ -45,7 +45,7 @@ class Database_Query_Select_Links_Test extends ORMUnitTest {
 	}
 
 	public function test_main(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$db->tablePrefix('');
 
 		/*==== Test ===============================================================*/

@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage webapp
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -56,7 +56,7 @@ class Type_Zesk extends Type {
 	 * @return string
 	 */
 	public function bin_zesk() {
-		$ff = path($this->path, 'vendor/bin/zesk.sh');
+		$ff = path($this->path, 'vendor/bin/zesk');
 		if (!is_executable($ff)) {
 			throw new Exception_File_Permission($ff, 'Not executable');
 		}

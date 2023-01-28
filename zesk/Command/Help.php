@@ -9,7 +9,6 @@ namespace zesk;
 
 use ReflectionClass;
 use ReflectionException;
-use zesk\Command\Loader;
 
 /**
  * This help.
@@ -40,7 +39,7 @@ class Command_Help extends Command_Base {
 	private array $aliases = [];
 
 	public function run(): int {
-		$loader = Loader::factory()->setApplication($this->application);
+		$loader = CommandLoader::factory()->setApplication($this->application);
 		$commands = $loader->collectCommands();
 		$this->collectHelp($commands);
 		echo $this->application->themes->theme(path(__CLASS__, 'content'), [

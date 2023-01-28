@@ -53,7 +53,7 @@ class File_Test extends UnitTest {
 	}
 
 	public function test_atomic_put(): void {
-		$path = $this->test_sandbox('foo');
+		$path = $this->test_sandbox('randomFile.txt');
 		$data = 'hello';
 		File::atomicPut($path, $data);
 	}
@@ -208,5 +208,29 @@ class File_Test extends UnitTest {
 		$ext = 'tmp';
 		$filename = File::temporary($this->application->paths->temporary(), $ext);
 		$this->assertFalse(file_exists($filename));
+	}
+
+	public function data_stripExtension(): array {
+		return [
+			['C:/path/to/a/place/whatever.fii', 'C:/path/to/a/place/whatever.fii.sucka'],
+			['//path/to/a/place/whatever.fii', '//path/to/a/place/whatever.fii.sucka'],
+			['/path/to/a/place/whatever.fii', '/path/to/a/place/whatever.fii.sucka'],
+			['path/to/a/place/whatever.fii', 'path/to/a/place/whatever.fii.sucka'],
+			['./path/to/a/place/whatever.fii', './path/to/a/place/whatever.fii.sucka'],
+			['./whatever.fii', './whatever.fii.sucka'],
+			['whatever.fii', 'whatever.fii.sucka'],
+			['whats......', 'whats.......goingon'],
+			['things/in/front/of/it./with.dots/whats......', 'things/in/front/of/it./with.dots/whats.......goingon'],
+		];
+	}
+
+	/**
+	 * @param string $expected
+	 * @param string $thingToStrip
+	 * @return void
+	 * @dataProvider data_stripExtension
+	 */
+	public function test_stripExtension(string $expected, string $thingToStrip): void {
+		$this->assertEquals($expected, File::stripExtension($thingToStrip));
 	}
 }

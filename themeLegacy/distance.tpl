@@ -1,18 +1,16 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
-/* @var $this \zesk\Template */
-/* @var $application \zesk\Application */
-/* @var $locale \zesk\Locale */
-/* @var $session \zesk\Session */
-/* @var $router \zesk\Router */
-/* @var $route \zesk\Route */
-/* @var $request \zesk\Request */
-/* @var $response \zesk\Response */
-/* @var $current_user \zesk\User */
+/* @var $this Template */
+/* @var $application Application */
+/* @var $locale Locale */
+/* @var $router Router */
+/* @var $route Route */
+/* @var $request Request */
+/* @var $response Response */
 $configuration = $application->configuration;
 
-$units = $this->get('units', $configuration->path_get('distance::units', 'km'));
+$units = $this->get('units', $configuration->getPath('distance::units', 'km'));
 // By default, all units in kilometers
 
 // Distance should always be passed in as "meters"
@@ -20,7 +18,7 @@ $distance = $this->content;
 if (!is_numeric($distance)) {
 	return;
 }
-$epsilon = $this->epsilon ?? $configuration->path_get('distance::epsilon', 0.2);
+$epsilon = $this->epsilon ?? $configuration->getPath('distance::epsilon', 0.2);
 if (abs($distance) < $epsilon) {
 	echo HTML::tag('span', '.distance nearby', $locale('Nearby'));
 	return;

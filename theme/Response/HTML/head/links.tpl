@@ -21,8 +21,8 @@ foreach ($response->html()->links() as $tag) {
 	$attributes = $tag['attributes'];
 	$name = $tag['name'];
 	$content = $tag['content'];
-	$prefix = $tag['prefix'];
-	$suffix = $tag['suffix'];
+	$prefix = $tag['prefix'] ?? '';
+	$suffix = $tag['suffix'] ?? '';
 	if (empty($content)) {
 		$content = null;
 	}

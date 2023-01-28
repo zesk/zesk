@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk\ORM;
 
@@ -269,11 +269,11 @@ class Schema_File extends Schema {
 				/* @var $index Database_Index */
 				switch ($index->type()) {
 					case Database_Index::TYPE_INDEX:
-						$table_spec['indexes'][$index->name()] = $index->column_sizes();
+						$table_spec['indexes'][$index->name()] = $index->columnSizes();
 
 						break;
 					case Database_Index::TYPE_UNIQUE:
-						$table_spec['unique keys'][$index->name()] = $index->column_sizes();
+						$table_spec['unique keys'][$index->name()] = $index->columnSizes();
 
 						break;
 					case Database_Index::TYPE_PRIMARY:

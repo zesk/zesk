@@ -3,7 +3,7 @@
  * @package zesk-modules
  * @subpackage tag
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk\Tag;
 
@@ -33,7 +33,7 @@ class Module extends \zesk\Module_JSLib {
 	 * Run once an hour on a single cluster machine
 	 */
 	public function hook_cron_cluster_hour(): void {
-		$this->application->orm_module();
+		$this->application->ormModule();
 	}
 
 	/**

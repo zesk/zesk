@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage webapp
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk\WebApp;
 
@@ -42,7 +42,7 @@ class Controller extends \zesk\Controller {
 	/**
 	 *
 	 * @param string $find
-	 * @return string[][]|\zesk\WebApp\Instance[][]|NULL[][]|\zesk\ORMBase[][]
+	 * @return string[][]|\zesk\WebApp\Instance[][]|NULL[][]|ORMBase[][]
 	 */
 	private function instance_factory($register = false) {
 		return $this->webapp->instance_factory($register);

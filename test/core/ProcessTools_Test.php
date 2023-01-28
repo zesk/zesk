@@ -4,8 +4,8 @@
  * @test_sandbox true
  * @package zesk
  * @subpackage test
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -18,7 +18,7 @@ class ProcessTools_Test extends UnitTest {
 	 * @todo this
 	 */
 	public function DISABLED_test_reset_dead_processes(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$db->query('DROP TABLE IF EXISTS test_PGT');
 		$db->query('CREATE TABLE test_PGT ( ID int(11) unsigned PRIMARY KEY NOT NULL AUTO_INCREMENT, PID int(11) NOT NULL )');
 		$table = 'test_PGT';
@@ -49,7 +49,7 @@ class ProcessTools_Test extends UnitTest {
 
 		unlink($php_file);
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$db->query('DROP TABLE IF EXISTS test_PGT');
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Response
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Response;
@@ -1299,37 +1299,5 @@ class HTML extends Type {
 		return [
 			'nocache' => true, 'prefix' => $prefix, 'suffix' => $suffix,
 		];
-	}
-
-	/**
-	 * Get/set body attributes
-	 *
-	 * @param string|array|null $add
-	 * @param mixed $value
-	 * @return array|Response
-	 * @deprecated 2022-11
-	 */
-	final public function body_attributes(array|string $add = null, mixed $value = null): array|Response {
-		$this->application->deprecated(__METHOD__);
-		if (is_array($add)) {
-			return $this->setBodyAttributes($add, true);
-		} elseif (is_string($add)) {
-			return $this->setBodyAttributes([$add => $value], true);
-		}
-		return $this->bodyAttributes();
-	}
-
-	/**
-	 * Add to JavaScript script settings
-	 * @param array $settings
-	 * @deprecated 2022-12
-	 */
-	final public function javascript_settings(array $settings = null): self {
-		$this->application->deprecated(__METHOD__);
-		if ($settings === null) {
-			return $this->script_settings;
-		}
-		$this->script_settings = ArrayTools::merge($this->script_settings, $settings);
-		return $this->parent;
 	}
 }

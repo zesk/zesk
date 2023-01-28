@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author $Author: kent $
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -33,7 +33,9 @@ class Exception extends \Exception {
 	 */
 	public static function phpExceptionVariables(Throwable $e, string $prefix = 'exception'): array {
 		return [
+			'throwableClass' => $e::class,
 			"{$prefix}Class" => $e::class,
+			'throwableCode' => $e->getCode(),
 			"{$prefix}Code" => $e->getCode(),
 			'message' => $e->getMessage(),
 			'rawMessage' => $e->getMessage(),

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage MySQL
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace MySQL;
@@ -24,7 +24,7 @@ class Module extends \zesk\Module {
 	public function initialize(): void {
 		$this->application->registerClass(Database::class);
 
-		$module = $this->application->database_module();
+		$module = $this->application->databaseModule();
 
 		$module->registerScheme('mysql', Database::class);
 		$module->registerScheme('mysqli', Database::class);

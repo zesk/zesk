@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 /**
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * @package zesk
  * @subpackage system
  */
@@ -347,6 +347,18 @@ class Options implements ArrayAccess {
 	public function setOptionPath(array $path, mixed $value): self {
 		$path[0] = self::_optionKey($path[0]);
 		apath_set($this->options, $path, $value);
+		return $this;
+	}
+
+	/**
+	 * Set an option as a tree-path
+	 *
+	 * @param array $path
+	 * @return Options
+	 */
+	public function unsetOptionPath(array $path): self {
+		$path[0] = self::_optionKey($path[0]);
+		apath_unset($this->options, $path);
 		return $this;
 	}
 

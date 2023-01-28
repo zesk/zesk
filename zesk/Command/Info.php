@@ -42,43 +42,43 @@ class Command_Info extends Command_Base {
 	 *
 	 * @var string
 	 */
-	public const zesk_version_release = "zesk\Version::release";
+	public const ZESK_VERSION_RELEASE = Version::class . '::release';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const configuration_files_loaded = 'configuration_files_loaded';
+	public const CONFIGURATION_FILES_LOADED = 'configuration_files_loaded';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const zesk_version_string = "zesk\Version::release_string";
+	public const VERSION_RELEASE_STRING = Version::class . '::release_string';
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const zesk_root = 'zesk_root';
+	public const ZESK_ROOT = Application::class . '::' . Application::OPTION_ZESK_ROOT;
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const zesk_application_root = 'zesk_application_root';
+	public const APPLICATION_PATH = Application::class . '::' . Application::OPTION_PATH;
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const APPLICATION_CLASS = "zesk\Kernel::application_class";
+	public const APPLICATION_CLASS = Application::class . '::' . Application::OPTION_APPLICATION_CLASS;
 
 	/**
 	 *
 	 * @var string
 	 */
-	public const APPLICATION_THEME_PATH = "zesk\Application::themePath";
+	public const APPLICATION_THEME_PATH = Application::class . '::themePath';
 
 	/**
 	 *
@@ -97,15 +97,14 @@ class Command_Info extends Command_Base {
 	 * @var array
 	 */
 	public static array $human_names = [
-		self::APPLICATION_VERSION => 'Application Version', self::zesk_version_release => 'Zesk Version',
-		self::zesk_version_string => 'Zesk Version String',
-		self::APPLICATION_THEME_PATH => 'Application Theme Path',
-		self::zesk_application_root => 'Zesk Application Root', self::zesk_root => 'Zesk Root',
+		self::APPLICATION_VERSION => 'Application Version', self::ZESK_VERSION_RELEASE => 'Zesk Version',
+		self::VERSION_RELEASE_STRING => 'Zesk Version String', self::APPLICATION_THEME_PATH => 'Application Theme Path',
+		self::APPLICATION_PATH => 'Zesk Application Root', self::ZESK_ROOT => 'Zesk Root',
 		'enable_dl' => 'Enable Dynamic Libraries', 'php_ini' => 'php.ini Path',
 		self::COMMAND_PATH => 'Shell Command Path', 'zeskCommandPath' => 'Zesk Command Path',
 		self::ZESK_AUTOLOAD_PATH => 'Zesk Autoload Path', 'display_startup_errors' => 'Display Startup Errors',
 		'error_log' => 'PHP Error Log', self::APPLICATION_CLASS => 'Zesk Application Class',
-		self::configuration_files_loaded => 'Loaded Configuration Files',
+		self::CONFIGURATION_FILES_LOADED => 'Loaded Configuration Files',
 	];
 
 	/**
@@ -124,10 +123,10 @@ class Command_Info extends Command_Base {
 		$app = $this->application;
 
 		$info[self::APPLICATION_VERSION] = $app->version();
-		$info[self::zesk_version_release] = Version::release();
-		$info[self::zesk_version_string] = Version::string($this->application->locale);
-		$info[self::zesk_root] = ZESK_ROOT;
-		$info[self::zesk_application_root] = $app->path();
+		$info[self::ZESK_VERSION_RELEASE] = Version::release();
+		$info[self::VERSION_RELEASE_STRING] = Version::string($this->application->locale);
+		$info[self::ZESK_ROOT] = ZESK_ROOT;
+		$info[self::APPLICATION_PATH] = $app->path();
 		$info[self::APPLICATION_CLASS] = $app->applicationClass();
 		$info[self::COMMAND_PATH] = $app->commandPath();
 		$info[self::APPLICATION_THEME_PATH] = $app->themes->themePath();
@@ -138,7 +137,7 @@ class Command_Info extends Command_Base {
 		$info['display_startup_errors'] = toBool(ini_get('display_startup_errors'));
 		$info['error_log'] = ini_get('error_log');
 		$variables = $app->loader->variables();
-		$info[self::configuration_files_loaded] = toArray($variables['processed'] ?? []);
+		$info[self::CONFIGURATION_FILES_LOADED] = toArray($variables['processed'] ?? []);
 
 		$module_info = $app->modules->allHookArguments('info', [
 			[],
@@ -152,7 +151,7 @@ class Command_Info extends Command_Base {
 		if (!$this->optionBool('computer-labels')) {
 			$info = ArrayTools::keysMap($info, $human_names + self::$human_names);
 		}
-		$this->renderFormat($info, $this->option('format'));
+		$this->renderFormat($info, $this->optionString('format'));
 		return 0;
 	}
 }

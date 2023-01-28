@@ -97,7 +97,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	public function alter_table_index_add(Database_Table $table, Database_Index $index): string {
 		$name = $index->name();
 		$indexType = $index->type();
-		$indexes = $index->column_sizes();
+		$indexes = $index->columnSizes();
 		$structure = $index->structure();
 		$tableName = $table->name();
 		switch ($indexType) {

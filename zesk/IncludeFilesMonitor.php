@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage kernel
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 declare(strict_types=1);
 

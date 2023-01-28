@@ -51,6 +51,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * @throws Exception_Invalid
 	 * @throws Exception_Semantics
 	 * @throws Exception_Unsupported
+	 * @throws Exception_NotFound
 	 */
 	public function setUp(): void {
 		/*

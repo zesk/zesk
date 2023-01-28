@@ -2,8 +2,8 @@
 /**
  * @package zesk
  * @subpackage system
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -47,7 +47,7 @@ interface Interface_Process {
 	 * Take a nap.
 	 * I love naps.
 	 */
-	public function sleep($seconds = 1.0): void;
+	public function sleep(float $seconds = 1.0): void;
 
 	/**
 	 * Logging tool for processes

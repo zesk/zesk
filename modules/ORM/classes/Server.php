@@ -4,8 +4,8 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage file
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
@@ -231,27 +231,26 @@ class Server extends ORMBase implements Interface_Data {
 	 * @throws Exception_Semantics
 	 */
 	public static function singleton(Application $application): self {
-		$cache = $application->cache;
+		$cache = $application->cacheItemPool();
 		$item = null;
-		if ($cache) {
-			try {
-				$item = $cache->getItem(__METHOD__);
-			} catch (InvalidArgumentException) {
-			}
-			if ($item && $item->isHit()) {
-				$server = $item->get();
-				if ($server instanceof Server) {
-					$one_minute_ago = Timestamp::now()->addUnit(-60);
-					if ($server->alive instanceof Timestamp && $server->alive->after($one_minute_ago)) {
-						return $server;
-					}
+
+		try {
+			$item = $cache->getItem(__METHOD__);
+		} catch (InvalidArgumentException) {
+		}
+		if ($item && $item->isHit()) {
+			$server = $item->get();
+			if ($server instanceof Server) {
+				$one_minute_ago = Timestamp::now()->addUnit(-60);
+				if ($server->alive instanceof Timestamp && $server->alive->after($one_minute_ago)) {
+					return $server;
 				}
 			}
 		}
 		$server = $application->ormFactory(__CLASS__);
 		assert($server instanceof self);
 		$server = $server->_findSingleton();
-		if ($cache && $item) {
+		if ($item) {
 			$item->set($server);
 			$item->expiresAfter(60);
 			$cache->saveDeferred($item);
@@ -589,7 +588,7 @@ class Server extends ORMBase implements Interface_Data {
 	 * @throws Exception_Semantics
 	 */
 	public function aliveIPs(int $within_seconds = 300): array {
-		$ips = $this->querySelect()->addWhatIterable([
+		$ips = $this->querySelect()->appendWhat([
 			'ip4_internal' => 'ip4_internal', 'ip4_external' => 'ip4_extermal',
 		])->setDistinct()->appendWhere([
 			'alive|>=' => Timestamp::now('UTC')->addUnit(-abs($within_seconds)),

@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage contact
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -41,7 +41,7 @@ abstract class Contact_Info extends ORMBase {
 	 * @todo
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\ORMBase::store()
+	 * @see ORMBase::store()
 	 */
 	public function store(): self {
 		$result = parent::store();
@@ -56,7 +56,7 @@ abstract class Contact_Info extends ORMBase {
 	 * Effective no-op
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\ORMBase::register()
+	 * @see ORMBase::register()
 	 */
 	public function register($where = null) {
 		$result = parent::register($where);

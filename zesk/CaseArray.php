@@ -29,6 +29,13 @@ class CaseArray extends \ArrayObject implements ArrayAccess {
 	/**
 	 * @return array
 	 */
+	public function flipped(): array {
+		return ArrayTools::valuesMap(array_flip($this->lowNameToValue), $this->nameToCase);
+	}
+
+	/**
+	 * @return array
+	 */
 	public function keys(): array {
 		return array_values($this->nameToCase);
 	}

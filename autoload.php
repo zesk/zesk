@@ -6,47 +6,23 @@ declare(strict_types=1);
  *
  * @package zesk
  * @subpackage core
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
- */
-
-namespace zesk\Kernel;
-
-use zesk\Exception_Directory_NotFound;
-use zesk\Kernel;
-use zesk\Exception_Unsupported;
-
-require_once(__DIR__ . '/xdebug.php');
-
-/**
- * @global array $_ZESK To initialize the configuration of Zesk, set this global to an array before including this file
- * @global zesk\Kernel $zesk The zesk\Kernel object to access zesk functionality
- *
  * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
-class Loader {
-	/**
-	 * Microtime of when this file was loaded
-	 *
-	 * @var double
-	 */
-	private static float $init;
 
-	/**
-	 *
-	 * @return Kernel
-	 * @throws Exception_Unsupported|Exception_Directory_NotFound
-	 */
-	public static function kernel(): Kernel {
-		global $_ZESK;
+namespace zesk;
 
-		self::$init = microtime(true);
-		require_once __DIR__ . '/zesk/Kernel.php';
-
-		return Kernel::factory((is_array($_ZESK) ? $_ZESK : []) + [
-			'init' => self::$init,
-		]);
-	}
+if (!is_file(__DIR__ . '/vendor/autoload.php')) {
+	spl_autoload_register(function ($class) {
+		if (str_starts_with($class, __NAMESPACE__ . '\\')) {
+			$file = strtr($class, ['_' => '/', '\\' => '/']) . '.php';
+			if (is_file(__DIR__ . "/$file")) {
+				require_once($file);
+				return true;
+			}
+		}
+		return false;
+	}, false);
+} else {
+	require_once __DIR__ . '/vendor/autoload.php';
 }
-
-return Loader::kernel();

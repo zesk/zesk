@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 /**
  *
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  * @author kent
  *
  */
@@ -105,7 +105,7 @@ class Command_Connect extends Command_Base {
 		}
 		if ($this->optionBool('db-name')) {
 			foreach ($dbs as $db) {
-				$dbs[$db->codeName()] = $db->url('name');
+				$dbs[$db->codeName()] = $db->urlComponent('name');
 			}
 		}
 		if ($name) {
@@ -153,7 +153,7 @@ class Command_Connect extends Command_Base {
 
 				try {
 					$grant_statements = $object->sql()->grant([
-						'user' => $object->url('user'), 'pass' => $object->url('pass'), 'name' => $object->url('name'),
+						'user' => $object->urlComponent('user'), 'pass' => $object->urlComponent('pass'), 'name' => $object->urlComponent('name'),
 						'from_host' => $this->option('host'), 'tables' => Database_SQL::SQL_GRANT_ALL,
 					]);
 				} catch (Exception_Unsupported|Exception_Key) {

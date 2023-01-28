@@ -34,12 +34,12 @@ docker_tty() {
   fi
 }
 
-Zesk() {
+_Zesk() {
   local user
   user=$1
   shift
   docker compose -f "${ZESK_DOCKER_COMPOSE}" exec $(docker_no_tty) -u "${user}" php "$@"
 }
 
-alias ZeskRootBash='Zesk root bash'
-alias ZeskBash='Zesk www-data bash'
+alias ZeskRootBash='_Zesk root bash'
+alias ZeskBash='_Zesk www-data bash'

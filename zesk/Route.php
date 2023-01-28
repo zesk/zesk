@@ -16,6 +16,18 @@ use Throwable;
  */
 abstract class Route extends Hookable {
 	/**
+	 * Value is an associative array or a list
+	 *
+	 * @var string
+	 */
+	public const OPTION_ALIASES = 'aliases';
+
+	/**
+	 * When a list, the alias value
+	 */
+	public const OPTION_ALIAS_TARGET = 'aliasTarget';
+
+	/**
 	 *
 	 * @var string
 	 */
@@ -648,14 +660,17 @@ abstract class Route extends Hookable {
 		return $x;
 	}
 
-	private function _computeVariablesMap(Request $request, Response $response): array {
-		$result = [
+	private function _stringToObjectMapping(Request $request, Response $response): array {
+		return [
 			'{application}' => $this->application, '{request}' => $request, '{response}' => $response,
 			'{route}' => $this, '{router}' => $this->router,
 		];
-		$result += ArrayTools::wrapKeys($request->variables(), '{request.', '}');
-		$result += ArrayTools::wrapKeys($request->urlComponents(), '{url.', '}');
-		return $result;
+	}
+
+	protected function _requestMap(Request $request): array {
+		return
+			ArrayTools::prefixKeys($request->variables(), 'request.') +
+			ArrayTools::prefixKeys($request->urlComponents(), 'url.');
 	}
 
 	/**
@@ -666,11 +681,17 @@ abstract class Route extends Hookable {
 	 * @param Response $response
 	 * @return mixed
 	 */
-	protected function _mapVariables(Request $request, Response $response, mixed $mixed): mixed {
-		if (!is_array($mixed)) {
-			return $mixed;
+	protected function _mapVariables(Request $request, Response $response, string|array $mixed): string|array {
+		if (is_array($mixed)) {
+			/**
+			 * Replace the tokens found here with the objects if the strings match exactly
+			 */
+			$mixed = ArrayTools::valuesMap($mixed, $this->_stringToObjectMapping($request, $response));
 		}
-		return ArrayTools::valuesMap($mixed, $this->_computeVariablesMap($request, $response));
+		/**
+		 * Replace tokens in the strings with variables here
+		 */
+		return ArrayTools::map($mixed, $this->_requestMap($request));
 	}
 
 	/**
@@ -840,8 +861,7 @@ abstract class Route extends Hookable {
 		}
 		$this->_permissions($request, $response);
 		$template = Template::factory($this->application->themes, '', [
-			'response' => $response, 'route' => $this, 'request' => $request,
-			'routeVariables' => $this->variables(),
+			'response' => $response, 'route' => $this, 'request' => $request, 'routeVariables' => $this->variables(),
 		])->push();
 
 		try {
@@ -951,5 +971,35 @@ abstract class Route extends Hookable {
 			$route_map,
 		], $route_map);
 		return rtrim(mapClean(map($this->cleanPattern, $map), '/'));
+	}
+
+	/**
+	 * A unique ID for this route
+	 */
+	public const OPTION_ID = 'id';
+
+	/**
+	 * @param Router $router
+	 * @return $this
+	 * @throws Exception_Semantics
+	 */
+	public function wasAdded(Router $router): self {
+		if (!$this->hasOption(self::OPTION_ALIASES)) {
+			return $this;
+		}
+		$defaultAlias = $this->optionString(self::OPTION_ALIAS_TARGET, $this->getPattern());
+		foreach ($this->optionArray(self::OPTION_ALIASES) as $alias => $aliasId) {
+			if (!is_string($aliasId)) {
+				throw new Exception_Semantics('{option} in route must be an object with string keys and values {alias} and {id} provided', [
+					'option' => self::OPTION_ALIASES, 'alias' => gettype($alias), 'id' => gettype($id),
+				]);
+			}
+			if (is_numeric($alias)) {
+				$alias = $aliasId;
+				$aliasId = $defaultAlias;
+			}
+			$router->addAlias($alias, $aliasId);
+		}
+		return $this;
 	}
 }

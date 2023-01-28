@@ -358,7 +358,7 @@ class URL {
 		if ($result['scheme'] === 'mailto' && array_key_exists('path', $result)) {
 			$path = $result['path'];
 			unset($result['path']);
-			[$user, $host] = pairr($path, '@', '', $path);
+			[$user, $host] = reversePair($path, '@', '', $path);
 			if ($user) {
 				$result['user'] = $user;
 			}

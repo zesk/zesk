@@ -308,7 +308,7 @@ class Deploy extends Hookable {
 	 */
 	protected function hook_extension_sql(array $tag): array {
 		$path = $tag['path'];
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$sqlStatements = $db->splitSQLStatements(file_get_contents($path));
 		$result = [
 			'type' => 'sql',

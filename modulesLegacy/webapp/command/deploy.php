@@ -99,7 +99,7 @@ class Command_Deploy extends \zesk\Command_Base {
 		$this->update_source_code();
 
 		$this->log('Updating the schema ...');
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$results = $application->schema_synchronize($db);
 		$this->log($results);
 		$db->query($results);

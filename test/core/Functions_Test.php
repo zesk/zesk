@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace zesk;
 
 /**
- * @see classes/functions.php
+ * @see AddressLock/functions.php
  * @author kent
  *
  */

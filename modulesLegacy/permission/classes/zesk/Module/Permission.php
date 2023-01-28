@@ -158,7 +158,7 @@ class Module_Permission extends Module {
 					]);
 				}
 				$user_cached_permissions[$cache_key] = $result;
-				$application->cache->saveDeferred($user_cache->set($user_cached_permissions));
+				$application->cacheItemPool()->saveDeferred($user_cache->set($user_cached_permissions));
 				return $result;
 			}
 		}
@@ -172,7 +172,7 @@ class Module_Permission extends Module {
 			]);
 		}
 		$user_cached_permissions[$cache_key] = $result;
-		$application->cache->saveDeferred($user_cache->set($user_cached_permissions));
+		$application->cacheItemPool()->saveDeferred($user_cache->set($user_cached_permissions));
 		return $result;
 	}
 
@@ -253,7 +253,7 @@ class Module_Permission extends Module {
 	 * @return CacheItemInterface
 	 */
 	private function _cache() {
-		return $this->application->cache->getItem(__CLASS__);
+		return $this->application->cacheItemPool()->getItem(__CLASS__);
 	}
 
 	/**
@@ -264,7 +264,7 @@ class Module_Permission extends Module {
 		if ($this->optionBool('disable_cache')) {
 			return;
 		}
-		$this->application->cache->saveDeferred($item);
+		$this->application->cacheItemPool()->saveDeferred($item);
 	}
 
 	/**
@@ -361,7 +361,7 @@ class Module_Permission extends Module {
 		]);
 		$roles = $application->ormRegistry('Role')
 			->querySelect('X')
-			->addWhatIterable([
+			->appendWhat([
 				'id' => 'X.id',
 				'code' => 'X.code',
 			])

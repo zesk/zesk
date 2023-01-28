@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
@@ -104,21 +104,6 @@ class Database_Query_Update extends Database_Query_Edit {
 	 */
 	public function result() {
 		return $this->result;
-	}
-
-	/**
-	 * @return self
-	 * @throws Exception_Deprecated
-	 * @throws Exception_Semantics
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
-	 * @deprecated 2018-02 Use "execute()->result()" instead.
-	 *
-	 */
-	public function exec(): self {
-		zesk()->deprecated();
-		return $this->execute();
 	}
 
 	/**

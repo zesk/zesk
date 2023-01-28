@@ -3,8 +3,8 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
@@ -17,7 +17,7 @@ class Database_Query_Insert_Select_Test extends ORMUnitTest {
 	];
 
 	public function test_main(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$testx = new Database_Query_Insert_Select($db);
 
 		$this->assertEquals('', $testx->__toString());
@@ -29,7 +29,7 @@ class Database_Query_Insert_Select_Test extends ORMUnitTest {
 		$table = 'test_table';
 		$testx->into($table);
 
-		$testx->addWhatIterable([
+		$testx->appendWhat([
 			'A' => 'B', '*C' => 'UTC_TIMESTAMP()', 'D' => 'Table.Field',
 		]);
 

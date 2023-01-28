@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage kernel
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -52,7 +52,8 @@ abstract class Version {
 	 * @return string
 	 */
 	private static function _file(string $name, string $default): string {
-		return trim(File::contents(path(ZESK_ROOT, $name)) ?? $default);
+		$root = dirname(__DIR__);
+		return trim(File::contents(Directory::path($root, $name)) ?? $default);
 	}
 
 	/**

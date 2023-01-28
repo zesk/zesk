@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage ORM
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk\ORM;
 
@@ -103,14 +103,6 @@ class Database_Adapter_MySQL extends Database_Adapter {
 			case Class_Base::TYPE_CREATED:
 			case Class_Base::TYPE_TIMESTAMP:
 				$column->setSQLType('timestamp');
-				return ;
-			case 'checksum':
-				zesk()->deprecated(); // ?? This used anywhere?
-				$column->setSQLType('char(32)');
-				return ;
-			case 'password':
-				zesk()->deprecated(); // ?? This used anywhere?
-				$column->setSQLType('varchar(32)');
 				return ;
 		}
 

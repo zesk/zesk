@@ -8,11 +8,12 @@ declare(strict_types=1);
  * @no-cannon Do not cannon this file (for _W)
  * @package zesk
  * @subpackage system
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 use zesk\Kernel;
+use zesk\StringTools;
 use zesk\Text;
 use zesk\PHP;
 use zesk\Debug;
@@ -20,6 +21,7 @@ use zesk\JSON;
 use zesk\Locale;
 use zesk\Application;
 use zesk\Hookable;
+use zesk\Directory;
 use zesk\ArrayTools;
 use zesk\Exception_Semantics;
 
@@ -86,11 +88,11 @@ const ZESK_GLOBAL_KEY_SEPARATOR = '::';
  *
  * zesk()->deprecated()
  *
- * @return ?Kernel
+ * @return ?Application
  */
-function zesk(): ?Kernel {
+function zesk(): ?Application {
 	try {
-		return Kernel::singleton();
+		return Kernel::singleton()->application();
 	} catch (Exception) {
 		return null;
 	}
@@ -379,7 +381,7 @@ function toArray(mixed $mixed, array $default = []): array {
 			$mixed,
 		];
 	}
-	if (is_object($mixed) && method_exists($mixed, 'to_array')) {
+	if (is_object($mixed) && method_exists($mixed, 'toArray')) {
 		return $mixed->toArray();
 	}
 	return $default;
@@ -596,39 +598,7 @@ function mapKeys(array $target, array $map, bool $insensitive = false, string $p
  * @return array|string
  */
 function map(array|string $mixed, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array|string {
-	if ($insensitive) {
-		$map = array_change_key_case($map);
-	}
-	$s = [];
-	foreach ($map as $k => $v) {
-		if (is_array($v)) {
-			if (ArrayTools::isList($v)) {
-				$v = implode(';', ArrayTools::flatten($v));
-			} else {
-				try {
-					$v = JSON::encode($v);
-				} catch (Exception_Semantics) {
-					$v = null;
-				}
-			}
-		} elseif (is_object($v)) {
-			if (method_exists($v, '__toString')) {
-				$v = strval($v);
-			} else {
-				$v = $v::class;
-			}
-		}
-		$s[$prefix_char . $k . $suffix_char] = $v;
-	}
-	if ($insensitive) {
-		static $func = null;
-		if (!$func) {
-			$func = fn ($matches) => strtolower($matches[0]);
-		}
-		$mixed = preg_replace_callback_mixed('#' . preg_quote($prefix_char, '/') . '([-:_ =,./\'"A-Za-z0-9]+)' . preg_quote($suffix_char, '/') . '#i', $func, $mixed);
-	}
-	// tr("{a}", array("{a} => null)) = "null"
-	return tr($mixed, $s);
+	return ArrayTools::map($mixed, $map, $insensitive, $prefix_char, $suffix_char);
 }
 
 /**
@@ -698,14 +668,7 @@ function mapExtractTokens(string $subject, string $prefix_char = '{', string $su
  * @return array A size 2 array containing the left and right portions of the pair
  */
 function pair(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
-	$n = strpos($a, $delim);
-	$delim_len = strlen($delim);
-	return ($n === false) ? [
-		$left, $right,
-	] : [
-		substr($a, 0, $n + ($include_delimiter === 'left' ? $delim_len : 0)),
-		substr($a, $n + ($include_delimiter === 'right' ? 0 : $delim_len)),
-	];
+	return StringTools::pair($a, $delim, $left, $right, $include_delimiter);
 }
 
 /**
@@ -727,14 +690,7 @@ function pair(string $a, string $delim = '.', string $left = '', string $right =
  * @see pair
  */
 function reversePair(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
-	$n = strrpos($a, $delim);
-	$delim_len = strlen($delim);
-	return ($n === false) ? [
-		$left, $right,
-	] : [
-		substr($a, 0, $n + ($include_delimiter === 'left' ? $delim_len : 0)),
-		substr($a, $n + ($include_delimiter === 'right' ? 0 : $delim_len)),
-	];
+	return StringTools::reversePair($a, $delim, $left, $right, $include_delimiter);
 }
 
 /**
@@ -802,25 +758,7 @@ function unquote(string $string_to_unquote, string $quotes = '\'\'""', string &$
  * @inline_test path_from_array("/", ["", "", "", null, false, "a", "b"]) === "/a/b"
  */
 function path_from_array(string $separator, array $mixed): string {
-	$r = array_shift($mixed);
-	if (is_array($r)) {
-		$r = path_from_array($separator, $r);
-	} elseif (!is_string($r)) {
-		$r = '';
-	}
-	foreach ($mixed as $p) {
-		if ($p === null) {
-			continue;
-		}
-		if (is_array($p)) {
-			$p = path_from_array($separator, $p);
-		}
-		if (is_string($p)) {
-			$r .= ((substr($r, -1) === $separator || substr($p, 0, 1) === $separator)) ? $p : $separator . $p;
-		}
-	}
-	$separator_quoted = preg_quote($separator);
-	return preg_replace("|$separator_quoted$separator_quoted+|", $separator, $r);
+	return StringTools::joinArray($separator, $mixed);
 }
 
 /**
@@ -834,8 +772,7 @@ function path_from_array(string $separator, array $mixed): string {
  */
 function path(array|string $path /* dir, dir, ... */): string {
 	$args = func_get_args();
-	$r = path_from_array('/', $args);
-	return preg_replace('|(/\.)+/|', '/', $r); // TODO Test this doesn't munge foo/.bar
+	return call_user_func_array(Directory::path(...), $args);
 }
 
 /**
@@ -848,7 +785,7 @@ function path(array|string $path /* dir, dir, ... */): string {
  */
 function domain(array|string $domain /* name, name, ... */): string {
 	$args = func_get_args();
-	return trim(path_from_array('.', $args), '.');
+	return trim(StringTools::joinArray('.', $args), '.');
 }
 
 /**
@@ -1069,7 +1006,11 @@ function &apath_set(array &$array, string|array $path, mixed $value = null, stri
 		$current = &$current[$key];
 	}
 	$key = array_shift($keys);
-	$current[$key] = $value;
+	if ($value === null) {
+		unset($current[$key]);
+	} else {
+		$current[$key] = $value;
+	}
 	return $current[$key];
 }
 
@@ -1334,7 +1275,7 @@ function to_iterator(mixed $mixed): iterable {
  * @see Locale::__invoke
  */
 function __(array|string $phrase): string {
-	zesk()->deprecated(__METHOD__);
+	Kernel::singleton()->application()->deprecated(__METHOD__);
 	$args = func_get_args();
 	$locale = Kernel::singleton()->application()->locale;
 	array_shift($args);

@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage webapp
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk\WebApp;
 
@@ -19,7 +19,7 @@ abstract class Class_Base extends \zesk\Class_Base {
 	 *
 	 * Only thing set is "$this->class"
 	 */
-	protected function configure(\zesk\ORMBase $object): void {
+	protected function configure(ORMBase $object): void {
 		$this->setOption('table_prefix', 'WebApp_');
 		parent::configure($object);
 	}

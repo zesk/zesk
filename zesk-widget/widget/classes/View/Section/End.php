@@ -2,8 +2,8 @@
 /**
  * @package zesk
  * @subpackage widgets
- * @author kent <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * Created on Tue,Sep 22, 09 at 1:16 PM
  */
 namespace zesk;

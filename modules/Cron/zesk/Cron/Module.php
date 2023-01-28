@@ -8,11 +8,12 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Cron;
 
+use Closure;
 use Throwable;
 use zesk\Application;
 use zesk\ArrayTools;
@@ -24,8 +25,8 @@ use zesk\Exception_Class_NotFound;
 use zesk\Exception_Convert;
 use zesk\Exception_Key;
 use zesk\Exception_Semantics;
+use zesk\Exception_Timeout;
 use zesk\Exception_Unimplemented;
-use zesk\Template;
 use zesk\Exception;
 use zesk\Exception_Parameter;
 use zesk\Hookable;
@@ -65,8 +66,8 @@ class Module extends BaseModule {
 	protected string $lock_name = __CLASS__;
 
 	/**
-	 * Debugging - place to accumulate called methods so we
-	 * can audit which methods are called by cron
+	 * Debugging - place to accumulate called methods in order to
+	 * audit methods called by cron
 	 *
 	 * @var array
 	 */
@@ -140,8 +141,7 @@ class Module extends BaseModule {
 	 * @param mixed $new_result
 	 * @return mixed
 	 */
-	public function _result_callback(callable|Closure|array|string $method, mixed $previous_result, mixed
-	$new_result): mixed {
+	public function _result_callback(callable|Closure|array|string $method, mixed $previous_result, mixed $new_result): mixed {
 		$elapsed = microtime(true) - $this->start;
 		if ($elapsed > ($elapsed_warn = $this->optionFloat('elapsed_warn', 2))) {
 			$locale = $this->application->locale;
@@ -261,7 +261,6 @@ class Module extends BaseModule {
 	 * @param string $prefix
 	 * @param string $unit
 	 * @return Timestamp
-	 * @throws Exception_Parameter
 	 * @throws Exception_Convert
 	 */
 	private static function _last_cron_run(Interface_Data $object, string $prefix = '', string $unit = ''): Timestamp {
@@ -326,7 +325,17 @@ class Module extends BaseModule {
 		];
 	}
 
-	public function reset() {
+	/**
+	 * @return $this
+	 * @throws Database_Exception
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Key
+	 * @throws Exception_Semantics
+	 */
+	public function reset(): self {
 		$scopes = $this->_cron_scopes($this->application);
 		foreach ($scopes as $settings) {
 			$state = $settings['state'];
@@ -336,14 +345,15 @@ class Module extends BaseModule {
 				self::_cron_reset($state, $settings['prefix'], $unit);
 			}
 		}
-		return true;
+		return $this;
 	}
 
 	/**
 	 *
 	 * @return array
+	 * @throws Exception_Convert
 	 */
-	public function list_status(): array {
+	public function listStatus(): array {
 		$hooks = $this->application->hooks;
 		$now = Timestamp::now();
 		$results = [];
@@ -384,14 +394,16 @@ class Module extends BaseModule {
 	/**
 	 *
 	 * @return array
+	 * @throws Exception_Convert
 	 */
-	public function last_run(): array {
+	public function lastRun(): array {
 		try {
 			$scopes = $this->_cron_scopes($this->application);
 		} catch (Exception $e) {
 			$this->_exception($e, __CLASS__ . '::list_status');
 			return [];
 		}
+		$results = [];
 		foreach ($scopes as $method => $settings) {
 			$state = $settings['state'];
 			/* @var $state Interface_Data */
@@ -420,9 +432,9 @@ class Module extends BaseModule {
 	}
 
 	/**
-	 *
+	 * Do things which cron depends on
 	 */
-	private function _critical_crons(): void {
+	private function _critical_cron_tasks(): void {
 		// This may never run if our locks do not get cleaned
 		Lock::cron_cluster_minute($this->application);
 	}
@@ -430,17 +442,16 @@ class Module extends BaseModule {
 	/**
 	 * Internal function to run tasks
 	 */
-	private function _run(): bool {
+	private function _run(): void {
 		$hooks = $this->application->hooks;
 		$locale = $this->application->locale;
 		$now = Timestamp::now();
-		$results = [];
 
 		try {
 			$scopes = $this->_cron_scopes($this->application);
 		} catch (Throwable $e) {
 			$this->_exception($e, __CLASS__ . '::_cron_scopes');
-			return false;
+			return;
 		}
 		$hook_callback = [
 			$this, '_hook_callback',
@@ -451,7 +462,7 @@ class Module extends BaseModule {
 		$cron_arguments = [
 			$this->application,
 		];
-		$this->timer = null;
+
 		/**
 		 * Collect locks and replace member 'lock' with Lock object once acquired.
 		 *
@@ -460,13 +471,14 @@ class Module extends BaseModule {
 		foreach ($scopes as $method => $settings) {
 			$lock_name = $settings['lock'];
 			$lock = Lock::instance($this->application, $lock_name);
-			if ($lock->acquire() === null) {
+
+			try {
+				$scopes[$method]['lock'] = $lock->acquire();
+			} catch (Exception_Timeout) {
 				unset($scopes[$method]);
 				$this->application->logger->warning('{method}: Unable to acquire lock {lock_name}, skipping scope {scope_method}', [
 					'method' => __METHOD__, 'scope_method' => $method, 'lock_name' => $lock_name,
 				]);
-			} else {
-				$scopes[$method]['lock'] = $lock;
 			}
 		}
 
@@ -485,14 +497,14 @@ class Module extends BaseModule {
 				try {
 					$this->hook_source = $method . ' second global hooks->all_call';
 					$hooks->allCallArguments($cron_hooks, $cron_arguments, null, $hook_callback, $result_callback);
-				} catch (Exception $e) {
+				} catch (Throwable $e) {
 					$this->_exception($e, $cron_hooks);
 				}
 
 				try {
 					$this->hook_source = $method . ' second module->all_hook';
 					$this->application->modules->allHookArguments($method, [], null, $hook_callback, $result_callback);
-				} catch (Exception $e) {
+				} catch (Throwable $e) {
 					$this->_exception($e, "Module::$method");
 				}
 			}
@@ -509,14 +521,14 @@ class Module extends BaseModule {
 						$unit_hooks = ArrayTools::suffixValues($cron_hooks, "_$unit");
 						$this->hook_source = $method . " $unit hooks->all_call";
 						$hooks->allCallArguments($unit_hooks, $cron_arguments, null, $hook_callback, $result_callback);
-					} catch (Exception $e) {
+					} catch (Throwable $e) {
 						$this->_exception($e, $unit_hooks);
 					}
 
 					try {
 						$this->hook_source = $method . " $unit modules->all_hook";
 						$this->application->modules->allHookArguments($method . "_$unit", [], null, $hook_callback, $result_callback);
-					} catch (Exception $e) {
+					} catch (Throwable $e) {
 						$this->_exception($e, $unit_hooks);
 					}
 				}
@@ -528,14 +540,15 @@ class Module extends BaseModule {
 		foreach ($scopes as $method => $settings) {
 			$lock = $settings['lock'];
 			$lock->release();
+			unset($scopes[$method]['lock']);
 		}
-		return true;
 	}
 
 	/**
 	 * Run cron from a JavaScript request
 	 *
 	 * @return string
+	 * @throws Exception_Unimplemented
 	 */
 	public function run_js(): string {
 		$run = $this->run();
@@ -570,7 +583,7 @@ class Module extends BaseModule {
 		}
 
 		PHP::setFeature(PHP::FEATURE_TIME_LIMIT, $this->optionInt('time_limit', 0));
-		$this->_critical_crons();
+		$this->_critical_cron_tasks();
 		$this->_run();
 
 		$modules->allHookArguments('cron_after', [
@@ -606,61 +619,37 @@ class Module extends BaseModule {
 	 *
 	 * <code>
 	 * public static function cron_minute() {
-	 * if (!Module_Cron::hourly(__CLASS__, 15)) {
-	 * return;
+	 * if ($completion = $application->cronModule()->hourly($settings, __CLASS__, 15)) {
+	 *       // Do our stuff
+	 *     $completion(); // Saves our state
 	 * }
-	 * // Do our stuff
+	 *
 	 * }
 	 * </code>
 	 *
+	 * @param Interface_Settings $settings
 	 * @param string $prefix
 	 * @param int $minute_to_hit
 	 *            Minute of the hour to hit
+	 * @return Closure|null
+	 * @throws Exception_Parameter
 	 */
-	public static function hourly(Interface_Settings $settings, string $prefix, int $minute_to_hit = 0): bool {
+	public function hourly(Interface_Settings $settings, string $prefix, int $minute_to_hit = 0): Closure|null {
 		if (empty($prefix)) {
 			throw new Exception_Parameter('Prefix mus be non-empty to hourly');
 		}
-		$locale = $settings->application->locale;
 		/*
-		 * last_check - last time this script checked if it should run
-		 * last_run - last time this cron task was actually ran
+		 * $last_check_setting - last time this script checked if it should run
+		 * $last_run_setting - last time this cron task was actually ran
 		 */
-		$last_run_setting = $prefix . 'hourly_last_run';
-		$last_check_setting = $prefix . 'hourly_last_check';
+		$last_run_setting = $prefix . '::hourly_last_run';
+		$last_check_setting = $prefix . '::hourly_last_check';
 
-		$now = Timestamp::now();
-		$hour_minute = clone $now;
+		$hour_minute = Timestamp::now();
 		$hour_minute->setMinute($minute_to_hit)->setSecond(0);
 
-		$last_run = $settings->get($last_run_setting);
-		if ($last_run) {
-			$last_run = Timestamp::factory($last_run);
-		}
-		$last_check = $settings->get($last_check_setting);
-		if ($last_check) {
-			$last_check = Timestamp::factory($last_check);
-		}
-		$now_minute = $now->minute();
-		$settings->set($last_check_setting, $now->format($locale));
 		$format = '{YYYY}-{MM}-{DD}-{hh}';
-		if ($last_run !== null) {
-			if ($last_run->format($locale, $format) === $now->format($locale, $format)) {
-				return false;
-			}
-		}
-		if ($last_check === null) {
-			if ($now_minute === $minute_to_hit) {
-				$settings->set($last_run_setting, $now->format($locale));
-				return true;
-			}
-		} else {
-			if ($hour_minute->before($now) && $hour_minute->after($last_check)) {
-				$settings->set($last_run_setting, $now->format($locale));
-				return true;
-			}
-		}
-		return false;
+		return $this->_manageRepeatState($settings, $last_run_setting, $last_check_setting, $format, 'minute', $minute_to_hit, $hour_minute);
 	}
 
 	/**
@@ -680,15 +669,17 @@ class Module extends BaseModule {
 	 * }
 	 * </code>
 	 *
+	 * @param Interface_Settings $settings
 	 * @param string $prefix
 	 * @param int $hour_to_hit
 	 *            Hour of the day to hit, 0 ... 23
+	 * @return Closure|null
+	 * @throws Exception_Parameter
 	 */
-	public function dailyHourOfDay(Interface_Settings $settings, string $prefix, int $hour_to_hit): bool {
+	public function dailyHourOfDay(Interface_Settings $settings, string $prefix, int $hour_to_hit): Closure|null {
 		if (empty($prefix)) {
 			throw new Exception_Parameter('Prefix mus be non-empty to daily_hour_of_day');
 		}
-		$hour_to_hit = intval($hour_to_hit);
 		/*
 		 * last_check - last time this script checked if it should run
 		 * last_run - last time this cron task was actually ran
@@ -696,44 +687,66 @@ class Module extends BaseModule {
 		$last_run_setting = $prefix . 'daily_last_run';
 		$last_check_setting = $prefix . 'daily_last_check';
 
-		$locale = $this->application->locale;
-		$now = Timestamp::factory('now');
-		$today_hour = clone $now;
+		$today_hour = Timestamp::now();
 		$today_hour->setHour($hour_to_hit)->setMinute(0)->setSecond(0);
-		$last_run = $settings->get($last_run_setting);
-		if ($last_run) {
-			$last_run = Timestamp::factory($last_run);
-		}
-		$last_check = $settings->get($last_check_setting);
-		if ($last_check) {
-			$last_check = Timestamp::factory($last_check);
-		}
-		$now_hour = $now->hour();
-		$settings->set($last_check_setting, $now->format($locale));
+
 		$format = '{YYYY}-{MM}-{DD}';
+		return self::_manageRepeatState($settings, $last_run_setting, $last_check_setting, $format, 'hour', $hour_to_hit, $today_hour);
+	}
+
+	/**
+	 * Manages repeating state
+	 *
+	 * @param Interface_Settings $settings
+	 * @param string $lastRunSetting
+	 * @param string $lastCheckSetting
+	 * @param string $settingFormat
+	 * @param string $targetUnit
+	 * @param int $targetValue
+	 * @param Timestamp $targetTimestamp
+	 * @return Closure|null
+	 * @throws Exception_Convert
+	 */
+	private function _manageRepeatState(Interface_Settings $settings, string $lastRunSetting, string $lastCheckSetting, string $settingFormat, string $targetUnit, int $targetValue, Timestamp $targetTimestamp): Closure|null {
+		$locale = $this->application->locale;
+		$now = Timestamp::now();
+
+		$last_run = $settings->get($lastRunSetting);
+		$last_run = $last_run ? Timestamp::factory($last_run) : null;
+
+		$last_check = $settings->get($lastCheckSetting);
+		$last_check = $last_check ? Timestamp::factory($last_check) : null;
+		$settings->set($lastCheckSetting, $now->format($locale));
+
+		$lastRunSettingValue = $now->format($locale);
+
 		if ($last_run !== null) {
-			if ($last_run->format($locale, $format) === $now->format($locale, $format)) {
-				return false;
+			if ($last_run->format($locale, $settingFormat) === $now->format($locale, $settingFormat)) {
+				return null;
 			}
 		}
 		if ($last_check === null) {
-			if ($now_hour === $hour_to_hit) {
-				$settings->set($last_run_setting, $now->format($locale));
-				return true;
+			$nowUnitValue = $now->$targetUnit();
+			if ($nowUnitValue === $targetValue) {
+				return (function () use ($settings, $lastRunSetting, $lastRunSettingValue) {
+					$settings->set($lastRunSetting, $lastRunSettingValue);
+					return true;
+				})(...);
 			}
 		} else {
-			if ($today_hour->before($now) && $today_hour->after($last_check)) {
-				$settings->set($last_run_setting, $now->format($locale));
-				return true;
+			if ($targetTimestamp->before($now) && $targetTimestamp->after($last_check)) {
+				return (function () use ($settings, $lastRunSetting, $lastRunSettingValue) {
+					$settings->set($lastRunSetting, $lastRunSettingValue);
+					return true;
+				})(...);
 			}
 		}
-		return false;
+		return null;
 	}
 
 	/**
 	 *
-	 * @param Template $template
-	 * @return string[][]
+	 * @return array
 	 */
 	protected function hook_system_panel() {
 		return [

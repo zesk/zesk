@@ -5,7 +5,7 @@
  * @package    zesk
  * @subpackage test
  * @author     kent
- * @copyright  Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright  Copyright &copy; 2023, Market Acumen, Inc.
  *             Created on Wed Aug 27 20:50:44 EDT 2011 20:50:44
  */
 namespace zesk;

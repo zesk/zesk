@@ -42,7 +42,7 @@ class Template implements Interface_Theme {
 	 *
 	 * @var Template_Stack
 	 */
-	public Template_Stack $stack;
+	protected Template_Stack $stack;
 
 	/**
 	 * Stack of Template for begin/end
@@ -62,7 +62,13 @@ class Template implements Interface_Theme {
 	 *
 	 * @var string
 	 */
-	public string $_path = '';
+	protected string $_id = '';
+
+	/**
+	 *
+	 * @var string
+	 */
+	protected string $_path = '';
 
 	/**
 	 * Template variables
@@ -177,6 +183,15 @@ class Template implements Interface_Theme {
 	}
 
 	/**
+	 * The short ID for the template, uniquely identifies it as requested
+	 *
+	 * @return string
+	 */
+	public function id(): string {
+		return $this->_id;
+	}
+
+	/**
 	 * Start output buffering for a \"theme\", push it on the stack.
 	 *
 	 * @param string $path
@@ -274,20 +289,33 @@ class Template implements Interface_Theme {
 	 * Find template path
 	 *
 	 * @param string $path
-	 * @return string
+	 * @return string Found path
 	 */
 	public function findPath(string $path): string {
+		[$path] = $this->_findPath($path);
+		return $path;
+	}
+
+	/**
+	 * Find template path
+	 *
+	 * @param string $path
+	 * @return array In the form `["path", "id"]`
+	 */
+	protected function _findPath(string $path): array {
 		if (Directory::isAbsolute($path)) {
+			$id = '';
 			if (file_exists($path)) {
-				return $path;
+				return [$path, $id];
 			}
-			return '';
+			return ['', $id];
 		}
 
 		try {
-			return $this->themes->themeFind($path, [
+			$result = $this->themes->themeFind($path, [
 				'no_extension' => true,
 			]);
+			return [$result, $path];
 		} catch (Exception_NotFound) {
 			$themePaths = $this->themes->themePath();
 			if (self::$debug) {
@@ -300,7 +328,7 @@ class Template implements Interface_Theme {
 					'path' => $path, 'themePaths' => $themePaths, 'n_paths' => count($themePaths),
 				]);
 			}
-			return '';
+			return ['', ''];
 		}
 	}
 
@@ -330,7 +358,7 @@ class Template implements Interface_Theme {
 	 * @return $this
 	 */
 	public function setPath(string $set): self {
-		$this->_path = $this->findPath($set);
+		[$this->_path, $this->_id] = $this->_findPath($set);
 		return $this;
 	}
 

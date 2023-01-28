@@ -21,7 +21,7 @@ class Hookable extends \zesk\Hookable {
 	 *
 	 * @var Application
 	 */
-	public $application = null;
+	public Application $application;
 
 	/**
 	 *
@@ -30,6 +30,6 @@ class Hookable extends \zesk\Hookable {
 	 */
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
-		$this->inheritConfiguration();
+		$this->inheritConfiguration('', false);
 	}
 }

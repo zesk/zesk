@@ -130,7 +130,7 @@ abstract class Command_Base extends Command implements Handler {
 	 * @return void
 	 * @throws Exception_Exited
 	 */
-	protected function hook_run_before(): void {
+	protected function hook_runBefore(): void {
 		$this->configure_logging();
 		if ($this->optionBool('help')) {
 			$this->usage();

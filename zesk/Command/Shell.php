@@ -38,7 +38,7 @@ class Command_Shell extends Command_Base {
 		'skip-configure' => 'Skip application configuration',
 		'json' => 'Output results as JSON instead of PHP',
 		'interactive' => 'Run interactively',
-		'debug-state' => 'Run interactively. When running interactively the ',
+		'debug-state' => 'Debug interactive state management',
 		'*' => 'string',
 	];
 
@@ -71,7 +71,7 @@ class Command_Shell extends Command_Base {
 	 */
 	public function run(): int {
 		if (!$this->optionBool('skip-configure')) {
-			$this->configure('eval');
+			$this->configure('shell');
 		}
 		$this->handle_base_options();
 		$this->saved_vars = [];
@@ -119,7 +119,7 @@ class Command_Shell extends Command_Base {
 	 * @throws Exception_Semantics
 	 */
 	public function interactive(): int {
-		$this->history_file_path = $this->application->paths->uid('eval-history.log');
+		$this->history_file_path = $this->application->paths->userHome('eval-history.log');
 		$name = get_class($this->application);
 		$last_exit_code = 0;
 		while (true) {

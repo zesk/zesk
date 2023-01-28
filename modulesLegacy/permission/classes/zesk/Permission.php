@@ -14,7 +14,7 @@ namespace zesk;
  * @author kent
  * @see Class_Permission
  * @see Module_Permission
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  * @property integer $id
  * @property string $name
  * @property string $title

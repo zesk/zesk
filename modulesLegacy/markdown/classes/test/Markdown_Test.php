@@ -69,7 +69,7 @@ Heading 2
 ---------
 Hello heading
 
-Email me: [Kent](mailto:kent@marketacumen.com)
+Email me: [Kent](mailto:ignorethis@zesk.com)
 
 Or link to: http://zesk.com/
 

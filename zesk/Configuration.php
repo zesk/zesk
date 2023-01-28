@@ -323,13 +323,14 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @param string|array $path
 	 * @param mixed $value
-	 * @return Configuration parent node of final value set
+	 * @return self returns self always
 	 */
 	public function setPath(string|array $path, mixed $value = null): self {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$key = array_pop($path);
 		if (count($path) > 0) {
-			return $this->path($path)->setPath($key, $value);
+			$this->path($path)->setPath($key, $value);
+			return $this;
 		}
 		$this->$key = $value;
 		return $this;
@@ -575,82 +576,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 		$logger->warning($message, $message_args);
 		Kernel::singleton()->deprecated($message, $message_args);
 		return true;
-	}
-
-	/**
-	 * Does a path exist?
-	 *
-	 * @param string|array $path
-	 * @return boolean
-	 * @deprecated 2022-02 PSR
-	 */
-	public function path_exists(string|array $path) {
-		zesk()->deprecated(__METHOD__);
-		return $this->pathExists($path);
-	}
-
-	/**
-	 *
-	 * @param $depth
-	 * @return mixed
-	 * @deprecated 2022-02
-	 */
-	public function to_array(int $depth = null): array {
-		zesk()->deprecated(__METHOD__);
-		return $this->toArray($depth);
-	}
-
-	/**
-	 * Convert entire structure to a list
-	 *
-	 * @return array
-	 * @deprecated 2022-02
-	 */
-	public function to_list() {
-		zesk()->deprecated(__METHOD__);
-		return $this->toList();
-	}
-
-	/**
-	 * Set multiple paths to multiple values
-	 *
-	 * @param array $paths
-	 * @return Configuration[]
-	 * @throws Exception_Lock
-	 * @deprecated 2022-12
-	 */
-	public function paths_set(array $paths) {
-		zesk()->deprecated(__METHOD__);
-		return $this->setPaths($paths);
-	}
-
-	/**
-	 * Given a path into the configuration tree, set a value
-	 *
-	 * @param string|array $path
-	 * @param mixed $value
-	 * @return Configuration parent node of final value set
-	 * @deprecated 2022-12
-	 */
-	public function path_set(string|array $path, mixed $value = null): self {
-		zesk()->deprecated(__METHOD__);
-		return $this->setPath($path, $value);
-	}
-
-	/**
-	 * Get multiple paths at once, using the key value as the default value
-	 *
-	 * @param array $paths
-	 * @return array
-	 * @deprecated 2022-12
-	 */
-	public function paths_get(array $paths) {
-		zesk()->deprecated(__METHOD__);
-		$result = [];
-		foreach ($paths as $path => $default) {
-			$result[$path] = $this->getPath($path, $default);
-		}
-		return $result;
 	}
 
 	/**

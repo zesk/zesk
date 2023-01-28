@@ -23,7 +23,7 @@ class PreferenceTypeTest extends ORMUnitTest {
 	}
 
 	public function test_ORMClass(): void {
-		$this->assertORMClass(Type::class, [], Type::MEMBER_CODE);
+		$this->assertORMClass(Type::class, null, [], Type::MEMBER_CODE);
 	}
 
 	public function test_object(): void {

@@ -5,7 +5,8 @@
 		"Net"
 	],
 	"autoload": {
-		"classPrefix": "zesk\\World\\"
+		"classPrefix": "zesk\\World\\",
+		"path": "zesk/World/"
 	},
 	"moduleClass": "zesk\\World\\Module",
 	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."

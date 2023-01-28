@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
 
+use World\Class\Class_Base;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Command;
@@ -52,6 +53,7 @@ class Module extends BaseModule {
 	 */
 	public function initialize(): void {
 		parent::initialize();
+		$this->application->setOption(Application::OPTION_USER_CLASS, User::class, false);
 		/**
 		 * $application->ormFactory(...)
 		 */
@@ -213,7 +215,7 @@ class Module extends BaseModule {
 	 * @param Application $app
 	 */
 	public static function object_register_all_hooks(Application $app): void {
-		$classes = $app->orm_module()->all_classes();
+		$classes = $app->ormModule()->all_classes();
 		$app->classes->register(ArrayTools::collapse($classes, 'class'));
 	}
 
@@ -260,7 +262,7 @@ class Module extends BaseModule {
 	 */
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = []): array {
 		if (!$db) {
-			$db = $this->application->database_registry();
+			$db = $this->application->databaseRegistry();
 		}
 		if ($classes === null) {
 			$classes = $this->ormClasses();
@@ -376,7 +378,7 @@ class Module extends BaseModule {
 	 *
 	 */
 	final public function all_classes() {
-		$classes = $this->orm_classes();
+		$classes = $this->ormClasses();
 		$objects_by_class = [];
 		$is_table = false;
 		$rows = [];
@@ -512,7 +514,7 @@ class Module extends BaseModule {
 		}
 		$logger = $this->application->logger;
 		if ($this->optionBool('schema_sync')) {
-			$db = $this->application->database_registry();
+			$db = $this->application->databaseRegistry();
 			$logger->warning('The database schema was out of sync, updating: {sql}', ['sql' => implode(";\n", $results) . ";\n", ]);
 			$db->queries($results);
 		} else {
@@ -565,38 +567,5 @@ class Module extends BaseModule {
 		$server = $application->ormFactory(Server::class);
 		/* @var $server Server */
 		$server->bury_dead_servers();
-	}
-
-	/*---------------------------------------------------------------------------------------------------------*\
-	  ---------------------------------------------------------------------------------------------------------
-	  ---------------------------------------------------------------------------------------------------------
-			 _                               _           _
-		  __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
-		 / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
-		| (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
-		 \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
-				   |_|
-	  ---------------------------------------------------------------------------------------------------------
-	  ---------------------------------------------------------------------------------------------------------
-	\*---------------------------------------------------------------------------------------------------------*/
-
-	/**
-	 * @param string|ORMBase|Class_Base|null $class
-	 * @return $this
-	 * @deprecated 2022-05
-	 */
-	public function clear_cache(string|ORMBase|Class_Base $class = null): self {
-		return ($class === null) ? $this->clearCache() : $this->clearNamedCache($class);
-	}
-
-	/**
-	 * @param string|array $add List of classes to add
-	 * @deprecated 2022-05
-	 */
-	final public function orm_classes(string|array $add = null): array {
-		if ($add !== null) {
-			zesk()->deprecated();
-		}
-		return $this->ormClasses();
 	}
 }

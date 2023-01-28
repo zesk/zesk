@@ -15,6 +15,42 @@ use ReflectionObject;
  */
 class PHP {
 	/**
+	 * @see PHP::requires
+	 * @var string
+	 */
+	public const FEATURE_POSIX = 'posix';
+
+	/**
+	 * @see PHP::requires
+	 * @var string
+	 */
+	public const FEATURE_PROCESS_CONTROL = 'pcntl';
+
+	/**
+	 * Constant to set the current script time limit (applies to web server only)
+	 *
+	 * @see PHP::requires, PHP::setFeature
+	 * @var string
+	 */
+	public const FEATURE_TIME_LIMIT = 'time_limit';
+
+	/**
+	 * Constant to set the current script memory limit. Takes an integer, or a string compatible with to_bytes
+	 *
+	 * @see to_bytes
+	 * @see PHP::setFeature
+	 * @var string
+	 */
+	public const FEATURE_MEMORY_LIMIT = 'memory_limit';
+
+	/**
+	 * Used with FEATURE_MEMORY_LIMIT to set limit to unlimited. Use with caution.
+	 *
+	 * @var integer`
+	 */
+	public const MEMORY_LIMIT_UNLIMITED = -1;
+
+	/**
 	 * Character used to indent code
 	 *
 	 * @var string
@@ -237,20 +273,20 @@ class PHP {
 	}
 
 	/**
-	 * Exception logged during unserialization
+	 * Exception logged during unserialize
 	 *
 	 * @var ?Exception_Syntax
 	 */
 	protected static ?Exception_Syntax $unserialize_exception = null;
 
 	/**
-	 * Temporary error handler during unserialization
+	 * Temporary error handler during unserialize
 	 *
 	 * @param int $errno
-	 * @param string $errstr
+	 * @param string $errorString
 	 */
-	public static function _unserialize_handler(int $errno, string $errstr): void {
-		self::$unserialize_exception = new Exception_Syntax($errstr, [], $errno);
+	public static function _unserialize_handler(int $errno, string $errorString): void {
+		self::$unserialize_exception = new Exception_Syntax($errorString, [], $errno);
 	}
 
 	/**
@@ -290,21 +326,21 @@ class PHP {
 		$errors = [];
 		foreach ($features as $feature) {
 			switch ($feature) {
-				case 'pcntl':
+				case self::FEATURE_PROCESS_CONTROL:
 					$results[$feature] = $result = function_exists('pcntl_exec');
 					if (!$result) {
 						$errors[] = map("Need pcntl extensions for PHP\nphp.ini at {0}\n", [get_cfg_var('cfg_file_path')]);
 					}
 
 					break;
-				case 'time_limits':
+				case self::FEATURE_TIME_LIMIT:
 					$results[$feature] = $result = !toBool(ini_get('safe_mode'));
 					if (!$result) {
 						$errors[] = map("PHP safe mode prevents removing time limits on pages\nphp.ini at {0}\n", [get_cfg_var('safe_mode')]);
 					}
 
 					break;
-				case 'posix':
+				case self::FEATURE_POSIX:
 					$results[$feature] = $result = function_exists('posix_getpid');
 					if (!$result) {
 						$errors[] = 'Need POSIX extensions to PHP (posix_getpid)';
@@ -353,30 +389,6 @@ class PHP {
 				throw new Exception_Unimplemented('No such feature {feature}', ['feature' => $feature]);
 		}
 	}
-
-	/**
-	 * Constant to set the current script time limit (applies to web server only)
-	 *
-	 * @see PHP::feature
-	 * @var string
-	 */
-	public const FEATURE_TIME_LIMIT = 'time_limit';
-
-	/**
-	 * Constant to set the current script memory limit. Takes an integer, or a string compatible with to_bytes
-	 *
-	 * @see to_bytes
-	 * @see PHP::feature
-	 * @var string
-	 */
-	public const FEATURE_MEMORY_LIMIT = 'memory_limit';
-
-	/**
-	 * Used with FEATURE_MEMORY_LIMIT to set limit to unlimited. Use with caution.
-	 *
-	 * @var integer`
-	 */
-	public const MEMORY_LIMIT_UNLIMITED = -1;
 
 	/**
 	 * Is this a valid function name, syntactically?

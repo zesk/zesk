@@ -11,7 +11,7 @@ class MySQL_Database_Test extends DatabaseUnitTest {
 	];
 
 	public function test_types_compatible(): void {
-		$mysql = $this->application->database_registry('mysql://root@localhost/mysql', [
+		$mysql = $this->application->databaseRegistry('mysql://root@localhost/mysql', [
 			'connect' => false,
 		]);
 		$this->assertInstanceOf(Database::class, $mysql);
@@ -22,7 +22,7 @@ class MySQL_Database_Test extends DatabaseUnitTest {
 	 * @return \mysql\Database
 	 */
 	public function database(): Database {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$this->assertTrue(in_array($db->type(), [
 			'mysql',
@@ -264,7 +264,7 @@ EOF;
 
 
 		$sql = [];
-		$db->mixed_query($sql);
+		$db->queries($sql);
 
 		$sql = 'SHOW TABLES';
 		$k = null;
@@ -289,7 +289,7 @@ EOF;
 		$sql = 'CREATE TABLE Foo ( ID integer )';
 		$db->parseCreateTable($sql, __METHOD__);
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 
 		$url = $db->url();
 

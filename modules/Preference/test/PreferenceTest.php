@@ -46,7 +46,9 @@ class PreferenceTest extends ORMUnitTest {
 	}
 
 	public function test_ORMClass(): void {
-		$this->assertORMClass(Value::class);
+		$this->assertORMClass(Value::class, [
+			'user' => $this->validUser(), 'type' => Type::registerName($this->application, $this->randomHex(8)),
+		]);
 	}
 
 	/**

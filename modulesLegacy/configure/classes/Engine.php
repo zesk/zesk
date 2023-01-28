@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage configuration
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -845,7 +845,7 @@ class Engine extends Hookable {
 	public function command_file_edit() {
 		$args = func_get_args();
 		foreach ($args as $index => $arg) {
-			$args[$index] = $this->application->paths->expand($args[$index]);
+			$args[$index] = $this->application->paths->expand($arg);
 		}
 		$destination = array_pop($args);
 		if (!file_exists($destination)) {

@@ -2,8 +2,8 @@
 /**
  * @package zesk
  * @subpackage default
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  *
  * TODO KMD - Fix this to integrate with modules for plug-in Richtext Editors
  */

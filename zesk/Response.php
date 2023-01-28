@@ -832,7 +832,7 @@ class Response extends Hookable {
 				]);
 			}
 		}
-		$this->application->cache->save($item->set($response));
+		$this->application->cacheItemPool()->save($item->set($response));
 		return true;
 	}
 

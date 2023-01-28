@@ -35,7 +35,7 @@ class Command_WebApp_Domains extends \zesk\Command_Base {
 		}
 		$result = $this->application->ormRegistry(Domain::class)
 			->querySelect()
-			->addWhatIterable([
+			->appendWhat([
 				'name' => 'name',
 				'active' => 'active',
 			])

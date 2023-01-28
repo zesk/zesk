@@ -5,8 +5,8 @@ declare(strict_types=1);
  * @version $Id: Preference.php 4555 2017-04-06 18:32:10Z kent $
  * @package zesk
  * @subpackage user
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Preference;
@@ -17,9 +17,12 @@ use zesk\Database_Exception_NoResults;
 use zesk\Database_Exception_SQL;
 use zesk\Database_Exception_Table_NotFound;
 use zesk\Exception;
+use zesk\Exception_Class_NotFound;
 use zesk\Exception_Configuration;
+use zesk\Exception_Convert;
 use zesk\Exception_Key;
 use zesk\Exception_Parameter;
+use zesk\Exception_Parse;
 use zesk\Exception_Semantics;
 use zesk\Exception_Syntax;
 use zesk\ORM\Database_Query_Select;
@@ -65,7 +68,7 @@ class Value extends ORMBase {
 	/**
 	 * @return mixed
 	 * @throws Exception_Key
-	 * @throws Exception_ORMEmpty
+	 * @throws Exception_ORMNotFound
 	 */
 	public function value(): mixed {
 		return $this->member(self::MEMBER_VALUE);
@@ -75,9 +78,18 @@ class Value extends ORMBase {
 	 * Store - check requirements
 	 *
 	 * @return self
-	 * @throws Exception_ORMEmpty
+	 * @throws Database_Exception_SQL
+	 * @throws Exception_Configuration
+	 * @throws Exception_Key
 	 * @throws Exception_ORMDuplicate
+	 * @throws Exception_ORMEmpty
+	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
 	 * @throws Exception_Store
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Convert
+	 * @throws Exception_Parse
 	 * @see ORMBase::store()
 	 */
 	public function store(): self {
@@ -144,7 +156,7 @@ class Value extends ORMBase {
 		}
 
 		try {
-			$row = self::_valueQuery($user, $name)->addWhatIterable([
+			$row = self::_valueQuery($user, $name)->appendWhat([
 				self::MEMBER_ID => self::ALIAS_VALUE . '.' . self::MEMBER_ID,
 				'value' => self::ALIAS_VALUE . '.' . self::MEMBER_VALUE,
 			])->one();

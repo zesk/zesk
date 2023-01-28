@@ -19,7 +19,7 @@ class DatabaseUnitTest extends UnitTest {
 	 * @return Database
 	 */
 	public function getDatabase(): Database {
-		return $this->application->database_registry();
+		return $this->application->databaseRegistry();
 	}
 
 	/**
@@ -73,7 +73,7 @@ class DatabaseUnitTest extends UnitTest {
 	 * @throws Database_Exception_Table_NotFound
 	 */
 	final public function dropAndCreateTable(string $name, string $create_sql): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$db->query("DROP TABLE IF EXISTS `$name`");
 		$db->query($create_sql);
 		if (!$this->optionBool('debug_keep_tables')) {
@@ -149,7 +149,7 @@ class DatabaseUnitTest extends UnitTest {
 		foreach (toList($classes) as $class) {
 			$class_object = $app->class_ormRegistry($class);
 			$db = $class_object->database();
-			$results[$class] = $db->queries($app->orm_module()->schema_synchronize($db, [$class, ], $options + ['follow' => true, ]));
+			$results[$class] = $db->queries($app->ormModule()->schema_synchronize($db, [$class, ], $options + ['follow' => true, ]));
 		}
 		return $results;
 	}

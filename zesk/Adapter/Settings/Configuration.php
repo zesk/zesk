@@ -22,17 +22,19 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 
 	/**
 	 * Is a value set in this object?
+	 * @param int|string $name
 	 * @return boolean
 	 */
-	public function __isset(string $name): bool {
+	public function __isset(int|string $name): bool {
 		return $this->configuration->pathExists($name);
 	}
 
 	/**
 	 * Is a value set in this object?
+	 * @param int|string $name
 	 * @return boolean
 	 */
-	public function has(string $name): bool {
+	public function has(int|string $name): bool {
 		return $this->__isset($name);
 	}
 
@@ -41,7 +43,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * @param mixed $name A string or key value (integer, float)
 	 * @return mixed The value of the session variable, or null if nothing set
 	 */
-	public function __get(string $name): mixed {
+	public function __get(int|string $name): mixed {
 		return $this->configuration->getPath($name);
 	}
 
@@ -51,7 +53,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * @param mixed $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
-	public function get(string $name = null, mixed $default = null): mixed {
+	public function get(int|string $name, mixed $default = null): mixed {
 		return $this->configuration->getPath($name, $default);
 	}
 
@@ -61,7 +63,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * @param mixed $name A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
-	public function __set(string $name, mixed $value): void {
+	public function __set(int|string $name, mixed $value): void {
 		$this->configuration->setPath($name, $value);
 	}
 
@@ -70,9 +72,9 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 *
 	 * @param mixed $name A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
-	 * @return Interface_Settings
+	 * @return self
 	 */
-	public function set(string $name, mixed $value = null): self {
+	public function set(int|string $name, mixed $value = null): self {
 		$this->configuration->setPath($name, $value);
 		return $this;
 	}
@@ -80,7 +82,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	/**
 	 * Retrieve a list of all settings variables as an array
 	 *
-	 * @return Iterator
+	 * @return iterable
 	 */
 	public function variables(): iterable {
 		return $this->configuration->toArray();

@@ -14,13 +14,13 @@ class Test_Database_Exception extends UnitTest {
 	protected array $load_modules = ['mysql', 'database'];
 
 	public function database() {
-		return $this->application->database_registry($this->option('database'));
+		return $this->application->databaseRegistry($this->option('database'));
 	}
 
 	/**
 	 */
 	public function test_main(): void {
-		$database = $this->application->database_registry();
+		$database = $this->application->databaseRegistry();
 		$this->assertInstanceOf(Database::class, $database);
 		for ($i = 0; $i < 100; $i++) {
 			$code = 4123 + $i;

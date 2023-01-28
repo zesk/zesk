@@ -3,11 +3,13 @@
  * @package zesk
  * @subpackage kernel
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 declare(strict_types=1);
 
 namespace zesk;
+
+use Closure;
 
 /**
  * @see IncludeFileMonitor
@@ -22,10 +24,30 @@ abstract class FileMonitor {
 	private array $fileModificationTimes;
 
 	/**
+	 * @var array
+	 */
+	private array $deletedFiles = [];
+
+	/**
+	 * Callback for
+	 * @var Closure|null
+	 */
+	private null|Closure $onDeleted = null;
+
+	/**
 	 * Create a new File_Monitor
 	 */
 	public function __construct() {
 		$this->fileModificationTimes = $this->currentModificationTimes();
+	}
+
+	/**
+	 * @param callable|Closure $callable
+	 * @return self
+	 */
+	public function setOnDeleted(callable|Closure $callable): self {
+		$this->onDeleted = $callable instanceof Closure ? $callable : Closure::fromCallable($callable);
+		return $this;
 	}
 
 	/**
@@ -45,23 +67,48 @@ abstract class FileMonitor {
 	/**
 	 * List of filenames which have been modified since last successful check
 	 *
-	 * @return string[]
+	 * Returns list of string of files which changed
+	 *
+	 * @return array
 	 */
-	public function changedFiles(): array {
+	public function _changedFiles(array $current, $stopOnFirst = false): array {
 		$result = [];
-		$current = $this->currentModificationTimes();
 		foreach ($this->fileModificationTimes as $filename => $saved_mod_time) {
 			if (!isset($current[$filename])) {
-				error_log(map('Huh? Existing file monitor file {file} no longer monitored?', [
-					'file' => $filename,
-				]));
+				// Code file disappeared
+				$this->deletedFiles[$filename] = $saved_mod_time;
+				unset($this->fileModificationTimes[$filename]);
+				$onDeleted = $this->onDeleted;
+				if ($onDeleted) {
+					$onDeleted($filename);
+				}
+				$result[] = $filename;
+				if ($stopOnFirst) {
+					return $result;
+				}
 			} else {
+				if (array_key_exists($filename, $this->deletedFiles)) {
+					// Code file reappeared
+					unset($this->deletedFiles[$filename]);
+				}
 				if ($current[$filename] !== $saved_mod_time) {
 					$result[] = $filename;
+					if ($stopOnFirst) {
+						return $result;
+					}
 				}
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * List of filenames which have been modified since last successful check
+	 *
+	 * @return string[]
+	 */
+	public function changedFiles(): array {
+		return $this->_changedFiles($this->currentModificationTimes());
 	}
 
 	/**
@@ -73,20 +120,18 @@ abstract class FileMonitor {
 	 */
 	public function changed(): bool {
 		$current = $this->currentModificationTimes();
-		foreach ($this->fileModificationTimes as $filename => $saved_mod_time) {
-			if (!isset($current[$filename])) {
-				PHP::log('Huh? Existing file monitor file {file} no longer monitored?', [
-					'file' => $filename,
-				]);
-			} else {
-				if ($current[$filename] !== $saved_mod_time) {
-					return true;
-				}
-				unset($current[$filename]);
-			}
-		}
+		$changed = $this->_changedFiles($current, true);
 		$this->fileModificationTimes += $current;
-		return false;
+		return count($changed) !== 0;
+	}
+
+	/**
+	 * Did any of the files get deleted?
+	 *
+	 * @return array
+	 */
+	public function deleted(): array {
+		return array_keys($this->deletedFiles);
 	}
 
 	/**

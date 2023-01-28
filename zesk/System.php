@@ -6,8 +6,8 @@ declare(strict_types=1);
  *
  * @package zesk
  * @subpackage default
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -132,12 +132,12 @@ class System {
 		$result = [];
 
 		try {
-			$cache = $application->cache->getItem(__METHOD__);
+			$cache = $application->cacheItemPool()->getItem(__METHOD__);
 			if ($cache->isHit()) {
 				$command = $cache->get();
 			} else {
 				$command = $application->process->execute('ifconfig');
-				$application->cache->saveDeferred($cache->expiresAfter($application->configuration->getPath(__METHOD__ . '::expires_after', 60))->set($command));
+				$application->cacheItemPool()->saveDeferred($cache->expiresAfter($application->configuration->getPath(__METHOD__ . '::expires_after', 60))->set($command));
 			}
 			$interface = null;
 			foreach ($command as $line) {

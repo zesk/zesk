@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
 /**
@@ -9,12 +11,11 @@ namespace zesk;
  *
  */
 class Command_Maintenance extends Command_Base {
+	protected array $shortcuts = ['maintenance'];
+
 	protected function initialize(): void {
 		parent::initialize();
-		$this->application->hooks->add(Application::class . '::maintenance_context', [
-			$this,
-			'maintenance_context',
-		]);
+		$this->application->hooks->add(Application::class . '::maintenanceEnabled', $this->maintenanceEnabled(...));
 	}
 
 	public function run(): int {
@@ -31,8 +32,14 @@ class Command_Maintenance extends Command_Base {
 				$this->application->setMaintenance($bool);
 				$this->log('Maintenance ' . ($bool ? 'enabled' : 'disabled'));
 			}
+			return 0;
 		}
+
 		if ($this->application->maintenance()) {
+			$message = $this->application->optionPath(['maintenance', 'message']);
+			if ($message) {
+				echo "$message\n";
+			}
 			return 0;
 		}
 		return 1;
@@ -45,7 +52,7 @@ class Command_Maintenance extends Command_Base {
 	 * @param array $values
 	 * @return array
 	 */
-	public function maintenance_context(Application $app, array $values): array {
+	public function maintenanceEnabled(Application $app, array $values): array {
 		assert($app->isConfigured());
 		$values['message'] = $this->optionString('message');
 		return $values;

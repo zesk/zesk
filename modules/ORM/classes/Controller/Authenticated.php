@@ -4,24 +4,25 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
 
 use zesk\Exception_Authentication;
+use zesk\Interface_Session;
 use zesk\Interface_UserLike;
 use zesk\Request;
 use zesk\Response;
 use zesk\HTTP;
-use zesk\Controller_Theme;
+use zesk\Controller;
 
 /**
  * @see Controller_Theme
  * @author kent
  *
  */
-class Controller_Authenticated extends Controller_Theme {
+class Controller_Authenticated extends Controller {
 	/**
 	 * Current logged in user
 	 *
@@ -42,11 +43,16 @@ class Controller_Authenticated extends Controller_Theme {
 	 * @return void
 	 * @throws Exception_Authentication
 	 */
-	protected function hook_before(Request $request, Response $response): void {
-		$this->session = $this->application->session($request, false);
-		$this->user = $this->session?->user();
-		if (!$this->session || !$this->user) {
+	protected function before(Request $request, Response $response): void {
+		parent::before($request, $response);
+
+		try {
+			$this->session = $this->application->requireSession($request);
+			$this->user = $this->session->user();
+		} catch (Exception_Authentication $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED);
+
+			throw $e;
 		}
 	}
 

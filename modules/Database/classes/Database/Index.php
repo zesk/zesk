@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 /**
- * @author Kent M. Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * @package zesk
  * @subpackage database
  */
@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace zesk;
 
 /**
- * @author Kent M. Davidson <kent@marketacumen.com>
+ * @author kent
  * @package zesk
  */
 class Database_Index {
@@ -415,86 +415,5 @@ class Database_Index {
 		$vars['database'] = $this->database->codeName();
 		$vars['table'] = $this->table->name();
 		return 'Object:' . __CLASS__ . " (\n" . Text::indent(_dump($vars)) . "\n)";
-	}
-
-	/*---------------------------------------------------------------------------------------------------------*\
-	  ---------------------------------------------------------------------------------------------------------
-	  ---------------------------------------------------------------------------------------------------------
-			 _                               _           _
-		  __| | ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
-		 / _` |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
-		| (_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
-		 \__,_|\___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
-				   |_|
-	  ---------------------------------------------------------------------------------------------------------
-	  ---------------------------------------------------------------------------------------------------------
-	\*---------------------------------------------------------------------------------------------------------*/
-
-	/**
-	 * @return boolean
-	 * @deprecated 2022-01
-	 */
-	public function is_primary(): bool {
-		return $this->isPrimary();
-	}
-
-	/**
-	 * @return boolean
-	 * @deprecated 2022-01
-	 */
-	public function is_index(): bool {
-		return $this->isIndex();
-	}
-
-	/**
-	 * @return boolean
-	 * @deprecated 2022-01
-	 */
-	public function is_unique(): bool {
-		return $this->isUnique();
-	}
-
-	/**
-	 *
-	 * @param mixed $mixed
-	 * @param string $size
-	 * @return \zesk\Database_Index
-	 * @throws Database_Exception
-	 * @throws Exception_NotFound
-	 * @deprecated 2022-01
-	 */
-	public function column_add(mixed $mixed, int $size = self::SIZE_DEFAULT) {
-		$this->database->application->deprecated(__METHOD__);
-		if ($mixed instanceof Database_Column) {
-			return $this->addDatabaseColumn($mixed, $size);
-		} elseif (is_string($mixed)) {
-			return $this->addColumn($mixed, $size);
-		} elseif (is_array($mixed)) {
-			foreach ($mixed as $k => $v) {
-				if (is_numeric($k)) {
-					$this->addColumn($v);
-				} else {
-					$this->addColumn($k, $v);
-				}
-			}
-			return $this;
-		} else {
-			throw new Database_Exception($this->database, 'Database_Index::column_add(' . gettype($mixed) . '): Invalid type', [], 0);
-		}
-	}
-
-	/**
-	 * @deprecated 2022-05
-	 */
-	public function column_sizes(): array {
-		return $this->columnSizes();
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 2022-05
-	 */
-	public function column_count() {
-		return $this->columnCount();
 	}
 }

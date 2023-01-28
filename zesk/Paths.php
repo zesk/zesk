@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage kernel
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -15,6 +15,29 @@ namespace zesk;
  *
  */
 class Paths {
+	/**
+	 * @see self::__construct()
+	 * @see self::setHome()
+	 * @see self::_updateConfiguration()
+	 * @var string
+	 */
+	public const ENVIRONMENT_HOME = 'HOME';
+
+	/**
+	 * Value is : or ; separated list of paths
+	 * @see self::command()
+	 * @see self::addCommand()
+	 * @var string
+	 */
+	public const ENVIRONMENT_PATH = 'PATH';
+
+	/**
+	 * @see self::expand()
+	 * @see self::setUserHome()
+	 * @see self::userHome()
+	 */
+	public const DEFAULT_USER_HOME = '~/.zesk';
+
 	/**
 	 * Debug various aspects of Paths
 	 *
@@ -27,42 +50,35 @@ class Paths {
 	 *
 	 * @var string
 	 */
-	public string $application = '';
+	protected string $application = '';
 
 	/**
 	 * Temporary files directory
 	 *
 	 * @var string
 	 */
-	public string $temporary = '';
+	protected string $temporary = './cache/temp';
 
 	/**
 	 * Data files directory
 	 *
 	 * @var string
 	 */
-	public string $data = '';
+	protected string $data = './data';
 
 	/**
-	 * Cache files directory
+	 * Current user home directory. Set based on $_SERVER['HOME']
 	 *
 	 * @var string
 	 */
-	public string $cache = '';
-
-	/**
-	 * Current user home directory
-	 *
-	 * @var string
-	 */
-	public string $home = '';
+	protected string $home = '';
 
 	/**
 	 * Current user home directory
 	 *
 	 * @var string
 	 */
-	public string $uid = '';
+	protected string $userHome = self::DEFAULT_USER_HOME;
 
 	/**
 	 *
@@ -73,97 +89,152 @@ class Paths {
 	/**
 	 * Paths constructor.
 	 *
-	 * Modifies and initializes global HOME
+	 * Modifies $configuration by setting keys in Application::class and self::ENVIRONMENT_HOME
 	 *
 	 * Adds a configured hook
 	 *
-	 * @param Kernel $zesk
-	 * @see $_SERVER['HOME']
+	 * @param Configuration $configuration Root configuration
+	 * @throws Exception_Directory_NotFound|Exception_Semantics
+	 * @see self::ENVIRONMENT_HOME
+	 * @see Application::OPTION_HOME_PATH
 	 */
-	public function __construct(Kernel $zesk) {
-		$config = $zesk->configuration;
-		$this->_initializeZesk($config);
-		$this->_initializeSystem();
-
-		$zesk->hooks->add(Hooks::HOOK_CONFIGURED, $this->configured(...));
+	public function __construct(Configuration $configuration) {
+		$env = [];
+		if (array_key_exists(self::ENVIRONMENT_HOME, $_SERVER)) {
+			$env += [Application::OPTION_HOME_PATH => $_SERVER[self::ENVIRONMENT_HOME]];
+		}
+		$appConfiguration = $configuration->path(Application::class);
+		$result = $this->_initializeZesk() + $this->configure($appConfiguration->toArray(0) + $env);
+		$appConfiguration->set($result);
+		$configuration->set(self::ENVIRONMENT_HOME, $this->home());
 	}
 
 	/**
-	 * Get/Set data storage path
+	 * Set up ZESK_ROOT and ensure we are not insane.
 	 *
-	 * @param string $suffix
-	 * @return string
+	 * @return array
 	 */
-	public function application(string $suffix = ''): string {
-		return path($this->application, $suffix);
+	private function _initializeZesk(): array {
+		$zeskRoot = realpath(dirname(__DIR__)) . '/';
+		if (!defined('ZESK_ROOT')) {
+			define('ZESK_ROOT', $zeskRoot);
+		} elseif (ZESK_ROOT !== $zeskRoot) {
+			die('Two versions of zesk: First "' . ZESK_ROOT . "\", then us \"$zeskRoot\"\n");
+		}
+		return [Application::OPTION_ZESK_ROOT => $zeskRoot];
+	}
+
+
+	/**
+	 */
+
+	/**
+	 * configure
+	 *
+	 * @param array $options
+	 * @throws Exception_Directory_NotFound|Exception_Semantics
+	 */
+	public function configure(array $options): array {
+		$setters = [
+			Application::OPTION_PATH => $this->setApplication(...),
+			Application::OPTION_CACHE_PATH => $this->setTemporary(...),
+			Application::OPTION_COMMAND_PATH => $this->addCommand(...),
+			Application::OPTION_DATA_PATH => $this->setData(...),
+			Application::OPTION_HOME_PATH => $this->setHome(...),
+			Application::OPTION_USER_HOME_PATH => $this->setUserHome(...),
+		];
+		foreach ($setters as $key => $setter) {
+			if (array_key_exists($key, $options)) {
+				$setter(strval($options[$key]));
+			}
+		}
+		return $this->_updateConfiguration();
 	}
 
 	/**
-	 * Set the application path, updating temp, data, and cache paths
+	 * @return void
+	 */
+	public function shutdown(): void {
+		// Pass. Maybe delete temporary directories?
+	}
+
+	/**
+	 * Set the application path. Does NOT support expand paths.
 	 *
 	 * @param string $set
 	 * @return $this
+	 * @throws Exception_Directory_NotFound
 	 */
 	public function setApplication(string $set): self {
+		if (!is_dir($set)) {
+			throw new Exception_Directory_NotFound($set);
+		}
 		$this->application = rtrim($set, '/');
-		$this->_initializeApplication();
 		return $this;
 	}
 
 	/**
-	 * configured hook
+	 * Set the home path for the user. Supports expand paths.
+	 * Stored as expanded path.
 	 *
-	 * @param Application $application
-	 * @throws Exception_Directory_NotFound
-	 */
-	public function configured(Application $application): void {
-		$configuration = $application->configuration;
-
-		$paths = $configuration->path(__CLASS__);
-
-		if (isset($paths->command)) {
-			$this->addCommand(strval($paths->command));
-		}
-		// cache
-		if (isset($paths->cache)) {
-			$this->cache = strval($paths->cache);
-		}
-		// data
-		if (isset($paths->data)) {
-			$this->data = strval($paths->data);
-		}
-		if (isset($paths->home)) {
-			$this->setHome(strval($paths->home));
-		}
-		if (isset($paths->uid)) {
-			$this->uid = strval($paths->uid);
-		}
-		$this->_updateConfiguration($application);
-	}
-
-	/**
-	 * created hook
-	 *
-	 * @param Application $application
-	 */
-	public function created(Application $application): void {
-		$this->_updateConfiguration($application);
-	}
-
-	private function _updateConfiguration(Application $application): void {
-		$application->configuration->set('HOME', $this->home);
-	}
-
-	/**
 	 * @param string $home
 	 * @return $this
 	 * @throws Exception_Directory_NotFound
 	 */
 	public function setHome(string $home): self {
+		$home = $this->expand($home);
 		if (!is_dir($home)) {
 			throw new Exception_Directory_NotFound($home);
 		}
 		$this->home = $home;
+		return $this;
+	}
+
+	/**
+	 * Set the home user configuration path for the user. Supports expand paths.
+	 * Default is `~/.zesk`
+	 *
+	 * @param string $home
+	 * @return $this
+	 * @throws Exception_Directory_NotFound
+	 */
+	public function setUserHome(string $home): self {
+		if (!is_dir($this->expand($home))) {
+			throw new Exception_Directory_NotFound($home);
+		}
+		$this->userHome = $home;
+		return $this;
+	}
+
+	/**
+	 * Set the home user configuration path for the user. Supports expand paths.
+	 * Default is `./cache/temp`
+	 *
+	 * @param string $path
+	 * @return $this
+	 * @throws Exception_Directory_NotFound
+	 */
+	public function setTemporary(string $path): self {
+		if (!is_dir($this->expand($path))) {
+			throw new Exception_Directory_NotFound($path);
+		}
+		$this->temporary = $path;
+		return $this;
+	}
+
+	/**
+	 * Set the data directory
+	 * Default is `./data`
+	 *
+	 * @param string $path
+	 * @return $this
+	 * @throws Exception_Directory_NotFound
+	 */
+	public function setData(string $path): self {
+		if (!is_dir($this->expand($path))) {
+			throw new Exception_Directory_NotFound($path);
+		}
+		$this->data = $path;
 		return $this;
 	}
 
@@ -178,35 +249,13 @@ class Paths {
 	}
 
 	/**
+	 * Get application path directory where foo.application.php resides.
 	 *
-	 * @param Configuration $config
+	 * @param string $suffix
+	 * @return string
 	 */
-	private function _initializeZesk(Configuration $config): void {
-		$zesk_root = dirname(__DIR__) . '/';
-		if (!defined('ZESK_ROOT')) {
-			define('ZESK_ROOT', $zesk_root);
-		} elseif (ZESK_ROOT !== $zesk_root) {
-			die('Two versions of zesk: First "' . ZESK_ROOT . "\", then us \"$zesk_root\"\n");
-		}
-		$config->path(__CLASS__)->set('root', $zesk_root);
-	}
-
-	/**
-	 */
-	private function _initializeSystem(): void {
-		$this->which_cache = [];
-		$this->home = $_SERVER['HOME'] ?? '';
-		$this->uid = $this->home('.zesk');
-	}
-
-	/**
-	 */
-	private function _initializeApplication(): void {
-		if ($this->application) {
-			$this->temporary = path($this->application, 'cache/temp');
-			$this->data = path($this->application, 'data');
-			$this->cache = path($this->application, 'cache');
-		}
+	public function application(string $suffix = ''): string {
+		return path($this->application, $suffix);
 	}
 
 	/**
@@ -217,7 +266,7 @@ class Paths {
 	 * @see self::which
 	 */
 	public function command(): array {
-		return toList($_SERVER['PATH'], [], PATH_SEPARATOR);
+		return toList($_SERVER[self::ENVIRONMENT_PATH], [], PATH_SEPARATOR);
 	}
 
 	/**
@@ -230,8 +279,13 @@ class Paths {
 	 */
 	public function addCommand(string $add): self {
 		$command_paths = $this->command();
-		$command_paths[] = $add;
-		$_SERVER['PATH'] = implode(PATH_SEPARATOR, $command_paths);
+		if (is_dir($add)) {
+			$add = realpath($add);
+		}
+		if (!in_array($add, $command_paths)) {
+			$command_paths[] = $add;
+			$_SERVER[self::ENVIRONMENT_PATH] = implode(PATH_SEPARATOR, $command_paths);
+		}
 		return $this;
 	}
 
@@ -242,14 +296,7 @@ class Paths {
 	 * @return string
 	 */
 	public function temporary(string $suffix = ''): string {
-		return path($this->temporary, $suffix);
-	}
-
-	/**
-	 * @return void
-	 */
-	public function shutdown(): void {
-		// Pass. Maybe delete temporary directory.
+		return path($this->expand($this->temporary), $suffix);
 	}
 
 	/**
@@ -259,18 +306,7 @@ class Paths {
 	 * @return string
 	 */
 	public function data(string $suffix = ''): string {
-		return path($this->data, $suffix);
-	}
-
-	/**
-	 * Directory for storing temporary cache files
-	 *
-	 * @param string $suffix
-	 *            Added file or directory to add to cache page
-	 * @return string Path to file within the cache paths
-	 */
-	public function cache(string $suffix = ''): string {
-		return path($this->cache, $suffix);
+		return path($this->expand($this->data), $suffix);
 	}
 
 	/**
@@ -296,8 +332,27 @@ class Paths {
 	 * @param string $suffix Append to uid path
 	 * @return string
 	 */
-	public function uid(string $suffix = ''): string {
-		return $this->uid ? path($this->uid, $suffix) : '';
+	public function userHome(string $suffix = ''): string {
+		return $this->userHome ? path($this->expand($this->userHome), $suffix) : '';
+	}
+
+	/**
+	 * created hook
+	 *
+	 * @param Application $application
+	 */
+	public function created(Application $application): void {
+		$application->configuration->merge(new Configuration($this->_updateConfiguration()));
+	}
+
+	/**
+	 * Return an update to the global configuration object
+	 *
+	 * @return array
+	 */
+	private function _updateConfiguration(): array {
+		$_SERVER[self::ENVIRONMENT_HOME] = $this->home();
+		return [Application::OPTION_HOME_PATH => $this->home()];
 	}
 
 	/**
@@ -368,8 +423,7 @@ class Paths {
 	public function variables(): array {
 		return [
 			'zesk' => ZESK_ROOT, 'application' => $this->application, 'temporary' => $this->temporary,
-			'data' => $this->data, 'cache' => $this->cache, 'home' => $this->home, 'uid' => $this->uid,
-			'command' => implode(':', $this->command()),
+			'data' => $this->data, 'home' => $this->home, 'uid' => $this->userHome, 'command' => $this->command(),
 		];
 	}
 }

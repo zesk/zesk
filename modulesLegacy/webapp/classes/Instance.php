@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage webapp
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk\WebApp;
 
@@ -33,7 +33,7 @@ use zesk\StringTools;
  * @property Timestamp $updated
  * @property Timestamp $serving
  */
-class Instance extends ORM {
+class Instance extends ORMBase {
 	/**
 	 *
 	 * @param Application $application

@@ -7,3 +7,7 @@ homeNOMAP
 dump/route
     content="{route}"
     map=["route"]
+cache
+    contoller="zesk\\Controller_Cache"
+share
+    controller="zesk\\Controller_Share"

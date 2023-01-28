@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -20,19 +20,19 @@ class Color_RGB {
 	 *
 	 * @var integer
 	 */
-	public $red = 0;
+	public int $red = 0;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	public $green = 0;
+	public int $green = 0;
 
 	/**
 	 *
 	 * @var integer
 	 */
-	public $blue = 0;
+	public int $blue = 0;
 
 	/**
 	 * @param int|string|array $r
@@ -60,8 +60,8 @@ class Color_RGB {
 
 	/**
 	 * @param int|string|array $r
-	 * @param ?int $g
-	 * @param ?int $b
+	 * @param int $g
+	 * @param int $b
 	 * @return static
 	 * @throws Exception_Syntax
 	 */

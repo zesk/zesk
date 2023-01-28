@@ -25,6 +25,21 @@ class Directory extends Hookable {
 	private static int $defaultMode = 504; /* 0o0770 */
 
 	/**
+	 * Create a file path and ensure only one slash appears between path entries. Do not use this
+	 * with URLs, use glue instead.
+	 *
+	 * @param array|string $path Variable list of path items, or array of path items to concatenate
+	 * @return string with a properly formatted path
+	 * @see glue
+	 * @see domain
+	 */
+	public static function path(array|string $path /* dir, dir, ... */): string {
+		$args = func_get_args();
+		$r = StringTools::joinArray('/', $args);
+		return preg_replace('|(/\.)+/|', '/', $r); // TODO Test this doesn't munge foo/.bar
+	}
+
+	/**
 	 * Souped up fstat.
 	 *
 	 * @thanks

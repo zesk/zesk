@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage webapp
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk\WebApp;
 
@@ -16,11 +16,11 @@ use zesk\Timestamp;
  * @property integer $id
  * @property string $name
  * @property string $type
- * @property \zesk\ORMBase $target
+ * @property ORMBase $target
  * @property \zesk\Timestamp $accessed
  * @property boolean $active
  */
-class Domain extends ORM {
+class Domain extends ORMBase {
 	public function accessed() {
 		$this->queryUpdate()
 			->value('accessed', Timestamp::now())

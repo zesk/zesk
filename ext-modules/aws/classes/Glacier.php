@@ -3,8 +3,8 @@
 /**
  * @package zesk-modules
  * @subpackage aws
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace aws\classes;
 
@@ -21,7 +21,7 @@ use zesk\Hookable;
  * Converts most AWS internal objects into PHP-friendly and platform neutral data types
  *
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 class Glacier extends Hookable {
 	/**

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @author kent@marketacumen.com
+ * @author kent
  * @copyright 2022 Market Acumen, Inc.
  */
 

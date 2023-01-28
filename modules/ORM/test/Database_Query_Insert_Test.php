@@ -23,10 +23,10 @@ class Database_Query_Insert_Test extends ORMUnitTest {
 		 *
 		 * @package zesk
 		 * @subpackage test33
-		 * @author Kent Davidson <kent@marketacumen.com>
-		 * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+		 * @author kent
+		 * @copyright Copyright &copy; 2023, Market Acumen, Inc.
 		 */
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$testx = new Database_Query_Insert($db);
 
 		$table = 'TABLENAME';

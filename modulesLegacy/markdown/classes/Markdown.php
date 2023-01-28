@@ -6,9 +6,9 @@
  *
  * http://daringfireball.net/projects/markdown/
  *
- * Port by Kent Davidson, kent@marketacumen.com
+ * Port by Kent Davidson, kent at domain name below
  *
- * Copyright (c) 2014, Market Acumen, Inc.
+ * Copyright (c) 2023, Market Acumen, Inc.
  *
  * http://marketacumen.com/
  *

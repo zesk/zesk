@@ -19,10 +19,22 @@ class Route_Theme extends Route {
 	 */
 	protected function initialize(): void {
 		parent::initialize();
-		$theme = $this->option('theme');
-		if (mapClean($theme) !== $theme) {
-			$this->dynamic_theme = true;
+		$this->dynamic_theme = self::isThemeDynamic($this->option('theme'));
+	}
+
+	/**
+	 * Does our theme contain tokens?
+	 *
+	 * @param array|string $theme
+	 * @return bool
+	 */
+	private static function isThemeDynamic(array|string $theme): bool {
+		foreach (toList($theme) as $themeItem) {
+			if (mapClean($themeItem) !== $themeItem) {
+				return true;
+			}
 		}
+		return false;
 	}
 
 	/**

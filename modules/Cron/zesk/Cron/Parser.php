@@ -3,10 +3,9 @@
  * @package zesk
  * @subpackage objects
  */
-namespace zesk\zesk\Cron;
+namespace zesk\Cron;
 
 use zesk\ArrayTools;
-use zesk\Cron\unknown;
 use zesk\Date;
 use zesk\Exception_Parse;
 use zesk\Exception_Semantics;
@@ -382,7 +381,7 @@ class Parser {
 						}
 						$ampm = $match[3] ?? $tod_hint;
 						if ($hh <= 12) {
-							if (substr($ampm, 0, 1) === 'p') {
+							if (str_starts_with($ampm, 'p')) {
 								$hh += 12;
 							} elseif ($ampm === null) {
 								// 12-hour time

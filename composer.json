@@ -44,7 +44,7 @@
     "bin/zesk-command.php",
     "bin/link-vendor-to-dev-zesk.sh",
     "bin/daemon-bouncer.sh",
-    "bin/php-find.sh",
+    "bin/php-find.sh"
   ],
   "type": "library",
   "license": "MIT",

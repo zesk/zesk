@@ -16,9 +16,17 @@ class Route_Content extends Route {
 	 * @throws Exception_NotFound
 	 */
 	protected function _execute(Request $request, Response $response): Response {
-		$file = $this->option('file');
+		$file = $this->optionString('file');
 		if ($file) {
+			if (mapClean($file) !== $file) {
+				$file = $this->_mapVariables($request, $response, $file);
+				if (!is_string($file)) {
+					throw new Exception_NotFound($request->uri(), ['file' => $file, 'badType' => gettype($file)], 0);
+				}
+			}
+
 			try {
+				$file = $this->application->paths->expand($file);
 				return $response->setRawFile($file);
 			} catch (Exception_File_NotFound $f) {
 				throw new Exception_NotFound($f->getRawMessage(), $f->variables(), 0, $f);

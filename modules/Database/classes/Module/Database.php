@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -32,6 +32,22 @@ class Module_Database extends Module implements Interface_Configured {
 	public const OPTION_NAMES = 'names';
 
 	/**
+	 * Used as a boolean option in ->databaseRegistry
+	 * Defaults to true, must pass explicit false.
+	 *
+	 * @see self::databaseRegistry()
+	 */
+	public const REGISTRY_REUSE = 'reuse';
+
+	/**
+	 * Used as a boolean option in ->databaseRegistry - connect to the database if true.
+	 * Defaults to true, so must pass explicit false.
+	 *
+	 * @see self::databaseRegistry()
+	 */
+	public const REGISTRY_CONNECT = 'connect';
+
+	/**
 	 *
 	 * @var string
 	 */
@@ -40,9 +56,9 @@ class Module_Database extends Module implements Interface_Configured {
 	/**
 	 * Global database name => url mapping
 	 *
-	 * @var array
+	 * @var CaseArray
 	 */
-	private array $names = [];
+	private CaseArray $names;
 
 	/**
 	 * Global databases
@@ -63,9 +79,10 @@ class Module_Database extends Module implements Interface_Configured {
 	 * @see Module::initialize
 	 */
 	public function initialize(): void {
+		$this->names = new CaseArray();
 		$application = $this->application;
-		$application->registerRegistry('database', $this->app_database_registry(...));
-		$application->registerFactory('database', $this->app_database_registry(...));
+		$application->registerRegistry('database', $this->app_databaseRegistry(...));
+		$application->registerFactory('database', $this->app_databaseRegistry(...));
 		$application->hooks->add('exit', $this->disconnectAll(...), ['last' => true]);
 		$application->hooks->add('pcntl_fork-child', $this->reconnectAll(...));
 	}
@@ -127,7 +144,7 @@ class Module_Database extends Module implements Interface_Configured {
 	 * @return array
 	 */
 	public function names(): array {
-		return array_keys($this->names);
+		return $this->names->keys();
 	}
 
 	/**
@@ -139,7 +156,7 @@ class Module_Database extends Module implements Interface_Configured {
 	 */
 	public function nameToURL(string $name): string {
 		$name = strtolower($name);
-		if (!array_key_exists($name, $this->names)) {
+		if (!isset($this->names[$name])) {
 			throw new Exception_NotFound('No database code named {name}', ['name' => $name]);
 		}
 		return $this->names[$name];
@@ -181,7 +198,6 @@ class Module_Database extends Module implements Interface_Configured {
 	 * @return Module_Database
 	 */
 	public function unregister(string $name): self {
-		$name = strtolower($name);
 		$this->names[$name] = null;
 		return $this;
 	}
@@ -194,28 +210,30 @@ class Module_Database extends Module implements Interface_Configured {
 	 */
 	public function _configured(): void {
 		$application = $this->application;
-		$config = $application->configuration;
 
-		$this->setDatabaseDefault($config->getPathString([
-			__CLASS__, self::OPTION_DEFAULT,
-		], self::DEFAULT_DATABASE_NAME));
+		if ($this->hasOption(self::OPTION_DEFAULT)) {
+			$this->setDatabaseDefault($this->optionString(self::OPTION_DEFAULT));
+		}
+		if ($this->hasOption(self::OPTION_NAMES)) {
+			$names = $this->optionArray(self::OPTION_NAMES);
 
-		$configPathDatabaseNames = [__CLASS__, self::OPTION_NAMES, ];
-		$databases = toArray($config->path($configPathDatabaseNames));
-		foreach ($databases as $name => $database) {
-			$name = strtolower($name);
-			if (!is_string($database)) {
-				throw new Exception_Configuration($configPathDatabaseNames, 'Value for {name} is not a string: {databases}', [
-					'databases' => JSON::encodePretty($databases), 'name' => $name,
-				]);
-			}
+			foreach ($names as $name => $database) {
+				$name = strtolower($name);
+				if (!is_string($database)) {
+					throw new Exception_Configuration([
+						__CLASS__, self::OPTION_NAMES,
+					], 'Value for {name} is not a string: {names}', [
+						'names' => JSON::encodePretty($names), 'name' => $name,
+					]);
+				}
 
-			try {
-				$this->register($name, $database);
-			} catch (Exception_Semantics $e) {
-				$application->logger->critical($e->raw_message, $e->variables());
+				try {
+					$this->register($name, $database);
+				} catch (Exception_Semantics $e) {
+					$application->logger->error($e->getRawMessage(), $e->variables());
 
-				throw $e;
+					throw $e;
+				}
 			}
 		}
 	}
@@ -335,10 +353,9 @@ class Module_Database extends Module implements Interface_Configured {
 	 * @param array $options
 	 * @return Database
 	 * @throws Database_Exception_Connect
-	 * @throws Exception_Configuration
 	 * @throws Exception_NotFound
 	 */
-	public function app_database_registry(Application $application, string $mixed = '', array $options = []): Database {
+	public function app_databaseRegistry(Application $application, string $mixed = '', array $options = []): Database {
 		assert($application === $this->application);
 		return $this->databaseRegistry($mixed, $options);
 	}
@@ -360,31 +377,22 @@ class Module_Database extends Module implements Interface_Configured {
 	 * @throws Exception_NotFound
 	 */
 	public function databaseRegistry(string $mixed = '', array $options = []): Database {
-		if ($mixed !== null && URL::valid($mixed)) {
-			try {
-				$url = URL::normalize($mixed);
-			} catch (Exception_Syntax $e) {
-				throw new Exception_NotFound('Invalid URL {url}', $e->variables() + ['url' => $mixed], $e->getCode(), $e);
-			}
-			$codename = array_flip($this->names)[$url] ?? $url;
-		} else {
+		if (empty($mixed)) {
+			$mixed = $this->databaseDefault();
 			if (empty($mixed)) {
-				$mixed = $this->databaseDefault();
-				if (empty($mixed)) {
-					$mixed = 'default';
-				}
+				$mixed = self::DEFAULT_DATABASE_NAME;
 			}
-			if (count($this->names) === 0) {
-				throw new Exception_NotFound('No default database URL configured: "{default}" {id} {configuration}', [
-					'default' => $this->databaseDefault(), 'id' => spl_object_id($this),
-					'configuration' => self::class . '::' . self::OPTION_NAMES,
-				]);
-			}
-			$url = $this->nameToURL($mixed);
-			$codename = $mixed;
 		}
+		if (count($this->names) === 0) {
+			throw new Exception_NotFound('No default database URL configured: "{default}" {id} {configuration}', [
+				'default' => $this->databaseDefault(), 'id' => spl_object_id($this),
+				'configuration' => self::class . '::' . self::OPTION_NAMES,
+			]);
+		}
+		$url = $this->nameToURL($mixed);
+		$codename = $mixed;
 
-		if (toBool($options['reuse'] ?? true)) {
+		if (toBool($options[self::REGISTRY_REUSE] ?? true)) {
 			if (array_key_exists($codename, $this->databases)) {
 				return $this->databases[$codename];
 			}
@@ -403,7 +411,7 @@ class Module_Database extends Module implements Interface_Configured {
 		try {
 			/* Remove local options from options */
 			$objectOptions = ArrayTools::filterKeys($options, null, [
-				'reuse', 'connect',
+				self::REGISTRY_REUSE, self::REGISTRY_CONNECT,
 			]);
 			$database = $this->schemeFactory($scheme, $url, $objectOptions);
 		} catch (Exception_Class_NotFound|Exception_Key $e) {
@@ -414,7 +422,7 @@ class Module_Database extends Module implements Interface_Configured {
 
 		$database->setCodeName($codename);
 		$this->databases[$codename] = $database;
-		if (toBool($options['connect'] ?? true)) {
+		if (toBool($options[self::REGISTRY_CONNECT] ?? true)) {
 			if (!$database->connect()) {
 				$__ = ['safeURL' => $database->safeURL()];
 				$this->application->logger->warning('Failed to connect to database: {safeURL}', $__);

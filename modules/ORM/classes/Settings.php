@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
@@ -115,7 +115,7 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 * @throws InvalidArgumentException
 	 */
 	private static function _getCacheItem(Application $application): CacheItemInterface {
-		return $application->cache->getItem(self::CACHE_ITEM_KEY);
+		return $application->cacheItemPool()->getItem(self::CACHE_ITEM_KEY);
 	}
 
 	/**
@@ -132,7 +132,7 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 		if ($expires) {
 			$item->expiresAfter($expires);
 		}
-		$application->cache->saveDeferred($item);
+		$application->cacheItemPool()->saveDeferred($item);
 	}
 
 	/**
@@ -211,9 +211,11 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	public static function configured(Application $application): void {
 		$settings = self::singleton($application);
 		if (!$settings instanceof Settings) {
-			$application->logger->debug('Application settings singleton was a {class}, skipping', [
+			$application->logger->debug('{method} Application settings singleton was a {class}, skipping', [
+				'method' => __METHOD__,
 				'class' => $settings::class,
 			]);
+			return;
 		}
 		$__ = [
 			'method' => __METHOD__,
@@ -342,7 +344,7 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 		$this->application->logger->debug('Deleted {class} cache', [
 			'class' => __CLASS__,
 		]);
-		$this->application->cache->deleteItem(self::CACHE_ITEM_KEY);
+		$this->application->cacheItemPool()->deleteItem(self::CACHE_ITEM_KEY);
 		$this->changes = [];
 	}
 

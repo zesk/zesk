@@ -135,6 +135,10 @@ class TestORM_Test extends ORMUnitTest {
 		$x = new TestORM($this->application, $mixed, $options);
 
 		$this->object_tests($x);
+
+		$this->assertEquals([], $x->memberData('Data'));
+		$x->setMemberData('Data', ['new' => 'stuff']);
+		$this->assertEquals(['new' => 'stuff'], $x->memberData('Data'));
 	}
 
 	public function data_mixedToClass() {

@@ -6,6 +6,7 @@ namespace zesk;
 
 use Psr\Log\LogLevel as LogLevel;
 use Psr\Log\LoggerInterface as LoggerInterface;
+use Throwable;
 use zesk\Logger\Handler;
 
 /**
@@ -56,6 +57,17 @@ class Logger implements LoggerInterface {
 	 * @var array
 	 */
 	private array $handlers = [];
+
+	public static function hooks(Application $application): void {
+		$application->hooks->add(Hooks::HOOK_CONFIGURED, function () use ($application): void {
+			$logUTC = [Logger::class, 'utc_time'];
+			if ($application->configuration->pathExists($logUTC)) {
+				if ($application->logger instanceof Logger) {
+					$application->logger->utc_time = toBool($application->configuration->getPath($logUTC));
+				}
+			}
+		});
+	}
 
 	/**
 	 * Output configuration
@@ -244,7 +256,7 @@ class Logger implements LoggerInterface {
 
 			try {
 				$handler->log($message, $context);
-			} catch (\Exception $e) {
+			} catch (Throwable $e) {
 				PHP::log('{method} {handler} threw {class} at {file}:{line} {message} Backtrace: {backtrace}', [
 					'method' => __METHOD__,
 					'name' => $name,

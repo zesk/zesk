@@ -6,7 +6,7 @@ namespace zesk;
 class CLI_Test extends UnitTest {
 	public function data_CLI(): array {
 		return [
-			[['/zesk/bin/zesk.sh: 20: cd: can\'t cd to /root/', '--cd Unable to change directory to "/root/"'], ['--cd',
+			[['/zesk/bin/zesk: 20: cd: can\'t cd to /root/', '--cd Unable to change directory to "/root/"'], ['--cd',
 				'/root/', 'cwd'], true],
 			[['/etc', '--cd Unable to change directory to "/root/"'], '--cd /etc/ --search /zesk/ cwd -- --cd /root/ cwd',
 				true],

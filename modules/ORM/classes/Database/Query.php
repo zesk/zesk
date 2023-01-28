@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage database
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
@@ -112,7 +112,7 @@ class Database_Query {
 	public function __wakeup(): void {
 		// Reconnect upon wakeup
 		$this->application = __wakeup_application();
-		$this->db = $this->application->database_registry($this->dbname);
+		$this->db = $this->application->databaseRegistry($this->dbname);
 	}
 
 	/**

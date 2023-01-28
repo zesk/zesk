@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use Psr\Cache\InvalidArgumentException;
+use TypeError;
 
 class Classes {
 	/**
@@ -50,10 +50,8 @@ class Classes {
 
 	/**
 	 * Classes constructor.
-	 * @param Kernel $zesk
 	 */
-	public function __construct(Kernel $zesk) {
-		$this->initialize($zesk);
+	public function __construct() {
 		$this->loadDeclared();
 	}
 
@@ -63,54 +61,6 @@ class Classes {
 	private function loadDeclared(): void {
 		foreach (get_declared_classes() as $class) {
 			$this->register($class);
-		}
-	}
-
-	/**
-	 * Register hooks
-	 * @param Kernel $kernel
-	 */
-	public function initialize(Kernel $kernel): void {
-		$classes = $this;
-		$kernel->hooks->add(Hooks::HOOK_EXIT, function () use ($kernel, $classes): void {
-			$classes->saveClassesToCache($kernel);
-		});
-	}
-
-	/**
-	 * @param Kernel $zesk
-	 * @return self
-	 */
-	public static function instance(Kernel $zesk): self {
-		try {
-			$cache_item = $zesk->cache->getItem(__CLASS__);
-			if ($cache_item->isHit()) {
-				$classes = $cache_item->get();
-				if ($classes instanceof self && $classes->version === self::VERSION) {
-					$classes->initialize($zesk);
-				}
-			} else {
-				$classes = new self($zesk);
-			}
-		} catch (InvalidArgumentException) {
-			$classes = new self($zesk);
-		}
-		return $classes;
-	}
-
-	/**
-	 * @param Kernel $kernel
-	 * @return void
-	 */
-	public function saveClassesToCache(Kernel $kernel): void {
-		if ($this->dirty) {
-			$this->dirty = false;
-
-			try {
-				$kernel->cache->saveDeferred($kernel->cache->getItem(__CLASS__)->set($this));
-			} catch (InvalidArgumentException $e) {
-				PHP::log($e);
-			}
 		}
 	}
 
@@ -197,7 +147,11 @@ class Classes {
 		if (array_key_exists($mixed, $this->hierarchy)) {
 			$result = $this->hierarchy[$mixed];
 		} else {
-			$parent = get_parent_class($mixed);
+			try {
+				$parent = get_parent_class($mixed);
+			} catch (TypeError $t) {
+				throw new TypeError("$mixed: " . $t->getMessage(), $t->getCode(), $t);
+			}
 			$result = [
 				$mixed,
 			];

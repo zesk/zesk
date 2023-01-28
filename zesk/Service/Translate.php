@@ -3,12 +3,10 @@ namespace zesk;
 
 abstract class Service_Translate extends Service {
 	/**
-	 *
-	 * @param string $source_language
-	 * @param string $target_language
-	 * @return Service_Translate
+	 * @param string $phrase
+	 * @return string
 	 */
-	abstract public function translate($phrase);
+	abstract public function translate(string $phrase): string;
 
 	/**
 	 *

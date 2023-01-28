@@ -29,7 +29,7 @@ $application->logger->error("Exception: {exception_class}\nMessage: {message}\nS
 	'backtrace' => $exception->getTraceAsString(),
 ]);
 
-$this->begin('body/exception.tpl');
+echo HTML::tag_open('div', '.exception');
 
 if (!$exception instanceof Exception) {
 	$message = 'Not an exception: ' . type($exception);
@@ -63,4 +63,4 @@ if ($this->suffix) {
 ?>
 </div>
 <?php
-echo $this->end();
+echo HTML::tag_close('div');

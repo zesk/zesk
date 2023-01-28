@@ -188,7 +188,7 @@ class ORMIterator extends Database_Result_Iterator {
 	/**
 	 * Convert to a list
 	 *
-	 * @return \zesk\ORMBase[]
+	 * @return ORMBase[]
 	 */
 	public function to_list(): array {
 		return $this->toArray(false);

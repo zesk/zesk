@@ -35,6 +35,7 @@ class Command extends Command_Base {
 	public function run(): int {
 		try {
 			$cron = $this->application->modules->object('Cron');
+			assert($cron instanceof Module);
 		} catch (Exception_NotFound) {
 			$this->error('Cron module is not enabled');
 			return 1;
@@ -45,12 +46,12 @@ class Command extends Command_Base {
 			return $result ? 0 : 1;
 		}
 		if ($this->optionBool('list')) {
-			$list_status = $cron->list_status();
+			$list_status = $cron->listStatus();
 			$this->renderFormat($list_status);
 			return 0;
 		}
 		if ($this->optionBool('last')) {
-			$result = $cron->last_run();
+			$result = $cron->lastRun();
 			$locale = $this->application->locale;
 			$now = Timestamp::now();
 			$rows = [];

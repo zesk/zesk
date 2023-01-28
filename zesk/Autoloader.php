@@ -5,12 +5,14 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
 
+use Closure;
 use Psr\Cache\CacheItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;
 
 /**
@@ -114,23 +116,48 @@ class Autoloader {
 	 */
 	public array $autoload_extensions = [
 		'php',
-		'inc',
 	];
 
 	/**
-	 * Link back to zesk Kernel
-	 *
-	 * @var Kernel
+	 * @var array
 	 */
-	private Kernel $kernel;
+	protected array $loaded;
+
+	/**
+	 * @var CacheItemPoolInterface
+	 */
+	protected CacheItemPoolInterface $pool;
 
 	/**
 	 * Create default autoloader for most of Zesk
-	 * @param Kernel $kernel
 	 */
-	public function __construct(Kernel $kernel) {
-		$this->kernel = $kernel;
+	public function __construct(CacheItemPoolInterface $pool) {
+		$this->loaded = [];
+		$this->pool = $pool;
 		$this->autoload_register();
+	}
+
+	/**
+	 * Inject our cache dependency
+	 *
+	 * @param CacheItemPoolInterface $pool
+	 * @return self
+	 */
+	public function setCache(CacheItemPoolInterface $pool): self {
+		$this->pool = $pool;
+		return $this;
+	}
+
+	/**
+	 * Add a callback when a class is loaded
+	 *
+	 * @param Closure $closure
+	 * @return $this
+	 */
+	public function addLoaded(Closure $closure, string $id = ''): self {
+		$hash = $id ?: Hooks::callable_string($closure);
+		$this->loaded[$hash] = $closure;
+		return $this;
 	}
 
 	/**
@@ -138,10 +165,7 @@ class Autoloader {
 	 * Registers Autoloader for Zesk.
 	 */
 	private function autoload_register(): void {
-		spl_autoload_register([
-			$this,
-			'php_autoloader',
-		], true);
+		spl_autoload_register($this->php_autoloader(...));
 	}
 
 	/**
@@ -151,14 +175,13 @@ class Autoloader {
 	 */
 	private function _autoloadCache(): ?CacheItemInterface {
 		try {
-			return $this->kernel->cache->getItem('autoload_cache');
+			return $this->pool->getItem('autoload_cache');
 		} catch (InvalidArgumentException) {
 			return null;
 		}
 	}
 
 	private function _autoload_cache_save(CacheItemInterface $item): void {
-		$this->kernel->cache->saveDeferred($item);
 	}
 
 	public function shutdown(): void {
@@ -176,8 +199,10 @@ class Autoloader {
 	 */
 	public function php_autoloader(string $class): bool {
 		if ($this->load($class)) {
-			$this->kernel->hooks->registerClass($class);
-			$this->kernel->classes->register($class);
+			foreach ($this->loaded as $closure) {
+				assert($closure instanceof Closure);
+				$closure($class);
+			}
 			return true;
 		}
 		return false;
@@ -198,10 +223,9 @@ class Autoloader {
 	 * @see $this->no_exception
 	 */
 	public function load(string $class, bool $no_exception = false): string {
-		$cache = $this->_autoloadCache();
+		$cacheItem = $this->_autoloadCache();
 		$include = null;
-		$cache_items = $cache?->get();
-
+		$cache_items = $cacheItem?->get();
 		if (!is_array($cache_items)) {
 			$cache_items = [];
 		}
@@ -222,14 +246,16 @@ class Autoloader {
 
 				throw new Exception_Class_NotFound($class, "Class {class} called from {calling_function} invoked from:\n{backtrace}\n{tried_path}", [
 					'class' => $class,
-					'calling_function' => calling_function(2, true),
+					'calling_function' => calling_function(2),
 					'tried_path' => Text::indent(implode("\n", $tried_path)),
-					'backtrace' => Text::indent(_backtrace(), 1),
+					'backtrace' => Text::indent(_backtrace()),
 				]);
 			}
 			$cache_items[$class] = $include;
-			$cache->set($cache_items);
-			$this->_autoload_cache_save($cache);
+			if ($cacheItem) {
+				$cacheItem->set($cache_items);
+				$this->pool->saveDeferred($cacheItem);
+			}
 		}
 		if ($this->debug) {
 			ob_start();

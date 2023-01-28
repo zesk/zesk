@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Locale
  * @author kent
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Locale;
@@ -94,7 +94,7 @@ class Writer {
 		foreach ($phrases as $k => $value) {
 			$v = is_string($value) ? $value : StringTools::right($k, ':=', $k);
 			$k = str_replace('\'', '\\\'', $k);
-			if (!\zesk\Locale\str_contains($contents, "\$tt['$k']")) {
+			if (!str_contains($contents, "\$tt['$k']")) {
 				$v = str_replace('\'', '\\\'', $v);
 				$additional_tt .= "\$tt['$k'] = '$v';\n";
 				$result[$k] = $value;

@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage objects
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * Created on Fri Apr 02 21:00:12 EDT 2010 21:00:12
  */
 
@@ -347,12 +347,13 @@ class User extends ORMBase implements Interface_UserLike {
 	 */
 	/**
 	 * @param string|array $actions Can be an array of actions, all of which must pass, or a string of actions whose
-	 *            separator determines if the meaning is "AND" or "OR" for each permission.
+	 *            uniformly used separator determines if the meaning is "AND" (`;`) or "OR" (`|`)
 	 * @param ORMBase|null $context ORM on which to act
 	 * @param array $options Extra optional settings, permission-specific
 	 * @return bool
+	 * @see Interface_UserLike::can()
 	 */
-	public function can(string|array $actions, ORMBase $context = null, array $options = []) {
+	public function can(string|array $actions, Model $context = null, array $options = []): bool {
 		$result = false; // By default, don't allow anything
 		// Allow multiple actions
 		$is_or = is_string($actions) && strpos($actions, '|');
@@ -366,7 +367,7 @@ class User extends ORMBase implements Interface_UserLike {
 				$result = $this->callHookArguments('can', [
 					$action, $context, $options,
 				], $default_result);
-			} catch (\Exception $e) {
+			} catch (Throwable $e) {
 				$skipLog = true;
 				$this->application->logger->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {exceptionClass} {message}\n{backtrace}", [
 					'action' => $action, 'context' => $context, 'result' => false, 'roles' => $this->_roles,
@@ -429,7 +430,7 @@ class User extends ORMBase implements Interface_UserLike {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see \zesk\ORMBase::displayName()
+	 * @see ORMBase::displayName()
 	 */
 	public function displayName(): string {
 		return $this->member($this->column_login());

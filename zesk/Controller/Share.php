@@ -31,6 +31,20 @@ class Controller_Share extends Controller {
 	 */
 	public const OPTION_SHARE_PREFIX = 'share_prefix';
 
+	protected array $argumentMethods = [
+		'arguments_{METHOD}',
+	];
+
+	protected array $actionMethods = [
+		'action_{METHOD}',
+	];
+
+	protected array $beforeMethods = [
+	];
+
+	protected array $afterMethods = [
+	];
+
 	/**
 	 *
 	 * @return string
@@ -95,61 +109,67 @@ class Controller_Share extends Controller {
 	}
 
 	/**
+	 * @param Request $request
+	 * @param Response $response
+	 * @return array
+	 */
+	public function arguments_GET(Request $request, Response $response): array {
+		return [$request, $response];
+	}
+
+	/**
 	 *
 	 * {@inheritdoc}
 	 *
 	 * @see Controller::_action_default()
 	 */
-	public function _action_default($action = null): Response {
-		$original_uri = $this->request->path();
+	public function action_GET(Request $request, Response $response): Response {
+		$original_uri = $request->path();
 		$uri = StringTools::removePrefix($original_uri, '/');
 		if ($this->application->development() && $uri === 'share/debug') {
-			$this->response->content = $this->share_debug();
-			return $this->response;
+			$response->content = $this->share_debug();
+			return $response;
 		}
-		$path = $this->request->path();
+		$path = $request->path();
 		$file = $this->pathToFile($path);
 		if (!$file) {
-			$this->error_404();
-			return $this->response;
+			return $this->error_404($response);
 		}
 
 		try {
-			$mod = $this->request->header('If-Modified-Since');
+			$mod = $request->header('If-Modified-Since');
 		} catch (Exception_Key) {
 			$mod = null;
 		}
 		$fmod = filemtime($file);
 		if ($mod && $fmod <= strtotime($mod)) {
-			$this->response->setStatus(HTTP::STATUS_NOT_MODIFIED);
+			$response->setStatus(HTTP::STATUS_NOT_MODIFIED);
 
 			try {
-				$this->response->setContentType(MIME::fromExtension($file));
+				$response->setContentType(MIME::fromExtension($file));
 			} catch (Exception_Key) {
 				$this->application->logger->warning('No content type for {file}', ['file' => $file]);
 			}
-			$this->response->content = '';
+			$response->content = '';
 			$this->_buildOption($original_uri, $file);
-			return $this->response;
+			return $response;
 		}
 
-		$request = $this->request;
 		if ($request->get('_ver')) {
 			// Versioned resources are timestamped, expire never
-			$this->response->setHeaderDate('Expires', strtotime('+1 year'));
-			$this->response->header_date('Expires', strtotime('+1 year'));
+			$response->setHeaderDate('Expires', strtotime('+1 year'));
+			$response->setHeaderDate('Expires', strtotime('+1 year'));
 		} else {
-			$this->response->header_date('Expires', strtotime('+1 hour'));
+			$response->setHeaderDate('Expires', strtotime('+1 hour'));
 		}
 
 		try {
-			$this->response->raw()->setFile($file);
+			$response->raw()->setFile($file);
 		} catch (Exception_File_NotFound) {
-			$this->error_404($path);
-			return $this->response;
+			return $this->error_404($response, $path);
 		}
 		$this->_buildOption($original_uri, $file);
-		return $this->response;
+		return $response;
 	}
 
 	/**
@@ -191,7 +211,7 @@ class Controller_Share extends Controller {
 	 */
 	private function share_debug(): string {
 		$content = HTML::tag('h1', 'Server') . HTML::tag('pre', PHP::dump($_SERVER));
-		$content .= HTML::tag('h1', 'Request headers') . HTML::tag('pre', PHP::dump($this->request->headers()));
+		$content .= HTML::tag('h1', 'Request headers') . HTML::tag('pre', PHP::dump($request->headers()));
 		$content .= HTML::tag('h1', 'Shares') . HTML::tag('pre', PHP::dump($this->application->sharePath()));
 		return $content;
 	}

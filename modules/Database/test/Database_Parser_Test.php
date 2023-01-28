@@ -82,7 +82,7 @@ class Database_Parser_Test extends UnitTest {
 	 * @dataProvider data_provider_split_order_by
 	 */
 	public function test_split_order_by($order_by, $expected_split, $expected_reverse): void {
-		$parser = $this->application->database_registry()->parser();
+		$parser = $this->application->databaseRegistry()->parser();
 
 		if (is_array($order_by)) {
 			$actual = [];
