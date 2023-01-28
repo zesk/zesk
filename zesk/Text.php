@@ -22,7 +22,7 @@ class Text {
 	 * Indent plain text
 	 *
 	 * @param string $text
-	 * @param number $indent_count
+	 * @param int $indent_count
 	 * @param boolean $trim_line_white
 	 * @param string $indent_char
 	 * @param string $newline
@@ -94,7 +94,7 @@ class Text {
 				// TODO Fix indent formatting
 				$v = self::format_array($v, $padding, str_repeat($padding, $n), $suffix, $line_end);
 			}
-			$line .= $prefix . $k . $suffix . strval($v) . $line_end;
+			$line .= $prefix . $k . $suffix . $v . $line_end;
 			$result .= $line;
 		}
 		return $result;
@@ -115,13 +115,14 @@ class Text {
 	}
 
 	/**
-	 * Generate a fill string to support ralign and lalign, and modify text
+	 * Generate a fill string to support rightAlign and leftAlign, and modify text
 	 *
 	 * @param string $text Text to right-align
 	 * @param int $length Number of characters to return
 	 * @param string $pad Character used to fill string
-	 * @param string $fill The fill cahracters to be filled in.
-	 * @param boolean $chop_text If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
+	 * @param string $fill The fill characters to be filled in.
+	 * @param boolean $chop_text If $text is greater than $n, return the trimmed version; guarantees max character
+	 * length returned is $n.
 	 * @return string The text with padding to fill $n characters (aligned right), or the original string (optionally trimmed) if length is greater than $n
 	 * @see self::ralign
 	 * @see self::leftAlign
@@ -132,15 +133,15 @@ class Text {
 		if ($length <= 0) {
 			return $text;
 		}
-		$text_length = strlen($text);
-		if ($text_length >= $length) {
+		$textLength = strlen($text);
+		if ($textLength >= $length) {
 			if ($chop_text) {
 				return substr($text, 0, $length);
 			}
 			return $text;
 		}
-		// $tlen < $n
-		$fill = self::fill($length - $text_length, $pad);
+		// $textLength < $length
+		$fill = self::fill($length - $textLength, $pad);
 		return $text;
 	}
 
@@ -150,8 +151,10 @@ class Text {
 	 * @param string $text Text to right-align
 	 * @param int $length Number of characters to return
 	 * @param string $pad Character used to fill string
-	 * @param boolean $chop_text If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
-	 * @return string The text with padding to fill $n characters (aligned right), or the original string (optionally trimmed) if length is greater than $n
+	 * @param boolean $chop_text If $text is greater than $n, return the trimmed version; guarantees max character
+	 * length returned is $n.
+	 * @return string The text with padding to fill $n characters (aligned right), or the original string
+	 * (optionally trimmed) if length is greater than $n
 	 */
 	public static function rightAlign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false): string {
 		$fill = '';
@@ -165,8 +168,9 @@ class Text {
 	 * @param string $text Text to left-align
 	 * @param int $length Number of characters to return
 	 * @param string $pad Character used to fill string
-	 * @param bool $chop_text If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
-	 * @return string The text with padding to fill $n characters (aligned left), or the original string (optionally trimmed) if length is greater than $n
+	 * @param bool $chop_text If $text is greater than $n, return the trimmed version; guarantees max character
+	 * length returned is $n.
+	 * @return string Text, aligned left, using padding.
 	 */
 	public static function leftAlign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false): string {
 		$fill = '';
@@ -213,11 +217,12 @@ class Text {
 	 *            Optional ending string - is preg_quoted
 	 * @return string
 	 */
-	public static function remove_range_comments($text, $begin_comment = '/*', $end_comment = '*/') {
+	public static function remove_range_comments(string $text, string $begin_comment = '/*', string $end_comment = '*/'):
+	string {
 		return preg_replace('#' . preg_quote($begin_comment) . '.*?' . preg_quote($end_comment) . '#s', '', $text);
 	}
 
-	public static function fill_pattern($pattern, $char_length) {
+	public static function fill_pattern(string $pattern, int $char_length): string {
 		$pattern_length = strlen($pattern);
 		if ($pattern_length < $char_length) {
 			$pattern = str_repeat($pattern, intval(round($char_length / $pattern_length)));
@@ -236,7 +241,7 @@ class Text {
 	 * @return string
 	 */
 	public static function format_pairs(array $map, string $prefix = '', string $space = ' ', string $suffix = ': ', string $br = PHP_EOL): string {
-		$n = intval(array_reduce(array_keys($map), fn ($k, $n) => max(strlen(strval($k)), $n), 0));
+		$n = array_reduce(array_keys($map), fn ($k, $n) => max(strlen(strval($k)), $n), 0);
 		$r = [];
 		foreach ($map as $k => $v) {
 			$k = strval($k);
@@ -246,12 +251,12 @@ class Text {
 	}
 
 	/**
-	 * @param $string
-	 * @param $length
-	 * @param $delimiter
+	 * @param string $string
+	 * @param int $length
+	 * @param string $delimiter
 	 * @return string
 	 */
-	public static function trim_words_length(string $string, $length, $delimiter = ' '): string {
+	public static function trim_words_length(string $string, int $length, string $delimiter = ' '): string {
 		$string = toList($string, [], $delimiter);
 		$delim_len = strlen($delimiter);
 		$remain = $length;
@@ -271,6 +276,11 @@ class Text {
 		return implode($delimiter, $result);
 	}
 
+	/**
+	 * @param string $string
+	 * @param int $wordCount
+	 * @return string
+	 */
 	public static function trim_words(string $string, int $wordCount): string {
 		if ($wordCount <= 0) {
 			return '';
@@ -337,10 +347,10 @@ class Text {
 			return '';
 		}
 		$result = [];
-		$allhs = array_keys($table[0]);
+		$allHeaders = array_keys($table[0]);
 		$ws = [];
 		$hs = [];
-		foreach ($allhs as $h) {
+		foreach ($allHeaders as $h) {
 			if (!is_numeric($h)) {
 				$ws[] = strlen($h);
 				$hs[] = $h;
@@ -382,7 +392,7 @@ class Text {
 	 *
 	 * @param string $line
 	 *            Line to split
-	 * @param string $num_columns
+	 * @param int $num_columns
 	 *            Maximum number of columns to return
 	 * @param string $delimiters
 	 *            Characters which may serve as a delimiter of a token.
@@ -428,7 +438,7 @@ class Text {
 		}
 		$hh = self::split_line($hh, $num_columns);
 		if (count($hh) !== $num_columns) {
-			return false;
+			return [];
 		}
 		$results = [];
 		while (($line = array_shift($lines)) !== null) {
@@ -493,7 +503,7 @@ class Text {
 	 * Parse text output which may have spaces in file names.
 	 *
 	 * This operates differently than parse_table, which breaks each line up by grouping delimiters and then
-	 * converting to postional parameters.
+	 * converting to positional parameters.
 	 *
 	 * parse_columns scans all output text lines and determines columns which contain your delimiter in all columns,
 	 * and then segments the columns based on that information. This best supports `df` output which
@@ -510,6 +520,8 @@ class Text {
 	 * </code>
 	 *
 	 * @param array $lines
+	 * @param string $whitespace
+	 * @return array
 	 */
 	public static function parse_columns(array $lines, string $whitespace = " \t"): array {
 		$spaces = [];
@@ -522,9 +534,9 @@ class Text {
 		$headers = [];
 		$was_space = true;
 		$start = 0;
-		// $uindex is for handling duplicate header column names. Duplicates are numbered name-0, then name-1
+		// $uIndex is for handling duplicate header column names. Duplicates are numbered name-0, then name-1
 		// regardless of prior names
-		$uindex = 0;
+		$uIndex = 0;
 		// $line is our header line to parse header names
 		$line = first($lines);
 		// Ad a final space so our last token is parsed as well
@@ -540,8 +552,8 @@ class Text {
 					$length = $index - $start;
 					$name = trim(substr($line, $start, $length), $whitespace);
 					if (array_key_exists($name, $headers)) {
-						$name .= "-$uindex";
-						$uindex = $uindex + 1;
+						$name .= "-$uIndex";
+						$uIndex = $uIndex + 1;
 					}
 					$headers[$name] = [$start, $length, ];
 				}
@@ -551,7 +563,7 @@ class Text {
 
 		$first = true;
 		$rows = [];
-		foreach ($lines as $index => $line) {
+		foreach ($lines as $line) {
 			if ($first) {
 				$first = false;
 
