@@ -73,6 +73,11 @@ World: false';
 				], [[], 0, "This is a maintenance message\n"], [['true'], 0, "Maintenance enabled\n"], [[], 0, ''],
 				[['false'], 0, "Maintenance disabled\n"], [[], 1, ''],
 			],
+			Command_Licenses::class => [
+				[[], 0, ''],
+				[['--all'], 0, File::contents($this->application->path('test/test-data/license.txt'))],
+				[['--all', '--json'], 0, File::contents($this->application->path('test/test-data/license.json'))],
+			],
 		];
 	}
 

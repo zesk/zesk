@@ -1,0 +1,9 @@
+=== Diff ===
+description: "Diff tools"
+License URL: "./etc/diff.c.txt"
+Licenses: "MIT"
+
+=== PHPUnit ===
+Project URL: "https://phpunit.de/"
+License URL: "https://raw.githubusercontent.com/sebastianbergmann/phpunit/main/LICENSE"
+Licenses: "BSD3"

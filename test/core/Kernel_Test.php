@@ -451,18 +451,6 @@ class Kernel_Test extends UnitTest {
 		$this->assertEquals('^one^two^three^', $result);
 	}
 
-	public function test_pid(): void {
-		$this->application->process->id();
-	}
-
-	public function test_running(): void {
-		$process = $this->application->process;
-		$pid = $this->application->process->id();
-		$this->assertIsInteger($pid);
-		$this->assertTrue($process->alive($pid));
-		$this->assertFalse($process->alive(32766));
-	}
-
 	public function test_set(): void {
 		$this->assertEquals(null, $this->application->configuration->getPath('a::b::c'));
 		$this->application->configuration->setPath('a::b::c', 9876);
@@ -488,7 +476,6 @@ class Kernel_Test extends UnitTest {
 	}
 
 	public function test_documentRoot(): void {
-		$set = null;
 		$this->application->documentRoot();
 	}
 
@@ -517,34 +504,6 @@ class Kernel_Test extends UnitTest {
 		$command = 'ls';
 		$this->expectException(Exception_NotFound::class);
 		$this->application->paths->which('notacommandtofind');
-	}
-
-	public function test_zeskCommandPath(): void {
-		$file = $this->test_sandbox('testlike.php');
-		$contents = file_get_contents($this->application->zeskHome('test/test-data/testlike.php'));
-		file_put_contents($file, $contents);
-		$loader = CommandLoader::factory()->setApplication($this->application);
-		$this->application->addZeskCommandPath($this->test_sandbox());
-		$pid = $this->application->process->id();
-		$className = 'TestCommand' . $pid;
-		$randomShortcut = $this->randomHex();
-		$shortcuts = ['test-command', $randomShortcut];
-		$testCommand = [];
-		$testCommand[] = '<?' . "php\n namespace zesk;";
-		$testCommand[] = "class $className extends Command_Base {";
-		$testCommand[] = '	protected array $shortcuts = ' . PHP::dump($shortcuts) . ';';
-		$testCommand[] = '	function run(): int {';
-		$testCommand[] = '		echo getcwd();';
-		$testCommand[] = '		return 0;';
-		$testCommand[] = '	}';
-		$testCommand[] = '}';
-
-		File::put($this->test_sandbox('testCommand.php'), implode("\n", $testCommand));
-		$allShortcuts = $loader->collectCommandShortcuts();
-
-		$this->assertArrayHasKeys($shortcuts, $allShortcuts);
-		$this->assertEquals(__NAMESPACE__ . '\\' . $className, $allShortcuts['test-command']);
-		$this->assertEquals(__NAMESPACE__ . '\\' . $className, $allShortcuts[$randomShortcut]);
 	}
 
 	public function test_kernel_functions(): void {

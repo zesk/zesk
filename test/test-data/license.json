@@ -1,0 +1,18 @@
+{
+    "Diff": {
+        "name": "Diff",
+        "description": "Diff tools",
+        "urlLicense": "./etc/diff.c.txt",
+        "licenses": [
+            "MIT"
+        ]
+    },
+    "PHPUnit": {
+        "name": "PHP Unit tests and tools to work with Zesk and PHPUnit",
+        "urlProject": "https://phpunit.de/",
+        "urlLicense": "https://raw.githubusercontent.com/sebastianbergmann/phpunit/main/LICENSE",
+        "licenses": [
+            "BSD3"
+        ]
+    }
+}

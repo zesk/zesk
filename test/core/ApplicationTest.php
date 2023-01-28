@@ -347,4 +347,44 @@ class ApplicationTest extends TestApplicationUnitTest {
 		Directory::depend($oldTemp);
 		$this->testApplication->paths->setTemporary($oldTemp);
 	}
+
+	public function test_pid(): void {
+		$this->testApplication->process->id();
+	}
+
+	public function test_running(): void {
+		$process = $this->testApplication->process;
+		$pid = $this->testApplication->process->id();
+		$this->assertIsInteger($pid);
+		$this->assertTrue($process->alive($pid));
+		$this->assertFalse($process->alive(32766));
+	}
+
+	public function test_zeskCommandPath(): void {
+		$file = $this->test_sandbox('testlike.php');
+		$contents = file_get_contents($this->testApplication->zeskHome('test/test-data/testlike.php'));
+		file_put_contents($file, $contents);
+		$loader = CommandLoader::factory()->setApplication($this->testApplication);
+		$this->testApplication->addZeskCommandPath($this->test_sandbox());
+		$pid = $this->testApplication->process->id();
+		$className = 'TestCommand' . $pid;
+		$randomShortcut = $this->randomHex();
+		$shortcuts = ['test-command', $randomShortcut];
+		$testCommand = [];
+		$testCommand[] = '<?' . "php\n namespace zesk;";
+		$testCommand[] = "class $className extends Command_Base {";
+		$testCommand[] = '	protected array $shortcuts = ' . PHP::dump($shortcuts) . ';';
+		$testCommand[] = '	function run(): int {';
+		$testCommand[] = '		echo getcwd();';
+		$testCommand[] = '		return 0;';
+		$testCommand[] = '	}';
+		$testCommand[] = '}';
+
+		File::put($this->test_sandbox('testCommand.php'), implode("\n", $testCommand));
+		$allShortcuts = $loader->collectCommandShortcuts();
+
+		$this->assertArrayHasKeys($shortcuts, $allShortcuts);
+		$this->assertEquals(__NAMESPACE__ . '\\' . $className, $allShortcuts['test-command']);
+		$this->assertEquals(__NAMESPACE__ . '\\' . $className, $allShortcuts[$randomShortcut]);
+	}
 }

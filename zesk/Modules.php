@@ -130,6 +130,7 @@ class Modules {
 			], Directory::LIST_RULE_DIRECTORY_WALK => [
 				'#/\.#' => false, true,
 			], Directory::LIST_RULE_DIRECTORY => false,
+			Directory::LIST_ADD_PATH => true,
 		];
 		foreach ($module_paths as $module_path) {
 			try {
@@ -140,12 +141,8 @@ class Modules {
 		$available = [];
 		foreach ($files as $module_files) {
 			foreach ($module_files as $module_file) {
-				$module = dirname($module_file);
-
-				try {
-					$available[$module] = $this->_findModulePath($module);
-				} catch (Exception_Directory_NotFound) {
-				}
+				$module = trim(StringTools::removePrefix(dirname($module_file), $module_paths), '/');
+				$available[$module] = $module_file;
 			}
 		}
 		return $available;

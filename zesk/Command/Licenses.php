@@ -34,10 +34,10 @@ class Command_Licenses extends Command_Base {
 			foreach ($modules->availableConfiguration() as $module => $configPath) {
 				try {
 					$moduleData[$module] = JSON::decode(File::contents($configPath));
-				} catch (Exception_Parse) {
-					$this->error('Unable to parse {module} {configPath}', [
+				} catch (Exception_Parse $e) {
+					$this->error('Unable to parse {module} {configPath} {message}', [
 						'module' => $module, 'configPath' => $configPath,
-					]);
+					] + $e->variables());
 				}
 			}
 		} else {

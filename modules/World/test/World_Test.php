@@ -10,11 +10,19 @@ class World_Test extends ORMUnitTest {
 		'World', 'MySQL',
 	];
 
+	public function sampleCountry(): Country {
+		$result = $this->application->ormFactory(Country::class)->register([
+			Country::MEMBER_CODE => 'US', Country::MEMBER_NAME => 'United States',
+		]);
+		assert($result instanceof Country);
+		return $result;
+	}
+
 	public function sampleProvince(): Province {
 		$province = $this->application->ormFactory(Province::class, [
-			Province::MEMBER_NAME => 'Place ' . ($randomHex = $this->randomHex(6)),
+			Province::MEMBER_NAME => 'Place ' . $this->randomHex(6),
 			Province::MEMBER_CODE => $this->randomHex(2),
-			Province::MEMBER_COUNTRY => Country::findCountry($this->application, 'US'),
+			Province::MEMBER_COUNTRY => $this->sampleCountry(),
 		])->register();
 		assert($province instanceof Province);
 		return $province;
