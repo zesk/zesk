@@ -18,8 +18,6 @@ namespace zesk;
  *
  */
 class System {
-	private static $arr;
-
 	/**
 	 *
 	 * @param Application $application
@@ -29,7 +27,7 @@ class System {
 	}
 
 	public static function configured(Application $application): void {
-		self::host_id($application->configuration->get('HOST', $_ENV[ 'HOST'] ??  $_SERVER['HOST'] ?? 'localhost'));
+		self::hostId($application->configuration->get('HOST', $_ENV['HOST'] ?? $_SERVER['HOST'] ?? 'localhost'));
 	}
 
 	/**
@@ -44,7 +42,7 @@ class System {
 	 * @param string $set Set a value for the host ID
 	 * @return string
 	 */
-	public static function host_id($set = null) {
+	public static function hostId($set = null) {
 		if ($set !== null) {
 			self::$host_id = $set;
 		}
@@ -64,7 +62,7 @@ class System {
 	 *
 	 * @return integer
 	 */
-	public static function process_id() {
+	public static function processId() {
 		return getmypid();
 	}
 
@@ -73,7 +71,7 @@ class System {
 	 *
 	 * @return array of interface => $ip
 	 */
-	public static function ip_addresses(Application $application): array {
+	public static function ipAddresses(Application $application): array {
 		$interfaces = self::iffilter(self::ifconfig($application), ['inet', 'ether']);
 		$ips = [];
 		foreach ($interfaces as $interface => $values) {
@@ -92,7 +90,7 @@ class System {
 	 *
 	 * @return array of interface => $ip
 	 */
-	public static function mac_addresses(Application $application): array {
+	public static function macAddresses(Application $application): array {
 		$interfaces = self::ifconfig($application, 'inet;ether');
 		$macs = [];
 		foreach ($interfaces as $interface => $values) {
@@ -186,7 +184,7 @@ class System {
 	 * @return array:float Uptime averages for the past 1 minute, 5 minutes, and 15 minutes
 	 *         (typically)
 	 */
-	public static function load_averages() {
+	public static function loadAverages() {
 		$uptime_string = null;
 		if (file_exists('/proc/loadavg')) {
 			$uptime_string = explode(' ', File::contents('/proc/loadavg', ''));
@@ -211,7 +209,7 @@ class System {
 	 *            Request for a specific volume (passed to df)
 	 * @return array:array
 	 */
-	public static function volume_info(string $volume = ''): array {
+	public static function volumeInfo(string $volume = ''): array {
 		ob_start();
 		$max_tokens = 10;
 		$arg_volume = $volume ? escapeshellarg($volume) . ' ' : '';
@@ -284,19 +282,18 @@ class System {
 			}
 		}
 		$sysname = php_uname('s');
-		self::$arr = ['brand' => $sysnames[$sysname] ?? $sysname, 'distro' => $sysname, 'release' => $relname, ];
-		return self::$arr;
+		return ['brand' => $sysnames[$sysname] ?? $sysname, 'distro' => $sysname, 'release' => $relname, ];
 	}
 
 	/**
 	 *
-	 * @return number
+	 * @return int
 	 */
-	public static function memory_limit(): int {
+	public static function memoryLimit(): int {
 		$limit = ini_get('memory_limit');
 		if (intval($limit) < 0) {
 			return 0xFFFFFFFF;
 		}
-		return Number::parse_bytes($limit);
+		return intval(Number::parse_bytes($limit));
 	}
 }

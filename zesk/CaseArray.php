@@ -4,15 +4,16 @@ declare(strict_types=1);
 namespace zesk;
 
 use ArrayAccess;
+use ArrayObject;
 use Iterator;
 
-class CaseArray extends \ArrayObject implements ArrayAccess {
+class CaseArray extends ArrayObject implements ArrayAccess {
 	public array $nameToCase = [];
 
 	public array $lowNameToValue = [];
 
 	public function __construct(array $array = [], int $flags = 0) {
-		parent::__construct($array, 0, CaseArrayIterator::class);
+		parent::__construct($array, $flags, CaseArrayIterator::class);
 	}
 
 	/**

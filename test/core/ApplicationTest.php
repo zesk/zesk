@@ -261,7 +261,17 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$this->assertEquals($wantedIP, $deeperRequest->remoteIP());
 		$this->requestRoundTrip($rootRequest, 'home', '10.0.0.71');
 
-		$this->requestRoundTrip($rootRequest, 'dump/route', "{\n    \"content\": \"{route}\",\n    \"map\": [\n        \"route\"\n    ],\n    \"_source\": \"/zesk/test/classes/TestApplication.router\",\n    \"weight\": 0.002,\n    \"class\": \"zesk\\\\Route_Content\"\n}");
+		$dumpRoute = [
+			'content' => '{route}',
+			'map'=> [
+				'route',
+			],
+			'id' => 'dumpRoute',
+			'_source'=> '/zesk/test/classes/TestApplication.router',
+			'weight'=> 0.002,
+			'class'=> 'zesk\\Route_Content',
+		];
+		$this->requestRoundTrip($rootRequest, 'dump/route', JSON::encodePretty($dumpRoute));
 
 		$this->assertNotCount(0, $newApplication->controllers());
 
@@ -290,6 +300,24 @@ class ApplicationTest extends TestApplicationUnitTest {
 
 		$this->assertEquals(['zesk' => $newApplication->zeskHome('share')], $newApplication->sharePath());
 		$this->assertEquals($newApplication->path('data/extra'), $newApplication->dataPath('extra'));
+	}
+
+	public function test_routerReverse(): void {
+		$this->testApplication->configure();
+
+		$router = $this->testApplication->router();
+
+		$route = $router->getRoute('home');
+		$this->assertEquals('home', $route);
+
+		$route = $router->getRoute('home2');
+		$this->assertEquals('homeNOMAP', $route);
+
+		$route = $router->getRoute('dumpRoute');
+		$this->assertEquals('dump/route', $route);
+
+		$route = $router->getRoute('cache');
+		$this->assertEquals('cache', $route);
 	}
 
 	private function requestRoundTrip(Request $rootRequest, string $uri, string $expected): void {

@@ -23,9 +23,9 @@ $result['php_version'] = PHP_VERSION;
 $result['php_version_id'] = PHP_VERSION_ID;
 
 $result['System::uname'] = System::uname();
-$result['System::load_averages'] = System::load_averages();
-$result['System::host_id'] = System::host_id();
-$result['System::volume_info'] = System::volume_info();
+$result['System::load_averages'] = System::loadAverages();
+$result['System::host_id'] = System::hostId();
+$result['System::volume_info'] = System::volumeInfo();
 
 $result = $application->hooks->callArguments('system/status', [
 	$result,

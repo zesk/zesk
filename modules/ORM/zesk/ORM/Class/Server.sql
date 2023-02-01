@@ -17,4 +17,3 @@ CREATE TABLE `{table}` (
 	unique `ip4_internal` (`ip4_internal`),
 	index `alive` (`alive`)
 );
-

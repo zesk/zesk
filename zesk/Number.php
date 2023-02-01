@@ -33,13 +33,13 @@ class Number {
 	 * @param string $string
 	 * @return integer
 	 */
-	public static function parse_bytes($string) {
+	public static function parse_bytes(string $string): float {
 		$matches = false;
 		if (!preg_match("/([0-9.]+)\s*([KMGT])B?/i", $string, $matches)) {
 			return intval($string);
 		}
-		[$whole, $int, $magnitude] = $matches;
-		return intval($int) * self::$magnitudes[strtoupper($magnitude)];
+		[$whole, $number, $magnitude] = $matches;
+		return floatval($number) * self::$magnitudes[strtoupper($magnitude)];
 	}
 
 	/**
@@ -90,17 +90,13 @@ class Number {
 	 * Compute the standard deviation of an array of numbers
 	 *
 	 * @param array $a
-	 * @param double $mean Use this value as the computed mean, otherwise compute it
-	 * @return double
+	 * @param float|null $mean Use this value as the computed mean, otherwise compute it
+	 * @return float
 	 */
-	public static function stddev(array $a, $mean = null) {
+	public static function stddev(array $a, float $mean = null): float {
 		$n = count($a);
-		if ($n == 0) {
+		if ($n <= 1) {
 			return 0;
-		}
-		if ($n == 1) {
-			rewind($a);
-			return current($a);
 		}
 		if ($mean === null) {
 			$mean = self::mean($a, 0);
@@ -117,10 +113,10 @@ class Number {
 	 * Compute the mean of an array of numbers
 	 *
 	 * @param array $a
-	 * @param number $zero What to return if array is empty
-	 * @return double
+	 * @param float $zero What to return if array is empty
+	 * @return float
 	 */
-	public static function mean(array $a, $zero = 0) {
+	public static function mean(array $a, float $zero = 0): float {
 		if (count($a) == 0) {
 			return $zero;
 		}

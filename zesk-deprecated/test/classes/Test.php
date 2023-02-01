@@ -915,7 +915,7 @@ class Test extends Hookable {
 	 * @return string
 	 */
 	private function dump($value) {
-		return PHP::singleton()->settings_one()->render($value);
+		return PHP::singleton()->settingsOneLine()->render($value);
 	}
 
 	final protected function assert_equal_array($expected, $actual, $message = '', $strict = true, $order_matters = false): void {

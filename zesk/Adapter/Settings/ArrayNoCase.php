@@ -22,14 +22,17 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
 
 	/**
 	 * Is a value set in this object?
-	 * @return boolean
+	 *
+	 * @param int|string $name
+	 * @return bool
 	 */
-	public function __isset($name) {
+	public function __isset(int|string $name): bool {
 		return isset($this->data[strtolower($name)]);
 	}
 
 	/**
 	 * Is a value set in this object?
+	 *
 	 * @param int|string $name
 	 * @return boolean
 	 */
@@ -55,7 +58,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
 	 */
 	public function get(int|string $name, mixed $default = null): mixed {
 		$name = strtolower($name);
-		return $this->__get[$name] ?? $default;
+		return $this->data[$name] ?? $default;
 	}
 
 	/**
@@ -63,6 +66,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
 	 *
 	 * @param int|string $name A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
+	 * @see Interface_Settings::__set
 	 */
 	public function __set(int|string $name, mixed $value): void {
 		$this->data[strtolower($name)] = $value;

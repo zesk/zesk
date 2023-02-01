@@ -223,8 +223,8 @@ class Awareness extends Hookable {
 			return $this->mock_settings;
 		}
 		$host = php_uname('n');
-		$ips = array_values(ArrayTools::clean(System::ip_addresses($this->application), '127.0.0.1'));
-		$macs = array_values(System::mac_addresses($this->application));
+		$ips = array_values(ArrayTools::clean(System::ipAddresses($this->application), '127.0.0.1'));
+		$macs = array_values(System::macAddresses($this->application));
 
 		$settings = [
 			self::setting_hostname => $host,

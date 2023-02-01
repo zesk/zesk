@@ -80,6 +80,11 @@ use Psr\Cache\InvalidArgumentException;
  */
 class Router extends Hookable {
 	/**
+	 *
+	 */
+	public const HOOK_ROUTER_DERIVED_CLASSES = 'routerDerivedClasses';
+
+	/**
 	 * Debugging is enabled
 	 *
 	 * @var boolean
@@ -90,13 +95,13 @@ class Router extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected string $application_class = '';
+	protected string $applicationClass = '';
 
 	/**
 	 *
 	 * @var array of class => Route
 	 */
-	protected array $reverse_routes = [];
+	protected array $reverseRoutes = [];
 
 	/**
 	 *
@@ -108,7 +113,7 @@ class Router extends Hookable {
 	 *
 	 * @var array of Route
 	 */
-	protected array $by_id = [];
+	protected array $byId = [];
 
 	/**
 	 *
@@ -120,7 +125,7 @@ class Router extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected string $default_route = '';
+	protected string $defaultRoute = '';
 
 	/**
 	 *
@@ -138,7 +143,7 @@ class Router extends Hookable {
 	/**
 	 * Index to ensure routes are sorted by added order.
 	 */
-	protected int $weight_index = 0;
+	protected int $weightIndex = 0;
 
 	/**
 	 *
@@ -148,7 +153,12 @@ class Router extends Hookable {
 	 */
 	public function __sleep() {
 		return array_merge([
-			'application_class', 'reverse_routes', 'routes', 'prefix', 'default_route', 'aliases',
+			'applicationClass',
+			'reverseRoutes',
+			'routes',
+			'prefix',
+			'defaultRoute',
+			'aliases',
 		], parent::__sleep());
 	}
 
@@ -156,7 +166,7 @@ class Router extends Hookable {
 	 */
 	public function __wakeup(): void {
 		parent::__wakeup();
-		$this->by_id = [];
+		$this->byId = [];
 		foreach ($this->routes as $route) {
 			$route->wakeupConnect($this);
 		}
@@ -184,7 +194,7 @@ class Router extends Hookable {
 	 */
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
-		$this->application_class = $application::class;
+		$this->applicationClass = $application::class;
 	}
 
 	/**
@@ -245,8 +255,8 @@ class Router extends Hookable {
 	 */
 	public function route(string $id): Route {
 		$key = strtolower($id);
-		if (array_key_exists($key, $this->by_id)) {
-			return $this->by_id[$key];
+		if (array_key_exists($key, $this->byId)) {
+			return $this->byId[$key];
 		}
 
 		throw new Exception_Key('Route not found {id} (key: {key})', ['id' => $id, 'key' => $key]);
@@ -349,11 +359,11 @@ class Router extends Hookable {
 	 */
 	public function addRoute(string $path, array $options): Route {
 		if ($path === '.') {
-			$this->default_route = $path;
+			$this->defaultRoute = $path;
 			$path = '';
 		}
 		if (!array_key_exists('weight', $options)) {
-			$options['weight'] = ($this->weight_index++) / 1000;
+			$options['weight'] = ($this->weightIndex++) / 1000;
 		}
 		$this->sorted = false;
 		return $this->routes[$path] = $this->_addRouteID($this->_registerRoute(Route::factory($this, $path, $options)));
@@ -365,11 +375,11 @@ class Router extends Hookable {
 	 * @return Route
 	 */
 	private function _addRouteID(Route $route): Route {
-		$id = $route->option('id');
+		$id = $route->id();
 		if (!$id) {
 			$id = $route->getPattern();
 		}
-		$this->by_id[strtolower($id)] = $route;
+		$this->byId[strtolower($id)] = $route;
 		$route->wasAdded($this);
 		return $route;
 	}
@@ -400,7 +410,7 @@ class Router extends Hookable {
 		foreach ($classActions as $class => $actions) {
 			$class = $this->application->objects->resolve($class);
 			foreach ($actions as $action) {
-				$this->reverse_routes[strtolower($class)][strtolower($action)][] = $route;
+				$this->reverseRoutes[strtolower($class)][strtolower($action)][] = $route;
 			}
 		}
 		return $route;
@@ -433,23 +443,12 @@ class Router extends Hookable {
 	}
 
 	/**
-	 *
-	 * @param array $by_class
-	 * @param Model $add
-	 * @param string $stop_class
+	 * @param Model $object
 	 * @return array
 	 */
-	public static function add_derived_classes(array $by_class, Model $add, string $stop_class = ''): array {
-		$id = $add->id();
-		foreach ($add->application->classes->hierarchy($add, $stop_class ?: Model::class) as $class) {
-			$by_class[$class] = $id;
-		}
-		return $by_class;
-	}
-
-	private function derived_classes(Model $object) {
+	private function derivedClasses(Model $object): array {
 		$by_class = [];
-		return $object->callHookArguments('router_derived_classes', [
+		return $object->callHookArguments(self::HOOK_ROUTER_DERIVED_CLASSES, [
 			$by_class,
 		], $by_class);
 	}
@@ -472,30 +471,35 @@ class Router extends Hookable {
 	public function getRoute(string $action, string|array|Model $object = null, string|array $options = []): string {
 		$original_action = $action;
 		$app = $this->application;
-		if (is_string($options) && str_starts_with($options, '?')) {
+		if (is_string($options)) {
 			$options = [
-				'query' => URL::queryParse($options),
+				'query' => URL::queryParse(str_starts_with($options, '?') ? substr($options, 1) : $options),
 			];
 		}
-		$options = toArray($options);
-		$route = $options['current_route'] ?? null;
+		$route = $options['currentRoute'] ?? null;
 		if ($route instanceof Route) {
 			$options += $route->argumentsNamed();
 		}
 		if ($object) {
 			$try_classes = $app->classes->hierarchy($object, Model::class);
-			$options += $object->callHookArguments('route_options', [
+			$options += $object->callHookArguments('routeOptions', [
 				$this, $action,
 			], []) + [
-				'derived_classes' => [],
+				'derivedClasses' => [],
 			];
-			$options['derived_classes'] += $this->derived_classes($object);
+			$options['derivedClasses'] += $this->derivedClasses($object);
 		} elseif (is_string($object)) {
 			$try_classes = [
 				$object,
 			];
 		} elseif (is_array($object)) {
 			$try_classes = $object;
+		}
+		$lowAction = strtolower($action);
+		if (array_key_exists($lowAction, $this->byId)) {
+			$route = $this->byId[$lowAction];
+			/* @var $route Route */
+			return $route->getRoute($action, $object, $options);
 		}
 		$try_classes[] = '*';
 		foreach ($try_classes as $try_class) {
@@ -505,7 +509,7 @@ class Router extends Hookable {
 				if ($try_class !== '*') {
 					$try_class = strtolower($app->objects->resolve($try_class));
 				}
-				$try_actions = $this->reverse_routes[$try_class] ?? null;
+				$try_actions = $this->reverseRoutes[$try_class] ?? null;
 				if (!is_array($try_actions)) {
 					continue;
 				}
@@ -517,7 +521,7 @@ class Router extends Hookable {
 
 				try {
 					$url = $this->_findRoute($try_routes, $action, $object, $options);
-					$url = $app->hooks->callArguments(__CLASS__ . '::getRoute_alter', [
+					$url = $app->hooks->callArguments(__CLASS__ . '::getRouteAlter', [
 						$action, $object, $options,
 					], $url);
 					return $this->prefix . $url;

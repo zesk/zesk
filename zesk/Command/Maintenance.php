@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace zesk;
 
 /**
- * Turn maintenance on or off
+ * Turn maintenance on or off, with an optional message.
  *
  * @category Management
  * @author kent
@@ -13,6 +13,10 @@ namespace zesk;
 class Command_Maintenance extends Command_Base {
 	protected array $shortcuts = ['maintenance'];
 
+	protected array $option_types = [
+		'*' => 'string',
+	];
+
 	protected function initialize(): void {
 		parent::initialize();
 		$this->application->hooks->add(Application::class . '::maintenanceEnabled', $this->maintenanceEnabled(...));
@@ -20,7 +24,7 @@ class Command_Maintenance extends Command_Base {
 
 	public function run(): int {
 		if ($this->hasArgument()) {
-			$arg = $this->getArgument('value');
+			$arg = $this->getArgument('message');
 			$bool = toBool($arg, null);
 			if ($bool === null) {
 				$this->setOption('message', $arg);
@@ -36,7 +40,7 @@ class Command_Maintenance extends Command_Base {
 		}
 
 		if ($this->application->maintenance()) {
-			$message = $this->application->optionPath(['maintenance', 'message']);
+			$message = $this->application->optionPath([Application::OPTION_MAINTENANCE, 'message']);
 			if ($message) {
 				echo "$message\n";
 			}

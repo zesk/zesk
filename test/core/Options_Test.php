@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
@@ -52,7 +53,8 @@ class Options_Test extends UnitTest {
 
 		$options->setOption($key, []);
 		$this->assertEquals([], $options->optionArray($key));
-		$options->optionAppend($key, 'thing1');
+		$options->setOption($key, 'thing1');
+		$this->assertEquals(23.3, $options->optionFloat($key, 23.3));
 		$options->optionAppend($key, 'thing2');
 		$options->optionAppend($key, '99');
 		$this->assertEquals(['thing1', 'thing2', '99'], $options->optionArray($key));
@@ -60,22 +62,17 @@ class Options_Test extends UnitTest {
 
 		$options->setOption($key, ['thing1', 'thing2', '99']);
 		$this->assertEquals(['thing1', 'thing2', '99'], $options->optionIterable($key, []));
+
+		$this->assertEquals('abcd', $options->optionPath([], 'abcd'));
 	}
 
 	public function data_hasAny(): array {
 		$testOptions = new Options(['one' => 1, 'two' => 2, 'three space' => 3, 'four-dash' => 4, 'five-😀' => 5]);
 		return [
-			[true, ['one', 'two'], $testOptions],
-			[true, 'one', $testOptions],
-			[true, 'two', $testOptions],
-			[true, 'three space', $testOptions],
-			[true, 'three_space', $testOptions],
-			[true, 'three-space', $testOptions],
-			[true, 'four dash', $testOptions],
-			[true, 'four-dash', $testOptions],
-			[true, 'four_dash', $testOptions],
-			[true, 'five-😀', $testOptions],
-			[false, 'five-😀-', $testOptions],
+			[true, ['one', 'two'], $testOptions], [true, 'one', $testOptions], [true, 'two', $testOptions],
+			[true, 'three space', $testOptions], [true, 'three_space', $testOptions],
+			[true, 'three-space', $testOptions], [true, 'four dash', $testOptions], [true, 'four-dash', $testOptions],
+			[true, 'four_dash', $testOptions], [true, 'five-😀', $testOptions], [false, 'five-😀-', $testOptions],
 			[true, ['no', 'no', 'no', 'two'], $testOptions],
 		];
 	}
@@ -105,7 +102,16 @@ class Options_Test extends UnitTest {
 		foreach ($paths as $path) {
 			$opts->setOptionPath(explode('.', $path), $path);
 		}
-		$this->assertEquals($opts->options(), ['a' => ['a' => ['a' => 'a.a.a', 'b' => 'a.a.b', ], 'b' => ['c' => 'a.b.c', 'd' => 'a.b.d', 'e' => 'a.b.e', 'f' => 'a.b.f', ], 'c' => ['a' => 'a.c.a', ], ], 'b' => ['c' => ['a' => 'b.c.a', ], ], 'd' => ['c' => ['a' => 'd.c.a', ], ], ]);
+		$expectedOptions = [
+			'a' => [
+				'a' => [
+					'a' => 'a.a.a', 'b' => 'a.a.b',
+				], 'b' => [
+					'c' => 'a.b.c', 'd' => 'a.b.d', 'e' => 'a.b.e', 'f' => 'a.b.f',
+				], 'c' => ['a' => 'a.c.a', ],
+			], 'b' => ['c' => ['a' => 'b.c.a', ], ], 'd' => ['c' => ['a' => 'd.c.a', ], ],
+		];
+		$this->assertEquals($expectedOptions, $opts->options());
 		foreach ($paths as $path) {
 			$this->assertEquals($path, $opts->optionPath(explode('.', $path)));
 		}

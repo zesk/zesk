@@ -1738,12 +1738,13 @@ class ArrayTools {
 	 *
 	 * @param array $array
 	 * @param string $separator
+	 * @param bool $flattenLists Flatten lists
 	 * @return array
 	 */
-	public static function keysFlatten(array $array, string $separator): array {
+	public static function keysFlatten(array $array, string $separator, bool $flattenLists = false): array {
 		$result = [];
 		foreach ($array as $key => $item) {
-			if (is_array($item)) {
+			if (is_array($item) && ($flattenLists || ArrayTools::isAssoc($item))) {
 				$item = self::keysFlatten($item, $separator);
 				foreach ($item as $k => $v) {
 					$result[$key . $separator . $k] = $v;

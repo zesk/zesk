@@ -15,8 +15,9 @@ interface Interface_Factory {
 	 * Create a model
 	 *
 	 * @param string $class
+	 * @param mixed|null $value
 	 * @param array $options
 	 * @return Model
 	 */
-	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model;
+	public function modelFactory(string $class, mixed $value = null, array $options = []): Model;
 }

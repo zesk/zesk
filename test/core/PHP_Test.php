@@ -63,7 +63,7 @@ class PHP_Test extends UnitTest {
 	 * @dataProvider data_provider_render
 	 */
 	public function test_render($test, $expected): void {
-		$this->assertEquals(PHP::singleton()->settings_one()->render($test), $expected);
+		$this->assertEquals(PHP::singleton()->settingsOneLine()->render($test), $expected);
 	}
 
 	public function data_setFeature(): array {

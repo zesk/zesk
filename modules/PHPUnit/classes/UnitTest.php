@@ -146,7 +146,7 @@ class UnitTest extends PHPUnit_TestCase {
 	 * @return string
 	 */
 	private function dump(mixed $value): string {
-		return PHP::singleton()->settings_one()->render($value);
+		return PHP::singleton()->settingsOneLine()->render($value);
 	}
 
 	/**

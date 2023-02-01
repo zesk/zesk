@@ -22,12 +22,6 @@ use stdClass;
 class Objects {
 	/**
 	 *
-	 * @var Database[]
-	 */
-	public array $databases = [];
-
-	/**
-	 *
 	 * @var array
 	 */
 	private array $singletons = [];
@@ -42,38 +36,15 @@ class Objects {
 	 *
 	 * @var array
 	 */
-	private array $read_members;
-
-	/**
-	 * If value is true, allow only a single write
-	 *
-	 * @var array
-	 */
-	private array $write_members;
-
-	/**
-	 *
-	 * @var array
-	 */
-	private array $debug = [];
-
-	/**
-	 *
-	 * @var array
-	 */
 	private array $mapping = [];
 
 	/**
 	 *
 	 */
 	public function reset(): void {
-		$this->databases = [];
 		$this->singletons = [];
 		$this->singletonsCaller = [];
-		$this->debug = [];
 		$this->mapping = [];
-		$this->read_members = ['application' => true, 'settings' => true, 'user' => true, 'session' => true, ];
-		$this->write_members = ['user' => false, 'application' => true, 'settings' => true, 'session' => true, ];
 	}
 
 	public function shutdown(): void {
@@ -133,50 +104,6 @@ class Objects {
 	 */
 	public function resolve(string $requested_class): string {
 		return $this->mapping[strtolower($requested_class)] ?? $requested_class;
-	}
-
-	/**
-	 *
-	 * @param string $member
-	 * @return NULL
-	 * @throws Exception_Key
-	 */
-	public function __get(string $member): mixed {
-		if (isset($this->read_members[$member])) {
-			return $this->$member;
-		}
-
-		throw new Exception_Key('Unable to access {member} in {method}', [
-			'member' => $member, 'method' => __METHOD__,
-		]);
-	}
-
-	/**
-	 *
-	 * @param string $member
-	 * @param mixed $value
-	 * @throws Exception_Key
-	 */
-	public function __set(string $member, mixed $value): void {
-		if (!isset($this->write_members[$member])) {
-			throw new Exception_Key('Unable to set {member} in {method}', [
-				'member' => $member, 'method' => __METHOD__,
-			]);
-		}
-		if (!$this->write_members[$member]) {
-			$this->$member = $value;
-			return;
-		}
-		if (!isset($this->$member)) {
-			$this->debug['first_call'][$member] = calling_function();
-			$this->$member = $value;
-			return;
-		}
-
-		throw new Exception_Key('Unable to write {member} a second time in {method} (first call from {first_calling_function}', [
-			'member' => $member, 'method' => __METHOD__,
-			'first_calling_function' => $this->debug['first_call'][$member],
-		]);
 	}
 
 	/**

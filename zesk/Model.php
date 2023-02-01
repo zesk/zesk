@@ -38,14 +38,14 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 
 	/**
 	 *
-	 * @param mixed $mixed
+	 * @param mixed $name
 	 * @param array $options
 	 * @param Application $application
 	 */
-	public function __construct(Application $application, $mixed = null, array $options = []) {
+	public function __construct(Application $application, $name = null, array $options = []) {
 		parent::__construct($application, $options);
-		if (is_array($mixed)) {
-			foreach ($mixed as $k => $v) {
+		if (is_array($name)) {
+			foreach ($name as $k => $v) {
 				if (!str_starts_with($k, '_')) {
 					$this->__set($k, $v);
 				}
@@ -74,15 +74,15 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 *
 	 * @param $class string
 	 *            Class to create
-	 * @param $mixed mixed
-	 *            ID or array to initialize object
+	 * @param mixed|null $value
 	 * @param $options array
 	 *            Additional options for object
 	 * @return self
 	 * @throws Exception_Class_NotFound
+	 * @see Interface_Factory::modelFactory()
 	 */
-	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
-		return self::factory($this->application, $class, $mixed, $options);
+	public function modelFactory(string $class, mixed $value = null, array $options = []): Model {
+		return self::factory($this->application, $class, $value, $options);
 	}
 
 	/**
@@ -158,14 +158,14 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 *
 	 * Returns type passed in
 	 */
-	final public function applyMap(mixed $mixed): mixed {
-		if ($mixed instanceof Model) {
-			return $mixed->map($this->variables());
+	final public function applyMap(mixed $name): mixed {
+		if ($name instanceof Model) {
+			return $name->map($this->variables());
 		}
-		if (is_string($mixed) || is_array($mixed)) {
-			return map($mixed, $this->variables());
+		if (is_string($name) || is_array($name)) {
+			return map($name, $this->variables());
 		}
-		return $mixed;
+		return $name;
 	}
 
 	/**
@@ -219,34 +219,34 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 
 	/**
 	 *
-	 * @param mixed $mixed
+	 * @param mixed $name
 	 *            Settings to retrieve a model from somewhere
 	 * @return self
 	 */
-	public function fetch(array $mixed = []): self {
+	public function fetch(array $name = []): self {
 		return $this;
 	}
 
 	/**
-	 * @param string $mixed
+	 * @param string $name
 	 * @param mixed|null $default
 	 * @return mixed
 	 */
-	public function get(string $mixed, mixed $default = null): mixed {
-		if (!$this->__isset($mixed)) {
+	public function get(string $name, mixed $default = null): mixed {
+		if (!$this->__isset($name)) {
 			return $default;
 		}
-		return $this->__get($mixed);
+		return $this->__get($name);
 	}
 
 	/**
 	 * Does this model have any of the members requested?
 	 *
-	 * @param string|iterable $mixed
+	 * @param string|iterable $name
 	 * @return bool
 	 */
-	public function hasAny(string|iterable $mixed): bool {
-		foreach (toIterable($mixed) as $k) {
+	public function hasAny(string|iterable $name): bool {
+		foreach (toIterable($name) as $k) {
 			if ($this->__isset(toKey($k))) {
 				return true;
 			}
@@ -257,11 +257,11 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	/**
 	 * Does this have all members?
 	 *
-	 * @param string|iterable $mixed
+	 * @param string|iterable $name
 	 * @return bool
 	 */
-	public function hasAll(string|iterable $mixed): bool {
-		foreach (toIterable($mixed) as $k) {
+	public function hasAll(string|iterable $name): bool {
+		foreach (toIterable($name) as $k) {
 			if (!$this->__isset(toKey($k))) {
 				return false;
 			}
@@ -289,12 +289,12 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	}
 
 	/**
-	 * @param string $mixed
+	 * @param string $name
 	 * @param mixed|null $value
 	 * @return $this
 	 */
-	public function set(string $mixed, mixed $value = null): self {
-		$this->__set($mixed, $value);
+	public function set(string $name, mixed $value = null): self {
+		$this->__set($name, $value);
 		return $this;
 	}
 
@@ -431,23 +431,23 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	/**
 	 * Convert a variable to an ID. IDs may be arrays.
 	 *
-	 * @param $mixed mixed
+	 * @param $name mixed
 	 * @return int|string|array
 	 * @throws Exception_Convert
 	 */
-	public static function mixedToID(mixed $mixed): int|string|array {
-		if ($mixed instanceof Model) {
-			return $mixed->id();
+	public static function mixedToID(mixed $name): int|string|array {
+		if ($name instanceof Model) {
+			return $name->id();
 		}
-		if (is_numeric($mixed)) {
-			return toInteger($mixed);
+		if (is_numeric($name)) {
+			return toInteger($name);
 		}
-		if (is_string($mixed)) {
-			return $mixed;
+		if (is_string($name)) {
+			return $name;
 		}
 
 		throw new Exception_Convert('Unable to convert {mixed} ({type}) to ID', [
-			'mixed' => $mixed, 'type' => type($mixed),
+			'mixed' => $name, 'type' => type($name),
 		]);
 	}
 }

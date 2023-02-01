@@ -36,7 +36,7 @@ class TheCommand_Test extends UnitTest {
 
 		$this->assertFalse($testObject->hasErrors(), 'Has errors? ' . implode(';', $testObject->errors()));
 
-		$file = $testObject->option('FILE');
+		$file = $testObject->option('file');
 
 		$this->assertEquals($file, $f, "File option mismatch ($file !== $f) found: " . $testObject->__toString());
 		$this->assertCount(1, $testObject->parseArguments($argv)->argumentsRemaining(true));

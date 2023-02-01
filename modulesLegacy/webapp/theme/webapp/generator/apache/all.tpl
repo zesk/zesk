@@ -32,7 +32,7 @@ $namename = 'ServerName';
 $names = [
 	'localhost',
 ];
-$ips = System::ip_addresses($application);
+$ips = System::ipAddresses($application);
 $names = array_merge($names, array_values($ips));
 foreach ($names as $name) {
 	$lines[] = "\t$namename $name";

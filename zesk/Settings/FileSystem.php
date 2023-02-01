@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace zesk;
 
@@ -29,7 +30,7 @@ class Settings_FileSystem implements Interface_Settings {
 	public function __construct(Application $application, string $scope = '') {
 		$this->application = $application;
 		$this->scope = $scope ?: 'settings';
-		$this->dataFile = $application->dataPath("settings/$scope.json");
+		$this->dataFile = $application->dataPath('settings/' . $this->scope . '.json');
 		Directory::depend(dirname($this->dataFile));
 
 		try {
@@ -75,23 +76,23 @@ class Settings_FileSystem implements Interface_Settings {
 		}
 	}
 
-	public function __isset(string $name): bool {
+	public function __isset(int|string $name): bool {
 		return isset($this->data[$name]);
 	}
 
-	public function has(string $name): bool {
+	public function has(int|string $name): bool {
 		return isset($this->data[$name]);
 	}
 
-	public function __get(string $name): mixed {
+	public function __get(int|string $name): mixed {
 		return $this->data[$name] ?? null;
 	}
 
-	public function get(string $name, mixed $default = null): mixed {
+	public function get(int|string $name, mixed $default = null): mixed {
 		return $this->data[$name] ?? $default;
 	}
 
-	public function __set(string $name, mixed $value): void {
+	public function __set(int|string $name, mixed $value): void {
 		if ($this->__get($name) === $value) {
 			return;
 		}
@@ -99,7 +100,7 @@ class Settings_FileSystem implements Interface_Settings {
 		$this->changed = true;
 	}
 
-	public function set(string $name, mixed $value = null): self {
+	public function set(int|string $name, mixed $value = null): self {
 		$this->data[$name] = $value;
 		return $this;
 	}

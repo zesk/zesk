@@ -12,17 +12,22 @@ namespace zesk\ORM;
 
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
+use Throwable;
 use zesk\Application;
+use zesk\CacheItem_NULL;
 use zesk\Database;
-use zesk\Database_Exception_Connect;
-use zesk\Database_Exception_Database_NotFound;
+use zesk\Database_Exception;
+use zesk\Database_Exception_Duplicate;
+use zesk\Database_Exception_NoResults;
 use zesk\Database_Exception_SQL;
 use zesk\Database_Exception_Table_NotFound;
-use zesk\Database_Exception_Unknown_Schema;
 use zesk\Exception_Class_NotFound;
 use zesk\Exception_Configuration;
+use zesk\Exception_Convert;
 use zesk\Exception_Deprecated;
 use zesk\Exception_Key;
+use zesk\Exception_Parameter;
+use zesk\Exception_Parse;
 use zesk\Exception_Semantics;
 use zesk\Exception_Syntax;
 use zesk\Exception as BaseException;
@@ -71,25 +76,9 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 * @param Application $application
 	 * @return Interface_Settings
 	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Semantics
 	 */
 	public static function singleton(Application $application): Interface_Settings {
 		return $application->settings();
-		//		if ($application->objects->settings instanceof Interface_Settings) {
-		//			return $application->objects->settings;
-		//		}
-		//		$class = $application->configuration->getPath(__CLASS__ . '::instance_class', __CLASS__);
-		//		$settings = $application->objects->factory($class, $application);
-		//		if (!$settings instanceof Interface_Settings) {
-		//			throw new Exception_Configuration(__CLASS__ . '::instance_class', 'Must be Interface_Settings, class is {class}', [
-		//				'class' => $class,
-		//			]);
-		//		}
-		//		$application->hooks->add(Hooks::HOOK_EXIT, [
-		//			$settings,
-		//			'flush_instance',
-		//		]);
-		//		return $application->objects->settings = $settings;
 	}
 
 	public function hook_initialized(): void {
@@ -112,10 +101,13 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 *
 	 * @param Application $application
 	 * @return CacheItemInterface
-	 * @throws InvalidArgumentException
 	 */
 	private static function _getCacheItem(Application $application): CacheItemInterface {
-		return $application->cacheItemPool()->getItem(self::CACHE_ITEM_KEY);
+		try {
+			return $application->cacheItemPool()->getItem(self::CACHE_ITEM_KEY);
+		} catch (InvalidArgumentException $e) {
+			return new CacheItem_NULL(self::CACHE_ITEM_KEY);
+		}
 	}
 
 	/**
@@ -160,6 +152,11 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 * @param Application $application
 	 * @param boolean $debug_load
 	 * @return array
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Semantics
+	 * @throws Database_Exception
+	 * @throws Database_Exception_Duplicate
 	 */
 	private static function load_globals_from_database(Application $application, bool $debug_load = false): array {
 		$globals = [];
@@ -196,20 +193,25 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 		if ($debug_load) {
 			$application->logger->debug('{method} - loaded {n} globals {size} of data', [
 				'method' => __METHOD__, 'n' => $n_loaded,
-				'size' => Number::format_bytes($application->locale, $size_loaded),
+				'size' => Number::formatBytes($application->locale, $size_loaded),
 			]);
 		}
-		$globals = $application->callHookArguments('filter_settings', [
+		return $application->callHookArguments('filter_settings', [
 			$globals,
 		], $globals);
-		return $globals;
 	}
 
 	/**
 	 * configured Hook
 	 */
+	/**
+	 * @param Application $application
+	 * @return void
+	 * @throws Exception_Class_NotFound
+	 * @throws InvalidArgumentException
+	 */
 	public static function configured(Application $application): void {
-		$settings = self::singleton($application);
+		$settings = $application->settings();
 		if (!$settings instanceof Settings) {
 			$application->logger->debug('{method} Application settings singleton was a {class}, skipping', [
 				'method' => __METHOD__,
@@ -264,7 +266,7 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 				++$n_loaded;
 				$application->configuration->setPath($key, $value);
 			}
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			// Database is misconfigured/misnamed
 			$exception = $e;
 		}
@@ -274,10 +276,13 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 		}
 	}
 
-	private function setDatabaseDown(\Exception $exception = null) {
+	/**
+	 * @param Throwable|null $exception
+	 * @return void
+	 */
+	private function setDatabaseDown(Throwable $exception = null): void {
 		$this->db_down = $exception !== null;
 		$this->db_down_why = $exception;
-		return $this;
 	}
 
 	/**
@@ -304,10 +309,11 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 */
 	/**
 	 * @return void
+	 * @throws Database_Exception_Duplicate
 	 * @throws Database_Exception_SQL
 	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Configuration
-	 * @throws Exception_Deprecated
 	 * @throws Exception_Key
 	 * @throws Exception_ORMDuplicate
 	 * @throws Exception_ORMEmpty
@@ -315,8 +321,9 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 * @throws Exception_Semantics
 	 * @throws Exception_Store
 	 * @throws InvalidArgumentException
-	 * @throws \zesk\Database_Exception_Duplicate
-	 * @throws \zesk\Exception_Unimplemented
+	 * @throws Exception_Convert
+	 * @throws Exception_Parameter
+	 * @throws Exception_Parse
 	 */
 	public function flush(): void {
 		$debug_save = $this->optionBool('debug_save');
@@ -351,30 +358,32 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	/**
 	 * Override get to retrieve from global state
 	 *
-	 * @param string $key Setting to retrieve
+	 * @param int|string $name Setting to retrieve
 	 * @return mixed
 	 */
-	public function __get(string $key): mixed {
-		return $this->application->configuration->getPath($key);
+	public function __get(int|string $name): mixed {
+		return $this->application->configuration->getPath($name);
 	}
 
 	/**
 	 * Same as __get with a default
 	 *
-	 * @see ORMBase::get($mixed, $default)
+	 * @see ORMBase::get()
+	 * @param int|string $name
+	 * @param mixed|null $default
+	 * @return mixed
 	 */
-	public function get(string $name, mixed $default = null): mixed {
+	public function get(int|string $name, mixed $default = null): mixed {
 		return $this->application->configuration->getPath($name, $default);
 	}
 
 	/**
-	 *
-	 * {@inheritdoc}
-	 *
 	 * @see Model::__isset()
+	 * @param int|string $name
+	 * @return bool
 	 */
-	public function __isset($member): bool {
-		return $this->application->configuration->pathExists($member);
+	public function __isset(int|string $name): bool {
+		return $this->application->configuration->pathExists($name);
 	}
 
 	/**
@@ -382,23 +391,25 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 *
 	 * @see ORMBase::__set($member, $value)
 	 */
-	public function __set(string $key, mixed $value): void {
-		$old_value = $this->application->configuration->getPath($key);
+	public function __set(int|string $name, mixed $value): void {
+		$old_value = $this->application->configuration->getPath($name);
 		if ($old_value === $value) {
 			return;
 		}
 
-		$this->changes[$this->application->configuration->normalizeKey($key)] = $value;
-		$this->application->configuration->setPath($key, $value);
+		$this->changes[$this->application->configuration->normalizeKey($name)] = $value;
+		$this->application->configuration->setPath($name, $value);
 	}
 
 	/**
 	 * Global to save
 	 *
+	 * @param int|string $name
+	 * @param mixed|null $value
 	 * @return self
 	 * @see ORMBase::set($member, $value)
 	 */
-	public function set(string $name, mixed $value = null): self {
+	public function set(int|string $name, mixed $value = null): self {
 		$this->__set($name, $value);
 		return $this;
 	}
@@ -425,6 +436,21 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 * @param string $name
 	 * @param mixed $value
 	 * @return $this
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Convert
+	 * @throws Exception_Key
+	 * @throws Exception_ORMDuplicate
+	 * @throws Exception_ORMEmpty
+	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Parse
+	 * @throws Exception_Semantics
+	 * @throws Exception_Store
+	 * @throws InvalidArgumentException
 	 */
 	public function setMeta(string $name, mixed $value): self {
 		$this->__set($name, $value);
@@ -436,6 +462,21 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 *
 	 * @param array|string $name
 	 * @return $this
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Convert
+	 * @throws Exception_Key
+	 * @throws Exception_ORMDuplicate
+	 * @throws Exception_ORMEmpty
+	 * @throws Exception_ORMNotFound
+	 * @throws Exception_Parameter
+	 * @throws Exception_Parse
+	 * @throws Exception_Semantics
+	 * @throws Exception_Store
+	 * @throws InvalidArgumentException
 	 * @see Interface_Data::deleteData()
 	 */
 	public function deleteData(array|string $name): self {
@@ -473,6 +514,11 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 * @param string $old_prefix
 	 * @param string $new_prefix
 	 * @return integer
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_Table_NotFound
+	 * @throws Exception_Key
+	 * @throws Exception_Semantics
+	 * @throws Database_Exception_NoResults
 	 */
 	public function prefixUpdated(string $old_prefix, string $new_prefix): int {
 		$update = $this->application->ormRegistry(Settings::class)->queryUpdate();

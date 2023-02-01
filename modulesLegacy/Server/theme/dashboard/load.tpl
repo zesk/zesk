@@ -2,7 +2,7 @@
 use zesk\System;
 
 ob_start();
-$loads = System::load_averages();
+$loads = System::loadAverages();
 
 $labels = [
 	0 => __('Last minute'),

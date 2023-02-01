@@ -407,7 +407,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$app = $this->application;
 		$webapps = $this->cached_webapp_json(false);
 
-		$server = $app->objects->singleton(Server::class, $app);
+		$server = $app->objects->singletonArguments(Server::class, [$app]);
 		/* @var $server Server */
 		if ($server->data(__CLASS__) === null) {
 			$server->data(__CLASS__, 1);

@@ -18,11 +18,12 @@ class HTML_Tag_Test extends UnitTest {
 
 		$tag->setOuterHTML(HTML::tag('wrap', 'content'));
 
-		$expected = "new zesk\HTML_Tag(\"div\", [\n    \"class\" => \"header\",\n], \"<div>hello</div>\", \"<wrap>content</wrap>\", -1)";
+		PHP::singleton()->settingsOneLine();
+		$expected = "new zesk\HTML_Tag(\"div\", [\"class\" => \"header\", ], \"<div>hello</div>\", \"<wrap>content</wrap>\", -1)";
 		$this->assertEquals($expected, PHP::dump($tag));
 
 		$tag->setContents('Foo');
-		$expected = "new zesk\HTML_Tag(\"div\", [\n    \"class\" => \"header\",\n], \"Foo\", \"<wrap>content</wrap>\", -1)";
+		$expected = "new zesk\HTML_Tag(\"div\", [\"class\" => \"header\", ], \"Foo\", \"<wrap>content</wrap>\", -1)";
 		$this->assertEquals($expected, PHP::dump($tag));
 
 		$this->assertEquals('<div class="header">Foo</div>', $tag->__toString());

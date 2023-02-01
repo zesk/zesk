@@ -48,6 +48,7 @@ class TestApplicationUnitTest extends UnitTest {
 			'isSecondary' => true, Application::OPTION_VERSION => '1.0.0',
 		]);
 		$newApplication->configureInclude([
+			$this->application->path('test/etc/test.conf'),
 			$this->application->path('test/etc/bad.json'),
 			$this->application->path('test/etc/test.json'),
 			$this->application->path('test/etc/nope.json'),

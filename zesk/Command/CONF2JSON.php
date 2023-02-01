@@ -46,7 +46,7 @@ class Command_CONF2JSON extends Command_Iterator_File {
 
 		$target_exists = file_exists($target_name);
 		$n = count($result);
-		if ($this->dry_run) {
+		if ($this->optionBool('dry-run')) {
 			if ($n === 0) {
 				$message = 'No entries found in {source_name} for {target_name}';
 			} elseif ($this->optionBool('noclobber') && $target_exists) {
@@ -63,6 +63,11 @@ class Command_CONF2JSON extends Command_Iterator_File {
 			return true;
 		}
 		if (count($result) > 0) {
+			if ($this->optionBool('noclobber') && $target_exists) {
+				$this->log('Will not overwrite {target_name}', ['target_name' => $target_name]);
+				return false;
+			}
+
 			try {
 				File::put($target_name, JSON::encodePretty($result));
 			} catch (Exception_File_Permission $e) {

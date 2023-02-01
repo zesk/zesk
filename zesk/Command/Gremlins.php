@@ -8,13 +8,11 @@ use SplFileInfo;
  * @category Debugging
  * @author kent
  */
-class Command_File_White extends Command_Iterator_File {
+class Command_Gremlins extends Command_Iterator_File {
+	protected array $shortcuts = ['gremlins'];
+
 	protected array $extensions = [
 		'php',
-		'phpt',
-		'inc',
-		'php4',
-		'php5',
 	];
 
 	protected int $parsed = 0;

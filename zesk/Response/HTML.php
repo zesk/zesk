@@ -110,11 +110,6 @@ class HTML extends Type {
 	private array $body_attributes = [];
 
 	/**
-	 * @var bool
-	 */
-	private bool $_jquery_added = false;
-
-	/**
 	 * jquery ready functions
 	 *
 	 * @var array
@@ -205,12 +200,13 @@ class HTML extends Type {
 	}
 
 	/**
-	 * Get/set meta keywords
+	 * Get meta keywords
 	 *
-	 * @return array
+	 * @return string
+	 * @throws Exception_Key
 	 */
-	public function metaKeywords(): array {
-		return $this->meta('keywords');
+	public function metaKeywords(): string {
+		return $this->metaContent('keywords');
 	}
 
 	/**
@@ -227,6 +223,7 @@ class HTML extends Type {
 	 * Get/set meta description text
 	 *
 	 * @return string
+	 * @throws Exception_Key
 	 */
 	public function metaDescription(): string {
 		return $this->metaContent('description');
@@ -285,17 +282,6 @@ class HTML extends Type {
 			'name' => $name, 'content' => $content,
 		];
 		return $this->parent;
-	}
-
-	/**
-	 * Get/Set shortcut icon
-	 *
-	 * @param ?string $path
-	 * @return Response|string
-	 * @throws Exception_Semantics
-	 */
-	public function shortcut_icon(string $path = null): string|Response {
-		return $path === null ? $this->shortcutIcon() : $this->setShortcutIcon($path);
 	}
 
 	/**
@@ -622,8 +608,8 @@ class HTML extends Type {
 			'elapsed' => microtime(true) - $this->application->initializationTime(),
 			'scripts' => count($scripts) ? $scripts : null, 'stylesheets' => count($stylesheets) ? $stylesheets : null,
 			'head_tags' => count($head_tags) ? $head_tags : null, 'ready' => count($ready) ? $ready : null,
-			'title' => $this->parent->setTitle(),
-		], null);
+			'title' => $this->parent->title(),
+		], [null, '']);
 	}
 
 	/**
@@ -1144,7 +1130,7 @@ class HTML extends Type {
 	 * @param array $settings
 	 * @return $this
 	 */
-	final public function addJavascriptSettings(array $settings): self {
+	final public function addJavascriptSettings(array $settings): Response {
 		$this->script_settings = ArrayTools::merge($this->script_settings, $settings);
 		return $this->parent;
 	}
@@ -1156,13 +1142,6 @@ class HTML extends Type {
 	 */
 	final public function javascriptSettings(): array {
 		return $this->script_settings;
-	}
-
-	/**
-	 * Return JavaScript code to load JavaScript settings
-	 */
-	public function _javascript_settings(): string {
-		return '$.extend(true, window.zesk.settings, ' . JSONTools::encode($this->javascriptSettings()) . ');';
 	}
 
 	/**
@@ -1189,11 +1168,11 @@ class HTML extends Type {
 	 * Include JavaScript to be included inline in the page
 	 *
 	 * @param string $script
-	 * @param string $options
+	 * @param array $options
 	 * @return Response
 	 * @throws Exception_Semantics
 	 */
-	public function inlineJavaScript(string $script, array $options = null): Response {
+	public function inlineJavaScript(string $script, array $options = []): Response {
 		$multiple = toBool($options['multiple'] ?? false);
 		$id = array_key_exists('id', $options) ? $options['id'] : md5($script);
 		if ($multiple) {
@@ -1202,54 +1181,6 @@ class HTML extends Type {
 		return $this->scriptAdd($id, [
 			'content' => $script, 'browser' => $options['browser'] ?? null,
 		] + $options);
-	}
-
-	/**
-	 * Add jQuery to page and ensure it's initialized
-	 */
-	private function _jquery(): void {
-		if ($this->_jquery_added) {
-			return;
-		}
-		$this->_jquery_added = true;
-
-		try {
-			$this->javascript('/share/jquery/jquery.js', [
-				'weight' => 'zesk-first', 'share' => true,
-			]);
-			$this->javascript('/share/zesk/js/zesk.js', [
-				'weight' => 'first', 'share' => true,
-			]);
-			$this->scriptAdd('settings', [
-				'callback' => [
-					$this, '_javascript_settings',
-				], 'weight' => 'last',
-			]);
-		} catch (Exception_Semantics $e) {
-			PHP::log($e);
-			$this->application->logger->critical($e);
-		}
-		$this->jquery = [];
-	}
-
-	/**
-	 * Require jQuery on the page, and optionally add a ready script
-	 *
-	 * @param string|array $add_ready_script
-	 * @param int $weight
-	 * @return Response
-	 */
-	public function jquery(string|array $add_ready_script = '', int $weight = 0): Response {
-		$this->_jquery();
-		if (is_array($add_ready_script)) {
-			foreach ($add_ready_script as $add) {
-				$this->jquery($add, $weight);
-			}
-		} elseif (is_string($add_ready_script)) {
-			$hash = md5($add_ready_script);
-			$this->jquery[$weight][$hash] = $add_ready_script;
-		}
-		return $this->parent;
 	}
 
 	/**

@@ -22,38 +22,38 @@ class Adapter_Settings_Array implements Interface_Settings {
 
 	/**
 	 * Is a value set in this object?
-	 * @param string $name
+	 * @param int|string $name
 	 * @return boolean
 	 */
-	public function __isset(string $name): bool {
+	public function __isset(int|string $name): bool {
 		return apath($this->data, $name, null, ZESK_GLOBAL_KEY_SEPARATOR) !== null;
 	}
 
 	/**
 	 * Is a value set in this object?
-	 * @param string $name
+	 * @param int|string $name
 	 * @return boolean
 	 */
-	public function has(string $name): bool {
+	public function has(int|string $name): bool {
 		return $this->__isset($name);
 	}
 
 	/**
 	 * Retrieve a value from the settings
-	 * @param mixed $name A string or key value (integer, float)
+	 * @param int|string $name A string or key value (integer, float)
 	 * @return mixed The value of the session variable, or null if nothing set
 	 */
-	public function __get(string $name): mixed {
+	public function __get(int|string $name): mixed {
 		return $this->get($name);
 	}
 
 	/**
 	 * Retrieve a value from the settings, returning a default value if not set
-	 * @param mixed $name A string or key value (integer, float)
+	 * @param int|string $name A string or key value (integer, float)
 	 * @param mixed|null $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
-	public function get(string $name = null, mixed $default = null): mixed {
+	public function get(int|string $name, mixed $default = null): mixed {
 		return apath($this->data, $name, $default, ZESK_GLOBAL_KEY_SEPARATOR);
 	}
 
@@ -63,18 +63,18 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @param mixed $name A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
-	public function __set(string $name, mixed $value): void {
+	public function __set(int|string $name, mixed $value): void {
 		apath_set($this->data, $name, $value, ZESK_GLOBAL_KEY_SEPARATOR);
 	}
 
 	/**
 	 * Store a value to a settings
 	 *
-	 * @param mixed $name A string or key value (integer, float)
+	 * @param int|string $name A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 * @return self
 	 */
-	public function set(string $name, mixed $value = null): self {
+	public function set(int|string $name, mixed $value): self {
 		$this->__set($name, $value);
 		return $this;
 	}

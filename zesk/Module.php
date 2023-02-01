@@ -166,7 +166,7 @@ class Module extends Hookable {
 	 */
 	public function __toString() {
 		$php = new PHP();
-		$php->settings_one();
+		$php->settingsOneLine();
 		return '$application, ' . $php->render($this->options);
 	}
 

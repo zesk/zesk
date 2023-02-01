@@ -18,7 +18,7 @@ use Server\classes\Server\Server_Platform;
 $disk_used_percent_error = toFloat($this->disk_used_percent_error ?? $zesk->configuration->path_get(Server::class . '::disk_used_percent_error'), 0.9);
 $disk_used_percent_warning = toFloat($this->disk_used_percent_warning ?? $zesk->configuration->path_get(Server::class . '::disk_used_percent_warning'), 0.8);
 $disk_used_percent_notice = toFloat($this->disk_used_percent_notice ?? $zesk->configuration->path_get(Server::class . '::disk_used_percent_notice'), 0.7);
-$df = System::volume_info();
+$df = System::volumeInfo();
 ob_start();
 $status = '';
 foreach ($df as $path => $data) {

@@ -16,6 +16,11 @@ use Throwable;
  */
 abstract class Route extends Hookable {
 	/**
+	 * A unique ID for this route
+	 */
+	public const OPTION_ID = 'id';
+
+	/**
 	 * Value is an associative array or a list
 	 *
 	 * @var string
@@ -93,7 +98,7 @@ abstract class Route extends Hookable {
 	/**
 	 * Original options before being mapped
 	 */
-	protected array $original_options = [];
+	protected array $originalOptions = [];
 
 	/**
 	 * Original pattern passed in
@@ -191,6 +196,21 @@ abstract class Route extends Hookable {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function id(): string {
+		return $this->optionString(self::OPTION_ID);
+	}
+
+	/**
+	 * @param string $id
+	 * @return $this
+	 */
+	public function setId(string $id): self {
+		return $this->setOption(self::OPTION_ID, $id);
+	}
+
+	/**
 	 * Return the cleaned pattern for PREG
 	 *
 	 * @return string
@@ -206,8 +226,17 @@ abstract class Route extends Hookable {
 	 */
 	public function __sleep() {
 		return array_merge(parent::__sleep(), [
-			'original_options', 'originalPattern', 'cleanPattern', 'methods', 'pattern', 'types', 'urlParts', 'args',
-			'argsValid', 'named', 'byClass',
+			'originalOptions',
+			'originalPattern',
+			'cleanPattern',
+			'methods',
+			'pattern',
+			'types',
+			'urlParts',
+			'args',
+			'argsValid',
+			'named',
+			'byClass',
 		]);
 	}
 
@@ -222,10 +251,17 @@ abstract class Route extends Hookable {
 	 */
 	public function variables(): array {
 		return [
-			'class' => get_class($this), 'originalPattern' => $this->originalPattern,
-			'cleanPattern' => $this->cleanPattern, 'pattern' => $this->pattern, 'methods' => array_keys($this->methods),
-			'types' => $this->types, 'url_args' => $this->urlParts, 'named' => $this->named,
-			'byClass' => $this->byClass, 'options' => $this->options,
+			'class' => get_class($this),
+			'originalOptions' => $this->originalOptions,
+			'originalPattern' => $this->originalPattern,
+			'cleanPattern' => $this->cleanPattern,
+			'pattern' => $this->pattern,
+			'methods' => array_keys($this->methods),
+			'types' => $this->types,
+			'urlParts' => $this->urlParts,
+			'named' => $this->named,
+			'byClass' => $this->byClass,
+			'options' => $this->options,
 		];
 	}
 
@@ -679,7 +715,7 @@ abstract class Route extends Hookable {
 	 * @param mixed $mixed
 	 * @param Request $request
 	 * @param Response $response
-	 * @return mixed
+	 * @return string|array
 	 */
 	protected function _mapVariables(Request $request, Response $response, string|array $mixed): string|array {
 		if (is_array($mixed)) {
@@ -827,7 +863,7 @@ abstract class Route extends Hookable {
 	 * @return self
 	 */
 	final protected function _mapOptions(): self {
-		$this->original_options = $this->options;
+		$this->originalOptions = $this->options;
 		$this->options = map($this->options, $this->urlParts + ($this->named ?? []));
 		return $this;
 	}
@@ -837,7 +873,8 @@ abstract class Route extends Hookable {
 	 * @return self
 	 */
 	final protected function _unmapOptions(): self {
-		$this->options = $this->original_options + $this->options;
+		$this->options = $this->originalOptions + $this->options;
+		$this->originalOptions = [];
 		return $this;
 	}
 
@@ -925,34 +962,35 @@ abstract class Route extends Hookable {
 	 */
 	protected function getRouteMap(string $action, Model $object = null, array $options = []): array {
 		$object_hierarchy = is_object($object) ? $this->application->classes->hierarchy($object, Model::class) : [];
-		$derived_classes = toArray($options['derived_classes'] ?? []);
+		$derived_classes = toArray($options['derivedClasses'] ?? []);
 		$map = [
 			'action' => $action,
 		] + $options;
 
-		if (count($object_hierarchy) > 0) {
-			foreach ($this->types as $type) {
-				if (!is_array($type)) {
-					continue;
-				}
-				[$part_class, $part_name] = $type;
-				if (in_array($part_class, $object_hierarchy)) {
-					$map[$part_name] = $object instanceof Model ? $object->id() : $options[$part_name] ?? '';
-				} elseif (array_key_exists($part_class, $derived_classes)) {
-					$map[$part_name] = $derived_classes[$part_class];
-				} else {
-					$option = $options[$part_name] ?? null;
-					if ($option instanceof Model) {
-						$id = $option->id();
-						if (is_scalar($id)) {
-							$map[$part_name] = $id;
-						}
+		if (count($object_hierarchy) === 0) {
+			return $map;
+		}
+		foreach ($this->types as $type) {
+			if (!is_array($type)) {
+				continue;
+			}
+			[$part_class, $part_name] = $type;
+			if (in_array($part_class, $object_hierarchy)) {
+				$map[$part_name] = $object instanceof Model ? $object->id() : $options[$part_name] ?? '';
+			} elseif (array_key_exists($part_class, $derived_classes)) {
+				$map[$part_name] = $derived_classes[$part_class];
+			} else {
+				$option = $options[$part_name] ?? null;
+				if ($option instanceof Model) {
+					$id = $option->id();
+					if (is_scalar($id)) {
+						$map[$part_name] = $id;
 					}
 				}
 			}
-			if ($object instanceof Model && !array_key_exists('id', $map)) {
-				$map['id'] = $object->id();
-			}
+		}
+		if ($object instanceof Model && !array_key_exists('id', $map)) {
+			$map['id'] = $object->id();
 		}
 		return $map;
 	}
@@ -974,11 +1012,6 @@ abstract class Route extends Hookable {
 	}
 
 	/**
-	 * A unique ID for this route
-	 */
-	public const OPTION_ID = 'id';
-
-	/**
 	 * @param Router $router
 	 * @return $this
 	 * @throws Exception_Semantics
@@ -991,7 +1024,7 @@ abstract class Route extends Hookable {
 		foreach ($this->optionArray(self::OPTION_ALIASES) as $alias => $aliasId) {
 			if (!is_string($aliasId)) {
 				throw new Exception_Semantics('{option} in route must be an object with string keys and values {alias} and {id} provided', [
-					'option' => self::OPTION_ALIASES, 'alias' => gettype($alias), 'id' => gettype($id),
+					'option' => self::OPTION_ALIASES, 'alias' => gettype($alias), 'id' => gettype($aliasId),
 				]);
 			}
 			if (is_numeric($alias)) {

@@ -8,6 +8,11 @@ namespace zesk;
  * @alias uname
  */
 class Command_Host extends Command_Base {
+	/**
+	 * @var array
+	 */
+	protected array $shortcuts = ['host'];
+
 	public function run(): int {
 		echo System::uname() . "\n";
 		return 0;

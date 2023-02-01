@@ -1,13 +1,16 @@
 home
     content="{request.remoteIP}"
     map=["request"]
+    id="home"
 homeNOMAP
     content="{request.remoteIP}"
     map=["response"]
+    id="home2"
 dump/route
     content="{route}"
     map=["route"]
+    id="dumpRoute"
 cache
-    contoller="zesk\\Controller_Cache"
+    controller="zesk\\Controller_Cache"
 share
     controller="zesk\\Controller_Share"

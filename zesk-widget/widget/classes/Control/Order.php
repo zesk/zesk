@@ -38,9 +38,6 @@ class Control_Order extends Control {
 		if (!Lists::contains('up;down;top;bottom', $verb) || $ID == '') {
 			return true;
 		}
-		if ($this->optionBool('debug')) {
-			$this->response()->setDebugRedirect(true);
-		}
 		if (Lists::contains('top;bottom', $verb)) {
 			$this->moveTopBottom($ID, $verb);
 		} else {

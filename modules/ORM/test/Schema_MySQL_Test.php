@@ -29,7 +29,7 @@ class Schema_MySQL_Test extends ORMUnitTest {
 	 *
 	 * @return Database
 	 */
-	public function db() {
+	public function db(): Database {
 		$testx = $this->application->databaseRegistry();
 
 		$this->assertEquals('mysql', $testx->type());
@@ -107,7 +107,6 @@ class Schema_MySQL_Test extends ORMUnitTest {
 
 		Schema::debug(true);
 
-		/* @var $db Database */
 		$db = $this->application->databaseRegistry();
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
@@ -115,7 +114,7 @@ class Schema_MySQL_Test extends ORMUnitTest {
 		$db->connect();
 		$this->assertTrue($db->connected(), 'connecting to ' . $db->safeURL());
 
-		$this->assertTrue($db->tableExists($table), "$db->tableExists($table)");
+		$this->assertTrue($db->tableExists($table), "\$db->tableExists($table)");
 
 		$object_table = $db->parseCreateTable($sql, __METHOD__);
 		$table_name = $object_table->name();

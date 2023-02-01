@@ -109,7 +109,7 @@ class Health_Event extends ORMBase {
 		}
 		File::unlink($updated_file_path);
 		$files = Directory::ls($path, '/\.event$/', true);
-		$max_size = $application->configuration->getPath('Health_Event::max_event_size', min(4 * 1024 * 1024, System::memory_limit() / 10));
+		$max_size = $application->configuration->getPath('Health_Event::max_event_size', min(4 * 1024 * 1024, System::memoryLimit() / 10));
 		foreach ($files as $file) {
 			$size = filesize($file);
 			if ($size > $max_size) {

@@ -227,9 +227,6 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 */
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
-		$this->option_types = $this->optFormat();
-		$this->option_defaults = $this->optDefaults();
-		$this->option_help = $this->optHelp();
 	}
 
 	/**
@@ -470,24 +467,6 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	/**
 	 */
 	protected function initialize(): void {
-	}
-
-	/**
-	 * Old-school way to supply options
-	 */
-	final protected function optHelp() {
-		return $this->option_help;
-	}
-
-	/**
-	 * Old-school way to supply options
-	 */
-	final protected function optFormat() {
-		return $this->option_types;
-	}
-
-	final protected function optDefaults() {
-		return $this->option_defaults;
 	}
 
 	/**
@@ -1427,8 +1406,9 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 				break;
 			case self::FORMAT_TEXT:
-				echo Text::format_pairs($content);
-
+				if (count($content) > 0) {
+					echo Text::format_pairs($content);
+				}
 				break;
 			default:
 				$this->error('Unknown format: {format}', [

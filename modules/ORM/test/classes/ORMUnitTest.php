@@ -142,12 +142,14 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 
 		try {
 			$this->assertInstanceOf($object::class, $object->exists());
+			$this->fail('Should throw ' . Exception_ORMNotFound::class);
 		} catch (Exception_ORMNotFound $e) {
 			$this->assertInstanceOf(Exception_ORMNotFound::class, $e);
 		}
 
 		try {
 			$this->assertInstanceOf($object::class, $object->find());
+			$this->fail('Should throw ' . Exception_ORMNotFound::class);
 		} catch (Exception_ORMNotFound $e) {
 			$this->assertInstanceOf(Exception_ORMNotFound::class, $e);
 		}
@@ -157,14 +159,15 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 
 		try {
 			$this->assertInstanceOf($object::class, $object->fetchByKey(2, $test_field));
+			$this->fail('Should throw ' . Exception_ORMNotFound::class);
 		} catch (Exception_ORMNotFound $e) {
 			$this->assertInstanceOf(Exception_ORMNotFound::class, $e);
 		}
 
 		try {
 			$object->fetch();
-			$this->fail('Should throw Exception_ORMEmpty');
-		} catch (Exception_ORMEmpty $e) {
+			$this->fail('Should throw ' . Exception_ORMEmpty::class);
+		} catch (Exception_ORMEmpty) {
 		}
 
 		$columns = $object->columns();

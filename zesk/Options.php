@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use ArrayAccess;
-
 /**
  * The Options object is universally used to tag various objects in the system with optional
  * configuration settings and values.
@@ -34,7 +32,7 @@ use ArrayAccess;
  * @package zesk
  * @subpackage system
  */
-class Options implements ArrayAccess {
+class Options {
 	/**
 	 * Character used for space
 	 * @var string
@@ -323,7 +321,7 @@ class Options implements ArrayAccess {
 
 	/**
 	 * Get an option as a tree-path
-	 * @param string $name Option to retrieve as an array value.
+	 * @param array $path Option to retrieve as an array value.
 	 * @param mixed $default Value to return if this option is not set or is not an array.
 	 * @return mixed The real value of the option, or $default. The default value is passed back without modification.
 	 * @see is_array()
@@ -339,9 +337,8 @@ class Options implements ArrayAccess {
 	/**
 	 * Set an option as a tree-path
 	 *
-	 * @param string $path
+	 * @param array $path
 	 * @param mixed $value
-	 * @param string $separator String to separate path segments
 	 * @return Options
 	 */
 	public function setOptionPath(array $path, mixed $value): self {
@@ -379,77 +376,11 @@ class Options implements ArrayAccess {
 	}
 
 	/**
-	 * Handle options like members
-	 *
-	 * @param string $key
-	 * @return boolean
-	 */
-	public function __isset(string $key): bool {
-		return isset($this->options[self::_optionKey($key)]);
-	}
-
-	/**
-	 * Handle options like members
-	 *
-	 * @param string $key
-	 * @return mixed
-	 */
-	public function __get(string $key): mixed {
-		return $this->options[self::_optionKey($key)] ?? null;
-	}
-
-	/**
-	 * Handle options like members
-	 *
-	 * @param string $key
-	 * @return self
-	 */
-	public function __set(string $key, mixed $value): void {
-		$this->options[self::_optionKey($key)] = $value;
-	}
-
-	/**
 	 * Convert to string
 	 *
 	 * @return string
 	 */
 	public function __toString() {
 		return PHP::dump($this->options);
-	}
-
-	/**
-	 * @param int|string $offset
-	 * @return bool
-	 * @see ArrayAccess::offsetExists
-	 */
-	public function offsetExists($offset): bool {
-		return array_key_exists(self::_optionKey($offset), $this->options);
-	}
-
-	/**
-	 * @param int|string $offset
-	 * @return mixed
-	 * @see ArrayAccess::offsetGet
-	 */
-	public function offsetGet($offset): mixed {
-		return $this->options[self::_optionKey($offset)] ?? null;
-	}
-
-	/**
-	 * @param int|string $offset
-	 * @param mixed $value
-	 * @see ArrayAccess::offsetSet
-	 */
-	public function offsetSet($offset, mixed $value): void {
-		$this->options[self::_optionKey($offset)] = $value;
-	}
-
-	/**
-	 * @param int|string $offset
-	 * @return void
-	 * @see ArrayAccess::offsetUnset
-	 */
-	public function offsetUnset($offset): void {
-		unset($this->options[self::_optionKey($offset)]);
 	}
 }

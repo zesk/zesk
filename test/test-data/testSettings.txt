@@ -1,0 +1,18 @@
+testSettings: {
+    "value": [
+        "First",
+        "Second",
+        "Third"
+    ],
+    "listLike": [
+        "Uno",
+        "Dos",
+        "Tres"
+    ],
+    "no_buffer": false,
+    "debug-logger-config": [
+        "1",
+        "2",
+        "three"
+    ]
+}

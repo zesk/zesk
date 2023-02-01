@@ -111,6 +111,11 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	public const OPTION_COMMAND_PATH = 'commandPath';
 
 	/**
+	 *
+	 */
+	public const OPTION_ZESK_COMMAND_PATH = 'zeskCommandPath';
+
+	/**
 	 * Data paths are for persistent data storage which is persistent across application
 	 * processes on all servers.
 	 *
@@ -1121,7 +1126,13 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @throws Exception_Class_NotFound
 	 */
 	public function settings(): Interface_Settings {
-		$result = $this->singletonArguments($this->optionString('settingsClass', Settings_FileSystem::class), [$this]);
+		$settingsClass = $this->optionString('settingsClass', Settings_FileSystem::class);
+		$settingsClassStaticMethods = $this->optionIterable('settingsClassStaticMethods');
+		if ($settingsClassStaticMethods) {
+			$result = $this->objects->singletonArgumentsStatic($settingsClass, [$this], $settingsClassStaticMethods);
+		} else {
+			$result = $this->objects->singletonArguments($settingsClass, [$this]);
+		}
 		assert($result instanceof Interface_Settings);
 		return $result;
 	}
@@ -1133,20 +1144,25 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @throws Exception_Class_NotFound
 	 */
 	final public function singletonArguments(string $class, array $arguments = []): object {
-		$desired_class = $this->objects->resolve($class);
-		$suffix = PHP::cleanFunction($desired_class);
+		$desiredClass = $this->objects->resolve($class);
+		$suffix = PHP::cleanFunction($desiredClass);
 		$object = $this->callHookArguments("singleton_$suffix", $arguments);
-		if ($object instanceof $desired_class) {
+		if ($object instanceof $desiredClass) {
 			return $object;
 		}
-		$object = $this->objects->singletonArguments($desired_class, $arguments);
-		if ($object instanceof $desired_class) {
-			return $object;
-		}
+		return $this->objects->singletonArguments($desiredClass, $arguments);
+	}
 
-		throw new Exception_Class_NotFound($desired_class, 'Unable to create singleton with {argumentsCount} argument{s}', [
-			'argumentsCount' => count($arguments), 's' => count($arguments) === 1 ? '' : 's',
-		]);
+	/**
+	 * @param string $class
+	 * @param array $arguments
+	 * @return object
+	 * @throws Exception_Class_NotFound
+	 */
+	final public function singletonArgumentsStatic(string $class, array $arguments = [], array $staticMethods = ['singleton']):
+	object {
+		$desiredClass = $this->objects->resolve($class);
+		return $this->objects->singletonArgumentsStatic($desiredClass, $arguments, $staticMethods);
 	}
 
 	/**

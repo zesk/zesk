@@ -118,21 +118,21 @@ class Configuration_Loader_Test extends UnitTest {
 			'rank' => 'admiral',
 			'weight' => 140,
 			'eye_color' => 'brown',
-			'person' => [
+			'Person' => [
 				'name' => 'ralph-three-json',
 				'rank' => 'admiral-three-json',
 				'weight' => '140-three-conf',
 				'eye_color' => 'brown-two-conf',
 				'hair_color' => 'red-two-conf',
 			],
-			'last' => 'three-json',
-			'file_loaded' => [
-				'one_json' => 1,
-				'two_conf' => 1,
-				'three_conf' => 1,
-				'three_json' => 1,
+			'LAST' => 'three-json',
+			'FILE_LOADED' => [
+				'ONE_JSON' => 1,
+				'TWO_CONF' => 1,
+				'THREE_CONF' => 1,
+				'THREE_JSON' => 1,
 			],
-			'zesk\\user' => [
+			'zesk\\User' => [
 				'class' => 'User',
 			],
 		], toArray($config));

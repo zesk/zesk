@@ -412,12 +412,8 @@ class CommandLoader {
 	 * @param string $shortcut
 	 * @param array $args
 	 * @return array
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_NotFound
-	 * @throws Exception_Semantics
 	 * @throws Exception_Configuration
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Invalid
+	 * @throws Exception_NotFound
 	 * @throws Exception_Unsupported
 	 */
 	public function runCommand(string $shortcut, array $args): array {

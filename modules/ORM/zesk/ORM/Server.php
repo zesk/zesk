@@ -330,7 +330,7 @@ class Server extends ORMBase implements Interface_Data {
 		}
 		if (empty($this->ip4_internal) || $this->ip4_internal === '0.0.0.0') {
 			$this->ip4_internal = null;
-			$ips = System::ip_addresses($this->application);
+			$ips = System::ipAddresses($this->application);
 			$ips = ArrayTools::valuesRemove($ips, ['127.0.0.1']);
 			if (count($ips) >= 1) {
 				$this->ip4_internal = first(array_values($ips));
@@ -357,7 +357,7 @@ class Server extends ORMBase implements Interface_Data {
 		if ($path === '') {
 			$path = $this->optionString(self::OPTION_FREE_DISK_VOLUME, self::DEFAULT_OPTION_FREE_DISK_VOLUME);
 		}
-		$volume_info = System::volume_info();
+		$volume_info = System::volumeInfo();
 		$info = $volume_info[$path] ?? null;
 		$update = [];
 		if ($info) {
@@ -374,7 +374,7 @@ class Server extends ORMBase implements Interface_Data {
 		$pushed = $this->push_utc();
 
 		try {
-			$update['load'] = first(System::load_averages());
+			$update['load'] = first(System::loadAverages());
 			$update['*alive'] = $this->sql()->now();
 			$this->queryUpdate()->setValues($update)->appendWhere($this->members($this->primaryKeys()))->execute();
 			$this->pop_utc($pushed);

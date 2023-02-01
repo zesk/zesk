@@ -352,23 +352,6 @@ class Response extends Hookable {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function debugRedirect(): bool {
-		return $this->optionBool('debug_redirect');
-	}
-
-	/**
-	 * Set up redirect debugging
-	 *
-	 * @param mixed $set
-	 * @return self
-	 */
-	public function setDebugRedirect(bool $set): self {
-		return $this->setOption('debug_redirect', $set);
-	}
-
-	/**
 	 * Output a header
 	 *
 	 * @param string $string

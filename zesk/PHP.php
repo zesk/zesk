@@ -153,7 +153,7 @@ class PHP {
 	 *
 	 * @return php
 	 */
-	public function settings_one(): self {
+	public function settingsOneLine(): self {
 		$this->indent_char = '';
 		$this->array_value_separator = ' ';
 		$this->array_open_parenthesis_suffix = '';
@@ -166,7 +166,7 @@ class PHP {
 	 * @return array
 	 */
 	public static function dump_settings_one(): array {
-		return self::singleton()->settings_one()->settings();
+		return self::singleton()->settingsOneLine()->settings();
 	}
 
 	/**

@@ -9,7 +9,19 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use Psr\Log\NullLogger;
+class SingletonSampler {
+	public static string $serialNo = '';
+
+	public string $id;
+
+	public function __construct(string $id) {
+		$this->id = $id;
+	}
+
+	public static function singleton(): self {
+		return new self(self::$serialNo);
+	}
+}
 
 class Kernel_Test extends UnitTest {
 	/**
@@ -86,6 +98,24 @@ class Kernel_Test extends UnitTest {
 		$this->order = 0;
 		$hooks->call('test_hook_order', $this);
 		$this->assertEquals($this->order, 2);
+	}
+
+	public function test_singletons(): void {
+		SingletonSampler::$serialNo = $theId = $this->randomHex();
+
+		$sampler = $this->application->singletonArgumentsStatic(SingletonSampler::class);
+		$this->assertInstanceOf(SingletonSampler::class, $sampler);
+		$this->assertEquals($theId, $sampler->id);
+
+		$sampler2 = $this->application->singletonArgumentsStatic(SingletonSampler::class, ['notId']);
+		$this->assertInstanceOf(SingletonSampler::class, $sampler2);
+		$this->assertEquals($theId, $sampler2->id);
+		$this->assertEquals($sampler, $sampler2);
+
+		$sampler3 = $this->application->singletonArgumentsStatic(SingletonSampler::class, ['fandom']);
+		$this->assertInstanceOf(SingletonSampler::class, $sampler3);
+		$this->assertEquals($theId, $sampler3->id);
+		$this->assertEquals($sampler, $sampler3);
 	}
 
 	public function test_setk(): void {
@@ -175,9 +205,9 @@ class Kernel_Test extends UnitTest {
 		return [
 			//			[ZESK_ROOT . 'zesk/Kernel.php', Kernel::class, ['php'], []],
 			//			[ZESK_ROOT . 'zesk/Controller/Theme.php', Controller_Theme::class, ['php', 'sql'], []],
-			[ZESK_ROOT . 'modules/ORM/classes/Class/User.sql', 'zesk\\ORM\\Class_User', ['sql', 'php'], ['ORM']],
-			[ZESK_ROOT . 'modules/ORM/classes/Class/User.php', 'zesk\\ORM\\Class_User', ['php', 'sql'], ['ORM']], [
-				ZESK_ROOT . 'modules/ORM/classes/Class/User.sql', 'zesk\\ORM\\Class_User', ['other', 'inc', 'sql', ],
+			[ZESK_ROOT . 'modules/ORM/zesk/ORM/Class/User.sql', 'zesk\\ORM\\Class_User', ['sql', 'php'], ['ORM']],
+			[ZESK_ROOT . 'modules/ORM/zesk/ORM/Class/User.php', 'zesk\\ORM\\Class_User', ['php', 'sql'], ['ORM']], [
+				ZESK_ROOT . 'modules/ORM/zesk/ORM/Class/User.sql', 'zesk\\ORM\\Class_User', ['other', 'inc', 'sql', ],
 				['ORM'],
 			], [null, 'zesk\\ORM\\User', ['other', 'none', ], ['ORM']],
 		];
@@ -306,7 +336,7 @@ class Kernel_Test extends UnitTest {
 		return [
 			[true, Application::class], [true, [Application::class, 'modules']], [true, Kernel::class], [
 				true, [Application::class, Application::OPTION_HOME_PATH],
-			], [true, Options::class], [false, md5('HOME')], [true, 'HoMe'], [false, '0192830128301283123'],
+			], [true, Options::class], [false, md5('HOME')], [true, 'HOME'], [false, 'HoMe'], [false, '0192830128301283123'],
 		];
 	}
 
