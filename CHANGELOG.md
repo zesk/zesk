@@ -28,9 +28,13 @@ We anticipate a few small releases before a full 1.0 release.
 
 Many breaking changes:
 
-- Options and Configuratoin keys are case-sensitive
-- Exception_Key is used in cases where the key should exist more often
+- `zesk\Options` and `zesk\Configuration` keys are case-sensitive
+- `zesk\Exception_Key` is used in cases where the key should exist more often
+- `zesk\ORM\ORMBase` and `zesk\ORM\Class_Base` are current ORM base classes
+- Module names are case-sensitive
+- Module JSONs are now loaded via glob `*.module.json` to avoid case-sensitivity issues
 - All modules restructured to new project layout, tests added
+- `Net` module had major renaming, part-way finished (WIP)
 - Removed all widget and most HTML-related tools - moving to a more API-centric server model.
 - Deprecated: `avalue`, `zesk\Kernel`
 - Most namespaces for modules are now `zesk\ModuleName\ClassName`
@@ -40,8 +44,9 @@ Many breaking changes:
 - Template paths are no longer case-insensitive
 - Code coverage for testing is more than 50%
 - Added docker and testing containers
-- Updating README
 - Support XDEBUG debugging from the container
+- Major development, build, and release updates to the project in `docker`, `bin/build`
+- Removed a ton of old code and things which were no longer used
 
 ## [v0.30.2][]
 
