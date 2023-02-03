@@ -37,6 +37,7 @@ if test "$INSTALL_COMPOSER" || [ -z "$composer" ]; then
     chmod +x "$composer"
   fi
 fi
+cd "$top" || exit "$ERR_ENV"
 ./docker/sbin/docker-apt-base.sh
 ./docker/sbin/docker-php.sh
 cd "$top" || exit $ERR_ENV
