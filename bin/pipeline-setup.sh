@@ -6,6 +6,9 @@ ERR_BUILD=1001
 set -x
 
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
+# Optional
+composer=$(which composer)
+
 set -eo pipefail
 
 envFile="$top/.env"
@@ -20,7 +23,6 @@ if [ -z "$docker" ]; then
   echo "No docker found in $PATH" 1>&2
   exit $ERR_ENV
 fi
-composer=$(which composer)
 if test "$INSTALL_COMPOSER" || [ -z "$composer" ]; then
   composer="$top/.bin/composer"
   if [ ! -x "$composer" ]; then
