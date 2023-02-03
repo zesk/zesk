@@ -6,7 +6,7 @@ definitions:
     apt-lists: /var/lib/apt/lists
     apt-cache: /var/cache/apt
 
-image: php:8-cli
+image: python:3
 pipelines:
   branches:
     develop:
@@ -15,6 +15,8 @@ pipelines:
           artifacts:
             - .env
           caches:
+            - pip
+            - docker
             - apt-lists
             - apt-cache
           deployment: staging
@@ -25,6 +27,8 @@ pipelines:
       - step:
           name: Unit Tests
           caches:
+            - pip
+            - docker
             - apt-lists
             - apt-cache
           script:
@@ -35,6 +39,8 @@ pipelines:
           artifacts:
             - .env
           caches:
+            - pip
+            - docker
             - apt-lists
             - apt-cache
           deployment: staging
@@ -45,6 +51,7 @@ pipelines:
       - step:
           name: Unit Tests
           caches:
+            - docker
             - apt-lists
             - apt-cache
           script:
@@ -53,6 +60,8 @@ pipelines:
           name: Deploy new release
           trigger: manual
           caches:
+            - pip
+            - docker
             - apt-lists
             - apt-cache
           script:
