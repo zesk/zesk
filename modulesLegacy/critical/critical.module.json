@@ -1,7 +1,0 @@
-{
-	"name": "Critical alert module",
-	"autoload": {
-		"classPrefix": "zesk\\"
-	},
-	"moduleClass": "zesk\\Module_Critical"
-}

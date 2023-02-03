@@ -1,8 +1,0 @@
-{
-	"name": "Developer",
-	"description": "Developer-related tools",
-	"autoload": {
-		"classPrefix": "zesk\\Developer\\"
-	},
-	"moduleClass": "zesk\\Developer\\Module"
-}

@@ -1,9 +1,0 @@
-{
-	"name": "TinyMCE Rich-Text Editor",
-	"composer": {
-		"require": "tinymce/tinymce:^4"
-	},
-	"github": "tinymce/tinymce",
-	"destination": "vendor/tinymce/tinymce/",
-	"status": "production"
-}

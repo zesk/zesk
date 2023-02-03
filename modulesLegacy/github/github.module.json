@@ -1,8 +1,0 @@
-{
-	"name": "GitHub",
-	"autoload": {
-		"classPrefix": "zesk\\"
-	},
-	"moduleClass": "zesk\\Module_GitHub",
-	"zeskCommandClassPrefix": "zesk\\Command_"
-}
