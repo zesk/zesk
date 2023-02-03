@@ -32,6 +32,10 @@ if [ -z "$dc" ]; then
   pip install --upgrade pip > "$quietLog" 2>&1
   echo "Installing docker-compose ..."
   pip install docker-compose > "$quietLog" 2>&1
+  if ! which docker-compose > /dev/null; then
+    echo "docker-compose not found after install" 1>&2
+    exit $ERR_ENV
+  fi
 fi
 figlet Building vendor
 docker run -v "$(pwd):/app" composer:latest i --ignore-platform-req=ext-calendar > "$quietLog"
