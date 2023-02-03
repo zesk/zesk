@@ -1,7 +1,0 @@
-{
-	"name": "Logger Footer",
-	"autoload": {
-		"classPrefix": "zesk\\"
-	},
-	"moduleClass": "zesk\\Module_Logger_Footer"
-}

@@ -1,0 +1,59 @@
+options:
+  docker: true
+
+definitions:
+  caches:
+    apt-lists: /var/lib/apt/lists
+    apt-cache: /var/cache/apt
+
+image: php:8-cli
+pipelines:
+  branches:
+    develop:
+      - step:
+          name: Setup
+          artifacts:
+            - .env
+          caches:
+            - apt-lists
+            - apt-cache
+          deployment: staging
+          script:
+            - export DOCKER_BUILDKIT=1
+            - export DEPLOYMENT=staging
+            - bin/pipeline-setup.sh "${DEPLOYMENT}" ${BUILD_TEST_FLAG} --host "${CONTAINER_HOST}" --commit "${BITBUCKET_COMMIT}"
+      - step:
+          name: Unit Tests
+          caches:
+            - apt-lists
+            - apt-cache
+          script:
+            - bin/pipeline-unit-tests.sh
+    master:
+      - step:
+          name: Build
+          artifacts:
+            - .env
+          caches:
+            - apt-lists
+            - apt-cache
+          deployment: staging
+          script:
+            - export DOCKER_BUILDKIT=1
+            - export DEPLOYMENT=staging
+            - bin/pipeline-setup.sh "${DEPLOYMENT}" ${BUILD_TEST_FLAG} --host "${CONTAINER_HOST}" --commit "${BITBUCKET_COMMIT}"
+      - step:
+          name: Unit Tests
+          caches:
+            - apt-lists
+            - apt-cache
+          script:
+            - bin/build-unit-test.sh
+      - step:
+          name: Deploy new release
+          trigger: manual
+          caches:
+            - apt-lists
+            - apt-cache
+          script:
+            - bin/build-deploy.sh

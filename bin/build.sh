@@ -1,9 +1,8 @@
 #!/bin/bash
-export APPLICATION_ROOT="$(cd $(dirname "$BASH_SOURCE")/..; pwd)"
 ERR_ENV=1
-ERR_CHANGED=200
 ERR_BUILD=93
-ERR_TAR=15
+
+top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
 start=$(date +%s)
 composer=$(which composer)
 
@@ -12,7 +11,7 @@ if [ -z "$composer" ]; then
 	exit $ERR_ENV
 fi
 
-cd $APPLICATION_ROOT
+cd "$top" || exit $ERR_ENV
 
 # if [ "$(git status -s)" != "" ]; then
 # 	echo "FAILED: Git status is not empty" 1>&2
@@ -28,58 +27,46 @@ mv vendor "$backup_vendor"
 
 $composer install --dev --no-interaction --quiet
 
-zesk="$APPLICATION_ROOT/bin/zesk.sh"
+zesk="$top/bin/zesk"
 if [ ! -x "$zesk" ]; then
 	echo "Not executable: $zesk" 1>&2
 	exit $ERR_ENV
 fi
 
 
-$zesk module iless update > /dev/null 2>&1
-$composer install --dev --no-interaction --quiet
-
 finish() {
 	rm -rf vendor
 	mv "$backup_vendor"	vendor
 	mv -f "$backup_composer" composer.json
-	if [ ! -z "$1" ]; then
-		exit $1
+	if [ -n "$1" ]; then
+		exit "$1"
 	fi
+  echo "Completed in $((start - $(date +%s))) seconds"
 }
 
-for d in \
-	./modules/content/ \
-	./modules/dropfile/share/ \
-	./modules/image_picker/ \
-	./modules/inplace/share/ \
-	./modules/logger_footer/ \
-	./modules/modal_url/ \
-	./modules/picker/ \
-	./modules/polyglot/share/ \
-	./modules/workflow/share/ \
-	; do
-	echo "Building $d"
-	if ! $zesk module iless lessc --cd "$d" --mkdir-target; then
-		finish $ERR_BUILD
-	fi
+
+build_less_directory() {
+  local lessDir
+  lessDir=$1
+  echo "Building $lessDir"
+  cd "$lessDir/.." || return $ERR_ENV
+  lessDir=$(pwd)
+  cd "$top" || return $ERR_ENV
+  if ! $zesk module iless lessc --cd "$lessDir" --mkdir-target; then
+    finish $ERR_BUILD
+  fi
+}
+
+build_less_directories() {
+  while IFS= read -r -d '' lessDir; do
+    if ! build_less_directory "$lessDir"; then
+      return $?
+    fi
+  done
+}
+
+for dir in ./zesk ./modules; do
+  find $dir -name less -type d -print0 | build_less_directories
 done
 
-# for f in \
-# 	./modules/server/site/less/server.less \
-# 	; do
-# 	echo "Building $f"
-# 	if ! zesk module iless lessc --mkdir-target "$f"; then
-# 		finish $ERR_BUILD
-# 	fi
-# done
-
-for d in \
-	./modules/markdown/ \
-	; do
-	echo "Building $d"
-	if ! $zesk module iless lessc --cd "$d" --target-path ./; then
-		finish $ERR_BUILD
-	fi
-done
-
-finish 0
+finish

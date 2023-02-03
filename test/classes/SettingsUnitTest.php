@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 
-namespace classes;
+namespace zesk;
 
 class SettingsUnitTest extends \zesk\UnitTest {
 	public static function setUpBeforeClass(): void {

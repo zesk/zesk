@@ -29,7 +29,7 @@ $application->logger->error("Exception: {exception_class}\nMessage: {message}\nS
 	'backtrace' => $exception->getTraceAsString(),
 ]);
 
-$this->begin('body/exception.tpl');
+echo HTML::tag_open('div', '.exception');
 
 if (!$exception instanceof Exception) {
 	$message = 'Not an exception: ' . type($exception);
@@ -38,7 +38,7 @@ if (!$exception instanceof Exception) {
 	$message = $exception->getMessage();
 	$trace = $exception->getTrace();
 }
-$dev = $this->application->development();
+$dev = $application->development();
 ?>
 <div class="exception-error">
 	<h1><?php
@@ -52,7 +52,7 @@ $dev = $this->application->development();
 	echo HTML::tag('code', $message);
 if ($dev) {
 	?><p>The call stack is:</p><?php
-	echo $this->theme('exception/trace', [
+	echo $this->theme('Exception/Trace', [
 		'content' => $trace,
 	]); ?>
 	<?php
@@ -63,4 +63,4 @@ if ($this->suffix) {
 ?>
 </div>
 <?php
-echo $this->end();
+echo HTML::tag_close('div');

@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 /**
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * @package zesk
  * @subpackage system
  */
@@ -875,7 +875,7 @@ class Client extends Hookable {
 				'user_agent' => self::$sample_agents[0],
 			],
 		];
-		$cafile = Kernel::singleton()->path('etc/cacert.pem');
+		$cafile = ZESK_ROOT . 'etc/cacert.pem';
 		if (!is_file($cafile)) {
 			$ctx_options['ssl'] = [
 				'verify_peer' => false,

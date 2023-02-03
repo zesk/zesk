@@ -2,8 +2,6 @@
 namespace zesk;
 
 class Exception_TestCase extends UnitTest {
-	protected array $load_modules = ['database', 'mysql'];
-
 	public function simple_exceptions() {
 		return [
 			new \Exception('message', 123, new \Exception('previous', 345)),

@@ -17,9 +17,8 @@ Zesk is an application development platform which solves many problems found in 
 - [Naming Conventions](zesk-naming.md)
 - [Application](application.md)
 - [Configuration File Format](configuration-file-format.md)
-- [Globals](globals.md)
+- [Configuration](globals.md)
 - [Router File Format](router-file-format.md)
-- [Widgets](widget.md)
 
 ## Hooks
 
@@ -70,3 +69,6 @@ Zesk is an application development platform which solves many problems found in 
 - [Background: Naming styles definitions](naming-styles-definitions.md)
 - [Background: Understanding PHP Case Sensitivity](php-case-sensitivity.md)
 
+## Deprecated 2022
+
+- [Widgets](widget.md)

@@ -3,8 +3,8 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\ORM;
@@ -36,16 +36,16 @@ class Database_Query_Select_Links_Test extends ORMUnitTest {
 		return $sql;
 	}
 
-	public function sqlTestAssert($result, $test_result, $test = null): void {
-		$result = trim($result);
-		$test_result = trim($test_result);
-		$result = $this->sql_normalize($result);
-		$test_result = $this->sql_normalize($test_result);
-		$this->assertEquals($result, $test_result);
+	public function sqlTestAssert($expected, $actual, $test = null): void {
+		$expected = trim($expected);
+		$actual = trim($actual);
+		$expected = $this->sql_normalize($expected);
+		$actual = $this->sql_normalize($actual);
+		$this->assertEquals($expected, $actual);
 	}
 
 	public function test_main(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$db->tablePrefix('');
 
 		/*==== Test ===============================================================*/
@@ -53,13 +53,13 @@ class Database_Query_Select_Links_Test extends ORMUnitTest {
 		$query = $this->application->ormRegistry(__NAMESPACE__ . '\\' . 'Test_SiteMonitor')->querySelect()->link('Test_Account', ['path' => 'Site.Account']);
 		$query->addWhere('Account.Cancelled', null);
 
-		$test_result = 'SELECT `X`.* FROM `Test_SiteMonitor` AS `X`
+		$expected = 'SELECT `X`.* FROM `Test_SiteMonitor` AS `X`
 INNER JOIN `Test_Site` AS `Site` ON `Site`.`ID`=`X`.`Site`
 INNER JOIN `Test_Account` AS `Account` ON `Account`.`ID`=`Site`.`Account`
 WHERE `Account`.`Cancelled` IS NULL';
 
 		$result = strval($query);
-		$this->sqlTestAssert($result, $test_result, 'link through');
+		$this->sqlTestAssert($expected, $result, 'link through');
 
 		/*==== Test ===============================================================*/
 
@@ -69,7 +69,7 @@ WHERE `Account`.`Cancelled` IS NULL';
 		$query->addWhere('Account.Cancelled', null);
 
 		$result = strval($query);
-		$this->sqlTestAssert($result, $test_result, 'explicit link through');
+		$this->sqlTestAssert($expected, $result, 'explicit link through');
 
 		/*==== Test ===============================================================*/
 
@@ -83,7 +83,7 @@ WHERE `Account`.`Cancelled` IS NULL';
 		$query->addWhere('Account.Cancelled', null);
 
 		$result = strval($query);
-		$this->sqlTestAssert($result, $test_result, 'explicit link through, repeated a few times');
+		$this->sqlTestAssert($expected, $result, 'explicit link through, repeated a few times');
 
 		/*==== Test ===============================================================*/
 
@@ -94,12 +94,12 @@ WHERE `Account`.`Cancelled` IS NULL';
 		]);
 		$query->addWhere('dude.Cancelled', null);
 
-		$test_result = 'SELECT `X`.* FROM `Test_SiteMonitor` AS `X`
+		$expected = 'SELECT `X`.* FROM `Test_SiteMonitor` AS `X`
 INNER JOIN `Test_Site` AS `Site` ON `Site`.`ID`=`X`.`Site`
 INNER JOIN `Test_Account` AS `dude` ON `dude`.`ID`=`Site`.`Account`
 WHERE `dude`.`Cancelled` IS NULL';
 		$result = strval($query);
-		$this->sqlTestAssert($result, $test_result, 'computed link through, alternate alias');
+		$this->sqlTestAssert($expected, $result, 'computed link through, alternate alias');
 
 		/*==== Test ===============================================================*/
 
@@ -111,12 +111,12 @@ WHERE `dude`.`Cancelled` IS NULL';
 		]);
 		$query->addWhere('dude.Cancelled', null);
 
-		$test_result = 'SELECT `X`.* FROM `Test_SiteMonitor` AS `X`
+		$expected = 'SELECT `X`.* FROM `Test_SiteMonitor` AS `X`
 INNER JOIN `Test_Site` AS `Site` ON `Site`.`ID`=`X`.`Site`
 INNER JOIN `Test_Account` AS `dude` ON `dude`.`ID`=`Site`.`Account`
 WHERE `dude`.`Cancelled` IS NULL';
 		$result = strval($query);
-		$this->sqlTestAssert($result, $test_result, 'explicit link through, alternate alias');
+		$this->sqlTestAssert($expected, $result, 'explicit link through, alternate alias');
 
 		/*==== Test ===============================================================*/
 
@@ -130,64 +130,62 @@ WHERE `dude`.`Cancelled` IS NULL';
 		]);
 		$query->addWhere('A.Cancelled', null);
 
-		$test_result = 'SELECT `X`.* FROM `Test_SiteMonitor` AS `X`
+		$expected = 'SELECT `X`.* FROM `Test_SiteMonitor` AS `X`
 INNER JOIN `Test_Site` AS `S` ON `S`.`ID`=`X`.`Site`
 INNER JOIN `Test_Account` AS `A` ON `A`.`ID`=`S`.`Account`
 WHERE `A`.`Cancelled` IS NULL';
 		$result = strval($query);
-		$this->sqlTestAssert($result, $test_result, 'explicit link through, two aliases');
+		$this->sqlTestAssert($expected, $result, 'explicit link through, two aliases');
 
 		/*==== Test ===============================================================*/
 
-		$person = new TestPerson($this->application, [
-			'PersonID' => 1,
-		]);
+		$person = new TestPerson($this->application);
+		$person->setId(1);
 
 		/* @var $iterator ORMIterator */
 		$iterator = $person->Children;
 		$this->assertInstanceOf(ORMIterator::class, $iterator);
 		$result = strval($iterator->query());
-		$test_result = 'SELECT `Children`.* FROM `TestPerson` AS `Children`
+		$expected = 'SELECT `Children`.* FROM `TestPerson` AS `Children`
 WHERE `Children`.`Parent` = 1';
-		$this->sqlTestAssert($result, $test_result, 'Person->Children');
+		$this->sqlTestAssert($expected, $result, 'Person->Children');
 
 		/*==== Test ===============================================================*/
 
-		$person = new TestPerson($this->application, [
-			'PersonID' => 1,
-		]);
+		$person = new TestPerson($this->application);
+		$person->setId(1);
 
 		$iterator = $person->Pets;
 
 		$result = strval($iterator->query());
-		$test_result = 'SELECT `Pets`.* FROM `TestPet` AS `Pets`
+		$expected = 'SELECT `Pets`.* FROM `TestPet` AS `Pets`
 INNER JOIN `TestPersonPet` AS `Pets_join` ON `Pets_join`.`Pet`=`Pets`.`PetID`
 WHERE `Pets_join`.`Person` = 1';
-		$this->sqlTestAssert($result, $test_result, 'Person->Pets');
+		$this->sqlTestAssert($expected, $result, 'Person->Pets');
 
 		/*==== Test ===============================================================*/
 
-		$query = $this->application->ormRegistry(__NAMESPACE__ . '\\' . 'TestPerson')->querySelect();
+		$query = $this->application->ormRegistry(TestPerson::class)->querySelect();
 		$query->link(TestPet::class);
 		$query->addWhere('Pets.Type', 'cat');
 
-		$test_result = '
+		$expected = '
 SELECT `X`.* FROM `TestPerson` AS `X`
 INNER JOIN `TestPersonPet` AS `Pets_Link_join` ON `Pets_Link_join`.`Person`=`X`.`PersonID`
 INNER JOIN `TestPet` AS `Pets` ON `Pets_Link_join`.`Pet`=`Pets`.`PetID`
 WHERE `Pets`.`Type` = \'cat\'
 ';
 		$result = strval($query);
-		$this->sqlTestAssert($result, $test_result, 'Person->TestPet');
+		$this->sqlTestAssert($expected, $result, 'Person->TestPet');
 
 		/*==== Test ===============================================================*/
 
-		$query = $this->application->ormRegistry(__NAMESPACE__ . '\\' . 'TestPerson')->querySelect();
-		$query->link(__NAMESPACE__ . '\\' . 'TestPet');
-		$query->link(__NAMESPACE__ . '\\' . 'TestPerson');
+		$query = $this->application->ormRegistry(TestPerson::class)->querySelect();
+		$query->link(TestPet::class);
+		$query->link(TestPerson::class);
 		$query->addWhere('Pets.Type', 'cat');
 
-		$test_result = '
+		$expected = '
 SELECT `X`.* FROM `TestPerson` AS `X`
 INNER JOIN `TestPersonPet` AS `Pets_Link_join` ON `Pets_Link_join`.`Person`=`X`.`PersonID`
 INNER JOIN `TestPet` AS `Pets` ON `Pets_Link_join`.`Pet`=`Pets`.`PetID`
@@ -195,6 +193,6 @@ INNER JOIN `TestPerson` AS `Children` ON `Children`.`Parent`=`X`.`PersonID`
 WHERE `Pets`.`Type` = \'cat\'
 ';
 		$result = strval($query);
-		$this->sqlTestAssert($result, $test_result);
+		$this->sqlTestAssert($expected, $result);
 	}
 }

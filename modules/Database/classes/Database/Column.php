@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 /**
- * @author Kent M. Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * @package zesk
  * @subpackage database
  */
@@ -71,11 +71,7 @@ class Database_Column extends Options {
 	/**
 	 * @return Database_Table
 	 */
-	public function table(Database_Table $set = null): Database_Table {
-		if ($set !== null) {
-			$this->setTable($set);
-			$this->table->application->deprecated('SetTable');
-		}
+	public function table(): Database_Table {
 		return $this->table;
 	}
 
@@ -133,20 +129,15 @@ class Database_Column extends Options {
 	}
 
 	/**
-	 * Get/set column name
-	 * @param string $set
+	 * Get column name
 	 * @return Database_Column string
 	 */
-	public function name(string $set = null): string {
-		if ($set !== null) {
-			$this->table->application->deprecated('setter');
-			$this->setName($set);
-		}
+	public function name(): string {
 		return $this->name;
 	}
 
 	/**
-	 * Get/set column name
+	 * Set column name
 	 * @param string $set
 	 * @return Database_Column string
 	 */
@@ -222,13 +213,14 @@ class Database_Column extends Options {
 	 *
 	 * @param Database $db
 	 * @param Database_Column $that
+	 * @param null|string|array $filter Only show differences between selectded attributes
 	 * @return array
 	 */
-	public function attributes_differences(Database $db, Database_Column $that, $filter = null): array {
+	public function attributes_differences(Database $db, Database_Column $that, string|array $filter = null): array {
 		$this_extras = $db->columnAttributes($this);
 		$that_extras = $db->columnAttributes($that);
 		$diffs = [];
-		if ($filter) {
+		if ($filter !== null) {
 			$this_extras = ArrayTools::filter($this_extras, $filter);
 		}
 		foreach ($this_extras as $extra => $default) {
@@ -317,14 +309,9 @@ class Database_Column extends Options {
 	/**
 	 * Get binary flag
 	 *
-	 * @param $set
 	 * @return bool
 	 */
-	final public function binary($set = null): bool {
-		if ($set !== null) {
-			$this->table->application->deprecated('setter');
-			$this->setBinary(toBool($set));
-		}
+	final public function binary(): bool {
 		return $this->optionBool(self::OPTION_BINARY);
 	}
 
@@ -365,14 +352,9 @@ class Database_Column extends Options {
 	}
 
 	/**
-	 * @param $set
 	 * @return bool
 	 */
-	final public function increment($set = null): bool {
-		if (is_bool($set)) {
-			$this->table->application->deprecated('increment setter');
-			$this->setIncrement($set);
-		}
+	final public function increment(): bool {
 		return $this->isIncrement();
 	}
 

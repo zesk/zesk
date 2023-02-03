@@ -1,0 +1,13 @@
+{
+	"name": "Polyglot module to automate web translations",
+	"autoload": {
+		"classPrefix": "zesk\\Polyglot\\",
+		"path": "zesk/Polyglot/"
+	},
+	"moduleClass": "zesk\\Polyglot\\Module",
+	"requires": [
+		"Locale",
+		"World",
+		"ORM"
+	]
+}

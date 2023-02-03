@@ -2,14 +2,15 @@
 declare(strict_types=1);
 
 /**
- * @author Kent M. Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * @package zesk
  * @subpackage database
  */
 
 namespace MySQL;
 
+use zesk\Database as zeskDatabase;
 use zesk\Database_Table;
 use zesk\Database_Column;
 use zesk\Database_Index;
@@ -139,7 +140,7 @@ class Database_Parser extends \zesk\Database_Parser {
 	 *
 	 * @var Database
 	 */
-	protected $database = null;
+	protected zeskDatabase $database;
 
 	/**
 	 * Parse DEFAULT and other options on a column

@@ -75,11 +75,12 @@ class Database_Type extends Database_Data_Type {
 	 * (non-PHPdoc)
 	 *
 	 * @param string $native_type
-	 * @param string $default_value
-	 * @return mixed
-	 * @see zesk\Database::sql_type_default()
+	 * @param string|int|float|null $default_value
+	 * @return string|int|float|null
+	 * @see Database_Data_Type::sql_type_default()
 	 */
-	public function sql_type_default(string $native_type, mixed $default_value = null): mixed {
+	public function sql_type_default(string $native_type, string|int|float|null $default_value = null):
+	string|int|float|null {
 		$type = $this->native_type_to_sql_type($native_type, $native_type);
 		switch ($type) {
 			case self::SQL_TYPE_STRING:

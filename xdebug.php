@@ -11,8 +11,8 @@ declare(strict_types=1);
  *
  * @package zesk
  * @subpackage core
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 $xdebug_break_if_enabled = function (): void {

@@ -2,8 +2,8 @@
 /**
  * @package zesk
  * @subpackage test
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -18,7 +18,7 @@ class Database_Index_Test extends UnitTest {
 	];
 
 	public function mytesttable(): Database_Table {
-		$database = $this->application->database_registry();
+		$database = $this->application->databaseRegistry();
 		return new Database_Table($database, 'new_table');
 	}
 

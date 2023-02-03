@@ -60,7 +60,7 @@ class Class_DBSchemaTest5 extends Class_Base {
 		'ID' => self::TYPE_ID,
 		'Hash' => self::TYPE_STRING,
 		'Phrase' => self::TYPE_STRING,
-		'Created' => self::type_created,
+		'Created' => self::TYPE_CREATED,
 		'Modified' => self::TYPE_MODIFIED,
 		'Status' => self::TYPE_INTEGER,
 		'IsOrganic' => self::TYPE_STRING,

@@ -41,6 +41,7 @@ $config->setRiskyAllowed(true)->setIndent("\t")->setRules([
 		'method_chaining_indentation' => true,
 		'standardize_not_equals' => true,
 		'align_multiline_comment' => true,
+		"no_whitespace_in_blank_line" => true,
 		'ternary_operator_spaces' => true,
 		'trailing_comma_in_multiline' => true,
 		'trim_array_spaces' => true,
@@ -53,7 +54,6 @@ $config->setRiskyAllowed(true)->setIndent("\t")->setRules([
 		],
 		'no_trailing_whitespace' => true,
 		'no_trailing_whitespace_in_comment' => true,
-		'no_whitespace_in_blank_line' => true,
 		'object_operator_without_whitespace' => true,
 		'whitespace_after_comma_in_array' => true,
 	])->setFinder($finder);

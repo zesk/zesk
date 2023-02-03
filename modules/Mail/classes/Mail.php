@@ -4,8 +4,8 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage email
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Mail;
@@ -38,6 +38,11 @@ use function is_windows;
  *
  */
 class Mail extends Hookable {
+	/**
+	 * Set to enable debugging behavior
+	 */
+	public const OPTION_DEBUG = 'debug';
+
 	/**
 	 * If you change one of these, please check the other for fixes as well
 	 *
@@ -100,12 +105,6 @@ class Mail extends Hookable {
 	 *
 	 */
 	public string $method = '';
-
-	/**
-	 *
-	 *
-	 */
-	private static bool $debug = false;
 
 	/**
 	 *
@@ -189,7 +188,6 @@ class Mail extends Hookable {
 		/*
 		 * Load globals
 		 */
-		self::$debug = toBool($config->getPath([__CLASS__, 'debug', ]));
 		self::$log = $application->paths->expand($config->getPath([__CLASS__, 'log', ]));
 		self::$fp = null;
 		self::$disabled = toBool($config->getPath([__CLASS__, 'disabled', ]));
@@ -211,7 +209,7 @@ class Mail extends Hookable {
 		if ($this->sent !== 0) {
 			return $this;
 		}
-		if (self::$debug) {
+		if ($this->debug()) {
 			return $this->_send_echo();
 		}
 		if (self::$disabled) {
@@ -325,18 +323,18 @@ class Mail extends Hookable {
 	 *
 	 * @return bool
 	 */
-	public static function debug(): bool {
-		return self::$debug;
+	public function debug(): bool {
+		return $this->optionBool('debug');
 	}
 
 	/**
 	 * Set mail debugging
 	 *
 	 * @param bool $set
-	 * @return void
+	 * @return self
 	 */
-	public static function setDebug(bool $set): void {
-		self::$debug = $set;
+	public function setDebug(bool $set): self {
+		return $this->setOption('debug', $set);
 	}
 
 	/**
@@ -726,21 +724,6 @@ class Mail extends Hookable {
 	 */
 	public static function loadFile(string $filename): array {
 		return self::load(File::contents($filename));
-	}
-
-	/**
-	 * Render an email using a theme
-	 *
-	 * @param Application $application
-	 * @param string|array $theme
-	 * @param array $variables
-	 * @return array
-	 * @throws Exception_Deprecated
-	 * @throws Exception_Redirect
-	 */
-	public static function load_theme(Application $application, string|array $theme, array $variables = []): array {
-		zesk()->deprecated(__METHOD__);
-		return self::loadTheme($application, $theme, $variables);
 	}
 
 	/**

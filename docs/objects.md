@@ -21,10 +21,10 @@ In this case:
 		public string $id_column = "id";
 		
 		public array $column_types = [
-			"id" => self::type_id,
-			"name" => self::type_string,
-			"created" => self::type_created,
-			"completed" => self::type_timestamp,
+			"id" => self::TYPE_ID,
+			"name" => self::TYPE_STRING,
+			"created" => self::TYPE_CREATED,
+			"completed" => self::TYPE_TIMESTAMP,
 		];
 	}
 	

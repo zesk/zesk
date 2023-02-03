@@ -1,7 +1,0 @@
-{
-	"name": "Browser",
-	"autoload": {
-		"classPrefix": "zesk\\"
-	},
-	"moduleClass": "zesk\\Module_Browser"
-}

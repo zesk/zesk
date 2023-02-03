@@ -7,5 +7,9 @@
 	},
 	"composer": {
 		"require": "phpunit/phpunit"
-	}
+	},
+	"urlProject": "https://phpunit.de/",
+	"urlLicense": "https://raw.githubusercontent.com/sebastianbergmann/phpunit/main/LICENSE",
+	"licenses": ["BSD3"],
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

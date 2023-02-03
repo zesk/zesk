@@ -1,16 +1,42 @@
 #!/bin/bash
 if [ -z "$ZESK_ROOT" ]; then
-	ZESK_ROOT=`dirname $BASH_SOURCE`
-	ZESK_ROOT=`dirname $ZESK_ROOT`
+	ZESK_ROOT=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
 	export ZESK_ROOT
 fi
 
 #
 # File Converters
 #
-alias php-mo="$ZESK_ROOT/modules/php-mo/bin/php-mo.php"
-alias markdown='zesk module markdown markdown'
-
 export PATH="$PATH:$ZESK_ROOT/bin"
+export ZESK_DOCKER_COMPOSE="${ZESK_ROOT}/docker-compose.yml"
 
-alias ZeskBash='docker compose exec php bash'
+#
+# Output an option to SKIP pseudo-tty allocation if stdin is NOT a terminal
+# e.g. docker-compose exec $(docker_compose_tty) instance psql
+#
+docker_no_tty() {
+  if [ ! -t 0 ]; then
+    echo -T
+  fi
+}
+
+#
+# Output an option to do pseudo-tty allocation if stdin is a terminal
+# e.g. docker exec $(docker_tty) instance psql
+#
+docker_tty() {
+  if [ -t 0 ]; then
+    echo -t
+  fi
+}
+
+_Zesk() {
+  local user
+  user=$1
+  shift
+  read -ra notty <(docker_no_tty)
+  docker compose -f "${ZESK_DOCKER_COMPOSE}" exec "${notty[@]}" -u "${user}" php "$@"
+}
+
+alias ZeskRootBash='_Zesk root bash'
+alias ZeskBash='_Zesk www-data bash'

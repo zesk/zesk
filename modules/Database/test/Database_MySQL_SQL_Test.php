@@ -9,7 +9,7 @@ class Database_MySQL_SQL_Test extends UnitTest {
 	];
 
 	public function sql(): Database_SQL {
-		return $this->application->database_registry()->sql();
+		return $this->application->databaseRegistry()->sql();
 	}
 
 	public function test_function_date_add(): void {

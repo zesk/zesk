@@ -8,6 +8,7 @@ namespace zesk;
 /* @var $locale Locale */
 /* @var $application Application */
 
+$locale = $application->locale;
 ?># zesk Management
 
 Usage: zesk [configuration-opts] [ command command-args command1 command1-args ... ]

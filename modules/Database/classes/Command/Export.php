@@ -11,7 +11,7 @@ namespace zesk;
  * @param string $db The database name to dump
  * @category Database
  */
-class Command_Database_Export extends Command {
+class Command_Export extends Command {
 	protected array $option_types = [
 		'name' => 'string', 'prefix' => 'string',
 	];

@@ -1,8 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk\ORM;
+
+use zesk\Database_Table;
 
 /**
  *
@@ -11,8 +15,7 @@ namespace zesk\ORM;
  */
 class Schema_Test extends ORMUnitTest {
 	protected array $load_modules = [
-		'MySQL',
-		'ORM',
+		'MySQL', 'ORM',
 	];
 
 	public function initialize(): void {
@@ -37,6 +40,28 @@ class Schema_Test extends ORMUnitTest {
 
 	public function test_update_objects(): void {
 		$object = $this->application->ormFactory(ORMUnitTest_Schema_User::class);
-		Schema::update_object($object);
+		$database = $object->database();
+		$table = $object->table();
+		$database->query("DROP TABLE $table");
+
+		assert($object instanceof ORMUnitTest_Schema_User);
+		$sqlStatements = Schema::update_object($object);
+
+		$this->assertNotCount(0, $sqlStatements);
+		$this->assertFalse($database->tableExists($table));
+
+		$database->queries($sqlStatements);
+
+		$this->assertTrue($database->tableExists($table));
+
+		$sqlStatements = Schema::update_object($object);
+		$this->assertCount(0, $sqlStatements);
+
+		$table = $object->database()->databaseTable($object->table());
+		$this->assertInstanceOf(Database_Table::class, $table);
+
+		foreach ([$object->column_email(), $object->column_login(), $object->column_password()] as $column) {
+			$this->assertTrue($table->hasColumn($column), "table has $column");
+		}
 	}
 }

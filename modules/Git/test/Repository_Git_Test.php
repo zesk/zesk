@@ -5,10 +5,10 @@ declare(strict_types=1);
  * @test_phpunit true
  */
 
-namespace Git\test;
+namespace zesk\Git;
 
-use Git\classes\Repository;
-use Repository\classes\Repository_TestCase;
+use zesk\Repository;
+use zesk\Repository\TestCase;
 use zesk\Directory;
 use zesk\Exception_Semantics;
 use zesk\Exception_Syntax;
@@ -19,7 +19,7 @@ use zesk\URL;
  * @author kent
  *
  */
-class Repository_Git_Test extends Repository_TestCase {
+class Repository_Git_Test extends TestCase {
 	protected array $load_modules = ['git'];
 
 	/**

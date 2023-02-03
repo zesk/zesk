@@ -1,0 +1,14 @@
+{
+	"name": "Daemon",
+	"description": "Easy daemonization for your multi-process application.",
+	"autoload": {
+		"classPrefix": "zesk\\Daemon\\",
+		"path": "zesk/Daemon/"
+	},
+	"moduleClass": "zesk\\Daemon\\Module",
+	"requires": [
+		"ORM"
+	],
+	"zeskCommandPath": "classes/Command",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
+}

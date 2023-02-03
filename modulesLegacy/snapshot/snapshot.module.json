@@ -1,7 +1,0 @@
-{
-	"name": "Snapshot",
-	"description": "Objects related to creating and restoring database snapshots.",
-	"requires": ["job"],
-	"autoload::classPrefix": "zesk\\",
-	"moduleClass": "zesk\\Module_Snapshot"
-}

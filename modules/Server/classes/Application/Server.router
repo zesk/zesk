@@ -1,8 +1,0 @@
-share*
-	controller=share
-test
-	content="Nothing to see here."
-({controller}(/{id}(/{action})))
-	controller="{1}"
-	action="{3}"
-	arguments=[2]

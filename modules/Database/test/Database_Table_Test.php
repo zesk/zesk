@@ -3,8 +3,8 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -20,7 +20,7 @@ class Database_Table_Test extends UnitTest {
 	];
 
 	public function test_main(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$table_name = PHP::parseClass(__CLASS__) . '_' . __FUNCTION__;
 		$table = new Database_Table($db, $table_name);
 
@@ -82,7 +82,7 @@ class Database_Table_Test extends UnitTest {
 	}
 
 	public function test_main2(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$table_name = 'test_table';
 		$x = new Database_Table($db, $table_name);
 

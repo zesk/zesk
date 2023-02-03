@@ -1,12 +1,14 @@
 {
 	"name": "Object Relational Mapping",
 	"autoload": {
-		"classPrefix": "zesk\\ORM\\"
+		"classPrefix": "zesk\\ORM\\",
+		"path": "zesk/ORM/"
 	},
 	"requires": [
 		"Database"
 	],
 	"moduleClass": "zesk\\ORM\\Module",
-	"zeskCommandPath": "classes/Command",
-	"themePathPrefix": "zesk/ORM"
+	"zeskCommandPath": "zesk/ORM/Command",
+	"themePathPrefix": "zesk/ORM",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

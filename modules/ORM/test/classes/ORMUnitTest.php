@@ -11,15 +11,6 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 		// pass
 	}
 
-	/**
-	 * @param string|array $classes
-	 * @return void
-	 */
-	public function require_tables(string|array $classes): void {
-		zesk()->deprecated(__METHOD__);
-		self::requireORMTables($classes);
-	}
-
 	public function requireORMTables(string|array $classes): void {
 		foreach (toList($classes) as $class) {
 			$object = $this->application->ormRegistry($class);
@@ -55,8 +46,9 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 	 * @param string $class
 	 * @param array $options
 	 */
-	public function assertORMClass(string $class, array $options = [], string $test_field = 'id') {
-		return $this->assertORMObject($this->application->ormFactory($class, $options), $test_field);
+	public function assertORMClass(string $class, mixed $mixed = null, array $options = [], string $test_field =
+	'id'): void {
+		$this->assertORMObject($this->application->ormFactory($class, $mixed, $options), $test_field);
 	}
 
 	/**
@@ -70,7 +62,7 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 		$options = [
 			'follow' => true,
 		];
-		$results = $this->application->orm_module()->schema_synchronize($db, [
+		$results = $this->application->ormModule()->schema_synchronize($db, [
 			$object::class,
 		], $options);
 		if (count($results) > 0) {
@@ -150,12 +142,14 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 
 		try {
 			$this->assertInstanceOf($object::class, $object->exists());
+			$this->fail('Should throw ' . Exception_ORMNotFound::class);
 		} catch (Exception_ORMNotFound $e) {
 			$this->assertInstanceOf(Exception_ORMNotFound::class, $e);
 		}
 
 		try {
 			$this->assertInstanceOf($object::class, $object->find());
+			$this->fail('Should throw ' . Exception_ORMNotFound::class);
 		} catch (Exception_ORMNotFound $e) {
 			$this->assertInstanceOf(Exception_ORMNotFound::class, $e);
 		}
@@ -165,14 +159,15 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 
 		try {
 			$this->assertInstanceOf($object::class, $object->fetchByKey(2, $test_field));
+			$this->fail('Should throw ' . Exception_ORMNotFound::class);
 		} catch (Exception_ORMNotFound $e) {
 			$this->assertInstanceOf(Exception_ORMNotFound::class, $e);
 		}
 
 		try {
 			$object->fetch();
-			$this->fail('Should throw Exception_ORM_Empty');
-		} catch (Exception_ORMEmpty $e) {
+			$this->fail('Should throw ' . Exception_ORMEmpty::class);
+		} catch (Exception_ORMEmpty) {
 		}
 
 		$columns = $object->columns();

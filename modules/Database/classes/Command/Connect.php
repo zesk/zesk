@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 /**
  *
- * @copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright &copy; 2023, Market Acumen, Inc.
  * @author kent
  *
  */
 
 namespace zesk;
+
+use Throwable;
 
 /**
  * Connect to the database for this application.
@@ -21,7 +23,7 @@ namespace zesk;
  *         (--set debug.db-connect=1)
  * @global boolean db-connect Set this global to alternate database
  */
-class Command_Database_Connect extends Command_Base {
+class Command_Connect extends Command_Base {
 	protected array $shortcuts = ['connect'];
 
 	/**
@@ -49,6 +51,11 @@ class Command_Database_Connect extends Command_Base {
 	/**
 	 *
 	 * @return integer
+	 * @throws Database_Exception_Connect
+	 * @throws Exception_Command
+	 * @throws Exception_NotFound
+	 * @throws Exception_Unsupported
+	 * @throws Exception_Key
 	 */
 	public function run(): int {
 		if ($this->optionBool('db-name') || $this->optionBool('db-url')) {
@@ -86,6 +93,7 @@ class Command_Database_Connect extends Command_Base {
 	/**
 	 *
 	 * @return int
+	 * @throws Exception_Key
 	 */
 	private function handle_info(): int {
 		$name = $this->option('name');
@@ -96,8 +104,8 @@ class Command_Database_Connect extends Command_Base {
 			}
 		}
 		if ($this->optionBool('db-name')) {
-			foreach ($dbs as $key => $url) {
-				$dbs[$db->codeName()] = $db->url('name');
+			foreach ($dbs as $db) {
+				$dbs[$db->codeName()] = $db->urlComponent('name');
 			}
 		}
 		if ($name) {
@@ -123,7 +131,7 @@ class Command_Database_Connect extends Command_Base {
 			try {
 				$this->application->databaseRegistry($name)->connect();
 				$db[$name] = true;
-			} catch (\Throwable $e) {
+			} catch (Throwable) {
 				$db[$name] = false;
 			}
 		}
@@ -142,19 +150,19 @@ class Command_Database_Connect extends Command_Base {
 				$object = $module->databaseRegistry($name, [
 					'connect' => false,
 				]);
-				/* @var $object \zesk\Database */
+
 				try {
 					$grant_statements = $object->sql()->grant([
-						'user' => $object->url('user'), 'pass' => $object->url('pass'), 'name' => $object->url('name'),
+						'user' => $object->urlComponent('user'), 'pass' => $object->urlComponent('pass'), 'name' => $object->urlComponent('name'),
 						'from_host' => $this->option('host'), 'tables' => Database_SQL::SQL_GRANT_ALL,
 					]);
-				} catch (Exception_Unsupported|Exception_Key $e) {
+				} catch (Exception_Unsupported|Exception_Key) {
 					$grant_statements = null;
 				}
 				if (is_array($grant_statements)) {
 					$result = array_merge($grant_statements, $result);
 				}
-			} catch (Exception_NotFound|Database_Exception_Connect|Exception_Configuration $e) {
+			} catch (Exception_NotFound|Database_Exception_Connect $e) {
 				$this->error($e->getMessage());
 				return self::EXIT_CODE_ENVIRONMENT;
 			}

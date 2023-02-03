@@ -2,4 +2,4 @@
 namespace zesk;
 
 /* @var $this Template */
-echo $this->theme('exception');
+echo $this->theme('Exception');

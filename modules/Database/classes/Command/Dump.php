@@ -8,7 +8,7 @@ namespace zesk;
  * Dump the database to a file for this application.
  * @category Database
  */
-class Command_Database_Dump extends Command_Base {
+class Command_Dump extends Command_Base {
 	protected array $load_modules = [
 		'database',
 	];
@@ -74,10 +74,10 @@ class Command_Database_Dump extends Command_Base {
 		if ($this->optionBool('file') || $this->hasOption('dir') || $this->hasOption('target')) {
 			$app_root = $this->application->path();
 			$map = [
-				'database_name' => $db->url('name'),
-				'database_host' => $db->url('host'),
-				'database_port' => $db->url('port'),
-				'database_user' => $db->url('user'),
+				'database_name' => $db->urlComponent('name'),
+				'database_host' => $db->urlComponent('host'),
+				'database_port' => $db->urlComponent('port'),
+				'database_user' => $db->urlComponent('user'),
 				'zesk_application_root' => $app_root,
 				'application_root' => $app_root,
 			];

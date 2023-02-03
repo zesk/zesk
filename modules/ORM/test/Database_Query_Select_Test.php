@@ -3,14 +3,15 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
 
 use zesk\ORM\Database_Query_Select;
 use zesk\ORM\Server;
+use zesk\DatabaseUnitTest;
 
 class Database_Query_Select_Test extends DatabaseUnitTest {
 	protected array $load_modules = [
@@ -27,7 +28,7 @@ class Database_Query_Select_Test extends DatabaseUnitTest {
 
 		$this->prepareTestTable($table_name);
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$select = new Database_Query_Select($db);
 
 		$select->setWhatString('*');
@@ -67,7 +68,7 @@ class Database_Query_Select_Test extends DatabaseUnitTest {
 
 		//		$field = "field2";
 		//		$default = 0;
-		//		$testx->one_integer($field, $default);
+		//		$testx->integer($field, $default);
 
 		//		$field = "field1";
 		//		$default = 0;
@@ -80,7 +81,7 @@ class Database_Query_Select_Test extends DatabaseUnitTest {
 		$class = Server::class;
 		$select->setORMClass($class);
 
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$x = new Database_Query_Select($db);
 		$x->from($table_name);
 		$x->setWhatString('ID');

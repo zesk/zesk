@@ -12,7 +12,7 @@
         root.Locale = factory(root.Zesk);
     }
 }(this, function (Zesk) {
-	var 
+	var
 	Locale = {},
 	is_object = Zesk.is_object,
 	to_string = Zesk.to_string,

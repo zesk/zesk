@@ -35,26 +35,27 @@
     "framework"
   ],
   "autoload": {
-    "files": [
-      "autoload.php"
-    ]
+    "psr-0": {
+      "zesk\\": "./"
+    }
   },
   "bin": [
     "bin/zesk",
-    "bin/zesk.sh",
+    "bin/zesk-command.php",
     "bin/link-vendor-to-dev-zesk.sh",
-    "bin/daemon-bouncer.sh",
-    "bin/php-find.sh",
-    "bin/zesk-command.php"
+    "bin/file-trigger.sh",
+    "bin/php-find.sh"
   ],
   "type": "library",
   "license": "MIT",
   "homepage": "https://zesk.com",
   "autoload-dev": {
     "classmap": [
+      "modules/Database/test/zesk/DatabaseUnitTest.php",
       "modules/ORM/test/classes/ORMUnitTest.php",
-      "modules/phpunit/classes/PHPUnit/TestCase.php",
+      "modules/PHPUnit/classes/PHPUnit/TestCase.php",
       "modules/Repository/classes/TestCase.php"
     ]
-  }
+  },
+  "copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

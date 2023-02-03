@@ -3,5 +3,6 @@
 	"autoload": {
 		"classPrefix": "zesk\\CSV\\"
 	},
-	"moduleClass": "zesk\\CSV\\Module"
+	"moduleClass": "zesk\\CSV\\Module",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

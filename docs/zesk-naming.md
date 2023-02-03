@@ -18,7 +18,7 @@ This article outlines how developers should name features of their code related 
 
 ## Files
 
-Zesk internal file names are case sensitive, however never uses spaces in the names. Dashes or underscores in names are both acceptable. Modules or third-party libraries may use whatever naming convention allowed, but the main entry point should follow the Zesk naming guidelines. We recommend [PSR-4][] autoloading.
+PHP file naming MUST follow PSR-4. Non-code files should mimic existing file systems and naming structures.
 
 ## File Extensions
 
@@ -26,26 +26,10 @@ Zesk supports the following types of file extensions, and conventions:
 
 ### PHP Files end with `.php`, or `.tpl`
 
-- `.php` files are intended to be invoked externally, e.g. a command line function, or a web server page request.
-- `.tpl` files are template files and are invoked via the PHP interpreter, usually as an `include`
+- `.php` PHP Code
+- `.tpl` Template files and are invoked via the PHP interpreter, usually as an `include`
 
-PHP files of all types should have `<?php` as the first line in the file, and the trailing `?>` should be left off to avoid trailing white space issues.
-
-Command-line files (`.phpt`, and `.php` files which are command-line only) may be invoked using the shell bang format and have the first two lines as:
-
-    #!/usr/bin/env php
-    <?php
-
-The preferred invocation style for command-line tools is to use `/usr/bin/env` to determine the PHP path. Most command-line tools can be written using `zesk-command.php` which provides a slim wrapper around commands.
-
-#### Deprecated as of April 2017
-
-The following file types are deprecated as of April 2017:
-
-- `.phpt` are unit test files, and are invoked via the PHP interpreter (**deprecated**)
-- `.inc` files are intended to be included in other files.
-
-These types of files will be removed from the source tree at **Zesk version 1.0**.
+PHP files of all types should have `<``?php` as the first line in the file, and the trailing `?>` should be left off to avoid trailing white space issues.
 
 ### Configuration files end with `.conf`
 
@@ -78,7 +62,10 @@ More about router files in [router files][].
 
 ## Classes
 
-Zesk classes are loaded automatically based on name and the paths set up by `zesk()->autoloader->path()`.
+Zesk core classes are loaded via PSR-4 and composer.
+
+Modules may be added to Zesk's internal autoloader using the [Modules](./modules.md) functionality, or by adding paths
+manually via `$application->addAutoloadPath()` during application configuration.
 
 Class paths are computed based on replacement of the underscore `_` in a class name with a path slash `/`, so:
 
@@ -102,17 +89,10 @@ The corresponding file names which contain these classes use the [PSR-4][] stand
 
 ## Functions and Methods
 
-Functions and methods within the system generally follow the PHP function syntax by using lower-case and underscores to separate known words:
+Functions and methods within the system generally follow the PSR-1 standard by using lower-first camelCase:
 
-    echo Number::format_bytes(1512312);
-    $result = Route::compare_weight($route1, $route2);
-
-Note that PHP itself uses two different naming methodologies for class methods and functions (class methods use first-lower [camelcase](glossary.md#camelcase)), while functions use [lower-case underscored](naming-style-definition.md) to separate words. Zesk uses the single convention [Lower Underscore](naming-styles-definitions.md) for new methods added to classes. 
-
-> PHP "magic" methods like `__toString`, `__callStatic`, obviously should be named using the PHP convention, as they will be 
-> inoperative using the Zesk method convention `__to_string`, '__call_static'
-
-And yes, we're aware that this naming convention breaks [PSR-1](https://www.php-fig.org/psr/psr-1/), however, this code has been evolving since 2003, so there.
+    echo Number::formatBytes(1512312);
+    $result = Route::compareWeight($route1, $route2);
 
 ## Hooks
 
@@ -122,20 +102,15 @@ TODO
 
 ### Hookable syntax
 
-Classes which inherit from `Hookable` have hook functionality built in. To invoke a hook:
+Classes which inherit from `zesk\Hookable` have hook functionality built in. To invoke a hook:
 
     $x->callHook('notify', $emails);
-
-Hook names within a class are [Lower Underscore](naming-styles-definitions.md) and generally are message phrases, such a:
-
-    'controller_not_found'
-    'output_alter'
 
 ### Class syntax
 
 The `Hookable` class invokes `hook_`*`message`* first, then calls the class hierarchy version of a hook. By way of example, given the following class:
 
-	class MenuItem extends \zesk\ORM {
+	class MenuItem extends \zesk\ORMBase {
 		...
 	}
 	class FoodItem extends MenuItem {
@@ -160,11 +135,13 @@ When we call `$pizza->check_delivered()`, and our hook is called, the following 
 
 - `$this->hook_delivered(...)` is called first with the parameters
 - `$this->options["hooks"]["delivered"]` is called with the value of `$this` (our `Pizza` instance) passed as the first parameter, followed by the other parameters passed
-- The following global `$application->hooks` are called, in order with the value of `$this` passed as the first parameter, followed by the other parameters passed
+
+The following global `$application->hooks` are called, in order with the value of `$this` passed as the first parameter, followed by the other parameters passed:
+
  - `Pizza::delivered`
  - `FoodItem::delivered`
  - `MenuItem::delivered`
- - `zesk\ORM::delivered`
+ - `zesk\ORM\ORMBase::delivered`
  - `zesk\Model::delivered`
  - `zesk\Hookable::delivered`
 
@@ -175,17 +152,17 @@ So, if we wanted to intercept this via a hook, we could do this in our applicati
 		$sms = $pizza->order->sms_notify;
 		if ($sms) {
 			$order_id = $pizza->order->code;
-			$app->ormFactory("SMS")->submit_message_to($sms, "Your pizza order #$order_id was delivered");
+			$app->ormFactory("SMS")->submitMessageTo($sms, "Your pizza order #$order_id was delivered");
 		}
 	});
 
-Results from the hook are combined using `Hookable::hook_results`, which, in the simplest case:
+Results from the hook are combined using `zesk\Hookable::hook_results`, which, in the simplest case:
 
 - concatenates strings, or
 - merges arrays, or
 - returns the last hook result
 
-TODO more explanation and examples of how to use this, also how to run filters on objects, and how to use the hook callbacks to do crazy cool stuff if you're a nerd.
+TODO more explanation and examples of how to use this, also how to run filters on objects, and how to use the hook callbacks.
 
 [configuration files]: configuration-file-format.md "Configuration File Format"
 [router files]: router-file-format.md "Router File Format"

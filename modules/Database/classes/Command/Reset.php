@@ -15,7 +15,7 @@ namespace zesk;
  * @global boolean db-connect Set this global to alternate database
  * @aliases db-reset
  */
-class Command_Database_Reset extends Command {
+class Command_Reset extends Command {
 	protected array $option_types = [
 		'name' => 'string',
 		'yes' => 'boolean',
@@ -46,7 +46,7 @@ class Command_Database_Reset extends Command {
 		PHP::requires('pcntl', true);
 
 		$dbname = $this->option('name');
-		$db = $this->application->database_registry($dbname);
+		$db = $this->application->databaseRegistry($dbname);
 		if (!$db) {
 			$this->error("No such database url for \"$dbname\"\n");
 			return self::EXIT_CODE_ARGUMENTS;

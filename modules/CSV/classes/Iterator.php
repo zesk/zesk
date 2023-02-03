@@ -3,13 +3,14 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2022, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * Created on Thu Feb 04 12:06:13 EST 2010 12:06:13
  */
 namespace zesk\CSV;
 
-use zesk\Options;
 use Iterator as BaseIterator;
+use Reader;
+use zesk\Options;
 
 /**
  * Iterator for CSV files. Options allows attaching extra unstructured data.
@@ -33,7 +34,7 @@ class Iterator extends Options implements BaseIterator {
 	 * Whether rows should be read as readRowAssoc or readRow
 	 *
 	 * @var boolean
-	 * @see Reader::readRowAssoc, Reader::readRow
+	 * @see \zesk\Reader::readRowAssoc, \zesk\Reader::readRow
 	 */
 	private bool $assoc;
 

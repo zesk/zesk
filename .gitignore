@@ -9,9 +9,6 @@
 /*.codekit
 /*.codekit3
 /share/js/zesk.min.js
-/modules/*/cache
-/modules/*/data
-/modules/*/log
 /.update.json
 /.svn/
 /composer.lock
@@ -24,3 +21,7 @@
 /.zesk-coverage/
 /test-results/
 /test-coverage/
+/etc/maintenance.json
+/fileCache/
+/.bin/
+/DEPRECATED/

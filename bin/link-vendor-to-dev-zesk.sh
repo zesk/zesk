@@ -19,6 +19,7 @@ fi
 vendor=./vendor/zesk/zesk
 if [ -L $vendor ]; then
 	echo "$ME: Already linked: $(readlink $vendor)"
+  cp ./vendor/zesk/zesk/bin/zesk ./vendor/zesk/zesk/bin/zesk-command.php ./vendor/bin/
 	exit 0
 elif [ -d $vendor ]; then
 	rm -rf $vendor

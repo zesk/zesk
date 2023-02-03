@@ -1,7 +1,9 @@
 {
 	"name": "Source code repository tools",
 	"autoload": {
-		"classPrefix": "zesk\\Repository\\"
+		"classPrefix": "zesk\\Repository\\",
+		"path": "zesk/Repository/"
 	},
-	"moduleClass": "zesk\\Repository\\Module"
+	"moduleClass": "zesk\\Repository\\Module",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

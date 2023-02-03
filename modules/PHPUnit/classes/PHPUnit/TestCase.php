@@ -44,6 +44,14 @@ class PHPUnit_TestCase extends TestCase {
 
 	/**
 	 * Ensures our zesk variables above are properly populated
+	 * @return void
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Configuration
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Invalid
+	 * @throws Exception_Semantics
+	 * @throws Exception_Unsupported
+	 * @throws Exception_NotFound
 	 */
 	public function setUp(): void {
 		/*

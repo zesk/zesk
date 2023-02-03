@@ -14,14 +14,15 @@ class Country_Test extends ORMUnitTest {
 	];
 
 	public function initialize(): void {
-		$db = $this->application->database_registry();
+		$db = $this->application->databaseRegistry();
 		$this->assertNotNull($db, 'Database not connected');
 		$this->requireORMTables(Country::class);
 	}
 
 	public function classes_to_test(): array {
 		return [
-			[Country::class, [], 'code', ], [Country::class, [], 'name', ],
+			[Country::class, null, [], 'code', ],
+			[Country::class, null, [], 'name', ],
 		];
 	}
 
@@ -31,9 +32,9 @@ class Country_Test extends ORMUnitTest {
 	 * @param array $options
 	 * @dataProvider classes_to_test
 	 */
-	public function test_classes(string $class, array $options = [], string $id_field = ''): void {
+	public function test_classes(string $class, mixed $mixed = null, array $options = [], string $id_field = ''): void {
 		$this->truncateClassTables($class);
-		$this->assertORMClass($class, $options, $id_field);
+		$this->assertORMClass($class, $mixed, $options, $id_field);
 	}
 
 	/**
@@ -43,7 +44,7 @@ class Country_Test extends ORMUnitTest {
 	 */
 	public function test_bootstrap(): void {
 		$this->truncateClassTables(Country::class);
-		World_Bootstrap_Country::factory($this->application)->bootstrap();
+		Bootstrap_Country::factory($this->application)->bootstrap();
 		$this->assertGreaterThan(100, $this->application->ormFactory(Country::class)->querySelect()->addWhat('*X', 'COUNT(id)')->integer('X'));
 	}
 

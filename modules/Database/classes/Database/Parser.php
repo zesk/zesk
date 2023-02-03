@@ -13,19 +13,21 @@ namespace zesk;
  *
  */
 abstract class Database_Parser extends Hookable {
+	public const COMMAND_CREATE_TABLE = 'create table';
+
 	public const pattern_database_hint = '/--\s*Database:\s*(\w+)/i';
 
 	/**
 	 *
 	 * @var Database
 	 */
-	protected $database;
+	protected Database $database;
 
 	/**
 	 *
 	 * @return Database_SQL
 	 */
-	final public function sql() {
+	final public function sql(): Database_SQL {
 		return $this->database->sql();
 	}
 
@@ -50,6 +52,22 @@ abstract class Database_Parser extends Hookable {
 		return Text::remove_line_comments($sql, '--');
 	}
 
+	public const COMMAND_INSERT = 'insert';
+
+	public const COMMAND_UPDATE = 'update';
+
+	public const COMMAND_SELECT = 'select';
+
+	public const COMMAND_ALTER = 'alter';
+
+	public const COMMAND_DROP = 'drop';
+
+	public const PATTERN_INSERT_PREFIX_TABLE = 'insert\s+into';
+
+	public const PATTERN_SELECT_PREFIX_TABLE = 'select.*?\s+from';
+
+	public const PATTERN_ALTER_PREFIX_TABLE = 'alter\s+table';
+
 	/**
 	 * Parse SQL to determine type of command
 	 *
@@ -60,11 +78,19 @@ abstract class Database_Parser extends Hookable {
 		$sql = $this->sql()->removeComments($sql);
 		$sql = trim($sql);
 		$result = [];
+		$commandPattern = implode('|', [
+			self::COMMAND_CREATE_TABLE, self::COMMAND_INSERT, self::COMMAND_UPDATE, self::COMMAND_SELECT,
+			self::COMMAND_ALTER, self::COMMAND_DROP,
+		]);
 		if ($sql === '') {
 			$result['command'] = 'none';
-		} elseif (preg_match('/^(create table|insert|update|select|alter|drop table)/i', $sql, $matches)) {
+		} elseif (preg_match('/^(' . $commandPattern . ')/i', $sql, $matches)) {
 			$result['command'] = strtolower($matches[1]);
-			if (preg_match('/^(?:create table|insert into|update|select.*from)\s+([`A-Za-z0-9_]+)\s+/i', $sql, $matches)) {
+			$tablePrefixPatterns = implode('|', [
+				self::COMMAND_CREATE_TABLE, self::COMMAND_UPDATE, self::PATTERN_INSERT_PREFIX_TABLE,
+				self::PATTERN_SELECT_PREFIX_TABLE, self::PATTERN_ALTER_PREFIX_TABLE,
+			]);
+			if (preg_match('/^(?:' . $tablePrefixPatterns . ')\s+([`A-Za-z0-9_]+)\s+/i', $sql, $matches)) {
 				$result['table'] = $this->sql()->unquoteTable($matches[1]);
 			}
 		}
@@ -77,51 +103,53 @@ abstract class Database_Parser extends Hookable {
 	 * Using old pattern "/((?:(?:'[^']*')|[^;])*);/" caused backtrack limit errors in PHP7.
 	 * So changed to remove strings from SQL and replace afterwards
 	 *
-	 * @param string $sql
+	 * @param string $sqlScript
 	 * @return array
 	 */
-	public function splitSQLStatements(string $sql): array {
+	public function splitSQLStatements(string $sqlScript): array {
 		$map = [
 			'\\\'' => '*SLASH_SLASH_QUOTE*',
 		];
 		$rev_map = array_flip($map);
-		// Munge our string to make pattern matching easier
-		$sql = strtr($sql, $map);
+		// Convert our string to make pattern matching easier
+		$sqlScript = strtr($sqlScript, $map);
 		$index = 0;
-		while (preg_match('/\'[^\']*\'/', $sql, $match) !== 0) {
+		while (preg_match('/\'[^\']*\'/', $sqlScript, $match) !== 0) {
 			$from = $match[0];
 			$to = chr(1) . '{' . $index . '}' . chr(2);
 			$index++;
 			// Map BACK to the original string, not the munged one
 			$map[strtr($from, $rev_map)] = $to;
-			$sql = strtr($sql, [
+			$sqlScript = strtr($sqlScript, [
 				$from => $to,
 			]);
 		}
-		$sqls = ArrayTools::listTrimClean(explode(';', $sql));
+		$sqlStatements = ArrayTools::listTrimClean(explode(';', $sqlScript));
 		// Now convert everything back to what it is supposed to be
-		$sqls = tr($sqls, array_flip($map));
-		return $sqls;
+		return tr($sqlStatements, array_flip($map));
 	}
 
 	/**
 	 *
 	 * @param Database $db
 	 * @param string $sql
+	 * @param string $source
 	 * @return Database_Parser
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_Key
+	 * @throws Exception_NotFound
+	 * @throws Exception_Parameter
 	 */
 	public static function parseFactory(Database $db, string $sql, string $source): Database_Parser {
 		$app = $db->application;
 		if ($app->development() && empty($source)) {
 			throw new Exception_Parameter('{method} missing source {args}', [
-				'method' => __METHOD__,
-				'args' => [
-					$sql,
-					$source,
+				'method' => __METHOD__, 'args' => [
+					$sql, $source,
 				],
 			]);
 		}
-		$db_module = $app->database_module();
+		$db_module = $app->databaseModule();
 		$matches = null;
 		if (preg_match(self::pattern_database_hint, $sql, $matches)) {
 			$db_scheme = strtolower($matches[1]);
@@ -166,9 +194,7 @@ abstract class Database_Parser extends Hookable {
 		 * Remove functions (one-deep)
 		 */
 		$patterns = [
-			'/\'[^\']*\'/',
-			'/[a-z_][a-z0-9_]*\([^()]*\(([^)]*\)[^()]*)\)/i',
-			'/[a-z_][a-z0-9_]*\([^)]*\)/i',
+			'/\'[^\']*\'/', '/[a-z_][a-z0-9_]*\([^()]*\(([^)]*\)[^()]*)\)/i', '/[a-z_][a-z0-9_]*\([^)]*\)/i',
 		];
 		foreach ($patterns as $pattern) {
 			foreach (preg::matches($pattern, $order_by) as $match) {
@@ -197,8 +223,7 @@ abstract class Database_Parser extends Hookable {
 		}
 		$reversed_order_by = [];
 		$suffixes = [
-			' ASC' => ' DESC',
-			' DESC' => ' ASC',
+			' ASC' => ' DESC', ' DESC' => ' ASC',
 		];
 		foreach ($order_by as $clause) {
 			$reversed = false;

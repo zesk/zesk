@@ -1,7 +1,0 @@
-{
-	"name": "NodeJS",
-	"autoload": {
-		"classPrefix": "zesk\\NodeJS\\"
-	},
-	"moduleClass": "zesk\\NodeJS\\Module"
-}
