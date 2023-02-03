@@ -84,21 +84,6 @@ const PREG_PATTERN_SIMPLE_EMAIL = PREG_PATTERN_EMAIL_USERNAME . '@' . PREG_PATTE
 const ZESK_GLOBAL_KEY_SEPARATOR = '::';
 
 /**
- * Get our global Zesk kernel. Use is DISCOURAGED, unless you use it like:
- *
- * zesk()->deprecated()
- *
- * @return ?Application
- */
-function zesk(): ?Application {
-	try {
-		return Kernel::singleton()->application();
-	} catch (Exception) {
-		return null;
-	}
-}
-
-/**
  * Returns the first value in array, or $default if array is zero-length.
  *
  * Does NOT assume array is a 0-based key list.
@@ -986,11 +971,6 @@ function &apath(array $array, array|string $path, mixed $default = null, string 
  * @return mixed
  */
 function &apath_set(array &$array, string|array $path, mixed $value = null, string $separator = '.'): mixed {
-	if ($value === null) {
-		zesk()->deprecated('use apath_unset');
-		apath_unset($array, toList($path, $separator));
-		return $array;
-	}
 	$current = &$array;
 	// Split the keys by separator
 	$keys = is_array($path) ? $path : explode($separator, $path);
@@ -1006,11 +986,7 @@ function &apath_set(array &$array, string|array $path, mixed $value = null, stri
 		$current = &$current[$key];
 	}
 	$key = array_shift($keys);
-	if ($value === null) {
-		unset($current[$key]);
-	} else {
-		$current[$key] = $value;
-	}
+	$current[$key] = $value;
 	return $current[$key];
 }
 

@@ -1,16 +1,12 @@
 #!/bin/bash
 if [ -z "$ZESK_ROOT" ]; then
-	ZESK_ROOT=`dirname $BASH_SOURCE`
-	ZESK_ROOT=`dirname $ZESK_ROOT`
+	ZESK_ROOT=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
 	export ZESK_ROOT
 fi
 
 #
 # File Converters
 #
-alias php-mo="$ZESK_ROOT/modules/php-mo/bin/php-mo.php"
-alias markdown='zesk module markdown markdown'
-
 export PATH="$PATH:$ZESK_ROOT/bin"
 export ZESK_DOCKER_COMPOSE="${ZESK_ROOT}/docker-compose.yml"
 
@@ -38,7 +34,8 @@ _Zesk() {
   local user
   user=$1
   shift
-  docker compose -f "${ZESK_DOCKER_COMPOSE}" exec $(docker_no_tty) -u "${user}" php "$@"
+  read -ra notty <(docker_no_tty)
+  docker compose -f "${ZESK_DOCKER_COMPOSE}" exec "${notty[@]}" -u "${user}" php "$@"
 }
 
 alias ZeskRootBash='_Zesk root bash'

@@ -733,21 +733,6 @@ class Mail extends Hookable {
 	 * @param string|array $theme
 	 * @param array $variables
 	 * @return array
-	 * @throws Exception_Deprecated
-	 * @throws Exception_Redirect
-	 */
-	public static function load_theme(Application $application, string|array $theme, array $variables = []): array {
-		zesk()->deprecated(__METHOD__);
-		return self::loadTheme($application, $theme, $variables);
-	}
-
-	/**
-	 * Render an email using a theme
-	 *
-	 * @param Application $application
-	 * @param string|array $theme
-	 * @param array $variables
-	 * @return array
 	 * @throws Exception_Redirect
 	 */
 	public static function loadTheme(Application $application, string|array $theme, array $variables = []): array {

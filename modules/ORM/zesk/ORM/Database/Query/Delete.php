@@ -78,11 +78,7 @@ class Database_Query_Delete extends Database_Query {
 	 * @throws Exception_Deprecated
 	 * @throws Exception_Semantics
 	 */
-	public function truncate($set = null): bool {
-		if ($set !== null) {
-			zesk()->deprecated('setter');
-			$this->setTruncate($set);
-		}
+	public function truncate(): bool {
 		return $this->truncate;
 	}
 

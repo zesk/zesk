@@ -31,22 +31,12 @@ trait GetTyped {
 	/**
 	 * Get a variable name, with a default
 	 *
-	 * @param array|string|int $k
+	 * @param string|int $k
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function get(array|string|int $k, mixed $default = null): mixed {
-		if (is_array($k)) {
-			foreach ($k as $key => $default) {
-				$k[$key] = $this->get($key, $default);
-			}
-			return $k;
-		}
-		$r = $this->__get($k);
-		if ($r !== null) {
-			return $r;
-		}
-		return $default;
+	public function get(string|int $k, mixed $default = null): mixed {
+		return $this->__get($k) ?? $default;
 	}
 
 	/**

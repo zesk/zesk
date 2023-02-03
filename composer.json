@@ -43,7 +43,7 @@
     "bin/zesk",
     "bin/zesk-command.php",
     "bin/link-vendor-to-dev-zesk.sh",
-    "bin/daemon-bouncer.sh",
+    "bin/file-trigger.sh",
     "bin/php-find.sh"
   ],
   "type": "library",
@@ -56,5 +56,6 @@
       "modules/PHPUnit/classes/PHPUnit/TestCase.php",
       "modules/Repository/classes/TestCase.php"
     ]
-  }
+  },
+  "copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

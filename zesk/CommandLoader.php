@@ -183,7 +183,7 @@ class CommandLoader {
 					$args = $this->handleCoreArguments($arg, $args);
 					continue;
 				}
-			} catch (BaseException $e) {
+			} catch (Exception $e) {
 				$this->error($e->getMessage() . PHP_EOL);
 				return self::EXIT_CODE_ARGUMENTS;
 			}
@@ -228,7 +228,7 @@ class CommandLoader {
 			return $exitCode;
 		}
 
-		if ($this->application->configuration->debug || $this->debug || $this->application->optionBool(Application::OPTION_DEBUG)) {
+		if ($this->application->configuration->getBool('DEBUG') || $this->debug || $this->application->optionBool(Application::OPTION_DEBUG)) {
 			$this->debug = true;
 		}
 		$this->debug("Loaded application file $first_command\n");
@@ -240,14 +240,16 @@ class CommandLoader {
 	 * @param string $arg
 	 * @param array $args
 	 * @return array
-	 * @throws Exception_File_Format
+	 * @throws Exception_Parse
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Directory_Permission
+	 * @throws Exception_Parameter
 	 */
 	private function handleCoreArguments(string $arg, array $args): array {
 		return match ($arg) {
 			'--cd' => $this->handleCD($args),
 			'--config' => $this->handleConfig($args),
 			'--define' => $this->handle_define($args),
-			'--search' => $this->handle_search($args),
 			'--set' => $this->handle_set($args),
 			'--unset' => $this->handle_unset($args),
 			default => $this->handle_set(array_merge([substr($arg, 2)], $args)),
@@ -424,6 +426,7 @@ class CommandLoader {
 			]);
 		}
 		$class = $commands[$shortcut];
+		$this->debug("Running $shortcut -> $class");
 		$application = $this->application;
 		/* @var $command Command */
 		try {
@@ -484,7 +487,6 @@ class CommandLoader {
 		$message[] = '  --unset name         Unset a global or remove the setting';
 		$message[] = '  --define name=value  PHP define a value (will only work if not defined)';
 		$message[] = '  --cd directory       Change directory to this directory';
-		$message[] = '  --search directory   Search this directory for application files only (can be specified multiple times)';
 		$message[] = '  --config fileName    Load a configuration file into the global application configuration';
 		$message[] = '';
 		$message[] = 'In addition, when processing environment-args non-matching values are equivalent:';
@@ -497,7 +499,7 @@ class CommandLoader {
 		$message[] = 'You can run multiple shortcuts in a single command line:';
 		$message[] = '';
 		$message[] = '1. Process arguments until a shortcut is found';
-		$message[] = '2. (Once and only once) Load the application context (the --cd and --search affect this) (foo.application.php)';
+		$message[] = '2. (Once and only once) Load the application context (--cd affects this) (foo.application.php)';
 		$message[] = '3. Pass remaining arguments and run the shortcut';
 		$message[] = '4. Retrieve unused arguments, and repeat step 1.';
 		$message[] = '';
@@ -593,6 +595,25 @@ class CommandLoader {
 		return explode(' ', $root_files);
 	}
 
+	private function findApplicationAbove(string $dir): string {
+		$root_files = $this->getApplicationPatterns();
+		while (!empty($dir)) {
+			foreach ($root_files as $root_file) {
+				$found = glob(rtrim($dir, '/') . "/$root_file");
+				if (!is_array($found) || count($found) === 0) {
+					continue;
+				}
+				sort($found);
+				return $found[0];
+			}
+			$dir = dirname($dir);
+			if ($dir === '/') {
+				break;
+			}
+		}
+		return '';
+	}
+
 	/**
 	 * Find the application file from the CWD or the search directory
 	 *
@@ -604,19 +625,9 @@ class CommandLoader {
 			$this->search[] = getcwd();
 		}
 		foreach ($this->search as $dir) {
-			while (!empty($dir)) {
-				foreach ($root_files as $root_file) {
-					$found = glob(rtrim($dir, '/') . "/$root_file");
-					if (!is_array($found) || count($found) === 0) {
-						continue;
-					}
-					sort($found);
-					return $found[0];
-				}
-				$dir = dirname($dir);
-				if ($dir === '/') {
-					break;
-				}
+			$result = $this->findApplicationAbove($dir);
+			if ($result) {
+				return $result;
 			}
 		}
 		$this->error('No zesk ' . implode(', ', $root_files) . ' found in: ' . implode(', ', $this->search) . "\n");
@@ -684,15 +695,14 @@ class CommandLoader {
 		if ($key === 'debug') {
 			$this->debug = true;
 		}
+		$this->debug("Set global $key to $value");
 		if ($this->zeskIsLoaded()) {
-			$this->debug("Set global $key to $value");
 			$this->application->configuration->setPath($key, $value);
 		} else {
 			global $_ZESK;
 			$key = _zesk_global_key($key);
 			$this->global_context[implode(ZESK_GLOBAL_KEY_SEPARATOR, $key)] = $value;
 			apath_set($_ZESK, $key, $value, ZESK_GLOBAL_KEY_SEPARATOR);
-			$this->debug('Set global ' . implode(ZESK_GLOBAL_KEY_SEPARATOR, $key) . " to $value");
 		}
 		return $args;
 	}
@@ -710,13 +720,14 @@ class CommandLoader {
 		if ($key === null) {
 			$this->usage('--unset missing argument');
 		}
+		$this->debug("Unset global $key");
 		if ($this->zeskIsLoaded()) {
 			$this->application->configuration->setPath($key, null);
 		} else {
 			global $_ZESK;
 			$key = _zesk_global_key($key);
 			$this->global_context[implode(ZESK_GLOBAL_KEY_SEPARATOR, $key)] = null;
-			apath_set($_ZESK, $key, null, ZESK_GLOBAL_KEY_SEPARATOR);
+			apath_unset($_ZESK, $key);
 		}
 		return $args;
 	}
@@ -726,17 +737,20 @@ class CommandLoader {
 	 *
 	 * @param array $args
 	 * @return array
+	 * @throws Exception_Parameter
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Directory_Permission
 	 */
 	private function handleCD(array $args): array {
 		$arg = array_shift($args);
 		if ($arg === null) {
-			throw new BaseException('--cd missing argument');
+			throw new Exception_Parameter('--cd missing argument');
 		}
 		if (!is_dir($arg) && !is_link($arg)) {
-			throw new BaseException("--cd Not a directory \"$arg\"");
+			throw new Exception_Directory_NotFound($arg);
 		}
-		if (!@chdir($arg)) {
-			throw new BaseException("--cd Unable to change directory to \"$arg\"");
+		if (!chdir($arg)) {
+			throw new Exception_Directory_Permission($arg);
 		}
 		return $args;
 	}
@@ -764,32 +778,11 @@ class CommandLoader {
 	}
 
 	/**
-	 * Handle --search
-	 *
-	 * @param array $args
-	 * @return array
-	 */
-	private function handle_search(array $args): array {
-		$arg = array_shift($args);
-		if ($arg === null) {
-			$this->usage('--search missing argument');
-		}
-		if (!is_dir($arg)) {
-			$this->usage("$arg is not a directory to --search from");
-		}
-		$this->search[] = $arg;
-		if ($this->application) {
-			$this->application->logger->warning('--search is ignored - zesk application is already loeded');
-		}
-		return $args;
-	}
-
-	/**
 	 * Handle --config
 	 *
 	 * @param array $args
 	 * @return array
-	 * @throws Exception_File_Format
+	 * @throws Exception_Parse
 	 */
 	private function handleConfig(array $args): array {
 		$arg = array_shift($args);

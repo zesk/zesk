@@ -27,15 +27,12 @@ mv vendor "$backup_vendor"
 
 $composer install --dev --no-interaction --quiet
 
-zesk="$top/bin/zesk.sh"
+zesk="$top/bin/zesk"
 if [ ! -x "$zesk" ]; then
 	echo "Not executable: $zesk" 1>&2
 	exit $ERR_ENV
 fi
 
-
-$zesk module iless update > /dev/null 2>&1
-$composer install --dev --no-interaction --quiet
 
 finish() {
 	rm -rf vendor

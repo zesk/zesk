@@ -1,0 +1,10 @@
+{
+	"name": "GitHub",
+	"autoload": {
+		"classPrefix": "zesk\\GitHub\\",
+		"path": "./zesk/GitHub/"
+	},
+	"moduleClass": "zesk\\GitHub\\Module",
+	"zeskCommandPath": "./zesk/GitHub/",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
+}

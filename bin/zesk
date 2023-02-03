@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
 # Use sh to avoid having to install bash on virgin systems
-export PATH=$PATH:/usr/bin:/bin:/usr/local/bin
-
 ERR_ENV=1
 ERR_NO_VENDOR=1002
 ERR_NO_ZESK_BIN=1003
+
+export PATH=$PATH:/usr/bin:/bin:/usr/local/bin
 
 here=$(dirname "$0")
 php=$(which php)
@@ -12,19 +12,7 @@ if [ -z "$php" ]; then
 	echo "PHP is not found in PATH: " . $PATH 1>&2
 	exit $ERR_ENV
 fi
-handle_cd() {
-	while [ $# -gt 2 ]; do
-		shift
-		if [ "$1" = "--cd" ]; then
-			# echo "Changing directory to $1" 1>&2
-			cd "$1" || return $ERR_ENV
-			return 0
-		fi
-	done
-	return 0
-}
 start=$(pwd)
-handle_cd "$@"
 app_root=
 while [ -z "$app_root" ]; do
 	current=$(pwd)

@@ -16,6 +16,8 @@ use Iterator;
  *
  */
 class Configuration implements Iterator, Countable, ArrayAccess {
+	use GetTyped;
+
 	/**
 	 * When we pass strings into methods as paths, this sequence of characters is equivalent to a
 	 * traversal from parent Configuration to child Configuration object.
@@ -129,16 +131,6 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	}
 
 	/**
-	 * Does this configuration value exist?
-	 *
-	 * @param string $key
-	 * @return boolean
-	 */
-	public function has(string $key): bool {
-		return $this->__isset($key);
-	}
-
-	/**
 	 *
 	 * @param string $key
 	 * @return boolean
@@ -182,44 +174,11 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return void
 	 */
 	public function __set(mixed $key, mixed $value): void {
-		if (is_array($value)) {
+		if (is_array($value) && ArrayTools::isAssoc($value)) {
 			$value = new self($value, $this->_addPath($key));
 		}
 		$this->_data[$key] = $value;
 		$this->_count = count($this->_data);
-	}
-
-	/**
-	 * Same as __get but allows a default value
-	 *
-	 * @param string $key
-	 *            Key to retrieve
-	 * @param mixed $default
-	 * @return mixed
-	 */
-	public function get(string $key, mixed $default = null): mixed {
-		if (strpos($key, '-') && !isset($this->_data[$key])) {
-			error_log(map('Fetching MISSING key {key} with dash from {func}', [
-				'key' => $key,
-				'func' => calling_function(1),
-			]));
-		}
-		return $this->_data[$key] ?? $default;
-	}
-
-	/**
-	 * Get a value and ensure it's a string
-	 *
-	 * @param string $key
-	 * @return string
-	 * @throws Exception_Semantics
-	 */
-	public function getString(string $key): string {
-		$node = $this->get($key);
-		if (!is_scalar($node)) {
-			throw new Exception_Semantics('Value can not be converted to string {type}', ['type' => gettype($node)]);
-		}
-		return strval($node);
 	}
 
 	/**
@@ -341,7 +300,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 		while (count($keys) > 0) {
 			$next = array_shift($keys);
 			if (!$current->$next instanceof self) {
-				$current->set($next, []);
+				$current->set($next, new Configuration());
 			}
 			$current = $current->$next;
 		}
@@ -570,18 +529,5 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 		$logger->warning($message, $message_args);
 		Kernel::singleton()->deprecated($message, $message_args);
 		return true;
-	}
-
-	/**
-	 * Retrieve a path using self::key_separator
-	 *
-	 * @param string|array $path
-	 * @param mixed $default
-	 * @return mixed
-	 * @deprecated 2022-12
-	 */
-	public function path_get(string|array $path, mixed $default = null): mixed {
-		zesk()->deprecated(__METHOD__);
-		return $this->getPath($path, $default);
 	}
 }

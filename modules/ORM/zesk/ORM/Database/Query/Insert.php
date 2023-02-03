@@ -67,15 +67,9 @@ class Database_Query_Insert extends Database_Query_Edit {
 	/**
 	 * Getter for "into" which table
 	 *
-	 * @param ?string $set Deprecated method to set into table name
-	 * @return $this|string
-	 * @throws Exception_Deprecated
+	 * @return string
 	 */
-	public function into(string $set = null): self|string {
-		if ($set !== null) {
-			zesk()->deprecated('setter/getter changed to PSR');
-			return $this->setInto($set);
-		}
+	public function into(): string {
 		return $this->into;
 	}
 
