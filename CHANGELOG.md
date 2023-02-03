@@ -41,6 +41,7 @@ Many breaking changes:
 - Added docker and testing containers
 - Updating README
 - Support XDEBUG debugging from the container
+
 ## [v0.30.2][]
 
 - **Contact Module**: Fixing Date schema default value
