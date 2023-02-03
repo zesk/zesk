@@ -90,7 +90,7 @@ else
   echo "Git status is clean."
 fi
 
-releaseDir=$top/docs/release/
+releaseDir=$top/docs/release
 
 if [ ! -d "$releaseDir" ]; then
   mkdir -p "$releaseDir"
@@ -102,12 +102,13 @@ if [ ! -f "$currentChangeLog" ] || test "$forceWrite"; then
   # Edit release notes
   #
   {
-    echo '## Release {version}'
+    echo
+    echo "## [$currentVersion][]"
     echo
     git log --pretty=format:'- %s' "^$previousVersion^{}" HEAD | sort -u
     echo
-    echo '<!-- Generated automatically by release-prepare.sh, beware editing! -->'
-   } >> "$currentChangeLog"
+    echo '<!-- Generated automatically by release-prepare.sh, edit me please -->'
+   } > "$currentChangeLog"
    git add "$currentChangeLog" > /dev/null
    echo "Added $currentChangeLog to repository - please edit"
 fi
@@ -129,8 +130,8 @@ editedLog=$top/CHANGELOG.md.$$.edited
   grep -B $moreLines RELEASE-HERE "$permanentChangeLog"
   cat "$currentChangeLog"
   grep -B $moreLines LINK-HERE "$permanentChangeLog" | grep -A $moreLines "$previousVersion"
-  echo "[$currentVersion]: $REPOSITORY_VERSION_PREFIX/$currentVersion...$previousVersion"
-  grep -A $moreLines LINK-HERE "$permanentChangeLog" | grep -v "$currentVersion"
+  echo "[$currentVersion]: $ZESK_REPOSITORY_VERSION_PREFIX$previousVersion...$currentVersion"
+  grep -A $moreLines LINK-HERE "$permanentChangeLog" | grep -v "$currentVersion" | grep -v LINK-HERE
 } > "$editedLog"
 
 mv "$editedLog" "$permanentChangeLog"
@@ -146,4 +147,6 @@ git push --all
 #
 # Good
 #
-figlet zesk "$currentVersion" ready
+echo "##################################"
+echo "zesk $currentVersion prepared"
+echo "##################################"
