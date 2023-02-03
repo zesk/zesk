@@ -10,37 +10,34 @@ top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
 composer=$(which composer)
 dc=$(which docker-compose)
 docker=$(which docker)
+figlet=$(which figlet)
 
 set -eo pipefail
 
 envFile="$top/.env"
+quietLog=$top/output.log
 
 if [ -z "$docker" ]; then
   echo "No docker found in $PATH" 1>&2
   exit $ERR_ENV
 fi
-if [ -z "$dc" ]; then
-  pip install docker-compose
+if [ -z "$figlet" ]; then
+  echo "Updating apt-get ..."
+  apt-get update > $quietLog
+  echo "Updating apt-get ..."
+  apt-get install -y apt-utils figlet > "$quietLog" 2>&1
 fi
-#if test "$INSTALL_COMPOSER" || [ -z "$composer" ]; then
-#  composer="$top/.bin/composer"
-#  if [ ! -x "$composer" ]; then
-#    [ -d "$top/.bin/" ] || mkdir -p "$top/.bin/"
-#    cd "$top/.bin" || exit "$ERR_ENV"
-#    "$php" "$top/docker/bin/composer-installer.php"
-#    if [ ! -f composer.phar ]; then
-#      echo "Composer installer failed" 1>&2
-#      exit $ERR_ENV
-#    fi
-#    mv "$top/.bin/composer.phar" "$composer"
-#    chmod +x "$composer"
-#  fi
-#fi
-cd "$top" || exit "$ERR_ENV"
-#if ! "$composer" install -q; then
-#  echo "Composer install failed" 1>&2
-#  exit "$ERR_BUILD"
-#fi
-docker run
-$dc build --no-cache --pull
-env > "$envFile"
+if [ -z "$dc" ]; then
+  echo "Upgrading pip ..."
+  pip install --upgrade pip > "$quietLog" 2>&1
+  echo "Installing docker-compose ..."
+  pip install docker-compose > "$quietLog" 2>&1
+fi
+figlet Building vendor
+docker run -v "$(pwd):/app" composer:latest i --ignore-platform-req=ext-calendar > "$quietLog"
+
+figlet Building containers
+$dc build --no-cache --pull > "$quietLog"
+
+figlet Testing
+$dc exec php /zesk/bin/test-zesk.sh --coverage
