@@ -6,17 +6,14 @@
 #
 ERR_ENV=1
 
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
+top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $ERR_ENV; pwd)"
 
 "$top/bin/build/git.sh"
 "$top/bin/build/docker-compose.sh"
 
-id "$top" || exit "$ERR_ENV"
-
 previousVersion=$("$top/bin/build/version-last.sh")
 currentVersion=$("$top/bin/build/version-current.sh")
 
-currentVersion="v$currentVersion"
 exists=$(git tag | grep "$currentVersion")
 if [ -n "$exists" ]; then
 	echo "Version $exists already exists, already tagged."

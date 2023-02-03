@@ -25,3 +25,4 @@
 /fileCache/
 /.bin/
 /DEPRECATED/
+/.build/

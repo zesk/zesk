@@ -13,10 +13,16 @@ top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $ERR_ENV; pwd)"
 quietLog="$top/.build/$me.log"
 markerFile="$top/.build/.$me.marker"
 packages=(apt-utils figlet)
+apt=$(which apt-get)
 
 set -eo pipefail
 
 if [ -f "$markerFile" ]; then
+  exit 0
+fi
+
+if [ -z "$apt" ]; then
+  echo "No apt, continuing"
   exit 0
 fi
 

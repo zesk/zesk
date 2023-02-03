@@ -33,7 +33,8 @@ usage() {
   exit "$exitCode"
 }
 
-for e in (REPOSITORY_VERSION_PREFIX); do
+envs=(ZESK_REPOSITORY_VERSION_PREFIX)
+for e in "${envs[@]}"; do
   if [ -z "${!e}" ]; then
     usage $ERR_ENV "Need $e defined in environment"
   fi
@@ -52,6 +53,9 @@ while [ $# -gt 0 ]; do
   shift
 done
 
+"$top/bin/build/docker-compose.sh"
+docker-compose -f "$yml" up -d > /dev/null
+
 "$top/bin/build/release-check-version.sh"
 
 pause() {
@@ -69,7 +73,8 @@ echo "Synchronizing with remote ..."
 git pull --tags > /dev/null 2>&1
 git push --tags > /dev/null 2>&1
 
-if ! docker compose -f "$yml" exec php bash -c 'cd /zesk && ./bin/cs-zesk.sh' > /dev/null < /dev/null; then
+echo "Cleaning ..."
+if ! docker-compose -f "$yml" exec php bash -c 'cd /zesk && ./bin/cs-zesk.sh' > /dev/null 2>&1; then
 	echo "Clean failed" 1>& 2
 	exit $ERR_ENV
 fi
@@ -78,9 +83,11 @@ fi
 # Make sure repository state seems sane
 #
 nLines=$(($(git status --short | wc -l | awk '{ print $1 }') + 0))
-if [ $nlines -gt 0 ]; then
+if [ $nLines -gt 0 ]; then
 	git status --short
 	pause "Current git status, ok?"
+else
+  echo "Git status is clean."
 fi
 
 releaseDir=$top/docs/release/
@@ -102,6 +109,7 @@ if [ ! -f "$currentChangeLog" ] || test "$forceWrite"; then
     echo '<!-- Generated automatically by release-prepare.sh, beware editing! -->'
    } >> "$currentChangeLog"
    git add "$currentChangeLog" > /dev/null
+   echo "Added $currentChangeLog to repository - please edit"
 fi
 
 moreLines=100000
@@ -125,6 +133,7 @@ editedLog=$top/CHANGELOG.md.$$.edited
   grep -A $moreLines LINK-HERE "$permanentChangeLog" | grep -v "$currentVersion"
 } > "$editedLog"
 
+mv "$editedLog" "$permanentChangeLog"
 releaseDateFile=$top/etc/db/release-date
 date > "$releaseDateFile"
 git commit -m "Release $currentVersion" "$currentChangeLog" "$permanentChangeLog" "$releaseDateFile"
@@ -132,8 +141,9 @@ git commit -m "Release $currentVersion" "$currentChangeLog" "$permanentChangeLog
 #
 # Push to remote
 #
-git push --tags --all
+git push --tags
+git push --all
 #
 # Good
 #
-figlet zesk $currentVersion ready
+figlet zesk "$currentVersion" ready

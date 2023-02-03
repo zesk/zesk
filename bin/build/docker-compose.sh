@@ -14,7 +14,7 @@ quietLog="$top/.build/$me.log"
 
 set -eo pipefail
 
-if which docker-compose; then
+if which docker-compose 2> /dev/null 1>&2; then
   exit 0
 fi
 
