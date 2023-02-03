@@ -165,6 +165,81 @@ Version 1.0 of Zesk will have:
 - zesk1.0 work
 
 <!-- Generated automatically by release-prepare.sh, beware editing! -->
+## Release [v0.31.0][]
+
+- **GitHub Module**: Making explicit changes to show variables required in configuration
+- **MySQL Module**: Support binary defaults for columns
+- **Zesk Docs**: Updates to cron, module configuration, and share files
+- -avalue
+- Add support for loading from globals
+- Adding error handling and best practices for CD
+- Forcing true for `spl_autoload_register` to force throwing errors when loader can not be registered
+- Major camelCase refactor and cleanup
+- Merged in php-8.1-compatibility (pull request #2)
+- Merged in php-8.1-compatibility (pull request #3)
+- Merged master into php-8.1-compatibility
+- PHP 8 and PSR Refactoring work
+- PHP 8 work
+- Release v0.30.2
+- Release v0.31.0
+- Template paths are no longer case-insensitive
+- Test work for PHP 8+
+- Testing work
+- Updating README
+- adding clear
+- adding debugging
+- adding docker apt stuff
+- adding release prepare
+- array cs fixes
+- cleaning up and refactoring
+- cs
+- deployment wip
+- deprecated
+- docker v1
+- fixing World
+- fixing composer
+- fixing text tests
+- fixing time tests
+- fixing unitinialized variables in some cases
+- major PHP8 work
+- moar fixes
+- near 1.0
+- new test
+- no test coverage
+- optionSet optionBool optionInt replacing deprecated funcs
+- php 8 WIP
+- php 8 wip
+- php8
+- php8 wip and major refactor
+- php8 work
+- php8 work and fixes
+- pip dc
+- problem with cwd
+- psr-0 and fixes
+- psr4
+- release fun
+- removing avalue
+- removing old stuff
+- subshell exit non-zero fails, yep
+- test coverage
+- test fixes
+- test improvements
+- test wip
+- test+
+- tests pass
+- tests+
+- toList, toFloat
+- updating README
+- updating hook
+- version 1.0 soon
+- wip
+- wip and quote single fixes
+- wip cleanup and refactor
+- world v1
+- ws
+- zesk1.0 work
+
+<!-- Generated automatically by release-prepare.sh, beware editing! -->
 - Release v0.30.2
 - Template paths are no longer case-insensitive
 - Test work for PHP 8+
@@ -222,7 +297,6 @@ Version 1.0 of Zesk will have:
 - ws
 - zesk1.0 work
 
-<!-- Generated automatically by release-prepare.sh, beware editing! -->
 ## [v0.30.2][]
 
 - **Contact Module**: Fixing Date schema default value
@@ -2486,9 +2560,6 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
 
 <!-- LINK-HERE -->
 [v0.31.0]: /v0.31.0...v0.30.2
-<!-- LINK-HERE -->
-[v0.31.0]: /v0.31.0...v0.30.2
-<!-- LINK-HERE -->
 <!-- LINK-HERE -->
 [v0.30.2]: https://github.com/zesk/zesk/compare/v0.30.1...v0.30.2
 [v0.30.1]: https://github.com/zesk/zesk/compare/v0.30.0...v0.30.1
