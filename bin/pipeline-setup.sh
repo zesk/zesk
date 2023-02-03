@@ -18,8 +18,8 @@ if [ -z "$php" ]; then
   echo "No PHP found in $PATH" 1>&2
   exit $ERR_ENV
 fi
-docker=$(which docker)
-if [ -z "$docker" ]; then
+dc=$(which docker-compose)
+if [ -z "$dc" ]; then
   echo "No docker found in $PATH" 1>&2
   exit $ERR_ENV
 fi
@@ -38,12 +38,14 @@ if test "$INSTALL_COMPOSER" || [ -z "$composer" ]; then
   fi
 fi
 cd "$top" || exit "$ERR_ENV"
-./docker/sbin/docker-apt-base.sh
-./docker/sbin/docker-php.sh
+echo "Installing base"
+./docker/sbin/docker-apt-base.sh > /dev/null
+echo "Installing php"
+./docker/sbin/docker-php.sh > /dev/null
 cd "$top" || exit $ERR_ENV
 if ! "$composer" install -q; then
   echo "Composer install failed" 1>&2
   exit "$ERR_BUILD"
 fi
-"$docker" compose build --no-cache --pull
+$dc build --no-cache --pull
 env > "$envFile"
