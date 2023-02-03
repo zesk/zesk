@@ -8,6 +8,8 @@ set -x
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
 # Optional
 composer=$(which composer)
+dc=$(which docker-compose)
+docker=$(which docker)
 
 set -eo pipefail
 
@@ -18,10 +20,12 @@ if [ -z "$php" ]; then
   echo "No PHP found in $PATH" 1>&2
   exit $ERR_ENV
 fi
-dc=$(which docker-compose)
-if [ -z "$dc" ]; then
+if [ -z "$docker" ]; then
   echo "No docker found in $PATH" 1>&2
   exit $ERR_ENV
+fi
+if [ -z "$dc" ]; then
+  pip install docker-compose
 fi
 if test "$INSTALL_COMPOSER" || [ -z "$composer" ]; then
   composer="$top/.bin/composer"
