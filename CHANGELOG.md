@@ -22,13 +22,14 @@ Version 1.0 of Zesk will have:
 
 Major revamp of Zesk. PSR-4. PHP 8.1. Added typing to most calls. Traits, changed to PSR-0 naming style.
 
-ALl modules updated, using PSR-4.
+All modules updated, using PSR-4.
 
 We anticipate a few small releases before a full 1.0 release.
 
 Many breaking changes:
 
-- Most items are case-sensitive
+- Options and Configuratoin keys are case-sensitive
+- Exception_Key is used in cases where the key should exist more often
 - All modules restructured to new project layout, tests added
 - Removed all widget and most HTML-related tools - moving to a more API-centric server model.
 - Deprecated: `avalue`, `zesk\Kernel`
