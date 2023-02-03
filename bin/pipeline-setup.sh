@@ -2,6 +2,9 @@
 ERR_ENV=1
 ERR_BUILD=1001
 
+# Debug bash
+set -x
+
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
 set -eo pipefail
 
