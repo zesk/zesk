@@ -128,7 +128,8 @@ editedLog=$top/CHANGELOG.md.$$.edited
 
 {
   grep -B $moreLines RELEASE-HERE "$permanentChangeLog"
-  cat "$currentChangeLog"
+  grep -v "$previousVersion" "$currentChangeLog"
+  echo
   grep -B $moreLines LINK-HERE "$permanentChangeLog" | grep -A $moreLines "$previousVersion"
   echo "[$currentVersion]: $ZESK_REPOSITORY_VERSION_PREFIX$previousVersion...$currentVersion"
   grep -A $moreLines LINK-HERE "$permanentChangeLog" | grep -v "$currentVersion" | grep -v LINK-HERE
