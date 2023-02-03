@@ -54,7 +54,7 @@
       "modules/Database/test/zesk/DatabaseUnitTest.php",
       "modules/ORM/test/classes/ORMUnitTest.php",
       "modules/PHPUnit/classes/PHPUnit/TestCase.php",
-      "modules/Repository/classes/TestCase.php"
+      "modules/Repository/zesk/Repository/TestCase.php"
     ]
   },
   "copyright": "Copyright &copy; 2023, Market Acumen, Inc."
