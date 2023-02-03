@@ -20,19 +20,27 @@ Version 1.0 of Zesk will have:
 
 ## [v0.31.0][]
 
-- **GitHub Module**: Making explicit changes to show variables required in configuration
-- **MySQL Module**: Support binary defaults for columns
-- **Zesk Docs**: Updates to cron, module configuration, and share files
-- -avalue
-- Add support for loading from globals
-- Adding error handling and best practices for CD
-- Forcing true for `spl_autoload_register` to force throwing errors when loader can not be registered
+Major revamp of Zesk. PSR-4. PHP 8.1. Added typing to most calls. Traits, changed to PSR-0 naming style.
+
+ALl modules updated, using PSR-4.
+
+We anticipate a few small releases before a full 1.0 release.
+
+Many breaking changes:
+
+- Most items are case-sensitive
+- All modules restructured to new project layout, tests added
+- Removed all widget and most HTML-related tools - moving to a more API-centric server model.
+- Deprecated: `avalue`, `zesk\Kernel`
+- Most namespaces for modules are now `zesk\ModuleName\ClassName`
+- Using flatter namespaces for most references
 - Major camelCase refactor and cleanup
-- Merged in php-8.1-compatibility (pull request #2)
-- Merged in php-8.1-compatibility (pull request #3)
-- Merged master into php-8.1-compatibility
-- PHP 8 and PSR Refactoring work
-- PHP 8 work
+- PHP 8.1 default
+- Template paths are no longer case-insensitive
+- Code coverage for testing is more than 50%
+- Added docker and testing containers
+- Updating README
+- Support XDEBUG debugging from the container
 - Release v0.30.2
 - Release v0.31.0
 - Template paths are no longer case-insensitive
