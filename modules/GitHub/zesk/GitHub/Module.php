@@ -93,7 +93,7 @@ class Module extends BaseModule {
 	 * @throws Exception_Syntax
 	 * @throws Exception_Unsupported
 	 */
-	public function generateTag(string $name, string $commitish = "", string $description = ""): array {
+	public function generateTag(string $name, string $commitish = '', string $description = ''): array {
 		if (!$description) {
 			$description = "Release of version $name";
 		}
