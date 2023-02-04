@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 if [ -z "$ZESK_ROOT" ]; then
 	ZESK_ROOT=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
 	export ZESK_ROOT

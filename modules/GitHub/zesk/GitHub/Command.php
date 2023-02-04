@@ -100,7 +100,7 @@ class Command extends Command_Base {
 		try {
 			/* @var $github Module */
 			$github = $this->application->modules->object('GitHub');
-			if ($github->generate_tag('v' . $this->application->version(), $this->option('commitish'), $description)) {
+			if ($github->generateTag('v' . $this->application->version(), $this->option('commitish'), $description)) {
 				return 0;
 			}
 			return self::EXIT_CODE_TAG_FAILED;

@@ -11,9 +11,10 @@ pipelines:
   branches:
     develop:
       - step:
-          name: Setup
+          name: Build and test
           artifacts:
             - .env
+            - .release-notes.md
           caches:
             - pip
             - docker
@@ -21,43 +22,25 @@ pipelines:
             - apt-cache
           deployment: staging
           script:
-            - export DOCKER_BUILDKIT=1
             - export DEPLOYMENT=staging
             - bin/pipeline-setup.sh "${DEPLOYMENT}" ${BUILD_TEST_FLAG} --host "${CONTAINER_HOST}" --commit "${BITBUCKET_COMMIT}"
-      - step:
-          name: Unit Tests
-          caches:
-            - pip
-            - docker
-            - apt-lists
-            - apt-cache
-          script:
-            - bin/pipeline-unit-tests.sh
     master:
       - step:
-          name: Build
+          name: Build and test
           artifacts:
             - .env
+            - .release-notes.md
           caches:
             - pip
             - docker
             - apt-lists
             - apt-cache
-          deployment: staging
+          deployment: production
           script:
-            - export DOCKER_BUILDKIT=1
-            - export DEPLOYMENT=staging
+            - export DEPLOYMENT=production
             - bin/pipeline-setup.sh "${DEPLOYMENT}" ${BUILD_TEST_FLAG} --host "${CONTAINER_HOST}" --commit "${BITBUCKET_COMMIT}"
       - step:
-          name: Unit Tests
-          caches:
-            - docker
-            - apt-lists
-            - apt-cache
-          script:
-            - bin/build-unit-test.sh
-      - step:
-          name: Deploy new release
+          name: Deploy
           trigger: manual
           caches:
             - pip
@@ -65,4 +48,4 @@ pipelines:
             - apt-lists
             - apt-cache
           script:
-            - bin/build-deploy.sh
+            - bin/pipeline-deploy.sh
