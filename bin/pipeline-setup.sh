@@ -29,13 +29,19 @@ fi
 echo Install vendor
 docker run -v "$(pwd):/app" composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog" 2>&1
 
-echo Build container
+echo Build container ...
 docker-compose build --no-cache --pull >> "$quietLog"
+
+echo Running container ...
+docker-compose up -d
 
 figlet Testing
 set -x
 docker-compose exec php /zesk/bin/test-zesk.sh --coverage
 
 "$top/bin/release-check-version.sh"
+
+echo Stopping container ...
+docker-compose down
 
 env > "$envFile"
