@@ -19,6 +19,13 @@ yml="$top/docker-compose.yml"
 
 set -eo pipefail
 
+failed() {
+  echo
+  cat "$quietLog"
+  echo
+  figlet failed
+  return $ERR_ENV
+}
 if [ -z "$docker" ]; then
   echo "No docker found in $PATH" 1>&2
   exit $ERR_ENV
@@ -27,11 +34,19 @@ fi
 "$top/bin/build/apt-utils.sh"
 "$top/bin/build/docker-compose.sh"
 
-echo Install vendor
-docker run -v "$(pwd):/app" composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog" 2>&1
+start=$(($(date +%s) + 0))
+echo -n "Install vendor ... "
+if ! docker run -v "$(pwd):/app" composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog" 2>&1; then
+  exit "$(failed)"
+fi
+echo $(($(date +%s) - start)) seconds
 
-echo Build container ...
-docker-compose -f "$yml" build --no-cache --pull >> "$quietLog"
+start=$(($(date +%s) + 0))
+echo -n "Build container ... "
+if ! docker-compose -f "$yml" build --no-cache --pull >> "$quietLog" 2>&1; then
+  exit "$(failed)"
+fi
+echo $(($(date +%s) - start)) seconds
 
 echo Running container ...
 docker-compose -f "$yml" up -d

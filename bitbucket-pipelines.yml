@@ -22,6 +22,7 @@ pipelines:
             - apt-lists
             - apt-cache
           deployment: staging
+          size: 2x
           script:
             - export DEPLOYMENT=staging
             - bin/pipeline-setup.sh "${DEPLOYMENT}" ${BUILD_TEST_FLAG} --host "${CONTAINER_HOST}" --commit "${BITBUCKET_COMMIT}"
@@ -38,6 +39,7 @@ pipelines:
             - apt-lists
             - apt-cache
           deployment: production
+          size: 2x
           script:
             - export DEPLOYMENT=production
             - bin/pipeline-setup.sh "${DEPLOYMENT}" ${BUILD_TEST_FLAG} --host "${CONTAINER_HOST}" --commit "${BITBUCKET_COMMIT}"
