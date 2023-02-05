@@ -78,14 +78,14 @@ Will search the autoload path for:
 Class names are [Upper-first CamelCase](naming-styles-definitions.md), optionally separated by underscores for classes which are intended to be instantiated:
 
     $u = new User();
-	$c = new Control_Image_Toggle();
+	$c = new Controller_Province();
 	$s = new Province();
 
 The corresponding file names which contain these classes use the [PSR-4][] standard:
 
-	classes/User.inc
-	classes/Control/Image/Toggle.inc
-	classes/Province.inc
+	classes/User.php
+	classes/Controller/Province.php
+	classes/Province.php
 
 ## Functions and Methods
 
@@ -98,7 +98,7 @@ Functions and methods within the system generally follow the PSR-1 standard by u
 
 Hooks are a simple but powerful method your code to interact with various behaviors in the system. As a general rule, Hooks are named as follows:
 
-TODO
+- TODO
 
 ### Hookable syntax
 
