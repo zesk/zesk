@@ -10,6 +10,7 @@ RUN /root/sbin/docker-php.sh
 RUN /root/sbin/docker-apt-clean.sh
 
 COPY docker/etc/env.sh /etc/env.sh
+RUN echo "DATABASE_HOST=$DATABASE_HOST" >> /etc/env.sh
 COPY docker/etc/test.conf /etc/test.conf
 
 COPY docker/php/php.ini /tmp/php.ini

@@ -13,5 +13,5 @@ if [ ! -d "$top/.git" ]; then
 	exit $ERR_ENV
 fi
 
-cd "$top" || exit "$ERR_ENV"
+cd "$top" || exit $ERR_ENV
 git tag | sort -t. -k 1.2,1n -k 2,2n -k 3,3n -k 4,4n | tail -1

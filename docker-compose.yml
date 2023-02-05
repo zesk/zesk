@@ -5,6 +5,7 @@ services:
     env_file: docker/etc/env.sh
     environment:
       BUILD_CODE: php
+      DATABASE_HOST: mariadb
     build:
       context: ./
       dockerfile: ./docker/php.Dockerfile

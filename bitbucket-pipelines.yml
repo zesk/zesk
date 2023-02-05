@@ -7,6 +7,10 @@ definitions:
     apt-cache: /var/cache/apt
   docker:
     memory: 7128
+  mariadb:
+    image: mariadb:latest
+    variables:
+      MARIADB_ROOT_PASSWORD: hard-to-guess
 
 image: python:3
 pipelines:
@@ -27,6 +31,8 @@ pipelines:
           deployment: staging
           size: 2x
           script:
+            - export DATABASE_HOST=localhost
+            - export DATABASE_ROOT_PASSWORD=hard-to-guess
             - export DEPLOYMENT=staging
             - bin/pipeline-setup.sh "${DEPLOYMENT}" ${BUILD_TEST_FLAG} --host "${CONTAINER_HOST}" --commit "${BITBUCKET_COMMIT}"
     master:
@@ -45,6 +51,8 @@ pipelines:
           deployment: production
           size: 2x
           script:
+            - export DATABASE_HOST=localhost
+            - export DATABASE_ROOT_PASSWORD=hard-to-guess
             - export DEPLOYMENT=production
             - bin/pipeline-setup.sh "${DEPLOYMENT}" ${BUILD_TEST_FLAG} --host "${CONTAINER_HOST}" --commit "${BITBUCKET_COMMIT}"
       - step:

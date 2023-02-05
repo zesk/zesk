@@ -7,11 +7,7 @@
 ERR_ENV=1
 
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $ERR_ENV; pwd)"
-yml="$top/docker-compose.yml"
 
-if [ ! -f "$yml" ]; then
-	echo "No .git directory at $top, stopping" 1>&2
-	exit $ERR_ENV
-fi
+cd "$top" || exit $ERR_ENV
 
-echo -n "v$(docker-compose -f "$yml" exec -T -e XDEBUG_ENABLED= php /zesk/bin/zesk version)"
+echo -n "v$(docker run php:latest /zesk/bin/zesk version)"
