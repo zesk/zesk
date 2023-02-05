@@ -51,9 +51,11 @@ echo $(($(date +%s) - start)) seconds
 echo Running container ...
 docker-compose -f "$yml" up -d
 
+start=$(($(date +%s) + 0))
 figlet Testing
 set -x
-docker-compose -f "$yml" exec -T php /zesk/bin/test-zesk.sh --coverage
+docker-compose -f "$yml" exec -T php /zesk/bin/test-zesk.sh --coverage --testsuite core
+echo Testing took $(($(date +%s) - start)) seconds
 
 "$top/bin/release-check-version.sh"
 

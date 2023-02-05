@@ -18,6 +18,7 @@ pipelines:
             - .env
             - .build/
             - .release-notes.md
+            - test-coverage/
           caches:
             - pip
             - docker
@@ -35,6 +36,7 @@ pipelines:
             - .env
             - .release-notes.md
             - .build/
+            - test-coverage/
           caches:
             - pip
             - docker

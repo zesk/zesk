@@ -69,8 +69,8 @@ class Command_Help extends Command_Base {
 			return false;
 		}
 		$command_file = $reflection_class->getFileName();
-		$docComment = $reflection_class->getDocComment();
-		$docComment = DocComment::instance($docComment)->variables();
+		$docCommentString = $reflection_class->getDocComment();
+		$docComment = is_string($docCommentString) ? DocComment::instance($docCommentString)->variables() : [];
 		if (array_key_exists('ignore', $docComment)) {
 			return false;
 		}

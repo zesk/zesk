@@ -20,8 +20,8 @@ class DocComment extends Options {
 	/**
 	 * For patterns which are keyed by the first token in the DocComment
 	 *
-	 * @name key0 value0 and things
-	 * @name key1 value1 and others
+	 *  * @name key0 value0 and things
+	 *  * @name key1 value1 and others
 	 *
 	 * Converted to:
 	 *
@@ -34,8 +34,8 @@ class DocComment extends Options {
 	/**
 	 * For patterns which are keyed by the second token in the DocComment
 	 *
-	 * @property type0 $var0 Comments about var0
-	 * @property type1 $var1 Comments about var1
+	 *  * @property string $var0 Comments about var0 of type string
+	 *  * @property bool $var1 Comments about var1 of type bool
 	 *
 	 * Converted to:
 	 *
@@ -51,8 +51,8 @@ class DocComment extends Options {
 	/**
 	 * For patterns which are lists of items and
 	 *
-	 * @see ClassName
-	 * @see OtherClassName, DocComment
+	 *  * @see ClassName
+	 *  * @see OtherClassName, DocComment
 	 *
 	 * Converted to:
 	 *
@@ -69,14 +69,14 @@ class DocComment extends Options {
 	 *
 	 * So:
 	 *
-	 * DocComment::instance(["desc" => "Hello, world", "see" => "\\zesk\\Kernel"], [OPTION_DESC_NO_TAG => true])->content()
+	 * DocComment::instance(["desc" => "Hello, world", "see" => "\\zesk\\Application"], [OPTION_DESC_NO_TAG => true])->content()
 	 *
 	 * Converts to:
 	 *
 	 *     /X**
 	 *      * Hello, world
 	 *      *
-	 *      * @see \zesk\Kernel
+	 *      * @see \zesk\Application
 	 *      *X/
 	 *
 	 * Without the X.
@@ -97,8 +97,6 @@ class DocComment extends Options {
 	 * @var bool
 	 */
 	private bool $format_mode;
-
-	private bool $_parsed = false;
 
 	/**
 	 *
