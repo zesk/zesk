@@ -26,13 +26,14 @@ fi
 "$top/bin/build/apt-utils.sh"
 "$top/bin/build/docker-compose.sh"
 
-figlet Building vendor
-docker run -v "$(pwd):/app" composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog"
+echo Install vendor
+docker run -v "$(pwd):/app" composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog" 2>&1
 
-figlet Building containers
-docker-compose build --no-cache --pull >>"$quietLog"
+echo Build container
+docker-compose build --no-cache --pull >> "$quietLog"
 
 figlet Testing
+set -x
 docker-compose exec php /zesk/bin/test-zesk.sh --coverage
 
 "$top/bin/release-check-version.sh"
