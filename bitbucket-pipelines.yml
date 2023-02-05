@@ -5,6 +5,8 @@ definitions:
   caches:
     apt-lists: /var/lib/apt/lists
     apt-cache: /var/cache/apt
+  docker:
+    memory: 7128
 
 image: python:3
 pipelines:
