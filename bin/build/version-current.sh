@@ -14,4 +14,4 @@ if [ ! -f "$yml" ]; then
 	exit $ERR_ENV
 fi
 
-echo -n "v$(docker-compose -f "$yml" exec -e XDEBUG_ENABLED= php /zesk/bin/zesk version)"
+echo -n "v$(docker-compose -f "$yml" exec -T -e XDEBUG_ENABLED= php /zesk/bin/zesk version)"

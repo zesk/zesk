@@ -15,6 +15,7 @@ top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
 docker=$(which docker)
 envFile="$top/.env"
 quietLog="$top/.build/$me.log"
+yml="$top/docker-compose.yml"
 
 set -eo pipefail
 
@@ -30,14 +31,14 @@ echo Install vendor
 docker run -v "$(pwd):/app" composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog" 2>&1
 
 echo Build container ...
-docker-compose build --no-cache --pull >> "$quietLog"
+docker-compose -f "$yml" build --no-cache --pull >> "$quietLog"
 
 echo Running container ...
-docker-compose up -d
+docker-compose -f "$yml" up -d
 
 figlet Testing
 set -x
-docker-compose exec php /zesk/bin/test-zesk.sh --coverage
+docker-compose -f "$yml" exec -T php /zesk/bin/test-zesk.sh --coverage
 
 "$top/bin/release-check-version.sh"
 
