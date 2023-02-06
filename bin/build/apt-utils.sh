@@ -28,9 +28,10 @@ fi
 
 [ -d "$(dirname "$quietLog")" ] || mkdir -p "$(dirname "$quietLog")"
 
-echo "Updating apt-get ..."
-apt-get update >> "$quietLog"
-echo "Installing ${packages[*]} ..."
+start=$(($(date +%s) + 0))
+echo -n "Updating apt-get ... "
+apt-get update >> "$quietLog" 2>&1
+echo -n "Installing ${packages[*]} ... "
 apt-get install -y "${packages[@]}" >> "$quietLog" 2>&1
-
 date > "$markerFile"
+echo "$(($(date +%s) - start)) seconds"

@@ -65,6 +65,7 @@
 		watcherInterval = null,
 		timerKiller = null,
 		watchForDialog = function () {
+			// this is an iFrame which is out of security context
 			var $runLink = $('section[role=dialog] button:contains(Run)');
 			if ($runLink.length) {
 				console.log("Found run button", $runLink);
