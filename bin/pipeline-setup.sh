@@ -30,7 +30,7 @@ DATABASE_HOST=${DATABASE_HOST}
 
 set -eo pipefail
 
-"$top/bin/build/colors.sh"
+. "$top/bin/build/colors.sh"
 
 #
 # Preflight our environment to make sure we have the basics defined in the calling script
