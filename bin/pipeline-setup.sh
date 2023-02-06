@@ -52,6 +52,8 @@ fi
 
 "$top/bin/build/apt-utils.sh"
 
+set -x
+
 start=$(($(date +%s) + 0))
 echo -n "Install vendor ... "
 if ! docker run -v "$(pwd):/app" composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog" 2>&1; then
