@@ -26,3 +26,4 @@
 /.bin/
 /DEPRECATED/
 /.build/
+/.composer/

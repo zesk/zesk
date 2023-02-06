@@ -15,9 +15,8 @@ mariadb=$(which mariadb)
 
 set -eo pipefail
 
-"$top/bin/build/apt-utils.sh"
-
 if [ -z "$mariadb" ]; then
+  "$top/bin/build/apt-utils.sh"
   [ -d "$(dirname "$quietLog")" ] || mkdir -p "$(dirname "$quietLog")"
   apt-get install -y mariadb-client > "$quietLog"
 fi
