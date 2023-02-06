@@ -63,8 +63,9 @@ fi
 start=$(($(date +%s) + 0))
 echo -n "Install vendor ... "
 figlet "Install vendor" >> "$quietLog"
-if ! docker run -v "$(pwd):/app" -v "${COMPOSER_HOME:-$HOME/.composer}:/tmp" \
-    composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog" 2>&1; then
+echo docker run -v "$top:/app" -v "$top/.composer:/tmp" composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog"
+
+if ! docker run -v "$top:/app" -v "$top/.composer:/tmp" composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog" 2>&1; then
   failed
   exit $ERR_BUILD
 fi
