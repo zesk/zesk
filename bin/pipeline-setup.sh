@@ -39,8 +39,14 @@ for e in "${envs[@]}"; do
 done
 
 failed() {
+  echo -e '\033[94m' # Blue
+  echo -e '\033[1m' # Bold
+  echo "Last 50 of $quietLog ..."
+  echo -e '\033[21m' # Bold Off
   echo
-  cat "$quietLog"
+  echo -e '\033[31m' # Red
+  tail -50 "$quietLog"
+  echo -e '\033[0m' # Reset
   echo
   figlet failed
   return $ERR_ENV
@@ -56,6 +62,7 @@ set -x
 
 start=$(($(date +%s) + 0))
 echo -n "Install vendor ... "
+figlet "Install vendor" >> "$quietLog"
 if ! docker run -v "$(pwd):/app" composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog" 2>&1; then
   failed
   exit $ERR_BUILD
@@ -64,6 +71,7 @@ echo $(($(date +%s) - start)) seconds
 
 start=$(($(date +%s) + 0))
 echo -n "Build container ... "
+figlet "Build container" >> "$quietLog"
 if ! docker build -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
   failed
   exit $ERR_BUILD
@@ -71,7 +79,13 @@ fi
 echo $(($(date +%s) - start)) seconds
 
 echo -n "Setting up database ..."
-if ! docker run -t zesk:latest mysql -u root "-p$DATABASE_ROOT_PASSWORD" -h "$DATABASE_HOST" < ./docker/mariadb/schema.sql >> "$quietLog"; then
+{
+  figlet "Database" >> "$quietLog"
+  echo "COMMAND:"
+  echo docker run -t zesk:latest mariadb -u root "-p$DATABASE_ROOT_PASSWORD" -h "$DATABASE_HOST"
+} >> "$quietLog"
+
+if ! docker run -t zesk:latest mariadb -u root "-p$DATABASE_ROOT_PASSWORD" -h "$DATABASE_HOST" < ./docker/mariadb/schema.sql >> "$quietLog"; then
   failed
   exit $ERR_BUILD
 fi
