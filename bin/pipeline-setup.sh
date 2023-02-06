@@ -23,7 +23,9 @@ top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
 docker=$(which docker)
 envFile="$top/.env"
 quietLog="$top/.build/$me.log"
-envs=(DATABASE_ROOT_PASSWORD DATABASE_HOST)
+envs=(DATABASE_ROOT_PASSWORD DATABASE_HOST DATABASE_PORT)
+DATABASE_PORT=${DATABASE_PORT:-3306}
+DATABASE_HOST=${DATABASE_HOST}
 
 set -eo pipefail
 
@@ -72,7 +74,8 @@ echo $(($(date +%s) - start)) seconds
 start=$(($(date +%s) + 0))
 echo -n "Build container ... "
 figlet "Build container" >> "$quietLog"
-if ! docker build -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
+export
+if ! docker build --build-arg DATABASE_HOST=host.docker.internal -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
   failed
   exit $ERR_BUILD
 fi
@@ -82,10 +85,14 @@ echo -n "Setting up database ..."
 {
   figlet "Database" >> "$quietLog"
   echo "COMMAND:"
-  echo docker run -t zesk:latest mariadb -u root "-p$DATABASE_ROOT_PASSWORD" -h "$DATABASE_HOST"
+  echo mariadb -u root "-p$DATABASE_ROOT_PASSWORD" -h "$DATABASE_HOST" -p "$DATABASE_PORT"
+  echo "TODO TRY COMMAND:"
+  echo docker run -t zesk:latest mariadb -u root "-p$DATABASE_ROOT_PASSWORD" -h host.docker.internal
 } >> "$quietLog"
 
-if ! docker run -t zesk:latest mariadb -u root "-p$DATABASE_ROOT_PASSWORD" -h "$DATABASE_HOST" < ./docker/mariadb/schema.sql >> "$quietLog"; then
+"$top/bin/build/mariadb-client.sh"
+
+if ! mariadb -u root "-p$DATABASE_ROOT_PASSWORD" -h "$DATABASE_HOST" -p "$DATABASE_PORT" < ./docker/mariadb/schema.sql >> "$quietLog"; then
   failed
   exit $ERR_BUILD
 fi
