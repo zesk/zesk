@@ -46,7 +46,8 @@ consoleReset() {
 
 consoleCode() {
   local start=$1 end=$2
-  shift shift
+  shift
+  shift
   if [ -z "$*" ]; then
     echo -ne "$start"
   else
