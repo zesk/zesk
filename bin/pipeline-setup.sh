@@ -11,6 +11,7 @@
 # Exit codes
 #
 ERR_ENV=1
+ERR_BUILD=1000
 
 #
 # Variables and constants
@@ -54,19 +55,24 @@ fi
 start=$(($(date +%s) + 0))
 echo -n "Install vendor ... "
 if ! docker run -v "$(pwd):/app" composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog" 2>&1; then
-  exit "$(failed)"
+  failed
+  exit $ERR_BUILD
 fi
 echo $(($(date +%s) - start)) seconds
 
 start=$(($(date +%s) + 0))
 echo -n "Build container ... "
 if ! docker build -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
-  exit "$(failed)"
+  failed
+  exit $ERR_BUILD
 fi
 echo $(($(date +%s) - start)) seconds
 
 echo -n "Setting up database ..."
-docker run -t zesk:latest mysql -u root "-p$DATABASE_ROOT_PASSWORD" localhost < ./docker/mariadb/schema.sql
+if ! docker run -t zesk:latest mysql -u root "-p$DATABASE_ROOT_PASSWORD" localhost < ./docker/mariadb/schema.sql >> "$quietLog"; then
+  failed
+  exit $ERR_BUILD
+fi
 
 start=$(($(date +%s) + 0))
 figlet Testing
