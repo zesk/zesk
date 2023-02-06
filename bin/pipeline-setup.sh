@@ -18,6 +18,7 @@ ERR_BUILD=1000
 #
 # Debug bash - set -x
 export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
 me=$(basename "$0")
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
 # Optional binaries in build image
@@ -75,7 +76,7 @@ if ! mariadb "${databaseArguments[@]}" < ./docker/mariadb/schema.sql >> "$quietL
   failed "$quietLog"
   exit $ERR_BUILD
 fi
-echo $(($(date +%s) - start)) seconds
+consoleMagenta $(($(date +%s) - start)) seconds
 consoleReset
 
 [ -d "$top/.composer" ] || mkdir "$top/.composer"
@@ -92,7 +93,7 @@ if ! docker run "${vendorArgs[@]}" >> "$quietLog" 2>&1; then
   failed "$quietLog"
   exit $ERR_BUILD
 fi
-echo $(($(date +%s) - start)) seconds
+consoleMagenta $(($(date +%s) - start)) seconds
 consoleReset
 
 start=$(($(date +%s) + 0))
@@ -103,15 +104,16 @@ if ! docker build --build-arg DATABASE_HOST=host.docker.internal -f ./docker/php
   failed "$quietLog"
   exit $ERR_BUILD
 fi
-echo $(($(date +%s) - start)) seconds
+consoleMagenta $(($(date +%s) - start)) seconds
 consoleReset
 
 start=$(($(date +%s) + 0))
 consoleWhite "$(figlet Testing)"
-docker run zesk:latest /zesk/bin/test-zesk.sh --coverage --testsuite core
-echo Testing took $(($(date +%s) - start)) seconds
+docker run -v "$(pwd)/test-results:/zesk/test-results" \
+  zesk:latest /zesk/bin/test-zesk.sh --coverage --testsuite core
+consoleMagenta Testing took $(($(date +%s) - start)) seconds
 
-consoleMagenta
+consoleBlue
 "$top/bin/release-check-version.sh"
 consoleReset
 

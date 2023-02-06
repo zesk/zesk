@@ -27,7 +27,7 @@ consoleMagenta() {
   consoleCode '\033[35m' '\033[0m' "$@"
 }
 consoleWhite() {
-  consoleCode '\033[47m' '\033[0m' "$@"
+  consoleCode '\033[37m' '\033[0m' "$@"
 }
 consoleBold() {
   consoleCode '\033[1m' '\033[21m' "$@"
