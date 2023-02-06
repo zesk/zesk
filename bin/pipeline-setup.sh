@@ -17,6 +17,7 @@ ERR_BUILD=1000
 # Variables and constants
 #
 # Debug bash - set -x
+export TERM=xterm-256color
 me=$(basename "$0")
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
 # Optional binaries in build image
@@ -29,7 +30,6 @@ DATABASE_HOST=${DATABASE_HOST}
 
 set -eo pipefail
 
-
 #
 # Preflight our environment to make sure we have the basics defined in the calling script
 #
@@ -40,32 +40,111 @@ for e in "${envs[@]}"; do
   fi
 done
 
+consoleReset() {
+  echo -en '\033[0m' # Reset
+}
+
+consoleCode() {
+  local start=$1 end=$2
+  shift shift
+  if [ -z "$*" ]; then
+    echo -ne "$start"
+  else
+    echo -ne "$start"
+    echo "$@"
+    echo -ne "$end"
+  fi
+}
+consoleRed() {
+  consoleCode '\033[31m' '\033[0m' "$@"
+}
+consoleBlue() {
+  consoleCode '\033[94m' '\033[0m' "$@"
+}
+# shellcheck disable=SC2120
+consoleMagenta() {
+  consoleCode '\033[35m' '\033[0m' "$@"
+}
+consoleWhite() {
+  consoleCode '\033[47m' '\033[0m' "$@"
+}
+consoleBold() {
+  consoleCode '\033[1m' '\033[21m' "$@"
+}
+consoleUnderline() {
+  consoleCode '\033[4m' '\033[24m' "$@"
+}
+consoleNoBold() {
+  echo -en '\033[21m'
+}
+consoleNoUnderline() {
+  echo -en '\033[24m'
+}
+echobar() {
+  echo "======================================================="
+}
+
+#
+# When things go badly
+#
 failed() {
-  echo -e '\033[94m' # Blue
-  echo -e '\033[1m' # Bold
-  echo "Last 50 of $quietLog ..."
-  echo -e '\033[21m' # Bold Off
-  echo
-  echo -e '\033[31m' # Red
-  tail -50 "$quietLog"
-  echo -e '\033[0m' # Reset
-  echo
-  figlet failed
+  consoleRed "$(echobar)"
+    consoleWhite "Last 50 of $(consoleBold "$quietLog") ..."
+  consoleRed "$(echobar)"
+  consoleWhite
+    tail -50 "$quietLog"
+    echo
+  consoleRed
+    echobar
+    figlet failed
+  consoleRed "$(echobar)"
+    consoleWhite "Last 3 of $(consoleBold "$quietLog") ..."
+  consoleRed "$(echobar)"
+  consoleMagenta
+    tail -3 "$quietLog"
+    echo
+  consoleReset
   return $ERR_ENV
 }
+
+# apt-get update and install figlet
+"$top/bin/build/apt-utils.sh"
+
+# Connect to the database and set up test schema
+databaseArguments=("-u" "root" "-p$DATABASE_ROOT_PASSWORD" "-h" "$DATABASE_HOST" "--port" "$DATABASE_PORT")
+echo -n "Setting up database ..."
+{
+  consoleWhite "$(figlet "Database")"
+  consoleWhite "$(echobar)"
+  consoleBlue "COMMAND:"
+  consoleWhite mariadb "${databaseArguments[@]}"
+  consoleBlue "TODO TRY COMMAND:"
+  consoleWhite docker run -t zesk:latest mariadb "${databaseArguments[@]}"
+} >> "$quietLog"
+
+"$top/bin/build/mariadb-client.sh"
+
+if ! mariadb "${databaseArguments[@]}" < ./docker/mariadb/schema.sql >> "$quietLog"; then
+  failed
+  exit $ERR_BUILD
+fi
+}
+
 if [ -z "$docker" ]; then
-  echo "No docker found in $PATH" 1>&2
+  consoleMagenta "No docker found in $PATH" 1>&2
   exit $ERR_ENV
 fi
 
-"$top/bin/build/apt-utils.sh"
+[ -d "$top/.composer" ] || mkdir "$top/.composer"
+
+vendorArgs=("-v" "$top:/app" "-v" "$top/.composer:/tmp" "composer:latest" i "--ignore-platform-req=ext-calendar")
 
 start=$(($(date +%s) + 0))
 echo -n "Install vendor ... "
 figlet "Install vendor" >> "$quietLog"
-echo docker run -v "$top:/app" -v "$top/.composer:/tmp" composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog"
+echo docker run "${vendorArgs[@]}" >> "$quietLog"
 
-if ! docker run -v "$top:/app" -v "$top/.composer:/tmp" composer:latest i --ignore-platform-req=ext-calendar >> "$quietLog" 2>&1; then
+if ! docker run "${vendorArgs[@]}" >> "$quietLog" 2>&1; then
   failed
   exit $ERR_BUILD
 fi
@@ -79,22 +158,6 @@ if ! docker build --build-arg DATABASE_HOST=host.docker.internal -f ./docker/php
   exit $ERR_BUILD
 fi
 echo $(($(date +%s) - start)) seconds
-
-echo -n "Setting up database ..."
-{
-  figlet "Database" >> "$quietLog"
-  echo "COMMAND:"
-  echo mariadb -u root "-p$DATABASE_ROOT_PASSWORD" -h "$DATABASE_HOST" -p "$DATABASE_PORT"
-  echo "TODO TRY COMMAND:"
-  echo docker run -t zesk:latest mariadb -u root "-p$DATABASE_ROOT_PASSWORD" -h host.docker.internal
-} >> "$quietLog"
-
-"$top/bin/build/mariadb-client.sh"
-
-if ! mariadb -u root "-p$DATABASE_ROOT_PASSWORD" -h "$DATABASE_HOST" -p "$DATABASE_PORT" < ./docker/mariadb/schema.sql >> "$quietLog"; then
-  failed
-  exit $ERR_BUILD
-fi
 
 start=$(($(date +%s) + 0))
 figlet Testing
