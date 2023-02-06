@@ -109,7 +109,7 @@ consoleReset
 
 start=$(($(date +%s) + 0))
 consoleWhite "$(figlet Testing)"
-for d in "test-results" ".zesk-coverage" "test-coverage"; do
+for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
   [ -d "$d" ] || mkdir -p "$d"
 done
 docker run -v "$top/:/zesk" zesk:latest /zesk/bin/test-zesk.sh --coverage --testsuite core

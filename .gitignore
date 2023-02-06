@@ -27,3 +27,4 @@
 /DEPRECATED/
 /.build/
 /.composer/
+/.phpunit-cache/
