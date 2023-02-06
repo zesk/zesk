@@ -129,7 +129,6 @@ if ! mariadb "${databaseArguments[@]}" < ./docker/mariadb/schema.sql >> "$quietL
   failed
   exit $ERR_BUILD
 fi
-}
 
 if [ -z "$docker" ]; then
   consoleMagenta "No docker found in $PATH" 1>&2
