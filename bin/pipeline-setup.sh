@@ -71,7 +71,7 @@ fi
 echo $(($(date +%s) - start)) seconds
 
 echo -n "Setting up database ..."
-if ! docker run -t zesk:latest mysql -u root "-p$DATABASE_ROOT_PASSWORD" localhost < ./docker/mariadb/schema.sql >> "$quietLog"; then
+if ! docker run -t zesk:latest mysql -u root "-p$DATABASE_ROOT_PASSWORD" "$DATABASE_HOST" < ./docker/mariadb/schema.sql >> "$quietLog"; then
   failed
   exit $ERR_BUILD
 fi
