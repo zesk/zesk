@@ -17,7 +17,7 @@ ERR_BUILD=1000
 # Variables and constants
 #
 # Debug bash - set -x
-export TERM=xterm-256color
+export TERM=xterm
 me=$(basename "$0")
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
 # Optional binaries in build image
@@ -113,7 +113,7 @@ failed() {
 
 # Connect to the database and set up test schema
 databaseArguments=("-u" "root" "-p$DATABASE_ROOT_PASSWORD" "-h" "$DATABASE_HOST" "--port" "$DATABASE_PORT")
-echo -n "Setting up database ..."
+echo -n "Setting up database ... "
 {
   consoleWhite "$(figlet "Database")"
   consoleWhite "$(echobar)"
@@ -125,10 +125,12 @@ echo -n "Setting up database ..."
 
 "$top/bin/build/mariadb-client.sh"
 
+echo -n "loading schema ... "
 if ! mariadb "${databaseArguments[@]}" < ./docker/mariadb/schema.sql >> "$quietLog"; then
   failed
   exit $ERR_BUILD
 fi
+echo $(($(date +%s) - start)) seconds
 
 if [ -z "$docker" ]; then
   consoleMagenta "No docker found in $PATH" 1>&2
@@ -160,9 +162,9 @@ fi
 echo $(($(date +%s) - start)) seconds
 
 start=$(($(date +%s) + 0))
-figlet Testing
+consoleWhite "$(figlet Testing)"
 set -x
-docker run php:latest /zesk/bin/test-zesk.sh --coverage --testsuite core
+docker run zesk:latest /zesk/bin/test-zesk.sh --coverage --testsuite core
 echo Testing took $(($(date +%s) - start)) seconds
 
 "$top/bin/release-check-version.sh"

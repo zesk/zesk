@@ -20,5 +20,6 @@ set -eo pipefail
 
 if ! which git 2> /dev/null 1>&2; then
   echo "Installing git ..."
+  export DEBIAN_FRONTEND=noninteractive
   apt-get install -y git > "$quietLog"
 fi
