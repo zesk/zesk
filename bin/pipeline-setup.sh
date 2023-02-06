@@ -54,66 +54,65 @@ fi
 "$top/bin/build/apt-utils.sh"
 
 #
-## Connect to the database and set up test schema
-##
-#start=$(($(date +%s) + 0))
-#databaseArguments=("-u" "root" "-p$DATABASE_ROOT_PASSWORD" "-h" "$DATABASE_HOST" "--port" "$DATABASE_PORT")
-#consoleWhite
-#echo -n "Setting up database ... "
-#{
-#  figlet "Database"
-#  echoBar
-#  echo "COMMAND:"
-#  echo mariadb "${databaseArguments[@]}"
-#  echo "TODO TRY COMMAND:"
-#  echo docker run -t zesk:latest mariadb "${databaseArguments[@]}"
-#} >> "$quietLog"
-#
-#"$top/bin/build/mariadb-client.sh"
-#
-#echo -n "loading schema ... "
-#if ! mariadb "${databaseArguments[@]}" < ./docker/mariadb/schema.sql >> "$quietLog"; then
-#  failed "$quietLog"
-#  exit $ERR_BUILD
-#fi
-#consoleMagenta $(($(date +%s) - start)) seconds
-#consoleReset
-#
-#[ -d "$top/.composer" ] || mkdir "$top/.composer"
-#
-#vendorArgs=("-v" "$top:/app" "-v" "$top/.composer:/tmp" "composer:latest" i "--ignore-platform-req=ext-calendar")
-#
-#start=$(($(date +%s) + 0))
-#consoleWhite
-#echo -n "Install vendor ... "
-#figlet "Install vendor" >> "$quietLog"
-#echo docker run "${vendorArgs[@]}" >> "$quietLog"
-#
-#if ! docker run "${vendorArgs[@]}" >> "$quietLog" 2>&1; then
-#  failed "$quietLog"
-#  exit $ERR_BUILD
-#fi
-#consoleMagenta $(($(date +%s) - start)) seconds
-#consoleReset
-#
-#start=$(($(date +%s) + 0))
-#consoleWhite
-#echo -n "Build container ... "
-#figlet "Build container" >> "$quietLog"
-#if ! docker build --build-arg DATABASE_HOST=host.docker.internal -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
-#  failed "$quietLog"
-#  exit $ERR_BUILD
-#fi
-#consoleMagenta $(($(date +%s) - start)) seconds
-#consoleReset
+# Connect to the database and set up test schema
 #
 start=$(($(date +%s) + 0))
+databaseArguments=("-u" "root" "-p$DATABASE_ROOT_PASSWORD" "-h" "$DATABASE_HOST" "--port" "$DATABASE_PORT")
+consoleWhite
+echo -n "Setting up database ... "
+{
+  figlet "Database"
+  echoBar
+  echo "COMMAND:"
+  echo mariadb "${databaseArguments[@]}"
+  echo "TODO TRY COMMAND:"
+  echo docker run -t zesk:latest mariadb "${databaseArguments[@]}"
+} >> "$quietLog"
+
+"$top/bin/build/mariadb-client.sh"
+
+echo -n "loading schema ... "
+if ! mariadb "${databaseArguments[@]}" < ./docker/mariadb/schema.sql >> "$quietLog"; then
+  failed "$quietLog"
+  exit $ERR_BUILD
+fi
+consoleMagenta $(($(date +%s) - start)) seconds
+consoleReset
+
+[ -d "$top/.composer" ] || mkdir "$top/.composer"
+
+vendorArgs=("-v" "$top:/app" "-v" "$top/.composer:/tmp" "composer:latest" i "--ignore-platform-req=ext-calendar")
+
+start=$(($(date +%s) + 0))
+consoleWhite
+echo -n "Install vendor ... "
+figlet "Install vendor" >> "$quietLog"
+echo docker run "${vendorArgs[@]}" >> "$quietLog"
+
+if ! docker run "${vendorArgs[@]}" >> "$quietLog" 2>&1; then
+  failed "$quietLog"
+  exit $ERR_BUILD
+fi
+consoleMagenta $(($(date +%s) - start)) seconds
+consoleReset
+
+start=$(($(date +%s) + 0))
+consoleWhite
+echo -n "Build container ... "
+figlet "Build container" >> "$quietLog"
+if ! docker build --build-arg DATABASE_HOST=host.docker.internal -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
+  failed "$quietLog"
+  exit $ERR_BUILD
+fi
+consoleMagenta $(($(date +%s) - start)) seconds
+consoleReset
+
+start=$(($(date +%s) + 0))
 consoleWhite "$(figlet Testing)"
-volumeArgs=()
 for d in "test-results" ".zesk-coverage" "test-coverage"; do
   [ -d "$d" ] || mkdir -p "$d"
 done
-docker run -v "$top:/zesk" zesk:latest /zesk/bin/test-zesk.sh --coverage --testsuite core
+docker run -v "$top/:/zesk" zesk:latest /zesk/bin/test-zesk.sh --coverage --testsuite core
 consoleMagenta Testing took $(($(date +%s) - start)) seconds
 
 consoleBlue
