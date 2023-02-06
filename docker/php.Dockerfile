@@ -2,6 +2,7 @@ FROM php:8.1-cli
 ENV PHP_INI_DIR=/usr/local/etc/php
 ENV BUILD_CODE=zesk
 ENV ETC_CONF=/usr/local/etc
+ARG DATABASE_HOST=mariadb
 
 RUN $(mkdir -p /root/sbin 2> /dev/null)
 COPY docker/sbin/ /root/sbin/

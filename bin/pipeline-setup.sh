@@ -60,8 +60,6 @@ fi
 
 "$top/bin/build/apt-utils.sh"
 
-set -x
-
 start=$(($(date +%s) + 0))
 echo -n "Install vendor ... "
 figlet "Install vendor" >> "$quietLog"
@@ -74,7 +72,6 @@ echo $(($(date +%s) - start)) seconds
 start=$(($(date +%s) + 0))
 echo -n "Build container ... "
 figlet "Build container" >> "$quietLog"
-export
 if ! docker build --build-arg DATABASE_HOST=host.docker.internal -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
   failed
   exit $ERR_BUILD
