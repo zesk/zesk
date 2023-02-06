@@ -6,13 +6,14 @@ definitions:
     apt-lists: /var/lib/apt/lists
     apt-cache: /var/cache/apt
   docker:
-    memory: 4096
+    memory: 6144
   services:
     mariadb:
       memory: 2048
       image: mariadb:latest
       variables:
         MARIADB_ROOT_PASSWORD: hard-to-guess
+        MYSQL_ROOT_PASSWORD: hard-to-guess
 
 image: python:3
 pipelines:
@@ -41,17 +42,19 @@ pipelines:
     master:
       - step:
           name: Build and test
+          services:
+            - mariadb
           artifacts:
             - .env
-            - .release-notes.md
             - .build/
+            - .release-notes.md
             - test-coverage/
           caches:
             - pip
             - docker
             - apt-lists
             - apt-cache
-          deployment: production
+          deployment: staging
           size: 2x
           script:
             - export DATABASE_HOST=127.0.0.1
