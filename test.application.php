@@ -28,6 +28,8 @@ class TestApplicationFactory {
 				Application::OPTION_DEPRECATED => Application::DEPRECATED_EXCEPTION,
 			]);
 
+			$application->configuration->set(ArrayTools::filterKeyPrefixes($_SERVER, ['DATABASE']));
+
 			$application->addAutoloadPath($application->zeskHome('test/classes'), [
 				Autoloader::OPTION_CLASS_PREFIX => __NAMESPACE__ . '\\',
 			]);
@@ -39,14 +41,12 @@ class TestApplicationFactory {
 
 			$application->configureInclude($files);
 
-			$modules = [];
 			if (defined('PHPUNIT')) {
-				$modules[] = 'PHPUnit';
+				$application->modules->load('PHPUnit');
 			}
 			if (isset($_SERVER['ZESK_EXTRA_MODULES'])) {
-				$modules = array_merge($modules, toList($_SERVER['ZESK_EXTRA_MODULES']));
+				$application->modules->loadMultiple(toList($_SERVER['ZESK_EXTRA_MODULES']));
 			}
-			$application->setOption('modules', array_merge($application->optionArray('modules'), $modules));
 			$application->setOption('version', Version::release());
 
 			return $application->configure();

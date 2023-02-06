@@ -45,5 +45,4 @@ if ! apt-get install -y "${packages[@]}" >> "$quietLog" 2>&1; then
   exit $ERR_ENV
 fi
 date > "$markerFile"
-consoleBlue "$(($(date +%s) - start)) seconds"
-consoleReset
+consoleMagenta "$(($(date +%s) - start)) seconds"

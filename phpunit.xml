@@ -4,7 +4,6 @@
          bootstrap="test.application.php"
          backupGlobals="false"
          backupStaticAttributes="false"
-         cacheDirectory="./.phpunit-cache"
          colors="true"
          processIsolation="true"
          convertErrorsToExceptions="true"

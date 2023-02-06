@@ -9,7 +9,7 @@ definitions:
     memory: 6144
   services:
     mariadb:
-      memory: 2048
+      memory: 1024
       image: mariadb:latest
       variables:
         MARIADB_ROOT_PASSWORD: hard-to-guess
