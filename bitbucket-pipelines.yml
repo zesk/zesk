@@ -6,9 +6,10 @@ definitions:
     apt-lists: /var/lib/apt/lists
     apt-cache: /var/cache/apt
   docker:
-    memory: 7128
+    memory: 4096
   services:
     mariadb:
+      memory: 2048
       image: mariadb:latest
       variables:
         MARIADB_ROOT_PASSWORD: hard-to-guess
