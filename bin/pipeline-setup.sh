@@ -112,7 +112,7 @@ consoleWhite "$(figlet Testing)"
 for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
   [ -d "$d" ] || mkdir -p "$d"
 done
-docker run -v "$top/:/zesk" zesk:latest /zesk/bin/test-zesk.sh --coverage --testsuite core
+docker run -v "$top/:/zesk" zesk:latest /zesk/bin/test-zesk.sh "$@"
 consoleMagenta Testing took $(($(date +%s) - start)) seconds
 
 consoleBlue

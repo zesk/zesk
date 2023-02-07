@@ -28,6 +28,8 @@ pipelines:
             - .build/
             - .release-notes.md
             - test-coverage/
+            - test.log
+            - .memory_get_usage
           caches:
             - pip
             - docker
@@ -49,6 +51,8 @@ pipelines:
             - .build/
             - .release-notes.md
             - test-coverage/
+            - test.log
+            - .memory_get_usage
           caches:
             - pip
             - docker

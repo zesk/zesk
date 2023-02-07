@@ -9,6 +9,7 @@ set -eo pipefail
 
 PATH=$top/vendor/bin:$PATH
 
+me=$(basename "$0")
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd || exit $ERR_ENV)"
 phpunit_bin=vendor/bin/phpunit
 coverage_path=./test-coverage
@@ -52,7 +53,7 @@ if [ ! -d "$top/vendor" ]; then
 fi
 
 need_paths=()
-args=("--disallow-test-output")
+args=("--disallow-test-output" "--debug")
 coverage_path=./test-coverage
 coverage_cache=./.zesk-coverage
 cd "$top"
