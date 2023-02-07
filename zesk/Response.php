@@ -795,7 +795,7 @@ class Response extends Hookable {
 		$headers = toArray($this->cache_settings['headers'] ?? []);
 		$response->setHeaders($headers + $this->headers());
 		$response->content = $this->render([
-			'skip_headers' => true,
+			Response::OPTION_SKIP_HEADERS => true,
 		]);
 
 		$seconds = toInteger($this->cache_settings['seconds'] ?? -1, -1);
@@ -962,9 +962,10 @@ class Response extends Hookable {
 	}
 
 	/**
-	 * @return array
+	 * @return string
+	 * @throws Exception_Key
 	 */
-	final public function metaKeywords(): array {
+	final public function metaKeywords(): string {
 		return $this->html()->metaKeywords();
 	}
 
@@ -972,6 +973,7 @@ class Response extends Hookable {
 	 * Get meta description text
 	 *
 	 * @return string
+	 * @throws Exception_Key
 	 */
 	final public function metaDescription(): string {
 		return $this->html()->metaDescription();

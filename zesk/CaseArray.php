@@ -64,8 +64,8 @@ class CaseArray extends ArrayObject implements ArrayAccess {
 	public function offsetUnset(mixed $key): void {
 		$lowKey = strtolower($key);
 
-		unseat($this->nameToCase[$lowKey]);
-		unseat($this->lowNameToValue[$lowKey]);
+		unset($this->nameToCase[$lowKey]);
+		unset($this->lowNameToValue[$lowKey]);
 	}
 
 	public function count(): int {

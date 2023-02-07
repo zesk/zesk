@@ -146,54 +146,20 @@ class HTML_Test extends UnitTest {
 	}
 
 	public function test_a(): void {
-		$href = null;
-		$mixed = null;
-		HTML::a($href, $mixed);
+		$this->assertEquals('<a hey="99" href="boo" />', HTML::a('boo', ['hey' => 99]));
 	}
 
-	public function test_a_condition(): void {
-		$condition = null;
-		$href = null;
-		$mixed = null;
-		HTML::a_condition($condition, $href, $mixed);
-	}
-
-	public function dataprovider_request() {
-		$this->setUp();
-		$request0 = $this->application->factory(Request::class, $this->application);
-		$request0->initializeFromSettings([
-			'url' => 'http://localhost/path/',
-		]);
+	public function dataprovider_request(): array {
+		$test = $this;
 		return [
-			[$request0],
+			[function () use ($test) {
+				$request0 = $test->application->factory(Request::class, $test->application);
+				$request0->initializeFromSettings([
+					'url' => 'http://localhost/path/',
+				]);
+				return $request0;
+			}],
 		];
-	}
-
-	/**
-	 * @dataProvider dataprovider_request
-	 */
-	public function test_a_match(Request $request): void {
-		$href = null;
-		$mixed = null;
-		HTML::a_match($request, $href, $mixed);
-	}
-
-	/**
-	 * @dataProvider dataprovider_request
-	 */
-	public function test_a_path(Request $request): void {
-		$href = null;
-		$mixed = null;
-		HTML::a_path($request, $href, $mixed);
-	}
-
-	/**
-	 * @dataProvider dataprovider_request
-	 */
-	public function test_a_prefix(Request $request): void {
-		$href = '';
-		$mixed = 'null';
-		HTML::a_prefix($request, $href, $mixed);
 	}
 
 	public function test_attributes(): void {
@@ -726,7 +692,8 @@ class HTML_Test extends UnitTest {
 	}
 
 	public function test_tags_boom(): void {
-		$this->expectException(Exception_Semantics::class);
+		// 2023-02 removed this exception
+		// $this->expectException(Exception_Semantics::class);
 		HTML::tags('li', '#id #another', ['a', 'b', 'c']);
 	}
 

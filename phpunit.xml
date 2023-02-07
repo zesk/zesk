@@ -5,7 +5,6 @@
          backupGlobals="false"
          backupStaticAttributes="false"
          colors="true"
-         processIsolation="true"
          convertErrorsToExceptions="true"
          convertWarningsToExceptions="true"
          convertNoticesToExceptions="true">

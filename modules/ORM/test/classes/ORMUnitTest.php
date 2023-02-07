@@ -62,7 +62,7 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 		$options = [
 			'follow' => true,
 		];
-		$results = $this->application->ormModule()->schema_synchronize($db, [
+		$results = $this->application->ormModule()->schemaSynchronize($db, [
 			$object::class,
 		], $options);
 		if (count($results) > 0) {

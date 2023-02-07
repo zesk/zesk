@@ -140,17 +140,17 @@ class Kernel_Test extends UnitTest {
 	public function test_class_hierarchy(): void {
 		$app = $this->application;
 
-		$mixed = null;
 		$nsprefix = __NAMESPACE__ . '\\';
-		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\A'), ArrayTools::prefixValues(to_list('A;Hookable;Options'), $nsprefix));
-		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\B'), ArrayTools::prefixValues(to_list('B;A;Hookable;Options'), $nsprefix));
-		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\C'), ArrayTools::prefixValues(to_list('C;B;A;Hookable;Options'), $nsprefix));
-		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\' . 'HTML'), to_list(__NAMESPACE__ . '\\' . 'HTML'));
-		$this->assertEquals($app->classes->hierarchy(new A($this->application)), ArrayTools::prefixValues(to_list('A;Hookable;Options'), __NAMESPACE__ . '\\'));
+		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\A'), ArrayTools::prefixValues(toList('A;Hookable;Options'), $nsprefix));
+		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\B'), ArrayTools::prefixValues(toList('B;A;Hookable;Options'), $nsprefix));
+		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\C'), ArrayTools::prefixValues(toList('C;B;A;Hookable;Options'), $nsprefix));
+		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\' . 'HTML'), toList(__NAMESPACE__ . '\\' . 'HTML'));
+		$this->assertEquals($app->classes->hierarchy(new A($this->application)), ArrayTools::prefixValues(toList('A;Hookable;Options'), __NAMESPACE__ . '\\'));
 	}
 
 	public function add_hook_was_called($arg): void {
 		$this->assertEquals(2, $arg);
+		$this->assertInstanceOf(Application::class, $this->application);
 		$this->application->setOption('hook_was_called', true);
 	}
 
@@ -158,13 +158,14 @@ class Kernel_Test extends UnitTest {
 		return $this->application->optionBool('hook_was_called');
 	}
 
-	public function test_addHook(): void {
-		$hook = 'null';
-		$item = $this;
-		$function = function ($arg) use ($item): void {
-			$item->add_hook_was_called($arg);
+	public function _addHook(string $name = 'null'): string {
+		$closure = function ($arg): void {
+			assert($this instanceof self);
+			$this->add_hook_was_called($arg);
 		};
-		$this->application->hooks->add($hook, $function);
+		$closure->bindTo($this);
+		$this->application->hooks->add($name, $closure);
+		return $name;
 	}
 
 	public function test_application_class(): void {
@@ -178,11 +179,14 @@ class Kernel_Test extends UnitTest {
 	}
 
 	public function test_autoload_path(): void {
-		$add = null;
-		$lower_class = true;
-		$this->application->autoloader->path($this->test_sandbox('lower-prefix'), [
-			'lower' => true, 'classPrefix' => 'zesk\\Autoloader',
+		$testDir = Directory::depend($this->test_sandbox('lower-prefix'));
+
+		$this->application->autoloader->addPath($testDir, [
+			Autoloader::OPTION_LOWER => true,
+			Autoloader::OPTION_CLASS_PREFIX => 'zesk\\AutoloaderTest\\', Autoloader::OPTION_EXTENSIONS => ['txt'],
 		]);
+		File::put("$testDir/hooboy.txt", '<' . "?php\nnamespace zesk\\AutoloaderTest;\nclass HooBoy {}\n");
+		$this->assertTrue(class_exists('zesk\\AutoloaderTest\\HooBoy'));
 	}
 
 	/**
@@ -370,7 +374,7 @@ class Kernel_Test extends UnitTest {
 	 * @return void
 	 */
 	public function test_hook(): void {
-		$this->test_addHook();
+		$this->_addHook();
 		$this->assertFalse($this->hook_was_called());
 		$this->application->hooks->call('null', 2);
 		$this->assertTrue($this->hook_was_called());

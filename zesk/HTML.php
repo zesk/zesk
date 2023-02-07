@@ -69,7 +69,15 @@ class HTML {
 	 * @var array[]
 	 */
 	private static array $tag_attributes = [
-		'a' => ['href', 'hreflang', 'title', 'target', 'type', 'media', 'download', ],
+		'a' => [
+			'href',
+			'hreflang',
+			'title',
+			'target',
+			'type',
+			'media',
+			'download',
+		],
 		'input' => [
 			'accept',
 			'alt',
@@ -227,7 +235,7 @@ class HTML {
 	 * @param string $src
 	 * @return string
 	 */
-	public static function href(Application $application, $src) {
+	public static function href(Application $application, string $src): string {
 		if (URL::valid($src)) {
 			return $src;
 		}
@@ -246,7 +254,7 @@ class HTML {
 	 * @param array $attrs
 	 * @return string
 	 */
-	public static function img(Application $app, string $src, string $text = '', array $attrs = []) {
+	public static function img(Application $app, string $src, string $text = '', array $attrs = []): string {
 		return self::_img(self::href($app, $src), $text, $attrs, path($app->documentRoot(), $src));
 	}
 
@@ -255,22 +263,12 @@ class HTML {
 	 *
 	 * @param string $href
 	 *            HREF to link to
-	 * @param mixed $mixed
-	 *            (optional) an array of attributes, or a class or ID description (".class1
-	 *            .class2", or "#idoflink")
-	 * @param string $text
-	 *            the text for the link
+	 * @param mixed $attributes an array of attributes, or a class or ID description (".class1 .class2", or "#idoflink")
+	 * @param null|string $text the text for the link
 	 * @return string
 	 */
-	public static function a($href, $mixed) {
-		if (is_array($mixed) || func_num_args() > 2) {
-			$attributes = self::toAttributes($mixed);
-			$args = func_get_args();
-			$text = $args[2] ?? null;
-		} else {
-			$attributes = [];
-			$text = $mixed;
-		}
+	public static function a(string $href, array|string $attributes, string $text = null): string {
+		$attributes = self::toAttributes($attributes);
 		$attributes['href'] = $href;
 		return self::tag('a', $attributes, $text);
 	}
@@ -306,84 +304,19 @@ class HTML {
 	}
 
 	/**
-	 *
-	 * @param boolean $condition
-	 * @param string $href
-	 * @param string|array $mixed
-	 * @param string $extra
-	 *            Optional extra parameter to pass in content
-	 * @return string
-	 */
-	public static function a_condition($condition, $href, $mixed) {
-		if (is_array($mixed)) {
-			$attributes = $mixed;
-			$args = func_get_args();
-			$text = $args[3] ?? null;
-		} else {
-			$attributes = [];
-			$text = $mixed;
-		}
-		if ($condition) {
-			$attributes['class'] = Lists::append($attributes['class'] ?? '', 'selected', ' ');
-		}
-		return self::a($href, $attributes, $text);
-	}
-
-	/**
-	 *
-	 * @param string $href
-	 * @param string $mixed
-	 * @return string
-	 */
-	public static function a_prefix(Request $request, $href, $mixed) {
-		$args = func_get_args();
-		return self::a_condition(str_starts_with($request->uri(), $href), $href, $mixed, $args[3] ?? null);
-	}
-
-	/**
-	 *
-	 * @param Request $request
-	 * @param string $href
-	 * @param string $mixed
-	 * @return string
-	 */
-	public static function a_path(Request $request, $href, $mixed) {
-		$args = func_get_args();
-		return self::a_condition($request->path() === $href, $href, $mixed, $args[3] ?? null);
-	}
-
-	/**
-	 *
-	 * @param string $href
-	 * @param string $mixed
-	 * @return string
-	 */
-	public static function a_match(Request $request, $href, $mixed) {
-		$args = func_get_args();
-		return self::a_condition($request->uri() === $href, $href, $mixed, $args[3] ?? null);
-	}
-
-	/**
 	 * @param string|array $mixed
 	 * @return array
-	 * @throws Exception_Semantics
 	 */
 	public static function toAttributes(string|array $mixed): array {
 		if (is_array($mixed)) {
 			return $mixed;
 		}
 
-		$mixed = to_list($mixed, [], ' ');
+		$mixed = toList($mixed, [], ' ');
 		$result = [];
 		foreach ($mixed as $term) {
 			$char = substr($term, 0, 1);
 			if ($char === '#') {
-				if (array_key_exists('id', $result)) {
-					throw new Exception_Semantics(__CLASS__ . '::toAttributes - multiple IDs specified: {id0} {id1}', [
-						'id0' => $result['id'],
-						'id1' => $term,
-					]);
-				}
 				$result['id'] = substr($term, 1);
 			} elseif ($char === '.') {
 				$result['class'] = CSS::addClass($result['class'] ?? '', substr($term, 1));
@@ -394,30 +327,39 @@ class HTML {
 		return $result;
 	}
 
-	public static function div(string|array $mixed, $content) {
-		$mixed = self::toAttributes($mixed);
-		return self::tag('div', $mixed, $content);
+	/**
+	 * @param string|array $attributes
+	 * @param ?string $content
+	 * @return string
+	 */
+	public static function div(string|array $attributes, string $content = null): string {
+		return self::tag('div', self::toAttributes($attributes), $content);
 	}
 
-	public static function span(string|array $mixed, $content = null) {
-		$mixed = self::toAttributes($mixed);
-		return self::tag('span', $mixed, $content);
+	/**
+	 * @param string|array $attributes
+	 * @param ?string $content
+	 * @return string
+	 */
+	public static function span(string|array $attributes = [], string $content = null) {
+		return self::tag('span', self::toAttributes($attributes), $content);
 	}
 
-	public static function etag(string $name, string|array|null $mixed): string {
-		if (func_num_args() > 2) {
-			$content = func_get_arg(2);
-			if (empty($content)) {
-				return '';
-			}
-			return self::tag($name, $mixed, $content);
-		} elseif (empty($mixed)) {
+	/**
+	 * @param string $name
+	 * @param array $attributes
+	 * @param string $content
+	 * @return string
+	 */
+	public static function etag(string $name, string|array $attributes, string $content = ''): string {
+		$content = trim($content);
+		if (empty($content)) {
 			return '';
 		}
-		return self::tag($name, $mixed);
+		return self::tag($name, $attributes, $content);
 	}
 
-	public static function clean_tag_name($tag) {
+	public static function cleanTagName(string $tag): string {
 		return strtolower(preg_replace('#[^' . RE_TAG_NAME_CHAR . ']#', '', $tag));
 	}
 
@@ -426,50 +368,37 @@ class HTML {
 	 * Use the name returned as the hook name
 	 *
 	 * @param string $name
+	 * @return string
 	 */
-	public static function tag_attributes_alter_hook_name($name) {
-		$name = self::clean_tag_name($name);
+	public static function tag_attributes_alter_hook_name(string $name): string {
+		$name = self::cleanTagName($name);
 		self::$attributes_alter[$name] = true;
 		return __CLASS__ . "::tag::$name";
 	}
 
 	/**
-	 * Output an open/close tag
+	 * Output an open tag or a single tag ($content === null)
 	 *
 	 * @param string $name
-	 * @param mixed $mixed
-	 *            Content or attributes
-	 * @param string $content
-	 *            Pass a third value as content makes 2nd parameter attributes
+	 * @param array $attributes attributes
+	 * @param ?string $content Pass a third value as content makes 2nd parameter attributes
 	 * @return string
 	 */
-	public static function tag(string $name, string|array $mixed): string {
-		if (is_array($mixed)) {
-			$attributes = $mixed;
-			$args = func_get_args();
-			$content = $args[2] ?? null;
-		} elseif (func_num_args() > 2) {
-			$attributes = self::toAttributes($mixed);
-			$content = func_get_arg(2);
-		} else {
-			$attributes = [];
-			$content = strval($mixed);
-		}
-		$name = self::clean_tag_name($name);
-		if (is_array($content)) {
-			backtrace();
-		}
+	public static function tag(string $name, array|string $attributes = [], string $content = null): string {
+		$name = self::cleanTagName($name);
 		if (array_key_exists($name, self::$attributes_alter)) {
-			// TODO - avoid globals, but this is used EVERYWHERE without a context
-			$result = Kernel::singleton()->hooks->callArguments(__METHOD__ . "::$name", [
-				$attributes,
-				$content,
-			], $attributes);
-			if (is_array($result)) {
-				$attributes = $result;
+			try {
+				$result = Kernel::singleton()->application()->hooks->callArguments(__METHOD__ . "::$name", [
+					$attributes, $content,
+				], $attributes);
+				if (is_array($result)) {
+					$attributes = $result;
+				}
+			} catch (Exception_Semantics) {
+				// pass
 			}
 		}
-		return "<$name" . self::attributes($attributes) . ($content === null ? ' />' : ">$content</$name>");
+		return "<$name" . self::attributes(self::toAttributes($attributes)) . ($content === null ? ' />' : ">$content</$name>");
 	}
 
 	/**
@@ -507,39 +436,14 @@ class HTML {
 		}
 		if (in_array('events', $types)) {
 			$attr_list = array_merge($attr_list, [
-				'onclick',
-				'ondblclick',
-				'onmousedown',
-				'onmouseup',
-				'onmouseover',
-				'onmousemove',
-				'onmouseout',
-				'onkeypress',
-				'onkeydown',
-				'onkeyup',
+				'onclick', 'ondblclick', 'onmousedown', 'onmouseup', 'onmouseover', 'onmousemove', 'onmouseout',
+				'onkeypress', 'onkeydown', 'onkeyup',
 			]);
 		}
 		if (in_array('input', $types)) {
 			$attr_list = array_merge($attr_list, [
-				'type',
-				'name',
-				'value',
-				'checked',
-				'disabled',
-				'readonly',
-				'size',
-				'maxlength',
-				'src',
-				'alt',
-				'usemap',
-				'ismap',
-				'tabindex',
-				'accesskey',
-				'onfocus',
-				'onblur',
-				'onselect',
-				'onchange',
-				'accept',
+				'type', 'name', 'value', 'checked', 'disabled', 'readonly', 'size', 'maxlength', 'src', 'alt', 'usemap',
+				'ismap', 'tabindex', 'accesskey', 'onfocus', 'onblur', 'onselect', 'onchange', 'accept',
 			]);
 		}
 		return $attr_list;
@@ -601,9 +505,9 @@ class HTML {
 	}
 
 	public static function tag_class($class, $add = null, $remove = null): string {
-		$class = to_list($class);
-		$add = to_list($add);
-		$remove = to_list($remove);
+		$class = toList($class);
+		$add = toList($add);
+		$remove = toList($remove);
 		return implode(' ', ArrayTools::include_exclude($class, $add, $remove));
 	}
 
@@ -625,7 +529,7 @@ class HTML {
 	 * @return array
 	 */
 	public static function tag_attributes($tag, array $attributes) {
-		$tag = self::clean_tag_name($tag);
+		$tag = self::cleanTagName($tag);
 		if (!isset(self::$tag_attributes_cache[$tag])) {
 			$allowed = self::$tag_attributes[$tag] ?? [];
 			while (is_string($allowed)) {
@@ -753,12 +657,10 @@ class HTML {
 
 		$results = [];
 		$reverse_search = [
-			self::$RE_TAG_START_CHAR,
-			self::$RE_TAG_END_CHAR,
+			self::$RE_TAG_START_CHAR, self::$RE_TAG_END_CHAR,
 		];
 		$reverse_replace = [
-			$tag,
-			$endTag,
+			$tag, $endTag,
 		];
 
 		$search = [];
@@ -1525,13 +1427,8 @@ class HTML {
 		$nWords = Text::count_words(substr($string, 0, $offset));
 		$tagMatchLength = strlen($tagMatch);
 		return [
-			'offset' => $offset,
-			'next' => $offset + $tagMatchLength,
-			'tagMatchLength' => $tagMatchLength,
-			'tagMatch' => $tagMatch,
-			'words' => $nWords,
-			'tagContents' => $tagContents,
-			'tagName' => $tagName,
+			'offset' => $offset, 'next' => $offset + $tagMatchLength, 'tagMatchLength' => $tagMatchLength,
+			'tagMatch' => $tagMatch, 'words' => $nWords, 'tagContents' => $tagContents, 'tagName' => $tagName,
 		];
 	}
 

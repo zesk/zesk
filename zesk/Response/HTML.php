@@ -148,10 +148,12 @@ class HTML extends Type {
 		return $this->title;
 	}
 
-	public function setTitle(string $set): self {
+	public function setTitle(string $set): Response {
 		$this->title = $set;
-		$this->application->logger->debug('Set title to "{title}"', ['title' => $set]);
-		return $this;
+		$this->application->logger->debug('Set page title to "{title} ({context})"', [
+			'title' => $set, 'context' => calling_function(2),
+		]);
+		return $this->parent;
 	}
 
 	final public function bodyAttributes(): array {
@@ -291,7 +293,7 @@ class HTML extends Type {
 	 */
 	public function shortcutIcon(): string {
 		$result = $this->link('shortcut icon');
-		return $result['href'] ?? '';
+		return first($result)['href'] ?? '';
 	}
 
 	/**
@@ -303,7 +305,12 @@ class HTML extends Type {
 	 */
 	public function setShortcutIcon(string $path): Response {
 		$attrs = [];
-		$type = MIME::fromExtension($path);
+
+		try {
+			$type = MIME::fromExtension($path);
+		} catch (Exception_Key) {
+			$type = '';
+		}
 		$this->setLink('shortcut icon', $path, $type, $attrs);
 		$this->setLink('icon', $path, $type, $attrs);
 		return $this->parent;
@@ -983,7 +990,7 @@ class HTML extends Type {
 			$this->scripts_sorted = true;
 		}
 		if ($cache_scripts === null) {
-			$cache_scripts = $this->parent->optionBool('cache_scripts', false);
+			$cache_scripts = $this->parent->optionBool('cache_scripts');
 		}
 		$cached = $cached_append = [];
 		$result = [];
@@ -1035,13 +1042,13 @@ class HTML extends Type {
 			}
 			if (array_key_exists('javascript_before', $attrs)) {
 				$result[] = [
-					'name' => 'script', 'type' => 'text/javascript', 'content' => $attrs['javascript_before'],
+					'name' => 'script', 'content' => $attrs['javascript_before'],
 				];
 			}
 			$result[] = $script;
 			if (array_key_exists('javascript_after', $attrs)) {
 				$result[] = [
-					'name' => 'script', 'type' => 'text/javascript', 'content' => $attrs['javascript_after'],
+					'name' => 'script', 'content' => $attrs['javascript_after'],
 				];
 			}
 		}
@@ -1116,9 +1123,6 @@ class HTML extends Type {
 		if (!$is_route && !$callback && !$content && !$share && !$nocache && $this->parent->optionBool('require_root_dir') && !array_key_exists('root_dir', $options)) {
 			throw new Exception_Semantics('{path} requires a root_dir specified', compact('path'));
 		}
-		$options += [
-			'type' => 'text/javascript',
-		];
 		$this->scripts[$path] = $options;
 		$this->scripts_sorted = false;
 		return $this->parent;

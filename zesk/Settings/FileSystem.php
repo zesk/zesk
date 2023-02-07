@@ -26,11 +26,13 @@ class Settings_FileSystem implements Interface_Settings {
 	 * @throws Exception_Directory_Create
 	 * @throws Exception_Directory_Permission
 	 * @throws Exception_File_Permission
+	 * @throws Exception_Semantics
 	 */
 	public function __construct(Application $application, string $scope = '') {
 		$this->application = $application;
 		$this->scope = $scope ?: 'settings';
 		$this->dataFile = $application->dataPath('settings/' . $this->scope . '.json');
+		$this->changed = false;
 		Directory::depend(dirname($this->dataFile));
 
 		try {

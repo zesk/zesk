@@ -54,7 +54,7 @@ class Model_Settings extends Model {
 		if ($mixed === null) {
 			return $this->ignore_variables;
 		}
-		$mixed = to_list($mixed);
+		$mixed = toList($mixed);
 		foreach ($mixed as $item) {
 			if (!in_array($item, $this->ignore_variables)) {
 				$this->ignore_variables[] = $item;
@@ -71,7 +71,7 @@ class Model_Settings extends Model {
 		if ($mixed === null) {
 			return $this->variables;
 		}
-		$mixed = to_list($mixed);
+		$mixed = toList($mixed);
 		foreach ($mixed as $item) {
 			if (!in_array($item, $this->variables)) {
 				$this->variables[$item] = null;

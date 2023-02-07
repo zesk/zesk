@@ -39,4 +39,16 @@ class HookGroup {
 	public function has(string $callable_string): bool {
 		return isset($this->first[$callable_string]) || isset($this->middle[$callable_string]) || isset($this->last[$callable_string]);
 	}
+
+	public function add(array $options): self {
+		$id = $options['id'];
+		if ($options['first'] ?? false) {
+			$this->first = array_merge([$id => $options, ], $this->first);
+		} elseif ($options['last'] ?? false) {
+			$this->last[$id] = $options;
+		} else {
+			$this->middle[$id] = $options;
+		}
+		return $this;
+	}
 }

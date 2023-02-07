@@ -310,7 +310,7 @@ class Module_Database extends Module implements Interface_Configured {
 	}
 
 	/**
-	 * Register or retrieve a class for a database scheme prefic
+	 * Register or retrieve a class for a database scheme prefix
 	 *
 	 * @return array
 	 */
@@ -346,7 +346,7 @@ class Module_Database extends Module implements Interface_Configured {
 	 *
 	 * @param Application $application
 	 * @param string $mixed Connection URL in the form
-	 *            dbtype://user:password@host/databasename?option0=value0&option1=value1. Currently
+	 *            scheme://user:password@host/databaseName?option0=value0&option1=value1. Currently
 	 *            MySQL and SQLite3 supported.
 	 *            Or "named" database: "default", "stats", etc.
 	 *

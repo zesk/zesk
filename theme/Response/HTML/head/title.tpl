@@ -11,4 +11,4 @@ namespace zesk;
 /* @var $head_prefix string */
 /* @var $head_suffix string */
 /* @var $title string */
-echo HTML::etag('title', $response->title());
+echo HTML::etag('title', [], $response->title());

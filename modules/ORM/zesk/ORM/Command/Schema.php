@@ -182,7 +182,7 @@ class Command_Schema extends Command_Base {
 		$this->synchronize_before();
 
 		$database = $application->databaseRegistry($url);
-		$this->results = $results = $application->ormModule()->schema_synchronize($database, $classes, [
+		$this->results = $results = $application->ormModule()->schemaSynchronize($database, $classes, [
 			'skip_others' => true,
 			'check' => $this->optionBool('check'),
 		]);

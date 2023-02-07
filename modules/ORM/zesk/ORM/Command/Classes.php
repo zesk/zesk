@@ -30,7 +30,7 @@ class Command_Classes extends Command_Base {
 
 	public function run(): int {
 		$application = $this->application;
-		$classes = $application->ormModule()->all_classes();
+		$classes = $application->ormModule()->allClasses();
 		$objects_by_class = [];
 		$is_table = false;
 		$rows = [];

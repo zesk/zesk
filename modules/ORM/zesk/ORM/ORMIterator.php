@@ -190,7 +190,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @return ORMBase[]
 	 */
-	public function to_list(): array {
+	public function toList(): array {
 		return $this->toArray(false);
 	}
 }

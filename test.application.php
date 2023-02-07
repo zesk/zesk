@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Logger\FileHandler;
+
 require_once __DIR__ . '/xdebug.php';
 
 require_once __DIR__ . '/vendor/autoload.php';
@@ -27,6 +29,9 @@ class TestApplicationFactory {
 				Application::OPTION_PATH => __DIR__, Application::OPTION_CACHE_POOL => $pool,
 				Application::OPTION_DEPRECATED => Application::DEPRECATED_EXCEPTION,
 			]);
+
+			$application->logger = $logger = new Logger();
+			$logger->registerHandler('log', new FileHandler(__DIR__ . '/test.log'));
 
 			$application->configuration->set(ArrayTools::filterKeyPrefixes($_SERVER, ['DATABASE']));
 

@@ -83,7 +83,7 @@ class ResponseTest extends TestApplicationUnitTest {
 		$this->assertEquals($response, $response->setOutputHandler(Response::CONTENT_TYPE_HTML));
 
 		$jsonResponse = [];
-		$this->assertEquals($jsonResponse, $response->toJSON());
+		$this->assertEquals($jsonResponse, ArrayTools::filterKeys($response->toJSON(), null, ['elapsed']));
 
 		$response->setCacheFor(100);
 		$response->cacheSave($this->testApplication->cacheItemPool(), $rootRequest->url());
@@ -110,13 +110,24 @@ class ResponseTest extends TestApplicationUnitTest {
 		$this->assertEquals($response, $response->setBodyAttributes($sampleAttributes));
 		$this->assertEquals($sampleAttributes, $response->bodyAttributes());
 
-		$sampleMeta = 'buy moar stuff';
-		$this->assertEquals([], $response->metaKeywords());
-		$this->assertEquals($response, $response->setMetaKeywords($sampleMeta));
-		$this->assertEquals($sampleMeta, $response->metaKeywords());
+		$sampleKeywords = 'buy moar stuff';
+
+		try {
+			$this->assertEquals('', $response->metaKeywords());
+			$this->fail('should throw ' . Exception_Key::class);
+		} catch (Exception_Key) {
+		}
+
+		$this->assertEquals($response, $response->setMetaKeywords($sampleKeywords));
+		$this->assertEquals($sampleKeywords, $response->metaKeywords());
 
 		$sampleDesc = 'a website where you can purchase more things for your closets';
-		$this->assertEquals('', $response->metaDescription());
+
+		try {
+			$this->assertEquals('', $response->metaDescription());
+			$this->fail('should throw ' . Exception_Key::class);
+		} catch (Exception_Key) {
+		}
 		$this->assertEquals($response, $response->setMetaDescription($sampleDesc));
 		$this->assertEquals($sampleDesc, $response->metaDescription());
 
@@ -124,28 +135,34 @@ class ResponseTest extends TestApplicationUnitTest {
 		$this->assertEquals($response, $response->setPageTheme('text'));
 		$this->assertEquals('text', $response->pageTheme());
 
+		$nocache = false;
 		$this->assertEquals($response, $response->javascript(['https://www.example.com/main.js'], [
-			'nocache' => true, 'id' => 'main',
+			'nocache' => $nocache, 'id' => 'main',
 		]));
 		$this->assertEquals($response, $response->javascript(['https://www.example.com/last.js'], [
-			'nocache' => true, 'after' => 'main',
+			'nocache' => $nocache, 'after' => 'main',
 		]));
 		$this->assertEquals($response, $response->javascript('https://www.example.com/first.js', [
-			'before' => 'main', 'nocache' => true,
+			'before' => 'main', 'nocache' => $nocache,
 		]));
 		$this->assertEquals($response, $response->javascript('https://www.example.com/not-last.js', [
-			'before' => 'last', 'nocache' => true,
+			'before' => 'last', 'nocache' => $nocache,
 		]));
 		$this->assertEquals($response, $response->inlineJavaScript('alert(\'boo!\');', [
-			'before' => 'first', 'nocache' => true,
+			'before' => 'first', 'nocache' => $nocache,
 		]));
 		$expectedScripts = [];
-		$expectedScripts[] = "<script>alert('boo!');<\script>";
-		$expectedScripts[] = "<script src=\"https://www.example.com/first.js\"><\script>";
-		$expectedScripts[] = "<script src=\"https://www.example.com/main.js\"><\script>";
-		$expectedScripts[] = "<script src=\"https://www.example.com/not-last.js\"><\script>";
-		$expectedScripts[] = "<script src=\"https://www.example.com/last.js\"><\script>";
-		$this->assertEquals(implode("\n", $expectedScripts), $response->html()->scripts());
+		$expectedScripts[] = '<script>alert(\'boo!\');</script>';
+		$expectedScripts[] = '<script src="https://www.example.com/first.js"></script>';
+		$expectedScripts[] = '<script src="https://www.example.com/main.js" id="main"></script>';
+		$expectedScripts[] = '<script src="https://www.example.com/not-last.js"></script>';
+		$expectedScripts[] = '<script src="https://www.example.com/last.js"></script>';
+		$scripts = $response->html()->scripts();
+		$html = [];
+		foreach ($scripts as $script) {
+			$html[] = HTML::tag($script['name'], $script['attributes'], $script['content']);
+		}
+		$this->assertEquals($expectedScripts, $html);
 
 		$shortcutIcon = 'https://www.example.coim/icon.png';
 		// Has side effects (adds "icon")
@@ -242,6 +259,9 @@ class ResponseTest extends TestApplicationUnitTest {
 		$testCommand[] = '		return 0;';
 		$testCommand[] = '	}';
 		$testCommand[] = '}';
+
+		// Add testlike.php
+		$shortcuts[] = 'test-like';
 
 		File::put($this->test_sandbox('testCommand.php'), implode("\n", $testCommand));
 		$allShortcuts = $loader->collectCommandShortcuts();

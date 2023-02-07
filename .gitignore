@@ -28,3 +28,5 @@
 /.build/
 /.composer/
 /.phpunit-cache/
+/.memory_get_usage
+/test.log

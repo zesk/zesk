@@ -173,6 +173,13 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	public const OPTION_MAINTENANCE_FILE = 'maintenanceFile';
 
 	/**
+	 * Value is bool.
+	 *
+	 * Cache the router file
+	 */
+	public const OPTION_CACHE_ROUTER = 'cacheRouter';
+
+	/**
 	 * Throw an exception when a deprecated function is called.
 	 * Useful during development only.
 	 *
@@ -1091,11 +1098,11 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	public function shutdown(): void {
 		if (!$this->applicationShutdown) {
 			$this->application->logger->debug(__METHOD__);
+			$this->hooks->shutdown();
 			$this->modules->shutdown();
 			$this->objects->shutdown();
 			$this->locale->shutdown();
 			$this->paths->shutdown();
-			$this->hooks->shutdown();
 			$this->autoloader->shutdown();
 			$this->paths->shutdown();
 			$this->applicationShutdown = true;
@@ -1246,6 +1253,8 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 		$this->hooks->add(Hooks::HOOK_EXIT, function () use ($application): void {
 			$application->cacheItemPool()->commit();
 		}, [
+			'id' => __METHOD__,
+			'overwrite' => true,
 			'last' => true,
 		]);
 
@@ -2389,9 +2398,16 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @throws Exception_Syntax
 	 */
 	protected function hook_router(): void {
+		if (!$this->file) {
+			$this->logger->debug('{class}->file is not set ({method})', [
+				'class' => self::class,
+				'method' => __METHOD__,
+			]);
+			return;
+		}
 		$router_file = File::setExtension($this->file, 'router');
 		$exists = is_file($router_file);
-		$cache = $this->optionBool('cache_router');
+		$cache = $this->optionBool(self::OPTION_CACHE_ROUTER);
 
 		if (!$exists) {
 			$this->logger->debug('No router file {router_file} to load - router is blank', [

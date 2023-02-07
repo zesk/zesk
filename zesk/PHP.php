@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use ReflectionObject;
+use Throwable;
 
 /**
  *
@@ -531,11 +532,11 @@ class PHP {
 
 	/**
 	 *
-	 * @param \Exception|string $message
+	 * @param Throwable|string $message
 	 * @param array $arguments
 	 */
-	public static function log(\Exception|string $message, array $arguments = []): void {
-		if ($message instanceof \Exception) {
+	public static function log(Throwable|string $message, array $arguments = []): void {
+		if ($message instanceof Throwable) {
 			$arguments = Exception::exceptionVariables($message) + $arguments;
 			$message = "{class}: {message} at {file}:{line}\nBacktrace: {backtrace}";
 		}

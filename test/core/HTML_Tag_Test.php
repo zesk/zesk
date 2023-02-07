@@ -12,11 +12,11 @@ class HTML_Tag_Test extends UnitTest {
 
 		$tag->innerHTML();
 
-		$tag->setInnerHTML(HTML::tag('div', 'hello'));
+		$tag->setInnerHTML(HTML::tag('div', [], 'hello'));
 
 		$tag->outerHTML();
 
-		$tag->setOuterHTML(HTML::tag('wrap', 'content'));
+		$tag->setOuterHTML(HTML::tag('wrap', [], 'content'));
 
 		PHP::singleton()->settingsOneLine();
 		$expected = "new zesk\HTML_Tag(\"div\", [\"class\" => \"header\", ], \"<div>hello</div>\", \"<wrap>content</wrap>\", -1)";

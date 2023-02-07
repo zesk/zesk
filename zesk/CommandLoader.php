@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use Exception as BaseException;
+use ReflectionClass;
 use Throwable;
 use function apath_set;
 use function strtr;
@@ -99,7 +99,8 @@ class CommandLoader {
 			$_ZESK = [];
 		}
 
-		$_ZESK['zesk\Application']['configure_options']['skip_configured'] = true; // Is honored 2018-03-10 KMD
+		$_ZESK[Application::class]['configure_options']['skip_configured'] = true; // Is honored
+		// 2018-03-10 KMD
 
 		ini_set('error_prepend_string', "\nPHP-ERROR " . str_repeat('=', 80) . "\n");
 		ini_set('error_append_string', "\n" . str_repeat('*', 80) . "\n");
@@ -187,18 +188,21 @@ class CommandLoader {
 				$this->error($e->getMessage() . PHP_EOL);
 				return self::EXIT_CODE_ARGUMENTS;
 			}
-			if (!class_exists(Kernel::class, false)) {
-				$exitCode = $this->bootstrapApplication();
-				if ($exitCode !== 0) {
-					return $exitCode;
-				}
-			}
 			if ($this->isIncludeCommand($arg)) {
 				$exitCode = $this->runIncludeCommand($arg);
 				if ($exitCode !== 0) {
 					return $exitCode;
 				}
+				if ($this->zeskIsLoaded()) {
+					$this->zeskLoaded($arg);
+				}
 				continue;
+			}
+			if (!$this->zeskIsLoaded()) {
+				$exitCode = $this->bootstrapApplication();
+				if ($exitCode !== 0) {
+					return $exitCode;
+				}
 			}
 
 			try {
@@ -236,6 +240,10 @@ class CommandLoader {
 		return 0;
 	}
 
+	private function applicationWasLoaded(): void {
+		$this->application = Kernel::singleton()->application();
+	}
+
 	/**
 	 * @param string $arg
 	 * @param array $args
@@ -249,10 +257,10 @@ class CommandLoader {
 		return match ($arg) {
 			'--cd' => $this->handleCD($args),
 			'--config' => $this->handleConfig($args),
-			'--define' => $this->handle_define($args),
-			'--set' => $this->handle_set($args),
-			'--unset' => $this->handle_unset($args),
-			default => $this->handle_set(array_merge([substr($arg, 2)], $args)),
+			'--define' => $this->handleDefine($args),
+			'--set' => $this->handleSet($args),
+			'--unset' => $this->handleUnset($args),
+			default => $this->handleSet(array_merge([substr($arg, 2)], $args)),
 		};
 	}
 
@@ -286,7 +294,8 @@ class CommandLoader {
 	}
 
 	/**
-	 * @return void
+	 * @param int $exit
+	 * @return int
 	 */
 	public function terminate(int $exit): int {
 		$this->application?->shutdown();
@@ -368,7 +377,7 @@ class CommandLoader {
 		$failures = [];
 		foreach ($this->collectCommands() as $commandClass) {
 			try {
-				$reflectionClass = new \ReflectionClass($commandClass);
+				$reflectionClass = new ReflectionClass($commandClass);
 				if ($reflectionClass->isAbstract()) {
 					continue;
 				}
@@ -549,7 +558,7 @@ class CommandLoader {
 		];
 		$found = false;
 		foreach ($qs_argv as $arg) {
-			if ($found || (substr($arg, 0, 1) === '-') || (strpos($arg, '=')) === false) {
+			if ($found || (str_starts_with($arg, '-')) || (strpos($arg, '=')) === false) {
 				$args[] = $arg;
 				$found = true;
 			}
@@ -683,7 +692,7 @@ class CommandLoader {
 	 * @param array $args
 	 * @return array
 	 */
-	private function handle_set(array $args): array {
+	private function handleSet(array $args): array {
 		$pair = array_shift($args);
 		if ($pair === null) {
 			$this->usage('--set missing argument');
@@ -715,7 +724,7 @@ class CommandLoader {
 	 * @param array $args
 	 * @return array
 	 */
-	private function handle_unset(array $args): array {
+	private function handleUnset(array $args): array {
 		$key = array_shift($args);
 		if ($key === null) {
 			$this->usage('--unset missing argument');
@@ -744,13 +753,13 @@ class CommandLoader {
 	private function handleCD(array $args): array {
 		$arg = array_shift($args);
 		if ($arg === null) {
-			throw new Exception_Parameter('--cd missing argument');
+			throw new Exception_Parameter('--cd missing directory argument');
 		}
 		if (!is_dir($arg) && !is_link($arg)) {
-			throw new Exception_Directory_NotFound($arg);
+			throw new Exception_Directory_NotFound($arg, 'Not a directory "{path}"');
 		}
-		if (!chdir($arg)) {
-			throw new Exception_Directory_Permission($arg);
+		if (!@chdir($arg)) {
+			throw new Exception_Directory_Permission($arg, 'Unable to change directory to "{path}"');
 		}
 		return $args;
 	}
@@ -761,7 +770,7 @@ class CommandLoader {
 	 * @param array $args
 	 * @return array
 	 */
-	private function handle_define(array $args): array {
+	private function handleDefine(array $args): array {
 		$arg = array_shift($args);
 		if ($arg === null) {
 			$this->usage('--define missing argument');

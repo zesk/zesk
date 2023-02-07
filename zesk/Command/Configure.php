@@ -199,7 +199,7 @@ class Command_Configure extends Command_Base {
 	 * @return string[]
 	 */
 	private function determine_environment_files() {
-		$value = to_list($this->environment_files);
+		$value = toList($this->environment_files);
 		if (count($value) === 0) {
 			$this->environment_files = [
 				$file = $this->determine_environment_file(),

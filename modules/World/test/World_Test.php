@@ -29,10 +29,9 @@ class World_Test extends ORMUnitTest {
 	}
 
 	public function classes_to_test(): array {
-		$this->setUp();
 		return [
 			[
-				City::class, [City::MEMBER_PROVINCE => $this->sampleProvince()], [],
+				City::class, [City::MEMBER_PROVINCE => $this->sampleProvince(...)], [],
 			], [
 				County::class, [], [],
 			], [
@@ -50,6 +49,7 @@ class World_Test extends ORMUnitTest {
 	 * @dataProvider classes_to_test
 	 */
 	public function test_classes(string $class, mixed $mixed = null, array $options = []): void {
+		$mixed = $this->applyClosures($mixed);
 		$this->truncateClassTables($class);
 		$this->assertORMClass($class, $mixed, $options);
 	}

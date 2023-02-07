@@ -21,6 +21,13 @@ use Throwable;
  */
 class Hooks {
 	/**
+	 * For assigning IDs to callables which have no unique name
+	 *
+	 * @var int
+	 */
+	private static int $id = 0;
+
+	/**
 	 *
 	 * @var string
 	 */
@@ -336,6 +343,10 @@ class Hooks {
 		return $this->hookCache;
 	}
 
+	private function nextCallableId(): string {
+		return 'anonymous-' . self::$id++;
+	}
+
 	/**
 	 * Hooks are very flexible, and each hook determines how it is combined with the next hook.
 	 *
@@ -355,29 +366,33 @@ class Hooks {
 	 *            Return value handling, ordering, arguments.
 	 *
 	 * @return void
+	 * @throws Exception_Semantics
 	 */
 	public function add(string $hook, Closure|callable $function, array $options = []): void {
+		$id = $options['id'] ?? self::callable_string($function) ?: calling_function(1);
+		$hookGroup = $this->_group($hook);
+		if (($options['no-duplicates'] ?? false) && $hookGroup->has($id)) {
+			throw new Exception_Semantics('Duplicate registration of hook {id}', [
+				'id' => $id,
+			]);
+		}
+		$options['id'] = $id;
+		$options['callable'] = $function;
+		$this->hooks[$hook] = $hookGroup->add($options);
+	}
+
+	/**
+	 * Get or create a HookGroup for the hook name
+	 *
+	 * @param string $hook
+	 * @return HookGroup
+	 */
+	private function _group(string $hook): HookGroup {
 		$hook = $this->_hookName($hook);
 		if (!array_key_exists($hook, $this->hooks)) {
-			$hook_group = new HookGroup();
-			$this->hooks[$hook] = $hook_group;
+			return new HookGroup();
 		} else {
-			$hook_group = $this->hooks[$hook];
-		}
-		$callable_string = $options['id'] ?? $this->callable_string($function);
-		if ($hook_group->has($callable_string)) {
-			$this->application->logger->debug('Duplicate registration of hook {callable}', [
-				'callable' => $callable_string,
-			]);
-			return;
-		}
-		$options['callable'] = $function;
-		if ($options['first'] ?? false) {
-			$hook_group->first = array_merge([$callable_string => $options, ], $hook_group->first);
-		} elseif ($options['last'] ?? false) {
-			$hook_group->last[$callable_string] = $options;
-		} else {
-			$hook_group->middle[$callable_string] = $options;
+			return $this->hooks[$hook];
 		}
 	}
 
@@ -522,7 +537,8 @@ class Hooks {
 	}
 
 	/**
-	 * Convert a callable to a string for output/debugging
+	 * Convert a callable to a string for output/debugging. Blank for anything which
+	 * is not a unique ID.
 	 *
 	 * @param mixed $callable
 	 * @return string
@@ -533,9 +549,9 @@ class Hooks {
 		} elseif (is_string($callable)) {
 			return $callable;
 		} elseif ($callable instanceof Closure) {
-			return 'Closure';
+			return '';
 		}
-		return 'Unknown: ' . type($callable);
+		return '';
 	}
 
 	/**

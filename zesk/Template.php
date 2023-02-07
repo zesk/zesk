@@ -498,7 +498,7 @@ class Template implements Interface_Theme {
 		self::$debug_stack = toBool($config->debug_stack);
 		$application->hooks->add('</body>', [
 			__CLASS__, 'profileOutput',
-		]);
+		], ['overwrite' => true, 'id' => __METHOD__]);
 	}
 
 	/**

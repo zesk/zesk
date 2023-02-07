@@ -33,7 +33,7 @@ class Command_ClassCheck extends CommandBase {
 	 * @return array
 	 */
 	private function all_classes(): array {
-		return ArrayTools::extract($this->application->ormModule()->all_classes(), null, 'class');
+		return ArrayTools::extract($this->application->ormModule()->allClasses(), null, 'class');
 	}
 
 	/**

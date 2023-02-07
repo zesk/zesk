@@ -11,7 +11,7 @@ class Currency_Test extends ORMUnitTest {
 	];
 
 	public function initialize(): void {
-		$this->application->ormModule()->schema_synchronize(null, [
+		$this->application->ormModule()->schemaSynchronize(null, [
 			Currency::class,
 		], [
 			'follow' => true,
@@ -30,10 +30,9 @@ class Currency_Test extends ORMUnitTest {
 	 * @return array[]
 	 */
 	public function classes_to_test(): array {
-		$this->setUp();
 		return [
 			[
-				Currency::class, [Currency::MEMBER_BANK_COUNTRY => $this->sampleCountry()], [],
+				Currency::class, [Currency::MEMBER_BANK_COUNTRY => $this->sampleCountry(...)], [],
 			],
 		];
 	}
@@ -45,6 +44,7 @@ class Currency_Test extends ORMUnitTest {
 	 * @dataProvider classes_to_test
 	 */
 	public function test_classes(string $class, mixed $mixed = null, array $options = []): void {
+		$mixed = $this->applyClosures($mixed);
 		$this->assertORMClass($class, $mixed, $options);
 	}
 }

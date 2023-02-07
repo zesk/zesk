@@ -23,13 +23,11 @@ class CommandLoaderFactory {
 		}
 
 		/* We love debuggers */
-		include $here . '/xdebug.php';
-
-		/**
-		 * Load the bare minimum
-		 */
+		require_once $here . '/xdebug.php';
+		/* Basic autoloader */
+		require_once $here . '/autoload.php';
+		/* functions for all */
 		require_once $here . 'zesk/functions.php';
-		require_once $here . 'zesk/CommandLoader.php';
 
 		/**
 		 * Run a zesk command and exit

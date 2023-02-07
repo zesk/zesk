@@ -149,7 +149,7 @@ class DatabaseUnitTest extends UnitTest {
 		foreach (toList($classes) as $class) {
 			$class_object = $app->class_ormRegistry($class);
 			$db = $class_object->database();
-			$results[$class] = $db->queries($app->ormModule()->schema_synchronize($db, [$class, ], $options + ['follow' => true, ]));
+			$results[$class] = $db->queries($app->ormModule()->schemaSynchronize($db, [$class, ], $options + ['follow' => true, ]));
 		}
 		return $results;
 	}

@@ -192,19 +192,9 @@ function backtrace(bool $exit = true, int $n = -1): void {
  * @see debug_backtrace()
  * @see Debug::calling_function
  */
-function calling_function(int $depth = 1, bool $include_line = true): string {
-	$bt = debug_backtrace();
-	array_shift($bt); // Remove this function from the stack
-	if ($depth > 0) {
-		while ($depth-- !== 0) {
-			array_shift($bt);
-		}
-	}
-	$top = array_shift($bt);
-	if (!$top) {
-		return '-no calling function $depth deep-';
-	}
-	return ($top['file'] ?? '') . ' ' . ($top['class'] ?? '') . ($top['type'] ?? '') . $top['function'] . ($include_line ? ':' . ($top['line'] ?? '-') : '');
+function calling_function(int $depth = 0, bool $include_line = true): string {
+	$top = Kernel::caller($depth + 1);
+	return $top[$include_line ? 'fileMethodLine' : 'fileMethod'];
 }
 
 /**
@@ -215,8 +205,6 @@ function calling_function(int $depth = 1, bool $include_line = true): string {
  *
  * @param mixed $x
  *            Variable to dump
- * @param boolean $html
- *            Whether to dump as HTML or not (surround by pre tags)
  * @return void echos to page
  * @see print_r
  */
@@ -341,7 +329,7 @@ function toList(mixed $mixed, array $default = [], string $delimiter = ';'): arr
 	} elseif (is_array($mixed)) {
 		return $mixed;
 	} elseif (is_object($mixed) && method_exists($mixed, 'to_list')) {
-		return toList($mixed->to_list());
+		return toList($mixed->toList());
 	} else {
 		return $default;
 	}
@@ -1132,9 +1120,7 @@ function __wakeup_application(): Application {
  *
  */
 function app(): Application {
-	$kernel = zesk();
-	$kernel->deprecated();
-	return $kernel->application();
+	return Kernel::singleton()->application();
 }
 
 
@@ -1152,6 +1138,7 @@ function app(): Application {
  * @deprecated 2022-05
  */
 function to_list(mixed $mixed, array $default = [], string $delimiter = ';'): array {
+	Kernel::singleton()->application()->deprecated(__METHOD__);
 	return toList($mixed, $default, $delimiter);
 }
 
@@ -1167,6 +1154,7 @@ function to_list(mixed $mixed, array $default = [], string $delimiter = ';'): ar
  * @deprecated 2022-02 PSR
  */
 function to_array(mixed $mixed, array $default = []): array {
+	Kernel::singleton()->application()->deprecated(__METHOD__);
 	return toArray($mixed, $default);
 }
 
@@ -1182,6 +1170,7 @@ function to_array(mixed $mixed, array $default = []): array {
  * @deprecated 2022-05
  */
 function to_integer(mixed $s, int $def = 0): int {
+	app()->deprecated(__METHOD__);
 	return toInteger($s, $def);
 }
 
@@ -1194,6 +1183,7 @@ function to_integer(mixed $s, int $def = 0): int {
  * @deprecated 2022-05
  */
 function to_bool(mixed $value, bool $default = null): ?bool {
+	app()->deprecated(__METHOD__);
 	return toBool($value, $default);
 }
 
@@ -1207,7 +1197,7 @@ function to_bool(mixed $value, bool $default = null): ?bool {
  * @deprecated 2022-12
  */
 function pairr(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
-	zesk()->deprecated(__METHOD__);
+	app()->deprecated(__METHOD__);
 	return reversePair($a, $delim, $left, $right, $include_delimiter);
 }
 
@@ -1221,7 +1211,8 @@ function pairr(string $a, string $delim = '.', string $left = '', string $right 
  * @deprecated 2022-11
  */
 function to_bytes(string $mixed, int $default = 0): float {
-	zesk()->deprecated(__METHOD__);
+	app()->deprecated(__METHOD__);
+
 	return toBytes($mixed, $default);
 }
 
@@ -1235,7 +1226,7 @@ function to_bytes(string $mixed, int $default = 0): float {
  * @deprecated 2022-01
  */
 function to_iterator(mixed $mixed): iterable {
-	zesk()->deprecated(__METHOD__);
+	app()->deprecated(__METHOD__);
 	return toIterable($mixed);
 }
 
@@ -1251,7 +1242,7 @@ function to_iterator(mixed $mixed): iterable {
  * @see Locale::__invoke
  */
 function __(array|string $phrase): string {
-	Kernel::singleton()->application()->deprecated(__METHOD__);
+	app()->deprecated(__METHOD__);
 	$args = func_get_args();
 	$locale = Kernel::singleton()->application()->locale;
 	array_shift($args);

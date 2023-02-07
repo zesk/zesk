@@ -241,7 +241,7 @@ class Logger implements LoggerInterface {
 		$extras['_microtime'] = $time;
 		$extras['_pid'] = $pid;
 		$extras['_level'] = $level;
-		$extras['_level_string'] = $level;
+		$extras['_levelString'] = $level;
 		$extras['_severity'] = $level;
 		$extras['_message'] = $message;
 		$extras['_formatted'] = map($message, $context);

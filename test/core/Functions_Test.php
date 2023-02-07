@@ -12,6 +12,33 @@ namespace zesk;
  *
  */
 class Functions_Test extends UnitTest {
+	public function test_calling(): void {
+		$this->assertEquals(__FILE__ . ' ' . __CLASS__ . '->test_calling:' . __LINE__, calling_function());
+		$this->assertEquals([
+			'file' => __FILE__,
+			'type' => '->',
+			'function' => __FUNCTION__,
+			'args' => [],
+			'method' => __CLASS__ . '->' . __FUNCTION__,
+			'class' => __CLASS__,
+			'object' => $this,
+			'fileMethod' => __FILE__ . ' ' . __CLASS__ . '->' . __FUNCTION__,
+			'lineSuffix' => ':' . (__LINE__ + 4),
+			'methodLine' => __CLASS__ . '->' . __FUNCTION__ . ':' . (__LINE__ + 3),
+			'fileMethodLine' => __FILE__ . ' ' . __CLASS__ . '->' . __FUNCTION__ . ':' . (__LINE__ + 2),
+			'line' => __LINE__ + 1,
+		], ArrayTools::filterKeys(Kernel::caller(), null, ['callingLine', 'callingFile']));
+
+		for ($i = 0; $i < 4; $i++) {
+			$this->assertEquals(calling_function($i, true), Kernel::caller($i)['fileMethodLine']);
+			$this->assertEquals(calling_function($i, false), Kernel::caller($i)['fileMethod']);
+		}
+	}
+
+	public function test_calling_neg(): void {
+		$this->assertEquals($this->application->zeskHome('zesk/functions.php') . ' calling_function', calling_function(-1, false));
+	}
+
 	public function test_path(): void {
 		$this->assertEquals('nothing', path('nothing'));
 
@@ -212,7 +239,7 @@ class Functions_Test extends UnitTest {
 		];
 	}
 
-	public function data_to_list() {
+	public function data_toList() {
 		return [
 			['1,2,3', [], ',', ['1', '2', '3']],
 		];
@@ -224,10 +251,10 @@ class Functions_Test extends UnitTest {
 	 * @param string $delimiter
 	 * @param array $expected
 	 * @return void
-	 * @dataProvider data_to_list
+	 * @dataProvider data_toList
 	 */
-	public function test_to_list(mixed $mixed, array $default, string $delimiter, array $expected): void {
-		$this->assertEquals($expected, to_list($mixed, $default, $delimiter));
+	public function test_toList(mixed $mixed, array $default, string $delimiter, array $expected): void {
+		$this->assertEquals($expected, toList($mixed, $default, $delimiter));
 	}
 
 	/**

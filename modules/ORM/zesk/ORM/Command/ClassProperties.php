@@ -49,7 +49,7 @@ class Command_ClassProperties extends Command_Base {
 	 * @return string[]
 	 */
 	private function all_classes(): array {
-		return ArrayTools::extract($this->application->ormModule()->all_classes(), null, 'class');
+		return ArrayTools::extract($this->application->ormModule()->allClasses(), null, 'class');
 	}
 
 	/**

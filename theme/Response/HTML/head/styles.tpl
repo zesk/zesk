@@ -15,7 +15,7 @@ namespace zesk;
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
-$styles = to_array($response->html()->styles());
+$styles = toArray($response->html()->styles());
 
 foreach ($styles as $attributes) {
 	$content = $attributes['content'];

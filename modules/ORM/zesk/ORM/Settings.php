@@ -202,6 +202,12 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	}
 
 	/**
+	 * Option with boolean value - debug loading or not.
+	 *
+	 */
+	public const OPTION_DEBUG_LOAD = 'debugLoad';
+
+	/**
 	 * configured Hook
 	 */
 	/**
@@ -211,29 +217,26 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 	 * @throws InvalidArgumentException
 	 */
 	public static function configured(Application $application): void {
+		$debugLoad = $application->configuration->getPath([
+			__CLASS__, self::OPTION_DEBUG_LOAD,
+		]);
+		$__ = [
+			'method' => __METHOD__,
+		];
+		$logger = $debugLoad ? $application->logger : null;
+		$logger?->debug('{method} entry', $__);
 		$settings = $application->settings();
 		if (!$settings instanceof Settings) {
-			$application->logger->debug('{method} Application settings singleton was a {class}, skipping', [
+			$logger?->debug('{method} Application settings singleton was a {class}, skipping', [
 				'method' => __METHOD__,
 				'class' => $settings::class,
 			]);
 			return;
 		}
-		$__ = [
-			'method' => __METHOD__,
-		];
-		$debug_load = $application->configuration->getPath([
-			__CLASS__, 'debug_load',
-		]);
-		if ($debug_load) {
-			$application->logger->debug('{method} entry', $__);
-		}
 		// If no databases registered, don't bother loading.
 		$databases = $application->databaseModule()->databases();
 		if (count($databases) === 0) {
-			if ($debug_load) {
-				$application->logger->debug('{method} - no databases, not loading configuration', $__);
-			}
+			$logger?->debug('{method} - no databases, not loading configuration', $__);
 			return;
 		}
 		$cache_disabled = $settings->optionBool('cache_disabled');
@@ -241,23 +244,17 @@ class Settings extends ORMBase implements Interface_Data, Interface_Settings {
 
 		try {
 			if ($cache_disabled) {
-				if ($debug_load) {
-					$application->logger->debug('{method} cache disabled', $__);
-				}
-				$globals = self::load_globals_from_database($application, $debug_load);
+				$logger?->debug('{method} cache disabled', $__);
+				$globals = self::load_globals_from_database($application, $debugLoad);
 			} else {
 				$cache = self::_getCacheItem($application);
 				if (!$cache->isHit()) {
-					if ($debug_load) {
-						$application->logger->debug('{method} does not have cached globals .. loading', $__);
-					}
-					$globals = self::load_globals_from_database($application, $debug_load);
+					$logger?->debug('{method} does not have cached globals .. loading', $__);
+					$globals = self::load_globals_from_database($application, $debugLoad);
 					$cache->set($globals);
 					self::_setCacheItem($application, $cache);
 				} else {
-					if ($debug_load) {
-						$application->logger->debug('{method} - loading globals from cache', $__);
-					}
+					$logger?->debug('{method} - loading globals from cache', $__);
 					$globals = $cache->get();
 				}
 			}

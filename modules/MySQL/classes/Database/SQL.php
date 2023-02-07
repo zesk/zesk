@@ -692,7 +692,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		}
 		$permutations = [$options, ];
 		foreach (['tables' => 'table', 'privileges' => 'privilege', ] as $listable => $permute_key) {
-			$permutations = $this->_permute($permutations, to_list($options[$listable]), $permute_key);
+			$permutations = $this->_permute($permutations, toList($options[$listable]), $permute_key);
 		}
 		$result = [];
 		foreach ($permutations as $permute_options) {

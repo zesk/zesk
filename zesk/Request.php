@@ -204,7 +204,7 @@ class Request extends Hookable {
 	}
 
 	public function __sleep() {
-		return array_merge(parent::__sleep(), ['method', 'uri', 'headers', 'headers_parsed', 'cookies', 'data_raw', 'data', 'dataFile', 'requestData', 'files', 'url', 'urlParts', 'userAgent', 'ip', 'serverIP', 'remoteIP', 'init']);
+		return array_merge(parent::__sleep(), ['method', 'uri', 'headers', 'headers_parsed', 'cookies', 'data', 'dataFile', 'requestData', 'files', 'url', 'urlParts', 'userAgent', 'ip', 'serverIP', 'remoteIP', 'init']);
 	}
 
 	/**

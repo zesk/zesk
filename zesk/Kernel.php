@@ -95,6 +95,49 @@ class Kernel {
 		$this->applications[$app::class] = $app;
 	}
 
+	private static function _stackFrameNormalize(array $stackFrame): array {
+		return $stackFrame + [
+			'file' => '',
+			'class' => '',
+			'type' => '',
+			'function' => '',
+			'line' => '',
+		];
+	}
+
+	/**
+	 * Return information about the calling function. Increase depth to look back in the stack frame.
+	 *
+	 * Pass -1 to test and get the information about this function. Not super useful.
+	 *
+	 * @param int $depth Depth 0 means the immediately calling function
+	 * @return string[]
+	 */
+	public static function caller(int $depth = 0): array {
+		$bt = debug_backtrace();
+		$last = [];
+		/* Skip current frame by default - depth zero always means calling function */
+		$depth++;
+		if ($depth > 0) {
+			while ($depth-- !== 0) {
+				$last = array_shift($bt);
+			}
+		}
+		$last = self::_stackFrameNormalize($last);
+		$top = self::_stackFrameNormalize(array_shift($bt) ?? ['file' => "-no calling function $depth deep-"]);
+
+		$top['callingLine'] = $top['line'];
+		$top['callingFile'] = $top['file'];
+		$top['line'] = $last['line'];
+		$top['file'] = $last['file'];
+		$top['lineSuffix'] = $top['line'] ? ':' . $top['line'] : '';
+		$top['method'] = $top['class'] . $top['type'] . $top['function'];
+		$top['methodLine'] = $top['class'] . $top['type'] . $top['function'] . $top['lineSuffix'];
+		$top['fileMethod'] = $top['file'] . ' ' . $top['method'];
+		$top['fileMethodLine'] = $top['file'] . ' ' . $top['method'] . $top['lineSuffix'];
+		return $top;
+	}
+
 	/**
 	 * Create an application
 	 *
@@ -103,6 +146,7 @@ class Kernel {
 	 * @throws Exception_Class_NotFound
 	 */
 	public static function createApplication(array $options = []): Application {
+		$options['application.php'] = self::caller()['file'];
 		$baseApplicationClass = Application::class;
 		$cacheItemPool = $options[Application::OPTION_CACHE_POOL] ?? new CacheItemPool_NULL();
 		unset($options[Application::OPTION_CACHE_POOL]);
