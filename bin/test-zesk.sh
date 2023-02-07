@@ -53,7 +53,7 @@ if [ ! -d "$top/vendor" ]; then
 fi
 
 need_paths=()
-args=("--disallow-test-output" "--debug")
+args=("--disallow-test-output")
 coverage_path=./test-coverage
 coverage_cache=./.zesk-coverage
 cd "$top"
