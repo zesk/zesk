@@ -40,7 +40,7 @@ pipelines:
           script:
             - export DATABASE_HOST=127.0.0.1
             - export DATABASE_ROOT_PASSWORD=hard-to-guess
-            - bin/pipeline-setup.sh
+            - bin/pipeline-setup.sh --testsuite core
     master:
       - step:
           name: Build and test
