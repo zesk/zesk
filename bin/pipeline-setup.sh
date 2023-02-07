@@ -48,10 +48,26 @@ if [ -z "$docker" ]; then
   exit $ERR_ENV
 fi
 
-
+#
+# Eat --clean if it's an argument
+#
+clean=
+while [ $# -gt 0 ]; do
+  case $1 in
+  --clean)
+    clean=1
+    consoleBlue "Clean install ..."
+    shift
+    ;;
+  *)
+    ;;
+  esac
+done
 
 # apt-get update and install figlet
 "$top/bin/build/apt-utils.sh"
+
+echo "Started on $(date)" > "$quietLog"
 
 #
 # Connect to the database and set up test schema
@@ -84,6 +100,10 @@ consoleReset
 vendorArgs=("-v" "$top:/app" "-v" "$top/.composer:/tmp" "composer:latest" i "--ignore-platform-req=ext-calendar")
 
 start=$(($(date +%s) + 0))
+if test $clean; then
+  consoleBlue "Deleting $top/vendor"
+  [ -d "$top/vendor" ] && rm -rf "$top/vendor"
+fi
 consoleWhite
 echo -n "Install vendor ... "
 figlet "Install vendor" >> "$quietLog"
@@ -96,11 +116,15 @@ fi
 consoleMagenta $(($(date +%s) - start)) seconds
 consoleReset
 
+cleanArgs=()
+if test "$clean"; then
+  cleanArgs=("--no-cache" "--pull")
+fi
 start=$(($(date +%s) + 0))
 consoleWhite
 echo -n "Build container ... "
 figlet "Build container" >> "$quietLog"
-if ! docker build --build-arg DATABASE_HOST=host.docker.internal -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
+if ! docker build "${cleanArgs[@]}" --build-arg "DATABASE_HOST=$DATABASE_HOST" -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
   failed "$quietLog"
   exit $ERR_BUILD
 fi
