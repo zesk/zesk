@@ -116,7 +116,7 @@ docker run -v "$top/:/zesk" zesk:latest /zesk/bin/test-zesk.sh --coverage --test
 consoleMagenta Testing took $(($(date +%s) - start)) seconds
 
 consoleBlue
-"$top/bin/release-check-version.sh"
+"$top/bin/build/release-check-version.sh"
 consoleReset
 
 env > "$envFile"

@@ -35,7 +35,9 @@ class TestApplicationFactory {
 			]);
 
 			$files = [
-				$application->path('docker/etc/test.conf'), $application->paths->userHome('test.conf'),
+				'/etc/env.sh',
+				$application->path('docker/etc/test.conf'),
+				$application->paths->userHome('test.conf'),
 				$application->paths->userHome('test.json'),
 			];
 
