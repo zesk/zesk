@@ -17,7 +17,7 @@
     "ext-readline": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "*",
+    "phpunit/phpunit": "^9.*",
     "phpunit/php-invoker": "*",
     "friendsofphp/php-cs-fixer": "^3.4"
   },

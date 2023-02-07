@@ -125,7 +125,7 @@ start=$(($(date +%s) + 0))
 consoleWhite
 echo -n "Build container ... "
 figlet "Build container" >> "$quietLog"
-if ! docker build "${cleanArgs[@]}" --build-arg "DATABASE_HOST=$DATABASE_HOST" -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
+if ! docker build "${cleanArgs[@]}" --build-arg "DATABASE_HOST=docker.host.internal" -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
   failed "$quietLog"
   exit $ERR_BUILD
 fi
