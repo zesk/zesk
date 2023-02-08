@@ -2,7 +2,7 @@
          xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.5/phpunit.xsd"
          verbose="false"
          bootstrap="test.application.php"
-         processIsolation="true"
+         processIsolation="false"
          backupGlobals="false"
          backupStaticAttributes="false"
          colors="true"

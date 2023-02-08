@@ -6,15 +6,15 @@ namespace zesk;
 
 use DateTimeInterface;
 use Psr\Cache\CacheItemInterface;
+use DateInterval as NativeDateInterval;
 
 /**
- * NULL CacheItem implementation.
- *
- * Does nothing.
+ * Generic cache item
  *
  * @author kent
+ * @see CacheItemPool_Array
  */
-class CacheItem_NULL implements CacheItemInterface {
+class CacheItem implements CacheItemInterface {
 	/**
 	 *
 	 * @var string
@@ -23,10 +23,32 @@ class CacheItem_NULL implements CacheItemInterface {
 
 	/**
 	 *
-	 * @param string $key
+	 * @var mixed
 	 */
-	public function __construct(string $key) {
+	private mixed $value;
+
+	/**
+	 *
+	 * @var mixed
+	 */
+	private bool $is_hit;
+
+	/**
+	 *
+	 * @var ?Timestamp
+	 */
+	private ?Timestamp $expiration = null;
+
+	/**
+	 * CacheItem constructor.
+	 * @param string $key
+	 * @param mixed|null $value
+	 * @param bool $isHit
+	 */
+	public function __construct(string $key, mixed $value = null, bool $isHit = true) {
 		$this->key = $key;
+		$this->value = $value;
+		$this->is_hit = $isHit;
 	}
 
 	/**
@@ -48,14 +70,14 @@ class CacheItem_NULL implements CacheItemInterface {
 	 * The value returned must be identical to the value originally stored by set().
 	 *
 	 * If isHit() returns false, this method MUST return null. Note that null
-	 * is a legitimate value to cache, so the isHit() method SHOULD be used to
+	 * is a legitimate cached value, so the isHit() method SHOULD be used to
 	 * differentiate between "null value was found" and "no value was found."
 	 *
 	 * @return mixed
 	 *   The value corresponding to this cache item's key, or null if not found.
 	 */
 	public function get(): mixed {
-		return null;
+		return $this->is_hit && !$this->expired() ? $this->value : null;
 	}
 
 	/**
@@ -68,7 +90,7 @@ class CacheItem_NULL implements CacheItemInterface {
 	 *   True if the request resulted in a cache hit. False otherwise.
 	 */
 	public function isHit(): bool {
-		return false;
+		return $this->is_hit && !$this->expired();
 	}
 
 	/**
@@ -82,9 +104,11 @@ class CacheItem_NULL implements CacheItemInterface {
 	 *   The serializable value to be stored.
 	 *
 	 * @return static
-	 *   The invoked object.
+	 * @see CacheItemInterface::set()
 	 */
-	public function set(mixed $value): self {
+	public function set(mixed $value): static {
+		$this->is_hit = true;
+		$this->value = $value;
 		return $this;
 	}
 
@@ -100,14 +124,15 @@ class CacheItem_NULL implements CacheItemInterface {
 	 * @return static
 	 *   The called object.
 	 */
-	public function expiresAt($expiration): self {
+	public function expiresAt(DateTimeInterface|null $expiration): static {
+		$this->expiration = $expiration ? Timestamp::factory($expiration) : null;
 		return $this;
 	}
 
 	/**
 	 * Sets the expiration time for this cache item.
 	 *
-	 * @param int|\DateInterval|null $time
+	 * @param int|NativeDateInterval|null $time
 	 *   The period of time from the present after which the item MUST be considered
 	 *   expired. An integer parameter is understood to be the time in seconds until
 	 *   expiration. If null is passed explicitly, a default value MAY be used.
@@ -116,8 +141,28 @@ class CacheItem_NULL implements CacheItemInterface {
 	 *
 	 * @return static
 	 *   The called object.
+	 * @throws Exception_Key
+	 * @throws Exception_Semantics
 	 */
-	public function expiresAfter($time): self {
+	public function expiresAfter(int|NativeDateInterval|null $time): static {
+		$this->expiration = $time ? Timestamp::now()->addUnit($time) : null;
 		return $this;
+	}
+
+	/**
+	 * @return Timestamp|null
+	 */
+	public function expiration(): ?Timestamp {
+		return $this->expiration;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function expired(): bool {
+		if (!$this->expiration instanceof Timestamp) {
+			return false;
+		}
+		return $this->expiration->beforeNow();
 	}
 }

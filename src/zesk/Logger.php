@@ -4,10 +4,11 @@
  */
 namespace zesk;
 
+use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel as LogLevel;
-use Psr\Log\LoggerInterface as LoggerInterface;
 use Throwable;
 use zesk\Logger\Handler;
+use zesk\Logger\Processor;
 
 /**
  * @author kent
@@ -100,9 +101,10 @@ class Logger implements LoggerInterface {
 	 *
 	 * @param string $message
 	 * @param array $context
-	 * @return null
+	 * @return void
+	 * @see LoggerInterface::emergency()
 	 */
-	public function emergency($message, array $context = []) {
+	public function emergency($message, array $context = []): void {
 		$this->log(LogLevel::EMERGENCY, $message, $context);
 	}
 
@@ -114,9 +116,9 @@ class Logger implements LoggerInterface {
 	 *
 	 * @param string $message
 	 * @param array $context
-	 * @return null
+	 * @return void
 	 */
-	public function alert($message, array $context = []) {
+	public function alert($message, array $context = []): void {
 		$this->log(LogLevel::ALERT, $message, $context);
 	}
 
@@ -127,9 +129,9 @@ class Logger implements LoggerInterface {
 	 *
 	 * @param string $message
 	 * @param array $context
-	 * @return null
+	 * @return void
 	 */
-	public function critical($message, array $context = []) {
+	public function critical($message, array $context = []): void {
 		$this->log(LogLevel::CRITICAL, $message, $context);
 	}
 
@@ -139,9 +141,9 @@ class Logger implements LoggerInterface {
 	 *
 	 * @param string $message
 	 * @param array $context
-	 * @return null
+	 * @return void
 	 */
-	public function error($message, array $context = []) {
+	public function error($message, array $context = []): void {
 		$this->log(LogLevel::ERROR, $message, $context);
 	}
 
@@ -153,9 +155,9 @@ class Logger implements LoggerInterface {
 	 *
 	 * @param string $message
 	 * @param array $context
-	 * @return null
+	 * @return void
 	 */
-	public function warning($message, array $context = []) {
+	public function warning($message, array $context = []): void {
 		$this->log(LogLevel::WARNING, $message, $context);
 	}
 
@@ -164,9 +166,9 @@ class Logger implements LoggerInterface {
 	 *
 	 * @param string $message
 	 * @param array $context
-	 * @return null
+	 * @return void
 	 */
-	public function notice($message, array $context = []) {
+	public function notice($message, array $context = []): void {
 		$this->log(LogLevel::NOTICE, $message, $context);
 	}
 
@@ -177,9 +179,9 @@ class Logger implements LoggerInterface {
 	 *
 	 * @param string $message
 	 * @param array $context
-	 * @return null
+	 * @return void
 	 */
-	public function info($message, array $context = []) {
+	public function info($message, array $context = []): void {
 		$this->log(LogLevel::INFO, $message, $context);
 	}
 
@@ -188,9 +190,9 @@ class Logger implements LoggerInterface {
 	 *
 	 * @param string $message
 	 * @param array $context
-	 * @return null
+	 * @return void
 	 */
-	public function debug($message, array $context = []) {
+	public function debug($message, array $context = []): void {
 		$this->log(LogLevel::DEBUG, $message, $context);
 	}
 
@@ -235,9 +237,9 @@ class Logger implements LoggerInterface {
 		$int_time = intval($time);
 
 		$extras = [];
-		$date = $this->utc_time ? 'gmdate' : 'date';
-		$extras['_date'] = $date('Y-m-d', $int_time);
-		$extras['_time'] = $date('H:i:s', $int_time) . ltrim(sprintf('%.3f', $time - $int_time), '0');
+		$dateFunction = $this->utc_time ? gmdate(...) : date(...);
+		$extras['_date'] = $dateFunction('Y-m-d', $int_time);
+		$extras['_time'] = $dateFunction('H:i:s', $int_time) . ltrim(sprintf('%.3f', $time - $int_time), '0');
 		$extras['_microtime'] = $time;
 		$extras['_pid'] = $pid;
 		$extras['_level'] = $level;
@@ -274,8 +276,9 @@ class Logger implements LoggerInterface {
 	}
 
 	/**
-	 *
-	 * @param string $name
+	 * @param string|array $name
+	 * @param array $levels
+	 * @return int
 	 */
 	public function unregisterHandler(string|array $name, array $levels = []): int {
 		$levels = count($levels) === 0 ? array_keys(self::$levels) : $levels;
@@ -330,10 +333,9 @@ class Logger implements LoggerInterface {
 	/**
 	 *
 	 * @param string $name
-	 * @param \zesk\Logger\Processor $processor
-	 * @return \zesk\Logger
+	 * @return Logger
 	 */
-	public function unregisterProcessor(string $name) {
+	public function unregisterProcessor(string $name): self {
 		unset($this->processors[$name]);
 		return $this;
 	}

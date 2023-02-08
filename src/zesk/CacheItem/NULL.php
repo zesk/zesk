@@ -8,12 +8,13 @@ use DateTimeInterface;
 use Psr\Cache\CacheItemInterface;
 
 /**
- * Generic cache item
+ * NULL CacheItem implementation.
+ *
+ * Does nothing.
  *
  * @author kent
- * @see CacheItemPool_Array
  */
-class CacheItem implements CacheItemInterface {
+class CacheItem_NULL implements CacheItemInterface {
 	/**
 	 *
 	 * @var string
@@ -22,32 +23,10 @@ class CacheItem implements CacheItemInterface {
 
 	/**
 	 *
-	 * @var mixed
-	 */
-	private mixed $value;
-
-	/**
-	 *
-	 * @var mixed
-	 */
-	private bool $is_hit;
-
-	/**
-	 *
-	 * @var ?Timestamp
-	 */
-	private ?Timestamp $expiration = null;
-
-	/**
-	 * CacheItem constructor.
 	 * @param string $key
-	 * @param mixed|null $value
-	 * @param bool $isHit
 	 */
-	public function __construct(string $key, mixed $value = null, bool $isHit = true) {
+	public function __construct(string $key) {
 		$this->key = $key;
-		$this->value = $value;
-		$this->is_hit = $isHit;
 	}
 
 	/**
@@ -69,14 +48,14 @@ class CacheItem implements CacheItemInterface {
 	 * The value returned must be identical to the value originally stored by set().
 	 *
 	 * If isHit() returns false, this method MUST return null. Note that null
-	 * is a legitimate cached value, so the isHit() method SHOULD be used to
+	 * is a legitimate value to cache, so the isHit() method SHOULD be used to
 	 * differentiate between "null value was found" and "no value was found."
 	 *
 	 * @return mixed
 	 *   The value corresponding to this cache item's key, or null if not found.
 	 */
 	public function get(): mixed {
-		return $this->is_hit && !$this->expired() ? $this->value : null;
+		return null;
 	}
 
 	/**
@@ -89,7 +68,7 @@ class CacheItem implements CacheItemInterface {
 	 *   True if the request resulted in a cache hit. False otherwise.
 	 */
 	public function isHit(): bool {
-		return $this->is_hit && !$this->expired();
+		return false;
 	}
 
 	/**
@@ -105,9 +84,7 @@ class CacheItem implements CacheItemInterface {
 	 * @return static
 	 *   The invoked object.
 	 */
-	public function set(mixed $value): self {
-		$this->is_hit = true;
-		$this->value = $value;
+	public function set(mixed $value): static {
 		return $this;
 	}
 
@@ -123,8 +100,7 @@ class CacheItem implements CacheItemInterface {
 	 * @return static
 	 *   The called object.
 	 */
-	public function expiresAt($expiration): self {
-		$this->expiration = $expiration ? Timestamp::factory($expiration) : null;
+	public function expiresAt(DateTimeInterface|null $expiration): static {
 		return $this;
 	}
 
@@ -140,27 +116,8 @@ class CacheItem implements CacheItemInterface {
 	 *
 	 * @return static
 	 *   The called object.
-	 * @throws Exception_Parameter
 	 */
-	public function expiresAfter($time): self {
-		$this->expiration = $time ? Timestamp::now()->addUnit($time) : null;
+	public function expiresAfter(int|\DateInterval|null $time): static {
 		return $this;
-	}
-
-	/**
-	 * @return Timestamp|null
-	 */
-	public function expiration(): ?Timestamp {
-		return $this->expiration;
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function expired(): bool {
-		if (!$this->expiration instanceof Timestamp) {
-			return false;
-		}
-		return $this->expiration->beforeNow();
 	}
 }

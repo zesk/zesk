@@ -75,7 +75,7 @@ echo "Started on $(date)" > "$quietLog"
 #
 start=$(($(date +%s) + 0))
 databaseArguments=("-u" "root" "-p$DATABASE_ROOT_PASSWORD" "-h" "$DATABASE_HOST" "--port" "$DATABASE_PORT")
-consoleWhite
+consoleCyan
 echo -n "Setting up database ... "
 {
   figlet "Database"
@@ -93,7 +93,7 @@ if ! mariadb "${databaseArguments[@]}" < ./docker/mariadb/schema.sql >> "$quietL
   failed "$quietLog"
   exit $ERR_BUILD
 fi
-consoleMagenta $(($(date +%s) - start)) seconds
+consoleBoldMagenta $(($(date +%s) - start)) seconds
 consoleReset
 
 [ -d "$top/.composer" ] || mkdir "$top/.composer"
@@ -105,7 +105,7 @@ if test $clean; then
   consoleBlue "Deleting $top/vendor"
   [ -d "$top/vendor" ] && rm -rf "$top/vendor"
 fi
-consoleWhite
+consoleCyan
 echo -n "Install vendor ... "
 figlet "Install vendor" >> "$quietLog"
 echo docker run "${vendorArgs[@]}" >> "$quietLog"
@@ -114,7 +114,7 @@ if ! docker run "${vendorArgs[@]}" >> "$quietLog" 2>&1; then
   failed "$quietLog"
   exit $ERR_BUILD
 fi
-consoleMagenta $(($(date +%s) - start)) seconds
+consoleBoldMagenta $(($(date +%s) - start)) seconds
 consoleReset
 
 cleanArgs=()
@@ -122,23 +122,23 @@ if test "$clean"; then
   cleanArgs=("--no-cache" "--pull")
 fi
 start=$(($(date +%s) + 0))
-consoleWhite
+consoleCyan
 echo -n "Build container ... "
 figlet "Build container" >> "$quietLog"
 if ! docker build "${cleanArgs[@]}" --build-arg "DATABASE_HOST=docker.host.internal" -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
   failed "$quietLog"
   exit $ERR_BUILD
 fi
-consoleMagenta $(($(date +%s) - start)) seconds
+consoleBoldMagenta $(($(date +%s) - start)) seconds
 consoleReset
 
 start=$(($(date +%s) + 0))
-consoleWhite "$(figlet Testing)"
+consoleCyan "$(figlet Testing)"
 for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
   [ -d "$d" ] || mkdir -p "$d"
 done
 docker run -v "$top/:/zesk" zesk:latest /zesk/bin/test-zesk.sh "$@"
-consoleMagenta Testing took $(($(date +%s) - start)) seconds
+consoleBoldMagenta Testing took $(($(date +%s) - start)) seconds
 
 consoleBlue
 "$top/bin/build/release-check-version.sh"

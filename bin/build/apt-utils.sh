@@ -33,7 +33,7 @@ fi
 export DEBIAN_FRONTEND=noninteractive
 
 start=$(($(date +%s) + 0))
-consoleWhite
+consoleCyan
 echo -n "Updating apt-get ... "
 if ! apt-get update >> "$quietLog" 2>&1; then
   failed "$quietLog"
@@ -45,4 +45,6 @@ if ! apt-get install -y "${packages[@]}" >> "$quietLog" 2>&1; then
   exit $ERR_ENV
 fi
 date > "$markerFile"
-consoleMagenta "$(($(date +%s) - start)) seconds"
+consoleBoldMagenta
+echo "$(($(date +%s) - start)) seconds"
+consoleReset
