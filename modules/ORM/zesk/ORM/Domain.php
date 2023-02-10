@@ -31,20 +31,20 @@ class Domain extends ORMBase {
 	 * @todo credit
 	 * @var string
 	 */
-	public const url_public_suffix_list = 'https://publicsuffix.org/list/public_suffix_list.dat';
+	public const URL_PUBLIC_SUFFIX_LIST = 'https://publicsuffix.org/list/public_suffix_list.dat';
 
 	/**
 	 * @see http://www.seobythesea.com/2006/01/googles-most-popular-and-least-popular-top-level-domains/
 	 * @var string
 	 */
-	public const default_public_suffix_list_file = "com\norg\nedu\ngov\nuk\nnet\nca\nde\njp\nfr\nau\nus\nru\nch\nit\nnl\nse\nno\nes\nmil";
+	public const DEFAULT_PUBLIC_SUFFIX_LIST = "com\norg\nedu\ngov\nuk\nnet\nca\nde\njp\nfr\nau\nus\nru\nch\nit\nnl\nse\nno\nes\nmil";
 
 	/**
 	 *
 	 * @todo credit
 	 * @var string
 	 */
-	public const url_tlds_by_alpha = 'http://data.iana.org/TLD/tlds-alpha-by-domain.txt';
+	public const URL_TLDS_BY_ALPHA = 'http://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 
 	/**
 	 *
@@ -58,8 +58,8 @@ class Domain extends ORMBase {
 	 */
 	public static function cron_hour(Application $application): void {
 		foreach ([
-			self::url_public_suffix_list => self::publicSuffixListFile($application->paths),
-			self::url_tlds_by_alpha => self::tldByAlphaFile($application->paths),
+			self::URL_PUBLIC_SUFFIX_LIST => self::publicSuffixListFile($application->paths),
+			self::URL_TLDS_BY_ALPHA => self::tldByAlphaFile($application->paths),
 		] as $url => $path) {
 			try {
 				Sync::url_to_file($application, $url, $path);
@@ -196,8 +196,8 @@ class Domain extends ORMBase {
 	 */
 	private static function updateDataFiles(Application $application): void {
 		foreach ([
-			self::url_public_suffix_list => self::publicSuffixListFile($application->paths),
-			self::url_tlds_by_alpha => self::tldByAlphaFile($application->paths),
+			self::URL_PUBLIC_SUFFIX_LIST => self::publicSuffixListFile($application->paths),
+			self::URL_TLDS_BY_ALPHA => self::tldByAlphaFile($application->paths),
 		] as $url => $path) {
 			// TODO Net_Sync::url_to_file($application, $url, $path);
 		}

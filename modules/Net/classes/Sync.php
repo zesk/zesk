@@ -100,7 +100,7 @@ class Sync extends Options {
 
 		$client = new Net_HTTP_Client($application, $url);
 		if ($milliseconds) {
-			$client->timeout($milliseconds);
+			$client->setTimeout($milliseconds);
 		}
 		$temporary_path = $options['temporary_path'] ?? $application->paths->temporary();
 		$temp_file_name = File::temporary($temporary_path);
@@ -163,7 +163,7 @@ class Sync extends Options {
 		if (is_bool($pattern)) {
 			return $pattern;
 		}
-		if (substr($pattern, 0, 1) == '/') {
+		if (str_starts_with($pattern, '/')) {
 			return $pattern;
 		}
 		return '/' . preg_quote($pattern) . '/';
@@ -241,7 +241,7 @@ class Sync extends Options {
 		if ($src_entry['size'] !== $dst_entry['size'] ?? -1) {
 			return true;
 		}
-		if ($dst_entry['type'] ?? null === null) {
+		if (($dst_entry['type'] ?? null) === null) {
 			return true;
 		}
 		if (!$check_mtime) {
@@ -276,11 +276,11 @@ class Sync extends Options {
 		$dst = $this->dst;
 
 		$src_url = $src->url();
-		$src_root = Directory::addSlash($src->url('path'));
+		$src_root = Directory::addSlash($src->urlComponent('path'));
 		$src_root_length = strlen($src_root);
 
 		$dst_url = $dst->url();
-		$dst_root = Directory::addSlash($dst->url('path'));
+		$dst_root = Directory::addSlash($dst->urlComponent('path'));
 
 		if (!$src->cd($src_root)) {
 			throw new Exception_Directory_NotFound("Source \"$src_url\" directory \"$src_root\" not found");

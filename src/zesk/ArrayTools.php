@@ -13,9 +13,8 @@ declare(strict_types=1);
 namespace zesk;
 
 /**
+ * @see ArrayTools_Test
  * Array tools for pretty much anything you can think of for arrays.
- *
- * @author kent
  */
 class ArrayTools {
 	/**
@@ -1670,7 +1669,7 @@ class ArrayTools {
 	 * @param boolean $strict
 	 * @return mixed
 	 */
-	public static function filterValues(array $array, int|string|array $values, bool $strict = true): array {
+	public static function includeValues(array $array, int|string|array $values, bool $strict = true): array {
 		if (is_scalar($values)) {
 			$values = [$values, ];
 		}
@@ -1691,13 +1690,13 @@ class ArrayTools {
 	 * Select values in an array which end with a specific string (case-sensitive)
 	 *
 	 * @param array $array
-	 * @param string $ends
+	 * @param string|array $ends
 	 * @return array
 	 */
-	public static function filterValuesEndWith(array $array, string $ends): array {
+	public static function includeValuesEndsWith(array $array, string|array $ends): array {
 		$result = [];
 		foreach ($array as $k => $v) {
-			if (str_ends_with($v, $ends)) {
+			if (StringTools::ends($v, $ends)) {
 				$result[$k] = $v;
 			}
 		}

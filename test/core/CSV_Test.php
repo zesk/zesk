@@ -18,7 +18,7 @@ class CSV_Test extends UnitTest {
 	];
 
 	/**
-	 * @return \string[][]
+	 * @return array
 	 */
 	public function quote_data(): array {
 		return [
@@ -38,7 +38,7 @@ class CSV_Test extends UnitTest {
 		$this->assertEquals("$expected\r\n$expected\r\n", StringTools::csvQuoteRows([[$item], [$item]]));
 	}
 
-	public function data_csvQuoteRow(): array {
+	public static function data_csvQuoteRow(): array {
 		return [
 			[
 				',\',a long line with many spaces,"""Quotes""",""""""' . "\r\n", [

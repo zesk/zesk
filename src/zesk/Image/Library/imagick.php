@@ -118,6 +118,7 @@ class Image_Library_imagick extends Image_Library {
 				$this->application->hooks->call('file_created', $dest);
 				return true;
 			}
+			return false;
 		} catch (\Exception $e) {
 			File::unlink($dest);
 

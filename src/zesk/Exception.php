@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Error;
 use Throwable;
 
 class Exception extends \Exception {
@@ -24,7 +25,7 @@ class Exception extends \Exception {
 	 */
 	public static function exceptionVariables(Throwable $e): array {
 		return method_exists($e, 'variables') ? $e->variables() :
-			($e instanceof \Error ? self::phpExceptionVariables($e, 'error') : self::phpExceptionVariables($e));
+			($e instanceof Error ? self::phpExceptionVariables($e, 'error') : self::phpExceptionVariables($e));
 	}
 
 	/**

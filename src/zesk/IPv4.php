@@ -344,7 +344,7 @@ class IPv4 {
 	 * @param mixed $ip
 	 * @return boolean
 	 */
-	public static function is_private($ip): bool {
+	public static function is_private(mixed $ip): bool {
 		$ipi = self::to_integer($ip);
 		foreach (self::$private_addresses as $address) {
 			if ($ipi >= $address[1] && $ipi <= $address[2]) {

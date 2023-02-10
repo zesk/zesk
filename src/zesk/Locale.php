@@ -11,7 +11,11 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use IntlCalendar;
+use NumberFormatter;
 use Writer;
+use function pair;
+use function ucfirst;
 
 /**
  *
@@ -191,8 +195,7 @@ abstract class Locale extends Hookable {
 	 * @return string|null
 	 */
 	public function find(string $phrase): string|null {
-		$phrase = strval($phrase);
-		[$group, $text] = explode(':=', $phrase, 2) + [
+		[$_, $text] = explode(':=', $phrase, 2) + [
 			null, $phrase,
 		];
 		$try_phrases = [
@@ -258,8 +261,8 @@ abstract class Locale extends Hookable {
 	 * @param string $word
 	 * @return string
 	 */
-	public function sentence_first($word): string {
-		return \ucfirst($word);
+	public function sentence_first(string $word): string {
+		return ucfirst($word);
 	}
 
 	/**
@@ -305,7 +308,7 @@ abstract class Locale extends Hookable {
 	 *              gender - gender character m f n
 	 * @return string Word with indefinite article in front of it (e.g. A dog, An eagle)
 	 */
-	abstract public function indefinite_article(string $word, array $context = []): string;
+	abstract public function indefiniteArticle(string $word, array $context = []): string;
 
 	/**
 	 * Join a phrase together with a conjunction, e.g.
@@ -515,7 +518,7 @@ abstract class Locale extends Hookable {
 		if ($save !== $id) {
 			setlocale(LC_MONETARY, $id);
 		}
-		$format = \NumberFormatter::create()->formatCurrency($value);
+		$format = NumberFormatter::create()->formatCurrency($value);
 		if ($save !== $id) {
 			setlocale(LC_MONETARY, $save);
 		}
@@ -548,7 +551,7 @@ abstract class Locale extends Hookable {
 	 */
 	public function first_day_of_week(): int {
 		if (function_exists('intlcal_get_first_day_of_week')) {
-			$cal = \IntlCalendar::createInstance(null, $this->id());
+			$cal = IntlCalendar::createInstance(null, $this->id());
 			return $cal->getFirstDayOfWeek();
 		}
 		return 0;
@@ -589,7 +592,7 @@ abstract class Locale extends Hookable {
 		if (empty($locale)) {
 			return '';
 		}
-		[$lang, $dialect] = \pair($locale, '_', $locale);
+		[$lang, $dialect] = pair($locale, '_', $locale);
 		return is_string($dialect) ? strtoupper(substr($dialect, 0, 2)) : '';
 	}
 

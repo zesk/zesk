@@ -19,7 +19,7 @@ class Domain_Test extends UnitTest {
 	/**
 	 *
 	 */
-	public function cookie_domain_data() {
+	public static function cookie_domain_data(): array {
 		return [
 			[
 				'conversion.kent.glucose',

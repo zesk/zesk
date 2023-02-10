@@ -283,7 +283,7 @@ class Database_Test extends DatabaseUnitTest {
 		$db->setAutoTableNames(false);
 	}
 
-	public function data_setAutoTableNamesOptions(): array {
+	public static function data_setAutoTableNamesOptions(): array {
 		return [
 			[['name' => 'value'], ],
 		];
@@ -501,11 +501,10 @@ class Database_Test extends DatabaseUnitTest {
 		}
 		if ($intversion >= 50700) {
 			$db->releaseLock($name);
-			$db->releaseLock($name);
 		} else {
 			$this->expectException(Exception_Semantics::class);
-			$db->releaseLock($name);
 		}
+		$db->releaseLock($name);
 	}
 
 	public function test_replace(): void {

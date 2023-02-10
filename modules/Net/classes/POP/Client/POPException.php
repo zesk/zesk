@@ -9,5 +9,7 @@ declare(strict_types=1);
 
 namespace zesk\Net\POP\Client;
 
-class POPException extends \zesk\Net\Exception {
+use zesk\Net\Exception;
+
+class POPException extends Exception {
 }

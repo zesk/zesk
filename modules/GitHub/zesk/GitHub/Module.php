@@ -11,6 +11,7 @@ use zesk\Exception_DomainLookup;
 use zesk\Exception_File_Permission;
 use zesk\Exception_Parameter;
 use zesk\Exception_Parse;
+use zesk\Exception_Protocol;
 use zesk\Exception_Semantics;
 use zesk\Exception_Syntax;
 use zesk\Exception_Unsupported;
@@ -92,6 +93,7 @@ class Module extends BaseModule {
 	 * @throws Exception_Semantics
 	 * @throws Exception_Syntax
 	 * @throws Exception_Unsupported
+	 * @throws Exception_Protocol
 	 */
 	public function generateTag(string $name, string $commitish = '', string $description = ''): array {
 		if (!$description) {
@@ -118,7 +120,7 @@ class Module extends BaseModule {
 		if ($client->response_code_type() === 2) {
 			return JSON::decode($content);
 		}
-		$this->application->logger->error('Error with request: {response_code} {response_message} {response_data}', $client->responseVariables());
-		return false;
+
+		throw new Exception_Protocol('Error with request: {response_code} {response_message} {response_data}', $client->responseVariables());
 	}
 }

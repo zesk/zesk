@@ -32,7 +32,7 @@ class Client extends NetClient implements FileSystem {
 			throw new Exception_Semantics('Already connected');
 		}
 		$this->connected = true;
-		return true;
+		return $this;
 	}
 
 	/**

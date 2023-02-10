@@ -247,7 +247,7 @@ Thanks,
 		$this->assertStringContainsString("$body", $content);
 	}
 
-	public function data_is_email(): array {
+	public static function data_is_email(): array {
 		return [
 			['test@test.com'], ['test@example.com'], ['test@[196.12.42.2]'], ['test@[IPv4::1]'],
 		];

@@ -134,7 +134,7 @@ class Modules {
 		];
 		foreach ($module_paths as $module_path) {
 			try {
-				$files[$module_path] = Directory::list_recursive($module_path, $options);
+				$files[$module_path] = Directory::listRecursive($module_path, $options);
 			} catch (Exception_Parameter) {
 			}
 		}

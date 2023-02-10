@@ -13,6 +13,8 @@ use zesk\ArrayTools;
 use zesk\Command_Base;
 use zesk\Exception_Configuration;
 use zesk\Exception_File_Permission;
+use zesk\Exception_Semantics;
+use zesk\Exception_Syntax;
 use zesk\Exception_System;
 use zesk\FilesMonitor;
 use zesk\Interface_Process;
@@ -235,26 +237,20 @@ class Command extends Command_Base implements Interface_Process {
 
 	protected function install_signals(): void {
 		if (function_exists('pcntl_signal')) {
-			$callback = [
-				$this,
-				'signal_handler',
-			];
+			$callback = $this->signal_handler(...);
 			pcntl_signal(SIGCHLD, $callback);
 			pcntl_signal(SIGTERM, $callback);
 			pcntl_signal(SIGINT, $callback);
 			pcntl_signal(SIGALRM, $callback);
 
-			register_shutdown_function([
-				__CLASS__,
-				'shutdown',
-			]);
+			register_shutdown_function($this->shutdown(...));
 		}
 	}
 
 	/**
 	 * @return array
 	 * @throws Exception_File_Permission
-	 * @throws \zesk\Exception_Syntax
+	 * @throws Exception_Syntax
 	 */
 	private function loadProcessDatabase(): array {
 		return $this->module->loadProcessDatabase();
@@ -345,7 +341,7 @@ class Command extends Command_Base implements Interface_Process {
 		$new_daemons = [];
 		$max = $this->option('maximum_processes', 100);
 		foreach ($daemons as $daemon) {
-			$process_count = to_integer($configuration->getPath("$daemon::process_count"), 1);
+			$process_count = toInteger($configuration->getPath("$daemon::process_count"), 1);
 			if ($process_count <= 1) {
 				$total_process_count = $total_process_count + 1;
 				$new_daemons[] = $daemon;
@@ -525,15 +521,22 @@ class Command extends Command_Base implements Interface_Process {
 
 	/**
 	 *
+	 * @return self
+	 */
+	protected static function instance(): self {
+		if (!self::$instance) {
+			throw new Exception_Semantics('No instance');
+		}
+		return self::$instance;
+	}
+
+	/**
+	 *
 	 * @param self $set
 	 * @return self
 	 */
-	protected static function instance($set = null) {
-		static $instance = null;
-		if (is_object($set)) {
-			$instance = $set;
-		}
-		return $instance;
+	protected static function setInstance(self $set): void {
+		self::$instance = $set;
 	}
 
 	/**
@@ -542,7 +545,7 @@ class Command extends Command_Base implements Interface_Process {
 	 * @param int $signo
 	 *        	The signal number to handle
 	 */
-	public function signal_handler($signo): void {
+	public function signal_handler(int $signo): void {
 		$this->application->logger->debug('Signal {signame} {signo} received', [
 			'signo' => $signo,
 			'signame' => self::$signals[$signo] ?? 'Unknown',
@@ -647,11 +650,12 @@ class Command extends Command_Base implements Interface_Process {
 		if ($pid === 0) {
 			$this->application->hooks->call('pcntl_fork-child');
 			/* We are the child */
-			$this->sid = posix_setsid();
-			if ($this->sid < 0) {
+			$sid = posix_setsid();
+			if ($sid < 0) {
 				$this->error('Unable to posix_setsid - can not run with --nohup');
 				exit(1);
 			}
+			$this->setOption('sid', $sid);
 			umask(0);
 			chdir('/');
 			fclose(STDIN);
@@ -909,8 +913,6 @@ class Command extends Command_Base implements Interface_Process {
 							'pid' => $pid,
 						]);
 					}
-
-					continue;
 				} elseif ($status === 'down') {
 					continue;
 				} elseif ($status === 'up') {
@@ -1079,11 +1081,11 @@ class Command extends Command_Base implements Interface_Process {
 	 */
 	public function kill(): void {
 		$this->quitting = true;
-		$pid = $this->application->process->id();
+		$myProcessID = $this->application->process->id();
 		if ($this->parent) {
 			$database = $this->loadProcessDatabase();
-			foreach ($database as $name => $pid) {
-				if ($pid !== $pid) {
+			foreach ($database as $pid) {
+				if ($myProcessID !== $pid) {
 					posix_kill($pid, SIGKILL);
 				} else {
 					posix_kill($pid, SIGTERM);
@@ -1136,8 +1138,6 @@ class Command extends Command_Base implements Interface_Process {
 						'status' => $status,
 					]);
 					unset($database[$name]);
-
-					continue;
 				} else {
 					if (pcntl_wifexited($status)) {
 						unset($database[$name]);
@@ -1218,7 +1218,7 @@ class Command extends Command_Base implements Interface_Process {
 	 * @param array $args
 	 * @param string $level
 	 */
-	public function warning($message, array $args = []): void {
+	public function warning(string $message, array $args = []): void {
 		$this->application->logger->warning($message, $args);
 	}
 }

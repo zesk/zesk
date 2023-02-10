@@ -81,12 +81,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *   MUST be thrown.
 	 *
 	 */
-	public function getItem($key): CacheItemInterface {
-		if (!is_string($key)) {
-			throw new InvalidArgumentException(map('{method} passed {type}, needs string', [
-				'method' => __METHOD__, 'type' => type($key),
-			]));
-		}
+	public function getItem(string $key): CacheItemInterface {
 		$cache_file = $this->cacheFile($key);
 		// Previously did "is_file", then "file_get_contents", but a race condition would create warnings in our logs when files were deleted
 		// So, since file_get_contents is probably doing an is_file check internally anyway, just skip it since handling is identical
@@ -144,7 +139,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *   MUST be thrown.
 	 *
 	 */
-	public function hasItem($key): bool {
+	public function hasItem(string $key): bool {
 		return is_file($this->cacheFile($key));
 	}
 
@@ -176,7 +171,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *   MUST be thrown.
 	 *
 	 */
-	public function deleteItem($key): bool {
+	public function deleteItem(string $key): bool {
 		try {
 			File::unlink($this->cacheFile($key));
 			return true;
@@ -265,7 +260,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @return string
 	 */
 	private function cacheName(string $key): string {
-		$clean = File::name_clean($key);
+		$clean = File::nameClean($key);
 		$hash = md5($key);
 		return substr($hash, 0, 1) . '/' . substr($hash, 1) . '^' . substr($clean, 0, 32);
 	}

@@ -12,6 +12,7 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
+use zesk\Exception_Deprecated;
 use zesk\Kernel;
 use zesk\StringTools;
 use zesk\Text;
@@ -1222,7 +1223,7 @@ function to_bytes(string $mixed, int $default = 0): float {
  *
  * @param mixed $mixed
  * @return array|Iterator
- * @throws \zesk\Exception_Deprecated
+ * @throws Exception_Deprecated
  * @deprecated 2022-01
  */
 function to_iterator(mixed $mixed): iterable {

@@ -38,16 +38,11 @@ class Database_SQL extends \zesk\Database_SQL {
 	public const sql_column_quotes = '``""';
 
 	/**
-	 * @var Database
-	 */
-	protected $database = null;
-
-	/**
 	 *
 	 * {@inheritDoc}
 	 * @see Database_SQL::alter_table_column_add()
 	 */
-	public function alter_table_column_add(Database_Table $table, Database_Column $addColumn) {
+	public function alter_table_column_add(Database_Table $table, Database_Column $addColumn): string {
 		$newName = $addColumn->name();
 		$newType = $this->database_column_native_type($addColumn);
 
@@ -55,11 +50,10 @@ class Database_SQL extends \zesk\Database_SQL {
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 *
-	 * @see zesk\Database::sql_alter_table_column_drop()
+	 * @see Database::sql_alter_table_column_drop()
 	 */
-	public function alter_table_column_drop(Database_Table $table, $columnNameName) {
+	public function alter_table_column_drop(Database_Table $table, string $columnNameName): string {
 		$sqls = [];
 		/* @var $new_table Database_Table */
 		$new_table = clone $table;
@@ -70,9 +64,10 @@ class Database_SQL extends \zesk\Database_SQL {
 		$sqls[] = 'BEGIN EXCLUSIVE TRANSACTION';
 		// 		 Remember the format of all indexes and triggers associated with table X. This information will be needed in step 8 below. One way to do this is to run a query like the following: SELECT type, sql FROM sqlite_master WHERE tbl_name='X'.
 
-		$new_table->column_keysRemove($columnNameName->name());
+		$new_table->removeColumn($columnNameName->name());
 
-		$new_table->name($new_table_name = strval($table) . '_' . md5(microtime()));
+		$new_table_name = $table . '_' . md5(microtime());
+		$new_table->setName($new_table_name);
 
 		$quoted_table_name = $this->quoteTable($table->name());
 		$quoted_new_table_name = $this->quoteTable($new_table_name);
@@ -112,7 +107,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		return $sqls;
 	}
 
-	public function alter_table_index_add(Database_Table $table, Database_Index $index) {
+	public function alter_table_index_add(Database_Table $table, Database_Index $index): array|string {
 		$indexType = $index->type();
 		$unique = '';
 		$indexes = $index->columnSizes();
@@ -129,7 +124,7 @@ class Database_SQL extends \zesk\Database_SQL {
 				if (count($columns) === 1) {
 					$column = $table->column(first($columns));
 					$column_name = $this->quoteColumn($column->name());
-					$column_sql = $column->sql_type();
+					$column_sql = $column->sqlType();
 					return "ALTER TABLE $table_name CHANGE $column_name $column_sql PRIMARY KEY";
 				}
 				// no break
@@ -137,8 +132,6 @@ class Database_SQL extends \zesk\Database_SQL {
 				break;
 			default:
 				throw new Exception_Invalid(__METHOD__ . "($table, $indexType, ...): Invalid index type $indexType");
-
-				break;
 		}
 		$sqlIndexes = [];
 		foreach ($indexes as $k => $size) {
@@ -177,11 +170,11 @@ class Database_SQL extends \zesk\Database_SQL {
 		$newType = $this->database_column_native_type($newColumn);
 		$previous_name = $oldColumn->name();
 		$newName = $newColumn->name();
-		$suffix = $newColumn->primary_key() ? ' FIRST' : '';
+		$suffix = $newColumn->primaryKey() ? ' FIRST' : '';
 
 		$new_sql = 'ALTER TABLE ' . $this->quoteTable($table) . ' CHANGE COLUMN ' . $this->quoteColumn($previous_name) . ' ' . $this->quoteColumn($newName) . " $newType $suffix";
 		$old_table = $oldColumn->table();
-		if ($newColumn->primary_key() && $old_table->primary()) {
+		if ($newColumn->primaryKey() && $old_table->primary()) {
 			return [
 				$this->alter_table_index_drop($old_table, $old_table->primary()),
 				$new_sql,
@@ -195,14 +188,12 @@ class Database_SQL extends \zesk\Database_SQL {
 	 *
 	 * @param string $target
 	 */
-	public function function_hex($target) {
-		throw new Exception_Unimplemented();
-		return $target;
+	public function function_hex(string $target): string {
+		throw new Exception_Unimplemented(__METHOD__);
 	}
 
-	public function function_unhex($target) {
-		throw new Exception_Unimplemented();
-		return $target;
+	public function function_unhex(string $target): string {
+		throw new Exception_Unimplemented(__METHOD__);
 	}
 
 	/**
@@ -409,9 +400,9 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @return Ambigous <string, mixed, unknown, multitype:>
 	 */
 	private function database_column_native_type(Database_Column $dbCol) {
-		$sql_type = $dbCol->sql_type();
+		$sql_type = $dbCol->sqlType();
 		$sql = "$sql_type";
-		if ($dbCol->primary_key()) {
+		if ($dbCol->primaryKey()) {
 			// Primary key should not be unsigned integer
 			$sql .= ' PRIMARY KEY NOT NULL';
 		} else {
@@ -419,11 +410,11 @@ class Database_SQL extends \zesk\Database_SQL {
 				$sql .= ' unsigned';
 			}
 			$sql .= $dbCol->required() ? ' NOT NULL' : ' NULL';
-			if ($dbCol->has_default_value() || $dbCol->required()) {
+			if ($dbCol->hasDefaultValue() || $dbCol->required()) {
 				$sql .= $this->_sql_column_default($sql_type, $dbCol->option('default'), $dbCol->required());
 			}
 		}
-		if ($dbCol->has_extras()) {
+		if ($dbCol->hasExtras()) {
 			$sql .= $dbCol->extras();
 		}
 		return $sql;
@@ -515,9 +506,9 @@ class Database_SQL extends \zesk\Database_SQL {
 		return self::unquoteColumn($table);
 	}
 
-	public function function_date_diff($date_a, $date_b) {
-		throw new Exception_Unimplemented();
-		return "TIMESTAMPDIFF(SECOND,$date_b,$date_a)";
+	public function function_date_diff($date_a, $date_b): void {
+		throw new Exception_Unimplemented(__METHOD__);
+		// return "TIMESTAMPDIFF(SECOND,$date_b,$date_a)";
 	}
 
 	/**

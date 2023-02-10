@@ -57,14 +57,11 @@ class JavaScript {
 	 * @return string
 	 * @throws Exception_Semantics
 	 */
-	public static function obfuscate_end($function_map = []) {
+	public static function obfuscate_end(array $function_map = []) {
 		if (!self::$obfuscated) {
 			throw new Exception_Semantics('Need to call obfuscate_begin first');
 		}
 		self::$obfuscated = false;
-		if (!is_array($function_map)) {
-			$function_map = [];
-		}
 		$formatting = [
 			"\t" => ' ',
 			"\n" => '',

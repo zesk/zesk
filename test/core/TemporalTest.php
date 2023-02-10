@@ -3,7 +3,7 @@
 namespace zesk;
 
 class TemporalTest extends UnitTest {
-	public function data_convertUnits(): array {
+	public static function data_convertUnits(): array {
 		return [
 			[0, 0, Temporal::UNIT_SECOND],
 			[1, 1, Temporal::UNIT_SECOND],

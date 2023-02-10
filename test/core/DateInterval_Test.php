@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace zesk;
 
 class DateInterval_Test extends UnitTest {
-	public function data_sample_interval_row(): array {
+	public static function data_sample_interval_row(): array {
 		return [
 			['P1Y'], ['PT1S'], ['PT60S'], ['PT6000S'], ['PT3600S'], ['PT86400M'], ['P1D'], ['P2D'],
 		];
 	}
 
-	public function data_extend(): array {
+	public static function data_extend(): array {
 		$result = [];
 		foreach ($this->data_sample_interval_row() as $sample_interval_row) {
 			$sample_interval = $sample_interval_row[0];
@@ -40,7 +40,7 @@ class DateInterval_Test extends UnitTest {
 		$this->assertEquals($expected, DateInterval::factory($input)->toSeconds(), "DateInterval::toSeconds($input)");
 	}
 
-	public function data_toSeconds(): array {
+	public static function data_toSeconds(): array {
 		return [
 			['P1Y', Temporal::SECONDS_PER_YEAR], ['PT1S', 1.0], ['PT60S', 60.0], ['PT6000S', 6000.0],
 			['PT3600S', 3600.0], ['PT86400M', 5184000.0],

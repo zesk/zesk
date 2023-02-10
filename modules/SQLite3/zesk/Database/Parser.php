@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @author kent
@@ -6,6 +7,7 @@
  * @package zesk
  * @subpackage database
  */
+
 namespace zesk\SQLite3;
 
 use zesk\Database_Column;
@@ -13,6 +15,7 @@ use zesk\Database_Index;
 use zesk\Database_Table;
 use zesk\Exception_Parse;
 use zesk\Text;
+use \zesk\Database_Parser as BaseParser;
 
 /**
  * Pattern to capture an enture CREATE TABLE sql command
@@ -111,27 +114,22 @@ define('SQLITE_PATTERN_TIP_ALTER', '/\/\*\s*([+-])' . SQLITE_PATTERN_COLUMN_NAME
 define('SQLITE_TABLE_QUOTES', '``""');
 
 define('SQLITE_COLUMN_QUOTES', '``""');
+
 /**
  *
  * @author kent
  *
  */
-class Database_Parser extends \zesk\Database_Parser {
-	/**
-	 *
-	 * @var Database
-	 */
-	protected $database = null;
-
+class Database_Parser extends BaseParser {
 	/**
 	 * Parse SQL to determine type of command
 	 *
 	 * @param string $sql
 	 * @param string $field
-	 *        	Optional desired field.
-	 * @return multitype:string NULL |Ambigous <mixed, array>
+	 *            Optional desired field.
+	 * @return string|array
 	 */
-	public function parseSQL($sql, $field = null) {
+	public function parseSQL(string $sql, string $field = ''): string|array {
 		$sql = $this->sql()->removeComments($sql);
 		$sql = trim($sql);
 		$result = parent::parseSQL($sql);
@@ -142,7 +140,7 @@ class Database_Parser extends \zesk\Database_Parser {
 				$result['table'] = $this->sql()->unquoteTable($matches[2]);
 			}
 		}
-		return ($field === null) ? $result : $result[$field] ?? $result;
+		return ($field === '') ? $result : $result[$field] ?? $result;
 	}
 
 	/**
@@ -154,14 +152,8 @@ class Database_Parser extends \zesk\Database_Parser {
 	 */
 	private function parse_column_options_sql(Database_Table $table, $sql_type, $column_options) {
 		static $patterns = [
-			'not null',
-			'default null',
-			'default \'([^\']*)\'',
-			'default (-?[0-9:]+)',
-			'default ([a-zA-Z_]+)',
-			'character set ([A-Za-z][A-Za-z0-9]*)',
-			'autoincrement',
-			'primary key',
+			'not null', 'default null', 'default \'([^\']*)\'', 'default (-?[0-9:]+)', 'default ([a-zA-Z_]+)',
+			'character set ([A-Za-z][A-Za-z0-9]*)', 'autoincrement', 'primary key',
 		];
 
 		$col_opt_matches = null;
@@ -215,13 +207,15 @@ class Database_Parser extends \zesk\Database_Parser {
 	 *
 	 * @param Database_Table $table
 	 * @param string $sql
-	 * @throws Exception_Parse
 	 * @return unknown
+	 * @throws Exception_Parse
 	 */
 	private function parse_column_sql(Database_Table $table, $sql) {
 		$columns_matches = [];
 		if (!preg_match_all(SQLITE_PATTERN_COLUMN_LIST, $sql, $columns_matches, PREG_SET_ORDER)) {
-			throw new Exception_Parse(__('Unable to parse table {0} column definition: {1}', $table->name(), substr($sql, 128)));
+			throw new Exception_Parse('Unable to parse table {tableName} column definition: {sql}', [
+				'tableName' => $table->name(), 'sql' => substr($sql, 128),
+			]);
 		}
 		$db = $table->database();
 		$previous_column = null;
@@ -304,9 +298,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			$columns = trim($columns);
 			if (!preg_match_all(SQLITE_PATTERN_INDEX_COLUMN_LIST, "$columns,", $column_matches, PREG_PATTERN_ORDER)) {
 				throw new Exception_Parse('Unable to parse SQLite3 {table} columns {index_name}: {raw_columns}', [
-					'table' => $table_name,
-					'index_name' => $index_name,
-					'raw_columns' => $columns,
+					'table' => $table_name, 'index_name' => $index_name, 'raw_columns' => $columns,
 				]);
 			}
 			$column_matches = unquote($column_matches[1], SQLITE_COLUMN_QUOTES);
@@ -320,9 +312,9 @@ class Database_Parser extends \zesk\Database_Parser {
 	/**
 	 * Parse Tips
 	 *
-	 * @todo move to parent class
 	 * @param string $sql
 	 * @return array
+	 * @todo move to parent class
 	 */
 	private static function tips(&$sql) {
 		$matches = null;
@@ -350,18 +342,16 @@ class Database_Parser extends \zesk\Database_Parser {
 			}
 		}
 		return [
-			'rename' => $renamed_columns,
-			'add' => $add_tips,
-			'remove' => $remove_tips,
+			'rename' => $renamed_columns, 'add' => $add_tips, 'remove' => $remove_tips,
 		];
 	}
 
 	/**
 	 * Allow renaming of columns and of tables using comments.
 	 *
-	 * @todo move to parent class
 	 * @param Database_Table $table
 	 * @param array $tips
+	 * @todo move to parent class
 	 */
 	private function apply_tips(Database_Table $table, array $tips): void {
 		$rename_tips = $tips['rename'] ?? [];
@@ -396,7 +386,7 @@ class Database_Parser extends \zesk\Database_Parser {
 	 * @see Database_Parser::createTable()
 	 * Parses CREATE TABLE for MySQL and returns a Database_Table
 	 */
-	public function createTable($sql) {
+	public function createTable(string $sql): Database_Table {
 		$matches = false;
 		$source_sql = $sql;
 
@@ -413,7 +403,9 @@ class Database_Parser extends \zesk\Database_Parser {
 		 * Parse table into name, columns, and options
 		 */
 		if (!preg_match(SQLITE_PATTERN_CREATE_TABLE, $sql, $matches)) {
-			throw new Exception_Parse(__('Unable to parse CREATE TABLE starting with: {0}', substr($sql, 0, 99)));
+			throw new Exception_Parse('Unable to parse CREATE TABLE starting with: {sql}', [
+				'sql' => substr($sql, 0, 99),
+			]);
 		}
 
 		$table = unquote($matches[1], SQLITE_TABLE_QUOTES);
@@ -423,7 +415,7 @@ class Database_Parser extends \zesk\Database_Parser {
 		$table_options = self::create_table_options($matches[3]);
 
 		$table = new Database_Table($this->database, $table);
-		$table->source($source_sql);
+		$table->setSource($source_sql);
 		$sql_columns = trim($matches[2]) . ',';
 
 		$this->parse_column_sql($table, $sql_columns);

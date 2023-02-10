@@ -102,9 +102,9 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	}
 
 	/**
-	 * @return array
+	 * @return self
 	 */
-	public function compute_javascript_settings(): array {
+	public function compute_javascript_settings(): self {
 		if ($this->javascript_settings_inherit) {
 			foreach ($this->javascript_settings_inherit as $key => $value) {
 				if ($this->hasOption($key)) {

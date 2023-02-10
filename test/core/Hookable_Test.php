@@ -127,7 +127,7 @@ class Hookable_Test extends UnitTest {
 
 		$options = $options->options();
 		$this->assertArrayHasKey('test1', $options);
-		$this->assertArrayNotHasKey('more', $options, );
+		$this->assertArrayNotHasKey('more', $options);
 
 		$this->assertEquals($options, [
 			'test1' => 'test1', 'test2' => 'test2', 'test3array' => [

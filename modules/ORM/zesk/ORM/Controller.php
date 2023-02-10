@@ -18,6 +18,7 @@ use zesk\Exception_Authentication;
 use zesk\Exception_Configuration;
 use zesk\Exception_Deprecated;
 use zesk\Exception_Key;
+use zesk\Exception_NotFound;
 use zesk\Exception_Parameter;
 use zesk\Exception_Permission;
 use zesk\Exception_Redirect;
@@ -161,7 +162,7 @@ abstract class Controller extends Controller_Authenticated {
 		if ($action) {
 			try {
 				$url = $this->router->getRoute($action, $object);
-			} catch (\zesk\Exception_NotFound $e) {
+			} catch (Exception_NotFound $e) {
 			}
 		}
 		if (!$url) {
@@ -260,9 +261,9 @@ abstract class Controller extends Controller_Authenticated {
 			try {
 				$object->delete();
 				$result = true;
-				$message = $object::class . ':=Deleted {class_name-context-object-singular} "{display_name}".';
+				$message = $object::class . ':=Deleted {class_name-context-object-singular} "{displayName}".';
 			} catch (Database_Exception_Duplicate|Database_Exception_Table_NotFound|Database_Exception_SQL|Exception_Key|Exception_ORMEmpty $e) {
-				$message = $object::class . ':=Unable to delete {class_name-context-object-singular} "{display_name}".';
+				$message = $object::class . ':=Unable to delete {class_name-context-object-singular} "{displayName}".';
 				$result = false;
 			}
 		} else {
@@ -290,14 +291,14 @@ abstract class Controller extends Controller_Authenticated {
 		if ($user->can('duplicate', $object)) {
 			try {
 				$new_object = $object->duplicate();
-				$message = "$class:=Duplicated {class_name-context-object-singular} \"{display_name}\".";
+				$message = "$class:=Duplicated {class_name-context-object-singular} \"{displayName}\".";
 				$result = true;
 			} catch (Exception_Deprecated|Exception_Key|Exception_Semantics $e) {
-				$message = "$class:=Unable to duplicate {class_name-context-object-singular} \"{display_name}\".";
+				$message = "$class:=Unable to duplicate {class_name-context-object-singular} \"{displayName}\".";
 				$result = false;
 			}
 		} else {
-			$message = "$class:=You do not have permission to duplicate {class_name-context-object-singular} \"{display_name}\".";
+			$message = "$class:=You do not have permission to duplicate {class_name-context-object-singular} \"{displayName}\".";
 			$result = false;
 		}
 		$locale = $this->application->locale;
@@ -345,7 +346,7 @@ abstract class Controller extends Controller_Authenticated {
 			return $object->fetch();
 		} catch (Exception_ORM_NotFound $e) {
 			throw new Exception_Parameter('{name} not found', $__);
-		} catch (Exception_ORM_NotFound $e) {
+		} catch (Exception_ORMEmpty $e) {
 			throw new Exception_Parameter('{name} is empty', $__);
 		} catch (\Exception $e) {
 			throw new Exception_Parameter('{name} unknown error {message}', $__ + [

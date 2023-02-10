@@ -148,7 +148,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		 *
 		 * If a column is already AUTO_INCREMENT, then don't make it again
 		 */
-		$increment = $oldColumn->isIncrement() === $newColumn->isIncrement() ? false : true;
+		$increment = $oldColumn->isIncrement() !== $newColumn->isIncrement();
 		$primary = true;
 		$increment = true;
 		// 		if ($increment) {
@@ -163,7 +163,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		$primary = $oldColumn->table()->primary() === null;
 
 		// OK to add increment column if no old increment column exists
-		$increment = $oldColumn->isIncrement() ? false : true;
+		$increment = !$oldColumn->isIncrement();
 
 		$newType = $this->database_column_native_type($newColumn, $increment, $primary);
 		$previous_name = $oldColumn->name();
@@ -242,7 +242,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		}
 		$low_priority = $options['low_priority'] ?? false;
 		if ($low_priority) {
-			$options['update suffix'] ??= '' . ' LOW_PRIORITY';
+			$options['update suffix'] ??= ' LOW_PRIORITY';
 		}
 		return parent::update($options);
 	}

@@ -6,6 +6,8 @@
  */
 namespace zesk;
 
+use Throwable;
+
 /**
  *
  * @author kent
@@ -30,9 +32,9 @@ class Database_Exception_Connect extends Exception {
 	 * @param string $message
 	 * @param array $arguments
 	 * @param int $errno
-	 * @param \Throwable|null $t
+	 * @param Throwable|null $t
 	 */
-	public function __construct(string $url, string $message = '', array $arguments = [], int $errno = 0, \Throwable
+	public function __construct(string $url, string $message = '', array $arguments = [], int $errno = 0, Throwable
 	$t = null) {
 		if (URL::valid($url)) {
 			$this->url = $url;

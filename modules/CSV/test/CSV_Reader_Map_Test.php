@@ -76,7 +76,7 @@ class CSV_Reader_Map_Test extends UnitTest {
 			],
 		];
 		$is_map = false;
-		$x->set_headers($headers, false);
+		$x->setHeaders($headers, false);
 
 		$x->headers();
 

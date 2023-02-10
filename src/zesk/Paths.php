@@ -115,7 +115,7 @@ class Paths {
 	 * @return array
 	 */
 	private function _initializeZesk(): array {
-		$zeskRoot = realpath(dirname(__DIR__)) . '/';
+		$zeskRoot = realpath(dirname(__DIR__, 2)) . '/';
 		if (!defined('ZESK_ROOT')) {
 			define('ZESK_ROOT', $zeskRoot);
 		} elseif (ZESK_ROOT !== $zeskRoot) {

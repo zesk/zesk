@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use OutOfBoundsException;
+
 /**
  *
  * @author kent
@@ -98,7 +100,7 @@ class Date_Test extends UnitTest {
 	 * @return void
 	 */
 	public function test_range_fail($y, $m, $d): void {
-		$this->expectException(\OutOfBoundsException::class);
+		$this->expectException(OutOfBoundsException::class);
 		Date::instance($y, $m, $d);
 	}
 

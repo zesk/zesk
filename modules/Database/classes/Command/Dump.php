@@ -107,7 +107,7 @@ class Command_Dump extends Command_Base {
 				}
 				$suffix .= ' | gzip';
 			}
-			$where = Directory::make_absolute($app_root, $where);
+			$where = Directory::makeAbsolute($app_root, $where);
 			$suffix .= " > $where";
 		}
 

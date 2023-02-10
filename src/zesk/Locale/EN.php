@@ -111,9 +111,9 @@ class Locale_EN extends Locale {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see Locale::indefinite_article()
+	 * @see Locale::indefiniteArticle()
 	 */
-	public function indefinite_article(string $word, array $context = []): string {
+	public function indefiniteArticle(string $word, array $context = []): string {
 		if (strlen($word) === 0) {
 			return '';
 		}

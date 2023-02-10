@@ -30,13 +30,18 @@ class Configuration_Dependency {
 	/**
 	 *
 	 * @param string $name
+	 * @return self
 	 */
-	public function push($name) {
+	public function push(string $name): self {
 		$this->context[] = $name;
 		return $this;
 	}
 
-	public function pop() {
+	/**
+	 * @return self
+	 * @throws Exception_Semantics
+	 */
+	public function pop(): self {
 		if (count($this->context) === 0) {
 			throw new Exception_Semantics('Popped once to many times?');
 		}
@@ -44,7 +49,12 @@ class Configuration_Dependency {
 		return $this;
 	}
 
-	public function defines($variable, array $dependencies = []) {
+	/**
+	 * @param string $variable
+	 * @param array $dependencies
+	 * @return $this
+	 */
+	public function defines(string $variable, array $dependencies = []): self {
 		$context = last($this->context);
 		if (count($dependencies) === 0) {
 			unset($this->externals[$variable]);
@@ -65,7 +75,7 @@ class Configuration_Dependency {
 	/**
 	 *
 	 */
-	public function externals() {
+	public function externals(): array {
 		return array_keys($this->externals);
 	}
 }

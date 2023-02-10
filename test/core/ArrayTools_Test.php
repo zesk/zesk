@@ -7,10 +7,46 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use \stdClass;
+use stdClass;
 
 class ArrayTools_Test extends UnitTest {
-	public function data_changeValueCase(): array {
+	public static function data_simplify(): array {
+		return [
+			[[2 => '{}'], [2 => new stdClass()]],
+			[[], [[2 => 'very sexy'], [2 => 'very lame'], ['la' => 'se', 'me' => 'xy']]],
+		];
+	}
+
+	/**
+	 * @dataProvider data_simplify
+	 * @param array $expected
+	 * @param array $array
+	 * @return void
+	 * @throws Exception_Semantics
+	 */
+	public function test_simplify(array $expected, array $array): void {
+		$this->assertEquals($expected, ArrayTools::simplify($array));
+	}
+
+	public static function data_replaceSubstrings(): array {
+		return [
+			['very sexy', 'very lame', ['la' => 'se', 'me' => 'xy']],
+			[[2 => 'very sexy'], [2 => 'very lame'], ['la' => 'se', 'me' => 'xy']],
+		];
+	}
+
+	/**
+	 * @param mixed $expected
+	 * @param mixed $mixed
+	 * @param array $map
+	 * @return void
+	 * @dataProvider data_replaceSubstrings
+	 */
+	public function test_replaceSubstrings(mixed $expected, mixed $mixed, array $map): void {
+		$this->assertEquals($expected, ArrayTools::replaceSubstrings($mixed, $map));
+	}
+
+	public static function data_changeValueCase(): array {
 		return [
 			[
 				[
@@ -36,7 +72,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals($expected, ArrayTools::changeValueCase($array));
 	}
 
-	public function data_valuesFlipCopy(): array {
+	public static function data_valuesFlipCopy(): array {
 		// ordering is backwards - [input, expected]
 		return [
 			[
@@ -95,7 +131,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals($expected, ArrayTools::wrapValues($array, $prefix, $suffix));
 	}
 
-	public function data_wrap(): array {
+	public static function data_wrap(): array {
 		return [
 			[[], [], '', ''], [
 				[
@@ -140,7 +176,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals($expected, ArrayTools::prefixKeys($array, $prefix));
 	}
 
-	public function data_prefixKeys(): array {
+	public static function data_prefixKeys(): array {
 		return [
 			[
 				[
@@ -183,7 +219,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals($result, $result_correct);
 	}
 
-	public function data_hasValue(): array {
+	public static function data_hasValue(): array {
 		return [
 			[], [], false,
 
@@ -227,7 +263,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals($expected, ArrayTools::hasAnyValue($array, $values));
 	}
 
-	public function data_hasAnyValues(): array {
+	public static function data_hasAnyValues(): array {
 		return [
 			[true, ['a', 'b', 'c'], 'a'], [true, ['a', 'b', 'c'], 'b'], [true, ['a', 'b', 'c'], 'c'],
 			[false, ['a', 'b', 'c'], 'd'], [true, ['a', 'b', 'c'], ['a']], [true, ['a', 'b', 'c'], ['b']],
@@ -248,7 +284,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals($expected, ArrayTools::hasAnyKey($array, $keys));
 	}
 
-	public function data_hasAnyKey(): array {
+	public static function data_hasAnyKey(): array {
 		return [
 			[true, ['a', 'b', 'c'], 0], [true, ['a', 'b', 'c'], 1], [true, ['a', 'b', 'c'], 2],
 			[false, ['a', 'b', 'c'], 'd'], [true, ['a', 'b', 'c'], [0]], [true, ['a', 'b', 'c'], [1]],
@@ -369,7 +405,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals($result, $result_correct);
 	}
 
-	public function data_keysMap(): array {
+	public static function data_keysMap(): array {
 		return [
 			[
 				['a' => 1], [], ['a' => 1],
@@ -410,7 +446,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals($expected, $result);
 	}
 
-	public function data_pairValues(): array {
+	public static function data_pairValues(): array {
 		return [
 			[
 				['foo' => 'mix=up'], '=', ['mix' => 'up'],
@@ -437,7 +473,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals($expected, ArrayTools::pairValues($array, $delim));
 	}
 
-	public function data_valuesMap(): array {
+	public static function data_valuesMap(): array {
 		return [
 			[
 				[
@@ -803,8 +839,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals($expected, ArrayTools::keysFind($source, $source_keys, $default));
 	}
 
-	public function data_keysFind(): array {
-		;
+	public static function data_keysFind(): array {
 		return [
 			[
 				'B', [
@@ -822,7 +857,7 @@ class ArrayTools_Test extends UnitTest {
 		];
 	}
 
-	public function data_max(): array {
+	public static function data_max(): array {
 		return [
 			[
 				513234, [
@@ -847,11 +882,11 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals($expected, ArrayTools::max($array, $default));
 	}
 
-	public function data_min(): array {
+	public static function data_min(): array {
 		return [
 			[
 				[
-					'-412312', 4, 61234, 6123, 3, new \stdClass(), [], -51235412, 3, 123, 5,
+					'-412312', 4, 61234, 6123, 3, new stdClass(), [], -51235412, 3, 123, 5,
 				], null, -51235412,
 			], [
 				[
@@ -931,7 +966,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals(3, StringTools::contains($haystack, $needles));
 	}
 
-	public function data_append(): array {
+	public static function data_append(): array {
 		return [
 			[['key' => 1], [], 'key', 1], [['key' => [1, 3]], ['key' => 1], 'key', 3],
 			[['key' => [1, 3, 5]], ['key' => [1, 3]], 'key', 5],
@@ -968,7 +1003,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals([2 => false, 3 => null], ArrayTools::clean(['', '', false, null], ['']));
 	}
 
-	public function data_filterKeys(): array {
+	public static function data_filterKeys(): array {
 		return [
 			[
 				['a' => 1, 'b' => 2], ['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4], ['a', 'b'], [], true,
@@ -1015,7 +1050,7 @@ class ArrayTools_Test extends UnitTest {
 		], $charlist));
 	}
 
-	public function data_preg_quote(): array {
+	public static function data_preg_quote(): array {
 		return [
 			['', '', ''], ['dude', 'd', "\du\de"], ['We are #1', '#', "We are \#1"],
 		];
@@ -1032,7 +1067,7 @@ class ArrayTools_Test extends UnitTest {
 		$this->assertEquals($expected, ArrayTools::preg_quote($string, $delimiter));
 	}
 
-	public function data_prepend(): array {
+	public static function data_prepend(): array {
 		return [
 			[[], 'key', 1, ['key' => 1]], [['key' => 1], 'key', 2, ['key' => [2, 1]]],
 			[['key' => [2, 1]], 'key', 77.9, ['key' => [77.9, 2, 1]]],
@@ -1059,7 +1094,7 @@ class ArrayTools_Test extends UnitTest {
 		]);
 	}
 
-	public function data_listTrim(): array {
+	public static function data_listTrim(): array {
 		return [
 			[
 				['', false, null, [], 'a', 'b', '', false, null, [], 'c', 'd', '', false, null, []],

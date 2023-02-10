@@ -26,7 +26,7 @@ class Controller_Cache extends Controller {
 	 */
 	protected function request_to_file(string $contents): ?Response {
 		$file = $this->request->path();
-		if (!File::path_check($file)) {
+		if (!File::pathCheck($file)) {
 			$message = 'User accessed {file} which contains suspicious path components while trying to write {contents_size} bytes.';
 			$args = [
 				'file' => $file, 'contents_size' => strlen($contents),

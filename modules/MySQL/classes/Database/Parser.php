@@ -250,9 +250,6 @@ class Database_Parser extends \zesk\Database_Parser {
 				if ($options['not null'] ?? null) {
 					// KMD Was 2020-07-13 "CURRENT_TIMESTAMP";
 					$options['default'] = 0;
-				} else {
-					// $options['default'] = null;
-					// KMD False DEFAULT NULL not compatible 2021
 				}
 			}
 			$col = new Database_Column($table, $column_name, $options);
@@ -383,9 +380,9 @@ class Database_Parser extends \zesk\Database_Parser {
 				$alter_sql = rtrim($alter_sql, ";\n") . ';';
 				$col = unquote($column, '``');
 				if ($plus_minus === '+') {
-					$add_tips[$col] ??= '' . $alter_sql;
+					$add_tips[$col] ??= $alter_sql;
 				} else {
-					$remove_tips[$col] ??= '' . $alter_sql;
+					$remove_tips[$col] ??= $alter_sql;
 				}
 				$sql = str_replace($full_match, '', $sql);
 			}
@@ -460,7 +457,7 @@ class Database_Parser extends \zesk\Database_Parser {
 		 * Parse table into name, columns, and options
 		 */
 		if (!preg_match(MYSQL_PATTERN_CREATE_TABLE, strtr($sql, "\n", ' '), $matches)) {
-			throw new Exception_Parse(__('Unable to parse CREATE TABLE starting with: {0}', $sql));
+			throw new Exception_Parse('Unable to parse CREATE TABLE starting with: {0}', $sql);
 		}
 
 		$table = unquote($matches[1], '``');

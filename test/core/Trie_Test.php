@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace zesk;
 
 class Trie_Test extends UnitTest {
-	public function data_trie(): array {
+	public static function data_trie(): array {
 		$aa_json = [
 			'a' => [
 				'a' => [

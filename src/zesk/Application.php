@@ -916,7 +916,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @return string
 	 */
 	private function defaultZeskCommandPath(): string {
-		return $this->paths->zesk('zesk/Command');
+		return $this->paths->zesk('src/zesk/Command');
 	}
 
 	/**

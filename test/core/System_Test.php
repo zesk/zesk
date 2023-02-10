@@ -29,7 +29,9 @@ class System_Test extends UnitTest {
 
 	public function test_load_averages(): void {
 		$default = null;
-		System::loadAverages($default);
+		$averages = System::loadAverages();
+		$this->assertIsArray($averages);
+		$this->assertArrayHasKeys([0, 1, 2], $averages);
 	}
 
 	public function test_distro(): void {

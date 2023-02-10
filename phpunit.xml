@@ -1,14 +1,8 @@
+<?xml version="1.0"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.5/phpunit.xsd"
-         verbose="false"
-         bootstrap="test.application.php"
-         processIsolation="false"
-         backupGlobals="false"
-         backupStaticAttributes="false"
-         colors="true"
-         convertErrorsToExceptions="true"
-         convertWarningsToExceptions="true"
-         convertNoticesToExceptions="true">
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd" bootstrap="test.application.php"
+         processIsolation="false" backupGlobals="false" colors="true" cacheDirectory=".phpunit-cache"
+         backupStaticProperties="false">
     <testsuites>
         <!--Test suite for Zesk web application framework -->
         <testsuite name="core">
@@ -33,17 +27,10 @@
             <directory>modules/World/test</directory>
         </testsuite>
     </testsuites>
-    <extensions>
-        <extension class="zesk\PHPUnit_TestHooks"/>
-    </extensions>
     <php>
         <const name="PHPUNIT" value="true"/>
     </php>
-    <coverage cacheDirectory="./.zesk-coverage"
-              includeUncoveredFiles="true"
-              processUncoveredFiles="true"
-              pathCoverage="false"
-              ignoreDeprecatedCodeUnits="true"
+    <coverage includeUncoveredFiles="true" pathCoverage="false" ignoreDeprecatedCodeUnits="true"
               disableCodeCoverageIgnore="false">
     </coverage>
 </phpunit>

@@ -2,11 +2,11 @@
 namespace zesk;
 
 class UTF8_Test extends UnitTest {
-	public function data_sampleUTF8(): array {
+	public static function data_sampleUTF8(): array {
 		return [['abc'], ['The quick brown fox jumped over the lazy dog.'], ['OMG I Totally ❤️ that'], ];
 	}
 
-	public function data_to_iso8859(): array {
+	public static function data_to_iso8859(): array {
 		return [
 			['français', 'fran' . chr(0xE7) . 'ais'],
 		];
@@ -30,6 +30,5 @@ class UTF8_Test extends UnitTest {
 	 */
 	public function test_from_charset($utf8, $iso8859): void {
 		$this->assertEquals($utf8, UTF8::from_charset($iso8859, 'iso-8859-1'));
-		;
 	}
 }

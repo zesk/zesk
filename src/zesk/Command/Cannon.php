@@ -191,7 +191,7 @@ class Command_Cannon extends Command_Base {
 		];
 		$options[Directory::LIST_ADD_PATH] = true;
 
-		return Directory::list_recursive($dir, $options);
+		return Directory::listRecursive($dir, $options);
 	}
 
 	/**
@@ -203,7 +203,7 @@ class Command_Cannon extends Command_Base {
 	private function _replaceFile(string $file, string $search, string $replace): int {
 		if (($size = filesize($file)) > $this->optionInt('max_file_size')) {
 			$this->log('Skipping {size} {file}', [
-				'size' => Number::format_bytes($this->application->locale, $size),
+				'size' => Number::formatBytes($this->application->locale, $size),
 				'file' => $file,
 			]);
 			return 0;

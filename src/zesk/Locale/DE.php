@@ -28,7 +28,7 @@ class Locale_DE extends Locale {
 		return $number !== 1 ? "$noun" . 's' : $noun;
 	}
 
-	public function indefinite_article(string $word, array $context = []): string {
+	public function indefiniteArticle(string $word, array $context = []): string {
 		$gender = $context['gender'] ?? $this->__("$word.gender") ?? 'n';
 		$caps = $context['capitalize'] ?? false;
 		if (!$gender) {

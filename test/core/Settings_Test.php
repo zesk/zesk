@@ -10,7 +10,7 @@ class Settings_Test extends UnitTest {
 
 	public Configuration $testConfiguration;
 
-	public function data_settings_types(): array {
+	public static function data_settings_types(): array {
 		$this->testConfiguration = new Configuration();
 		return [
 			[new Adapter_Settings_Array($this->arrayTarget)],

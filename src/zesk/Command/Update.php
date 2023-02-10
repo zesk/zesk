@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use Repository\classes\Repository;
+use zesk\Repository\Base as Repository;
 
 /**
  * Update code from remote sources in ${module}.module.conf
@@ -15,6 +15,8 @@ use Repository\classes\Repository;
  * @category Management
  */
 class Command_Update extends Command_Base {
+	protected array $app_data;
+
 	protected array $option_types = [
 		'share-path' => 'path', 'source-control' => 'string', 'dry-run' => 'boolean', 'skip-delete' => 'boolean',
 		'skip-database' => 'boolean', 'composer-update' => 'boolean', 'timeout' => 'integer', 'list' => 'boolean',
@@ -121,8 +123,8 @@ class Command_Update extends Command_Base {
 
 		$result = $this->beforeUpdate();
 		if ($result === 0) {
-			foreach ($modules as $module => $module_data) {
-				if (!$this->_updateModule($module, $module_data)) {
+			foreach ($modules as $module => $moduleObject) {
+				if (!$this->_updateModule($moduleObject)) {
 					$result = 1;
 				}
 			}
@@ -154,13 +156,12 @@ class Command_Update extends Command_Base {
 	/**
 	 * Retrieve a list of modules from available paths
 	 */
-	private function modules_from_module_paths($module_options) {
+	private function modules_from_module_paths(): array {
 		$modules = [];
 		$paths = $this->application->modulePath();
 		if (count($paths) === 0) {
 			$this->verboseLog('No module paths configured');
 		}
-		$sources = [];
 		foreach ($paths as $path) {
 			$globbed = array_merge(glob(path($path, '*/*.module.conf')), glob(path($path, '*/*/*.module.conf')), glob(path($path, '*/*.module.json')), glob(path($path, '*/*/*.module.json')));
 			if (is_array($globbed)) {
@@ -169,16 +170,16 @@ class Command_Update extends Command_Base {
 				$this->verboseLog($locale('Module path {path}: {count} {modules}'), [
 					'path' => $path, 'count' => $count, 'modules' => $locale->plural($locale('module'), $count),
 				]);
-				$debug = [];
 				foreach ($globbed as $glob) {
-					$module = StringTools::removePrefix(dirname($glob), rtrim($path, '/') . 'Update.php/');
-					$data = $this->application->modules->load($module, $module_options);
-					//					$debug['debug'] = _dump($data);
-					if (array_key_exists('configuration_file', $data)) {
-						$modules[$module] = $data;
-						$this->verboseLog('Module {name} loaded configuration {configuration_file}', $debug + $data);
+					$moduleName = StringTools::removePrefix(dirname($glob), rtrim($path, '/') . 'Update.php/');
+					$moduleObject = $this->application->modules->load($moduleName);
+					if ($moduleObject->moduleConfigurationFile()) {
+						$modules[$moduleName] = $moduleObject;
+						$this->verboseLog('Module {name} loaded configuration {configurationFile}', $moduleObject->moduleData());
 					} else {
-						$this->application->logger->warning('{name} does not have an associated configuration file', $debug + $data);
+						$this->application->logger->warning('{name} does not have an associated configuration file', [
+							'name' => $moduleName,
+						]);
 					}
 				}
 			} else {
@@ -196,10 +197,6 @@ class Command_Update extends Command_Base {
 	 * @return array
 	 */
 	private function modules_to_update(): array {
-		$module_options = [
-			'load' => false,
-		];
-
 		if ($this->hasArgument()) {
 			$modules = $this->modules_from_command_line();
 		} elseif ($this->optionBool('all')) {
@@ -213,7 +210,7 @@ class Command_Update extends Command_Base {
 		}
 		$locale = $this->application->locale;
 		$this->verboseLog('Will update {count} {modules}', [
-			'count' => count($modules), 'modules' => $locale->plural($locale('module'), count($modules)),
+			'count' => count($modules), 'modules' => $locale->plural($locale->__('module'), count($modules)),
 		]);
 		return $modules;
 	}
@@ -292,7 +289,6 @@ class Command_Update extends Command_Base {
 	 */
 	private function _databasePath(): string {
 		return $this->application->path('.update.json');
-		;
 	}
 
 	/**
@@ -340,22 +336,16 @@ class Command_Update extends Command_Base {
 	/**
 	 * Update a single module
 	 *
-	 * @param string $module
-	 * @param array $module_data
+	 * @param Module $module
 	 * @return bool Did updates
 	 */
-	private function _updateModule(string $module, array $module_data): bool {
+	private function _updateModule(Module $module): bool {
+		$moduleName = $module->name();
 		$logger = $this->application->logger;
 		$force = $this->optionBool('force');
 		$force_check = $this->optionBool('force-check');
 		$now = time();
-		$data = $module_data['configuration'] ?? null;
-		if (!is_array($data)) {
-			$logger->debug('Module {name} does not have configuration information: {configuration_file}', $module_data + [
-				'configuration_file' => '-not specified-',
-			]);
-			return true;
-		}
+		$data = $module->moduleConfiguration();
 		if (!ArrayTools::hasAnyKey($data, ['url', 'urls', 'versions', 'composer'])) {
 			return true;
 		}
@@ -363,43 +353,41 @@ class Command_Update extends Command_Base {
 			$this->log($module);
 			return true;
 		}
-		$this->log("Updating $module");
+		$this->log("Updating $moduleName");
 		$composer_updates = false;
 		if (ArrayTools::has($data, 'composer')) {
 			$composer_updates = $this->composerUpdate($data);
 		}
 		$locale = $this->application->locale;
-		$state_data = $this->update_db[$module] ?? [];
+		$state_data = $this->update_db[$moduleName] ?? [];
 		if (!$force) {
 			$checked = $state_data['checked'] ?? null;
 			$checked_time = strtotime($checked);
 			$interval = $this->optionInt('check_interval', 24 * 60 * 60);
 			if ($checked_time > $now - $interval) {
-				$this->verboseLog("$module checked less than " . $locale->duration_string($interval, 'hour') . ' ago' . ($force_check ? '- checking anyway' : ''));
+				$this->verboseLog("$moduleName checked less than " . $locale->duration_string($interval, 'hour') . ' ago' . ($force_check ? '- checking anyway' : ''));
 				if (!$force_check) {
-					$this->_runModuleHook($module, 'update');
+					$this->_runModuleHook($moduleName, 'update');
 					return true;
 				}
-			} else {
-				// echo "$checked_time > $now - $interval (" . ($now - $interval) . ")\n";
 			}
 		}
-		$edits = $this->fetch($this->app_data + $state_data + $module_data + $data);
-		$did_updates = $composer_updates || (is_array($edits) && count($edits) > 0) ? true : false;
-		$this->_runModuleHook($module, $did_updates ? 'updated' : 'update');
+		$edits = $this->fetch($this->app_data + $state_data + $module->moduleData() + $data);
+		$did_updates = $composer_updates || (is_array($edits) && count($edits) > 0);
+		$this->_runModuleHook($moduleName, $did_updates ? 'updated' : 'update');
 		if ($did_updates) {
 			$this->log('{name} updated to latest version.', [
-				'name' => $module,
+				'name' => $moduleName,
 			]);
 		} else {
 			$this->log('{name} is up to date.', [
-				'name' => $module,
+				'name' => $moduleName,
 			]);
 		}
 		if (!$this->optionBool('skip-database')) {
 			$date = gmdate('Y-m-d H:i:s');
 			if ($edits === null) {
-				$this->verboseLog("$module uptodate\n");
+				$this->verboseLog("$moduleName uptodate\n");
 				$edits = [];
 				$edits['checked'] = $date;
 			} elseif ($edits instanceof Exception) {
@@ -407,13 +395,13 @@ class Command_Update extends Command_Base {
 				$edits = [];
 				$edits['failed_message'] = $message;
 				$edits['failed'] = $date;
-				$this->verboseLog("$module failed: $message\n");
+				$this->verboseLog("$moduleName failed: $message\n");
 			} else {
 				$edits = is_array($edits) ? $edits : [];
 				$edits['checked'] = gmdate('Y-m-d H:i:s');
-				$this->verboseLog("$module updated\n");
+				$this->verboseLog("$moduleName updated\n");
 			}
-			$this->update_db[$module] = $edits;
+			$this->update_db[$moduleName] = $edits;
 			$this->updateDatabase($this->update_db);
 		}
 		return $did_updates;
@@ -473,7 +461,7 @@ class Command_Update extends Command_Base {
 		if (!ArrayTools::hasAnyKey($composer, ['require', 'require-dev'])) {
 			return true;
 		}
-		$composer_version = toArray($application->modules->configuration($name, 'composer_version'));
+		$composer_version = toArray($application->modules->configuration($name)['composerVersion'] ?? []);
 		$composer_require = toList($composer['require'] ?? null);
 		$composer_require_dev = toList($composer['require-dev'] ?? null);
 		chdir($application->path());
@@ -570,7 +558,7 @@ class Command_Update extends Command_Base {
 		$destination = $data['path'] ?? null;
 
 		if (count($versions) > 0) {
-			$version = $this->application->modules->configuration($name, 'version', null);
+			$version = $this->application->modules->configuration($name)['version'] ?? null;
 			if (!$version) {
 				$version = last(array_keys($versions));
 			}
@@ -720,7 +708,7 @@ class Command_Update extends Command_Base {
 	}
 
 	private function _deleteFiles(string $destination, array $files): void {
-		$delete_files = [];
+		$filesToDelete = [];
 		foreach ($files as $file) {
 			if (str_contains($file, '*')) {
 				$path = path($destination, $file);
@@ -728,7 +716,7 @@ class Command_Update extends Command_Base {
 				if (count($paths) === 0) {
 					$this->verboseLog("Wildcard delete_after matched NO files $path");
 				} else {
-					$delete_files = array_merge($delete_files, $paths);
+					$filesToDelete = array_merge($filesToDelete, $paths);
 				}
 			} else {
 				$path = path($destination, $file);
@@ -736,20 +724,20 @@ class Command_Update extends Command_Base {
 				if (!$delete_file) {
 					$this->verboseLog("delete_after file $delete_file not found");
 				} else {
-					$delete_files[] = $delete_file;
+					$filesToDelete[] = $delete_file;
 				}
 			}
 		}
-		$delete_files = array_unique($delete_files);
-		foreach ($delete_files as $index => $delete) {
+		$filesToDelete = array_unique($filesToDelete);
+		foreach ($filesToDelete as $index => $delete) {
 			if (!str_starts_with($delete, $destination)) {
 				$this->verboseLog('Deleted file {delete} does not contain prefix {destination} - skipping', [
 					'delete' => $delete, 'destination' => $destination,
 				]);
-				unset($delete_files[$index]);
+				unset($filesToDelete[$index]);
 			}
 		}
-		foreach ($delete_files as $delete) {
+		foreach ($filesToDelete as $delete) {
 			if (is_dir($delete)) {
 				$this->log('Deleting directory {delete}', [
 					'delete' => $delete,
@@ -840,20 +828,21 @@ class Command_Update extends Command_Base {
 				'temp_file_name' => $filename, 'full_destination' => $full_destination,
 			]);
 			if (is_dir($temp_file_name)) {
-				$result = Directory::copy($temp_file_name, $full_destination, true);
+				Directory::copy($temp_file_name, $full_destination, true);
+				$result = true;
 			} else {
 				$result = copy($temp_file_name, $full_destination);
 			}
 		}
 		if (!$result) {
-			return $result;
+			return false;
 		}
 		// Clean up perms
-		foreach (Directory::list_recursive($destination) as $f) {
+		foreach (Directory::listRecursive($destination) as $f) {
 			$path = path($destination, $f);
 			chmod($path, is_file($path) ? 0o644 : 0o755);
 		}
-		return $result;
+		return true;
 	}
 
 	/**

@@ -39,7 +39,7 @@ class FIFO_Test extends UnitTest {
 		$this->assertInstanceOf(FIFO::class, $fifo);
 	}
 
-	public function data_fifo_dataSet(): array {
+	public static function data_fifo_dataSet(): array {
 		return [
 			[[0, 1, 2, 3, null, 'alphabet', ['array'], ['a' => 1, 'b' => 2]]],
 		];

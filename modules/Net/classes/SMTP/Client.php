@@ -7,6 +7,8 @@
  */
 namespace zesk\Net\SMTP;
 
+use zesk\Exception_Connect;
+use zesk\Exception_Protocol;
 use zesk\Net\SocketClient;
 
 /**
@@ -18,9 +20,11 @@ class Client extends SocketClient {
 	/**
 	 * Default port to connect to
 	 *
-	 * @var integer
+	 * @var int
 	 */
-	protected $default_port = 25;
+	protected int $default_port = 25;
+
+	protected bool $authenticated = false;
 
 	/**
 	 * Send email
@@ -88,8 +92,8 @@ class Client extends SocketClient {
 		$this->application->logger->debug('Sent email to {rcpts} {nbytes} bytes via {user}@{host}', [
 			'rcpts' => $rcpts,
 			'nbytes' => strlen($body),
-			'user' => $this->url('user'),
-			'host' => $this->url('host'),
+			'user' => $this->urlComponent('user'),
+			'host' => $this->urlComponent('host'),
 		]);
 		return $result;
 	}
@@ -100,12 +104,12 @@ class Client extends SocketClient {
 	 * @param string $body
 	 * @return string
 	 */
-	public function format_body($body) {
+	public function format_body(string $body): string {
 		$body = str_replace("\r\n", "\n", $body);
 		$body = str_replace("\r", "\n", $body);
 		$body = str_replace("\n", "\r\n", $body);
 		$body = str_replace($this->EOL . '.', $this->EOL . '..', $body);
-		$body = substr($body, 0, 1) == '.' ? '.' . $body : $body;
+		$body = str_starts_with($body, '.') ? '.' . $body : $body;
 		return $body;
 	}
 
@@ -116,7 +120,7 @@ class Client extends SocketClient {
 	 * @return boolean
 	 */
 	private function helo() {
-		return $this->command('HELO ' . $this->url('host'), '250');
+		return $this->command('HELO ' . $this->urlComponent('host'), '250');
 	}
 
 	/**
@@ -126,7 +130,7 @@ class Client extends SocketClient {
 	 * @return boolean
 	 */
 	private function ehlo() {
-		return $this->command('EHLO ' . $this->url('host'), '250');
+		return $this->command('EHLO ' . $this->urlComponent('host'), '250');
 	}
 
 	/**
@@ -137,9 +141,9 @@ class Client extends SocketClient {
 	private function auth() {
 		$result = $this->command('AUTH LOGIN', '334');
 		$this->log($result);
-		$result = $this->command(base64_encode($this->url('user')), '334');
+		$result = $this->command(base64_encode($this->urlComponent('user')), '334');
 		$this->log($result);
-		$result = $this->command(base64_encode($this->url('pass')), '235');
+		$result = $this->command(base64_encode($this->urlComponent('pass')), '235');
 		$this->log($result);
 		$this->authenticated = true;
 		return $result;
@@ -149,10 +153,12 @@ class Client extends SocketClient {
 	 * MAIL FROM command
 	 *
 	 * @param string $from
-	 *        	Email address
-	 * @return boolean
+	 *            Email address
+	 * @return string
+	 * @throws Exception_Connect
+	 * @throws Exception_Protocol
 	 */
-	private function mail($from) {
+	private function mail(string $from): string {
 		return $this->command('MAIL FROM: <' . $from . '>', '250');
 	}
 
@@ -161,9 +167,11 @@ class Client extends SocketClient {
 	 *
 	 * @param string $to
 	 *        	Email address
-	 * @return boolean
+	 * @return string
+	 * @throws Exception_Connect
+	 * @throws Exception_Protocol
 	 */
-	private function rcpt($to) {
+	private function rcpt(string $to): string {
 		return $this->command("RCPT TO: <$to>", '25');
 	}
 
@@ -171,6 +179,8 @@ class Client extends SocketClient {
 	 * Send message data command (data should follow using RFC2821 method)
 	 *
 	 * @return boolean
+	 * @throws Exception_Connect
+	 * @throws Exception_Protocol
 	 */
 	private function data() {
 		return $this->command('DATA', '354');
@@ -179,7 +189,9 @@ class Client extends SocketClient {
 	/**
 	 * Send RSET command
 	 *
-	 * @return boolean
+	 * @return string
+	 * @throws Exception_Connect
+	 * @throws Exception_Protocol
 	 */
 	private function rset() {
 		return $this->command('RSET', '250');
@@ -189,6 +201,8 @@ class Client extends SocketClient {
 	 * Terminate the connection
 	 *
 	 * @return boolean
+	 * @throws Exception_Connect
+	 * @throws Exception_Protocol
 	 */
 	private function quit() {
 		if ($this->isConnected()) {

@@ -16,6 +16,7 @@ use zesk\Interface_Session;
 use zesk\ORM\ORMBase;
 use zesk\ORM\User;
 use zesk\Request;
+use zesk\Response;
 
 /**
  */
@@ -167,9 +168,9 @@ class SessionMock extends Hookable implements Interface_Session {
 	 *
 	 * @see Interface_Session::authenticate()
 	 */
-	public function authenticate(Interface_UserLike $user, $ip = false): void {
+	public function authenticate(Interface_UserLike $user, Request $request, Response $response): void {
 		$this->__set($this->global_session_userId(), ORMBase::mixedToID($user));
-		$this->__set($this->global_session_userId() . '_IP', $ip);
+		$this->__set($this->global_session_userId() . '_IP', $request->remoteIP());
 	}
 
 	/**

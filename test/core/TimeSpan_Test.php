@@ -13,7 +13,7 @@ namespace zesk;
  * Generic test class
  */
 class TimeSpan_Test extends UnitTest {
-	public function data_TimeSpan(): array {
+	public static function data_TimeSpan(): array {
 		return [
 			['s:0 00 m:0 00 h:0 00 d:0 00 000', '0', 0, ],
 			['s:0 00 m:0 00 h:0 00 d:0 00 000', '0', 0.0, ],
@@ -57,7 +57,7 @@ class TimeSpan_Test extends UnitTest {
 	/**
 	 * @return array
 	 */
-	public function data_badTimeSpan(): array {
+	public static function data_badTimeSpan(): array {
 		return [
 			['3 negarinos ago'],
 			['not a date'],
@@ -76,7 +76,7 @@ class TimeSpan_Test extends UnitTest {
 		TimeSpan::factory($init);
 	}
 
-	public function data_add(): array {
+	public static function data_add(): array {
 		$randomInt = $this->randomInteger();
 		return [
 			['s:0 00 m:0 00 h:0 00 d:0 00 000', -1, 1, ],

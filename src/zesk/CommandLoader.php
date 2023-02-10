@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use ReflectionClass;
+use ReflectionException;
 use Throwable;
 use function apath_set;
 use function strtr;
@@ -286,7 +287,7 @@ class CommandLoader {
 
 		try {
 			require_once($arg);
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			$this->error(map("require_once($arg) threw error: {class} {message}\n", ['arg' => $arg] + Exception::exceptionVariables($e)));
 			return self::EXIT_CODE_ARGUMENTS;
 		}
@@ -382,7 +383,7 @@ class CommandLoader {
 					continue;
 				}
 				$instance = $reflectionClass->newInstanceArgs([$this->application]);
-			} catch (\ReflectionException $e) {
+			} catch (ReflectionException $e) {
 				$failures[$commandClass] = $e;
 				$instance = null;
 			}
@@ -492,7 +493,6 @@ class CommandLoader {
 		$message[] = 'configuration-opts are:';
 		$message[] = '';
 		$message[] = '  --set name=value     Sets the global to the value';
-		;
 		$message[] = '  --unset name         Unset a global or remove the setting';
 		$message[] = '  --define name=value  PHP define a value (will only work if not defined)';
 		$message[] = '  --cd directory       Change directory to this directory';

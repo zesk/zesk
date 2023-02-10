@@ -297,7 +297,7 @@ class HTML {
 			$text = $args[2] ?? null;
 		} else {
 			$attributes = [];
-			$text = $mixed ? $mixed : $phone;
+			$text = $mixed ?: $phone;
 		}
 		$attributes['href'] = 'tel:' . preg_replace('/[^+0-9,]/', '', $phone);
 		return self::tag('a', $attributes, $text);
@@ -631,7 +631,7 @@ class HTML {
 	 */
 	public static function extract_tags($tag, $mixed, $recursive = true) {
 		/* Handle a variety of inputs */
-		$contents = self::mixed_to_string($mixed);
+		$contents = self::mixedToString($mixed);
 		if (is_array($contents)) {
 			$results = [];
 			foreach ($contents as $k => $v) {
@@ -1265,7 +1265,7 @@ class HTML {
 			return $mixed->__toString();
 		} elseif (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
-				$mixed[$k] = self::mixed_to_string($v);
+				$mixed[$k] = self::mixedToString($v);
 			}
 			return implode('', $mixed);
 		} else {
@@ -1774,7 +1774,7 @@ class HTML {
 	 * @deprecated Use self::extract_tag_contents
 	 */
 	public static function extract_tag($tag, $mixed) {
-		return self::extract_tag_contents($tag, $mixed);
+		return self::extractTagContents($tag, $mixed);
 	}
 
 	/**
@@ -1788,7 +1788,7 @@ class HTML {
 	 * @deprecated Use self::extract_tag_contents
 	 */
 	public static function extract_body($mixed) {
-		$mixed = self::mixed_to_string($mixed);
+		$mixed = self::mixedToString($mixed);
 		if (is_array($mixed)) {
 			$result = [];
 			foreach ($mixed as $k => $x) {

@@ -3,7 +3,7 @@
 namespace zesk;
 
 class UserAgentTest extends UnitTest {
-	public function data_userAgents(): array {
+	public static function data_userAgents(): array {
 		return [
 			// Samples @todo Move to test
 			//

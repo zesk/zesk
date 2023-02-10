@@ -38,7 +38,7 @@ class File {
 	 *
 	 * @var array
 	 */
-	private $upload_array = [];
+	private array $upload_array = [];
 
 	/**
 	 *
@@ -60,6 +60,13 @@ class File {
 		}
 		$this->name = $upload_array['name'] ?? basename($this->tmp_path);
 		$this->ext = zeskFile::extension($this->name);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function variables(): array {
+		return $this->upload_array;
 	}
 
 	/**

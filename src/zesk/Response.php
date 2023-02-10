@@ -34,7 +34,42 @@ class Response extends Hookable {
 	/**
 	 *
 	 */
+	public const OPTION_RESOURCE_CACHE_EXPIRE_SECONDS = 'resource_path_route_expire';
+
+	/**
+	 *
+	 */
+	public const DEFAULT_RESOURCE_CACHE_EXPIRE_SECONDS = 600;
+
+	/**
+	 *
+	 */
 	public const OPTION_SKIP_HEADERS = 'skipHeaders';
+
+	/**
+	 * Cache scripts in HTML responses. Value is bool.
+	 */
+	public const OPTION_CACHE_SCRIPTS = 'cacheScripts';
+
+	/**
+	 * Cache links in HTML responses. Value is bool.
+	 */
+	public const OPTION_CACHE_LINKS = 'cacheLinks';
+
+	/**
+	 * Output the weights of scripts in HTML (debugging)
+	 */
+	public const OPTION_DEBUG_SCRIPT_WEIGHT = 'debugScriptWeight';
+
+	/**
+	 * Added to query strings of resource requests to force missed cache behavior.
+	 */
+	public const OPTION_NOCACHE_VARIABLE = 'noCacheVariable';
+
+	/**
+	 * Default variable used
+	 */
+	public const DEFAULT_NOCACHE_VARIABLE = '_r';
 
 	/**
 	 *
@@ -864,7 +899,9 @@ class Response extends Hookable {
 		}
 
 		try {
-			return $this->types[$type] = $this->application->factory(self::$type_classes[$type], $this);
+			$type = $this->types[$type] = $this->application->factory(self::$type_classes[$type], $this);
+			assert($type instanceof Type);
+			return $type;
 		} catch (Exception_Class_NotFound) {
 			return $this->types[self::CONTENT_TYPE_RAW] = new Raw($this);
 		}
@@ -1252,5 +1289,17 @@ class Response extends Hookable {
 	public function setContent(string $content = null): self {
 		$this->content = $content;
 		return $this;
+	}
+
+	/**
+	 * Caching resources with scripts, cache for this long
+	 *
+	 * @return int
+	 */
+	public function resourceExpireSeconds(): int {
+		return $this->optionInt(
+			self::OPTION_RESOURCE_CACHE_EXPIRE_SECONDS,
+			self::DEFAULT_RESOURCE_CACHE_EXPIRE_SECONDS
+		);
 	}
 }

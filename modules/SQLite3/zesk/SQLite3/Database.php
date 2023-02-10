@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace zesk\SQLite3;
 
 // PHP classes
+use DateTimeZone;
 use Exception;
 use SQLite3 as NativeSQLite3;
 use zesk\Exception_Syntax;
@@ -166,9 +167,8 @@ class Database extends BaseDatabase implements Database_Interface {
 	\*=======================================================================================*/
 	/**
 	 *
-	 * {@inheritdoc}
 	 *
-	 * @see \zesk\Database::columnDifferences()
+	 * @see Database::columnDifferences()
 	 */
 	public function columnDifferences(Database_Column $self, Database_Column $that): array {
 		return [];
@@ -327,8 +327,8 @@ class Database extends BaseDatabase implements Database_Interface {
 	\*=======================================================================================*/
 	public string $zone = 'UTC';
 
-	public function setTimeZone(string|\DateTimeZone $zone): self {
-		$this->zone = $zone instanceof \DateTimeZone ? $zone->getName() : $zone;
+	public function setTimeZone(string|DateTimeZone $zone): self {
+		$this->zone = $zone instanceof DateTimeZone ? $zone->getName() : $zone;
 		date_default_timezone_set($this->zone);
 		return $this;
 	}
@@ -352,7 +352,7 @@ class Database extends BaseDatabase implements Database_Interface {
 	public function getLock(string $name, int $wait_seconds = 0): void {
 		$lock_path = $this->_lock_path();
 		Directory::depend($lock_path);
-		$name = File::name_clean($name);
+		$name = File::nameClean($name);
 		$lock_file = path($lock_path, $name);
 		$f = fopen($lock_file, 'w+b');
 		$timer = new Timer();
@@ -384,7 +384,7 @@ class Database extends BaseDatabase implements Database_Interface {
 	public function releaseLock(string $name): void {
 		$lock_path = self::_lock_path();
 		Directory::depend($lock_path);
-		$name = File::name_clean($name);
+		$name = File::nameClean($name);
 		if (!array_key_exists($name, $this->locks)) {
 			throw new Exception_Key('No such lock');
 		}
@@ -635,13 +635,13 @@ class Database extends BaseDatabase implements Database_Interface {
 		return true;
 	}
 
-	public function sql_get_create_table($table) {
+	public function sql_get_create_table($table): void {
 		$sql = "SHOW CREATE TABLE `$table`";
 		$result = $this->query($sql);
 
-		throw new Exception_Unimplemented();
-		$this->free($result);
-		return $result;
+		throw new Exception_Unimplemented(__METHOD__);
+//		$this->free($result);
+//		return $result;
 	}
 
 	public function sql_create_table(Database_Table $dbTableObject) {
@@ -666,7 +666,7 @@ class Database extends BaseDatabase implements Database_Interface {
 						$columns = $index->columns();
 						if (count($columns) == 1) {
 							$col = $dbTableObject->column(key($columns));
-							if ($col->primary_key()) {
+							if ($col->primaryKey()) {
 								continue;
 							}
 						}
@@ -742,7 +742,7 @@ class Database extends BaseDatabase implements Database_Interface {
 				$result = $this->conn->query($query);
 				$this->_queryAfter($query, $options);
 			}
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$this->exception($e);
 		}
 		return $result;
@@ -763,7 +763,7 @@ class Database extends BaseDatabase implements Database_Interface {
 	 * @deprecated 2022 use ->sql()->now()
 	 */
 	public function sql_nowUTC(): string {
-		return $this->sql_now();
+		return $this->sql()->nowUTC();
 	}
 
 	/**
@@ -813,16 +813,13 @@ class Database extends BaseDatabase implements Database_Interface {
 	}
 
 	public static function parseType($sql_type, &$size) {
-		$matches = false;
+		$matches = [];
 		$result = preg_match('/([a-z]+)\(([^)]*)\)( unsigned)?/', strtolower($sql_type), $matches);
 		if (!$result) {
 			$size = false;
 		} else {
 			$size = $matches[2];
 			$sql_type = $matches[1];
-		}
-		if (count($matches) == 4) {
-			return $sql_type; // . $matches[3]
 		}
 		return $sql_type;
 	}
@@ -885,7 +882,7 @@ class Database extends BaseDatabase implements Database_Interface {
 	}
 
 	public function sql_format_boolean($sql) {
-		return $sql == 'true' ? true : false;
+		return $sql == 'true';
 	}
 
 	/*
@@ -898,35 +895,27 @@ class Database extends BaseDatabase implements Database_Interface {
 	/*
 	 * Functions
 	 */
-	public function sql_format_function($func, $memberName, $alias = '') {
-		switch (strtolower(trim($func))) {
-			case 'min':
-				return $this->sql_table_as("MIN($memberName)", $alias);
-			case 'max':
-				return $this->sql_table_as("MAX($memberName)", $alias);
-			case 'sum':
-				return $this->sql_table_as("SUM($memberName)", $alias);
-			case 'count':
-				return $this->sql_table_as("COUNT($memberName)", $alias);
-			case 'average':
-				return $this->sql_table_as("AVG($memberName)", $alias);
-			case 'stddev':
-				return $this->sql_table_as("STDDEV($memberName)", $alias);
-			case 'year':
-				return $this->sql_table_as("YEAR($memberName)", $alias);
-			case 'quarter':
-				return $this->sql_table_as("QUARTER($memberName)", $alias);
-			case 'month':
-				return $this->sql_table_as("MONTH($memberName)", $alias);
-			case 'day':
-				return $this->sql_table_as("DAY($memberName)", $alias);
-			case 'hour':
-				return $this->sql_table_as("HOUR($memberName)", $alias);
-			case 'minute':
-				return $this->sql_table_as("MINUTE($memberName)", $alias);
-			default:
-				return false;
+	public function sql_format_function(string $func, string $memberName, string $alias = ''): string {
+		$funcs = [
+			'min' => 'MIN',
+			'max' => 'MAX',
+			'sum' => 'SUM',
+			'count' => 'COUNT',
+			'average' => 'AVG',
+			'stddev' => 'STDDEV',
+			'year' => 'YEAR',
+			'quarter' => 'QUARTER',
+			'month' => 'MONTH',
+			'day' => 'DAY',
+			'hour' => 'HOUR',
+			'minute' => 'MINUTE',
+		];
+		$func = strtolower(trim($func));
+		if (!array_key_exists($func, $funcs)) {
+			throw new Exception_Key("No function $func");
 		}
+		$sqlFunc = $funcs[$func];
+		return $this->sql()->table_as("$sqlFunc($memberName)", $alias);
 	}
 
 	/**

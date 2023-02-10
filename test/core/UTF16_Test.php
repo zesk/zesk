@@ -3,7 +3,7 @@
 namespace zesk;
 
 class UTF16_Test extends UnitTest {
-	public function data_sampleUTF8(): array {
+	public static function data_sampleUTF8(): array {
 		return [['abc'], ['The quick brown fox jumped over the lazy dog.'], ['OMG I Totally ❤️ that'], ];
 	}
 
@@ -33,7 +33,7 @@ class UTF16_Test extends UnitTest {
 		$this->assertEquals($bom_expected, $bom);
 	}
 
-	public function data_test_to_utf8(): array {
+	public static function data_test_to_utf8(): array {
 		return [
 			['ABC', true, chr(0xfe) . chr(0xff) . chr(0) . chr(65) . chr(0) . chr(66) . chr(0) . chr(67),
 			],

@@ -156,6 +156,7 @@ class Reader extends Base {
 	 *
 	 * @return array
 	 * @throws Exception_File_Format
+	 * @throws StopIteration
 	 */
 	private function read_line(): array {
 		switch ($this->Encoding) {
@@ -171,7 +172,7 @@ class Reader extends Base {
 			case 'UTF-16':
 				if (!str_contains($this->FileBuffer, $this->LineDelimiter) && ($n = strlen($this->FileBuffer)) < 10240) {
 					if ($n === 0 && feof($this->File)) {
-						return false;
+						throw new StopIteration($this->File);
 					}
 					$read_n = (10240 - $n) * 2;
 					$data = fread($this->File, $read_n);
@@ -204,7 +205,7 @@ class Reader extends Base {
 				throw new Exception_Semantics('No headers');
 			}
 			$this->RowIndex++;
-			$this->set_headers($headers, false);
+			$this->setHeaders($headers, false);
 		}
 		return $this->headers();
 	}
@@ -312,7 +313,7 @@ class Reader extends Base {
 		$tell = ftell($this->File);
 		$file_sample = fread($this->File, 1024);
 		fseek($this->File, $tell);
-		if (StringTools::isUTF8($file_sample, $this->EncodingBigEndian)) {
+		if (StringTools::isUTF8($file_sample)) {
 			$this->Encoding = 'UTF-8';
 			$this->EncodingSuffix = '.UTF8';
 			$file_sample = UTF8::to_iso8859($file_sample);

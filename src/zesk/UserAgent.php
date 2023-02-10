@@ -226,7 +226,7 @@ class UserAgent {
 		$result['ipad'] = (str_contains($ua, 'ipad'));
 		$result['ios'] = $result['iphone'] || $result['ipad'] || (str_contains($ua, 'ios'));
 		foreach (['5', '6', '7', '8', '9', '10'] as $v) {
-			$result["ios${v}"] = $result['ios'] && (str_contains($ua, "os ${v}_"));
+			$result["ios$v"] = $result['ios'] && (str_contains($ua, "os ${v}_"));
 		}
 		$result['webkit'] = str_contains($ua, 'applewebkit');
 		$result['chrome'] = str_contains($ua, 'chrome/');

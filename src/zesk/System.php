@@ -91,7 +91,7 @@ class System {
 	 * @return array of interface => $ip
 	 */
 	public static function macAddresses(Application $application): array {
-		$interfaces = self::ifconfig($application, 'inet;ether');
+		$interfaces = self::ifconfig($application);
 		$macs = [];
 		foreach ($interfaces as $interface => $values) {
 			if (array_key_exists('ether', $values)) {
@@ -184,11 +184,12 @@ class System {
 	 * @return array:float Uptime averages for the past 1 minute, 5 minutes, and 15 minutes
 	 *         (typically)
 	 */
-	public static function loadAverages() {
+	public static function loadAverages(): array {
 		$uptime_string = null;
-		if (file_exists('/proc/loadavg')) {
-			$uptime_string = explode(' ', File::contents('/proc/loadavg', ''));
-		} else {
+
+		try {
+			$uptime_string = explode(' ', File::contents('/proc/loadavg'));
+		} catch (Exception_File_NotFound) {
 			ob_start();
 			system('/usr/bin/uptime');
 			$uptime = trim(ob_get_clean());
@@ -198,8 +199,7 @@ class System {
 				$uptime_string = explode(' ', str_replace(',', '', trim(substr($uptime, $pos + strlen($pattern)))));
 			}
 		}
-		$loads = [floatval($uptime_string[0]), floatval($uptime_string[1]), floatval($uptime_string[2]), ];
-		return $loads;
+		return [floatval($uptime_string[0]), floatval($uptime_string[1]), floatval($uptime_string[2]), ];
 	}
 
 	/**

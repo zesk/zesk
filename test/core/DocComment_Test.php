@@ -23,7 +23,7 @@ class DocComment_Test extends UnitTest {
 		}
 	}
 
-	public function data_provider_clean() {
+	public static function data_provider_clean() {
 		return [
 			[
 				'	/**
@@ -72,7 +72,7 @@ class DocComment_Test extends UnitTest {
 	 *
 	 * @return array
 	 */
-	public function data_provider_parse() {
+	public static function data_provider_parse() {
 		return [
 			[
 				'	/**
@@ -189,7 +189,7 @@ class DocComment_Test extends UnitTest {
 		$this->assertEquals(DocComment::instance($parsed)->content(), $unparse_expected, JSON::encodePretty($parsed));
 	}
 
-	public function data_provider_content() {
+	public static function data_provider_content() {
 		return [
 			[
 				[

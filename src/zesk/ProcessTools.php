@@ -22,7 +22,7 @@ class ProcessTools {
 	 * @return bool
 	 */
 	public static function includesChanged(Application $application): bool {
-		return $application->objects->singletonArguments(IncludeFilesMonitor::class, [], false)->changed();
+		return $application->objects->singletonArguments(IncludeFilesMonitor::class)->changed();
 	}
 
 	/**
@@ -32,6 +32,6 @@ class ProcessTools {
 	 * @return array
 	 */
 	public static function includesChangedFiles(Application $application): array {
-		return $application->objects->singletonArguments(IncludeFilesMonitor::class, [], false)->changedFiles();
+		return $application->objects->singletonArguments(IncludeFilesMonitor::class)->changedFiles();
 	}
 }

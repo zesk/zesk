@@ -3,8 +3,11 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Closure;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use zesk\PHPUnit\StreamIntercept;
+use function random_int;
 
 class PHPUnit_TestCase extends TestCase {
 	/**
@@ -119,7 +122,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * @return mixed
 	 */
 	public function applyClosures(mixed $mixed): mixed {
-		if ($mixed instanceof \Closure) {
+		if ($mixed instanceof Closure) {
 			return $mixed();
 		}
 		if (is_array($mixed)) {
@@ -228,7 +231,7 @@ class PHPUnit_TestCase extends TestCase {
 			$message = 'Path should not exist';
 		}
 		foreach ($paths as $index => $path) {
-			$this->assertDirectoryNotExists($path, "$index: $path $message");
+			$this->assertDirectoryDoesNotExist($path, "$index: $path $message");
 		}
 	}
 
@@ -262,7 +265,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param int $count
 	 * @return string
 	 */
-	protected function randomBytes(int $count = 64): string {
+	protected static function randomBytes(int $count = 64): string {
 		try {
 			return random_bytes($count);
 		} catch (\Exception) {
@@ -288,11 +291,11 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param int $max
 	 * @return int
 	 */
-	protected function randomInteger(int $min = 0, int $max = 0x7FFFFFFF): int {
+	protected static function randomInteger(int $min = 0, int $max = 0x7FFFFFFF): int {
 		try {
 			return random_int($min, $max);
-		} catch (\Exception) {
-			return \random_int($min, $max);
+		} catch (Throwable) {
+			return -1;
 		}
 	}
 
@@ -300,10 +303,10 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param int $characters
 	 * @return string
 	 */
-	protected function randomHex(int $characters = 32): string {
+	protected static function randomHex(int $characters = 32): string {
 		$result = '';
 		do {
-			$result .= sha1($this->randomBytes());
+			$result .= sha1(self::randomBytes());
 		} while (strlen($result) < $characters);
 		return substr($result, 0, $characters);
 	}
@@ -362,5 +365,13 @@ class PHPUnit_TestCase extends TestCase {
 
 	public function optionBool(string $name, bool $default = false): bool {
 		return toBool($this->configuration?->getPath($name, $default), null) ?? $default;
+	}
+
+	/**
+	 * @return Application
+	 * @throws Exception_Semantics
+	 */
+	public static function app(): Application {
+		return Kernel::singleton()->application();
 	}
 }

@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use stdClass;
+
 /**
  *
  * @author kent
@@ -278,13 +280,14 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::countEndTags($tag, $mixed));
 	}
 
-	public function test_count_until_tag(): void {
+	public function test_countUntilTag(): void {
 		$string = 'All good <strong>things</strong> must come to an <em>end</em>.<h1>Hello!</h1>';
 		//        01234567890123456789012345678901234567890123456789
-		$offset = 17;
-		$nWords = 0;
-		$tagName = 'strong';
-		$this->assertEquals($offset, HTML::count_until_tag($string, $tagName, $nWords), "HTML::count_until_tag($string, $tagName, $nWords) " . HTML::count_until_tag($string, $tagName, $nWords) . " === $offset");
+		$result = HTML::countUntilTag($string);
+		$offset = $result['offset'];
+		$nWords = $result['words'];
+		$tagName = $result['tagName'];
+		$this->assertEquals(17, $offset);
 		$this->assertEquals(2, $nWords);
 		$this->assertEquals('strong', $tagName);
 	}
@@ -317,7 +320,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::ellipsis($string, $length, $dot_dot_dot));
 	}
 
-	public function data_eTag(): array {
+	public static function data_eTag(): array {
 		return [
 			[
 				'',
@@ -346,7 +349,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::etag($name, $mixed, $content));
 	}
 
-	public function data_extractEmails(): array {
+	public static function data_extractEmails(): array {
 		return [
 			[['info@example.com', 'nowhere@noone.com'], '<a href="mailto:info@example.com">nowhere@noone.com</a>'],
 		];
@@ -365,7 +368,7 @@ class HTML_Test extends UnitTest {
 		HTML::extract_links('Goo <a href="dude">Dude</a>');
 	}
 
-	public function data_extractTagContents(): array {
+	public static function data_extractTagContents(): array {
 		return [
 			['Link', 'a', '<a href="">Link</a>'],
 			['Link', 'a', '<a href="">Link</a><a>Loop</a>'],
@@ -380,7 +383,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::extractTagContents($tag, $mixed));
 	}
 
-	public function data_extractTagObject(): array {
+	public static function data_extractTagObject(): array {
 		$outer_html = '<a href="/">Link</a>';
 		return [
 			[new HTML_Tag('a', ['href' => '/'], 'Link', $outer_html, 0), 'a', $outer_html],
@@ -457,7 +460,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals('<a>Dude<strong>*</strong></a>', HTML::insertInsideEnd($html, $insert_html));
 	}
 
-	public function data_isEndTag() {
+	public static function data_isEndTag() {
 		return [
 			['a', '</a>'],
 			['a', '</a   >'],
@@ -474,7 +477,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::is_end_tag($tag));
 	}
 
-	public function data_matchTags() {
+	public static function data_matchTags() {
 		return [
 			[
 				[['<a>', 'a', ''], ['<b>', 'b', ''], ['<strong>', 'strong', ''], ['<li>', 'li', '']],
@@ -490,12 +493,31 @@ class HTML_Test extends UnitTest {
 	 * @dataProvider data_matchTags
 	 */
 	public function test_match_tags(array $expected, string $string): void {
-		$this->assertEquals($expected, HTML::match_tags($string));
+		$this->assertEquals($expected, HTML::matchTags($string));
 	}
 
-	public function test_mixed_to_string(): void {
-		$mixed = null;
-		HTML::mixed_to_string($mixed);
+	public static function data_mixedToString(): array {
+		$tag = new HTML_Tag();
+		$tag->setInnerHTML('Yoyoyo');
+		return [
+			['', null],
+			['', 5123],
+			['', 99.2],
+			['', new stdClass()],
+			['string', 'string'],
+			['Yoyoyo', $tag],
+			[['ho' => 'Yoyoyo'], ['ho' => $tag]],
+		];
+	}
+
+	/**
+	 * @param $expected
+	 * @param $mixed
+	 * @dataProvider data_mixedToString
+	 * @return void
+	 */
+	public function test_mixed_to_string(string $expected, $mixed): void {
+		$this->assertEquals($expected, HTML::mixedToString($mixed));
 	}
 
 	public function test_parse_styles(): void {
@@ -506,7 +528,7 @@ class HTML_Test extends UnitTest {
 		], HTML::parse_styles('background-color: red; position: absolute; z-index: 2000'));
 	}
 
-	public function data_parseTags(): array {
+	public static function data_parseTags(): array {
 		return [
 			[['a' => ['href' => '/']], '<a href="/">Link</a>'],
 		];
@@ -522,7 +544,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::parse_tags($string));
 	}
 
-	public function data_removeTags(): array {
+	public static function data_removeTags(): array {
 		return [
 			['', 'a', '<a href="/">Link</a>', true],
 			['Link', 'a', '<a href="/">Link</a>', false],
@@ -538,7 +560,7 @@ class HTML_Test extends UnitTest {
 	 * @dataProvider data_removeTags
 	 */
 	public function test_removeTags($expected, $tag, $contents, $delete): void {
-		$this->assertEquals($expected, HTML::remove_tags($tag, $contents, $delete));
+		$this->assertEquals($expected, HTML::removeTags($tag, $contents, $delete));
 	}
 
 	public function test_select(): void {
@@ -571,7 +593,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals('Dude', HTML::strip($x));
 	}
 
-	public function data_strlen(): array {
+	public static function data_strlen(): array {
 		return [
 			[4, '<a href="/">Link</a>'],
 			[5, '<a href="/">Links</a>'],
@@ -588,7 +610,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::strlen($html));
 	}
 
-	public function data_style_units(): array {
+	public static function data_style_units(): array {
 		return [
 			['3px', '3', 'px'],
 			['3em', '3em', 'px'],
@@ -607,7 +629,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::style_units($item, $default_unit));
 	}
 
-	public function data_substr(): array {
+	public static function data_substr(): array {
 		$sample = '<h1>Heading</h1><p>Once upon a time</p>';
 		return [
 			['<h1>H</h1>', $sample, 0, 1],
@@ -631,7 +653,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::substr($html, $offset, $length));
 	}
 
-	public function data_tag(): array {
+	public static function data_tag(): array {
 		return [
 			['<h1>Heading</h1>', 'h1', [], 'Heading'],
 			['<h1 class="dude">Heading</h1>', 'h1', '.dude', 'Heading'],
@@ -660,7 +682,7 @@ class HTML_Test extends UnitTest {
 		HTML::tag_close('DIV');
 	}
 
-	public function data_tags(): array {
+	public static function data_tags(): array {
 		$separator = "\n";
 		return [
 			[
@@ -697,7 +719,7 @@ class HTML_Test extends UnitTest {
 		HTML::tags('li', '#id #another', ['a', 'b', 'c']);
 	}
 
-	public function data_toAttributes(): array {
+	public static function data_toAttributes(): array {
 		return [
 			[['class' => 'dude'], '.dude'],
 			[['id' => 'dude'], '#dude'],
@@ -713,7 +735,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::toAttributes($mixed));
 	}
 
-	public function data_trimWhiteSpace(): array {
+	public static function data_trimWhiteSpace(): array {
 		return [
 			['<a href=".">link</a>', '   <a href=".">link</a><p>&nbsp;&nbsp;</p><p>    </p><br /><br><br> <p /> '],
 		];
@@ -729,7 +751,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::trim_white_space($html));
 	}
 
-	public function data_trimWords(): array {
+	public static function data_trimWords(): array {
 		$test_phrase_1 = '<h1>one two three four five <em>six seven eight</em> nine ten</h1>';
 		return [
 			[$test_phrase_1, $test_phrase_1, 10],
@@ -755,7 +777,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::trimWords($string, $wordCount));
 	}
 
-	public function data_urlify() {
+	public static function data_urlify() {
 		return [
 			['<a href="http://example.com">http://example.com</a>', 'http://example.com', []],
 		];

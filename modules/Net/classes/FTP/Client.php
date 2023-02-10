@@ -59,7 +59,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 		}
 		// Special case to enable relative paths
 		if ($path !== null) {
-			if (substr($path, 0, 1) === '/') {
+			if (str_starts_with($path, '/')) {
 				$path = substr($path, 1);
 			}
 			$this->url_parts['path'] = $path;
@@ -94,16 +94,21 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	}
 
 	/**
-	 * Get/set the passive mode for the FTP session
-	 * @param boolean $set
-	 * @return Net_FTP_Client boolean
+	 * Get the passive mode for the FTP session
+	 * @return bool
 	 */
-	public function passive($set = null) {
-		if ($set !== null) {
-			$this->passive = toBool($set);
-			return $this;
-		}
+	public function passive(): bool {
 		return $this->passive;
+	}
+
+	/**
+	 * Set the passive mode for the FTP session
+	 * @param boolean $set
+	 * @return self boolean
+	 */
+	public function setPassive(bool $set): self {
+		$this->passive = $set;
+		return $this;
 	}
 
 	private function _passive(): void {
@@ -185,11 +190,6 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	}
 
 	public function has_feature($feature) {
-		switch ($feature) {
-			case self::feature_mtime:
-				return false;
-			default:
-				return false;
-		}
+		return false;
 	}
 }

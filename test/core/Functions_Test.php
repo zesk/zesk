@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use stdClass;
+
 /**
  * @see AddressLock/functions.php
  * @author kent
@@ -79,7 +81,7 @@ class Functions_Test extends UnitTest {
 		]));
 		$this->assertEquals('42.6%', $themes->theme('percent', [
 			42.552312, 1,
-		]), );
+		]));
 		$this->assertEquals('42.6%', $themes->theme('percent', [
 			42.552312, 1,
 		]));
@@ -186,7 +188,7 @@ class Functions_Test extends UnitTest {
 		$this->assertFalse(is_email($email), "is_email($email)");
 	}
 
-	public function data_is_phone(): array {
+	public static function data_is_phone(): array {
 		return [
 			[false, ''], [true, '215-555-1212'], [true, '+011 44 23 41 23 23', ], [true, '+1 215-555-1212'],
 			[false, '+1 215-5R55-1212'], [true, '(212) 828-4423'], [true, '222.333.4444'],
@@ -215,7 +217,7 @@ class Functions_Test extends UnitTest {
 		$this->assertEquals($expected, clamp($minValue, $value, $maxValue));
 	}
 
-	public function data_clamp(): array {
+	public static function data_clamp(): array {
 		return [
 			[0, -1, 0, 1], [-1, -1, -1, 1], [1, -1, 1, 1], [1, -1, 1.0000001, 1], [1, -1, 1e99, 1], [-1, -1, -1e99, 1],
 			[-1, -1, -1.0000001, 1], [-0.0000001, -1, -0.0000001, 1], [0.0000001, -1, 0.0000001, 1],
@@ -232,14 +234,14 @@ class Functions_Test extends UnitTest {
 		$this->assertEquals($expected, type($mixed));
 	}
 
-	public function data_vartype(): array {
+	public static function data_vartype(): array {
 		return [
-			['NULL', null], ['stdClass', new \stdClass()], ['zesk\\Date', new Date()], ['integer', 223],
+			['NULL', null], ['stdClass', new stdClass()], ['zesk\\Date', new Date()], ['integer', 223],
 			['double', 223.2], ['string', ''], ['string', 'dude'], ['boolean', false], ['boolean', true],
 		];
 	}
 
-	public function data_toList() {
+	public static function data_toList() {
 		return [
 			['1,2,3', [], ',', ['1', '2', '3']],
 		];
@@ -267,7 +269,7 @@ class Functions_Test extends UnitTest {
 		$this->assertEquals($expected, toInteger($mixed));
 	}
 
-	public function data_to_integer(): array {
+	public static function data_to_integer(): array {
 		return [
 			['124512', 124512], [124512, 124512], ['124512.7', 124512], [124512.7, 124512], [124512.999999, 124512],
 			['0.999999', 0], ['1.999999', 1], [false, 0], [true, 0], [true, 0], [[], 0],
@@ -284,7 +286,7 @@ class Functions_Test extends UnitTest {
 		$this->assertEquals($expected, toFloat($float_test));
 	}
 
-	public function data_toFloat(): array {
+	public static function data_toFloat(): array {
 		return [
 			[100, 100.0], [1, 1.0], ['10000', 10000.0], ['-1', -1.0],
 
@@ -302,7 +304,7 @@ class Functions_Test extends UnitTest {
 		$this->assertEquals($expected, toBool($test));
 	}
 
-	public function data_toBool(): array {
+	public static function data_toBool(): array {
 		return [
 			[true, true], [1, true], ['1', true], ['t', true], ['T', true], ['y', true], ['Y', true], ['Yes', true],
 			['yES', true], ['oN', true], ['on', true], ['enabled', true], ['enaBLed', true], ['trUE', true],
@@ -311,7 +313,7 @@ class Functions_Test extends UnitTest {
 			[0, false], ['0', false], ['f', false], ['F', false], ['n', false], ['N', false], ['no', false],
 			['NO', false], ['OFF', false], ['off', false], ['disabled', false], ['DISABLED', false],
 			['DISaBLED', false], ['false', false], ['null', false], ['', false], ['01', null], [[], null],
-			[new \stdClass(), true],
+			[new stdClass(), true],
 		];
 	}
 
@@ -405,7 +407,7 @@ class Functions_Test extends UnitTest {
 		]), [
 			'1',
 		]);
-		$this->assertEquals(toArray(1, ), [
+		$this->assertEquals(toArray(1), [
 			'1',
 		]);
 		$this->assertEquals(toArray(1), [

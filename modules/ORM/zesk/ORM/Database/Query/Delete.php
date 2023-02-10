@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace zesk\ORM;
 
+use Throwable;
 use zesk\Database;
 use zesk\Database_Exception;
 use zesk\Database_Exception_Duplicate;
@@ -89,7 +90,7 @@ class Database_Query_Delete extends Database_Query {
 	public function __toString() {
 		try {
 			return $this->toSQL();
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			PHP::log($e);
 			return '';
 		}

@@ -7,7 +7,7 @@
  */
 namespace zesk;
 
-use Git\classes\Repository;
+use zesk\Repository\Base as Repository;
 
 /**
  * @author kent
@@ -29,42 +29,18 @@ class Command_Latest extends Command_Base {
 
 		if ($vendor_zesk !== $vendor_path) {
 			$this->error("$zesk_home is not in the vendor directory. Stopping.");
-			return 1;
+			return self::EXIT_CODE_ENVIRONMENT;
 		}
 		if (!is_dir("$vendor_zesk/zesk")) {
 			$this->error("$vendor_zesk/zesk must be a directory. Stopping.");
-			return 1;
+			return self::EXIT_CODE_ENVIRONMENT;
 		}
 
 		chdir($zesk_home);
-		$repos = $git->determineRepository($zesk_home);
 
-		if (count($repos) === 0) {
-			$old = "$vendor_zesk/zesk.COMPOSER";
-			$new = "$vendor_zesk/zesk.GIT";
-			$active = "$vendor_zesk/zesk";
-
-			Directory::delete($old);
-			$this->exec('git clone https://github.com/zesk/zesk {new}', [
-				'new' => $new,
-			]);
-			if (!is_dir($new)) {
-				$this->error('Unable to git clone into {new}', [
-					'new' => $new,
-				]);
-				return 2;
-			}
-			rename($active, $old);
-			rename($new, $active);
-			$this->log('Zesk now linked to the latest');
-			return 0;
-		}
-
-		foreach ($repos as $repo) {
-			if (!$repo instanceof Repository) {
-				continue;
-			}
-			/* @var $repo zesk\Git\Repository */
+		try {
+			$repo = $git->factory($zesk_home);
+			/* @var $repo Repository */
 			$zesk_home = realpath($zesk_home);
 			if (realpath($repo->path()) === $zesk_home) {
 				$this->exec('git -C {0} pull origin master', $zesk_home);
@@ -74,6 +50,25 @@ class Command_Latest extends Command_Base {
 					'path' => $repo->path(),
 				]);
 			}
+			return 0;
+		} catch (Exception_NotFound) {
 		}
+		$old = "$vendor_zesk/zesk.COMPOSER";
+		$new = "$vendor_zesk/zesk.GIT";
+		$active = "$vendor_zesk/zesk";
+		Directory::delete($old);
+		$this->exec('git clone https://github.com/zesk/zesk {new}', [
+			'new' => $new,
+		]);
+		if (!is_dir($new)) {
+			$this->error('Unable to git clone into {new}', [
+				'new' => $new,
+			]);
+			return 2;
+		}
+		rename($active, $old);
+		rename($new, $active);
+		$this->log('Zesk now linked to the latest');
+		return 0;
 	}
 }

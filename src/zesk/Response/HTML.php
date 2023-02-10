@@ -120,7 +120,7 @@ class HTML extends Type {
 	 *
 	 * @var array|string
 	 */
-	protected array|string $page_theme = 'page';
+	protected array|string $pageTheme = 'page';
 
 	/**
 	 *
@@ -136,7 +136,7 @@ class HTML extends Type {
 		$this->html_attributes = $response->optionArray('html_attributes');
 		$this->body_attributes = $response->optionArray('body_attributes');
 
-		$this->page_theme = $response->option('page_theme', $this->page_theme);
+		$this->pageTheme = $response->option('page_theme', $this->pageTheme);
 	}
 
 	/**
@@ -413,7 +413,7 @@ class HTML extends Type {
 	 * @return string
 	 */
 	public function pageTheme(): string {
-		return $this->page_theme;
+		return $this->pageTheme;
 	}
 
 	/**
@@ -423,7 +423,7 @@ class HTML extends Type {
 	 * @return Response
 	 */
 	public function setPageTheme(string $set): Response {
-		$this->page_theme = $set;
+		$this->pageTheme = $set;
 		return $this->parent;
 	}
 
@@ -433,7 +433,7 @@ class HTML extends Type {
 	 */
 	public function themeVariables(): array {
 		return [
-			'page_theme' => $this->page_theme, 'request' => $this->parent->request, 'response' => $this->parent,
+			'page_theme' => $this->pageTheme, 'request' => $this->parent->request, 'response' => $this->parent,
 		];
 	}
 
@@ -480,7 +480,7 @@ class HTML extends Type {
 			$this->links_sorted = $this->links;
 			usort($this->links_sorted, 'zesk_sort_weight_array');
 		}
-		$cache_links = $this->parent->optionBool('cache_links', false);
+		$cache_links = $this->parent->optionBool(Response::OPTION_CACHE_LINKS);
 		$cached_media = [];
 		$this->links_sorted = $this->parent->callHookArguments('links_preprocess', [
 			$this->links_sorted,
@@ -558,7 +558,7 @@ class HTML extends Type {
 	 * @throws Exception_Redirect
 	 */
 	public function render(string $content): string {
-		return $this->application->themes->theme($this->page_theme, [
+		return $this->application->themes->theme($this->pageTheme, [
 			'content' => $content,
 		] + $this->themeVariables());
 	}
@@ -587,9 +587,7 @@ class HTML extends Type {
 	public function toJSON(): array {
 		$script_tags = $this->scriptTags(false);
 		$scripts = [];
-		$ready = $this->jqueryReady();
 		foreach ($script_tags as $tag) {
-			$content = $tag['content'];
 			$name = $tag['name'];
 			$attributes = toArray($tag['attributes'] ?? []);
 			if ($name !== 'script') {
@@ -597,8 +595,6 @@ class HTML extends Type {
 			}
 			if (array_key_exists('src', $attributes)) {
 				$scripts[] = $attributes['src'];
-			} elseif (!empty($content)) {
-				$ready[] = $content;
 			}
 		}
 		$link_tags = $this->linkTags();
@@ -614,8 +610,7 @@ class HTML extends Type {
 		return ArrayTools::clean([
 			'elapsed' => microtime(true) - $this->application->initializationTime(),
 			'scripts' => count($scripts) ? $scripts : null, 'stylesheets' => count($stylesheets) ? $stylesheets : null,
-			'head_tags' => count($head_tags) ? $head_tags : null, 'ready' => count($ready) ? $ready : null,
-			'title' => $this->parent->title(),
+			'head_tags' => count($head_tags) ? $head_tags : null, 'title' => $this->parent->title(),
 		], [null, '']);
 	}
 
@@ -661,7 +656,7 @@ class HTML extends Type {
 		$share = toBool($options['share'] ?? false);
 		$is_route = toBool($options['is_route'] ?? false);
 		$root_dir = strval($options['root_dir'] ?? '');
-		$defaultRouteExpire = $this->parent->option('resource_path_route_expire', 600);
+		$defaultRouteExpire = $this->parent->optionInt(Response::OPTION_RESOURCE_CACHE_EXPIRE_SECONDS, Response::DEFAULT_RESOURCE_CACHE_EXPIRE_SECONDS);
 		$route_expire = intval($attributes['route_expire'] ?? $defaultRouteExpire);
 		if ($root_dir) {
 			if ($debug) {
@@ -808,14 +803,14 @@ class HTML extends Type {
 	 * @param string $extension
 	 * @todo does this depend on a certain structure which is enforced by this?
 	 */
-	public function clean_resource_caches(string $extension = '') {
+	public function cleanResourcesCache(string $extension = ''): array {
 		$path = $this->resourceCachePath($extension);
-		$files = Directory::list_recursive($path, [
+		$files = Directory::listRecursive($path, [
 			'rules_directory_walk' => [
 				'#/cache/js#' => true, '#/cache/css#' => true, false,
 			], 'add_path' => true,
 		]);
-		$expire_seconds = abs($this->parent->optionInt('resource_cache_lifetime_seconds', 3600)); // 1 hour
+		$expire_seconds = $this->parent->resourceExpireSeconds();
 		$now = time();
 		$modified_after = $now - $expire_seconds;
 		$deleted = [];
@@ -927,7 +922,7 @@ class HTML extends Type {
 	 * @throws Exception_Directory_Permission
 	 * @throws Exception_File_NotFound
 	 */
-	private function resourceCacheCSS(array $cached, $media = 'screen'): array {
+	private function resourceCacheCSS(array $cached, string $media = 'screen'): array {
 		$debug = '';
 		$href = $this->resourceCache($cached, 'css', 'compress_css', $debug);
 		return [
@@ -954,23 +949,6 @@ class HTML extends Type {
 	}
 
 	/**
-	 * Output jQuery ready tags
-	 *
-	 * @return array
-	 */
-	public function jqueryReady(): array {
-		if (count($this->jquery) === 0) {
-			return [];
-		}
-		$result = [];
-		ksort($this->jquery, SORT_NUMERIC);
-		foreach ($this->jquery as $weight => $hash_scripts) {
-			$result = array_merge($result, array_values($hash_scripts));
-		}
-		return $result;
-	}
-
-	/**
 	 * Output generated script tags.
 	 * Returns array of arrays
 	 *
@@ -990,13 +968,13 @@ class HTML extends Type {
 			$this->scripts_sorted = true;
 		}
 		if ($cache_scripts === null) {
-			$cache_scripts = $this->parent->optionBool('cache_scripts');
+			$cache_scripts = $this->parent->optionBool(Response::OPTION_CACHE_SCRIPTS);
 		}
 		$cached = $cached_append = [];
 		$result = [];
 		/* Output scripts */
 		$selected_attributes = ['src', 'type', 'async', 'defer', 'id'];
-		if ($this->parent->optionBool('debug_weight')) {
+		if ($this->parent->optionBool(Response::OPTION_DEBUG_SCRIPT_WEIGHT)) {
 			$selected_attributes[] = 'weight';
 		}
 		foreach ($this->scripts as $attrs) {
@@ -1013,7 +991,7 @@ class HTML extends Type {
 				assert(array_key_exists('src', $attrs));
 				if ($attrs['nocache'] ?? false) {
 					$resource_path = URL::queryAppend($attrs['src'], [
-						$this->parent->option('scripts_nocache_variable', '_r') => md5(microtime()),
+						$this->parent->option(Response::OPTION_NOCACHE_VARIABLE, Response::DEFAULT_NOCACHE_VARIABLE) => md5(microtime()),
 					]);
 					$script_attributes['src'] = $resource_path;
 				} elseif (URL::valid($attrs['src'])) {

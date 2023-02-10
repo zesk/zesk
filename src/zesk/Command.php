@@ -329,7 +329,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @return array
 	 */
 	private function _configurationFiles(string $name): array {
-		$file = File::name_clean($name);
+		$file = File::nameClean($name);
 		$suffixes = [
 			"$file.conf", "$file.json",
 		];

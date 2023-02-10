@@ -240,7 +240,7 @@ abstract class Database extends Hookable implements Database_Interface {
 	 *
 	 * @return Database_Data_Type
 	 */
-	public function data_type(): Database_Data_Type {
+	public static function data_type(): Database_Data_Type {
 		return $this->data_type;
 	}
 
@@ -803,7 +803,7 @@ abstract class Database extends Hookable implements Database_Interface {
 	 * @param mixed $result
 	 *            The result of a query command.
 	 * @return void
-	 * @see \zesk\SQLite3\Database::query
+	 * @see SQLite3\Database::query
 	 */
 	abstract public function free(QueryResult $result): void;
 

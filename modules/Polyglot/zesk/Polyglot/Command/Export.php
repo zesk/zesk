@@ -46,7 +46,7 @@ class Export extends Command_Base {
 		$source_locale = $this->application->load($source_language_file) + LocaleReader::factory($this->application->localePath(), 'en_US')->execute();
 		$csv = new CSV_Writer();
 		$csv->setFile($destination);
-		$csv->set_headers([
+		$csv->setHeaders([
 			'phrase', 'translation',
 		]);
 		$n_excluded = $n_written = 0;

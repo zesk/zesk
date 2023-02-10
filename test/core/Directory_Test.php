@@ -41,7 +41,7 @@ class testdir {
  *
  */
 class Directory_Test extends UnitTest {
-	public function data_isAbsolute(): array {
+	public static function data_isAbsolute(): array {
 		return [
 			[true, '/', ], [true, '/a', ], [true, '/a/b/c', ], [false, './'], [false, './place/to/go', ],
 			[false, '../place/to/go', ], [is_windows(), '\\windows\\', ],
@@ -119,7 +119,7 @@ class Directory_Test extends UnitTest {
 	public function test_list_recursive(): void {
 		$path = $this->application->path();
 		$options = [];
-		Directory::list_recursive($path, $options);
+		Directory::listRecursive($path, $options);
 
 		$options['rules_file'] = [
 			'/.*_test\.php$/i' => true, false,
@@ -131,7 +131,7 @@ class Directory_Test extends UnitTest {
 			'/\.svn/' => false, true,
 		];
 
-		$results = Directory::list_recursive(ZESK_ROOT, $options);
+		$results = Directory::listRecursive(ZESK_ROOT, $options);
 		$this->assertTrue(in_array('test/core/Directory_Test.php', $results));
 	}
 
@@ -263,7 +263,7 @@ class Directory_Test extends UnitTest {
 		$this->assertEquals($expected, Directory::addSlash($test));
 	}
 
-	public function data_add_slash(): array {
+	public static function data_add_slash(): array {
 		return [
 			['foo/', 'foo'],
 			['foo/', 'foo/'],

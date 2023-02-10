@@ -2,13 +2,14 @@
 
 namespace MySQL;
 
+use mysqli_result;
 use zesk\Database\QueryResult as BaseQueryResult;
 use zesk\Database;
 
 class QueryResult extends BaseQueryResult {
 	public Database $database;
 
-	public ?\mysqli_result $resource;
+	public ?mysqli_result $resource;
 
 	public bool $result;
 

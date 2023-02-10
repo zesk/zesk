@@ -92,7 +92,7 @@ class Controller_Test extends UnitTest {
 			$this->assertInstanceOf(Response::class, $response);
 			$response->setPageTheme('test-theme');
 			$this->assertEquals("--Test--\n$middlePart\nstring\nEOF", $response->render([Response::OPTION_SKIP_HEADERS
-																						=> true]));
+																						=> true, ]));
 		}
 
 

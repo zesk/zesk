@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use ReflectionClass;
+use ReflectionException;
 
 /**
  * Commands_Test
@@ -106,7 +107,7 @@ World: false';
 	}
 
 	/**
-	 * @throws \ReflectionException
+	 * @throws ReflectionException
 	 * @throws Exception_Parameter
 	 */
 	public function dataIncludeClasses(): array {

@@ -157,7 +157,7 @@ abstract class Base extends Options {
 	 * @param boolean $is_map The passed in array is a map from internal name => label name
 	 * @return Base
 	 */
-	public function add_headers(array $headers, bool $is_map = true): self {
+	public function addHeaders(array $headers, bool $is_map = true): self {
 		if ($is_map) {
 			foreach ($headers as $column => $header_name) {
 				$index = count($this->Headers);
@@ -195,10 +195,10 @@ abstract class Base extends Options {
 	 * @return $this
 	 * @throws Exception_Key
 	 */
-	public function set_headers(array $headers, bool $is_map = true): self {
+	public function setHeaders(array $headers, bool $is_map = true): self {
 		$this->Headers = [];
 		$this->HeadersToIndex = [];
-		return $this->add_headers($headers, $is_map);
+		return $this->addHeaders($headers, $is_map);
 	}
 
 	/**

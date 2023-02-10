@@ -17,7 +17,7 @@ class PHPUnit_Code_TestCase extends PHPUnit_TestCase {
 		} else {
 			$rules_files[] = true;
 		}
-		$result = Directory::list_recursive($path, [
+		$result = Directory::listRecursive($path, [
 			'rules_file' => $rules_files,
 			'rules_directory' => false, // No directories in list
 			'rules_directory_walk' => [

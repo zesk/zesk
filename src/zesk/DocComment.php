@@ -69,14 +69,14 @@ class DocComment extends Options {
 	 *
 	 * So:
 	 *
-	 * DocComment::instance(["desc" => "Hello, world", "see" => "\\zesk\\Application"], [OPTION_DESC_NO_TAG => true])->content()
+	 * DocComment::instance(["desc" => "Hello, world", "see" => "Application"], [OPTION_DESC_NO_TAG => true])->content()
 	 *
 	 * Converts to:
 	 *
 	 *     /X**
 	 *      * Hello, world
 	 *      *
-	 *      * @see \zesk\Application
+	 *      * @see Application
 	 *      *X/
 	 *
 	 * Without the X.
@@ -130,7 +130,7 @@ class DocComment extends Options {
 	 */
 	public static function extract(string $content, array $options = []): array {
 		$matches = null;
-		if (!preg_match_all('#[\t ]*/\*\*[^*]*\*+([^/*][^*]*\*+)*/#s', $content, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE)) {
+		if (!preg_match_all('#[\t ]*/\*\*[^*]*\*+([^/*][^*]*\*+)*/#', $content, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE)) {
 			return [];
 		}
 		$result = [];
@@ -245,13 +245,14 @@ class DocComment extends Options {
 		return ArrayTools::pairValues(ArrayTools::clean(explode("\n", $lines)), ' ');
 	}
 
-	private function formatMultiKey($value, $key): array {
-		if (!is_array($value)) {
+	private function formatMultiKey($values, $key): array {
+		if (!is_array($values)) {
 			return [
 				"@$key $value",
 			];
 		}
-		foreach ($value as $name => $value) {
+		$result = [];
+		foreach ($values as $name => $value) {
 			$result[] = "@$key $name $value";
 		}
 		return $result;
@@ -309,7 +310,7 @@ class DocComment extends Options {
 	 * @param string $value
 	 * @return array
 	 */
-	private function parse_list_key(string $value): array {
+	private function parseListKey(string $value): array {
 		return ArrayTools::listTrimClean(explode("\n", $value));
 	}
 
@@ -353,14 +354,14 @@ class DocComment extends Options {
 		foreach ($this->parameterKeys() as $key) {
 			if (isset($result[$key]) && !isset($handled[$key])) {
 				$handled[$key] = true;
-				$result[$key] = $this->parseParameterKey($result[$key], $key);
+				$result[$key] = $this->parseParameterKey($result[$key]);
 			}
 		}
 		// Remaining keys turn into arrays or strings depending
 		foreach ($this->listKeys() as $key) {
 			if (isset($result[$key]) && !isset($handled[$key])) {
 				$handled[$key] = true;
-				$result[$key] = $this->parse_list_key($result[$key], $key);
+				$result[$key] = $this->parseListKey($result[$key]);
 			}
 		}
 		if (empty($result['desc'])) {

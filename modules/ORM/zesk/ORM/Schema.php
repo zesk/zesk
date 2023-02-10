@@ -320,7 +320,8 @@ abstract class Schema extends Hookable {
 		if (is_array($schema)) {
 			foreach ($schema as $table_name => $table_schema) {
 				if (is_numeric($table_name)) {
-					throw new Exception_Syntax(get_class($this) . " should contain an array of table schemas\n" . var_export($table_schema));
+					throw new Exception_Syntax(get_class($this) . " should contain an array of table schemas\n" .
+						var_export($table_schema, true));
 				}
 				if (self::$debug) {
 					$logger->debug('Schema: ' . $this->class_object->class . " \"$table_name\"");

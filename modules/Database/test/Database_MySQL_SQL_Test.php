@@ -75,7 +75,7 @@ class Database_MySQL_SQL_Test extends UnitTest {
 		$this->assertEquals('NOW()', $sql->now());
 	}
 
-	public function data_order_by() {
+	public static function data_order_by(): array {
 		return [
 			['', '', ''], [[], '', ''], ['a', '', ' ORDER BY a'], ['-a', '', ' ORDER BY a DESC'],
 			['-a;-b', '', ' ORDER BY a DESC, b DESC'], ['-a;b;c;-d', '', ' ORDER BY a DESC, b, c, d DESC'],
@@ -131,7 +131,7 @@ class Database_MySQL_SQL_Test extends UnitTest {
 		$this->assertEquals($expected, $sql->quoteTable($table));
 	}
 
-	public function data_quoteTable(): array {
+	public static function data_quoteTable(): array {
 		return [
 			['`foo`', 'foo', ], ['`Big Table Name space`', 'Big Table Name space', ],
 		];
@@ -233,7 +233,7 @@ class Database_MySQL_SQL_Test extends UnitTest {
 		$this->assertEquals($expected, $sql->where_clause($array, $conjunction, $prefix_in, $suffix));
 	}
 
-	public function data_whereClause(): array {
+	public static function data_whereClause(): array {
 		return [
 			[
 				'(`Q`.`Site` = 1 OR `Q`.`Site` = 2 OR `Q`.`Site` = 3) AND Q.UTC<=MIN(F.Stats_UTC)', [

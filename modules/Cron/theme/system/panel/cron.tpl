@@ -10,7 +10,6 @@ use zesk\Timestamp;
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
-/* @var $current_user \User */
 /* @var $module_class string */
 $service = $application->settings_registry();
 

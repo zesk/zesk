@@ -25,8 +25,8 @@ class Compatibility {
 		if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < $v) {
 			throw new Exception_Unsupported('Zesk requires PHP version {maj}.{min}.{patch} or greater', [
 				'maj' => intval($v / 10000),
-				'min' => intval(($v / 100) % 100),
-				'patch' => intval($v % 100),
+				'min' => ($v / 100) % 100,
+				'patch' => $v % 100,
 			]);
 		}
 	}

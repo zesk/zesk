@@ -8,13 +8,13 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-use \stdClass;
+use stdClass;
 
 /**
  * Generic test class
  */
 class Generic_Test extends UnitTest {
-	public function data_something(): array {
+	public static function data_something(): array {
 		$true_ish = [true, 1, 'yes', ' 0', new stdClass()];
 		$false_ish = [false, 0, null, '', '', '0', []];
 		$arguments_list = [];

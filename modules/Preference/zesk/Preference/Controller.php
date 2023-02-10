@@ -66,7 +66,7 @@ class Controller extends BaseController {
 	private function _whitelist(): array {
 		if (count($this->whitelist) === 0) {
 			try {
-				$this->whitelist = array_flip(ArrayTools::clean(explode("\n", File::contents($this->_whitelistFile(), '')), ''));
+				$this->whitelist = array_flip(ArrayTools::clean(explode("\n", File::contents($this->_whitelistFile())), ''));
 			} catch (Exception_File_NotFound $e) {
 				$this->whitelist = [];
 			}

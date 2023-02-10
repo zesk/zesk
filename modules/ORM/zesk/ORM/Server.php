@@ -307,10 +307,12 @@ class Server extends ORMBase implements Interface_Data {
 		$this->_initializeNameDefaults();
 
 		try {
-			return $this->store();
+			$result = $this->store();
 		} catch (Exception_ORMDuplicate) {
-			return $this->find();
+			$result = $this->find();
 		}
+		assert($result instanceof self);
+		return $result;
 	}
 
 	/**

@@ -6,7 +6,6 @@ namespace zesk\Net;
 use zesk\Module as BaseModule;
 use zesk\URL;
 
-use zesk\Application;
 use zesk\Exception_Syntax;
 use zesk\Exception_Configuration;
 use zesk\Exception_Class_NotFound;
@@ -35,6 +34,8 @@ class Module extends BaseModule {
 		$scheme = ($scheme === 'https') ? 'http' : $scheme;
 		$app = $this->application;
 		$class = __NAMESPACE__ . strtoupper($scheme) . '\\Client';
-		return $app->factory($class, $app, $url, $options);
+		$result = $app->factory($class, $app, $url, $options);
+		assert($result instanceof Client);
+		return $result;
 	}
 }

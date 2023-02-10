@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Throwable;
+
 /**
  * Run arbitrary PHP code in the application context. Use --interactive or -i to run in interactive mode.
  *
@@ -99,15 +101,11 @@ class Command_Shell extends Command_Base {
 	 * @return void
 	 */
 	public function output_result(mixed $__result, string $content = ''): void {
-		if ($__result === null) {
-			if ($content !== '') {
-				echo $content . "\n";
-			}
-		} else {
+		if ($__result !== null) {
 			echo '# return ' . PHP::dump($__result) . "\n";
-			if ($content !== '') {
-				echo $content . "\n";
-			}
+		}
+		if ($content !== '') {
+			echo $content . "\n";
 		}
 	}
 
@@ -137,7 +135,7 @@ class Command_Shell extends Command_Base {
 			try {
 				$__result = $this->_eval($command);
 				$last_exit_code = 0;
-			} catch (\Throwable $ex) {
+			} catch (Throwable $ex) {
 				$content = ob_get_clean();
 				echo '# exception ' . $ex::class . "\n";
 				echo '# message ' . $ex->getMessage() . "\n";

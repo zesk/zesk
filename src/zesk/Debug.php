@@ -129,7 +129,7 @@ class Debug {
 					return $x->$method();
 				}
 			}
-			return implode("\n" . str_repeat(self::DUMP_SPACER, $indent), explode("\n", self::_dump($x, true)));
+			return implode("\n" . str_repeat(self::DUMP_SPACER, $indent), explode("\n", self::_dump($x)));
 		}
 		return strval($x);
 	}

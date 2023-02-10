@@ -454,7 +454,7 @@ class User extends ORMBase implements Interface_UserLike {
 	public static function permissions(Application $application): array {
 		return parent::default_permissions($application, __CLASS__) + [
 			__CLASS__ . '::become' => [
-				'title' => __('Become another user'), 'class' => 'User',
+				'title' => $application->locale->__('Become another user'), 'class' => 'User',
 			],
 		];
 	}

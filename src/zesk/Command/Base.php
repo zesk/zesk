@@ -138,25 +138,26 @@ abstract class Command_Base extends Command implements Handler {
 			throw new Exception_Exited();
 		}
 		if ($this->optionBool('debug-config')) {
-			$this->application->addHook(\zesk\Hooks::HOOK_CONFIGURED, [
+			$this->application->addHook(Hooks::HOOK_CONFIGURED, [
 				$this,
 				'action_debug_configured',
 			]);
 		}
 	}
 
-	protected function handle_base_options() {
+	protected function handle_base_options(): int {
 		if ($this->optionBool('debug-config')) {
 			return $this->action_debug_configured(false);
 		}
+		return 0;
 	}
 
 	/**
 	 */
-	public function action_debug_configured($exit = true) {
+	public function action_debug_configured(bool $exit = true): int {
 		require_once($this->application->zeskHome('command/config.php'));
-		$config = new Command_Config($this->application, [], $this->options());
-		$result = $config->run();
+		$config = new Command_Configuration($this->application, $this->options());
+		$result = $config->parseArguments([])->run();
 		if ($exit) {
 			exit($result);
 		}

@@ -10,14 +10,68 @@ namespace zesk;
  *
  */
 
+use Closure;
 use DirectoryIterator;
 use UnexpectedValueException;
-use Psr;
+use Psr\Log\LoggerInterface;
 
 /**
  *
  */
 class Directory extends Hookable {
+	/**
+	 * Build our rule strings
+	 */
+	protected const RULE_PREFIX = 'rules_';
+
+	/**
+	 * Build our rule strings
+	 */
+	protected const RULE_SUFFIX_FILE = 'file';
+
+	/**
+	 * Build our rule strings
+	 */
+	protected const RULE_SUFFIX_DIRECTORY = 'directory';
+
+	/**
+	 * TODO camelCase
+	 * Build our rule strings
+	 */
+	protected const RULE_SUFFIX_DIRECTORY_WALK = 'directory_walk';
+
+	/**
+	 * Option rule for listRecursive
+	 */
+	public const LIST_RULE_DIRECTORY = self::RULE_PREFIX . self::RULE_SUFFIX_DIRECTORY;
+
+	/**
+	 * Option rule for listRecursive
+	 */
+	public const LIST_RULE_FILE = self::RULE_PREFIX . self::RULE_SUFFIX_FILE;
+
+	/**
+	 * Option rule for listRecursive. Rules specify whether a directory should be traversed.
+	 */
+	public const LIST_RULE_DIRECTORY_WALK = self::RULE_PREFIX . self::RULE_SUFFIX_DIRECTORY_WALK;
+
+	/**
+	 * TODO camelCase
+	 * Boolean value whether to prefix resulting strings with the path
+	 */
+	public const LIST_ADD_PATH = 'add_path';
+
+	/**
+	 * Pass in LoggerInterface to get progress
+	 */
+	public const LIST_PROGRESS = 'progress';
+
+	/**
+	 * TODO camelCase
+	 * Stop after maximum results
+	 */
+	public const LIST_MAXIMUM_RESULTS = 'maximum_results';
+
 	/**
 	 *
 	 * @var integer
@@ -87,7 +141,7 @@ class Directory extends Hookable {
 		} catch (Exception_Directory_NotFound) {
 			throw new Exception_Directory_Permission($path, 'Can not stat {path}');
 		}
-		if (strval($perms['octal']) === File::mode_to_octal($mode)) {
+		if (strval($perms['octal']) === File::modeToOctal($mode)) {
 			if (!chmod($path, $mode)) {
 				throw new Exception_Directory_Permission($path, 'Setting {path} to mode {mode}', [
 					'mode' => sprintf('%04o', $mode),
@@ -109,12 +163,12 @@ class Directory extends Hookable {
 	public static function chmod(string $directory, int $mode = 504 /* 0o770 */): void {
 		if (!is_dir($directory)) {
 			throw new Exception_Directory_NotFound($directory, 'Can not set mode to {mode}', [
-				'mode' => File::mode_to_octal($mode),
+				'mode' => File::modeToOctal($mode),
 			]);
 		}
 		if (!chmod($directory, $mode)) {
 			throw new Exception_Directory_Permission($directory, 'Can not set mode to {mode}', [
-				'mode' => File::mode_to_octal($mode),
+				'mode' => File::modeToOctal($mode),
 			]);
 		}
 	}
@@ -305,18 +359,6 @@ class Directory extends Hookable {
 	}
 
 	/**
-	 * @param string $absolute_root
-	 * @param string $mixed
-	 * @return string
-	 * @throws Exception_Deprecated
-	 * @throws Exception_Directory_NotFound
-	 */
-	public static function make_absolute(string $absolute_root, string $mixed): string {
-		zesk()->deprecated(__METHOD__);
-		return self::makeAbsolute($absolute_root, $mixed);
-	}
-
-	/**
 	 * @param string $absolute_root A known valid path in the file system
 	 * @param string $mixed An elements to append to convert to an absolute path at the given root
 	 * @return string
@@ -397,41 +439,6 @@ class Directory extends Hookable {
 		return self::_legacyParseOptions($options, $name, $default);
 	}
 
-	public const RULE_PREFIX = 'rules_';
-
-	public const RULE_SUFFIX_FILE = 'file';
-
-	public const RULE_SUFFIX_DIRECTORY = 'directory';
-
-	public const RULE_SUFFIX_DIRECTORY_WALK = 'directory_walk';
-
-	/**
-	 * Option rule for listRecursive
-	 */
-	public const LIST_RULE_DIRECTORY = self::RULE_PREFIX . self::RULE_SUFFIX_DIRECTORY;
-
-	/**
-	 * Option rule for listRecursive
-	 */
-	public const LIST_RULE_FILE = self::RULE_PREFIX . self::RULE_SUFFIX_FILE;
-
-	/**
-	 * Option rule for listRecursive. Rules specify whether a directory should be traversed.
-	 */
-	public const LIST_RULE_DIRECTORY_WALK = self::RULE_PREFIX . self::RULE_SUFFIX_DIRECTORY_WALK;
-
-	public const LIST_ADD_PATH = 'add_path';
-
-	/**
-	 * @param string $path
-	 * @param array $options
-	 * @return array
-	 * @throws Exception_Parameter
-	 */
-	public static function list_recursive(string $path, array $options = []): array {
-		return self::listRecursive($path, $options);
-	}
-
 	/**
 	 * List a directory recursively
 	 *
@@ -454,13 +461,13 @@ class Directory extends Hookable {
 	public static function listRecursive(string $path, array $options = []): array {
 		$options = !is_array($options) ? [] : $options;
 		$options = array_change_key_case($options);
-		$progress = $options['progress'] ?? null;
-		/* @var $progress Psr\Log\LoggerInterface */
+		$progress = $options[self::LIST_PROGRESS] ?? null;
+		/* @var $progress LoggerInterface */
 		$rules_file = self::_listRecursiveRules($options, self::RULE_SUFFIX_FILE, false);
 		$rules_dir = self::_listRecursiveRules($options, self::RULE_SUFFIX_DIRECTORY, false);
 		$rules_dir_walk = self::_listRecursiveRules($options, self::RULE_SUFFIX_DIRECTORY_WALK, true);
 
-		$max_results = $options['maximum_results'] ?? -1;
+		$max_results = $options[self::LIST_MAXIMUM_RESULTS] ?? -1;
 		$addPath = toBool($options[self::LIST_ADD_PATH] ?? false);
 
 		$path = rtrim($path, '/');
@@ -469,7 +476,7 @@ class Directory extends Hookable {
 			return [];
 		}
 		$r = [];
-		$options['add_path'] = false;
+		$options[self::LIST_ADD_PATH] = false;
 		$prefix = $addPath ? (str_ends_with($path, '/') ? $path : "$path/") : '';
 		while (($x = readdir($d)) !== false) {
 			if ($x === '.' || $x === '..') {
@@ -484,12 +491,12 @@ class Directory extends Hookable {
 				if (!StringTools::filter($full_path, $rules_dir_walk)) {
 					continue;
 				}
-				if ($progress instanceof Psr\Log\LoggerInterface) {
+				if ($progress instanceof LoggerInterface) {
 					$progress->notice('Listing {full_path}', [
 						'full_path' => $full_path,
 					]);
 				}
-				$result = self::list_recursive($full_path, $options);
+				$result = self::listRecursive($full_path, $options);
 				$result = ArrayTools::prefixValues($result, "$prefix$x/");
 				$r = array_merge($r, $result);
 			} else {
@@ -537,13 +544,13 @@ class Directory extends Hookable {
 	}
 
 	/**
+	 * Simple function to ensure there is a slash on the end of a file, unless the file is empty
 	 *
+	 * @param string $path
+	 * @return string
 	 */
-	public static function addSlash(string $p): string {
-		if ($p === '') {
-			return $p;
-		}
-		return str_ends_with($p, '/') ? $p : "$p/";
+	public static function addSlash(string $path): string {
+		return ($path === '') ? $path : (str_ends_with($path, '/') ? $path : "$path/");
 	}
 
 	/**
@@ -559,7 +566,17 @@ class Directory extends Hookable {
 	/**
 	 *
 	 */
-	public static function iterate($source, $directory_function = null, $file_function = null): void {
+	/**
+	 * @param string $source
+	 * @param callable|Closure|null $directory_function
+	 * @param callable|Closure|null $file_function
+	 * @return void
+	 * @throws Exception_Directory_NotFound
+	 */
+	public static function iterate(string $source, null|callable|Closure $directory_function = null, null|callable|Closure $file_function = null): void {
+		if (!is_dir($source)) {
+			throw new Exception_Directory_NotFound($source);
+		}
 		$d = dir($source);
 		$list = [];
 		while (($f = $d->read()) !== false) {
@@ -602,6 +619,7 @@ class Directory extends Hookable {
 	 * @param boolean $cat_path Whether to concatenate the path to each resulting file name
 	 * @return array The directory list
 	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Directory_Permission
 	 * @todo Move this to DirectoryIterator inherited class
 	 */
 	public static function ls(string $path, string $filter = null, bool $cat_path = false): array {
@@ -613,7 +631,7 @@ class Directory extends Hookable {
 		}
 		$d = opendir($path);
 		if (!is_resource($d)) {
-			throw new Exception_Directory_NotFound($path, '{method}: {path} is not readable', [
+			throw new Exception_Directory_Permission($path, '{method}: {path} is not readable', [
 				'method' => __METHOD__, 'path' => $path,
 			]);
 		}
@@ -652,13 +670,8 @@ class Directory extends Hookable {
 		if ($create) {
 			self::depend($dest);
 		}
-		if (!is_dir($dest)) {
-			throw new Exception_Directory_NotFound($dest, 'Copying from {source}', [
-				'source' => $source,
-			]);
-		}
 		self::deleteContents($dest);
-		foreach (self::list_recursive($source) as $f) {
+		foreach (self::listRecursive($source) as $f) {
 			$f_source = path($source, $f);
 			$f_dest = path($dest, $f);
 			if (is_dir($f_source)) {

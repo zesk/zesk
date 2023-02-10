@@ -29,7 +29,7 @@ class Number_Test extends UnitTest {
 		}
 	}
 
-	public function data_parseBytes(): array {
+	public static function data_parseBytes(): array {
 		return [
 			[2199023255552.0, '2TB'],
 			[2199023255552.0, '2T'],
@@ -54,7 +54,7 @@ class Number_Test extends UnitTest {
 	/**
 	 *
 	 */
-	public function data_stddev(): array {
+	public static function data_stddev(): array {
 		return [
 			[0, []],
 			[1.0, [0.0, 1.0, 2.0]],
@@ -86,7 +86,7 @@ class Number_Test extends UnitTest {
 		$this->assertEqualsWithDelta($expected, Number::mean($list), 0.01);
 	}
 
-	public function data_mean(): array {
+	public static function data_mean(): array {
 		return [
 			[0, []],
 			[1.0, [0.0, 1.0, 2.0]],

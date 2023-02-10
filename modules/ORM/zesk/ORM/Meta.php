@@ -7,7 +7,8 @@ namespace zesk\ORM;
 /**
  * @see Class_Meta
  * @author kent
- *
+ * @property ORMBase $parent
+ * @property string $value
  */
 class Meta extends ORMBase {
 	/**
@@ -21,12 +22,14 @@ class Meta extends ORMBase {
 	 * @param string $name
 	 * @return self
 	 */
-	protected static function classMetaFactory(string $class, ORMBase $parent, string $name) {
+	protected static function classMetaFactory(string $class, ORMBase $parent, string $name): ORMBase {
 		$name = self::clean_code_name($name, '_');
-		return $parent->application->ormFactory($class, [
+		$ormBase = $parent->application->ormFactory($class, [
 			'parent' => $parent,
 			'name' => $name,
 		]);
+		assert($ormBase instanceof ORMBase);
+		return $ormBase;
 	}
 
 	/*
@@ -49,10 +52,9 @@ class Meta extends ORMBase {
 
 	/**
 	 *
-	 * @param string $default
 	 * @return string
 	 */
-	public function metaGet(string $default = ''): string {
+	public function metaGet(): string {
 		if (!$this->_meta_fetch) {
 			try {
 				$this->fetch();
@@ -60,6 +62,6 @@ class Meta extends ORMBase {
 			}
 			$this->_meta_fetch = true;
 		}
-		return $this->member('value', $default);
+		return $this->value;
 	}
 }

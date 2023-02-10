@@ -14,7 +14,7 @@ use OutOfBoundsException;
  *
  */
 class Timestamp_Test extends UnitTest {
-	public function data_instance(): array {
+	public static function data_instance(): array {
 		return [['2022-11-16 10:32:32', 2022, 11, 16, 10, 32, 32], ['2000-01-01 09:09:02', 2000, 1, 1, 9, 9, 2], ];
 	}
 
@@ -61,7 +61,7 @@ class Timestamp_Test extends UnitTest {
 		$this->assertNotEquals($now, $other);
 	}
 
-	public function data_seconds_to_unit(): array {
+	public static function data_seconds_to_unit(): array {
 		return [
 			[Temporal::UNIT_HOUR, 1.0, 3600, Temporal::UNIT_SECOND],
 			[Temporal::UNIT_MINUTE, 1.0, 60, Temporal::UNIT_SECOND],
@@ -95,7 +95,7 @@ class Timestamp_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider good_months
+	 * @dataProvider data_good_months
 	 */
 	public function test_month_range($value): void {
 		$x = new Timestamp();
@@ -103,16 +103,16 @@ class Timestamp_Test extends UnitTest {
 		$this->assertEquals($value, $x->setMonth($value)->month());
 	}
 
-	public function bad_months() {
+	public static function data_bad_months() {
 		return [[-1], [0], [13], [14], [19], [141231241], [-12], [-11], ];
 	}
 
-	public function good_months() {
+	public static function data_good_months() {
 		return [[1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11], [12], ];
 	}
 
 	/**
-	 * @dataProvider bad_months
+	 * @dataProvider data_bad_months
 	 */
 	public function test_month_range_bad($month): void {
 		$this->expectException(OutOfBoundsException::class);
@@ -323,7 +323,7 @@ class Timestamp_Test extends UnitTest {
 		$this->assertTrue($success, 'Day range exception failed');
 
 		$value = 4;
-		$x->weekday($value);
+		$x->setWeekday($value);
 
 		for ($value = 1; $value <= 4; $value++) {
 			$before = $x->format();
@@ -428,8 +428,8 @@ class Timestamp_Test extends UnitTest {
 
 		$x->iso8601();
 
-		$value = null;
-		$x->iso8601($value);
+		$value = '1970-01-01T00:00:00';
+		$x->setISO8601($value);
 
 		date_default_timezone_set('UTC');
 
@@ -468,7 +468,7 @@ class Timestamp_Test extends UnitTest {
 
 		$just_a_sec = Timestamp::factory($now)->addUnit(1, Timestamp::UNIT_SECOND);
 		foreach ($units as $unit => $seconds) {
-			$this->assertEquals($just_a_sec->difference($now, $unit), intval(round(1 / $seconds, 0)), $unit, false);
+			$this->assertEquals($just_a_sec->difference($now, $unit), intval(round(1 / $seconds, 0)), $unit);
 		}
 	}
 
@@ -481,7 +481,7 @@ class Timestamp_Test extends UnitTest {
 		$x->parse($value);
 	}
 
-	public function data_serializeExamples(): array {
+	public static function data_serializeExamples(): array {
 		return [
 			[Timestamp::now(), ], [Timestamp::factory_ymdhms(2000, 10, 2, 18, 59, 59, 123), ],
 			[Timestamp::factory_ymdhms(1970, 12, 31, 18, 59, 59, 123), ],

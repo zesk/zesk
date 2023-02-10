@@ -34,7 +34,7 @@ class JSON_Test extends UnitTest {
 		$this->assertStringContainsString('{"Hello":', json_encode($content));
 	}
 
-	public function data_prepare(): array {
+	public static function data_prepare(): array {
 		$thing1 = new class {
 			public function doit(): array {
 				return ['yes' => 'works'];
@@ -84,7 +84,7 @@ class JSON_Test extends UnitTest {
 		$this->assertNull(JSON::decode('null'));
 	}
 
-	public function data_encode(): array {
+	public static function data_encode(): array {
 		return [
 			[null, fopen('php://stdin', 'rb')],
 			['null', null, ],
@@ -130,7 +130,7 @@ class JSON_Test extends UnitTest {
 	/**
 	 * @return array[]
 	 */
-	public function data_encodeSpecial(): array {
+	public static function data_encodeSpecial(): array {
 		return [
 			[
 				'null', null,
@@ -159,7 +159,7 @@ class JSON_Test extends UnitTest {
 		$this->assertEquals($expected, JSON::encodeJavaScript($mixed));
 	}
 
-	public function data_encodeJavaScript(): array {
+	public static function data_encodeJavaScript(): array {
 		return [
 			[
 				'null', null,
@@ -187,7 +187,7 @@ class JSON_Test extends UnitTest {
 		$this->assertEquals($expected, JSON::object_member_name_quote($name));
 	}
 
-	public function data_object_member_name_quote(): array {
+	public static function data_object_member_name_quote(): array {
 		return [
 			['', '""'], ['a', 'a'], ['dude_123', 'dude_123'], [' ', '" "'], ['a b', '"a b"'], ['@#', '"@#"'],
 			['Equalit\'', '"Equalit\'"'], ['egalité', '"egalité"'],
@@ -204,7 +204,7 @@ class JSON_Test extends UnitTest {
 		$this->assertEquals($expected, JSON::quote($mixed));
 	}
 
-	public function data_quote(): array {
+	public static function data_quote(): array {
 		return [
 			['"\\\\t\\\\n\\\\r\\\\"', '\t\n\r\\'],
 			['"this.is.a.word"', 'this.is.a.word'],
@@ -215,7 +215,7 @@ class JSON_Test extends UnitTest {
 		];
 	}
 
-	public function data_valid_member_name(): array {
+	public static function data_valid_member_name(): array {
 		return [
 			[false, ''], [true, 'a'], [true, 'dude_123'], [false, ' '], [false, 'a b'], [false, '@#'],
 			[false, 'Equalit\''], [false, 'egalité'],
@@ -278,7 +278,7 @@ class JSON_Test extends UnitTest {
 		$this->assertEquals($encode, $encode2);
 	}
 
-	public function data_zesk_decode(): array {
+	public static function data_zesk_decode(): array {
 		return [
 			[
 				'{ "fructose.marketacumen.com": "fructose" }', [

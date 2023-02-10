@@ -76,6 +76,8 @@ class Service extends Hookable {
 			$class = array_shift($classes);
 		}
 		assert(class_exists($class, false));
-		return $application->objects->factory($class, $arguments);
+		$result = $application->objects->factory($class, $arguments);
+		assert($result instanceof self);
+		return $result;
 	}
 }

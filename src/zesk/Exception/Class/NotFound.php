@@ -33,7 +33,6 @@ class Exception_Class_NotFound extends Exception {
 	 */
 	public function __construct(?string $class, string $message = '', $arguments = [], Throwable $previous = null) {
 		$this->class = $class === null ? 'null' : $class;
-		;
 		parent::__construct("{class} not found. $message", [
 			'class' => $this->class,
 		] + toArray($arguments), 0, $previous);

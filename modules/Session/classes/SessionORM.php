@@ -189,19 +189,20 @@ class SessionORM extends ORMBase implements Interface_Session {
 	}
 
 	/**
-	 * Authenticate user at IP
+	 * Authenticate user
 	 *
-	 * @param int|Interface_UserLike $user
-	 * @param string $ip
+	 * @see Interface_Session::authenticate()
+	 * @param Interface_UserLike $user
+	 * @param Request $request
+	 * @param Response $response
 	 * @return void
 	 * @throws Exception_Authentication
-	 * @see Interface_Session::authenticate()
 	 */
-	public function authenticate(int|Interface_UserLike $user, string $ip = ''): void {
+	public function authenticate(Interface_UserLike $user, Request $request, Response $response): void {
 		try {
 			$cookieExpire = $this->cookieExpire();
 			$this->setMember('user', ORMBase::mixedToID($user));
-			$this->setMember('ip', $ip);
+			$this->setMember('ip', $request->remoteIP());
 			$this->setMember('expires', Timestamp::now()->addUnit($cookieExpire));
 			$this->store();
 		} catch (Throwable $t) {

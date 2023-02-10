@@ -14,7 +14,7 @@ class Database_Parser_Test extends UnitTest {
 		'MySQL',
 	];
 
-	public function data_provider_split_order_by() {
+	public static function data_provider_split_order_by(): array {
 		return [
 			// Suffix, string
 			[

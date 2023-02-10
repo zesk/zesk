@@ -24,7 +24,7 @@ class Session_PHP_Test extends UnitTest {
 
 	public const TEST_CLASS = __NAMESPACE__ . '\\' . 'Session_PHP';
 
-	public function data_basic_session(): array {
+	public static function data_basic_session(): array {
 		$this->application->setOption('session_class', self::TEST_CLASS);
 
 		$request = new Request($this->application);

@@ -68,7 +68,7 @@ class CSV_Writer_Test extends UnitTest {
 		$set_headers = [
 			'Title', 'CodeName', 'Something',
 		];
-		$this->assertInstanceOf(Base::class, $x->set_headers($set_headers, false));
+		$this->assertInstanceOf(Base::class, $x->setHeaders($set_headers, false));
 
 		$headers = $x->headers();
 		$this->assertEquals($headers, $set_headers);
@@ -114,25 +114,25 @@ class CSV_Writer_Test extends UnitTest {
 		$this->assertIsInt($x->rowIndex());
 	}
 
-	public function badkeys() {
+	public static function data_badkeys(): array {
 		return [
 			['f!rst'], ['2ECOND'], ['THURD'], ['4'], ['random'], [5], ['5 '], ['six'],
 		];
 	}
 
-	public function goodkeys() {
+	public static function data_goodkeys(): array {
 		return [
 			['first'], ['SECOND'], ['tHIRD'], ['4th'], ['5'],
 		];
 	}
 
 	/**
-	 * @dataProvider badkeys
+	 * @dataProvider data_badkeys
 	 */
 	public function test_badkey(string|int $badkey): void {
 		$this->expectException(Exception_Key::class);
 		$x = new Writer();
-		$x->set_headers([
+		$x->setHeaders([
 			'First', 'Second', 'Third', '4th', '5', '6',
 		], false);
 
@@ -142,11 +142,11 @@ class CSV_Writer_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider goodkeys
+	 * @dataProvider data_goodkeys
 	 */
 	public function test_goodkey(string $key): void {
 		$x = new Writer();
-		$x->set_headers([
+		$x->setHeaders([
 			'First', 'Second', 'Third', '4th', '5', '6.0',
 		], false);
 

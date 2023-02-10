@@ -7,7 +7,10 @@
  */
 namespace zesk;
 
+use Symfony\Component\Process\Pipes\UnixPipes;
+
 /**
+ * TODO NOT Implemented 2023
  *
  * @package zesk
  * @subpackage model
@@ -44,6 +47,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 			$arguments[] = $port;
 		}
 		$arguments[] = "$user@$host";
+
 		$this->process = new Process($command, $arguments, $this->options);
 		$this->welcome = $this->process->read();
 	}
@@ -72,7 +76,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 		}
 		$matches = [];
 		if (preg_match('/^(sftp>[^\n]*\n)/', $result, $matches)) {
-			$result = strval(substr($result, strlen($matches[0])));
+			$result = substr($result, strlen($matches[0]));
 		}
 		return $result;
 	}

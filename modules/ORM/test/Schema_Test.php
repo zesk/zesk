@@ -42,7 +42,7 @@ class Schema_Test extends ORMUnitTest {
 		$object = $this->application->ormFactory(ORMUnitTest_Schema_User::class);
 		$database = $object->database();
 		$table = $object->table();
-		$database->query("DROP TABLE $table");
+		$database->query("DROP TABLE IF EXISTS $table");
 
 		assert($object instanceof ORMUnitTest_Schema_User);
 		$sqlStatements = Schema::update_object($object);

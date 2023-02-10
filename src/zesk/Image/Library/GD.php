@@ -15,15 +15,8 @@ use GdImage;
  */
 class Image_Library_GD extends Image_Library {
 	private static array $output_map = [
-		'png' => 'png', 'gif' => 'gif', 'jpeg' => 'jpeg', 'jpg' => 'jpeg', 'jpg' => 'jpeg',
+		'png' => 'png', 'gif' => 'gif', 'jpeg' => 'jpeg', 'jpg' => 'jpeg',
 	];
-
-	/**
-	 * Background color allocated upon image create
-	 *
-	 * @var resource
-	 */
-	private $bg_color = null;
 
 	/**
 	 *
@@ -40,7 +33,7 @@ class Image_Library_GD extends Image_Library {
 	 * @param array $options
 	 * @return boolean|string
 	 */
-	private function _image_scale_resource(resource $src, string $dest, array $options): string {
+	private function _image_scale_resource(GdImage $src, string $dest, array $options): string {
 		// Must convert to int to ensure "divide by zero" test below works
 		$actual_width = intval(imagesx($src));
 		$actual_height = intval(imagesy($src));
@@ -118,10 +111,10 @@ class Image_Library_GD extends Image_Library {
 		imagealphablending($dst, $antialias);
 		imagesavealpha($dst, $antialias);
 		imagecopyresampled($dst, $src, $dst_x, $dst_y, $src_x, $src_y, $dst_width, $dst_height, $src_width, $src_height);
-		if ($zoom) {
-			// imagefill($dst, 0, 0, $this->bg_color);
-			// imagefill($dst, $dst_x + $dst_width, $dst_y + $dst_height, $this->bg_color);
-		}
+		//if ($zoom) {
+		//	imagefill($dst, 0, 0, $bg_color);
+		// 	imagefill($dst, $dst_x + $dst_width, $dst_y + $dst_height, $bg_color);
+		//}
 		return $this->_imageOutput($dst, $dest);
 	}
 
@@ -149,12 +142,12 @@ class Image_Library_GD extends Image_Library {
 
 	/**
 	 *
-	 * @throws \zesk\Exception_File_NotFound
-	 * @throws \zesk\Exception_Semantics
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_Semantics
 	 * {@inheritDoc}
 	 * @see Image_Library::imageScale()
 	 */
-	public function imageScale(string $source, string $dest, array $options): string {
+	public function imageScale(string $source, string $dest, array $options): bool {
 		$src = $this->_imageLoad($source);
 		return $this->_image_scale_resource($src, $dest, $options);
 	}
@@ -192,7 +185,7 @@ class Image_Library_GD extends Image_Library {
 			$res = imagecreate($width, $height);
 		}
 		imagesavealpha($res, true);
-		$bg_color = $this->bg_color = imagecolorallocatealpha($res, 255, 255, 255, 127);
+		$bg_color = $bg_color = imagecolorallocatealpha($res, 255, 255, 255, 127);
 		imagefill($res, 0, 0, $bg_color);
 		return $res;
 	}
@@ -257,10 +250,10 @@ class Image_Library_GD extends Image_Library {
 	}
 
 	/**
-	 * @throws \zesk\Exception_File_NotFound
-	 * @throws \zesk\Exception_Semantics
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_Semantics
 	 * {@inheritDoc}
-	 * @see \zesk\Image_Library::imageRotate()
+	 * @see Image_Library::imageRotate()
 	 */
 	public function imageRotate(string $source, string $destination, float $degrees, array $options = []): bool {
 		$source_resource = $this->_imageLoad($source);

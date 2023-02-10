@@ -64,5 +64,6 @@ class Command_Bootstrap extends Command_Base {
 			$object = $this->application->factory($class, $this->application, $this->options);
 			$object->bootstrap($this->application);
 		}
+		return 0;
 	}
 }

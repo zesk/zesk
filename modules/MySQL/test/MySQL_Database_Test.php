@@ -232,9 +232,9 @@ EOF;
 
 		$table = new Database_Table($db, $table_name = 'TestLine_' . __LINE__);
 		$dbColOld = new Database_Column($table, 'Foo');
-		$dbColOld->sql_type('varchar(32)');
+		$dbColOld->setSQLType('varchar(32)');
 		$dbColNew = new Database_Column($table, 'Foo');
-		$dbColNew->sql_type('varchar(33)');
+		$dbColNew->setSQLType('varchar(33)');
 		$sql = $db->sql()->alter_table_change_column($table, $dbColOld, $dbColNew);
 		$this->assertEquals($sql, "ALTER TABLE `$table_name` CHANGE COLUMN `Foo` `Foo` varchar(33) NULL");
 
@@ -269,8 +269,7 @@ EOF;
 		$sql = 'SHOW TABLES';
 		$k = null;
 		$v = null;
-		$default = [];
-		$db->queryArray($sql, $k, $v, $default);
+		$db->queryArray($sql, $k, $v);
 
 		$db->now();
 
@@ -301,7 +300,7 @@ EOF;
 
 		$table = new Database_Table($db, $table_name = 'TestTable' . __LINE__);
 		$column = new Database_Column($table, 'hello');
-		$column->sql_type('varchar(2)');
+		$column->setSQLType('varchar(2)');
 		$sqlType = null;
 		$after_col = false;
 		$sql = $db->sql()->alter_table_column_add($table, $column);
@@ -309,7 +308,7 @@ EOF;
 
 		$table = new Database_Table($db, $table_name = 'TestTable' . __LINE__);
 		$column = new Database_Column($table, 'hello');
-		$column->sql_type('varchar(2)');
+		$column->setSQLType('varchar(2)');
 
 		$sql = $db->sql()->alter_table_column_drop($table, $column);
 		$this->assertEquals($sql, "ALTER TABLE `$table_name` DROP COLUMN `hello`");

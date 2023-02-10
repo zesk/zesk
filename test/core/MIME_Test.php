@@ -8,13 +8,11 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-use \stdClass;
-
 /**
  * Generic test class
  */
 class MIME_Test extends UnitTest {
-	public function data_from_bad(): array {
+	public static function data_from_bad(): array {
 		return [
 			['who/wants/a/foo.iges1', ],
 			['who/wants/a/foo.dessr', ],
@@ -34,7 +32,7 @@ class MIME_Test extends UnitTest {
 		MIME::fromExtension($tested);
 	}
 
-	public function data_from(): array {
+	public static function data_from(): array {
 		return [
 			['model/iges', 'who/wants/a/foo.iges', ],
 			['application/x-x509-ca-cert', 'who/wants/a/foo.crt', ],
@@ -53,7 +51,7 @@ class MIME_Test extends UnitTest {
 		$this->assertEquals($expected, MIME::fromExtension($tested));
 	}
 
-	public function data_to(): array {
+	public static function data_to(): array {
 		return [
 			['igs', 'model/iges'],
 			['der', 'application/x-x509-ca-cert'],
@@ -72,7 +70,7 @@ class MIME_Test extends UnitTest {
 		$this->assertEquals($expected, MIME::toExtension($tested));
 	}
 
-	public function data_to_bad(): array {
+	public static function data_to_bad(): array {
 		return [
 			['model//iges'],
 			['application/y-x509-ca-cert'],

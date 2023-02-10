@@ -14,6 +14,7 @@ use zesk\Interface_Session;
 use zesk\Interface_UserLike;
 use zesk\ORM\User;
 use zesk\Request;
+use zesk\Response;
 
 /**
  */
@@ -81,11 +82,11 @@ class SessionPHP implements Interface_Session {
 		return session_id();
 	}
 
-	public function has(string $name): bool {
+	public function has(int|string $name): bool {
 		return $this->__isset($name);
 	}
 
-	public function __isset(string $name): bool {
+	public function __isset(int|string $name): bool {
 		$this->need();
 		return isset($_SESSION[$name]);
 	}
@@ -96,7 +97,7 @@ class SessionPHP implements Interface_Session {
 	 *
 	 * @see Interface_Settings::get()
 	 */
-	public function get(string $name, mixed $default = null): mixed {
+	public function get(int|string $name, mixed $default = null): mixed {
 		$this->need();
 		return $_SESSION[$name] ?? $default;
 	}
@@ -119,7 +120,7 @@ class SessionPHP implements Interface_Session {
 	 * @return void
 	 * @see Interface_Settings::__set()
 	 */
-	public function __set(string $name, mixed $value): void {
+	public function __set(int|string $name, mixed $value): void {
 		$this->need();
 		$_SESSION[$name] = $value;
 	}
@@ -130,7 +131,7 @@ class SessionPHP implements Interface_Session {
 	 *
 	 * @see Interface_Settings::set()
 	 */
-	public function set(string $name, $value = null): self {
+	public function set(int|string $name, $value = null): self {
 		$this->__set($name, $value);
 		return $this;
 	}
@@ -195,7 +196,7 @@ class SessionPHP implements Interface_Session {
 	 * @return void
 	 * @see Interface_Session::authenticate()
 	 */
-	public function authenticate(Interface_UserLike $user, string $ip = ''): void {
+	public function authenticate(Interface_UserLike $user, Request $request, Response $response): void {
 		try {
 			$this->__set($this->globalSessionUserId(), $user->id());
 		} catch (Throwable $t) {

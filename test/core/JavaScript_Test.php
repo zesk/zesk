@@ -11,7 +11,7 @@ namespace zesk;
  *
  */
 class JavaScript_Test extends UnitTest {
-	public function data_cleanFunctionName(): array {
+	public static function data_cleanFunctionName(): array {
 		return [
 			['foobar', 'foo bar'],
 		];
@@ -49,7 +49,7 @@ class JavaScript_Test extends UnitTest {
 		JavaScript::obfuscate_end($function_map);
 	}
 
-	public function data_string(): array {
+	public static function data_string(): array {
 		return [
 			['\'Normal string\'', 'Normal string'],
 			["'That\'s string'", 'That\'s string'],

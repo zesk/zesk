@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Iterator;
 use zesk\Database\SelectableInterface;
 
 /**
@@ -16,7 +17,7 @@ use zesk\Database\SelectableInterface;
  * @author kent
  *
  */
-class Database_Result_Iterator implements \Iterator {
+class Database_Result_Iterator implements Iterator {
 	/**
 	 *
 	 * @var SelectableInterface

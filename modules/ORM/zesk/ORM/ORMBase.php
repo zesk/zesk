@@ -1436,13 +1436,13 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	}
 
 	/**
-	 * @param string $key
+	 * @param int|string $key
 	 * @return void
 	 * @throws Exception_Class_NotFound
 	 * @throws Exception_Key
 	 * @throws Exception_ORMNotFound
 	 */
-	public function __unset(string $key): void {
+	public function __unset(int|string $key): void {
 		if (array_key_exists($key, $this->class->has_many)) {
 			$this->memberForeignDelete($key);
 			$this->members[$key] = [];
@@ -2599,7 +2599,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 		if ($this->isDuplicate()) {
 			throw new Exception_ORMDuplicate(get_class($this), $this->error_duplicate(), [
 				'duplicate_keys' => $this->class->duplicate_keys, 'name' => $this->className(), 'id' => $this->id(),
-				'indefinite_article' => $this->application->locale->indefinite_article($this->class->name),
+				'indefinite_article' => $this->application->locale->indefiniteArticle($this->class->name),
 			]);
 		}
 		$this->storeMembers();
@@ -2751,9 +2751,9 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	 * Set/get result of object operation
 	 *
 	 * @param string $set
-	 * @return self
+	 * @return static
 	 */
-	public function setObjectStatus(string $set): self {
+	public function setObjectStatus(string $set): static {
 		$this->status = $set;
 		return $this;
 	}
@@ -2980,7 +2980,6 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 	public function words(): array {
 		$locale = $this->application->locale;
 		$name = $this->class->name;
-		$namePlural = $locale->plural($name);
 		$localeName = $locale->__($name);
 		$localeNameLower = strtolower($localeName);
 		$localeNameTitleCase = StringTools::capitalize($localeNameLower);
@@ -2998,10 +2997,10 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 		$spec['class_name-context-subject-singular'] = $localeNameCapitalized;
 		$spec['class_name-context-subject-plural'] = $localeNameCapitalizedPlural;
 		$spec['class_name-context-title'] = $localeNameTitleCase;
-		$spec['class_name-context-subject-indefinite-article'] = $locale->indefinite_article($name, true);
-		$spec['class_name-plural'] = $namePlural;
+		$spec['class_name-context-subject-indefinite-article'] = $locale->indefiniteArticle($name);
+		$spec['class_name-plural'] = $locale->plural($name);
 
-		$spec['display_name'] = $this->displayName();
+		$spec['displayName'] = $this->displayName();
 
 		return $spec;
 	}

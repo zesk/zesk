@@ -31,9 +31,9 @@ class Locale_EN_Test extends UnitTest {
 
 		$word = 'hour away';
 		$caps = false;
-		$this->assertEquals($testx->indefinite_article($word, []), 'an');
-		$this->assertEquals($testx->indefinite_article($word, ['capitalize' => true]), 'An');
-		$this->assertEquals($testx->indefinite_article('HOUR AWAY', ['capitalize' => true]), 'An');
+		$this->assertEquals($testx->indefiniteArticle($word, []), 'an');
+		$this->assertEquals($testx->indefiniteArticle($word, ['capitalize' => true]), 'An');
+		$this->assertEquals($testx->indefiniteArticle('HOUR AWAY', ['capitalize' => true]), 'An');
 
 		$x = [
 			'lions',

@@ -11,7 +11,7 @@ class CharSet_Test extends UnitTest {
 	/**
 	 * @return array
 	 */
-	public function data_supported(): array {
+	public static function data_supported(): array {
 		$result = charset::supported();
 		$tests = [];
 		foreach ($result as $charset) {

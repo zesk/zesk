@@ -93,44 +93,11 @@ class Command_Configure extends Command_Base {
 	private array $possible_host_configurations = [];
 
 	/**
-	 * Map from uname => host configurations
-	 *
-	 * @var array
-	 */
-	private $alias_file = null;
-
-	/**
 	 * List of host configurations
 	 *
 	 * @var array
 	 */
-	private $host_configurations = [];
-
-	/**
-	 * List of host paths for this host
-	 *
-	 * @var array
-	 */
-	private array $host_paths = [];
-
-	/**
-	 * Variables to map when copying files around, etc.
-	 *
-	 * @var array
-	 */
-	private array $variable_map = [];
-
-	/**
-	 *
-	 * @var integer
-	 */
-	protected int $current_uid = -1;
-
-	/**
-	 *
-	 * @var integer
-	 */
-	protected int $current_gid = -1;
+	private array $host_configurations = [];
 
 	protected string $host_setting_name;
 
@@ -153,7 +120,7 @@ class Command_Configure extends Command_Base {
 		$this->engine->setLogger($this);
 
 		$this->log('Configuration synchronization for: {uname}, user: {user}', $this->engine->variable_map());
-		$this->determine_environment_files();
+		$this->determineEnvironmentFiles();
 		if (!$this->determine_host_path_setting_name()) {
 			return 1;
 		}
@@ -175,10 +142,13 @@ class Command_Configure extends Command_Base {
 	 * If the environment_file option is not set, interactively set it
 	 *
 	 * @return string
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Redirect
+	 * @throws Exception_Semantics
 	 */
-	private function determine_environment_file() {
+	private function determineEnvironmentFile(): string {
 		$locale = $this->application->locale;
-		$value = $this->environment_file;
+		$value = $this->optionString('environment_file');
 		$times = 0;
 		$this->completions = Directory::ls('/etc/', '/(.conf|.sh|.json)$/', true);
 		while (empty($value) || !is_file($value)) {
@@ -189,34 +159,41 @@ class Command_Configure extends Command_Base {
 			++$times;
 			$this->need_save = true;
 		}
-		$this->engine->variable_map('environment_file', $this->environment_file);
-		return $this->environment_file = $value;
+		$this->engine->variable_map(self::OPTION_ENVIRONMENT_FILE, $value);
+		$this->setOption(self::OPTION_ENVIRONMENT_FILE, $value);
+		return $value;
 	}
+
+	public const OPTION_ENVIRONMENT_FILE = 'environment_file';
+
+	public const OPTION_ENVIRONMENT_FILES = 'environment_files';
 
 	/**
 	 * Determine the environment files for configuration
 	 *
 	 * @return string[]
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_Redirect
+	 * @throws Exception_Semantics
 	 */
-	private function determine_environment_files() {
-		$value = toList($this->environment_files);
-		if (count($value) === 0) {
-			$this->environment_files = [
-				$file = $this->determine_environment_file(),
-			];
+	private function determineEnvironmentFiles():array {
+		$files = $this->optionIterable(self::OPTION_ENVIRONMENT_FILES);
+		if (count($files) === 0) {
+			$file = $this->determineEnvironmentFile();
 			if (file_exists($app_file = $this->application->path($file))) {
-				$this->environment_files[] = $app_file;
+				$files[] = $app_file;
 			}
+			$this->setOption(self::OPTION_ENVIRONMENT_FILES, $files);
 		}
-		return $this->environment_files;
+		return $files;
 	}
 
 	/**
 	 * If the host_setting_name option is not set, interactively set it
 	 *
-	 * @return NULL|string
+	 * @return null|string
 	 */
-	private function determine_host_path_setting_name() {
+	private function determine_host_path_setting_name(): null|string {
 		$locale = $this->application->locale;
 		$value = $this->host_setting_name;
 		$times = 0;
@@ -250,11 +227,16 @@ class Command_Configure extends Command_Base {
 	 * Load a configuration file and return the loaded configuration as an array
 	 *
 	 * @param string $path
+	 * @param string $extension
 	 * @return array
+	 * @throws Exception_Class_NotFound
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_File_Permission
+	 * @throws Exception_Parse
 	 */
-	private function load_conf($path, $extension = null) {
+	private function load_conf(string $path, string $extension = ''): array {
 		$conf = [];
-		Configuration_Parser::factory($extension ? $extension : File::extension($path), File::contents($path), new Adapter_Settings_Array($conf), [
+		Configuration_Parser::factory($extension ?: File::extension($path), File::contents($path), new Adapter_Settings_Array($conf), [
 			'lower' => false,
 		])->process();
 		return $conf;
@@ -285,10 +267,10 @@ class Command_Configure extends Command_Base {
 		$locale = $this->application->locale;
 
 		$this->verboseLog('Loading {environment_files}', [
-			'environment_files' => $this->environment_files,
+			'environment_files' => $this->optionIterable(self::OPTION_ENVIRONMENT_FILES),
 		]);
 		$env = [];
-		foreach ($this->environment_files as $environment_file) {
+		foreach ($this->optionIterable(self::OPTION_ENVIRONMENT_FILES) as $environment_file) {
 			$env += $this->load_conf($environment_file, File::extension($environment_file) === 'sh' ? 'conf' : null);
 		}
 		$this->engine->variable_map(array_change_key_case($env));
@@ -320,27 +302,27 @@ class Command_Configure extends Command_Base {
 		$locale = $this->application->locale;
 
 		$this->possible_host_configurations = ArrayTools::valuesRemoveSuffix(Directory::ls($this->host_path), '/', true);
-		$this->alias_file = path($this->host_path, 'aliases.conf');
+		$alias_file = path($this->host_path, 'aliases.conf');
 		$__ = [
-			'alias_file' => $this->alias_file,
+			'alias_file' => $alias_file,
 		];
 		$this->verboseLog('Alias file is {alias_file}', $__);
 		$uname = $this->engine->variable_map('uname');
-		if (!is_file($this->alias_file)) {
-			self::file_put_contents_inherit($this->alias_file, "$uname=[]");
+		if (!is_file($alias_file)) {
+			self::file_put_contents_inherit($alias_file, "$uname=[]");
 			$this->verboseLog('Created empty {alias_file}', $__);
 		}
-		while (!is_array($host_configs = (($aliases = $this->load_conf($this->alias_file))[strtolower($uname)] ?? null)) || count(array_diff(
+		while (!is_array($host_configs = (($aliases = $this->load_conf($alias_file))[strtolower($uname)] ?? null)) || count(array_diff(
 			$host_configs,
 			$this->possible_host_configurations
 		)) !== 0) {
 			$configs = $this->determine_host_configurations();
 			if ($this->promptYesNo($locale->__("Save changes to {alias_file} for $uname:{uname}? ", $__ + $this->engine->variable_map()))) {
-				$this->save_conf($this->alias_file, [
+				$this->save_conf($alias_file, [
 					$uname => $configs,
 				]);
 				$this->log('Changed {aliasFile} ({aliases})', [
-					'aliasFile' => $this->alias_file,
+					'aliasFile' => $alias_file,
 					'aliases' => $aliases,
 				]);
 			}

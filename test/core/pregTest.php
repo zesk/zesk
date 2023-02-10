@@ -55,7 +55,7 @@ class pregTest extends UnitTest {
 		$this->assertEquals($original, $text);
 	}
 
-	public function data_badOffsets(): array {
+	public static function data_badOffsets(): array {
 		return [
 			['bad'],
 			[-23],

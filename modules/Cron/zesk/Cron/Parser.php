@@ -44,7 +44,7 @@ class Parser {
 	 *
 	 * @var string
 	 */
-	private $phrase = null;
+	private string $phrase = '';
 
 	/**
 	 *
@@ -82,7 +82,7 @@ class Parser {
 	 * @param string $text Some text in the locale's language
 	 * @param string $locale The locale. If null, uses the current global locale.
 	 */
-	public function __construct($phrase, Locale $locale) {
+	public function __construct(string $phrase, Locale $locale) {
 		$this->locale = $locale;
 		$this->phrase = $phrase;
 		$this->cron_codes = array_fill(0, self::CRON_WEEKDAY + 1, null);
@@ -147,9 +147,9 @@ class Parser {
 	 *
 	 * @param Timestamp $now
 	 * @throws Exception_Semantics
-	 * @return \zesk\Timestamp
+	 * @return Timestamp
 	 */
-	public function compute_next(Timestamp $now) {
+	public function compute_next(Timestamp $now): Timestamp {
 		[$cron_minute, $cron_hour, $cron_monthday, $cron_month, $cron_weekday] = $this->cron_codes;
 		$match_list = [
 			[
@@ -189,7 +189,7 @@ class Parser {
 			],
 		];
 		$next = clone $now;
-		$next->second(0);
+		$next->setSecond(0);
 		$default_match = [
 			'0',
 			'0',
@@ -241,9 +241,10 @@ class Parser {
 
 								break;
 							} elseif ($cron_value > $next_value) {
-								$next->unit($unit, $cron_value);
+								$next->setUnit($unit, intval($cron_value));
 								foreach ($lower_units as $cindex_tmp => $lower_unit) {
-									$next->unit($lower_unit, ($lower_unit == 'day' || $lower_unit == 'month') ? 1 : 0);
+									$next->setUnit($lower_unit, ($lower_unit == 'day' || $lower_unit == 'month') ? 1 :
+										0);
 									$match[$cindex_tmp] = '0';
 								}
 								if ($debug) {
@@ -255,7 +256,7 @@ class Parser {
 							}
 						}
 						if ($match[$cindex] !== '1') {
-							$next->unit($unit, ($unit == 'day' || $unit == 'month') ? 1 : 0);
+							$next->setUnit($unit, ($unit == 'day' || $unit == 'month') ? 1 : 0);
 							if ($next_unit) {
 								$next->addUnit(1, $next_unit);
 							}
@@ -357,7 +358,6 @@ class Parser {
 		$have_time = false;
 		$need_dayofmonth = false;
 		$have_dayofmonth = false;
-		$extra_strings = [];
 		foreach ($result as $item => $matches) {
 			switch ($item) {
 				case 'am-hint':
@@ -552,10 +552,7 @@ class Parser {
 			}
 		}
 		if (implode('', $cron) === '*****') {
-			if (count($extra_strings) === 0) {
-				return false;
-			}
-			return implode(';', $extra_strings);
+			return false;
 		}
 		if ($need_time && !$have_time) {
 			$this->cron_add(self::CRON_HOUR, 0);
@@ -570,8 +567,7 @@ class Parser {
 		if (is_numeric($cron[self::CRON_MONTH]) && is_numeric($cron[self::CRON_MONTHDAY])) {
 			$cron[self::CRON_WEEKDAY] = '*';
 		}
-		$extra_strings[] = 'cron:' . implode(' ', $cron);
-		$result = implode(';', $extra_strings);
+		$result = 'cron:' . implode(' ', $cron);
 		if ($debug) {
 			dump($result);
 		}
@@ -631,7 +627,7 @@ class Parser {
 			$translate = ($this->locale)($number === 1 ? 'Schedule:=Every {1}' : 'Schedule:=Every {0} {1}', $locale);
 			return map($translate, [
 				$number,
-				$this->locale->plural($unit, $number, $locale),
+				$this->locale->plural($unit, $number),
 			]);
 		}
 		return false;
@@ -658,11 +654,11 @@ class Parser {
 				} else {
 					$t = new Time();
 					if ($m == 0 && $h != intval($h)) {
-						$t->minute(StringTools::right($h, '.'));
-						$t->hour(intval($h));
+						$t->setMinute(intval(StringTools::right($h, '.')));
+						$t->setHour(intval($h));
 					} else {
-						$t->minute($m);
-						$t->hour($h);
+						$t->setMinute(intval($m));
+						$t->setHour(intval($h));
 					}
 					$times[] = $t->format($this->locale, $this->locale->time_format());
 				}
@@ -673,11 +669,10 @@ class Parser {
 
 	/**
 	 *
-	 * @param unknown $data
-	 * @param unknown $locale
-	 * @return mixed|string|\zesk\Hookable|NULL|\zesk\NULL
+	 * @param Locale $locale
+	 * @return array
 	 */
-	private function code_to_language_cron(Locale $locale) {
+	private function code_to_language_cron(Locale $locale): array {
 		[$min, $hour, $day, $month, $dow] = $this->cron_codes;
 		$month_language = '';
 		$dow_language = '';
@@ -756,5 +751,12 @@ class Parser {
 	//
 	public function format() {
 		return $this->code_to_language_cron($this->locale);
+	}
+
+	public function variables(): array {
+		return [
+			'phrase' => $this->phrase,
+			'locale' => $this->locale,
+		];
 	}
 }

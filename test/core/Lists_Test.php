@@ -144,7 +144,7 @@ class Lists_Test extends UnitTest {
 		$this->assertEquals('a;b;c', Lists::prepend('b;c', 'a'));
 	}
 
-	public function data_keysRemove(): array {
+	public static function data_keysRemove(): array {
 		return [
 			['a;c;d;e', 'a;b;c;d;e', 'b', ';'],
 			['a;c;d;e', 'a;b;c;d;e', 'b', ';'],

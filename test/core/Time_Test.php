@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use OutOfBoundsException;
+
 class Time_Test extends UnitTest {
 	public function test_instance(): void {
 		$hh = 0;
@@ -24,7 +26,7 @@ class Time_Test extends UnitTest {
 	public function test_parse_fail(): void {
 		$x = new Time();
 
-		$this->expectException(\OutOfBoundsException::class);
+		$this->expectException(OutOfBoundsException::class);
 		$x->parse('23:61:19');
 	}
 
@@ -57,13 +59,13 @@ class Time_Test extends UnitTest {
 
 		$this->assertEquals(0, $x->seconds());
 		$value = 1;
-		$x->hour($value);
+		$x->setHour($value);
 
-		$value = null;
-		$x->minute($value);
+		$value = 54;
+		$x->setMinute($value);
 
-		$value = null;
-		$x->second($value);
+		$value = 22;
+		$x->setSecond($value);
 
 		$x->hour();
 

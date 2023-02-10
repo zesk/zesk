@@ -374,7 +374,7 @@ class Controller extends Hookable implements Interface_Theme {
 			Directory::LIST_RULE_DIRECTORY_WALK => ['#/\.#' => false, true], Directory::LIST_RULE_DIRECTORY => false,
 		];
 		foreach ($paths as $path => $options) {
-			$allIncludes = Directory::list_recursive($path, $list_options);
+			$allIncludes = Directory::listRecursive($path, $list_options);
 			foreach ($allIncludes as $controllerInclude) {
 				if (!StringTools::contains($controllerInclude, ['/Controller', 'Controller/'])) {
 					continue;

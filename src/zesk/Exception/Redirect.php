@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Throwable;
+
 /**
  * @see
  * @author kent
@@ -40,7 +42,7 @@ class Exception_Redirect extends Exception {
 	 * @param string $url
 	 * @param string $message
 	 */
-	public function __construct(string $url, string $message = '', array $arguments = [], \Throwable $previous = null) {
+	public function __construct(string $url, string $message = '', array $arguments = [], Throwable $previous = null) {
 		$this->url = $url;
 		parent::__construct($message, $arguments, 0, $previous);
 	}

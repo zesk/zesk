@@ -83,7 +83,7 @@ class Translate extends Command_Base {
 		}
 		$classes = Service::serviceClasses($app, 'translate');
 		if ($this->optionBool('list')) {
-			echo ArrayTools::suffixKeys($classes, "\n");
+			echo ArrayTools::joinSuffix($classes, "\n");
 			return 0;
 		}
 		$target_language = $this->option('target');
@@ -99,7 +99,7 @@ class Translate extends Command_Base {
 		$default_class = first($classes);
 		/* @var $service_object Service_Translate */
 		try {
-			$service_object = $this->service_object = Service_Translate::factory_translate($app, $target_language, $source_language);
+			$service_object = $this->service_object = Service_Translate::translateFactory($app, $target_language, $source_language);
 		} catch (Exception $e) {
 			$this->error($e->getMessage(), $e->arguments);
 			return 2;

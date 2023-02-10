@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use stdClass;
+
 class PHP_Test extends UnitTest {
 	public function test_php_basics(): void {
 		$this->assertFalse(!![]);
 		$this->assertTrue(!![1, ]);
-		$truthy = [new \stdClass(), [1, ], ['', ], [0, ], [null, ], ];
+		$truthy = [new stdClass(), [1, ], ['', ], [0, ], [null, ], ];
 		$falsy = [0, '', null, false, 0.0, ];
 		foreach ($truthy as $true) {
 			$this->assertTrue(!!$true, gettype($true) . ' is not TRUE ' . var_export($true, true));
@@ -23,9 +25,9 @@ class PHP_Test extends UnitTest {
 	 * JS: var a = arg || {};
 	 */
 	public function test_php_andor(): void {
-		$a = new \stdClass();
+		$a = new stdClass();
 		$a->val = 'a';
-		$b = new \stdClass();
+		$b = new stdClass();
 		$b->val = 'b';
 
 		$c = $a || $b;
@@ -52,7 +54,7 @@ class PHP_Test extends UnitTest {
 		$this->assertEquals("\t\t", $settings['array_value_separator']);
 	}
 
-	public function data_provider_render(): array {
+	public static function data_provider_render(): array {
 		return [
 			[false, 'false', ], [true, 'true', ], [null, 'null', ], [0, '0', ], [0.123, '0.123', ],
 			['$Hello', '"\\$Hello"', ], [['1', '2', '3', ], '["1", "2", "3", ]', ],
@@ -66,7 +68,7 @@ class PHP_Test extends UnitTest {
 		$this->assertEquals(PHP::singleton()->settingsOneLine()->render($test), $expected);
 	}
 
-	public function data_setFeature(): array {
+	public static function data_setFeature(): array {
 		return [
 			[PHP::FEATURE_MEMORY_LIMIT, 512 * 1024 * 1024], [PHP::FEATURE_TIME_LIMIT, null],
 			['not-a-feature', null],
@@ -122,8 +124,8 @@ class PHP_Test extends UnitTest {
 		$this->assertEquals($expected, PHP::autoType($mixed, $throw));
 	}
 
-	public function data_autoType(): array {
-		$stdClass = new \stdClass();
+	public static function data_autoType(): array {
+		$stdClass = new stdClass();
 		return
 		[
 			[12093019, '12093019'],

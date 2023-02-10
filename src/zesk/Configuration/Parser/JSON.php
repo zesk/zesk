@@ -78,7 +78,7 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 			$this->loader->appendFiles([
 				$file,
 			]);
-		} elseif ($context && is_dir($context) && File::path_check($file)) {
+		} elseif ($context && is_dir($context) && File::pathCheck($file)) {
 			$full = path($context, $file);
 			$this->loader->appendFiles([$full]);
 		} else {
@@ -116,15 +116,11 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 				$value = strtr($value, $map);
 				$variable = implode(Configuration::key_separator, $current_path);
 				$settings->set($variable, $value);
-				if ($dependency) {
-					$dependency->defines($variable, array_keys($dependencies));
-				}
+				$dependency?->defines($variable, array_keys($dependencies));
 			} else {
 				$variable = implode(Configuration::key_separator, $current_path);
 				$settings->set($variable, $value);
-				if ($dependency) {
-					$dependency->defines($variable);
-				}
+				$dependency?->defines($variable);
 			}
 		}
 	}

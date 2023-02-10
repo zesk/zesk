@@ -66,7 +66,7 @@ class Options_Test extends UnitTest {
 		$this->assertEquals('abcd', $options->optionPath([], 'abcd'));
 	}
 
-	public function data_hasAny(): array {
+	public static function data_hasAny(): array {
 		$testOptions = new Options(['one' => 1, 'two' => 2, 'three space' => 3, 'four-dash' => 4, 'five-😀' => 5]);
 		return [
 			[true, ['one', 'two'], $testOptions], [true, 'one', $testOptions], [true, 'two', $testOptions],

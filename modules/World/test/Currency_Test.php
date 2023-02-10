@@ -18,8 +18,8 @@ class Currency_Test extends ORMUnitTest {
 		]);
 	}
 
-	public function sampleCountry(): Country {
-		$result = $this->application->ormFactory(Country::class)->register([
+	public static function sampleCountry(): Country {
+		$result = self::app()->ormFactory(Country::class)->register([
 			Country::MEMBER_CODE => 'US', Country::MEMBER_NAME => 'United States',
 		]);
 		assert($result instanceof Country);
@@ -29,10 +29,10 @@ class Currency_Test extends ORMUnitTest {
 	/**
 	 * @return array[]
 	 */
-	public function classes_to_test(): array {
+	public static function classes_to_test(): array {
 		return [
 			[
-				Currency::class, [Currency::MEMBER_BANK_COUNTRY => $this->sampleCountry(...)], [],
+				Currency::class, [Currency::MEMBER_BANK_COUNTRY => self::sampleCountry(...)], [],
 			],
 		];
 	}
@@ -40,6 +40,7 @@ class Currency_Test extends ORMUnitTest {
 	/**
 	 *
 	 * @param string $class
+	 * @param mixed|null $mixed
 	 * @param array $options
 	 * @dataProvider classes_to_test
 	 */

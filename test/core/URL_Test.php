@@ -3,7 +3,7 @@
 namespace zesk;
 
 class URL_Test extends UnitTest {
-	public function data_parse(): array {
+	public static function data_parse(): array {
 		return [
 			[
 				['scheme' => 'scheme', 'user' => 'user', 'pass' => 'pass', 'host' => 'host', 'path' => '/path', 'query' => 'query', 'fragment' => 'fragment', 'url' => 'scheme://user:pass@host/path?query#fragment', ],
@@ -33,7 +33,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::parse($url), $url);
 	}
 
-	public function data_queryAppend(): array {
+	public static function data_queryAppend(): array {
 		return [
 			['/path?a=foo', '/path', ['a' => 'foo'], ],
 		];
@@ -50,7 +50,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::queryAppend($url, $values));
 	}
 
-	public function data_queryFormat(): array {
+	public static function data_queryFormat(): array {
 		return [['/foo?c=three&d=four&a=one&b=two', '/foo?c=three&d=fourish', ['a' => 'one', 'b' => 'two', 'd' => 'four'], []], ['/foo?d=four&a=one&b=two', '/foo?c=three&d=fourish', ['a' => 'one', 'b' => 'two', 'd' => 'four'], ['c']]];
 	}
 
@@ -65,7 +65,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::queryFormat($path, $add, $remove));
 	}
 
-	public function data_queryKeysRemoveInsensitive(): array {
+	public static function data_queryKeysRemoveInsensitive(): array {
 		return [['/foo', '/foo?BAR=one&Loo=Foo&PoP=age', ['bar', 'loo', 'pop']], ['/foo', '/foo?BAR=one&Loo=Foo&PoP=age', ['BAR', 'LOO', 'Pop']], ];
 	}
 
@@ -106,7 +106,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($test_result, $result);
 	}
 
-	public function data_stringify(): array {
+	public static function data_stringify(): array {
 		$rows = [];
 		foreach (['http://www.test.com:81/SIMPLE.html' => 'http://www.test.com:81/SIMPLE.html', 'http://john:dude@www.test.com:81/SIMPLE.html' => 'http://john:dude@www.test.com:81/SIMPLE.html', 'http:/www.test.com/SIMPLE.html' => false, 'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag', 'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag', 'file:///usr/local/etc/php.ini' => 'file:///usr/local/etc/php.ini', 'FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini' => 'ftp://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini', ] as $u => $u_final) {
 			$rows[] = [$u_final, $u];
@@ -133,7 +133,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($u2, $expected);
 	}
 
-	public function data_change_host(): array {
+	public static function data_change_host(): array {
 		return [
 
 			['http://new-host:423/path/to/some-file.php?id=1452123&q42=53234#hash_mark', 'http://www.dude.com:423/path/to/some-file.php?id=1452123&q42=53234#hash_mark', 'new-host'], ['http://new-host/path/to/some-file.php?id=1452123&q42=53234#hash_mark', 'http://www.dude.com:80/path/to/some-file.php?id=1452123&q42=53234#hash_mark', 'new-host'], ];
@@ -149,7 +149,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::change_host($url, $host));
 	}
 
-	public function data_computeHREF(): array {
+	public static function data_computeHREF(): array {
 		$url = 'http://www.example.com/path/to/file.php?query=value&vale1=412#position';
 		return [
 			['http://www.example.com/path/to/another-file.php?foo=bar#place', $url, 'another-file.php?foo=bar#place'],
@@ -172,7 +172,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::computeHREF($url, $href));
 	}
 
-	public function data_host(): array {
+	public static function data_host(): array {
 		return [['www.dude.com', 'https://john:doe@www.dude.com:1234/path?query#hash'], ];
 	}
 
@@ -185,7 +185,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::host($url));
 	}
 
-	public function data_is() {
+	public static function data_is() {
 		$input = [
 			'http://localhost/SIMPLE.html' => true,
 			'https://*12312:asdfasdf@localhost:9293/SIMPLE.html?asdfasdljhalskjdhfasdf=asdgasdf&foo=bar&$20=/' => true,
@@ -219,7 +219,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::is($url), $url);
 	}
 
-	public function data_isAbsolute(): array {
+	public static function data_isAbsolute(): array {
 		return [[true, 'https://www.dude.com/whatever'], [true, 'https://www.dude.com/'], [true, 'https://www.dude.com'], [true, 'https://localhost'], [true, 'http://localhost'], [false, '//localhost'], [false, '//path'], [false, '/path'], [false, '/path?query'], ];
 	}
 
@@ -232,7 +232,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::isAbsolute($url));
 	}
 
-	public function data_isSecure(): array {
+	public static function data_isSecure(): array {
 		return [[true, 'https://www.example.com/'], [false, 'http://www.example.com/'], [true, 'sftp://user:pass@host/'], [true, 'ssh://user@host'], [false, 'telnet://user@host']];
 	}
 
@@ -246,7 +246,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::isSecure($url));
 	}
 
-	public function data_left(): array {
+	public static function data_left(): array {
 		$url = 'https://user:password@host:1234/path/to/thing.html?query=1&id=51213#hash';
 		return [['https://user:password@host:1234/path/to/thing.html?query=1&id=51213#hash', $url, ''], ['https://user:password@host:1234/path/to/thing.html?query=1&id=51213#hash', $url, 'hash'], ['https://user:password@host:1234/path/to/thing.html?query=1&id=51213', $url, 'query'], ['https://user:password@host:1234/path/to/thing.html', $url, 'path'], ['https://user:password@host:1234/', $url, 'port'], ['https://user:password@host/', $url, 'host'], ['https://user:password@/', $url, 'pass'], ['https://user@/', $url, 'user'], ['https:///', $url, 'scheme'], ];
 	}
@@ -263,9 +263,8 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::left($url, $part));
 	}
 
-	public function data_left_host(): array {
+	public static function data_left_host(): array {
 		$tests = ['http://www.test.com:81/SIMPLE.html' => 'http://www.test.com:81/', 'http://john:dude@www.test.com:81/SIMPLE.html' => 'http://john:dude@www.test.com:81/', 'http:/www.test.com/SIMPLE.html' => false, 'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/', 'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/', 'file:///usr/local/etc/php.ini' => 'file:///', 'FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini' => 'ftp://Kent:PaSsWoRd@localhost/', 'HTTP://WWW.EXAMPLE.COM/' => 'http://www.example.com/', 'HTTPS://WWW.EXAMPLE.COM/?test=test' => 'https://www.example.com/', 'ftp://USER:PASSWORD@EXAMPLE.COM/' => 'ftp://USER:PASSWORD@example.com/', 'HTTP://WWW.EXAMPLE.COM' => 'http://www.example.com/', 'HTTPS://WWW.EXAMPLE.COM?test=test' => 'https://www.example.com/', 'ftp://USER:PASSWORD@EXAMPLE.COM' => 'ftp://USER:PASSWORD@example.com/', 'FILE://foo' => 'file:///', 'file:///' => 'file:///', 'http://www.example.com:98/path/index.php?id=323&o=123#top' => 'http://www.example.com:98/', ];
-		;
 		$output = [];
 		foreach ($tests as $url => $expected) {
 			$output[] = [$expected, $url];
@@ -287,7 +286,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::left_host($url));
 	}
 
-	public function data_left_paths() {
+	public static function data_left_paths() {
 		return [['https://pwned.org:443/random/url?query=string#fragment=more-query&not=query', 'https://pwned.org/random/url', ], ['https://pwned.org:80/random/url?query=string#fragment=more-query&not=query', 'https://pwned.org:80/random/url', ], ['http://pwned.org:80/random/url?query=string#fragment=more-query&not=query', 'http://pwned.org/random/url', ], ['https://pwned.org:4123/random/url?query=string#fragment=more-query&not=query', 'https://pwned.org:4123/random/url', ], ['https://pwned.org:4123/random/url?query=string#fragment=more-query&not=query', 'https://pwned.org:4123/random/url', ], ['https://pwned.org/random/url/?query=string#fragment=more-query&not=query', 'https://pwned.org/random/url/', ], ];
 	}
 
@@ -298,7 +297,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::left_path($source));
 	}
 
-	public function data_normalize(): array {
+	public static function data_normalize(): array {
 		$urls = ['http://www.test.com:81/SIMPLE.html' => 'http://www.test.com:81/SIMPLE.html', 'http://john:dude@www.test.com:81/SIMPLE.html' => 'http://john:dude@www.test.com:81/SIMPLE.html', 'http:/www.test.com/SIMPLE.html' => false, 'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag', 'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag', 'file:///usr/local/etc/php.ini' => 'file:///usr/local/etc/php.ini', 'FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini' => 'ftp://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini', ];
 		$norm_urls = ['HTTP://WWW.EXAMPLE.COM/' => 'http://www.example.com/', 'HTTPS://WWW.EXAMPLE.COM/?test=test' => 'https://www.example.com/?test=test', 'ftp://USER:PASSWORD@EXAMPLE.COM/' => 'ftp://USER:PASSWORD@example.com/', 'HTTP://WWW.EXAMPLE.COM' => 'http://www.example.com/', 'HTTPS://WWW.EXAMPLE.COM?test=test' => 'https://www.example.com/?test=test', 'ftp://USER:PASSWORD@EXAMPLE.COM' => 'ftp://USER:PASSWORD@example.com/', 'FILE://foo' => 'file:///foo', 'file:///' => 'file:///', 'file:///foo' => 'file:///foo', ];
 		$output = [];
@@ -320,7 +319,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::normalize($url));
 	}
 
-	public function data_protocolPort(): array {
+	public static function data_protocolPort(): array {
 		return [[80, 'hTtP'], [80, 'http'], [80, 'HTTP'], [443, 'hTtPs'], [443, 'https'], [443, 'HTTPS'], [21, 'ftp'], [25, 'mailto'], [-1, 'file'], [-1, 'foo'], [25, 'MAILTO'], ];
 	}
 
@@ -334,7 +333,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::protocolPort($scheme));
 	}
 
-	public function data_query(): array {
+	public static function data_query(): array {
 		return [['a=b&c=d', 'https://user@localhost:123/path-to/things?a=b&c=d#hash'], ];
 	}
 
@@ -345,7 +344,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::query($url));
 	}
 
-	public function data_queryParseInsensitive(): array {
+	public static function data_queryParseInsensitive(): array {
 		return [['12345', 'NAME=john&Id=12345', 'Id', 'nope'], ['12345', 'NAME=john&Id=12345', 'id', 'nope'], ['nope', 'NAME=john&Id=12345', 'Isd', 'nope'], ['john', 'NAME=john&Id=12345', 'name', 'nope'], ['john', 'NAME=john&Id=12345', 'Name', 'nope'], ];
 	}
 
@@ -365,7 +364,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals('?A=A&B=C&D=E', URL::queryUnparse($m));
 	}
 
-	public function data_remove_password(): array {
+	public static function data_remove_password(): array {
 		return [['http://joe@example.com/', 'http://joe:password@example.com/'], ['https://example.com/', 'https://:password@example.com/'], ['http://example.com/', 'http://:password@example.com/']];
 	}
 
@@ -379,7 +378,7 @@ class URL_Test extends UnitTest {
 		$this->assertEquals($expected, URL::removePassword($url));
 	}
 
-	public function data_repair(): array {
+	public static function data_repair(): array {
 		$output = [];
 		$f = file(ZESK_ROOT . 'test/test-data/url-repair.txt');
 		foreach ($f as $lineno => $u) {
@@ -401,7 +400,7 @@ class URL_Test extends UnitTest {
 		URL::normalize($normu);
 	}
 
-	public function data_schema(): array {
+	public static function data_schema(): array {
 		$output = [];
 		foreach (['http://www.example.com' => 'http', 'https://www.example.com' => 'https', 'ftp://www.example.com' => 'ftp', 'file://foo' => 'file', 'mailto:john@doe.com' => 'mailto', 'HTTP://www.example.com' => 'http', 'HTTPS://www.example.com' => 'https', 'FTP://www.example.com' => 'ftp', 'FiLe://foo' => 'file', 'MaIlTo:john@doe.com' => 'mailto', 'mysql://foo:bar@localhost/db_name?table_prefix=323' => 'mysql', ] as $url => $expected) {
 			$output[] = [$expected, $url];

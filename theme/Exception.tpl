@@ -5,13 +5,9 @@
 namespace zesk;
 
 /* @var $this Template */
-/* @var $locale \zesk\Locale */
-/* @var $application \zesk\Application */
-/* @var $session \Session */
-/* @var $request Router */
+/* @var $application Application */
 /* @var $request Request */
 /* @var $response Response */
-/* @var $current_user \User */
 
 /* @var $exception Exception */
 if ($response->status_code === HTTP::STATUS_OK) {

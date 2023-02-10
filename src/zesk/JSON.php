@@ -198,7 +198,7 @@ class JSON {
 		} elseif (is_string($mixed)) {
 			return self::quote($mixed);
 		} elseif (is_resource($mixed)) {
-			return '"' . strval($mixed) . '"';
+			return '"' . $mixed . '"';
 		} elseif ($mixed === null) {
 			return 'null';
 		} elseif ($mixed instanceof __PHP_Incomplete_Class) {
@@ -249,7 +249,7 @@ class JSON {
 		} elseif (is_string($mixed)) {
 			return self::quote($mixed);
 		} elseif (is_resource($mixed)) {
-			return '"' . strval($mixed) . '"';
+			return '"' . $mixed . '"';
 		} else {
 			return 'null';
 		}

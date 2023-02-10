@@ -26,7 +26,7 @@ class TestModel extends Model {
  * Generic test class
  */
 class Model_Test extends UnitTest {
-	public function data_themePaths(): array {
+	public static function data_themePaths(): array {
 		$this->setUp();
 		$model = new Model($this->application);
 		$testModel = new TestModel($this->application);
@@ -130,7 +130,7 @@ class Model_Test extends UnitTest {
 		$this->assertEquals($expected, $model->applyMap($source));
 	}
 
-	public function data_applyMap(): array {
+	public static function data_applyMap(): array {
 		$this->setUp();
 		$app = $this->application;
 		$testModel = new TestModel($app, ['thing' => 'one', 'thingTwo' => 4]);

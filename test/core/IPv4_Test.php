@@ -37,7 +37,7 @@ class IPv4_Test extends UnitTest {
 		$this->assertTrue(IPv4::is_mask('192.128.0.0/9'));
 	}
 
-	public function data_mask_to_integers(): array {
+	public static function data_mask_to_integers(): array {
 		return [
 			[[null, null], '127.0.0.2.3'],
 			[[null, null], '256.0.0'],
@@ -136,7 +136,7 @@ class IPv4_Test extends UnitTest {
 		$this->assertEquals('76.12.128.128/29', IPv4::mask_to_string(IPv4::to_integer('76.12.128.129'), 29));
 	}
 
-	public function data_network(): array {
+	public static function data_network(): array {
 		return [
 			[
 				'1.0.0.0/16',
@@ -195,7 +195,7 @@ class IPv4_Test extends UnitTest {
 		$this->assertEquals($ip_high, $ip_check_high, 'High Check: ' . IPv4::from_integer($ip_high) . ' !== ' . IPv4::from_integer($ip_check_high));
 	}
 
-	public function data_to_integer(): array {
+	public static function data_to_integer(): array {
 		return [
 			[floatval(1), 1],
 			[floatval(9999), 9999],
@@ -264,7 +264,7 @@ class IPv4_Test extends UnitTest {
 		}
 	}
 
-	public function data_subnet_mask_not(): array {
+	public static function data_subnet_mask_not(): array {
 		return [
 			[0, 32],
 			[1, 31],
@@ -289,7 +289,7 @@ class IPv4_Test extends UnitTest {
 		$this->assertEquals($expected, IPv4::subnet_mask_not($ip_bits));
 	}
 
-	public function data_valid(): array {
+	public static function data_valid(): array {
 		return [
 			['192.168.0.1', true, ],
 			['192.168.0.0', false, ],
@@ -322,7 +322,7 @@ class IPv4_Test extends UnitTest {
 		$this->assertEquals($valid, IPv4::valid($ip), "$ip should be " . ($valid ? 'valid ip' : 'invalid ip'));
 	}
 
-	public function data_within_network() {
+	public static function data_within_network() {
 		return [
 			[
 				'76.12.128.128',
@@ -388,7 +388,7 @@ class IPv4_Test extends UnitTest {
 		$this->assertEquals($result, IPv4::within_network($ip, $network), "IPv4::within_network($ip, $network) === " . StringTools::fromBool($result));
 	}
 
-	public function data_is_private(): array {
+	public static function data_is_private(): array {
 		$r0 = $this->randomInteger(0, 255);
 		$r1 = $this->randomInteger(0, 255);
 		$r2 = $this->randomInteger(0, 255);

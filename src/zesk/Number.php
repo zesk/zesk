@@ -81,7 +81,7 @@ class Number {
 		} else {
 			return $locale->__('Number::format_bytes:={0} {1}', [
 				$n,
-				$locale->plural($locale->__('byte'), intval($n)),
+				$locale->plural($locale->__('byte'), $n),
 			]);
 		}
 	}

@@ -143,7 +143,7 @@ class Module extends Hookable {
 	 * @return string
 	 */
 	public static function cleanName(string $module): string {
-		return trim(File::name_clean($module), '- ');
+		return trim(File::nameClean($module), '- ');
 	}
 
 	/**

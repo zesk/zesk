@@ -13,7 +13,7 @@ class Color_RGB_Test extends UnitTest {
 		$this->assertEquals($x->__toString(), '0102FF');
 	}
 
-	public function data_factory(): array {
+	public static function data_factory(): array {
 		return [
 			['010203', '010203', 257, 255], ['000000', 0, 0, 0], ['010203', 1, 2, 3], ['000000', -1, -2, -3],
 			['FFFFFF', 257, 257, 255], ['FFFFFF', 'FFFFFF', 257, 255], ['000000', '000000', 0, 0],

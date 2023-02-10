@@ -7,7 +7,7 @@ class File_Test extends UnitTest {
 	private function _test_atomic_increment(string $path, $start): void {
 		$this->assertTrue(File::atomicPut($path, "$start"), 'Creating initial file');
 		for ($j = 0; $j < 100; $j++) {
-			$this->assertTrue(($result = File::atomic_increment($path)) === $start + $j + 1, "File::atomic_increment: $result !== " . ($start + $j + 1));
+			$this->assertTrue(($result = File::atomicIncrement($path)) === $start + $j + 1, "File::atomic_increment: $result !== " . ($start + $j + 1));
 		}
 		$this->assertTrue(unlink($path), "Deleting $path at end");
 	}
@@ -15,7 +15,7 @@ class File_Test extends UnitTest {
 	/**
 	 * @return array
 	 */
-	public function data_absolute_path(): array {
+	public static function data_absolute_path(): array {
 		return [
 			['/whatever', '/whatever', 'does not matter'],
 			['/whatever', '/whatever', null],
@@ -32,7 +32,7 @@ class File_Test extends UnitTest {
 	 * @dataProvider data_absolute_path
 	 */
 	public function test_absolute_path($expected, $path, $cwd): void {
-		$this->assertEquals($expected, File::absolute_path($path, $cwd));
+		$this->assertEquals($expected, File::absolutePath($path, $cwd));
 	}
 
 	public function test_atomic_increment(): void {
@@ -42,7 +42,7 @@ class File_Test extends UnitTest {
 		$exception = false;
 
 		try {
-			File::atomic_increment($path);
+			File::atomicIncrement($path);
 		} catch (Exception $e) {
 			$exception = true;
 		}
@@ -76,7 +76,7 @@ class File_Test extends UnitTest {
 		$this->assertEquals($expected, File::base($filename));
 	}
 
-	public function data_checksum(): array {
+	public static function data_checksum(): array {
 		return [
 			[
 				md5(''),
@@ -129,7 +129,7 @@ class File_Test extends UnitTest {
 		File::contents('/root/');
 	}
 
-	public function data_extension() {
+	public static function data_extension() {
 		return [
 			['foo.xLSx', 'xLSx'],
 			['foo.xlsx', 'xlsx'],
@@ -174,7 +174,7 @@ class File_Test extends UnitTest {
 	 * @dataProvider name_clean_data
 	 */
 	public function test_name_clean(string $path, string $sep_char, string $expected): void {
-		$this->assertEquals($expected, File::name_clean($path, $sep_char));
+		$this->assertEquals($expected, File::nameClean($path, $sep_char));
 	}
 
 	/**
@@ -196,7 +196,7 @@ class File_Test extends UnitTest {
 	 * @dataProvider path_check_data
 	 */
 	public function test_path_check(string $path_to_check, bool $is_valid): void {
-		$this->assertEquals($is_valid, File::path_check($path_to_check));
+		$this->assertEquals($is_valid, File::pathCheck($path_to_check));
 	}
 
 	/**
@@ -210,7 +210,7 @@ class File_Test extends UnitTest {
 		$this->assertFalse(file_exists($filename));
 	}
 
-	public function data_stripExtension(): array {
+	public static function data_stripExtension(): array {
 		return [
 			['C:/path/to/a/place/whatever.fii', 'C:/path/to/a/place/whatever.fii.sucka'],
 			['//path/to/a/place/whatever.fii', '//path/to/a/place/whatever.fii.sucka'],

@@ -3,12 +3,25 @@ declare(strict_types=1);
 
 namespace zesk\ORM;
 
+use zesk\Application;
 use zesk\Database;
 use zesk\DatabaseUnitTest;
+use zesk\Exception_Semantics;
+use zesk\Kernel;
 
 abstract class ORMUnitTest extends DatabaseUnitTest {
 	public static function setUpBeforeClass(): void {
 		// pass
+	}
+
+	/**
+	 * Must not call in dataProvider
+	 *
+	 * @return Application
+	 * @throws Exception_Semantics
+	 */
+	public static function app(): Application {
+		return Kernel::singleton()->application();
 	}
 
 	public function requireORMTables(string|array $classes): void {

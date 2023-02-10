@@ -19,7 +19,7 @@ class Country_Test extends ORMUnitTest {
 		$this->requireORMTables(Country::class);
 	}
 
-	public function classes_to_test(): array {
+	public static function classes_to_test(): array {
 		return [
 			[Country::class, null, [], 'code', ],
 			[Country::class, null, [], 'name', ],
@@ -64,7 +64,7 @@ class Country_Test extends ORMUnitTest {
 		$this->assertEquals($expected_code, $country->code);
 	}
 
-	public function data_find_country(): array {
+	public static function data_find_country(): array {
 		return [
 			['GB', 'gb', ], ['US', 'us', ], ['US', 'Us', ], ['US', 'US', ], ['AD', 'ad', ], [
 				'DE', 'de',

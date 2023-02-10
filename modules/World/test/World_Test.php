@@ -10,28 +10,31 @@ class World_Test extends ORMUnitTest {
 		'World', 'MySQL',
 	];
 
-	public function sampleCountry(): Country {
-		$result = $this->application->ormFactory(Country::class)->register([
+	public static function sampleCountry(): Country {
+		$result = self::app()->ormFactory(Country::class)->register([
 			Country::MEMBER_CODE => 'US', Country::MEMBER_NAME => 'United States',
 		]);
 		assert($result instanceof Country);
 		return $result;
 	}
 
-	public function sampleProvince(): Province {
-		$province = $this->application->ormFactory(Province::class, [
-			Province::MEMBER_NAME => 'Place ' . $this->randomHex(6),
-			Province::MEMBER_CODE => $this->randomHex(2),
-			Province::MEMBER_COUNTRY => $this->sampleCountry(),
+	public static function sampleProvince(): Province {
+		$province = self::app()->ormFactory(Province::class, [
+			Province::MEMBER_NAME => 'Place ' . self::randomHex(6),
+			Province::MEMBER_CODE => self::randomHex(2),
+			Province::MEMBER_COUNTRY => self::sampleCountry(),
 		])->register();
 		assert($province instanceof Province);
 		return $province;
 	}
 
-	public function classes_to_test(): array {
+	/**
+	 * @return array
+	 */
+	public static function classes_to_test(): array {
 		return [
 			[
-				City::class, [City::MEMBER_PROVINCE => $this->sampleProvince(...)], [],
+				City::class, [City::MEMBER_PROVINCE => self::sampleProvince(...)], [],
 			], [
 				County::class, [], [],
 			], [
@@ -50,6 +53,8 @@ class World_Test extends ORMUnitTest {
 	 */
 	public function test_classes(string $class, mixed $mixed = null, array $options = []): void {
 		$mixed = $this->applyClosures($mixed);
+		$options = $this->applyClosures($options);
+		$this->schemaSynchronize($class);
 		$this->truncateClassTables($class);
 		$this->assertORMClass($class, $mixed, $options);
 	}

@@ -323,11 +323,11 @@ class Database_Table extends Hookable {
 
 			try {
 				$indexes = $this->collectIndexes();
-			} catch (Exception_NotFound $e) {
-			} catch (Exception_Semantics $e) {
+			} catch (Exception_Semantics|Exception_NotFound) {
+				$indexes = [];
 			}
 			assert($this->indexes === []);
-			$this->indexes += $indexes;
+			$this->indexes = $indexes;
 		}
 		$by_name = [];
 		foreach ($this->indexes as $index) {
@@ -673,6 +673,6 @@ class Database_Table extends Hookable {
 		$dump = get_object_vars($this);
 		$dump['database'] = $this->database?->codeName();
 		$dump['primary'] = $this->primary?->name();
-		return 'Object ' . __CLASS__ . " (\n" . Text::indent(_dump($dump, true)) . "\n)";
+		return 'Object ' . __CLASS__ . " (\n" . Text::indent(_dump($dump)) . "\n)";
 	}
 }

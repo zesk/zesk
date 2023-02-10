@@ -108,7 +108,7 @@ class Controller extends Controller_Authenticated {
 	 *
 	 * @param string $locale_string
 	 */
-	public function action_update($locale_string) {
+	public function action_update(string $locale_string) {
 		$locale = $this->application->locale;
 		$locale_string = Locale::normalize($locale_string);
 		$__ = [

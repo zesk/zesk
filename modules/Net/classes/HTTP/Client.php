@@ -390,7 +390,7 @@ class Client extends Hookable {
 	 *            Set cookies to name/value pairs for request
 	 * @param boolean $append
 	 */
-	public function request_cookie(array $set = null, $append = false) {
+	public function request_cookie(array $set = null, bool $append = false) {
 		if ($set === null) {
 			return $this->requestCookie;
 		}
@@ -561,7 +561,7 @@ class Client extends Hookable {
 			CURLOPT_ENCODING => 1, CURLOPT_RETURNTRANSFER => 1,
 			CURLOPT_SSL_VERIFYPEER => $this->optionBool(self::OPTION_VERIFY_SSL, self::DEFAULT_OPTION_VERIFY_SSL),
 		];
-		$data = strval($this->_encodeData());
+		$data = $this->_encodeData();
 		$length = strlen($data);
 		switch ($this->method) {
 			case HTTP::METHOD_GET:
@@ -821,10 +821,7 @@ class Client extends Hookable {
 
 		if ($this->optionBool('debug') && $this->destination) {
 			if (file_exists($this->destination)) {
-				$command = Command::running();
-				if ($command) {
-					$command->readline(__CLASS__ . ' : CHECK ' . $this->url() . " Destination $this->destination");
-				}
+				Command::running()->readline(__CLASS__ . ' : CHECK ' . $this->url() . " Destination $this->destination");
 			}
 		}
 

@@ -41,8 +41,7 @@ class Raw extends Type {
 
 	/**
 	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Response\Type::passthru()
+	 * @see fpassthru()
 	 */
 	public function output($content): void {
 		if ($this->file) {
@@ -96,7 +95,7 @@ class Raw extends Type {
 		if (!$name) {
 			$name = basename($file);
 		}
-		$name = File::name_clean($name);
+		$name = File::nameClean($name);
 		if (!$type) {
 			$type = 'attachment';
 		}

@@ -159,7 +159,7 @@ class Command_Install extends Command_Base {
 		$object->setOption('install_prev');
 		if (is_array($object_list)) {
 			foreach ($object_list as $o) {
-				$errore = array_merge($errore, $this->order_walk_object($o));
+				$errors = array_merge($errors, $this->order_walk_object($o));
 				if (count($errors) > 0) {
 					return $errors;
 				}
@@ -173,7 +173,7 @@ class Command_Install extends Command_Base {
 		$object->setOption('install_next');
 		if (is_array($object_list)) {
 			foreach ($object_list as $o) {
-				$errore = array_merge($errors, $this->order_walk_object($o));
+				$errors = array_merge($errors, $this->order_walk_object($o));
 				if (count($errors) > 0) {
 					return $errors;
 				}

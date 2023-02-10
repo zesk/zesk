@@ -3,8 +3,11 @@ declare(strict_types=1);
 
 namespace zesk\ORM;
 
+use stdClass;
+use zesk\Application;
 use zesk\Exception_Parameter;
 use zesk\Exception_Semantics;
+use zesk\Kernel;
 use zesk\Timestamp;
 
 class TestORM_Test extends ORMUnitTest {
@@ -64,7 +67,7 @@ class TestORM_Test extends ORMUnitTest {
 		$x->changed();
 
 		$x->setMember($f, '2022-12-22 08:55:45');
-		$this->assertInstanceOf(Timestamp::class, $x->memberTimestamp($f, $def));
+		$this->assertInstanceOf(Timestamp::class, $x->memberTimestamp($f));
 
 		$this->assertEquals([], $x->members([]));
 
@@ -141,19 +144,27 @@ class TestORM_Test extends ORMUnitTest {
 		$this->assertEquals(['new' => 'stuff'], $x->memberData('Data'));
 	}
 
-	public function data_mixedToClass() {
-		$this->setUp();
-		$test_orm = new TestORM($this->application);
+	public static function app(): Application {
+		return Kernel::singleton()->application();
+	}
+
+	public static function data_mixedToClass(): array {
 		return [
 			['ClassName', 'ClassName'],
-			[$test_orm, 'zesk\\ORM\\TestORM'],
-			[$test_orm::class, 'zesk\\ORM\\TestORM'],
-			[$test_orm->class_orm(), 'zesk\\ORM\\TestORM'],
+			[fn () => new TestORM(self::app()), 'zesk\\ORM\\TestORM'],
+			[function () {
+				$test_orm = new TestORM(self::app());
+				return $test_orm::class;
+			}, 'zesk\\ORM\\TestORM'],
+			[function () {
+				$test_orm = new TestORM(self::app());
+				return $test_orm->class_orm();
+			}, 'zesk\\ORM\\TestORM'],
 			[0, ''],
 			[23.2, ''],
 			[null, ''],
 			['', ''],
-			[new \stdClass(), ''],
+			[new stdClass(), ''],
 			[[], ''],
 		];
 	}
@@ -166,6 +177,8 @@ class TestORM_Test extends ORMUnitTest {
 	 * @dataProvider data_mixedToClass
 	 */
 	public function test_mixedToClass(mixed $mixed, string $expected_class): void {
+		$mixed = $this->applyClosures($mixed);
+
 		try {
 			$this->assertEquals($expected_class, ORMBase::mixedToClass($mixed));
 		} catch (Exception_Parameter) {

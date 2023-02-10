@@ -10,6 +10,9 @@ namespace zesk\World;
 
 use zesk\Application;
 use zesk\ArrayTools;
+use zesk\Exception_Directory_NotFound;
+use zesk\Exception_File_Permission;
+use zesk\Exception_NotFound;
 use zesk\Hookable;
 use zesk\Net\Sync;
 use zesk\StringTools;
@@ -84,7 +87,9 @@ class Bootstrap_Country extends Hookable {
 	 *
 	 * @param Application $application
 	 * @return array
-	 * @throws \zesk\Exception_NotFound
+	 * @throws Exception_Directory_NotFound
+	 * @throws Exception_File_Permission
+	 * @throws Exception_NotFound
 	 */
 	private function load_countryinfo(Application $application): array {
 		$world_path = $application->modules->path('world');

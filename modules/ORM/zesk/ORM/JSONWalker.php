@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage orm
@@ -9,6 +10,7 @@
 /**
  * @author kent
  */
+
 namespace zesk\ORM;
 
 /**
@@ -41,10 +43,22 @@ class JSONWalker extends Walker {
 
 	/**
 	 *
-	 * @return self
+	 * @return JSONWalker
 	 */
 	public static function factory(): self {
 		return new self();
+	}
+
+	/**
+	 * Maintain subtype
+	 *
+	 * @param Walker $from
+	 * @return JSONWalker
+	 */
+	public function inherit(Walker $from): JSONWalker {
+		$result = parent::inherit($from);
+		assert($result instanceof JSONWalker);
+		return $result;
 	}
 
 	/**

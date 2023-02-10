@@ -5,18 +5,21 @@
  */
 namespace zesk;
 
+use Throwable;
+
 /**
  *
  */
 class Exception_Connect extends Exception {
-	public $host = null;
+	public string $host;
 
-	public function __construct($host, $message = null, array $arguments = [], $previous = null) {
-		parent::__construct($message, $arguments, null, $previous);
+	public function __construct(string $host, string $message = '', array $arguments = [], Throwable $previous =
+	null) {
+		parent::__construct($message, $arguments, 0, $previous);
 		$this->host = $host;
 	}
 
-	public function __toString() {
-		return $this->host . "\n" . parent::__toString();
+	public function __toString(): string {
+		return $this->host . ': ' . parent::__toString();
 	}
 }

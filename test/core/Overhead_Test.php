@@ -74,6 +74,6 @@ class Overhead_Test extends UnitTest {
 		$this->log("Zesk PHP usage is $usage");
 
 		$delta = $usage - $raw_usage;
-		$this->log('Zesk Overhead is ' . $delta . ' ' . Number::format_bytes($this->application->locale, $delta));
+		$this->log('Zesk Overhead is ' . $delta . ' ' . Number::formatBytes($this->application->locale, $delta));
 	}
 }

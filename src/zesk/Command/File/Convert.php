@@ -4,6 +4,8 @@
  */
 namespace zesk;
 
+use Throwable;
+
 /**
  * Abstract class for iterating on a series of files and converting them from one syntax to another
  * @author kent
@@ -93,7 +95,7 @@ abstract class Command_File_Convert extends Command_Base {
 		$this->verboseLog('Configuring using config file: ' . $this->configuration_file);
 		$this->configure($this->configuration_file);
 		$app = $this->application;
-		$app->console(true);
+		$app->setConsole(true);
 		$request = $app->requestFactory();
 		$app->template->set([
 			'request' => $request,
@@ -117,7 +119,7 @@ abstract class Command_File_Convert extends Command_Base {
 			} else {
 				$cwd = getcwd();
 				$this->verboseLog('Listing {cwd}', compact('cwd'));
-				$files = Directory::list_recursive($cwd, [
+				$files = Directory::listRecursive($cwd, [
 					Directory::LIST_RULE_FILE => [
 						'/\.(' . $this->source_extension_pattern . ')$/' => true,
 						false,
@@ -168,13 +170,20 @@ abstract class Command_File_Convert extends Command_Base {
 				} else {
 					$this->application->logger->debug('Skipping convert {file} because {new_path} does not exist', compact('file', 'new_path'));
 				}
-				if (!$this->convert_file($file, $new_file)) {
-					$this->application->logger->error('unable to convert from {file} to {new_file}', compact('file', 'newfile'));
+
+				try {
+					$this->convert_file($file, $new_file);
+				} catch (Throwable $t) {
+					$this->application->logger->error('unable to convert from {file} to {new_file}: {throwableClass} {throwableMessage}', [
+						'file' => $file,
+						'newFile' => $new_file,
+					] + Exception::exceptionVariables($t));
 				}
 			}
 		} else {
 			echo $this->convert_fp(STDIN);
 		}
+		return 0;
 	}
 
 	/**
@@ -183,7 +192,7 @@ abstract class Command_File_Convert extends Command_Base {
 	 * @api
 	 * @param resource $fp File opened for reading with file pointer cued to the file start position.
 	 */
-	protected function convert_fp($fp) {
+	protected function convert_fp(mixed $fp): string {
 		$content = '';
 		while (!feof($fp)) {
 			$content .= fread($fp, 1024);
@@ -198,7 +207,7 @@ abstract class Command_File_Convert extends Command_Base {
 	 * @param string $file
 	 * @param string $new_file
 	 */
-	abstract protected function convert_file($file, $new_file);
+	abstract protected function convert_file(string $file, string $new_file): void;
 
 	/**
 	 * Convert in memory and return converted entity
@@ -206,17 +215,17 @@ abstract class Command_File_Convert extends Command_Base {
 	 * @api
 	 * @param string $content
 	 */
-	abstract protected function convert_raw($content);
+	abstract protected function convert_raw(string $content): string;
 
 	/**
-	 *
-	 * @param unknown $file
-	 * @param unknown $new_file
-	 * @return number
+	 * @param string $file
+	 * @param string $new_file
+	 * @return void
+	 * @throws Exception_File_Permission
 	 */
-	final protected function default_convert_file($file, $new_file) {
+	final protected function default_convert_file(string $file, string $new_file): void {
 		$this->application->logger->notice('Writing {new_file}', compact('new_file'));
-		return File::put($new_file, $this->convert_raw(file_get_contents($file)));
+		File::put($new_file, $this->convert_raw(file_get_contents($file)));
 	}
 
 	/**

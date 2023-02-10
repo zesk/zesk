@@ -451,15 +451,14 @@ class Timestamp extends Temporal {
 		if (!is_array($locale_format)) {
 			$locale_format = explode(';', $locale_format);
 		}
-		foreach ($locale_format as $dcode) {
-			$dcodes = str_split($dcode);
-			if (count($values) !== count($dcodes)) {
+		foreach ($locale_format as $dateParseCodes) {
+			$dateParseCodes = str_split($dateParseCodes);
+			if (count($values) !== count($dateParseCodes)) {
 				continue;
 			}
 			$this->setMonth(1)->setDay(1);
-			$failed = false;
-			foreach ($dcodes as $i => $dcode) {
-				switch (strtoupper($dcode)) {
+			foreach ($dateParseCodes as $i => $code) {
+				switch (strtoupper($code)) {
 					case '_':
 						if (strlen($value) == 8) {
 							return $this->parse_locale_string(substr($value, 0, 2) . '/' . substr($value, 2, 2) . '/' . substr($value, 4));
@@ -470,21 +469,16 @@ class Timestamp extends Temporal {
 						]);
 					case 'M':
 						$this->setMonth(intval($values[$i]));
-
 						break;
 					case 'D':
 						$this->setDay(intval($values[$i]));
-
 						break;
 					case 'Y':
 						$this->setYear(intval($values[$i]));
-
 						break;
 				}
 			}
-			if (!$failed) {
-				return true;
-			}
+			return true;
 		}
 		return false;
 	}
@@ -583,7 +577,7 @@ class Timestamp extends Temporal {
 	 */
 	public function setQuarter(int $set): self {
 		if ($set < 1 || $set > 4) {
-			throw new \OutOfBoundsException("Timestamp::quarter($set)");
+			throw new OutOfBoundsException("Timestamp::quarter($set)");
 		}
 		/* $set is 0-3 */
 		$quarter = $this->quarter();
@@ -1137,8 +1131,7 @@ class Timestamp extends Temporal {
 	 * @return $this
 	 * @throws Exception_Semantics
 	 */
-	public function add(int $years = 0, int $months = 0, int $days = 0, int $hours = 0, int $minutes = 0, int
-	$seconds = 0, int $milliseconds = 0): self {
+	public function add(int $years = 0, int $months = 0, int $days = 0, int $hours = 0, int $minutes = 0, int $seconds = 0, int $milliseconds = 0): self {
 		if ($this->datetime === null) {
 			throw new Exception_Semantics('Adding to a empty Timestamp');
 		}
@@ -1192,7 +1185,7 @@ class Timestamp extends Temporal {
 	 * @param Timestamp $timestamp
 	 * @param string $unit
 	 *            millisecond, second, minute, hour, day, week, weekday, quarter
-	 * 			  bad unit defaults to year
+	 *              bad unit defaults to year
 	 * @param int $precision
 	 *            The precision for the result (decimal places to use)
 	 * @return int|float
@@ -1204,7 +1197,6 @@ class Timestamp extends Temporal {
 		if ($unit === self::UNIT_WEEKDAY) {
 			return $this->weekday() - $timestamp->weekday();
 		}
-		$precision = intval($precision);
 		$delta = $this->subtract($timestamp);
 		switch ($unit) {
 			case self::UNIT_MILLISECOND:
@@ -1315,7 +1307,7 @@ class Timestamp extends Temporal {
 	 * @param int $value
 	 *            Value to set
 	 * @return Timestamp integer
-	 * @throws Exception_Key|\OutOfBoundsException
+	 * @throws Exception_Key|OutOfBoundsException
 	 */
 	public function setUnit(string $unit, int $value): self {
 		return match ($unit) {
@@ -1377,8 +1369,11 @@ class Timestamp extends Temporal {
 	 * @param string $sep
 	 * @return string
 	 */
-	private function _hms_format(string $sep = ':'): string {
-		return StringTools::zeroPad($this->hour()) . $sep . StringTools::zeroPad($this->minute()) . $sep . StringTools::zeroPad($this->second());
+	private function _hms_format(): string {
+		return implode(':', [
+			StringTools::zeroPad($this->hour()), StringTools::zeroPad($this->minute()),
+			StringTools::zeroPad($this->second()),
+		]);
 	}
 
 	/**

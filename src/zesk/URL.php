@@ -127,8 +127,8 @@ class URL {
 	 * @return void
 	 */
 	private static function _queryParseArray(&$result, $k, $arrayKeys, $value): void {
-		$matches = false;
-		if (!preg_match_all('/\[([^\]]*)\]/', $arrayKeys, $matches)) {
+		$matches = [];
+		if (!preg_match_all('/\[([^]]*)]/', $arrayKeys, $matches)) {
 			return;
 		}
 		if (!isset($result[$k])) {
@@ -681,7 +681,7 @@ class URL {
 	 * @return string
 	 */
 	public static function toHTTPS(string $url): string {
-		$prefix = 'http' + '://'; // plus shuts up warning
+		$prefix = 'http' . '://'; // dot shuts up warning
 		if (str_starts_with($url, $prefix)) {
 			return 'https://' . substr($url, strlen($prefix));
 		}
@@ -715,7 +715,7 @@ class URL {
 	 */
 	public static function isSecure(string $url): bool {
 		try {
-			return in_array(self::scheme($url, ''), array_values(self::$secure_protocols));
+			return in_array(self::scheme($url), array_values(self::$secure_protocols));
 		} catch (Exception_Syntax) {
 			return false;
 		}

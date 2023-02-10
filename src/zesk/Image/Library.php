@@ -50,6 +50,7 @@ abstract class Image_Library {
 				if (!$singleton->installed()) {
 					continue;
 				}
+				assert($singleton instanceof Image_Library);
 				return $singleton;
 			} catch (\Exception $e) {
 				$application->logger->error('{class} creation resulted in {e.class}: {e.message}', [

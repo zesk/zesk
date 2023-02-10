@@ -130,7 +130,7 @@ class MapReader extends Reader {
 		if (count($defaultMap)) {
 			$this->readMapGroupDefaults[$name] = $defaultMap;
 		}
-		return true;
+		return $this;
 	}
 
 	/**

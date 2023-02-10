@@ -8,7 +8,8 @@
     "psr/cache": ">=3",
     "ext-calendar": "*",
     "ext-json": "*",
-    "ext-posix": "*"
+    "ext-posix": "*",
+    "ext-pcntl": "*"
   },
   "suggest": {
     "ext-xdebug": "*",
@@ -36,7 +37,7 @@
   ],
   "autoload": {
     "psr-0": {
-      "zesk\\": "./"
+      "zesk\\": "./src"
     }
   },
   "bin": [
@@ -52,7 +53,7 @@
   "autoload-dev": {
     "classmap": [
       "modules/Database/test/zesk/DatabaseUnitTest.php",
-      "modules/ORM/test/classes/ORMUnitTest.php",
+      "modules/ORM/zesk/ORM/ORMUnitTest.php",
       "modules/PHPUnit/classes/PHPUnit/TestCase.php",
       "modules/Repository/zesk/Repository/TestCase.php"
     ]

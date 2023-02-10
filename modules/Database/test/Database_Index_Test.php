@@ -96,7 +96,7 @@ class Database_Index_Test extends UnitTest {
 		$this->assertEquals($expected, Database_Index::determineType($type));
 	}
 
-	public function data_determine_type(): array {
+	public static function data_determine_type(): array {
 		return [
 			['unique', Database_Index::TYPE_UNIQUE],
 			['unique key', Database_Index::TYPE_UNIQUE],

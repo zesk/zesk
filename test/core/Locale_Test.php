@@ -6,15 +6,13 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use zesk\Lists;
-
 /**
  *
  * @author kent
  *
  */
 class Locale_Test extends UnitTest {
-	public function data_plural(): array {
+	public static function data_plural(): array {
 		$tests = [
 			'Jazz' => 'Jazzes',
 			'JAZZ' => 'JAZZES',
@@ -59,7 +57,7 @@ class Locale_Test extends UnitTest {
 		$this->assertEquals($expected, $locale->plural($test, $n));
 	}
 
-	public function data_conjunction(): array {
+	public static function data_conjunction(): array {
 		return [
 			[
 				['Apples', 'Pears', 'Frogs'],
@@ -157,12 +155,15 @@ class Locale_Test extends UnitTest {
 		$this->assertEquals($expected, $locale->conjunction($words, $conjunction));
 	}
 
-	public function to_locale_list($id_list) {
-		$this->setUp();
+	/**
+	 * @param $id_list
+	 * @return array
+	 */
+	public static function to_locale_list($id_list): array {
 		$args = [];
 		foreach (Lists::unique(toList($id_list)) as $id) {
 			$args[] = [
-				$this->application->localeFactory($id),
+				fn () => self::app()->localeFactory($id),
 			];
 		}
 		return $args;
@@ -171,16 +172,16 @@ class Locale_Test extends UnitTest {
 	/**
 	 * Data provider for generic tests across English locales
 	 *
-	 * @return \zesk\Locale[][]
+	 * @return Locale[]
 	 */
-	public function en_locales() {
-		return $this->to_locale_list('en;en_US;en_GB;en_CA');
+	public static function data_en_locales() {
+		return self::to_locale_list('en;en_US;en_GB;en_CA');
 	}
 
 	/**
 	 * Data provider for generic tests across locales
 	 *
-	 * @return \zesk\Locale[][]
+	 * @return Locale[]
 	 */
 	public function locales() {
 		return $this->to_locale_list('en_US;en_GB;fr_FR;de_DE;es_ES');
@@ -215,7 +216,7 @@ class Locale_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider en_locales
+	 * @dataProvider data_en_locales
 	 * @param Locale $locale
 	 */
 	public function test_duration_string(Locale $locale): void {
@@ -228,12 +229,12 @@ class Locale_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider en_locales
+	 * @dataProvider data_en_locales
 	 * @param Locale $locale
 	 */
 	public function test_indefinite_article(Locale $locale): void {
-		$this->assertEquals($locale->indefinite_article('euro', []), 'a');
-		$this->assertEquals($locale->indefinite_article('honor', []), 'an');
+		$this->assertEquals($locale->indefiniteArticle('euro', []), 'a');
+		$this->assertEquals($locale->indefiniteArticle('honor', []), 'an');
 	}
 
 	public function test_language(): void {
@@ -261,7 +262,7 @@ class Locale_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider en_locales
+	 * @dataProvider data_en_locales
 	 * @param Locale $locale
 	 */
 	public function test_now_string(Locale $locale): void {
@@ -332,7 +333,7 @@ class Locale_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider en_locales
+	 * @dataProvider data_en_locales
 	 * @param Locale $locale
 	 */
 	public function test_plural_number(Locale $locale): void {
@@ -422,33 +423,32 @@ class Locale_Test extends UnitTest {
 	 * @return array[]
 	 * @throws Exception_Class_NotFound
 	 */
-	public function data_locale_translation(): array {
-		$this->setUp();
-
-		$id = 'xy';
-		$xy = Locale::factory($this->application, $id);
-		$xy->setTranslations([
-			'cuddle' => 'boink',
-		]);
-		$this->assertInstanceOf(Locale_Default::class, $xy);
+	public static function data_locale_translation(): array {
+		$localeFactory = function (): void {
+			$id = 'xy';
+			$xy = Locale::factory(self::app(), $id);
+			$xy->setTranslations([
+				'cuddle' => 'boink',
+			]);
+		};
 		return [
 			[
-				$xy,
+				$localeFactory,
 				'cuddle',
 				'boink',
 			],
 			[
-				$xy,
+				$localeFactory,
 				'Cuddle',
 				'Boink',
 			],
 			[
-				$xy,
+				$localeFactory,
 				'CUddle',
 				'BOINK',
 			],
 			[
-				$xy,
+				$localeFactory,
 				'CUDDLE',
 				'BOINK',
 			],
@@ -461,7 +461,9 @@ class Locale_Test extends UnitTest {
 	 * @param string $expected
 	 * @param string $test
 	 */
-	public function test_locale_translation(Locale $locale, string $test, string $expected): void {
+	public function test_locale_translation($mixed, string $test, string $expected): void {
+		$locale = $this->applyClosures($mixed);
+		$this->assertInstanceOf(Locale_Default::class, $locale);
 		$this->assertEquals($expected, $locale->__($test));
 	}
 

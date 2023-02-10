@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 namespace zesk;
 
+use stdClass;
+
 class Configuration_Test extends UnitTest {
 	public function value_types(): array {
 		return [
@@ -11,7 +13,7 @@ class Configuration_Test extends UnitTest {
 			[false],
 			[true],
 			[123.423],
-			[new \stdClass()],
+			[new stdClass()],
 		];
 	}
 

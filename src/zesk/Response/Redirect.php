@@ -7,6 +7,7 @@
  */
 namespace zesk\Response;
 
+use Throwable;
 use zesk\Exception_Redirect;
 use zesk\Exception_RedirectTemporary;
 use zesk\Interface_Session;
@@ -34,7 +35,7 @@ class Redirect extends Type {
 	public function messageClear(): void {
 		try {
 			$this->session()->redirect_message = null;
-		} catch (\Exception $e) {
+		} catch (Throwable $e) {
 			$this->application->logger->debug('{method} caused an exception {e}', [
 				'method' => __METHOD__,
 				'e' => $e,

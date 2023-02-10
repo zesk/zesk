@@ -21,8 +21,7 @@ class IncludeFilesMonitor extends FileMonitor {
 	 *
 	 * Will grow, should never shrink.
 	 *
-	 * {@inheritDoc}
-	 * @see \zesk\FileMonitor::files()
+	 * @see FileMonitor::files()
 	 */
 	protected function files(): array {
 		return get_included_files();

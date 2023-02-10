@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use \OutOfBoundsException;
+use OutOfBoundsException;
+use function gregoriantojd;
+use function jdtogregorian;
 
 /**
  * Date representing a Month, Day, and Year
@@ -566,7 +568,7 @@ class Date extends Temporal {
 			12 => 31,
 		];
 		if ($month < 1 || $month > 12) {
-			throw new \OutOfBoundsException('Month between 1 and 12');
+			throw new OutOfBoundsException('Month between 1 and 12');
 		}
 		if ($month !== 2) {
 			return $daysInMonth[$month];
@@ -992,7 +994,7 @@ class Date extends Temporal {
 	 */
 	private static function _gregorian_offset(): int {
 		if (self::$gregorian_offset === null) {
-			self::$gregorian_offset = \gregoriantojd(1, 1, 1) - 1;
+			self::$gregorian_offset = gregoriantojd(1, 1, 1) - 1;
 		}
 		return self::$gregorian_offset;
 	}
@@ -1003,7 +1005,7 @@ class Date extends Temporal {
 	 * @return int
 	 */
 	public function gregorian(): int {
-		return \gregoriantojd($this->month, $this->day, $this->year) - self::_gregorian_offset();
+		return gregoriantojd($this->month, $this->day, $this->year) - self::_gregorian_offset();
 	}
 
 	/**
@@ -1014,11 +1016,11 @@ class Date extends Temporal {
 	 * @since 2022-01
 	 */
 	public function setGregorian(int $set): self {
-		[$month, $day, $year] = explode('/', \jdtogregorian($set + self::_gregorian_offset()), 3);
+		[$month, $day, $year] = explode('/', jdtogregorian($set + self::_gregorian_offset()), 3);
 
 		try {
 			return $this->ymd(intval($year), intval($month), intval($day));
-		} catch (\OutOfBoundsException $e) {
+		} catch (OutOfBoundsException $e) {
 			PHP::log("jdtogregorian returned date with invalid range ($set) go:" . self::_gregorian_offset());
 			return $this;
 		}
@@ -1033,7 +1035,7 @@ class Date extends Temporal {
 	 * @see Date::days_in_month
 	 */
 	public function lastDay(): int {
-		return self::last_day_of_month();
+		return self::lastDayOfMonth();
 	}
 
 	/**

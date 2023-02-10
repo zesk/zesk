@@ -74,7 +74,7 @@ class Database_Adapter_MySQL extends Database_Adapter {
 				} else {
 					$column->setSQLType("varbinary($size)");
 				}
-				$column->binary(true);
+				$column->setBinary(true);
 				return ;
 			case Class_Base::TYPE_BYTE:
 				$column->setSQLType('tinyint(1)');

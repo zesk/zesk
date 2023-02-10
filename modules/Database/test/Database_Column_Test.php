@@ -93,7 +93,7 @@ class Database_Column_Test extends UnitTest {
 		$this->assertEquals($expected, $result_b_keys);
 	}
 
-	public function data_differences(): array {
+	public static function data_differences(): array {
 		$this->setUp();
 		$db = $this->application->databaseRegistry();
 		$table = new Database_Table($db, __METHOD__);

@@ -405,7 +405,7 @@ Version added to support modern MySQL docker containers enforcement of `Timestam
 - `zesk\Command_Loader` no longer strips `+` characters from command-line arguments, but does a `rawurldecode` instead
 - `zesk\Command` now outputs less verbose and friendlier error messages.
 - `zesk\Configuration\Loader` making variable constants
-- `zesk\Directory::list_recursive` now modifies directory strings to ensure they **MUST** end with a trailing slash prior to being matched against the listing rules. So you can better match against directories by enforcing a trailing slash; regular files will **NEVER** have a trailing slash.
+- `zesk\Directory::listRecursive` now modifies directory strings to ensure they **MUST** end with a trailing slash prior to being matched against the listing rules. So you can better match against directories by enforcing a trailing slash; regular files will **NEVER** have a trailing slash.
 - `zesk\Directory` updated documentation
 - `zesk\Exception_Class_NotFound` now reports the name of the class as part of the default message.
 - `zesk\Hookable::combine_hook_results` used to catenate strings which were passed through a filter, it now returns the new string back. The only mechanism which modifies hook results is `Arrays`: list-style arrays are catenated, key-value arrays are merged with later values overriding earlier values.
@@ -1222,7 +1222,7 @@ Main changes were to fix a bug with login where the `zesk\User::hook_login` hook
 
 #### Documentation and Release
 
-- Added `zesk\Directory::list_recursive` documentation
+- Added `zesk\Directory::listRecursive` documentation
 - Adding automatic `etc/db/release-date` generation to Zesk release script
 
 ### Improvements
@@ -1943,7 +1943,7 @@ Removed as many references as possible to `app()` and `zesk\Application::instanc
 - Widgets: Fix unlikely code structure issue with `_exec_render` to avoid uninitialized variable and double unwrap
 - Updated docs in `Control_Select`
 - Support for `Control_Select::is_single()`
-- `zesk\Directory::list_recursive`: if `opendir` fails on a directory, return an array instead of false
+- `zesk\Directory::listRecursive`: if `opendir` fails on a directory, return an array instead of false
 - `Controller_Content_Cache` fixing issue with `Content_Image` data being `null`
 - Updating the `version` command to support custom version layouts properly
 

@@ -1,10 +1,11 @@
 <?php
 declare(strict_types=1);
 /**
+ * File tools and abstractions
  *
  * @package zesk
  * @subpackage system
- * @author $Author: kent $
+ * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
@@ -16,6 +17,41 @@ namespace zesk;
  * @author kent
  */
 class File {
+	/**
+	 * Dimension returned by expandStats related to file permissions
+	 */
+	public const STATS_PERMS = 'perms';
+
+	/**
+	 * Dimension returned by expandStats related to file owner and group
+	 */
+	public const STATS_OWNER = 'owner';
+
+	/**
+	 * Dimension returned by expandStats related to file names and paths
+	 */
+	public const STATS_NAME = 'name';
+
+	/**
+	 * Dimension returned by expandStats related to file type
+	 */
+	public const STATS_TYPE = 'type';
+
+	/**
+	 * Dimension returned by expandStats related to file device
+	 */
+	public const STATS_DEVICE = 'device';
+
+	/**
+	 * Dimension returned by expandStats related to file size
+	 */
+	public const STATS_SIZE = 'size';
+
+	/**
+	 * Dimension returned by expandStats related to file creation, modification, and accessed time
+	 */
+	public const STATS_TIME = 'time';
+
 	/**
 	 *
 	 * @var integer
@@ -160,7 +196,7 @@ class File {
 	 */
 	public const CHAR_UNKNOWN = 'u';
 
-	public static array $char_to_string = [
+	public static array $charToString = [
 		self::CHAR_FIFO => self::TYPE_FIFO, self::CHAR_CHAR => self::TYPE_CHAR, self::CHAR_BLOCK => self::TYPE_BLOCK,
 		self::CHAR_DIR => self::TYPE_DIR, self::CHAR_FILE => self::TYPE_FILE, self::CHAR_LINK => self::TYPE_LINK,
 		self::CHAR_SOCKET => self::TYPE_SOCKET, self::CHAR_UNKNOWN => self::TYPE_UNKNOWN,
@@ -173,7 +209,7 @@ class File {
 	 * @param ?string $cwd
 	 * @return string null
 	 */
-	public static function absolute_path(string $filename, string $cwd = null): string {
+	public static function absolutePath(string $filename, string $cwd = null): string {
 		if ($filename[0] === '/') {
 			return $filename;
 		}
@@ -206,7 +242,7 @@ class File {
 	 *            Character to replace unwanted characters with
 	 * @return string Cleaned filename
 	 */
-	public static function name_clean(string $mixed, string $sep_char = '-'): string {
+	public static function nameClean(string $mixed, string $sep_char = '-'): string {
 		$mixed = preg_replace('/[^-A-Za-z0-9_.]/', $sep_char, $mixed);
 		return preg_replace("/$sep_char$sep_char+/", $sep_char, $mixed);
 	}
@@ -221,7 +257,7 @@ class File {
 	 * @todo deprecate this, where used?
 	 *
 	 */
-	public static function clean_path(string $path): string {
+	public static function cleanPath(string $path): string {
 		return preg_replace('%[^-_./a-zA-Z0-9]%', '_', str_replace('_', '/', $path));
 	}
 
@@ -231,7 +267,7 @@ class File {
 	 * @param string $x Path name to clean
 	 * @return bool
 	 */
-	public static function path_check(string $x): bool {
+	public static function pathCheck(string $x): bool {
 		if (preg_match('|[^-~/A-Za-z0-9_. ()@&]|', $x)) {
 			return false;
 		}
@@ -326,18 +362,23 @@ class File {
 	 *            Path to file to use as a counter
 	 * @return integer The number in the file, plus one
 	 * @throws Exception_File_NotFound
+	 * @throws Exception_Timeout
 	 */
-	public static function atomic_increment(string $path): int {
+	public static function atomicIncrement(string $path): int {
 		$fp = @fopen($path, 'r+b');
 		if (!$fp) {
 			throw new Exception_File_NotFound($path, 'not found');
 		}
-		$until = time() + 10;
+		$timeout = 10;
+		$until = time() + $timeout;
 		while (!flock($fp, LOCK_EX | LOCK_NB)) {
 			usleep(100);
 			if (time() >= $until) {
 				fclose($fp);
-				return -1;
+
+				throw new Exception_Timeout('atomicIncrement({file}) after {timeout} seconds', [
+					'file' => $path, 'timeout' => $timeout,
+				]);
 			}
 		}
 		$id = intval(fread($fp, 20));
@@ -361,8 +402,8 @@ class File {
 	 */
 	public static function atomicPut(string $path, string $data): bool {
 		$fp = fopen($path, 'w+b');
-		if (!is_resource($fp)) {
-			throw new Exception_File_NotFound($path, 'File::atomic_put not found');
+		if (!isResource($fp)) {
+			throw new Exception_File_NotFound($path, 'File::atomicPut not found');
 		}
 		$until = time() + 10;
 		while (!flock($fp, LOCK_EX | LOCK_NB)) {
@@ -376,29 +417,6 @@ class File {
 		flock($fp, LOCK_UN);
 		fclose($fp);
 		return true;
-	}
-
-	/**
-	 * Put a file atomically
-	 *
-	 * @param string $path
-	 *            file path
-	 * @param string $data
-	 *            file data
-	 * @return boolean true if successful, false if 100ms passes and can't
-	 * @throws Exception_File_NotFound
-	 */
-	public static function atomic(string $path, mixed $data = null): mixed {
-		if ($data !== null) {
-			return self::atomicPut($path, serialize($data));
-		}
-
-		try {
-			$result = File::contents($path);
-			return PHP::unserialize($result);
-		} catch (Exception) {
-			return null;
-		}
 	}
 
 	/**
@@ -444,12 +462,12 @@ class File {
 	public static function chmod(string $file_name, int $mode = 504 /* 0o770 */): void {
 		if (!file_exists($file_name)) {
 			throw new Exception_File_NotFound($file_name, 'Can not set mode to {mode}', [
-				'mode' => self::mode_to_octal($mode),
+				'mode' => self::modeToOctal($mode),
 			]);
 		}
 		if (!chmod($file_name, $mode)) {
 			throw new Exception_File_Permission($file_name, 'Can not set mode to {mode}', [
-				'mode' => self::mode_to_octal($mode),
+				'mode' => self::modeToOctal($mode),
 			]);
 		}
 	}
@@ -485,7 +503,7 @@ class File {
 	 */
 	public static function append(string $filename, string $content): int {
 		$mode = file_exists($filename) ? 'a' : 'w';
-		if (!is_resource($f = fopen($filename, $mode))) {
+		if (!isResource($f = fopen($filename, $mode))) {
 			throw new Exception_File_Permission($filename, 'Can not open {path} with mode {mode} to append {n} bytes of content', [
 				'mode' => $mode, 'n' => strlen($content),
 			]);
@@ -580,19 +598,28 @@ class File {
 	 *
 	 * @var array
 	 */
-	private static array $mask_to_chars = [
-		self::MASK_FILE => self::CHAR_FILE, self::MASK_SOCKET => self::CHAR_SOCKET, self::MASK_LINK => self::CHAR_LINK,
-		self::MASK_BLOCK => self::CHAR_BLOCK, self::MASK_DIR => self::CHAR_DIR, self::MASK_CHAR => self::CHAR_CHAR,
-		self::MASK_FIFO => self::CHAR_FIFO, 0 => self::CHAR_UNKNOWN,
+	private static array $maskToChars = [
+		self::MASK_FILE => self::CHAR_FILE,
+		self::MASK_SOCKET => self::CHAR_SOCKET,
+		self::MASK_LINK => self::CHAR_LINK,
+		self::MASK_BLOCK => self::CHAR_BLOCK,
+		self::MASK_DIR => self::CHAR_DIR,
+		self::MASK_CHAR => self::CHAR_CHAR,
+		self::MASK_FIFO => self::CHAR_FIFO,
+		0 => self::CHAR_UNKNOWN,
 	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	private static array $char_to_mask = [
-		self::CHAR_FILE => self::MASK_FILE, self::CHAR_SOCKET => self::MASK_SOCKET, self::CHAR_LINK => self::MASK_LINK,
-		self::CHAR_BLOCK => self::MASK_BLOCK, self::CHAR_DIR => self::MASK_DIR, self::CHAR_CHAR => self::MASK_CHAR,
+	private static array $charToMask = [
+		self::CHAR_FILE => self::MASK_FILE,
+		self::CHAR_SOCKET => self::MASK_SOCKET,
+		self::CHAR_LINK => self::MASK_LINK,
+		self::CHAR_BLOCK => self::MASK_BLOCK,
+		self::CHAR_DIR => self::MASK_DIR,
+		self::CHAR_CHAR => self::MASK_CHAR,
 		self::CHAR_FIFO => self::MASK_FIFO,
 	];
 
@@ -603,9 +630,9 @@ class File {
 	 *
 	 * @return number[][]
 	 */
-	private static function _mode_map(): array {
+	private static function _modeMap(): array {
 		return [
-			self::$char_to_mask, [
+			self::$charToMask, [
 				'r' => 0x0100, '-' => 0,
 			], [
 				'w' => 0x0080, '-' => 0,
@@ -634,9 +661,9 @@ class File {
 	 * @param string $char
 	 * @return string
 	 */
-	public static function ls_type(string $char): string {
+	public static function lsType(string $char): string {
 		$char = substr($char, 0, 1);
-		return self::$mask_to_chars[self::$char_to_mask[$char] ?? 0] ?? self::TYPE_UNKNOWN;
+		return self::$maskToChars[self::$charToMask[$char] ?? 0] ?? self::TYPE_UNKNOWN;
 	}
 
 	/**
@@ -645,12 +672,12 @@ class File {
 	 * @param int $mode
 	 * @return string
 	 */
-	public static function mode_to_string(int $mode): string {
-		$map = self::_mode_map();
+	public static function modeToString(int $mode): string {
+		$map = self::_modeMap();
 		$result = '';
 		foreach ($map as $i => $items) {
 			if ($i === 0) {
-				$result .= self::$mask_to_chars[$mode & self::MASK_FTYPE] ?? self::CHAR_UNKNOWN;
+				$result .= self::$maskToChars[$mode & self::MASK_FTYPE] ?? self::CHAR_UNKNOWN;
 			} else {
 				foreach ($items as $char => $bits) {
 					if (($mode & $bits) === $bits) {
@@ -673,12 +700,12 @@ class File {
 	 * @throws Exception_Unimplemented
 	 * @throws Exception_Syntax
 	 */
-	public static function string_to_mode(string $mode_string): int {
-		$keys = implode('', array_keys(self::$char_to_mask));
+	public static function stringToMode(string $mode_string): int {
+		$keys = implode('', array_keys(self::$charToMask));
 		if (!preg_match('/^[' . $keys . '][-r][-w][-xSs][-r][-w][-xSs][-r][-w][-xSs]$/', $mode_string)) {
 			throw new Exception_Syntax('{mode_string} does not match pattern');
 		}
-		$map = array_values(self::_mode_map());
+		$map = array_values(self::_modeMap());
 		$mode = 0;
 		for ($i = 0; $i < strlen($mode_string); $i++) {
 			$v = $map[$i][$mode_string[$i]] ?? null;
@@ -715,7 +742,7 @@ class File {
 	 * @param int $mode
 	 * @return string
 	 */
-	public static function mode_to_octal(int $mode): string {
+	public static function modeToOctal(int $mode): string {
 		return sprintf('0%o', 0o777 & $mode);
 	}
 
@@ -725,7 +752,7 @@ class File {
 	 * @param string $method Callable function to convert id to name
 	 * @return NULL|string
 	 */
-	private static function _name_from_id(mixed $id, string $method): ?string {
+	private static function _nameFromID(mixed $id, string $method): ?string {
 		if (!function_exists($method)) {
 			return null;
 		}
@@ -741,8 +768,8 @@ class File {
 	 * @param int $uid
 	 * @return ?string
 	 */
-	private static function name_from_uid(int $uid): ?string {
-		return self::_name_from_id($uid, 'posix_getpwuid');
+	private static function nameFromUID(int $uid): ?string {
+		return self::_nameFromID($uid, 'posix_getpwuid');
 	}
 
 	/**
@@ -750,16 +777,12 @@ class File {
 	 * @param int $gid
 	 * @return string
 	 */
-	private static function name_from_gid(int $gid): ?string {
-		return self::_name_from_id($gid, 'posix_getgrgid');
+	private static function nameFromGID(int $gid): ?string {
+		return self::_nameFromID($gid, 'posix_getgrgid');
 	}
 
 	/**
-	 * Thanks webmaster at askapache dot com
-	 * Souped up fstat.
-	 * Rewritten slightly.
-	 *
-	 * @thanks
+	 * stat with extended resuilts
 	 *
 	 * @param string $path Path to check
 	 * @param ?string $section Section to retrieve, or null for all sections
@@ -773,6 +796,31 @@ class File {
 			throw new Exception_File_NotFound($path);
 		}
 		$ss['path'] = $path;
+		$ss['isResource'] = false;
+		$s = self::expandStats($ss);
+		if ($section !== null) {
+			return $s[$section] ?? [];
+		}
+		return $s;
+	}
+
+	/**
+	 * fstat with extended resuilts
+	 *
+	 * @param resource $path
+	 *            Path or resource to check
+	 * @param ?string $section
+	 *            Section to retrieve, or null for all sections
+	 * @return array
+	 * @throws Exception_File_NotFound
+	 */
+	public static function resourceStat(mixed $path, string $section = null): array {
+		assert(isResource($path));
+		$ss = @fstat($path);
+		if (!$ss) {
+			throw new Exception_File_NotFound(_dump($path));
+		}
+		$ss['isResource'] = true;
 		$s = self::expandStats($ss);
 		if ($section !== null) {
 			return $s[$section] ?? [];
@@ -783,83 +831,75 @@ class File {
 	/**
 	 * Thanks webmaster at askapache dot com
 	 * Souped up fstat.
-	 * Rewritten slightly.
+	 * Rewritten a bunch.
 	 *
-	 * @thanks
-	 *
-	 * @param resource $path
-	 *            Path or resource to check
-	 * @param ?string $section
-	 *            Section to retrieve, or null for all sections
-	 * @return array
-	 * @throws Exception_File_NotFound
-	 */
-	public static function resourceStat(mixed $path, string $section = null): array {
-		assert(is_resource($path));
-		$ss = @fstat($path);
-		if (!$ss) {
-			throw new Exception_File_NotFound(_dump($path));
-		}
-		$ss['is_resource'] = true;
-		$s = self::expandStats($ss);
-		if ($section !== null) {
-			return $s[$section] ?? [];
-		}
-		return $s;
-	}
-
-	/**
 	 * @param array $ss
 	 * @return array[]
 	 */
 	public static function expandStats(array $ss): array {
 		$o777 = 511; /* 0o777 */
 
-		$is_res = $ss['is_resource'] ?? false;
+		$isResource = $ss['isResource'] ?? false;
 		$path = $ss['path'] ?? null;
 		$p = $ss['mode'];
-		$mode_string = self::mode_to_string($p);
-		$type = self::$mask_to_chars[$p & self::MASK_FTYPE];
+		$modeString = self::modeToString($p);
+		$type = self::$maskToChars[$p & self::MASK_FTYPE];
 		$s = [
 			/* Permissions */
-			'perms' => [
+			self::STATS_PERMS => [
 				'umask' => sprintf('%04o', umask()),  /* umask */
-				'string' => $mode_string,  /* drwxrwxrwx */
+				'string' => $modeString,  /* drwxrwxrwx */
 				'octal' => sprintf('%o', ($p & $o777)),  /* Octal without a zero prefix */
-				'octal0' => self::mode_to_octal($p),  /* Octal with a zero prefix */
+				'octal0' => self::modeToOctal($p),  /* Octal with a zero prefix */
 				'decimal' => intval($p) & $o777,  /* Decimal value, truncated */
-				'fileperms' => is_string($path) ? @fileperms($path) : null  /* Permissions */, 'mode' => $p,
+				'fileperms' => is_string($path) ? @fileperms($path) : null,  /* Permissions */
+				'mode' => $p,
 				/* Raw permissions value returned by fstat */
-			], 'owner' => [
-				'uid' => $ss['uid'], 'gid' => $ss['gid'], 'fileowner' => $ss['uid'], 'filegroup' => $ss['gid'],
-				'owner' => self::name_from_uid($ss['uid']), 'group' => self::name_from_gid($ss['gid']),
-			], 'file' => [
-				'filename' => $is_res ? null : $path, 'realpath' => $is_res ? null : realpath($path),
-				'dirname' => $is_res ? null : dirname($path), 'basename' => $is_res ? null : basename($path),
-			], 'filetype' => [
-				'type' => $type, 'string_type' => self::$char_to_string[$type] ?? null, 'is_file' => is_file($path),
-				'is_dir' => is_dir($path), 'is_link' => is_link($path), 'is_readable' => is_readable($path),
+			],
+			self::STATS_OWNER => [
+				'uid' => $ss['uid'],
+				'gid' => $ss['gid'],
+				'owner' => self::nameFromUID($ss['uid']),
+				'group' => self::nameFromGID($ss['gid']),
+			],
+			self::STATS_NAME => [
+				'filename' => $isResource ? null : $path,
+				'realpath' => $isResource ? null : realpath($path),
+				'dirname' => $isResource ? null : dirname($path),
+				'basename' => $isResource ? null : basename($path),
+			],
+			self::STATS_TYPE => [
+				self::STATS_TYPE => $type,
+				'string' => self::$charToString[$type] ?? '',
+				'is_file' => is_file($path),
+				'is_dir' => is_dir($path),
+				'is_link' => is_link($path),
+				'is_readable' => is_readable($path),
 				'is_writable' => is_writable($path),
-			], 'device' => [
-				'device' => $ss['dev'], // Device
-				'device_number' => $ss['rdev'], // Device number, if device.
+			],
+			self::STATS_DEVICE => [
+				self::STATS_DEVICE => $ss['dev'], // Device
+				'deviceNumber' => $ss['rdev'], // Device number, if device.
 				'inode' => $ss['ino'], // File serial number
-				'link_count' => $ss['nlink'], // link count
-				'link_to' => ($type == 'link') ? @readlink($path) : '',
-			], 'size' => [
-				'size' => $ss['size'], // Size of file, in bytes.
+				'linkCount' => $ss['nlink'], // link count
+				'linkTo' => ($type == 'link') ? @readlink($path) : '',
+			],
+			self::STATS_SIZE => [
+				self::STATS_SIZE => $ss['size'], // Size of file, in bytes.
 				'blocks' => $ss['blocks'], // Number 512-byte blocks allocated
-				'block_size' => $ss['blksize'],
-			], 'time' => [
+				'blockSize' => $ss['blksize'],
+			],
+			self::STATS_TIME => [
 				'mtime' => $ss['mtime'], // Time of last modification
 				'atime' => $ss['atime'], // Time of last access.
 				'ctime' => $ss['ctime'], // Time of last status change
-				'accessed' => @date('Y M D H:i:s', $ss['atime']), 'modified' => @date('Y M D H:i:s', $ss['mtime']),
+				'accessed' => @date('Y M D H:i:s', $ss['atime']),
+				'modified' => @date('Y M D H:i:s', $ss['mtime']),
 				'created' => @date('Y M D H:i:s', $ss['ctime']),
 			],
 		];
 
-		if (!$is_res) {
+		if (!$isResource) {
 			clearstatcache(false, $path);
 		}
 		return $s;
@@ -870,14 +910,11 @@ class File {
 	 *
 	 * Performance-related setting
 	 *
-	 * @return integer
-	 * @throws Exception_Semantics
+	 * @param Application $application
+	 * @return int
 	 */
-	public static function trim_maximum_file_size(): int {
-		$app = Kernel::singleton()->application();
-		$result = toInteger($app->configuration->getPath([
-			self::class, 'trim', 'maximum_file_size',
-		]));
+	public static function trimMaximumFileSize(Application $application): int {
+		$result = $application->configuration->path([self::class, 'trim'])->getInt('maximum_file_size');
 		if ($result) {
 			return $result;
 		}
@@ -890,15 +927,11 @@ class File {
 	 *
 	 * Performance-related setting
 	 *
-	 * @return integer
-	 * @throws Exception_Lock
-	 * @throws Exception_Semantics
+	 * @param Application $application
+	 * @return int
 	 */
-	public static function trim_read_buffer_size(): int {
-		$app = Kernel::singleton()->application();
-		$result = toInteger($app->configuration->getPath([
-			self::class, 'trim', 'read_buffer_size',
-		]));
+	public static function trimReadBufferSize(Application $application): int {
+		$result = $application->configuration->path([self::class, 'trim'])->getInt('read_buffer_size');
 		if ($result) {
 			return $result;
 		}
@@ -910,21 +943,20 @@ class File {
 	/**
 	 * Trim a file similarly to how you would trim a string.
 	 *
+	 * @param Application $application
 	 * @param string $path
 	 *            Path to the file to trim
 	 * @param int $offset
 	 *            Offset within the file to start
 	 * @param int $length
 	 *            Length within the file to remove
-	 * @return boolean
+	 * @return bool
 	 * @throws Exception_FileSystem
 	 * @throws Exception_File_Create
 	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Permission
-	 * @throws Exception_Lock
-	 * @throws Exception_Semantics
 	 */
-	public static function trim(string $path, int $offset = 0, int $length = null): bool {
+	public static function trim(Application $application, string $path, int $offset = 0, int $length = null): bool {
 		if (!is_file($path)) {
 			throw new Exception_File_NotFound($path);
 		}
@@ -935,7 +967,7 @@ class File {
 		if ($length === null) {
 			$length = $size;
 		}
-		if ($size < self::trim_maximum_file_size()) {
+		if ($size < self::trimMaximumFileSize($application)) {
 			$result = file_put_contents($path, substr(file_get_contents($path), $offset, $length));
 			if ($result === false) {
 				return false;
@@ -968,7 +1000,7 @@ class File {
 			throw new Exception_File_Create($path);
 		}
 		fseek($r, $offset);
-		$read_buffer_size = self::trim_read_buffer_size();
+		$read_buffer_size = self::trimReadBufferSize($application);
 		$remain = $length;
 		while (!feof($r)) {
 			$read_size = min($remain, $read_buffer_size);

@@ -52,7 +52,7 @@ abstract class Version {
 	 * @return string
 	 */
 	private static function _file(string $name, string $default): string {
-		$root = dirname(__DIR__);
+		$root = dirname(__DIR__, 2);
 		return trim(File::contents(Directory::path($root, $name)) ?? $default);
 	}
 

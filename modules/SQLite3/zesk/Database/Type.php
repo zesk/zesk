@@ -114,9 +114,9 @@ class Database_Type extends Database_Data_Type {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see zesk\Database::sql_type_default()
+	 * @see Database::sql_type_default()
 	 */
-	public function sql_type_default(string $type, mixed $default_value = null): mixed {
+	public function sql_type_default(string $type, mixed $default_value = null): float|int|null|string {
 		//echo "sql_type_default($type, "._dump($default_value) . ")\n";
 		$newtype = $this->native_type_to_sql_type($type, $type);
 		//echo "$newtype = $this->native_type_to_sql_type($type, $type)\n";
@@ -131,7 +131,6 @@ class Database_Type extends Database_Data_Type {
 				return intval($default_value);
 			case self::SQL_TYPE_DOUBLE:
 				return floatval($default_value);
-				return toBool($default_value, false);
 			case self::SQL_TYPE_DATETIME:
 				if ($default_value === 0 || $default_value === '0') {
 					return '0000-00-00 00:00:00';

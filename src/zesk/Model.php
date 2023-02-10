@@ -174,7 +174,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @param mixed $offset
 	 * @return boolean
 	 */
-	public function offsetExists($offset): bool {
+	public function offsetExists(mixed $offset): bool {
 		return $this->__isset(toKey($offset));
 	}
 
@@ -184,7 +184,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @param mixed $offset
 	 * @return mixed
 	 */
-	public function offsetGet($offset): mixed {
+	public function offsetGet(mixed $offset): mixed {
 		return $this->__get(toKey($offset));
 	}
 
@@ -195,7 +195,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @param mixed $value
 	 * @return void
 	 */
-	public function offsetSet($offset, mixed $value): void {
+	public function offsetSet(mixed $offset, mixed $value): void {
 		$this->__set(toKey($offset), $value);
 	}
 
@@ -205,7 +205,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @param mixed $offset
 	 * @return void
 	 */
-	public function offsetUnset($offset): void {
+	public function offsetUnset(mixed $offset): void {
 		$this->__unset(toKey($offset));
 	}
 
@@ -272,10 +272,10 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	/**
 	 * Does this model have a member?
 	 *
-	 * @param string $member
+	 * @param int|string $member
 	 * @return boolean For a list, if ANY member exists, returns true.
 	 */
-	public function has(string $member): bool {
+	public function has(int|string $member): bool {
 		return $this->__isset($member);
 	}
 
@@ -313,17 +313,16 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get(string $key): mixed {
+	public function __get(int|string $key): mixed {
 		return $this->$key ?? null;
 	}
 
 	/**
 	 *
-	 * {@inheritdoc}
 	 *
 	 * @see Options::__set()
 	 */
-	public function __set(string $key, mixed $value): void {
+	public function __set(int|string $key, mixed $value): void {
 		try {
 			$this->$key = $value;
 			$this->_initialized = true;
@@ -338,7 +337,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 *
 	 * @param string $key
 	 */
-	public function __unset(string $key): void {
+	public function __unset(int|string $key): void {
 		try {
 			unset($this->$key);
 		} catch (TypeError) {

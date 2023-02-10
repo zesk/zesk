@@ -320,7 +320,7 @@ class Lock extends ORMBase {
 	 *
 	 * @param string $code
 	 */
-	private static function _create_lock(Application $application, $code) {
+	private static function _create_lock(Application $application, string $code) {
 		$lock = $application->ormFactory(__CLASS__, [
 			'code' => $code,
 		]);
@@ -415,7 +415,7 @@ class Lock extends ORMBase {
 	 * @param int $timeout
 	 * @throws Exception_Timeout
 	 */
-	private function _acquire($timeout) {
+	private function _acquire(int $timeout): void {
 		$timer = new Timer();
 		// Defaults to 0.5 seconds
 		$sleep = $this->optionFloat('sleep_seconds', 0.5);
@@ -433,7 +433,7 @@ class Lock extends ORMBase {
 			}
 			if ($this->_is_free()) {
 				if ($this->_acquireOnce()) {
-					return $this;
+					return;
 				}
 			} else {
 				if (!$this->fetch()->_isLocked()) {

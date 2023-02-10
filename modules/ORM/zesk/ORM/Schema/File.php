@@ -175,7 +175,7 @@ class Schema_File extends Schema {
 		}
 		$all_searches = array_merge($all_searches, $searches);
 		// Old-style way of finding - deprecate the template_schema_paths method
-		$file = $class_object->schema_file ? $class_object->schema_file : $class_object->class . '.sql';
+		$file = $class_object->schema_file ?: $class_object->class . '.sql';
 		$this->searched = $all_searches;
 		return null;
 	}

@@ -73,7 +73,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @param ORMBase $parent
 	 * @param string $member
-	 * @return \zesk\ORM_Iterator
+	 * @return ORMIterator
 	 */
 	public function set_parent(ORMBase $parent, string $member = '') : self {
 		$this->db->application->deprecated('set_parent');
@@ -84,7 +84,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @param ORMBase $parent
 	 * @param string $member
-	 * @return \zesk\ORM_Iterator
+	 * @return ORMIterator
 	 */
 	public function setParent(ORMBase $parent, string $member = ''): self {
 		$this->parent = $parent;

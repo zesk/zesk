@@ -59,11 +59,10 @@ class POPIterator implements Iterator {
 	/**
 	 * If filename supplied, number of bytes written. If not, string of data read.
 	 *
-	 * @param string $filename Optional filename
-	 * @return number|string
+	 * @return string
 	 */
-	public function currentRetrieve(string $filename) {
-		return $this->client->message_retrieve($this->key(), $filename);
+	public function currentRetrieve(): string {
+		return $this->client->message_retrieve($this->key());
 	}
 
 	/**
@@ -73,7 +72,7 @@ class POPIterator implements Iterator {
 		$this->client->message_delete($this->key());
 	}
 
-	public function key() {
+	public function key(): int|string {
 		return key($this->messages_list);
 	}
 
@@ -82,7 +81,7 @@ class POPIterator implements Iterator {
 		$this->message_headers = null;
 	}
 
-	public function valid() {
+	public function valid(): bool {
 		return $this->valid;
 	}
 

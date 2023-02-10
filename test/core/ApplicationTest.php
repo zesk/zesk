@@ -198,7 +198,6 @@ class ApplicationTest extends TestApplicationUnitTest {
 
 
 		/* autoloadPath */
-		$paths = [];
 		$this->assertEquals($paths, array_keys($newApplication->autoloadPath()));
 
 		$newApplication->modules->loadMultiple(['PHPUnit', 'MySQL', 'Database']);

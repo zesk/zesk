@@ -205,7 +205,7 @@ class Kernel_Test extends UnitTest {
 		$this->assertEquals($expected, $autoloader->search($class, $extensions, $tried_path));
 	}
 
-	public function data_autoloadSearch(): array {
+	public static function data_autoloadSearch(): array {
 		return [
 			//			[ZESK_ROOT . 'zesk/Kernel.php', Kernel::class, ['php'], []],
 			//			[ZESK_ROOT . 'zesk/Controller/Theme.php', Controller_Theme::class, ['php', 'sql'], []],
@@ -257,7 +257,7 @@ class Kernel_Test extends UnitTest {
 	 * @param string $expected
 	 */
 	public function test_clean_class($name, $expected): void {
-		$result = PHP::clean_class($name);
+		$result = PHP::cleanClass($name);
 		$this->assertEquals($result, $expected, "PHP::clean_class($name) = $result !== $expected");
 	}
 
@@ -336,7 +336,7 @@ class Kernel_Test extends UnitTest {
 	/**
 	 *
 	 */
-	public function data_has(): array {
+	public static function data_has(): array {
 		return [
 			[true, Application::class], [true, [Application::class, 'modules']], [true, Kernel::class], [
 				true, [Application::class, Application::OPTION_HOME_PATH],
@@ -355,7 +355,7 @@ class Kernel_Test extends UnitTest {
 	/**
 	 * @return array[]
 	 */
-	public function data_hasHook(): array {
+	public static function data_hasHook(): array {
 		return [
 			[true, Hooks::HOOK_EXIT], [true, Hooks::HOOK_CONFIGURED], [false, 'HOME'], [false, md5('HOME')],
 			[false, '0192830128301283123'],
@@ -430,7 +430,7 @@ class Kernel_Test extends UnitTest {
 		$this->assertEquals('bracketsNoCase', map('{what}', ['What' => 'bracketsNoCase'], true));
 	}
 
-	public function data_map(): array {
+	public static function data_map(): array {
 		return [
 			['ala{B}{c}{C}[D][d]', '{a}{B}{c}{C}[D][d]', ['a' => 'ala'], false, '{', '}'],
 			['ala{b}{c}{c}[D][d]', '{a}{B}{c}{C}[D][d]', ['a' => 'ala'], true, '{', '}'],
@@ -466,7 +466,7 @@ class Kernel_Test extends UnitTest {
 		$this->assertEquals($expected, mapClean($test, $prefix, $suffix));
 	}
 
-	public function data_mapClean(): array {
+	public static function data_mapClean(): array {
 		return [
 			['He wanted  [days]', 'He wanted {n} [days]', '{', '}', ],
 			['He wanted {n} ', 'He wanted {n} [days]', '[', ']', ],
@@ -513,7 +513,7 @@ class Kernel_Test extends UnitTest {
 		$this->application->documentRoot();
 	}
 
-	public function data_document_root_prefix(): array {
+	public static function data_document_root_prefix(): array {
 		return [
 			['/foobar', '/foobar'], ['foobar', 'foobar'], ['', ''], ['antidis', 'antidis/'], ['antidis', 'antidis////'],
 		];

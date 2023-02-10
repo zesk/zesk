@@ -12,6 +12,7 @@ namespace zesk\Login;
 use zesk\Controller as zeskController;
 use zesk\Exception_Authentication;
 use zesk\Exception_Key;
+use zesk\Exception_Semantics;
 use zesk\Exception_Unsupported;
 use zesk\HTTP;
 use zesk\ORM\Exception_ORMNotFound;
@@ -114,7 +115,7 @@ class Controller extends zeskController {
 			$user->authenticated($request, $response);
 
 			$data = toArray($user->callHookArguments('loginSuccess', [$this], []));
-			$response->json()->appendData([
+			return $response->json()->appendData([
 				'authenticated' => true, 'user' => $user->id(),
 			] + $data + $this->_baseResponseData());
 		} catch (Exception_Authentication $e) {
@@ -131,7 +132,7 @@ class Controller extends zeskController {
 	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
-	 * @throws \zesk\Exception_Semantics
+	 * @throws Exception_Semantics
 	 */
 	public function action_DELETE_index(Request $request, Response $response): Response {
 		$this->callHook('logout');
