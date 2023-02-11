@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  * Session object is a more powerful, multi-server, database session storage.
  * Dates and times are stored using UTC.

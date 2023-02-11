@@ -12,7 +12,7 @@ namespace zesk;
  *
  */
 class Lists_Test extends UnitTest {
-	public function append_data_provider() {
+	public static function data_append_data_provider(): array {
 		$lists = [
 			[
 				'a',
@@ -101,7 +101,7 @@ class Lists_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider append_data_provider
+	 * @dataProvider data_append_data_provider
 	 */
 	public function test_append($list, $add, $sep, $expected): void {
 		$actual = Lists::append($list, $add, $sep);
@@ -110,7 +110,7 @@ class Lists_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider append_data_provider
+	 * @dataProvider data_append_data_provider
 	 */
 	public function test_appendUnique($list, $add, $sep, $expected): void {
 		if (is_array($expected)) {

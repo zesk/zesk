@@ -37,7 +37,7 @@ Server: false
 Session: false
 World: false';
 
-	private function commandTestArguments(): array {
+	private static function commandTestArguments(): array {
 		return [
 			Command_Arguments::class => [
 				[['a', 'b', 'c'], 0, "[\"a\",\"b\",\"c\"]\n"], [['a', 'b', 'dee'], 0, "[\"a\",\"b\",\"dee\"]\n"],
@@ -75,8 +75,8 @@ World: false';
 				], [[], 0, "This is a maintenance message\n"], [['true'], 0, "Maintenance enabled\n"], [[], 0, ''],
 				[['false'], 0, "Maintenance disabled\n"], [[], 1, ''],
 			], Command_Licenses::class => [
-				[[], 0, ''], [['--all'], 0, File::contents($this->application->path('test/test-data/license.txt'))],
-				[['--all', '--json'], 0, File::contents($this->application->path('test/test-data/license.json'))],
+				[[], 0, ''], [['--all'], 0, File::contents(self::applicationPath('test/test-data/license.txt'))],
+				[['--all', '--json'], 0, File::contents(self::applicationPath('test/test-data/license.json'))],
 			], Command_CWD::class => [
 				[[], 0, "/zesk/\n"],
 			], Command_Configuration::class => [
@@ -87,7 +87,7 @@ World: false';
 			], Command_Globals::class => [
 				[[], 0, '#debug-logger-config#'], [['testsettings'], 0, ''],
 				[['--format', 'json', 'testsettings'], 0, '[]'],
-				[['testSettings'], 0, File::contents($this->application->path('test/test-data/testSettings.txt'))],
+				[['testSettings'], 0, File::contents(self::applicationPath('test/test-data/testSettings.txt'))],
 			], Command_Gremlins::class => [
 				[[], 0, "#/zesk/bin/zesk-command\.php#"],
 			], Command_Help::class => [
@@ -99,47 +99,30 @@ World: false';
 			], Command_Info::class => [
 				[['--format', 'json', '--computer-labels'], 0, '#version\": \"1\.0\.0#'],
 			], Command_CONF2JSON::class => [
-				[['--directory', $this->application->path('test/test-data/conf2json')], 0, ''],
-				[['--directory', $this->application->path('test/test-data/conf2json')], 0, ''],
-				[['--directory', $this->application->path('test/test-data/conf2json'), '--noclobber'], 0, '#Will not overwrite#'],
+				[['--directory', self::applicationPath('test/test-data/conf2json')], 0, ''],
+				[['--directory', self::applicationPath('test/test-data/conf2json')], 0, ''],
+				[['--directory', self::applicationPath('test/test-data/conf2json'), '--noclobber'], 0, '#Will not overwrite#'],
+			],
+			Command_Module_Version::class => [
+				[[], 0, "Database: none\nMySQL: none\n"],
+				[['Database'], 0, "Database: none\n"],
+			],
+			Command_Cannon::class => [
+				[
+					['--dir', './test/test-data/cannon', '--dry-run', '--extensions', 'test', 'Foo', 'Blaze'],
+					0,
+					File::contents(self::applicationPath('test/test-data/cannon/foo-result.txt')),
+				],
 			],
 		];
 	}
 
 	/**
-	 * @throws ReflectionException
-	 * @throws Exception_Parameter
+	 *
 	 */
-	public function dataIncludeClasses(): array {
-		$this->setUp();
-		$this->testApplication->configure();
-		Directory::depend($this->testApplication->path('etc'));
-		File::unlink($this->testApplication->path('etc/version.json'));
-		File::unlink($this->testApplication->path('etc/version-schema.json'));
-
-		$results = [];
-		$zeskCommandPath = $this->testApplication->zeskCommandPath();
-		$this->assertNotCount(0, $zeskCommandPath);
-		foreach ($zeskCommandPath as $path) {
-			$files = Directory::listRecursive($path, [
-				Directory::LIST_RULE_FILE => ["/\.php$/" => true], Directory::LIST_RULE_DIRECTORY_WALK => [
-					'/\\\./' => false, true,
-				], Directory::LIST_ADD_PATH => true,
-			]);
-			foreach ($files as $file) {
-				require_once($file);
-			}
-		}
-		$commandTestArguments = $this->commandTestArguments();
-		/* For Version tests */
-		$this->testApplication->classes->register(get_declared_classes());
+	public static function dataIncludeClasses(): array {
 		$result = [];
-		foreach ($this->testApplication->classes->subclasses(Command::class) as $class) {
-			$reflectionClass = new ReflectionClass($class);
-			if ($reflectionClass->isAbstract()) {
-				continue;
-			}
-			$commandTests = $commandTestArguments[$class] ?? [[[], 0, '']];
+		foreach (self::commandTestArguments() as $class => $commandTests) {
 			foreach ($commandTests as $commandTest) {
 				[$testArguments, $expectedStatus, $expectedOutput] = $commandTest;
 				$result[] = [$class, $testArguments, $expectedStatus, $expectedOutput];
@@ -157,6 +140,10 @@ World: false';
 	 */
 	public function test_command(string $class, array $testArguments, int $expectedStatus, string $expectedOutput): void {
 		$this->testApplication->configure();
+		Directory::depend($this->testApplication->path('etc'));
+		File::unlink($this->testApplication->path('etc/version.json'));
+		File::unlink($this->testApplication->path('etc/version-schema.json'));
+
 		$this->assertCommandClass($class, $testArguments, $expectedStatus, $expectedOutput);
 	}
 

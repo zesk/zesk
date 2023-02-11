@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /* @var $this \zesk\Template */
 /* @var $application \zesk\Application */
 /* @var $locale \zesk\Locale */

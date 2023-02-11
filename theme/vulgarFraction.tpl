@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * Output a number plus a fractional symbol which represents the closest value to the fractional portion.
  *

@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/command/check.php $
  * @package zesk
@@ -36,8 +35,11 @@ class Command_Check extends Command_Iterator_File {
 	 */
 	protected array $prefixes = [
 		'php' => [
-			"<?php\n/**\n", "#!{php_bin_path}\n<?php\n/**\n",
-		], 'inc' => "<?php\n/**\n", 'tpl' => "<?php\n",
+			'<?' . "php\ndeclare(strict_types=1);\n/**\n",
+			"#!{php_bin_path}\n<?php\ndeclare(strict_types=1);\n/**\n",
+		],
+		'inc' => '<?' . "php\n/**\n",
+		'tpl' => '<?' . "php\n",
 		//		"phpt" => "#!{php_bin_path}\n<?php\n"
 	];
 
@@ -47,9 +49,9 @@ class Command_Check extends Command_Iterator_File {
 	 */
 	protected array $prefixes_gremlins = [
 		'php' => [
-			"<?php\n", "<?php \n", "#!{php_bin_path}\n<?php\n",
-		], 'tpl' => "<?php\n", 'inc' => [
-			"<?php\n", "<?php \n",
+			'<?' . "php\n", '<?' . "php \n", "#!{php_bin_path}\n<?php\n",
+		], 'tpl' => '<?' . "php\n", 'inc' => [
+			'<?' . "php\n", '<?' . "php \n",
 		],
 		//		"phpt" => "#!{php_bin_path}\n<?php\n"
 	];

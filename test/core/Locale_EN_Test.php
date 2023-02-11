@@ -49,7 +49,7 @@ class Locale_EN_Test extends UnitTest {
 		$this->assertEquals($testx->plural_number($s, $n), '3 words');
 	}
 
-	public function ordinal_tests() {
+	public static function data_ordinal_tests(): array {
 		return [
 			[
 				1,
@@ -103,7 +103,7 @@ class Locale_EN_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider ordinal_tests
+	 * @dataProvider data_ordinal_tests
 	 */
 	public function test_ordinal(int $input, string $result): void {
 		$testx = $this->application->localeRegistry('en');

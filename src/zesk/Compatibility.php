@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * Place functions needed to maintain compatibility with previous versions of PHP
  *

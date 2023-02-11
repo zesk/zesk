@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  * Base class for all exceptions in Zesk.
  * Maybe add some tracking/reporting or some other functionality to it later.

@@ -1,5 +1,5 @@
-<?php declare(strict_types=1);
-
+<?php
+declare(strict_types=1);
 /**
  * Run through all classes and ensure they are installed correctly
  * Walks through the dependencies of classes using ORM::dependencies and ensures all 'requires' values are

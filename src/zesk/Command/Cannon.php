@@ -1,6 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
- *
+ * @package zesk
+ * @subpackage Command
+ * @copyright @copy; 2023 Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -232,7 +235,7 @@ class Command_Cannon extends Command_Base {
 		$replace_tr = [
 			$rabbit => $replace,
 		];
-
+		$sameLength = strlen($search) === strlen($replace);
 		$lines = explode("\n", strtr($contents, $search_tr));
 		foreach ($lines as $lineno => $line) {
 			if (!str_contains($line, $rabbit)) {
@@ -242,19 +245,26 @@ class Command_Cannon extends Command_Base {
 		$locale = $this->application->locale;
 		if ($dry_run || $show) {
 			echo "$file: " . $locale->plural_word('match', count($lines)) . "\n";
-			$carrots_tr = [
+			$carrotSearch = [
+				$rabbit => str_repeat('^', strlen($search)),
+			];
+			$carrotReplace = [
 				$rabbit => str_repeat('^', strlen($replace)),
 			];
 			foreach ($lines as $lineno => $line) {
 				$line = strtr($line, [
 					"\t" => '    ',
 				]);
-				echo Text::rightAlign($lineno + 1, 4) . ': ' . strtr($line, [
+				$carrot_line = preg_replace("#[^$rabbit]#", ' ', $line);
+
+				echo Text::rightAlign(strval($lineno + 1), 4) . ': ' . strtr($line, [
 					$rabbit => $search,
 				]) . "\n";
-				echo Text::rightAlign($lineno + 1, 4) . ': ' . strtr($line, $replace_tr) . "\n";
-				$carrot_line = preg_replace("#[^$rabbit]#", ' ', $line);
-				echo Text::rightAlign('', 4) . '  Cannon.php' . strtr($carrot_line, $carrots_tr) . "\n";
+				if (!$sameLength) {
+					echo Text::rightAlign('', 4) . '  ' . strtr($carrot_line, $carrotSearch) . "\n";
+				}
+				echo Text::rightAlign(strval($lineno + 1), 4) . ': ' . strtr($line, $replace_tr) . "\n";
+				echo Text::rightAlign('', 4) . '  ' . strtr($carrot_line, $carrotReplace) . "\n";
 			}
 			return count($lines);
 		}

@@ -27,7 +27,7 @@ class CommandLoaderFactory {
 		/* Basic autoloader */
 		require_once $here . '/autoload.php';
 		/* functions for all */
-		require_once $here . 'zesk/functions.php';
+		require_once $here . 'src/zesk/functions.php';
 
 		/**
 		 * Run a zesk command and exit

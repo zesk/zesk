@@ -58,6 +58,15 @@ class TestApplicationUnitTest extends UnitTest {
 	}
 
 	/**
+	 * @param string $path
+	 * @return string
+	 */
+	public static function applicationPath(string $path = ''): string {
+		$appRoot = dirname(__DIR__, 2);
+		return path($appRoot, $path);
+	}
+
+	/**
 	 * @param string $class
 	 * @param array $testArguments
 	 * @param int $expectedStatus

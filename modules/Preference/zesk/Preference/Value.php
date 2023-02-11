@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  * @version $Id: Preference.php 4555 2017-04-06 18:32:10Z kent $
  * @package zesk

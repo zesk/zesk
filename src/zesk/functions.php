@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  * Things that should probably just be in PHP, or were added after we added these. Review
  * annually to see if we can deprecate functionality.

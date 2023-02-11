@@ -174,7 +174,7 @@ class Locale_Test extends UnitTest {
 	 *
 	 * @return Locale[]
 	 */
-	public static function data_en_locales() {
+	public static function data_en_locales(): array {
 		return self::to_locale_list('en;en_US;en_GB;en_CA');
 	}
 
@@ -183,12 +183,12 @@ class Locale_Test extends UnitTest {
 	 *
 	 * @return Locale[]
 	 */
-	public function locales() {
-		return $this->to_locale_list('en_US;en_GB;fr_FR;de_DE;es_ES');
+	public static function data_locales(): array {
+		return self::to_locale_list('en_US;en_GB;fr_FR;de_DE;es_ES');
 	}
 
 	/**
-	 * @dataProvider locales
+	 * @dataProvider data_locales
 	 * @param Locale $locale
 	 */
 	public function test_date_format(Locale $locale): void {
@@ -196,7 +196,7 @@ class Locale_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider locales
+	 * @dataProvider data_locales
 	 * @param Locale $locale
 	 */
 	public function test_datetime_format(Locale $locale): void {
@@ -204,7 +204,7 @@ class Locale_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider locales
+	 * @dataProvider data_locales
 	 * @param Locale $locale
 	 */
 	public function test_parse_dialect(Locale $locale): void {
@@ -468,7 +468,7 @@ class Locale_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider locales
+	 * @dataProvider data_locales
 	 */
 	public function test_time_format(Locale $locale): void {
 		$include_seconds = false;
@@ -476,7 +476,7 @@ class Locale_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider locales
+	 * @dataProvider data_locales
 	 * @param Locale $locale
 	 */
 	public function test_translate(Locale $locale): void {

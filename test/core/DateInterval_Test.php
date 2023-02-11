@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
-
+/**
+ * @copyright &copy; 2023 Market Acumen, Inc.
+ * @package zesk
+ * @subpackage test
+ */
 namespace zesk;
 
 class DateInterval_Test extends UnitTest {
@@ -12,7 +16,7 @@ class DateInterval_Test extends UnitTest {
 
 	public static function data_extend(): array {
 		$result = [];
-		foreach ($this->data_sample_interval_row() as $sample_interval_row) {
+		foreach (self::data_sample_interval_row() as $sample_interval_row) {
 			$sample_interval = $sample_interval_row[0];
 			$result[] = [new DateInterval($sample_interval), new \DateInterval($sample_interval)];
 		}
@@ -35,6 +39,7 @@ class DateInterval_Test extends UnitTest {
 	 * @param string $input
 	 * @return void
 	 * @dataProvider data_toSeconds
+	 * @throws \Exception
 	 */
 	public function test_toSeconds(string $input, float $expected): void {
 		$this->assertEquals($expected, DateInterval::factory($input)->toSeconds(), "DateInterval::toSeconds($input)");

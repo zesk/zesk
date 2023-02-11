@@ -217,7 +217,7 @@ class Kernel_Test extends UnitTest {
 		];
 	}
 
-	public function provider_clean_function() {
+	public static function data_provider_clean_function(): array {
 		return [
 			[
 				'', '',
@@ -230,7 +230,7 @@ class Kernel_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider provider_clean_function
+	 * @dataProvider data_provider_clean_function
 	 *
 	 * @param string $name
 	 * @param string $expected
@@ -240,7 +240,7 @@ class Kernel_Test extends UnitTest {
 		$this->assertEquals($result, $expected, 'PHP::cleanFunction');
 	}
 
-	public function provider_clean_class() {
+	public static function data_provider_clean_class(): array {
 		return [
 			[
 				'', '',
@@ -251,7 +251,7 @@ class Kernel_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider provider_clean_class
+	 * @dataProvider data_provider_clean_class
 	 *
 	 * @param string $name
 	 * @param string $expected

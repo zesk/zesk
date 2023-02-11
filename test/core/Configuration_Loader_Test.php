@@ -199,7 +199,7 @@ class Configuration_Loader_Test extends UnitTest {
 		$this->assertEquals(0, count($actual));
 	}
 
-	public function provider_test_no_dependencies() {
+	public static function data_provider_test_no_dependencies(): array {
 		$dir = dirname(__DIR__) . '/test-data/';
 		return [
 			[
@@ -217,7 +217,7 @@ class Configuration_Loader_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider provider_test_no_dependencies
+	 * @dataProvider data_provider_test_no_dependencies
 	 * @param array $files
 	 */
 	public function test_no_dependencies(array $files): void {

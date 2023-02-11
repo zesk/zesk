@@ -92,7 +92,7 @@ class Directory_Test extends UnitTest {
 		Directory::delete($path);
 	}
 
-	public function undot_examples() {
+	public static function data_undot_examples() {
 		return [
 			[
 				'/path/to/foo', '/path/to/a/file/../../foo',
@@ -105,7 +105,7 @@ class Directory_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider undot_examples
+	 * @dataProvider data_undot_examples
 	 */
 	public function test_undot(?string $expect, string $name): void {
 		if ($expect === null) {
@@ -135,7 +135,7 @@ class Directory_Test extends UnitTest {
 		$this->assertTrue(in_array('test/core/Directory_Test.php', $results));
 	}
 
-	public function strip_slash_data(): array {
+	public static function data_stripSlash(): array {
 		return [
 			['foo///', 'foo'], ['/a/way/to/go/to/the/place/', '/a/way/to/go/to/the/place'], ['quality', 'quality'],
 			['', ''],
@@ -146,7 +146,7 @@ class Directory_Test extends UnitTest {
 	 * @param string $string
 	 * @param string $expected
 	 * @return void
-	 * @dataProvider strip_slash_data
+	 * @dataProvider data_stripSlash
 	 */
 	public function test_strip_slash(string $string, string $expected): void {
 		$this->assertEquals($expected, Directory::stripSlash($string));

@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @version $Id: Preference.php 4412 2017-03-08 05:16:44Z kent $
  * @package zesk

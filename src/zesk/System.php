@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  * Integration with operating system. Host name, process ID, system services, load averages, volume info.
  *

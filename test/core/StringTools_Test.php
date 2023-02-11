@@ -114,9 +114,9 @@ class StringTools_Test extends UnitTest {
 		$this->assertEquals($expected, StringTools::case_match($string, $pattern));
 	}
 
-	public function data_ellipsis_word(): array {
+	public static function data_ellipsis_word(): array {
 		$n = 20;
-		$random_string = $this->randomHex($n);
+		$random_string = self::randomHex($n);
 		return [
 			[$random_string, -1, '...', $random_string],
 			[$random_string, $n - 1, '!', substr($random_string, 0, -1) . '!'],
@@ -282,7 +282,7 @@ class StringTools_Test extends UnitTest {
 		$this->assertFalse(StringTools::isASCII($str));
 	}
 
-	public function is_utf16_data(): array {
+	public static function data_is_utf16(): array {
 		return [
 			[chr(0xFF) . chr(0xFE) . 'is this utf16', true, false],
 			[chr(0xFE) . chr(0xFF) . 'is this utf16', true, true],
@@ -380,7 +380,7 @@ class StringTools_Test extends UnitTest {
 		$this->assertEquals($isutf8, StringTools::isUTF8($content));
 	}
 
-	public function left_data(): array {
+	public static function data_left(): array {
 		return [
 			['haystack to find that thing', 'that', 'default', 'haystack to find '],
 			['haystack to find that thing', 'that', null, 'haystack to find '],

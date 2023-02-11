@@ -13,6 +13,10 @@ class Commands_Test extends UnitTest {
 	 */
 	protected array $load_modules = ['ORM'];
 
+	/**
+	 * @return void
+	 * @throws \zesk\Exception_Class_NotFound
+	 */
 	public function test_commands(): void {
 		$classes = [
 			Command_ClassCheck::class,

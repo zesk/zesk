@@ -98,7 +98,13 @@ consoleReset
 
 [ -d "$top/.composer" ] || mkdir "$top/.composer"
 
-vendorArgs=("-v" "$top:/app" "-v" "$top/.composer:/tmp" "composer:latest" i "--ignore-platform-req=ext-calendar")
+vendorArgs=()
+vendorArgs+=("-v" "$top:/app")
+vendorArgs+=("-v" "$top/.composer:/tmp")
+vendorArgs+=("composer:latest")
+vendorArgs+=("--ignore-platform-req=ext-calendar")
+vendorArgs+=("--ignore-platform-req=ext-pcntl")
+vendorArgs+=("install")
 
 start=$(($(date +%s) + 0))
 if test $clean; then

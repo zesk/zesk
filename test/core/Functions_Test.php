@@ -120,33 +120,34 @@ class Functions_Test extends UnitTest {
 		$this->assertEquals(2, $this->_backtrace_ob(2));
 	}
 
-	public function bad_dates() {
+	public static function data_bad_dates(): array {
 		return [
 			[''],
+			[-1],
 		];
 	}
 
-	public function good_dates() {
+	public static function data_good_dates(): array {
 		return [
 			['2012-10-15'], ['today'], ['next Tuesday'], ['+3 days'], ['October 15th, 2012'],
 		];
 	}
 
 	/**
-	 * @dataProvider good_dates
+	 * @dataProvider data_good_dates
 	 */
 	public function test_is_date($good_date): void {
 		$this->assertTrue(is_date($good_date));
 	}
 
 	/**
-	 * @dataProvider bad_dates
+	 * @dataProvider data_bad_dates
 	 */
 	public function test_is_date_not($bad_date): void {
 		$this->assertFalse(is_date($bad_date));
 	}
 
-	public function is_email_data() {
+	public static function data_isEmail(): array {
 		return [
 			[
 				'info@conversionruler.com',
@@ -162,7 +163,7 @@ class Functions_Test extends UnitTest {
 		];
 	}
 
-	public function not_is_email_data() {
+	public static function data_not_is_email(): array {
 		return [
 			[
 				'info@conversion$ruler.com',
@@ -175,14 +176,14 @@ class Functions_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider is_email_data
+	 * @dataProvider data_isEmail
 	 */
 	public function test_is_email($email): void {
 		$this->assertTrue(is_email($email), "is_email($email)");
 	}
 
 	/**
-	 * @dataProvider not_is_email_data
+	 * @dataProvider data_not_is_email
 	 */
 	public function test_is_not_email($email): void {
 		$this->assertFalse(is_email($email), "is_email($email)");
@@ -241,7 +242,7 @@ class Functions_Test extends UnitTest {
 		];
 	}
 
-	public static function data_toList() {
+	public static function data_toList(): array {
 		return [
 			['1,2,3', [], ',', ['1', '2', '3']],
 		];
@@ -473,7 +474,7 @@ EOF;
 
 		$foo = map($test, []);
 
-		$sandbox = $this->test_sandbox();
+		//$sandbox = $this->test_sandbox();
 		// file_put_contents("$sandbox/function.map.0.txt", $foo);
 		// file_put_contents("$sandbox/function.map.1.txt", $test);
 		$this->assertEquals($foo, $test);

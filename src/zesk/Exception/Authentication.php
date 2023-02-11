@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Exception/Authentication.php $

@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 namespace zesk;
 
 /**
@@ -21,11 +22,11 @@ class Command_Module_Version extends Command_Base {
 		$app = $this->application;
 		$modules = $this->argumentsRemaining();
 		if (count($modules) === 0) {
-			$modules = array_keys($app->modules->moduleNames());
+			$modules = $app->modules->moduleNames();
 		}
 		$exit = self::EXIT_CODE_SUCCESS;
 		foreach ($modules as $module) {
-			$this->verboseLog('Checking module {module}', compact('module'));
+			$this->verboseLog('Checking module {module}', ['module' => $module]);
 
 			try {
 				$version = $app->modules->module($module)->version();

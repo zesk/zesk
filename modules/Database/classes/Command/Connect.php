@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  *
  * @copyright &copy; 2023, Market Acumen, Inc.

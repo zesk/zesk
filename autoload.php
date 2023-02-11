@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  * Loads Zesk and allows access to all functionality. Does not create an application.
  *

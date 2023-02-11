@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 namespace zesk;
 
 class Progress_NULL implements Interface_Progress {

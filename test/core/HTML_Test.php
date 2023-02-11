@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  *
  */
@@ -151,7 +150,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals('<a hey="99" href="boo" />', HTML::a('boo', ['hey' => 99]));
 	}
 
-	public function dataprovider_request(): array {
+	public static function dataprovider_request(): array {
 		$test = $this;
 		return [
 			[function () use ($test) {
@@ -191,7 +190,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals('<a href="/">Hello world</a>', HTML::clean_style_attributes($base, ['background-url'], ['background-url']));
 	}
 
-	public function dataCleanTags() {
+	public static function dataCleanTags() {
 		$simple_html = '<a href="/"><strong>Bold</strong><em>Italic</em><p>Paragraphs</p></a><h1>Heading</h1><h2>Another Heading</h2>';
 		return [
 			[
@@ -223,7 +222,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::cleanTags($string, $allowed_tags, $remove_tags), 'HTML::clean_tags');
 	}
 
-	public function dataCleanTagAttributes() {
+	public static function dataCleanTagAttributes() {
 		return [
 			['<a class="dude">Link</a>', [], ['class'], '<a>Link</a>'],
 		];
@@ -237,7 +236,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::cleanTagsAttributes($string, $include, $exclude), 'HTML::clean_tags_attributes');
 	}
 
-	public function dataCleanTagsWithoutAttributes() {
+	public static function dataCleanTagsWithoutAttributes() {
 		return [
 			['<a href=\'dude\'>Link</a>', ['a'], '<a href=\'dude\'>Link</a>'],
 			['<a href=\'dude\'>Link</a>Nolink', ['a'], '<a href=\'dude\'>Link</a><a>Nolink</a>'],
@@ -255,7 +254,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::cleanTagsWithoutAttributes($tags, $html));
 	}
 
-	public function dataCountEndTags(): array {
+	public static function dataCountEndTags(): array {
 		return [
 			[
 				0,
@@ -296,7 +295,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals('<div class="hello world">Dude</div>', HTML::div('.hello world', 'Dude'));
 	}
 
-	public function dataEllipsis(): array {
+	public static function dataEllipsis(): array {
 		return [
 			[
 				'<a href="link.gif">this is a word with </a> ...',
@@ -364,7 +363,6 @@ class HTML_Test extends UnitTest {
 	}
 
 	public function test_extract_links(): void {
-		$content = null;
 		HTML::extract_links('Goo <a href="dude">Dude</a>');
 	}
 

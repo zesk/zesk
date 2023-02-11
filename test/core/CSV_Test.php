@@ -20,7 +20,7 @@ class CSV_Test extends UnitTest {
 	/**
 	 * @return array
 	 */
-	public function quote_data(): array {
+	public static function data_quote(): array {
 		return [
 			['foo', 'foo'], ["fo\no", "\"fo\no\""], ['fo"o', '"fo""o"'],
 		];
@@ -30,7 +30,7 @@ class CSV_Test extends UnitTest {
 	 * @param string $item
 	 * @param string $expected
 	 * @return void
-	 * @dataProvider quote_data
+	 * @dataProvider data_quote
 	 */
 	public function test_quote(string $item, string $expected): void {
 		$this->assertEquals($expected, StringTools::csvQuote($item));

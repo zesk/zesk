@@ -55,9 +55,7 @@ class JSON_Test extends UnitTest {
 
 			public int $id = 1232;
 		};
-		$this->assertEquals(['yes' => 'works'], $thing1->doit());
-		$this->assertEquals(['param' => 'yo'], $thing1->doit_again('yo'));
-		$random_string = $this->randomHex(16);
+		$random_string = self::randomHex(16);
 		return [
 			[null, null, [], []], [[], [], [], []], [['a'], ['a'], [], []], [['a' => 'b'], ['a' => 'b'], [], []],
 			[['yes' => 'works'], $thing1, ['doit'], []], [['param' => 'a'], $thing1, ['doit_again'], ['a']],
@@ -232,7 +230,7 @@ class JSON_Test extends UnitTest {
 		$this->assertEquals($expected, JSON::valid_member_name($name));
 	}
 
-	public function internal_values(): array {
+	public static function data_internal_values(): array {
 		$obj = new stdClass();
 		$obj->foo = 'foo';
 		$obj->_thing_to_save = [
@@ -266,7 +264,7 @@ class JSON_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider internal_values
+	 * @dataProvider data_internal_values
 	 * @param mixed $mixed
 	 * @return void
 	 * @throws Exception_Semantics
