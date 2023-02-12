@@ -485,7 +485,7 @@ class Mail extends Hookable {
 				return;
 			}
 		}
-		fwrite(self::$fp, Text::format_pairs($headers) . "\n" . $body . "\n\n");
+		fwrite(self::$fp, Text::formatPairs($headers) . "\n" . $body . "\n\n");
 	}
 
 	/**
@@ -542,7 +542,7 @@ class Mail extends Hookable {
 	 * @throws Exception_Syntax
 	 */
 	public static function mailArray(Application $application, string $to, string $from, string $subject, array $array, string $prefix = '', string $suffix = ''): self {
-		$content = Text::format_pairs($array);
+		$content = Text::formatPairs($array);
 		return self::sendmail($application, $to, $from, $subject, $prefix . $content . $suffix);
 	}
 
@@ -569,7 +569,7 @@ class Mail extends Hookable {
 		$fields['subject'] = $subject;
 		$fields['cc'] = $cc;
 		$fields['when'] = date('Y-m-d H-i-s');
-		$fields['*'] = Text::format_array($fields);
+		$fields['*'] = Text::formatArray($fields);
 		$contents = map(file_get_contents($filename), $fields);
 		$subject = trim(map($subject, $fields));
 		$contents = str_replace("\r\n", "\n", $contents);
@@ -898,6 +898,6 @@ class Mail extends Hookable {
 	 * Dump a Mail object
 	 */
 	public function dump(): string {
-		return Text::format_pairs($this->headers) . "\n\n" . $this->body;
+		return Text::formatPairs($this->headers) . "\n\n" . $this->body;
 	}
 }

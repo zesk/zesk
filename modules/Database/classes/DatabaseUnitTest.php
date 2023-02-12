@@ -6,9 +6,6 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use zesk\ORM\Exception_ORMNotFound;
-use zesk\ORM\ORMBase;
-
 /**
  *
  * @author kent
@@ -48,19 +45,6 @@ class DatabaseUnitTest extends UnitTest {
 		$create_sql = "CREATE TABLE `$name` ( $cols )";
 		$this->dropAndCreateTable($name, $create_sql);
 		return $name;
-	}
-
-	/**
-	 * @param ORMBase $object
-	 * @return void
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_ORMNotFound
-	 */
-	final protected function prepareORMTable(ORMBase $object): void {
-		$this->dropAndCreateTable($object->table(), $object->schema());
-		$object->schemaChanged();
 	}
 
 	/**

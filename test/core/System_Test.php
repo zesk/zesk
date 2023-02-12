@@ -1,12 +1,9 @@
 <?php
 declare(strict_types=1);
+
 namespace zesk;
 
 class System_Test extends UnitTest {
-	public function test_host_id(): void {
-		System::hostId();
-	}
-
 	public function test_uname(): void {
 		System::uname();
 	}
@@ -29,15 +26,17 @@ class System_Test extends UnitTest {
 	}
 
 	public function test_load_averages(): void {
-		$default = null;
 		$averages = System::loadAverages();
 		$this->assertIsArray($averages);
 		$this->assertArrayHasKeys([0, 1, 2], $averages);
 	}
 
 	public function test_distro(): void {
-		$default = null;
-		System::distro();
+		$result = System::distro();
+		$this->assertArrayHasKeys(['system', 'release', 'arch', 'brand', 'distro', 'source'], $result);
+		$this->assertEquals('Linux', $result['system']);
+		$this->assertEquals('Debian', $result['brand']);
+		$this->assertEquals('/etc/debian_version', $result['source']);
 	}
 
 	public function test_memory_limit(): void {

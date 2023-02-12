@@ -5,7 +5,7 @@ namespace zesk;
 use stdClass;
 
 class Configuration_Test extends UnitTest {
-	public function value_types(): array {
+	public static function data_value_types(): array {
 		return [
 			['Hello'],
 			[1],
@@ -19,7 +19,7 @@ class Configuration_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider value_types
+	 * @dataProvider data_value_types
 	 * @param mixed $value
 	 */
 	public function test_value_types(mixed $value): void {

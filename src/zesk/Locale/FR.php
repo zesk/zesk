@@ -2,10 +2,9 @@
 declare(strict_types=1);
 /**
  * @package zesk
- * @subpackage system
+ * @subpackage Locale
  * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
- * Created on Thu Apr 15 17:38:33 EDT 2010 17:38:33
  */
 
 namespace zesk;
@@ -56,8 +55,8 @@ class Locale_FR extends Locale {
 
 	public function negate_word(string $word, string $preferred_prefix = ''): string {
 		if ($preferred_prefix === '') {
-			$preferred_prefix = 'pas de';
+			$preferred_prefix = 'pas de ';
 		}
-		return StringTools::case_match('pas de ' . $word, $word);
+		return StringTools::caseMatch($preferred_prefix . $word, $word);
 	}
 }

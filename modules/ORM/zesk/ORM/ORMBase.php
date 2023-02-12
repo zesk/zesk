@@ -2966,7 +2966,7 @@ class ORMBase extends Model implements Interface_Member_Model_Factory, Interface
 		$rows['class'] = get_class($this->class);
 		$rows['database'] = $this->database()->codeName();
 		$rows['members'] = $this->members;
-		return get_class($this) . " {\n" . Text::indent(Text::format_pairs($rows)) . "\n}\n";
+		return get_class($this) . " {\n" . Text::indent(Text::formatPairs($rows)) . "\n}\n";
 	}
 
 	/**

@@ -27,9 +27,8 @@ class TestModel extends Model {
  */
 class Model_Test extends UnitTest {
 	public static function data_themePaths(): array {
-		$this->setUp();
-		$model = new Model($this->application);
-		$testModel = new TestModel($this->application);
+		$model = Model::class;
+		$testModel = TestModel::class;
 		return [
 			[['zesk/Model/view'], $model, ''], [['/test'], $model, '/test'], [['./test'], $model, './test'],
 			[['zesk/Model/test'], $model, 'test'], [['zesk/TestModel/view', 'zesk/Model/view'], $testModel, ''],
@@ -46,7 +45,8 @@ class Model_Test extends UnitTest {
 	 * @param array|string $theme_names
 	 * @return void
 	 */
-	public function test_themePaths(array $expected, Model $model, array|string $theme_names): void {
+	public function test_themePaths(array $expected, string $modelClass, array|string $theme_names): void {
+		$model = $this->application->modelFactory($modelClass);
 		$this->assertEquals($expected, $model->themePaths($theme_names));
 	}
 
@@ -101,8 +101,7 @@ class Model_Test extends UnitTest {
 		/* You CAN SET IT TO NULL */
 		unset($model['thingTwo']);
 		$this->assertNull($model['thingTwo']);
-		/* Not allowed as it is typed */
-		/* You CAN NOT ACCESS IT BEFORE SETTING IT or checking ISSET */
+		/* Not allowed as it is typed */ /* You CAN NOT ACCESS IT BEFORE SETTING IT or checking ISSET */
 		/* $this->assertEquals(9421, $model->thingTwo); fails if it is next */
 		$model->thingTwo = 9421;
 		$this->assertEquals(9421, $model->thingTwo);
@@ -126,22 +125,24 @@ class Model_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_applyMap
 	 */
-	public function test_applyMap(mixed $expected, Model $model, mixed $source): void {
+	public function test_applyMap(mixed $expected, string $modelClass, array $modelAttributes, mixed $source): void {
+		$expected = $this->applyClosures($expected);
+		$model = $this->application->modelFactory($modelClass, $modelAttributes);
+		$source = $this->applyClosures($source);
 		$this->assertEquals($expected, $model->applyMap($source));
 	}
 
 	public static function data_applyMap(): array {
-		$this->setUp();
-		$app = $this->application;
-		$testModel = new TestModel($app, ['thing' => 'one', 'thingTwo' => 4]);
-		$inputModel = new TestModel($app, ['thing' => '{thing} - {thingTwo}', 'thingTwo' => 99]);
+		$testModel = ['thing' => 'one', 'thingTwo' => 4];
 		return [
-			[null, $testModel, null],
-			[9329, $testModel, 9329],
-			[['one', '4', 'zesk\\TestModel'], $testModel, ['{thing}', '{thingTwo}', '{_class}']],
-			[['one', '4', 'zesk\\Model'], $testModel, ['{thing}', '{thingTwo}', '{_parentClass}']],
-			['oneoneoneone - 4+4', $testModel, '{thing}{thing}{thing}{thing} - {thingTwo}+{thingTwo}', ],
-			[new TestModel($app, ['thing' => 'one - 4', 'thingTwo' => 99]), $testModel, $inputModel, ],
+			[null, TestModel::class, $testModel, null],
+			[9329, TestModel::class, $testModel, 9329],
+			[['one', '4', 'zesk\\TestModel'], TestModel::class, $testModel, ['{thing}', '{thingTwo}', '{_class}']],
+			[['one', '4', 'zesk\\Model'], TestModel::class, $testModel, ['{thing}', '{thingTwo}', '{_parentClass}']],
+			['oneoneoneone - 4+4', TestModel::class, $testModel, '{thing}{thing}{thing}{thing} - {thingTwo}+{thingTwo}', ],
+			[
+				fn () => new TestModel(self::app(), ['thing' => 'one - 4', 'thingTwo' => 99]), TestModel::class, $testModel, fn () => new TestModel(self::app(), ['thing' => '{thing} - {thingTwo}', 'thingTwo' => 99]),
+			],
 		];
 	}
 }

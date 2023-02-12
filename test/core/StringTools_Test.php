@@ -86,7 +86,7 @@ class StringTools_Test extends UnitTest {
 		$this->assertEquals($expected, StringTools::fromCamelCase($test));
 	}
 
-	public static function data_case_match(): array {
+	public static function data_caseMatch(): array {
 		return [
 			['test', 'John', 'Test'],
 			['Test', 'John', 'Test'],
@@ -108,10 +108,10 @@ class StringTools_Test extends UnitTest {
 	 * @param string $pattern
 	 * @param string $expected
 	 * @return void
-	 * @dataProvider data_case_match
+	 * @dataProvider data_caseMatch
 	 */
-	public function test_case_match(string $string, string $pattern, string $expected): void {
-		$this->assertEquals($expected, StringTools::case_match($string, $pattern));
+	public function test_caseMatch(string $string, string $pattern, string $expected): void {
+		$this->assertEquals($expected, StringTools::caseMatch($string, $pattern));
 	}
 
 	public static function data_ellipsis_word(): array {
@@ -282,7 +282,7 @@ class StringTools_Test extends UnitTest {
 		$this->assertFalse(StringTools::isASCII($str));
 	}
 
-	public static function data_is_utf16(): array {
+	public static function data_isUTF16(): array {
 		return [
 			[chr(0xFF) . chr(0xFE) . 'is this utf16', true, false],
 			[chr(0xFE) . chr(0xFF) . 'is this utf16', true, true],
@@ -296,9 +296,9 @@ class StringTools_Test extends UnitTest {
 
 	/**
 	 * @return void
-	 * @dataProvider is_utf16_data
+	 * @dataProvider data_isUTF16
 	 */
-	public function test_is_utf16(string $content, bool $isUTF16, bool $beShouldBe): void {
+	public function test_isUTF16(string $content, bool $isUTF16, bool $beShouldBe): void {
 		$be = false;
 		$this->assertEquals($isUTF16, StringTools::isUTF16($content, $be));
 		if ($isUTF16) {
@@ -395,7 +395,7 @@ class StringTools_Test extends UnitTest {
 	 * @param mixed $default
 	 * @param mixed $expected
 	 * @return void
-	 * @dataProvider left_data
+	 * @dataProvider data_left
 	 */
 	public function test_left(string $haystack, string $needle, mixed $default, mixed $expected): void {
 		$this->assertEquals($expected, StringTools::left($haystack, $needle, $default));
@@ -448,7 +448,7 @@ class StringTools_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_reversePair
 	 */
-	public function test_pairr(string $string, string $delim, string $left, string $right, array $expected): void {
+	public function test_reversePair(string $string, string $delim, string $left, string $right, array $expected): void {
 		$this->assertEquals($expected, StringTools::reversePair($string, $delim, $left, $right));
 	}
 
@@ -636,6 +636,31 @@ class StringTools_Test extends UnitTest {
 	public function test_removePrefix(string|array $string, string|array $prefix, bool $case_insensitive, string|array $expected):
 	void {
 		$this->assertEquals($expected, StringTools::removePrefix($string, $prefix, $case_insensitive));
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function data_prefixMatch(): array {
+		return [
+			['', '', ''],
+			['', '', ' '],
+			[' ', ' ', ' '],
+			['dude', 'dudette', 'dudesser'],
+			['', 'dudette', 'Dudesser'],
+			["\t", "\t ", "\t\t"],
+		];
+	}
+
+	/**
+	 * @param string $expected
+	 * @param string $string
+	 * @param string $pattern
+	 * @return void
+	 * @dataProvider data_prefixMatch
+	 */
+	public function test_prefixMatch(string $expected, string $string, string $pattern): void {
+		$this->assertEquals($expected, StringTools::prefixMatch($string, $pattern));
 	}
 
 	/**

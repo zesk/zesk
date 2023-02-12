@@ -1,27 +1,23 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2023 Market Acumen, Inc.
+ * @package zesk
  */
 namespace zesk;
 
 /**
  * Configuration files, somewhat compatible with BASH environment shells
  * Useful for setting options which you want to also access via BASH or compatible shell.
- * @see conf::load
- *
- * @version $URL$
- * @package zesk
- * @subpackage system
- * @author $Author: kent $
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @see Configuration_Parser_CONF
  */
 class Configuration_Editor_CONF extends Configuration_Editor {
 	/**
-	 * Save changes to a configuration file
-	 *
+	 * @desc Save changes to a configuration file
 	 * @param array $edits
 	 * @throws Exception_Semantics
+	 * @copyright &copy; 2023 Market Acumen, Inc.
+	 * @package zesk
 	 */
 	public function edit(array $edits): string {
 		$parser = new Configuration_Parser_CONF('', null, $this->options);
@@ -35,7 +31,7 @@ class Configuration_Editor_CONF extends Configuration_Editor {
 			} else {
 				[$key] = $result;
 				if (array_key_exists($key, $edits_processed)) {
-					$new_lines[] = $key . '=' . Text::lines_wrap(JSON::encode($edits[$key]), "\t", '', '') . "\n";
+					$new_lines[] = $key . '=' . Text::wrapLines(JSON::encode($edits[$key]), "\t", '', '') . "\n";
 					unset($edits_processed[$key]);
 				} else {
 					$new_lines[] = rtrim($line, "\n") . "\n";

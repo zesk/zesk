@@ -12,8 +12,9 @@ use stdClass;
 class ArrayTools_Test extends UnitTest {
 	public static function data_simplify(): array {
 		return [
-			[[2 => '{}'], [2 => new stdClass()]],
-			[[], [[2 => 'very sexy'], [2 => 'very lame'], ['la' => 'se', 'me' => 'xy']]],
+			[[2 => []], [2 => new stdClass()]],
+			[[[2 => 'very sexy'], [2 => 'very lame'], ['la' => 'se', 'me' => 'xy']],
+				[[2 => 'very sexy'], [2 => 'very lame'], ['la' => 'se', 'me' => 'xy']], ],
 		];
 	}
 

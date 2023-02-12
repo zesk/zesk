@@ -11,9 +11,9 @@ class World_Test extends ORMUnitTest {
 	];
 
 	public static function sampleCountry(): Country {
-		$result = self::app()->ormFactory(Country::class)->register([
+		$result = self::app()->ormFactory(Country::class, [
 			Country::MEMBER_CODE => 'US', Country::MEMBER_NAME => 'United States',
-		]);
+		])->register();
 		assert($result instanceof Country);
 		return $result;
 	}
@@ -52,9 +52,9 @@ class World_Test extends ORMUnitTest {
 	 * @dataProvider classes_to_test
 	 */
 	public function test_classes(string $class, mixed $mixed = null, array $options = []): void {
+		$this->schemaSynchronize($class, ['follow' => true]);
 		$mixed = $this->applyClosures($mixed);
 		$options = $this->applyClosures($options);
-		$this->schemaSynchronize($class);
 		$this->truncateClassTables($class);
 		$this->assertORMClass($class, $mixed, $options);
 	}

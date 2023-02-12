@@ -151,10 +151,10 @@ class HTML_Test extends UnitTest {
 	}
 
 	public static function dataprovider_request(): array {
-		$test = $this;
 		return [
-			[function () use ($test) {
-				$request0 = $test->application->factory(Request::class, $test->application);
+			[function () {
+				$app = self::app();
+				$request0 = $app->factory(Request::class, $app);
 				$request0->initializeFromSettings([
 					'url' => 'http://localhost/path/',
 				]);
@@ -283,12 +283,12 @@ class HTML_Test extends UnitTest {
 		$string = 'All good <strong>things</strong> must come to an <em>end</em>.<h1>Hello!</h1>';
 		//        01234567890123456789012345678901234567890123456789
 		$result = HTML::countUntilTag($string);
-		$offset = $result['offset'];
-		$nWords = $result['words'];
-		$tagName = $result['tagName'];
-		$this->assertEquals(17, $offset);
-		$this->assertEquals(2, $nWords);
-		$this->assertEquals('strong', $tagName);
+		$this->assertEquals(17, $result['next']);
+		$this->assertEquals(9, $result['offset']);
+		$this->assertEquals(8, $result['tagMatchLength']);
+		$this->assertEquals(2, $result['words']);
+		$this->assertEquals('<strong>', $result['tagMatch']);
+		$this->assertEquals('strong', $result['tagName']);
 	}
 
 	public function test_div(): void {
@@ -495,7 +495,7 @@ class HTML_Test extends UnitTest {
 	}
 
 	public static function data_mixedToString(): array {
-		$tag = new HTML_Tag();
+		$tag = new HTML_Tag('tag');
 		$tag->setInnerHTML('Yoyoyo');
 		return [
 			['', null],
@@ -504,7 +504,7 @@ class HTML_Test extends UnitTest {
 			['', new stdClass()],
 			['string', 'string'],
 			['Yoyoyo', $tag],
-			[['ho' => 'Yoyoyo'], ['ho' => $tag]],
+			['Yoyoyo', ['ho' => $tag]],
 		];
 	}
 
@@ -514,7 +514,7 @@ class HTML_Test extends UnitTest {
 	 * @dataProvider data_mixedToString
 	 * @return void
 	 */
-	public function test_mixed_to_string(string $expected, $mixed): void {
+	public function test_mixed_to_string($expected, $mixed): void {
 		$this->assertEquals($expected, HTML::mixedToString($mixed));
 	}
 
@@ -775,7 +775,7 @@ class HTML_Test extends UnitTest {
 		$this->assertEquals($expected, HTML::trimWords($string, $wordCount));
 	}
 
-	public static function data_urlify() {
+	public static function data_urlify(): array {
 		return [
 			['<a href="http://example.com">http://example.com</a>', 'http://example.com', []],
 		];

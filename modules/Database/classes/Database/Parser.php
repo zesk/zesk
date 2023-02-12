@@ -48,7 +48,7 @@ abstract class Database_Parser extends Hookable {
 	 * @return string
 	 */
 	public function removeComments(string $sql): string {
-		return Text::remove_line_comments($sql, '--');
+		return Text::removeLineComments($sql, '--');
 	}
 
 	public const COMMAND_INSERT = 'insert';

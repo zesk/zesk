@@ -13,8 +13,6 @@ namespace zesk;
 /**
  * The text class deals with manipulation of text, specifically for output to a console or
  * fixed-width font output, or email.
- *
- * @author kent
  */
 class Text {
 	/**
@@ -40,6 +38,39 @@ class Text {
 	}
 
 	/**
+	 * Indent text using a string, and strip existing content of matching whitespace.
+	 *
+	 * @param string $text
+	 * @param string $indentString
+	 * @param string $newline
+	 * @return string
+	 *
+	 * @see Text_Test::test_indentString()
+	 * @see StringTools::prefixMatch() - Used to generate whitespace to remove
+	 */
+	public static function indentString(string $text, string $indentString, string $newline = "\n"): string {
+		$prefix = null;
+		$lines = explode($newline, $text);
+		foreach ($lines as $line) {
+			if ($prefix === null) {
+				$matches = [];
+				if (preg_match('/^\s+/', $line, $matches)) {
+					$prefix = $matches[0];
+				} else {
+					$prefix = '';
+					break;
+				}
+			} else {
+				$prefix = StringTools::prefixMatch($prefix, $line);
+			}
+		}
+		if ($prefix) {
+			$lines = ArrayTools::valuesRemovePrefix($lines, $prefix);
+		}
+		return implode($newline, ArrayTools::prefixValues($lines, $indentString));
+	}
+
+	/**
 	 * Universally modify line break characters in a string to be a certain line break string.
 	 *
 	 * Can be used to convert to HTML breaks from C-style line breaks (\n)
@@ -52,7 +83,7 @@ class Text {
 	 * @return string
 	 * @see str_replace()
 	 */
-	public static function set_line_breaks(string $string, string $br = "\n"): string {
+	public static function setLineBreaks(string $string, string $br = "\n"): string {
 		$temp_char = '\x00\x10\x00';
 		$string = str_replace("\r\n", $temp_char, $string);
 		$string = str_replace("\r", $temp_char, $string);
@@ -75,7 +106,7 @@ class Text {
 	 *            End of line character
 	 * @return string Array formatted
 	 */
-	public static function format_array(array $fields, string $padding = ' ', string $prefix = ' ', string $suffix = ': ', string $line_end = "\n"): string {
+	public static function formatArray(array $fields, string $padding = ' ', string $prefix = ' ', string $suffix = ': ', string $line_end = "\n"): string {
 		$n = 0;
 		foreach ($fields as $k => $v) {
 			$n = max(strlen($k), $n);
@@ -91,7 +122,7 @@ class Text {
 			}
 			if (is_array($v)) {
 				// TODO Fix indent formatting
-				$v = self::format_array($v, $padding, str_repeat($padding, $n), $suffix, $line_end);
+				$v = self::formatArray($v, $padding, str_repeat($padding, $n), $suffix, $line_end);
 			}
 			$line .= $prefix . $k . $suffix . $v . $line_end;
 			$result .= $line;
@@ -99,7 +130,7 @@ class Text {
 		return $result;
 	}
 
-	public static function lines_wrap(string $text, string $prefix = '', string $suffix = '', string $first_prefix = null, string $last_suffix = null): string {
+	public static function wrapLines(string $text, string $prefix = '', string $suffix = '', string $first_prefix = null, string $last_suffix = null): string {
 		if ($first_prefix === null) {
 			$first_prefix = $prefix;
 		}
@@ -127,7 +158,7 @@ class Text {
 	 * @see self::leftAlign
 	 * @see self::fill
 	 */
-	private static function _align_helper(string $text, int $length, string $pad, string &$fill, bool $chop_text = false): string {
+	private static function _alignHelper(string $text, int $length, string $pad, string &$fill, bool $chop_text = false): string {
 		$fill = '';
 		if ($length <= 0) {
 			return $text;
@@ -157,7 +188,7 @@ class Text {
 	 */
 	public static function rightAlign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false): string {
 		$fill = '';
-		$text = self::_align_helper($text, $length, $pad, $fill, $chop_text);
+		$text = self::_alignHelper($text, $length, $pad, $fill, $chop_text);
 		return $fill . $text;
 	}
 
@@ -173,7 +204,7 @@ class Text {
 	 */
 	public static function leftAlign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false): string {
 		$fill = '';
-		$text = self::_align_helper($text, $length, $pad, $fill, $chop_text);
+		$text = self::_alignHelper($text, $length, $pad, $fill, $chop_text);
 		return $text . $fill;
 	}
 
@@ -189,7 +220,7 @@ class Text {
 	 *            comments at the end of a line
 	 * @return string The contents with line comments removed
 	 */
-	public static function remove_line_comments(string $data, string $line_comment = '#', bool $alone = true): string {
+	public static function removeLineComments(string $data, string $line_comment = '#', bool $alone = true): string {
 		$new_data = [];
 		if ($alone) {
 			$line_comment_len = strlen($line_comment);
@@ -216,7 +247,7 @@ class Text {
 	 *            Optional ending string - is preg_quoted
 	 * @return string
 	 */
-	public static function remove_range_comments(string $text, string $begin_comment = '/*', string $end_comment = '*/'):
+	public static function removeRangeComments(string $text, string $begin_comment = '/*', string $end_comment = '*/'):
 	string {
 		return preg_replace('#' . preg_quote($begin_comment) . '.*?' . preg_quote($end_comment) . '#s', '', $text);
 	}
@@ -239,7 +270,7 @@ class Text {
 	 * @param string $br End of line character
 	 * @return string
 	 */
-	public static function format_pairs(array $map, string $prefix = '', string $space = ' ', string $suffix = ': ', string $br = PHP_EOL): string {
+	public static function formatPairs(array $map, string $prefix = '', string $space = ' ', string $suffix = ': ', string $br = PHP_EOL): string {
 		$n = array_reduce(array_keys($map), fn ($n, $k) => max(strlen(strval($k)), $n), 0);
 		$r = [];
 		foreach ($map as $k => $v) {
@@ -255,7 +286,7 @@ class Text {
 	 * @param string $delimiter
 	 * @return string
 	 */
-	public static function trim_words_length(string $string, int $length, string $delimiter = ' '): string {
+	public static function trimWordsLength(string $string, int $length, string $delimiter = ' '): string {
 		$string = toList($string, [], $delimiter);
 		$delim_len = strlen($delimiter);
 		$remain = $length;
@@ -280,7 +311,7 @@ class Text {
 	 * @param int $wordCount
 	 * @return string
 	 */
-	public static function trim_words(string $string, int $wordCount): string {
+	public static function trimWords(string $string, int $wordCount): string {
 		if ($wordCount <= 0) {
 			return '';
 		}
@@ -341,7 +372,7 @@ class Text {
 	 *            String to prefix every line with. Used for indenting
 	 * @return string The resulting text table, with \n on each line.
 	 */
-	public static function format_table(array $table, string $prefix = ''): string {
+	public static function formatTable(array $table, string $prefix = ''): string {
 		if (!isset($table[0]) || !is_array($table[0])) {
 			return '';
 		}
@@ -398,7 +429,7 @@ class Text {
 	 * @return array The line split into $num_columns or fewer columns as an array.
 	 * @see explode()
 	 */
-	private static function split_line(string $line, int $num_columns = 99, string $delimiters = " \t"): array {
+	private static function splitLine(string $line, int $num_columns = 99, string $delimiters = " \t"): array {
 		return explode($delimiters[0], preg_replace('/[' . preg_quote($delimiters) . ']+/', $delimiters[0], $line), $num_columns);
 	}
 
@@ -421,7 +452,7 @@ class Text {
 	 * @return array An array of associative arrays representing the table. Can be passed to
 	 *         outputTable directly.
 	 */
-	public static function parse_table(string $content, int $num_columns, string $delimiters = " \t", string $newline = "\n"): array {
+	public static function parseTable(string $content, int $num_columns, string $delimiters = " \t", string $newline = "\n"): array {
 		$lines = explode($newline, $content);
 		$hh = false;
 		while (($line = array_shift($lines)) !== null) {
@@ -435,7 +466,7 @@ class Text {
 		if (!$hh) {
 			return [];
 		}
-		$hh = self::split_line($hh, $num_columns);
+		$hh = self::splitLine($hh, $num_columns);
 		if (count($hh) !== $num_columns) {
 			return [];
 		}
@@ -444,7 +475,7 @@ class Text {
 			if (empty($line)) {
 				break;
 			}
-			$ff = self::split_line($line, $num_columns, $delimiters);
+			$ff = self::splitLine($line, $num_columns, $delimiters);
 			if (count($ff) !== $num_columns) {
 				continue;
 			}
@@ -466,7 +497,7 @@ class Text {
 	 *            Max words to count
 	 * @return integer The number of words found
 	 */
-	public static function count_words(string $string, int $limit = -1): int {
+	public static function countWords(string $string, int $limit = -1): int {
 		$words = trim($string);
 		if ($words === '') {
 			return 0;
@@ -506,7 +537,7 @@ class Text {
 	 *
 	 * parse_columns scans all output text lines and determines columns which contain your delimiter in all columns,
 	 * and then segments the columns based on that information. This best supports `df` output which
-	 * refers to volumes with spaces in their names, which breaks under `parse_table` above.
+	 * refers to volumes with spaces in their names, which breaks under `parseTable` above.
 	 *
 	 * <code>
 	 * Filesystem             1K-blocks       Used  Available Use% Mounted on
@@ -522,7 +553,7 @@ class Text {
 	 * @param string $whitespace
 	 * @return array
 	 */
-	public static function parse_columns(array $lines, string $whitespace = " \t"): array {
+	public static function parseColumns(array $lines, string $whitespace = " \t"): array {
 		$spaces = [];
 		$whitespace_in_array = str_split($whitespace);
 		foreach ($lines as $line) {

@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2023 Market Acumen, Inc.
+ * @package zesk
  */
 namespace zesk;
 
@@ -129,7 +130,7 @@ class Command_Configure extends Command_Base {
 		$this->save_configuration_changes();
 
 		$this->debugLog('Variables: {variables}', [
-			'variables' => Text::format_pairs($this->engine->variable_map()),
+			'variables' => Text::formatPairs($this->engine->variable_map()),
 		]);
 		if (!$this->configure_user()) {
 			return 99;
@@ -404,7 +405,7 @@ class Command_Configure extends Command_Base {
 			]);
 			$this->verboseLog('Processing file {file}', compact('file'));
 			$contents = File::contents($file);
-			$contents = Text::remove_line_comments($contents, '#', false);
+			$contents = Text::removeLineComments($contents, '#', false);
 			$lines = ArrayTools::listTrimClean(explode("\n", $contents));
 			foreach ($lines as $line) {
 				if (!$this->engine->process($line)) {

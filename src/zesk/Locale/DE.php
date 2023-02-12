@@ -54,6 +54,6 @@ class Locale_DE extends Locale {
 		if ($preferred_prefix === '') {
 			$preferred_prefix = 'Kein';
 		}
-		return StringTools::case_match($preferred_prefix . $word, $word);
+		return StringTools::caseMatch($preferred_prefix . $word, $word);
 	}
 }

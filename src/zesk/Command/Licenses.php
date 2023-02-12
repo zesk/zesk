@@ -1,4 +1,12 @@
 <?php
+/**
+ * @author kent
+ * @package zesk
+ * @subpackage Command
+ * @copyright &copy; 2023
+ * @copyright &copy; 2023 Market Acumen, Inc.
+ */
+
 declare(strict_types=1);
 
 namespace zesk;
@@ -65,7 +73,7 @@ class Command_Licenses extends Command_Base {
 					$licenseInfo['licenses'] = implode(', ', $licenseInfo['licenses']);
 				}
 				$licenseInfo = ArrayTools::filterKeys($licenseInfo, null, ['name']);
-				echo Text::format_pairs(ArrayTools::keysMap($licenseInfo, $this->codeToLabel));
+				echo Text::formatPairs(ArrayTools::keysMap($licenseInfo, $this->codeToLabel));
 			}
 		}
 		return 0;

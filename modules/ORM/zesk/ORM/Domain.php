@@ -209,7 +209,7 @@ class Domain extends ORMBase {
 	 */
 	private static function loadPublicTLDs(Application $application): array {
 		$contents = strtolower(File::contents(self::publicSuffixListFile($application->paths)));
-		$topDomainSuffixList = ArrayTools::listTrimClean(explode("\n", Text::remove_line_comments($contents, '//')));
+		$topDomainSuffixList = ArrayTools::listTrimClean(explode("\n", Text::removeLineComments($contents, '//')));
 		return array_change_key_case(ArrayTools::valuesFlipCopy($topDomainSuffixList));
 	}
 }

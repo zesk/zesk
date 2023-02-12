@@ -46,6 +46,7 @@ class PreferenceTest extends ORMUnitTest {
 	}
 
 	public function test_ORMClass(): void {
+		$this->truncateClassTables(Value::class);
 		$this->assertORMClass(Value::class, [
 			'user' => $this->validUser(), 'type' => Type::registerName($this->application, $this->randomHex(8)),
 		]);
@@ -86,12 +87,12 @@ class PreferenceTest extends ORMUnitTest {
 		$result = $pref->find();
 		$this->assertEquals($result, $pref);
 		$this->assertInstanceOf(Value::class, $result);
-		$this->assertORMObject($pref);
 
 		$result = $this->application->ormRegistry($preference_class)->queryDelete()->addWhere('user', $user->id())->execute();
 		$this->log('Deleted {n} rows from {class}', [
 			'n' => $result->affectedRows(), 'class' => $preference_class,
 		]);
+		$this->assertORMObject($pref);
 	}
 
 	public function test_missing(): void {

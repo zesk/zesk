@@ -1,39 +1,38 @@
 <?php
 declare(strict_types=1);
 /**
+ * String manipulation functions, largely based on latin languages.
  *
+ * @copyright &copy; 2023 Market Acumen, Inc
+ * @package zesk
  */
 
 namespace zesk;
 
-/**
- * String manipulation functions, largely based on latin languages.
- */
 class StringTools {
 	/**
-	 * Breaks a string in half at a given delimiter, and returns default values if delimiter is not
-	 * found.
+	 * Breaks a string in half at a given delimiter, and returns default values if delimiter is not found.
 	 *
 	 * Usage is generally:
 	 *
-	 * list($table, $field) = pair($thing, ".", $default_table, $thing);
+	 *    `list($table, $field) = pair($thing, ".", $default_table, $thing);`
 	 *
 	 * @param string $a A string to parse into a pair
 	 * @param string $delim The delimiter to break the string apart
 	 * @param string $left The default left value if delimiter is not found
 	 * @param string $right The default right value if delimiter is not found
-	 * @param string $include_delimiter If "left" includes the delimiter in the left value, if "right" includes the
-	 *  delimiter in the right value Any other value the delimiter is stripped from the results
+	 * @param string $includeDelimiter If "left" includes the delimiter in the left value, if "right" includes the
+	 * 			delimiter in the right value Any other value the delimiter is stripped from the results
 	 * @return array A size 2 array containing the left and right portions of the pair
 	 */
-	public static function pair(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
+	public static function pair(string $a, string $delim = '.', string $left = '', string $right = '', string $includeDelimiter = ''): array {
 		$n = strpos($a, $delim);
 		$delim_len = strlen($delim);
 		return ($n === false) ? [
 			$left, $right,
 		] : [
-			substr($a, 0, $n + ($include_delimiter === 'left' ? $delim_len : 0)),
-			substr($a, $n + ($include_delimiter === 'right' ? 0 : $delim_len)),
+			substr($a, 0, $n + ($includeDelimiter === 'left' ? $delim_len : 0)),
+			substr($a, $n + ($includeDelimiter === 'right' ? 0 : $delim_len)),
 		];
 	}
 
@@ -75,9 +74,9 @@ class StringTools {
 	 * @return string with a properly formatted path
 	 * @see glue
 	 * @see domain
-	 * @inline_test path_from_array("/", ["", "", ""]) === "/"
-	 * @inline_test path_from_array("/", ["", null, false]) === "/"
-	 * @inline_test path_from_array("/", ["", "", "", null, false, "a", "b"]) === "/a/b"
+	 * @inline_test self::joinArray("/", ["", "", ""]) === "/"
+	 * @inline_test self::joinArray("/", ["", null, false]) === "/"
+	 * @inline_test self::joinArray("/", ["", "", "", null, false, "a", "b"]) === "/a/b"
 	 */
 	public static function joinArray(string $separator, array $mixed): string {
 		$r = array_shift($mixed);
@@ -102,11 +101,14 @@ class StringTools {
 	}
 
 	/**
+	 * Simplistic case conversion for strings to match when mapping words
+	 *
 	 * @param string $string
 	 * @param string $pattern
 	 * @return string
+	 * @see StringTools_Test::test_caseMatch()
 	 */
-	public static function case_match(string $string, string $pattern): string {
+	public static function caseMatch(string $string, string $pattern): string {
 		$char1 = substr($pattern, 0, 1);
 		$char2 = substr($pattern, 1, 1);
 		if ($char1 == strtolower($char1)) {
@@ -410,6 +412,28 @@ class StringTools {
 		} else {
 			return self::begins($string, $prefix, $case_insensitive) ? substr($string, strlen($prefix)) : $string;
 		}
+	}
+
+	/**
+	 * Return the shortest section of $string which also matches $match
+	 *
+	 * @param string $string
+	 * @param string $match
+	 * @return string
+	 *
+	 * @see StringTools_Test::test_prefixMatch()
+	 */
+	public static function prefixMatch(string $string, string $match): string {
+		$stringParts = str_split($string);
+		$matchParts = str_split($match);
+		$matched = [];
+		foreach ($stringParts as $i => $char) {
+			if (($matchParts[$i] ?? null) !== $char) {
+				break;
+			}
+			$matched[] = $char;
+		}
+		return implode('', $matched);
 	}
 
 	/**

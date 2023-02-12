@@ -389,9 +389,9 @@ class IPv4_Test extends UnitTest {
 	}
 
 	public static function data_is_private(): array {
-		$r0 = $this->randomInteger(0, 255);
-		$r1 = $this->randomInteger(0, 255);
-		$r2 = $this->randomInteger(0, 255);
+		$r0 = self::randomInteger(0, 255);
+		$r1 = self::randomInteger(0, 255);
+		$r2 = self::randomInteger(0, 255);
 		return [
 			[true, '10.2.3.4'],
 			[true, '10.255.3.4'],

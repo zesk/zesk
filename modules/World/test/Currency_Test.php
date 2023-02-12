@@ -11,7 +11,7 @@ class Currency_Test extends ORMUnitTest {
 	];
 
 	public function initialize(): void {
-		$this->application->ormModule()->schemaSynchronize(null, [
+		$this->schemaSynchronize([
 			Currency::class,
 		], [
 			'follow' => true,
@@ -19,9 +19,10 @@ class Currency_Test extends ORMUnitTest {
 	}
 
 	public static function sampleCountry(): Country {
-		$result = self::app()->ormFactory(Country::class)->register([
+		$app = self::app();
+		$result = $app->ormFactory(Country::class, [
 			Country::MEMBER_CODE => 'US', Country::MEMBER_NAME => 'United States',
-		]);
+		])->register();
 		assert($result instanceof Country);
 		return $result;
 	}
@@ -32,7 +33,7 @@ class Currency_Test extends ORMUnitTest {
 	public static function classes_to_test(): array {
 		return [
 			[
-				Currency::class, [Currency::MEMBER_BANK_COUNTRY => self::sampleCountry(...)], [],
+				Currency::class, [Currency::MEMBER_BANK_COUNTRY => fn () => self::sampleCountry()], [],
 			],
 		];
 	}

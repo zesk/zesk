@@ -12,9 +12,8 @@ PATH=$top/vendor/bin:$PATH
 me=$(basename "$0")
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd || exit $ERR_ENV)"
 phpunit_bin=vendor/bin/phpunit
-coverage_path=./test-coverage
-junit_path=./test-results
-junit_results_file=$junit_path/junit.xml
+coverage_path="$top/test-coverage"
+junit_path="$top/test-results"
 
 usage() {
   local code
@@ -54,16 +53,13 @@ fi
 
 need_paths=()
 args=("--disallow-test-output")
-coverage_path=./test-coverage
+doCoverage=
 coverage_cache=./.zesk-coverage
 cd "$top"
 while [ $# -ge 1 ]; do
   case $1 in
     --coverage)
-      need_paths+=("$coverage_cache" "$coverage_path")
-      args+=("--coverage-cache" "$coverage_cache" "--coverage-filter" "./zesk" "--coverage-filter" "./theme" "--coverage-filter" "./modules" "--coverage-html" "$coverage_path")
-      export XDEBUG_MODE=coverage
-      echo "Running coverage and storing results in $coverage_path"
+      doCoverage=1
       ;;
     *)
       break
@@ -72,6 +68,14 @@ while [ $# -ge 1 ]; do
   shift
 done
 
+if test $doCoverage; then
+  need_paths+=("$coverage_cache")
+  args+=("--coverage-cache" "$coverage_cache")
+  export XDEBUG_MODE=coverage
+  echo "Enabling XDEBUG_MODE=coverage"
+else
+  args+=("--no-coverage")
+fi
 if [ ! -x "$phpunit_bin" ]; then
   echo "$phpunit_bin does not exist or is not executable" 1>&2
   exit $ERR_ENV
@@ -80,5 +84,5 @@ need_paths+=("$junit_path")
 for d in "${need_paths[@]}"; do
   [ -d "$d" ] || mkdir -p "$d"
 done
-
-"$phpunit_bin" "${args[@]}" --log-junit "$junit_results_file" "$@"
+echo "$phpunit_bin" "${args[@]}" "$@"
+"$phpunit_bin" "${args[@]}" "$@"

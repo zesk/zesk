@@ -80,7 +80,9 @@ class Database_Column_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_differences
 	 */
-	public function test_differences(array $expected, Database_Column $a, Database_Column $b): void {
+	public function test_differences(array $expected, mixed $a, mixed $b): void {
+		$a = $this->applyClosures($a);
+		$b = $this->applyClosures($b);
 		$result_a = $a->differences($b);
 		$result_b = $b->differences($a);
 		$result_a_keys = array_keys($result_a);
@@ -93,11 +95,16 @@ class Database_Column_Test extends UnitTest {
 	}
 
 	public static function data_differences(): array {
-		$this->setUp();
-		$db = $this->application->databaseRegistry();
-		$table = new Database_Table($db, __METHOD__);
-		$col1 = new Database_Column($table, 'col1', ['sql_type' => 'varchar(32)', 'not null' => true]);
-		$col2 = new Database_Column($table, 'col1', ['sql_type' => 'varchar(32)', 'not null' => false]);
+		$col1 = function () {
+			$db = self::app()->databaseRegistry();
+			$table = new Database_Table($db, __METHOD__);
+			return new Database_Column($table, 'col1', ['sql_type' => 'varchar(32)', 'not null' => true]);
+		};
+		$col2 = function () {
+			$db = self::app()->databaseRegistry();
+			$table = new Database_Table($db, __METHOD__);
+			return new Database_Column($table, 'col1', ['sql_type' => 'varchar(32)', 'not null' => false]);
+		};
 		return [
 			[[], $col1, $col1],
 			[['required'], $col1, $col2],

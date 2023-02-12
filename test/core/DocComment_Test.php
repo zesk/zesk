@@ -12,7 +12,7 @@ namespace zesk;
  */
 class DocComment_Test extends UnitTest {
 	public function test_extract(): void {
-		$testfile = ZESK_ROOT . 'zesk/ArrayTools.php';
+		$testfile = ZESK_ROOT . 'src/zesk/ArrayTools.php';
 		$content = file_get_contents($testfile);
 		$comments = DocComment::extract($content);
 		$this->assertIsArray($comments);

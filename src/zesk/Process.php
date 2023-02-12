@@ -9,9 +9,6 @@ namespace zesk;
 
 /**
  * Current and other process status, process creation
- *
- * @author kent
- *
  */
 class Process {
 	/**
@@ -68,7 +65,17 @@ class Process {
 	 * @return string
 	 */
 	public function user(): string {
-		return posix_getlogin();
+		$login = posix_getlogin();
+		if ($login !== false) {
+			return $login;
+		}
+		$uid = posix_getuid();
+
+		try {
+			return System::users()[$uid] ?? "uid-$uid";
+		} catch (Exception_File_NotFound|Exception_File_Permission) {
+			return "uid-$uid";
+		}
 	}
 
 	/**

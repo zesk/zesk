@@ -73,6 +73,6 @@ class Response_Test extends UnitTest {
 		$this->assertStringContainsString('<![endif]-->', $content);
 		$this->assertStringContainsString('<![endif]-->', $content);
 
-		$this->assertStringContainsString('<!--[if IE]><script type="text/javascript">alert(\'Hello, world!\');</script><![endif]-->', $content);
+		$this->assertStringContainsString('<!--[if IE]><script>alert(\'Hello, world!\');</script><![endif]-->', $content);
 	}
 }

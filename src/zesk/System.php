@@ -11,42 +11,45 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Psr\Cache\InvalidArgumentException;
+
 /**
- *
  * @author kent
- *
  */
 class System {
-	/**
-	 *
-	 * @param Application $application
-	 */
-	public static function hooks(Application $app): void {
-		$app->hooks->add(Hooks::HOOK_CONFIGURED, [__CLASS__, 'configured', ]);
-	}
-
-	public static function configured(Application $application): void {
-		self::hostId($application->configuration->get('HOST', $_ENV['HOST'] ?? $_SERVER['HOST'] ?? 'localhost'));
-	}
+	public const BINARY_UPTIME = '/usr/bin/uptime';
 
 	/**
-	 *
-	 * @var string
+	 * Field returned in users array
+	 * @see self::users()
 	 */
-	private static $host_id = null;
+	public const USER_FIELD_USER_ID = 'uid';
 
 	/**
-	 * Set/get the name of the host machine for use elsewhere
+	 * Field returned in users array
 	 *
-	 * @param string $set Set a value for the host ID
-	 * @return string
+	 * @see self::users()
 	 */
-	public static function hostId($set = null) {
-		if ($set !== null) {
-			self::$host_id = $set;
-		}
-		return self::$host_id;
-	}
+	public const USER_FIELD_GROUP_ID = 'gid';
+
+	/**
+	 * Field returned in users array
+	 *
+	 * @see self::users()
+	 */
+	public const USER_FIELD_NAME = 'user';
+
+	/**
+	 * Field returned in users array
+	 *
+	 * @see self::users()
+	 */
+	public const USER_FIELD_PASSWORD = 'masked';
+
+	/**
+	 * Default password file for user database
+	 */
+	public const DEFAULT_USERS_FILE = '/etc/passwd';
 
 	/**
 	 *
@@ -59,14 +62,14 @@ class System {
 	/**
 	 * Get current process ID
 	 *
-	 * @return integer
+	 * @return int
 	 */
-	public static function processId() {
+	public static function processId(): int {
 		return getmypid();
 	}
 
 	/**
-	 * Load IP addresses for this sytem
+	 * Load IP addresses for this system
 	 *
 	 * @return array of interface => $ip
 	 */
@@ -85,7 +88,7 @@ class System {
 	}
 
 	/**
-	 * Load MAC addresses for this sytem
+	 * Load MAC addresses for this system
 	 *
 	 * @return array of interface => $ip
 	 */
@@ -99,6 +102,38 @@ class System {
 			}
 		}
 		return $macs;
+	}
+
+	/**
+	 * @param string $userFile
+	 * @return array
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_File_Permission
+	 */
+	public static function users(string $userFile = ''): array {
+		if ($userFile === '') {
+			$userFile = self::DEFAULT_USERS_FILE;
+		}
+		if (!is_file($userFile)) {
+			throw new Exception_File_NotFound($userFile);
+		}
+		if (!is_readable($userFile)) {
+			throw new Exception_File_Permission($userFile);
+		}
+		$result = [];
+		foreach (File::lines($userFile) as $line) {
+			$line = StringTools::left($line, '#');
+			$parts = explode(':', $line);
+			if (count($parts) >= 4) {
+				$user[self::USER_FIELD_NAME] = $parts[0];
+				$user[self::USER_FIELD_PASSWORD] = $parts[1];
+				$user[self::USER_FIELD_USER_ID] = intval($parts[2]);
+				$user[self::USER_FIELD_GROUP_ID] = intval($parts[3]);
+
+				$result[$user[self::USER_FIELD_USER_ID]] = $user;
+			}
+		}
+		return $result;
 	}
 
 	/**
@@ -123,20 +158,30 @@ class System {
 	/**
 	 * Run ifconfig configuration utility and parse results
 	 *
+	 * @param Application $application
 	 * @return array
 	 */
-	public static function ifconfig(Application $application) {
-		$result = [];
+	public static function ifconfig(Application $application): array {
+		$command = null;
+		$cache = null;
 
 		try {
 			$cache = $application->cacheItemPool()->getItem(__METHOD__);
 			if ($cache->isHit()) {
 				$command = $cache->get();
-			} else {
+			}
+		} catch (InvalidArgumentException) {
+		}
+
+		try {
+			if (!$command) {
 				$command = $application->process->execute('ifconfig');
-				$application->cacheItemPool()->saveDeferred($cache->expiresAfter($application->configuration->getPath(__METHOD__ . '::expires_after', 60))->set($command));
+				if ($cache) {
+					$application->cacheItemPool()->saveDeferred($cache->expiresAfter($application->configuration->getPath(__METHOD__ . '::expiresAfter', 60))->set($command));
+				}
 			}
 			$interface = null;
+			$result = [];
 			foreach ($command as $line) {
 				if (preg_match('/^\S/', $line)) {
 					[$interface, $flags] = pair($line, ' ');
@@ -157,8 +202,9 @@ class System {
 					}
 				}
 			}
-		} catch (Exception) {
-			$result = [
+			return $result;
+		} catch (Exception_Command) {
+			return [
 				'localhost' => [
 					'inet' => [
 						'127.0.0.1' => [
@@ -174,29 +220,41 @@ class System {
 				],
 			];
 		}
-		return $result;
+	}
+
+	/**
+	 * @return array
+	 * @throws Exception_File_Permission
+	 */
+	private static function uptimeBinary(): array {
+		if (!is_executable(self::BINARY_UPTIME)) {
+			throw new Exception_File_Permission(self::BINARY_UPTIME, 'No access to load averages');
+		}
+		ob_start();
+		system(self::BINARY_UPTIME);
+		$uptime = trim(ob_get_clean());
+		$pattern = ':';
+		$pos = strrpos($uptime, $pattern);
+		if ($pos === false) {
+			throw new Exception_File_Permission(self::BINARY_UPTIME, 'Invalid response: {results}', [
+				'results' => $uptime,
+			]);
+		}
+		return explode(' ', str_replace(',', '', trim(substr($uptime, $pos + strlen($pattern)))));
 	}
 
 	/**
 	 * Determine system current load averages using /proc/loadavg or system call to uptime
 	 *
-	 * @return array:float Uptime averages for the past 1 minute, 5 minutes, and 15 minutes
+	 * @return array Uptime averages for the past 1 minute, 5 minutes, and 15 minutes
 	 *         (typically)
+	 * @throws Exception_File_Permission
 	 */
 	public static function loadAverages(): array {
-		$uptime_string = null;
-
 		try {
 			$uptime_string = explode(' ', File::contents('/proc/loadavg'));
-		} catch (Exception_File_NotFound) {
-			ob_start();
-			system('/usr/bin/uptime');
-			$uptime = trim(ob_get_clean());
-			$pattern = ':';
-			$pos = strrpos($uptime, $pattern);
-			if ($pos !== false) {
-				$uptime_string = explode(' ', str_replace(',', '', trim(substr($uptime, $pos + strlen($pattern)))));
-			}
+		} catch (Exception_File_NotFound|Exception_File_Permission) {
+			$uptime_string = self::uptimeBinary();
 		}
 		return [floatval($uptime_string[0]), floatval($uptime_string[1]), floatval($uptime_string[2]), ];
 	}
@@ -210,7 +268,6 @@ class System {
 	 */
 	public static function volumeInfo(string $volume = ''): array {
 		ob_start();
-		$max_tokens = 10;
 		$arg_volume = $volume ? escapeshellarg($volume) . ' ' : '';
 		// Added -P to avoid issue on Mac OS X where Capacity and iused overlap
 		$result = system("/bin/df -P -lk {$arg_volume}2> /dev/null");
@@ -219,7 +276,7 @@ class System {
 			return [];
 		}
 		$volume_info = explode("\n", $volume_info);
-		$volume_info = Text::parse_columns($volume_info);
+		$volume_info = Text::parseColumns($volume_info);
 		// FreeBSD:	Filesystem  1024-blocks     Used Avail 		Capacity 	Mounted on
 		// Debian:	Filesystem  1K-blocks       Used Available	Use%		Mounted on
 		// Linux:	Filesystem  1K-blocks       Used Available	Use%		Mounted on
@@ -250,6 +307,46 @@ class System {
 	}
 
 	/**
+	 * Tip files for distro
+	 *
+	 * @var array
+	 * @see self::distro()
+	 */
+	private static array $distroTips = [
+		'Novell SUSE' => '/etc/SUSE-release',
+		'Red Hat' => [
+			'/etc/redhat-release',
+			'/etc/redhat_version',
+		],
+		'Fedora' => '/etc/fedora-release',
+		'Slackware' => [
+			'/etc/slackware-release',
+			'/etc/slackware-version',
+		],
+		'Debian' => [
+			'/etc/debian_release', '/etc/debian_version',
+		],
+		'Mandrake' => '/etc/mandrake-release',
+		'Yellow dog' => '/etc/yellowdog-release',
+		'Sun JDS' => '/etc/sun-release',
+		'Solaris/Sparc' => '/etc/release',
+		'Gentoo' => '/etc/gentoo-release',
+		'UnitedLinux' => '/etc/UnitedLinux-release',
+		'ubuntu' => '/etc/lsb-release',
+	];
+
+	/**
+	 * Tips for system names
+	 *
+	 * @var array
+	 * @see self::distro()
+	 */
+	private static array $systemNames = [
+		'Darwin' => 'Mac OS X',
+		'Linux' => 'Linux',
+	];
+
+	/**
 	 * Based on http://www.novell.com/coolsolutions/feature/11251.html
 	 *
 	 * Determine the distribution we're running on.
@@ -261,27 +358,29 @@ class System {
 	 * - release - The release version number
 	 *
 	 * @return array:array
+	 * @see System_Test::test_distro()
 	 */
 	public static function distro(): array {
-		static $distro_tips = [
-			'Novell SUSE' => '/etc/SUSE-release', 'Red Hat' => ['/etc/redhat-release', '/etc/redhat_version', ],
-			'Fedora' => '/etc/fedora-release', 'Slackware' => ['/etc/slackware-release', '/etc/slackware-version', ],
-			'Debian' => ['/etc/debian_release', '/etc/debian_version', ], 'Mandrake' => '/etc/mandrake-release',
-			'Yellow dog' => '/etc/yellowdog-release', 'Sun JDS' => '/etc/sun-release',
-			'Solaris/Sparc' => '/etc/release', 'Gentoo' => '/etc/gentoo-release',
-			'UnitedLinux' => '/etc/UnitedLinux-release', 'ubuntu' => '/etc/lsb-release',
+		$result = [
+			'system' => $system = php_uname('s'),
+			'release' => php_uname('r'),
+			'arch' => php_uname('m'),
 		];
-		static $sysnames = ['Darwin' => 'Mac OS X', ];
-		$relname = php_uname('r');
-		foreach ($distro_tips as $distro => $files) {
+		foreach (self::$distroTips as $distro => $files) {
 			foreach (toList($files) as $file) {
 				if (file_exists($file)) {
-					return ['brand' => $distro, 'distro' => trim(file_get_contents($file)), 'release' => $relname, ];
+					return $result + [
+						'brand' => $distro,
+						'distro' => trim(file_get_contents($file)),
+						'source' => $file,
+					];
 				}
 			}
 		}
-		$sysname = php_uname('s');
-		return ['brand' => $sysnames[$sysname] ?? $sysname, 'distro' => $sysname, 'release' => $relname, ];
+		return [
+			'brand' => self::$systemNames[$system] ?? $system,
+			'distro' => $system,
+		];
 	}
 
 	/**

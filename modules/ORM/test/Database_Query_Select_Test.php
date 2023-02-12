@@ -11,7 +11,6 @@ namespace zesk;
 
 use zesk\ORM\Database_Query_Select;
 use zesk\ORM\Server;
-use zesk\DatabaseUnitTest;
 
 class Database_Query_Select_Test extends DatabaseUnitTest {
 	protected array $load_modules = [

@@ -197,11 +197,16 @@ class ApplicationTest extends TestApplicationUnitTest {
 
 
 		/* autoloadPath */
-		$this->assertEquals($paths, array_keys($newApplication->autoloadPath()));
+		$this->assertEquals([
+			'/zesk/modules/Diff/zesk/Diff/',
+			'/zesk/modules/CSV/classes',
+		], array_keys($newApplication->autoloadPath()));
 
 		$newApplication->modules->loadMultiple(['PHPUnit', 'MySQL', 'Database']);
 		$paths = [];
 		$paths[] = $newApplication->zeskHome('modules/PHPUnit/classes');
+		$paths[] = $newApplication->zeskHome('modules/Diff/zesk/Diff/');
+		$paths[] = $newApplication->zeskHome('modules/CSV/classes');
 		$paths[] = $newApplication->zeskHome('modules/MySQL/classes');
 		$paths[] = $newApplication->zeskHome('modules/Database/classes');
 		$this->assertEquals($paths, array_keys($newApplication->autoloadPath()));
@@ -345,6 +350,7 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$this->assertInstanceOf(Response::class, $response);
 
 		$response->setCacheForever();
+		$response->setCacheFor(1);
 	}
 
 	public function test_cacheClear(): void {

@@ -17,7 +17,7 @@ use OutOfBoundsException;
  *
  */
 class Date_Test extends UnitTest {
-	public function daysInMonthData(): array {
+	public static function data_daysInMonth(): array {
 		return [
 			[1, 2022, 31],
 			[2, 2022, 28],
@@ -39,8 +39,7 @@ class Date_Test extends UnitTest {
 	 * @param int $year
 	 * @param int $expected
 	 * @return void
-	 * @throws exceptionVariables
-	 * @dataProvider daysInMonthData
+	 * @dataProvider data_daysInMonth
 	 */
 	public function test_daysInMonth(int $month, int $year, int $expected): void {
 		$this->assertEquals($expected, Date::daysInMonth($month, $year), "Date::daysInMonth($month, $year)");
@@ -52,7 +51,7 @@ class Date_Test extends UnitTest {
 		$this->assertCount(7, $names);
 	}
 
-	public function _test_range_fail_parameters(): array {
+	public static function data_DateRangeFail(): array {
 		return [
 			[
 				-1,
@@ -93,7 +92,7 @@ class Date_Test extends UnitTest {
 	}
 
 	/**
-	 * @dataProvider _test_range_fail_parameters
+	 * @dataProvider data_DateRangeFail
 	 * @param $y
 	 * @param $m
 	 * @param $d

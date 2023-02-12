@@ -239,7 +239,7 @@ abstract class Database extends Hookable implements Database_Interface {
 	 *
 	 * @return Database_Data_Type
 	 */
-	public static function data_type(): Database_Data_Type {
+	public function data_type(): Database_Data_Type {
 		return $this->data_type;
 	}
 

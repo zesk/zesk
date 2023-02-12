@@ -18,8 +18,8 @@ $exception = $this->exception;
 $class = get_class($this->exception);
 
 $application->logger->error("Exception: {exception_class}\nMessage: {message}\nServer:\n{server}\nRequest:\n{request}\nException: {exception_class}\nBacktrace:\n{backtrace}\n{exception}", [
-	'server' => Text::format_pairs($_SERVER),
-	'request' => Text::format_pairs($_REQUEST),
+	'server' => Text::formatPairs($_SERVER),
+	'request' => Text::formatPairs($_REQUEST),
 	'exception_class' => $class,
 	'exception' => $exception,
 	'message' => $exception->getMessage(),

@@ -209,8 +209,8 @@ class Database_SQL extends \zesk\Database_SQL {
 	}
 
 	public function removeComments($sql) {
-		$sql = Text::remove_line_comments($sql, '--');
-		$sql = Text::remove_range_comments($sql);
+		$sql = Text::removeLineComments($sql, '--');
+		$sql = Text::removeRangeComments($sql);
 		return $sql;
 	}
 

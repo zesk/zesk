@@ -395,8 +395,8 @@ class Database_Parser extends BaseParser {
 		$tips = self::tips($sql);
 
 		// Remove # lines
-		$sql = Text::remove_line_comments($sql, '#'); // Technically not valid in SQL - but for legacy reasons leave it in
-		$sql = Text::remove_line_comments($sql, '--');
+		$sql = Text::removeLineComments($sql, '#'); // Technically not valid in SQL - but for legacy reasons leave it in
+		$sql = Text::removeLineComments($sql, '--');
 
 		/*
 		 * Parse table into name, columns, and options

@@ -191,7 +191,8 @@ class Locale_Test extends UnitTest {
 	 * @dataProvider data_locales
 	 * @param Locale $locale
 	 */
-	public function test_date_format(Locale $locale): void {
+	public function test_date_format($mixed): void {
+		$locale = $this->applyClosures($mixed);
 		$this->assertIsString($locale->date_format($locale));
 	}
 
@@ -199,7 +200,8 @@ class Locale_Test extends UnitTest {
 	 * @dataProvider data_locales
 	 * @param Locale $locale
 	 */
-	public function test_datetime_format(Locale $locale): void {
+	public function test_datetime_format($mixed): void {
+		$locale = $this->applyClosures($mixed);
 		$this->assertIsString($locale->datetime_format());
 	}
 
@@ -207,7 +209,8 @@ class Locale_Test extends UnitTest {
 	 * @dataProvider data_locales
 	 * @param Locale $locale
 	 */
-	public function test_parse_dialect(Locale $locale): void {
+	public function test_parse_dialect($mixed): void {
+		$locale = $this->applyClosures($mixed);
 		$this->assertEquals(Locale::parse_dialect('en_us'), 'US');
 		$this->assertEquals(Locale::parse_dialect('EN_US'), 'US');
 		$this->assertEquals(Locale::parse_dialect('EN_US_Southern'), 'US');
@@ -219,7 +222,8 @@ class Locale_Test extends UnitTest {
 	 * @dataProvider data_en_locales
 	 * @param Locale $locale
 	 */
-	public function test_duration_string(Locale $locale): void {
+	public function test_duration_string($mixed): void {
+		$locale = $this->applyClosures($mixed);
 		$number = null;
 		$this->assertEquals($locale->duration_string(1, 'second', $number), '1 second');
 		$this->assertEquals($locale->duration_string(2, 'second', $number), '2 seconds');
@@ -232,7 +236,8 @@ class Locale_Test extends UnitTest {
 	 * @dataProvider data_en_locales
 	 * @param Locale $locale
 	 */
-	public function test_indefinite_article(Locale $locale): void {
+	public function test_indefinite_article($mixed): void {
+		$locale = $this->applyClosures($mixed);
 		$this->assertEquals($locale->indefiniteArticle('euro', []), 'a');
 		$this->assertEquals($locale->indefiniteArticle('honor', []), 'an');
 	}
@@ -265,7 +270,8 @@ class Locale_Test extends UnitTest {
 	 * @dataProvider data_en_locales
 	 * @param Locale $locale
 	 */
-	public function test_now_string(Locale $locale): void {
+	public function test_now_string($mixed): void {
+		$locale = $this->applyClosures($mixed);
 		foreach ($this->now_string_data() as $items) {
 			[$timestamp, $min_unit, $zero_string, $expeected] = $items;
 			$this->assertEquals($expeected, $locale->now_string($timestamp, $min_unit, $zero_string));
@@ -336,7 +342,8 @@ class Locale_Test extends UnitTest {
 	 * @dataProvider data_en_locales
 	 * @param Locale $locale
 	 */
-	public function test_plural_number(Locale $locale): void {
+	public function test_plural_number($mixed): void {
+		$locale = $this->applyClosures($mixed);
 		$tests = [
 			'woman' => 'women',
 			'Jazz' => 'Jazzes',
@@ -424,12 +431,13 @@ class Locale_Test extends UnitTest {
 	 * @throws Exception_Class_NotFound
 	 */
 	public static function data_locale_translation(): array {
-		$localeFactory = function (): void {
+		$localeFactory = function (): Locale {
 			$id = 'xy';
 			$xy = Locale::factory(self::app(), $id);
 			$xy->setTranslations([
 				'cuddle' => 'boink',
 			]);
+			return $xy;
 		};
 		return [
 			[
@@ -470,7 +478,8 @@ class Locale_Test extends UnitTest {
 	/**
 	 * @dataProvider data_locales
 	 */
-	public function test_time_format(Locale $locale): void {
+	public function test_time_format($mixed): void {
+		$locale = $this->applyClosures($mixed);
 		$include_seconds = false;
 		$this->assertIsString($locale->time_format($include_seconds));
 	}
@@ -479,7 +488,8 @@ class Locale_Test extends UnitTest {
 	 * @dataProvider data_locales
 	 * @param Locale $locale
 	 */
-	public function test_translate(Locale $locale): void {
+	public function test_translate($mixed): void {
+		$locale = $this->applyClosures($mixed);
 		foreach ([
 			'Hello',
 			'world',

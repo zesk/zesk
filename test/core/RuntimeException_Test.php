@@ -8,7 +8,7 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-class Exception_RuntimeException extends Exception_TestCase {
+class RuntimeException_Test extends Exception_TestCase {
 	public function test_basics(): void {
 		$exception = new RuntimeException();
 		$this->exception_test($exception);

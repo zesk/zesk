@@ -77,7 +77,7 @@ class TimeSpan_Test extends UnitTest {
 	}
 
 	public static function data_add(): array {
-		$randomInt = $this->randomInteger();
+		$randomInt = self::randomInteger();
 		return [
 			['s:0 00 m:0 00 h:0 00 d:0 00 000', -1, 1, ],
 			['s:0 00 m:0 00 h:0 00 d:0 00 000', -2, 2, ],

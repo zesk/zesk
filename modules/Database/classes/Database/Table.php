@@ -248,7 +248,8 @@ class Database_Table extends Hookable {
 	 */
 	public function previousColumn(string $find_name): ?Database_Column {
 		foreach ($this->columns as $column) {
-			$previous_name = $column->previous_name();
+			/* @var $column Database_Column */
+			$previous_name = $column->previousName();
 			if (!$previous_name) {
 				continue;
 			}

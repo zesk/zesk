@@ -12,8 +12,9 @@ declare(strict_types=1);
 namespace zesk;
 
 /**
- * @see ArrayTools_Test
  * Array tools for pretty much anything you can think of for arrays.
+ *
+ * @see ArrayTools_Test
  */
 class ArrayTools {
 	/**
@@ -1079,7 +1080,7 @@ class ArrayTools {
 	 * @return void
 	 * @see ArrayTools::prepend
 	 */
-	public static function append(array &$arr, string $k, mixed $v = null): void {
+	public static function append(array &$arr, int|string $k, mixed $v = null): void {
 		if (!isset($arr[$k])) {
 			$arr[$k] = $v;
 		} elseif (is_array($arr[$k])) {

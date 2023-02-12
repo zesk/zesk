@@ -15,6 +15,18 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 	}
 
 	/**
+	 * @param ORMBase $object
+	 * @return void
+	 * @throws Database_Exception_Duplicate
+	 * @throws Database_Exception_SQL
+	 * @throws Database_Exception_Table_NotFound
+	 */
+	final protected function prepareORMTable(ORMBase $object): void {
+		$this->dropAndCreateTable($object->table(), $object->schema());
+		$object->schemaChanged();
+	}
+
+	/**
 	 * Must not call in dataProvider
 	 *
 	 * @return Application

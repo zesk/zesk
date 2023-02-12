@@ -10,20 +10,17 @@ declare(strict_types=1);
 namespace zesk;
 
 use Closure;
+use Throwable;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Throwable;
 use zesk\Locale\Reader;
 use zesk\Router\Parser;
-use zesk\Session\Module as SessionModule;
 use function str_ends_with;
 
 /**
  * Core web application object for Zesk.
  *
  * If you're doing something useful, it's probably a simple application.
- *
- * @author kent
  *
  * Methods below require you to actually load the modules for them to work.
  *
@@ -48,21 +45,23 @@ use function str_ends_with;
  * @method Mail\Module mailModule()
  *
  * @method Interface_Session sessionFactory()
- * @method SessionModule sessionModule()
+ * @method Session\Module sessionModule()
  */
 class Application extends Hookable implements Interface_Member_Model_Factory, Interface_Factory {
 	/**
-	 * Default option to store application version - may be stored differently in overridden classes, use
-	 *
+	 * @desc Default option to store application version - may be stored differently in overridden classes, use
 	 * @see self::version()
 	 * @var string
+	 * @copyright &copy; 2023 Market Acumen, Inc.
+	 * @package zesk
 	 */
 	public const OPTION_VERSION = 'version';
 
 	/**
-	 * Value used to instantiate the primary application
+	 * @desc Value used to instantiate the primary application
 	 * @see Kernel::createApplication()
 	 * @see self::applicationClass()
+	 * @copyright &copy; 2023 Market Acumen, Inc.
 	 */
 	public const OPTION_APPLICATION_CLASS = 'applicationClass';
 

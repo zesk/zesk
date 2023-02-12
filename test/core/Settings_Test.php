@@ -4,18 +4,18 @@ declare(strict_types=1);
 namespace zesk;
 
 class Settings_Test extends UnitTest {
-	public array $arrayTarget = [];
+	public static array $arrayTarget = [];
 
-	public array $arrayNoCaseTarget = [];
+	public static array $arrayNoCaseTarget = [];
 
-	public Configuration $testConfiguration;
+	public static Configuration $testConfiguration;
 
 	public static function data_settings_types(): array {
-		$this->testConfiguration = new Configuration();
+		self::$testConfiguration = new Configuration();
 		return [
-			[new Adapter_Settings_Array($this->arrayTarget)],
-			[new Adapter_Settings_Configuration($this->testConfiguration)],
-			[new Adapter_Settings_ArrayNoCase($this->arrayNoCaseTarget)],
+			[new Adapter_Settings_Array(self::$arrayTarget)],
+			[new Adapter_Settings_Configuration(new Configuration())],
+			[new Adapter_Settings_ArrayNoCase(self::$arrayNoCaseTarget)],
 		];
 	}
 

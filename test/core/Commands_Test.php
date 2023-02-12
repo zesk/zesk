@@ -38,6 +38,11 @@ Session: false
 World: false';
 
 	private static function commandTestArguments(): array {
+		$versionInitLines = [
+			'wrote /zesk/cache/testApp/etc/version-schema.json',
+			'wrote /zesk/cache/testApp/etc/version.json',
+			'',
+		];
 		return [
 			Command_Arguments::class => [
 				[['a', 'b', 'c'], 0, "[\"a\",\"b\",\"c\"]\n"], [['a', 'b', 'dee'], 0, "[\"a\",\"b\",\"dee\"]\n"],
@@ -45,12 +50,16 @@ World: false';
 				[['print'], 0, "zesk\\CacheItemPool_File\n"],
 				[['clear'], 0, "/zesk/cache/testApp/cache/ is empty.\nNo module cache clear hooks\n"],
 			], Command_Version::class => [
-				[
-					['--init'], 0, implode("\n", [
-						'wrote /zesk/cache/testApp/etc/version-schema.json', 'wrote /zesk/cache/testApp/etc/version.json',
-						'',
-					]),
-				], [[''], 0, '0.0.0.0'], [['--major'], 0, "Updated version from 0.0.0.0 to 1.0.0.0\n"],
+				[[function () {
+					Directory::depend(self::testApplication()->path('etc'));
+					foreach (['etc/version.json', 'etc/version-schema.json'] as $f) {
+						$f = self::testApplication()->path($f);
+						File::unlink($f);
+					}
+					return '--init';
+				}], 0, implode("\n", $versionInitLines), ],
+				[[], 0, '0.0.0.0'],
+				[['--major'], 0, "Updated version from 0.0.0.0 to 1.0.0.0\n"],
 				[['--minor'], 0, "Updated version from 1.0.0.0 to 1.1.0.0\n"],
 				[['--maintenance'], 0, "Updated version from 1.1.0.0 to 1.1.1.0\n"],
 				[['--patch'], 0, "Updated version from 1.1.1.0 to 1.1.1.1\n"],
@@ -61,11 +70,13 @@ World: false';
 			], Command_RunTime::class => [
 				[[''], 0, "/0\.[01][0-9]{2} sec\n/"],
 			], Command_Module::class => [
-				/* State is for application load time */ [[], 0, self::allFalseModules], [['--loaded'], 0, ''],
-				[['CSV'], 0, ''], [
-					['--no-ansi', 'NopeModule'], 1,
-					"ERROR: Failed loading module: NopeModule: NopeModule was not found in /zesk/modules\n",
-				], /* State is reset for application between calls */ [['--loaded'], 0, ''],
+				/* State is for application load time */
+				[[], 0, self::allFalseModules],
+				[['--loaded'], 0, "CSV : true\nDiff: true\n"],
+				[['CSV'], 0, ''],
+				[['--no-ansi', 'NopeModule'], 1, "ERROR: Failed loading module: NopeModule: NopeModule was not found in /zesk/modules\n",
+				], /* State is reset for application between calls */
+				[['--loaded'], 0, "CSV : true\nDiff: true\n"],
 			], Command_Maintenance::class => [
 				/* Maintenance uses state on disk so call updates state */ [[], 1, ''],
 				[['1'], 0, "Maintenance enabled\n"], [[], 0, ''], [['true'], 0, "Maintenance enabled\n"], [[], 0, ''],
@@ -100,17 +111,15 @@ World: false';
 				[['--format', 'json', '--computer-labels'], 0, '#version\": \"1\.0\.0#'],
 			], Command_CONF2JSON::class => [
 				[['--directory', self::applicationPath('test/test-data/conf2json')], 0, ''],
-				[['--directory', self::applicationPath('test/test-data/conf2json')], 0, ''],
-				[['--directory', self::applicationPath('test/test-data/conf2json'), '--noclobber'], 0, '#Will not overwrite#'],
-			],
-			Command_Module_Version::class => [
-				[[], 0, "Database: none\nMySQL: none\n"],
-				[['Database'], 0, "Database: none\n"],
-			],
-			Command_Cannon::class => [
+				[['--directory', self::applicationPath('test/test-data/conf2json')], 0, ''], [
+					['--directory', self::applicationPath('test/test-data/conf2json'), '--noclobber'], 0,
+					'#Will not overwrite#',
+				],
+			], Command_Module_Version::class => [
+				[[], 0, "CSV : none\nDiff: none\n"], [['CSV'], 0, "CSV: none\n"],
+			], Command_Cannon::class => [
 				[
-					['--dir', './test/test-data/cannon', '--dry-run', '--extensions', 'test', 'Foo', 'Blaze'],
-					0,
+					['--dir', './test/test-data/cannon', '--dry-run', '--extensions', 'test', 'Foo', 'Blaze'], 0,
 					File::contents(self::applicationPath('test/test-data/cannon/foo-result.txt')),
 				],
 			],
@@ -140,10 +149,7 @@ World: false';
 	 */
 	public function test_command(string $class, array $testArguments, int $expectedStatus, string $expectedOutput): void {
 		$this->testApplication->configure();
-		Directory::depend($this->testApplication->path('etc'));
-		File::unlink($this->testApplication->path('etc/version.json'));
-		File::unlink($this->testApplication->path('etc/version-schema.json'));
-
+		$testArguments = $this->applyClosures($testArguments);
 		$this->assertCommandClass($class, $testArguments, $expectedStatus, $expectedOutput);
 	}
 

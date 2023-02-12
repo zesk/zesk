@@ -2,24 +2,19 @@
 declare(strict_types=1);
 /**
  * @package zesk
- * @subpackage system
+ * @subpackage Locale
  * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
- * Created on Thu Apr 15 17:19:28 EDT 2010 17:19:28
  */
 
 namespace zesk;
 
-/**
- *
- * @author kent
- *
- */
 class Locale_EN extends Locale {
 	/**
-	 *
-	 * {@inheritDoc}
+	 * @desc {@inheritDoc}
 	 * @see Locale::date_format()
+	 * @copyright &copy; 2023 Market Acumen, Inc.
+	 * @package zesk
 	 */
 	public function date_format(): string {
 		return '{MMMM} {DDD}, {YYYY}';
@@ -76,7 +71,7 @@ class Locale_EN extends Locale {
 		];
 		$ss = $exceptions[strtolower($s)] ?? null;
 		if ($ss) {
-			return StringTools::case_match($ss, $s);
+			return StringTools::caseMatch($ss, $s);
 		}
 		return null;
 	}
@@ -94,16 +89,16 @@ class Locale_EN extends Locale {
 		}
 		$ess = $this->plural_en_exception($noun);
 		if ($ess) {
-			return StringTools::case_match($ess, $noun);
+			return StringTools::caseMatch($ess, $noun);
 		}
 		$s2 = strtolower(substr($noun, -2));
 		if ($s2 === 'ay') {
-			return StringTools::case_match($noun . 's', $noun);
+			return StringTools::caseMatch($noun . 's', $noun);
 		}
 		$s1 = substr($s2, 1, 1);
 		return match ($s1) {
-			'z', 's', 'x' => StringTools::case_match($noun . 'es', $noun),
-			'y' => StringTools::case_match(substr($noun, 0, -1) . 'ies', $noun),
+			'z', 's', 'x' => StringTools::caseMatch($noun . 'es', $noun),
+			'y' => StringTools::caseMatch(substr($noun, 0, -1) . 'ies', $noun),
 			default => $noun . 's',
 		};
 	}
@@ -174,7 +169,7 @@ class Locale_EN extends Locale {
 		];
 		foreach ($negative_prefixes as $prefix) {
 			if (str_starts_with(strtolower($word), $prefix)) {
-				return StringTools::case_match(trim(substr($word, strlen($prefix))), $word);
+				return StringTools::caseMatch(trim(substr($word, strlen($prefix))), $word);
 			}
 		}
 		return $preferred_prefix . $word;

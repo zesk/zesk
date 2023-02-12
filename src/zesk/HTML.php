@@ -3,9 +3,8 @@ declare(strict_types=1);
 /**
  * @version $URL$
  * @author $Author$
- * @package {package}
- * @subpackage {subpackage}
- * @copyright Copyright (C) 2016, {company}. All rights reserved.
+ * @package zesk
+ * @subpackage core
  */
 
 namespace zesk;
@@ -34,8 +33,6 @@ define('RE_TAG_NAME', '[' . RE_TAG_NAME_START_CHAR . ']' . '[' . RE_TAG_NAME_CHA
 
 /**
  * Abstraction of HTML markup language, with tools for generating and parsing HTML
- *
- * @author kent
  */
 class HTML {
 	/**
@@ -1260,7 +1257,7 @@ class HTML {
 			return $mixed;
 		} elseif ($mixed instanceof HTML_Tag) {
 			return $mixed->innerHTML();
-		} elseif (method_exists($mixed, '__toString')) {
+		} elseif (is_object($mixed) && method_exists($mixed, '__toString')) {
 			return $mixed->__toString();
 		} elseif (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
@@ -1423,7 +1420,7 @@ class HTML {
 
 		$tagContents = $tagName . $tagClose;
 
-		$nWords = Text::count_words(substr($string, 0, $offset));
+		$nWords = Text::countWords(substr($string, 0, $offset));
 		$tagMatchLength = strlen($tagMatch);
 		return [
 			'offset' => $offset, 'next' => $offset + $tagMatchLength, 'tagMatchLength' => $tagMatchLength,
@@ -1453,7 +1450,7 @@ class HTML {
 			$nextTag = self::countUntilTag($string);
 			if (count($nextTag) === 0) {
 				// No tags, treat as text
-				$result .= Text::trim_words($string, $wordCount);
+				$result .= Text::trimWords($string, $wordCount);
 
 				break;
 			}
@@ -1461,7 +1458,7 @@ class HTML {
 			$nWords = $nextTag['words'];
 			if ($nWords >= $wordCount) {
 				// May contain HTML tags, but they are guaranteed to be beyond what this extracts, always
-				$result .= Text::trim_words(substr($string, 0, $offset), $wordCount);
+				$result .= Text::trimWords(substr($string, 0, $offset), $wordCount);
 
 				break;
 			}

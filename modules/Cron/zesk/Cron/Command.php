@@ -65,7 +65,7 @@ class Command extends Command_Base {
 					];
 				}
 			}
-			echo Text::format_table($rows);
+			echo Text::formatTable($rows);
 			return 0;
 		}
 		$result = $cron->run();

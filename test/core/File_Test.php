@@ -58,7 +58,7 @@ class File_Test extends UnitTest {
 		File::atomicPut($path, $data);
 	}
 
-	public function base_data(): array {
+	public static function data_base(): array {
 		return [
 			['foo/bar/dee.inc', 'dee'],
 			['foo/bar/dee', 'dee'],
@@ -70,7 +70,7 @@ class File_Test extends UnitTest {
 	 * @param string $filename
 	 * @param string $expected
 	 * @return void
-	 * @dataProvider base_data
+	 * @dataProvider data_base
 	 */
 	public function test_base(string $filename, string $expected): void {
 		$this->assertEquals($expected, File::base($filename));
@@ -159,7 +159,7 @@ class File_Test extends UnitTest {
 	/**
 	 * @return array
 	 */
-	public function name_clean_data(): array {
+	public static function data_nameClean(): array {
 		return [
 			['yer!@#$the%^&*(()_+{}|dude.xml', '-', 'yer-the-_-dude.xml'],
 			['yer!@#$the%^&*(()_+{}|dude.xml', '_', 'yer_the_dude.xml'],
@@ -171,7 +171,7 @@ class File_Test extends UnitTest {
 	 * @param string $sep_char
 	 * @param string $expected
 	 * @return void
-	 * @dataProvider name_clean_data
+	 * @dataProvider data_nameClean
 	 */
 	public function test_name_clean(string $path, string $sep_char, string $expected): void {
 		$this->assertEquals($expected, File::nameClean($path, $sep_char));
@@ -180,7 +180,7 @@ class File_Test extends UnitTest {
 	/**
 	 * @return array[]
 	 */
-	public function path_check_data(): array {
+	public static function data_pathCheck(): array {
 		return [
 			['foo/' . chr(194) . 'bar/doo.xlsx', false],
 			['foo/../bar/.././doo.xlsx', false],
@@ -193,7 +193,7 @@ class File_Test extends UnitTest {
 	 * @param string $path_to_check
 	 * @param bool $is_valid
 	 * @return void
-	 * @dataProvider path_check_data
+	 * @dataProvider data_pathCheck
 	 */
 	public function test_path_check(string $path_to_check, bool $is_valid): void {
 		$this->assertEquals($is_valid, File::pathCheck($path_to_check));

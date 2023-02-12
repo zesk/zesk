@@ -198,7 +198,7 @@ class Command extends Command_Base implements Interface_Process {
 		}
 
 		if ($this->optionBool('debug-log')) {
-			echo Text::format_pairs(ArrayTools::filterKeyPrefixes($this->application->configuration->toArray(), 'log'));
+			echo Text::formatPairs(ArrayTools::filterKeyPrefixes($this->application->configuration->toArray(), 'log'));
 		}
 
 		$this->fifo_path = path($this->module->runPath, 'daemon-controller');
@@ -509,7 +509,7 @@ class Command extends Command_Base implements Interface_Process {
 					intval($delta)
 				) . $want;
 			}
-			echo Text::format_pairs($pairs);
+			echo Text::formatPairs($pairs);
 		}
 		return 0;
 	}

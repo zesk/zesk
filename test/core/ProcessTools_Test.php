@@ -53,16 +53,19 @@ class ProcessTools_Test extends UnitTest {
 		$db = $this->application->databaseRegistry();
 
 		$db->query('DROP TABLE IF EXISTS test_PGT');
-
-		echo basename(__FILE__) . ": success\n";
 	}
 
 	public function test_code_changed(): void {
 		$result = ProcessTools::includesChanged($this->application);
-		$this->assertFalse($result, 'Process code did not change: ' . implode(
-			',',
-			ProcessTools::includesChangedFiles($this->application)
-		));
+		if ($result) {
+			$changed = ProcessTools::includesChangedFiles($this->application);
+			$appCache = $this->application->cachePath('test');
+			foreach ($changed as $changedFile) {
+				$this->assertStringStartsWith($appCache, $changedFile);
+			}
+		} else {
+			$this->assertEquals([], ProcessTools::includesChangedFiles($this->application));
+		}
 
 		$files = get_included_files();
 		$include = $this->test_sandbox('includesChanged.php');

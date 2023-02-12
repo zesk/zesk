@@ -20,6 +20,22 @@ class TestApplicationUnitTest extends UnitTest {
 		$this->testApplication = $this->newApplicationFactory($this->testApplicationOptions);
 	}
 
+	/**
+	 * @return TestApplication
+	 * @throws Exception_Semantics
+	 */
+	public static function testApplication(): TestApplication {
+		$app = Kernel::singleton()->applicationByClass(TestApplication::class);
+		if (!$app) {
+			throw new Exception_Semantics('No TestApplication');
+		}
+		assert($app instanceof TestApplication);
+		return $app;
+	}
+
+	/**
+	 * @return void
+	 */
 	public function tearDown(): void {
 		$this->testApplication->shutdown();
 		unset($_SERVER['DOCUMENT_ROOT']);
@@ -53,6 +69,8 @@ class TestApplicationUnitTest extends UnitTest {
 			$this->application->path('test/etc/test.json'),
 			$this->application->path('test/etc/nope.json'),
 		]);
+		$newApplication->modules->load('Diff');
+		$newApplication->modules->load('CSV');
 		$this->assertInstanceOf(TestApplication::class, $newApplication);
 		return $newApplication;
 	}
@@ -100,7 +118,8 @@ class TestApplicationUnitTest extends UnitTest {
 				$this->expectOutputString($expectedOutputOrPattern);
 			}
 			$exitStatus = $command->go();
-			$this->assertEquals($expectedStatus, $exitStatus);
+			$this->assertEquals($expectedStatus, $exitStatus, "Command $class exited with incorrect code: " .
+				JSON::encode($testArguments));
 		}
 	}
 }

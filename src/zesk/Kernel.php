@@ -87,6 +87,16 @@ class Kernel {
 	}
 
 	/**
+	 * Find app by class
+	 *
+	 * @param string $class
+	 * @return Application|null
+	 */
+	public function applicationByClass(string $class): null|Application {
+		return $this->applications[$class] ?? null;
+	}
+
+	/**
 	 * @param Application $app
 	 * @return void
 	 */

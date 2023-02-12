@@ -38,7 +38,10 @@ class Functions_Test extends UnitTest {
 	}
 
 	public function test_calling_neg(): void {
-		$this->assertEquals($this->application->zeskHome('zesk/functions.php') . ' calling_function', calling_function(-1, false));
+		$this->assertEquals(
+			$this->application->zeskHome('src/zesk/functions.php') . ' calling_function',
+			calling_function(-1, false)
+		);
 	}
 
 	public function test_path(): void {

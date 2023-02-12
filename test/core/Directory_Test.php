@@ -192,7 +192,7 @@ class Directory_Test extends UnitTest {
 		$this->assertTrue(in_array(ZESK_ROOT . 'LICENSE.md', $files));
 		$this->assertFalse(in_array(ZESK_ROOT . 'LICENSE.md', $dirs));
 
-		$this->assertTrue(in_array(ZESK_ROOT . 'zesk', $dirs));
+		$this->assertTrue(in_array(ZESK_ROOT . 'src/zesk', $dirs));
 		$this->assertFalse(in_array(ZESK_ROOT . '.', $dirs));
 		$this->assertFalse(in_array(ZESK_ROOT . '..', $dirs));
 		$this->assertFalse(in_array(ZESK_ROOT . '.', $files));

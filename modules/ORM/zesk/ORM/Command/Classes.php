@@ -52,7 +52,7 @@ class Command_Classes extends Command_Base {
 		}
 		$format = $this->option('format');
 		if ($format === 'text' || empty($format)) {
-			echo Text::format_table($rows);
+			echo Text::formatTable($rows);
 		} else {
 			$this->renderFormat($rows);
 		}

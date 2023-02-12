@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
 /**
- * @version $URL: https://code.marketacumen.com/zesk/trunk/command/check.php $
  * @package zesk
  * @subpackage bin
  * @category Debugging
@@ -15,9 +14,19 @@ use SplFileInfo;
 
 /**
  * Check PHP code, and repair comments.
+ *
  * @category Debugging
  */
 class Command_Check extends Command_Iterator_File {
+	public const CODE_STRICT_TYPES = "declare(strict_types=1);\n";
+
+	/**
+	 *
+	 */
+	public const CODE_PHP_OPEN_TAG = '<?' . "php\n";
+
+	public const CODE_DOCCOMMENT_OPEN = "/**\n";
+
 	protected array $shortcuts = ['check', 'ck'];
 
 	/**
@@ -35,12 +44,9 @@ class Command_Check extends Command_Iterator_File {
 	 */
 	protected array $prefixes = [
 		'php' => [
-			'<?' . "php\ndeclare(strict_types=1);\n/**\n",
-			"#!{php_bin_path}\n<?php\ndeclare(strict_types=1);\n/**\n",
-		],
-		'inc' => '<?' . "php\n/**\n",
-		'tpl' => '<?' . "php\n",
-		//		"phpt" => "#!{php_bin_path}\n<?php\n"
+			self::CODE_PHP_OPEN_TAG . self::CODE_STRICT_TYPES . self::CODE_DOCCOMMENT_OPEN,
+			"#!{php_bin_path}\n" . self::CODE_PHP_OPEN_TAG . self::CODE_STRICT_TYPES . self::CODE_DOCCOMMENT_OPEN,
+		], 'inc' => self::CODE_PHP_OPEN_TAG . self::CODE_DOCCOMMENT_OPEN, 'tpl' => self::CODE_PHP_OPEN_TAG,
 	];
 
 	/**
@@ -49,11 +55,14 @@ class Command_Check extends Command_Iterator_File {
 	 */
 	protected array $prefixes_gremlins = [
 		'php' => [
-			'<?' . "php\n", '<?' . "php \n", "#!{php_bin_path}\n<?php\n",
-		], 'tpl' => '<?' . "php\n", 'inc' => [
-			'<?' . "php\n", '<?' . "php \n",
+			self::CODE_PHP_OPEN_TAG,
+			'<?' . "php \n", "#!{php_bin_path}\n" . self::CODE_PHP_OPEN_TAG,
 		],
-		//		"phpt" => "#!{php_bin_path}\n<?php\n"
+		'tpl' => self::CODE_PHP_OPEN_TAG,
+		'inc' => [
+			self::CODE_PHP_OPEN_TAG,
+			'<?' . "php \n",
+		],
 	];
 
 	/**
@@ -187,7 +196,10 @@ class Command_Check extends Command_Iterator_File {
 				$new_value = call_user_func($fixFunction, $items[$term], $term);
 				if ($new_value !== $items[$term]) {
 					$items[$term] = $new_value;
-					$translate[$source] = Text::indent(DocComment::instance($items, $comment_options)->content(), $indent_text);
+					$translate[$source] = Text::indentString(
+						DocComment::instance($items, $comment_options)->content(),
+						$indent_text
+					);
 				}
 			} elseif ($this->isAdd() && $addFunction) {
 				$new_value = call_user_func($addFunction, $items, $term);
@@ -255,7 +267,8 @@ class Command_Check extends Command_Iterator_File {
 	private function fix_prefix(string &$contents): bool {
 		$contents = ltrim($contents);
 		$author = $this->application->process->user();
-		$new_prefix = map("<?php\n/**\n * @author $author\n * @package {package}\n * @subpackage {subpackage}\n * @copyright " . $this->copyright_pattern() . "\n */\n", $this->options());
+		$contents = str_replace(self::CODE_STRICT_TYPES, '', $contents);
+		$new_prefix = map(self::CODE_PHP_OPEN_TAG . self::CODE_STRICT_TYPES . "/**\n * @author $author\n * @package {package}\n * @subpackage {subpackage}\n * @copyright " . $this->copyright_pattern() . "\n */\n", $this->options());
 		foreach ([
 			'#^(<\?php)#', '#^(<\?)[^=]#',
 		] as $pattern) {

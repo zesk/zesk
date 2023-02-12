@@ -59,6 +59,6 @@ class Locale_ES extends Locale {
 		if ($preferred_prefix === '') {
 			$preferred_prefix = 'pas de';
 		}
-		return StringTools::case_match('pas de ' . $word, $word);
+		return StringTools::caseMatch('pas de ' . $word, $word);
 	}
 }
