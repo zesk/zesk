@@ -5,12 +5,14 @@ declare(strict_types=1);
  */
 namespace zesk;
 
+use zesk\PHPUnit\ExceptionTestCase;
+
 /**
  *
  * @author kent
  *
  */
-class Exception_Test extends Exception_TestCase {
+class Exception_Test extends ExceptionTestCase {
 	public function test_exception_directory_not_found(): void {
 		$x = new Exception_Directory_NotFound(ZESK_ROOT);
 

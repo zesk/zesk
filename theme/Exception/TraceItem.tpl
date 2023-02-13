@@ -10,7 +10,7 @@ namespace zesk;
 
 $trace_item = $this->getArray('content');
 $file = $trace_item['file'] ?? '-no-file-';
-$line = $trace_item['line'] ?? '-no-line-';
+$line = strval($trace_item['line'] ?? '-no-line-');
 $function = $trace_item['function'];
 $class = $trace_item['class'] ?? '-no-class-';
 $type = $trace_item['type'] ?? '-no-type-';
@@ -33,5 +33,9 @@ echo HTML::tag(
 	HTML::etag('span', '.function', $function) .
 	HTML::tag('ol', '.args', $args)
 );
-echo HTML::tag('div', '.location', HTML::etag('span', 'file', $file) . ':' . HTML::etag('span', '.line', $line));
+echo HTML::tag(
+	'div',
+	'.location',
+	HTML::etag('span', 'file', $file) . ':' . HTML::etag('span', '.line', $line)
+);
 echo HTML::tag_close('li');

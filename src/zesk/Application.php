@@ -465,13 +465,6 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	private array $zeskCommandPath = [];
 
 	/**
-	 * Paths to search for shared content
-	 *
-	 * @var string[]
-	 */
-	private array $sharePath = [];
-
-	/**
 	 * Paths to search for locale files
 	 *
 	 * @var string[]
@@ -721,8 +714,6 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 		$this->modulePaths = [];
 		// Find Zesk commands here
 		$this->zeskCommandPath = [];
-		// Find share files for Controller_Share (move to internal module)
-		$this->sharePath = [];
 		// Where to store temporary files
 		$this->cachePath = '';
 		// Where our web server is pointing to
@@ -758,8 +749,6 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 			$this->addModulePath($this->defaultModulesPath());
 			$function = 'addThemePath';
 			$this->addThemePath($this->defaultThemePath());
-			$function = 'addSharePath';
-			$this->addSharePath($this->defaultSharePath(), 'zesk');
 			$function = 'addLocalePath';
 			$this->addLocalePath($this->defaultLocalePath());
 		} catch (Exception_Directory_NotFound $e) {
@@ -963,34 +952,6 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 */
 	private function defaultThemePath(): string {
 		return $this->paths->zesk('theme');
-	}
-
-	/**
-	 * Add the share path for this application - used to serve
-	 * shared content via Controller_Share as well as populate automatically with files within the
-	 * system.
-	 *
-	 * By default, it's /share/
-	 *
-	 * @param string $add
-	 * @param string $name
-	 * @return self
-	 * @throws Exception_Directory_NotFound
-	 */
-	final public function addSharePath(string $add, string $name): self {
-		if (!is_dir($add)) {
-			throw new Exception_Directory_NotFound($add);
-		}
-		$this->sharePath[$name] = $add;
-		return $this;
-	}
-
-	/**
-	 *
-	 * @return string
-	 */
-	private function defaultSharePath(): string {
-		return $this->paths->zesk('share');
 	}
 
 	/**
@@ -2006,21 +1967,6 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 */
 	public function beforeOutput(Request $request, Response $response): void {
 		// pass
-	}
-
-	/**
-	 * Retrieve the share path for this application, a mapping of prefixes to paths
-	 *
-	 * By default, it's /share/
-	 *
-	 * @return array
-	 *
-	 * for example, returns a value:
-	 *
-	 *  `[ "home" => "/publish/app/api/modules/home/share/" ]`
-	 */
-	final public function sharePath(): array {
-		return $this->sharePath;
 	}
 
 	/**

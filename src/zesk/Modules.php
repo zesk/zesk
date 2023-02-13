@@ -247,7 +247,6 @@ class Modules {
 		$this->_handleThemePath($modulePath, $configuration);
 		$this->_handleLocalePath($modulePath, $configuration);
 		$this->_handleZeskCommandPath($modulePath, $configuration);
-		$this->_handleSharePath($modulePath, $configuration, $name);
 	}
 
 	/**
@@ -301,21 +300,6 @@ class Modules {
 		$app = $this->application;
 		$this->_handleModuleDefaults($modulePath, 'zeskCommandPath', $moduleConfiguration, 'command', function ($path) use ($app): void {
 			$app->addZeskCommandPath($path);
-		});
-	}
-
-	/**
-	 * @param string $moduleName
-	 * @param string $modulePath
-	 * @param array $moduleConfiguration
-	 * @return void
-	 * @throws Exception_Directory_NotFound
-	 */
-	private function _handleSharePath(string $modulePath, array $moduleConfiguration, string $moduleName): void {
-		$sharePathName = $moduleConfiguration['sharePathName'] ?? $moduleName;
-		$app = $this->application;
-		$this->_handleModuleDefaults($modulePath, 'sharePath', $moduleConfiguration, $moduleName, function ($path) use ($app, $sharePathName): void {
-			$app->addSharePath($path, $sharePathName);
 		});
 	}
 

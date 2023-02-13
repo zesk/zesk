@@ -1,5 +1,13 @@
 <?php
 declare(strict_types=1);
+/**
+ * Tool to prevent pesky test output
+ *
+ * @package zesk
+ * @subpackage PHPUnit
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ */
 
 namespace zesk\PHPUnit;
 

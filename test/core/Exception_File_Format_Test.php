@@ -8,7 +8,9 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-class Exception_File_Format_Test extends Exception_TestCase {
+use zesk\PHPUnit\ExceptionTestCase;
+
+class Exception_File_Format_Test extends ExceptionTestCase {
 	public function test_basics(): void {
 		$testx = new Exception_File_Format();
 		$this->exception_test($testx);

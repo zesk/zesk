@@ -8,7 +8,9 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-class RuntimeException_Test extends Exception_TestCase {
+use zesk\PHPUnit\ExceptionTestCase;
+
+class RuntimeException_Test extends ExceptionTestCase {
 	public function test_basics(): void {
 		$exception = new RuntimeException();
 		$this->exception_test($exception);

@@ -1,9 +1,9 @@
 {
 	"name": "PHP Unit tests and tools to work with Zesk and PHPUnit",
-	"moduleClass": "zesk\\Module_PHPUnit",
+	"moduleClass": "zesk\\PHPUnit\\Module",
 	"autoload": {
-		"classPrefix": "zesk\\",
-		"first": true
+		"classPrefix": "zesk\\PHPUnit\\",
+		"path": "zesk/PHPUnit/"
 	},
 	"composer": {
 		"require": "phpunit/phpunit"

@@ -9,9 +9,9 @@ declare(strict_types=1);
 
 namespace zesk\CSV;
 
-use zesk\UnitTest;
-use zesk\Exception_Semantics;
 use zesk\Exception_Key;
+use zesk\Exception_Semantics;
+use zesk\UnitTest;
 
 class CSV_Writer_Test extends UnitTest {
 	protected array $load_modules = [

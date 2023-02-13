@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use function is_windows;
+use zesk\PHPUnit\TestCase;
 
 /**
  *
@@ -40,7 +41,7 @@ class testdir {
  * @author kent
  *
  */
-class Directory_Test extends UnitTest {
+class Directory_Test extends TestCase {
 	public static function data_isAbsolute(): array {
 		return [
 			[true, '/', ], [true, '/a', ], [true, '/a/b/c', ], [false, './'], [false, './place/to/go', ],

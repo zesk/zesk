@@ -14,6 +14,13 @@ namespace zesk;
  */
 class Controller_Share extends Controller {
 	/**
+	 * Paths to search for shared content
+	 *
+	 * @var string[]
+	 */
+	private array $sharePath = [];
+
+	/**
 	 * Whether to build the share directory as files are requested.
 	 *
 	 * Configure your webserver to run the main script upon missing file and
@@ -43,6 +50,56 @@ class Controller_Share extends Controller {
 
 	protected array $afterMethods = [
 	];
+
+	protected function initialize(): void {
+		parent::initialize();
+		// Share files for Controller_Share
+		$this->sharePath = [];
+		$this->addSharePath($this->defaultSharePath(), 'zesk');
+	}
+
+	/**
+	 * Add the share path for this application - used to serve
+	 * shared content via Controller_Share as well as populate automatically with files within the
+	 * system.
+	 *
+	 * By default, it's /share/
+	 *
+	 * @param string $add
+	 * @param string $name
+	 * @return self
+	 * @throws Exception_Directory_NotFound
+	 */
+	final public function addSharePath(string $add, string $name): self {
+		if (!is_dir($add)) {
+			throw new Exception_Directory_NotFound($add);
+		}
+		$this->sharePath[$name] = $add;
+		return $this;
+	}
+
+	/**
+	 * Retrieve the share path for this application, a mapping of prefixes to paths
+	 *
+	 * By default, it's /share/
+	 *
+	 * @return array
+	 *
+	 * for example, returns a value:
+	 *
+	 *  `[ "home" => "/publish/app/api/modules/home/share/" ]`
+	 */
+	final public function sharePath(): array {
+		return $this->sharePath;
+	}
+
+	/**
+	 *
+	 * @return string
+	 */
+	private function defaultSharePath(): string {
+		return $this->paths->zesk('share');
+	}
 
 	/**
 	 *

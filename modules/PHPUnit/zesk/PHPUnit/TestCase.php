@@ -1,15 +1,45 @@
 <?php
 declare(strict_types=1);
+/**
+ * Tool to prevent pesky test output
+ *
+ * @package zesk
+ * @subpackage PHPUnit
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ */
 
-namespace zesk;
+namespace zesk\PHPUnit;
 
 use Closure;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\TestCase as BaseTestCase;
+use ReflectionClass;
+use ReflectionException;
 use Throwable;
-use zesk\PHPUnit\StreamIntercept;
+use zesk\Application;
+use zesk\Configuration;
+use zesk\Directory;
+use zesk\Exception;
+use zesk\Exception_Class_NotFound;
+use zesk\Exception_Command;
+use zesk\Exception_Configuration;
+use zesk\Exception_Directory_NotFound;
+use zesk\Exception_File_Permission;
+use zesk\Exception_Invalid;
+use zesk\Exception_NotFound;
+use zesk\Exception_Semantics;
+use zesk\Exception_Unsupported;
+use zesk\File;
+use zesk\JSON;
+use zesk\Kernel;
+use zesk\Module;
+use zesk\Number;
+use zesk\PHP;
+use zesk\Timer;
+use zesk\URL;
 use function random_int;
 
-class PHPUnit_TestCase extends TestCase {
+class TestCase extends BaseTestCase {
 	/**
 	 *
 	 * @var ?Application
@@ -184,7 +214,7 @@ class PHPUnit_TestCase extends TestCase {
 	public function assertArrayHasKeys(string|array $keys, array $array, string $message = ''): void {
 		$keys = toList($keys);
 		foreach ($keys as $key) {
-			$this->assertArrayHasKey($key, $array);
+			$this->assertArrayHasKey($key, $array, $message);
 		}
 	}
 
@@ -239,7 +269,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * Assert that the expected value is an integer
 	 *
 	 * @param mixed $expected
-	 * @param string|null $message
+	 * @param string $message
 	 */
 	public function assertIsInteger(mixed $expected, string $message = ''): void {
 		$this->assertTrue(is_int($expected), $message ?: 'Item expected to be an integer but is a ' . type($expected));
@@ -248,7 +278,7 @@ class PHPUnit_TestCase extends TestCase {
 	/**
 	 * PHPUnit "echo" and "print" are captured, so we use fprintf(STDERR) to output test debugging stuff
 	 *
-	 * Generally, you should use these during development and remove them before commiting your changes.
+	 * Generally, you should use these during development and remove them before committing your changes.
 	 *
 	 * @param string $contents
 	 * @return void
@@ -281,7 +311,7 @@ class PHPUnit_TestCase extends TestCase {
 		}
 		$result = '';
 		do {
-			$result .= sha1(microtime(false), true);
+			$result .= sha1(microtime(), true);
 		} while (strlen($result) < $count);
 		return $result;
 	}
@@ -359,12 +389,17 @@ class PHPUnit_TestCase extends TestCase {
 		stream_filter_append($stream, 'testIntercept');
 	}
 
-	public function option(string $name, mixed $default = null): mixed {
-		return $this->configuration?->getPath($name, $default);
+	/**
+	 * @param string $name
+	 * @param mixed|null $default
+	 * @return mixed
+	 */
+	final public function option(string $name, mixed $default = null): mixed {
+		return $this->configuration?->getPath([get_class($this), $name], $default);
 	}
 
 	public function optionBool(string $name, bool $default = false): bool {
-		return toBool($this->configuration?->getPath($name, $default), null) ?? $default;
+		return toBool($this->option($name, $default), null) ?? $default;
 	}
 
 	/**
@@ -373,5 +408,155 @@ class PHPUnit_TestCase extends TestCase {
 	 */
 	public static function app(): Application {
 		return Kernel::singleton()->application();
+	}
+
+	public function awaitFile(string $filename, float $timeout = 5.0): void {
+		$timer = new Timer();
+		while (!is_file($filename) && !is_readable($filename)) {
+			usleep(10000);
+			$this->assertLessThan($timeout, $timer->elapsed(), "Timer elapsed beyond $timeout seconds awaiting $filename");
+		}
+	}
+
+	/**
+	 * @param string $includeFile
+	 * @return string[]
+	 */
+	protected function zeskBinIncludeArgs(string $includeFile): array {
+		return [$includeFile];
+	}
+
+	protected function zeskBin(): string {
+		$zeskBin = $this->application->zeskHome('bin/zesk');
+		$this->assertFileExists($zeskBin);
+		$this->assertFileIsReadable($zeskBin);
+		// 2>&1 Captures stderr to capture output with $captureFail
+		return "XDEBUG_ENABLED=0 $zeskBin {*} 2>&1";
+	}
+
+	/**
+	 * @param array $args
+	 * @param bool $captureFail
+	 * @return array Lines output
+	 * @throws Exception_Command
+	 */
+	protected function zeskBinExecute(array $args, bool $captureFail = false): array {
+		try {
+			return $this->application->process->executeArguments($this->zeskBin(), $args);
+		} catch (Exception_Command $e) {
+			if ($captureFail) {
+				return $e->getOutput();
+			}
+
+			throw $e;
+		}
+	}
+
+	/**
+	 * Run a PHP include file and return lines of output as an array.
+	 *
+	 * @param string $includeFile
+	 * @return array
+	 * @throws Exception_Command
+	 */
+	public function zeskEvalFile(string $includeFile): array {
+		return $this->application->process->executeArguments($this->zeskBin(), $this->zeskBinIncludeArgs($includeFile));
+	}
+
+	/**
+	 * Run a PHP include file in the background and return the PID of the process.
+	 *
+	 * @param string $includeFile
+	 * @return int
+	 * @throws Exception_Command
+	 */
+	public function zeskEvalFileProcess(string $includeFile): int {
+		$output = $this->test_sandbox(basename($includeFile) . '.log');
+		return $this->application->process->executeBackground($this->zeskBin(), $this->zeskBinIncludeArgs($includeFile), $output, $output);
+	}
+
+	/**
+	 * @param $message
+	 * @param array $args
+	 * @return void
+	 */
+	public function log($message, array $args = []): void {
+		$this->application->logger->debug($message, $args);
+	}
+
+	/**
+	 * Assert an object or class implements an interface
+	 *
+	 * @param string $interface_class
+	 * @param object|string $instanceof
+	 * @param string $message
+	 * @return void
+	 */
+	final public function assertImplements(string $interface_class, object|string $instanceof, string $message = ''): void {
+		$interfaces = class_implements($instanceof);
+		$this->assertInArray($interface_class, $interfaces, $message);
+	}
+
+	/**
+	 * @param mixed $mixed
+	 * @param array $array
+	 * @param string $message
+	 * @return void
+	 */
+	final protected function assertInArray(mixed $mixed, array $array, string $message = ''): void {
+		if (!empty($message)) {
+			$message .= "\n";
+		}
+		$message .= "Array does not contain value \"$mixed\" (values: " . implode(', ', array_values($array)) . ')';
+		$this->assertTrue(in_array($mixed, $array), $message);
+	}
+
+	/**
+	 * @param mixed $mixed
+	 * @param array $array
+	 * @param string $message
+	 * @return void
+	 */
+	final protected function assertNotInArray(mixed $mixed, array $array, string $message = ''): void {
+		if (!empty($message)) {
+			$message .= "\n";
+		}
+		$message .= "Array contains value and should not \"$mixed\" (values: " . implode(', ', array_values($array)) . ')';
+		$this->assertFalse(in_array($mixed, $array), $message);
+	}
+
+	/**
+	 * Central place to dump variables to output.
+	 * Use PHP output to facilitate generating tests whose output can be copied for first writing
+	 * and manual verification.
+	 *
+	 * @param mixed $value
+	 * @return string
+	 */
+	protected function dump(mixed $value): string {
+		return PHP::singleton()->settingsOneLine()->render($value);
+	}
+
+	/**
+	 * Given a class and a method, make the available method not-private to do blackbox testing
+	 *
+	 * @param string $class
+	 * @param array $methods
+	 * @return array
+	 * @throws ReflectionException
+	 */
+	public function exposePrivateMethod(string $class, array $methods): array {
+		$reflectionClass = new ReflectionClass($class);
+		$results = [];
+		foreach ($methods as $method) {
+			$classMethod = $reflectionClass->getMethod($method);
+			$classMethod->setAccessible(true);
+			$results[$method] = function ($object) use ($classMethod) {
+				$args = func_get_args();
+				array_shift($args);
+				return $classMethod->invokeArgs($object, $args);
+			};
+		}
+		return $results;
 	}
 }

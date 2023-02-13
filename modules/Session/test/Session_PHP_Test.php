@@ -6,10 +6,10 @@ declare(strict_types=1);
 
 namespace zesk\Session\Session\test;
 
+use zesk;
 use zesk\Interface_Session;
 use zesk\Request;
 use zesk\UnitTest;
-use zesk;
 
 /**
  * @todo inherit from Session_Test

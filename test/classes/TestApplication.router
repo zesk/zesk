@@ -1,3 +1,4 @@
+# This supports line comments like this
 home
     content="{request.remoteIP}"
     map=["request"]

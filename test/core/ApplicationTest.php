@@ -199,15 +199,15 @@ class ApplicationTest extends TestApplicationUnitTest {
 		/* autoloadPath */
 		$this->assertEquals([
 			'/zesk/modules/Diff/zesk/Diff/',
-			'/zesk/modules/CSV/classes',
+			'/zesk/modules/CSV/zesk/CSV/',
 		], array_keys($newApplication->autoloadPath()));
 
 		$newApplication->modules->loadMultiple(['PHPUnit', 'MySQL', 'Database']);
 		$paths = [];
-		$paths[] = $newApplication->zeskHome('modules/PHPUnit/classes');
 		$paths[] = $newApplication->zeskHome('modules/Diff/zesk/Diff/');
-		$paths[] = $newApplication->zeskHome('modules/CSV/classes');
-		$paths[] = $newApplication->zeskHome('modules/MySQL/classes');
+		$paths[] = $newApplication->zeskHome('modules/CSV/zesk/CSV/');
+		$paths[] = $newApplication->zeskHome('modules/PHPUnit/zesk/PHPUnit/');
+		$paths[] = $newApplication->zeskHome('modules/MySQL/MySQL/');
 		$paths[] = $newApplication->zeskHome('modules/Database/classes');
 		$this->assertEquals($paths, array_keys($newApplication->autoloadPath()));
 
