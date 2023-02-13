@@ -3,7 +3,8 @@
 	"name": "Net",
 	"moduleClass": "zesk\\Net\\Module",
 	"autoload": {
-		"classPrefix": "zesk\\Net\\"
+		"classPrefix": "zesk\\Net\\",
+		"path": "zesk/Net/"
 	},
 	"requires": [
 		"Mail"

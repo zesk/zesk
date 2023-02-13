@@ -1,7 +1,8 @@
 {
 	"name": "Session",
 	"autoload": {
-		"classPrefix": "zesk\\Session\\"
+		"classPrefix": "zesk\\Session\\",
+		"oath": "zesk/Session/"
 	},
 	"moduleClass": "zesk\\Session\\Module",
 	"requires": [

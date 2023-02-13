@@ -1,7 +1,8 @@
 {
 	"name": "CSV Reader/Writer",
 	"autoload": {
-		"classPrefix": "zesk\\CSV\\"
+		"classPrefix": "zesk\\CSV\\",
+		"path": "zesk/CSV/"
 	},
 	"moduleClass": "zesk\\CSV\\Module",
 	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."

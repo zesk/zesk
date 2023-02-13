@@ -185,4 +185,38 @@ class TestORM_Test extends ORMUnitTest {
 			$this->assertEquals($expected_class, '', 'mixedToClass should have failed with a parameter exception');
 		}
 	}
+
+//	public function test_auto_table_names(): void {
+//		$db = $this->application->databaseRegistry();
+//
+//		$db->setAutoTableNames(true);
+//		$db->setAutoTableNames(false);
+//	}
+
+
+	//	public static function data_setAutoTableNamesOptions(): array {
+//		return [
+//			[['name' => 'value'], ],
+//		];
+//	}
+
+
+//	/**
+//	 * @param array $set
+//	 * @return void
+//	 * @dataProvider data_setAutoTableNamesOptions
+//	 */
+//	public function test_setAutoTableNamesOptions(array $set): void {
+//		$db = $this->application->databaseRegistry();
+//
+//		$db->setAutoTableNamesOptions($set);
+//		$this->assertEquals($set, $db->autoTableNamesOptions());
+//	}
+//
+//	public function test_auto_table_names_replace(): void {
+//		$db = $this->application->databaseRegistry();
+//		$this->application->objects->setMap(['ponies' => User::class]);
+//
+//		$this->assertEquals('SELECT * FROM `User`', $db->autoTableRename('SELECT * FROM {ponies}'));
+//	}
 }

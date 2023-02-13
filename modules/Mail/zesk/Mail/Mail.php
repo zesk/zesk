@@ -658,7 +658,7 @@ class Mail extends Hookable {
 			$m .= '--' . $htmlMIMEBoundary . $eol;
 			$m .= "Content-Type: text/plain; charset=$charset" . $eol;
 			$m .= 'Content-Transfer-Encoding: quoted-printable' . $eol . $eol;
-			$m .= quoted_printable_encode($mail_options['body_text']) . $eol . $eol;
+			$m .= Mail . phpquoted_printable_encode($mail_options['body_text']) . $eol . $eol;
 		}
 
 		if (array_key_exists('body_html', $mail_options)) {
@@ -666,7 +666,7 @@ class Mail extends Hookable {
 			$m .= '--' . $htmlMIMEBoundary . $eol;
 			$m .= "Content-Type: text/html; charset=$charset" . $eol;
 			$m .= 'Content-Transfer-Encoding: quoted-printable' . $eol . $eol;
-			$m .= quoted_printable_encode($mail_options['body_html']) . $eol . $eol;
+			$m .= Mail . phpquoted_printable_encode($mail_options['body_html']) . $eol . $eol;
 		}
 
 		//close the html/plain text alternate portion
