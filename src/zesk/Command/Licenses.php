@@ -64,6 +64,7 @@ class Command_Licenses extends Command_Base {
 				$result[$moduleName] = $info + $licenseInfo;
 			}
 		}
+		ksort($result);
 		if ($this->optionBool('json')) {
 			echo JSON::encodePretty($result);
 		} else {
