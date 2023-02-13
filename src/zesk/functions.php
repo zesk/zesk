@@ -871,7 +871,7 @@ function parse_time(string $ts): ?int {
  * @return boolean true if $x is a valid date
  */
 function is_date(mixed $x): bool {
-	if (empty($x)) {
+	if (empty($x) || !is_string($x)) {
 		return false;
 	}
 	$result = @strtotime($x);

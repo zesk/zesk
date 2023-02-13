@@ -96,7 +96,7 @@ class TestApplicationUnitTest extends UnitTest {
 	 * @throws Exception_Unsupported|Exception_Class_NotFound
 	 */
 	public function assertCommandClass(string $class, array $testArguments, int $expectedStatus, string $expectedOutputOrPattern): void {
-		$options = ['exit' => false];
+		$options = ['exit' => false, 'no-ansi' => true];
 
 		$command = $this->testApplication->factory($class, $this->testApplication, $options);
 		$this->assertInstanceOf(Command::class, $command);
@@ -106,6 +106,7 @@ class TestApplicationUnitTest extends UnitTest {
 		$hasTest = count($testArguments) !== 0;
 		array_unshift($testArguments, $command::class);
 		$command->parseArguments($testArguments);
+		$this->assertTrue($command->optionBool('no-ansi'), $class);
 		if ($hasTest) {
 			$foundQuote = '';
 			unquote($expectedOutputOrPattern, '##//', $foundQuote);

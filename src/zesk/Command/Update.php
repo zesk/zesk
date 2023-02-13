@@ -36,7 +36,7 @@ class Command_Update extends Command_Base {
 		'*' => 'A list of modules to download and update',
 	];
 
-	protected array $option_defaults = [
+	protected array $options = [
 		'composer-update' => false, 'timeout' => 120000,
 	];
 

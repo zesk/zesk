@@ -44,7 +44,7 @@ class Command extends Command_Base {
 	 *
 	 * @var array
 	 */
-	protected array $option_defaults = [
+	protected array $options = [
 		'description' => 'Release of version {version}.',
 		'commitish' => 'master',
 	];

@@ -59,10 +59,10 @@ abstract class Command_File_Convert extends Command_Base {
 			'mkdir-target' => 'boolean',
 			'*' => 'files',
 		];
-		$this->option_defaults += [
+		$this->setOptions([
 			'extension' => $this->destination_extension,
 			'target-path' => './',
-		];
+		], false);
 		$this->option_help += [
 			'nomtime' => 'Ignore destination file modification time when determining whether to generate',
 			'noclobber' => 'Do not overwrite existing files',

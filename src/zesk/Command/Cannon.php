@@ -261,10 +261,10 @@ class Command_Cannon extends Command_Base {
 					$rabbit => $search,
 				]) . "\n";
 				if (!$sameLength) {
-					echo Text::rightAlign('', 4) . '  ' . strtr($carrot_line, $carrotSearch) . "\n";
+					echo Text::rightAlign('', 4) . '  ' . rtrim(strtr($carrot_line, $carrotSearch)) . "\n";
 				}
 				echo Text::rightAlign(strval($lineno + 1), 4) . ': ' . strtr($line, $replace_tr) . "\n";
-				echo Text::rightAlign('', 4) . '  ' . strtr($carrot_line, $carrotReplace) . "\n";
+				echo Text::rightAlign('', 4) . '  ' . rtrim(strtr($carrot_line, $carrotReplace)) . "\n";
 			}
 			return count($lines);
 		}

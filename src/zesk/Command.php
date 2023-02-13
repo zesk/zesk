@@ -144,13 +144,6 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	protected array $option_types = [];
 
 	/**
-	 * Array of option name => option default value
-	 *
-	 * @var array
-	 */
-	protected array $option_defaults = [];
-
-	/**
 	 * Array of option name => value as passed and parsed on the command line
 	 *
 	 * @var array
@@ -247,7 +240,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	public function parseArguments(array $argv): self {
 		$this->initialize();
 
-		$this->setOptions($this->parseOptionDefaults($this->option_defaults));
+		$this->setOptions($this->parseOptionDefaults());
 
 		$this->program = array_shift($argv) ?? get_class($this);
 		$this->arguments = $argv;
@@ -623,20 +616,20 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param array $options
 	 * @return array
 	 */
-	private function parseOptionDefaults(array $options = []): array {
+	private function parseOptionDefaults(): array {
+		$options = [];
 		foreach ($this->option_types as $k => $t) {
 			$newKey = self::_optionKey($k);
 			switch (strtolower($t)) {
 				case 'boolean':
-					$options[$newKey] = toBool($options[$k] ?? false);
+					$options[$newKey] = $this->optionBool($newKey);
 
 					break;
 				default:
-					$v = $options[$k] ?? null;
+					$v = $this->option($newKey);
 					if ($v !== null) {
 						$options[$newKey] = $v;
 					}
-
 					break;
 			}
 		}
@@ -684,7 +677,8 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			}
 		}
 		$prefix = '';
-		$severity = strtolower($context['_severity'] ?? $context['severity'] ?? 'none');
+		$severity = strtolower($context['_severity'] ?? $context['severity'] ?? LogLevel::INFO);
+
 		if ($severity && !$this->isANSI()) {
 			$prefix = strtoupper($severity) . ': ';
 		}

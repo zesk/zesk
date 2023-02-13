@@ -39,8 +39,8 @@ World: false';
 
 	private static function commandTestArguments(): array {
 		$versionInitLines = [
-			'wrote /zesk/cache/testApp/etc/version-schema.json',
-			'wrote /zesk/cache/testApp/etc/version.json',
+			'INFO: wrote /zesk/cache/testApp/etc/version-schema.json',
+			'INFO: wrote /zesk/cache/testApp/etc/version.json',
 			'',
 		];
 		return [
@@ -48,7 +48,7 @@ World: false';
 				[['a', 'b', 'c'], 0, "[\"a\",\"b\",\"c\"]\n"], [['a', 'b', 'dee'], 0, "[\"a\",\"b\",\"dee\"]\n"],
 			], Command_Cache::class => [
 				[['print'], 0, "zesk\\CacheItemPool_File\n"],
-				[['clear'], 0, "/zesk/cache/testApp/cache/ is empty.\nNo module cache clear hooks\n"],
+				[['clear'], 0, "NOTICE: /zesk/cache/testApp/cache/ is empty.\nNOTICE: No module cache clear hooks\n"],
 			], Command_Version::class => [
 				[[function () {
 					Directory::depend(self::testApplication()->path('etc'));
@@ -59,12 +59,12 @@ World: false';
 					return '--init';
 				}], 0, implode("\n", $versionInitLines), ],
 				[[], 0, '0.0.0.0'],
-				[['--major'], 0, "Updated version from 0.0.0.0 to 1.0.0.0\n"],
-				[['--minor'], 0, "Updated version from 1.0.0.0 to 1.1.0.0\n"],
-				[['--maintenance'], 0, "Updated version from 1.1.0.0 to 1.1.1.0\n"],
-				[['--patch'], 0, "Updated version from 1.1.1.0 to 1.1.1.1\n"],
-				[['--decrement', '--minor'], 0, "Updated version from 1.1.1.1 to 1.0.0.0\n"],
-				[['--major', '--minor'], 0, "Updated version from 1.0.0.0 to 2.1.0.0\n"],
+				[['--major'], 0, "INFO: Updated version from 0.0.0.0 to 1.0.0.0\n"],
+				[['--minor'], 0, "INFO: Updated version from 1.0.0.0 to 1.1.0.0\n"],
+				[['--maintenance'], 0, "INFO: Updated version from 1.1.0.0 to 1.1.1.0\n"],
+				[['--patch'], 0, "INFO: Updated version from 1.1.1.0 to 1.1.1.1\n"],
+				[['--decrement', '--minor'], 0, "INFO: Updated version from 1.1.1.1 to 1.0.0.0\n"],
+				[['--major', '--minor'], 0, "INFO: Updated version from 1.0.0.0 to 2.1.0.0\n"],
 			], Command_Shell::class => [
 				[['intval($app->option("isSecondary"))'], 0, "# return 1\n"],
 			], Command_RunTime::class => [
@@ -74,17 +74,19 @@ World: false';
 				[[], 0, self::allFalseModules],
 				[['--loaded'], 0, "CSV : true\nDiff: true\n"],
 				[['CSV'], 0, ''],
-				[['--no-ansi', 'NopeModule'], 1, "ERROR: Failed loading module: NopeModule: NopeModule was not found in /zesk/modules\n",
+				[['NopeModule'], 1, "ERROR: Failed loading module: NopeModule: NopeModule was not found in /zesk/modules\n",
 				], /* State is reset for application between calls */
 				[['--loaded'], 0, "CSV : true\nDiff: true\n"],
 			], Command_Maintenance::class => [
 				/* Maintenance uses state on disk so call updates state */ [[], 1, ''],
-				[['1'], 0, "Maintenance enabled\n"], [[], 0, ''], [['true'], 0, "Maintenance enabled\n"], [[], 0, ''],
-				[['false'], 0, "Maintenance disabled\n"], [[], 1, ''], [
+				[['1'], 0, "INFO: Maintenance enabled\n"], [[], 0, ''], [['true'], 0, "INFO: Maintenance enabled\n"],
+				[[],
+					0, '', ],
+				[['false'], 0, "INFO: Maintenance disabled\n"], [[], 1, ''], [
 					['This is a maintenance message'], 0,
-					"Maintenance enabled with message \"This is a maintenance message\"\n",
-				], [[], 0, "This is a maintenance message\n"], [['true'], 0, "Maintenance enabled\n"], [[], 0, ''],
-				[['false'], 0, "Maintenance disabled\n"], [[], 1, ''],
+					"INFO: Maintenance enabled with message \"This is a maintenance message\"\n",
+				], [[], 0, "This is a maintenance message\n"], [['true'], 0, "INFO: Maintenance enabled\n"], [[], 0, ''],
+				[['false'], 0, "INFO: Maintenance disabled\n"], [[], 1, ''],
 			], Command_Licenses::class => [
 				[[], 0, ''], [['--all'], 0, File::contents(self::applicationPath('test/test-data/license.txt'))],
 				[['--all', '--json'], 0, File::contents(self::applicationPath('test/test-data/license.json'))],
