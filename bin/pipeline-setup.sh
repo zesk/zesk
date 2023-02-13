@@ -25,9 +25,10 @@ top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
 docker=$(which docker)
 envFile="$top/.env"
 quietLog="$top/.build/$me.log"
-envs=(DATABASE_ROOT_PASSWORD DATABASE_HOST DATABASE_PORT)
+envs=(DATABASE_ROOT_PASSWORD DATABASE_HOST CONTAINER_DATABASE_HOST DATABASE_PORT)
 DATABASE_PORT=${DATABASE_PORT:-3306}
 DATABASE_HOST=${DATABASE_HOST}
+CONTAINER_DATABASE_HOST=${CONTAINER_DATABASE_HOST:-host.docker.internal}
 
 set -eo pipefail
 
@@ -131,7 +132,7 @@ start=$(($(date +%s) + 0))
 consoleCyan
 echo -n "Build container ... "
 figlet "Build container" >> "$quietLog"
-if ! docker build "${cleanArgs[@]}" --build-arg "DATABASE_HOST=$DATABASE_HOST" -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
+if ! docker build "${cleanArgs[@]}" --build-arg "DATABASE_HOST=$CONTAINER_DATABASE_HOST" -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
   failed "$quietLog"
   exit $ERR_BUILD
 fi
