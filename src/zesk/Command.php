@@ -661,7 +661,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 				}
 				return;
 			}
-			$message = Text::format_pairs($message);
+			$message = Text::formatPairs($message);
 		} else {
 			$message = strval($message);
 		}
@@ -1406,7 +1406,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 				break;
 			case self::FORMAT_TEXT:
 				if (count($content) > 0) {
-					echo Text::format_pairs($content);
+					echo Text::formatPairs($content);
 				}
 				break;
 			default:

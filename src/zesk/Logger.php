@@ -94,7 +94,7 @@ class Logger implements LoggerInterface {
 				$pairs['Handler at ' . $level] = 'None';
 			}
 		}
-		return Text::format_pairs($pairs);
+		return Text::formatPairs($pairs);
 	}
 
 	/**

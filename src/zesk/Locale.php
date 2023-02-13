@@ -234,7 +234,7 @@ abstract class Locale extends Hookable {
 			$translated = $this->translation_table[$key_phrase];
 			$translated = map($translated, $arguments);
 			if ($key_phrase !== $phrase) {
-				$translated = StringTools::case_match($translated, $phrase);
+				$translated = StringTools::caseMatch($translated, $phrase);
 			}
 		}
 		return $translated;

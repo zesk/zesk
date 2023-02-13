@@ -171,7 +171,7 @@ class Command_Cannon extends Command_Base {
 				$stats['skipped']++;
 			}
 		}
-		$this->log(Text::format_pairs($stats));
+		$this->log(Text::formatPairs($stats));
 		return 0;
 	}
 

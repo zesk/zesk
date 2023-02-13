@@ -374,7 +374,7 @@ function toText(mixed $mixed): string {
 		return 'null';
 	}
 	if (is_array($mixed)) {
-		return Text::format_pairs($mixed);
+		return Text::formatPairs($mixed);
 	}
 	return strval($mixed);
 }

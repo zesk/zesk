@@ -402,7 +402,7 @@ class File {
 	 */
 	public static function atomicPut(string $path, string $data): bool {
 		$fp = fopen($path, 'w+b');
-		if (!isResource($fp)) {
+		if (!is_resource($fp)) {
 			throw new Exception_File_NotFound($path, 'File::atomicPut not found');
 		}
 		$until = time() + 10;
@@ -503,7 +503,7 @@ class File {
 	 */
 	public static function append(string $filename, string $content): int {
 		$mode = file_exists($filename) ? 'a' : 'w';
-		if (!isResource($f = fopen($filename, $mode))) {
+		if (!is_resource($f = fopen($filename, $mode))) {
 			throw new Exception_File_Permission($filename, 'Can not open {path} with mode {mode} to append {n} bytes of content', [
 				'mode' => $mode, 'n' => strlen($content),
 			]);
@@ -796,7 +796,7 @@ class File {
 			throw new Exception_File_NotFound($path);
 		}
 		$ss['path'] = $path;
-		$ss['isResource'] = false;
+		$ss['is_resource'] = false;
 		$s = self::expandStats($ss);
 		if ($section !== null) {
 			return $s[$section] ?? [];
@@ -815,12 +815,12 @@ class File {
 	 * @throws Exception_File_NotFound
 	 */
 	public static function resourceStat(mixed $path, string $section = null): array {
-		assert(isResource($path));
+		assert(is_resource($path));
 		$ss = @fstat($path);
 		if (!$ss) {
 			throw new Exception_File_NotFound(_dump($path));
 		}
-		$ss['isResource'] = true;
+		$ss['is_resource'] = true;
 		$s = self::expandStats($ss);
 		if ($section !== null) {
 			return $s[$section] ?? [];
@@ -839,7 +839,7 @@ class File {
 	public static function expandStats(array $ss): array {
 		$o777 = 511; /* 0o777 */
 
-		$isResource = $ss['isResource'] ?? false;
+		$is_resource = $ss['is_resource'] ?? false;
 		$path = $ss['path'] ?? null;
 		$p = $ss['mode'];
 		$modeString = self::modeToString($p);
@@ -863,10 +863,10 @@ class File {
 				'group' => self::nameFromGID($ss['gid']),
 			],
 			self::STATS_NAME => [
-				'filename' => $isResource ? null : $path,
-				'realpath' => $isResource ? null : realpath($path),
-				'dirname' => $isResource ? null : dirname($path),
-				'basename' => $isResource ? null : basename($path),
+				'filename' => $is_resource ? null : $path,
+				'realpath' => $is_resource ? null : realpath($path),
+				'dirname' => $is_resource ? null : dirname($path),
+				'basename' => $is_resource ? null : basename($path),
 			],
 			self::STATS_TYPE => [
 				self::STATS_TYPE => $type,
@@ -899,7 +899,7 @@ class File {
 			],
 		];
 
-		if (!$isResource) {
+		if (!$is_resource) {
 			clearstatcache(false, $path);
 		}
 		return $s;
