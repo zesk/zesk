@@ -13,7 +13,7 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-use zesk\ORM\User;
+use zesk\ORM\Server;
 
 /**
  *
@@ -28,23 +28,23 @@ class Overhead_Test extends UnitTest {
 
 	public function test_usage(): void {
 		$test_limit = 10 * 1024 * 1024; // 10M
-		$users = [];
+		$servers = [];
 		$start = memory_get_usage();
 		$stop = $start + $test_limit;
 		// echo "Start=$start, Stop=$stop\n";
 		do {
-			$users[] = new User($this->application, 1);
+			$servers[] = new Server($this->application, 1);
 			$current = memory_get_usage();
 			// echo "Current=$current\n";
-			$delta = $current - $start;
+			// $delta = $current - $start;
 			// $this->log(count($users) . " users fit in $delta (" . Number::format_bytes($delta) . ")");
 			// echo "$current < $stop, " . ($current < $stop) . "\n";
 		} while ($current < $stop);
-		$nusers = count($users);
-		$this->log('{nusers} users fit in {bytes}, or {per_user} per user', [
-			'nusers' => $nusers,
+		$nObjects = count($servers);
+		$this->log('{nObjects} objects fit in {bytes}, or {perObject} per object', [
+			'nObjects' => $nObjects,
 			'bytes' => Number::formatBytes($this->application->locale, $test_limit),
-			'per_user' => Number::formatBytes($this->application->locale, intval($test_limit / $nusers)),
+			'perObject' => Number::formatBytes($this->application->locale, intval($test_limit / $nObjects)),
 		]);
 	}
 
