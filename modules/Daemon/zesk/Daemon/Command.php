@@ -335,7 +335,7 @@ class Command extends Command_Base implements SystemProcess {
 		// Prevent idiot errors
 		if ($total_process_count > $max) {
 			throw new ConfigurationException([
-				__CLASS__, 'maximum_processes'
+				__CLASS__, 'maximum_processes',
 			], 'Total daemon processes are {total_process_count}, greater than {max} processes. Update {class}::process_count configuration or fix code so fewer processes are created.', [
 				'total_process_count' => $total_process_count, 'class' => __CLASS__, 'max' => $max,
 			]);
@@ -595,7 +595,7 @@ class Command extends Command_Base implements SystemProcess {
 
 		declare(ticks=1) {
 			// KMD: Safely ignore E_WARNING about interrupted system call here TODO 2023 PHP 8.1
-			set_error_handler(fn() => true, E_WARNING);
+			set_error_handler(fn () => true, E_WARNING);
 			$result = @stream_select($readers, $writers, $except, $sec, $usec);
 			restore_error_handler();
 			if ($result) {
@@ -811,8 +811,8 @@ class Command extends Command_Base implements SystemProcess {
 					]);
 				} elseif ($database[$name]['pid'] !== $pid) {
 					$this->application->logger->error('Child sent PID which doesn\'t match our database (Child sent {childpid}, we have {pid}?', $database[$name] + [
-							'childpid' => $pid,
-						]);
+						'childpid' => $pid,
+					]);
 				}
 			} elseif ($pid === null || $pid === 'down') {
 				// Child dying or died, be sure to waitpid for it to allow safe exit
